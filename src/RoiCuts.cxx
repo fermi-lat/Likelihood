@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.10 2003/10/24 01:57:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.11 2003/11/04 19:24:03 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -14,6 +14,8 @@
 #include "xml/Dom.h"
 #include <xercesc/dom/DOM_Element.hpp>
 #include <xercesc/dom/DOM_NodeList.hpp>
+
+#include "facilities/Util.h"
 
 #include "optimizers/Dom.h"
 
@@ -46,7 +48,11 @@ void RoiCuts::setCuts(double ra, double dec, double roi_radius) {
    s_muZenMax = -1.;
 }
 
-void RoiCuts::setCuts(const std::string &xmlFile) {
+void RoiCuts::setCuts(std::string xmlFile) {
+
+// Expand any environment variables in the xmlFile name.
+   facilities::Util::expandEnvVar(&xmlFile);
+
    xml::XmlParser *parser = new xml::XmlParser();
 
    DOM_Document doc = parser->parse(xmlFile.c_str());

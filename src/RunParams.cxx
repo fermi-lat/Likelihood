@@ -4,7 +4,7 @@
  * command-line parameters.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.1 2003/11/05 03:41:24 jchiang Exp $
  */
 
 #include "Likelihood/RunParams.h"
@@ -22,12 +22,11 @@ RunParams::RunParams(int iargc, char* argv[]) {
    pf->Group() = m_prompter->Group();
    pf->Save();
 
-//   delete pf;
+   delete pf;
 }
 
 RunParams::~RunParams() {
    delete m_prompter;
-//   delete pf;
 }
 
 } // namespace Likelihood

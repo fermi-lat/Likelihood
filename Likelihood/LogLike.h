@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.3 2003/10/25 00:22:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.4 2003/11/05 16:55:17 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.3 2003/10/25 00:22:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.4 2003/11/05 16:55:17 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -50,7 +50,7 @@ public:
    virtual void getFreeDerivs(optimizers::Arg&, 
                               std::vector<double> &freeDerivs) const;
 
-   void getEvents(const std::string &event_file, int hdu);
+   void getEvents(std::string event_file, int hdu);
 
    void computeEventResponses(Source &src, double sr_radius = 30);
 
@@ -60,8 +60,7 @@ public:
    void computeEventResponses(double sr_radius = 30);
 
 // Methods and data members from old Likelihood::Statistic:
-   void readEventData(const std::string &eventFile, 
-                      const std::string &colnames, int hdu);
+   void readEventData(const std::string &eventFile, int hdu);
 
    std::pair<long, double*> getEventColumn(const std::string &colname) const
       {return getColumn(*m_eventData, colname);}

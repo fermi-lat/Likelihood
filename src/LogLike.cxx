@@ -3,13 +3,15 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.3 2003/10/25 00:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.4 2003/11/05 16:55:19 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
 #include <cassert>
+
+#include "facilities/Util.h"
 
 #include "latResponse/../src/Table.h"
 
@@ -76,11 +78,11 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
       freeDerivs.push_back(logSrcModelDerivs[i] - NpredDerivs[i]);
 }
 
-void LogLike::getEvents(const std::string &event_file, int hdu) {
+void LogLike::getEvents(std::string event_file, int hdu) {
 
-   std::string colnames = "RA DEC energy time SC_x SC_y SC_z zenith_angle";
+   facilities::Util::expandEnvVar(&event_file);
 
-   readEventData(event_file, colnames, hdu);
+   readEventData(event_file, hdu);
 
    typedef std::pair<long, double*> tableColumn;
    tableColumn ra = getEventColumn("RA");
@@ -157,11 +159,9 @@ void LogLike::computeEventResponses(double sr_radius) {
 // Methods from the old Likelihood::Statistic class:
 //
 // read in the event data
-void LogLike::readEventData(const std::string &eventFile, 
-                            const std::string &colnames, int hdu) {
+void LogLike::readEventData(const std::string &eventFile, int hdu) {
    m_eventFile = eventFile;
    m_eventHdu = hdu;
-//   m_eventData.add_columns(colnames);
 
    delete m_eventData;
    m_eventData = new latResponse::Table();

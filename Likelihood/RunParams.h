@@ -3,7 +3,7 @@
  * @brief Wrapper class for the hoops interface.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.1 2003/11/05 03:41:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.2 2003/11/05 16:55:18 jchiang Exp $
  */
 
 #ifndef Likelihood_RunParams_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.1 2003/11/05 03:41:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.2 2003/11/05 16:55:18 jchiang Exp $
  */
 
 class RunParams {
@@ -88,6 +88,20 @@ public:
    long long_par(const std::string &name) const {
       try {
          long value = (m_prompter->Group())[name];
+         return value;
+      } catch (hoops::Hexception &eObj) {
+         std::cout << eObj.Msg() << "\n"
+                   << eObj.Code() << std::endl;
+         assert(false);
+      } catch (...) {
+         std::cout << name << std::endl;
+         assert(false);
+      }
+   }
+
+   bool bool_par(const std::string &name) const {
+      try {
+         bool value = (m_prompter->Group())[name];
          return value;
       } catch (hoops::Hexception &eObj) {
          std::cout << eObj.Msg() << "\n"

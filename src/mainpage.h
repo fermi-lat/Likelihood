@@ -2,7 +2,7 @@
 
 /** @mainpage package Likelihood
 
- @authors James Chiang, Toby Burnett, Pat Nolan, Karl Young, and others
+ @authors James Chiang, Pat Nolan, Karl Young, Toby Burnett, and others
 
  @section intro Introduction
 
@@ -20,9 +20,9 @@
  response function data (i.e., CALDB).
 
  However, the classes and methods used here are intended to be
- sufficiently general so that any properly implemented Statistic
- subclass should be able to be analyzed with this package, whether the
- Statistic is LAT-specific or not.
+ sufficiently general so that any properly implemented objective
+ function should be able to be analyzed with this package, whether it
+ is LAT-specific or not.
 
  @section LatStatModel The Unbinned log-Likelihood
 

@@ -150,7 +150,7 @@ void fit_DiffuseSource() {
 // read in the spacecraft data
    std::string sc_file = test_path + "Data/" + obs_root + "_sc_0000";
    int sc_hdu = 2;
-   ScData::readData(sc_file, sc_hdu);
+   ScData::readData(sc_file, sc_hdu, true);
 
    std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
 //   std::string expfile = "exp_" + obs_root + ".fits";
@@ -530,7 +530,7 @@ void test_SourceFactory() {
 // read in the spacecraft data
    std::string sc_file = test_path + "Data/" + obs_root + "_sc_0000";
    int sc_hdu = 2;
-   ScData::readData(sc_file, sc_hdu);
+   ScData::readData(sc_file, sc_hdu, true);
 
    std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
 //   std::string expfile = "exp_" + obs_root + ".fits";
@@ -659,7 +659,7 @@ void fit_anti_center() {
 /* read in the spacecraft data */
    std::string sc_file = test_path + "Data/anti_center_sc_0000";
    int sc_hdu = 2;
-   ScData::readData(sc_file, sc_hdu);
+   ScData::readData(sc_file, sc_hdu, true);
 
 // add the sources to the model
 
@@ -801,7 +801,7 @@ void fit_3C279() {
 /* read in the spacecraft data */
    std::string sc_file = test_path + "Data/one_src_sc_0000";
    int sc_hdu = 2;
-   ScData::readData(sc_file, sc_hdu);
+   ScData::readData(sc_file, sc_hdu, true);
    
    LogLike logLike;
 
@@ -890,7 +890,7 @@ void test_LogLike() {
 /* read in the spacecraft data */
    std::string sc_file = test_path + "Data/one_src_sc_0000";
    int sc_hdu = 2;
-   ScData::readData(sc_file, sc_hdu);
+   ScData::readData(sc_file, sc_hdu, true);
 
    LogLike logLike;
 
@@ -963,7 +963,7 @@ void test_PointSource_class() {
 /* read in the spacecraft data */
    std::string sc_file = test_path + "Data/one_src_sc_0000";
    int sc_hdu = 2;
-   ScData::readData(sc_file, sc_hdu);
+   ScData::readData(sc_file, sc_hdu, true);
 
 /* put this source at the center of the extraction region for
    Data/one_src_0000 (ra, dec) = (193.98, -5.82) */

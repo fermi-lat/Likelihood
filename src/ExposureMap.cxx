@@ -5,18 +5,19 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.13 2003/10/24 01:57:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.14 2003/10/27 01:13:50 jchiang Exp $
  */
+#include <utility>
+#include <algorithm>
+
+#include "fitsio.h"
+
+#include "facilities/Util.h"
 
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/RoiCuts.h"
-
-#include "fitsio.h"
-
-#include <utility>
-#include <algorithm>
 
 namespace {
 
@@ -40,6 +41,9 @@ std::vector< std::valarray<double> > ExposureMap::s_exposure;
 FitsImage ExposureMap::s_mapData;
 
 void ExposureMap::readExposureFile(std::string exposureFile) {
+
+// Expand any environment variables in the xmlFile name.
+   facilities::Util::expandEnvVar(&exposureFile);
 
    s_mapData = FitsImage(exposureFile);
 
@@ -134,8 +138,11 @@ ExposureMap * ExposureMap::instance() {
    }
 }
 
-void ExposureMap::computeMap(const std::string &filename, double sr_radius,
+void ExposureMap::computeMap(std::string filename, double sr_radius,
                              int nlon, int nlat, int nenergies) {
+// Expand any environment variables in the xmlFile name.
+   facilities::Util::expandEnvVar(&filename);
+
    RoiCuts *roi_cuts = RoiCuts::instance();
    astro::SkyDir roiCenter = roi_cuts->extractionRegion().center();
    FitsImage::EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
