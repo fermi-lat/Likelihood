@@ -2,13 +2,15 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.16 2004/08/13 17:15:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.17 2004/08/19 04:03:12 jchiang Exp $
  */
 
-#include <vector>
-#include <valarray>
-#include <string>
 #include <cmath>
+
+#include <algorithm>
+#include <string>
+#include <valarray>
+#include <vector>
 
 #include "optimizers/Function.h"
 #include "optimizers/dArg.h"
