@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov  7 18:55:55 PST 2003
+Likelihood/data
+
+Modified Files:
+	likelihood.par 
+Log Message:
+add standalone application using OptEM
+    *
+------------------------------------------------------------
 User: jchiang  Fri Nov  7 18:55:54 PST 2003
 Likelihood/cmt
 
