@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v6r2p3 03-Jan-05  JC   use xmlBase instead of xml
     v6r2p2 03-Jan-05  JC   update for map_tools v5r8p2 in gtsrcmaps
     v6r2p1 03-Jan-05  JC   updates for map_tools v5r8p2
     v6r2   30-Dec-04  JC   check for Diffuse columns in diffuseResponses
