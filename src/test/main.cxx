@@ -59,7 +59,7 @@ int main(){
 //     test_Table_class();
 //     test_Statistic_class();
    test_Event_class();
-//     test_PointSource_class();
+   test_PointSource_class();
 //     test_Aeff_class();
 //     test_Psf_class();
    return 0;

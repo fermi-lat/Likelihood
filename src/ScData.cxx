@@ -35,6 +35,8 @@ void ScData::readData(const std::string &file, int hdu) {
                                              scTable[5].val[i]));
       tuple.time = scTable[6].val[i]; 
       tuple.inSaa = static_cast<int>(scTable[7].val[i]);
+
+      vec.push_back(tuple);
    }
 }
 

@@ -31,8 +31,10 @@ double PointSource::fluxDensity(double energy, double time,
    Psf *psf = Psf::instance();
    Aeff *aeff = Aeff::instance();
 
-   return (*m_spectrum)(energy)*(*psf)(dir, energy, m_dir.getDir(), time)
-      *(*aeff)(energy, dir, time);
+   double spectrum = (*m_spectrum)(energy);
+   double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
+   double aeff_val = (*aeff)(energy, dir, time);
+   return spectrum*psf_val*aeff_val;      
 }
 
 } // namespace Likelihood
