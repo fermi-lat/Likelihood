@@ -16,8 +16,6 @@
           extraction region used for the analysis.
    - @ref makeCountsMaps These simple FITS images let us see what 
           we've got and help to pick out obvious candidate sources.
-   - @ref defineROI This is the extraction region in terms of apparent 
-          photon direction, energy, and arrival time.
    - @ref makeExposureMap This is needed for analyzing diffuse sources
           and so is required for almost any sort of analysis.
    - @ref sourceModelFile The source model xml file contains the

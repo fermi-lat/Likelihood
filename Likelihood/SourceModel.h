@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.47 2004/09/22 20:05:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.48 2004/09/24 21:02:07 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -38,7 +38,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.47 2004/09/22 20:05:30 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.48 2004/09/24 21:02:07 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -59,8 +59,7 @@ public:
    /// setParam method to include function and source name checking
    virtual void setParam(const optimizers::Parameter &param, 
                          const std::string &funcName,
-                         const std::string &srcName) 
-      throw(optimizers::Exception);
+                         const std::string &srcName);
 
    /// group parameter access (note name mangling for inheritance 
    /// from Function)
@@ -71,41 +70,36 @@ public:
 
    virtual double getParamValue(const std::string &paramName, 
                                 const std::string &funcName,
-                                const std::string &srcName) const
-      throw(optimizers::Exception, optimizers::ParameterNotFound) {
+                                const std::string &srcName) const {
       return getParam(paramName, funcName, srcName).getValue();
    }
    
    virtual optimizers::Parameter getParam(const std::string &paramName, 
                                           const std::string &funcName,
-                                          const std::string &srcName) const
-      throw(optimizers::Exception, optimizers::ParameterNotFound);
+                                          const std::string &srcName) const;
 
    virtual void setParamBounds(const std::string &paramName,
                                const std::string &funcName,
                                const std::string &srcName,
-                               double lower, double upper)
-      throw(optimizers::ParameterNotFound, optimizers::OutOfBounds);
+                               double lower, double upper);
 
    virtual void setParamScale(const std::string &paramName,
                               const std::string &funcName,
                               const std::string &srcName,
-                              double scale) 
-      throw(optimizers::ParameterNotFound);
+                              double scale);
 
    virtual void setParamTrueValue(const std::string &paramName,
                                   const std::string &funcName,
                                   const std::string &srcName,
-                                  double paramValue) 
-      throw(optimizers::ParameterNotFound, optimizers::OutOfBounds);
+                                  double paramValue);
 
-   virtual void setParams(std::vector<optimizers::Parameter> &params) 
-      throw(optimizers::Exception, optimizers::ParameterNotFound) 
-      {setParams_(params, false);}
+   virtual void setParams(std::vector<optimizers::Parameter> &params) {
+      setParams_(params, false);
+   }
 
-   virtual void setFreeParams(std::vector<optimizers::Parameter> &params) 
-      throw(optimizers::Exception, optimizers::ParameterNotFound) 
-      {setParams_(params, true);}
+   virtual void setFreeParams(std::vector<optimizers::Parameter> &params) {
+      setParams_(params, true);
+   }
 
    /// This needs to be re-implemented, delegating to the base class
    /// method, since all member functions with the same name get
@@ -119,8 +113,7 @@ public:
    void addSource(Source *src);
 
    /// Delete a source by name and return a copy.
-   Source * deleteSource(const std::string &srcName) 
-      throw(optimizers::Exception);
+   Source * deleteSource(const std::string &srcName);
 
    /// delete all the sources
    void deleteAllSources();
@@ -179,8 +172,7 @@ protected:
    void fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
                     bool getFree) const;
 
-   void setParams_(std::vector<optimizers::Parameter> &, bool)
-      throw(optimizers::Exception, optimizers::ParameterNotFound);
+   void setParams_(std::vector<optimizers::Parameter> &, bool);
 
    /// Although these member functions are required by being a
    /// Statistic subclass, they are not needed for any practical use
