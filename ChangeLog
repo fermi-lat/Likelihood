@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec 24 08:45:45 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h RoiCuts.h 
+Log Message:
+use less strict DSS checks for some apps
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec 22 08:57:35 PST 2004
 Likelihood/src
 
