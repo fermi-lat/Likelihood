@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Sep  3 10:49:59 PDT 2004
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx SourceModel.cxx 
+Log Message:
+add CountsMap template file; multiply model counts per pixel by energy bin width
+    *
+------------------------------------------------------------
+User: jchiang  Fri Sep  3 10:49:59 PDT 2004
 Likelihood/data
 
 Added Files:
