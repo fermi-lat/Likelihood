@@ -49,7 +49,7 @@ public:
   
   enum LbfgsReturnCodes {LBFGS_NORMAL, LBFGS_ABNO, LBFGS_ERROR,
 			 LBFGS_TOOMANY, LBFGS_UNKNOWN};
-  
+
  private:
   
   Statistic *m_stat;
