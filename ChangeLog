@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 14 22:39:00 PST 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+small fix to results.dat format
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6r3, operation: add
 Package: Likelihood
