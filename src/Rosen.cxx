@@ -3,7 +3,7 @@
  * @brief Implementation for the 2D Rosenbrock objective function
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.cxx,v 1.6 2003/03/22 01:22:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.cxx,v 1.7 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include <vector>
@@ -44,7 +44,7 @@ void Rosen::getFreeDerivs(std::vector<double> &freeDerivs) {
    }
 }
 
-double Rosen::derivByParam(Arg &xarg, 
+double Rosen::derivByParam(Arg &, 
                            const std::string &paramName) 
    throw(ParameterNotFound) {
    std::vector<double> params;
