@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Jun  1 22:27:25 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+build with SCons
+    *
+------------------------------------------------------------
+User: jchiang  Tue Jun  1 22:27:25 PDT 2004
 Likelihood/src
 
 Modified Files:
