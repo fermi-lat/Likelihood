@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.3 2004/04/06 22:19:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.4 2004/04/07 02:11:17 jchiang Exp $
  */
 
 #include <cmath>
@@ -31,7 +31,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.3 2004/04/06 22:19:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.4 2004/04/07 02:11:17 jchiang Exp $
  */
 class TsMap : public AppBase {
 public:
@@ -73,6 +73,7 @@ StApp<TsMap> my_application("TsMap");
 void TsMap::run() {
    readExposureMap();
    readSrcModel();
+   readEventData();
    selectOptimizer();
    setGrid();
    computeMap();
