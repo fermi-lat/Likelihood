@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug  3 14:27:31 PDT 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+use irfLoader
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jul 20 21:03:43 PDT 2004
 Likelihood/doc
 
