@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.63 2004/12/30 16:45:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.64 2005/01/06 23:42:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -56,7 +56,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.63 2004/12/30 16:45:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.64 2005/01/06 23:42:16 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -324,8 +324,8 @@ private:
 void likelihood::writeCountsSpectra() {
    const EventData myData(m_logLike->events());
    std::vector<double> energies;
-   double emin(20);
-   double emax(2e5);
+   double emin = RoiCuts::instance()->getEnergyCuts().first;
+   double emax = RoiCuts::instance()->getEnergyCuts().second;
    int nee(20);
    double estep = log(emax/emin)/(nee-1);
    for (int k = 0; k < nee; k++) {
