@@ -3,7 +3,7 @@
  * @brief Declaration of Function and ParameterNotFound classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.24 2003/06/03 23:52:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.25 2003/06/10 18:18:29 burnett Exp $
  */
 
 #ifndef Function_h
@@ -20,7 +20,6 @@
 namespace Likelihood {
 
 class Arg;
-class ParameterNotFound;
 
 /** 
  * @class Function
@@ -34,12 +33,14 @@ class ParameterNotFound;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.24 2003/06/03 23:52:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.25 2003/06/10 18:18:29 burnett Exp $
  */
 
 class Function {
 
 public:
+
+   class ParameterNotFound;
     
    Function() {}
 
@@ -153,6 +154,32 @@ public:
    FuncType funcType() {return m_funcType;}
    std::string &argType() {return m_argType;}
 
+/**
+ * @class ParameterNotFound
+ *
+ * @brief Nested class that returns a standard error message for
+ * Parameters looked for but not found in the desired Function.
+ *
+ * @author J. Chiang
+ *
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.25 2003/06/10 18:18:29 burnett Exp $
+ */
+   class ParameterNotFound : public LikelihoodException {
+
+   public:
+      ParameterNotFound(const std::string &paramName, 
+                        const std::string &funcName,
+                        const std::string &routineName) {
+         std::ostringstream errorMessage;
+         errorMessage << "Function::" << routineName << ": \n"
+                      << "A Parameter named " << paramName
+                      << " is not a Parameter of Function "
+                      << funcName << "\n";
+         m_what = errorMessage.str();
+         m_code = 0;
+      }
+   };
+
 protected:
 
    FuncType m_funcType;
@@ -185,30 +212,6 @@ protected:
    virtual void fetchDerivs(Arg &x ,std::vector<double> &derivs, 
                             bool getFree) const;
 };
-
-/**
- * @class ParameterNotFound
- * @brief Returns a standard error message for Parameters 
- * looked for but not found in the desired Function.
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.24 2003/06/03 23:52:10 jchiang Exp $
- */
-class ParameterNotFound : public LikelihoodException {
-
-public:
-   ParameterNotFound(const std::string &paramName, 
-                     const std::string &funcName,
-                     const std::string &routineName) {
-      std::ostringstream errorMessage;
-      errorMessage << "Function::" << routineName << ": \n"
-                   << "A Parameter named " << paramName
-                   << " is not a Parameter of Function "
-                   << funcName << "\n";
-      m_what = errorMessage.str();
-      m_code = 0;
-   }
-};   
 
 } // namespace Likelihood
 
