@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.5 2004/02/21 17:10:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.6 2004/02/23 17:52:57 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -22,11 +22,13 @@
 
 #include "facilities/Util.h"
 
+#include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
 
 #include "latResponse/AcceptanceCone.h"
 #include "latResponse/IrfsFactory.h"
 
+#include "Likelihood/DiffuseSource.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/SourceModelBuilder.h"
@@ -127,7 +129,7 @@ public:
    void test_SourceFactory();
    void test_XmlBuilders();
    void test_SourceModel();
-   void test_PointSource();
+   void test_SourceDerivs();
 
 private:
 
@@ -320,6 +322,8 @@ void LikelihoodTests::test_SourceModel() {
       ASSERT_EQUALS(my_parValues[i], freeParValues[i]);
    }
 
+   std::vector<double> saved_values;
+   saved_values = freeParValues;
    std::vector<double> newFreeParams;
    for (unsigned int i = 0; i < freeParValues.size(); i++) {
       newFreeParams.push_back(freeParValues[i]*1.1);
@@ -331,11 +335,135 @@ void LikelihoodTests::test_SourceModel() {
       ASSERT_EQUALS(newFreeParams[i], freeParValues[i]);
    }
 
+// Reset the values.
+   srcModel.setFreeParamValues(saved_values);
+
+// Derivative tests.  Although the SourceModel::value(Arg &) and
+// SourceModel::derivByParam(Arg &, ...) methods are largely
+// meaningless, those interfaces provide a way of checking the
+// delegation to the corresponding methods in the Function objects
+// that make-up the individual Source components.
+
+// Note that we have to delete the Galactic Diffuse source since the
+// SpatialMap class, used as a functor by the Galactic Diffuse model,
+// will try to downcast the dArg variable to a SkyDirArg.
+   srcModel.deleteSource("Galactic Diffuse");
+
+// Delete Extragalactic Diffuse since its ConstantValue function has a
+// much larger value than the other functions that the Source model
+// value(...) method sums together, unity vs O(1e-10), making the
+// numerical derivatives difficult to compute.
+   srcModel.deleteSource("Extragalactic Diffuse");
+
+// Consider the derivatives wrt free parameters:
+   optimizers::dArg x(1000.);
+   std::vector<double> params_save;
+   srcModel.getFreeParamValues(params_save);
+   std::vector<double> sm_derivs;
+   srcModel.getFreeDerivs(x, sm_derivs);
+   std::vector<double> params = params_save;
+
+   for (unsigned int i = 0; i < sm_derivs.size(); i++) {
+// Compute the numerical derivative wrt this parameter.
+      double delta_param = fabs(params_save[i]/1e7);
+      double num_deriv = srcModel(x);
+      params[i] += delta_param;
+      srcModel.setFreeParamValues(params);
+      num_deriv -= srcModel(x);
+      num_deriv /= delta_param;
+      ASSERT_EQUALS(sm_derivs[i], -num_deriv);
+
+// Reset the parameters for next time around.
+      srcModel.setFreeParamValues(params_save);
+      params = params_save;
+   }
+
+// Derivatives wrt all parameters.
+   srcModel.getParamValues(params_save);
+   srcModel.getDerivs(x, sm_derivs);
+   params = params_save;
+
+   for (unsigned int i = 0; i < sm_derivs.size(); i++) {
+// Compute the numerical derivative wrt this parameter.
+      double delta_param = fabs(params_save[i]/1e7);
+      double num_deriv = srcModel(x);
+      params[i] += delta_param;
+      srcModel.setParamValues(params);
+      num_deriv -= srcModel(x);
+      num_deriv /= delta_param;
+// We cannot use ASSERT_EQUALS here since some of the derivatives
+// (e.g., those wrt ra, dec) are identically zero.
+      assert(fabs(sm_derivs[i] + num_deriv) < m_fracTol);
+
+// Reset the parameters for next time around.
+      srcModel.setParamValues(params_save);
+      params = params_save;
+   }
+
    std::cout << ".";
 }
 
-void LikelihoodTests::test_PointSource() {
+void LikelihoodTests::test_SourceDerivs() {
    SourceFactory * srcFactory = srcFactoryInstance();
+   assert(srcFactory != 0);
+   std::vector<std::string> srcNames;
+   srcFactory->fetchSrcNames(srcNames);
+
+// Create a 1 GeV Front-converting event from the anticenter at
+// MET=1000 s.
+   double ra(86.4);
+   double dec(28.9);
+   double energy(1e3);
+   double time(1e3);
+   ScData * scData = ScData::instance();
+   assert(scData != 0);
+   astro::SkyDir zAxis = scData->zAxis(time);
+   double muZenith(1.);
+   int type = 0;
+   Event myEvent(ra, dec, energy, time, zAxis.ra(), zAxis.dec(), 
+                 muZenith, type);
+
+// Loop over Sources and check fluxDensity and Npred derivatives
+// for each.
+   for (int i = 0; i < 3; i++) {
+      Source * src = srcFactory->create(srcNames[i]);
+      assert(src != 0);
+      if (src->getType() == "Diffuse") {
+         DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(src);
+         myEvent.computeResponse(*diffuse_src);
+      }
+      Source::FuncMap srcFuncs = src->getSrcFuncs();
+      assert(srcFuncs.count("Spectrum"));
+
+      std::vector<double> paramValues;
+      srcFuncs["Spectrum"]->getFreeParamValues(paramValues);
+
+      std::vector<std::string> paramNames;
+      srcFuncs["Spectrum"]->getFreeParamNames(paramNames);
+      assert(paramValues.size() == paramNames.size());
+
+      double fluxDensity0 = src->fluxDensity(myEvent);
+      double Npred0 = src->Npred();
+      double eps = 1e-7;
+      for (unsigned int j = 0; j < paramNames.size(); j++) {
+         double delta = eps*paramValues[j];
+         srcFuncs["Spectrum"]->setParam(paramNames[j], paramValues[j]+delta);
+
+         double fluxDensity1 = src->fluxDensity(myEvent);
+         double fluxDensityDeriv_est = (fluxDensity1 - fluxDensity0)/delta;
+         double fluxDensityDeriv 
+            = src->fluxDensityDeriv(myEvent, paramNames[j]);
+         ASSERT_EQUALS(fluxDensityDeriv_est, fluxDensityDeriv);
+
+         double Npred1 = src->Npred();
+         double NpredDeriv_est = (Npred1 - Npred0)/delta;
+         double NpredDeriv = src->NpredDeriv(paramNames[j]);
+         ASSERT_EQUALS(NpredDeriv_est, NpredDeriv);
+         
+         srcFuncs["Spectrum"]->setParam(paramNames[j], paramValues[j]);
+      }
+   }
+   std::cout << ".";
 }
 
 optimizers::FunctionFactory * LikelihoodTests::funcFactoryInstance() {
@@ -372,7 +500,7 @@ int main() {
    unit.test_SourceFactory();
    unit.test_XmlBuilders();
    unit.test_SourceModel();
-   unit.test_PointSource();
+   unit.test_SourceDerivs();
 
    std::cout << "all tests ok" << std::endl;
    return 1;
