@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Dec 21 22:06:47 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	Npred.h SkyDirFunction.h SourceModel.h SpectrumFactory.h 
+Log Message:
+accommodate optimizer package interface changes
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6r0p1, operation: add
 Package: Likelihood
