@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Tue May  6 13:13:35 PDT 2003
+Likelihood/src
+
+Modified Files:
+	lbfgs_routines.c 
+Log Message:
+Removed a debug line
+
+    *
+------------------------------------------------------------
 User: pln  Tue May  6 11:25:22 PDT 2003
 Likelihood/Likelihood
 
