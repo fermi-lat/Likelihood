@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.17 2005/03/02 22:55:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.18 2005/03/03 23:24:11 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.17 2005/03/02 22:55:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.18 2005/03/03 23:24:11 jchiang Exp $
  */
 
 class ScData {
@@ -85,6 +85,8 @@ private:
 
    static bool less_than_time(const ScNtuple & scDatum1,
                               const ScNtuple & scDatum2);
+
+   unsigned int time_index(double time) const;
 
 };
 
