@@ -1,6 +1,8 @@
 /** @file TrapQuad.h
- * @brief Declaration of TrapQuad class
- * $Header:
+ * @brief Declaration of the TrapQuad class
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef TrapQuad_h
@@ -22,7 +24,8 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class TrapQuad {
     

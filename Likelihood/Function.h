@@ -1,6 +1,8 @@
 /** @file Function.h
  * @brief Declaration of Function class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef Function_h
@@ -26,21 +28,21 @@ namespace Likelihood {
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.6 2003/03/06 01:25:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.9 2003/03/16 21:53:25 jchiang Exp $
  */
 
 class Function {
 
 public:
     
-   Function(){};
+   Function(){}
    Function(const Function&);
 
-   virtual ~Function(){};
+   virtual ~Function(){}
 
    //! provide a string identifier
-   void setMyName(std::string functionName) {m_functionName = functionName;};
-   std::string getMyName() const {return m_functionName;};
+   void setMyName(std::string functionName) {m_functionName = functionName;}
+   std::string getMyName() const {return m_functionName;}
 
    ///////////////////////
    //! parameter access 
@@ -124,9 +126,9 @@ protected:
    //! for subclass constructor use
    void addParam(const std::string &paramName, double paramValue, bool isFree);
    void addParam(const std::string &paramName, double paramValue)
-      {addParam(paramName, paramValue, true);};
+      {addParam(paramName, paramValue, true);}
    void addParam(const Parameter &param) 
-      {addParam(param.getName(), param.getValue(), param.isFree());};
+      {addParam(param.getName(), param.getValue(), param.isFree());}
 
    void fetchParamValues(std::vector<double> &values, bool getFree) const;
    void fetchParamNames(std::vector<std::string> &names, bool getFree) const;

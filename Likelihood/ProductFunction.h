@@ -1,6 +1,8 @@
 /** @file ProductFunction.h
  * @brief Declaration of ProductFunction class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef ProductFunction_h
@@ -16,7 +18,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header$
  *
  */
     

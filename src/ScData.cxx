@@ -1,3 +1,10 @@
+/** @file ScData.cxx
+ * @brief Implementation for the LAT spacecraft data class
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -9,13 +16,13 @@ namespace Likelihood {
 
 // definitions of static data
 std::vector<ScData::ScNtuple> ScData::vec;
-std::string ScData::m_scFile = "";
-int ScData::m_scHdu = 0;
+std::string ScData::s_scFile = "";
+int ScData::s_scHdu = 0;
 ScData * ScData::s_instance = 0;
 
 void ScData::readData(const std::string &file, int hdu) {
-   m_scFile = file;
-   m_scHdu = hdu;
+   s_scFile = file;
+   s_scHdu = hdu;
 
 // read in the data (should check on file existence, etc., first...)
    Table scTable;

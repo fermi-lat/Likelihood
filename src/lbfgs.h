@@ -1,3 +1,10 @@
+/** @file lbfgs.h
+ * @brief Declaration for the lbfgs Optimizer subclass.
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #ifndef lbfgs_h
 #define lbfgs_h
 

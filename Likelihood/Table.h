@@ -1,6 +1,8 @@
 /** @file Table.h
  * @brief Declaration of Table class
- * $Header:
+ * @authors T. Burnett, J. Chiang using code from Y. Ikebe
+ *
+ * $Header$
  */
 
 #ifndef Table_h
@@ -18,7 +20,7 @@ namespace Likelihood {
  *
  * @author T. Burnett, J. Chiang using code from Y. Ikebe
  *    
- * $Header:
+ * $Header$
  */
 
 class Table {

@@ -1,3 +1,10 @@
+/** @file PowerLaw.h
+ * @brief Declaration for the PowerLaw Function class
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include "Likelihood/Function.h"
 #include "Likelihood/Arg.h"
 
@@ -9,15 +16,15 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.3 2003/03/04 17:45:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.5 2003/03/16 21:53:26 jchiang Exp $
  */
     
 class PowerLaw : public Function {
 public:
 
-   PowerLaw(){m_init(0, -2, 1);}
+   PowerLaw(){init(0, -2, 1);}
    PowerLaw(double Prefactor, double Index, double Scale)
-      {m_init(Prefactor, Index, Scale);}
+      {init(Prefactor, Index, Scale);}
 
    double value(Arg&) const;
 
@@ -27,7 +34,7 @@ public:
 
 private:
 
-   void m_init(double Prefactor, double Index, double Scale);
+   void init(double Prefactor, double Index, double Scale);
 
 };
 

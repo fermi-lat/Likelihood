@@ -1,7 +1,8 @@
 /** @file Table.cxx
 * @brief Implementation of Table member functions
+* @authors T. Burnett, J. Chiang using code from Y. Ikebe
 *
-* $Header:
+* $Header$
 */
 
 #include "Likelihood/Table.h"

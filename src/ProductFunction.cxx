@@ -1,7 +1,8 @@
 /** @file ProductFunction.cxx
  * @brief ProductFunction class implementation
- *
- * $Header:
+ * @author J. Chiang
+ * 
+ * $Header$
  */
 
 #include <vector>

@@ -1,3 +1,10 @@
+/** @file MyFun.cxx
+ * @brief Implementation a simple test function 
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include <cmath>

@@ -1,3 +1,12 @@
+/** @file TrapQuad.cxx
+ * @brief Implementation of the TrapQuad class, which performs simple 1D 
+ * trapezoidal quadrature.
+ *
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/dArg.h"
 

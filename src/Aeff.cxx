@@ -1,3 +1,10 @@
+/** @file Aeff.cxx
+ * @brief Implementation for LAT effective area class
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -49,7 +56,7 @@ double Aeff::value(double energy, astro::SkyDir dir, double time) {
 // inclination wrt spacecraft z-axis in degrees
    double inc = dir.SkyDir::difference(scData->vec[indx].zAxis)*180./M_PI;
 
-   if (inc < incMax) {
+   if (inc < incMax()) {
       return value(energy, inc);
    } else {
       return 0;

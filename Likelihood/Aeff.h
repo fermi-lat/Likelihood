@@ -1,3 +1,10 @@
+/** @file Aeff.h
+ * @brief Interface definition for the LAT Effective Area class
+ * @author J. Chiang
+ * $Header$
+ *
+ */
+
 #ifndef Aeff_h
 #define Aeff_h
 
@@ -14,7 +21,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header$
  */
 
 class Aeff : public Response {
@@ -63,4 +70,5 @@ private:
 };
 
 } // namespace Likelihood
+
 #endif // Aeff_h

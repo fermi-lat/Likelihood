@@ -1,3 +1,10 @@
+/** @file Rosen.h
+ * @brief Declaration for a 2D Rosenbrock objective function
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include "Likelihood/Statistic.h"
 #include "Likelihood/Arg.h"
 
@@ -9,14 +16,14 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header$
  */
     
 class Rosen : public Statistic {
 public:
 
-   Rosen() : m_prefactor(100) {m_init();}
-   Rosen(double prefactor) : m_prefactor(prefactor) {m_init();}
+   Rosen() : m_prefactor(100) {init();}
+   Rosen(double prefactor) : m_prefactor(prefactor) {init();}
       
    double value(const std::vector<double> &paramVec);
 
@@ -28,7 +35,7 @@ private:
 
    double m_prefactor;
 
-   void m_init();
+   void init();
 
 };
 

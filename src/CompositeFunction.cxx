@@ -1,7 +1,8 @@
 /** @file CompositeFunction.cxx
  * @brief CompositeFunction class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
 
 #include <vector>
@@ -21,7 +22,7 @@ void CompositeFunction::setParam(const Parameter &param,
    } else {
       m_b->setParam(param);
    }
-   m_syncParams();
+   syncParams();
 }
 
 Parameter* CompositeFunction::getParam(const std::string &paramName,
@@ -35,7 +36,7 @@ Parameter* CompositeFunction::getParam(const std::string &paramName,
    }
 }
 
-void CompositeFunction::m_syncParams() {
+void CompositeFunction::syncParams() {
    m_parameter.clear();
 
    std::vector<Parameter> params;

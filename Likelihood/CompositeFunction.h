@@ -1,6 +1,7 @@
 /** @file CompositeFunction.h
  * @brief Declaration of CompositeFunction class
- * $Header:
+ * @author J. Chiang
+ * $Header$
  */
 
 #ifndef CompositeFunction_h
@@ -21,8 +22,9 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
- * */
+ * $Header$
+ * 
+ */
     
 class CompositeFunction : public Function {
 public:
@@ -49,6 +51,7 @@ public:
       return it;
    }
 
+   //! Parameter access including Function name specification
    virtual Parameter* getParam(const std::string &paramName, 
                                const std::string &funcName) const;
    
@@ -59,11 +62,11 @@ protected:
    Function *m_b;
 
    //! method to sync the m_parameter vector with those of the two Functions
-   void m_syncParams();
+   void syncParams();
 
 private:
 
-   //! disable this since parameters may no longer have unique names
+   //! disable this since Parameters may no longer have unique names
    double derivByParam(Arg &, const std::string &) const {return 0;}
 
 };

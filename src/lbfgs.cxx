@@ -1,7 +1,7 @@
 /** @file lbfgs.cxx
  * @brief lbfgs class implementation
  *
- * $Header:
+ * $Header$
  */
 
 #include <vector>

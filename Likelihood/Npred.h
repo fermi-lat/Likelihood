@@ -1,6 +1,8 @@
 /** @file Npred.h
  * @brief Declaration of Npred class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef Npred_h
@@ -20,7 +22,8 @@ namespace Likelihood {
  *  
  * @author J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class Npred : public Function {
     

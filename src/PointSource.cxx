@@ -19,11 +19,11 @@
 
 namespace Likelihood {
 
-bool PointSource::m_haveStaticMembers = false;
-std::vector<double> PointSource::m_energies;
-std::vector<double> PointSource::m_sigGauss;
+bool PointSource::s_haveStaticMembers = false;
+std::vector<double> PointSource::s_energies;
+std::vector<double> PointSource::s_sigGauss;
 
-void PointSource::m_makeEnergyVector(int nee) {
+void PointSource::makeEnergyVector(int nee) {
    RoiCuts *roiCuts = RoiCuts::instance();
    
 // set up a logrithmic grid of energies for doing the integral over 
@@ -32,26 +32,26 @@ void PointSource::m_makeEnergyVector(int nee) {
    double emax = (roiCuts->getEnergyCuts()).second;
    double estep = log(emax/emin)/(nee-1);
    
-   m_energies.reserve(nee);
+   s_energies.reserve(nee);
    for (int i = 0; i < nee; i++)
-      m_energies.push_back(emin*exp(i*estep));
+      s_energies.push_back(emin*exp(i*estep));
 }
 
-void PointSource::m_makeSigmaVector(int nsig) {
+void PointSource::makeSigmaVector(int nsig) {
 // set up a grid of sigma values in radians
    double sigmin = 0.;
    double sigmax = 50.*M_PI/180;
    double sigstep = (sigmax - sigmin)/(nsig - 1);
    
-   m_sigGauss.reserve(nsig);
+   s_sigGauss.reserve(nsig);
    for (int i = 0; i < nsig; i++)
-      m_sigGauss.push_back(sigstep*i + sigmin);
+      s_sigGauss.push_back(sigstep*i + sigmin);
 }
 
 PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
    m_dir = rhs.m_dir;
    m_spectrum = rhs.m_spectrum;
-   m_energies = rhs.m_energies;
+   s_energies = rhs.s_energies;
 }
 
 double PointSource::fluxDensity(double energy, double time,
@@ -96,14 +96,14 @@ double PointSource::Npred() {
    Function *specFunc = m_functions["Spectrum"];
 
 // evaluate the Npred integrand at the abscissa points contained in
-// m_energies
+// s_energies
    
-   std::vector<double> NpredIntegrand(m_energies.size());
-   for (unsigned int k = 0; k < m_energies.size(); k++) {
-      dArg eArg(m_energies[k]);
+   std::vector<double> NpredIntegrand(s_energies.size());
+   for (unsigned int k = 0; k < s_energies.size(); k++) {
+      dArg eArg(s_energies[k]);
       NpredIntegrand[k] = (*specFunc)(eArg)*m_exposure[k];
    }
-   TrapQuad trapQuad(m_energies, NpredIntegrand);
+   TrapQuad trapQuad(s_energies, NpredIntegrand);
    return trapQuad.integral();
 }
 
@@ -113,13 +113,13 @@ double PointSource::NpredDeriv(const std::string &paramName) {
    if (paramName == std::string("Prefactor")) {
       return Npred()/specFunc->getParamValue("Prefactor");
    } else {  // loop over energies and fill integrand vector
-      std::vector<double> myIntegrand(m_energies.size());
-      for (unsigned int k = 0; k < m_energies.size(); k++) {
-         dArg eArg(m_energies[k]);
+      std::vector<double> myIntegrand(s_energies.size());
+      for (unsigned int k = 0; k < s_energies.size(); k++) {
+         dArg eArg(s_energies[k]);
          myIntegrand[k] = specFunc->derivByParam(eArg, paramName)
             *m_exposure[k];
       }
-      TrapQuad trapQuad(m_energies, myIntegrand);
+      TrapQuad trapQuad(s_energies, myIntegrand);
       return trapQuad.integral();
    }
 }
@@ -130,7 +130,7 @@ void PointSource::computeExposure() {
    RoiCuts *roiCuts = RoiCuts::instance();
 
 // Initialize the exposure vector with zeros
-   m_exposure = std::vector<double>(m_energies.size(), 0);
+   m_exposure = std::vector<double>(s_energies.size(), 0);
 
    std::cerr << "Computing exposure at (" 
              << getDir().ra() << ", " 
@@ -157,14 +157,14 @@ void PointSource::computeExposure() {
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
       double inc = getSeparation(scData->vec[it].zAxis)*180/M_PI;
-      if (inc > Response::incMax) includeInterval = false;
+      if (inc > Response::incMax()) includeInterval = false;
 
 // Having checked for relevant constraints, add the exposure
 // contribution for each energy
       if (includeInterval) {
-         for (unsigned int k = 0; k < m_energies.size(); k++) {
-            m_exposure[k] += (*aeff)(m_energies[k], inc)
-               *psfFrac(m_energies[k], inc)
+         for (unsigned int k = 0; k < s_energies.size(); k++) {
+            m_exposure[k] += (*aeff)(s_energies[k], inc)
+               *psfFrac(s_energies[k], inc)
                *(scData->vec[it+1].time - scData->vec[it].time);
          }
       }
@@ -184,19 +184,19 @@ double PointSource::psfFrac(double energy, double inc) {
 
 // Interpolate the fractions of the Gaussian components contained
 // within the region-of-interest
-// Compute the index assuming uniform step size in m_sigGauss:
+// Compute the index assuming uniform step size in s_sigGauss:
    unsigned int indx = 
-      static_cast<int>((sig1 - m_sigGauss[0])
-                       /(m_sigGauss[1] - m_sigGauss[0]));
-   double frac1 = (sig1 - m_sigGauss[indx])
-      /(m_sigGauss[indx+1] - m_sigGauss[indx])
+      static_cast<int>((sig1 - s_sigGauss[0])
+                       /(s_sigGauss[1] - s_sigGauss[0]));
+   double frac1 = (sig1 - s_sigGauss[indx])
+      /(s_sigGauss[indx+1] - s_sigGauss[indx])
       *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
       + m_gaussFraction[indx];
 
-   indx = static_cast<int>((sig2 - m_sigGauss[0])
-                           /(m_sigGauss[1] - m_sigGauss[0]));
-   double frac2 = (sig2 - m_sigGauss[indx])
-      /(m_sigGauss[indx+1] - m_sigGauss[indx])
+   indx = static_cast<int>((sig2 - s_sigGauss[0])
+                           /(s_sigGauss[1] - s_sigGauss[0]));
+   double frac2 = (sig2 - s_sigGauss[indx])
+      /(s_sigGauss[indx+1] - s_sigGauss[indx])
       *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
       + m_gaussFraction[indx];
 
@@ -218,10 +218,10 @@ void PointSource::computeGaussFractions() {
    double cp = cos(psi);
    double sp = sin(psi);
 
-   m_gaussFraction.reserve(m_sigGauss.size());
-   for (unsigned int i = 0; i < m_sigGauss.size(); i++) {
-      double sig = m_sigGauss[i];
-      if (m_sigGauss[i] == 0) {
+   m_gaussFraction.reserve(s_sigGauss.size());
+   for (unsigned int i = 0; i < s_sigGauss.size(); i++) {
+      double sig = s_sigGauss[i];
+      if (s_sigGauss[i] == 0) {
          m_gaussFraction.push_back(1);
       } else {
          double denom = 1. - exp(-2/sig/sig);

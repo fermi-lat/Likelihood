@@ -1,6 +1,8 @@
 /** @file logLike_gauss.h
  * @brief Declaration of logLike_gauss class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef logLike_gauss_h
@@ -19,7 +21,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: 
+ * $Header$
  */
 
 class logLike_gauss : public Statistic {
@@ -29,13 +31,13 @@ public:
    logLike_gauss(){
       deleteAllSources();
    };
-   virtual ~logLike_gauss(){};
+   virtual ~logLike_gauss(){}
 
    //! return the objective function value taking the free parameters 
    //! as the function argument
    double value(const std::vector<double> &paramVec);
    
-   void getFreeDerivs(std::vector<double> &freeDerivs){};
+   void getFreeDerivs(std::vector<double> &freeDerivs){}
 
 };
 

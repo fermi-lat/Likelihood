@@ -135,7 +135,7 @@ void fit_anti_center() {
    RoiCuts::setCuts(83.57, 22.01, 20.);
 
 /* read in the spacecraft data */
-   std::string sc_file = test_path + "/Data/anti_center_sc_0000";
+   std::string sc_file = test_path + "Data/anti_center_sc_0000";
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
 
@@ -218,7 +218,7 @@ void fit_anti_center() {
    logLike.addSource(&_0528);
 
 // read in the event data
-   std::string event_file = test_path + "/Data/anti_center_0000";
+   std::string event_file = test_path + "Data/anti_center_0000";
    logLike.getEvents(event_file, 2);
 
 // some derivative tests
@@ -263,7 +263,7 @@ void fit_3C279() {
    RoiCuts::setCuts(ra, dec, 30.);
    
 /* read in the spacecraft data */
-   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   std::string sc_file = test_path + "Data/one_src_sc_0000";
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
    
@@ -298,7 +298,7 @@ void fit_3C279() {
    logLike.addSource(&_3c279);
 
 // read in the data
-   std::string event_file = test_path + "/Data/one_src_0000";
+   std::string event_file = test_path + "Data/one_src_0000";
    logLike.getEvents(event_file, 2);
 
  // some derivative tests
@@ -348,7 +348,7 @@ void test_logLike_ptsrc() {
    RoiCuts::setCuts(ra, dec, 30.);
 
 /* read in the spacecraft data */
-   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   std::string sc_file = test_path + "Data/one_src_sc_0000";
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
 
@@ -370,7 +370,7 @@ void test_logLike_ptsrc() {
 
    logLike.addSource(&_3c279);
 
-   std::string event_file = test_path + "/Data/one_src_0000";
+   std::string event_file = test_path + "Data/one_src_0000";
    logLike.getEvents(event_file, 2);
 
    report_SrcModel_values(logLike);
@@ -462,7 +462,7 @@ void test_PointSource_class() {
    RoiCuts::setCuts(193.98, -5.82, 30.);
 
 /* read in the spacecraft data */
-   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   std::string sc_file = test_path + "Data/one_src_sc_0000";
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
 
@@ -521,7 +521,7 @@ void test_Event_class() {
    Table evt_table;
 
 /* read in EVENT file */
-   std::string event_file = test_path + "/Data/one_src_0000";
+   std::string event_file = test_path + "Data/one_src_0000";
 
    evt_table.add_columns("RA DEC energy time SC_x SC_y SC_z zenith_angle");
    evt_table.read_FITS_table(event_file, 2);
@@ -670,7 +670,7 @@ void test_Statistic_class() {
 void test_Table_class() {
 
 /* read in PSF parameters */
-   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
+   std::string psf_file = test_path + "CALDB/psf_lat.fits";
 
    Table psf_data;
       
@@ -721,7 +721,7 @@ void test_Table_class() {
    std::cout << std::endl;
 
 /* read in EVENT file */
-   std::string event_file = test_path + "/Data/one_src_0000";
+   std::string event_file = test_path + "Data/one_src_0000";
 
    Table event_data;
 
@@ -751,7 +751,7 @@ void test_Table_class() {
    std::cout << std::endl;
 
 /* Spacecraft data file */
-   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   std::string sc_file = test_path + "Data/one_src_sc_0000";
 
    Table sc_data;
 
@@ -952,9 +952,9 @@ void test_PowerLaw_class() {
 /* reset the parameters and compute some values */
    pl.setParam("Prefactor", 2.);
    pl.setParam("Index", -2.2);
-   for (double x = 1.05; x < 1e3; x *= x) {
-      dArg xarg(x);
-      std::cout << x << "   " << pl(xarg) << std::endl;
+   for (double xx = 1.05; xx < 1e3; xx *= xx) {
+      dArg xarg(xx);
+      std::cout << xx << "   " << pl(xarg) << std::endl;
    }
 
 /* get the derivatives and compare to numerical estimates */
@@ -1056,7 +1056,7 @@ void test_Function_class() {
    f.setParam(std::string("Mary"), 2.);
    f.setParam(std::string("Jane"), 3e-5);
 
-   std::vector<string> my_paramNames;
+   std::vector<std::string> my_paramNames;
    f.getParamNames(my_paramNames);
       
    std::cout << "Here they are: " << std::endl;
@@ -1080,10 +1080,10 @@ void test_Function_class() {
    f.setParamValues(inputVec);
 
 /* change the value of an existing parameter */
-   f.setParam(string("Ruthie"), 10.);
+   f.setParam(std::string("Ruthie"), 10.);
 
 /* attempt to change the value of a non-existing parameter */
-   f.setParam(string("Oscar"), 5.);
+   f.setParam(std::string("Oscar"), 5.);
       
    std::cout << "The current set of values: " << std::endl;
    std::vector<double> my_params;
@@ -1110,13 +1110,13 @@ void test_Function_class() {
    std::cout << std::endl;
 
 /* test of pointers to Parameter */
-   Parameter *ptrP = f.getParam(string("Mary"));
+   Parameter *ptrP = f.getParam(std::string("Mary"));
    if (ptrP != NULL) {
       std::cout << ptrP->getName() << ":  " 
                 << ptrP->getValue() << std::endl;
    }
       
-   ptrP = f.getParam(string("Joan"));
+   ptrP = f.getParam(std::string("Joan"));
    if (ptrP != NULL) {
       std::cout << ptrP->getName() << ":  " 
                 << ptrP->getValue() << "\n" << std::endl;
@@ -1185,11 +1185,11 @@ void read_SC_Response_data() {
 
 /* instantiate the Psf and read in its data */
    Psf * psf = Psf::instance();
-   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
+   std::string psf_file = test_path + "CALDB/psf_lat.fits";
    psf->readPsfData(psf_file, Response::Combined);
 
 /* instantiate the Aeff and read in its data */
    Aeff * aeff = Aeff::instance();
-   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
+   std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
    aeff->readAeffData(aeff_file, Response::Combined);
 }

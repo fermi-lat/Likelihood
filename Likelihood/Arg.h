@@ -1,6 +1,7 @@
 /** @file Arg.h
  * @brief Declaration of Arg class
- * $Header:
+ * @author J. Chiang
+ * $Header$
  */
 
 #ifndef Arg_h
@@ -17,7 +18,8 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class Arg {
     

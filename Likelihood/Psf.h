@@ -1,3 +1,10 @@
+/** @file Psf.h
+ * @brief Psf class implementation
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #ifndef Psf_h
 #define Psf_h
 
@@ -14,26 +21,26 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header$
  */
 
 class Psf : public Response {
     
 public:
 
-   virtual ~Psf(){};
+   virtual ~Psf(){}
 
    //! PSF in instrument coordinates
    double value(double separation, double energy, double inc);
    double operator()(double separation, double energy, double inc)
-      {return value(separation, energy, inc);};
+      {return value(separation, energy, inc);}
 
    //! PSF in sky coordinates
    double value(astro::SkyDir appDir, double energy, 
                 astro::SkyDir srcDir, double time);
    double operator()(astro::SkyDir appDir, double energy, 
                      astro::SkyDir srcDir, double time)
-      {return value(appDir, energy, srcDir, time);};
+      {return value(appDir, energy, srcDir, time);}
 
    //! retrieve PSF parameters (sig1, sig2, wt) in instrument coordinates
    void fillPsfParams(double energy, double inclination,
@@ -47,7 +54,7 @@ public:
 
 protected:
 
-   Psf(){};
+   Psf(){}
 
 private:
 
@@ -70,4 +77,5 @@ private:
 };
 
 } // namespace Likelihood
+
 #endif // Psf_h

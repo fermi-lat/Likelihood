@@ -1,8 +1,11 @@
 /** @file Function.cxx
  * @brief Function class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
+
+#include <iostream>
 
 #include "Likelihood/Function.h"
 
@@ -16,7 +19,7 @@ Function::Function(const Function &func) {
    
 void Function::setParameter(const std::string &paramName, 
 			    double paramValue,
-                            int isFree = -1) {
+                            int isFree) {
 // check if parameter is present...
    for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {

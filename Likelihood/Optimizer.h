@@ -1,7 +1,15 @@
+/** @file Optimizer.h
+ * @brief Declaration of Optimizer base class
+ *
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #ifndef Optimizer_h
 #define Optimizer_h
 
-#include "Likelihood/Statistic.h"
+//#include "Likelihood/Statistic.h"
 
 namespace Likelihood {
 
@@ -12,7 +20,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header$
  */
 
 class Optimizer {

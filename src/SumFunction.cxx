@@ -1,7 +1,8 @@
 /** @file SumFunction.cxx
  * @brief SumFunction class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
 
 #include <vector>

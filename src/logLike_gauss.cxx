@@ -1,7 +1,9 @@
 /** @file logLike_gauss.cxx
  * @brief logLike_gauss class implementation
  *
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #include <vector>
@@ -33,7 +35,7 @@ double logLike_gauss::value(const std::vector<double> &paramVec) {
       my_value += log(src_sum);
    }
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       dArg xmin(-1e3);
       dArg xmax(1e3);

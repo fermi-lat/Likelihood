@@ -1,3 +1,10 @@
+/** @file Gaussian.cxx
+ * @brief Implementation for the (1D) Gaussian class
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -11,7 +18,7 @@ namespace Likelihood {
 //! Implement Gaussian class with three named parameters, 
 //! "Prefactor", "Mean", "Sigma"
 
-void Gaussian::m_init(double Prefactor, double Mean, double Sigma) {
+void Gaussian::init(double Prefactor, double Mean, double Sigma) {
 //! initialization function used by constructors
 
    int nParams = 3;
@@ -28,7 +35,7 @@ double Gaussian::integral(Arg &xargmin, Arg &xargmax) const {
 
    std::vector<Parameter> my_params;
    getParams(my_params);
-   enum paramTypes {Prefactor, Mean, Sigma};
+   enum ParamTypes {Prefactor, Mean, Sigma};
 
    double f0 = my_params[Prefactor].getTrueValue();
    double x0 = my_params[Mean].getTrueValue();
@@ -37,10 +44,10 @@ double Gaussian::integral(Arg &xargmin, Arg &xargmax) const {
    double zmin = (xmin - x0)/sqrt(2.)/sigma;
    double zmax = (xmax - x0)/sqrt(2.)/sigma;
 
-   return f0*(m_erfcc(zmin) - m_erfcc(zmax))/2.;
+   return f0*(erfcc(zmin) - erfcc(zmax))/2.;
 }
 
-double Gaussian::m_erfcc(double x) const {
+double Gaussian::erfcc(double x) const {
 /* (C) Copr. 1986-92 Numerical Recipes Software 0@.1Y.. */
    double t, z, ans;
 
@@ -56,7 +63,7 @@ double Gaussian::value(Arg &xarg) const {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
 //! assume a standard ordering for the parameters
-   enum paramTypes {Prefactor, Mean, Sigma};
+   enum ParamTypes {Prefactor, Mean, Sigma};
 
    std::vector<Parameter> my_params;
    getParams(my_params);
@@ -71,7 +78,7 @@ double Gaussian::derivByParam(Arg &xarg,
                               const std::string &paramName) const {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
-   enum paramTypes {Prefactor, Mean, Sigma};
+   enum ParamTypes {Prefactor, Mean, Sigma};
 
    std::vector<Parameter> my_params;
    getParams(my_params);

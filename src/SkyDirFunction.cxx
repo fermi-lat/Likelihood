@@ -1,3 +1,12 @@
+/** @file SkyDirFunction.cxx
+ * @brief Implementation of SkyDirFunction, a class that encapsulates sky
+ * location information in a Function context.
+ *
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include "Likelihood/SkyDirFunction.h"
 
 namespace Likelihood {

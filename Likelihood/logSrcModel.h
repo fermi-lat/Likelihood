@@ -1,6 +1,8 @@
 /** @file logSrcModel.h
  * @brief Declaration of logSrcModel class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef logSrcModel_h
@@ -27,21 +29,22 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class logSrcModel : public SourceModel {
     
 public:
    
-   logSrcModel(){setMaxNumParams(0);};
+   logSrcModel(){setMaxNumParams(0);}
    logSrcModel(const logSrcModel &rhs);
-   virtual ~logSrcModel(){};
+   virtual ~logSrcModel(){}
 
    double value(Arg &xarg) const;
    double derivByParam(Arg&, std::string &) const {return 0;}
 
    // would be nice if this wasn't necessary...
-   void syncParams() {m_syncParams();}
+   void mySyncParams() {syncParams();}
 
 protected:
 

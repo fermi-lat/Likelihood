@@ -1,3 +1,11 @@
+/** @file Source.h
+ * @brief Source base class declaration
+ *
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #ifndef Source_h
 #define Source_h
 
@@ -15,16 +23,16 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: 
+ * $Header$
  */
 
 class Source {
 
 public:
     
-   Source(){m_name = "";};
-   Source(const Source &rhs) {m_name = rhs.m_name;};
-   virtual ~Source(){};
+   Source(){m_name = "";}
+   Source(const Source &rhs) {m_name = rhs.m_name;}
+   virtual ~Source(){}
 
    //! returns photons/cm^2-s-sr-GeV having been convolved through
    //! the LAT instrument response
@@ -50,8 +58,8 @@ public:
    virtual double NpredDeriv(const std::string &paramName) = 0;
 
    //! access unique source identifier
-   void setName(const std::string &name) {m_name = name;};
-   std::string getName() const {return m_name;};
+   void setName(const std::string &name) {m_name = name;}
+   std::string getName() const {return m_name;}
 
    //! return a reference to the m_functions map (NB: not const!)
    typedef std::map<std::string, Function *> FuncMap;

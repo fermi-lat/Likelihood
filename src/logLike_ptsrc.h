@@ -1,6 +1,8 @@
 /** @file logLike_ptsrc.h
  * @brief Declaration of logLike_ptsrc class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef logLike_ptsrc_h
@@ -18,12 +20,12 @@ namespace Likelihood {
 /** 
  * @class logLike_ptsrc
  *
- * @brief Objective function for the log(likelihood) of a 
- * single point source.
+ * @brief Objective function for the log(likelihood) of a model comprising
+ * multiple PointSources.
  *
  * @author J. Chiang
  *    
- * $Header: 
+ * $Header$
  */
 
 class logLike_ptsrc : public Statistic {
@@ -35,7 +37,7 @@ public:
       Npred m_Npred;
       deleteAllSources();
    }
-   virtual ~logLike_ptsrc(){};
+   virtual ~logLike_ptsrc(){}
 
    //! return the objective function value taking the free parameters 
    //! as the function argument

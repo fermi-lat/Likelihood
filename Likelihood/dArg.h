@@ -1,6 +1,8 @@
 /** @file dArg.h
  * @brief Declaration of dArg class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef dArg_h
@@ -17,7 +19,8 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class dArg : public Arg{
     
