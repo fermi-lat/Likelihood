@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.7 2004/04/21 20:58:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.8 2004/05/25 00:56:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -20,6 +20,7 @@
 #include "optimizers/Drmngb.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
+#include "optimizers/OptPP.h"
 #include "optimizers/Exception.h"
 
 #include "Likelihood/AppHelpers.h"
@@ -38,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.7 2004/04/21 20:58:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.8 2004/05/25 00:56:21 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -183,6 +184,8 @@ void likelihood::selectOptimizer() {
       m_opt = new optimizers::Minuit(*m_logLike);
    } else if (optimizer == "DRMNGB") {
       m_opt = new optimizers::Drmngb(*m_logLike);
+   } else if (optimizer == "OPTPP") {
+      m_opt = new optimizers::OptPP(*m_logLike);
    }
    if (m_opt == 0) {
       throw std::invalid_argument("Invalid optimizer choice: " + optimizer);
