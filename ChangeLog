@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  8 13:44:11 PST 2004
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx 
+Log Message:
+use dataSubselector v3
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  8 13:44:10 PST 2004
 Likelihood/doc
 
