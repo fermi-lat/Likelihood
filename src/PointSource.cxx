@@ -32,7 +32,6 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
    m_functions["Spectrum"] = m_spectrum;
 
    m_exposure = rhs.m_exposure;
-   m_gaussFraction = rhs.m_gaussFraction;
    m_srcType = rhs.m_srcType;
 }
 
@@ -107,7 +106,13 @@ double PointSource::NpredDeriv(const std::string &paramName) {
    }
 }
 
-void PointSource::computeExposure() {
+void PointSource::computeExposure(int verbose) {
+   computeExposure(s_energies, m_exposure, verbose);
+}
+
+void PointSource::computeExposure(std::vector<double> &energies,
+                                  std::vector<double> &exposure,
+                                  int verbose) {
    if (!s_haveStaticMembers) {
       makeEnergyVector();
       makeSigmaVector();
@@ -120,14 +125,16 @@ void PointSource::computeExposure() {
    RoiCuts *roiCuts = RoiCuts::instance();
 
 // Initialize the exposure vector with zeros
-   m_exposure = std::vector<double>(s_energies.size(), 0);
+   exposure = std::vector<double>(energies.size(), 0);
 
-   std::cerr << "Computing exposure at (" 
-             << getDir().ra() << ", " 
-             << getDir().dec() << ")";
+   if (verbose) {
+      std::cerr << "Computing exposure at (" 
+                << getDir().ra() << ", " 
+                << getDir().dec() << ")";
+   }
    unsigned int npts = scData->vec.size()-1;
    for (unsigned int it = 0; it < npts; it++) {
-      if ((it % (npts/20)) == 0) std::cerr << ".";
+      if (((it % (npts/20)) == 0) && verbose) std::cerr << ".";
       bool includeInterval = true;
 
 // Check if this interval passes the time cuts
@@ -152,14 +159,14 @@ void PointSource::computeExposure() {
 // Having checked for relevant constraints, add the exposure
 // contribution for each energy
       if (includeInterval) {
-         for (unsigned int k = 0; k < s_energies.size(); k++) {
-            m_exposure[k] += (*aeff)(s_energies[k], inc)
-               *psfFrac(s_energies[k], inc)
+         for (unsigned int k = 0; k < energies.size(); k++) {
+            exposure[k] += (*aeff)(energies[k], inc)
+               *psfFrac(energies[k], inc)
                *(scData->vec[it+1].time - scData->vec[it].time);
          }
       }
    }
-   std::cerr << "!" << std::endl;
+   if (verbose) std::cerr << "!" << std::endl;
 }
 
 void PointSource::computeGaussFractions() {
@@ -192,7 +199,8 @@ void PointSource::computeGaussFractions() {
             Gint gfunc(sig, cr, cp, sp);
 // and the integrator object
             TrapQuad trapQuad(&gfunc);
-            gauss_int = trapQuad.integral(mup, mum, 10000);
+//            gauss_int = trapQuad.integral(mup, mum, 10000);
+            gauss_int = trapQuad.integral(mup, mum, 1000);
          }
          if (psi <= roi_radius) {
             double value = ((1. - exp((mum-1.)/sig/sig))

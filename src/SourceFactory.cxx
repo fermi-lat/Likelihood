@@ -76,7 +76,7 @@ SourceFactory::SourceFactory() {
    extragalactic.setName("EG component");
 
    PowerLaw eg_pl(2.09e-3*pow(100., -2.1), -2.1, 100.);
-   eg_pl.setParamBounds("Prefactor", 1e-3, 1e3);
+   eg_pl.setParamBounds("Prefactor", 1e-5, 1e2);
    eg_pl.setParamScale("Prefactor", 1e-7);
    eg_pl.setParamTrueValue("Prefactor", 2.09e-3*pow(100., -2.1));
    eg_pl.setParamBounds("Index", -3.5, -1);

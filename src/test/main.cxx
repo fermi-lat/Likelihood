@@ -109,7 +109,7 @@ void fit_DiffuseSource() {
    RoiCuts::setCuts(ra0, dec0, 20.);
 
 /* root name for the observation data files */
-   std::string obs_root = "diffuse_test_4";
+   std::string obs_root = "diffuse_test_5";
 
 /* read in the spacecraft data */
    std::string sc_file = test_path + "Data/" + obs_root + "_sc_0000";
@@ -117,6 +117,13 @@ void fit_DiffuseSource() {
    ScData::readData(sc_file, sc_hdu);
 
    std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
+//   std::string expfile = "exp_dt5.fits";
+
+// compute a new exposure map for these data
+//   ExposureMap::computeMap(expfile, 30., 60, 60, 10);
+
+// must read in the exposure file prior to creating the SourceFactory
+// object since it contains DiffuseSources
    ExposureMap::readExposureFile(expfile);
 
    SourceFactory srcFactory;
@@ -159,10 +166,11 @@ void fit_DiffuseSource() {
 // or the default way, for all of the DiffuseSources in the SourceModel...
    logLike.computeEventResponses();
 
+   int verbose = 3;
+
 #ifdef HAVE_OPT_PP
 // do the fit
    OptPP myOpt(logLike);
-   int verbose = 3;
    myOpt.find_min(verbose);
 #endif
 
@@ -187,7 +195,6 @@ void fit_DiffuseSource() {
       logLike.addSource(src);
    }
 
-   int verbose = 3;
 #ifdef HAVE_OPT_LBFGS
    Lbfgs otherOpt(logLike);
    otherOpt.find_min(verbose);
@@ -484,7 +491,6 @@ void test_OptPP() {
    params[1].setBounds(-4., 10);
    my_rosen.setParams(params);
 
-
    int verbose = 103;
 
 #ifdef HAVE_OPT_LBFGS
@@ -742,12 +748,22 @@ void fit_anti_center() {
 #ifdef HAVE_OPT_PP
 
 // do the fit
-   OptPP myOptimizer(logLike);
+//    OptPP myOptimizer(logLike);
+
+//    int verbose = 3;
+//    myOptimizer.find_min(verbose);
+
+#endif  //HAVE_OPT_PP
+
+#ifdef HAVE_OPT_LBFGS
+
+// do the fit
+   Lbfgs myOptimizer(logLike);
 
    int verbose = 3;
    myOptimizer.find_min(verbose);
 
-#endif  //HAVE_OPT_PP
+#endif  //HAVE_OPT_LBFGS
 
    std::vector<Parameter> parameters;
    logLike.getParams(parameters);
@@ -823,10 +839,8 @@ void fit_3C279() {
    }
 
 #ifdef HAVE_OPT_LBFGS
-
 // do the fit using lbfgs_bcm
-   Lbfgs myOptimizer(logLike);
-
+//   Lbfgs myOptimizer(logLike);
 #endif //HAVE_OPT_LBFGS
 
 #ifdef HAVE_OPT_PP
@@ -835,7 +849,6 @@ void fit_3C279() {
    
    int verbose = 3;
    myOptimizer.find_min(verbose);
-
 #endif  //HAVE_OPT_PP
    
    std::vector<Parameter> parameters;
@@ -1000,7 +1013,7 @@ void test_PointSource_class() {
              << " as a function of time: " 
              << std::endl;
 
-   double photon_flux;
+   double photon_flux = 0;
 
    double maxtime = 95.*60.;
    double tstep = 1e2;

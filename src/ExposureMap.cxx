@@ -5,12 +5,22 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.3 2003/04/25 18:32:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.4 2003/04/25 21:51:29 burnett Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ExposureMap.h"
+#include "Likelihood/PointSource.h"
+#include "Likelihood/RoiCuts.h"
+
+#define HAVE_CCFITS
+#ifdef HAVE_CCFITS
+#include "CCfits/CCfits"
+#endif
+
+#include <utility>
 #include <algorithm>
+
 namespace Likelihood {
 
 ExposureMap * ExposureMap::s_instance = 0;
@@ -76,8 +86,8 @@ void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
       } else if (energies[k] >= *(s_energies.end() - 1)) {
          iterE = s_energies.end() - 1;
       } else {
-		  iterE = std::upper_bound(s_energies.begin(), s_energies.end(), 
-                             energies[k]);
+         iterE = std::upper_bound(s_energies.begin(), s_energies.end(), 
+                                  energies[k]);
       }
       int kk = iterE - s_energies.begin();
       for (unsigned int j = 0; j < s_ra.size(); j++) {
@@ -108,6 +118,133 @@ ExposureMap * ExposureMap::instance() {
       s_instance = new ExposureMap();
    }
    return s_instance;
+}
+
+void ExposureMap::computeMap(const std::string &filename, double sr_radius,
+                             int nlon, int nlat, int nenergies) {
+   RoiCuts *roi_cuts = RoiCuts::instance();
+   std::pair<astro::SkyDir, double> roi = roi_cuts->getExtractionRegion();
+   astro::SkyDir roiCenter = roi.first;
+   FitsImage::EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
+
+   double lonstep = 2.*sr_radius/(nlon-1);
+   double latstep = 2.*sr_radius/(nlat-1);
+   std::vector<double> lon;
+   for (int i = 0; i < nlon; i++) lon.push_back(lonstep*i - sr_radius);
+   std::vector<double> lat;
+   for (int j = 0; j < nlat; j++) lat.push_back(latstep*j - sr_radius);
+
+   std::pair<double, double> elims = roi_cuts->getEnergyCuts();
+   double estep = log(elims.second/elims.first)/(nenergies - 1);
+   std::vector<double> energies;
+   for (int k = 0; k < nenergies; k++) {
+      energies.push_back(elims.first*exp(estep*k));
+   }
+
+   std::vector< std::valarray<double> > exposureCube;
+   exposureCube.resize(nenergies);
+   for (int k = 0; k < nenergies; k++)
+      exposureCube[k].resize(nlon*nlat);
+
+   std::cerr << "Computing the ExposureMap";
+   int indx = 0;
+   for (int j = 0; j < nlat; j++) {
+      for (int i = 0; i < nlon; i++) {
+         if ((indx % ((nlon*nlat)/20)) == 0) std::cerr << ".";
+         astro::SkyDir indir(lon[i], lat[j]);
+         astro::SkyDir dir;
+         eqRot.do_rotation(indir, dir);
+         PointSource ptsrc;
+         bool updateExposure = false;
+         ptsrc.setDir(dir.ra(), dir.dec(), updateExposure);
+         std::vector<double> exposure;
+         int verbose = 0;
+         ptsrc.computeExposure(energies, exposure, verbose);
+         for (int k = 0; k < nenergies; k++)
+            exposureCube[k][indx] = exposure[k];
+         indx++;
+      }
+   }
+   std::cerr << "!" << std::endl;
+   writeFitsFile(filename, lon, lat, energies, exposureCube, 
+                 roiCenter.ra(), roiCenter.dec());
+}
+
+void ExposureMap::writeFitsFile(const std::string &filename,
+                                std::vector<double> &lon,
+                                std::vector<double> &lat,
+                                std::vector<double> &energies,
+                                std::vector< std::valarray<double> > &dataCube,
+                                double ra0, double dec0) {
+// Use CCfits to produce the ExposureMap FITS file; this
+// implementation is based on the writeImage() example in the
+// CCfits-1.2 distribution (absent the superfluous use of the generic
+// algorithms).
+
+#ifdef HAVE_CCFITS
+   int nlon = lon.size();
+   double lonstep = lon[1] - lon[0];
+   int nlat = lat.size();
+   double latstep = lat[1] - lat[0];
+   double emin = energies[0];
+   double estep = log(energies[1]/energies[0]);
+   int nenergies = energies.size();
+
+   long naxis = 3;
+   long naxes[3] = {nlon, nlat, nenergies};
+
+   std::auto_ptr<FITS> pFits(0);
+
+   try { // to overwrite a possibly existing file...
+      pFits.reset( new FITS("!"+filename, DOUBLE_IMG, naxis, naxes) );
+   } catch (FITS::CantCreate) {
+      std::cerr << "ExposureMap::writeFitsFile: Can't create file "
+                << filename << std::endl;
+      return;
+   }
+
+   long nelements = naxes[0]*naxes[1]*naxes[2];
+
+// add the keywords and values
+   pFits->pHDU().addKey("CRVAL1", 0., 
+                        "reference value for longitude coordinate");
+   pFits->pHDU().addKey("CRVAL2", 0., 
+                        "reference value for latitude coordinate");
+   pFits->pHDU().addKey("CDELT1", lonstep, "step in longitude coordinate");
+   pFits->pHDU().addKey("CDELT2", latstep, "step in latitude coordinate");
+   pFits->pHDU().addKey("CRPIX1", static_cast<float>(nlon/2), 
+                      "reference pixel for longitude coordinate");
+   pFits->pHDU().addKey("CRPIX2", static_cast<float>(nlat/2), 
+                      "reference pixel for latitude coordinate");
+   pFits->pHDU().addKey("CTYPE1", "degrees", "units for longitude");
+   pFits->pHDU().addKey("CTYPE2", "degrees", "units for latitude");
+   pFits->pHDU().addKey("CRVAL3", log(emin), 
+                      "reference value for log_energy coordinate");
+   pFits->pHDU().addKey("CDELT3", estep, "step in log_energy coordinate");
+   pFits->pHDU().addKey("CRPIX3", 1., 
+                      "reference pixel for log_energy coordinate");
+   pFits->pHDU().addKey("CTYPE3", "log_MeV", "units for log_energy");
+   pFits->pHDU().addKey("LONPOLE", ra0, "RA of the ROI center");
+   pFits->pHDU().addKey("LATPOLE", dec0, "DEC of the ROI center");
+
+// flatten the exposureCube into a single valarray
+   std::valarray<double> exposure(nelements);
+   int indx = 0;
+   for (int k = 0; k < nenergies; k++) {
+      int cindx = 0;
+      for (int i = 0; i < nlon; i++) {
+         for (int j = 0; j < nlat; j++) {
+            exposure[indx] = dataCube[k][cindx];
+            indx++;
+            cindx++;
+         }
+      }
+   }
+
+// write the primary HDU
+   long fpixel(1);
+   pFits->pHDU().write(fpixel, nelements, exposure);
+#endif // HAVE_CCFITS
 }
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.3 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.5 2003/04/25 18:32:18 jchiang Exp $
  */
 
 #ifndef ExposureMap_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.3 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.5 2003/04/25 18:32:18 jchiang Exp $
  *
  */
 
@@ -63,6 +63,9 @@ public:
    void fetchEnergies(std::vector<double> &energies) {energies = s_energies;}
    void fetchExposure(std::vector< std::valarray<double> > &exposure);
 
+   static void computeMap(const std::string &filename, double sr_radius = 30,
+                          int nlong = 60, int nlat = 60, int nenergies = 10);
+
 protected:
 
    ExposureMap() {}
@@ -86,6 +89,15 @@ private:
    static std::vector< std::valarray<double> > s_exposure;
 
    static FitsImage *s_mapData;
+
+   //! write the FITS image file produced by computeMap()
+   static void writeFitsFile(const std::string &filename,
+                             std::vector<double> &lon,
+                             std::vector<double> &lat,
+                             std::vector<double> &energies,
+                             std::vector< std::valarray<double> > &dataCube,
+                             double ra0, double dec0);
+
 };
 
 } // namespace Likelihood

@@ -28,6 +28,8 @@ namespace Likelihood {
 
 class PointSource : public Source {
 
+   friend class ExposureMap;
+
 public:
 
    //! The default constructor does not compute exposure since 
@@ -105,7 +107,17 @@ public:
 
 protected:
    //! Computes the integrated exposure at the PointSource sky location.
-   void computeExposure();
+   void computeExposure(int verbose = 1);
+
+   //! Compute the integrated exposure using the provided 
+   //! vector of energy values
+   void computeExposure(std::vector<double> &energies,
+                        std::vector<double> &exposure,
+                        int verbose = 1);
+
+//    //! provide access to the exposure values
+//    void getExposure(std::vector<double> &exposure) const
+//       {exposure = m_exposure;}
 
    //! location on the Celestial sphere 
    SkyDirFunction m_dir;
@@ -130,11 +142,11 @@ private:
    //! Gaussian widths in units of radians
    static std::vector<double> s_sigGauss;
 
-   //! method to create the sigma grid for m_gaussFraction
-   static void makeSigmaVector(int nsig = 100);
-
    //! storage of the ROI contained fraction of a 2D "Gaussian"
    std::vector<double> m_gaussFraction;
+
+   //! method to create the sigma grid for m_gaussFraction
+   static void makeSigmaVector(int nsig = 100);
 
    //! Computes the enclosed fraction of a Gaussian as a function of 
    //! Gaussian width sigma and stores these data for later

@@ -3,11 +3,12 @@ version v0r7
 
 author James Chiang <jchiang@slac.stanford.edu>
 
-# $Id: requirements,v 1.12 2003/05/02 23:02:36 jchiang Exp $
+# $Id: requirements,v 1.13 2003/05/06 18:25:18 pln Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
 use f2c v*
+use CCfits v1r12p4 IExternal
 # use CALDBinterface v*
 
 apply_pattern package_include
@@ -15,7 +16,7 @@ apply_pattern package_include
 private
 
 # allow use of internal path
-macro_prepend cppflags Linux "-I ../src -g -pedantic " WIN31 "/I..\src "
+macro_prepend cppflags "" Linux "-I ../src -g -pedantic " WIN32 "/I..\src "
 
 apply_pattern package_linkopts
 
