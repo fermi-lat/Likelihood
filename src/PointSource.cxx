@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.32 2003/12/04 04:15:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.33 2004/02/21 17:10:37 jchiang Exp $
  */
 
 #include <vector>
@@ -23,33 +23,6 @@
 #include "Likelihood/TrapQuad.h"
 
 namespace {
-
-   double totalResponse(double energy, double time, 
-                        const astro::SkyDir &srcDir,
-                        const astro::SkyDir &appDir, int type) {
-// This implementation neglects energy dispersion.
-      Likelihood::ResponseFunctions * respFuncs 
-         = Likelihood::ResponseFunctions::instance();
-      Likelihood::ScData * scData = Likelihood::ScData::instance();
-   
-      astro::SkyDir zAxis = scData->zAxis(time);
-      astro::SkyDir xAxis = scData->xAxis(time);
-
-      double myResponse = 0;
-      std::map<unsigned int, latResponse::Irfs *>::iterator respIt
-         = respFuncs->begin();
-      for ( ; respIt != respFuncs->end(); respIt++) {
-         if (respIt->second->irfID() == type) {  
-            latResponse::IPsf *psf = respIt->second->psf();
-            latResponse::IAeff *aeff = respIt->second->aeff();
-            double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
-            double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-            myResponse += psf_val*aeff_val;
-         }
-      }
-      return myResponse;
-   }
-
    double sourceEffArea(double energy, double time,
                         const astro::SkyDir &srcDir) {
       Likelihood::ResponseFunctions * respFuncs 
@@ -79,7 +52,6 @@ namespace {
       }
       return myEffArea;
    }
-
 }
 
 namespace Likelihood {
@@ -111,8 +83,10 @@ double PointSource::fluxDensity(double energy, double time,
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
 
-   return ::totalResponse(energy, time, m_dir.getDir(), dir, 
-                          eventType)*spectrum;
+   return ResponseFunctions::totalResponse(time, energy, energy, 
+                                           m_dir.getDir(), dir, eventType)
+      *spectrum;
+                                           
 }
 
 double PointSource::fluxDensityDeriv(double energy, double time,
@@ -127,7 +101,8 @@ double PointSource::fluxDensityDeriv(double energy, double time,
          /m_spectrum->getParamValue("Prefactor");
    } else {
       optimizers::dArg energy_arg(energy);
-      return ::totalResponse(energy, time, m_dir.getDir(), dir, eventType)
+      return ResponseFunctions::totalResponse(time, energy, energy,
+                                              m_dir.getDir(), dir, eventType)
          *m_spectrum->derivByParam(energy_arg, paramName);
    }
 }
