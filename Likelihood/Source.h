@@ -3,7 +3,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.11 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.16 2003/03/25 23:22:02 jchiang Exp $
  */
 
 #ifndef Source_h
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.11 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.16 2003/03/25 23:22:02 jchiang Exp $
  */
 
 class Source {
@@ -64,10 +64,16 @@ public:
    //! clone function, with default
    virtual Source *clone() const {return 0;}
 
+   //! return the Source type (e.g., Diffuse vs Point)
+   std::string getType() {return m_srcType;}
+
 protected:
 
-   //! source name
+   //! Source name
    std::string m_name;
+
+   //! Source type
+   std::string m_srcType;
 
    //! map of Functions describing this source
    FuncMap m_functions;

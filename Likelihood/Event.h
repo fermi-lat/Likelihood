@@ -2,7 +2,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.9 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.10 2003/04/25 18:32:18 jchiang Exp $
  */
 
 #ifndef Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.9 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.10 2003/04/25 18:32:18 jchiang Exp $
  */
 
 class Event {
@@ -65,7 +65,10 @@ public:
    //! m_respDiffuseSrcs map with the specified name.  sr_radius is the
    //! "source region" radius (in degrees) over which the spatial
    //! distribution of src will be integrated.
-   void computeResponse(DiffuseSource &src, const std::string &name, 
+   void computeResponse(DiffuseSource &src, double sr_radius = 30.);
+
+   //! Compute the reponse integrals for a vector of DiffuseSources
+   void computeResponse(std::vector<DiffuseSource> &srcs, 
                         double sr_radius = 30.);
    
 private:

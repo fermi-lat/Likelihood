@@ -1,7 +1,7 @@
 /** @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.14 2003/03/25 23:22:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.16 2003/04/25 18:32:19 jchiang Exp $
  */
 
 #include <vector>
@@ -33,6 +33,7 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 
    m_exposure = rhs.m_exposure;
    m_gaussFraction = rhs.m_gaussFraction;
+   m_srcType = rhs.m_srcType;
 }
 
 double PointSource::fluxDensity(double energy, double time,

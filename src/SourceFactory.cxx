@@ -4,12 +4,17 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.4 2003/04/25 18:32:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.5 2003/04/25 21:51:29 burnett Exp $
  */
 
+#include "Likelihood/PointSource.h"
+#include "Likelihood/DiffuseSource.h"
+#include "Likelihood/SpatialMap.h"
+#include "Likelihood/ConstantValue.h"
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
-#include <assert.h>
+#include <cassert>
+
 namespace Likelihood {
 
 SourceFactory::SourceFactory() {
@@ -42,6 +47,42 @@ SourceFactory::SourceFactory() {
    ptsrc.setSpectrum(powerLaw);
 
    addSource("PointSource", &ptsrc, true);
+
+// Add the map-based Galactic Diffuse Emission model;
+// assume that the FITS file is available in a standard place...
+   std::string galfile = "../src/test/Data/gas.cel";
+   SpatialMap galacticModel(galfile);
+   galacticModel.setParam("Prefactor", 1.1*pow(100., 1.1));
+
+   DiffuseSource ourGalaxy(&galacticModel);
+   ourGalaxy.setName("Milky Way");
+
+// Provide ourGalaxy with a power-law spectrum.
+   PowerLaw gal_pl(pow(100., -2.1), -2.1, 100.);
+   gal_pl.setParamBounds("Prefactor", 1e-3, 1e3);
+   gal_pl.setParamScale("Prefactor", 1e-5);
+   gal_pl.setParamTrueValue("Prefactor", pow(100., -2.1));
+   gal_pl.setParamBounds("Index", -3.5, -1);
+
+   ourGalaxy.setSpectrum(&gal_pl);
+
+   addSource("Milky Way", &ourGalaxy, true);
+
+// Add an extragalactic diffuse component.
+   ConstantValue egNorm(1.);
+   egNorm.setParam("Value", 1., false);   // fix to unity
+
+   DiffuseSource extragalactic(&egNorm);
+   extragalactic.setName("EG component");
+
+   PowerLaw eg_pl(2.09e-3*pow(100., -2.1), -2.1, 100.);
+   eg_pl.setParamBounds("Prefactor", 1e-3, 1e3);
+   eg_pl.setParamScale("Prefactor", 1e-7);
+   eg_pl.setParamTrueValue("Prefactor", 2.09e-3*pow(100., -2.1));
+   eg_pl.setParamBounds("Index", -3.5, -1);
+   extragalactic.setSpectrum(&eg_pl);
+
+   addSource("EG component", &extragalactic, true);
 }
 
 SourceFactory::~SourceFactory() {
@@ -59,9 +100,25 @@ void SourceFactory::addSource(const std::string &name, Source* src,
          m_prototypes[name] = src;
       }
    } else {
-      std::cerr << "SourceFactory: A Source named "
-                << name << " already exists!" << std::endl;
+      std::cerr << "SourceFactory::addSource: A Source named "
+                << name << " already exists." << std::endl;
       assert(false);
+   }
+}
+
+void SourceFactory::replaceSource(Source* src, bool fromClone) {
+   if (m_prototypes.count(src->getName())) {
+      if (fromClone) {
+         m_prototypes[src->getName()] = src->clone();
+      } else {
+         m_prototypes[src->getName()] = src;
+      }
+   } else {
+      std::cerr << "SourceFactory::replaceSource: A Source named "
+                << src->getName() << " does not yet exist.\n"
+                << "Adding it instead. "
+                << std::endl;
+      addSource(src->getName(), src, fromClone);
    }
 }
 

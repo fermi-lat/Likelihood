@@ -3,7 +3,7 @@
  * OPT++ package
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.cxx,v 1.1 2003/03/17 17:48:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.cxx,v 1.2 2003/03/19 02:47:42 jchiang Exp $
  */
 
 #include <cassert>
@@ -12,7 +12,7 @@
 #include "Likelihood/Parameter.h"
 #include "OptPP.h"
 
-#ifdef HAVE_OPTIMIZERS
+#ifdef HAVE_OPT_PP
 
 #include "NLF.h"
 #include "CompoundConstraint.h"
@@ -21,14 +21,14 @@
 //#include "OptBaQNewton.h"
 //#include "OptBCEllipsoid.h"
 
-#endif //HAVE_OPTIMIZERS
+#endif //HAVE_OPT_PP
 
 namespace Likelihood {
 
 Statistic *OptPP::s_stat = 0;
 int OptPP::s_verbose = 0;
 
-#ifdef HAVE_OPTIMIZERS
+#ifdef HAVE_OPT_PP
 
 void OptPP::statInterface(int mode, int ndim, const ColumnVector &x,
                           double &fx, ColumnVector &gx, int &result) {
@@ -127,7 +127,7 @@ void OptPP::find_min(int verbose, double tol) {
 // do nothing
 }
 
-#endif // HAVE_OPTIMIZERS
+#endif // HAVE_OPT_PP
 
 
 } // namespace Likelihood
