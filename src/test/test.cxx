@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.58 2005/02/28 18:17:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.59 2005/03/01 01:07:06 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -508,7 +508,7 @@ void LikelihoodTests::test_PointSource() {
    for (int j = 0; j < 10; j++) {
       double tmin = j*tstep;
       double tmax = tmin + tstep;
-      RoiCuts::setCuts(86.4, 28.9, 25., eminVals[j], 3.16e5, tmin, tmax, -1.);
+      roiCuts->setCuts(86.4, 28.9, 25., eminVals[j], 3.16e5, tmin, tmax, -1.);
 
       dynamic_cast<PointSource *>(src)->setDir(83.57, 22.01, true, false);
 

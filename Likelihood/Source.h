@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.30 2005/02/28 18:38:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.31 2005/03/01 01:06:52 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -12,9 +12,14 @@
 
 #include <iostream>
 #include <map>
-#include "astro/SkyDir.h"
+
 #include "optimizers/Function.h"
+
 #include "Likelihood/Event.h"
+
+namespace astro {
+   class SkyDir;
+}
 
 namespace Likelihood {
 
@@ -25,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.30 2005/02/28 18:38:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.31 2005/03/01 01:06:52 jchiang Exp $
  */
 
 class Source {
@@ -55,48 +60,49 @@ public:
                               const astro::SkyDir & appDir, 
                               int evtType) const = 0;
 
-   /// derivatives of fluxDensity wrt model Parameters
+   /// Derivatives of fluxDensity wrt model Parameters
    virtual double fluxDensityDeriv(const Event &evt, 
                                    const std::string &paramName) const = 0;
 
    virtual double fluxDensityDeriv(double inclination, double phi, 
-                                   double energy, 
-                                   const astro::SkyDir & appDir,
+                                   double energy, const astro::SkyDir & appDir,
                                    int evtType, 
                                    const std::string & paramName) const = 0;
 
-   /// predicted number of photons given RoiCuts and ScData
+   /// Predicted number of photons.
    virtual double Npred() = 0;
 
-   /// derivative of Npred wrt named Parameter
+   /// Derivative of Npred wrt named Parameter
    virtual double NpredDeriv(const std::string &paramName) = 0;
 
-   /// @return predicted number of counts within a specified energy range
+   /// Predicted number of counts within a specified energy range.
    virtual double Npred(double emin, double emax) = 0;
 
-   /// access unique source identifier
-   void setName(const std::string & name) {
+   /// Set the Function used for modeling the source spectrum.
+   virtual void setSpectrum(optimizers::Function *) = 0;
+                       
+   virtual void setName(const std::string & name) {
       m_name = name;
    }
 
-   const std::string & getName() const {
+   /// Access a unique source identifier.
+   virtual const std::string & getName() const {
       return m_name;
    }
 
-   /// @return a reference to the m_functions map (NB: not const!)
    typedef std::map<std::string, optimizers::Function *> FuncMap;
-   FuncMap & getSrcFuncs() {
+
+   /// @return A mutable reference to the m_functions map
+   virtual FuncMap & getSrcFuncs() {
       return m_functions;
    }
 
-   virtual void setSpectrum(optimizers::Function *) = 0;
-                       
    virtual Source * clone() const {
       return 0;
    }
 
-   /// @return the Source type (e.g., Diffuse vs Point)
-   const std::string & getType() const {
+   /// The Source type (e.g., Diffuse vs Point)
+   virtual const std::string & getType() const {
       return m_srcType;
    }
 
@@ -111,17 +117,17 @@ public:
 
 protected:
 
-   /// Source name
+   /// A unique source name.
    std::string m_name;
 
-   /// Source type
+   /// Source type --- "Diffuse" or "Point".
    std::string m_srcType;
 
-   /// map of Functions describing this source
-   FuncMap m_functions;
-
-   /// flag to indicate if energy dispersion is to be used.
+   /// Flag to indicate if energy dispersion is to be used.
    bool m_useEdisp;
+
+   /// Map of Functions describing this source.
+   std::map<std::string, optimizers::Function *> m_functions;
 
 };
 

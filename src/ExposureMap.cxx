@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.26 2005/02/15 04:17:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.27 2005/02/27 06:42:25 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -124,7 +124,9 @@ ExposureMap * ExposureMap::instance() {
    }
 }
 
-void ExposureMap::computeMap(std::string filename, const RoiCuts & roiCuts,
+void ExposureMap::computeMap(std::string filename, 
+                             const ExposureCube & expCube,
+                             const RoiCuts & roiCuts,
                              double sr_radius, int nlon, int nlat,
                              int nenergies) {
                              
@@ -163,16 +165,17 @@ void ExposureMap::computeMap(std::string filename, const RoiCuts & roiCuts,
          astro::SkyDir indir(lon[i], lat[j]);
          astro::SkyDir dir;
          eqRot.do_rotation(indir, dir);
-         PointSource ptsrc;
-         bool updateExposure = false;
-         ptsrc.setDir(dir.ra(), dir.dec(), updateExposure);
          std::vector<double> exposure;
          bool verbose(false);
-         if (ExposureCube::instance() == 0) {
-            ptsrc.computeExposure(energies, exposure, verbose);
-         } else {
-            ptsrc.computeExposureWithHyperCube(energies, exposure, verbose);
-         }
+//          if (ExposureCube::instance() == 0) {
+//             PointSource::computeExposure(dir, energies, exposure, verbose);
+//          } else {
+//             PointSource::computeExposureWithHyperCube(dir, energies, exposure,
+//                                                       verbose);
+//          }
+         PointSource::computeExposureWithHyperCube(dir, energies, 
+                                                   expCube, roiCuts,
+                                                   exposure, verbose);
          for (int k = 0; k < nenergies; k++)
             exposureCube[k][indx] = exposure[k];
          indx++;

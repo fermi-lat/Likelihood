@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.30 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.31 2005/03/01 01:06:55 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -57,6 +57,8 @@ void RoiCuts::setCuts(double ra, double dec, double roi_radius,
 // min and max energies in MeV.
    s_eMin = emin;
    s_eMax = emax;
+
+   makeEnergyVector();
         
    s_roiCone = irfInterface::AcceptanceCone(astro::SkyDir(ra, dec),
                                             roi_radius);
@@ -79,6 +81,15 @@ void RoiCuts::writeDssKeywords(tip::Header & header) const {
 void RoiCuts::writeGtiExtension(const std::string & filename) const {
    if (s_cuts) {
       s_cuts->writeGtiExtension(filename);
+   }
+}
+
+void RoiCuts::makeEnergyVector(int nee) {
+   m_energies.clear();
+   m_energies.reserve(nee);
+   double estep = std::log(s_eMax/s_eMin)/(nee - 1.);
+   for (int i = 0; i < nee; i++) {
+      m_energies.push_back(s_eMin*std::exp(estep*i));
    }
 }
 

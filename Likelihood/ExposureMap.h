@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.16 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.17 2005/03/01 01:06:52 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -18,6 +18,7 @@
 
 namespace Likelihood {
 
+   class ExposureCube;
    class RoiCuts;
 
 /**
@@ -33,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.16 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.17 2005/03/01 01:06:52 jchiang Exp $
  *
  */
 
@@ -100,7 +101,9 @@ public:
     * These are logarithmically spaced with upper and lower bounds
     * given by the RoiCuts.
     */
-   static void computeMap(std::string filename, const RoiCuts & roiCuts,
+   static void computeMap(std::string filename, 
+                          const ExposureCube & expCube,
+                          const RoiCuts & roiCuts,
                           double sr_radius=30, int nlong=60, int nlat=60,
                           int nenergies=10);
 
