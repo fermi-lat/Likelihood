@@ -4,17 +4,28 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.20 2005/03/05 06:35:38 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.21 2005/03/07 05:18:30 jchiang Exp $
 #
 import os
+import glob
 import numarray as num
 import pyLike
 from SrcModel import SourceModel
+from SimpleDialog import SimpleDialog, map, Param
 
 _funcFactory = pyLike.SourceFactory_funcFactory()
 
+def _resolveFileList(files):
+    fileList = files.split(',')
+    my_list = []
+    for file in fileList:
+        my_list.extend(glob.glob(file))
+    return my_list
+
 class Observation(object):
-    def __init__(self, eventFile, scFile, expMap=None, irfs='TEST'):
+    def __init__(self, eventFile=None, scFile=None, expMap=None, irfs='TEST'):
+        if eventFile is None:
+            eventFile, scFile, expMap, irfs = self._obsDialog()
         self._inputs = eventFile, scFile, expMap, irfs
         self._respFuncs = pyLike.ResponseFunctions()
         self._respFuncs.load(irfs)
@@ -30,6 +41,20 @@ class Observation(object):
                                               self._roiCuts, self._expCube,
                                               self._expMap, self._eventCont)
         self._readData(scFile, eventFile)
+    def _obsDialog(self):
+        paramDict = map()
+        paramDict['eventFile'] = Param('file', '*.fits')
+        paramDict['scFile'] = Param('file', '*scData*.fits')
+        paramDict['expMap'] = Param('file', 'expMap.fits')
+        paramDict['irfs'] = Param('string', 'TEST')
+        root = SimpleDialog(paramDict, title="Observation Elements:")
+        root.mainloop()
+        eventFiles = _resolveFileList(paramDict['eventFile'].value())
+        scFiles = _resolveFileList(paramDict['scFile'].value())
+        output = (eventFiles, scFiles,
+                  paramDict['expMap'].value(),
+                  paramDict['irfs'].value())
+        return output
     def __call__(self):
         return self.observation
     def _fileList(self, files):
@@ -44,7 +69,7 @@ class Observation(object):
         scFiles = self._fileList(scFile)
         self._scData.readData(scFiles[0], True)
         for file in scFiles[1:]:
-            self._scData.readData(scFile)
+            self._scData.readData(file)
     def _readEvents(self, eventFile):
         eventFiles = self._fileList(eventFile)
         self._roiCuts.readCuts(eventFiles[0])
@@ -59,7 +84,9 @@ class Observation(object):
         return '\n'.join(lines)
 
 class SrcAnalysis(object):
-    def __init__(self, srcModel, observation, optimizer='Minuit'):
+    def __init__(self, observation, srcModel=None,  optimizer='Minuit'):
+        if srcModel is None:
+            srcModel, optimizer = self._srcDialog()
         self._inputs = srcModel, observation, optimizer
         self.observation = observation
         self.optimizer = optimizer
@@ -74,6 +101,15 @@ class SrcAnalysis(object):
         self.energies = eMin*num.exp(estep*num.arange(nee, type=num.Float))
         self.disp = None
         self.resids = None
+    def _srcDialog(self):
+        paramDict = map()
+        paramDict['Source Model File'] = Param('file', '*.xml')
+        paramDict['optimizer'] = Param('string', 'Minuit')
+        root = SimpleDialog(paramDict, title="Define SrcAnalysis Object:")
+        root.mainloop()
+        xmlFile = _resolveFileList(paramDict['Source Model File'].value())[0]
+        output = (xmlFile, paramDict['optimizer'].value())
+        return output
     def __call__(self):
         return -self.logLike.value()
     def _Nobs(self, emin, emax):
@@ -83,7 +119,9 @@ class SrcAnalysis(object):
                 nobs += 1
         return nobs
     def plotData(self, yrange=None):
-        import hippoplotter as plot
+        import hippoplotter
+        global plot
+        plot = hippoplotter
         nt = plot.newNTuple(([], [], []),
                             ('energy', 'nobs', 'nobs_err'))
         self.data_nt = nt
@@ -137,6 +175,7 @@ class SrcAnalysis(object):
                                       yerr='resid_err', xlog=1, color=color,
                                       yrange=(-1, 1))
             self.resids.getDataRep().setSymbol('filled_square', 2)
+            plot.hline(0)
     def plot(self, srcs=None, oplot=False, yrange=None, color=None):
         import hippoplotter as plot
         if oplot and color is None:

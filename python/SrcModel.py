@@ -4,7 +4,7 @@ SourceModel interface to allow for manipulation of fit parameters.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.6 2005/02/10 01:28:03 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.7 2005/02/12 14:45:36 jchiang Exp $
 #
 import sys
 import pyLike
@@ -87,6 +87,8 @@ class Source(object):
                 lines.append(prefix + item + ": " + self[item].genericName())
                 lines.append(self[item].__repr__(prefix, free_only))
         return "\n".join(lines) + "\n"
+    def __getattr__(self, attrname):
+        return getattr(self.src, attrname)
 
 class Function(object):
     def __init__(self, func):
