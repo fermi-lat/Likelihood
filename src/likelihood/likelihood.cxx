@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.52 2004/11/28 06:58:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.53 2004/11/30 02:38:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.52 2004/11/28 06:58:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.53 2004/11/30 02:38:37 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -103,6 +103,7 @@ likelihood::likelihood()
 
 void likelihood::run() {
    promptForParameters();
+   Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(m_pars);
    m_helper->setRoi();
    if (m_statistic == "BINNED") {
@@ -148,7 +149,7 @@ void likelihood::run() {
                       << eObj.what() << std::endl;
          }
       }
-      printFitResults(errors);
+      if (Likelihood::print_output()) printFitResults(errors);
       writeSourceXml();
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
@@ -273,7 +274,9 @@ void likelihood::writeSourceXml() {
    std::string xmlFile = m_pars["source_model_output_file"];
    std::string funcFileName("");
    if (xmlFile != "none") {
-      std::cout << "Writing fitted model to " << xmlFile << std::endl;
+      if (Likelihood::print_output()) {
+         std::cout << "Writing fitted model to " << xmlFile << std::endl;
+      }
       m_logLike->writeXml(xmlFile, funcFileName);
    }
 }
@@ -281,8 +284,10 @@ void likelihood::writeSourceXml() {
 void likelihood::writeFluxXml() {
    std::string xml_fluxFile = m_pars["flux_style_model_file"];
    if (xml_fluxFile != "none") {
-      std::cout << "Writing flux-style xml model file to "
-                << xml_fluxFile << std::endl;
+      if (Likelihood::print_output()) {
+         std::cout << "Writing flux-style xml model file to "
+                   << xml_fluxFile << std::endl;
+      }
       m_logLike->write_fluxXml(xml_fluxFile);
    }
 }
@@ -344,16 +349,18 @@ void likelihood::writeCountsSpectra() {
 
 #ifdef HAVE_ST_GRAPH
 // plot the data
-   try {
-      EasyPlot plot("");
-      for (unsigned int i = 0; i < npred.size(); i++) {
-         plot.linePlot(evals, npred[i]);
-      }
-      EasyPlot::run();
-   } catch (std::exception &eObj) {
-      std::string message = "RootEngine could not create";
-      if (!st_facilities::Util::expectedException(eObj, message)) {
-         throw;
+   if (m_pars["plot"]) {
+      try {
+         EasyPlot plot("");
+         for (unsigned int i = 0; i < npred.size(); i++) {
+            plot.linePlot(evals, npred[i]);
+         }
+         EasyPlot::run();
+      } catch (std::exception &eObj) {
+         std::string message = "RootEngine could not create";
+         if (!st_facilities::Util::expectedException(eObj, message)) {
+            throw;
+         }
       }
    }
 #endif // HAVE_ST_GRAPH
