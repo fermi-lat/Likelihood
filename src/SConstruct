@@ -4,7 +4,7 @@ from map import map
 package = 'Likelihood'
 home = os.environ[package.upper() + 'ROOT']
 apps = ['likelihood', 'makeExposureCube', 'expMap',
-        'TsMap', 'diffuseResponses']
+        'TsMap', 'diffuseResponses', 'counts_map']
 #OptPP_dir = '/home/jchiang/data/OPT++2.1'
 #OptPP_dir = '/scratch/jchiang/OPT++2.1'
 OptPP_dir = os.environ['OPTPP_DIR']
@@ -20,6 +20,7 @@ libraries['f2c'] = None
 libraries['facilities'] = None
 libraries['st_appLib'] = None
 libraries['st_facilitiesLib'] = None
+libraries['st_graphLib'] = None
 libraries['hoopsLib'] = None
 libraries['irfInterfaceLib'] = None
 libraries['irfLoaderLib'] = None
