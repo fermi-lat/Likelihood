@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov 10 15:06:18 PST 2003
+Likelihood/data
+
+Modified Files:
+	Virgo_region.xml Virgo_region_2.xml expMap.par likelihood.par 
+Log Message:
+use Function classes from optimizer package; remove redundant code
+    *
+------------------------------------------------------------
 User: jchiang  Mon Nov 10 15:06:17 PST 2003
 Likelihood/cmt
 
