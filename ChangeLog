@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Dec 20 12:13:11 PST 2004
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+clean up internal method interface
+    *
+------------------------------------------------------------
+User: jchiang  Mon Dec 20 12:13:11 PST 2004
 Likelihood/python
 
 Modified Files:
