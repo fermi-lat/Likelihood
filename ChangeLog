@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Oct  1 18:05:08 PDT 2004
+Likelihood/src/exposureMap
+
+Modified Files:
+	exposureMap.cxx 
+Log Message:
+add exposureMap.par
+    *
+------------------------------------------------------------
+User: jchiang  Fri Oct  1 18:05:08 PDT 2004
 Likelihood/src
 
 Modified Files:
