@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.9 2003/07/21 22:14:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.10 2003/08/06 20:52:08 jchiang Exp $
  */
 
 #include "Likelihood/TrapQuad.h"
@@ -77,5 +77,9 @@ double TrapQuad::compute_integral() {
    while (--n > 0) sum += m_y[n]*(m_x[n+1] - m_x[n-1])/2.;
    return sum;
 }
+
+// double TrapQuad::compute_log_integral() {
+
+// }
 
 } // namespace Likelihood

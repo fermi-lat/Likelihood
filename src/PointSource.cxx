@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.53 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.54 2004/11/28 06:58:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -48,10 +48,6 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
    m_srcType = rhs.m_srcType;
 }
 
-// void PointSource::readExposureCube(std::string expCubeFile) {
-//    ExposureCube::readExposureCube(expCubeFile);
-// }
-
 double PointSource::fluxDensity(double energy, double time,
                                 const astro::SkyDir &dir,
                                 int eventType) const {
@@ -75,6 +71,36 @@ double PointSource::fluxDensity(double energy, double time,
       optimizers::dArg energy_arg(energy);
       double spectrum = (*m_spectrum)(energy_arg);
       return ResponseFunctions::totalResponse(time, energy, energy, 
+                                              m_dir.getDir(), dir, eventType)
+         *spectrum;
+   }
+}
+
+double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
+                                const astro::SkyDir &xAxis,
+                                const astro::SkyDir &dir,
+                                int eventType) const {
+// Scale the energy spectrum by the psf value and the effective area
+// and convolve with the energy dispersion, if appropriate, all of
+// which are functions of time and spacecraft attitude and orbital
+// position.
+   if (ResponseFunctions::useEdisp()) {
+      unsigned int npts(s_trueEnergies.size());
+      std::vector<double> my_integrand(npts);
+      for (unsigned int k = 0; k < npts; k++) {
+         optimizers::dArg energy_arg(s_trueEnergies[k]);
+         double spectrum = (*m_spectrum)(energy_arg);
+         my_integrand[k] = spectrum
+            *ResponseFunctions::totalResponse(s_trueEnergies[k], energy,
+                                              zAxis, xAxis, m_dir.getDir(), 
+                                              dir, eventType);
+      }
+      TrapQuad trapQuad(s_trueEnergies, my_integrand);
+      return trapQuad.integral();
+   } else {
+      optimizers::dArg energy_arg(energy);
+      double spectrum = (*m_spectrum)(energy_arg);
+      return ResponseFunctions::totalResponse(energy, energy, zAxis, xAxis,
                                               m_dir.getDir(), dir, eventType)
          *spectrum;
    }
@@ -116,6 +142,40 @@ double PointSource::fluxDensityDeriv(double energy, double time,
       } else {
          optimizers::dArg energy_arg(energy);
          return ResponseFunctions::totalResponse(time, energy, energy,
+                                                 m_dir.getDir(), dir, 
+                                                 eventType)
+            *m_spectrum->derivByParam(energy_arg, paramName);
+      }
+   }
+}
+
+double PointSource::fluxDensityDeriv(double energy, 
+                                     const astro::SkyDir & zAxis,
+                                     const astro::SkyDir & xAxis,
+                                     const astro::SkyDir & dir,
+                                     int eventType,
+                                     const std::string &paramName) const {
+// For now, just implement for spectral Parameters and neglect
+// the spatial ones, "longitude" and "latitude"
+   if (paramName == "Prefactor") {
+      return fluxDensity(energy, zAxis, xAxis, dir, eventType)
+         /m_spectrum->getParamValue("Prefactor");
+   } else {
+      if (ResponseFunctions::useEdisp()) {
+         unsigned int npts(s_trueEnergies.size());
+         std::vector<double> my_integrand(npts);
+         for (unsigned int k = 0; k < npts; k++) {
+            optimizers::dArg energy_arg(s_trueEnergies[k]);
+            my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
+               *ResponseFunctions::totalResponse(s_trueEnergies[k], energy,
+                                                 zAxis, xAxis, m_dir.getDir(), 
+                                                 dir, eventType);
+         }
+         TrapQuad trapQuad(s_trueEnergies, my_integrand);
+         return trapQuad.integral();
+      } else {
+         optimizers::dArg energy_arg(energy);
+         return ResponseFunctions::totalResponse(energy, energy, zAxis, xAxis,
                                                  m_dir.getDir(), dir, 
                                                  eventType)
             *m_spectrum->derivByParam(energy_arg, paramName);
@@ -330,9 +390,6 @@ void PointSource::computeExposure(std::vector<double> &energies,
             double time = (thisInterval.second + thisInterval.first)/2.;
             exposure[k] += sourceEffArea(energies[k], time)
                *(thisInterval.second - thisInterval.first);
-//             exposure[k] += 
-//                ::sourceEffArea(energies[k], time, m_dir.getDir())
-//                *(thisInterval.second - thisInterval.first);
          }
       }
    }
@@ -373,14 +430,14 @@ void PointSource::makeEnergyVector(int nee) {
 }
 
 double PointSource::sourceEffArea(double energy, double time) const {
-   Likelihood::ScData * scData = Likelihood::ScData::instance();
+   ScData * scData = ScData::instance();
 
    astro::SkyDir zAxis = scData->zAxis(time);
 //   astro::SkyDir xAxis = scData->xAxis(time);
 
    const astro::SkyDir & srcDir = m_dir.getDir();
 
-   Likelihood::PointSource::Aeff aeff(energy, srcDir);
+   PointSource::Aeff aeff(energy, srcDir);
 
    double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
 
