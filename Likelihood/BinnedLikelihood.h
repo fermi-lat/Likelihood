@@ -3,11 +3,13 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.2 2004/09/15 23:12:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.3 2004/09/16 04:38:59 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
 #define Likelihood_BinnedLikelihood_h
+
+#include <map>
 
 #include "optimizers/dArg.h"
 
@@ -16,6 +18,8 @@
 #include "Likelihood/SourceModel.h"
 
 namespace Likelihood {
+
+class SourceMap;
 
 /*
  * @class BinnedLikelihood
@@ -50,6 +54,8 @@ private:
 
    std::vector<Pixel> m_pixels;
    std::vector<double> m_energies;
+
+   std::map<std::string, SourceMap *> m_srcMaps;
 
    mutable std::vector<double> m_model;
    mutable bool m_modelIsCurrent;

@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.5 2004/09/03 18:02:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.6 2004/09/22 03:20:21 jchiang Exp $
  */
 
 #include <algorithm>
@@ -22,6 +22,7 @@
 
 #include "evtbin/LinearBinner.h"
 #include "evtbin/LogBinner.h"
+#include "evtbin/OrderedBinner.h"
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/HistND.h"
@@ -54,6 +55,53 @@ CountsMap::CountsMap(const std::string & event_file,
    binners.push_back(new evtbin::LogBinner(emin, emax, nenergies, 
                                            "photon energy"));
 
+   init(binners, event_file, sc_file, num_x_pix, num_y_pix, 
+        ref_ra, ref_dec, pix_scale, emin, emax, nenergies, use_lb, proj);
+}
+
+CountsMap::CountsMap(const std::string & event_file, 
+                     const std::string & sc_file, 
+                     double ref_ra, double ref_dec, const std::string & proj, 
+                     unsigned long num_x_pix, unsigned long num_y_pix, 
+                     double pix_scale, double axis_rot, bool use_lb,
+                     const std::string & ra_field, 
+                     const std::string & dec_field, 
+                     const std::vector<double> & energies)
+   : DataProduct(event_file), m_hist(0), m_proj_name(proj), 
+     m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
+     m_use_lb(use_lb), m_proj(0) {
+
+// These binners will be deleted by the Hist base class.
+   std::vector<evtbin::Binner *> binners;
+
+// The astro::SkyDir::project method will convert ra and dec into 
+// bin indices, so we set up the LinearBinners generically by index.
+   binners.push_back(new evtbin::LinearBinner(0.5, num_x_pix + 0.5, 1., 
+                                              ra_field));
+   binners.push_back(new evtbin::LinearBinner(0.5, num_y_pix + 0.5, 1., 
+                                              dec_field));
+
+// Use custom energy bins.
+   std::vector<evtbin::Binner::Interval> energy_intervals;
+   for (unsigned int i = 0; i < energies.size()-1; i++) {
+      energy_intervals.push_back(evtbin::Binner::Interval(energies[i], 
+                                                          energies[i+1]));
+   }
+   binners.push_back(new evtbin::OrderedBinner(energy_intervals,
+                                               "photon energy"));
+   init(binners, event_file, sc_file, num_x_pix, num_y_pix, 
+        ref_ra, ref_dec, pix_scale, energies.front(), energies.back(), 
+        energies.size(), use_lb, proj);
+}
+
+void CountsMap::init(std::vector<evtbin::Binner *> & binners, 
+                     const std::string & event_file, 
+                     const std::string & sc_file, unsigned long num_x_pix, 
+                     unsigned long num_y_pix, double ref_ra, double ref_dec, 
+                     double pix_scale, double emin, double emax, 
+                     unsigned long nenergies, bool use_lb, 
+                     const std::string & proj) {
+
    m_hist = new HistND(binners);
 
    m_naxes[0] = num_x_pix;
@@ -72,10 +120,8 @@ CountsMap::CountsMap(const std::string & event_file,
    m_proj = new astro::SkyProj(proj, m_crpix, m_crval, m_cdelt, 
                                m_axis_rot, use_lb);
 
-// Collect any/all needed keywords from the event file.
    harvestKeywords(event_file, "EVENTS");
 
-// Correct time keywords.
    adjustTimeKeywords(sc_file);
 
 // Reset data dir for LatCountsMapTemplate
@@ -114,7 +160,6 @@ CountsMap::~CountsMap() throw() {
 void CountsMap::binInput(tip::Table::ConstIterator begin, 
                          tip::Table::ConstIterator end) {
 
-// Get binners for the three dimensions.
    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
 
 // From each sky binner, get the name of its field, interpreted as ra
@@ -123,23 +168,18 @@ void CountsMap::binInput(tip::Table::ConstIterator begin,
    std::string dec_field = binners[1]->getName();
    
 // Fill histogram, converting each RA/DEC to Sky X/Y on the fly:
-
    for (tip::Table::ConstIterator itor = begin; itor != end; ++itor) {
-      // Extract the ra and dec from each record.
       double ra = (*itor)[ra_field].get();
       double dec = (*itor)[dec_field].get();
       
-      // Convert to sky coordinates.
       std::pair<double, double> coord 
          = astro::SkyDir(ra, dec).project(*m_proj);
 
-      // Get the event energy.
       double energy = (*itor)["ENERGY"].get();
 
       double my_values[] = {coord.first, coord.second, energy};
       std::vector<double> values(my_values, my_values + 3);
 
-      // Bin the value.
       m_hist->fillBin(values);
    }
 }
@@ -147,20 +187,14 @@ void CountsMap::binInput(tip::Table::ConstIterator begin,
 void CountsMap::writeOutput(const std::string & creator, 
                             const std::string & out_file) const {
 
-// Standard file creation from base class.
    createFile(creator, out_file, m_data_dir + "LatCountsMapTemplate");
    
-// Open Count map extension of output PHA1 file. Use an auto_ptr so
-// that the table object will for sure be deleted, even if an
-// exception is thrown.
    std::auto_ptr<tip::Image> 
        output_image(tip::IFileSvc::instance().editImage(out_file, ""));
 
-// Get dimensions of image.
    typedef std::vector<tip::PixOrd_t> DimCont_t;
    DimCont_t dims = output_image->getImageDimensions();
 
-// Make sure image is three dimensional.
    DimCont_t::size_type num_dims = dims.size();
    if (3 != num_dims) {
       throw std::runtime_error("CountsMap::writeOutput "
@@ -168,10 +202,8 @@ void CountsMap::writeOutput(const std::string & creator,
                                + "to an image which is not 3D");
    }
    
-// Get the binners.
    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
 
-// Write c* keywords
    tip::Header & header = output_image->getHeader();
    header["CRPIX1"].set(m_crpix[0]);
    header["CRPIX2"].set(m_crpix[1]);
@@ -183,8 +215,13 @@ void CountsMap::writeOutput(const std::string & creator,
    header["CDELT2"].set(m_cdelt[1]);
    header["CDELT3"].set(m_cdelt[2]);
    header["CROTA2"].set(m_axis_rot);
-   header["CTYPE1"].set(binners[0]->getName() + "---" + m_proj_name);
-   header["CTYPE2"].set(binners[1]->getName() + "---" + m_proj_name);
+   if (m_use_lb) {
+      header["CTYPE1"].set("GLON-" + m_proj_name);
+      header["CTYPE2"].set("GLAT-" + m_proj_name);
+   } else {
+      header["CTYPE1"].set(binners[0]->getName() + "---" + m_proj_name);
+      header["CTYPE2"].set(binners[1]->getName() + "---" + m_proj_name);
+   }
    header["CTYPE3"].set(binners[2]->getName());
 
 // Resize image dimensions to conform to the binner dimensions.
@@ -192,7 +229,6 @@ void CountsMap::writeOutput(const std::string & creator,
       dims[index] = binners.at(index)->getNumBins();
    }
 
-// Set size of image.
    output_image->setImageDimensions(dims);
 
 // Copy bins into image.
@@ -201,7 +237,6 @@ void CountsMap::writeOutput(const std::string & creator,
              float_image.begin());
    output_image->set(float_image);
 
-// Write the GTI extension.
    writeGti(out_file);
 //    std::cout << "Done." << std::endl;
 }
