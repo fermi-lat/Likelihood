@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author jchiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.2 2005/02/15 00:34:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.3 2005/02/15 04:17:03 jchiang Exp $
  */
 
 #include <algorithm>
@@ -89,6 +89,7 @@ void MapCubeFunction::init() {
 }
 
 void MapCubeFunction::readFitsFile(const std::string & fitsFile) {
+   m_fitsFile = fitsFile;
    FitsImage fitsImage(fitsFile);
 
    std::vector<std::string> axisNames;

@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.1 2005/02/14 06:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.2 2005/02/15 00:34:42 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  * a function of position on the sky.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.1 2005/02/14 06:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.2 2005/02/15 00:34:42 jchiang Exp $
  */
 
 class MapCubeFunction : public optimizers::Function {
@@ -37,18 +37,6 @@ public:
       init();
       readFitsFile(fitsFile);
    }
-   
-//    MapCubeFunction(const MapCubeFunction & rhs) : optimizers::Function(rhs) {
-//       m_coordSys = rhs.m_coordSys;
-//       m_image = rhs.m_image;
-//       m_lon = rhs.m_lon;
-//       m_lonMin = rhs.m_lonMin;
-//       m_lonMax = rhs.m_lonMax;
-//       m_lat = rhs.m_lat;
-//       m_latMin = rhs.m_latMin;
-//       m_latMax = rhs.m_latMax;
-//       m_energies = rhs.m_energies;
-//    }
 
    virtual ~MapCubeFunction() {}
 
@@ -66,7 +54,13 @@ public:
 
    void readFitsFile(const std::string & fitsFile);
 
+   const std::string & fitsFile() const {
+      return m_fitsFile;
+   }
+
 private:
+
+   std::string m_fitsFile;
 
    std::string m_coordSys;
    std::vector<double> m_image;

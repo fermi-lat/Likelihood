@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.23 2004/11/28 06:58:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.24 2005/02/15 00:34:46 jchiang Exp $
  */
 
 #include <algorithm>
@@ -26,6 +26,7 @@
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/ResponseFunctions.h"
+#include "Likelihood/SkyDirArg.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/TrapQuad.h"
@@ -97,6 +98,10 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
                value += ExposureCube::instance()->value(pixel->dir(), aeff);
             }
          } else if (haveDiffuseSource) {
+            DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
+            if (haveMapCubeFunction(diffuseSrc)) {
+               recomputeSrcStrengths(diffuseSrc, *energy);
+            }
             value = sourceRegionIntegral(*energy);
          } else {
             value = 0;
@@ -185,7 +190,11 @@ double SourceMap::Aeff::operator()(double costheta) const {
    static double phi(0);
    return ResponseFunctions::totalResponse(inclination, phi, m_energy,
                                            m_energy, m_separation, m_type);
+}
 
+bool SourceMap::haveMapCubeFunction(DiffuseSource * src) const {
+   Source::FuncMap & srcFuncs = src->getSrcFuncs();
+   return srcFuncs["SpatialDist"]->genericName() == "MapCubeFunction";
 }
 
 double SourceMap::sourceRegionIntegral(double energy) const {
@@ -239,9 +248,19 @@ void SourceMap::computeSrcDirs(const Pixel & pixel, Source * src) {
          astro::SkyDir srcDir;
          getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
          m_srcDirs.push_back(srcDir);
-/// @todo Figure out how to handle MapCubeFunctions.
-         m_srcStrengths.push_back(diffuseSrc->spatialDist(srcDir));
+         if (!haveMapCubeFunction(diffuseSrc)) {
+            m_srcStrengths.push_back(diffuseSrc->spatialDist(srcDir));
+         }
       }
+   }
+}
+
+void SourceMap::recomputeSrcStrengths(DiffuseSource * src, double energy) {
+   m_srcStrengths.clear();
+   m_srcStrengths.reserve(m_srcDirs.size());
+   std::vector<astro::SkyDir>::const_iterator dir;
+   for (dir = m_srcDirs.begin(); dir != m_srcDirs.end(); ++dir) {
+      m_srcStrengths.push_back(src->spatialDist(SkyDirArg(*dir, energy)));
    }
 }
 

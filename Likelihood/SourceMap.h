@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.17 2004/11/17 22:57:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.18 2004/11/28 06:58:20 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -22,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.17 2004/11/17 22:57:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.18 2004/11/28 06:58:20 jchiang Exp $
  */
 
 class SourceMap {
@@ -106,6 +106,10 @@ private:
                         astro::SkyDir & dir) const;
 
    void fitsReportError(FILE *stream, int status) const;
+
+   bool haveMapCubeFunction(DiffuseSource * src) const;
+
+   void recomputeSrcStrengths(DiffuseSource * src, double energy);
 
 };
 
