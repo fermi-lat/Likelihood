@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.6 2003/05/20 18:26:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.7 2003/05/20 23:50:15 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
@@ -15,7 +15,7 @@
 
 //#define HAVE_CCFITS
 #ifdef HAVE_CCFITS
-#include "CCfits/CCfits"
+#include <CCfits>
 #endif
 
 #include <utility>
