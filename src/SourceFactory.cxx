@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.21 2003/08/13 21:06:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.22 2003/08/13 21:45:50 jchiang Exp $
  */
 
 #include <sstream>
@@ -147,8 +147,13 @@ void SourceFactory::readXml(const std::string &xmlFile,
 // be one of each).
       std::vector<DOM_Element> child;
 
-      optimizers::Dom::getElements(*srcIt, "spectrum", child);
-      DOM_Element spectrum = child[0];
+      DOM_Element spectrum;
+      try {
+         optimizers::Dom::getElements(*srcIt, "spectrum", child);
+         spectrum = child[0];
+      } catch (optimizers::Exception &eObj) {
+         std::cerr << eObj.what() << std::endl;
+      }
 
       optimizers::Dom::getElements(*srcIt, "spatialModel", child);
       DOM_Element spatialModel = child[0];
