@@ -44,6 +44,8 @@
 #include "AbsEdge.h"
 #include "Rosen.h"
 
+#include "Likelihood/FunctionTest.h"
+
 using namespace Likelihood;   // for testing purposes only
 
 void read_SC_Response_data();
@@ -78,30 +80,30 @@ std::string test_path;
 
 int main() {
    read_SC_Response_data();
-//    test_Parameter_class();
-//    test_Function_class();
-//    test_PowerLaw_class();
-//    test_SourceModel_class();
+   test_Parameter_class();
+   test_Function_class();
+   test_PowerLaw_class();
+   test_SourceModel_class();
    test_Table_class();
-//    test_Statistic_class();
-//    test_Event_class();
-//    test_PointSource_class();
-//    test_Aeff_class();
-//    test_Psf_class();
-//    test_logLike_ptsrc();
-//    test_CompositeFunction();
-//    test_SpectrumFactory();
-//    test_SourceFactory();
-//    test_OptPP();
-//    fit_3C279();
-//    fit_anti_center();
-//    test_FitsImage();
-//    test_ExposureMap();
-//    test_SpatialMap();
-//    test_DiffuseSource();
-//    fit_DiffuseSource();
-//    test_Mcmc();
-//    test_cfitsio();
+   test_Statistic_class();
+   test_Event_class();
+   test_PointSource_class();
+   test_Aeff_class();
+   test_Psf_class();
+   test_logLike_ptsrc();
+   test_CompositeFunction();
+   test_SpectrumFactory();
+   test_SourceFactory();
+   test_OptPP();
+   fit_3C279();
+   fit_anti_center();
+   test_FitsImage();
+   test_ExposureMap();
+   test_SpatialMap();
+   test_DiffuseSource();
+   fit_DiffuseSource();
+   test_Mcmc();
+   test_cfitsio();
    return 0;
 }
 
@@ -1738,41 +1740,46 @@ void test_PowerLaw_class() {
    }
    std::cout << std::endl;
 
-
 } // PowerLaw class tests
 
 /************************/
 /* Function class tests */
 /************************/
 void test_Function_class() {
-   MyFun f; 
-   std::cout << "Giving your function a name...." << std::endl;
-   f.setMyName("Hal");
+   std::cout << "Function classs tests:" << std::endl;
+
+// test constructor and addParam() method (see MyFun.cxx)
+   MyFun f;
+
+   f.setName("Hal");
+   assert(f.getName() == std::string("Hal"));
    
-   std::cout << "Its name is " << f.getMyName()
-             << ".  Hi, " << f.getMyName() << "!"
-             << std::endl;
-
-/* setting and getting parameter names and values */
-   std::cout << "Naming and setting " << f.getMyName()
-             << "'s parameters..." << std::endl;
-   f.setParam(std::string("Ruthie"), 1.);
-   f.setParam(std::string("Mary"), 2.);
-   f.setParam(std::string("Jane"), 3e-5);
-
-   std::vector<std::string> my_paramNames;
-   f.getParamNames(my_paramNames);
-      
-   std::cout << "Here they are: " << std::endl;
-   for (unsigned int i = 0; i < f.getNumParams(); i++) {
-      std::cout << my_paramNames[i] << ":  " 
-                << f.getParamValue(my_paramNames[i]) 
-                << std::endl;
+// setting and getting parameter names and values
+   double vals[] = {1., 2., 4.};
+   char *names[] = {"Ruthie", "Mary", "Jane"};
+   for (int i = 0; i < 3; i++) {
+      f.setParam(names[i], vals[i]);
    }
-   dArg x(3); 
-   std::cout << "f(3) = " << f(x) << std::endl;
 
-/* try to access a parameter not named in the function */
+   std::vector<std::string> paramNames;
+   f.getParamNames(paramNames);
+   for (unsigned int i = 0; i < paramNames.size(); i++) {
+      assert(paramNames[i] == std::string(names[i]));
+   }
+      
+   for (unsigned int i = 0; i < f.getNumParams(); i++) {
+      assert(f.getParamValue(paramNames[i]) == vals[i]);
+   }
+
+// argument passing using dArg class
+   dArg x(3);
+   double f_val = 0;   // recall value(...) implementation from MyFun.cxx
+   for (int i = 0; i < 3; i++) {
+      f_val += vals[i]*pow(3, i);
+   }
+   assert(f(x) == f_val);
+
+// try to access a parameter not named in the function
    try {
       double value = f.getParamValue("foo");
       std::cout << value << std::endl;
@@ -1780,57 +1787,63 @@ void test_Function_class() {
       std::cout << eObj.what() << std::endl;
    }
 
-/* reset all of the parameters in one shot */
-   std::cout << "Resetting these guys in one shot..." << std::endl;
+// reset all of the parameters in one shot
    std::vector<double> inputVec;
-   for (unsigned int i=0; i < f.getNumParams(); i++) { 
-      inputVec.push_back(double(i*i));
+   for (unsigned int i = 0; i < f.getNumParams(); i++) { 
+      inputVec.push_back(i*i);
+      vals[i] = i*i;
    }
    f.setParamValues(inputVec);
 
-/* change the value of an existing parameter */
-   f.setParam(std::string("Ruthie"), 10.);
+// retrieve them in one shot and ensure that the values are correct
+   std::vector<double> returnVec;
+   f.getParamValues(returnVec);
+   for (unsigned int i = 0; i < returnVec.size(); i++) {
+      assert(returnVec[i] == static_cast<double>(i*i));
+   }
 
-/* attempt to change the value of a non-existent parameter */
+// change the value of an existing parameter
+   f.setParam(std::string("Ruthie"), 10);
+   assert(f.getParamValue("Ruthie") == 10);
+
+// attempt to change the value of a non-existent parameter
    try {
       f.setParam(std::string("Oscar"), 5.);
    } catch(LikelihoodException &eObj) {
       std::cout << eObj.what() << std::endl;
    }
-      
-   std::cout << "The current set of values: " << std::endl;
-   std::vector<double> my_params;
-   f.getParamValues(my_params);
-   for (unsigned int i = 0; i < my_params.size(); i++) {
-      std::cout << my_params[i] << " ";
-   }
+
+// check group accessors
+   std::vector<double> params;
+   f.getParamValues(params);
+   assert(params[0] == 10);
+   assert(params[1] == vals[1]);
+   assert(params[2] == vals[2]);
+
+// get derivatives wrt parameters...
+//
+// one-by-one:
    x = dArg(2);
-   std::cout << " f(2) = " << f(x) << std::endl;
-
-/* get derivatives wrt parameters */
-   std::cout << "getting derivatives one-by-one:" << std::endl;
-   for (unsigned int i = 0; i < my_paramNames.size(); i++) {
-      std::cout << my_paramNames[i] << ":  "
-                << f.derivByParam(x, my_paramNames[i]) << std::endl;
+   for (unsigned int i = 0; i < paramNames.size(); i++) {
+      assert(f.derivByParam(x, paramNames[i]) == pow(2, i));
    }
 
-   std::cout << "all derivatives in one shot:" << std::endl;
-   std::vector<double> my_derivs;
-   f.getDerivs(x, my_derivs);
-   for (unsigned int i = 0; i < my_paramNames.size(); i++) {
-      std::cout << f.derivByParam(x, my_paramNames[i]) << "  ";
+// all derivatives in one shot:
+   std::vector<double> derivs;
+   f.getDerivs(x, derivs);
+   for (unsigned int i = 0; i < derivs.size(); i++) {
+      assert(derivs[i] == pow(2, i));
    }
-   std::cout << std::endl;
 
-/* test of pointers to Parameter */
-   Parameter *ptrP = f.getParam(std::string("Mary"));
-   if (ptrP != NULL) {
-      std::cout << ptrP->getName() << ":  " 
-                << ptrP->getValue() << std::endl;
+// test of pointers to Parameter
+   for (unsigned int i = 0; i < paramNames.size(); i++) {
+      Parameter *ptrP = f.getParam(paramNames[i]);
+      assert(ptrP->getName() == paramNames[i]);
+      assert(ptrP->getValue() == params[i]);
    }
-      
+
    try {
-      ptrP = f.getParam(std::string("Joan"));
+      Parameter *ptrP = f.getParam(std::string("Joan"));
       if (ptrP != NULL) {
          std::cout << ptrP->getName() << ":  " 
                    << ptrP->getValue() << "\n" << std::endl;
@@ -1840,18 +1853,44 @@ void test_Function_class() {
       std::cout << eObj.what() << std::endl;
    }
 
-/* test the Function copy constructor */
-
+// test the default Function copy assignment operator
    MyFun f2 = f;
-
    for (double x = 0; x < 100.; x += 5.) {
       dArg xarg(x);
-      std::cout << x << "  " 
-                << f(xarg) << "  " 
-                << f2(xarg) << "  " 
-                << std::endl;
+      assert(f(xarg) == f2(xarg));
    }
 
+// default FunctionTests
+
+   FunctionTest myTests(f, "Hal");
+
+   std::vector<Parameter> parameters;
+   parameters.push_back(Parameter("Ruthie", 1.));
+   parameters.push_back(Parameter("Mary", 4.));
+   parameters.push_back(Parameter("Jane", 8.));
+
+   myTests.parameters(parameters);
+
+   myTests.freeParameters(parameters);
+
+   std::vector<Arg*> args;
+   args.push_back(new dArg(1));
+   args.push_back(new dArg(2));
+   args.push_back(new dArg(4));
+   args.push_back(new dArg(8));
+
+   double ret_vals[] = {15, 28, 78, 274};
+   std::vector<double> retVals(ret_vals, ret_vals+4);
+
+   myTests.funcEvaluations(args, retVals);
+
+   myTests.derivatives(args);
+
+   for (unsigned int i = 0; i < args.size(); i++)
+      delete args[i];
+
+   std::cout << "Function class: all tests ok." << std::endl;
+      
 } // Function class (MyFun) tests
 
 /*************************/
@@ -1876,16 +1915,30 @@ void test_Parameter_class() {
    my_param.setValue(25.);
    my_params.push_back(my_param);
 
-// test for consistency...e.g., check values manually
    std::vector<Parameter>::iterator iter = my_params.begin();
    for (; iter != my_params.end(); iter++) {
-      std::cout << (*iter).getName() << ":  " 
-                << (*iter).getValue() << "  "
-                << (*iter).getBounds().first << "  "
-                << (*iter).getBounds().second << "  "
-                << (*iter).isFree()
+      std::cout << iter->getName() << ":  " 
+                << iter->getValue() << "  "
+                << iter->getBounds().first << "  "
+                << iter->getBounds().second << "  "
+                << iter->isFree()
                 << std::endl;
    }
+
+// test for consistency...
+   assert(my_params[0].getName() == std::string("William"));
+   assert(my_params[0].getValue() == 42.);
+
+   assert(my_params[1].getName() == std::string("Tecumseh"));
+   assert(my_params[1].getValue() == 13.7);
+   assert(my_params[1].getBounds().first == 0.);
+   assert(my_params[1].getBounds().second == 20.);
+
+   assert(my_params[2].getName() == std::string("Sherman"));
+   assert(my_params[2].getValue() == 25);
+   assert(my_params[2].getBounds().first == -10);
+   assert(my_params[2].getBounds().second == 30);
+
    std::cout << std::endl;
 
 // test for failure
@@ -1910,6 +1963,7 @@ void test_Parameter_class() {
                 << "maxValue: " << eObj.maxValue() << "\n"
                 << std::endl;
    }
+   std::cout << "Parameter class: all tests ok.\n" << std::endl;
 
 } // Parameter class tests
 
