@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.5 2004/09/13 15:30:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.6 2004/09/22 03:20:20 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -18,9 +18,11 @@ namespace astro {
    class SkyProj;
 }
 
-namespace Likelihood {
+namespace evtbin {
+   class Binner;
+}
 
-#include "fitsio.h"
+namespace Likelihood {
 
 /**
  * @class CountsMap
@@ -37,6 +39,13 @@ public:
              double pix_scale, double axis_rot, bool use_lb, 
              const std::string & ra_field, const std::string & dec_field,
              double emin, double emax, unsigned long nenergies);
+
+   CountsMap(const std::string & event_file, const std::string & sc_file,
+             double ref_ra, double ref_dec, const std::string & proj,
+             unsigned long num_x_pix, unsigned long num_y_pix, 
+             double pix_scale, double axis_rot, bool use_lb, 
+             const std::string & ra_field, const std::string & dec_field,
+             const std::vector<double> & energies);
 
    CountsMap(const CountsMap & counts_map);
 
@@ -75,6 +84,14 @@ protected:
    astro::SkyProj * m_proj;
 
 private:
+
+   void init(std::vector<evtbin::Binner *> & binners, 
+             const std::string & event_file, 
+             const std::string & sc_file, unsigned long num_x_pix, 
+             unsigned long num_y_pix, 
+             double ref_ra, double ref_dec, double pix_scale, double emin,
+             double emax, unsigned long nenergies, bool use_lb, 
+             const std::string & proj);
 
    double computeSolidAngle(std::vector<double>::const_iterator lon,
                             std::vector<double>::const_iterator lat,

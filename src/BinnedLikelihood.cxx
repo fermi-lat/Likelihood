@@ -3,11 +3,12 @@
  * @brief First cut at a binned likelihood implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.5 2004/09/21 14:51:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.6 2004/09/22 03:20:21 jchiang Exp $
  */
 
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/SourceMap.h"
 #include "Likelihood/SourceModel.h"
 
 namespace Likelihood {
@@ -16,6 +17,14 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap)
    : m_dataMap(dataMap), m_modelIsCurrent(false) {
    dataMap.getPixels(m_pixels);
    dataMap.getAxisVector(2, m_energies);
+
+   std::vector<std::string> srcNames;
+   getSrcNames(srcNames);
+   std::vector<std::string>::const_iterator name = srcNames.begin();
+   for ( ; name != srcNames.end(); ++name) {
+      Source * src = getSource(*name);
+      m_srcMaps[*name] = new SourceMap(src, dataMap);
+   }
 }
 
 double BinnedLikelihood::value(optimizers::Arg &dummy) const {

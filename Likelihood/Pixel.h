@@ -4,7 +4,7 @@
  * derivatives wrt model parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.2 2004/09/16 04:38:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.3 2004/09/21 14:51:20 jchiang Exp $
  */
 
 #ifndef Likelihood_Pixel_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.2 2004/09/16 04:38:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.3 2004/09/21 14:51:20 jchiang Exp $
  */
 
 class Pixel {
@@ -50,12 +50,14 @@ public:
    void getFreeDerivs(double emin, double emax, SourceModel & srcModel,
                       std::vector<double> & derivs) const;
 
+   const astro::SkyDir & dir() const {return m_dir;}
+
    class Aeff : public map_tools::Exposure::Aeff {
    public:
       Aeff(Source * src, const astro::SkyDir & appDir, 
            double energy, int type);
       virtual double operator()(double costheta) const;
-   private:
+   protected:
       Source * m_src;
       const astro::SkyDir & m_appDir;
       double m_energy;
@@ -69,7 +71,7 @@ public:
                 const astro::SkyDir & appDir, double energy, int type);
       virtual ~AeffDeriv() {}
       virtual double operator()(double costheta) const;
-   private:
+   protected:
       Source * m_src;
       std::string m_paramName;
       const astro::SkyDir & m_appDir;
