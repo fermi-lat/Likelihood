@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Oct  9 08:29:06 PDT 2004
+Likelihood/src/exposureMap
+
+Modified Files:
+	exposureMap.cxx 
+Log Message:
+simplify exposureMap; correct energies in gtsrcmaps; update test code
+    *
+------------------------------------------------------------
 User: jchiang  Sat Oct  9 08:29:05 PDT 2004
 Likelihood/doc
 
