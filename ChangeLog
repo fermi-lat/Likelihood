@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct  5 22:31:15 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedExposure.h 
+Log Message:
+finish off BinnedExposure and add unit test
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct  5 16:52:12 PDT 2004
 Likelihood/src
 
