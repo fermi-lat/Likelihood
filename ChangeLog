@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sat Feb 28 19:00:28 PST 2004
+Likelihood/data
+
+Added Files:
+	expMap_0.fits expMap_1.fits expMap_2.fits expMap_3.fits 
+	expMap_4.fits galdiffuse_events_0000.fits 
+	single_src_events_0000.fits single_src_scData_0000.fits 
+Log Message:
+tagging v2r10
+    *
+------------------------------------------------------------
 User: jchiang  Sat Feb 28 19:00:23 PST 2004
 Likelihood/cmt
 
