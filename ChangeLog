@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Dec 21 22:06:49 PST 2004
+Likelihood/src
+
+Modified Files:
+	Npred.cxx SkyDirFunction.cxx SourceModel.cxx 
+	SpectrumFactory.cxx tutorial.h 
+Log Message:
+accommodate optimizer package interface changes
+    *
+------------------------------------------------------------
 User: jchiang  Tue Dec 21 22:06:47 PST 2004
 Likelihood/Likelihood
 
