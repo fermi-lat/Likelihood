@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r5   04-Dec-04  JC   add plot param; adjust chatter level; 
+                           tag before refactoring ROI cuts
     v5r4p3 28-Nov-04  JC   fix typo in gtsrcmaps
     v5r4p2 28-Nov-04  JC   revise clobber logic in makeExposureMap
     v5r4p1 28-Nov-04  JC   delete file to be clobbered rather than using
