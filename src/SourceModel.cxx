@@ -3,29 +3,22 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.37 2004/02/07 23:14:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.38 2004/02/18 21:13:28 jchiang Exp $
  */
 
 #include <cmath>
 #include <cassert>
 #include <vector>
 #include <string>
-#include <sstream>
-#include <fstream>
 #include <algorithm>
 
-#include "xml/XmlParser.h"
 #include "xml/Dom.h"
-#include <xercesc/dom/DOM_Document.hpp>
-#include <xercesc/dom/DOM_Element.hpp>
-#include <xercesc/dom/DOM_NodeList.hpp>
-#include <xercesc/dom/DOM_DOMException.hpp>
+#include "xml/XmlParser.h"
 
 #include "facilities/Util.h"
 
 #include "astro/SkyDir.h"
 
-#include "optimizers/Dom.h"
 #include "optimizers/Arg.h"
 #include "optimizers/FunctionFactory.h"
 
@@ -35,7 +28,8 @@
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/PointSource.h"
-#include "Likelihood/FluxModel.h"
+#include "Likelihood/FluxBuilder.h"
+#include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/SourceModel.h"
 
 namespace Likelihood {
@@ -69,11 +63,9 @@ void SourceModel::setParam(const optimizers::Parameter &param,
          }
       }
    }
-   std::ostringstream errorMessage;
-   errorMessage << "SourceModel::setParam:  Function " 
-                << funcName << " for Source "
-                << srcName << " was not found.\n";
-   throw Exception(errorMessage.str());
+   std::string errorMessage = "SourceModel::setParam:\n Function " 
+      + funcName + " for Source " + srcName + " was not found.";
+   throw Exception(errorMessage);
 }
  
 std::vector<double>::const_iterator SourceModel::setParamValues_(
@@ -123,19 +115,15 @@ optimizers::Parameter SourceModel::getParam(const std::string &paramName,
             throw optimizers::ParameterNotFound(paramName, funcName, 
                                                 "SourceModel::getParam");
          }
-         std::ostringstream errorMessage;
-         errorMessage << "SourceModel::getParam:\n"
-                      << "Function " << funcName 
-                      << " was not found in Source " 
-                      << srcName << "\n";
-         throw optimizers::Exception(errorMessage.str());
+         std::string errorMessage = "SourceModel::getParam:\n Function"
+            + funcName + " was not found in Source " 
+            + srcName + ".";
+         throw optimizers::Exception(errorMessage);
       }
    }
-   std::ostringstream errorMessage;
-   errorMessage << "SourceModel::getParam: "
-                << "Source " << srcName 
-                << " was not found.\n";
-   throw optimizers::Exception(errorMessage.str());
+   std::string errorMessage = "SourceModel::getParam:\nSource "
+      + srcName + " was not found.";
+   throw optimizers::Exception(errorMessage);
 }
 
 void SourceModel::setParamBounds(const std::string &paramName,
@@ -174,7 +162,7 @@ void SourceModel::setParamTrueValue(const std::string &paramName,
 void SourceModel::setParams_(std::vector<optimizers::Parameter> &params, 
                              bool setFree) 
    throw(optimizers::Exception, optimizers::ParameterNotFound) {
-// ensure the number of Parameters matches
+// Ensure the number of Parameters matches.
    unsigned int numParams;
    if (setFree) {
       numParams = getNumFreeParams();
@@ -183,11 +171,11 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
    }
    if (params.size() != numParams) {
       std::string errorMessage = std::string("SourceModel::setParams:\n") 
-         + std::string("Inconsistent number of Parameters.");
+         + "Inconsistent number of Parameters.";
       throw Exception(errorMessage);
    }
-// assume ordering of Parameters in params matches that given by the
-// ordering of the Sources and their Functions
+// Assume ordering of Parameters in params matches that given by the
+// ordering of the Sources and their Functions.
    int k = 0;  // params' index
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
@@ -209,11 +197,11 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
 }
 
 void SourceModel::addSource(Source *src) {
-// loop over sources to ensure unique names
+// Loop over sources to ensure unique names (Should refactor s_sources
+// as a map).
    for (unsigned int i = 0; i < s_sources.size(); i++) 
       assert((*src).getName() != (*s_sources[i]).getName());
 
-// add a clone of this Source to the vector
    s_sources.push_back(src->clone());
 
    syncParams();
@@ -230,10 +218,9 @@ Source * SourceModel::deleteSource(const std::string &srcName)
          return mySource;
       }
    }
-   std::ostringstream errorMessage;
-   errorMessage << "SourceModel::deleteSource: " 
-                << srcName << " was not found.\n";
-   throw Exception(errorMessage.str());
+   std::string errorMessage = "SourceModel::deleteSource:\n" 
+      + srcName + " was not found.";
+   throw Exception(errorMessage);
 }
 
 void SourceModel::deleteAllSources() {
@@ -255,9 +242,7 @@ Source * SourceModel::getSource(const std::string &srcName) {
 }
 
 void SourceModel::getSrcNames(std::vector<std::string> &names) const {
-// ensure names is empty
-   if (!names.empty()) names.erase(names.begin(), names.end());
-
+   names.clear();
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       names.push_back(s_sources[i]->getName());
    }
@@ -275,8 +260,7 @@ double SourceModel::value(optimizers::Arg &x) const {
    return my_val;
 }
 
-// remake parameter vector from scratch 
-void SourceModel::syncParams() {
+void SourceModel::syncParams() { // remake parameter vector from scratch 
    m_parameter.clear();
 
    for (unsigned int i = 0; i < s_sources.size(); i++) {
@@ -291,9 +275,10 @@ void SourceModel::syncParams() {
    }
 }
 
-void SourceModel::fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
+void SourceModel::fetchDerivs(optimizers::Arg &x,
+                              std::vector<double> &derivs, 
                               bool getFree) const {
-   if (!derivs.empty()) derivs.clear();
+   derivs.clear();
 
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
@@ -321,9 +306,9 @@ void SourceModel::readXml(std::string xmlFile,
    SourceFactory srcFactory;
    try {
       srcFactory.readXml(xmlFile, funcFactory);
-   } catch (DOM_DOMException &eObj) {
-      std::cout << "DOMException: " 
-                << eObj.code << std::endl;
+   } catch (xml::DomException &eObj) {
+      std::cout << "SourceModel::readXml:\n DomException: " 
+                << eObj.what() << std::endl;
    }
 
 // Loop over the sources that are now contained in srcFactory and add
@@ -334,7 +319,7 @@ void SourceModel::readXml(std::string xmlFile,
    std::vector<std::string>::iterator nameIt = srcNames.begin();
    for ( ; nameIt != srcNames.end(); nameIt++) {
       Source *src = srcFactory.create(*nameIt);
-      std::cout << "adding source " << *nameIt << std::endl;
+      if (m_verbose) std::cout << "adding source " << *nameIt << std::endl;
       addSource(src);
    }
    syncParams();
@@ -342,38 +327,38 @@ void SourceModel::readXml(std::string xmlFile,
 
 void SourceModel::reReadXml(std::string xmlFile) {
 
-// Expand any environment variables in the xmlFile name.
    facilities::Util::expandEnvVar(&xmlFile);
 
    xml::XmlParser *parser = new xml::XmlParser();
 
-   DOM_Document doc = parser->parse(xmlFile.c_str());
+   DomDocument doc = parser->parse(xmlFile.c_str());
 
-   if (doc == 0) { // xml file not parsed successfully
-      std::ostringstream errorMessage;
-      errorMessage << "SourceFactory::readXml: "
-                   << "Input xml file, " << xmlFile
-                   << " not parsed successfully.\n";
-      throw Exception(errorMessage.str());
+   if (doc == 0) {
+      std::string errorMessage = "SourceFactory::readXml:\nInput xml file, "
+         + xmlFile + ", not parsed successfully.";
+      throw Exception(errorMessage);
    }
 
-   DOM_Element source_library = doc.getDocumentElement();
-   optimizers::Dom::checkTag(source_library, "source_library",
-                             "SourceFactory::readXml");
+//*** direct Xerces API call...still available in Xerces 2.4.0 ***/
+   DomElement source_library = doc.getDocumentElement();
+   if (!xml::Dom::checkTagName(source_library, "source_library")) {
+      throw Exception("SourceModel::reReadXml:\nsource_library not found");
+   }
 
 // Loop through source DOM_Elements and Source objects in parallel.
-   std::vector<DOM_Element> srcs;
-   optimizers::Dom::getElements(source_library, "source", srcs);
+   std::vector<DomElement> srcs;
+   xml::Dom::getChildrenByTagName(source_library, "source", srcs);
 
    assert(srcs.size() == s_sources.size());
    for (unsigned int j = 0; j < srcs.size(); j++) {
       std::string srcType = xml::Dom::getAttribute(srcs[j], "type");
 // Get spectrum and spatialModel elements
-      std::vector<DOM_Element> child;
-      optimizers::Dom::getElements(srcs[j], "spectrum", child);
-      DOM_Element spectrum = child[0];
-      optimizers::Dom::getElements(srcs[j], "spatialModel", child);
-      DOM_Element spatialModel = child[0];
+      std::vector<DomElement> child;
+      xml::Dom::getChildrenByTagName(srcs[j], "spectrum", child);
+      DomElement spectrum = child[0];
+
+      xml::Dom::getChildrenByTagName(srcs[j], "spatialModel", child);
+      DomElement spatialModel = child[0];
 
       s_sources[j]->getSrcFuncs()["Spectrum"]->setParams(spectrum);
       if (srcType == "PointSource") {
@@ -381,9 +366,10 @@ void SourceModel::reReadXml(std::string xmlFile) {
 // PointSource::setDir(...) method to ensure that exposure gets
 // recalculated.
          double ra(0), dec(0);
-         std::vector<DOM_Element> params;
-         optimizers::Dom::getElements(spatialModel, "parameter", params);
-         std::vector<DOM_Element>::const_iterator paramIt = params.begin();
+         std::vector<DomElement> params;
+         xml::Dom::getChildrenByTagName(spatialModel, "parameter", params);
+
+         std::vector<DomElement>::const_iterator paramIt = params.begin();
          for ( ; paramIt != params.end(); paramIt++) {
             std::string name = xml::Dom::getAttribute(*paramIt, "name");
             if (name == "RA")
@@ -414,89 +400,26 @@ void SourceModel::writeXml(std::string xmlFile,
                            const std::string &functionLibrary,
                            const std::string &srcLibTitle) {
 
-   xml::XmlParser *parser = new xml::XmlParser();
+   SourceModelBuilder builder(functionLibrary, srcLibTitle);
 
-   DOM_Document doc = DOM_Document::createDocument();
-
-   DOM_Element srcLib = doc.createElement("source_library");
-   if (functionLibrary != "") {
-      srcLib.setAttribute("function_library", functionLibrary.c_str());
-   }
-
-   srcLib.setAttribute("title", srcLibTitle.c_str());
-
-// Loop over Sources.
    std::vector<Source *>::iterator srcIt = s_sources.begin();
    for ( ; srcIt != s_sources.end(); srcIt++) {
-      DOM_Element srcElt = doc.createElement("source");
-      std::string name = (*srcIt)->getName();
-      srcElt.setAttribute("name", name.c_str());
-
-// Add the xml data for the spatial and spectral Functions describing
-// each source.
-      Source::FuncMap srcFuncs = (*srcIt)->getSrcFuncs();
-      if (srcFuncs.count("Spectrum")) {
-         DOM_Element specElt = doc.createElement("spectrum");
-         std::string name = srcFuncs["Spectrum"]->genericName();
-         if (name != std::string("")) {
-            specElt.setAttribute("type", name.c_str());
-         } else {
-            std::ostringstream errorMessage;
-            errorMessage << "SourceModel::writeXml: "
-                         << "genericName not found for the spectrum "
-                         << "Function object of Source "
-                         << (*srcIt)->getName() << "."
-                         << std::endl;
-            throw Exception(errorMessage.str());
-         }
-         srcFuncs["Spectrum"]->appendParamDomElements(doc, specElt);
-         srcElt.appendChild(specElt);
-      }         
-
-      DOM_Element spatialElt = doc.createElement("spatialModel");
-      if (srcFuncs.count("Position")) {
-// This is a PointSource.
-         srcElt.setAttribute("type", "PointSource");
-         spatialElt.setAttribute("type", "SkyDirFunction");
-         srcFuncs["Position"]->appendParamDomElements(doc, spatialElt);
-         srcElt.appendChild(spatialElt);
-      } else if (srcFuncs.count("SpatialDist")) {
-// It's a DiffuseSource.
-         srcElt.setAttribute("type", "DiffuseSource");
-         std::string type = srcFuncs["SpatialDist"]->genericName();
-         spatialElt.setAttribute("type", type.c_str());
-         if (type == "SpatialMap") {
-            std::string file = 
-               dynamic_cast<SpatialMap *>(srcFuncs["SpatialDist"])->fitsFile();
-            spatialElt.setAttribute("file", file.c_str());
-         }
-         srcFuncs["SpatialDist"]->appendParamDomElements(doc, spatialElt);
-         srcElt.appendChild(spatialElt);
-      }
-      srcLib.appendChild(srcElt);
+      builder.addSource(**srcIt);
    }
 
-// Expand any environment variables in the xmlFile name.
-   facilities::Util::expandEnvVar(&xmlFile);
-
-   std::ofstream outFile(xmlFile.c_str());
-//    outFile << "<?xml version='1.0' standalone='no'?>\n"
-//            << "<!DOCTYPE source_library SYSTEM \"A1_Sources.dtd\" >\n";
-   xml::Dom::prettyPrintElement(srcLib, outFile, "");
-
-   delete parser;
+   builder.write(xmlFile);
 }
 
 void SourceModel::write_fluxXml(std::string xmlFile) {
 
-   FluxModel fluxModel;
+   FluxBuilder builder;
 
    std::vector<Source *>::iterator srcIt = s_sources.begin();
    for ( ; srcIt != s_sources.end(); srcIt++) {
-      fluxModel.addSource(**srcIt);
+      builder.addSource(**srcIt);
    }
 
-   fluxModel.write(xmlFile);
+   builder.write(xmlFile);
 }
 
 // void SourceModel::makeCountsMap(const std::string &filename, 
@@ -526,7 +449,6 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
 
 // // The outer loop is the spacecraft time.
 //    for (unsigned int it = 0; it < scData.vec.size()-1; it++) {
-
 
 //    }
 

@@ -4,7 +4,7 @@ version v2r9
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.84 2004/02/07 23:14:21 jchiang Exp $
+# $Id: requirements,v 1.85 2004/02/18 21:13:27 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -28,8 +28,8 @@ use hoopsUtil v*
 
 # allow use of internal path
 macro Likelihood_cppflags "" \
-Linux "-I ../src -g -pedantic -D TRAP_FPE -D USE_GOODI " \
-#Linux "-I ../src -g -O -pedantic -D TRAP_FPE " \
+Linux "-I ../src -g -pedantic -O -D TRAP_FPE -D USE_GOODI " \
+#Linux "-I ../src -g -pedantic -D TRAP_FPE " \
 WIN32 '/I..\src /D"USE_GOODI" /wd4290'
 
 macro_append ROOT_libs ""  WIN32 " libHisT.lib "
@@ -38,6 +38,7 @@ macro_append ROOT_linkopts " $(ROOT_GUI_libs)"
 
 # make sure test applications get built when library changes
 macro test_Likelihoodstamps "Likelihood.stamp"
+macro my_teststamps "my_test.stamp"
 macro likelihoodAppstamps "likelihoodApp.stamp"
 macro TsMapstamps "TsMap.stamp"
 macro expMapstamps "expMap.stamp"
@@ -45,10 +46,9 @@ macro expMapstamps "expMap.stamp"
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 
-#set PFILES "$(LIKELIHOODROOT)/data/"
-
 # applications
 application test_Likelihood test/main.cxx
+application my_test test/test.cxx
 application likelihoodApp test/likelihood.cxx
 application TsMap test/TsMap.cxx
 application expMap test/expMap.cxx

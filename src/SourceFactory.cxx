@@ -5,20 +5,15 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.28 2003/11/10 23:06:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.29 2003/11/18 18:09:42 jchiang Exp $
  */
 
-#include <sstream>
-
-#include "xml/XmlParser.h"
 #include "xml/Dom.h"
-#include <xercesc/dom/DOM_Element.hpp>
-#include <xercesc/dom/DOM_NodeList.hpp>
+#include "xml/XmlParser.h"
 
 #include "facilities/Util.h"
 
 #include "optimizers/Exception.h"
-#include "optimizers/Dom.h"
 #include "optimizers/FunctionFactory.h"
 
 #include "Likelihood/Exception.h"
@@ -29,22 +24,19 @@
 #include "Likelihood/SourceFactory.h"
 
 namespace {
-
-std::string rootPath() {
-   std::string root_path;
-   char *root = ::getenv("LIKELIHOODROOT");
-   if (!root) {
-      return std::string("..");
-   } else {
-      return std::string(root);
+   std::string rootPath() {
+      char *root = ::getenv("LIKELIHOODROOT");
+      if (!root) {
+         return std::string("..");
+      } else {
+         return std::string(root);
+      }
    }
-}
-
 } // unnamed namespace
 
 namespace Likelihood {
 
-SourceFactory::SourceFactory() {
+SourceFactory::SourceFactory(bool verbose) : m_verbose(verbose) {
 }
 
 SourceFactory::~SourceFactory() {
@@ -55,11 +47,9 @@ SourceFactory::~SourceFactory() {
 
 Source *SourceFactory::create(const std::string &name) throw(Exception) {
    if (!m_prototypes.count(name)) {
-      std::ostringstream errorMessage;
-      errorMessage << "SourceFactory::create: "
-                   << "Cannot create Source named "
-                   << name << ".\n";
-      throw Exception(errorMessage.str());
+      std::string errorMessage 
+         = "SourceFactory::create:\nCannot create Source named " + name + ".";
+      throw Exception(errorMessage);
    }
    return m_prototypes[name]->clone();
 }
@@ -74,10 +64,9 @@ void SourceFactory::addSource(const std::string &name, Source* src,
          m_prototypes[name] = src;
       }
    } else {
-      std::ostringstream errorMessage;
-      errorMessage << "SourceFactory::addSource: A Source named "
-                   << name << " already exists.\n";
-      throw Exception(errorMessage.str());
+      std::string errorMessage = "SourceFactory::addSource:\n A Source named "
+         + name + " already exists.";
+      throw Exception(errorMessage);
    }
 }
 
@@ -103,19 +92,20 @@ void SourceFactory::readXml(const std::string &xmlFile,
 
    xml::XmlParser *parser = new xml::XmlParser();
 
-   DOM_Document doc = parser->parse(xmlFile.c_str());
+   DomDocument doc = parser->parse(xmlFile.c_str());
 
    if (doc == 0) { // xml file not parsed successfully
-      std::ostringstream errorMessage;
-      errorMessage << "SourceFactory::readXml: "
-                   << "Input xml file, " << xmlFile 
-                   << " not parsed successfully.\n";
-      throw Exception(errorMessage.str());
+      std::string errorMessage = "SourceFactory::readXml:\nInput xml file, "
+         + xmlFile + " not parsed successfully.";
+      throw Exception(errorMessage);
    }
 
-   DOM_Element source_library = doc.getDocumentElement();
-   optimizers::Dom::checkTag(source_library, "source_library", 
-                             "SourceFactory::readXml");
+// Direct Xerces API call...still available in Xerces 2.4.0:
+   DomElement source_library = doc.getDocumentElement();
+   if (!xml::Dom::checkTagName(source_library, "source_library")) {
+      throw Exception("SourceFactory::readXml:\nsource_library tag not found in "
+         + xmlFile);
+   }
 
 // Prepare the FunctionFactory object using the xml file specified in
 // the source_library tag.
@@ -127,15 +117,13 @@ void SourceFactory::readXml(const std::string &xmlFile,
          funcFactory.readXml(function_library);
       } catch(optimizers::Exception &eObj) {
          std::cout << eObj.what() << std::endl;
-// // Rethrow as a Likelihood::Exception.
-//          throw Exception(eObj.what());
       }
    }
 
 // Loop through source elements, adding each as a Source object prototype.
-   std::vector<DOM_Element> srcs;
-   optimizers::Dom::getElements(source_library, "source", srcs);
-   std::vector<DOM_Element>::const_iterator srcIt = srcs.begin();
+   std::vector<DomElement> srcs;
+   xml::Dom::getChildrenByTagName(source_library, "source", srcs);
+   std::vector<DomElement>::const_iterator srcIt = srcs.begin();
    for ( ; srcIt != srcs.end(); srcIt++) {
 
 // Get the type of this source which is either PointSource or
@@ -144,23 +132,23 @@ void SourceFactory::readXml(const std::string &xmlFile,
 // and its name.
       std::string srcName = xml::Dom::getAttribute(*srcIt, "name");
 
-      std::cout << "Creating source named "
-                << srcName << std::endl;
+      if (m_verbose) std::cout << "Creating source named "
+                               << srcName << std::endl;
 
 // Retrieve the spectrum and spatialModel elements (there should only
 // be one of each).
-      std::vector<DOM_Element> child;
+      std::vector<DomElement> child;
 
-      DOM_Element spectrum;
+      DomElement spectrum;
       try {
-         optimizers::Dom::getElements(*srcIt, "spectrum", child);
+         xml::Dom::getChildrenByTagName(*srcIt, "spectrum", child);
          spectrum = child[0];
       } catch (optimizers::Exception &eObj) {
          std::cerr << eObj.what() << std::endl;
       }
 
-      optimizers::Dom::getElements(*srcIt, "spatialModel", child);
-      DOM_Element spatialModel = child[0];
+      xml::Dom::getChildrenByTagName(*srcIt, "spatialModel", child);
+      DomElement spatialModel = child[0];
 
 // The processing logic for the spatialModel depends on the source
 // type, so we must consider each case individually:
@@ -188,18 +176,16 @@ void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
       srcNames.push_back(it->first);
 }
 
-Source * SourceFactory::makePointSource(const DOM_Element &spectrum, 
-                                        const DOM_Element &spatialModel,
+Source * SourceFactory::makePointSource(const DomElement &spectrum, 
+                                        const DomElement &spatialModel,
                                         optimizers::FunctionFactory 
                                         &funcFactory) {
    std::string funcType = xml::Dom::getAttribute(spatialModel, "type");
    if (funcType != "SkyDirFunction") {
-      std::ostringstream errorMessage;
-      errorMessage << "SourceFactory::readXml: "
-                   << "Trying to create a PointSource with "
-                   << "a spatialModel of type "
-                   << funcType << "." << std::endl;
-      throw Exception(errorMessage.str());
+      std::string errorMessage = std::string("SourceFactory::readXml:\n") 
+         + "Trying to create a PointSource with a spatialModel of type "
+         + funcType + ".";
+      throw Exception(errorMessage);
    }
 // For v1r0 and prior versions, setting the direction of the 
 // PointSource object forces the exposure to be calculated and
@@ -210,9 +196,9 @@ Source * SourceFactory::makePointSource(const DOM_Element &spectrum,
 //
 // Extract the (RA, Dec) from the parameter elements.
    double ra(0), dec(0);
-   std::vector<DOM_Element> params;
-   optimizers::Dom::getElements(spatialModel, "parameter", params);
-   std::vector<DOM_Element>::const_iterator paramIt = params.begin();
+   std::vector<DomElement> params;
+   xml::Dom::getChildrenByTagName(spatialModel, "parameter", params);
+   std::vector<DomElement>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
       std::string name = xml::Dom::getAttribute(*paramIt, "name");
       if (name == "RA") 
@@ -232,21 +218,24 @@ Source * SourceFactory::makePointSource(const DOM_Element &spectrum,
       std::cout << eObj.what() << std::endl;
    } catch (Exception &eObj) {
       std::cout << eObj.what() << std::endl;
+   } catch (std::exception &eObj) {
+      std::cout << eObj.what() << std::endl;
    } catch (...) {
-      std::cerr << "other exception from setSpectrum" << std::endl;
+      std::cerr << "Caught unexpected exception from SourceFactor::setSpectrum" 
+                << std::endl;
    }
    return 0;
 }
 
-Source * SourceFactory::makeDiffuseSource(const DOM_Element &spectrum, 
-                                          const DOM_Element &spatialModel,
+Source * SourceFactory::makeDiffuseSource(const DomElement &spectrum, 
+                                          const DomElement &spatialModel,
                                           optimizers::FunctionFactory 
                                           &funcFactory) {
    std::string type = xml::Dom::getAttribute(spatialModel, "type");
    optimizers::Function *spatialDist = funcFactory.create(type);
-   std::vector<DOM_Element> params;
-   optimizers::Dom::getElements(spatialModel, "parameter", params);
-   std::vector<DOM_Element>::const_iterator paramIt = params.begin();
+   std::vector<DomElement> params;
+   xml::Dom::getChildrenByTagName(spatialModel, "parameter", params);
+   std::vector<DomElement>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
       optimizers::Parameter parameter;
       parameter.extractDomData(*paramIt);
@@ -271,16 +260,16 @@ Source * SourceFactory::makeDiffuseSource(const DOM_Element &spectrum,
    return 0;
 }
 
-void SourceFactory::setSpectrum(Source *src, const DOM_Element &spectrum, 
+void SourceFactory::setSpectrum(Source *src, const DomElement &spectrum, 
                                 optimizers::FunctionFactory &funcFactory) {
    std::string type = xml::Dom::getAttribute(spectrum, "type");
    optimizers::Function *spec = funcFactory.create(type);
 
 // Fetch the parameter elements (if any).
-   std::vector<DOM_Element> params;
-   optimizers::Dom::getElements(spectrum, "parameter", params);
+   std::vector<DomElement> params;
+   xml::Dom::getChildrenByTagName(spectrum, "parameter", params);
    if (params.size() > 0) {
-      std::vector<DOM_Element>::const_iterator paramIt = params.begin();
+      std::vector<DomElement>::const_iterator paramIt = params.begin();
       for ( ; paramIt != params.end(); paramIt++) {
          optimizers::Parameter parameter;
          parameter.extractDomData(*paramIt);

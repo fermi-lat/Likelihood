@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.12 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.13 2003/08/13 18:01:15 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -35,7 +35,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.12 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.13 2003/08/13 18:01:15 jchiang Exp $
  *
  */
     
@@ -43,7 +43,7 @@ class SourceFactory {
 
 public:
 
-   SourceFactory();
+   SourceFactory(bool verbose=false);
 
    virtual ~SourceFactory();
 
@@ -62,6 +62,8 @@ public:
    void fetchSrcNames(std::vector<std::string> &srcNames);
 
 private:
+
+   bool m_verbose;
 
    std::map<std::string, Source *> m_prototypes;
 

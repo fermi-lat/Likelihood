@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.12 2003/11/14 00:15:06 petry Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.13 2003/11/18 18:07:00 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -29,7 +29,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.12 2003/11/14 00:15:06 petry Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.13 2003/11/18 18:07:00 jchiang Exp $
  */
 
 class RoiCuts {
@@ -64,7 +64,7 @@ public:
 
    /// Set all cuts (includes reset of time cuts)
    static void setCuts(double ra = 193.98, double dec = -5.82, 
-                       double roi_radius = 50.,
+                       double roi_radius = 20.,
                        double emin = 30., double emax = 3.1623e5,
                        double tmin = 0., double tmax = 1e12,
                        double muZenMax = -1.);
