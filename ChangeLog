@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr 11 07:58:31 PDT 2004
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+one cannot make direct == tests with IParGroup::operator[]
+    *
+------------------------------------------------------------
 User: jchiang  Sat Apr 10 14:23:27 PDT 2004
 Likelihood/src/TsMap
 
