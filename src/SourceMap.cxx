@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.9 2004/10/06 05:31:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.10 2004/10/07 00:01:05 jchiang Exp $
  */
 
 #include <algorithm>
@@ -50,6 +50,10 @@ std::vector<double> SourceMap::s_mu;
 
 SourceMap::SourceMap(Source * src, const CountsMap & dataMap) 
    : m_name(src->getName()), m_dataMap(dataMap) {
+   if (s_mu.size() == 0 || s_phi.size() == 0) {
+      prepareAngleArrays(100, 50);
+   }
+
    std::vector<Pixel> pixels;
    dataMap.getPixels(pixels);
    
@@ -87,9 +91,6 @@ SourceMap::SourceMap(Source * src, const CountsMap & dataMap)
       }
    }
    std::cerr << "!" << std::endl;
-   if (s_mu.size() == 0 || s_phi.size() == 0) {
-      prepareAngleArrays(100, 50);
-   }
 }
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
@@ -133,12 +134,12 @@ double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
    DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
    std::vector<double> energies;
    m_dataMap.getAxisVector(2, energies);
-   if (s_meanPsf == 0 || s_binnedExposure == 0) {
-      delete s_meanPsf;
-      delete s_binnedExposure;
+   if (s_meanPsf == 0) {
       double ra, dec;
       RoiCuts::instance()->getRaDec(ra, dec);
       s_meanPsf = new MeanPsf(ra, dec, energies);
+   }
+   if (s_binnedExposure == 0) {
       s_binnedExposure = new BinnedExposure(energies);
    }
    MeanPsf & psf = *s_meanPsf;

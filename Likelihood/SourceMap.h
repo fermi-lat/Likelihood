@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.5 2004/10/05 23:52:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.6 2004/10/07 00:01:02 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -22,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.5 2004/10/05 23:52:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.6 2004/10/07 00:01:02 jchiang Exp $
  */
 
 class SourceMap {
@@ -41,6 +41,10 @@ public:
    const std::vector<double> & model() const {return m_model;}
 
    const std::vector<double> & npreds() const {return m_npreds;}
+   
+   static void setBinnedExposure(const std::string & filename) {
+      s_binnedExposure = new BinnedExposure(filename);
+   }
 
 private:
 
