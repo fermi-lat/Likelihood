@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.43 2004/10/23 03:57:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.44 2004/10/30 02:46:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.43 2004/10/23 03:57:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.44 2004/10/30 02:46:03 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -389,27 +389,39 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<optimizers::Parameter> parameters;
    std::vector<double>::const_iterator errIt = errors.begin();
 
+   std::ofstream resultsFile("results.dat");
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       Source *src = m_logLike->getSource(srcNames[i]);
       Source::FuncMap srcFuncs = src->getSrcFuncs();
       srcFuncs["Spectrum"]->getParams(parameters);
       std::cout << "\n" << srcNames[i] << ":\n";
+      resultsFile << srcNames[i] << ":  ";
       for (unsigned int j = 0; j < parameters.size(); j++) {
          std::cout << parameters[j].getName() << ": "
                    << parameters[j].getValue();
+         resultsFile << parameters[j].getName() << "  "
+                     << parameters[j].getValue() << "  ";
          if (parameters[j].isFree() && errIt != errors.end()) {
             std::cout << " +/- " << *errIt;
+            resultsFile << *errIt << "  ";
             errIt++;
+         } else {
+            resultsFile << "..." << "  ";
          }
          std::cout << std::endl;
       }
       std::cout << "Npred: "
                 << src->Npred() << std::endl;
+      resultsFile << "Npred  " << src->Npred() << "  ";
       if (TsValues.count(srcNames[i])) {
          std::cout << "TS value: "
                    << TsValues[srcNames[i]] << std::endl;
-      }
+         resultsFile << "TS value  " << TsValues[srcNames[i]] << std::endl;
+      } else {
+         resultsFile << "TS value  " << "..." << std::endl;
+      }         
    }
+   resultsFile.close();
    std::cout << "\n-log(Likelihood): "
              << -m_logLike->value()
              << "\n" << std::endl;
