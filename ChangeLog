@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Thu Jul 24 13:20:20 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Move package_linkopts to the public area so others can use it.
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul 21 15:47:19 PDT 2003
 Likelihood/doc
 
