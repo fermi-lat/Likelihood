@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Nov  7 19:22:22 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+convert to radians in Aeff for SourceMap calcs
+    *
+------------------------------------------------------------
+User: jchiang  Sun Nov  7 19:22:22 PST 2004
 Likelihood/src
 
 Modified Files:
