@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.12 2003/08/24 19:00:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.13 2003/10/24 01:57:23 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
@@ -13,13 +13,7 @@
 #include "Likelihood/PointSource.h"
 #include "Likelihood/RoiCuts.h"
 
-//#define HAVE_CCFITS
-#ifdef HAVE_CCFITS
-#include <CCfits>
-#else
 #include "fitsio.h"
-#endif
-
 
 #include <utility>
 #include <algorithm>
@@ -189,84 +183,6 @@ void ExposureMap::computeMap(const std::string &filename, double sr_radius,
                  roiCenter.ra(), roiCenter.dec());
 }
 
-#ifdef HAVE_CCFITS
-void ExposureMap::writeFitsFile(const std::string &filename,
-                                std::vector<double> &lon,
-                                std::vector<double> &lat,
-                                std::vector<double> &energies,
-                                std::vector< std::valarray<double> > &dataCube,
-                                double ra0, double dec0) {
-// Use CCfits to produce the ExposureMap FITS file; this
-// implementation is based on the writeImage() example in the
-// CCfits-1.2 distribution (absent the superfluous use of the generic
-// algorithms).
-
-   int nlon = lon.size();
-   double lonstep = lon[1] - lon[0];
-   int nlat = lat.size();
-   double latstep = lat[1] - lat[0];
-   double emin = energies[0];
-   double estep = log(energies[1]/energies[0]);
-   int nenergies = energies.size();
-
-   long naxis = 3;
-   long naxes[3] = {nlon, nlat, nenergies};
-
-   std::auto_ptr<CCfits::FITS> pFits(0);
-
-   try { // to overwrite a possibly existing file...
-      pFits.reset( new CCfits::FITS("!"+filename, DOUBLE_IMG, naxis, naxes) );
-   } catch (FITS::CantCreate) {
-      std::cerr << "ExposureMap::writeFitsFile: Can't create file "
-                << filename << std::endl;
-      return;
-   }
-
-   long nelements = naxes[0]*naxes[1]*naxes[2];
-
-// add the keywords and values
-   pFits->pHDU().addKey("CRVAL1", 0., 
-                        "reference value for longitude coordinate");
-   pFits->pHDU().addKey("CRVAL2", 0., 
-                        "reference value for latitude coordinate");
-   pFits->pHDU().addKey("CDELT1", lonstep, "step in longitude coordinate");
-   pFits->pHDU().addKey("CDELT2", latstep, "step in latitude coordinate");
-   pFits->pHDU().addKey("CRPIX1", static_cast<float>(nlon/2), 
-                      "reference pixel for longitude coordinate");
-   pFits->pHDU().addKey("CRPIX2", static_cast<float>(nlat/2), 
-                      "reference pixel for latitude coordinate");
-   pFits->pHDU().addKey("CTYPE1", "degrees", "units for longitude");
-   pFits->pHDU().addKey("CTYPE2", "degrees", "units for latitude");
-   pFits->pHDU().addKey("CRVAL3", log(emin), 
-                      "reference value for log_energy coordinate");
-   pFits->pHDU().addKey("CDELT3", estep, "step in log_energy coordinate");
-   pFits->pHDU().addKey("CRPIX3", 1., 
-                      "reference pixel for log_energy coordinate");
-   pFits->pHDU().addKey("CTYPE3", "log_MeV", "units for log_energy");
-   pFits->pHDU().addKey("LONPOLE", ra0, "RA of the ROI center");
-   pFits->pHDU().addKey("LATPOLE", dec0, "DEC of the ROI center");
-
-// flatten the exposureCube into a single valarray
-   std::valarray<double> exposure(nelements);
-   int indx = 0;
-   for (int k = 0; k < nenergies; k++) {
-      int cindx = 0;
-      for (int i = 0; i < nlon; i++) {
-         for (int j = 0; j < nlat; j++) {
-            exposure[indx] = dataCube[k][cindx];
-            indx++;
-            cindx++;
-         }
-      }
-   }
-
-// write the primary HDU
-   long fpixel(1);
-   pFits->pHDU().write(fpixel, nelements, exposure);
-}
-
-#else // don't HAVE_CCFITS
-
 void ExposureMap::writeFitsFile(const std::string &filename, 
                                 std::vector<double> &glon,
                                 std::vector<double> &glat,
@@ -398,7 +314,5 @@ void ExposureMap::writeFitsFile(const std::string &filename,
    
    return;
 }
-
-#endif // HAVE_CCFITS
 
 } // namespace Likelihood

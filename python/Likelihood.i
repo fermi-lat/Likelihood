@@ -4,9 +4,12 @@
 #include "astro/SkyDir.h"
 #include "optimizers/Parameter.h"
 #include "latResponse/../src/Table.h"
-#include "Likelihood/Response.h"
+#include "latResponse/../src/PsfGlast25.h"
+#include "latResponse/../src/AeffGlast25.h"
+#include "latResponse/../src/EdispGlast25.h"
+#include "latResponse/Irfs.h"
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
-#include "Likelihood/Aeff.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/EventArg.h"
 #include "Likelihood/Event.h"
@@ -15,7 +18,6 @@
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/PointSource.h"
-#include "Likelihood/Psf.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SkyDirArg.h"
@@ -23,7 +25,6 @@
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/SourceModel.h"
 #include "Likelihood/SpatialMap.h"
-//#include "../Likelihood/SpectrumFactory.h"
 #include "Likelihood/SrcArg.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/ConstantValue.h"
@@ -36,11 +37,10 @@ using optimizers::Parameter;
 %}
 %include stl.i
 %include ../Likelihood/Exception.h
-%include ../Likelihood/Response.h
+%include ../Likelihood/ResponseFunctions.h
 %include ../Likelihood/Event.h
 %include ../Likelihood/Source.h
 %include ../Likelihood/SourceModel.h
-%include ../Likelihood/Aeff.h
 %include ../Likelihood/DiffuseSource.h
 %include ../Likelihood/EventArg.h
 %include ../Likelihood/ExposureMap.h
@@ -49,14 +49,12 @@ using optimizers::Parameter;
 %include ../Likelihood/logSrcModel.h
 %include ../Likelihood/Npred.h
 %include ../Likelihood/PointSource.h
-%include ../Likelihood/Psf.h
 %include ../Likelihood/RoiCuts.h
 %include ../Likelihood/ScData.h
 %include ../Likelihood/SkyDirArg.h
 %include ../Likelihood/SkyDirFunction.h
 %include ../Likelihood/SourceFactory.h
 %include ../Likelihood/SpatialMap.h
-//%include ../Likelihood/SpectrumFactory.h
 %include ../Likelihood/SrcArg.h
 %include ../Likelihood/TrapQuad.h
 %include ../Likelihood/ConstantValue.h
@@ -139,3 +137,16 @@ using optimizers::Parameter;
                     computeExposure );
    }
 }                                                       
+%extend Likelihood::ResponseFunctions {
+   void addGlast25Resp(const std::string &path, unsigned int hdu) {
+      std::string psfFile = path + "/psf_lat.fits";
+      std::string aeffFile = path + "/aeff_lat.fits";
+      latResponse::IAeff *aeff = new latResponse::AeffGlast25(aeffFile, hdu);
+      latResponse::IPsf *psf = new latResponse::PsfGlast25(psfFile, hdu);
+      latResponse::IEdisp *edisp = new latResponse::EdispGlast25();
+
+      if (hdu < 5 && hdu > 1)
+         Likelihood::ResponseFunctions::addRespPtr(hdu, new latResponse::Irfs
+                                                   (aeff, psf, edisp));
+   }
+}

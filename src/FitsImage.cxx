@@ -3,16 +3,11 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.13 2003/07/21 22:14:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.14 2003/08/13 18:01:16 jchiang Exp $
  *
  */
 
 #include "fitsio.h"
-
-//#define HAVE_CCFITS
-#ifdef HAVE_CCFITS
-#include <CCfits/CCfits>
-#endif
 
 #include <iostream>
 #include <sstream>
@@ -144,99 +139,6 @@ void FitsImage::AxisParams::computeAxisVector(std::vector<double> &axisVector) {
    }
 }
 
-#ifdef HAVE_CCFITS
-void FitsImage::read_fits_image(std::string &filename, 
-                                std::vector<AxisParams> &axes,
-                                std::valarray<double> &image) 
-   throw(Exception) {
-
-//   FITS::setVerboseMode(true);
-
-// For the "canonical" example of reading a FITS image with CCfits,
-// see the readImage() routine from cookbook.cxx from the CCfits
-// distribution.
-
-   std::auto_ptr<CCfits::FITS> pInFile(new CCfits::FITS(filename, 
-                                                        CCfits::Read, true));
-
-   CCfits::PHDU& imageHDU = pInFile->pHDU();
-
-// CCfits PHDU::read(...) seems not to like std::valarray<double>...
-   try {
-      std::valarray<float> my_image;
-//      std::valarray<double> my_image;
-      imageHDU.read(my_image);
-      image.resize(my_image.size());
-      for (unsigned int i = 0; i < my_image.size(); i++)
-         image[i] = my_image[i];
-   } catch(...) {
-      std::cerr << "Failed to read image data for " 
-                << filename << std::endl;
-   }
-
-// prepare the axes vector
-   int naxes;
-   imageHDU.readKey("NAXIS", naxes);
-   axes.clear();
-   axes.resize(naxes);
-
-// axis dimension IDs (assume at most 3 dimensions)
-   std::string IDnum[] = {std::string("1"), std::string("2"), 
-                          std::string("3")};
-
-// loop over the axes
-   long npixels = 1;
-   for (int i = 0; i < naxes; i++) {
-      imageHDU.readKey(std::string("NAXIS") + IDnum[i], axes[i].size);
-      npixels *= axes[i].size;
-   }
-
-// account for degenerate case of NAXIS3 = 1
-   if (naxes == 3 && axes[2].size == 1) {
-      naxes = 2;
-      axes.resize(naxes);
-   }
-
-   for (int i = 0; i < naxes; i++) {
-      float value;
-      imageHDU.readKey(std::string("CRVAL") + IDnum[i], value);
-      axes[i].refVal = value;
-      imageHDU.readKey(std::string("CDELT") + IDnum[i], value);
-      axes[i].step = value;
-      imageHDU.readKey(std::string("CRPIX") + IDnum[i], value);
-      axes[i].refPixel = static_cast<int>(value);
-      imageHDU.readKey(std::string("CTYPE") + IDnum[i], axes[i].axisType);
-
-// Check for logarithmic scaling.
-      int offset = axes[i].axisType.substr(0).find_first_of("log_");
-      if (offset == 0) {
-         axes[i].logScale = true;
-      } else {
-         axes[i].logScale = false;
-      }
-   }
-
-// Check for LONPOLE and LATPOLE keywords
-   try {
-      float value;
-      imageHDU.readKey(std::string("LONPOLE"), value);
-      m_lonpole = value;
-      m_haveRefCoord = true;
-   } catch (...) {
-      m_haveRefCoord = false;
-   }
-   try {
-      float value;
-      imageHDU.readKey(std::string("LATPOLE"), value);
-      m_latpole = value;
-      m_haveRefCoord = true;
-   } catch (...) {
-      m_haveRefCoord = false;
-   }
-
-}
-
-#else  //don't HAVE_CCFITS
 void FitsImage::read_fits_image(std::string &filename, 
                                 std::vector<AxisParams> &axes,
                                 std::valarray<double> &image) 
@@ -414,7 +316,6 @@ void FitsImage::read_fits_image(std::string &filename,
       throw Exception("FitsImage::read_fits_image: cfitsio error");
    }
 }
-#endif // HAVE_CCFITS
 
 FitsImage::EquinoxRotation::EquinoxRotation(double alpha0, double delta0) {
 
