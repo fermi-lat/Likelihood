@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Oct  2 12:08:09 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+make strings passed to fluxDensityDeriv const
+    *
+------------------------------------------------------------
 User: jchiang  Thu Oct  2 12:08:08 PDT 2003
 Likelihood/src
 
