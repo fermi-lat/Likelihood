@@ -4383,9 +4383,11 @@ gn, */
 /* ====================== The end of dcstep ============================== */
 /* Subroutine */ int timer_(doublereal *ttime)
 {
-    static real temp;
-    extern doublereal etime_(real *);
-    static real tarray[2];
+  //    static real temp;
+  //    extern doublereal etime_(real *);
+  //    static real tarray[2];
+
+  // Modified by PLN to be portable to Windows and Linux
 
 /*     ********* */
 
@@ -4410,9 +4412,13 @@ gn, */
 
 /*     ********** */
 /*     The first element of the array tarray specifies user time */
-    temp = etime_(tarray);
-    *ttime = (doublereal) tarray[0];
-    return 0;
+  //    temp = etime_(tarray);
+  //    *ttime = (doublereal) tarray[0];
+#include <time.h>
+  //  *ttime = clock() / (doublereal) CLOCKS_PER_SEC;
+  *ttime = (doublereal) clock();
+  printf("TIMER: %f\n", *ttime);
+  return 0;
 } /* timer_ */
 
 /* ====================== The end of timer =============================== */
