@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jul 20 21:00:13 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h ResponseFunctions.h RoiCuts.h 
+Log Message:
+remove latResponse; replace gas.cel
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jul 20 17:23:51 PDT 2004
 Likelihood/src/test/CALDB
 
