@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Mar 20 15:47:59 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+add SourceFactory class
+    *
+------------------------------------------------------------
+User: jchiang  Thu Mar 20 15:47:59 PST 2003
 Likelihood/src
 
 Modified Files:
