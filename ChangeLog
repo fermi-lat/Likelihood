@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Oct 31 10:53:40 PST 2004
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx HistND.cxx 
+Log Message:
+clone binners in HistND constructor, delete them in CountsMap
+    *
+------------------------------------------------------------
+User: jchiang  Sun Oct 31 10:53:40 PST 2004
 Likelihood/Likelihood
 
 Modified Files:
