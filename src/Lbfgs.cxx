@@ -91,8 +91,9 @@ namespace Likelihood {
 	// LBFGS is a minimizer, so we must flip the signs to maximize.
 	funcVal = -m_stat->value(paramVals);
 	m_stat->getFreeDerivs(gradient);
-	std::transform(gradient.begin(), gradient.end(), gradient.begin(),
-		       std::negate<double>());
+	for (int i = 0; i < nparams; i++) {
+	  gradient[i] = -gradient[i];
+	}
 	m_numEvals++;
 
 	if (verbose != 0) {
