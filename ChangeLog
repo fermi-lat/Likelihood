@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Nov 30 15:14:40 PST 2003
+Likelihood/src
+
+Modified Files:
+	SpatialMap.cxx 
+Log Message:
+#include <algorithm>
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 25 17:51:08 PST 2003
 Likelihood/src/test
 
