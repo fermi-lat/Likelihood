@@ -31,7 +31,17 @@ public:
    virtual double fluxDensity(double energy, double time,
 			      const astro::SkyDir &dir) const = 0;
 
-   virtual double fluxDensity(const Event &) const = 0;
+   double fluxDensity(const Event &evt) const
+      {return fluxDensity(evt.getEnergy(), evt.getArrTime(), evt.getDir());}
+
+   //! derivatives of fluxDensity wrt model Parameters
+   virtual double fluxDensityDeriv(double energy, double time,
+                                   const astro::SkyDir &dir,
+                                   std::string &paramName) const = 0;
+
+   double fluxDensityDeriv(const Event &evt, std::string &paramName) const
+      {return fluxDensityDeriv(evt.getEnergy(), evt.getArrTime(), 
+                               evt.getDir(), paramName);}
 
    //! predicted number of photons given RoiCuts and ScData
    virtual double Npred() = 0;

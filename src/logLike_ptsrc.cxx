@@ -35,7 +35,6 @@ double logLike_ptsrc::value(const std::vector<double> &paramVec) {
 }
 
 double logLike_ptsrc::evaluate_at(const Event &evt) const {
-                                  
    double my_value = 0;
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
       my_value += (*m_sources[i]).fluxDensity(evt);

@@ -29,9 +29,9 @@ public:
          m_makeEnergyVector();
          m_makeSigmaVector();
          m_haveStaticMembers = true;
-	 computeGaussFractions();
-         computeExposure();
       }
+      computeGaussFractions();
+      computeExposure();
    }
    PointSource(double ra, double dec) : m_spectrum(0) {
       setDir(ra, dec);
@@ -39,20 +39,22 @@ public:
          m_makeEnergyVector();
          m_makeSigmaVector();
          m_haveStaticMembers = true;
-	 computeGaussFractions();
-         computeExposure();
       }
+      computeGaussFractions();
+      computeExposure();
    }
    PointSource(const PointSource &rhs);
    virtual ~PointSource(){}
 
    //! returns photons/cm^2-s-sr-MeV having been convolved through
    //! the LAT instrument response
-   virtual double fluxDensity(double energy, double time,
-                              const astro::SkyDir &dir) const;
+   double fluxDensity(double energy, double time,
+                      const astro::SkyDir &dir) const;
 
-   double fluxDensity(const Event &evt) const
-      {return fluxDensity(evt.getEnergy(), evt.getArrTime(), evt.getDir());}
+   //! returns the derivative wrt to the named Parameter
+   double fluxDensityDeriv(double energy, double time,
+                           const astro::SkyDir &dir,
+                           std::string &paramName) const;
 
    //! predicted number of photons given RoiCuts and ScData
    double Npred();
@@ -126,7 +128,8 @@ private:
    //! storage of the ROI contained fraction of a 2D "Gaussian"
    std::vector<double> m_gaussFraction;
 
-   //! nested class that returns the desired integrand
+   //! nested class that returns the integrand for the m_gaussFraction
+   //! integrals
    class Gint : public Function {
    public:
       Gint(double sig, double cr, double cp, double sp) : 

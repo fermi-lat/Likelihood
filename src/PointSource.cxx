@@ -72,6 +72,22 @@ double PointSource::fluxDensity(double energy, double time,
    return spectrum*psf_val*aeff_val;
 }
 
+double PointSource::fluxDensityDeriv(double energy, double time,
+                                     const astro::SkyDir &dir,
+                                     std::string &paramName) const {
+// For now, just implement for spectral Parameters and neglect
+// the spatial ones, "longitude" and "latitude"
+
+   if (paramName == "Prefactor") {
+      return fluxDensity(energy, time, dir)
+         /m_spectrum->getParamValue("Prefactor");
+   } else {
+      dArg energy_arg(energy);
+      return fluxDensity(energy, time, dir)/(*m_spectrum)(energy_arg)
+         *m_spectrum->derivByParam(energy_arg, paramName);
+   }
+}
+
 double PointSource::Npred() {
 // presently implemented without psf cuts....
 

@@ -54,7 +54,7 @@ public:
    void getSrcNames(std::vector<std::string> &) const;
 
    // this is a bit convoluted, but necessary for derived classes 
-   // (e.g., Statistic)
+   // (e.g., Statistic, logSrcModel)
    double evaluate_at(Arg &) const;
    virtual double value(Arg &x) const {return evaluate_at(x);};
 
