@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Sep 24 14:02:07 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h SourceMap.h SourceModel.h 
+Log Message:
+more speed-ups for the binned analysis
+    *
+------------------------------------------------------------
 User: jchiang  Thu Sep 23 20:54:24 PDT 2004
 Likelihood/src/test
 
