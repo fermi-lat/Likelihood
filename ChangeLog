@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May  6 16:47:57 PDT 2003
+Likelihood/src/test/Data
+
+Modified Files:
+	exp_diffuse_test_4_new.fits exp_diffuse_test_5_new.fits 
+Log Message:
+start migration to CCfits, add exposure map calculation to ExposureMap
+    *
+------------------------------------------------------------
 User: jchiang  Tue May  6 16:47:56 PDT 2003
 Likelihood/src/test
 
