@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Dec 24 08:45:45 PST 2004
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx 
+Log Message:
+use less strict DSS checks for some apps
+    *
+------------------------------------------------------------
+User: jchiang  Fri Dec 24 08:45:45 PST 2004
 Likelihood/Likelihood
 
 Modified Files:
