@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.47 2004/08/13 17:15:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.48 2004/08/18 21:22:17 jchiang Exp $
  */
 
 #include <cmath>
@@ -22,6 +22,7 @@
 
 #include "map_tools/Exposure.h"
 
+#include "Likelihood/ExposureCube.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/ScData.h"
@@ -29,8 +30,6 @@
 #include "Likelihood/TrapQuad.h"
 
 namespace Likelihood {
-
-map_tools::Exposure * PointSource::s_exposure = 0;
 
 bool PointSource::s_haveStaticMembers = false;
 std::vector<double> PointSource::s_energies;
@@ -49,8 +48,7 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 }
 
 void PointSource::readExposureCube(std::string expCubeFile) {
-   facilities::Util::expandEnvVar(&expCubeFile);
-   s_exposure = new map_tools::Exposure(expCubeFile);
+   ExposureCube::readExposureCube(expCubeFile);
 }
 
 double PointSource::fluxDensity(double energy, double time,
@@ -79,6 +77,14 @@ double PointSource::fluxDensity(double energy, double time,
                                               m_dir.getDir(), dir, eventType)
          *spectrum;
    }
+}
+
+double PointSource::fluxDensity(double inclination, double phi, double energy, 
+                                double separation, int evtType) const {
+   optimizers::dArg energy_arg(energy);
+   double spectrum = (*m_spectrum)(energy_arg);
+   return ResponseFunctions::totalResponse(inclination, phi, energy, energy, 
+                                           separation, evtType)*spectrum;
 }
 
 double PointSource::fluxDensityDeriv(double energy, double time,
@@ -184,7 +190,7 @@ double PointSource::NpredDeriv(const std::string &paramName) {
 }
 
 void PointSource::computeExposure(bool verbose) {
-   if (s_exposure == 0) {
+   if (ExposureCube::instance() == 0) {
 // Exposure time hypercube is not available, so perform sums using
 // ScData.
       computeExposure(s_energies, m_exposure, verbose);
@@ -219,7 +225,7 @@ void PointSource::computeExposureWithHyperCube(std::vector<double> &energies,
         it != energies.end(); it++) {
       if (verbose) std::cerr << ".";
       PointSource::Aeff aeff(*it, srcDir);
-      double exposure_value = (*s_exposure)(srcDir, aeff);
+      double exposure_value = ExposureCube::instance()->value(srcDir, aeff);
       exposure.push_back(exposure_value);
    }
    if (verbose) std::cerr << "!" << std::endl;

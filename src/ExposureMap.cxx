@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.19 2004/04/07 20:18:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.20 2004/08/20 15:39:39 jchiang Exp $
  */
 #include <utility>
 #include <algorithm>
@@ -14,6 +14,7 @@
 
 #include "facilities/Util.h"
 
+#include "Likelihood/ExposureCube.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/PointSource.h"
@@ -179,7 +180,7 @@ void ExposureMap::computeMap(std::string filename, double sr_radius,
          ptsrc.setDir(dir.ra(), dir.dec(), updateExposure);
          std::vector<double> exposure;
          bool verbose(false);
-         if (PointSource::s_exposure == 0) {
+         if (ExposureCube::instance() == 0) {
             ptsrc.computeExposure(energies, exposure, verbose);
          } else {
             ptsrc.computeExposureWithHyperCube(energies, exposure, verbose);

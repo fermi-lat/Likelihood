@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.43 2004/08/19 04:03:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.44 2004/08/19 21:45:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,6 +23,8 @@
 #include "optimizers/FunctionFactory.h"
 
 #include "Likelihood/Exception.h"
+#include "Likelihood/ExposureCube.h"
+#include "Likelihood/ExposureMap.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SkyDirFunction.h"
@@ -442,15 +444,19 @@ bool SourceModel::hasSrcNamed(const std::string & srcName) const {
    return false;      
 }
 
-void SourceModel::makeCountsMap(const std::string &filename, 
-                                const MapShape &mapShape) {
+void SourceModel::makeCountsMap(const std::string & filename, 
+                                const MapShape & mapShape) {
+
+   if (ExposureCube::instance() == 0) {
+      std::cerr << "SourceModel::makeCountsMap: Exposure cube not available."
+                << std::endl;
+      return;
+   }
 
    std::vector< std::valarray<double> > map(mapShape.nz());
    for (unsigned int k = 0; k < mapShape.nz(); k++) {
       map[k].resize(mapShape.nx()*mapShape.ny());
    }
-   
-   ScData * scData = ScData::instance();
    
    std::vector<double> longitudes = mapShape.x_vector();
    std::vector<double> latitudes = mapShape.y_vector();
@@ -469,25 +475,43 @@ void SourceModel::makeCountsMap(const std::string &filename,
 
    std::map<std::string, Source *>::const_iterator src;
 
-// The outer loop is the spacecraft time.
-   for (unsigned int it = 0; it < scData->vec.size()-1; it++) {
-      double dt = scData->vec[it+1].time - scData->vec[it].time;
 // loop over pixel directions
-      for (unsigned int j = 0; j < pixelDirs.size(); j++) {
-         for (unsigned int k = 0; k < energies.size(); k++) {
-            for (int evtType = 0; evtType < 2; evtType++) {
-               Event evt(pixelDirs[j].ra(), pixelDirs[j].dec(), energies[k],
-                         scData->vec[it].zAxis.ra(), 
-                         scData->vec[it].zAxis.dec(), 
-                         scData->vec[it].zenDir().dot(scData->vec[it].zAxis()),
-                         evtType);
-               for (src = s_sources.begin(); src != s_sources.end(); ++src) {
-                  map[k][j] += src->second->fluxDensity(evt)*dt;
-               }
-            }
-         }
-      }
+   for (unsigned int j = 0; j < pixelDirs.size(); j++) {
+      for (unsigned int k = 0; k < energies.size(); k++) {
+         for (int evtType = 0; evtType < 2; evtType++) {
+            for (src = s_sources.begin(); src != s_sources.end(); ++src) {
+               Aeff aeff(src->second, pixelDirs[j], energies[k], evtType);
+               map[k][j] 
+                  += ExposureCube::instance()->value(pixelDirs[j], aeff);
+            } // src
+         } // evtType
+      } // k
+   } // j
+
+   ExposureMap::writeFitsFile(filename, longitudes, latitudes,
+                              energies, map, 0, 0);
+
+}
+
+SourceModel::Aeff::Aeff(Source * src, astro::SkyDir & appDir, double energy,
+                        int type)
+   : m_src(src), m_appDir(appDir), m_energy(energy), m_type(type) {
+   PointSource * ptsrc = dynamic_cast<PointSource *>(src);
+   if (ptsrc == 0) {
+      m_separation = 90.;
+   } else {
+      m_separation = ptsrc->getDir().difference(appDir)*180./M_PI;
    }
+}
+
+double SourceModel::Aeff::operator()(double costheta) const {
+   if (m_separation < 90.) {
+      double inclination = acos(costheta)*180./M_PI;
+      static double phi(0);
+      return m_src->fluxDensity(inclination, phi, m_energy, m_separation,
+                                m_type);
+   }
+   return 0;
 }
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.9 2004/07/19 14:16:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.10 2004/07/21 04:00:13 jchiang Exp $
  */
 
 #include "Likelihood/ScData.h"
@@ -47,6 +47,31 @@ double ResponseFunctions::totalResponse(double time,
    }
    return myResponse;
 }
+
+double ResponseFunctions::totalResponse(double inclination, double phi,
+                                        double energy, double appEnergy,
+                                        double separation, int type) {
+   double myResponse(0);
+   std::map<unsigned int, irfInterface::Irfs *>::iterator respIt 
+      = instance()->begin();
+   for ( ; respIt != instance()->end(); respIt++) {
+      if (respIt->second->irfID() == type) {  
+         irfInterface::IPsf * psf = respIt->second->psf();
+         irfInterface::IAeff * aeff = respIt->second->aeff();
+         double psf_val = psf->value(separation, energy, inclination, phi);
+         double aeff_val = aeff->value(energy, inclination, phi);
+         if (s_useEdisp) {
+            irfInterface::IEdisp * edisp = respIt->second->edisp();
+            double edisp_val = edisp->value(appEnergy, energy, 
+                                            inclination, phi);
+            myResponse += psf_val*aeff_val*edisp_val;
+         } else {
+            myResponse += psf_val*aeff_val;
+         }            
+      }
+   }
+   return myResponse;
+}   
 
 irfInterface::Irfs * ResponseFunctions::respPtr(unsigned int i) {
    if (s_respPtrs.count(i)) {

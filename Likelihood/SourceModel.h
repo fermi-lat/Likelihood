@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.36 2004/06/05 15:22:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.37 2004/08/19 21:45:47 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -12,6 +12,8 @@
 #include <map>
 #include <vector>
 #include <string>
+
+#include "map_tools/Exposure.h"
 
 #include "optimizers/Statistic.h"
 
@@ -33,7 +35,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.36 2004/06/05 15:22:14 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.37 2004/08/19 21:45:47 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -150,11 +152,22 @@ public:
    void makeCountsMap(const std::string & filename,
                       const MapShape & mapShape);
 
+   class Aeff : public map_tools::Exposure::Aeff {
+   public:
+      Aeff(Source * src, astro::SkyDir & appDir, double energy, int type);
+      virtual double operator()(double costheta) const;
+   private:
+      Source * m_src;
+      astro::SkyDir & m_appDir;
+      double m_energy;
+      int m_type;
+      double m_separation;
+   };
+
 protected:
 
    static int s_refCount;
 
-//   static std::vector<Source *> s_sources;
    static std::map<std::string, Source *> s_sources;
 
    /// method to sync the m_parameter vector with those of the 

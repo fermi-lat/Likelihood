@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.10 2003/08/06 20:52:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.11 2003/11/07 02:27:08 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.10 2003/08/06 20:52:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.11 2003/11/07 02:27:08 jchiang Exp $
  *
  */
 
@@ -97,6 +97,14 @@ public:
    static void computeMap(std::string filename, double sr_radius = 30,
                           int nlong = 60, int nlat = 60, int nenergies = 10);
 
+   //! write the FITS image file produced by computeMap()
+   static void writeFitsFile(const std::string &filename,
+                             std::vector<double> &lon,
+                             std::vector<double> &lat,
+                             std::vector<double> &energies,
+                             std::vector< std::valarray<double> > &dataCube,
+                             double ra0, double dec0);
+
 protected:
 
    ExposureMap() {}
@@ -122,14 +130,6 @@ private:
    static std::vector< std::valarray<double> > s_exposure;
 
    static FitsImage s_mapData;
-
-   //! write the FITS image file produced by computeMap()
-   static void writeFitsFile(const std::string &filename,
-                             std::vector<double> &lon,
-                             std::vector<double> &lat,
-                             std::vector<double> &energies,
-                             std::vector< std::valarray<double> > &dataCube,
-                             double ra0, double dec0);
 
 };
 
