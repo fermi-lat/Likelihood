@@ -3,13 +3,13 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.6 2003/11/07 21:44:16 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.7 2004/01/06 00:10:26 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
 #define Likelihood_LogLike_h
 
-#include "latResponse/../src/Table.h"
+#include <map>
 
 #include "Likelihood/Event.h"
 #include "Likelihood/RoiCuts.h"
@@ -28,20 +28,20 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.6 2003/11/07 21:44:16 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.7 2004/01/06 00:10:26 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
     
 public:
 
-   LogLike() : m_eventData(0) {
+   LogLike() {
       logSrcModel m_logSrcModel;
       Npred m_Npred;
       deleteAllSources();
    }
 
-   virtual ~LogLike() {delete m_eventData;}
+   virtual ~LogLike() {}
 
    virtual double value(optimizers::Arg&) const;
 
@@ -72,33 +72,27 @@ public:
 // Methods and data members from old Likelihood::Statistic:
    void readEventData(const std::string &eventFile, int hdu);
 
+   /// Generalized column access
    std::pair<long, std::vector<double> > 
-   getEventColumn(const std::string &colname) const
-      {return getColumn(*m_eventData, colname);}
+   getEventColumn(const std::string &colname) const;
 
    unsigned long nEvents() const {return m_events.size();}
 
 protected:
 
-   /// Generalized column access
-   std::pair<long, std::vector<double> > 
-   getColumn(const latResponse::Table &tableData, 
-             const std::string &colname) const
-      throw(optimizers::Exception);
-
-   /// Event data; read from m_eventFile, stored in Table form
+   /// Event data, read from m_eventFile, stored in a map
    std::string m_eventFile;
    int m_eventHdu;
-   latResponse::Table *m_eventData;
 
    std::vector<Event> m_events;
 
+   std::map<std::string, std::vector<double> > m_eventColumns;
+
 private:
 
-   // A bit of a kludge here making this guy mutable, but unavoidable
-   // since getFreeDerivs is const in the base class and the
-   // overloaded version needs to call the logSrcModel::mySyncParams
-   // method.
+   // This needs to be mutable since getFreeDerivs is const in the
+   // base class and the overloaded version needs to call the
+   // logSrcModel::mySyncParams method.
    mutable logSrcModel m_logSrcModel;
 
    Npred m_Npred;

@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.19 2004/03/03 00:35:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.20 2004/04/03 06:14:14 jchiang Exp $
  */
 
 #include <cassert>
@@ -13,10 +13,11 @@
 
 #include "facilities/Util.h"
 
-//#include "latResponse/../src/Table.h"
-
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+
+// This include is temporary until tip provides the required access methods.
+#include "latResponse/../src/DC1.h"
 
 #include "astro/EarthCoordinate.h"
 
@@ -31,7 +32,7 @@ int ScData::s_scHdu = 0;
 ScData * ScData::s_instance = 0;
 double ScData::s_tstep;
 
-#ifdef USE_TIP
+#ifdef USE_FT1
 void ScData::readData(std::string file, int hdu, bool clear) {
    facilities::Util::expandEnvVar(&file);
 
@@ -91,24 +92,29 @@ void ScData::readData(std::string file, int hdu, bool clear) {
    s_scFile = file;
    s_scHdu = hdu;
 
-// read in the data (should check on file existence, etc., first...)
-   latResponse::Table scTable;
-   scTable.add_columns("SC_x0 SC_x1 SC_x2 SC_x SC_y SC_z time SAA_flag");
-   scTable.read_FITS_table(file, hdu);
+   std::string extName;
+   latResponse::DC1::getFitsHduName(file, hdu, extName);
+   tip::Table * my_table = tip::IFileSvc::instance().editFile(file, extName);
+   tip::Table::Iterator it = my_table->begin();
+   tip::Table::Record & row = *it;
 
 // repack into a more useful format
    if (clear) vec.clear();
-   for (int i = 0; i < scTable[0].dim; i++) {
+   for ( ; it != my_table->end(); ++it) {
       ScNtuple tuple;
 
-      tuple.xAxis = astro::SkyDir(Hep3Vector(scTable[0].val[i],
-                                             scTable[1].val[i], 
-                                             scTable[2].val[i]));
-      tuple.zAxis = astro::SkyDir(Hep3Vector(scTable[3].val[i],
-                                             scTable[4].val[i], 
-                                             scTable[5].val[i]));
-      tuple.time = scTable[6].val[i]; 
-      tuple.inSaa = static_cast<int>(scTable[7].val[i]);
+      double scx0, scx1, scx2;
+      row["SC_x0"].get(scx0);
+      row["SC_x1"].get(scx1);
+      row["SC_x2"].get(scx2);
+      tuple.xAxis = astro::SkyDir(Hep3Vector(scx0, scx1, scx2));
+      double scx, scy, scz;
+      row["SC_x"].get(scx);
+      row["SC_y"].get(scy);
+      row["SC_z"].get(scz);
+      tuple.zAxis = astro::SkyDir(Hep3Vector(scx, scy, scz));
+      row["time"].get(tuple.time);
+      row["SAA_flag"].get(tuple.inSaa);
 
       vec.push_back(tuple);
    }
@@ -116,7 +122,7 @@ void ScData::readData(std::string file, int hdu, bool clear) {
 // Assume a constant time step.
    s_tstep = vec[1].time - vec[0].time;
 }
-#endif // USE_TIP
+#endif // USE_FT1
 
 astro::SkyDir &ScData::zAxis(double time) {
    int indx = static_cast<int>((time - vec[0].time)/s_tstep);

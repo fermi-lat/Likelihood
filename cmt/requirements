@@ -4,7 +4,7 @@ version v3r0
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.98 2004/03/19 23:10:14 jchiang Exp $
+# $Id: requirements,v 1.99 2004/04/03 06:14:12 jchiang Exp $
 
 use GlastPolicy v5r*
 # use xml needs to be commented out in order to link on VC7.0 and VC7.1...
@@ -30,9 +30,9 @@ use tuple v*
 
 # allow use of internal path
 macro Likelihood_cppflags "" \
-Linux "-I ../src -D TRAP_FPE -D USE_TIP " \
+Linux "-I ../src -D TRAP_FPE -D USE_FT1 " \
 #Linux "-I ../src -D TRAP_FPE " \
-WIN32 '/I..\src /D"USE_TIP" /wd4290'
+WIN32 '/I..\src /D"USE_FT1" /wd4290'
 
 macro_append ROOT_libs ""  WIN32 " libHisT.lib "
 
