@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 18 10:11:14 PST 2003
+Likelihood/xml
+
+Modified Files:
+	A1_Sources.dtd A1_Sources.xml 
+Added Files:
+	A1_Srcs_noFuncLib.xml 
+Log Message:
+Changes to support new SourceModel::reReadXml method
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 18 10:10:36 PST 2003
 Likelihood/src/test
 
