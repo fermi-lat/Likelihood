@@ -3,7 +3,7 @@
  * @brief Declaration of Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.16 2003/05/20 23:49:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.17 2003/05/21 23:11:07 jchiang Exp $
  */
 
 #ifndef Function_h
@@ -36,7 +36,7 @@ class ProductFunction;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.16 2003/05/20 23:49:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.17 2003/05/21 23:11:07 jchiang Exp $
  */
 
 class Function {
@@ -201,7 +201,7 @@ protected:
  * looked for but not found in the desired Function.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.17 2003/05/21 23:11:07 jchiang Exp $
  */
 class ParameterNotFound : public LikelihoodException {
 
@@ -209,7 +209,7 @@ public:
    ParameterNotFound(const std::string &paramName, 
                      const std::string &funcName,
                      const std::string &routineName) {
-      ostringstream errorMessage;
+      std::ostringstream errorMessage;
       errorMessage << "Function::" << routineName << ": "
                    << "A Parameter named " << paramName
                    << " is not a Parameter of Function "

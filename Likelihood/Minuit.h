@@ -40,7 +40,7 @@ public:
   void setMaxEval(int);
   int getQuality(void) const; 
   double getDistance(void) const; 
-  std::vector<double> & getUncertainty(void) const;
+  std::vector<double> & getUncertainty(void);
   
   enum MinuitQuality {MINUIT_NOTCALC, MINUIT_DIAG, MINUIT_FORCEDPOS, 
 		      MINUIT_NORMAL};
