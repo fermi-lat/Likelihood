@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug  3 14:28:06 PDT 2004
+Likelihood/pfiles
+
+Modified Files:
+	likelihood.par 
+Log Message:
+remove $(LIKELIHOODROOT) env variable from paths.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Aug  3 14:27:31 PDT 2004
 Likelihood/cmt
 
