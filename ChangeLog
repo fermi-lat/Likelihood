@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 16 16:02:19 PST 2004
+Likelihood/python
+
+Modified Files:
+	Likelihood.i Makefile test.py 
+Added Files:
+	load_data.py 
+Log Message:
+add BinnedLikelihood to SWIG interface
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 16 16:02:17 PST 2004
 Likelihood/pfiles
 
