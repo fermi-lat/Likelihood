@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Oct 31 22:27:38 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+add documentation; write summary of results to a file
+    *
+------------------------------------------------------------
+User: jchiang  Sun Oct 31 22:27:38 PST 2004
 Likelihood/Likelihood
 
 Modified Files:
