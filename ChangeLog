@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  8 10:00:46 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h 
+Log Message:
+add diagnostic code for diffuseResponses
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jun  6 17:46:11 PDT 2004
 Likelihood/src
 
