@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr  7 13:18:05 PDT 2004
+Likelihood/src
+
+Modified Files:
+	ExposureMap.cxx 
+Log Message:
+fix performance warnings on windows; uncomment use xml in requirements file
+    *
+------------------------------------------------------------
 User: jchiang  Wed Apr  7 13:18:04 PDT 2004
 Likelihood/cmt
 
