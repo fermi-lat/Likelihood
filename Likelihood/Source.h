@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.22 2003/10/02 19:08:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.23 2004/02/21 17:10:36 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.22 2003/10/02 19:08:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.23 2004/02/21 17:10:36 jchiang Exp $
  */
 
 class Source {
@@ -36,25 +36,28 @@ public:
    Source(const Source &rhs);
    virtual ~Source() {}
 
-   //! returns photons/cm^2-s-sr-MeV having been convolved through
-   //! the LAT instrument response
+   /// @return photons/cm^2-s-sr-MeV having been convolved through
+   /// the LAT instrument response
    virtual double fluxDensity(const Event &evt) const = 0;
 
-   //! derivatives of fluxDensity wrt model Parameters
+   /// derivatives of fluxDensity wrt model Parameters
    virtual double fluxDensityDeriv(const Event &evt, 
                                    const std::string &paramName) const = 0;
 
-   //! predicted number of photons given RoiCuts and ScData
+   /// predicted number of photons given RoiCuts and ScData
    virtual double Npred() = 0;
 
-   //! derivative of Npred wrt named Parameter
+   /// derivative of Npred wrt named Parameter
    virtual double NpredDeriv(const std::string &paramName) = 0;
 
-   //! access unique source identifier
+   /// @return predicted number of counts within a specified energy range
+   virtual double Npred(double emin, double emax) = 0;
+
+   /// access unique source identifier
    void setName(const std::string &name) {m_name = name;}
    std::string getName() const {return m_name;}
 
-   //! return a reference to the m_functions map (NB: not const!)
+   /// @return a reference to the m_functions map (NB: not const!)
    typedef std::map<std::string, optimizers::Function *> FuncMap;
    FuncMap & getSrcFuncs() {return m_functions;}
 
@@ -65,21 +68,21 @@ public:
 
    virtual void setSpectrum(optimizers::Function *) = 0;
                        
-   //! clone function, with default
+   /// clone function, with default
    virtual Source *clone() const {return 0;}
 
-   //! return the Source type (e.g., Diffuse vs Point)
+   /// @return the Source type (e.g., Diffuse vs Point)
    std::string getType() {return m_srcType;}
 
 protected:
 
-   //! Source name
+   /// Source name
    std::string m_name;
 
-   //! Source type
+   /// Source type
    std::string m_srcType;
 
-   //! map of Functions describing this source
+   /// map of Functions describing this source
    FuncMap m_functions;
 
 };

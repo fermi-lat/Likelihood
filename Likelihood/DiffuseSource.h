@@ -3,11 +3,13 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.16 2003/11/12 22:01:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.17 2004/02/21 17:10:36 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
 #define Likelihood_DiffuseSource_h
+
+#include <stdexcept>
 
 #include "Likelihood/Source.h"
 #include "Likelihood/SkyDirArg.h"
@@ -41,7 +43,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.16 2003/11/12 22:01:36 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.17 2004/02/21 17:10:36 jchiang Exp $ 
  *  
  */
 
@@ -49,8 +51,8 @@ class DiffuseSource : public Source {
 
 public:
 
-   //! A Function describing the spatial distribution of emission is 
-   //! required for instantiation.
+   /// A Function describing the spatial distribution of emission is 
+   /// required for instantiation.
    DiffuseSource(optimizers::Function *spatialDist,
                  bool requireExposure = true) throw(Exception);
 
@@ -58,28 +60,35 @@ public:
 
    virtual ~DiffuseSource() {delete m_spatialDist; delete m_spectrum;}
 
-   //! Returns photons/cm^2-s-sr-MeV having been convolved through
-   //! the LAT instrument response
-   double fluxDensity(const Event &evt) const;
+   /// Returns photons/cm^2-s-sr-MeV having been convolved through
+   /// the LAT instrument response
+   virtual double fluxDensity(const Event &evt) const;
 
-   //! Returns the derivative wrt to the named Parameter
-   double fluxDensityDeriv(const Event &evt, 
-                           const std::string &paramName) const;
+   /// Returns the derivative wrt to the named Parameter
+   virtual double fluxDensityDeriv(const Event &evt, 
+                                   const std::string &paramName) const;
 
-   //! Predicted number of photons given RoiCuts and ScData
-   double Npred();
+   /// Predicted number of photons given RoiCuts and ScData
+   virtual double Npred();
+   
+   /// Derivative of Npred wrt named Parameter
+   virtual double NpredDeriv(const std::string &paramName);
 
-   //! Derivative of Npred wrt named Parameter
-   double NpredDeriv(const std::string &paramName);
+   /// Predicted number of counts within a specified energy range
+   virtual double Npred(double emin, double emax) {
+      throw std::out_of_range("DiffuseSource::Npred(emin, emax) "
+                              + std::string("is not yet implemented."));
+      return 0;
+   }
 
-   //! Return the spatial distribution of the gamma-ray emission
+   /// Return the spatial distribution of the gamma-ray emission
    double spatialDist(astro::SkyDir &dir) {
       SkyDirArg SDarg(dir);
       return (*m_spatialDist)(SDarg);
    }
 
-   //! Set the spectral model (should also check that the Parameter
-   //! names do not conflict with "longitude" and "latitude" of m_dir)
+   /// Set the spectral model (should also check that the Parameter
+   /// names do not conflict with "longitude" and "latitude" of m_dir)
    void setSpectrum(optimizers::Function *spectrum) {
       m_spectrum = spectrum->clone();
       m_functions["Spectrum"] = m_spectrum;
@@ -91,28 +100,28 @@ public:
 
 protected:
 
-   //! spatial model
+   /// spatial model
    optimizers::Function *m_spatialDist;
 
-   //! spectral model
+   /// spectral model
    optimizers::Function *m_spectrum;
 
 private:
 
-   //! flag to indicate that static member data have been computed
+   /// flag to indicate that static member data have been computed
    static bool s_haveStaticMembers;
 
-   //! vector of energy values for Npred spectrum quadrature
+   /// vector of energy values for Npred spectrum quadrature
    static std::vector<double> s_energies;
 
-   //! method to create a logrithmically spaced grid given RoiCuts
+   /// method to create a logrithmically spaced grid given RoiCuts
    static void makeEnergyVector(int nee = 100);
 
-   //! vector of angle integrated diffuse exposure as as a function of
-   //! energy
+   /// vector of angle integrated diffuse exposure as as a function of
+   /// energy
    std::vector<double> m_exposure;
 
-   //! disable these pure virtual functions inherited from Source
+   /// disable these pure virtual functions inherited from Source
    void setDir(double, double, bool, bool) {}
    void setDir(const astro::SkyDir &, bool, bool) {}
 
