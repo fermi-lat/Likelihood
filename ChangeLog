@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec 10 17:54:40 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	TsMap.par diffuseResponses.par 
+Log Message:
+more ROI removal
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6, operation: add
 Package: Likelihood
