@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 16 23:20:02 PST 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Npred.cxx PointSource.cxx ResponseFunctions.cxx 
+	ScData.cxx SourceFactory.cxx pyLike.in 
+Log Message:
+clean up ResponseFunctions
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 16 23:20:01 PST 2005
 Likelihood/Likelihood
 
