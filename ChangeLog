@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 21 16:12:40 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+update Parameter and Function unit test code
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 21 16:12:14 PDT 2003
 Likelihood/src
 
