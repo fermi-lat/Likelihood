@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: pln  Fri May  9 10:41:17 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Lbfgs.h 
+Log Message:
+Clean up and add comments
+    *
+------------------------------------------------------------
 User: pln  Wed May  7 15:25:43 PDT 2003
 Likelihood/Likelihood
 
