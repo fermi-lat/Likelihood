@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Dec  7 16:31:12 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h 
+Log Message:
+write and check DSS selections
+    *
+------------------------------------------------------------
 User: jchiang  Mon Dec  6 21:13:24 PST 2004
 Likelihood/src/likelihood
 
