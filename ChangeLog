@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jul  1 10:51:06 PDT 2004
+Likelihood/data
+
+Modified Files:
+	galdiffuse_events_0000.fits 
+Log Message:
+fix diffuse source unit tests
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun 30 13:21:41 PDT 2004
 Likelihood/src/test
 
