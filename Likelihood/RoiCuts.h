@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.21 2004/12/06 23:29:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.22 2004/12/08 04:09:52 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -22,6 +22,9 @@
 #include "irfInterface/AcceptanceCone.h"
 
 #include "dataSubselector/Cuts.h"
+#include "dataSubselector/GtiCut.h"
+#include "dataSubselector/RangeCut.h"
+#include "dataSubselector/SkyConeCut.h"
 
 namespace tip {
    class Header;
@@ -38,7 +41,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.21 2004/12/06 23:29:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.22 2004/12/08 04:09:52 jchiang Exp $
  */
 
 class RoiCuts {
@@ -133,10 +136,10 @@ private:
    rootDomElement(const std::string & roiTitle);
 #endif
 
-   dataSubselector::Cuts::RangeCut * m_energyCut;
-   dataSubselector::Cuts::SkyConeCut * m_skyConeCut;
-   std::vector<dataSubselector::Cuts::RangeCut *> m_timeCuts;
-   std::vector<dataSubselector::Cuts::GtiCut *> m_gtiCuts;
+   dataSubselector::RangeCut * m_energyCut;
+   dataSubselector::SkyConeCut * m_skyConeCut;
+   std::vector<dataSubselector::RangeCut *> m_timeCuts;
+   std::vector<dataSubselector::GtiCut *> m_gtiCuts;
 
    void sortCuts(bool strict=true);
    void setRoiData();

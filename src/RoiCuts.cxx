@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.24 2004/12/06 23:29:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.25 2004/12/08 04:09:53 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -27,7 +27,6 @@
 
 #include "optimizers/Dom.h"
 
-#include "dataSubselector/Cuts.h"
 #include "dataSubselector/Gti.h"
 
 #include "Likelihood/Exception.h"
@@ -186,10 +185,10 @@ void RoiCuts::setRoiData() {
 }
 
 void RoiCuts::sortCuts(bool strict) {
-   typedef dataSubselector::Cuts::CutBase CutBase;
-   typedef dataSubselector::Cuts::RangeCut RangeCut;
-   typedef dataSubselector::Cuts::GtiCut GtiCut;
-   typedef dataSubselector::Cuts::SkyConeCut SkyConeCut;
+   typedef dataSubselector::CutBase CutBase;
+   typedef dataSubselector::RangeCut RangeCut;
+   typedef dataSubselector::GtiCut GtiCut;
+   typedef dataSubselector::SkyConeCut SkyConeCut;
 
    unsigned int nenergy(0), ncone(0), ntime(0);
    for (unsigned int i = 0; i < s_cuts->size(); i++) {
