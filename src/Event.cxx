@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.34 2004/08/05 00:14:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.35 2004/08/05 05:28:27 jchiang Exp $
  */
 
 #include <cassert>
@@ -280,7 +280,7 @@ void Event::setDiffuseResponse(const std::string & srcName,
    m_respDiffuseSrcs[srcName].clear();
    for ( ; energy != m_trueEnergies.end(); ++energy) {
       double value = gaussianParams[0]/sqrt2pi/gaussianParams[2]
-         *exp(-(m_energy - gaussianParams[1])*(m_energy - gaussianParams[1])
+         *exp(-(*energy - gaussianParams[1])*(*energy - gaussianParams[1])
               /gaussianParams[2]/gaussianParams[2]/2.);
       m_respDiffuseSrcs[srcName].push_back(value);
    }
