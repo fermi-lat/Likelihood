@@ -82,8 +82,8 @@ CountsMap::CountsMap(const std::string & event_file,
    char * root_path = std::getenv("LIKELIHOODROOT");
    if (!root_path) {
       throw std::runtime_error("LIKELIHOODROOT not set.");
-      m_data_dir = std::string(root_path) + "/data/";
    }
+   m_data_dir = std::string(root_path) + "/data/";
 }
 
 CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
