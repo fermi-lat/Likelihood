@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jul  1 10:51:09 PDT 2004
+Likelihood/src
+
+Modified Files:
+	SConstruct buildBase 
+Log Message:
+fix diffuse source unit tests
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jul  1 10:51:06 PDT 2004
 Likelihood/data
 
