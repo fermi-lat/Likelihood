@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.24 2004/07/21 04:00:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.25 2004/08/05 00:14:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -24,12 +24,14 @@
 
 #include "irfUtil/Util.h"
 
-#include "Likelihood/ScData.h"
-#include "Likelihood/Npred.h"
-#include "Likelihood/logSrcModel.h"
-#include "Likelihood/EventArg.h"
-#include "Likelihood/SrcArg.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/EventArg.h"
+#include "Likelihood/logSrcModel.h"
+#include "Likelihood/Npred.h"
+#include "Likelihood/ResponseFunctions.h"
+#include "Likelihood/ScData.h"
+#include "Likelihood/SrcArg.h"
+
 #include "Likelihood/LogLike.h"
 
 namespace Likelihood {
@@ -140,7 +142,6 @@ void LogLike::computeEventResponses(double sr_radius) {
    }
 }
 
-#ifdef USE_FT1
 void LogLike::getEvents(std::string event_file, int) {
 
    facilities::Util::expandEnvVar(&event_file);
@@ -206,8 +207,14 @@ void LogLike::getEvents(std::string event_file, int) {
          m_events.push_back(thisEvent);
          for (std::vector<std::string>::iterator name = diffuseNames.begin();
               name != diffuseNames.end(); ++name) {
-            event[*name].get(respValue);
-            m_events.back().setDiffuseResponse(*name, respValue);
+            if (ResponseFunctions::useEdisp()) {
+               std::vector<double> gaussianParams;
+               event[*name].get(gaussianParams);
+               m_events.back().setDiffuseResponse(*name, gaussianParams);
+            } else {
+               event[*name].get(respValue);
+               m_events.back().setDiffuseResponse(*name, respValue);
+            }
          }
       } else {
          nReject++;
@@ -222,89 +229,6 @@ void LogLike::getEvents(std::string event_file, int) {
 
    delete events;
 }
-#else // USE_FT1
-void LogLike::getEvents(std::string event_file, int hdu) {
-
-   facilities::Util::expandEnvVar(&event_file);
-
-   readEventData(event_file, hdu);
-
-   typedef std::pair<long, std::vector<double> > tableColumn;
-   tableColumn ra = getEventColumn("RA");
-   tableColumn dec = getEventColumn("DEC");
-   tableColumn energy = getEventColumn("energy");
-   tableColumn time = getEventColumn("time");
-   tableColumn sc_x = getEventColumn("SC_x");
-   tableColumn sc_y = getEventColumn("SC_y");
-   tableColumn sc_z = getEventColumn("SC_z");
-   tableColumn zenangle = getEventColumn("zenith_angle");
-
-// get pointer to RoiCuts
-   RoiCuts *roi_cuts = RoiCuts::instance();
-
-   unsigned int nReject = 0;
-
-   long nevents = m_events.size();
-   m_events.reserve(ra.first + nevents);
-   for (int i = 0; i < ra.first; i++) {
-// compute sc_ra and sc_dec from direction cosines 
-      double sc_ra = atan2(sc_y.second[i], sc_x.second[i])*180./M_PI;
-      double sc_dec = asin(sc_z.second[i])*180./M_PI;
-
-      Event thisEvent(ra.second[i], dec.second[i], energy.second[i],
-                      time.second[i], sc_ra, sc_dec,
-                      cos(zenangle.second[i]*M_PI/180.));
-
-      if (roi_cuts->accept(thisEvent)) {
-         m_events.push_back(thisEvent);
-      } else {
-         nReject++;
-      }
-   }
-
-   std::cerr << "LogLike::getEvents:\nOut of " 
-             << ra.first << " events in file "
-             << event_file << ",\n "
-             << m_events.size() - nevents << " were accepted, and "
-             << nReject << " were rejected.\n" << std::endl;
-}
-
-void LogLike::readEventData(const std::string &eventFile, int hdu) {
-   m_eventFile = eventFile;
-   m_eventHdu = hdu;
-
-   std::string extName;
-   irfUtil::Util::getFitsHduName(eventFile, hdu, extName);
-
-   std::vector<std::string> columnNames;
-   irfUtil::Util::getFitsColNames(eventFile, hdu, columnNames);
-
-   std::vector<double> my_column;
-   for (unsigned int i = 0; i < columnNames.size(); i++) {
-      irfUtil::Util::getTableVector(eventFile, extName, columnNames[i],
-                                    my_column);
-      m_eventColumns[columnNames[i]] = my_column;
-   }
-}
-
-std::pair<long, std::vector<double> >
-LogLike::getEventColumn(const std::string &colname) const {
-   std::pair<long, std::vector<double> > my_column;
-
-   if (m_eventColumns.count(colname)) {
-      my_column = std::make_pair(m_eventColumns[colname].size(), 
-                                 m_eventColumns[colname]);
-   } else {
-      std::ostringstream errorMessage;
-      errorMessage << "LogLike::getColumn:\n"
-                   << "Column " << colname 
-                   << " was not found in event data.\n"
-                   << "Valid names are \n" << colnames << "\n";
-      throw std::runtime_error(errorMessage.str());
-   }
-   return my_column;
-}
-#endif // USE_FT1
 
 void LogLike::setFT1_columns() {
    std::string colnames("energy ra dec theta phi zenith_angle "
