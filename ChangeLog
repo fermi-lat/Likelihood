@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 16:17:16 PST 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Log Message:
+convert ExposureCube to proper class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 16:17:14 PST 2005
 Likelihood/Likelihood
 
