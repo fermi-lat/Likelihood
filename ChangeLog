@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Oct 26 17:13:49 PST 2003
+Likelihood/python
+
+Modified Files:
+	Likelihood.i test.py 
+Log Message:
+use latResponse::IrfsFactory
+    *
+------------------------------------------------------------
 User: jchiang  Sun Oct 26 17:13:48 PST 2003
 Likelihood/Likelihood
 
