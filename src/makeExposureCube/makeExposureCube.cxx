@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.12 2004/11/28 06:58:23 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.13 2004/11/28 15:01:29 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.12 2004/11/28 06:58:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.13 2004/11/28 15:01:29 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -74,15 +74,16 @@ st_app::StAppFactory<ExposureCube> myAppFactory;
 
 void ExposureCube::run() {
    std::string output_file = m_pars["outfile"];
-   if (m_pars["clobber"] &&
-       st_facilities::Util::fileExists(output_file)) {
-      std::remove(output_file.c_str());
-   } else {
-      std::cout << "Output file " << output_file 
-                << " already exists and you have set 'clobber' to 'no'.\n"
-                << "Please provide a different output file name." 
-                << std::endl;
-      std::exit(1);
+   if (st_facilities::Util::fileExists(output_file)) {
+      if (m_pars["clobber"]) {
+         std::remove(output_file.c_str());
+      } else {
+         std::cout << "Output file " << output_file 
+                   << " already exists and you have set 'clobber' to 'no'.\n"
+                   << "Please provide a different output file name." 
+                   << std::endl;
+         std::exit(1);
+      }
    }
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    createDataCube();
