@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.38 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.39 2004/08/23 16:14:56 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -35,7 +35,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.38 2004/08/23 15:38:56 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.39 2004/08/23 16:14:56 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -150,7 +150,7 @@ public:
 
    /// Create a counts map based on the current model.
    void makeCountsMap(const std::string & filename,
-                      const MapShape & mapShape);
+                      const MapShape & mapShape) const;
 
    class Aeff : public map_tools::Exposure::Aeff {
    public:
@@ -205,7 +205,7 @@ private:
                       std::vector<double> &ras,
                       std::vector<double> &decs,
                       std::vector<double> &energies,
-                      std::vector< std::valarray<double> > &map);
+                      std::vector<double> &map) const;
       
 };
 

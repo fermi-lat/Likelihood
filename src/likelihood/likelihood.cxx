@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.20 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.21 2004/08/25 15:27:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -34,7 +34,6 @@
 #include "Likelihood/OptEM.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
-//#include "Likelihood/Util.h"
 
 using namespace Likelihood;
 
@@ -45,7 +44,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.20 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.21 2004/08/25 15:27:32 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -268,7 +267,19 @@ void likelihood::writeCountsSpectra() {
 
 void likelihood::writeCountsMap() {
    std::string expcube_file = m_pars["exposure_cube_file"];
-   ExposureCube::readExposureCube(expcube_file);
+   if (expcube_file == "none") {
+      return;
+   }
+
+   try {
+      ExposureCube::readExposureCube(expcube_file);
+   } catch (std::exception & eObj) {
+      if (st_facilities::Util::expectedException(eObj, "fits error")) {
+         return;
+      } else {
+         throw;
+      }
+   }
 
    RoiCuts * roiCuts = RoiCuts::instance();
 
@@ -306,10 +317,14 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<std::string> srcNames;
    m_logLike->getSrcNames(srcNames);
 
+// Save current set of parameters.
+   std::vector<double> fitParams;
+   m_logLike->getFreeParamValues(fitParams);
+
 // Compute TS for each source.
    std::map<std::string, double> TsValues;
-//    int verbose(0);
-//    double tol(1e-4);
+   int verbose(0);
+   double tol(1e-4);
    double logLike_value = m_logLike->value();
    std::vector<double> null_values;
    std::cerr << "Computing TS values for each source ("
@@ -320,11 +335,11 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
          Source * src = m_logLike->deleteSource(srcNames[i]);
          if (m_logLike->getNumFreeParams() > 0) {
             selectOptimizer();
-//             try {
-//                m_opt->find_min(verbose, tol);
-//             } catch (optimizers::Exception &eObj) {
-//                std::cout << eObj.what() << std::endl;
-//             }
+            try {
+               m_opt->find_min(verbose, tol);
+            } catch (optimizers::Exception &eObj) {
+               std::cout << eObj.what() << std::endl;
+            }
             null_values.push_back(m_logLike->value());
             TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
          } else {
@@ -338,16 +353,9 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
       }
    }
    std::cerr << "!" << std::endl;
-//    selectOptimizer();
-//    m_opt->find_min(verbose, tol);
 
-//    double new_logLike = m_logLike->value();
-//    if (new_logLike < logLike_value) {
-//       for (unsigned int i = 0; i < srcNames.size(); i++) {
-//          TsValues[srcNames[i]] += 2.*(new_logLike - logLike_value);
-//       }
-//       logLike_value = new_logLike;
-//    }
+// Reset parameter values.
+   m_logLike->setFreeParamValues(fitParams);
 
    std::vector<optimizers::Parameter> parameters;
    std::vector<double>::const_iterator errIt = errors.begin();

@@ -4,12 +4,13 @@ version v4r5
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.128 2004/08/25 15:27:31 jchiang Exp $
+# $Id: requirements,v 1.129 2004/08/25 21:54:07 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
 use xml v4r*
 use tip v1*
+use evtbin v0r*
 use map_tools v*
 use optimizers v*
 use facilities v2r*
