@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.26 2004/12/08 21:44:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.27 2004/12/24 16:45:45 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -38,8 +38,8 @@ namespace Likelihood {
 XERCES_CPP_NAMESPACE_USE
 
 std::vector<RoiCuts::timeInterval> RoiCuts::s_tLimVec;
-double RoiCuts::s_eMin;
-double RoiCuts::s_eMax;
+double RoiCuts::s_eMin(20.);
+double RoiCuts::s_eMax(2e5);
 irfInterface::AcceptanceCone RoiCuts::s_roiCone;
 double RoiCuts::s_muZenMax;
 

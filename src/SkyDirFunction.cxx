@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.14 2003/10/24 01:57:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.15 2004/12/22 06:06:48 jchiang Exp $
  */
 
 #include "optimizers/ParameterNotFound.h"
@@ -20,7 +20,9 @@ SkyDirFunction::SkyDirFunction(const astro::SkyDir &dir) :
    m_genericName = "SkyDirFunction";
    m_functionName = "SkyDirFunction";
    addParam("RA", m_ra, false);
+   parameter("RA").setBounds(-360., 360.);
    addParam("DEC", m_dec, false);
+   parameter("DEC").setBounds(-90., 90.);
 }   
 
 void SkyDirFunction::m_init(double ra, double dec) {
@@ -35,7 +37,9 @@ void SkyDirFunction::m_init(double ra, double dec) {
    // add these as fixed parameters 
    // NB: as usual, the specific ordering of Parameters is assumed throughout
    addParam("RA", m_ra, false);
+   parameter("RA").setBounds(-360., 360.);
    addParam("DEC", m_dec, false);
+   parameter("DEC").setBounds(-90., 90.);
 }
 
 void SkyDirFunction::update_m_dir(const std::string paramName, 
