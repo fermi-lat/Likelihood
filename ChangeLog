@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Oct  6 21:43:39 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+work on diffuse source integral
+    *
+------------------------------------------------------------
+User: jchiang  Wed Oct  6 21:43:39 PDT 2004
 Likelihood/src
 
 Modified Files:
