@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Dec 29 16:28:22 PST 2004
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+sync up to optimizers v2; adjust DSS checking; tagging v6r1
+    *
+------------------------------------------------------------
+User: jchiang  Wed Dec 29 16:28:22 PST 2004
 Likelihood/cmt
 
 Modified Files:
