@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Nov 27 22:58:22 PST 2004
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+parameter interface updates
+    *
+------------------------------------------------------------
+User: jchiang  Sat Nov 27 22:58:22 PST 2004
 Likelihood/src/TsMap
 
 Modified Files:
