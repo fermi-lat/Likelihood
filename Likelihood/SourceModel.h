@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.14 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.15 2003/05/29 20:10:30 jchiang Exp $
  */
 
 #ifdef _MSC_VER
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.14 2003/04/25 18:32:18 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.15 2003/05/29 20:10:30 jchiang Exp $ 
  */
 
 class SourceModel : public Function {
@@ -43,8 +43,9 @@ public:
    virtual ~SourceModel();
 
    //! setParam method to include function and source name checking
-   void setParam(const Parameter &param, const std::string &funcName,
-                 const std::string &srcName) throw(LikelihoodException);
+   virtual void setParam(const Parameter &param, const std::string &funcName,
+                         const std::string &srcName) 
+      throw(LikelihoodException);
 
    //! group parameter access (note name mangling for inheritance 
    //! from Function)
@@ -53,10 +54,42 @@ public:
    virtual std::vector<double>::const_iterator setFreeParamValues_(
       std::vector<double>::const_iterator);
 
-   Parameter getParam(const std::string &paramName, 
-                      const std::string &funcName,
-                      const std::string &srcName) const
+   virtual double getParamValue(const std::string &paramName, 
+                                const std::string &funcName,
+                                const std::string &srcName) const
+      throw(LikelihoodException, ParameterNotFound) {
+      return getParam(paramName, funcName, srcName).getValue();
+   }
+   
+   virtual Parameter getParam(const std::string &paramName, 
+                              const std::string &funcName,
+                              const std::string &srcName) const
       throw(LikelihoodException, ParameterNotFound);
+
+   virtual void setParamBounds(const std::string &paramName,
+                               const std::string &funcName,
+                               const std::string &srcName,
+                               double lower, double upper)
+      throw(ParameterNotFound, OutOfBounds);
+
+   virtual void setParamScale(const std::string &paramName,
+                              const std::string &funcName,
+                              const std::string &srcName,
+                              double scale) throw(ParameterNotFound);
+
+   virtual void setParamTrueValue(const std::string &paramName,
+                                  const std::string &funcName,
+                                  const std::string &srcName,
+                                  double paramValue) 
+      throw(ParameterNotFound, OutOfBounds);
+
+   virtual void setParams(std::vector<Parameter> &params) 
+      throw(LikelihoodException, ParameterNotFound) 
+      {setParams_(params, false);}
+
+   virtual void setFreeParams(std::vector<Parameter> &params) 
+      throw(LikelihoodException, ParameterNotFound) 
+      {setParams_(params, true);}
 
    //! add and delete sources by name
    void addSource(Source *src);
@@ -90,6 +123,9 @@ protected:
    double derivByParam(Arg &, const std::string &) const {return 0;}
 
    void fetchDerivs(Arg &x, std::vector<double> &derivs, bool getFree) const;
+
+   void setParams_(std::vector<Parameter> &, bool)
+      throw(LikelihoodException, ParameterNotFound);
 
 };
 
