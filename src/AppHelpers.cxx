@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.2 2004/04/06 22:19:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.1 2004/04/21 20:58:39 jchiang Exp $
  */
 
 #include <map>
@@ -73,6 +73,8 @@ void AppHelpers::createResponseFuncs() {
    responseIds["FRONT/BACK"].push_back("DC1::Back");
    responseIds["GLAST25"].push_back("Glast25::Front");
    responseIds["GLAST25"].push_back("Glast25::Back");
+   responseIds["GLAST25_10"].push_back("Glast25::Front_10");
+   responseIds["GLAST25_10"].push_back("Glast25::Back_10");
    if (responseIds.count(responseFuncs)) {
       std::vector<std::string> &resps = responseIds[responseFuncs];
       for (unsigned int i = 0; i < resps.size(); i++) {

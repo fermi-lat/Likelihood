@@ -4,15 +4,17 @@
 #
 # @author J. Chiang
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.3 2004/05/05 01:42:32 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.4 2004/05/17 23:27:52 jchiang Exp $
 #
 
-SWIG = swig
-SWIG_DIR = /scratch/local
-PYTHONDIR = $(GLAST_EXT)/python/2.3/Linux
-PYINCLUDE = -I$(PYTHONDIR)/include
+SWIG = /usr/local/bin/swig -w401 -w402
+#SWIG_DIR = /scratch/local
+#PYTHONDIR = $(GLAST_EXT)/python/2.3/Linux
+#PYINCLUDE = -I$(PYTHONDIR)/include
+SWIG_DIR = /usr/local
+PYINCLUDE = -I/usr/local/include/python2.3
 
-CFLAGS = -w
+CFLAGS = -w -g -fPIC
 
 INCLUDE = -I$(LIKELIHOODROOT)\
 	-I$(LATRESPONSEROOT)\
@@ -26,13 +28,12 @@ INCLUDE = -I$(LIKELIHOODROOT)\
 	-I$(CLHEP_DIR)/1.8.0.0/include\
 	-I$(GLAST_EXT)/xerces/1.7.0/include\
 	-I$(GLAST_EXT)/xerces/1.7.0/include/xercesc
-#	-I$(TIPROOT)\
 
 LIBS = -L../$(BINDIR)/ -lLikelihoodLib\
 	-L$(LATRESPONSEROOT)/$(BINDIR) -llatResponseLib\
+	-L$(MAP_TOOLSROOT)/$(BINDIR) -lmap_toolsLib\
 	-L$(ASTROROOT)/$(BINDIR) -lastro\
 	-L$(OPTIMIZERSROOT)/$(BINDIR) -loptimizersLib\
-	-L$(MAP_TOOLSROOT)/$(BINDIR) -lmap_toolsLib\
 	-L$(TIPROOT)/$(BINDIR) -ltipLib\
 	-L$(XMLROOT)/$(BINDIR) -lxml\
 	-L$(FACILITIESROOT)/$(BINDIR) -lfacilities\
@@ -42,7 +43,7 @@ LIBS = -L../$(BINDIR)/ -lLikelihoodLib\
 	-L$(GLAST_EXT)/ROOT/v3.10.02/root/lib\
 	-lCore -lCint -lTree -lMatrix -lPhysics\
 	-lHist -lGraf -lGraf3d -lGpad -lRint -lPostscript\
-	-lg2c -L$(SWIG_DIR)/lib -lswigpy
+	-lg2c -L$(SWIG_DIR)/lib -lswigpy -fPIC -ldl
 
 module_base = Likelihood
 module_name = _${module_base}.so
@@ -54,7 +55,7 @@ ${module_base}_wrap.o: ${module_base}_wrap.cxx
 	${CXX} -c ${CFLAGS} ${INCLUDE} ${PYINCLUDE} -o $@ $<
 
 ${module_base}_wrap.cxx: ${module_base}.i
-	${SWIG} -c -python -c++ ${module_base}.i
+	${SWIG} -noruntime -python -c++ ${module_base}.i
 
 anew:
 	make clean

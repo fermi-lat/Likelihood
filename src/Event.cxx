@@ -3,11 +3,13 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.22 2003/12/07 17:32:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.23 2004/02/23 22:17:33 jchiang Exp $
  */
 
 #include <cassert>
+
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <utility>
 
@@ -38,6 +40,11 @@ namespace {
 
 namespace Likelihood {
 
+std::vector<double> Event::s_mu;
+std::vector<double> Event::s_phi;
+FitsImage::EquinoxRotation Event::s_eqRot;
+bool Event::s_haveSourceRegionData(false);
+
 Event::Event(double ra, double dec, double energy, 
              double time, double sc_ra, double sc_dec, 
              double muZenith, int type) {
@@ -47,103 +54,156 @@ Event::Event(double ra, double dec, double energy,
    m_scDir = astro::SkyDir(sc_ra, sc_dec);
    m_muZenith = muZenith;
    m_type = type;
+
+
+   if (ResponseFunctions::useEdisp()) {
+// For <15% energy resolution, consider true energies over the range
+// (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
+// apparent energy.
+      int npts(100);
+      double emin = 0.55*m_energy;
+      double emax = 1.45*m_energy;
+      m_estep = (emax - emin)/(npts-1.);
+      m_trueEnergies.reserve(npts);
+      for (int i = 0; i < npts; i++) {
+         m_trueEnergies.push_back(m_estep*i + emin);
+      }
+   } else {
+// To mimic infinite energy resolution, we create a single element
+// vector containing the apparent energy.
+      m_trueEnergies.push_back(m_energy);
+   }
 }
 
-Event::Event(const Event &event) {
-   m_appDir = event.m_appDir;
-   m_energy = event.m_energy;
-   m_arrTime = event.m_arrTime;
-   m_scDir = event.m_scDir;
-   m_muZenith = event.m_muZenith;
-   m_type = event.m_type;
-   m_respEg = event.m_respEg;
-   m_respGal = event.m_respGal;
-   m_respDiffuseSrcs = event.m_respDiffuseSrcs;
-}
-
-// double Event::diffuseResponse(double energy, 
-//                               const std::string &diffuseComponent) const 
-double Event::diffuseResponse(double,
+double Event::diffuseResponse(double trueEnergy, 
                               const std::string &diffuseComponent) const 
    throw(Exception) {
-// Since the energy resolution is presently assumed to be infinite,
-// simply return the (second member of the pair of the) first (and
-// only) element of the diffuse_response vector.
 
+   int indx;
+   if (ResponseFunctions::useEdisp()) {
+      indx = static_cast<int>((trueEnergy - m_trueEnergies[0])/m_estep);
+      if (indx < 0 || indx >= static_cast<int>(m_trueEnergies.size())) {
+         return 0;
+      }
+   }
    std::map<std::string, diffuse_response>::const_iterator it;
    if ((it = m_respDiffuseSrcs.find(diffuseComponent))
        != m_respDiffuseSrcs.end()) {
-      return it->second[0].second;
+      if (ResponseFunctions::useEdisp()) {
+         const diffuse_response & resp = it->second;
+         double my_value = (trueEnergy - m_trueEnergies[indx])
+            /(m_trueEnergies[indx+1] - m_trueEnergies[indx])
+            *(resp[indx+1] - resp[indx]) + resp[indx];
+         return my_value;
+      } else {
+// The response is just the single value in the diffuse_response vector.
+         return it->second[0];
+      }
    } else {
-      std::ostringstream errorMessage;
-      errorMessage << "Event::diffuseResponse: \nDiffuse component " 
-                   << diffuseComponent 
-                   << " does not have an associated diffuse response.\n";
-      throw Exception(errorMessage.str());
+      std::string errorMessage 
+         = "Event::diffuseResponse: \nDiffuse component " 
+         + diffuseComponent 
+         + " does not have an associated diffuse response.\n";
+      throw Exception(errorMessage);
    }
    return 0;
 }
 
 void Event::computeResponse(std::vector<DiffuseSource *> &srcs, 
                             double sr_radius) {
+// @todo In principle, the source region should be centered on the
+// event direction, making it independent of the ROI, but doing so has
+// not given as good results as using the ROI center.  Need to check
+// this is still true.
+//    m_eqRot = FitsImage::EquinoxRotation(m_appDir.ra(), m_appDir.dec());
+   if (!s_haveSourceRegionData) {
+      prepareSrData(sr_radius);
+   }
 
-// Create the EquinoxRotation object for this Event.
-//   FitsImage::EquinoxRotation eqRot(m_appDir.ra(), m_appDir.dec());
-// The following instantiates the eqRot object to do the same rotation
-// as performed by my evt_exposr FTOOL
-   RoiCuts *roi_cuts = RoiCuts::instance();
-   astro::SkyDir roiCenter = roi_cuts->extractionRegion().center();
-   FitsImage::EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
-
-// Do this calculation assuming infinite energy resolution and thus
-// compute a single value.
-
-   int nmu = 70;
-   double mumin = cos(sr_radius*M_PI/180);
-   double mustep = (1. - mumin)/(nmu - 1.);
-   std::vector<double> mu;
-   for (int i = 0; i < nmu; i++) mu.push_back(mustep*i + mumin);
-
-   int nphi = 40;
-   double phistep = 2.*M_PI/(nphi - 1.);
-   std::vector<double> phi;
-   for (int i = 0; i < nphi; i++) phi.push_back(phistep*i);
-
-   std::vector< std::vector<double> > mu_integrands;
-   mu_integrands.resize(srcs.size());
-   for (int i = 0; i < nmu; i++) {
-      std::vector< std::vector<double> > phi_integrands;
-      phi_integrands.resize(srcs.size());
-      for (int j = 0; j < nphi; j++) {
+// Create a vector of srcDirs looping over the source region locations.
+   std::vector<astro::SkyDir> srcDirs;
+   for (unsigned int i = 0; i < s_mu.size(); i++) {
+      for (unsigned int j = 0; j < s_phi.size(); j++) {
          astro::SkyDir srcDir;
-         getCelestialDir(phi[j], mu[i], eqRot, srcDir);
-         double inc = m_scDir.SkyDir::difference(srcDir)*180/M_PI;
-         if (inc < latResponse::Glast25::incMax()) {
-            double totalResp 
-               = ResponseFunctions::totalResponse(m_arrTime, 
-                                                  m_energy, m_energy,
-                                                  srcDir, m_appDir, m_type);
-            for (unsigned int k = 0; k < srcs.size(); k++) {
-               double srcDist_val = srcs[k]->spatialDist(srcDir);
-               phi_integrands[k].push_back(totalResp*srcDist_val);
+         getCelestialDir(s_phi[j], s_mu[i], s_eqRot, srcDir);
+         srcDirs.push_back(srcDir);
+      }
+   }
+   std::vector<double>::iterator trueEnergy = m_trueEnergies.begin();
+   for ( ; trueEnergy != m_trueEnergies.end(); ++trueEnergy) {
+
+// Prepare the array of integrals over phi for passing to the 
+// trapezoidal integrator for integration over mu.
+      std::vector< std::vector<double> > mu_integrands;
+      mu_integrands.resize(srcs.size());
+      for (unsigned int i = 0; i < s_mu.size(); i++) {
+
+// Prepare phi-integrand arrays.
+         std::vector< std::vector<double> > phi_integrands;
+         phi_integrands.resize(srcs.size());
+         for (unsigned int j = 0; j < s_phi.size(); j++) {
+            int indx = i*s_phi.size() + j;
+            astro::SkyDir & srcDir = srcDirs[indx];
+            double inc = m_scDir.SkyDir::difference(srcDir)*180./M_PI;
+            if (inc < latResponse::Glast25::incMax()) {
+               double totalResp 
+                  = ResponseFunctions::totalResponse(m_arrTime, 
+                                                     *trueEnergy, m_energy,
+                                                     srcDir, m_appDir, m_type);
+               for (unsigned int k = 0; k < srcs.size(); k++) {
+                  double srcDist_val = srcs[k]->spatialDist(srcDir);
+                  phi_integrands[k].push_back(totalResp*srcDist_val);
+               }
+            } else {
+               for (unsigned int k = 0; k < srcs.size(); k++)
+                  phi_integrands[k].push_back(0);
             }
-         } else {
-            for (unsigned int k = 0; k < srcs.size(); k++)
-               phi_integrands[k].push_back(0);
+         }
+         
+// Perform the phi-integrals
+         for (unsigned int k = 0; k < srcs.size(); k++) {
+            TrapQuad phiQuad(s_phi, phi_integrands[k]);
+            mu_integrands[k].push_back(phiQuad.integral());
          }
       }
+
+// Perform the mu-integrals
       for (unsigned int k = 0; k < srcs.size(); k++) {
-         TrapQuad phiQuad(phi, phi_integrands[k]);
-         mu_integrands[k].push_back(phiQuad.integral());
+         TrapQuad muQuad(s_mu, mu_integrands[k]);
+         m_respDiffuseSrcs[srcs[k]->getName()].push_back(muQuad.integral());
+      }
+   } // loop over trueEnergy
+}
+
+void Event::writeDiffuseResponses(const std::string & filename) {
+   std::ofstream outfile(filename.c_str());
+   std::map<std::string, diffuse_response>::iterator it
+      = m_respDiffuseSrcs.begin();
+   for ( ; it != m_respDiffuseSrcs.end(); ++it) {
+      diffuse_response & resp = it->second;
+      for (unsigned int ie = 0; ie < resp.size(); ie++) {
+         outfile << m_trueEnergies[ie] << "  "
+                 << resp[ie] << std::endl;
       }
    }
-   for (unsigned int k = 0; k < srcs.size(); k++) {
-      TrapQuad muQuad(mu, mu_integrands[k]);
-      diffuse_response diff_resp;
-      diff_resp.push_back(std::make_pair(m_energy, muQuad.integral()));
+   outfile.close();
+}
 
-      m_respDiffuseSrcs[srcs[k]->getName()] = diff_resp;
+void Event::prepareSrData(double sr_radius, int nmu, int nphi) {
+   RoiCuts *roi_cuts = RoiCuts::instance();
+   astro::SkyDir roiCenter = roi_cuts->extractionRegion().center();
+   s_eqRot = FitsImage::EquinoxRotation(roiCenter.ra(), roiCenter.dec());
+
+   double mumin = cos(sr_radius*M_PI/180);
+   double mustep = (1. - mumin)/(nmu - 1.);
+   for (int i = 0; i < nmu; i++) {
+      s_mu.push_back(mustep*i + mumin);
    }
+   double phistep = 2.*M_PI/(nphi - 1.);
+   for (int i = 0; i < nphi; i++) {
+      s_phi.push_back(phistep*i);
+   }
+   s_haveSourceRegionData = true;
 }
 
 void Event::getCelestialDir(double phi, double mu, 

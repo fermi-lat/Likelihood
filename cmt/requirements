@@ -4,7 +4,7 @@ version v3r9
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.112 2004/05/09 19:45:40 jchiang Exp $
+# $Id: requirements,v 1.113 2004/05/17 23:27:51 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
@@ -15,6 +15,7 @@ use latResponse v2*
 use optimizers v*
 use facilities v2r*
 use cfitsio v1* IExternal
+use cppunit v1* IExternal
 
 apply_pattern ST_library option="-no_share *.c "
 apply_pattern ST_pfiles
