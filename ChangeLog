@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov 11 12:27:44 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	likelihood.par 
+Log Message:
+access to binned exposure
+    *
+------------------------------------------------------------
 User: jchiang  Thu Nov 11 12:24:47 PST 2004
 Likelihood/doc
 
