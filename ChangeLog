@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Oct 10 20:07:36 PDT 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+remove likelihood::createCountsMap method; tagging v5r1
+    *
+------------------------------------------------------------
 User: jchiang  Sun Oct 10 18:35:01 PDT 2004
 Likelihood/src/test
 
