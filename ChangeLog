@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Oct  3 22:51:20 PDT 2004
+Likelihood/src
+
+Added Files:
+	MeanPsf.cxx 
+Log Message:
+auxillary class for use by binned diffuse sources
+    *
+------------------------------------------------------------
 User: jchiang  Sun Oct  3 22:51:19 PDT 2004
 Likelihood/Likelihood
 
