@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct 21 21:30:33 PDT 2003
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx ScData.cxx 
+Added Files:
+	ResponseFunctions.cxx 
+Log Message:
+first steps to move to use latResponse
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct 21 21:30:32 PDT 2003
 Likelihood/Likelihood
 
