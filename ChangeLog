@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed May  7 12:38:32 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+use better, stronger, faster integrator --- dgaus8.c --- in PointSource.cxx
+    *
+------------------------------------------------------------
+User: jchiang  Wed May  7 12:38:32 PDT 2003
 Likelihood/src
 
 Modified Files:
