@@ -4,7 +4,7 @@
 #
 # @author J. Chiang
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.2 2003/08/17 04:11:21 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.3 2004/05/05 01:42:32 jchiang Exp $
 #
 
 SWIG = swig
@@ -70,7 +70,7 @@ clean:
 	/bin/rm -f *wrap*
 	/bin/rm -f *.so
 	/bin/rm -f ${module_base}.py*
-	/bin/rm -f ${module_base}.cxx
+	/bin/rm -f ${module_base}_wrap.cxx
 
 very_clean:
 	make clean
