@@ -108,15 +108,15 @@ int main() {
 
 void test_RoiCuts() {
 
-  std::cout << "*** test_RoiCuts ***" << std::endl;
-
-  Likelihood::RoiCuts* roi = Likelihood::RoiCuts::instance();
-  roi->setCuts(); // use all default values
-  roi->writeXml("myRegionOfInterest.xml", "title_of_my_region_of_interest");
-  roi->setCuts("myRegionOfInterest.xml"); // read back in
-  roi->writeXml("myRegionOfInterest2.xml", "copy_of_my_region_of_interest");
-
-  std::cout << "*** test_RoiCuts completed ***" << std::endl;
+   std::cout << "*** test_RoiCuts ***" << std::endl;
+   
+   Likelihood::RoiCuts* roi = Likelihood::RoiCuts::instance();
+   roi->setCuts(); // use all default values
+   roi->writeXml("myRegionOfInterest.xml", "title_of_my_region_of_interest");
+   roi->setCuts("myRegionOfInterest.xml"); // read back in
+   roi->writeXml("myRegionOfInterest2.xml", "copy_of_my_region_of_interest");
+   
+   std::cout << "*** test_RoiCuts completed ***" << std::endl;
 
 }
 
@@ -626,12 +626,20 @@ void test_SourceFactory() {
       std::cout << eObj.what() << std::endl;
    }
 
-   SourceFactory srcFactory;
-
 // Read in the prototypes from the XML file.
+   SourceFactory srcFactory;
    std::string xmlFile = root_path + "/xml/A1_Sources.xml";
-
+   std::cout << "Reading Source prototypes from "
+             << xmlFile << std::endl;
    srcFactory.readXml(xmlFile, funcFactory);
+
+// Read in the prototypes from the XML file without the function_library
+// specified.
+   SourceFactory srcFactory2;
+   xmlFile = root_path + "/xml/A1_Srcs_noFuncLib.xml";
+   std::cout << "Reading Source prototypes from "
+             << xmlFile << std::endl;
+   srcFactory2.readXml(xmlFile, funcFactory);
 
    std::cout << "*** test_SourceFactory: all tests completed ***\n" 
              << std::endl;
@@ -1163,7 +1171,7 @@ void test_SourceModel_class() {
    SourceModel SrcModel;
    bool computeExposure = false;
    
-/* create some point sources */
+// Create some point sources.
    PointSource _3c279;
    _3c279.setDir(193.98, -5.82, computeExposure);
    _3c279.setSpectrum(new PowerLaw(74.2, -1.96, 0.1));
@@ -1184,32 +1192,32 @@ void test_SourceModel_class() {
    Vela.setSpectrum(new PowerLaw(834.3, -1.69, 0.1));
    Vela.setName("Vela Pulsar");
 
-/* add these guys to the SouceModel */
+// Add these guys to the SouceModel.
    SrcModel.addSource(&_3c279);
    SrcModel.addSource(&_3c273);
    SrcModel.addSource(&Crab);
    SrcModel.addSource(&Vela);
    report_SrcModel_values(SrcModel);
 
-/* delete a Source */
+// Delete a Source
    SrcModel.deleteSource("Crab Pulsar");
    report_SrcModel_values(SrcModel);
 
-/* add another function */
+// Add another function
    PointSource Geminga;
    Geminga.setDir(98.49, 17.86, computeExposure);
    Geminga.setSpectrum(new PowerLaw(352.9, -1.66, 0.1));
    Geminga.setName("Geminga");
    SrcModel.addSource(&Geminga);
    
-/* make its scale factor free (this could be made easier, e.g., by
-   giving direct parameter access from PointSource) */
+// Make its scale factor free (this could be made easier, e.g., by
+// giving direct parameter access from PointSource)
    Parameter param = SrcModel.getParam("Scale", "Spectrum", "Geminga");
    param.setFree(true);
    SrcModel.setParam(param, "Spectrum", "Geminga");
    report_SrcModel_values(SrcModel);
 
-/* derivative tests */
+// Derivative tests
    dArg x(20.);
    std::vector<double> params_save;
    SrcModel.getParamValues(params_save);
@@ -1217,9 +1225,10 @@ void test_SourceModel_class() {
    SrcModel.getDerivs(x, sm_derivs);
    std::vector<double> params = params_save;
 
-   std::cout << "SrcModel Derivatives: " << std::endl;
+//   std::cout << "SrcModel Derivatives: " << std::endl;
+   std::cout << "Derivative tests..." << std::endl;
    for (unsigned int i = 0; i < sm_derivs.size(); i++) {
-      std::cout << sm_derivs[i] << ":  ";
+//      std::cout << sm_derivs[i] << ":  ";
 
 // compute the numerical derivative wrt this parameter
       double delta_param = fabs(params_save[i]/1e7);
@@ -1228,13 +1237,15 @@ void test_SourceModel_class() {
       SrcModel.setParamValues(params);
       num_deriv -= SrcModel(x);
       num_deriv /= delta_param;
-      std::cout << -num_deriv << std::endl;
+//      std::cout << -num_deriv << std::endl;
+      double tol = 1e-4;
+      assert(abs(sm_derivs[i] + num_deriv) < tol);
 
 // reset the parameters for next time around
       SrcModel.setParamValues(params_save);
       params = params_save;
    }
-   std::cout << std::endl;
+   std::cout << "Derivative tests passed." << std::endl;
 
 /* derivative tests for free parameters only */
    SrcModel.getFreeParamValues(params_save);
@@ -1262,6 +1273,26 @@ void test_SourceModel_class() {
 
    std::string xmlFile = "myModel.xml";
    SrcModel.writeXml(xmlFile, "$(LIKELIHOODROOT)/xml/A1_Functions.xml");
+
+// Save the current set of model parameters.
+   std::vector<Parameter> parameters;
+   SrcModel.getParams(parameters);
+
+// Re-read the xml file.
+   SrcModel.reReadXml(xmlFile);
+
+// Make sure new parameters agree with saved values
+   std::vector<Parameter> new_parameters;
+   SrcModel.getParams(new_parameters);
+   assert(parameters.size() == new_parameters.size());
+   double tol = 1e-5;
+   for (unsigned int i = 0; i < parameters.size(); i++) {
+      assert(abs( (parameters[i].getValue() - new_parameters[i].getValue())/
+                  parameters[i].getValue() ) < tol);
+      assert(abs( (parameters[i].getTrueValue() 
+                   - new_parameters[i].getTrueValue())/
+                  parameters[i].getTrueValue() ) < tol);
+   }             
 
    std::cout << "*** test_SourceModel_class: all tests completed ***\n" 
              << std::endl;
