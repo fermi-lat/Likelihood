@@ -81,6 +81,20 @@ using optimizers::Parameter;
                    << src->Npred() << std::endl;
       }
    }
+   void src_param_table() {
+      std::vector<std::string> srcNames;
+      self->getSrcNames(srcNames);
+      std::vector<Parameter> parameters;
+      for (unsigned int i = 0; i < srcNames.size(); i++) {
+         Likelihood::Source *src = self->getSource(srcNames[i]);
+         Likelihood::Source::FuncMap srcFuncs = src->getSrcFuncs();
+         srcFuncs["Spectrum"]->getParams(parameters);
+         for (unsigned int i = 0; i < parameters.size(); i++)
+            std::cout << parameters[i].getValue() << "  ";
+         std::cout << src->Npred() << "  ";
+         std::cout << srcNames[i] << std::endl;
+      }
+   }
 }
 %extend Likelihood::Event {
    double ra() {

@@ -3,17 +3,26 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.21 2003/07/21 22:14:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.22 2003/08/06 20:52:08 jchiang Exp $
  */
 
+#include <cmath>
+#include <cassert>
 #include <vector>
 #include <string>
 #include <sstream>
-#include <cmath>
-#include <cassert>
+#include <fstream>
+
+#include "xml/XmlParser.h"
+#include "xml/Dom.h"
+#include <xercesc/dom/DOM_Document.hpp>
+#include <xercesc/dom/DOM_Element.hpp>
+#include <xercesc/dom/DOM_NodeList.hpp>
+#include <xercesc/dom/DOM_DOMException.hpp>
 
 #include "optimizers/Arg.h"
 
+#include "Likelihood/SpatialMap.h"
 #include "Likelihood/SourceModel.h"
 
 namespace Likelihood {
@@ -80,8 +89,8 @@ std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
 }
 
 optimizers::Parameter SourceModel::getParam(const std::string &paramName,
-                                const std::string &funcName,
-                                const std::string &srcName) const 
+                                            const std::string &funcName,
+                                            const std::string &srcName) const 
    throw(optimizers::Exception, optimizers::ParameterNotFound) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
@@ -289,6 +298,59 @@ void SourceModel::fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs,
             derivs.push_back(my_derivs[j]);
       }
    }
+}
+
+void SourceModel::writeXml(const std::string &xmlFile) {
+   DOM_Document doc = DOM_Document::createDocument();
+
+   DOM_Element srcLib = doc.createElement("source_library");
+// These attribute values need to be settable, either via data members
+// or by hand.
+   srcLib.setAttribute("title", "prototype sources");
+   srcLib.setAttribute("function_library", "A1_Functions.xml");
+
+// Loop over Sources.
+   std::vector<Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); srcIt++) {
+      DOM_Element srcElt = doc.createElement("source");
+      std::string name = (*srcIt)->getName();
+      srcElt.setAttribute("name", name.c_str());
+
+// Add the xml data for the spatial and spectral Functions describing
+// each source.
+      Source::FuncMap srcFuncs = (*srcIt)->getSrcFuncs();
+      if (srcFuncs.count("Spectrum")) {
+         DOM_Element specElt = doc.createElement("spectrum");
+         std::string name = srcFuncs["Spectrum"]->getName();
+         specElt.setAttribute("type", name.c_str());
+         srcFuncs["Spectrum"]->appendParamDomElements(doc, specElt);
+         srcElt.appendChild(specElt);
+      }
+
+      DOM_Element spatialElt = doc.createElement("spatialModel");
+      if (srcFuncs.count("Position")) {
+// This is a PointSource.
+         spatialElt.setAttribute("type", "SkyDirFunction");
+         srcFuncs["Position"]->appendParamDomElements(doc, spatialElt);
+      } else if (srcFuncs.count("SpatialDist")) {
+// It's a DiffuseSource.
+         std::string type = srcFuncs["SpatialDist"]->genericName();
+         spatialElt.setAttribute("type", type.c_str());
+         if (type == "SpatialMap") {
+            std::string file = 
+               dynamic_cast<SpatialMap *>(srcFuncs["SpatialDist"])->fitsFile();
+            spatialElt.setAttribute("file", file.c_str());
+         }
+         srcFuncs["SpatialDist"]->appendParamDomElements(doc, spatialElt);
+         srcElt.appendChild(spatialElt);
+      }
+      srcLib.appendChild(srcElt);
+   }
+
+   std::ofstream outFile(xmlFile.c_str());
+   outFile << "<?xml version='1.0' standalone='no'?>\n"
+           << "<!DOCTYPE source_library SYSTEM \"A1_Sources.dtd\" >\n";
+   xml::Dom::prettyPrintElement(srcLib, outFile, "");
 }
 
 } // namespace Likelihood
