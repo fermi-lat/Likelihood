@@ -1,9 +1,10 @@
 package Likelihood
 
-# $Id: requirements,v 1.3 2003/01/31 18:43:25 burnett Exp $
+# $Id: requirements,v 1.4 2003/02/19 01:34:34 jchiang Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
+# use CALDBinterface v*  (yeah, right...)
 
 private
 

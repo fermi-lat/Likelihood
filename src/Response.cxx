@@ -9,6 +9,10 @@ namespace Likelihood {
 
 Response::Response() {
    ScData *scData = ScData::instance();
+   if (!scData) {
+      std::cerr << "*scData not properly instantiated!" << std::endl;
+      exit(0);
+   }
 }
 
 void Response::m_hunt(double *xx, int n, double x, int *jlo) {
@@ -87,6 +91,5 @@ double Response::m_bilinear(int nx, double *xx, int i, double x,
    }
    return value;
 }
-
 
 } // namespace Likelihood

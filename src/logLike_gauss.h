@@ -7,6 +7,7 @@
 #define logLike_gauss_h
 
 #include "../Likelihood/Statistic.h"
+#include "../Likelihood/Arg.h"
 
 namespace Likelihood {
 
@@ -31,8 +32,6 @@ public:
    //! return the objective function value taking the free parameters 
    //! as the function argument
    double value(const std::vector<double> &paramVec);
-   double operator()(const std::vector<double> &paramVec) 
-      {return value(paramVec);};
 
 };
 

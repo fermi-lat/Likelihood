@@ -36,7 +36,7 @@ public:
    //! returns the Singleton object pointer
    static Aeff * instance();
 
-   //! method to read in the psf data
+   //! method to read in the aeff data
    void readAeffData(const std::string &aeffFile, int hdu);
 
 protected:

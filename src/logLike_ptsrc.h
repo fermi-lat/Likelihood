@@ -6,7 +6,10 @@
 #ifndef logLike_ptsrc_h
 #define logLike_ptsrc_h
 
+#include "../Likelihood/Event.h"
 #include "../Likelihood/Statistic.h"
+#include "../Likelihood/RoiCuts.h"
+#include "../Likelihood/PointSource.h"
 
 namespace Likelihood {
 
@@ -31,8 +34,14 @@ public:
    //! return the objective function value taking the free parameters 
    //! as the function argument
    double value(const std::vector<double> &paramVec);
-   double operator()(const std::vector<double> &paramVec) 
-      {return value(paramVec);};
+
+   double evaluate_at(const Event &) const;
+
+   void getEvents(const std::string &event_file, int hdu);
+
+private:
+
+   std::vector<Event> m_events;
 
 };
 

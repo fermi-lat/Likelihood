@@ -3,7 +3,7 @@
 
 #include "astro/SkyDir.h"
 #include "Response.h"
-#include "Table.h"
+#include "../Likelihood/Table.h"
 
 namespace Likelihood {
 

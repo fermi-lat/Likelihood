@@ -42,7 +42,6 @@ protected:
    static double m_bilinear(int nx, double *xx, int i, double x,
 			    int ny, double *yy, int j, double y, double *z);
 
-
 };
 
 } // namespace Likelihood

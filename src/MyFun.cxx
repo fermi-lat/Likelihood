@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include "../Likelihood/dArg.h"
 #include "MyFun.h"
 
 namespace Likelihood {
@@ -15,7 +16,8 @@ MyFun::MyFun() {
    addParam(std::string("Plain"), 3.14159);
 }
 
-double MyFun::value(double x) const {
+double MyFun::value(Arg &xarg) const {
+   double x = dynamic_cast<dArg &>(xarg).getValue();
 
    double my_val = 0.;
    std::vector<double> params;
@@ -23,14 +25,13 @@ double MyFun::value(double x) const {
 
    for (unsigned int i = 0; i < params.size(); i++) {
       my_val += params[i]*pow(x, i);
-//      std::cerr << params[i] << "  " << i;
    }
-//   std::cerr << std::endl;
    
    return my_val;
 }
 
-double MyFun::derivByParam(double x, const std::string &paramName) const {
+double MyFun::derivByParam(Arg &xarg, const std::string &paramName) const {
+   double x = dynamic_cast<dArg &>(xarg).getValue();
 
    std::vector<string> my_paramName;
    getParamNames(my_paramName);

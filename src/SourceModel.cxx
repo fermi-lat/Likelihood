@@ -9,10 +9,12 @@
 #include <cmath>
 #include <cassert>
 #include "../Likelihood/SourceModel.h"
+#include "../Likelihood/Arg.h"
 
 namespace Likelihood {
 
-SourceModel::SourceModel(const SourceModel &rhs) : Function(rhs) {
+SourceModel::SourceModel(const SourceModel &rhs) : 
+   Function(rhs) {
    m_sources = rhs.m_sources;
 }
 
@@ -140,7 +142,7 @@ void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    }
 }
 
-double SourceModel::evaluate_at(double x) const {
+double SourceModel::evaluate_at(Arg &x) const {
    double my_val = 0.;
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
@@ -152,7 +154,7 @@ double SourceModel::evaluate_at(double x) const {
    return my_val;
 }
 
-void SourceModel::getDerivs(double x, std::vector<double> &derivs) const {
+void SourceModel::getDerivs(Arg &x, std::vector<double> &derivs) const {
 // ensure that derivs is empty
    if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
 
@@ -168,7 +170,7 @@ void SourceModel::getDerivs(double x, std::vector<double> &derivs) const {
    }
 }
 
-void SourceModel::getFreeDerivs(double x, std::vector<double> &derivs) const {
+void SourceModel::getFreeDerivs(Arg &x, std::vector<double> &derivs) const {
 // ensure that derivs is empty
    if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
 
