@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Jun  8 10:00:46 PDT 2004
+Likelihood/src
+
+Modified Files:
+	Event.cxx 
+Log Message:
+add diagnostic code for diffuseResponses
+    *
+------------------------------------------------------------
+User: jchiang  Tue Jun  8 10:00:46 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
