@@ -3,7 +3,7 @@
  * @brief Implementation for the (1D) Gaussian class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.cxx,v 1.11 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.cxx,v 1.12 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include <vector>
@@ -11,7 +11,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "Likelihood/dArg.h"
+#include "optimizers/dArg.h"
 #include "Gaussian.h"
 
 namespace Likelihood {
@@ -33,11 +33,12 @@ void Gaussian::init(double Prefactor, double Mean, double Sigma) {
    m_argType = "dArg";
 }
 
-double Gaussian::integral(Arg &xargmin, Arg &xargmax) const {
-   double xmin = dynamic_cast<dArg &>(xargmin).getValue();
-   double xmax = dynamic_cast<dArg &>(xargmax).getValue();
+double Gaussian::integral(optimizers::Arg &xargmin, 
+                          optimizers::Arg &xargmax) const {
+   double xmin = dynamic_cast<optimizers::dArg &>(xargmin).getValue();
+   double xmax = dynamic_cast<optimizers::dArg &>(xargmax).getValue();
 
-   std::vector<Parameter> my_params;
+   std::vector<optimizers::Parameter> my_params;
    getParams(my_params);
    enum ParamTypes {Prefactor, Mean, Sigma};
 
@@ -63,13 +64,13 @@ double Gaussian::erfcc(double x) const {
    return x >= 0.0 ? ans : 2.0-ans;
 }
 
-double Gaussian::value(Arg &xarg) const {
-   double x = dynamic_cast<dArg &>(xarg).getValue();
+double Gaussian::value(optimizers::Arg &xarg) const {
+   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
 //! assume a standard ordering for the parameters
    enum ParamTypes {Prefactor, Mean, Sigma};
 
-   std::vector<Parameter> my_params;
+   std::vector<optimizers::Parameter> my_params;
    getParams(my_params);
 
    return my_params[Prefactor].getTrueValue()/sqrt(2.*M_PI)
@@ -78,14 +79,14 @@ double Gaussian::value(Arg &xarg) const {
                  /my_params[Sigma].getTrueValue(), 2 )/2.);
 }
 
-double Gaussian::derivByParam(Arg &xarg, 
+double Gaussian::derivByParam(optimizers::Arg &xarg, 
                               const std::string &paramName) const 
-   throw(ParameterNotFound) {
-   double x = dynamic_cast<dArg &>(xarg).getValue();
+   throw(optimizers::ParameterNotFound) {
+   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Prefactor, Mean, Sigma};
 
-   std::vector<Parameter> my_params;
+   std::vector<optimizers::Parameter> my_params;
    getParams(my_params);
 
    int iparam = -1;
@@ -94,7 +95,8 @@ double Gaussian::derivByParam(Arg &xarg,
    }
 
    if (iparam == -1) {
-      throw ParameterNotFound(paramName, getName(), "Gaussian::derivByParam");
+      throw optimizers::ParameterNotFound(paramName, getName(), 
+                                          "Gaussian::derivByParam");
    }
    
    switch (iparam) {

@@ -4,24 +4,26 @@
  * Prototype pattern to return clones of various spectral components 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.7 2003/07/19 04:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.8 2003/07/21 22:14:58 jchiang Exp $
  */
 
 #include <cassert>
 #include <sstream>
 #include "Likelihood/SpectrumFactory.h"
-#include "Likelihood/Exception.h"
+#include "optimizers/Exception.h"
 
 namespace Likelihood {
 
 SpectrumFactory::~SpectrumFactory() {
-   std::map<std::string, Function *>::iterator it = m_prototypes.begin();
+   std::map<std::string, optimizers::Function *>::iterator it 
+      = m_prototypes.begin();
    for (; it != m_prototypes.end(); it++)
       delete it->second;
 }
 
-void SpectrumFactory::addFunc(const std::string &name, Function* func, 
-                              bool fromClone) throw(Exception) {
+void SpectrumFactory::addFunc(const std::string &name, 
+                              optimizers::Function* func, 
+                              bool fromClone) throw(optimizers::Exception) {
    if (!m_prototypes.count(name)) {
       if (fromClone) {
          m_prototypes[name] = func->clone();
@@ -32,18 +34,18 @@ void SpectrumFactory::addFunc(const std::string &name, Function* func,
       std::ostringstream errorMessage;
       errorMessage << "SpectrumFactory::addFunc: A Function named "
                    << name << " already exists!\n";
-      throw Exception(errorMessage.str());
+      throw optimizers::Exception(errorMessage.str());
    }
 }
 
-Function *SpectrumFactory::makeFunction(const std::string &name) {
+optimizers::Function *SpectrumFactory::makeFunction(const std::string &name) {
    assert(m_prototypes.count(name));
    return m_prototypes[name]->clone();
 }
 
 void SpectrumFactory::listFunctions() {
    std::cout << "SpectrumFactory Functions: " << std::endl;
-   std::map<std::string, Function *>::const_iterator 
+   std::map<std::string, optimizers::Function *>::const_iterator 
       it = m_prototypes.begin();
    for (; it != m_prototypes.end(); it++)
       std::cout << it->first << std::endl;

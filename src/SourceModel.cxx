@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.20 2003/06/19 20:16:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.21 2003/07/21 22:14:58 jchiang Exp $
  */
 
 #include <vector>
@@ -11,8 +11,10 @@
 #include <sstream>
 #include <cmath>
 #include <cassert>
+
+#include "optimizers/Arg.h"
+
 #include "Likelihood/SourceModel.h"
-#include "Likelihood/Arg.h"
 
 namespace Likelihood {
 
@@ -29,10 +31,10 @@ SourceModel::~SourceModel() {
    s_sources.clear();
 }
 
-void SourceModel::setParam(const Parameter &param, 
+void SourceModel::setParam(const optimizers::Parameter &param, 
                            const std::string &funcName,
                            const std::string &srcName) 
-   throw(Exception) {
+   throw(optimizers::Exception) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
          Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
@@ -77,13 +79,13 @@ std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
    return it;
 }
 
-Parameter SourceModel::getParam(const std::string &paramName,
+optimizers::Parameter SourceModel::getParam(const std::string &paramName,
                                 const std::string &funcName,
                                 const std::string &srcName) const 
-   throw(Exception, ParameterNotFound) {
+   throw(optimizers::Exception, optimizers::ParameterNotFound) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
-         std::vector<Parameter> params;
+         std::vector<optimizers::Parameter> params;
          Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
          if (srcFuncs.count(funcName)) {    //check for funcName
             srcFuncs[funcName]->getParams(params);
@@ -92,7 +94,7 @@ Parameter SourceModel::getParam(const std::string &paramName,
                   return params[j];
                }
             }
-            throw ParameterNotFound(paramName, funcName, 
+            throw optimizers::ParameterNotFound(paramName, funcName, 
                                     "SourceModel::getParam");
          }
          std::ostringstream errorMessage;
@@ -114,8 +116,8 @@ void SourceModel::setParamBounds(const std::string &paramName,
                                  const std::string &funcName,
                                  const std::string &srcName,
                                  double lower, double upper)
-   throw(ParameterNotFound, OutOfBounds) {
-   Parameter my_param = getParam(paramName, funcName, srcName);
+   throw(optimizers::ParameterNotFound, optimizers::OutOfBounds) {
+   optimizers::Parameter my_param = getParam(paramName, funcName, srcName);
    my_param.setBounds(lower, upper);
    setParam(my_param, funcName, srcName);
    syncParams();
@@ -124,8 +126,9 @@ void SourceModel::setParamBounds(const std::string &paramName,
 void SourceModel::setParamScale(const std::string &paramName,
                                 const std::string &funcName,
                                 const std::string &srcName,
-                                double scale) throw(ParameterNotFound) {
-   Parameter my_param = getParam(paramName, funcName, srcName);
+                                double scale) 
+   throw(optimizers::ParameterNotFound) {
+   optimizers::Parameter my_param = getParam(paramName, funcName, srcName);
    my_param.setScale(scale);
    setParam(my_param, funcName, srcName);
    syncParams();
@@ -135,15 +138,16 @@ void SourceModel::setParamTrueValue(const std::string &paramName,
                                     const std::string &funcName,
                                     const std::string &srcName,
                                     double paramValue)
-   throw(ParameterNotFound, OutOfBounds) {
-   Parameter my_param = getParam(paramName, funcName, srcName);
+   throw(optimizers::ParameterNotFound, optimizers::OutOfBounds) {
+   optimizers::Parameter my_param = getParam(paramName, funcName, srcName);
    my_param.setTrueValue(paramValue);
    setParam(my_param, funcName, srcName);
    syncParams();
 }
 
-void SourceModel::setParams_(std::vector<Parameter> &params, bool setFree) 
-   throw(Exception, ParameterNotFound) {
+void SourceModel::setParams_(std::vector<optimizers::Parameter> &params, 
+                             bool setFree) 
+   throw(optimizers::Exception, optimizers::ParameterNotFound) {
 // ensure the number of Parameters matches
    unsigned int numParams;
    if (setFree) {
@@ -191,7 +195,7 @@ void SourceModel::addSource(Source *src) {
    Source::FuncMap srcFuncs = (*src).getSrcFuncs();
    Source::FuncMap::iterator func_it = srcFuncs.begin();
    for (; func_it != srcFuncs.end(); func_it++) {
-      std::vector<Parameter> params;
+      std::vector<optimizers::Parameter> params;
       (*func_it).second->getParams(params);
       for (unsigned int ip = 0; ip < params.size(); ip++) 
          m_parameter.push_back(params[ip]);
@@ -199,7 +203,7 @@ void SourceModel::addSource(Source *src) {
 }
  
 void SourceModel::deleteSource(const std::string &srcName) 
-   throw(Exception) {
+   throw(optimizers::Exception) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
          s_sources.erase(s_sources.begin() + i, 
@@ -239,7 +243,7 @@ void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    }
 }
 
-double SourceModel::evaluate_at(Arg &x) const {
+double SourceModel::evaluate_at(optimizers::Arg &x) const {
    double my_val = 0.;
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
@@ -259,7 +263,7 @@ void SourceModel::syncParams() {
       Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
-         std::vector<Parameter> params;
+         std::vector<optimizers::Parameter> params;
          (*func_it).second->getParams(params);
          for (unsigned int ip = 0; ip < params.size(); ip++)
             m_parameter.push_back(params[ip]);
@@ -267,7 +271,7 @@ void SourceModel::syncParams() {
    }
 }
 
-void SourceModel::fetchDerivs(Arg &x, std::vector<double> &derivs, 
+void SourceModel::fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
                               bool getFree) const {
    if (!derivs.empty()) derivs.clear();
 

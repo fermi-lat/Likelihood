@@ -3,13 +3,13 @@
  * @brief Declaration of Npred class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.6 2003/07/19 04:38:01 jchiang Exp $
  */
 
 #ifndef Likelihood_Npred_h
 #define Likelihood_Npred_h
 
-#include "Likelihood/Function.h"
+#include "optimizers/Function.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SrcArg.h"
 
@@ -23,23 +23,24 @@ namespace Likelihood {
  *  
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.6 2003/07/19 04:38:01 jchiang Exp $
  */
 
-class Npred : public Function {
+class Npred : public optimizers::Function {
     
 public:
 
    Npred() {}
    virtual ~Npred() {}
 
-   double value(Arg &) const;
-   double derivByParam(Arg &, const std::string &) const;
+   double value(optimizers::Arg &) const;
+   double derivByParam(optimizers::Arg &, const std::string &) const;
 
 private:
 
-   void fetchDerivs(Arg &, std::vector<double> &derivs, bool getFree) const;
-   void buildParameterVector(Arg &) const;
+   void fetchDerivs(optimizers::Arg &, std::vector<double> &derivs, 
+                    bool getFree) const;
+   void buildParameterVector(optimizers::Arg &) const;
 
 };
 

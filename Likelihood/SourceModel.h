@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.20 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.21 2003/07/21 22:14:56 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-#include "Likelihood/Function.h"
+#include "optimizers/Function.h"
 #include "Likelihood/Source.h"
 
 namespace Likelihood {
@@ -26,22 +26,24 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.20 2003/07/19 04:38:02 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.21 2003/07/21 22:14:56 jchiang Exp $ 
  */
 
-class SourceModel : public Function {
+class SourceModel : public optimizers::Function {
     
 public:
    
    SourceModel() {setMaxNumParams(0); s_refCount++;}
-   SourceModel(const SourceModel &rhs) : Function(rhs) {s_refCount++;}
+   SourceModel(const SourceModel &rhs) : optimizers::Function(rhs) 
+      {s_refCount++;}
 
    virtual ~SourceModel();
 
    //! setParam method to include function and source name checking
-   virtual void setParam(const Parameter &param, const std::string &funcName,
+   virtual void setParam(const optimizers::Parameter &param, 
+                         const std::string &funcName,
                          const std::string &srcName) 
-      throw(Exception);
+      throw(optimizers::Exception);
 
    //! group parameter access (note name mangling for inheritance 
    //! from Function)
@@ -53,43 +55,44 @@ public:
    virtual double getParamValue(const std::string &paramName, 
                                 const std::string &funcName,
                                 const std::string &srcName) const
-      throw(Exception, ParameterNotFound) {
+      throw(optimizers::Exception, optimizers::ParameterNotFound) {
       return getParam(paramName, funcName, srcName).getValue();
    }
    
-   virtual Parameter getParam(const std::string &paramName, 
+   virtual optimizers::Parameter getParam(const std::string &paramName, 
                               const std::string &funcName,
                               const std::string &srcName) const
-      throw(Exception, ParameterNotFound);
+      throw(optimizers::Exception, optimizers::ParameterNotFound);
 
    virtual void setParamBounds(const std::string &paramName,
                                const std::string &funcName,
                                const std::string &srcName,
                                double lower, double upper)
-      throw(ParameterNotFound, OutOfBounds);
+      throw(optimizers::ParameterNotFound, optimizers::OutOfBounds);
 
    virtual void setParamScale(const std::string &paramName,
                               const std::string &funcName,
                               const std::string &srcName,
-                              double scale) throw(ParameterNotFound);
+                              double scale) 
+      throw(optimizers::ParameterNotFound);
 
    virtual void setParamTrueValue(const std::string &paramName,
                                   const std::string &funcName,
                                   const std::string &srcName,
                                   double paramValue) 
-      throw(ParameterNotFound, OutOfBounds);
+      throw(optimizers::ParameterNotFound, optimizers::OutOfBounds);
 
-   virtual void setParams(std::vector<Parameter> &params) 
-      throw(Exception, ParameterNotFound) 
+   virtual void setParams(std::vector<optimizers::Parameter> &params) 
+      throw(optimizers::Exception, optimizers::ParameterNotFound) 
       {setParams_(params, false);}
 
-   virtual void setFreeParams(std::vector<Parameter> &params) 
-      throw(Exception, ParameterNotFound) 
+   virtual void setFreeParams(std::vector<optimizers::Parameter> &params) 
+      throw(optimizers::Exception, optimizers::ParameterNotFound) 
       {setParams_(params, true);}
 
    //! add and delete sources by name
    void addSource(Source *src);
-   void deleteSource(const std::string &srcName) throw(Exception);
+   void deleteSource(const std::string &srcName) throw(optimizers::Exception);
 
    //! delete all the sources
    void deleteAllSources();
@@ -102,8 +105,8 @@ public:
 
    // this is a bit convoluted, but necessary for some derived classes 
    // (e.g., logLike_gauss)
-   double evaluate_at(Arg &) const;
-   virtual double value(Arg &x) const {return evaluate_at(x);}
+   double evaluate_at(optimizers::Arg &) const;
+   virtual double value(optimizers::Arg &x) const {return evaluate_at(x);}
 
 protected:
 
@@ -116,12 +119,14 @@ protected:
    void syncParams();
 
    //! disable this since parameters may no longer have unique names
-   double derivByParam(Arg &, const std::string &) const {return 0;}
+   double derivByParam(optimizers::Arg &, const std::string &) 
+      const {return 0;}
 
-   void fetchDerivs(Arg &x, std::vector<double> &derivs, bool getFree) const;
+   void fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
+                    bool getFree) const;
 
-   void setParams_(std::vector<Parameter> &, bool)
-      throw(Exception, ParameterNotFound);
+   void setParams_(std::vector<optimizers::Parameter> &, bool)
+      throw(optimizers::Exception, optimizers::ParameterNotFound);
 
 };
 

@@ -3,7 +3,7 @@
  * @brief logLike_ptsrc class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.cxx,v 1.9 2003/05/02 19:02:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.cxx,v 1.10 2003/05/27 16:30:09 jchiang Exp $
  */
 
 #include <vector>
@@ -21,9 +21,8 @@ namespace Likelihood {
 
 /* compute the EML log-likelihood for a single-point source */
 
-double logLike_ptsrc::value(const std::vector<double> &paramVec) {
-   setFreeParamValues(paramVec);
-   
+double logLike_ptsrc::value(optimizers::Arg&) const {
+
    double my_value = 0;
    
 // the "data sum"
@@ -41,7 +40,8 @@ double logLike_ptsrc::value(const std::vector<double> &paramVec) {
    return my_value;
 }
 
-void logLike_ptsrc::getFreeDerivs(std::vector<double> &freeDerivs) {
+void logLike_ptsrc::getFreeDerivs(optimizers::Arg&,
+                                  std::vector<double> &freeDerivs) const {
 
 // retrieve the free derivatives for the log(SourceModel) part
    m_logSrcModel.mySyncParams();
@@ -147,6 +147,51 @@ void logLike_ptsrc::computeEventResponses(double sr_radius) {
       }
    }
    computeEventResponses(diffuse_srcs, sr_radius);
+}
+
+// Methods from the old Likelihood::Statistic class:
+//
+// read in the event data
+void logLike_ptsrc::readEventData(const std::string &eventFile, 
+                                  const std::string &colnames, int hdu) {
+   m_eventFile = eventFile;
+   m_eventHdu = hdu;
+//   m_eventData.add_columns(colnames);
+   std::vector<std::string> columnNames;
+   m_eventData.read_FITS_colnames(m_eventFile, m_eventHdu, columnNames);
+   m_eventData.add_columns(columnNames);
+   std::cerr << "Columns in " << m_eventFile 
+             << ", HDU " << m_eventHdu 
+             << ": \n";
+   for (unsigned int i = 0; i < columnNames.size(); i++) {
+      std::cerr << columnNames[i] << "  ";
+   }
+   std::cerr << std::endl;
+   m_eventData.read_FITS_table(m_eventFile, m_eventHdu);
+}
+
+//! return pointer to data columns
+std::pair<long, double*> 
+logLike_ptsrc::getColumn(const Table &tableData, 
+                         const std::string &colname) const
+   throw(optimizers::Exception) {
+   std::pair<long, double*> my_column(0, 0);
+   std::string colnames;
+   
+// loop over column names, return the matching one
+   for (int i = 0; i < tableData.npar(); i++) {
+      if (colname == std::string(tableData[i].colname)) {
+         my_column.first = tableData[i].dim;
+         my_column.second = tableData[i].val;
+         return my_column;
+      }
+      colnames += " "; colnames += tableData[i].colname;
+   }
+   std::ostringstream errorMessage;
+   errorMessage << "logLike_ptsrc::getColumn:\n"
+                << "Column " << colname << " was not found in event data.\n"
+                << "Valid names are \n" << colnames << "\n";
+   throw Exception(errorMessage.str());
 }
 
 } // namespace Likelihood

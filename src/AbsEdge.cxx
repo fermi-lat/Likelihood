@@ -4,7 +4,7 @@
  * edge spectral component
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.7 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.8 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include <vector>
@@ -12,7 +12,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "Likelihood/dArg.h"
+#include "optimizers/dArg.h"
 #include "AbsEdge.h"
 
 namespace Likelihood {
@@ -34,12 +34,12 @@ void AbsEdge::init(double Tau0, double E0, double Index) {
    m_argType = "dArg";
 }
 
-double AbsEdge::value(Arg &xarg) const {
-   double x = dynamic_cast<dArg &>(xarg).getValue();
+double AbsEdge::value(optimizers::Arg &xarg) const {
+   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Tau0, E0, Index};
 
-   std::vector<Parameter> my_params;
+   std::vector<optimizers::Parameter> my_params;
    getParams(my_params);
 
    if (x < my_params[E0].getTrueValue()) {
@@ -51,14 +51,14 @@ double AbsEdge::value(Arg &xarg) const {
    }
 }
 
-double AbsEdge::derivByParam(Arg &xarg, 
+double AbsEdge::derivByParam(optimizers::Arg &xarg, 
                              const std::string &paramName) const 
-   throw(ParameterNotFound) {
-   double x = dynamic_cast<dArg &>(xarg).getValue();
+   throw(optimizers::ParameterNotFound) {
+   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Tau0, E0, Index};
 
-   std::vector<Parameter> my_params;
+   std::vector<optimizers::Parameter> my_params;
    getParams(my_params);
 
    int iparam = -1;
@@ -67,7 +67,8 @@ double AbsEdge::derivByParam(Arg &xarg,
    }
 
    if (iparam == -1) {
-      throw ParameterNotFound(paramName, getName(), "AbsEdge::derivByParam");
+      throw optimizers::ParameterNotFound(paramName, getName(), 
+                                          "AbsEdge::derivByParam");
    }
 
    if (x > my_params[E0].getTrueValue()) {

@@ -8,12 +8,8 @@
 
 //  include everything for the compiler to test
 
-#include "Likelihood/Exception.h"
-#include "Likelihood/Parameter.h"
-#include "Likelihood/Function.h"
 #include "Likelihood/SourceModel.h" 
 #include "Likelihood/Table.h"
-#include "Likelihood/Statistic.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/PointSource.h"
@@ -22,9 +18,6 @@
 #include "Likelihood/Psf.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
-#include "Likelihood/dArg.h"
-#include "Likelihood/SumFunction.h"
-#include "Likelihood/ProductFunction.h"
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/FitsImage.h"
@@ -32,31 +25,32 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/DiffuseSource.h"
-#include "Likelihood/Optimizer.h"
-#include "Likelihood/Lbfgs.h"
-#include "Likelihood/Minuit.h"
-#include "Likelihood/Drmngb.h"
-#include "Likelihood/Mcmc.h"
-#include "Likelihood/FunctionTest.h"
-#include "OptPP.h"
-#include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
-#include "MyFun.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
 #include "AbsEdge.h"
-#include "Rosen.h"
 
-using namespace Likelihood;   // for testing purposes only
+#include "optimizers/Function.h"
+#include "optimizers/SumFunction.h"
+#include "optimizers/ProductFunction.h"
+#include "optimizers/Lbfgs.h"
+#include "optimizers/Minuit.h"
+#include "optimizers/Exception.h"
+
+// Various using declarations/directives for testing purposes only
+using namespace Likelihood;
+using optimizers::Parameter;
+using optimizers::Function;
+using optimizers::SumFunction;
+using optimizers::ProductFunction;
+using optimizers::dArg;
+using optimizers::Lbfgs;
+using optimizers::Minuit;
 
 void read_SC_Response_data();
-void test_Parameter_class();
-void test_Function_class();
-void test_PowerLaw_class();
 void test_SourceModel_class();
 void report_SrcModel_values(const SourceModel &SrcModel);
 void test_Table_class();
-void test_Statistic_class();
 void test_Event_class();
 void test_PointSource_class();
 void test_Aeff_class();
@@ -64,8 +58,6 @@ void test_Psf_class();
 void test_logLike_ptsrc();
 void fit_3C279();
 void fit_anti_center();
-void test_CompositeFunction();
-void test_Optimizers();
 void test_SpectrumFactory();
 void test_SourceFactory();
 void test_FitsImage();
@@ -73,29 +65,22 @@ void test_ExposureMap();
 void test_SpatialMap();
 void test_DiffuseSource();
 void fit_DiffuseSource();
-void print_fit_results(Statistic &stat);
-void test_Mcmc();
+void print_fit_results(SourceModel &stat);
 void test_cfitsio();
 
 std::string test_path;
 
 int main() {
    read_SC_Response_data();
-   test_Parameter_class();
-   test_Function_class();
-   test_PowerLaw_class();
    test_SourceModel_class();
    test_Table_class();
-   test_Statistic_class();
    test_Event_class();
    test_PointSource_class();
    test_Aeff_class();
    test_Psf_class();
    test_logLike_ptsrc();
-   test_CompositeFunction();
    test_SpectrumFactory();
    test_SourceFactory();
-   test_Optimizers();
    fit_3C279();
    fit_anti_center();
    test_FitsImage();
@@ -103,133 +88,8 @@ int main() {
    test_SpatialMap();
    test_DiffuseSource();
    fit_DiffuseSource();
-   test_Mcmc();
-//    test_cfitsio();
    return 0;
 }
-
-void test_cfitsio() {
-   std::cout << "*** test_cfitsio ***" << std::endl;
-   std::string filename("cfitsio_test.fits");
-   
-// use Mcmc static method to write a test FITS binary file
-   int npts = 40;
-   int ncols = 4;
-   std::vector< std::vector<double> > samples(npts);
-   for (int i = 0; i < npts; i++) {
-      for (int j = 0; j < ncols; j++) {
-         samples[i].push_back(j*i);
-      }
-   }
-   Mcmc::writeSamples(filename, samples);
-
-// read in these data using Table class
-   Table myTable;
-   std::vector<std::string> columnNames;
-   int hdu = 2;
-   myTable.read_FITS_colnames(filename, hdu, columnNames);
-   myTable.add_columns(columnNames);
-   myTable.read_FITS_table(filename, hdu);
-
-   for (int i = 0; i < myTable[0].dim; i++) {
-      for (unsigned int j = 0; j < columnNames.size(); j++) {
-         std::cout << myTable[j].val[i] << "  ";
-      }
-      std::cout << std::endl;
-   }
-   std::cout << "*** test_cfitsio: all tests completed ***\n" << std::endl;
-}
-
-void test_Mcmc() {
-   std::cout << "*** test_Mcmc ***" << std::endl;
-
-   Rosen my_rosen;
-
-   try {
-   std::vector<Parameter> params;
-   my_rosen.getParams(params);
-   params[0].setValue(2.);
-   params[0].setBounds(-10., 10.);
-   params[1].setValue(2.);
-   params[1].setBounds(-10., 10.);
-   my_rosen.setParams(params);
-
-   std::vector<double> my_sig(2);
-   double scale = 1.;
-
-   int verbose = 1;
-   Minuit myMinuitObj(my_rosen);
-   myMinuitObj.find_min(verbose, .0001);
-   std::vector<double> sig = myMinuitObj.getUncertainty();
-   for (unsigned int i=0; i < sig.size(); i++) {
-      std::cout << i << "  " << sig[i] << std::endl;
-      my_sig[i] = sig[i]*scale;
-   }
-
-   Mcmc myMcmcObj(my_rosen);
-   std::vector<double> widths;
-   myMcmcObj.getTransitionWidths(widths);
-   for (unsigned int i = 0; i < widths.size(); i++) {
-      std::cout << widths[i] << "  "
-                << my_sig[i] << std::endl;
-   }
-   myMcmcObj.setTransitionWidths(my_sig);
-
-   std::vector< std::vector<double> > mcmc_samples;
-   long nsamp = 100000;
-// Do a "burn in"...
-   myMcmcObj.generateSamples(mcmc_samples, nsamp);
-// then the real thing...
-   nsamp = 10000;
-   myMcmcObj.generateSamples(mcmc_samples, nsamp);
-
-// generate "fake" samples to test cfitsio
-
-   myMcmcObj.writeSamples("Mc.fits", mcmc_samples);
-
-   std::cout << "MCMC results for " << nsamp << " trials:" << std::endl;
-   for (unsigned int j = 0; j < params.size(); j++) {
-      double mc_avg = 0;
-      double mc2_avg = 0;
-      for (unsigned int i = 0; i < mcmc_samples.size(); i++) {
-         mc_avg += mcmc_samples[i][j];
-         mc2_avg += pow(mcmc_samples[i][j], 2);
-      }
-      mc_avg /= mcmc_samples.size();
-      mc2_avg /= mcmc_samples.size();
-      std::cout << "Parameter " << j << ": "
-                << mc_avg << " +/- "
-                << sqrt(mc2_avg - mc_avg*mc_avg) << std::endl;
-   }
-   
-//    std::string filename = test_path + "Data/Mcmc.dat"; 
-//    std::ofstream outfile(filename.c_str());
-//    if (!outfile) {
-//       std::cout << "opening Mcmc.dat failed." << std::endl;
-//       assert(false);
-//    }
-
-//    for (unsigned int i = 0; i < mcmc_samples.size(); i++) {
-//       for (unsigned int j = 0; j < params.size(); j++) {
-//          outfile << mcmc_samples[i][j] << "  ";
-//       }
-//       outfile << "\n";
-//    }
-
-   } catch (OutOfBounds &eObj) {
-      assert(eObj.code() == OutOfBounds::VALUE_ERROR);
-      std::cerr << eObj.what() << "\n"
-                << "Value: " << eObj.value() << "\n"
-                << "minValue: " << eObj.minValue() << "\n"
-                << "maxValue: " << eObj.maxValue() << "\n" 
-                <<std::endl;
-   } catch(Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
-   }
-
-   std::cout << "*** test_Mcmc: all tests completed ***\n" << std::endl;
-
-} // test_Mcmc
 
 void fit_DiffuseSource() {
    std::cout << "*** fit_DiffuseSource ***" << std::endl;
@@ -302,37 +162,50 @@ void fit_DiffuseSource() {
 // or the default way, for all of the DiffuseSources in the SourceModel...
    logLike.computeEventResponses();
 
-   int verbose = 3;
-
-#ifdef HAVE_OPT_PP
-// do the fit
-   OptPP myOpt(logLike);
-   myOpt.find_min(verbose);
-   print_fit_results(logLike);
-#endif
+// Derivative tests:
+   dArg dummy(1.);
+   std::vector<double> derivs;
+   logLike.getFreeDerivs(dummy, derivs);
+   
+   std::vector<double> params;
+   logLike.getFreeParamValues(params);
+   
+   double statval0 = logLike(dummy);
+   
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::vector<double> new_params = params;
+      double dparam = params[i]*1e-7;
+      new_params[i] += dparam;
+      logLike.setFreeParamValues(new_params);
+      double statval = logLike(dummy);
+      std::cout << derivs[i] << "  " 
+                << (statval - statval0)/dparam << std::endl;
+   }
 
    std::vector<std::string> srcNames;
    logLike.getSrcNames(srcNames);
+   
+   int verbose = 3;
 
+   Lbfgs myOpt(logLike);
+   try {
+      myOpt.find_min(verbose);
+   } catch (Exception eObj) {
+      std::cerr << eObj.what() << std::endl;
+   } catch (optimizers::Exception eObj) {
+      std::cerr << eObj.what() << std::endl;
+   }
+   print_fit_results(logLike);
+      
 // replace (or add) each Source in srcFactory for later use
    std::vector<std::string> factoryNames;
    srcFactory.fetchSrcNames(factoryNames);
    for (unsigned int i = 0; i < srcNames.size(); i++) {
+      std::cerr << "Adding " << srcNames[i] 
+                << " to srcFactory." << std::endl;
       Source *src = logLike.getSource(srcNames[i]);
       srcFactory.replaceSource(src);
    }
-
-// try to fit again using srcFactory Sources and a different optimizer
-   logLike.deleteAllSources();
-
-   for (unsigned int i = 0; i < srcNames.size(); i++) {
-      Source *src = srcFactory.makeSource(srcNames[i]);
-      logLike.addSource(src);
-   }
-
-   Lbfgs otherOpt(logLike);
-   otherOpt.find_min(verbose);
-   print_fit_results(logLike);
 
 // try to fit again using srcFactory Sources and the MINUIT optimizer
    logLike.deleteAllSources();
@@ -344,7 +217,13 @@ void fit_DiffuseSource() {
 
    verbose = 3;
    Minuit myMinuitObj(logLike);
-   myMinuitObj.find_min(verbose, .0001);
+   try {
+      myMinuitObj.find_min(verbose, .0001);
+   } catch (Exception eObj) {
+      std::cerr << eObj.what() << std::endl;
+   } catch (optimizers::Exception eObj) {
+      std::cerr << eObj.what() << std::endl;
+   }
 
    std::vector<double> sig = myMinuitObj.getUncertainty();
    for (unsigned int i=0; i < sig.size(); i++) {
@@ -597,27 +476,28 @@ void test_SourceFactory() {
    logLike.getEvents(event_file, 2);
 
 // some derivative tests
+   dArg dummy(1.);
    std::vector<double> derivs;
-   logLike.getFreeDerivs(derivs);
+   logLike.getFreeDerivs(dummy, derivs);
    
    std::vector<double> params;
    logLike.getFreeParamValues(params);
    
-   double statval0 = logLike(params);
+   logLike.setFreeParamValues(params);
+   double statval0 = logLike(dummy);
    
    for (unsigned int i = 0; i < params.size(); i++) {
       std::vector<double> new_params = params;
       double dparam = params[i]*1e-7;
       new_params[i] += dparam;
-      double statval = logLike(new_params);
+      logLike.setFreeParamValues(new_params);
+      double statval = logLike(dummy);
       std::cout << derivs[i] << "  " 
                 << (statval - statval0)/dparam << std::endl;
    }
 
-#ifdef HAVE_OPT_PP
-
 // Do the fit
-   OptPP myOptimizer(logLike);
+   Minuit myOptimizer(logLike);
    
    int verbose = 3;
    myOptimizer.find_min(verbose);
@@ -633,8 +513,6 @@ void test_SourceFactory() {
    delete Geminga;
    srcFactory.addSource(_0528->getName(), logLike.getSource(_0528->getName()));
    delete _0528;
-
-#endif  //HAVE_OPT_PP
 
 // retrieve the names of the Sources in srcFactory and inspect their
 // spectral Parameters
@@ -655,89 +533,6 @@ void test_SourceFactory() {
              << std::endl;
 
 } // test_SourceFactory
-
-/*******************/
-/* Test Optimizers */
-/*******************/
-void test_Optimizers() {
-   std::cout << "*** test_Optimizers ***" << std::endl;
-
-// Test the OptPP code using my standard 2D Rosenbrock test with
-// bounds constraints
-   Rosen my_rosen;
-
-   std::vector<Parameter> params;
-   my_rosen.getParams(params);
-   params[0].setValue(2.);
-   params[0].setBounds(-5., 10);
-   params[1].setValue(2.);
-   params[1].setBounds(-4, 10);
-   my_rosen.setParams(params);
-
-   int verbose = 1;
-
-// try lbfgs_bcm method first   
-   Lbfgs my_lbfgsObj(my_rosen);
-   my_lbfgsObj.setMaxVarMetCorr(12);
-   my_lbfgsObj.setPgtol(.0000001);
-   try {
-     my_lbfgsObj.find_min(verbose, .000001);
-   }
-   catch(Exception& rrr) {
-     std::cout << "Exception: " << rrr.what() << std::endl;
-   }
-   std::cout << "LBFGS exit code: " 
-             << my_lbfgsObj.getRetCode() 
-             << std::endl;
-   std::cout << "LBFGS end message: " 
-             << my_lbfgsObj.getErrorString() 
-             << std::endl;
-
-   verbose = 3;
-   params[0].setValue(2.);
-   params[0].setBounds(-10., 10.);
-   params[1].setValue(2.);
-   params[1].setBounds(-4, 10.);
-   my_rosen.setParams(params);
-   Minuit myMinuitObj(my_rosen);
-   myMinuitObj.find_min(verbose, .0001);
-   std::vector<double> sig = myMinuitObj.getUncertainty();
-   for (unsigned int i=0; i < sig.size(); i++) {
-     std::cout << i << "  " << sig[i] << std::endl;
-   }
-
-   std::cout << "\nTest DRMNGB method:\n" << std::endl;
-   params[0].setValue(2.);
-   params[0].setBounds(-10., 10.);
-   params[1].setValue(2.);
-   params[1].setBounds(-4., 10.);
-   my_rosen.setParams(params);
-   Drmngb my_Drmngb(my_rosen);
-   my_Drmngb.find_min(verbose, .0001);
-   std::cout << "Drmngb exit code: " << my_Drmngb.getRetCode() << std::endl;
-   sig = my_Drmngb.getUncertainty();
-   std::cout << "Uncertainties:" << std::endl;
-   for (unsigned int i=0; i < sig.size(); i++) {
-     std::cout << i << "  " << sig[i] << std::endl;
-   }
-
-#ifdef HAVE_OPT_PP
-// now restart and try OptPP
-   params[0].setValue(2.);
-   params[1].setValue(2.);
-   my_rosen.setParams(params);
-   OptPP my_OptppObj(my_rosen);
-   my_OptppObj.find_min(verbose);
-#endif  //HAVE_OPT_PP
-   
-   my_rosen.getParams(params);
-   for (unsigned int i = 0; i < params.size(); i++) 
-      std::cout << params[i].getName() << ": "
-                << params[i].getValue() << std::endl;
-
-   std::cout << "*** test_Optimizers: all tests completed ***\n" << std::endl;
-}
-// test_Optimizers
 
 void test_SpectrumFactory() {
 
@@ -816,59 +611,6 @@ void test_SpectrumFactory() {
              << std::endl;
 
 }  // test_SpectrumFactory
-
-void test_CompositeFunction() {
-
-   std::cout << "*** test_CompositeFunction ***" << std::endl;
-
-// add a PowerLaw and Gaussian together 
-
-   PowerLaw pl_continuum(1., -2., 1.);
-   Gaussian emission_line(10., 1., 0.1);
-
-   SumFunction spectrum(pl_continuum, emission_line);
-
-// multiply by an absorption edge
-
-   AbsEdge edge(5., 1.2);
-   ProductFunction absorbed_spec(edge, spectrum);
-
-   int nmax = 100;
-   double xmin = 0.1;
-   double xmax = 10.;
-   double xstep = log(xmax/xmin)/(nmax-1);
-   for (int i = 0; i < nmax; i++) {
-      double x = xmin*exp(xstep*i);
-      dArg xarg(x);
-      std::cout << x << "  " << absorbed_spec(xarg) << std::endl;
-   }
-   
-// check the derivatives of absorbed_spec
-   std::vector<double> params;
-   absorbed_spec.getParamValues(params);
-   dArg xarg(1.5);
-   double spec_value = absorbed_spec(xarg);
-   std::vector<double> derivs;
-   absorbed_spec.getDerivs(xarg, derivs);
-
-   double eps = 1e-7;
-   for (unsigned int i = 0; i < params.size(); i++) {
-      std::vector<double> new_params = params;
-      double dparam = eps*new_params[i];
-      new_params[i] += dparam;
-      absorbed_spec.setParamValues(new_params);
-      double new_spec_value = absorbed_spec(xarg);
-      double num_deriv = (new_spec_value - spec_value)/dparam;
-      std::cerr << derivs[i] << "  "
-                << num_deriv << "  "
-                << derivs[i]/num_deriv << "  "
-                << std::endl;
-   }
-
-   std::cout << "*** test_CompositeFunction: all tests completed ***\n" 
-             << std::endl;
-
-}
 
 void fit_anti_center() {
 
@@ -969,38 +711,35 @@ void fit_anti_center() {
    logLike.getEvents(event_file, 2);
 
 // some derivative tests
+   dArg dummy(1.);
    std::vector<double> derivs;
-   logLike.getFreeDerivs(derivs);
+   logLike.getFreeDerivs(dummy, derivs);
    
    std::vector<double> params;
    logLike.getFreeParamValues(params);
    
-   double statval0 = logLike(params);
+   double statval0 = logLike(dummy);
    
    for (unsigned int i = 0; i < params.size(); i++) {
       std::vector<double> new_params = params;
       double dparam = params[i]*1e-7;
       new_params[i] += dparam;
-      double statval = logLike(new_params);
+      logLike.setFreeParamValues(new_params);
+      double statval = logLike(dummy);
       std::cout << derivs[i] << "  " 
                 << (statval - statval0)/dparam << std::endl;
    }
 
-#ifdef HAVE_OPT_PP
-
-// do the fit
-//    OptPP myOptimizer(logLike);
-
-//    int verbose = 3;
-//    myOptimizer.find_min(verbose);
-
-#endif  //HAVE_OPT_PP
-
 // do the fit
    Lbfgs myOptimizer(logLike);
+//   Minuit myOptimizer(logLike);
 
    int verbose = 3;
-   myOptimizer.find_min(verbose);
+   try {
+      myOptimizer.find_min(verbose);
+   } catch (optimizers::Exception &eObj) {
+      std::cerr << eObj.what() << std::endl;
+   }
 
    std::vector<Parameter> parameters;
    logLike.getParams(parameters);
@@ -1063,35 +802,31 @@ void fit_3C279() {
    logLike.getEvents(event_file, 2);
 
  // some derivative tests
+   dArg dummy(1.);
    std::vector<double> derivs;
-   logLike.getFreeDerivs(derivs);
+   logLike.getFreeDerivs(dummy, derivs);
    
    std::vector<double> params;
    logLike.getFreeParamValues(params);
    
-   double statval0 = logLike(params);
+   double statval0 = logLike(dummy);
    
    for (unsigned int i = 0; i < params.size(); i++) {
       std::vector<double> new_params = params;
       double dparam = params[i]*1e-7;
       new_params[i] += dparam;
-      double statval = logLike(new_params);
+      logLike.setFreeParamValues(new_params);
+      double statval = logLike(dummy);
       std::cout << derivs[i] << "  " 
                 << (statval - statval0)/dparam << std::endl;
    }
 
 // do the fit using lbfgs_bcm
-   Lbfgs myOptimizer(logLike);
+//   Lbfgs myOptimizer(logLike);
+   Minuit myOptimizer(logLike);
    int verbose = 3;
    myOptimizer.find_min(verbose);
 
-#ifdef HAVE_OPT_PP
-// do the fit using OptPP
-//   OptPP myOptimizer(logLike);
-//   int verbose = 3;
-//   myOptimizer.find_min(verbose);
-#endif  //HAVE_OPT_PP
-   
    std::vector<Parameter> parameters;
    logLike.getParams(parameters);
    
@@ -1166,8 +901,10 @@ void test_logLike_ptsrc() {
       std::vector<double> param_vals;
       for (unsigned int k = 0; k < params.size(); k++)
          param_vals.push_back(params[k].getValue());
+      logLike.setFreeParamValues(param_vals);
+      dArg dummy(1.);
       std::cout << params[j].getValue() << "  " 
-                << logLike(param_vals) << std::endl;
+                << logLike(dummy) << std::endl;
    }
 
    std::cout << "*** test_logLike_ptsrc: all tests completed ***\n" 
@@ -1376,97 +1113,6 @@ void test_Event_class() {
    std::cout << "*** test_Event_class: all tests completed ***\n" << std::endl;
 
 } // Event class tests
-
-/*************************/
-/* Statistic class tests */
-/*************************/
-void test_Statistic_class() {
-
-   std::cout << "*** test_Statistic_class ***" << std::endl;
-   
-   logLike_gauss logLike;
-
-/* Try to analyze data from a 1D Gaussian distribution using the new
-   Function and SourceModel interfaces (i.e., with iterators and
-   Sources) */
-
-/* for this test, the position is arbitrary --- use default (0, 0) --- */
-   PointSource ptsrc;
-
-/* but the "Spectrum" is not... */
-   Gaussian gauss(1e4, 20., 5.);
-   ptsrc.setSpectrum(&gauss);
-   ptsrc.setName("Fredrich");
-
-/* check the integral of this Gaussian */
-//   std::cout << gauss.integral(Arg(-1e3), Arg(1e3)) << std::endl;
-
-   logLike.addSource(&ptsrc);
-   report_SrcModel_values(logLike);
-
-/* read in "event" file */
-   std::string event_file = test_path + "Data/normal_dist.fits";
-
-   logLike.readEventData(event_file, "xi", 2);
-
-   std::pair<long, double*> xi = logLike.getEventColumn("xi");
-
-   std::cout << "Some of the data from the event file: \n";
-   std::cout << xi.first << std::endl;
-   int nmax = 10;
-   for (int i = 0; i < nmax; i++) {
-      std::cout << xi.second[i] 
-                << std::endl;
-   }
-   std::cout << std::endl;
-
-/* try to access a column that doesn't exist */
-   try {
-      xi = logLike.getEventColumn("foo");
-   } catch(Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
-   }
-
-/* evaluate the integral over x */
-
-   dArg gmin(-1e3);
-   dArg gmax(1e3);
-   std::cout << gauss.integral(gmin, gmax)
-             << std::endl << std::endl;
-
-/* Compute the log-likelihood of this model */
-
-// first get the vector of parameters
-   std::vector<Parameter> params;
-   logLike.getParams(params);
-
-// vary over the first parameter and compute the log-likelihood at
-// each step
-
-   double xmin = 5e3;
-   double xmax = 1.5e4;
-   int nx = 20;
-   double xstep = log(xmax/xmin)/(nx-1.);
-
-   unsigned int j;
-   for (int i = 0; i < nx; i++) {
-      for (j = 0; j < params.size(); j++) {
-         if (params[j].getName() == "Prefactor") {
-            params[j].setValue(xmin*exp(xstep*i));
-            break;
-         }
-      }
-      std::vector<double> param_vals;
-      for (unsigned int k = 0; k < params.size(); k++)
-         param_vals.push_back(params[k].getValue());
-      std::cout << params[j].getValue() << "  " 
-                << logLike(param_vals) << std::endl;
-   }
-
-   std::cout << "*** test_Statistic_class: all tests completed ***\n" 
-             << std::endl;
-
-} // Statistic class tests
 
 /*********************/
 /* Table class tests */
@@ -1727,354 +1373,6 @@ void report_SrcModel_values(const SourceModel &SrcModel) {
   std::cout << std::endl;
 }
 
-/************************/
-/* PowerLaw class tests */
-/************************/
-void test_PowerLaw_class() {
-
-   std::cout << "*** test_PowerLaw_class ***" << std::endl;
-
-   PowerLaw pl;
-
-/* inspect the default parameters */
-   std::vector<Parameter> my_params;
-   pl.getParams(my_params);
-
-   std::vector<Parameter>::iterator iter = my_params.begin();
-   for (; iter != my_params.end(); iter++) {
-      std::cout << (*iter).getName() << ":  " 
-                << (*iter).getValue() << ", "
-                << (*iter).isFree() << std::endl;
-   }
-   std::cout << std::endl;
-
-/* get the free ones */
-   pl.getFreeParams(my_params);
-
-   iter = my_params.begin();
-   for (; iter != my_params.end(); iter++) {
-      std::cout << (*iter).getName() << ":  " 
-                << (*iter).getValue() << ", "
-                << (*iter).isFree() << std::endl;
-   }
-   std::cout << std::endl;
-
-/* reset the parameters and compute some values */
-   pl.setParam("Prefactor", 2.);
-   pl.setParam("Index", -2.2);
-   for (double xx = 1.05; xx < 1e3; xx *= xx) {
-      dArg xarg(xx);
-      std::cout << xx << "   " << pl(xarg) << std::endl;
-   }
-
-/* get the derivatives and compare to numerical estimates */
-   dArg x(10.);
-
-   std::vector<double> pl_derivs;
-   pl.getDerivs(x, pl_derivs);
-
-   std::vector<std::string> paramNames;
-   pl.getParamNames(paramNames);
-// save current parameter values
-   std::vector<double> params_save;
-   pl.getParamValues(params_save);
-
-   std::cout << "\nDerivatives: " << std::endl;
-   for (unsigned int i = 0; i < pl_derivs.size(); i++) {
-      std::cout << pl_derivs[i] << ":  ";
-
-// compute the numerical derivative wrt this parameter
-      double delta_param = fabs(params_save[i]/1e5);
-      double num_deriv = pl(x);
-      pl.setParam(paramNames[i], params_save[i]+delta_param);
-      num_deriv -= pl(x);
-      num_deriv /= delta_param;
-      std::cout << -num_deriv << std::endl;
-
-// reset the parameters for next time around
-      pl.setParamValues(params_save);
-   }
-
-/* free derivatives */
-   pl.getFreeParamNames(paramNames);
-   pl.getFreeDerivs(x, pl_derivs);
-
-   std::cout << "\nFree Derivatives: " << std::endl;
-   for (unsigned int i = 0; i < pl_derivs.size(); i++) {
-      std::cout << paramNames[i] << ":  "
-                << pl_derivs[i] << ":  "
-                << pl.derivByParam(x, paramNames[i])
-                << std::endl;
-   }
-   std::cout << std::endl;
-
-/* instantiate another power-law and compare its output to that of pl */
-   PowerLaw pl2(1., -2.1, 1.);
-
-   for (double x = 1.05; x < 1e3; x *= x) {
-      dArg xarg(x);
-      std::cout << x << "   " 
-                << pl(xarg) << "  " 
-                << pl2(xarg) << std::endl;
-   }
-   std::cout << std::endl;
-
-/* check the copy constructor */
-   PowerLaw pl3(pl2);
-
-   pl2.getParams(my_params);
-   std::cout << "Parameters for pl2:" << std::endl;
-
-   iter = my_params.begin();
-   for (; iter != my_params.end(); iter++) {
-      std::cout << (*iter).getName() << ":  " 
-                << (*iter).getValue() << ", "
-                << (*iter).isFree() << std::endl;
-   }
-   std::cout << std::endl;
-
-   pl3.getParams(my_params);
-   std::cout << "Parameters for pl3:" << std::endl;
-
-   iter = my_params.begin();
-   for (; iter != my_params.end(); iter++) {
-      std::cout << (*iter).getName() << ":  " 
-                << (*iter).getValue() << ", "
-                << (*iter).isFree() << std::endl;
-   }
-   std::cout << std::endl;
-
-   std::cout << "*** test_PowerLaw_class: all tests completed ***\n" 
-             << std::endl;
-
-} // PowerLaw class tests
-
-/************************/
-/* Function class tests */
-/************************/
-void test_Function_class() {
-
-   std::cout << "*** test_Function_class ***" << std::endl;
-
-// test constructor and addParam() method (see MyFun.cxx)
-   MyFun f;
-
-   f.setName("Hal");
-   assert(f.getName() == std::string("Hal"));
-   
-// setting and getting parameter names and values
-   double vals[] = {1., 2., 4.};
-   char *names[] = {"Ruthie", "Mary", "Jane"};
-   for (int i = 0; i < 3; i++) {
-      f.setParam(names[i], vals[i]);
-   }
-
-   std::vector<std::string> paramNames;
-   f.getParamNames(paramNames);
-   for (unsigned int i = 0; i < paramNames.size(); i++) {
-      assert(paramNames[i] == std::string(names[i]));
-   }
-      
-   for (unsigned int i = 0; i < f.getNumParams(); i++) {
-      assert(f.getParamValue(paramNames[i]) == vals[i]);
-   }
-
-// argument passing using dArg class
-   dArg x(3);
-   double f_val = 0;   // recall value(...) implementation from MyFun.cxx
-   for (int i = 0; i < 3; i++) {
-      f_val += vals[i]*pow(3., i);
-   }
-   assert(f(x) == f_val);
-
-// try to access a parameter not named in the function
-   try {
-      double value = f.getParamValue("foo");
-      std::cout << value << std::endl;
-   } catch(Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
-   }
-
-// reset all of the parameters in one shot
-   std::vector<double> inputVec;
-   for (unsigned int i = 0; i < f.getNumParams(); i++) { 
-      inputVec.push_back(i*i);
-      vals[i] = i*i;
-   }
-   f.setParamValues(inputVec);
-
-// retrieve them in one shot and ensure that the values are correct
-   std::vector<double> returnVec;
-   f.getParamValues(returnVec);
-   for (unsigned int i = 0; i < returnVec.size(); i++) {
-      assert(returnVec[i] == static_cast<double>(i*i));
-   }
-
-// change the value of an existing parameter
-   f.setParam(std::string("Ruthie"), 10);
-   assert(f.getParamValue("Ruthie") == 10);
-
-// attempt to change the value of a non-existent parameter
-   try {
-      f.setParam(std::string("Oscar"), 5.);
-   } catch(Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
-   }
-
-// check group accessors
-   std::vector<double> params;
-   f.getParamValues(params);
-   assert(params[0] == 10);
-   assert(params[1] == vals[1]);
-   assert(params[2] == vals[2]);
-
-// get derivatives wrt parameters...
-//
-// one-by-one:
-   x = dArg(2);
-   for (unsigned int i = 0; i < paramNames.size(); i++) {
-      assert(f.derivByParam(x, paramNames[i]) == pow(2., static_cast<int>(i)));
-   }
-
-// all derivatives in one shot:
-   std::vector<double> derivs;
-   f.getDerivs(x, derivs);
-   for (unsigned int i = 0; i < derivs.size(); i++) {
-      assert(derivs[i] == pow(2., static_cast<int>(i)));
-   }
-
-// test getParam(...) method
-   for (unsigned int i = 0; i < paramNames.size(); i++) {
-      Parameter my_param = f.getParam(paramNames[i]);
-      assert(my_param.getName() == paramNames[i]);
-      assert(my_param.getValue() == params[i]);
-   }
-
-   try {
-      Parameter my_param = f.getParam("Joan");
-   } catch(Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
-   }
-
-// test the default Function copy assignment operator
-   MyFun f2 = f;
-   for (double x = 0; x < 100.; x += 5.) {
-      dArg xarg(x);
-      assert(f(xarg) == f2(xarg));
-   }
-
-// default FunctionTests
-
-   FunctionTest myTests(f, "Hal");
-
-   std::vector<Parameter> parameters;
-   parameters.push_back(Parameter("Ruthie", 1.));
-   parameters.push_back(Parameter("Mary", 4.));
-   parameters.push_back(Parameter("Jane", 8.));
-
-   myTests.parameters(parameters);
-
-   myTests.freeParameters(parameters);
-
-   std::vector<Arg*> args;
-   args.push_back(new dArg(1));
-   args.push_back(new dArg(2));
-   args.push_back(new dArg(4));
-   args.push_back(new dArg(8));
-
-   double ret_vals[] = {15, 28, 78, 274};
-   std::vector<double> retVals(ret_vals, ret_vals+4);
-
-   myTests.funcEvaluations(args, retVals);
-
-   myTests.derivatives(args);
-
-   for (unsigned int i = 0; i < args.size(); i++)
-      delete args[i];
-
-   std::cout << "*** test_Function_class: all tests passed ***\n" 
-             << std::endl;
-      
-} // Function class (MyFun) tests
-
-/*************************/
-/* Parameter class tests */
-/*************************/
-void test_Parameter_class() {
-
-   std::cout << "*** test_Parameter_class ***" << std::endl;
-
-   std::vector<Parameter> my_params;
-
-// test for success
-   Parameter my_param("William", 42.);
-   my_params.push_back(my_param);
-   
-   my_param.setName("Tecumseh");
-   my_param.setValue(13.7);
-   my_param.setBounds(0., 20.);
-   my_params.push_back(my_param);
-   
-   my_param.setName("Sherman");
-   std::pair<double, double> myBounds(-10, 30);
-   my_param.setBounds(myBounds);
-   my_param.setValue(25.);
-   my_params.push_back(my_param);
-
-   std::vector<Parameter>::iterator iter = my_params.begin();
-   for (; iter != my_params.end(); iter++) {
-      std::cout << iter->getName() << ":  " 
-                << iter->getValue() << "  "
-                << iter->getBounds().first << "  "
-                << iter->getBounds().second << "  "
-                << iter->isFree()
-                << std::endl;
-   }
-
-// test for consistency...
-   assert(my_params[0].getName() == std::string("William"));
-   assert(my_params[0].getValue() == 42.);
-
-   assert(my_params[1].getName() == std::string("Tecumseh"));
-   assert(my_params[1].getValue() == 13.7);
-   assert(my_params[1].getBounds().first == 0.);
-   assert(my_params[1].getBounds().second == 20.);
-
-   assert(my_params[2].getName() == std::string("Sherman"));
-   assert(my_params[2].getValue() == 25);
-   assert(my_params[2].getBounds().first == -10);
-   assert(my_params[2].getBounds().second == 30);
-
-   std::cout << std::endl;
-
-// test for failure
-   try {
-      my_params[2].setValue(35);
-   } catch (OutOfBounds &eObj) {
-      assert(eObj.code() == OutOfBounds::VALUE_ERROR);
-      std::cerr << eObj.what() << "\n"
-                << "Value: " << eObj.value() << "\n"
-                << "minValue: " << eObj.minValue() << "\n"
-                << "maxValue: " << eObj.maxValue() << "\n" 
-                <<std::endl;
-   }
-
-   try {
-      my_params[2].setBounds(-20, 20);
-   } catch (OutOfBounds &eObj) {
-      assert(eObj.code() == OutOfBounds::BOUNDS_ERROR);
-      std::cerr << eObj.what() << "\n"
-                << "Value: " << eObj.value() << "\n"
-                << "minValue: " << eObj.minValue() << "\n"
-                << "maxValue: " << eObj.maxValue() << "\n"
-                << std::endl;
-   }
-
-   std::cout << "*** test_Parameter_class: all tests passed ***\n" 
-             << std::endl;
-
-} // Parameter class tests
-
 void read_SC_Response_data() {
 
 /* get root path to test data */   
@@ -2096,7 +1394,7 @@ void read_SC_Response_data() {
    aeff->readAeffData(aeff_file, Response::Combined);
 }
 
-void print_fit_results(Statistic &stat) {
+void print_fit_results(SourceModel &stat) {
    std::vector<std::string> srcNames;
    stat.getSrcNames(srcNames);
    std::vector<Parameter> parameters;

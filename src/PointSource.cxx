@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.20 2003/05/20 23:50:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.21 2003/06/03 23:54:23 jchiang Exp $
  */
 
 #include <vector>
@@ -10,12 +10,14 @@
 #include <cmath>
 
 #include "astro/SkyDir.h"
+
+#include "optimizers/dArg.h"
+
 #include "Likelihood/PointSource.h"
 #include "Likelihood/Psf.h"
 #include "Likelihood/Aeff.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
-#include "Likelihood/dArg.h"
 #include "Likelihood/TrapQuad.h"
 
 namespace Likelihood {
@@ -55,7 +57,7 @@ double PointSource::fluxDensity(double energy, double time,
    Psf *psf = Psf::instance();
    Aeff *aeff = Aeff::instance();
 
-   dArg energy_arg(energy);
+   optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
    double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
    double aeff_val = (*aeff)(energy, m_dir.getDir(), time);
@@ -76,7 +78,7 @@ double PointSource::fluxDensityDeriv(double energy, double time,
       Psf *psf = Psf::instance();
       Aeff *aeff = Aeff::instance();
 
-      dArg energy_arg(energy);
+      optimizers::dArg energy_arg(energy);
       double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
       double aeff_val = (*aeff)(energy, m_dir.getDir(), time);
       return psf_val*aeff_val*m_spectrum->derivByParam(energy_arg, paramName);
@@ -84,14 +86,14 @@ double PointSource::fluxDensityDeriv(double energy, double time,
 }
 
 double PointSource::Npred() {
-   Function *specFunc = m_functions["Spectrum"];
+   optimizers::Function *specFunc = m_functions["Spectrum"];
 
 // evaluate the Npred integrand at the abscissa points contained in
 // s_energies
    
    std::vector<double> NpredIntegrand(s_energies.size());
    for (unsigned int k = 0; k < s_energies.size(); k++) {
-      dArg eArg(s_energies[k]);
+      optimizers::dArg eArg(s_energies[k]);
       NpredIntegrand[k] = (*specFunc)(eArg)*m_exposure[k];
    }
    TrapQuad trapQuad(s_energies, NpredIntegrand);
@@ -99,14 +101,14 @@ double PointSource::Npred() {
 }
 
 double PointSource::NpredDeriv(const std::string &paramName) {
-   Function *specFunc = m_functions["Spectrum"];
+   optimizers::Function *specFunc = m_functions["Spectrum"];
 
    if (paramName == std::string("Prefactor")) {
       return Npred()/specFunc->getParamValue("Prefactor");
    } else {  // loop over energies and fill integrand vector
       std::vector<double> myIntegrand(s_energies.size());
       for (unsigned int k = 0; k < s_energies.size(); k++) {
-         dArg eArg(s_energies[k]);
+         optimizers::dArg eArg(s_energies[k]);
          myIntegrand[k] = specFunc->derivByParam(eArg, paramName)
             *m_exposure[k];
       }
@@ -287,8 +289,8 @@ void PointSource::makeSigmaVector(int nsig) {
       s_sigGauss.push_back(sigstep*i + sigmin);
 }
 
-double PointSource::Gint::value(Arg &muarg) const {
-   double mu = dynamic_cast<dArg &>(muarg).getValue();
+double PointSource::Gint::value(optimizers::Arg &muarg) const {
+   double mu = dynamic_cast<optimizers::dArg &>(muarg).getValue();
 
    double phi;
    if (mu == 1) {

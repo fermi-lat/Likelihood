@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.9 2003/05/29 20:10:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.10 2003/06/03 23:54:23 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
@@ -67,7 +67,7 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
 }
 
 void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
-                                       Function * spatialDist,
+                                       optimizers::Function * spatialDist,
                                        std::vector<double> &exposure) {
 
 // Fetch the exposure multiplied by the solid angle of the associated

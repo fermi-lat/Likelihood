@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.cxx,v 1.12 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.cxx,v 1.13 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include <vector>
@@ -11,7 +11,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "Likelihood/dArg.h"
+#include "optimizers/dArg.h"
 #include "PowerLaw.h"
 
 namespace Likelihood {
@@ -34,13 +34,13 @@ void PowerLaw::init(double Prefactor, double Index, double Scale) {
    m_argType = "dArg";
 }
 
-double PowerLaw::value(Arg &xarg) const {
-   double x = dynamic_cast<dArg &>(xarg).getValue();
+double PowerLaw::value(optimizers::Arg &xarg) const {
+   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
 //! assume a standard ordering for the parameters
    enum ParamTypes {Prefactor, Index, Scale};
 
-   std::vector<Parameter> my_params;
+   std::vector<optimizers::Parameter> my_params;
    getParams(my_params);
 
    return my_params[Prefactor].getTrueValue()
@@ -48,13 +48,13 @@ double PowerLaw::value(Arg &xarg) const {
            my_params[Index].getTrueValue());
 }
 
-double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const 
-   throw(ParameterNotFound) {
-   double x = dynamic_cast<dArg &>(xarg).getValue();
+double PowerLaw::derivByParam(optimizers::Arg &xarg, const std::string &paramName) const 
+   throw(optimizers::ParameterNotFound) {
+   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Prefactor, Index, Scale};
 
-   std::vector<Parameter> my_params;
+   std::vector<optimizers::Parameter> my_params;
    getParams(my_params);
 
    int iparam = -1;
@@ -63,7 +63,9 @@ double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const
    }
 
    if (iparam == -1) {
-      throw ParameterNotFound(paramName, getName(), "PowerLaw::derivByParam");
+      throw optimizers::ParameterNotFound(paramName, 
+                                          getName(), 
+                                          "PowerLaw::derivByParam");
    }
    
    switch (iparam) {
@@ -86,12 +88,13 @@ double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const
    return 0;
 }
 
-double PowerLaw::integral(Arg &xargmin, Arg &xargmax) const {
-   double xmin = dynamic_cast<dArg &>(xargmin).getValue();
-   double xmax = dynamic_cast<dArg &>(xargmax).getValue();
+double PowerLaw::integral(optimizers::Arg &xargmin, 
+                          optimizers::Arg &xargmax) const {
+   double xmin = dynamic_cast<optimizers::dArg &>(xargmin).getValue();
+   double xmax = dynamic_cast<optimizers::dArg &>(xargmax).getValue();
 
    enum ParamTypes {Prefactor, Index, Scale};
-   std::vector<Parameter> my_params;
+   std::vector<optimizers::Parameter> my_params;
    getParams(my_params);
 
    double f0 = my_params[Prefactor].getTrueValue();

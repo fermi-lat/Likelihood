@@ -3,7 +3,7 @@
  * @brief Declaration of logSrcModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_logSrcModel_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
  */
 
 class logSrcModel : public SourceModel {
@@ -40,15 +40,15 @@ public:
    logSrcModel() {setMaxNumParams(0);}
    virtual ~logSrcModel() {}
 
-   double value(Arg &xarg) const;
-   double derivByParam(Arg&, std::string &) const {return 0;}
+   double value(optimizers::Arg &xarg) const;
+   double derivByParam(optimizers::Arg&, std::string &) const {return 0;}
 
    // would be nice if this wasn't necessary...
    void mySyncParams() {syncParams();}
 
 protected:
 
-   void fetchDerivs(Arg &x, std::vector<double> &derivs, 
+   void fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
                     bool getFree) const;
 
 };

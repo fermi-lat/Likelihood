@@ -3,7 +3,7 @@
  * @brief logSrcModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logSrcModel.cxx,v 1.5 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logSrcModel.cxx,v 1.6 2003/05/29 21:52:50 jchiang Exp $
  */
 
 #include <cmath>
@@ -11,7 +11,7 @@
 
 namespace Likelihood {
 
-double logSrcModel::value(Arg &xarg) const {
+double logSrcModel::value(optimizers::Arg &xarg) const {
    Event evt;
    dynamic_cast<EventArg &>(xarg).fetchValue(evt);
 
@@ -26,7 +26,8 @@ double logSrcModel::value(Arg &xarg) const {
    }
 }
 
-void logSrcModel::fetchDerivs(Arg &xarg, std::vector<double> &derivs, 
+void logSrcModel::fetchDerivs(optimizers::Arg &xarg, 
+                              std::vector<double> &derivs, 
                               bool getFree) const {
    if (!derivs.empty()) derivs.clear();
 

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.9 2003/06/10 23:58:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.10 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirFunction.h"
@@ -34,14 +34,14 @@ void SkyDirFunction::m_init(double lon, double lat) {
 
 void SkyDirFunction::update_m_dir(const std::string paramName, 
                                   double paramValue) 
-   throw(ParameterNotFound) {
+   throw(optimizers::ParameterNotFound) {
    if (paramName == "longitude") {
       m_lon = paramValue;
    } else if (paramName == "latitude") {
       m_lat = paramValue;
    } else {
-      throw ParameterNotFound(paramName, getName(), 
-                              "SkyDirFunction::update_m_dir");
+      throw optimizers::ParameterNotFound(paramName, getName(), 
+                                          "SkyDirFunction::update_m_dir");
    }
    m_dir = astro::SkyDir(m_lon, m_lat);
 }
