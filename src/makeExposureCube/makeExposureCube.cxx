@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.16 2004/12/06 20:20:30 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.17 2004/12/06 23:30:02 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,7 +36,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.16 2004/12/06 20:20:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.17 2004/12/06 23:30:02 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -81,8 +81,8 @@ void ExposureCube::run() {
    createDataCube();
    map_tools::ExposureHyperCube cube(*m_exposure, output_file);
    cube.save();
-   tip::Image * image
-      = tip::IFileSvc::instance().editImage(output_file, "hypercube");
+   std::auto_ptr<tip::Image> 
+      image(tip::IFileSvc::instance().editImage(output_file, "hypercube"));
    Likelihood::RoiCuts::instance()->writeDssKeywords(image->getHeader());
    Likelihood::RoiCuts::instance()->writeGtiExtension(output_file);
 }
