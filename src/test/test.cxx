@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.4 2004/02/21 05:11:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.5 2004/02/21 17:10:38 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -38,6 +38,8 @@
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/SourceModel.h"
 #include "Likelihood/SpatialMap.h"
+
+#include "SourceData.h"
 
 using namespace Likelihood;
 using optimizers::Parameter;
@@ -85,11 +87,10 @@ namespace {
       std::map<std::string, DomElement>::iterator it;
       for (it = domMap1.begin(); it != domMap1.end(); it++) {
          std::string name = it->first;
-         DomNode node1 = it->second.cloneNode(true);
-         xml::Dom::prettyPrintElement(node1, firstFile, std::string(""));
+         xml::Dom::prettyPrintElement(it->second, firstFile, std::string(""));
          assert(domMap2.count(name));
-         DomNode node2 = domMap2[name].cloneNode(true);
-         xml::Dom::prettyPrintElement(node2, secondFile, std::string(""));
+         xml::Dom::prettyPrintElement(domMap2[name], secondFile, 
+                                      std::string(""));
       }
       firstFile.close();
       secondFile.close();
@@ -105,117 +106,6 @@ namespace {
       std::remove(file2name.c_str());
       return true;
    }
-}
-
-class SourceData {
-
-public:
-
-   SourceData() {
-      char * srcNames[] = {"Extragalactic Diffuse", "Galactic Diffuse",
-                           "PKS 0528+134", "Crab Pulsar", "Geminga"};
-      char * srcTypes[] = {"Diffuse", "Diffuse", "Point", "Point", "Point"};
-      char * spatialModels[] = {"ConstantValue", "SpatialMap", 
-                                "SkyDirFunction", "SkyDirFunction", 
-                                "SkyDirFunction"};
-      for (unsigned int i = 0; i < 5; i++) {
-         m_srcId[srcNames[i]] = i;
-         m_srcTypes.push_back(srcTypes[i]);
-         m_spatialModels.push_back(spatialModels[i]);
-      }
-      setParameters();
-   }
-
-   ~SourceData() {}
-
-   void getSrcNames(std::vector<std::string> &srcNames) {
-      srcNames.clear();
-      for (std::map<std::string, unsigned int>::iterator it = m_srcId.begin();
-           it != m_srcId.end(); it++) {
-         srcNames.push_back(it->first);
-      }
-   }
-
-   const std::string & srcType(const std::string & srcName) {
-      assert(m_srcId.count(srcName));
-      return m_srcTypes[m_srcId[srcName]];
-   }
-
-   const std::string & spatialModel(const std::string & srcName) {
-      assert(m_srcId.count(srcName));
-      return m_spatialModels[m_srcId[srcName]];
-   }
-
-   const std::vector<std::string> & paramNames() const {
-      return m_paramNames;
-   }
-
-   const std::vector<Parameter> & parameters(const std::string & srcName) {
-      assert(m_srcId.count(srcName));
-      return m_parameters[m_srcId[srcName]];
-   }
-
-   const Parameter & paramObject(const std::string & srcName,
-                                 const std::string & paramName) {
-      assert(m_srcId.count(srcName));
-      const std::vector<Parameter> & params = parameters(srcName);
-      for (unsigned int i = 0; i < params.size(); i++) {
-         if (params[i].getName() == paramName) {
-            return params[i];
-         }
-      }
-      bool paramFound(false);
-      assert(paramFound);
-      return params[0];
-   }
-
-private:
-
-   std::map<std::string, unsigned int> m_srcId;
-   std::vector<std::string> m_srcTypes;
-   std::vector<std::string> m_spatialModels;
-
-   std::vector<std::string> m_paramNames;
-   std::vector< std::vector<Parameter> > m_parameters;
-   void setParameters();
-
-};
-
-void SourceData::setParameters() {
-// We need to do this by hand to ensure an unbiased test of the source
-// data. Here we accumulate parameter data only for the spectral model
-// components.
-
-   m_parameters.resize(5);
-   unsigned int id = m_srcId["Extragalactic Diffuse"];
-
-   m_parameters[id].push_back(Parameter("Prefactor", 1.32, 1e-5, 1e2, true));
-   m_parameters[id].push_back(Parameter("Index", -2.1, -1., -3.5, false));
-   m_parameters[id].push_back(Parameter("Scale", 1e2, 50., 2e2, false));
-
-   id = m_srcId["Galactic Diffuse"];
-   m_parameters[id].push_back(Parameter("Prefactor", 11., 1e-3, 1e3, true));
-   m_parameters[id].push_back(Parameter("Index", -2.1, -1., -3.5, false));
-   m_parameters[id].push_back(Parameter("Scale", 1e2, 50., 2e2, false));
-
-   id = m_srcId["PKS 0528+134"];
-   m_parameters[id].push_back(Parameter("Prefactor", 13.65, 1e-3, 1e3, true));
-   m_parameters[id].push_back(Parameter("Index", -2.46, -1., -3.5, true));
-   m_parameters[id].push_back(Parameter("Scale", 1e2, 30., 2e3, false));
-
-   id = m_srcId["Crab Pulsar"];
-   m_parameters[id].push_back(Parameter("Prefactor", 27., 1e-3, 1e3, true));
-   m_parameters[id].push_back(Parameter("Index", -2.19, -1., -3.5, true));
-   m_parameters[id].push_back(Parameter("Scale", 1e2, 30., 2e3, false));
-
-   id = m_srcId["Geminga"];
-   m_parameters[id].push_back(Parameter("Prefactor", 23.29, 1e-3, 1e3, true));
-   m_parameters[id].push_back(Parameter("Index", -1.66, -1., -3.5, true));
-   m_parameters[id].push_back(Parameter("Scale", 1e2, 30., 2e3, false));
-
-   m_paramNames.push_back("Prefactor");
-   m_paramNames.push_back("Index");
-   m_paramNames.push_back("Scale");
 }
 
 class LikelihoodTests {
