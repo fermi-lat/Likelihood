@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 14 23:04:41 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	MapCubeFunction.h SourceMap.h SpatialMap.h 
+Log Message:
+add MapCubeFunction to SourceModelBuilder and SourceMap
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 14 20:17:03 PST 2005
 Likelihood/src
 
