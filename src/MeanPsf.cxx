@@ -3,7 +3,7 @@
  * @brief Psf averaged over an observation.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.1 2004/10/04 05:51:20 jchiang Exp $
  */
 
 #include <algorithm>
@@ -19,7 +19,6 @@
 
 namespace Likelihood {
 
-std::vector<double> MeanPsf::s_energies;
 std::vector<double> MeanPsf::s_separations;
 
 void MeanPsf::init() {
@@ -27,22 +26,19 @@ void MeanPsf::init() {
       throw std::runtime_error("Likelihood::MeanPsf: No exposure hypercube "
                                + std::string("file."));
    }
-   if (s_energies.size() == 0) {
-      createLogArray(20., 2e5, 40, s_energies);
-   }
    if (s_separations.size() == 0) {
-      createLogArray(1e-2, 70., 40, s_separations);
+      createLogArray(1e-4, 70., 200, s_separations);
    }
 
-   m_psfValues.reserve(s_energies.size()*s_separations.size());
-   for (unsigned int k = 0; k < s_energies.size(); k++) {
+   m_psfValues.reserve(m_energies.size()*s_separations.size());
+   for (unsigned int k = 0; k < m_energies.size(); k++) {
       for (unsigned int j = 0; j < s_separations.size(); j++) {
          double aeff_val(0);
          double psf_val(0);
          for (int evtType = 0; evtType < 2; evtType++) {
-            Aeff aeff(s_energies[k], evtType);
+            Aeff aeff(m_energies[k], evtType);
             aeff_val += ExposureCube::instance()->value(m_srcDir, aeff);;
-            Psf psf(s_separations[j], s_energies[k], evtType);
+            Psf psf(s_separations[j], m_energies[k], evtType);
             psf_val += ExposureCube::instance()->value(m_srcDir, psf);
          }
          if (aeff_val > 0) {
@@ -57,13 +53,13 @@ void MeanPsf::init() {
 
 double MeanPsf::operator()(double energy, double theta, double phi) const {
    (void)(phi);
-   if (energy < s_energies.front() || energy > s_energies.back()) {
+   if (energy < m_energies.front() || energy > m_energies.back()) {
       return 0;
    }
    if (theta > s_separations.back()) {
       return 0;
    }
-   return st_facilities::Util::bilinear(s_energies, energy, 
+   return st_facilities::Util::bilinear(m_energies, energy, 
                                         s_separations, theta, 
                                         m_psfValues);
 }
