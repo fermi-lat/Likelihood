@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Aug 23 09:14:56 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	SourceModel.h 
+Log Message:
+write counts map in Equatorial coords
+    *
+------------------------------------------------------------
 User: jchiang  Mon Aug 23 08:49:51 PDT 2004
 Likelihood/src
 
