@@ -20,8 +20,8 @@
  response function data (i.e., CALDB).
 
  However, the classes and methods used here are intended to be
- sufficiently general that any properly implemented Statistic subclass
- should be able to be analyzed with this package, whether the
+ sufficiently general so that any properly implemented Statistic
+ subclass should be able to be analyzed with this package, whether the
  Statistic is LAT-specific or not.
 
  @section LatStatModel The Unbinned log-Likelihood
@@ -30,7 +30,7 @@
  the unbinned log-likelihood:
 
  \f[
- \log L = \sum_j \left[\log (\sum_i M_i(x_j))\right] 
+ \log L = \sum_j \left[\log \left(\sum_i M_i(x_j)\right)\right] 
         - \sum_i \left[\int dx M_i(x)\right]
  \f]
 
@@ -44,25 +44,25 @@
  predicted number of Events expected to be seen from Source \f$i\f$.
 
  Cast in this form, the problem lends itself to being described by the
- following key classes and their descendents:
+ following classes and their descendants:
 
-   - Function: This class acts as a "Functor" object in that the
-   ()operator is overloaded so that Function instances behave like
-   ordinary C functions.  Several methods are also provided for
+   - Likelihood::Function: This class acts as a "functor" object in
+   that the ()operator is overloaded so that Function instances behave
+   like ordinary C functions.  Several methods are also provided for
    accessing the model Parameters and derivatives with respect to
    those Parameters, either singly or in groups.  The behavior of this
    class is greatly facilitated by the Parameter and Arg classes.
 
-   - Parameter: This is essentially an NTuple containing model
-   parameter information (and accessor methods) comprising the
+   - Likelihood::Parameter: This is essentially an NTuple containing
+   model parameter information (and accessor methods) comprising the
    parameter value, scale factor, name, upper and lower bounds and
    whether the parameter is to be considered free or fixed in the
    fitting process.
 
-   - Arg: This class wraps arguments to Functions so that Function's
-   derivative passing mechanisms can be inherited transparently by
-   subclasses regardless of the actual type of the underlying
-   argument.  For example, in the log-likelihood, we define
+   - Likelihood::Arg: This class wraps arguments to Functions so that
+   Function's derivative passing mechanisms can be inherited
+   transparently by subclasses regardless of the actual type of the
+   underlying argument.  For example, in the log-likelihood, we define
    logSrcModel, a Function subclass that returns the quantity inside
    the square brackets of the first term on the rhs.  Acting as a
    function, logSrcModel naturally wants to take an Event as its
@@ -71,37 +71,38 @@
    implement as the Npred class.  This class wants to have a Source
    object as its argument, which we wrap with the SrcArg class.
 
-   - Statistic: Subclasses of this are the objective functions to be
-   optimized in order to estimate model parameters.  Although these
-   are in the Function hierarchy, their Functor-like behavior differs
-   in that _unwrapped_ (i.e., not Arg) vectors of the Parameters
-   themselves are passed via the ()operator.  (This violates the
-   "is-a" convention for subclasses, so some re-factoring is probably
-   in order.)
+   - Likelihood::Statistic: Subclasses of this are the objective
+   functions to be optimized in order to estimate model parameters.
+   Although these are in the Function hierarchy, their functor-like
+   behavior differs in that _unwrapped_ (i.e., not Arg) vectors of the
+   Parameters themselves are passed via the ()operator.  (This
+   violates the "is-a" convention for subclasses, so some re-factoring
+   is probably in order.)
 
-   - Source: A base class for gamma-ray sources.  It specifies four
-   key methods (as pure virtual functions); the latter two methods are
-   wrapped by the Npred class in order to give them Function behavior:
-      - fluxDensity(...): counts per unit second-energy-area-solid angle
+   - Likelihood::Source: A base class for gamma-ray sources.  It
+   specifies four key methods (as pure virtual functions); the latter
+   two methods are wrapped by the Npred class in order to give them
+   Function behavior:
+      - fluxDensity(...): counts per energy-time-area-solid angle
       - fluxDensityDeriv(...): derivative wrt a Parameter
       - Npred(): predicted number of photons in the ROI
       - NpredDeriv(...): derivative of Npred wrt a Parameter
 
-   - Event: (see above)
+   - Likelihood::Event: (see above)
 
-   - Response: This hierarchy provides interfaces to the instrument
-   response functions, the point-spread function (Psf), the effective
-   area (Aeff), and the energy dispersion (not yet implemented).
-   These subclasses are all Singleton.
+   - Likelihood::Response: This hierarchy provides interfaces to the
+   instrument response functions, the point-spread function (Psf), the
+   effective area (Aeff), and the energy dispersion (not yet
+   implemented).  These subclasses are all Singleton.
 
-   - RoiCuts: An NTuple Singleton class that contains the
+   - Likelihood::RoiCuts: An NTuple Singleton class that contains the
    "region-of-interest" cuts.  These are essentially the bounds of the
    data space as a function of arrival time, apparent energy, apparent
    direction, zenith angle, etc..  Note that these bounds need not
    enclose a simply connected region.
 
-   - ScData: A Singleton object that contains the spacecraft data
-   NTuples (ScNtuple).
+   - Likelihood::ScData: A Singleton object that contains the
+   spacecraft data NTuples (ScNtuple).
 
  <hr>
  @section notes release.notes
@@ -112,6 +113,13 @@
  @verbinclude requirements
 
  <hr> 
- @todo  Way too much....
+ @todo DiffuseSource class
+ @todo Error estimates, confidence regions, etc. 
+ @todo SWIG or Boost.Python
+ @todo Energy dispersion
+ @todo Generalize Npred calculation, e.g., zenith angle cuts, fit-able 
+       source locations
+ @todo CCfits
+ @todo Minuit++
  
  */
