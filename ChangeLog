@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec  6 12:20:28 PST 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx SConstruct buildBase 
+Log Message:
+modify diffuseResponses to use DSS keywords
+    *
+------------------------------------------------------------
 User: jchiang  Mon Dec  6 12:20:26 PST 2004
 Likelihood/pfiles
 
