@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.33 2003/11/18 23:02:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.34 2004/01/06 00:10:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ namespace {
    }
 
    void string_split(std::string input, const std::string &delimiters,
-                std::vector<std::string> &components) {
+                     std::vector<std::string> &components) {
 // This routine breaks down a string into its components based on the
 // characters appearing in the delimiters string.
       components.clear();
