@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.22 2005/03/01 01:06:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.23 2005/03/01 07:17:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -38,7 +38,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.22 2005/03/01 01:06:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.23 2005/03/01 07:17:07 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -127,11 +127,10 @@ void ExpMap::createExposureMap() {
       m_helper->observation().expCube().readExposureCube(expCubeFile);
    }
    std::string exposureFile = m_pars["outfile"];
-   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
-   const ExposureCube & expCube = m_helper->observation().expCube();
+   const Observation & observation = m_helper->observation();
+   const RoiCuts & roiCuts = observation.roiCuts();
    m_helper->observation().expMap().ExposureMap::computeMap(exposureFile,
-                                                            expCube,
-                                                            roiCuts,
+                                                            observation,
                                                             m_srRadius,
                                                             nlong, nlat,
                                                             nenergies); 
