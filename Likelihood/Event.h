@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.26 2004/06/08 17:00:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.27 2004/08/05 00:14:19 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.26 2004/06/08 17:00:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.27 2004/08/05 00:14:19 jchiang Exp $
  */
 
 class Event {
@@ -91,6 +91,10 @@ public:
       m_respDiffuseSrcs[srcName].push_back(value);
    }
 
+   /// Set diffuse response for finite energy resolution.
+   void setDiffuseResponse(const std::string & srcName, 
+                           const std::vector<double> & gaussianParams);
+
    static void toLower(std::string & name);
 
    /// Direct access to vector of true energies.
@@ -99,7 +103,7 @@ public:
    }
 
    /// Direct access to diffuse responses.
-   const std::vector<double> & diffuseResponse(const std::string & name) const;
+   const std::vector<double> & diffuseResponse(std::string name) const;
    
 private:
 

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.15 2004/06/10 17:20:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.16 2004/07/19 19:27:31 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.15 2004/06/10 17:20:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.16 2004/07/19 19:27:31 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -261,8 +261,8 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
       }
    }
    std::cerr << "!" << std::endl;
-   selectOptimizer();
-   m_opt->find_min(verbose, tol);
+//    selectOptimizer();
+//    m_opt->find_min(verbose, tol);
 
 //    double new_logLike = m_logLike->value();
 //    if (new_logLike < logLike_value) {
