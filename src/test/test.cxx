@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.42 2004/10/09 14:00:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.43 2004/10/09 15:29:06 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -777,8 +777,8 @@ void LikelihoodTests::test_SourceMap() {
 
    SourceFactory * srcFactory 
       = srcFactoryInstance("", "", "", "", false);
-   Source * src = srcFactory->create("Galactic Diffuse");
-//   Source * src =  srcFactory->create("Crab Pulsar");
+//   Source * src = srcFactory->create("Galactic Diffuse");
+   Source * src =  srcFactory->create("Crab Pulsar");
 
    SourceMap srcMap(src, &dataMap);
 
