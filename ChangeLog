@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Fri Nov  7 13:50:56 PST 2003
+Likelihood/Likelihood
+
+Added Files:
+	OneSourceFunc.h OptEM.h 
+Log Message:
+New classes for EM algorithm.
+
+    *
+------------------------------------------------------------
 User: pln  Fri Nov  7 13:50:31 PST 2003
 Likelihood/src
 
