@@ -1,4 +1,20 @@
 ------------------------------------------------------------
+User: jchiang  Sun Mar 16 16:53:44 PST 2003
+Likelihood/src
+
+Modified Files:
+	Aeff.cxx CompositeFunction.cxx Event.cxx Function.cxx 
+	Gaussian.cxx Gaussian.h MyFun.cxx MyFun.h Npred.cxx 
+	Parameter.cxx PointSource.cxx PowerLaw.cxx PowerLaw.h 
+	ProductFunction.cxx Psf.cxx Response.cxx RoiCuts.cxx Rosen.cxx 
+	Rosen.h ScData.cxx SkyDirFunction.cxx SourceModel.cxx 
+	Statistic.cxx SumFunction.cxx Table.cxx TrapQuad.cxx lbfgs.cxx 
+	lbfgs.h logLike_gauss.cxx logLike_gauss.h logLike_ptsrc.cxx 
+	logLike_ptsrc.h logSrcModel.cxx 
+Log Message:
+attempted to canonicalize to LAT coding conventions, removed some unwanted classes
+    *
+------------------------------------------------------------
 User: jchiang  Sun Mar 16 16:53:43 PST 2003
 Likelihood/Likelihood
 
