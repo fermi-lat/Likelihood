@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec  6 21:13:22 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	diffuseResponses.par 
+Log Message:
+write DSS keywords for these apps.
+    *
+------------------------------------------------------------
 User: jchiang  Mon Dec  6 17:30:14 PST 2004
 Likelihood/src/makeExposureCube
 
