@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.68 2005/01/15 06:39:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.69 2005/01/26 06:53:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -56,7 +56,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.68 2005/01/15 06:39:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.69 2005/01/26 06:53:41 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -95,11 +95,11 @@ private:
    bool prompt(const std::string &query);
 };
 
-st_app::StAppFactory<likelihood> myAppFactory("likelihood");
+st_app::StAppFactory<likelihood> myAppFactory("gtlikelihood");
 
 likelihood::likelihood() 
    : st_app::StApp(), m_helper(0), 
-     m_pars(st_app::StApp::getParGroup("likelihood")),
+     m_pars(st_app::StApp::getParGroup("gtlikelihood")),
      m_logLike(0), m_opt(0), m_dataMap(0) {
 }
 

@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.1 2005/01/22 00:46:38 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.2 2005/01/29 16:01:46 jchiang Exp $
 #
 import os, sys
 import numarray as num
@@ -18,7 +18,7 @@ class SrcAnalysis(object):
     def __init__(self, srcModel, eventFile, scFile, expMap=None, irfs='TEST',
                  optimizer='Minuit'):
         self.optimizer = optimizer
-        Likelihood.LogLike_loadResponseFunctions('TEST')
+        Likelihood.LogLike_loadResponseFunctions(irfs)
         if expMap is not None:
             Likelihood.ExposureMap_readExposureFile(expMap)
         self.logLike = Likelihood.LogLike()

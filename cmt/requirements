@@ -1,5 +1,5 @@
 package Likelihood
-version v6r3p2
+version v6r4
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
@@ -23,13 +23,12 @@ use dataSubselector v3*
 apply_pattern ST_library option="-no_share *.c "
 apply_pattern ST_pfiles
 
-apply_pattern ST_app name=likelihood
-apply_pattern ST_app name=expMap
-apply_pattern ST_app name=TsMap
-apply_pattern ST_app name=makeExposureCube
-apply_pattern ST_app name=diffuseResponses
+apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
+apply_pattern ST_app_withDir name=gtexpmap dir=expMap
+apply_pattern ST_app_withDir name=gttsmap dir=TsMap
+apply_pattern ST_app_withDir name=gtlivetimecube dir=makeExposureCube
+apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
 apply_pattern ST_app name=gtcntsmap
-apply_pattern ST_app name=exposureMap
 apply_pattern ST_app name=gtsrcmaps
 
 private
