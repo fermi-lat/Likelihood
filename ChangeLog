@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec 10 17:54:42 PST 2004
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+more ROI removal
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec 10 17:54:40 PST 2004
 Likelihood/pfiles
 
