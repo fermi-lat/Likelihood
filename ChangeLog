@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 20 16:50:15 PDT 2003
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx ExposureMap.cxx FitsImage.cxx Function.cxx 
+	Minuit.cxx PointSource.cxx SourceFactory.cxx mainpage.h 
+Log Message:
+Add exceptions to FitsImage, Function classes,
+exception handling to SourceFactory class, and 
+copy constructor and copy assignment operator to ExposureMap class.
+Tweak Minuit.cxx a bit.
+
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 20 16:49:49 PDT 2003
 Likelihood/Likelihood
 
