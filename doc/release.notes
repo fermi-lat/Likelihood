@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v0r8  05-Jun-03   JC   Exceptions; PLN's implementations of Lbfgs and 
+                           Minuit classes; Mcmc class; more Windows 
+                           conformance; migration to and from CCfits
     v0r7  25-Apr-03   JC/  Working version of DiffuseSource, etc.;
                       THB  Windows compliance.
     v0r6  25-Mar-03   JC   OptPP class, mainpage.h, update release.notes,

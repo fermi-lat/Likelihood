@@ -1,0 +1,5 @@
+PROJECT_NAME           = "GLAST/LAT Likelihood Prototype"
+PROJECT_NUMBER         = "v0r8"
+FILE_PATTERNS          = *.h *.cxx *.c
+STRIP_CODE_COMMENTS    = NO
+#QUIET                  = YES
