@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: burnett  Fri Apr 25 14:51:29 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Event.cxx ExposureMap.cxx FitsImage.cxx Psf.cxx Response.cxx 
+	SourceFactory.cxx SpectrumFactory.cxx 
+Log Message:
+minor fixes for vc7 compatibility
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 25 14:33:41 PDT 2003
 Likelihood/src/test
 
