@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.29 2003/11/12 22:01:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.30 2003/11/18 18:07:00 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.29 2003/11/12 22:01:36 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.30 2003/11/18 18:07:00 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Function {
@@ -68,8 +68,8 @@ public:
    }
    
    virtual optimizers::Parameter getParam(const std::string &paramName, 
-                              const std::string &funcName,
-                              const std::string &srcName) const
+                                          const std::string &funcName,
+                                          const std::string &srcName) const
       throw(optimizers::Exception, optimizers::ParameterNotFound);
 
    virtual void setParamBounds(const std::string &paramName,
@@ -123,7 +123,8 @@ public:
 
    /// Write an XML file for the current source model.
    virtual void writeXml(std::string xmlFile,
-                         const std::string &functionLibrary="");
+                         const std::string &functionLibrary="",
+                         const std::string &srcLibTitle="source library");
 
    /// Write a flux-style xml file for the current source model.
    virtual void write_fluxXml(std::string xmlFile);

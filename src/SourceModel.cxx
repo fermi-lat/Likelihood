@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.31 2003/11/12 22:01:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.32 2003/11/18 18:09:42 jchiang Exp $
  */
 
 #include <cmath>
@@ -123,28 +123,33 @@ optimizers::Parameter SourceModel::getParam(const std::string &paramName,
          std::vector<optimizers::Parameter> params;
          Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
          if (srcFuncs.count(funcName)) {    //check for funcName
-            srcFuncs[funcName]->getParams(params);
+            try {
+               srcFuncs[funcName]->getParams(params);
+            } catch (optimizers::Exception &eObj) {
+               std::cerr << eObj.what() << std::endl;
+               assert(false);
+            }                 
             for (unsigned int j = 0; j < params.size(); j++) {
                if (paramName == params[j].getName()) {
                   return params[j];
                }
             }
             throw optimizers::ParameterNotFound(paramName, funcName, 
-                                    "SourceModel::getParam");
+                                                "SourceModel::getParam");
          }
          std::ostringstream errorMessage;
          errorMessage << "SourceModel::getParam:\n"
                       << "Function " << funcName 
                       << " was not found in Source " 
                       << srcName << "\n";
-         throw Exception(errorMessage.str());
+         throw optimizers::Exception(errorMessage.str());
       }
    }
    std::ostringstream errorMessage;
    errorMessage << "SourceModel::getParam: "
                 << "Source " << srcName 
                 << " was not found.\n";
-   throw Exception(errorMessage.str());
+   throw optimizers::Exception(errorMessage.str());
 }
 
 void SourceModel::setParamBounds(const std::string &paramName,
@@ -422,10 +427,12 @@ void SourceModel::reReadXml(std::string xmlFile) {
       }
    }
    syncParams();
+   delete parser;
 }
 
 void SourceModel::writeXml(std::string xmlFile,
-                           const std::string &functionLibrary) {
+                           const std::string &functionLibrary,
+                           const std::string &srcLibTitle) {
 
    xml::XmlParser *parser = new xml::XmlParser();
 
@@ -436,9 +443,7 @@ void SourceModel::writeXml(std::string xmlFile,
       srcLib.setAttribute("function_library", functionLibrary.c_str());
    }
 
-// This attribute value need to be settable, either via data members
-// or by hand.
-   srcLib.setAttribute("title", "prototype sources");
+   srcLib.setAttribute("title", srcLibTitle.c_str());
 
 // Loop over Sources.
    std::vector<Source *>::iterator srcIt = s_sources.begin();
