@@ -21,9 +21,6 @@
 #include "Likelihood/Event.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/PointSource.h"
-#include "Likelihood/Response.h"
-// #include "Likelihood/Aeff.h"
-// #include "Likelihood/Psf.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/SpectrumFactory.h"
@@ -62,8 +59,6 @@ void test_SourceModel_class();
 void report_SrcModel_values(const SourceModel &SrcModel);
 void test_Event_class();
 void test_PointSource_class();
-// void test_Aeff_class();
-// void test_Psf_class();
 void test_LogLike();
 void fit_3C279();
 void fit_anti_center();
@@ -89,8 +84,6 @@ int main() {
    test_SourceModel_class();
    test_Event_class();
    test_PointSource_class();
-//    test_Aeff_class();
-//    test_Psf_class();
    test_LogLike();
    test_SpectrumFactory();
    fit_3C279();
@@ -883,9 +876,9 @@ void fit_3C279() {
    std::cout << "*** fit_3C279: all tests completed ***\n" << std::endl;
 }
 
-/***********************/
+/*****************/
 /* LogLike tests */
-/***********************/
+/*****************/
 void test_LogLike() {
 
    std::cout << "*** test_LogLike ***" << std::endl;
@@ -958,67 +951,6 @@ void test_LogLike() {
 
 }
 // LogLike tests
-
-// /********************/
-// /* Psf class tests */
-// /********************/
-// void test_Psf_class() {
-
-//    std::cout << "*** test_Psf_class ***" << std::endl;
-
-//    Psf *psf = Psf::instance();
-
-//    int nenergy = 10;
-//    double emin = 30;
-//    double emax = 3e4;
-//    double estep = log(emax/emin)/(nenergy - 1);
-
-//    std::cout << "\nPoint Spread Function data:" << std::endl;
-//    for (double inc = 0.; inc <= 70.; inc += 10.) {
-//       for (int i = 0; i < nenergy; i++) {
-//          double energy = emin*exp(estep*i);
-//          std::cout << energy << "  ";
-
-//          std::vector<double> psf_params;
-//          psf->fillPsfParams(energy, inc, psf_params);
-//          std::cout << psf_params[0] << "  "
-//                    << psf_params[1] << "  "
-//                    << psf_params[2] << "\n";
-//       }
-//       std::cout << std::endl;
-//    }
-//    std::cout << "*** test_Psf_class: all tests completed ***\n" << std::endl;
-
-// } // Psf class tests
-
-// /********************/
-// /* Aeff class tests */
-// /********************/
-// void test_Aeff_class() {
-
-//    std::cout << "*** test_Aeff_class ***" << std::endl;
-
-//    Aeff *aeff = Aeff::instance();
-
-//    int nenergy = 10;
-//    double emin = 30;
-//    double emax = 3e4;
-//    double estep = log(emax/emin)/(nenergy - 1);
-
-//    std::cout << "\nEffective area data:" << std::endl;
-//    for (int i = 0; i < nenergy; i++) {
-//       double energy = emin*exp(estep*i);
-//       std::cout << energy << "  ";
-//       for (double inc = 0.; inc <= 70.; inc += 10.) {
-//          std::cout << (*aeff)(energy, inc) << "  ";
-//       }
-//       std::cout << std::endl;
-//    }
-//    std::cout << std::endl;
-
-//    std::cout << "*** test_Aeff_class: all tests completed ***\n" << std::endl;
-
-// } // Aeff class tests
 
 /***************************/
 /* PointSource class tests */
@@ -1301,7 +1233,7 @@ void report_SrcModel_values(const SourceModel &SrcModel) {
 
 void read_SC_Response_data() {
 
-/* get root path to test data */   
+// Get root path to test data.
    const char * root = ::getenv("LIKELIHOODROOT");
    if (!root) {  //use relative path from cmt directory
       root_path = "..";
@@ -1309,19 +1241,6 @@ void read_SC_Response_data() {
       root_path = std::string(root);
    }
    test_path = root_path + "/src/test/";
-
-// /* instantiate the Psf and read in its data */
-//    Psf * psf = Psf::instance();
-//    try {
-//       psf->readPsfData(psf_file, Response::Combined);
-//    } catch (Exception &eObj) {
-//       std::cerr << eObj.what() << std::endl;
-//       throw;
-//    }
-
-// /* instantiate the Aeff and read in its data */
-//    Aeff * aeff = Aeff::instance();
-//    aeff->readAeffData(aeff_file, Response::Combined);
 
 // Prepare the ResponseFunctions object.
    std::string psf_file = test_path + "CALDB/psf_lat.fits";
@@ -1331,30 +1250,34 @@ void read_SC_Response_data() {
    bool useCombined = true;
    if (useCombined) {
       latResponse::IAeff *aeff_new
-         = new latResponse::AeffGlast25(aeff_file, Response::Combined);
+         = new latResponse::AeffGlast25(aeff_file,
+                                        latResponse::Glast25::Combined);
       latResponse::IPsf *psf_new
-         = new latResponse::PsfGlast25(psf_file, Response::Combined);
+         = new latResponse::PsfGlast25(psf_file, 
+                                       latResponse::Glast25::Combined);
       latResponse::IEdisp *edisp = new latResponse::EdispGlast25();
 
-      respPtrs[Response::Combined] 
+      respPtrs[latResponse::Glast25::Combined] 
          = new latResponse::Irfs(aeff_new, psf_new, edisp);
    } else {
 // use front/back
       latResponse::IAeff *aeff_f
-         = new latResponse::AeffGlast25(aeff_file, Response::Front);
+         = new latResponse::AeffGlast25(aeff_file, 
+                                        latResponse::Glast25::Front);
       latResponse::IPsf *psf_f
-         = new latResponse::PsfGlast25(psf_file, Response::Front);
+         = new latResponse::PsfGlast25(psf_file,
+                                       latResponse::Glast25::Front);
       latResponse::IEdisp *edisp_f = new latResponse::EdispGlast25();
-      respPtrs[Response::Front] 
+      respPtrs[latResponse::Glast25::Front] 
          = new latResponse::Irfs(aeff_f, psf_f, edisp_f);
 
       latResponse::IAeff *aeff_b
-         = new latResponse::AeffGlast25(aeff_file, Response::Back);
+         = new latResponse::AeffGlast25(aeff_file, latResponse::Glast25::Back);
       latResponse::IPsf *psf_b
-         = new latResponse::PsfGlast25(psf_file, Response::Back);
+         = new latResponse::PsfGlast25(psf_file, latResponse::Glast25::Back);
       latResponse::IEdisp *edisp_b = new latResponse::EdispGlast25();
 
-      respPtrs[Response::Back] 
+      respPtrs[latResponse::Glast25::Back] 
          = new latResponse::Irfs(aeff_b, psf_b, edisp_b);
    }
 
