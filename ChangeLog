@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 18 13:15:00 PST 2004
+Likelihood/src
+
+Added Files:
+	FluxModel.cxx 
+Log Message:
+FluxModel source code
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 18 13:13:30 PST 2004
 Likelihood/src/test
 
