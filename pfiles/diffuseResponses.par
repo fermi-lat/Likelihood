@@ -1,4 +1,4 @@
-xevfile,fr,a,"diffuse_events_0000.fits",,,"Event data file"
+evfile,fr,a,"diffuse_events_0000.fits",,,"Event data file"
 evtable,s,hl,"EVENTS",,,"Event data extension"
 scfile,fr,a,"diffuse_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,hl,"Ext1",,,"Spacecraft data extension"

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.54 2004/11/30 20:23:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.55 2004/12/01 16:46:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.54 2004/11/30 20:23:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.55 2004/12/01 16:46:28 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -349,7 +349,6 @@ void likelihood::writeCountsSpectra() {
    }
    outputFile.close();
 
-#ifdef HAVE_ST_GRAPH
 // plot the data
    if (m_pars["plot"]) {
       try {
@@ -365,7 +364,6 @@ void likelihood::writeCountsSpectra() {
          }
       }
    }
-#endif // HAVE_ST_GRAPH
 }
 
 void likelihood::writeCountsMap() {
