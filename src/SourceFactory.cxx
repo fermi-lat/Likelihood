@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.20 2003/08/13 18:01:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.21 2003/08/13 21:06:45 jchiang Exp $
  */
 
 #include <sstream>
@@ -234,6 +234,14 @@ Source * SourceFactory::makeDiffuseSource(const DOM_Element &spectrum,
                                           &funcFactory) {
    std::string type = xml::Dom::getAttribute(spatialModel, "type");
    optimizers::Function *spatialDist = funcFactory.create(type);
+   std::vector<DOM_Element> params;
+   optimizers::Dom::getElements(spatialModel, "parameter", params);
+   std::vector<DOM_Element>::const_iterator paramIt = params.begin();
+   for ( ; paramIt != params.end(); paramIt++) {
+      optimizers::Parameter parameter;
+      optimizers::Dom::readParamData(*paramIt, parameter);
+      spatialDist->setParam(parameter);
+   }
    if (type == "SpatialMap") {
       std::string fitsFile 
          = xml::Dom::getAttribute(spatialModel, "file");
