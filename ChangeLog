@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Mar  4 09:45:33 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+add Arg class, modifying Function, etc.
+    *
+------------------------------------------------------------
+User: jchiang  Tue Mar  4 09:45:33 PST 2003
 Likelihood/src
 
 Modified Files:
