@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 30 13:21:40 PDT 2004
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx 
+Log Message:
+pare down test file data further
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun 30 13:21:38 PDT 2004
 Likelihood/data
 
