@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 18 13:13:26 PST 2004
+Likelihood/Likelihood
+
+Added Files:
+	FluxModel.h 
+Log Message:
+refactor SourceModel::write_fluxXml to use FluxModel method object
+    *
+------------------------------------------------------------
 User: jchiang  Sat Feb  7 15:14:26 PST 2004
 Likelihood/src/test
 
