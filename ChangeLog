@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 21 07:51:21 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Added Files:
+	EasyPlot.cxx EasyPlot.h 
+Log Message:
+working version of BinnedLikelihood for point sources; plotting interface
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 21 07:51:20 PDT 2004
 Likelihood/src
 
