@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: petry  Thu Nov 13 16:15:06 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	RoiCuts.h 
+Log Message:
+Added a writeXml method to RoiCuts and modified the setCuts method.
+Added addTimeInterval method.
+
+
+    *
+------------------------------------------------------------
 User: petry  Thu Nov 13 16:13:21 PST 2003
 Likelihood/src/test
 
