@@ -4,7 +4,7 @@ version v7r1p5
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.192 2005/03/14 18:17:21 jchiang Exp $
+# $Id: requirements,v 1.193 2005/03/16 21:34:20 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -32,6 +32,10 @@ apply_pattern ST_app name=gtcntsmap
 apply_pattern ST_app name=gtsrcmaps
 apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
 
+path_remove PYTHONPATH Likelihood
+path_append PYTHONPATH $(LIKELIHOODROOT)/$(BINDIR)
+path_append PYTHONPATH $(LIKELIHOODROOT)/python
+
 private
 
 use hoops v*
@@ -39,9 +43,4 @@ use st_app v*
 #use st_graph v*
 
 use SwigPolicy v*
-
-path_remove PYTHONPATH Likelihood
-path_append PYTHONPATH $(LIKELIHOODROOT)/$(BINDIR)
-path_append PYTHONPATH $(LIKELIHOODROOT)/python
-
 apply_pattern swig_module name="pyLike"

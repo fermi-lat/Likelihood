@@ -433,14 +433,14 @@
    Three statistics are available:
 
    - @b UNBINNED This is a standard unbinned analysis, described in this
-     tutorial.  If this option is chosen then parameters for the ROI
-     cuts file, Spacecraft file, Event file, and Exposure file must be
+     tutorial.  If this option is chosen then parameters for the
+     spacecraft file, event file, and exposure file must be
      given.
 
    - @b BINNED This is a binned analysis, which is still in development.
      In this case, the Counts map file and Exposure hypercube file
-     must be given.  The ROI cuts file Spacecraft file, Event file and
-     Exposure file are ignored in this case.
+     must be given.  The spacecraft file, event file and
+     exposure file are ignored in this case.
 
    - @b OPTEM This uses an expectation-maximization algorithm to
      partition the events, effectively, among the individual sources

@@ -37,7 +37,7 @@ class Observation(object):
 
    One creates an <tt>Observation</tt> object like this:
 @verbatim
->>> my_obs = Observation(eventFiles, scDataFile, 'expMap.fits', 'TEST')
+>>> my_obs = Observation(eventFiles, 'demo_scData_0000.fits', 'demo_expMap.fits', 'TEST')
 @endverbatim
    Here, <tt>eventFiles</tt> is an ascii file containing the names of
    the event files,
@@ -55,12 +55,12 @@ salathe[jchiang]
 >>> my_obs = Observation(('eg_diffuse_events_0000.fits', 
                           'galdiffuse_events_0000.fits',
                           'ptsrcs_events_0000.fits'),
-                         scDataFile, 'expMap.fits', 'TEST')
+                         'demo_scData_0000.fits', 'demo_expMap.fits', 'TEST')
 @endverbatim
 or
 @verbatim
->>> my_obs = Observation(glob.glob('*events*.fits'), scDataFile,
-                         'expMap.fits', 'TEST')
+>>> my_obs = Observation(glob.glob('*events*.fits'), 'demo_scData_0000.fits',
+                         'demo_expMap.fits', 'TEST')
 @endverbatim
 
    One may omit all of the arguments in the <tt>Observation</tt> class

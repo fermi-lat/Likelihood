@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.64 2005/03/05 18:37:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.65 2005/03/07 05:18:31 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -538,8 +538,9 @@ void LikelihoodTests::test_PointSource() {
       }
    }
    dynamic_cast<PointSource *>(src)->setDir(83.57, 22.01, true, false);
-//    std::cout << Nobs << "  "
-//              << src->Npred() << std::endl;
+   std::ostringstream debug_output;
+   debug_output << Nobs << "  "
+                << src->Npred() << "\n";
 
 // Consider the observation over 0.1 day intervals over the one day,
 // resetting the ROI accordingly and force the PointSource exposure to
@@ -567,12 +568,15 @@ void LikelihoodTests::test_PointSource() {
       }
       double Npred = src->Npred();
       chi2 += pow((Nobs - Npred), 2)/Nobs;
-//       std::cout << j << "  " 
-//                 << Nobs << "  "
-//                 << Npred << std::endl;
+      debug_output << j << "  " 
+                   << Nobs << "  "
+                   << Npred << "\n";
    }
-//    std::cout << "chi^2 = " << chi2 << std::endl;
+   debug_output << "chi^2 = " << chi2;
 //   CPPUNIT_ASSERT(chi2 < 12.);
+   if (chi2 >= 16) {
+      std::cout << debug_output.str() << std::endl;
+   }
    CPPUNIT_ASSERT(chi2 < 16.);
 }
 
@@ -598,7 +602,7 @@ void LikelihoodTests::test_DiffuseSource() {
       double tmin = i*tstep;
       double tmax = tmin + tstep;
       m_roiCuts->setCuts(anticenter.ra(), anticenter.dec(), 20.,
-                       30., 3.1623e5, tmin, tmax);
+                         30., 3.1623e5, tmin, tmax);
 
       Source * src = srcFactory->create("Galactic Diffuse");
 
@@ -916,14 +920,10 @@ int main() {
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
 
-//    try {
 //       LikelihoodTests testObj;
 //       testObj.setUp();
-//       testObj.test_BinnedLikelihood();
+//       testObj.test_PointSource();
 //       testObj.tearDown();
-//    } catch (std::exception & eObj) {
-//       std::cout << eObj.what() << std::endl;
-//    }
 
    CppUnit::TextTestRunner runner;
    runner.addTest(LikelihoodTests::suite());
