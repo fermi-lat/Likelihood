@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.7 2003/05/20 23:50:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.8 2003/05/21 23:12:13 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
@@ -199,10 +199,10 @@ void ExposureMap::writeFitsFile(const std::string &filename,
    long naxis = 3;
    long naxes[3] = {nlon, nlat, nenergies};
 
-   std::auto_ptr<FITS> pFits(0);
+   std::auto_ptr<CCfits::FITS> pFits(0);
 
    try { // to overwrite a possibly existing file...
-      pFits.reset( new FITS("!"+filename, DOUBLE_IMG, naxis, naxes) );
+      pFits.reset( new CCfits::FITS("!"+filename, DOUBLE_IMG, naxis, naxes) );
    } catch (FITS::CantCreate) {
       std::cerr << "ExposureMap::writeFitsFile: Can't create file "
                 << filename << std::endl;

@@ -1,9 +1,10 @@
-/** @file RoiCuts.cxx
+/** 
+ * @file RoiCuts.cxx
  * @brief Implementation for RoiCuts, a Singleton class that contains
  * the Regoin-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include "Likelihood/RoiCuts.h"
@@ -55,7 +56,6 @@ bool RoiCuts::accept(const Event &event) {
 
    double dist = event.getSeparation(s_roiCenter)*180./M_PI;
    if (dist > s_roiRadius) {
-//      std::cerr << dist << std::endl;
       acceptEvent = false;
    }
 

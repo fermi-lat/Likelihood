@@ -1,12 +1,14 @@
-/** @file SourceModel.cxx
+/** 
+ * @file SourceModel.cxx
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.12 2003/03/22 01:22:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.14 2003/04/25 18:32:19 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
+#include <sstream>
 #include <cmath>
 #include <cassert>
 #include "Likelihood/SourceModel.h"
@@ -29,7 +31,8 @@ SourceModel::~SourceModel() {
 
 void SourceModel::setParam(const Parameter &param, 
                            const std::string &funcName,
-                           const std::string &srcName) {
+                           const std::string &srcName) 
+   throw(LikelihoodException) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
          Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
@@ -43,9 +46,11 @@ void SourceModel::setParam(const Parameter &param,
          }
       }
    }
-   std::cerr << "SourceModel::setParam:  Function " 
-             << funcName << " for source "
-             << srcName << " was not found." << std::endl;
+   std::ostringstream errorMessage;
+   errorMessage << "SourceModel::setParam:  Function " 
+                << funcName << " for Source "
+                << srcName << " was not found.\n";
+   throw LikelihoodException(errorMessage.str());
 }
  
 std::vector<double>::const_iterator SourceModel::setParamValues_(
@@ -72,24 +77,37 @@ std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
    return it;
 }
 
-Parameter* SourceModel::getParam(const std::string &paramName,
-                                 const std::string &funcName,
-                                 const std::string &srcName) const {
+Parameter SourceModel::getParam(const std::string &paramName,
+                                const std::string &funcName,
+                                const std::string &srcName) const 
+   throw(LikelihoodException, ParameterNotFound) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
          std::vector<Parameter> params;
          Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
          if (srcFuncs.count(funcName)) {    //check for funcName
             srcFuncs[funcName]->getParams(params);
-            for (unsigned int j = 0; j < params.size(); j++) 
-               if (paramName == params[j].getName())
-                  return &(params[j]);
-            return 0; //if paramName not found
+            for (unsigned int j = 0; j < params.size(); j++) {
+               if (paramName == params[j].getName()) {
+                  return params[j];
+               }
+            }
+            throw ParameterNotFound(paramName, funcName, 
+                                    "SourceModel::getParam");
          }
-         return 0; //if funcName not found
+         std::ostringstream errorMessage;
+         errorMessage << "SourceModel::getParam:\n"
+                      << "Function " << funcName 
+                      << " was not found in Source " 
+                      << srcName << "\n";
+         throw LikelihoodException(errorMessage.str());
       }
    }
-   return 0; //if srcName not found
+   std::ostringstream errorMessage;
+   errorMessage << "SourceModel::getParam: "
+                << "Source " << srcName 
+                << " was not found.\n";
+   throw LikelihoodException(errorMessage.str());
 }
 
 void SourceModel::addSource(Source *src) {
@@ -112,7 +130,8 @@ void SourceModel::addSource(Source *src) {
    }      
 }
  
-void SourceModel::deleteSource(const std::string &srcName) {
+void SourceModel::deleteSource(const std::string &srcName) 
+   throw(LikelihoodException) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
          s_sources.erase(s_sources.begin() + i, 
@@ -121,8 +140,10 @@ void SourceModel::deleteSource(const std::string &srcName) {
          return;
       }
    }
-   std::cerr << "SourceModel::deleteSource: " 
-             << srcName << " was not found." << std::endl;
+   std::ostringstream errorMessage;
+   errorMessage << "SourceModel::deleteSource: " 
+                << srcName << " was not found.\n";
+   throw LikelihoodException(errorMessage.str());
 }
 
 void SourceModel::deleteAllSources() {

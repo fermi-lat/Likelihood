@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.6 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.7 2003/05/23 23:43:41 jchiang Exp $
  *
  */
 
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.6 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.7 2003/05/23 23:43:41 jchiang Exp $
  *
  */
 
@@ -56,7 +56,8 @@ public:
    //! coordinate (We are perhaps dangerously ignoring header-specified
    //! projection effects, i.e., we assume a "plate-carree" projection, 
    //! as for EGRET maps, for all images).
-   void fetchAxisVector(unsigned int naxis, std::vector<double> &axisVector);
+   void fetchAxisVector(unsigned int naxis, std::vector<double> &axisVector)
+      throw(LikelihoodException);
 
    //! This method computes arrays of longitude and latitude obtained
    //! by traversing the image plane by column number then row.

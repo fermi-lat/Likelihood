@@ -1,15 +1,17 @@
-/** @file Table.cxx
-* @brief Implementation of Table member functions
-* @authors T. Burnett, J. Chiang using code from Y. Ikebe
-*
-* $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.5 2003/03/17 00:53:44 jchiang Exp $
-*/
+/** 
+ *@file Table.cxx
+ * @brief Implementation of Table member functions
+ * @authors T. Burnett, J. Chiang using code from Y. Ikebe
+ *
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.6 2003/03/25 23:22:03 jchiang Exp $
+ */
 
 #include "Likelihood/Table.h"
 #include "fitsio.h"
 
 #include <cstdio>
 #include <iostream>
+#include <sstream>
 
 namespace Likelihood {
 
@@ -38,23 +40,21 @@ void Table::add_columns(std::vector<std::string> columnNames) {
 }
 
 void Table::read_FITS_table(std::string filename, int hdu) 
-{
+   throw(LikelihoodException) {
    int status = 0;
    fitsfile * fp = 0;
    
    fits_open_file(&fp, filename.c_str(), READONLY, &status);
-   if( status != 0) {
-      std::cerr << "Could not open FITS file " << filename << std::endl;
-      return;
-   }
    fits_report_error(stderr, status);
-   
-   int hdutype=0;
+   if (status != 0) {
+      throw LikelihoodException("Table::read_FITS_table: cfitsio error");
+   }
+
+   int hdutype = 0;
    fits_movabs_hdu(fp, hdu, &hdutype, &status);
    if( status == END_OF_FILE ) status = 0; // ok, I guess??
    fits_report_error(stderr, status);
    
-   // these are not used???  Oh, yes they are....
    long lnrows=0;
    fits_get_num_rows(fp, &lnrows, &status);
    fits_report_error(stderr, status);
@@ -68,13 +68,15 @@ void Table::read_FITS_table(std::string filename, int hdu)
    for (int i = 0; i < npar(); i++) {
       fits_get_colnum(fp, CASEINSEN, par(i).colname,
                       & par(i).colnum, &status);
-      if( status== COL_NOT_FOUND ) {
-         std::cerr << "Reading file \""<< filename 
-                   << "\"; Column with name " << par(i).colname 
-                   << " not found" << std::endl;
-         return;
-      }
       fits_report_error(stderr, status);
+      if (status == COL_NOT_FOUND) {
+         std::ostringstream errorMessage;
+         errorMessage << "Table::read_FITS_table:\n"
+                      << "Reading file \""<< filename 
+                      << "\"; Column with name " << par(i).colname 
+                      << " not found" << std::endl;
+         throw LikelihoodException(errorMessage.str());
+      }
    }
    
    // now copy the data
@@ -98,18 +100,19 @@ void Table::read_FITS_table(std::string filename, int hdu)
 }
 
 void Table::read_FITS_colnames(std::string &filename, int hdu, 
-                               std::vector<std::string> &columnNames) {
+                               std::vector<std::string> &columnNames) 
+   throw(LikelihoodException) {
    if (!columnNames.empty()) columnNames.clear();
 
    int status = 0;
    fitsfile * fp = 0;
    
    fits_open_file(&fp, filename.c_str(), READONLY, &status);
+   fits_report_error(stderr, status);
    if( status != 0) {
       std::cerr << "Could not open FITS file " << filename << std::endl;
       return;
    }
-   fits_report_error(stderr, status);
    
    int hdutype = 0;
    fits_movabs_hdu(fp, hdu, &hdutype, &status);

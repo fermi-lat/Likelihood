@@ -3,8 +3,12 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.5 2003/05/20 23:49:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.6 2003/05/29 00:29:39 jchiang Exp $
  */
+
+#ifdef _MSC_VER
+#pragma warning(disable:4290)
+#endif
 
 #ifndef DiffuseSource_h
 #define DiffuseSource_h
@@ -38,7 +42,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.5 2003/05/20 23:49:49 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.6 2003/05/29 00:29:39 jchiang Exp $ 
  *  
  */
 

@@ -1,4 +1,5 @@
-/** @file SourceFactory.cxx
+/** 
+ * @file SourceFactory.cxx
  * @brief Implementation for the SourceFactory class, which applies the
  * Prototype pattern to return clones of various gamma-ray Sources.
  *
@@ -7,6 +8,8 @@
  * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.9 2003/05/21 23:12:13 jchiang Exp $
  */
 
+#include <cassert>
+#include <sstream>
 #include "Likelihood/PointSource.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/SpatialMap.h"
@@ -14,7 +17,6 @@
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/LikelihoodException.h"
-#include <cassert>
 
 namespace Likelihood {
 
@@ -113,7 +115,8 @@ SourceFactory::~SourceFactory() {
 }
 
 void SourceFactory::addSource(const std::string &name, Source* src, 
-                              bool fromClone) {
+                              bool fromClone) 
+   throw(LikelihoodException) {
    if (!m_prototypes.count(name)) {
       if (fromClone) {
          m_prototypes[name] = src->clone();
@@ -121,9 +124,10 @@ void SourceFactory::addSource(const std::string &name, Source* src,
          m_prototypes[name] = src;
       }
    } else {
-      std::cerr << "SourceFactory::addSource: A Source named "
-                << name << " already exists." << std::endl;
-      assert(false);
+      std::ostringstream errorMessage;
+      errorMessage << "SourceFactory::addSource: A Source named "
+                   << name << " already exists.\n";
+      throw LikelihoodException(errorMessage.str());
    }
 }
 

@@ -4,7 +4,7 @@
  * a Statistic object using the Variable-at-a-time Metropolis-Hastings
  * update method.
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.2 2003/05/23 23:44:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.3 2003/05/27 16:30:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -72,7 +72,6 @@ void Mcmc::writeSamples(std::string filename,
    fits_create_file(&fptr, filename.c_str(), &status);
    if (status != 0) {
       fits_report_error(stderr, status);
-      std::cerr << status << std::endl;
       throw LikelihoodException("Mcmc::writeSamples: cfitsio errors.");
    }
 

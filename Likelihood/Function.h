@@ -3,7 +3,7 @@
  * @brief Declaration of Function and ParameterNotFound classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.21 2003/05/23 23:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.22 2003/05/29 00:29:39 jchiang Exp $
  */
 
 #ifdef _MSC_VER
@@ -38,7 +38,7 @@ class ParameterNotFound;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.21 2003/05/23 23:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.22 2003/05/29 00:29:39 jchiang Exp $
  */
 
 class Function {
@@ -73,7 +73,7 @@ public:
    double getParamValue(const std::string &paramName) const
       throw(ParameterNotFound);
 
-   Parameter *getParam(const std::string &paramName)
+   Parameter getParam(const std::string &paramName) const
       throw(ParameterNotFound);
    
    virtual void setParamBounds(const std::string &paramName, double lower,
@@ -196,7 +196,7 @@ protected:
  * looked for but not found in the desired Function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.21 2003/05/23 23:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.22 2003/05/29 00:29:39 jchiang Exp $
  */
 class ParameterNotFound : public LikelihoodException {
 
@@ -205,7 +205,7 @@ public:
                      const std::string &funcName,
                      const std::string &routineName) {
       std::ostringstream errorMessage;
-      errorMessage << "Function::" << routineName << ": "
+      errorMessage << "Function::" << routineName << ": \n"
                    << "A Parameter named " << paramName
                    << " is not a Parameter of Function "
                    << funcName << "\n";

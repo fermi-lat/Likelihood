@@ -3,7 +3,7 @@
  * @brief Implementation of a simple test function 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.cxx,v 1.6 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.cxx,v 1.7 2003/05/21 23:12:13 jchiang Exp $
  */
 
 #include <vector>
@@ -45,7 +45,8 @@ double MyFun::value(Arg &xarg) const {
    return my_val;
 }
 
-double MyFun::derivByParam(Arg &xarg, const std::string &paramName) const {
+double MyFun::derivByParam(Arg &xarg, const std::string &paramName) const 
+   throw(ParameterNotFound) {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
    std::vector<Parameter> params;
@@ -55,9 +56,7 @@ double MyFun::derivByParam(Arg &xarg, const std::string &paramName) const {
       if (paramName == params[i].getName()) 
          return params[i].getScale()*pow(x, i);
    }
-   std::cerr << "Parameter " << paramName << " is not found."
-             << std::endl;
-   return 0.;
+   throw ParameterNotFound(paramName, getName(), "MyFun::deriveByParam");
 }
 
 } // namespace Likelihood
