@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Apr  5 18:16:59 PDT 2004
+Likelihood/data
+
+Modified Files:
+	TsMap.par expMap.par 
+Log Message:
+add Util class; TsMap uses st_app::IApp
+    *
+------------------------------------------------------------
+User: jchiang  Mon Apr  5 18:16:59 PDT 2004
 Likelihood/Likelihood
 
 Added Files:
