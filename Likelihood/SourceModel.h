@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.53 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.54 2005/02/28 18:38:46 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -39,24 +39,16 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.53 2005/02/27 06:42:24 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.54 2005/02/28 18:38:46 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
 
 public:
    
-   SourceModel(const Observation & observation, bool verbose=false) 
-      : m_observation(observation), m_verbose(verbose) {
-      setMaxNumParams(0); 
-      m_genericName = "SourceModel";
-      s_refCount++;
-   }
+   SourceModel(const Observation & observation, bool verbose=false);
 
-   SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs),
-      m_observation(rhs.m_observation), m_verbose(rhs.m_verbose) {
-      s_refCount++;
-   }
+   SourceModel(const SourceModel & rhs);
 
    virtual ~SourceModel();
 
@@ -116,10 +108,16 @@ public:
    Source * getSource(const std::string &srcName);
 
    /// @return reference to the Source map.
-   const std::map<std::string, Source *> & sources() const {return s_sources;}
+   const std::map<std::string, Source *> & sources() const {
+      return m_sources;
+   }
 
-   unsigned int getNumSrcs() const {return s_sources.size();}
+   unsigned int getNumSrcs() const {
+      return m_sources.size();
+   }
+
    void getSrcNames(std::vector<std::string> &) const;
+
    bool hasSrcNamed(const std::string & srcName) const;
 
    virtual double value(optimizers::Arg &x) const;
@@ -154,7 +152,7 @@ public:
    }
 
    /// method to sync the m_parameter vector with those of the 
-   /// s_sources' Functions
+   /// m_sources' Functions
    void syncParams();
 
 protected:
@@ -165,9 +163,7 @@ protected:
       return new SourceModel(*this);
    }
 
-   static int s_refCount;
-
-   static std::map<std::string, Source *> s_sources;
+   std::map<std::string, Source *> m_sources;
 
    /// disable this since parameters may no longer have unique names
    double derivByParam(optimizers::Arg &, const std::string &) 

@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.31 2005/03/01 01:06:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.32 2005/03/01 07:17:06 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.31 2005/03/01 01:06:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.32 2005/03/01 07:17:06 jchiang Exp $
  */
 
 class Source {
@@ -94,6 +94,10 @@ public:
 
    /// @return A mutable reference to the m_functions map
    virtual FuncMap & getSrcFuncs() {
+      return m_functions;
+   }
+
+   virtual const FuncMap & getSrcFuncs() const {
       return m_functions;
    }
 

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.48 2005/03/01 07:17:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.49 2005/03/02 01:10:49 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -13,6 +13,8 @@
 
 #include "optimizers/Function.h"
 #include "optimizers/dArg.h"
+
+#include "map_tools/Exposure.h"
 
 #include "Likelihood/Event.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -38,7 +40,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.48 2005/03/01 07:17:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.49 2005/03/02 01:10:49 jchiang Exp $
  */
 
 class PointSource : public Source {
