@@ -4,48 +4,52 @@
  * functionality.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppBase.h,v 1.1 2004/04/06 17:10:37 jchiang Exp $
  */
 
 #ifndef Likelihood_AppBase
 #define Likelihood_AppBase
 
-#ifdef TRAP_FPE
-#include <fenv.h>
-#endif
-
 #include <string>
 
-#include "st_app/IApp.h"
-
 #include "optimizers/FunctionFactory.h"
+
+namespace hoops {
+   class IParGroup;
+}
+
+//#include "hoops/hoops_par_group.h"
 
 namespace Likelihood {
 
 /**
  * @class AppBase
- * @brief A subclass of st_app::IApp that serves as a base
- * class for Likelihood applications.
+ * @brief A base class for Likelihood applications.
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppBase.h,v 1.1 2004/04/06 17:10:37 jchiang Exp $
  */
 
-class AppBase : public st_app::IApp {
+class AppBase {
 
 public:
 
-   virtual ~AppBase() throw() {}
+   virtual ~AppBase() {}
 
-   virtual void setUp();
-   virtual void tearDown();
+   virtual void run() = 0;
 
 protected:
 
-   optimizers::FunctionFactory m_funcFactory;
+   AppBase(hoops::IParGroup & pars) : m_pars(pars) {
+      prepareFunctionFactory();
+      setRoi();
+      readScData();
+      createResponseFuncs();
+   }
 
-   AppBase(const std::string & appName) : st_app::IApp(appName) {}
+   hoops::IParGroup & m_pars;
+   optimizers::FunctionFactory m_funcFactory;
 
    virtual void prepareFunctionFactory();
    virtual void setRoi();

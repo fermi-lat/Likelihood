@@ -3,12 +3,8 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.2 2004/04/06 03:32:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.3 2004/04/06 17:10:38 jchiang Exp $
  */
-
-#ifdef TRAP_FPE
-#include <fenv.h>
-#endif
 
 #include <cmath>
 #include <cstring>
@@ -16,43 +12,41 @@
 #include <fstream>
 #include <iostream>
 
-#include "facilities/Util.h"
-
 #include "st_app/IApp.h"
 #include "hoops/hoops_prompt_group.h"
 
-#include "optimizers/FunctionFactory.h"
+#include "optimizers/Drmngb.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
-#include "optimizers/Drmngb.h"
-#include "optimizers/Exception.h"
-
-#include "latResponse/IrfsFactory.h"
 
 #include "Likelihood/AppBase.h"
-#include "Likelihood/ResponseFunctions.h"
-#include "Likelihood/SourceModel.h" 
-#include "Likelihood/Source.h"
-#include "Likelihood/ScData.h"
-#include "Likelihood/RoiCuts.h"
-#include "Likelihood/ExposureMap.h"
-#include "Likelihood/SpatialMap.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/OptEM.h"
-#include "Likelihood/Exception.h"
+#include "Likelihood/Source.h"
 #include "Likelihood/Util.h"
 
 using namespace Likelihood;
-using latResponse::irfsFactory;
+
+/**
+ * @class likelihood
+ * @brief A class encapsulating the methods for performing an unbinned
+ * Likelihood analysis in ballistic fashion.
+ *
+ * @author J. Chiang
+ *
+ * $Header$
+ */
 
 class likelihood : public AppBase {
 
 public:
 
-   likelihood() : AppBase("likelihood"), m_logLike(0),
-                  m_useOptEM(false), m_opt(0) {}
+   likelihood(hoops::IParGroup & pars) : AppBase(pars), m_logLike(0), 
+                                         m_useOptEM(false), m_opt(0) {}
 
-   virtual ~likelihood() throw() {}
+   virtual ~likelihood() {
+      delete m_logLike;
+   }
 
    virtual void run();
 
@@ -62,7 +56,6 @@ private:
    bool m_useOptEM;
    optimizers::Optimizer * m_opt;
 
-   virtual void tearDown();
    void createStatistic();
    void readEventData();
    void readSourceModel();
@@ -74,26 +67,38 @@ private:
 
 };
 
-st_app::IApp * my_application = new likelihood();
+/**
+ * @class app
+ * @brief Class (and object declaration) of boiler-plate code expected 
+ * by st_app.
+ */
+class app : public st_app::IApp {
+public:
+   app() : st_app::IApp("likelihood") {}
+   virtual void run() {
+      hoopsPrompt();
+      hoopsSave();
+      hoops::IParGroup & pars = hoopsGetParGroup();
+      likelihood likelihoodObject(pars);
+      likelihoodObject.run();
+   }
+} my_app;
 
 void likelihood::run() {
-   setUp();
    readExposureMap();
    createStatistic();
    readEventData();
 
-   hoops::IParGroup & pars = hoopsGetParGroup();
-
 // Set the verbosity level and convergence tolerance.
-   long verbose = pars["fit_verbosity"];
-   double tol = pars["fit_tolerance"];
+   long verbose = m_pars["fit_verbosity"];
+   double tol = m_pars["fit_tolerance"];
    std::vector<double> errors;
 
 // The fit loop.  If indicated, query the user at the end of each
 // iteration whether the fit is to be performed again.  This allows
 // the user to adjust the source model xml file by hand between
 // iterations.
-   bool queryLoop = pars["query_for_refit"];
+   bool queryLoop = m_pars["query_for_refit"];
    do {
       readSourceModel();
 // Do the fit.
@@ -111,16 +116,10 @@ void likelihood::run() {
       writeSourceXml();
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
-   tearDown();
-}
-
-void likelihood::tearDown() {
-   delete m_logLike;
 }
 
 void likelihood::createStatistic() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   m_useOptEM = pars["Use_OptEM"];
+   m_useOptEM = m_pars["Use_OptEM"];
    if (m_useOptEM) {
       m_logLike = new OptEM();
    } else {
@@ -129,9 +128,8 @@ void likelihood::createStatistic() {
 }
 
 void likelihood::readEventData() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string eventFile = pars["event_file"];
-   long eventFileHdu = pars["event_file_hdu"];
+   std::string eventFile = m_pars["event_file"];
+   long eventFileHdu = m_pars["event_file_hdu"];
    std::vector<std::string> eventFiles;
    Util::file_ok(eventFile);
    Util::resolve_fits_files(eventFile, eventFiles);
@@ -143,8 +141,7 @@ void likelihood::readEventData() {
 }
 
 void likelihood::readSourceModel() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string sourceModel = pars["Source_model_file"];
+   std::string sourceModel = m_pars["Source_model_file"];
    if (m_logLike->getNumSrcs() == 0) {
 // Read in the Source model for the first time.
       Util::file_ok(sourceModel);
@@ -159,8 +156,7 @@ void likelihood::readSourceModel() {
 }
 
 void likelihood::selectOptimizer() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string optimizer = pars["optimizer"];
+   std::string optimizer = m_pars["optimizer"];
    if (optimizer == "LBFGS") {
       m_opt = new optimizers::Lbfgs(*m_logLike);
    } else if (optimizer == "MINUIT") {
@@ -174,8 +170,7 @@ void likelihood::selectOptimizer() {
 }
 
 void likelihood::writeSourceXml() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string xmlFile = pars["Source_model_output_file"];
+   std::string xmlFile = m_pars["Source_model_output_file"];
    std::string funcFileName("");
    if (xmlFile != "none") {
       std::cout << "Writing fitted model to " << xmlFile << std::endl;
@@ -184,8 +179,7 @@ void likelihood::writeSourceXml() {
 }
 
 void likelihood::writeFluxXml() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string xml_fluxFile = pars["flux_style_model_file"];
+   std::string xml_fluxFile = m_pars["flux_style_model_file"];
    if (xml_fluxFile != "none") {
       std::cout << "Writing flux-style xml model file to "
                 << xml_fluxFile << std::endl;

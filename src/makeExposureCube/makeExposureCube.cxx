@@ -1,69 +1,75 @@
 /** 
  * @file makeExposureCube.cxx
- * @brief Create an Exposure hypercube. This program is based on
- * map_tools/exposure_cube.cxx
+ * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.3 2004/04/05 18:31:11 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.4 2004/04/05 22:01:57 jchiang Exp $
  */
-
-#ifdef TRAP_FPE
-#include <fenv.h>
-#endif
 
 #include <sstream>
 
-#include "facilities/Util.h"
 #include "tip/IFileSvc.h"
-#include "hoops/hoops_prompt_group.h"
 #include "st_app/IApp.h"
+#include "hoops/hoops_prompt_group.h"
+
 #include "map_tools/ExposureHyperCube.h"
 
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/LikeExposure.h"
 
-class ExposureCube : public st_app::IApp {
-
+/**
+ * @class ExposureCube
+ * @brief Class to encapsulate methods for creating an exposure
+ * hypercube in (ra, dec, cos_theta) using the LikeExposure class.
+ *
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+class ExposureCube {
 public:
-
-   ExposureCube() : st_app::IApp("makeExposureCube"), m_exposure(0) {}
-
-   virtual ~ExposureCube() throw() {}
-
+   ExposureCube(hoops::IParGroup & pars) : m_pars(pars), m_exposure(0) {}
+   virtual ~ExposureCube() {
+      delete m_exposure;
+   }
    virtual void run();
-
 private:
-
+   hoops::IParGroup & m_pars;
    Likelihood::LikeExposure * m_exposure;
-
-   void setUp();
    void createDataCube();
    void addRoiHistory(map_tools::ExposureHyperCube & cube);
-   void tearDown();
-
 };
 
-st_app::IApp * my_application = new ExposureCube();
+/**
+ * @class app
+ * @brief Class (and object declaration) of boiler-plate code expected 
+ * by st_app.
+ */
+class app : public st_app::IApp {
+public:
+   app() : st_app::IApp("makeExposureCube") {}
+   virtual ~app() throw() {}
+   virtual void run() {
+      hoopsPrompt();
+      hoopsSave();
+      hoops::IParGroup & pars = hoopsGetParGroup();
+      ExposureCube my_cube(pars);
+      my_cube.run();
+   }
+} my_app;
 
-void ExposureCube::setUp() {
-#ifdef TRAP_FPE
-   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
-#endif
-   hoopsPrompt();
-   hoopsSave();
-}
-
-void ExposureCube::tearDown() {
-   delete m_exposure;
+void ExposureCube::run() {
+   createDataCube();
+   map_tools::ExposureHyperCube cube(*m_exposure, m_pars["Output file"]);
+   addRoiHistory(cube);
 }
 
 void ExposureCube::createDataCube() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   m_exposure = new Likelihood::LikeExposure(pars["pixel size"], 
-                                             pars["cos_theta step"], 
-                                             pars["ROI_file"]);
+   m_exposure = new Likelihood::LikeExposure(m_pars["pixel size"], 
+                                             m_pars["cos_theta step"], 
+                                             m_pars["ROI_file"]);
    tip::Table * scData = 
-      tip::IFileSvc::instance().editTable(pars["Spacecraft file"], "Ext1");
+      tip::IFileSvc::instance().editTable(m_pars["Spacecraft file"], "Ext1");
    m_exposure->load(scData);
 }
 
@@ -72,13 +78,4 @@ void ExposureCube::addRoiHistory(map_tools::ExposureHyperCube & cube) {
    std::ostringstream roi_xml;
    roiCuts->writeXml(roi_xml);
    cube.setKey("HISTORY", roi_xml.str());
-}
-
-void ExposureCube::run() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   setUp();
-   createDataCube();
-   map_tools::ExposureHyperCube cube(*m_exposure, pars["Output file"]);
-   addRoiHistory(cube);
-   tearDown();
 }

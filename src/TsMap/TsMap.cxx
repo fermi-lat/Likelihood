@@ -4,12 +4,8 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.1 2004/04/03 22:11:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.2 2004/04/06 01:17:00 jchiang Exp $
  */
-
-#ifdef TRAP_FPE
-#include <fenv.h>
-#endif
 
 #include <cmath>
 #include <cstring>
@@ -20,44 +16,44 @@
 #include "hoops/hoops_prompt_group.h"
 
 #include "optimizers/dArg.h"
-#include "optimizers/FunctionFactory.h"
+#include "optimizers/Drmngb.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
-#include "optimizers/Drmngb.h"
 
-#include "latResponse/IrfsFactory.h"
-
-#include "Likelihood/ResponseFunctions.h"
-#include "Likelihood/ScData.h"
-#include "Likelihood/RoiCuts.h"
-#include "Likelihood/ExposureMap.h"
-#include "Likelihood/SkyDirFunction.h"
-#include "Likelihood/SpatialMap.h"
+#include "Likelihood/AppBase.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Util.h"
 
 using namespace Likelihood;
-using latResponse::irfsFactory;
 
-class TsMap : public st_app::IApp {
+/**
+ * @class TsMap
+ * @brief Class for encapsulating methods for creating a test-statistic
+ * map.
+ *
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+class TsMap : public AppBase {
 public:
-   TsMap() : st_app::IApp("TsMap"), m_opt(0) {}
-   virtual ~TsMap() throw() {}
+   TsMap(hoops::IParGroup & pars) : AppBase(pars), m_opt(0) {
+      setPointSourceSpectrum(m_testSrc);
+      m_testSrc.setName("testSource");
+   }
+   virtual ~TsMap() {
+      writeFitsFile(m_pars["TS_map_file"], m_lonValues, m_latValues,
+                    m_tsMap, m_pars["Coordinate_system"]);
+      delete m_opt;
+   }
    virtual void run();
 private:
    LogLike m_logLike;
-   optimizers::FunctionFactory m_funcFactory;
    optimizers::Optimizer * m_opt;
    std::vector<double> m_lonValues;
    std::vector<double> m_latValues;
    std::vector< std::vector<double> > m_tsMap;
    PointSource m_testSrc;
-   void setUp();
-   void tearDown();
-   void setRoi();
-   void readScData();
-   void readExposureMap();
-   void createResponseFuncs();
    void readSrcModel();
    void readEventData();
    void selectOptimizer();
@@ -74,113 +70,50 @@ private:
    void setPointSourceSpectrum(PointSource &src);
 };
 
-st_app::IApp * my_application = new TsMap();
+/**
+ * @class app
+ * @brief Class (and object declaration) of boiler-plate code expected 
+ * by st_app.
+ */
+class app : public st_app::IApp {
+public:
+   app() : st_app::IApp("TsMap") {}
+   virtual void run() {
+      hoopsPrompt();
+      hoopsSave();
+      hoops::IParGroup & pars = hoopsGetParGroup();
+      TsMap tsMap(pars);
+      tsMap.run();
+   }
+} my_app;
 
 void TsMap::run() {
-   setUp();
-   setRoi();
-   readScData();
    readExposureMap();
-   createResponseFuncs();
    readSrcModel();
    selectOptimizer();
    setGrid();
    computeMap();
-   tearDown();
-}
-
-void TsMap::setUp() {
-#ifdef TRAP_FPE
-   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
-#endif
-   hoopsPrompt();
-   hoopsSave();
-   bool makeClone(false);
-   m_funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
-   m_funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
-   setPointSourceSpectrum(m_testSrc);
-   m_testSrc.setName("testSource");
-}
-
-void TsMap::tearDown() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   writeFitsFile(pars["TS_map_file"], m_lonValues, m_latValues,
-                 m_tsMap, pars["Coordinate_system"]);
-   delete m_opt;
-   m_opt = 0;
-}
-
-void TsMap::setRoi() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   Util::file_ok(pars["ROI_cuts_file"]);
-   std::string roiFile = pars["ROI_cuts_file"];
-   RoiCuts::setCuts(roiFile);
-}
-
-void TsMap::readScData() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::vector<std::string> scFiles;
-   Util::file_ok(pars["Spacecraft_file"]);
-   Util::resolve_fits_files(pars["Spacecraft_file"], scFiles);
-   std::vector<std::string>::const_iterator scIt = scFiles.begin();
-   for ( ; scIt != scFiles.end(); scIt++) {
-      Util::file_ok(*scIt);
-      ScData::readData(*scIt, pars["Spacecraft_file_hdu"]);
-   }
-}
-
-void TsMap::readExposureMap() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string expFile = pars["Exposure_map_file"];
-   if (expFile != "none") {
-      Util::file_ok(expFile);
-      ExposureMap::readExposureFile(expFile);
-   }
-}
-
-void TsMap::createResponseFuncs() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::map< std::string, std::vector<std::string> > responseIds;
-   responseIds["FRONT"].push_back("DC1::Front");
-   responseIds["BACK"].push_back("DC1::Back");
-   responseIds["FRONT/BACK"].push_back("DC1::Front");
-   responseIds["FRONT/BACK"].push_back("DC1::Back");
-   responseIds["GLAST25"].push_back("Glast25::Front");
-   responseIds["GLAST25"].push_back("Glast25::Back");
-   std::string respFuncs = pars["Response_functions"];
-   if (responseIds.count(respFuncs)) {
-      std::vector<std::string> &resps = responseIds[respFuncs];
-      for (unsigned int i = 0; i < resps.size(); i++) {
-         ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
-      }
-   } else {
-      throw std::invalid_argument("Invalid response function choice: "
-                                  + respFuncs);
-   }
 }
 
 void TsMap::readSrcModel() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   Util::file_ok(pars["Source_model_file"]);
-   m_logLike.readXml(pars["Source_model_file"], m_funcFactory);
+   Util::file_ok(m_pars["Source_model_file"]);
+   m_logLike.readXml(m_pars["Source_model_file"], m_funcFactory);
 }   
 
 void TsMap::readEventData() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
    std::vector<std::string> eventFiles;
-   Util::file_ok(pars["event_file"]);
-   Util::resolve_fits_files(pars["event_file"], eventFiles);
+   Util::file_ok(m_pars["event_file"]);
+   Util::resolve_fits_files(m_pars["event_file"], eventFiles);
    std::vector<std::string>::const_iterator evIt = eventFiles.begin();
    for ( ; evIt != eventFiles.end(); evIt++) {
       Util::file_ok(*evIt);
-      m_logLike.getEvents(*evIt, pars["event_file_hdu"]);
+      m_logLike.getEvents(*evIt, m_pars["event_file_hdu"]);
    }
    m_logLike.computeEventResponses();
 }
 
 void TsMap::selectOptimizer() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string optimizer = pars["optimizer"];
+   std::string optimizer = m_pars["optimizer"];
    if (optimizer == "LBFGS") {
       m_opt = new optimizers::Lbfgs(m_logLike);
    } else if (optimizer == "MINUIT") {
@@ -194,12 +127,11 @@ void TsMap::selectOptimizer() {
 }
 
 void TsMap::setGrid() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   int nlon = pars["Number_of_longitude_points"];
-   int nlat = pars["Number_of_latitude_points"];
-   makeDoubleVector(pars["Longitude_min"], pars["Longitude_max"], 
+   int nlon = m_pars["Number_of_longitude_points"];
+   int nlat = m_pars["Number_of_latitude_points"];
+   makeDoubleVector(m_pars["Longitude_min"], m_pars["Longitude_max"], 
                     nlon, m_lonValues);
-   makeDoubleVector(pars["Latitude_min"], pars["Latitude_max"], 
+   makeDoubleVector(m_pars["Latitude_min"], m_pars["Latitude_max"], 
                     nlat, m_latValues);
    m_tsMap.resize(nlat);
    for (int i = 0; i < nlat; i++) {
@@ -208,23 +140,22 @@ void TsMap::setGrid() {
 }
 
 void TsMap::computeMap() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
    optimizers::dArg dummy(1.);
       
-   int verbosity = pars["fit_verbosity"];
-   double tol = pars["fit_tolerance"];
+   int verbosity = m_pars["fit_verbosity"];
+   double tol = m_pars["fit_tolerance"];
    m_opt->find_min(verbosity, tol);
    double logLike0 = m_logLike(dummy);
    bool computeExposure(true);
 
    for (unsigned int jj = 0; jj < m_latValues.size(); jj++) {
       for (unsigned int ii = 0; ii < m_lonValues.size(); ii++) {
-         if (pars["Coordinate_system"] == "CEL") {
+         if (m_pars["Coordinate_system"] == "CEL") {
             m_testSrc.setDir(m_lonValues[ii], m_latValues[jj], 
-                             computeExposure);
+                             computeExposure, false);
          } else {
             m_testSrc.setGalDir(m_lonValues[ii], m_latValues[jj], 
-                                computeExposure);
+                                computeExposure, false);
          }
          m_logLike.addSource(&m_testSrc);
          m_opt->find_min(verbosity, tol);
@@ -251,8 +182,7 @@ void TsMap::makeDoubleVector(double xmin, double xmax, int nx,
 }
 
 void TsMap::setPointSourceSpectrum(PointSource &src) {
-   static optimizers::FunctionFactory funcFactory;
-   optimizers::Function * pl = funcFactory.create("PowerLaw");
+   optimizers::Function * pl = m_funcFactory.create("PowerLaw");
    double parValues[] = {1., -2., 100.};
    std::vector<double> pars(parValues, parValues + 3);
    pl->setParamValues(pars);
