@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.35 2004/11/11 04:32:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.36 2004/11/28 06:58:21 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -99,7 +99,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
       throw Exception(errorMessage);
    }
 
-// Direct Xerces API call...still available in Xerces 2.4.0:
+// Direct Xerces API call...still available in Xerces 2.6.0:
    DOMElement * source_library = doc->getDocumentElement();
    if (!xml::Dom::checkTagName(source_library, "source_library")) {
       throw Exception("SourceFactory::readXml:\nsource_library not found in "
@@ -203,10 +203,12 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
    std::vector<DOMElement *>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
       std::string name = xml::Dom::getAttribute(*paramIt, "name");
-      if (name == "RA") 
+      if (name == "RA") {
          ra = ::atof( xml::Dom::getAttribute(*paramIt, "value").c_str() );
-      if (name == "DEC") 
+      }
+      if (name == "DEC") {
          dec = ::atof( xml::Dom::getAttribute(*paramIt, "value").c_str() );
+      }
    }
 
    Source * src = new PointSource();

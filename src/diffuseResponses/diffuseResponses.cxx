@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.14 2004/12/11 01:54:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.15 2004/12/24 16:45:45 jchiang Exp $
  */
 
 #include <cmath>
@@ -27,7 +27,6 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/ResponseFunctions.h"
-#include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
 #include "Verbosity.h"
@@ -41,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.14 2004/12/11 01:54:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.15 2004/12/24 16:45:45 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -50,13 +49,7 @@ public:
 
    diffuseResponses();
 
-   virtual ~diffuseResponses() throw() {
-      try {
-      } catch (std::exception & eObj) {
-         std::cout << eObj.what() << std::endl;
-      } catch (...) {
-      }
-   }
+   virtual ~diffuseResponses() throw() {}
 
    virtual void run();
 
@@ -72,7 +65,6 @@ private:
    std::vector<std::string> m_srcNames;
 
    void promptForParameters();
-   void setRoi();
    void buildSourceModel();
    void readEventData();
    void computeEventResponses();
@@ -95,7 +87,6 @@ void diffuseResponses::run() {
    m_helper->readScData();
    m_srcModel = new SourceModel(true);
    ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
-   m_helper->setRoi(m_pars["evfile"], m_pars["evtable"], false);
    buildSourceModel();
    readEventData();
    computeEventResponses();

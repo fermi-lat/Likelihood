@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.60 2004/12/11 01:54:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.61 2004/12/24 16:45:46 jchiang Exp $
  */
 
 #include <cmath>
@@ -37,7 +37,9 @@
 #include "Likelihood/LogLike.h"
 #include "Likelihood/MapShape.h"
 #include "Likelihood/OptEM.h"
+#include "Likelihood/PointSource.h"
 #include "Likelihood/ResponseFunctions.h"
+#include "Likelihood/RoiCuts.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
 
@@ -54,7 +56,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.60 2004/12/11 01:54:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.61 2004/12/24 16:45:46 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -405,6 +407,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    m_logLike->getFreeParamValues(fitParams);
 
    std::map<std::string, double> TsValues;
+   std::map<std::string, double> RoiDist;
 // Compute TS for each source.
    int verbose(0);
    double tol(1e-4);
@@ -414,15 +417,18 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
              << srcNames.size() << " total)\n";
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       std::cerr << ".";
-      if (srcNames[i].find("Diffuse") == std::string::npos) {
+      if (m_logLike->getSource(srcNames[i])->getType() == "Point") {
          Source * src = m_logLike->deleteSource(srcNames[i]);
+         RoiDist[srcNames[i]] = dynamic_cast<PointSource *>(src)->getDir().
+            difference(RoiCuts::instance()->extractionRegion().center())
+            *180./M_PI;
          if (m_logLike->getNumFreeParams() > 0) {
             selectOptimizer();
-//             try {
-//                m_opt->find_min(verbose, tol);
-//             } catch (optimizers::Exception &eObj) {
-//                std::cout << eObj.what() << std::endl;
-//             }
+            try {
+               m_opt->find_min(verbose, tol);
+            } catch (optimizers::Exception &eObj) {
+               std::cout << eObj.what() << std::endl;
+            }
             null_values.push_back(m_logLike->value());
             TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
          } else {
@@ -468,6 +474,13 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                    << src->Npred() << std::endl;
          resultsFile << "Npred  " << src->Npred() << "  ";
       }
+      if (RoiDist.count(srcNames[i])) {
+         std::cout << "ROI distance: "
+                   << RoiDist[srcNames[i]] << std::endl;
+         resultsFile << "ROI distsance  " << RoiDist[srcNames[i]] << std::endl;
+      } else {
+         resultsFile << "ROI distsance  " << "..." << std::endl;
+      }         
       if (TsValues.count(srcNames[i])) {
          std::cout << "TS value: "
                    << TsValues[srcNames[i]] << std::endl;

@@ -10,7 +10,7 @@ bindir = os.environ['BINDIR']
 install_dir = os.path.join(home, bindir)
 
 include_dirs = [home, os.path.join(home, 'src')]
-library_dirs = [os.path.join(home, bindir)]
+library_dirs = [install_dir]
 for lib in libraries.keys():
     if libraries[lib] is None:
         # remove ugly Lib kluge
@@ -29,14 +29,14 @@ src_files = glob.glob(os.path.join(home, 'src', '*.cxx'))
 src_files.extend(glob.glob(os.path.join(home, 'src', '*.c')))
 
 libNames = libraries.ordered_keys
-libNames.insert(0, package + "Lib")
+libNames.insert(0, package)
 libNames.remove('f2c')
 libNames.extend(rootlibs)
 libNames.extend(['termcap', 'readline', 'g2c', 'pthread', 'm', 'dl'])
 
 env = Environment(CCFLAGS='-g ' + cflags,
                   LINKFLAGS=linkflags)
-library = env.Library(package + "Lib", src_files, CPPPATH=include_dirs)
+library = env.Library(package, src_files, CPPPATH=include_dirs)
 
 test_app = ''.join(('test_', package, '.exe'))
 test_app_files = glob.glob(os.path.join(home, 'src', 'test', '*.cxx'))

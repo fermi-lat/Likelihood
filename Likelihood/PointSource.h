@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.43 2004/11/28 06:58:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.44 2004/12/01 16:46:26 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.43 2004/11/28 06:58:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.44 2004/12/01 16:46:26 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -131,7 +131,7 @@ public:
       if (updateExposure) computeExposure(verbose);
    }
 
-   astro::SkyDir getDir() const {return m_dir.getDir();}
+   const astro::SkyDir & getDir() const {return m_dir.getDir();}
 
    /// Angular separation between the source direction and dir in radians
    double getSeparation(const astro::SkyDir &dir) 

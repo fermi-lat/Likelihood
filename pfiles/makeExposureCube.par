@@ -1,8 +1,8 @@
-evfile,fr,a,"none",,,"Event data file"
+evfile,fr,a,"ptsrcs_events_0000.fits",,,"Event data file"
 evtable,s,hl,"EVENTS",,,"Event data extension"
-scfile,fr,a,"oneday_scData_0000.fits",,,"Spacecraft data file"
+scfile,fr,a,"./tmpy3XDg1",,,"Spacecraft data file"
 sctable,s,hl,"Ext1",,,"Spacecraft data extension"
-outfile,f,a,"expcube_1_day.fits",,,"Output file"
+outfile,f,a,"expCubeFile.fits",,,"Output file"
 cos_theta_step,r,hl,0.05,0.,1.,Step size in cos(theta)
 pixel_size,r,hl,1,,,Pixel size (degrees)
 
