@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jul 20 17:20:29 PDT 2004
+Likelihood/src/test/Data
+
+Removed Files:
+	anti_center_0000 anti_center_sc_0000 diffuse_test_4_0000 
+	diffuse_test_4_sc_0000 diffuse_test_5_0000 
+	diffuse_test_5_sc_0000 exp_diffuse_test_4_new.fits 
+	exp_diffuse_test_5_new.fits gas.cel normal_dist.fits 
+	one_src_0000 one_src_0000_new one_src_sc_0000 test.fits 
+Log Message:
+remove old test data files
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul 19 12:27:33 PDT 2004
 Likelihood/src/test
 
