@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 30 13:21:38 PDT 2004
+Likelihood/data
+
+Modified Files:
+	expMap_0.fits expMap_1.fits expMap_2.fits expMap_3.fits 
+	expMap_4.fits galdiffuse_events_0000.fits 
+Removed Files:
+	single_src_scData_0000.fits 
+Log Message:
+pare down test file data further
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun 30 09:24:30 PDT 2004
 Likelihood/src/test
 
