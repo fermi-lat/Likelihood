@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Wed May 21 12:44:15 PDT 2003
+Likelihood/Likelihood
+
+Removed Files:
+	cfortran.h 
+Log Message:
+No longer needed.
+
+    *
+------------------------------------------------------------
 User: pln  Wed May 21 11:28:04 PDT 2003
 Likelihood/src
 
