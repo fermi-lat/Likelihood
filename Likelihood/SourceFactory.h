@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.10 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.11 2003/07/21 22:14:56 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -12,7 +12,7 @@
 #include <string>
 #include <map>
 #include "Likelihood/Source.h"
-#include "Likelihood/Exception.h"
+#include "optimizers/Exception.h"
 
 namespace Likelihood {
 
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.10 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.11 2003/07/21 22:14:56 jchiang Exp $
  *
  */
     
@@ -42,7 +42,7 @@ public:
    //! otherwise, the destructor will delete their Source, rather than 
    //! a clone.
    void addSource(const std::string &name, Source* src, 
-                  bool fromClone = true) throw(Exception);
+                  bool fromClone = true) throw(optimizers::Exception);
 
    void replaceSource(Source* src, bool fromClone = true);
 

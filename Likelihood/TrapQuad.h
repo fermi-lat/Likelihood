@@ -3,13 +3,13 @@
  * @brief Declaration of the TrapQuad class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.7 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.8 2003/07/21 22:14:57 jchiang Exp $
  */
 
 #ifndef Likelihood_TrapQuad_h
 #define Likelihood_TrapQuad_h
 
-#include "Likelihood/Function.h"
+#include "optimizers/Function.h"
 
 namespace Likelihood {
 
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.7 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.8 2003/07/21 22:14:57 jchiang Exp $
  */
 
 class TrapQuad {
@@ -34,16 +34,16 @@ public:
    
    TrapQuad(const std::vector<double> &x, const std::vector<double> &y) :
       m_x(x), m_y(y) {m_haveFunc = false;}
-   TrapQuad(Function *func) {
+   TrapQuad(optimizers::Function *func) {
       m_func = func;
       m_haveFunc = true;
    }
    ~TrapQuad() {}
 
-   double integral() throw(Exception);
+   double integral() throw(optimizers::Exception);
    double integral(double xmin, double xmax, int npts = 100) 
-      throw(Exception);
-   double integral(std::vector<double> &xvals) throw(Exception);
+      throw(optimizers::Exception);
+   double integral(std::vector<double> &xvals) throw(optimizers::Exception);
 
 private:
 
@@ -51,7 +51,7 @@ private:
    std::vector<double> m_y;
 
    bool m_haveFunc;
-   Function *m_func;
+   optimizers::Function *m_func;
 
    double compute_integral();
 

@@ -5,18 +5,20 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.17 2003/07/19 04:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.18 2003/07/21 22:14:58 jchiang Exp $
  */
 
 #include <cassert>
 #include <sstream>
+
+#include "optimizers/Exception.h"
+
 #include "Likelihood/PointSource.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
-#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -32,12 +34,12 @@ SourceFactory::SourceFactory() {
 // Add a nominal PowerLaw spectrum.  Note that one needs to reset the
 // Parameters from the default and add sensible bounds.
    SpectrumFactory specFactory;
-   Function *powerLaw = specFactory.makeFunction("PowerLaw");
+   optimizers::Function *powerLaw = specFactory.makeFunction("PowerLaw");
 
 // Use a nominal Parameter set for now with Prefactor = 10 (assuming a
 // scaling of 1e-9, set below), Index = -2, and Scale = 100 (MeV).
 // Set the bounds here as well. 
-   std::vector<Parameter> params;
+   std::vector<optimizers::Parameter> params;
    powerLaw->getParams(params);
    params[0].setValue(10);            // Prefactor
    params[0].setScale(1e-9);
@@ -78,10 +80,10 @@ SourceFactory::SourceFactory() {
       ourGalaxy.setSpectrum(&gal_pl);
 
       addSource("Milky Way", &ourGalaxy, true);
-   } catch (ParameterNotFound &eObj) {
+   } catch (optimizers::ParameterNotFound &eObj) {
       std::cerr << eObj.what() << std::endl;
       throw;
-   } catch (Exception &likeException) {
+   } catch (optimizers::Exception &likeException) {
       std::cerr << "Likelihood::SourceFactory: "
                 << "Cannot create DiffuseSource Milkyway.\n"
                 << likeException.what() << std::endl;
@@ -104,10 +106,10 @@ SourceFactory::SourceFactory() {
       extragalactic.setSpectrum(&eg_pl);
 
       addSource("EG component", &extragalactic, true);
-   } catch (ParameterNotFound &eObj) {
+   } catch (optimizers::ParameterNotFound &eObj) {
       std::cerr << eObj.what() << std::endl;
       throw;
-   } catch (Exception &likeException) {
+   } catch (optimizers::Exception &likeException) {
       std::cerr << "Likelihood::SourceFactory: "
                 << "Cannot create DiffuseSource EG component.\n"
                 << likeException.what() << std::endl;
@@ -122,7 +124,7 @@ SourceFactory::~SourceFactory() {
 
 void SourceFactory::addSource(const std::string &name, Source* src, 
                               bool fromClone) 
-   throw(Exception) {
+   throw(optimizers::Exception) {
    if (!m_prototypes.count(name)) {
       if (fromClone) {
          m_prototypes[name] = src->clone();
@@ -133,7 +135,7 @@ void SourceFactory::addSource(const std::string &name, Source* src,
       std::ostringstream errorMessage;
       errorMessage << "SourceFactory::addSource: A Source named "
                    << name << " already exists.\n";
-      throw Exception(errorMessage.str());
+      throw optimizers::Exception(errorMessage.str());
    }
 }
 

@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.11 2003/07/19 04:38:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.12 2003/07/21 22:14:56 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -11,11 +11,14 @@
 
 #include "Likelihood/Source.h"
 #include "Likelihood/SkyDirArg.h"
-#include "Likelihood/Exception.h"
+#include "optimizers/Exception.h"
+
+namespace optimizers {
+   class Function;
+}
 
 namespace Likelihood {
 
-class Function;
 class Event;
 
 /** 
@@ -38,7 +41,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.11 2003/07/19 04:38:01 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.12 2003/07/21 22:14:56 jchiang Exp $ 
  *  
  */
 
@@ -48,7 +51,8 @@ public:
 
    //! A Function describing the spatial distribution of emission is 
    //! required for instantiation.
-   DiffuseSource(Function *spatialDist) throw(Exception);
+   DiffuseSource(optimizers::Function *spatialDist) 
+      throw(optimizers::Exception);
 
    DiffuseSource(const DiffuseSource &rhs);
 
@@ -75,7 +79,7 @@ public:
 
    //! Set the spectral model (should also check that the Parameter
    //! names do not conflict with "longitude" and "latitude" of m_dir)
-   void setSpectrum(Function *spectrum) {
+   void setSpectrum(optimizers::Function *spectrum) {
       m_spectrum = spectrum->clone();
       m_functions["Spectrum"] = m_spectrum;
    }
@@ -87,10 +91,10 @@ public:
 protected:
 
    //! spatial model
-   Function *m_spatialDist;
+   optimizers::Function *m_spatialDist;
 
    //! spectral model
-   Function *m_spectrum;
+   optimizers::Function *m_spectrum;
 
 private:
 

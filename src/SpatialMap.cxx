@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.2 2003/04/25 18:32:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.3 2003/06/11 17:08:05 jchiang Exp $
  *
  */
 
@@ -27,7 +27,7 @@ SpatialMap::SpatialMap(std::string fitsfile) : FitsImage(fitsfile) {
    addParam("Prefactor", 1, false);
 }
 
-double SpatialMap::value(Arg& arg) const {
+double SpatialMap::value(optimizers::Arg& arg) const {
    astro::SkyDir dir;
    dynamic_cast<SkyDirArg &>(arg).fetchValue(dir);
 

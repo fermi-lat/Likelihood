@@ -3,17 +3,17 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.19 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.20 2003/07/19 04:38:01 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
 #define Likelihood_PointSource_h
 
 #include "Likelihood/Source.h"
-#include "Likelihood/Function.h"
+#include "optimizers/Function.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Event.h"
-#include "Likelihood/dArg.h"
+#include "optimizers/dArg.h"
 
 namespace Likelihood {
 
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.19 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.20 2003/07/19 04:38:01 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -97,7 +97,7 @@ public:
 
    //! Set the spectral model (should also check that the Parameter
    //! names do not conflict with "longitude" and "latitude" of m_dir)
-   void setSpectrum(Function *spectrum) {
+   void setSpectrum(optimizers::Function *spectrum) {
       m_spectrum = spectrum->clone();
       m_functions["Spectrum"] = m_spectrum;
    }
@@ -124,7 +124,7 @@ protected:
    SkyDirFunction m_dir;
 
    //! spectral model
-   Function *m_spectrum;
+   optimizers::Function *m_spectrum;
 
 private:
 
@@ -160,14 +160,14 @@ private:
 
    //! nested class that returns the integrand for the m_gaussFraction
    //! integrals
-   class Gint : public Function {
+   class Gint : public optimizers::Function {
    public:
       Gint() {};
       Gint(double sig, double cr, double cp, double sp) : 
            m_sig(sig), m_cr(cr), m_cp(cp), m_sp(sp) {}
       virtual ~Gint(){};
-      double value(Arg &mu) const;
-      double derivByParam(Arg &, const std::string &) const {return 0;}
+      double value(optimizers::Arg &mu) const;
+      double derivByParam(optimizers::Arg &, const std::string &) const {return 0;}
    private:
       double m_sig;
       double m_cr;
@@ -182,7 +182,7 @@ private:
    //! a static member function to provide the interface to s_gfunc
    //! that is required by DGAUS8
    static double gfuncIntegrand(double *mu) {
-      dArg muarg(*mu);
+      optimizers::dArg muarg(*mu);
       return s_gfunc(muarg);
    }
 };

@@ -3,7 +3,7 @@
  * @brief Declaration of SpectrumFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.9 2003/07/21 22:14:57 jchiang Exp $
  */
 
 #ifndef Likelihood_SpectrumFactory_h
@@ -12,15 +12,16 @@
 #include <string>
 #include <map>
 
-//#include "Likelihood/Function.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
 #include "AbsEdge.h"
 #include "Likelihood/Exception.h"
 
-namespace Likelihood {
+namespace optimizers {
+   class Function;
+}
 
-class Function;
+namespace Likelihood {
 
 /** 
  * @class SpectrumFactory
@@ -35,7 +36,7 @@ class Function;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.9 2003/07/21 22:14:57 jchiang Exp $
  *
  */
     
@@ -53,16 +54,16 @@ public:
    //! Clients should almost always have fromClone = true, unless
    //! they explicitly pass a new Function pointer; otherwise,
    //! the destructor will delete their Function.
-   void addFunc(const std::string &name, Function* func, 
-                bool fromClone = true) throw(Exception);
+   void addFunc(const std::string &name, optimizers::Function* func, 
+                bool fromClone = true) throw(optimizers::Exception);
 
-   Function *makeFunction(const std::string &name);
+   optimizers::Function *makeFunction(const std::string &name);
 
    void listFunctions();
 
 private:
 
-   std::map<std::string, Function *> m_prototypes;
+   std::map<std::string, optimizers::Function *> m_prototypes;
 
 };
 

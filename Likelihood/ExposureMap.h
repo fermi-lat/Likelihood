@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.8 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.9 2003/07/19 04:38:01 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 #include <valarray>
-#include "Likelihood/Function.h"
+#include "optimizers/Function.h"
 #include "Likelihood/FitsImage.h"
 
 namespace Likelihood {
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.8 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.9 2003/07/19 04:38:01 jchiang Exp $
  *
  */
 
@@ -63,7 +63,7 @@ public:
     * DiffuseSource spectral response.
     */
    void integrateSpatialDist(std::vector<double> &energies, 
-                             Function * spatialDist, 
+                             optimizers::Function * spatialDist, 
                              std::vector<double> &exposure);
 
    //! Retrieve the RA of each pixel in the image plane

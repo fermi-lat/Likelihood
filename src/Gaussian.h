@@ -3,14 +3,16 @@
  * @brief Gaussian class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.9 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.10 2003/07/19 04:38:03 jchiang Exp $
  */
 
 #ifndef Likelihood_Gaussian_h
 #define Likelihood_Gaussian_h
 
-#include "Likelihood/Function.h"
-#include "Likelihood/Arg.h"
+#include "optimizers/Function.h"
+namespace optimizers {
+   class Arg;
+}
 
 namespace Likelihood {
 /** 
@@ -20,24 +22,24 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.9 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.10 2003/07/19 04:38:03 jchiang Exp $
  */
     
-class Gaussian : public Function {
+class Gaussian : public optimizers::Function {
 public:
 
    Gaussian(){init(0, 0, 1);}
    Gaussian(double Prefactor, double Mean, double Sigma)
       {init(Prefactor, Mean, Sigma);}
 
-   double value(Arg &) const;
+   double value(optimizers::Arg &) const;
 
-   double derivByParam(Arg &, const std::string &paramName) const
-      throw(ParameterNotFound);
+   double derivByParam(optimizers::Arg &, const std::string &paramName) const
+      throw(optimizers::ParameterNotFound);
 
-   double integral(Arg &xmin, Arg &xmax) const;
+   double integral(optimizers::Arg &xmin, optimizers::Arg &xmax) const;
 
-   virtual Function *clone() const {
+   virtual optimizers::Function *clone() const {
       return new Gaussian(*this);
    }
 

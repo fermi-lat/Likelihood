@@ -3,13 +3,13 @@
  * @brief Declaration of SrcArg class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SrcArg.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SrcArg.h,v 1.6 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_SrcArg_h
 #define Likelihood_SrcArg_h
 
-#include "Likelihood/Arg.h"
+#include "optimizers/Arg.h"
 #include "Likelihood/Source.h"
 
 namespace Likelihood {
@@ -21,10 +21,10 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SrcArg.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SrcArg.h,v 1.6 2003/07/19 04:38:02 jchiang Exp $
  */
 
-class SrcArg : public Arg {
+class SrcArg : public optimizers::Arg {
     
 public:
    
