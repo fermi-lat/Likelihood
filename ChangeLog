@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  5 16:31:26 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h 
+Log Message:
+add TsMap application and BrokenPowerLaw class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov  5 09:33:49 PST 2003
 Likelihood/src/test
 
