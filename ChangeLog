@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan  3 11:04:21 PST 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+use xmlBase instead of xml
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6r2p2, operation: add
 Package: Likelihood
