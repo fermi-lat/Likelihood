@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Sat Dec  6 15:46:35 PST 2003
+Likelihood/data
+
+Modified Files:
+	TsMap.par expMap.par likelihood.par 
+Added Files:
+	RoiCuts.xml anticenter_model.xml oneday_events_0000.fits 
+	oneday_scData_0000.fits 
+Log Message:
+argv fix; added Goodi-compliant data
+    *
+------------------------------------------------------------
 User: jchiang  Sat Dec  6 15:46:33 PST 2003
 Likelihood/cmt
 
