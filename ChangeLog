@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  3 16:52:11 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Function.h SourceModel.h 
+Log Message:
+Re-implement some Parameter access methods from Function in SourceModel
+
+    *
+------------------------------------------------------------
 User: pln  Fri May 30 10:52:32 PDT 2003
 Likelihood
 
