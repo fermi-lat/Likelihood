@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.36 2004/09/24 03:54:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.37 2004/09/25 06:36:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.36 2004/09/24 03:54:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.37 2004/09/25 06:36:32 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -167,7 +167,11 @@ void likelihood::createStatistic() {
          throw std::runtime_error("Please specify an exposure cube file.");
       }
       ExposureCube::readExposureCube(expcube_file);
-      m_logLike = new BinnedLikelihood(*m_dataMap);
+      std::string sourceMapsFile = m_pars["SourceMaps_file"];
+      if (sourceMapsFile == "none") {
+         sourceMapsFile = "";
+      }
+      m_logLike = new BinnedLikelihood(*m_dataMap, sourceMapsFile);
       return;
    } else if (statistic == "OPTEM") {
       m_logLike = new OptEM();
@@ -189,6 +193,8 @@ void likelihood::readEventData() {
 
 void likelihood::readSourceModel() {
    std::string sourceModel = m_pars["Source_model_file"];
+   if (m_statistic == "BINNED") {
+   }
    if (m_logLike->getNumSrcs() == 0) {
 // Read in the Source model for the first time.
       st_facilities::Util::file_ok(sourceModel);

@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.9 2004/09/25 06:36:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.10 2004/09/25 16:38:08 jchiang Exp $
  */
 
 #include <algorithm>
@@ -96,7 +96,8 @@ CountsMap::CountsMap(const std::string & event_file,
         energies.size(), use_lb, proj);
 }
 
-CountsMap::CountsMap(const std::string & countsMapFile) : m_use_lb(false) {
+CountsMap::CountsMap(const std::string & countsMapFile) 
+   : DataProduct(countsMapFile), m_use_lb(false) {
    readKeywords(countsMapFile);
    std::vector<evtbin::Binner *> binners;
    binners.push_back(new evtbin::LinearBinner(0.5, m_naxes[0]+0.5, 1., "RA"));
