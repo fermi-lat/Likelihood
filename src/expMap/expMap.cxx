@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.1 2004/04/03 22:11:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.2 2004/04/05 22:01:56 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -14,9 +14,6 @@
 #include <cmath>
 #include <cstring>
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <stdexcept>
 
 #include "facilities/Util.h"
@@ -30,56 +27,10 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ExposureMap.h"
+#include "Likelihood/Util.h"
 
 using namespace Likelihood;
 using latResponse::irfsFactory;
-
-namespace {
-   bool fileExists(const std::string &filename) {
-      std::ifstream file(filename.c_str());
-      return file.is_open();
-   }
-   void file_ok(std::string filename) {
-      facilities::Util::expandEnvVar(&filename);
-      if (fileExists(filename)) {
-         return;
-      } else {
-         throw std::invalid_argument("File not found: " + filename);
-      }
-   }
-   void readLines(std::string inputFile, 
-                  std::vector<std::string> &lines) {
-      facilities::Util::expandEnvVar(&inputFile);
-      std::ifstream file(inputFile.c_str());
-      lines.clear();
-      std::string line;
-      while (std::getline(file, line, '\n')) {
-         if (line != "" && line != " ") { //skip (most) blank lines
-            lines.push_back(line);
-         }
-      }
-   }
-   void resolve_fits_files(std::string filename, 
-                           std::vector<std::string> &files) {
-      facilities::Util::expandEnvVar(&filename);
-      files.clear();
-// Read the first line of the file and see if the first 6 characters
-// are "SIMPLE".  If so, then we assume it's a FITS file.
-      std::ifstream file(filename.c_str());
-      std::string firstLine;
-      std::getline(file, firstLine, '\n');
-      if (firstLine.find("SIMPLE") == 0) {
-// This is a FITS file. Return that as the sole element in the files
-// vector.
-         files.push_back(filename);
-         return;
-      } else {
-// filename contains a list of fits files.
-         readLines(filename, files);
-         return;
-      }
-   }
-} // unnamed namespace
 
 class ExpMap : public st_app::IApp {
 public:
@@ -124,7 +75,7 @@ void ExpMap::tearDown() {
 void ExpMap::setRoi() {
    hoops::IParGroup & pars = hoopsGetParGroup();
    std::string roiCutsFile = pars["ROI_cuts_file"];
-   ::file_ok(roiCutsFile);
+   Util::file_ok(roiCutsFile);
    RoiCuts::setCuts(roiCutsFile);
 }
 
@@ -133,11 +84,11 @@ void ExpMap::readScData() {
    std::string scFile = pars["Spacecraft_file"];
    long scHdu = pars["Spacecraft_file_hdu"];
    std::vector<std::string> scFiles;
-   ::file_ok(scFile);
-   ::resolve_fits_files(scFile, scFiles);
+   Util::file_ok(scFile);
+   Util::resolve_fits_files(scFile, scFiles);
    std::vector<std::string>::const_iterator scIt = scFiles.begin();
    for ( ; scIt != scFiles.end(); scIt++) {
-      ::file_ok(*scIt);
+      Util::file_ok(*scIt);
       ScData::readData(*scIt, scHdu);
    }
 }
@@ -190,7 +141,7 @@ void ExpMap::createExposureMap() {
 // Exposure hypercube file.
    std::string expCubeFile = pars["exposure_cube_file"];
    if (expCubeFile != "none") {
-      ::file_ok(expCubeFile);
+      Util::file_ok(expCubeFile);
       PointSource::readExposureCube(expCubeFile);
    }
    std::string exposureFile = pars["Exposure_map_file"];
