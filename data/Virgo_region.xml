@@ -1,8 +1,8 @@
 <source_library title="prototype sources" function_library="$(LIKELIHOODROOT)/xml/A1_Functions.xml">
   <source name="3C 279" type="PointSource">
     <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="1" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2" />
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="5.37806" />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-1.86044" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
     <spatialModel type="SkyDirFunction">
@@ -12,8 +12,8 @@
   </source>
   <source name="Extragalactic Diffuse Emission" type="DiffuseSource">
     <spectrum type="PowerLaw">
-      <parameter max="100" min="1e-05" free="1" name="Prefactor" scale="1e-07" value="1." />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.1" />
+      <parameter max="100" min="1e-05" free="1" name="Prefactor" scale="1e-07" value="0.301761" />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.2104" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
     <spatialModel type="ConstantValue">
@@ -22,11 +22,11 @@
   </source>
   <source name="Galactic Diffuse Emission" type="DiffuseSource">
     <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="0.001" value="5" />
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="0.001" value="7.86004" />
       <parameter max="-1" min="-3.5" free="0" name="Index" scale="1" value="-2.1" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
-    <spatialModel file="$(LIKELIHOODROOT)/src/test/Data/gas.cel" type="SpatialMap">
+    <spatialModel file="/u1/jchiang/SciTools/dev/Likelihood/v2r3/src/test/Data/gas.cel" type="SpatialMap">
       <parameter max="1000" min="0.001" free="0" name="Prefactor" scale="1" value="1" />
     </spatialModel>
   </source>
