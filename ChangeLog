@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep 28 08:39:45 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	ConstantValue.h Npred.h SourceModel.h SpatialMap.h 
+	logSrcModel.h 
+Log Message:
+add SourceModel::writeXml
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep  9 17:04:25 PDT 2003
 Likelihood/src/test
 
