@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Thu Sep 16 16:53:18 PDT 2004
+Likelihood/data
+
+Modified Files:
+	RoiCuts.xml oneday_scData_0000.fits 
+	single_src_events_0000.fits 
+Added Files:
+	Crab_model.xml 
+Log Message:
+rough unit test for BinnedLikelihood; correct index calculation for HistND
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 15 21:39:00 PDT 2004
 Likelihood/src
 
