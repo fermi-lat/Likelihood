@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v4r6   02-Sep-04  JC   CountsMap, HistND classes inheriting from evtbin;
+                           let makeExposureCube read in multiple scData files
     v4r5   25-Aug-04  JC   start using st_facilities, count map fixes,
                            add ExposureCube class
     v4r4p2 20-Aug-04  JC   include <algorithm> in DiffuseSource, change
