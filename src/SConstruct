@@ -11,9 +11,10 @@ OptPP_dir = os.environ['OPTPP_DIR']
 
 libraries = map()
 
-default_libraries = ['xml', 'astro', 'map_toolsLib', 'evtbinLib', 
+default_libraries = ['xml', 'dataSubselectorLib', 'astro',
+                     'map_toolsLib', 'evtbinLib', 
                      'tipLib', 'optimizers', 'f2c', 'facilities', 
-                     'st_appLib', 'st_graphLib', 'hoopsLib',
+                     'st_appLib', 'st_streamLib', 'st_graphLib', 'hoopsLib',
                      'irfInterfaceLib', 'irfLoaderLib', 'g25ResponseLib', 
                      'dc1ResponseLib', 'testResponseLib', 'irfUtilLib', 
                      'st_facilitiesLib']
@@ -41,8 +42,8 @@ libraries['opt-linux'] = (os.path.join(OptPP_dir, 'include'),
 libraries['newmat-linux'] = (os.path.join(OptPP_dir, 'newmat09'),
                              os.path.join(OptPP_dir, 'lib'))
 
-cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
-#cflags = ' -DHAVE_OPT_PP -DHAVE_ST_GRAPH -rdynamic '
+#cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
+cflags = ' -DHAVE_OPT_PP -DHAVE_ST_GRAPH -rdynamic '
 linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'Gui']

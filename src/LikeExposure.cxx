@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.5 2004/09/03 21:46:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.6 2004/09/17 01:19:22 jchiang Exp $
  */
 
 #include <iostream>
@@ -19,11 +19,8 @@
 
 namespace Likelihood {
 
-LikeExposure::LikeExposure(double skybin, double costhetabin, 
-                           const std::string & roiFile) 
+LikeExposure::LikeExposure(double skybin, double costhetabin)
    : map_tools::Exposure(skybin, costhetabin) {
-
-   RoiCuts::setCuts(roiFile);
    RoiCuts::instance()->getTimeCuts(m_timeCuts);
 }
 

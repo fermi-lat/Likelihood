@@ -4,13 +4,14 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.21 2004/11/11 00:03:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.22 2004/11/11 20:23:10 jchiang Exp $
  */
 
 #include <cstdlib>
 
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 #include <xercesc/util/PlatformUtils.hpp>
@@ -24,6 +25,9 @@
 
 #include "optimizers/Dom.h"
 
+#include "dataSubselector/Cuts.h"
+#include "dataSubselector/Gti.h"
+
 #include "Likelihood/Exception.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/RoiCuts.h"
@@ -32,13 +36,22 @@ namespace Likelihood {
 
 XERCES_CPP_NAMESPACE_USE
 
-// Definitions of static data.
 std::vector<RoiCuts::timeInterval> RoiCuts::s_tLimVec;
 double RoiCuts::s_eMin;
 double RoiCuts::s_eMax;
 irfInterface::AcceptanceCone RoiCuts::s_roiCone;
 double RoiCuts::s_muZenMax;
-RoiCuts * RoiCuts::s_instance = 0;
+
+dataSubselector::Cuts * RoiCuts::s_cuts(0);
+
+RoiCuts * RoiCuts::s_instance(0);
+
+RoiCuts * RoiCuts::instance() {
+   if (s_instance == 0) {
+      s_instance = new RoiCuts();
+   }
+   return s_instance;
+}
 
 void RoiCuts::addTimeInterval(double tmin, double tmax) {
    s_tLimVec.push_back(std::make_pair(tmin, tmax));
@@ -134,6 +147,129 @@ void RoiCuts::setCuts(std::string xmlFile) {
    delete parser;
 }
 
+void RoiCuts::readCuts(const std::string & eventFile) {
+   s_cuts = new dataSubselector::Cuts(eventFile);
+   s_instance->sortCuts();
+   s_instance->setRoiData();
+}
+
+void RoiCuts::setRoiData() {
+   setCuts(m_skyConeCut->ra(), m_skyConeCut->dec(),
+           m_skyConeCut->radius(), m_energyCut->minVal(),
+           m_energyCut->maxVal());
+   s_tLimVec.clear();
+   for (unsigned int i = 0; i < m_timeCuts.size(); i++) {
+      addTimeInterval(m_timeCuts.at(i)->minVal(), m_timeCuts.at(i)->maxVal());
+   }
+   for (unsigned int i = 0; i < m_gtiCuts.size(); i++) {
+      const dataSubselector::Gti & gti = m_gtiCuts.at(i)->gti();
+      evtbin::Gti::ConstIterator it;
+      for (it = gti.begin(); it != gti.end(); ++it) {
+         addTimeInterval(it->first, it->second);
+      }
+   }
+}
+
+void RoiCuts::sortCuts() {
+   typedef dataSubselector::Cuts::CutBase CutBase;
+   typedef dataSubselector::Cuts::RangeCut RangeCut;
+   typedef dataSubselector::Cuts::GtiCut GtiCut;
+   typedef dataSubselector::Cuts::SkyConeCut SkyConeCut;
+
+   unsigned int nenergy(0), ncone(0), ntime(0);
+   for (unsigned int i = 0; i < s_cuts->size(); i++) {
+      CutBase & cut = const_cast<CutBase &>(s_cuts->operator[](i));
+      if (cut.type() == "range") {
+         RangeCut & rangeCut = dynamic_cast<RangeCut &>(cut);
+         std::string colname = rangeCut.colname();
+         if (colname == "ENERGY") {
+            nenergy++;
+            m_energyCut = &rangeCut;
+         } else if (colname == "TIME") {
+            ntime++;
+            m_timeCuts.push_back(&rangeCut);
+         }
+      }
+      if (cut.type() == "SkyCone") {
+         ncone++;
+         m_skyConeCut = reinterpret_cast<SkyConeCut *>(&cut);
+      }
+      if (cut.type() == "GTI") {
+         ntime++;
+         m_gtiCuts.push_back(reinterpret_cast<GtiCut *>(&cut));
+      }
+   }
+   if (nenergy != 1 || ncone != 1 || ntime == 0) {
+      std::ostringstream message;
+      message << "RoiCuts::sortCuts:\n"
+              << "There should be exactly one energy range cut, "
+              << "one acceptance cone cut,\n"
+              << "and at least one time range and/or GTI cut.\n"
+              << "The event file contains the following DSS selections:\n\n";
+      s_cuts->writeCuts(message);
+      throw std::runtime_error(message.str());
+   }
+}
+
+void RoiCuts::writeXml(std::string xmlFile, const std::string &roiTitle) {
+   facilities::Util::expandEnvVar(&xmlFile);
+   std::ofstream outFile(xmlFile.c_str());
+   writeXml(outFile, roiTitle, true);
+}
+
+void RoiCuts::writeXml(std::ostream & ostr, const std::string & roiTitle,
+                       bool pretty) {
+   DOMElement * roiElt = rootDomElement(roiTitle);
+   if (pretty) {
+      ostr << "<?xml version='1.0' standalone='no'?>\n"
+           << "<!DOCTYPE Region-of-Interest SYSTEM "
+           << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >\n";
+      xml::Dom::prettyPrintElement(roiElt, ostr, "");
+   } else {
+      ostr << "<?xml version='1.0' standalone='no'?>"
+           << "<!DOCTYPE Region-of-Interest SYSTEM "
+           << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >";
+      xml::Dom::printElement(roiElt, ostr);
+   }
+   roiElt->release();
+}
+
+bool RoiCuts::accept(const Event &event) {
+   if (s_cuts) {
+      std::map<std::string, double> params;
+      params["TIME"] = event.getArrTime();
+      params["ENERGY"] = event.getEnergy();
+      params["RA"] = event.getDir().ra();
+      params["DEC"] = event.getDir().dec();
+      return s_cuts->accept(params);
+   } else {
+      bool acceptEvent = true;
+      
+      for (unsigned int i = 0; i < s_tLimVec.size(); i++) {
+         if (event.getArrTime() < s_tLimVec[i].first ||
+             event.getArrTime() > s_tLimVec[i].second) {
+            acceptEvent = false;
+         }
+      }
+
+      if (event.getEnergy() < s_eMin || event.getEnergy() > s_eMax) { 
+         acceptEvent = false;
+      }
+
+      double dist = event.getSeparation(s_roiCone.center())*180./M_PI;
+      if (dist > s_roiCone.radius()) {
+         acceptEvent = false;
+      }
+
+      if (event.getMuZenith() < s_muZenMax){
+         acceptEvent = false;
+      }
+
+      return acceptEvent;
+   }
+   return false;
+}
+
 DOMElement * RoiCuts::rootDomElement(const std::string &roiTitle) {
 
    xml::XmlParser * parser = new xml::XmlParser();
@@ -175,62 +311,6 @@ DOMElement * RoiCuts::rootDomElement(const std::string &roiTitle) {
    delete parser;
 
    return roiElt;
-}
-
-void RoiCuts::writeXml(std::string xmlFile, const std::string &roiTitle) {
-   facilities::Util::expandEnvVar(&xmlFile);
-   std::ofstream outFile(xmlFile.c_str());
-   writeXml(outFile, roiTitle, true);
-}
-
-void RoiCuts::writeXml(std::ostream & ostr, const std::string & roiTitle,
-                       bool pretty) {
-   DOMElement * roiElt = rootDomElement(roiTitle);
-   if (pretty) {
-      ostr << "<?xml version='1.0' standalone='no'?>\n"
-           << "<!DOCTYPE Region-of-Interest SYSTEM "
-           << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >\n";
-      xml::Dom::prettyPrintElement(roiElt, ostr, "");
-   } else {
-      ostr << "<?xml version='1.0' standalone='no'?>"
-           << "<!DOCTYPE Region-of-Interest SYSTEM "
-           << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >";
-      xml::Dom::printElement(roiElt, ostr);
-   }
-   roiElt->release();
-}
-
-bool RoiCuts::accept(const Event &event) {
-   bool acceptEvent = true;
-
-   for (unsigned int i = 0; i < s_tLimVec.size(); i++) {
-      if (event.getArrTime() < s_tLimVec[i].first ||
-          event.getArrTime() > s_tLimVec[i].second) {
-         acceptEvent = false;
-      }
-   }
-
-   if (event.getEnergy() < s_eMin || event.getEnergy() > s_eMax) { 
-      acceptEvent = false;
-   }
-
-   double dist = event.getSeparation(s_roiCone.center())*180./M_PI;
-   if (dist > s_roiCone.radius()) {
-      acceptEvent = false;
-   }
-
-   if (event.getMuZenith() < s_muZenMax){
-      acceptEvent = false;
-   }
-
-   return acceptEvent;
-}
-
-RoiCuts * RoiCuts::instance() {
-   if (s_instance == 0) {
-      s_instance = new RoiCuts();
-   }
-   return s_instance;
 }
 
 } // namespace Likelihood

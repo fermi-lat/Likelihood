@@ -9,5 +9,4 @@ use_energy_dispersion,b,hl,no,,,Use energy dispersion?
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
-debug,          b, h, no, , , "Activate debugging mode"
 mode,           s, h, "ql", , , "Mode of automatic parameters"

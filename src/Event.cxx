@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.39 2004/10/07 00:01:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.40 2004/12/01 16:46:27 jchiang Exp $
  */
 
 #include <cassert>
@@ -18,7 +18,6 @@
 
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Event.h"
-#include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/TrapQuad.h"

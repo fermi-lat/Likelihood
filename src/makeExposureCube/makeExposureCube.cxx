@@ -3,13 +3,14 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.13 2004/11/28 15:01:29 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.14 2004/11/28 21:52:30 jchiang Exp $
  */
 
 #include <cstdlib>
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -22,8 +23,9 @@
 
 #include "map_tools/ExposureHyperCube.h"
 
-#include "Likelihood/RoiCuts.h"
 #include "Likelihood/LikeExposure.h"
+#include "Likelihood/RoiCuts.h"
+
 #include "Verbosity.h"
 
 /**
@@ -33,26 +35,13 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.13 2004/11/28 15:01:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.14 2004/11/28 21:52:30 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
    ExposureCube() : st_app::StApp(), 
                     m_pars(st_app::StApp::getParGroup("makeExposureCube")), 
-                    m_exposure(0) {
-      try {
-         m_pars.Prompt();
-         m_pars.Save();
-      } catch (std::exception & eObj) {
-         std::cerr << eObj.what() << std::endl;
-         std::exit(1);
-      } catch (...) {
-         std::cerr << "Caught unknown exception in ExposureCube constructor." 
-                   << std::endl;
-         std::exit(1);
-      }
-   }
-
+                    m_exposure(0) {}
    virtual ~ExposureCube() throw() {
       try {
          delete m_exposure;
@@ -66,13 +55,15 @@ private:
    st_app::AppParGroup & m_pars;
    Likelihood::LikeExposure * m_exposure;
    void promptForParameters();
+   void readRoiCuts() const;
    void createDataCube();
-   void addRoiHistory(map_tools::ExposureHyperCube & cube);
 };
 
 st_app::StAppFactory<ExposureCube> myAppFactory;
 
 void ExposureCube::run() {
+   promptForParameters();
+   readRoiCuts();
    std::string output_file = m_pars["outfile"];
    if (st_facilities::Util::fileExists(output_file)) {
       if (m_pars["clobber"]) {
@@ -88,13 +79,39 @@ void ExposureCube::run() {
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    createDataCube();
    map_tools::ExposureHyperCube cube(*m_exposure, output_file);
-   addRoiHistory(cube);
+}
+
+void ExposureCube::promptForParameters() {
+   m_pars.Prompt("evfile");
+   if (m_pars["evfile"] == "none" || m_pars["evfile"] == "") {
+      m_pars.Prompt("ROI_file");
+      std::string Roi_file = m_pars["ROI_file"];
+      if (!st_facilities::Util::fileExists(Roi_file)) {
+         throw std::runtime_error("ROI file " + Roi_file +
+                                  " does not exist.  Please specify a " +
+                                  std::string("valid event file or ") +
+                                  "an ROI file.");
+      }
+   } else {
+      st_facilities::Util::file_ok(m_pars["evfile"]);
+   }
+   m_pars.Prompt("scfile");
+   m_pars.Prompt("outfile");
+   m_pars.Save();
+}
+
+void ExposureCube::readRoiCuts() const {
+   if (m_pars["evfile"] == "none" || m_pars["evfile"] == "") {
+      std::string roi_file = m_pars["ROI_file"];
+      Likelihood::RoiCuts::setCuts(roi_file);
+   } else {
+      Likelihood::RoiCuts::instance()->readCuts(m_pars["evfile"]);
+   }
 }
 
 void ExposureCube::createDataCube() {
    m_exposure = new Likelihood::LikeExposure(m_pars["pixel_size"], 
-                                             m_pars["cos_theta_step"], 
-                                             m_pars["ROI_file"]);
+                                             m_pars["cos_theta_step"]);
    std::string scFile = m_pars["scfile"];
    st_facilities::Util::file_ok(scFile);
    std::vector<std::string> scFiles;
@@ -110,11 +127,4 @@ void ExposureCube::createDataCube() {
       m_exposure->load(scData, Likelihood::print_output());
       delete scData;
    }
-}
-
-void ExposureCube::addRoiHistory(map_tools::ExposureHyperCube & cube) {
-   Likelihood::RoiCuts * roiCuts = Likelihood::RoiCuts::instance();
-   std::ostringstream roi_xml;
-   roiCuts->writeXml(roi_xml);
-   cube.setKey("HISTORY", roi_xml.str());
 }
