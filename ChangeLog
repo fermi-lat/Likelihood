@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 18 10:07:01 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	RoiCuts.h SourceModel.h 
+Log Message:
+add SourceModel::reReadXml method; restore naming convention in RoiCuts.h
+
+    *
+------------------------------------------------------------
 User: petry  Thu Nov 13 16:15:06 PST 2003
 Likelihood/Likelihood
 
