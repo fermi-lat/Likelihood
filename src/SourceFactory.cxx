@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.34 2004/11/11 00:03:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.35 2004/11/11 04:32:24 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -25,16 +25,7 @@
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
 
-namespace {
-   std::string rootPath() {
-      char *root = ::getenv("LIKELIHOODROOT");
-      if (!root) {
-         return std::string("..");
-      } else {
-         return std::string(root);
-      }
-   }
-} // unnamed namespace
+#include "Verbosity.h"
 
 namespace Likelihood {
 
@@ -82,10 +73,12 @@ void SourceFactory::replaceSource(Source* src, bool fromClone) {
          m_prototypes[src->getName()] = src;
       }
    } else {
-      std::cerr << "SourceFactory::replaceSource: A Source named "
-                << src->getName() << " does not yet exist.\n"
-                << "Adding it instead. "
-                << std::endl;
+      if (print_output()) {
+         std::cerr << "SourceFactory::replaceSource: A Source named "
+                   << src->getName() << " does not yet exist.\n"
+                   << "Adding it instead. "
+                   << std::endl;
+      }
       addSource(src->getName(), src, fromClone);
    }
 }
@@ -122,7 +115,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
       try {
          funcFactory.readXml(function_library);
       } catch(optimizers::Exception &eObj) {
-         std::cout << eObj.what() << std::endl;
+         if (print_output()) std::cout << eObj.what() << std::endl;
       }
    }
 
@@ -138,8 +131,10 @@ void SourceFactory::readXml(const std::string &xmlFile,
 // and its name.
       std::string srcName = xml::Dom::getAttribute(*srcIt, "name");
 
-      if (m_verbose) std::cout << "Creating source named "
-                               << srcName << std::endl;
+      if (m_verbose && print_output()) {
+         std::cout << "Creating source named "
+                   << srcName << std::endl;
+      }
 
 // Retrieve the spectrum and spatialModel elements (there should only
 // be one of each).
@@ -151,6 +146,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
          spectrum = child[0];
       } catch (optimizers::Exception &eObj) {
          std::cerr << eObj.what() << std::endl;
+         throw;
       }
 
       xml::Dom::getChildrenByTagName(*srcIt, "spatialModel", child);
@@ -213,7 +209,7 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
          dec = ::atof( xml::Dom::getAttribute(*paramIt, "value").c_str() );
    }
 
-   Source *src = new PointSource();
+   Source * src = new PointSource();
 //    dynamic_cast<PointSource *>(src)->setDir(ra, dec);
    bool updateExposure(true);
    src->setDir(ra, dec, updateExposure, m_verbose);
@@ -222,14 +218,15 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
       setSpectrum(src, spectrum, funcFactory);
       return src;
    } catch (optimizers::Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
+      if (print_output()) std::cout << eObj.what() << std::endl;
    } catch (Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
+      if (print_output()) std::cout << eObj.what() << std::endl;
    } catch (std::exception &eObj) {
-      std::cout << eObj.what() << std::endl;
+      if (print_output()) std::cout << eObj.what() << std::endl;
    } catch (...) {
       std::cerr << "Unexpected exception from SourceFactory::setSpectrum" 
                 << std::endl;
+      throw;
    }
    return 0;
 }
@@ -253,15 +250,15 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
          = xml::Dom::getAttribute(spatialModel, "file");
       dynamic_cast<SpatialMap *>(spatialDist)->readFitsFile(fitsFile);
    }
-   Source *src;
+   Source * src;
    try {
       src = new DiffuseSource(spatialDist, m_requireExposure);
       setSpectrum(src, spectrum, funcFactory);
       return src;
    } catch (optimizers::Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
+      if (print_output()) std::cout << eObj.what() << std::endl;
    } catch (Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
+      if (print_output()) std::cout << eObj.what() << std::endl;
    }
    return 0;
 }

@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.2 2004/10/06 05:31:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.3 2004/11/08 03:22:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,6 +21,8 @@
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/ResponseFunctions.h"
+
+#include "Verbosity.h"
 
 namespace Likelihood {
 
@@ -119,10 +121,11 @@ void BinnedExposure::computeMap() {
 
    m_exposureMap.resize(m_ras.size()*m_decs.size()*m_energies.size(), 0);
    int iter(0);
-   std::cerr << "Computing binned exposure map";
+   if (print_output()) std::cerr << "Computing binned exposure map";
    for (unsigned int j = 0; j < m_decs.size(); j++) {
       for (unsigned int i = 0; i < m_ras.size(); i++) {
-         if ( (iter % ((m_decs.size()*m_ras.size())/20)) == 0 ) {
+         if ( print_output() && 
+              (iter % ((m_decs.size()*m_ras.size())/20)) == 0 ) {
             std::cerr << ".";
          }
          astro::SkyDir dir(m_ras[i], m_decs[j], astro::SkyDir::EQUATORIAL);
@@ -138,7 +141,7 @@ void BinnedExposure::computeMap() {
          iter++;
       }
    }
-   std::cerr << "!" << std::endl;
+   if (print_output()) std::cerr << "!" << std::endl;
 }
 
 void BinnedExposure::linearArray(double xmin, double xmax, unsigned int npts,

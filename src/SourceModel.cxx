@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.58 2004/10/02 01:05:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.59 2004/11/11 00:03:30 jchiang Exp $
  */
 
 #include <cassert>
@@ -40,6 +40,8 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/SourceModel.h"
+
+#include "Verbosity.h"
 
 namespace {
    void fitsReportError(FILE *stream, int status) {
@@ -124,7 +126,7 @@ optimizers::Parameter SourceModel::getParam(const std::string &paramName,
             srcFuncs[funcName]->getParams(params);
          } catch (optimizers::Exception &eObj) {
             std::cerr << eObj.what() << std::endl;
-            assert(false);
+            throw;
          }                 
          for (unsigned int j = 0; j < params.size(); j++) {
             if (paramName == params[j].getName()) {
@@ -327,8 +329,10 @@ void SourceModel::readXml(std::string xmlFile,
    try {
       srcFactory.readXml(xmlFile, funcFactory, requireExposure);
    } catch (xml::DomException & eObj) {
-      std::cout << "SourceModel::readXml:\n DomException: " 
-                << eObj.what() << std::endl;
+      if (print_output()) {
+         std::cout << "SourceModel::readXml:\n DomException: " 
+                   << eObj.what() << std::endl;
+      }
    }
 
 // Loop over the sources that are now contained in srcFactory and add
@@ -339,7 +343,9 @@ void SourceModel::readXml(std::string xmlFile,
    std::vector<std::string>::iterator nameIt = srcNames.begin();
    for ( ; nameIt != srcNames.end(); nameIt++) {
       Source *src = srcFactory.create(*nameIt);
-      if (m_verbose) std::cout << "adding source " << *nameIt << std::endl;
+      if (print_output() && m_verbose) {
+         std::cout << "adding source " << *nameIt << std::endl;
+      }
       addSource(src);
    }
    syncParams();
@@ -414,9 +420,10 @@ void SourceModel::reReadXml(std::string xmlFile) {
       } else if (srcType == "DiffuseSource") {
          my_source->getSrcFuncs()["SpatialDist"]->setParams(spatialModel);
       } else {
-         std::cerr << "SourceModel::reReadXml: "
-                   << "Unknown Source type: " << srcType << std::endl;
-         assert(false);
+         std::ostringstream message;
+         message << "SourceModel::reReadXml: "
+                 << "Unknown Source type: " << srcType;
+         throw std::runtime_error(message.str());
       }
    }
    syncParams();

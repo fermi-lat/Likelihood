@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.52 2004/09/22 22:49:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.53 2004/09/28 04:32:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -28,6 +28,7 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/TrapQuad.h"
+#include "Verbosity.h"
 
 namespace Likelihood {
 
@@ -47,9 +48,9 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
    m_srcType = rhs.m_srcType;
 }
 
-void PointSource::readExposureCube(std::string expCubeFile) {
-   ExposureCube::readExposureCube(expCubeFile);
-}
+// void PointSource::readExposureCube(std::string expCubeFile) {
+//    ExposureCube::readExposureCube(expCubeFile);
+// }
 
 double PointSource::fluxDensity(double energy, double time,
                                 const astro::SkyDir &dir,
@@ -237,7 +238,7 @@ void PointSource::computeExposure(bool verbose) {
    } else {
       computeExposureWithHyperCube(s_energies, m_exposure, verbose);
    }
-   if (verbose) {
+   if (print_output() && verbose) {
       for (unsigned int i = 0; i < s_energies.size(); i++) {
          std::cout << s_energies[i] << "  " << m_exposure[i] << std::endl;
       }
@@ -256,19 +257,19 @@ void PointSource::computeExposureWithHyperCube(std::vector<double> &energies,
    exposure.clear();
 
    astro::SkyDir srcDir = getDir();
-   if (verbose) {
+   if (print_output() && verbose) {
       std::cerr << "Computing exposure at (" 
                 << srcDir.ra() << ", " 
                 << srcDir.dec() << ")";
    }
    for (std::vector<double>::const_iterator it = energies.begin();
         it != energies.end(); it++) {
-      if (verbose) std::cerr << ".";
+      if (print_output() && verbose) std::cerr << ".";
       PointSource::Aeff aeff(*it, srcDir);
       double exposure_value = ExposureCube::instance()->value(srcDir, aeff);
       exposure.push_back(exposure_value);
    }
-   if (verbose) std::cerr << "!" << std::endl;
+   if (print_output() && verbose) std::cerr << "!" << std::endl;
 }
 
 void PointSource::computeExposure(std::vector<double> &energies,
@@ -290,14 +291,15 @@ void PointSource::computeExposure(std::vector<double> &energies,
 // Initialize the exposure vector with zeros
    exposure = std::vector<double>(energies.size(), 0);
 
-   if (verbose) {
+   if (print_output() && verbose) {
       std::cerr << "Computing exposure at (" 
                 << getDir().ra() << ", " 
                 << getDir().dec() << ")";
    }
    unsigned int npts = scData->vec.size()-1;
    for (unsigned int it = 0; it < npts; it++) {
-      if (npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
+      if (print_output() && 
+          npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
       bool includeInterval = true;
       std::pair<double, double> thisInterval;
       thisInterval.first = scData->vec[it].time;
@@ -334,13 +336,14 @@ void PointSource::computeExposure(std::vector<double> &energies,
          }
       }
    }
-   if (verbose) std::cerr << "!" << std::endl;
+   if (print_output() && verbose) std::cerr << "!" << std::endl;
 }
 
 void PointSource::makeEnergyVector(int nee) {
 // A logrithmic grid of true energies for convolving with energy
 // dispersion.  Use hard-wired upper and lower energies.
-   int npts(200);
+//   int npts(200);
+   int npts(100);
    double trueEmin(18.);
    double trueEmax(3.17e5);
    double trueEstep = log(trueEmax/trueEmin)/(npts-1.);
