@@ -3,7 +3,7 @@
  * @brief Declaration of logLike_ptsrc class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.12 2003/08/06 20:52:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.13 2003/09/10 00:04:24 jchiang Exp $
  */
 
 #ifndef Likelihood_logLike_ptsrc_h
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.12 2003/08/06 20:52:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.13 2003/09/10 00:04:24 jchiang Exp $
  */
 
 class logLike_ptsrc : public SourceModel {
@@ -69,6 +69,8 @@ public:
 
    std::pair<long, double*> getEventColumn(const std::string &colname) const
       {return getColumn(*m_eventData, colname);}
+
+   unsigned long nEvents() const {return m_events.size();}
 
 protected:
 

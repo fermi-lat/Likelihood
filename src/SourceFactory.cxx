@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.24 2003/08/26 23:25:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.25 2003/09/29 15:32:06 jchiang Exp $
  */
 
 #include <sstream>
@@ -122,7 +122,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
 // the source_library tag.
    std::string function_library 
       = xml::Dom::getAttribute(source_library, "function_library");
-   function_library = ::rootPath() + "/xml/" + function_library;
+   facilities::Util::expandEnvVar(&function_library);
    try {
       funcFactory.readXml(function_library);
    } catch(optimizers::Exception &eObj) {
@@ -221,7 +221,8 @@ Source * SourceFactory::makePointSource(const DOM_Element &spectrum,
    }
 
    Source *src = new PointSource();
-   dynamic_cast<PointSource *>(src)->setDir(ra, dec);
+//    dynamic_cast<PointSource *>(src)->setDir(ra, dec);
+   src->setDir(ra, dec);
 
    try {
       setSpectrum(src, spectrum, funcFactory);
@@ -247,7 +248,6 @@ Source * SourceFactory::makeDiffuseSource(const DOM_Element &spectrum,
    std::vector<DOM_Element>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
       optimizers::Parameter parameter;
-//      optimizers::Dom::readParamData(*paramIt, parameter);
       parameter.extractDomData(*paramIt);
       spatialDist->setParam(parameter);
    }
@@ -255,7 +255,6 @@ Source * SourceFactory::makeDiffuseSource(const DOM_Element &spectrum,
       std::string fitsFile 
          = xml::Dom::getAttribute(spatialModel, "file");
       facilities::Util::expandEnvVar(&fitsFile);
-//      fitsFile = ::rootPath() + "/src/test/Data/" + fitsFile;
       dynamic_cast<SpatialMap *>(spatialDist)->readFitsFile(fitsFile);
    }
    Source *src;

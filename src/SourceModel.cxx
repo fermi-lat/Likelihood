@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.23 2003/09/28 15:39:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.24 2003/09/29 15:32:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -322,18 +322,22 @@ void SourceModel::readXml(const std::string &xmlFile,
    std::vector<std::string>::iterator nameIt = srcNames.begin();
    for ( ; nameIt != srcNames.end(); nameIt++) {
       Source *src = srcFactory.create(*nameIt);
+      std::cout << "adding source " << *nameIt << std::endl;
       addSource(src);
    }
+   syncParams();
 }
 
-void SourceModel::writeXml(const std::string &xmlFile) {
+void SourceModel::writeXml(const std::string &xmlFile,
+                           const std::string &functionLibrary) {
    DOM_Document doc = DOM_Document::createDocument();
 
    DOM_Element srcLib = doc.createElement("source_library");
-// These attribute values need to be settable, either via data members
+   srcLib.setAttribute("function_library", functionLibrary.c_str());
+
+// This attribute value need to be settable, either via data members
 // or by hand.
    srcLib.setAttribute("title", "prototype sources");
-   srcLib.setAttribute("function_library", "A1_Functions.xml");
 
 // Loop over Sources.
    std::vector<Source *>::iterator srcIt = s_sources.begin();
@@ -347,7 +351,7 @@ void SourceModel::writeXml(const std::string &xmlFile) {
       Source::FuncMap srcFuncs = (*srcIt)->getSrcFuncs();
       if (srcFuncs.count("Spectrum")) {
          DOM_Element specElt = doc.createElement("spectrum");
-         std::string name = srcFuncs["Spectrum"]->getName();
+         std::string name = srcFuncs["Spectrum"]->genericName();
          specElt.setAttribute("type", name.c_str());
          srcFuncs["Spectrum"]->appendParamDomElements(doc, specElt);
          srcElt.appendChild(specElt);
@@ -377,8 +381,8 @@ void SourceModel::writeXml(const std::string &xmlFile) {
    }
 
    std::ofstream outFile(xmlFile.c_str());
-   outFile << "<?xml version='1.0' standalone='no'?>\n"
-           << "<!DOCTYPE source_library SYSTEM \"A1_Sources.dtd\" >\n";
+//    outFile << "<?xml version='1.0' standalone='no'?>\n"
+//            << "<!DOCTYPE source_library SYSTEM \"A1_Sources.dtd\" >\n";
    xml::Dom::prettyPrintElement(srcLib, outFile, "");
 }
 
