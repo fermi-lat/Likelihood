@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  1 08:46:28 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+refactor Event interface
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  1 08:46:27 PST 2004
 Likelihood/src/diffuseResponses
 
