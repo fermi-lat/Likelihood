@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.9 2004/04/21 20:58:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.10 2004/06/05 15:22:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -36,7 +36,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.9 2004/04/21 20:58:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.10 2004/06/05 15:22:15 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -163,6 +163,9 @@ void TsMap::computeMap() {
    std::string coordSys = m_pars["Coordinate_system"];
 
    for (unsigned int jj = 0; jj < m_latValues.size(); jj++) {
+      if ( (jj % m_latValues.size()/20) == 0 ) {
+         std::cerr << ".";
+      }
       for (unsigned int ii = 0; ii < m_lonValues.size(); ii++) {
          if (coordSys == "CEL") {
             m_testSrc.setDir(m_lonValues[ii], m_latValues[jj], 
@@ -191,6 +194,7 @@ void TsMap::computeMap() {
          m_logLike.deleteSource(m_testSrc.getName());
       }
    }
+   std::cerr << "!" << std::endl;
 }
 
 void TsMap::makeDoubleVector(double xmin, double xmax, int nx,
