@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.6 2004/02/23 17:52:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.7 2004/02/24 05:54:23 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -16,11 +16,14 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
 
 #include "facilities/Util.h"
+
+#include "tuple/ITable.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
@@ -29,6 +32,7 @@
 #include "latResponse/IrfsFactory.h"
 
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/Event.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/SourceModelBuilder.h"
@@ -130,6 +134,8 @@ public:
    void test_XmlBuilders();
    void test_SourceModel();
    void test_SourceDerivs();
+   void test_PointSource();
+   void test_DiffuseSource();
 
 private:
 
@@ -138,6 +144,7 @@ private:
 
 // File names for m_srcFactory.
    std::string m_roiFile;
+   std::string m_scFile;
    std::string m_expMapFile;
    std::string m_sourceXmlFile;
 
@@ -152,7 +159,15 @@ private:
    optimizers::FunctionFactory * funcFactoryInstance();
 
    SourceFactory * m_srcFactory;
-   SourceFactory * srcFactoryInstance();
+   SourceFactory * srcFactoryInstance(const std::string & roiFile="",
+                                      const std::string & scFile="",
+                                      const std::string & expMapFile="",
+                                      const std::string & sourceXmlFile="",
+                                      bool verbose=false);
+
+   void readEventData(const std::string & eventFile,
+                      const std::string & scDataFile,
+                      std::vector<Event> & events);
    
 };
 
@@ -170,6 +185,8 @@ void LikelihoodTests::setUp() {
    latResponse::IrfsFactory irfsFactory;
    ResponseFunctions::addRespPtr(2, irfsFactory.create("DC1::Front"));
    ResponseFunctions::addRespPtr(3, irfsFactory.create("DC1::Back"));
+//    ResponseFunctions::addRespPtr(2, irfsFactory.create("Glast25::Front"));
+//    ResponseFunctions::addRespPtr(3, irfsFactory.create("Glast25::Back"));   
    
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
@@ -179,6 +196,7 @@ void LikelihoodTests::setUp() {
    m_srcFactory = 0;
 
    m_roiFile = m_rootPath + "/data/anticenter_Roi.xml";
+   m_scFile = m_rootPath + "/data/oneday_scData_0000.fits";
    m_expMapFile = m_rootPath + "/data/anticenter_expMap.fits";
    m_sourceXmlFile = m_rootPath + "/data/anticenter_model.xml";
 }
@@ -186,6 +204,9 @@ void LikelihoodTests::setUp() {
 void LikelihoodTests::tearDown() {
    delete m_funcFactory;
    delete m_srcFactory;
+// @todo Use iterators to traverse RespPtr map for key deletion.
+   ResponseFunctions::deleteRespPtr(2);
+   ResponseFunctions::deleteRespPtr(3);
    std::remove(m_fluxXmlFile.c_str());
    std::remove(m_srcModelXmlFile.c_str());
 }
@@ -466,6 +487,133 @@ void LikelihoodTests::test_SourceDerivs() {
    std::cout << ".";
 }
 
+void LikelihoodTests::test_PointSource() {
+   std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
+   std::string scDataFile = m_rootPath + "/data/single_src_scData_0000.fits";
+//    std::string eventFile = m_rootPath 
+//       + "/data/single_src_g25_events_0000.fits";
+//    std::string scDataFile = m_rootPath 
+//       + "/data/single_src_g25_scData_0000.fits";
+   std::vector<Event> events;
+   readEventData(eventFile, scDataFile, events);
+
+   SourceFactory * srcFactory = srcFactoryInstance("", scDataFile, "", "");
+
+   Source * src = srcFactory->create("Crab Pulsar");
+
+   RoiCuts * roiCuts = RoiCuts::instance();
+   
+   double Nobs = 0;
+   for (unsigned int i = 0; i < events.size(); i++) {
+      if (roiCuts->accept(events[i])) {
+         Nobs++;
+      }
+   }
+   std::cout << Nobs << "  "
+             << src->Npred() << std::endl;
+
+// Consider the observation each of the first twenty days, resetting
+// the ROI accordingly and force the PointSource exposure to be
+// recomputed for each interval.
+   double chi2 = 0;
+   for (int j = 0; j < 20; j++) {
+      double tmin = j*8.64e4;
+      double tmax = tmin + 8.64e4;
+      RoiCuts::setCuts(86.4, 28.9, 25., 30., 3.16e5, tmin, tmax, -1.);
+
+      src->setDir(83.57, 22.01, true, false);
+
+      Nobs = 0;
+      for (unsigned int i = 0; i < events.size(); i++) {
+         if (roiCuts->accept(events[i])) {
+            Nobs++;
+         }
+      }
+      double Npred = src->Npred();
+      chi2 += pow((Nobs - Npred), 2)/Nobs;
+      std::cout << j << "  " 
+                << Nobs << "  "
+                << Npred << std::endl;
+   }
+   std::cout << "chi^2 = " << chi2 << std::endl;
+}
+
+void LikelihoodTests::test_DiffuseSource() {
+   std::string eventFile = m_rootPath + "/data/galdiffuse_events_0000.fits";
+   std::string scDataFile = m_rootPath + "/data/galdiffuse_scData_0000.fits";
+//    std::string eventFile 
+//       = m_rootPath + "/data/galdiffuse_g25_events_0000.fits";
+//    std::string scDataFile 
+//       = m_rootPath + "/data/galdiffuse_g25_scData_0000.fits";
+
+   std::vector<Event> events;
+   readEventData(eventFile, scDataFile, events);
+
+   double chi2 = 0;
+   for (int i = 0; i < 10; i++) {
+      tearDown();
+      setUp();
+
+      std::ostringstream expMapFile;
+      expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
+                 
+      std::ostringstream roiFile;
+      roiFile << m_rootPath << "/data/RoiCuts_" << i << ".xml";
+
+      SourceFactory * srcFactory 
+         = srcFactoryInstance(roiFile.str(), scDataFile, expMapFile.str());
+
+      Source * src = srcFactory->create("Galactic Diffuse");
+      
+      RoiCuts * roiCuts = RoiCuts::instance();
+
+      double Nobs = 0;
+      for (unsigned int j = 0; j < events.size(); j++) {
+         if (roiCuts->accept(events[j])) {
+            Nobs++;
+         }
+      }
+      double Npred = src->Npred();
+      chi2 += pow((Nobs - Npred), 2)/Nobs;
+      std::cout << i << "  " 
+                << Nobs << "  "
+                << Npred << std::endl;
+   }
+   std::cout << "chi^2 = " << chi2 << std::endl;
+}
+
+void LikelihoodTests::readEventData(const std::string &eventFile,
+                                    const std::string &scDataFile,
+                                    std::vector<Event> &events) {
+   events.clear();
+   ScData::readData(scDataFile, 2, true);
+   ScData * scData = ScData::instance();
+
+   tuple::ITable::Factory & tableFactory = *tuple::ITable::Factory::instance();
+   tuple::ITable * eventTable = tableFactory(eventFile);
+   int type;
+
+   const double & ra = eventTable->selectColumn("RA");
+   const double & dec = eventTable->selectColumn("DEC");
+   const double & energy = eventTable->selectColumn("ENERGY");
+   const double & time = eventTable->selectColumn("TIME");
+   const double & zenith_angle = eventTable->selectColumn("ZENITH_ANGLE");
+   const double & conversion_layer 
+      = eventTable->selectColumn("CONVERSION_LAYER");
+   
+   for (tuple::Iterator it = eventTable->begin(); it != eventTable->end();
+        ++it) {
+      astro::SkyDir zAxis = scData->zAxis(time);
+      if (conversion_layer < 12) {
+         type = 0;
+      } else {
+         type = 1;
+      }
+      events.push_back(Event(ra, dec, energy, time, zAxis.ra(), zAxis.dec(),
+                             cos(zenith_angle*M_PI/180.), type));
+   }
+}   
+
 optimizers::FunctionFactory * LikelihoodTests::funcFactoryInstance() {
    if (m_funcFactory == 0) {
       m_funcFactory = new optimizers::FunctionFactory();
@@ -475,20 +623,40 @@ optimizers::FunctionFactory * LikelihoodTests::funcFactoryInstance() {
    return m_funcFactory;
 }
 
-SourceFactory * LikelihoodTests::srcFactoryInstance() {
+SourceFactory * LikelihoodTests::
+srcFactoryInstance(const std::string & roiFile,
+                   const std::string & scFile,
+                   const std::string & expMapFile,
+                   const std::string & sourceXmlFile,
+                   bool verbose) {
    if (m_srcFactory == 0) {
       RoiCuts * roiCuts = RoiCuts::instance();
-      roiCuts->setCuts(m_roiFile);
+      if (roiFile == "") {
+         roiCuts->setCuts(m_roiFile);
+      } else {
+         roiCuts->setCuts(roiFile);
+      }
 
-      std::string scFile = m_rootPath + "/data/oneday_scData_0000.fits";
-      ScData::readData(scFile, 2, true);
+      if (scFile == "") {
+         ScData::readData(m_scFile, 2, true);
+      } else {
+         ScData::readData(scFile, 2, true);
+      }
 
-      ExposureMap::readExposureFile(m_expMapFile);
+      if (expMapFile == "") {
+         ExposureMap::readExposureFile(m_expMapFile);
+      } else {
+         ExposureMap::readExposureFile(expMapFile);
+      }
 
       optimizers::FunctionFactory * funcFactory = funcFactoryInstance();
 
-      m_srcFactory = new SourceFactory();
-      m_srcFactory->readXml(m_sourceXmlFile, *funcFactory);
+      m_srcFactory = new SourceFactory(verbose);
+      if (sourceXmlFile == "") {
+         m_srcFactory->readXml(m_sourceXmlFile, *funcFactory);
+      } else {
+         m_srcFactory->readXml(sourceXmlFile, *funcFactory);
+      }
    }
    return m_srcFactory;
 }      
@@ -501,6 +669,10 @@ int main() {
    unit.test_XmlBuilders();
    unit.test_SourceModel();
    unit.test_SourceDerivs();
+//    unit.tearDown();
+//    unit.setUp();
+//    unit.test_PointSource();
+//    unit.test_DiffuseSource();
 
    std::cout << "all tests ok" << std::endl;
    return 1;

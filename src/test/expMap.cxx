@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.7 2004/01/15 22:16:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.8 2004/01/30 02:28:30 burnett Exp $
  */
 
 #ifdef TRAP_FPE
@@ -133,6 +133,8 @@ int main(int iargc, char* argv[]) {
       responseIds["BACK"].push_back("DC1::Back");
       responseIds["FRONT/BACK"].push_back("DC1::Front");
       responseIds["FRONT/BACK"].push_back("DC1::Back");
+      responseIds["GLAST25"].push_back("Glast25::Front");
+      responseIds["GLAST25"].push_back("Glast25::Back");
 
       if (responseIds.count(responseFuncs)) {
          std::vector<std::string> &resps = responseIds[responseFuncs];
