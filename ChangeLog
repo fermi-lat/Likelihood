@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Wed May 21 14:31:15 PDT 2003
+Likelihood/src
+
+Modified Files:
+	minuit_routines.c 
+Log Message:
+Change #include line for f2c.h to aid compilation on Windows.
+
+    *
+------------------------------------------------------------
 User: pln  Wed May 21 12:54:23 PDT 2003
 Likelihood/src
 
