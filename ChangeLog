@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Nov 28 13:52:29 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	gtsrcmaps.par 
+Log Message:
+fix sctable in gtsrcmaps.par; revise clobber logic in makeExposureCube
+    *
+------------------------------------------------------------
+User: jchiang  Sun Nov 28 13:52:29 PST 2004
 Likelihood/doc
 
 Modified Files:
