@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 10 21:19:37 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	TsMap.cxx expMap.cxx likelihood.cxx test.cxx 
+Added Files:
+	makeExposureCube.cxx 
+Log Message:
+add code for use with map_tools output
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 10 21:19:36 PST 2004
 Likelihood/src
 
