@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Mon Sep 27 21:32:25 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx Event.cxx ExposureMap.cxx FitsImage.cxx 
+	PointSource.cxx SourceMap.cxx SpatialMap.cxx 
+Log Message:
+refactor FitsImage to derive from st_facilities::FitsImage
+    *
+------------------------------------------------------------
+User: jchiang  Mon Sep 27 21:32:25 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
