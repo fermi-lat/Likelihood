@@ -3,7 +3,7 @@
  * @brief Implementation of a simple test function 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.cxx,v 1.7 2003/05/21 23:12:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.cxx,v 1.8 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include <vector>
@@ -12,6 +12,7 @@
 #include <iostream>
 #include "Likelihood/dArg.h"
 #include "MyFun.h"
+#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

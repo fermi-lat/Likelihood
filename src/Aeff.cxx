@@ -3,7 +3,7 @@
  * @brief Implementation for LAT effective area class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Aeff.cxx,v 1.11 2003/05/29 00:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Aeff.cxx,v 1.12 2003/05/29 20:10:45 jchiang Exp $
  */
 
 #include <vector>
@@ -13,6 +13,7 @@
 
 #include "Likelihood/Aeff.h"
 #include "astro/SkyDir.h"
+#include "LikelihoodException.h"
 
 namespace Likelihood {
 

@@ -7,7 +7,7 @@
 
 //  include everything for the compiler to test
 
-#include "Likelihood/LikelihoodException.h"
+#include "LikelihoodException.h"
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Function.h"
 #include "Likelihood/SourceModel.h" 
@@ -35,6 +35,7 @@
 #include "Likelihood/Lbfgs.h"
 #include "Likelihood/Minuit.h"
 #include "Likelihood/Mcmc.h"
+#include "Likelihood/FunctionTest.h"
 #include "OptPP.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
@@ -43,8 +44,8 @@
 #include "Gaussian.h"
 #include "AbsEdge.h"
 #include "Rosen.h"
-
-#include "Likelihood/FunctionTest.h"
+#include "ParameterNotFound.h"
+#include "OutOfBounds.h"
 
 using namespace Likelihood;   // for testing purposes only
 

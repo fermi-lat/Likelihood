@@ -3,13 +3,14 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.19 2003/05/29 00:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.20 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include <iostream>
 #include <sstream>
 
 #include "Likelihood/Function.h"
+#include "ParameterNotFound.h"
 
 namespace Likelihood {
 
@@ -105,6 +106,16 @@ std::vector<double>::const_iterator Function::setParamValues_(
    for (unsigned int i = 0; i < m_parameter.size(); i++) 
       m_parameter[i].setValue(*it++);
    return it;
+}
+
+void Function::setParams(std::vector<Parameter> &params) 
+   throw(LikelihoodException) {
+   if (params.size() == m_parameter.size()) {
+      m_parameter = params;
+   } else {
+      throw LikelihoodException
+         ("Function::setParams: incompatible number of parameters.");
+   }
 }
 
 void Function::setFreeParamValues(const std::vector<double> &paramVec) 
