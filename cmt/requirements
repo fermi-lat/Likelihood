@@ -1,10 +1,10 @@
 package Likelihood
-version v3r1p1
+version v3r3
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.100 2004/04/03 16:42:09 jchiang Exp $
+# $Id: requirements,v 1.101 2004/04/03 22:11:51 jchiang Exp $
 
 use STpolicy v*
 # use xml needs to be commented out in order to link on VC7.0 and VC7.1...
@@ -12,7 +12,6 @@ use STpolicy v*
 use facilities v2r*
 use astro  v*
 use tip v*
-use tuple v*
 use map_tools v*
 use latResponse v2*
 use optimizers v*

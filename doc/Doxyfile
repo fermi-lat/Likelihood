@@ -1,5 +1,5 @@
 PROJECT_NAME           = "GLAST/LAT Likelihood Prototype"
-PROJECT_NUMBER         = "v3r0"
+PROJECT_NUMBER         = "v3r3"
 FILE_PATTERNS          = *.h *.cxx *.c
 STRIP_CODE_COMMENTS    = NO
 EXAMPLE_PATH           = "../cmt" "." "../data"

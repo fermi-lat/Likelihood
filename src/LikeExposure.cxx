@@ -3,14 +3,14 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.1 2004/03/11 05:19:36 jchiang Exp $
  */
 
 #include "facilities/Util.h"
 
 #include "astro/EarthCoordinate.h"
 
-#include "tuple/ITable.h"
+#include "tip/Table.h"
 
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/LikeExposure.h"
@@ -25,21 +25,24 @@ LikeExposure::LikeExposure(double skybin, double costhetabin,
    RoiCuts::instance()->getTimeCuts(m_timeCuts);
 }
 
-void LikeExposure::load(tuple::ITable & scData) { 
+void LikeExposure::load(tip::Table * scData) {
    
-   const double & ra = scData.selectColumn("ra_scz");
-   const double & dec = scData.selectColumn("dec_scz");
-   const double & start = scData.selectColumn("start");
-   const double & stop = scData.selectColumn("stop");
-   const double & livetime = scData.selectColumn("livetime");
-   const double & latGeo = scData.selectColumn("lat_geo");
-   const double & lonGeo = scData.selectColumn("lon_geo");
+   double ra, dec, start, stop, livetime, latGeo, lonGeo;
 
-   for (tuple::Iterator it = scData.begin(); it != scData.end(); ++it) {
+   tip::Table::Iterator it = scData->begin();
+   tip::Table::Record & row = *it;
+   for ( ; it != scData->end(); ++it) {
+      row["livetime"].get(livetime);
+      row["start"].get(start);
+      row["stop"].get(stop);
+      row["latGeo"].get(latGeo);
+      row["lonGeo"].get(lonGeo);
       double deltat = livetime > 0 ? livetime : stop-start;
       double fraction;
       if (acceptInterval(start, stop, latGeo, lonGeo, fraction)) {
          deltat *= fraction;
+         row["ra"].get(ra);
+         row["dec"].get(dec);
          add(astro::SkyDir(ra, dec), deltat);
       }
    }

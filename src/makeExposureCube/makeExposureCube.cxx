@@ -4,14 +4,15 @@
  * map_tools/exposure_cube.cxx
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/makeExposureCube.cxx,v 1.3 2004/03/19 04:56:15 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.1 2004/04/03 22:11:54 jchiang Exp $
  */
 
 #include <sstream>
 
 #include "facilities/Util.h"
 
-#include "tuple/ITable.h"
+//#include "tuple/ITable.h"
+#include "tip/IFileSvc.h"
 
 #include "hoops/hoops.h"
 #include "hoops/hoops_prompt_group.h"
@@ -32,9 +33,13 @@ int main(int argc, char * argv[]) {
                                      pars["cos_theta step"], 
                                      pars["ROI_file"]);
 
-// Access the Spacecraft data using as an ITable object.
-   tuple::ITable::Factory & factory = *tuple::ITable::Factory::instance();
-   tuple::ITable & scData = *factory(pars["Spacecraft file"], "Ext1");
+// // Access the Spacecraft data using as an ITable object.
+//    tuple::ITable::Factory & factory = *tuple::ITable::Factory::instance();
+//    tuple::ITable & scData = *factory(pars["Spacecraft file"], "Ext1");
+
+// Access the Spacecraft data using a tip::Table object.
+   tip::Table * scData = 
+      tip::IFileSvc::instance().editTable(pars["Spacecraft file"], "Ext1");
 
 // This performs the sums over the scData rows.
    exposure.load(scData);
