@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 17 16:54:17 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	FitsImage.h SpatialMap.h 
+Log Message:
+allow Galactic or Equatorial coords in SpatialMap
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb 17 15:22:32 PST 2005
 Likelihood/src
 
