@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov  2 15:20:59 PST 2004
+Likelihood/xml
+
+Modified Files:
+	A1_Sources.dtd 
+Log Message:
+add TS_value and Npred attributes
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov  2 15:20:58 PST 2004
 Likelihood/src
 
