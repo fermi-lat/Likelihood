@@ -40,7 +40,7 @@ public:
    void setPgtol(const double pgtol);
    void setMaxIterations(const int iterations);
    int getRetCode(void) const;
-   void find_min(const int verbose = 0, const double tol = 1e-5);
+   void find_min(int verbose = 0, double tol = 1e-5);
 
    enum LbfgsReturnCodes {LBFGS_NORMAL, LBFGS_ABNO, LBFGS_ERROR,
 			 LBFGS_TOOMANY};

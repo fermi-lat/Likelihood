@@ -9,7 +9,7 @@
 #include <utility>
 #include <cmath>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 namespace Likelihood {
 
@@ -25,7 +25,7 @@ namespace Likelihood {
   int Lbfgs::getRetCode(void) const
   {return m_retCode;}
 
-  void Lbfgs::find_min(const int verbose, const double tol) {
+  void Lbfgs::find_min(int verbose, double tol) {
     
     m_verbose = verbose;
     
@@ -33,10 +33,9 @@ namespace Likelihood {
     m_stat->getFreeParams(Params);
     
     const int nparams = Params.size();
-    //    double *paramVals = new double[nparams];
-    //    double *paramMins = new double[nparams];
-    //    double *paramMaxs = new double[nparams];
-    double paramVals[nparams], paramMins[nparams], paramMaxs[nparams];
+    double *paramVals = new double[nparams];
+    double *paramMins = new double[nparams];
+    double *paramMaxs = new double[nparams];
     int iprint = verbose - 2;
     m_numEvals = 0;
     
@@ -49,9 +48,9 @@ namespace Likelihood {
     lbfgsMin(nparams, paramVals, paramMins, paramMaxs,
 			  iprint, tol);
     
-    //    delete [] paramVals;
-    //    delete [] paramMins;
-    //    delete [] paramMaxs;
+    delete [] paramVals;
+    delete [] paramMins;
+    delete [] paramMaxs;
   }
   
   void Lbfgs::lbfgsMin(const int n, double *x, const double *xmin, 
@@ -60,7 +59,7 @@ namespace Likelihood {
   {
     double factr = tol * 1.0e+16;
     
-    int nbd[n];    
+    int* nbd = new int[n];    
     for (int i=0; i < n; i++) {
       nbd[i] = 2;  //  All parameters are bounded, for now.
     }
@@ -68,14 +67,15 @@ namespace Likelihood {
     char task[60], csave[60];
     memset(task,  ' ', sizeof(task));
     memset(csave, ' ', sizeof(csave));
-    logical lsave[4];
-    int intWorkArray[3*n];
-    int isave[44];
+    logical* lsave = new logical[4];
+    int* intWorkArray = new int[3*n];
+    int* isave = new int[44];
     double funcVal, fmin;
-    double gradient[n], xopt[n];
-    double dsave[29];
-    double doubleWorkArray[(2*m_maxVarMetCorr+4)*n
-			  +12*m_maxVarMetCorr*(m_maxVarMetCorr+12)];
+    double* gradient = new double[n];
+    double* xopt = new double[n];
+    double* dsave = new double[29];
+    double* doubleWorkArray = new 
+      double[(2*m_maxVarMetCorr+4)*n+12*m_maxVarMetCorr*(m_maxVarMetCorr+12)];
     strncpy(task, "START", strlen("START"));
     
     for (;;) {
@@ -136,5 +136,12 @@ namespace Likelihood {
 	break;
       }
     }
+    delete [] nbd;
+    delete [] lsave;
+    delete [] dsave;
+    delete [] intWorkArray;
+    delete [] doubleWorkArray;
+    delete [] gradient;
+    delete [] xopt;
   }
 }
