@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.13 2005/02/23 00:39:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.14 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include "Likelihood/ScData.h"
@@ -18,37 +18,6 @@ std::map<unsigned int, irfInterface::Irfs *> ResponseFunctions::s_respPtrs;
 bool ResponseFunctions::s_useEdisp(false);
 
 std::string ResponseFunctions::s_respName("");
-   
-double ResponseFunctions::totalResponse(double time, 
-                                        double energy, double appEnergy,
-                                        const astro::SkyDir &srcDir,
-                                        const astro::SkyDir &appDir, 
-                                        int type) {
-   ScData * scData = ScData::instance();
-   astro::SkyDir zAxis = scData->zAxis(time);
-   astro::SkyDir xAxis = scData->xAxis(time);
-   
-   double myResponse(0);
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
-      = instance()->begin();
-   for ( ; respIt != instance()->end(); respIt++) {
-      if (respIt->second->irfID() == type) {  
-         irfInterface::IPsf * psf = respIt->second->psf();
-         irfInterface::IAeff * aeff = respIt->second->aeff();
-         double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
-         double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-         if (s_useEdisp) {
-            irfInterface::IEdisp * edisp = respIt->second->edisp();
-            double edisp_val = edisp->value(appEnergy, energy, srcDir, 
-                                            zAxis, xAxis);
-            myResponse += psf_val*aeff_val*edisp_val;
-         } else {
-            myResponse += psf_val*aeff_val;
-         }            
-      }
-   }
-   return myResponse;
-}
    
 double ResponseFunctions::totalResponse(double energy, double appEnergy,
                                         const astro::SkyDir & zAxis,

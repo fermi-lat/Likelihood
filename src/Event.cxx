@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.45 2005/02/15 00:34:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.46 2005/02/23 00:39:32 jchiang Exp $
  */
 
 #include <cctype>
@@ -153,8 +153,8 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
             double inc = m_scDir.SkyDir::difference(srcDir)*180./M_PI;
             if (inc < 90.) {
                double totalResp 
-                  = ResponseFunctions::totalResponse(m_arrTime, 
-                                                     *trueEnergy, m_energy,
+                  = ResponseFunctions::totalResponse(*trueEnergy, m_energy,
+                                                     m_scDir, m_scXDir,
                                                      srcDir, m_appDir, m_type);
                for (unsigned int k = 0; k < srcs.size(); k++) {
                   double srcDist_val 

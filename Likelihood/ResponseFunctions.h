@@ -3,7 +3,7 @@
  * @brief A singleton class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.12 2005/02/23 00:39:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.13 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.12 2005/02/23 00:39:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.13 2005/02/27 06:42:24 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -42,10 +42,10 @@ public:
 
    /// Return the total instrument response 
    /// (= effective area*PSF*energy dispersion).
-   /// @param time MET (seconds).  These are the same time units used
-   ///        by the spacecraft data class ScData.
    /// @param energy True photon energy (MeV).
    /// @param appEnergy Measured energy (MeV).
+   /// @param zAxis Direction of spacecraft z-axis.
+   /// @param xAxis Direction of spacecraft x-axis.
    /// @param srcDir Assumed source (i.e., true photon) direction.
    /// @param appDir Apparent photon direction.
    /// @param type Event type identifying which set of IRFs to use.
@@ -53,12 +53,6 @@ public:
    ///        2 = Combined (GLAST25 only). 
    ///        (@todo These IDs need to be rationalized and coordinated 
    ///        with the irfInterface package.)
-   static double totalResponse(double time,
-                               double energy, double appEnergy,
-                               const astro::SkyDir &srcDir,
-                               const astro::SkyDir &appDir,
-                               int type);
-
    static double totalResponse(double energy, double appEnergy,
                                const astro::SkyDir & zAxis,
                                const astro::SkyDir & xAxis,

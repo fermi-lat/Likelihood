@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.31 2005/01/13 22:42:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.32 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -25,20 +25,16 @@
 
 namespace Likelihood {
 
-// definitions of static data
-std::vector<ScData::ScNtuple> ScData::vec;
-std::string ScData::s_scFile = "";
-ScData * ScData::s_instance = 0;
-double ScData::s_tstep;
-
 void ScData::readData(std::string file, bool clear) {
    facilities::Util::expandEnvVar(&file);
 
-   s_scFile = file;
+   m_scFile = file;
 
    tip::Table * scData = tip::IFileSvc::instance().editTable(file, "ext1");
 
-   if (clear) vec.clear();
+   if (clear) {
+      vec.clear();
+   }
 
    double raSCX, decSCX;
    double raSCZ, decSCZ;
@@ -62,7 +58,7 @@ void ScData::readData(std::string file, bool clear) {
                  << "contiguous.\n"
                  << "Previous time: " << vec[vec.size()-2].time << "\n"
                  << "Current time: " << tuple.time << "\n"
-                 << "Current S/C file: " << s_scFile << "\n"
+                 << "Current S/C file: " << m_scFile << "\n"
                  << "Check the ordering of your S/C files." 
                  << std::endl;
          throw std::runtime_error(message.str());
@@ -78,15 +74,15 @@ void ScData::readData(std::string file, bool clear) {
       tuple.inSaa = 0;
       vec.push_back(tuple);
    }
-   s_tstep = vec[1].time - vec[0].time;
+   m_tstep = vec[1].time - vec[0].time;
 
    delete scData;
 }         
 
 const astro::SkyDir & ScData::zAxis(double time) {
-   int indx = static_cast<int>((time - vec[0].time)/s_tstep);
+   int indx = static_cast<int>((time - vec[0].time)/m_tstep);
    indx = std::min(static_cast<unsigned int>(indx), vec.size()-2);
-   double frac = (time - vec[indx].time)/s_tstep;
+   double frac = (time - vec[indx].time)/m_tstep;
    Hep3Vector zDir = frac*(vec[indx+1].zAxis.dir() - vec[indx].zAxis.dir())
       + vec[indx].zAxis.dir();
    m_zAxis = astro::SkyDir(zDir.unit());
@@ -94,25 +90,17 @@ const astro::SkyDir & ScData::zAxis(double time) {
 }
 
 const astro::SkyDir & ScData::xAxis(double time) {
-   int indx = static_cast<int>((time - vec[0].time)/s_tstep);
+   int indx = static_cast<int>((time - vec[0].time)/m_tstep);
    indx = std::min(static_cast<unsigned int>(indx), vec.size()-2);
-   double frac = (time - vec[indx].time)/s_tstep;
+   double frac = (time - vec[indx].time)/m_tstep;
    Hep3Vector xDir = frac*(vec[indx+1].xAxis.dir() - vec[indx].xAxis.dir())
       + vec[indx].xAxis.dir();
    m_xAxis = astro::SkyDir(xDir.unit());
    return m_xAxis;
 }
 
-ScData * ScData::instance() {
-   if (s_instance == 0) {
-      s_instance = new ScData();
-   }
-   return s_instance;
-}
-
 std::pair<ScData::Iterator, ScData::Iterator> 
-ScData::bracketInterval(double startTime, double stopTime) {
-   
+ScData::bracketInterval(double startTime, double stopTime) const {
    ScNtuple startTuple;
    startTuple.time = startTime;
    ScData::Iterator lowerBound 
