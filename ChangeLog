@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri May 23 16:44:14 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Mcmc.cxx 
+Log Message:
+add #include <algorithms> and std:: to min(), max()
+
+    *
+------------------------------------------------------------
 User: jchiang  Fri May 23 16:43:42 PDT 2003
 Likelihood/Likelihood
 
