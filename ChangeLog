@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Oct  5 22:31:15 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx SourceMap.cxx 
+Log Message:
+finish off BinnedExposure and add unit test
+    *
+------------------------------------------------------------
+User: jchiang  Tue Oct  5 22:31:15 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
