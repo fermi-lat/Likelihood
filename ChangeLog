@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Mar  6 21:18:31 PST 2005
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+handle time range cuts and gtis correctly; tagging v7r1
+    *
+------------------------------------------------------------
 User: jchiang  Sun Mar  6 21:18:30 PST 2005
 Likelihood/src
 
