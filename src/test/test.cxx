@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.12 2004/03/05 18:42:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.13 2004/03/11 05:19:37 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -138,9 +138,9 @@ void LikelihoodTests::setUp() {
    m_expMapFile = m_rootPath + "/data/anticenter_expMap.fits";
    m_sourceXmlFile = m_rootPath + "/data/anticenter_model.xml";
 
-// Use exposure hypercube for PointSource exposure calculations.
-   std::string expCube = m_rootPath + "/data/expcube_1_day.fits";
-   PointSource::readExposureCube(expCube);
+// // Use exposure hypercube for PointSource exposure calculations.
+//    std::string expCube = m_rootPath + "/data/expcube_1_day.fits";
+//    PointSource::readExposureCube(expCube);
 
 }
 
