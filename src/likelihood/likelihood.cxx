@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.55 2004/12/01 16:46:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.56 2004/12/07 05:13:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.55 2004/12/01 16:46:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.56 2004/12/07 05:13:23 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -108,6 +108,10 @@ void likelihood::run() {
    m_helper->setRoi();
    if (m_statistic == "BINNED") {
    } else {
+      std::string exposureFile = m_pars["exposure_map_file"];
+      if (exposureFile != "none") {
+         m_helper->checkCuts(m_pars["evfile"], "EVENTS", exposureFile, "");
+      }
       m_helper->readScData();
       m_helper->readExposureMap();
       std::string eventFile = m_pars["evfile"];

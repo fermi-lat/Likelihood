@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.6 2004/11/01 06:27:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.7 2004/11/28 06:58:20 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.6 2004/11/01 06:27:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.7 2004/11/28 06:58:20 jchiang Exp $
  */
 
 class AppHelpers {
@@ -52,6 +52,9 @@ public:
    }
 
    const std::vector<std::string> & scFiles() const {return m_scFiles;}
+
+   static void checkCuts(const std::string & file1, const std::string ext1,
+                         const std::string & file2, const std::string ext2);
 
 protected:
 
