@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: pln  Wed May  7 15:25:43 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Lbfgs.h 
+Log Message:
+Use STL as much as possible
+    *
+------------------------------------------------------------
+User: pln  Wed May  7 15:25:43 PDT 2003
 Likelihood/src/test
 
 Modified Files:
