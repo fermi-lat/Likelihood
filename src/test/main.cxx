@@ -87,6 +87,7 @@ int main() {
 #ifdef TRAP_FPE
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
+#ifndef USE_GOODI
    read_SC_Response_data();
    test_SourceModel_class();
    test_Event_class();
@@ -103,6 +104,7 @@ int main() {
    test_SourceFactory();
    fit_DiffuseSource();
    test_OptEM();
+#endif
    test_RoiCuts();
    return 0;
 }

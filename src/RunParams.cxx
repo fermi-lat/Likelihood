@@ -4,12 +4,14 @@
  * command-line parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.2 2003/11/07 02:27:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.3 2003/11/10 23:06:20 jchiang Exp $
  */
 
 #include <fstream>
 
 #include "facilities/Util.h"
+
+#include "hoops/hoops_exception.h"
 
 #include "Likelihood/RunParams.h"
 
@@ -18,7 +20,16 @@ namespace Likelihood {
 RunParams::RunParams(int iargc, char* argv[]) {
 
    hoops::IParFile * pf = hoops::PILParFileFactory().NewIParFile(argv[0]);
-   pf->Load();
+   try {
+      pf->Load();
+   } catch (hoops::Hexception &eObj) {
+      if (eObj.Code() == -3003) {
+         std::cout << "Likelihood::RunParams: .par file " << argv[0]
+                   << "is not found.  Check your PFILES directory." 
+                   << std::endl;
+         assert(eObj.Code() != -3003);
+      }
+   }
 
    m_prompter = hoops::PILParPromptFactory().NewIParPrompt(iargc, argv);
    m_prompter->Prompt();
