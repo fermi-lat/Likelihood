@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.28 2005/03/01 07:17:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.29 2005/03/02 01:10:48 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -21,8 +21,8 @@ namespace optimizers {
 
 namespace Likelihood {
 
-class Event;
-class Observation;
+   class Event;
+   class Observation;
 
 /** 
  * @class DiffuseSource
@@ -44,7 +44,7 @@ class Observation;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.28 2005/03/01 07:17:06 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.29 2005/03/02 01:10:48 jchiang Exp $ 
  *  
  */
 

@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.40 2005/03/02 04:51:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.41 2005/03/03 07:07:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -175,7 +175,7 @@ void LogLike::computeEventResponses(double sr_radius) {
 void LogLike::getEvents(std::string event_file) {
 
    facilities::Util::expandEnvVar(&event_file);
-   ScData & scData = const_cast<ScData &>(m_observation.scData());
+   const ScData & scData = m_observation.scData();
 
    unsigned int nTotal(0);
    unsigned int nReject(0);

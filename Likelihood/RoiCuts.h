@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.27 2005/03/01 07:17:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.28 2005/03/03 20:04:14 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -39,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.27 2005/03/01 07:17:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.28 2005/03/03 20:04:14 jchiang Exp $
  */
 
 class RoiCuts {
@@ -110,10 +110,7 @@ public:
 
    /// A logrithmically spaced vector of energies from the minimum
    /// energy to the maximum energy.
-   const std::vector<double> & energies() {
-      if (m_energies.size() == 0) {
-         makeEnergyVector();
-      }
+   const std::vector<double> & energies() const {
       return m_energies;
    }
 

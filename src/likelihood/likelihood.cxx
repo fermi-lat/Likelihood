@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.73 2005/03/03 00:17:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.74 2005/03/03 07:07:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.73 2005/03/03 00:17:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.74 2005/03/03 07:07:03 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -223,7 +223,7 @@ void likelihood::createStatistic() {
       }
       return;
    } else if (m_statistic == "OPTEM") {
-      m_logLike = new OptEM();
+      m_logLike = new OptEM(m_helper->observation());
    } else if (m_statistic == "UNBINNED") {
       m_logLike = new LogLike(m_helper->observation());
    }
