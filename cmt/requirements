@@ -4,7 +4,7 @@ version v2r10
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.93 2004/03/05 18:42:05 jchiang Exp $
+# $Id: requirements,v 1.94 2004/03/11 05:21:41 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -14,14 +14,12 @@ use map_tools v*
 use latResponse v1*
 use optimizers v*
 use cfitsio v1* IExternal
-use CLHEP v2* IExternal
 
 apply_pattern package_include
 apply_pattern package_linkopts
 
 private
 
-use hoops v*
 use hoopsUtil v*
 use tuple v*
 
