@@ -9,6 +9,6 @@
              unit="MeV"/>
    <acceptanceCone longitude="193.98"
                    latitude="-5.82"
-                   radius="15"
+                   radius="20"
                    coordsys="Celestial"/>
 </Region-of-Interest>

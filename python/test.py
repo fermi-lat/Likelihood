@@ -79,7 +79,8 @@ def fitStatistic():
 
     logLike.computeEventResponses()
 
-    myOpt = optimizers.Lbfgs(logLike)
+#    myOpt = optimizers.Lbfgs(logLike)
+    myOpt = optimizers.Minuit(logLike)
 
     verbose = 3
     myOpt.find_min(verbose)

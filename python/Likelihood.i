@@ -1,6 +1,7 @@
 // -*- mode: c++ -*-
 %module Likelihood
 %{
+#include "astro/SkyDir.h"
 #include "optimizers/Parameter.h"
 #include "Likelihood/Response.h"
 #include "Likelihood/Source.h"
@@ -167,3 +168,9 @@ using optimizers::Parameter;
          image.push_back(imageArray[i]);
    }
 }
+%extend Likelihood::PointSource {
+   void setGalDir(double glon, double glat, bool computeExposure=true) {
+      self->setDir( astro::SkyDir(glon, glat, astro::SkyDir::GALACTIC),
+                    computeExposure );
+   }
+}                                                       

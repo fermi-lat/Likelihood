@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.7 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.8 2003/08/17 04:11:22 jchiang Exp $
  */
 
 #include <sstream>
@@ -102,7 +102,8 @@ void RoiCuts::setCuts(const std::string &xmlFile) {
    optimizers::Dom::getElements(roi, "acceptanceCone", child);
    double lon = ::atof(xml::Dom::getAttribute(child[0], "longitude").c_str());
    double lat = ::atof(xml::Dom::getAttribute(child[0], "latitude").c_str());
-   if (xml::Dom::getAttribute(child[0], "unit") == "Galactic") {
+   if (xml::Dom::getAttribute(child[0], "coordsys") 
+       == std::string("Galactic")) {
       s_roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::GALACTIC);
    } else {
       s_roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::CELESTIAL);
