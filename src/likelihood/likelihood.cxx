@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.21 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.22 2004/09/02 23:43:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -44,7 +44,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.21 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.22 2004/09/02 23:43:23 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -310,7 +310,7 @@ void likelihood::writeCountsMap() {
 
    MapShape mapShape(ras, decs, energies);
 
-   m_logLike->makeCountsMap("counts_map.fits", mapShape);
+//   m_logLike->makeCountsMap("counts_map.fits", mapShape);
 }
 
 void likelihood::printFitResults(const std::vector<double> &errors) {

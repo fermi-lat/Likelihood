@@ -9,7 +9,7 @@
 
 namespace Likelihood {
 
-HistND::HistND(const std::vector<Binner *> & binners) {
+HistND::HistND(const std::vector<evtbin::Binner *> & binners) {
 // Copy binners and set size of the data array.
    m_ndims = binners.size();
    m_binners.resize(m_ndims);

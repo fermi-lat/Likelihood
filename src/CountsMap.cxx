@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.1 2004/09/02 23:43:19 jchiang Exp $
  */
 
 #include <algorithm>
@@ -41,15 +41,18 @@ CountsMap::CountsMap(const std::string & event_file,
      m_use_lb(use_lb), m_proj(0) {
 
 // These binners will be deleted by the Hist base class.
-   std::vector<Binner *> binners;
+   std::vector<evtbin::Binner *> binners;
 
 // The astro::SkyDir::project method will convert ra and dec into 
 // bin indices, so we set up the LinearBinners generically by index.
-   binners.push_back(new LinearBinner(0.5, num_x_pix + 0.5, 1., ra_field));
-   binners.push_back(new LinearBinner(0.5, num_y_pix + 0.5, 1., dec_field));
+   binners.push_back(new evtbin::LinearBinner(0.5, num_x_pix + 0.5, 1., 
+                                              ra_field));
+   binners.push_back(new evtbin::LinearBinner(0.5, num_y_pix + 0.5, 1., 
+                                              dec_field));
 
 // Energy bins are set up normally.
-   binners.push_back(new LogBinner(emin, emax, nenergies, "photon energy"));
+   binners.push_back(new evtbin::LogBinner(emin, emax, nenergies, 
+                                           "photon energy"));
 
    m_hist = new HistND(binners);
 
@@ -76,7 +79,7 @@ CountsMap::CountsMap(const std::string & event_file,
    adjustTimeKeywords(sc_file);
 }
 
-CountsMap::CountsMap(const CountsMap & rhs) {
+CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
    m_hist = rhs.m_hist->clone();
    m_proj_name = rhs.m_proj_name;
    for (int i = 0; i < 3; i++) {
@@ -105,7 +108,7 @@ void CountsMap::binInput(tip::Table::ConstIterator begin,
                          tip::Table::ConstIterator end) {
 
 // Get binners for the three dimensions.
-   const Hist::BinnerCont_t & binners = m_hist->getBinners();
+   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
 
 // From each sky binner, get the name of its field, interpreted as ra
 // and dec.
@@ -159,7 +162,7 @@ void CountsMap::writeOutput(const std::string & creator,
     }
 
 // Get the binners.
-    const Hist::BinnerCont_t & binners = m_hist->getBinners();
+    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
 
 // Write c* keywords
     tip::Header & header = output_image->getHeader();
@@ -201,8 +204,8 @@ void CountsMap::setImage(const std::vector<double> & image) {
 }
 
 
-long CountsMap::imageDimension(int idim) const {
-   const Hist::BinnerCont_t & binners = m_hist->getBinners();
+long CountsMap::imageDimension(int i) const {
+   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
    if (i < 0 || i > 2) {
       throw std::invalid_argument(std::string("CountsMap::imageDimension:\n")
                                   + "Invalid image dimension value.");
@@ -210,9 +213,9 @@ long CountsMap::imageDimension(int idim) const {
    return binners[i]->getNumBins();
 }
 
-void CountsMap::getAxisVector(int idim, std::vector<double> axisVector) const {
-   const Hist::BinnerCont_t & binners = m_hist->getBinners();
-   if (i < 0 || i >2) {
+void CountsMap::getAxisVector(int i, std::vector<double> axisVector) const {
+   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
+   if (i < 0 || i > 2) {
       throw std::invalid_argument(std::string("CountsMap::getAxisVector:\n")
                                   + "Invalid image dimension value.");
    }
