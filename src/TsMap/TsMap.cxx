@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.14 2004/10/11 01:35:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.15 2004/11/28 06:58:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.14 2004/10/11 01:35:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.15 2004/11/28 06:58:22 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -129,6 +129,9 @@ void TsMap::readEventData() {
    std::vector<std::string> eventFiles;
    st_facilities::Util::file_ok(m_pars["evfile"]);
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
+   for (unsigned int i = 1; i < eventFiles.size(); i++) {
+      AppHelpers::checkCuts(eventFiles[0], "EVENTS", eventFiles[i], "EVENTS");
+   }
    std::vector<std::string>::const_iterator evIt = eventFiles.begin();
    for ( ; evIt != eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.58 2004/12/08 04:09:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.59 2004/12/09 19:03:36 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.58 2004/12/08 04:09:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.59 2004/12/09 19:03:36 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -118,6 +118,10 @@ void likelihood::run() {
       std::string eventFile = m_pars["evfile"];
       st_facilities::Util::file_ok(eventFile);
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
+      for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
+         AppHelpers::checkCuts(m_eventFiles[0], "EVENTS", m_eventFiles[i],
+                               "EVENTS");
+      }
    }
    createStatistic();
 
