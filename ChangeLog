@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 18 10:09:43 PST 2003
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx PointSource.cxx RoiCuts.cxx SourceFactory.cxx 
+	SourceModel.cxx SpatialMap.cxx 
+Log Message:
+Add SourceModel::reReadXml method; restore functionality and formatting 
+of RoiCuts; refactor SourceFactor::readXml slightly
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 18 10:07:55 PST 2003
 Likelihood/data
 
