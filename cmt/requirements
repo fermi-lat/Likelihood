@@ -4,7 +4,7 @@ version v2r1
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.43 2003/10/27 01:16:18 jchiang Exp $
+# $Id: requirements,v 1.44 2003/11/05 03:41:23 jchiang Exp $
 
 use xml
 use hoops v*
@@ -28,9 +28,10 @@ use facilities v2*
 macro Likelihood_cppflags "" Linux "-I ../src -g -pedantic -D TRAP_FPE " WIN32 "/I..\src  /wd4290"
 macro_prepend cflags "" Linux "-g"
 
-# make sure test application gets built when library changes
+# make sure test applications get built when library changes
 macro test_Likelihoodstamps "Likelihood.stamp"
 macro likelihoodstamps "likelihood.stamp"
+macro TsMapstamps "TsMap.stamp"
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
@@ -40,3 +41,4 @@ set PFILES "$(LIKELIHOODROOT)/data"
 # applications
 application test_Likelihood test/main.cxx
 application likelihood test/likelihood.cxx
+application TsMap test/TsMap.cxx

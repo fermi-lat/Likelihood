@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.24 2003/10/24 01:57:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.25 2003/10/24 05:39:37 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.24 2003/10/24 01:57:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.25 2003/10/24 05:39:37 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -78,6 +78,13 @@ public:
    //! Set source location using J2000 coordinates
    void setDir(double ra, double dec, bool updateExposure = true) {
       m_dir = SkyDirFunction(astro::SkyDir(ra, dec));
+      m_functions["Position"] = &m_dir;
+      if (updateExposure) computeExposure();
+   }
+
+   //! Set source location using Galactic coordinates
+   void setGalDir(double l, double b, bool updateExposure = true) {
+      m_dir = SkyDirFunction(astro::SkyDir(l, b, astro::SkyDir::GALACTIC));
       m_functions["Position"] = &m_dir;
       if (updateExposure) computeExposure();
    }
