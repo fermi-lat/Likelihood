@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov  2 15:20:58 PST 2004
+Likelihood/src
+
+Modified Files:
+	tutorial.h 
+Log Message:
+add TS_value and Npred attributes
+    *
+------------------------------------------------------------
 User: jchiang  Mon Nov  1 20:09:27 PST 2004
 Likelihood/xml
 
