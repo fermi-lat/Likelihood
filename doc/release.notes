@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v2r11  18-Mar-04  JC   Use map_tools for exposure hypercube calculation;
+                           added LikeExposure class.
     v2r10  28-Feb-04  JC   Stage 1 of Xerces migration; added XmlBuilder 
                            classes; started re-implementing unit tests
     v2r9   07-Feb-04  JC   compute TS for each point source in likelihood app

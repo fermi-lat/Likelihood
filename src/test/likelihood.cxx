@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.25 2004/03/17 19:09:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.26 2004/03/17 23:36:13 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -117,6 +117,7 @@ int main(int iargc, char* argv[]) {
    try {
       hoops::ParPromptGroup pars(iargc, argv);
       pars.Prompt();
+      pars.Save();
 
 // Set the region-of-interest.
       std::string roiCutsFile = pars["ROI_cuts_file"];

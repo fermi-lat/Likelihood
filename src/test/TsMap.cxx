@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.12 2004/03/11 05:19:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.13 2004/03/17 23:36:13 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -118,6 +118,7 @@ public:
    Parameters(int iargc, char* argv[]) 
       : hoops::ParPromptGroup(iargc, argv) {
       Prompt();
+      Save();
       m_scHdu = (*this)["Spacecraft_file_hdu"];
       m_eventHdu = (*this)["event_file_hdu"];
       m_nlon = (*this)["Number_of_longitude_points"];
@@ -177,6 +178,8 @@ int main(int iargc, char* argv[]) {
       responseIds["BACK"].push_back("DC1::Back");
       responseIds["FRONT/BACK"].push_back("DC1::Front");
       responseIds["FRONT/BACK"].push_back("DC1::Back");
+      responseIds["GLAST25"].push_back("Glast25::Front");
+      responseIds["GLAST25"].push_back("Glast25::Back");
 
       if (responseIds.count(pars.respFuncs())) {
          std::vector<std::string> &resps = responseIds[pars.respFuncs()];
