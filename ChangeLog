@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Wed Aug 13 11:01:17 PDT 2003
+Likelihood/xml
+
+Added Files:
+	A1_Functions.dtd A1_Functions.xml A1_Sources.dtd 
+	A1_Sources.xml 
+Log Message:
+add xml support
+    *
+------------------------------------------------------------
+User: jchiang  Wed Aug 13 11:01:17 PDT 2003
 Likelihood/src/test
 
 Modified Files:
