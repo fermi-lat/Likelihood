@@ -1,4 +1,21 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 11 10:08:05 PDT 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx Function.cxx FunctionTest.cxx Gaussian.cxx 
+	Lbfgs.cxx Mcmc.cxx Minuit.cxx MyFun.cxx Npred.cxx OptPP.cxx 
+	Parameter.cxx PowerLaw.cxx ProductFunction.cxx Rosen.cxx 
+	Rosen.h ScData.cxx SkyDirFunction.cxx Source.cxx 
+	SourceFactory.cxx SourceModel.cxx SpatialMap.cxx 
+	SumFunction.cxx logLike_gauss.cxx logLike_gauss.h 
+	logLike_ptsrc.h 
+Removed Files:
+	OutOfBounds.h ParameterNotFound.h 
+Log Message:
+get exception stuff to work with gcc 3.3
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun 11 10:08:03 PDT 2003
 Likelihood/Likelihood
 
