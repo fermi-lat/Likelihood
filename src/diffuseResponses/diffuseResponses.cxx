@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.8 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.9 2004/09/02 23:43:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.8 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.9 2004/09/02 23:43:21 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -89,6 +89,7 @@ diffuseResponses::diffuseResponses()
       m_pars.Prompt();
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
+      m_helper->readScData();
       m_srcModel = new SourceModel(true);
       ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
    } catch (std::exception & eObj) {

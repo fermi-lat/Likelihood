@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.12 2004/08/03 21:29:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.13 2004/08/25 15:27:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -38,7 +38,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.12 2004/08/03 21:29:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.13 2004/08/25 15:27:32 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -86,6 +86,7 @@ TsMap::TsMap() : st_app::StApp(), m_helper(0),
       m_pars.Prompt();
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
+      m_helper->readScData();
       setPointSourceSpectrum(m_testSrc);
       m_testSrc.setName("testSource");
    } catch (std::exception &eObj) {
@@ -122,7 +123,7 @@ void TsMap::readEventData() {
    std::vector<std::string>::const_iterator evIt = eventFiles.begin();
    for ( ; evIt != eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-      m_logLike.getEvents(*evIt, m_pars["event_file_hdu"]);
+      m_logLike.getEvents(*evIt);
    }
    m_logLike.computeEventResponses();
 }

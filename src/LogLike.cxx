@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.29 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.30 2004/09/03 06:08:56 jchiang Exp $
  */
 
 #include <cmath>
@@ -139,7 +139,7 @@ void LogLike::computeEventResponses(double sr_radius) {
    }
 }
 
-void LogLike::getEvents(std::string event_file, int) {
+void LogLike::getEvents(std::string event_file) {
 
    facilities::Util::expandEnvVar(&event_file);
 

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.38 2004/09/25 18:24:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.39 2004/09/28 04:32:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.38 2004/09/25 18:24:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.39 2004/09/28 04:32:25 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -66,17 +66,18 @@ public:
       }
    }
    virtual void run();
+
 private:
-   AppHelpers * m_helper;  //blech.
+   AppHelpers * m_helper;
    st_app::AppParGroup & m_pars;
 
    LogLike * m_logLike;
-   bool m_useOptEM;
    optimizers::Optimizer * m_opt;
    std::vector<std::string> m_eventFiles;
    CountsMap * m_dataMap;
    std::string m_statistic;
 
+   void promptForParameters();
    void createStatistic();
    void readEventData();
    void readSourceModel();
@@ -85,9 +86,14 @@ private:
    void writeFluxXml();
    void writeCountsSpectra();
    void writeCountsMap();
-   void createCountsMap();
+//   void createCountsMap();
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
+
+   template <typename T>
+   T param(const std::string & paramName) {
+      return m_helper->param<T>(paramName);
+   }
 };
 
 st_app::StAppFactory<likelihood> myAppFactory;
@@ -95,12 +101,9 @@ st_app::StAppFactory<likelihood> myAppFactory;
 likelihood::likelihood() 
    : st_app::StApp(), m_helper(0), 
      m_pars(st_app::StApp::getParGroup("likelihood")),
-     m_logLike(0), m_useOptEM(false), m_opt(0), m_dataMap(0) {
+     m_logLike(0), m_opt(0), m_dataMap(0) {
    try {
-      m_pars.Prompt();
-      m_pars.Save();
       m_helper = new AppHelpers(m_pars);
-      ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
       std::exit(1);
@@ -112,13 +115,18 @@ likelihood::likelihood()
 }
 
 void likelihood::run() {
+   promptForParameters();
    m_helper->setRoi();
+   m_helper->readScData();
    m_helper->readExposureMap();
-   std::string eventFile = m_pars["event_file"];
-   st_facilities::Util::file_ok(eventFile);
-   st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
-   createCountsMap();
+   if (m_statistic == "BINNED") {
+   } else {
+      std::string eventFile = m_pars["event_file"];
+      st_facilities::Util::file_ok(eventFile);
+      st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
+   }
    createStatistic();
+//   createCountsMap();
 
 // Set the verbosity level and convergence tolerance.
    long verbose = m_pars["fit_verbosity"];
@@ -133,7 +141,7 @@ void likelihood::run() {
    do {
       readSourceModel();
 // Do the fit.
-      if (m_useOptEM) {
+      if (m_statistic == "OPTEM") {
          dynamic_cast<OptEM *>(m_logLike)->findMin(verbose);
       } else {
 // @todo Allow the optimizer to be re-selected here by the user.    
@@ -158,36 +166,54 @@ void likelihood::run() {
 //   writeCountsMap();
 }
 
+void likelihood::promptForParameters() {
+   m_pars.Prompt("Response_functions");
+   ResponseFunctions::setEdispFlag(param<bool>("use_energy_dispersion"));
+   m_pars.Prompt("Source_model_file");
+   m_pars.Prompt("Source_model_output_file");
+   m_pars.Prompt("flux_style_model_file");
+   m_statistic = param<std::string>("Statistic");
+   m_pars.Prompt("optimizer");
+   m_pars.Prompt("fit_verbosity");
+   m_pars.Prompt("query_for_refit");
+
+   if (m_statistic == "BINNED") {
+      m_pars.Prompt("counts_map_file");
+      m_pars.Prompt("exposure_cube_file");
+   } else {
+      m_pars.Prompt("ROI_cuts_file");
+      m_pars.Prompt("Spacecraft_file");
+      m_pars.Prompt("event_file");
+      m_pars.Prompt("Exposure_map_file");
+   }
+   m_pars.Save();
+}
+
 void likelihood::createStatistic() {
-   std::string statistic = m_pars["Statistic"];
-   m_statistic = statistic;  // Wow, this is annoying.
-   if (statistic == "BINNED") {
+   if (m_statistic == "BINNED") {
       std::string expcube_file = m_pars["exposure_cube_file"];
       if (expcube_file == "none") {
          throw std::runtime_error("Please specify an exposure cube file.");
       }
       ExposureCube::readExposureCube(expcube_file);
-      std::string sourceMapsFile = m_pars["SourceMaps_file"];
-      if (sourceMapsFile == "none") {
-         sourceMapsFile = "";
-      }
-      m_logLike = new BinnedLikelihood(*m_dataMap, sourceMapsFile);
+      std::string countsMapFile = m_pars["counts_map_file"];
+      st_facilities::Util::file_ok(countsMapFile);
+      m_dataMap = new CountsMap(countsMapFile);
+      m_logLike = new BinnedLikelihood(*m_dataMap, countsMapFile);
       return;
-   } else if (statistic == "OPTEM") {
+   } else if (m_statistic == "OPTEM") {
       m_logLike = new OptEM();
-      m_useOptEM = true;
-   } else if (statistic == "UNBINNED") {
+   } else if (m_statistic == "UNBINNED") {
       m_logLike = new LogLike();
    }
    readEventData();
 }
 
 void likelihood::readEventData() {
-   long eventFileHdu = m_pars["event_file_hdu"];
    std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
    for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-      m_logLike->getEvents(*evIt, eventFileHdu);
+      m_logLike->getEvents(*evIt);
    }
 }
 
@@ -330,37 +356,37 @@ void likelihood::writeCountsMap() {
    }
 }
 
-void likelihood::createCountsMap() {
-// Create a counts map from the data using the ROI as to get the map
-// dimensions.
-   RoiCuts * roiCuts = RoiCuts::instance();
+// void likelihood::createCountsMap() {
+// // Create a counts map from the data using the ROI as to get the map
+// // dimensions.
+//    RoiCuts * roiCuts = RoiCuts::instance();
 
-   std::pair<double, double> elims = roiCuts->getEnergyCuts();
+//    std::pair<double, double> elims = roiCuts->getEnergyCuts();
 
-   const irfInterface::AcceptanceCone & roi = roiCuts->extractionRegion();
-   double roi_radius = roi.radius();
-   double roi_ra, roi_dec;
-   RoiCuts::getRaDec(roi_ra, roi_dec);
+//    const irfInterface::AcceptanceCone & roi = roiCuts->extractionRegion();
+//    double roi_radius = roi.radius();
+//    double roi_ra, roi_dec;
+//    RoiCuts::getRaDec(roi_ra, roi_dec);
 
-   double pixel_size(0.25);
-   unsigned long npts = static_cast<unsigned long>(2*roi_radius/pixel_size);
-   unsigned long nee(21);
+//    double pixel_size(0.25);
+//    unsigned long npts = static_cast<unsigned long>(2*roi_radius/pixel_size);
+//    unsigned long nee(21);
 
-// CountsMap and its base class, DataProduct, want *single* event and
-// scData files for extracting header keywords and gti info, so pass
-// just the first from each vector.
-// @todo sort out how one should handle these data when several FITS
-// files are specified.
-   m_dataMap = new CountsMap(m_eventFiles[0], m_helper->scFiles()[0], 
-                             roi_ra, roi_dec, "CAR", npts, npts, pixel_size, 
-                             0, false, "RA", "DEC", elims.first, 
-                             elims.second, nee);
-   for (unsigned int i = 0; i < m_eventFiles.size(); i++) {
-      const tip::Table * events 
-         = tip::IFileSvc::instance().readTable(m_eventFiles[i], "events");
-      m_dataMap->binInput(events->begin(), events->end());
-   }
-}
+// // CountsMap and its base class, DataProduct, want *single* event and
+// // scData files for extracting header keywords and gti info, so pass
+// // just the first from each vector.
+// // @todo sort out how one should handle these data when several FITS
+// // files are specified.
+//    m_dataMap = new CountsMap(m_eventFiles[0], m_helper->scFiles()[0], 
+//                              roi_ra, roi_dec, "CAR", npts, npts, pixel_size, 
+//                              0, false, "RA", "DEC", elims.first, 
+//                              elims.second, nee);
+//    for (unsigned int i = 0; i < m_eventFiles.size(); i++) {
+//       const tip::Table * events 
+//          = tip::IFileSvc::instance().readTable(m_eventFiles[i], "events");
+//       m_dataMap->binInput(events->begin(), events->end());
+//    }
+// }
 
 void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<std::string> srcNames;

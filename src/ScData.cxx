@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.27 2004/08/05 05:28:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.28 2004/08/25 15:27:32 jchiang Exp $
  */
 
 #include <cassert>
@@ -29,15 +29,13 @@ namespace Likelihood {
 // definitions of static data
 std::vector<ScData::ScNtuple> ScData::vec;
 std::string ScData::s_scFile = "";
-int ScData::s_scHdu = 0;
 ScData * ScData::s_instance = 0;
 double ScData::s_tstep;
 
-void ScData::readData(std::string file, int hdu, bool clear) {
+void ScData::readData(std::string file, bool clear) {
    facilities::Util::expandEnvVar(&file);
 
    s_scFile = file;
-   s_scHdu = hdu;
 
    tip::Table * scData = tip::IFileSvc::instance().editTable(file, "ext1");
 
