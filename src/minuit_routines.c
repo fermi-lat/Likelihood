@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "f2c.h"
+#include "f2c/f2c.h"
 
 /* Common Block Declarations */
 
@@ -191,9 +191,12 @@ static doublereal c_b1209 = .05;
 static integer c__10 = 10;
 
 
-/* $Id: minuit.F,v 1.1.1.1 2000/06/08 11:19:18 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: minuit.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:18  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -251,9 +254,12 @@ COND CALL.\002/)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -267,9 +273,12 @@ COND CALL.\002/)";
 
 /* ************ DOUBLE PRECISION VERSION ************* */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -489,9 +498,12 @@ L_mintio:
     }
 
 
-/* $Id: mnamin.F,v 1.1.1.1 2000/06/08 11:19:18 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnamin.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:18  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -514,9 +526,12 @@ L_mintio:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -534,9 +549,12 @@ L_mintio:
 /* C        parameter values if Print Flag value is high enough. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -570,9 +588,12 @@ L_mintio:
 } /* mnamin_ */
 
 
-/* $Id: mnbins.F,v 1.1.1.1 2000/06/08 11:19:18 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnbins.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:18  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -600,9 +621,12 @@ L_mintio:
     static doublereal sigfig, sigrnd;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -709,9 +733,12 @@ L240:
 } /* mnbins_ */
 
 
-/* $Id: mncalf.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mncalf.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -733,9 +760,12 @@ L240:
     extern /* Subroutine */ int mninex_(doublereal *);
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -753,9 +783,12 @@ L240:
 /* C        minima.    Calculates  ycalf = (f-fmin)/(x-xmin)*v*(x-xmin) */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -808,9 +841,12 @@ L240:
 } /* mncalf_ */
 
 
-/* $Id: mncler.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mncler.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -831,9 +867,12 @@ L240:
     extern /* Subroutine */ int mnrset_(integer *);
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -849,9 +888,12 @@ L240:
 /* C        Called from MINUIT and by option from MNEXCM */
 /* C        Resets the parameter list to UNDEFINED */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -892,9 +934,12 @@ L240:
 } /* mncler_ */
 
 
-/* $Id: mncntr.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mncntr.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -956,9 +1001,12 @@ IGNORED.\002/)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -974,9 +1022,12 @@ IGNORED.\002/)";
 /* C       to print function contours in two variables, on line printer */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -1244,9 +1295,12 @@ L1350:
 } /* mncntr_ */
 
 
-/* $Id: mncomd.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mncomd.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -1288,9 +1342,12 @@ L1350:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -1322,9 +1379,12 @@ L1350:
 /* C             12: RETURN command */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -1425,9 +1485,12 @@ L900:
 } /* mncomd_ */
 
 
-/* $Id: mncont.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mncont.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -1492,9 +1555,12 @@ L900:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -1518,9 +1584,12 @@ L900:
 /* C     n>3  if only n points can be found (n < NPTU) */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -1930,9 +1999,12 @@ L2000:
 } /* mncont_ */
 
 
-/* $Id: mncrck.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mncrck.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -1979,9 +2051,12 @@ AND HAS INPUT\002,i5,\002 NUMERIC FIELDS, BUT MINUIT CAN ACCEPT ONLY\002,i3)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -2189,9 +2264,12 @@ L900:
 } /* mncrck_ */
 
 
-/* $Id: mncros.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mncros.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -2262,9 +2340,12 @@ L900:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -2285,9 +2366,12 @@ L900:
 /* C        (U(KE1),U(KE2)) = (XMID,YMID) + AOPT*(XDIR,YDIR) */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -2800,9 +2884,12 @@ L1000:
 } /* mncros_ */
 
 
-/* $Id: mncuve.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mncuve.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -2833,9 +2920,12 @@ L1000:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -2853,9 +2943,12 @@ L1000:
 /* C        or at least something good enough for MINOS and MNCONT */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -2924,9 +3017,12 @@ L1000:
 } /* mncuve_ */
 
 
-/* $Id: mnderi.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnderi.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -2992,9 +3088,12 @@ T.  MNDERI'/        ' PAR    DERIV     STEP      MINSTEP   OPTSTEP ',       \
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3013,9 +3112,12 @@ T.  MNDERI'/        ' PAR    DERIV     STEP      MINSTEP   OPTSTEP ',       \
 /* C        according to whether ISW(3) is zero or one. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -3206,9 +3308,12 @@ L150:
 } /* mnderi_ */
 
 
-/* $Id: mndxdi.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mndxdi.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3229,9 +3334,12 @@ L150:
     static integer i__;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3248,9 +3356,12 @@ L150:
 /* C        internal parameter values.     this factor is one for */
 /* C        parameters which are not limited.     called from MNEMAT. */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -3276,9 +3387,12 @@ L150:
 } /* mndxdi_ */
 
 
-/* $Id: mneig.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mneig.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3304,9 +3418,12 @@ L150:
     static doublereal hh, gl, pr, pt;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3606,9 +3723,12 @@ L240:
 } /* mneig_ */
 
 
-/* $Id: mnemat.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnemat.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3640,9 +3760,12 @@ L240:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3658,9 +3781,12 @@ L240:
 /* C        Calculates the external error matrix from the internal */
 /* C        to be called by user, who must dimension EMAT at (NDIM,NDIM) */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -3767,9 +3893,12 @@ ATED.", (ftnlen)54);
 } /* mnemat_ */
 
 
-/* $Id: mnerrs.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnerrs.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3794,9 +3923,12 @@ ATED.", (ftnlen)54);
 	    ;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3818,9 +3950,12 @@ ATED.", (ftnlen)54);
 /* C                 (Errors not calculated are set = 0.) */
 /* C       GCC is global correlation coefficient from error matrix */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -3883,9 +4018,12 @@ L990:
 } /* mnerrs_ */
 
 
-/* $Id: mneval.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mneval.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3900,9 +4038,12 @@ L990:
     extern /* Subroutine */ int mninex_(doublereal *), mnmigr_(S_fp, U_fp);
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -3922,9 +4063,12 @@ L990:
 /* C      to be used, namely     U(KE1CR) = XMIDCR + ANEXT*XDIRCR */
 /* C      and (if KE2CR .NE. 0)  U(KE2CR) = YMIDCR + ANEXT*YDIRCR */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -3970,9 +4114,12 @@ L990:
 } /* mneval_ */
 
 
-/* $Id: mnexcm.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnexcm.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -4088,9 +4235,12 @@ GIVES UP'/)", 0 };
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -4108,9 +4258,12 @@ GIVES UP'/)", 0 };
 /* C        MNEXCM, or by setting up a call to a subroutine */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -4758,9 +4911,12 @@ L5000:
 } /* mnexcm_ */
 
 
-/* $Id: mnexin.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnexin.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -4780,9 +4936,12 @@ L5000:
 	    ;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -4799,9 +4958,12 @@ L5000:
 /* C        values in the dense array PINT. Subroutine MNPINT is used. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -4833,9 +4995,12 @@ L5000:
 } /* mnexin_ */
 
 
-/* $Id: mnfixp.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnfixp.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -4863,9 +5028,12 @@ L5000:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -4882,9 +5050,12 @@ L5000:
 /* C        list, and arranges the rest of the list to fill the hole. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -4993,9 +5164,12 @@ L300:
 } /* mnfixp_ */
 
 
-/* $Id: mnfree.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnfree.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -5039,9 +5213,12 @@ ESTORED TO VARIABLE.\002)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -5059,9 +5236,12 @@ ESTORED TO VARIABLE.\002)";
 /* C        appropriate place. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -5211,9 +5391,12 @@ L300:
 } /* mnfree_ */
 
 
-/* $Id: mngrad.F,v 1.1.1.1 2000/06/08 11:19:19 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mngrad.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:19  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -5262,9 +5445,12 @@ LATIONS BY FCN\002/\002 TO FORCE ACCEPTANCE, ENTER \"SET GRAD    1\"\002/)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -5284,9 +5470,12 @@ LATIONS BY FCN\002/\002 TO FORCE ACCEPTANCE, ENTER \"SET GRAD    1\"\002/)";
 /* C       by comparing it with a finite difference approximation. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -5381,9 +5570,12 @@ L2000:
 } /* mngrad_ */
 
 
-/* $Id: mnhelp.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnhelp.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -6119,9 +6311,12 @@ L99:
 } /* mnhelp_ */
 
 
-/* $Id: mnhes1.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnhes1.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -6171,9 +6366,12 @@ L99:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -6190,9 +6388,12 @@ L99:
 /* C      Calculate first derivatives (GRD) and uncertainties (DGRD) */
 /* C         and appropriate step sizes GSTEP */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -6318,9 +6519,12 @@ L60:
 } /* mnhes1_ */
 
 
-/* $Id: mnhess.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnhess.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -6388,9 +6592,12 @@ L60:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -6411,9 +6618,12 @@ L60:
 /* C        step size in order to obtain a known accuracy. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -6763,9 +6973,12 @@ L900:
 } /* mnhess_ */
 
 
-/* $Id: mnimpr.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnimpr.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -6830,9 +7043,12 @@ AL MINIMUM\002)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -6852,9 +7068,12 @@ AL MINIMUM\002)";
 /* C        ref. -- Goldstein and Price, Math.Comp. 25, 569 (1971) */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -7157,9 +7376,12 @@ L380:
 } /* mnimpr_ */
 
 
-/* $Id: mninex.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mninex.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7179,9 +7401,12 @@ L380:
     static integer i__, j;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7198,9 +7423,12 @@ L380:
 /* C        parameters (U).   The minimizing routines which work in */
 /* C        internal coordinates call this routine before calling FCN. */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -7236,9 +7464,12 @@ L380:
 } /* mninex_ */
 
 
-/* $Id: mninit.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mninit.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7291,9 +7522,12 @@ L380:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7311,9 +7545,12 @@ L380:
 /* C                (including the logical I/O unit nos.), */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -7434,9 +7671,12 @@ L35:
 } /* mninit_ */
 
 
-/* $Id: mninpu.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mninpu.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7456,9 +7696,12 @@ L35:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7477,9 +7720,12 @@ L35:
 /* C      open files and rewinding, all that is the responsibility */
 /* C      of the user and cannot be fixed interactively. */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -7534,9 +7780,12 @@ L800:
 } /* mninpu_ */
 
 
-/* $Id: mnintr.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnintr.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7558,9 +7807,12 @@ L800:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7577,9 +7829,12 @@ L800:
 /* C       easily from Fortran-callable to interactive mode. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -7606,9 +7861,12 @@ L800:
 } /* mnintr_ */
 
 
-/* $Id: mnlims.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnlims.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7669,9 +7927,12 @@ g15.5)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7688,9 +7949,12 @@ g15.5)";
 /* C       Interprets the SET LIM command, to reset the parameter limits */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -7877,9 +8141,12 @@ L900:
 } /* mnlims_ */
 
 
-/* $Id: mnline.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnline.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7933,9 +8200,12 @@ L900:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -7955,9 +8225,12 @@ L900:
 /* C        SLOPE (if non-zero) is df/dx along STEP at START */
 /* C        TOLER is initial tolerance of minimum in direction STEP */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -8274,9 +8547,12 @@ L100:
 } /* mnline_ */
 
 
-/* $Id: mnmatu.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnmatu.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -8319,9 +8595,12 @@ L100:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -8339,9 +8618,12 @@ L100:
 /* C        calculates and prints the individual correlation coefficients */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -8463,9 +8745,12 @@ L500:
 } /* mnmatu_ */
 
 
-/* $Id: mnmigr.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnmigr.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -8546,9 +8831,12 @@ i2,\002.  CONVERGENCE WHEN EDM .LT.\002,e9.2)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -8566,9 +8854,12 @@ i2,\002.  CONVERGENCE WHEN EDM .LT.\002,e9.2)";
 /* C        ref. -- Fletcher, Comp.J. 13,317 (1970)   "switching method" */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -9067,9 +9358,12 @@ L400:
 } /* mnmigr_ */
 
 
-/* $Id: mnmnos.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnmnos.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -9108,9 +9402,12 @@ V\002/57x,\002VVVVVVV\002/58x,\002VVVVV\002/59x,\002VVV\002/60x,\002V\002//)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -9127,9 +9424,12 @@ V\002/57x,\002VVVVVVV\002/58x,\002VVVVV\002/59x,\002VVV\002/60x,\002V\002//)";
 /* C        which it is requested on the MINOS command by calling */
 /* C        MNMNOT for each parameter requested. */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -9244,9 +9544,12 @@ L900:
 } /* mnmnos_ */
 
 
-/* $Id: mnmnot.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnmnot.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -9317,9 +9620,12 @@ PARAMETER\002,i4/)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -9338,9 +9644,12 @@ PARAMETER\002,i4/)";
 /* C        until it crosses the value FMIN+UP. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -9606,9 +9915,12 @@ L700:
 } /* mnmnot_ */
 
 
-/* $Id: mnparm.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnparm.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -9696,9 +10008,12 @@ ARAMETERS.\002/\002 THIS VERSION OF MINUIT DIMENSIONED FOR\002,i4//)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -9723,9 +10038,12 @@ ARAMETERS.\002/\002 THIS VERSION OF MINUIT DIMENSIONED FOR\002,i4//)";
 /* C                  >0 if MNPARM unable to implement definition */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -10009,9 +10327,12 @@ L800:
 } /* mnparm_ */
 
 
-/* $Id: mnpars.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnpars.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10058,9 +10379,12 @@ L800:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10083,9 +10407,12 @@ L800:
 /*        ICONDN = 2    end of parameter definitions */
 
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -10253,9 +10580,12 @@ L210:
 } /* mnpars_ */
 
 
-/* $Id: mnpfit.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnpfit.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10276,9 +10606,12 @@ L210:
     static doublereal s, t, y, s2, x2, x3, x4, y2, cz[3], xm, xy, x2y;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10378,9 +10711,12 @@ L10:
 } /* mnpfit_ */
 
 
-/* $Id: mnpint.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnpint.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10417,9 +10753,12 @@ L10:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10436,9 +10775,12 @@ L10:
 /* C        to the external value PEXTI for parameter I. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -10500,9 +10842,12 @@ L10:
 } /* mnpint_ */
 
 
-/* $Id: mnplot.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnplot.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10555,9 +10900,12 @@ L10:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10802,9 +11150,12 @@ L400:
 } /* mnplot_ */
 
 
-/* $Id: mnpout.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnpout.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10823,9 +11174,12 @@ L400:
     static integer nvl, iint, iext;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10853,9 +11207,12 @@ L400:
 /* C     Except for IUINT, this is exactly the inverse of MNPARM */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -10921,9 +11278,12 @@ L100:
 } /* mnpout_ */
 
 
-/* $Id: mnprin.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnprin.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -10997,9 +11357,12 @@ ER IS AT LIMIT.\002)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -11025,9 +11388,12 @@ ER IS AT LIMIT.\002)";
 /*    when INKODE=5, MNPRIN chooses IKODE=1,2, or 3, according to ISW(2) */
 
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -11341,9 +11707,12 @@ L700:
 } /* mnprin_ */
 
 
-/* $Id: mnpsdf.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnpsdf.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -11412,9 +11781,12 @@ L700:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -11430,9 +11802,12 @@ L700:
 /* C        calculates the eigenvalues of v to see if positive-def. */
 /* C        if not, adds constant along diagonal to make positive. */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -11563,9 +11938,12 @@ L217:
 } /* mnpsdf_ */
 
 
-/* $Id: mnrazz.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnrazz.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -11600,9 +11978,12 @@ L217:
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -11620,9 +12001,12 @@ L217:
 /* C        estimated distance to minimum. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -11702,9 +12086,12 @@ L45:
 } /* mnrazz_ */
 
 
-/* $Id: mnread.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnread.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -11772,9 +12159,12 @@ a/\002 **********\002)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -11810,9 +12200,12 @@ a/\002 **********\002)";
 /* C       a title, but this was requested by a command, not by MINUIT. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -12095,9 +12488,12 @@ L900:
 } /* mnread_ */
 
 
-/* $Id: mnrn15.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnrn15.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12114,9 +12510,12 @@ L900:
     static integer k;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12153,9 +12552,12 @@ L100:
 } /* mnrn15_ */
 
 
-/* $Id: mnrset.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnrset.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12175,9 +12577,12 @@ L100:
     static integer i__, iext;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12196,9 +12601,12 @@ L100:
 /* C        Resets function value and errors to UNDEFINED */
 /* C    If IOPT=0, sets only MINOS errors to undefined */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -12244,9 +12652,12 @@ L100:
 } /* mnrset_ */
 
 
-/* $Id: mnsave.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnsave.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12312,9 +12723,12 @@ ARIANCE MATRIX.\002/)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12332,9 +12746,12 @@ ARIANCE MATRIX.\002/)";
 /* C       The covariance matrix is also output if it exists. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -12570,9 +12987,12 @@ L900:
 } /* mnsave_ */
 
 
-/* $Id: mnscan.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnscan.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12638,9 +13058,12 @@ ETER \002,i3/)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12658,9 +13081,12 @@ ETER \002,i3/)";
 /* C        It may be called to scan one parameter or all parameters. */
 /* C        retains the best function and parameter values found. */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -12808,9 +13234,12 @@ L900:
 } /* mnscan_ */
 
 
-/* $Id: mnseek.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnseek.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12862,9 +13291,12 @@ UL TRIALS.\002)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -12887,9 +13319,12 @@ UL TRIALS.\002)";
 /* C      multiples of the nominal steps (DIRIN). */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -13035,9 +13470,12 @@ L600:
 } /* mnseek_ */
 
 
-/* $Id: mnset.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnset.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -13180,9 +13618,12 @@ ORED')", 0 };
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -13199,9 +13640,12 @@ ORED')", 0 };
 /* C        Interprets the commands that start with SET and SHOW */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -13824,9 +14268,12 @@ L4000:
 } /* mnset_ */
 
 
-/* $Id: mnseti.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnseti.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -13840,9 +14287,12 @@ L4000:
     /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -13858,9 +14308,12 @@ L4000:
 /* C       Called by user to set or change title of current task. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -13881,9 +14334,12 @@ L4000:
 } /* mnseti_ */
 
 
-/* $Id: mnsimp.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnsimp.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -13958,9 +14414,12 @@ E WHEN EDM .LT.\002,e10.2)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -13977,9 +14436,12 @@ E WHEN EDM .LT.\002,e10.2)";
 /* C        and Mead (ref. -- Comp. J. 7,308 (1965)). */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -14290,9 +14752,12 @@ L90:
 } /* mnsimp_ */
 
 
-/* $Id: mnstat.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnstat.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14304,9 +14769,12 @@ L90:
 	errdef, integer *npari, integer *nparx, integer *istat)
 {
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14334,9 +14802,12 @@ L90:
 /* C                    3= full accurate covariance matrix */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -14370,9 +14841,12 @@ L90:
 } /* mnstat_ */
 
 
-/* $Id: mnstin.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnstin.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14438,9 +14912,12 @@ M UNIT NO.\002,i3/\002 FILENAME: \002,a)";
 
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14468,9 +14945,12 @@ M UNIT NO.\002,i3/\002 FILENAME: \002,a)";
 /* C             4: unable to process request */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -14813,9 +15293,12 @@ L900:
 } /* mnstin_ */
 
 
-/* $Id: mntiny.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mntiny.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14826,9 +15309,12 @@ L900:
 /* Subroutine */ int mntiny_(doublereal *epsp1, doublereal *epsbak)
 {
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14850,9 +15336,12 @@ L900:
 } /* mntiny_ */
 
 
-/* $Id: mnunpt.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnunpt.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14898,9 +15387,12 @@ L150:
 } /* mnunpt_ */
 
 
-/* $Id: mnvers.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnvers.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14914,9 +15406,12 @@ L150:
     /* Subroutine */ int s_copy(char *, char *, ftnlen, ftnlen);
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14932,9 +15427,12 @@ L150:
 /* C         Returns the Minuit version in CV, char*6 */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -14955,9 +15453,12 @@ L150:
 } /* mnvers_ */
 
 
-/* $Id: mnvert.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnvert.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -14995,9 +15496,12 @@ L150:
     static integer km1, kp1;
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -15015,9 +15519,12 @@ L150:
 /* C        but no pivoting is done since matrix is positive-definite. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -15139,9 +15646,12 @@ L100:
 } /* mnvert_ */
 
 
-/* $Id: mnwarn.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnwarn.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -15185,9 +15695,12 @@ L100:
 /*         If called with CORG=CMES='SHO', it prints the messages in */
 /*             the circular buffer, FIFO, and empties the buffer. */
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -15201,9 +15714,12 @@ L100:
 
 /* ************ DOUBLE PRECISION VERSION ************* */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -15332,9 +15848,12 @@ L200:
 } /* mnwarn_ */
 
 
-/* $Id: mnwerr.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: mnwerr.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -15360,9 +15879,12 @@ L200:
 	    integer *, integer *);
 
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -15380,9 +15902,12 @@ L200:
 /* C      whenever a new covariance matrix is available. */
 /* C */
 
-/* $Id: d506cm.inc,v 1.2 2001/01/02 08:35:54 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506cm.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.2  2001/01/02 08:35:54  andras */
 /* *** empty log message *** */
 
@@ -15459,9 +15984,12 @@ L200:
 } /* mnwerr_ */
 
 
-/* $Id: stand.F,v 1.1.1.1 2000/06/08 11:19:20 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: stand.F,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:20  andras */
 /* import of MINUIT from CERNlib 2000 */
 
@@ -15472,9 +16000,12 @@ L200:
 /* Subroutine */ int stand_()
 {
 
-/* $Id: d506dp.inc,v 1.1.1.1 2000/06/08 11:19:21 andras Exp $ */
+/* $Id: minuit_routines.c,v 1.1 2003/05/20 21:07:38 pln Exp $ */
 
-/* $Log: d506dp.inc,v $ */
+/* $Log: minuit_routines.c,v $
+/* Revision 1.1  2003/05/20 21:07:38  pln
+/* Minuit optimizer from CERN
+/* */
 /* Revision 1.1.1.1  2000/06/08 11:19:21  andras */
 /* import of MINUIT from CERNlib 2000 */
 
