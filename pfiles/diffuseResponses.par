@@ -3,7 +3,7 @@ evtable,s,hl,"EVENTS",,,"Event data extension"
 scfile,fr,a,"diffuse_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,hl,"Ext1",,,"Spacecraft data extension"
 source_model_file,fr,a,"diffuse_model.xml",,,"Source model file"
-rspfunc,s,a,"DC1",DC1|DC1F|DC1B|G25|G25F|G25B,,"Response functions to use"
+rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions to use"
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?
 
 chatter,i,h,2,0,4,Output verbosity
