@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb 28 13:51:31 PST 2003
+Likelihood/src
+
+Modified Files:
+	Aeff.cxx Psf.cxx Response.cxx SourceModel.cxx Statistic.cxx 
+Added Files:
+	RoiCuts.cxx ScData.cxx logLike_gauss.cxx logLike_gauss.h 
+	logLike_ptsrc.cxx logLike_ptsrc.h 
+Log Message:
+add RoiCuts, ScData classes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb 28 13:51:30 PST 2003
 Likelihood/Likelihood
 
