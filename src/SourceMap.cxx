@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.17 2004/11/05 00:09:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.18 2004/11/06 00:00:34 jchiang Exp $
  */
 
 #include <algorithm>
@@ -26,7 +26,6 @@
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/ResponseFunctions.h"
-#include "Likelihood/RoiCuts.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/TrapQuad.h"
@@ -59,7 +58,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
    : m_name(src->getName()), m_dataMap(dataMap), m_deleteDataMap(false) {
    s_refCount++;
    if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
-      prepareAngleArrays(100, 50);
+      prepareAngleArrays();
    }
 
    std::vector<Pixel> pixels;
@@ -135,7 +134,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
       }
    }
    if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
-      prepareAngleArrays(100, 50);
+      prepareAngleArrays();
    }
 }
 
@@ -193,12 +192,13 @@ double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
    std::vector<double> energies;
    m_dataMap->getAxisVector(2, energies);
    if (s_meanPsf == 0) {
-      double ra, dec;
-      RoiCuts::instance()->getRaDec(ra, dec);
+      double ra = m_dataMap->mapCenter().ra();
+      double dec = m_dataMap->mapCenter().dec();
       s_meanPsf = new MeanPsf(ra, dec, energies);
    }
    if (s_binnedExposure == 0) {
       s_binnedExposure = new BinnedExposure(energies);
+      s_binnedExposure->writeOutput("binned_exposure.fits");
    }
    MeanPsf & psf = *s_meanPsf;
    BinnedExposure & exposure = *s_binnedExposure;
@@ -240,9 +240,7 @@ void SourceMap::computeSrcDirs(const Pixel & pixel) {
 }
 
 void SourceMap::prepareAngleArrays(int nmu, int nphi) {
-   double radius = RoiCuts::instance()->extractionRegion().radius()
-      *sqrt(2.) + 10.;
-
+   double radius = 30.;
    double mumin = cos(radius*M_PI/180);
 
 // Sample more densely near theta = 0:
@@ -259,6 +257,7 @@ void SourceMap::prepareAngleArrays(int nmu, int nphi) {
       s_theta.at(i) = acos(s_mu.at(i))*180./M_PI;
    }
 
+   s_phi.clear();
    double phistep = 2.*M_PI/(nphi - 1.);
    for (int i = 0; i < nphi; i++) {
       s_phi.push_back(phistep*i);

@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.1 2004/10/05 23:52:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.2 2004/10/06 05:31:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -96,7 +96,7 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
    if (ra > 360.) ra = fmod(ra, 360.);
    unsigned int i = findIndex(m_ras.begin(), m_ras.end(), ra);
    unsigned int j = findIndex(m_decs.begin(), m_decs.end(), dec);
-   unsigned int indx = k*m_ras.size()*m_decs.size() + j*m_ras.size() + i;
+   unsigned int indx = (k*m_decs.size() + j)*m_ras.size() + i;
    return m_exposureMap.at(indx);
 }
 
@@ -152,11 +152,11 @@ void BinnedExposure::linearArray(double xmin, double xmax, unsigned int npts,
 double BinnedExposure::Aeff::s_phi(0);
 
 double BinnedExposure::Aeff::operator()(double cosTheta) const {
-   double inclination = acos(cosTheta);
+   double inclination = acos(cosTheta)*180./M_PI;
    std::map<unsigned int, irfInterface::Irfs *>::iterator respIt 
       = ResponseFunctions::instance()->begin();
    for ( ; respIt != ResponseFunctions::instance()->end(); ++respIt) {
-      if (respIt->second->irfID() == m_evtType) {  
+      if (respIt->second->irfID() == m_evtType) {
          irfInterface::IAeff * aeff = respIt->second->aeff();
          double aeff_val = aeff->value(m_energy, inclination, s_phi);
          return aeff_val;
