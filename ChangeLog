@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec  6 12:20:26 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	diffuseResponses.par 
+Log Message:
+modify diffuseResponses to use DSS keywords
+    *
+------------------------------------------------------------
 User: jchiang  Sun Dec  5 14:25:49 PST 2004
 Likelihood/src/test
 
