@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 28 11:42:41 PDT 2004
+Likelihood/src/exposureMap
+
+Added Files:
+	exposureMap.cxx 
+Log Message:
+add exposureMap (U4?) application
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 28 11:42:40 PDT 2004
 Likelihood/cmt
 
