@@ -1,11 +1,13 @@
-/** @file Function.cxx
+/** 
+ * @file Function.cxx
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.15 2003/04/25 21:33:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.16 2003/05/20 23:50:15 jchiang Exp $
  */
 
 #include <iostream>
+#include <sstream>
 
 #include "Likelihood/Function.h"
 #include "Likelihood/SumFunction.h"
@@ -13,124 +15,87 @@
 
 namespace Likelihood {
 
-#if 0 // disable these until assignment operator is provided
-// use of these operators will no doubt leak memory....
-SumFunction &Function::operator+(Function &a) {
-   SumFunction *sumFunc = new SumFunction(*this, a);
-   return *sumFunc;
+void Function::setParam(const Parameter &param) throw(ParameterNotFound) {
+   std::vector<Parameter>::iterator it = m_parameter.begin();
+   for (; it != m_parameter.end(); it++) {
+      if (it->getName() == param.getName()) {
+         (*it) = param;
+         return;
+      } 
+   }
+   throw(ParameterNotFound(param.getName(), getMyName(), 
+                           "setParam(Parameter&)"));
 }
 
-ProductFunction &Function::operator*(Function &a) {
-   ProductFunction *productFunc = new ProductFunction(*this, a);
-   return *productFunc;
-}
-#endif
-   
-void Function::setParameter(const std::string &paramName, 
-			    double paramValue,
-                            int isFree) {
-// check if parameter is present...
-   for (unsigned int i=0; i < m_parameter.size(); i++) {
-      if (paramName == m_parameter[i].getName()) {
-         m_parameter[i].setValue(paramValue);
-// and update the free state if asked (yes, a bit kludgy...)
-         if (isFree > -1) m_parameter[i].setFree(isFree);
-         return;
+// Return the value for the named Parameter.
+double Function::getParamValue(const std::string &paramName) const
+   throw(ParameterNotFound) {
+   std::vector<Parameter>::const_iterator it = m_parameter.begin();
+   for (; it != m_parameter.end(); it++) {
+      if (paramName == it->getName()) {
+         return it->getValue();
       }
    }
-   std::cerr << "Trying to set parameter " << paramName 
-             << " equal to " << paramValue << ", \n"
-             << "   but it isn't present."
-             << std::endl;
+   throw(ParameterNotFound(paramName, getMyName(), "getParamValue"));
 }
 
-void Function::addParam(const std::string &paramName,
-			double paramValue, 
-			bool isFree) {
-
-// check if paramName is already present; if so, complain....
-   for (unsigned int i=0; i < m_parameter.size(); i++) {
-      if (paramName == m_parameter[i].getName()) {
-         std::cerr << "This parameter name already exists: "
-                   << paramName << ";\n"
-                   << "   you can't add another one." << std::endl;
-         return;
+// Return named Parameter
+Parameter *Function::getParam(const std::string &paramName)
+   throw(ParameterNotFound) {
+   std::vector<Parameter>::const_iterator it = m_parameter.begin();
+   for (; it != m_parameter.end(); it++) {
+      if (paramName == it->getName()) {
+         return &(*it);
       }
    }
-// if there's room, add this guy onto the vector
-   if (m_parameter.size() < m_maxNumParams) {
-      Parameter my_param(paramName, paramValue, isFree);
-      m_parameter.push_back(my_param);
-   } else {
-      std::cerr << "Can't add parameter " << paramName << ";\n"
-                << "   The parameter list is full at " 
-                << m_maxNumParams << "." << std::endl;
-   }
-}
-
-//! search for parameter name, return value or zero if not found
-double Function::getParamValue(const std::string &paramName) const {
-
-   for (unsigned int i = 0; i < m_parameter.size(); i++) {
-      if (paramName == m_parameter[i].getName())
-         return m_parameter[i].getValue();
-   }
-   std::cerr << "Function::getParamValue: "
-             << "Parameter " << paramName << " is not found."
-             << std::endl;
-   return 0.;
-}
-
-//! search for parameter name, return Parameter or NULL pointer 
-//! if not found
-Parameter* Function::getParam(const std::string &paramName) {
-   
-   for (unsigned int i = 0; i < m_parameter.size(); i++) {
-      if (paramName == m_parameter[i].getName())
-         return &(m_parameter[i]);
-   }
-   std::cerr << "Function::getParam: "
-             << "Parameter " << paramName << " is not found."
-             << std::endl;
-   return 0;
+   throw(ParameterNotFound(paramName, getMyName(), "getParam"));
 }
 
 void Function::setParamBounds(const std::string &paramName, double lower,
-                              double upper) {
-   for (unsigned int i = 0; i < m_parameter.size(); i++) {
-      if (paramName == m_parameter[i].getName()) { 
-         m_parameter[i].setBounds(lower, upper);
-//          std::cerr << "setting bounds for "
-//                    << m_parameter[i].getName() << std::endl;
+                              double upper) throw(ParameterNotFound) {
+   std::vector<Parameter>::iterator it = m_parameter.begin();
+   for (; it != m_parameter.end(); it++) {
+      if (paramName == it->getName()) {
+         it->setBounds(lower, upper);
+         return;
       }
    }
+   throw(ParameterNotFound(paramName, getMyName(), "setParamBounds"));
 }
 
-void Function::setParamScale(const std::string &paramName, double scale) {
-   for (unsigned int i = 0; i < m_parameter.size(); i++) {
-      if (paramName == m_parameter[i].getName()) {
-         m_parameter[i].setScale(scale);
-//          std::cerr << "setting the scale for "
-//                    << m_parameter[i].getName() << std::endl;
+void Function::setParamScale(const std::string &paramName, double scale) 
+   throw(ParameterNotFound) {
+   std::vector<Parameter>::iterator it = m_parameter.begin();
+   for (; it != m_parameter.end(); it++) {
+      if (paramName == it->getName()) {
+         it->setScale(scale);
+         return;
       }
    }
+   throw(ParameterNotFound(paramName, getMyName(), "setParamScale"));
 }
 
 void Function::setParamTrueValue(const std::string &paramName, 
-                                 double paramValue) {
-   for (unsigned int i = 0; i < m_parameter.size(); i++) {
-      if (paramName == m_parameter[i].getName()) {
-         m_parameter[i].setTrueValue(paramValue);
+                                 double paramValue) 
+   throw(ParameterNotFound) {
+   std::vector<Parameter>::iterator it = m_parameter.begin();
+   for (; it != m_parameter.end(); it++) {
+      if (paramName == it->getName()) {
+         it->setTrueValue(paramValue);
+         return;
       }
    }
+   throw(ParameterNotFound(paramName, getMyName(), "setParamTrueValue"));
 }
 
-void Function::setParamValues(const std::vector<double> &paramVec) {
+void Function::setParamValues(const std::vector<double> &paramVec) 
+   throw(LikelihoodException) {
    if (paramVec.size() != m_parameter.size()) {
-      std::cerr
-         << "Function::setParamValues: \n"
-         << "The input vector size does not match the number of parameters."
-         << std::endl;
+      ostringstream errorMessage;
+      errorMessage << "Function::setParamValues: "
+                   << "The input vector size does not match "
+                   << "the number of parameters.\n";
+      throw(LikelihoodException(errorMessage.str()));
    } else {
       std::vector<double>::const_iterator it = paramVec.begin();
       setParamValues_(it);
@@ -144,13 +109,14 @@ std::vector<double>::const_iterator Function::setParamValues_(
    return it;
 }
 
-void Function::setFreeParamValues(
-   const std::vector<double> &paramVec) {
+void Function::setFreeParamValues(const std::vector<double> &paramVec) 
+   throw(LikelihoodException) {
    if (paramVec.size() != getNumFreeParams()) {
-      std::cerr
-         << "The input vector size does not match"
-         << " the number of free parameters."
-         << std::endl;
+      ostringstream errorMessage;
+      errorMessage << "Function::setFreeParamValues: "
+                   << "The input vector size does not match "
+                   << "the number of free parameters.\n";
+      throw(LikelihoodException(errorMessage.str()));
    } else {
       std::vector<double>::const_iterator it = paramVec.begin();
       setFreeParamValues_(it);
@@ -191,10 +157,89 @@ void Function::setFreeParams(std::vector<Parameter> &params)
          }
       }
    } else {
-      throw LikelihoodException
-         ("Function::setFreeParams: incompatible number of parameters.");
+      throw(LikelihoodException(
+               "Function::setFreeParams: incompatible number of parameters."));
    }
 }      
+
+#if 0 // disable these until assignment operator is provided
+// use of these operators will no doubt leak memory....
+SumFunction &Function::operator+(Function &a) {
+   SumFunction *sumFunc = new SumFunction(*this, a);
+   return *sumFunc;
+}
+
+ProductFunction &Function::operator*(Function &a) {
+   ProductFunction *productFunc = new ProductFunction(*this, a);
+   return *productFunc;
+}
+#endif
+   
+void Function::setParameter(const std::string &paramName, 
+			    double paramValue,
+                            int isFree) throw(ParameterNotFound) {
+// check if parameter is present...
+   for (unsigned int i=0; i < m_parameter.size(); i++) {
+      if (paramName == m_parameter[i].getName()) {
+         m_parameter[i].setValue(paramValue);
+// and update the free state if asked (yes, a bit kludgy...)
+         if (isFree > -1) m_parameter[i].setFree(isFree);
+         return;
+      }
+   }
+   throw(ParameterNotFound(paramName, getMyName(), "setParameter"));
+}
+
+void Function::addParam(const std::string &paramName,
+			double paramValue, 
+			bool isFree) throw(LikelihoodException) {
+
+// Check if paramName is already present
+   for (unsigned int i=0; i < m_parameter.size(); i++) {
+      if (paramName == m_parameter[i].getName()) {
+         ostringstream errorMessage;
+         errorMessage << "Function::addParam: "
+                      << "This parameter name already exists: "
+                      << paramName << "; "
+                      << "you can't add another one.\n";
+         throw(LikelihoodException(errorMessage.str()));
+      }
+   }
+// if there's room, add this guy onto the vector
+   if (m_parameter.size() < m_maxNumParams) {
+      Parameter my_param(paramName, paramValue, isFree);
+      m_parameter.push_back(my_param);
+   } else {
+      ostringstream errorMessage;
+      errorMessage << "Can't add parameter " << paramName << "; "
+                   << "the parameter list is full at " 
+                   << m_maxNumParams << ".\n";
+      throw(LikelihoodException(errorMessage.str()));
+   }
+}
+
+void Function::addParam(const Parameter &param) throw(LikelihoodException) {
+   std::vector<Parameter>::const_iterator it = m_parameter.begin();
+   for (; it != m_parameter.end(); it++) {
+      if (param.getName() == it->getName()) {
+         ostringstream errorMessage;
+         errorMessage << "Function::addParam: "
+                      << "This parameter name already exists: "
+                      << param.getName() << "; "
+                      << "you can't add another one.\n";
+         throw(LikelihoodException(errorMessage.str()));
+      } 
+   }
+   if (m_parameter.size() < m_maxNumParams) {
+         m_parameter.push_back(param);
+   } else {
+      ostringstream errorMessage;
+      errorMessage << "Can't add parameter " << param.getName() << "; "
+                   << "the parameter list is full at " 
+                   << m_maxNumParams << ".\n";
+      throw(LikelihoodException(errorMessage.str()));
+   }
+}
 
 void Function::fetchParamValues(std::vector<double> &values,
                                 bool getFree) const {

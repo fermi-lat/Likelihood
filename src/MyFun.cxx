@@ -1,8 +1,9 @@
-/** @file MyFun.cxx
- * @brief Implementation a simple test function 
+/** 
+ * @file MyFun.cxx
+ * @brief Implementation of a simple test function 
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.cxx,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -21,7 +22,13 @@ MyFun::MyFun() {
    addParam(std::string("Ruthie"), 0.);
    addParam(std::string("Mary"), 0.);
    addParam(std::string("Jane"), 0.);
-   addParam(std::string("Plain"), 3.14159);
+
+// built-in unit test (justifies the existence of MyFun)
+   try {
+      addParam(std::string("Plain"), 3.14159);
+   } catch (LikelihoodException &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
 }
 
 double MyFun::value(Arg &xarg) const {
