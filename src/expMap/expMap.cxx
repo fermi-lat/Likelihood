@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.15 2004/12/09 07:20:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.16 2005/01/03 17:13:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.15 2004/12/09 07:20:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.16 2005/01/03 17:13:21 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -83,8 +83,11 @@ void ExpMap::promptForParameters() {
    m_pars.Prompt("evfile");
    m_pars.Prompt("scfile");
    m_pars.Prompt("exposure_cube_file");
-   AppHelpers::checkTimeCuts(m_pars["evfile"], "EVENTS",
-                             m_pars["exposure_cube_file"], "");
+   std::string expCubeFile = m_pars["exposure_cube_file"];
+   if (expCubeFile != "none") {
+      AppHelpers::checkTimeCuts(m_pars["evfile"], "EVENTS",
+                                m_pars["exposure_cube_file"], "");
+   }
    m_pars.Prompt("outfile");
    AppHelpers::checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
    m_pars.Prompt("rspfunc");
