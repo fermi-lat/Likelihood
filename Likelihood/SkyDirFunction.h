@@ -3,7 +3,7 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.11 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.12 2003/08/06 20:52:03 jchiang Exp $
  */
 #ifndef Likelihood_SkyDirFunction_h
 #define Likelihood_SkyDirFunction_h
@@ -17,20 +17,20 @@ namespace Likelihood {
  * @class SkyDirFunction
  *
  * @brief A class that encapsulates sky location information in a
- * Function context.  This allows sky coordinates, e.g., (ra, dec) or
- * (l, b), to be treated by the Likelihood::SourceModel class as 
- * Function Parameters.
+ * Function context.  This allows Celestial coordinates, i.e., (ra,
+ * dec), to be treated by the Likelihood::SourceModel class as Function
+ * Parameters.
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.11 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.12 2003/08/06 20:52:03 jchiang Exp $
  */
     
 class SkyDirFunction : public optimizers::Function, public astro::SkyDir {
 public:
 
    SkyDirFunction() {m_init(0., 0.);}
-   SkyDirFunction(double lon, double lat) {m_init(lon, lat);}
+   SkyDirFunction(double ra, double dec) {m_init(ra, dec);}
    SkyDirFunction(const astro::SkyDir &dir);
 
    astro::SkyDir getDir() const {return m_dir;}
@@ -54,14 +54,14 @@ public:
 
 private:
 
-   void m_init(double lon, double lat);
+   void m_init(double ra, double dec);
    
    void update_m_dir(std::string paramName, double paramValue)
       throw(optimizers::ParameterNotFound);
 
    astro::SkyDir::CoordSystem m_coord_type;
-   double m_lon;
-   double m_lat;
+   double m_ra;
+   double m_dec;
 
    astro::SkyDir m_dir;
 

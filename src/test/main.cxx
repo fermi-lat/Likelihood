@@ -312,8 +312,9 @@ void fit_DiffuseSource() {
    print_fit_results(logLike);
 
 // Write out the fitted model as an xml file.
-   xmlFile = root_path + "/xml/fittedModel.xml";
-   logLike.writeXml(xmlFile);
+//   xmlFile = root_path + "/xml/fittedModel.xml";
+   xmlFile = "fittedModel.xml";
+   logLike.writeXml(xmlFile, "$(LIKELIHOODROOT)/xml/A1_Functions.xml");
 
 // Clear the sources in logLike.
    logLike.deleteAllSources();

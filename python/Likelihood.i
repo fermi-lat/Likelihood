@@ -95,6 +95,9 @@ using optimizers::Parameter;
          std::cout << srcNames[i] << std::endl;
       }
    }
+   int getNumFreeParams() {
+      return self->getNumFreeParams();
+   }
 }
 %extend Likelihood::Event {
    double ra() {
