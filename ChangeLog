@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Mon Sep 13 08:30:39 PDT 2004
+Likelihood/src
+
+Modified Files:
+	SourceModel.cxx 
+Added Files:
+	BinnedLikelihood.cxx 
+Log Message:
+add BinnedLikelihood class
+    *
+------------------------------------------------------------
+User: jchiang  Mon Sep 13 08:30:39 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
