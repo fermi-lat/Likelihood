@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr 21 13:58:40 PDT 2004
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+using st_app::StApp instead st_app::IApp
+    *
+------------------------------------------------------------
 User: jchiang  Wed Apr 21 13:58:39 PDT 2004
 Likelihood/src
 
