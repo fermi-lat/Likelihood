@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v4r8   22-Sep-04  JC   Use SourceMap in BinnedLikelihood thereby
+                           greatly improving efficiency.
     v4r7   21-Sep-04  JC   Added BinnedLikelihood and Pixel classes;
                            implemented inefficient binned likelihood for
                            point sources only.  Added plotting of counts
