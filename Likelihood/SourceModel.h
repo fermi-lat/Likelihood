@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.40 2004/09/02 23:43:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.41 2004/09/03 03:40:22 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -37,7 +37,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.40 2004/09/02 23:43:16 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.41 2004/09/03 03:40:22 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -207,12 +207,10 @@ private:
 
    bool m_verbose;
 
-   void writeFitsFile(const std::string &filename, 
-                      std::vector<double> &ras,
-                      std::vector<double> &decs,
-                      std::vector<double> &energies,
-                      std::vector<double> &map) const;
-      
+   double computeSolidAngle(std::vector<double>::const_iterator lon,
+                            std::vector<double>::const_iterator lat,
+                            const astro::SkyProj & proj) const;
+
 };
 
 } // namespace Likelihood

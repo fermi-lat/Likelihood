@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.28 2004/08/06 14:58:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.29 2004/08/25 15:27:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -37,8 +37,6 @@ namespace Likelihood {
 std::vector<std::string> LogLike::s_FT1_columns;
 
 double LogLike::value(optimizers::Arg&) const {
-// Compute the EML log-likelihood for a single-point source.
-
    double my_value = 0;
    
 // The "data sum"
