@@ -1,3 +1,11 @@
+/**
+ * @file exposureMap.cxx
+ * @brief Integral over time of effective area for an all-sky map.
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <cstdlib>
 #include <stdexcept>
 #include <string>
@@ -10,14 +18,23 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/ExposureCube.h"
-//#include "Likelihood/ResponseFunctions.h"
 
 using namespace Likelihood;
 
 class exposureMap : public st_app::StApp {
 public:
    exposureMap();
-   virtual ~exposureMap() throw() {}
+   virtual ~exposureMap() throw() {
+      try {
+         delete m_helper;
+      } catch (std::exception & eObj) {
+         std::cerr << eObj.what() << std::endl;
+      } catch (...) {
+         std::cerr << "exposureMap::~exposureMap: "
+                   << "unknown exception encountered."
+                   << std::endl;
+      }
+   }
    virtual void run();
 private:
    AppHelpers * m_helper;
@@ -37,7 +54,6 @@ exposureMap::exposureMap()
       m_pars.Prompt();
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
-//      ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
       std::exit(1);

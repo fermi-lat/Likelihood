@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r0   09-Oct-04  JC   Compute SourceMaps for diffuse sources; add 
+                           gtsrcmaps application for generating SourceMaps
+                           from counts maps.
     v4r8   22-Sep-04  JC   Use SourceMap in BinnedLikelihood thereby
                            greatly improving efficiency.
     v4r7   21-Sep-04  JC   Added BinnedLikelihood and Pixel classes;
