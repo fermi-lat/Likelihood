@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jun  6 15:43:41 PDT 2004
+Likelihood/src
+
+Modified Files:
+	Event.cxx LogLike.cxx 
+Log Message:
+using existing diffuseResponse columns
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jun  6 15:43:40 PDT 2004
 Likelihood/Likelihood
 
