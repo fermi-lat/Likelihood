@@ -4,7 +4,7 @@
  * diffuse emission.  Assumes infinite energy resolution.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.5 2004/08/05 00:14:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.6 2004/08/05 05:28:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.5 2004/08/05 00:14:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.6 2004/08/05 05:28:28 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -219,23 +219,11 @@ void diffuseResponses::writeEventResponses() {
 void diffuseResponses::setGaussianParams(const Event & event,
                                          const std::string & name,
                                          tip::Table::Vector<double> & params) {
-   const std::vector<double> & trueEnergies = event.trueEnergies();
-   const std::vector<double> & resp = event.diffuseResponse(name);
-   double integral(0); 
-   double eavg(0);
-   double e2avg(0);
-   for (unsigned int i = 0; i < trueEnergies.size() - 1; i++) {
-      integral += (trueEnergies[i+1] - trueEnergies[i])
-         *(resp[i] + resp[i+1])/2.;
-      eavg += (trueEnergies[i+1] - trueEnergies[i])
-         *(trueEnergies[i]*resp[i] + trueEnergies[i+1]*resp[i+1])/2.;
-      e2avg += (trueEnergies[i+1] - trueEnergies[i])
-         *(trueEnergies[i]*trueEnergies[i]*resp[i] 
-           + trueEnergies[i+1]*trueEnergies[i+1]*resp[i+1])/2.;
-   }
-   params[0] = integral;
-   params[1] = eavg/integral;   // mean value
-   params[2] = sqrt(e2avg/integral - eavg*eavg/integral/integral);  // sigma
+   double norm, mean, sigma;
+   event.computeGaussianParams(name, norm, mean, sigma);
+   params[0] = norm;
+   params[1] = mean;
+   params[2] = sigma;
 }
 
 void diffuseResponses::getDiffuseSources() {
