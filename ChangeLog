@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Apr  6 19:11:18 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+replace replicated, boiler-plate st_app code with template
+    *
+------------------------------------------------------------
+User: jchiang  Tue Apr  6 19:11:18 PDT 2004
 Likelihood/src/expMap
 
 Modified Files:
