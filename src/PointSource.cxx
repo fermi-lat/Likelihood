@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.26 2003/10/22 17:50:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.27 2003/10/24 01:57:23 jchiang Exp $
  */
 
 #include <vector>
@@ -86,17 +86,8 @@ namespace {
 
 namespace Likelihood {
 
-// typedef double (*D_fp)(double*);    // "from" f2c.h
-
-// extern "C" {
-//    int dgaus8_(D_fp fun, double *a, double *b, 
-//                double *err, double *ans, long *ierr);
-// }
-
-// PointSource::Gint PointSource::s_gfunc;
 bool PointSource::s_haveStaticMembers = false;
 std::vector<double> PointSource::s_energies;
-std::vector<double> PointSource::s_sigGauss;
 
 PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 // make a deep copy
@@ -181,10 +172,8 @@ void PointSource::computeExposure(std::vector<double> &energies,
                                   int verbose) {
    if (!s_haveStaticMembers) {
       makeEnergyVector();
-      makeSigmaVector();
       s_haveStaticMembers = true;
    }
-//   computeGaussFractions();
 
    Aeff *aeff = Aeff::instance();
    ScData *scData = ScData::instance();
@@ -226,7 +215,7 @@ void PointSource::computeExposure(std::vector<double> &energies,
 // contribution for each energy
       if (includeInterval) {
          for (unsigned int k = 0; k < energies.size(); k++) {
-            double time = (scData->vec[it+1].time + scData->vec[it].time);
+            double time = (scData->vec[it+1].time + scData->vec[it].time)/2.;
             exposure[k] += 
                ::sourceEffArea(energies[k], time, m_dir.getDir())
                *(scData->vec[it+1].time - scData->vec[it].time);
@@ -235,90 +224,6 @@ void PointSource::computeExposure(std::vector<double> &energies,
    }
    if (verbose) std::cerr << "!" << std::endl;
 }
-
-// void PointSource::computeGaussFractions() {
-// // compute the fraction of a Gaussian centered on the PointSource position
-// // contained within the ROI as a function of Gaussian width sigma.
-
-//    RoiCuts *roiCuts = RoiCuts::instance();
-
-//    double psi = getSeparation(roiCuts->extractionRegion().center());
-//    double roi_radius = roiCuts->extractionRegion().radius()*M_PI/180;
-//    double mup = cos(roi_radius + psi);
-//    double mum = cos(roi_radius - psi);
-
-//    double cr = cos(roi_radius);
-//    double cp = cos(psi);
-//    double sp = sin(psi);
-
-//    m_gaussFraction.reserve(s_sigGauss.size());
-//    for (unsigned int i = 0; i < s_sigGauss.size(); i++) {
-//       double sig = s_sigGauss[i];
-//       if (s_sigGauss[i] == 0) {
-//          m_gaussFraction.push_back(1);
-//       } else {
-//          double denom = 1. - exp(-2/sig/sig);
-//          double gauss_int;
-//          if (psi == 0) {
-//             gauss_int = 0;
-//          } else {
-// // set the object providing the integrand
-//             s_gfunc = Gint(sig, cr, cp, sp);
-// // use DGAUS8 to perform the integral
-//             double err = 1e-5;
-//             long ierr;
-//             dgaus8_(&PointSource::gfuncIntegrand, &mup, &mum, 
-//                     &err, &gauss_int, &ierr);
-// // // instantiate the integrand object...
-// //             Gint gfunc(sig, cr, cp, sp);
-// // // and the integrator object
-// //             TrapQuad trapQuad(&gfunc);
-// // //            gauss_int = trapQuad.integral(mup, mum, 10000);
-// //             gauss_int = trapQuad.integral(mup, mum, 1000);
-//          }
-//          if (psi <= roi_radius) {
-//             double value = ((1. - exp((mum-1.)/sig/sig))
-//                             + gauss_int/M_PI/sig/sig)/denom;
-//             m_gaussFraction.push_back(value);
-//          } else {
-//             double value =  gauss_int/M_PI/sig/sig/denom;
-//             m_gaussFraction.push_back(value);
-//          }
-//       }
-// //       std::cout << sig << "  " << m_gaussFraction[i] << std::endl;
-//    }
-// }
-
-// double PointSource::psfFrac(double energy, double inc) {
-//    Psf *psf = Psf::instance();
-// // Compute the fraction of the psf enclosed for this source at this
-// // energy and inclination
-//    std::vector<double> psf_params;
-//    (*psf).fillPsfParams(energy, inc, psf_params);
-//    double sig1 = psf_params[0]*M_PI/180.;
-//    double sig2 = psf_params[1]*M_PI/180.;
-//    double wt = psf_params[2];
-
-// // Interpolate the fractions of the Gaussian components contained
-// // within the region-of-interest
-// // Compute the index assuming uniform step size in s_sigGauss:
-//    unsigned int indx = 
-//       static_cast<int>((sig1 - s_sigGauss[0])
-//                        /(s_sigGauss[1] - s_sigGauss[0]));
-//    double frac1 = (sig1 - s_sigGauss[indx])
-//       /(s_sigGauss[indx+1] - s_sigGauss[indx])
-//       *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
-//       + m_gaussFraction[indx];
-
-//    indx = static_cast<int>((sig2 - s_sigGauss[0])
-//                            /(s_sigGauss[1] - s_sigGauss[0]));
-//    double frac2 = (sig2 - s_sigGauss[indx])
-//       /(s_sigGauss[indx+1] - s_sigGauss[indx])
-//       *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
-//       + m_gaussFraction[indx];
-
-//    return wt*frac1 + (1. - wt)*frac2;
-// }
 
 void PointSource::makeEnergyVector(int nee) {
    RoiCuts *roiCuts = RoiCuts::instance();
@@ -333,36 +238,5 @@ void PointSource::makeEnergyVector(int nee) {
    for (int i = 0; i < nee; i++)
       s_energies.push_back(emin*exp(i*estep));
 }
-
-void PointSource::makeSigmaVector(int nsig) {
-// set up a grid of sigma values in radians
-   double sigmin = 0.;
-   double sigmax = 50.*M_PI/180;
-   double sigstep = (sigmax - sigmin)/(nsig - 1);
-   
-   s_sigGauss.reserve(nsig);
-   for (int i = 0; i < nsig; i++)
-      s_sigGauss.push_back(sigstep*i + sigmin);
-}
-
-// double PointSource::Gint::value(optimizers::Arg &muarg) const {
-//    double mu = dynamic_cast<optimizers::dArg &>(muarg).getValue();
-
-//    double phi;
-//    if (mu == 1) {
-//       phi = M_PI;
-//    } else {
-//       double arg = (m_cr - mu*m_cp)/sqrt(1. - mu*mu)/m_sp;
-//       if (arg >= 1.) {
-//          phi = 0;
-//       } else if (arg <= -1.) {
-//          phi = M_PI;
-//       } else {
-//          phi = acos(arg);
-//       }
-//    }
-//    double value = phi*exp((mu - 1.)/m_sig/m_sig);
-//    return value;
-// }
 
 } // namespace Likelihood
