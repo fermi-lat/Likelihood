@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov  7 18:55:56 PST 2003
+Likelihood/src/test
+
+Added Files:
+	like_test.cxx 
+Log Message:
+add standalone application using OptEM
+    *
+------------------------------------------------------------
 User: jchiang  Fri Nov  7 18:55:55 PST 2003
 Likelihood/data
 
