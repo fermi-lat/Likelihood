@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec 29 16:28:24 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+sync up to optimizers v2; adjust DSS checking; tagging v6r1
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec 29 16:28:23 PST 2004
 Likelihood/src/diffuseResponses
 
