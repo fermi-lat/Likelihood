@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 27 09:30:09 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Mcmc.cxx logLike_ptsrc.cxx 
+Log Message:
+fix runtime bug in logLike_ptsrc.cxx
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 27 09:29:46 PDT 2003
 Likelihood/Likelihood
 
