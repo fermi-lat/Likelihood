@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 30 09:24:30 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+smaller data file for unit tests; ensure energies used for PointSource exposure calcs are updated when Roi energies change.
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun 30 09:24:28 PDT 2004
 Likelihood/src
 
