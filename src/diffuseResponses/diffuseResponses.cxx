@@ -4,7 +4,7 @@
  * diffuse emission.  Assumes infinite energy resolution.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.2 2004/06/05 15:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.3 2004/06/06 22:43:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -38,7 +38,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.2 2004/06/05 15:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.3 2004/06/06 22:43:41 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -106,8 +106,8 @@ void diffuseResponses::run() {
 }
 
 void diffuseResponses::setRoi() {
-   RoiCuts * roiCuts = RoiCuts::instance();
-   roiCuts->setCuts();
+   std::string xmlFile = m_pars["ROI_cuts_file"];
+   RoiCuts::setCuts(xmlFile);
 }
 
 void diffuseResponses::buildSourceModel() {

@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.24 2004/06/06 22:43:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.25 2004/06/07 00:46:10 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.24 2004/06/06 22:43:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.25 2004/06/07 00:46:10 jchiang Exp $
  */
 
 class Event {
@@ -131,6 +131,7 @@ private:
    /// For now, use the default values passed from
    /// computeResponse(...)
    void prepareSrData(double sr_region, int nmu=100, int nphi=50);
+//   void prepareSrData(double sr_region, int nmu=70, int nphi=40);
 
    void getNewDiffuseSrcs(const std::vector<DiffuseSource *> & srcList,
                           std::vector<DiffuseSource *> & srcs) const;

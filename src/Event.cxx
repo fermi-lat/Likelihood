@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.27 2004/06/05 15:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.28 2004/06/06 22:43:41 jchiang Exp $
  */
 
 #include <cassert>
@@ -55,7 +55,6 @@ Event::Event(double ra, double dec, double energy,
    m_scDir = astro::SkyDir(sc_ra, sc_dec);
    m_muZenith = muZenith;
    m_type = type;
-
 
    if (ResponseFunctions::useEdisp()) {
 // For <15% energy resolution, consider true energies over the range
@@ -131,8 +130,8 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
    for (unsigned int i = 0; i < s_mu.size(); i++) {
       for (unsigned int j = 0; j < s_phi.size(); j++) {
          astro::SkyDir srcDir;
-//         getCelestialDir(s_phi[j], s_mu[i], s_eqRot, srcDir);
-         getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
+         getCelestialDir(s_phi[j], s_mu[i], s_eqRot, srcDir);
+//         getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
          srcDirs.push_back(srcDir);
       }
    }
@@ -208,6 +207,11 @@ void Event::prepareSrData(double sr_radius, int nmu, int nphi) {
    for (int i = 0; i < nmu; i++) {
       s_mu.push_back(mustep*i + mumin);
    }
+// // Try sampling more densely near theta = 0:
+//    double nscale = static_cast<double>((nmu-1)*(nmu-1));
+//    for (int i = 0; i < nmu; i++) {
+//       s_mu.push_back(1. - i*i/nscale*(1. - mumin));
+//    }
    double phistep = 2.*M_PI/(nphi - 1.);
    for (int i = 0; i < nphi; i++) {
       s_phi.push_back(phistep*i);
