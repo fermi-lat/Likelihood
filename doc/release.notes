@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v6r6p3 25-Feb-05  JC   fix to LogLike to ensure backwards
+                           compatibility with diff. resp. column names
     v6r6p2 22-Feb-05  JC   prepend IRF name to diffuse response column name
     v6r6p1 22-Feb-05  JC   FitsImage, SpatialMap fixes to support
                            MapCubeFunction
