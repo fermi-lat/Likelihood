@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan 31 16:01:04 PST 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+rename apps, par files
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6r3p2, operation: add
 Package: Likelihood
