@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v7r2p3 21-Mar-05  JC   temporary fixes for handling more than one
+                           energy range cut in FT1 data; infer maximum 
+                           ScData time from time range cuts
     v7r2p2 20-Mar-05  JC   bug fix in ScData
     v7r2p1 20-Mar-05  JC   use upper_bound to find ScData time interval index
     v7r2   18-Mar-05  JC   move load method to ResponseFunction class
