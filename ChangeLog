@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar 17 17:05:20 PST 2005
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+zero out exposure in PointSource; update docs
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar 17 17:05:18 PST 2005
 Likelihood/src
 
