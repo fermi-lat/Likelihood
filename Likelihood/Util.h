@@ -3,7 +3,7 @@
  * @brief Provide basic utililty functions to Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.2 2004/04/28 05:50:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.3 2004/04/30 13:53:03 jchiang Exp $
  */
 
 #ifndef Likelihood_Util_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.2 2004/04/28 05:50:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.3 2004/04/30 13:53:03 jchiang Exp $
  */
 
 class Util {
@@ -87,14 +87,12 @@ public:
    }
 
    static bool isXmlFile(std::string filename) {
-      facilities::Util::expandEnvVar(&filename);
-      xml::XmlParser * parser = new xml::XmlParser();
-      DomDocument doc = parser->parse(filename.c_str());
-      delete parser;
-      if (doc == 0) {
-         return false;
+      std::vector<std::string> tokens;
+      facilities::Util::stringTokenize(filename, ".", tokens);
+      if (*(tokens.end()-1) == "xml") {
+         return true;
       }
-      return true;
+      return false;
    }
 };
 
