@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r1p3 22-Oct-04  JC   restore conditional read of params, bypassing 
+                           hoops inadequacies in likeGui/pil.py
     v5r1p2 19-0ct-04  JC   include gtcntsmap application; update tutorial
                            documentation.
     v5r1p1 10-Oct-04  JC   hoops doesn't work, so return to reading all
