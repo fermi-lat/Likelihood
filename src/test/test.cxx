@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.36 2004/10/06 05:31:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.37 2004/10/07 00:01:07 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -74,17 +74,17 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
-//    CPPUNIT_TEST(test_RoiCuts);
-//    CPPUNIT_TEST(test_SourceFactory);
-//    CPPUNIT_TEST(test_XmlBuilders);
-//    CPPUNIT_TEST(test_SourceModel);
-//    CPPUNIT_TEST(test_SourceDerivs);
-//    CPPUNIT_TEST(test_PointSource);
-//    CPPUNIT_TEST(test_DiffuseSource);
-//    CPPUNIT_TEST(test_CountsMap);
-//    CPPUNIT_TEST(test_BinnedLikelihood);
-//    CPPUNIT_TEST(test_MeanPsf);
-//    CPPUNIT_TEST(test_BinnedExposure);
+   CPPUNIT_TEST(test_RoiCuts);
+   CPPUNIT_TEST(test_SourceFactory);
+   CPPUNIT_TEST(test_XmlBuilders);
+   CPPUNIT_TEST(test_SourceModel);
+   CPPUNIT_TEST(test_SourceDerivs);
+   CPPUNIT_TEST(test_PointSource);
+   CPPUNIT_TEST(test_DiffuseSource);
+   CPPUNIT_TEST(test_CountsMap);
+   CPPUNIT_TEST(test_BinnedLikelihood);
+   CPPUNIT_TEST(test_MeanPsf);
+   CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
    
    CPPUNIT_TEST_SUITE_END();
@@ -726,7 +726,7 @@ void LikelihoodTests::test_MeanPsf() {
          integrand.push_back(psf*sin(thetas[i])*2.*M_PI);
       }
       TrapQuad my_trap(thetas, integrand);
-//       std::cout << my_trap.integral() << std::endl;
+//       std::ucout << my_trap.integral() << std::endl;
 // Yes, this test is pretty weak.
       CPPUNIT_ASSERT(fabs(my_trap.integral() - 1.) < 0.03);
    }
@@ -767,13 +767,22 @@ void LikelihoodTests::test_BinnedExposure() {
 }
 
 void LikelihoodTests::test_SourceMap() {
+   std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   ExposureCube::readExposureCube(exposureCubeFile);
+
    std::string filename("countsMap.fits");
    if (!st_facilities::Util::fileExists(filename)) {
       throw std::runtime_error("test_SourceMap: "+ filename +
-                               "does not exist.");
+                               " does not exist.");
    }
    CountsMap dataMap(filename);
 
+   astro::SkyDir anticenter(180., 0., astro::SkyDir::GALACTIC);
+   RoiCuts::setCuts(anticenter.ra(), anticenter.dec(), 20.,
+                    30., 2e5, 0, 8.64e4);
    int i(0);
    std::ostringstream roiFile;
    roiFile << m_rootPath << "/data/RoiCuts_" << i << ".xml";
@@ -781,9 +790,13 @@ void LikelihoodTests::test_SourceMap() {
    roiCuts->writeXml(roiFile.str(), "Anticenter region");
    std::ostringstream expMapFile;
    expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
+
    SourceFactory * srcFactory 
       = srcFactoryInstance(roiFile.str(), "", expMapFile.str());
    Source * galdiffuse = srcFactory->create("Galactic Diffuse");
+
+//    std::string binnedMap = m_rootPath + "/data/binnedExposure.fits";
+//    SourceMap::setBinnedExposure(binnedMap);
    SourceMap srcMap(galdiffuse, dataMap);
 }
 
@@ -874,13 +887,13 @@ int main() {
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
 
-//    LikelihoodTests testObj;
-//    testObj.setUp();
-//    testObj.test_CountsMap();
-//    testObj.tearDown();
+   LikelihoodTests testObj;
+   testObj.setUp();
+   testObj.test_SourceMap();
+   testObj.tearDown();
 
-   CppUnit::TextTestRunner runner;
-   runner.addTest(LikelihoodTests::suite());
-   bool result = runner.run();
-   if (!result) return 1;
+//    CppUnit::TextTestRunner runner;
+//    runner.addTest(LikelihoodTests::suite());
+//    bool result = runner.run();
+//    if (!result) return 1;
 }
