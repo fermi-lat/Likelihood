@@ -4,13 +4,13 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.4 2005/02/01 07:18:57 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.5 2005/02/02 00:01:16 jchiang Exp $
 #
 import os, sys
 import numarray as num
 sys.path.insert(0, os.path.join(os.environ['LIKELIHOODROOT'], 'python'))
 import pyLike as Likelihood
-#import hippoplotter as plot
+import hippoplotter as plot
 
 _funcFactory = Likelihood.SourceFactory_funcFactory()
 
