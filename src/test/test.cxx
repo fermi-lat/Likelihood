@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.22 2004/07/19 19:27:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.23 2004/07/21 04:00:13 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -36,6 +36,8 @@
 #include "irfInterface/AcceptanceCone.h"
 #include "g25Response/loadIrfs.h"
 
+#include "Likelihood/BinnedLikelihood.h"
+#include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/ExposureMap.h"
@@ -69,6 +71,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_SourceModel);
    CPPUNIT_TEST(test_PointSource);
    CPPUNIT_TEST(test_DiffuseSource);
+   CPPUNIT_TEST(test_BinnedLikelihood);
    
    CPPUNIT_TEST_SUITE_END();
 
@@ -84,6 +87,7 @@ public:
    void test_SourceDerivs();
    void test_PointSource();
    void test_DiffuseSource();
+   void test_BinnedLikelihood();
 
 private:
 
@@ -151,10 +155,6 @@ void LikelihoodTests::setUp() {
    m_scFile = m_rootPath + "/data/oneday_scData_0000.fits";
    m_expMapFile = m_rootPath + "/data/anticenter_expMap.fits";
    m_sourceXmlFile = m_rootPath + "/data/anticenter_model.xml";
-
-// // Use exposure hypercube for PointSource exposure calculations.
-//    std::string expCube = m_rootPath + "/data/expcube_1_day.fits";
-//    PointSource::readExposureCube(expCube);
 
 }
 
@@ -548,6 +548,68 @@ void LikelihoodTests::test_DiffuseSource() {
    }
 //    std::cout << "chi^2 = " << chi2 << std::endl;
    CPPUNIT_ASSERT(chi2 < 4.);
+}
+
+void LikelihoodTests::test_BinnedLikelihood() {
+   SourceFactory * srcFactory = srcFactoryInstance();
+
+   std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   ExposureCube::readExposureCube(exposureCubeFile);
+
+   std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
+   
+   double ra(83.57);
+   double dec(22.01);
+   unsigned long npts(40);
+   double emin(30.);
+   double emax(2e5);
+   unsigned long nee(21);
+   CountsMap dataMap(eventFile, m_scFile, ra, dec, "CAR", npts, npts,
+                     0.5, 0, false, "RA", "DEC", emin, emax, nee);
+   const tip::Table * events 
+      = tip::IFileSvc::instance().readTable(eventFile, "events");
+   dataMap.binInput(events->begin(), events->end());
+
+   BinnedLikelihood binnedLogLike(dataMap);
+   std::string Crab_model = m_rootPath + "/data/Crab_model.xml";
+   binnedLogLike.readXml(Crab_model, *m_funcFactory);
+
+   CountsMap * modelMap = binnedLogLike.createCountsMap(dataMap);
+
+   dataMap.writeOutput("test_Likelihood", "dataMap.fits");
+   modelMap->writeOutput("test_Likelihood", "modelMap.fits");
+
+   const std::vector<double> & data = dataMap.data();
+   double dataSum(0);
+   for (unsigned int i = 0; i < data.size(); i++) {
+      dataSum += data[i];
+   }
+   std::cout << "Total counts in data map: " << dataSum << std::endl;
+
+   const std::vector<double> & model = modelMap->data();
+   double modelSum(0);
+   for (unsigned int i = 0; i < model.size(); i++) {
+      modelSum += model[i];
+   }
+   std::cout << "Total model counts: " << modelSum << std::endl;
+   
+   std::vector<double> energies;
+   modelMap->getAxisVector(2, energies);
+   for (unsigned int i = 0; i < energies.size()-1; i++) {
+      double data_counts(0);
+      double model_counts(0);
+      for (unsigned int j = 0; j < npts*npts; j++) {
+         int indx = npts*npts*i + j;
+         data_counts += data[indx];
+         model_counts += model[indx];
+      }
+      std::cout << energies[i] << "  "
+                << data_counts << "  "
+                << model_counts << "\n";
+   }
+   std::cout << std::endl;
+
+   delete modelMap;
 }
 
 void LikelihoodTests::readEventData(const std::string &eventFile,
