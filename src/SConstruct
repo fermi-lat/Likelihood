@@ -3,7 +3,8 @@ import os
 package = 'Likelihood'
 home = os.environ[package.upper() + 'ROOT']
 apps = ['likelihood', 'makeExposureCube', 'expMap', 'TsMap']
-OptPP_dir = '/home/jchiang/data/OPT++2.1'
+#OptPP_dir = '/home/jchiang/data/OPT++2.1'
+OptPP_dir = '/scratch/jchiang/OPT++2.1'
 
 libraries = {'xml': None,
              'astro': None,
