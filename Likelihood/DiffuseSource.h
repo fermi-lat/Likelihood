@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.21 2004/09/22 20:05:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.22 2004/09/22 22:49:01 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -43,7 +43,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.21 2004/09/22 20:05:30 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.22 2004/09/22 22:49:01 jchiang Exp $ 
  *  
  */
 
@@ -88,7 +88,7 @@ public:
    virtual double Npred(double emin, double emax);
 
    /// Return the spatial distribution of the gamma-ray emission
-   double spatialDist(astro::SkyDir &dir) {
+   double spatialDist(const astro::SkyDir &dir) {
       SkyDirArg SDarg(dir);
       return (*m_spatialDist)(SDarg);
    }
