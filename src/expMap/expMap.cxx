@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.11 2004/11/28 06:58:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.12 2004/12/07 01:30:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -36,7 +36,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.11 2004/11/28 06:58:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.12 2004/12/07 01:30:12 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -81,12 +81,7 @@ void ExpMap::promptForParameters() {
    m_pars.Prompt("ROI_file");
    m_pars.Prompt("exposure_cube_file");
    m_pars.Prompt("outfile");
-   std::string outfile = m_pars["outfile"];
-   if (!m_pars["clobber"] && st_facilities::Util::fileExists(outfile)) {
-      throw std::runtime_error("File " + outfile + 
-                               std::string(" already exists and you have") + 
-                               " you have set 'clobber' to 'yes'.");
-   }
+   m_helper->checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
    m_pars.Prompt("rspfunc");
    m_pars.Prompt("source_region_radius");
    m_pars.Prompt("number_of_longitude_points");
