@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 25 08:27:32 PDT 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx LogLike.cxx ScData.cxx 
+Log Message:
+use st_facilities
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 25 08:27:31 PDT 2004
 Likelihood/cmt
 
