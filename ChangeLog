@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Nov 16 23:18:23 PST 2004
+Likelihood/python
+
+Modified Files:
+	Likelihood.i Makefile load_data.py test.py 
+Log Message:
+BinnedLikelihood tests in python
+    *
+------------------------------------------------------------
+User: jchiang  Tue Nov 16 23:18:23 PST 2004
 Likelihood/Likelihood
 
 Modified Files:
