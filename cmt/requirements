@@ -4,12 +4,11 @@ version v3r5
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.104 2004/04/05 18:31:09 jchiang Exp $
+# $Id: requirements,v 1.105 2004/04/06 03:32:25 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
-# use xml needs to be commented out in order to link on VC7.0 and VC7.1..
-#use xml v4r* 
+#use xml v4r* # This needs to be commented out in order to link on VC7.1
 use tip v* 
 use map_tools v*
 use latResponse v2*

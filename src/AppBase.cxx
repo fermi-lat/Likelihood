@@ -3,7 +3,7 @@
  * @brief Base class for Likelihood applications.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppBase.cxx,v 1.1 2004/04/06 17:10:38 jchiang Exp $
  */
 
 #include <map>
@@ -28,39 +28,22 @@ using latResponse::irfsFactory;
 
 namespace Likelihood {
 
-void AppBase::setUp() {
-#ifdef TRAP_FPE
-   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
-#endif
-   hoopsPrompt();
-   hoopsSave();
-   prepareFunctionFactory();
-   setRoi();
-   readScData();
-   createResponseFuncs();
-}
-
 void AppBase::prepareFunctionFactory() {
    bool makeClone(false);
    m_funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
    m_funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
 }
 
-void AppBase::tearDown() {
-}
-
 void AppBase::setRoi() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string roiCutsFile = pars["ROI_cuts_file"];
+   std::string roiCutsFile = m_pars["ROI_cuts_file"];
    Util::file_ok(roiCutsFile);
    RoiCuts::setCuts(roiCutsFile);
 }
 
 void AppBase::readScData() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string scFile = pars["Spacecraft_file"];
+   std::string scFile = m_pars["Spacecraft_file"];
    Util::file_ok(scFile);
-   long scHdu = pars["Spacecraft_file_hdu"];
+   long scHdu = m_pars["Spacecraft_file_hdu"];
    std::vector<std::string> scFiles;
    Util::resolve_fits_files(scFile, scFiles);
    std::vector<std::string>::const_iterator scIt = scFiles.begin();
@@ -71,8 +54,7 @@ void AppBase::readScData() {
 }
 
 void AppBase::readExposureMap() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string exposureFile = pars["Exposure_map_file"];
+   std::string exposureFile = m_pars["Exposure_map_file"];
    if (exposureFile != "none") {
       Util::file_ok(exposureFile);
       ExposureMap::readExposureFile(exposureFile);
@@ -80,8 +62,7 @@ void AppBase::readExposureMap() {
 }
 
 void AppBase::createResponseFuncs() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string responseFuncs = pars["Response_functions"];
+   std::string responseFuncs = m_pars["Response_functions"];
    std::map< std::string, std::vector<std::string> > responseIds;
    responseIds["FRONT"].push_back("DC1::Front");
    responseIds["BACK"].push_back("DC1::Back");
