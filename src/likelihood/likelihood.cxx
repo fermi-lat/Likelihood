@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.66 2005/01/12 20:10:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.67 2005/01/13 22:42:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -56,7 +56,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.66 2005/01/12 20:10:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.67 2005/01/13 22:42:02 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -492,8 +492,9 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                    << TsValues[srcNames[i]] << std::endl;
          resultsFile << "'TS value': '" << TsValues[srcNames[i]] << "',\n";
       }
-      resultsFile << "}}" << std::endl;
+      resultsFile << "},\n";
    }
+   resultsFile << "}" << std::endl;
    if (m_statistic == "BINNED") {
       const std::vector<double> & data = m_dataMap->data();
       double total_counts(0);
