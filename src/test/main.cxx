@@ -5,8 +5,6 @@
 #include <cmath>
 
 //  include everything for the compiler to test
-//  #include "DiffuseParametric.h"
-//  #include "DiffuseSource.h"
 
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Function.h"
@@ -65,6 +63,7 @@ void test_FitsImage();
 void test_ExposureMap();
 void test_SpatialMap();
 void test_DiffuseSource();
+void fit_DiffuseSource();
 
 std::string test_path;
 
@@ -83,27 +82,160 @@ int main(){
 //     test_logLike_ptsrc();
 //     test_CompositeFunction();
 //     test_SpectrumFactory();
-   test_SourceFactory();
+//     test_SourceFactory();
 //     test_OptPP();
 //     fit_3C279();
 //     fit_anti_center();
-//   test_FitsImage();
-//   test_ExposureMap();
-//   test_SpatialMap();
+//     test_FitsImage();
+//     test_ExposureMap();
+//     test_SpatialMap();
 //     test_DiffuseSource();
+   fit_DiffuseSource();
    return 0;
 }
 
-void test_DiffuseSource() {
-   RoiCuts::setCuts(193.98, -5.82, 20.);
+void fit_DiffuseSource() {
+// center the ROI on the Galactic Center
+//     double ra0 = 266.404;
+//     double dec0 = -28.9364;
 
-   std::string expfile = test_path + "Data/test.fits";
+// center the ROI on 3C 279
+   double ra0 = 193.98;
+   double dec0 = -5.82;
+
+   RoiCuts::setCuts(ra0, dec0, 20.);
+
+/* root name for the observation data files */
+   std::string obs_root = "diffuse_test_5";
+
+/* read in the spacecraft data */
+   std::string sc_file = test_path + "Data/" + obs_root + "_sc_0000";
+   int sc_hdu = 2;
+   ScData::readData(sc_file, sc_hdu);
+
+   std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
+   ExposureMap::readExposureFile(expfile);
+
+   std::string galfile = test_path + "Data/gas.cel";
+   SpatialMap galacticModel(galfile);
+// Since gas.cel is integral photon flux above 100 MeV assuming a 
+// photon index of 2.1, the SpatialMap Prefactor needs to be set to
+// the differential flux at 1 MeV.
+   galacticModel.setParam("Prefactor", 1.1*pow(100., 1.1));
+
+   DiffuseSource ourGalaxy(&galacticModel);
+   ourGalaxy.setName("Milky Way");
+
+// Provide ourGalaxy with a power-law spectrum.
+   PowerLaw gal_pl(pow(100., -2.1), -2.1, 100.);
+   std::vector<Parameter> params;
+   gal_pl.getParams(params);
+   params[0].setBounds(1e-3, 1e3);
+   params[0].setScale(1e-5);
+   params[0].setTrueValue(pow(100., -2.1));
+   params[1].setBounds(-3.5, -1);
+//   params[1].setFree(false);           // fix the spectral index
+   gal_pl.setParams(params);
+
+   ourGalaxy.setSpectrum(&gal_pl);
+
+// 3C 279
+   SourceFactory srcFactory;
+   Source *_3c279 = srcFactory.makeSource("PointSource");
+   _3c279->setDir(ra0, dec0);
+   _3c279->setName("3C 279");
+
+// create the Statistic
+   logLike_ptsrc logLike;
+
+// add the Sources
+   logLike.addSource(&ourGalaxy);
+   logLike.addSource(_3c279);
+
+// read in the data
+   std::string event_file = test_path + "Data/" + obs_root + "_0000";
+   logLike.getEvents(event_file, 2);
+   logLike.computeEventResponses(ourGalaxy);
+
+#ifdef HAVE_OPTIMIZERS
+// do the fit
+   OptPP myOpt(logLike);
+//   lbfgs myOpt(logLike);
+   int verbose = 3;
+   myOpt.find_min(verbose);
+#endif
+
+// print Npred for each Source
+   std::vector<std::string> srcNames;
+   logLike.getSrcNames(srcNames);
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      Source *src = logLike.getSource(srcNames[i]);
+      std::cout << srcNames[i] << ": "
+                << src->Npred() << std::endl;
+   }
+
+   logLike.getParams(params);
+   for (unsigned int i = 0; i < params.size(); i++) {
+      if (params[i].isFree()) {
+         std::cout << params[i].getName() << ": "
+                   << params[i].getValue() << std::endl;
+      }
+   }
+
+} // fit_DiffuseSource
+
+void test_DiffuseSource() {
+// center the ROI on the Galactic Center
+//     double ra0 = 266.404;
+//     double dec0 = -28.9364;
+   double ra0 = 193.98;
+   double dec0 = -5.82;
+   RoiCuts::setCuts(ra0, dec0, 20.);
+
+//  /* read in the spacecraft data */
+//     std::string sc_file = test_path + "Data/one_src_sc_0000";
+//     int sc_hdu = 2;
+//     ScData::readData(sc_file, sc_hdu);
+
+   std::string expfile = test_path + "Data/exp_diffuse_test_2_new.fits";
    ExposureMap::readExposureFile(expfile);
 
    std::string galfile = test_path + "Data/gas.cel";
    SpatialMap galacticModel(galfile);
 
-   DiffuseSource mySource(&galacticModel);
+   DiffuseSource ourGalaxy(&galacticModel);
+   ourGalaxy.setName("Milky Way");
+
+// Provide ourGalaxy with a power-law spectrum.
+// Since gas.cel is integral photon flux above 100 MeV, the power-law
+// Prefactor needs also to be scaled by the differential flux at 1 MeV.
+   PowerLaw gal_pl(pow(100., -2.1)*1.1*pow(100., 1.1), -2.1, 100.);
+   ourGalaxy.setSpectrum(&gal_pl);
+
+// Output the fluxDensity along a meridian passing through the
+// position of 3C 279.  Unfortunately, one must do this by creating
+// Event objects, which entail executing the computeResponse() method
+// for each Event. One must also assume an attitude for the LAT.  Here
+// we simple take the z-axis to be in the direction of 3C 279.
+
+   std::vector<Event> my_Events;
+   int nevents = 20;
+   double ra = ra0;
+   double decmin = dec0 - 5.;
+   double decstep = 2.*(dec0 - decmin)/(nevents-1.);
+   double energy = 100;
+   double time = 60;
+   double muZenith = -1; // this is presently irrelevant but must be provided
+   for (int i = 0; i < nevents; i++) {
+      double dec = decstep*i + decmin;
+      my_Events.push_back(Event(ra, dec, energy, time, ra, dec, muZenith));
+      my_Events[i].computeResponse(ourGalaxy, ourGalaxy.getName());
+
+      std::cout << dec << "  "
+                << ourGalaxy.fluxDensity(my_Events[i]) << "  "
+                << ourGalaxy.Npred()
+                << std::endl;
+   }
 
 } // test_DiffuseSource
 

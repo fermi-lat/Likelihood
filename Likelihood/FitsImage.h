@@ -69,6 +69,20 @@ public:
    //! will be indexed by column then row, indx = i + j*NAXIS1.
    void fetchSolidAngles(std::valarray<double> &solidAngles);
 
+/**
+ * @class EquinoxRotation
+ * @brief Nested class to perform the "Equinox Rotation" described in
+ * <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">LikeMemo 3</a>.
+ */
+   class EquinoxRotation {
+   public:
+      EquinoxRotation(double alpha0, double delta0);
+      ~EquinoxRotation() {}
+      void do_rotation(const astro::SkyDir &inDir, astro::SkyDir &outDir);
+   private:
+      std::vector< std::vector<double> > rotMatrix;
+   };                       
+
 protected:
 
 /** 
@@ -94,20 +108,6 @@ protected:
    //! Interface to cfitsio routines
    void read_fits_image(std::string &filename, std::vector<AxisParams> &axes,
                         std::valarray<double> &image);
-
-/**
- * @class EquinoxRotation
- * @brief Nested class to perform the "Equinox Rotation" described in
- * <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">LikeMemo 3</a>.
- */
-   class EquinoxRotation {
-   public:
-      EquinoxRotation(double alpha0, double delta0);
-      ~EquinoxRotation() {}
-      void do_rotation(const astro::SkyDir &inDir, astro::SkyDir &outDir);
-   private:
-      std::vector< std::vector<double> > rotMatrix;
-   };                       
 
    //! FITS file name
    std::string m_filename;

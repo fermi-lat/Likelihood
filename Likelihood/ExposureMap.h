@@ -45,6 +45,13 @@ public:
    //! Read exposure map FITS file and compute the static data members.
    static void readExposureFile(std::string exposureFile);
 
+   //! This method computes the energy-dependent coefficients for
+   //! the predicted number of photons for this source.  The exposure 
+   //! vector contains the integral of the exposure map times the 
+   //! spatial distribution (spatialDist) over the Source Region
+   //! as defined by the exposure map extent.  See 
+   //! <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps>
+   //! LikeMemo 3</a>, equations 20, 29, and 30 in particular.
    void integrateSpatialDist(std::vector<double> &energies, 
                              Function * spatialDist, 
                              std::vector<double> &exposure);
