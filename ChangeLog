@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct  8 18:37:49 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+add gtsrcmaps app; more work on diffuse source maps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  8 18:37:48 PDT 2004
 Likelihood/src/gtsrcmaps
 
