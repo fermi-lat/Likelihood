@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r6   07-Dec-04  JC   first iteration on reading cuts from DSS
+                           keywords; RoiCuts interface is still intact for
+                           backwards compatibility
     v5r5   04-Dec-04  JC   add plot param; adjust chatter level; 
                            tag before refactoring ROI cuts
     v5r4p3 28-Nov-04  JC   fix typo in gtsrcmaps
