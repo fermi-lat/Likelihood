@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jan 15 14:16:29 PST 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+safety checks for files in apps; use hoopsUtil
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jan 10 14:53:10 PST 2004
 Likelihood/src/test
 
