@@ -156,7 +156,6 @@ void test_Mcmc() {
    std::vector<double> my_sig(2);
    double scale = 1.;
 
-#ifdef HAVE_OPT_MINUIT
    int verbose = 1;
    Minuit myMinuitObj(my_rosen);
    myMinuitObj.find_min(verbose, .0001);
@@ -165,7 +164,6 @@ void test_Mcmc() {
       std::cout << i << "  " << sig[i] << std::endl;
       my_sig[i] = sig[i]*scale;
    }
-#endif //HAVE_OPT_MINUIT
 
    Mcmc myMcmcObj(my_rosen);
    std::vector<double> widths;
@@ -217,8 +215,8 @@ void test_Mcmc() {
 //       outfile << "\n";
 //    }
 
-   } catch (OutOfBounds &eObj) {
-      assert(eObj.code() == OutOfBounds::VALUE_ERROR);
+   } catch (Parameter::OutOfBounds &eObj) {
+      assert(eObj.code() == Parameter::OutOfBounds::VALUE_ERROR);
       std::cerr << eObj.what() << "\n"
                 << "Value: " << eObj.value() << "\n"
                 << "minValue: " << eObj.minValue() << "\n"
@@ -323,7 +321,6 @@ void fit_DiffuseSource() {
       srcFactory.replaceSource(src);
    }
 
-#ifdef HAVE_OPT_LBFGS
 // try to fit again using srcFactory Sources and a different optimizer
    logLike.deleteAllSources();
 
@@ -335,10 +332,7 @@ void fit_DiffuseSource() {
    Lbfgs otherOpt(logLike);
    otherOpt.find_min(verbose);
    print_fit_results(logLike);
-#endif
 
-
-#ifdef HAVE_OPT_MINUIT
 // try to fit again using srcFactory Sources and the MINUIT optimizer
    logLike.deleteAllSources();
 
@@ -356,7 +350,6 @@ void fit_DiffuseSource() {
       std::cout << i << "  " << sig[i] << std::endl;
    }
    print_fit_results(logLike);
-#endif //HAVE_OPT_MINUIT
 
    std::cout << "*** fit_DiffuseSource: all tests completed ***\n" 
              << std::endl;
@@ -682,7 +675,6 @@ void test_Optimizers() {
 
    int verbose = 1;
 
-#ifdef HAVE_OPT_LBFGS
 // try lbfgs_bcm method first   
    Lbfgs my_lbfgsObj(my_rosen);
    my_lbfgsObj.setMaxVarMetCorr(12);
@@ -699,9 +691,7 @@ void test_Optimizers() {
    std::cout << "LBFGS end message: " 
              << my_lbfgsObj.getErrorString() 
              << std::endl;
-#endif //HAVE_OPT_LBFGS
 
-#ifdef HAVE_OPT_MINUIT
    verbose = 3;
    params[0].setValue(2.);
    params[0].setBounds(-10., 10.);
@@ -714,7 +704,6 @@ void test_Optimizers() {
    for (unsigned int i=0; i < sig.size(); i++) {
      std::cout << i << "  " << sig[i] << std::endl;
    }
-#endif //HAVE_OPT_MINUIT
 
 #ifdef HAVE_OPT_PP
 // now restart and try OptPP
@@ -991,15 +980,11 @@ void fit_anti_center() {
 
 #endif  //HAVE_OPT_PP
 
-#ifdef HAVE_OPT_LBFGS
-
 // do the fit
    Lbfgs myOptimizer(logLike);
 
    int verbose = 3;
    myOptimizer.find_min(verbose);
-
-#endif  //HAVE_OPT_LBFGS
 
    std::vector<Parameter> parameters;
    logLike.getParams(parameters);
@@ -1079,15 +1064,14 @@ void fit_3C279() {
                 << (statval - statval0)/dparam << std::endl;
    }
 
-#ifdef HAVE_OPT_LBFGS
 // do the fit using lbfgs_bcm
-//   Lbfgs myOptimizer(logLike);
-#endif //HAVE_OPT_LBFGS
+   Lbfgs myOptimizer(logLike);
+   int verbose = 3;
+   myOptimizer.find_min(verbose);
 
 #ifdef HAVE_OPT_PP
 // do the fit using OptPP
    OptPP myOptimizer(logLike);
-   
    int verbose = 3;
    myOptimizer.find_min(verbose);
 #endif  //HAVE_OPT_PP
@@ -2050,8 +2034,8 @@ void test_Parameter_class() {
 // test for failure
    try {
       my_params[2].setValue(35);
-   } catch (OutOfBounds &eObj) {
-      assert(eObj.code() == OutOfBounds::VALUE_ERROR);
+   } catch (Parameter::OutOfBounds &eObj) {
+      assert(eObj.code() == Parameter::OutOfBounds::VALUE_ERROR);
       std::cerr << eObj.what() << "\n"
                 << "Value: " << eObj.value() << "\n"
                 << "minValue: " << eObj.minValue() << "\n"
@@ -2061,8 +2045,8 @@ void test_Parameter_class() {
 
    try {
       my_params[2].setBounds(-20, 20);
-   } catch (OutOfBounds &eObj) {
-      assert(eObj.code() == OutOfBounds::BOUNDS_ERROR);
+   } catch (Parameter::OutOfBounds &eObj) {
+      assert(eObj.code() == Parameter::OutOfBounds::BOUNDS_ERROR);
       std::cerr << eObj.what() << "\n"
                 << "Value: " << eObj.value() << "\n"
                 << "minValue: " << eObj.minValue() << "\n"
