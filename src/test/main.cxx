@@ -90,22 +90,22 @@ int main() {
 #ifndef USE_GOODI
    read_SC_Response_data();
    test_SourceModel_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_LogLike();
-   test_SpectrumFactory();
-   fit_3C279();
-   fit_anti_center();
-   test_FitsImage();
-   test_ExposureMap();
-   test_SpatialMap();
-   test_DiffuseSource();
-   test_FunctionFactory();
-   test_SourceFactory();
-   fit_DiffuseSource();
-   test_OptEM();
+//    test_Event_class();
+//    test_PointSource_class();
+//    test_LogLike();
+//    test_SpectrumFactory();
+//    fit_3C279();
+//    fit_anti_center();
+//    test_FitsImage();
+//    test_ExposureMap();
+//    test_SpatialMap();
+//    test_DiffuseSource();
+//    test_FunctionFactory();
+//    test_SourceFactory();
+//    fit_DiffuseSource();
+//    test_OptEM();
 #endif
-   test_RoiCuts();
+//    test_RoiCuts();
    return 0;
 }
 
@@ -250,7 +250,6 @@ void fit_DiffuseSource() {
 // Add the Functions needed for spatial modeling.
       funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
       funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
-
    } catch (optimizers::Exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
@@ -1104,7 +1103,7 @@ void test_Event_class() {
    evt_table.add_columns("RA DEC energy time SC_x SC_y SC_z zenith_angle");
    evt_table.read_FITS_table(event_file, 2);
 
-   typedef std::pair<long, double*> tableColumn;
+   typedef std::pair<long, std::vector<double> > tableColumn;
    tableColumn ra(evt_table[0].dim, evt_table[0].val);
    tableColumn dec(evt_table[1].dim, evt_table[1].val);
    tableColumn energy(evt_table[2].dim, evt_table[2].val);
@@ -1173,6 +1172,9 @@ void test_SourceModel_class() {
    
    SourceModel SrcModel;
    bool computeExposure = false;
+
+// set the ROI cuts
+   RoiCuts::setCuts(83.57, 22.01, 20.);
    
 // Create some point sources.
    PointSource _3c279;
@@ -1283,7 +1285,49 @@ void test_SourceModel_class() {
    std::cout << "passed." << std::endl;
 
    std::cout << "Testing xml read/write methods...";
-   std::string xmlFile = "myModel.xml";
+
+// Add the Galactic Diffuse model.
+   SourceFactory srcFactory;
+
+// Read in the prototypes from the XML file.
+   std::string xmlFile = root_path + "/xml/A1_Functions.xml";
+   FunctionFactory funcFactory;
+   try {
+      funcFactory.readXml(xmlFile);
+// Add the Functions needed for spatial modeling.
+      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
+      funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+
+// Must read in the exposure file prior to creating the SourceFactory
+// object since it contains DiffuseSources
+   std::string obs_root = "diffuse_test_5";
+   std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
+   ExposureMap::readExposureFile(expfile);
+
+// Read in the prototypes from the XML file.
+   xmlFile = root_path + "/xml/A1_Sources.xml";
+   srcFactory.readXml(xmlFile, funcFactory);
+
+   std::vector<std::string> srcNames;
+   srcFactory.fetchSrcNames(srcNames);
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      std::cout << srcNames[i] << std::endl;
+   }
+
+   DiffuseSource *ourGalaxy;
+   try {
+      ourGalaxy = dynamic_cast<DiffuseSource *>
+         (srcFactory.create("Galactic Diffuse Emission"));
+      SrcModel.addSource(ourGalaxy);
+   } catch (Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+
+//   std::string xmlFile = "myModel.xml";
+   xmlFile = "myModel.xml";
    SrcModel.writeXml(xmlFile, "$(LIKELIHOODROOT)/xml/A1_Functions.xml");
 
 // Save the current set of model parameters.
@@ -1305,6 +1349,10 @@ void test_SourceModel_class() {
                    - new_parameters[i].getTrueValue())/
                   parameters[i].getTrueValue() ) < tol);
    }
+
+// Write the flux-style xml file.
+   SrcModel.write_fluxXml("flux_model.xml");
+  
    std::cout << "passed." << std::endl;
 
    std::cout << "*** test_SourceModel_class: all tests passed. ***\n" 
@@ -1351,16 +1399,16 @@ void read_SC_Response_data() {
    test_path = root_path + "/src/test/";
 
 // Prepare the ResponseFunctions object.
-   latResponse::IrfsFactory irfsFactory;
+   latResponse::IrfsFactory * irfsFactory = new latResponse::IrfsFactory();
 
    bool useCombined = true;
    if (useCombined) {
       ResponseFunctions::addRespPtr(4, 
-                                    irfsFactory.create("Glast25::Combined"));
+                                    irfsFactory->create("Glast25::Combined"));
    } else {
 // use front & back
-      ResponseFunctions::addRespPtr(2, irfsFactory.create("Glast25::Front"));
-      ResponseFunctions::addRespPtr(3, irfsFactory.create("Glast25::Back"));
+      ResponseFunctions::addRespPtr(2, irfsFactory->create("Glast25::Front"));
+      ResponseFunctions::addRespPtr(3, irfsFactory->create("Glast25::Back"));
    }
 }
 

@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.32 2003/11/18 18:09:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.33 2003/11/18 23:02:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -49,7 +49,26 @@ namespace {
          name = new_name.str();
       }
    }
-}
+
+   void string_split(std::string input, const std::string &delimiters,
+                std::vector<std::string> &components) {
+// This routine breaks down a string into its components based on the
+// characters appearing in the delimiters string.
+      components.clear();
+      std::string::size_type j;
+      while ( (j = input.find_first_of(delimiters)) != std::string::npos ) { 
+         if (j != 0) components.push_back(input.substr(0, j));
+         input = input.substr(j+1);
+      }
+      components.push_back(input);
+   }
+
+   std::string basename(const std::string &path) {
+      std::vector<std::string> names;
+      string_split(path, "\\/", names);
+      return *(names.end() - 1);
+   }
+} // unnamed namespace
 
 namespace Likelihood {
 
@@ -543,17 +562,32 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
 // Get each Source's properties in terms of its functions.
       Source::FuncMap srcFuncs = (*srcIt)->getSrcFuncs();
 
+// Consider PointSources, Isotropic, and EGRET model Galactic Diffuse sources.
+      bool isPtSrc = srcFuncs.count("Position");
+      bool isIsotropic = srcFuncs.count("SpatialDist") 
+         && srcFuncs["SpatialDist"]->genericName() == "ConstantValue";
+      bool isSpatialMap = srcFuncs.count("SpatialDist") 
+         && srcFuncs["SpatialDist"]->genericName() == "SpatialMap";
+      bool isGalDiffuse(false);
+      if (isSpatialMap) {
+// Get the filename of the FITS map used.
+         std::string fitsFile 
+            = dynamic_cast<SpatialMap *>(srcFuncs["SpatialDist"])->fitsFile();
+         std::string basefilename = ::basename(fitsFile.c_str());
+         std::cout << fitsFile << " "
+                   << basefilename << std::endl;
+         isGalDiffuse = (basefilename == "gas.cel");
+      }
+
 // Compute the flux integrated over the energy range given by the ROI.
       TrapQuad fluxIntegral(srcFuncs["Spectrum"]);
-      std::ostringstream flux;
-      flux << fluxIntegral.integral(energies)/1e-4;
-      srcElt.setAttribute("flux", flux.str().c_str());
+      if (isPtSrc || isIsotropic) {
+         std::ostringstream flux;
+         flux << fluxIntegral.integral(energies)/1e-4;
+         srcElt.setAttribute("flux", flux.str().c_str());
+      }
 
-// Consider PointSources and Isotropic sources.
-      if ( srcFuncs.count("Position")
-           || (srcFuncs.count("SpatialDist") 
-               && srcFuncs["SpatialDist"]->genericName()=="ConstantValue") ) {
-
+      if (isPtSrc || isIsotropic) {
 // Prepare the spectrum tag.
          DOM_Element specElt = doc.createElement("spectrum");
          specElt.setAttribute("escale", "MeV");
@@ -604,6 +638,34 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
             solidAngleElt.setAttribute("maxcos", "1.0");
             specElt.appendChild(solidAngleElt);
          }
+         srcElt.appendChild(specElt);
+      } else if (isGalDiffuse) {
+         DOM_Element specElt = doc.createElement("spectrum");
+         specElt.setAttribute("escale", "MeV");
+         DOM_Element specClassElt = doc.createElement("SpectrumClass");
+         specClassElt.setAttribute("name", "MapSpectrum");
+         if (srcFuncs["Spectrum"]->genericName() != "PowerLaw") {
+            throw Exception(std::string("SourceModel::write_fluxXml:\n")
+                            + "Galactic Diffuse spectral model is not a "
+                            + "power-law.");
+         } else {
+// This solidAngleFactor is specific to the EGRET Galactic diffuse
+// model for converting a PowerLaw spectrum to units appropriate for
+// MapFlux to use.  This sort of magic number will go away (hopefully)
+// once a more general FITS template class is written for the flux
+// package.
+            static double solidAngleFactor(7.882);
+            std::ostringstream params;
+            params << elims.first << "," 
+                   << -srcFuncs["Spectrum"]->getParamValue("Index") << ","
+                   << "/src/sources/gas_gal.fits,"
+                   << fluxIntegral.integral(energies)*solidAngleFactor;
+            specClassElt.setAttribute("params", params.str().c_str());
+         }
+         specElt.appendChild(specClassElt);
+         DOM_Element useSpecElt = doc.createElement("use_spectrum");
+         useSpecElt.setAttribute("frame", "galaxy");
+         specElt.appendChild(useSpecElt);
          srcElt.appendChild(specElt);
       }
       srcLib.appendChild(srcElt);

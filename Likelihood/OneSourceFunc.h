@@ -4,7 +4,7 @@
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.2 2003/11/08 01:24:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.3 2003/11/22 00:06:12 pln Exp $
  */
 
 #ifndef Likelihood_OneSourceFunc_h
@@ -18,6 +18,8 @@
 #include "optimizers/Exception.h"
 #include "optimizers/ParameterNotFound.h"
 
+#include "optimizers/Statistic.h"
+
 namespace Likelihood {
 
    /**
@@ -25,10 +27,11 @@ namespace Likelihood {
     * @brief Extended likelihood function for one source.
     * @author P. Nolan
     *
-    * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.2 2003/11/08 01:24:41 jchiang Exp $
+    * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.3 2003/11/22 00:06:12 pln Exp $
     */
   
-  class OneSourceFunc: public optimizers::Function {
+//   class OneSourceFunc: public optimizers::Function {
+  class OneSourceFunc: public optimizers::Statistic {
     
   public:
 
@@ -43,11 +46,27 @@ namespace Likelihood {
       setFreeParamValues_(std::vector<double>::const_iterator it);
     virtual std::vector<double>::const_iterator
       setParamValues_(std::vector<double>::const_iterator);
-    virtual Function *clone() const {return new OneSourceFunc(*this);}
+//    virtual Function *clone() const {return new OneSourceFunc(*this);}
+    virtual Statistic *clone() const {return new OneSourceFunc(*this);}
     virtual void setParams(std::vector<optimizers::Parameter>&)
       throw(optimizers::Exception, optimizers::ParameterNotFound);
     void setEpsW(double);
     void setEpsF(double);
+
+     virtual double value() const {
+        optimizers::Arg dummy;
+        return value(dummy);
+     }
+
+     virtual void getFreeDerivs(optimizers::Arg &x, 
+                                std::vector<double> &derivs) const {
+        Function::getFreeDerivs(x, derivs);
+     }
+
+     virtual void getFreeDerivs(std::vector<double> &derivs) const {
+        optimizers::Arg dummy;
+        getFreeDerivs(dummy, derivs);
+     }
 
   protected:
 

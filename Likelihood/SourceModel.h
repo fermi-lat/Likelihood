@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.30 2003/11/18 18:07:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.31 2003/11/18 23:02:31 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-#include "optimizers/Function.h"
+#include "optimizers/Statistic.h"
 #include "Likelihood/Source.h"
 
 namespace optimizers {
@@ -30,10 +30,10 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.30 2003/11/18 18:07:00 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.31 2003/11/18 23:02:31 jchiang Exp $ 
  */
 
-class SourceModel : public optimizers::Function {
+class SourceModel : public optimizers::Statistic {
     
 public:
    
@@ -42,7 +42,7 @@ public:
       m_genericName = "SourceModel";
       s_refCount++;
    }
-   SourceModel(const SourceModel &rhs) : optimizers::Function(rhs) 
+   SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs) 
       {s_refCount++;}
 
    virtual ~SourceModel();
@@ -98,6 +98,14 @@ public:
       throw(optimizers::Exception, optimizers::ParameterNotFound) 
       {setParams_(params, true);}
 
+   /// This needs to be re-implemented, delegating to the base class
+   /// method, since all member functions with the same name get
+   /// hidden by a local declaration, even if the signatures differ.
+   virtual void getFreeDerivs(optimizers::Arg &x, 
+                              std::vector<double> &derivs) const {
+      Function::getFreeDerivs(x, derivs);
+   }
+
    /// add and delete sources by name
    void addSource(Source *src);
    void deleteSource(const std::string &srcName) throw(optimizers::Exception);
@@ -148,6 +156,19 @@ protected:
 
    void setParams_(std::vector<optimizers::Parameter> &, bool)
       throw(optimizers::Exception, optimizers::ParameterNotFound);
+
+   /// Although these member functions are required by being a
+   /// Statistic subclass, they are not needed for any practical use
+   /// of SourceModel objects themselves, so we implement them here in
+   /// the protected area.  SourceModel subclasses that need them,
+   /// e.g., LogLike, will have to re-implement them.
+   virtual double value() const {
+      return 0;
+   }
+
+   virtual void getFreeDerivs(std::vector<double> &derivs) const {
+      derivs.clear();
+   }
 
 };
 

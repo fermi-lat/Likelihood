@@ -4,7 +4,7 @@
  * command-line parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.5 2003/12/04 00:32:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.6 2003/12/06 23:46:37 jchiang Exp $
  */
 
 #include <fstream>
@@ -32,7 +32,7 @@ RunParams::RunParams(int iargc, char* argv[]) {
    } catch (hoops::Hexception &eObj) {
       if (eObj.Code() == -3003) {
          std::cout << "Likelihood::RunParams: .par file " << argv[0]
-                   << "is not found.  Check your PFILES directory." 
+                   << " is not found.  Check your PFILES directory." 
                    << std::endl;
          assert(eObj.Code() != -3003);
       }

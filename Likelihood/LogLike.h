@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.5 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.6 2003/11/07 21:44:16 pln Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.5 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.6 2003/11/07 21:44:16 pln Exp $
  */
 
 class LogLike : public SourceModel {
@@ -45,10 +45,20 @@ public:
 
    virtual double value(optimizers::Arg&) const;
 
+   virtual double value() const {
+      optimizers::Arg dummy;
+      return value(dummy);
+   }
+
    /// Return the derivatives wrt the free parameters, overloading
    /// the Function method
    virtual void getFreeDerivs(optimizers::Arg&, 
                               std::vector<double> &freeDerivs) const;
+
+   virtual void getFreeDerivs(std::vector<double> &freeDerivs) const {
+      optimizers::Arg dummy;
+      getFreeDerivs(dummy, freeDerivs);
+   }
 
    void getEvents(std::string event_file, int hdu);
 
@@ -62,7 +72,8 @@ public:
 // Methods and data members from old Likelihood::Statistic:
    void readEventData(const std::string &eventFile, int hdu);
 
-   std::pair<long, double*> getEventColumn(const std::string &colname) const
+   std::pair<long, std::vector<double> > 
+   getEventColumn(const std::string &colname) const
       {return getColumn(*m_eventData, colname);}
 
    unsigned long nEvents() const {return m_events.size();}
@@ -70,8 +81,9 @@ public:
 protected:
 
    /// Generalized column access
-   std::pair<long, double*> getColumn(const latResponse::Table &tableData, 
-                                      const std::string &colname) const
+   std::pair<long, std::vector<double> > 
+   getColumn(const latResponse::Table &tableData, 
+             const std::string &colname) const
       throw(optimizers::Exception);
 
    /// Event data; read from m_eventFile, stored in Table form
