@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.39 2004/08/23 16:14:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.40 2004/09/02 23:43:16 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -26,6 +26,8 @@ namespace optimizers {
 
 namespace Likelihood {
 
+   class CountsMap;
+
 /** 
  * @class SourceModel
  *
@@ -35,7 +37,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.39 2004/08/23 16:14:56 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.40 2004/09/02 23:43:16 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -148,9 +150,13 @@ public:
    /// Write a flux-style xml file for the current source model.
    virtual void write_fluxXml(std::string xmlFile);
 
+//    /// Create a counts map based on the current model.
+//    void makeCountsMap(const std::string & filename,
+//                       const MapShape & mapShape) const;
+
    /// Create a counts map based on the current model.
-   void makeCountsMap(const std::string & filename,
-                      const MapShape & mapShape) const;
+   void makeCountsMap(const CountsMap & dataMap,
+                      const std::string & filename) const;
 
    class Aeff : public map_tools::Exposure::Aeff {
    public:

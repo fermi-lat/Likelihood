@@ -25,7 +25,7 @@ namespace Likelihood {
           \param binners vector of references to binners.  The size of this 
                  vector sets the dimensionality of the histogram.
       */
-      HistND(const std::vector<Binner *> & binners);
+      HistND(const std::vector<evtbin::Binner *> & binners);
 
       HistND(const HistND & rhs);
       

@@ -3,13 +3,14 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.47 2004/08/25 15:28:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.48 2004/09/02 23:43:19 jchiang Exp $
  */
 
 #include <cassert>
 #include <cmath>
 
 #include <algorithm>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -25,6 +26,7 @@
 #include "optimizers/Arg.h"
 #include "optimizers/FunctionFactory.h"
 
+#include "Likelihood/CountsMap.h"
 #include "Likelihood/Exception.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/ExposureMap.h"
@@ -459,8 +461,8 @@ void SourceModel::makeCountsMap(const CountsMap & dataMap,
                                 const std::string & filename) const {
 
    if (ExposureCube::instance() == 0) {
-      std::runtime_error(std::string("SourceModel::makeCountsMap:\n")
-                         + "Exposure cube not available.");
+      std::runtime_error("SourceModel::makeCountsMap:\n"
+                         + std::string("Exposure cube not available."));
    }
 
    std::vector<double> map;
@@ -477,7 +479,7 @@ void SourceModel::makeCountsMap(const CountsMap & dataMap,
    dataMap.getAxisVector(2, energies);
 
    astro::SkyDir::CoordSystem coordType(astro::SkyDir::EQUATORIAL);
-   if (dataMap.use_lb) {
+   if (dataMap.use_lb()) {
       coordType = astro::SkyDir::GALACTIC;
    }
 
@@ -489,7 +491,7 @@ void SourceModel::makeCountsMap(const CountsMap & dataMap,
       std::vector<double>::const_iterator lonIt = longitudes.begin();
       for ( ; lonIt != longitudes.end() - 1; ++lonIt) {
          double longitude = (*lonIt + *(lonIt+1))/2.;
-         pixelDirs.push_back(astro::SkyDir(*lonIt, *latIt, coordType));
+         pixelDirs.push_back(astro::SkyDir(longitude, latitude, coordType));
       }
    }
 
@@ -534,16 +536,6 @@ double SourceModel::Aeff::operator()(double costheta) const {
                                 m_type);
    }
    return 0;
-}
-
-void SourceModel::writeFitsFile(const std::string &filename, 
-                                std::vector<double> &ras,
-                                std::vector<double> &decs,
-                                std::vector<double> &energies,
-                                std::vector<double> &map) const {
-   
-
-
 }
 
 // void SourceModel::writeFitsFile(const std::string &filename, 
