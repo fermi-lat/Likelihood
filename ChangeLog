@@ -1,0 +1,13 @@
+------------------------------------------------------------
+User: jchiang  Fri Feb 28 13:51:30 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h Event.h PointSource.h Response.h Source.h Statistic.h 
+Added Files:
+	RoiCuts.h ScData.h 
+Removed Files:
+	ScNtuple.h 
+Log Message:
+add RoiCuts, ScData classes
+    *
