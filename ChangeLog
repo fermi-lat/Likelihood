@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct  1 17:05:49 PDT 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+add mean psf calculation
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  1 17:05:01 PDT 2004
 Likelihood/src/meanPsf
 
