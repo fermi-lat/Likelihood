@@ -8,8 +8,6 @@
 //  include everything for the compiler to test
 //  #include "DiffuseParametric.h"
 //  #include "DiffuseSource.h"
-//  #include "SpectralFilter.h"
-//  #include "Spectrum.h"
 
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Function.h"
@@ -28,16 +26,14 @@
 #include "Likelihood/SumFunction.h"
 #include "Likelihood/ProductFunction.h"
 #include "lbfgs.h"
+#include "OptPP.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
 #include "MyFun.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
+#include "AbsEdge.h"
 #include "Rosen.h"
-
-#ifdef HAVE_OPTIMIZERS
-#include "OptPP.h"
-#endif
 
 using namespace Likelihood;   // for testing purposes only
 
@@ -63,21 +59,21 @@ std::string test_path;
 
 int main(){
    read_SC_Response_data();
-   test_Parameter_class();
-   test_Function_class();
-   test_PowerLaw_class();
-   test_SourceModel_class();
-   test_Table_class();
-   test_Statistic_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_Aeff_class();
-   test_Psf_class();
-   test_logLike_ptsrc();
+//     test_Parameter_class();
+//     test_Function_class();
+//     test_PowerLaw_class();
+//     test_SourceModel_class();
+//     test_Table_class();
+//     test_Statistic_class();
+//     test_Event_class();
+//     test_PointSource_class();
+//     test_Aeff_class();
+//     test_Psf_class();
+//     test_logLike_ptsrc();
    test_CompositeFunction();
-   test_OptPP();
-   fit_3C279();
-   fit_anti_center();
+//     test_OptPP();
+//     fit_3C279();
+//     fit_anti_center();
    return 0;
 }
 
@@ -102,14 +98,14 @@ void test_OptPP() {
    int verbose = 3;
 
 // try lbfgs_bcm method first   
-   lbfgs my_lbfgsObj(&my_rosen);
-   my_lbfgsObj.find_min(verbose);
+//   lbfgs my_lbfgsObj(my_rosen);
+//   my_lbfgsObj.find_min(verbose);
 
 // now restart and try OptPP
    params[0].setValue(2.);
    params[1].setValue(2.);
    my_rosen.setParams(params);
-   OptPP my_OptppObj(&my_rosen);
+   OptPP my_OptppObj(my_rosen);
    my_OptppObj.find_min(verbose);
 
 #endif  //HAVE_OPTIMIZERS
@@ -126,18 +122,59 @@ void test_CompositeFunction() {
    Gaussian Carl(1., 1., 0.1);
    Gaussian Fredrich(0.5, 2., 0.3);
 
-   SumFunction gauss_sum(&Carl, &Fredrich);
+   SumFunction gauss_sum(Carl, Fredrich);
 
    Gaussian Johann(.75, 3., 0.5);
 
-   SumFunction another_gauss_sum(&Johann, &gauss_sum);
+   SumFunction another_gauss_sum(Johann, gauss_sum);
 
    int nmax = 100;
    double xstep = 5./(nmax-1);
+//     for (int i = 0; i < nmax; i++) {
+//        double x = xstep*i;
+//        dArg xarg(x);
+//        std::cout << x << "  " << another_gauss_sum(xarg) << std::endl;
+//     }
+
+// add a PowerLaw and Gaussian together 
+
+   PowerLaw pl_continuum(1., -2., 1.);
+   Gaussian emission_line(10., 1., 0.1);
+
+   SumFunction spectrum(pl_continuum, emission_line);
+
+// multiply by an absorption edge
+
+   AbsEdge edge(2., 3.);
+   ProductFunction absorbed_spec(edge, spectrum);
+
+   double xmin = 0.03;
+   double xmax = 30.;
+   xstep = log(xmax/xmin)/(nmax-1);
    for (int i = 0; i < nmax; i++) {
-      double x = xstep*i;
+      double x = xmin*exp(xstep*i);
       dArg xarg(x);
-      std::cout << x << "  " << another_gauss_sum(xarg) << std::endl;
+      std::cout << x << "  " << absorbed_spec(xarg) << std::endl;
+   }
+   
+// check the derivatives of AbsEdge
+   std::vector<double> params;
+   edge.getParamValues(params);
+   dArg xarg(4.);
+   double edge_value = edge(xarg);
+   std::vector<double> derivs;
+   edge.getDerivs(xarg, derivs);
+
+   double eps = 1e-7;
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::vector<double> new_params = params;
+      double dparam = eps*new_params[i];
+      new_params[i] += dparam;
+      edge.setParamValues(new_params);
+      double new_edge_value = edge(xarg);
+      std::cerr << derivs[i] << "  "
+                << (new_edge_value - edge_value)/dparam
+                << std::endl;
    }
 }
 
@@ -254,8 +291,8 @@ void fit_anti_center() {
 #ifdef HAVE_OPTIMIZERS
 
 // do the fit
-//   lbfgs myOptimizer(&logLike);
-   OptPP myOptimizer(&logLike);
+//   lbfgs myOptimizer(logLike);
+   OptPP myOptimizer(logLike);
 
    int verbose = 3;
    myOptimizer.find_min(verbose);
@@ -338,10 +375,10 @@ void fit_3C279() {
 #ifdef HAVE_OPTIMIZERS
 
 // do the fit using lbfgs_bcm
-//   lbfgs myOptimizer(&logLike);
+//   lbfgs myOptimizer(logLike);
 
 // do the fit using OptPP
-   OptPP myOptimizer(&logLike);
+   OptPP myOptimizer(logLike);
    
    int verbose = 3;
    myOptimizer.find_min(verbose);

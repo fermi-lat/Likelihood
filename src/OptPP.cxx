@@ -3,11 +3,14 @@
  * OPT++ package
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.cxx,v 1.1 2003/03/17 17:48:39 jchiang Exp $
  */
 
 #include <cassert>
 #include <fstream>
+
+#include "Likelihood/Parameter.h"
+#include "OptPP.h"
 
 #ifdef HAVE_OPTIMIZERS
 
@@ -19,9 +22,6 @@
 //#include "OptBCEllipsoid.h"
 
 #endif //HAVE_OPTIMIZERS
-
-#include "Likelihood/Parameter.h"
-#include "OptPP.h"
 
 namespace Likelihood {
 

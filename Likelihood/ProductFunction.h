@@ -2,7 +2,7 @@
  * @brief Declaration of ProductFunction class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.2 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef ProductFunction_h
@@ -18,15 +18,15 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.2 2003/03/17 00:53:43 jchiang Exp $
  *
  */
     
 class ProductFunction : public CompositeFunction {
 public:
 
-   ProductFunction(Function *a, Function *b) {
-      m_a = a; m_b = b;}
+   ProductFunction(Function &a, Function &b) {
+      m_a = &a; m_b = &b;}
 
    double value(Arg &x) const
       {return m_a->value(x)*m_b->value(x);}

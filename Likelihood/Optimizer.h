@@ -3,13 +3,13 @@
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Optimizer.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef Optimizer_h
 #define Optimizer_h
 
-//#include "Likelihood/Statistic.h"
+//#define HAVE_OPTIMIZERS
 
 namespace Likelihood {
 
@@ -20,7 +20,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Optimizer.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class Optimizer {
