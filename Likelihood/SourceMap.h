@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.1 2004/09/22 05:39:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.2 2004/09/24 03:54:19 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -20,7 +20,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.1 2004/09/22 05:39:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.2 2004/09/24 03:54:19 jchiang Exp $
  */
 
 class SourceMap {
@@ -33,16 +33,20 @@ public:
 
    const std::vector<double> & model() const {return m_model;}
 
+   const std::vector<double> & npreds() const {return m_npreds;}
+
 private:
 
-/// m_models has the same size as the data in the dataMap plus one
-/// energy plane.
+   std::string m_name;
+
+/// @brief m_models has the same size as the data in the dataMap plus
+/// one energy plane.
 ///
 /// @todo Keep track of event types included in a given SourceMap.
-
    std::vector<double> m_model;
 
-   std::string m_name;
+/// @brief Each entry is the angular integral over the energy plane.
+   std::vector<double> m_npreds;
 
    class Aeff : public Pixel::Aeff {
    public:

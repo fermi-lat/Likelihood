@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.5 2004/09/22 20:05:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.6 2004/09/24 03:54:19 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -69,23 +69,14 @@ public:
    virtual std::vector<double>::const_iterator setFreeParamValues_(
       std::vector<double>::const_iterator);
 
-protected:
-
-   virtual void computeModelMap(const std::vector<Pixel> & pixels,
-                                const std::vector<double> & energies,
-                                std::vector<double> & modelMap) const {
-      SourceModel::computeModelMap(pixels, energies, modelMap);
-   }
-
-   virtual void computeModelMap(const std::vector<double> & energies,
-                                std::vector<double> & modelMap) const;
-
 private:
 
    const CountsMap & m_dataMap;
 
    std::vector<Pixel> m_pixels;
    std::vector<double> m_energies;
+
+   std::vector<unsigned int> m_filledPixels;
 
    std::map<std::string, SourceMap *> m_srcMaps;
 
@@ -96,8 +87,14 @@ private:
 
    void createSourceMaps();
 
+   void computeModelMap(double & npred) const;
+
+   void computeModelMap(std::vector<double> & modelMap) const;
+
    /// Implement some rune-like tip arcana.
    void setImageDimensions(tip::Image * image, long * dims) const;
+
+   void identifyFilledPixels();
 
 };
 
