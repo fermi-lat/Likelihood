@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.20 2004/06/30 20:21:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.21 2004/07/01 17:51:10 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -32,8 +32,12 @@
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
 
-#include "latResponse/AcceptanceCone.h"
-#include "latResponse/IrfsFactory.h"
+// #include "latResponse/AcceptanceCone.h"
+// #include "latResponse/IrfsFactory.h"
+
+#include "irfInterface/IrfsFactory.h"
+#include "irfInterface/AcceptanceCone.h"
+#include "g25Response/loadIrfs.h"
 
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
@@ -55,7 +59,7 @@
 
 using namespace Likelihood;
 using optimizers::Parameter;
-using latResponse::irfsFactory;
+//using latResponse::irfsFactory;
 
 class LikelihoodTests : public CppUnit::TestFixture {
 
@@ -132,8 +136,13 @@ void LikelihoodTests::setUp() {
 // Prepare the ResponseFunctions object.
 //    ResponseFunctions::addRespPtr(2, irfsFactory().create("DC1::Front"));
 //    ResponseFunctions::addRespPtr(3, irfsFactory().create("DC1::Back"));
-   ResponseFunctions::addRespPtr(2, irfsFactory().create("Glast25::Front"));
-   ResponseFunctions::addRespPtr(3, irfsFactory().create("Glast25::Back"));
+   g25Response::loadIrfs();
+   irfInterface::IrfsFactory * myFactory 
+      = irfInterface::IrfsFactory::instance();
+//    ResponseFunctions::addRespPtr(2, irfsFactory().create("Glast25::Front"));
+//    ResponseFunctions::addRespPtr(3, irfsFactory().create("Glast25::Back"));
+   ResponseFunctions::addRespPtr(2, myFactory->create("Glast25::Front"));
+   ResponseFunctions::addRespPtr(3, myFactory->create("Glast25::Back"));
    
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
@@ -189,7 +198,8 @@ void LikelihoodTests::test_RoiCuts() {
    static double ra = 193.98;
    static double dec = -5.82;
    static double radius = 20.;
-   latResponse::AcceptanceCone roiCone(astro::SkyDir(ra, dec), radius);
+//    latResponse::AcceptanceCone roiCone(astro::SkyDir(ra, dec), radius);
+   irfInterface::AcceptanceCone roiCone(astro::SkyDir(ra, dec), radius);
    CPPUNIT_ASSERT(roiCone == roiCuts->extractionRegion());
    double my_ra, my_dec;
    RoiCuts::getRaDec(my_ra, my_dec);
