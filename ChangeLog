@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 27 21:32:25 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h ExposureMap.h FitsImage.h SpatialMap.h 
+Log Message:
+refactor FitsImage to derive from st_facilities::FitsImage
+    *
+------------------------------------------------------------
 User: jchiang  Sat Sep 25 11:24:34 PDT 2004
 Likelihood/src/likelihood
 
