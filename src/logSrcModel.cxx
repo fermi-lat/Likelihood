@@ -3,7 +3,7 @@
  * @brief logSrcModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logSrcModel.cxx,v 1.7 2003/08/06 20:52:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logSrcModel.cxx,v 1.8 2003/11/12 22:01:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -15,9 +15,11 @@ double logSrcModel::value(optimizers::Arg &xarg) const {
    Event evt;
    dynamic_cast<EventArg &>(xarg).fetchValue(evt);
 
-   double my_value = 0;
-   for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      my_value += s_sources[i]->fluxDensity(evt);
+   double my_value(0);
+   
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); ++srcIt) {
+      my_value += srcIt->second->fluxDensity(evt);
    }
    if (my_value > 0) {
       return log(my_value);
@@ -34,8 +36,9 @@ void logSrcModel::fetchDerivs(optimizers::Arg &xarg,
    dynamic_cast<EventArg &>(xarg).fetchValue(evt);
    double srcSum = exp(value(xarg));
 
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); ++srcIt) {
+      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<std::string> paramNames;
@@ -46,7 +49,7 @@ void logSrcModel::fetchDerivs(optimizers::Arg &xarg,
          }
          for (unsigned int j = 0; j < paramNames.size(); j++) {
             derivs.push_back(
-               (*s_sources[i]).fluxDensityDeriv(evt, paramNames[j])/srcSum
+               srcIt->second->fluxDensityDeriv(evt, paramNames[j])/srcSum
                );
          }
       }

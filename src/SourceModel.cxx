@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.38 2004/02/18 21:13:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.39 2004/02/20 00:02:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -22,6 +22,7 @@
 #include "optimizers/Arg.h"
 #include "optimizers/FunctionFactory.h"
 
+#include "Likelihood/Exception.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SkyDirFunction.h"
@@ -35,14 +36,14 @@
 namespace Likelihood {
 
 int SourceModel::s_refCount = 0;
-std::vector<Source *> SourceModel::s_sources;
+std::map<std::string, Source *> SourceModel::s_sources;
 
 SourceModel::~SourceModel() {
    s_refCount--;
    if (s_refCount == 0) {
-      std::vector<Source *>::iterator it = s_sources.begin();
+      std::map<std::string, Source *>::iterator it = s_sources.begin();
       for (; it != s_sources.end(); it++)
-         delete (*it);
+         delete (*it).second;
    }
    s_sources.clear();
 }
@@ -51,16 +52,14 @@ void SourceModel::setParam(const optimizers::Parameter &param,
                            const std::string &funcName,
                            const std::string &srcName) 
    throw(optimizers::Exception) {
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      if (srcName == (*s_sources[i]).getName()) {
-         Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
-         if (srcFuncs.count(funcName)) {
-            srcFuncs[funcName]->setParam(param.getName(), 
-                                         param.getValue(),
-                                         param.isFree());
-            syncParams();
-            return;
-         }
+   if (s_sources.count(srcName)) {
+      Source::FuncMap srcFuncs = (*s_sources[srcName]).getSrcFuncs();
+      if (srcFuncs.count(funcName)) {
+         srcFuncs[funcName]->setParam(param.getName(), 
+                                      param.getValue(),
+                                      param.isFree());
+         syncParams();
+         return;
       }
    }
    std::string errorMessage = "SourceModel::setParam:\n Function " 
@@ -70,8 +69,9 @@ void SourceModel::setParam(const optimizers::Parameter &param,
  
 std::vector<double>::const_iterator SourceModel::setParamValues_(
    std::vector<double>::const_iterator it) { 
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); ++srcIt) {
+      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) 
          it = (*func_it).second->setParamValues_(it);
@@ -82,8 +82,9 @@ std::vector<double>::const_iterator SourceModel::setParamValues_(
 
 std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
    std::vector<double>::const_iterator it) { 
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); ++srcIt) {
+      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) 
          it = (*func_it).second->setFreeParamValues_(it);
@@ -96,30 +97,28 @@ optimizers::Parameter SourceModel::getParam(const std::string &paramName,
                                             const std::string &funcName,
                                             const std::string &srcName) const 
    throw(optimizers::Exception, optimizers::ParameterNotFound) {
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      if (srcName == (*s_sources[i]).getName()) {
-         std::vector<optimizers::Parameter> params;
-         Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
-         if (srcFuncs.count(funcName)) {    //check for funcName
-            try {
-               srcFuncs[funcName]->getParams(params);
-            } catch (optimizers::Exception &eObj) {
-               std::cerr << eObj.what() << std::endl;
-               assert(false);
-            }                 
-            for (unsigned int j = 0; j < params.size(); j++) {
-               if (paramName == params[j].getName()) {
-                  return params[j];
-               }
+   if (s_sources.count(srcName)) {
+      std::vector<optimizers::Parameter> params;
+      Source::FuncMap srcFuncs = s_sources[srcName]->getSrcFuncs();
+      if (srcFuncs.count(funcName)) {    //check for funcName
+         try {
+            srcFuncs[funcName]->getParams(params);
+         } catch (optimizers::Exception &eObj) {
+            std::cerr << eObj.what() << std::endl;
+            assert(false);
+         }                 
+         for (unsigned int j = 0; j < params.size(); j++) {
+            if (paramName == params[j].getName()) {
+               return params[j];
             }
-            throw optimizers::ParameterNotFound(paramName, funcName, 
-                                                "SourceModel::getParam");
          }
-         std::string errorMessage = "SourceModel::getParam:\n Function"
-            + funcName + " was not found in Source " 
-            + srcName + ".";
-         throw optimizers::Exception(errorMessage);
+         throw optimizers::ParameterNotFound(paramName, funcName, 
+                                             "SourceModel::getParam");
       }
+      std::string errorMessage = "SourceModel::getParam:\n Function"
+         + funcName + " was not found in Source " 
+         + srcName + ".";
+      throw optimizers::Exception(errorMessage);
    }
    std::string errorMessage = "SourceModel::getParam:\nSource "
       + srcName + " was not found.";
@@ -177,8 +176,9 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
 // Assume ordering of Parameters in params matches that given by the
 // ordering of the Sources and their Functions.
    int k = 0;  // params' index
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); ++srcIt) {
+      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          unsigned int numParams;
@@ -197,26 +197,23 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
 }
 
 void SourceModel::addSource(Source *src) {
-// Loop over sources to ensure unique names (Should refactor s_sources
-// as a map).
-   for (unsigned int i = 0; i < s_sources.size(); i++) 
-      assert((*src).getName() != (*s_sources[i]).getName());
-
-   s_sources.push_back(src->clone());
-
-   syncParams();
+   if (!s_sources.count(src->getName())) {
+      s_sources[src->getName()] = src->clone();
+      syncParams();
+   } else {
+      throw Exception("Likelihood::SourceModel:\nSource named " 
+                      + src->getName() + " alread exists.");
+   }
 }
  
 Source * SourceModel::deleteSource(const std::string &srcName) 
    throw(optimizers::Exception) {
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      if (srcName == (*s_sources[i]).getName()) {
-         Source * mySource = s_sources[i];
-         s_sources.erase(s_sources.begin() + i, 
-                         s_sources.begin() + i + 1);
-         syncParams();
-         return mySource;
-      }
+   std::map<std::string, Source *>::iterator it = s_sources.find(srcName);
+   if (it != s_sources.end()) {
+      Source * mySource = it->second;
+      s_sources.erase(it);
+      syncParams();
+      return mySource;
    }
    std::string errorMessage = "SourceModel::deleteSource:\n" 
       + srcName + " was not found.";
@@ -234,24 +231,25 @@ void SourceModel::deleteAllSources() {
 }
 
 Source * SourceModel::getSource(const std::string &srcName) {
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      if (srcName == s_sources[i]->getName())
-         return s_sources[i];
+   if (s_sources.count(srcName)) {
+      return s_sources[srcName];
    }
    return 0;
 }
 
 void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    names.clear();
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      names.push_back(s_sources[i]->getName());
+   std::map<std::string, Source *>::iterator it = s_sources.begin();
+   for ( ; it != s_sources.end(); ++it) {
+      names.push_back(it->first);
    }
 }
 
 double SourceModel::value(optimizers::Arg &x) const {
    double my_val = 0.;
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); ++srcIt) {
+      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          my_val += (*func_it).second->value(x);
@@ -263,8 +261,9 @@ double SourceModel::value(optimizers::Arg &x) const {
 void SourceModel::syncParams() { // remake parameter vector from scratch 
    m_parameter.clear();
 
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); ++srcIt) {
+      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<optimizers::Parameter> params;
@@ -280,8 +279,9 @@ void SourceModel::fetchDerivs(optimizers::Arg &x,
                               bool getFree) const {
    derivs.clear();
 
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); ++srcIt) {
+      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<double> my_derivs;
@@ -349,8 +349,14 @@ void SourceModel::reReadXml(std::string xmlFile) {
    std::vector<DomElement> srcs;
    xml::Dom::getChildrenByTagName(source_library, "source", srcs);
 
-   assert(srcs.size() == s_sources.size());
    for (unsigned int j = 0; j < srcs.size(); j++) {
+      std::string srcName = xml::Dom::getAttribute(srcs[j], "name");
+      Source * my_source(0);
+      if (s_sources.count(srcName)) {
+         my_source = s_sources[srcName];
+      } else {
+         continue;
+      }
       std::string srcType = xml::Dom::getAttribute(srcs[j], "type");
 // Get spectrum and spatialModel elements
       std::vector<DomElement> child;
@@ -360,7 +366,7 @@ void SourceModel::reReadXml(std::string xmlFile) {
       xml::Dom::getChildrenByTagName(srcs[j], "spatialModel", child);
       DomElement spatialModel = child[0];
 
-      s_sources[j]->getSrcFuncs()["Spectrum"]->setParams(spectrum);
+      my_source->getSrcFuncs()["Spectrum"]->setParams(spectrum);
       if (srcType == "PointSource") {
 // Extract (RA, Dec) from the parameter elements and use
 // PointSource::setDir(...) method to ensure that exposure gets
@@ -380,12 +386,12 @@ void SourceModel::reReadXml(std::string xmlFile) {
          astro::SkyDir newDir(ra, dec);
          double tol = 1e-4;
          if (newDir.difference(
-                dynamic_cast<PointSource *>(s_sources[j])->getDir() ) > tol) {
+                dynamic_cast<PointSource *>(my_source)->getDir() ) > tol) {
 // Reset the direction, re-computing the PointSource exposure.
-            s_sources[j]->setDir(newDir);
+            my_source->setDir(newDir);
          }
       } else if (srcType == "DiffuseSource") {
-         s_sources[j]->getSrcFuncs()["SpatialDist"]->setParams(spatialModel);
+         my_source->getSrcFuncs()["SpatialDist"]->setParams(spatialModel);
       } else {
          std::cerr << "SourceModel::reReadXml: "
                    << "Unknown Source type: " << srcType << std::endl;
@@ -402,9 +408,9 @@ void SourceModel::writeXml(std::string xmlFile,
 
    SourceModelBuilder builder(functionLibrary, srcLibTitle);
 
-   std::vector<Source *>::iterator srcIt = s_sources.begin();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
    for ( ; srcIt != s_sources.end(); srcIt++) {
-      builder.addSource(**srcIt);
+      builder.addSource(*(srcIt->second));
    }
 
    builder.write(xmlFile);
@@ -414,12 +420,24 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
 
    FluxBuilder builder;
 
-   std::vector<Source *>::iterator srcIt = s_sources.begin();
+   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
    for ( ; srcIt != s_sources.end(); srcIt++) {
-      builder.addSource(**srcIt);
+      builder.addSource(*(srcIt->second));
    }
 
    builder.write(xmlFile);
+}
+
+bool SourceModel::hasSrcNamed(const std::string & srcName) const {
+   std::vector<std::string> names;
+   getSrcNames(names);
+   std::vector<std::string>::const_iterator it = names.begin();
+   for ( ; it != names.end(); ++it) {
+      if (srcName == *it) {
+         return true;
+      }
+   }
+   return false;      
 }
 
 // void SourceModel::makeCountsMap(const std::string &filename, 

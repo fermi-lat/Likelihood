@@ -3,12 +3,13 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.33 2004/02/07 23:14:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.34 2004/02/20 00:02:03 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
 #define Likelihood_SourceModel_h
 
+#include <map>
 #include <vector>
 #include <string>
 
@@ -30,7 +31,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.33 2004/02/07 23:14:20 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.34 2004/02/20 00:02:03 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -122,6 +123,7 @@ public:
 
    unsigned int getNumSrcs() const {return s_sources.size();}
    void getSrcNames(std::vector<std::string> &) const;
+   bool hasSrcNamed(const std::string & srcName) const;
 
    virtual double value(optimizers::Arg &x) const;
 
@@ -145,7 +147,8 @@ protected:
 
    static int s_refCount;
 
-   static std::vector<Source *> s_sources;
+//   static std::vector<Source *> s_sources;
+   static std::map<std::string, Source *> s_sources;
 
    /// method to sync the m_parameter vector with those of the 
    /// s_sources' Functions
