@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.9 2004/12/07 05:13:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.10 2004/12/09 19:03:35 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -97,7 +97,7 @@ gtsrcmaps::gtsrcmaps()
 void gtsrcmaps::run() {
    m_helper->checkOutputFile();
    m_helper->checkTimeCuts(m_pars["counts_map_file"], "",
-                           m_pars["exposure_cube_file"], "hypercube");
+                           m_pars["exposure_cube_file"], "");
    ExposureCube::readExposureCube(m_pars["exposure_cube_file"]);
 
    std::string cntsMapFile = m_pars["counts_map_file"];
