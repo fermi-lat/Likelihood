@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Apr  3 14:11:54 PST 2004
+Likelihood/src/likelihoodApp
+
+Added Files:
+	likelihood.cxx 
+Log Message:
+reorganize directories, requirements file
+    *
+------------------------------------------------------------
 User: jchiang  Sat Apr  3 14:11:53 PST 2004
 Likelihood/src/expMap
 
