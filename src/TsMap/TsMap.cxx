@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.4 2004/04/07 02:11:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.5 2004/04/10 21:23:27 jchiang Exp $
  */
 
 #include <cmath>
@@ -31,7 +31,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.4 2004/04/07 02:11:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.5 2004/04/10 21:23:27 jchiang Exp $
  */
 class TsMap : public AppBase {
 public:
@@ -131,15 +131,19 @@ void TsMap::computeMap() {
    m_opt->find_min(verbosity, tol);
    double logLike0 = m_logLike(dummy);
    bool computeExposure(true);
+   std::string coordSys = m_pars["Coordinate_system"];
 
    for (unsigned int jj = 0; jj < m_latValues.size(); jj++) {
       for (unsigned int ii = 0; ii < m_lonValues.size(); ii++) {
-         if (m_pars["Coordinate_system"] == "CEL") {
+         if (coordSys == "CEL") {
             m_testSrc.setDir(m_lonValues[ii], m_latValues[jj], 
                              computeExposure, false);
-         } else {
+         } else if (coordSys == "GAL") {
             m_testSrc.setGalDir(m_lonValues[ii], m_latValues[jj], 
                                 computeExposure, false);
+         } else {
+            throw std::invalid_argument("Invalid coordinate system: "
+                                        + coordSys);
          }
          m_logLike.addSource(&m_testSrc);
          m_opt->find_min(verbosity, tol);
