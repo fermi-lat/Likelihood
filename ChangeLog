@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 23 09:52:57 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Added Files:
+	SourceData.cxx SourceData.h 
+Log Message:
+change abs(...) to fabs(...) in OptEM classes; move SourceData into separate files
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 23 09:52:55 PST 2004
 Likelihood/src
 
