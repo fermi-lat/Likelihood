@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.10 2005/03/07 05:18:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.11 2005/03/07 05:55:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -32,11 +32,32 @@ void LikeExposure::load(tip::Table * scData, bool verbose) {
    tip::Table::Iterator it = scData->begin();
    tip::Table::Record & row = *it;
    long nrows = scData->getNumRecords();
+
+   double maxTime(3.2e8);  // No random access iterator in tip, so we
+                           // have to assume some large value.
+   for (unsigned int i=0; i < m_timeCuts.size(); i++) {
+      if (m_timeCuts.at(i).second < maxTime) {
+         maxTime = m_timeCuts.at(i).second;
+      }
+   }
+// We assume that the time intervals are 30 sec long, even though the
+// time_candle source in flux is hacked to behave incorrectly such
+// that we cannot extract the time interval size from the data; plus
+// there is again no random access iterator available to allow us to
+// infer the time interval size a priori.  In any case, nrows is just
+// used for calculating the progress bar.
+   if (static_cast<long>(maxTime/30.) < nrows) {
+      nrows = static_cast<long>(maxTime/30.);
+   }
+   
    for (long irow = 0; it != scData->end(); ++it, ++irow) {
       if (verbose && (irow % (nrows/20)) == 0 ) std::cerr << "."; 
       row["livetime"].get(livetime);
       row["start"].get(start);
       row["stop"].get(stop);
+      if (start > maxTime) {
+         break;
+      }
       double deltat = livetime > 0 ? livetime : stop-start;
       double fraction;
       if (acceptInterval(start, stop, m_timeCuts, m_gtis, fraction)) {

@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.29 2005/03/03 23:24:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.30 2005/03/07 05:18:29 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -39,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.29 2005/03/03 23:24:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.30 2005/03/07 05:18:29 jchiang Exp $
  */
 
 class RoiCuts {
@@ -47,7 +47,7 @@ class RoiCuts {
 public:
 
    RoiCuts() : m_cuts(0), m_eMin(20.), m_eMax(2e5), 
-               m_energyCut(0), m_skyConeCut(0) {
+               m_energyCut(0), m_skyConeCut(0), m_minTime(0), m_maxTime(0) {
       makeEnergyVector();
    }
 
@@ -114,6 +114,14 @@ public:
       return m_energies;
    }
 
+   double minTime() const {
+      return m_minTime;
+   }
+
+   double maxTime() const {
+      return m_maxTime;
+   }
+
 private:
 
    dataSubselector::Cuts * m_cuts;
@@ -143,6 +151,11 @@ private:
    dataSubselector::SkyConeCut * m_skyConeCut;
    std::vector<dataSubselector::RangeCut *> m_timeRangeCuts;
    std::vector<dataSubselector::GtiCut *> m_gtiCuts;
+
+   /// Minimum and maximum spacecraft times to be considered based
+   /// on time range cuts and GTIs
+   double m_minTime;
+   double m_maxTime;
 
    /// Add a time range cut.
    void addTimeInterval(double tmin, double tmax);
