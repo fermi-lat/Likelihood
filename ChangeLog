@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 23:07:01 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h Event.h ResponseFunctions.h SourceMap.h 
+Log Message:
+convert ResponseFunctions
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 16:46:55 PST 2005
 Likelihood/src
 
