@@ -21,9 +21,6 @@ class Psf : public Response {
     
 public:
 
-   Psf();
-   Psf(const std::string &scFile, int hdu) : Response() 
-      {m_readPsfData(scFile, hdu);};
    virtual ~Psf(){};
 
    //! PSF in instrument coordinates
@@ -32,20 +29,32 @@ public:
       {return value(separation, energy, inc);};
 
    //! PSF in sky coordinates
-   double value(astro::SkyDir &appDir, double energy, 
-		astro::SkyDir &srcDir, double time);
-   double operator()(astro::SkyDir &appDir, double energy, 
-		     astro::SkyDir &srcDir, double time)
+   double value(astro::SkyDir appDir, double energy, 
+		astro::SkyDir srcDir, double time);
+   double operator()(astro::SkyDir appDir, double energy, 
+		     astro::SkyDir srcDir, double time)
       {return value(appDir, energy, srcDir, time);};
 
    //! retrieve PSF parameters (sig1, sig2, wt) in instrument coordinates
    void fillPsfParams(double energy, double inclination,
 		      std::vector<double> &psf_params);
 
+   //! returns the Singleton object pointer
+   static Psf * instance();
+
+   //! method to read in the psf data
+   void readPsfData(const std::string &psfFile, int hdu);
+
+protected:
+
+   Psf(){};
+
 private:
 
-   //! effective area stored in straw-man CALDB format
-   void m_readPsfData(const std::string &file, int hdu);
+   //! pointer to the Singleton instantiation
+   static Psf * s_instance;
+
+   //! PSF stored in straw-man CALDB format
    std::string m_psfFile;
    int m_psfHdu;
    Table m_psfData;

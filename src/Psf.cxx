@@ -6,14 +6,9 @@
 
 namespace Likelihood {
 
-Psf::Psf() : Response() {
-// read the following via XML or PIL?
-   std::string file = "CALDB/psf_lat.fits";
-   int hdu = 4;                // retrieve the combined response functions
-   m_readPsfData(file, hdu);
-}
+Psf * Psf::s_instance = 0;
 
-void Psf::m_readPsfData(const std::string &file, int hdu) {
+void Psf::readPsfData(const std::string &file, int hdu) {
    enum {FRONT = 2, BACK, COMBINED};
 
    switch (hdu) {
@@ -49,8 +44,8 @@ void Psf::m_readPsfData(const std::string &file, int hdu) {
    }
 }
 
-double Psf::value(astro::SkyDir &appDir, double energy, 
-		  astro::SkyDir &srcDir, double time) {
+double Psf::value(astro::SkyDir appDir, double energy, 
+		  astro::SkyDir srcDir, double time) {
 // angle between photon and source directions
    double separation = appDir.SkyDir::difference(srcDir);
 
@@ -63,7 +58,11 @@ double Psf::value(astro::SkyDir &appDir, double energy,
 // inclination wrt spacecraft z-axis in degrees
    double inc = srcDir.SkyDir::difference(m_scData[indx].zAxis)*180./M_PI;
 
-   return value(separation, energy, inc);
+   if (inc < 70.) {
+      return value(separation, energy, inc);
+   } else {
+      return 0;
+   }
 }
 
 double Psf::value(double separation, double energy, double inc) {
@@ -131,6 +130,13 @@ void Psf::fillPsfParams(double energy, double inc,
    psf_params.push_back(sig1val);
    psf_params.push_back(sig2val);
    psf_params.push_back(wt);
+}
+
+Psf * Psf::instance() {
+   if (s_instance == 0) {
+      s_instance = new Psf();
+   }
+   return s_instance;
 }
 
 } // namespace Likelihood

@@ -10,7 +10,8 @@
 
 #include "astro/SkyDir.h"
 #include "../Likelihood/PointSource.h"
-#include "Gaussian.h"
+#include "../Likelihood/Psf.h"
+#include "../Likelihood/Aeff.h"
 
 namespace Likelihood {
 
@@ -22,27 +23,16 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 double PointSource::fluxDensity(double energy, double time,
                                 const astro::SkyDir &dir) const {
 
-   double separation = getSeparation(dir);
+// Scale the energy spectrum by the psf value and the effective area
+// and convolve with the energy dispersion (now a delta-function in
+// energy), all of which are functions of time and spacecraft attitude
+// and orbital position.
 
-// One should scale the energy spectrum by the psf value and the
-// effective area and convolve with the energy dispersion, all of
-// which are functions of time and spacecraft attitude and orbital
-// position.
+   Psf *psf = Psf::instance();
+   Aeff *aeff = Aeff::instance();
 
-// For now, we just scale by a jury-rigged Gaussian psf with an ad-hoc
-// energy scaling.
-
-   const double sigma0 = 9.*M_PI/180.;       // Gaussian width in radians
-   const double E0 = 0.030;                  // at 30 MeV
-   const double psf_index = -0.75;
-   Gaussian my_psf(1., 0., pow(sigma0*(energy/E0), psf_index));
-
-   return (*m_spectrum)(energy)*my_psf(separation);
-}
-
-void PointSource::setDir(double ra, double dec) {
-   astro::SkyDir dir(ra, dec);
-   m_dir = dir;
+   return (*m_spectrum)(energy)*(*psf)(dir, energy, m_dir.getDir(), time)
+      *(*aeff)(energy, dir, time);
 }
 
 } // namespace Likelihood

@@ -6,14 +6,9 @@
 
 namespace Likelihood {
 
-Aeff::Aeff() : Response() {     // is this right?
-// read the following via XML or PIL?
-   std::string file = "CALDB/aeff_lat.fits";
-   int hdu = 4;                 // retrieve the combined response functions
-   m_readAeffData(file, hdu);
-}
+Aeff * Aeff::s_instance = 0;
 
-void Aeff::m_readAeffData(const std::string &file, int hdu) {
+void Aeff::readAeffData(const std::string &file, int hdu) {
    enum {FRONT = 2, BACK, COMBINED};
 
    switch (hdu) {
@@ -45,7 +40,7 @@ void Aeff::m_readAeffData(const std::string &file, int hdu) {
    m_aeff = m_aeffData[2].val;
 }
 
-double Aeff::value(double energy, astro::SkyDir &dir, double time) {
+double Aeff::value(double energy, astro::SkyDir dir, double time) {
 // Compute the index corresponding to the desired time.
 // Here we assume the m_scTimes are at regular intervals.
    double tstep = m_scData[1].time - m_scData[0].time;
@@ -55,7 +50,12 @@ double Aeff::value(double energy, astro::SkyDir &dir, double time) {
 // inclination wrt spacecraft z-axis in degrees
    double inc = dir.SkyDir::difference(m_scData[indx].zAxis)*180./M_PI;
 
-   return value(energy, inc);
+
+   if (inc < 70.) {
+      return value(energy, inc);
+   } else {
+      return 0;
+   }
 }
 
 double Aeff::value(double energy, double inc) {
@@ -87,6 +87,13 @@ double Aeff::value(double energy, double inc) {
                    m_aeff);
    
    return aeffval;
+}
+
+Aeff * Aeff::instance() {
+   if (s_instance == 0) {
+      s_instance = new Aeff();
+   }
+   return s_instance;
 }
 
 } // namespace Likelihood

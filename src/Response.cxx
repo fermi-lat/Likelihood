@@ -7,33 +7,12 @@
 
 namespace Likelihood {
 
-// initial definition of static data members
-bool Response::m_haveScData(false);
+// declaration of static data 
 std::vector<ScNtuple> Response::m_scData;
 
-Response::Response() {
-// presumably will read this info from an XML file or via PIL
-   if (!m_haveScData) {
-      std::cerr << "reading sc data..." << std::endl;
-      m_scFile = "Data/one_src_sc_0000"; 
-      m_scHdu = 2;
-      m_readScData(m_scFile, m_scHdu);
-      m_haveScData = true;
-   }
-}
-
-//! not sure how this constructor will ever be used....
-Response::Response(const std::string &file, int hdu) {
-   if (!m_haveScData) {
-      std::cerr << "reading sc data..." << std::endl;
-      m_scFile = file;
-      m_scHdu = hdu;
-      m_readScData(m_scFile, m_scHdu);
-      m_haveScData = true;
-   }
-}
-
-void Response::m_readScData(const std::string &file, int hdu) {
+void Response::readScData(const std::string &file, int hdu) {
+   m_scFile = file;
+   m_scHdu = hdu;
 
 // read in the data (should check on file existence, etc., first...)
    Table scTable;
@@ -44,20 +23,12 @@ void Response::m_readScData(const std::string &file, int hdu) {
    for (int i = 0; i < scTable[0].dim; i++) {
       ScNtuple scData;
 
-// It would be nice if astro::SkyDir had setDir(ra, dec) and setDir(x,
-// y, z) methods so that all this trig and all these memory
-// allocations/deallocations could be avoided.
-
-      double ra = atan2(scTable[1].val[i], scTable[0].val[i])*180./M_PI;
-      double dec = asin(scTable[2].val[i])*180./M_PI;
-      astro::SkyDir xDir(ra, dec);
-      scData.xAxis = xDir;
-
-      ra = atan2(scTable[4].val[i], scTable[3].val[i])*180./M_PI;
-      dec = asin(scTable[5].val[i])*180./M_PI;
-      astro::SkyDir zDir(ra, dec);
-      scData.zAxis = zDir;
-      
+      scData.xAxis = astro::SkyDir(Hep3Vector(scTable[0].val[i],
+                                              scTable[1].val[i], 
+                                              scTable[2].val[i]));
+      scData.zAxis = astro::SkyDir(Hep3Vector(scTable[3].val[i],
+                                              scTable[4].val[i], 
+                                              scTable[5].val[i]));
       scData.time = scTable[6].val[i]; 
       scData.inSaa = scTable[7].val[i];
 
