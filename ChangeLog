@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Sep 29 08:32:06 PDT 2003
+Likelihood/src
+
+Modified Files:
+	SourceFactory.cxx SourceModel.cxx 
+Log Message:
+update SourceModel::readXml
+    *
+------------------------------------------------------------
+User: jchiang  Mon Sep 29 08:32:06 PDT 2003
 Likelihood/cmt
 
 Modified Files:
