@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Sep 25 09:38:08 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h CountsMap.h HistND.h SourceMap.h 
+Log Message:
+add ability to read SourceMaps and CountsMaps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Sep 24 23:36:33 PDT 2004
 Likelihood/src/test
 
