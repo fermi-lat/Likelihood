@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 10 12:19:56 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Optimizer.h Parameter.h SourceModel.h 
+Log Message:
+remove #define's from Optimizer.h;
+make OutOfBounds a nested class in Parameter
+
+    *
+------------------------------------------------------------
 User: burnett  Tue Jun 10 11:18:30 PDT 2003
 Likelihood/cmt
 
