@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun 19 13:16:05 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h Function.h Parameter.h Psf.h SourceModel.h 
+Added Files:
+	OutOfBounds.h ParameterNotFound.h 
+Log Message:
+Un-nest exception classes to allow for wrapping by SWIG;
+move astro::SkyDir forward declarations outside of Likelihood namespace.
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun 11 10:08:05 PDT 2003
 Likelihood/src/test
 
