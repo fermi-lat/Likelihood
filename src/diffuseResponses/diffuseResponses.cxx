@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.20 2005/02/01 00:01:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.21 2005/02/23 00:39:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -46,7 +46,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.20 2005/02/01 00:01:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.21 2005/02/23 00:39:34 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -88,7 +88,6 @@ diffuseResponses::diffuseResponses()
    : st_app::StApp(), m_helper(0), m_srcModel(0), m_srRadius(30.),
      m_pars(st_app::StApp::getParGroup("gtdiffresp")) {}
 
-
 void diffuseResponses::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
@@ -96,7 +95,7 @@ void diffuseResponses::run() {
    m_helper = new AppHelpers(m_pars);
    if (clobber || !haveDiffuseColumns()) {
       m_helper->readScData();
-      m_srcModel = new SourceModel(true);
+      m_srcModel = new SourceModel(m_helper->observation(), true);
       ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
       buildSourceModel();
       readEventData();

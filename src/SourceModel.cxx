@@ -3,10 +3,9 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.64 2005/01/03 23:01:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.65 2005/02/02 06:22:00 jchiang Exp $
  */
 
-#include <cassert>
 #include <cmath>
 
 #include <algorithm>
@@ -300,7 +299,7 @@ void SourceModel::readXml(std::string xmlFile,
    facilities::Util::expandEnvVar(&xmlFile);
 
 // Create a SourceFactory to read in the xml file.
-   SourceFactory srcFactory;
+   SourceFactory srcFactory(m_observation);
    try {
       srcFactory.readXml(xmlFile, funcFactory, requireExposure);
    } catch (xmlBase::DomException & eObj) {
@@ -421,7 +420,8 @@ void SourceModel::writeXml(std::string xmlFile,
 
 void SourceModel::write_fluxXml(std::string xmlFile) {
 
-   FluxBuilder builder;
+   std::pair<double, double> ebounds = m_observation.roiCuts().getEnergyCuts();
+   FluxBuilder builder(ebounds.first, ebounds.second);
 
    std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
    for ( ; srcIt != s_sources.end(); srcIt++) {

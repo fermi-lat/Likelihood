@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.14 2004/09/28 14:45:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.15 2005/01/11 15:31:39 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -18,6 +18,8 @@
 
 namespace Likelihood {
 
+   class RoiCuts;
+
 /**
  * @class ExposureMap 
  *
@@ -31,7 +33,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.14 2004/09/28 14:45:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.15 2005/01/11 15:31:39 jchiang Exp $
  *
  */
 
@@ -65,7 +67,7 @@ public:
     */
    void integrateSpatialDist(std::vector<double> &energies, 
                              optimizers::Function * spatialDist, 
-                             std::vector<double> &exposure);
+                             std::vector<double> &exposure) const;
 
    /// Retrieve the RA of each pixel in the image plane
    void getRA(std::vector<double> &ra) 
@@ -92,8 +94,9 @@ public:
     * These are logarithmically spaced with upper and lower bounds
     * given by the RoiCuts.
     */
-   static void computeMap(std::string filename, double sr_radius = 30,
-                          int nlong = 60, int nlat = 60, int nenergies = 10);
+   static void computeMap(std::string filename, const RoiCuts & roiCuts,
+                          double sr_radius=30, int nlong=60, int nlat=60,
+                          int nenergies=10);
 
    /// write the FITS image file produced by computeMap()
    static void writeFitsFile(const std::string &filename,

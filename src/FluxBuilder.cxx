@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.9 2005/02/15 07:04:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.10 2005/02/15 17:01:31 jchiang Exp $
  */
 
 #include <algorithm>
@@ -31,14 +31,14 @@ namespace Likelihood {
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
-FluxBuilder::FluxBuilder() : XmlBuilder() {
+FluxBuilder::FluxBuilder(double emin, double emax) : XmlBuilder() {
 
    m_srcLib = optimizers::Dom::createElement(m_doc, "source_library");
    xmlBase::Dom::addAttribute(m_srcLib, "title", "Likelihood_model");
 
    m_allSrcsElt = optimizers::Dom::createElement(m_doc, "source");
 
-   makeEnergyGrid();
+   makeEnergyGrid(emin, emax);
 }
 
 FluxBuilder::~FluxBuilder() {}
@@ -84,7 +84,7 @@ DOMElement * FluxBuilder::fluxSource(Source & src) {
    TrapQuad fluxIntegral(srcFuncs["Spectrum"]);
    if (sourceType == "PointSource" || sourceType == "Isotropic") {
       xmlBase::Dom::addAttribute(srcElt, std::string("flux"),
-                             fluxIntegral.integral(m_energies)/1e-4);
+                                 fluxIntegral.integral(m_energies)/1e-4);
       DOMElement * specElt = gammaSpectrum(*srcFuncs["Spectrum"]);
       if (sourceType == "PointSource") {
          optimizers::Dom::appendChild(specElt, 
@@ -148,9 +148,9 @@ DOMElement * FluxBuilder::gammaSpectrum(optimizers::Function & spectrum) {
       = optimizers::Dom::createElement(m_doc, "power_law");
    
    xmlBase::Dom::addAttribute(spectralTypeElt, std::string("emin"), 
-                          m_energies.front());
+                              m_energies.front());
    xmlBase::Dom::addAttribute(spectralTypeElt, std::string("emax"), 
-                          m_energies.back());
+                              m_energies.back());
 
 // It might be better here to have the Function objects set their own
 // parameter value attributes, but this keeps the coupling between
@@ -262,13 +262,11 @@ DOMElement * FluxBuilder::mapCubeSource(Source & src) {
    return specElt;
 }
 
-void FluxBuilder::makeEnergyGrid(unsigned int nee) {
-   RoiCuts * roiCuts = RoiCuts::instance();
-   std::pair<double, double> elims = roiCuts->getEnergyCuts();
-   double estep = log(elims.second/elims.first)/(nee-1);
+void FluxBuilder::makeEnergyGrid(double emin, double emax, unsigned int nee) {
+   double estep = log(emax/emin)/(nee-1);
    m_energies.reserve(nee);
    for (unsigned int i = 0; i < nee; i++) {
-      m_energies.push_back(elims.first*exp(estep*i));
+      m_energies.push_back(emin*exp(estep*i));
    }
 }
 

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.11 2004/12/20 20:13:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.12 2004/12/24 16:45:45 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -22,6 +22,8 @@ namespace dataSubselector {
 
 namespace Likelihood {
 
+   class Observation;
+
 /**
  * @class AppHelpers
  * @brief The methods in this class call various static methods for
@@ -31,7 +33,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.11 2004/12/20 20:13:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.12 2004/12/24 16:45:45 jchiang Exp $
  */
 
 class AppHelpers {
@@ -40,9 +42,7 @@ public:
 
    AppHelpers(st_app::AppParGroup & pars);
 
-   ~AppHelpers() {
-      delete m_funcFactory;
-   }
+   ~AppHelpers();
 
    optimizers::FunctionFactory & funcFactory();
 
@@ -58,7 +58,13 @@ public:
       checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
    }
 
-   const std::vector<std::string> & scFiles() const {return m_scFiles;}
+   const std::vector<std::string> & scFiles() const {
+      return m_scFiles;
+   }
+
+   const Observation & observation() const {
+      return *m_observation;
+   }
 
    static void checkCuts(const std::string & file1, const std::string & ext1,
                          const std::string & file2, const std::string & ext2);
@@ -70,9 +76,13 @@ public:
 
 protected:
 
+//   AppHelpers(const AppHelpers & rhs) {}
+
    st_app::AppParGroup & m_pars;
    optimizers::FunctionFactory * m_funcFactory;
    std::vector<std::string> m_scFiles;
+
+   Observation * m_observation;
 
    void prepareFunctionFactory();
    void createResponseFuncs();

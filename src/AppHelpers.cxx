@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.18 2005/02/15 00:34:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.19 2005/02/23 00:39:32 jchiang Exp $
  */
 
 #include <map>
@@ -23,6 +23,7 @@
 #include "Likelihood/BandFunction.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapCubeFunction.h"
+#include "Likelihood/Observation.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
@@ -37,6 +38,17 @@ AppHelpers::AppHelpers(st_app::AppParGroup & pars)
    : m_pars(pars), m_funcFactory(0) {
    prepareFunctionFactory();
    createResponseFuncs();
+
+   m_observation = new Observation(ResponseFunctions::instance(),
+                                   ScData::instance(),
+                                   RoiCuts::instance(),
+                                   ExposureCube::instance(),
+                                   ExposureMap::instance());
+}
+
+AppHelpers::~AppHelpers() {
+   delete m_funcFactory;
+   delete m_observation;
 }
 
 optimizers::FunctionFactory & AppHelpers::funcFactory() {
@@ -54,17 +66,18 @@ void AppHelpers::prepareFunctionFactory() {
 
 void AppHelpers::setRoi(const std::string & filename,
                         const std::string & ext, bool strict) {
+   RoiCuts & roiCuts = const_cast<RoiCuts &>(m_observation->roiCuts());
    if (filename != "") {
-      RoiCuts::instance()->readCuts(filename, ext, strict);
+      roiCuts.readCuts(filename, ext, strict);
       return;
    }
    std::string event_file = m_pars["evfile"];
    if (event_file == "none" || event_file == "") {
       std::string roi_file = m_pars["ROI_file"];
       st_facilities::Util::file_ok(roi_file);
-      RoiCuts::setCuts(roi_file);
+      roiCuts.setCuts(roi_file);
    } else {
-      RoiCuts::instance()->readCuts(m_pars["evfile"], "EVENTS", strict);
+      roiCuts.readCuts(m_pars["evfile"], "EVENTS", strict);
    }
 }
 

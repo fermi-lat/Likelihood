@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.2 2004/10/06 05:31:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.3 2004/11/01 06:27:38 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -19,6 +19,8 @@
 
 namespace Likelihood {
 
+   class Observation;
+
 /**
  * @class BinnedExposure
  * @brief This class encapsulates the calculation of and access to 
@@ -31,9 +33,10 @@ class BinnedExposure {
 
 public:
 
-   BinnedExposure() {}
+   BinnedExposure();
 
-   BinnedExposure(const std::vector<double> & energies);
+   BinnedExposure(const std::vector<double> & energies,
+                  const Observation & observation);
 
    BinnedExposure(const std::string & filename);
 
@@ -47,6 +50,7 @@ public:
 
 private:
 
+   const Observation * m_observation;
    std::vector<double> m_exposureMap;
    std::vector<double> m_ras;
    std::vector<double> m_decs;
@@ -65,13 +69,14 @@ private:
 
    class Aeff : public map_tools::Exposure::Aeff {
    public:
-      Aeff(double energy, int evtType) 
-         : m_energy(energy), m_evtType(evtType) {}
+      Aeff(double energy, int evtType, const Observation & observation) 
+         : m_energy(energy), m_evtType(evtType), m_observation(observation) {}
       virtual ~Aeff() {}
       virtual double operator()(double cosTheta) const;
    private:
       double m_energy;
       int m_evtType;
+      const Observation & m_observation;
       static double s_phi;
    };
 

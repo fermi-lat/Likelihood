@@ -3,13 +3,14 @@
  * @brief Expectation maximization for fitting Sources.
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.3 2003/11/22 00:06:12 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.4 2005/02/15 00:34:42 jchiang Exp $
  */
 
 #ifndef Likelihood_OptEM_h
 #define Likelihood_OptEM_h
 
-#include "LogLike.h"
+#include "Likelihood/LogLike.h"
+#include "Likelihood/Observation.h"
 
 namespace Likelihood {
 
@@ -23,13 +24,13 @@ namespace Likelihood {
  *
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.3 2003/11/22 00:06:12 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.4 2005/02/15 00:34:42 jchiang Exp $
  */
 
   class OptEM: public LogLike {
   public:
-    OptEM() {};
-    virtual ~OptEM() {};
+    OptEM() : LogLike(Observation()) {}
+    virtual ~OptEM() {}
     void findMin(const int verbose = 0);
 
   protected:

@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.15 2004/11/28 06:58:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.16 2005/02/15 00:34:42 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -11,12 +11,12 @@
 
 #include <map>
 
-#include "Likelihood/Event.h"
-#include "Likelihood/RoiCuts.h"
-#include "Likelihood/PointSource.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/Event.h"
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
+#include "Likelihood/PointSource.h"
+#include "Likelihood/RoiCuts.h"
 
 namespace tip {
    class Table;
@@ -32,14 +32,15 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.15 2004/11/28 06:58:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.16 2005/02/15 00:34:42 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
     
 public:
 
-   LogLike() {
+   LogLike(const Observation & observation) : SourceModel(observation),
+      m_logSrcModel(logSrcModel(observation)) {
       if (s_FT1_columns.size() == 0) {
          setFT1_columns();
       }

@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.24 2005/02/14 06:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.25 2005/02/15 00:34:42 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -22,6 +22,7 @@ namespace optimizers {
 namespace Likelihood {
 
 class Event;
+class Observation;
 
 /** 
  * @class DiffuseSource
@@ -43,7 +44,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.24 2005/02/14 06:20:15 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.25 2005/02/15 00:34:42 jchiang Exp $ 
  *  
  */
 
@@ -58,6 +59,7 @@ public:
    ///        spectral calculation; if false, then the map is not
    ///        integrated.
    DiffuseSource(optimizers::Function *spatialDist,
+                 const Observation & observation,
                  bool requireExposure = true);
 
    DiffuseSource(const DiffuseSource &rhs);
@@ -140,8 +142,8 @@ private:
    /// vector of energy values for Npred spectrum quadrature
    static std::vector<double> s_energies;
 
-   /// method to create a logrithmically spaced grid given RoiCuts
-   static void makeEnergyVector(int nee = 100);
+   /// method to create a logrithmically spaced grid of energies
+   static void makeEnergyVector(double emin, double emax, int nee = 100);
 
    /// vector of angle integrated diffuse exposure as as a function of
    /// energy

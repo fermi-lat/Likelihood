@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.20 2005/01/13 22:42:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.21 2005/02/14 06:20:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,6 +19,7 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/ExposureMap.h"
+#include "Likelihood/Observation.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -29,14 +30,16 @@ bool DiffuseSource::s_haveStaticMembers = false;
 std::vector<double> DiffuseSource::s_energies;
 
 DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
+                             const Observation & observation,
                              bool requireExposure) : m_spectrum(0) {
    m_spatialDist = spatialDist->clone();
    m_functions["SpatialDist"] = m_spatialDist;
 
-   if (!s_haveStaticMembers 
-       || RoiCuts::instance()->getEnergyCuts().first != s_energies.front()
-       || RoiCuts::instance()->getEnergyCuts().second != s_energies.back()) {
-      makeEnergyVector();
+   double emin = observation.roiCuts().getEnergyCuts().first;
+   double emax = observation.roiCuts().getEnergyCuts().second;
+   if (!s_haveStaticMembers || emin != s_energies.front() ||
+       emax != s_energies.back()) {
+      makeEnergyVector(emin, emax);
       s_haveStaticMembers = true;
    }
 
@@ -44,12 +47,8 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
 // available; furthermore, the ExposureMap object must have been
 // created.
    if (requireExposure) {
-      ExposureMap * emap = ExposureMap::instance();
-      if (emap == 0) {
-         throw Exception("The ExposureMap is not defined.");
-      } else {
-         emap->integrateSpatialDist(s_energies, spatialDist, m_exposure);
-      }
+      observation.expMap().integrateSpatialDist(s_energies, spatialDist,
+                                                m_exposure);
    }
    m_srcType = "Diffuse";
 }
@@ -212,15 +211,8 @@ double DiffuseSource::pixelCountsDeriv(double emin, double emax,
            spectrum.derivByParam(eminArg, paramName)*wtMin)*(emax - emin)/2.;
 }
 
-void DiffuseSource::makeEnergyVector(int nee) {
-   RoiCuts *roiCuts = RoiCuts::instance();
-   
-// set up a logrithmic grid of energies for doing the integral over 
-// the spectrum
-   double emin = (roiCuts->getEnergyCuts()).first;
-   double emax = (roiCuts->getEnergyCuts()).second;
+void DiffuseSource::makeEnergyVector(double emin, double emax, int nee) {
    double estep = log(emax/emin)/(nee-1);
-   
    s_energies.clear();
    s_energies.reserve(nee);
    for (int i = 0; i < nee; i++) {

@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.12 2004/12/01 16:46:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.13 2005/02/23 00:39:32 jchiang Exp $
  */
 
 #include "Likelihood/ScData.h"
@@ -29,7 +29,7 @@ double ResponseFunctions::totalResponse(double time,
    astro::SkyDir xAxis = scData->xAxis(time);
    
    double myResponse(0);
-   std::map<unsigned int, irfInterface::Irfs *>::iterator respIt 
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = instance()->begin();
    for ( ; respIt != instance()->end(); respIt++) {
       if (respIt->second->irfID() == type) {  
@@ -57,7 +57,7 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
                                         const astro::SkyDir & appDir, 
                                         int type) {
    double myResponse(0);
-   std::map<unsigned int, irfInterface::Irfs *>::iterator respIt 
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = instance()->begin();
    for ( ; respIt != instance()->end(); respIt++) {
       if (respIt->second->irfID() == type) {  
@@ -82,7 +82,7 @@ double ResponseFunctions::totalResponse(double inclination, double phi,
                                         double energy, double appEnergy,
                                         double separation, int type) {
    double myResponse(0);
-   std::map<unsigned int, irfInterface::Irfs *>::iterator respIt 
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = instance()->begin();
    for ( ; respIt != instance()->end(); respIt++) {
       if (respIt->second->irfID() == type) {  

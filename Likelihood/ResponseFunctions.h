@@ -3,7 +3,7 @@
  * @brief A singleton class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.11 2004/12/01 16:46:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.12 2005/02/23 00:39:30 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.11 2004/12/01 16:46:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.12 2005/02/23 00:39:30 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -87,11 +87,13 @@ public:
 
    irfInterface::Irfs * respPtr(unsigned int eventType);
 
-   std::map<unsigned int, irfInterface::Irfs *>::iterator begin()
-      {return s_respPtrs.begin();}
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator begin() const {
+      return s_respPtrs.begin();
+   }
 
-   std::map<unsigned int, irfInterface::Irfs *>::iterator end()
-      {return s_respPtrs.end();}
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator end() const {
+      return s_respPtrs.end();
+   }
 
    /// Whether or not energy dispersion is to be considered.
    static const bool & useEdisp() {return s_useEdisp;}
