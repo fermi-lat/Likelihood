@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Thu Jul 31 11:33:20 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Minuit.cxx 
+Log Message:
+Add a call to HESSE to clean up the covariance matrix.
+
+    *
+------------------------------------------------------------
 User: pln  Wed Jul 30 17:15:21 PDT 2003
 Likelihood/Likelihood
 
