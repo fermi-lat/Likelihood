@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: petry  Thu Nov 13 16:13:20 PST 2003
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx 
+Log Message:
+Added a writeXml method to RoiCuts and modified the setCuts method.
+Added addTimeInterval method.
+Added corresponding test function to test_Likelihood (main.cxx) 
+RoiCuts::writeXml works and is compatible with RoiCuts::setCuts(xmlfile). 
+No impact on other functionality.
+
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 12 14:01:41 PST 2003
 Likelihood/src/test
 
