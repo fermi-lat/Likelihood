@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.9 2004/06/02 05:27:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.10 2004/06/05 00:28:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.9 2004/06/02 05:27:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.10 2004/06/05 00:28:00 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -104,6 +104,7 @@ likelihood::likelihood()
 }
 
 void likelihood::run() {
+   m_helper->setRoi();
    m_helper->readExposureMap();
    createStatistic();
    readEventData();
@@ -189,8 +190,8 @@ void likelihood::selectOptimizer() {
 #ifdef HAVE_OPT_PP
    } else if (optimizer == "OPTPP") {
       m_opt = new optimizers::OptPP(*m_logLike);
-   }
 #endif // HAVE_OPT_PP
+   }
    if (m_opt == 0) {
       throw std::invalid_argument("Invalid optimizer choice: " + optimizer);
    }

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.31 2004/02/21 04:18:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.32 2004/02/21 17:10:37 jchiang Exp $
  */
 
 #include "xml/Dom.h"
@@ -87,8 +87,10 @@ void SourceFactory::replaceSource(Source* src, bool fromClone) {
 }
 
 void SourceFactory::readXml(const std::string &xmlFile,
-                            optimizers::FunctionFactory &funcFactory)
+                            optimizers::FunctionFactory &funcFactory,
+                            bool requireExposure)
    throw(Exception) {
+   m_requireExposure = requireExposure;
 
    xml::XmlParser *parser = new xml::XmlParser();
 
@@ -249,7 +251,7 @@ Source * SourceFactory::makeDiffuseSource(const DomElement &spectrum,
    }
    Source *src;
    try {
-      src = new DiffuseSource(spatialDist);
+      src = new DiffuseSource(spatialDist, m_requireExposure);
       setSpectrum(src, spectrum, funcFactory);
       return src;
    } catch (optimizers::Exception &eObj) {

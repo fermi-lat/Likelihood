@@ -1,7 +1,7 @@
 # -*- python -*-
 import os, glob
 
-SConsignFile('/u/gl/jchiang/.sconsign')
+SConsignFile(os.path.join(os.environ['HOME'], '.sconsign'))
 
 Import('home', 'package', 'apps', 'libraries', 'cflags', 'rootlibs')
 
