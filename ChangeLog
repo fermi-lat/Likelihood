@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: pln  Tue May 20 15:00:42 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+Add testing for Minuit
+    *
+------------------------------------------------------------
 User: pln  Tue May 20 14:55:38 PDT 2003
 Likelihood/Likelihood
 
