@@ -25,7 +25,7 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/DiffuseSource.h"
-#include "logLike_ptsrc.h"
+#include "Likelihood/LogLike.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
 #include "AbsEdge.h"
@@ -57,7 +57,7 @@ void test_Event_class();
 void test_PointSource_class();
 void test_Aeff_class();
 void test_Psf_class();
-void test_logLike_ptsrc();
+void test_LogLike();
 void fit_3C279();
 void fit_anti_center();
 void test_SpectrumFactory();
@@ -82,7 +82,7 @@ int main() {
 //    test_PointSource_class();
 //    test_Aeff_class();
 //    test_Psf_class();
-//    test_logLike_ptsrc();
+//    test_LogLike();
 //    test_SpectrumFactory();
 //    fit_3C279();
 //    fit_anti_center();
@@ -204,7 +204,7 @@ void fit_DiffuseSource() {
    std::cout << _3c279->getName() << std::endl;
 
 // create the Statistic
-   logLike_ptsrc logLike;
+   LogLike logLike;
 
 // add the Sources
    logLike.addSource(ourGalaxy);
@@ -663,7 +663,7 @@ void fit_anti_center() {
 
 // add the sources to the model
 
-   logLike_ptsrc logLike;
+   LogLike logLike;
 
 // Crab Pulsar
    double ra = 83.57;
@@ -803,7 +803,7 @@ void fit_3C279() {
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
    
-   logLike_ptsrc logLike;
+   LogLike logLike;
 
    PointSource _3c279(ra, dec);
    
@@ -875,11 +875,11 @@ void fit_3C279() {
 }
 
 /***********************/
-/* logLike_ptsrc tests */
+/* LogLike tests */
 /***********************/
-void test_logLike_ptsrc() {
+void test_LogLike() {
 
-   std::cout << "*** test_logLike_ptsrc ***" << std::endl;
+   std::cout << "*** test_LogLike ***" << std::endl;
 
    double ra = 193.98;
    double dec = -5.82;
@@ -892,7 +892,7 @@ void test_logLike_ptsrc() {
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
 
-   logLike_ptsrc logLike;
+   LogLike logLike;
 
    PointSource _3c279(ra, dec);
 
@@ -944,11 +944,11 @@ void test_logLike_ptsrc() {
                 << logLike(dummy) << std::endl;
    }
 
-   std::cout << "*** test_logLike_ptsrc: all tests completed ***\n" 
+   std::cout << "*** test_LogLike: all tests completed ***\n" 
              << std::endl;
 
 }
-// logLike_ptsrc tests
+// LogLike tests
 
 /********************/
 /* Psf class tests */
