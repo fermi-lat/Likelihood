@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Sep  2 23:08:56 PDT 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx CountsMap.cxx LogLike.cxx SourceModel.cxx 
+Log Message:
+use more tip, evtbin
+    *
+------------------------------------------------------------
+User: jchiang  Thu Sep  2 23:08:56 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
