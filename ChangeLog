@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Sep 16 18:19:22 PDT 2004
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx 
+Log Message:
+add exposure cube calculation to test code
+    *
+------------------------------------------------------------
+User: jchiang  Thu Sep 16 18:19:22 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
