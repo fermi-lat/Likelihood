@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan  3 09:50:01 PST 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+update for map_tools v5r8p2
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6r2p1, operation: add
 Package: Likelihood
