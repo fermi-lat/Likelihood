@@ -1,7 +1,8 @@
-/** @file PointSource.cxx
+/** 
+ * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.19 2003/05/07 19:38:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.20 2003/05/20 23:50:15 jchiang Exp $
  */
 
 #include <vector>

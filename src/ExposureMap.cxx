@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.8 2003/05/21 23:12:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.9 2003/05/29 20:10:45 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
@@ -176,6 +176,7 @@ void ExposureMap::computeMap(const std::string &filename, double sr_radius,
                  roiCenter.ra(), roiCenter.dec());
 }
 
+#ifdef HAVE_CCFITS
 void ExposureMap::writeFitsFile(const std::string &filename,
                                 std::vector<double> &lon,
                                 std::vector<double> &lat,
@@ -187,7 +188,6 @@ void ExposureMap::writeFitsFile(const std::string &filename,
 // CCfits-1.2 distribution (absent the superfluous use of the generic
 // algorithms).
 
-#ifdef HAVE_CCFITS
    int nlon = lon.size();
    double lonstep = lon[1] - lon[0];
    int nlat = lat.size();
@@ -250,7 +250,19 @@ void ExposureMap::writeFitsFile(const std::string &filename,
 // write the primary HDU
    long fpixel(1);
    pFits->pHDU().write(fpixel, nelements, exposure);
-#endif // HAVE_CCFITS
 }
+
+#else // don't HAVE_CCFITS
+
+void ExposureMap::writeFitsFile(const std::string &,
+                                std::vector<double> &,
+                                std::vector<double> &,
+                                std::vector<double> &,
+                                std::vector< std::valarray<double> > &,
+                                double, double) {
+// do nothing
+}
+
+#endif // HAVE_CCFITS
 
 } // namespace Likelihood
