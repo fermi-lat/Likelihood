@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Dec  7 20:09:53 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	likelihood.par 
+Log Message:
+read ROI info for binned analysis from counts map
+    *
+------------------------------------------------------------
 User: jchiang  Tue Dec  7 20:09:52 PST 2004
 Likelihood/Likelihood
 
