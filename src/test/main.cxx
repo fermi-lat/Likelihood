@@ -29,7 +29,8 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/DiffuseSource.h"
-#include "lbfgs.h"
+#include "Likelihood/Optimizer.h"
+#include "Likelihood/Lbfgs.h"
 #include "OptPP.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
@@ -85,14 +86,14 @@ int main(){
 //     test_CompositeFunction();
 //     test_SpectrumFactory();
 //     test_SourceFactory();
-//     test_OptPP();
+     test_OptPP();
 //     fit_3C279();
 //     fit_anti_center();
 //     test_FitsImage();
 //     test_ExposureMap();
 //     test_SpatialMap();
 //     test_DiffuseSource();
-   fit_DiffuseSource();
+//     fit_DiffuseSource();
    return 0;
 }
 
@@ -186,8 +187,9 @@ void fit_DiffuseSource() {
       logLike.addSource(src);
    }
 
-#ifdef HAVE_LBFGS
-   lbfgs otherOpt(logLike);
+   int verbose = 3;
+#ifdef HAVE_OPT_LBFGS
+   Lbfgs otherOpt(logLike);
    otherOpt.find_min(verbose);
 #endif
 
@@ -483,13 +485,13 @@ void test_OptPP() {
    my_rosen.setParams(params);
 
 
-   int verbose = 3;
+   int verbose = 103;
 
-#ifdef HAVE_LBFGS
+#ifdef HAVE_OPT_LBFGS
 // try lbfgs_bcm method first   
-//   lbfgs my_lbfgsObj(my_rosen);
-//   my_lbfgsObj.find_min(verbose);
-#endif //HAVE_LBFGS
+   Lbfgs my_lbfgsObj(my_rosen);
+   my_lbfgsObj.find_min(verbose);
+#endif //HAVE_OPT_LBFGS
 
 #ifdef HAVE_OPT_PP
 // now restart and try OptPP
@@ -820,12 +822,12 @@ void fit_3C279() {
                 << (statval - statval0)/dparam << std::endl;
    }
 
-#ifdef HAVE_LBFGS
+#ifdef HAVE_OPT_LBFGS
 
 // do the fit using lbfgs_bcm
-//   lbfgs myOptimizer(logLike);
+   Lbfgs myOptimizer(logLike);
 
-#endif //HAVE_LBFGS
+#endif //HAVE_OPT_LBFGS
 
 #ifdef HAVE_OPT_PP
 // do the fit using OptPP

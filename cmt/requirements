@@ -3,10 +3,11 @@ version v0r7
 
 author James Chiang <jchiang@slac.stanford.edu>
 
-# $Id: requirements,v 1.9 2003/04/25 21:33:39 jchiang Exp $
+# $Id: requirements,v 1.10 2003/04/25 22:05:24 jchiang Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
+use f2c
 # use CALDBinterface v*
 
 apply_pattern package_include
@@ -14,11 +15,16 @@ apply_pattern package_include
 private
 
 # allow use of internal path
-macro_prepend cppflags "-I ../src " WIN32 "/I..\src "
+macro_prepend cppflags "-I ../src -g " WIN32 "/I..\src "
+
 apply_pattern package_linkopts
 
+# make sure test application gets built when library changes
+macro test_Likelihoodstamps "Likelihood.stamp"
+
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
-library Likelihood -no_share $(my_headers) *.cxx
+#library Likelihood -no_share $(my_headers) *.cxx
+library Likelihood -no_share $(my_headers) *.cxx *.f *.c
 
 # test application
 application test_Likelihood test/*.cxx
