@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Jun  6 15:43:41 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+using existing diffuseResponse columns
+    *
+------------------------------------------------------------
+User: jchiang  Sun Jun  6 15:43:41 PDT 2004
 Likelihood/src/diffuseResponses
 
 Modified Files:
