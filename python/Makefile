@@ -4,7 +4,7 @@
 #
 # @author J. Chiang
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.7 2004/11/17 00:02:18 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.8 2004/11/17 07:18:23 jchiang Exp $
 #
 
 #PYTHONDIR = $(GLAST_EXT)/python/2.3/Linux
@@ -21,6 +21,7 @@ INCLUDE = -I$(LIKELIHOODROOT)\
 	-I$(IRFLOADERROOT)\
 	-I$(ASTROROOT)\
 	-I$(OPTIMIZERSROOT)\
+	-I$(DATASUBSELECTORROOT)\
 	-I$(EVTBINROOT)\
 	-I$(TIPROOT)\
 	-I$(MAP_TOOLSROOT)\
@@ -42,6 +43,7 @@ LIBS = -L../$(BINDIR)/ -lLikelihoodLib\
 	-L$(IRFINTERFACEROOT)/$(BINDIR) -lirfInterfaceLib\
 	-L$(MAP_TOOLSROOT)/$(BINDIR) -lmap_toolsLib\
 	-L$(ASTROROOT)/$(BINDIR) -lastro\
+	-L$(DATASUBSELECTORROOT)/$(BINDIR) -ldataSubselectorLib\
 	-L$(OPTIMIZERSROOT)/$(BINDIR) -loptimizersLib\
 	-L$(EVTBINROOT)/$(BINDIR) -levtbinLib\
 	-L$(TIPROOT)/$(BINDIR) -ltipLib\

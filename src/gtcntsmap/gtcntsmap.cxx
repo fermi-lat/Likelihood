@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.3 2004/12/07 05:13:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.4 2004/12/09 19:03:34 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -41,7 +41,7 @@ private:
    st_app::AppParGroup & m_pars;
    dataSubselector::Cuts * m_cuts;
 
-   void writeDssCuts(const std::string &) const;
+   void writeDssCuts() const;
    void logArray(double xmin, double xmax, unsigned int nx,
                  std::vector<double> & xx) const;
    void checkEnergies(double emin, double emax) const;
@@ -107,11 +107,11 @@ void gtcntsmap::run() {
    }
    std::string output_file = m_pars["outfile"];
    cmap.writeOutput("gtcntsmap", output_file);
-   writeDssCuts(eventFiles[0]);
+   writeDssCuts();
    delete m_cuts;
 }
 
-void gtcntsmap::writeDssCuts(const std::string & eventfile) const {
+void gtcntsmap::writeDssCuts() const {
    std::string output_file = m_pars["outfile"];
    std::auto_ptr<tip::Image> 
       image(tip::IFileSvc::instance().editImage(output_file, ""));
