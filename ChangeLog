@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb 29 11:56:57 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Added Files:
+	XmlDiff.cxx XmlDiff.h 
+Log Message:
+refactor xml file comparison into method object
+    *
+------------------------------------------------------------
 User: jchiang  Sat Feb 28 19:00:29 PST 2004
 Likelihood/src/test
 
