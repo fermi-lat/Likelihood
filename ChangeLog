@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Aug  6 07:58:29 PDT 2004
+Likelihood/src
+
+Modified Files:
+	Event.cxx LogLike.cxx 
+Log Message:
+factor out response parameterization to Event
+    *
+------------------------------------------------------------
+User: jchiang  Fri Aug  6 07:58:29 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
