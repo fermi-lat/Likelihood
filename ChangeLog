@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov  6 18:49:17 PST 2003
+Likelihood/data
+
+Modified Files:
+	Virgo_region.xml 
+Log Message:
+generalize path to gas.cel
+    *
+------------------------------------------------------------
 User: jchiang  Thu Nov  6 18:27:11 PST 2003
 Likelihood/src/test
 
