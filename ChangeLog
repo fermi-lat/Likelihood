@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Aug 16 21:11:21 PDT 2003
+Likelihood/python
+
+Modified Files:
+	Makefile test.py 
+Log Message:
+xml support for ROI cuts
+    *
+------------------------------------------------------------
+User: jchiang  Sat Aug 16 21:11:21 PDT 2003
 Likelihood/Likelihood
 
 Modified Files:
