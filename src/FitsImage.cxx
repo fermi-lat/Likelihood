@@ -3,11 +3,9 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.17 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.18 2004/09/28 14:45:37 jchiang Exp $
  *
  */
-
-#include <cassert>
 
 #include <iostream>
 #include <memory>
@@ -163,8 +161,9 @@ void FitsImage::EquinoxRotation::do_rotation(const astro::SkyDir &inDir,
 
    for (int i = 0; i < 3; i++) {
       outVec[i] = 0;
-      for (int j = 0; j < 3; j++)
+      for (int j = 0; j < 3; j++) {
          outVec[i] += rotMatrix[i][j]*inVec[j];
+      }
    }
    outDir = astro::SkyDir(Hep3Vector(outVec[0], outVec[1], outVec[2]));
 }   

@@ -4,27 +4,27 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.1 2005/01/22 00:46:38 jchiang Exp $
 #
-from loadLikelihood import *
-
 import os, sys
 import numarray as num
+sys.path.insert(0, os.path.join(os.environ['LIKELIHOODROOT'], 'python'))
+import pyLike as Likelihood
 import hippoplotter as plot
+
+_funcFactory = Likelihood.SourceFactory_funcFactory()
 
 class SrcAnalysis(object):
     def __init__(self, srcModel, eventFile, scFile, expMap=None, irfs='TEST',
                  optimizer='Minuit'):
         self.optimizer = optimizer
-        Likelihood.ScData_readData(scFile, True)
         Likelihood.LogLike_loadResponseFunctions('TEST')
         if expMap is not None:
             Likelihood.ExposureMap_readExposureFile(expMap)
-        Likelihood.RoiCuts_instance().readCuts(eventFile)
         self.logLike = Likelihood.LogLike()
-        self.logLike.getEvents(eventFile)
+        self._readData(scFile, eventFile)
         self.events = self.logLike.events();
-        self.logLike.readXml(srcModel, funcFactory)
+        self.logLike.readXml(srcModel, _funcFactory)
         self.logLike.computeEventResponses()
         ebounds = Likelihood.RoiCuts_instance().getEnergyCuts()
         eMin, eMax = ebounds.first, ebounds.second
@@ -33,6 +33,24 @@ class SrcAnalysis(object):
         self.energies = eMin*num.exp(estep*num.arange(nee, type=num.Float))
         self.disp = None
         self.resids = None
+    def _fileList(self, files):
+        if isinstance(files, str):
+            return [files]
+        else:
+            return files
+    def _readData(self, scFile, eventFile):
+        self._readScData(scFile)
+        self._readEvents(eventFile)
+    def _readScData(self, scFile):
+        scFiles = self._fileList(scFile)
+        Likelihood.ScData_readData(scFiles[0], True)
+        for file in scFiles[1:]:
+            Likelihood.ScData_readData(scFile)
+    def _readEvents(self, eventFile):
+        eventFiles = self._fileList(eventFile)
+        Likelihood.RoiCuts_instance().readCuts(eventFiles[0])
+        for file in eventFiles:
+            self.logLike.getEvents(file)
     def _Nobs(self, emin, emax):
         nobs = 0
         for event in self.events:
@@ -81,7 +99,7 @@ class SrcAnalysis(object):
             rep.setSymbol('filled_square', 2)
         else:
             self.resids = plot.XYPlot(nt, 'energy', 'resid', yerr='resid_err',
-                                      xlog=1, color=color)
+                                      xlog=1, color=color, yrange=(-1, 1))
             self.resids.getDataRep().setSymbol('filled_square', 2)
     def plot(self, srcs=None, oplot=False, yrange=None, color='black'):
         if isinstance(srcs, str):
@@ -91,9 +109,9 @@ class SrcAnalysis(object):
                 srcs = Likelihood.StringVector()
                 self.logLike.getSrcNames(srcs)
             self._plot(srcs[0], oplot=oplot, yrange=yrange, color=color)
-            for src in srcs[1:]:
-                self._plot(src, oplot=True, color=color)
-                
+            if len(srcs) > 1:
+                for src in list(srcs[1:]):
+                    self._plot(src, oplot=True, color=color)
     def fit(self, optimizer=None, verbose=3, tol=1e-5):
         if optimizer is None:
             optimizer = self.optimizer
