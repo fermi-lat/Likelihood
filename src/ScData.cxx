@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.22 2004/04/19 19:59:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.23 2004/05/17 23:27:53 jchiang Exp $
  */
 
 #include <cassert>
@@ -140,6 +140,7 @@ astro::SkyDir &ScData::zAxis(double time) {
 
 astro::SkyDir &ScData::xAxis(double time) {
    int indx = static_cast<int>((time - vec[0].time)/s_tstep);
+   indx = std::min(static_cast<unsigned int>(indx), vec.size()-2);
    double frac = (time - vec[indx].time)/s_tstep;
    Hep3Vector xDir = frac*(vec[indx+1].xAxis.dir() - vec[indx].xAxis.dir())
       + vec[indx].xAxis.dir();

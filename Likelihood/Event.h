@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.23 2004/06/05 00:27:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.24 2004/06/06 22:43:40 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.23 2004/06/05 00:27:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.24 2004/06/06 22:43:40 jchiang Exp $
  */
 
 class Event {
@@ -130,8 +130,7 @@ private:
    /// @todo Find a rational way of defining the source region radius.
    /// For now, use the default values passed from
    /// computeResponse(...)
-//   void prepareSrData(double sr_region, int nmu=70, int nphi=40);
-   void prepareSrData(double sr_region, int nmu=150, int nphi=100);
+   void prepareSrData(double sr_region, int nmu=100, int nphi=50);
 
    void getNewDiffuseSrcs(const std::vector<DiffuseSource *> & srcList,
                           std::vector<DiffuseSource *> & srcs) const;
