@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.28 2005/03/03 20:04:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.29 2005/03/03 23:24:11 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -39,51 +39,51 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.28 2005/03/03 20:04:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.29 2005/03/03 23:24:11 jchiang Exp $
  */
 
 class RoiCuts {
 
 public:
 
-   RoiCuts() : s_cuts(0), s_eMin(20.), s_eMax(2e5), 
+   RoiCuts() : m_cuts(0), m_eMin(20.), m_eMax(2e5), 
                m_energyCut(0), m_skyConeCut(0) {
       makeEnergyVector();
    }
 
    ~RoiCuts() {
-      for (int i = m_gtiCuts.size()-1; i > -1; i--) {
-         delete m_gtiCuts.at(i);
-      }
-      for (int i = m_timeCuts.size()-1; i > -1; i--) {
-         delete m_timeCuts.at(i);
-      }
-      delete m_skyConeCut;
-      delete m_energyCut;
-      delete s_cuts;
+      delete m_cuts;
    }
 
-   /// Access to the accepted time intervals.  An event time is valid
-   /// if it lies within the union of these intervals.
+   /// Access to the time range cut intervals.  An event time is valid
+   /// only if it lies within the union of these intervals.
    void getTimeCuts(std::vector< std::pair<double, double> > &timeCuts) const {
-      timeCuts = s_timeCuts;
+      timeCuts = m_timeCuts;
+   }
+
+   const std::vector< std::pair<double, double> > & timeRangeCuts() const {
+      return m_timeCuts;
+   }
+
+   const std::vector< std::pair<double, double> > & gtis() const {
+      return m_gtis;
    }
 
    std::pair<double, double> getEnergyCuts() const {
-      return std::make_pair(s_eMin, s_eMax);
+      return std::make_pair(m_eMin, m_eMax);
    }
 
    const irfInterface::AcceptanceCone & extractionRegion() const {
-      return s_roiCone;
+      return m_roiCone;
    }
 
    void getRaDec(double & ra, double & dec) const {
-      ra = s_roiCone.center().ra();
-      dec = s_roiCone.center().dec();
+      ra = m_roiCone.center().ra();
+      dec = m_roiCone.center().dec();
    }
 
    double getMuZenMax() const {
-      return s_muZenMax;
+      return m_muZenMax;
    }
 
    /// Set all cuts (includes reset of time cuts)
@@ -116,34 +116,39 @@ public:
 
 private:
 
-   dataSubselector::Cuts * s_cuts;
+   dataSubselector::Cuts * m_cuts;
 
    /// cuts on photon "MET" arrival times in seconds; 
    /// this vector of pairs specify time intervals for event acceptance;
    /// the *intersection* of these intervals will be used
    typedef std::pair<double, double> timeInterval; // this will be generalized
-   std::vector<timeInterval> s_timeCuts;
+   std::vector<timeInterval> m_timeCuts;
+
+   std::vector<timeInterval> m_gtis;
 
    /// minimum and maximum energies in MeV,
-   double s_eMin;
-   double s_eMax;
+   double m_eMin;
+   double m_eMax;
 
-   /// A vector of logrithmically-spaced energies between s_eMin and s_eMax.
+   /// A vector of logrithmically-spaced energies between m_eMin and m_eMax.
    std::vector<double> m_energies;
 
    /// The acceptance cone or sky extraction region.
-   irfInterface::AcceptanceCone s_roiCone;
+   irfInterface::AcceptanceCone m_roiCone;
 
    /// cosine of the maximum Zenith angle
-   double s_muZenMax;
+   double m_muZenMax;
 
    dataSubselector::RangeCut * m_energyCut;
    dataSubselector::SkyConeCut * m_skyConeCut;
-   std::vector<dataSubselector::RangeCut *> m_timeCuts;
+   std::vector<dataSubselector::RangeCut *> m_timeRangeCuts;
    std::vector<dataSubselector::GtiCut *> m_gtiCuts;
 
-   /// Set additional time cuts
+   /// Add a time range cut.
    void addTimeInterval(double tmin, double tmax);
+
+   /// Add a GTI.
+   void addGoodTimeInterval(double tmin, double tmax);
 
    /// Create the m_energies vector.
    void makeEnergyVector(int nee=100);

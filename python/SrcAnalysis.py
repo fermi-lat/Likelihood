@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.19 2005/03/05 00:06:36 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.20 2005/03/05 06:35:38 jchiang Exp $
 #
 import os
 import numarray as num
@@ -137,10 +137,12 @@ class SrcAnalysis(object):
                                       yerr='resid_err', xlog=1, color=color,
                                       yrange=(-1, 1))
             self.resids.getDataRep().setSymbol('filled_square', 2)
-    def plot(self, srcs=None, oplot=False, yrange=None, color='black'):
+    def plot(self, srcs=None, oplot=False, yrange=None, color=None):
         import hippoplotter as plot
-        if oplot:
+        if oplot and color is None:
             color = 'red'
+        elif color is None:
+            color = 'black'
         if isinstance(srcs, str):
             total = self._plot_model(srcs, yrange=yrange, color=color, 
                                      oplot=oplot, lineStyle='Solid')

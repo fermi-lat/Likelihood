@@ -3,31 +3,31 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.8 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.9 2005/03/05 18:37:54 jchiang Exp $
  */
 
+#include <algorithm>
 #include <iostream>
 
 #include "facilities/Util.h"
 
-#include "astro/EarthCoordinate.h"
-
 #include "tip/Table.h"
 
-#include "Likelihood/RoiCuts.h"
 #include "Likelihood/LikeExposure.h"
+#include "Likelihood/RoiCuts.h"
 
 namespace Likelihood {
 
 LikeExposure::
 LikeExposure(double skybin, double costhetabin, 
-             const std::vector< std::pair<double, double> > & timeCuts)
-   : map_tools::Exposure(skybin, costhetabin), m_timeCuts(timeCuts) {
-}
+             const std::vector< std::pair<double, double> > & timeCuts,
+             const std::vector< std::pair<double, double> > & gtis)
+   : map_tools::Exposure(skybin, costhetabin), m_timeCuts(timeCuts),
+     m_gtis(gtis) {}
 
 void LikeExposure::load(tip::Table * scData, bool verbose) {
    
-   double ra, dec, start, stop, livetime, latGeo, lonGeo;
+   double ra, dec, start, stop, livetime;
 
    tip::Table::Iterator it = scData->begin();
    tip::Table::Record & row = *it;
@@ -37,46 +37,69 @@ void LikeExposure::load(tip::Table * scData, bool verbose) {
       row["livetime"].get(livetime);
       row["start"].get(start);
       row["stop"].get(stop);
-      row["lat_Geo"].get(latGeo);
-      row["lon_Geo"].get(lonGeo);
       double deltat = livetime > 0 ? livetime : stop-start;
       double fraction;
-      if (acceptInterval(start, stop, latGeo, lonGeo, fraction)) {
-         deltat *= fraction;
+      if (acceptInterval(start, stop, m_timeCuts, m_gtis, fraction)) {
          row["ra_scz"].get(ra);
          row["dec_scz"].get(dec);
-//         add(astro::SkyDir(ra, dec), deltat);
-         fill(astro::SkyDir(ra, dec), deltat);
+         fill(astro::SkyDir(ra, dec), deltat*fraction);
       }
    }
    if (verbose) std::cerr << "!" << std::endl;
 }
 
-bool LikeExposure::acceptInterval(double start, double stop, 
-                                  double latGeo, double lonGeo, 
-                                  double & fraction) {
+bool LikeExposure::
+acceptInterval(double start, double stop, 
+               const std::vector< std::pair<double, double> > & timeCuts,
+               const std::vector< std::pair<double, double> > & gtis,
+               double & fraction) {
                                   
+   std::pair<double, double> candidateInterval(start, stop);
+
    std::vector< std::pair<double, double> >::const_iterator it 
-      = m_timeCuts.begin();
+      = timeCuts.begin();
 
-// At some point, we need to implement fraction properly.
-   fraction = 1.;
-
-   bool accept(true);
-   for ( ; it != m_timeCuts.end(); it++) {
-      if (stop < it->first || start > it->second) {
-         accept = false;
-         break;
+   for ( ; it != timeCuts.end(); ++it) {
+      if (not overlaps(*it, candidateInterval)) {
+         fraction = 0;
+         return false;
       }
    }
+   
+   double total(0);
+   double maxTotal(candidateInterval.second - candidateInterval.first);
+   for (it = gtis.begin(); it != gtis.end(); ++it) {
+      total += overlap(*it, candidateInterval);
+   }
+   if (total > maxTotal || gtis.size() == 0) {
+      total = maxTotal;
+   }
+   fraction = total/(stop - start);
+   return true;
+}
 
-   (void)(latGeo); (void)(lonGeo);
-//    astro::EarthCoordinate earthCoord(latGeo, lonGeo);
-//    if (!earthCoord.insideSAA) {
-//       accept = false;
-//    }
-      
-   return accept;
+bool LikeExposure::
+overlaps(const std::pair<double, double> & interval1,
+         std::pair<double, double> & interval2) {
+   double start = std::max(interval1.first, interval2.first);
+   double stop = std::min(interval1.second, interval2.second);
+   if (start < stop) {
+      interval2.first = start;
+      interval2.second = stop;
+      return true;
+   }
+   return false;
+}
+
+double LikeExposure::
+overlap(const std::pair<double, double> & interval1,
+        const std::pair<double, double> & interval2) {
+   double start = std::max(interval1.first, interval2.first);
+   double stop = std::min(interval1.second, interval2.second);
+   if (start < stop) {
+      return stop - start;
+   }
+   return 0;
 }
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.50 2005/03/02 04:51:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.51 2005/03/05 18:37:53 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -38,12 +38,10 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.50 2005/03/02 04:51:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.51 2005/03/05 18:37:53 jchiang Exp $
  */
 
 class PointSource : public Source {
-
-   friend class ExposureMap;
 
 public:
 
@@ -147,9 +145,6 @@ public:
    virtual double pixelCountsDeriv(double emin, double emax, 
                                    double wtMin, double wtMax,
                                    const std::string & paramName) const;
-
-   static bool overlapInterval(const std::pair<double, double> & interval1,
-                               std::pair<double, double> & interval2);
 
    /// Compute the integrated exposure using the provided 
    /// vector of energy values

@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.62 2005/03/03 20:04:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.63 2005/03/03 23:24:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -20,13 +20,13 @@
 
 #include "irfInterface/Irfs.h"
 
+#include "Likelihood/LikeExposure.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
-#include "Likelihood/TrapQuad.h"
-
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
+#include "Likelihood/TrapQuad.h"
 
 #include "Verbosity.h"
 
@@ -338,37 +338,29 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    for (unsigned int it = 0; it < npts; it++) {
       if (print_output() && 
           npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
-      bool includeInterval = true;
-      std::pair<double, double> thisInterval;
-      thisInterval.first = scData.vec[it].time;
-      thisInterval.second = scData.vec[it+1].time;
+      double start(scData.vec[it].time);
+      double stop(scData.vec[it+1].time);
+      double fraction(0);
 
-// Check if this interval passes the time cuts
-      std::vector< std::pair<double, double> > timeCuts;
-      roiCuts.getTimeCuts(timeCuts);
-
-      for (unsigned int itcut = 0; itcut < timeCuts.size(); itcut++) {
-         if ( !(includeInterval 
-                = overlapInterval(timeCuts[itcut], thisInterval)) )
-            break;
-      }
-
-// Check for SAA passage
-      if (scData.vec[it].inSaa) includeInterval = false;
+      bool includeInterval = 
+         LikeExposure::acceptInterval(start, stop, roiCuts.timeRangeCuts(),
+                                      roiCuts.gtis(), fraction);
 
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
       double inc = srcDir.difference(scData.vec[it].zAxis)*180/M_PI;
-      if (inc > 90.) includeInterval = false;
+      if (inc > 90.) {
+         includeInterval = false;
+      }
 
 // Having checked for relevant constraints, add the exposure
 // contribution for each energy
       if (includeInterval) {
          for (unsigned int k = 0; k < energies.size(); k++) {
-            double time = (thisInterval.second + thisInterval.first)/2.;
+            double time = (start + stop)/2.;
             exposure[k] += sourceEffArea(srcDir, energies[k], time, 
                                          scData, roiCuts, respFuncs)
-               *(thisInterval.second - thisInterval.first);
+               *(stop - start)*fraction;
          }
       }
    }
@@ -447,18 +439,6 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       }
    }
    return myEffArea;
-}
-
-bool PointSource::overlapInterval(const std::pair<double, double> & interval1,
-                                  std::pair<double, double> & interval2) {
-   double start = std::max(interval1.first, interval2.first);
-   double stop = std::min(interval1.second, interval2.second);
-   if (start < stop) {
-      interval2.first = start;
-      interval2.second = stop;
-      return true;
-   }
-   return false;
 }
 
 } // namespace Likelihood
