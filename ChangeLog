@@ -1,5 +1,18 @@
 ------------------------------------------------------------
 User: jchiang  Sat Nov 27 22:58:21 PST 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx BinnedExposure.cxx ExposureMap.cxx LogLike.cxx 
+	MeanPsf.cxx OptEM.cxx PointSource.cxx SConstruct ScData.cxx 
+	SourceFactory.cxx SourceMap.cxx SourceModel.cxx 
+Added Files:
+	Verbosity.cxx Verbosity.h 
+Log Message:
+parameter interface updates
+    *
+------------------------------------------------------------
+User: jchiang  Sat Nov 27 22:58:21 PST 2004
 Likelihood/pfiles
 
 Modified Files:
