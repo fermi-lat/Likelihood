@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.42 2004/10/11 05:39:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.43 2004/10/23 03:57:18 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.42 2004/10/11 05:39:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.43 2004/10/23 03:57:18 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -88,11 +88,6 @@ private:
    void writeCountsMap();
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
-
-   template <typename T>
-   T param(const std::string & paramName) {
-      return m_helper->param<T>(paramName);
-   }
 };
 
 st_app::StAppFactory<likelihood> myAppFactory;
@@ -101,25 +96,16 @@ likelihood::likelihood()
    : st_app::StApp(), m_helper(0), 
      m_pars(st_app::StApp::getParGroup("likelihood")),
      m_logLike(0), m_opt(0), m_dataMap(0) {
-   try {
-      m_helper = new AppHelpers(m_pars);
-   } catch (std::exception & eObj) {
-      std::cerr << eObj.what() << std::endl;
-      std::exit(1);
-   } catch (...) {
-      std::cerr << "Caught unknown exception in likelihood constructor." 
-                << std::endl;
-      std::exit(1);
-   }
 }
 
 void likelihood::run() {
    promptForParameters();
+   m_helper = new AppHelpers(m_pars);
    m_helper->setRoi();
-   m_helper->readScData();
-   m_helper->readExposureMap();
    if (m_statistic == "BINNED") {
    } else {
+      m_helper->readScData();
+      m_helper->readExposureMap();
       std::string eventFile = m_pars["event_file"];
       st_facilities::Util::file_ok(eventFile);
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
@@ -142,7 +128,7 @@ void likelihood::run() {
       if (m_statistic == "OPTEM") {
          dynamic_cast<OptEM *>(m_logLike)->findMin(verbose);
       } else {
-// @todo Allow the optimizer to be re-selected here by the user.    
+/// @todo Allow the optimizer to be re-selected here by the user.    
          selectOptimizer();
          try {
             m_opt->find_min(verbose, tol);
@@ -165,12 +151,15 @@ void likelihood::run() {
 }
 
 void likelihood::promptForParameters() {
+   m_pars.Prompt("ROI_cuts_file");
    m_pars.Prompt("Response_functions");
-   ResponseFunctions::setEdispFlag(param<bool>("use_energy_dispersion"));
+   m_pars.Prompt("use_energy_dispersion");
    m_pars.Prompt("Source_model_file");
    m_pars.Prompt("Source_model_output_file");
    m_pars.Prompt("flux_style_model_file");
-   m_statistic = param<std::string>("Statistic");
+   m_pars.Prompt("Statistic");
+   std::string statistic = m_pars["Statistic"];
+   m_statistic = statistic;
    m_pars.Prompt("optimizer");
    m_pars.Prompt("fit_verbosity");
    m_pars.Prompt("query_for_refit");
@@ -179,16 +168,12 @@ void likelihood::promptForParameters() {
       m_pars.Prompt("counts_map_file");
       m_pars.Prompt("exposure_cube_file");
    } else {
-      m_pars.Prompt("ROI_cuts_file");
       m_pars.Prompt("Spacecraft_file");
       m_pars.Prompt("event_file");
       m_pars.Prompt("Exposure_map_file");
    }
-//    m_pars.Prompt();
    m_pars.Save();
    ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
-   std::string temp = m_pars["Statistic"];
-   m_statistic = temp;
 }
 
 void likelihood::createStatistic() {

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.3 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.4 2004/10/11 01:34:59 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.3 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.4 2004/10/11 01:34:59 jchiang Exp $
  */
 
 class AppHelpers {
@@ -46,14 +46,6 @@ public:
    void setRoi();
 
    const std::vector<std::string> & scFiles() const {return m_scFiles;}
-
-   template <typename T>
-   T param(const std::string & paramName) {
-      m_pars.Prompt(paramName);
-      m_pars.Save();
-      T value = m_pars[paramName];
-      return value;
-   }
 
 protected:
 
