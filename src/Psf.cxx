@@ -9,16 +9,14 @@ namespace Likelihood {
 Psf * Psf::s_instance = 0;
 
 void Psf::readPsfData(const std::string &file, int hdu) {
-   enum {FRONT = 2, BACK, COMBINED};
-
    switch (hdu) {
-   case FRONT:
+   case Front:
       m_psfData.add_columns("ENERGY THETA SIG1_F SIG2_F W");
       break;
-   case BACK:
+   case Back:
       m_psfData.add_columns("ENERGY THETA SIG1_B SIG2_B W");
       break;
-   case COMBINED:
+   case Combined:
       m_psfData.add_columns("ENERGY THETA SIG1_C SIG2_C W");
       break;
    default:
@@ -50,13 +48,14 @@ double Psf::value(astro::SkyDir appDir, double energy,
    double separation = appDir.SkyDir::difference(srcDir);
 
 // Compute the index corresponding to the desired time.
-// Here we assume the m_scTimes are at regular intervals.
-   double tstep = m_scData[1].time - m_scData[0].time;
+// Here we assume the scData->vec[].time are at regular intervals.
+
+   double tstep = scData->vec[1].time - scData->vec[0].time;
    int indx;
-   indx = static_cast<int>((time - m_scData[0].time)/tstep);
+   indx = static_cast<int>((time - scData->vec[0].time)/tstep);
 
 // inclination wrt spacecraft z-axis in degrees
-   double inc = srcDir.SkyDir::difference(m_scData[indx].zAxis)*180./M_PI;
+   double inc = srcDir.SkyDir::difference(scData->vec[indx].zAxis)*180./M_PI;
 
    if (inc < 70.) {
       return value(separation, energy, inc);
@@ -91,9 +90,6 @@ double Psf::value(double separation, double energy, double inc) {
 
 void Psf::fillPsfParams(double energy, double inc, 
 			std::vector<double> &psf_params) {
-			
-// convert energy to MeV
-   energy *= 1e3;
 
 // do a bilinear interpolation on the effective area data
 // this is the ugly code from glean (uses unit-offset kludge of NR 1.2)

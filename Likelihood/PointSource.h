@@ -26,10 +26,14 @@ public:
    PointSource(const PointSource &rhs);
    virtual ~PointSource(){}
 
-   //! returns photons/cm^2-s-sr-GeV having been convolved through
+   //! returns photons/cm^2-s-sr-MeV having been convolved through
    //! the LAT instrument response
-   virtual double fluxDensity(double energy, double time,
-			      const astro::SkyDir &dir) const;
+   double fluxDensity(double energy, double time,
+                      const astro::SkyDir &dir) const;
+
+   //! the predicted number of photons for a given ROI
+   //! the vector<double> is a place holder for an RoiCuts class object
+   double Npred(const std::vector<double>) const {return 0.;}
 
    //! set source location using J2000 coordinates
    void setDir(double ra, double dec) {

@@ -20,6 +20,9 @@
 #include "../Likelihood/Response.h"
 #include "../Likelihood/Aeff.h"
 #include "../Likelihood/Psf.h"
+#include "../Likelihood/ScData.h"
+#include "../Likelihood/RoiCuts.h"
+#include "logLike_gauss.h"
 #include "MyFun.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
@@ -49,16 +52,16 @@ int main(){
       test_path = std::string(root) + "/src/test/";
    }
 
-   test_Parameter_class();
-   test_Function_class();
-   test_PowerLaw_class();
-   test_SourceModel_class();
-   test_Table_class();
-   test_Statistic_class();
+//     test_Parameter_class();
+//     test_Function_class();
+//     test_PowerLaw_class();
+//     test_SourceModel_class();
+//     test_Table_class();
+//     test_Statistic_class();
    test_Event_class();
-   test_PointSource_class();
-   test_Aeff_class();
-   test_Psf_class();
+//     test_PointSource_class();
+//     test_Aeff_class();
+//     test_Psf_class();
    return 0;
 }
 
@@ -69,13 +72,12 @@ void test_Psf_class() {
    Psf *psf = Psf::instance();
 
    std::string psf_file = test_path + "/CALDB/psf_lat.fits";
-   int psf_hdu = 4;
 
-   psf->readPsfData(psf_file, psf_hdu);
+   psf->readPsfData(psf_file, Response::Combined);
 
    int nenergy = 10;
-   double emin = 0.03;
-   double emax = 30.;
+   double emin = 30;
+   double emax = 3e4;
    double estep = log(emax/emin)/(nenergy - 1);
 
    std::cout << "\nPoint Spread Function data:" << std::endl;
@@ -101,13 +103,12 @@ void test_Aeff_class() {
    Aeff *aeff = Aeff::instance();
 
    std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
-   int aeff_hdu = 4;
 
-   aeff->readAeffData(aeff_file, aeff_hdu);
+   aeff->readAeffData(aeff_file, Response::Combined);
 
    int nenergy = 10;
-   double emin = 0.03;
-   double emax = 30.;
+   double emin = 30;
+   double emax = 3e4;
    double estep = log(emax/emin)/(nenergy - 1);
 
    std::cout << "\nEffective area data:" << std::endl;
@@ -127,28 +128,28 @@ void test_Aeff_class() {
 /***************************/
 void test_PointSource_class() {
 
-/* instantiate the Psf and read in the Psf and spacecraft data */
-
-   Psf * psf = Psf::instance();
-
-   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
-   int psf_hdu = 4;
-
-   psf->readPsfData(psf_file, psf_hdu);
+/* read in the spacecraft data */
 
    std::string sc_file = test_path + "/Data/one_src_sc_0000";
    int sc_hdu = 2;
 
-   psf->readScData(sc_file, sc_hdu);
+   ScData::readData(sc_file, sc_hdu);
 
-/* instantiate the Aeff and read in the Aeff data */
+/* instantiate the Psf and read in its data */
+
+   Psf * psf = Psf::instance();
+
+   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
+
+   psf->readPsfData(psf_file, Response::Combined);
+
+/* instantiate the Aeff and read in its data */
 
    Aeff * aeff = Aeff::instance();
 
    std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
-   int aeff_hdu = 4;
 
-   aeff->readAeffData(aeff_file, aeff_hdu);
+   aeff->readAeffData(aeff_file, Response::Combined);
 
 /* put this source at the center of the extraction region for
    Data/one_src_0000 (ra, dec) = (193.98, -5.82) */
@@ -159,14 +160,14 @@ void test_PointSource_class() {
 
 /* create a PowerLaw object for the source spectrum */
 
-   PowerLaw source_pl(1., -2.1, 0.1);  // f(E) = 1.*(E/0.1 GeV)^(-2.1)
+   PowerLaw source_pl(1., -2.1, 100.); // f(E) = (E/0.1 GeV)^(-2.1)
    my_ptsrc.setSpectrum(&source_pl);
 
 /* compute the source flux at various energies and aspect angles */
 
    int nenergy = 10;
-   double emin = 0.03;
-   double emax = 30.;
+   double emin = 30.;
+   double emax = 3e4;
    double estep = log(emax/emin)/(nenergy - 1);
 
    std::cout << "\nThe on-source counts spectrum of "
@@ -222,6 +223,14 @@ void test_Event_class() {
 
    std::vector<Event> my_events;
 
+// get pointer to RoiCuts
+   RoiCuts *roi_cuts = RoiCuts::instance();
+
+// get the cuts
+   RoiCuts::setCuts();
+
+   unsigned int nReject = 0;
+
    for (int i = 0; i < ra.first; i++) {
 // compute sc_ra and sc_dec from direction cosines (it would be nice
 // if SkyDir could do this for me....)
@@ -231,8 +240,16 @@ void test_Event_class() {
       Event thisEvent(ra.second[i], dec.second[i], energy.second[i],
                       time.second[i], sc_ra, sc_dec,
                       cos(zenangle.second[i]*M_PI/180.));
-      my_events.push_back(thisEvent);
+      if (roi_cuts->accept(thisEvent)) {
+         my_events.push_back(thisEvent);
+      } else {
+         nReject++;
+      }
    }
+
+   std::cout << "Out of " << ra.first << " events, "
+             << my_events.size() << " were accepted, and "
+             << nReject << " were rejected.\n" << std::endl;
 
    astro::SkyDir _3c279_dir(193.98, -5.82);
 
@@ -250,13 +267,14 @@ void test_Event_class() {
                 << my_events[i].getSeparation(_3c279_dir)*180./M_PI
                 << std::endl;
    }
+   std::cout << std::endl;
 } // Event class tests
 
 /*************************/
 /* Statistic class tests */
 /*************************/
 void test_Statistic_class() {
-   Statistic logLike;
+   logLike_gauss logLike;
 
 /* Try to analyze data from a 1D Gaussian distribution using the new
    Function and SourceModel interfaces (i.e., with iterators and

@@ -21,11 +21,12 @@ void SourceModel::setParam(const Parameter &param,
 			   const std::string &srcName) {
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       if (srcName == (*m_sources[i]).getName()) {
-	 if ((*m_sources[i]).m_functions.count(funcName)) {
-	    (*m_sources[i]).m_functions[funcName]->setParam(param.getName(), 
-                                                            param.getValue(),
-                                                            param.isFree());
-// this seems inefficient, but necessary because of m_functions map?
+         Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+	 if (srcFuncs.count(funcName)) {
+	    srcFuncs[funcName]->setParam(param.getName(), 
+                                         param.getValue(),
+                                         param.isFree());
+// this seems inefficient, but necessary because of srcFuncs map(?)
             m_syncParams();
 	    return;
 	 }
@@ -39,9 +40,9 @@ void SourceModel::setParam(const Parameter &param,
 std::vector<double>::const_iterator SourceModel::setParamValues_(
    std::vector<double>::const_iterator it) { 
    for (unsigned int i = 0; i < m_sources.size(); i++) {
-      std::map<std::string, Function *>::iterator 
-	 func_it = (*m_sources[i]).m_functions.begin();
-      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) 
+      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+      Source::FuncMap::iterator func_it = srcFuncs.begin();
+      for (; func_it != srcFuncs.end(); func_it++) 
 	 it = (*func_it).second->setParamValues_(it);
    }
    m_syncParams();
@@ -51,9 +52,9 @@ std::vector<double>::const_iterator SourceModel::setParamValues_(
 std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
    std::vector<double>::const_iterator it) { 
    for (unsigned int i = 0; i < m_sources.size(); i++) {
-      std::map<std::string, Function *>::iterator 
-	 func_it = (*m_sources[i]).m_functions.begin();
-      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) 
+      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+      Source::FuncMap::iterator func_it = srcFuncs.begin();
+      for (; func_it != srcFuncs.end(); func_it++) 
 	 it = (*func_it).second->setFreeParamValues_(it);
    }
    m_syncParams();
@@ -66,8 +67,9 @@ Parameter* SourceModel::getParam(const std::string &paramName,
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       if (srcName == (*m_sources[i]).getName()) {
 	 std::vector<Parameter> params;
-         if ((*m_sources[i]).m_functions.count(funcName)) { //check for funcName
-            (*m_sources[i]).m_functions[funcName]->getParams(params);
+         Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+         if (srcFuncs.count(funcName)) {    //check for funcName
+            srcFuncs[funcName]->getParams(params);
             for (unsigned int j = 0; j < params.size(); j++) 
                if (paramName == params[j].getName())
                   return &(params[j]);
@@ -88,10 +90,10 @@ void SourceModel::addSource(Source *src) {
    m_sources.push_back(src);
 
 // add the Parameters to the m_parameter vector 
-// (would it be better just to m_syncParams() here?)
-   std::map<std::string, Function *>::iterator 
-      func_it = (*src).m_functions.begin();
-   for (; func_it != (*src).m_functions.end(); func_it++) {
+// (would it be better just to use m_syncParams() here?)
+   Source::FuncMap srcFuncs = (*src).getSrcFuncs();
+   Source::FuncMap::iterator func_it = srcFuncs.begin();
+   for (; func_it != srcFuncs.end(); func_it++) {
       std::vector<Parameter> params;
       (*func_it).second->getParams(params);
       for (unsigned int ip = 0; ip < params.size(); ip++) 
@@ -118,9 +120,9 @@ void SourceModel::m_syncParams() {
    m_parameter.erase(m_parameter.begin(), m_parameter.end());
 
    for (unsigned int i = 0; i < m_sources.size(); i++) {
-      std::map<std::string, Function *>::iterator 
-	 func_it = (*m_sources[i]).m_functions.begin();
-      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) {
+      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+      Source::FuncMap::iterator func_it = srcFuncs.begin();
+      for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<Parameter> params;
          (*func_it).second->getParams(params);
 	 for (unsigned int ip = 0; ip < params.size(); ip++)
@@ -141,9 +143,9 @@ void SourceModel::getSrcNames(std::vector<std::string> &names) const {
 double SourceModel::evaluate_at(double x) const {
    double my_val = 0.;
    for (unsigned int i = 0; i < m_sources.size(); i++) {
-      std::map<std::string, Function *>::iterator 
-	 func_it = (*m_sources[i]).m_functions.begin();
-      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) {
+      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+      Source::FuncMap::iterator func_it = srcFuncs.begin();
+      for (; func_it != srcFuncs.end(); func_it++) {
 	 my_val += (*func_it).second->value(x);
       }
    }
@@ -155,9 +157,9 @@ void SourceModel::getDerivs(double x, std::vector<double> &derivs) const {
    if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
 
    for (unsigned int i = 0; i < m_sources.size(); i++) {
-      std::map<std::string, Function *>::iterator 
-	 func_it = (*m_sources[i]).m_functions.begin();
-      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) {
+      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+      Source::FuncMap::iterator func_it = srcFuncs.begin();
+      for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<double> my_derivs;
          (*func_it).second->getDerivs(x, my_derivs);
          for (unsigned int j = 0; j < my_derivs.size(); j++)
@@ -171,9 +173,9 @@ void SourceModel::getFreeDerivs(double x, std::vector<double> &derivs) const {
    if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
 
    for (unsigned int i = 0; i < m_sources.size(); i++) {
-      std::map<std::string, Function *>::iterator 
-	 func_it = (*m_sources[i]).m_functions.begin();
-      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) {
+      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+      Source::FuncMap::iterator func_it = srcFuncs.begin();
+      for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<double> my_derivs;
          (*func_it).second->getFreeDerivs(x, my_derivs);
          for (unsigned int j = 0; j < my_derivs.size(); j++)

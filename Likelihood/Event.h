@@ -37,6 +37,7 @@ public:
    double getEnergy() const {return m_energy;};
    double getArrTime() const {return m_arrTime;};
    double getMuZenith() const {return m_muZenith;};
+   //! separation in units of radians
    double getSeparation(const astro::SkyDir &dir) const 
       {return m_appDir.SkyDir::difference(dir);};
     

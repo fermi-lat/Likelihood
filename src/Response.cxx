@@ -7,33 +7,8 @@
 
 namespace Likelihood {
 
-// declaration of static data 
-std::vector<ScNtuple> Response::m_scData;
-
-void Response::readScData(const std::string &file, int hdu) {
-   m_scFile = file;
-   m_scHdu = hdu;
-
-// read in the data (should check on file existence, etc., first...)
-   Table scTable;
-   scTable.add_columns("SC_x0 SC_x1 SC_x2 SC_x SC_y SC_z time SAA_flag");
-   scTable.read_FITS_table(file, hdu);
-
-// repack into a more useful format
-   for (int i = 0; i < scTable[0].dim; i++) {
-      ScNtuple scData;
-
-      scData.xAxis = astro::SkyDir(Hep3Vector(scTable[0].val[i],
-                                              scTable[1].val[i], 
-                                              scTable[2].val[i]));
-      scData.zAxis = astro::SkyDir(Hep3Vector(scTable[3].val[i],
-                                              scTable[4].val[i], 
-                                              scTable[5].val[i]));
-      scData.time = scTable[6].val[i]; 
-      scData.inSaa = static_cast<int>(scTable[7].val[i]);
-
-      m_scData.push_back(scData);
-   }
+Response::Response() {
+   ScData *scData = ScData::instance();
 }
 
 void Response::m_hunt(double *xx, int n, double x, int *jlo) {
