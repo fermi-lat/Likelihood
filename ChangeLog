@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct  4 18:31:25 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+comparisons of different psf calcs
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct  4 18:31:23 PDT 2004
 Likelihood/src/meanPsf
 
