@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 24 17:22:50 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h LogLike.h 
+Removed Files:
+	Aeff.h Psf.h 
+Log Message:
+banish use of old Psf and Aeff classes
+    *
+------------------------------------------------------------
 User: jchiang  Thu Oct 23 22:39:41 PDT 2003
 Likelihood/src/test
 
