@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.19 2004/06/30 16:24:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.20 2004/06/30 20:21:40 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -535,14 +535,14 @@ void LikelihoodTests::test_DiffuseSource() {
       }
       double Npred = src->Npred();
       chi2 += pow((Nobs - Npred), 2)/Nobs;
-      std::cout << i << "  " 
-                << Nobs << "  "
-                << Npred << std::endl;
+//       std::cout << i << "  " 
+//                 << Nobs << "  "
+//                 << Npred << std::endl;
 
       std::remove(roiFile.str().c_str());
    }
-   std::cout << "chi^2 = " << chi2 << std::endl;
-//    CPPUNIT_ASSERT(chi2 < 4.);
+//    std::cout << "chi^2 = " << chi2 << std::endl;
+   CPPUNIT_ASSERT(chi2 < 4.);
 }
 
 void LikelihoodTests::readEventData(const std::string &eventFile,

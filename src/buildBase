@@ -3,7 +3,8 @@ import os, glob
 
 SConsignFile(os.path.join(os.environ['HOME'], '.sconsign'))
 
-Import('home', 'package', 'apps', 'libraries', 'cflags', 'rootlibs')
+Import('home', 'package', 'apps', 'libraries', 'cflags',
+       'linkflags', 'rootlibs')
 
 bindir = os.environ['BINDIR']
 install_dir = os.path.join(home, bindir)
@@ -33,7 +34,8 @@ libNames.remove('f2c')
 libNames.append('pthread')
 libNames.extend(rootlibs)
 
-env = Environment(CCFLAGS='-g -pedantic' + cflags)
+env = Environment(CCFLAGS='-g -pedantic' + cflags,
+                  LINKFLAGS=linkflags)
 library = env.Library(package, src_files, CPPPATH=include_dirs)
 
 test_app = ''.join(('test_', package, '.exe'))
