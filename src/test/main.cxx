@@ -128,14 +128,12 @@ void fit_DiffuseSource() {
 
 // Provide ourGalaxy with a power-law spectrum.
    PowerLaw gal_pl(pow(100., -2.1), -2.1, 100.);
-   std::vector<Parameter> params;
-   gal_pl.getParams(params);
-   params[0].setBounds(1e-3, 1e3);
-   params[0].setScale(1e-5);
-   params[0].setTrueValue(pow(100., -2.1));
-   params[1].setBounds(-3.5, -1);
-//   params[1].setFree(false);           // fix the spectral index
-   gal_pl.setParams(params);
+   gal_pl.setParamBounds("Prefactor", 1e-3, 1e3);
+   gal_pl.setParamScale("Prefactor", 1e-5);
+   gal_pl.setParamTrueValue("Prefactor", pow(100., -2.1));
+   gal_pl.setParamBounds("Index", -3.5, -1);
+//     gal_pl.setParam("Index", gal_pl.getParamValue("Index"), 
+//                     false); // fix value
 
    ourGalaxy.setSpectrum(&gal_pl);
 
@@ -174,6 +172,7 @@ void fit_DiffuseSource() {
                 << src->Npred() << std::endl;
    }
 
+   std::vector<Parameter> params;
    logLike.getParams(params);
    for (unsigned int i = 0; i < params.size(); i++) {
       if (params[i].isFree()) {

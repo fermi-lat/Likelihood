@@ -2,7 +2,7 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.10 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.14 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #include <iostream>
@@ -93,6 +93,36 @@ Parameter* Function::getParam(const std::string &paramName) {
              << "Parameter " << paramName << " is not found."
              << std::endl;
    return 0;
+}
+
+void Function::setParamBounds(const std::string &paramName, double lower,
+                              double upper) {
+   for (unsigned int i = 0; i < m_parameter.size(); i++) {
+      if (paramName == m_parameter[i].getName()) { 
+         m_parameter[i].setBounds(lower, upper);
+//          std::cerr << "setting bounds for "
+//                    << m_parameter[i].getName() << std::endl;
+      }
+   }
+}
+
+void Function::setParamScale(const std::string &paramName, double scale) {
+   for (unsigned int i = 0; i < m_parameter.size(); i++) {
+      if (paramName == m_parameter[i].getName()) {
+         m_parameter[i].setScale(scale);
+//          std::cerr << "setting the scale for "
+//                    << m_parameter[i].getName() << std::endl;
+      }
+   }
+}
+
+void Function::setParamTrueValue(const std::string &paramName, 
+                                 double paramValue) {
+   for (unsigned int i = 0; i < m_parameter.size(); i++) {
+      if (paramName == m_parameter[i].getName()) {
+         m_parameter[i].setTrueValue(paramValue);
+      }
+   }
 }
 
 void Function::setParamValues(const std::vector<double> &paramVec) {

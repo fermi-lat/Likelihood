@@ -2,7 +2,7 @@
  * @brief Declaration of Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.14 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef Function_h
@@ -32,7 +32,7 @@ class ProductFunction;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.14 2003/03/22 01:22:50 jchiang Exp $
  */
 
 class Function {
@@ -68,6 +68,13 @@ public:
    double getParamValue(const std::string &paramName) const;
    Parameter* getParam(const std::string &paramName);
    
+   void setParamBounds(const std::string &paramName, double lower,
+                       double upper);
+   
+   void setParamScale(const std::string &paramName, double scale);
+
+   void setParamTrueValue(const std::string &paramName, double paramValue);
+
    /////////////////////////////////
    //! parameter access in groups 
    unsigned int getNumParams() const {return m_parameter.size();}
