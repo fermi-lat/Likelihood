@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug  3 14:29:58 PDT 2004
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+comment out unneeded computation of logLike0, making this a
+"log-likelihood" map
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Aug  3 14:28:46 PDT 2004
 Likelihood/src
 
