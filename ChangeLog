@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Aug 20 11:33:18 PDT 2004
+Likelihood/data
+
+Modified Files:
+	expMap_0.fits expMap_1.fits expMap_2.fits expMap_3.fits 
+	expMap_4.fits 
+Log Message:
+correct ROI_[RA,DEC] keywords
+    *
+------------------------------------------------------------
 User: jchiang  Fri Aug 20 08:39:40 PDT 2004
 Likelihood/src
 
