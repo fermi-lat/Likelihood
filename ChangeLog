@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 21 14:03:23 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+protect plot creation with try/catch block
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 21 13:58:34 PDT 2004
 Likelihood/src/likelihood
 
