@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Oct  9 07:00:31 PDT 2004
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx SConstruct 
+Log Message:
+convert energy bounds read from CountsMap file to MeV
+    *
+------------------------------------------------------------
 User: jchiang  Sat Oct  9 07:00:30 PDT 2004
 Likelihood/pfiles
 
