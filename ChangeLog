@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Feb  7 15:14:24 PST 2004
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx SourceModel.cxx 
+Log Message:
+compute TS in likelihood app; tagging v2r9
+    *
+------------------------------------------------------------
 User: jchiang  Sat Feb  7 15:14:23 PST 2004
 Likelihood/doc
 
