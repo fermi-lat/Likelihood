@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.16 2004/05/24 23:51:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.17 2004/09/28 04:32:25 jchiang Exp $
  *
  */
 
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.16 2004/05/24 23:51:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.17 2004/09/28 04:32:25 jchiang Exp $
  *
  */
 
@@ -40,7 +40,7 @@ public:
    FitsImage(const std::string &fitsfile);
    FitsImage(const FitsImage &rhs);
    virtual ~FitsImage() {
-      if (m_haveRefCoord) delete m_eqRot;
+      delete m_eqRot;
    }
 
    virtual void getCelestialArrays(std::vector<double> &lonArray,
@@ -70,11 +70,6 @@ public:
 #endif
 
 private:
-
-   /// Hi-jack the LONPOLE and LATPOLE FITS keywords for use as the 
-   /// true longitude and latitude of the reference pixel...will fix
-   /// this later once we have LAT-specific FITS keywords.
-   bool m_haveRefCoord;
 
    double m_roiRa, m_roiDec;
 

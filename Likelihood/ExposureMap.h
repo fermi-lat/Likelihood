@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.12 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.13 2004/09/28 04:32:25 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.12 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.13 2004/09/28 04:32:25 jchiang Exp $
  *
  */
 
@@ -39,7 +39,7 @@ class ExposureMap {
 
 public:
 
-   ~ExposureMap() {} //{delete s_mapData;}
+   ~ExposureMap() {}
 
    static ExposureMap * instance();
 
