@@ -4,13 +4,14 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.15 2004/12/24 16:45:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.16 2004/12/30 00:28:23 jchiang Exp $
  */
 
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 
@@ -19,6 +20,9 @@
 #include "st_app/StAppFactory.h"
 
 #include "st_facilities/Util.h"
+
+#include "xml/Dom.h"
+#include "xml/XmlParser.h"
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
@@ -31,6 +35,8 @@
 #include "Likelihood/SourceModel.h"
 #include "Verbosity.h"
 
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 using namespace Likelihood;
 
 /**
@@ -40,7 +46,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.15 2004/12/24 16:45:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.16 2004/12/30 00:28:23 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -65,6 +71,8 @@ private:
    std::vector<std::string> m_srcNames;
 
    void promptForParameters();
+   void readDiffuseNames(std::vector<std::string> & srcNames);
+   bool haveDiffuseColumns();
    void buildSourceModel();
    void readEventData();
    void computeEventResponses();
@@ -80,25 +88,63 @@ diffuseResponses::diffuseResponses()
    : st_app::StApp(), m_helper(0), m_srcModel(0), m_srRadius(30.),
      m_pars(st_app::StApp::getParGroup("diffuseResponses")) {}
 
+
 void diffuseResponses::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
-   m_helper = new AppHelpers(m_pars);
-   m_helper->readScData();
-   m_srcModel = new SourceModel(true);
-   ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
-   buildSourceModel();
-   readEventData();
-   computeEventResponses();
-   writeEventResponses();
+   if (m_pars["clobber"] || !haveDiffuseColumns()) {
+      m_helper = new AppHelpers(m_pars);
+      m_helper->readScData();
+      m_srcModel = new SourceModel(true);
+      ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
+      buildSourceModel();
+      readEventData();
+      computeEventResponses();
+      writeEventResponses();
+   } else {
+      if (Likelihood::print_output()) {
+         std::cout << "Diffuse columns have already been computed...exiting."
+                   << std::endl;
+      }
+   }
 }
 
 void diffuseResponses::promptForParameters() {
-   m_pars.Prompt("evfile");
-   m_pars.Prompt("scfile");
-   m_pars.Prompt("source_model_file");
-   m_pars.Prompt("rspfunc");
+   m_pars.Prompt();
    m_pars.Save();
+}
+
+void diffuseResponses::readDiffuseNames(std::vector<std::string> & srcNames) {
+   srcNames.clear();
+   std::string xmlFile = m_pars["source_model_file"];
+   xml::XmlParser * parser = new xml::XmlParser();
+   DOMDocument * doc = parser->parse(xmlFile.c_str());
+   DOMElement * source_library = doc->getDocumentElement();
+   std::vector<DOMElement *> srcs;
+   xml::Dom::getChildrenByTagName(source_library, "source", srcs);
+   for (unsigned int i = 0; i < srcs.size(); i++) {
+      if (xml::Dom::getAttribute(srcs[i], "type") == "DiffuseSource") {
+         srcNames.push_back(xml::Dom::getAttribute(srcs[i], "name"));
+      }
+   }
+}
+
+bool diffuseResponses::haveDiffuseColumns() {
+   std::auto_ptr<const tip::Table> 
+      events(tip::IFileSvc::instance().readTable(m_pars["evfile"],
+                                                 m_pars["evtable"]));
+   const std::vector<std::string> & colNames = events->getValidFields();
+   std::vector<std::string> srcNames;
+   readDiffuseNames(srcNames);
+   for (std::vector<std::string>::iterator name = srcNames.begin();
+        name != srcNames.end(); ++name) {
+      Event::toLower(*name);
+      if (std::find(colNames.begin(), colNames.end(), *name) 
+          == colNames.end()) {
+         return false;
+      }
+   }
+   return true;
 }
 
 void diffuseResponses::buildSourceModel() {

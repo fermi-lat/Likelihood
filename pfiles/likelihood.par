@@ -12,6 +12,7 @@ flux_style_model_file,f,a,"flux_model.xml",,,"flux-style output file name"
 statistic,s,a,"UNBINNED",BINNED|UNBINNED|OPTEM,,"Statistic to use"
 optimizer,s,a,"MINUIT",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_tolerance,r,a,0.0001,,,Fit tolerance
+find_Ts_mins,b,h,no,,,Re-optimize for TS fits?
 query_for_refit,b,a,no,,,Allow for refitting?
 #
 # unbinned
