@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  5 09:33:49 PST 2003
+Likelihood/data
+
+Modified Files:
+	Virgo_region.xml likelihood.par 
+Log Message:
+restrict valid parameters for likelihood.par
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov  5 08:55:19 PST 2003
 Likelihood/src/test
 
