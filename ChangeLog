@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Oct  4 21:47:57 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+update tests; settle on MeanPsf imp.
+    *
+------------------------------------------------------------
+User: jchiang  Mon Oct  4 21:47:57 PDT 2004
 Likelihood/src
 
 Modified Files:
