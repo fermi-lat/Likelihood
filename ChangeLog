@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 23:07:02 PST 2005
+Likelihood/doc
+
+Modified Files:
+	Doxyfile Makefile 
+Log Message:
+convert ResponseFunctions
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 23:07:01 PST 2005
 Likelihood/Likelihood
 
