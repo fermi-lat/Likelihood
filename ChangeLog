@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 14:55:00 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h ResponseFunctions.h ScData.h 
+Log Message:
+convert ScData from Singleton to a proper class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 13:03:34 PST 2005
 Likelihood/src
 
