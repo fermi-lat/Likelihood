@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar 18 20:56:14 PST 2004
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+clean up requirements file; add access to GLAST25 response functions in apps; tagging v2r11
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar 18 20:56:13 PST 2004
 Likelihood/data
 
