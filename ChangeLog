@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Oct  9 17:17:02 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+simpler test source; move tag
+    *
+------------------------------------------------------------
 User: jchiang  Sat Oct  9 08:29:59 PDT 2004
 Likelihood/cmt
 
