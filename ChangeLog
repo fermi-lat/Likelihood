@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Dec  5 14:25:47 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	LikeExposure.h RoiCuts.h 
+Log Message:
+begin transition to using DSS keywords instead of ROI file
+    *
+------------------------------------------------------------
 TAG
 Tag name: v5r5, operation: add
 Package: Likelihood
