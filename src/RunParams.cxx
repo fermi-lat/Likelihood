@@ -4,7 +4,7 @@
  * command-line parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.3 2003/11/10 23:06:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.4 2003/11/26 01:51:06 jchiang Exp $
  */
 
 #include <fstream>
@@ -76,7 +76,9 @@ void RunParams::readLines(std::string inputFile,
    lines.clear();
    std::string line;
    while (std::getline(file, line, '\n')) {
-      lines.push_back(line);
+      if (line != "" && line != " ") { //skip (most) blank lines
+         lines.push_back(line);
+      }
    }
 }
 

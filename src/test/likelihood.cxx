@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.12 2003/11/22 18:55:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.13 2003/11/25 19:03:14 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -85,6 +85,8 @@ int main(int iargc, char* argv[]) {
    } else if (responseFuncs == "FRONT/BACK") {
       ResponseFunctions::addRespPtr(2, irfsFactory.create("Glast25::Front"));
       ResponseFunctions::addRespPtr(3, irfsFactory.create("Glast25::Back"));
+   } else if (responseFuncs == "TESTDC1") {
+      ResponseFunctions::addRespPtr(1, irfsFactory.create("DC1::test"));
    }
 
 // Fill a FunctionFactory with Function object prototypes for source

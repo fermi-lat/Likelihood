@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.18 2003/07/21 22:14:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.19 2003/10/25 00:22:49 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.18 2003/07/21 22:14:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.19 2003/10/25 00:22:49 jchiang Exp $
  */
 
 class Event {
@@ -37,7 +37,7 @@ public:
 
    Event() {}
    Event(double ra, double dec, double energy, double time, 
-         double sc_ra, double sc_dec, double muZenith);
+         double sc_ra, double sc_dec, double muZenith, int type);
    Event(const Event &);
    virtual ~Event() {}
 
@@ -48,6 +48,7 @@ public:
    double getEnergy() const {return m_energy;}
    double getArrTime() const {return m_arrTime;}
    double getMuZenith() const {return m_muZenith;}
+   int getType() const {return m_type;}
 
    //! separation in units of radians
    double getSeparation(const astro::SkyDir &dir) const 
@@ -85,6 +86,9 @@ private:
    double m_energy;
    double m_arrTime;
    double m_muZenith;
+
+   /// Event type (front vs back for now)
+   int m_type;
    
    //! spacecraft info at event arrival time
    astro::SkyDir m_scDir;
