@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri May 23 16:43:42 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	FitsImage.h Function.h Parameter.h 
+Log Message:
+Doh! Fix #ifdef _MSC_VER
+
+    *
+------------------------------------------------------------
 User: jchiang  Fri May 23 16:00:35 PDT 2003
 Likelihood/src/test
 
