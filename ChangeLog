@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar  5 10:42:04 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h 
+Log Message:
+first complete implementation using map_tools Exposure hypercube
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar  2 16:35:31 PST 2004
 Likelihood/src/test
 
