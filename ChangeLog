@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 19 14:46:02 PST 2004
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+back off Aeff functor until differences on Windows are understood.
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar 18 20:56:15 PST 2004
 Likelihood/src/test
 
