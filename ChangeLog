@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr 12 16:22:50 PDT 2004
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+use StApp class; tagging v3r7
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 12 16:22:49 PDT 2004
 Likelihood/src
 
