@@ -3,7 +3,7 @@
  * @brief Implementation for Expectation Maximization class.
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.4 2003/11/22 00:06:16 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.5 2004/02/20 00:02:07 jchiang Exp $
  */
 
 #include "Likelihood/OptEM.h"
@@ -41,8 +41,9 @@ namespace Likelihood {
       //! The E step.  Find weight factors
       for (unsigned int j = 0; j < m_events.size(); j++) {
 	double ztot = 0.;
-	for (unsigned int i = 0; i < getNumSrcs(); i++) {
-	  double x = s_sources[i]->fluxDensity(m_events[j]);
+        std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+        for (unsigned int i = 0 ; srcIt != s_sources.end(); ++srcIt, i++) {
+	  double x = srcIt->second->fluxDensity(m_events[j]);
 	  (*Warray[i])[j] = x;
 	  ztot += x;
 	}
@@ -52,8 +53,9 @@ namespace Likelihood {
       }
 
       //! The M step.  Optimize parameters of each source.
-      for (unsigned int i = 0; i < getNumSrcs(); i++) {
-	OneSourceFunc f(s_sources[i], m_events, Warray[i]); 
+      std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
+      for (unsigned int i = 0 ; srcIt != s_sources.end(); ++srcIt, ++i) {
+	OneSourceFunc f(srcIt->second, m_events, Warray[i]); 
 	f.setEpsF(1.e-20);
 	f.setEpsW(1.e-2);
 	nPar += f.getNumFreeParams();
