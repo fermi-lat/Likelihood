@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Oct 10 18:35:00 PDT 2004
+Likelihood/src/counts_map
+
+Modified Files:
+	counts_map.cxx 
+Log Message:
+refactor parameter access a bit, reorganizing likelihood application mostly
+    *
+------------------------------------------------------------
+User: jchiang  Sun Oct 10 18:35:00 PDT 2004
 Likelihood/src/TsMap
 
 Modified Files:
