@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  8 23:20:30 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h 
+Log Message:
+begin excising ROI xml input
+    *
+------------------------------------------------------------
 TAG
 Tag name: v5r6p1, operation: add
 Package: Likelihood
