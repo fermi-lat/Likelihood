@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan  3 15:01:20 PST 2005
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+change internal references xml->xmlBase
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jan  3 15:01:19 PST 2005
 Likelihood/cmt
 
