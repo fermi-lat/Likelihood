@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr  6 19:11:17 PDT 2004
+Likelihood/Likelihood
+
+Added Files:
+	StApp.h 
+Log Message:
+replace replicated, boiler-plate st_app code with template
+    *
+------------------------------------------------------------
 User: jchiang  Tue Apr  6 15:23:43 PDT 2004
 Likelihood/doc
 
