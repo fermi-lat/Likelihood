@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.6 2004/04/21 20:58:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.7 2004/06/05 15:22:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -20,6 +20,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/PointSource.h"
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/Util.h"
 
@@ -32,7 +33,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.6 2004/04/21 20:58:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.7 2004/06/05 15:22:16 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -62,6 +63,7 @@ ExpMap::ExpMap() : st_app::StApp(), m_helper(0),
       m_pars.Prompt();
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
+      ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
    } catch (std::exception &eObj) {
       std::cerr << eObj.what() << std::endl;
       std::exit(1);
