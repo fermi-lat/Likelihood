@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Nov  4 19:41:23 PST 2003
+Likelihood/data
+
+Added Files:
+	Virgo_region.xml likelihood.par 
+Log Message:
+first effort at a standalone application
+    *
+------------------------------------------------------------
+User: jchiang  Tue Nov  4 19:41:23 PST 2003
 Likelihood/cmt
 
 Modified Files:
