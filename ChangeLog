@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Sep  3 10:49:59 PDT 2004
+Likelihood/data
+
+Added Files:
+	LatCountsMapTemplate 
+Log Message:
+add CountsMap template file; multiply model counts per pixel by energy bin width
+    *
+------------------------------------------------------------
 User: jchiang  Fri Sep  3 07:12:42 PDT 2004
 Likelihood/doc
 
