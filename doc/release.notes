@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r1   10-Oct-04  JC   refactor likelihood application parameter access
     v5r0   09-Oct-04  JC   Compute SourceMaps for diffuse sources; add 
                            gtsrcmaps application for generating SourceMaps
                            from counts maps.

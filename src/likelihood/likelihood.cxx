@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.39 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.40 2004/10/11 01:35:01 jchiang Exp $
  */
 
 #include <cmath>
@@ -46,12 +46,12 @@ using namespace Likelihood;
 
 /**
  * @class likelihood
- * @brief A class encapsulating the methods for performing an unbinned
+ * @brief A class encapsulating the methods for performing a
  * Likelihood analysis in ballistic fashion.
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.39 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.40 2004/10/11 01:35:01 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -86,7 +86,6 @@ private:
    void writeFluxXml();
    void writeCountsSpectra();
    void writeCountsMap();
-//   void createCountsMap();
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
 
@@ -126,7 +125,6 @@ void likelihood::run() {
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
    }
    createStatistic();
-//   createCountsMap();
 
 // Set the verbosity level and convergence tolerance.
    long verbose = m_pars["fit_verbosity"];
@@ -355,38 +353,6 @@ void likelihood::writeCountsMap() {
       std::cout << eObj.what() << std::endl;
    }
 }
-
-// void likelihood::createCountsMap() {
-// // Create a counts map from the data using the ROI as to get the map
-// // dimensions.
-//    RoiCuts * roiCuts = RoiCuts::instance();
-
-//    std::pair<double, double> elims = roiCuts->getEnergyCuts();
-
-//    const irfInterface::AcceptanceCone & roi = roiCuts->extractionRegion();
-//    double roi_radius = roi.radius();
-//    double roi_ra, roi_dec;
-//    RoiCuts::getRaDec(roi_ra, roi_dec);
-
-//    double pixel_size(0.25);
-//    unsigned long npts = static_cast<unsigned long>(2*roi_radius/pixel_size);
-//    unsigned long nee(21);
-
-// // CountsMap and its base class, DataProduct, want *single* event and
-// // scData files for extracting header keywords and gti info, so pass
-// // just the first from each vector.
-// // @todo sort out how one should handle these data when several FITS
-// // files are specified.
-//    m_dataMap = new CountsMap(m_eventFiles[0], m_helper->scFiles()[0], 
-//                              roi_ra, roi_dec, "CAR", npts, npts, pixel_size, 
-//                              0, false, "RA", "DEC", elims.first, 
-//                              elims.second, nee);
-//    for (unsigned int i = 0; i < m_eventFiles.size(); i++) {
-//       const tip::Table * events 
-//          = tip::IFileSvc::instance().readTable(m_eventFiles[i], "events");
-//       m_dataMap->binInput(events->begin(), events->end());
-//    }
-// }
 
 void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<std::string> srcNames;
