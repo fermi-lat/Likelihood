@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.9 2003/08/24 19:00:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.10 2003/10/24 01:57:24 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -109,6 +109,8 @@ void RoiCuts::setCuts(const std::string &xmlFile) {
 
 // Do not apply zenith angle cut for now.
    s_muZenMax = -1.;
+
+   delete parser;
 }
 
 bool RoiCuts::accept(const Event &event) {

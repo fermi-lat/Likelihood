@@ -8,6 +8,7 @@
 #include <fstream>
 #include <cstring>
 #include <cmath>
+
 #include "astro/SkyDir.h"
 
 #include "latResponse/../src/Table.h"
@@ -78,7 +79,7 @@ int main() {
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
    read_SC_Response_data();
-//    test_SourceModel_class();
+   test_SourceModel_class();
 //    test_Event_class();
 //    test_PointSource_class();
 //    test_LogLike();
@@ -1195,6 +1196,9 @@ void test_SourceModel_class() {
       params = params_save;
    }
    std::cout << std::endl;
+
+   std::string xmlFile = "myModel.xml";
+   SrcModel.writeXml(xmlFile, "$(LIKELIHOODROOT)/xml/A1_Functions.xml");
 
    std::cout << "*** test_SourceModel_class: all tests completed ***\n" 
              << std::endl;

@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.25 2003/10/01 17:03:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.26 2003/10/01 21:21:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -330,6 +330,8 @@ void SourceModel::readXml(const std::string &xmlFile,
 
 void SourceModel::writeXml(const std::string &xmlFile,
                            const std::string &functionLibrary) {
+   xml::XmlParser *parser = new xml::XmlParser();
+
    DOM_Document doc = DOM_Document::createDocument();
 
    DOM_Element srcLib = doc.createElement("source_library");
@@ -394,6 +396,8 @@ void SourceModel::writeXml(const std::string &xmlFile,
 //    outFile << "<?xml version='1.0' standalone='no'?>\n"
 //            << "<!DOCTYPE source_library SYSTEM \"A1_Sources.dtd\" >\n";
    xml::Dom::prettyPrintElement(srcLib, outFile, "");
+
+   delete parser;
 }
 
 } // namespace Likelihood
