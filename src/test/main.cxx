@@ -1,6 +1,7 @@
 // test program for Likelihood
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <cmath>
 
@@ -33,6 +34,7 @@
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Lbfgs.h"
 #include "Likelihood/Minuit.h"
+#include "Likelihood/Mcmc.h"
 #include "OptPP.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
@@ -69,6 +71,7 @@ void test_SpatialMap();
 void test_DiffuseSource();
 void fit_DiffuseSource();
 void print_fit_results(Statistic &stat);
+void test_Mcmc();
 
 std::string test_path;
 
@@ -88,16 +91,96 @@ int main() {
 //    test_CompositeFunction();
 //    test_SpectrumFactory();
 //    test_SourceFactory();
-   test_OptPP();
+//    test_OptPP();
 //    fit_3C279();
 //    fit_anti_center();
 //    test_FitsImage();
 //    test_ExposureMap();
 //    test_SpatialMap();
 //    test_DiffuseSource();
-   fit_DiffuseSource();
+//    fit_DiffuseSource();
+   test_Mcmc();
    return 0;
 }
+
+void test_Mcmc() {
+
+   Rosen my_rosen;
+
+   try {
+   std::vector<Parameter> params;
+   my_rosen.getParams(params);
+   params[0].setValue(2.);
+   params[0].setBounds(-10., 10.);
+   params[1].setValue(2.);
+   params[1].setBounds(-10., 10.);
+   my_rosen.setParams(params);
+
+   std::vector<double> my_sig(2);
+   double scale = 0.5;
+#ifdef HAVE_OPT_MINUIT
+   int verbose = 1;
+   Minuit myMinuitObj(my_rosen);
+   myMinuitObj.find_min(verbose, .0001);
+   std::vector<double> sig = myMinuitObj.getUncertainty();
+   for (unsigned int i=0; i < sig.size(); i++) {
+      std::cout << i << "  " << sig[i] << std::endl;
+      my_sig[i] = sig[i]*scale;
+   }
+#endif //HAVE_OPT_MINUIT
+
+   Mcmc myMcmcObj(my_rosen);
+   myMcmcObj.setTransitionWidths(my_sig);
+
+   std::vector< std::vector<double> > mcmc_samples;
+   long nsamp = 100000;
+// Do a "burn in"...
+   myMcmcObj.generateSamples(mcmc_samples, nsamp);
+// then the real thing...
+   nsamp = 200000;
+   myMcmcObj.generateSamples(mcmc_samples, nsamp);
+
+   std::cout << "MCMC results for " << nsamp << " trials:" << std::endl;
+   for (unsigned int j = 0; j < params.size(); j++) {
+      double mc_avg = 0;
+      double mc2_avg = 0;
+      for (unsigned int i = 0; i < mcmc_samples.size(); i++) {
+         mc_avg += mcmc_samples[i][j];
+         mc2_avg += pow(mcmc_samples[i][j], 2);
+      }
+      mc_avg /= mcmc_samples.size();
+      mc2_avg /= mcmc_samples.size();
+      std::cout << "Parameter " << j << ": "
+                << mc_avg << " +/- "
+                << sqrt(mc2_avg - mc_avg*mc_avg) << std::endl;
+   }
+   
+//    std::string filename = test_path + "Data/Mcmc.dat"; 
+//    std::ofstream outfile(filename.c_str());
+//    if (!outfile) {
+//       std::cout << "opening Mcmc.dat failed." << std::endl;
+//       assert(false);
+//    }
+
+//    for (unsigned int i = 0; i < mcmc_samples.size(); i++) {
+//       for (unsigned int j = 0; j < params.size(); j++) {
+//          outfile << mcmc_samples[i][j] << "  ";
+//       }
+//       outfile << "\n";
+//    }
+
+   } catch (OutOfBounds &eObj) {
+      assert(eObj.code() == OutOfBounds::VALUE_ERROR);
+      std::cerr << eObj.what() << "\n"
+                << "Value: " << eObj.value() << "\n"
+                << "minValue: " << eObj.minValue() << "\n"
+                << "maxValue: " << eObj.maxValue() << "\n" 
+                <<std::endl;
+   } catch(LikelihoodException &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+
+} // test_Mcmc
 
 void fit_DiffuseSource() {
 // center the ROI on the Galactic Center
@@ -1825,4 +1908,3 @@ void print_fit_results(Statistic &stat) {
                 << src->Npred() << std::endl;
    }
 }
-
