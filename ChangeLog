@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Aug 23 08:38:56 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	ExposureMap.h PointSource.h ResponseFunctions.h Source.h 
+	SourceModel.h 
+Log Message:
+counts spectra and counts map
+    *
+------------------------------------------------------------
 User: jchiang  Fri Aug 20 11:36:02 PDT 2004
 Likelihood/doc
 
