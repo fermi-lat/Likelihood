@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct  1 18:05:08 PDT 2004
+Likelihood/pfiles
+
+Added Files:
+	exposureMap.par 
+Log Message:
+add exposureMap.par
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  1 17:05:51 PDT 2004
 Likelihood/src/meanPsf
 
