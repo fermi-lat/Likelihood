@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec 12 08:11:49 PST 2003
+Likelihood/src
+
+Modified Files:
+	SpatialMap.cxx tutorial.h 
+Log Message:
+preserve env vars in input FILE file string
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec 10 14:56:20 PST 2003
 Likelihood/doc
 
