@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v4r1   10-Jun-04  JC   added diffuseResponses tool; enabled SCons
+                           build with Opt++ for cognoscenti
     v4r0   24-May-04  JC   Energy dispersion added; cppunit used in test.cxx
     v3r9p1 21-May-04  JC   tag before adding energy dispersion
     v3r9   09-May-04  JC   Use map for SourceModel::s_sources.
