@@ -1,6 +1,6 @@
 package Likelihood
 
-# $Id:$
+# $Id: requirements,v 1.1.1.1 2003/01/30 23:23:02 burnett Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
@@ -10,7 +10,8 @@ private
 # allow use of internal path
 macro_prepend cppflags "-I ../src " WIN32 "/I..\src "
 
-library Likelihood -no_share *.h *.cxx
+macro includes "" WIN32 "*.h"
+library Likelihood -no_share $(includes) *.cxx
 
 # test application
 application test_Likelihood test/*.cxx
