@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.22 2003/08/13 21:45:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.23 2003/08/16 01:12:25 jchiang Exp $
  */
 
 #include <sstream>
@@ -244,7 +244,8 @@ Source * SourceFactory::makeDiffuseSource(const DOM_Element &spectrum,
    std::vector<DOM_Element>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
       optimizers::Parameter parameter;
-      optimizers::Dom::readParamData(*paramIt, parameter);
+//      optimizers::Dom::readParamData(*paramIt, parameter);
+      parameter.extractDomData(*paramIt);
       spatialDist->setParam(parameter);
    }
    if (type == "SpatialMap") {
@@ -278,7 +279,8 @@ void SourceFactory::setSpectrum(Source *src, const DOM_Element &spectrum,
       std::vector<DOM_Element>::const_iterator paramIt = params.begin();
       for ( ; paramIt != params.end(); paramIt++) {
          optimizers::Parameter parameter;
-         optimizers::Dom::readParamData(*paramIt, parameter);
+//         optimizers::Dom::readParamData(*paramIt, parameter);
+         parameter.extractDomData(*paramIt);
          spec->setParam(parameter);
       }
    }  
