@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 21 20:20:21 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx CountsMap.cxx SourceModel.cxx 
+Log Message:
+move Pixel access methods to CountsMap
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 21 20:20:20 PDT 2004
 Likelihood/Likelihood
 
