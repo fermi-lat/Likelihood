@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.41 2004/05/24 23:21:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.42 2004/06/01 04:27:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -166,7 +166,9 @@ void PointSource::computeExposure(bool verbose) {
 void PointSource::computeExposureWithHyperCube(std::vector<double> &energies, 
                                                std::vector<double> &exposure, 
                                                bool verbose) {
-   if (!s_haveStaticMembers) {
+   if (!s_haveStaticMembers 
+       || RoiCuts::instance()->getEnergyCuts().first != s_energies.front()
+       || RoiCuts::instance()->getEnergyCuts().second != s_energies.back()) {
       makeEnergyVector();
       s_haveStaticMembers = true;
    }
@@ -197,7 +199,9 @@ void PointSource::computeExposure(std::vector<double> &energies,
 // Don't compute anything if there is no ScData.
    if (scData->vec.size() == 0) return;
 
-   if (!s_haveStaticMembers) {
+   if (!s_haveStaticMembers 
+       || RoiCuts::instance()->getEnergyCuts().first != s_energies.front()
+       || RoiCuts::instance()->getEnergyCuts().second != s_energies.back()) {
       makeEnergyVector();
       s_haveStaticMembers = true;
    }
@@ -276,6 +280,7 @@ void PointSource::makeEnergyVector(int nee) {
       double emax = (roiCuts->getEnergyCuts()).second;
       double estep = log(emax/emin)/(nee-1);
    
+      s_energies.clear();
       s_energies.reserve(nee);
       for (int i = 0; i < nee; i++) {
          s_energies.push_back(emin*exp(i*estep));
