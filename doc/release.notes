@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r3   10-Nov-04  JC   xerces 2.6.0 migration
     v5r2p1 29-Oct-04  JC   use tip v2*
     v5r2   29-Oct-04  JC   sort out how to make hoops behave
     v5r1p3 22-Oct-04  JC   restore conditional read of params, bypassing 

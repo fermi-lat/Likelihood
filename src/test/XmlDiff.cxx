@@ -3,7 +3,7 @@
  * @brief Class to compare two XML files.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.cxx,v 1.1 2004/02/29 19:56:57 jchiang Exp $
  */
 
 #include <fstream>
@@ -14,6 +14,8 @@
 
 #include "XmlDiff.h"
 
+XERCES_CPP_NAMESPACE_USE
+
 XmlDiff::XmlDiff(std::string file1, std::string file2,
                  const std::string & tagName, const std::string & attribute) 
    : m_tagName(tagName), m_attribute(attribute) {
@@ -22,11 +24,11 @@ XmlDiff::XmlDiff(std::string file1, std::string file2,
 
    xml::XmlParser * parser = new xml::XmlParser();
 
-   DomDocument doc1 = parser->parse(file1.c_str());
-   createDomElementMap(doc1.getDocumentElement(), m_domMap1);
+   DOMDocument * doc1 = parser->parse(file1.c_str());
+   createDomElementMap(doc1->getDocumentElement(), m_domMap1);
 
-   DomDocument doc2 = parser->parse(file2.c_str());
-   createDomElementMap(doc2.getDocumentElement(), m_domMap2);
+   DOMDocument * doc2 = parser->parse(file2.c_str());
+   createDomElementMap(doc2->getDocumentElement(), m_domMap2);
 
    m_file1 = file1 + "_reserialized";
    m_file2 = file2 + "_reserialized";
@@ -54,9 +56,9 @@ bool XmlDiff::compare() {
    return true;
 }
 
-void XmlDiff::createDomElementMap(const DomElement & rootElt, 
+void XmlDiff::createDomElementMap(const DOMElement * rootElt, 
                                   DomMap & domMap) {
-   std::vector<DomElement> elts;
+   std::vector<DOMElement *> elts;
    xml::Dom::getChildrenByTagName(rootElt, m_tagName, elts);
    domMap.clear();
    for (unsigned int i = 0; i < elts.size(); i++) {
