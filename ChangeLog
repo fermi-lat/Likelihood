@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug  5 16:06:01 PDT 2004
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Log Message:
+try to handle edisp and no edisp cases gracefully
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  4 22:28:28 PDT 2004
 Likelihood/src/likelihood
 
