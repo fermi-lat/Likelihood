@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 17 11:09:54 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+Check for presence of free parameters before trying to compute logLike
+in null hypothesis.
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 17 11:08:53 PST 2004
 Likelihood/data
 
