@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Sep 28 07:45:37 PDT 2004
+Likelihood/src
+
+Modified Files:
+	FitsImage.cxx 
+Log Message:
+clean up FitsImage further
+    *
+------------------------------------------------------------
+User: jchiang  Tue Sep 28 07:45:37 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
