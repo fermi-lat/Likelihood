@@ -4,7 +4,7 @@ version v2r10
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.92 2004/03/03 00:35:30 jchiang Exp $
+# $Id: requirements,v 1.93 2004/03/05 18:42:05 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -55,8 +55,8 @@ Win32 " $(map_toolsDir)/image.lib "
 # applications
 application test_Likelihood test/test.cxx test/SourceData.cxx test/XmlDiff.cxx
 #application old_tests test/main.cxx
-#application likelihoodApp test/likelihood.cxx
-#application TsMap test/TsMap.cxx
-#application expMap test/expMap.cxx
+application likelihoodApp test/likelihood.cxx
+application TsMap test/TsMap.cxx
+application expMap test/expMap.cxx
 
 application makeExposureCube test/makeExposureCube.cxx

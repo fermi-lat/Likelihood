@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.13 2003/11/18 18:07:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.14 2004/02/20 00:02:03 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -13,6 +13,8 @@
 #include <string>
 #include <utility>
 #include <cmath>
+
+#include "xml/Dom.h"
 
 #include "astro/SkyDir.h"
 
@@ -29,7 +31,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.13 2003/11/18 18:07:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.14 2004/02/20 00:02:03 jchiang Exp $
  */
 
 class RoiCuts {
@@ -73,7 +75,11 @@ public:
    static void setCuts(std::string xmlFile);
 
    /// Write to xml file
-   void writeXml(std::string xmlFile, const std::string &roiTitle);
+   void writeXml(std::string xmlFile, const std::string &roiTitle="");
+
+   /// Write to a stream.
+   void writeXml(std::ostream & ostr, const std::string &roiTitle="",
+                 bool pretty=false);
 
    /// Apply these cuts to an Event
    bool accept(const Event &);
@@ -101,6 +107,9 @@ private:
 
    /// cosine of the maximum Zenith angle
    static double s_muZenMax;
+
+   /// Create a root DomElement for the current set of cuts.
+   DomElement * rootDomElement(const std::string & roiTitle);
 
 };
 
