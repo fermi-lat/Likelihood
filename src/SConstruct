@@ -29,32 +29,27 @@ libraries['testResponseLib'] = None
 libraries['irfUtilLib'] = None
 libraries['st_facilitiesLib'] = None
 libraries['g2c'] = ('','')
-libraries['cfitsio'] = (os.path.join(os.environ['CFITSIO_DIR'], 'include'),
-                        os.path.join(os.environ['CFITSIO_DIR'], 'lib'))
-libraries['CLHEP'] = (os.path.join(os.environ['CLHEP_DIR'], '1.8.0.0',
-                                   'include'),
-                                   os.path.join(os.environ['CLHEP_DIR'],
-                                                '1.8.0.0','lib'))
-libraries['xerces-c1_7_0'] = (os.path.join(os.environ['XMLEXT_DIR'],
-                                           'include'),
-                              os.path.join(os.environ['XMLEXT_DIR'], 'lib'))
+
+def externalLibrary(libname, version):
+    libdir = os.path.join(os.environ['GLAST_EXT'], libname, version)
+    return [os.path.join(libdir, 'include'), os.path.join(libdir, 'lib')]
+    
+libraries['cfitsio'] = externalLibrary('cfitsio', 'v2470')
+libraries['CLHEP'] = externalLibrary('CLHEP', '1.8.0.0')
+libraries['xerces-c1_7_0'] = externalLibrary('xerces', '1.7.0')
+libraries['cppunit'] = externalLibrary('cppunit', '1.9.14')
+libraries['Core'] = externalLibrary('ROOT', os.path.join('v3.10.02', 'root'))
+libraries['pil'] = externalLibrary('pil', '1.9.2')
+
+libraries['pil'][1] += (os.path.sep + 'linux-3.2')
+
 libraries['opt-linux'] = (os.path.join(OptPP_dir, 'include'),
                           os.path.join(OptPP_dir, 'lib'))
 libraries['newmat-linux'] = (os.path.join(OptPP_dir, 'newmat09'),
                              os.path.join(OptPP_dir, 'lib'))
-libraries['cppunit'] = (os.path.join(os.environ['CPPUNIT_DIR'], 'include'),
-                        os.path.join(os.environ['CPPUNIT_DIR'], 'lib'))
-libraries['Core'] = (os.path.join(os.environ['ROOT_DIR'], 'v3.10.02', 
-                                  'root', 'include'),
-                     os.path.join(os.environ['ROOT_DIR'], 'v3.10.02', 
-                                  'root', 'lib'))
-libraries['pil'] = (os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
-                                 'include'),
-                    os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
-                                 'lib', 'linux-3.2'))
 
-#cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
-cflags = ' -DHAVE_OPT_PP -rdynamic -g '
+cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
+#cflags = ' -DHAVE_OPT_PP -rdynamic -g '
 linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'pthread', 'm', 'dl',
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript']
