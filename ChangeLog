@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Sep  2 16:43:16 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h SourceModel.h SpatialMap.h 
+Added Files:
+	CountsMap.h HistND.h 
+Log Message:
+start using evtbin for counts map generation; allow makeExposureCube to read in multiple scData files
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 25 14:54:09 PDT 2004
 Likelihood/doc
 
