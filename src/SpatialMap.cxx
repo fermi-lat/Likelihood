@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.13 2005/02/02 19:20:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.14 2005/02/17 23:22:32 jchiang Exp $
  *
  */
 
@@ -40,6 +40,8 @@ void SpatialMap::readFitsFile(const std::string &fitsFile) {
 
    FitsImage fitsImage(inFile);
 
+   m_coordSys = fitsImage.coordSys();
+
 // Assume 0th and 1st axes are RA and DEC.
    fitsImage.getAxisVector(0, m_ra);
 // wrap to +/- 180
@@ -70,17 +72,23 @@ double SpatialMap::value(optimizers::Arg& arg) const {
    astro::SkyDir dir;
    dynamic_cast<SkyDirArg &>(arg).fetchValue(dir);
 
-   double ra = dir.ra();
+   double ra, dec;
+   if (m_coordSys == "Equatorial") {
+      ra = dir.ra();
+      dec = dir.dec();
+   } else {
+      ra = dir.l();
+      dec = dir.b();
+   }
 
 // wrap to +/-180
    if (ra > 180) ra -= 360;
 
-   if (dir.dec() < m_decMin || dir.dec() > m_decMax ||
-       ra < m_raMin || ra > m_raMax) {
+   if (dec < m_decMin || dec > m_decMax || ra < m_raMin || ra > m_raMax) {
       return 0;
    }
    double my_value = 
-      st_facilities::Util::bilinear(m_dec, dir.dec(), m_ra, ra, m_image);
+      st_facilities::Util::bilinear(m_dec, dec, m_ra, ra, m_image);
       
    return m_parameter[0].getTrueValue()*my_value;
 }

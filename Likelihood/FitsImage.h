@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.21 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.22 2005/02/17 23:22:30 jchiang Exp $
  *
  */
 
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.21 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.22 2005/02/17 23:22:30 jchiang Exp $
  *
  */
 
@@ -50,6 +50,10 @@ public:
 
    void getPixelBounds(unsigned int naxis,
                        std::vector<double> & pixelBounds) const;
+
+   const std::string & coordSys() const {
+      return m_coordSys;
+   }
 
    static void fitsReportError(int status, std::string routine="");
 
@@ -85,6 +89,8 @@ public:
 private:
 
    double m_roiRa, m_roiDec;
+
+   std::string m_coordSys;
 
    EquinoxRotation * m_eqRot;
 
