@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.21 2005/03/01 01:06:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.22 2005/03/02 22:55:04 jchiang Exp $
  */
 
 #include <map>
@@ -40,16 +40,18 @@ AppHelpers::AppHelpers(st_app::AppParGroup & pars)
    createResponseFuncs();
 
    m_scData = new ScData();
+   m_expCube = new ExposureCube();
    m_observation = new Observation(ResponseFunctions::instance(),
                                    m_scData,
                                    RoiCuts::instance(),
-                                   ExposureCube::instance(),
+                                   m_expCube,
                                    ExposureMap::instance());
 }
 
 AppHelpers::~AppHelpers() {
    delete m_funcFactory;
    delete m_scData;
+   delete m_expCube;
    delete m_observation;
 }
 

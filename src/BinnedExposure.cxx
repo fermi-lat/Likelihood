@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.4 2004/11/28 06:58:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.5 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,7 +19,6 @@
 
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
-#include "Likelihood/ExposureCube.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/ResponseFunctions.h"
 
