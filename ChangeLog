@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Aug 23 08:49:51 PDT 2004
+Likelihood/src
+
+Added Files:
+	ExposureCube.cxx 
+Log Message:
+used by PointSource and SourceModel exposure calculations
+    *
+------------------------------------------------------------
+User: jchiang  Mon Aug 23 08:49:51 PDT 2004
 Likelihood/Likelihood
 
 Added Files:
