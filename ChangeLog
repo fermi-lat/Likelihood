@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 16:17:23 PST 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+convert ExposureCube to proper class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 16:17:22 PST 2005
 Likelihood/src/gtsrcmaps
 
