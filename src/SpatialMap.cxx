@@ -5,26 +5,35 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.3 2003/06/11 17:08:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.4 2003/08/06 20:52:08 jchiang Exp $
  *
  */
 
+#include "Likelihood/FitsImage.h" 
 #include "Likelihood/Response.h"
+#include "Likelihood/SkyDirArg.h"
 #include "Likelihood/SpatialMap.h"
 
 namespace Likelihood {
 
-SpatialMap::SpatialMap(std::string fitsfile) : FitsImage(fitsfile) {
-
-// Assume 0th and 1st axes are RA and DEC.
-   fetchAxisVector(0, m_ra);
-   fetchAxisVector(1, m_dec);
-
+void SpatialMap::init() {
 // This Function has one Parameter, an overall normalization, 
 // but set it to be unit constant.
    int nParams = 1;
    setMaxNumParams(nParams);
    addParam("Prefactor", 1, false);
+}
+
+void SpatialMap::readFitsFile(const std::string &fitsFile) {
+   m_fitsFile = fitsFile;
+
+   FitsImage fitsImage(fitsFile);
+
+// Assume 0th and 1st axes are RA and DEC.
+   fitsImage.fetchAxisVector(0, m_ra);
+   fitsImage.fetchAxisVector(1, m_dec);
+
+   fitsImage.fetchImageData(m_image);
 }
 
 double SpatialMap::value(optimizers::Arg& arg) const {

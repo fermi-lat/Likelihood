@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.12 2003/07/19 04:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.13 2003/07/21 22:14:58 jchiang Exp $
  *
  */
 
@@ -23,10 +23,10 @@
 
 namespace Likelihood {
 
-FitsImage::FitsImage(std::string &fitsfile) {
+FitsImage::FitsImage(const std::string &fitsfile) {
 
    m_filename = fitsfile;
-   read_fits_image(fitsfile, m_axes, m_image);
+   read_fits_image(m_filename, m_axes, m_image);
    for (unsigned int i = 0; i < m_axes.size(); i++) {
       std::vector<double> axisVector;
       m_axes[i].computeAxisVector(axisVector);

@@ -33,6 +33,7 @@
 #include "optimizers/Function.h"
 #include "optimizers/SumFunction.h"
 #include "optimizers/ProductFunction.h"
+#include "optimizers/FunctionFactory.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
 #include "optimizers/Exception.h"
@@ -43,6 +44,7 @@ using optimizers::Parameter;
 using optimizers::Function;
 using optimizers::SumFunction;
 using optimizers::ProductFunction;
+using optimizers::FunctionFactory;
 using optimizers::dArg;
 using optimizers::Lbfgs;
 using optimizers::Minuit;
@@ -67,28 +69,63 @@ void test_DiffuseSource();
 void fit_DiffuseSource();
 void print_fit_results(SourceModel &stat);
 void test_cfitsio();
+void test_FunctionFactory();
 
+std::string root_path;
 std::string test_path;
 
 int main() {
    read_SC_Response_data();
-   test_SourceModel_class();
-   test_Table_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_Aeff_class();
-   test_Psf_class();
-   test_logLike_ptsrc();
-   test_SpectrumFactory();
+//    test_SourceModel_class();
+//    test_Table_class();
+//    test_Event_class();
+//    test_PointSource_class();
+//    test_Aeff_class();
+//    test_Psf_class();
+//    test_logLike_ptsrc();
+//    test_SpectrumFactory();
+//    fit_3C279();
+//    fit_anti_center();
+//    test_FitsImage();
+//    test_ExposureMap();
+//    test_SpatialMap();
+//    test_DiffuseSource();
+//    fit_DiffuseSource();
+   test_FunctionFactory();
    test_SourceFactory();
-   fit_3C279();
-   fit_anti_center();
-   test_FitsImage();
-   test_ExposureMap();
-   test_SpatialMap();
-   test_DiffuseSource();
-   fit_DiffuseSource();
    return 0;
+}
+
+void test_FunctionFactory() {
+   std::cout << "*** test FunctionFactory ***" << std::endl;
+
+   FunctionFactory funcFactory;
+
+   try {
+// Add in the Functions for modeling spectra...
+      funcFactory.addFunc("PowerLaw", new PowerLaw(), false);
+      funcFactory.addFunc("Gaussian", new Gaussian(), false);
+      funcFactory.addFunc("AbsEdge", new AbsEdge(), false);
+
+// and the Functions for spatial modeling.
+      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
+      funcFactory.addFunc("ConstantValue", new ConstantValue(), false);
+      funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
+
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+
+// Read in the prototypes from the XML file.
+   std::string xmlFile = root_path + "/xml/A1_Functions.xml";
+
+   try {
+      funcFactory.readXml(xmlFile);
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+
+   std::cout << "*** FunctionFactory tests completed ***" << std::endl;
 }
 
 void fit_DiffuseSource() {
@@ -125,13 +162,13 @@ void fit_DiffuseSource() {
    SourceFactory srcFactory;
 
    DiffuseSource *ourGalaxy = dynamic_cast<DiffuseSource *>
-      (srcFactory.makeSource("Milky Way"));
+      (srcFactory.create("Milky Way"));
 
    DiffuseSource *extragalactic = dynamic_cast<DiffuseSource *>
-      (srcFactory.makeSource("EG component"));
+      (srcFactory.create("EG component"));
 
 // 3C 279
-   Source *_3c279 = srcFactory.makeSource("PointSource");
+   Source *_3c279 = srcFactory.create("PointSource");
    _3c279->setDir(ra0, dec0);
    _3c279->setName("3C 279");
 
@@ -211,7 +248,7 @@ void fit_DiffuseSource() {
    logLike.deleteAllSources();
 
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      Source *src = srcFactory.makeSource(srcNames[i]);
+      Source *src = srcFactory.create(srcNames[i]);
       logLike.addSource(src);
    }
 
@@ -414,121 +451,54 @@ void test_SourceFactory() {
 
    std::cout << "*** test_SourceFactory ***" << std::endl;
 
-// set the ROI cuts
-   RoiCuts::setCuts(83.57, 22.01, 20.);
+// center the ROI on 3C 279
+   double ra0 = 193.98;
+   double dec0 = -5.82;
 
-/* read in the spacecraft data */
-   std::string sc_file = test_path + "Data/anti_center_sc_0000";
+   RoiCuts::setCuts(ra0, dec0, 20.);
+
+// root name for the observation data files
+   std::string obs_root = "diffuse_test_5";
+
+// read in the spacecraft data
+   std::string sc_file = test_path + "Data/" + obs_root + "_sc_0000";
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
 
-// add the sources to the model
+   std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
+//   std::string expfile = "exp_" + obs_root + ".fits";
 
-   logLike_ptsrc logLike;
+// compute a new exposure map for these data
+//   ExposureMap::computeMap(expfile, 30., 60, 60, 10);
+
+// must read in the exposure file prior to creating the SourceFactory
+// object since it contains DiffuseSources
+   ExposureMap::readExposureFile(expfile);
+
+// Create the FunctionFactory and SourceFactory.
+   optimizers::FunctionFactory funcFactory;
+   try {
+// Add in the Functions for modeling spectra...
+      funcFactory.addFunc("PowerLaw", new PowerLaw(), false);
+      funcFactory.addFunc("Gaussian", new Gaussian(), false);
+      funcFactory.addFunc("AbsEdge", new AbsEdge(), false);
+
+// and the Functions for spatial modeling.
+      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
+      funcFactory.addFunc("ConstantValue", new ConstantValue(), false);
+      funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
+
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
 
    SourceFactory srcFactory;
 
-// Crab Pulsar
-   double ra = 83.57;
-   double dec = 22.01;
-   Source *Crab = srcFactory.makeSource("PointSource");
-   Crab->setDir(ra, dec);
+// Read in the prototypes from the XML file.
+   std::string xmlFile = root_path + "/xml/A1_Sources.xml";
 
-// These are nominal for the Crab, but use SourceFactory defaults (10,
-// -2, 100) to vet their choice and to exercise the Optimizer some
-// more.
-//     double Prefactor = 27.;
-//     double Gamma = -2.19;
-//     double Escale = 100.;
+   srcFactory.readXml(xmlFile, funcFactory);
 
-   Crab->setName("Crab Pulsar");
-   logLike.addSource(Crab);
-
-// Geminga Pulsar
-   ra = 98.49;
-   dec = 17.86;
-   Source *Geminga = srcFactory.makeSource("PointSource");
-   Geminga->setDir(ra, dec);
-
-// Again, eschew the nominal values for Geminga....
-//     Prefactor = 23.29;
-//     Gamma = -1.66;
-//     Escale = 100.;
-
-   Geminga->setName("Geminga Pulsar");
-   logLike.addSource(Geminga);
-
-// PKS 0528+134
-   ra = 82.74;
-   dec = 13.38;
-   Source *_0528 = srcFactory.makeSource("PointSource");
-   _0528->setDir(ra, dec);
-
-//     Prefactor = 13.6;
-//     Gamma = -2.46;
-//     Escale = 100.;
-
-   _0528->setName("PKS 0528+134");
-   logLike.addSource(_0528);
-
-// read in the event data
-   std::string event_file = test_path + "Data/anti_center_0000";
-   logLike.getEvents(event_file, 2);
-
-// some derivative tests
-   dArg dummy(1.);
-   std::vector<double> derivs;
-   logLike.getFreeDerivs(dummy, derivs);
-   
-   std::vector<double> params;
-   logLike.getFreeParamValues(params);
-   
-   logLike.setFreeParamValues(params);
-   double statval0 = logLike(dummy);
-   
-   for (unsigned int i = 0; i < params.size(); i++) {
-      std::vector<double> new_params = params;
-      double dparam = params[i]*1e-7;
-      new_params[i] += dparam;
-      logLike.setFreeParamValues(new_params);
-      double statval = logLike(dummy);
-      std::cout << derivs[i] << "  " 
-                << (statval - statval0)/dparam << std::endl;
-   }
-
-// Do the fit
-   Minuit myOptimizer(logLike);
-   
-   int verbose = 3;
-   myOptimizer.find_min(verbose);
-
-// Having found the best-fit Parameters, save these Sources in
-// srcFactory.  Note that the pointers are cloned by SourceModel, and
-// so we need to retrieve the updated Sources from logLike.
-
-   srcFactory.addSource(Crab->getName(), logLike.getSource(Crab->getName()));
-   delete Crab;  // housekeeping
-   srcFactory.addSource(Geminga->getName(), 
-                        logLike.getSource(Geminga->getName()));
-   delete Geminga;
-   srcFactory.addSource(_0528->getName(), logLike.getSource(_0528->getName()));
-   delete _0528;
-
-// retrieve the names of the Sources in srcFactory and inspect their
-// spectral Parameters
-   std::vector<std::string> srcNames;
-   srcFactory.fetchSrcNames(srcNames);
-
-   std::vector<Parameter> parameters;
-   for (unsigned int i = 0; i < srcNames.size(); i++) {
-      Source *src = srcFactory.makeSource(srcNames[i]);
-      Source::FuncMap srcFuncs = src->getSrcFuncs();
-      srcFuncs["Spectrum"]->getParams(parameters);
-      std::cout << "\n" << srcNames[i] << ":\n";
-      for (unsigned int i = 0; i < parameters.size(); i++)
-         std::cout << parameters[i].getName() << ": "
-                   << parameters[i].getValue() << std::endl;
-   }
    std::cout << "*** test_SourceFactory: all tests completed ***\n" 
              << std::endl;
 
@@ -1378,10 +1348,11 @@ void read_SC_Response_data() {
 /* get root path to test data */   
    const char * root = ::getenv("LIKELIHOODROOT");
    if (!root) {  //use relative path from cmt directory
-      test_path = "../src/test/";
+      root_path = "..";
    } else {
-      test_path = std::string(root) + "/src/test/";
+      root_path = std::string(root);
    }
+   test_path = root_path + "/src/test/";
 
 /* instantiate the Psf and read in its data */
    Psf * psf = Psf::instance();

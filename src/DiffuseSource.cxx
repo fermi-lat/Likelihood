@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.9 2003/07/21 22:14:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.10 2003/08/06 20:52:06 jchiang Exp $
  */
 
 #include <vector>
@@ -26,7 +26,7 @@ bool DiffuseSource::s_haveStaticMembers = false;
 std::vector<double> DiffuseSource::s_energies;
 
 DiffuseSource::DiffuseSource(optimizers::Function* spatialDist) 
-   throw(optimizers::Exception) : m_spectrum(0) {
+   throw(Exception) : m_spectrum(0) {
 // The spatial distribution of emission is required for instantiation.
    m_spatialDist = spatialDist->clone();
    m_functions["SpatialDist"] = m_spatialDist;
@@ -41,7 +41,7 @@ DiffuseSource::DiffuseSource(optimizers::Function* spatialDist)
 // instantiated.
    ExposureMap *emap = ExposureMap::instance();
    if (emap == 0) {
-      throw optimizers::Exception("The ExposureMap is not defined.");
+      throw Exception("The ExposureMap is not defined.");
    } else {
       emap->integrateSpatialDist(s_energies, spatialDist, m_exposure);
       m_srcType = "Diffuse";
