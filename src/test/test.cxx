@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.52 2004/12/06 23:30:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.53 2005/01/03 23:01:24 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -798,7 +798,7 @@ void LikelihoodTests::readEventData(const std::string &eventFile,
    tip::Table * eventTable = 
       tip::IFileSvc::instance().editTable(eventFile, "events");
 
-   double ra, dec, energy, time, zenith_angle;
+   double ra, dec, energy, time(0), zenith_angle;
    int conversion_layer, type;
 
    tip::Table::Iterator it = eventTable->begin();
