@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.19 2004/01/10 22:53:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.20 2004/01/15 22:16:30 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -53,7 +53,7 @@ namespace {
 
    void file_ok(std::string filename) {
       facilities::Util::expandEnvVar(&filename);
-      if (::fileExists(filename)) {
+      if (fileExists(filename)) {
          return;
       } else {
          std::cout << "likelihood::main:\n"
@@ -97,7 +97,7 @@ namespace {
          return;
       } else {
 // filename contains a list of fits files.
-         ::readLines(filename, files);
+         readLines(filename, files);
          return;
       }
    }
