@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct 14 15:35:15 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+Change name of logLike_ptsrc to LogLike; move header to public area
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct 14 15:35:14 PDT 2003
 Likelihood/src
 
