@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri May 23 16:00:35 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+add test_Mcmc()
+
+    *
+------------------------------------------------------------
 User: jchiang  Fri May 23 16:00:17 PDT 2003
 Likelihood/src
 
