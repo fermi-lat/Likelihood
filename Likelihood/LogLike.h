@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.4 2003/11/05 16:55:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.5 2003/11/07 02:27:08 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.4 2003/11/05 16:55:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.5 2003/11/07 02:27:08 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -79,9 +79,9 @@ protected:
    int m_eventHdu;
    latResponse::Table *m_eventData;
 
-private:
-
    std::vector<Event> m_events;
+
+private:
 
    // A bit of a kludge here making this guy mutable, but unavoidable
    // since getFreeDerivs is const in the base class and the
