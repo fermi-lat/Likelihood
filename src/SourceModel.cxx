@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.40 2004/05/09 19:18:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.41 2004/06/05 15:22:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -64,7 +64,7 @@ void SourceModel::setParam(const optimizers::Parameter &param,
    }
    std::string errorMessage = "SourceModel::setParam:\n Function " 
       + funcName + " for Source " + srcName + " was not found.";
-   throw Exception(errorMessage);
+   throw optimizers::Exception(errorMessage);
 }
  
 std::vector<double>::const_iterator SourceModel::setParamValues_(
@@ -171,7 +171,7 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
    if (params.size() != numParams) {
       std::string errorMessage = std::string("SourceModel::setParams:\n") 
          + "Inconsistent number of Parameters.";
-      throw Exception(errorMessage);
+      throw optimizers::Exception(errorMessage);
    }
 // Assume ordering of Parameters in params matches that given by the
 // ordering of the Sources and their Functions.
@@ -217,7 +217,7 @@ Source * SourceModel::deleteSource(const std::string &srcName)
    }
    std::string errorMessage = "SourceModel::deleteSource:\n" 
       + srcName + " was not found.";
-   throw Exception(errorMessage);
+   throw optimizers::Exception(errorMessage);
 }
 
 void SourceModel::deleteAllSources() {

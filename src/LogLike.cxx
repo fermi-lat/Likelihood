@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.21 2004/06/06 22:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.22 2004/07/19 14:16:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -151,14 +151,14 @@ void LogLike::getEvents(std::string event_file, int) {
    ScData * scData = ScData::instance();
 
    if (!scData) {
-      std::cout << "LogLike::getEvents: "
+      std::cerr << "LogLike::getEvents: "
                 << "The spacecraft data must be read in first."
                 << std::endl;
       assert(scData);
    }
 
    if (!roiCuts) {
-      std::cout << "LogLike::getEvents: "
+      std::cerr << "LogLike::getEvents: "
                 << "The region-of-interest data must be read in first."
                 << std::endl;
       assert(roiCuts);
@@ -216,7 +216,7 @@ void LogLike::getEvents(std::string event_file, int) {
       }
    }
 
-   std::cout << "LogLike::getEvents:\nOut of " 
+   std::cerr << "LogLike::getEvents:\nOut of " 
              << nTotal << " events in file "
              << event_file << ",\n "
              << nTotal - nReject << " were accepted, and "
@@ -264,7 +264,7 @@ void LogLike::getEvents(std::string event_file, int hdu) {
       }
    }
 
-   std::cout << "LogLike::getEvents:\nOut of " 
+   std::cerr << "LogLike::getEvents:\nOut of " 
              << ra.first << " events in file "
              << event_file << ",\n "
              << m_events.size() - nevents << " were accepted, and "
