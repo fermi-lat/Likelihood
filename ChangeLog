@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan  3 15:01:24 PST 2005
+Likelihood/src/test
+
+Modified Files:
+	XmlDiff.cxx XmlDiff.h test.cxx 
+Log Message:
+change internal references xml->xmlBase
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jan  3 15:01:23 PST 2005
 Likelihood/src/diffuseResponses
 
