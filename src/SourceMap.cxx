@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.13 2004/10/08 05:59:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.14 2004/10/09 01:37:46 jchiang Exp $
  */
 
 #include <algorithm>
@@ -74,14 +74,20 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
 
    m_npreds.resize(energies.size(), 0);
 
-   std::vector<double>::const_iterator energy = energies.begin();
-   for (int k = 0; energy != energies.end(); ++energy, k++) {
-      std::vector<Pixel>::const_iterator pixel = pixels.begin();
-      for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
+   bool havePointSource = dynamic_cast<PointSource *>(src) != 0;
+   bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
+
+   std::vector<Pixel>::const_iterator pixel = pixels.begin();
+   for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
+      if (haveDiffuseSource) {
+         computeSrcDirs(*pixel);
+      }
+      std::vector<double>::const_iterator energy = energies.begin();
+      for (int k = 0; energy != energies.end(); ++energy, k++) {
          unsigned long indx = k*pixels.size() + j;
          if ((icount % (npts/20)) == 0) std::cerr << ".";
          double value(0);
-         if (dynamic_cast<PointSource *>(src) != 0) {
+         if (havePointSource) {
 /// @todo Ensure the desired event types are correctly included in this
 /// calculation.
             for (int evtType = 0; evtType < 2; evtType++) {
@@ -89,7 +95,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
                value += ExposureCube::instance()->value(pixel->dir(), aeff)
                   *pixel->solidAngle();
             }
-         } else if ( dynamic_cast<DiffuseSource *>(src) != 0 ) {
+         } else if (haveDiffuseSource) {
             value = sourceRegionIntegral(src, *pixel, *energy);
          }
          m_model.at(indx) += value;
@@ -194,16 +200,13 @@ double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
    MeanPsf & psf = *s_meanPsf;
    BinnedExposure & exposure = *s_binnedExposure;
 
-// Rotation matrix from Equatorial coords to local coord system
-   FitsImage::EquinoxRotation eqRot(pixel.dir().ra(), pixel.dir().dec());
-
 // Loop over source region locations.
+   unsigned int indx(0);
    std::vector<double> mu_integrand;
    for (unsigned int i = 0; i < s_mu.size(); i++) {
       std::vector<double> phi_integrand;
       for (unsigned int j = 0; j < s_phi.size(); j++) {
-         astro::SkyDir srcDir;
-         getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
+         const astro::SkyDir & srcDir = m_srcDirs.at(indx++);
          double separation = srcDir.difference(pixel.dir())*180./M_PI;
          double psf_val = psf(energy, separation);
          double exposure_val = exposure(energy, srcDir.ra(), srcDir.dec());
@@ -217,6 +220,20 @@ double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
    double value = muQuad.integral();
 
    return value;
+}
+
+void SourceMap::computeSrcDirs(const Pixel & pixel) {
+// Rotation matrix from Equatorial coords to local coord system
+   FitsImage::EquinoxRotation eqRot(pixel.dir().ra(), pixel.dir().dec());
+
+// Loop over source region locations.
+   for (unsigned int i = 0; i < s_mu.size(); i++) {
+      for (unsigned int j = 0; j < s_phi.size(); j++) {
+         astro::SkyDir srcDir;
+         getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
+         m_srcDirs.push_back(srcDir);
+      }
+   }
 }
 
 void SourceMap::prepareAngleArrays(int nmu, int nphi) {
