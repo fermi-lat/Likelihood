@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov 11 12:23:11 PST 2004
+Likelihood/src
+
+Modified Files:
+	FluxBuilder.cxx RoiCuts.cxx SourceModelBuilder.cxx 
+	XmlBuilder.cxx 
+Log Message:
+memory management of Xerces 2.6.0-created resources
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 10 20:38:02 PST 2004
 Likelihood/cmt
 
