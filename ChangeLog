@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri May 23 15:59:49 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	FitsImage.h Function.h Mcmc.h Parameter.h 
+Log Message:
+enclose #pragma with #ifdef _MSC_VER, update Mcmc.h
+
+    *
+------------------------------------------------------------
 User: pln  Fri May 23 14:41:20 PDT 2003
 Likelihood/Likelihood
 
