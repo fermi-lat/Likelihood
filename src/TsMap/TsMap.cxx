@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.19 2005/02/27 06:42:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.20 2005/03/05 06:35:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.19 2005/02/27 06:42:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.20 2005/03/05 06:35:38 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -59,6 +59,7 @@ private:
    st_app::AppParGroup & m_pars;
    LogLike * m_logLike;
    optimizers::Optimizer * m_opt;
+   std::vector<std::string> m_eventFiles;
    std::vector<double> m_lonValues;
    std::vector<double> m_latValues;
    std::vector< std::vector<double> > m_tsMap;
@@ -80,7 +81,7 @@ private:
    void setPointSourceSpectrum(PointSource &src);
 };
 
-st_app::StAppFactory<TsMap> myAppFactory;
+st_app::StAppFactory<TsMap> myAppFactory("gttsmap");
 
 TsMap::TsMap() : st_app::StApp(), m_helper(0), 
                  m_pars(st_app::StApp::getParGroup("gttsmap")), m_opt(0) {
@@ -90,6 +91,7 @@ TsMap::TsMap() : st_app::StApp(), m_helper(0),
       m_helper = new AppHelpers(m_pars);
       m_logLike = new LogLike(m_helper->observation());
       m_helper->readScData();
+      m_testSrc = PointSource(0, 0., m_helper->observation());
       setPointSourceSpectrum(m_testSrc);
       m_testSrc.setName("testSource");
    } catch (std::exception &eObj) {
@@ -110,10 +112,10 @@ void TsMap::run() {
       m_coordSys = "CEL";
    }
    Likelihood::Verbosity::instance(m_pars["chatter"]);
-   m_helper->setRoi();
    m_helper->readExposureMap();
    readSrcModel();
    readEventData();
+   m_helper->setRoi(m_eventFiles[0]);
    selectOptimizer();
    setGrid();
    computeMap();
@@ -127,16 +129,15 @@ void TsMap::readSrcModel() {
 }   
 
 void TsMap::readEventData() {
-   std::vector<std::string> eventFiles;
    st_facilities::Util::file_ok(m_pars["evfile"]);
-   st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
-   for (unsigned int i = 1; i < eventFiles.size(); i++) {
-      AppHelpers::checkCuts(eventFiles[0], "EVENTS", eventFiles[i], "EVENTS");
+   st_facilities::Util::resolve_fits_files(m_pars["evfile"], m_eventFiles);
+   for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
+      AppHelpers::checkCuts(m_eventFiles[0], "EVENTS",
+                            m_eventFiles[i], "EVENTS");
    }
-   std::vector<std::string>::const_iterator evIt = eventFiles.begin();
-   for ( ; evIt != eventFiles.end(); evIt++) {
+   std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
+   for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-//      m_logLike->getEvents(*evIt);
       m_helper->observation().eventCont().getEvents(*evIt);
    }
    m_logLike->computeEventResponses();
