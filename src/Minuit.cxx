@@ -3,7 +3,7 @@
  * @brief Minuit class implementation
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Minuit.cxx,v 1.10 2003/07/19 04:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Minuit.cxx,v 1.11 2003/07/21 22:14:58 jchiang Exp $
  */
 
 #include <sstream>
@@ -12,6 +12,7 @@
 #include "Likelihood/Exception.h"
 
 namespace Likelihood {
+
 
   Minuit::Minuit(Statistic& stat) : m_maxEval(200) {
     m_stat = &stat;
@@ -37,6 +38,8 @@ namespace Likelihood {
 
   void Minuit::find_min(int verbose, double tol) {
 
+    typedef std::vector<Parameter>::iterator pptr;
+
     std::vector<Parameter> params;
     m_stat->getFreeParams(params);
     int errorFlag;
@@ -46,14 +49,14 @@ namespace Likelihood {
     pline << "SET PRINT " << minuitVerbose << std::endl;
     doCmd(pline.str()); // Set verbosity of Minuit
     doCmd("SET NOWARN");
+
     // Tell Minuit about parameter values, names, bounds, etc.
-    int j = 1;
-    for (std::vector<Parameter>::iterator p = params.begin();
-	 p != params.end(); p++, j++) {
+    for (pptr p = params.begin(); p != params.end(); p++) {
       double scale = 1.0; // Is this the best choice?
       double value = p->getValue();
       double lowerBound = p->getBounds().first;
       double upperBound = p->getBounds().second;
+      int j = p - params.begin() + 1;
       mnparm_(&j, p->getName().c_str(), &value, &scale, 
 	      &lowerBound, &upperBound, &errorFlag, p->getName().size());
     }
@@ -72,18 +75,21 @@ namespace Likelihood {
       // Faulty command line
       throw Exception("Minuit bad command line");
     }
+    // Normal termination.
 
-    // Normal termination.  Extract fitted parameters
+    // Improve the quality of the Hessian matrix.
+    doCmd("HESSE");
+
+    // Extract fitted parameters
     if (verbose != 0) {
       std::cout << "Final values: " << std::endl;
     }
-    int jj = 1;
-    for (std::vector<Parameter>::iterator p = params.begin();
-	 p != params.end(); p++, jj++) {
+    for (pptr p = params.begin(); p != params.end(); p++) {
       std::vector<char> pname(10);
       double pval, error, bnd1, bnd2;
       int ivarbl;
-      mnpout_(&jj, &pname[0], &pval, &error, &bnd1, &bnd2, &ivarbl, 
+      int j = p - params.begin() + 1;
+      mnpout_(&j, &pname[0], &pval, &error, &bnd1, &bnd2, &ivarbl, 
 	      pname.size());
       p->setValue(pval);
       if (verbose != 0) {
