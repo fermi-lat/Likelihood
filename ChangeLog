@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct  1 14:21:28 PDT 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx Gaussian.cxx PowerLaw.cxx SourceModel.cxx 
+Log Message:
+more fixes to xml i/o
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct  1 10:03:27 PDT 2003
 Likelihood/xml
 
