@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.27 2004/03/19 04:56:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.1 2004/04/03 22:11:54 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -18,7 +18,7 @@
 
 #include "facilities/Util.h"
 
-#include "hoops/hoops.h"
+#include "st_app/IApp.h"
 #include "hoops/hoops_prompt_group.h"
 
 #include "optimizers/FunctionFactory.h"
@@ -39,283 +39,248 @@
 #include "Likelihood/LogLike.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/Exception.h"
+#include "Likelihood/Util.h"
 
 using namespace Likelihood;
 using latResponse::irfsFactory;
 
-void print_fit_results(LogLike &logLike, const std::vector<double> &errors);
-bool prompt(const std::string &query);
+class likelihood : public st_app::IApp {
 
-namespace {
-   bool fileExists(const std::string &filename) {
-      std::ifstream file(filename.c_str());
-      return file.is_open();
-   }
+public:
 
-   void file_ok(std::string filename) {
-      facilities::Util::expandEnvVar(&filename);
-      if (fileExists(filename)) {
-         return;
-      } else {
-         std::cout << "likelihood::main:\n"
-                   << "File not found: " << filename
-                   << std::endl;
-//         assert(::fileExists(filename));
-         exit(-1);
-      }
-   }
+   likelihood() : st_app::IApp("likelihood"), m_logLike(0),
+                  m_useOptEM(false), m_opt(0) {}
 
-   void readLines(std::string inputFile, 
-                  std::vector<std::string> &lines) {
-      
-      facilities::Util::expandEnvVar(&inputFile);
-      
-      std::ifstream file(inputFile.c_str());
-      lines.clear();
-      std::string line;
-      while (std::getline(file, line, '\n')) {
-         if (line != "" && line != " ") { //skip (most) blank lines
-            lines.push_back(line);
-         }
-      }
-   }
+   virtual ~likelihood() throw() {}
 
-   void resolve_fits_files(std::string filename, 
-                           std::vector<std::string> &files) {
-      
-      facilities::Util::expandEnvVar(&filename);
-      files.clear();
-      
-// Read the first line of the file and see if the first 6 characters
-// are "SIMPLE".  If so, then we assume it's a FITS file.
-      std::ifstream file(filename.c_str());
-      std::string firstLine;
-      std::getline(file, firstLine, '\n');
-      if (firstLine.find("SIMPLE") == 0) {
-// This is a FITS file. Return that as the sole element in the files
-// vector.
-         files.push_back(filename);
-         return;
-      } else {
-// filename contains a list of fits files.
-         readLines(filename, files);
-         return;
-      }
-   }
+   virtual void run();
 
-}
+private:
 
-int main(int iargc, char* argv[]) {
+   optimizers::FunctionFactory m_funcFactory;
+   LogLike * m_logLike;
+   bool m_useOptEM;
+   optimizers::Optimizer * m_opt;
 
-#ifdef TRAP_FPE
-   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
-#endif
+   void setUp();
+   void tearDown();
+   void setRoi();
+   void readScData();
+   void readExposureMap();
+   void createResponseFuncs();
+   void createStatistic();
+   void readEventData();
+   void readSourceModel();
+   void selectOptimizer();
+   void writeSourceXml();
+   void writeFluxXml();
+   void printFitResults(const std::vector<double> &errors);
+   bool prompt(const std::string &query);
 
-// Read in the command-line parameters using HOOPS
-   strcpy(argv[0], "likelihood");
+};
 
-   try {
-      hoops::ParPromptGroup pars(iargc, argv);
-      pars.Prompt();
-      pars.Save();
+st_app::IApp * my_application = new likelihood();
 
-// Set the region-of-interest.
-      std::string roiCutsFile = pars["ROI_cuts_file"];
-      ::file_ok(roiCutsFile);
-      RoiCuts::setCuts(roiCutsFile);
+void likelihood::run() {
+   setUp();
+   setRoi();
+   readScData();
+   readExposureMap();
+   createResponseFuncs();
+   createStatistic();
+   readEventData();
 
-// Read in the pointing information.
-      std::string scFile = pars["Spacecraft_file"];
-      ::file_ok(scFile);
-      long scHdu = pars["Spacecraft_file_hdu"];
-      std::vector<std::string> scFiles;
-      ::resolve_fits_files(scFile, scFiles);
-      std::vector<std::string>::const_iterator scIt = scFiles.begin();
-      for ( ; scIt != scFiles.end(); scIt++) {
-         ::file_ok(*scIt);
-         ScData::readData(*scIt, scHdu);
-      }
-
-// Read in the exposure map file.
-      std::string exposureFile = pars["Exposure_map_file"];
-      if (exposureFile != "none") {
-         ::file_ok(exposureFile);
-         ExposureMap::readExposureFile(exposureFile);
-      }
-
-// Create the response functions.
-      std::string responseFuncs = pars["Response_functions"];
-      std::map< std::string, std::vector<std::string> > responseIds;
-      responseIds["FRONT"].push_back("DC1::Front");
-      responseIds["BACK"].push_back("DC1::Back");
-      responseIds["FRONT/BACK"].push_back("DC1::Front");
-      responseIds["FRONT/BACK"].push_back("DC1::Back");
-      responseIds["GLAST25"].push_back("Glast25::Front");
-      responseIds["GLAST25"].push_back("Glast25::Back");
-
-      if (responseIds.count(responseFuncs)) {
-         std::vector<std::string> &resps = responseIds[responseFuncs];
-         for (unsigned int i = 0; i < resps.size(); i++) {
-            ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
-         }
-      } else {
-         std::cerr << "Invalid response function choice: "
-                   << responseFuncs << std::endl;
-         exit(-1);
-      }
-
-// Fill a FunctionFactory with Function object prototypes for source
-// modeling.
-      optimizers::FunctionFactory funcFactory;
-
-// Add the prototypes for modeling spatial distributions.
-      bool makeClone(false);
-      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
-      funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
-      
-      LogLike * logLike = 0;
-      bool useOptEM = pars["Use_OptEM"];
-      if (useOptEM) {
-         logLike = new OptEM();
-      } else {
-         logLike = new LogLike();
-      }
-   
-// Read in the Event data.
-      std::string eventFile = pars["event_file"];
-      long eventFileHdu = pars["event_file_hdu"];
-      std::vector<std::string> eventFiles;
-      ::file_ok(eventFile);
-      ::resolve_fits_files(eventFile, eventFiles);
-      std::vector<std::string>::const_iterator evIt = eventFiles.begin();
-      for ( ; evIt != eventFiles.end(); evIt++) {
-         ::file_ok(*evIt);
-         logLike->getEvents(*evIt, eventFileHdu);
-      }
+   hoops::IParGroup & pars = hoopsGetParGroup();
 
 // Set the verbosity level and convergence tolerance.
-      long verbose = pars["fit_verbosity"];
-      double tol = pars["fit_tolerance"];
-      std::vector<double> errors;
+   long verbose = pars["fit_verbosity"];
+   double tol = pars["fit_tolerance"];
+   std::vector<double> errors;
 
 // The fit loop.  If indicated, query the user at the end of each
 // iteration whether the fit is to be performed again.  This allows
 // the user to adjust the source model xml file by hand between
 // iterations.
-
-      bool queryLoop = pars["query_for_refit"];
-      optimizers::Optimizer * myOpt = 0;
-      do {
-// Read in the Source model.
-         std::string sourceModel = pars["Source_model_file"];
-         if (logLike->getNumSrcs() == 0) {
-// Read in the Source model for the first time.
-            try {
-               ::file_ok(sourceModel);
-               logLike->readXml(sourceModel, funcFactory);
-            } catch (Likelihood::Exception &eObj) {
-               std::cout << eObj.what();
-               std::cout << "Check your source model file." << std::endl;
-               assert(false);
-            }
-            logLike->computeEventResponses();
-         } else {
-// Re-read the Source model from the xml file, allowing only for 
-// Parameter adjustments.
-            ::file_ok(sourceModel);
-            logLike->reReadXml(sourceModel);
-         }
-
+   bool queryLoop = pars["query_for_refit"];
+   do {
+      readSourceModel();
 // Do the fit.
-         if (useOptEM) {
-            try {
-               dynamic_cast<OptEM *>(logLike)->findMin(verbose);
-            } catch (optimizers::Exception &eObj) {
-               std::cerr << eObj.what() << std::endl;
-            }
-         } else {
-// Select an optimizer.
-            std::string optimizer = pars["optimizer"];
-            try {
-               if (optimizer == "LBFGS") {
-                  myOpt = new optimizers::Lbfgs(*logLike);
-               } else if (optimizer == "MINUIT") {
-                  myOpt = new optimizers::Minuit(*logLike);
-               } else if (optimizer == "DRMNGB") {
-                  myOpt = new optimizers::Drmngb(*logLike);
-               }
-               myOpt->find_min(verbose, tol);
-            } catch (optimizers::Exception &eObj) {
-               std::cerr << eObj.what() << std::endl;
-            }
-// Evaluate the uncertainties.
-            try {
-               errors = myOpt->getUncertainty();
-            } catch (optimizers::Exception &eObj) {
-               std::cerr << "Error in computing uncertainties: \n"
-                         << eObj.what() << "\n"
-                         << "Bailing..."
-                         << std::endl;
-            } catch (...) {
-               std::cerr << "Unexpected exception in "
-                         << "computing uncertainties: \n"
-                         << "Bailing..."
-                         << std::endl;
-            }
-            if (optimizer == "DRMNGB") {
-               int retCode =
-                  dynamic_cast<optimizers::Drmngb *>(myOpt)->getRetCode();
-               std::cerr << "Drmngb return code: " << retCode;
-            }
-            delete myOpt;
-         } // useOptEM
-         print_fit_results(*logLike, errors);
-         std::cout << std::endl 
-                   << "-log(Likelihood): " << -logLike->value()
-                   << std::endl;
-         std::cout << std::endl;
-         
-// Write the model to the output xml file.
-         std::string xmlFile = pars["Source_model_output_file"];
-         std::string funcFileName("");
-//          std::string funcFileName = pars["Function_models_file_name"];
-
-         if (xmlFile != "none") {
-            std::cout << "Writing fitted model to " << xmlFile << std::endl;
-            logLike->writeXml(xmlFile, funcFileName);
-         }
-      } while (queryLoop && prompt("Refit? [y] "));
-
-// Write the model to a flux-style output file.
-      std::string xml_fluxFile = pars["flux_style_model_file"];
-      if (xml_fluxFile != "none") {
-         std::cout << "Writing flux-style xml model file to "
-                   << xml_fluxFile << std::endl;
-         logLike->write_fluxXml(xml_fluxFile);
+      if (m_useOptEM) {
+         dynamic_cast<OptEM *>(m_logLike)->findMin(verbose);
+      } else {
+// @todo Allow the optimizer to be re-selected here.         
+         selectOptimizer();
+         m_opt->find_min(verbose, tol);
+         errors = m_opt->getUncertainty();
+         delete m_opt;
+         m_opt = 0;
       }
-      delete logLike;
-   } catch (std::exception &eObj) {
-      std::cout << eObj.what() << std::endl;
+      printFitResults(errors);
+      writeSourceXml();
+   } while (queryLoop && prompt("Refit? [y] "));
+   writeFluxXml();
+   tearDown();
+}
+
+void likelihood::setUp() {
+#ifdef TRAP_FPE
+   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
+#endif
+   hoopsPrompt();
+   hoopsSave();
+   bool makeClone(false);
+   m_funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
+   m_funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
+}
+
+void likelihood::tearDown() {
+   delete m_logLike;
+}
+
+void likelihood::setRoi() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string roiCutsFile = pars["ROI_cuts_file"];
+   Util::file_ok(roiCutsFile);
+   RoiCuts::setCuts(roiCutsFile);
+}
+
+void likelihood::readScData() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string scFile = pars["Spacecraft_file"];
+   Util::file_ok(scFile);
+   long scHdu = pars["Spacecraft_file_hdu"];
+   std::vector<std::string> scFiles;
+   Util::resolve_fits_files(scFile, scFiles);
+   std::vector<std::string>::const_iterator scIt = scFiles.begin();
+   for ( ; scIt != scFiles.end(); scIt++) {
+      Util::file_ok(*scIt);
+      ScData::readData(*scIt, scHdu);
    }
 }
 
-void print_fit_results(LogLike &logLike, const std::vector<double> &errors) {
+void likelihood::readExposureMap() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string exposureFile = pars["Exposure_map_file"];
+   if (exposureFile != "none") {
+      Util::file_ok(exposureFile);
+      ExposureMap::readExposureFile(exposureFile);
+   }
+}
+
+void likelihood::createResponseFuncs() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string responseFuncs = pars["Response_functions"];
+   std::map< std::string, std::vector<std::string> > responseIds;
+   responseIds["FRONT"].push_back("DC1::Front");
+   responseIds["BACK"].push_back("DC1::Back");
+   responseIds["FRONT/BACK"].push_back("DC1::Front");
+   responseIds["FRONT/BACK"].push_back("DC1::Back");
+   responseIds["GLAST25"].push_back("Glast25::Front");
+   responseIds["GLAST25"].push_back("Glast25::Back");
+   
+   if (responseIds.count(responseFuncs)) {
+      std::vector<std::string> &resps = responseIds[responseFuncs];
+      for (unsigned int i = 0; i < resps.size(); i++) {
+         ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
+      }
+   } else {
+      throw std::invalid_argument("Invalid response function choice: "
+                                  + responseFuncs);
+   }
+}
+
+void likelihood::createStatistic() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   m_useOptEM = pars["Use_OptEM"];
+   if (m_useOptEM) {
+      m_logLike = new OptEM();
+   } else {
+      m_logLike = new LogLike();
+   }
+}
+
+void likelihood::readEventData() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string eventFile = pars["event_file"];
+   long eventFileHdu = pars["event_file_hdu"];
+   std::vector<std::string> eventFiles;
+   Util::file_ok(eventFile);
+   Util::resolve_fits_files(eventFile, eventFiles);
+   std::vector<std::string>::const_iterator evIt = eventFiles.begin();
+   for ( ; evIt != eventFiles.end(); evIt++) {
+      Util::file_ok(*evIt);
+      m_logLike->getEvents(*evIt, eventFileHdu);
+   }
+}
+
+void likelihood::readSourceModel() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string sourceModel = pars["Source_model_file"];
+   if (m_logLike->getNumSrcs() == 0) {
+// Read in the Source model for the first time.
+      Util::file_ok(sourceModel);
+      m_logLike->readXml(sourceModel, m_funcFactory);
+      m_logLike->computeEventResponses();
+   } else {
+// Re-read the Source model from the xml file, allowing only for 
+// Parameter adjustments.
+      Util::file_ok(sourceModel);
+      m_logLike->reReadXml(sourceModel);
+   }
+}
+
+void likelihood::selectOptimizer() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string optimizer = pars["optimizer"];
+   if (optimizer == "LBFGS") {
+      m_opt = new optimizers::Lbfgs(*m_logLike);
+   } else if (optimizer == "MINUIT") {
+      m_opt = new optimizers::Minuit(*m_logLike);
+   } else if (optimizer == "DRMNGB") {
+      m_opt = new optimizers::Drmngb(*m_logLike);
+   }
+   if (m_opt == 0) {
+      throw std::invalid_argument("Invalid optimizer choice: " + optimizer);
+   }
+}
+
+void likelihood::writeSourceXml() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string xmlFile = pars["Source_model_output_file"];
+   std::string funcFileName("");
+   if (xmlFile != "none") {
+      std::cout << "Writing fitted model to " << xmlFile << std::endl;
+      m_logLike->writeXml(xmlFile, funcFileName);
+   }
+}
+
+void likelihood::writeFluxXml() {
+   hoops::IParGroup & pars = hoopsGetParGroup();
+   std::string xml_fluxFile = pars["flux_style_model_file"];
+   if (xml_fluxFile != "none") {
+      std::cout << "Writing flux-style xml model file to "
+                << xml_fluxFile << std::endl;
+      m_logLike->write_fluxXml(xml_fluxFile);
+   }
+}
+
+void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<std::string> srcNames;
-   logLike.getSrcNames(srcNames);
+   m_logLike->getSrcNames(srcNames);
 
 // Compute TS for each source.
    std::map<std::string, double> TsValues;
    int verbose(0);
    double tol(1e-4);
-   double logLike_value = logLike.value();
+   double logLike_value = m_logLike->value();
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       if (srcNames[i].find("Diffuse") == std::string::npos) {
-         Source * src = logLike.deleteSource(srcNames[i]);
-         if (logLike.getNumFreeParams() > 0) {
+         Source * src = m_logLike->deleteSource(srcNames[i]);
+         if (m_logLike->getNumFreeParams() > 0) {
 // Don't fit if there are no free parameters remaining.
-            optimizers::Drmngb opt(logLike);
+            optimizers::Drmngb opt(*m_logLike);
             opt.find_min(verbose, tol);
-            TsValues[srcNames[i]] = 2.*(logLike_value - logLike.value());
+            TsValues[srcNames[i]] = 2.*(logLike_value - m_logLike->value());
          } else {
 // // Not sure this is correct in the case where the model for the null
 // // hypothesis is truly empty.
@@ -323,19 +288,19 @@ void print_fit_results(LogLike &logLike, const std::vector<double> &errors) {
 // A better default value?
             TsValues[srcNames[i]] = 0.;
          }            
-         logLike.addSource(src);
+         m_logLike->addSource(src);
       }
    }
 
 // Restore parameters to their previously fitted values.
-   optimizers::Drmngb opt(logLike);
+   optimizers::Drmngb opt(*m_logLike);
    opt.find_min(verbose, tol);
 
    std::vector<optimizers::Parameter> parameters;
    std::vector<double>::const_iterator errIt = errors.begin();
 
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      Source *src = logLike.getSource(srcNames[i]);
+      Source *src = m_logLike->getSource(srcNames[i]);
       Source::FuncMap srcFuncs = src->getSrcFuncs();
       srcFuncs["Spectrum"]->getParams(parameters);
       std::cout << "\n" << srcNames[i] << ":\n";
@@ -355,9 +320,13 @@ void print_fit_results(LogLike &logLike, const std::vector<double> &errors) {
                    << TsValues[srcNames[i]] << std::endl;
       }
    }
+   std::cout << std::endl 
+             << "-log(Likelihood): " << -m_logLike->value()
+             << std::endl;
+   std::cout << std::endl;
 }
 
-bool prompt(const std::string &query) {
+bool likelihood::prompt(const std::string &query) {
    std::cout << query << std::endl;
    char answer[2];
    std::cin.getline(answer, 2);
