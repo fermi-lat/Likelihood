@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Sep  2 16:43:20 PDT 2004
+Likelihood/src
+
+Modified Files:
+	SConstruct SourceModel.cxx SpatialMap.cxx buildBase 
+Added Files:
+	CountsMap.cxx HistND.cxx map.py 
+Log Message:
+start using evtbin for counts map generation; allow makeExposureCube to read in multiple scData files
+    *
+------------------------------------------------------------
 User: jchiang  Thu Sep  2 16:43:18 PDT 2004
 Likelihood/cmt
 
