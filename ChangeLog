@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 14:55:04 PST 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Event.cxx PointSource.cxx ResponseFunctions.cxx 
+	ScData.cxx 
+Log Message:
+convert ScData from Singleton to a proper class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 14:55:02 PST 2005
 Likelihood/python
 
