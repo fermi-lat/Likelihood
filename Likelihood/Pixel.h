@@ -4,7 +4,7 @@
  * derivatives wrt model parameters.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.1 2004/09/15 23:12:36 jchiang Exp $
  */
 
 #ifndef Likelihood_Pixel_h
@@ -29,11 +29,11 @@ namespace Likelihood {
  * predictions for numbers of counts and derivatives of the counts
  * prediction wrt model parameters.  The extrinsic quantities passed
  * to the public methods are the bounds of the energy band of interest
- * (see GOF, p. 195)
+ * (GOF, p. 195).
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.1 2004/09/15 23:12:36 jchiang Exp $
  */
 
 class Pixel {

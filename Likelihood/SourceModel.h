@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.43 2004/09/13 15:30:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.44 2004/09/15 23:12:36 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -17,7 +17,6 @@
 
 #include "optimizers/Statistic.h"
 
-//#include "Likelihood/MapShape.h"
 #include "Likelihood/Pixel.h"
 #include "Likelihood/Source.h"
 
@@ -38,7 +37,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.43 2004/09/13 15:30:39 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.44 2004/09/15 23:12:36 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -157,19 +156,6 @@ public:
    /// Create a counts map based on the current model.
    CountsMap * createCountsMap(const CountsMap & dataMap) const;
 
-//    class Aeff : public map_tools::Exposure::Aeff {
-//    public:
-//       Aeff(Source * src, const astro::SkyDir & appDir, 
-//            double energy, int type);
-//       virtual double operator()(double costheta) const;
-//    private:
-//       Source * m_src;
-//       const astro::SkyDir & m_appDir;
-//       double m_energy;
-//       int m_type;
-//       double m_separation;
-//    };
-
 protected:
 
    static int s_refCount;
@@ -207,11 +193,6 @@ protected:
 
    static void getPixels(const CountsMap & countsMap,
                          std::vector<Pixel> & pixels);
-
-//    static void computeModelMap(const std::vector<astro::SkyDir> & pixelDirs,
-//                                const std::vector<double> & pixelSolidAngles,
-//                                const std::vector<double> & energies,
-//                                std::vector<double> & modelMap);
 
    static void computeModelMap(const std::vector<Pixel> & pixels,
                                const std::vector<double> & energies,

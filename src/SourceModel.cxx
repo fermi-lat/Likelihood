@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.52 2004/09/13 15:30:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.53 2004/09/15 23:12:37 jchiang Exp $
  */
 
 #include <cassert>
@@ -464,16 +464,14 @@ CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
                          + std::string("Exposure cube not available."));
    }
 
-   std::vector<double> map;
-
-   std::vector<astro::SkyDir> pixelDirs;
-   std::vector<double> pixelSolidAngles;
-   getPixels(dataMap, pixelDirs, pixelSolidAngles);
+   std::vector<Pixel> pixels;
+   getPixels(dataMap, pixels);
 
    std::vector<double> energies;
    dataMap.getAxisVector(2, energies);
 
-   computeModelMap(pixelDirs, pixelSolidAngles, energies, map);
+   std::vector<double> map;
+   computeModelMap(pixels, energies, map);
 
    CountsMap * modelMap = new CountsMap(dataMap);
 // @bug This will not work properly until
@@ -482,41 +480,12 @@ CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
    return modelMap;
 }
 
-// void SourceModel::computeModelMap(const std::vector<astro::SkyDir> & pixelDirs,
-//                                   const std::vector<double> & pixelSolidAngles,
-//                                   const std::vector<double> & energies,
-//                                   std::vector<double> & modelMap) {
-
-//    modelMap.resize(pixelDirs.size()*(energies.size()-1));
-
-//    std::map<std::string, Source *>::const_iterator src;
-// // Loop over pixel directions.
-//    for (unsigned int j = 0; j < pixelDirs.size(); j++) {
-//       for (unsigned int k = 0; k < energies.size()-1; k++) {
-//          int indx = k*pixelDirs.size() + j;
-//          for (int evtType = 0; evtType < 2; evtType++) {
-//             for (src = s_sources.begin(); src != s_sources.end(); ++src) {
-//                Aeff aeff1(src->second, pixelDirs[j], energies[k], evtType);
-//                double map_lower =
-//                   ExposureCube::instance()->value(pixelDirs[j], aeff1);
-//                Aeff aeff2(src->second, pixelDirs[j], energies[k+1], evtType);
-//                double map_upper = 
-//                   ExposureCube::instance()->value(pixelDirs[j], aeff2);
-//                modelMap[indx] += (map_lower + map_upper)/2.*pixelSolidAngles[j]
-//                   *(energies[k+1] - energies[k]);
-//             } // src
-//          } // evtType
-//       } // k
-//    } // j
-// }
-
 void SourceModel::computeModelMap(const std::vector<Pixel> & pixels,
                                   const std::vector<double> & energies,
                                   std::vector<double> & modelMap) {
-
    modelMap.reserve(pixels.size()*(energies.size()-1));
-   for (unsigned int j = 0; j < pixels.size(); j++) {
-      for (unsigned int k = 0; k < energies.size()-1; k++) {
+   for (unsigned int k = 0; k < energies.size()-1; k++) {
+      for (unsigned int j = 0; j < pixels.size(); j++) {
          modelMap.push_back(pixels[j].modelCounts(energies[k], energies[k+1]));
       }
    }
@@ -587,26 +556,5 @@ double SourceModel::computeSolidAngle(std::vector<double>::const_iterator lon,
    }
    return std::fabs((phi[1] - phi[0])*(sin(theta[1]) - sin(theta[0])));
 }
-
-// SourceModel::Aeff::Aeff(Source * src, const astro::SkyDir & appDir, 
-//                         double energy, int type)
-//    : m_src(src), m_appDir(appDir), m_energy(energy), m_type(type) {
-//    PointSource * ptsrc = dynamic_cast<PointSource *>(src);
-//    if (ptsrc == 0) {
-//       m_separation = 90.;
-//    } else {
-//       m_separation = ptsrc->getDir().difference(appDir)*180./M_PI;
-//    }
-// }
-
-// double SourceModel::Aeff::operator()(double costheta) const {
-//    if (m_separation < 90.) {
-//       double inclination = acos(costheta)*180./M_PI;
-//       static double phi(0);
-//       return m_src->fluxDensity(inclination, phi, m_energy, m_separation,
-//                                 m_type);
-//    }
-//    return 0;
-// }
 
 } // namespace Likelihood
