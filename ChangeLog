@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Thu Mar 18 20:56:13 PST 2004
+Likelihood/data
+
+Modified Files:
+	TsMap.par anticenter_model.xml likelihood.par 
+Added Files:
+	anticenter_model_bpl.xml 
+Log Message:
+clean up requirements file; add access to GLAST25 response functions in apps; tagging v2r11
+    *
+------------------------------------------------------------
+User: jchiang  Thu Mar 18 20:56:13 PST 2004
 Likelihood/cmt
 
 Modified Files:
