@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.15 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.16 2003/06/03 23:54:23 jchiang Exp $
  */
 
 #include <vector>
@@ -114,7 +114,7 @@ void SourceModel::setParamBounds(const std::string &paramName,
                                  const std::string &funcName,
                                  const std::string &srcName,
                                  double lower, double upper)
-   throw(ParameterNotFound, OutOfBounds) {
+   throw(ParameterNotFound, Parameter::OutOfBounds) {
    Parameter my_param = getParam(paramName, funcName, srcName);
    my_param.setBounds(lower, upper);
    setParam(my_param, funcName, srcName);
@@ -135,7 +135,7 @@ void SourceModel::setParamTrueValue(const std::string &paramName,
                                     const std::string &funcName,
                                     const std::string &srcName,
                                     double paramValue)
-   throw(ParameterNotFound, OutOfBounds) {
+   throw(ParameterNotFound, Parameter::OutOfBounds) {
    Parameter my_param = getParam(paramName, funcName, srcName);
    my_param.setTrueValue(paramValue);
    setParam(my_param, funcName, srcName);
