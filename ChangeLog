@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct 22 09:31:36 PDT 2003
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx ResponseFunctions.cxx ScData.cxx 
+Log Message:
+generalize use of latResponse in PointSource class; debug and pass 'unit tests'
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct 22 09:31:35 PDT 2003
 Likelihood/cmt
 
