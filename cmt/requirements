@@ -1,42 +1,37 @@
 package Likelihood
-version v3r3
+version v3r4
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.101 2004/04/03 22:11:51 jchiang Exp $
+# $Id: requirements,v 1.102 2004/04/04 01:22:23 jchiang Exp $
 
 use STpolicy v*
-# use xml needs to be commented out in order to link on VC7.0 and VC7.1...
-#use xml v4r*
-use facilities v2r*
 use astro  v*
-use tip v*
+#use xml v4r* # use xml needs to be commented out in order to link on VC7.0 and VC7.1..
+use tip v* .
 use map_tools v*
 use latResponse v2*
 use optimizers v*
 use cfitsio v1* IExternal
-
-private
-
 use hoops v*
+use facilities v2r*
 
-#use python v2* IExternal
-#macro pydir ../python/
 
-macro Likelihood_cppflags "" \
-Linux "-I ../src -D TRAP_FPE -D USE_FT1 " \
-#Linux "-I ../src -D TRAP_FPE " \
-WIN32 '/I..\src /D"USE_FT1" /wd4290'
 
-path_prepend PFILES "."
+apply_pattern ST_library option="-no_share *.c "
+apply_pattern ST_pfiles
 
-public
-
-apply_pattern ST_library option="-no_share *.c *.f $(pydir)/*.i "
-
-#apply_pattern ST_app name=old_tests
-apply_pattern ST_app name=likelihoodApp
+apply_pattern ST_app name=likelihood
 apply_pattern ST_app name=expMap
 apply_pattern ST_app name=TsMap
 apply_pattern ST_app name=makeExposureCube
+
+private
+#--------------------------------------------------------------
+
+
+macro LikelihoodLib_cppflags "" \
+      Linux " -D TRAP_FPE -D USE_FT1 " \
+      WIN32 ' /D"USE_FT1" '
+

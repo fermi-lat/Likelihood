@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v3r4   03-Apr-04  THB  Update for new STpolicy, set pfiles, rename app to just likelihood
     v3r3   03-Apr-04  JC   Replace tuple with tip
     v3r2   03-Apr-04  JC   Reorganize application directories;
                            use STpolicy in requirements file
