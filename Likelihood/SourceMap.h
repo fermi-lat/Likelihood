@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.15 2004/11/11 00:03:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.16 2004/11/13 15:49:58 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -22,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.15 2004/11/11 00:03:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.16 2004/11/13 15:49:58 jchiang Exp $
  */
 
 class SourceMap {
@@ -77,6 +77,8 @@ private:
 /// sourceRegionIntegral for diffuse sources
    std::vector<astro::SkyDir> m_srcDirs;
 
+   std::vector<double> m_srcStrengths;
+
    class Aeff : public Pixel::Aeff {
    public:
       Aeff(Source * src, const astro::SkyDir & appDir,
@@ -95,7 +97,7 @@ private:
 
    double sourceRegionIntegral(Source * src, double energy) const;
 
-   void computeSrcDirs(const Pixel & pixel);
+   void computeSrcDirs(const Pixel & pixel, Source * src);
 
    void prepareAngleArrays(int nmu=100, int nphi=50);
 
