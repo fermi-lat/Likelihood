@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar  4 09:45:32 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h Function.h PointSource.h Psf.h Response.h RoiCuts.h 
+	SkyDirFunction.h Source.h SourceModel.h Statistic.h 
+Added Files:
+	Arg.h dArg.h 
+Log Message:
+add Arg class, modifying Function, etc.
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb 28 15:19:26 PST 2003
 Likelihood/src/test
 
