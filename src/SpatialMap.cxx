@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.12 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.13 2005/02/02 19:20:03 jchiang Exp $
  *
  */
 
@@ -42,8 +42,27 @@ void SpatialMap::readFitsFile(const std::string &fitsFile) {
 
 // Assume 0th and 1st axes are RA and DEC.
    fitsImage.getAxisVector(0, m_ra);
+// wrap to +/- 180
+   for (unsigned int i = 0; i < m_ra.size(); i++) {
+      if (m_ra.at(i) > 180) {
+         m_ra.at(i) -= 360;
+      }
+   }
+   if (m_ra.front() < m_ra.back()) {
+      m_raMin = m_ra.front();
+      m_raMax = m_ra.back();
+   } else {
+      m_raMin = m_ra.back();
+      m_raMax = m_ra.front();
+   }
    fitsImage.getAxisVector(1, m_dec);
-
+   if (m_dec.front() < m_dec.back()) {
+      m_decMin = m_dec.front();
+      m_decMax = m_dec.back();
+   } else {
+      m_decMin = m_dec.back();
+      m_decMax = m_dec.front();
+   }
    fitsImage.getImageData(m_image);
 }
 
@@ -54,12 +73,12 @@ double SpatialMap::value(optimizers::Arg& arg) const {
    double ra = dir.ra();
 
 // wrap to +/-180
-   if (ra > 180) ra = ra - 360;
+   if (ra > 180) ra -= 360;
 
-//    if (dir.dec() < m_dec.front() || dir.dec() > m_dec.back()
-//        || dir.ra() < m_ra.front() || dir.ra() > m_ra.back()) {
-//       return 0;
-//    }
+   if (dir.dec() < m_decMin || dir.dec() > m_decMax ||
+       ra < m_raMin || ra > m_raMax) {
+      return 0;
+   }
    double my_value = 
       st_facilities::Util::bilinear(m_dec, dir.dec(), m_ra, ra, m_image);
       

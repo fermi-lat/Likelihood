@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.11 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.12 2005/02/15 07:04:41 jchiang Exp $
  *
  */
 
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.11 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.12 2005/02/15 07:04:41 jchiang Exp $
  *
  */
     
@@ -36,14 +36,6 @@ public:
    SpatialMap(const std::string &fitsFile) {
       init();
       readFitsFile(fitsFile);
-   }
-
-   SpatialMap(const SpatialMap &rhs) : optimizers::Function(rhs) {
-      m_ra = rhs.m_ra;
-      m_dec = rhs.m_dec;
-      m_image.resize(rhs.m_image.size());
-      m_image = rhs.m_image;
-      m_fitsFile = rhs.m_fitsFile;
    }
 
    virtual ~SpatialMap() {}
@@ -65,7 +57,9 @@ private:
 
    std::string m_fitsFile;
    std::vector<double> m_ra;
+   double m_raMin, m_raMax;
    std::vector<double> m_dec;
+   double m_decMin, m_decMax;
    std::vector<double> m_image;
 
    void init();
