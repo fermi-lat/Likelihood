@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 25 08:28:49 PDT 2004
+Likelihood/src
+
+Modified Files:
+	SourceModel.cxx 
+Log Message:
+correct pixel ordering for count map
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 25 08:27:32 PDT 2004
 Likelihood/src/likelihood
 
