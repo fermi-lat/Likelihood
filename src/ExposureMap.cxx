@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.10 2003/06/03 23:54:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.11 2003/08/06 20:52:06 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
@@ -16,10 +16,24 @@
 //#define HAVE_CCFITS
 #ifdef HAVE_CCFITS
 #include <CCfits>
+#else
+#include "fitsio.h"
 #endif
+
 
 #include <utility>
 #include <algorithm>
+
+namespace {
+
+void fitsReportError(FILE *stream, int status) {
+   fits_report_error(stream, status);
+   if (status != 0) {
+      throw std::string("writeExposureFile: cfitsio error.");
+   }
+}
+
+} // unnamed namespace
 
 namespace Likelihood {
 
@@ -254,13 +268,136 @@ void ExposureMap::writeFitsFile(const std::string &filename,
 
 #else // don't HAVE_CCFITS
 
-void ExposureMap::writeFitsFile(const std::string &,
-                                std::vector<double> &,
-                                std::vector<double> &,
-                                std::vector<double> &,
-                                std::vector< std::valarray<double> > &,
-                                double, double) {
-// do nothing
+void ExposureMap::writeFitsFile(const std::string &filename, 
+                                std::vector<double> &glon,
+                                std::vector<double> &glat,
+                                std::vector<double> &energies,
+                                std::vector< std::valarray<double> > &exposure,
+                                double ra0, double dec0) {
+
+   fitsfile *fptr;
+   int status = 0;
+   
+// Always overwrite an existing file.
+   remove(filename.c_str());
+   fits_create_file(&fptr, filename.c_str(), &status);
+   fitsReportError(stderr, status);
+
+   int bitpix = DOUBLE_IMG;
+   long naxis = 3;
+   long naxes[] = {glon.size(), glat.size(), energies.size()};
+   fits_create_img(fptr, bitpix, naxis, naxes, &status);
+   fitsReportError(stderr, status);
+
+// Write the exposure map data.
+   long group = 0;
+   long dim1 = glon.size();
+   long dim2 = glat.size();
+
+// Repack exposure into a C array.
+   double *exp_array = new double[glon.size()*glat.size()*energies.size()];
+   int indx = 0;
+   for (unsigned int k = 0; k < energies.size(); k++) {
+      for (unsigned int i = 0; i < exposure[k].size(); i++) {
+         exp_array[indx] = exposure[k][i];
+         indx++;
+      }
+   }
+
+   fits_write_3d_dbl(fptr, group, dim1, dim2, 
+                     glon.size(), glat.size(), energies.size(),
+                     exp_array, &status);
+   delete[] exp_array;
+   fitsReportError(stderr, status);
+
+// Write some keywords.
+   double l0 = glon[0];
+   fits_update_key(fptr, TDOUBLE, "CRVAL1", &l0, 
+                   "longitude of reference pixel", &status);
+   fitsReportError(stderr, status);
+   double b0 = glat[0];
+   fits_update_key(fptr, TDOUBLE, "CRVAL2", &b0, 
+                   "latitude of reference pixel", &status);
+   fitsReportError(stderr, status);
+   
+   double lstep = glon[1] - glon[0];
+   fits_update_key(fptr, TDOUBLE, "CDELT1", &lstep, 
+                   "longitude step at ref. pixel", &status);
+   fitsReportError(stderr, status);
+   double bstep = glat[1] - glat[0];
+   fits_update_key(fptr, TDOUBLE, "CDELT2", &bstep, 
+                   "latitude step at ref. pixel", &status);
+   fitsReportError(stderr, status);
+   
+   float crpix1 = lstep/2.;
+   fits_update_key(fptr, TFLOAT, "CRPIX1", &crpix1, 
+                   "reference pixel for longitude coordinate", &status);
+   fitsReportError(stderr, status);
+   float crpix2 = bstep/2.;
+   fits_update_key(fptr, TFLOAT, "CRPIX2", &crpix2, 
+                   "reference pixel for latitude coordinate", &status);
+   fitsReportError(stderr, status);
+   
+   char *ctype1 = "GLON-CAR";
+   fits_update_key(fptr, TSTRING, "CTYPE1", ctype1, 
+                   "right ascension", &status);
+   fitsReportError(stderr, status);
+   char *ctype2 = "GLAT-CAR";
+   fits_update_key(fptr, TSTRING, "CTYPE2", ctype2, 
+                   "declination", &status);
+   fitsReportError(stderr, status);
+
+   double logEmin = log(energies[0]);
+   fits_update_key(fptr, TDOUBLE, "CRVAL3", &logEmin,
+                   "reference value for log_energy coordinate", &status);
+   fitsReportError(stderr, status);
+
+   int nee = energies.size();
+   double estep = log(energies[nee-1]/energies[0])/(nee-1);
+   fits_update_key(fptr, TDOUBLE, "CDELT3", &estep, 
+                   "step in log_energy coordinate", &status);
+   fitsReportError(stderr, status);
+
+   float crpix3 = 1.;
+   fits_update_key(fptr, TFLOAT, "CRPIX3", &crpix3,
+                   "reference pixel for log_energy coordinate", &status);
+   fitsReportError(stderr, status);
+
+   char *ctype3 = "log_MeV";
+   fits_update_key(fptr, TSTRING, "CTYPE3", ctype3,
+                   "units for log_energy", &status);
+   fitsReportError(stderr, status);
+
+   fits_update_key(fptr, TDOUBLE, "LONPOLE", &ra0, "RA of ROI center", 
+                   &status);
+   fitsReportError(stderr, status);
+   fits_update_key(fptr, TDOUBLE, "LATPOLE", &dec0, "DEC of ROI center",
+                   &status);
+   fitsReportError(stderr, status);
+   
+// Write the energy array as a binary table.
+   int nrows = energies.size();
+   int tfields = 1;
+   char *ttype[] = {"Energy"};
+   char *tform[] = {"1D"};
+   char *tunit[] = {"MeV"};
+   char extname[] = "True Photon Energy Array";
+   
+   int firstrow  = 1;
+   int firstelem = 1;
+   
+   fits_create_tbl(fptr, BINARY_TBL, nrows, tfields, ttype, tform,
+                   tunit, extname, &status);
+   fitsReportError(stderr, status);
+   
+   fits_write_col(fptr, TDOUBLE, 1, firstrow, firstelem, nrows, 
+                  &energies[0], &status);
+   fitsReportError(stderr, status);
+   
+   fits_close_file(fptr, &status);
+   fitsReportError(stderr, status);
+   
+   return;
 }
 
 #endif // HAVE_CCFITS

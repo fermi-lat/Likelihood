@@ -3,7 +3,7 @@
  * @brief logLike_ptsrc class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.cxx,v 1.10 2003/05/27 16:30:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.cxx,v 1.11 2003/08/06 20:52:09 jchiang Exp $
  */
 
 #include <vector>
@@ -94,7 +94,8 @@ void logLike_ptsrc::getEvents(const std::string &event_file, int hdu) {
 
    unsigned int nReject = 0;
 
-   m_events.reserve(ra.first);
+   long nevents = m_events.size();
+   m_events.reserve(ra.first + nevents);
    for (int i = 0; i < ra.first; i++) {
 // compute sc_ra and sc_dec from direction cosines 
       double sc_ra = atan2(sc_y.second[i], sc_x.second[i])*180./M_PI;
@@ -112,8 +113,9 @@ void logLike_ptsrc::getEvents(const std::string &event_file, int hdu) {
    }
 
    std::cout << "logLike_ptsrc::getEvents:\nOut of " 
-             << ra.first << " events, "
-             << m_events.size() << " were accepted, and "
+             << ra.first << " events in file "
+             << event_file << ", "
+             << m_events.size() - nevents << " were accepted, and "
              << nReject << " were rejected.\n" << std::endl;
 }
 
