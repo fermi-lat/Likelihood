@@ -131,11 +131,18 @@ void test_FunctionFactory() {
 void fit_DiffuseSource() {
    std::cout << "*** fit_DiffuseSource ***" << std::endl;
 
-// center the ROI on 3C 279
-   double ra0 = 193.98;
-   double dec0 = -5.82;
+// // center the ROI on 3C 279
+//    double ra0 = 193.98;
+//    double dec0 = -5.82;
 
-   RoiCuts::setCuts(ra0, dec0, 20.);
+//    RoiCuts::setCuts(ra0, dec0, 20.);
+
+   std::string roiFile = root_path + "/xml/RoiCuts.xml";
+   RoiCuts::setCuts(roiFile);
+
+   double ra0, dec0;
+   RoiCuts::getRaDec(ra0, dec0);
+   std::cout << "ROI center: " << ra0 << "  " << dec0;
 
 // root name for the observation data files
    std::string obs_root = "diffuse_test_5";

@@ -1,0 +1,19 @@
+<!ELEMENT Region-of-Interest (timeInterval*, energies, acceptanceCone) >
+<!ATTLIST Region-of-Interest
+          title     CDATA     #REQUIRED >
+<!ELEMENT timeInterval EMPTY >
+<!ATTLIST timeInterval
+          start     CDATA     #REQUIRED
+          stop      CDATA     #REQUIRED 
+          unit      CDATA     "days" >
+<!ELEMENT energies EMPTY >
+<!ATTLIST energies
+          emin      CDATA     #REQUIRED
+          emax      CDATA     #REQUIRED
+          unit      CDATA     "MeV" >
+<!ELEMENT acceptanceCone EMPTY >
+<!ATTLIST acceptanceCone
+          longitude CDATA     #REQUIRED
+          latitude  CDATA     #REQUIRED
+          radius    CDATA     #REQUIRED
+          coordsys  CDATA     "J2000" >

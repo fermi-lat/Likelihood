@@ -14,7 +14,12 @@ vector = optimizers.DoubleVector
 
 ra0 = 193.98
 dec0 = -5.82
-Likelihood.RoiCuts_setCuts(ra0, dec0, 20.)
+#Likelihood.RoiCuts_setCuts(ra0, dec0, 20.)
+
+Likelihood.RoiCuts_setCuts(string(LikelihoodRoot+"/xml/RoiCuts.xml"))
+#ra0 = 0.; dec0 = 0.
+#Likelihood.RoiCuts_getRaDec(ra0, dec0)
+#print ra0, dec0
 
 obs_root = "diffuse_test_5"
 
@@ -74,7 +79,7 @@ def fitStatistic():
 
     logLike.computeEventResponses()
 
-    myOpt = optimizers.Minuit(logLike)
+    myOpt = optimizers.Lbfgs(logLike)
 
     verbose = 3
     myOpt.find_min(verbose)

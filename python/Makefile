@@ -4,7 +4,7 @@
 #
 # @author J. Chiang
 #
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.1 2003/08/16 01:12:25 jchiang Exp $
 #
 
 #CXX = /usr/local/bin/g++
@@ -66,6 +66,7 @@ clean:
 	/bin/rm -f *wrap*
 	/bin/rm -f *.so
 	/bin/rm -f ${module_base}.py*
+	/bin/rm -f ${module_base}.cxx
 
 very_clean:
 	make clean
