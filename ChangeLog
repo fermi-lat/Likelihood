@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Aug 13 10:15:28 PDT 2004
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx FluxBuilder.cxx PointSource.cxx 
+Log Message:
+apply energy dispersion in DiffuseSource
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 11 10:23:59 PDT 2004
 Likelihood/python
 
