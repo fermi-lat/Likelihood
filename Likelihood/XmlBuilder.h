@@ -4,7 +4,7 @@
  * the flux and Likelihood packages.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.2 2004/11/11 00:03:28 jchiang Exp $
  */
 
 #ifndef Likelihood_XmlBuilder_h
@@ -14,7 +14,7 @@
 
 #include <string>
 
-namespace xml {
+namespace xmlBase {
    class XmlParser;
 }
 
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.2 2004/11/11 00:03:28 jchiang Exp $
  */
 
 class XmlBuilder {
@@ -49,7 +49,7 @@ protected:
 
    XmlBuilder();
 
-   xml::XmlParser * m_parser;
+   xmlBase::XmlParser * m_parser;
 
    XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * m_doc;
 

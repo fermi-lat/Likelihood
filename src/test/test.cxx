@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.51 2004/12/05 22:25:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.52 2004/12/06 23:30:05 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -11,7 +11,6 @@
 #endif
 
 #include <cmath>
-#include <cassert>
 #include <cstdio>
 
 #include <fstream>
@@ -609,14 +608,14 @@ void LikelihoodTests::test_CountsMap() {
 }
 
 void LikelihoodTests::test_BinnedLikelihood() {
-   SourceFactory * srcFactory = srcFactoryInstance();
-   (void)(srcFactory);
-
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
    ExposureCube::readExposureCube(exposureCubeFile);
+
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
 
    CountsMap dataMap(singleSrcMap(21));
 
@@ -702,14 +701,14 @@ void LikelihoodTests::test_BinnedLikelihood() {
 }
 
 void LikelihoodTests::test_MeanPsf() {
-   SourceFactory * srcFactory = srcFactoryInstance();
-   (void)(srcFactory);
-
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
    ExposureCube::readExposureCube(exposureCubeFile);
+
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
 
    double ee[] = {1e2, 1e3, 1e4};
    std::vector<double> energies(ee, ee+3);
@@ -736,14 +735,14 @@ void LikelihoodTests::test_MeanPsf() {
 }
 
 void LikelihoodTests::test_BinnedExposure() {
-   SourceFactory * srcFactory = srcFactoryInstance();
-   (void)(srcFactory);
-
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
    ExposureCube::readExposureCube(exposureCubeFile);
+
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
 
    std::vector<double> energies;
    unsigned int npts(20);

@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.62 2004/12/22 06:06:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.63 2004/12/22 16:57:34 jchiang Exp $
  */
 
 #include <cassert>
@@ -16,8 +16,8 @@
 
 #include "fitsio.h"
 
-#include "xml/Dom.h"
-#include "xml/XmlParser.h"
+#include "xmlBase/Dom.h"
+#include "xmlBase/XmlParser.h"
 
 #include "facilities/Util.h"
 
@@ -302,7 +302,7 @@ void SourceModel::readXml(std::string xmlFile,
    SourceFactory srcFactory;
    try {
       srcFactory.readXml(xmlFile, funcFactory, requireExposure);
-   } catch (xml::DomException & eObj) {
+   } catch (xmlBase::DomException & eObj) {
       if (print_output()) {
          std::cout << "SourceModel::readXml:\n DomException: " 
                    << eObj.what() << std::endl;
@@ -329,7 +329,7 @@ void SourceModel::reReadXml(std::string xmlFile) {
 
    facilities::Util::expandEnvVar(&xmlFile);
 
-   xml::XmlParser *parser = new xml::XmlParser();
+   xmlBase::XmlParser *parser = new xmlBase::XmlParser();
 
    DOMDocument * doc = parser->parse(xmlFile.c_str());
 
@@ -340,29 +340,29 @@ void SourceModel::reReadXml(std::string xmlFile) {
    }
 
    DOMElement * source_library = doc->getDocumentElement();
-   if (!xml::Dom::checkTagName(source_library, "source_library")) {
+   if (!xmlBase::Dom::checkTagName(source_library, "source_library")) {
       throw Exception("SourceModel::reReadXml:\nsource_library not found");
    }
 
 // Loop through source DOMElements and Source objects in parallel.
    std::vector<DOMElement *> srcs;
-   xml::Dom::getChildrenByTagName(source_library, "source", srcs);
+   xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
 
    for (unsigned int j = 0; j < srcs.size(); j++) {
-      std::string srcName = xml::Dom::getAttribute(srcs[j], "name");
+      std::string srcName = xmlBase::Dom::getAttribute(srcs[j], "name");
       Source * my_source(0);
       if (s_sources.count(srcName)) {
          my_source = s_sources[srcName];
       } else {
          continue;
       }
-      std::string srcType = xml::Dom::getAttribute(srcs[j], "type");
+      std::string srcType = xmlBase::Dom::getAttribute(srcs[j], "type");
 // Get spectrum and spatialModel elements
       std::vector<DOMElement *> child;
-      xml::Dom::getChildrenByTagName(srcs[j], "spectrum", child);
+      xmlBase::Dom::getChildrenByTagName(srcs[j], "spectrum", child);
       DOMElement * spectrum = child[0];
 
-      xml::Dom::getChildrenByTagName(srcs[j], "spatialModel", child);
+      xmlBase::Dom::getChildrenByTagName(srcs[j], "spatialModel", child);
       DOMElement * spatialModel = child[0];
 
       my_source->getSrcFuncs()["Spectrum"]->setParams(spectrum);
@@ -372,17 +372,17 @@ void SourceModel::reReadXml(std::string xmlFile) {
 // recalculated.
          double ra(0), dec(0);
          std::vector<DOMElement *> params;
-         xml::Dom::getChildrenByTagName(spatialModel, "parameter", params);
+         xmlBase::Dom::getChildrenByTagName(spatialModel, "parameter", params);
 
          std::vector<DOMElement *>::const_iterator paramIt = params.begin();
          for ( ; paramIt != params.end(); paramIt++) {
-            std::string name = xml::Dom::getAttribute(*paramIt, "name");
+            std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
             if (name == "RA")
                ra = 
-                  std::atof(xml::Dom::getAttribute(*paramIt, "value").c_str());
+                  std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
             if (name == "DEC")
                dec = 
-                  std::atof(xml::Dom::getAttribute(*paramIt, "value").c_str());
+                  std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
          }
          astro::SkyDir newDir(ra, dec);
          double tol = 1e-4;

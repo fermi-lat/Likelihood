@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.18 2004/11/17 00:02:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.19 2004/11/17 07:18:23 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -14,7 +14,7 @@
 
 #include <xercesc/dom/DOM.hpp>
 
-#include "xml/Dom.h"
+#include "xmlBase/Dom.h"
 
 #include "Likelihood/Source.h"
 #include "Likelihood/Exception.h"
@@ -40,7 +40,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.18 2004/11/17 00:02:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.19 2004/11/17 07:18:23 jchiang Exp $
  *
  */
     

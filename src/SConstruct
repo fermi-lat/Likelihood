@@ -11,12 +11,12 @@ OptPP_dir = os.environ['OPTPP_DIR']
 
 libraries = map()
 
-default_libraries = ['xml', 'dataSubselectorLib', 'astro',
+default_libraries = ['xmlBase', 'dataSubselectorLib', 'astro',
                      'map_toolsLib', 'evtbinLib', 
                      'tipLib', 'optimizers', 'f2c', 'facilities', 
                      'st_appLib', 'st_streamLib', 'st_graphLib', 'hoopsLib',
                      'irfInterfaceLib', 'irfLoaderLib', 'g25ResponseLib', 
-                     'dc1ResponseLib', 'testResponseLib', 'devResponseLib',
+                     'dc1ResponseLib', 'testResponseLib', 
                      'irfUtilLib', 'st_facilitiesLib']
 
 for lib in default_libraries:
