@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.35 2004/10/05 04:47:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.36 2004/10/06 05:31:15 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -59,6 +59,7 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceFactory.h"
+#include "Likelihood/SourceMap.h"
 #include "Likelihood/SourceModel.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/TrapQuad.h"
@@ -73,17 +74,18 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
-   CPPUNIT_TEST(test_RoiCuts);
-   CPPUNIT_TEST(test_SourceFactory);
-   CPPUNIT_TEST(test_XmlBuilders);
-   CPPUNIT_TEST(test_SourceModel);
-   CPPUNIT_TEST(test_SourceDerivs);
-   CPPUNIT_TEST(test_PointSource);
-   CPPUNIT_TEST(test_DiffuseSource);
-   CPPUNIT_TEST(test_CountsMap);
-   CPPUNIT_TEST(test_BinnedLikelihood);
-   CPPUNIT_TEST(test_MeanPsf);
-   CPPUNIT_TEST(test_BinnedExposure);
+//    CPPUNIT_TEST(test_RoiCuts);
+//    CPPUNIT_TEST(test_SourceFactory);
+//    CPPUNIT_TEST(test_XmlBuilders);
+//    CPPUNIT_TEST(test_SourceModel);
+//    CPPUNIT_TEST(test_SourceDerivs);
+//    CPPUNIT_TEST(test_PointSource);
+//    CPPUNIT_TEST(test_DiffuseSource);
+//    CPPUNIT_TEST(test_CountsMap);
+//    CPPUNIT_TEST(test_BinnedLikelihood);
+//    CPPUNIT_TEST(test_MeanPsf);
+//    CPPUNIT_TEST(test_BinnedExposure);
+   CPPUNIT_TEST(test_SourceMap);
    
    CPPUNIT_TEST_SUITE_END();
 
@@ -103,6 +105,7 @@ public:
    void test_BinnedLikelihood();
    void test_MeanPsf();
    void test_BinnedExposure();
+   void test_SourceMap();
 
 private:
 
@@ -761,6 +764,27 @@ void LikelihoodTests::test_BinnedExposure() {
       ASSERT_EQUALS(binnedExposure(energies[i], ra, dec),
                     map2(energies[i], ra, dec));
    }
+}
+
+void LikelihoodTests::test_SourceMap() {
+   std::string filename("countsMap.fits");
+   if (!st_facilities::Util::fileExists(filename)) {
+      throw std::runtime_error("test_SourceMap: "+ filename +
+                               "does not exist.");
+   }
+   CountsMap dataMap(filename);
+
+   int i(0);
+   std::ostringstream roiFile;
+   roiFile << m_rootPath << "/data/RoiCuts_" << i << ".xml";
+   RoiCuts * roiCuts = RoiCuts::instance();
+   roiCuts->writeXml(roiFile.str(), "Anticenter region");
+   std::ostringstream expMapFile;
+   expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
+   SourceFactory * srcFactory 
+      = srcFactoryInstance(roiFile.str(), "", expMapFile.str());
+   Source * galdiffuse = srcFactory->create("Galactic Diffuse");
+   SourceMap srcMap(galdiffuse, dataMap);
 }
 
 void LikelihoodTests::readEventData(const std::string &eventFile,

@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.4 2004/09/25 16:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.5 2004/10/05 23:52:10 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -22,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.4 2004/09/25 16:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.5 2004/10/05 23:52:10 jchiang Exp $
  */
 
 class SourceMap {
@@ -68,9 +68,17 @@ private:
    static MeanPsf * s_meanPsf;
    static BinnedExposure * s_binnedExposure;
 
-   double sourceRegionIntegral(Source * src, const Pixel & pixel,
-                               double energy, int evtType) const;
+   static std::vector<double> s_phi;
+   static std::vector<double> s_mu;
 
+   double sourceRegionIntegral(Source * src, const Pixel & pixel,
+                               double energy) const;
+
+   void prepareAngleArrays(int nmu, int nphi);
+
+   void getCelestialDir(double phi, double mu, 
+                        FitsImage::EquinoxRotation & eqRot,
+                        astro::SkyDir & dir) const;
 };
 
 } // namespace Likelihood
