@@ -2,7 +2,7 @@
  * @brief Declaration for the lbfgs Optimizer subclass.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/lbfgs.h,v 1.4 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/lbfgs.h,v 1.9 2003/03/22 01:22:51 jchiang Exp $
  */
 
 #ifndef lbfgs_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header$
  */
 
 class lbfgs : public Optimizer {

@@ -2,7 +2,7 @@
  * @brief Statistic class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Statistic.cxx,v 1.7 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -20,7 +20,17 @@ void Statistic::readEventData(const std::string &eventFile,
                               const std::string &colnames, int hdu) {
    m_eventFile = eventFile;
    m_eventHdu = hdu;
-   m_eventData.add_columns(colnames);
+//   m_eventData.add_columns(colnames);
+   std::vector<std::string> columnNames;
+   m_eventData.read_FITS_colnames(m_eventFile, m_eventHdu, columnNames);
+   m_eventData.add_columns(columnNames);
+   std::cerr << "Columns in " << m_eventFile 
+             << ", HDU " << m_eventHdu 
+             << ": \n";
+   for (unsigned int i = 0; i < columnNames.size(); i++) {
+      std::cerr << columnNames[i] << "  ";
+   }
+   std::cerr << std::endl;
    m_eventData.read_FITS_table(m_eventFile, m_eventHdu);
 }
 

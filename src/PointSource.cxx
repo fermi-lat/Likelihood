@@ -1,7 +1,7 @@
 /** @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header:
+ * $Header$
  */
 
 #include <vector>
@@ -50,6 +50,7 @@ double PointSource::fluxDensity(double energy, double time,
    double spectrum = (*m_spectrum)(energy_arg);
    double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
    double aeff_val = (*aeff)(energy, dir, time);
+
    return spectrum*psf_val*aeff_val;
 }
 

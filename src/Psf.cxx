@@ -2,12 +2,13 @@
  * @brief Implementation for the LAT Point-Spread Function class
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.7 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 #include "Likelihood/Psf.h"
 
@@ -103,7 +104,12 @@ void Psf::fillPsfParams(double energy, double inc,
 
 // find the energy index
    int ie;
-   m_hunt(m_psfData[0].val-1, m_psfData[0].dim, energy, &ie);
+
+// use upper_bound generic algorithm (still maintaining, for now,
+// unit-offset kludge inherited from use of NR's hunt())
+
+   ie = upper_bound(m_psfData[0].val, m_psfData[0].val + m_psfData[0].dim,
+                    energy) - m_psfData[0].val;
 
 // kludge to deal with energies outside of the nominal boundaries 
    if (ie == 0) { 
@@ -115,7 +121,10 @@ void Psf::fillPsfParams(double energy, double inc,
    
 // find the theta index
    int it;
-   m_hunt(m_psfData[1].val-1, m_psfData[1].dim, inc, &it);
+
+   it = upper_bound(m_psfData[1].val, m_psfData[1].val + m_psfData[1].dim,
+                    inc) - m_psfData[1].val;
+
    if (it == 0) it = 1;
 
 // do the interpolations

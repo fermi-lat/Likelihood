@@ -2,7 +2,7 @@
  * @brief Declaration of Table class
  * @authors T. Burnett, J. Chiang using code from Y. Ikebe
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.5 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef Table_h
@@ -20,58 +20,65 @@ namespace Likelihood {
  *
  * @author T. Burnett, J. Chiang using code from Y. Ikebe
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.5 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class Table {
     
 public:
     
-    Table(){};
+   Table() {}
+   
+   //! add a new column to the list
+   void add_column(std::string colname);
+   
+   //! add several columns, a string delimited by single blanks
+   void add_columns(std::string colnames);
 
-    //! add a new column to the list
-    void add_column(std::string colname);
+   //! add several columns more sensibly using a vector of strings
+   void add_columns(std::vector<std::string> columnNames);
+   
+   //! fill the table from the file
+   //! expect that the column list is already set
+   void read_FITS_table(std::string file, int hdu);
+   
+   //! grab the column names from an existing FITS file
+   void read_FITS_colnames(std::string &file, int hdu, 
+                           std::vector<std::string> &columnNames);
 
-    //! add several columns, a string delimited by single blanks
-    void add_columns(std::string colnames);
-
-    //! fill the table from the file
-    //! expect that the column list is already
-    void read_FITS_table(std::string file, int hdu);
-
-    /** @class Column
-     * @brief Nested class represents a column entry
-     */
-    class Column {
-    public:
-        Column(std::string name):val(0){
-            ::strncpy(colname, name.c_str(), sizeof(colname));
-        }
-        Column():val(0){}
-        ~Column(){delete[] val;}
-
-        char   colname[32]; // name of the Ntuple column
-        int    colnum;      // column index
-        int    typecode;    // data type code    
-        long   dim;         //
-        long   width;       //
-        double *val;        // pointer to array of values
-    };
-
-    //! external read-write access to column contents
-    Column& operator[](int i) { return m_pars[i];}
-
-    //! read-only access to column contents
-    const Column& operator[](int i)const { return m_pars[i];}
-
-    int npar() const { return m_pars.size(); }
-
+   /** @class Column
+    * @brief Nested class represents a column entry
+    */
+   class Column {
+   public:
+      Column(std::string name):val(0){
+         ::strncpy(colname, name.c_str(), sizeof(colname));
+      }
+      Column():val(0){}
+      ~Column(){delete[] val;}
+      
+      char   colname[32]; // name of the Ntuple column
+      int    colnum;      // column index
+      int    typecode;    // data type code    
+      long   dim;         //
+      long   width;       //
+      double *val;        // pointer to array of values
+   };
+   
+   //! external read-write access to column contents
+   Column& operator[](int i) { return m_pars[i];}
+   
+   //! read-only access to column contents
+   const Column& operator[](int i)const { return m_pars[i];}
+   
+   int npar() const { return m_pars.size(); }
+   
 private:
-    Column& par(int i) { return m_pars[i];}
-
-    typedef std::vector<Column> ColumnVec;
-    typedef ColumnVec::const_iterator const_iterator;
-    ColumnVec m_pars;
+   Column& par(int i) { return m_pars[i];}
+   
+   typedef std::vector<Column> ColumnVec;
+   typedef ColumnVec::const_iterator const_iterator;
+   ColumnVec m_pars;
 };
 
 } // namespace Likelihood

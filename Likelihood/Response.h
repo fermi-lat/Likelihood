@@ -2,7 +2,7 @@
  * @brief Response base class declaration
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.12 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef Response_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.12 2003/03/22 01:22:50 jchiang Exp $
  */
 
 class Response {
@@ -51,9 +51,6 @@ protected:
    //! share the spacecraft data among all response functions
    ScData * scData;
    
-   //! the NR hunt routine 
-   static void m_hunt(double *xx, int nx, double x, int *i);
-
    //! and my own zeroth order bilinear interpolater
    static double m_bilinear(int nx, double *xx, int i, double x,
                             int ny, double *yy, int j, double y, double *z);

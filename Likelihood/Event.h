@@ -32,11 +32,11 @@ class Event {
     
 public:
 
-   Event(){};
+   Event() {}
    Event(double ra, double dec, double energy, double time, 
          double sc_ra, double sc_dec, double muZenith);
    Event(const Event &);
-   virtual ~Event(){}
+   virtual ~Event() {}
 
    astro::SkyDir getDir() const {return m_appDir;}
    astro::SkyDir getScDir() const {return m_scDir;}
@@ -49,6 +49,10 @@ public:
    //! separation in units of radians
    double getSeparation(const astro::SkyDir &dir) const 
       {return m_appDir.SkyDir::difference(dir);}
+
+   //! return the Event specific diffuse response function 
+   //! for the named diffuse component
+   double diffuseResponse(double energy, std::string diffuseComponent) const;
     
 private:
 
