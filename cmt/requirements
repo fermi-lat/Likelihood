@@ -4,18 +4,20 @@ version v4r2
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.118 2004/06/10 17:25:41 jchiang Exp $
+# $Id: requirements,v 1.119 2004/07/01 17:54:03 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
 use xml v4r*
 use tip v1*
 use map_tools v*
-use latResponse v2*
+#use latResponse v2*
 use optimizers v*
 use facilities v2r*
 use cfitsio v1* IExternal
 use cppunit v1* IExternal
+use dc1Response v0 irfs
+use g25Response v0 irfs
 
 apply_pattern ST_library option="-no_share *.c "
 apply_pattern ST_pfiles

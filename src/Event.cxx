@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.30 2004/06/09 17:13:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.31 2004/06/09 23:19:29 jchiang Exp $
  */
 
 #include <cassert>
@@ -15,11 +15,6 @@
 #include <fstream>
 #include <sstream>
 #include <utility>
-
-#include "latResponse/IPsf.h"
-#include "latResponse/IAeff.h"
-#include "latResponse/Irfs.h"
-#include "latResponse/../src/Glast25.h"
 
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Event.h"
@@ -153,7 +148,8 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
             int indx = i*s_phi.size() + j;
             astro::SkyDir & srcDir = srcDirs[indx];
             double inc = m_scDir.SkyDir::difference(srcDir)*180./M_PI;
-            if (inc < latResponse::Glast25::incMax()) {
+//             if (inc < latResponse::Glast25::incMax()) {
+            if (inc < 90.) {
                double totalResp 
                   = ResponseFunctions::totalResponse(m_arrTime, 
                                                      *trueEnergy, m_energy,
