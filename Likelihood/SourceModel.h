@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.44 2004/09/15 23:12:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.45 2004/09/16 04:38:59 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -37,11 +37,11 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.44 2004/09/15 23:12:36 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.45 2004/09/16 04:38:59 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
-    
+
 public:
    
    SourceModel(bool verbose=false) : m_verbose(verbose) {
@@ -194,9 +194,9 @@ protected:
    static void getPixels(const CountsMap & countsMap,
                          std::vector<Pixel> & pixels);
 
-   static void computeModelMap(const std::vector<Pixel> & pixels,
-                               const std::vector<double> & energies,
-                               std::vector<double> & modelMap);
+   void computeModelMap(const std::vector<Pixel> & pixels,
+                        const std::vector<double> & energies,
+                        std::vector<double> & modelMap) const;
 
 private:
 

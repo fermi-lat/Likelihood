@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.53 2004/09/15 23:12:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.54 2004/09/16 04:39:00 jchiang Exp $
  */
 
 #include <cassert>
@@ -482,11 +482,14 @@ CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
 
 void SourceModel::computeModelMap(const std::vector<Pixel> & pixels,
                                   const std::vector<double> & energies,
-                                  std::vector<double> & modelMap) {
+                                  std::vector<double> & modelMap) const {
+   modelMap.clear();
    modelMap.reserve(pixels.size()*(energies.size()-1));
    for (unsigned int k = 0; k < energies.size()-1; k++) {
       for (unsigned int j = 0; j < pixels.size(); j++) {
-         modelMap.push_back(pixels[j].modelCounts(energies[k], energies[k+1]));
+         modelMap.push_back(
+            pixels[j].modelCounts(energies[k], energies[k+1],
+                                  *(const_cast<SourceModel *>(this))));
       }
    }
 }
