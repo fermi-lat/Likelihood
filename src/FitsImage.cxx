@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.20 2005/02/14 06:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.21 2005/02/15 00:34:45 jchiang Exp $
  *
  */
 
@@ -23,11 +23,28 @@ FitsImage::FitsImage(const std::string &fitsfile)
    if (haveRefCoord()) {
       m_eqRot = new EquinoxRotation(m_roiRa, m_roiDec);
    }
+   std::vector<std::string> axisNames;
+   getAxisNames(axisNames);
+   if (axisNames[0].find_first_of("RA") != std::string::npos) {
+      m_coordSys = "Equatorial";
+   } else if (axisNames[0].find_first_of("GLON") != std::string::npos) {
+      m_coordSys = "Galactic";
+   } else {
+      std::ostringstream message;
+      message << "Likelihood::FitsImage:\n"
+              << "Unrecognized coordinate system in " << fitsfile << ".\n"
+              << "Axis names: ";
+      for (unsigned int i = 0; i < axisNames.size(); i++) {
+         message << axisNames.at(i) << "  ";
+      }
+      throw std::runtime_error(message.str());
+   }
 }
 
 FitsImage::FitsImage(const FitsImage &rhs) : st_facilities::FitsImage(rhs) {
    m_roiRa = rhs.m_roiRa;
    m_roiDec = rhs.m_roiDec;
+   m_coordSys = rhs.m_coordSys;
    if (rhs.m_eqRot) m_eqRot = rhs.m_eqRot->clone();
 }
 
@@ -39,6 +56,7 @@ FitsImage& FitsImage::operator=(const FitsImage &rhs) {
       m_image = rhs.m_image;
       m_roiRa = rhs.m_roiRa;
       m_roiDec = rhs.m_roiDec;
+      m_coordSys = rhs.m_coordSys;
       if (rhs.m_eqRot) {
          delete m_eqRot;
          m_eqRot = rhs.m_eqRot->clone();

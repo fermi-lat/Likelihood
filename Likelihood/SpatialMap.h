@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.12 2005/02/15 07:04:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.13 2005/02/17 23:22:31 jchiang Exp $
  *
  */
 
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.12 2005/02/15 07:04:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.13 2005/02/17 23:22:31 jchiang Exp $
  *
  */
     
@@ -60,6 +60,9 @@ private:
    double m_raMin, m_raMax;
    std::vector<double> m_dec;
    double m_decMin, m_decMax;
+
+   std::string m_coordSys;
+
    std::vector<double> m_image;
 
    void init();
