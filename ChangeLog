@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr 18 17:03:35 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+consider sub-intervals for GRB analysis
+    *
+------------------------------------------------------------
 User: jchiang  Sun Apr 18 17:03:34 PDT 2004
 Likelihood/src
 
