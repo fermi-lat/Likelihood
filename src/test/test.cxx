@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.8 2004/02/27 02:14:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.9 2004/02/29 03:00:29 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -46,73 +46,10 @@
 #include "Likelihood/SpatialMap.h"
 
 #include "SourceData.h"
+#include "XmlDiff.h"
 
 using namespace Likelihood;
 using optimizers::Parameter;
-
-namespace {
-   void makeDomElementMap(const DomElement & rootElt,
-                          std::map<std::string, DomElement> & domMap) {
-      std::vector<DomElement> elts;
-      xml::Dom::getChildrenByTagName(rootElt, "source", elts);
-      domMap.clear();
-      for (unsigned int i = 0; i < elts.size(); i++) {
-         std::string name = xml::Dom::getAttribute(elts[i], "name");
-         domMap[name] = elts[i];
-      }
-   }
-   void readlines(std::string inputFile, std::vector<std::string> lines) {
-      facilities::Util::expandEnvVar(&inputFile);
-      std::ifstream file(inputFile.c_str());
-      lines.clear();
-      std::string line;
-      while (std::getline(file, line, '\n')) {
-         lines.push_back(line);
-      }
-   }
-   bool compareXmlFiles(const std::string &file1,
-                        const std::string &file2) {
-
-      xml::XmlParser * parser = new xml::XmlParser();
-      DomDocument doc1 = parser->parse(file1.c_str());
-      DomDocument doc2 = parser->parse(file2.c_str());
-
-// Re-serialize both docs as temporary files for line-by-line
-// comparison.  We need to serialize the children of the root element
-// explicitly to ensure they are written in the same order.
-      std::map<std::string, DomElement> domMap1;
-      makeDomElementMap(doc1.getDocumentElement(), domMap1);
-      std::map<std::string, DomElement> domMap2;
-      makeDomElementMap(doc2.getDocumentElement(), domMap2);
-
-      std::string file1name = file1 + "_reserialized";
-      std::ofstream firstFile(file1name.c_str());
-      std::string file2name = file2 + "_reserialized";
-      std::ofstream secondFile(file2name.c_str());
-
-      std::map<std::string, DomElement>::iterator it;
-      for (it = domMap1.begin(); it != domMap1.end(); it++) {
-         std::string name = it->first;
-         xml::Dom::prettyPrintElement(it->second, firstFile, std::string(""));
-         assert(domMap2.count(name));
-         xml::Dom::prettyPrintElement(domMap2[name], secondFile, 
-                                      std::string(""));
-      }
-      firstFile.close();
-      secondFile.close();
-      std::vector<std::string> file1_lines;
-      readlines(file1name, file1_lines);
-      std::vector<std::string> file2_lines;
-      readlines(file2name, file2_lines);
-      assert(file1_lines.size() == file2_lines.size());
-      for (unsigned int i = 0; i < file1_lines.size(); i++) {
-         if (file1_lines[i] != file2_lines[i]) return false;
-      }
-      std::remove(file1name.c_str());
-      std::remove(file2name.c_str());
-      return true;
-   }
-}
 
 class LikelihoodTests {
 
@@ -296,7 +233,8 @@ void LikelihoodTests::test_XmlBuilders() {
    m_srcModelXmlFile = m_rootPath + "/data/srcModelBuilder.xml";
    srcModelBuilder.write(m_srcModelXmlFile);
 
-   assert(::compareXmlFiles(m_sourceXmlFile, m_srcModelXmlFile));
+   XmlDiff xmlDiff(m_sourceXmlFile, m_srcModelXmlFile, "source", "name");
+   assert(xmlDiff.compare());
 
    std::cout << ".";
 }
