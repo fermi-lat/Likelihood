@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov 10 15:06:17 PST 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+use Function classes from optimizer package; remove redundant code
+    *
+------------------------------------------------------------
 User: jchiang  Mon Nov 10 15:06:16 PST 2003
 Likelihood/Likelihood
 
