@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.12 2004/06/06 22:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.13 2004/06/09 17:13:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.12 2004/06/06 22:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.13 2004/06/09 17:13:16 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -133,8 +133,6 @@ void likelihood::run() {
          } catch (optimizers::Exception & eObj) {
             // Allow manual adjustment of fit parameters.
          }
-         delete m_opt;
-         m_opt = 0;
       }
       printFitResults(errors);
       writeSourceXml();
@@ -180,6 +178,8 @@ void likelihood::readSourceModel() {
 }
 
 void likelihood::selectOptimizer() {
+   delete m_opt;
+   m_opt = 0;
    std::string optimizer = m_pars["optimizer"];
    if (optimizer == "LBFGS") {
       m_opt = new optimizers::Lbfgs(*m_logLike);
@@ -221,7 +221,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
 
 // Compute TS for each source.
    std::map<std::string, double> TsValues;
-   int verbose(0);
+   int verbose(1);
    double tol(1e-4);
    double logLike_value = m_logLike->value();
    std::vector<double> null_values;
@@ -229,19 +229,14 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
       if (srcNames[i].find("Diffuse") == std::string::npos) {
          Source * src = m_logLike->deleteSource(srcNames[i]);
          if (m_logLike->getNumFreeParams() > 0) {
-// Don't fit if there are no free parameters remaining.
-#ifdef HAVE_OPT_PP
-            optimizers::OptPP opt(*m_logLike);
-#else
-            optimizers::Drmngb opt(*m_logLike);
-#endif
+            selectOptimizer();
             try {
-               opt.find_min(verbose, tol);
+               m_opt->find_min(verbose, tol);
             } catch (optimizers::Exception &eObj) {
                std::cout << eObj.what() << std::endl;
             }
             null_values.push_back(m_logLike->value());
-            TsValues[srcNames[i]] = 2.*(null_values.back() - logLike_value);
+            TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
          } else {
 // // Not sure this is correct in the case where the model for the null
 // // hypothesis is truly empty.
@@ -252,14 +247,9 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
          m_logLike->addSource(src);
       }
    }
+   selectOptimizer();
+   m_opt->find_min(verbose, tol);
 
-// Restore parameters to their previously fitted values.
-#ifdef HAVE_OPT_PP
-   optimizers::OptPP opt(*m_logLike);
-#else
-   optimizers::Drmngb opt(*m_logLike);
-#endif
-   opt.find_min(verbose, tol);
 //    double new_logLike = m_logLike->value();
 //    if (new_logLike < logLike_value) {
 //       for (unsigned int i = 0; i < srcNames.size(); i++) {

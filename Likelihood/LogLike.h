@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.11 2004/06/05 15:22:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.12 2004/06/06 22:43:40 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.11 2004/06/05 15:22:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.12 2004/06/06 22:43:40 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -40,8 +40,6 @@ class LogLike : public SourceModel {
 public:
 
    LogLike() {
-//       logSrcModel m_logSrcModel;
-//       Npred m_Npred;
       if (s_FT1_columns.size() == 0) {
          setFT1_columns();
       }
