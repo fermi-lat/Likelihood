@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  3 16:32:14 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h 
+Log Message:
+tweaks to use DC1 test irfs; UI-related fixes
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  3 09:27:01 PST 2003
 Likelihood/src
 
