@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: pln  Wed May 21 12:54:23 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Lbfgs.cxx Minuit.cxx 
+Log Message:
+Store updated params in Statistic object
+    *
+------------------------------------------------------------
 User: pln  Wed May 21 12:44:15 PDT 2003
 Likelihood/Likelihood
 
