@@ -4,7 +4,7 @@ version v3r7
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.108 2004/04/07 20:18:04 jchiang Exp $
+# $Id: requirements,v 1.109 2004/04/12 23:22:47 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
@@ -16,7 +16,18 @@ use optimizers v*
 use facilities v2r*
 use cfitsio v1* IExternal
 
-apply_pattern ST_library option="-no_share *.c "
+#apply_pattern ST_library option="-no_share *.c "
+apply_pattern package_include
+apply_pattern package_Llinkopts
+private
+macro_prepend includes "-I $(LIKELIHOODROOT)/src -I.." WIN32 "/I $(LIKELIHOODROOT)\src /I.. "
+macro win_source "-s=../Likelihood *.h -s=../src *.h *.cxx "
+macro lib_source "*.cxx " WIN32 $(win_source)
+library LikelihoodLib -no_share *.c $(lib_source)
+macro test_source "test/*.cxx " WIN32 "-s=../src/test *.h *.cxx "
+application test_Likelihood $(test_source)
+public
+
 apply_pattern ST_pfiles
 
 apply_pattern ST_app name=likelihood
@@ -30,5 +41,5 @@ use hoops v*
 use st_app v*
 
 macro LikelihoodLib_cppflags "" \
-      Linux " -D TRAP_FPE -D USE_FT1 " \
+      Linux " -D USE_FT1 " \
       WIN32 ' /D"USE_FT1" '
