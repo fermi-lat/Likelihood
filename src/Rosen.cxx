@@ -2,7 +2,7 @@
  * @brief Implementation for the 2D Rosenbrock objective function
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.cxx,v 1.2 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -17,8 +17,8 @@ void Rosen::init() {
    int nParams = 2;
    setMaxNumParams(nParams);
 
-   addParam(string("x"), 1, true);
-   addParam(string("y"), 1, true);
+   addParam(std::string("x"), 1, true);
+   addParam(std::string("y"), 1, true);
 //   std::cout << "Rosen::init: " << m_parameter.size() << std::endl;
 }
 
