@@ -1,3 +1,4 @@
+<!--$Header$-->
 <!ELEMENT source_library ((source, default_model*)+ | (source_library)*) >
 <!ATTLIST source_library 
           title CDATA #REQUIRED 
@@ -6,6 +7,8 @@
 <!ATTLIST source
           name       CDATA   #REQUIRED 
           type       CDATA   #REQUIRED 
+          Npred      CDATA   " " 
+          TS_value   CDATA   " "
           ROI_dist   CDATA   " " >
 <!ELEMENT spectrum (parameter*) >
 <!ATTLIST spectrum 

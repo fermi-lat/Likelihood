@@ -84,15 +84,17 @@
    be applied.  This tool, its interface in particular, is a prime
    target for refactoring.
 
-   @section makeCountsMaps Make Counts Maps from the Event Files.  The
-   next step is to create a simple counts map file to visualize the
-   extraction region we wish to fit.  There are presently three tools
-   available to perform this task: @b evtbin in the @b evtbin package,
-   @b count_map in the @b map_tools package, and @b gtcntsmap in the
-   Likelihood package.  For this step, since the event data are
+   @section makeCountsMaps Make Counts Maps from the Event Files.  
+
+   The next step is to create a simple counts map file to visualize
+   the extraction region we wish to fit.  There are presently three
+   tools available to perform this task: @b evtbin in the @b evtbin
+   package, @b count_map in the @b map_tools package, and @b gtcntsmap
+   in the Likelihood package.  For this step, since the event data are
    contained in three separate FITS files, @b gtcntsmap is the most
    convenient to use.  We proceed by creating a file which is a list
    of the files to be binned and then run the tool on that file list:
+
    @verbatim
    noric13[jchiang] ls -1 *filtered.fits > eventFiles
    noric13[jchiang] cat eventFiles
