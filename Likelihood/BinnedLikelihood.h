@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.13 2004/11/03 23:50:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.14 2004/11/06 00:00:31 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -80,6 +80,12 @@ public:
       std::vector<double>::const_iterator);
    virtual std::vector<double>::const_iterator setFreeParamValues_(
       std::vector<double>::const_iterator);
+
+protected:
+
+   virtual BinnedLikelihood * clone() const {
+      return new BinnedLikelihood(*this);
+   }
 
 private:
 

@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.23 2004/11/03 23:50:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.24 2005/02/14 06:20:15 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -43,7 +43,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.23 2004/11/03 23:50:16 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.24 2005/02/14 06:20:15 jchiang Exp $ 
  *  
  */
 
@@ -101,7 +101,7 @@ public:
    }
 
 #ifndef SWIG
-   double spatialDist(SkyDirArg & dir) const {
+   double spatialDist(SkyDirArg dir) const {
       return (*m_spatialDist)(dir);
    }
 #endif

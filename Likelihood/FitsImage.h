@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.19 2004/11/01 06:27:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.20 2005/02/14 06:20:15 jchiang Exp $
  *
  */
 
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.19 2004/11/01 06:27:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.20 2005/02/14 06:20:15 jchiang Exp $
  *
  */
 
@@ -47,6 +47,9 @@ public:
 
    virtual void getCelestialArrays(std::vector<double> &lonArray,
                                    std::vector<double> &latArray);
+
+   void getPixelBounds(unsigned int naxis,
+                       std::vector<double> & pixelBounds) const;
 
    static void fitsReportError(int status, std::string routine="");
 

@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.14 2004/10/11 01:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.15 2004/11/28 06:58:20 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.14 2004/10/11 01:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.15 2004/11/28 06:58:20 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -81,6 +81,10 @@ public:
    }
 
 protected:
+
+   virtual LogLike * clone() const {
+      return new LogLike(*this);
+   }
 
    /// Event data, read from m_eventFile, stored in a map
    std::string m_eventFile;

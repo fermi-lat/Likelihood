@@ -3,7 +3,7 @@
  * @brief Declaration of logSrcModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.9 2003/08/06 20:52:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.10 2003/09/28 15:39:45 jchiang Exp $
  */
 
 #ifndef Likelihood_logSrcModel_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.9 2003/08/06 20:52:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.10 2003/09/28 15:39:45 jchiang Exp $
  */
 
 class logSrcModel : public SourceModel {
@@ -48,6 +48,10 @@ public:
 
 protected:
 
+   virtual logSrcModel * clone() const {
+      return new logSrcModel(*this);
+   }
+   
    void fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
                     bool getFree) const;
 
