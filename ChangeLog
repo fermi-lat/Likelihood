@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Nov  6 18:27:09 PST 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+apply facilities::Util::expandEnvVar to all file names; move use hoops v* to private area
+    *
+------------------------------------------------------------
+User: jchiang  Thu Nov  6 18:27:09 PST 2003
 Likelihood/Likelihood
 
 Modified Files:
