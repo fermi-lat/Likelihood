@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.61 2005/03/03 07:07:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.62 2005/03/03 20:04:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -66,9 +66,9 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 double PointSource::fluxDensity(double energy, double time,
                                 const astro::SkyDir &dir,
                                 int eventType) const {
-   ScData & scData = const_cast<ScData &>(m_observation->scData());
-   const astro::SkyDir & zAxis = scData.zAxis(time);
-   const astro::SkyDir & xAxis = scData.xAxis(time);
+   const ScData & scData = m_observation->scData();
+   astro::SkyDir zAxis = scData.zAxis(time);
+   astro::SkyDir xAxis = scData.xAxis(time);
    return fluxDensity(energy, zAxis, xAxis, dir, eventType);
 }
 
@@ -118,9 +118,9 @@ double PointSource::fluxDensityDeriv(double energy, double time,
                                      const astro::SkyDir &dir,
                                      int eventType,
                                      const std::string &paramName) const {
-   ScData & scData = const_cast<ScData &>(m_observation->scData());
-   const astro::SkyDir & zAxis = scData.zAxis(time);
-   const astro::SkyDir & xAxis = scData.xAxis(time);
+   const ScData & scData = m_observation->scData();
+   astro::SkyDir zAxis = scData.zAxis(time);
+   astro::SkyDir xAxis = scData.xAxis(time);
    return fluxDensityDeriv(energy, zAxis, xAxis, dir, eventType, paramName);
 }
 
@@ -184,8 +184,7 @@ double PointSource::Npred() {
 
 // Evaluate the Npred integrand at the abscissa points contained in
 // RoiCuts::energies().
-   const std::vector<double> & energies = 
-      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
+   const std::vector<double> & energies = m_observation->roiCuts().energies();
    std::vector<double> NpredIntegrand(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
       optimizers::dArg eArg(energies[k]);
@@ -196,9 +195,7 @@ double PointSource::Npred() {
 }
 
 double PointSource::Npred(double emin, double emax) {
-   const std::vector<double> & energies = 
-      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
-
+   const std::vector<double> & energies = m_observation->roiCuts().energies();
    if (emin < energies.front() || emax > energies.back()) {
       throw std::out_of_range("PointSource::Npred(emin, emax)");
    }
@@ -237,9 +234,7 @@ double PointSource::Npred(double emin, double emax) {
 }
 
 double PointSource::NpredDeriv(const std::string &paramName) {
-   const std::vector<double> & energies = 
-      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
-
+   const std::vector<double> & energies = m_observation->roiCuts().energies();
    optimizers::Function *specFunc = m_functions["Spectrum"];
 
    if (paramName == std::string("Prefactor")) {
@@ -275,9 +270,7 @@ double PointSource::pixelCountsDeriv(double emin, double emax,
 }
 
 void PointSource::computeExposure(bool verbose) {
-   const std::vector<double> & energies = 
-      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
-
+   const std::vector<double> & energies = m_observation->roiCuts().energies();
    astro::SkyDir srcDir = getDir();
    if (m_observation->expCube().haveFile()) {
       computeExposureWithHyperCube(srcDir, energies, *m_observation,
@@ -401,8 +394,8 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
                                   const RoiCuts & roiCuts,
                                   const ResponseFunctions & respFuncs) {
 
-   astro::SkyDir zAxis = const_cast<ScData &>(scData).zAxis(time);
-//   astro::SkyDir xAxis = const_cast<ScData &>(scData).xAxis(time);
+   astro::SkyDir zAxis = scData.zAxis(time);
+//   astro::SkyDir xAxis = scData.xAxis(time);
 
    PointSource::Aeff aeff(energy, srcDir, roiCuts, respFuncs);
 

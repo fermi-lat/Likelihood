@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.17 2005/03/03 07:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.18 2005/03/03 20:04:14 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -38,7 +38,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.17 2005/03/03 07:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.18 2005/03/03 20:04:14 jchiang Exp $
  */
 
 class AppHelpers {
@@ -68,6 +68,10 @@ public:
    }
 
    const Observation & observation() const {
+      return *m_observation;
+   }
+
+   Observation & observation() {
       return *m_observation;
    }
 

@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.16 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.17 2005/03/02 22:55:00 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.16 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.17 2005/03/02 22:55:00 jchiang Exp $
  */
 
 class ScData {
@@ -58,10 +58,10 @@ public:
 #endif // SWIG
 
    /// Return the spacecraft z-axis as a function of MET.
-   const astro::SkyDir &zAxis(double time);
+   astro::SkyDir zAxis(double time) const;
 
    /// Return the spacecraft x-axis as a function of MET.
-   const astro::SkyDir &xAxis(double time);
+   astro::SkyDir xAxis(double time) const;
 
 #ifndef SWIG
    /// Return a pair of iterators to the ScData intervals enclosing
@@ -82,9 +82,6 @@ private:
    int m_scHdu;
 
    double m_tstep;
-
-   astro::SkyDir m_zAxis;
-   astro::SkyDir m_xAxis;
 
    static bool less_than_time(const ScNtuple & scDatum1,
                               const ScNtuple & scDatum2);
