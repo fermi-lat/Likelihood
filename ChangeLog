@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 22 15:49:01 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h PointSource.h Source.h 
+Log Message:
+refactor fluxDensity[Deriv] interface to accomodate diffuse sources
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 22 13:06:35 PDT 2004
 Likelihood/doc
 
