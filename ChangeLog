@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov  4 16:09:59 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+fix bugs related to SourceMap calcs of diffuse sources
+    *
+------------------------------------------------------------
 User: jchiang  Thu Nov  4 16:09:58 PST 2004
 Likelihood/src/likelihood
 
