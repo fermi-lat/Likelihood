@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.36 2004/02/05 03:43:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.37 2004/02/07 23:14:24 jchiang Exp $
  */
 
 #include <cmath>
@@ -35,40 +35,8 @@
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/PointSource.h"
+#include "Likelihood/FluxModel.h"
 #include "Likelihood/SourceModel.h"
-
-namespace {
-   void add_underscores(std::string &name) {
-// Replace spaces with underscores.
-      std::replace(name.begin(), name.end(), ' ', '_');
-// Prepend underscore if name starts with an integer character.
-      if (static_cast<int>(*name.begin()) >= '0'
-          && static_cast<int>(*name.begin()) <= '9') {
-         std::ostringstream new_name;
-         new_name << "_" << name;
-         name = new_name.str();
-      }
-   }
-
-   void string_split(std::string input, const std::string &delimiters,
-                     std::vector<std::string> &components) {
-// This routine breaks down a string into its components based on the
-// characters appearing in the delimiters string.
-      components.clear();
-      std::string::size_type j;
-      while ( (j = input.find_first_of(delimiters)) != std::string::npos ) { 
-         if (j != 0) components.push_back(input.substr(0, j));
-         input = input.substr(j+1);
-      }
-      components.push_back(input);
-   }
-
-   std::string basename(const std::string &path) {
-      std::vector<std::string> names;
-      string_split(path, "\\/", names);
-      return *(names.end() - 1);
-   }
-} // unnamed namespace
 
 namespace Likelihood {
 
@@ -96,7 +64,6 @@ void SourceModel::setParam(const optimizers::Parameter &param,
             srcFuncs[funcName]->setParam(param.getName(), 
                                          param.getValue(),
                                          param.isFree());
-// this seems inefficient, but necessary because of srcFuncs map(?)
             syncParams();
             return;
          }
@@ -250,16 +217,6 @@ void SourceModel::addSource(Source *src) {
    s_sources.push_back(src->clone());
 
    syncParams();
-// // add the Parameters to the m_parameter vector 
-// // (would it be better just to use syncParams() here?)
-//    Source::FuncMap srcFuncs = (*src).getSrcFuncs();
-//    Source::FuncMap::iterator func_it = srcFuncs.begin();
-//    for (; func_it != srcFuncs.end(); func_it++) {
-//       std::vector<optimizers::Parameter> params;
-//       (*func_it).second->getParams(params);
-//       for (unsigned int ip = 0; ip < params.size(); ip++) 
-//          m_parameter.push_back(params[ip]);
-//    }      
 }
  
 Source * SourceModel::deleteSource(const std::string &srcName) 
@@ -531,162 +488,15 @@ void SourceModel::writeXml(std::string xmlFile,
 }
 
 void SourceModel::write_fluxXml(std::string xmlFile) {
-   xml::XmlParser *parser = new xml::XmlParser();
 
-   DOM_Document doc = DOM_Document::createDocument();
+   FluxModel fluxModel;
 
-   DOM_Element srcLib = doc.createElement("source_library");
-   srcLib.setAttribute("title", "Likelihood_model");
-
-// Create an energy vector for integrating the fluxes from Sources.
-   RoiCuts * roiCuts = RoiCuts::instance();
-   std::pair<double, double> elims = roiCuts->getEnergyCuts();
-   int nee = 200;
-   double estep = log(elims.second/elims.first)/(nee-1);
-   std::vector<double> energies(nee);
-   std::vector<double>::iterator enIt = energies.begin();
-   for (int i=0 ; enIt != energies.end(); enIt++, i++) {
-      *enIt = elims.first*exp(estep*i);
-   }
-
-// Create a nested source containing all sources.
-   DOM_Element allSrcsElt = doc.createElement("source");
-   std::ostringstream allSrcsName;
-   allSrcsName << "all_in_" << xmlFile;
-   allSrcsElt.setAttribute("name", allSrcsName.str().c_str());
-
-// Loop over Sources.
    std::vector<Source *>::iterator srcIt = s_sources.begin();
    for ( ; srcIt != s_sources.end(); srcIt++) {
-      DOM_Element srcElt = doc.createElement("source");
-      std::string name = (*srcIt)->getName();
-      ::add_underscores(name);
-      srcElt.setAttribute("name", name.c_str());
-
-// Get each Source's properties in terms of its functions.
-      Source::FuncMap srcFuncs = (*srcIt)->getSrcFuncs();
-
-// Consider PointSources, Isotropic, and EGRET model Galactic Diffuse sources.
-      bool isPtSrc = srcFuncs.count("Position");
-      bool isIsotropic = srcFuncs.count("SpatialDist") 
-         && srcFuncs["SpatialDist"]->genericName() == "ConstantValue";
-      bool isSpatialMap = srcFuncs.count("SpatialDist") 
-         && srcFuncs["SpatialDist"]->genericName() == "SpatialMap";
-      bool isGalDiffuse(false);
-      if (isSpatialMap) {
-// Get the filename of the FITS map used.
-         std::string fitsFile 
-            = dynamic_cast<SpatialMap *>(srcFuncs["SpatialDist"])->fitsFile();
-         std::string basefilename = ::basename(fitsFile.c_str());
-         isGalDiffuse = (basefilename == "gas.cel");
-      }
-
-// Compute the flux integrated over the energy range given by the ROI.
-      TrapQuad fluxIntegral(srcFuncs["Spectrum"]);
-      if (isPtSrc || isIsotropic) {
-         std::ostringstream flux;
-         flux << fluxIntegral.integral(energies)/1e-4;
-         srcElt.setAttribute("flux", flux.str().c_str());
-      }
-
-      if (isPtSrc || isIsotropic) {
-// Prepare the spectrum tag.
-         DOM_Element specElt = doc.createElement("spectrum");
-         specElt.setAttribute("escale", "MeV");
-
-// particle tag.
-         DOM_Element partElt = doc.createElement("particle");
-         partElt.setAttribute("name", "gamma");
-
-// Determine spectral type and set parameter values.
-         DOM_Element spectralTypeElt = doc.createElement("power_law");
-         std::ostringstream emin;
-         emin << elims.first;
-         spectralTypeElt.setAttribute("emin", emin.str().c_str());
-         std::ostringstream emax;
-         emax << elims.second;
-         spectralTypeElt.setAttribute("emax", emax.str().c_str());
-         if (srcFuncs["Spectrum"]->genericName() == "PowerLaw") {
-            std::ostringstream gamma;
-            gamma << -srcFuncs["Spectrum"]->getParamValue("Index");
-            spectralTypeElt.setAttribute("gamma", gamma.str().c_str());
-         } else if (srcFuncs["Spectrum"]->genericName() == "BrokenPowerLaw") {
-            std::ostringstream gamma, gamma2, ebreak;
-            gamma << -srcFuncs["Spectrum"]->getParamValue("Index1");
-            spectralTypeElt.setAttribute("gamma", gamma.str().c_str());
-            gamma2 << -srcFuncs["Spectrum"]->getParamValue("Index2");
-            spectralTypeElt.setAttribute("gamma2", gamma2.str().c_str());
-            ebreak << srcFuncs["Spectrum"]->getParamValue("BreakValue");
-            spectralTypeElt.setAttribute("ebreak", ebreak.str().c_str());
-         }
-         partElt.appendChild(spectralTypeElt);
-         specElt.appendChild(partElt);
-
-         if (srcFuncs.count("Position")) {
-// This is a PointSource; add its source direction.
-            DOM_Element dirElt = doc.createElement("celestial_dir");
-            std::ostringstream ra, dec;
-            ra << dynamic_cast<SkyDirFunction *>
-               (srcFuncs["Position"])->getDir().ra();
-            dirElt.setAttribute("ra", ra.str().c_str());
-            dec << dynamic_cast<SkyDirFunction *>
-               (srcFuncs["Position"])->getDir().dec();
-            dirElt.setAttribute("dec", dec.str().c_str());
-            specElt.appendChild(dirElt);
-         } else if (srcFuncs["SpatialDist"]->genericName()=="ConstantValue") {
-// This is an isotropic source; add the solid_angle tag.
-            DOM_Element solidAngleElt = doc.createElement("solid_angle");
-            solidAngleElt.setAttribute("mincos", "-0.4");
-            solidAngleElt.setAttribute("maxcos", "1.0");
-            specElt.appendChild(solidAngleElt);
-         }
-         srcElt.appendChild(specElt);
-      } else if (isGalDiffuse) {
-         DOM_Element specElt = doc.createElement("spectrum");
-         specElt.setAttribute("escale", "MeV");
-         DOM_Element specClassElt = doc.createElement("SpectrumClass");
-         specClassElt.setAttribute("name", "MapSpectrum");
-         if (srcFuncs["Spectrum"]->genericName() != "PowerLaw") {
-            throw Exception(std::string("SourceModel::write_fluxXml:\n")
-                            + "Galactic Diffuse spectral model is not a "
-                            + "power-law.");
-         } else {
-// This solidAngleFactor is specific to the EGRET Galactic diffuse
-// model for converting a PowerLaw spectrum to units appropriate for
-// MapFlux to use.  This sort of magic number will go away (hopefully)
-// once a more general FITS template class is written for the flux
-// package.
-            static double solidAngleFactor(7.882);
-            std::ostringstream params;
-            params << elims.first << "," 
-                   << -srcFuncs["Spectrum"]->getParamValue("Index") << ","
-                   << "/src/sources/gas_gal.fits,"
-                   << fluxIntegral.integral(energies)*solidAngleFactor;
-            specClassElt.setAttribute("params", params.str().c_str());
-         }
-         specElt.appendChild(specClassElt);
-         DOM_Element useSpecElt = doc.createElement("use_spectrum");
-         useSpecElt.setAttribute("frame", "galaxy");
-         specElt.appendChild(useSpecElt);
-         srcElt.appendChild(specElt);
-      }
-      srcLib.appendChild(srcElt);
-
-// Append the nested sources.
-      DOM_Element nestedSrcElt = doc.createElement("nestedSource");
-      nestedSrcElt.setAttribute("sourceRef", name.c_str());
-      allSrcsElt.appendChild(nestedSrcElt);
+      fluxModel.addSource(**srcIt);
    }
 
-   srcLib.appendChild(allSrcsElt);
-
-// Expand any environment variables in the xmlFile name.
-   facilities::Util::expandEnvVar(&xmlFile);
-
-   std::ofstream outFile(xmlFile.c_str());
-   xml::Dom::prettyPrintElement(srcLib, outFile, "");
-
-   delete parser;
+   fluxModel.write(xmlFile);
 }
 
 // void SourceModel::makeCountsMap(const std::string &filename, 

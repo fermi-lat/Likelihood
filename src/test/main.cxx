@@ -59,7 +59,7 @@ using optimizers::BrokenPowerLaw;
 using optimizers::Gaussian;
 using optimizers::AbsEdge;
 
-void read_SC_Response_data();
+void setUp();
 void verifySources(SourceModel &srcModel, std::vector<Source *> &srcs);
 void test_SourceModel_class();
 void report_SrcModel_values(const SourceModel &SrcModel);
@@ -79,6 +79,7 @@ void print_fit_results(SourceModel &stat);
 void test_FunctionFactory();
 void test_OptEM();
 void test_RoiCuts();
+void test_FluxModel();
 
 std::string root_path;
 std::string test_path;
@@ -87,8 +88,8 @@ int main() {
 #ifdef TRAP_FPE
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
+   setUp();
 #ifndef USE_GOODI
-   read_SC_Response_data();
    test_SourceModel_class();
    test_Event_class();
    test_PointSource_class();
@@ -105,8 +106,33 @@ int main() {
    fit_DiffuseSource();
    test_OptEM();
 #endif
-    test_RoiCuts();
+   test_RoiCuts();
+   test_FluxModel();
    return 0;
+}
+
+void test_FluxModel() {
+
+   SourceModel srcModel;
+   
+// Create the FunctionFactory and SourceFactory.
+   optimizers::FunctionFactory funcFactory;
+   try {
+// Add the Functions needed for spatial modeling.
+      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
+      funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+
+   std::string expFile = root_path + "/data/anticenter_expMap.fits";
+   ExposureMap::readExposureFile(expFile);
+
+   std::string modelFile = root_path + "/data/anticenter_model.xml";
+   srcModel.readXml(modelFile, funcFactory);
+
+   std::string fluxFile = root_path + "/data/flux_model.xml";
+   srcModel.write_fluxXml(fluxFile);
 }
 
 void test_RoiCuts() {
@@ -1252,7 +1278,7 @@ void test_SourceModel_class() {
       num_deriv -= SrcModel(x);
       num_deriv /= delta_param;
       double tol = 1e-4;
-      assert(abs(sm_derivs[i] + num_deriv) < tol);
+      assert(fabs(sm_derivs[i] + num_deriv) < tol);
 
 // reset the parameters for next time around
       SrcModel.setParamValues(params_save);
@@ -1276,7 +1302,7 @@ void test_SourceModel_class() {
       num_deriv -= SrcModel(x);
       num_deriv /= delta_param;
       double tol(1e-4);
-      assert(abs( (sm_derivs[i] + num_deriv)/num_deriv ) < tol);
+      assert(fabs( (sm_derivs[i] + num_deriv)/num_deriv ) < tol);
 
 // reset the parameters for next time around
       SrcModel.setFreeParamValues(params_save);
@@ -1343,9 +1369,9 @@ void test_SourceModel_class() {
    assert(parameters.size() == new_parameters.size());
    double tol = 1e-5;
    for (unsigned int i = 0; i < parameters.size(); i++) {
-      assert(abs( (parameters[i].getValue() - new_parameters[i].getValue())/
+      assert(fabs( (parameters[i].getValue() - new_parameters[i].getValue())/
                   parameters[i].getValue() ) < tol);
-      assert(abs( (parameters[i].getTrueValue() 
+      assert(fabs( (parameters[i].getTrueValue() 
                    - new_parameters[i].getTrueValue())/
                   parameters[i].getTrueValue() ) < tol);
    }
@@ -1387,7 +1413,7 @@ void report_SrcModel_values(const SourceModel &SrcModel) {
   std::cout << std::endl;
 }
 
-void read_SC_Response_data() {
+void setUp() {
 
 // Get root path to test data.
    const char * root = ::getenv("LIKELIHOODROOT");
@@ -1452,7 +1478,7 @@ void verifySources(SourceModel &srcModel, std::vector<Source *> &srcs) {
          funcIt->second->getParams(params);
          std::vector<Parameter>::iterator parIt = params.begin();
          for ( ; parIt != params.end(); parIt++, srcParIt++) {
-            assert(abs( (*srcParIt - parIt->getValue())/(*srcParIt) ) < tol);
+            assert(fabs( (*srcParIt - parIt->getValue())/(*srcParIt) ) < tol);
          }
       }
    }

@@ -4,7 +4,7 @@ version v2r9
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.83 2004/02/06 00:44:47 jchiang Exp $
+# $Id: requirements,v 1.84 2004/02/07 23:14:21 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -28,7 +28,7 @@ use hoopsUtil v*
 
 # allow use of internal path
 macro Likelihood_cppflags "" \
-Linux "-I ../src -g -O -pedantic -D TRAP_FPE -D USE_GOODI " \
+Linux "-I ../src -g -pedantic -D TRAP_FPE -D USE_GOODI " \
 #Linux "-I ../src -g -O -pedantic -D TRAP_FPE " \
 WIN32 '/I..\src /D"USE_GOODI" /wd4290'
 
