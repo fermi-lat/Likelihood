@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  4 09:25:42 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+identify which tests were executed in the program's output
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun  4 09:24:41 PDT 2003
 Likelihood/src
 
