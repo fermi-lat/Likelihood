@@ -80,11 +80,11 @@ std::string test_path;
 
 int main() {
    read_SC_Response_data();
-//    test_Parameter_class();
-//    test_Function_class();
-//    test_PowerLaw_class();
-//    test_SourceModel_class();
-//    test_Table_class();
+   test_Parameter_class();
+   test_Function_class();
+   test_PowerLaw_class();
+   test_SourceModel_class();
+   test_Table_class();
    test_Statistic_class();
    test_Event_class();
    test_PointSource_class();
@@ -152,6 +152,7 @@ void test_Mcmc() {
 
    std::vector<double> my_sig(2);
    double scale = 1.;
+
 #ifdef HAVE_OPT_MINUIT
    int verbose = 1;
    Minuit myMinuitObj(my_rosen);
