@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 22 15:49:04 PDT 2004
+Likelihood/src
+
+Modified Files:
+	Pixel.cxx PointSource.cxx 
+Log Message:
+refactor fluxDensity[Deriv] interface to accomodate diffuse sources
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 22 15:49:01 PDT 2004
 Likelihood/Likelihood
 
