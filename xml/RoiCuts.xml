@@ -1,0 +1,14 @@
+<?xml version='1.0' standalone='no'?>
+<!DOCTYPE Region-of-Interest SYSTEM "RoiCuts.dtd">
+<Region-of-Interest title="Virgo Region">
+   <timeInterval start="0"
+                 stop="7"
+                 unit="days"/>
+   <energies emin="30." 
+             emax="3.1623e5"
+             unit="MeV"/>
+   <acceptanceCone longitude="193.98"
+                   latitude="-5.82"
+                   radius="15"
+                   coordsys="Celestial"/>
+</Region-of-Interest>
