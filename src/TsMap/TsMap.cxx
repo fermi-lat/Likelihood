@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.6 2004/04/11 14:58:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.7 2004/04/12 03:53:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -16,6 +16,7 @@
 #include "optimizers/Drmngb.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
+#include "optimizers/Exception.h"
 
 #include "Likelihood/AppBase.h"
 #include "Likelihood/LogLike.h"
@@ -31,7 +32,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.6 2004/04/11 14:58:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.7 2004/04/12 03:53:33 jchiang Exp $
  */
 class TsMap : public AppBase {
 public:
@@ -150,6 +151,7 @@ void TsMap::computeMap() {
             m_opt->find_min(verbosity, tol);
             m_tsMap[jj].push_back(2.*(m_logLike(dummy) - logLike0));
          } catch (optimizers::Exception &eObj) {
+            // Default null value.
             m_tsMap[jj].push_back(0);
          }
          if (verbosity > 0) {
