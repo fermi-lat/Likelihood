@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 25 11:32:20 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Aeff.cxx DiffuseSource.cxx Event.cxx ExposureMap.cxx 
+	FitsImage.cxx PointSource.cxx PowerLaw.h Psf.cxx Response.cxx 
+	SourceFactory.cxx SourceModel.cxx SpatialMap.cxx 
+	logLike_ptsrc.cxx logLike_ptsrc.h 
+Log Message:
+Add a working version of DiffuseSource
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 25 11:32:19 PDT 2003
 Likelihood/cmt
 
