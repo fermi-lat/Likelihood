@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.30 2004/02/20 00:02:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.31 2004/02/21 04:18:20 jchiang Exp $
  */
 
 #include "xml/Dom.h"
@@ -209,7 +209,8 @@ Source * SourceFactory::makePointSource(const DomElement &spectrum,
 
    Source *src = new PointSource();
 //    dynamic_cast<PointSource *>(src)->setDir(ra, dec);
-   src->setDir(ra, dec);
+   bool updateExposure(true);
+   src->setDir(ra, dec, updateExposure, m_verbose);
 
    try {
       setSpectrum(src, spectrum, funcFactory);

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.26 2003/11/06 00:31:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.27 2003/12/04 04:15:27 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.26 2003/11/06 00:31:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.27 2003/12/04 04:15:27 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -79,24 +79,27 @@ public:
    virtual double NpredDeriv(const std::string &paramName);
 
    //! Set source location using J2000 coordinates
-   void setDir(double ra, double dec, bool updateExposure = true) {
+   void setDir(double ra, double dec, bool updateExposure=true, 
+               bool verbose=true) {
       m_dir = SkyDirFunction(astro::SkyDir(ra, dec));
       m_functions["Position"] = &m_dir;
-      if (updateExposure) computeExposure();
+      if (updateExposure) computeExposure(verbose);
    }
 
    //! Set source location using Galactic coordinates
-   void setGalDir(double l, double b, bool updateExposure = true) {
+   void setGalDir(double l, double b, bool updateExposure=true,
+                  bool verbose=true) {
       m_dir = SkyDirFunction(astro::SkyDir(l, b, astro::SkyDir::GALACTIC));
       m_functions["Position"] = &m_dir;
-      if (updateExposure) computeExposure();
+      if (updateExposure) computeExposure(verbose);
    }
 
    //! Set source location via SkyDir class
-   void setDir(const astro::SkyDir &dir, bool updateExposure = true) {
+   void setDir(const astro::SkyDir &dir, bool updateExposure = true,
+               bool verbose=true) {
       m_dir = SkyDirFunction(dir);
       m_functions["Position"] = &m_dir;
-      if (updateExposure) computeExposure();
+      if (updateExposure) computeExposure(verbose);
    }
 
    astro::SkyDir getDir() const {return m_dir.getDir();}
@@ -118,13 +121,13 @@ public:
 
 protected:
    //! Computes the integrated exposure at the PointSource sky location.
-   void computeExposure(int verbose = 1);
+   void computeExposure(bool verbose);
 
    //! Compute the integrated exposure using the provided 
    //! vector of energy values
    void computeExposure(std::vector<double> &energies,
                         std::vector<double> &exposure,
-                        int verbose = 1);
+                        bool verbose);
 
 //    //! provide access to the exposure values
 //    void getExposure(std::vector<double> &exposure) const

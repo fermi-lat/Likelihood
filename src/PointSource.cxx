@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.31 2003/11/18 18:09:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.32 2003/12/04 04:15:29 jchiang Exp $
  */
 
 #include <vector>
@@ -164,13 +164,13 @@ double PointSource::NpredDeriv(const std::string &paramName) {
    }
 }
 
-void PointSource::computeExposure(int verbose) {
+void PointSource::computeExposure(bool verbose) {
    computeExposure(s_energies, m_exposure, verbose);
 }
 
 void PointSource::computeExposure(std::vector<double> &energies,
                                   std::vector<double> &exposure,
-                                  int verbose) {
+                                  bool verbose) {
    ScData *scData = ScData::instance();
    RoiCuts *roiCuts = RoiCuts::instance();
 

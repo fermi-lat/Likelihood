@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.15 2003/10/02 19:08:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.16 2003/11/12 22:01:36 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -41,7 +41,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.15 2003/10/02 19:08:06 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.16 2003/11/12 22:01:36 jchiang Exp $ 
  *  
  */
 
@@ -113,8 +113,8 @@ private:
    std::vector<double> m_exposure;
 
    //! disable these pure virtual functions inherited from Source
-   void setDir(double, double, bool) {}
-   void setDir(const astro::SkyDir &, bool) {}
+   void setDir(double, double, bool, bool) {}
+   void setDir(const astro::SkyDir &, bool, bool) {}
 
 };
 
