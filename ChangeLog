@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 16 13:32:30 PST 2005
+Likelihood/python
+
+Modified Files:
+	SimpleDialog.py SrcAnalysis.py 
+Log Message:
+update docs; improve gui semantics
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 14 10:17:24 PST 2005
 Likelihood/doc
 
