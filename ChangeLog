@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Nov 30 12:23:05 PST 2004
+Likelihood/src
+
+Modified Files:
+	SConstruct 
+Log Message:
+add plot param; fix chatter in likelihood
+    *
+------------------------------------------------------------
+User: jchiang  Tue Nov 30 12:23:05 PST 2004
 Likelihood/pfiles
 
 Modified Files:
