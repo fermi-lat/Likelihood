@@ -3,7 +3,7 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.12 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.13 2003/10/01 17:03:18 jchiang Exp $
  */
 #ifndef Likelihood_SkyDirFunction_h
 #define Likelihood_SkyDirFunction_h
@@ -18,15 +18,17 @@ namespace Likelihood {
  *
  * @brief A class that encapsulates sky location information in a
  * Function context.  This allows Celestial coordinates, i.e., (ra,
- * dec), to be treated by the Likelihood::SourceModel class as Function
- * Parameters.
+ * dec), to be treated by the Likelihood::SourceModel class as
+ * Function Parameters.
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.12 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.13 2003/10/01 17:03:18 jchiang Exp $
  */
     
-class SkyDirFunction : public optimizers::Function, public astro::SkyDir {
+//class SkyDirFunction : public optimizers::Function, public astro::SkyDir {
+class SkyDirFunction : public optimizers::Function {
+
 public:
 
    SkyDirFunction() {m_init(0., 0.);}
@@ -37,7 +39,7 @@ public:
 
    double value(optimizers::Arg &) const {return 0;}
 
-   //! overloaded setParam methods to include updating of m_dir
+   /// overloaded setParam methods to include updating of m_dir
    void setParam(const std::string &paramName, double paramValue, 
                  bool isFree) throw(optimizers::ParameterNotFound) {
       setParameter(paramName, paramValue, isFree);

@@ -4,8 +4,12 @@
  * command-line parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.1 2003/11/05 03:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RunParams.cxx,v 1.2 2003/11/07 02:27:10 jchiang Exp $
  */
+
+#include <fstream>
+
+#include "facilities/Util.h"
 
 #include "Likelihood/RunParams.h"
 
@@ -27,6 +31,42 @@ RunParams::RunParams(int iargc, char* argv[]) {
 
 RunParams::~RunParams() {
    delete m_prompter;
+}
+
+void RunParams::resolve_fits_files(std::string filename, 
+                                   std::vector<std::string> &files) {
+
+   facilities::Util::expandEnvVar(&filename);
+   files.clear();
+
+// Read the first line of the file and see if the first 6 characters
+// are "SIMPLE".  If so, then we assume it's a FITS file.
+   std::ifstream file(filename.c_str());
+   std::string firstLine;
+   std::getline(file, firstLine, '\n');
+   if (firstLine.find("SIMPLE") == 0) {
+// This is a FITS file. Return that as the sole element in the files
+// vector.
+      files.push_back(filename);
+      return;
+   } else {
+// filename contains a list of fits files.
+      readLines(filename, files);
+      return;
+   }
+}
+
+void RunParams::readLines(std::string inputFile, 
+                          std::vector<std::string> &lines) {
+
+   facilities::Util::expandEnvVar(&inputFile);
+
+   std::ifstream file(inputFile.c_str());
+   lines.clear();
+   std::string line;
+   while (std::getline(file, line, '\n')) {
+      lines.push_back(line);
+   }
 }
 
 } // namespace Likelihood

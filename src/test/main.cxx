@@ -26,14 +26,9 @@
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/SpatialMap.h"
-#include "Likelihood/ConstantValue.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/OptEM.h"
-#include "PowerLaw.h"
-#include "BrokenPowerLaw.h"
-#include "Gaussian.h"
-#include "AbsEdge.h"
 
 #include "optimizers/Function.h"
 #include "optimizers/SumFunction.h"
@@ -43,6 +38,10 @@
 #include "optimizers/Minuit.h"
 #include "optimizers/Drmngb.h"
 #include "optimizers/Exception.h"
+#include "optimizers/../src/PowerLaw.h"
+#include "optimizers/../src/BrokenPowerLaw.h"
+#include "optimizers/../src/Gaussian.h"
+#include "optimizers/../src/AbsEdge.h"
 
 // Various using declarations/directives for testing purposes only
 using namespace Likelihood;
@@ -55,6 +54,10 @@ using optimizers::dArg;
 using optimizers::Lbfgs;
 using optimizers::Minuit;
 using optimizers::Drmngb;
+using optimizers::PowerLaw;
+using optimizers::BrokenPowerLaw;
+using optimizers::Gaussian;
+using optimizers::AbsEdge;
 
 void read_SC_Response_data();
 void test_SourceModel_class();
@@ -116,14 +119,8 @@ void test_OptEM() {
 // Create the FunctionFactory and SourceFactory.
    optimizers::FunctionFactory funcFactory;
    try {
-// Add in the Functions for modeling spectra...
-      funcFactory.addFunc("PowerLaw", new PowerLaw(), false);
-      funcFactory.addFunc("Gaussian", new Gaussian(), false);
-      funcFactory.addFunc("AbsEdge", new AbsEdge(), false);
-
-// and the Functions for spatial modeling.
+// Add the Functions needed for spatial modeling.
       funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
-      funcFactory.addFunc("ConstantValue", new ConstantValue(), false);
       funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
 
    } catch (optimizers::Exception &eObj) {
@@ -174,14 +171,8 @@ void test_FunctionFactory() {
    FunctionFactory funcFactory;
 
    try {
-// Add in the Functions for modeling spectra...
-      funcFactory.addFunc("PowerLaw", new PowerLaw(), false);
-      funcFactory.addFunc("Gaussian", new Gaussian(), false);
-      funcFactory.addFunc("AbsEdge", new AbsEdge(), false);
-
-// and the Functions for spatial modeling.
+// Add the Functions needed for spatial modeling.
       funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
-      funcFactory.addFunc("ConstantValue", new ConstantValue(), false);
       funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
 
    } catch (optimizers::Exception &eObj) {
@@ -237,14 +228,8 @@ void fit_DiffuseSource() {
 // Create the FunctionFactory and SourceFactory.
    optimizers::FunctionFactory funcFactory;
    try {
-// Add in the Functions for modeling spectra...
-      funcFactory.addFunc("PowerLaw", new PowerLaw(), false);
-      funcFactory.addFunc("Gaussian", new Gaussian(), false);
-      funcFactory.addFunc("AbsEdge", new AbsEdge(), false);
-
-// and the Functions for spatial modeling.
+// Add the Functions needed for spatial modeling.
       funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
-      funcFactory.addFunc("ConstantValue", new ConstantValue(), false);
       funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
 
    } catch (optimizers::Exception &eObj) {
@@ -617,14 +602,8 @@ void test_SourceFactory() {
 // Create the FunctionFactory and SourceFactory.
    optimizers::FunctionFactory funcFactory;
    try {
-// Add in the Functions for modeling spectra...
-      funcFactory.addFunc("PowerLaw", new PowerLaw(), false);
-      funcFactory.addFunc("Gaussian", new Gaussian(), false);
-      funcFactory.addFunc("AbsEdge", new AbsEdge(), false);
-
-// and the Functions for spatial modeling.
+// Add the Functions needed for spatial modeling.
       funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
-      funcFactory.addFunc("ConstantValue", new ConstantValue(), false);
       funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
 
    } catch (optimizers::Exception &eObj) {
