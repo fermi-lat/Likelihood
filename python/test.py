@@ -2,6 +2,9 @@
 import sys
 from load_data import *
 
+vector = Likelihood.DoubleVector
+vecvec = Likelihood.DoubleVectorVector
+
 def makeFactories():
     srcFactory = Likelihood.SourceFactory()
     xmlFile = LikelihoodRoot + "/xml/A1_Sources.xml"
@@ -50,3 +53,23 @@ if __name__ == "__main__":
     binned = "-b" in sys.argv
     (logLike, myOpt) = fitStatistic(binned)
     logLike.print_source_params()
+
+    sigmas = myOpt.getUncertainty()
+    scale = 1
+    widths = vector( map(lambda x:x*scale, sigmas) )
+    for width in widths:
+        print width
+    mcmc = logLike.Mcmc()
+    
+    samples = vecvec()
+    mcmc.generateSamples(samples, 1000)
+    mchain = []
+    for sample in samples:
+        mchain.append(list(sample))
+
+    import hippoplotter as plot
+    nt = plot.newNTuple(([], [], [], [], [], []),
+                        ('a', 'b', 'c', 'd', 'e', 'f'))
+    
+    for mc in mchain:
+        nt.addRow(mc)
