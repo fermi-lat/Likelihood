@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Jun 11 10:08:05 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+get exception stuff to work with gcc 3.3
+    *
+------------------------------------------------------------
+User: jchiang  Wed Jun 11 10:08:05 PDT 2003
 Likelihood/src
 
 Modified Files:
