@@ -18,13 +18,13 @@
           we've got and help to pick out obvious candidate sources.
    - @ref makeExposureMap This is needed for analyzing diffuse sources
           and so is required for almost any sort of analysis.
-   - @ref sourceModelFile The source model xml file contains the
+   - @ref sourceModelFile The source model XML file contains the
           various sources and their model parameters to be fit
           using the @b gtlikelihood tool.
    - @ref computeDiffuseResps Each event must have a separate response
           precomputed for each diffuse component in the source model.
    - @ref runLikelihood
-   - @ref makeTsMaps This is used for point source localization and for
+   - @ref makeTsMaps These are used for point source localization and for
           finding weaker sources after the stronger sources have
           been modeled.
 
@@ -40,10 +40,13 @@
    -rw-r--r--    1 jchiang  jchiang   2894400 Mar  7 12:08 eg_diffuse_events_0000.fits
    -rw-r--r--    1 jchiang  jchiang   1088640 Mar  7 12:08 ptsrcs_events_0000.fits
    -rw-r--r--    1 jchiang  jchiang   7243200 Mar  7 12:08 galdiffuse_events_0000.fits
-  @endverbatim
+   @endverbatim
+
    We will consider data in the Virgo region within a 20 degree
-   acceptance cone of the blazar 3C 279.  Here we apply @b
-   gtselect to the point source data:
+   acceptance cone of the blazar 3C 279.  Here we apply @b gtselect to
+   the point source data (The same selections need to be applied to
+   the files <tt>galdiffuse_events_0000.fits</tt> and 
+   <tt>eg_diffuse_events_0000.fits</tt>.) :
    @verbatim
    newtoby[jchiang] gtselect
    Input FT1 file [ptsrcs_events_0000.fits] : 
@@ -66,19 +69,19 @@
    about about them.
 
    @b gtselect writes the data selections that were applied to a
-   series of "Data SubSpace" keywords in the <tt>EVENTS</tt> extension header.
-   These keywords are used by the exposure-related tools and by
-   Likelihood for calculating various quantities including the number
-   of events predicted to be detected given the source model.  These
-   keywords @em must be same for all of the filtered event files
-   considered in any given analysis.  See <a
+   series of "Data Sub-Space" keywords in the <tt>EVENTS</tt>
+   extension header.  These keywords are used by the exposure-related
+   tools and by @b gtlikelihood for calculating various quantities
+   including the predicted number of detected events given the source
+   model.  These keywords @em must be same for all of the filtered
+   event files considered in any given analysis.  See <a
    href="http://glast.gsfc.nasa.gov/ssc/dev/binned_analysis/dss_keywords.html">Yasushi
    Ikebe's DSS keyword page</a> and <a
    href="http://confluence.slac.stanford.edu/display/ST/Data+SubSpace+keywords?showComments=false">this
    confluence page</a> for a discussion of DSS keywords.
 
    I have written a small non-FTOOL that can be used to view the DSS
-   keywords in a given extension, where the <tt>"EVENTS"</tt> extension is 
+   keywords in a given extension, where the <tt>EVENTS</tt> extension is 
    assumed by default:
 
    @verbatim
@@ -165,7 +168,7 @@
    @image html Virgo_map.png Virgo_map.fits
 
    Here I have plotted as the green circles the locations of the 3EG
-   point sources within 25 degrees of 3C 279.
+   point sources within 20 degrees of 3C 279.
 
    @section makeExposureMap Make an Exposure Map 
    We are now ready to create an exposure map.
@@ -173,31 +176,32 @@
    from the usual notion of exposure maps, which are essentially
    integrals of effective area over time.  The exposure calculation
    that Likelihood uses consists of an integral of the total response
-   over the entire ROI data-space:
+   over the entire region-of-interest (ROI) data-space:
    \f[ \epsilon(E, \hat{p}) =
         \int_{\rm ROI} dE^\prime d\hat{p}^\prime dt 
         R(E^\prime, \hat{p}^\prime; E, \hat{p}, t),
    \f]
-   where primed quantities indicate measured energies, \f$E^\prime\f$
+   where primed quantities indicate measured energies, \f$E^\prime\f$,
    and measured directions, \f$\hat{p}^\prime\f$.
    This exposure function can then be used to compute the expected
-   numbers of events from a given source, \f$S_i(E, \hat{p})\f$:
+   numbers of events from a given source:
    \f[
-   N_{\rm pred} = \int dE d\hat{p} S_i(E, \hat{p}) \epsilon(E, \hat{p})
+   N_{\rm pred} = \int dE d\hat{p} S_i(E, \hat{p}) \epsilon(E, \hat{p}),
    \f]
-   Since the exposure calculation involves an integral over the ROI,
-   separate exposure maps must be made for every distinct ROI file,
-   if, for example, one wants to subdivide an observation to look for
-   secular flux variations from a particular source or sources.
+   where \f$S_i(E, \hat{p})\f$ is the photon intensity from source 
+   @em i.  Since the exposure calculation involves an integral over the
+   ROI, separate exposure maps must be made for every distinct set of
+   DSS cuts if, for example, one wants to subdivide an observation to
+   look for secular flux variations from a particular source or
+   sources.
 
    There are two tools needed for generating exposure maps.  The first
    is @b gtlivetimecube.  This tool creates a HealPix table, covering
    the full sky, of the integrated livetime as a function of
    inclination with respect to the LAT z-axis. It is otherwise
    identical to the @b exposure_cube application in the @b map_tools
-   package, except that @b gtlivetimecube also applies the
-   time-interval and GTI cuts specified in the DSS keywords of the
-   filtered event files.
+   package, except that @b gtlivetimecube applies the time-range and
+   GTI cuts specified in the DSS keywords of the filtered event files.
 
    @verbatim
    newtoby[jchiang] gtlivetimecube 
@@ -208,14 +212,15 @@
    Pixel size (degrees) [1] : 
    Working on file ptsrcs_scData_0000.fits
    .....................!
+   newtoby[jchiang] 
    @endverbatim
    Since @b gtlivetimecube produces a FITS file covering the entire
-   sky map, the output of this tool can be used to generating exposure
-   maps for regions-of-interest in other parts of the sky that have
-   the same time interval selections.  Although the @b gtexpmap
-   application (see below) can generate exposure maps for Likelihood
-   without a livetimecube file, using one affords a substantial time
-   savings.
+   sky map, the output of this tool can be used for generating
+   exposure maps for regions-of-interest in other parts of the sky
+   that have the same time interval selections.  Although the @b
+   gtexpmap application (see below) can generate exposure maps for
+   Likelihood without a livetime file, using one affords a substantial
+   time savings.
    \n\n
    Creating the exposure map using the @b gtexpmap tool, we have
    @verbatim
@@ -234,16 +239,16 @@
    @endverbatim
    
    Note that we have chosen a 30 degree radius "source region", while
-   the acceptance cone radius specified for @b gtselect was 20 degrees.
-   This is necessary to ensure that photons from sources outside the
-   ROI are accounted for owing to the size of the instrument
-   point-spread function.  Half-degree pixels are a nominal choice;
-   smaller pixels should result in a more accurate evaluation of the
-   diffuse source fluxes but will also make the exposure map
+   the acceptance cone radius specified for @b gtselect was 20
+   degrees.  This is necessary to ensure that photons from sources
+   outside the ROI are accounted for owing to the size of the
+   instrument point-spread function.  Half-degree pixels are a nominal
+   choice; smaller pixels should result in a more accurate evaluation
+   of the diffuse source fluxes but will also make the exposure map
    calculation itself lengthier.  The number of energies specifies the
    number of logarithmically spaced intervals bounded by the energy
-   range given in the DSS keywords.  Here is one image plane of
-   the exposure map we just created:
+   range given in the DSS keywords.  Here is one image plane of the
+   exposure map we just created:
 
    @image html expMap.png expMap.fits
 
@@ -251,9 +256,9 @@
 
    The @b gtlikelihood tool reads the source model from an XML file.
    Given the dearth of bright sources in the extraction region we have
-   selected, our source model file will be fairly simple, consisting
-   only of the Galactic and extragalactic diffuse emission, and the
-   point sources 3C 279 and 3C 273:
+   selected, our source model file will be fairly simple, comprising
+   only the Galactic and extragalactic diffuse emission, and point
+   sources to represent the blazars 3C 279 and 3C 273:
    @verbatim
    <?xml version="1.0" ?>
    <source_library title="source library">
@@ -303,71 +308,79 @@
    @endverbatim
    We'll call this source model file "Virgo_model.xml".
    \n\n
+
    We won't discuss the format of this file in great detail, but we
-   will note some of the more salient features.  There are two kinds
-   of sources that one can define, "PointSource" and "DiffuseSource".
-   In turn, each type of source comprises two components, a "spectrum"
-   and a "spatialModel".  Presently, one can choose from among various
-   sorts of spectral types, the two most relevant ones being
-   "PowerLaw" and "BrokenPowerLaw".  Additional spectral models will
-   be available eventually, and it is intended that the user will be
-   able to create custom spectral models that will be loadable
-   dynamically by the application.
+   will note some of the more salient features.  (Note that there is a
+   GUI application available for generating and editing these XML
+   files so that one need not edit the XML source code directly.  This
+   application is called <a href="http://confluence.slac.stanford.edu/display/ST/Source+Model+Editor">ModelEditor.py</a> and is
+   available from the <a href="http://glast.stanford.edu/cgi-bin/cvsweb/likeGui/?hideattic=1&cvsroot=CVS_SLAC">likeGui</a> package.)
+
+   There are two kinds of sources that one can define,
+   <tt>PointSource</tt> and <tt>DiffuseSource</tt>.  In turn, each
+   type of source comprises two components, a <tt>spectrum</tt> and a
+   <tt>spatialModel</tt>.  One can choose from among various sorts of
+   spectral types, the two most relevant ones being <tt>PowerLaw</tt>
+   and <tt>BrokenPowerLaw</tt>.  Additional spectral models will be
+   available eventually, and it is intended that the user will be able
+   to create custom spectral models that will be loadable dynamically
+   by the application.
    \n\n
-   There are four spatialModels presently available:
-   "SkyDirFunction", "ConstantValue", "SpatialMap", and "MapCubeFunction".
-   The first one
-   describes a direction on the sky and is used only for PointSources.
-   The latter two are used by DiffuseSources.  ConstantValue is
-   precisely what it appears to be --- it provides a constant value
-   regardless of what argument value it takes.  It is used in this
-   context to model the isotropic diffuse emission.  However, as a
-   function, it is fairly general and could even be used in a spectral
-   model in principle.  SpatialMap is specific to DiffuseSources and
-   uses a FITS image file as a template for determining the
-   distribution of photons on the sky.  The EGRET diffuse model is
-   given in the FITS file gas.cel, which describes the Galactic
-   diffuse emission, as the photon distribution template.  MapCubeFunction
-   is used for diffuse sources that are modeled by a 3 dimensional FITS 
-   map in two position coordinates and energy, thereby allow arbitrary
+   There are four spatial models available: <tt>SkyDirFunction</tt>,
+   <tt>ConstantValue</tt>, <tt>SpatialMap</tt>, and
+   <tt>MapCubeFunction</tt>.  The first one describes a direction on
+   the sky and is used only for point sources.  The latter three are
+   used by diffuse sources.  <tt>ConstantValue</tt> provides a
+   constant value regardless of what argument value it takes.  It is
+   used in this context to model the isotropic diffuse emission.
+   However, as a function, it is fairly general and can even be used
+   in a spectral model, as it is when the spatial model is a
+   <tt>MapCubeFunction</tt>.  <tt>SpatialMap</tt> uses a FITS image
+   file as a template for determining the distribution of photons on
+   the sky.  The EGRET diffuse model is given in the FITS file
+   <tt>gas.cel</tt>, which describes the Galactic diffuse emission, as
+   the photon distribution template.  <tt>MapCubeFunction</tt> is used
+   for diffuse sources that are modeled by a 3 dimensional FITS map in
+   two position coordinates and energy, thereby allow arbitrary
    spectral variation as a function of sky position.
    \n\n
-   Both spectrum models and spatialModels are described by functions
-   and various model parameters.  Each parameter is described by a
-   specific set of attributes.  The actual value of a given parameter
-   that is used in the calculation is the "value" attribute multiplied
-   by the "scale" attribute.  The value attribute is what the
-   optimizers see.  Using the scale attribute is necessary to ensure
-   that the parameters describing the objective function,
+   Model parameters are described by a specific set of attributes.
+   The actual value of a given parameter that is used in the
+   calculation is the <tt>value</tt> attribute multiplied by the
+   <tt>scale</tt> attribute.  The <tt>value</tt> attribute is what the
+   optimizers see.  Using the <tt>scale</tt> attribute is necessary to
+   ensure that the parameters describing the objective function,
    -log(likelihood) for this application, all have values lying
-   roughly within a couple orders of magnitude of each other.
+   roughly within an order-of-magnitude of each other.
    \n\n
    The units for the spectral models are \f${\rm cm}^{-2} {\rm s}^{-1}
-   {\rm MeV}^{-1}\f$ for PointSources and \f${\rm cm}^{-2} {\rm
-   s}^{-1} {\rm MeV}^{-1} {\rm sr}^{-1}\f$ for DiffuseSources. 
-   The "Prefactor" values in the PowerLaw models are the function
-   values evaluated at the "Scale" values, e.g.,
+   {\rm MeV}^{-1}\f$ for point sources and \f${\rm cm}^{-2} {\rm
+   s}^{-1} {\rm MeV}^{-1} {\rm sr}^{-1}\f$ for diffuse sources.  The
+   <tt>Prefactor</tt> values in the power-law models are the function
+   values evaluated at the <tt>Scale</tt> values, e.g.,
    \f[
    {\rm PowerLaw}(x) = {\rm Prefactor} \times 
                        \left(\frac{x}{\rm Scale}\right)^{\rm Index}.
    \f]
    Each parameter has a range of valid values that can be specified.
-   This is important for the Prefactor parameters since negative
-   values are not allowed for source fluxes.  Lastly, there is a
-   "free" attribute that determines whether the parameter will be
-   allowed to be fixed or free in the fitting process.  Presently, the
-   free flag attributes are disabled for the SkyDirFunction "RA" and
-   "DEC" parameters since fitting for PointSource locations has not
-   yet been implemented.
+   This is important for the <tt>Prefactor</tt> parameters since
+   negative values are not allowed for source fluxes.  Lastly, there
+   is a <tt>free</tt> attribute that determines whether the parameter
+   will be allowed to be fixed or free in the fitting process.
+   Presently, the free flag attributes are disabled for spatial model
+   parameters since fitting for these parameters has not been
+   implemented largely because of the enormous overhead associated with
+   computing the energy-dependent response functions for each source
+   component.
 
    @section computeDiffuseResps Compute the Diffuse Source Responses.
-   If these quantities are not precomputed using the 
-   @b gtdiffresp tool, then @b gtlikelihood will compute them at
-   runtime.  However, if multiple fits and/or sessions with the 
-   @b gtlikelihood tool are anticipated, it is probably wise to precompute
-   these quantities.  The source model xml file must contain all of
-   the diffuse sources to be fit.  The @b gtdiffresp tool will
-   add columns to the FT1 file for each diffuse source:
+   If these quantities are not precomputed using the @b gtdiffresp
+   tool, then @b gtlikelihood will compute them at runtime.  However,
+   if multiple fits and/or sessions with the @b gtlikelihood tool are
+   anticipated, it is probably wise to precompute these quantities.
+   The source model XML file must contain all of the diffuse sources
+   to be fit.  The @b gtdiffresp tool will add columns to the FT1 file
+   for each diffuse source:
 
    @verbatim
    newtoby[jchiang] gtdiffresp
@@ -381,15 +394,27 @@
    adding source Galactic Diffuse
    ......................!
    @endverbatim
+   Since 3C 273 and 3C 279 are point sources, diffuse responses are not
+   calculated for these components.
 
-   @section runLikelihood Run likelihood.
+   @section runLikelihood Run gtlikelihood.
 
    We are now ready to run the @b gtlikelihood application:
    @verbatim
-
+   newtoby[jchiang] gtlikelihood
+   Statistic to use <BINNED|UNBINNED|OPTEM> [UNBINNED] : 
+   Spacecraft file [oneday_scData_0000.fits] : ptsrcs_scData_0000.fits
+   Event file [test_events_0000.fits] : eventFiles
+   Exposure file [none] : expMap.fits
+   Source model file [my_source_model.xml] : Virgo_model.xml
+   Source model output file [none] : Virgo_model.xml
+   flux-style output file name [flux_model.xml] : 
+   Response functions to use <DC1|G25|TEST> [DC1] : 
+   Optimizer <LBFGS|MINUIT|DRMNGB> [MINUIT] : 
+   Allow for refitting? [no] : yes
    @endverbatim
    Most of the entries prompted for are fairly obvious.  In addition
-   to the various xml and FITS files, the user is prompted for a
+   to the various XML and FITS files, the user is prompted for a
    choice of IRFs, the type of statistic to use, the optimizer, 
    and some output file names.  
 
@@ -400,9 +425,9 @@
    - @b TEST A set of idealized response functions based on an AllGamma
         data set generated post-DC1 using GlastRelease v4r2.
 
-   @b gtobssim has the same option of generating events for these
-   IRFs and the choice used for @b gtlikelihood must be
-   the same as that chosen for @b gtobssim.
+   @b gtobssim has the same option of generating events for these IRFs
+   and the choice used for @b gtlikelihood must be the same as that
+   chosen for @b gtobssim.
 
    Three statistics are available:
 
@@ -439,26 +464,16 @@
    href="http://heasarc.gsfc.nasa.gov/docs/xanadu/xspec/index.html">
    XSPEC</a>.
    \n\n
-   The "flux-style output file name" specifies the destination of xml
+   The "flux-style output file name" specifies the destination of XML
    definitions of sources that can be used with @b gtobssim (or @b Gleam)
    to simulate an observation of the fitted source model.
    \n\n
    The application proceeds by reading in the spacecraft and event
    data, and if necessary, computing event responses for each diffuse
    source.
-
+   \n\n
+   Here is the output from our fit:
    @verbatim
-   newtoby[jchiang] gtlikelihood
-   Statistic to use <BINNED|UNBINNED|OPTEM> [UNBINNED] : 
-   Spacecraft file [oneday_scData_0000.fits] : ptsrcs_scData_0000.fits
-   Event file [test_events_0000.fits] : eventFiles
-   Exposure file [none] : expMap.fits
-   Source model file [my_source_model.xml] : Virgo_model.xml
-   Source model output file [none] : Virgo_model.xml
-   flux-style output file name [flux_model.xml] : 
-   Response functions to use <DC1|G25|TEST> [DC1] : 
-   Optimizer <LBFGS|MINUIT|DRMNGB> [MINUIT] : 
-   Allow for refitting? [no] : yes
    
     **********
     **    1 **SET PRINT    0.000    
@@ -714,7 +729,7 @@
    of fit.  New, fainter sources are then identified at local maxima
    of the TS map.
 
-   Let's comment out 3C 273 from the source model xml file and see if we
+   Let's comment out 3C 273 from the source model XML file and see if we
    can find evidence for it in the data.
    @verbatim
 
