@@ -1,7 +1,7 @@
 /** @file logSrcModel.cxx
  * @brief logSrcModel class implementation
  *
- * $Header:$
+ * $Header:
  */
 
 #include <cmath>

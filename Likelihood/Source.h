@@ -15,7 +15,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:$ 
+ * $Header: 
  */
 
 class Source {

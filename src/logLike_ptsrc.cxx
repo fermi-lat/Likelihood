@@ -1,7 +1,7 @@
 /** @file logLike_ptsrc.cxx
  * @brief logLike_ptsrc class implementation
  *
- * $Header:$
+ * $Header:
  */
 
 #include <vector>

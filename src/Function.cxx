@@ -1,15 +1,13 @@
 /** @file Function.cxx
  * @brief Function class implementation
  *
- * $Header:$
+ * $Header:
  */
 
 #include "Likelihood/Function.h"
-#include <iostream>
 
 namespace Likelihood {
 
-//! copy constructor
 Function::Function(const Function &func) {
    m_functionName = func.m_functionName;
    m_maxNumParams = func.m_maxNumParams;
@@ -18,13 +16,13 @@ Function::Function(const Function &func) {
    
 void Function::setParameter(const std::string &paramName, 
 			    double paramValue,
-                            int isFree) {
+                            int isFree = -1) {
 // check if parameter is present...
    for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
          m_parameter[i].setValue(paramValue);
 // and update the free state if asked (yes, a bit kludgy...)
-         if (isFree > -1) m_parameter[i].setFree(isFree!=0);
+         if (isFree > -1) m_parameter[i].setFree(isFree);
          return;
       }
    }

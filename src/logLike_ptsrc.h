@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:$
+ * $Header: 
  */
 
 class logLike_ptsrc : public Statistic {

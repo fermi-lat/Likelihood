@@ -17,11 +17,13 @@ namespace Likelihood {
 /** 
  * @class SourceModel
  *
- * @brief Container for source models.
+ * @brief This base class provides derived classes with methods that
+ * allow for Sources to be added and deleted and for the Parameters
+ * and derivatives describing those Sources to be accessed.
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.7 2003/03/11 22:01:15 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.4 2003/03/04 17:45:32 jchiang Exp $ */
 
 class SourceModel : public Function {
     
@@ -53,6 +55,7 @@ public:
    //! delete all the sources
    void deleteAllSources() {
       m_sources.clear();
+      m_parameter.clear();
    }
 
    unsigned int getNumSrcs() const {return m_sources.size();}
@@ -63,8 +66,6 @@ public:
    double evaluate_at(Arg &) const;
    virtual double value(Arg &x) const {return evaluate_at(x);};
 
-   double derivByParam(Arg &, const std::string &) const {return 0;}
-
 protected:
 
    static std::vector<Source *> m_sources;
@@ -72,6 +73,9 @@ protected:
    //! method to sync the m_parameter vector with those of the 
    //! m_sources' Functions
    void m_syncParams();
+
+   //! disable this since parameters may no longer have unique names
+   double derivByParam(Arg &, const std::string &) const {return 0;}
 
    void fetchDerivs(Arg &x, std::vector<double> &derivs, bool getFree) const;
 

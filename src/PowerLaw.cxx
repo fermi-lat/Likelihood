@@ -19,7 +19,8 @@ void PowerLaw::m_init(double Prefactor, double Index, double Scale) {
 
    addParam(std::string("Prefactor"), Prefactor, true);
    addParam(std::string("Index"), Index, true);
-   addParam(std::string("Scale"), Scale, false);   // scale should always be fixed
+// scale should always be fixed
+   addParam(std::string("Scale"), Scale, false);   
 }
 
 double PowerLaw::value(Arg &xarg) const {
@@ -31,8 +32,9 @@ double PowerLaw::value(Arg &xarg) const {
    std::vector<Parameter> my_params;
    getParams(my_params);
 
-   return my_params[Prefactor].getValue()*pow((x/my_params[Scale].getValue()), 
-                                              my_params[Index].getValue());
+   return my_params[Prefactor].getTrueValue()
+      *pow((x/my_params[Scale].getTrueValue()), 
+           my_params[Index].getTrueValue());
 }
 
 double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const {
@@ -58,14 +60,17 @@ double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const {
    
    switch (iparam) {
    case Prefactor:
-      return value(xarg)/my_params[Prefactor].getValue();
+      return value(xarg)/my_params[Prefactor].getTrueValue()
+         *my_params[Prefactor].getScale();
       break;
    case Index:
-      return value(xarg)*log(x/my_params[Scale].getValue());
+      return value(xarg)*log(x/my_params[Scale].getTrueValue())
+         *my_params[Index].getScale();
       break;
    case Scale:  // shouldn't ever need this, nonetheless....
-      return -value(xarg)*(my_params[Index].getValue())
-         /(my_params[Scale].getValue());
+      return -value(xarg)*(my_params[Index].getTrueValue())
+         /(my_params[Scale].getTrueValue())
+         *my_params[Scale].getScale();
       break;
    default:
       break;
@@ -81,9 +86,9 @@ double PowerLaw::integral(Arg &xargmin, Arg &xargmax) const {
    std::vector<Parameter> my_params;
    getParams(my_params);
 
-   double f0 = my_params[Prefactor].getValue();
-   double Gamma = my_params[Index].getValue();
-   double x0 = my_params[Scale].getValue();
+   double f0 = my_params[Prefactor].getTrueValue();
+   double Gamma = my_params[Index].getTrueValue();
+   double x0 = my_params[Scale].getTrueValue();
 
    return f0/(Gamma+1.)*(pow((xmax/x0), Gamma+1.) - pow((xmin/x0), Gamma+1.));
 }

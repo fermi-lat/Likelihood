@@ -15,7 +15,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:$
+ * $Header:
  */
 
 class lbfgs : public Optimizer {
@@ -28,6 +28,8 @@ public:
    void find_min(int verbose = 0, double tol = 1e-5);
     
 protected:
+
+   static int s_verbose;
 
    //! interface to the objective function that lbgfs_bcm expects
    static long statInterface(long *nparams, double *param_vals, 

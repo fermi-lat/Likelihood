@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:$ 
+ * $Header: 
  */
 
 class logLike_gauss : public Statistic {
@@ -35,7 +35,7 @@ public:
    //! as the function argument
    double value(const std::vector<double> &paramVec);
    
-   void getFreeDerivs(std::vector<double> &) {}
+   void getFreeDerivs(std::vector<double> &freeDerivs){};
 
 };
 

@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:$ 
+ * $Header: 
  */
     
 class SkyDirFunction : public Function, public astro::SkyDir {

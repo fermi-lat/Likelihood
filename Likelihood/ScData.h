@@ -1,7 +1,6 @@
 #ifndef ScData_h
 #define ScData_h
 
-//#include "../Likelihood/ScNtuple.h"
 #include "astro/SkyDir.h"
 
 namespace Likelihood {
@@ -14,7 +13,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:$ */
+ * $Header: */
 
 class ScData {
 

@@ -1,7 +1,7 @@
 /** @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header:$
+ * $Header:
  */
 
 #include <vector>
@@ -82,9 +82,13 @@ double PointSource::fluxDensityDeriv(double energy, double time,
       return fluxDensity(energy, time, dir)
          /m_spectrum->getParamValue("Prefactor");
    } else {
+      Psf *psf = Psf::instance();
+      Aeff *aeff = Aeff::instance();
+
       dArg energy_arg(energy);
-      return fluxDensity(energy, time, dir)/(*m_spectrum)(energy_arg)
-         *m_spectrum->derivByParam(energy_arg, paramName);
+      double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
+      double aeff_val = (*aeff)(energy, dir, time);
+      return psf_val*aeff_val*m_spectrum->derivByParam(energy_arg, paramName);
    }
 }
 
@@ -125,13 +129,18 @@ void PointSource::computeExposure() {
    ScData *scData = ScData::instance();
    RoiCuts *roiCuts = RoiCuts::instance();
 
-// initialize the exposure vector with zeros
+// Initialize the exposure vector with zeros
    m_exposure = std::vector<double>(m_energies.size(), 0);
 
-   for (unsigned int it = 0; it < scData->vec.size()-1; it++) {
+   std::cerr << "Computing exposure at (" 
+             << getDir().ra() << ", " 
+             << getDir().dec() << ")";
+   unsigned int npts = scData->vec.size()-1;
+   for (unsigned int it = 0; it < npts; it++) {
+      if ((it % (npts/20)) == 0) std::cerr << ".";
       bool includeInterval = true;
 
-// check if this interval passes the time cuts
+// Check if this interval passes the time cuts
       std::vector< std::pair<double, double> > timeCuts;
       roiCuts->getTimeCuts(timeCuts);
       for (unsigned int itcut = 0; itcut < timeCuts.size(); itcut++) {
@@ -142,47 +151,50 @@ void PointSource::computeExposure() {
          }
       }
 
-// check for SAA passage
+// Check for SAA passage
       if (scData->vec[it].inSaa) includeInterval = false;
 
-// compute inclination and check if within response matrix cut-off angle
+// Compute the inclination and check if it's within response matrix
+// cut-off angle
       double inc = getSeparation(scData->vec[it].zAxis)*180/M_PI;
       if (inc > Response::incMax) includeInterval = false;
 
-// having checked for relevant constraints, add up the exposure
-// for each energy (still need to implement the psf fraction stuff....)
+// Having checked for relevant constraints, add the exposure
+// contribution for each energy
       if (includeInterval) {
          for (unsigned int k = 0; k < m_energies.size(); k++) {
-            double psf_frac = psfFrac(m_energies[k], inc);
             m_exposure[k] += (*aeff)(m_energies[k], inc)
-               *(scData->vec[it+1].time - scData->vec[it].time)
-               *psf_frac;
+               *psfFrac(m_energies[k], inc)
+               *(scData->vec[it+1].time - scData->vec[it].time);
          }
       }
    }
+   std::cerr << "!" << std::endl;
 }
 
 double PointSource::psfFrac(double energy, double inc) {
    Psf *psf = Psf::instance();
-// compute the fraction of the psf enclosed for this source at
-// this energy and inclination
+// Compute the fraction of the psf enclosed for this source at this
+// energy and inclination
    std::vector<double> psf_params;
    (*psf).fillPsfParams(energy, inc, psf_params);
    double sig1 = psf_params[0]*M_PI/180.;
    double sig2 = psf_params[1]*M_PI/180.;
    double wt = psf_params[2];
 
-// compute the index assuming constant binsize
-   unsigned int indx = static_cast<int> ((sig1 - m_sigGauss[0])
-                                         /(m_sigGauss[1] - m_sigGauss[0]));
-// interpolate
+// Interpolate the fractions of the Gaussian components contained
+// within the region-of-interest
+// Compute the index assuming uniform step size in m_sigGauss:
+   unsigned int indx = 
+      static_cast<int>((sig1 - m_sigGauss[0])
+                       /(m_sigGauss[1] - m_sigGauss[0]));
    double frac1 = (sig1 - m_sigGauss[indx])
       /(m_sigGauss[indx+1] - m_sigGauss[indx])
       *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
       + m_gaussFraction[indx];
 
-   indx = static_cast<int> ((sig2 - m_sigGauss[0])
-                            /(m_sigGauss[1] - m_sigGauss[0]));
+   indx = static_cast<int>((sig2 - m_sigGauss[0])
+                           /(m_sigGauss[1] - m_sigGauss[0]));
    double frac2 = (sig2 - m_sigGauss[indx])
       /(m_sigGauss[indx+1] - m_sigGauss[indx])
       *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
@@ -218,7 +230,7 @@ void PointSource::computeGaussFractions() {
             gauss_int = 0;
          } else {
 // instantiate the integrand object...
-            Gint gfunc(m_sigGauss[i], cr, cp, sp);
+            Gint gfunc(sig, cr, cp, sp);
 // and the integrator object
             TrapQuad trapQuad(&gfunc);
             gauss_int = trapQuad.integral(mup, mum, 10000);
@@ -232,7 +244,7 @@ void PointSource::computeGaussFractions() {
             m_gaussFraction.push_back(value);
          }
       }
-//      std::cout << sig << "  " << m_gaussFraction[i] << std::endl;
+//       std::cout << sig << "  " << m_gaussFraction[i] << std::endl;
    }
 }
 
@@ -252,7 +264,7 @@ double PointSource::Gint::value(Arg &muarg) const {
          phi = acos(arg);
       }
    }
-   double value = phi*exp((mu - 1)/m_sig/m_sig);
+   double value = phi*exp((mu - 1.)/m_sig/m_sig);
    return value;
 }
 

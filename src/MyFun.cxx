@@ -21,11 +21,11 @@ double MyFun::value(Arg &xarg) const {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
    double my_val = 0.;
-   std::vector<double> params;
-   getParamValues(params);
+   std::vector<Parameter> params;
+   getParams(params);
 
    for (unsigned int i = 0; i < params.size(); i++) {
-      my_val += params[i]*pow(x, i);
+      my_val += params[i].getTrueValue()*pow(x, i);
    }
    
    return my_val;
@@ -34,14 +34,12 @@ double MyFun::value(Arg &xarg) const {
 double MyFun::derivByParam(Arg &xarg, const std::string &paramName) const {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
-   std::vector<std::string> my_paramName;
-   getParamNames(my_paramName);
-   std::vector<double> my_param;
-   getParamValues(my_param);
+   std::vector<Parameter> params;
+   getParams(params);
 
-   for (unsigned int i = 0; i < my_paramName.size(); i++) {
-      if (paramName == my_paramName[i]) 
-         return pow(x, i);
+   for (unsigned int i = 0; i < params.size(); i++) {
+      if (paramName == params[i].getName()) 
+         return params[i].getScale()*pow(x, i);
    }
    std::cerr << "Parameter " << paramName << " is not found."
              << std::endl;

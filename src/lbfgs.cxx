@@ -1,7 +1,7 @@
 /** @file lbfgs.cxx
  * @brief lbfgs class implementation
  *
- * $Header:$
+ * $Header:
  */
 
 #include <vector>
@@ -17,6 +17,7 @@
 namespace Likelihood {
 
 Statistic *lbfgs::s_stat = 0;
+int lbfgs::s_verbose = 0;
 
 long lbfgs::statInterface(long *nparams, double *param_vals, 
                           double *func_val, double *derivs) {
@@ -30,17 +31,23 @@ long lbfgs::statInterface(long *nparams, double *param_vals,
    std::vector<double> derivsVec;
    s_stat->getFreeDerivs(derivsVec);
 
-   std::cout << *func_val << "  ";
    for (int i = 0; i < *nparams; i++) {
       derivs[i] = -derivsVec[i];
-      std::cout << param_vals[i] << "  "
-                << derivs[i] << " : ";
    }
-   std::cout << std::endl;
+
+   if (s_verbose) {
+      std::cout << *func_val << "  ";
+      for (int i = 0; i < *nparams; i++)
+         std::cout << param_vals[i] << "  "
+                   << derivs[i] << " : ";
+      std::cout << std::endl;
+   }
    return 0;
 }
 
 void lbfgs::find_min(int verbose, double tol) {
+
+   s_verbose = verbose;
 
    std::vector<Parameter> Params;
    s_stat->getFreeParams(Params);

@@ -1,7 +1,7 @@
 /** @file SourceModel.cxx
  * @brief SourceModel class implementation
  *
- * $Header:$
+ * $Header:
  */
 
 #include <vector>
@@ -120,8 +120,7 @@ void SourceModel::deleteSource(const std::string &srcName) {
 
 // remake parameter vector from scratch 
 void SourceModel::m_syncParams() {
-// can we just do m_parameter.clear() here?
-   m_parameter.erase(m_parameter.begin(), m_parameter.end());
+   m_parameter.clear();
 
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();

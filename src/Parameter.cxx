@@ -1,7 +1,7 @@
 /** @file Parameter.cxx
  * @brief Parameter class implementation
  *
- * $Header:$
+ * $Header:
  */
 
 #include <vector>
@@ -15,6 +15,7 @@ namespace Likelihood {
 Parameter::Parameter(const Parameter &param) {
    m_name = param.m_name;
    m_value = param.m_value;
+   m_scale = param.m_scale;
    m_minValue = param.m_minValue;
    m_maxValue = param.m_maxValue;
    m_free = param.m_free;

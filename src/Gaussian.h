@@ -15,9 +15,9 @@ namespace Likelihood {
 class Gaussian : public Function {
 public:
 
-   Gaussian(){m_init(0, -2, 1);};
+   Gaussian(){m_init(0, -2, 1);}
    Gaussian(double Prefactor, double Mean, double Sigma)
-      {m_init(Prefactor, Mean, Sigma);};
+      {m_init(Prefactor, Mean, Sigma);}
 
    double value(Arg &) const;
 
