@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Aug 25 14:46:20 PDT 2003
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+enable module build using IExternal/python
+    *
+------------------------------------------------------------
 User: jchiang  Mon Aug 25 14:46:19 PDT 2003
 Likelihood/cmt/fragments
 
