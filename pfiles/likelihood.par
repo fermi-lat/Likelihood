@@ -1,0 +1,15 @@
+ROI_cuts_file,f,ql,"$(LIKELIHOODROOT)/data/RoiCuts.xml",,,"ROI cuts file"
+Spacecraft_file,f,ql,"$(LIKELIHOODROOT)/data/oneday_scData_0000.fits",,,"Spacecraft file"
+Spacecraft_file_hdu,i,hl,2,,,Spacecraft file HDU
+Exposure_map_file,f,ql,"none",,,"Exposure file"
+Response_functions,s,ql,"FRONT/BACK",FRONT/BACK|FRONT|BACK|GLAST25,,"Response functions to use"
+Source_model_file,f,ql,"$(LIKELIHOODROOT)/data/anticenter_model.xml",,,"Source model file"
+event_file,f,ql,"$(LIKELIHOODROOT)/data/oneday_events_0000.fits",,,"Event file"
+event_file_hdu,i,hl,2,,,Event file HDU
+optimizer,s,ql,"MINUIT",LBFGS|MINUIT|DRMNGB,,"Optimizer"
+fit_verbosity,i,ql,1,,,Optimizer verbosity
+fit_tolerance,r,ql,0.0001,,,Fit tolerance
+Source_model_output_file,f,ql,"none",,,"Source model output file"
+Use_OptEM,b,ql,no,,,Use OptEM?
+flux_style_model_file,f,ql,"flux_model.xml",,,"flux-style output file name"
+query_for_refit,b,ql,no,,,Allow for refitting?
