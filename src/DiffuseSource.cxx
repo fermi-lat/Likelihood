@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.13 2003/11/12 22:01:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.14 2004/06/05 15:22:15 jchiang Exp $
  */
 
 #include <vector>
@@ -32,7 +32,9 @@ DiffuseSource::DiffuseSource(optimizers::Function* spatialDist,
    m_spatialDist = spatialDist->clone();
    m_functions["SpatialDist"] = m_spatialDist;
 
-   if (!s_haveStaticMembers) {
+   if (!s_haveStaticMembers 
+       || RoiCuts::instance()->getEnergyCuts().first != s_energies.front()
+       || RoiCuts::instance()->getEnergyCuts().second != s_energies.back()) {
       makeEnergyVector();
       s_haveStaticMembers = true;
    }
@@ -137,9 +139,11 @@ void DiffuseSource::makeEnergyVector(int nee) {
    double emax = (roiCuts->getEnergyCuts()).second;
    double estep = log(emax/emin)/(nee-1);
    
+   s_energies.clear();
    s_energies.reserve(nee);
-   for (int i = 0; i < nee; i++)
+   for (int i = 0; i < nee; i++) {
       s_energies.push_back(emin*exp(i*estep));
+   }
 }
 
 } // namespace Likelihood
