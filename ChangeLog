@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  6 13:52:06 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+use optimizers package
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  6 13:52:04 PDT 2003
 Likelihood/Likelihood
 
