@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v2r0   24-Oct-03  JC   Use latResponse package; remove Response hierarchy
     v1r3   18-Oct-03  JC   Move Table class to latResponse; prepare for
                            its use instead of current Response hierarchy
     v1r2p2 05-Sep-03  JC   Reorganize python/Likelihood.i; 
