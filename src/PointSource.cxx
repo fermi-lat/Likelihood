@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.22 2003/08/06 20:52:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.23 2003/10/02 19:08:08 jchiang Exp $
  */
 
 #include <vector>
@@ -13,6 +13,11 @@
 
 #include "optimizers/dArg.h"
 
+#include "latResponse/IPsf.h"
+#include "latResponse/IAeff.h"
+#include "latResponse/Irfs.h"
+
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/Psf.h"
 #include "Likelihood/Aeff.h"
@@ -54,13 +59,24 @@ double PointSource::fluxDensity(double energy, double time,
 // energy), all of which are functions of time and spacecraft attitude
 // and orbital position.
 
-   Psf *psf = Psf::instance();
-   Aeff *aeff = Aeff::instance();
+   ResponseFunctions * respFuncs = ResponseFunctions::instance();
+   ScData * scData = ScData::instance();
+   
+// Assume for now that the GLAST25 Combined functions are in use.
+// Will generalize later.
+   latResponse::IPsf *psf = respFuncs[4]->psf();
+   latResponse::IAeff *aeff = respFuncs[4]->aeff();
 
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
-   double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
-   double aeff_val = (*aeff)(energy, m_dir.getDir(), time);
+//   double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
+   double psf_val = psf->value(dir, energy, m_dir.getDir(),
+                               scData->zAxis(time),
+                               scData->xAxis(time));
+//   double aeff_val = (*aeff)(energy, m_dir.getDir(), time);
+   double aeff_val = aefff->value(energy, m_dir.getDir(),
+                                  scData->zAxis(time),
+                                  scData->xAxis(time));
 
    return spectrum*psf_val*aeff_val;
 }
