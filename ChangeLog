@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar  7 17:28:10 PST 2005
+Likelihood/pfiles
+
+Modified Files:
+	gttsmap.par 
+Log Message:
+update tutorial; fix TsMap for multiple event files; modify CountsMap for evtbin interface change
+    *
+------------------------------------------------------------
 User: jchiang  Sun Mar  6 21:55:37 PST 2005
 Likelihood/src
 
