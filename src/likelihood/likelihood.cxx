@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.51 2004/11/17 00:02:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.52 2004/11/28 06:58:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.51 2004/11/17 00:02:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.52 2004/11/28 06:58:23 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -117,6 +117,9 @@ void likelihood::run() {
 
 // Set the verbosity level and convergence tolerance.
    long verbose = m_pars["chatter"];
+// ST proclaimed nominal verbosity level is 2, but optimizers expect 1, so
+// we subtract 1.
+   if (verbose > 1) verbose--;
    double tol = m_pars["fit_tolerance"];
    std::vector<double> errors;
 
