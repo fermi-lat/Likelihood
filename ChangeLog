@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 25 15:22:02 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h Event.h PointSource.h Response.h Source.h 
+	SourceModel.h Statistic.h Table.h 
+Added Files:
+	ExposureMap.h SkyDirArg.h 
+Log Message:
+add DiffuseSource ExposureMap classes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar 21 17:22:51 PST 2003
 Likelihood/src/test
 
