@@ -1,5 +1,19 @@
 ------------------------------------------------------------
 User: burnett  Sat Mar 15 17:42:39 PST 2003
+Likelihood/src
+
+Modified Files:
+	Aeff.cxx Event.cxx Function.cxx Gaussian.cxx Gaussian.h 
+	MyFun.cxx MyFun.h Npred.cxx Parameter.cxx PointSource.cxx 
+	PowerLaw.cxx PowerLaw.h Psf.cxx Response.cxx RoiCuts.cxx 
+	ScData.cxx SkyDirFunction.cxx SourceModel.cxx Statistic.cxx 
+	Table.cxx TrapQuad.cxx lbfgs.cxx lbfgs.h logLike_gauss.cxx 
+	logLike_gauss.h logLike_ptsrc.cxx logLike_ptsrc.h 
+	logSrcModel.cxx 
+Log Message:
+    *
+------------------------------------------------------------
+User: burnett  Sat Mar 15 17:42:39 PST 2003
 Likelihood/cmt
 
 Modified Files:
