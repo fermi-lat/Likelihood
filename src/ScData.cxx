@@ -3,13 +3,15 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.20 2004/04/03 06:14:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.21 2004/04/03 16:42:10 jchiang Exp $
  */
 
 #include <cassert>
-#include <vector>
-#include <string>
 #include <cmath>
+
+#include <algorithm>
+#include <string>
+#include <vector>
 
 #include "facilities/Util.h"
 
@@ -126,6 +128,7 @@ void ScData::readData(std::string file, int hdu, bool clear) {
 
 astro::SkyDir &ScData::zAxis(double time) {
    int indx = static_cast<int>((time - vec[0].time)/s_tstep);
+   indx = std::min(static_cast<unsigned int>(indx), vec.size()-2);
    double frac = (time - vec[indx].time)/s_tstep;
    Hep3Vector zDir = frac*(vec[indx+1].zAxis.dir() - vec[indx].zAxis.dir())
       + vec[indx].zAxis.dir();
