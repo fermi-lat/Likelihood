@@ -2,7 +2,7 @@
 #include <string>
 #include <cmath>
 
-#include "../Likelihood/Aeff.h"
+#include "Likelihood/Aeff.h"
 
 namespace Likelihood {
 

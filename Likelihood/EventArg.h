@@ -6,8 +6,8 @@
 #ifndef EventArg_h
 #define EventArg_h
 
-#include "../Likelihood/Arg.h"
-#include "../Likelihood/Event.h"
+#include "Likelihood/Arg.h"
+#include "Likelihood/Event.h"
 
 namespace Likelihood {
 
@@ -18,7 +18,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header:$ */
 
 class EventArg : public Arg {
     

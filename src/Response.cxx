@@ -2,8 +2,8 @@
 #include <string>
 #include <cmath>
 
-#include "../Likelihood/Response.h"
-#include "../Likelihood/Table.h"
+#include "Likelihood/Response.h"
+#include "Likelihood/Table.h"
 
 namespace Likelihood {
 

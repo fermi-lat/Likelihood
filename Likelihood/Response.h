@@ -2,7 +2,7 @@
 #define Response_h
 
 #include "astro/SkyDir.h"
-#include "../Likelihood/ScData.h"
+#include "Likelihood/ScData.h"
 
 namespace Likelihood {
 
@@ -17,7 +17,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: */
+ * $Header:$ */
 
 class Response {
     

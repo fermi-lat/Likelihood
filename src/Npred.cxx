@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-#include "../Likelihood/Npred.h"
+#include "Likelihood/Npred.h"
 
 namespace Likelihood {
 

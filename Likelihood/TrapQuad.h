@@ -6,7 +6,7 @@
 #ifndef TrapQuad_h
 #define TrapQuad_h
 
-#include "../Likelihood/Function.h"
+#include "Likelihood/Function.h"
 
 namespace Likelihood {
 
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header:$ */
 
 class TrapQuad {
     

@@ -6,8 +6,8 @@
 #ifndef Statistic_h
 #define Statistic_h
 
-#include "../Likelihood/SourceModel.h"
-#include "../Likelihood/Table.h"
+#include "Likelihood/SourceModel.h"
+#include "Likelihood/Table.h"
 
 namespace Likelihood {
 
@@ -20,7 +20,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.5 2003/03/04 17:45:32 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.6 2003/03/11 22:01:15 jchiang Exp $ */
 
 class Statistic : public SourceModel {
     

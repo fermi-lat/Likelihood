@@ -6,8 +6,8 @@
 #ifndef logLike_gauss_h
 #define logLike_gauss_h
 
-#include "../Likelihood/Statistic.h"
-#include "../Likelihood/Arg.h"
+#include "Likelihood/Statistic.h"
+#include "Likelihood/Arg.h"
 
 namespace Likelihood {
 
@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: 
+ * $Header:$ 
  */
 
 class logLike_gauss : public Statistic {

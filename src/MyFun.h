@@ -1,5 +1,5 @@
-#include "../Likelihood/Function.h"
-#include "../Likelihood/Arg.h"
+#include "Likelihood/Function.h"
+#include "Likelihood/Arg.h"
 
 namespace Likelihood {
 
@@ -10,7 +10,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.2 2003/02/23 22:09:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.3 2003/03/04 17:45:32 jchiang Exp $
  */
     
 class MyFun : public Function {

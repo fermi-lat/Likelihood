@@ -6,8 +6,8 @@
 #ifndef SkyDirFunction_h
 #define SkyDirFunction_h
 
-#include "../Likelihood/Function.h"
-#include "../Likelihood/Arg.h"
+#include "Likelihood/Function.h"
+#include "Likelihood/Arg.h"
 #include "astro/SkyDir.h"
 
 namespace Likelihood {
@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: 
+ * $Header:$ 
  */
     
 class SkyDirFunction : public Function, public astro::SkyDir {

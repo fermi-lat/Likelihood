@@ -1,7 +1,7 @@
 /** @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header:
+ * $Header:$
  */
 
 #include <vector>
@@ -9,13 +9,13 @@
 #include <cmath>
 
 #include "astro/SkyDir.h"
-#include "../Likelihood/PointSource.h"
-#include "../Likelihood/Psf.h"
-#include "../Likelihood/Aeff.h"
-#include "../Likelihood/ScData.h"
-#include "../Likelihood/RoiCuts.h"
-#include "../Likelihood/dArg.h"
-#include "../Likelihood/TrapQuad.h"
+#include "Likelihood/PointSource.h"
+#include "Likelihood/Psf.h"
+#include "Likelihood/Aeff.h"
+#include "Likelihood/ScData.h"
+#include "Likelihood/RoiCuts.h"
+#include "Likelihood/dArg.h"
+#include "Likelihood/TrapQuad.h"
 
 namespace Likelihood {
 

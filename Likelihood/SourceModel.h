@@ -9,8 +9,8 @@
 #include <vector>
 #include <string>
 
-#include "../Likelihood/Function.h"
-#include "../Likelihood/Source.h"
+#include "Likelihood/Function.h"
+#include "Likelihood/Source.h"
 
 namespace Likelihood {
 
@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.4 2003/03/04 17:45:32 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.7 2003/03/11 22:01:15 jchiang Exp $ */
 
 class SourceModel : public Function {
     

@@ -1,4 +1,4 @@
-#include "../Likelihood/SkyDirFunction.h"
+#include "Likelihood/SkyDirFunction.h"
 
 namespace Likelihood {
 

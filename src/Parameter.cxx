@@ -1,13 +1,13 @@
 /** @file Parameter.cxx
  * @brief Parameter class implementation
  *
- * $Header:
+ * $Header:$
  */
 
 #include <vector>
 #include <string>
 
-#include "../Likelihood/Parameter.h"
+#include "Likelihood/Parameter.h"
 
 namespace Likelihood {
 

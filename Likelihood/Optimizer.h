@@ -1,7 +1,7 @@
 #ifndef Optimizer_h
 #define Optimizer_h
 
-#include "../Likelihood/Statistic.h"
+#include "Likelihood/Statistic.h"
 
 namespace Likelihood {
 

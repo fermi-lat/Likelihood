@@ -1,15 +1,15 @@
 /** @file SourceModel.cxx
  * @brief SourceModel class implementation
  *
- * $Header:
+ * $Header:$
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
 #include <cassert>
-#include "../Likelihood/SourceModel.h"
-#include "../Likelihood/Arg.h"
+#include "Likelihood/SourceModel.h"
+#include "Likelihood/Arg.h"
 
 namespace Likelihood {
 

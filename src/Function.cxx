@@ -1,10 +1,11 @@
 /** @file Function.cxx
  * @brief Function class implementation
  *
- * $Header:
+ * $Header:$
  */
 
-#include "../Likelihood/Function.h"
+#include "Likelihood/Function.h"
+#include <iostream>
 
 namespace Likelihood {
 
@@ -17,13 +18,13 @@ Function::Function(const Function &func) {
    
 void Function::setParameter(const std::string &paramName, 
 			    double paramValue,
-                            int isFree = -1) {
+                            int isFree) {
 // check if parameter is present...
    for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
          m_parameter[i].setValue(paramValue);
 // and update the free state if asked (yes, a bit kludgy...)
-         if (isFree > -1) m_parameter[i].setFree(isFree);
+         if (isFree > -1) m_parameter[i].setFree(isFree!=0);
          return;
       }
    }

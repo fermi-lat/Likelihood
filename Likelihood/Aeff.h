@@ -2,8 +2,8 @@
 #define Aeff_h
 
 #include "astro/SkyDir.h"
-#include "../Likelihood/Response.h"
-#include "../Likelihood/Table.h"
+#include "Likelihood/Response.h"
+#include "Likelihood/Table.h"
 
 namespace Likelihood {
 
@@ -14,7 +14,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header:$
  */
 
 class Aeff : public Response {

@@ -1,10 +1,10 @@
 /** @file Table.cxx
 * @brief Implementation of Table member functions
 *
-* $Header:
+* $Header:$
 */
 
-#include "../Likelihood/Table.h"
+#include "Likelihood/Table.h"
 #include "fitsio.h"
 
 #include <iostream>

@@ -1,10 +1,10 @@
 /** @file Event.cxx
  * @brief Event class implementation
  *
- * $Header:
+ * $Header:$
  */
 
-#include "../Likelihood/Event.h"
+#include "Likelihood/Event.h"
 
 namespace Likelihood {
 

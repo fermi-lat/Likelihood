@@ -3,8 +3,8 @@
 
 #include <map>
 #include "astro/SkyDir.h"
-#include "../Likelihood/Function.h"
-#include "../Likelihood/Event.h"
+#include "Likelihood/Function.h"
+#include "Likelihood/Event.h"
 
 namespace Likelihood {
 
@@ -15,7 +15,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: 
+ * $Header:$ 
  */
 
 class Source {

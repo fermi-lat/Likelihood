@@ -1,7 +1,9 @@
 #include <vector>
 #include <string>
 #include <cmath>
-#include "../Likelihood/dArg.h"
+#include <iostream>
+
+#include "Likelihood/dArg.h"
 #include "PowerLaw.h"
 
 namespace Likelihood {
@@ -15,9 +17,9 @@ void PowerLaw::m_init(double Prefactor, double Index, double Scale) {
    int nParams = 3;
    setMaxNumParams(nParams);
 
-   addParam(string("Prefactor"), Prefactor, true);
-   addParam(string("Index"), Index, true);
-   addParam(string("Scale"), Scale, false);   // scale should always be fixed
+   addParam(std::string("Prefactor"), Prefactor, true);
+   addParam(std::string("Index"), Index, true);
+   addParam(std::string("Scale"), Scale, false);   // scale should always be fixed
 }
 
 double PowerLaw::value(Arg &xarg) const {
