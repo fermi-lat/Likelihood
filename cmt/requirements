@@ -4,7 +4,7 @@ version v4r8
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.139 2004/09/28 18:42:40 jchiang Exp $
+# $Id: requirements,v 1.140 2004/10/02 00:05:48 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
@@ -29,7 +29,7 @@ apply_pattern ST_app name=makeExposureCube
 apply_pattern ST_app name=diffuseResponses
 apply_pattern ST_app name=counts_map
 apply_pattern ST_app name=exposureMap
-apply_pattern ST_app name=meanPsf
+apply_pattern ST_app name=gtsrcmaps
 
 private
 

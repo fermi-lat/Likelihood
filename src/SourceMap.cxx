@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.12 2004/10/08 00:28:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.13 2004/10/08 05:59:22 jchiang Exp $
  */
 
 #include <algorithm>
@@ -49,11 +49,14 @@ namespace Likelihood {
 
 MeanPsf * SourceMap::s_meanPsf(0);
 BinnedExposure * SourceMap::s_binnedExposure(0);
+unsigned int SourceMap::s_refCount(0);
+
 std::vector<double> SourceMap::s_phi;
 std::vector<double> SourceMap::s_mu;
 
 SourceMap::SourceMap(Source * src, const CountsMap * dataMap) 
-   : m_name(src->getName()), m_dataMap(dataMap) {
+   : m_name(src->getName()), m_dataMap(dataMap), m_deleteDataMap(false) {
+   s_refCount++;
    if (s_mu.size() == 0 || s_phi.size() == 0) {
       prepareAngleArrays(100, 50);
    }
@@ -99,7 +102,9 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const std::string & srcName) 
-   : m_name(srcName), m_dataMap(new CountsMap(sourceMapsFile)) {
+   : m_name(srcName), m_dataMap(new CountsMap(sourceMapsFile)),
+     m_deleteDataMap(true) {
+   s_refCount++;
    std::auto_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(sourceMapsFile, srcName));
    std::vector<float> image_data;

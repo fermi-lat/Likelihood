@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.10 2004/09/25 16:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.11 2004/09/25 18:24:34 jchiang Exp $
  */
 
 #include <algorithm>
@@ -104,6 +104,7 @@ CountsMap::CountsMap(const std::string & countsMapFile)
    binners.push_back(new evtbin::LinearBinner(0.5, m_naxes[1]+0.5, 1., "DEC"));
    readEbounds(countsMapFile, binners);
    readImageData(countsMapFile, binners);
+   setDataDir();
 }
 
 void CountsMap::readImageData(const std::string & countsMapFile,
@@ -209,12 +210,6 @@ void CountsMap::init(std::vector<evtbin::Binner *> & binners,
 
    adjustTimeKeywords(sc_file);
 
-// Reset data dir for LatCountsMapTemplate
-   char * root_path = std::getenv("LIKELIHOODROOT");
-   if (!root_path) {
-      throw std::runtime_error("LIKELIHOODROOT not set.");
-   }
-   m_data_dir = std::string(root_path) + "/data/";
 }
 
 CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
@@ -419,6 +414,15 @@ double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
       theta[1] = upper_right.dec()*M_PI/180.;
    }
    return std::fabs((phi[1] - phi[0])*(sin(theta[1]) - sin(theta[0])));
+}
+
+void CountsMap::setDataDir() {
+// Reset data dir for LatCountsMapTemplate
+   char * root_path = std::getenv("LIKELIHOODROOT");
+   if (!root_path) {
+      throw std::runtime_error("LIKELIHOODROOT not set.");
+   }
+   m_data_dir = std::string(root_path) + "/data/";
 }
 
 } // namespace Likelihood

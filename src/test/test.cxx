@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.39 2004/10/08 00:28:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.40 2004/10/08 05:59:22 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -81,8 +81,8 @@ class LikelihoodTests : public CppUnit::TestFixture {
 //    CPPUNIT_TEST(test_SourceDerivs);
 //    CPPUNIT_TEST(test_PointSource);
 //    CPPUNIT_TEST(test_DiffuseSource);
-   CPPUNIT_TEST(test_CountsMap);
-   CPPUNIT_TEST(test_BinnedLikelihood);
+//    CPPUNIT_TEST(test_CountsMap);
+//    CPPUNIT_TEST(test_BinnedLikelihood);
 //    CPPUNIT_TEST(test_MeanPsf);
 //    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
@@ -772,13 +772,13 @@ void LikelihoodTests::test_SourceMap() {
    }
    ExposureCube::readExposureCube(exposureCubeFile);
 
-   CountsMap dataMap(singleSrcMap(15));
+   CountsMap dataMap(singleSrcMap(3));
    dataMap.writeOutput("test.cxx", "cntsMap.fits");
 
    SourceFactory * srcFactory 
       = srcFactoryInstance("", "", "", "", false);
-   Source * src = srcFactory->create("Galactic Diffuse");
-//   Source * src =  srcFactory->create("Crab Pulsar");
+//   Source * src = srcFactory->create("Galactic Diffuse");
+   Source * src =  srcFactory->create("Crab Pulsar");
 
    SourceMap srcMap(src, &dataMap);
 
