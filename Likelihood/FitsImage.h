@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.20 2005/02/14 06:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.21 2005/02/15 00:34:42 jchiang Exp $
  *
  */
 
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.20 2005/02/14 06:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.21 2005/02/15 00:34:42 jchiang Exp $
  *
  */
 
@@ -56,10 +56,10 @@ public:
    static int findHdu(const std::string & fitsfile,
                       const std::string & extension);
 
+#ifndef SWIG
    static void readColumn(fitsfile * fptr, const std::string & colname,
                           std::vector<double> & coldata);
 
-#ifndef SWIG
    FitsImage &operator=(const FitsImage &rhs);
 
 /**

@@ -12,6 +12,7 @@
 #include "optimizers/Function.h"
 #include "optimizers/FunctionFactory.h"
 #include "optimizers/Mcmc.h"
+#include "st_facilities/FitsImage.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
@@ -67,6 +68,7 @@ using optimizers::Exception;
 %include $(OPTIMIZERSROOT)/optimizers/FunctionFactory.h
 %include $(OPTIMIZERSROOT)/optimizers/Optimizer.h
 %include $(OPTIMIZERSROOT)/optimizers/Mcmc.h
+%include $(ST_FACILITIESROOT)/st_facilities/FitsImage.h
 %template (FuncPair) std::pair<std::string, optimizers::Function *>;
 %template (FuncMap) std::map<std::string, optimizers::Function *>;
 %include $(LIKELIHOODROOT)/Likelihood/Exception.h
