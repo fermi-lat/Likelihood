@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.9 2005/03/05 18:37:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.10 2005/03/07 05:18:30 jchiang Exp $
  */
 
 #include <algorithm>
@@ -60,7 +60,7 @@ acceptInterval(double start, double stop,
       = timeCuts.begin();
 
    for ( ; it != timeCuts.end(); ++it) {
-      if (not overlaps(*it, candidateInterval)) {
+      if (!overlaps(*it, candidateInterval)) {
          fraction = 0;
          return false;
       }
