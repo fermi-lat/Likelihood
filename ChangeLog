@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 22 19:45:06 PST 2005
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx pyLike.in 
+Log Message:
+allow cuts to be changed on the fly from python
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 22 19:45:04 PST 2005
 Likelihood/python
 
