@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct 22 09:31:35 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+generalize use of latResponse in PointSource class; debug and pass 'unit tests'
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct 22 09:31:34 PDT 2003
 Likelihood/Likelihood
 
