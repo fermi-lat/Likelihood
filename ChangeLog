@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May  4 18:42:31 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	FitsImage.h LogLike.h PointSource.h 
+Log Message:
+working on python/swig build
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 30 06:53:05 PDT 2004
 Likelihood/src
 
