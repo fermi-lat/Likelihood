@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec 10 12:34:30 PST 2003
+Likelihood/src
+
+Modified Files:
+	ExposureMap.cxx 
+Log Message:
+fix TsMap transpose bug; CRPIX errors
+    *
+------------------------------------------------------------
 User: jchiang  Sun Dec  7 23:16:11 PST 2003
 Likelihood/src
 
