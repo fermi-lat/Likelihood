@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.52 2005/03/07 05:18:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.53 2005/03/17 07:20:01 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -38,7 +38,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.52 2005/03/07 05:18:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.53 2005/03/17 07:20:01 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -166,6 +166,10 @@ public:
       return m_exposure;
    }
 
+   /// @return Photon flux integrated over the ROI energy bounds. 
+   /// Units are #/cm^2/s
+   double flux() const;
+
 private:
 
    /// location on the Celestial sphere 
@@ -240,8 +244,8 @@ private:
 
       const ResponseFunctions & m_respFuncs;
 
-      static std::vector<irfInterface::AcceptanceCone *> s_cones;
-      static double s_emin, s_emax;
+      std::vector<irfInterface::AcceptanceCone *> m_cones;
+      double m_emin, m_emax;
    };
 #endif
 

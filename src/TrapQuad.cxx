@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.11 2004/12/01 16:46:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.12 2004/12/05 00:26:19 jchiang Exp $
  */
 
 #include "Likelihood/TrapQuad.h"
@@ -60,7 +60,7 @@ double TrapQuad::integral(double xmin, double xmax, int npts) {
    return value;
 }
 
-double TrapQuad::integral(std::vector<double> &xvals) {
+double TrapQuad::integral(const std::vector<double> &xvals) {
    if (!m_func) {
       std::ostringstream errorMessage;
       errorMessage << "TrapQuad::integral:\n"

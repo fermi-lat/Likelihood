@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.66 2005/03/18 01:05:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.67 2005/03/22 00:18:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -288,6 +288,12 @@ void PointSource::computeExposure(bool verbose) {
    }
 }
 
+double PointSource::flux() const {
+   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   TrapQuad fluxIntegral(m_spectrum);
+   return fluxIntegral.integral(energies);
+}
+
 void PointSource::
 computeExposureWithHyperCube(const astro::SkyDir & srcDir,
                              const std::vector<double> & energies, 
@@ -397,22 +403,16 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
 
    return aeff(cos_theta);
 }
-   
-std::vector<irfInterface::AcceptanceCone *> PointSource::Aeff::s_cones;
-double PointSource::Aeff::s_emin;
-double PointSource::Aeff::s_emax;
 
 PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir,
                         const RoiCuts & roiCuts,
                         const ResponseFunctions & respFuncs)
    : m_energy(energy), m_srcDir(srcDir), m_respFuncs(respFuncs) {
    
-   if (s_cones.size() == 0) {
-      s_cones.push_back(const_cast<irfInterface::AcceptanceCone *>
-                        (&(roiCuts.extractionRegion())));
-      s_emin = roiCuts.getEnergyCuts().first;
-      s_emax = roiCuts.getEnergyCuts().second;
-   }
+   m_cones.push_back(const_cast<irfInterface::AcceptanceCone *>
+                     (&(roiCuts.extractionRegion())));
+   m_emin = roiCuts.getEnergyCuts().first;
+   m_emax = roiCuts.getEnergyCuts().second;
 }
 
 double PointSource::Aeff::operator()(double cos_theta) const {
@@ -428,12 +428,12 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       irfInterface::IAeff *aeff = respIt->second->aeff();
 
       double psf_val = psf->angularIntegral(m_energy, m_srcDir,
-                                            theta, phi, s_cones);
+                                            theta, phi, m_cones);
       double aeff_val = aeff->value(m_energy, theta, phi);
 
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();
-         double edisp_val = edisp->integral(s_emin, s_emax, m_energy, 
+         double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 
                                             theta, phi);
          myEffArea += psf_val*aeff_val*edisp_val;
       } else {

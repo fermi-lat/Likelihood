@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.30 2005/03/07 05:18:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.31 2005/03/22 00:18:10 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -39,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.30 2005/03/07 05:18:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.31 2005/03/22 00:18:10 jchiang Exp $
  */
 
 class RoiCuts {
@@ -73,8 +73,18 @@ public:
       return std::make_pair(m_eMin, m_eMax);
    }
 
+#ifndef SWIG
    const irfInterface::AcceptanceCone & extractionRegion() const {
       return m_roiCone;
+   }
+#endif //SWIG
+
+   std::vector<double> roiCone() const {
+      std::vector<double> my_vec;
+      my_vec.push_back(m_roiCone.center().ra());
+      my_vec.push_back(m_roiCone.center().dec());
+      my_vec.push_back(m_roiCone.radius());
+      return my_vec;
    }
 
    void getRaDec(double & ra, double & dec) const {
