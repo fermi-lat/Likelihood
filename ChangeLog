@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: pln  Fri Nov 21 16:06:16 PST 2003
+Likelihood/src
+
+Modified Files:
+	OneSourceFunc.cxx OptEM.cxx 
+Log Message:
+Clean up the threshold functions.
+Add a chi-squared test for convergence.
+
+    *
+------------------------------------------------------------
 User: pln  Fri Nov 21 16:06:12 PST 2003
 Likelihood/Likelihood
 
