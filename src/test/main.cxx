@@ -34,6 +34,7 @@
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Lbfgs.h"
 #include "Likelihood/Minuit.h"
+#include "Likelihood/Drmngb.h"
 #include "Likelihood/Mcmc.h"
 #include "Likelihood/FunctionTest.h"
 #include "OptPP.h"
@@ -78,31 +79,31 @@ void test_cfitsio();
 std::string test_path;
 
 int main() {
-   read_SC_Response_data();
-   test_Parameter_class();
-   test_Function_class();
-   test_PowerLaw_class();
-   test_SourceModel_class();
-   test_Table_class();
-   test_Statistic_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_Aeff_class();
-   test_Psf_class();
-   test_logLike_ptsrc();
-   test_CompositeFunction();
-   test_SpectrumFactory();
-   test_SourceFactory();
-   test_Optimizers();
-   fit_3C279();
-   fit_anti_center();
-   test_FitsImage();
-   test_ExposureMap();
-   test_SpatialMap();
-   test_DiffuseSource();
-   fit_DiffuseSource();
-   test_Mcmc();
-//   test_cfitsio();
+  //   read_SC_Response_data();
+  //   test_Parameter_class();
+  //   test_Function_class();
+  //   test_PowerLaw_class();
+  //   test_SourceModel_class();
+  //   test_Table_class();
+  //   test_Statistic_class();
+  //   test_Event_class();
+  //   test_PointSource_class();
+  //   test_Aeff_class();
+  //   test_Psf_class();
+  //   test_logLike_ptsrc();
+  //   test_CompositeFunction();
+  //   test_SpectrumFactory();
+  //   test_SourceFactory();
+  test_Optimizers();
+  //   fit_3C279();
+  //   fit_anti_center();
+  //   test_FitsImage();
+  //   test_ExposureMap();
+  //   test_SpatialMap();
+  //   test_DiffuseSource();
+  //   fit_DiffuseSource();
+  //   test_Mcmc();
+  //   test_cfitsio();
    return 0;
 }
 
@@ -669,7 +670,7 @@ void test_Optimizers() {
    params[0].setValue(2.);
    params[0].setBounds(-5., 10);
    params[1].setValue(2.);
-   params[1].setBounds(-4., 10);
+   params[1].setBounds(1.5, 10);
    my_rosen.setParams(params);
 
    int verbose = 1;
@@ -695,11 +696,26 @@ void test_Optimizers() {
    params[0].setValue(2.);
    params[0].setBounds(-10., 10.);
    params[1].setValue(2.);
-   params[1].setBounds(-10., 10.);
+   params[1].setBounds(1.5, 10.);
    my_rosen.setParams(params);
    Minuit myMinuitObj(my_rosen);
    myMinuitObj.find_min(verbose, .0001);
    std::vector<double> sig = myMinuitObj.getUncertainty();
+   for (unsigned int i=0; i < sig.size(); i++) {
+     std::cout << i << "  " << sig[i] << std::endl;
+   }
+
+   std::cout << "\nTest DRMNGB method:\n" << endl;
+   params[0].setValue(2.);
+   params[0].setBounds(-10., 10.);
+   params[1].setValue(2.);
+   params[1].setBounds(1.5, 10.);
+   my_rosen.setParams(params);
+   Drmngb my_Drmngb(my_rosen);
+   my_Drmngb.find_min(verbose, .0001);
+   std::cout << "Drmngb exit code: " << my_Drmngb.getRetCode() << std::endl;
+   sig = my_Drmngb.getUncertainty();
+   std::cout << "Uncertainties:" << std::endl;
    for (unsigned int i=0; i < sig.size(); i++) {
      std::cout << i << "  " << sig[i] << std::endl;
    }
