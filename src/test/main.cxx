@@ -83,13 +83,13 @@ int main(){
 //     test_logLike_ptsrc();
 //     test_CompositeFunction();
 //     test_SpectrumFactory();
-//     test_SourceFactory();
+   test_SourceFactory();
 //     test_OptPP();
 //     fit_3C279();
 //     fit_anti_center();
-   test_FitsImage();
-   test_ExposureMap();
-   test_SpatialMap();
+//   test_FitsImage();
+//   test_ExposureMap();
+//   test_SpatialMap();
 //     test_DiffuseSource();
    return 0;
 }
