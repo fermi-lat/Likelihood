@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.13 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.14 2004/09/28 14:45:37 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.13 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.14 2004/09/28 14:45:37 jchiang Exp $
  *
  */
 
@@ -78,9 +78,6 @@ public:
    /// Retrieve the energies in MeV of each plane in the ExposureMap 
    /// frame stack
    void getEnergies(std::vector<double> &energies) {energies = s_energies;}
-
-   /// Retrieve a vector of image plane exposures
-   void getExposure(std::vector< std::vector<double> > &exposure);
 
    /**
     * @brief Compute the exposure map given the current set of
