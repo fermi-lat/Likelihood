@@ -16,8 +16,8 @@
 
 namespace Likelihood {
 
-void AbsEdge::init(double Tau0, double E0, double Index) {
 // Initialization function used by constructors.
+void AbsEdge::init(double Tau0, double E0, double Index) {
 // Implement AbsEdge class with three named parameters, 
 // "Tau0", "E0", "Index".
 
@@ -27,6 +27,10 @@ void AbsEdge::init(double Tau0, double E0, double Index) {
    addParam(std::string("Tau0"), Tau0, true);
    addParam(std::string("E0"), E0, true);
    addParam(std::string("Index"), Index, true);
+
+// set FuncType and ArgType for use with CompositeFunction hierarchy
+   m_funcType = Factor;
+   m_argType = "dArg";
 }
 
 double AbsEdge::value(Arg &xarg) const {

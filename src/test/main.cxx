@@ -1,7 +1,5 @@
 // test program for Likelihood
 
-//#define HAVE_OPTIMIZERS
-
 #include <cstring>
 #include <cmath>
 
@@ -25,6 +23,7 @@
 #include "Likelihood/dArg.h"
 #include "Likelihood/SumFunction.h"
 #include "Likelihood/ProductFunction.h"
+#include "Likelihood/SpectrumFactory.h"
 #include "lbfgs.h"
 #include "OptPP.h"
 #include "logLike_gauss.h"
@@ -54,6 +53,7 @@ void fit_3C279();
 void fit_anti_center();
 void test_CompositeFunction();
 void test_OptPP();
+void test_SpectrumFactory();
 
 std::string test_path;
 
@@ -70,7 +70,8 @@ int main(){
 //     test_Aeff_class();
 //     test_Psf_class();
 //     test_logLike_ptsrc();
-   test_CompositeFunction();
+//     test_CompositeFunction();
+   test_SpectrumFactory();
 //     test_OptPP();
 //     fit_3C279();
 //     fit_anti_center();
@@ -117,24 +118,80 @@ void test_OptPP() {
 }
 // test_OptPP
 
-void test_CompositeFunction() {
+void test_SpectrumFactory() {
 
-   Gaussian Carl(1., 1., 0.1);
-   Gaussian Fredrich(0.5, 2., 0.3);
+   SpectrumFactory myFactory;
 
-   SumFunction gauss_sum(Carl, Fredrich);
+   Function *pl_continuum = myFactory.makeFunction("PowerLaw");
+   double parray[] = {1., -2, 1.};
+   std::vector<double> params(parray, parray+3);
+   pl_continuum->setParamValues(params);
 
-   Gaussian Johann(.75, 3., 0.5);
+   Function *emission_line = myFactory.makeFunction("Gaussian");
+   params[0] = 10.; params[1] = 1.; params[2] = 0.1;
+   emission_line->setParamValues(params);
 
-   SumFunction another_gauss_sum(Johann, gauss_sum);
+   SumFunction spectrum(*pl_continuum, *emission_line);
+
+   Function *edge = myFactory.makeFunction("AbsEdge");
+   params[0] = 5; params[1] = 1.2; params[2] = -3;
+   edge->setParamValues(params);
+
+   ProductFunction absorbed_spec(*edge, spectrum);
+
+// add this new Function to myFactory
+
+   myFactory.addFunc("absorbed_spec", &absorbed_spec);
+
+// list the available guys
+
+   myFactory.listFunctions();
+
+// clone this CompositeFunction using myFactory and see if it works 
+// as expected after tweaking a parameter
+
+   Function *abs_spec = myFactory.makeFunction("absorbed_spec");
+
+   abs_spec->getParamValues(params);
+   params[0] *= 1.5;  //modify the AbsEdge depth Tau0
+   abs_spec->setParamValues(params);
 
    int nmax = 100;
-   double xstep = 5./(nmax-1);
-//     for (int i = 0; i < nmax; i++) {
-//        double x = xstep*i;
-//        dArg xarg(x);
-//        std::cout << x << "  " << another_gauss_sum(xarg) << std::endl;
-//     }
+   double xmin = 0.1;
+   double xmax = 10.;
+   double xstep = log(xmax/xmin)/(nmax-1);
+   for (int i = 0; i < nmax; i++) {
+      double x = xmin*exp(xstep*i);
+      dArg xarg(x);
+      std::cout << x << "  " 
+                << absorbed_spec(xarg) << "  "
+                << (*abs_spec)(xarg) 
+                << std::endl;
+   }
+   
+// check the derivatives of absorbed_spec
+   absorbed_spec.getParamValues(params);
+   dArg xarg(1.5);
+   double spec_value = absorbed_spec(xarg);
+   std::vector<double> derivs;
+   absorbed_spec.getDerivs(xarg, derivs);
+
+   double eps = 1e-7;
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::vector<double> new_params = params;
+      double dparam = eps*new_params[i];
+      new_params[i] += dparam;
+      absorbed_spec.setParamValues(new_params);
+      double new_spec_value = absorbed_spec(xarg);
+      double num_deriv = (new_spec_value - spec_value)/dparam;
+      std::cerr << derivs[i] << "  "
+                << num_deriv << "  "
+                << derivs[i]/num_deriv << "  "
+                << std::endl;
+   }
+}  // test_SpectrumFactory
+
+void test_CompositeFunction() {
 
 // add a PowerLaw and Gaussian together 
 
@@ -142,38 +199,43 @@ void test_CompositeFunction() {
    Gaussian emission_line(10., 1., 0.1);
 
    SumFunction spectrum(pl_continuum, emission_line);
+//   SumFunction spectrum = pl_continuum + emission_line;
 
 // multiply by an absorption edge
 
-   AbsEdge edge(2., 3.);
+   AbsEdge edge(5., 1.2);
    ProductFunction absorbed_spec(edge, spectrum);
+//   ProductFunction absorbed_spec = edge*spectrum;
 
-   double xmin = 0.03;
-   double xmax = 30.;
-   xstep = log(xmax/xmin)/(nmax-1);
+   int nmax = 100;
+   double xmin = 0.1;
+   double xmax = 10.;
+   double xstep = log(xmax/xmin)/(nmax-1);
    for (int i = 0; i < nmax; i++) {
       double x = xmin*exp(xstep*i);
       dArg xarg(x);
       std::cout << x << "  " << absorbed_spec(xarg) << std::endl;
    }
    
-// check the derivatives of AbsEdge
+// check the derivatives of absorbed_spec
    std::vector<double> params;
-   edge.getParamValues(params);
-   dArg xarg(4.);
-   double edge_value = edge(xarg);
+   absorbed_spec.getParamValues(params);
+   dArg xarg(1.5);
+   double spec_value = absorbed_spec(xarg);
    std::vector<double> derivs;
-   edge.getDerivs(xarg, derivs);
+   absorbed_spec.getDerivs(xarg, derivs);
 
    double eps = 1e-7;
    for (unsigned int i = 0; i < params.size(); i++) {
       std::vector<double> new_params = params;
       double dparam = eps*new_params[i];
       new_params[i] += dparam;
-      edge.setParamValues(new_params);
-      double new_edge_value = edge(xarg);
+      absorbed_spec.setParamValues(new_params);
+      double new_spec_value = absorbed_spec(xarg);
+      double num_deriv = (new_spec_value - spec_value)/dparam;
       std::cerr << derivs[i] << "  "
-                << (new_edge_value - edge_value)/dparam
+                << num_deriv << "  "
+                << derivs[i]/num_deriv << "  "
                 << std::endl;
    }
 }

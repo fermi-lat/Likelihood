@@ -2,7 +2,7 @@
  * @brief SumFunction class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SumFunction.cxx,v 1.2 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -12,6 +12,15 @@
 #include "Likelihood/SumFunction.h"
 
 namespace Likelihood {
+
+SumFunction::SumFunction(Function &a, Function &b) : 
+   CompositeFunction(a, b) {
+   assert(a.funcType() == Addend && b.funcType() == Addend);
+   m_funcType = Addend;
+   m_a = &a;
+   m_b = &b;
+   syncParams(); 
+}
 
 void SumFunction::fetchDerivs(Arg &x, std::vector<double> &derivs, 
                               bool getFree) const {

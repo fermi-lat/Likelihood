@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <memory>
 
 #include "Likelihood/Function.h"
 #include "Likelihood/SumFunction.h"
@@ -13,10 +14,23 @@
 
 namespace Likelihood {
 
+// use of these operators will no doubt leak memory....
+SumFunction &Function::operator+(Function &a) {
+   SumFunction *sumFunc = new SumFunction(*this, a);
+   return *sumFunc;
+}
+
+ProductFunction &Function::operator*(Function &a) {
+   ProductFunction *productFunc = new ProductFunction(*this, a);
+   return *productFunc;
+}
+
 Function::Function(const Function &func) {
    m_functionName = func.m_functionName;
    m_maxNumParams = func.m_maxNumParams;
    m_parameter = func.m_parameter;
+   m_funcType = func.m_funcType;
+   m_argType = func.m_argType;
 }
    
 void Function::setParameter(const std::string &paramName, 

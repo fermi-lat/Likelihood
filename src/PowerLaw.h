@@ -2,8 +2,11 @@
  * @brief Declaration for the PowerLaw Function class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
+
+#ifndef PowerLaw_h
+#define PowerLaw_h
 
 #include "Likelihood/Function.h"
 #include "Likelihood/Arg.h"
@@ -16,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.5 2003/03/16 21:53:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
     
 class PowerLaw : public Function {
@@ -32,6 +35,11 @@ public:
 
    double integral(Arg &xmin, Arg &xmax) const;
 
+   virtual Function *clone() const {
+      return new PowerLaw(*this);
+   }
+;
+
 private:
 
    void init(double Prefactor, double Index, double Scale);
@@ -40,3 +48,4 @@ private:
 
 } // namespace Likelihood
 
+#endif // PowerLaw_h
