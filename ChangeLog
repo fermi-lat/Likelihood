@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  5 17:25:43 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Function.h PointSource.h Response.h Source.h SourceModel.h 
+Added Files:
+	Npred.h TrapQuad.h 
+Log Message:
+added Npred, TrapQuad classes, modified PointSource
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar  4 09:45:33 PST 2003
 Likelihood/src/test
 
