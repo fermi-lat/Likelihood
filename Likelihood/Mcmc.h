@@ -2,15 +2,21 @@
  * @file Mcmc.h
  * @brief Mcmc (Markov Chain Monte Carlo) class declaration
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.1 2003/05/22 22:29:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.2 2003/05/23 22:59:49 jchiang Exp $
  */
+
+#ifdef _MSC_VER
+#pragma warning(disable:4290)
+#endif
 
 #ifndef Mcmc_h
 #define Mcmc_h
 
 #include <vector>
+#include <string>
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Statistic.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
@@ -37,7 +43,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.1 2003/05/22 22:29:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.2 2003/05/23 22:59:49 jchiang Exp $
  */
 
 class Mcmc {
@@ -60,6 +66,11 @@ public:
    void getTransitionWidths(std::vector<double> &transitionWidths)
       {transitionWidths = m_transitionWidths;}
 
+   //! write samples to a FITS binary table
+   static void writeSamples(std::string filename, 
+                            std::vector< std::vector<double> > &samples)
+      throw(LikelihoodException);
+
 private:
 
    Statistic *m_stat;
@@ -68,8 +79,7 @@ private:
 
    std::vector<double> m_transitionWidths;
 
-   void estimateTransWidths(Statistic *stat, 
-                            std::vector<double> &transitionWidths);
+   void estimateTransWidths();
 
    double drawValue(Parameter &param, double transitionWidth, 
                     double &transProbRatio);
