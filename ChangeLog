@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 23 22:32:46 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	FitsImage.h 
+Log Message:
+backwards compatibility with old column names
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 22 16:55:59 PST 2005
 Likelihood/doc
 
