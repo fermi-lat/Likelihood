@@ -60,7 +60,6 @@ using optimizers::Minuit;
 void read_SC_Response_data();
 void test_SourceModel_class();
 void report_SrcModel_values(const SourceModel &SrcModel);
-void test_Table_class();
 void test_Event_class();
 void test_PointSource_class();
 void test_Aeff_class();
@@ -88,7 +87,6 @@ int main() {
 #endif
    read_SC_Response_data();
 //    test_SourceModel_class();
-//    test_Table_class();
 //    test_Event_class();
 //    test_PointSource_class();
 //    test_Aeff_class();
@@ -1161,126 +1159,6 @@ void test_Event_class() {
    std::cout << "*** test_Event_class: all tests completed ***\n" << std::endl;
 
 } // Event class tests
-
-/*********************/
-/* latResponse::Table class tests */
-/*********************/
-void test_Table_class() {
-
-   std::cout << "*** test_Table_class ***" << std::endl;
-
-/* read in PSF parameters */
-   std::string psf_file = test_path + "CALDB/psf_lat.fits";
-
-   latResponse::Table psf_data;
-      
-   psf_data.add_columns("ENERGY THETA SIG1_F SIG2_F W");
-   psf_data.read_FITS_table(psf_file, 2);
-
-   int nenergy = psf_data[0].dim;
-   double *energy = psf_data[0].val;
-   int ntheta = psf_data[1].dim;
-   double *theta = psf_data[1].val;
-
-   std::cout << "\nFrom " << psf_file << ": \n";
-
-   std::cout << "energies: ";
-   for (int i = 0; i < nenergy; i++) 
-      std::cout << energy[i] << "  ";
-   std::cout << std::endl;
-
-   std::cout << "theta values: ";
-   for (int i = 0; i < ntheta; i++) 
-      std::cout << theta[i] << "  ";
-   std::cout << std::endl;
-   std::cout << std::endl;
-
-/* read in AEFF parameters */
-   std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
-
-   latResponse::Table aeff_data;
-
-   aeff_data.add_columns("ENERGY THETA AEFF_F");
-   aeff_data.read_FITS_table(aeff_file, 2);
-
-   nenergy = aeff_data[0].dim;
-   energy = aeff_data[0].val;
-   ntheta = aeff_data[1].dim;
-   theta = aeff_data[1].val;
-   
-   std::cout << "From " << aeff_file << ": \n";
-   std::cout << "energies: ";
-   for (int i = 0; i < nenergy; i++) 
-      std::cout << energy[i] << "  ";
-   std::cout << std::endl;
-
-   std::cout << "theta values: ";
-   for (int i = 0; i < ntheta; i++) 
-      std::cout << theta[i] << "  ";
-   std::cout << std::endl;
-   std::cout << std::endl;
-
-/* read in EVENT file */
-   std::string event_file = test_path + "Data/one_src_0000";
-
-   latResponse::Table event_data;
-
-   event_data.add_columns("RA DEC energy time SC_x SC_y SC_z zenith_angle");
-   event_data.read_FITS_table(event_file, 2);
-
-   int nRA = event_data[0].dim;
-   double* RA = event_data[0].val;
-   int nDEC = event_data[1].dim;
-   double* DEC = event_data[1].val;
-   nenergy = event_data[2].dim;
-   energy = event_data[2].val;
-   int ntime = event_data[3].dim;
-   double* time = event_data[3].val;
-
-   int nmax = 5;
-
-   std::cout << "Some of the data from " << event_file << ":\n";
-   std::cout << nRA << "  " << nDEC << "  "
-             << nenergy << "  " << ntime << std::endl;
-   for (int i = 0; i < nmax; i++) {
-      std::cout << RA[i] << "  "
-                << DEC[i] << "  "
-                << energy[i] << "  "
-                << time[i] << std::endl;
-   }
-   std::cout << std::endl;
-
-/* Spacecraft data file */
-   std::string sc_file = test_path + "Data/one_src_sc_0000";
-
-   latResponse::Table sc_data;
-
-   sc_data.add_columns("time SC_x SC_y SC_z SAA_flag");
-   sc_data.read_FITS_table(sc_file, 2);
-
-   ntime= sc_data[0].dim;
-   time = sc_data[0].val;
-   int nSC_x = sc_data[1].dim;
-   double* SC_x = sc_data[1].val;
-   int nSC_y = sc_data[2].dim;
-   double* SC_y = sc_data[2].val;
-   int nSC_z = sc_data[3].dim;
-   double* SC_z = sc_data[3].val;
-
-   std::cout << "Some of the data from " << sc_file << ":\n";
-   std::cout << ntime << "  " << nSC_x << "  "
-             << nSC_y << "  " << nSC_z << std::endl;
-   for (int i = 0; i < nmax; i++) {
-      std::cout << time[i] << "  "
-                << SC_x[i] << "  "
-                << SC_y[i] << "  "
-                << SC_z[i] << std::endl;
-   }
-   std::cout << std::endl;
-
-   std::cout << "*** test_Table_class: all tests completed ***\n" << std::endl;
-
-} // latResponse::Table class tests
 
 /***************************/
 /* SourceModel class tests */
