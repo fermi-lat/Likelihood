@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include "../Likelihood/dArg.h"
 #include "PowerLaw.h"
 
 namespace Likelihood {
@@ -19,9 +20,10 @@ void PowerLaw::m_init(double Prefactor, double Index, double Scale) {
    addParam(string("Scale"), Scale, false);   // scale should always be fixed
 }
 
-double PowerLaw::value(double x) const {
-//! assume a standard ordering for the parameters
+double PowerLaw::value(Arg &xarg) const {
+   double x = dynamic_cast<dArg &>(xarg).getValue();
 
+//! assume a standard ordering for the parameters
    enum paramTypes {Prefactor, Index, Scale};
 
    std::vector<Parameter> my_params;
@@ -31,7 +33,8 @@ double PowerLaw::value(double x) const {
 					      my_params[Index].getValue());
 }
 
-double PowerLaw::derivByParam(double x, const std::string &paramName) const {
+double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const {
+   double x = dynamic_cast<dArg &>(xarg).getValue();
 
    enum paramTypes {Prefactor, Index, Scale};
 
@@ -53,13 +56,13 @@ double PowerLaw::derivByParam(double x, const std::string &paramName) const {
    
    switch (iparam) {
    case Prefactor:
-      return value(x)/my_params[Prefactor].getValue();
+      return value(xarg)/my_params[Prefactor].getValue();
       break;
    case Index:
-      return value(x)*log(x/my_params[Scale].getValue());
+      return value(xarg)*log(x/my_params[Scale].getValue());
       break;
    case Scale:  // shouldn't ever need this, nonetheless....
-      return -value(x)*(my_params[Index].getValue())
+      return -value(xarg)*(my_params[Index].getValue())
 	 /(my_params[Scale].getValue());
       break;
    default:
@@ -68,7 +71,9 @@ double PowerLaw::derivByParam(double x, const std::string &paramName) const {
    return 0;
 }
 
-double PowerLaw::integral(double xmin, double xmax) {
+double PowerLaw::integral(Arg &xargmin, Arg &xargmax) const {
+   double xmin = dynamic_cast<dArg &>(xargmin).getValue();
+   double xmax = dynamic_cast<dArg &>(xargmax).getValue();
 
    enum paramTypes {Prefactor, Index, Scale};
    std::vector<Parameter> my_params;

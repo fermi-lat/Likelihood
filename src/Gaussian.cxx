@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include "../Likelihood/dArg.h"
 #include "Gaussian.h"
 
 namespace Likelihood {
@@ -19,7 +20,10 @@ void Gaussian::m_init(double Prefactor, double Mean, double Sigma) {
    addParam(string("Sigma"), Sigma, true);
 }
 
-double Gaussian::integral(double xmin, double xmax) {
+double Gaussian::integral(Arg &xargmin, Arg &xargmax) const {
+   double xmin = dynamic_cast<dArg &>(xargmin).getValue();
+   double xmax = dynamic_cast<dArg &>(xargmax).getValue();
+
    std::vector<Parameter> my_params;
    getParams(my_params);
    enum paramTypes {Prefactor, Mean, Sigma};
@@ -34,7 +38,7 @@ double Gaussian::integral(double xmin, double xmax) {
    return f0*(m_erfcc(zmin) - m_erfcc(zmax))/2.;
 }
 
-double Gaussian::m_erfcc(double x) {
+double Gaussian::m_erfcc(double x) const {
 /* (C) Copr. 1986-92 Numerical Recipes Software 0@.1Y.. */
    double t, z, ans;
 
@@ -46,23 +50,24 @@ double Gaussian::m_erfcc(double x) {
    return x >= 0.0 ? ans : 2.0-ans;
 }
 
-double Gaussian::value(double x) const {
+double Gaussian::value(Arg &xarg) const {
+   double x = dynamic_cast<dArg &>(xarg).getValue();
+
 //! assume a standard ordering for the parameters
-
-   const double pi = 3.14159265358979323;
-
    enum paramTypes {Prefactor, Mean, Sigma};
 
    std::vector<Parameter> my_params;
    getParams(my_params);
 
-   return my_params[Prefactor].getValue()/sqrt(2.*pi)
+   return my_params[Prefactor].getValue()/sqrt(2.*M_PI)
       /my_params[Sigma].getValue()
-      *exp(-pow( (x-my_params[Mean].getValue())
+      *exp(-pow( (x - my_params[Mean].getValue())
                  /my_params[Sigma].getValue(), 2 )/2.);
 }
 
-double Gaussian::derivByParam(double x, const std::string &paramName) const {
+double Gaussian::derivByParam(Arg &xarg, 
+			      const std::string &paramName) const {
+   double x = dynamic_cast<dArg &>(xarg).getValue();
 
    enum paramTypes {Prefactor, Mean, Sigma};
 
@@ -84,14 +89,14 @@ double Gaussian::derivByParam(double x, const std::string &paramName) const {
    
    switch (iparam) {
    case Prefactor:
-      return value(x)/my_params[Prefactor].getValue();
+      return value(xarg)/my_params[Prefactor].getValue();
       break;
    case Mean:
-      return value(x)*(x - my_params[Mean].getValue())
+      return value(xarg)*(x - my_params[Mean].getValue())
          /my_params[Sigma].getValue();
       break;
    case Sigma:
-      return value(x)/my_params[Sigma].getValue()
+      return value(xarg)/my_params[Sigma].getValue()
          *( pow((x - my_params[Mean].getValue())/my_params[Sigma].getValue(), 2)
             - 1. );
       break;

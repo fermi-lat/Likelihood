@@ -6,20 +6,18 @@
 
 #include "../Likelihood/Function.h"
 
-#include <vector>
-#include <string>
-
 namespace Likelihood {
 
-//! copy constructor 
+//! copy constructor
 Function::Function(const Function &func) {
   m_functionName = func.m_functionName;
   m_maxNumParams = func.m_maxNumParams;
   m_parameter = func.m_parameter;
 }
 
-void Function::setParameter(const std::string &paramName, double paramValue,
-			    int isFree = -1) {
+void Function::setParameter(const std::string &paramName, 
+				     double paramValue,
+				     int isFree = -1) {
 // check if parameter is present...
    for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
@@ -36,10 +34,11 @@ void Function::setParameter(const std::string &paramName, double paramValue,
 }
 
 //! add a Parameter
-void Function::addParam(const std::string &paramName, double paramValue, 
-                        bool isFree) {
+void Function::addParam(const std::string &paramName,
+				 double paramValue, 
+				 bool isFree) {
 
-// check if named parameter is present; if so, complain....
+// check if paramName is already present; if so, complain....
    for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
 	 std::cerr << "This parameter name already exists: "
@@ -104,7 +103,9 @@ std::vector<double>::const_iterator Function::setParamValues_(
    return it;
 }
 
-void Function::setFreeParamValues(const std::vector<double> &paramVec) {
+
+void Function::setFreeParamValues(
+   const std::vector<double> &paramVec) {
    if (paramVec.size() != getNumFreeParams()) {
       std::cerr
          << "The input vector size does not match"
@@ -160,10 +161,11 @@ void Function::fetchParamNames(std::vector<std::string> &names,
    }
 }
 
-void Function::fetchDerivs(double x, std::vector<double> &derivs, 
-			   bool getFree) const {
+void Function::fetchDerivs(Arg &x, std::vector<double> &derivs, 
+                           bool getFree) const {
 // ensure that derivs is empty
-   if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
+//   if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
+   if (!derivs.empty()) derivs.clear();
 
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (!getFree || m_parameter[i].isFree())

@@ -23,7 +23,7 @@ void SkyDirFunction::m_init(double lon, double lat) {
 }
 
 void SkyDirFunction::update_m_dir(const std::string paramName, 
-				 double paramValue) {
+                                  double paramValue) {
    if (paramName == "longitude") {
       m_lon = paramValue;
    } else if (paramName == "latitude") {

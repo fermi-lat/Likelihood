@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/SourceModel.h,v 1.2 2003/02/23 22:28:59 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.3 2003/02/27 18:47:43 jchiang Exp $ */
 
 class SourceModel : public Function {
     
@@ -55,12 +55,13 @@ public:
 
    // this is a bit convoluted, but necessary for derived classes 
    // (e.g., Statistic)
-   double evaluate_at(double) const;
-   virtual double value(double x) const {return evaluate_at(x);};
-   virtual double operator()(double x) const {return value(x);};
+   double evaluate_at(Arg &) const;
+   virtual double value(Arg &x) const {return evaluate_at(x);};
 
-   virtual void getDerivs(double, std::vector<double>&) const;
-   virtual void getFreeDerivs(double, std::vector<double>&) const;
+   double derivByParam(Arg &, const std::string &) const {return 0;}
+
+   void getDerivs(Arg &, std::vector<double>&) const;
+   void getFreeDerivs(Arg &, std::vector<double>&) const;
 
 protected:
 

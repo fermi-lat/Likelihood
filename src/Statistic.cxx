@@ -9,8 +9,8 @@
 #include <cmath>
 #include <cassert>
 #include "../Likelihood/Statistic.h"
+
 #include "../Likelihood/Table.h"
-#include "PowerLaw.h"
 
 namespace Likelihood {
 
@@ -25,7 +25,7 @@ void Statistic::readEventData(const std::string &eventFile,
 
 //! return pointer to data columns
 std::pair<long, double*> 
-Statistic::m_getColumn(const Table &tableData,
+Statistic::m_getColumn(const Table &tableData, 
                        const std::string &colname) const{
    std::pair<long, double*> my_column(0, 0);
    std::string colnames;

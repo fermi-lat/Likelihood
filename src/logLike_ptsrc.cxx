@@ -19,24 +19,72 @@ double logLike_ptsrc::value(const std::vector<double> &paramVec) {
    
    double my_value = 0;
    
-   for (int j = 0; j < m_eventData[0].dim; j++) {
+// the "data sum"
+   for (unsigned int j = 0; j < m_events.size(); j++) {
       double src_sum = 0.;
-      for (unsigned int i = 0; i < getNumSrcs(); i++)
-// NB: Here evaluate_at(double) is inherited from SourceModel and
-// evaluates as a function of the data variable.  This will need
-// generalization in SourceModel, i.e., an Event class object should
-// be passed instead.
-         src_sum += evaluate_at(m_eventData[0].val[j]);
-      my_value += log(src_sum);
+      src_sum += evaluate_at(m_events[j]);
+      if (src_sum > 0) my_value += log(src_sum);
    }
+
+// the "model integral", a sum over Npred for each source
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++)
-         my_value -= (*func_it).second->integral(-1e3, 1e3);
+      my_value -= m_sources[i]->Npred();
    }
    
    return my_value;
+}
+
+double logLike_ptsrc::evaluate_at(const Event &evt) const {
+                                  
+   double my_value = 0;
+   for (unsigned int i = 0; i < getNumSrcs(); i++) {
+      my_value += (*m_sources[i]).fluxDensity(evt);
+   }
+   return my_value;
+}
+
+void logLike_ptsrc::getEvents(const std::string &event_file, int hdu) {
+
+   std::string colnames = "RA DEC energy time SC_x SC_y SC_z zenith_angle";
+
+   readEventData(event_file, colnames, hdu);
+
+   typedef std::pair<long, double*> tableColumn;
+   tableColumn ra = getEventColumn("RA");
+   tableColumn dec = getEventColumn("DEC");
+   tableColumn energy = getEventColumn("energy");
+   tableColumn time = getEventColumn("time");
+   tableColumn sc_x = getEventColumn("SC_x");
+   tableColumn sc_y = getEventColumn("SC_y");
+   tableColumn sc_z = getEventColumn("SC_z");
+   tableColumn zenangle = getEventColumn("zenith_angle");
+
+// get pointer to RoiCuts
+   RoiCuts *roi_cuts = RoiCuts::instance();
+
+   unsigned int nReject = 0;
+
+   m_events.reserve(ra.first);
+   for (int i = 0; i < ra.first; i++) {
+// compute sc_ra and sc_dec from direction cosines 
+      double sc_ra = atan2(sc_y.second[i], sc_x.second[i])*180./M_PI;
+      double sc_dec = asin(sc_z.second[i])*180./M_PI;
+
+      Event thisEvent(ra.second[i], dec.second[i], energy.second[i],
+                      time.second[i], sc_ra, sc_dec,
+                      cos(zenangle.second[i]*M_PI/180.));
+
+      if (roi_cuts->accept(thisEvent)) {
+         m_events.push_back(thisEvent);
+      } else {
+         nReject++;
+      }
+   }
+
+   std::cout << "logLike_ptsrc::getEvents:\nOut of " 
+             << ra.first << " events, "
+             << m_events.size() << " were accepted, and "
+             << nReject << " were rejected.\n" << std::endl;
 }
 
 } // namespace Likelihood

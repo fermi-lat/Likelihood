@@ -22,7 +22,9 @@
 #include "../Likelihood/Psf.h"
 #include "../Likelihood/ScData.h"
 #include "../Likelihood/RoiCuts.h"
+#include "../Likelihood/dArg.h"
 #include "logLike_gauss.h"
+#include "logLike_ptsrc.h"
 #include "MyFun.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
@@ -40,30 +42,111 @@ void test_Event_class();
 void test_PointSource_class();
 void test_Aeff_class();
 void test_Psf_class();
+void test_logLike_ptsrc();
 
 std::string test_path;
 
 int main(){
 /* get root path to test data */   
    const char * root = ::getenv("LIKELIHOODROOT");
-   if (!root) {
+   if (!root) {  //use relative path from cmt directory
       test_path = "../src/test/";
-   } else {  //use relative path from cmt directory
+   } else {
       test_path = std::string(root) + "/src/test/";
    }
 
-//     test_Parameter_class();
-//     test_Function_class();
-//     test_PowerLaw_class();
-//     test_SourceModel_class();
-//     test_Table_class();
-//     test_Statistic_class();
+   test_Parameter_class();
+   test_Function_class();
+   test_PowerLaw_class();
+   test_SourceModel_class();
+   test_Table_class();
+   test_Statistic_class();
    test_Event_class();
    test_PointSource_class();
-//     test_Aeff_class();
-//     test_Psf_class();
+   test_Aeff_class();
+   test_Psf_class();
+   test_logLike_ptsrc();
    return 0;
 }
+
+
+/***********************/
+/* logLike_ptsrc tests */
+/***********************/
+void test_logLike_ptsrc() {
+
+/* read in the spacecraft data */
+
+   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   int sc_hdu = 2;
+
+   ScData::readData(sc_file, sc_hdu);
+
+/* instantiate the Psf and read in its data */
+
+   Psf * psf = Psf::instance();
+
+   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
+
+   psf->readPsfData(psf_file, Response::Combined);
+
+/* instantiate the Aeff and read in its data */
+
+   Aeff * aeff = Aeff::instance();
+
+   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
+
+   aeff->readAeffData(aeff_file, Response::Combined);
+
+   logLike_ptsrc logLike;
+
+   double ra = 193.98;
+   double dec = -5.82;
+   PointSource _3c279(ra, dec);
+
+   double Prefactor = 3.52e-5;
+   double Gamma = -1.96;
+   double Escale = 1.;
+
+   _3c279.setSpectrum(new PowerLaw(Prefactor, Gamma, Escale));
+
+   _3c279.setName("3C 279");
+
+   logLike.addSource(&_3c279);
+
+   std::string event_file = test_path + "/Data/one_src_0000";
+   logLike.getEvents(event_file, 2);
+
+   report_SrcModel_values(logLike);
+
+   std::vector<Parameter> params;
+   logLike.getParams(params);
+
+// vary over the Prefactor of the Spectrum and compute the
+// log-likelihood at each step
+
+   double xmin = 1e-6;
+   double xmax = 1e-4;
+   int nx = 20;
+   double xstep = log(xmax/xmin)/(nx-1.);
+
+   unsigned int j;
+   for (int i = 0; i < nx; i++) {
+      for (j = 0; j < params.size(); j++) {
+         if (params[j].getName() == "Prefactor") {
+            params[j].setValue(xmin*exp(xstep*i));
+            break;
+         }
+      }
+      std::vector<double> param_vals;
+      for (unsigned int k = 0; k < params.size(); k++)
+         param_vals.push_back(params[k].getValue());
+      std::cout << params[j].getValue() << "  " 
+                << logLike(param_vals) << std::endl;
+   }
+}
+// logLike_ptsrc tests
+
 
 /********************/
 /* Psf class tests */
@@ -226,9 +309,6 @@ void test_Event_class() {
 // get pointer to RoiCuts
    RoiCuts *roi_cuts = RoiCuts::instance();
 
-// get the cuts
-   RoiCuts::setCuts();
-
    unsigned int nReject = 0;
 
    for (int i = 0; i < ra.first; i++) {
@@ -288,6 +368,9 @@ void test_Statistic_class() {
    ptsrc.setSpectrum(&gauss);
    ptsrc.setName("Fredrich");
 
+/* check the integral of this Gaussian */
+//   std::cout << gauss.integral(Arg(-1e3), Arg(1e3)) << std::endl;
+
    logLike.addSource(&ptsrc);
    report_SrcModel_values(logLike);
 
@@ -313,7 +396,10 @@ void test_Statistic_class() {
 
 /* evaluate the integral over x */
 
-   std::cout << gauss.integral(-1e3, 1e3) << std::endl << std::endl;
+   dArg gmin(-1e3);
+   dArg gmax(1e3);
+   std::cout << gauss.integral(gmin, gmax)
+	     << std::endl << std::endl;
 
 /* Compute the log-likelihood of this model */
 
@@ -321,8 +407,8 @@ void test_Statistic_class() {
    std::vector<Parameter> params;
    logLike.getParams(params);
 
-// now, vary over the first parameter and compute the log-likelihood
-// at each step
+// vary over the first parameter and compute the log-likelihood at
+// each step
 
    double xmin = 5e3;
    double xmax = 1.5e4;
@@ -467,11 +553,11 @@ void test_Table_class() {
 void test_SourceModel_class() {
    
    SourceModel SrcModel;
-
+   
 /* instantiate some point sources */
 
    PointSource _3c279(193.98, -5.82);
-   _3c279.setSpectrum(new PowerLaw(74.2, -2.96, 0.1));
+   _3c279.setSpectrum(new PowerLaw(74.2, -1.96, 0.1));
    _3c279.setName("3C 279");
 
    PointSource _3c273(187.25, 2.17);
@@ -516,7 +602,7 @@ void test_SourceModel_class() {
 
 /* derivative tests */
 
-   double x(20.);
+   dArg x(20.);
    std::vector<double> params_save;
    SrcModel.getParamValues(params_save);
    std::vector<double> sm_derivs;
@@ -537,10 +623,10 @@ void test_SourceModel_class() {
       std::cout << -num_deriv << std::endl;
 
 // reset the parameters for next time around
-     SrcModel.setParamValues(params_save);
-     params = params_save;
-  }
-  std::cout << std::endl;
+      SrcModel.setParamValues(params_save);
+      params = params_save;
+   }
+   std::cout << std::endl;
 
 /* derivative tests for free parameters only */
 
@@ -628,13 +714,13 @@ void test_PowerLaw_class() {
 /* reset the parameters and compute some values */
    pl.setParam("Prefactor", 2.);
    pl.setParam("Index", -2.2);
-   double x;
-   for (x = 1.05; x < 1e3; x *= x) {
-      std::cout << x << "   " << pl(x) << std::endl;
+   for (double x = 1.05; x < 1e3; x *= x) {
+      dArg xarg(x);
+      std::cout << x << "   " << pl(xarg) << std::endl;
    }
 
 /* get the derivatives and compare to numerical estimates */
-   x = 10.;
+   dArg x(10.);
 
    std::vector<double> pl_derivs;
    pl.getDerivs(x, pl_derivs);
@@ -677,10 +763,11 @@ void test_PowerLaw_class() {
 /* instantiate another power-law and compare its output to that of pl */
    PowerLaw pl2(1., -2.1, 1.);
 
-   for (x = 1.05; x < 1e3; x *= x) {
+   for (double x = 1.05; x < 1e3; x *= x) {
+      dArg xarg(x);
       std::cout << x << "   " 
-                << pl(x) << "  " 
-                << pl2(x) << std::endl;
+                << pl(xarg) << "  " 
+                << pl2(xarg) << std::endl;
    }
    std::cout << std::endl;
 
@@ -740,7 +827,8 @@ void test_Function_class() {
                 << f.getParamValue(my_paramNames[i]) 
                 << std::endl;
    }
-   std::cout << "f(3) = " << f(3) << std::endl;
+   dArg x(3); 
+   std::cout << "f(3) = " << f(x) << std::endl;
 
 /* try to access a parameter not named in the function */
    std::cout << f.getParamValue("foo") << std::endl;   
@@ -765,20 +853,21 @@ void test_Function_class() {
    for (unsigned int i = 0; i < my_params.size(); i++) {
       std::cout << my_params[i] << " ";
    }
-   std::cout << " f(2) = " << f(2) << std::endl;
+   x = dArg(2);
+   std::cout << " f(2) = " << f(x) << std::endl;
 
 /* get derivatives wrt parameters */
    std::cout << "getting derivatives one-by-one:" << std::endl;
    for (unsigned int i = 0; i < my_paramNames.size(); i++) {
       std::cout << my_paramNames[i] << ":  "
-                << f.derivByParam(2, my_paramNames[i]) << std::endl;
+                << f.derivByParam(x, my_paramNames[i]) << std::endl;
    }
 
    std::cout << "all derivatives in one shot:" << std::endl;
    std::vector<double> my_derivs;
-   f.getDerivs(2, my_derivs);
+   f.getDerivs(x, my_derivs);
    for (unsigned int i = 0; i < my_paramNames.size(); i++) {
-      std::cout << f.derivByParam(2, my_paramNames[i]) << "  ";
+      std::cout << f.derivByParam(x, my_paramNames[i]) << "  ";
    }
    std::cout << std::endl;
 
@@ -801,9 +890,10 @@ void test_Function_class() {
    MyFun f2 = f;
 
    for (double x = 0; x < 100.; x += 5.) {
+      dArg xarg(x);
       std::cout << x << "  " 
-                << f(x) << "  " 
-                << f2(x) << "  " 
+                << f(xarg) << "  " 
+                << f2(xarg) << "  " 
                 << std::endl;
    }
 

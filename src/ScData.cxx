@@ -23,6 +23,7 @@ void ScData::readData(const std::string &file, int hdu) {
    scTable.read_FITS_table(file, hdu);
 
 // repack into a more useful format
+   vec.clear();
    vec.reserve(scTable[0].dim);
    for (int i = 0; i < scTable[0].dim; i++) {
       ScNtuple tuple;

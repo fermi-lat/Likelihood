@@ -7,6 +7,7 @@
 #define SkyDirFunction_h
 
 #include "../Likelihood/Function.h"
+#include "../Likelihood/Arg.h"
 #include "astro/SkyDir.h"
 
 namespace Likelihood {
@@ -32,8 +33,7 @@ public:
 
    astro::SkyDir getDir() const {return m_dir;}
 
-   virtual double value(double) const {return 0.;}
-   virtual double operator()(double x) const {return value(x);}
+   double value(Arg &) const {return 0;}
 
    //! overloaded setParam methods to include updating of m_dir
    void setParam(const std::string &paramName, double paramValue, 
@@ -46,7 +46,8 @@ public:
       update_m_dir(paramName, paramValue);
    }
 
-//   virtual double derivByParam(double, const std::string &paramName) const;
+   double derivByParam(Arg &, const std::string &paramName) const
+      {return 0;}
 
 private:
 

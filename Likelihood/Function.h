@@ -6,9 +6,11 @@
 #ifndef Function_h
 #define Function_h
 
-#include "Parameter.h"
 #include <vector>
 #include <string>
+
+#include "../Likelihood/Parameter.h"
+#include "../Likelihood/Arg.h"
 
 namespace Likelihood {
 
@@ -20,11 +22,11 @@ namespace Likelihood {
  *
  * The implementation is based on Hippodraw's FunctionBase class.
  *
- * This class uses the Parameter class.
+ * This class uses the Parameter classe.
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/Function.h,v 1.2 2003/02/23 22:28:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.4 2003/02/27 18:47:43 jchiang Exp $
  */
 
 class Function {
@@ -36,9 +38,13 @@ public:
 
    virtual ~Function(){};
 
-   //! parameter access
-   unsigned int getMaxNumParams() const {return m_maxNumParams;}
+   //! provide a string identifier
+   void setMyName(std::string functionName) {m_functionName = functionName;};
+   std::string getMyName() const {return m_functionName;};
 
+   ///////////////////////
+   //! parameter access //
+   ///////////////////////
    //! set Parameter value and free state
    virtual void setParam(const std::string &paramName, 
 			 double paramValue, bool isFree)
@@ -52,62 +58,59 @@ public:
    virtual void setParam(const Parameter &param) 
       {setParameter(param.getName(), param.getValue(), param.isFree());}
 
-   virtual double getParamValue(const std::string &paramName) const;
+   double getParamValue(const std::string &paramName) const;
    Parameter* getParam(const std::string &paramName);
    
-   //! partial derivative wrt param (with default)
-   virtual double derivByParam(double, const std::string &) const 
-      {return 0.;}
-
-   //! derivatives as a group
-   virtual void getDerivs(double x, std::vector<double> &derivs) const
-      {fetchDerivs(x, derivs, false);}
-
-   //! derivatives wrt free parameters
-   virtual void getFreeDerivs(double x, std::vector<double> &derivs) const
-      {fetchDerivs(x, derivs, true);}
-
-   //! parameter access in groups
+   /////////////////////////////////
+   //! parameter access in groups //
+   /////////////////////////////////
    unsigned int getNumParams() const {return m_parameter.size();}
 
-   virtual void getParamNames(std::vector<std::string> &names) const
-      {fetchParamNames(names, false);}
-   virtual void getParamValues(std::vector<double> &values) const
-      {fetchParamValues(values, false);}
-   virtual void getParams(std::vector<Parameter> &params) const
-      {params = m_parameter;}
-
    void setParamValues(const std::vector<double> &paramVec);
+
    //! do a bit of name mangling to allow for inheritance of setParamValues
    virtual std::vector<double>::const_iterator setParamValues_(
       std::vector<double>::const_iterator);
    
+   void getParamNames(std::vector<std::string> &names) const
+      {fetchParamNames(names, false);}
+   void getParamValues(std::vector<double> &values) const
+      {fetchParamValues(values, false);}
+   void getParams(std::vector<Parameter> &params) const
+      {params = m_parameter;}
+
    //! free parameter access
    unsigned int getNumFreeParams() const;
 
-   virtual void getFreeParamNames(std::vector<std::string> &names) const
-      {fetchParamNames(names, true);}
-   virtual void getFreeParamValues(std::vector<double> &values) const
-      {fetchParamValues(values, true);}
-   virtual void getFreeParams(std::vector<Parameter> &) const;
-
    void setFreeParamValues(const std::vector<double> &paramVec);
+
    //! note name mangling here too
    virtual std::vector<double>::const_iterator setFreeParamValues_(
       std::vector<double>::const_iterator);
 
-   //! integral of function wrt data variable
-   virtual double integral(double, double) {return 0.;}
-
-   //! function value at current parameters, pure virtual 
-   virtual double value(double) const = 0;
+   void getFreeParamNames(std::vector<std::string> &names) const
+      {fetchParamNames(names, true);}
+   void getFreeParamValues(std::vector<double> &values) const
+      {fetchParamValues(values, true);}
+   void getFreeParams(std::vector<Parameter> &) const;
    
-   //! allow any subclass to behave like a function object 
-   virtual double operator()(double) const = 0;
+   /////////////////////////////////////////
+   //! Arg-dependent member functions //
+   /////////////////////////////////////////
+   virtual double value(Arg &) const = 0;
+   double operator()(Arg &x) const {return value(x);}
+   
+   virtual double derivByParam(Arg &x, 
+			       const std::string &paramName) const = 0;
+   
+   virtual void getDerivs(Arg &x, std::vector<double> &derivs) const
+      {fetchDerivs(x, derivs, false);}
+   
+   virtual void getFreeDerivs(Arg &x, std::vector<double> &derivs) const
+      {fetchDerivs(x, derivs, true);}
 
-   //! provide a string identifier
-   void setMyName(std::string functionName) {m_functionName = functionName;};
-   std::string getMyName() const {return m_functionName;};
+   //! integral of function wrt data variable
+   virtual double integral(Arg &, Arg &) const {return 0;}
 
 protected:
 
@@ -125,7 +128,9 @@ protected:
 
    void fetchParamValues(std::vector<double> &values, bool getFree) const;
    void fetchParamNames(std::vector<std::string> &names, bool getFree) const;
-   void fetchDerivs(double x, std::vector<double> &derivs, bool getFree) const;
+
+   void fetchDerivs(Arg &x , std::vector<double> &derivs, 
+		    bool getFree) const;
 
    unsigned int m_maxNumParams;
 

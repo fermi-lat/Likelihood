@@ -1,4 +1,5 @@
 #include "../Likelihood/Function.h"
+#include "../Likelihood/Arg.h"
 
 namespace Likelihood {
 /** 
@@ -8,7 +9,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/src/PowerLaw.h,v 1.1 2003/02/19 01:34:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.2 2003/02/23 22:09:48 jchiang Exp $
  */
     
 class PowerLaw : public Function {
@@ -18,10 +19,11 @@ public:
    PowerLaw(double Prefactor, double Index, double Scale)
       {m_init(Prefactor, Index, Scale);};
 
-   virtual double value(double) const;
-   virtual double operator()(double x) const {return value(x);};
-   virtual double derivByParam(double, const std::string &paramName) const;
-   virtual double integral(double xmin, double xmax);
+   double value(Arg&) const;
+
+   double derivByParam(Arg &x, const std::string &paramName) const;
+
+   double integral(Arg &xmin, Arg &xmax) const;
 
 private:
 
