@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.32 2004/01/06 00:10:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.33 2004/02/07 23:14:20 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -30,18 +30,19 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.32 2004/01/06 00:10:26 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.33 2004/02/07 23:14:20 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
     
 public:
    
-   SourceModel() {
+   SourceModel(bool verbose=false) : m_verbose(verbose) {
       setMaxNumParams(0); 
       m_genericName = "SourceModel";
       s_refCount++;
    }
+
    SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs) 
       {s_refCount++;}
 
@@ -172,6 +173,10 @@ protected:
    virtual void getFreeDerivs(std::vector<double> &derivs) const {
       derivs.clear();
    }
+
+private:
+
+   bool m_verbose;
 
 };
 

@@ -78,8 +78,6 @@ void fit_DiffuseSource();
 void print_fit_results(SourceModel &stat);
 void test_FunctionFactory();
 void test_OptEM();
-void test_RoiCuts();
-void test_FluxModel();
 
 std::string root_path;
 std::string test_path;
@@ -90,63 +88,23 @@ int main() {
 #endif
    setUp();
 #ifndef USE_GOODI
-   test_SourceModel_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_LogLike();
-   test_SpectrumFactory();
-   fit_3C279();
-   fit_anti_center();
-   test_FitsImage();
-   test_ExposureMap();
-   test_SpatialMap();
-   test_DiffuseSource();
-   test_FunctionFactory();
+//    test_SourceModel_class();
+//    test_Event_class();
+//    test_PointSource_class();
+//    test_LogLike();
+//    test_SpectrumFactory();
+//    fit_3C279();
+//    fit_anti_center();
+//    test_FitsImage();
+//    test_ExposureMap();
+//    test_SpatialMap();
+//    test_DiffuseSource();
+//    test_FunctionFactory();
    test_SourceFactory();
    fit_DiffuseSource();
-   test_OptEM();
+//    test_OptEM();
 #endif
-   test_RoiCuts();
-   test_FluxModel();
    return 0;
-}
-
-void test_FluxModel() {
-
-   SourceModel srcModel;
-   
-// Create the FunctionFactory and SourceFactory.
-   optimizers::FunctionFactory funcFactory;
-   try {
-// Add the Functions needed for spatial modeling.
-      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
-      funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
-   } catch (optimizers::Exception &eObj) {
-      std::cout << eObj.what() << std::endl;
-   }
-
-   std::string expFile = root_path + "/data/anticenter_expMap.fits";
-   ExposureMap::readExposureFile(expFile);
-
-   std::string modelFile = root_path + "/data/anticenter_model.xml";
-   srcModel.readXml(modelFile, funcFactory);
-
-   std::string fluxFile = root_path + "/data/flux_model.xml";
-   srcModel.write_fluxXml(fluxFile);
-}
-
-void test_RoiCuts() {
-
-   std::cout << "*** test_RoiCuts ***" << std::endl;
-   
-   Likelihood::RoiCuts* roi = Likelihood::RoiCuts::instance();
-   roi->setCuts(); // use all default values
-   roi->writeXml("myRegionOfInterest.xml", "title_of_my_region_of_interest");
-   roi->setCuts("myRegionOfInterest.xml"); // read back in
-   roi->writeXml("myRegionOfInterest2.xml", "copy_of_my_region_of_interest");
-   
-   std::cout << "*** test_RoiCuts completed ***" << std::endl;
-
 }
 
 void test_OptEM() {
@@ -250,7 +208,7 @@ void fit_DiffuseSource() {
 
    double ra0, dec0;
    RoiCuts::getRaDec(ra0, dec0);
-   std::cout << "ROI center: " << ra0 << "  " << dec0;
+   std::cout << "ROI center: " << ra0 << "  " << dec0 << std::endl;
 
 // root name for the observation data files
    std::string obs_root = "diffuse_test_5";
@@ -655,7 +613,8 @@ void test_SourceFactory() {
    }
 
 // Read in the prototypes from the XML file.
-   SourceFactory srcFactory;
+   bool verbose(true);
+   SourceFactory srcFactory(verbose);
    std::string xmlFile = root_path + "/xml/A1_Sources.xml";
    std::cout << "Reading Source prototypes from "
              << xmlFile << std::endl;
@@ -663,7 +622,7 @@ void test_SourceFactory() {
 
 // Read in the prototypes from the XML file without the function_library
 // specified.
-   SourceFactory srcFactory2;
+   SourceFactory srcFactory2(verbose);
    xmlFile = root_path + "/xml/A1_Srcs_noFuncLib.xml";
    std::cout << "Reading Source prototypes from "
              << xmlFile << std::endl;
@@ -1352,7 +1311,6 @@ void test_SourceModel_class() {
       std::cout << eObj.what() << std::endl;
    }
 
-//   std::string xmlFile = "myModel.xml";
    xmlFile = "myModel.xml";
    SrcModel.writeXml(xmlFile, "$(LIKELIHOODROOT)/xml/A1_Functions.xml");
 

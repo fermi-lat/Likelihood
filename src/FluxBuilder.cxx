@@ -1,10 +1,10 @@
 /**
- * @file FluxModel.cxx
+ * @file FluxBuilder.cxx
  * @brief Implementation for class to provide methods to write flux package
  * style xml files.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.1 2004/02/18 21:14:59 jchiang Exp $
  */
 
 #include <string>
@@ -20,7 +20,6 @@
 #include <xercesc/dom/DOM_NodeList.hpp>
 #include <xercesc/dom/DOM_DOMException.hpp>
 
-#include "xml/XmlParser.h"
 #include "xml/Dom.h"
 
 #include "optimizers/Function.h"
@@ -30,35 +29,19 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/Source.h"
-#include "Likelihood/FluxModel.h"
+#include "Likelihood/FluxBuilder.h"
 
 namespace {
-   DomDocument * createDocument() {
-      DomDocument * doc = new DOM_Document();
-      *doc = DOM_Document::createDocument();
-      return doc;
-   }
-
    DomElement * createElement(DomDocument * doc, const std::string & name) {
       DomElement * elt = new DOM_Element();
       *elt = doc->createElement(name.c_str());
       return elt;
    }
-
-   std::string basename(const std::string &path) {
-      std::vector<std::string> names;
-      facilities::Util::stringTokenize(path, "\\/", names);
-      return *(names.end() - 1);
-   }
 }
 
 namespace Likelihood {
 
-FluxModel::FluxModel() {
-
-   m_parser = new xml::XmlParser();
-
-   m_doc = ::createDocument();
+FluxBuilder::FluxBuilder() : XmlBuilder() {
 
    m_srcLib = ::createElement(m_doc, "source_library");
    xml::Dom::addAttribute(*m_srcLib, "title", "Likelihood_model");
@@ -68,14 +51,12 @@ FluxModel::FluxModel() {
    makeEnergyGrid();
 }
 
-FluxModel::~FluxModel() {
+FluxBuilder::~FluxBuilder() {
    delete m_allSrcsElt;
    delete m_srcLib;
-   delete m_doc;
-   delete m_parser;
 }
 
-void FluxModel::addSource(Source & src) {
+void FluxBuilder::addSource(Source & src) {
    DomElement * srcElt = fluxSource(src);
 
    if (srcElt) {
@@ -89,10 +70,11 @@ void FluxModel::addSource(Source & src) {
    }
 }
 
-void FluxModel::write(std::string xmlFile) {
+void FluxBuilder::write(std::string xmlFile) {
    facilities::Util::expandEnvVar(&xmlFile);
 
-   std::string name = std::string("all_in_") + ::basename(xmlFile.c_str());
+   std::string name = std::string("all_in_") 
+      + facilities::Util::basename(xmlFile.c_str());
    xml::Dom::addAttribute(*m_allSrcsElt, "name", name);
    m_srcLib->appendChild(*m_allSrcsElt);
 
@@ -100,7 +82,7 @@ void FluxModel::write(std::string xmlFile) {
    xml::Dom::prettyPrintElement(*m_srcLib, outFile, std::string(""));
 }
 
-DomElement * FluxModel::fluxSource(Source & src) {
+DomElement * FluxBuilder::fluxSource(Source & src) {
 
    DomElement * srcElt = ::createElement(m_doc, "source");
    std::string name = src.getName();
@@ -130,7 +112,7 @@ DomElement * FluxModel::fluxSource(Source & src) {
    return 0;
 }
 
-void FluxModel::getSourceType(Source &src, std::string & srcType) {
+void FluxBuilder::getSourceType(Source &src, std::string & srcType) {
    Source::FuncMap & srcFuncs = src.getSrcFuncs();
 
    if (srcFuncs.count("Position")) {
@@ -142,18 +124,18 @@ void FluxModel::getSourceType(Source &src, std::string & srcType) {
               && srcFuncs["SpatialDist"]->genericName() == "SpatialMap") {
       std::string fitsFile 
          = dynamic_cast<SpatialMap *>(srcFuncs["SpatialDist"])->fitsFile();
-      std::string basefilename = ::basename(fitsFile.c_str());
-      if (basefilename == "gas.cel") {
+      std::string basename = facilities::Util::basename(fitsFile.c_str());
+      if (basename == "gas.cel") {
          srcType = "GalDiffuse";
       }      
    } else {
-      throw Exception(std::string("Likelihood::FluxModel::getSourceType:\n")
+      throw Exception(std::string("Likelihood::FluxBuilder::getSourceType:\n")
                       + "unknown source type");
    }
    return;
 }   
 
-DomElement * FluxModel::gammaSpectrum(optimizers::Function & spectrum) {
+DomElement * FluxBuilder::gammaSpectrum(optimizers::Function & spectrum) {
    
    DomElement * specElt = ::createElement(m_doc, "spectrum");
    xml::Dom::addAttribute(*specElt, std::string("escale"), std::string("MeV"));
@@ -188,7 +170,7 @@ DomElement * FluxModel::gammaSpectrum(optimizers::Function & spectrum) {
    return specElt;
 }
 
-DomElement * FluxModel::srcDirection(optimizers::Function & dir) {
+DomElement * FluxBuilder::srcDirection(optimizers::Function & dir) {
    DomElement * dirElt = ::createElement(m_doc, "celestial_dir");
    xml::Dom::addAttribute(*dirElt, std::string("ra"), 
                           dynamic_cast<SkyDirFunction*>(&dir)->getDir().ra());
@@ -197,14 +179,14 @@ DomElement * FluxModel::srcDirection(optimizers::Function & dir) {
    return dirElt;
 }
 
-DomElement * FluxModel::solidAngle(double mincos, double maxcos) {
+DomElement * FluxBuilder::solidAngle(double mincos, double maxcos) {
    DomElement * solidAngle = ::createElement(m_doc, "solid_angle");
    xml::Dom::addAttribute(*solidAngle, std::string("mincos"), mincos);
    xml::Dom::addAttribute(*solidAngle, std::string("maxcos"), maxcos);
    return solidAngle;
 }
 
-DomElement * FluxModel::galDiffuse(Source & src) {
+DomElement * FluxBuilder::galDiffuse(Source & src) {
    Source::FuncMap & srcFuncs = src.getSrcFuncs();
 
    DomElement * specElt = ::createElement(m_doc, "spectrum");
@@ -238,7 +220,7 @@ DomElement * FluxModel::galDiffuse(Source & src) {
    return specElt;
 }
 
-void FluxModel::makeEnergyGrid(unsigned int nee) {
+void FluxBuilder::makeEnergyGrid(unsigned int nee) {
    RoiCuts * roiCuts = RoiCuts::instance();
    std::pair<double, double> elims = roiCuts->getEnergyCuts();
    double estep = log(elims.second/elims.first)/(nee-1);
@@ -248,7 +230,7 @@ void FluxModel::makeEnergyGrid(unsigned int nee) {
    }
 }
 
-void FluxModel::addUnderscores(std::string &name) {
+void FluxBuilder::addUnderscores(std::string &name) {
 // Replace spaces with underscores.
    std::replace(name.begin(), name.end(), ' ', '_');
 
