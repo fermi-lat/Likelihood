@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 14 09:26:26 PST 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Log Message:
+allow null string for expMap
+    *
+------------------------------------------------------------
 User: jchiang  Sun Mar 13 11:40:16 PST 2005
 Likelihood/src
 
