@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 29 14:52:50 PDT 2003
+Likelihood/src
+
+Modified Files:
+	FitsImage.cxx Table.cxx TrapQuad.cxx logSrcModel.cxx 
+Log Message:
+add exceptions
+
+    *
+------------------------------------------------------------
 User: jchiang  Thu May 29 14:52:31 PDT 2003
 Likelihood/Likelihood
 
