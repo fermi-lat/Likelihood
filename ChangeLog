@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 14:55:02 PST 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Log Message:
+convert ScData from Singleton to a proper class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 14:55:00 PST 2005
 Likelihood/Likelihood
 
