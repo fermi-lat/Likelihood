@@ -1,33 +1,33 @@
 <source_library title="prototype sources" function_library="$(LIKELIHOODROOT)/xml/A1_Functions.xml">
-  <source name="Galactic Diffuse Emission" type="DiffuseSource">
+  <source name="3C 279" type="PointSource">
     <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="0" name="Prefactor" scale="0.001" value="6.31" />
-      <parameter max="-1" min="-3.5" free="0" name="Index" scale="1" value="-2.1" />
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="5.46372" />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-1.86269" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
-    <spatialModel file="/u1/jchiang/SciTools/dev/Likelihood/v2r1/src/test/Data/gas.cel" type="SpatialMap">
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="Prefactor" scale="1" value="1" />
+    <spatialModel type="SkyDirFunction">
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="193.98" />
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="-5.82" />
     </spatialModel>
   </source>
   <source name="Extragalactic Diffuse Emission" type="DiffuseSource">
     <spectrum type="PowerLaw">
-      <parameter max="100" min="1e-05" free="1" name="Prefactor" scale="1e-07" value="0.451133" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.2455" />
+      <parameter max="100" min="1e-05" free="1" name="Prefactor" scale="1e-07" value="0.404647" />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.18613" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
     <spatialModel type="ConstantValue">
       <parameter max="10" min="0" free="0" name="Value" scale="1" value="1" />
     </spatialModel>
   </source>
-  <source name="3C 279" type="PointSource">
+  <source name="Galactic Diffuse Emission" type="DiffuseSource">
     <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="5.49306" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-1.8726" />
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="0.001" value="6.33368" />
+      <parameter max="-1" min="-3.5" free="0" name="Index" scale="1" value="-2.1" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
-    <spatialModel type="SkyDirFunction">
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="193.98" />
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="-5.82" />
+    <spatialModel file="/u1/jchiang/SciTools/dev/Likelihood/v2r1/src/test/Data/gas.cel" type="SpatialMap">
+      <parameter max="1000" min="0.001" free="0" name="Prefactor" scale="1" value="1" />
     </spatialModel>
   </source>
 </source_library>

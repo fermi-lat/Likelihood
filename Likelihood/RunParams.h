@@ -3,7 +3,7 @@
  * @brief Wrapper class for the hoops interface.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.1 2003/11/05 03:41:22 jchiang Exp $
  */
 
 #ifndef Likelihood_RunParams_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.1 2003/11/05 03:41:22 jchiang Exp $
  */
 
 class RunParams {
@@ -47,6 +47,10 @@ public:
       try {
          std::string my_string = (m_prompter->Group())[name];
          return my_string;
+      } catch (hoops::Hexception &eObj) {
+         std::cout << "HOOPS exception: " << eObj.Msg() << "\n"
+                   << "Code: " << eObj.Code() << std::endl;
+         assert(false);
       } catch (...) {
          std::cout << name << std::endl;
          assert(false);
@@ -57,6 +61,10 @@ public:
       try {
          double value = (m_prompter->Group())[name];
          return value;
+      } catch (hoops::Hexception &eObj) {
+         std::cout << "HOOPS exception: " << eObj.Msg() << "\n"
+                   << "Code: " << eObj.Code() << std::endl;
+         assert(false);
       } catch (...) {
          std::cout << name << std::endl;
          assert(false);
@@ -68,8 +76,8 @@ public:
          int value = (m_prompter->Group())[name];
          return value;
       } catch (hoops::Hexception &eObj) {
-         std::cout << eObj.Msg() << "\n"
-                   << eObj.Code() << std::endl;
+         std::cout << "HOOPS exception: " << eObj.Msg() << "\n"
+                   << "Code: " << eObj.Code() << std::endl;
          assert(false);
       } catch (...) {
          std::cout << name << std::endl;
