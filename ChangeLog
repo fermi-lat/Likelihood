@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 19 14:45:48 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	SourceModel.h 
+Added Files:
+	MapShape.h 
+Log Message:
+fix makeExposureMap parfile names; tagging v4r4p1
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 18 21:03:12 PDT 2004
 Likelihood/src/likelihood
 
