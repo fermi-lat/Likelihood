@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug 26 16:25:32 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+move %include stl.i first thus cleaning up interface file substantially
+    *
+------------------------------------------------------------
 User: jchiang  Mon Aug 25 14:46:20 PDT 2003
 Likelihood/doc
 
