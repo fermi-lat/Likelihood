@@ -16,8 +16,7 @@
           extraction region used for the analysis.
    - @ref makeCountsMaps These simple FITS images let us see what 
           we've got and help to pick out obvious candidate sources.
-   - @ref makeExposureMap This is needed for analyzing diffuse sources
-          and so is required for almost any sort of analysis.
+   - @ref makeExposureMap This is needed for analyzing diffuse sources.
    - @ref sourceModelFile The source model XML file contains the
           various sources and their model parameters to be fit
           using the @b gtlikelihood tool.
@@ -44,9 +43,9 @@
 
    We will consider data in the Virgo region within a 20 degree
    acceptance cone of the blazar 3C 279.  Here we apply @b gtselect to
-   the point source data (The same selections need to be applied to
+   the point source data; the same selections need to be applied to
    the files <tt>galdiffuse_events_0000.fits</tt> and 
-   <tt>eg_diffuse_events_0000.fits</tt>.) :
+   <tt>eg_diffuse_events_0000.fits</tt>:
    @verbatim
    newtoby[jchiang] gtselect
    Input FT1 file [ptsrcs_events_0000.fits] : 
@@ -64,17 +63,19 @@
    newtoby[jchiang] 
    @endverbatim
    There are numerous hidden parameters that correspond to
-   FT1 columns may also be selected upon.  However, as is customary
+   FT1 columns that may also be selected upon.  However, as is customary
    with FTOOLS' hidden parameters, the typical user need not worry
    about about them.
 
-   @b gtselect writes the data selections that were applied to a
+   @b gtselect writes descriptions of the data selections to a
    series of "Data Sub-Space" keywords in the <tt>EVENTS</tt>
    extension header.  These keywords are used by the exposure-related
-   tools and by @b gtlikelihood for calculating various quantities
-   including the predicted number of detected events given the source
+   tools and by @b gtlikelihood for calculating various quantities,
+   such as the predicted number of detected events given the source
    model.  These keywords @em must be same for all of the filtered
-   event files considered in any given analysis.  See <a
+   event files considered in a given analysis.  @b gtlikelihood will check to
+   ensure that all off the DSS keywords are the same in all of the FT1 files.
+   See <a
    href="http://glast.gsfc.nasa.gov/ssc/dev/binned_analysis/dss_keywords.html">Yasushi
    Ikebe's DSS keyword page</a> and <a
    href="http://confluence.slac.stanford.edu/display/ST/Data+SubSpace+keywords?showComments=false">this
@@ -126,12 +127,12 @@
 
    @section makeCountsMaps Make Counts Maps from the Event Files.  
 
-   The next step is to create a simple counts map file to visualize
-   the extraction region we wish to fit.  There are presently three
-   tools available to perform this task: @b gtbin in the @b evtbin
-   package, @b count_map in the @b map_tools package, and @b gtcntsmap
-   in the Likelihood package.  Since the event data are contained in three
-   separate FITS files and since the first two tools cannot accomodate
+   Next, we create a counts map file to visualize the extraction
+   region we wish to fit.  There are presently three tools available
+   to perform this task: @b gtbin in the @b evtbin package, @b
+   count_map in the @b map_tools package, and @b gtcntsmap in the
+   Likelihood package.  Since the event data are contained in three
+   separate FITS files and since the first two tools cannot read in
    more than one input event file at a time, @b gtcntsmap is the most
    convenient to use for these data.  We start by creating a file
    which is a list of the files to be binned and then run the tool on
@@ -732,7 +733,24 @@
    Let's comment out 3C 273 from the source model XML file and see if we
    can find evidence for it in the data.
    @verbatim
-
+   newtoby[jchiang] gttsmap
+   Event data file [eventFiles] : 
+   Spacecraft data file [ptsrcs_scData_0000.fits] : 
+   Exposure map file [expMap.fits] : 
+   Exposure hypercube file [expCubeFile.fits] : 
+   Source model file [Virgo_model.xml] : 
+   TS map file name [TsMap.fits] : 
+   Response functions to use <DC1|G25|TEST> [DC1] : 
+   Optimizer <LBFGS|MINUIT|DRMNGB> [DRMNGB] : 
+   Fit tolerance [0.001] : 
+   RA minmum <-360 - 360> [180] : 
+   RA maximum <-360 - 360> [200] : 
+   Number of RA points <2 - 200> [40] : 
+   Dec minimum <-90 - 90> [-10] : 
+   Dec maximum <-90 - 90> [10] : 
+   Number of Dec points <2 - 200> [40] : 
+   Use Galactic coordinates [no] : 
+   .....................!
    @endverbatim
 
    Here is the resulting TS map:
