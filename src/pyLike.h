@@ -26,7 +26,7 @@
    be used.  Its constructor looks like
 @verbatim
 class Observation(object):
-    def __init__(self, eventFile, scFile, expMap=None, irfs='TEST'):
+    def __init__(self, eventFile=None, scFile=None, expMap=None, irfs='TEST'):
 @endverbatim
    and has these parameters
    - <tt>eventFile</tt>: event data file name(s)
@@ -38,16 +38,59 @@ class Observation(object):
    One creates an <tt>Observation</tt> object like this:
 @verbatim
 >>> my_obs = Observation(eventFiles, scDataFile, 'expMap.fits', 'TEST')
-@endverbatim   
+@endverbatim
+   Here, <tt>eventFiles</tt> is an ascii file containing the names of
+   the event files,
+@verbatim
+salathe[jchiang] cat eventFiles
+eg_diffuse_events_0000.fits
+galdiffuse_events_0000.fits
+ptsrcs_events_0000.fits
+salathe[jchiang] 
+@endverbatim
+   One could also have entered in a tuple or list if file names or use
+   <tt>glob</tt> to generate the list.  For these data, the following 
+   are equivalent to the above:
+@verbatim
+>>> my_obs = Observation(('eg_diffuse_events_0000.fits', 
+                          'galdiffuse_events_0000.fits',
+                          'ptsrcs_events_0000.fits'),
+                         scDataFile, 'expMap.fits', 'TEST')
+@endverbatim
+or
+@verbatim
+>>> my_obs = Observation(glob.glob('*events*.fits'), scDataFile,
+                         'expMap.fits', 'TEST')
+@endverbatim
 
+   One may omit all of the arguments in the <tt>Observation</tt> class
+   constructor, in which case a small GUI dialog is launched that
+   allows one to browse the file system, use wild cards for specifying
+   groups of files, etc..  So, entering
+@verbatim
+>>> my_obs = Observation()
+@endverbatim
+   launches this dialog:
+
+   @image html Obs_dialog0.png
+   \n
+   The buttons on the left will open file dialog boxes using the value
+   shown in the text entry fields as a filter.  One can include wild
+   cards or comma-separated lists of files in the text entry field.  
+   Setting the entries as follows will create an <tt>Observation</tt> 
+   object equivalent to the previous examples:
+
+   @image html Obs_dialog1.png
+
+   \n\n
    The second class is <tt>SrcAnalysis</tt>,
 @verbatim
 class SrcAnalysis(object):
-    def __init__(self, srcModel, observation, optimizer='Minuit'):
+    def __init__(self, observation, srcModel=None, optimizer='Minuit'):
 @endverbatim
-    with parameters,
-    - <tt>srcModel</tt>: xml source model file
+    It has parameters
     - <tt>observation</tt>: an Observation object
+    - <tt>srcModel</tt>: xml source model file
     - <tt>optimizer</tt>: <tt>'Minuit'</tt>, <tt>'Drmngb'</tt>, 
       or <tt>'Lbfgs'</tt>.
 
@@ -56,8 +99,8 @@ class SrcAnalysis(object):
     and models in a single Python session or script while preserving
     computational resources, so that one can do something like this:
 @verbatim
->>> analysis1 = SrcAnalysis("model1.xml", my_obs)
->>> analysis2 = SrcAnalysis("model2.xml", my_obs)
+>>> analysis1 = SrcAnalysis(my_obs, "model1.xml")
+>>> analysis2 = SrcAnalysis(my_obs, "model2.xml")
 @endverbatim
 
     The two <tt>SrcAnalysis</tt> objects will access the same
@@ -66,6 +109,39 @@ class SrcAnalysis(object):
     with one another.  This will be useful in comparing, via a
     likelihood ratio test, for example, how well one model compares to
     another.
+
+    Just as with the <tt>Observation</tt> class, a small GUI is provided
+    that allows one to browse the file system in case one forgets the
+    name of the model XML file, for example:
+
+@verbatim
+>>> analysis = SrcAnalysis(my_obs)
+@endverbatim
+    launches
+
+    @image html SrcAnalysis_dialog.png
+    \n\n
+
+    The <tt>Observation</tt> and <tt>SrcAnalysis</tt> classes both have
+    <tt>__repr__</tt> methods implemented to allow one to see easily what
+    data these objects comprise:
+
+@verbatim
+>>> print my_obs
+['galdiffuse_events_0000.fits', 'eg_diffuse_events_0000.fits', 'ptsrcs_events_0000.fits']
+['demo_scData_0000.fits']
+demo_expMap.fits
+TEST
+>>> 
+>>> print analysis
+demo_model.xml
+['galdiffuse_events_0000.fits', 'eg_diffuse_events_0000.fits', 'ptsrcs_events_0000.fits']
+['demo_scData_0000.fits']
+demo_expMap.fits
+TEST
+Minuit
+>>>
+@endverbatim
 
 For this demo, I've prepared a small script that creates the
 <tt>Observation</tt> and <tt>SrcAnalysis</tt> objects with the proper
@@ -79,7 +155,7 @@ from SrcAnalysis import *
 eventFiles = glob.glob('*events*.fits')
 obs = Observation(eventFiles, 'demo_scData_0000.fits',
                   expMap='demo_expMap.fits', irfs='TEST')
-like = SrcAnalysis('demo_model.xml', obs)
+like = SrcAnalysis(obs, 'demo_model.xml')
 @endverbatim
 
 This just needs to be imported at the Python prompt (after sourcing the 
@@ -92,13 +168,6 @@ Python 2.3.3 (#1, Apr 24 2004, 23:59:52)
 [GCC 3.3.2 20031022 (Red Hat Linux 3.3.2-1)] on linux2
 Type "help", "copyright", "credits" or "license" for more information.
 >>> from demo import *
-@endverbatim
-
-Here are the event files found by <tt>glob</tt>:
-
-@verbatim
->>> eventFiles
-['galdiffuse_events_0000.fits', 'eg_diffuse_events_0000.fits', 'ptsrcs_events_0000.fits']
 @endverbatim
 
 <tt>dir(...)</tt> shows an object's attributes:
@@ -195,7 +264,7 @@ from Python (via the <tt>__getattr__</tt> method):
 @endverbatim
 
 Let's create a couple more Xspec-like commands for convenience, using Python's
-<tt>lambda</tt> functions:
+<tt>lambda</tt> expressions:
 
 @verbatim
 >>> thaw = lambda x: model[x].setFree(1)

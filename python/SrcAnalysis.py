@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.22 2005/03/13 19:40:16 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.23 2005/03/14 17:26:26 jchiang Exp $
 #
 import os
 import glob
@@ -19,7 +19,7 @@ def _resolveFileList(files):
     fileList = files.split(',')
     my_list = []
     for file in fileList:
-        my_list.extend(glob.glob(file))
+        my_list.extend(glob.glob(file.strip()))
     return my_list
 
 class Observation(object):
