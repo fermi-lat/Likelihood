@@ -4,7 +4,7 @@ version v6r0p1
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.163 2004/12/09 19:08:47 jchiang Exp $
+# $Id: requirements,v 1.164 2004/12/20 20:14:59 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -21,7 +21,6 @@ use st_facilities v0*
 use dataSubselector v3*
 
 apply_pattern ST_library option="-no_share *.c "
-macro_append Likelihood_cppflags " -DHAVE_ST_GRAPH "
 apply_pattern ST_pfiles
 
 apply_pattern ST_app name=likelihood

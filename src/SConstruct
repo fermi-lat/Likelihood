@@ -13,11 +13,11 @@ libraries = map()
 
 default_libraries = ['xml', 'dataSubselectorLib', 'astro',
                      'map_toolsLib', 'evtbinLib', 
-                     'tipLib', 'optimizersLib', 'f2c', 'facilities', 
+                     'tipLib', 'optimizers', 'f2c', 'facilities', 
                      'st_appLib', 'st_streamLib', 'st_graphLib', 'hoopsLib',
                      'irfInterfaceLib', 'irfLoaderLib', 'g25ResponseLib', 
-                     'dc1ResponseLib', 'testResponseLib', 'irfUtilLib', 
-                     'st_facilitiesLib']
+                     'dc1ResponseLib', 'testResponseLib', 'devResponseLib',
+                     'irfUtilLib', 'st_facilitiesLib']
 
 for lib in default_libraries:
     libraries[lib] = None
