@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.13 2003/06/10 23:58:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.14 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include <cassert>
@@ -72,7 +72,7 @@ SourceFactory::SourceFactory() {
       ourGalaxy.setSpectrum(&gal_pl);
 
       addSource("Milky Way", &ourGalaxy, true);
-   } catch (Function::ParameterNotFound &eObj) {
+   } catch (ParameterNotFound &eObj) {
       std::cerr << eObj.what() << std::endl;
       throw;
    } catch (LikelihoodException &likeException) {
@@ -98,7 +98,7 @@ SourceFactory::SourceFactory() {
       extragalactic.setSpectrum(&eg_pl);
 
       addSource("EG component", &extragalactic, true);
-   } catch (Function::ParameterNotFound &eObj) {
+   } catch (ParameterNotFound &eObj) {
       std::cerr << eObj.what() << std::endl;
       throw;
    } catch (LikelihoodException &likeException) {
