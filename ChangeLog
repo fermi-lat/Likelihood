@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Mar  5 17:25:43 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+added Npred, TrapQuad classes, modified PointSource
+    *
+------------------------------------------------------------
+User: jchiang  Wed Mar  5 17:25:43 PST 2003
 Likelihood/src
 
 Modified Files:
