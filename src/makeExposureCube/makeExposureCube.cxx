@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.21 2005/01/03 17:13:23 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.22 2005/01/19 02:15:02 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,7 +36,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.21 2005/01/03 17:13:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.22 2005/01/19 02:15:02 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -92,6 +92,8 @@ void ExposureCube::promptForParameters() {
    m_pars.Prompt("evfile");
    m_pars.Prompt("scfile");
    m_pars.Prompt("outfile");
+   m_pars.Prompt("cos_theta_step");
+   m_pars.Prompt("pixel_size");
    m_pars.Save();
 }
 
