@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov 29 18:38:37 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+adjust verbosity for optimizers
+    *
+------------------------------------------------------------
 TAG
 Tag name: v5r4p3, operation: add
 Package: Likelihood
