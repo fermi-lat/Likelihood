@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r3p2 13-Nov-04  JC   remove Pixel parameter from 
+                           SourceMap::sourceRegionIntegral 
     v5r3p1 11-Nov-04  JC   add memory management of Xerces 2.6.0 resources
     v5r3   10-Nov-04  JC   Xerces 2.6.0 migration
     v5r2p1 29-Oct-04  JC   use tip v2*
