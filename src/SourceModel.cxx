@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.49 2004/09/03 03:40:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.50 2004/09/03 06:08:56 jchiang Exp $
  */
 
 #include <cassert>
@@ -506,7 +506,7 @@ void SourceModel::makeCountsMap(const CountsMap & dataMap,
             for (src = s_sources.begin(); src != s_sources.end(); ++src) {
                Aeff aeff(src->second, pixelDirs[j], energy, evtType);
                map[indx] += ExposureCube::instance()->value(pixelDirs[j], aeff)
-                  *pixelSolidAngles[j];
+                  *pixelSolidAngles[j]*(energies[k+1] - energies[k]);
             } // src
          } // evtType
       } // k

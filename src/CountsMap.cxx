@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.2 2004/09/03 03:40:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.3 2004/09/03 06:08:56 jchiang Exp $
  */
 
 #include <algorithm>
@@ -77,6 +77,13 @@ CountsMap::CountsMap(const std::string & event_file,
 
 // Correct time keywords.
    adjustTimeKeywords(sc_file);
+
+// Reset data dir for LatCountsMapTemplate
+   char * root_path = std::getenv("LIKELIHOODROOT");
+   if (!root_path) {
+      throw std::runtime_error("LIKELIHOODROOT not set.");
+      m_data_dir = std::string(root_path) + "/data/";
+   }
 }
 
 CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
@@ -141,61 +148,61 @@ void CountsMap::writeOutput(const std::string & creator,
                             const std::string & out_file) const {
 
 // Standard file creation from base class.
-    createFile(creator, out_file, m_data_dir + "LatCountsMapTemplate");
-
+   createFile(creator, out_file, m_data_dir + "LatCountsMapTemplate");
+   
 // Open Count map extension of output PHA1 file. Use an auto_ptr so
 // that the table object will for sure be deleted, even if an
 // exception is thrown.
-    std::auto_ptr<tip::Image> 
+   std::auto_ptr<tip::Image> 
        output_image(tip::IFileSvc::instance().editImage(out_file, ""));
 
 // Get dimensions of image.
-    typedef std::vector<tip::PixOrd_t> DimCont_t;
-    DimCont_t dims = output_image->getImageDimensions();
+   typedef std::vector<tip::PixOrd_t> DimCont_t;
+   DimCont_t dims = output_image->getImageDimensions();
 
 // Make sure image is three dimensional.
-    DimCont_t::size_type num_dims = dims.size();
-    if (3 != num_dims) {
-       throw std::runtime_error("CountsMap::writeOutput "
-                                + std::string("cannot write a count map ")
-                                + "to an image which is not 3D");
-    }
-
+   DimCont_t::size_type num_dims = dims.size();
+   if (3 != num_dims) {
+      throw std::runtime_error("CountsMap::writeOutput "
+                               + std::string("cannot write a count map ")
+                               + "to an image which is not 3D");
+   }
+   
 // Get the binners.
-    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
+   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
 
 // Write c* keywords
-    tip::Header & header = output_image->getHeader();
-    header["CRPIX1"].set(m_crpix[0]);
-    header["CRPIX2"].set(m_crpix[1]);
-    header["CRPIX3"].set(m_crpix[2]);
-    header["CRVAL1"].set(m_crval[0]);
-    header["CRVAL2"].set(m_crval[1]);
-    header["CRVAL3"].set(m_crval[2]);
-    header["CDELT1"].set(m_cdelt[0]);
-    header["CDELT2"].set(m_cdelt[1]);
-    header["CDELT3"].set(m_cdelt[2]);
-    header["CROTA2"].set(m_axis_rot);
-    header["CTYPE1"].set(binners[0]->getName() + "---" + m_proj_name);
-    header["CTYPE2"].set(binners[1]->getName() + "---" + m_proj_name);
-    header["CTYPE3"].set(binners[2]->getName());
+   tip::Header & header = output_image->getHeader();
+   header["CRPIX1"].set(m_crpix[0]);
+   header["CRPIX2"].set(m_crpix[1]);
+   header["CRPIX3"].set(m_crpix[2]);
+   header["CRVAL1"].set(m_crval[0]);
+   header["CRVAL2"].set(m_crval[1]);
+   header["CRVAL3"].set(m_crval[2]);
+   header["CDELT1"].set(m_cdelt[0]);
+   header["CDELT2"].set(m_cdelt[1]);
+   header["CDELT3"].set(m_cdelt[2]);
+   header["CROTA2"].set(m_axis_rot);
+   header["CTYPE1"].set(binners[0]->getName() + "---" + m_proj_name);
+   header["CTYPE2"].set(binners[1]->getName() + "---" + m_proj_name);
+   header["CTYPE3"].set(binners[2]->getName());
 
 // Resize image dimensions to conform to the binner dimensions.
-    for (DimCont_t::size_type index = 0; index != num_dims; ++index) {
-       dims[index] = binners.at(index)->getNumBins();
-    }
+   for (DimCont_t::size_type index = 0; index != num_dims; ++index) {
+      dims[index] = binners.at(index)->getNumBins();
+   }
 
 // Set size of image.
-    output_image->setImageDimensions(dims);
+   output_image->setImageDimensions(dims);
 
 // Copy bins into image.
-    std::vector<float> float_image(m_hist->data().size());
-    std::copy(m_hist->data().begin(), m_hist->data().end(),
-              float_image.begin());
-    output_image->set(float_image);
+   std::vector<float> float_image(m_hist->data().size());
+   std::copy(m_hist->data().begin(), m_hist->data().end(),
+             float_image.begin());
+   output_image->set(float_image);
 
 // Write the GTI extension.
-    writeGti(out_file);
+   writeGti(out_file);
 //    std::cout << "Done." << std::endl;
 }
 
