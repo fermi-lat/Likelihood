@@ -3,7 +3,7 @@
  * @brief Psf averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.1 2004/10/04 05:51:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.2 2004/10/05 04:47:57 jchiang Exp $
  */
 
 #include <algorithm>
@@ -53,6 +53,10 @@ void MeanPsf::init() {
 
 double MeanPsf::operator()(double energy, double theta, double phi) const {
    (void)(phi);
+   if (m_energies.size() == 0) {
+      throw std::runtime_error("MeanPsf::operator(): Cannot call a " + 
+                               std::string("default object."));
+   }
    if (energy < m_energies.front() || energy > m_energies.back()) {
       return 0;
    }

@@ -4,12 +4,14 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.3 2004/09/24 21:02:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.4 2004/09/25 16:38:08 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
 #define Likelihood_SourceMap_h
 
+#include "Likelihood/BinnedExposure.h"
+#include "Likelihood/MeanPsf.h"
 #include "Likelihood/Pixel.h"
 
 namespace Likelihood {
@@ -20,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.3 2004/09/24 21:02:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.4 2004/09/25 16:38:08 jchiang Exp $
  */
 
 class SourceMap {
@@ -31,7 +33,10 @@ public:
 
    SourceMap(const std::string & sourceMapsFile, const std::string & srcName);
 
-   ~SourceMap() {}
+   ~SourceMap() {
+      delete s_meanPsf;
+      delete s_binnedExposure;
+   }
 
    const std::vector<double> & model() const {return m_model;}
 
@@ -40,6 +45,8 @@ public:
 private:
 
    std::string m_name;
+
+   const CountsMap & m_dataMap;
 
 /// @brief m_models has the same size as the data in the dataMap plus
 /// one energy plane.
@@ -57,6 +64,13 @@ private:
          : Pixel::Aeff(src, appDir, energy, type) {}
       virtual double operator()(double costheta) const;
    };
+
+   static MeanPsf * s_meanPsf;
+   static BinnedExposure * s_binnedExposure;
+
+   double sourceRegionIntegral(Source * src, const Pixel & pixel,
+                               double energy, int evtType) const;
+
 };
 
 } // namespace Likelihood
