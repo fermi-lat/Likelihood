@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Oct 10 22:39:29 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+scripting doesn't work with explicit calls to hoops' Prompt method, so give up and go back to reading all params at once.
+    *
+------------------------------------------------------------
 User: jchiang  Sun Oct 10 20:07:36 PDT 2004
 Likelihood/src/likelihood
 
