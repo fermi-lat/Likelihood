@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.10 2003/08/06 20:52:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.11 2003/08/13 18:01:16 jchiang Exp $
  */
 
 #include <vector>
@@ -75,7 +75,7 @@ double DiffuseSource::fluxDensity(const Event &evt) const {
 }
 
 double DiffuseSource::fluxDensityDeriv(const Event &evt, 
-                                       std::string &paramName) const {
+                                       const std::string &paramName) const {
                                    
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude".
