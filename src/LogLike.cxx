@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.27 2004/08/05 23:06:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.28 2004/08/06 14:58:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,8 +21,6 @@
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
 #include "tip/TipException.h"
-
-#include "irfUtil/Util.h"
 
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/EventArg.h"

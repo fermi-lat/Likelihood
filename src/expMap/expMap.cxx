@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.7 2004/06/05 15:22:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.8 2004/08/05 00:14:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -17,12 +17,14 @@
 #include "st_app/StApp.h"
 #include "st_app/StAppFactory.h"
 
+#include "st_facilities/Util.h"
+
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
-#include "Likelihood/Util.h"
+//#include "Likelihood/Util.h"
 
 using namespace Likelihood;
 
@@ -33,7 +35,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.7 2004/06/05 15:22:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.8 2004/08/05 00:14:25 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -105,7 +107,7 @@ void ExpMap::createExposureMap() {
 // Exposure hypercube file.
    std::string expCubeFile = m_pars["exposure_cube_file"];
    if (expCubeFile != "none") {
-      Util::file_ok(expCubeFile);
+      st_facilities::Util::file_ok(expCubeFile);
       PointSource::readExposureCube(expCubeFile);
    }
    std::string exposureFile = m_pars["Exposure_map_file"];
