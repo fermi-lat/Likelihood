@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.42 2004/07/19 19:27:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.43 2004/08/19 04:03:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -30,6 +30,7 @@
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/FluxBuilder.h"
+#include "Likelihood/ScData.h"
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/SourceModel.h"
 
@@ -441,43 +442,52 @@ bool SourceModel::hasSrcNamed(const std::string & srcName) const {
    return false;      
 }
 
-// void SourceModel::makeCountsMap(const std::string &filename, 
-//                                 const MapShape &mapShape) {
+void SourceModel::makeCountsMap(const std::string &filename, 
+                                const MapShape &mapShape) {
 
-//    std::vector< std::valarray<double> > map(mapShape.nz());
-//    for (unsigned int k = 0; k < mapShape.nz(); k++) {
-//       map.resize(mapShape.nx()*mapShape.ny());
-//    }
+   std::vector< std::valarray<double> > map(mapShape.nz());
+   for (unsigned int k = 0; k < mapShape.nz(); k++) {
+      map[k].resize(mapShape.nx()*mapShape.ny());
+   }
    
-//    ScData * scData = ScData::instance();
+   ScData * scData = ScData::instance();
    
-//    std::vector<double> longitudes = mapShape.x_vector();
-//    std::vector<double> latitudes = mapShape.y_vector();
-//    std::vector<double> energies = mapShape.z_vector();
+   std::vector<double> longitudes = mapShape.x_vector();
+   std::vector<double> latitudes = mapShape.y_vector();
+   std::vector<double> energies = mapShape.z_vector();
 
-//    std::vector<astro::SkyDir> pixelDirs;
-//    pixelDirs.reserve(longitudes.size()*latitudes.size());
-//    std::vector<double>::const_iterator lonIt = longitudes.begin();
-//    for ( ; lonIt != longitudes.end(); lonIt++) {
-//       std::vector<double>::const_iterator latIt = latitudes.begin();
-//       for ( ; latIt != latitudes.end(); latIt++) {
-//          pixelDirs.push_back(astro::SkyDir(*lonIt, *latIt, 
-//                                            mapShape.coordType()));
-//       }
-//    }
+   std::vector<astro::SkyDir> pixelDirs;
+   pixelDirs.reserve(longitudes.size()*latitudes.size());
+   std::vector<double>::const_iterator lonIt = longitudes.begin();
+   for ( ; lonIt != longitudes.end(); lonIt++) {
+      std::vector<double>::const_iterator latIt = latitudes.begin();
+      for ( ; latIt != latitudes.end(); latIt++) {
+         pixelDirs.push_back(astro::SkyDir(*lonIt, *latIt, 
+                                           mapShape.coordType()));
+      }
+   }
 
-//    std::map<std::string, Source *>::const_iterator src;
+   std::map<std::string, Source *>::const_iterator src;
 
-// // The outer loop is the spacecraft time.
-//    for (unsigned int it = 0; it < scData->vec.size()-1; it++) {
-//       double dt = scData->vec[it+1].time - scData->vec[it].time;
-//       for (unsigned int k = 0; k < energies.size(); k++) {
-//          for (src = s_sources.begin(); src != s_sources.end(); ++src) {
-            
-//          }
-//       }
-//    }
-
-// }
+// The outer loop is the spacecraft time.
+   for (unsigned int it = 0; it < scData->vec.size()-1; it++) {
+      double dt = scData->vec[it+1].time - scData->vec[it].time;
+// loop over pixel directions
+      for (unsigned int j = 0; j < pixelDirs.size(); j++) {
+         for (unsigned int k = 0; k < energies.size(); k++) {
+            for (int evtType = 0; evtType < 2; evtType++) {
+               Event evt(pixelDirs[j].ra(), pixelDirs[j].dec(), energies[k],
+                         scData->vec[it].zAxis.ra(), 
+                         scData->vec[it].zAxis.dec(), 
+                         scData->vec[it].zenDir().dot(scData->vec[it].zAxis()),
+                         evtType);
+               for (src = s_sources.begin(); src != s_sources.end(); ++src) {
+                  map[k][j] += src->second->fluxDensity(evt)*dt;
+               }
+            }
+         }
+      }
+   }
+}
 
 } // namespace Likelihood

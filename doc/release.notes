@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v4r4p1 19-Aug-04  JC   fix variable names in makeExposureCube.par,
+                           add model count map computation (untested)
     v4r4   13-Aug-04  JC   Energy dispersion finished.
     v4r3   20-Jul-04  JC   remove old data file; move to irfs/irfInterface
     v4r2   01-Jul-04  JC   clean-up unit tests for Source objects

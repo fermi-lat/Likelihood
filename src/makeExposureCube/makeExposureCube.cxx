@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.6 2004/04/07 02:11:18 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.7 2004/04/21 20:58:42 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -28,7 +28,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.6 2004/04/07 02:11:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.7 2004/04/21 20:58:42 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -68,16 +68,16 @@ st_app::StAppFactory<ExposureCube> myAppFactory;
 
 void ExposureCube::run() {
    createDataCube();
-   map_tools::ExposureHyperCube cube(*m_exposure, m_pars["Output file"]);
+   map_tools::ExposureHyperCube cube(*m_exposure, m_pars["Output_file"]);
    addRoiHistory(cube);
 }
 
 void ExposureCube::createDataCube() {
-   m_exposure = new Likelihood::LikeExposure(m_pars["pixel size"], 
-                                             m_pars["cos_theta step"], 
+   m_exposure = new Likelihood::LikeExposure(m_pars["pixel_size"], 
+                                             m_pars["cos_theta_step"], 
                                              m_pars["ROI_file"]);
    tip::Table * scData = 
-      tip::IFileSvc::instance().editTable(m_pars["Spacecraft file"], "Ext1");
+      tip::IFileSvc::instance().editTable(m_pars["Spacecraft_file"], "Ext1");
    m_exposure->load(scData);
 }
 
