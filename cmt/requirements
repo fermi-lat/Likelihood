@@ -4,7 +4,7 @@ version v2r9
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.88 2004/02/20 22:51:07 jchiang Exp $
+# $Id: requirements,v 1.89 2004/02/21 04:18:17 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -22,6 +22,7 @@ private
 
 use hoops v*
 use hoopsUtil v*
+use tuple v*
 
 #use python v2* IExternal
 #macro pydir ../python/
@@ -47,7 +48,7 @@ macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 
 # applications
-application test_Likelihood test/test.cxx
+application test_Likelihood test/test.cxx test/SourceData.cxx
 #application old_tests test/main.cxx
 #application likelihoodApp test/likelihood.cxx
 #application TsMap test/TsMap.cxx
