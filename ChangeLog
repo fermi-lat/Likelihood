@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb  4 19:43:58 PST 2004
+Likelihood/src
+
+Modified Files:
+	SourceModel.cxx 
+Log Message:
+remove debug message for MapSpectrum xml output
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jan 29 19:08:49 PST 2004
 Likelihood/doc
 
