@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.4 2004/08/13 17:15:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.5 2004/11/11 00:03:30 jchiang Exp $
  */
 
 #include <algorithm>
@@ -41,8 +41,8 @@ FluxBuilder::FluxBuilder() : XmlBuilder() {
 }
 
 FluxBuilder::~FluxBuilder() {
-   delete m_allSrcsElt;
-   delete m_srcLib;
+//    delete m_allSrcsElt;
+//    delete m_srcLib;
 }
 
 void FluxBuilder::addSource(Source & src) {

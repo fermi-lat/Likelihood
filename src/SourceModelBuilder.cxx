@@ -4,7 +4,7 @@
  * files for the Likelihood package source models.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.2 2004/02/21 04:18:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.3 2004/11/11 00:03:31 jchiang Exp $
  */
 
 #include <fstream>
@@ -36,7 +36,7 @@ SourceModelBuilder::SourceModelBuilder(const std::string &functionLibrary,
 }
 
 SourceModelBuilder::~SourceModelBuilder() {
-   delete m_srcLib;
+//    delete m_srcLib;
 }
 
 void SourceModelBuilder::addSource(Source & src) {

@@ -3,7 +3,7 @@
  * @brief Class to compare two XML files.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.h,v 1.1 2004/02/29 19:56:57 jchiang Exp $
  */
 
 #ifndef LikelihoodTests_XmlDiff_h
@@ -13,7 +13,11 @@
 #include <string>
 #include <vector>
 
+#include <xercesc/dom/DOM.hpp>
+
 #include "xml/Dom.h"
+
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 /**
  * @class XmlDiff
@@ -34,7 +38,7 @@
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.h,v 1.1 2004/02/29 19:56:57 jchiang Exp $
  */
 
 class XmlDiff {
@@ -63,11 +67,11 @@ private:
    std::string m_file1;
    std::string m_file2;
 
-   typedef std::map<std::string, DomElement> DomMap;
+   typedef std::map<std::string, DOMElement *> DomMap;
    DomMap m_domMap1;
    DomMap m_domMap2;
 
-   void createDomElementMap(const DomElement & rootElt, DomMap & domMap);
+   void createDomElementMap(const DOMElement * rootElt, DomMap & domMap);
 
    void writeReserializedFile(const std::string & filename, 
                               const DomMap & domMap);

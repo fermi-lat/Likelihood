@@ -29,7 +29,7 @@ def externalLibrary(libname, version):
     
 libraries['cfitsio'] = externalLibrary('cfitsio', 'v2470')
 libraries['CLHEP'] = externalLibrary('CLHEP', '1.8.0.0')
-libraries['xerces-c1_7_0'] = externalLibrary('xerces', '1.7.0')
+libraries['xerces-c'] = externalLibrary('xerces', '2.6.0')
 libraries['cppunit'] = externalLibrary('cppunit', '1.9.14')
 libraries['Core'] = externalLibrary('ROOT', os.path.join('v3.10.02', 'root'))
 libraries['pil'] = externalLibrary('pil', '1.9.2')
