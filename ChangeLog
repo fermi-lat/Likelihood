@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Tue Sep 21 22:39:57 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx CountsMap.cxx 
+Added Files:
+	SourceMap.cxx 
+Log Message:
+precompute source spatial dist. convolved with response functions for binned analysis
+    *
+------------------------------------------------------------
+User: jchiang  Tue Sep 21 22:39:57 PDT 2004
 Likelihood/cmt
 
 Modified Files:
