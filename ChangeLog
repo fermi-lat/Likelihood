@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Sep 22 22:41:57 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+add binned analysis to likelihood application
+    *
+------------------------------------------------------------
+User: jchiang  Wed Sep 22 22:41:57 PDT 2004
 Likelihood/src
 
 Modified Files:
