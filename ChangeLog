@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 23 21:54:23 PST 2004
+Likelihood/src
+
+Modified Files:
+	ScData.cxx 
+Log Message:
+unit tests for Source derivative calcs
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 23 14:17:34 PST 2004
 Likelihood/src
 
