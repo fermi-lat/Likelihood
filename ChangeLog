@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Sep  3 14:46:19 PDT 2004
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+add progress indicator for makeExposureCube
+    *
+------------------------------------------------------------
+User: jchiang  Fri Sep  3 14:46:19 PDT 2004
 Likelihood/src
 
 Modified Files:
