@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 10 16:03:28 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	FluxBuilder.h RoiCuts.h SourceFactory.h SourceMap.h 
+	SourceModelBuilder.h XmlBuilder.h 
+Log Message:
+xerces 2.6.0 migration
+    *
+------------------------------------------------------------
 User: jchiang  Mon Nov  8 21:19:27 PST 2004
 Likelihood/src
 
