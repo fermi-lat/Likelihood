@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 13 11:01:15 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	ConstantValue.h DiffuseSource.h FitsImage.h Source.h 
+	SourceFactory.h SpatialMap.h 
+Log Message:
+add xml support
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 13 10:59:57 PDT 2003
 Likelihood/xml
 
