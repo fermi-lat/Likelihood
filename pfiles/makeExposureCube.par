@@ -3,6 +3,7 @@ evtable,s,hl,"EVENTS",,,"Event data extension"
 scfile,fr,a,"./tmpy3XDg1",,,"Spacecraft data file"
 sctable,s,hl,"Ext1",,,"Spacecraft data extension"
 outfile,f,a,"expCubeFile.fits",,,"Output file"
+outtable,s,h,"exposure",,,"Output extension"
 cos_theta_step,r,hl,0.05,0.,1.,Step size in cos(theta)
 pixel_size,r,hl,1,,,Pixel size (degrees)
 
