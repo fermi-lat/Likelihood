@@ -1,37 +1,54 @@
 #ifndef Response_h
 #define Response_h
 
-#include "DataCube.h"
-#include "Function.h"
-#include "FitsNtuple.h"
+#include "astro/SkyDir.h"
+#include "../Likelihood/ScNtuple.h"
+
+namespace Likelihood {
 
 /** 
  * @class Response
  *
- * @brief The LAT instrumental response.  Multiple representations
- * may be required:
+ * @brief Base class for the LAT instrument response functions.
+ * Spacecraft info is shared among all derived classes via static data
+ * members.
  *
- * DataCube: in case the standard decomposition into effective area, energy
- * dispersion and point-spread function does not apply
- *
- * Function: for use with log-likelihood sums and integrals
- *
- * FitsNtuple: for the straw-man CALDB representation
+ * Should each derived class -- Aeff, Psf, Edisp -- be Singleton?
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/src/Response.h,v 1.1.1.1 2003/01/30 23:23:03 burnett Exp $
- */
+ * $Header: */
 
-class Response : DataCube, Function, FitsNtuple {
+class Response {
     
 public:
     
-    Response();
-    ~Response();
-    
-private:
+   Response();
+   Response(const std::string &scFile, int scHdu);
+   virtual ~Response(){};
+
+protected:
+
+   //! share the spacecraft data among all response functions
+   static std::vector<ScNtuple> m_scData;
+   static bool m_haveScData;
         
+   //! the NR hunt routine 
+   static void m_hunt(double xx[], int nx, double x, int *i);
+
+   //! and my own zeroth order bilinear interpolater
+   static double m_bilinear(int nx, double *xx, int i, double x,
+			    int ny, double *yy, int j, double y, double *z);
+
+private:
+
+   std::string m_scFile;
+   int m_scHdu;
+
+   //! accessing the spacecraft data
+   void m_readScData(const std::string &file, int hdu);
+
 };
 
+} // namespace Likelihood
 #endif // Response_h
