@@ -8,7 +8,7 @@
              emax="3.1623e5"
              unit="MeV"/>
    <acceptanceCone longitude="180."
-                   latitude="0."
-                   radius="25"
+                   latitude="5."
+                   radius="20"
                    coordsys="Galactic"/>
 </Region-of-Interest>
