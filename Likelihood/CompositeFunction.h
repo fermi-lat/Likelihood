@@ -51,7 +51,6 @@ public:
       std::vector<double>::const_iterator it) {
       it = m_a->setParamValues_(it);
       it = m_b->setParamValues_(it);
-      syncParams();
       return it;
    }
 
@@ -59,7 +58,6 @@ public:
       std::vector<double>::const_iterator it) {
       it = m_a->setFreeParamValues_(it);
       it = m_b->setFreeParamValues_(it);
-      syncParams();
       return it;
    }
 

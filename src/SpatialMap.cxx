@@ -38,7 +38,7 @@ double SpatialMap::value(Arg& arg) const {
    double my_value 
       = Response::bilinear(m_dec, dir.dec(), m_ra, ra, m_image);
 
-   return my_value;
+   return m_parameter[0].getTrueValue()*my_value;
 }
 
 } // namespace Likelihood

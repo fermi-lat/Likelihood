@@ -12,7 +12,7 @@
 #include "Likelihood/Function.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Event.h"
-#include "Likelihood/Arg.h"
+#include "Likelihood/SkyDirArg.h"
 
 namespace Likelihood {
 
@@ -24,10 +24,20 @@ namespace Likelihood {
  * this class also includes discrete diffuse sources such as the LMC
  * or supernova remnants.
  *
+ * This representation assumes that a single spectral model describes
+ * the emission over the entire angular extent of the source.
+ * Therefore, in order to have spectral variations across a source, it
+ * must comprise sub-components that can be represented using this
+ * class.
+ *
+ * Note that the member function double spatialDist(astro::SkyDir &)
+ * returns the spatial distribution of the emission as a function of
+ * direction.
+ *
  * @author J. Chiang
  *    
  * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.2 2003/03/25 23:22:02 jchiang Exp $ 
- * 
+ *  
  */
 
 class DiffuseSource : public Source {
@@ -54,6 +64,12 @@ public:
 
    //! Derivative of Npred wrt named Parameter
    double NpredDeriv(const std::string &paramName);
+
+   //! Return the spatial distribution of the gamma-ray emission
+   double spatialDist(astro::SkyDir &dir) {
+      SkyDirArg SDarg(dir);
+      return (*m_spatialDist)(SDarg);
+   }
 
    //! Set the spectral model (should also check that the Parameter
    //! names do not conflict with "longitude" and "latitude" of m_dir)

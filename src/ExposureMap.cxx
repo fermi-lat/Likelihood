@@ -27,9 +27,11 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
 
    s_mapData->fetchCelestialArrays(s_ra, s_dec);
 
-// Fetch the energy axis abscissa points. Here we assume that
-// the exposure map has at least two image planes.
-   s_mapData->fetchAxisVector(2, s_energies);
+// Fetch the energy axis abscissa points. Here we assume that the
+// exposure map has at least two image planes, and that the energies
+// are along the third dimension so we set naxis = 2.
+   int naxis = 2;
+   s_mapData->fetchAxisVector(naxis, s_energies);
 
 // pixel solid angles
    std::valarray<double> solidAngles;
@@ -65,7 +67,9 @@ void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
    exposure.reserve(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
       double srcExposure = 0;
-// assume the ExposureMap energies are logarithmically spaced
+// Find the index kk (of the energy array that describes the exposure
+// map data) that will be used for interpolating at energies[k]; here
+// we assume the ExposureMap energies are logarithmically spaced.
       std::vector<double>::const_iterator iterE;
       if (energies[k] < s_energies[0]) {
          iterE = s_energies.begin() + 1;

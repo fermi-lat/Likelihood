@@ -32,7 +32,7 @@ DiffuseSource::DiffuseSource(Function* spatialDist) : m_spectrum(0) {
 
    if (!s_haveStaticMembers) {
       makeEnergyVector();
-      s_haveStaticMembers = false;
+      s_haveStaticMembers = true;
    }
 
 // In order to compute exposure, RoiCuts and spacecraft data must be
@@ -49,6 +49,8 @@ DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {
 
    m_spectrum = rhs.m_spectrum->clone();
    m_functions["Spectrum"] = m_spectrum;
+
+   m_exposure = rhs.m_exposure;
 }
 
 double DiffuseSource::fluxDensity(const Event &evt) const {

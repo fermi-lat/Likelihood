@@ -2,7 +2,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.6 2003/03/17 00:53:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.9 2003/03/25 23:22:02 jchiang Exp $
  */
 
 #ifndef Event_h
@@ -15,8 +15,11 @@
 #include <utility>
 
 #include "astro/SkyDir.h"
+#include "Likelihood/FitsImage.h"
 
 namespace Likelihood {
+
+class DiffuseSource;
 
 /** 
  * @class Event
@@ -25,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.6 2003/03/17 00:53:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.9 2003/03/25 23:22:02 jchiang Exp $
  */
 
 class Event {
@@ -54,6 +57,17 @@ public:
    //! for the named diffuse component
    double diffuseResponse(double energy, std::string diffuseComponent) const;
     
+   //! This method takes the spatial distribution of the emission for
+   //! the DiffuseSource src and computes the event-specific response.
+   //! See section 1 of 
+   //! <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps>
+   //! LikeMemo 3</a>.  The computed response is added to the
+   //! m_respDiffuseSrcs map with the specified name.  sr_radius is the
+   //! "source region" radius (in degrees) over which the spatial
+   //! distribution of src will be integrated.
+   void computeResponse(DiffuseSource &src, const std::string &name, 
+                        double sr_radius = 30.);
+   
 private:
 
    //! apparent direction, energy, arrival time, and cosine(zenith angle)
@@ -78,10 +92,11 @@ private:
    //! and for any number of diffuse sources,
    std::map<std::string, diffuse_response> m_respDiffuseSrcs;
 
-   //! something to compute the event response function data
-   void computeResponse()
-      {std::cout << "Computing event response..." << std::endl;}
-        
+   //! compute Celestial direction from (phi, mu) in Equinox-centered
+   //! coordinates
+   void getCelestialDir(double phi, double mu, FitsImage::EquinoxRotation
+                        &eqRot, astro::SkyDir &dir);
+
 };
 
 } // namespace Likelihood

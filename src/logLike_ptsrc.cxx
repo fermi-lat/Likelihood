@@ -2,7 +2,7 @@
  * @brief logLike_ptsrc class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.cxx,v 1.7 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -14,6 +14,7 @@
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/EventArg.h"
 #include "Likelihood/SrcArg.h"
+#include "Likelihood/DiffuseSource.h"
 
 namespace Likelihood {
 
@@ -113,6 +114,17 @@ void logLike_ptsrc::getEvents(const std::string &event_file, int hdu) {
              << ra.first << " events, "
              << m_events.size() << " were accepted, and "
              << nReject << " were rejected.\n" << std::endl;
+}
+
+void logLike_ptsrc::computeEventResponses(DiffuseSource &src, 
+                                          double sr_radius) {
+   std::cerr << "compute event responses for "
+             << src.getName();
+   for (unsigned int i = 0; i < m_events.size(); i++) {
+      if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
+      m_events[i].computeResponse(src, src.getName(), sr_radius);
+   }
+   std::cerr << "!" << std::endl;
 }
 
 } // namespace Likelihood
