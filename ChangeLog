@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Dec 30 08:45:43 PST 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+check for columns in diffuseResponses; add option to re-minimize in Ts calcs
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6r1, operation: add
 Package: Likelihood
