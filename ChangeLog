@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 21 16:11:07 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	CompositeFunction.h Function.h LikelihoodException.h 
+	Parameter.h 
+Log Message:
+add exceptions to Function and Parameter classes
+
+    *
+------------------------------------------------------------
 User: pln  Wed May 21 14:31:15 PDT 2003
 Likelihood/src
 
