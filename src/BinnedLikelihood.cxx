@@ -26,10 +26,14 @@ double BinnedLikelihood::value(optimizers::Arg &dummy) const {
    double my_value(0);
 
    for (unsigned int i = 0; i < data.size(); i++) {
-      my_value += data[i]*log(model[i]) - model[i];
+      if (model[i] > 0) {
+         my_value += data[i]*log(model[i]) - model[i];
+      }
    }
 
    return my_value;
 }
+
+
 
 } // namespace Likelihood

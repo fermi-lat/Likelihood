@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.42 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.43 2004/09/13 15:30:39 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -17,7 +17,8 @@
 
 #include "optimizers/Statistic.h"
 
-#include "Likelihood/MapShape.h"
+//#include "Likelihood/MapShape.h"
+#include "Likelihood/Pixel.h"
 #include "Likelihood/Source.h"
 
 namespace optimizers {
@@ -37,7 +38,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.42 2004/09/03 06:08:56 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.43 2004/09/13 15:30:39 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -127,6 +128,9 @@ public:
    /// return a Source pointer by name
    Source * getSource(const std::string &srcName);
 
+   /// @return reference to the Source map.
+   const std::map<std::string, Source *> & sources() {return s_sources;}
+
    unsigned int getNumSrcs() const {return s_sources.size();}
    void getSrcNames(std::vector<std::string> &) const;
    bool hasSrcNamed(const std::string & srcName) const;
@@ -153,18 +157,18 @@ public:
    /// Create a counts map based on the current model.
    CountsMap * createCountsMap(const CountsMap & dataMap) const;
 
-   class Aeff : public map_tools::Exposure::Aeff {
-   public:
-      Aeff(Source * src, const astro::SkyDir & appDir, 
-           double energy, int type);
-      virtual double operator()(double costheta) const;
-   private:
-      Source * m_src;
-      const astro::SkyDir & m_appDir;
-      double m_energy;
-      int m_type;
-      double m_separation;
-   };
+//    class Aeff : public map_tools::Exposure::Aeff {
+//    public:
+//       Aeff(Source * src, const astro::SkyDir & appDir, 
+//            double energy, int type);
+//       virtual double operator()(double costheta) const;
+//    private:
+//       Source * m_src;
+//       const astro::SkyDir & m_appDir;
+//       double m_energy;
+//       int m_type;
+//       double m_separation;
+//    };
 
 protected:
 
@@ -201,12 +205,15 @@ protected:
 
 protected:
 
-   static void getPixels(const CountsMap & countsMap, 
-                         std::vector<astro::SkyDir> & pixelDirs,
-                         std::vector<double> & pixelSolidAngles);
+   static void getPixels(const CountsMap & countsMap,
+                         std::vector<Pixel> & pixels);
 
-   static void computeModelMap(const std::vector<astro::SkyDir> & pixelDirs,
-                               const std::vector<double> & pixelSolidAngles,
+//    static void computeModelMap(const std::vector<astro::SkyDir> & pixelDirs,
+//                                const std::vector<double> & pixelSolidAngles,
+//                                const std::vector<double> & energies,
+//                                std::vector<double> & modelMap);
+
+   static void computeModelMap(const std::vector<Pixel> & pixels,
                                const std::vector<double> & energies,
                                std::vector<double> & modelMap);
 
@@ -217,6 +224,10 @@ private:
    static double computeSolidAngle(std::vector<double>::const_iterator lon,
                                    std::vector<double>::const_iterator lat,
                                    const astro::SkyProj & proj);
+
+   static void getPixels(const CountsMap & countsMap, 
+                         std::vector<astro::SkyDir> & pixelDirs,
+                         std::vector<double> & pixelSolidAngles);
 
 };
 

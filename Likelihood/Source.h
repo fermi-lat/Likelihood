@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.24 2004/08/18 21:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.25 2004/08/23 15:38:56 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.24 2004/08/18 21:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.25 2004/08/23 15:38:56 jchiang Exp $
  */
 
 class Source {
@@ -63,6 +63,19 @@ public:
    /// derivatives of fluxDensity wrt model Parameters
    virtual double fluxDensityDeriv(const Event &evt, 
                                    const std::string &paramName) const = 0;
+
+   virtual double fluxDensityDeriv(double inclination, double phi, 
+                                   double energy, double separation, 
+                                   int evtType, 
+                                   const std::string & paramName) const {
+      (void)(inclination);
+      (void)(phi);
+      (void)(energy);
+      (void)(separation);
+      (void)(evtType);
+      (void)(paramName);
+      return 0;
+   }
 
    /// predicted number of photons given RoiCuts and ScData
    virtual double Npred() = 0;

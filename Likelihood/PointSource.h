@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.38 2004/08/18 21:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.39 2004/08/23 15:38:56 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.38 2004/08/18 21:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.39 2004/08/23 15:38:56 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -85,6 +85,11 @@ public:
    double fluxDensityDeriv(double energy, double time,
                            const astro::SkyDir &dir, int eventType,
                            const std::string &paramName) const;
+
+   virtual double fluxDensityDeriv(double inclination, double phi, 
+                                   double energy, double separation, 
+                                   int evtType, const std::string & paramName)
+      const;
 
    /// Predicted number of photons given RoiCuts and ScData
    virtual double Npred();
