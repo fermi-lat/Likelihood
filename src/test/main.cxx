@@ -91,7 +91,7 @@ int main() {
 //    test_SpatialMap();
 //    test_DiffuseSource();
 //    test_FunctionFactory();
-//    test_SourceFactory();
+   test_SourceFactory();
    fit_DiffuseSource();
    return 0;
 }

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.20 2003/07/19 04:38:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.21 2003/08/06 20:52:03 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.20 2003/07/19 04:38:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.21 2003/08/06 20:52:03 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -158,6 +158,7 @@ private:
    //! fraction of the psf that is contained within the ROI
    double psfFrac(double energy, double inc);
 
+#ifndef SWIG
    //! nested class that returns the integrand for the m_gaussFraction
    //! integrals
    class Gint : public optimizers::Function {
@@ -174,6 +175,7 @@ private:
       double m_cp;
       double m_sp;
    };
+#endif
 
    //! a static object needed to compute the m_gaussFraction integrals
    //! using the DGAUS8 integrator

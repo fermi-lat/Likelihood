@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
  */
 
 class ScData {
@@ -35,6 +35,7 @@ public:
    //! method to read in the spacecraft data
    static void readData(const std::string &file, int hdu);
    
+#ifndef SWIG
 /** 
  * @class ScNtuple
  * @brief Nested NTuple class to represent spacecraft data.
@@ -52,6 +53,7 @@ public:
 
    //! share the spacecraft data itself
    static std::vector<ScNtuple> vec;
+#endif // SWIG
 
    //! returns the Singleton object pointer
    static ScData * instance();
