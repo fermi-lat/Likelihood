@@ -3,26 +3,30 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.5 2004/04/07 02:11:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.6 2004/04/19 00:03:35 jchiang Exp $
  */
 
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
-#include <cassert>
+
 #include <fstream>
 #include <iostream>
+
+#include "st_app/AppParGroup.h"
+#include "st_app/StApp.h"
+#include "st_app/StAppFactory.h"
 
 #include "optimizers/Drmngb.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
 #include "optimizers/Exception.h"
 
-#include "Likelihood/AppBase.h"
+#include "Likelihood/AppHelpers.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/Util.h"
-#include "Likelihood/StApp.h"
 
 using namespace Likelihood;
 
@@ -33,23 +37,31 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.5 2004/04/07 02:11:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.6 2004/04/19 00:03:35 jchiang Exp $
  */
 
-class likelihood : public AppBase {
+class likelihood : public st_app::StApp {
 
 public:
 
-   likelihood(hoops::IParGroup & pars) : AppBase(pars), m_logLike(0), 
-                                         m_useOptEM(false), m_opt(0) {}
+   likelihood();
 
-   virtual ~likelihood() {
-      delete m_logLike;
+   virtual ~likelihood() throw() {
+      try {
+         delete m_logLike;
+      } catch (std::exception & eObj) {
+         std::cout << eObj.what() << std::endl;
+      } catch (...) {
+      }
    }
 
    virtual void run();
 
 private:
+
+   AppHelpers * m_helper;  //blech.
+
+   st_app::AppParGroup & m_pars;
 
    LogLike * m_logLike;
    bool m_useOptEM;
@@ -66,10 +78,28 @@ private:
 
 };
 
-StApp<likelihood> my_application("likelihood");
+st_app::StAppFactory<likelihood> myAppFactory;
+
+likelihood::likelihood() 
+   : st_app::StApp(), m_helper(0), 
+     m_pars(st_app::StApp::getParGroup("likelihood")),
+     m_logLike(0), m_useOptEM(false), m_opt(0) {
+   try {
+      m_pars.Prompt();
+      m_pars.Save();
+      m_helper = new AppHelpers(m_pars);
+   } catch (std::exception & eObj) {
+      std::cerr << eObj.what() << std::endl;
+      std::exit(1);
+   } catch (...) {
+      std::cerr << "Caught unknown exception in likelihood constructor." 
+                << std::endl;
+      std::exit(1);
+   }
+}
 
 void likelihood::run() {
-   readExposureMap();
+   m_helper->readExposureMap();
    createStatistic();
    readEventData();
 
@@ -133,7 +163,7 @@ void likelihood::readSourceModel() {
    if (m_logLike->getNumSrcs() == 0) {
 // Read in the Source model for the first time.
       Util::file_ok(sourceModel);
-      m_logLike->readXml(sourceModel, m_funcFactory);
+      m_logLike->readXml(sourceModel, m_helper->funcFactory());
       m_logLike->computeEventResponses();
    } else {
 // Re-read the Source model from the xml file, allowing only for 
