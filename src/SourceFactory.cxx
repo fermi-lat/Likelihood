@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.39 2005/02/02 06:22:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.40 2005/02/15 00:34:46 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -21,6 +21,7 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Exception.h"
 #include "Likelihood/MapCubeFunction.h"
+#include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SpectrumFactory.h"
@@ -32,7 +33,8 @@ namespace Likelihood {
 
 XERCES_CPP_NAMESPACE_USE
 
-SourceFactory::SourceFactory(bool verbose) : m_verbose(verbose) {
+SourceFactory::SourceFactory(const Observation & observation, bool verbose) 
+   : m_verbose(verbose), m_observation(observation) {
 }
 
 SourceFactory::~SourceFactory() {
@@ -258,7 +260,7 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
    }
    Source * src;
    try {
-      src = new DiffuseSource(spatialDist, m_requireExposure);
+      src = new DiffuseSource(spatialDist, m_observation, m_requireExposure);
       setSpectrum(src, spectrum, funcFactory);
       return src;
    } catch (optimizers::Exception &eObj) {

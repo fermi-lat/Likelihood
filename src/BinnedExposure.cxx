@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.3 2004/11/08 03:22:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.4 2004/11/28 06:58:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -20,6 +20,7 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/ExposureCube.h"
+#include "Likelihood/Observation.h"
 #include "Likelihood/ResponseFunctions.h"
 
 #include "Verbosity.h"
@@ -28,8 +29,11 @@ namespace Likelihood {
 
 #include "fitsio.h"
 
-BinnedExposure::BinnedExposure(const std::vector<double> & energies) 
-   : m_energies(energies) {
+BinnedExposure::BinnedExposure() : m_observation(0) {}
+
+BinnedExposure::BinnedExposure(const std::vector<double> & energies,
+                               const Observation & observation) 
+   : m_observation(&observation), m_energies(energies) {
    computeMap();
 }
 
@@ -133,9 +137,9 @@ void BinnedExposure::computeMap() {
             unsigned int indx 
                = k*m_ras.size()*m_decs.size() + j*m_ras.size() + i;
             for (int evtType = 0; evtType < 2; evtType++) {
-               Aeff aeff(m_energies[k], evtType);
+               Aeff aeff(m_energies[k], evtType, *m_observation);
                m_exposureMap.at(indx)
-                  += ExposureCube::instance()->value(dir, aeff);
+                  += m_observation->expCube().value(dir, aeff);
             }
          }
          iter++;
@@ -156,9 +160,9 @@ double BinnedExposure::Aeff::s_phi(0);
 
 double BinnedExposure::Aeff::operator()(double cosTheta) const {
    double inclination = acos(cosTheta)*180./M_PI;
-   std::map<unsigned int, irfInterface::Irfs *>::iterator respIt 
-      = ResponseFunctions::instance()->begin();
-   for ( ; respIt != ResponseFunctions::instance()->end(); ++respIt) {
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+      = m_observation.respFuncs().begin();
+   for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {
          irfInterface::IAeff * aeff = respIt->second->aeff();
          double aeff_val = aeff->value(m_energy, inclination, s_phi);

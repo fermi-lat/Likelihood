@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.24 2005/02/15 00:34:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.25 2005/02/15 07:04:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -25,6 +25,7 @@
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
+#include "Likelihood/Observation.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/Source.h"
@@ -57,7 +58,8 @@ std::vector<double> SourceMap::s_phi;
 std::vector<double> SourceMap::s_mu;
 std::vector<double> SourceMap::s_theta;
 
-SourceMap::SourceMap(Source * src, const CountsMap * dataMap) 
+SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
+                     const Observation & observation) 
    : m_name(src->getName()), m_dataMap(dataMap), m_deleteDataMap(false) {
    s_refCount++;
    if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
@@ -95,14 +97,15 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
 /// calculation.
             for (int evtType = 0; evtType < 2; evtType++) {
                Aeff aeff(src, pixel->dir(), *energy, evtType);
-               value += ExposureCube::instance()->value(pixel->dir(), aeff);
+//               value += ExposureCube::instance()->value(pixel->dir(), aeff);
+               value += observation.expCube().value(pixel->dir(), aeff);
             }
          } else if (haveDiffuseSource) {
             DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
             if (haveMapCubeFunction(diffuseSrc)) {
                recomputeSrcStrengths(diffuseSrc, *energy);
             }
-            value = sourceRegionIntegral(*energy);
+            value = sourceRegionIntegral(*energy, observation);
          } else {
             value = 0;
          }
@@ -197,7 +200,8 @@ bool SourceMap::haveMapCubeFunction(DiffuseSource * src) const {
    return srcFuncs["SpatialDist"]->genericName() == "MapCubeFunction";
 }
 
-double SourceMap::sourceRegionIntegral(double energy) const {
+double SourceMap::sourceRegionIntegral(double energy,
+                                       const Observation & observation) const {
    std::vector<double> energies;
    m_dataMap->getAxisVector(2, energies);
    if (s_meanPsf == 0) {
@@ -207,7 +211,7 @@ double SourceMap::sourceRegionIntegral(double energy) const {
       s_meanPsf->write("mean_psf.dat");
    }
    if (s_binnedExposure == 0) {
-      s_binnedExposure = new BinnedExposure(energies);
+      s_binnedExposure = new BinnedExposure(energies, observation);
       s_binnedExposure->writeOutput("binned_exposure.fits");
    }
    MeanPsf & psf = *s_meanPsf;

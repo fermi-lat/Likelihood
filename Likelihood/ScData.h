@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.14 2004/10/11 01:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.15 2005/01/23 00:38:07 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.14 2004/10/11 01:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.15 2005/01/23 00:38:07 jchiang Exp $
  */
 
 class ScData {
@@ -56,10 +56,10 @@ public:
 #endif // SWIG
 
    /// Return the spacecraft z-axis as a function of MET.
-   astro::SkyDir &zAxis(double time);
+   const astro::SkyDir &zAxis(double time);
 
    /// Return the spacecraft x-axis as a function of MET.
-   astro::SkyDir &xAxis(double time);
+   const astro::SkyDir &xAxis(double time);
 
    /// Returns the Singleton object pointer.
    static ScData * instance();

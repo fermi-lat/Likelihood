@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.19 2005/01/29 16:01:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.20 2005/02/01 00:01:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.19 2005/01/29 16:01:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.20 2005/02/01 00:01:14 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -128,7 +128,8 @@ void ExpMap::createExposureMap() {
       ExposureCube::readExposureCube(expCubeFile);
    }
    std::string exposureFile = m_pars["outfile"];
-   ExposureMap::computeMap(exposureFile, m_srRadius, nlong, nlat, nenergies);
+   ExposureMap::computeMap(exposureFile, *RoiCuts::instance(), m_srRadius, 
+                           nlong, nlat, nenergies);
 
    std::auto_ptr<tip::Image> 
       image(tip::IFileSvc::instance().editImage(exposureFile, ""));

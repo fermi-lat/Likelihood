@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.51 2005/02/01 07:18:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.52 2005/02/15 00:34:42 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -19,6 +19,7 @@
 #include "optimizers/Statistic.h"
 
 #include "Likelihood/Pixel.h"
+#include "Likelihood/Observation.h"
 #include "Likelihood/Source.h"
 
 namespace optimizers {
@@ -38,21 +39,26 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.51 2005/02/01 07:18:56 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.52 2005/02/15 00:34:42 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
 
 public:
    
-   SourceModel(bool verbose=false) : m_verbose(verbose) {
+#ifndef SWIG
+   SourceModel(const Observation & observation, bool verbose=false) 
+      : m_observation(observation), m_verbose(verbose) {
       setMaxNumParams(0); 
       m_genericName = "SourceModel";
       s_refCount++;
    }
+#endif // SWIG
 
-   SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs) 
-      {s_refCount++;}
+   SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs),
+      m_observation(rhs.m_observation), m_verbose(rhs.m_verbose) {
+      s_refCount++;
+   }
 
    virtual ~SourceModel();
 
@@ -150,6 +156,8 @@ public:
    void syncParams();
 
 protected:
+
+   const Observation & m_observation;
 
    virtual SourceModel * clone() const {
       return new SourceModel(*this);

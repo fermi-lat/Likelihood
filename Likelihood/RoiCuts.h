@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.23 2004/12/08 21:44:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.24 2004/12/24 16:45:45 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -41,7 +41,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.23 2004/12/08 21:44:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.24 2004/12/24 16:45:45 jchiang Exp $
  */
 
 class RoiCuts {
@@ -96,7 +96,7 @@ public:
                  bool pretty=false);
 
    /// Apply these cuts to an Event
-   bool accept(const Event &);
+   bool accept(const Event &) const;
 
    /// Write DSS keywords to a FITS header
    void writeDssKeywords(tip::Header & header) const;

@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.37 2005/02/23 00:39:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.38 2005/02/24 06:32:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -25,7 +25,6 @@
 #include "Likelihood/EventArg.h"
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
-#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SrcArg.h"
 
@@ -123,23 +122,8 @@ void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs,
       if (print_output(3) && m_events.size() > 20 &&
           (i % (m_events.size()/20)) == 0) std::cerr << ".";
       m_events[i].computeResponse(srcs, sr_radius);
-//       if (i < 10) {
-//          std::ostringstream filename;
-//          filename << "diffuse_response_" << i << ".dat";
-//          m_events[i].writeDiffuseResponses(filename.str());
-//       }
    }
    if (print_output(3)) std::cerr << "!" << std::endl;
-// // Write out the diffuse responses.
-//    std::ofstream outfile("diffuse_responses.dat");
-//    for (unsigned int i = 0; i < m_events.size(); i++) {
-//       for (unsigned int j = 0; j < srcs.size(); j++) {
-//          outfile << m_events[i].diffuseResponse(1., srcs[j]->getName())
-//                  << "  ";
-//       }
-//       outfile << "\n";
-//    }
-//    outfile.close();
 }
 
 void LogLike::computeEventResponses(double sr_radius) {
@@ -160,21 +144,7 @@ void LogLike::computeEventResponses(double sr_radius) {
 void LogLike::getEvents(std::string event_file) {
 
    facilities::Util::expandEnvVar(&event_file);
-
-   RoiCuts * roiCuts = RoiCuts::instance();
-   ScData * scData = ScData::instance();
-
-   if (!scData) {
-      std::string message = std::string("LogLike::getEvents: ")
-         + "The spacecraft data must be read in first.";
-      throw std::runtime_error(message);
-   }
-
-   if (!roiCuts) {
-      std::string message = std::string("LogLike::getEvents: ")
-         + "The region-of-interest data must be read in first.";
-      throw std::runtime_error(message);
-   }
+   ScData & scData = const_cast<ScData &>(m_observation.scData());
 
    unsigned int nTotal(0);
    unsigned int nReject(0);
@@ -210,9 +180,9 @@ void LogLike::getEvents(std::string event_file) {
       } else {
          eventType = 1;
       }
-      Event thisEvent(ra, dec, energy, time, scData->zAxis(time),
-                      scData->xAxis(time), cos(zenAngle*M_PI/180.), eventType);
-      if (roiCuts->accept(thisEvent)) {
+      Event thisEvent(ra, dec, energy, time, scData.zAxis(time),
+                      scData.xAxis(time), cos(zenAngle*M_PI/180.), eventType);
+      if (m_observation.roiCuts().accept(thisEvent)) {
          m_events.push_back(thisEvent);
          for (std::vector<std::string>::iterator name = diffuseNames.begin();
               name != diffuseNames.end(); ++name) {
@@ -221,7 +191,7 @@ void LogLike::getEvents(std::string event_file) {
 // in setDiffuseResponse.
             std::string srcName = ::sourceName(*name);
             std::vector<double> gaussianParams;
-            if (ResponseFunctions::useEdisp()) {
+            if (m_observation.respFuncs().useEdisp()) {
                try {
                   event[*name].get(gaussianParams);
                   m_events.back().setDiffuseResponse(srcName, gaussianParams);

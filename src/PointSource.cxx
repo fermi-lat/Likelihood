@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.54 2004/11/28 06:58:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.55 2004/12/01 16:46:27 jchiang Exp $
  */
 
 #include <cmath>
@@ -467,7 +467,7 @@ double PointSource::Aeff::operator()(double cos_theta) const {
    ResponseFunctions * respFuncs = ResponseFunctions::instance();
 
    double myEffArea = 0;
-   std::map<unsigned int, irfInterface::Irfs *>::iterator respIt
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt
       = respFuncs->begin();
 
    for ( ; respIt != respFuncs->end(); respIt++) {

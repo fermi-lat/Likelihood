@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.17 2005/01/06 23:42:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.18 2005/02/01 00:01:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.17 2005/01/06 23:42:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.18 2005/02/01 00:01:10 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -57,7 +57,7 @@ public:
 private:
    AppHelpers * m_helper;
    st_app::AppParGroup & m_pars;
-   LogLike m_logLike;
+   LogLike * m_logLike;
    optimizers::Optimizer * m_opt;
    std::vector<double> m_lonValues;
    std::vector<double> m_latValues;
@@ -88,6 +88,7 @@ TsMap::TsMap() : st_app::StApp(), m_helper(0),
       m_pars.Prompt();
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
+      m_logLike = new LogLike(m_helper->observation());
       m_helper->readScData();
       setPointSourceSpectrum(m_testSrc);
       m_testSrc.setName("testSource");
@@ -122,7 +123,7 @@ void TsMap::run() {
 
 void TsMap::readSrcModel() {
    st_facilities::Util::file_ok(m_pars["source_model_file"]);
-   m_logLike.readXml(m_pars["source_model_file"], m_helper->funcFactory());
+   m_logLike->readXml(m_pars["source_model_file"], m_helper->funcFactory());
 }   
 
 void TsMap::readEventData() {
@@ -135,19 +136,19 @@ void TsMap::readEventData() {
    std::vector<std::string>::const_iterator evIt = eventFiles.begin();
    for ( ; evIt != eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-      m_logLike.getEvents(*evIt);
+      m_logLike->getEvents(*evIt);
    }
-   m_logLike.computeEventResponses();
+   m_logLike->computeEventResponses();
 }
 
 void TsMap::selectOptimizer() {
    std::string optimizer = m_pars["optimizer"];
    if (optimizer == "LBFGS") {
-      m_opt = new optimizers::Lbfgs(m_logLike);
+      m_opt = new optimizers::Lbfgs(*m_logLike);
    } else if (optimizer == "MINUIT") {
-      m_opt = new optimizers::Minuit(m_logLike);
+      m_opt = new optimizers::Minuit(*m_logLike);
    } else if (optimizer == "DRMNGB") {
-      m_opt = new optimizers::Drmngb(m_logLike);
+      m_opt = new optimizers::Drmngb(*m_logLike);
    }
    if (m_opt == 0) {
       throw std::invalid_argument("Invalid optimizer choice: " + optimizer);
@@ -171,7 +172,7 @@ void TsMap::computeMap() {
    int verbosity = m_pars["chatter"];
    double tol = m_pars["fit_tolerance"];
 //    m_opt->find_min(verbosity, tol);
-//    double logLike0 = m_logLike(dummy);
+//    double logLike0 = (*m_logLike)(dummy);
    double logLike0 = 0;
    bool computeExposure(true);
 
@@ -190,10 +191,10 @@ void TsMap::computeMap() {
             throw std::invalid_argument("Invalid coordinate system: "
                                         + m_coordSys);
          }
-         m_logLike.addSource(&m_testSrc);
+         m_logLike->addSource(&m_testSrc);
          try {
             m_opt->find_min(verbosity, tol);
-            m_tsMap[jj].push_back(2.*(m_logLike(dummy) - logLike0));
+            m_tsMap[jj].push_back(2.*((*m_logLike)(dummy) - logLike0));
          } catch (optimizers::Exception &) {
             // Default null value.
             m_tsMap[jj].push_back(0);
@@ -204,7 +205,7 @@ void TsMap::computeMap() {
                       << m_tsMap[jj][ii] 
                       << std::endl;
          }
-         m_logLike.deleteSource(m_testSrc.getName());
+         m_logLike->deleteSource(m_testSrc.getName());
       }
    }
    if (Likelihood::print_output()) std::cerr << "!" << std::endl;

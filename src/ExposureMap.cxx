@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.25 2005/01/13 22:42:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.26 2005/02/15 04:17:03 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -83,7 +83,7 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
 
 void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
                                        optimizers::Function * spatialDist,
-                                       std::vector<double> &exposure) {
+                                       std::vector<double> &exposure) const {
    exposure.clear();
    exposure.reserve(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
@@ -124,13 +124,14 @@ ExposureMap * ExposureMap::instance() {
    }
 }
 
-void ExposureMap::computeMap(std::string filename, double sr_radius,
-                             int nlon, int nlat, int nenergies) {
+void ExposureMap::computeMap(std::string filename, const RoiCuts & roiCuts,
+                             double sr_radius, int nlon, int nlat,
+                             int nenergies) {
+                             
 // Expand any environment variables in the map filename.
    facilities::Util::expandEnvVar(&filename);
 
-   RoiCuts *roi_cuts = RoiCuts::instance();
-   astro::SkyDir roiCenter = roi_cuts->extractionRegion().center();
+   astro::SkyDir roiCenter = roiCuts.extractionRegion().center();
    FitsImage::EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
 
    double lonstep = 2.*sr_radius/(nlon-1);
@@ -140,7 +141,7 @@ void ExposureMap::computeMap(std::string filename, double sr_radius,
    std::vector<double> lat;
    for (int j = 0; j < nlat; j++) lat.push_back(latstep*j - sr_radius);
 
-   std::pair<double, double> elims = roi_cuts->getEnergyCuts();
+   std::pair<double, double> elims = roiCuts.getEnergyCuts();
    double estep = log(elims.second/elims.first)/(nenergies - 1);
    std::vector<double> energies;
    for (int k = 0; k < nenergies; k++) {
