@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.45 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.46 2004/08/23 16:14:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -475,10 +475,10 @@ void SourceModel::makeCountsMap(const std::string & filename,
 
    std::vector<astro::SkyDir> pixelDirs;
    pixelDirs.reserve(longitudes.size()*latitudes.size());
-   std::vector<double>::const_iterator lonIt = longitudes.begin();
-   for ( ; lonIt != longitudes.end(); lonIt++) {
-      std::vector<double>::const_iterator latIt = latitudes.begin();
-      for ( ; latIt != latitudes.end(); latIt++) {
+   std::vector<double>::const_iterator latIt = latitudes.begin();
+   for ( ; latIt != latitudes.end(); latIt++) {
+      std::vector<double>::const_iterator lonIt = longitudes.begin();
+      for ( ; lonIt != longitudes.end(); lonIt++) {
          pixelDirs.push_back(astro::SkyDir(*lonIt, *latIt, 
                                            mapShape.coordType()));
       }
