@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  4 17:14:26 PDT 2004
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+fix up energy dispersion for diffuse sources (in progress)
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  4 17:14:24 PDT 2004
 Likelihood/src/diffuseResponses
 
