@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov  7 17:24:42 PST 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+add expMap app; tests for OptEM
+    *
+------------------------------------------------------------
 User: jchiang  Fri Nov  7 17:24:41 PST 2003
 Likelihood/Likelihood
 
