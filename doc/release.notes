@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v3r7   12-Apr-04  JC   Use Likelihood::StApp class.
     v3r6   06-Apr-04  JC   Add AppBase class.
     v3r5   05-Apr-04  JC   Use st_app::IApp for applications
     v3r4   03-Apr-04  THB  Update for new STpolicy, set pfiles, 
