@@ -166,6 +166,11 @@ using optimizers::Exception;
    void getFreeParamValues(std::vector<double> & params) {
       self->getFreeParamValues(params);
    }
+   std::vector<std::string> srcNames() {
+      std::vector<std::string> my_names;
+      self->getSrcNames(my_names);
+      return my_names;
+   }
    optimizers::Optimizer * Minuit() {
       return new optimizers::Minuit(*self);
    }
