@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.66 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.67 2005/03/01 01:06:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -52,28 +52,30 @@ namespace Likelihood {
 
 XERCES_CPP_NAMESPACE_USE
 
-int SourceModel::s_refCount = 0;
-std::map<std::string, Source *> SourceModel::s_sources;
+SourceModel::SourceModel(const Observation & observation, bool verbose) 
+   : m_observation(observation), m_verbose(verbose) {
+   setMaxNumParams(0); 
+   m_genericName = "SourceModel";
+}
+
+SourceModel::SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs),
+   m_observation(rhs.m_observation), m_verbose(rhs.m_verbose) {
+}
 
 SourceModel::~SourceModel() {
-   s_refCount--;
-   if (s_refCount == 0) {
-      std::map<std::string, Source *>::iterator it = s_sources.begin();
-      for (; it != s_sources.end(); it++)
-         delete (*it).second;
+   std::map<std::string, Source *>::iterator it = m_sources.begin();
+   for ( ; it != m_sources.end(); ++it) {
+      delete (*it).second;
    }
-   s_sources.clear();
+   m_sources.clear();
 }
 
 void SourceModel::setParam(const optimizers::Parameter &param, 
                            const std::string &funcName,
                            const std::string &srcName) {
-   if (s_sources.count(srcName)) {
-      Source::FuncMap srcFuncs = (*s_sources[srcName]).getSrcFuncs();
+   if (m_sources.count(srcName)) {
+      Source::FuncMap srcFuncs = (*m_sources[srcName]).getSrcFuncs();
       if (srcFuncs.count(funcName)) {
-//          srcFuncs[funcName]->setParam(param.getName(), 
-//                                       param.getValue(),
-//                                       param.isFree());
          srcFuncs[funcName]->setParam(param);
          syncParams();
          return;
@@ -86,8 +88,8 @@ void SourceModel::setParam(const optimizers::Parameter &param,
  
 std::vector<double>::const_iterator SourceModel::setParamValues_(
    std::vector<double>::const_iterator it) { 
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); ++srcIt) {
+   std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
+   for ( ; srcIt != m_sources.end(); ++srcIt) {
       Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) 
@@ -99,8 +101,8 @@ std::vector<double>::const_iterator SourceModel::setParamValues_(
 
 std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
    std::vector<double>::const_iterator it) { 
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); ++srcIt) {
+   std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
+   for ( ; srcIt != m_sources.end(); ++srcIt) {
       Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) 
@@ -113,12 +115,15 @@ std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
 optimizers::Parameter SourceModel::getParam(const std::string &paramName,
                                             const std::string &funcName,
                                             const std::string &srcName) const {
-   if (s_sources.count(srcName)) {
+   if (m_sources.count(srcName)) {
       std::vector<optimizers::Parameter> params;
-      Source::FuncMap srcFuncs = s_sources[srcName]->getSrcFuncs();
+      const Source * my_source = m_sources.find(srcName)->second;
+      const Source::FuncMap & srcFuncs = my_source->getSrcFuncs();
       if (srcFuncs.count(funcName)) {    //check for funcName
          try {
-            srcFuncs[funcName]->getParams(params);
+            const optimizers::Function * my_function =
+               srcFuncs.find(funcName)->second;
+            my_function->getParams(params);
          } catch (optimizers::Exception &eObj) {
             std::cerr << eObj.what() << std::endl;
             throw;
@@ -169,8 +174,8 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
 // Assume ordering of Parameters in params matches that given by the
 // ordering of the Sources and their Functions.
    int k = 0;  // params' index
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); ++srcIt) {
+   std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
+   for ( ; srcIt != m_sources.end(); ++srcIt) {
       Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
@@ -190,8 +195,8 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
 }
 
 void SourceModel::addSource(Source *src) {
-   if (!s_sources.count(src->getName())) {
-      s_sources[src->getName()] = src->clone();
+   if (!m_sources.count(src->getName())) {
+      m_sources[src->getName()] = src->clone();
       syncParams();
    } else {
       throw Exception("Likelihood::SourceModel:\nSource named " 
@@ -200,10 +205,10 @@ void SourceModel::addSource(Source *src) {
 }
  
 Source * SourceModel::deleteSource(const std::string &srcName) {
-   std::map<std::string, Source *>::iterator it = s_sources.find(srcName);
-   if (it != s_sources.end()) {
+   std::map<std::string, Source *>::iterator it = m_sources.find(srcName);
+   if (it != m_sources.end()) {
       Source * mySource = it->second;
-      s_sources.erase(it);
+      m_sources.erase(it);
       syncParams();
       return mySource;
    }
@@ -223,24 +228,24 @@ void SourceModel::deleteAllSources() {
 }
 
 Source * SourceModel::getSource(const std::string &srcName) {
-   if (s_sources.count(srcName)) {
-      return s_sources[srcName];
+   if (m_sources.count(srcName)) {
+      return m_sources[srcName];
    }
    return 0;
 }
 
 void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    names.clear();
-   std::map<std::string, Source *>::iterator it = s_sources.begin();
-   for ( ; it != s_sources.end(); ++it) {
+   std::map<std::string, Source *>::const_iterator it = m_sources.begin();
+   for ( ; it != m_sources.end(); ++it) {
       names.push_back(it->first);
    }
 }
 
 double SourceModel::value(optimizers::Arg &x) const {
    double my_val = 0.;
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); ++srcIt) {
+   std::map<std::string, Source *>::const_iterator srcIt = m_sources.begin();
+   for ( ; srcIt != m_sources.end(); ++srcIt) {
       Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
@@ -253,8 +258,8 @@ double SourceModel::value(optimizers::Arg &x) const {
 void SourceModel::syncParams() { // remake parameter vector from scratch 
    m_parameter.clear();
 
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); ++srcIt) {
+   std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
+   for ( ; srcIt != m_sources.end(); ++srcIt) {
       Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
@@ -271,8 +276,8 @@ void SourceModel::fetchDerivs(optimizers::Arg &x,
                               bool getFree) const {
    derivs.clear();
 
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); ++srcIt) {
+   std::map<std::string, Source *>::const_iterator srcIt = m_sources.begin();
+   for ( ; srcIt != m_sources.end(); ++srcIt) {
       Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
@@ -348,8 +353,8 @@ void SourceModel::reReadXml(std::string xmlFile) {
    for (unsigned int j = 0; j < srcs.size(); j++) {
       std::string srcName = xmlBase::Dom::getAttribute(srcs[j], "name");
       Source * my_source(0);
-      if (s_sources.count(srcName)) {
-         my_source = s_sources[srcName];
+      if (m_sources.count(srcName)) {
+         my_source = m_sources[srcName];
       } else {
          continue;
       }
@@ -409,8 +414,8 @@ void SourceModel::writeXml(std::string xmlFile,
 
    SourceModelBuilder builder(functionLibrary, srcLibTitle);
 
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); srcIt++) {
+   std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
+   for ( ; srcIt != m_sources.end(); srcIt++) {
       builder.addSource(*(srcIt->second));
    }
 
@@ -422,8 +427,8 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
    std::pair<double, double> ebounds = m_observation.roiCuts().getEnergyCuts();
    FluxBuilder builder(ebounds.first, ebounds.second);
 
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); srcIt++) {
+   std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
+   for ( ; srcIt != m_sources.end(); srcIt++) {
       builder.addSource(*(srcIt->second));
    }
 

@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.16 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.17 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -13,10 +13,9 @@
 
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
-#include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/PointSource.h"
-#include "Likelihood/RoiCuts.h"
+#include "Likelihood/SourceModel.h"
 
 namespace tip {
    class Table;
@@ -32,15 +31,14 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.16 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.17 2005/02/27 06:42:24 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
     
 public:
 
-   LogLike(const Observation & observation) : SourceModel(observation),
-      m_logSrcModel(logSrcModel(observation)) {
+   LogLike(const Observation & observation) : SourceModel(observation) {
       if (s_FT1_columns.size() == 0) {
          setFT1_columns();
       }
@@ -96,11 +94,6 @@ protected:
 
 private:
 
-   // This needs to be mutable since getFreeDerivs is const in the
-   // base class and the overloaded version needs to call the
-   // logSrcModel::mySyncParams method.
-   mutable logSrcModel m_logSrcModel;
-
    Npred m_Npred;
 
    static std::vector<std::string> s_FT1_columns;
@@ -109,6 +102,12 @@ private:
 
    void get_diffuse_names(tip::Table * events, 
                           std::vector<std::string> & names);
+
+   double logSourceModel(const Event & event) const;
+
+   void getLogSourceModelDerivs(const Event & event,
+                                std::vector<double> & derivs) const;
+
 };
 
 } // namespace Likelihood
