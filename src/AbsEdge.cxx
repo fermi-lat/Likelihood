@@ -4,7 +4,7 @@
  * edge spectral component
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.9 2003/08/06 20:52:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.10 2003/10/01 21:21:27 jchiang Exp $
  */
 
 #include <vector>
@@ -51,6 +51,7 @@ double AbsEdge::value(optimizers::Arg &xarg) const {
          *pow(x/my_params[E0].getTrueValue(), my_params[Index].getTrueValue());
       return exp(-tau);
    }
+   return 1;
 }
 
 double AbsEdge::derivByParam(optimizers::Arg &xarg, 

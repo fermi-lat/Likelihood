@@ -3,7 +3,7 @@
  * @brief Implementation for the BrokenPowerLaw Function class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw.cxx,v 1.1 2003/11/06 00:31:27 jchiang Exp $
  */
 
 #include <vector>
@@ -55,6 +55,7 @@ double BrokenPowerLaw::value(optimizers::Arg &xarg) const {
          *pow((x/my_params[BreakValue].getTrueValue()), 
               my_params[Index2].getTrueValue());
    }
+   return 0;
 }
 
 double BrokenPowerLaw::derivByParam(optimizers::Arg &xarg, 

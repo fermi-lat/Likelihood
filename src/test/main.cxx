@@ -29,7 +29,9 @@
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/LogLike.h"
+#include "Likelihood/OptEM.h"
 #include "PowerLaw.h"
+#include "BrokenPowerLaw.h"
 #include "Gaussian.h"
 #include "AbsEdge.h"
 
@@ -39,6 +41,7 @@
 #include "optimizers/FunctionFactory.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
+#include "optimizers/Drmngb.h"
 #include "optimizers/Exception.h"
 
 // Various using declarations/directives for testing purposes only
@@ -51,6 +54,7 @@ using optimizers::FunctionFactory;
 using optimizers::dArg;
 using optimizers::Lbfgs;
 using optimizers::Minuit;
+using optimizers::Drmngb;
 
 void read_SC_Response_data();
 void test_SourceModel_class();
@@ -68,8 +72,8 @@ void test_SpatialMap();
 void test_DiffuseSource();
 void fit_DiffuseSource();
 void print_fit_results(SourceModel &stat);
-void test_cfitsio();
 void test_FunctionFactory();
+void test_OptEM();
 
 std::string root_path;
 std::string test_path;
@@ -79,21 +83,89 @@ int main() {
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
    read_SC_Response_data();
-   test_SourceModel_class();
+//    test_SourceModel_class();
 //    test_Event_class();
 //    test_PointSource_class();
 //    test_LogLike();
 //    test_SpectrumFactory();
-   fit_3C279();
+//    fit_3C279();
    fit_anti_center();
 //    test_FitsImage();
 //    test_ExposureMap();
 //    test_SpatialMap();
 //    test_DiffuseSource();
 //    test_FunctionFactory();
-   test_SourceFactory();
-   fit_DiffuseSource();
+//    test_SourceFactory();
+//    fit_DiffuseSource();
+   test_OptEM();
    return 0;
+}
+
+void test_OptEM() {
+   
+   std::cout << "*** test_OptEM ***" << std::endl;
+
+// set the ROI cuts
+   RoiCuts::setCuts(83.57, 22.01, 20.);
+
+// read in the spacecraft data
+   std::string sc_file = test_path + "Data/anti_center_sc_0000";
+   int sc_hdu = 2;
+   ScData::readData(sc_file, sc_hdu, true);
+
+// Create the FunctionFactory and SourceFactory.
+   optimizers::FunctionFactory funcFactory;
+   try {
+// Add in the Functions for modeling spectra...
+      funcFactory.addFunc("PowerLaw", new PowerLaw(), false);
+      funcFactory.addFunc("Gaussian", new Gaussian(), false);
+      funcFactory.addFunc("AbsEdge", new AbsEdge(), false);
+
+// and the Functions for spatial modeling.
+      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
+      funcFactory.addFunc("ConstantValue", new ConstantValue(), false);
+      funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
+
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+
+   SourceFactory srcFactory;
+
+// Read in the prototypes from the XML file.
+   std::string xmlFile = root_path + "/xml/A1_Sources.xml";
+
+   srcFactory.readXml(xmlFile, funcFactory);
+
+// add the sources to the model
+   OptEM logLike;
+
+   Source * Crab = srcFactory.create("Bright Point Source");
+   Crab->setDir(83.57, 22.01);
+   Crab->setName("Crab");
+   logLike.addSource(Crab);
+
+   Source * Geminga = srcFactory.create("Bright Point Source");
+   Geminga->setDir(98.49, 17.86);
+   Geminga->setName("Geminga");
+   logLike.addSource(Geminga);
+
+   Source * _0528 = srcFactory.create("Bright Point Source");
+   _0528->setDir(82.74, 13.38);
+   _0528->setName("PKS 0528+134");
+   logLike.addSource(_0528);
+
+// Read in the event data.
+   std::string event_file = test_path + "Data/anti_center_0000";
+   logLike.getEvents(event_file, 2);
+
+// Do the fit.
+   logLike.findMin(3);
+
+// Print the results.
+   print_fit_results(logLike);
+
+   std::cout << "*** OptEM test completed. ***" << std::endl;
 }
 
 void test_FunctionFactory() {
@@ -768,8 +840,9 @@ void fit_anti_center() {
    }
 
 // do the fit
-   Lbfgs myOptimizer(logLike);
+//   Lbfgs myOptimizer(logLike);
 //   Minuit myOptimizer(logLike);
+   Drmngb myOptimizer(logLike);
 
    int verbose = 3;
    try {
@@ -778,12 +851,7 @@ void fit_anti_center() {
       std::cerr << eObj.what() << std::endl;
    }
 
-   std::vector<Parameter> parameters;
-   logLike.getParams(parameters);
-
-   for (unsigned int i = 0; i < parameters.size(); i++)
-      std::cout << parameters[i].getName() << ": "
-                << parameters[i].getValue() << std::endl;
+   print_fit_results(logLike);
 
    std::cout << "*** fit_anti_center: all tests completed ***\n" << std::endl;
 }

@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.1 2003/11/06 00:31:27 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -119,7 +119,7 @@ int main(int iargc, char* argv[]) {
 
 // Select an optimizer.
    std::string optimizer = params.string_par("optimizer");
-   optimizers::Optimizer *myOpt;
+   optimizers::Optimizer *myOpt = 0;
    if (optimizer == "LBFGS") {
       myOpt = new optimizers::Lbfgs(logLike);
    } else if (optimizer == "MINUIT") {

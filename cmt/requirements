@@ -4,7 +4,7 @@ version v2r2
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.46 2003/11/06 00:58:47 jchiang Exp $
+# $Id: requirements,v 1.47 2003/11/07 02:27:09 jchiang Exp $
 
 use xml
 use astro  v*
@@ -26,12 +26,12 @@ use facilities v2*
 
 # allow use of internal path
 macro Likelihood_cppflags "" Linux "-I ../src -g -pedantic -D TRAP_FPE " WIN32 "/I..\src  /wd4290"
-macro_prepend cflags "" Linux "-g"
 
 # make sure test applications get built when library changes
 macro test_Likelihoodstamps "Likelihood.stamp"
 macro likelihoodstamps "likelihood.stamp"
 macro TsMapstamps "TsMap.stamp"
+macro expMapstamps "expMap.stamp"
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
@@ -39,6 +39,8 @@ library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 set PFILES "$(LIKELIHOODROOT)/data"
 
 # applications
-application test_Likelihood test/main.cxx
-application likelihood test/likelihood.cxx
-application TsMap test/TsMap.cxx
+#application test_Likelihood test/main.cxx
+#application likelihood test/likelihood.cxx
+#application TsMap test/TsMap.cxx
+#application expMap test/expMap.cxx
+application like_test test/like_test.cxx

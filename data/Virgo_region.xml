@@ -1,8 +1,8 @@
 <source_library title="prototype sources" function_library="$(LIKELIHOODROOT)/xml/A1_Functions.xml">
   <source name="3C 279" type="PointSource">
     <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="4.66322" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-1.93317" />
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="1" />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
     <spatialModel type="SkyDirFunction">
@@ -12,8 +12,8 @@
   </source>
   <source name="Extragalactic Diffuse Emission" type="DiffuseSource">
     <spectrum type="PowerLaw">
-      <parameter max="100" min="1e-05" free="1" name="Prefactor" scale="1e-07" value="0.261161" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.15319" />
+      <parameter max="100" min="1e-05" free="1" name="Prefactor" scale="1e-07" value="1." />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.1" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
     <spatialModel type="ConstantValue">
@@ -22,7 +22,7 @@
   </source>
   <source name="Galactic Diffuse Emission" type="DiffuseSource">
     <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="0.001" value="8.58284" />
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="0.001" value="5" />
       <parameter max="-1" min="-3.5" free="0" name="Index" scale="1" value="-2.1" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.25 2003/09/29 15:32:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.26 2003/10/01 17:03:22 jchiang Exp $
  */
 
 #include <sstream>
@@ -163,7 +163,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
 
 // The processing logic for the spatialModel depends on the source
 // type, so we must consider each case individually:
-      Source *src;
+      Source *src = 0;
       if (srcType == "PointSource") {
          src = makePointSource(spectrum, spatialModel, funcFactory);
       } else if (srcType == "DiffuseSource") {
@@ -208,7 +208,7 @@ Source * SourceFactory::makePointSource(const DOM_Element &spectrum,
 // spacecraft info are not available.
 //
 // Extract the (RA, Dec) from the parameter elements.
-   double ra, dec;
+   double ra(0), dec(0);
    std::vector<DOM_Element> params;
    optimizers::Dom::getElements(spatialModel, "parameter", params);
    std::vector<DOM_Element>::const_iterator paramIt = params.begin();

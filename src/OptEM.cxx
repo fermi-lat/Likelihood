@@ -1,3 +1,11 @@
+/**
+ * @file OptEM.cxx
+ * @brief Implementation for Expectation Maximization class.
+ * @author P. L. Nolan
+ *
+ * $Header$
+ */
+
 #include "Likelihood/OptEM.h"
 #include "Likelihood/OneSourceFunc.h"
 #include "optimizers/Lbfgs.h"
