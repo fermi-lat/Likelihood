@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec  5 07:00:55 PST 2003
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx 
+Log Message:
+fix writeXml implementation
+    *
+------------------------------------------------------------
 User: jchiang  Thu Dec  4 21:39:24 PST 2003
 Likelihood/src/test
 
