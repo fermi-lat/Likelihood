@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: pln  Fri May 30 10:52:32 PDT 2003
+Likelihood
+
+Removed Files:
+	Doxyfile 
+Log Message:
+Apparently there are standard procedures for running doxygen, so 
+this file isn't needed here.
+
+    *
+------------------------------------------------------------
 User: jchiang  Thu May 29 14:52:50 PDT 2003
 Likelihood/src
 
