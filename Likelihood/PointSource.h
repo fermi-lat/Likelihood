@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.49 2005/03/02 01:10:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.50 2005/03/02 04:51:10 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -13,8 +13,6 @@
 
 #include "optimizers/Function.h"
 #include "optimizers/dArg.h"
-
-#include "map_tools/Exposure.h"
 
 #include "Likelihood/Event.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -40,7 +38,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.49 2005/03/02 01:10:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.50 2005/03/02 04:51:10 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -225,7 +223,7 @@ private:
     * map_tools exposure time hypercube.
     *
     */
-   class Aeff : public map_tools::Exposure::Aeff {
+   class Aeff {
 
    public:
 

@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.2 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.3 2005/03/03 00:17:14 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.2 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.3 2005/03/03 00:17:14 jchiang Exp $
  */
 
 class ExposureCube {
@@ -43,8 +43,8 @@ public:
       m_haveFile = true;
    }
 
-   double value(const astro::SkyDir & dir, 
-                const map_tools::Exposure::Aeff & aeff) const {
+   template<class T>
+   double value(const astro::SkyDir & dir, const T & aeff) const {
       return (*m_exposure)(dir, aeff);
    }
 
