@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.10 2004/02/29 19:56:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.11 2004/03/03 00:35:31 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -35,6 +35,7 @@
 #include "Likelihood/Event.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FluxBuilder.h"
+#include "Likelihood/PointSource.h"
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
@@ -136,6 +137,11 @@ void LikelihoodTests::setUp() {
    m_scFile = m_rootPath + "/data/oneday_scData_0000.fits";
    m_expMapFile = m_rootPath + "/data/anticenter_expMap.fits";
    m_sourceXmlFile = m_rootPath + "/data/anticenter_model.xml";
+
+// Use exposure hypercube for PointSource exposure calculations.
+   std::string expCube = m_rootPath + "/data/expcube_1_day.fits";
+//   PointSource::readExposureCube(expCube);
+
 }
 
 void LikelihoodTests::tearDown() {
@@ -453,32 +459,34 @@ void LikelihoodTests::test_PointSource() {
    }
    std::cout << Nobs << "  "
              << src->Npred() << std::endl;
+   src->setDir(83.57, 22.01, true, true);
 
-// Consider the observation over two-day intervals over the first
-// twenty days, resetting the ROI accordingly and force the
-// PointSource exposure to be recomputed for each interval.
-   double chi2 = 0;
-   double tstep = 2.*8.64e4;
-   for (int j = 0; j < 10; j++) {
-      double tmin = j*tstep;
-      double tmax = tmin + tstep;
-      RoiCuts::setCuts(86.4, 28.9, 25., 30., 3.16e5, tmin, tmax, -1.);
+// // Consider the observation over two-day intervals over the first
+// // twenty days, resetting the ROI accordingly and force the
+// // PointSource exposure to be recomputed for each interval.
+//    double chi2 = 0;
+//    double tstep = 2.*8.64e4;
+//    for (int j = 0; j < 10; j++) {
+//       double tmin = j*tstep;
+//       double tmax = tmin + tstep;
+//       RoiCuts::setCuts(86.4, 28.9, 25., 30., 3.16e5, tmin, tmax, -1.);
 
-      src->setDir(83.57, 22.01, true, false);
+// //       src->setDir(83.57, 22.01, true, false);
+//       src->setDir(83.57, 22.01, true, true);
 
-      Nobs = 0;
-      for (unsigned int i = 0; i < events.size(); i++) {
-         if (roiCuts->accept(events[i])) {
-            Nobs++;
-         }
-      }
-      double Npred = src->Npred();
-      chi2 += pow((Nobs - Npred), 2)/Nobs;
-      std::cout << j << "  " 
-                << Nobs << "  "
-                << Npred << std::endl;
-   }
-   std::cout << "chi^2 = " << chi2 << std::endl;
+//       Nobs = 0;
+//       for (unsigned int i = 0; i < events.size(); i++) {
+//          if (roiCuts->accept(events[i])) {
+//             Nobs++;
+//          }
+//       }
+//       double Npred = src->Npred();
+//       chi2 += pow((Nobs - Npred), 2)/Nobs;
+//       std::cout << j << "  " 
+//                 << Nobs << "  "
+//                 << Npred << std::endl;
+//    }
+//    std::cout << "chi^2 = " << chi2 << std::endl;
 }
 
 void LikelihoodTests::test_DiffuseSource() {
@@ -619,13 +627,13 @@ srcFactoryInstance(const std::string & roiFile,
 int main() {
    LikelihoodTests unit;
 
-   unit.test_RoiCuts();
-   unit.test_SourceFactory();
-   unit.test_XmlBuilders();
-   unit.test_SourceModel();
-   unit.test_SourceDerivs();
+//    unit.test_RoiCuts();
+//    unit.test_SourceFactory();
+//    unit.test_XmlBuilders();
+//    unit.test_SourceModel();
+//    unit.test_SourceDerivs();
    unit.test_PointSource();
-   unit.test_DiffuseSource();
+//    unit.test_DiffuseSource();
 
    std::cout << "all tests ok" << std::endl;
    return 0;
