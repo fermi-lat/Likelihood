@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct  1 17:05:51 PDT 2004
+Likelihood/src/meanPsf
+
+Added Files:
+	meanPsf.cxx 
+Log Message:
+add mean psf calculation
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  1 17:05:50 PDT 2004
 Likelihood/pfiles
 
