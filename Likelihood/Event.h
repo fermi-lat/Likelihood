@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.19 2003/10/25 00:22:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.20 2003/12/04 00:32:13 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.19 2003/10/25 00:22:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.20 2003/12/04 00:32:13 jchiang Exp $
  */
 
 class Event {
@@ -37,7 +37,7 @@ public:
 
    Event() {}
    Event(double ra, double dec, double energy, double time, 
-         double sc_ra, double sc_dec, double muZenith, int type);
+         double sc_ra, double sc_dec, double muZenith, int type=2);
    Event(const Event &);
    virtual ~Event() {}
 
