@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.37 2004/10/07 00:01:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.38 2004/10/07 04:43:39 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -74,17 +74,17 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
-   CPPUNIT_TEST(test_RoiCuts);
-   CPPUNIT_TEST(test_SourceFactory);
-   CPPUNIT_TEST(test_XmlBuilders);
-   CPPUNIT_TEST(test_SourceModel);
-   CPPUNIT_TEST(test_SourceDerivs);
-   CPPUNIT_TEST(test_PointSource);
-   CPPUNIT_TEST(test_DiffuseSource);
+//    CPPUNIT_TEST(test_RoiCuts);
+//    CPPUNIT_TEST(test_SourceFactory);
+//    CPPUNIT_TEST(test_XmlBuilders);
+//    CPPUNIT_TEST(test_SourceModel);
+//    CPPUNIT_TEST(test_SourceDerivs);
+//    CPPUNIT_TEST(test_PointSource);
+//    CPPUNIT_TEST(test_DiffuseSource);
    CPPUNIT_TEST(test_CountsMap);
-   CPPUNIT_TEST(test_BinnedLikelihood);
-   CPPUNIT_TEST(test_MeanPsf);
-   CPPUNIT_TEST(test_BinnedExposure);
+//    CPPUNIT_TEST(test_BinnedLikelihood);
+//    CPPUNIT_TEST(test_MeanPsf);
+//    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
    
    CPPUNIT_TEST_SUITE_END();
@@ -133,6 +133,7 @@ private:
                                       const std::string & scFile="",
                                       const std::string & expMapFile="",
                                       const std::string & sourceXmlFile="",
+                                      bool requireExposure=true,
                                       bool verbose=false);
 
    void readEventData(const std::string & eventFile,
@@ -780,24 +781,16 @@ void LikelihoodTests::test_SourceMap() {
    }
    CountsMap dataMap(filename);
 
-   astro::SkyDir anticenter(180., 0., astro::SkyDir::GALACTIC);
-   RoiCuts::setCuts(anticenter.ra(), anticenter.dec(), 20.,
-                    30., 2e5, 0, 8.64e4);
-   int i(0);
-   std::ostringstream roiFile;
-   roiFile << m_rootPath << "/data/RoiCuts_" << i << ".xml";
-   RoiCuts * roiCuts = RoiCuts::instance();
-   roiCuts->writeXml(roiFile.str(), "Anticenter region");
-   std::ostringstream expMapFile;
-   expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
-
    SourceFactory * srcFactory 
-      = srcFactoryInstance(roiFile.str(), "", expMapFile.str());
-   Source * galdiffuse = srcFactory->create("Galactic Diffuse");
+      = srcFactoryInstance("", "", "", "", false);
+   Source * src = srcFactory->create("Galactic Diffuse");
+//   Source * src =  srcFactory->create("Crab Pulsar");
 
 //    std::string binnedMap = m_rootPath + "/data/binnedExposure.fits";
 //    SourceMap::setBinnedExposure(binnedMap);
-   SourceMap srcMap(galdiffuse, dataMap);
+   SourceMap srcMap(src, dataMap);
+
+   srcMap.save("sourceMap.fits");
 }
 
 void LikelihoodTests::readEventData(const std::string &eventFile,
@@ -848,7 +841,7 @@ srcFactoryInstance(const std::string & roiFile,
                    const std::string & scFile,
                    const std::string & expMapFile,
                    const std::string & sourceXmlFile,
-                   bool verbose) {
+                   bool requireExposure, bool verbose) {
    if (m_srcFactory == 0) {
       RoiCuts * roiCuts = RoiCuts::instance();
       if (roiFile == "") {
@@ -873,9 +866,9 @@ srcFactoryInstance(const std::string & roiFile,
 
       m_srcFactory = new SourceFactory(verbose);
       if (sourceXmlFile == "") {
-         m_srcFactory->readXml(m_sourceXmlFile, *funcFactory);
+         m_srcFactory->readXml(m_sourceXmlFile, *funcFactory, requireExposure);
       } else {
-         m_srcFactory->readXml(sourceXmlFile, *funcFactory);
+         m_srcFactory->readXml(sourceXmlFile, *funcFactory, requireExposure);
       }
    }
    return m_srcFactory;
@@ -887,13 +880,14 @@ int main() {
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
 
-   LikelihoodTests testObj;
-   testObj.setUp();
-   testObj.test_SourceMap();
-   testObj.tearDown();
+//    LikelihoodTests testObj;
+//    testObj.setUp();
+//    testObj.test_CountsMap();
+//    testObj.test_SourceMap();
+//    testObj.tearDown();
 
-//    CppUnit::TextTestRunner runner;
-//    runner.addTest(LikelihoodTests::suite());
-//    bool result = runner.run();
-//    if (!result) return 1;
+   CppUnit::TextTestRunner runner;
+   runner.addTest(LikelihoodTests::suite());
+   bool result = runner.run();
+   if (!result) return 1;
 }

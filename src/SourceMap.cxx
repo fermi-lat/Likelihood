@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.10 2004/10/07 00:01:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.11 2004/10/07 04:43:39 jchiang Exp $
  */
 
 #include <algorithm>
@@ -15,6 +15,8 @@
 #include "tip/Image.h"
 #include "tip/Table.h"
 #include "tip/tip_types.h"
+
+#include "st_facilities/Util.h"
 
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
@@ -42,6 +44,8 @@ namespace {
 }
 
 namespace Likelihood {
+
+#include "fitsio.h"
 
 MeanPsf * SourceMap::s_meanPsf(0);
 BinnedExposure * SourceMap::s_binnedExposure(0);
@@ -118,6 +122,46 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
    }
    if (s_mu.size() == 0 || s_phi.size() == 0) {
       prepareAngleArrays(100, 50);
+   }
+}
+
+void SourceMap::save(const std::string & filename) const {
+   if (st_facilities::Util::fileExists(filename)) {
+      throw std::runtime_error("SourceMap::save: " + filename 
+                               + " already exists.");
+   }
+
+   fitsfile * fptr;
+   int status(0);
+
+   fits_create_file(&fptr, filename.c_str(), &status);
+   fitsReportError(stderr, status);
+
+   long naxes[] = {m_dataMap.imageDimension(0),
+                   m_dataMap.imageDimension(1),
+                   m_dataMap.imageDimension(2) + 1};
+   fits_create_img(fptr, DOUBLE_IMG, 3, naxes, &status);
+   fitsReportError(stderr, status);
+   
+   long group(0);
+   const std::vector<double> & data = model();
+   fits_write_3d_dbl(fptr, group, naxes[0], naxes[1], naxes[0], naxes[1],
+                     naxes[2], const_cast<double *>(&data[0]), &status);
+   fitsReportError(stderr, status);
+
+   fits_update_key(fptr, TSTRING, "EXTNAME", 
+                   const_cast<char *>(m_name.c_str()), "SourceMap name",
+                   &status);
+   fitsReportError(stderr, status);
+
+   fits_close_file(fptr, &status);
+   fitsReportError(stderr, status);
+}
+
+void SourceMap::fitsReportError(FILE *stream, int status) const {
+   if (status != 0) {
+      fits_report_error(stream, status);
+      throw std::runtime_error("SourceMap::save: cfitsio error.");
    }
 }
 
