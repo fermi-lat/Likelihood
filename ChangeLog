@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 21 16:13:13 PDT 2003
+Likelihood/src/test/Data
+
+Modified Files:
+	test.fits 
+Log Message:
+modify CRVALn and CRPIXn keywords to conform to FITS standard
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 21 16:12:40 PDT 2003
 Likelihood/src/test
 
