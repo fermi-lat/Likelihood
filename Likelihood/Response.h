@@ -28,6 +28,8 @@ public:
    //! type-fields for specifying response file HDUs
    enum HDU {Front = 2, Back, Combined};
 
+   static double incMax;
+
 protected:
 
    Response();

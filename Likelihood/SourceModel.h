@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.3 2003/02/27 18:47:43 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.4 2003/03/04 17:45:32 jchiang Exp $ */
 
 class SourceModel : public Function {
     
@@ -60,9 +60,6 @@ public:
 
    double derivByParam(Arg &, const std::string &) const {return 0;}
 
-   void getDerivs(Arg &, std::vector<double>&) const;
-   void getFreeDerivs(Arg &, std::vector<double>&) const;
-
 protected:
 
    std::vector<Source *> m_sources;
@@ -70,6 +67,8 @@ protected:
    //! method to sync the m_parameter vector with those of the 
    //! m_sources' Functions
    void m_syncParams();
+
+   void fetchDerivs(Arg &x, std::vector<double> &derivs, bool getFree) const;
 
 };
 

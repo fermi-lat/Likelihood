@@ -55,16 +55,16 @@ int main(){
       test_path = std::string(root) + "/src/test/";
    }
 
-   test_Parameter_class();
-   test_Function_class();
-   test_PowerLaw_class();
-   test_SourceModel_class();
-   test_Table_class();
-   test_Statistic_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_Aeff_class();
-   test_Psf_class();
+//     test_Parameter_class();
+//     test_Function_class();
+//     test_PowerLaw_class();
+//     test_SourceModel_class();
+//     test_Table_class();
+//     test_Statistic_class();
+//     test_Event_class();
+//     test_PointSource_class();
+//     test_Aeff_class();
+//     test_Psf_class();
    test_logLike_ptsrc();
    return 0;
 }
@@ -104,7 +104,7 @@ void test_logLike_ptsrc() {
    double dec = -5.82;
    PointSource _3c279(ra, dec);
 
-   double Prefactor = 3.52e-5;
+   double Prefactor = 5.92e-5;
    double Gamma = -1.96;
    double Escale = 1.;
 
@@ -125,8 +125,8 @@ void test_logLike_ptsrc() {
 // vary over the Prefactor of the Spectrum and compute the
 // log-likelihood at each step
 
-   double xmin = 1e-6;
-   double xmax = 1e-4;
+   double xmin = 5e-6;
+   double xmax = 2e-4;
    int nx = 20;
    double xstep = log(xmax/xmin)/(nx-1.);
 

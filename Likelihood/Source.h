@@ -36,6 +36,9 @@ public:
    //! predicted number of photons given RoiCuts and ScData
    virtual double Npred() = 0;
 
+   //! derivative of Npred wrt named Parameter
+   virtual double NpredDeriv(const std::string &paramName) = 0;
+
    //! access unique source identifier
    void setName(const std::string &name) {m_name = name;};
    std::string getName() const {return m_name;};

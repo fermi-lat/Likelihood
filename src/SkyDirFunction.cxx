@@ -29,8 +29,8 @@ void SkyDirFunction::update_m_dir(const std::string paramName,
    } else if (paramName == "latitude") {
       m_lat = paramValue;
    } else {
-      std::cerr << "Sorry, a parameter named " << paramName 
-		<< " is not part of SkyDirFunction." << std::endl;
+//        std::cerr << "Sorry, a parameter named " << paramName 
+//  		<< " is not part of SkyDirFunction." << std::endl;
       return;
    }
    m_dir = astro::SkyDir(m_lon, m_lat);

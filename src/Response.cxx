@@ -7,6 +7,9 @@
 
 namespace Likelihood {
 
+// default maximum inclination in degrees for strawman response files
+double Response::incMax = 70.;
+
 Response::Response() {
    ScData *scData = ScData::instance();
    if (!scData) {
