@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 17 17:12:52 PST 2003
+Likelihood/src
+
+Modified Files:
+	mainpage.h 
+Log Message:
+add scope resolution to mainpage.h for links, todo list, etc.
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 17 14:02:51 PST 2003
 Likelihood/src
 
