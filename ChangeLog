@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Sun Aug  3 15:02:38 PDT 2003
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+fix windows gotchas
+
+    *
+------------------------------------------------------------
+User: jchiang  Sun Aug  3 15:02:38 PDT 2003
 Likelihood/cmt
 
 Modified Files:
