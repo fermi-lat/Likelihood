@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov  8 08:31:19 PST 2004
+Likelihood/src
+
+Modified Files:
+	MeanPsf.cxx 
+Log Message:
+radian-degree conversion; binned map access
+    *
+------------------------------------------------------------
 User: jchiang  Sun Nov  7 19:22:22 PST 2004
 Likelihood/src/test
 
