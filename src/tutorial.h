@@ -3,40 +3,39 @@
 
    @section intro Introduction
 
-   In order to illustrate how to use the likelihood software, this
-   narrative is provided and gives a step-by-step description for
-   performing a relatively simple analysis.  We will assume that you
-   already have event (FT1) and spacecraft (FT2) data files in hand.
+   In order to illustrate how to use the Likelihood software, this
+   narrative gives a step-by-step description for performing a
+   relatively simple analysis.  We will assume that you already have
+   event (FT1) and spacecraft (FT2) data files in hand.
 
    Here are each of the steps:
 
-   - @ref makeSubselections Since there is a computational overhead
+   - @ref makeSubselections Since there is computational overhead
           for each event associated with each diffuse component, it is
           useful to filter out any events that are not within the
           extraction region used for the analysis.
    - @ref makeCountsMaps These simple FITS images let us see what 
           we've got and help to pick out obvious candidate sources.
-   - @ref defineROI This is the extraction region in photon direction, 
-          energy, and arrival time.
+   - @ref defineROI This is the extraction region in terms of apparent 
+          photon direction, energy, and arrival time.
    - @ref makeExposureMap This is needed for analyzing diffuse sources
           and so is required for almost any sort of analysis.
-   - @ref sourceModelFile The various model parameters are read by
-          likelihood from xml files.  The 
-          <a href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/ScienceTools/ScienceTools-v0r5/modeldef/v1r0p0/userguide.html">modelDef</a> tool will make
-          this process easier.
-   - @ref runLikelihood , the likelihood application itself.
-   - @ref checkWithObsSim Here we create counts maps using @b obsSim
-          for comparison with the data.
+   - @ref sourceModelFile The source model xml file contains the
+          various sources and their model parameters to be fit
+          using the @b likelihood tool.
+   - @ref computeDiffuseResps Each event must have a separate response
+          precomputed for each diffuse component in the source model.
+   - @ref runLikelihood
    - @ref makeTsMaps This is used for point source localization and for
           finding weaker sources after the stronger sources have
           been modeled.
 
    @section makeSubselections Make Subselections from the Event Data.
    For this tutorial, we will use data generated using @b obsSim for a
-   model comprising the Third EGRET (3EG) catalog sources, Galactic diffuse,
+   model comprising the Third EGRET (3EG) catalog sources and Galactic diffuse
    and extragalactic diffuse emission for a simulation time of one
-   day.  Since we used @b obsSim, we can put data from each component
-   into a separate FT1 file:
+   day.  Since we have run @b obsSim to create the event data, we can put 
+   events from each component into a separate FT1 file:
    @verbatim
    noric13[jchiang] ls -l *events*fits
    -rw-rw-r--    1 jchiang  glast-data  2894400 Oct 11 15:22 eg_diffuse_events_0000.fits
@@ -44,8 +43,10 @@
    -rw-rw-r--    1 jchiang  glast-data  1088640 Oct 11 15:20 ptsrcs_events_0000.fits
    noric13[jchiang] 
    @endverbatim
-   We will consider data in the Virgo region within a 25 degree acceptance cone of
-   the blazar 3C 279.  Here we apply @b dataSubselector to the point source data:
+   We will consider data in the Virgo region within a 20 degree acceptance cone of
+   the blazar 3C 279.  Here we apply @b dataSubselector to the point source data 
+   (selecting events with 25 degrees of 3C 279 to ensure we don't miss any near 
+   the edge):
    @verbatim
    noric13[jchiang] ~/ST_new/dataSubselector/v2r1/rh9_gcc32/dataSubselector.exe
    Input FT1 file [Crab_front_events_0000.fits] : ptsrcs_events_0000.fits
@@ -78,19 +79,19 @@
    Done.
    @endverbatim
    The @b dataSubselector interface is a bit unwieldy.  The default
-   entries of "0" for most of the parameters means that no selection
-   will be made.  This tool, its interface in particular, is a prime
+   entries of "0" for most of the parameters means that no cuts will
+   be applied.  This tool, its interface in particular, is a prime
    target for refactoring.
 
-   @section makeCountsMaps Make Counts Maps from the Event Files 
+   @section makeCountsMaps Make Counts Maps from the Event Files. 
    The next step is to create a simple counts map file to visualize
    the extraction region we wish to fit.  There are presently three
    tools available to perform this task: @b evtbin in the @b evtbin
    package, @b count_map in the @b map_tools package, and @b gtcntsmap
-   in the @b Likelihood package.  For this step, since the event data
+   in the Likelihood package.  For this step, since the event data
    are contained in three separate FITS files, @b gtcntsmap is the
    most convenient to use.  We start by creating a file which is a
-   list of the files to be binned, and then we run the tool:
+   list of the files to be binned and then run the tool on that file list:
    @verbatim
    noric13[jchiang] ls -1 *filtered.fits > eventFiles
    noric13[jchiang] cat eventFiles
@@ -112,7 +113,12 @@
    output file name [counts_map.fits] : Virgo_map.fits
    noric13[jchiang] ds9 Virgo_map.fits
    @endverbatim
-   The last command lauches the visualization tool ds9 and produces this
+
+   For the spacecraft data file, we have entered the one generated by
+   @b obsSim for the 3EG sources.  Identical files were created for
+   the diffuse component runs, and we could also have used either of
+   those.  The last command lauches the visualization tool <a
+   href="http://hea-www.harvard.edu/RD/ds9/">ds9</a> and produces this
    display:
 
    @image html Virgo_map.png Virgo_map.fits
@@ -120,20 +126,21 @@
    The green circles indicate the positions of the 3EG point sources
    within 25 degrees of the location of 3C 279.
 
-   @section defineROI Define the Region-of-Interest The
-   Region-of-Interest (ROI) comprises a set of selections on photon
-   arrival time, energy, and direction.  These selections are made in
-   addition to any that are made using the query to the <a
+   @section defineROI Define the Region-of-Interest. 
+
+   The Region-of-Interest (ROI) comprises a set of selections on
+   photon arrival time, energy, and direction.  These selections are
+   made in addition to any that are made using the query to the <a
    href="http://glast.gsfc.nasa.gov/cgi-bin/ssc/U1/D1WebQuery.cgi">
    GSSC database</a> or via the @b dataSubselector user-level
-   selection tool</a>.  Unfortunately, because of an oversight in the
+   selection tool.  Unfortunately, because of an oversight in the
    Likelihood implementation, the ROI selections must @em include any
    that are made by these other tools.  More precisely, the data-space
    defined by the ROI must lie entirely within the intersection of the
    data-spaces defined by these other tools.  For example, if the
    user-level selection tool selects events within a time interval
    (t1, t2), then any time intervals defined in the ROI file must lie
-   entirely within (t1, t2).  In future releases, this oversight will
+   entirely within (t1, t2).  In future releases, this will
    be corrected.
    \n\n
    Here's the ROI file we will use:
@@ -157,18 +164,18 @@
    simulation.  Data will be selected from the intersection of
    intervals given.  In future, the GTI extension of the FITS event
    file(s) will provide this same capability. A similar consideration
-   applies to energy and acceptance cone cuts made, for example, using
+   applies to energy and acceptance cone cuts made using
    @b dataSubselector.  The "coordsys" attribute can either be
    "Galactic" or "J2000"; the "radius" attribute gives the
    half-opening angle of the acceptance cone; and units are in
    degrees.
 
-   @section makeExposureMap Make an Exposure Map for a Given ROI
+   @section makeExposureMap Make an Exposure Map for a Given ROI.
    With the ROI specified, we are now ready to create an exposure map.
-   The type of exposure map used by likelihood differs significantly
+   The type of exposure map used by Likelihood differs significantly
    from the usual notion of exposure maps, which are essentially
    integrals of effective area over time.  The exposure calculation
-   that likelihood uses consists of an integral of the total response
+   that Likelihood uses consists of an integral of the total response
    over the entire ROI data-space:
    \f[ \epsilon(E, \hat{p}) =
         \int_{\rm ROI} dE^\prime d\hat{p}^\prime dt 
@@ -191,7 +198,7 @@
    the integrated livetime as a function of inclination with respect
    to the LAT z-axis.  It is otherwise identical to the @b
    exposure_cube application in the @b map_tools package, except that
-   makeExposureCube also applies the time-interval cuts specified in
+   @b makeExposureCube also applies the time-interval cuts specified in
    the ROI file.  
    @verbatim
    noric13[jchiang] ~/ST_new/Likelihood/v5r1p1/rh9_gcc32/makeExposureCube.exe 
@@ -206,13 +213,14 @@
    noric13[jchiang] 
    @endverbatim
    Since @b makeExposureCube produces an all-sky map, the output FITS
-   file of this tool can be used to generating exposure maps for other
-   regions-of-interest that have the same time interval selections.
-   Although the @expMap application (see below) can generate exposure
-   maps for Likelihood without an exposure hypercube map, using one
-   affords a substantial time savings.
+   file of this tool can be used to generating exposure maps for
+   regions-of-interest in other parts of the sky that have the same
+   time interval selections.  Although the @b expMap application (see
+   below) can generate exposure maps for Likelihood without an
+   exposure cube map, using one affords a substantial time
+   savings.
    \n\n
-   We create the exposure map using the @b expMap tool:
+   Creating the exposure map using the @b expMap tool,
    @verbatim
    noric13[jchiang] ~/ST_new/Likelihood/v5r1p1/rh9_gcc32/expMap.exe 
    ROI cuts file [../data/anticenter_Roi.xml] : RoiCuts.xml
@@ -231,9 +239,9 @@
    @endverbatim
    Note that we have chosen a 30 degree radius "source region", while
    the ROI acceptance cone radius is 20 degrees.  This is necessary to
-   ensure that photons from sources outside the ROI are accounted for,
-   at least partially, owing to the size of the instrument
-   point-spread function. Half-degree pixels are a nominal choice;
+   ensure that photons from sources outside the ROI are accounted for
+   owing to the size of the instrument
+   point-spread function.  Half-degree pixels are a nominal choice;
    smaller pixels should result in a more accurate evaluation of the
    diffuse source fluxes but will also make the exposure map
    calculation itself lengthier.  The number of energies specifies the
@@ -243,59 +251,61 @@
 
    @image html expMap.png expMap.fits
 
-   @section sourceModelFile Create a Source Model XML File
-   Like the ROI file, the @b likelihoodApp reads the source model
-   from an XML file. The <a href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/ScienceTools/ScienceTools-v0r5/modeldef/v1r0p0/userguide.html">modelDef</a> application will provide a
-   convenient means of defining sources and creating a file of the 
-   proper format.  Here is the file we'll be using for our analysis:
+   @section sourceModelFile Create a Source Model XML File.
+
+   Just as it does for ROI information, the @b likelihood tool reads
+   the source model from an XML file.  Given the dearth of bright
+   sources in the extraction region we have selected, our source model
+   file will be fairly simple, consisting only of the Galactic and
+   extragalactic diffuse emission, and the point sources 3C 279 and 3C 273:
    @verbatim
-<source_library title="source library">
-  <source name="Crab_fit" type="PointSource">
-    <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="10" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2" />
-      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
-    </spectrum>
-    <spatialModel type="SkyDirFunction">
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="83.57" />
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="22.01" />
-    </spatialModel>
-  </source>
-  <source name="Extragalactic Diffuse Emission" type="DiffuseSource">
-    <spectrum type="PowerLaw">
-      <parameter max="100" min="1e-05" free="1" name="Prefactor" scale="1e-07" value="1" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2" />
-      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
-    </spectrum>
-    <spatialModel type="ConstantValue">
-      <parameter max="10" min="0" free="0" name="Value" scale="1" value="1" />
-    </spatialModel>
-  </source>
-  <source name="Geminga_fit" type="PointSource">
-    <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="10" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2" />
-      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
-    </spectrum>
-    <spatialModel type="SkyDirFunction">
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="98.49" />
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="17.86" />
-    </spatialModel>
-  </source>
-  <source name="PKS0528p134" type="PointSource">
-    <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="10" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2" />
-      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
-    </spectrum>
-    <spatialModel type="SkyDirFunction">
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="82.74" />
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="13.38" />
-    </spatialModel>
-  </source>
-</source_library>
+   <?xml version="1.0" ?>
+   <source_library title="source library">
+     <source name="Extragalactic Diffuse" type="DiffuseSource">
+       <spectrum type="PowerLaw">
+         <parameter free="1" max="100.0" min="1e-05" name="Prefactor" scale="1e-07" value="1.6"/>
+         <parameter free="0" max="-1.0" min="-3.5" name="Index" scale="1.0" value="-2.1"/>
+         <parameter free="0" max="200.0" min="50.0" name="Scale" scale="1.0" value="100.0"/>
+       </spectrum>
+       <spatialModel type="ConstantValue">
+         <parameter free="0" max="10.0" min="0.0" name="Value" scale="1.0" value="1.0"/>
+       </spatialModel>
+     </source>
+     <source name="Galactic Diffuse" type="DiffuseSource">
+       <spectrum type="PowerLaw">
+         <parameter free="1" max="1000.0" min="0.001" name="Prefactor" scale="0.001" value="11.0"/>
+         <parameter free="0" max="-1.0" min="-3.5" name="Index" scale="1.0" value="-2.1"/>
+         <parameter free="0" max="200.0" min="50.0" name="Scale" scale="1.0" value="100.0"/>
+       </spectrum>
+       <spatialModel file="$(LIKELIHOODROOT)/src/test/Data/gas.cel" type="SpatialMap">
+         <parameter free="0" max="1000.0" min="0.001" name="Prefactor" scale="1.0" value="1.0"/>
+          </spatialModel>
+     </source>
+     <source name="3C 273" type="PointSource">
+       <spectrum type="PowerLaw">
+         <parameter free="1" max="1000.0" min="0.001" name="Prefactor" scale="1e-09" value="10"/>
+         <parameter free="1" max="-1.0" min="-5.0" name="Index" scale="1.0" value="-2.1"/>
+         <parameter free="0" max="2000.0" min="30.0" name="Scale" scale="1.0" value="100.0"/>
+       </spectrum>
+       <spatialModel type="SkyDirFunction">
+         <parameter free="0" max="360" min="-360" name="RA" scale="1.0" value="187.25"/>
+         <parameter free="0" max="90" min="-90" name="DEC" scale="1.0" value="2.17"/>
+       </spatialModel>
+     </source>
+     <source name="3C 279" type="PointSource">
+       <spectrum type="PowerLaw">
+         <parameter free="1" max="1000.0" min="0.001" name="Prefactor" scale="1e-09" value="10"/>
+         <parameter free="1" max="-1.0" min="-5.0" name="Index" scale="1.0" value="-2"/>
+         <parameter free="0" max="2000.0" min="30.0" name="Scale" scale="1.0" value="100.0"/>
+       </spectrum>
+       <spatialModel type="SkyDirFunction">
+         <parameter free="0" max="360" min="-360" name="RA" scale="1.0" value="193.98"/>
+         <parameter free="0" max="90" min="-90" name="DEC" scale="1.0" value="-5.82"/>
+       </spatialModel>
+     </source>
+   </source_library>
    @endverbatim
-   We'll call this source model file "anticenter_model.xml".
+   We'll call this source model file "Virgo_model.xml".
    \n\n
    We won't discuss the format of this file in great detail, but we
    will note some of the more salient features.  There are two kinds
@@ -318,25 +328,9 @@
    function, it is fairly general and could even be used in a spectral
    model in principle.  SpatialMap is specific to DiffuseSources and
    uses a FITS image file as a template for determining the
-   distribution of photons on the sky.  We won't use a SpatialMap
-   source in this example, but here is the XML source definition that
-   one would use to describe the EGRET diffuse model:
-   \n\n
-   @verbatim
-  <source name="Galactic Diffuse Emission" type="DiffuseSource">
-    <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="0.001" value="6.31" />
-      <parameter max="-1" min="-3.5" free="0" name="Index" scale="1" value="-2.1" />
-      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
-    </spectrum>
-    <spatialModel file="$(LIKELIHOODROOT)/src/test/Data/gas.cel" type="SpatialMap">
-      <parameter max="1000" min="0.001" free="0" name="Prefactor" scale="1" value="1" />
-    </spatialModel>
-  </source>
-   @endverbatim
-   The EGRET diffuse model is given in the FITS file gas.cel,
-   which describes the Galactic diffuse emission as the photon
-   distribution template.
+   distribution of photons on the sky.  The EGRET diffuse model is
+   given in the FITS file gas.cel, which describes the Galactic
+   diffuse emission, as the photon distribution template.
    \n\n
    Both spectrum models and spatialModels are described by functions
    and various model parameters.  Each parameter is described by a
@@ -366,266 +360,356 @@
    "DEC" parameters since fitting for PointSource locations has not
    yet been implemented.
 
-   @section runLikelihood Run likelihoodApp
+   @section computeDiffuseResps Compute the Diffuse Source Responses.
+   If these quantities are not precomputed using the 
+   @b diffuseResponses tool, then @b likelihood will compute them at
+   runtime.  However, if multiple fits and/or sessions with the 
+   @b likelihood tool are anticipated, it is probably wise to precompute
+   these quantities.  The source model xml file must contain all of
+   the diffuse sources to be fit.  The @b diffuseResponses tool will
+   add columns to the FT1 file for each diffuse source:
 
-   We are now ready to run the likelihood application.  One small
-   detail remains.  Depending on the size of the dataset and a hidden
-   parameter in the <a
-   href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/data/obsSim.par?cvsroot=CVS_SLAC">obsSim.par</a>
-   file, @b obsSim may write the data to a series of files.  One may
-   either merge these files using the @b fmerge FTOOL, or, at the
-   prompt for the spacecraft or event files, one may instead provide
-   the name of an ascii file containing the names of the series of
-   FITS files.  On linux, one can easily create such a file by doing:
    @verbatim
-   > ls -1 test_events*.fits > event_files
-   > cat event_files
-   test_events_0000.fits
-   test_events_0001.fits
-   >
+   salathe[jchiang] ~/ST/Likelihood/v5r0/rh9_gcc32/diffuseResponses.exe 
+   Spacecraft file [oneday_scData_0000.fits] : ptsrcs_scData_0000.fits
+   Source model file [diffuse_model.xml] : Virgo_model.xml
+   Event file [oneday_events_0000.fits] : ptsrcs_events_filtered.fits
+   ROI cuts file [RoiCuts.xml] : 
+   adding source Extragalactic Diffuse
+   adding source Galactic Diffuse
+   adding source 3C 273
+   adding source 3C 279
+   .....................!
+   salathe[jchiang] 
    @endverbatim
-   Having done this, if desired one can use @b fmerge to create a
-   single event file:
+
+   @section runLikelihood Run likelihood.
+
+   We are now ready to run the @b likelihood application:
    @verbatim
-   > fmerge event_files test_events.fits
-   @endverbatim
-   For the spacecraft files, it is absolutely imperative that they be
-   specified in time-order since that is the order in which the
-   application ingests the data.  If the files are not in time-order,
-   the application will complain and terminate.  For the DC1 data, we
-   will provide the spacecraft data file.
-   \n\n
-   Finally, we are ready to run the application:
-   @verbatim
-> time likelihoodApp.exe
-ROI cuts file [RoiCuts.xml] : 
-Spacecraft file [test_scData_0000.fits] : 
-Exposure file [anticenter_expMap.fits] : 
-Response functions to use <FRONT/BACK|FRONT|BACK> [FRONT/BACK] : 
-Source model file [anticenter_model.xml] : 
-Event file [test_events_0000.fits] : 
-Optimizer <LBFGS|MINUIT|DRMNGB> [DRMNGB] : 
-Optimizer verbosity [0] : 
-Fit tolerance [0.0001] : 
-Source model output file [anticenter_model.xml] : 
-Use OptEM? [no] : 
+salathe[jchiang] ~/ST/Likelihood/v5r0/rh9_gcc32/likelihood.exe 
+Response functions to use <FRONT/BACK|FRONT|BACK|GLAST25> [FRONT/BACK] : 
+Use energy dispersion? [no] : 
+Source model file [Virgo_model.xml] : 
+Source model output file [none] : 
 flux-style output file name [flux_model.xml] : 
+Statistic to use <BINNED|UNBINNED|OPTEM> [UNBINNED] : 
+Optimizer <LBFGS|MINUIT|DRMNGB> [MINUIT] : 
+Optimizer verbosity [1] : 
+Fit tolerance [0.0001] : 
 Allow for refitting? [yes] : 
+ROI cuts file [RoiCuts.xml] : 
+Spacecraft file [ptsrcs_scData_0000.fits] : 
+Event file [eventFiles] : 
+Exposure file [expMap.fits] : 
+Counts map file [srcMaps.fits] : none
+Exposure hypercube file [expcube_1_day.fits] : none
    @endverbatim
    Most of the entries prompted for are fairly obvious.  In addition
    to the various xml and FITS files, the user is prompted for a
-   choice of IRFs, optimizer, and some output file names.  If "Source
-   model output file" is set to the same name as given to "Source
-   model file" ("anticenter_model.xml" in this case), then that file
-   will be overwritten with the latest fit.  This is extremely
+   choice of IRFs, the type of statistic to use, the optimizer, 
+   and some output file names.  
+
+   Four response function combinations are available:
+
+   - @b FRONT DC1 IRFs for events converting in the "front" part of the LAT
+           (layers 0--11).
+   - @b BACK  DC1 IRFs for "back"-converting events (layers 12-15)
+   - @b FRONT/BACK Both the DC1 FRONT and BACK IRFs
+   - @b GLAST25 AO era IRFs for the FRONT and BACK of the LAT
+
+   @b obsSim has the same option of generating events for these combinations of
+   IRFs and the choice used for @b likelihood must be the same as that chosen
+   for @b obsSim.  The @b dataSubselector tool also allows one to filter on 
+   conversion layer and so can allow one to select FRONT or BACK only datasets.
+
+   Three statistics are available:
+
+   - @b UNBINNED This is a standard unbinned analysis, described in this
+     tutorial.  If this option is chosen then parameters for the ROI
+     cuts file, Spacecraft file, Event file, and Exposure file must be
+     given.
+
+   - @b BINNED This is a binned analysis, which is still in development.
+     In this case, the Counts map file and Exposure hypercube file
+     must be given.  The ROI cuts file Spacecraft file, Event file and
+     Exposure file are ignored in this case.
+
+   - @b OPTEM This uses an expectation-maximization algorithm to
+     partition the events, effectively, among the individual sources
+     so that the fitting procedure can be performed for each source in
+     isolation rather than for all the parameters at once.  The cost
+     is that the algorithm must loop over all the sources several
+     times until it converges.
+
+   There are three optimizers from which to choose.  @b Minuit will
+   generally give the best performance.
+
+   If "Source model output file" is set to the same name as given to
+   "Source model file" ("Virgo_model.xml" in this case), then that
+   file will be overwritten with the latest fit.  This is extremely
    convenient as it allows the user to edit that file while the
    application is waiting at the "Refit? [y]" prompt so that
    parameters can be adjusted and set free or fixed.  This would be
    similar to the use of the "newpar", "freeze", and "thaw" commands
-   of <a href="http://heasarc.gsfc.nasa.gov/docs/xanadu/xspec/index.html">
-   XSPEC</a>.  A prototype GUI is available as unsupported software
-   during DC1 to ease this process.
+   of <a
+   href="http://heasarc.gsfc.nasa.gov/docs/xanadu/xspec/index.html">
+   XSPEC</a>.
    \n\n
    The "flux-style output file name" specifies the destination of xml
    definitions of sources that can be used with @b obsSim (or @b Gleam)
-   to simulate an observation of the fitted source model.  We will use
-   this output below for a comparison to the data.
+   to simulate an observation of the fitted source model.
    \n\n
    At this point, the application reads in the spacecraft and event
-   data and computes exposures for each point source.  There is some
-   initial delay for the exposure for the first point source as the
-   application reads in the IRFs and precomputes some integrals of the
-   PSF over the ROI.
+   data, and if necessary, computes exposures for each point source.
    @verbatim
 LogLike::getEvents:
-Out of 18631 events in file test_events_0000.fits,
- 1550 were accepted, and 17081 were rejected.
+Out of 1292 events in file eg_diffuse_events_filtered.fits,
+ 814 were accepted, and 478 were rejected.
 
-Creating source named Crab_fit
-Computing exposure at (83.57, 22.01).....................!
-Creating source named Extragalactic Diffuse Emission
-Creating source named Geminga_fit
-Computing exposure at (98.49, 17.86).....................!
-Creating source named PKS0528p134
-Computing exposure at (82.74, 13.38).....................!
-adding source Crab_fit
-adding source Extragalactic Diffuse Emission
-adding source Geminga_fit
-adding source PKS0528p134
+LogLike::getEvents:
+Out of 759 events in file galdiffuse_events_filtered.fits,
+ 481 were accepted, and 278 were rejected.
+
+LogLike::getEvents:
+Out of 305 events in file ptsrcs_events_filtered.fits,
+ 257 were accepted, and 48 were rejected.
+
 Computing Event responses for the DiffuseSources.....................!
-Drmngb return code: 4
-Crab_fit:
-Prefactor: 24.8706 +/- 2.60812
-Index: -2.07227 +/- 0.0647763
-Scale: 100
-Npred: 233.069
+ **********
+ **    1 **SET PRINT    0.000    
+ **********
+ **********
+ **    2 **SET NOWARN 
+ **********
 
-Extragalactic Diffuse Emission:
-Prefactor: 1.09014 +/- 0.066217
-Index: -1.96779 +/- 0.0345433
-Scale: 100
-Npred: 763.044
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'Prefactor '    1.6000       1.0000        0.10000E-04   100.00    
+     2 'Prefactor '    11.000       1.0000        0.10000E-02   1000.0    
+     3 'Prefactor '    2.4330       1.0000        0.10000E-02   1000.0    
+     4 'Index     '   -2.5800       1.0000        -5.0000      -1.0000    
+     5 'Prefactor '    7.1230       1.0000        0.10000E-02   1000.0    
+     6 'Index     '   -1.9600       1.0000        -5.0000      -1.0000    
+ **********
+ **    3 **SET ERR   0.5000    
+ **********
+ **********
+ **    4 **SET GRAD    1.000    
+ **********
+ **********
+ **    5 **MIGRAD    200.0       3173.    
+ **********
 
-Geminga_fit:
-Prefactor: 23.9397 +/- 1.96167
-Index: -1.64543 +/- 0.0349701
-Scale: 100
-Npred: 399.933
+ MIGRAD MINIMIZATION HAS CONVERGED.
 
-PKS0528p134:
-Prefactor: 13.2709 +/- 2.19185
-Index: -2.23041 +/- 0.112889
-Scale: 100
-Npred: 105.259
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
 
-Writing fitted model to anticenter_model.xml
-Refit? [y] 
-   @endverbatim
-   Here we see the results of the fit.  We won't compare in detail
-   these numbers to the input values right now; however, for
-   reference, the input values of the spectral indices to each of the
-   sources are Crab: -2.19, Geminga: -1.66, PKS 0528+134: -2.46, and
-   extragalactic diffuse: -2.1.  As an exercise, we will edit the
-   model file, anticenter_model.xml, and fix the extragalactic diffuse 
-   spectral index to the input value.  Here is what we would put:
-   @verbatim
-  <source name="Extragalactic Diffuse Emission" type="DiffuseSource">
-    <spectrum type="PowerLaw">
-      <parameter max="100" min="1e-05" free="1" name="Prefactor" scale="1e-07" value="1.09014" />
-      <parameter max="-1" min="-3.5" free="0" name="Index" scale="1" value="-2.1" />
-      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
-    </spectrum>
-   @endverbatim
-   Note that after having re-read this file the Prefactor parameter
-   was over-written by the application to the fitted value.  For the
-   Index parameter, we have set the free flag and value attributes.
-   At this point, we hit "<return>" to instruct the application to fit
-   again.
-   @verbatim
-Drmngb return code: 4
-Crab_fit:
-Prefactor: 24.892 +/- 2.64623
-Index: -2.06938 +/- 0.0651139
-Scale: 100
-Npred: 234.076
+ FCN=   15861.44     FROM MIGRAD    STATUS=CONVERGED     84 CALLS       85 TOTAL
+                     EDM=  0.27E+01    STRATEGY= 1      ERR MATRIX NOT POS-DEF
 
-Extragalactic Diffuse Emission:
-Prefactor: 1.28741 +/- 0.0503393
+  EXT PARAMETER                APPROXIMATE        STEP         FIRST   
+  NO.   NAME        VALUE          ERROR          SIZE      DERIVATIVE 
+   1  Prefactor     1.6899       0.15110       0.14753E-01    12.658    
+   2  Prefactor     9.2402       0.92370       0.95978E-02    23.084    
+   3  Prefactor     4.7127        17.650       0.20766E-01   0.27761    
+   4  Index        -2.8179        3.0898       0.37782       0.90273    
+   5  Prefactor     11.038        3.1939       0.11921E-01   -2.8765    
+   6  Index        -2.2091       0.16818       0.11625       -1.4825    
+                               ERR DEF= 0.500    
+ **********
+ **    6 **HESSE 
+ **********
+
+ FCN=   15861.44     FROM HESSE     STATUS=OK            42 CALLS      127 TOTAL
+                     EDM=  0.15E+00    STRATEGY= 1      ERROR MATRIX ACCURATE 
+
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME        VALUE          ERROR       STEP SIZE       VALUE   
+   1  Prefactor     1.6899       0.19468       0.65213E-04   -1.3101    
+   2  Prefactor     9.2402        2.2072       0.10257E-03   -1.3783    
+   3  Prefactor     4.7127        1.4955       0.22439E-03   -1.4334    
+   4  Index        -2.8179       0.30961       0.14985E-01   0.91172E-01
+   5  Prefactor     11.038        1.9122       0.76577E-03   -1.3603    
+   6  Index        -2.2091       0.11027       0.51120E-03   0.40656    
+                               ERR DEF= 0.500    
+Final values: 
+  Prefactor  = 1.68988
+  Prefactor  = 9.24022
+  Prefactor  = 4.71275
+  Index      = -2.81791
+  Prefactor  = 11.0378
+  Index      = -2.2091
+Minuit fit quality: 3   estimated distance: 0.149679
+Minuit parameter uncertainties:
+  1  0.194686
+  2  2.20744
+  3  1.49564
+  4  0.310871
+  5  1.91235
+  6  0.11034
+Computing TS values for each source (4 total)
+....!
+
+Extragalactic Diffuse:
+Prefactor: 1.68988 +/- 0.194686
 Index: -2.1
 Scale: 100
-Npred: 770.978
+Npred: 945.06
 
-Geminga_fit:
-Prefactor: 23.9601 +/- 1.97848
-Index: -1.64437 +/- 0.035074
+Galactic Diffuse:
+Prefactor: 9.24022 +/- 2.20744
+Index: -2.1
 Scale: 100
-Npred: 401.04
+Npred: 424.658
 
-PKS0528p134:
-Prefactor: 13.2894 +/- 2.24432
-Index: -2.22737 +/- 0.114074
+3C 273:
+Prefactor: 4.71275 +/- 1.49564
+Index: -2.81791 +/- 0.310871
 Scale: 100
-Npred: 105.737
+Npred: 44.9021
+TS value: 23.6949
 
-Writing fitted model to anticenter_model.xml
+3C 279:
+Prefactor: 11.0378 +/- 1.91235
+Index: -2.2091 +/- 0.11034
+Scale: 100
+Npred: 135.984
+TS value: 215.798
+
+-log(Likelihood): 15861.4
+
+Refit? [y] 
+
+   @endverbatim
+   At this point we can choose to edit the source model file, setting
+   various spectral parameters free or fixed, and in the latter case,
+   also setting them to some nomnal value.  For our refit, we fix the
+   diffuse component prefactors to their nominal values as follows:
+   @verbatim
+  <source name="Extragalactic Diffuse" type="DiffuseSource">
+    <spectrum type="PowerLaw">
+      <parameter free="0" max="100.0" min="1e-05" name="Prefactor" scale="1e-07" value="1.45"/>
+      <parameter free="0" max="-1.0" min="-3.5" name="Index" scale="1.0" value="-2.1"/>
+      <parameter free="0" max="200.0" min="50.0" name="Scale" scale="1.0" value="100.0"/>
+    </spectrum>
+    <spatialModel type="ConstantValue">
+      <parameter free="0" max="10.0" min="0.0" name="Value" scale="1.0" value="1.0"/>
+    </spatialModel>
+  </source>
+  <source name="Galactic Diffuse" type="DiffuseSource">
+    <spectrum type="PowerLaw">
+      <parameter free="0" max="1000.0" min="0.001" name="Prefactor" scale="0.001" value="11.0"/>
+      <parameter free="0" max="-1.0" min="-3.5" name="Index" scale="1.0" value="-2.1"/>
+      <parameter free="0" max="200.0" min="50.0" name="Scale" scale="1.0" value="100.0"/>
+    </spectrum>
+    <spatialModel file="$(LIKELIHOODROOT)/src/test/Data/gas.cel" type="SpatialMap">
+      <parameter free="0" max="1000.0" min="0.001" name="Prefactor" scale="1.0" value="1.0"/>
+    </spatialModel>
+  </source>
+   @endverbatim
+   We hit "<return>" to instruct the application to fit again.
+   @verbatim
+ **********
+ **    1 **SET PRINT    0.000    
+ **********
+ **********
+ **    2 **SET NOWARN 
+ **********
+
+ PARAMETER DEFINITIONS:
+    NO.   NAME         VALUE      STEP SIZE      LIMITS
+     1 'Prefactor '    2.4330       1.0000        0.10000E-02   1000.0    
+     2 'Index     '   -2.5800       1.0000        -5.0000      -1.0000    
+     3 'Prefactor '    7.1230       1.0000        0.10000E-02   1000.0    
+     4 'Index     '   -1.9600       1.0000        -5.0000      -1.0000    
+ **********
+ **    3 **SET ERR   0.5000    
+ **********
+ **********
+ **    4 **SET GRAD    1.000    
+ **********
+ **********
+ **    5 **MIGRAD    200.0       3174.    
+ **********
+
+ MIGRAD MINIMIZATION HAS CONVERGED.
+
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+
+ FCN=   15862.83     FROM MIGRAD    STATUS=CONVERGED     55 CALLS       56 TOTAL
+                     EDM=  0.21E+01    STRATEGY= 1      ERR MATRIX NOT POS-DEF
+
+  EXT PARAMETER                APPROXIMATE        STEP         FIRST   
+  NO.   NAME        VALUE          ERROR          SIZE      DERIVATIVE 
+   1  Prefactor     5.3499        18.836       0.20766E-01   -1.5066    
+   2  Index        -2.8663        3.0634       0.36280       0.82559    
+   3  Prefactor     11.471        6.5707       0.11921E-01   -15.667    
+   4  Index        -2.2263       0.33522       0.11611       -3.1938    
+                               ERR DEF= 0.500    
+ **********
+ **    6 **HESSE 
+ **********
+
+ FCN=   15862.83     FROM HESSE     STATUS=OK            25 CALLS       81 TOTAL
+                     EDM=  0.51E-01    STRATEGY= 1      ERROR MATRIX ACCURATE 
+
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME        VALUE          ERROR       STEP SIZE       VALUE   
+   1  Prefactor     5.3499        1.4291       0.21879E-03   -1.4244    
+   2  Index        -2.8663       0.28400       0.14565E-01   0.66878E-01
+   3  Prefactor     11.471        1.8645       0.76635E-03   -1.3562    
+   4  Index        -2.2263       0.10781       0.51061E-03   0.39719    
+                               ERR DEF= 0.500    
+Final values: 
+  Prefactor  = 5.34992
+  Index      = -2.86634
+  Prefactor  = 11.4714
+  Index      = -2.22634
+Minuit fit quality: 3   estimated distance: 0.0513511
+Minuit parameter uncertainties:
+  1  1.42914
+  2  0.284963
+  3  1.86459
+  4  0.107871
+Computing TS values for each source (4 total)
+....!
+
+Extragalactic Diffuse:
+Prefactor: 1.45
+Index: -2.1
+Scale: 100
+Npred: 810.907
+
+Galactic Diffuse:
+Prefactor: 11
+Index: -2.1
+Scale: 100
+Npred: 505.534
+
+3C 273:
+Prefactor: 5.34992 +/- 1.42914
+Index: -2.86634 +/- 0.284963
+Scale: 100
+Npred: 50.7384
+TS value: 31.8937
+
+3C 279:
+Prefactor: 11.4714 +/- 1.86459
+Index: -2.22634 +/- 0.107871
+Scale: 100
+Npred: 139.793
+TS value: 246.244
+
+-log(Likelihood): 15862.8
+
 Refit? [y] 
 n
 Writing flux-style xml model file to flux_model.xml
-97.230u 0.260s 2:35.85 62.5%    0+0k 0+0io 4174pf+0w
+salathe[jchiang] 
    @endverbatim
-   Fixing the extragalactic diffuse spectral index doesn't really
-   affect the other sources in the model, but it does in fact improve
-   the Prefactor normalization:  the input model value is 1.32.
 
-   @section checkWithObsSim Use obsSim to Check the Model Fit 
-   In practice, of course, we will not know what the true parameter
-   values are for the sources we are fitting.  One way of comparing
-   the fitted model to the data is to create a simulated data set and
-   compare that to the real data.  For this purpose, we can use the
-   flux_model.xml file created by the application:
-   @verbatim
-<source_library title="Likelihood_model">
-  <source flux="0.0232931" name="Crab_fit">
-    <spectrum escale="MeV">
-      <particle name="gamma">
-        <power_law emax="316230" emin="100" gamma="2.06938" />
-      </particle>
-      <celestial_dir ra="83.57" dec="22.01" />
-    </spectrum>
-  </source>
-  <source flux="0.117125" name="Extragalactic_Diffuse_Emission">
-    <spectrum escale="MeV">
-      <particle name="gamma">
-        <power_law emax="316230" emin="100" gamma="2.1" />
-      </particle>
-      <solid_angle maxcos="1.0" mincos="-0.4" />
-    </spectrum>
-  </source>
-  <source flux="0.0369993" name="Geminga_fit">
-    <spectrum escale="MeV">
-      <particle name="gamma">
-        <power_law emax="316230" emin="100" gamma="1.64437" />
-      </particle>
-      <celestial_dir ra="98.49" dec="17.86" />
-    </spectrum>
-  </source>
-  <source flux="0.0108376" name="PKS0528p134">
-    <spectrum escale="MeV">
-      <particle name="gamma">
-        <power_law emax="316230" emin="100" gamma="2.22737" />
-      </particle>
-      <celestial_dir ra="82.74" dec="13.38" />
-    </spectrum>
-  </source>
-  <source name="all_in_flux_model.xml">
-    <nestedSource sourceRef="Crab_fit" />
-    <nestedSource sourceRef="Extragalactic_Diffuse_Emission" />
-    <nestedSource sourceRef="Geminga_fit" />
-    <nestedSource sourceRef="PKS0528p134" />
-  </source>
-</source_library>
-   @endverbatim
-   We need to hand edit the obsSim.par file and give it this file name, or
-   alternatively, one could set the second entry following "XML_source_file"
-   to "ql" as we've done here:
-   @verbatim
-XML_source_file,f,ql,"flux_model.xml",,,"File of flux-style source definitions"
-Source_list,f,ql,"source_names.dat",,,"File containing source names"
-Number_of_events,r,ql,86400,1,4e7,Number of events (or simulation time in seconds)
-Use_as_sim_time,b,ql,yes,,,Use number of events as simulation time?
-Response_functions,s,ql,"FRONT/BACK",FRONT/BACK|FRONT|BACK,,"Response functions to use"
-Output_file_prefix,s,ql,"all_3EG",,,"Prefix for output files"
-Maximum_effective_area,r,hl,1.21,,,Maximum effective area value
-Start_time,r,hl,0,,,Simulation start time (seconds)
-Pointing_history_file,s,ql,"none",,,"Pointing history file"
-Maximum_number_of_rows,i,hl,200000,,,Maximum number of rows in FITS files
-   @endverbatim
-   We then need to edit the source_names.dat file to contain:
-   @verbatim
-   all_in_flux_model.xml
-   @endverbatim
-   run @b obsSim,
-   @verbatim
-   > obsSim.exe 
-   File of flux-style source definitions [flux_model.xml] : 
-   File containing source names [source_names.dat] : 
-   Number of events (or simulation time in seconds) <1 - 4e7> [86400] : 
-   Use number of events as simulation time? [yes] : 
-   Response functions to use <FRONT/BACK|FRONT|BACK> [FRONT/BACK] : 
-   Prefix for output files [model_fit] : 
-   Pointing history file [none] : 
-   Generating events for a simulation time of 86400 seconds....
-   Done.
-   @endverbatim
-   create a counts map having the same geometry as anticenter_1day.fits,
-   @verbatim
-   > fcopy "model_fit_events_0000.fits[1][bin ra=65:105,dec=2:42]" model_fit_1day.fits
-   @endverbatim
-   and compare using ds9,
-
-   @image html anticenter_1day.png
-
-   @section makeTsMaps Make Test-Statistic Maps
+   @section makeTsMaps Make Test-Statistic Maps.
 
    For serious work, one would like to find sources near the detection
    limit of the instrument.  The procedure used in the analysis of
@@ -641,78 +725,47 @@ Maximum_number_of_rows,i,hl,200000,,,Maximum number of rows in FITS files
    of fit.  New, fainter sources are then identified at local maxima
    of the TS map.
 
-   Since we know there are only three point sources in data set, as an
-   exercise we will comment-out the weakest source of the three from the
-   model file anticenter_model.xml:
+   Let's comment out 3C 273 from the source model xml file and see if we
+   can find evidence for it in the data.
    @verbatim
-   <!--
-  <source name="PKS0528p134" type="PointSource">
-    <spectrum type="PowerLaw">
-      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="13.2894" />
-      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.22737" />
-      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
-    </spectrum>
-    <spatialModel type="SkyDirFunction">
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="82.74" />
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="13.38" />
-    </spatialModel>
-  </source>
--->
-</source_library>
+
+salathe[jchiang] ~/ST/Likelihood/v5r0/rh9_gcc32/TsMap.exe
+ROI cuts file [RoiCuts.xml] : 
+Spacecraft file [ptsrcs_escData_0000.fits] : ptsrcs_scData_0000.fits
+Exposure file [expMap.fits] : 
+Response functions to use <FRONT/BACK|FRONT|BACK|GLAST25> [FRONT/BACK] : 
+Source model file [Virgo_model.xml] : 
+Event file [eventFiles] : 
+Optimizer <LBFGS|MINUIT|DRMNGB> [MINUIT] : 
+Optimizer verbosity [0] : 
+Fit tolerance [0.001] : 
+Coordinate system <CEL|GAL> [CEL] : 
+Longitude minmum <-360 - 360> [180] : 
+Longitude maximum <-360 - 360> [200] : 
+Number of longitude points <2 - 200> [40] : 
+Latitude minimum <-90 - 90> [-10] : 
+Latitude maximum <-90 - 90> [10] : 
+Number of latitude points <2 - 200> [40] : 
+TS map file name [TsMap.fits] : 
+LogLike::getEvents:
+Out of 1292 events in file eg_diffuse_events_filtered.fits,
+ 814 were accepted, and 478 were rejected.
+
+LogLike::getEvents:
+Out of 759 events in file galdiffuse_events_filtered.fits,
+ 481 were accepted, and 278 were rejected.
+
+LogLike::getEvents:
+Out of 305 events in file ptsrcs_events_filtered.fits,
+ 257 were accepted, and 48 were rejected.
+
+Computing Event responses for the DiffuseSources.....................!
    @endverbatim
-   We then create a TS map (with the same dimensions as our counts
-   maps) to see how well PKS 0528+134 is identified using this method:
-   @verbatim
-   > time TsMap.exe
-   ROI cuts file [RoiCuts.xml] : 
-   Spacecraft file [all_sky_1day_scData_0000.fits] : test_scData_0000.fits
-   Exposure file [anticenter_expMap.fits] : 
-   Response functions to use <FRONT/BACK|COMBINED> [FRONT/BACK] : 
-   Source model file [anticenter_model.xml] : 
-   Event file [all_sky_1day_events_0000.fits] : test_events_0000.fits
-   Optimizer <LBFGS|MINUIT|DRMNGB> [DRMNGB] : 
-   Optimizer verbosity [0] : 
-   Fit tolerance [0.001] : 
-   Coordinate system <CEL|GAL> [CEL] : 
-   Longitude maximum <-360 - 360> [105] : 
-   Longitude minmum <-360 - 360> [65] : 
-   Number of longitude points <2 - 200> [40] : 
-   Latitude maximum <-90 - 90> [42] : 
-   Latitude minimum <-90 - 90> [2] : 
-   Number of latitude points <2 - 200> [40] : 
-   TS map file name [TsMap.fits] : anticenter_TsMap.fits
-   Creating source named Crab_fit
-   Computing exposure at (83.57, 22.01).....................!
-   Creating source named Extragalactic Diffuse Emission
-   Creating source named Geminga_fit
-   Computing exposure at (98.49, 17.86).....................!
-   adding source Crab_fit
-   adding source Extragalactic Diffuse Emission
-   adding source Geminga_fit
-   LogLike::getEvents:
-   Out of 18631 events in file test_events_0000.fits,
-    1550 were accepted, and 17081 were rejected.
 
-   <...lots of output skipped...>
+   Here is the resulting Ts map:
 
-   Computing exposure at (105, 39.9487).....................!
-   Computing exposure at (105, 40.9744).....................!
-   Computing exposure at (105, 42).....................!
-   4084.230u 25.040s 1:13:56.05 92.6%      0+0k 0+0io 6381pf+0w
-   @endverbatim
-   Note that no PKS0529p134 source is created or added in the setup to
-   doing the fits over the grid of sky locations.  Here is the
-   resulting TsMap file compared to the original counts map:
+   @image html TsMap.png TsMap.fits
 
-   @image html TsMap_compare.png
-   \n
-   The green circle in the left image appears at the location of PKS
-   0528+134, (ra, dec) = (82.74, 13.38) degrees.
+   The green circle indicates the location of 3C 273
 
-*/
-
-/** @page All_3EG
-   @section all3EG all_3EG_sources + diffuse_100mev
-   @image html allsky_3EG.png allsky_3EG.fits
-   
 */
