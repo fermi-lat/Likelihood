@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul 19 07:16:58 PDT 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Event.cxx LogLike.cxx PointSource.cxx 
+	ResponseFunctions.cxx RoiCuts.cxx ScData.cxx 
+Log Message:
+begin migration to irfs package
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul 19 07:16:57 PDT 2004
 Likelihood/cmt
 
