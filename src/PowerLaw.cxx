@@ -2,7 +2,7 @@
  * @brief Implementation for the PowerLaw Function class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.cxx,v 1.7 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -15,11 +15,10 @@
 
 namespace Likelihood {
 
-//! Implement PowerLaw class with three named parameters, 
-//! "Prefactor", "Scale", "Index"
-
+// initialization function used by constructors
 void PowerLaw::init(double Prefactor, double Index, double Scale) {
-//! initialization function used by constructors
+// Implement PowerLaw class with three named parameters, 
+// "Prefactor", "Scale", "Index"
 
    int nParams = 3;
    setMaxNumParams(nParams);
@@ -27,7 +26,11 @@ void PowerLaw::init(double Prefactor, double Index, double Scale) {
    addParam(std::string("Prefactor"), Prefactor, true);
    addParam(std::string("Index"), Index, true);
 // scale should always be fixed
-   addParam(std::string("Scale"), Scale, false);   
+   addParam(std::string("Scale"), Scale, false);
+
+// set FuncType and ArgType for use with CompositeFunction hierarchy
+   m_funcType = Addend;
+   m_argType = "dArg";
 }
 
 double PowerLaw::value(Arg &xarg) const {

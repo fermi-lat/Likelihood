@@ -52,20 +52,21 @@
  Cast in this form, the problem lends itself to being described by the
  following classes and their descendants:
 
-   - Likelihood::Function: This class acts as a "functor" object in
-   that the ()operator is overloaded so that Function objects behave
-   like ordinary C functions.  Several methods are also provided for
-   accessing the model Parameters and derivatives with respect to
-   those Parameters, either singly or in groups.  The behavior of this
-   class is greatly facilitated by the Parameter and Arg classes.
+   - Likelihood::Function This class acts as a "functor" object in
+   that the function call operator () is overloaded so that Function
+   objects behave like ordinary C functions.  Several methods are also
+   provided for accessing the model Parameters and derivatives with
+   respect to those Parameters, either singly or in groups.  The
+   behavior of this class is greatly facilitated by the Parameter and
+   Arg classes.
 
-   - Likelihood::Parameter: This is essentially an NTuple containing
+   - Likelihood::Parameter This is essentially an NTuple containing
    model parameter information (and access methods) comprising the
    parameter value, scale factor, name, upper and lower bounds and
    whether the parameter is to be considered free or fixed in the
    fitting process.
 
-   - Likelihood::Arg: This class wraps arguments to Function objects
+   - Likelihood::Arg This class wraps arguments to Function objects
    so that Function's derivative passing mechanisms can be inherited
    by subclasses regardless of the actual type of the underlying
    argument.  For example, in the log-likelihood, we define
@@ -78,15 +79,15 @@
    wants to have a Source object as its argument, which we wrap with
    the SrcArg class.
 
-   - Likelihood::Statistic: Subclasses of this are the objective
+   - Likelihood::Statistic Subclasses of this are the objective
    functions to be optimized in order to estimate model parameters.
    Although these are in the Function hierarchy, their functor-like
    behavior differs in that _unwrapped_ (i.e., not Arg) vectors of the
-   Parameters themselves are passed via the ()operator.  (This
-   violates the "isa" convention for subclasses, so some refactoring
-   is probably warranted.)
+   Parameters themselves are passed via the function call operator,
+   ().  (This violates the "isa" convention for subclasses, so some
+   refactoring is probably warranted.)
 
-   - Likelihood::Source: An abstract base class for gamma-ray sources.
+   - Likelihood::Source An abstract base class for gamma-ray sources.
    It specifies four key methods (as pure virtual functions); the
    latter two methods are wrapped by the Npred class in order to give
    them Function behavior:
@@ -95,25 +96,34 @@
       - Npred(): predicted number of photons in the ROI
       - NpredDeriv(...): derivative of Npred wrt a Parameter
 
-   - Likelihood::Event: An NTuple containing photon event arrival
+   - Likelihood::Event An NTuple containing photon event arrival
    time, apparent energy and direction, as well as spacecraft attitude
    information at the event arrival time and event-specific response
    function data for use with components of the diffuse emission
    model.
 
-   - Likelihood::Response: This hierarchy provides interfaces to the
+   - Likelihood::Response This hierarchy provides interfaces to the
    instrument response functions, the point-spread function (Psf), the
    effective area (Aeff), and the energy dispersion (not yet
    implemented).  These subclasses are all Singleton.
 
-   - Likelihood::RoiCuts: An NTuple Singleton class that contains the
+   - Likelihood::RoiCuts An NTuple Singleton class that contains the
    "region-of-interest" cuts.  These are essentially the bounds of the
    data space as a function of arrival time, apparent energy, apparent
    direction, zenith angle, etc..  Note that these bounds need not
    enclose a simply connected region.
 
-   - Likelihood::ScData: A Singleton object that contains the
+   - Likelihood::ScData A Singleton object that contains the
    spacecraft data NTuples (ScNtuple).
+
+   - Likelihood::SpectrumFactory This class implements the Prototype
+   pattern in order to provide a common point of access for retrieving
+   and storing Functions for spectral modeling.  Basic Functions such
+   as Likelihood::PowerLaw, Likelihood::Gaussian, and
+   Likelihood::AbsEdge are provided by default.  Clients can combine
+   models using the Likelihood::CompositeFunction hierarchy, store
+   those models in SpectrumFactory, and later, clone those stored
+   models for use in other contexts.
 
  <hr>
  @section notes release.notes

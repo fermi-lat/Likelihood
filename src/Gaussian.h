@@ -2,8 +2,11 @@
  * @brief Gaussian class declaration
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.5 2003/03/17 00:53:44 jchiang Exp $
  */
+
+#ifndef Gaussian_h
+#define Gaussian_h
 
 #include "Likelihood/Function.h"
 #include "Likelihood/Arg.h"
@@ -16,13 +19,13 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.4 2003/03/16 21:53:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.5 2003/03/17 00:53:44 jchiang Exp $
  */
     
 class Gaussian : public Function {
 public:
 
-   Gaussian(){init(0, -2, 1);}
+   Gaussian(){init(0, 0, 1);}
    Gaussian(double Prefactor, double Mean, double Sigma)
       {init(Prefactor, Mean, Sigma);}
 
@@ -31,6 +34,10 @@ public:
    double derivByParam(Arg &, const std::string &paramName) const;
 
    double integral(Arg &xmin, Arg &xmax) const;
+
+   virtual Function *clone() const {
+      return new Gaussian(*this);
+   }
 
 private:
 
@@ -41,3 +48,4 @@ private:
 
 } // namespace Likelihood
 
+#endif // Gaussian_h

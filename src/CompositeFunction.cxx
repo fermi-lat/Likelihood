@@ -2,7 +2,7 @@
  * @brief CompositeFunction class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeFunction.cxx,v 1.2 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -12,6 +12,18 @@
 #include "Likelihood/CompositeFunction.h"
 
 namespace Likelihood {
+
+CompositeFunction::CompositeFunction(const CompositeFunction &rhs) {
+// Make a deep copy since Functions are stored as pointers.
+
+   Function *afuncptr = rhs.m_a->clone();
+   m_a = afuncptr;
+
+   Function *bfuncptr = rhs.m_b->clone();
+   m_b = bfuncptr;
+
+   syncParams();
+}
 
 void CompositeFunction::setParam(const Parameter &param, 
                                  const std::string &funcName) {

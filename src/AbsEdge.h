@@ -5,6 +5,9 @@
  * $Header$
  */
 
+#ifndef AbsEdge_h
+#define AbsEdge_h
+
 #include "Likelihood/Function.h"
 #include "Likelihood/Arg.h"
 
@@ -23,13 +26,17 @@ namespace Likelihood {
 class AbsEdge : public Function {
 public:
 
-   AbsEdge(){init(1, 1, -3);}
+   AbsEdge() {init(1, 1, -3);}
    AbsEdge(double Tau0, double E0, double Index = -3)
       {init(Tau0, E0, Index);}
 
    double value(Arg &) const;
 
    double derivByParam(Arg &, const std::string &paramName) const;
+
+   virtual Function *clone() const {
+      return new AbsEdge(*this);
+   }
 
 private:
 
@@ -41,4 +48,6 @@ private:
 };
 
 } // namespace Likelihood
+
+#endif // AbsEdge_h
 

@@ -2,7 +2,7 @@
  * @brief Implementation for the (1D) Gaussian class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.cxx,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -15,11 +15,10 @@
 
 namespace Likelihood {
 
-//! Implement Gaussian class with three named parameters, 
-//! "Prefactor", "Mean", "Sigma"
-
+// initialization function used by constructors
 void Gaussian::init(double Prefactor, double Mean, double Sigma) {
-//! initialization function used by constructors
+// Implement Gaussian class with three named parameters, 
+// "Prefactor", "Mean", "Sigma"
 
    int nParams = 3;
    setMaxNumParams(nParams);
@@ -27,6 +26,10 @@ void Gaussian::init(double Prefactor, double Mean, double Sigma) {
    addParam(std::string("Prefactor"), Prefactor, true);
    addParam(std::string("Mean"), Mean, true);
    addParam(std::string("Sigma"), Sigma, true);
+
+// set FuncType and ArgType for use with CompositeFunction hierarchy
+   m_funcType = Addend;
+   m_argType = "dArg";
 }
 
 double Gaussian::integral(Arg &xargmin, Arg &xargmax) const {
@@ -103,7 +106,7 @@ double Gaussian::derivByParam(Arg &xarg,
       break;
    case Mean:
       return value(xarg)*(x - my_params[Mean].getTrueValue())
-         /my_params[Sigma].getTrueValue()
+         /pow(my_params[Sigma].getTrueValue(), 2)
          *my_params[Mean].getScale();
       break;
    case Sigma:

@@ -119,7 +119,24 @@ public:
    //! integral of function wrt data variable
    virtual double integral(Arg &, Arg &) const {return 0;}
 
+   //! clone function, with default
+   virtual Function *clone() const {return 0;}
+
+   ////////////////////////////////////////////////////
+   //! +, * operator overloading (and memory leaking)
+   SumFunction &operator+(Function &);
+   ProductFunction &operator*(Function &);
+
+   enum FuncType {None, Addend, Factor};
+
+   FuncType funcType() {return m_funcType;}
+   std::string &argType() {return m_argType;}
+
 protected:
+
+   FuncType m_funcType;
+
+   std::string m_argType;
 
    void setMaxNumParams(int nParams) {m_maxNumParams = nParams;}
 

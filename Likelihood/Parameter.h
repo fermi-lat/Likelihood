@@ -2,7 +2,7 @@
  * @brief Declaration of Parameter class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.7 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef Parameter_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.6 2003/03/16 21:53:25 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.7 2003/03/17 00:53:43 jchiang Exp $ */
 
 class Parameter {
     
@@ -57,6 +57,7 @@ public:
    double getScale() const {return m_scale;}
 
    //! "true" value access
+   void setTrueValue(double trueValue) {m_value = trueValue/m_scale;}
    double getTrueValue() const {return m_value*m_scale;}
 
    //! bounds access

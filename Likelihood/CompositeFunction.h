@@ -1,12 +1,13 @@
 /** @file CompositeFunction.h
  * @brief Declaration of CompositeFunction class
  * @author J. Chiang
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.2 2003/03/17 00:53:42 jchiang Exp $
  */
 
 #ifndef CompositeFunction_h
 #define CompositeFunction_h
 
+#include <cassert>
 #include "Likelihood/Function.h"
 
 namespace Likelihood {
@@ -16,21 +17,27 @@ namespace Likelihood {
  * @brief Base class for Functions that are composites (sum or product)
  * of two other Functions.
  *
- * At some point, some sort of type-checking mechanism should
- * implemented to ensure that only Functions that operate on the same
- * Arg subclasses are combined.
+ * A type-checking mechanism has been implemented to ensure that only
+ * Functions that operate on the same Arg subclasses are combined.
  *
  * @author J. Chiang
  *    
- * $Header$
- * 
- */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.2 2003/03/17 00:53:42 jchiang Exp $
+ *  */
     
 class CompositeFunction : public Function {
 public:
 
-   CompositeFunction(){};
-   virtual ~CompositeFunction(){};
+   CompositeFunction(Function &a, Function &b) {
+      if (a.argType() != b.argType())
+         std::cerr << a.argType() << "  "
+                   << b.argType() << std::endl;
+      assert(a.argType() == b.argType());
+      m_argType = a.argType();
+   }
+   CompositeFunction(const CompositeFunction&);
+
+   virtual ~CompositeFunction() {}
 
    //! setParam method to include function name checking
    virtual void setParam(const Parameter &param, const std::string &funcName);
