@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Apr 12 16:22:48 PDT 2004
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+use StApp class; tagging v3r7
+    *
+------------------------------------------------------------
+User: jchiang  Mon Apr 12 16:22:48 PDT 2004
 Likelihood/cmt
 
 Modified Files:
