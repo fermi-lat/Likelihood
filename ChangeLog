@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar  6 15:25:44 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h Source.h SourceModel.h 
+Added Files:
+	EventArg.h logSrcModel.h 
+Log Message:
+added logSrcModel, EventArg classes
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  5 17:25:43 PST 2003
 Likelihood/src/test
 
