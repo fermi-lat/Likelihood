@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Mar 25 15:22:03 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+add DiffuseSource ExposureMap classes
+    *
+------------------------------------------------------------
+User: jchiang  Tue Mar 25 15:22:03 PST 2003
 Likelihood/src
 
 Modified Files:
