@@ -3,7 +3,7 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.21 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.22 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include <iostream>
@@ -87,13 +87,13 @@ void Function::setParamTrueValue(const std::string &paramName,
 }
 
 void Function::setParamValues(const std::vector<double> &paramVec) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    if (paramVec.size() != m_parameter.size()) {
       std::ostringstream errorMessage;
       errorMessage << "Function::setParamValues: "
                    << "The input vector size does not match "
                    << "the number of parameters.\n";
-      throw(LikelihoodException(errorMessage.str()));
+      throw(Exception(errorMessage.str()));
    } else {
       std::vector<double>::const_iterator it = paramVec.begin();
       setParamValues_(it);
@@ -108,23 +108,23 @@ std::vector<double>::const_iterator Function::setParamValues_(
 }
 
 void Function::setParams(std::vector<Parameter> &params) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    if (params.size() == m_parameter.size()) {
       m_parameter = params;
    } else {
-      throw LikelihoodException
+      throw Exception
          ("Function::setParams: incompatible number of parameters.");
    }
 }
 
 void Function::setFreeParamValues(const std::vector<double> &paramVec) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    if (paramVec.size() != getNumFreeParams()) {
       std::ostringstream errorMessage;
       errorMessage << "Function::setFreeParamValues: "
                    << "The input vector size does not match "
                    << "the number of free parameters.\n";
-      throw(LikelihoodException(errorMessage.str()));
+      throw(Exception(errorMessage.str()));
    } else {
       std::vector<double>::const_iterator it = paramVec.begin();
       setFreeParamValues_(it);
@@ -153,7 +153,7 @@ void Function::getFreeParams(std::vector<Parameter> &params) const {
 }
 
 void Function::setFreeParams(std::vector<Parameter> &params) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    if (params.size() == getNumFreeParams()) {
       int j = 0;
       for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -165,7 +165,7 @@ void Function::setFreeParams(std::vector<Parameter> &params)
          }
       }
    } else {
-      throw(LikelihoodException(
+      throw(Exception(
                "Function::setFreeParams: incompatible number of parameters."));
    }
 }      
@@ -187,7 +187,7 @@ void Function::setParameter(const std::string &paramName,
 
 void Function::addParam(const std::string &paramName,
 			double paramValue, 
-			bool isFree) throw(LikelihoodException) {
+			bool isFree) throw(Exception) {
 
 // Check if paramName is already present
    for (unsigned int i=0; i < m_parameter.size(); i++) {
@@ -197,7 +197,7 @@ void Function::addParam(const std::string &paramName,
                       << "This parameter name already exists: "
                       << paramName << "; "
                       << "you can't add another one.\n";
-         throw(LikelihoodException(errorMessage.str()));
+         throw(Exception(errorMessage.str()));
       }
    }
 // if there's room, add this guy onto the vector
@@ -210,11 +210,11 @@ void Function::addParam(const std::string &paramName,
                    << "Can't add parameter " << paramName << ". "
                    << "The parameter list is full at " 
                    << m_maxNumParams << ".\n";
-      throw(LikelihoodException(errorMessage.str()));
+      throw(Exception(errorMessage.str()));
    }
 }
 
-void Function::addParam(const Parameter &param) throw(LikelihoodException) {
+void Function::addParam(const Parameter &param) throw(Exception) {
    std::vector<Parameter>::const_iterator it = m_parameter.begin();
    for (; it != m_parameter.end(); it++) {
       if (param.getName() == it->getName()) {
@@ -223,7 +223,7 @@ void Function::addParam(const Parameter &param) throw(LikelihoodException) {
                       << "This parameter name already exists: "
                       << param.getName() << "; "
                       << "you can't add another one.\n";
-         throw(LikelihoodException(errorMessage.str()));
+         throw(Exception(errorMessage.str()));
       } 
    }
    if (m_parameter.size() < m_maxNumParams) {
@@ -233,7 +233,7 @@ void Function::addParam(const Parameter &param) throw(LikelihoodException) {
       errorMessage << "Can't add parameter " << param.getName() << "; "
                    << "the parameter list is full at " 
                    << m_maxNumParams << ".\n";
-      throw(LikelihoodException(errorMessage.str()));
+      throw(Exception(errorMessage.str()));
    }
 }
 

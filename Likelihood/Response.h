@@ -3,7 +3,7 @@
  * @brief Response base class declaration
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.19 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.20 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_Response_h
@@ -13,7 +13,7 @@
 #include <valarray>
 #include "astro/SkyDir.h"
 #include "Likelihood/ScData.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.19 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.20 2003/07/19 04:38:02 jchiang Exp $
  */
 
 class Response {
@@ -48,11 +48,11 @@ public:
    static double bilinear(const std::vector<double> &xx, double x,
                           const std::vector<double> &yy, double y, 
                           const std::valarray<double> &z)
-      throw(LikelihoodException);
+      throw(Exception);
 
 protected:
 
-   Response() throw(LikelihoodException);
+   Response() throw(Exception);
 
    //! maximum inclination for response files
    static double s_incMax;

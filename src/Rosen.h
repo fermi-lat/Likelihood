@@ -3,7 +3,7 @@
  * @brief Declaration for a 2D Rosenbrock objective function
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.h,v 1.4 2003/06/03 23:54:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.h,v 1.5 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include "Likelihood/Statistic.h"
@@ -17,7 +17,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.h,v 1.4 2003/06/03 23:54:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.h,v 1.5 2003/06/11 17:08:04 jchiang Exp $
  */
     
 class Rosen : public Statistic {
@@ -36,7 +36,7 @@ public:
    //! must re-implement here since this Statistic does not
    //! comprise individual Sources
    void setParams(std::vector<Parameter> &params) 
-      throw(LikelihoodException, ParameterNotFound) {
+      throw(Exception, ParameterNotFound) {
       Function::setParams(params);
    }
 

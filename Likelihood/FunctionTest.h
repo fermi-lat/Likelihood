@@ -2,7 +2,7 @@
  * @file FunctionTest.h
  * @brief Declaration of unit test code for Function class hierarchy
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FunctionTest.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FunctionTest.h,v 1.6 2003/07/19 04:38:01 jchiang Exp $
  */
 
 
@@ -12,7 +12,7 @@
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Arg.h"
 #include "Likelihood/Function.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -21,7 +21,7 @@ namespace Likelihood {
  * @brief Unit test code for Function class hierarchy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FunctionTest.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FunctionTest.h,v 1.6 2003/07/19 04:38:01 jchiang Exp $
  */
 
 class FunctionTest {
@@ -38,17 +38,17 @@ public:
    ~FunctionTest() {}
 
    void parameters(const std::vector<Parameter> &params) 
-      throw(LikelihoodException);
+      throw(Exception);
 
    void freeParameters(const std::vector<Parameter> &params) 
-      throw(LikelihoodException);
+      throw(Exception);
 
    void funcEvaluations(const std::vector<Arg*> &arguments,
                         const std::vector<double> &returnValues)
-      throw(LikelihoodException);
+      throw(Exception);
 
    void derivatives(const std::vector<Arg*> &arguments,
-                    double eps = 1e-5) throw(LikelihoodException);
+                    double eps = 1e-5) throw(Exception);
       
 private:
 

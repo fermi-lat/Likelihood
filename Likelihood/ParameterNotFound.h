@@ -2,14 +2,14 @@
  * @file ParameterNotFound.h
  * @brief Declaration and definition of ParameterNotFound exception class.
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ParameterNotFound.h,v 1.1 2003/06/19 20:16:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ParameterNotFound.h,v 1.2 2003/07/19 04:38:01 jchiang Exp $
  */
 
 #ifndef Likelihood_ParameterNotFound_h
 #define Likelihood_ParameterNotFound_h
 
 #include <sstream>
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -21,10 +21,10 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ParameterNotFound.h,v 1.1 2003/06/19 20:16:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ParameterNotFound.h,v 1.2 2003/07/19 04:38:01 jchiang Exp $
  */
 
-class ParameterNotFound : public LikelihoodException {
+class ParameterNotFound : public Exception {
 
 public:
    ParameterNotFound(const std::string &paramName, 

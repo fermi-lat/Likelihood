@@ -4,13 +4,13 @@
  * Prototype pattern to return clones of various spectral components 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.6 2003/06/10 23:58:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.7 2003/07/19 04:38:03 jchiang Exp $
  */
 
 #include <cassert>
 #include <sstream>
 #include "Likelihood/SpectrumFactory.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -21,7 +21,7 @@ SpectrumFactory::~SpectrumFactory() {
 }
 
 void SpectrumFactory::addFunc(const std::string &name, Function* func, 
-                              bool fromClone) throw(LikelihoodException) {
+                              bool fromClone) throw(Exception) {
    if (!m_prototypes.count(name)) {
       if (fromClone) {
          m_prototypes[name] = func->clone();
@@ -32,7 +32,7 @@ void SpectrumFactory::addFunc(const std::string &name, Function* func,
       std::ostringstream errorMessage;
       errorMessage << "SpectrumFactory::addFunc: A Function named "
                    << name << " already exists!\n";
-      throw LikelihoodException(errorMessage.str());
+      throw Exception(errorMessage.str());
    }
 }
 

@@ -3,7 +3,7 @@
  * @brief Declaration of Table class
  * @authors T. Burnett, J. Chiang using code from Y. Ikebe
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.10 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.11 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_Table_h
@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <string>
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author T. Burnett, J. Chiang using code from Y. Ikebe
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.10 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.11 2003/07/19 04:38:02 jchiang Exp $
  */
 
 class Table {
@@ -42,12 +42,12 @@ public:
    
    //! fill the table from the file
    //! expect that the column list is already set
-   void read_FITS_table(std::string file, int hdu) throw(LikelihoodException);
+   void read_FITS_table(std::string file, int hdu) throw(Exception);
    
    //! grab the column names from an existing FITS file
    void read_FITS_colnames(std::string &file, int hdu, 
                            std::vector<std::string> &columnNames)
-      throw(LikelihoodException);
+      throw(Exception);
 
    /** @class Column
     * @brief Nested class represents a column entry

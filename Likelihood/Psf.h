@@ -3,7 +3,7 @@
  * @brief Psf class implementation
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.15 2003/06/19 20:16:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.16 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_Psf_h
@@ -11,7 +11,7 @@
 
 #include "Likelihood/Response.h"
 #include "Likelihood/Table.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 class astro::SkyDir;
 
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.15 2003/06/19 20:16:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.16 2003/07/19 04:38:02 jchiang Exp $
  */
 
 class Psf : public Response {
@@ -54,7 +54,7 @@ public:
 
    //! method to read in the psf data
    void readPsfData(const std::string &psfFile, int hdu)
-      throw(LikelihoodException);
+      throw(Exception);
 
 protected:
 

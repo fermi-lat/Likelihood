@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.15 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.16 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #include <cassert>
@@ -16,7 +16,7 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/TrapQuad.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace {
    double my_acos(double mu) {
@@ -56,7 +56,7 @@ Event::Event(const Event &event) {
 //                               const std::string &diffuseComponent) const 
 double Event::diffuseResponse(double,
                               const std::string &diffuseComponent) const 
-   throw(LikelihoodException) {
+   throw(Exception) {
 // Since the energy resolution is presently assumed to be infinite,
 // simply return the (second member of the pair of the) first (and
 // only) element of the diffuse_response vector.
@@ -70,7 +70,7 @@ double Event::diffuseResponse(double,
       errorMessage << "Event::diffuseResponse: \nDiffuse component " 
                    << diffuseComponent 
                    << " does not have an associated diffuse response.\n";
-      throw LikelihoodException(errorMessage.str());
+      throw Exception(errorMessage.str());
    }
    return 0;
 }

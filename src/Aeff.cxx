@@ -3,7 +3,7 @@
  * @brief Implementation for LAT effective area class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Aeff.cxx,v 1.13 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Aeff.cxx,v 1.14 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #include <vector>
@@ -13,14 +13,14 @@
 
 #include "Likelihood/Aeff.h"
 #include "astro/SkyDir.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
 Aeff * Aeff::s_instance = 0;
 
 void Aeff::readAeffData(const std::string &file, int hdu) 
-   throw(LikelihoodException) {
+   throw(Exception) {
 
    switch (hdu) {
    case Front:
@@ -33,7 +33,7 @@ void Aeff::readAeffData(const std::string &file, int hdu)
       m_aeffData.add_columns("ENERGY THETA AEFF_C");
       break;
    default:
-      throw LikelihoodException("Invalid HDU for Aeff data: ", hdu);
+      throw Exception("Invalid HDU for Aeff data: ", hdu);
       break;
    }
 

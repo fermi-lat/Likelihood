@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.11 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.12 2003/07/19 04:38:03 jchiang Exp $
  *
  */
 
@@ -19,7 +19,7 @@
 #include <memory>
 #include <cassert>
 #include "Likelihood/FitsImage.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -81,9 +81,9 @@ void FitsImage::fetchAxisNames(std::vector<std::string> &axisNames) {
 
 void FitsImage::fetchAxisVector(unsigned int naxis,
                                 std::vector<double> &axisVector) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    if (naxis >= m_axes.size()) {
-      throw LikelihoodException(
+      throw Exception(
          "FitsImage::fetchAxisVector: Invalid axis number ", naxis);
    }
    axisVector = m_axisVectors[naxis];
@@ -148,7 +148,7 @@ void FitsImage::AxisParams::computeAxisVector(std::vector<double> &axisVector) {
 void FitsImage::read_fits_image(std::string &filename, 
                                 std::vector<AxisParams> &axes,
                                 std::valarray<double> &image) 
-   throw(LikelihoodException) {
+   throw(Exception) {
 
 //   FITS::setVerboseMode(true);
 
@@ -240,7 +240,7 @@ void FitsImage::read_fits_image(std::string &filename,
 void FitsImage::read_fits_image(std::string &filename, 
                                 std::vector<AxisParams> &axes,
                                 std::valarray<double> &image) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    
    fitsfile * fptr = 0;
    char *file = const_cast<char *>(filename.c_str());
@@ -249,7 +249,7 @@ void FitsImage::read_fits_image(std::string &filename,
    fits_open_file(&fptr, file, READONLY, &status);
    fits_report_error(stderr, status);
    if (status != 0) {
-      throw LikelihoodException("FitsImage::read_fits_image: cfitsio error");
+      throw Exception("FitsImage::read_fits_image: cfitsio error");
    }
 
 // Get dimensions of the data cube
@@ -258,7 +258,7 @@ void FitsImage::read_fits_image(std::string &filename,
    fits_read_key_lng(fptr, "NAXIS", &naxes, comment, &status);
    fits_report_error(stderr, status);
    if (status != 0) {
-      throw LikelihoodException("FitsImage::read_fits_image: cfitsio error");
+      throw Exception("FitsImage::read_fits_image: cfitsio error");
    }
 
 // Assume at least 1 image plane, but at most 3 dimensions...
@@ -268,7 +268,7 @@ void FitsImage::read_fits_image(std::string &filename,
                    << "FITS file " << filename 
                    << " does not have the expected number of dimensions:"
                    << " naxes = " << naxes << "\n";
-      throw LikelihoodException(errorMessage.str());
+      throw Exception(errorMessage.str());
    }
 
 // prepare the axes vector 
@@ -292,7 +292,7 @@ void FitsImage::read_fits_image(std::string &filename,
       fits_read_key_lng(fptr, naxis[i], &ivalue, comment, &status);
       fits_report_error(stderr, status);
       if (status != 0) {
-         throw LikelihoodException
+         throw Exception
             ("FitsImage::read_fits_image: cfitsio error");
       }
       axes[i].size = ivalue;
@@ -313,7 +313,7 @@ void FitsImage::read_fits_image(std::string &filename,
       fits_read_key_dbl(fptr, crval[i], &value, comment, &status);
       fits_report_error(stderr, status);
       if (status != 0) {
-         throw LikelihoodException
+         throw Exception
             ("FitsImage::read_fits_image: cfitsio error");
       }
       axes[i].refVal = value;
@@ -322,7 +322,7 @@ void FitsImage::read_fits_image(std::string &filename,
       fits_read_key_dbl(fptr, cdelt[i], &value, comment, &status);
       fits_report_error(stderr, status);
       if (status != 0) {
-         throw LikelihoodException
+         throw Exception
             ("FitsImage::read_fits_image: cfitsio error");
       }
       axes[i].step = value;
@@ -331,7 +331,7 @@ void FitsImage::read_fits_image(std::string &filename,
       fits_read_key_lng(fptr, crpix[i], &ivalue, comment, &status);
       fits_report_error(stderr, status);
       if (status != 0) {
-         throw LikelihoodException
+         throw Exception
             ("FitsImage::read_fits_image: cfitsio error");
       }
       axes[i].refPixel = ivalue;
@@ -340,7 +340,7 @@ void FitsImage::read_fits_image(std::string &filename,
       fits_read_key_str(fptr, ctype[i], svalue, comment, &status);
       fits_report_error(stderr, status);
       if (status != 0) {
-         throw LikelihoodException
+         throw Exception
             ("FitsImage::read_fits_image: cfitsio error");
       }
       axes[i].axisType = svalue;
@@ -366,7 +366,7 @@ void FitsImage::read_fits_image(std::string &filename,
    } else {
       fits_report_error(stderr, status);
       if (status != 0) {
-         throw LikelihoodException
+         throw Exception
             ("FitsImage::read_fits_image: cfitsio error");
       }
    }
@@ -381,7 +381,7 @@ void FitsImage::read_fits_image(std::string &filename,
    } else {
       fits_report_error(stderr, status);
       if (status != 0) {
-         throw LikelihoodException
+         throw Exception
             ("FitsImage::read_fits_image: cfitsio error");
       }
    }
@@ -398,7 +398,7 @@ void FitsImage::read_fits_image(std::string &filename,
                      tmpImage, &anynull, &status);
    fits_report_error(stderr, status);
    if (status != 0) {
-      throw LikelihoodException("FitsImage::read_fits_image: cfitsio error");
+      throw Exception("FitsImage::read_fits_image: cfitsio error");
    }
 
    image.resize(npixels);
@@ -411,7 +411,7 @@ void FitsImage::read_fits_image(std::string &filename,
    fits_close_file(fptr, &status);
    fits_report_error(stderr, status);
    if (status != 0) {
-      throw LikelihoodException("FitsImage::read_fits_image: cfitsio error");
+      throw Exception("FitsImage::read_fits_image: cfitsio error");
    }
 }
 #endif // HAVE_CCFITS
