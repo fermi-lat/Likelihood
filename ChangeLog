@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Apr  3 17:22:22 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	LikeExposure.h 
+Log Message:
+replace tuple with tip; tagging v3r3
+    *
+------------------------------------------------------------
 User: jchiang  Sat Apr  3 14:11:57 PST 2004
 Likelihood/src/test
 
