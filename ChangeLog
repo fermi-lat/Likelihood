@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 30 09:24:26 PDT 2004
+Likelihood/data
+
+Modified Files:
+	single_src_events_0000.fits single_src_scData_0000.fits 
+Log Message:
+smaller data file for unit tests; ensure energies used for PointSource exposure calcs are updated when Roi energies change.
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun 30 09:21:37 PDT 2004
 Likelihood/src/TsMap
 
