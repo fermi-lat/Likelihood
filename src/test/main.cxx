@@ -77,6 +77,7 @@ void fit_DiffuseSource();
 void print_fit_results(SourceModel &stat);
 void test_FunctionFactory();
 void test_OptEM();
+void test_RoiCuts();
 
 std::string root_path;
 std::string test_path;
@@ -101,7 +102,22 @@ int main() {
    test_SourceFactory();
    fit_DiffuseSource();
    test_OptEM();
+   test_RoiCuts();
    return 0;
+}
+
+void test_RoiCuts() {
+
+  std::cout << "*** test_RoiCuts ***" << std::endl;
+
+  Likelihood::RoiCuts* roi = Likelihood::RoiCuts::instance();
+  roi->setCuts(); // use all default values
+  roi->writeXml("myRegionOfInterest.xml", "title_of_my_region_of_interest");
+  roi->setCuts("myRegionOfInterest.xml"); // read back in
+  roi->writeXml("myRegionOfInterest2.xml", "copy_of_my_region_of_interest");
+
+  std::cout << "*** test_RoiCuts completed ***" << std::endl;
+
 }
 
 void test_OptEM() {
