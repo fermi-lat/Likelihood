@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v0r9p2 03-Aug-03  JC   Remove more windows gotchas (final tag?)
     v0r9p1 03-Aug-03  JC   This really is the *final* tag before refactoring
                            (needed to accomodate new optimizer.)
     v0r9  21-Jul-03   JC   Re-organize exceptions, making headers public;

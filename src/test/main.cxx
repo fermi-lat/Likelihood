@@ -706,7 +706,7 @@ void test_Optimizers() {
      std::cout << i << "  " << sig[i] << std::endl;
    }
 
-   std::cout << "\nTest DRMNGB method:\n" << endl;
+   std::cout << "\nTest DRMNGB method:\n" << std::endl;
    params[0].setValue(2.);
    params[0].setBounds(-10., 10.);
    params[1].setValue(2.);
