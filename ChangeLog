@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue May  6 16:47:55 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+start migration to CCfits, add exposure map calculation to ExposureMap
+    *
+------------------------------------------------------------
+User: jchiang  Tue May  6 16:47:55 PDT 2003
 Likelihood/Likelihood
 
 Modified Files:
