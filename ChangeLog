@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Apr  6 15:19:06 PDT 2004
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+self-contained application classes
+    *
+------------------------------------------------------------
+User: jchiang  Tue Apr  6 15:19:06 PDT 2004
 Likelihood/src/likelihood
 
 Modified Files:
