@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  3 15:51:22 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+ensure exposure map is not needed for binned analysis of diffuse sources
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov  3 15:50:42 PST 2004
 Likelihood/src
 
