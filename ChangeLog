@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: cohen  Mon Nov 10 04:54:39 PST 2003
+Likelihood/src
+
+Modified Files:
+	OptEM.cxx 
+Log Message:
+fix cout problems for gcc32
+    *
+------------------------------------------------------------
+User: cohen  Mon Nov 10 04:54:39 PST 2003
 Likelihood/Likelihood
 
 Modified Files:
