@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.12 2004/10/09 01:37:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.13 2004/10/09 14:00:31 jchiang Exp $
  */
 
 #include <algorithm>
@@ -43,7 +43,6 @@ CountsMap::CountsMap(const std::string & event_file,
      m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
      m_use_lb(use_lb), m_proj(0) {
 
-// These binners will be deleted by the Hist base class.
    std::vector<evtbin::Binner *> binners;
 
 // The astro::SkyDir::project method will convert ra and dec into 
@@ -59,6 +58,8 @@ CountsMap::CountsMap(const std::string & event_file,
 
    init(binners, event_file, sc_file, num_x_pix, num_y_pix, 
         ref_ra, ref_dec, pix_scale, emin, emax, nenergies, use_lb, proj);
+
+   deleteBinners(binners);
 }
 
 CountsMap::CountsMap(const std::string & event_file, 
@@ -73,7 +74,6 @@ CountsMap::CountsMap(const std::string & event_file,
      m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
      m_use_lb(use_lb), m_proj(0) {
 
-// These binners will be deleted by the Hist base class.
    std::vector<evtbin::Binner *> binners;
 
 // The astro::SkyDir::project method will convert ra and dec into 
@@ -94,6 +94,8 @@ CountsMap::CountsMap(const std::string & event_file,
    init(binners, event_file, sc_file, num_x_pix, num_y_pix, 
         ref_ra, ref_dec, pix_scale, energies.front(), energies.back(), 
         energies.size(), use_lb, proj);
+
+   deleteBinners(binners);
 }
 
 CountsMap::CountsMap(const std::string & countsMapFile) 
@@ -105,6 +107,7 @@ CountsMap::CountsMap(const std::string & countsMapFile)
    readEbounds(countsMapFile, binners);
    readImageData(countsMapFile, binners);
    setDataDir();
+   deleteBinners(binners);
 }
 
 void CountsMap::readImageData(const std::string & countsMapFile,
@@ -425,6 +428,13 @@ void CountsMap::setDataDir() {
       throw std::runtime_error("LIKELIHOODROOT not set.");
    }
    m_data_dir = std::string(root_path) + "/data/";
+}
+
+void CountsMap::deleteBinners(std::vector<evtbin::Binner *> & binners) const {
+   for (std::vector<evtbin::Binner *>::reverse_iterator it = binners.rbegin();
+        it != binners.rend(); ++it) {
+      delete *it;
+   }
 }
 
 } // namespace Likelihood

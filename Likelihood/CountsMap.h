@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.10 2004/10/09 01:37:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.11 2004/10/09 15:29:05 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -117,6 +117,8 @@ private:
                       std::vector<evtbin::Binner *> & binners);
 
    void setDataDir();
+
+   void deleteBinners(std::vector<evtbin::Binner *> & binners) const;
 };
 
 }
