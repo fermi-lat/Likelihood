@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.31 2004/09/25 16:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.32 2004/09/28 04:32:26 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -48,6 +48,7 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/LikeExposure.h"
+#include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -78,6 +79,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_DiffuseSource);
    CPPUNIT_TEST(test_CountsMap);
    CPPUNIT_TEST(test_BinnedLikelihood);
+   CPPUNIT_TEST(test_MeanPsf);
    
    CPPUNIT_TEST_SUITE_END();
 
@@ -95,6 +97,7 @@ public:
    void test_DiffuseSource();
    void test_CountsMap();
    void test_BinnedLikelihood();
+   void test_MeanPsf();
 
 private:
 
@@ -689,6 +692,29 @@ void LikelihoodTests::test_BinnedLikelihood() {
       std::cout << "parameter " << i << ": " << params[i] << "\n";
    }
    std::cout << std::endl;
+}
+
+void LikelihoodTests::test_MeanPsf() {
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
+   
+   std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   ExposureCube::readExposureCube(exposureCubeFile);
+
+   MeanPsf Crab_psf(83.57, 22.01);
+   int npts(30);
+   double tstep = log(70./1e-2)/(npts-1.);
+   for (int i = 0; i < npts; i++) {
+      double theta(1e-2*exp(i*tstep));
+      std::cout << theta << "  "
+                << Crab_psf(1e2, theta) << "  "
+                << Crab_psf(1e3, theta) << "  "
+                << Crab_psf(1e4, theta) << "  "
+                << std::endl;
+   }
 }
 
 void LikelihoodTests::readEventData(const std::string &eventFile,
