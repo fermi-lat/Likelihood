@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.7 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.8 2004/09/03 06:08:56 jchiang Exp $
  */
 
 #include <map>
@@ -28,6 +28,12 @@ using irfInterface::IrfsFactory;
 
 namespace Likelihood {
 
+AppHelpers::AppHelpers(st_app::AppParGroup & pars)
+   : m_pars(pars), m_funcFactory(0) {
+   prepareFunctionFactory();
+   createResponseFuncs();
+}
+
 optimizers::FunctionFactory & AppHelpers::funcFactory() {
    return *m_funcFactory;
 }
@@ -48,12 +54,11 @@ void AppHelpers::setRoi() {
 void AppHelpers::readScData() {
    std::string scFile = m_pars["Spacecraft_file"];
    st_facilities::Util::file_ok(scFile);
-   long scHdu = m_pars["Spacecraft_file_hdu"];
    st_facilities::Util::resolve_fits_files(scFile, m_scFiles);
    std::vector<std::string>::const_iterator scIt = m_scFiles.begin();
    for ( ; scIt != m_scFiles.end(); scIt++) {
       st_facilities::Util::file_ok(*scIt);
-      ScData::readData(*scIt, scHdu);
+      ScData::readData(*scIt);
    }
 }
 

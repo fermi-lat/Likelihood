@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.43 2004/10/09 15:29:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.44 2004/10/10 00:17:01 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -790,7 +790,7 @@ void LikelihoodTests::readEventData(const std::string &eventFile,
                                     const std::string &scDataFile,
                                     std::vector<Event> &events) {
    events.clear();
-   ScData::readData(scDataFile, 2, true);
+   ScData::readData(scDataFile, true);
    ScData * scData = ScData::instance();
 
    tip::Table * eventTable = 
@@ -844,9 +844,9 @@ srcFactoryInstance(const std::string & roiFile,
       }
 
       if (scFile == "") {
-         ScData::readData(m_scFile, 2, true);
+         ScData::readData(m_scFile, true);
       } else {
-         ScData::readData(scFile, 2, true);
+         ScData::readData(scFile, true);
       }
 
       if (expMapFile == "") {

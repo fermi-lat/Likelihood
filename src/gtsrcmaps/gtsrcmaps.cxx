@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.3 2004/10/09 15:29:06 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -77,6 +77,7 @@ gtsrcmaps::gtsrcmaps()
       m_pars.Prompt();
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
+      m_helper->readScData();
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
       std::exit(1);
