@@ -533,3 +533,5 @@ Here's an example <a href="http://glast.stanford.edu/cgi-bin/cvsweb/Likelihood/d
 */
 
 #include tutorial.h
+#include pyLike.h
+

@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.34 2004/12/30 00:28:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.35 2005/02/02 19:20:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -91,23 +91,23 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
 
 void LogLike::computeEventResponses(Source &src, double sr_radius) {
    DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
-   if (print_output()) {
+   if (print_output(3)) {
       std::cerr << "Computing Event responses for " << src.getName();
    }
    for (unsigned int i = 0; i < m_events.size(); i++) {
-      if (print_output() && (i % (m_events.size()/20)) == 0) std::cerr << ".";
+      if (print_output(3) && (i % (m_events.size()/20)) == 0) std::cerr << ".";
       m_events[i].computeResponse(*diffuse_src, sr_radius);
    }
-   if (print_output()) std::cerr << "!" << std::endl;
+   if (print_output(3)) std::cerr << "!" << std::endl;
 }
 
 void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs, 
                                     double sr_radius) {
-   if (print_output()) {
+   if (print_output(3)) {
       std::cerr << "Computing Event responses for the DiffuseSources";
    }
    for (unsigned int i = 0; i < m_events.size(); i++) {
-      if (print_output() && m_events.size() > 20 &&
+      if (print_output(3) && m_events.size() > 20 &&
           (i % (m_events.size()/20)) == 0) std::cerr << ".";
       m_events[i].computeResponse(srcs, sr_radius);
 //       if (i < 10) {
@@ -116,7 +116,7 @@ void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs,
 //          m_events[i].writeDiffuseResponses(filename.str());
 //       }
    }
-   if (print_output()) std::cerr << "!" << std::endl;
+   if (print_output(3)) std::cerr << "!" << std::endl;
 // // Write out the diffuse responses.
 //    std::ofstream outfile("diffuse_responses.dat");
 //    for (unsigned int i = 0; i < m_events.size(); i++) {

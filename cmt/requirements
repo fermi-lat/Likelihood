@@ -4,7 +4,7 @@ version v6r4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.177 2005/02/01 00:01:04 jchiang Exp $
+# $Id: requirements,v 1.178 2005/02/02 20:04:45 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -42,5 +42,6 @@ use SwigPolicy v*
 
 path_remove PYTHONPATH Likelihood
 path_append PYTHONPATH $(LIKELIHOODROOT)/$(BINDIR)
+path_append PYTHONPATH $(LIKELIHOODROOT)/python
 
 apply_pattern swig_module name="pyLike"
