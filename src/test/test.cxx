@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.17 2004/05/24 23:51:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.18 2004/05/25 00:56:21 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -68,7 +68,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_SourceDerivs);
    CPPUNIT_TEST(test_SourceModel);
    CPPUNIT_TEST(test_PointSource);
-   CPPUNIT_TEST(test_DiffuseSource);
+//    CPPUNIT_TEST(test_DiffuseSource);
    
    CPPUNIT_TEST_SUITE_END();
 
@@ -130,10 +130,10 @@ void LikelihoodTests::setUp() {
       m_rootPath = std::string(root);
    }
 // Prepare the ResponseFunctions object.
-   ResponseFunctions::addRespPtr(2, irfsFactory().create("DC1::Front"));
-   ResponseFunctions::addRespPtr(3, irfsFactory().create("DC1::Back"));
-//    ResponseFunctions::addRespPtr(2, irfsFactory().create("Glast25::Front"));
-//    ResponseFunctions::addRespPtr(3, irfsFactory().create("Glast25::Back"));
+//    ResponseFunctions::addRespPtr(2, irfsFactory().create("DC1::Front"));
+//    ResponseFunctions::addRespPtr(3, irfsFactory().create("DC1::Back"));
+   ResponseFunctions::addRespPtr(2, irfsFactory().create("Glast25::Front"));
+   ResponseFunctions::addRespPtr(3, irfsFactory().create("Glast25::Back"));
    
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
@@ -438,10 +438,6 @@ void LikelihoodTests::test_SourceDerivs() {
 void LikelihoodTests::test_PointSource() {
    std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
    std::string scDataFile = m_rootPath + "/data/single_src_scData_0000.fits";
-//    std::string eventFile = m_rootPath 
-//       + "/data/single_src_g25_events_0000.fits";
-//    std::string scDataFile = m_rootPath 
-//       + "/data/single_src_g25_scData_0000.fits";
 
    tearDown();
    setUp();
@@ -461,19 +457,24 @@ void LikelihoodTests::test_PointSource() {
          Nobs++;
       }
    }
+   src->setDir(83.57, 22.01, true, false);
 //    std::cout << Nobs << "  "
 //              << src->Npred() << std::endl;
-   src->setDir(83.57, 22.01, true, false);
 
-// Consider the observation over two-day intervals over the first
-// twenty days, resetting the ROI accordingly and force the
-// PointSource exposure to be recomputed for each interval.
+// Consider the observation over 0.1 day intervals over the one day,
+// resetting the ROI accordingly and force the PointSource exposure to
+// be recomputed for each interval.
+//
+// Also test that resetting the RoiCuts energy bounds results in
+// a proper PointSource exposure recalculation.
+   double eminVals[] = {30., 40., 50., 60., 70.,
+                        80., 100., 150., 200., 300.};
    double chi2 = 0;
-   double tstep = 2.*8.64e4;
+   double tstep = 8.64e4/10.;
    for (int j = 0; j < 10; j++) {
       double tmin = j*tstep;
       double tmax = tmin + tstep;
-      RoiCuts::setCuts(86.4, 28.9, 25., 30., 3.16e5, tmin, tmax, -1.);
+      RoiCuts::setCuts(86.4, 28.9, 25., eminVals[j], 3.16e5, tmin, tmax, -1.);
 
       src->setDir(83.57, 22.01, true, false);
 
@@ -490,7 +491,7 @@ void LikelihoodTests::test_PointSource() {
 //                 << Npred << std::endl;
    }
 //    std::cout << "chi^2 = " << chi2 << std::endl;
-   CPPUNIT_ASSERT(chi2 < 23.);
+  CPPUNIT_ASSERT(chi2 < 12.);
 }
 
 void LikelihoodTests::test_DiffuseSource() {
