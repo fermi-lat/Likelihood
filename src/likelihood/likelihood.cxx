@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.3 2004/04/06 17:10:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.4 2004/04/06 22:19:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -11,9 +11,6 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
-
-#include "st_app/IApp.h"
-#include "hoops/hoops_prompt_group.h"
 
 #include "optimizers/Drmngb.h"
 #include "optimizers/Lbfgs.h"
@@ -24,6 +21,7 @@
 #include "Likelihood/OptEM.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/Util.h"
+#include "Likelihood/StApp.h"
 
 using namespace Likelihood;
 
@@ -34,7 +32,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.4 2004/04/06 22:19:06 jchiang Exp $
  */
 
 class likelihood : public AppBase {
@@ -67,22 +65,7 @@ private:
 
 };
 
-/**
- * @class app
- * @brief Class (and object declaration) of boiler-plate code expected 
- * by st_app.
- */
-class app : public st_app::IApp {
-public:
-   app() : st_app::IApp("likelihood") {}
-   virtual void run() {
-      hoopsPrompt();
-      hoopsSave();
-      hoops::IParGroup & pars = hoopsGetParGroup();
-      likelihood likelihoodObject(pars);
-      likelihoodObject.run();
-   }
-} my_app;
+StApp<likelihood> my_application("likelihood");
 
 void likelihood::run() {
    readExposureMap();
