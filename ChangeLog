@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr  7 13:18:04 PDT 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+fix performance warnings on windows; uncomment use xml in requirements file
+    *
+------------------------------------------------------------
 User: jchiang  Tue Apr  6 19:11:18 PDT 2004
 Likelihood/src/makeExposureCube
 
