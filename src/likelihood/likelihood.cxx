@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.30 2004/09/21 20:58:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.31 2004/09/21 21:03:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.30 2004/09/21 20:58:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.31 2004/09/21 21:03:23 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -285,7 +285,7 @@ void likelihood::writeCountsSpectra() {
       EasyPlot::run();
    } catch (std::exception &eObj) {
       std::string message = "RootEngine could not create";
-      if (!st_facilities::Util::expectedException(eObj, message) {
+      if (!st_facilities::Util::expectedException(eObj, message)) {
          throw;
       }
    }
