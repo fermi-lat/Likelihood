@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.34 2004/01/06 00:10:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.35 2004/01/08 18:36:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -574,8 +574,6 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
          std::string fitsFile 
             = dynamic_cast<SpatialMap *>(srcFuncs["SpatialDist"])->fitsFile();
          std::string basefilename = ::basename(fitsFile.c_str());
-         std::cout << fitsFile << " "
-                   << basefilename << std::endl;
          isGalDiffuse = (basefilename == "gas.cel");
       }
 
