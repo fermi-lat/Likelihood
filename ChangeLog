@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Sep 24 23:36:32 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx CountsMap.cxx 
+Log Message:
+write SourceMaps
+    *
+------------------------------------------------------------
+User: jchiang  Fri Sep 24 23:36:32 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
