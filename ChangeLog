@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: pln  Fri May  2 14:53:44 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+LBFGS Optimizer now works.
+lbfgs class renamed Lbfgs to conform to rules.
+test program modified to exercise Lbfgs.
+
+
+    *
+------------------------------------------------------------
 User: pln  Fri May  2 14:53:40 PDT 2003
 Likelihood/src
 
