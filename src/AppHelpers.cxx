@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.13 2004/12/07 01:30:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.14 2004/12/08 00:31:13 jchiang Exp $
  */
 
 #include <map>
@@ -48,14 +48,19 @@ void AppHelpers::prepareFunctionFactory() {
    m_funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
 }
 
-void AppHelpers::setRoi() {
+void AppHelpers::setRoi(const std::string & filename,
+                        const std::string & ext, bool strict) {
+   if (filename != "") {
+      RoiCuts::instance()->readCuts(filename, ext, strict);
+      return;
+   }
    std::string event_file = m_pars["evfile"];
    if (event_file == "none" || event_file == "") {
       std::string roi_file = m_pars["ROI_file"];
       st_facilities::Util::file_ok(roi_file);
       RoiCuts::setCuts(roi_file);
    } else {
-      RoiCuts::instance()->readCuts(m_pars["evfile"]);
+      RoiCuts::instance()->readCuts(m_pars["evfile"], "EVENTS", strict);
    }
 }
 

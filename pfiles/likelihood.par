@@ -1,7 +1,6 @@
 #
 # parameters common to binned and unbinned
 #
-ROI_file,f,a,"Roi.xml",,,"ROI file"
 rspfunc,s,a,"DC1",DC1|DC1F|DC1B|G25|G25F|G25B,,"Response functions to use"
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
@@ -20,6 +19,7 @@ query_for_refit,b,a,no,,,Allow for refitting?
 scfile,f,a,"oneday_scData_0000.fits",,,"Spacecraft file"
 evfile,f,a,"test_events_0000.fits",,,"Event file"
 exposure_map_file,f,a,"none",,,"Exposure file"
+ROI_file,f,a,"Roi.xml",,,"ROI file"
 plot,b,h,no,,,"Plot unbinned counts spectra?"
 #
 # binned

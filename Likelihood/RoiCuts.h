@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.20 2004/12/05 22:25:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.21 2004/12/06 23:29:52 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -38,7 +38,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.20 2004/12/05 22:25:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.21 2004/12/06 23:29:52 jchiang Exp $
  */
 
 class RoiCuts {
@@ -81,7 +81,9 @@ public:
 
    /// Read from the DSS keywords in the eventFile. (Series of event files 
    /// *must* have the same DSS keywords.)
-   void readCuts(const std::string & eventFile);
+   void readCuts(const std::string & eventFile,
+                 const std::string & ext="EVENTS",
+                 bool strict=true);
 
    /// Write to xml file
    void writeXml(std::string xmlFile, const std::string &roiTitle="");
@@ -136,7 +138,7 @@ private:
    std::vector<dataSubselector::Cuts::RangeCut *> m_timeCuts;
    std::vector<dataSubselector::Cuts::GtiCut *> m_gtiCuts;
 
-   void sortCuts();
+   void sortCuts(bool strict=true);
    void setRoiData();
 };
 
