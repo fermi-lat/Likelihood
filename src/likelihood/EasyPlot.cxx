@@ -3,13 +3,14 @@
  * @brief Implementation of friendly user interface.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.1 2004/09/21 14:51:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.2 2004/09/21 20:57:20 jchiang Exp $
  */
 
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
 
+#ifdef HAVE_ST_GRAPH
 #include "st_graph/Engine.h"
 #include "st_graph/IEventReceiver.h"
 #include "st_graph/IFrame.h"
@@ -141,3 +142,4 @@ void EasyPlot::run() {
    st_graph::Engine & engine(st_graph::Engine::instance());
    engine.run();
 }
+#endif // HAVE_ST_GRAPH

@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.26 2004/09/21 14:51:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.27 2004/09/21 20:57:22 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -580,12 +580,12 @@ void LikelihoodTests::test_BinnedLikelihood() {
    
    double ra(83.57);
    double dec(22.01);
-   unsigned long npts(20);
+   unsigned long npts(40);
    double emin(30.);
    double emax(2e5);
    unsigned long nee(21);
    CountsMap dataMap(eventFile, m_scFile, ra, dec, "CAR", npts, npts,
-                     0.5, 0, false, "RA", "DEC", emin, emax, nee);
+                     0.25, 0, false, "RA", "DEC", emin, emax, nee);
    const tip::Table * events 
       = tip::IFileSvc::instance().readTable(eventFile, "events");
    dataMap.binInput(events->begin(), events->end());
@@ -594,7 +594,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    std::string Crab_model = m_rootPath + "/data/Crab_model.xml";
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
 
-   CountsMap * modelMap = binnedLogLike.createCountsMap(dataMap);
+   CountsMap * modelMap = binnedLogLike.createCountsMap();
 
    dataMap.writeOutput("test_Likelihood", "dataMap.fits");
    modelMap->writeOutput("test_Likelihood", "modelMap.fits");
@@ -754,13 +754,10 @@ srcFactoryInstance(const std::string & roiFile,
 }      
 
 int main() {
+
 #ifdef TRAP_FPE
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
-//    LikelihoodTests my_tests;
-//    my_tests.setUp();
-//    my_tests.test_BinnedLikelihood();
-//    my_tests.tearDown();
 
    CppUnit::TextTestRunner runner;
    runner.addTest(LikelihoodTests::suite());

@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.17 2004/08/19 04:03:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.18 2004/08/20 15:39:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -196,6 +196,24 @@ double DiffuseSource::Npred(double emin, double emax) {
    return trapQuad.integral();
 }
    
+double DiffuseSource::pixelCounts(double emin, double emax,
+                                  double wtMin, double wtMax) const {
+   optimizers::Function & spectrum = *m_spectrum;
+   optimizers::dArg eminArg(emin);
+   optimizers::dArg emaxArg(emax);
+   return (spectrum(emaxArg)*wtMax + spectrum(eminArg)*wtMin)*(emax - emin)/2.;
+}
+
+double DiffuseSource::pixelCountsDeriv(double emin, double emax,
+                                       double wtMin, double wtMax,
+                                       const std::string & paramName) const {
+   optimizers::Function & spectrum = *m_spectrum;
+   optimizers::dArg eminArg(emin);
+   optimizers::dArg emaxArg(emax);
+   return (spectrum.derivByParam(emaxArg, paramName)*wtMax +
+           spectrum.derivByParam(eminArg, paramName)*wtMin)*(emax - emin)/2.;
+}
+
 void DiffuseSource::makeEnergyVector(int nee) {
    RoiCuts *roiCuts = RoiCuts::instance();
    

@@ -4,7 +4,7 @@
  * derivatives wrt model parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.3 2004/09/21 14:51:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.4 2004/09/22 05:39:57 jchiang Exp $
  */
 
 #ifndef Likelihood_Pixel_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.3 2004/09/21 14:51:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.4 2004/09/22 05:39:57 jchiang Exp $
  */
 
 class Pixel {
@@ -51,6 +51,8 @@ public:
                       std::vector<double> & derivs) const;
 
    const astro::SkyDir & dir() const {return m_dir;}
+
+   double solidAngle() const {return m_solidAngle;}
 
    class Aeff : public map_tools::Exposure::Aeff {
    public:

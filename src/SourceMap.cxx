@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.1 2004/09/22 05:39:57 jchiang Exp $
  */
 
 #include "Likelihood/CountsMap.h"
@@ -34,8 +34,8 @@ SourceMap::SourceMap(Source * src, const CountsMap & dataMap)
          std::vector<Pixel>::const_iterator pixel = pixels.begin();
          for ( ; pixel != pixels.end(); ++pixel) {
             Aeff aeff(src, pixel->dir(), *energy, evtType);
-            model.push_back(ExposureCube::instance()->value(pixel->dir(), 
-                                                            aeff));
+            double value = ExposureCube::instance()->value(pixel->dir(), aeff);
+            model.push_back(value);
          }
       }
       m_models.push_back(model);
@@ -43,7 +43,7 @@ SourceMap::SourceMap(Source * src, const CountsMap & dataMap)
 }
 
 double SourceMap::Aeff::operator()(double costheta) const {
-   double inclination = acos(costheta);
+   double inclination = acos(costheta)*180./M_PI;
    static double phi(0);
    return ResponseFunctions::totalResponse(inclination, phi, m_energy,
                                            m_energy, m_separation, m_type);

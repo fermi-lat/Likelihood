@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.25 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.26 2004/09/15 23:12:36 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.25 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.26 2004/09/15 23:12:36 jchiang Exp $
  */
 
 class Source {
@@ -106,6 +106,15 @@ public:
 
    /// @return the Source type (e.g., Diffuse vs Point)
    std::string getType() {return m_srcType;}
+
+   /// Integrate the product of the source spectrum with the given
+   /// SourceMap pixel values.
+   virtual double pixelCounts(double emin, double emax, 
+                              double wtMin, double wtMax) const = 0;
+
+   virtual double pixelCountsDeriv(double emin, double emax, 
+                                   double wtMin, double wtMax,
+                                   const std::string & paramName) const = 0;
 
 protected:
 
