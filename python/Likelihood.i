@@ -2,6 +2,7 @@
 %module Likelihood
 %{
 #include "astro/SkyDir.h"
+#include "optimizers/Function.h"
 #include "optimizers/Parameter.h"
 #include "latResponse/../src/Table.h"
 #include "latResponse/../src/PsfGlast25.h"
@@ -17,6 +18,8 @@
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
+#include "Likelihood/OneSourceFunc.h"
+#include "Likelihood/OptEM.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
@@ -34,6 +37,7 @@
 #include <string>
 #include <exception>
 using optimizers::Parameter;
+using optimizers::Function;
 %}
 %include stl.i
 %include ../Likelihood/Exception.h
@@ -48,6 +52,8 @@ using optimizers::Parameter;
 %include ../Likelihood/LogLike.h
 %include ../Likelihood/logSrcModel.h
 %include ../Likelihood/Npred.h
+%include ../Likelihood/OneSourceFunc.h
+%include ../Likelihood/OptEM.h
 %include ../Likelihood/PointSource.h
 %include ../Likelihood/RoiCuts.h
 %include ../Likelihood/ScData.h
