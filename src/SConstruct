@@ -1,0 +1,48 @@
+# -*- python -*-
+import os
+package = 'Likelihood'
+home = os.environ[package.upper() + 'ROOT']
+apps = ['likelihood', 'makeExposureCube', 'expMap', 'TsMap']
+OptPP_dir = '/home/jchiang/data/OPT++2.1'
+
+libraries = {'xml': None,
+             'astro': None,
+             'tipLib': None,
+             'map_toolsLib': None,
+             'latResponseLib': None,
+             'optimizers': None,
+             'f2c': None,
+             'facilities': None,
+             'st_appLib': None,
+             'hoopsLib': None,
+             'g2c': ('',''),
+             'cfitsio': (os.path.join(os.environ['CFITSIO_DIR'], 'include'),
+                         os.path.join(os.environ['CFITSIO_DIR'], 'lib')),
+             'CLHEP': (os.path.join(os.environ['CLHEP_DIR'], '1.8.0.0',
+                                    'include'),
+                       os.path.join(os.environ['CLHEP_DIR'], '1.8.0.0','lib')),
+             'xerces-c1_7_0': (os.path.join(os.environ['XMLEXT_DIR'],
+                                            'include'),
+                               os.path.join(os.environ['XMLEXT_DIR'], 'lib')),
+             'opt-linux': (os.path.join(OptPP_dir, 'include'),
+                           os.path.join(OptPP_dir, 'lib')),
+             'newmat-linux': (os.path.join(OptPP_dir, 'newmat09'),
+                              os.path.join(OptPP_dir, 'lib')),
+             'cppunit': (os.path.join(os.environ['CPPUNIT_DIR'], 'include'),
+                         os.path.join(os.environ['CPPUNIT_DIR'], 'lib')),
+             'Core': (os.path.join(os.environ['ROOT_DIR'], 'v3.10.02', 
+                                   'root', 'include'),
+                      os.path.join(os.environ['ROOT_DIR'], 'v3.10.02', 
+                                   'root', 'lib')),
+             'pil': (os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
+                                  'include'),
+                     os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
+                                  'lib', 'linux-3.2'))
+             }
+
+cflags = ' -DHAVE_OPT_PP -DUSE_FT1 -rdynamic '
+rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'pthread', 'm', 'dl',
+            'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'pil',
+            'opt-linux', 'newmat-linux']
+Export(['package', 'home', 'apps', 'libraries', 'cflags', 'rootlibs'])
+SConscript('buildBase')

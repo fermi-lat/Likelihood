@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.6 2004/05/25 00:56:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.7 2004/06/01 04:27:00 jchiang Exp $
  */
 
 #include "Likelihood/ScData.h"
@@ -26,7 +26,7 @@ double ResponseFunctions::totalResponse(double time,
    astro::SkyDir zAxis = scData->zAxis(time);
    astro::SkyDir xAxis = scData->xAxis(time);
    
-   double myResponse = 0;
+   double myResponse(0);
    std::map<unsigned int, latResponse::Irfs *>::iterator respIt 
       = instance()->begin();
    for ( ; respIt != instance()->end(); respIt++) {
