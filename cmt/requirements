@@ -3,7 +3,7 @@ version v0r8
 
 author James Chiang <jchiang@slac.stanford.edu>
 
-# $Id: requirements,v 1.17 2003/06/04 16:24:16 jchiang Exp $
+# $Id: requirements,v 1.18 2003/06/05 23:59:14 jchiang Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
@@ -17,7 +17,7 @@ apply_pattern package_include
 private
 
 # allow use of internal path
-macro_prepend cppflags "" Linux "-I ../src -g -pedantic " WIN32 "/I..\src "
+macro Likelihood_cppflags "" Linux "-I ../src -g -pedantic " WIN32 "/I..\src  /wd4290"
 macro_prepend cflags "" Linux "-g"
 
 apply_pattern package_linkopts

@@ -2,12 +2,8 @@
  * @file Mcmc.h
  * @brief Mcmc (Markov Chain Monte Carlo) class declaration
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.2 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.3 2003/05/27 16:29:46 jchiang Exp $
  */
-
-#ifdef _MSC_VER
-#pragma warning(disable:4290)
-#endif
 
 #ifndef Mcmc_h
 #define Mcmc_h
@@ -43,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.2 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.3 2003/05/27 16:29:46 jchiang Exp $
  */
 
 class Mcmc {
