@@ -31,26 +31,17 @@ class Source {
 
 public:
     
-   Source(){m_name = "";}
+   Source() {m_name = "";}
    Source(const Source &rhs);
-   virtual ~Source(){}
+   virtual ~Source() {}
 
    //! returns photons/cm^2-s-sr-MeV having been convolved through
    //! the LAT instrument response
-   virtual double fluxDensity(double energy, double time,
-                              const astro::SkyDir &dir) const = 0;
-
-   double fluxDensity(const Event &evt) const
-      {return fluxDensity(evt.getEnergy(), evt.getArrTime(), evt.getDir());}
+   virtual double fluxDensity(const Event &evt) const = 0;
 
    //! derivatives of fluxDensity wrt model Parameters
-   virtual double fluxDensityDeriv(double energy, double time,
-                                   const astro::SkyDir &dir,
+   virtual double fluxDensityDeriv(const Event &evt, 
                                    std::string &paramName) const = 0;
-
-   double fluxDensityDeriv(const Event &evt, std::string &paramName) const
-      {return fluxDensityDeriv(evt.getEnergy(), evt.getArrTime(), 
-                               evt.getDir(), paramName);}
 
    //! predicted number of photons given RoiCuts and ScData
    virtual double Npred() = 0;

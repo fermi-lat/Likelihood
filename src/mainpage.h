@@ -52,13 +52,13 @@
  Cast in this form, the problem lends itself to being described by the
  following classes and their descendants:
 
-   - Likelihood::Function This class acts as a "functor" object in
-   that the function call operator () is overloaded so that Function
-   objects behave like ordinary C functions.  Several methods are also
-   provided for accessing the model Parameters and derivatives with
-   respect to those Parameters, either singly or in groups.  The
-   behavior of this class is greatly facilitated by the Parameter and
-   Arg classes.
+   - Likelihood::Function Objects of this class act as "function
+   objects" in that the function call operator () is overloaded so
+   that instances behave like ordinary C functions.  Several methods
+   are also provided for accessing the model Parameters and
+   derivatives with respect to those Parameters, either singly or in
+   groups.  The behavior of this class is greatly facilitated by the
+   Parameter and Arg classes.
 
    - Likelihood::Parameter This is essentially an n-tuple containing
    model parameter information (and access methods) comprising the
@@ -81,10 +81,10 @@
 
    - Likelihood::Statistic Subclasses of this are the objective
    functions to be optimized in order to estimate model parameters.
-   Although these are in the Function hierarchy, their functor-like
-   behavior differs in that _unwrapped_ (i.e., not Arg) vectors of the
+   Although these are in the Function hierarchy, their behavior
+   differs in that _unwrapped_ (i.e., not Arg) vectors of the
    Parameters themselves are passed via the function call operator,
-   ().  (This violates the "isa" convention for subclasses, so some
+   (). (This violates the "isa" convention for subclasses, so some
    refactoring is probably warranted.)
 
    - Likelihood::Source An abstract base class for gamma-ray sources.

@@ -2,12 +2,13 @@
 * @brief Implementation of Table member functions
 * @authors T. Burnett, J. Chiang using code from Y. Ikebe
 *
-* $Header$
+* $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.5 2003/03/17 00:53:44 jchiang Exp $
 */
 
 #include "Likelihood/Table.h"
 #include "fitsio.h"
 
+#include <cstdio>
 #include <iostream>
 
 namespace Likelihood {
@@ -29,62 +30,112 @@ void Table::add_columns(std::string colnames)
     }while(1);
 
 }
+
+void Table::add_columns(std::vector<std::string> columnNames) {
+   for (unsigned int i = 0; i < columnNames.size(); i++) {
+      add_column(columnNames[i]);
+   }
+}
+
 void Table::read_FITS_table(std::string filename, int hdu) 
 {
-    int  status=0;
-    fitsfile * fp=0;
+   int status = 0;
+   fitsfile * fp = 0;
+   
+   fits_open_file(&fp, filename.c_str(), READONLY, &status);
+   if( status != 0) {
+      std::cerr << "Could not open FITS file " << filename << std::endl;
+      return;
+   }
+   fits_report_error(stderr, status);
+   
+   int hdutype=0;
+   fits_movabs_hdu(fp, hdu, &hdutype, &status);
+   if( status == END_OF_FILE ) status = 0; // ok, I guess??
+   fits_report_error(stderr, status);
+   
+   // these are not used???  Oh, yes they are....
+   long lnrows=0;
+   fits_get_num_rows(fp, &lnrows, &status);
+   fits_report_error(stderr, status);
+   
+   int ncols=0;
+   fits_get_num_cols(fp, &ncols, &status);
+   fits_report_error(stderr, status);
+   
+   // match Column objects, with names already set, 
+   // with entries in the FITS table
+   for (int i = 0; i < npar(); i++) {
+      fits_get_colnum(fp, CASEINSEN, par(i).colname,
+                      & par(i).colnum, &status);
+      if( status== COL_NOT_FOUND ) {
+         std::cerr << "Reading file \""<< filename 
+                   << "\"; Column with name " << par(i).colname 
+                   << " not found" << std::endl;
+         return;
+      }
+      fits_report_error(stderr, status);
+   }
+   
+   // now copy the data
+   for (int i = 0; i < npar(); i++) {
+      fits_get_coltype(fp, par(i).colnum, &par(i).typecode,
+                       &par(i).dim, &par(i).width, &status);
+      fits_report_error(stderr, status);
+      
+      par(i).dim *= lnrows;  // need this to get proper dimension of data
+      
+      par(i).val = new double[par(i).dim];
+      
+      int anynul=0, nulval=0;
+      fits_read_col(fp, TDOUBLE, par(i).colnum, 1, 1, par(i).dim,
+                    &nulval, par(i).val, &anynul, &status);
+      fits_report_error(stderr, status);
+   }
 
-    fits_open_file(&fp, filename.c_str(), READONLY, &status);
-    if( status !=0) {
-        std::cerr << "Could not open FITS file " << filename << std::endl;
-        return;
-    }
-    fits_report_error(stderr, status);
-
-    int hdutype=0;
-    fits_movabs_hdu(fp, hdu, &hdutype, &status);
-    if( status == END_OF_FILE ) status = 0; // ok, I guess??
-    fits_report_error(stderr, status);
-
-    // these are not used???  Oh, yes they are....
-    long lnrows=0;
-    fits_get_num_rows(fp, &lnrows, &status);
-    fits_report_error(stderr, status);
-
-    int ncols=0;
-    fits_get_num_cols(fp, &ncols, &status);
-    fits_report_error(stderr, status);
-
-    // match Column objects, with names already set, 
-    // with entries in the FITS table
-    for (int i = 0; i < npar(); i++) {
-        fits_get_colnum(fp, CASEINSEN, par(i).colname,
-            & par(i).colnum, &status);
-        if( status== COL_NOT_FOUND ) {
-            std::cerr << "Reading file \""<< filename 
-                << "\"; Column with name " << par(i).colname 
-                << " not found" << std::endl;
-            return;
-        }
-        fits_report_error(stderr, status);
-    }
-
-    // now copy the data
-    for (int i = 0; i < npar(); i++) {
-        fits_get_coltype(fp, par(i).colnum, &par(i).typecode,
-            &par(i).dim, &par(i).width, &status);
-        fits_report_error(stderr, status);
-
-        par(i).dim *= lnrows;  // need this to get proper dimension of data
-
-        par(i).val = new double[par(i).dim];
-
-        int anynul=0, nulval=0;
-        fits_read_col(fp, TDOUBLE, par(i).colnum, 1, 1, par(i).dim,
-            &nulval, par(i).val, &anynul, &status);
-        fits_report_error(stderr, status);
-    }
+   fits_close_file(fp, &status);
+   fits_report_error(stderr, status);
 }
+
+void Table::read_FITS_colnames(std::string &filename, int hdu, 
+                               std::vector<std::string> &columnNames) {
+   if (!columnNames.empty()) columnNames.clear();
+
+   int status = 0;
+   fitsfile * fp = 0;
+   
+   fits_open_file(&fp, filename.c_str(), READONLY, &status);
+   if( status != 0) {
+      std::cerr << "Could not open FITS file " << filename << std::endl;
+      return;
+   }
+   fits_report_error(stderr, status);
+   
+   int hdutype = 0;
+   fits_movabs_hdu(fp, hdu, &hdutype, &status);
+   if (status == END_OF_FILE) status = 0;
+   fits_report_error(stderr, status);
+   
+// read in the number of columns 
+   long ncols;
+   char comment[72];
+   fits_read_key_lng(fp, "TFIELDS", &ncols, comment, &status);
+   fits_report_error(stderr, status);
+
+// read in the column names
+   for (int i = 0; i < ncols; i++) {
+      char colname[10];
+      sprintf(colname, "TTYPE%i ", i+1);
+      char my_string[20];
+      fits_read_key_str(fp, colname, my_string, comment, &status);
+      fits_report_error(stderr, status);
+      columnNames.push_back(std::string(my_string));
+   }
+
+   fits_close_file(fp, &status);
+   fits_report_error(stderr, status);
+}
+   
 
 } // namespace Likelihood
 

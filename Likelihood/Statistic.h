@@ -2,7 +2,7 @@
  * @brief Declaration of Statistic class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.9 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.10 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef Statistic_h
@@ -22,7 +22,8 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.9 2003/03/17 00:53:43 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.10 2003/03/22 01:22:50 jchiang Exp $ 
+ */
 
 class Statistic : public SourceModel {
     

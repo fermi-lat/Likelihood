@@ -1,3 +1,10 @@
+/** @file OptPP.h
+ * @brief OptPP declaration
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #ifndef OptPP_h
 #define OptPP_h
 
@@ -21,7 +28,8 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class OptPP : public Optimizer {
     

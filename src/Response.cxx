@@ -2,7 +2,7 @@
  * @brief Implementation for Response base class.
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.9 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -22,55 +22,6 @@ Response::Response() {
    if (!scData) {
       std::cerr << "*scData not properly instantiated!" << std::endl;
       exit(0);
-   }
-}
-
-void Response::m_hunt(double *xx, int n, double x, int *jlo) {
-/* (C) Copr. 1986-92 Numerical Recipes Software 0@.1Y.. */
-   int jm,jhi,inc;
-   int ascnd;
-   
-   ascnd=(xx[n] > xx[1]);
-   if (*jlo <= 0 || *jlo > n) {
-      *jlo=0;
-      jhi=n+1;
-   } else {
-      inc=1;
-      if (x >= xx[*jlo] == ascnd) {
-         if (*jlo == n) return;
-         jhi=(*jlo)+1;
-         while (x >= xx[jhi] == ascnd) {
-            *jlo=jhi;
-            inc += inc;
-            jhi=(*jlo)+inc;
-            if (jhi > n) {
-               jhi=n+1;
-               break;
-            }
-         }
-      } else {
-         if (*jlo == 1) {
-            *jlo=0;
-            return;
-         }
-         jhi=(*jlo)--;
-         while (x < xx[*jlo] == ascnd) {
-            jhi=(*jlo);
-            inc <<= 1;
-            if (inc >= jhi) {
-               *jlo=0;
-               break;
-            }
-            else *jlo=jhi-inc;
-         }
-      }
-   }
-   while (jhi-(*jlo) != 1) {
-      jm=(jhi+(*jlo)) >> 1;
-      if (x > xx[jm] == ascnd)
-         *jlo=jm;
-      else
-         jhi=jm;
    }
 }
 
