@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.1 2004/03/11 05:19:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.2 2004/04/04 01:22:24 jchiang Exp $
  */
 
 #include "facilities/Util.h"
@@ -35,14 +35,14 @@ void LikeExposure::load(tip::Table * scData) {
       row["livetime"].get(livetime);
       row["start"].get(start);
       row["stop"].get(stop);
-      row["latGeo"].get(latGeo);
-      row["lonGeo"].get(lonGeo);
+      row["lat_Geo"].get(latGeo);
+      row["lon_Geo"].get(lonGeo);
       double deltat = livetime > 0 ? livetime : stop-start;
       double fraction;
       if (acceptInterval(start, stop, latGeo, lonGeo, fraction)) {
          deltat *= fraction;
-         row["ra"].get(ra);
-         row["dec"].get(dec);
+         row["ra_scz"].get(ra);
+         row["dec_scz"].get(dec);
          add(astro::SkyDir(ra, dec), deltat);
       }
    }
