@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri May  2 12:02:15 PDT 2003
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx Event.cxx OptPP.cxx OptPP.h PointSource.cxx 
+	Response.cxx SourceFactory.cxx logLike_ptsrc.cxx 
+	logLike_ptsrc.h 
+Log Message:
+add ConstantValue class, generalize HAVE_OPTIMIZER variable
+    *
+------------------------------------------------------------
 User: jchiang  Fri May  2 12:02:14 PDT 2003
 Likelihood/Likelihood
 
