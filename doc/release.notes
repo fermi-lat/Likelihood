@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v2r5p2 03-Dec-03  JC   use DC1 test irfs; UI fixes
     v2r5p1 03-Dec-03  JC   rename likelihoodApp
     v2r5   25-Nov-03  JC   use Goodi
     v2r4   22-Nov-03  JC   add user guide
