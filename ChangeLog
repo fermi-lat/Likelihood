@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec  6 17:30:11 PST 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Log Message:
+parameter interface fixes for expMap.
+    *
+------------------------------------------------------------
 User: jchiang  Mon Dec  6 17:30:08 PST 2004
 Likelihood/pfiles
 
