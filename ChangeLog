@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Oct 10 18:35:01 PDT 2004
+Likelihood/src/exposureMap
+
+Modified Files:
+	exposureMap.cxx 
+Log Message:
+refactor parameter access a bit, reorganizing likelihood application mostly
+    *
+------------------------------------------------------------
 User: jchiang  Sun Oct 10 18:35:00 PDT 2004
 Likelihood/src/expMap
 
