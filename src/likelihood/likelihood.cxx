@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.17 2004/08/05 05:28:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.18 2004/08/18 21:22:18 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.17 2004/08/05 05:28:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.18 2004/08/18 21:22:18 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -240,18 +240,22 @@ void likelihood::writeCountsSpectra() {
    m_logLike->getSrcNames(srcNames);
    std::ofstream outputFile("counts.dat");
    for (int k = 0; k < nee - 1; k++) {
-      outputFile << sqrt(energies[k]*energies[k+1]) << "   ";
+      bool writeLine(true);
+      std::ostringstream line;
+      line << sqrt(energies[k]*energies[k+1]) << "   ";
       for (unsigned int i = 0; i < srcNames.size(); i++) {
          Source * src = m_logLike->getSource(srcNames[i]);
          double Npred;
          try {
             Npred = src->Npred(energies[k], energies[k+1]);
-            outputFile << Npred << "  ";
+            line << Npred << "  ";
          } catch (std::out_of_range & eObj) {
-            // skip this one because of range error or it's DiffuseSource
+            writeLine = false;
          }
       }
-      outputFile << std::endl;
+      if (writeLine) {
+         outputFile << line.str() << std::endl;
+      }
    }
    outputFile.close();
 }

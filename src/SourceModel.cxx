@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.41 2004/06/05 15:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.42 2004/07/19 19:27:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -442,7 +442,7 @@ bool SourceModel::hasSrcNamed(const std::string & srcName) const {
 }
 
 // void SourceModel::makeCountsMap(const std::string &filename, 
-//                                 const fitsUtils::MapShape &mapShape) {
+//                                 const MapShape &mapShape) {
 
 //    std::vector< std::valarray<double> > map(mapShape.nz());
 //    for (unsigned int k = 0; k < mapShape.nz(); k++) {
@@ -466,9 +466,16 @@ bool SourceModel::hasSrcNamed(const std::string & srcName) const {
 //       }
 //    }
 
-// // The outer loop is the spacecraft time.
-//    for (unsigned int it = 0; it < scData.vec.size()-1; it++) {
+//    std::map<std::string, Source *>::const_iterator src;
 
+// // The outer loop is the spacecraft time.
+//    for (unsigned int it = 0; it < scData->vec.size()-1; it++) {
+//       double dt = scData->vec[it+1].time - scData->vec[it].time;
+//       for (unsigned int k = 0; k < energies.size(); k++) {
+//          for (src = s_sources.begin(); src != s_sources.end(); ++src) {
+            
+//          }
+//       }
 //    }
 
 // }
