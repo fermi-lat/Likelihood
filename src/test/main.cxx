@@ -214,8 +214,8 @@ void test_Mcmc() {
 //       outfile << "\n";
 //    }
 
-   } catch (Parameter::OutOfBounds &eObj) {
-      assert(eObj.code() == Parameter::OutOfBounds::VALUE_ERROR);
+   } catch (OutOfBounds &eObj) {
+      assert(eObj.code() == OutOfBounds::VALUE_ERROR);
       std::cerr << eObj.what() << "\n"
                 << "Value: " << eObj.value() << "\n"
                 << "minValue: " << eObj.minValue() << "\n"
@@ -2033,8 +2033,8 @@ void test_Parameter_class() {
 // test for failure
    try {
       my_params[2].setValue(35);
-   } catch (Parameter::OutOfBounds &eObj) {
-      assert(eObj.code() == Parameter::OutOfBounds::VALUE_ERROR);
+   } catch (OutOfBounds &eObj) {
+      assert(eObj.code() == OutOfBounds::VALUE_ERROR);
       std::cerr << eObj.what() << "\n"
                 << "Value: " << eObj.value() << "\n"
                 << "minValue: " << eObj.minValue() << "\n"
@@ -2044,8 +2044,8 @@ void test_Parameter_class() {
 
    try {
       my_params[2].setBounds(-20, 20);
-   } catch (Parameter::OutOfBounds &eObj) {
-      assert(eObj.code() == Parameter::OutOfBounds::BOUNDS_ERROR);
+   } catch (OutOfBounds &eObj) {
+      assert(eObj.code() == OutOfBounds::BOUNDS_ERROR);
       std::cerr << eObj.what() << "\n"
                 << "Value: " << eObj.value() << "\n"
                 << "minValue: " << eObj.minValue() << "\n"
