@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Nov 27 22:58:22 PST 2004
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+parameter interface updates
+    *
+------------------------------------------------------------
+User: jchiang  Sat Nov 27 22:58:22 PST 2004
 Likelihood/src/expMap
 
 Modified Files:
