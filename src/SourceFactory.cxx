@@ -4,12 +4,12 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.2 2003/03/22 01:22:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.4 2003/04/25 18:32:19 jchiang Exp $
  */
 
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
-
+#include <assert.h>
 namespace Likelihood {
 
 SourceFactory::SourceFactory() {

@@ -5,12 +5,12 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.1 2003/03/25 23:22:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.3 2003/04/25 18:32:19 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ExposureMap.h"
-
+#include <algorithm>
 namespace Likelihood {
 
 ExposureMap * ExposureMap::s_instance = 0;
@@ -76,7 +76,7 @@ void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
       } else if (energies[k] >= *(s_energies.end() - 1)) {
          iterE = s_energies.end() - 1;
       } else {
-         iterE = upper_bound(s_energies.begin(), s_energies.end(), 
+		  iterE = std::upper_bound(s_energies.begin(), s_energies.end(), 
                              energies[k]);
       }
       int kk = iterE - s_energies.begin();
