@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 22 16:39:30 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h ResponseFunctions.h 
+Log Message:
+prepend IRF name to diffuse response column name
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 22 10:17:07 PST 2005
 Likelihood/doc
 
