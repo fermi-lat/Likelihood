@@ -1,4 +1,18 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 29 13:10:31 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h CompositeFunction.h DiffuseSource.h Event.h 
+	ExposureMap.h FitsImage.h Function.h FunctionTest.h Psf.h 
+	Response.h SkyDirFunction.h Source.h SourceFactory.h 
+	SourceModel.h SpatialMap.h SpectrumFactory.h Statistic.h 
+	Table.h 
+Log Message:
+Add exceptions
+
+    *
+------------------------------------------------------------
 User: pln  Thu May 29 12:50:56 PDT 2003
 Likelihood/src
 
