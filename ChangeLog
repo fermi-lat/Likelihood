@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Aug 16 21:11:23 PDT 2003
+Likelihood/xml
+
+Added Files:
+	RoiCuts.dtd RoiCuts.xml 
+Log Message:
+xml support for ROI cuts
+    *
+------------------------------------------------------------
+User: jchiang  Sat Aug 16 21:11:23 PDT 2003
 Likelihood/src/test
 
 Modified Files:
