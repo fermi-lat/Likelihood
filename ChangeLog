@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Wed Jul 30 17:15:21 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Drmngb.h 
+Log Message:
+Fix erroneous method for finding uncertainties.
+
+    *
+------------------------------------------------------------
 User: pln  Wed Jul 30 17:13:10 PDT 2003
 Likelihood/src/test
 
