@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan 31 16:01:07 PST 2005
+Likelihood/pfiles
+
+Added Files:
+	gtdiffresp.par gtexpmap.par gtlikelihood.par 
+	gtlivetimecube.par gttsmap.par 
+Log Message:
+rename apps, par files
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jan 31 16:01:05 PST 2005
 Likelihood/doc
 
