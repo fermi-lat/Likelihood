@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jun  4 17:28:00 PDT 2004
+Likelihood/src/diffuseResponses
+
+Added Files:
+	diffuseResponses.cxx 
+Log Message:
+work on tool to precompute event responses for diffuse components
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jun  4 17:27:59 PDT 2004
 Likelihood/src
 
