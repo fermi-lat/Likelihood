@@ -6,7 +6,6 @@ use_energy_dispersion,b,ql,no,,,Use energy dispersion?
 Source_model_file,f,ql,"my_source_model.xml",,,"Source model file"
 Source_model_output_file,f,ql,"none",,,"Source model output file"
 flux_style_model_file,f,ql,"flux_model.xml",,,"flux-style output file name"
-number,r,ql,0,,,a number
 #
 # choice of objective function and optimizer
 #
