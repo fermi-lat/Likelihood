@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.57 2005/03/01 07:17:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.58 2005/03/02 01:10:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -69,29 +69,10 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 double PointSource::fluxDensity(double energy, double time,
                                 const astro::SkyDir &dir,
                                 int eventType) const {
-// Scale the energy spectrum by the psf value and the effective area
-// and convolve with the energy dispersion, if appropriate, all of
-// which are functions of time and spacecraft attitude and orbital
-// position.
-   const ResponseFunctions & respFuncs = m_observation->respFuncs();
-   if (respFuncs.useEdisp()) {
-      unsigned int npts(s_trueEnergies.size());
-      std::vector<double> my_integrand(npts);
-      for (unsigned int k = 0; k < npts; k++) {
-         optimizers::dArg energy_arg(s_trueEnergies[k]);
-         double spectrum = (*m_spectrum)(energy_arg);
-         my_integrand[k] = spectrum*
-            respFuncs.totalResponse(time, s_trueEnergies[k], energy,
-                                    m_dir.getDir(), dir, eventType);
-      }
-      TrapQuad trapQuad(s_trueEnergies, my_integrand);
-      return trapQuad.integral();
-   } else {
-      optimizers::dArg energy_arg(energy);
-      double spectrum = (*m_spectrum)(energy_arg);
-      return spectrum*respFuncs.totalResponse(time, energy, energy, 
-                                              m_dir.getDir(), dir, eventType);
-   }
+   ScData & scData = const_cast<ScData &>(m_observation->scData());
+   const astro::SkyDir & zAxis = scData.zAxis(time);
+   const astro::SkyDir & xAxis = scData.xAxis(time);
+   return fluxDensity(energy, zAxis, xAxis, dir, eventType);
 }
 
 double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
@@ -111,8 +92,8 @@ double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
          double spectrum = (*m_spectrum)(energy_arg);
          my_integrand[k] = spectrum
             *respFuncs.totalResponse(s_trueEnergies[k], energy,
-                                              zAxis, xAxis, m_dir.getDir(), 
-                                              dir, eventType);
+                                     zAxis, xAxis, m_dir.getDir(), 
+                                     dir, eventType);
       }
       TrapQuad trapQuad(s_trueEnergies, my_integrand);
       return trapQuad.integral();
@@ -140,32 +121,10 @@ double PointSource::fluxDensityDeriv(double energy, double time,
                                      const astro::SkyDir &dir,
                                      int eventType,
                                      const std::string &paramName) const {
-   const ResponseFunctions & respFuncs = m_observation->respFuncs();
-// For now, just implement for spectral Parameters and neglect
-// the spatial ones, "longitude" and "latitude"
-   if (paramName == "Prefactor") {
-      return fluxDensity(energy, time, dir, eventType)
-         /m_spectrum->getParamValue("Prefactor");
-   } else {
-      if (respFuncs.useEdisp()) {
-         unsigned int npts(s_trueEnergies.size());
-         std::vector<double> my_integrand(npts);
-         for (unsigned int k = 0; k < npts; k++) {
-            optimizers::dArg energy_arg(s_trueEnergies[k]);
-            my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
-               *respFuncs.totalResponse(time, s_trueEnergies[k], 
-                                                 energy, m_dir.getDir(), 
-                                                 dir, eventType);
-         }
-         TrapQuad trapQuad(s_trueEnergies, my_integrand);
-         return trapQuad.integral();
-      } else {
-         optimizers::dArg energy_arg(energy);
-         return respFuncs.totalResponse(time, energy, energy, m_dir.getDir(),
-                                        dir, eventType)
-            *m_spectrum->derivByParam(energy_arg, paramName);
-      }
-   }
+   ScData & scData = const_cast<ScData &>(m_observation->scData());
+   const astro::SkyDir & zAxis = scData.zAxis(time);
+   const astro::SkyDir & xAxis = scData.xAxis(time);
+   return fluxDensityDeriv(energy, zAxis, xAxis, dir, eventType, paramName);
 }
 
 double PointSource::fluxDensityDeriv(double energy, 

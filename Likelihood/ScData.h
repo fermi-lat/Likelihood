@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.15 2005/01/23 00:38:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.16 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -18,21 +18,23 @@ namespace Likelihood {
 /** 
  * @class ScData
  *
- * @brief Singleton container for ScNtuple data.
+ * @brief Container for spacecraft data.
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.15 2005/01/23 00:38:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.16 2005/02/27 06:42:24 jchiang Exp $
  */
 
 class ScData {
 
 public:
 
-   ~ScData(){}
+   ScData() {}
+
+   ~ScData() {}
 
    /// Method to read in the spacecraft data.
-   static void readData(std::string file, bool clear=false);
+   void readData(std::string file, bool clear=false);
    
 #ifndef SWIG
 /** 
@@ -52,7 +54,7 @@ public:
 
    /// The spacecraft data itself. (This may be moved to the private 
    /// area and replaced here with access methods.)
-   static std::vector<ScNtuple> vec;
+   std::vector<ScNtuple> vec;
 #endif // SWIG
 
    /// Return the spacecraft z-axis as a function of MET.
@@ -61,33 +63,25 @@ public:
    /// Return the spacecraft x-axis as a function of MET.
    const astro::SkyDir &xAxis(double time);
 
-   /// Returns the Singleton object pointer.
-   static ScData * instance();
-
 #ifndef SWIG
    /// Return a pair of iterators to the ScData intervals enclosing
    /// the desired start and end times.
-   typedef std::vector<ScNtuple>::iterator Iterator;
-   static std::pair<Iterator, Iterator> bracketInterval(double startTime,
-                                                        double stopTime);
-   static std::pair<Iterator, Iterator> 
-   bracketInterval(const std::pair<double, double> & interval) {
+   typedef std::vector<ScNtuple>::const_iterator Iterator;
+   std::pair<Iterator, Iterator> bracketInterval(double startTime,
+                                                 double stopTime) const;
+
+   std::pair<Iterator, Iterator> 
+   bracketInterval(const std::pair<double, double> & interval) const {
       return bracketInterval(interval.first, interval.second);
    }
 #endif // SWIG
 
-protected:
-
-   ScData(){}
-
 private:
 
-   static ScData * s_instance;
-   
-   static std::string s_scFile;
-   static int s_scHdu;
+   std::string m_scFile;
+   int m_scHdu;
 
-   static double s_tstep;
+   double m_tstep;
 
    astro::SkyDir m_zAxis;
    astro::SkyDir m_xAxis;
@@ -98,4 +92,5 @@ private:
 };
 
 } // namespace Likelihood
+
 #endif // Likelihood_ScData_h

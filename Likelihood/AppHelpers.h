@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.12 2004/12/24 16:45:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.13 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -23,6 +23,7 @@ namespace dataSubselector {
 namespace Likelihood {
 
    class Observation;
+   class ScData;
 
 /**
  * @class AppHelpers
@@ -33,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.12 2004/12/24 16:45:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.13 2005/02/27 06:42:24 jchiang Exp $
  */
 
 class AppHelpers {
@@ -83,6 +84,8 @@ protected:
    std::vector<std::string> m_scFiles;
 
    Observation * m_observation;
+
+   ScData * m_scData;
 
    void prepareFunctionFactory();
    void createResponseFuncs();

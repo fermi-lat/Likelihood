@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.11 2005/02/27 06:42:25 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.12 2005/03/02 01:10:51 jchiang Exp $
 #
 import os, sys
 import numarray as num
@@ -21,8 +21,9 @@ class SrcAnalysis(object):
         pyLike.LogLike_loadResponseFunctions(irfs)
         if expMap is not None:
             pyLike.ExposureMap_readExposureFile(expMap)
+        self.scData = pyLike.ScData()
         observation = pyLike.Observation(pyLike.ResponseFunctions_instance(),
-                                         pyLike.ScData_instance(),
+                                         self.scData,
                                          pyLike.RoiCuts_instance(),
                                          pyLike.ExposureCube_instance(),
                                          pyLike.ExposureMap_instance())
@@ -51,9 +52,9 @@ class SrcAnalysis(object):
         self._readEvents(eventFile)
     def _readScData(self, scFile):
         scFiles = self._fileList(scFile)
-        pyLike.ScData_readData(scFiles[0], True)
+        self.scData.readData(scFiles[0], True)
         for file in scFiles[1:]:
-            pyLike.ScData_readData(scFile)
+            self.scData.readData(scFile)
     def _readEvents(self, eventFile):
         eventFiles = self._fileList(eventFile)
         pyLike.RoiCuts_instance().readCuts(eventFiles[0])
