@@ -2,12 +2,13 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.6 2003/03/17 00:53:42 jchiang Exp $
  */
 
 #ifndef Event_h
 #define Event_h
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -24,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.6 2003/03/17 00:53:42 jchiang Exp $
  */
 
 class Event {

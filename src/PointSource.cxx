@@ -23,35 +23,16 @@ bool PointSource::s_haveStaticMembers = false;
 std::vector<double> PointSource::s_energies;
 std::vector<double> PointSource::s_sigGauss;
 
-void PointSource::makeEnergyVector(int nee) {
-   RoiCuts *roiCuts = RoiCuts::instance();
-   
-// set up a logrithmic grid of energies for doing the integral over 
-// the spectrum
-   double emin = (roiCuts->getEnergyCuts()).first;
-   double emax = (roiCuts->getEnergyCuts()).second;
-   double estep = log(emax/emin)/(nee-1);
-   
-   s_energies.reserve(nee);
-   for (int i = 0; i < nee; i++)
-      s_energies.push_back(emin*exp(i*estep));
-}
-
-void PointSource::makeSigmaVector(int nsig) {
-// set up a grid of sigma values in radians
-   double sigmin = 0.;
-   double sigmax = 50.*M_PI/180;
-   double sigstep = (sigmax - sigmin)/(nsig - 1);
-   
-   s_sigGauss.reserve(nsig);
-   for (int i = 0; i < nsig; i++)
-      s_sigGauss.push_back(sigstep*i + sigmin);
-}
-
 PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
+// make a deep copy
    m_dir = rhs.m_dir;
-   m_spectrum = rhs.m_spectrum;
-   s_energies = rhs.s_energies;
+   m_functions["Position"] = &m_dir;
+
+   m_spectrum = rhs.m_spectrum->clone();
+   m_functions["Spectrum"] = m_spectrum;
+
+   m_exposure = rhs.m_exposure;
+   m_gaussFraction = rhs.m_gaussFraction;
 }
 
 double PointSource::fluxDensity(double energy, double time,
@@ -125,6 +106,13 @@ double PointSource::NpredDeriv(const std::string &paramName) {
 }
 
 void PointSource::computeExposure() {
+   if (!s_haveStaticMembers) {
+      makeEnergyVector();
+      makeSigmaVector();
+      s_haveStaticMembers = true;
+   }
+   computeGaussFractions();
+
    Aeff *aeff = Aeff::instance();
    ScData *scData = ScData::instance();
    RoiCuts *roiCuts = RoiCuts::instance();
@@ -172,37 +160,6 @@ void PointSource::computeExposure() {
    std::cerr << "!" << std::endl;
 }
 
-double PointSource::psfFrac(double energy, double inc) {
-   Psf *psf = Psf::instance();
-// Compute the fraction of the psf enclosed for this source at this
-// energy and inclination
-   std::vector<double> psf_params;
-   (*psf).fillPsfParams(energy, inc, psf_params);
-   double sig1 = psf_params[0]*M_PI/180.;
-   double sig2 = psf_params[1]*M_PI/180.;
-   double wt = psf_params[2];
-
-// Interpolate the fractions of the Gaussian components contained
-// within the region-of-interest
-// Compute the index assuming uniform step size in s_sigGauss:
-   unsigned int indx = 
-      static_cast<int>((sig1 - s_sigGauss[0])
-                       /(s_sigGauss[1] - s_sigGauss[0]));
-   double frac1 = (sig1 - s_sigGauss[indx])
-      /(s_sigGauss[indx+1] - s_sigGauss[indx])
-      *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
-      + m_gaussFraction[indx];
-
-   indx = static_cast<int>((sig2 - s_sigGauss[0])
-                           /(s_sigGauss[1] - s_sigGauss[0]));
-   double frac2 = (sig2 - s_sigGauss[indx])
-      /(s_sigGauss[indx+1] - s_sigGauss[indx])
-      *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
-      + m_gaussFraction[indx];
-
-   return wt*frac1 + (1. - wt)*frac2;
-}
-
 void PointSource::computeGaussFractions() {
 // compute the fraction of a Gaussian centered on the PointSource position
 // contained within the ROI as a function of Gaussian width sigma.
@@ -246,6 +203,62 @@ void PointSource::computeGaussFractions() {
       }
 //       std::cout << sig << "  " << m_gaussFraction[i] << std::endl;
    }
+}
+
+double PointSource::psfFrac(double energy, double inc) {
+   Psf *psf = Psf::instance();
+// Compute the fraction of the psf enclosed for this source at this
+// energy and inclination
+   std::vector<double> psf_params;
+   (*psf).fillPsfParams(energy, inc, psf_params);
+   double sig1 = psf_params[0]*M_PI/180.;
+   double sig2 = psf_params[1]*M_PI/180.;
+   double wt = psf_params[2];
+
+// Interpolate the fractions of the Gaussian components contained
+// within the region-of-interest
+// Compute the index assuming uniform step size in s_sigGauss:
+   unsigned int indx = 
+      static_cast<int>((sig1 - s_sigGauss[0])
+                       /(s_sigGauss[1] - s_sigGauss[0]));
+   double frac1 = (sig1 - s_sigGauss[indx])
+      /(s_sigGauss[indx+1] - s_sigGauss[indx])
+      *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
+      + m_gaussFraction[indx];
+
+   indx = static_cast<int>((sig2 - s_sigGauss[0])
+                           /(s_sigGauss[1] - s_sigGauss[0]));
+   double frac2 = (sig2 - s_sigGauss[indx])
+      /(s_sigGauss[indx+1] - s_sigGauss[indx])
+      *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
+      + m_gaussFraction[indx];
+
+   return wt*frac1 + (1. - wt)*frac2;
+}
+
+void PointSource::makeEnergyVector(int nee) {
+   RoiCuts *roiCuts = RoiCuts::instance();
+   
+// set up a logrithmic grid of energies for doing the integral over 
+// the spectrum
+   double emin = (roiCuts->getEnergyCuts()).first;
+   double emax = (roiCuts->getEnergyCuts()).second;
+   double estep = log(emax/emin)/(nee-1);
+   
+   s_energies.reserve(nee);
+   for (int i = 0; i < nee; i++)
+      s_energies.push_back(emin*exp(i*estep));
+}
+
+void PointSource::makeSigmaVector(int nsig) {
+// set up a grid of sigma values in radians
+   double sigmin = 0.;
+   double sigmax = 50.*M_PI/180;
+   double sigstep = (sigmax - sigmin)/(nsig - 1);
+   
+   s_sigGauss.reserve(nsig);
+   for (int i = 0; i < nsig; i++)
+      s_sigGauss.push_back(sigstep*i + sigmin);
 }
 
 double PointSource::Gint::value(Arg &muarg) const {

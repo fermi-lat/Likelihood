@@ -35,16 +35,15 @@ class SpectrumFactory {
 public:
 
    SpectrumFactory() {
-      addFunc("PowerLaw", new PowerLaw());
-      addFunc("Gaussian", new Gaussian());
-      addFunc("AbsEdge", new AbsEdge());
+      addFunc("PowerLaw", new PowerLaw(), false);
+      addFunc("Gaussian", new Gaussian(), false);
+      addFunc("AbsEdge", new AbsEdge(), false);
    }
 
    virtual ~SpectrumFactory() {}
 
-   void addFunc(const std::string &name, Function* func) {
-      if (!m_prototypes.count(name)) m_prototypes[name] = func;
-   }
+   void addFunc(const std::string &name, Function* func, 
+                bool fromClone = true);
 
    Function *makeFunction(const std::string &name);
 

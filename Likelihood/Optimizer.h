@@ -9,6 +9,8 @@
 #ifndef Optimizer_h
 #define Optimizer_h
 
+#include <iostream>
+
 //#define HAVE_OPTIMIZERS
 
 namespace Likelihood {

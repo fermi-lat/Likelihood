@@ -2,7 +2,7 @@
  * @brief PointSourc class declaration
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.12 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef PointSource_h
@@ -23,81 +23,79 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.12 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class PointSource : public Source {
 
 public:
 
-   PointSource() : m_spectrum(0) {
-      setDir(0., 0.);
-   }
-   PointSource(double ra, double dec) : m_spectrum(0) {
-      setDir(ra, dec);
-      if (!s_haveStaticMembers) {
-         makeEnergyVector();
-         makeSigmaVector();
-         s_haveStaticMembers = true;
-      }
-      computeGaussFractions();
-      computeExposure();
-   }
-   PointSource(const PointSource &rhs);
-   virtual ~PointSource(){}
+   //! The default constructor does not compute exposure since 
+   //! it assumes that the spacecraft data is not available or
+   //! that the ROI cuts have not been specified.
+   // A later setDir(ra, dec, true) will force the exposure to
+   // be computed.
+   PointSource() : m_spectrum(0) {setDir(0., 0., false);}
 
-   //! returns photons/cm^2-s-sr-MeV having been convolved through
+   //! This constructor does ask for exposure to be computed and 
+   //! therefore *requires* the spacecraft data to be available and the 
+   //! ROI cuts to be specified beforehand.
+   PointSource(double ra, double dec) : m_spectrum(0) {setDir(ra, dec);}
+
+   PointSource(const PointSource &rhs);
+
+   virtual ~PointSource() {}
+
+   //! Returns photons/cm^2-s-sr-MeV having been convolved through
    //! the LAT instrument response
    double fluxDensity(double energy, double time,
                       const astro::SkyDir &dir) const;
 
-   //! returns the derivative wrt to the named Parameter
+   //! Returns the derivative wrt to the named Parameter
    double fluxDensityDeriv(double energy, double time,
                            const astro::SkyDir &dir,
                            std::string &paramName) const;
 
-   //! predicted number of photons given RoiCuts and ScData
+   //! Predicted number of photons given RoiCuts and ScData
    virtual double Npred();
 
-   //! derivative of Npred wrt named Parameter
+   //! Derivative of Npred wrt named Parameter
    virtual double NpredDeriv(const std::string &paramName);
 
-   //! set source location using J2000 coordinates
-   void setDir(double ra, double dec) {
+   //! Set source location using J2000 coordinates
+   void setDir(double ra, double dec, bool updateExposure = true) {
       m_dir = SkyDirFunction(astro::SkyDir(ra, dec));
       m_functions["Position"] = &m_dir;
+      if (updateExposure) computeExposure();
    }
 
-   //! set source location via SkyDir class
-   void setDir(const astro::SkyDir &dir) {
+   //! Set source location via SkyDir class
+   void setDir(const astro::SkyDir &dir, bool updateExposure = true) {
       m_dir = SkyDirFunction(dir);
       m_functions["Position"] = &m_dir;
+      if (updateExposure) computeExposure();
    }
 
    astro::SkyDir getDir() const {return m_dir.getDir();}
 
-   //! angular separation between the source direction and dir in radians
+   //! Angular separation between the source direction and dir in radians
    double getSeparation(const astro::SkyDir &dir) 
-      {return dir.SkyDir::difference(m_dir.getDir());};
+      {return dir.SkyDir::difference(m_dir.getDir());}
 
-   //! set the spectral model (do we want to clone spectrum rather than 
-   //! pass a pointer?...should also check that the Parameter names do
-   //! not conflict with "longitude" and "latitude" of m_dir)
+   //! Set the spectral model (should also check that the Parameter
+   //! names do not conflict with "longitude" and "latitude" of m_dir)
    void setSpectrum(Function *spectrum) {
-      m_spectrum = spectrum;
+      m_spectrum = spectrum->clone();
       m_functions["Spectrum"] = m_spectrum;
    }
 
-   //! computes the enclosed fraction of a Gaussian as a function of 
-   //! Gaussian width sigma and stores these data for later
-   //! interpolation. These data depend on the ROI radius and the
-   //! source offset, psi, from the ROI center.
-   void computeGaussFractions();
-
-   //! computes the integrated exposure at the PointSource sky location
-   void computeExposure();
+   virtual Source *clone() const {
+      return new PointSource(*this);
+   }
 
 protected:
+   //! Computes the integrated exposure at the PointSource sky location.
+   void computeExposure();
 
    //! location on the Celestial sphere 
    SkyDirFunction m_dir;
@@ -127,6 +125,12 @@ private:
 
    //! storage of the ROI contained fraction of a 2D "Gaussian"
    std::vector<double> m_gaussFraction;
+
+   //! Computes the enclosed fraction of a Gaussian as a function of 
+   //! Gaussian width sigma and stores these data for later
+   //! interpolation. These data depend on the ROI radius and the
+   //! source offset, psi, from the ROI center.
+   void computeGaussFractions();
 
    //! fraction of the psf that is contained within the ROI
    double psfFrac(double energy, double inc);
