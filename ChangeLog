@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 19 16:02:09 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Added Files:
+	test.cxx 
+Removed Files:
+	test_runParams.cxx 
+Log Message:
+prepare for Xerces migration; begin refactoring unit test
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb 19 16:02:07 PST 2004
 Likelihood/src
 
