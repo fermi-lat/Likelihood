@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 25 15:22:03 PST 2003
+Likelihood/src
+
+Modified Files:
+	Aeff.cxx Event.cxx OptPP.h PointSource.cxx Psf.cxx 
+	Response.cxx Statistic.cxx Table.cxx lbfgs.h mainpage.h 
+Added Files:
+	DiffuseSource.cxx ExposureMap.cxx 
+Log Message:
+add DiffuseSource ExposureMap classes
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 25 15:22:02 PST 2003
 Likelihood/Likelihood
 
