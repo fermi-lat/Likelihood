@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: richard  Sat Dec  6 14:27:54 PST 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+use Goodi; set PFILES env
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec  5 21:23:10 PST 2003
 Likelihood/src/test
 
