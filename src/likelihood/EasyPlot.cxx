@@ -3,7 +3,7 @@
  * @brief Implementation of friendly user interface.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.1 2004/09/21 14:51:20 jchiang Exp $
  */
 
 #include <algorithm>
@@ -63,7 +63,7 @@ void EasyPlot::scatter(const std::vector<double> & x,
       return;
    }
    std::vector<double> xerr;
-   scatterPlotErrorBars(x, xerr);
+   scatterPlotSymbolSizes(x, xerr);
    scatter(x, y, xerr, yerr);
 }
 
@@ -73,9 +73,9 @@ void EasyPlot::scatter(const std::vector<double> & x,
       return;
    }
    std::vector<double> xerr;
-   scatterPlotErrorBars(x, xerr);
+   scatterPlotSymbolSizes(x, xerr);
    std::vector<double> yerr;
-   scatterPlotErrorBars(y, yerr);
+   scatterPlotSymbolSizes(y, yerr);
    scatter(x, y, xerr, yerr);
 }
 
@@ -117,9 +117,9 @@ void EasyPlot::histogram(const std::vector<double> & x,
    histogram(xx, y, xerr);
 }
 
-void EasyPlot::scatterPlotErrorBars(const std::vector<double> & x,
-                                    std::vector<double> & xerr,
-                                    unsigned int nbins) const {
+void EasyPlot::scatterPlotSymbolSizes(const std::vector<double> & x,
+                                      std::vector<double> & xerr,
+                                      unsigned int nbins) const {
    unsigned int npts(x.size());
 
    double xmax(x[0]);
