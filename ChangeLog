@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Sep 27 21:32:26 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+refactor FitsImage to derive from st_facilities::FitsImage
+    *
+------------------------------------------------------------
+User: jchiang  Mon Sep 27 21:32:26 PDT 2004
 Likelihood/src/likelihood
 
 Modified Files:
