@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.40 2004/04/19 00:03:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.41 2004/05/24 23:21:08 jchiang Exp $
  */
 
 #include <cmath>
@@ -28,47 +28,6 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/TrapQuad.h"
 
-namespace {
-   double sourceEffArea(double energy, double time,
-                        const astro::SkyDir &srcDir) {
-      Likelihood::ResponseFunctions * respFuncs 
-         = Likelihood::ResponseFunctions::instance();
-      Likelihood::ScData * scData = Likelihood::ScData::instance();
-   
-      astro::SkyDir zAxis = scData->zAxis(time);
-      astro::SkyDir xAxis = scData->xAxis(time);
-
-      Likelihood::RoiCuts *roiCuts = Likelihood::RoiCuts::instance();
-      std::vector<latResponse::AcceptanceCone *> cones;
-      cones.push_back(const_cast<latResponse::AcceptanceCone *>
-                      (&(roiCuts->extractionRegion())));
-
-// Lower and upper bounds for measured energies.
-      double emin = (roiCuts->getEnergyCuts()).first;
-      double emax = (roiCuts->getEnergyCuts()).second;
-
-      double myEffArea = 0;
-      std::map<unsigned int, latResponse::Irfs *>::iterator respIt
-         = respFuncs->begin();
-      for ( ; respIt != respFuncs->end(); respIt++) {
-         latResponse::IPsf *psf = respIt->second->psf();
-         latResponse::IAeff *aeff = respIt->second->aeff();
-         double psf_val = psf->angularIntegral(energy, srcDir, 
-                                               zAxis, xAxis, cones);
-         double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-         if (Likelihood::ResponseFunctions::useEdisp()) {
-            latResponse::IEdisp *edisp = respIt->second->edisp();
-            double edisp_val = edisp->integral(emin, emax, energy,
-                                               srcDir, zAxis, xAxis);
-            myEffArea += psf_val*aeff_val*edisp_val;
-         } else {
-            myEffArea += psf_val*aeff_val;
-         }
-      }
-      return myEffArea;
-   }
-}
-
 namespace Likelihood {
 
 map_tools::Exposure * PointSource::s_exposure = 0;
@@ -78,7 +37,7 @@ std::vector<double> PointSource::s_energies;
 std::vector<double> PointSource::s_trueEnergies;
 
 PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
-// make a deep copy
+// Make a deep copy.
    m_dir = rhs.m_dir;
    m_functions["Position"] = &m_dir;
 
@@ -328,7 +287,7 @@ double PointSource::sourceEffArea(double energy, double time) const {
    Likelihood::ScData * scData = Likelihood::ScData::instance();
 
    astro::SkyDir zAxis = scData->zAxis(time);
-   astro::SkyDir xAxis = scData->xAxis(time);
+//   astro::SkyDir xAxis = scData->xAxis(time);
 
    const astro::SkyDir & srcDir = m_dir.getDir();
 
@@ -338,18 +297,26 @@ double PointSource::sourceEffArea(double energy, double time) const {
 
    return aeff(cos_theta);
 }
+   
+std::vector<latResponse::AcceptanceCone *> PointSource::Aeff::s_cones;
+double PointSource::Aeff::s_emin;
+double PointSource::Aeff::s_emax;
+
+PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir)
+   : m_energy(energy), m_srcDir(srcDir) {
+   
+   if (s_cones.size() == 0) {
+      RoiCuts * roiCuts = RoiCuts::instance();
+      s_cones.push_back(const_cast<latResponse::AcceptanceCone *>
+                        (&(roiCuts->extractionRegion())));
+      s_emin = (roiCuts->getEnergyCuts()).first;
+      s_emax = (roiCuts->getEnergyCuts()).second;
+   }
+}
 
 double PointSource::Aeff::operator()(double cos_theta) const {
    double theta = acos(cos_theta)*180./M_PI;
    static double phi;
-
-   Likelihood::RoiCuts *roiCuts = Likelihood::RoiCuts::instance();
-   std::vector<latResponse::AcceptanceCone *> cones;
-   cones.push_back(const_cast<latResponse::AcceptanceCone *>
-                   (&(roiCuts->extractionRegion())));
-
-   double emin = (roiCuts->getEnergyCuts()).first;
-   double emax = (roiCuts->getEnergyCuts()).second;
 
    ResponseFunctions * respFuncs = ResponseFunctions::instance();
 
@@ -362,12 +329,13 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       latResponse::IAeff *aeff = respIt->second->aeff();
 
       double psf_val = psf->angularIntegral(m_energy, m_srcDir,
-                                            theta, phi, cones);
+                                            theta, phi, s_cones);
       double aeff_val = aeff->value(m_energy, theta, phi);
 
       if (ResponseFunctions::useEdisp()) {
          latResponse::IEdisp *edisp = respIt->second->edisp();
-         double edisp_val = edisp->integral(emin, emax, m_energy, theta, phi);
+         double edisp_val = edisp->integral(s_emin, s_emax, m_energy, 
+                                            theta, phi);
          myEffArea += psf_val*aeff_val*edisp_val;
       } else {
          myEffArea += psf_val*aeff_val;

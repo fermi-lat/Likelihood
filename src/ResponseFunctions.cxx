@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.5 2004/05/24 23:51:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.6 2004/05/25 00:56:20 jchiang Exp $
  */
 
 #include "Likelihood/ScData.h"
@@ -22,25 +22,21 @@ double ResponseFunctions::totalResponse(double time,
                                         const astro::SkyDir &srcDir,
                                         const astro::SkyDir &appDir, 
                                         int type) {
-   Likelihood::ResponseFunctions * respFuncs 
-      = Likelihood::ResponseFunctions::instance();
-   Likelihood::ScData * scData = Likelihood::ScData::instance();
-   
+   ScData * scData = ScData::instance();
    astro::SkyDir zAxis = scData->zAxis(time);
    astro::SkyDir xAxis = scData->xAxis(time);
    
    double myResponse = 0;
-   std::map<unsigned int, latResponse::Irfs *>::iterator respIt
-      = respFuncs->begin();
-   for ( ; respIt != respFuncs->end(); respIt++) {
+   std::map<unsigned int, latResponse::Irfs *>::iterator respIt 
+      = instance()->begin();
+   for ( ; respIt != instance()->end(); respIt++) {
       if (respIt->second->irfID() == type) {  
-         latResponse::IPsf *psf = respIt->second->psf();
-         latResponse::IAeff *aeff = respIt->second->aeff();
-         latResponse::IEdisp *edisp = respIt->second->edisp();
+         latResponse::IPsf * psf = respIt->second->psf();
+         latResponse::IAeff * aeff = respIt->second->aeff();
          double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
          double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
          if (s_useEdisp) {
-            latResponse::IEdisp *edisp = respIt->second->edisp();
+            latResponse::IEdisp * edisp = respIt->second->edisp();
             double edisp_val = edisp->value(appEnergy, energy, srcDir, 
                                             zAxis, xAxis);
             myResponse += psf_val*aeff_val*edisp_val;
