@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 28 07:43:53 PDT 2004
+Likelihood/pfiles
+
+Modified Files:
+	likelihood.par 
+Log Message:
+add SourceMap to par file
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 27 21:32:26 PDT 2004
 Likelihood/src/test
 
