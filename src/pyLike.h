@@ -5,53 +5,88 @@
 
    Using <a href="http://www.swig.org/">SWIG</a> via the <a
    href="http://www.slac.stanford.edu/~jchiang/SwigPolicy/doxy-html/main.html">SwigPolicy</a>
-   package, I've exposed the C++ classes of Likelihood to <a
+   package, the C++ class library of Likelihood has been exposed to <a
    href="http://www.python.org/">Python</a>.  These classes by
    themselves do not constitute a suitable interactive interface.
-   However, armed with these classes and with a modest effort, I've
-   written a couple of small python modules, SrcAnalysis.py and
-   SrcModel.py, that provide something fairly reasonable.
+   However, armed with these classes and with a modest effort, 
+   two small python modules, <a href="http://glast.stanford.edu/cgi-bin/cvsweb/Likelihood/python/SrcAnalysis.py?hideattic=1&cvsroot=CVS_SLAC">SrcAnalysis.py</a>
+   and
+   <a href="http://glast.stanford.edu/cgi-bin/cvsweb/Likelihood/python/SrcModel.py?hideattic=1&cvsroot=CVS_SLAC">SrcModel.py</a>, provide something fairly reasonable.
 
    @section demo Interface Demo
 
-   There is one just one class exposed directly to the user in this
-   implementation.  Here is the signature of its constructor:
+   There are two classes exposed directly to the user in this
+   implementation.  The <tt>Observation</tt> class contains and
+   provides a single access point for all of the data associated with
+   a specific observation. In this context, an "observation" is
+   defined in terms of the extraction region in the data space of
+   photon arrival time, measured energy, and direction.  An
+   observation also comprises ancilliary information specific to the 
+   data selections such as the exposure map and response functions to
+   be used.  Its constructor looks like
+@verbatim
+class Observation(object):
+    def __init__(self, eventFile, scFile, expMap=None, irfs='TEST'):
+@endverbatim
+   and has these parameters
+   - <tt>eventFile</tt>: event data file name(s)
+   - <tt>scFile</tt>: spacecraft data file name(s)
+   - <tt>expMap</tt>: exposure map (produced by @b gtexpmap)
+   - <tt>irfs</tt>: response functions, e.g., <tt>DC1</tt>, <tt>G25</tt>,
+     or <tt>TEST</tt>
 
+   One creates an <tt>Observation</tt> object like this:
+@verbatim
+>>> my_obs = Observation(eventFiles, scDataFile, 'expMap.fits', 'TEST')
+@endverbatim   
+
+   The second class is <tt>SrcAnalysis</tt>,
 @verbatim
 class SrcAnalysis(object):
-    def __init__(self, srcModel, eventFile, scFile, expMap=None, irfs='TEST',
-                 optimizer='Minuit'):
+    def __init__(self, srcModel, observation, optimizer='Minuit'):
 @endverbatim
-    
-    The parameters:
+    with parameters,
     - <tt>srcModel</tt>: xml source model file
-    - <tt>eventFile</tt>: event data file name(s)
-    - <tt>scFile</tt>: spacecraft data file name(s)
-    - <tt>expMap</tt>: exposure map (produced by @b gtexpmap)
-    - <tt>irfs</tt>: response functions, e.g., <tt>'DC1'</tt>, <tt>'G25'</tt>,
-      or <tt>'TEST'</tt>
+    - <tt>observation</tt>: an Observation object
     - <tt>optimizer</tt>: <tt>'Minuit'</tt>, <tt>'Drmngb'</tt>, 
       or <tt>'Lbfgs'</tt>.
 
-For this demo, I've prepared a small script that creates the SrcAnalysis
-object with the proper parameter values:
+    Factoring into separate analysis and observation classes affords
+    one considerable flexibility in mixing and matching observations
+    and models in a single Python session or script while preserving
+    computational resources, so that one can do something like this:
+@verbatim
+>>> analysis1 = SrcAnalysis("model1.xml", my_obs)
+>>> analysis2 = SrcAnalysis("model2.xml", my_obs)
+@endverbatim
+
+    The two <tt>SrcAnalysis</tt> objects will access the same
+    observational data in memory, but at the same time allow for
+    distinct source models to be fit to those data without interfering
+    with one another.  This will be useful in comparing, via a
+    likelihood ratio test, for example, how well one model compares to
+    another.
+
+For this demo, I've prepared a small script that creates the
+<tt>Observation</tt> and <tt>SrcAnalysis</tt> objects with the proper
+parameter values:
 
 @verbatim
 salathe[jchiang] cat demo.py
 import glob
-from SrcAnalysis import SrcAnalysis
+from SrcAnalysis import *
 
 eventFiles = glob.glob('*events*.fits')
-like = SrcAnalysis('demo_model.xml',
-                   eventFiles,
-                   'demo_scData_0000.fits',
-                   expMap='demo_expMap.fits',
-                   irfs='TEST')
+obs = Observation(eventFiles, 'demo_scData_0000.fits',
+                  expMap='demo_expMap.fits', irfs='TEST')
+like = SrcAnalysis('demo_model.xml', obs)
 @endverbatim
 
-This just needs to be imported at the Python prompt:
+This just needs to be imported at the Python prompt (after sourcing the 
+package setup script to set the PYTHONPATH environment variable):
 
 @verbatim
+salathe[jchiang] source ../../Likelihood/v7r1p3/cmt/setup.csh
 salathe[jchiang] python
 Python 2.3.3 (#1, Apr 24 2004, 23:59:52) 
 [GCC 3.3.2 20031022 (Red Hat Linux 3.3.2-1)] on linux2
@@ -141,7 +176,9 @@ One can set parameter values using the index:
 @endverbatim
 
 The <tt>plot()</tt> method has been bound to HippoDraw, but any suitable 
-plotting package, e.g., matplotlib, Biggles, pyROOT, could be used.
+plotting package, e.g., matplotlib, Biggles, pyROOT, could be used. On SLAC
+linux, HippoDraw has been installed system-wide and should be available 
+from Python.
 
 @verbatim
 >>> plot()
@@ -207,10 +244,10 @@ Now, perform a fit, suppressing Minuit's screen output; the resulting value
 59334.689815397171
 @endverbatim
 
-Overplot the new result in red (note the IDL-like syntax):
+Overplot the new result in red, the default (note the IDL-like syntax):
 
 @verbatim
->>> plot(oplot=True, color='red')
+>>> plot(oplot=True)
 @endverbatim
 
 @image html demo_plot_2.png

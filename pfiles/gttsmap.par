@@ -11,7 +11,7 @@ rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions to use"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_tolerance,r,a,0.001,,,Fit tolerance
 
-ra_min,r,a,160,-360,360,RA minmum
+ra_min,r,a,160,-360,360,RA minimum
 ra_max,r,a,200,-360,360,RA maximum
 nra,i,a,40,2,200,Number of RA points
 dec_min,r,a,-20,-90,90,Dec minimum
