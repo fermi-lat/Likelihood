@@ -1,10 +1,10 @@
 package Likelihood
-version v2r6p1
+version v2r6p3
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.64 2003/12/05 15:02:57 jchiang Exp $
+# $Id: requirements,v 1.65 2003/12/05 23:47:37 richard Exp $
 
 use xml v*
 use facilities v2*
@@ -46,7 +46,7 @@ macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 
 # applications
-application test_Likelihood test/main.cxx
+#application test_Likelihood test/main.cxx
 application likelihoodApp test/likelihood.cxx
-application TsMap test/TsMap.cxx
-application expMap test/expMap.cxx
+#application TsMap test/TsMap.cxx
+#application expMap test/expMap.cxx
