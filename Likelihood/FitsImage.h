@@ -1,8 +1,9 @@
-/** @file FitsImage.h
+/** 
+ * @file FitsImage.h
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.2 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.3 2003/05/06 23:47:54 jchiang Exp $
  *
  */
 
@@ -13,6 +14,7 @@
 #include <string>
 #include <valarray>
 #include "astro/SkyDir.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
@@ -23,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.2 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.3 2003/05/06 23:47:54 jchiang Exp $
  *
  */
 
@@ -33,9 +35,12 @@ public:
 
    FitsImage() {}
    FitsImage(std::string &fitsfile);
+   FitsImage(const FitsImage &rhs);
    virtual ~FitsImage() {
       if (m_haveRefCoord) delete m_eqRot;
    }
+
+   FitsImage &operator=(const FitsImage &rhs);
 
    //! A vector of the image axes dimensions
    void fetchAxisDims(std::vector<int> &axisDims);
@@ -81,6 +86,9 @@ public:
       EquinoxRotation(double alpha0, double delta0);
       ~EquinoxRotation() {}
       void do_rotation(const astro::SkyDir &inDir, astro::SkyDir &outDir);
+      EquinoxRotation *clone() const {
+         return new EquinoxRotation(*this);
+      }
    private:
       std::vector< std::vector<double> > rotMatrix;
    };                       
@@ -109,7 +117,8 @@ protected:
 
    //! Interface to cfitsio routines
    void read_fits_image(std::string &filename, std::vector<AxisParams> &axes,
-                        std::valarray<double> &image);
+                        std::valarray<double> &image) 
+      throw(LikelihoodException);
 
    //! FITS file name
    std::string m_filename;

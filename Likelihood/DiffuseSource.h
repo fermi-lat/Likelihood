@@ -1,8 +1,9 @@
-/** @file DiffuseSource.h
+/** 
+ * @file DiffuseSource.h
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.2 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.4 2003/04/25 18:32:18 jchiang Exp $
  */
 
 #ifndef DiffuseSource_h
@@ -13,6 +14,7 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/SkyDirArg.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
@@ -36,7 +38,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.2 2003/03/25 23:22:02 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.4 2003/04/25 18:32:18 jchiang Exp $ 
  *  
  */
 
@@ -46,7 +48,7 @@ public:
 
    //! A Function describing the spatial distribution of emission is 
    //! required for instantiation.
-   DiffuseSource(Function *spatialDist);
+   DiffuseSource(Function *spatialDist) throw(LikelihoodException);
 
    DiffuseSource(const DiffuseSource &rhs);
 

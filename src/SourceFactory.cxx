@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.5 2003/04/25 21:51:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.7 2003/05/06 23:47:56 jchiang Exp $
  */
 
 #include "Likelihood/PointSource.h"
@@ -13,6 +13,7 @@
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
+#include "Likelihood/LikelihoodException.h"
 #include <cassert>
 
 namespace Likelihood {
@@ -54,35 +55,47 @@ SourceFactory::SourceFactory() {
    SpatialMap galacticModel(galfile);
    galacticModel.setParam("Prefactor", 1.1*pow(100., 1.1));
 
-   DiffuseSource ourGalaxy(&galacticModel);
-   ourGalaxy.setName("Milky Way");
+   try {
+      DiffuseSource ourGalaxy(&galacticModel);
+      ourGalaxy.setName("Milky Way");
 
 // Provide ourGalaxy with a power-law spectrum.
-   PowerLaw gal_pl(pow(100., -2.1), -2.1, 100.);
-   gal_pl.setParamBounds("Prefactor", 1e-3, 1e3);
-   gal_pl.setParamScale("Prefactor", 1e-5);
-   gal_pl.setParamTrueValue("Prefactor", pow(100., -2.1));
-   gal_pl.setParamBounds("Index", -3.5, -1);
+      PowerLaw gal_pl(pow(100., -2.1), -2.1, 100.);
+      gal_pl.setParamBounds("Prefactor", 1e-3, 1e3);
+      gal_pl.setParamScale("Prefactor", 1e-5);
+      gal_pl.setParamTrueValue("Prefactor", pow(100., -2.1));
+      gal_pl.setParamBounds("Index", -3.5, -1);
 
-   ourGalaxy.setSpectrum(&gal_pl);
+      ourGalaxy.setSpectrum(&gal_pl);
 
-   addSource("Milky Way", &ourGalaxy, true);
+      addSource("Milky Way", &ourGalaxy, true);
+   } catch (LikelihoodException likeException) {
+      std::cerr << "Likelihood::SourceFactory: "
+                << "Cannot create DiffuseSource Milkyway.\n"
+                << likeException.what() << std::endl;
+   }
 
 // Add an extragalactic diffuse component.
    ConstantValue egNorm(1.);
    egNorm.setParam("Value", 1., false);   // fix to unity
 
-   DiffuseSource extragalactic(&egNorm);
-   extragalactic.setName("EG component");
+   try {
+      DiffuseSource extragalactic(&egNorm);
+      extragalactic.setName("EG component");
 
-   PowerLaw eg_pl(2.09e-3*pow(100., -2.1), -2.1, 100.);
-   eg_pl.setParamBounds("Prefactor", 1e-5, 1e2);
-   eg_pl.setParamScale("Prefactor", 1e-7);
-   eg_pl.setParamTrueValue("Prefactor", 2.09e-3*pow(100., -2.1));
-   eg_pl.setParamBounds("Index", -3.5, -1);
-   extragalactic.setSpectrum(&eg_pl);
+      PowerLaw eg_pl(2.09e-3*pow(100., -2.1), -2.1, 100.);
+      eg_pl.setParamBounds("Prefactor", 1e-5, 1e2);
+      eg_pl.setParamScale("Prefactor", 1e-7);
+      eg_pl.setParamTrueValue("Prefactor", 2.09e-3*pow(100., -2.1));
+      eg_pl.setParamBounds("Index", -3.5, -1);
+      extragalactic.setSpectrum(&eg_pl);
 
-   addSource("EG component", &extragalactic, true);
+      addSource("EG component", &extragalactic, true);
+   } catch (LikelihoodException likeException) {
+      std::cerr << "Likelihood::SourceFactory: "
+                << "Cannot create DiffuseSource EG component.\n"
+                << likeException.what() << std::endl;
+   }
 }
 
 SourceFactory::~SourceFactory() {

@@ -141,9 +141,9 @@
  @verbinclude requirements
 
  <hr> 
- @todo DiffuseSource class
+ @todo Exceptions
  @todo Error estimates, confidence regions, etc. 
- @todo SWIG or Boost.Python
+ @todo Boost.Python
  @todo Energy dispersion
  @todo Generalize Npred calculation, e.g., zenith angle cuts, fit-able 
        source locations

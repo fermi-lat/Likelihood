@@ -1,9 +1,27 @@
+/**
+ * @file LikelihoodException.h
+ * @brief Exception class for Likelihood
+ * @author P. Nolan
+ *
+ * $Header$
+ */
+
 #ifndef LIKELIHOOD_EXCEPTION_H
 #define LIKELIHOOD_EXCEPTION_H
 #include <exception>
 #include <string>
 
 namespace Likelihood {
+/**
+ * @class LikelihoodException
+ *
+ * @brief Exception class for Likelihood
+ *
+ * @author P. Nolan
+ *
+ * $Header$
+ */
+
   class LikelihoodException: public std::exception {
   public:
     LikelihoodException(std::string errorString, int code=0) : 
