@@ -1,9 +1,9 @@
 /** 
- *@file Table.cxx
+ * @file Table.cxx
  * @brief Implementation of Table member functions
  * @authors T. Burnett, J. Chiang using code from Y. Ikebe
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.6 2003/03/25 23:22:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.7 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include "Likelihood/Table.h"
@@ -110,8 +110,10 @@ void Table::read_FITS_colnames(std::string &filename, int hdu,
    fits_open_file(&fp, filename.c_str(), READONLY, &status);
    fits_report_error(stderr, status);
    if( status != 0) {
-      std::cerr << "Could not open FITS file " << filename << std::endl;
-      return;
+      std::ostringstream errorMessage;
+      errorMessage << "Table::read_FITS_colnames:\n "
+                   << "Could not open FITS file " << filename << "\n";
+      throw LikelihoodException(errorMessage.str());
    }
    
    int hdutype = 0;
