@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.10 2004/10/09 01:37:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.11 2004/10/09 14:00:30 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -22,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.10 2004/10/09 01:37:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.11 2004/10/09 14:00:30 jchiang Exp $
  */
 
 class SourceMap {
@@ -73,6 +73,10 @@ private:
 
    std::vector<double> m_energies;
 
+/// @brief This vector of SkyDir objects is used by
+/// sourceRegionIntegral for diffuse sources
+   std::vector<astro::SkyDir> m_srcDirs;
+
    class Aeff : public Pixel::Aeff {
    public:
       Aeff(Source * src, const astro::SkyDir & appDir,
@@ -90,6 +94,8 @@ private:
 
    double sourceRegionIntegral(Source * src, const Pixel & pixel,
                                double energy) const;
+
+   void computeSrcDirs(const Pixel & pixel);
 
    void prepareAngleArrays(int nmu, int nphi);
 
