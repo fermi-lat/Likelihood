@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov  4 19:41:22 PST 2003
+Likelihood/Likelihood
+
+Added Files:
+	RunParams.h 
+Log Message:
+first effort at a standalone application
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov  4 19:39:33 PST 2003
 Likelihood/data
 
