@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 18 18:47:43 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+replace pointers with references, add AbsEdge class
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 18 18:47:42 PST 2003
 Likelihood/src
 
