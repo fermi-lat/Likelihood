@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.5 2004/11/11 00:03:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.6 2004/11/11 04:32:24 jchiang Exp $
  */
 
 #include <algorithm>
@@ -40,10 +40,7 @@ FluxBuilder::FluxBuilder() : XmlBuilder() {
    makeEnergyGrid();
 }
 
-FluxBuilder::~FluxBuilder() {
-//    delete m_allSrcsElt;
-//    delete m_srcLib;
-}
+FluxBuilder::~FluxBuilder() {}
 
 void FluxBuilder::addSource(Source & src) {
    DOMElement * srcElt = fluxSource(src);

@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.20 2004/07/21 04:00:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.21 2004/11/11 00:03:30 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -197,6 +197,7 @@ void RoiCuts::writeXml(std::ostream & ostr, const std::string & roiTitle,
            << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >";
       xml::Dom::printElement(roiElt, ostr);
    }
+   roiElt->release();
 }
 
 bool RoiCuts::accept(const Event &event) {

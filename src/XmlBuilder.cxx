@@ -3,7 +3,7 @@
  * @brief Concrete implementation that is shareable by subclasses.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlBuilder.cxx,v 1.1 2004/02/20 00:02:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlBuilder.cxx,v 1.2 2004/11/11 00:03:31 jchiang Exp $
  */
 
 #include "xml/XmlParser.h"
@@ -20,7 +20,7 @@ XmlBuilder::XmlBuilder() {
 }
 
 XmlBuilder::~XmlBuilder() {
-   delete m_doc;
+   m_doc->release();
    delete m_parser;
 }
 
