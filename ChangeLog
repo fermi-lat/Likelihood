@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan 31 16:01:11 PST 2005
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+rename apps, par files
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jan 31 16:01:09 PST 2005
 Likelihood/python
 
