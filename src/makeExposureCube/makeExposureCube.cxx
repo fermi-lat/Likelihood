@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.19 2004/12/09 07:20:31 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.20 2004/12/24 16:45:46 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,7 +36,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.19 2004/12/09 07:20:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.20 2004/12/24 16:45:46 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -82,7 +82,7 @@ void ExposureCube::run() {
    map_tools::ExposureHyperCube cube(*m_exposure, output_file);
    cube.save();
    std::auto_ptr<tip::Image> 
-      image(tip::IFileSvc::instance().editImage(output_file, "hypercube"));
+      image(tip::IFileSvc::instance().editImage(output_file, ""));
    Likelihood::RoiCuts::instance()->writeDssKeywords(image->getHeader());
    Likelihood::RoiCuts::instance()->writeGtiExtension(output_file);
 }
