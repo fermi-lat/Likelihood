@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: burnett  Thu Jan 29 18:28:30 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	TsMap.cxx expMap.cxx likelihood.cxx 
+Log Message:
+fix scope operators
+    *
+------------------------------------------------------------
 User: cohen  Wed Jan 28 02:25:21 PST 2004
 Likelihood/cmt
 
