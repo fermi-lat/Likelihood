@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Feb 28 13:51:31 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+add RoiCuts, ScData classes
+    *
+------------------------------------------------------------
+User: jchiang  Fri Feb 28 13:51:31 PST 2003
 Likelihood/src
 
 Modified Files:
