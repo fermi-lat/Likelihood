@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 21 16:46:38 PST 2005
+Likelihood/python
+
+Added Files:
+	SrcAnalysis.py 
+Log Message:
+interface package for SWIG-wrapped C++
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 21 16:30:23 PST 2005
 Likelihood/pfiles
 
