@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  5 16:31:28 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	likelihood.cxx 
+Added Files:
+	TsMap.cxx 
+Log Message:
+add TsMap application and BrokenPowerLaw class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov  5 16:31:27 PST 2003
 Likelihood/src
 
