@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec  6 17:30:14 PST 2004
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+parameter interface fixes for expMap.
+    *
+------------------------------------------------------------
 User: jchiang  Mon Dec  6 17:30:12 PST 2004
 Likelihood/src/expMap
 
