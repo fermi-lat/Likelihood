@@ -1,10 +1,10 @@
 package Likelihood
 
-# $Id: requirements,v 1.5 2003/03/04 17:45:32 jchiang Exp $
+# $Id: requirements,v 1.6 2003/03/16 01:42:39 burnett Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
-# use CALDBinterface v*  (yeah, right...)
+# use CALDBinterface v*
 
 apply_pattern package_include
 

@@ -1,5 +1,16 @@
-/* package A1
-  @file release.notes
-  @brief Package coordinators: J. Chiang
+/** @file release.notes
+    @brief package Likelihood (A1) 
+    @brief Package coordinators: J. Chiang
 
+    @verbatim
+    (ongoing)         JC   OptPP class, mainpage.h, update release.notes.
+    v0r5  16-Mar-03   JC/  First attempt at a LAT-compliant version;
+                      THB  Arg, Optimizer, CompositeFunction hierarchies;
+                           logSrcModel, Npred, TrapQuad classes.
+    v0r4  28-Feb-03   JC   ScData, ScNtuple, RoiCuts classes.
+    v0r3  26-Feb-03   JC   Test data, CALDB, SkyDirFunction class.
+    v0r2  23-Feb-03   JC   Response, Event, Statistic hierarchies.
+    v0r1  19-Feb-03   JC   Parameter, Function, SourceModel and Table classes.
+    v0    30-Jan-03   THB  Initial import.
+    @endverbatim
 */
