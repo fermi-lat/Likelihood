@@ -1400,7 +1400,12 @@ void read_SC_Response_data() {
 /* instantiate the Psf and read in its data */
    Psf * psf = Psf::instance();
    std::string psf_file = test_path + "CALDB/psf_lat.fits";
-   psf->readPsfData(psf_file, Response::Combined);
+   try {
+      psf->readPsfData(psf_file, Response::Combined);
+   } catch (Exception &eObj) {
+      std::cerr << eObj.what() << std::endl;
+      throw;
+   }
 
 /* instantiate the Aeff and read in its data */
    Aeff * aeff = Aeff::instance();

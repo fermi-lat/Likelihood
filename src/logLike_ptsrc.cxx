@@ -3,7 +3,7 @@
  * @brief logLike_ptsrc class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.cxx,v 1.11 2003/08/06 20:52:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.cxx,v 1.12 2003/08/24 19:00:11 jchiang Exp $
  */
 
 #include <vector>
@@ -159,9 +159,13 @@ void logLike_ptsrc::readEventData(const std::string &eventFile,
    m_eventFile = eventFile;
    m_eventHdu = hdu;
 //   m_eventData.add_columns(colnames);
+
+   delete m_eventData;
+   m_eventData = new Table();
+
    std::vector<std::string> columnNames;
-   m_eventData.read_FITS_colnames(m_eventFile, m_eventHdu, columnNames);
-   m_eventData.add_columns(columnNames);
+   m_eventData->read_FITS_colnames(m_eventFile, m_eventHdu, columnNames);
+   m_eventData->add_columns(columnNames);
    std::cerr << "Columns in " << m_eventFile 
              << ", HDU " << m_eventHdu 
              << ": \n";
@@ -169,7 +173,8 @@ void logLike_ptsrc::readEventData(const std::string &eventFile,
       std::cerr << columnNames[i] << "  ";
    }
    std::cerr << std::endl;
-   m_eventData.read_FITS_table(m_eventFile, m_eventHdu);
+   m_eventData->read_FITS_table(m_eventFile, m_eventHdu);
+
 }
 
 //! return pointer to data columns
