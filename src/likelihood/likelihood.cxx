@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.4 2004/04/06 22:19:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.5 2004/04/07 02:11:18 jchiang Exp $
  */
 
 #include <cmath>
@@ -15,6 +15,7 @@
 #include "optimizers/Drmngb.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
+#include "optimizers/Exception.h"
 
 #include "Likelihood/AppBase.h"
 #include "Likelihood/LogLike.h"
@@ -32,7 +33,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.4 2004/04/06 22:19:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.5 2004/04/07 02:11:18 jchiang Exp $
  */
 
 class likelihood : public AppBase {
@@ -88,10 +89,14 @@ void likelihood::run() {
       if (m_useOptEM) {
          dynamic_cast<OptEM *>(m_logLike)->findMin(verbose);
       } else {
-// @todo Allow the optimizer to be re-selected here.         
+// @todo Allow the optimizer to be re-selected here by the user.    
          selectOptimizer();
-         m_opt->find_min(verbose, tol);
-         errors = m_opt->getUncertainty();
+         try {
+            m_opt->find_min(verbose, tol);
+            errors = m_opt->getUncertainty();
+         } catch (optimizers::Exception & eObj) {
+            // Allow manual adjustment of fit parameters.
+         }
          delete m_opt;
          m_opt = 0;
       }
