@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.24 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.25 2004/09/03 14:11:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -48,7 +48,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.24 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.25 2004/09/03 14:11:02 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -341,11 +341,11 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
          Source * src = m_logLike->deleteSource(srcNames[i]);
          if (m_logLike->getNumFreeParams() > 0) {
             selectOptimizer();
-            try {
-               m_opt->find_min(verbose, tol);
-            } catch (optimizers::Exception &eObj) {
-               std::cout << eObj.what() << std::endl;
-            }
+//             try {
+//                m_opt->find_min(verbose, tol);
+//             } catch (optimizers::Exception &eObj) {
+//                std::cout << eObj.what() << std::endl;
+//             }
             null_values.push_back(m_logLike->value());
             TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
          } else {
