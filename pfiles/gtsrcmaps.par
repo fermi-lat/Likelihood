@@ -1,5 +1,5 @@
 scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
-sctable,i,hl,2,,,Spacecraft data extension
+sctable,s,hl,"Ext1",,,Spacecraft data extension
 exposure_cube_file,fr,a,"expcube_1_day.fits",,,"Exposure hypercube file"
 counts_map_file,fr,a,"countsMap.fits",,,"Counts map file"
 source_model_file,fr,a,"Crab_model.xml",,,"Source model file"
