@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.37 2004/07/21 04:00:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.38 2004/08/18 21:22:15 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -14,11 +14,10 @@
 #include "optimizers/Function.h"
 #include "optimizers/dArg.h"
 
-#include "map_tools/Exposure.h"
-
-#include "Likelihood/Source.h"
-#include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Event.h"
+#include "Likelihood/ExposureCube.h"
+#include "Likelihood/SkyDirFunction.h"
+#include "Likelihood/Source.h"
 
 namespace irfInterface {
    class AcceptanceCone;
@@ -33,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.37 2004/07/21 04:00:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.38 2004/08/18 21:22:15 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -73,6 +72,9 @@ public:
 
    double fluxDensity(double energy, double time,
                       const astro::SkyDir &dir, int eventType=2) const;
+
+   virtual double fluxDensity(double inclination, double phi, double energy, 
+                              double separation, int evtType) const;
 
    /// Returns the derivative wrt to the named Parameter
    virtual double fluxDensityDeriv(const Event &evt, 
@@ -138,13 +140,6 @@ public:
                                std::pair<double, double> & interval2);
 
 private:
-
-   /// Static data member containing the exposure time hypercube object,
-   /// used by all PointSource objects.
-   /// @todo Implement a reference count of PointSource objects so
-   ///       this pointer can be deleted when the last PointSource
-   ///       goes away.
-   static map_tools::Exposure * s_exposure;
 
    /// Computes the integrated exposure at the PointSource sky location.
    void computeExposure(bool verbose);

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.18 2004/08/18 21:22:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.19 2004/08/19 04:03:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -26,7 +26,9 @@
 #include "optimizers/Exception.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/ExposureCube.h"
 #include "Likelihood/LogLike.h"
+#include "Likelihood/MapShape.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
@@ -41,7 +43,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.18 2004/08/18 21:22:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.19 2004/08/19 04:03:12 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -78,6 +80,7 @@ private:
    void writeSourceXml();
    void writeFluxXml();
    void writeCountsSpectra();
+   void writeCountsMap();
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
 
@@ -145,6 +148,7 @@ void likelihood::run() {
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
    writeCountsSpectra();
+   writeCountsMap();
 }
 
 void likelihood::createStatistic() {
@@ -258,6 +262,42 @@ void likelihood::writeCountsSpectra() {
       }
    }
    outputFile.close();
+}
+
+void likelihood::writeCountsMap() {
+   std::string expcube_file = m_pars["exposure_cube_file"];
+   ExposureCube::readExposureCube(expcube_file);
+
+   RoiCuts * roiCuts = RoiCuts::instance();
+
+   std::pair<double, double> elims = roiCuts->getEnergyCuts();
+
+   const irfInterface::AcceptanceCone & roi = roiCuts->extractionRegion();
+   double roi_radius = roi.radius();
+   double roi_ra, roi_dec;
+   RoiCuts::getRaDec(roi_ra, roi_dec);
+   
+   int npts(41);
+   std::vector<double> ras;
+   double ra_step = 2.*roi_radius/(npts-1.);
+   for (int i = 0; i < npts; i++) {
+      ras.push_back(ra_step*i + roi_ra - roi_radius);
+   }
+   std::vector<double> decs;
+   double dec_step = 2.*roi_radius/(npts-1.);
+   for (int i = 0; i < npts; i++) {
+      decs.push_back(dec_step*i + roi_dec - roi_radius);
+   }
+   int nee(21);
+   std::vector<double> energies;
+   double estep = log(elims.second/elims.first)/(nee-1.);
+   for (int i = 0; i < nee; i++) {
+      energies.push_back(elims.first*exp(estep*i));
+   }
+
+   MapShape mapShape(ras, decs, energies);
+
+   m_logLike->makeCountsMap("counts_map.fits", mapShape);
 }
 
 void likelihood::printFitResults(const std::vector<double> &errors) {

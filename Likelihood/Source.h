@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.23 2004/02/21 17:10:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.24 2004/08/18 21:22:15 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.23 2004/02/21 17:10:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.24 2004/08/18 21:22:15 jchiang Exp $
  */
 
 class Source {
@@ -39,6 +39,26 @@ public:
    /// @return photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
    virtual double fluxDensity(const Event &evt) const = 0;
+
+   /// @return fluxDensity in instrument coordinates (photons/cm^2-s-sr-MeV)
+   /// @param inclination angle of source direction wrt the instrument
+   ///        z-axis (degrees)
+   /// @param phi azimuthal angle of source direction wrt instrument
+   ///        z- and x-axes (degrees)
+   /// @param energy True energy of photon (MeV)
+   /// @param separation angle between source direction and apparent
+   ///        photon direction (degrees)
+   /// @param evtType Event type, i.e., front- vs back-converting event, 
+   ///        0 vs 1
+   virtual double fluxDensity(double inclination, double phi, double energy, 
+                              double separation, int evtType) const {
+      (void)(inclination);
+      (void)(phi);
+      (void)(energy);
+      (void)(separation);
+      (void)(evtType);
+      return 0;
+   }
 
    /// derivatives of fluxDensity wrt model Parameters
    virtual double fluxDensityDeriv(const Event &evt, 

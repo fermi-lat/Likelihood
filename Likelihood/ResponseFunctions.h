@@ -3,7 +3,7 @@
  * @brief A singleton class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.8 2004/07/19 14:16:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.9 2004/07/21 04:00:13 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.8 2004/07/19 14:16:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.9 2004/07/21 04:00:13 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -58,6 +58,10 @@ public:
                                const astro::SkyDir &srcDir,
                                const astro::SkyDir &appDir,
                                int type);
+
+   static double totalResponse(double inclination, double phi, 
+                               double energy, double appEnergy, 
+                               double separation, int evtType);
 
    static void setRespPtrs(std::map<unsigned int, irfInterface::Irfs *> 
                            &respPtrs) {s_respPtrs = respPtrs;}
