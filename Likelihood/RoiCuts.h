@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.19 2004/11/17 00:02:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.20 2004/12/05 22:25:47 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -23,6 +23,10 @@
 
 #include "dataSubselector/Cuts.h"
 
+namespace tip {
+   class Header;
+}
+
 namespace Likelihood {
 
 class Event;
@@ -34,7 +38,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.19 2004/11/17 00:02:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.20 2004/12/05 22:25:47 jchiang Exp $
  */
 
 class RoiCuts {
@@ -88,6 +92,10 @@ public:
 
    /// Apply these cuts to an Event
    bool accept(const Event &);
+
+   /// Write DSS keywords to a FITS header
+   void writeDssKeywords(tip::Header & header) const;
+   void writeGtiExtension(const std::string & filename);
 
 protected:
 
