@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.20 2004/01/15 22:16:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.21 2004/01/30 02:28:30 burnett Exp $
  */
 
 #ifdef TRAP_FPE
@@ -279,6 +279,9 @@ int main(int iargc, char* argv[]) {
             delete myOpt;
          } // useOptEM
          print_fit_results(*logLike, errors);
+         std::cout << std::endl 
+                   << "-log(Likelihood): " << -logLike->value()
+                   << std::endl;
          std::cout << std::endl;
          
 // Write the model to the output xml file.

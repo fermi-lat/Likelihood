@@ -1,10 +1,10 @@
 package Likelihood
-version v2r7p2
+version v2r8
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.80 2004/01/28 10:25:21 cohen Exp $
+# $Id: requirements,v 1.81 2004/01/30 03:08:48 jchiang Exp $
 
 use xml v*
 use facilities v2*

@@ -105,7 +105,7 @@ int main() {
 //    fit_DiffuseSource();
 //    test_OptEM();
 #endif
-//    test_RoiCuts();
+    test_RoiCuts();
    return 0;
 }
 
