@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.53 2004/11/30 02:38:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.54 2004/11/30 20:23:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.53 2004/11/30 02:38:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.54 2004/11/30 20:23:06 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -149,7 +149,9 @@ void likelihood::run() {
                       << eObj.what() << std::endl;
          }
       }
-      if (Likelihood::print_output()) printFitResults(errors);
+      if (Likelihood::print_output()) {
+         printFitResults(errors);
+      }
       writeSourceXml();
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();

@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.28 2004/08/05 05:28:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.29 2004/08/06 14:58:29 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.28 2004/08/05 05:28:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.29 2004/08/06 14:58:29 jchiang Exp $
  */
 
 class Event {
@@ -37,15 +37,19 @@ public:
 
    Event() {}
    Event(double ra, double dec, double energy, double time, 
-         double sc_ra, double sc_dec, double muZenith, int type=2);
+         const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
+         double muZenith, int type=2);
 
 // The compiler-supplied copy constructor should suffice.
 //   Event(const Event &);
 
    ~Event() {}
 
-   astro::SkyDir getDir() const {return m_appDir;}
-   astro::SkyDir getScDir() const {return m_scDir;}
+   const astro::SkyDir & getDir() const {return m_appDir;}
+   const astro::SkyDir & getScDir() const {return m_scDir;}
+
+   const astro::SkyDir & zAxis() const {return m_scDir;}
+   const astro::SkyDir & xAxis() const {return m_scXDir;}
 
    /// some useful accessor functions
    double getEnergy() const {return m_energy;}
@@ -121,6 +125,7 @@ private:
    
    /// spacecraft info at event arrival time
    astro::SkyDir m_scDir;
+   astro::SkyDir m_scXDir;
 
    /// Vector of true energies.
    double m_estep;

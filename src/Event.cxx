@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.38 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.39 2004/10/07 00:01:05 jchiang Exp $
  */
 
 #include <cassert>
@@ -43,16 +43,11 @@ std::vector<double> Event::s_phi;
 FitsImage::EquinoxRotation Event::s_eqRot;
 bool Event::s_haveSourceRegionData(false);
 
-Event::Event(double ra, double dec, double energy, 
-             double time, double sc_ra, double sc_dec, 
-             double muZenith, int type) {
-   m_appDir = astro::SkyDir(ra, dec);
-   m_energy = energy;
-   m_arrTime = time;
-   m_scDir = astro::SkyDir(sc_ra, sc_dec);
-   m_muZenith = muZenith;
-   m_type = type;
-
+Event::Event(double ra, double dec, double energy, double time, 
+             const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
+             double muZenith, int type) 
+   : m_appDir(astro::SkyDir(ra, dec)), m_energy(energy), m_arrTime(time),
+     m_muZenith(muZenith), m_type(type), m_scDir(scZAxis), m_scXDir(scXAxis) {
    if (ResponseFunctions::useEdisp()) {
 // For <15% energy resolution, consider true energies over the range
 // (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.42 2004/09/22 22:49:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.43 2004/11/28 06:58:20 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.42 2004/09/22 22:49:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.43 2004/11/28 06:58:20 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -60,15 +60,16 @@ public:
       delete m_spectrum;
    }
 
-//    /// Read a FITS image file that contains integrated exposure times
-//    /// as a function of ra, dec, and cos(inclination).
-//    static void readExposureCube(std::string expCubeFile);
-
    /// Returns photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
-   virtual double fluxDensity(const Event &evt) const
-      {return fluxDensity(evt.getEnergy(), evt.getArrTime(), evt.getDir(),
-                          evt.getType());}
+   virtual double fluxDensity(const Event &evt) const {
+      return fluxDensity(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
+                         evt.getDir(), evt.getType());
+   }
+
+   double fluxDensity(double energy, const astro::SkyDir & zAxis,
+                      const astro::SkyDir & xAxis,
+                      const astro::SkyDir & dir, int eventType=2) const;
 
    double fluxDensity(double energy, double time,
                       const astro::SkyDir &dir, int eventType=2) const;
@@ -78,9 +79,15 @@ public:
 
    /// Returns the derivative wrt to the named Parameter
    virtual double fluxDensityDeriv(const Event &evt, 
-                                   const std::string &paramName) const
-      {return fluxDensityDeriv(evt.getEnergy(), evt.getArrTime(), 
-                               evt.getDir(), evt.getType(), paramName);}
+                                   const std::string &paramName) const {
+      return fluxDensityDeriv(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
+                              evt.getDir(),evt.getType(), paramName);
+   }
+
+   double fluxDensityDeriv(double energy, const astro::SkyDir & zAxis,
+                           const astro::SkyDir & xAxis,
+                           const astro::SkyDir &dir, int eventType,
+                           const std::string &paramName) const;
 
    double fluxDensityDeriv(double energy, double time,
                            const astro::SkyDir &dir, int eventType,
