@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan  3 15:01:22 PST 2005
+Likelihood/src
+
+Modified Files:
+	FluxBuilder.cxx RoiCuts.cxx SConstruct SourceFactory.cxx 
+	SourceModel.cxx SourceModelBuilder.cxx XmlBuilder.cxx 
+Log Message:
+change internal references xml->xmlBase
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jan  3 15:01:20 PST 2005
 Likelihood/doc
 
