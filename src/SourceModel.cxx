@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.35 2004/01/08 18:36:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.36 2004/02/05 03:43:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -249,26 +249,28 @@ void SourceModel::addSource(Source *src) {
 // add a clone of this Source to the vector
    s_sources.push_back(src->clone());
 
-// add the Parameters to the m_parameter vector 
-// (would it be better just to use syncParams() here?)
-   Source::FuncMap srcFuncs = (*src).getSrcFuncs();
-   Source::FuncMap::iterator func_it = srcFuncs.begin();
-   for (; func_it != srcFuncs.end(); func_it++) {
-      std::vector<optimizers::Parameter> params;
-      (*func_it).second->getParams(params);
-      for (unsigned int ip = 0; ip < params.size(); ip++) 
-         m_parameter.push_back(params[ip]);
-   }      
+   syncParams();
+// // add the Parameters to the m_parameter vector 
+// // (would it be better just to use syncParams() here?)
+//    Source::FuncMap srcFuncs = (*src).getSrcFuncs();
+//    Source::FuncMap::iterator func_it = srcFuncs.begin();
+//    for (; func_it != srcFuncs.end(); func_it++) {
+//       std::vector<optimizers::Parameter> params;
+//       (*func_it).second->getParams(params);
+//       for (unsigned int ip = 0; ip < params.size(); ip++) 
+//          m_parameter.push_back(params[ip]);
+//    }      
 }
  
-void SourceModel::deleteSource(const std::string &srcName) 
+Source * SourceModel::deleteSource(const std::string &srcName) 
    throw(optimizers::Exception) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
+         Source * mySource = s_sources[i];
          s_sources.erase(s_sources.begin() + i, 
                          s_sources.begin() + i + 1);
          syncParams();
-         return;
+         return mySource;
       }
    }
    std::ostringstream errorMessage;
@@ -280,8 +282,10 @@ void SourceModel::deleteSource(const std::string &srcName)
 void SourceModel::deleteAllSources() {
    std::vector<std::string> srcNames;
    getSrcNames(srcNames);
-   for (unsigned int i = 0; i < srcNames.size(); i++)
-      deleteSource(srcNames[i]);
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      Source * source = deleteSource(srcNames[i]);
+      delete source;
+   }
    m_parameter.clear();
 }
 

@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.10 2003/12/04 02:56:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.11 2004/01/06 00:10:27 jchiang Exp $
  */
 
 #include <vector>
@@ -51,7 +51,6 @@ double LogLike::value(optimizers::Arg&) const {
       SrcArg sArg(s_sources[i]);
       my_value -= m_Npred(sArg);
    }
-   
    return my_value;
 }
 
@@ -202,7 +201,7 @@ void LogLike::getEvents(std::string event_file, int hdu) {
 
    readEventData(event_file, hdu);
 
-   typedef std::pair<long, double*> tableColumn;
+   typedef std::pair<long, std::vector<double> > tableColumn;
    tableColumn ra = getEventColumn("RA");
    tableColumn dec = getEventColumn("DEC");
    tableColumn energy = getEventColumn("energy");
