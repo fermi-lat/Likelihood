@@ -55,16 +55,31 @@ int main(){
       test_path = std::string(root) + "/src/test/";
    }
 
-//     test_Parameter_class();
-//     test_Function_class();
-//     test_PowerLaw_class();
-//     test_SourceModel_class();
-//     test_Table_class();
-//     test_Statistic_class();
-//     test_Event_class();
-//     test_PointSource_class();
-//     test_Aeff_class();
-//     test_Psf_class();
+/* read in the spacecraft data */
+   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   int sc_hdu = 2;
+   ScData::readData(sc_file, sc_hdu);
+
+/* instantiate the Psf and read in its data */
+   Psf * psf = Psf::instance();
+   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
+   psf->readPsfData(psf_file, Response::Combined);
+
+/* instantiate the Aeff and read in its data */
+   Aeff * aeff = Aeff::instance();
+   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
+   aeff->readAeffData(aeff_file, Response::Combined);
+
+   test_Parameter_class();
+   test_Function_class();
+   test_PowerLaw_class();
+   test_SourceModel_class();
+   test_Table_class();
+   test_Statistic_class();
+   test_Event_class();
+   test_PointSource_class();
+   test_Aeff_class();
+   test_Psf_class();
    test_logLike_ptsrc();
    return 0;
 }
@@ -74,29 +89,6 @@ int main(){
 /* logLike_ptsrc tests */
 /***********************/
 void test_logLike_ptsrc() {
-
-/* read in the spacecraft data */
-
-   std::string sc_file = test_path + "/Data/one_src_sc_0000";
-   int sc_hdu = 2;
-
-   ScData::readData(sc_file, sc_hdu);
-
-/* instantiate the Psf and read in its data */
-
-   Psf * psf = Psf::instance();
-
-   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
-
-   psf->readPsfData(psf_file, Response::Combined);
-
-/* instantiate the Aeff and read in its data */
-
-   Aeff * aeff = Aeff::instance();
-
-   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
-
-   aeff->readAeffData(aeff_file, Response::Combined);
 
    logLike_ptsrc logLike;
 
@@ -154,10 +146,6 @@ void test_logLike_ptsrc() {
 void test_Psf_class() {
    Psf *psf = Psf::instance();
 
-   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
-
-   psf->readPsfData(psf_file, Response::Combined);
-
    int nenergy = 10;
    double emin = 30;
    double emax = 3e4;
@@ -185,10 +173,6 @@ void test_Psf_class() {
 void test_Aeff_class() {
    Aeff *aeff = Aeff::instance();
 
-   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
-
-   aeff->readAeffData(aeff_file, Response::Combined);
-
    int nenergy = 10;
    double emin = 30;
    double emax = 3e4;
@@ -210,29 +194,6 @@ void test_Aeff_class() {
 /* PointSource class tests */
 /***************************/
 void test_PointSource_class() {
-
-/* read in the spacecraft data */
-
-   std::string sc_file = test_path + "/Data/one_src_sc_0000";
-   int sc_hdu = 2;
-
-   ScData::readData(sc_file, sc_hdu);
-
-/* instantiate the Psf and read in its data */
-
-   Psf * psf = Psf::instance();
-
-   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
-
-   psf->readPsfData(psf_file, Response::Combined);
-
-/* instantiate the Aeff and read in its data */
-
-   Aeff * aeff = Aeff::instance();
-
-   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
-
-   aeff->readAeffData(aeff_file, Response::Combined);
 
 /* put this source at the center of the extraction region for
    Data/one_src_0000 (ra, dec) = (193.98, -5.82) */
