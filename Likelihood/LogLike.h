@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.10 2004/06/05 00:27:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.11 2004/06/05 15:22:14 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -18,6 +18,10 @@
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
 
+namespace tip {
+   class Table;
+}
+
 namespace Likelihood {
 
 /** 
@@ -28,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.10 2004/06/05 00:27:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.11 2004/06/05 15:22:14 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -36,8 +40,11 @@ class LogLike : public SourceModel {
 public:
 
    LogLike() {
-      logSrcModel m_logSrcModel;
-      Npred m_Npred;
+//       logSrcModel m_logSrcModel;
+//       Npred m_Npred;
+      if (s_FT1_columns.size() == 0) {
+         setFT1_columns();
+      }
       deleteAllSources();
    }
 
@@ -99,6 +106,12 @@ private:
 
    Npred m_Npred;
 
+   static std::vector<std::string> s_FT1_columns;
+
+   static void setFT1_columns();
+
+   void get_diffuse_names(tip::Table * events, 
+                          std::vector<std::string> & names);
 };
 
 } // namespace Likelihood
