@@ -2,13 +2,14 @@
  * @brief Implementation for the LAT Point-Spread Function class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.7 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.8 2003/03/25 23:22:03 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
 #include <algorithm>
+#include <valarray>
 
 #include "Likelihood/Psf.h"
 
@@ -43,8 +44,16 @@ void Psf::readPsfData(const std::string &file, int hdu) {
    for (int i = 0; i < m_psfData[1].dim; i++) {
       m_theta.push_back(m_psfData[1].val[i]);
    }
-   m_sig1 = m_psfData[2].val;
-   m_sig2 = m_psfData[3].val;
+//     m_sig1 = m_psfData[2].val;
+//     m_sig2 = m_psfData[3].val;
+   m_sig1.resize(m_psfData[2].dim);
+   for (int i = 0; i < m_psfData[2].dim; i++) {
+      m_sig1[i] = m_psfData[2].val[i];
+   }
+   m_sig2.resize(m_psfData[3].dim);
+   for (int i = 0; i < m_psfData[3].dim; i++) {
+      m_sig2[i] = m_psfData[3].val[i];
+   }
    for (int i = 0; i < m_psfData[4].dim; i++) {
       m_wt.push_back(m_psfData[4].val[i]);
    }
@@ -100,45 +109,19 @@ void Psf::fillPsfParams(double energy, double inc,
                         std::vector<double> &psf_params) {
 
 // do a bilinear interpolation on the effective area data
-// this is the ugly code from glean (uses unit-offset kludge of NR 1.2)
+   double sig1val = bilinear(m_energy, energy, m_theta, inc, m_sig1);
+   double sig2val = bilinear(m_energy, energy, m_theta, inc, m_sig2);
 
-// find the energy index
-   int ie;
-
-// use upper_bound generic algorithm (still maintaining, for now,
-// unit-offset kludge inherited from use of NR's hunt())
-
-   ie = upper_bound(m_psfData[0].val, m_psfData[0].val + m_psfData[0].dim,
-                    energy) - m_psfData[0].val;
-
-// kludge to deal with energies outside of the nominal boundaries 
-   if (ie == 0) { 
-//      ie = 1;
-      ie = 0;
-   } else if (ie == m_psfData[0].dim) {
-      ie = m_psfData[0].dim - 1;
+// simply set the weight using the upper bound energy
+   std::vector<double>::const_iterator ie;
+   if (energy < *(m_energy.begin())) {
+      ie = m_energy.begin();
+   } else if (energy >= *(m_energy.end() - 1)) {
+      ie = m_energy.end() - 1;
+   } else {
+      ie = upper_bound(m_energy.begin(), m_energy.end(), energy);
    }
-   
-// find the theta index
-   int it;
-
-   it = upper_bound(m_psfData[1].val, m_psfData[1].val + m_psfData[1].dim,
-                    inc) - m_psfData[1].val;
-
-   if (it == 0) it = 1;
-
-// do the interpolations
-   double sig1val
-      = m_bilinear(m_psfData[0].dim, m_psfData[0].val-1, ie, energy, 
-                   m_psfData[1].dim, m_psfData[1].val-1, it, inc, 
-                   m_sig1);
-   double sig2val
-      = m_bilinear(m_psfData[0].dim, m_psfData[0].val-1, ie, energy, 
-                   m_psfData[1].dim, m_psfData[1].val-1, it, inc, 
-                   m_sig2);
-
-// simply set the weight using the energy index
-   double wt = m_wt[ie];
+   double wt = m_wt[ie - m_energy.begin()];
 
    psf_params.push_back(sig1val);
    psf_params.push_back(sig2val);

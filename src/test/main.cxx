@@ -1,5 +1,6 @@
 // test program for Likelihood
 
+#include <iostream>
 #include <cstring>
 #include <cmath>
 
@@ -25,6 +26,10 @@
 #include "Likelihood/ProductFunction.h"
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
+#include "Likelihood/FitsImage.h"
+#include "Likelihood/ExposureMap.h"
+#include "Likelihood/SpatialMap.h"
+#include "Likelihood/DiffuseSource.h"
 #include "lbfgs.h"
 #include "OptPP.h"
 #include "logLike_gauss.h"
@@ -56,6 +61,10 @@ void test_CompositeFunction();
 void test_OptPP();
 void test_SpectrumFactory();
 void test_SourceFactory();
+void test_FitsImage();
+void test_ExposureMap();
+void test_SpatialMap();
+void test_DiffuseSource();
 
 std::string test_path;
 
@@ -74,12 +83,124 @@ int main(){
 //     test_logLike_ptsrc();
 //     test_CompositeFunction();
 //     test_SpectrumFactory();
-   test_SourceFactory();
+//     test_SourceFactory();
 //     test_OptPP();
 //     fit_3C279();
 //     fit_anti_center();
+   test_FitsImage();
+   test_ExposureMap();
+   test_SpatialMap();
+//     test_DiffuseSource();
    return 0;
 }
+
+void test_DiffuseSource() {
+   RoiCuts::setCuts(193.98, -5.82, 20.);
+
+   std::string expfile = test_path + "Data/test.fits";
+   ExposureMap::readExposureFile(expfile);
+
+   std::string galfile = test_path + "Data/gas.cel";
+   SpatialMap galacticModel(galfile);
+
+   DiffuseSource mySource(&galacticModel);
+
+} // test_DiffuseSource
+
+void test_SpatialMap() {
+   
+   std::string fitsfile = test_path + "Data/gas.cel";
+   SpatialMap my_map(fitsfile);
+
+   double dec = 0;
+
+   std::vector<double> ra;
+   for (double ra_val = -180; ra_val < 180.; ra_val += 5)
+      ra.push_back(ra_val);
+
+   for (unsigned int i = 0; i < ra.size(); i++) {
+      astro::SkyDir dir(ra[i], dec);
+      SkyDirArg sArg(dir);
+      std::cout << ra[i] << "  "
+                << my_map(sArg) << std::endl;
+   }
+
+} // test_SpatialMap
+
+void test_ExposureMap() {
+   std::string fitsfile = test_path + "Data/test.fits";
+   ExposureMap::readExposureFile(fitsfile);
+
+   ExposureMap *emap = ExposureMap::instance();
+
+   std::vector<double> energies;
+   emap->fetchEnergies(energies);
+   for (unsigned int i = 0; i < energies.size(); i += energies.size()/5)
+      std::cout << energies[i] << " ";
+   std::cout << std::endl;
+
+   std::vector< std::valarray<double> > exposure;
+   emap->fetchExposure(exposure);
+   for (unsigned int i = 0; i < exposure.size(); i += exposure.size()/5) {
+      for (unsigned int j = 0; j < exposure[i].size(); 
+           j += exposure[i].size()/10) {
+         std::cout << exposure[i][j] << " ";
+      }
+      std::cout << std::endl;
+   }
+
+} // test_ExposureMap
+
+void test_FitsImage() {
+
+//   std::string fitsfile = test_path + "Data/anti_center_exposure.fits";
+   std::string fitsfile = test_path + "Data/test.fits";
+   FitsImage expImage(fitsfile);
+
+   std::cerr << "AxisDims: ";
+   std::vector<int> axisDims;
+   expImage.fetchAxisDims(axisDims);
+   for (unsigned int i = 0; i < axisDims.size(); i++) 
+      std::cerr << axisDims[i] << "  ";
+   std::cerr << std::endl;
+   std::cerr << std::endl;
+
+   std::cerr << "AxisNames: ";
+   std::vector<std::string> axisNames;
+   expImage.fetchAxisNames(axisNames);
+   for (unsigned int i = 0; i < axisNames.size(); i++)
+      std::cout << axisNames[i] << "  ";
+   std::cout << std::endl;
+   std::cout << std::endl;
+
+   std::cerr << "AxisVectors: \n";
+   std::vector< std::vector<double> > axisVectors;
+   axisVectors.resize(axisNames.size());
+   for (unsigned int i = 0; i < axisNames.size(); i++)
+      expImage.fetchAxisVector(i, axisVectors[i]);
+   for (unsigned int i = 0; i < axisVectors.size(); i++) {
+      for (unsigned int j = 0; j < axisVectors[i].size(); 
+           j += axisVectors[i].size()/5)
+         std::cout << axisVectors[i][j] << "  ";
+      std::cout << std::endl;
+   }
+   std::cout << std::endl;
+
+   std::cerr << "CelestialArrays: \n";
+   std::valarray<double> lonArray;
+   std::valarray<double> latArray;
+   expImage.fetchCelestialArrays(lonArray, latArray);
+   for (unsigned int i = 0; i < lonArray.size(); i += lonArray.size()/7)
+      std::cout << lonArray[i] << "  ";
+   std::cout << std::endl;
+   for (unsigned int i = 0; i < latArray.size(); i += latArray.size()/7)
+      std::cout << latArray[i] << "  ";
+   std::cout << std::endl;
+   
+   std::valarray<double> imageData;
+   expImage.fetchImageData(imageData);
+
+} // test_FitsImage
 
 void test_SourceFactory() {
 
@@ -172,27 +293,35 @@ void test_SourceFactory() {
    myOptimizer.find_min(verbose);
 
 // Having found the best-fit Parameters, save these Sources in
-// srcFactory.  Note that the pointers are stored directly by
-// SourceModel and not cloned, therefore we don't need to retrieve the
-// updated Sources from logLike. 
-//
-// Need to decide whether this the right behavior for SourceModel,
-// i.e., should we be cloning, then retrieving?
+// srcFactory.  Note that the pointers are cloned by SourceModel, and
+// so we need to retrieve the updated Sources from logLike.
 
-   srcFactory.addSource(Crab->getName(), Crab);
-   srcFactory.addSource(Geminga->getName(), Geminga);
-   srcFactory.addSource(_0528->getName(), _0528);
-
-   srcFactory.listSources();
+   srcFactory.addSource(Crab->getName(), logLike.getSource(Crab->getName()));
+   delete Crab;  // housekeeping
+   srcFactory.addSource(Geminga->getName(), 
+                        logLike.getSource(Geminga->getName()));
+   delete Geminga;
+   srcFactory.addSource(_0528->getName(), logLike.getSource(_0528->getName()));
+   delete _0528;
 
 #endif  //HAVE_OPTIMIZERS
 
-   std::vector<Parameter> parameters;
-   logLike.getParams(parameters);
+// retrieve the names of the Sources in srcFactory and inspect their
+// spectral Parameters
+   std::vector<std::string> srcNames;
+   srcFactory.fetchSrcNames(srcNames);
 
-   for (unsigned int i = 0; i < parameters.size(); i++)
-      std::cout << parameters[i].getName() << ": "
-                << parameters[i].getValue() << std::endl;
+   std::vector<Parameter> parameters;
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      Source *src = srcFactory.makeSource(srcNames[i]);
+      Source::FuncMap srcFuncs = src->getSrcFuncs();
+      srcFuncs["Spectrum"]->getParams(parameters);
+      std::cout << "\n" << srcNames[i] << ":\n";
+      for (unsigned int i = 0; i < parameters.size(); i++)
+         std::cout << parameters[i].getName() << ": "
+                   << parameters[i].getValue() << std::endl;
+   }
+
 } // test_SourceFactory
 
 /*******************/

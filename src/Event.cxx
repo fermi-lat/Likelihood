@@ -2,7 +2,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.5 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.6 2003/03/25 23:22:03 jchiang Exp $
  */
 
 #include "Likelihood/Event.h"
@@ -39,7 +39,7 @@ double Event::diffuseResponse(double energy,
 // simply return the (second member of the pair of the) first (and
 // only) element of the diffuse_response vector.
 
-// Attempt to respect const-ness of map
+// Avoid operator[], so use iterator to respect const-ness of map
       std::map<std::string, diffuse_response>::const_iterator it 
          = m_respDiffuseSrcs.begin();
       for (; it != m_respDiffuseSrcs.end(); it++) {
@@ -47,8 +47,6 @@ double Event::diffuseResponse(double energy,
             return (*it).second[0].second;
          }
       }
-//      return m_respDiffuseSrcs[diffuseComponent][0].second;
-
    } else {
       std::cerr << "Event::diffuseResponse: Diffuse component " 
                 << diffuseComponent 
@@ -57,6 +55,7 @@ double Event::diffuseResponse(double energy,
       assert(false);
       return 0;
    }
+   return 0;
 }
 
 } // namespace Likelihood

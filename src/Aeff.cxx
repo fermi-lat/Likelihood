@@ -2,7 +2,7 @@
  * @brief Implementation for LAT effective area class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Aeff.cxx,v 1.7 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Aeff.cxx,v 1.8 2003/03/25 23:22:03 jchiang Exp $
  */
 
 #include <vector>
@@ -44,7 +44,9 @@ void Aeff::readAeffData(const std::string &file, int hdu) {
    for (int i = 0; i < m_aeffData[1].dim; i++) {
       m_theta.push_back(m_aeffData[1].val[i]);
    }
-   m_aeff = m_aeffData[2].val;
+   m_aeff.resize(m_aeffData[2].dim);
+   for (int i = 0; i < m_aeffData[2].dim; i++)
+      m_aeff[i] = m_aeffData[2].val[i];
 }
 
 double Aeff::value(double energy, astro::SkyDir dir, double time) {
@@ -66,38 +68,8 @@ double Aeff::value(double energy, astro::SkyDir dir, double time) {
 
 double Aeff::value(double energy, double inc) {
 // do a bilinear interpolation on the effective area data
-// this is the ugly code from glean (uses unit-offset kludge of NR 1.2)
+   double aeffval = bilinear(m_energy, energy, m_theta, inc, m_aeff);
 
-// find the energy index
-   int ie;
-
-// use upper_bound generic algorithm (still maintaining, for now,
-// unit-offset kludge inherited from use of NR's hunt())
-
-   ie = upper_bound(m_aeffData[0].val, m_aeffData[0].val + m_aeffData[0].dim,
-                    energy) - m_aeffData[0].val;
-
-// kludge to deal with energies outside of the nominal boundaries 
-   if (ie == 0) { 
-//      ie = 1;
-      ie = 0;
-   } else if (ie == m_aeffData[0].dim) {
-      ie = m_aeffData[0].dim - 1;
-   }
-   
-// find the theta index
-   int it;
-
-   it = upper_bound(m_aeffData[1].val, m_aeffData[1].val + m_aeffData[1].dim,
-                    inc) - m_aeffData[1].val;
-
-   if (it == 0) it = 1;
-
-   double aeffval 
-      = m_bilinear(m_aeffData[0].dim, m_aeffData[0].val-1, ie, energy, 
-                   m_aeffData[1].dim, m_aeffData[1].val-1, it, inc, 
-                   m_aeff);
-   
    return aeffval;
 }
 

@@ -2,7 +2,7 @@
  * @brief Implementation for Response base class.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.9 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.10 2003/03/25 23:22:03 jchiang Exp $
  */
 
 #include <vector>
@@ -25,28 +25,46 @@ Response::Response() {
    }
 }
 
-double Response::m_bilinear(int nx, double *xx, int i, double x, 
-                            int ny, double *yy, int j, double y, double *z) {
+double Response::bilinear(const std::vector<double> &xx, double x, 
+                          const std::vector<double> &yy, double y, 
+                          const std::valarray<double> &z) {
 
-/* be sure to pass xx as xx-1 and yy as yy-1 to account for NR
-   unit offset kludge */
+   std::vector<double>::const_iterator ix;
+   if (x < *(xx.begin())) {
+      ix = xx.begin() + 1;
+   } else if (x >= *(xx.end()-1)) {
+      ix = xx.end() - 1;
+   } else {
+      ix = upper_bound(xx.begin(), xx.end(), x);
+   }
+   int i = ix - xx.begin();
 
-   double tt, uu, y1, y2, y3, y4, value;
+   std::vector<double>::const_iterator iy;
+   if (y < *(yy.begin())) {
+      iy = yy.begin() + 1;
+   } else if (y >= *(yy.end()-1)) {
+      iy = yy.end() - 1;
+   } else {
+      iy = upper_bound(yy.begin(), yy.end(), y);
+   }
+   int j = iy - yy.begin();
 
-   tt = (x - xx[i])/(xx[i+1] - xx[i]);
-   uu = (y - yy[j])/(yy[j+1] - yy[j]);
+   double tt = (x - *(ix-1))/(*(ix) - *(ix-1));
+   double uu = (y - *(iy-1))/(*(iy) - *(iy-1));
 
-   y1 = z[ny*(i-1) + (j-1)];
-   y2 = z[ny*i + (j-1)];
-   y3 = z[ny*i + j];
-   y4 = z[ny*(i-1) + j];
+   double y1 = z[yy.size()*(i-1) + (j-1)];
+   double y2 = z[yy.size()*(i) + (j-1)];
+   double y3 = z[yy.size()*(i) + (j)];
+   double y4 = z[yy.size()*(i-1) + (j)];
 
-   value = (1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
+   double value = (1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
       + tt*uu*y3 + (1. - tt)*uu*y4; 
    if (value < 0.) {
-      std::cerr << "bilinear: value = " << value << " <0\n";
-      std::cerr << i << "  " << xx[i] << "  " << x << "  " << xx[i+1] << "\n";
-      std::cerr << j << "  " << yy[j] << "  " << y << "  " << yy[j+1] << "\n";
+      std::cerr << "bilinear: value = " << value << " < 0\n";
+      std::cerr << xx[i-1] << "  " << *(ix-1) << "  " 
+                << x << "  " << *ix << "\n";
+      std::cerr << yy[j-1] << "  " << *(iy-1) << "  " 
+                << y << "  " << *iy << "\n";
       std::cerr << tt << "  " << uu << "  " 
                 << y1 << "  " << y2 << "  "
                 << y3 << "  " << y4 << "  " << std::endl;

@@ -2,7 +2,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.10 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.12 2003/03/22 01:22:51 jchiang Exp $
  */
 
 #include <vector>
@@ -125,20 +125,20 @@ void SourceModel::deleteSource(const std::string &srcName) {
              << srcName << " was not found." << std::endl;
 }
 
-// remake parameter vector from scratch 
-void SourceModel::syncParams() {
+void SourceModel::deleteAllSources() {
+   std::vector<std::string> srcNames;
+   getSrcNames(srcNames);
+   for (unsigned int i = 0; i < srcNames.size(); i++)
+      deleteSource(srcNames[i]);
    m_parameter.clear();
+}
 
+Source * SourceModel::getSource(const std::string &srcName) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++) {
-         std::vector<Parameter> params;
-         (*func_it).second->getParams(params);
-         for (unsigned int ip = 0; ip < params.size(); ip++)
-            m_parameter.push_back(params[ip]);
-      }
+      if (srcName == s_sources[i]->getName())
+         return s_sources[i];
    }
+   return 0;
 }
 
 void SourceModel::getSrcNames(std::vector<std::string> &names) const {
@@ -160,6 +160,22 @@ double SourceModel::evaluate_at(Arg &x) const {
       }
    }
    return my_val;
+}
+
+// remake parameter vector from scratch 
+void SourceModel::syncParams() {
+   m_parameter.clear();
+
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
+      Source::FuncMap::iterator func_it = srcFuncs.begin();
+      for (; func_it != srcFuncs.end(); func_it++) {
+         std::vector<Parameter> params;
+         (*func_it).second->getParams(params);
+         for (unsigned int ip = 0; ip < params.size(); ip++)
+            m_parameter.push_back(params[ip]);
+      }
+   }
 }
 
 void SourceModel::fetchDerivs(Arg &x, std::vector<double> &derivs, 

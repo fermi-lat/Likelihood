@@ -2,7 +2,7 @@
  * @brief Declaration for the PowerLaw Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.9 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef PowerLaw_h
@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.9 2003/03/22 01:22:50 jchiang Exp $
  */
     
 class PowerLaw : public Function {
@@ -38,7 +38,6 @@ public:
    virtual Function *clone() const {
       return new PowerLaw(*this);
    }
-;
 
 private:
 

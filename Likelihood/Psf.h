@@ -2,7 +2,7 @@
  * @brief Psf class implementation
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.7 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef Psf_h
@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.7 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class Psf : public Response {
@@ -69,10 +69,7 @@ private:
    std::vector<double> m_energy;
    std::vector<double> m_theta;
    std::vector<double> m_wt;
-
-   //! need to find a better way to store the psf width table data
-   //! perhaps with std::valarray....for now, use pointers
-   double *m_sig1, *m_sig2;
+   std::valarray<double> m_sig1, m_sig2;
 
 };
 

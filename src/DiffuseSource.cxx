@@ -1,10 +1,11 @@
 /** @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.1 2003/03/25 23:22:03 jchiang Exp $
  */
 
 #include <vector>
+#include <valarray>
 #include <string>
 #include <cmath>
 
@@ -29,10 +30,16 @@ DiffuseSource::DiffuseSource(Function* spatialDist) : m_spectrum(0) {
    m_spatialDist = spatialDist->clone();
    m_functions["SpatialDist"] = m_spatialDist;
 
-// Exposure is computed automatically, so RoiCuts and spacecraft data
-// must be available; furthermore, the ExposureMap object must have
-// been instantiated.
-   computeExposure();
+   if (!s_haveStaticMembers) {
+      makeEnergyVector();
+      s_haveStaticMembers = false;
+   }
+
+// In order to compute exposure, RoiCuts and spacecraft data must be
+// available; furthermore, the ExposureMap object must have been
+// instantiated.
+   ExposureMap *emap = ExposureMap::instance();
+   emap->integrateSpatialDist(s_energies, spatialDist, m_exposure);
 }
 
 DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {
@@ -54,7 +61,7 @@ double DiffuseSource::fluxDensity(const Event &evt) const {
 
 // Note that the Event-specific diffuseResponses are assumed to
 // be identified by the DiffuseSource name.
-   dArg energy_arg(evt.getEnergy());
+   dArg energy_arg(trueEnergy);
    return (*m_spectrum)(energy_arg)*evt.diffuseResponse(trueEnergy, getName());
 }
 
@@ -62,13 +69,16 @@ double DiffuseSource::fluxDensityDeriv(const Event &evt,
                                        std::string &paramName) const {
                                    
 // For now, just implement for spectral Parameters and neglect
-// the spatial ones, "longitude" and "latitude"
+// the spatial ones, "longitude" and "latitude".
+
+// This method needs to be generalized for spectra that are
+// CompositeFunctions.
 
    if (paramName == "Prefactor") {
       return fluxDensity(evt)/m_spectrum->getParamValue("Prefactor");
    } else {
       double trueEnergy = evt.getEnergy(); 
-      dArg energy_arg(evt.getEnergy());
+      dArg energy_arg(trueEnergy);
       return m_spectrum->derivByParam(energy_arg, paramName)
          *evt.diffuseResponse(trueEnergy, getName());
    }
@@ -77,8 +87,8 @@ double DiffuseSource::fluxDensityDeriv(const Event &evt,
 double DiffuseSource::Npred() {
    Function *specFunc = m_functions["Spectrum"];
 
-// evaluate the Npred integrand at the abscissa points contained in
-// s_energies
+// Evaluate the Npred integrand at the abscissa points contained in
+// s_energies.
    
    std::vector<double> NpredIntegrand(s_energies.size());
    for (unsigned int k = 0; k < s_energies.size(); k++) {
@@ -105,39 +115,7 @@ double DiffuseSource::NpredDeriv(const std::string &paramName) {
       return trapQuad.integral();
    }
 }
-
-void DiffuseSource::computeExposure() {
-   if (!s_haveStaticMembers) {
-      makeEnergyVector();
-      s_haveStaticMembers = true;
-   }         
-
-   ExposureMap *exposureMap = ExposureMap::instance();
-
-// Fetch the pixel coordinates.
-   std::vector<double> ra;
-   exposureMap->fetchRA(ra);
-   std::vector<double> dec;
-   exposureMap->fetchDec(dec);
-
-// Fetch the exposure multiplied by the solid angle of the associated
-// pixel.
-   std::vector<double> exposure;
-   exposureMap->fetchExposure(exposure);
-
-   m_exposure.clear();
-   m_exposure.reserve(s_energies.size());
-   for (unsigned int k = 0; k < s_energies.size(); k++) {
-      double srcExposure = 0;
-      for (unsigned int j = 0; j < ra.size(); j++) {
-         astro::SkyDir skyDir(ra[j], dec[j]);
-         SkyDirArg dir(skyDir);
-         srcExposure += exposure[j]*(*m_spatialDist)(dir);
-      }
-      m_exposure.push_back(srcExposure);
-   }
-}
-
+   
 void DiffuseSource::makeEnergyVector(int nee) {
    RoiCuts *roiCuts = RoiCuts::instance();
    

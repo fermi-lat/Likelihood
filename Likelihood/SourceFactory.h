@@ -2,7 +2,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.2 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef SourceFactory_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.2 2003/03/22 01:22:50 jchiang Exp $
  *
  */
     
@@ -45,7 +45,7 @@ public:
 
    Source *makeSource(const std::string &name);
 
-   void listSources();
+   void fetchSrcNames(std::vector<std::string> &srcNames);
 
 private:
 
