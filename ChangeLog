@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Mar  5 10:42:05 PST 2004
+Likelihood/data
+
+Modified Files:
+	anticenter_Roi.xml 
+Log Message:
+first complete implementation using map_tools Exposure hypercube
+    *
+------------------------------------------------------------
+User: jchiang  Fri Mar  5 10:42:05 PST 2004
 Likelihood/cmt
 
 Modified Files:
