@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.2 2003/11/05 16:55:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.3 2003/11/05 17:33:49 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -39,7 +39,7 @@
 
 using namespace Likelihood;
 
-void print_fit_results(SourceModel &stat);
+void print_fit_results(SourceModel &stat, const std::vector<double> &errors);
 
 int main(int iargc, char* argv[]) {
 
@@ -122,7 +122,17 @@ int main(int iargc, char* argv[]) {
 // Do the fit.
    myOpt->find_min(verbose, tol);
 
-   print_fit_results(logLike);
+// Evaluate the uncertainties, if available.
+   std::vector<double> errors;
+   if (optimizer == "MINUIT") {
+      errors = dynamic_cast<optimizers::Minuit *>(myOpt)->getUncertainty();
+   } else if (optimizer == "DRMNGB") {
+      int retCode = dynamic_cast<optimizers::Drmngb *>(myOpt)->getRetCode();
+      std::cerr << "Drmngb return code: " << retCode;
+      errors = dynamic_cast<optimizers::Drmngb *>(myOpt)->getUncertainty();
+   }
+
+   print_fit_results(logLike, errors);
 
 // Write the model to the output xml file.
    std::string xmlFile = params.string_par("Source_model_output_file");
@@ -134,18 +144,27 @@ int main(int iargc, char* argv[]) {
    delete myOpt;
 }
 
-void print_fit_results(SourceModel &stat) {
+void print_fit_results(SourceModel &stat, const std::vector<double> &errors) {
    std::vector<std::string> srcNames;
    stat.getSrcNames(srcNames);
    std::vector<optimizers::Parameter> parameters;
+
+   std::vector<double>::const_iterator errIt = errors.begin();
+
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       Source *src = stat.getSource(srcNames[i]);
       Source::FuncMap srcFuncs = src->getSrcFuncs();
       srcFuncs["Spectrum"]->getParams(parameters);
       std::cout << "\n" << srcNames[i] << ":\n";
-      for (unsigned int i = 0; i < parameters.size(); i++)
+      for (unsigned int i = 0; i < parameters.size(); i++) {
          std::cout << parameters[i].getName() << ": "
-                   << parameters[i].getValue() << std::endl;
+                   << parameters[i].getValue();
+         if (parameters[i].isFree() && errIt != errors.end()) {
+            std::cout << " +/- " << *errIt;
+            errIt++;
+         }
+         std::cout << std::endl;
+      }
       std::cout << "Npred: "
                 << src->Npred() << std::endl;
    }
