@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.12 2005/02/27 06:42:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.13 2005/03/01 01:07:00 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -98,7 +98,9 @@ void gtsrcmaps::run() {
    m_helper->checkOutputFile();
    m_helper->checkTimeCuts(m_pars["counts_map_file"], "",
                            m_pars["exposure_cube_file"], "");
-   ExposureCube::readExposureCube(m_pars["exposure_cube_file"]);
+
+   std::string expCubeFile = m_pars["exposure_cube_file"];
+   m_helper->observation().expCube().readExposureCube(expCubeFile);
 
    std::string cntsMapFile = m_pars["counts_map_file"];
    dataSubselector::Cuts my_cuts(cntsMapFile, "", false);
@@ -109,8 +111,8 @@ void gtsrcmaps::run() {
    double ra, dec;
    getRefCoord(cntsMapFile, ra, dec);
 
-   m_helper->observation().roiCuts().setCuts(ra, dec, 20., energies.front(),
-                                             energies.back());
+   RoiCuts &roiCuts = const_cast<RoiCuts &>(m_helper->observation().roiCuts());
+   roiCuts.setCuts(ra, dec, 20., energies.front(), energies.back());
 
    std::string binnedMap = m_pars["binned_exposure_map"];
    if (binnedMap != "none" && binnedMap != "") {

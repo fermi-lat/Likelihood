@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.22 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.23 2005/02/28 18:38:46 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,6 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
 }
 
 DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {
-// make a deep copy
    m_spatialDist = rhs.m_spatialDist->clone();
    m_functions["SpatialDist"] = m_spatialDist;
 
@@ -63,7 +62,6 @@ DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {
    m_functions["Spectrum"] = m_spectrum;
 
    m_exposure = rhs.m_exposure;
-   m_srcType = rhs.m_srcType;
 }
 
 double DiffuseSource::fluxDensity(const Event &evt) const {

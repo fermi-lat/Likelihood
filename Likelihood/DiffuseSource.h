@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.26 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.27 2005/03/01 01:06:52 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -44,7 +44,7 @@ class Observation;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.26 2005/02/27 06:42:24 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.27 2005/03/01 01:06:52 jchiang Exp $ 
  *  
  */
 
@@ -86,7 +86,6 @@ public:
       (void)(evtType);
       return 0;
    }
-
 
    virtual double fluxDensityDeriv(double inclination, double phi, 
                                    double energy,

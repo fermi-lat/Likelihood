@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.46 2005/01/13 22:42:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.47 2005/03/01 01:06:52 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -15,7 +15,6 @@
 #include "optimizers/dArg.h"
 
 #include "Likelihood/Event.h"
-#include "Likelihood/ExposureCube.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Source.h"
 
@@ -25,6 +24,10 @@ namespace irfInterface {
 
 namespace Likelihood {
 
+   class ExposureCube;
+   class Observation;
+   class RoiCuts;
+
 /** 
  * @class PointSource
  *
@@ -32,7 +35,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.46 2005/01/13 22:42:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.47 2005/03/01 01:06:52 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -46,13 +49,13 @@ public:
    /// that the ROI cuts have not been specified.
    // A later setDir(ra, dec, true) will force the exposure to
    // be computed.
-   PointSource() : m_spectrum(0) {setDir(0., 0., false); m_srcType = "Point";}
+   PointSource();
 
    /// This constructor does ask for exposure to be computed and 
    /// therefore *requires* the spacecraft data to be available and the 
    /// ROI cuts to be specified beforehand.
-   PointSource(double ra, double dec, bool verbose=false) : m_spectrum(0) 
-      {setDir(ra, dec, true, verbose);  m_srcType = "Point";}
+   PointSource(double ra, double dec, const Observation & observation,
+               bool verbose=false);
 
    PointSource(const PointSource &rhs);
 
@@ -115,11 +118,14 @@ public:
       if (updateExposure) computeExposure(verbose);
    }
 
-   const astro::SkyDir & getDir() const {return m_dir.getDir();}
+   const astro::SkyDir & getDir() const {
+      return m_dir.getDir();
+   }
 
    /// Angular separation between the source direction and dir in radians
-   double getSeparation(const astro::SkyDir &dir) 
-      {return dir.SkyDir::difference(m_dir.getDir());}
+   double getSeparation(const astro::SkyDir &dir) const {
+      return dir.SkyDir::difference(m_dir.getDir());
+   }
 
    /// Set the spectral model (@todo Should check that the Parameter
    /// names do not conflict with "longitude" and "latitude" of m_dir)
@@ -132,10 +138,6 @@ public:
       return new PointSource(*this);
    }
 
-   const std::vector<double> & exposure() const {
-      return m_exposure;
-   }
-
    virtual double pixelCounts(double emin, double emax,
                               double wtMin, double wtMax) const;
 
@@ -146,21 +148,42 @@ public:
    static bool overlapInterval(const std::pair<double, double> & interval1,
                                std::pair<double, double> & interval2);
 
+   /// Compute the integrated exposure using the provided 
+   /// vector of energy values
+   static void computeExposure(const astro::SkyDir & dir,
+                               const std::vector<double> & energies,
+                               std::vector<double> & exposure,
+                               bool verbose);
+
+   /// Use a hypercube computed using map_tools.
+   static void 
+   computeExposureWithHyperCube(const astro::SkyDir & dir, 
+                                const std::vector<double> & energies,
+                                const ExposureCube & expCube,
+                                const RoiCuts & roiCuts,
+                                std::vector<double> & exposure,
+                                bool verbose);
+
 private:
+
+   /// location on the Celestial sphere 
+   SkyDirFunction m_dir;
+
+   /// spectral model
+   optimizers::Function *m_spectrum;
+
+   /// integrated exposure at PointSource sky location
+   std::vector<double> m_exposure;
+
+   /// Observation object to keep track of ROI, spacecraft data, etc.
+   const Observation * m_observation;
+
+   /// True photon energies for convolving the spectrum with
+   /// the energy dispersion.
+   static std::vector<double> s_trueEnergies;
 
    /// Computes the integrated exposure at the PointSource sky location.
    void computeExposure(bool verbose);
-
-   /// Compute the integrated exposure using the provided 
-   /// vector of energy values
-   void computeExposure(std::vector<double> &energies,
-                        std::vector<double> &exposure,
-                        bool verbose);
-
-   /// Use a hypercube computed using map_tools.
-   void computeExposureWithHyperCube(std::vector<double> &energies,
-                                     std::vector<double> &exposure,
-                                     bool verbose);
 
    double fluxDensity(double energy, const astro::SkyDir & zAxis,
                       const astro::SkyDir & xAxis,
@@ -178,31 +201,13 @@ private:
                            const astro::SkyDir &dir, int eventType,
                            const std::string &paramName) const;
 
-   /// location on the Celestial sphere 
-   SkyDirFunction m_dir;
-
-   /// spectral model
-   optimizers::Function *m_spectrum;
-
-   /// flag to indicate that static member data has been computed
-   static bool s_haveStaticMembers;
-
-   /// vector of energy values for Npred spectrum quadrature
-   static std::vector<double> s_energies;
-
-   /// True photon energies for convolving the spectrum with
-   /// the energy dispersion.
-   static std::vector<double> s_trueEnergies;
-
-   /// integrated exposure at PointSource sky location
-   std::vector<double> m_exposure;
-
    /// method to create a logrithmically spaced grid given RoiCuts
    static void makeEnergyVector(int nee = 100);
 
    /// Method to compute effective area for the computeExposure time
    /// integrals (when exposure time hypercubes are not available.)
-   double sourceEffArea(double energy, double time) const;
+   static double sourceEffArea(const astro::SkyDir & srcDir,
+                               double energy, double time);
 
 #ifndef SWIG
    /**
@@ -216,7 +221,8 @@ private:
 
    public:
 
-      Aeff(double energy, const astro::SkyDir &srcDir);
+      Aeff(double energy, const astro::SkyDir &srcDir,
+           const RoiCuts & roiCuts);
 
       virtual ~Aeff() {}
 

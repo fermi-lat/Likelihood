@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.25 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.26 2005/03/01 01:06:52 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -39,7 +39,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.25 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.26 2005/03/01 01:06:52 jchiang Exp $
  */
 
 class RoiCuts {
@@ -71,14 +71,12 @@ public:
       return s_muZenMax;
    }
 
-   /// Methods to allow cuts to be specified
-
    /// Set all cuts (includes reset of time cuts)
-   static void setCuts(double ra = 193.98, double dec = -5.82, 
-                       double roi_radius = 20.,
-                       double emin = 30., double emax = 3.1623e5,
-                       double tmin = 0., double tmax = 1e12,
-                       double muZenMax = -1.);
+   void setCuts(double ra = 193.98, double dec = -5.82, 
+                double roi_radius = 20.,
+                double emin = 30., double emax = 3.1623e5,
+                double tmin = 0., double tmax = 1e12,
+                double muZenMax = -1.);
 
    /// Read from the DSS keywords in the eventFile. (Series of event
    /// files are required to have the same DSS keywords.)
@@ -91,11 +89,21 @@ public:
 
    /// Write DSS keywords to a FITS header
    void writeDssKeywords(tip::Header & header) const;
+
+   /// Write the GTI extension to the FITS file
    void writeGtiExtension(const std::string & filename) const;
+
+   /// A logrithmically spaced vector of energies from the minimum
+   /// energy to the maximum energy.
+   const std::vector<double> & energies() const {
+      return m_energies;
+   }
 
 protected:
 
-   RoiCuts() : m_energyCut(0), m_skyConeCut(0) {}
+   RoiCuts() : m_energyCut(0), m_skyConeCut(0) {
+      makeEnergyVector();
+   }
 
    ~RoiCuts() {
       for (int i = m_gtiCuts.size()-1; i > -1; i--) {
@@ -124,6 +132,9 @@ private:
    static double s_eMin;
    static double s_eMax;
 
+   /// A vector of logrithmically-spaced energies between s_eMin and s_eMax.
+   std::vector<double> m_energies;
+
    /// The acceptance cone or sky extraction region.
    static irfInterface::AcceptanceCone s_roiCone;
 
@@ -136,7 +147,10 @@ private:
    std::vector<dataSubselector::GtiCut *> m_gtiCuts;
 
    /// Set additional time cuts
-   static void addTimeInterval(double tmin, double tmax);
+   void addTimeInterval(double tmin, double tmax);
+
+   /// Create the m_energies vector.
+   void makeEnergyVector(int nee=100);
 
    void sortCuts(bool strict=true);
    void setRoiData();
