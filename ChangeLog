@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Fri May  2 12:02:14 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h Optimizer.h PointSource.h SkyDirFunction.h Source.h 
+	SourceFactory.h SpatialMap.h 
+Added Files:
+	ConstantValue.h 
+Log Message:
+add ConstantValue class, generalize HAVE_OPTIMIZER variable
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 25 15:20:22 PDT 2003
 Likelihood/doc
 
