@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr 21 13:58:42 PDT 2004
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+using st_app::StApp instead st_app::IApp
+    *
+------------------------------------------------------------
 User: jchiang  Wed Apr 21 13:58:41 PDT 2004
 Likelihood/src/likelihood
 
