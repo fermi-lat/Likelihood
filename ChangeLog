@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Sep 15 21:39:00 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx SourceModel.cxx 
+Log Message:
+more binned derivatives
+    *
+------------------------------------------------------------
+User: jchiang  Wed Sep 15 21:39:00 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
