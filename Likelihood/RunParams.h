@@ -3,7 +3,7 @@
  * @brief Wrapper class for the hoops interface.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.5 2003/11/10 23:06:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.6 2003/11/12 22:01:36 jchiang Exp $
  */
 
 #ifndef Likelihood_RunParams_h
@@ -27,12 +27,14 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.5 2003/11/10 23:06:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.6 2003/11/12 22:01:36 jchiang Exp $
  */
 
 class RunParams {
 
 public:
+
+   RunParams() : m_prompter(0) {}
 
    RunParams(int iargc, char* argv[]);
 

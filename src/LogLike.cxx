@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.7 2003/11/18 18:09:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.8 2003/11/25 19:03:12 jchiang Exp $
  */
 
 #include <vector>
@@ -154,24 +154,26 @@ void LogLike::getEvents(std::string event_file, int) {
    bool done = false;
    while (!done) {
       const Goodi::Event *evt = eventData->nextEvent(ioService, done);
-      nTotal++;
-
-      double time = evt->time();
-
-      double raSCZ = scData->zAxis(time).ra();
-      double decSCZ = scData->zAxis(time).dec();
-
-      Event thisEvent( evt->ra()*180./M_PI, 
-                       evt->dec()*180./M_PI,
-                       evt->energy(), 
-                       time,
-                       raSCZ, decSCZ,
-                       cos(evt->zenithAngle()) );
-
-      if (roiCuts->accept(thisEvent)) {
-         m_events.push_back(thisEvent);
-      } else {
-         nReject++;
+      if (!done) {
+         nTotal++;
+         
+         double time = evt->time();
+         
+         double raSCZ = scData->zAxis(time).ra();
+         double decSCZ = scData->zAxis(time).dec();
+         
+         Event thisEvent( evt->ra()*180./M_PI, 
+                          evt->dec()*180./M_PI,
+                          evt->energy()/1e6, 
+                          time,
+                          raSCZ, decSCZ,
+                          cos(evt->zenithAngle()) );
+         
+         if (roiCuts->accept(thisEvent)) {
+            m_events.push_back(thisEvent);
+         } else {
+            nReject++;
+         }
       }
    }
    std::cout << "LogLike::getEvents:\nOut of " 
