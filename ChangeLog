@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Mar  5 10:37:55 PST 2005
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+use new map_tools interface; tagging v7r0p2
+    *
+------------------------------------------------------------
+User: jchiang  Sat Mar  5 10:37:55 PST 2005
 Likelihood/src
 
 Modified Files:
