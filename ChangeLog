@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Nov 28 07:01:29 PST 2004
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+delete file to be clobbered rather than using flawed '!' syntax
+    *
+------------------------------------------------------------
+User: jchiang  Sun Nov 28 07:01:29 PST 2004
 Likelihood/cmt
 
 Modified Files:
