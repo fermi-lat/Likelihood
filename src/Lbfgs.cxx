@@ -145,6 +145,7 @@ namespace Likelihood {
 	 p != params.end(); p++, i++) {
       p->setValue(paramVals[i]);
     }
+    double funcValue = (*m_stat)(paramVals);
   } // End of find_min
 }
 
