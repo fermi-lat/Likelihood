@@ -3,7 +3,7 @@
  * @brief Wrapper class for the hoops interface.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.3 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.4 2003/11/10 12:54:39 cohen Exp $
  */
 
 #ifndef Likelihood_RunParams_h
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.3 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RunParams.h,v 1.4 2003/11/10 12:54:39 cohen Exp $
  */
 
 class RunParams {
@@ -113,6 +113,21 @@ public:
          assert(false);
       }
    }
+
+// Static methods for parsing filename parameters.
+
+   /// @param filename This can be a FITS file or a list of FITS
+   ///                 files.  
+   /// @param files On return, this contains the list of FITS files,
+   ///              or the filename itself as its only element.
+   static void resolve_fits_files(std::string filename, 
+                                  std::vector<std::string> &files);
+
+   /// @param inputFile The name of the file containing a list of strings
+   ///                  separated by '\n'.
+   /// @param lines On return, this contains the list of strings.
+   static void readLines(std::string inputFile, 
+                         std::vector<std::string> &lines);
 
 private:
 

@@ -6,8 +6,8 @@
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
     <spatialModel type="SkyDirFunction">
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="194.5" />
-      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="-5.9" />
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="193.98" />
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="-5.82" />
     </spatialModel>
   </source>
   <source name="Extragalactic Diffuse Emission" type="DiffuseSource">
@@ -26,7 +26,7 @@
       <parameter max="-1" min="-3.5" free="0" name="Index" scale="1" value="-2.1" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
-    <spatialModel file="/u1/jchiang/SciTools/dev/Likelihood/v2r2/src/test/Data/gas.cel" type="SpatialMap">
+    <spatialModel file="$(LIKELIHOODROOT)/src/test/Data/gas.cel" type="SpatialMap">
       <parameter max="1000" min="0.001" free="0" name="Prefactor" scale="1" value="1" />
     </spatialModel>
   </source>

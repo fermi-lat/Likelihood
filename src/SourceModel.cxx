@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.28 2003/11/07 02:27:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.29 2003/11/08 21:33:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -462,14 +462,16 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
 // Get each Source's properties in terms of its functions.
       Source::FuncMap srcFuncs = (*srcIt)->getSrcFuncs();
 
-// Consider only PointSources for now.
-      if (srcFuncs.count("Position")) {
-
 // Compute the flux integrated over the energy range given by the ROI.
-         TrapQuad fluxIntegral(srcFuncs["Spectrum"]);
-         std::ostringstream flux;
-         flux << fluxIntegral.integral(energies)/1e-4;
-         srcElt.setAttribute("flux", flux.str().c_str());
+      TrapQuad fluxIntegral(srcFuncs["Spectrum"]);
+      std::ostringstream flux;
+      flux << fluxIntegral.integral(energies)/1e-4;
+      srcElt.setAttribute("flux", flux.str().c_str());
+
+// Consider PointSources and Isotropic sources.
+      if ( srcFuncs.count("Position")
+           || (srcFuncs.count("SpatialDist") 
+               && srcFuncs["SpatialDist"]->genericName()=="ConstantValue") ) {
 
 // Prepare the spectrum tag.
          DOM_Element specElt = doc.createElement("spectrum");
@@ -503,17 +505,24 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
          partElt.appendChild(spectralTypeElt);
          specElt.appendChild(partElt);
 
-// The source direction.
-         DOM_Element dirElt = doc.createElement("celestial_dir");
-         std::ostringstream ra, dec;
-         ra << dynamic_cast<SkyDirFunction *>
-            (srcFuncs["Position"])->getDir().ra();
-         dirElt.setAttribute("ra", ra.str().c_str());
-         dec << dynamic_cast<SkyDirFunction *>
-            (srcFuncs["Position"])->getDir().dec();
-         dirElt.setAttribute("dec", dec.str().c_str());
-         specElt.appendChild(dirElt);
-
+         if (srcFuncs.count("Position")) {
+// This is a PointSource; add its source direction.
+            DOM_Element dirElt = doc.createElement("celestial_dir");
+            std::ostringstream ra, dec;
+            ra << dynamic_cast<SkyDirFunction *>
+               (srcFuncs["Position"])->getDir().ra();
+            dirElt.setAttribute("ra", ra.str().c_str());
+            dec << dynamic_cast<SkyDirFunction *>
+               (srcFuncs["Position"])->getDir().dec();
+            dirElt.setAttribute("dec", dec.str().c_str());
+            specElt.appendChild(dirElt);
+         } else if (srcFuncs["SpatialDist"]->genericName()=="ConstantValue") {
+// This is an isotropic source; add the solid_angle tag.
+            DOM_Element solidAngleElt = doc.createElement("solid_angle");
+            solidAngleElt.setAttribute("mincos", "-0.4");
+            solidAngleElt.setAttribute("maxcos", "1.0");
+            specElt.appendChild(solidAngleElt);
+         }
          srcElt.appendChild(specElt);
       }
       srcLib.appendChild(srcElt);
@@ -530,8 +539,6 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
    facilities::Util::expandEnvVar(&xmlFile);
 
    std::ofstream outFile(xmlFile.c_str());
-//    outFile << "<?xml version='1.0' standalone='no'?>\n"
-//            << "<!DOCTYPE source_library SYSTEM \"A1_Sources.dtd\" >\n";
    xml::Dom::prettyPrintElement(srcLib, outFile, "");
 
    delete parser;

@@ -28,7 +28,7 @@
       <parameter max="-1" min="-3.5" free="0" name="Index" scale="1" value="-2.1" />
       <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
     </spectrum>
-    <spatialModel file="/u1/jchiang/SciTools/dev/Likelihood/v2r1/src/test/Data/gas.cel" type="SpatialMap">
+    <spatialModel file="$(LIKELIHOODROOT)/src/test/Data/gas.cel" type="SpatialMap">
       <parameter max="1000" min="0.001" free="0" name="Prefactor" scale="1" value="1" />
     </spatialModel>
   </source>

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.26 2003/10/01 17:03:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.27 2003/11/08 01:24:44 jchiang Exp $
  */
 
 #include <sstream>
@@ -25,7 +25,6 @@
 #include "Likelihood/PointSource.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/SpatialMap.h"
-#include "Likelihood/ConstantValue.h"
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
 

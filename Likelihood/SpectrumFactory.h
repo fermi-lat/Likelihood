@@ -3,7 +3,7 @@
  * @brief Declaration of SpectrumFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.9 2003/07/21 22:14:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.10 2003/08/06 20:52:03 jchiang Exp $
  */
 
 #ifndef Likelihood_SpectrumFactory_h
@@ -12,9 +12,10 @@
 #include <string>
 #include <map>
 
-#include "PowerLaw.h"
-#include "Gaussian.h"
-#include "AbsEdge.h"
+#include "optimizers/../src/PowerLaw.h"
+#include "optimizers/../src/Gaussian.h"
+#include "optimizers/../src/AbsEdge.h"
+
 #include "Likelihood/Exception.h"
 
 namespace optimizers {
@@ -36,7 +37,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.9 2003/07/21 22:14:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.10 2003/08/06 20:52:03 jchiang Exp $
  *
  */
     
@@ -44,9 +45,9 @@ class SpectrumFactory {
 public:
 
    SpectrumFactory() {
-      addFunc("PowerLaw", new PowerLaw(), false);
-      addFunc("Gaussian", new Gaussian(), false);
-      addFunc("AbsEdge", new AbsEdge(), false);
+      addFunc("PowerLaw", new optimizers::PowerLaw(), false);
+      addFunc("Gaussian", new optimizers::Gaussian(), false);
+      addFunc("AbsEdge", new optimizers::AbsEdge(), false);
    }
 
    virtual ~SpectrumFactory();

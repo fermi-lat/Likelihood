@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.1 2003/11/06 00:31:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.2 2003/11/08 01:24:45 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -24,6 +24,7 @@
 #include "optimizers/Minuit.h"
 #include "optimizers/Drmngb.h"
 #include "optimizers/Exception.h"
+#include "optimizers/../src/PowerLaw.h"
 
 #include "latResponse/IrfsFactory.h"
 
@@ -34,12 +35,8 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/SpatialMap.h"
-#include "Likelihood/ConstantValue.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/RunParams.h"
-#include "PowerLaw.h"
-#include "Gaussian.h"
-#include "AbsEdge.h"
 
 using namespace Likelihood;
 
@@ -70,7 +67,12 @@ int main(int iargc, char* argv[]) {
 // Read in the pointing information.
    std::string scFile = params.string_par("Spacecraft_file");
    int scHdu = static_cast<int>(params.long_par("Spacecraft_file_hdu"));
-   ScData::readData(scFile, scHdu);
+   std::vector<std::string> scFiles;
+   RunParams::resolve_fits_files(scFile, scFiles);
+   std::vector<std::string>::const_iterator scIt = scFiles.begin();
+   for ( ; scIt != scFiles.end(); scIt++) {
+      ScData::readData(*scIt, scHdu);
+   }
 
 // Read in the exposure map file.
    std::string exposureFile = params.string_par("Exposure_map_file");
@@ -94,15 +96,9 @@ int main(int iargc, char* argv[]) {
 // modeling.
    optimizers::FunctionFactory funcFactory;
 
-// Add the standard prototypes for modeling spectra,
+// Add the prototypes for modeling spatial distributions.
    bool makeClone(false);
-   funcFactory.addFunc("PowerLaw", new PowerLaw(), makeClone);
-   funcFactory.addFunc("Gaussian", new Gaussian(), makeClone);
-   funcFactory.addFunc("AbsEdge", new AbsEdge(), makeClone);
-
-// and the prototypes for modeling spatial distributions.
    funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
-   funcFactory.addFunc("ConstantValue", new ConstantValue(), makeClone);
    funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
    
 // Read in the Source model.
@@ -112,7 +108,12 @@ int main(int iargc, char* argv[]) {
 // Read in the Event data.
    std::string eventFile = params.string_par("event_file");
    int eventFileHdu = params.long_par("event_file_hdu");
-   logLike.getEvents(eventFile, eventFileHdu);
+   std::vector<std::string> eventFiles;
+   RunParams::resolve_fits_files(eventFile, eventFiles);
+   std::vector<std::string>::const_iterator evIt = eventFiles.begin();
+   for ( ; evIt != eventFiles.end(); evIt++) {
+      logLike.getEvents(*evIt, eventFileHdu);
+   }
 
 // Compute the Event responses to the diffuse components.
    logLike.computeEventResponses();
@@ -218,7 +219,7 @@ void makeDoubleVector(double xmin, double xmax, int nx,
 }
 
 void setPointSourceSpectrum(PointSource &src) {
-   PowerLaw *pl = new PowerLaw(1, -2, 100.);
+   optimizers::PowerLaw *pl = new optimizers::PowerLaw(1, -2, 100.);
    optimizers::Parameter indexParam = pl->getParam("Index");
    indexParam.setBounds(-3.5, -1.);
    pl->setParam(indexParam);
