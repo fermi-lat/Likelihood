@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Oct 10 18:34:59 PDT 2004
+Likelihood/pfiles
+
+Modified Files:
+	likelihood.par 
+Log Message:
+refactor parameter access a bit, reorganizing likelihood application mostly
+    *
+------------------------------------------------------------
+User: jchiang  Sun Oct 10 18:34:59 PDT 2004
 Likelihood/cmt
 
 Modified Files:
