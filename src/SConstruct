@@ -12,12 +12,16 @@ libraries = {'xml': None,
              'astro': None,
              'tipLib': None,
              'map_toolsLib': None,
-#             'latResponseLib': None,
              'optimizers': None,
              'f2c': None,
              'facilities': None,
              'st_appLib': None,
              'hoopsLib': None,
+             'irfInterfaceLib': None,
+             'irfLoaderLib': None,
+             'irfUtilLib': None,
+             'g25ResponseLib': None,
+             'dc1ResponseLib': None,
              'g2c': ('',''),
              'cfitsio': (os.path.join(os.environ['CFITSIO_DIR'], 'include'),
                          os.path.join(os.environ['CFITSIO_DIR'], 'lib')),
@@ -47,7 +51,7 @@ cflags = ' -DHAVE_OPT_PP -DUSE_FT1 -rdynamic -O2 '
 linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'pthread', 'm', 'dl',
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'pil',
-            'opt-linux', 'newmat-linux']
+            'opt-linux', 'newmat-linux', 'dc1ResponseLib', 'irfUtilLib']
 Export(['package', 'home', 'apps', 'libraries', 'cflags',
         'linkflags', 'rootlibs'])
 SConscript('buildBase')
