@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 10 13:21:10 PDT 2003
+Likelihood/src
+
+Modified Files:
+	SourceFactory.cxx 
+Log Message:
+add scoping: Function::ParameterNotFound
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 10 13:20:42 PDT 2003
 Likelihood/Likelihood
 
