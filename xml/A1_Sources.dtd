@@ -1,7 +1,7 @@
 <!ELEMENT source_library ((source)+ | (source_library)*) >
 <!ATTLIST source_library 
           title CDATA #REQUIRED 
-          function_library CDATA #REQUIRED >
+          function_library CDATA " " >
 <!ELEMENT source (spectrum, spatialModel) >
 <!ATTLIST source
           name       CDATA   #REQUIRED 
