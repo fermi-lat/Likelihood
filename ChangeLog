@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec  5 19:52:41 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+patch for likelihood.cxx; tagging v2r6p3
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec  5 19:52:40 PST 2003
 Likelihood/doc
 
