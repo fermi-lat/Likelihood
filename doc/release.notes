@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v4r2   01-Jul-04  JC   clean-up unit tests for Source objects
     v4r1   10-Jun-04  JC   added diffuseResponses tool; enabled SCons
                            build with Opt++ for cognoscenti
     v4r0   24-May-04  JC   Energy dispersion added; cppunit used in test.cxx

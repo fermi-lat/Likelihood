@@ -1,10 +1,10 @@
 package Likelihood
-version v4r1
+version v4r2
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.117 2004/06/09 17:13:16 jchiang Exp $
+# $Id: requirements,v 1.118 2004/06/10 17:25:41 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
@@ -34,5 +34,3 @@ use st_app v*
 macro LikelihoodLib_cppflags "" \
       Linux " -D USE_FT1 " \
       WIN32 ' /D"USE_FT1" '
-
-macro makeLinkMap ""
