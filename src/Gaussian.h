@@ -3,11 +3,11 @@
  * @brief Gaussian class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.8 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.9 2003/05/29 20:10:46 jchiang Exp $
  */
 
-#ifndef Gaussian_h
-#define Gaussian_h
+#ifndef Likelihood_Gaussian_h
+#define Likelihood_Gaussian_h
 
 #include "Likelihood/Function.h"
 #include "Likelihood/Arg.h"
@@ -20,7 +20,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.8 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.9 2003/05/29 20:10:46 jchiang Exp $
  */
     
 class Gaussian : public Function {
@@ -50,4 +50,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // Gaussian_h
+#endif // Likelihood_Gaussian_h

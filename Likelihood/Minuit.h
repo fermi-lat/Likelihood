@@ -2,11 +2,11 @@
  * @file Minuit.h
  * @brief Declaration for the Minuit Optimizer subclass.
  * @author P. Nolan
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Minuit.h,v 1.6 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef MINUIT_H
-#define MINUIT_H
+#ifndef Likelihood_MINUIT_H
+#define Likelihood_MINUIT_H
 
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Statistic.h"
@@ -140,6 +140,6 @@ extern "C" {
   logical intrac_(double *);
 }
 
-#endif // MINUIT_H
+#endif // Likelihood_MINUIT_H
 
 

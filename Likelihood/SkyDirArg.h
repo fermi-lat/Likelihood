@@ -3,11 +3,11 @@
  * @brief Declaration of SkyDirArg class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirArg.h,v 1.1 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirArg.h,v 1.2 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef SkyDirArg_h
-#define SkyDirArg_h
+#ifndef Likelihood_SkyDirArg_h
+#define Likelihood_SkyDirArg_h
 
 #include "Likelihood/Arg.h"
 #include "astro/SkyDir.h"
@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirArg.h,v 1.1 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirArg.h,v 1.2 2003/06/11 17:08:02 jchiang Exp $
  */
 
 class SkyDirArg : public Arg {
@@ -41,4 +41,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // SkyDirArg_h
+#endif // Likelihood_SkyDirArg_h

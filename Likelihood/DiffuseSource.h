@@ -3,11 +3,11 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.9 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.10 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef DiffuseSource_h
-#define DiffuseSource_h
+#ifndef Likelihood_DiffuseSource_h
+#define Likelihood_DiffuseSource_h
 
 #include "Likelihood/Source.h"
 #include "Likelihood/SkyDirArg.h"
@@ -38,7 +38,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.9 2003/06/10 23:58:30 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.10 2003/06/11 17:08:02 jchiang Exp $ 
  *  
  */
 
@@ -115,4 +115,4 @@ private:
 
 } //namespace Likelihood
 
-#endif // DiffuseSource_h
+#endif // Likelihood_DiffuseSource_h

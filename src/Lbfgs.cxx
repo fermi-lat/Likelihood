@@ -3,12 +3,12 @@
  * @brief Lbfgs class implementation
  * @author P. Nolan
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Lbfgs.cxx,v 1.10 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include "Likelihood/Lbfgs.h"
 #include "Likelihood/Parameter.h"
-#include "LikelihoodException.h"
+#include "Likelihood/LikelihoodException.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>

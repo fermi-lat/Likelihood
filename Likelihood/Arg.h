@@ -2,11 +2,11 @@
  * @file Arg.h
  * @brief Declaration of Arg class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Arg.h,v 1.4 2003/03/17 00:53:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Arg.h,v 1.5 2003/05/29 00:29:39 jchiang Exp $
  */
 
-#ifndef Arg_h
-#define Arg_h
+#ifndef Likelihood_Arg_h
+#define Likelihood_Arg_h
 
 namespace Likelihood {
 
@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Arg.h,v 1.4 2003/03/17 00:53:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Arg.h,v 1.5 2003/05/29 00:29:39 jchiang Exp $
  */
 
 class Arg {
@@ -38,4 +38,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // Arg_h
+#endif // Likelihood_Arg_h

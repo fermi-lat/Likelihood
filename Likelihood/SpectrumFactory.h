@@ -3,11 +3,11 @@
  * @brief Declaration of SpectrumFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.6 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef SpectrumFactory_h
-#define SpectrumFactory_h
+#ifndef Likelihood_SpectrumFactory_h
+#define Likelihood_SpectrumFactory_h
 
 #include <string>
 #include <map>
@@ -35,7 +35,7 @@ class Function;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.6 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  *
  */
     
@@ -68,4 +68,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // SpectrumFactory_h
+#endif // Likelihood_SpectrumFactory_h

@@ -2,12 +2,12 @@
  * @file FunctionTest.h
  * @brief Declaration of unit test code for Function class hierarchy
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FunctionTest.h,v 1.4 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FunctionTest.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
  */
 
 
-#ifndef FunctionTest_h
-#define FunctionTest_h
+#ifndef Likelihood_FunctionTest_h
+#define Likelihood_FunctionTest_h
 
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Arg.h"
@@ -21,7 +21,7 @@ namespace Likelihood {
  * @brief Unit test code for Function class hierarchy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FunctionTest.h,v 1.4 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FunctionTest.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
  */
 
 class FunctionTest {
@@ -59,4 +59,4 @@ private:
 
 } // namespace FunctionTest
 
-#endif // FunctionTest_h
+#endif // Likelihood_FunctionTest_h

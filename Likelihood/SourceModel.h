@@ -3,11 +3,11 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.18 2003/06/10 19:19:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.19 2003/06/19 20:16:04 jchiang Exp $
  */
 
-#ifndef SourceModel_h
-#define SourceModel_h
+#ifndef Likelihood_SourceModel_h
+#define Likelihood_SourceModel_h
 
 #include <vector>
 #include <string>
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.18 2003/06/10 19:19:56 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.19 2003/06/19 20:16:04 jchiang Exp $ 
  */
 
 class SourceModel : public Function {
@@ -127,4 +127,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // SourceModel_h
+#endif // Likelihood_SourceModel_h

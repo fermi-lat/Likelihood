@@ -3,13 +3,13 @@
  * @brief Minuit class implementation
  * @author P. Nolan
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Minuit.cxx,v 1.9 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include <sstream>
 #include "Likelihood/Minuit.h"
 #include "Likelihood/Parameter.h"
-#include "LikelihoodException.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 

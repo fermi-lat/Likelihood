@@ -4,13 +4,13 @@
  * Prototype pattern to return clones of various spectral components 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.5 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.6 2003/06/10 23:58:52 jchiang Exp $
  */
 
 #include <cassert>
 #include <sstream>
 #include "Likelihood/SpectrumFactory.h"
-#include "LikelihoodException.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 

@@ -3,11 +3,11 @@
  * @brief Declaration for the PowerLaw Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.11 2003/04/25 18:32:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.12 2003/05/29 20:10:46 jchiang Exp $
  */
 
-#ifndef PowerLaw_h
-#define PowerLaw_h
+#ifndef Likelihood_PowerLaw_h
+#define Likelihood_PowerLaw_h
 
 #include "Likelihood/Function.h"
 #include "Likelihood/Arg.h"
@@ -20,7 +20,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.11 2003/04/25 18:32:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.12 2003/05/29 20:10:46 jchiang Exp $
  */
     
 class PowerLaw : public Function {
@@ -49,4 +49,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // PowerLaw_h
+#endif // Likelihood_PowerLaw_h

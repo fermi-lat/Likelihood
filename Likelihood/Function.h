@@ -3,11 +3,11 @@
  * @brief Declaration of Function and ParameterNotFound classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.28 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.29 2003/06/19 20:16:04 jchiang Exp $
  */
 
-#ifndef Function_h
-#define Function_h
+#ifndef Likelihood_Function_h
+#define Likelihood_Function_h
 
 #include <iostream>
 #include <sstream>
@@ -33,7 +33,7 @@ class Arg;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.28 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.29 2003/06/19 20:16:04 jchiang Exp $
  */
 
 class Function {
@@ -180,4 +180,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // Function_h
+#endif // Likelihood_Function_h

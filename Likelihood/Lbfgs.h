@@ -3,11 +3,11 @@
  * @brief Declaration for the Lbfgs Optimizer subclass.
  * @author P. Nolan, J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Lbfgs.h,v 1.7 2003/05/29 19:41:00 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Lbfgs.h,v 1.8 2003/06/05 21:39:48 pln Exp $
  */
 
-#ifndef lbfgs_h
-#define lbfgs_h
+#ifndef Likelihood_lbfgs_h
+#define Likelihood_lbfgs_h
 
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Statistic.h"
@@ -34,7 +34,7 @@ namespace Likelihood {
    *
    * @author P. Nolan, J. Chiang
    * 
-   * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Lbfgs.h,v 1.7 2003/05/29 19:41:00 pln Exp $
+   * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Lbfgs.h,v 1.8 2003/06/05 21:39:48 pln Exp $
    */
   
   /**
@@ -115,6 +115,6 @@ namespace Likelihood {
   
 } // namespace Likelihood
 
-#endif // lbfgs_h
+#endif // Likelihood_lbfgs_h
 
 

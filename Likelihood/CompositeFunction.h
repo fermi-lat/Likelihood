@@ -2,11 +2,11 @@
  * @file CompositeFunction.h
  * @brief Declaration of CompositeFunction class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.8 2003/05/21 23:11:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.9 2003/05/29 20:10:30 jchiang Exp $
  */
 
-#ifndef CompositeFunction_h
-#define CompositeFunction_h
+#ifndef Likelihood_CompositeFunction_h
+#define Likelihood_CompositeFunction_h
 
 #include <cassert>
 #include "Likelihood/Function.h"
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.8 2003/05/21 23:11:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.9 2003/05/29 20:10:30 jchiang Exp $
  *  */
     
 class CompositeFunction : public Function {
@@ -84,4 +84,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // CompositeFunction_h
+#endif // Likelihood_CompositeFunction_h

@@ -3,11 +3,11 @@
  * @brief Declaration of logLike_ptsrc class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.9 2003/05/02 19:02:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.10 2003/06/11 17:08:05 jchiang Exp $
  */
 
-#ifndef logLike_ptsrc_h
-#define logLike_ptsrc_h
+#ifndef Likelihood_logLike_ptsrc_h
+#define Likelihood_logLike_ptsrc_h
 
 #include "Likelihood/Event.h"
 #include "Likelihood/Statistic.h"
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.9 2003/05/02 19:02:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.10 2003/06/11 17:08:05 jchiang Exp $
  */
 
 class logLike_ptsrc : public Statistic {
@@ -74,4 +74,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // logLike_ptsrc_h
+#endif // Likelihood_logLike_ptsrc_h

@@ -3,11 +3,11 @@
  * @brief OptPP declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.h,v 1.3 2003/03/25 23:22:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.h,v 1.4 2003/05/02 19:02:15 jchiang Exp $
  */
 
-#ifndef OptPP_h
-#define OptPP_h
+#ifndef Likelihood_OptPP_h
+#define Likelihood_OptPP_h
 
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Statistic.h"
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.h,v 1.3 2003/03/25 23:22:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.h,v 1.4 2003/05/02 19:02:15 jchiang Exp $
  */
 
 class OptPP : public Optimizer {
@@ -63,4 +63,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // OptPP_h
+#endif // Likelihood_OptPP_h

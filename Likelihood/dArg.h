@@ -3,11 +3,11 @@
  * @brief Declaration of dArg class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/dArg.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/dArg.h,v 1.5 2003/05/29 00:29:39 jchiang Exp $
  */
 
-#ifndef dArg_h
-#define dArg_h
+#ifndef Likelihood_dArg_h
+#define Likelihood_dArg_h
 
 #include "Likelihood/Arg.h"
 
@@ -20,7 +20,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/dArg.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/dArg.h,v 1.5 2003/05/29 00:29:39 jchiang Exp $
  */
 
 class dArg : public Arg{
@@ -40,4 +40,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // dArg_h
+#endif // Likelihood_dArg_h

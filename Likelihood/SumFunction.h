@@ -3,11 +3,11 @@
  * @brief Declaration of SumFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SumFunction.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SumFunction.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef SumFunction_h
-#define SumFunction_h
+#ifndef Likelihood_SumFunction_h
+#define Likelihood_SumFunction_h
 
 #include "Likelihood/CompositeFunction.h"
 
@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SumFunction.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SumFunction.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  *
  */
     
@@ -46,4 +46,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // SumFunction_h
+#endif // Likelihood_SumFunction_h

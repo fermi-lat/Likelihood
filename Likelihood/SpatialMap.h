@@ -3,12 +3,12 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.4 2003/05/20 23:49:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.5 2003/05/29 20:10:30 jchiang Exp $
  *
  */
 
-#ifndef SpatialMap_h
-#define SpatialMap_h
+#ifndef Likelihood_SpatialMap_h
+#define Likelihood_SpatialMap_h
 
 #include "Likelihood/Function.h"
 #include "Likelihood/SkyDirArg.h"
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.4 2003/05/20 23:49:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.5 2003/05/29 20:10:30 jchiang Exp $
  *
  */
     
@@ -59,4 +59,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // SpatialMap_h
+#endif // Likelihood_SpatialMap_h

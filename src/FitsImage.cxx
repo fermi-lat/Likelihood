@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.10 2003/05/29 21:52:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.11 2003/06/10 23:58:51 jchiang Exp $
  *
  */
 
@@ -19,7 +19,7 @@
 #include <memory>
 #include <cassert>
 #include "Likelihood/FitsImage.h"
-#include "LikelihoodException.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 

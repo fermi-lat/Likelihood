@@ -3,12 +3,12 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.15 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.16 2003/06/11 17:08:02 jchiang Exp $
  */
 
 
-#ifndef Event_h
-#define Event_h
+#ifndef Likelihood_Event_h
+#define Likelihood_Event_h
 
 #include <vector>
 #include <string>
@@ -29,7 +29,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.15 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.16 2003/06/11 17:08:02 jchiang Exp $
  */
 
 class Event {
@@ -106,4 +106,4 @@ private:
 };
 
 } // namespace Likelihood
-#endif // Event_h
+#endif // Likelihood_Event_h

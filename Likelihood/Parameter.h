@@ -3,11 +3,11 @@
  * @brief Declaration of Parameter and OutOfBounds classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.20 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.21 2003/06/19 20:16:04 jchiang Exp $
  */
 
-#ifndef Parameter_h
-#define Parameter_h
+#ifndef Likelihood_Parameter_h
+#define Likelihood_Parameter_h
 
 #include <vector>
 #include <string>
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.20 2003/06/11 17:08:02 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.21 2003/06/19 20:16:04 jchiang Exp $ 
  */
 
 class Parameter {
@@ -122,4 +122,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // Parameter_h
+#endif // Likelihood_Parameter_h
