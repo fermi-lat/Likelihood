@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT Point-Spread Function class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.12 2003/05/29 00:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.13 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include <vector>
@@ -14,6 +14,7 @@
 
 #include "astro/SkyDir.h"
 #include "Likelihood/Psf.h"
+#include "LikelihoodException.h"
 
 namespace Likelihood {
 

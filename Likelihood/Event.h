@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.13 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.14 2003/06/10 18:18:29 burnett Exp $
  */
 
 
@@ -13,15 +13,14 @@
 #include <vector>
 #include <string>
 #include <map>
-//#include <utility>
 
 #include "astro/SkyDir.h"
 #include "Likelihood/FitsImage.h"
-#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
 class DiffuseSource;
+class LikelihoodException;
 
 /** 
  * @class Event
@@ -30,7 +29,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.13 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.14 2003/06/10 18:18:29 burnett Exp $
  */
 
 class Event {

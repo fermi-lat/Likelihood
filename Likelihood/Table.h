@@ -3,18 +3,18 @@
  * @brief Declaration of Table class
  * @authors T. Burnett, J. Chiang using code from Y. Ikebe
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.7 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.8 2003/06/10 18:18:30 burnett Exp $
  */
-
 
 #ifndef Table_h
 #define Table_h
 
 #include <vector>
 #include <string>
-#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
+
+class LikelihoodException;
 
 /** 
  * @class Table
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author T. Burnett, J. Chiang using code from Y. Ikebe
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.7 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.8 2003/06/10 18:18:30 burnett Exp $
  */
 
 class Table {

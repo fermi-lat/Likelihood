@@ -3,7 +3,7 @@
  * @brief Declaration of Function and ParameterNotFound classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.25 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.26 2003/06/10 20:20:42 jchiang Exp $
  */
 
 #ifndef Function_h
@@ -15,11 +15,11 @@
 #include <string>
 
 #include "Likelihood/Parameter.h"
-#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
 class Arg;
+class LikelihoodException;
 
 /** 
  * @class Function
@@ -33,7 +33,7 @@ class Arg;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.25 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.26 2003/06/10 20:20:42 jchiang Exp $
  */
 
 class Function {
@@ -94,14 +94,7 @@ public:
       std::vector<double>::const_iterator);
    
    virtual void setParams(std::vector<Parameter> &params) 
-      throw(LikelihoodException) {
-      if (params.size() == m_parameter.size()) {
-         m_parameter = params;
-      } else {
-         throw LikelihoodException
-            ("Function::setParams: incompatible number of parameters.");
-      }
-   }
+      throw(LikelihoodException);
 
    void getParamNames(std::vector<std::string> &names) const
       {fetchParamNames(names, false);}
@@ -153,32 +146,6 @@ public:
 
    FuncType funcType() {return m_funcType;}
    std::string &argType() {return m_argType;}
-
-/**
- * @class ParameterNotFound
- *
- * @brief Nested class that returns a standard error message for
- * Parameters looked for but not found in the desired Function.
- *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.25 2003/06/10 18:18:29 burnett Exp $
- */
-   class ParameterNotFound : public LikelihoodException {
-
-   public:
-      ParameterNotFound(const std::string &paramName, 
-                        const std::string &funcName,
-                        const std::string &routineName) {
-         std::ostringstream errorMessage;
-         errorMessage << "Function::" << routineName << ": \n"
-                      << "A Parameter named " << paramName
-                      << " is not a Parameter of Function "
-                      << funcName << "\n";
-         m_what = errorMessage.str();
-         m_code = 0;
-      }
-   };
 
 protected:
 

@@ -3,7 +3,7 @@
  * @brief Declaration of SpectrumFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.4 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.5 2003/06/10 18:18:30 burnett Exp $
  */
 
 #ifndef SpectrumFactory_h
@@ -16,11 +16,11 @@
 #include "PowerLaw.h"
 #include "Gaussian.h"
 #include "AbsEdge.h"
-#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
 class Function;
+class LikelihoodException;
 
 /** 
  * @class SpectrumFactory
@@ -35,7 +35,7 @@ class Function;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.4 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.5 2003/06/10 18:18:30 burnett Exp $
  *
  */
     

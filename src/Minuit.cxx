@@ -6,7 +6,7 @@
 #include <sstream>
 #include "Likelihood/Minuit.h"
 #include "Likelihood/Parameter.h"
-#include "Likelihood/LikelihoodException.h"
+#include "LikelihoodException.h"
 
 namespace Likelihood {
 

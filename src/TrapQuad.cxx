@@ -5,11 +5,12 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.5 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.6 2003/05/29 21:52:50 jchiang Exp $
  */
 
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/dArg.h"
+#include "LikelihoodException.h"
 
 #include <sstream>
 

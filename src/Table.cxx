@@ -3,10 +3,11 @@
  * @brief Implementation of Table member functions
  * @authors T. Burnett, J. Chiang using code from Y. Ikebe
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.7 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.8 2003/05/29 21:52:50 jchiang Exp $
  */
 
 #include "Likelihood/Table.h"
+#include "LikelihoodException.h"
 #include "fitsio.h"
 
 #include <cstdio>

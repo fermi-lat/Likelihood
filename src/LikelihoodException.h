@@ -3,7 +3,7 @@
  * @brief Exception class for Likelihood
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikelihoodException.h,v 1.2 2003/05/20 23:49:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikelihoodException.h,v 1.3 2003/05/21 23:11:07 jchiang Exp $
  */
 
 #ifndef LIKELIHOOD_EXCEPTION_H
@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikelihoodException.h,v 1.2 2003/05/20 23:49:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikelihoodException.h,v 1.3 2003/05/21 23:11:07 jchiang Exp $
  */
 
   class LikelihoodException: public std::exception {

@@ -3,7 +3,7 @@
  * @brief Statistic class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Statistic.cxx,v 1.9 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Statistic.cxx,v 1.10 2003/06/05 23:59:59 jchiang Exp $
  */
 
 #include <vector>
@@ -14,6 +14,7 @@
 
 #include "Likelihood/Statistic.h"
 #include "Likelihood/Table.h"
+#include "LikelihoodException.h"
 
 namespace Likelihood {
 

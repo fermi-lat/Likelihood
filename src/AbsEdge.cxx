@@ -4,7 +4,7 @@
  * edge spectral component
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.5 2003/05/29 00:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.6 2003/05/29 20:10:45 jchiang Exp $
  */
 
 #include <vector>
@@ -14,6 +14,7 @@
 
 #include "Likelihood/dArg.h"
 #include "AbsEdge.h"
+#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

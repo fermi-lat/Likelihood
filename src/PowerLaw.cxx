@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.cxx,v 1.10 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.cxx,v 1.11 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include <vector>
@@ -13,6 +13,7 @@
 
 #include "Likelihood/dArg.h"
 #include "PowerLaw.h"
+#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

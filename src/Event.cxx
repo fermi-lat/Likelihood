@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.13 2003/05/29 20:10:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.14 2003/06/03 23:54:23 jchiang Exp $
  */
 
 #include <cassert>
@@ -16,6 +16,7 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/TrapQuad.h"
+#include "LikelihoodException.h"
 
 namespace {
    double my_acos(double mu) {

@@ -4,7 +4,7 @@
  * a Statistic object using the Variable-at-a-time Metropolis-Hastings
  * update method.
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.4 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.5 2003/06/04 16:24:40 jchiang Exp $
  */
 
 #include <cmath>
@@ -15,6 +15,7 @@
 #include <algorithm>
 #include "fitsio.h"
 #include "Likelihood/Mcmc.h"
+#include "LikelihoodException.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"

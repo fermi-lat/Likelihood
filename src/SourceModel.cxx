@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.16 2003/06/03 23:54:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.17 2003/06/10 19:21:13 jchiang Exp $
  */
 
 #include <vector>
@@ -13,6 +13,7 @@
 #include <cassert>
 #include "Likelihood/SourceModel.h"
 #include "Likelihood/Arg.h"
+#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

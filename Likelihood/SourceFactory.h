@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.6 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.7 2003/06/10 18:18:29 burnett Exp $
  */
 
 #ifndef SourceFactory_h
@@ -14,6 +14,9 @@
 #include "Likelihood/Source.h"
 
 namespace Likelihood {
+
+class LikelihoodException;
+
 /** 
  * @class SourceFactory
  *
@@ -25,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.6 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.7 2003/06/10 18:18:29 burnett Exp $
  *
  */
     

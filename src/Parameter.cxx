@@ -3,13 +3,14 @@
  * @brief Parameter class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Parameter.cxx,v 1.7 2003/05/21 23:12:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Parameter.cxx,v 1.8 2003/05/29 00:30:03 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 
 #include "Likelihood/Parameter.h"
+#include "OutOfBounds.h"
 
 namespace Likelihood {
 
