@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  3 16:32:17 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+tweaks to use DC1 test irfs; UI-related fixes
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  3 16:32:16 PST 2003
 Likelihood/src
 
