@@ -14,11 +14,17 @@
 
 namespace Likelihood {
 
+int SourceModel::s_refCount = 0;
 std::vector<Source *> SourceModel::s_sources;
 
-SourceModel::SourceModel(const SourceModel &rhs) : 
-   Function(rhs) {
-   s_sources = rhs.s_sources;
+SourceModel::~SourceModel() {
+   s_refCount--;
+   if (s_refCount == 0) {
+      std::vector<Source *>::iterator it = s_sources.begin();
+      for (; it != s_sources.end(); it++)
+         delete (*it);
+   }
+   s_sources.clear();
 }
 
 void SourceModel::setParam(const Parameter &param, 
@@ -91,8 +97,8 @@ void SourceModel::addSource(Source *src) {
    for (unsigned int i = 0; i < s_sources.size(); i++) 
       assert((*src).getName() != (*s_sources[i]).getName());
 
-// add this one to the vector (perhaps we should clone this guy first?)
-   s_sources.push_back(src);
+// add a clone of this Source to the vector
+   s_sources.push_back(src->clone());
 
 // add the Parameters to the m_parameter vector 
 // (would it be better just to use syncParams() here?)

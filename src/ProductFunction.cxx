@@ -23,8 +23,8 @@ ProductFunction::ProductFunction(Function &a, Function &b) :
    } else {
       m_funcType = Factor;
    }
-   m_a = &a;
-   m_b = &b;
+   m_a = a.clone();
+   m_b = b.clone();
    syncParams();
 }
 

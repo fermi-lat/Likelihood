@@ -61,23 +61,23 @@ std::string test_path;
 
 int main(){
    read_SC_Response_data();
-//     test_Parameter_class();
-//     test_Function_class();
-//     test_PowerLaw_class();
-//     test_SourceModel_class();
-//     test_Table_class();
-//     test_Statistic_class();
-//     test_Event_class();
-//     test_PointSource_class();
-//     test_Aeff_class();
-//     test_Psf_class();
-//     test_logLike_ptsrc();
-//     test_CompositeFunction();
-//     test_SpectrumFactory();
+   test_Parameter_class();
+   test_Function_class();
+   test_PowerLaw_class();
+   test_SourceModel_class();
+   test_Table_class();
+   test_Statistic_class();
+   test_Event_class();
+   test_PointSource_class();
+   test_Aeff_class();
+   test_Psf_class();
+   test_logLike_ptsrc();
+   test_CompositeFunction();
+   test_SpectrumFactory();
    test_SourceFactory();
-//     test_OptPP();
-//     fit_3C279();
-//     fit_anti_center();
+   test_OptPP();
+   fit_3C279();
+   fit_anti_center();
    return 0;
 }
 
@@ -316,13 +316,11 @@ void test_CompositeFunction() {
    Gaussian emission_line(10., 1., 0.1);
 
    SumFunction spectrum(pl_continuum, emission_line);
-//   SumFunction spectrum = pl_continuum + emission_line;
 
 // multiply by an absorption edge
 
    AbsEdge edge(5., 1.2);
    ProductFunction absorbed_spec(edge, spectrum);
-//   ProductFunction absorbed_spec = edge*spectrum;
 
    int nmax = 100;
    double xmin = 0.1;

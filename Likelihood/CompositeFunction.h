@@ -37,7 +37,10 @@ public:
    }
    CompositeFunction(const CompositeFunction&);
 
-   virtual ~CompositeFunction() {}
+   virtual ~CompositeFunction() {
+      delete m_a;
+      delete m_b;
+   }
 
    //! setParam method to include function name checking
    virtual void setParam(const Parameter &param, const std::string &funcName);

@@ -2,7 +2,7 @@
  * @brief Declaration of Statistic class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.9 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef Statistic_h
@@ -16,20 +16,19 @@ namespace Likelihood {
 /** 
  * @class Statistic
  *
- * @brief Absract base class for objective functions used for
+ * @brief Abstract base class for objective functions used for
  * parameter estimation.  Augments the SourceModel class by adding
  * facility for reading and storing data.
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.8 2003/03/16 21:53:26 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.9 2003/03/17 00:53:43 jchiang Exp $ */
 
 class Statistic : public SourceModel {
     
 public:
 
-   Statistic(){}
-   virtual ~Statistic(){}
+   virtual ~Statistic() {}
 
    //! return the objective function value taking the free parameters 
    //! as the function argument

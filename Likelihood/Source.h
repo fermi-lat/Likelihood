@@ -35,7 +35,7 @@ public:
    Source(const Source &rhs);
    virtual ~Source(){}
 
-   //! returns photons/cm^2-s-sr-GeV having been convolved through
+   //! returns photons/cm^2-s-sr-MeV having been convolved through
    //! the LAT instrument response
    virtual double fluxDensity(double energy, double time,
                               const astro::SkyDir &dir) const = 0;

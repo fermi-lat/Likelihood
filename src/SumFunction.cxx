@@ -17,8 +17,8 @@ SumFunction::SumFunction(Function &a, Function &b) :
    CompositeFunction(a, b) {
    assert(a.funcType() == Addend && b.funcType() == Addend);
    m_funcType = Addend;
-   m_a = &a;
-   m_b = &b;
+   m_a = a.clone();
+   m_b = b.clone();
    syncParams(); 
 }
 

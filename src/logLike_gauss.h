@@ -2,7 +2,7 @@
  * @brief Declaration of logLike_gauss class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #ifndef logLike_gauss_h
@@ -21,17 +21,16 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 class logLike_gauss : public Statistic {
     
 public:
 
-   logLike_gauss(){
-      deleteAllSources();
-   };
-   virtual ~logLike_gauss(){}
+   logLike_gauss() {deleteAllSources();}
+
+   virtual ~logLike_gauss() {}
 
    //! return the objective function value taking the free parameters 
    //! as the function argument

@@ -125,10 +125,12 @@ public:
    //! clone function, with default
    virtual Function *clone() const {return 0;}
 
+#if 0 // disable these until assignment operator is provided
    ////////////////////////////////////////////////////
    //! +, * operator overloading (and memory leaking)
    SumFunction &operator+(Function &);
    ProductFunction &operator*(Function &);
+#endif
 
    enum FuncType {None, Addend, Factor};
 

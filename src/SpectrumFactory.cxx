@@ -10,6 +10,12 @@
 
 namespace Likelihood {
 
+SpectrumFactory::~SpectrumFactory() {
+   std::map<std::string, Function *>::iterator it = m_prototypes.begin();
+   for (; it != m_prototypes.end(); it++)
+      delete it->second;
+}
+
 void SpectrumFactory::addFunc(const std::string &name, Function* func, 
                               bool fromClone) {
    if (!m_prototypes.count(name)) {

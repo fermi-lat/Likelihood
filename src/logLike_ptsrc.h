@@ -2,7 +2,7 @@
  * @brief Declaration of logLike_ptsrc class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #ifndef logLike_ptsrc_h
@@ -25,19 +25,19 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 class logLike_ptsrc : public Statistic {
     
 public:
 
-   logLike_ptsrc(){
+   logLike_ptsrc() {
       logSrcModel m_logSrcModel;
       Npred m_Npred;
       deleteAllSources();
    }
-   virtual ~logLike_ptsrc(){}
+   virtual ~logLike_ptsrc() {}
 
    //! return the objective function value taking the free parameters 
    //! as the function argument

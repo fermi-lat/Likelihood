@@ -44,7 +44,9 @@ public:
 
    PointSource(const PointSource &rhs);
 
-   virtual ~PointSource() {}
+   virtual ~PointSource() {
+      delete m_spectrum;
+   }
 
    //! Returns photons/cm^2-s-sr-MeV having been convolved through
    //! the LAT instrument response
