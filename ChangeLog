@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: pln  Fri May  2 14:53:25 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+LBFGS Optimizer now works.
+lbfgs class renamed Lbfgs to conform to rules.
+test program modified to exercise Lbfgs.
+
+
+    *
+------------------------------------------------------------
 User: pln  Fri May  2 14:53:19 PDT 2003
 Likelihood/Likelihood
 
