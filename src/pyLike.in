@@ -14,7 +14,6 @@
 #include "optimizers/Mcmc.h"
 #include "st_facilities/FitsImage.h"
 #include "Likelihood/FitsImage.h"
-#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
@@ -177,7 +176,9 @@ using optimizers::Exception;
    optimizers::Mcmc * Mcmc() {
       return new optimizers::Mcmc(*self);
    }
-   static void loadResponseFunctions(const std::string & respFuncs) {
+}
+%extend Likelihood::ResponseFunctions {
+   void load(const std::string & respFuncs) {
       irfLoader::Loader::go();
       irfInterface::IrfsFactory * myFactory 
          = irfInterface::IrfsFactory::instance();
@@ -188,10 +189,9 @@ using optimizers::Exception;
       if ( (it = responseIds.find(respFuncs)) != responseIds.end() ) {
          const std::vector<std::string> & resps = it->second;
          for (unsigned int i = 0; i < resps.size(); i++) {
-            Likelihood::ResponseFunctions::
-               addRespPtr(i, myFactory->create(resps[i]));
+            self->addRespPtr(i, myFactory->create(resps[i]));
          }
-         Likelihood::ResponseFunctions::setRespName(respFuncs);
+         self->setRespName(respFuncs);
       } else {
          throw std::invalid_argument("Invalid response function choice: "
                                      + respFuncs);

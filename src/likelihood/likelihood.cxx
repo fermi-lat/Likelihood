@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.72 2005/03/01 01:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.73 2005/03/03 00:17:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.72 2005/03/01 01:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.73 2005/03/03 00:17:23 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -107,7 +107,9 @@ void likelihood::run() {
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(m_pars);
    bool useEdisp = m_pars["use_energy_dispersion"];
-   m_helper->observation().respFuncs().setEdispFlag(useEdisp);
+   ResponseFunctions & respFuncs = 
+      const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
+   respFuncs.setEdispFlag(useEdisp);
    if (m_statistic == "BINNED") {
       m_helper->setRoi(m_pars["counts_map_file"], "", false);
    } else {

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.23 2005/03/03 00:17:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.24 2005/03/03 00:46:55 jchiang Exp $
  */
 
 #include <map>
@@ -42,7 +42,7 @@ AppHelpers::AppHelpers(st_app::AppParGroup & pars)
    m_scData = new ScData();
    m_expCube = new ExposureCube();
    m_expMap = new ExposureMap();
-   m_observation = new Observation(ResponseFunctions::instance(),
+   m_observation = new Observation(m_respFuncs,
                                    m_scData,
                                    RoiCuts::instance(),
                                    m_expCube,
@@ -54,6 +54,7 @@ AppHelpers::~AppHelpers() {
    delete m_scData;
    delete m_expCube;
    delete m_expMap;
+   delete m_respFuncs;
    delete m_observation;
 }
 
@@ -101,11 +102,12 @@ void AppHelpers::readExposureMap() {
 }
 
 void AppHelpers::createResponseFuncs() {
+   m_respFuncs = new ResponseFunctions();
    irfLoader::Loader::go();
    IrfsFactory * myFactory = IrfsFactory::instance();
 
    std::string responseFuncs = m_pars["rspfunc"];
-   ResponseFunctions::setRespName(responseFuncs);
+   m_respFuncs->setRespName(responseFuncs);
 
    typedef std::map< std::string, std::vector<std::string> > respMap;
    const respMap & responseIds = irfLoader::Loader::respIds();
@@ -113,7 +115,7 @@ void AppHelpers::createResponseFuncs() {
    if ( (it = responseIds.find(responseFuncs)) != responseIds.end() ) {
       const std::vector<std::string> & resps = it->second;
       for (unsigned int i = 0; i < resps.size(); i++) {
-         ResponseFunctions::addRespPtr(i, myFactory->create(resps[i]));
+         m_respFuncs->addRespPtr(i, myFactory->create(resps[i]));
       }
    } else {
       throw std::invalid_argument("Invalid response function choice: "

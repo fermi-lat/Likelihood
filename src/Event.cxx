@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.46 2005/02/23 00:39:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.47 2005/03/02 22:55:04 jchiang Exp $
  */
 
 #include <cctype>
@@ -45,10 +45,12 @@ bool Event::s_haveSourceRegionData(false);
 
 Event::Event(double ra, double dec, double energy, double time, 
              const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
-             double muZenith, int type) 
+             double muZenith, bool useEdisp, const std::string & respName,
+             int type) 
    : m_appDir(astro::SkyDir(ra, dec)), m_energy(energy), m_arrTime(time),
-     m_muZenith(muZenith), m_type(type), m_scDir(scZAxis), m_scXDir(scXAxis) {
-   if (ResponseFunctions::useEdisp()) {
+     m_muZenith(muZenith), m_type(type), m_scDir(scZAxis), m_scXDir(scXAxis),
+     m_useEdisp(useEdisp), m_respName(&respName) {
+   if (m_useEdisp) {
 // For <15% energy resolution, consider true energies over the range
 // (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
 // apparent energy.
@@ -72,7 +74,7 @@ double Event::diffuseResponse(double trueEnergy,
                               std::string diffuseComponent) const {
    diffuseComponent = diffuseSrcName(diffuseComponent);
    int indx(0);
-   if (ResponseFunctions::useEdisp()) {
+   if (m_useEdisp) {
       indx = static_cast<int>((trueEnergy - m_trueEnergies[0])/m_estep);
       if (indx < 0 || indx >= static_cast<int>(m_trueEnergies.size())) {
          return 0;
@@ -81,7 +83,7 @@ double Event::diffuseResponse(double trueEnergy,
    std::map<std::string, diffuse_response>::const_iterator it;
    if ((it = m_respDiffuseSrcs.find(diffuseComponent))
        != m_respDiffuseSrcs.end()) {
-      if (ResponseFunctions::useEdisp()) {
+      if (m_useEdisp) {
          const diffuse_response & resp = it->second;
          double my_value = (trueEnergy - m_trueEnergies[indx])
             /(m_trueEnergies[indx+1] - m_trueEnergies[indx])
@@ -116,6 +118,7 @@ Event::diffuseResponse(std::string name) const {
 }
 
 void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 
+                            const ResponseFunctions & respFuncs,
                             double sr_radius) {
    std::vector<DiffuseSource *> srcs;
    getNewDiffuseSrcs(srcList, srcs);
@@ -152,10 +155,10 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
             astro::SkyDir & srcDir = srcDirs[indx];
             double inc = m_scDir.SkyDir::difference(srcDir)*180./M_PI;
             if (inc < 90.) {
-               double totalResp 
-                  = ResponseFunctions::totalResponse(*trueEnergy, m_energy,
-                                                     m_scDir, m_scXDir,
-                                                     srcDir, m_appDir, m_type);
+               double totalResp = 
+                  respFuncs.totalResponse(*trueEnergy, m_energy,
+                                          m_scDir, m_scXDir, srcDir, m_appDir,
+                                          m_type);
                for (unsigned int k = 0; k < srcs.size(); k++) {
                   double srcDist_val 
                      = srcs[k]->spatialDist(SkyDirArg(srcDir, *trueEnergy));
@@ -289,8 +292,8 @@ void Event::toLower(std::string & name) {
    }
 }
 
-std::string Event::diffuseSrcName(const std::string & srcName) {
-   std::string name(ResponseFunctions::respName() + "::" + srcName);
+std::string Event::diffuseSrcName(const std::string & srcName) const {
+   std::string name(*m_respName + "::" + srcName);
    toLower(name);
    return name;
 }
@@ -301,6 +304,7 @@ void Event::setDiffuseResponse(std::string srcName,
    static double sqrt2pi = sqrt(2.*M_PI);
    std::vector<double>::const_iterator energy = m_trueEnergies.begin();
    m_respDiffuseSrcs[srcName].clear();
+   std::cout << "setDiffuseResponse: " << srcName << std::endl;
    for ( ; energy != m_trueEnergies.end(); ++energy) {
       double value = gaussianParams[0]/sqrt2pi/gaussianParams[2]
          *exp(-(*energy - gaussianParams[1])*(*energy - gaussianParams[1])
