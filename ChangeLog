@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 15 16:12:37 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx Npred.cxx PointSource.cxx SourceModel.cxx 
+Added Files:
+	Pixel.cxx 
+Log Message:
+add derivative calculation for binned analysis; refactor to use Pixel class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 15 16:12:36 PDT 2004
 Likelihood/Likelihood
 
