@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri May  2 12:02:16 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+add ConstantValue class, generalize HAVE_OPTIMIZER variable
+    *
+------------------------------------------------------------
 User: jchiang  Fri May  2 12:02:15 PDT 2003
 Likelihood/src
 
