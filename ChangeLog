@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec  6 12:20:30 PST 2004
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+modify diffuseResponses to use DSS keywords
+    *
+------------------------------------------------------------
 User: jchiang  Mon Dec  6 12:20:29 PST 2004
 Likelihood/src/diffuseResponses
 
