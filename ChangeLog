@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Tue May 20 14:13:04 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Optimizer.h 
+Log Message:
+Added a #define for Minuit
+
+    *
+------------------------------------------------------------
 User: pln  Tue May 20 14:07:39 PDT 2003
 Likelihood/Likelihood
 
