@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct  1 14:21:30 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+more fixes to xml i/o
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct  1 14:21:28 PDT 2003
 Likelihood/src
 
