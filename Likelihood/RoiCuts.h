@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.26 2005/03/01 01:06:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.27 2005/03/01 07:17:06 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -30,7 +30,7 @@ namespace tip {
 
 namespace Likelihood {
 
-class Event;
+   class Event;
 
 /** 
  * @class RoiCuts
@@ -39,14 +39,29 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.26 2005/03/01 01:06:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.27 2005/03/01 07:17:06 jchiang Exp $
  */
 
 class RoiCuts {
 
 public:
 
-   static RoiCuts * instance();
+   RoiCuts() : s_cuts(0), s_eMin(20.), s_eMax(2e5), 
+               m_energyCut(0), m_skyConeCut(0) {
+      makeEnergyVector();
+   }
+
+   ~RoiCuts() {
+      for (int i = m_gtiCuts.size()-1; i > -1; i--) {
+         delete m_gtiCuts.at(i);
+      }
+      for (int i = m_timeCuts.size()-1; i > -1; i--) {
+         delete m_timeCuts.at(i);
+      }
+      delete m_skyConeCut;
+      delete m_energyCut;
+      delete s_cuts;
+   }
 
    /// Access to the accepted time intervals.  An event time is valid
    /// if it lies within the union of these intervals.
@@ -95,51 +110,35 @@ public:
 
    /// A logrithmically spaced vector of energies from the minimum
    /// energy to the maximum energy.
-   const std::vector<double> & energies() const {
+   const std::vector<double> & energies() {
+      if (m_energies.size() == 0) {
+         makeEnergyVector();
+      }
       return m_energies;
-   }
-
-protected:
-
-   RoiCuts() : m_energyCut(0), m_skyConeCut(0) {
-      makeEnergyVector();
-   }
-
-   ~RoiCuts() {
-      for (int i = m_gtiCuts.size()-1; i > -1; i--) {
-         delete m_gtiCuts.at(i);
-      }
-      for (int i = m_timeCuts.size()-1; i > -1; i--) {
-         delete m_timeCuts.at(i);
-      }
-      delete m_skyConeCut;
-      delete m_energyCut;
    }
 
 private:
 
-   static RoiCuts * s_instance;
-
-   static dataSubselector::Cuts * s_cuts;
+   dataSubselector::Cuts * s_cuts;
 
    /// cuts on photon "MET" arrival times in seconds; 
    /// this vector of pairs specify time intervals for event acceptance;
    /// the *intersection* of these intervals will be used
    typedef std::pair<double, double> timeInterval; // this will be generalized
-   static std::vector<timeInterval> s_timeCuts;
+   std::vector<timeInterval> s_timeCuts;
 
    /// minimum and maximum energies in MeV,
-   static double s_eMin;
-   static double s_eMax;
+   double s_eMin;
+   double s_eMax;
 
    /// A vector of logrithmically-spaced energies between s_eMin and s_eMax.
    std::vector<double> m_energies;
 
    /// The acceptance cone or sky extraction region.
-   static irfInterface::AcceptanceCone s_roiCone;
+   irfInterface::AcceptanceCone s_roiCone;
 
    /// cosine of the maximum Zenith angle
-   static double s_muZenMax;
+   double s_muZenMax;
 
    dataSubselector::RangeCut * m_energyCut;
    dataSubselector::SkyConeCut * m_skyConeCut;
