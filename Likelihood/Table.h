@@ -16,7 +16,7 @@ namespace Likelihood {
  *
  * @brief Table class for storing FITS table data
  *
- * @author
+ * @author T. Burnett, J. Chiang using code from Y. Ikebe
  *    
  * $Header:
  */
@@ -38,12 +38,12 @@ public:
     void read_FITS_table(std::string file, int hdu);
 
     /** @class Column
-    * @brief Nested class represents a column entry
-    */
+     * @brief Nested class represents a column entry
+     */
     class Column {
     public:
         Column(std::string name):val(0){
-            ::strncpy(colname,name.c_str(), sizeof(colname));
+            ::strncpy(colname, name.c_str(), sizeof(colname));
         }
         Column():val(0){}
         ~Column(){delete[] val;}

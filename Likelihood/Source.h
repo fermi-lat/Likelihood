@@ -1,59 +1,44 @@
 #ifndef Source_h
 #define Source_h
 
-#include "Function.h"
+#include "astro/SkyDir.h"
 
-#include "Constraint.h"
+namespace Likelihood {
 
 /** 
  * @class Source
  *
- * @brief Gamma-ray sources.
+ * @brief Base class for gamma-ray sources.
  *
- * @author J. Chiang, P. Nolan
+ * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/src/Source.h,v 1.1.1.1 2003/01/30 23:23:03 burnett Exp $
+ * $Header: 
  */
 
-class Source : public Function {
-
+class Source {
 
 public:
     
-   Source();
-   ~Source();
-#if 0
-   //! sets a parameter to be free or fixed in the optimization process
-   void setIsFixed(std::string paramName, bool fixed);
-   bool getIsFixed(std::string paramName) const;
+   Source(){m_name = "";};
+   Source(const Source &rhs) {m_name = rhs.m_name;};
+   virtual ~Source(){};
 
-   //! access the free parameters as a group
-   void setFreeParams(std::vector<double>);
-   std::vector<double> getFreeParams() const;
+   //! returns photons/cm^2-s-sr-GeV having been convolved through
+   //! the LAT instrument response
+   virtual double fluxDensity(const double energy, const double time,
+			      const astro::SkyDir &dir) const = 0;
 
-   //! derivatives wrt to only free parameters
-   virtual std::vector<double> getFreeDerivs() const;
-
-   void setConstraintType(std::string paramName, Constraint::Type type);
-   Constraint::Type getConstraintType(std::string paramName);
-   void setConstraintMin(std::string paramName, double minValue);
-   void setConstraintMax(std::string paramName, double maxValue);
-   double getConstraintMin(std::string paramName);
-   double getConstraintMax(std::string paramName);
+   //! access unique source identifier
+   void setName(const std::string &name) {m_name = name;};
+   std::string getName() const {return m_name;};
 
 private:
-        
-   //! flags to determine which parameters are fixed during optimization
-   std::vector<bool> m_fixed;
 
-   //! upper and lower bounds for valid parameter ranges
-   std::vector<double> m_paramLims;
+   //! source name
+   std::string m_name;
 
-   //! vectors of pointers to functions that compose the spectral
-   //! model for each source
-   std::vector<double> *spectralFilter();       // Do we need a grammar for 
-   std::vector<double> *spectralComponent();    // combining these things?
-#endif
 };
+
+} // namespace Likelihood
 
 #endif // Source_h

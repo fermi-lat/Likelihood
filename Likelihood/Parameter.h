@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <string>
+#include <cmath>
 
 namespace Likelihood {
 
@@ -25,35 +26,34 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/src/Parameter.h,v 1.1.1.1 2003/01/30 23:23:03 burnett Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/Parameter.h,v 1.1 2003/02/19 01:34:33 jchiang Exp $ */
 
 class Parameter {
     
 public:
    
-   Parameter(){m_init(std::string(""), 0., 0., 0., true);};
-   Parameter(const std::string paramName, const double paramValue, 
+   Parameter() {m_init(std::string(""), 0., -HUGE, HUGE, true);};
+   Parameter(const std::string &paramName, double paramValue, 
 	     bool isFree = true)
-      {m_bigNum = 1e30;
-      m_init(paramName, paramValue, -m_bigNum, m_bigNum, isFree);};
-   Parameter(const std::string paramName, const double paramValue, 
-	     const double minValue, const double maxValue, bool isFree = true)
+      {m_init(paramName, paramValue, -HUGE, HUGE, isFree);};
+   Parameter(const std::string &paramName, double paramValue, 
+	     double minValue, double maxValue, bool isFree = true)
       {m_init(paramName, paramValue, minValue, maxValue, isFree);};
    Parameter(const Parameter&);
    ~Parameter(){};
 
    //! name access
-   void setName(const std::string paramName) {m_name = paramName;};
+   void setName(const std::string &paramName) {m_name = paramName;};
    std::string getName() const {return m_name;};
    
    //! value access
-   void setValue(const double value) {m_value = value;};
+   void setValue(double value) {m_value = value;};
    double getValue() const {return m_value;};
 
    //! bounds access
-   void setBounds(const double minValue, const double maxValue)
+   void setBounds(double minValue, double maxValue)
       {m_minValue = minValue; m_maxValue = maxValue;};
-   void setBounds(const std::pair<double, double> boundValues)
+   void setBounds(const std::pair<double, double> &boundValues)
       {setBounds(boundValues.first, boundValues.second);};
    std::pair<double, double> getBounds();
 
@@ -64,14 +64,11 @@ public:
 private:
 
    //! set all the Parameter values
-   void m_init(const std::string paramName, const double paramValue, 
-               const double minValue, const double maxValue, bool isFree = true)
+   void m_init(const std::string &paramName, double paramValue, 
+               double minValue, double maxValue, bool isFree = true)
       {m_name = paramName; m_value = paramValue; m_minValue = minValue;
       m_maxValue = maxValue; m_free = isFree;}
 
-   //! a big number
-   double m_bigNum;
-   
    //! parameter name
    std::string m_name;
 
