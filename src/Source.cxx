@@ -3,12 +3,14 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.3 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.4 2005/02/28 18:38:46 jchiang Exp $
  */
 
 #include "Likelihood/Source.h"
 
 namespace Likelihood {
+
+Source::Source() {}
 
 Source::Source(const Source &rhs) {
 // Delegate deep copy of m_functions to the subclasses.

@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.21 2005/02/23 00:39:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.22 2005/02/27 06:42:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -30,7 +30,6 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
-#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
 #include "Verbosity.h"
@@ -46,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.21 2005/02/23 00:39:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.22 2005/02/27 06:42:26 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -69,6 +68,8 @@ private:
    std::vector<Event> m_events;
    std::vector<DiffuseSource *> m_srcs;
    std::vector<std::string> m_srcNames;
+
+   bool m_useEdisp;
 
    void promptForParameters();
    void readDiffuseNames(std::vector<std::string> & srcNames);
@@ -96,7 +97,8 @@ void diffuseResponses::run() {
    if (clobber || !haveDiffuseColumns()) {
       m_helper->readScData();
       m_srcModel = new SourceModel(m_helper->observation(), true);
-      ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
+      m_useEdisp = m_pars["use_energy_dispersion"];
+      m_helper->observation().respFuncs().setEdispFlag(m_useEdisp);
       buildSourceModel();
       readEventData();
       computeEventResponses();
@@ -168,7 +170,7 @@ void diffuseResponses::readEventData() {
    int convLayer;
    int eventType;
 
-   ScData * scData = ScData::instance();
+   ScData & scData = const_cast<ScData &>(m_helper->observation().scData());
 
    tip::Table::ConstIterator it = events->begin();
    tip::ConstTableRecord & event = *it;
@@ -184,8 +186,8 @@ void diffuseResponses::readEventData() {
       } else {
          eventType = 1;
       }
-      Event thisEvent(ra, dec, energy, time, scData->zAxis(time), 
-                      scData->xAxis(time), cos(zenAngle*M_PI/180.), eventType);
+      Event thisEvent(ra, dec, energy, time, scData.zAxis(time), 
+                      scData.xAxis(time), cos(zenAngle*M_PI/180.), eventType);
       m_events.push_back(thisEvent);
    }
    delete events;
@@ -219,9 +221,10 @@ void diffuseResponses::writeEventResponses() {
       }
       for (unsigned int i = 0; i < m_srcNames.size(); i++) {
          try {
-            std::string fieldName = ResponseFunctions::respName() 
+            std::string fieldName = 
+               m_helper->observation().respFuncs().respName() 
                + "::" + m_srcNames[i];
-            if (ResponseFunctions::useEdisp()) {
+            if (m_useEdisp) {
 // Add a 3 dim vector containing the Gaussian parameters describing
 // the energy response.
                events->appendField(fieldName, "3D");
@@ -242,7 +245,7 @@ void diffuseResponses::writeEventResponses() {
          std::vector<std::string>::iterator name = m_srcNames.begin();
          for ( ; name != m_srcNames.end(); ++name) {
             std::string fieldName = Event::diffuseSrcName(*name);
-            if (ResponseFunctions::useEdisp()) {
+            if (m_useEdisp) {
                tip::Table::Vector<double> respParams = row[fieldName];
                setGaussianParams(m_events[j], *name, respParams);
             } else {

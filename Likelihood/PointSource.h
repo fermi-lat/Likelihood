@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.45 2004/12/30 00:28:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.46 2005/01/13 22:42:01 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.45 2004/12/30 00:28:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.46 2005/01/13 22:42:01 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -67,13 +67,6 @@ public:
                          evt.getDir(), evt.getType());
    }
 
-   double fluxDensity(double energy, const astro::SkyDir & zAxis,
-                      const astro::SkyDir & xAxis,
-                      const astro::SkyDir & dir, int eventType=2) const;
-
-   double fluxDensity(double energy, double time,
-                      const astro::SkyDir &dir, int eventType=2) const;
-
    virtual double fluxDensity(double inclination, double phi, double energy, 
                               const astro::SkyDir & appDir, int evtType) const;
 
@@ -83,15 +76,6 @@ public:
       return fluxDensityDeriv(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
                               evt.getDir(),evt.getType(), paramName);
    }
-
-   double fluxDensityDeriv(double energy, const astro::SkyDir & zAxis,
-                           const astro::SkyDir & xAxis,
-                           const astro::SkyDir &dir, int eventType,
-                           const std::string &paramName) const;
-
-   double fluxDensityDeriv(double energy, double time,
-                           const astro::SkyDir &dir, int eventType,
-                           const std::string &paramName) const;
 
    virtual double fluxDensityDeriv(double inclination, double phi, 
                                    double energy, const astro::SkyDir & appDir,
@@ -178,9 +162,21 @@ private:
                                      std::vector<double> &exposure,
                                      bool verbose);
 
-   /// Compute the exposure using integrated exposure times tabulated
-   /// as a function of ra, dec, and cos(inclination).
-   void computeExposure();
+   double fluxDensity(double energy, const astro::SkyDir & zAxis,
+                      const astro::SkyDir & xAxis,
+                      const astro::SkyDir & dir, int eventType=2) const;
+
+   double fluxDensity(double energy, double time,
+                      const astro::SkyDir &dir, int eventType=2) const;
+
+   double fluxDensityDeriv(double energy, const astro::SkyDir & zAxis,
+                           const astro::SkyDir & xAxis,
+                           const astro::SkyDir &dir, int eventType,
+                           const std::string &paramName) const;
+
+   double fluxDensityDeriv(double energy, double time,
+                           const astro::SkyDir &dir, int eventType,
+                           const std::string &paramName) const;
 
    /// location on the Celestial sphere 
    SkyDirFunction m_dir;

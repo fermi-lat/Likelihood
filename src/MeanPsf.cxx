@@ -3,7 +3,7 @@
  * @brief Psf averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.10 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.11 2005/02/28 18:38:46 jchiang Exp $
  */
 
 #include <algorithm>
@@ -14,9 +14,7 @@
 
 #include "st_facilities/Util.h"
 
-//#include "Likelihood/ExposureCube.h"
 #include "Likelihood/MeanPsf.h"
-//#include "Likelihood/ResponseFunctions.h"
 
 #include "Verbosity.h"
 

@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.65 2005/02/02 06:22:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.66 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -28,15 +28,12 @@
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/Exception.h"
-#include "Likelihood/ExposureCube.h"
-#include "Likelihood/ExposureMap.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/FluxBuilder.h"
-#include "Likelihood/ScData.h"
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/SourceModel.h"
 
@@ -378,18 +375,20 @@ void SourceModel::reReadXml(std::string xmlFile) {
          for ( ; paramIt != params.end(); paramIt++) {
             std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
             if (name == "RA")
-               ra = 
-                  std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+               ra = std::atof(xmlBase::Dom::getAttribute(*paramIt,
+                                                         "value").c_str());
+                  
             if (name == "DEC")
-               dec = 
-                  std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+               dec = std::atof(xmlBase::Dom::getAttribute(*paramIt,
+                                                          "value").c_str());
+                  
          }
          astro::SkyDir newDir(ra, dec);
          double tol = 1e-4;
-         if (newDir.difference(
-                dynamic_cast<PointSource *>(my_source)->getDir() ) > tol) {
+         PointSource * ptSrc = dynamic_cast<PointSource *>(my_source);
+         if (newDir.difference(ptSrc->getDir() ) > tol) {
 // Reset the direction, re-computing the PointSource exposure.
-            my_source->setDir(newDir);
+            ptSrc->setDir(newDir);
          }
       } else if (srcType == "DiffuseSource") {
          my_source->getSrcFuncs()["SpatialDist"]->setParams(spatialModel);
@@ -443,12 +442,6 @@ bool SourceModel::hasSrcNamed(const std::string & srcName) const {
 }
 
 CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
-
-   if (ExposureCube::instance() == 0) {
-      std::runtime_error("SourceModel::createCountsMap:\n"
-                         + std::string("Exposure cube not available."));
-   }
-
    std::vector<Pixel> pixels;
    dataMap.getPixels(pixels);
 

@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.10 2005/02/15 17:01:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.11 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <algorithm>
@@ -12,6 +12,8 @@
 #include <sstream>
 #include <string>
 #include <utility>
+
+#include <xercesc/dom/DOM.hpp>
 
 #include "facilities/Util.h"
 

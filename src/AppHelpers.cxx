@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.19 2005/02/23 00:39:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.20 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <map>
@@ -72,13 +72,7 @@ void AppHelpers::setRoi(const std::string & filename,
       return;
    }
    std::string event_file = m_pars["evfile"];
-   if (event_file == "none" || event_file == "") {
-      std::string roi_file = m_pars["ROI_file"];
-      st_facilities::Util::file_ok(roi_file);
-      roiCuts.setCuts(roi_file);
-   } else {
-      roiCuts.readCuts(m_pars["evfile"], "EVENTS", strict);
-   }
+   roiCuts.readCuts(event_file, "EVENTS", strict);
 }
 
 void AppHelpers::readScData() {

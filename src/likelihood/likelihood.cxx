@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.70 2005/02/01 00:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.71 2005/02/27 06:42:27 jchiang Exp $
  */
 
 #include <cmath>
@@ -33,12 +33,10 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
-#include "Likelihood/ExposureCube.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/MapShape.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/PointSource.h"
-#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
@@ -56,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.70 2005/02/01 00:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.71 2005/02/27 06:42:27 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -107,6 +105,8 @@ void likelihood::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(m_pars);
+   bool useEdisp = m_pars["use_energy_dispersion"];
+   m_helper->observation().respFuncs().setEdispFlag(useEdisp);
    if (m_statistic == "BINNED") {
       m_helper->setRoi(m_pars["counts_map_file"], "", false);
    } else {
@@ -198,7 +198,6 @@ void likelihood::promptForParameters() {
    m_pars.Prompt("query_for_refit");
 
    m_pars.Save();
-   ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
 }
 
 void likelihood::createStatistic() {
@@ -207,7 +206,7 @@ void likelihood::createStatistic() {
       if (expcube_file == "none") {
          throw std::runtime_error("Please specify an exposure cube file.");
       }
-      ExposureCube::readExposureCube(expcube_file);
+      m_helper->observation().expCube().readExposureCube(expcube_file);
       std::string countsMapFile = m_pars["counts_map_file"];
       st_facilities::Util::file_ok(countsMapFile);
       m_dataMap = new CountsMap(countsMapFile);
@@ -325,8 +324,9 @@ private:
 void likelihood::writeCountsSpectra() {
    const EventData myData(m_logLike->events());
    std::vector<double> energies;
-   double emin = RoiCuts::instance()->getEnergyCuts().first;
-   double emax = RoiCuts::instance()->getEnergyCuts().second;
+   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
+   double emin = roiCuts.getEnergyCuts().first;
+   double emax = roiCuts.getEnergyCuts().second;
    int nee(20);
    double estep = log(emax/emin)/(nee-1);
    for (int k = 0; k < nee; k++) {
@@ -349,7 +349,11 @@ void likelihood::writeCountsSpectra() {
             Npred = src->Npred(energies[k], energies[k+1]);
             if (i==0) evals.push_back(log10(sqrt(energies[k]*energies[k+1])));
 #ifdef HAVE_ST_GRAPH
-            npred[i].push_back(log10(Npred));
+            if (Npred == 0) {
+               npred[i].push_back(log10(Npred));
+            } else {
+               npred[i].push_back(-10.);
+            }
 #endif
             line << Npred << "  ";
          } catch (std::out_of_range &) {
@@ -387,7 +391,7 @@ void likelihood::writeCountsMap() {
    if (expcube_file == "none") {
       return;
    }
-   ExposureCube::readExposureCube(expcube_file);
+   m_helper->observation().expCube().readExposureCube(expcube_file);
    m_dataMap->writeOutput("likelihood", "data_map.fits");
    try {
       CountsMap * modelMap;
@@ -420,14 +424,15 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<double> null_values;
    std::cerr << "Computing TS values for each source ("
              << srcNames.size() << " total)\n";
+   astro::SkyDir roiCenter 
+      = m_helper->observation().roiCuts().extractionRegion().center();
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       std::cerr << ".";
       if (m_logLike->getSource(srcNames[i])->getType() == "Point") {
          Source * src = m_logLike->deleteSource(srcNames[i]);
          if (m_statistic != "BINNED") {
             RoiDist[srcNames[i]] = dynamic_cast<PointSource *>(src)->getDir().
-               difference(RoiCuts::instance()->extractionRegion().center())
-               *180./M_PI;
+               difference(roiCenter)*180./M_PI;
          }
          if (m_logLike->getNumFreeParams() > 0) {
             selectOptimizer();
