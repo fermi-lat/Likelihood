@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.13 2004/05/17 23:27:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.14 2004/10/11 01:34:59 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.13 2004/05/17 23:27:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.14 2004/10/11 01:34:59 jchiang Exp $
  */
 
 class ScData {
@@ -64,6 +64,7 @@ public:
    /// Returns the Singleton object pointer.
    static ScData * instance();
 
+#ifndef SWIG
    /// Return a pair of iterators to the ScData intervals enclosing
    /// the desired start and end times.
    typedef std::vector<ScNtuple>::iterator Iterator;
@@ -73,6 +74,7 @@ public:
    bracketInterval(const std::pair<double, double> & interval) {
       return bracketInterval(interval.first, interval.second);
    }
+#endif // SWIG
 
 protected:
 
