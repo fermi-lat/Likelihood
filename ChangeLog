@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct 14 15:35:13 PDT 2003
+Likelihood/python
+
+Modified Files:
+	Likelihood.i 
+Log Message:
+Change name of logLike_ptsrc to LogLike; move header to public area
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct 14 15:35:12 PDT 2003
 Likelihood/Likelihood
 
