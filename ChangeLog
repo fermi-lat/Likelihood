@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: jchiang  Sat Feb 26 22:42:24 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h BinnedExposure.h BinnedLikelihood.h 
+	DiffuseSource.h ExposureCube.h ExposureMap.h FluxBuilder.h 
+	LikeExposure.h LogLike.h OptEM.h ResponseFunctions.h RoiCuts.h 
+	ScData.h SourceFactory.h SourceMap.h SourceModel.h 
+	logSrcModel.h 
+Added Files:
+	Observation.h 
+Log Message:
+add Observation class; begin refactoring to replace Singletons
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb 25 14:22:24 PST 2005
 Likelihood/doc
 
