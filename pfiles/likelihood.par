@@ -26,3 +26,4 @@ Exposure_map_file,f,ql,"none",,,"Exposure file"
 #
 counts_map_file,fr,ql,"srcMaps.fits",,,"Counts map file"
 exposure_cube_file,fr,ql,"expcube_1_day.fits",,,"Exposure hypercube file"
+binned_exposure_map,f,ql,"none",,,"Binned exposure map"
