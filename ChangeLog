@@ -1,4 +1,18 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 20 16:49:49 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h ExposureMap.h FitsImage.h Function.h Lbfgs.h 
+	LikelihoodException.h SpatialMap.h 
+Log Message:
+Add exceptions to FitsImage, Function classes,
+exception handling to SourceFactory class, and 
+copy constructor and copy assignment operator to ExposureMap class.
+Tweak Minuit.cxx a bit.
+
+    *
+------------------------------------------------------------
 User: pln  Tue May 20 15:00:42 PDT 2003
 Likelihood/src/test
 
