@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 17 15:22:31 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	FitsImage.h SpatialMap.h 
+Log Message:
+do bounds checking on FITS image fed to SpatialMap
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 15 09:16:08 PST 2005
 Likelihood/doc
 
