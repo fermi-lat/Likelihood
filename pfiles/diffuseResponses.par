@@ -7,5 +7,5 @@ rspfunc,s,a,"DC1",DC1|DC1F|DC1B|G25|G25F|G25B,,"Response functions to use"
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?
 
 chatter,i,h,2,0,4,Output verbosity
-clobber,        b, h, yes, , , "Overwrite existing output files"
+clobber,        b, h, no, , , "Overwrite existing output files"
 mode,           s, h, "ql", , , "Mode of automatic parameters"
