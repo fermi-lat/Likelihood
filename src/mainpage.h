@@ -42,17 +42,18 @@
  in the Event configuration space, hereafter known as the "data
  space".  Each \f$M_i\f$ is defined, in part, by a vector of parameter
  values \f$\vec{\alpha_i}\f$; collectively, the \f$\vec{\alpha_i}\f$
- vectors form the space over which the Statistic (also known as the
- objective function) is to be optimized.  The integral over the data
- space in the second term is the predicted number of Events expected
- to be seen from Source \f$i\f$.
+ vectors form the space over which the objective function is to be
+ optimized.  The integral over the data space in the second term is
+ the predicted number of Events expected to be seen from Source
+ \f$i\f$.
 
  @section classes Important Classes
 
  Cast in this form, the problem lends itself to being described by the
- following classes and their descendants:
+ following classes.  Some of these classes now reside in the optimizers
+ and latResponse packages.
 
-   - Likelihood::Function Objects of this class act as "function
+   - optimizers::Function Objects of this class act as "function
    objects" in that the function call operator () is overloaded so
    that instances behave like ordinary C functions.  Several methods
    are also provided for accessing the model Parameters and
@@ -60,15 +61,15 @@
    groups.  The behavior of this class is greatly facilitated by the
    Parameter and Arg classes.
 
-   - Likelihood::Parameter This is essentially an n-tuple containing
+   - optimizers::Parameter This is essentially an n-tuple containing
    model parameter information (and access methods) comprising the
    parameter value, scale factor, name, upper and lower bounds and
    whether the parameter is to be considered free or fixed in the
    fitting process.
 
-   - Likelihood::Arg This class wraps arguments to Function objects
-   so that Function's derivative passing mechanisms can be inherited
-   by subclasses regardless of the actual type of the underlying
+   - optimizers::Arg This class wraps arguments to Function objects so
+   that Function's derivative passing mechanisms can be inherited by
+   subclasses regardless of the actual type of the underlying
    argument.  For example, in the log-likelihood, we define
    Likelihood::logSrcModel, a Function subclass that returns the
    quantity inside the square brackets of the first term on the rhs.
@@ -78,14 +79,6 @@
    on the rhs we implement as the Likelihood::Npred class.  This class
    wants to have a Source object as its argument, which we wrap with
    the SrcArg class.
-
-   - Likelihood::Statistic Subclasses of this are the objective
-   functions to be optimized in order to estimate model parameters.
-   Although these are in the Function hierarchy, their behavior
-   differs in that _unwrapped_ (i.e., not Arg) vectors of the
-   Parameters themselves are passed via the function call operator,
-   (). (This violates the "isa" convention for subclasses, so some
-   refactoring is probably warranted.)
 
    - Likelihood::Source An abstract base class for gamma-ray sources.
    It specifies four key methods (as pure virtual functions); the
@@ -102,42 +95,31 @@
    function data for use with components of the diffuse emission
    model.
 
-   - Likelihood::Response This hierarchy provides interfaces to the
-   instrument response functions, the point-spread function (Psf), the
-   effective area (Aeff), and the energy dispersion (not yet
-   implemented).  These subclasses are all Singleton.
+   - latResponse::[IAeff, IPsf, IEdisp] These classes provide abstract
+   interfaces to the instrument response functions comprising the
+   effective area, the point-spread function, and the energy
+   dispersion.  Concrete implementations exist for the Glast25
+   parameterizations as well as for the EGRET response functions.
 
    - Likelihood::RoiCuts An n-tuple Singleton class that contains the
    "region-of-interest" cuts.  These are essentially the bounds of the
    data space as a function of arrival time, apparent energy, apparent
-   direction, zenith angle, etc..  Note that these bounds need not
-   enclose a simply connected region.
+   direction, zenith angle, etc..
 
    - Likelihood::ScData A Singleton object that contains the
    spacecraft data n-tuples (ScNtuple).
 
-   - Likelihood::SpectrumFactory This class implements the Prototype
-   pattern in order to provide a common point of access for retrieving
-   and storing Functions for spectral modeling.  Basic Functions such
-   as Likelihood::PowerLaw, Likelihood::Gaussian, and
-   Likelihood::AbsEdge are provided by default.  Clients can combine
-   models using the Likelihood::CompositeFunction hierarchy, store
-   those models in SpectrumFactory, and later, clone those stored
-   models for use in other contexts.
-
    - Likelihood::SourceFactory This class provides a common access
-   point for retrieving and storing Sources.  A
-   Likelihood::PointSource, modeled with a PowerLaw, is provided by
-   default.  Sources that have been constructed to comprise position
-   and spectral information can be stored here, then cloned for later
-   use.
+   point for retrieving and storing Sources. Sources that have been
+   constructed to comprise position and spectral information can be
+   stored here, then cloned for later use.  The sources can also be
+   read in from and output to an xml file.
 
-   - Likelihood::Optimizer An abstract base class for the algorithms
-   which maximize the objective functions embodied in 
-   Likelihood::Statistic.  After an Optimizer object is constructed
-   using a Statistic, its find_min() method will adjust the values of
-   the Likelihood::Parameter s.  It may not converge to a satisfactory 
-   maximum, so it is important to check for exceptional conditions.
+   - optimizers::Optimizer An abstract base class for the algorithms
+   which maximize the desired objective functions.  Choice of
+   optimization methods are encapsulated in three sub-classes which
+   simply wrap existing implementations that are/were originally
+   available as Fortran code: Lbfgs, Minuit, and Drmngb.  
 
  <hr>
  @section notes Release Notes
@@ -160,7 +142,13 @@
 /**
  @page userGuide User's Guide
 
- @section likeApp The likelihood application
+ @section likeApp likelihood application
+
+ This is an FTOOLS-like interface to the Likelihood class library.
+ It uses HOOPS to obtain the command-line parameters and therefore
+ requires a .par file called "likelihood.par":
+
+@verbinclude likelihood.par
 
  Here is a sample session in which 1000 events of simulated data,
  produced for two 3EG sources, 3C 279 and 3C 273, are analyzed:
@@ -206,10 +194,10 @@ Writing flux-style xml model file to flux_model.xml
 glast-guess1[jchiang] 
 @endverbatim
 
-The
-<a href="http://glast.stanford.edu/cgi-bin/cvsweb/Likelihood/xml/RoiCuts.xml?cvsroot=CVS_SLAC">ROI 
-cuts file</a> contains basic information about the extraction region,
-valid time ranges, energies, etc.:
+ - The <a
+   href="http://glast.stanford.edu/cgi-bin/cvsweb/Likelihood/xml/RoiCuts.xml?cvsroot=CVS_SLAC">ROI
+   cuts file</a> contains basic information about the extraction
+   region, valid time ranges, energies, etc.:
 
 @verbatim
 <?xml version='1.0' standalone='no'?>
@@ -228,23 +216,25 @@ valid time ranges, energies, etc.:
 </Region-of-Interest>
 @endverbatim
 
-The Spacecraft file is either a single FITS file or a list of FITS files:
+ - The Spacecraft file is either a single FITS file or a list of FITS
+   files:
 
 @verbatim
 virgo_region_scData_0000.fits
 virgo_region_scData_0001.fits
 @endverbatim
 
-If there are diffuse components in the source model, then one must
-provide an exposure map that has been computed using the @ref expMap
-application.  If the data contain only point sources, then an exposure
-map can be omitted.
+ - If there are diffuse components in the source model, then one must
+   provide an exposure map that has been computed using the @ref
+   expMap.  If the data contain only point sources, then an exposure
+   map can be omitted.
 
-Presently, only Glast25 Front/Back and Combined response functions are
-available.
+ - Presently, only Front/Back and Combined response functions for the
+   Glast25 parameterizations are available.
 
-The Source model file contains an xml description of the various sources
-to be modeled.  Here's the source model file used in the above fit:
+ - The Source model file contains an xml description of the various
+   sources to be modeled.  Here's the source model file used in the
+   above fit:
 
 @verbatim
 <source_library title="prototype sources" function_library="$(LIKELIHOODROOT)/xml/A1_Functions.xml">
@@ -273,22 +263,22 @@ to be modeled.  Here's the source model file used in the above fit:
 </source_library>
 @endverbatim
 
-The Event file also can either be a single FITS file or a list.
+ - The Event file also can either be a single FITS file or a list.
 
-The optimizer package provides three optimizers from which to choose.
-Minuit and Drmngb provide error estimates based on covariance matrix
-computed from the inverse Hessian.
+ - The optimizer package provides three optimizers from which to
+   choose.  Minuit and Drmngb provide error estimates based on
+   covariance matrix computed from the inverse Hessian.
 
-After fitting the source model can be written to an output file.  If
-the same file name as the input source model file is given, then the
-file will be overwritten.
+ - After fitting the source model can be written to an output file.
+   If the same file name as the input source model file is given, then
+   the file will be overwritten.
 
-OptEM is an alternative method for performing the optimization using
-the expectation maximization method.
+ - OptEM is an alternative method for performing the optimization
+   using the expectation maximization method.
 
-Finally, the source model can be written out as a flux-package style
-xml file that's suitable for use with either obsSim or Gleam.  Here's
-the resulting file for the above fit:
+ - Finally, the source model can be written out as a flux-package
+   style xml file that's suitable for use with either obsSim or Gleam.
+   Here's the resulting file for the above fit:
 
 @verbatim
 <source_library title="Likelihood_model">
@@ -315,9 +305,9 @@ the resulting file for the above fit:
 </source_library>
 @endverbatim
 
- @section TsMapApp The TsMap application
+ @section TsMap TsMap application
 
- @section expMapApp The expMap application
+ @section expMap expMap application
 
 */
 

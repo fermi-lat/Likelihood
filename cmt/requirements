@@ -4,7 +4,7 @@ version v2r3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.50 2003/11/08 02:55:53 jchiang Exp $
+# $Id: requirements,v 1.51 2003/11/08 21:33:56 jchiang Exp $
 
 use xml
 use astro  v*
@@ -32,7 +32,6 @@ macro test_Likelihoodstamps "Likelihood.stamp"
 macro likelihoodstamps "likelihood.stamp"
 macro TsMapstamps "TsMap.stamp"
 macro expMapstamps "expMap.stamp"
-macro like_teststamps "like_test.stamp"
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
@@ -41,7 +40,6 @@ set PFILES "$(LIKELIHOODROOT)/data"
 
 # applications
 #application test_Likelihood test/main.cxx
-#application likelihood test/likelihood.cxx
+application likelihood test/likelihood.cxx
 #application TsMap test/TsMap.cxx
 #application expMap test/expMap.cxx
-application like_test test/like_test.cxx
