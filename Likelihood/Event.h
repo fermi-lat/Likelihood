@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.21 2003/12/04 02:56:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.22 2004/05/24 23:51:30 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.21 2003/12/04 02:56:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.22 2004/05/24 23:51:30 jchiang Exp $
  */
 
 class Event {
@@ -122,7 +122,8 @@ private:
    /// @todo Find a rational way of defining the source region radius.
    /// For now, use the default values passed from
    /// computeResponse(...)
-   void prepareSrData(double sr_region, int nmu=70, int nphi=40);
+//   void prepareSrData(double sr_region, int nmu=70, int nphi=40);
+   void prepareSrData(double sr_region, int nmu=150, int nphi=100);
 
 };
 

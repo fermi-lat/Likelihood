@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.24 2004/05/24 23:51:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.25 2004/06/01 04:27:00 jchiang Exp $
  */
 
 #include <cassert>
@@ -115,9 +115,9 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcs,
 // event direction, making it independent of the ROI, but doing so has
 // not given as good results as using the ROI center.  Need to check
 // this is still true.
-//    m_eqRot = FitsImage::EquinoxRotation(m_appDir.ra(), m_appDir.dec());
+   FitsImage::EquinoxRotation eqRot(m_appDir.ra(), m_appDir.dec());
    if (!s_haveSourceRegionData) {
-      prepareSrData(sr_radius);
+      prepareSrData(30);
    }
 
 // Create a vector of srcDirs looping over the source region locations.
@@ -125,7 +125,8 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcs,
    for (unsigned int i = 0; i < s_mu.size(); i++) {
       for (unsigned int j = 0; j < s_phi.size(); j++) {
          astro::SkyDir srcDir;
-         getCelestialDir(s_phi[j], s_mu[i], s_eqRot, srcDir);
+//         getCelestialDir(s_phi[j], s_mu[i], s_eqRot, srcDir);
+         getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
          srcDirs.push_back(srcDir);
       }
    }

@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.8 2004/04/03 16:42:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.9 2004/05/05 01:42:30 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.8 2004/04/03 16:42:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.9 2004/05/05 01:42:30 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -79,6 +79,14 @@ public:
 #endif
 
    unsigned long nEvents() const {return m_events.size();}
+
+   /// This method writes the diffuse component responses as appended
+   /// columns to the named FITS file.  Almost no checking is
+   /// performed to ensure that the events in the FITS file correspond
+   /// to the data being written.  DO NOT use this method unless you
+   /// understand *exactly* what it does and *why* it does it that
+   /// way.
+   void writeEventResponses(std::string fitsFile);
 
 protected:
 

@@ -1,6 +1,8 @@
 # -*- python -*-
 import os, glob
 
+SConsignFile('/u/gl/jchiang/.sconsign')
+
 Import('home', 'package', 'apps', 'libraries', 'cflags', 'rootlibs')
 
 bindir = os.environ['BINDIR']
@@ -20,6 +22,7 @@ for lib in libraries.keys():
         library_dirs.append(libraries[lib][1])
 
 SourceSignatures('timestamp')
+TargetSignatures('build')
 
 src_files = glob.glob(os.path.join(home, 'src', '*.cxx'))
 src_files.extend(glob.glob(os.path.join(home, 'src', '*.c')))
@@ -41,8 +44,9 @@ test_program = env.Program(test_app, test_app_files, CPPPATH=include_dirs,
 appList = []
 for app in apps:
     files = glob.glob(os.path.join(home, 'src', app, '*.cxx'))
-    appList.append(env.Program(app + '.exe', files,  CPPPATH=include_dirs,
-                               LIBS=libNames, LIBPATH=library_dirs))
+    my_program = env.Program(app + '.exe', files,  CPPPATH=include_dirs,
+                             LIBS=libNames, LIBPATH=library_dirs)
+    appList.append(my_program)
 appList.extend([library, test_program])
 
 env.Install(install_dir, appList)
