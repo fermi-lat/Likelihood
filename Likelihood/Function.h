@@ -2,7 +2,7 @@
  * @brief Declaration of Function class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef Function_h
@@ -16,6 +16,9 @@
 
 namespace Likelihood {
 
+class SumFunction;
+class ProductFunction;
+
 /** 
  * @class Function
  *
@@ -28,7 +31,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.9 2003/03/16 21:53:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class Function {

@@ -2,12 +2,14 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.10 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <iostream>
 
 #include "Likelihood/Function.h"
+#include "Likelihood/SumFunction.h"
+#include "Likelihood/ProductFunction.h"
 
 namespace Likelihood {
 

@@ -22,14 +22,14 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header:
  */
 
 class lbfgs : public Optimizer {
     
 public:
     
-   lbfgs(Statistic *stat) {s_stat = stat;}
+   lbfgs(Statistic &stat) {s_stat = &stat;}
    virtual ~lbfgs() {}
 
    void find_min(int verbose = 0, double tol = 1e-5);

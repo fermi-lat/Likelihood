@@ -42,10 +42,10 @@
  in the Event configuration space, hereafter known as the "data
  space".  Each \f$M_i\f$ is defined, in part, by a vector of parameter
  values \f$\vec{\alpha_i}\f$; collectively, the \f$\vec{\alpha_i}\f$
- vectors will form the space over which the Statistic (also known as
- the objective function) will be optimized.  The integral over the
- data space in the second term is the predicted number of Events
- expected to be seen from Source \f$i\f$.
+ vectors form the space over which the Statistic (also known as the
+ objective function) is to be optimized.  The integral over the data
+ space in the second term is the predicted number of Events expected
+ to be seen from Source \f$i\f$.
 
  @section classes Important Classes
 
