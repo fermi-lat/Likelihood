@@ -13,7 +13,7 @@ libraries = map()
 
 default_libraries = ['xml', 'dataSubselectorLib', 'astro',
                      'map_toolsLib', 'evtbinLib', 
-                     'tipLib', 'optimizers', 'f2c', 'facilities', 
+                     'tipLib', 'optimizersLib', 'f2c', 'facilities', 
                      'st_appLib', 'st_streamLib', 'st_graphLib', 'hoopsLib',
                      'irfInterfaceLib', 'irfLoaderLib', 'g25ResponseLib', 
                      'dc1ResponseLib', 'testResponseLib', 'irfUtilLib', 
@@ -21,8 +21,6 @@ default_libraries = ['xml', 'dataSubselectorLib', 'astro',
 
 for lib in default_libraries:
     libraries[lib] = None
-
-libraries['g2c'] = ('','')
 
 def externalLibrary(libname, version):
     libdir = os.path.join(os.environ['GLAST_EXT'], libname, version)
@@ -33,7 +31,7 @@ libraries['CLHEP'] = externalLibrary('CLHEP', '1.8.0.0')
 libraries['xerces-c'] = externalLibrary('xerces', '2.6.0')
 libraries['cppunit'] = externalLibrary('cppunit', '1.9.14')
 libraries['Core'] = externalLibrary('ROOT', os.path.join('v3.10.02', 'root'))
-libraries['pil'] = externalLibrary('pil', '1.9.2')
+libraries['pil'] = externalLibrary('pil', '1.9.7')
 
 libraries['pil'][1] += (os.path.sep + 'linux-3.2')
 
