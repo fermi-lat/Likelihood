@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Nov  7 19:22:21 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h SourceMap.h 
+Log Message:
+convert to radians in Aeff for SourceMap calcs
+    *
+------------------------------------------------------------
 User: jchiang  Fri Nov  5 16:00:38 PST 2004
 Likelihood/src/test
 
