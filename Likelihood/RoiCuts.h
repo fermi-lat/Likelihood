@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.17 2004/07/21 04:00:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.18 2004/11/11 00:03:27 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -32,7 +32,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.17 2004/07/21 04:00:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.18 2004/11/11 00:03:27 jchiang Exp $
  */
 
 class RoiCuts {
@@ -109,9 +109,11 @@ private:
    /// cosine of the maximum Zenith angle
    static double s_muZenMax;
 
+#ifndef SWIG
    /// Create a root DOMElement for the current set of cuts.
    XERCES_CPP_NAMESPACE_QUALIFIER DOMElement * 
    rootDomElement(const std::string & roiTitle);
+#endif
 
 };
 

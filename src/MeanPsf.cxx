@@ -3,7 +3,7 @@
  * @brief Psf averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.6 2004/11/09 00:49:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.7 2004/11/09 05:19:27 jchiang Exp $
  */
 
 #include <algorithm>
@@ -111,10 +111,13 @@ double MeanPsf::Psf::operator()(double cosTheta) const {
                                       s_phi);
          double psf_val = aeffValue*psfValue;
          if (psf_val < 0) {
-//             std::cout << m_separation << "  "
-//                       << m_energy << "  "
-//                       << inclination << "  "
-//                       << s_phi << std::endl;
+            if (inclination > 69.) {  // ugly kluge
+               return 0;
+            }
+            std::cerr << "separation: " << m_separation << "  "
+                      << "energy: " << m_energy << "  "
+                      << "inclination: " <<inclination << "  "
+                      << "phi: " << s_phi << std::endl;
             throw std::runtime_error("MeanPsf::Psf::operator(): psf_val < 0");
          }
          return psf_val;

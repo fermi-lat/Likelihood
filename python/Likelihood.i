@@ -1,6 +1,8 @@
 // -*- mode: c++ -*-
 %module Likelihood
 %{
+#include "irfLoader/Loader.h"
+#include "irfInterface/IrfsFactory.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Drmngb.h"
 #include "optimizers/Minuit.h"
@@ -32,6 +34,7 @@
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/Exception.h"
 #include "Likelihood/LogLike.h"
+#include "Likelihood/BinnedLikelihood.h"
 #include <vector>
 #include <string>
 #include <exception>
@@ -41,10 +44,9 @@ using optimizers::Function;
 using optimizers::Exception;
 %}
 %include stl.i
-//%include /home/jchiang/ST/optimizers/v1r3/optimizers/Statistic.h
-%include /home/jchiang/ST/optimizers/v1r3/optimizers/Function.h
-%include /home/jchiang/ST/optimizers/v1r3/optimizers/FunctionFactory.h
-%include /home/jchiang/ST/optimizers/v1r3/optimizers/Optimizer.h
+%include ../../../optimizers/v1r4/optimizers/Function.h
+%include ../../../optimizers/v1r4/optimizers/FunctionFactory.h
+%include ../../../optimizers/v1r4/optimizers/Optimizer.h
 %include ../Likelihood/Exception.h
 %include ../Likelihood/ResponseFunctions.h
 %include ../Likelihood/Event.h
@@ -55,6 +57,7 @@ using optimizers::Exception;
 %include ../Likelihood/ExposureMap.h
 %include ../Likelihood/FitsImage.h
 %include ../Likelihood/LogLike.h
+%include ../Likelihood/BinnedLikelihood.h
 %include ../Likelihood/logSrcModel.h
 %include ../Likelihood/Npred.h
 %include ../Likelihood/OneSourceFunc.h
@@ -128,6 +131,64 @@ using optimizers::Exception;
    optimizers::Optimizer * Drmngb() {
       return new optimizers::Drmngb(*self);
    }
+   static void loadResponseFunctions(const std::string & respFuncs) {
+      irfLoader::Loader::go();
+      irfInterface::IrfsFactory * myFactory 
+         = irfInterface::IrfsFactory::instance();
+      
+      typedef std::map< std::string, std::vector<std::string> > respMap;
+      const respMap & responseIds = irfLoader::Loader::respIds();
+      respMap::const_iterator it;
+      if ( (it = responseIds.find(respFuncs)) != responseIds.end() ) {
+         const std::vector<std::string> & resps = it->second;
+         for (unsigned int i = 0; i < resps.size(); i++) {
+            Likelihood::ResponseFunctions::
+               addRespPtr(i, myFactory->create(resps[i]));
+         }
+      } else {
+         throw std::invalid_argument("Invalid response function choice: "
+                                     + respFuncs);
+      }
+   }
+}
+%extend Likelihood::BinnedLikelihood {
+   void print_source_params() {
+      std::vector<std::string> srcNames;
+      self->getSrcNames(srcNames);
+      std::vector<Parameter> parameters;
+      for (unsigned int i = 0; i < srcNames.size(); i++) {
+         Likelihood::Source *src = self->getSource(srcNames[i]);
+         Likelihood::Source::FuncMap srcFuncs = src->getSrcFuncs();
+         srcFuncs["Spectrum"]->getParams(parameters);
+         std::cout << "\n" << srcNames[i] << ":\n";
+         for (unsigned int i = 0; i < parameters.size(); i++)
+            std::cout << parameters[i].getName() << ": "
+                      << parameters[i].getValue() << std::endl;
+      }
+   }
+   static Likelihood::
+      BinnedLikelihood * create(const std::string & countsMapFile) {
+      Likelihood::CountsMap * dataMap = 
+         new Likelihood::CountsMap(countsMapFile);
+      Likelihood::BinnedLikelihood * logLike = 
+         new Likelihood::BinnedLikelihood(*dataMap, countsMapFile);
+      return logLike;
+   }
+   int getNumFreeParams() {
+      return self->getNumFreeParams();
+   }
+   void getFreeParamValues(std::vector<double> & params) {
+      self->getFreeParamValues(params);
+   }
+   optimizers::Optimizer * Minuit() {
+      return new optimizers::Minuit(*self);
+   }
+   optimizers::Optimizer * Lbfgs() {
+      return new optimizers::Lbfgs(*self);
+   }
+   optimizers::Optimizer * Drmngb() {
+      return new optimizers::Drmngb(*self);
+   }
 }
 %extend Likelihood::Event {
    double ra() {
@@ -141,26 +202,5 @@ using optimizers::Exception;
    }
    double scDec() {
       return self->getScDir().dec();
-   }
-}
-%extend Likelihood::FitsImage {
-   void fetchCelestialArrays(std::vector<double> &longitude,
-                             std::vector<double> &latitude) {
-      std::valarray<double> lon;
-      std::valarray<double> lat;
-      self->fetchCelestialArrays(lon, lat);
-      longitude.reserve(lon.size());
-      latitude.reserve(lat.size());
-      for (unsigned int i = 0; i < lon.size(); i++) {
-         longitude.push_back(lon[i]);
-         latitude.push_back(lat[i]);
-      }
-   }
-   void fetchImageData(std::vector<double> &image) {
-      std::valarray<double> imageArray;
-      self->fetchImageData(imageArray);
-      image.reserve(imageArray.size());
-      for (unsigned int i = 0; i < imageArray.size(); i++)
-         image.push_back(imageArray[i]);
    }
 }
