@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 19 20:05:02 PST 2004
+Likelihood/Likelihood
+
+Removed Files:
+	RunParams.h 
+Log Message:
+moved to hoopsUtil
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb 19 16:02:09 PST 2004
 Likelihood/src/test
 
