@@ -5,8 +5,6 @@
 #include <cstring>
 #include <cmath>
 #include "astro/SkyDir.h"
-#include <unistd.h>
-#include <sys/times.h>
 
 //  include everything for the compiler to test
 
@@ -75,7 +73,6 @@ void test_ExposureMap();
 void test_SpatialMap();
 void test_DiffuseSource();
 void fit_DiffuseSource();
-void fit_sources();
 void print_fit_results(Statistic &stat);
 void test_Mcmc();
 void test_cfitsio();
@@ -108,81 +105,7 @@ int main() {
    fit_DiffuseSource();
    test_Mcmc();
 //    test_cfitsio();
-//    fit_sources();
    return 0;
-}
-
-void fit_sources(void) {
-
-  std::cout << "*** test_sources ***" << std::endl;
-  double ticks =  sysconf(_SC_CLK_TCK);
-
-  RoiCuts::setCuts(305.2,36.6,30.);
-  std::string sc_file = test_path + "Data/test_scData_0000.fits";
-  int sc_hdu = 2;
-  struct tms tbuf;
-  clock_t ct1 = times(&tbuf);
-  clock_t t1 = tbuf.tms_utime + tbuf.tms_stime;
-  ScData::readData(sc_file, sc_hdu);
-  clock_t ct2 = times(&tbuf);
-  clock_t t2 = tbuf.tms_utime + tbuf.tms_stime;
-  std::cout << "Elapsed and CPU time to read S/C data: " <<
-    (double)(ct2-ct1)/ticks << " " << double(t2-t1)/ticks << std::endl;
-
-  logLike_ptsrc logLike;
-
-  std::string source_file = test_path + "Data/sourcelist";
-  std::ifstream srclist(source_file.c_str());
-  while (true) {
-    char buffer[255];
-    if (!srclist.getline(&buffer[0],sizeof(buffer))) break;
-    std::istringstream inl(buffer);
-    std::string srcname;
-    double srcra, srcdec;
-    inl >> srcname >> srcra >> srcdec;
-    std::cout << srcname << " " << srcra << " " << srcdec << std::endl;
-    PointSource src;
-    astro::SkyDir dir(srcra, srcdec, astro::SkyDir::GALACTIC);
-    src.setDir(dir);
-    PowerLaw PL(2., -2., 100.);
-    Parameter indexParam = PL.getParam("Index");
-    Parameter prefactorParam = PL.getParam("Prefactor");
-    indexParam.setBounds(-4., -1.);
-    prefactorParam.setBounds(1e-3, 1e3);
-    prefactorParam.setScale(1e-9);
-    PL.setParam(indexParam);
-    PL.setParam(prefactorParam);
-    src.setSpectrum(&PL);
-    src.setName(srcname);
-    logLike.addSource(&src);
-  }
-  srclist.close();
-
-  clock_t ct3 = times(&tbuf);
-  clock_t t3 = tbuf.tms_utime + tbuf.tms_stime;
-  std::cout <<"Elapsed and CPU time to build sources: " <<
-    (ct3-ct2)/ticks << " " << (t3-t2)/ticks << std::endl;
-
-  std::string event_file = test_path + "Data/test_events_0000.fits";
-  logLike.getEvents(event_file, 2);
-
-  clock_t ct4 = times(&tbuf);
-  clock_t t4 = tbuf.tms_utime + tbuf.tms_stime;
-  std::cout << "Elapsed and CPU time to read events: " <<
-    (ct4-ct3)/ticks << " " << (t4-t3)/ticks << std::endl;
-
-  Drmngb myOpt(logLike);
-  //  Lbfgs myOpt(logLike);
-  //Minuit myOpt(logLike);
-  myOpt.find_min(4,1e-10);
-
-  clock_t ct5 = times(&tbuf);
-  clock_t t5 = tbuf.tms_utime + tbuf.tms_stime;
-  std::cout << "Elapsed and CPU time for optimization: " <<
-    (ct5-ct4)/ticks << " " << (t5-t4)/ticks << std::endl;
-
-  std::cout << "*** test_sources completed ***\n" << std::endl;
-
 }
 
 void test_cfitsio() {
