@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.56 2004/09/22 03:20:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.57 2004/09/22 20:05:38 jchiang Exp $
  */
 
 #include <cassert>
@@ -474,8 +474,6 @@ CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
    computeModelMap(pixels, energies, map);
 
    CountsMap * modelMap = new CountsMap(dataMap);
-// @bug This will not work properly until
-// tip::FitsExtensionManager::setImageDimensions is fixed.
    modelMap->setImage(map);
    return modelMap;
 }
