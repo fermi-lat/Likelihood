@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.8 2005/02/04 15:06:56 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.9 2005/02/06 22:50:29 jchiang Exp $
 #
 import os, sys
 import numarray as num
@@ -78,10 +78,10 @@ class SrcAnalysis(object):
         for emin, emax in zip(self.energies[:-1], self.energies[1:]):
             cnts.append(source.Npred(emin, emax))
         return num.array(cnts)
-    def _plot_model(self, source, yrange=None, lineStyle="Dot",
+    def _plot_model(self, source, yrange=None, lineStyle="Dot", oplot=False,
                     color='black'):
         import hippoplotter as plot
-        if self.disp is not None:
+        if oplot and self.disp is not None:
             plot.canvas.selectDisplay(self.disp)
         else:
             self.plotData(yrange)
@@ -117,17 +117,18 @@ class SrcAnalysis(object):
     def plot(self, srcs=None, oplot=False, yrange=None, color='black'):
         import hippoplotter as plot
         if isinstance(srcs, str):
-            total = self._plot_model(srcs, yrange=yrange, color=color,
-                                     lineStyle='Solid')
+            total = self._plot_model(srcs, yrange=yrange, color=color, 
+                                     oplot=oplot, lineStyle='Solid')
         else:
             if srcs is None:
                 srcs = pyLike.StringVector()
                 self.logLike.getSrcNames(srcs)
-            total = self._plot_model(srcs[0], yrange=yrange, color=color)
+            total = self._plot_model(srcs[0], yrange=yrange, color=color,
+                                     oplot=oplot)
             if len(srcs) > 1:
                 for src in list(srcs[1:]):
-                    total += self._plot_model(src, color=color)
-            self._plot_model(total, color=color, lineStyle='Solid')
+                    total += self._plot_model(src, oplot=True, color=color)
+            self._plot_model(total, color=color, oplot=True, lineStyle='Solid')
         self._plot_residuals(total, oplot=oplot, color=color)
     def fit(self, verbosity=3, tol=1e-5, optimizer=None):
         errors = self._errors(optimizer, verbosity, tol)
