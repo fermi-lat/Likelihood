@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Dec  6 15:46:36 PST 2003
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+argv fix; added Goodi-compliant data
+    *
+------------------------------------------------------------
 User: jchiang  Sat Dec  6 15:46:35 PST 2003
 Likelihood/data
 
