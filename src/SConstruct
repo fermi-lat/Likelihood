@@ -4,7 +4,7 @@ from map import map
 package = 'Likelihood'
 home = os.environ[package.upper() + 'ROOT']
 apps = ['likelihood', 'makeExposureCube', 'expMap',
-        'TsMap', 'diffuseResponses', 'counts_map']
+        'TsMap', 'diffuseResponses', 'counts_map', 'meanPsf']
 #OptPP_dir = '/home/jchiang/data/OPT++2.1'
 #OptPP_dir = '/scratch/jchiang/OPT++2.1'
 OptPP_dir = os.environ['OPTPP_DIR']
@@ -12,14 +12,13 @@ OptPP_dir = os.environ['OPTPP_DIR']
 libraries = map()
 libraries['xml'] = None
 libraries['astro'] = None
-libraries['tipLib'] = None
 libraries['map_toolsLib'] = None
 libraries['evtbinLib'] = None
+libraries['tipLib'] = None
 libraries['optimizers'] = None
 libraries['f2c'] = None
 libraries['facilities'] = None
 libraries['st_appLib'] = None
-libraries['st_facilitiesLib'] = None
 libraries['st_graphLib'] = None
 libraries['hoopsLib'] = None
 libraries['irfInterfaceLib'] = None
@@ -28,6 +27,7 @@ libraries['g25ResponseLib'] = None
 libraries['dc1ResponseLib'] = None
 libraries['testResponseLib'] = None
 libraries['irfUtilLib'] = None
+libraries['st_facilitiesLib'] = None
 libraries['g2c'] = ('','')
 libraries['cfitsio'] = (os.path.join(os.environ['CFITSIO_DIR'], 'include'),
                         os.path.join(os.environ['CFITSIO_DIR'], 'lib'))

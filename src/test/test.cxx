@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.33 2004/10/04 05:51:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.34 2004/10/05 01:31:24 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -37,6 +37,7 @@
 
 #include "irfInterface/IrfsFactory.h"
 #include "irfInterface/AcceptanceCone.h"
+#include "dc1Response/loadIrfs.h"
 #include "g25Response/loadIrfs.h"
 
 #include "map_tools/ExposureHyperCube.h"
@@ -59,6 +60,7 @@
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/SourceModel.h"
 #include "Likelihood/SpatialMap.h"
+#include "Likelihood/TrapQuad.h"
 
 #include "SourceData.h"
 #include "XmlDiff.h"
@@ -145,11 +147,12 @@ void LikelihoodTests::setUp() {
       m_rootPath = std::string(root);
    }
 // Prepare the ResponseFunctions object.
+   dc1Response::loadIrfs();
    g25Response::loadIrfs();
    irfInterface::IrfsFactory * myFactory 
       = irfInterface::IrfsFactory::instance();
-//    ResponseFunctions::addRespPtr(2, myFactory->create("DC1::Front"));
-//    ResponseFunctions::addRespPtr(3, myFactory->create("DC1::Back"));
+//    ResponseFunctions::addRespPtr(0, myFactory->create("DC1::Front"));
+//    ResponseFunctions::addRespPtr(1, myFactory->create("DC1::Back"));
    ResponseFunctions::addRespPtr(0, myFactory->create("Glast25::Front"));
    ResponseFunctions::addRespPtr(1, myFactory->create("Glast25::Back"));
    
@@ -173,8 +176,8 @@ void LikelihoodTests::tearDown() {
    delete m_srcFactory;
    m_srcFactory = 0;
 // @todo Use iterators to traverse RespPtr map for key deletion.
-   ResponseFunctions::deleteRespPtr(2);
-   ResponseFunctions::deleteRespPtr(3);
+   ResponseFunctions::deleteRespPtr(0);
+   ResponseFunctions::deleteRespPtr(1);
    std::remove(m_fluxXmlFile.c_str());
    std::remove(m_srcModelXmlFile.c_str());
 }
@@ -614,6 +617,19 @@ void LikelihoodTests::test_BinnedLikelihood() {
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
    binnedLogLike.saveSourceMaps("srcMaps.fits");
 
+// Try to fit using binned model.
+   optimizers::Minuit my_optimizer(binnedLogLike);
+   int verbose(0);
+   double tol(1e-5);
+   my_optimizer.find_min(verbose, tol);
+
+    std::vector<double> params;
+//    binnedLogLike.getFreeParamValues(params);
+//    for (unsigned int i = 0; i < params.size(); i++) {
+//       std::cout << "parameter " << i << ": " << params[i] << "\n";
+//    }
+//    std::cout << std::endl;
+
    CountsMap * modelMap = binnedLogLike.createCountsMap();
 
    dataMap.writeOutput("test_Likelihood", "dataMap.fits");
@@ -624,14 +640,16 @@ void LikelihoodTests::test_BinnedLikelihood() {
    for (unsigned int i = 0; i < data.size(); i++) {
       dataSum += data[i];
    }
-   std::cout << "Total counts in data map: " << dataSum << std::endl;
+//   std::cout << "Total counts in data map: " << dataSum << std::endl;
 
    const std::vector<double> & model = modelMap->data();
    double modelSum(0);
    for (unsigned int i = 0; i < model.size(); i++) {
       modelSum += model[i];
    }
-   std::cout << "Total model counts: " << modelSum << std::endl;
+//   std::cout << "Total model counts: " << modelSum << std::endl;
+
+   CPPUNIT_ASSERT(fabs(modelSum - dataSum) < 1e-2);
    
    std::vector<double> energies;
    modelMap->getAxisVector(2, energies);
@@ -643,53 +661,35 @@ void LikelihoodTests::test_BinnedLikelihood() {
          data_counts += data[indx];
          model_counts += model[indx];
       }
-      std::cout << energies[i] << "  "
-                << data_counts << "  "
-                << model_counts << "\n";
+//       std::cout << energies[i] << "  "
+//                 << data_counts << "  "
+//                 << model_counts << "\n";
    }
-   std::cout << std::endl;
-
-   std::vector<double> params;
-   binnedLogLike.getFreeParamValues(params);
-   for (unsigned int i = 0; i < params.size(); i++) {
-      std::cout << i << "  " << params[i] << "\n";
-   }
-   std::cout << std::endl;
+//    std::cout << std::endl;
 
    std::vector<double> derivs;
    binnedLogLike.getFreeDerivs(derivs);
-   for (unsigned int i = 0; i < derivs.size(); i++) {
-      std::cout << i << "  " << derivs[i] << "\n";
-   }
-   std::cout << std::endl;
+   binnedLogLike.getFreeParamValues(params);
 
-   std::cout << "Testing derivatives" << std::endl;
+//   std::cout << "Testing derivatives" << std::endl;
    double logLike0 = binnedLogLike.value();
-   double eps(1e-5);
+   double eps(1e-7);
    for (unsigned int i = 0; i < params.size(); i++) {
       std::vector<double> new_params = params;
       double delta = eps*new_params[i];
       new_params[i] += delta;
       binnedLogLike.setFreeParamValues(new_params);
       double logLike = binnedLogLike.value();
-      std::cout << derivs[i] << "  ";
-      std::cout << logLike << "  " << logLike0 << "  ";
-      std::cout << (logLike - logLike0)/delta << std::endl;
+//       std::cout << derivs[i] << "  ";
+//       std::cout << logLike << "  " << logLike0 << "  ";
+//       std::cout << (logLike - logLike0)/delta << std::endl;
+
+// Another weak test.
+      CPPUNIT_ASSERT(fabs(derivs[i] - (logLike - logLike0)/delta)/derivs[i] 
+                     < 1e-2);
    }
 
    delete modelMap;
-
-// Try to fit using binned model.
-
-   optimizers::Minuit my_optimizer(binnedLogLike);
-   int verbose(2);
-   double tol(1e-5);
-   my_optimizer.find_min(verbose, tol);
-   binnedLogLike.getFreeParamValues(params);
-   for (unsigned int i = 0; i < params.size(); i++) {
-      std::cout << "parameter " << i << ": " << params[i] << "\n";
-   }
-   std::cout << std::endl;
 }
 
 void LikelihoodTests::test_MeanPsf() {
@@ -702,16 +702,27 @@ void LikelihoodTests::test_MeanPsf() {
    }
    ExposureCube::readExposureCube(exposureCubeFile);
 
-   MeanPsf Crab_psf(83.57, 22.01);
-   int npts(40);
-   double tstep = log(70./1e-2)/(npts-1.);
+   double ee[] = {1e2, 1e3, 1e4};
+   std::vector<double> energies(ee, ee+3);
+
+   MeanPsf Crab_psf(83.57, 22.01, energies);
+   int npts(200);
+   double tstep = log(70./1e-4)/(npts-1.);
+   std::vector<double> thetas;
    for (int i = 0; i < npts; i++) {
-      double theta(1e-2*exp(i*tstep));
-      std::cout << theta << "  "
-                << Crab_psf(1e2, theta) << "  "
-                << Crab_psf(1e3, theta) << "  "
-                << Crab_psf(1e4, theta) << "  "
-                << std::endl;
+      thetas.push_back(1e-2*exp(i*tstep)*M_PI/180.);
+   }
+
+   for (unsigned int k = 0; k < energies.size(); k++) {
+      std::vector<double> integrand;
+      for (int i = 0; i < npts; i++) {
+         double psf = Crab_psf(energies[k], thetas[i]*180./M_PI);
+         integrand.push_back(psf*sin(thetas[i])*2.*M_PI);
+      }
+      TrapQuad my_trap(thetas, integrand);
+//       std::cout << my_trap.integral() << std::endl;
+// Yes, this test is pretty weak.
+      CPPUNIT_ASSERT(fabs(my_trap.integral() - 1.) < 0.03);
    }
 }
 
