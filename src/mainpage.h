@@ -151,7 +151,7 @@
 @verbinclude likelihood.par
 
  The format of the entries in a .par file is given in the <a
- href="http://isdc.unige.ch/Soft/AstroRoot/pil.ps">PIL user
+ href="http://www-glast.slac.stanford.edu/sciencetools/userInterface/doc/pil.pdf">PIL user
  manual</a>.  The ordering of the fields in each line are
  - variable name
  - variable type (s=string, r=real, i=integer, b=boolean)
