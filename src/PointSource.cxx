@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.37 2004/03/05 18:42:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.38 2004/03/11 05:19:36 jchiang Exp $
  */
 
 #include <vector>
@@ -27,6 +27,35 @@
 #include "Likelihood/TrapQuad.h"
 
 namespace {
+   double sourceEffArea(double energy, double time,
+                        const astro::SkyDir &srcDir) {
+      Likelihood::ResponseFunctions * respFuncs 
+         = Likelihood::ResponseFunctions::instance();
+      Likelihood::ScData * scData = Likelihood::ScData::instance();
+   
+      astro::SkyDir zAxis = scData->zAxis(time);
+      astro::SkyDir xAxis = scData->xAxis(time);
+
+      Likelihood::RoiCuts *roiCuts = Likelihood::RoiCuts::instance();
+      std::vector<latResponse::AcceptanceCone *> cones;
+      cones.push_back(const_cast<latResponse::AcceptanceCone *>
+                      (&(roiCuts->extractionRegion())));
+
+      double myEffArea = 0;
+      std::map<unsigned int, latResponse::Irfs *>::iterator respIt
+         = respFuncs->begin();
+      for ( ; respIt != respFuncs->end(); respIt++) {
+         
+         latResponse::IPsf *psf = respIt->second->psf();
+         latResponse::IAeff *aeff = respIt->second->aeff();
+
+         double psf_val = psf->angularIntegral(energy, srcDir, 
+                                               zAxis, xAxis, cones);
+         double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
+         myEffArea += psf_val*aeff_val;
+      }
+      return myEffArea;
+   }
 }
 
 namespace Likelihood {
@@ -213,7 +242,10 @@ void PointSource::computeExposure(std::vector<double> &energies,
       if (includeInterval) {
          for (unsigned int k = 0; k < energies.size(); k++) {
             double time = (scData->vec[it+1].time + scData->vec[it].time)/2.;
-            exposure[k] += sourceEffArea(energies[k], time)
+//             exposure[k] += sourceEffArea(energies[k], time)
+//                *(scData->vec[it+1].time - scData->vec[it].time);
+            exposure[k] += 
+               ::sourceEffArea(energies[k], time, m_dir.getDir())
                *(scData->vec[it+1].time - scData->vec[it].time);
          }
       }
