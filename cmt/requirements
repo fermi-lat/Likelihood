@@ -4,7 +4,7 @@ version v2r6p3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.67 2003/12/06 04:58:53 jchiang Exp $
+# $Id: requirements,v 1.68 2003/12/06 05:23:09 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -28,7 +28,7 @@ use hoops v*
 # allow use of internal path
 macro Likelihood_cppflags "" \
 Linux "-I ../src -g -O -pedantic -D TRAP_FPE -D USE_GOODI " \
-WIN32 "/I..\src  /wd4290"
+WIN32 '/I..\src /D"USE_GOODI" /wd4290'
 #Linux "-I ../src -g -O -pedantic -D TRAP_FPE " \
 
 # this package uses obsolete C function names, beware	
@@ -44,6 +44,9 @@ macro expMapstamps "expMap.stamp"
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
+
+set PFILES "$(LIKELIHOODROOT)/data/"
+
 
 # applications
 application test_Likelihood test/main.cxx
