@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov  7 17:24:43 PST 2003
+Likelihood/data
+
+Modified Files:
+	Virgo_region.xml likelihood.par 
+Added Files:
+	expMap.par 
+Log Message:
+add expMap app; tests for OptEM
+    *
+------------------------------------------------------------
 User: jchiang  Fri Nov  7 17:24:42 PST 2003
 Likelihood/cmt
 
