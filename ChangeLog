@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 16 16:02:23 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+add BinnedLikelihood to SWIG interface
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 16 16:02:21 PST 2004
 Likelihood/src
 
