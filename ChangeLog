@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 17 11:08:53 PST 2004
+Likelihood/data
+
+Modified Files:
+	anticenter_model.xml 
+Log Message:
+Fit Crab and Geminga with BrokenPowerLaws as an example
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 17 11:08:17 PST 2004
 Likelihood/cmt
 
