@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr  3 15:08:39 PST 2003
+Likelihood/src
+
+Modified Files:
+	Aeff.cxx DiffuseSource.cxx Event.cxx ExposureMap.cxx 
+	PowerLaw.h Psf.cxx Response.cxx SourceFactory.cxx 
+	SourceModel.cxx 
+Added Files:
+	FitsImage.cxx SpatialMap.cxx 
+Log Message:
+add SpatialMap, FitsImage classes and test data
+    *
+------------------------------------------------------------
 User: jchiang  Thu Apr  3 15:08:38 PST 2003
 Likelihood/Likelihood
 
