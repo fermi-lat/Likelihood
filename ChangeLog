@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 18 21:03:12 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h 
+Log Message:
+output counts spectra in likelihood fit
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 18 14:22:18 PDT 2004
 Likelihood/src/likelihood
 
