@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.45 2004/07/21 04:00:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.46 2004/08/03 21:28:46 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,12 +55,10 @@ void PointSource::readExposureCube(std::string expCubeFile) {
 double PointSource::fluxDensity(double energy, double time,
                                 const astro::SkyDir &dir,
                                 int eventType) const {
-
 // Scale the energy spectrum by the psf value and the effective area
 // and convolve with the energy dispersion, if appropriate, all of
 // which are functions of time and spacecraft attitude and orbital
 // position.
-
    if (ResponseFunctions::useEdisp()) {
       unsigned int npts(s_trueEnergies.size());
       std::vector<double> my_integrand(npts);
@@ -88,7 +86,6 @@ double PointSource::fluxDensityDeriv(double energy, double time,
                                      const std::string &paramName) const {
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude"
-
    if (paramName == "Prefactor") {
       return fluxDensity(energy, time, dir, eventType)
          /m_spectrum->getParamValue("Prefactor");

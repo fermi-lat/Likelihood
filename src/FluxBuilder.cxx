@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.2 2004/02/20 04:05:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.3 2004/02/20 22:51:09 jchiang Exp $
  */
 
 #include <string>
@@ -156,7 +156,7 @@ DomElement * FluxBuilder::gammaSpectrum(optimizers::Function & spectrum) {
       xml::Dom::addAttribute(*spectralTypeElt, std::string("gamma2"), 
                              -spectrum.getParamValue("Index2"));
       xml::Dom::addAttribute(*spectralTypeElt, std::string("ebreak"), 
-                             -spectrum.getParamValue("BreakValue"));
+                             spectrum.getParamValue("BreakValue"));
    }
    partElt->appendChild(*spectralTypeElt);
    specElt->appendChild(*partElt);
