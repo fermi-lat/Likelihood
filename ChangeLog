@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec  5 19:52:40 PST 2003
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+patch for likelihood.cxx; tagging v2r6p3
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec  5 19:52:39 PST 2003
 Likelihood/cmt
 
