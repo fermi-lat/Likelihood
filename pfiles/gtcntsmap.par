@@ -1,5 +1,5 @@
-event_file,f,ql,"test_events_0000.fits",,,"event file"
-spacecraft_file,f,ql,"test_scData_0000.fits",,,"spacecraft file"
+event_file,fr,ql,"test_events_0000.fits",,,"event file"
+spacecraft_file,fr,ql,"test_scData_0000.fits",,,"spacecraft file"
 emin,r,ql,30,20,3e5,"minimum energy (MeV)"
 emax,r,ql,2e5,20,3e5,"maximum energy (MeV)"
 nenergies,i,ql,21,2,40,"number of energy bounds"
