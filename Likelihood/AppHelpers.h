@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.9 2004/12/08 04:09:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.10 2004/12/09 07:20:30 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.9 2004/12/08 04:09:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.10 2004/12/09 07:20:30 jchiang Exp $
  */
 
 class AppHelpers {
@@ -76,9 +76,12 @@ protected:
    void prepareFunctionFactory();
    void createResponseFuncs();
 
+#ifndef SWIG   
    static void AppHelpers::
    gatherTimeCuts(dataSubselector::Cuts & cuts,
                   std::vector<const dataSubselector::CutBase *> time_cuts);
+#endif // SWIG
+
 };
 
 } // namespace Likelihood
