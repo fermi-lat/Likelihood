@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Npred.cxx,v 1.6 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Npred.cxx,v 1.7 2003/08/06 20:52:07 jchiang Exp $
  */
 
 #include <vector>
@@ -46,7 +46,7 @@ void Npred::buildParameterVector(optimizers::Arg &x) const {
 
    Source::FuncMap srcFuncs = src->getSrcFuncs();
    Source::FuncMap::const_iterator func_it = srcFuncs.begin();
-   for (; func_it != srcFuncs.end(); func_it++) {
+   for (; func_it != srcFuncs.end(); ++func_it) {
       std::vector<optimizers::Parameter> params;
       (*func_it).second->getParams(params);
       for (unsigned int i = 0; i < params.size(); i++)

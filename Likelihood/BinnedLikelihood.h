@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.1 2004/09/13 15:30:39 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -12,6 +12,7 @@
 #include "optimizers/dArg.h"
 
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/Pixel.h"
 #include "Likelihood/SourceModel.h"
 
 namespace Likelihood {
@@ -50,6 +51,7 @@ private:
 
    std::vector<astro::SkyDir> m_pixelDirs;
    std::vector<double> m_pixelSolidAngles;
+   std::vector<Pixel> m_pixels;
    std::vector<double> m_energies;
 
 };
