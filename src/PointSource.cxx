@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.30 2003/10/27 01:13:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.31 2003/11/18 18:09:42 jchiang Exp $
  */
 
 #include <vector>
@@ -26,7 +26,7 @@ namespace {
 
    double totalResponse(double energy, double time, 
                         const astro::SkyDir &srcDir,
-                        const astro::SkyDir &appDir) {
+                        const astro::SkyDir &appDir, int type) {
 // This implementation neglects energy dispersion.
       Likelihood::ResponseFunctions * respFuncs 
          = Likelihood::ResponseFunctions::instance();
@@ -39,13 +39,13 @@ namespace {
       std::map<unsigned int, latResponse::Irfs *>::iterator respIt
          = respFuncs->begin();
       for ( ; respIt != respFuncs->end(); respIt++) {
-         
-         latResponse::IPsf *psf = respIt->second->psf();
-         latResponse::IAeff *aeff = respIt->second->aeff();
-
-         double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
-         double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-         myResponse += psf_val*aeff_val;
+         if (respIt->second->irfID() == type) {  
+            latResponse::IPsf *psf = respIt->second->psf();
+            latResponse::IAeff *aeff = respIt->second->aeff();
+            double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
+            double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
+            myResponse += psf_val*aeff_val;
+         }
       }
       return myResponse;
    }
@@ -100,7 +100,8 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 }
 
 double PointSource::fluxDensity(double energy, double time,
-                                const astro::SkyDir &dir) const {
+                                const astro::SkyDir &dir,
+                                int eventType) const {
 
 // Scale the energy spectrum by the psf value and the effective area
 // and convolve with the energy dispersion (now a delta-function in
@@ -110,21 +111,23 @@ double PointSource::fluxDensity(double energy, double time,
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
 
-   return ::totalResponse(energy, time, m_dir.getDir(), dir)*spectrum;
+   return ::totalResponse(energy, time, m_dir.getDir(), dir, 
+                          eventType)*spectrum;
 }
 
 double PointSource::fluxDensityDeriv(double energy, double time,
                                      const astro::SkyDir &dir,
+                                     int eventType,
                                      const std::string &paramName) const {
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude"
 
    if (paramName == "Prefactor") {
-      return fluxDensity(energy, time, dir)
+      return fluxDensity(energy, time, dir, eventType)
          /m_spectrum->getParamValue("Prefactor");
    } else {
       optimizers::dArg energy_arg(energy);
-      return ::totalResponse(energy, time, m_dir.getDir(), dir)
+      return ::totalResponse(energy, time, m_dir.getDir(), dir, eventType)
          *m_spectrum->derivByParam(energy_arg, paramName);
    }
 }
