@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  3 15:50:42 PST 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx SConstruct SourceMap.cxx 
+Log Message:
+precompute m_srcDirs for a given pixel; use references where appropriate;
+update SConstruct to use newer version of IExternal
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov  3 15:50:16 PST 2004
 Likelihood/Likelihood
 
