@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct  4 21:47:56 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	MeanPsf.h 
+Log Message:
+update tests; settle on MeanPsf imp.
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct  4 18:31:25 PDT 2004
 Likelihood/src/test
 
