@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar 20 15:47:58 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	CompositeFunction.h Event.h Function.h Optimizer.h Parameter.h 
+	PointSource.h ProductFunction.h Response.h Source.h 
+	SpectrumFactory.h SumFunction.h 
+Added Files:
+	SourceFactory.h 
+Log Message:
+add SourceFactory class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 19 15:44:44 PST 2003
 Likelihood/src/test
 
