@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.26 2004/09/15 23:12:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.27 2004/09/22 20:05:30 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.26 2004/09/15 23:12:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.27 2004/09/22 20:05:30 jchiang Exp $
  */
 
 class Source {
@@ -46,16 +46,16 @@ public:
    /// @param phi azimuthal angle of source direction wrt instrument
    ///        z- and x-axes (degrees)
    /// @param energy True energy of photon (MeV)
-   /// @param separation angle between source direction and apparent
-   ///        photon direction (degrees)
+   /// @param appDir Apparent photon direction
    /// @param evtType Event type, i.e., front- vs back-converting event, 
    ///        0 vs 1
    virtual double fluxDensity(double inclination, double phi, double energy, 
-                              double separation, int evtType) const {
+                              const astro::SkyDir & appDir, 
+                              int evtType) const {
       (void)(inclination);
       (void)(phi);
       (void)(energy);
-      (void)(separation);
+      (void)(appDir);
       (void)(evtType);
       return 0;
    }
@@ -65,13 +65,14 @@ public:
                                    const std::string &paramName) const = 0;
 
    virtual double fluxDensityDeriv(double inclination, double phi, 
-                                   double energy, double separation, 
+                                   double energy, 
+                                   const astro::SkyDir & appDir,
                                    int evtType, 
                                    const std::string & paramName) const {
       (void)(inclination);
       (void)(phi);
       (void)(energy);
-      (void)(separation);
+      (void)(appDir);
       (void)(evtType);
       (void)(paramName);
       return 0;

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.32 2004/09/21 22:16:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.33 2004/09/22 20:05:40 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.32 2004/09/21 22:16:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.33 2004/09/22 20:05:40 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -263,7 +263,7 @@ void likelihood::writeCountsSpectra() {
          double Npred;
          try {
             Npred = src->Npred(energies[k], energies[k+1]);
-            if (i == 0) evals.push_back(log10(sqrt(energies[k]*energies[k+1])));
+            if (i==0) evals.push_back(log10(sqrt(energies[k]*energies[k+1])));
             npred[i].push_back(log10(Npred));
             line << Npred << "  ";
          } catch (std::out_of_range & eObj) {
@@ -339,17 +339,25 @@ void likelihood::writeCountsMap() {
    }
 
    dataMap.writeOutput("likelihood", "data_map.fits");
-   CountsMap * modelMap = m_logLike->createCountsMap(dataMap);;
-   if (modelMap) {
-      modelMap->writeOutput("likelihood", "model_map.fits");
-      delete modelMap;
-   }
+
+   std::vector<double> params;
+   m_logLike->getFreeParamValues(params);
 
    BinnedLikelihood binnedLogLike(dataMap);
+   std::string xmlFile = m_pars["Source_model_file"];
+   binnedLogLike.reReadXml(xmlFile);
+   binnedLogLike.setFreeParamValues(params);
    std::cout << "Binned log-likelihood: "
              << binnedLogLike.value()
              << std::endl;
 
+   try {
+      CountsMap * modelMap = binnedLogLike.createCountsMap();
+      modelMap->writeOutput("likelihood", "model_map.fits");
+      delete modelMap;
+   } catch (std::exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
 }
 
 void likelihood::printFitResults(const std::vector<double> &errors) {

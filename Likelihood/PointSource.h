@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.40 2004/09/15 23:12:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.41 2004/09/22 20:05:30 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.40 2004/09/15 23:12:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.41 2004/09/22 20:05:30 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -74,7 +74,7 @@ public:
                       const astro::SkyDir &dir, int eventType=2) const;
 
    virtual double fluxDensity(double inclination, double phi, double energy, 
-                              double separation, int evtType) const;
+                              const astro::SkyDir & appDir, int evtType) const;
 
    /// Returns the derivative wrt to the named Parameter
    virtual double fluxDensityDeriv(const Event &evt, 
@@ -87,7 +87,7 @@ public:
                            const std::string &paramName) const;
 
    virtual double fluxDensityDeriv(double inclination, double phi, 
-                                   double energy, double separation, 
+                                   double energy, const astro::SkyDir & appDir,
                                    int evtType, const std::string & paramName)
       const;
 
