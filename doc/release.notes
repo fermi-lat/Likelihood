@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r1p2 19-0ct-04  JC   include gtcntsmap application; update tutorial
+                           documentation.
     v5r1p1 10-Oct-04  JC   hoops doesn't work, so return to reading all
                            params at once
     v5r1   10-Oct-04  JC   refactor likelihood application parameter access
