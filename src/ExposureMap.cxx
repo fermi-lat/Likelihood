@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.14 2003/10/27 01:13:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.15 2003/11/07 02:27:10 jchiang Exp $
  */
 #include <utility>
 #include <algorithm>
@@ -251,11 +251,11 @@ void ExposureMap::writeFitsFile(const std::string &filename,
                    "latitude step at ref. pixel", &status);
    fitsReportError(stderr, status);
    
-   float crpix1 = lstep/2.;
+   float crpix1 = 1.0;
    fits_update_key(fptr, TFLOAT, "CRPIX1", &crpix1, 
                    "reference pixel for longitude coordinate", &status);
    fitsReportError(stderr, status);
-   float crpix2 = bstep/2.;
+   float crpix2 = 1.0;
    fits_update_key(fptr, TFLOAT, "CRPIX2", &crpix2, 
                    "reference pixel for latitude coordinate", &status);
    fitsReportError(stderr, status);
