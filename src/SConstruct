@@ -10,24 +10,17 @@ apps = ['likelihood', 'makeExposureCube', 'expMap',
 OptPP_dir = os.environ['OPTPP_DIR']
 
 libraries = map()
-libraries['xml'] = None
-libraries['astro'] = None
-libraries['map_toolsLib'] = None
-libraries['evtbinLib'] = None
-libraries['tipLib'] = None
-libraries['optimizers'] = None
-libraries['f2c'] = None
-libraries['facilities'] = None
-libraries['st_appLib'] = None
-libraries['st_graphLib'] = None
-libraries['hoopsLib'] = None
-libraries['irfInterfaceLib'] = None
-libraries['irfLoaderLib'] = None
-libraries['g25ResponseLib'] = None
-libraries['dc1ResponseLib'] = None
-libraries['testResponseLib'] = None
-libraries['irfUtilLib'] = None
-libraries['st_facilitiesLib'] = None
+
+default_libraries = ['xml', 'astro', 'map_toolsLib', 'evtbinLib', 
+                     'tipLib', 'optimizers', 'f2c', 'facilities', 
+                     'st_appLib', 'st_graphLib', 'hoopsLib',
+                     'irfInterfaceLib', 'irfLoaderLib', 'g25ResponseLib', 
+                     'dc1ResponseLib', 'testResponseLib', 'irfUtilLib', 
+                     'st_facilitiesLib']
+
+for lib in default_libraries:
+    libraries[lib] = None
+
 libraries['g2c'] = ('','')
 
 def externalLibrary(libname, version):
@@ -48,8 +41,8 @@ libraries['opt-linux'] = (os.path.join(OptPP_dir, 'include'),
 libraries['newmat-linux'] = (os.path.join(OptPP_dir, 'newmat09'),
                              os.path.join(OptPP_dir, 'lib'))
 
-cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
-#cflags = ' -DHAVE_OPT_PP -rdynamic -g '
+#cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
+cflags = ' -DHAVE_OPT_PP -rdynamic -g '
 linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'pthread', 'm', 'dl',
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript']

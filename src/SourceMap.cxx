@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.15 2004/11/03 23:50:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.16 2004/11/04 01:21:12 jchiang Exp $
  */
 
 #include <algorithm>
@@ -92,12 +92,12 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
 /// calculation.
             for (int evtType = 0; evtType < 2; evtType++) {
                Aeff aeff(src, pixel->dir(), *energy, evtType);
-               value += ExposureCube::instance()->value(pixel->dir(), aeff)
-                  *pixel->solidAngle();
+               value += ExposureCube::instance()->value(pixel->dir(), aeff);
             }
          } else if (haveDiffuseSource) {
             value = sourceRegionIntegral(src, *pixel, *energy);
          }
+         value *= pixel->solidAngle();
          m_model.at(indx) += value;
          m_npreds.at(k) += value;
          icount++;

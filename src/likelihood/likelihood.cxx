@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.45 2004/11/01 06:27:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.46 2004/11/03 23:51:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.45 2004/11/01 06:27:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.46 2004/11/03 23:51:21 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -218,7 +218,7 @@ void likelihood::readSourceModel() {
       if (m_statistic != "BINNED") {
          m_logLike->computeEventResponses();
       } else {
-         dynamic_cast<BinnedLikelihood *>(m_logLike)->saveSourceMaps();
+//         dynamic_cast<BinnedLikelihood *>(m_logLike)->saveSourceMaps();
       }
    } else {
 // Re-read the Source model from the xml file, allowing only for 
