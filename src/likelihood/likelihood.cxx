@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.16 2004/07/19 19:27:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.17 2004/08/05 05:28:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.16 2004/07/19 19:27:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.17 2004/08/05 05:28:28 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -77,6 +77,7 @@ private:
    void selectOptimizer(std::string optimizer="");
    void writeSourceXml();
    void writeFluxXml();
+   void writeCountsSpectra();
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
 
@@ -143,6 +144,7 @@ void likelihood::run() {
       writeSourceXml();
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
+   writeCountsSpectra();
 }
 
 void likelihood::createStatistic() {
@@ -223,6 +225,35 @@ void likelihood::writeFluxXml() {
                 << xml_fluxFile << std::endl;
       m_logLike->write_fluxXml(xml_fluxFile);
    }
+}
+
+void likelihood::writeCountsSpectra() {
+   std::vector<double> energies;
+   double emin(20);
+   double emax(2e5);
+   int nee(20);
+   double estep = log(emax/emin)/(nee-1);
+   for (int k = 0; k < nee; k++) {
+      energies.push_back(emin*exp(estep*k));
+   }
+   std::vector<std::string> srcNames;
+   m_logLike->getSrcNames(srcNames);
+   std::ofstream outputFile("counts.dat");
+   for (int k = 0; k < nee - 1; k++) {
+      outputFile << sqrt(energies[k]*energies[k+1]) << "   ";
+      for (unsigned int i = 0; i < srcNames.size(); i++) {
+         Source * src = m_logLike->getSource(srcNames[i]);
+         double Npred;
+         try {
+            Npred = src->Npred(energies[k], energies[k+1]);
+            outputFile << Npred << "  ";
+         } catch (std::out_of_range & eObj) {
+            // skip this one because of range error or it's DiffuseSource
+         }
+      }
+      outputFile << std::endl;
+   }
+   outputFile.close();
 }
 
 void likelihood::printFitResults(const std::vector<double> &errors) {
