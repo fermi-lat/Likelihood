@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Oct 29 19:46:03 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+fix conditional reading of params in likelihood
+    *
+------------------------------------------------------------
+User: jchiang  Fri Oct 29 19:46:03 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
