@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec 29 16:28:22 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h SkyDirFunction.h Source.h 
+Log Message:
+sync up to optimizers v2; adjust DSS checking; tagging v6r1
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec 24 08:45:46 PST 2004
 Likelihood/src/makeExposureCube
 
