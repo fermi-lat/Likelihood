@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.18 2004/03/11 05:19:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.19 2004/04/07 20:18:05 jchiang Exp $
  */
 #include <utility>
 #include <algorithm>
@@ -294,10 +294,10 @@ void ExposureMap::writeFitsFile(const std::string &filename,
                    "units for log_energy", &status);
    fitsReportError(stderr, status);
 
-   fits_update_key(fptr, TDOUBLE, "LONPOLE", &ra0, "RA of ROI center", 
+   fits_update_key(fptr, TDOUBLE, "ROI_RA", &ra0, "RA of ROI center", 
                    &status);
    fitsReportError(stderr, status);
-   fits_update_key(fptr, TDOUBLE, "LATPOLE", &dec0, "DEC of ROI center",
+   fits_update_key(fptr, TDOUBLE, "ROI_DEC", &dec0, "DEC of ROI center",
                    &status);
    fitsReportError(stderr, status);
    

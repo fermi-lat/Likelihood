@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.14 2003/08/13 18:01:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.15 2003/10/27 01:13:50 jchiang Exp $
  *
  */
 
@@ -257,9 +257,9 @@ void FitsImage::read_fits_image(std::string &filename,
       }
    } // naxes
 
-// Check for LONPOLE and LATPOLE keywords.
+// Check for ROI_RA and ROI_DEC keywords.
 
-   fits_read_key_dbl(fptr, "LONPOLE", &value, comment, &status);
+   fits_read_key_dbl(fptr, "ROI_RA", &value, comment, &status);
    if (status == 0) {
       m_lonpole = value;
       m_haveRefCoord = true;
@@ -274,7 +274,7 @@ void FitsImage::read_fits_image(std::string &filename,
    }
    status = 0;
 
-   fits_read_key_dbl(fptr, "LATPOLE", &value, comment, &status);
+   fits_read_key_dbl(fptr, "ROI_DEC", &value, comment, &status);
    if (status == 0) {
       m_latpole = value;
       m_haveRefCoord = true;
