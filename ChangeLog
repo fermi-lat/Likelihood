@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar 20 15:47:59 PST 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx AbsEdge.h CompositeFunction.cxx Function.cxx 
+	Gaussian.cxx Gaussian.h Parameter.cxx PointSource.cxx 
+	PowerLaw.cxx PowerLaw.h ProductFunction.cxx Rosen.cxx 
+	SourceModel.cxx SpectrumFactory.cxx SumFunction.cxx lbfgs.h 
+	mainpage.h 
+Added Files:
+	Source.cxx SourceFactory.cxx 
+Log Message:
+add SourceFactory class
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar 20 15:47:58 PST 2003
 Likelihood/Likelihood
 
