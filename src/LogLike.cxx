@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.6 2003/11/08 21:33:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.7 2003/11/18 18:09:42 jchiang Exp $
  */
 
 #include <vector>
@@ -13,30 +13,38 @@
 
 #include "facilities/Util.h"
 
+#include "Goodi/GoodiConstants.h"
+#include "Goodi/DataIOServiceFactory.h"
+#include "Goodi/DataFactory.h"
+#include "Goodi/IDataIOService.h"
+#include "Goodi/IData.h"
+#include "Goodi/IEventData.h"
+#include "Goodi/../src/Event.h"
+
 #include "latResponse/../src/Table.h"
 
-#include "Likelihood/LogLike.h"
+#include "Likelihood/ScData.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/EventArg.h"
 #include "Likelihood/SrcArg.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/LogLike.h"
 
 namespace Likelihood {
 
-/* compute the EML log-likelihood for a single-point source */
-
 double LogLike::value(optimizers::Arg&) const {
+// Compute the EML log-likelihood for a single-point source.
 
    double my_value = 0;
    
-// the "data sum"
+// The "data sum"
    for (unsigned int j = 0; j < m_events.size(); j++) {
       EventArg eArg(m_events[j]);
       my_value += m_logSrcModel(eArg);
    }
 
-// the "model integral", a sum over Npred for each source
+// The "model integral", a sum over Npred for each source
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
       SrcArg sArg(s_sources[i]);
       my_value -= m_Npred(sArg);
@@ -78,6 +86,104 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
       freeDerivs.push_back(logSrcModelDerivs[i] - NpredDerivs[i]);
 }
 
+void LogLike::computeEventResponses(Source &src, double sr_radius) {
+   DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
+   std::cerr << "Computing Event responses for " << src.getName();
+   for (unsigned int i = 0; i < m_events.size(); i++) {
+      if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
+      m_events[i].computeResponse(*diffuse_src, sr_radius);
+   }
+   std::cerr << "!" << std::endl;
+}
+
+void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs, 
+                                    double sr_radius) {
+   std::cerr << "Computing Event responses for the DiffuseSources";
+   for (unsigned int i = 0; i < m_events.size(); i++) {
+      if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
+      m_events[i].computeResponse(srcs, sr_radius);
+   }
+   std::cerr << "!" << std::endl;
+}
+
+void LogLike::computeEventResponses(double sr_radius) {
+   std::vector<DiffuseSource *> diffuse_srcs;
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      if (s_sources[i]->getType() == std::string("Diffuse")) {
+         DiffuseSource *diffuse_src = 
+            dynamic_cast<DiffuseSource *>(s_sources[i]);
+         diffuse_srcs.push_back(diffuse_src);
+      }
+   }
+   if (diffuse_srcs.size() > 0) computeEventResponses(diffuse_srcs, sr_radius);
+}
+
+#ifdef USE_GOODI
+void LogLike::getEvents(std::string event_file, int) {
+
+   facilities::Util::expandEnvVar(&event_file);
+
+   Goodi::DataIOServiceFactory iosvcCreator;
+   Goodi::DataFactory dataCreator;
+   Goodi::IDataIOService *ioService;
+
+   ioService = iosvcCreator.create(event_file);
+   Goodi::DataType datatype = Goodi::Evt; 
+   Goodi::IEventData *eventData = dynamic_cast<Goodi::IEventData *>
+      (dataCreator.create(datatype, ioService));
+
+   RoiCuts * roiCuts = RoiCuts::instance();
+   ScData * scData = ScData::instance();
+
+   if (!scData) {
+      std::cout << "LogLike::getEvents: "
+                << "The spacecraft data must be read in first."
+                << std::endl;
+      assert(scData);
+   }
+
+   if (!roiCuts) {
+      std::cout << "LogLike::getEvents: "
+                << "The region-of-interest data must be read in first."
+                << std::endl;
+      assert(roiCuts);
+   }
+
+   unsigned int nTotal(0);
+   unsigned int nReject(0);
+   bool done = false;
+   while (!done) {
+      const Goodi::Event *evt = eventData->nextEvent(ioService, done);
+      nTotal++;
+
+      double time = evt->time();
+
+      double raSCZ = scData->zAxis(time).ra();
+      double decSCZ = scData->zAxis(time).dec();
+
+      Event thisEvent( evt->ra()*180./M_PI, 
+                       evt->dec()*180./M_PI,
+                       evt->energy(), 
+                       time,
+                       raSCZ, decSCZ,
+                       cos(evt->zenithAngle()) );
+
+      if (roiCuts->accept(thisEvent)) {
+         m_events.push_back(thisEvent);
+      } else {
+         nReject++;
+      }
+   }
+   std::cout << "LogLike::getEvents:\nOut of " 
+             << nTotal << " events in file "
+             << event_file << ",\n "
+             << nTotal - nReject << " were accepted, and "
+             << nReject << " were rejected.\n" << std::endl;
+
+   delete eventData;
+   delete ioService;
+}
+#else // USE_GOODI
 void LogLike::getEvents(std::string event_file, int hdu) {
 
    facilities::Util::expandEnvVar(&event_file);
@@ -123,42 +229,8 @@ void LogLike::getEvents(std::string event_file, int hdu) {
              << m_events.size() - nevents << " were accepted, and "
              << nReject << " were rejected.\n" << std::endl;
 }
+#endif // USE_GOODI
 
-void LogLike::computeEventResponses(Source &src, double sr_radius) {
-   DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
-   std::cerr << "Computing Event responses for " << src.getName();
-   for (unsigned int i = 0; i < m_events.size(); i++) {
-      if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
-      m_events[i].computeResponse(*diffuse_src, sr_radius);
-   }
-   std::cerr << "!" << std::endl;
-}
-
-void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs, 
-                                    double sr_radius) {
-   std::cerr << "Computing Event responses for the DiffuseSources";
-   for (unsigned int i = 0; i < m_events.size(); i++) {
-      if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
-      m_events[i].computeResponse(srcs, sr_radius);
-   }
-   std::cerr << "!" << std::endl;
-}
-
-void LogLike::computeEventResponses(double sr_radius) {
-   std::vector<DiffuseSource *> diffuse_srcs;
-   for (unsigned int i = 0; i < s_sources.size(); i++) {
-      if (s_sources[i]->getType() == std::string("Diffuse")) {
-         DiffuseSource *diffuse_src = 
-            dynamic_cast<DiffuseSource *>(s_sources[i]);
-         diffuse_srcs.push_back(diffuse_src);
-      }
-   }
-   if (diffuse_srcs.size() > 0) computeEventResponses(diffuse_srcs, sr_radius);
-}
-
-// Methods from the old Likelihood::Statistic class:
-//
-// read in the event data
 void LogLike::readEventData(const std::string &eventFile, int hdu) {
    m_eventFile = eventFile;
    m_eventHdu = hdu;
@@ -180,7 +252,6 @@ void LogLike::readEventData(const std::string &eventFile, int hdu) {
 
 }
 
-// return pointer to data columns
 std::pair<long, double*> 
 LogLike::getColumn(const latResponse::Table &tableData, 
                    const std::string &colname) const

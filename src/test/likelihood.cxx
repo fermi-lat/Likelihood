@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.11 2003/11/22 01:11:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.12 2003/11/22 18:55:02 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -227,7 +227,7 @@ void print_fit_results(SourceModel &stat, const std::vector<double> &errors) {
 }
 
 bool prompt(const std::string &query) {
-   std::cout << query;
+   std::cout << query << std::endl;
    char answer[2];
    std::cin.getline(answer, 2);
    if (std::string(answer) == "y" || std::string(answer) == "") {
