@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Thu Nov  6 18:27:10 PST 2003
+Likelihood/src
+
+Modified Files:
+	ExposureMap.cxx LogLike.cxx RoiCuts.cxx RunParams.cxx 
+	ScData.cxx SourceModel.cxx mainpage.h 
+Log Message:
+apply facilities::Util::expandEnvVar to all file names; move use hoops v* to private area
+    *
+------------------------------------------------------------
+User: jchiang  Thu Nov  6 18:27:10 PST 2003
 Likelihood/data
 
 Modified Files:
