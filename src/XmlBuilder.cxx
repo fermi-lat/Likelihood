@@ -3,24 +3,20 @@
  * @brief Concrete implementation that is shareable by subclasses.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlBuilder.cxx,v 1.1 2004/02/20 00:02:07 jchiang Exp $
  */
 
-#include "Likelihood/XmlBuilder.h"
+#include "xml/XmlParser.h"
 
-namespace {
-   DomDocument * createDocument() {
-      DomDocument * doc = new DOM_Document();
-      *doc = DOM_Document::createDocument();
-      return doc;
-   }
-}
+#include "optimizers/Dom.h"
+
+#include "Likelihood/XmlBuilder.h"
 
 namespace Likelihood {
 
 XmlBuilder::XmlBuilder() {
    m_parser = new xml::XmlParser();
-   m_doc = ::createDocument();
+   m_doc = optimizers::Dom::createDocument();
 }
 
 XmlBuilder::~XmlBuilder() {

@@ -4,36 +4,35 @@
  * files for the Likelihood package source models.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.1 2004/02/20 00:02:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.2 2004/02/21 04:18:20 jchiang Exp $
  */
 
 #include <fstream>
 #include <sstream>
 
+#include <xercesc/dom/DOM.hpp>
+
 #include "facilities/Util.h"
+
+#include "optimizers/Dom.h"
 
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceModelBuilder.h"
 
-namespace {
-   DomElement * createElement(DomDocument * doc, const std::string & name) {
-      DomElement * elt = new DOM_Element();
-      *elt = doc->createElement(name.c_str());
-      return elt;
-   }
-}
-
 namespace Likelihood {
+
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 SourceModelBuilder::SourceModelBuilder(const std::string &functionLibrary,
                                        const std::string &srcLibTitle) 
    : XmlBuilder() {
-   m_srcLib = ::createElement(m_doc, "source_library");
+   m_srcLib = optimizers::Dom::createElement(m_doc, "source_library");
    if (functionLibrary != "") {
-      xml::Dom::addAttribute(*m_srcLib, "function_library", functionLibrary);
+      xml::Dom::addAttribute(m_srcLib, "function_library", functionLibrary);
    }
-   xml::Dom::addAttribute(*m_srcLib, "title", srcLibTitle);
+   xml::Dom::addAttribute(m_srcLib, "title", srcLibTitle);
 }
 
 SourceModelBuilder::~SourceModelBuilder() {
@@ -41,7 +40,7 @@ SourceModelBuilder::~SourceModelBuilder() {
 }
 
 void SourceModelBuilder::addSource(Source & src) {
-   m_srcLib->appendChild(*likelihoodSource(src));
+   optimizers::Dom::appendChild(m_srcLib, likelihoodSource(src));
 }
 
 void SourceModelBuilder::write(std::string xmlFile) {
@@ -51,47 +50,48 @@ void SourceModelBuilder::write(std::string xmlFile) {
            << "<!DOCTYPE source_library SYSTEM "
            << "\"$(LIKELIHOODROOT)/xml/A1_Sources.dtd\" >\n";
 
-   xml::Dom::prettyPrintElement(*m_srcLib, outFile, std::string(""));
+   xml::Dom::prettyPrintElement(m_srcLib, outFile, std::string(""));
 }
 
-DomElement * SourceModelBuilder::likelihoodSource(Source & src) {
-   DomElement * srcElt = ::createElement(m_doc, "source");
-   xml::Dom::addAttribute(*srcElt, "name", src.getName());
-   srcElt->appendChild(*spectralPart(src));
+DOMElement * SourceModelBuilder::likelihoodSource(Source & src) {
+   DOMElement * srcElt = optimizers::Dom::createElement(m_doc, "source");
+   xml::Dom::addAttribute(srcElt, "name", src.getName());
+   optimizers::Dom::appendChild(srcElt, spectralPart(src));
    addSpatialPart(srcElt, src);
    return srcElt;
 }
 
-DomElement * SourceModelBuilder::spectralPart(Source & src) {
+DOMElement * SourceModelBuilder::spectralPart(Source & src) {
    Source::FuncMap & srcFuncs = src.getSrcFuncs();
 
-   DomElement * specElt = ::createElement(m_doc, "spectrum");
-   xml::Dom::addAttribute(*specElt, "type",
+   DOMElement * specElt = optimizers::Dom::createElement(m_doc, "spectrum");
+   xml::Dom::addAttribute(specElt, "type",
                           srcFuncs["Spectrum"]->genericName());
-   srcFuncs["Spectrum"]->appendParamDomElements(*m_doc, *specElt);
+   srcFuncs["Spectrum"]->appendParamDomElements(m_doc, specElt);
    return specElt;
 }
 
-void SourceModelBuilder::addSpatialPart(DomElement * srcElt, Source & src) {
+void SourceModelBuilder::addSpatialPart(DOMElement * srcElt, Source & src) {
    Source::FuncMap & srcFuncs = src.getSrcFuncs();
 
-   DomElement * spatialElt = ::createElement(m_doc, "spatialModel");
+   DOMElement * spatialElt 
+      = optimizers::Dom::createElement(m_doc, "spatialModel");
    if (srcFuncs.count("Position")) {
-      xml::Dom::addAttribute(*srcElt, "type", "PointSource");
-      xml::Dom::addAttribute(*spatialElt, "type", "SkyDirFunction");
-      srcFuncs["Position"]->appendParamDomElements(*m_doc, *spatialElt);
-      srcElt->appendChild(*spatialElt);
+      xml::Dom::addAttribute(srcElt, "type", "PointSource");
+      xml::Dom::addAttribute(spatialElt, "type", "SkyDirFunction");
+      srcFuncs["Position"]->appendParamDomElements(m_doc, spatialElt);
+      optimizers::Dom::appendChild(srcElt, spatialElt);
    } else if (srcFuncs.count("SpatialDist")) {
-      xml::Dom::addAttribute(*srcElt, "type", "DiffuseSource");
+      xml::Dom::addAttribute(srcElt, "type", "DiffuseSource");
       std::string type = srcFuncs["SpatialDist"]->genericName();
-      xml::Dom::addAttribute(*spatialElt, "type", type);
+      xml::Dom::addAttribute(spatialElt, "type", type);
       if (type == "SpatialMap") {
          std::string file = 
             dynamic_cast<SpatialMap *>(srcFuncs["SpatialDist"])->fitsFile();
-         xml::Dom::addAttribute(*spatialElt, "file", file);
+         xml::Dom::addAttribute(spatialElt, "file", file);
       }
-      srcFuncs["SpatialDist"]->appendParamDomElements(*m_doc, *spatialElt);
-      srcElt->appendChild(*spatialElt);
+      srcFuncs["SpatialDist"]->appendParamDomElements(m_doc, spatialElt);
+      optimizers::Dom::appendChild(srcElt, spatialElt);
    }
 }
 

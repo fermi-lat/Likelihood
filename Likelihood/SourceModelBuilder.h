@@ -3,7 +3,7 @@
  * @brief Builder class for creating xml files of Source components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModelBuilder.h,v 1.1 2004/02/18 21:13:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModelBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModelBuilder_h
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModelBuilder.h,v 1.1 2004/02/18 21:13:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModelBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
  */
 
 class SourceModelBuilder : public XmlBuilder {
@@ -41,6 +41,8 @@ public:
    virtual void write(std::string xmlFile);
 
 private:
+
+   typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DomElement;
 
    DomElement * m_srcLib;
 

@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.57 2004/09/22 20:05:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.58 2004/10/02 01:05:08 jchiang Exp $
  */
 
 #include <cassert>
@@ -51,6 +51,8 @@ namespace {
 } // unnamed namespace
 
 namespace Likelihood {
+
+XERCES_CPP_NAMESPACE_USE
 
 int SourceModel::s_refCount = 0;
 std::map<std::string, Source *> SourceModel::s_sources;
@@ -324,7 +326,7 @@ void SourceModel::readXml(std::string xmlFile,
    SourceFactory srcFactory;
    try {
       srcFactory.readXml(xmlFile, funcFactory, requireExposure);
-   } catch (xml::DomException &eObj) {
+   } catch (xml::DomException & eObj) {
       std::cout << "SourceModel::readXml:\n DomException: " 
                 << eObj.what() << std::endl;
    }
@@ -349,7 +351,7 @@ void SourceModel::reReadXml(std::string xmlFile) {
 
    xml::XmlParser *parser = new xml::XmlParser();
 
-   DomDocument doc = parser->parse(xmlFile.c_str());
+   DOMDocument * doc = parser->parse(xmlFile.c_str());
 
    if (doc == 0) {
       std::string errorMessage = "SourceFactory::readXml:\nInput xml file, "
@@ -357,14 +359,13 @@ void SourceModel::reReadXml(std::string xmlFile) {
       throw Exception(errorMessage);
    }
 
-//*** direct Xerces API call...still available in Xerces 2.4.0 ***/
-   DomElement source_library = doc.getDocumentElement();
+   DOMElement * source_library = doc->getDocumentElement();
    if (!xml::Dom::checkTagName(source_library, "source_library")) {
       throw Exception("SourceModel::reReadXml:\nsource_library not found");
    }
 
-// Loop through source DOM_Elements and Source objects in parallel.
-   std::vector<DomElement> srcs;
+// Loop through source DOMElements and Source objects in parallel.
+   std::vector<DOMElement *> srcs;
    xml::Dom::getChildrenByTagName(source_library, "source", srcs);
 
    for (unsigned int j = 0; j < srcs.size(); j++) {
@@ -377,12 +378,12 @@ void SourceModel::reReadXml(std::string xmlFile) {
       }
       std::string srcType = xml::Dom::getAttribute(srcs[j], "type");
 // Get spectrum and spatialModel elements
-      std::vector<DomElement> child;
+      std::vector<DOMElement *> child;
       xml::Dom::getChildrenByTagName(srcs[j], "spectrum", child);
-      DomElement spectrum = child[0];
+      DOMElement * spectrum = child[0];
 
       xml::Dom::getChildrenByTagName(srcs[j], "spatialModel", child);
-      DomElement spatialModel = child[0];
+      DOMElement * spatialModel = child[0];
 
       my_source->getSrcFuncs()["Spectrum"]->setParams(spectrum);
       if (srcType == "PointSource") {
@@ -390,16 +391,18 @@ void SourceModel::reReadXml(std::string xmlFile) {
 // PointSource::setDir(...) method to ensure that exposure gets
 // recalculated.
          double ra(0), dec(0);
-         std::vector<DomElement> params;
+         std::vector<DOMElement *> params;
          xml::Dom::getChildrenByTagName(spatialModel, "parameter", params);
 
-         std::vector<DomElement>::const_iterator paramIt = params.begin();
+         std::vector<DOMElement *>::const_iterator paramIt = params.begin();
          for ( ; paramIt != params.end(); paramIt++) {
             std::string name = xml::Dom::getAttribute(*paramIt, "name");
             if (name == "RA")
-               ra = ::atof(xml::Dom::getAttribute(*paramIt, "value").c_str());
+               ra = 
+                  std::atof(xml::Dom::getAttribute(*paramIt, "value").c_str());
             if (name == "DEC")
-               dec = ::atof(xml::Dom::getAttribute(*paramIt, "value").c_str());
+               dec = 
+                  std::atof(xml::Dom::getAttribute(*paramIt, "value").c_str());
          }
          astro::SkyDir newDir(ra, dec);
          double tol = 1e-4;
