@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  8 23:20:31 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	expMap.par makeExposureCube.par 
+Log Message:
+begin excising ROI xml input
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  8 23:20:30 PST 2004
 Likelihood/Likelihood
 
