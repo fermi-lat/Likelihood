@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.14 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.15 2003/06/19 20:16:32 jchiang Exp $
  */
 
 #include <cassert>
@@ -53,7 +53,13 @@ SourceFactory::SourceFactory() {
 
 // Add the map-based Galactic Diffuse Emission model;
 // assume that the FITS file is available in a standard place...
-   std::string galfile = "../src/test/Data/gas.cel";
+   std::string galfile;
+   const char * root = ::getenv("LIKELIHOODROOT");
+   if (!root) {  //use relative path from cmt directory
+      galfile = "../src/test/Data/gas.cel";
+   } else {
+      galfile = std::string(root) + "/src/test/Data/gas.cel";
+   }
    SpatialMap galacticModel(galfile);
    galacticModel.setParam("Prefactor", 1.1*pow(100., 1.1));
 
