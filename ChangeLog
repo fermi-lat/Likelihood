@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 14 16:34:43 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h DiffuseSource.h FitsImage.h LogLike.h 
+	MapCubeFunction.h Npred.h OptEM.h SkyDirFunction.h 
+	SourceModel.h logSrcModel.h 
+Log Message:
+implement clone methods; modify SourceFactory and Event to use MapCubeFunction spatial distribution functions
+    *
+------------------------------------------------------------
 User: jchiang  Sun Feb 13 22:20:15 PST 2005
 Likelihood/src
 
