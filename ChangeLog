@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 28 17:06:57 PST 2005
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+remove xml I/O from RoiCuts; begin refactoring Source hierarchy; use Observation class in applications
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 28 17:06:55 PST 2005
 Likelihood/src
 
