@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 21 13:58:34 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+comment out plotting for sane unit test
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 21 13:57:22 PDT 2004
 Likelihood/src/test
 
