@@ -1,5 +1,17 @@
 ------------------------------------------------------------
 User: jchiang  Wed Mar  5 17:25:43 PST 2003
+Likelihood/src
+
+Modified Files:
+	Function.cxx PointSource.cxx Response.cxx SkyDirFunction.cxx 
+	SourceModel.cxx 
+Added Files:
+	Npred.cxx TrapQuad.cxx 
+Log Message:
+added Npred, TrapQuad classes, modified PointSource
+    *
+------------------------------------------------------------
+User: jchiang  Wed Mar  5 17:25:43 PST 2003
 Likelihood/Likelihood
 
 Modified Files:
