@@ -35,7 +35,7 @@
                  min ="1e-3"
                  max="1e3"
                  free="true"
-                 scale="1e-5"/>
+                 scale="1e-3"/>
       <parameter name="Index"
                  value="-2.1"
                  unit="none"

@@ -76,23 +76,23 @@ std::string test_path;
 
 int main() {
    read_SC_Response_data();
-//    test_SourceModel_class();
-//    test_Table_class();
-//    test_Event_class();
-//    test_PointSource_class();
-//    test_Aeff_class();
-//    test_Psf_class();
-//    test_logLike_ptsrc();
-//    test_SpectrumFactory();
-//    fit_3C279();
-//    fit_anti_center();
-//    test_FitsImage();
-//    test_ExposureMap();
-//    test_SpatialMap();
-//    test_DiffuseSource();
-//    fit_DiffuseSource();
+   test_SourceModel_class();
+   test_Table_class();
+   test_Event_class();
+   test_PointSource_class();
+   test_Aeff_class();
+   test_Psf_class();
+   test_logLike_ptsrc();
+   test_SpectrumFactory();
+   fit_3C279();
+   fit_anti_center();
+   test_FitsImage();
+   test_ExposureMap();
+   test_SpatialMap();
+   test_DiffuseSource();
    test_FunctionFactory();
    test_SourceFactory();
+   fit_DiffuseSource();
    return 0;
 }
 
@@ -131,20 +131,16 @@ void test_FunctionFactory() {
 void fit_DiffuseSource() {
    std::cout << "*** fit_DiffuseSource ***" << std::endl;
 
-// center the ROI on the Galactic Center
-//     double ra0 = 266.404;
-//     double dec0 = -28.9364;
-
 // center the ROI on 3C 279
    double ra0 = 193.98;
    double dec0 = -5.82;
 
    RoiCuts::setCuts(ra0, dec0, 20.);
 
-/* root name for the observation data files */
+// root name for the observation data files
    std::string obs_root = "diffuse_test_5";
 
-/* read in the spacecraft data */
+// read in the spacecraft data
    std::string sc_file = test_path + "Data/" + obs_root + "_sc_0000";
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
@@ -159,18 +155,46 @@ void fit_DiffuseSource() {
 // object since it contains DiffuseSources
    ExposureMap::readExposureFile(expfile);
 
+// Create the FunctionFactory and SourceFactory.
+   optimizers::FunctionFactory funcFactory;
+   try {
+// Add in the Functions for modeling spectra...
+      funcFactory.addFunc("PowerLaw", new PowerLaw(), false);
+      funcFactory.addFunc("Gaussian", new Gaussian(), false);
+      funcFactory.addFunc("AbsEdge", new AbsEdge(), false);
+
+// and the Functions for spatial modeling.
+      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), false);
+      funcFactory.addFunc("ConstantValue", new ConstantValue(), false);
+      funcFactory.addFunc("SpatialMap", new SpatialMap(), false);
+
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+
    SourceFactory srcFactory;
 
+// Read in the prototypes from the XML file.
+   std::string xmlFile = root_path + "/xml/A1_Sources.xml";
+
+   srcFactory.readXml(xmlFile, funcFactory);
+
    DiffuseSource *ourGalaxy = dynamic_cast<DiffuseSource *>
-      (srcFactory.create("Milky Way"));
+      (srcFactory.create("Galactic Diffuse Emission"));
+
+   std::cout << ourGalaxy->getName() << std::endl;
 
    DiffuseSource *extragalactic = dynamic_cast<DiffuseSource *>
-      (srcFactory.create("EG component"));
+      (srcFactory.create("Extragalactic Diffuse Emission"));
+
+   std::cout << extragalactic->getName() << std::endl;
 
 // 3C 279
-   Source *_3c279 = srcFactory.create("PointSource");
+   Source *_3c279 = srcFactory.create("Bright Point Source");
    _3c279->setDir(ra0, dec0);
    _3c279->setName("3C 279");
+
+   std::cout << _3c279->getName() << std::endl;
 
 // create the Statistic
    logLike_ptsrc logLike;
@@ -202,21 +226,33 @@ void fit_DiffuseSource() {
 // Derivative tests:
    dArg dummy(1.);
    std::vector<double> derivs;
-   logLike.getFreeDerivs(dummy, derivs);
-   
    std::vector<double> params;
-   logLike.getFreeParamValues(params);
-   
+
    double statval0 = logLike(dummy);
-   
-   for (unsigned int i = 0; i < params.size(); i++) {
-      std::vector<double> new_params = params;
-      double dparam = params[i]*1e-7;
-      new_params[i] += dparam;
-      logLike.setFreeParamValues(new_params);
-      double statval = logLike(dummy);
-      std::cout << derivs[i] << "  " 
-                << (statval - statval0)/dparam << std::endl;
+
+   try {
+      logLike.getFreeDerivs(dummy, derivs);
+      logLike.getFreeParamValues(params);
+   } catch (Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+      
+   try {
+      for (unsigned int i = 0; i < params.size(); i++) {
+         std::vector<double> new_params = params;
+         double dparam = params[i]*1e-7;
+         new_params[i] += dparam;
+         logLike.setFreeParamValues(new_params);
+         double statval = logLike(dummy);
+         std::cout << derivs[i] << "  " 
+                   << (statval - statval0)/dparam << std::endl;
+      }
+   } catch (Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
    }
 
    std::vector<std::string> srcNames;
