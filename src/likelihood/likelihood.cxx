@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.57 2004/12/08 00:31:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.58 2004/12/08 04:09:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.57 2004/12/08 00:31:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.58 2004/12/08 04:09:53 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -178,15 +178,14 @@ void likelihood::promptForParameters() {
       m_pars.Prompt("scfile");
       m_pars.Prompt("evfile");
       m_pars.Prompt("exposure_map_file");
-      m_pars.Prompt("ROI_file");
    }
    m_pars.Prompt("source_model_file");
    m_pars.Prompt("source_model_output_file");
-   m_helper->checkOutputFile(m_pars["clobber"], 
-                             m_pars["source_model_output_file"]);
+   AppHelpers::checkOutputFile(m_pars["clobber"], 
+                               m_pars["source_model_output_file"]);
    m_pars.Prompt("flux_style_model_file");
-   m_helper->checkOutputFile(m_pars["clobber"], 
-                             m_pars["flux_style_model_file"]);
+   AppHelpers::checkOutputFile(m_pars["clobber"], 
+                               m_pars["flux_style_model_file"]);
    m_pars.Prompt("rspfunc");
    m_pars.Prompt("use_energy_dispersion");
    m_pars.Prompt("optimizer");

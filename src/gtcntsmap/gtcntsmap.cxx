@@ -3,12 +3,14 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.2 2004/11/28 06:58:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.3 2004/12/07 05:13:23 jchiang Exp $
  */
 
 #include <cstdlib>
 
 #include <iostream>
+#include <map>
+#include <stdexcept>
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -37,15 +39,18 @@ public:
    virtual void run();
 private:
    st_app::AppParGroup & m_pars;
+   dataSubselector::Cuts * m_cuts;
+
    void writeDssCuts(const std::string &) const;
    void logArray(double xmin, double xmax, unsigned int nx,
                  std::vector<double> & xx) const;
+   void checkEnergies(double emin, double emax) const;
 };
 
 st_app::StAppFactory<gtcntsmap> myAppFactory;
 
 gtcntsmap::gtcntsmap() : st_app::StApp(), 
-   m_pars(st_app::StApp::getParGroup("gtcntsmap")) {
+   m_pars(st_app::StApp::getParGroup("gtcntsmap")), m_cuts(0) {
    try {
       m_pars.Prompt();
       m_pars.Save();
@@ -61,11 +66,16 @@ gtcntsmap::gtcntsmap() : st_app::StApp(),
 }
 
 void gtcntsmap::run() {
-   Likelihood::AppHelpers::checkOutputFile(m_pars["clobber"], 
-                                           m_pars["outfile"]);
+   AppHelpers::checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
+                               
    std::string event_file = m_pars["evfile"];
    std::vector<std::string> eventFiles;
    st_facilities::Util::resolve_fits_files(event_file, eventFiles);
+   for (unsigned int i = 1; i < eventFiles.size(); i++) {
+      AppHelpers::checkCuts(eventFiles[0], "EVENTS", eventFiles[i], "EVENTS");
+   }
+
+   m_cuts = new dataSubselector::Cuts(eventFiles[0]);
 
    std::string sc_file = m_pars["scfile"];
    std::vector<std::string> scDataFiles;
@@ -73,6 +83,7 @@ void gtcntsmap::run() {
 
    double emin = m_pars["emin"];
    double emax = m_pars["emax"];
+   checkEnergies(emin, emax);
    long nenergies = m_pars["nenergies"];
 
    std::vector<double> energies;
@@ -97,15 +108,15 @@ void gtcntsmap::run() {
    std::string output_file = m_pars["outfile"];
    cmap.writeOutput("gtcntsmap", output_file);
    writeDssCuts(eventFiles[0]);
+   delete m_cuts;
 }
 
 void gtcntsmap::writeDssCuts(const std::string & eventfile) const {
-   dataSubselector::Cuts my_cuts(eventfile);
    std::string output_file = m_pars["outfile"];
    std::auto_ptr<tip::Image> 
       image(tip::IFileSvc::instance().editImage(output_file, ""));
-   my_cuts.writeDssKeywords(image->getHeader());
-   my_cuts.writeGtiExtension(output_file);
+   m_cuts->writeDssKeywords(image->getHeader());
+   m_cuts->writeGtiExtension(output_file);
 }
 
 void gtcntsmap::logArray(double xmin, double xmax, unsigned int nx,
@@ -113,5 +124,18 @@ void gtcntsmap::logArray(double xmin, double xmax, unsigned int nx,
    double xstep = log(xmax/xmin)/(nx - 1.);
    for (unsigned int i = 0; i < nx; i++) {
       xx.push_back(xmin*exp(i*xstep));
+   }
+}
+
+void gtcntsmap::checkEnergies(double emin, double emax) const {
+   std::map<std::string, double> pars1, pars2;
+   pars1["ENERGY"] = emin;
+   pars2["ENERGY"] = emax;
+   if (!m_cuts->accept(pars1) || !m_cuts->accept(pars2)) {
+      std::ostringstream message;
+      message << "The requested energies, " << emin << ", " << emax
+              << " do not lie within the event file DSS selections:\n\n";
+      m_cuts->writeCuts(message);
+      throw std::runtime_error(message.str());
    }
 }
