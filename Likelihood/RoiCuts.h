@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.11 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.12 2003/11/14 00:15:06 petry Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -29,7 +29,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.11 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.12 2003/11/14 00:15:06 petry Exp $
  */
 
 class RoiCuts {
@@ -59,23 +59,23 @@ public:
 
    /// Methods to allow cuts to be specified
 
-   /// set additional time cuts
+   /// Set additional time cuts
    static void addTimeInterval(double tmin, double tmax);
 
-   /// set all cuts (includes reset of time cuts)
+   /// Set all cuts (includes reset of time cuts)
    static void setCuts(double ra = 193.98, double dec = -5.82, 
                        double roi_radius = 50.,
-                       double emin = 30., double emax = 3.1623E5,
-                       double tmin = 0., double tmax = 1E12,
-                       double coszmax = -1.);
+                       double emin = 30., double emax = 3.1623e5,
+                       double tmin = 0., double tmax = 1e12,
+                       double muZenMax = -1.);
 
    /// Read from xml file
    static void setCuts(std::string xmlFile);
 
    /// Write to xml file
-   void writeXml(std::string xmlFile, std::string roititle);
+   void writeXml(std::string xmlFile, const std::string &roiTitle);
 
-   //! apply these cuts to an Event
+   /// Apply these cuts to an Event
    bool accept(const Event &);
 
 protected:
