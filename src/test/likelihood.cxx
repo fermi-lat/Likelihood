@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.2 2003/11/05 16:55:19 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -66,10 +66,10 @@ int main(int iargc, char* argv[]) {
 // Create the response functions.
    std::string responseFuncs = params.string_par("Response_functions");
    latResponse::IrfsFactory irfsFactory;
-   if (responseFuncs == std::string("Combined")) {
+   if (responseFuncs == "COMBINED") {
       ResponseFunctions::addRespPtr(4, 
                                     irfsFactory.create("Glast25::Combined"));
-   } else if (responseFuncs == std::string("Front/Back")) {
+   } else if (responseFuncs == "FRONT/BACK") {
       ResponseFunctions::addRespPtr(2, irfsFactory.create("Glast25::Front"));
       ResponseFunctions::addRespPtr(3, irfsFactory.create("Glast25::Back"));
    }
@@ -107,11 +107,11 @@ int main(int iargc, char* argv[]) {
 // Select an optimizer.
    std::string optimizer = params.string_par("optimizer");
    optimizers::Optimizer *myOpt;
-   if (optimizer == "Lbfgs") {
+   if (optimizer == "LBFGS") {
       myOpt = new optimizers::Lbfgs(logLike);
-   } else if (optimizer == "Minuit") {
+   } else if (optimizer == "MINUIT") {
       myOpt = new optimizers::Minuit(logLike);
-   } else if (optimizer == "Drmngb") {
+   } else if (optimizer == "DRMNGB") {
       myOpt = new optimizers::Drmngb(logLike);
    }
 
