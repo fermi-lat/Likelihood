@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon May 24 17:56:20 PDT 2004
+Likelihood/src
+
+Modified Files:
+	ResponseFunctions.cxx 
+Log Message:
+add flag to use energy dispersion; cppunit; tagging v4r0
+    *
+------------------------------------------------------------
+User: jchiang  Mon May 24 17:56:20 PDT 2004
 Likelihood/pfiles
 
 Modified Files:
