@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.14 2004/10/09 01:37:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.15 2004/11/03 23:50:42 jchiang Exp $
  */
 
 #include <algorithm>
@@ -226,6 +226,7 @@ void SourceMap::computeSrcDirs(const Pixel & pixel) {
 // Rotation matrix from Equatorial coords to local coord system
    FitsImage::EquinoxRotation eqRot(pixel.dir().ra(), pixel.dir().dec());
 
+   m_srcDirs.clear();
 // Loop over source region locations.
    for (unsigned int i = 0; i < s_mu.size(); i++) {
       for (unsigned int j = 0; j < s_phi.size(); j++) {
