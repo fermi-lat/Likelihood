@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr  5 20:32:26 PDT 2004
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+use st_app::IApp in likelihood; tagging v3r5
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr  5 20:32:25 PDT 2004
 Likelihood/cmt
 
