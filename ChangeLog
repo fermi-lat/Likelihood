@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Dec  7 20:09:52 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h RoiCuts.h 
+Log Message:
+read ROI info for binned analysis from counts map
+    *
+------------------------------------------------------------
 TAG
 Tag name: v5r6, operation: add
 Package: Likelihood
