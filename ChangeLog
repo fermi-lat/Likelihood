@@ -1,4 +1,18 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 28 17:29:40 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h Arg.h ConstantValue.h DiffuseSource.h Event.h 
+	EventArg.h Function.h Parameter.h Psf.h dArg.h 
+Added Files:
+	FunctionTest.h 
+Log Message:
+Add FunctionTest class for Function class unit testing.
+Remove unnecessary includes from some class header files.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 27 09:30:59 PDT 2003
 Likelihood/src/test/Data
 
