@@ -2,12 +2,13 @@
  * @brief Implementation for Response base class.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.10 2003/03/25 23:22:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.12 2003/04/25 18:32:19 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 #include "Likelihood/Response.h"
 #include "Likelihood/Table.h"
@@ -35,7 +36,7 @@ double Response::bilinear(const std::vector<double> &xx, double x,
    } else if (x >= *(xx.end()-1)) {
       ix = xx.end() - 1;
    } else {
-      ix = upper_bound(xx.begin(), xx.end(), x);
+	   ix = std::upper_bound(xx.begin(), xx.end(), x);
    }
    int i = ix - xx.begin();
 
@@ -45,7 +46,7 @@ double Response::bilinear(const std::vector<double> &xx, double x,
    } else if (y >= *(yy.end()-1)) {
       iy = yy.end() - 1;
    } else {
-      iy = upper_bound(yy.begin(), yy.end(), y);
+	   iy = std::upper_bound(yy.begin(), yy.end(), y);
    }
    int j = iy - yy.begin();
 

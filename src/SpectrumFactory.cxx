@@ -3,10 +3,11 @@
  * Prototype pattern to return clones of various spectral components 
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.3 2003/03/22 01:22:51 jchiang Exp $
  */
 
 #include "Likelihood/SpectrumFactory.h"
+#include <assert.h>
 
 namespace Likelihood {
 

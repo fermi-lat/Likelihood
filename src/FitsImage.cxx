@@ -2,13 +2,14 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.2 2003/04/25 18:32:19 jchiang Exp $
  *
  */
 
 #include "fitsio.h"
 #include <iostream>
 #include "Likelihood/FitsImage.h"
+#include <assert.h>
 
 namespace Likelihood {
 

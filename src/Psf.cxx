@@ -2,7 +2,7 @@
  * @brief Implementation for the LAT Point-Spread Function class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.8 2003/03/25 23:22:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.10 2003/04/25 18:32:19 jchiang Exp $
  */
 
 #include <vector>
@@ -119,7 +119,7 @@ void Psf::fillPsfParams(double energy, double inc,
    } else if (energy >= *(m_energy.end() - 1)) {
       ie = m_energy.end() - 1;
    } else {
-      ie = upper_bound(m_energy.begin(), m_energy.end(), energy);
+	   ie = std::upper_bound(m_energy.begin(), m_energy.end(), energy);
    }
    double wt = m_wt[ie - m_energy.begin()];
 
