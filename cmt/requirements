@@ -4,7 +4,7 @@ version v2r7
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.78 2004/01/15 22:16:29 jchiang Exp $
+# $Id: requirements,v 1.79 2004/01/15 23:58:55 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -33,6 +33,8 @@ Linux "-I ../src -g -O -pedantic -D TRAP_FPE -D USE_GOODI " \
 WIN32 '/I..\src /D"USE_GOODI" /wd4290'
 
 macro_append ROOT_libs ""  WIN32 " libHisT.lib "
+
+macro_append ROOT_linkopts " $(ROOT_GUI_libs)"
 
 # make sure test applications get built when library changes
 macro test_Likelihoodstamps "Likelihood.stamp"
