@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.14 2003/08/13 18:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.15 2003/10/02 19:08:06 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -41,7 +41,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.14 2003/08/13 18:01:15 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.15 2003/10/02 19:08:06 jchiang Exp $ 
  *  
  */
 
@@ -51,7 +51,8 @@ public:
 
    //! A Function describing the spatial distribution of emission is 
    //! required for instantiation.
-   DiffuseSource(optimizers::Function *spatialDist) throw(Exception);
+   DiffuseSource(optimizers::Function *spatialDist,
+                 bool requireExposure = true) throw(Exception);
 
    DiffuseSource(const DiffuseSource &rhs);
 

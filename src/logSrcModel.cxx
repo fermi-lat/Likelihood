@@ -3,7 +3,7 @@
  * @brief logSrcModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logSrcModel.cxx,v 1.6 2003/05/29 21:52:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logSrcModel.cxx,v 1.7 2003/08/06 20:52:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,9 +21,8 @@ double logSrcModel::value(optimizers::Arg &xarg) const {
    }
    if (my_value > 0) {
       return log(my_value);
-   } else {
-      return 0;
    }
+   return 0;
 }
 
 void logSrcModel::fetchDerivs(optimizers::Arg &xarg, 

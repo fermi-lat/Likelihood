@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.2 2003/11/08 01:24:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.3 2003/11/10 23:06:21 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -61,12 +61,15 @@ int main(int iargc, char* argv[]) {
    RunParams params(iargc, argv);
 
 // Set the region-of-interest.
-   std::string roiCutsFile = params.string_par("ROI_cuts_file");
+   std::string roiCutsFile;
+   params.getParam("ROI_cuts_file", roiCutsFile);
    RoiCuts::setCuts(roiCutsFile);
 
 // Read in the pointing information.
-   std::string scFile = params.string_par("Spacecraft_file");
-   int scHdu = static_cast<int>(params.long_par("Spacecraft_file_hdu"));
+   std::string scFile;
+   params.getParam("Spacecraft_file", scFile);
+   long scHdu;
+   params.getParam("Spacecraft_file_hdu", scHdu);
    std::vector<std::string> scFiles;
    RunParams::resolve_fits_files(scFile, scFiles);
    std::vector<std::string>::const_iterator scIt = scFiles.begin();
@@ -75,11 +78,13 @@ int main(int iargc, char* argv[]) {
    }
 
 // Read in the exposure map file.
-   std::string exposureFile = params.string_par("Exposure_map_file");
+   std::string exposureFile;
+   params.getParam("Exposure_map_file", exposureFile);
    ExposureMap::readExposureFile(exposureFile);
 
 // Create the response functions.
-   std::string responseFuncs = params.string_par("Response_functions");
+   std::string responseFuncs;
+   params.getParam("Response_functions", responseFuncs);
    latResponse::IrfsFactory irfsFactory;
    if (responseFuncs == "COMBINED") {
       ResponseFunctions::addRespPtr(4, 
@@ -102,12 +107,15 @@ int main(int iargc, char* argv[]) {
    funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
    
 // Read in the Source model.
-   std::string sourceModel = params.string_par("Source_model_file");
+   std::string sourceModel;
+   params.getParam("Source_model_file", sourceModel);
    logLike.readXml(sourceModel, funcFactory);
    
 // Read in the Event data.
-   std::string eventFile = params.string_par("event_file");
-   int eventFileHdu = params.long_par("event_file_hdu");
+   std::string eventFile;
+   params.getParam("event_file", eventFile);
+   int eventFileHdu;
+   params.getParam("event_file_hdu", eventFileHdu);
    std::vector<std::string> eventFiles;
    RunParams::resolve_fits_files(eventFile, eventFiles);
    std::vector<std::string>::const_iterator evIt = eventFiles.begin();
@@ -119,7 +127,8 @@ int main(int iargc, char* argv[]) {
    logLike.computeEventResponses();
 
 // Select an optimizer.
-   std::string optimizer = params.string_par("optimizer");
+   std::string optimizer;
+   params.getParam("optimizer", optimizer);
    optimizers::Optimizer *myOpt = 0;
    if (optimizer == "LBFGS") {
       myOpt = new optimizers::Lbfgs(logLike);
@@ -130,17 +139,26 @@ int main(int iargc, char* argv[]) {
    }
 
 // Set the verbosity level and convergence tolerance.
-   int verbose = static_cast<int>(params.long_par("fit_verbosity"));
-   double tol = params.double_par("fit_tolerance");
+   long verbose;
+   params.getParam("fit_verbosity", verbose);
+   double tol;
+   params.getParam("fit_tolerance", tol);
 
 // Retrieve map dimensions.
-   std::string coordSystem = params.string_par("Coordinate_system");
-   double lonMax = params.double_par("Longitude_max");
-   double lonMin = params.double_par("Longitude_min");
-   int nlon = params.long_par("Number_of_longitude_points");
-   double latMax = params.double_par("Latitude_max");
-   double latMin = params.double_par("Latitude_min");
-   int nlat = params.long_par("Number_of_latitude_points");
+   std::string coordSystem;
+   params.getParam("Coordinate_system", coordSystem);
+   double lonMax;
+   params.getParam("Longitude_max", lonMax);
+   double lonMin;
+   params.getParam("Longitude_min", lonMin);
+   long nlon;
+   params.getParam("Number_of_longitude_points", nlon);
+   double latMax;
+   params.getParam("Latitude_max", latMax);
+   double latMin;
+   params.getParam("Latitude_min", latMin);
+   long nlat;
+   params.getParam("Number_of_latitude_points", nlat);
 
    std::vector<double> lonValues;
    makeDoubleVector(lonMin, lonMax, nlon, lonValues);
@@ -185,7 +203,8 @@ int main(int iargc, char* argv[]) {
       }
    }
    
-   std::string outputFile = params.string_par("TS_map_file");
+   std::string outputFile;
+   params.getParam("TS_map_file", outputFile);
    write_fits_file(outputFile, lonValues, latValues, myMap, coordSystem);
 
    delete myOpt;
