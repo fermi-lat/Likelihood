@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.25 2004/08/05 00:14:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.26 2004/08/05 05:28:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -207,13 +207,32 @@ void LogLike::getEvents(std::string event_file, int) {
          m_events.push_back(thisEvent);
          for (std::vector<std::string>::iterator name = diffuseNames.begin();
               name != diffuseNames.end(); ++name) {
+            std::vector<double> gaussianParams;
             if (ResponseFunctions::useEdisp()) {
-               std::vector<double> gaussianParams;
-               event[*name].get(gaussianParams);
-               m_events.back().setDiffuseResponse(*name, gaussianParams);
+               try {
+                  event[*name].get(gaussianParams);
+                  m_events.back().setDiffuseResponse(*name, gaussianParams);
+               } catch (tip::TipException & eObj) {
+                  std::string message(eObj.what());
+                  if (message.find_first_of("FitsColumn::getVector") ==
+                      std::string::npos) {
+                     throw;
+                  }
+               }
             } else {
-               event[*name].get(respValue);
-               m_events.back().setDiffuseResponse(*name, respValue);
+               try {
+                  event[*name].get(gaussianParams);
+                  m_events.back().setDiffuseResponse(*name, gaussianParams[0]);
+               } catch (tip::TipException &eObj) {
+                  std::string message(eObj.what());
+                  if (message.find_first_of("FitsColumn::getVector") !=
+                      std::string::npos) {
+                     event[*name].get(respValue);
+                     m_events.back().setDiffuseResponse(*name, respValue);
+                  } else {
+                     throw;
+                  }
+               }
             }
          }
       } else {
