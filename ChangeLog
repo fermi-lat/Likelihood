@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 25 17:51:08 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+fix some units for Goodi; tagging v2r5
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 25 17:51:07 PST 2003
 Likelihood/src
 
