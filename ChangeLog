@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Nov  9 07:18:58 PST 2003
+Likelihood/doc
+
+Modified Files:
+	Doxyfile 
+Log Message:
+mv like_test.cxx likelihood.cxx
+    *
+------------------------------------------------------------
 User: jchiang  Sun Nov  9 07:18:57 PST 2003
 Likelihood/cmt
 
