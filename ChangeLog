@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Tue May 20 11:52:18 PDT 2003
+Likelihood/Likelihood
+
+Added Files:
+	LikelihoodException.h 
+Log Message:
+New class for handling errors in optimization etc.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 20 11:26:08 PDT 2003
 Likelihood/src/test
 
