@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb  5 16:29:05 PST 2004
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+accommodate astro interface change; tagging v2r8
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb  5 16:29:04 PST 2004
 Likelihood/cmt
 
