@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.19 2005/03/20 19:01:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.20 2005/03/20 23:12:51 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.19 2005/03/20 19:01:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.20 2005/03/20 23:12:51 jchiang Exp $
  */
 
 class ScData {
@@ -76,6 +76,8 @@ public:
    }
 #endif // SWIG
 
+   unsigned int time_index(double time) const;
+
 private:
 
    std::string m_scFile;
@@ -83,8 +85,6 @@ private:
 
    static bool less_than_time(const ScNtuple & scDatum1,
                               const ScNtuple & scDatum2);
-
-   unsigned int time_index(double time) const;
 
 };
 

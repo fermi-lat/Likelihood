@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.65 2005/03/17 07:20:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.66 2005/03/18 01:05:17 jchiang Exp $
  */
 
 #include <cmath>
@@ -335,8 +335,9 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
                 << srcDir.ra() << ", " 
                 << srcDir.dec() << ")";
    }
-   unsigned int npts = scData.vec.size() - 1;
-   for (unsigned int it = 0; it < npts; it++) {
+//   unsigned int npts = scData.vec.size() - 1;
+   unsigned int npts = scData.time_index(roiCuts.maxTime()) + 1;
+   for (unsigned int it = 0; it < npts && it < scData.vec.size(); it++) {
       if (print_output() && 
           npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
       double start(scData.vec[it].time);

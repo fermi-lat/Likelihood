@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.34 2005/03/03 20:04:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.35 2005/03/07 05:18:30 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -40,6 +40,8 @@ void RoiCuts::setCuts(double ra, double dec, double roi_radius,
                       double muZenMax) {
    m_timeCuts.clear();
    addTimeInterval(tmin, tmax);
+   m_minTime = tmin;
+   m_maxTime = tmax;
 
    m_gtis.clear();
     
@@ -100,6 +102,12 @@ void RoiCuts::setRoiData() {
    for (unsigned int i = 0; i < m_timeRangeCuts.size(); i++) {
       addTimeInterval(m_timeRangeCuts.at(i)->minVal(),
                       m_timeRangeCuts.at(i)->maxVal());
+      if (i == 0 || m_timeRangeCuts.at(i)->minVal() < m_minTime) {
+         m_minTime = m_timeRangeCuts.at(i)->minVal();
+      }
+      if (i == 0 || m_timeRangeCuts.at(i)->maxVal() > m_maxTime) {
+         m_maxTime = m_timeRangeCuts.at(i)->maxVal();
+      }
    }
    for (unsigned int i = 0; i < m_gtiCuts.size(); i++) {
       const dataSubselector::Gti & gti = m_gtiCuts.at(i)->gti();
@@ -123,8 +131,10 @@ void RoiCuts::sortCuts(bool strict) {
          RangeCut & rangeCut = dynamic_cast<RangeCut &>(cut);
          std::string colname = rangeCut.colname();
          if (colname == "ENERGY") {
-            nenergy++;
-            m_energyCut = &rangeCut;
+            if (nenergy == 0 || rangeCut.supercedes(*m_energyCut)) {
+               nenergy++;
+               m_energyCut = &rangeCut;
+            }
          } else if (colname == "TIME") {
             ntime++;
             m_timeRangeCuts.push_back(&rangeCut);
@@ -139,7 +149,10 @@ void RoiCuts::sortCuts(bool strict) {
          m_gtiCuts.push_back(reinterpret_cast<GtiCut *>(&cut));
       }
    }
-   if (strict && (nenergy != 1 || ncone != 1 || ntime == 0)) {
+/// @todo Sort out the correct way to handle multiple, and perhaps
+/// inconsistent, energy range and SkyCone cuts.
+//   if (strict && (nenergy != 1 || ncone != 1 || ntime == 0)) {
+   if (strict && (ncone != 1 || ntime == 0)) {
       std::ostringstream message;
       message << "RoiCuts::sortCuts:\n"
               << "There should be exactly one energy range cut, "
