@@ -1,61 +1,43 @@
 package Likelihood
-version v3r0
+version v3r1p1
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.99 2004/04/03 06:14:12 jchiang Exp $
+# $Id: requirements,v 1.100 2004/04/03 16:42:09 jchiang Exp $
 
-use GlastPolicy v5r*
+use STpolicy v*
 # use xml needs to be commented out in order to link on VC7.0 and VC7.1...
 #use xml v4r*
 use facilities v2r*
 use astro  v*
 use tip v*
+use tuple v*
 use map_tools v*
 use latResponse v2*
 use optimizers v*
 use cfitsio v1* IExternal
 
-apply_pattern package_include
-apply_pattern package_linkopts
-
 private
 
 use hoops v*
-use tuple v*
 
 #use python v2* IExternal
 #macro pydir ../python/
 
-# allow use of internal path
 macro Likelihood_cppflags "" \
 Linux "-I ../src -D TRAP_FPE -D USE_FT1 " \
 #Linux "-I ../src -D TRAP_FPE " \
 WIN32 '/I..\src /D"USE_FT1" /wd4290'
 
-macro_append ROOT_libs ""  WIN32 " libHisT.lib "
+path_prepend PFILES "."
 
-macro_append ROOT_linkopts " $(ROOT_GUI_libs)"
+public
 
-# make sure test applications get built when library changes
-macro test_Likelihoodstamps "Likelihood.stamp"
-macro old_testsstamps "old_tests.stamp"
-macro likelihoodAppstamps "likelihoodApp.stamp"
-macro TsMapstamps "TsMap.stamp"
-macro expMapstamps "expMap.stamp"
-macro makeExposureCubestamps "makeExposureCube.stamp"
+apply_pattern ST_library option="-no_share *.c *.f $(pydir)/*.i "
 
-macro my_headers "" WIN32 "../Likelihood/*.h *.h"
-library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
-
-macro_append map_tools_linkopts " -l image " \
-Win32 " $(map_toolsDir)/image.lib "
-
-# applications
-application test_Likelihood test/test.cxx test/SourceData.cxx test/XmlDiff.cxx
-#application old_tests test/main.cxx
-application likelihoodApp test/likelihood.cxx
-application TsMap test/TsMap.cxx
-application expMap test/expMap.cxx
-application makeExposureCube test/makeExposureCube.cxx
+#apply_pattern ST_app name=old_tests
+apply_pattern ST_app name=likelihoodApp
+apply_pattern ST_app name=expMap
+apply_pattern ST_app name=TsMap
+apply_pattern ST_app name=makeExposureCube

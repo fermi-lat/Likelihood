@@ -1,0 +1,5 @@
+Spacecraft file,f,ql,"single_src_scData_0000.fits",,,"Spacecraft data file"
+Output file,f,ql,"!expcube_1_day.fits",,,"Output file"
+cos_theta step,r,ql,0.25,0.,1.,Step size in cos(theta)
+pixel size,r,ql,10,,,Pixel size (degrees)
+ROI_file,f,ql,"anticenter_Roi.xml",,,"ROI file"
