@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 10 16:58:31 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h DiffuseSource.h Event.h FitsImage.h Function.h 
+	FunctionTest.h Mcmc.h Parameter.h Psf.h Response.h 
+	SourceFactory.h SpectrumFactory.h Table.h 
+Removed Files:
+	LikelihoodException.h 
+Log Message:
+move LikelihoodException from public header files;
+use forward class declarations rather than #include's
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 10 13:21:10 PDT 2003
 Likelihood/src
 
