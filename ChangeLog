@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 25 11:32:22 PDT 2003
+Likelihood/src/test/Data
+
+Added Files:
+	diffuse_test_5_0000 diffuse_test_5_sc_0000 
+	exp_diffuse_test_5_new.fits 
+Log Message:
+Add a working version of DiffuseSource
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 25 11:32:20 PDT 2003
 Likelihood/src/test
 
