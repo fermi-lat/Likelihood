@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 29 13:10:46 PDT 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx AbsEdge.h Aeff.cxx CompositeFunction.cxx Event.cxx 
+	ExposureMap.cxx FitsImage.cxx Function.cxx Gaussian.cxx 
+	Gaussian.h Mcmc.cxx MyFun.cxx MyFun.h Npred.cxx OptPP.cxx 
+	PowerLaw.cxx PowerLaw.h Psf.cxx Response.cxx RoiCuts.cxx 
+	Rosen.cxx Rosen.h SkyDirFunction.cxx SourceFactory.cxx 
+	SourceModel.cxx SpectrumFactory.cxx Statistic.cxx Table.cxx 
+Log Message:
+Add exceptions
+
+    *
+------------------------------------------------------------
 User: jchiang  Thu May 29 13:10:31 PDT 2003
 Likelihood/Likelihood
 
