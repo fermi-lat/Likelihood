@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jan  5 16:10:28 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+use refactored optimizer package; add Galactic diffuse model to flux-style output; use new latResponse::Table class interface
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jan  5 16:10:28 PST 2004
 Likelihood/src
 
 Modified Files:
