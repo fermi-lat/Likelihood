@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.18 2004/08/18 21:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.19 2004/08/19 04:03:12 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -43,7 +43,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.18 2004/08/18 21:22:15 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.19 2004/08/19 04:03:12 jchiang Exp $ 
  *  
  */
 
@@ -67,6 +67,16 @@ public:
    /// Returns the derivative wrt to the named Parameter
    virtual double fluxDensityDeriv(const Event &evt, 
                                    const std::string &paramName) const;
+
+   virtual double fluxDensity(double inclination, double phi, double energy,
+                              double separation, int evtType) const {
+      (void)(inclination);
+      (void)(phi);
+      (void)(energy);
+      (void)(separation);
+      (void)(evtType);
+      return 0;
+   }
 
    /// Predicted number of photons given RoiCuts and ScData
    virtual double Npred();

@@ -28,13 +28,13 @@ TargetSignatures('build')
 src_files = glob.glob(os.path.join(home, 'src', '*.cxx'))
 src_files.extend(glob.glob(os.path.join(home, 'src', '*.c')))
 
-libNames = libraries.keys()
+libNames = libraries.ordered_keys
 libNames.insert(0, package)
 libNames.remove('f2c')
 libNames.append('pthread')
 libNames.extend(rootlibs)
 
-env = Environment(CCFLAGS='-g -pedantic' + cflags,
+env = Environment(CCFLAGS='-g ' + cflags,
                   LINKFLAGS=linkflags)
 library = env.Library(package, src_files, CPPPATH=include_dirs)
 

@@ -1,5 +1,6 @@
 # -*- python -*-
 import os
+from map import map
 package = 'Likelihood'
 home = os.environ[package.upper() + 'ROOT']
 apps = ['likelihood', 'makeExposureCube', 'expMap',
@@ -8,50 +9,53 @@ apps = ['likelihood', 'makeExposureCube', 'expMap',
 #OptPP_dir = '/scratch/jchiang/OPT++2.1'
 OptPP_dir = os.environ['OPTPP_DIR']
 
-libraries = {'xml': None,
-             'astro': None,
-             'tipLib': None,
-             'map_toolsLib': None,
-             'optimizers': None,
-             'f2c': None,
-             'facilities': None,
-             'st_appLib': None,
-             'hoopsLib': None,
-             'irfInterfaceLib': None,
-             'irfLoaderLib': None,
-             'irfUtilLib': None,
-             'g25ResponseLib': None,
-             'dc1ResponseLib': None,
-             'g2c': ('',''),
-             'cfitsio': (os.path.join(os.environ['CFITSIO_DIR'], 'include'),
-                         os.path.join(os.environ['CFITSIO_DIR'], 'lib')),
-             'CLHEP': (os.path.join(os.environ['CLHEP_DIR'], '1.8.0.0',
-                                    'include'),
-                       os.path.join(os.environ['CLHEP_DIR'], '1.8.0.0','lib')),
-             'xerces-c1_7_0': (os.path.join(os.environ['XMLEXT_DIR'],
-                                            'include'),
-                               os.path.join(os.environ['XMLEXT_DIR'], 'lib')),
-             'opt-linux': (os.path.join(OptPP_dir, 'include'),
-                           os.path.join(OptPP_dir, 'lib')),
-             'newmat-linux': (os.path.join(OptPP_dir, 'newmat09'),
-                              os.path.join(OptPP_dir, 'lib')),
-             'cppunit': (os.path.join(os.environ['CPPUNIT_DIR'], 'include'),
-                         os.path.join(os.environ['CPPUNIT_DIR'], 'lib')),
-             'Core': (os.path.join(os.environ['ROOT_DIR'], 'v3.10.02', 
-                                   'root', 'include'),
-                      os.path.join(os.environ['ROOT_DIR'], 'v3.10.02', 
-                                   'root', 'lib')),
-             'pil': (os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
-                                  'include'),
-                     os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
-                                  'lib', 'linux-3.2'))
-             }
+libraries = map()
+libraries['xml'] = None
+libraries['astro'] = None
+libraries['tipLib'] = None
+libraries['map_toolsLib'] = None
+libraries['evtbinLib'] = None
+libraries['optimizers'] = None
+libraries['f2c'] = None
+libraries['facilities'] = None
+libraries['st_appLib'] = None
+libraries['st_facilitiesLib'] = None
+libraries['hoopsLib'] = None
+libraries['irfInterfaceLib'] = None
+libraries['irfLoaderLib'] = None
+libraries['g25ResponseLib'] = None
+libraries['dc1ResponseLib'] = None
+libraries['testResponseLib'] = None
+libraries['irfUtilLib'] = None
+libraries['g2c'] = ('','')
+libraries['cfitsio'] = (os.path.join(os.environ['CFITSIO_DIR'], 'include'),
+                        os.path.join(os.environ['CFITSIO_DIR'], 'lib'))
+libraries['CLHEP'] = (os.path.join(os.environ['CLHEP_DIR'], '1.8.0.0',
+                                   'include'),
+                                   os.path.join(os.environ['CLHEP_DIR'],
+                                                '1.8.0.0','lib'))
+libraries['xerces-c1_7_0'] = (os.path.join(os.environ['XMLEXT_DIR'],
+                                           'include'),
+                              os.path.join(os.environ['XMLEXT_DIR'], 'lib'))
+libraries['opt-linux'] = (os.path.join(OptPP_dir, 'include'),
+                          os.path.join(OptPP_dir, 'lib'))
+libraries['newmat-linux'] = (os.path.join(OptPP_dir, 'newmat09'),
+                             os.path.join(OptPP_dir, 'lib'))
+libraries['cppunit'] = (os.path.join(os.environ['CPPUNIT_DIR'], 'include'),
+                        os.path.join(os.environ['CPPUNIT_DIR'], 'lib'))
+libraries['Core'] = (os.path.join(os.environ['ROOT_DIR'], 'v3.10.02', 
+                                  'root', 'include'),
+                     os.path.join(os.environ['ROOT_DIR'], 'v3.10.02', 
+                                  'root', 'lib'))
+libraries['pil'] = (os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
+                                 'include'),
+                    os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
+                                 'lib', 'linux-3.2'))
 
 cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
 linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'pthread', 'm', 'dl',
-            'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'pil',
-            'opt-linux', 'newmat-linux', 'dc1ResponseLib', 'irfUtilLib']
+            'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript']
 Export(['package', 'home', 'apps', 'libraries', 'cflags',
         'linkflags', 'rootlibs'])
 SConscript('buildBase')

@@ -1,10 +1,10 @@
 /**
  * @file diffuseResponses.cxx
  * @brief Adds diffuse response information for extragalactic and Galactic
- * diffuse emission.  Assumes infinite energy resolution.
+ * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.7 2004/08/06 14:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.8 2004/08/25 15:27:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -30,7 +30,6 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
-//#include "Likelihood/Util.h"
 
 using namespace Likelihood;
 
@@ -41,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.7 2004/08/06 14:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.8 2004/08/25 15:27:32 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
