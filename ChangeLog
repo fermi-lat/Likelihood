@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue May  6 16:47:56 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Event.cxx ExposureMap.cxx FitsImage.cxx PointSource.cxx 
+	SourceFactory.cxx 
+Log Message:
+start migration to CCfits, add exposure map calculation to ExposureMap
+    *
+------------------------------------------------------------
 User: jchiang  Tue May  6 16:47:55 PDT 2003
 Likelihood/cmt
 
