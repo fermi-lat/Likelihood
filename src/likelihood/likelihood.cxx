@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.44 2004/10/30 02:46:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.45 2004/11/01 06:27:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.44 2004/10/30 02:46:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.45 2004/11/01 06:27:38 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -206,12 +206,15 @@ void likelihood::readEventData() {
 
 void likelihood::readSourceModel() {
    std::string sourceModel = m_pars["Source_model_file"];
+   bool requireExposure(true);
    if (m_statistic == "BINNED") {
+      requireExposure = false;
    }
    if (m_logLike->getNumSrcs() == 0) {
 // Read in the Source model for the first time.
       st_facilities::Util::file_ok(sourceModel);
-      m_logLike->readXml(sourceModel, m_helper->funcFactory());
+      m_logLike->readXml(sourceModel, m_helper->funcFactory(), 
+                         requireExposure);
       if (m_statistic != "BINNED") {
          m_logLike->computeEventResponses();
       } else {
