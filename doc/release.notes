@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v2r6p7 10-Dec-03  JC   fix CRPIX bugs in TsMap and expMap, transpose
+                           bug in TsMap
     v2r6p6 07-Dec-03  JC   latResponse fix
     v2r6p5 06-Dec-03  JC   argv fix
     v2r6p3 05-Dec-03  JC   patch for likelihood.cxx; add libHistT.lib
