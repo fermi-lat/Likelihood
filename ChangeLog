@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 21 16:30:23 PST 2005
+Likelihood/pfiles
+
+Modified Files:
+	diffuseResponses.par expMap.par likelihood.par 
+	makeExposureCube.par 
+Log Message:
+add TEST resps to choices; prompt for pixel parameters
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 21 16:29:43 PST 2005
 Likelihood/src/makeExposureCube
 
