@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Oct  7 22:59:22 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+refine unit test; use pointer for m_dataMap
+    *
+------------------------------------------------------------
+User: jchiang  Thu Oct  7 22:59:22 PDT 2004
 Likelihood/src
 
 Modified Files:
