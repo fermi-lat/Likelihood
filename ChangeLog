@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jul 20 17:23:51 PDT 2004
+Likelihood/src/test/CALDB
+
+Removed Files:
+	aeff_lat.fits psf_lat.fits 
+Log Message:
+remove unused irf files
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jul 20 17:20:29 PDT 2004
 Likelihood/src/test/Data
 
