@@ -328,7 +328,8 @@ void test_FitsImage() {
 
 //   std::string fitsfile = test_path + "Data/anti_center_exposure.fits";
    std::string fitsfile = test_path + "Data/test.fits";
-   FitsImage expImage(fitsfile);
+   try {
+      FitsImage expImage(fitsfile);
 
    std::cerr << "AxisDims: ";
    std::vector<int> axisDims;
@@ -372,7 +373,11 @@ void test_FitsImage() {
    
    std::valarray<double> imageData;
    expImage.fetchImageData(imageData);
-
+   } catch (LikelihoodException eObj) {
+      std::cerr << eObj.what() << std::endl;
+   } 
+   catch (...) {
+   }
 } // test_FitsImage
 
 void test_SourceFactory() {
@@ -1643,7 +1648,12 @@ void test_Function_class() {
    std::cout << "f(3) = " << f(x) << std::endl;
 
 /* try to access a parameter not named in the function */
-   std::cout << f.getParamValue("foo") << std::endl;   
+   try {
+      double value = f.getParamValue("foo");
+      std::cout << value << std::endl;
+   } catch(LikelihoodException &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
 
 /* reset all of the parameters in one shot */
    std::cout << "Resetting these guys in one shot..." << std::endl;
@@ -1656,8 +1666,12 @@ void test_Function_class() {
 /* change the value of an existing parameter */
    f.setParam(std::string("Ruthie"), 10.);
 
-/* attempt to change the value of a non-existing parameter */
-   f.setParam(std::string("Oscar"), 5.);
+/* attempt to change the value of a non-existent parameter */
+   try {
+      f.setParam(std::string("Oscar"), 5.);
+   } catch(LikelihoodException &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
       
    std::cout << "The current set of values: " << std::endl;
    std::vector<double> my_params;
@@ -1690,12 +1704,16 @@ void test_Function_class() {
                 << ptrP->getValue() << std::endl;
    }
       
-   ptrP = f.getParam(std::string("Joan"));
-   if (ptrP != NULL) {
-      std::cout << ptrP->getName() << ":  " 
-                << ptrP->getValue() << "\n" << std::endl;
+   try {
+      ptrP = f.getParam(std::string("Joan"));
+      if (ptrP != NULL) {
+         std::cout << ptrP->getName() << ":  " 
+                   << ptrP->getValue() << "\n" << std::endl;
+      }
+      std::cout << std::endl;
+   } catch(LikelihoodException &eObj) {
+      std::cout << eObj.what() << std::endl;
    }
-   std::cout << std::endl;
 
 /* test the Function copy constructor */
 
@@ -1716,8 +1734,9 @@ void test_Function_class() {
 /*************************/
 void test_Parameter_class() {
    std::cout << "Parameter class tests: " << std::endl;
-
    std::vector<Parameter> my_params;
+
+// test for success
    Parameter my_param("William", 42.);
    my_params.push_back(my_param);
    
@@ -1727,13 +1746,12 @@ void test_Parameter_class() {
    my_params.push_back(my_param);
    
    my_param.setName("Sherman");
-   my_param.setValue(25.);
    std::pair<double, double> myBounds(-10, 30);
    my_param.setBounds(myBounds);
+   my_param.setValue(25.);
    my_params.push_back(my_param);
 
-/* exercise the iterator....requires Parameter copy constructor! */
-
+// test for consistency...e.g., check values manually
    std::vector<Parameter>::iterator iter = my_params.begin();
    for (; iter != my_params.end(); iter++) {
       std::cout << (*iter).getName() << ":  " 
@@ -1744,8 +1762,31 @@ void test_Parameter_class() {
                 << std::endl;
    }
    std::cout << std::endl;
-} // Parameter class tests
 
+// test for failure
+   try {
+      my_params[2].setValue(35);
+   } catch (OutOfBounds &eObj) {
+      assert(eObj.code() == OutOfBounds::VALUE_ERROR);
+      std::cerr << eObj.what() << "\n"
+                << "Value: " << eObj.value() << "\n"
+                << "minValue: " << eObj.minValue() << "\n"
+                << "maxValue: " << eObj.maxValue() << "\n" 
+                <<std::endl;
+   }
+
+   try {
+      my_params[2].setBounds(-20, 20);
+   } catch (OutOfBounds &eObj) {
+      assert(eObj.code() == OutOfBounds::BOUNDS_ERROR);
+      std::cerr << eObj.what() << "\n"
+                << "Value: " << eObj.value() << "\n"
+                << "minValue: " << eObj.minValue() << "\n"
+                << "maxValue: " << eObj.maxValue() << "\n"
+                << std::endl;
+   }
+
+} // Parameter class tests
 
 void read_SC_Response_data() {
 
