@@ -60,6 +60,7 @@ using optimizers::Gaussian;
 using optimizers::AbsEdge;
 
 void read_SC_Response_data();
+void verifySources(SourceModel &srcModel, std::vector<Source *> &srcs);
 void test_SourceModel_class();
 void report_SrcModel_values(const SourceModel &SrcModel);
 void test_Event_class();
@@ -1197,25 +1198,36 @@ void test_SourceModel_class() {
    SrcModel.addSource(&_3c273);
    SrcModel.addSource(&Crab);
    SrcModel.addSource(&Vela);
-   report_SrcModel_values(SrcModel);
+//   report_SrcModel_values(SrcModel);
+
+// Verify that the Sources and their Parameters are consistent.
+   std::cout << "Verifying that SourceModel Sources and "
+             << "their Parameters are consistent." << std::endl;
+   std::vector<Source *> srcs;
+   srcs.push_back(&_3c279);
+   srcs.push_back(&_3c273);
+   srcs.push_back(&Crab);
+   srcs.push_back(&Vela);
+   verifySources(SrcModel, srcs);
 
 // Delete a Source
    SrcModel.deleteSource("Crab Pulsar");
-   report_SrcModel_values(SrcModel);
+   srcs.erase(srcs.begin()+2);
+   verifySources(SrcModel, srcs);
 
-// Add another function
+// Add another Source
    PointSource Geminga;
    Geminga.setDir(98.49, 17.86, computeExposure);
    Geminga.setSpectrum(new PowerLaw(352.9, -1.66, 0.1));
    Geminga.setName("Geminga");
    SrcModel.addSource(&Geminga);
+   srcs.push_back(&Geminga);
    
 // Make its scale factor free (this could be made easier, e.g., by
 // giving direct parameter access from PointSource)
    Parameter param = SrcModel.getParam("Scale", "Spectrum", "Geminga");
    param.setFree(true);
    SrcModel.setParam(param, "Spectrum", "Geminga");
-   report_SrcModel_values(SrcModel);
 
 // Derivative tests
    dArg x(20.);
@@ -1225,10 +1237,8 @@ void test_SourceModel_class() {
    SrcModel.getDerivs(x, sm_derivs);
    std::vector<double> params = params_save;
 
-//   std::cout << "SrcModel Derivatives: " << std::endl;
-   std::cout << "Derivative tests..." << std::endl;
+   std::cout << "Derivative tests...";
    for (unsigned int i = 0; i < sm_derivs.size(); i++) {
-//      std::cout << sm_derivs[i] << ":  ";
 
 // compute the numerical derivative wrt this parameter
       double delta_param = fabs(params_save[i]/1e7);
@@ -1237,7 +1247,6 @@ void test_SourceModel_class() {
       SrcModel.setParamValues(params);
       num_deriv -= SrcModel(x);
       num_deriv /= delta_param;
-//      std::cout << -num_deriv << std::endl;
       double tol = 1e-4;
       assert(abs(sm_derivs[i] + num_deriv) < tol);
 
@@ -1245,16 +1254,15 @@ void test_SourceModel_class() {
       SrcModel.setParamValues(params_save);
       params = params_save;
    }
-   std::cout << "Derivative tests passed." << std::endl;
+   std::cout << "passed." << std::endl;
 
-/* derivative tests for free parameters only */
+// Derivative tests for free parameters only
    SrcModel.getFreeParamValues(params_save);
    SrcModel.getFreeDerivs(x, sm_derivs);
    params = params_save;
 
-   std::cout << "SrcModel Derivatives for Free Parameters: " << std::endl;
+   std::cout << "SrcModel Derivative tests for Free Parameters...";
    for (unsigned int i = 0; i < sm_derivs.size(); i++) {
-      std::cout << sm_derivs[i] << ":  ";
 
 // compute the numerical derivative wrt this parameter
       double delta_param = fabs(params_save[i]/1e7);
@@ -1263,14 +1271,16 @@ void test_SourceModel_class() {
       SrcModel.setFreeParamValues(params);
       num_deriv -= SrcModel(x);
       num_deriv /= delta_param;
-      std::cout << -num_deriv << std::endl;
+      double tol(1e-4);
+      assert(abs( (sm_derivs[i] + num_deriv)/num_deriv ) < tol);
 
 // reset the parameters for next time around
       SrcModel.setFreeParamValues(params_save);
       params = params_save;
    }
-   std::cout << std::endl;
+   std::cout << "passed." << std::endl;
 
+   std::cout << "Testing xml read/write methods...";
    std::string xmlFile = "myModel.xml";
    SrcModel.writeXml(xmlFile, "$(LIKELIHOODROOT)/xml/A1_Functions.xml");
 
@@ -1292,9 +1302,10 @@ void test_SourceModel_class() {
       assert(abs( (parameters[i].getTrueValue() 
                    - new_parameters[i].getTrueValue())/
                   parameters[i].getTrueValue() ) < tol);
-   }             
+   }
+   std::cout << "passed." << std::endl;
 
-   std::cout << "*** test_SourceModel_class: all tests completed ***\n" 
+   std::cout << "*** test_SourceModel_class: all tests passed. ***\n" 
              << std::endl;
 
 } // Source Model Class tests
@@ -1365,5 +1376,34 @@ void print_fit_results(SourceModel &stat) {
                    << parameters[i].getValue() << std::endl;
       std::cout << "Npred: "
                 << src->Npred() << std::endl;
+   }
+}
+
+void verifySources(SourceModel &srcModel, std::vector<Source *> &srcs) {
+
+// Get the srcModel parameter values in one go.
+   std::vector<double> srcParams;
+   srcModel.getParamValues(srcParams);
+
+   double tol(1e-4);
+
+// Loop over Sources in srcs and compare to each srcParams value.
+   std::vector<double>::iterator srcParIt = srcParams.begin();
+
+   std::vector<Source *>::iterator srcIt = srcs.begin();
+   for ( ; srcIt != srcs.end(); srcIt++) {
+// Get the Functions for each source.
+      Source::FuncMap srcFuncs = (*srcIt)->getSrcFuncs();
+// Loop over these Functions.
+      Source::FuncMap::iterator funcIt = srcFuncs.begin();
+      for ( ; funcIt != srcFuncs.end(); funcIt++) {
+// Check each Parameter in turn.
+         std::vector<Parameter> params;
+         funcIt->second->getParams(params);
+         std::vector<Parameter>::iterator parIt = params.begin();
+         for ( ; parIt != params.end(); parIt++, srcParIt++) {
+            assert(abs( (*srcParIt - parIt->getValue())/(*srcParIt) ) < tol);
+         }
+      }
    }
 }
