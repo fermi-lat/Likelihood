@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Mar 17 15:36:13 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	TsMap.cxx expMap.cxx likelihood.cxx makeExposureCube.cxx 
+Log Message:
+move to hoops
+    *
+------------------------------------------------------------
+User: jchiang  Wed Mar 17 15:36:13 PST 2004
 Likelihood/cmt
 
 Modified Files:
