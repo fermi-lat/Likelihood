@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: pln  Thu May 29 12:41:00 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Minuit.cxx intrac.c Lbfgs.cxx mainpage.h 
+Log Message:
+Doxygen comments, minor tweaks
+    *
+------------------------------------------------------------
+User: pln  Thu May 29 12:41:00 PDT 2003
 Likelihood/cmt
 
 Modified Files:
