@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov  1 20:09:27 PST 2004
+Likelihood/xml
+
+Modified Files:
+	A1_Sources.dtd 
+Log Message:
+extend dtd to include default_model, parameter errors and ROI_dist
+    *
+------------------------------------------------------------
 User: jchiang  Sun Oct 31 22:27:38 PST 2004
 Likelihood/src/likelihood
 
