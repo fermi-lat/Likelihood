@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan 31 23:18:57 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	SourceModel.h 
+Log Message:
+enable manipulation of model parameters
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6r4, operation: add
 Package: Likelihood
