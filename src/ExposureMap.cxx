@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.17 2004/02/20 04:05:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.18 2004/03/11 05:19:36 jchiang Exp $
  */
 #include <utility>
 #include <algorithm>
@@ -178,7 +178,7 @@ void ExposureMap::computeMap(std::string filename, double sr_radius,
          bool updateExposure = false;
          ptsrc.setDir(dir.ra(), dir.dec(), updateExposure);
          std::vector<double> exposure;
-         int verbose = 0;
+         bool verbose(false);
          if (PointSource::s_exposure == 0) {
             ptsrc.computeExposure(energies, exposure, verbose);
          } else {
