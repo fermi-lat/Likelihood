@@ -3,10 +3,10 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.3 2003/05/06 23:47:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.4 2003/05/20 23:49:49 jchiang Exp $
  *
  */
-
+#pragma warning(disable:4290)
 #ifndef FitsImage_h
 #define FitsImage_h
 
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.3 2003/05/06 23:47:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.4 2003/05/20 23:49:49 jchiang Exp $
  *
  */
 

@@ -3,9 +3,9 @@
  * @brief Declaration of Parameter and OutOfBounds classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.10 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.11 2003/05/21 23:11:07 jchiang Exp $
  */
-
+#pragma warning(disable:4290)
 #ifndef Parameter_h
 #define Parameter_h
 
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.10 2003/03/22 01:22:50 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.11 2003/05/21 23:11:07 jchiang Exp $ 
  */
 
 class OutOfBounds;
@@ -114,7 +114,7 @@ private:
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.11 2003/05/21 23:11:07 jchiang Exp $
  */
 
 class OutOfBounds : public LikelihoodException {
