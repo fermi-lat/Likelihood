@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v4r6p1 03-Sep-04  JC   Fix some warnings, #include tip/Table in 
+                           makeExposureCube
     v4r6   02-Sep-04  JC   CountsMap, HistND classes inheriting from evtbin;
                            let makeExposureCube read in multiple scData files
     v4r5   25-Aug-04  JC   start using st_facilities, count map fixes,
