@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.30 2004/09/25 06:36:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.31 2004/09/25 16:38:08 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -74,7 +74,6 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_XmlBuilders);
    CPPUNIT_TEST(test_SourceModel);
    CPPUNIT_TEST(test_SourceDerivs);
-   CPPUNIT_TEST(test_SourceModel);
    CPPUNIT_TEST(test_PointSource);
    CPPUNIT_TEST(test_DiffuseSource);
    CPPUNIT_TEST(test_CountsMap);

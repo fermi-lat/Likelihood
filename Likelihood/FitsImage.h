@@ -3,17 +3,20 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.15 2004/05/05 01:42:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.16 2004/05/24 23:51:30 jchiang Exp $
  *
  */
 
 #ifndef Likelihood_FitsImage_h
 #define Likelihood_FitsImage_h
 
-#include <vector>
 #include <string>
-#include <valarray>
+#include <vector>
+
 #include "astro/SkyDir.h"
+
+#include "st_facilities/FitsImage.h"
+
 #include "Likelihood/Exception.h"
 
 namespace Likelihood {
@@ -25,11 +28,11 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.15 2004/05/05 01:42:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.16 2004/05/24 23:51:30 jchiang Exp $
  *
  */
 
-class FitsImage {
+class FitsImage : public st_facilities::FitsImage {
     
 public:
 
@@ -40,45 +43,12 @@ public:
       if (m_haveRefCoord) delete m_eqRot;
    }
 
+   virtual void getCelestialArrays(std::vector<double> &lonArray,
+                                   std::vector<double> &latArray);
+   
 #ifndef SWIG
    FitsImage &operator=(const FitsImage &rhs);
-#endif
 
-   //! A vector of the image axes dimensions
-   void fetchAxisDims(std::vector<int> &axisDims);
-
-   //! The names (CTYPEs) of the image axes
-   void fetchAxisNames(std::vector<std::string> &axisNames);
-
-   //! Fetch a vector filled with axis abscissa points for the naxis-th
-   //! coordinate (We are perhaps dangerously ignoring header-specified
-   //! projection effects, i.e., we assume a "plate-carree" projection, 
-   //! as for EGRET maps, for all images).
-   void fetchAxisVector(unsigned int naxis, std::vector<double> &axisVector)
-      throw(Exception);
-
-   //! This method computes arrays of longitude and latitude obtained
-   //! by traversing the image plane by column number then row.
-   //! If m_refCoord == true, then these will be the coordinates in
-   //! the unrotated coordinate system (see section 4 of 
-   //! <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">
-   //! LikeMemo 3</a>.
-   void fetchCelestialArrays(std::valarray<double> &lonArray,
-                             std::valarray<double> &latArray);
-
-   //! Fetch the pixel values.  They will be indexed by column, row,
-   //! then plane, i.e., indx = i + j*NAXIS1 + k*NAXIS1*NAXIS2.  Note
-   //! that each image plane is indexed starting at the lower left
-   //! (South-East) corner.
-   void fetchImageData(std::valarray<double> &imageData);
-
-   //! This returns the pixel solid angles.  Use of this method assumes
-   //! that m_axis[0] represents a longitudinal coordinate and that
-   //! m_axis[1] represents a latitudinal coordinate.  The pixel values
-   //! will be indexed by column then row, indx = i + j*NAXIS1.
-   void fetchSolidAngles(std::valarray<double> &solidAngles);
-
-#ifndef SWIG
 /**
  * @class EquinoxRotation
  * @brief Nested class to perform the "Equinox Rotation" described in
@@ -99,53 +69,20 @@ public:
    };                       
 #endif
 
-protected:
+private:
 
-/** 
- * @class AxisParams
- * @brief Nested n-tuple class to represent FITS image axis information
- */
-   class AxisParams {
-   public:
-      AxisParams() {}
-      ~AxisParams() {}
-      int size;
-      float refVal;
-      float step;
-      float refPixel;
-      std::string axisType;
-      std::string comment;
-      bool logScale;
-
-      //! Returns a vector of abscissa values based on the axis parameters.
-      void computeAxisVector(std::vector<double> &axisVector);
-   };
-
-   //! Interface to cfitsio routines
-   void read_fits_image(std::string &filename, std::vector<AxisParams> &axes,
-                        std::valarray<double> &image) 
-      throw(Exception);
-
-   //! FITS file name
-   std::string m_filename;
-
-   //! Descriptions for each image axis
-   std::vector<AxisParams> m_axes;
-
-   //! Vectors of abscissa values for each axis in local (i.e., rotated)
-   //! coordinate system
-   std::vector< std::vector<double> > m_axisVectors;
-
-   //! The FITS image data
-   std::valarray<double> m_image;
-
-   //! Hi-jack the LONPOLE and LATPOLE FITS keywords for use as the 
-   //! true longitude and latitude of the reference pixel...will fix
-   //! this later once we have LAT-specific FITS keywords.
+   /// Hi-jack the LONPOLE and LATPOLE FITS keywords for use as the 
+   /// true longitude and latitude of the reference pixel...will fix
+   /// this later once we have LAT-specific FITS keywords.
    bool m_haveRefCoord;
-   double m_lonpole, m_latpole;
 
-   EquinoxRotation *m_eqRot;
+   double m_roiRa, m_roiDec;
+
+   EquinoxRotation * m_eqRot;
+
+   bool haveRefCoord();
+
+   void fitsReportError(FILE * stream, int status) const;
 
 };
 

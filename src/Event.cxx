@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.36 2004/08/05 23:23:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.37 2004/08/06 14:58:29 jchiang Exp $
  */
 
 #include <cassert>
@@ -128,10 +128,10 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
    getNewDiffuseSrcs(srcList, srcs);
    if (srcs.size() == 0) return;
    
-// @todo In principle, the source region should be centered on the
-// event direction, making it independent of the ROI, but doing so has
-// not given as good results as using the ROI center.  Need to check
-// this is still true.
+/// @todo In principle, the source region should be centered on the
+/// event direction, making it independent of the ROI, but doing so has
+/// not given as good results as using the ROI center.  Need to check
+/// this is still true.
    FitsImage::EquinoxRotation eqRot(m_appDir.ra(), m_appDir.dec());
    if (!s_haveSourceRegionData) {
       prepareSrData(sr_radius);

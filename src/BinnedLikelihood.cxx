@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.11 2004/09/25 06:36:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.12 2004/09/25 16:38:08 jchiang Exp $
  */
 
 #include <memory>
@@ -215,7 +215,7 @@ void BinnedLikelihood::readSourceMaps(std::string filename) {
          if (m_srcMaps.count(*name)) {
             delete m_srcMaps[*name];
          }
-// @todo Confirm that the CountsMap in m_srcMapsFile matches m_dataMap.
+/// @todo Confirm that the CountsMap in m_srcMapsFile matches m_dataMap.
          m_srcMaps[*name] = new SourceMap(m_srcMapsFile, *name);
       }
    }
@@ -228,17 +228,20 @@ void BinnedLikelihood::readSourceMaps(std::string filename) {
    }
 }
 
-void BinnedLikelihood::saveSourceMaps(const std::string & filename) const {
+void BinnedLikelihood::saveSourceMaps(const std::string & filename) {
+   if (filename != "") {
+      m_srcMapsFile = filename;
+   }
    if (!st_facilities::Util::fileExists(filename)) {
-      m_dataMap.writeOutput("BinnedLikelihood", filename);
+      m_dataMap.writeOutput("BinnedLikelihood", m_srcMapsFile);
    }
    std::vector<std::string> srcNames;
    getSrcNames(srcNames);
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      if (sourceMapExists(srcNames[i], filename)) {
-         replaceSourceMap(srcNames[i], filename);
+      if (sourceMapExists(srcNames[i], m_srcMapsFile)) {
+         replaceSourceMap(srcNames[i], m_srcMapsFile);
       } else {
-         addSourceMap(srcNames[i], filename);
+         addSourceMap(srcNames[i], m_srcMapsFile);
       }
    }
 }
@@ -258,21 +261,15 @@ void BinnedLikelihood::replaceSourceMap(const std::string & srcName,
                                         const std::string & fitsFile) const {
    (void)(srcName);
    (void)(fitsFile);
+/// @todo Implement replaceSourceMap method.
 }
 
 void BinnedLikelihood::addSourceMap(const std::string & srcName,
-                                    std::string fitsFile) const {
+                                    const std::string & fitsFile) const {
    if (!m_srcMaps.count(srcName)) {
-      throw std::runtime_error("BinnedLikelihood::addSourceMapExtension: " +
+      throw std::runtime_error("BinnedLikelihood::addSourceMap: " +
                                std::string("Source ") + srcName 
                                + " is not available.");
-   }
-   if (fitsFile == "") {
-      if (m_srcMapsFile == "") {
-         fitsFile = "srcMaps.fits";
-      } else {
-         fitsFile = m_srcMapsFile;
-      }
    }
 
    fitsfile * fptr;
@@ -305,7 +302,7 @@ void BinnedLikelihood::addSourceMap(const std::string & srcName,
 void BinnedLikelihood::fitsReportError(FILE *stream, int status) const {
    if (status != 0) {
       fits_report_error(stream, status);
-      throw std::runtime_error("BinnedLikelihood::addSourceMapExtension: "
+      throw std::runtime_error("BinnedLikelihood::addSourceMap: "
                                + std::string("cfitsio error."));
    }
 }

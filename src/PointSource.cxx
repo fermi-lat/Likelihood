@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.51 2004/09/22 20:05:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.52 2004/09/22 22:49:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -82,7 +82,7 @@ double PointSource::fluxDensity(double energy, double time,
 double PointSource::fluxDensity(double inclination, double phi, double energy, 
                                 const astro::SkyDir & appDir, 
                                 int evtType) const {
-// @todo add implementation for energy dispersion.
+/// @todo add implementation for energy dispersion.
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
    double separation = appDir.difference(getDir())*180./M_PI;
@@ -133,7 +133,7 @@ fluxDensityDeriv(double inclination, double phi, double energy,
       return fluxDensity(inclination, phi, energy, separation, evtType)
          /m_spectrum->getParamValue("Prefactor");
    } else {
-// @todo Implement for finite energy resolution case.
+/// @todo Implement for finite energy resolution case.
       optimizers::dArg energy_arg(energy);
       return ResponseFunctions::totalResponse(inclination, phi, energy, 
                                               energy, separation, evtType)

@@ -3,16 +3,17 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.11 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.12 2004/08/23 15:38:56 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
 #define Likelihood_ExposureMap_h
 
-#include <vector>
 #include <string>
-#include <valarray>
+#include <vector>
+
 #include "optimizers/Function.h"
+
 #include "Likelihood/FitsImage.h"
 
 namespace Likelihood {
@@ -30,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.11 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.12 2004/08/23 15:38:56 jchiang Exp $
  *
  */
 
@@ -42,7 +43,7 @@ public:
 
    static ExposureMap * instance();
 
-   //! Read exposure map FITS file and compute the static data members.
+   /// Read exposure map FITS file and compute the static data members.
    static void readExposureFile(std::string exposureFile);
 
    /**
@@ -66,20 +67,20 @@ public:
                              optimizers::Function * spatialDist, 
                              std::vector<double> &exposure);
 
-   //! Retrieve the RA of each pixel in the image plane
-   void fetchRA(std::valarray<double> &ra) 
+   /// Retrieve the RA of each pixel in the image plane
+   void getRA(std::vector<double> &ra) 
       {ra.resize(s_ra.size()); ra = s_ra;}
 
-   //! Retrieve the Dec of each pixel in an image plane
-   void fetchDec(std::valarray<double> &dec) 
+   /// Retrieve the Dec of each pixel in an image plane
+   void getDec(std::vector<double> &dec) 
       {dec.resize(s_ra.size()); dec = s_dec;}
 
-   //! Retrieve the energies in MeV of each plane in the ExposureMap 
-   //! frame stack
-   void fetchEnergies(std::vector<double> &energies) {energies = s_energies;}
+   /// Retrieve the energies in MeV of each plane in the ExposureMap 
+   /// frame stack
+   void getEnergies(std::vector<double> &energies) {energies = s_energies;}
 
-   //! Retrieve a vector of image plane exposures
-   void fetchExposure(std::vector< std::valarray<double> > &exposure);
+   /// Retrieve a vector of image plane exposures
+   void getExposure(std::vector< std::vector<double> > &exposure);
 
    /**
     * @brief Compute the exposure map given the current set of
@@ -97,12 +98,12 @@ public:
    static void computeMap(std::string filename, double sr_radius = 30,
                           int nlong = 60, int nlat = 60, int nenergies = 10);
 
-   //! write the FITS image file produced by computeMap()
+   /// write the FITS image file produced by computeMap()
    static void writeFitsFile(const std::string &filename,
                              std::vector<double> &lon,
                              std::vector<double> &lat,
                              std::vector<double> &energies,
-                             std::vector< std::valarray<double> > &dataCube,
+                             std::vector< std::vector<double> > &dataCube,
                              double ra0, double dec0);
 
 protected:
@@ -115,19 +116,19 @@ private:
 
    static bool s_haveExposureMap;
 
-   //! s_ra and s_dec are valarrays of size NAXIS1*NAXIS2.
-   //! Traversing these valarrays in tandem yields all coordinate pairs
-   //! of the image plane.
-   static std::valarray<double> s_ra;
-   static std::valarray<double> s_dec;
+   /// s_ra and s_dec are vectors of size NAXIS1*NAXIS2.
+   /// Traversing these vectors in tandem yields all coordinate pairs
+   /// of the image plane.
+   static std::vector<double> s_ra;
+   static std::vector<double> s_dec;
 
-   //! True photon energies associated with each image plane.
+   /// True photon energies associated with each image plane.
    static std::vector<double> s_energies;
 
-   //! s_exposure is a vector of size NAXIS3, corresponding to the
-   //! number of true energy values identified with each plane in the
-   //! exposure data cube.
-   static std::vector< std::valarray<double> > s_exposure;
+   /// s_exposure is a vector of size NAXIS3, corresponding to the
+   /// number of true energy values identified with each plane in the
+   /// exposure data cube.
+   static std::vector< std::vector<double> > s_exposure;
 
    static FitsImage s_mapData;
 

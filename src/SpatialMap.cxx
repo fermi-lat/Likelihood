@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.10 2003/12/12 16:11:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.11 2004/09/02 23:43:20 jchiang Exp $
  *
  */
 
@@ -15,61 +15,10 @@
 #include "facilities/Util.h"
 
 #include "st_facilities/Util.h"
+#include "st_facilities/FitsImage.h"
 
-#include "Likelihood/FitsImage.h" 
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/SpatialMap.h"
-
-// namespace {
-//    double bilinear(const std::vector<double> &xx, double x, 
-//                    const std::vector<double> &yy, double y, 
-//                    const std::valarray<double> &z) 
-//       throw(Likelihood::Exception) {
-
-//       std::vector<double>::const_iterator ix;
-//       if (x < *(xx.begin())) {
-//          ix = xx.begin() + 1;
-//       } else if (x >= *(xx.end()-1)) {
-//          ix = xx.end() - 1;
-//       } else {
-//          ix = std::upper_bound(xx.begin(), xx.end(), x);
-//       }
-//       int i = ix - xx.begin();
-
-//       std::vector<double>::const_iterator iy;
-//       if (y < *(yy.begin())) {
-//          iy = yy.begin() + 1;
-//       } else if (y >= *(yy.end()-1)) {
-//          iy = yy.end() - 1;
-//       } else {
-//          iy = std::upper_bound(yy.begin(), yy.end(), y);
-//       }
-//       int j = iy - yy.begin();
-
-//       double tt = (x - *(ix-1))/(*(ix) - *(ix-1));
-//       double uu = (y - *(iy-1))/(*(iy) - *(iy-1));
-
-//       double y1 = z[yy.size()*(i-1) + (j-1)];
-//       double y2 = z[yy.size()*(i) + (j-1)];
-//       double y3 = z[yy.size()*(i) + (j)];
-//       double y4 = z[yy.size()*(i-1) + (j)];
-
-//       double value = (1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
-//          + tt*uu*y3 + (1. - tt)*uu*y4; 
-//       if (value < 0.) {
-//          std::cerr << "bilinear: value = " << value << " < 0\n";
-//          std::cerr << xx[i-1] << "  " << *(ix-1) << "  " 
-//                    << x << "  " << *ix << "\n";
-//          std::cerr << yy[j-1] << "  " << *(iy-1) << "  " 
-//                    << y << "  " << *iy << "\n";
-//          std::cerr << tt << "  " << uu << "  " 
-//                    << y1 << "  " << y2 << "  "
-//                    << y3 << "  " << y4 << "  " << std::endl;
-//          throw Likelihood::Exception("SpatialMap::bilinear: \n bailing...");
-//       }
-//       return value;
-//    }
-// } // unnamed namespace
 
 namespace Likelihood {
 
@@ -91,14 +40,10 @@ void SpatialMap::readFitsFile(const std::string &fitsFile) {
    FitsImage fitsImage(inFile);
 
 // Assume 0th and 1st axes are RA and DEC.
-   fitsImage.fetchAxisVector(0, m_ra);
-   fitsImage.fetchAxisVector(1, m_dec);
+   fitsImage.getAxisVector(0, m_ra);
+   fitsImage.getAxisVector(1, m_dec);
 
-   std::valarray<double> my_image;
-   fitsImage.fetchImageData(my_image);
-   for (unsigned int i = 0; i < my_image.size(); i++) {
-      m_image.push_back(my_image[i]);
-   }
+   fitsImage.getImageData(m_image);
 }
 
 double SpatialMap::value(optimizers::Arg& arg) const {
