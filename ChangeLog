@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Mar 24 21:16:33 PST 2005
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx TrapQuad.cxx pyLike.in 
+Log Message:
+replace statics in PointSource; expose some methods to python; tagging v7r2p4
+    *
+------------------------------------------------------------
+User: jchiang  Thu Mar 24 21:16:33 PST 2005
 Likelihood/doc
 
 Modified Files:
