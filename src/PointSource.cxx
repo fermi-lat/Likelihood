@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.23 2003/10/02 19:08:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.24 2003/10/22 04:30:33 jchiang Exp $
  */
 
 #include <vector>
@@ -24,6 +24,36 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/TrapQuad.h"
+
+namespace {
+
+   double totalResponse(double energy, double time, 
+                        const astro::SkyDir &srcDir,
+                        const astro::SkyDir &appDir) {
+// This implementation neglects energy dispersion.
+      Likelihood::ResponseFunctions * respFuncs 
+         = Likelihood::ResponseFunctions::instance();
+      Likelihood::ScData * scData = Likelihood::ScData::instance();
+   
+      astro::SkyDir zAxis = scData->zAxis(time);
+      astro::SkyDir xAxis = scData->xAxis(time);
+
+      double myResponse = 0;
+      std::map<unsigned int, latResponse::Irfs *>::iterator respIt
+         = respFuncs->begin();
+      for ( ; respIt != respFuncs->end(); respIt++) {
+         
+         latResponse::IPsf *psf = respIt->second->psf();
+         latResponse::IAeff *aeff = respIt->second->aeff();
+
+         double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
+         double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
+         myResponse += psf_val*aeff_val;
+      }
+
+      return myResponse;
+   }
+}
 
 namespace Likelihood {
 
@@ -59,26 +89,10 @@ double PointSource::fluxDensity(double energy, double time,
 // energy), all of which are functions of time and spacecraft attitude
 // and orbital position.
 
-   ResponseFunctions * respFuncs = ResponseFunctions::instance();
-   ScData * scData = ScData::instance();
-   
-// Assume for now that the GLAST25 Combined functions are in use.
-// Will generalize later.
-   latResponse::IPsf *psf = respFuncs[4]->psf();
-   latResponse::IAeff *aeff = respFuncs[4]->aeff();
-
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
-//   double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
-   double psf_val = psf->value(dir, energy, m_dir.getDir(),
-                               scData->zAxis(time),
-                               scData->xAxis(time));
-//   double aeff_val = (*aeff)(energy, m_dir.getDir(), time);
-   double aeff_val = aefff->value(energy, m_dir.getDir(),
-                                  scData->zAxis(time),
-                                  scData->xAxis(time));
 
-   return spectrum*psf_val*aeff_val;
+   return ::totalResponse(energy, time, m_dir.getDir(), dir)*spectrum;
 }
 
 double PointSource::fluxDensityDeriv(double energy, double time,
@@ -91,20 +105,16 @@ double PointSource::fluxDensityDeriv(double energy, double time,
       return fluxDensity(energy, time, dir)
          /m_spectrum->getParamValue("Prefactor");
    } else {
-      Psf *psf = Psf::instance();
-      Aeff *aeff = Aeff::instance();
-
       optimizers::dArg energy_arg(energy);
-      double psf_val = (*psf)(dir, energy, m_dir.getDir(), time);
-      double aeff_val = (*aeff)(energy, m_dir.getDir(), time);
-      return psf_val*aeff_val*m_spectrum->derivByParam(energy_arg, paramName);
+      return ::totalResponse(energy, time, m_dir.getDir(), dir)
+         *m_spectrum->derivByParam(energy_arg, paramName);
    }
 }
 
 double PointSource::Npred() {
    optimizers::Function *specFunc = m_functions["Spectrum"];
 
-// evaluate the Npred integrand at the abscissa points contained in
+// Evaluate the Npred integrand at the abscissa points contained in
 // s_energies
    
    std::vector<double> NpredIntegrand(s_energies.size());
