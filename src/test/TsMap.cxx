@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.3 2003/11/10 23:06:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.4 2003/11/12 22:01:40 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -114,7 +114,7 @@ int main(int iargc, char* argv[]) {
 // Read in the Event data.
    std::string eventFile;
    params.getParam("event_file", eventFile);
-   int eventFileHdu;
+   long eventFileHdu;
    params.getParam("event_file_hdu", eventFileHdu);
    std::vector<std::string> eventFiles;
    RunParams::resolve_fits_files(eventFile, eventFiles);
