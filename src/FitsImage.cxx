@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.21 2005/02/15 00:34:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.22 2005/02/18 00:54:19 jchiang Exp $
  *
  */
 
@@ -25,9 +25,9 @@ FitsImage::FitsImage(const std::string &fitsfile)
    }
    std::vector<std::string> axisNames;
    getAxisNames(axisNames);
-   if (axisNames[0].find_first_of("RA") != std::string::npos) {
+   if (axisNames[0].find("RA") != std::string::npos) {
       m_coordSys = "Equatorial";
-   } else if (axisNames[0].find_first_of("GLON") != std::string::npos) {
+   } else if (axisNames[0].find("GLON") != std::string::npos) {
       m_coordSys = "Galactic";
    } else {
       std::ostringstream message;

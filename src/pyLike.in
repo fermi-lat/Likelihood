@@ -13,6 +13,7 @@
 #include "optimizers/FunctionFactory.h"
 #include "optimizers/Mcmc.h"
 #include "st_facilities/FitsImage.h"
+#include "Likelihood/FitsImage.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
@@ -100,6 +101,12 @@ using optimizers::Exception;
 %include $(LIKELIHOODROOT)/Likelihood/SrcArg.h
 %include $(LIKELIHOODROOT)/Likelihood/TrapQuad.h
 %include $(LIKELIHOODROOT)/Likelihood/MapCubeFunction.h
+%extend st_facilities::FitsImage {
+   static std::string coordSys(const std::string & fitsFile) {
+      Likelihood::FitsImage image(fitsFile);
+      return image.coordSys();
+   }
+}
 %extend Likelihood::SourceFactory {
    static optimizers::FunctionFactory * funcFactory() {
       optimizers::FunctionFactory * myFuncFactory 
