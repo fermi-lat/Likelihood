@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 30 06:53:04 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	Util.h 
+Removed Files:
+	AppBase.h 
+Log Message:
+add function to check xml file
+    *
+------------------------------------------------------------
 User: jchiang  Tue Apr 27 22:50:59 PDT 2004
 Likelihood/Likelihood
 
