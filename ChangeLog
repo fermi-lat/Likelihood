@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct  8 18:37:47 PDT 2004
+Likelihood/src/exposureMap
+
+Modified Files:
+	exposureMap.cxx 
+Log Message:
+add gtsrcmaps app; more work on diffuse source maps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  8 18:37:46 PDT 2004
 Likelihood/src
 
