@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.3 2004/09/02 23:43:15 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -51,9 +51,9 @@ public:
    
    long imageDimension(int idim) const;
 
-   void getAxisVector(int idim, std::vector<double> axisVector) const;
+   void getAxisVector(int idim, std::vector<double> & axisVector) const;
 
-   bool use_lb() const {return m_use_lb;}
+   const astro::SkyProj & projection() const {return *m_proj;}
 
 protected:
 

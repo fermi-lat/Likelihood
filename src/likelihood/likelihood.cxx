@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.22 2004/09/02 23:43:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.23 2004/09/03 03:40:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,6 +19,9 @@
 
 #include "st_facilities/Util.h"
 
+#include "tip/IFileSvc.h"
+#include "tip/Table.h"
+
 #include "optimizers/Drmngb.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
@@ -28,6 +31,7 @@
 #include "optimizers/Exception.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/CountsMap.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/MapShape.h"
@@ -44,7 +48,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.22 2004/09/02 23:43:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.23 2004/09/03 03:40:22 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -73,6 +77,8 @@ private:
    LogLike * m_logLike;
    bool m_useOptEM;
    optimizers::Optimizer * m_opt;
+
+   std::vector<std::string> m_eventFiles;
 
    void createStatistic();
    void readEventData();
@@ -164,11 +170,10 @@ void likelihood::createStatistic() {
 void likelihood::readEventData() {
    std::string eventFile = m_pars["event_file"];
    long eventFileHdu = m_pars["event_file_hdu"];
-   std::vector<std::string> eventFiles;
    st_facilities::Util::file_ok(eventFile);
-   st_facilities::Util::resolve_fits_files(eventFile, eventFiles);
-   std::vector<std::string>::const_iterator evIt = eventFiles.begin();
-   for ( ; evIt != eventFiles.end(); evIt++) {
+   st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
+   std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
+   for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
       m_logLike->getEvents(*evIt, eventFileHdu);
    }
@@ -266,11 +271,11 @@ void likelihood::writeCountsSpectra() {
 }
 
 void likelihood::writeCountsMap() {
+// If there is no valid exposure_cube_file, do nothing and return.
    std::string expcube_file = m_pars["exposure_cube_file"];
    if (expcube_file == "none") {
       return;
    }
-
    try {
       ExposureCube::readExposureCube(expcube_file);
    } catch (std::exception & eObj) {
@@ -281,6 +286,8 @@ void likelihood::writeCountsMap() {
       }
    }
 
+// Create a counts map from the data using the ROI as to get the map
+// dimensions.
    RoiCuts * roiCuts = RoiCuts::instance();
 
    std::pair<double, double> elims = roiCuts->getEnergyCuts();
@@ -290,27 +297,28 @@ void likelihood::writeCountsMap() {
    double roi_ra, roi_dec;
    RoiCuts::getRaDec(roi_ra, roi_dec);
    
-   int npts(41);
-   std::vector<double> ras;
-   double ra_step = 2.*roi_radius/(npts-1.);
-   for (int i = 0; i < npts; i++) {
-      ras.push_back(ra_step*i + roi_ra - roi_radius);
-   }
-   std::vector<double> decs;
-   double dec_step = 2.*roi_radius/(npts-1.);
-   for (int i = 0; i < npts; i++) {
-      decs.push_back(dec_step*i + roi_dec - roi_radius);
-   }
-   int nee(21);
-   std::vector<double> energies;
-   double estep = log(elims.second/elims.first)/(nee-1.);
-   for (int i = 0; i < nee; i++) {
-      energies.push_back(elims.first*exp(estep*i));
+   unsigned long npts = static_cast<unsigned long>(2*roi_radius);
+   double emin(30.);
+   double emax(2e5);
+   unsigned long nee(21);
+
+// CountsMap and its base class, DataProduct, want *single* event and
+// scData files for extracting header keywords and gti info, so pass
+// just the first from each vector.
+// @todo sort out how one should handle these data when several FITS
+// files are specified.
+   CountsMap dataMap(m_eventFiles[0], m_helper->scFiles()[0], 
+                     roi_ra, roi_dec, "CAR", npts, npts, 1., 
+                     0, false, "RA", "DEC", emin, emax, nee);
+                     
+   for (unsigned int i = 0; i < m_eventFiles.size(); i++) {
+      const tip::Table * events 
+         = tip::IFileSvc::instance().readTable(m_eventFiles[i], "events");
+      dataMap.binInput(events->begin(), events->end());
    }
 
-   MapShape mapShape(ras, decs, energies);
-
-//   m_logLike->makeCountsMap("counts_map.fits", mapShape);
+   dataMap.writeOutput("likelihood", "data_map.fits");
+   m_logLike->makeCountsMap(dataMap, "model_map.fits");
 }
 
 void likelihood::printFitResults(const std::vector<double> &errors) {

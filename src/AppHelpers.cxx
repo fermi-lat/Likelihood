@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.6 2004/08/17 03:38:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.7 2004/08/25 15:27:32 jchiang Exp $
  */
 
 #include <map>
@@ -21,7 +21,6 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SpatialMap.h"
-//#include "Likelihood/Util.h"
 
 #include "Likelihood/AppHelpers.h"
 
@@ -50,10 +49,9 @@ void AppHelpers::readScData() {
    std::string scFile = m_pars["Spacecraft_file"];
    st_facilities::Util::file_ok(scFile);
    long scHdu = m_pars["Spacecraft_file_hdu"];
-   std::vector<std::string> scFiles;
-   st_facilities::Util::resolve_fits_files(scFile, scFiles);
-   std::vector<std::string>::const_iterator scIt = scFiles.begin();
-   for ( ; scIt != scFiles.end(); scIt++) {
+   st_facilities::Util::resolve_fits_files(scFile, m_scFiles);
+   std::vector<std::string>::const_iterator scIt = m_scFiles.begin();
+   for ( ; scIt != m_scFiles.end(); scIt++) {
       st_facilities::Util::file_ok(*scIt);
       ScData::readData(*scIt, scHdu);
    }
