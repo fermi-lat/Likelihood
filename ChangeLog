@@ -1,4 +1,24 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  6 13:52:12 PDT 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx AbsEdge.h DiffuseSource.cxx ExposureMap.cxx 
+	Gaussian.cxx Gaussian.h Npred.cxx PointSource.cxx PowerLaw.cxx 
+	PowerLaw.h SkyDirFunction.cxx SourceFactory.cxx 
+	SourceModel.cxx SpatialMap.cxx SpectrumFactory.cxx 
+	TrapQuad.cxx logLike_ptsrc.cxx logLike_ptsrc.h logSrcModel.cxx 
+Removed Files:
+	CompositeFunction.cxx Drmngb.cxx Function.cxx FunctionTest.cxx 
+	Lbfgs.cxx Mcmc.cxx Minuit.cxx MyFun.cxx MyFun.h OptPP.cxx 
+	OptPP.h Parameter.cxx ProductFunction.cxx Rosen.cxx Rosen.h 
+	Statistic.cxx SumFunction.cxx dpptri-blas.c dpptri.c 
+	drmngb_routines.c intrac.c lbfgs_routines.c logLike_gauss.cxx 
+	logLike_gauss.h minuit_routines.c 
+Log Message:
+use optimizers package
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  6 13:52:06 PDT 2003
 Likelihood/cmt
 
