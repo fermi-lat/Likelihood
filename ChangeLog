@@ -1,4 +1,21 @@
 ------------------------------------------------------------
+User: jchiang  Sun Mar 16 13:53:27 PST 2003
+Likelihood/src
+
+Modified Files:
+	Event.cxx Function.cxx Gaussian.cxx Gaussian.h MyFun.cxx 
+	MyFun.h Parameter.cxx PointSource.cxx PowerLaw.cxx PowerLaw.h 
+	RoiCuts.cxx SourceModel.cxx Statistic.cxx Table.cxx 
+	TrapQuad.cxx lbfgs.cxx lbfgs.h logLike_gauss.cxx 
+	logLike_gauss.h logLike_ptsrc.cxx logLike_ptsrc.h 
+	logSrcModel.cxx 
+Added Files:
+	CompositeFunction.cxx ProductFunction.cxx Rosen.cxx Rosen.h 
+	SumFunction.cxx 
+Log Message:
+sync changes w/ Toby's, add CompositeFunction hierarchy, Rosenbrock test function
+    *
+------------------------------------------------------------
 User: jchiang  Sun Mar 16 13:53:26 PST 2003
 Likelihood/Likelihood
 
