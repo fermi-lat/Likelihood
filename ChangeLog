@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri May  2 16:19:00 PDT 2003
+Likelihood/src/test/Data
+
+Added Files:
+	diffuse_test_4_0000 diffuse_test_4_sc_0000 
+	exp_diffuse_test_4_new.fits 
+Log Message:
+add more test data to exercise Lbfgs
+    *
+------------------------------------------------------------
 User: jchiang  Fri May  2 16:02:36 PDT 2003
 Likelihood/cmt
 
