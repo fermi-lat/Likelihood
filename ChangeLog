@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar  4 09:45:33 PST 2003
+Likelihood/src
+
+Modified Files:
+	Function.cxx Gaussian.cxx Gaussian.h MyFun.cxx MyFun.h 
+	PointSource.cxx PowerLaw.cxx PowerLaw.h Response.cxx 
+	RoiCuts.cxx ScData.cxx SkyDirFunction.cxx SourceModel.cxx 
+	Statistic.cxx logLike_gauss.cxx logLike_gauss.h 
+	logLike_ptsrc.cxx logLike_ptsrc.h 
+Log Message:
+add Arg class, modifying Function, etc.
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar  4 09:45:32 PST 2003
 Likelihood/cmt
 
