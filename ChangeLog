@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep  9 17:04:25 PDT 2003
+Likelihood/src
+
+Modified Files:
+	logLike_ptsrc.cxx logLike_ptsrc.h 
+Log Message:
+fix memory leak in logLike_ptsrc
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep  9 17:04:24 PDT 2003
 Likelihood/Likelihood
 
