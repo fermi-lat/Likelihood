@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun 19 13:16:32 PDT 2003
+Likelihood/src
+
+Modified Files:
+	SourceFactory.cxx SourceModel.cxx 
+Log Message:
+Un-nest exception classes to allow for wrapping by SWIG;
+change throw specifications.
+
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun 19 13:16:05 PDT 2003
 Likelihood/Likelihood
 
