@@ -3,19 +3,18 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.4 2004/04/05 22:01:57 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.5 2004/04/06 22:19:06 jchiang Exp $
  */
 
 #include <sstream>
 
 #include "tip/IFileSvc.h"
-#include "st_app/IApp.h"
-#include "hoops/hoops_prompt_group.h"
 
 #include "map_tools/ExposureHyperCube.h"
 
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/LikeExposure.h"
+#include "Likelihood/StApp.h"
 
 /**
  * @class ExposureCube
@@ -24,7 +23,7 @@
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.5 2004/04/06 22:19:06 jchiang Exp $
  */
 class ExposureCube {
 public:
@@ -40,23 +39,7 @@ private:
    void addRoiHistory(map_tools::ExposureHyperCube & cube);
 };
 
-/**
- * @class app
- * @brief Class (and object declaration) of boiler-plate code expected 
- * by st_app.
- */
-class app : public st_app::IApp {
-public:
-   app() : st_app::IApp("makeExposureCube") {}
-   virtual ~app() throw() {}
-   virtual void run() {
-      hoopsPrompt();
-      hoopsSave();
-      hoops::IParGroup & pars = hoopsGetParGroup();
-      ExposureCube my_cube(pars);
-      my_cube.run();
-   }
-} my_app;
+Likelihood::StApp<ExposureCube> my_application("makeExposureCube");
 
 void ExposureCube::run() {
    createDataCube();

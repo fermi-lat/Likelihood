@@ -4,16 +4,13 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.2 2004/04/06 01:17:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.3 2004/04/06 22:19:03 jchiang Exp $
  */
 
 #include <cmath>
 #include <cstring>
 
 #include "fitsio.h"
-
-#include "st_app/IApp.h"
-#include "hoops/hoops_prompt_group.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/Drmngb.h"
@@ -23,6 +20,7 @@
 #include "Likelihood/AppBase.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Util.h"
+#include "Likelihood/StApp.h"
 
 using namespace Likelihood;
 
@@ -33,7 +31,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.3 2004/04/06 22:19:03 jchiang Exp $
  */
 class TsMap : public AppBase {
 public:
@@ -70,22 +68,7 @@ private:
    void setPointSourceSpectrum(PointSource &src);
 };
 
-/**
- * @class app
- * @brief Class (and object declaration) of boiler-plate code expected 
- * by st_app.
- */
-class app : public st_app::IApp {
-public:
-   app() : st_app::IApp("TsMap") {}
-   virtual void run() {
-      hoopsPrompt();
-      hoopsSave();
-      hoops::IParGroup & pars = hoopsGetParGroup();
-      TsMap tsMap(pars);
-      tsMap.run();
-   }
-} my_app;
+StApp<TsMap> my_application("TsMap");
 
 void TsMap::run() {
    readExposureMap();

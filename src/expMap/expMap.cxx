@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.3 2004/04/06 01:17:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.4 2004/04/06 22:19:05 jchiang Exp $
  */
 
 #include <cmath>
@@ -12,14 +12,12 @@
 
 #include <stdexcept>
 
-#include "st_app/IApp.h"
-#include "hoops/hoops_prompt_group.h"
-
 #include "Likelihood/AppBase.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/Util.h"
+#include "Likelihood/StApp.h"
 
 using namespace Likelihood;
 
@@ -30,7 +28,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.4 2004/04/06 22:19:05 jchiang Exp $
  */
 class ExpMap : public AppBase {
 public:
@@ -43,22 +41,7 @@ private:
    void createExposureMap();
 };
 
-/**
- * @class app
- * @brief Class (and object declaration) of boiler-plate code expected 
- * by st_app.
- */
-class app : public st_app::IApp {
-public:
-   app() : st_app::IApp("expMap") {}
-   virtual void run() {
-      hoopsPrompt();
-      hoopsSave();
-      hoops::IParGroup & pars = hoopsGetParGroup();
-      ExpMap expMapObject(pars);
-      expMapObject.run();
-   }
-} my_app;
+StApp<ExpMap> my_application("expMap");
 
 void ExpMap::run() {
    setSourceRegion();
