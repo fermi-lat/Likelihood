@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.26 2004/08/05 05:28:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.27 2004/08/05 23:06:01 jchiang Exp $
  */
 
 #include <cmath>
@@ -106,13 +106,14 @@ void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs,
                                     double sr_radius) {
    std::cerr << "Computing Event responses for the DiffuseSources";
    for (unsigned int i = 0; i < m_events.size(); i++) {
-      if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
+      if (m_events.size() > 20 &&
+          (i % (m_events.size()/20)) == 0) std::cerr << ".";
       m_events[i].computeResponse(srcs, sr_radius);
-      if (i < 10) {
-         std::ostringstream filename;
-         filename << "diffuse_response_" << i << ".dat";
-         m_events[i].writeDiffuseResponses(filename.str());
-      }
+//       if (i < 10) {
+//          std::ostringstream filename;
+//          filename << "diffuse_response_" << i << ".dat";
+//          m_events[i].writeDiffuseResponses(filename.str());
+//       }
    }
    std::cerr << "!" << std::endl;
 // // Write out the diffuse responses.

@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.35 2004/08/05 05:28:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.36 2004/08/05 23:23:27 jchiang Exp $
  */
 
 #include <cassert>
@@ -57,7 +57,8 @@ Event::Event(double ra, double dec, double energy,
 // For <15% energy resolution, consider true energies over the range
 // (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
 // apparent energy.
-      int npts(100);
+//       int npts(100);
+      int npts(30);
       double emin = 0.55*m_energy;
       double emax = 1.45*m_energy;
       m_estep = (emax - emin)/(npts-1.);
@@ -192,6 +193,36 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
          m_respDiffuseSrcs[name].push_back(muQuad.integral());
       }
    } // loop over trueEnergy
+// // Compute the Gaussian params to check validity of response.
+//    for (unsigned int k = 0; k < srcs.size(); k++) {
+//       std::string name = srcs[k]->getName();
+//       double norm, mean, sigma;
+//       computeGaussianParams(name, norm, mean, sigma);
+//    }
+}
+
+void Event::computeGaussianParams(const std::string & name,
+                                  double &norm, double &mean, 
+                                  double &sigma) const {
+   norm = 0;
+   double eavg(0);
+   double e2avg(0);
+   const std::vector<double> & resp = diffuseResponse(name);
+   for (unsigned int i = 0; i < m_trueEnergies.size() - 1; i++) {
+      double deltaE = (m_trueEnergies[i+1] - m_trueEnergies[i]);
+      norm += deltaE*(resp[i] + resp[i+1])/2.;
+      eavg += deltaE*(m_trueEnergies[i]*resp[i] 
+                      + m_trueEnergies[i+1]*resp[i+1])/2.;
+      e2avg += deltaE*(m_trueEnergies[i]*m_trueEnergies[i]*resp[i] 
+                       + m_trueEnergies[i+1]*m_trueEnergies[i+1]*resp[i+1])/2.;
+   }
+   if (norm <= 0) {    // should never happen...
+      mean = m_energy;
+      sigma = m_energy/10.;
+   } else {
+      mean = eavg/norm;
+      sigma = sqrt(e2avg/norm - mean*mean);
+   }
 }
 
 void Event::writeDiffuseResponses(const std::string & filename) {

@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.27 2004/08/05 00:14:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.28 2004/08/05 05:28:27 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.27 2004/08/05 00:14:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.28 2004/08/05 05:28:27 jchiang Exp $
  */
 
 class Event {
@@ -104,6 +104,9 @@ public:
 
    /// Direct access to diffuse responses.
    const std::vector<double> & diffuseResponse(std::string name) const;
+
+   void computeGaussianParams(const std::string & name, double & norm, 
+                              double & mean, double & sigma) const;
    
 private:
 
