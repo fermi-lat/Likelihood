@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov  7 17:24:45 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	TsMap.cxx likelihood.cxx main.cxx 
+Added Files:
+	expMap.cxx 
+Log Message:
+add expMap app; tests for OptEM
+    *
+------------------------------------------------------------
 User: jchiang  Fri Nov  7 17:24:44 PST 2003
 Likelihood/src
 
