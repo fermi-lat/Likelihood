@@ -1,0 +1,25 @@
+<!ELEMENT source_library ((source)+ | (source_library)*) >
+<!ATTLIST source_library 
+          title CDATA #REQUIRED 
+          function_library CDATA #REQUIRED >
+<!ELEMENT source (spectrum, spatialModel) >
+<!ATTLIST source
+          name       CDATA   #REQUIRED 
+          type       CDATA   #REQUIRED >
+<!ELEMENT spectrum (parameter*) >
+<!ATTLIST spectrum 
+          type       CDATA   #REQUIRED 
+          file       CDATA   " " >
+<!ELEMENT spatialModel (parameter*) >
+<!ATTLIST spatialModel
+          type       CDATA   #REQUIRED 
+          file       CDATA   " " >
+<!ELEMENT parameter EMPTY >
+<!ATTLIST parameter 
+          name       CDATA   #REQUIRED 
+          value      CDATA   #REQUIRED 
+	  unit       CDATA   " "
+	  min        CDATA   #REQUIRED 
+	  max        CDATA   #REQUIRED 
+	  free       CDATA   #REQUIRED 
+	  scale      CDATA   #REQUIRED >

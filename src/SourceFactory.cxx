@@ -5,14 +5,21 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.18 2003/07/21 22:14:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.19 2003/08/06 20:52:08 jchiang Exp $
  */
 
-#include <cassert>
 #include <sstream>
 
-#include "optimizers/Exception.h"
+#include "xml/XmlParser.h"
+#include "xml/Dom.h"
+#include <xercesc/dom/DOM_Element.hpp>
+#include <xercesc/dom/DOM_NodeList.hpp>
 
+#include "optimizers/Exception.h"
+#include "optimizers/Dom.h"
+#include "optimizers/FunctionFactory.h"
+
+#include "Likelihood/Exception.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/SpatialMap.h"
@@ -20,100 +27,23 @@
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
 
+namespace {
+
+std::string rootPath() {
+   std::string root_path;
+   char *root = ::getenv("LIKELIHOODROOT");
+   if (!root) {
+      return std::string("..");
+   } else {
+      return std::string(root);
+   }
+}
+
+} // unnamed namespace
+
 namespace Likelihood {
 
 SourceFactory::SourceFactory() {
-// Add a PointSource modeled by a PowerLaw as the default
-
-// Note that the default constructor is used here, which means that
-// exposure will not be computed.  A setDir(ra, dec, [true]) will
-// cause the exposure to be computed and thus requires prior
-// specification of the ROI cuts and spacecraft data.
-   PointSource ptsrc;
-
-// Add a nominal PowerLaw spectrum.  Note that one needs to reset the
-// Parameters from the default and add sensible bounds.
-   SpectrumFactory specFactory;
-   optimizers::Function *powerLaw = specFactory.makeFunction("PowerLaw");
-
-// Use a nominal Parameter set for now with Prefactor = 10 (assuming a
-// scaling of 1e-9, set below), Index = -2, and Scale = 100 (MeV).
-// Set the bounds here as well. 
-   std::vector<optimizers::Parameter> params;
-   powerLaw->getParams(params);
-   params[0].setValue(10);            // Prefactor
-   params[0].setScale(1e-9);
-   params[0].setBounds(1e-3, 1e3);
-   params[1].setValue(-2);            // Index
-   params[1].setBounds(-3.5, -1);
-   params[2].setValue(100);           // Scale (this is fixed by default)
-   powerLaw->setParams(params);
-
-   ptsrc.setSpectrum(powerLaw);
-
-   addSource("PointSource", &ptsrc, true);
-
-// Add the map-based Galactic Diffuse Emission model;
-// assume that the FITS file is available in a standard place...
-   std::string galfile;
-   const char * root = ::getenv("LIKELIHOODROOT");
-   if (!root) {  //use relative path from cmt directory
-      galfile = "../src/test/Data/gas.cel";
-   } else {
-      galfile = std::string(root) + "/src/test/Data/gas.cel";
-   }
-   SpatialMap galacticModel(galfile);
-   galacticModel.setParam("Prefactor", 1.1*pow(100., 1.1));
-
-   try {
-      DiffuseSource ourGalaxy(&galacticModel);
-      ourGalaxy.setName("Milky Way");
-
-// Provide ourGalaxy with a power-law spectrum.
-      PowerLaw gal_pl(pow(100., -2.1), -2.1, 100.);
-      gal_pl.setName("gal_pl");
-      gal_pl.setParamScale("Prefactor", 1e-5);
-      gal_pl.setParamTrueValue("Prefactor", pow(100., -2.1));
-      gal_pl.setParamBounds("Prefactor", 1e-3, 1e3);
-      gal_pl.setParamBounds("Index", -3.5, -1);
-
-      ourGalaxy.setSpectrum(&gal_pl);
-
-      addSource("Milky Way", &ourGalaxy, true);
-   } catch (optimizers::ParameterNotFound &eObj) {
-      std::cerr << eObj.what() << std::endl;
-      throw;
-   } catch (optimizers::Exception &likeException) {
-      std::cerr << "Likelihood::SourceFactory: "
-                << "Cannot create DiffuseSource Milkyway.\n"
-                << likeException.what() << std::endl;
-   }
-
-// Add an extragalactic diffuse component.
-   ConstantValue egNorm(1.);
-   egNorm.setParam("Value", 1., false);   // fix to unity
-
-   try {
-      DiffuseSource extragalactic(&egNorm);
-      extragalactic.setName("EG component");
-
-      PowerLaw eg_pl(2.09e-3*pow(100., -2.1), -2.1, 100.);
-      eg_pl.setName("eg_pl");
-      eg_pl.setParamScale("Prefactor", 1e-7);
-      eg_pl.setParamTrueValue("Prefactor", 2.09e-3*pow(100., -2.1));
-      eg_pl.setParamBounds("Prefactor", 1e-5, 1e2);
-      eg_pl.setParamBounds("Index", -3.5, -1);
-      extragalactic.setSpectrum(&eg_pl);
-
-      addSource("EG component", &extragalactic, true);
-   } catch (optimizers::ParameterNotFound &eObj) {
-      std::cerr << eObj.what() << std::endl;
-      throw;
-   } catch (optimizers::Exception &likeException) {
-      std::cerr << "Likelihood::SourceFactory: "
-                << "Cannot create DiffuseSource EG component.\n"
-                << likeException.what() << std::endl;
-   }
 }
 
 SourceFactory::~SourceFactory() {
@@ -122,9 +52,20 @@ SourceFactory::~SourceFactory() {
       delete it->second;
 }
 
+Source *SourceFactory::create(const std::string &name) throw(Exception) {
+   if (!m_prototypes.count(name)) {
+      std::ostringstream errorMessage;
+      errorMessage << "SourceFactory::create: "
+                   << "Cannot create Source named "
+                   << name << ".\n";
+      throw Exception(errorMessage.str());
+   }
+   return m_prototypes[name]->clone();
+}
+
 void SourceFactory::addSource(const std::string &name, Source* src, 
                               bool fromClone) 
-   throw(optimizers::Exception) {
+   throw(Exception) {
    if (!m_prototypes.count(name)) {
       if (fromClone) {
          m_prototypes[name] = src->clone();
@@ -135,7 +76,7 @@ void SourceFactory::addSource(const std::string &name, Source* src,
       std::ostringstream errorMessage;
       errorMessage << "SourceFactory::addSource: A Source named "
                    << name << " already exists.\n";
-      throw optimizers::Exception(errorMessage.str());
+      throw Exception(errorMessage.str());
    }
 }
 
@@ -155,9 +96,79 @@ void SourceFactory::replaceSource(Source* src, bool fromClone) {
    }
 }
 
-Source *SourceFactory::makeSource(const std::string &name) {
-   assert(m_prototypes.count(name));
-   return m_prototypes[name]->clone();
+void SourceFactory::readXml(const std::string &xmlFile,
+                            optimizers::FunctionFactory &funcFactory)
+   throw(Exception) {
+
+   xml::XmlParser *parser = new xml::XmlParser();
+
+   DOM_Document doc = parser->parse(xmlFile.c_str());
+
+   if (doc == 0) { // xml file not parsed successfully
+      std::ostringstream errorMessage;
+      errorMessage << "SourceFactory::readXml: "
+                   << "Input xml file, " << xmlFile 
+                   << " not parsed successfully.\n";
+      throw Exception(errorMessage.str());
+   }
+
+   DOM_Element source_library = doc.getDocumentElement();
+   optimizers::Dom::checkTag(source_library, "source_library", 
+                             "SourceFactory::readXml");
+
+// Prepare the FunctionFactory object using the xml file specified in
+// the source_library tag.
+   std::string function_library 
+      = xml::Dom::getAttribute(source_library, "function_library");
+   function_library = ::rootPath() + "/xml/" + function_library;
+   try {
+      funcFactory.readXml(function_library);
+   } catch(optimizers::Exception &eObj) {
+// Rethrow as a Likelihood::Exception.
+      throw Exception(eObj.what());
+   }
+
+// Loop through source elements, adding each as a Source object prototype.
+   std::vector<DOM_Element> srcs;
+   optimizers::Dom::getElements(source_library, "source", srcs);
+   std::vector<DOM_Element>::const_iterator srcIt = srcs.begin();
+   for ( ; srcIt != srcs.end(); srcIt++) {
+
+// Get the type of this source which is either PointSource or
+// DiffuseSource (CompositeSource pending)...
+      std::string srcType = xml::Dom::getAttribute(*srcIt, "type");
+// and its name.
+      std::string srcName = xml::Dom::getAttribute(*srcIt, "name");
+
+      std::cout << "Creating source named "
+                << srcName << std::endl;
+
+// Retrieve the spectrum and spatialModel elements (there should only
+// be one of each).
+      std::vector<DOM_Element> child;
+
+      optimizers::Dom::getElements(*srcIt, "spectrum", child);
+      DOM_Element spectrum = child[0];
+
+      optimizers::Dom::getElements(*srcIt, "spatialModel", child);
+      DOM_Element spatialModel = child[0];
+
+// The processing logic for the spatialModel depends on the source
+// type, so we must consider each case individually:
+      Source *src;
+      if (srcType == "PointSource") {
+         src = makePointSource(spectrum, spatialModel, funcFactory);
+      } else if (srcType == "DiffuseSource") {
+         src = makeDiffuseSource(spectrum, spatialModel, funcFactory);
+      }
+
+// Add the source to the vector of prototypes.
+      if (src != 0) {
+         addSource(srcName, src);
+         delete src;
+      }
+   }
+   delete parser;
 }
 
 void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
@@ -165,6 +176,99 @@ void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
    std::map<std::string, Source *>::const_iterator it = m_prototypes.begin();
    for (; it != m_prototypes.end(); it++)
       srcNames.push_back(it->first);
+}
+
+Source * SourceFactory::makePointSource(const DOM_Element &spectrum, 
+                                        const DOM_Element &spatialModel,
+                                        optimizers::FunctionFactory 
+                                        &funcFactory) {
+   std::string funcType = xml::Dom::getAttribute(spatialModel, "type");
+   if (funcType != "SkyDirFunction") {
+      std::ostringstream errorMessage;
+      errorMessage << "SourceFactory::readXml: "
+                   << "Trying to create a PointSource with "
+                   << "a spatialModel of type "
+                   << funcType << "." << std::endl;
+      throw Exception(errorMessage.str());
+   }
+// For v1r0 and prior versions, setting the direction of the 
+// PointSource object forces the exposure to be calculated and
+// so requires the ROI cuts and spacecraft data to have been
+// specified.  *If* this is desired behavior, then some checks
+// should be made and perhaps exceptions thrown if the ROI and
+// spacecraft info are not available.
+//
+// Extract the (RA, Dec) from the parameter elements.
+   double ra, dec;
+   std::vector<DOM_Element> params;
+   optimizers::Dom::getElements(spatialModel, "parameter", params);
+   std::vector<DOM_Element>::const_iterator paramIt = params.begin();
+   for ( ; paramIt != params.end(); paramIt++) {
+      std::string name = xml::Dom::getAttribute(*paramIt, "name");
+      if (name == "RA") 
+         ra = ::atof( xml::Dom::getAttribute(*paramIt, "value").c_str() );
+      if (name == "DEC") 
+         dec = ::atof( xml::Dom::getAttribute(*paramIt, "value").c_str() );
+   }
+
+   Source *src = new PointSource();
+   dynamic_cast<PointSource *>(src)->setDir(ra, dec);
+
+   try {
+      setSpectrum(src, spectrum, funcFactory);
+      return src;
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   } catch (Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   } catch (...) {
+      std::cerr << "other exception from setSpectrum" << std::endl;
+   }
+   return 0;
+}
+
+Source * SourceFactory::makeDiffuseSource(const DOM_Element &spectrum, 
+                                          const DOM_Element &spatialModel,
+                                          optimizers::FunctionFactory 
+                                          &funcFactory) {
+   std::string type = xml::Dom::getAttribute(spatialModel, "type");
+   optimizers::Function *spatialDist = funcFactory.create(type);
+   if (type == "SpatialMap") {
+      std::string fitsFile 
+         = xml::Dom::getAttribute(spatialModel, "file");
+      fitsFile = ::rootPath() + "/src/test/Data/" + fitsFile;
+      dynamic_cast<SpatialMap *>(spatialDist)->readFitsFile(fitsFile);
+   }
+   Source *src;
+   try {
+      src = new DiffuseSource(spatialDist);
+      setSpectrum(src, spectrum, funcFactory);
+      return src;
+   } catch (optimizers::Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   } catch (Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
+   return 0;
+}
+
+void SourceFactory::setSpectrum(Source *src, const DOM_Element &spectrum, 
+                                optimizers::FunctionFactory &funcFactory) {
+   std::string type = xml::Dom::getAttribute(spectrum, "type");
+   optimizers::Function *spec = funcFactory.create(type);
+
+// Fetch the parameter elements (if any).
+   std::vector<DOM_Element> params;
+   optimizers::Dom::getElements(spectrum, "parameter", params);
+   if (params.size() > 0) {
+      std::vector<DOM_Element>::const_iterator paramIt = params.begin();
+      for ( ; paramIt != params.end(); paramIt++) {
+         optimizers::Parameter parameter;
+         optimizers::Dom::readParamData(*paramIt, parameter);
+         spec->setParam(parameter);
+      }
+   }  
+   src->setSpectrum(spec);
 }
 
 } // namespace Likelihood
