@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 17 14:57:13 PST 2004
+Likelihood/src
+
+Modified Files:
+	SConstruct SourceMap.cxx buildBase 
+Log Message:
+25% speedup in SourceMap calc for diffuse
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 17 14:57:11 PST 2004
 Likelihood/Likelihood
 
