@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Oct  9 07:00:30 PDT 2004
+Likelihood/pfiles
+
+Modified Files:
+	gtsrcmaps.par 
+Log Message:
+convert energy bounds read from CountsMap file to MeV
+    *
+------------------------------------------------------------
+User: jchiang  Sat Oct  9 07:00:30 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
