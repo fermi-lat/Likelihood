@@ -64,7 +64,7 @@ void test_logLike_ptsrc();
 void fit_3C279();
 void fit_anti_center();
 void test_CompositeFunction();
-void test_OptPP();
+void test_Optimizers();
 void test_SpectrumFactory();
 void test_SourceFactory();
 void test_FitsImage();
@@ -80,34 +80,35 @@ std::string test_path;
 
 int main() {
    read_SC_Response_data();
-   test_Parameter_class();
-   test_Function_class();
-   test_PowerLaw_class();
-   test_SourceModel_class();
-   test_Table_class();
-   test_Statistic_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_Aeff_class();
-   test_Psf_class();
-   test_logLike_ptsrc();
-   test_CompositeFunction();
-   test_SpectrumFactory();
-   test_SourceFactory();
-   test_OptPP();
-   fit_3C279();
-   fit_anti_center();
-   test_FitsImage();
-   test_ExposureMap();
-   test_SpatialMap();
-   test_DiffuseSource();
-   fit_DiffuseSource();
+//    test_Parameter_class();
+//    test_Function_class();
+//    test_PowerLaw_class();
+//    test_SourceModel_class();
+//    test_Table_class();
+//    test_Statistic_class();
+//    test_Event_class();
+//    test_PointSource_class();
+//    test_Aeff_class();
+//    test_Psf_class();
+//    test_logLike_ptsrc();
+//    test_CompositeFunction();
+//    test_SpectrumFactory();
+//    test_SourceFactory();
+//    test_Optimizers();
+//    fit_3C279();
+//    fit_anti_center();
+//    test_FitsImage();
+//    test_ExposureMap();
+//    test_SpatialMap();
+//    test_DiffuseSource();
+//    fit_DiffuseSource();
    test_Mcmc();
-   test_cfitsio();
+//   test_cfitsio();
    return 0;
 }
 
 void test_cfitsio() {
+   std::cout << "*** test_cfitsio ***" << std::endl;
    std::string filename("cfitsio_test.fits");
    
 // use Mcmc static method to write a test FITS binary file
@@ -135,9 +136,11 @@ void test_cfitsio() {
       }
       std::cout << std::endl;
    }
+   std::cout << "*** test_cfitsio: all tests completed ***\n" << std::endl;
 }
 
 void test_Mcmc() {
+   std::cout << "*** test_Mcmc ***" << std::endl;
 
    Rosen my_rosen;
 
@@ -225,9 +228,13 @@ void test_Mcmc() {
       std::cout << eObj.what() << std::endl;
    }
 
+   std::cout << "*** test_Mcmc: all tests completed ***\n" << std::endl;
+
 } // test_Mcmc
 
 void fit_DiffuseSource() {
+   std::cout << "*** fit_DiffuseSource ***" << std::endl;
+
 // center the ROI on the Galactic Center
 //     double ra0 = 266.404;
 //     double dec0 = -28.9364;
@@ -351,9 +358,15 @@ void fit_DiffuseSource() {
    print_fit_results(logLike);
 #endif //HAVE_OPT_MINUIT
 
+   std::cout << "*** fit_DiffuseSource: all tests completed ***\n" 
+             << std::endl;
+
 } // fit_DiffuseSource
 
 void test_DiffuseSource() {
+
+   std::cout << "*** test_DiffuseSource ***" << std::endl;
+
 // center the ROI on the Galactic Center
 //     double ra0 = 266.404;
 //     double dec0 = -28.9364;
@@ -406,10 +419,15 @@ void test_DiffuseSource() {
                 << std::endl;
    }
 
+   std::cout << "*** test_DiffuseSource: all tests completed ***\n" 
+             << std::endl;
+
 } // test_DiffuseSource
 
 void test_SpatialMap() {
-   
+
+   std::cout << "*** test_SpatialMap ***" << std::endl;
+
    std::string fitsfile = test_path + "Data/gas.cel";
    SpatialMap my_map(fitsfile);
 
@@ -426,9 +444,13 @@ void test_SpatialMap() {
                 << my_map(sArg) << std::endl;
    }
 
+   std::cout << "*** test_SpatialMap: all tests completed ***\n" << std::endl;
+
 } // test_SpatialMap
 
 void test_ExposureMap() {
+   std::cout << "*** test_ExposureMap ***" << std::endl;
+
    std::string fitsfile = test_path + "Data/test.fits";
    ExposureMap::readExposureFile(fitsfile);
 
@@ -450,9 +472,13 @@ void test_ExposureMap() {
       std::cout << std::endl;
    }
 
+   std::cout << "*** test_ExposureMap: all tests completed ***\n" << std::endl;
+
 } // test_ExposureMap
 
 void test_FitsImage() {
+
+   std::cout << "*** test_FitsImage ***" << std::endl;
 
 //   std::string fitsfile = test_path + "Data/anti_center_exposure.fits";
    std::string fitsfile = test_path + "Data/test.fits";
@@ -506,9 +532,14 @@ void test_FitsImage() {
    } 
    catch (...) {
    }
+
+   std::cout << "*** test_FitsImage: all tests completed ***\n" << std::endl;
+   
 } // test_FitsImage
 
 void test_SourceFactory() {
+
+   std::cout << "*** test_SourceFactory ***" << std::endl;
 
 // set the ROI cuts
    RoiCuts::setCuts(83.57, 22.01, 20.);
@@ -626,13 +657,17 @@ void test_SourceFactory() {
          std::cout << parameters[i].getName() << ": "
                    << parameters[i].getValue() << std::endl;
    }
+   std::cout << "*** test_SourceFactory: all tests completed ***\n" 
+             << std::endl;
 
 } // test_SourceFactory
 
 /*******************/
-/* Test OptPP code */
+/* Test Optimizers */
 /*******************/
-void test_OptPP() {
+void test_Optimizers() {
+   std::cout << "*** test_Optimizers ***" << std::endl;
+
 // Test the OptPP code using my standard 2D Rosenbrock test with
 // bounds constraints
    Rosen my_rosen;
@@ -694,10 +729,14 @@ void test_OptPP() {
    for (unsigned int i = 0; i < params.size(); i++) 
       std::cout << params[i].getName() << ": "
                 << params[i].getValue() << std::endl;
+
+   std::cout << "*** test_Optimizers: all tests completed ***\n" << std::endl;
 }
-// test_OptPP
+// test_Optimizers
 
 void test_SpectrumFactory() {
+
+   std::cout << "*** test_SpectrumFactory ***" << std::endl;
 
    SpectrumFactory myFactory;
 
@@ -768,9 +807,14 @@ void test_SpectrumFactory() {
                 << derivs[i]/num_deriv << "  "
                 << std::endl;
    }
+   std::cout << "*** test_SpectrumFactory: all tests completed ***\n" 
+             << std::endl;
+
 }  // test_SpectrumFactory
 
 void test_CompositeFunction() {
+
+   std::cout << "*** test_CompositeFunction ***" << std::endl;
 
 // add a PowerLaw and Gaussian together 
 
@@ -815,9 +859,15 @@ void test_CompositeFunction() {
                 << derivs[i]/num_deriv << "  "
                 << std::endl;
    }
+
+   std::cout << "*** test_CompositeFunction: all tests completed ***\n" 
+             << std::endl;
+
 }
 
 void fit_anti_center() {
+
+   std::cout << "*** fit_anti_center ***" << std::endl;
 
 // set the ROI cuts
    RoiCuts::setCuts(83.57, 22.01, 20.);
@@ -957,9 +1007,13 @@ void fit_anti_center() {
    for (unsigned int i = 0; i < parameters.size(); i++)
       std::cout << parameters[i].getName() << ": "
                 << parameters[i].getValue() << std::endl;
+
+   std::cout << "*** fit_anti_center: all tests completed ***\n" << std::endl;
 }
 
 void fit_3C279() {
+
+   std::cout << "*** fit_3C279 ***" << std::endl;
 
    double ra = 193.98;
    double dec = -5.82;
@@ -1044,12 +1098,16 @@ void fit_3C279() {
    for (unsigned int i = 0; i < parameters.size(); i++)
       std::cout << parameters[i].getName() << ": "
                 << parameters[i].getValue() << std::endl;
+
+   std::cout << "*** fit_3C279: all tests completed ***\n" << std::endl;
 }
 
 /***********************/
 /* logLike_ptsrc tests */
 /***********************/
 void test_logLike_ptsrc() {
+
+   std::cout << "*** test_logLike_ptsrc ***" << std::endl;
 
    double ra = 193.98;
    double dec = -5.82;
@@ -1111,6 +1169,10 @@ void test_logLike_ptsrc() {
       std::cout << params[j].getValue() << "  " 
                 << logLike(param_vals) << std::endl;
    }
+
+   std::cout << "*** test_logLike_ptsrc: all tests completed ***\n" 
+             << std::endl;
+
 }
 // logLike_ptsrc tests
 
@@ -1118,6 +1180,9 @@ void test_logLike_ptsrc() {
 /* Psf class tests */
 /********************/
 void test_Psf_class() {
+
+   std::cout << "*** test_Psf_class ***" << std::endl;
+
    Psf *psf = Psf::instance();
 
    int nenergy = 10;
@@ -1139,12 +1204,17 @@ void test_Psf_class() {
       }
       std::cout << std::endl;
    }
+   std::cout << "*** test_Psf_class: all tests completed ***\n" << std::endl;
+
 } // Psf class tests
 
 /********************/
 /* Aeff class tests */
 /********************/
 void test_Aeff_class() {
+
+   std::cout << "*** test_Aeff_class ***" << std::endl;
+
    Aeff *aeff = Aeff::instance();
 
    int nenergy = 10;
@@ -1162,12 +1232,17 @@ void test_Aeff_class() {
       std::cout << std::endl;
    }
    std::cout << std::endl;
+
+   std::cout << "*** test_Aeff_class: all tests completed ***\n" << std::endl;
+
 } // Aeff class tests
 
 /***************************/
 /* PointSource class tests */
 /***************************/
 void test_PointSource_class() {
+
+   std::cout << "*** test_PointSource_class ***" << std::endl;
 
 // set the ROI cuts
    RoiCuts::setCuts(193.98, -5.82, 30.);
@@ -1220,12 +1295,17 @@ void test_PointSource_class() {
       if (photon_flux > 0) std::cout << std::endl;
    }
 
+   std::cout << "*** test_PointSource_class: all tests completed ***\n" 
+             << std::endl;
+
 } // PointSource class tests
 
 /*********************/
 /* Event class tests */
 /*********************/
 void test_Event_class() {
+
+   std::cout << "*** test_Event_class ***" << std::endl;
 
 // read in the event data, then stuff them into an Event class vector
 
@@ -1292,12 +1372,18 @@ void test_Event_class() {
                 << std::endl;
    }
    std::cout << std::endl;
+
+   std::cout << "*** test_Event_class: all tests completed ***\n" << std::endl;
+
 } // Event class tests
 
 /*************************/
 /* Statistic class tests */
 /*************************/
 void test_Statistic_class() {
+
+   std::cout << "*** test_Statistic_class ***" << std::endl;
+   
    logLike_gauss logLike;
 
 /* Try to analyze data from a 1D Gaussian distribution using the new
@@ -1376,12 +1462,18 @@ void test_Statistic_class() {
       std::cout << params[j].getValue() << "  " 
                 << logLike(param_vals) << std::endl;
    }
+
+   std::cout << "*** test_Statistic_class: all tests completed ***\n" 
+             << std::endl;
+
 } // Statistic class tests
 
 /*********************/
 /* Table class tests */
 /*********************/
 void test_Table_class() {
+
+   std::cout << "*** test_Table_class ***" << std::endl;
 
 /* read in PSF parameters */
    std::string psf_file = test_path + "CALDB/psf_lat.fits";
@@ -1492,12 +1584,16 @@ void test_Table_class() {
    }
    std::cout << std::endl;
 
+   std::cout << "*** test_Table_class: all tests completed ***\n" << std::endl;
+
 } // Table class tests
 
 /***************************/
 /* SourceModel class tests */
 /***************************/
 void test_SourceModel_class() {
+
+   std::cout << "*** test_SourceModel_class ***" << std::endl;
    
    SourceModel SrcModel;
    bool computeExposure = false;
@@ -1540,7 +1636,7 @@ void test_SourceModel_class() {
    Geminga.setSpectrum(new PowerLaw(352.9, -1.66, 0.1));
    Geminga.setName("Geminga");
    SrcModel.addSource(&Geminga);
-
+   
 /* make its scale factor free (this could be made easier, e.g., by
    giving direct parameter access from PointSource) */
    Parameter param = SrcModel.getParam("Scale", "Spectrum", "Geminga");
@@ -1594,10 +1690,13 @@ void test_SourceModel_class() {
       std::cout << -num_deriv << std::endl;
 
 // reset the parameters for next time around
-     SrcModel.setFreeParamValues(params_save);
-     params = params_save;
-  }
-  std::cout << std::endl;
+      SrcModel.setFreeParamValues(params_save);
+      params = params_save;
+   }
+   std::cout << std::endl;
+
+   std::cout << "*** test_SourceModel_class: all tests completed ***\n" 
+             << std::endl;
 
 } // Source Model Class tests
 
@@ -1632,6 +1731,9 @@ void report_SrcModel_values(const SourceModel &SrcModel) {
 /* PowerLaw class tests */
 /************************/
 void test_PowerLaw_class() {
+
+   std::cout << "*** test_PowerLaw_class ***" << std::endl;
+
    PowerLaw pl;
 
 /* inspect the default parameters */
@@ -1742,13 +1844,17 @@ void test_PowerLaw_class() {
    }
    std::cout << std::endl;
 
+   std::cout << "*** test_PowerLaw_class: all tests completed ***\n" 
+             << std::endl;
+
 } // PowerLaw class tests
 
 /************************/
 /* Function class tests */
 /************************/
 void test_Function_class() {
-   std::cout << "Function classs tests:" << std::endl;
+
+   std::cout << "*** test_Function_class ***" << std::endl;
 
 // test constructor and addParam() method (see MyFun.cxx)
    MyFun f;
@@ -1886,7 +1992,8 @@ void test_Function_class() {
    for (unsigned int i = 0; i < args.size(); i++)
       delete args[i];
 
-   std::cout << "Function class: all tests ok." << std::endl;
+   std::cout << "*** test_Function_class: all tests passed ***\n" 
+             << std::endl;
       
 } // Function class (MyFun) tests
 
@@ -1894,7 +2001,9 @@ void test_Function_class() {
 /* Parameter class tests */
 /*************************/
 void test_Parameter_class() {
-   std::cout << "Parameter class tests: " << std::endl;
+
+   std::cout << "*** test_Parameter_class ***" << std::endl;
+
    std::vector<Parameter> my_params;
 
 // test for success
@@ -1960,7 +2069,9 @@ void test_Parameter_class() {
                 << "maxValue: " << eObj.maxValue() << "\n"
                 << std::endl;
    }
-   std::cout << "Parameter class: all tests ok.\n" << std::endl;
+
+   std::cout << "*** test_Parameter_class: all tests passed ***\n" 
+             << std::endl;
 
 } // Parameter class tests
 
