@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jan 29 08:01:46 PST 2005
+Likelihood/pfiles
+
+Modified Files:
+	expMap.par gtsrcmaps.par 
+Log Message:
+add swig build
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jan 29 08:01:45 PST 2005
 Likelihood/doc
 
