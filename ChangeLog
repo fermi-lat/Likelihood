@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan 10 10:10:39 PST 2005
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+refine unit test for binned analysis
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jan  6 18:44:22 PST 2005
 Likelihood/src/test
 
