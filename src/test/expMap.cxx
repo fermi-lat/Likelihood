@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.9 2004/02/27 02:14:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.10 2004/03/11 05:19:37 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -18,7 +18,8 @@
 
 #include "facilities/Util.h"
 
-#include "hoopsUtil/RunParams.h"
+#include "hoops/hoops.h"
+#include "hoops/hoops_prompt_group.h"
 
 #include "optimizers/Exception.h"
 
@@ -100,16 +101,17 @@ int main(int iargc, char* argv[]) {
 #endif
 
    try {
-      hoopsUtil::RunParams params(iargc, argv);
+      hoops::ParPromptGroup pars(iargc, argv);
+      pars.Prompt();
 
 // Set the region-of-interest.
-      std::string roiCutsFile = params.getParam<std::string>("ROI_cuts_file");
+      std::string roiCutsFile = pars["ROI_cuts_file"];
       ::file_ok(roiCutsFile);
       RoiCuts::setCuts(roiCutsFile);
 
 // Read in the pointing information.
-      std::string scFile = params.getParam<std::string>("Spacecraft_file");
-      long scHdu = params.getParam<long>("Spacecraft_file_hdu");
+      std::string scFile = pars["Spacecraft_file"];
+      long scHdu = pars["Spacecraft_file_hdu"];
       std::vector<std::string> scFiles;
       ::file_ok(scFile);
       ::resolve_fits_files(scFile, scFiles);
@@ -120,8 +122,7 @@ int main(int iargc, char* argv[]) {
       }
 
 // Create the response functions.
-      std::string responseFuncs 
-         = params.getParam<std::string>("Response_functions");
+      std::string responseFuncs = pars["Response_functions"];
 
       std::map< std::string, std::vector<std::string> > responseIds;
       responseIds["FRONT"].push_back("DC1::Front");
@@ -144,7 +145,7 @@ int main(int iargc, char* argv[]) {
 
 // Set the source region radius.  This should be larger than the
 // radius of the region-of-interest.
-      double sr_radius = params.getParam<double>("Source_region_radius");
+      double sr_radius = pars["Source_region_radius"];
       RoiCuts *roiCuts = RoiCuts::instance();
       if (sr_radius < roiCuts->extractionRegion().radius() + 10.) {
          std::cerr << "The radius of the source region, " << sr_radius 
@@ -155,27 +156,22 @@ int main(int iargc, char* argv[]) {
       }
 
 // Get the other map parameters.
-      long nlong = params.getParam<long>("number_of_longitude_points");
-      long nlat = params.getParam<long>("number_of_latitude_points");
-      long nenergies = params.getParam<long>("number_of_energies");
+      long nlong = pars["number_of_longitude_points"];
+      long nlat = pars["number_of_latitude_points"];
+      long nenergies = pars["number_of_energies"];
 
 // Exposure hypercube file.
-      std::string expCubeFile 
-         = params.getParam<std::string>("exposure_cube_file");
+      std::string expCubeFile = pars["exposure_cube_file"];
       if (expCubeFile != "none") {
          ::file_ok(expCubeFile);
          PointSource::readExposureCube(expCubeFile);
       }
       
 // Create the exposure map.
-      std::string exposureFile 
-         = params.getParam<std::string>("Exposure_map_file");
+      std::string exposureFile = pars["Exposure_map_file"];
       ExposureMap::computeMap(exposureFile, sr_radius, nlong, nlat, nenergies);
 
-   } catch (hoops::Hexception &eObj) {
-      std::cout << "HOOPS exception code: "
-                << eObj.Msg() << std::endl;
-   } catch (Exception &eObj) {
+   } catch (std::exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
 }

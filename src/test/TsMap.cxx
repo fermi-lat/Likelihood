@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.11 2004/01/30 02:28:30 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.12 2004/03/11 05:19:37 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -20,7 +20,8 @@
 
 #include "facilities/Util.h"
 
-#include "hoopsUtil/ParametersBase.h"
+#include "hoops/hoops.h"
+#include "hoops/hoops_prompt_group.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
@@ -112,56 +113,34 @@ void write_fits_file(const std::string &filename,
                      const std::string &coordSystem);
 void fitsReportError(FILE *stream, int status);
 
-class Parameters: public hoopsUtil::ParametersBase {
+class Parameters: public hoops::ParPromptGroup {
 public:
    Parameters(int iargc, char* argv[]) 
-      : hoopsUtil::ParametersBase(iargc, argv) {
-      m_roiFile = getValue<std::string>("ROI_cuts_file");
-      m_scFile = getValue<std::string>("Spacecraft_file");
-      m_scHdu = getValue<long>("Spacecraft_file_hdu");
-      m_expFile = getValue<std::string>("Exposure_map_file");
-      m_respFuncs = getValue<std::string>("Response_functions");
-      m_srcModelFile = getValue<std::string>("Source_model_file");
-      m_eventFile = getValue<std::string>("event_file");
-      m_eventHdu = getValue<long>("event_file_hdu");
-      m_optimizer = getValue<std::string>("optimizer");
-      m_verbosity = getValue<long>("fit_verbosity");
-      getValue<double>("fit_tolerance");
-      m_coordSys = getValue<std::string>("Coordinate_system");
-      getValue<double>("lonMax");
-      getValue<double>("lonMin");
-      m_nlon = getValue<long>("Number_of_longitude_points");
-      getValue<double>("latMax");
-      getValue<double>("latMin");
-      m_nlat = getValue<long>("Number_of_latitude_points");
-      m_outfile = getValue<std::string>("TS_map_file");
+      : hoops::ParPromptGroup(iargc, argv) {
+      Prompt();
+      m_scHdu = (*this)["Spacecraft_file_hdu"];
+      m_eventHdu = (*this)["event_file_hdu"];
+      m_nlon = (*this)["Number_of_longitude_points"];
+      m_nlat = (*this)["Number_of_latitude_points"];
    }
-   const std::string & roiFile() {return m_roiFile;}
-   const std::string & scFile() {return m_scFile;}
+   const std::string & roiFile() {return (*this)["ROI_cuts_file"];}
+   const std::string & scFile() {return (*this)["Spacecraft_file"];}
    long scHdu() {return m_scHdu;}
-   const std::string & expFile() {return m_expFile;}
-   const std::string & respFuncs() {return m_respFuncs;}
-   const std::string & srcModelFile() {return m_srcModelFile;}
-   const std::string & eventFile() {return m_eventFile;}
+   const std::string & expFile() {return (*this)["Exposure_map_file"];}
+   const std::string & respFuncs() {return (*this)["Response_functions"];}
+   const std::string & srcModelFile() {return (*this)["Source_model_file"];}
+   const std::string & eventFile() {return (*this)["event_file"];}
    long eventHdu() {return m_eventHdu;}
-   const std::string & optimizer() {return m_optimizer;}
+   const std::string & optimizer() {return (*this)["optimizer"];}
    long verbosity() {return m_verbosity;}
-   const std::string & coordSys() {return m_coordSys;}
+   const std::string & coordSys() {return (*this)["Coordinate_system"];}
    long nlon() {return m_nlon;}
    long nlat() {return m_nlat;}
-   const std::string & outfile() {return m_outfile;}
+   const std::string & outfile() {return (*this)["TS_map_file"];}
 private:
-   std::string m_roiFile;
-   std::string m_scFile;
    long m_scHdu;
-   std::string m_expFile;
-   std::string m_respFuncs;
-   std::string m_srcModelFile;
-   std::string m_eventFile;
    long m_eventHdu;
-   std::string m_optimizer;
    long m_verbosity;
-   std::string m_coordSys;
    long m_nlon;
    long m_nlat;
    std::string m_outfile;
@@ -169,7 +148,7 @@ private:
 
 int main(int iargc, char* argv[]) {
 
-   try {
+//   try {
       Parameters pars(iargc, argv);
 
 // Set the region-of-interest.
@@ -251,9 +230,11 @@ int main(int iargc, char* argv[]) {
 
 // Set map grid.
       std::vector<double> lonValues;
-      makeDoubleVector(pars["lonMin"], pars["lonMax"], pars.nlon(), lonValues);
+      makeDoubleVector(pars["Longitude_min"], pars["Longitude_max"], 
+                       pars.nlon(), lonValues);
       std::vector<double> latValues;
-      makeDoubleVector(pars["latMin"], pars["latMax"], pars.nlat(), latValues);
+      makeDoubleVector(pars["Latitude_min"], pars["Latitude_max"], 
+                       pars.nlat(), latValues);
       
       std::string srcName("testSource");
       optimizers::dArg dummy(1.);
@@ -298,12 +279,12 @@ int main(int iargc, char* argv[]) {
                       pars.coordSys());
       delete myOpt;
 
-   } catch (hoops::Hexception &eObj) {
-      std::cout << "HOOPS exception: "
-                << eObj.Msg() << std::endl;
-   } catch (std::exception &eObj) {
-      std::cout << eObj.what() << std::endl;
-   }
+//    } catch (hoops::Hexception &eObj) {
+//       std::cout << "HOOPS exception: "
+//                 << eObj.Msg() << std::endl;
+//    } catch (std::exception &eObj) {
+//       std::cout << eObj.what() << std::endl;
+//    }
 }
 
 void print_fit_results(SourceModel &stat) {
