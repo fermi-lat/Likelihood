@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Oct 26 17:13:52 PST 2003
+Likelihood/xml
+
+Modified Files:
+	RoiCuts.xml 
+Log Message:
+use latResponse::IrfsFactory
+    *
+------------------------------------------------------------
 User: jchiang  Sun Oct 26 17:13:51 PST 2003
 Likelihood/src/test
 
