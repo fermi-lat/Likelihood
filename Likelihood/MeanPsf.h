@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.5 2005/02/28 18:38:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.6 2005/03/01 22:53:03 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -40,7 +40,7 @@ public:
       init();
    }
 
-   MeanPsf() : m_observation(Observation()) {}
+//   MeanPsf() : m_observation(Observation()) {}
 
    /// @return The value of the psf.
    /// @param energy True photon energy (MeV)

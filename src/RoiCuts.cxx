@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.31 2005/03/01 01:06:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.32 2005/03/01 07:17:07 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -173,7 +173,8 @@ bool RoiCuts::accept(const Event &event) const {
       return s_cuts->accept(params);
    } else {
       bool acceptEvent = true;
-      
+
+/// @todo treat RangeCuts in time differently from GTIs.      
       for (unsigned int i = 0; i < s_timeCuts.size(); i++) {
          if (event.getArrTime() < s_timeCuts[i].first ||
              event.getArrTime() > s_timeCuts[i].second) {
