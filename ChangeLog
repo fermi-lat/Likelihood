@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 21 17:22:51 PST 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx AbsEdge.h CompositeFunction.cxx Function.cxx 
+	Gaussian.cxx Gaussian.h Parameter.cxx PowerLaw.cxx PowerLaw.h 
+	ProductFunction.cxx Rosen.cxx Source.cxx SourceFactory.cxx 
+	SourceModel.cxx SpectrumFactory.cxx SumFunction.cxx lbfgs.h 
+	logLike_gauss.h logLike_ptsrc.h mainpage.h 
+Log Message:
+implement destructors, clone methods
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar 21 17:22:50 PST 2003
 Likelihood/Likelihood
 
