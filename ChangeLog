@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 25 13:21:31 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	LikeExposure.h 
+Log Message:
+use swig's autodoc feature; move overlap calculation to public interface
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar 24 21:16:33 PST 2005
 Likelihood/src
 
