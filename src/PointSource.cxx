@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.33 2004/02/21 17:10:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.34 2004/02/23 22:17:33 jchiang Exp $
  */
 
 #include <vector>
@@ -187,7 +187,8 @@ void PointSource::computeExposure(std::vector<double> &energies,
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
       double inc = getSeparation(scData->vec[it].zAxis)*180/M_PI;
-      if (inc > latResponse::Glast25::incMax()) includeInterval = false;
+//       if (inc > latResponse::Glast25::incMax()) includeInterval = false;
+      if (inc > 90.) includeInterval = false;
 
 // Having checked for relevant constraints, add the exposure
 // contribution for each energy
