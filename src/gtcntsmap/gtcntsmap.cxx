@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.1 2004/10/11 17:41:42 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -19,7 +19,10 @@
 
 #include "st_facilities/Util.h"
 
+#include "Likelihood/AppHelpers.h"
 #include "Likelihood/CountsMap.h"
+
+#include "Verbosity.h"
 
 using namespace Likelihood;
 
@@ -30,6 +33,7 @@ public:
    virtual void run();
 private:
    st_app::AppParGroup & m_pars;
+   void checkOutputFile();
    void logArray(double xmin, double xmax, unsigned int nx,
                  std::vector<double> & xx) const;
 };
@@ -41,6 +45,7 @@ gtcntsmap::gtcntsmap() : st_app::StApp(),
    try {
       m_pars.Prompt();
       m_pars.Save();
+      Likelihood::Verbosity::instance(m_pars["chatter"]);
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
       std::exit(1);
@@ -52,11 +57,13 @@ gtcntsmap::gtcntsmap() : st_app::StApp(),
 }
 
 void gtcntsmap::run() {
-   std::string event_file = m_pars["event_file"];
+   Likelihood::AppHelpers::checkOutputFile(m_pars["clobber"], 
+                                           m_pars["outfile"]);
+   std::string event_file = m_pars["evfile"];
    std::vector<std::string> eventFiles;
    st_facilities::Util::resolve_fits_files(event_file, eventFiles);
 
-   std::string sc_file = m_pars["spacecraft_file"];
+   std::string sc_file = m_pars["scfile"];
    std::vector<std::string> scDataFiles;
    st_facilities::Util::resolve_fits_files(sc_file, scDataFiles);
 
@@ -83,7 +90,7 @@ void gtcntsmap::run() {
       cmap.binInput(events->begin(), events->end());
       delete events;
    }
-   std::string output_file = m_pars["output_file_name"];
+   std::string output_file = m_pars["outfile"];
    cmap.writeOutput("gtcntsmap", output_file);
 }
 

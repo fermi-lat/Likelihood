@@ -1,12 +1,12 @@
 # -*- python -*-
 import os
 from map import map
+
 package = 'Likelihood'
 home = os.environ[package.upper() + 'ROOT']
 apps = ['likelihood', 'makeExposureCube', 'expMap',
         'TsMap', 'diffuseResponses', 'gtcntsmap', 'gtsrcmaps']
-#OptPP_dir = '/home/jchiang/data/OPT++2.1'
-#OptPP_dir = '/scratch/jchiang/OPT++2.1'
+
 OptPP_dir = os.environ['OPTPP_DIR']
 
 libraries = map()
@@ -41,8 +41,8 @@ libraries['opt-linux'] = (os.path.join(OptPP_dir, 'include'),
 libraries['newmat-linux'] = (os.path.join(OptPP_dir, 'newmat09'),
                              os.path.join(OptPP_dir, 'lib'))
 
-#cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
-cflags = ' -DHAVE_OPT_PP -DHAVE_ST_GRAPH -rdynamic '
+cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
+#cflags = ' -DHAVE_OPT_PP -DHAVE_ST_GRAPH -rdynamic '
 linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'm', 'dl',
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'Gui']

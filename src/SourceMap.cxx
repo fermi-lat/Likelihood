@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.21 2004/11/13 15:49:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.22 2004/11/17 22:57:13 jchiang Exp $
  */
 
 #include <algorithm>
@@ -29,6 +29,8 @@
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/TrapQuad.h"
+
+#include "Verbosity.h"
 
 namespace {
    double my_acos(double mu) {
@@ -67,7 +69,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
    std::vector<double> energies;
    dataMap->getAxisVector(2, energies);
 
-   std::cerr << "Generating SourceMap for " << m_name;
+   if (print_output()) std::cerr << "Generating SourceMap for " << m_name;
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
    long icount(0);
@@ -85,7 +87,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
       std::vector<double>::const_iterator energy = energies.begin();
       for (int k = 0; energy != energies.end(); ++energy, k++) {
          unsigned long indx = k*pixels.size() + j;
-         if ((icount % (npts/20)) == 0) std::cerr << ".";
+         if (print_output() && (icount % (npts/20)) == 0) std::cerr << ".";
          double value(0);
          if (havePointSource) {
 /// @todo Ensure the desired event types are correctly included in this
@@ -95,7 +97,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
                value += ExposureCube::instance()->value(pixel->dir(), aeff);
             }
          } else if (haveDiffuseSource) {
-            value = sourceRegionIntegral(src, *energy);
+            value = sourceRegionIntegral(*energy);
          } else {
             value = 0;
          }
@@ -105,7 +107,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
          icount++;
       }
    }
-   std::cerr << "!" << std::endl;
+   if (print_output()) std::cerr << "!" << std::endl;
 }
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
@@ -186,8 +188,7 @@ double SourceMap::Aeff::operator()(double costheta) const {
 
 }
 
-double SourceMap::sourceRegionIntegral(Source * src, double energy) const {
-   DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
+double SourceMap::sourceRegionIntegral(double energy) const {
    std::vector<double> energies;
    m_dataMap->getAxisVector(2, energies);
    if (s_meanPsf == 0) {

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.8 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.9 2004/10/11 01:34:59 jchiang Exp $
  */
 
 #include <map>
@@ -46,13 +46,13 @@ void AppHelpers::prepareFunctionFactory() {
 }
 
 void AppHelpers::setRoi() {
-   std::string roiCutsFile = m_pars["ROI_cuts_file"];
+   std::string roiCutsFile = m_pars["ROI_file"];
    st_facilities::Util::file_ok(roiCutsFile);
    RoiCuts::setCuts(roiCutsFile);
 }
 
 void AppHelpers::readScData() {
-   std::string scFile = m_pars["Spacecraft_file"];
+   std::string scFile = m_pars["scfile"];
    st_facilities::Util::file_ok(scFile);
    st_facilities::Util::resolve_fits_files(scFile, m_scFiles);
    std::vector<std::string>::const_iterator scIt = m_scFiles.begin();
@@ -63,7 +63,7 @@ void AppHelpers::readScData() {
 }
 
 void AppHelpers::readExposureMap() {
-   std::string exposureFile = m_pars["Exposure_map_file"];
+   std::string exposureFile = m_pars["exposure_map_file"];
    if (exposureFile != "none") {
       st_facilities::Util::file_ok(exposureFile);
       ExposureMap::readExposureFile(exposureFile);
@@ -74,7 +74,7 @@ void AppHelpers::createResponseFuncs() {
    irfLoader::Loader::go();
    IrfsFactory * myFactory = IrfsFactory::instance();
 
-   std::string responseFuncs = m_pars["Response_functions"];
+   std::string responseFuncs = m_pars["rspfunc"];
 
    typedef std::map< std::string, std::vector<std::string> > respMap;
    const respMap & responseIds = irfLoader::Loader::respIds();
@@ -87,6 +87,18 @@ void AppHelpers::createResponseFuncs() {
    } else {
       throw std::invalid_argument("Invalid response function choice: "
                                   + responseFuncs);
+   }
+}
+
+void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
+   if (!clobber) {
+      if (st_facilities::Util::fileExists(file)) {
+         std::cout << "Output file " << file 
+                   << " already exists and you have set 'clobber' to 'no'.\n"
+                   << "Please provide a different output file name."
+                   << std::endl;
+         std::exit(1);
+      }
    }
 }
 

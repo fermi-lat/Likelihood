@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.9 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.10 2004/10/11 01:35:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -20,8 +20,8 @@
 #include "st_facilities/Util.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/ExposureCube.h"
 #include "Likelihood/ExposureMap.h"
-#include "Likelihood/PointSource.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 
@@ -34,7 +34,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.9 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.10 2004/10/11 01:35:00 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -83,7 +83,7 @@ void ExpMap::run() {
 }
 
 void ExpMap::setSourceRegion() {
-   m_srRadius = m_pars["Source_region_radius"];
+   m_srRadius = m_pars["source_region_radius"];
    RoiCuts *roiCuts = RoiCuts::instance();
    if (m_srRadius < roiCuts->extractionRegion().radius() + 10.) {
       std::cerr << "The radius of the source region, " << m_srRadius 
@@ -108,8 +108,8 @@ void ExpMap::createExposureMap() {
    std::string expCubeFile = m_pars["exposure_cube_file"];
    if (expCubeFile != "none") {
       st_facilities::Util::file_ok(expCubeFile);
-      PointSource::readExposureCube(expCubeFile);
+      ExposureCube::readExposureCube(expCubeFile);
    }
-   std::string exposureFile = m_pars["Exposure_map_file"];
+   std::string exposureFile = m_pars["outfile"];
    ExposureMap::computeMap(exposureFile, m_srRadius, nlong, nlat, nenergies);
 }

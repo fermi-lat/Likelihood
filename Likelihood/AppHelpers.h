@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.5 2004/10/30 02:46:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.6 2004/11/01 06:27:38 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.5 2004/10/30 02:46:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.6 2004/11/01 06:27:38 jchiang Exp $
  */
 
 class AppHelpers {
@@ -44,6 +44,12 @@ public:
    void readScData();
    void readExposureMap();
    void setRoi();
+
+   static void checkOutputFile(bool clobber, const std::string & filename);
+
+   void checkOutputFile() {
+      checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
+   }
 
    const std::vector<std::string> & scFiles() const {return m_scFiles;}
 

@@ -1,12 +1,19 @@
-event_file,fr,ql,"test_events_0000.fits",,,"event file"
-spacecraft_file,fr,ql,"test_scData_0000.fits",,,"spacecraft file"
-emin,r,ql,30,20,3e5,"minimum energy (MeV)"
-emax,r,ql,2e5,20,3e5,"maximum energy (MeV)"
-nenergies,i,ql,21,2,40,"number of energy bounds"
-ra,r,ql,86.4,0,360,"Right Ascension (or l) of map center (degrees)"
-dec,r,ql,28.9,-90,90,"Declination (or b) of map center (degrees)"
-nra,i,ql,160,2,,"number of longitude pixels"
-ndec,i,ql,160,2,,"number of latitude pixels"
-pixel_size,r,ql,0.25,1e-2,2,"pixel size (degrees)"
-use_lb,b,ql,no,,,"use Galactic coordinates"
-output_file_name,f,ql,"counts_map.fits",,,"output file name"
+evfile,fr,a,"test_events_0000.fits",,,"Event data file"
+evtable,s,hl,"EVENTS",,,"Event data extension"
+scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
+sctable,s,hl,"Ext1",,,"Spacecraft data extension"
+outfile,f,a,"countsMap.fits",,,"Output file name"
+emin,r,a,30,20,3e5,Minimum energy (MeV)
+emax,r,a,200000,20,3e5,Maximum energy (MeV)
+nenergies,i,a,21,2,40,Number of energy bounds
+ra,r,ql,86.4,0,360,Right Ascension of map center (degrees)
+dec,r,ql,28.9,-90,90,Declination of map center (degrees)
+nra,i,ql,160,2,,Number of longitude pixels
+ndec,i,ql,160,2,,Number of latitude pixels
+pixel_size,r,ql,0.25,1e-2,2,Pixel size (degrees)
+use_lb,b,h,no,,,"Use Galactic coordinates"
+
+chatter,i,h,2,0,4,Output verbosity
+clobber,        b, h, yes, , , "Overwrite existing output files"
+debug,          b, h, no, , , "Activate debugging mode"
+mode,           s, h, "ql", , , "Mode of automatic parameters"

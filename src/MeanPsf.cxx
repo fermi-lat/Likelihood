@@ -3,7 +3,7 @@
  * @brief Psf averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.7 2004/11/09 05:19:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.8 2004/11/17 00:02:20 jchiang Exp $
  */
 
 #include <algorithm>
@@ -17,6 +17,8 @@
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/ResponseFunctions.h"
+
+#include "Verbosity.h"
 
 namespace Likelihood {
 
@@ -114,10 +116,12 @@ double MeanPsf::Psf::operator()(double cosTheta) const {
             if (inclination > 69.) {  // ugly kluge
                return 0;
             }
-            std::cerr << "separation: " << m_separation << "  "
-                      << "energy: " << m_energy << "  "
-                      << "inclination: " <<inclination << "  "
-                      << "phi: " << s_phi << std::endl;
+            if (print_output(4)) {
+               std::cerr << "separation: " << m_separation << "  "
+                         << "energy: " << m_energy << "  "
+                         << "inclination: " <<inclination << "  "
+                         << "phi: " << s_phi << std::endl;
+            }
             throw std::runtime_error("MeanPsf::Psf::operator(): psf_val < 0");
          }
          return psf_val;

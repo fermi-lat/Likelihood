@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.30 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.31 2004/10/11 01:34:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -31,6 +31,8 @@
 #include "Likelihood/SrcArg.h"
 
 #include "Likelihood/LogLike.h"
+
+#include "Verbosity.h"
 
 namespace Likelihood {
 
@@ -90,19 +92,23 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
 
 void LogLike::computeEventResponses(Source &src, double sr_radius) {
    DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
-   std::cerr << "Computing Event responses for " << src.getName();
+   if (print_output()) {
+      std::cerr << "Computing Event responses for " << src.getName();
+   }
    for (unsigned int i = 0; i < m_events.size(); i++) {
-      if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
+      if (print_output() && (i % (m_events.size()/20)) == 0) std::cerr << ".";
       m_events[i].computeResponse(*diffuse_src, sr_radius);
    }
-   std::cerr << "!" << std::endl;
+   if (print_output()) std::cerr << "!" << std::endl;
 }
 
 void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs, 
                                     double sr_radius) {
-   std::cerr << "Computing Event responses for the DiffuseSources";
+   if (print_output()) {
+      std::cerr << "Computing Event responses for the DiffuseSources";
+   }
    for (unsigned int i = 0; i < m_events.size(); i++) {
-      if (m_events.size() > 20 &&
+      if (print_output() && m_events.size() > 20 &&
           (i % (m_events.size()/20)) == 0) std::cerr << ".";
       m_events[i].computeResponse(srcs, sr_radius);
 //       if (i < 10) {
@@ -111,7 +117,7 @@ void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs,
 //          m_events[i].writeDiffuseResponses(filename.str());
 //       }
    }
-   std::cerr << "!" << std::endl;
+   if (print_output()) std::cerr << "!" << std::endl;
 // // Write out the diffuse responses.
 //    std::ofstream outfile("diffuse_responses.dat");
 //    for (unsigned int i = 0; i < m_events.size(); i++) {
@@ -147,17 +153,15 @@ void LogLike::getEvents(std::string event_file) {
    ScData * scData = ScData::instance();
 
    if (!scData) {
-      std::cerr << "LogLike::getEvents: "
-                << "The spacecraft data must be read in first."
-                << std::endl;
-      assert(scData);
+      std::string message = std::string("LogLike::getEvents: ")
+         + "The spacecraft data must be read in first.";
+      throw std::runtime_error(message);
    }
 
    if (!roiCuts) {
-      std::cerr << "LogLike::getEvents: "
-                << "The region-of-interest data must be read in first."
-                << std::endl;
-      assert(roiCuts);
+      std::string message = std::string("LogLike::getEvents: ")
+         + "The region-of-interest data must be read in first.";
+      throw std::runtime_error(message);
    }
 
    unsigned int nTotal(0);
@@ -237,11 +241,13 @@ void LogLike::getEvents(std::string event_file) {
       }
    }
 
-   std::cerr << "LogLike::getEvents:\nOut of " 
-             << nTotal << " events in file "
-             << event_file << ",\n "
-             << nTotal - nReject << " were accepted, and "
-             << nReject << " were rejected.\n" << std::endl;
+   if (print_output()) {
+      std::cerr << "LogLike::getEvents:\nOut of " 
+                << nTotal << " events in file "
+                << event_file << ",\n "
+                << nTotal - nReject << " were accepted, and "
+                << nReject << " were rejected.\n" << std::endl;
+   }
 
    delete events;
 }

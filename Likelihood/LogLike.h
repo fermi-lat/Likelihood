@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.13 2004/06/09 23:19:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.14 2004/10/11 01:34:59 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.13 2004/06/09 23:19:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.14 2004/10/11 01:34:59 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -75,6 +75,10 @@ public:
    void computeEventResponses(double sr_radius = 30);
 
    unsigned long nEvents() const {return m_events.size();}
+
+   const std::vector<Event> & events() const {
+      return m_events;
+   }
 
 protected:
 

@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r4   27-Nov-04  JC   add binned likelihood to python builds;
+                           parameter interface updates
     v5r3p2 13-Nov-04  JC   remove Pixel parameter from 
                            SourceMap::sourceRegionIntegral 
     v5r3p1 11-Nov-04  JC   add memory management of Xerces 2.6.0 resources

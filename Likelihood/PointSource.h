@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.41 2004/09/22 20:05:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.42 2004/09/22 22:49:01 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.41 2004/09/22 20:05:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.42 2004/09/22 22:49:01 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -60,9 +60,9 @@ public:
       delete m_spectrum;
    }
 
-   /// Read a FITS image file that contains integrated exposure times
-   /// as a function of ra, dec, and cos(inclination).
-   static void readExposureCube(std::string expCubeFile);
+//    /// Read a FITS image file that contains integrated exposure times
+//    /// as a function of ra, dec, and cos(inclination).
+//    static void readExposureCube(std::string expCubeFile);
 
    /// Returns photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response

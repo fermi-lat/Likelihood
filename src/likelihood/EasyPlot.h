@@ -3,7 +3,7 @@
  * @brief Friendly user interface to st_graph plotting.
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.h,v 1.1 2004/09/21 14:51:20 jchiang Exp $
+ * $Header$
  */
 
 namespace st_graph {
@@ -11,11 +11,20 @@ namespace st_graph {
    class IPlot;
 }
 
+/**
+ * @class EasyPlot
+ * @brief Simple interface to st_graph plotting.
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 class EasyPlot {
 
 public:
 
-   EasyPlot(unsigned int xsize=400, unsigned int ysize=400);
+   EasyPlot(const std::string &title,
+            unsigned int xsize=400, unsigned int ysize=400);
 
    ~EasyPlot() throw();
 
@@ -30,6 +39,9 @@ public:
 
    void scatter(const std::vector<double> & x, 
                 const std::vector<double> & y);
+
+   void linePlot(const std::vector<double> & x,
+                 const std::vector<double> & y);
 
    void histogram(const std::vector<double> & x,
                   const std::vector<double> & y);
@@ -46,8 +58,8 @@ private:
    st_graph::IFrame * m_plotFrame;
    std::vector<st_graph::IPlot *> m_plots;
 
-   void scatterPlotSymbolSizes(const std::vector<double> & x,
-                               std::vector<double> & xerr,
-                               unsigned int nbins=100) const;
+   void scatterPlotErrorBars(const std::vector<double> & x,
+                             std::vector<double> & xerr,
+                             unsigned int nbins=100) const;
 
 };

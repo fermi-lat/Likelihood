@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.13 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.14 2004/10/11 01:35:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -27,7 +27,8 @@
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/LogLike.h"
-//#include "Likelihood/Util.h"
+
+#include "Verbosity.h"
 
 using namespace Likelihood;
 
@@ -38,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.13 2004/08/25 15:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.14 2004/10/11 01:35:00 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -62,6 +63,7 @@ private:
    std::vector<double> m_latValues;
    std::vector< std::vector<double> > m_tsMap;
    PointSource m_testSrc;
+   std::string m_coordSys;
    void readSrcModel();
    void readEventData();
    void selectOptimizer();
@@ -100,6 +102,13 @@ TsMap::TsMap() : st_app::StApp(), m_helper(0),
 }
 
 void TsMap::run() {
+   m_helper->checkOutputFile();
+   if (m_pars["use_lb"]) {
+      m_coordSys = "GAL";
+   } else {
+      m_coordSys = "CEL";
+   }
+   Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper->setRoi();
    m_helper->readExposureMap();
    readSrcModel();
@@ -107,19 +116,19 @@ void TsMap::run() {
    selectOptimizer();
    setGrid();
    computeMap();
-   writeFitsFile(m_pars["TS_map_file"], m_lonValues, m_latValues,
-                 m_tsMap, m_pars["Coordinate_system"]);
+   writeFitsFile(m_pars["outfile"], m_lonValues, m_latValues,
+                 m_tsMap, m_coordSys);
 }
 
 void TsMap::readSrcModel() {
-   st_facilities::Util::file_ok(m_pars["Source_model_file"]);
-   m_logLike.readXml(m_pars["Source_model_file"], m_helper->funcFactory());
+   st_facilities::Util::file_ok(m_pars["source_model_file"]);
+   m_logLike.readXml(m_pars["source_model_file"], m_helper->funcFactory());
 }   
 
 void TsMap::readEventData() {
    std::vector<std::string> eventFiles;
-   st_facilities::Util::file_ok(m_pars["event_file"]);
-   st_facilities::Util::resolve_fits_files(m_pars["event_file"], eventFiles);
+   st_facilities::Util::file_ok(m_pars["evfile"]);
+   st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
    std::vector<std::string>::const_iterator evIt = eventFiles.begin();
    for ( ; evIt != eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
@@ -143,12 +152,10 @@ void TsMap::selectOptimizer() {
 }
 
 void TsMap::setGrid() {
-   int nlon = m_pars["Number_of_longitude_points"];
-   int nlat = m_pars["Number_of_latitude_points"];
-   makeDoubleVector(m_pars["Longitude_min"], m_pars["Longitude_max"], 
-                    nlon, m_lonValues);
-   makeDoubleVector(m_pars["Latitude_min"], m_pars["Latitude_max"], 
-                    nlat, m_latValues);
+   int nlon = m_pars["nra"];
+   int nlat = m_pars["ndec"];
+   makeDoubleVector(m_pars["ra_min"], m_pars["ra_max"], nlon, m_lonValues);
+   makeDoubleVector(m_pars["dec_min"], m_pars["dec_max"], nlat, m_latValues);
    m_tsMap.resize(nlat);
    for (int i = 0; i < nlat; i++) {
       m_tsMap.reserve(nlon);
@@ -158,28 +165,27 @@ void TsMap::setGrid() {
 void TsMap::computeMap() {
    optimizers::dArg dummy(1.);
       
-   int verbosity = m_pars["fit_verbosity"];
+   int verbosity = m_pars["chatter"];
    double tol = m_pars["fit_tolerance"];
 //    m_opt->find_min(verbosity, tol);
 //    double logLike0 = m_logLike(dummy);
    double logLike0 = 0;
    bool computeExposure(true);
-   std::string coordSys = m_pars["Coordinate_system"];
 
    for (unsigned int jj = 0; jj < m_latValues.size(); jj++) {
-      if ( (jj % m_latValues.size()/20) == 0 ) {
+      if (Likelihood::print_output() && (jj % m_latValues.size()/20) == 0) {
          std::cerr << ".";
       }
       for (unsigned int ii = 0; ii < m_lonValues.size(); ii++) {
-         if (coordSys == "CEL") {
+         if (m_coordSys == "CEL") {
             m_testSrc.setDir(m_lonValues[ii], m_latValues[jj], 
                              computeExposure, false);
-         } else if (coordSys == "GAL") {
+         } else if (m_coordSys == "GAL") {
             m_testSrc.setGalDir(m_lonValues[ii], m_latValues[jj], 
                                 computeExposure, false);
          } else {
             throw std::invalid_argument("Invalid coordinate system: "
-                                        + coordSys);
+                                        + m_coordSys);
          }
          m_logLike.addSource(&m_testSrc);
          try {
@@ -189,7 +195,7 @@ void TsMap::computeMap() {
             // Default null value.
             m_tsMap[jj].push_back(0);
          }
-         if (verbosity > 0) {
+         if (Likelihood::print_output(3)) {
             std::cout << m_lonValues[ii] << "  "
                       << m_latValues[jj] << "  "
                       << m_tsMap[jj][ii] 
@@ -198,7 +204,7 @@ void TsMap::computeMap() {
          m_logLike.deleteSource(m_testSrc.getName());
       }
    }
-   std::cerr << "!" << std::endl;
+   if (Likelihood::print_output()) std::cerr << "!" << std::endl;
 }
 
 void TsMap::makeDoubleVector(double xmin, double xmax, int nx,

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.50 2004/11/09 00:49:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.51 2004/11/17 00:02:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,6 +41,8 @@
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
 
+#include "Verbosity.h"
+
 #include "EasyPlot.h"
 
 using namespace Likelihood;
@@ -52,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.50 2004/11/09 00:49:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.51 2004/11/17 00:02:22 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -107,14 +109,14 @@ void likelihood::run() {
    } else {
       m_helper->readScData();
       m_helper->readExposureMap();
-      std::string eventFile = m_pars["event_file"];
+      std::string eventFile = m_pars["evfile"];
       st_facilities::Util::file_ok(eventFile);
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
    }
    createStatistic();
 
 // Set the verbosity level and convergence tolerance.
-   long verbose = m_pars["fit_verbosity"];
+   long verbose = m_pars["chatter"];
    double tol = m_pars["fit_tolerance"];
    std::vector<double> errors;
 
@@ -154,28 +156,31 @@ void likelihood::run() {
 }
 
 void likelihood::promptForParameters() {
-   m_pars.Prompt("ROI_cuts_file");
-   m_pars.Prompt("Response_functions");
-   m_pars.Prompt("use_energy_dispersion");
-   m_pars.Prompt("Source_model_file");
-   m_pars.Prompt("Source_model_output_file");
-   m_pars.Prompt("flux_style_model_file");
-   m_pars.Prompt("Statistic");
-   std::string statistic = m_pars["Statistic"];
+   m_pars.Prompt("statistic");
+   std::string statistic = m_pars["statistic"];
    m_statistic = statistic;
-   m_pars.Prompt("optimizer");
-   m_pars.Prompt("fit_verbosity");
-   m_pars.Prompt("query_for_refit");
-
    if (m_statistic == "BINNED") {
       m_pars.Prompt("counts_map_file");
       m_pars.Prompt("exposure_cube_file");
       m_pars.Prompt("binned_exposure_map");
    } else {
-      m_pars.Prompt("Spacecraft_file");
-      m_pars.Prompt("event_file");
-      m_pars.Prompt("Exposure_map_file");
+      m_pars.Prompt("scfile");
+      m_pars.Prompt("evfile");
+      m_pars.Prompt("exposure_map_file");
    }
+   m_pars.Prompt("ROI_file");
+   m_pars.Prompt("source_model_file");
+   m_pars.Prompt("source_model_output_file");
+   m_helper->checkOutputFile(m_pars["clobber"], 
+                             m_pars["source_model_output_file"]);
+   m_pars.Prompt("flux_style_model_file");
+   m_helper->checkOutputFile(m_pars["clobber"], 
+                             m_pars["flux_style_model_file"]);
+   m_pars.Prompt("rspfunc");
+   m_pars.Prompt("use_energy_dispersion");
+   m_pars.Prompt("optimizer");
+   m_pars.Prompt("query_for_refit");
+
    m_pars.Save();
    ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
 }
@@ -213,7 +218,7 @@ void likelihood::readEventData() {
 }
 
 void likelihood::readSourceModel() {
-   std::string sourceModel = m_pars["Source_model_file"];
+   std::string sourceModel = m_pars["source_model_file"];
    bool requireExposure(true);
    if (m_statistic == "BINNED") {
       requireExposure = false;
@@ -262,7 +267,7 @@ void likelihood::selectOptimizer(std::string optimizer) {
 }
 
 void likelihood::writeSourceXml() {
-   std::string xmlFile = m_pars["Source_model_output_file"];
+   std::string xmlFile = m_pars["source_model_output_file"];
    std::string funcFileName("");
    if (xmlFile != "none") {
       std::cout << "Writing fitted model to " << xmlFile << std::endl;
@@ -279,7 +284,25 @@ void likelihood::writeFluxXml() {
    }
 }
 
+class EventData {
+public:
+   EventData(const std::vector<Event> & events) : m_events(events) {}
+   unsigned long nobs(double emin, double emax) const {
+      unsigned long nevents(0);
+      std::vector<Event>::const_iterator it = m_events.begin();
+      for ( ; it != m_events.end(); ++it) {
+         if (emin <= it->getEnergy() && it->getEnergy() <= emax) {
+            nevents++;
+         }
+      }
+      return nevents;
+   }
+private:
+   const std::vector<Event> & m_events;
+};
+
 void likelihood::writeCountsSpectra() {
+   const EventData myData(m_logLike->events());
    std::vector<double> energies;
    double emin(20);
    double emax(2e5);
@@ -296,7 +319,8 @@ void likelihood::writeCountsSpectra() {
    for (int k = 0; k < nee - 1; k++) {
       bool writeLine(true);
       std::ostringstream line;
-      line << sqrt(energies[k]*energies[k+1]) << "   ";
+      line << sqrt(energies[k]*energies[k+1]) << "   "
+           << myData.nobs(energies[k], energies[k+1]) << "  ";
       for (unsigned int i = 0; i < srcNames.size(); i++) {
          Source * src = m_logLike->getSource(srcNames[i]);
          double Npred;
@@ -318,9 +342,9 @@ void likelihood::writeCountsSpectra() {
 #ifdef HAVE_ST_GRAPH
 // plot the data
    try {
-      EasyPlot plot;
+      EasyPlot plot("");
       for (unsigned int i = 0; i < npred.size(); i++) {
-         plot.histogram(evals, npred[i]);
+         plot.linePlot(evals, npred[i]);
       }
       EasyPlot::run();
    } catch (std::exception &eObj) {

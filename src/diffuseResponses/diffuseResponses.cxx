@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.9 2004/09/02 23:43:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.10 2004/10/11 01:35:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -30,6 +30,7 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
+#include "Verbosity.h"
 
 using namespace Likelihood;
 
@@ -40,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.9 2004/09/02 23:43:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.10 2004/10/11 01:35:00 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -88,6 +89,7 @@ diffuseResponses::diffuseResponses()
    try {
       m_pars.Prompt();
       m_pars.Save();
+      Likelihood::Verbosity::instance(m_pars["chatter"]);
       m_helper = new AppHelpers(m_pars);
       m_helper->readScData();
       m_srcModel = new SourceModel(true);
@@ -111,22 +113,22 @@ void diffuseResponses::run() {
 }
 
 void diffuseResponses::setRoi() {
-   std::string xmlFile = m_pars["ROI_cuts_file"];
+   std::string xmlFile = m_pars["ROI_file"];
    RoiCuts::setCuts(xmlFile);
 }
 
 void diffuseResponses::buildSourceModel() {
-   std::string sourceModel = m_pars["Source_model_file"];
+   std::string sourceModel = m_pars["source_model_file"];
    st_facilities::Util::file_ok(sourceModel);
    m_srcModel->readXml(sourceModel, m_helper->funcFactory(), false);
 }
 
 void diffuseResponses::readEventData() {
-   std::string eventFile = m_pars["event_file"];
+   std::string eventFile = m_pars["evfile"];
    facilities::Util::expandEnvVar(&eventFile);
    st_facilities::Util::file_ok(eventFile);
    tip::Table * events 
-      = tip::IFileSvc::instance().editTable(eventFile, "events");
+      = tip::IFileSvc::instance().editTable(eventFile, m_pars["evtable"]);
 
    double ra;
    double dec;
@@ -167,19 +169,23 @@ void diffuseResponses::computeEventResponses() {
    getDiffuseSources();
    std::vector<Event>::iterator it = m_events.begin();
    for (int i = 0; it != m_events.end(); ++it, i++) {
-      if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
+      if (Likelihood::print_output() && (i % (m_events.size()/20)) == 0) {
+         std::cerr << ".";
+      }
       it->computeResponse(m_srcs, m_srRadius);
    }
-   std::cerr << "!" << std::endl;
+   if (Likelihood::print_output()) {
+      std::cerr << "!" << std::endl;
+   }
 }
 
 void diffuseResponses::writeEventResponses() {
    if (m_srcNames.size() > 0) {
-      std::string eventFile = m_pars["event_file"];
+      std::string eventFile = m_pars["evfile"];
       facilities::Util::expandEnvVar(&eventFile);
       st_facilities::Util::file_ok(eventFile);
       tip::Table * events 
-         = tip::IFileSvc::instance().editTable(eventFile, "events");
+         = tip::IFileSvc::instance().editTable(eventFile, m_pars["evtable"]);
       if (static_cast<unsigned int>(events->getNumRecords()) 
           != m_events.size()) {
          throw("LogLike::writeEventResponses:\nNumber of records in " 
@@ -196,8 +202,10 @@ void diffuseResponses::writeEventResponses() {
                events->appendField(m_srcNames[i], "1D");
             }
          } catch (tip::TipException &eObj) {
-            std::cout << eObj.what() << "\n"
-                      << "Using existing column." << std::endl;
+            if (Likelihood::print_output()) {
+               std::cout << eObj.what() << "\n"
+                         << "Using existing column." << std::endl;
+            }
          }
       }
       tip::Table::Iterator it = events->begin();
