@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Mar  4 22:35:39 PST 2005
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+test program fix; tagging v7r0p1
+    *
+------------------------------------------------------------
+User: jchiang  Fri Mar  4 22:35:39 PST 2005
 Likelihood/src/likelihood
 
 Modified Files:
