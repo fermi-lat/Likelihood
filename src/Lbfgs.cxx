@@ -9,13 +9,12 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
-//#include <utility>
 
 namespace Likelihood {
-
+  
   void Lbfgs::setMaxVarMetCorr(const int m)
   {m_maxVarMetCorr = m;}
-
+  
   void Lbfgs::setPgtol(const double pgtol)
   {m_pgtol = pgtol;}
 
@@ -44,7 +43,7 @@ namespace Likelihood {
     std::vector<double> paramMaxs(nparams);
     int i=0;
     for (std::vector<Parameter>::iterator p = params.begin();
-	   p != params.end(); p++, i++) {
+	 p != params.end(); p++, i++) {
       paramVals[i] = p->getValue();
       paramMins[i] = p->getBounds().first;
       paramMaxs[i] = p->getBounds().second;
@@ -96,7 +95,7 @@ namespace Likelihood {
 	  gradient[i] = -gradient[i];
 	}
 	m_numEvals++;
-
+	
 	if (verbose != 0) {
 	  std::cout << "LBFGS " << funcVal << "  ";
 	  for (int i = 0; i < nparams; i++) {
@@ -140,12 +139,13 @@ namespace Likelihood {
     }  // End of infinite loop
 
     // Get parameter values
-    i = 0;
+    int j = 0;
     for (std::vector<Parameter>::iterator p = params.begin();
-	 p != params.end(); p++, i++) {
-      p->setValue(paramVals[i]);
+	 p != params.end(); p++, j++) {
+      p->setValue(paramVals[j]);
     }
-    double funcValue = (*m_stat)(paramVals);
+    // Put parameter values back into the Statistic
+    (*m_stat)(paramVals);
   } // End of find_min
 }
 

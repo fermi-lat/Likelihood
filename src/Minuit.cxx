@@ -12,7 +12,6 @@ namespace Likelihood {
 
   Minuit::Minuit(Statistic& stat) : m_maxEval(200) {
     m_stat = &stat;
-    //    MNINIT(0, 0, 0); // Initialize Minuit & set I/O unit numbers
     const int i5=5, i6=6, i7=7;
     mninit_(&i5, &i6, &i7);
   }
@@ -89,13 +88,13 @@ namespace Likelihood {
 		  << " = " << pval << std::endl;
       }
     }
-//    m_stat->setFreeParams(params);
 
+    // Put new parameter values back into the Statistic
     std::vector<double> paramValues;
     for (unsigned int i = 0; i < params.size(); i++) {
       paramValues.push_back(params[i].getValue());
     }
-    double funcValue = (*m_stat)(paramValues);
+    (*m_stat)(paramValues);
 
     // Get information about quality of minimization
     int nVariable, nparx, minStat;

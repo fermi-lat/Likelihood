@@ -133,8 +133,8 @@
    use.
 
  <hr>
- @section notes release.notes
- release.notes
+ @section notes Release Notes
+ @verbinclude release.notes
 
  <hr>
  @section requirements requirements
