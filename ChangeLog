@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Jun  9 10:13:16 PDT 2004
+Likelihood/src
+
+Modified Files:
+	Event.cxx SConstruct 
+Log Message:
+synch up recent changes
+    *
+------------------------------------------------------------
+User: jchiang  Wed Jun  9 10:13:16 PDT 2004
 Likelihood/cmt
 
 Modified Files:
