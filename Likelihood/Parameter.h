@@ -41,7 +41,10 @@ public:
    Parameter(const std::string &paramName, double paramValue, 
              double minValue, double maxValue, bool isFree = true)
       {init(paramName, paramValue, minValue, maxValue, isFree);};
-   Parameter(const Parameter&);
+
+// need only member-wise copying
+//   Parameter(const Parameter&);
+
    ~Parameter(){}
 
    //! name access

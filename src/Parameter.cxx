@@ -2,7 +2,7 @@
  * @brief Parameter class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Parameter.cxx,v 1.4 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
@@ -11,16 +11,6 @@
 #include "Likelihood/Parameter.h"
 
 namespace Likelihood {
-
-//! copy constructor
-Parameter::Parameter(const Parameter &param) {
-   m_name = param.m_name;
-   m_value = param.m_value;
-   m_scale = param.m_scale;
-   m_minValue = param.m_minValue;
-   m_maxValue = param.m_maxValue;
-   m_free = param.m_free;
-}
 
 //! return bounds as a pair
 std::pair<double, double> Parameter::getBounds() {

@@ -125,6 +125,13 @@
    those models in SpectrumFactory, and later, clone those stored
    models for use in other contexts.
 
+   - Likelihood::SourceFactory This class provides a common access
+   point for retrieving and storing Sources.  A
+   Likelihood::PointSource, modeled with a PowerLaw, is provided by
+   default.  Sources that have been constructed to comprise position
+   and spectral information can be stored here, then cloned for later
+   use.
+
  <hr>
  @section notes release.notes
  release.notes

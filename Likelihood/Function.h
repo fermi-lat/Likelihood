@@ -8,6 +8,7 @@
 #ifndef Function_h
 #define Function_h
 
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -38,8 +39,10 @@ class Function {
 
 public:
     
-   Function(){}
-   Function(const Function&);
+   Function() {}
+
+// need only member-wise copying
+//   Function(const Function&);
 
    virtual ~Function(){}
 

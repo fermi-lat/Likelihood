@@ -2,12 +2,13 @@
  * @brief Response base class declaration
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef Response_h
 #define Response_h
 
+#include <iostream>
 #include "astro/SkyDir.h"
 #include "Likelihood/ScData.h"
 
@@ -24,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class Response {

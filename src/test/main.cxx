@@ -24,6 +24,7 @@
 #include "Likelihood/SumFunction.h"
 #include "Likelihood/ProductFunction.h"
 #include "Likelihood/SpectrumFactory.h"
+#include "Likelihood/SourceFactory.h"
 #include "lbfgs.h"
 #include "OptPP.h"
 #include "logLike_gauss.h"
@@ -54,6 +55,7 @@ void fit_anti_center();
 void test_CompositeFunction();
 void test_OptPP();
 void test_SpectrumFactory();
+void test_SourceFactory();
 
 std::string test_path;
 
@@ -71,12 +73,127 @@ int main(){
 //     test_Psf_class();
 //     test_logLike_ptsrc();
 //     test_CompositeFunction();
-   test_SpectrumFactory();
+//     test_SpectrumFactory();
+   test_SourceFactory();
 //     test_OptPP();
 //     fit_3C279();
 //     fit_anti_center();
    return 0;
 }
+
+void test_SourceFactory() {
+
+// set the ROI cuts
+   RoiCuts::setCuts(83.57, 22.01, 20.);
+
+/* read in the spacecraft data */
+   std::string sc_file = test_path + "Data/anti_center_sc_0000";
+   int sc_hdu = 2;
+   ScData::readData(sc_file, sc_hdu);
+
+// add the sources to the model
+
+   logLike_ptsrc logLike;
+
+   SourceFactory srcFactory;
+
+// Crab Pulsar
+   double ra = 83.57;
+   double dec = 22.01;
+   Source *Crab = srcFactory.makeSource("PointSource");
+   Crab->setDir(ra, dec);
+
+// These are nominal for the Crab, but use SourceFactory defaults (10,
+// -2, 100) to vet their choice and to exercise the Optimizer some
+// more.
+//     double Prefactor = 27.;
+//     double Gamma = -2.19;
+//     double Escale = 100.;
+
+   Crab->setName("Crab Pulsar");
+   logLike.addSource(Crab);
+
+// Geminga Pulsar
+   ra = 98.49;
+   dec = 17.86;
+   Source *Geminga = srcFactory.makeSource("PointSource");
+   Geminga->setDir(ra, dec);
+
+// Again, eschew the nominal values for Geminga....
+//     Prefactor = 23.29;
+//     Gamma = -1.66;
+//     Escale = 100.;
+
+   Geminga->setName("Geminga Pulsar");
+   logLike.addSource(Geminga);
+
+// PKS 0528+134
+   ra = 82.74;
+   dec = 13.38;
+   Source *_0528 = srcFactory.makeSource("PointSource");
+   _0528->setDir(ra, dec);
+
+//     Prefactor = 13.6;
+//     Gamma = -2.46;
+//     Escale = 100.;
+
+   _0528->setName("PKS 0528+134");
+   logLike.addSource(_0528);
+
+// read in the event data
+   std::string event_file = test_path + "Data/anti_center_0000";
+   logLike.getEvents(event_file, 2);
+
+// some derivative tests
+   std::vector<double> derivs;
+   logLike.getFreeDerivs(derivs);
+   
+   std::vector<double> params;
+   logLike.getFreeParamValues(params);
+   
+   double statval0 = logLike(params);
+   
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::vector<double> new_params = params;
+      double dparam = params[i]*1e-7;
+      new_params[i] += dparam;
+      double statval = logLike(new_params);
+      std::cout << derivs[i] << "  " 
+                << (statval - statval0)/dparam << std::endl;
+   }
+
+#ifdef HAVE_OPTIMIZERS
+
+// Do the fit
+//   lbfgs myOptimizer(logLike);
+   OptPP myOptimizer(logLike);
+   
+   int verbose = 3;
+   myOptimizer.find_min(verbose);
+
+// Having found the best-fit Parameters, save these Sources in
+// srcFactory.  Note that the pointers are stored directly by
+// SourceModel and not cloned, therefore we don't need to retrieve the
+// updated Sources from logLike. 
+//
+// Need to decide whether this the right behavior for SourceModel,
+// i.e., should we be cloning, then retrieving?
+
+   srcFactory.addSource(Crab->getName(), Crab);
+   srcFactory.addSource(Geminga->getName(), Geminga);
+   srcFactory.addSource(_0528->getName(), _0528);
+
+   srcFactory.listSources();
+
+#endif  //HAVE_OPTIMIZERS
+
+   std::vector<Parameter> parameters;
+   logLike.getParams(parameters);
+
+   for (unsigned int i = 0; i < parameters.size(); i++)
+      std::cout << parameters[i].getName() << ": "
+                << parameters[i].getValue() << std::endl;
+} // test_SourceFactory
 
 /*******************/
 /* Test OptPP code */
@@ -343,7 +460,7 @@ void fit_anti_center() {
    
    for (unsigned int i = 0; i < params.size(); i++) {
       std::vector<double> new_params = params;
-      double dparam = params[0]*1e-7;
+      double dparam = params[i]*1e-7;
       new_params[i] += dparam;
       double statval = logLike(new_params);
       std::cout << derivs[i] << "  " 
@@ -427,7 +544,7 @@ void fit_3C279() {
    
    for (unsigned int i = 0; i < params.size(); i++) {
       std::vector<double> new_params = params;
-      double dparam = params[0]*1e-7;
+      double dparam = params[i]*1e-7;
       new_params[i] += dparam;
       double statval = logLike(new_params);
       std::cout << derivs[i] << "  " 
@@ -907,24 +1024,26 @@ void test_SourceModel_class() {
    SourceModel SrcModel;
    
 /* instantiate some point sources */
+   
+   bool computeExposure = false;
 
    PointSource _3c279;
-   _3c279.setDir(193.98, -5.82);
+   _3c279.setDir(193.98, -5.82, computeExposure);
    _3c279.setSpectrum(new PowerLaw(74.2, -1.96, 0.1));
    _3c279.setName("3C 279");
 
    PointSource _3c273;
-   _3c273.setDir(187.25, 2.17);
+   _3c273.setDir(187.25, 2.17, computeExposure);
    _3c273.setSpectrum(new PowerLaw(15.4, -2.58, 0.1));
    _3c273.setName("3C 273");
 
    PointSource Crab;
-   Crab.setDir(83.57, 22.01);
+   Crab.setDir(83.57, 22.01, computeExposure);
    Crab.setSpectrum(new PowerLaw(226.2, -2.19, 0.1));
    Crab.setName("Crab Pulsar");
 
    PointSource Vela;
-   Vela.setDir(128.73, -45.20);
+   Vela.setDir(128.73, -45.20, computeExposure);
    Vela.setSpectrum(new PowerLaw(834.3, -1.69, 0.1));
    Vela.setName("Vela Pulsar");
 
@@ -942,7 +1061,7 @@ void test_SourceModel_class() {
 
 /* add another function */
    PointSource Geminga;
-   Geminga.setDir(98.49, 17.86);
+   Geminga.setDir(98.49, 17.86, computeExposure);
    Geminga.setSpectrum(new PowerLaw(352.9, -1.66, 0.1));
    Geminga.setName("Geminga");
    SrcModel.addSource(&Geminga);
