@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Dec 30 08:45:44 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	diffuseResponses.par likelihood.par 
+Log Message:
+check for columns in diffuseResponses; add option to re-minimize in Ts calcs
+    *
+------------------------------------------------------------
+User: jchiang  Thu Dec 30 08:45:44 PST 2004
 Likelihood/doc
 
 Modified Files:
