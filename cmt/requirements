@@ -1,10 +1,10 @@
 package Likelihood
-version v2r6p3
+version v2r6p5
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.68 2003/12/06 05:23:09 jchiang Exp $
+# $Id: requirements,v 1.69 2003/12/06 22:27:54 richard Exp $
 
 use xml v*
 use facilities v2*
@@ -47,11 +47,10 @@ library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 
 set PFILES "$(LIKELIHOODROOT)/data/"
 
-
 # applications
 application test_Likelihood test/main.cxx
 application likelihoodApp test/likelihood.cxx
 application TsMap test/TsMap.cxx
 application expMap test/expMap.cxx
-application test_runParams test/test_runParams.cxx
+#application test_runParams test/test_runParams.cxx
 

@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v2r6p5 06-Dec-03  JC   argv fix
     v2r6p3 05-Dec-03  JC   patch for likelihood.cxx; add libHistT.lib
     v2r6p1 05-Dec-03  JC   patch for RoiCuts::writeXml
     v2r6   04-Dec-03  JC   DC1 Release

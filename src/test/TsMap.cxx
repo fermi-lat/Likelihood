@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.5 2003/11/25 19:03:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.6 2003/12/05 05:39:23 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -17,6 +17,8 @@
 #include <cmath>
 
 #include "fitsio.h"
+
+#include "hoops/hoops_exception.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
@@ -37,6 +39,7 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/RunParams.h"
+#include "Likelihood/Exception.h"
 
 using namespace Likelihood;
 
@@ -54,10 +57,9 @@ void fitsReportError(FILE *stream, int status);
 int main(int iargc, char* argv[]) {
 
 // Read in the command-line parameters using HOOPS
-   std::string filename("TsMap.par");
-   delete argv[0];
-   argv[0] = strdup(filename.c_str());
+   strcpy(argv[0], "TsMap");
 
+   try {
    RunParams params(iargc, argv);
 
 // Set the region-of-interest.
@@ -80,7 +82,9 @@ int main(int iargc, char* argv[]) {
 // Read in the exposure map file.
    std::string exposureFile;
    params.getParam("Exposure_map_file", exposureFile);
-   ExposureMap::readExposureFile(exposureFile);
+   if (exposureFile != "none") {
+      ExposureMap::readExposureFile(exposureFile);
+   }
 
 // Create the response functions.
    std::string responseFuncs;
@@ -217,6 +221,13 @@ int main(int iargc, char* argv[]) {
    write_fits_file(outputFile, lonValues, latValues, myMap, coordSystem);
 
    delete myOpt;
+
+   } catch (hoops::Hexception &eObj) {
+      std::cout << "HOOPS exception code: "
+                << eObj.Msg() << std::endl;
+   } catch (Exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
 }
 
 void print_fit_results(SourceModel &stat) {
