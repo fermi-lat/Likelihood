@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.16 2004/04/04 01:22:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.17 2004/05/24 23:51:31 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -55,6 +55,7 @@
 
 using namespace Likelihood;
 using optimizers::Parameter;
+using latResponse::irfsFactory;
 
 class LikelihoodTests : public CppUnit::TestFixture {
 
@@ -66,18 +67,12 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_SourceModel);
    CPPUNIT_TEST(test_SourceDerivs);
    CPPUNIT_TEST(test_SourceModel);
+   CPPUNIT_TEST(test_PointSource);
+   CPPUNIT_TEST(test_DiffuseSource);
    
    CPPUNIT_TEST_SUITE_END();
 
 public:
-
-   LikelihoodTests() {
-      setUp();
-   }
-
-   ~LikelihoodTests() {
-      tearDown();
-   }
 
    void setUp();
    void tearDown();
@@ -124,7 +119,6 @@ private:
    
 };
 
-//#define ASSERT_EQUALS(X, Y) assert(fabs( (X - Y)/Y ) < m_fracTol)
 #define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(fabs( (X - Y)/Y ) < m_fracTol)
 
 void LikelihoodTests::setUp() {
@@ -136,10 +130,10 @@ void LikelihoodTests::setUp() {
       m_rootPath = std::string(root);
    }
 // Prepare the ResponseFunctions object.
-   ResponseFunctions::addRespPtr(2, latResponse::irfsFactory().create("DC1::Front"));
-   ResponseFunctions::addRespPtr(3, latResponse::irfsFactory().create("DC1::Back"));
-//    ResponseFunctions::addRespPtr(2, latResponse::irfsFactory().create("Glast25::Front"));
-//    ResponseFunctions::addRespPtr(3, latResponse::irfsFactory().create("Glast25::Back"));   
+   ResponseFunctions::addRespPtr(2, irfsFactory().create("DC1::Front"));
+   ResponseFunctions::addRespPtr(3, irfsFactory().create("DC1::Back"));
+//    ResponseFunctions::addRespPtr(2, irfsFactory().create("Glast25::Front"));
+//    ResponseFunctions::addRespPtr(3, irfsFactory().create("Glast25::Back"));
    
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
@@ -161,7 +155,9 @@ void LikelihoodTests::setUp() {
 
 void LikelihoodTests::tearDown() {
    delete m_funcFactory;
+   m_funcFactory = 0;
    delete m_srcFactory;
+   m_srcFactory = 0;
 // @todo Use iterators to traverse RespPtr map for key deletion.
    ResponseFunctions::deleteRespPtr(2);
    ResponseFunctions::deleteRespPtr(3);
@@ -181,7 +177,6 @@ void LikelihoodTests::test_RoiCuts() {
    roiCuts->getTimeCuts(tlims);
    static double tmin = 0;
    static double tmax = 1e12;
-//    assert(fabs(tlims[0].first - tmin) == 0);
    CPPUNIT_ASSERT(fabs(tlims[0].first - tmin) == 0);
    ASSERT_EQUALS(tlims[0].second, tmax);
 
@@ -195,14 +190,13 @@ void LikelihoodTests::test_RoiCuts() {
    static double dec = -5.82;
    static double radius = 20.;
    latResponse::AcceptanceCone roiCone(astro::SkyDir(ra, dec), radius);
-   assert(roiCone == roiCuts->extractionRegion());
+   CPPUNIT_ASSERT(roiCone == roiCuts->extractionRegion());
    double my_ra, my_dec;
    RoiCuts::getRaDec(my_ra, my_dec);
    ASSERT_EQUALS(my_ra, ra);
    ASSERT_EQUALS(my_dec, dec);
 
    std::remove(xmlFile.c_str());
-   std::cout << ".";
 }
 
 void LikelihoodTests::test_SourceFactory() {
@@ -216,24 +210,23 @@ void LikelihoodTests::test_SourceFactory() {
       std::string name = srcNames[i];
       Source * src = srcFactory->create(name);
       Source::FuncMap srcFuncs = src->getSrcFuncs();
-      assert(src->getType() == m_srcData.srcType(name));
-      assert(srcFuncs.count("Spectrum"));
+      CPPUNIT_ASSERT(src->getType() == m_srcData.srcType(name));
+      CPPUNIT_ASSERT(srcFuncs.count("Spectrum"));
       const std::vector<std::string> & paramNames = m_srcData.paramNames();
       for (unsigned int j = 0; j < paramNames.size(); j++) {
          ASSERT_EQUALS(srcFuncs["Spectrum"]->getParamValue(paramNames[j]),
                        m_srcData.paramObject(name, paramNames[j]).getValue());
       }
       if (m_srcData.srcType(name) == "Diffuse") {
-         assert(srcFuncs.count("SpatialDist"));
-         assert(srcFuncs["SpatialDist"]->genericName() 
+         CPPUNIT_ASSERT(srcFuncs.count("SpatialDist"));
+         CPPUNIT_ASSERT(srcFuncs["SpatialDist"]->genericName() 
                 == m_srcData.spatialModel(name));
       } else {
-         assert(srcFuncs.count("Position"));
-         assert(srcFuncs["Position"]->genericName() 
+         CPPUNIT_ASSERT(srcFuncs.count("Position"));
+         CPPUNIT_ASSERT(srcFuncs["Position"]->genericName() 
                 == m_srcData.spatialModel(name));
       }
    }
-   std::cout << ".";
 }
 
 void LikelihoodTests::test_XmlBuilders() {
@@ -256,9 +249,7 @@ void LikelihoodTests::test_XmlBuilders() {
    srcModelBuilder.write(m_srcModelXmlFile);
 
    XmlDiff xmlDiff(m_sourceXmlFile, m_srcModelXmlFile, "source", "name");
-   assert(xmlDiff.compare());
-
-   std::cout << ".";
+   CPPUNIT_ASSERT(xmlDiff.compare());
 }
 
 void LikelihoodTests::test_SourceModel() {
@@ -298,7 +289,7 @@ void LikelihoodTests::test_SourceModel() {
    }
    std::vector<double> freeParValues;
    srcModel.getFreeParamValues(freeParValues);
-   assert(my_parValues.size() == freeParValues.size());
+   CPPUNIT_ASSERT(my_parValues.size() == freeParValues.size());
    for (unsigned int i = 0; i < my_parValues.size(); i++) {
       ASSERT_EQUALS(my_parValues[i], freeParValues[i]);
    }
@@ -311,7 +302,7 @@ void LikelihoodTests::test_SourceModel() {
    }
    srcModel.setFreeParamValues(newFreeParams);
    srcModel.getFreeParamValues(freeParValues);
-   assert(newFreeParams.size() == freeParValues.size());
+   CPPUNIT_ASSERT(newFreeParams.size() == freeParValues.size());
    for (unsigned int i = 0; i < newFreeParams.size(); i++) {
       ASSERT_EQUALS(newFreeParams[i], freeParValues[i]);
    }
@@ -374,19 +365,17 @@ void LikelihoodTests::test_SourceModel() {
       num_deriv /= delta_param;
 // We cannot use ASSERT_EQUALS here since some of the derivatives
 // (e.g., those wrt ra, dec) are identically zero.
-      assert(fabs(sm_derivs[i] + num_deriv) < m_fracTol);
+      CPPUNIT_ASSERT(fabs(sm_derivs[i] + num_deriv) < m_fracTol);
 
 // Reset the parameters for next time around.
       srcModel.setParamValues(params_save);
       params = params_save;
    }
-
-   std::cout << ".";
 }
 
 void LikelihoodTests::test_SourceDerivs() {
    SourceFactory * srcFactory = srcFactoryInstance();
-   assert(srcFactory != 0);
+   CPPUNIT_ASSERT(srcFactory != 0);
    std::vector<std::string> srcNames;
    srcFactory->fetchSrcNames(srcNames);
 
@@ -397,7 +386,7 @@ void LikelihoodTests::test_SourceDerivs() {
    double energy(1e3);
    double time(1e3);
    ScData * scData = ScData::instance();
-   assert(scData != 0);
+   CPPUNIT_ASSERT(scData != 0);
    astro::SkyDir zAxis = scData->zAxis(time);
    double muZenith(1.);
    int type = 0;
@@ -408,20 +397,20 @@ void LikelihoodTests::test_SourceDerivs() {
 // for each.
    for (int i = 0; i < 3; i++) {
       Source * src = srcFactory->create(srcNames[i]);
-      assert(src != 0);
+      CPPUNIT_ASSERT(src != 0);
       if (src->getType() == "Diffuse") {
          DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(src);
          myEvent.computeResponse(*diffuse_src);
       }
       Source::FuncMap srcFuncs = src->getSrcFuncs();
-      assert(srcFuncs.count("Spectrum"));
+      CPPUNIT_ASSERT(srcFuncs.count("Spectrum"));
 
       std::vector<double> paramValues;
       srcFuncs["Spectrum"]->getFreeParamValues(paramValues);
 
       std::vector<std::string> paramNames;
       srcFuncs["Spectrum"]->getFreeParamNames(paramNames);
-      assert(paramValues.size() == paramNames.size());
+      CPPUNIT_ASSERT(paramValues.size() == paramNames.size());
 
       double fluxDensity0 = src->fluxDensity(myEvent);
       double Npred0 = src->Npred();
@@ -444,7 +433,6 @@ void LikelihoodTests::test_SourceDerivs() {
          srcFuncs["Spectrum"]->setParam(paramNames[j], paramValues[j]);
       }
    }
-   std::cout << ".";
 }
 
 void LikelihoodTests::test_PointSource() {
@@ -473,8 +461,8 @@ void LikelihoodTests::test_PointSource() {
          Nobs++;
       }
    }
-   std::cout << Nobs << "  "
-             << src->Npred() << std::endl;
+//    std::cout << Nobs << "  "
+//              << src->Npred() << std::endl;
    src->setDir(83.57, 22.01, true, false);
 
 // Consider the observation over two-day intervals over the first
@@ -497,11 +485,12 @@ void LikelihoodTests::test_PointSource() {
       }
       double Npred = src->Npred();
       chi2 += pow((Nobs - Npred), 2)/Nobs;
-      std::cout << j << "  " 
-                << Nobs << "  "
-                << Npred << std::endl;
+//       std::cout << j << "  " 
+//                 << Nobs << "  "
+//                 << Npred << std::endl;
    }
-   std::cout << "chi^2 = " << chi2 << std::endl;
+//    std::cout << "chi^2 = " << chi2 << std::endl;
+   CPPUNIT_ASSERT(chi2 < 23.);
 }
 
 void LikelihoodTests::test_DiffuseSource() {
@@ -551,13 +540,14 @@ void LikelihoodTests::test_DiffuseSource() {
       }
       double Npred = src->Npred();
       chi2 += pow((Nobs - Npred), 2)/Nobs;
-      std::cout << i << "  " 
-                << Nobs << "  "
-                << Npred << std::endl;
+//       std::cout << i << "  " 
+//                 << Nobs << "  "
+//                 << Npred << std::endl;
 
       std::remove(roiFile.str().c_str());
    }
-   std::cout << "chi^2 = " << chi2 << std::endl;
+//    std::cout << "chi^2 = " << chi2 << std::endl;
+   CPPUNIT_ASSERT(chi2 < 4.);
 }
 
 void LikelihoodTests::readEventData(const std::string &eventFile,
@@ -642,16 +632,8 @@ srcFactoryInstance(const std::string & roiFile,
 }      
 
 int main() {
-   LikelihoodTests unit;
-
-   unit.test_RoiCuts();
-   unit.test_SourceFactory();
-   unit.test_XmlBuilders();
-   unit.test_SourceModel();
-   unit.test_SourceDerivs();
-   unit.test_PointSource();
-   unit.test_DiffuseSource();
-
-   std::cout << "all tests ok" << std::endl;
-   return 0;
+   CppUnit::TextTestRunner runner;
+   runner.addTest(LikelihoodTests::suite());
+   bool result = runner.run();
+   assert(result);
 }

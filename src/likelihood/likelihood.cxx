@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.6 2004/04/19 00:03:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.7 2004/04/21 20:58:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -25,6 +25,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/OptEM.h"
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/Util.h"
 
@@ -37,7 +38,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.6 2004/04/19 00:03:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.7 2004/04/21 20:58:41 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -88,6 +89,7 @@ likelihood::likelihood()
       m_pars.Prompt();
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
+      ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
       std::exit(1);

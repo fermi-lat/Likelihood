@@ -3,6 +3,7 @@ Spacecraft_file,f,ql,"$(LIKELIHOODROOT)/data/oneday_scData_0000.fits",,,"Spacecr
 Spacecraft_file_hdu,i,hl,2,,,Spacecraft file HDU
 Exposure_map_file,f,ql,"none",,,"Exposure file"
 Response_functions,s,ql,"FRONT/BACK",FRONT/BACK|FRONT|BACK|GLAST25,,"Response functions to use"
+use_energy_dispersion,b,ql,no,,,Use energy dispersion?
 Source_model_file,f,ql,"$(LIKELIHOODROOT)/data/anticenter_model.xml",,,"Source model file"
 event_file,f,ql,"$(LIKELIHOODROOT)/data/oneday_events_0000.fits",,,"Event file"
 event_file_hdu,i,hl,2,,,Event file HDU

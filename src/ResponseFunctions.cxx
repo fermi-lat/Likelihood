@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.4 2004/05/24 23:21:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.5 2004/05/24 23:51:31 jchiang Exp $
  */
 
 #include "Likelihood/ScData.h"
@@ -16,7 +16,6 @@ ResponseFunctions * ResponseFunctions::s_instance = 0;
 std::map<unsigned int, latResponse::Irfs *> ResponseFunctions::s_respPtrs;
 
 bool ResponseFunctions::s_useEdisp(false);
-//bool ResponseFunctions::s_useEdisp(true);
    
 double ResponseFunctions::totalResponse(double time, 
                                         double energy, double appEnergy,
