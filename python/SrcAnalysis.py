@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.2 2005/01/29 16:01:46 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.3 2005/02/01 00:01:09 jchiang Exp $
 #
 import os, sys
 import numarray as num
@@ -26,8 +26,7 @@ class SrcAnalysis(object):
         self.events = self.logLike.events();
         self.logLike.readXml(srcModel, _funcFactory)
         self.logLike.computeEventResponses()
-        ebounds = Likelihood.RoiCuts_instance().getEnergyCuts()
-        eMin, eMax = ebounds.first, ebounds.second
+        eMin, eMax = Likelihood.RoiCuts_instance().getEnergyCuts()
         nee = 21
         estep = num.log(eMax/eMin)/(nee-1)
         self.energies = eMin*num.exp(estep*num.arange(nee, type=num.Float))
@@ -116,6 +115,7 @@ class SrcAnalysis(object):
         if optimizer is None:
             optimizer = self.optimizer
         myOpt = eval("self.logLike.%s()" % optimizer)
+        self.logLike.syncParams()
         myOpt.find_min(verbose, tol)
         return -self.logLike.value()
 

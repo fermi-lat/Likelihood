@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.49 2004/12/22 06:06:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.50 2004/12/22 16:57:34 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -38,7 +38,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.49 2004/12/22 06:06:47 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.50 2004/12/22 16:57:34 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -145,15 +145,15 @@ public:
                              + std::string("reimplemented in this subclass."));
    }
 
+   /// method to sync the m_parameter vector with those of the 
+   /// s_sources' Functions
+   void syncParams();
+
 protected:
 
    static int s_refCount;
 
    static std::map<std::string, Source *> s_sources;
-
-   /// method to sync the m_parameter vector with those of the 
-   /// s_sources' Functions
-   void syncParams();
 
    /// disable this since parameters may no longer have unique names
    double derivByParam(optimizers::Arg &, const std::string &) 
