@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.22 2003/08/06 20:52:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.23 2003/09/28 15:39:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,8 +21,10 @@
 #include <xercesc/dom/DOM_DOMException.hpp>
 
 #include "optimizers/Arg.h"
+#include "optimizers/FunctionFactory.h"
 
 #include "Likelihood/SpatialMap.h"
+#include "Likelihood/SourceFactory.h"
 #include "Likelihood/SourceModel.h"
 
 namespace Likelihood {
@@ -300,6 +302,30 @@ void SourceModel::fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs,
    }
 }
 
+void SourceModel::readXml(const std::string &xmlFile,
+                          optimizers::FunctionFactory &funcFactory) {
+
+// Create a SourceFactory to read in the xml file.
+   SourceFactory srcFactory;
+   try {
+      srcFactory.readXml(xmlFile, funcFactory);
+   } catch (DOM_DOMException &eObj) {
+      std::cout << "DOMException: " 
+                << eObj.code << std::endl;
+   }
+
+// Loop over the sources that are now contained in srcFactory and add
+// each one to the source model.
+   std::vector<std::string> srcNames;
+   srcFactory.fetchSrcNames(srcNames);
+
+   std::vector<std::string>::iterator nameIt = srcNames.begin();
+   for ( ; nameIt != srcNames.end(); nameIt++) {
+      Source *src = srcFactory.create(*nameIt);
+      addSource(src);
+   }
+}
+
 void SourceModel::writeXml(const std::string &xmlFile) {
    DOM_Document doc = DOM_Document::createDocument();
 
@@ -330,10 +356,13 @@ void SourceModel::writeXml(const std::string &xmlFile) {
       DOM_Element spatialElt = doc.createElement("spatialModel");
       if (srcFuncs.count("Position")) {
 // This is a PointSource.
+         srcElt.setAttribute("type", "PointSource");
          spatialElt.setAttribute("type", "SkyDirFunction");
          srcFuncs["Position"]->appendParamDomElements(doc, spatialElt);
+         srcElt.appendChild(spatialElt);
       } else if (srcFuncs.count("SpatialDist")) {
 // It's a DiffuseSource.
+         srcElt.setAttribute("type", "DiffuseSource");
          std::string type = srcFuncs["SpatialDist"]->genericName();
          spatialElt.setAttribute("type", type.c_str());
          if (type == "SpatialMap") {

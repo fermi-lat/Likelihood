@@ -23,7 +23,9 @@
 
    <source name="Galactic Diffuse Emission" type="DiffuseSource">
       <spectrum type="Galactic Diffuse Power-law"></spectrum>
-      <spatialModel type="SpatialMap" file="gas.cel"></spatialModel>
+      <spatialModel type="SpatialMap" 
+                    file="$(LIKELIHOODROOT)/src/test/Data/gas.cel">
+      </spatialModel>
    </source>
 
    <source name="Extragalactic Diffuse Emission" type="DiffuseSource">

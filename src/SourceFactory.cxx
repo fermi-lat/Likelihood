@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.23 2003/08/16 01:12:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.24 2003/08/26 23:25:34 jchiang Exp $
  */
 
 #include <sstream>
@@ -14,6 +14,8 @@
 #include "xml/Dom.h"
 #include <xercesc/dom/DOM_Element.hpp>
 #include <xercesc/dom/DOM_NodeList.hpp>
+
+#include "facilities/Util.h"
 
 #include "optimizers/Exception.h"
 #include "optimizers/Dom.h"
@@ -124,8 +126,9 @@ void SourceFactory::readXml(const std::string &xmlFile,
    try {
       funcFactory.readXml(function_library);
    } catch(optimizers::Exception &eObj) {
-// Rethrow as a Likelihood::Exception.
-      throw Exception(eObj.what());
+      std::cout << eObj.what() << std::endl;
+// // Rethrow as a Likelihood::Exception.
+//       throw Exception(eObj.what());
    }
 
 // Loop through source elements, adding each as a Source object prototype.
@@ -251,7 +254,8 @@ Source * SourceFactory::makeDiffuseSource(const DOM_Element &spectrum,
    if (type == "SpatialMap") {
       std::string fitsFile 
          = xml::Dom::getAttribute(spatialModel, "file");
-      fitsFile = ::rootPath() + "/src/test/Data/" + fitsFile;
+      facilities::Util::expandEnvVar(&fitsFile);
+//      fitsFile = ::rootPath() + "/src/test/Data/" + fitsFile;
       dynamic_cast<SpatialMap *>(spatialDist)->readFitsFile(fitsFile);
    }
    Source *src;

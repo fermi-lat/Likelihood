@@ -312,7 +312,27 @@ void fit_DiffuseSource() {
    print_fit_results(logLike);
 
 // Write out the fitted model as an xml file.
-   logLike.writeXml("fittedModel.xml");
+   xmlFile = root_path + "/xml/fittedModel.xml";
+   logLike.writeXml(xmlFile);
+
+// Clear the sources in logLike.
+   logLike.deleteAllSources();
+
+// Re-read the sources from the xml file just written.
+   try {
+      logLike.readXml(xmlFile, funcFactory);
+   } catch (Exception eObj) {
+      std::cerr << eObj.what() << std::endl;
+   } catch (optimizers::Exception eObj) {
+      std::cerr << eObj.what() << std::endl;
+   }
+
+   std::cout << "\nHaving cleared the sources in logLike and read them "
+             << "back in from the xml file,\n here are their parameters "
+             << "from logLike: " << std::endl;
+
+// Print out the parameter data again.
+   print_fit_results(logLike);
 
    std::cout << "*** fit_DiffuseSource: all tests completed ***\n" 
              << std::endl;
