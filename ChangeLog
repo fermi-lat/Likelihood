@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Nov  9 07:18:58 PST 2003
+Likelihood/src
+
+Modified Files:
+	mainpage.h 
+Log Message:
+mv like_test.cxx likelihood.cxx
+    *
+------------------------------------------------------------
+User: jchiang  Sun Nov  9 07:18:58 PST 2003
 Likelihood/doc
 
 Modified Files:
