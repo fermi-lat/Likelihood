@@ -5,10 +5,15 @@
 
    In order to illustrate how to use the likelihood software, this
    narrative is provided and gives a step-by-step description for
-   performing an analysis on a highly simplified data set.
+   performing a relatively simple analysis.  We will assume that you
+   already have event (FT1) and spacecraft (FT2) data files in hand.
 
    Here are each of the steps:
-   - @ref createData (or retrieve the real thing from the web server.)
+
+   - @ref makeSubselections Since there is a computational overhead
+          for each event associated with each diffuse component, it is
+          useful to filter out any events that are not within the
+          extraction region used for the analysis.
    - @ref makeCountsMaps These simple FITS images let us see what 
           we've got and help to pick out obvious candidate sources.
    - @ref defineROI This is the extraction region in photon direction, 
@@ -26,177 +31,136 @@
           finding weaker sources after the stronger sources have
           been modeled.
 
-   @section createData Create Simulated Data Using obsSim
-
-   In practice, the data to be analyzed will be downloaded from the 
-   <a href="http://glast.gsfc.nasa.gov/cgi-bin/ssc/U1/D1WebQuery.cgi">
-   GSSC server</a>.  However, here we will run the @b obsSim application to
-   generate data with a known set of sources so that we can compare
-   the results of our fits to the input parameters of the source model
-   that was fed to the simulation.
-   \n\n
-   The first step is to create a list of sources.  The sources that
-   are provided for simulation are given in the xml files in the <a
-   href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/xml/?cvsroot=CVS_SLAC">observationSim/xml</a>
-   subdirectory.  Sources in the <a
-   href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/xml/source_library.xml?cvsroot=CVS_SLAC">source_library.xml</a>
-   and <a
-   href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/xml/3EG_catalog_20-1e6MeV.xml?cvsroot=CVS_SLAC">3EG_catalog_20-1e6MeV.xml</a>
-   files are provided by default.  (Note that one should only use
-   photon sources from the former with @b obsSim ).  If one wishes to
-   use sources from some of the other xml files in <a
-   href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/xml/?cvsroot=CVS_SLAC">observationSim/xml</a>
-   or from some other source model xml file, there is a hidden
-   parameter in the <a
-   href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/data/obsSim.par?cvsroot=CVS_SLAC">obsSim.par</a>
-   file (<a href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/ScienceTools/ScienceTools-v0r5/Likelihood/v2r6p5/userguide.html">What's a .par file?</a>) that will allow one to specify that file.  
-   We will see how to
-   do this when we rerun @b obsSim again below.  
-   \n\n
-   The list of sources should be put into a file, which we will call
-   "source_names.dat".  For this simple example, we choose the
-   following sources:
+   @section makeSubselections Make Subselections from the Event Data.
+   For this tutorial, we will use data generated using @b obsSim for a
+   model comprising the Third EGRET (3EG) catalog sources, Galactic diffuse,
+   and extragalactic diffuse emission for a simulation time of one
+   day.  Since we used @b obsSim, we can put data from each component
+   into a separate FT1 file:
    @verbatim
-   diffuse-100mev
-   anticenter
+   noric13[jchiang] ls -l *events*fits
+   -rw-rw-r--    1 jchiang  glast-data  2894400 Oct 11 15:22 eg_diffuse_events_0000.fits
+   -rw-rw-r--    1 jchiang  glast-data  7243200 Oct 11 15:26 galdiffuse_events_0000.fits
+   -rw-rw-r--    1 jchiang  glast-data  1088640 Oct 11 15:20 ptsrcs_events_0000.fits
+   noric13[jchiang] 
    @endverbatim
-   The first source is an isotropic diffuse component intended to
-   model the extragalactic diffuse emission measured by EGRET.  The
-   second source is actually a composite of the three brightest
-   sources in the Galactic anti-center region.  
-   An individual source is defined in the xml libraries like this:
+   We will consider data in the Virgo region within a 25 degree acceptance cone of
+   the blazar 3C 279.  Here we apply @b dataSubselector to the point source data:
    @verbatim
-   <!-- Geminga, from the 3EG catalog -->
-   <source name="Geminga" flux="0.03529">
-       <spectrum escale="MeV">
-           <particle name="gamma"> 
-               <power_law emin="100." emax="100000." gamma="1.66"/>
-           </particle>
-           <celestial_dir ra="98.49" dec="17.86"/>
-       </spectrum>
-   </source>
-   @endverbatim
-   and composite sources, such as "anticenter", are defined like this:
-   @verbatim
-   <!-- Strong point sources in the Galactic anticenter region -->
-   <source name = "anticenter">
-       <nestedSource sourceRef="Crab" />
-       <nestedSource sourceRef="Geminga" />
-       <nestedSource sourceRef="PKS0528" />
-   </source>
-   @endverbatim
-   It should be noted that these particular sources will only produce
-   photons with energies greater than 100 MeV.  This will be very
-   important for how we define the ROI later on.
-   \n\n
-   As a convenience, a composite source "all_3EG_sources" is provided in the <a
-   href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/xml/3EG_catalog_20-1e6MeV.xml?cvsroot=CVS_SLAC">3EG_catalog_20-1e6MeV.xml</a>
-   model file.
-   \n\n
-   Once the desired sources are listed in the target file, we can now
-   run @b obsSim to generate some data.  Be sure the <a
-   href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/data/obsSim.par?cvsroot=CVS_SLAC">obsSim.par</a> file
-   is in the directory pointed to by the PFILES environment variable; or
-   if PFILES is unset, be sure it is in your current working directory.
-   Here's our @b obsSim session:
-   @verbatim
-   > time obsSim.exe 
-   File containing source names [source_names.dat] : 
-   Number of events (or simulation time in seconds) <1 - 4e7> [86400] : 
-   Use number of events as simulation time? [yes] : 
-   Response functions to use <FRONT/BACK|FRONT|BACK> [FRONT/BACK] : 
-   Prefix for output files [diffuse_test] : test
-   Pointing history file [none] : 
-   Generating events for a simulation time of 86400 seconds....
+   noric13[jchiang] ~/ST_new/dataSubselector/v2r1/rh9_gcc32/dataSubselector.exe
+   Input FT1 file [Crab_front_events_0000.fits] : ptsrcs_events_0000.fits
+   Output FT1 file [Crab_front_events_filtered.fits] : ptsrcs_events_filtered.fits
+   RA for new search center (degrees) <0 - 360> [83.57] : 193.98
+   Dec for new search center (degrees) <-90 - 90> [22.01] : -5.82
+   radius of new search region (degrees) <0 - 180> [20] : 25
+   Longitude coordinate lower limit (degrees) <0 - 360> [0] : 
+   Longitude coordinate upper limit (degrees) <0 - 360> [360] : 
+   Latitude coordinate lower limit (degrees) <-90 - 90> [-90] : 
+   Latitude coordinate upper limit (degrees) <-90 - 90> [90] : 
+   Coordiate system <CEL|GAL> [CEL] : 
+   start time (MET in s) [0] : 
+   end time (MET in s) [0] : 
+   lower energy limit (MeV) [20] : 
+   upper energy limit (MeV) [0] : 3e5    
+   first conversion layer <0 - 15> [0] : 
+   last conversion layer <0 - 15> [11] : 15
+   minimum theta value (degrees) <0 - 180> [0] : 
+   maximum theta value (degrees) <0 - 180> [0] : 
+   minimum phi value (degrees) <0 - 360> [0] : 
+   maximum phi value (degrees) <0 - 360> [0] : 
+   minimum probablilty that event is a gamma ray <0 - 1> [0] : 
+   maximum probablilty that event is a gamma ray <0 - 1> [0] : 
+   minimum zenith angle value (degrees) <0 - 180> [0] : 
+   maximum zenith angle value (degrees) <0 - 180> [0] : 
+   select only events that passed background cut? [yes] : 
+   select only events that passed PSF cut? [yes] : 
+   select only events that passed energy resolution cut? [yes] : 
    Done.
-   23.600u 0.370s 0:32.75 73.1%    0+0k 0+0io 4561pf+0w
    @endverbatim
+   The @b dataSubselector interface is a bit unwieldy.  The default
+   entries of "0" for most of the parameters means that no selection
+   will be made.  This tool, its interface in particular, is a prime
+   target for refactoring.
 
-   @section makeCountsMaps Make Counts Maps from the Event Files
-   @b obsSim creates the following FITS files:
+   @section makeCountsMaps Make Counts Maps from the Event Files 
+   The next step is to create a simple counts map file to visualize
+   the extraction region we wish to fit.  There are presently three
+   tools available to perform this task: @b evtbin in the @b evtbin
+   package, @b count_map in the @b map_tools package, and @b gtcntsmap
+   in the @b Likelihood package.  For this step, since the event data
+   are contained in three separate FITS files, @b gtcntsmap is the
+   most convenient to use.  We start by creating a file which is a
+   list of the files to be binned, and then we run the tool:
    @verbatim
-   > ls -l test*.fits
-   -rw-rw-r--    1 jchiang  gl        3231360 Dec  7 13:28 test_events_0000.fits
-   -rw-rw-r--    1 jchiang  gl         279360 Dec  7 13:28 test_scData_0000.fits
+   noric13[jchiang] ls -1 *filtered.fits > eventFiles
+   noric13[jchiang] cat eventFiles
+   eg_diffuse_events_filtered.fits
+   galdiffuse_events_filtered.fits
+   ptsrcs_events_filtered.fits
+   noric13[jchiang]  ~/ST_new/Likelihood/v5r1p1/rh9_gcc32/gtcntsmap.exe
+   event file [test_events_0000.fits] : eventFiles
+   spacecraft file [test_scData_0000.fits] : ptsrcs_scData_0000.fits
+   minimum energy (MeV) <20 - 3e5> [30] : 
+   maximum energy (MeV) <20 - 3e5> [2e5] : 
+   number of energy bounds <2 - 40> [21] : 2
+   Right Ascension (or l) of map center (degrees) <0 - 360> [86.4] : 193.98
+   Declination (or b) of map center (degrees) <-90 - 90> [28.9] : -5.82   
+   number of longitude pixels [160] : 200
+   number of latitude pixels [160] : 200
+   pixel size (degrees) <1e-2 - 2> [0.25] : 
+   use Galactic coordinates [no] : 
+   output file name [counts_map.fits] : Virgo_map.fits
+   noric13[jchiang] ds9 Virgo_map.fits
    @endverbatim
-   The first file contains FITS binary tables of the photon events,
-   having been generated for each source, then passed through the
-   instrument response functions (IRFs); and the second contains the
-   spacecraft data --- time stamps, orbit and attitude information, etc.
-   \n\n 
-   Various tools are available for displaying data in FITS files. 
-   One can use ds9 directly to do the binning for you:
-   @verbatim
-   > ds9 "test_events_0000.fits[1][bin=ra,dec]"
-   @endverbatim
-   but here we use the FTOOL @b fcopy and the extended filename syntax
-   of cfitsio to create a counts map file:
-   @verbatim
-   > fcopy "test_events_0000.fits[1][bin ra,dec]" all_sky_1day.fits
-   @endverbatim
-   The <a href="http://glast.gsfc.nasa.gov/ssc/dev/binned_analysis/EventBin_DC1.html">EventBin</a> application, part of the Science Tools
-   distribution, provides capabilities for creating counts maps, in addition
-   to spectra and light curves that are particularly well-suited for LAT 
-   analysis.  In any case, we will use ds9 to view the counts maps:
+   The last command lauches the visualization tool ds9 and produces this
+   display:
 
-   @image html allsky.png all_sky_1day.fits
-   Here is a corresponding image using @ref all3EG.
-   \n\n
-   Since we would like to compare these data against a model and will be
-   concentrating on the Galactic anti-center, let's create a more serviceable
-   FITS file, concentrating on that region:
-   @verbatim
-   > fcopy "test_events_0000.fits[1][bin ra=65:105,dec=2:42]" anticenter_1day.fits
-   @endverbatim
+   @image html Virgo_map.png Virgo_map.fits
 
-   @section defineROI Define the Region-of-Interest 
-   The Region-of-Interest (ROI) comprises a set of selections on photon
+   The green circles indicate the positions of the 3EG point sources
+   within 25 degrees of the location of 3C 279.
+
+   @section defineROI Define the Region-of-Interest The
+   Region-of-Interest (ROI) comprises a set of selections on photon
    arrival time, energy, and direction.  These selections are made in
-   addition to any that are made using the query to the 
-   <a href="http://glast.gsfc.nasa.gov/cgi-bin/ssc/U1/D1WebQuery.cgi">
-   GSSC database</a>
-   or via the 
-   <a href="http://glast.gsfc.nasa.gov/ssc/dev/databases/dataSubselector.html">
-   user-level selection tool</a>.  Unfortunately, because of an
-   oversight in the Likelihood implementation, the ROI
-   selections must @em include any that are made by these other
-   tools.  More precisely, the data-space defined by the ROI must lie
-   entirely within the intersection of the data-spaces defined by these
-   other tools.  For example, if the user-level selection tool selects
-   events within a time interval (t1, t2), then any time intervals
-   defined in the ROI file must lie entirely within (t1, t2).
-   In future releases, this oversight will be corrected.
+   addition to any that are made using the query to the <a
+   href="http://glast.gsfc.nasa.gov/cgi-bin/ssc/U1/D1WebQuery.cgi">
+   GSSC database</a> or via the @b dataSubselector user-level
+   selection tool</a>.  Unfortunately, because of an oversight in the
+   Likelihood implementation, the ROI selections must @em include any
+   that are made by these other tools.  More precisely, the data-space
+   defined by the ROI must lie entirely within the intersection of the
+   data-spaces defined by these other tools.  For example, if the
+   user-level selection tool selects events within a time interval
+   (t1, t2), then any time intervals defined in the ROI file must lie
+   entirely within (t1, t2).  In future releases, this oversight will
+   be corrected.
    \n\n
    Here's the ROI file we will use:
    @verbatim
    <?xml version='1.0' standalone='no'?>
-   <Region-of-Interest title="Anticenter Region">
+   <Region-of-Interest title="Virgo Region">
       <timeInterval start="0"
                     stop="1"
                     unit="days"/>
-      <energies emin="100." 
-                emax="3.1623e5"
+      <energies emin="30." 
+                emax="2e5"
                 unit="MeV"/>
-      <acceptanceCone longitude="180."
-                      latitude="0."
-                      radius="25"
-                      coordsys="Galactic"/>
+      <acceptanceCone longitude="193.98."
+                      latitude="-5.82"
+                      radius="20"
+                      coordsys="J2000"/>
    </Region-of-Interest>
    @endverbatim
    Any number of time intervals can be specified and can be given in
-   units of seconds or days, referenced to the start of the DC1
+   units of "seconds" or "days", referenced to the start of the
    simulation.  Data will be selected from the intersection of
    intervals given.  In future, the GTI extension of the FITS event
-   and spacecraft files will provide this same capability.  We choose
-   a minimum energy of 100 MeV.  This is necessary since the sources
-   we have used in the simulation do not produce events with energies
-   less than 100 MeV. (Note that we really should consider energy
-   dispersion in our choice of emin.)  A similar consideration would
-   have to be made if the user-level selection tool also applied an
-   energy cut.  Lastly, an acceptance cone defines the part of the
-   sky from which photons will be accepted.  The "coordsys" attribute
-   can either be "Galactic" or "J2000"; the "radius" attribute gives
-   the half-opening angle of the acceptance cone; and units are in
+   file(s) will provide this same capability. A similar consideration
+   applies to energy and acceptance cone cuts made, for example, using
+   @b dataSubselector.  The "coordsys" attribute can either be
+   "Galactic" or "J2000"; the "radius" attribute gives the
+   half-opening angle of the acceptance cone; and units are in
    degrees.
 
    @section makeExposureMap Make an Exposure Map for a Given ROI
@@ -221,34 +185,63 @@
    separate exposure maps must be made for every distinct ROI file,
    if, for example, one wants to subdivide an observation to look for
    secular flux variations from a particular source or sources.
+
+   There are two separate tools for generating exposure maps.  The
+   first is @b makeExposureCube.  This tool creates an all-sky map of
+   the integrated livetime as a function of inclination with respect
+   to the LAT z-axis.  It is otherwise identical to the @b
+   exposure_cube application in the @b map_tools package, except that
+   makeExposureCube also applies the time-interval cuts specified in
+   the ROI file.  
+   @verbatim
+   noric13[jchiang] ~/ST_new/Likelihood/v5r1p1/rh9_gcc32/makeExposureCube.exe 
+   Spacecraft data file [single_src_scData_0000.fits] : ptsrcs_scData_0000.fits
+   Output file [!expcube_1_day.fits] : 
+   Step size in cos(theta) <0. - 1.> [0.25] : 0.05
+   Pixel size (degrees) [10] : 1.
+   ROI file [anticenter_Roi.xml] : RoiCuts.xml
+   Creating a exposure hypercube, size 1231200=360 x 180 x 19
+   Working on file ptsrcs_scData_0000.fits
+   .....................!
+   noric13[jchiang] 
+   @endverbatim
+   Since @b makeExposureCube produces an all-sky map, the output FITS
+   file of this tool can be used to generating exposure maps for other
+   regions-of-interest that have the same time interval selections.
+   Although the @expMap application (see below) can generate exposure
+   maps for Likelihood without an exposure hypercube map, using one
+   affords a substantial time savings.
    \n\n
    We create the exposure map using the @b expMap tool:
    @verbatim
-   > time expMap.exe
-   ROI cuts file [RoiCuts.xml] : 
-   Spacecraft file [test_scData_0000.fits] : 
-   Response functions to use <FRONT/BACK|FRONT|BACK> [FRONT/BACK] : 
-   Radius of the source region (in degrees) [35] : 
-   Number of longitude points <2 - 1000> [70] : 
-   Number of latitude points <2 - 1000> [70] : 
-   Number of energies <2 - 100> [10] : 
-   Exposure file [anticenter_expMap.fits] : 
+   noric13[jchiang] ~/ST_new/Likelihood/v5r1p1/rh9_gcc32/expMap.exe 
+   ROI cuts file [../data/anticenter_Roi.xml] : RoiCuts.xml
+   Spacecraft file [../data/single_src_scData_0000.fits] : ptsrcs_scData_0000.fits
+   Response functions to use <FRONT/BACK|FRONT|BACK|GLAST25> [GLAST25] : FRONT/BACK
+   Use energy dispersion? [no] : 
+   Radius of the source region (in degrees) [30] : 
+   Number of longitude points <2 - 1000> [10] : 120
+   Number of latitude points <2 - 1000> [10] : 120
+   Number of energies <2 - 100> [5] : 20
+   Exposure hypercube file [none] : expcube_1_day.fits
+   Exposure file [test1.fits] : expMap.fits
+   Loaded exposure map from a FITS file expcube_1_day.fits, size is 1231200
    Computing the ExposureMap....................!
-   464.390u 1.110s 8:25.68 92.0%	0+0k 0+0io 4071pf+0w
+   noric13[jchiang] 
    @endverbatim
-   Note that we have chosen a 35 degree radius "source region", while
-   the ROI acceptance cone radius is 25 degrees.  This is necessary to
+   Note that we have chosen a 30 degree radius "source region", while
+   the ROI acceptance cone radius is 20 degrees.  This is necessary to
    ensure that photons from sources outside the ROI are accounted for,
    at least partially, owing to the size of the instrument
-   point-spread function.  Half-degree pixels are a nominal choice;
+   point-spread function. Half-degree pixels are a nominal choice;
    smaller pixels should result in a more accurate evaluation of the
    diffuse source fluxes but will also make the exposure map
    calculation itself lengthier.  The number of energies specifies the
    number of logarithmically spaced intervals bounded by the energy
-   range given in the ROI cuts xml file.  Here is one image plane of the
-   exposure map we just created:
+   range given in the ROI cuts xml file.  Here is one image plane of
+   the exposure map we just created:
 
-   @image html expMap.png anticenter_expMap.fits
+   @image html expMap.png expMap.fits
 
    @section sourceModelFile Create a Source Model XML File
    Like the ROI file, the @b likelihoodApp reads the source model
