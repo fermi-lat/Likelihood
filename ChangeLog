@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 20 11:26:08 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+comment out CCfits usage
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 20 11:26:07 PDT 2003
 Likelihood/src
 
