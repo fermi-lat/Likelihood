@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb  1 16:01:16 PST 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py SrcModel.py 
+Log Message:
+implement __repr__ methods and convenient parameter access
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jan 31 23:18:57 PST 2005
 Likelihood/src
 
