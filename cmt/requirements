@@ -4,7 +4,7 @@ version v2r9
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.85 2004/02/18 21:13:27 jchiang Exp $
+# $Id: requirements,v 1.86 2004/02/20 00:02:05 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -28,7 +28,7 @@ use hoopsUtil v*
 
 # allow use of internal path
 macro Likelihood_cppflags "" \
-Linux "-I ../src -g -pedantic -O -D TRAP_FPE -D USE_GOODI " \
+Linux "-I ../src -g -pedantic -D TRAP_FPE -D USE_GOODI " \
 #Linux "-I ../src -g -pedantic -D TRAP_FPE " \
 WIN32 '/I..\src /D"USE_GOODI" /wd4290'
 
@@ -49,6 +49,6 @@ library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 # applications
 application test_Likelihood test/main.cxx
 application my_test test/test.cxx
-application likelihoodApp test/likelihood.cxx
-application TsMap test/TsMap.cxx
-application expMap test/expMap.cxx
+#application likelihoodApp test/likelihood.cxx
+#application TsMap test/TsMap.cxx
+#application expMap test/expMap.cxx

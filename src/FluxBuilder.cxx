@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.1 2004/02/18 21:14:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.1 2004/02/20 00:02:06 jchiang Exp $
  */
 
 #include <string>
@@ -15,12 +15,12 @@
 
 #include "facilities/Util.h"
 
-#include <xercesc/dom/DOM_Document.hpp>
-#include <xercesc/dom/DOM_Element.hpp>
-#include <xercesc/dom/DOM_NodeList.hpp>
-#include <xercesc/dom/DOM_DOMException.hpp>
+// #include <xercesc/dom/DOM_Document.hpp>
+// #include <xercesc/dom/DOM_Element.hpp>
+// #include <xercesc/dom/DOM_NodeList.hpp>
+// #include <xercesc/dom/DOM_DOMException.hpp>
 
-#include "xml/Dom.h"
+// #include "xml/Dom.h"
 
 #include "optimizers/Function.h"
 
