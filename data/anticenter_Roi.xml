@@ -2,9 +2,9 @@
 <!--<!DOCTYPE Region-of-Interest SYSTEM "RoiCuts.dtd">-->
 <Region-of-Interest title="Anticenter Region">
    <timeInterval start="0"
-                 stop="1"
+                 stop="20"
                  unit="days"/>
-   <energies emin="100." 
+   <energies emin="30." 
              emax="3.1623e5"
              unit="MeV"/>
    <acceptanceCone longitude="180."
