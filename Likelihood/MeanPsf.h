@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.4 2004/11/09 00:49:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.5 2005/02/28 18:38:46 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -51,6 +51,11 @@ public:
 
    void write(const std::string & filename) const;
 
+   /// Energy-dependent exposure (cm^2-s) at the selected sky location.
+   const std::vector<double> & exposure() const {
+      return m_exposure;
+   }
+
 private:
 
    static std::vector<double> s_separations;
@@ -62,6 +67,8 @@ private:
    const Observation & m_observation;
 
    std::vector<double> m_psfValues;
+
+   std::vector<double> m_exposure;
 
    void init();
 
