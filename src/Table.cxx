@@ -3,11 +3,11 @@
  * @brief Implementation of Table member functions
  * @authors T. Burnett, J. Chiang using code from Y. Ikebe
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.9 2003/06/10 23:58:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Table.cxx,v 1.10 2003/07/19 04:38:03 jchiang Exp $
  */
 
 #include "Likelihood/Table.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 #include "fitsio.h"
 
 #include <cstdio>
@@ -41,14 +41,14 @@ void Table::add_columns(std::vector<std::string> columnNames) {
 }
 
 void Table::read_FITS_table(std::string filename, int hdu) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    int status = 0;
    fitsfile * fp = 0;
    
    fits_open_file(&fp, filename.c_str(), READONLY, &status);
    fits_report_error(stderr, status);
    if (status != 0) {
-      throw LikelihoodException("Table::read_FITS_table: cfitsio error");
+      throw Exception("Table::read_FITS_table: cfitsio error");
    }
 
    int hdutype = 0;
@@ -76,7 +76,7 @@ void Table::read_FITS_table(std::string filename, int hdu)
                       << "Reading file \""<< filename 
                       << "\"; Column with name " << par(i).colname 
                       << " not found" << std::endl;
-         throw LikelihoodException(errorMessage.str());
+         throw Exception(errorMessage.str());
       }
    }
    
@@ -102,7 +102,7 @@ void Table::read_FITS_table(std::string filename, int hdu)
 
 void Table::read_FITS_colnames(std::string &filename, int hdu, 
                                std::vector<std::string> &columnNames) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    if (!columnNames.empty()) columnNames.clear();
 
    int status = 0;
@@ -114,7 +114,7 @@ void Table::read_FITS_colnames(std::string &filename, int hdu,
       std::ostringstream errorMessage;
       errorMessage << "Table::read_FITS_colnames:\n "
                    << "Could not open FITS file " << filename << "\n";
-      throw LikelihoodException(errorMessage.str());
+      throw Exception(errorMessage.str());
    }
    
    int hdutype = 0;

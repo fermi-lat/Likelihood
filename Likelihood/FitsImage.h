@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.11 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.12 2003/07/19 04:38:01 jchiang Exp $
  *
  */
 
@@ -14,7 +14,7 @@
 #include <string>
 #include <valarray>
 #include "astro/SkyDir.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.11 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.12 2003/07/19 04:38:01 jchiang Exp $
  *
  */
 
@@ -53,7 +53,7 @@ public:
    //! projection effects, i.e., we assume a "plate-carree" projection, 
    //! as for EGRET maps, for all images).
    void fetchAxisVector(unsigned int naxis, std::vector<double> &axisVector)
-      throw(LikelihoodException);
+      throw(Exception);
 
    //! This method computes arrays of longitude and latitude obtained
    //! by traversing the image plane by column number then row.
@@ -119,7 +119,7 @@ protected:
    //! Interface to cfitsio routines
    void read_fits_image(std::string &filename, std::vector<AxisParams> &axes,
                         std::valarray<double> &image) 
-      throw(LikelihoodException);
+      throw(Exception);
 
    //! FITS file name
    std::string m_filename;

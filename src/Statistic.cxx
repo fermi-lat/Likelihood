@@ -3,7 +3,7 @@
  * @brief Statistic class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Statistic.cxx,v 1.11 2003/06/10 23:58:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Statistic.cxx,v 1.12 2003/07/19 04:38:03 jchiang Exp $
  */
 
 #include <vector>
@@ -14,7 +14,7 @@
 
 #include "Likelihood/Statistic.h"
 #include "Likelihood/Table.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -40,7 +40,7 @@ void Statistic::readEventData(const std::string &eventFile,
 //! return pointer to data columns
 std::pair<long, double*> Statistic::getColumn(const Table &tableData, 
                                               const std::string &colname) const
-   throw(LikelihoodException) {
+   throw(Exception) {
    std::pair<long, double*> my_column(0, 0);
    std::string colnames;
    
@@ -57,7 +57,7 @@ std::pair<long, double*> Statistic::getColumn(const Table &tableData,
    errorMessage << "Statistic::getColumn:\n"
                 << "Column " << colname << " was not found in event data.\n"
                 << "Valid names are \n" << colnames << "\n";
-   throw LikelihoodException(errorMessage.str());
+   throw Exception(errorMessage.str());
 }
 
 } // namespace Likelihood

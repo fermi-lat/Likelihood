@@ -3,7 +3,7 @@
  * @brief Declaration of SpectrumFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_SpectrumFactory_h
@@ -16,7 +16,7 @@
 #include "PowerLaw.h"
 #include "Gaussian.h"
 #include "AbsEdge.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -35,7 +35,7 @@ class Function;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
  *
  */
     
@@ -54,7 +54,7 @@ public:
    //! they explicitly pass a new Function pointer; otherwise,
    //! the destructor will delete their Function.
    void addFunc(const std::string &name, Function* func, 
-                bool fromClone = true) throw(LikelihoodException);
+                bool fromClone = true) throw(Exception);
 
    Function *makeFunction(const std::string &name);
 

@@ -2,7 +2,7 @@
  * @file Mcmc.h
  * @brief Mcmc (Markov Chain Monte Carlo) class declaration
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.6 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.7 2003/07/19 04:38:01 jchiang Exp $
  */
 
 #ifndef Likelihood_Mcmc_h
@@ -12,7 +12,7 @@
 #include <string>
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Statistic.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -39,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.6 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.7 2003/07/19 04:38:01 jchiang Exp $
  */
 
 class Mcmc {
@@ -65,7 +65,7 @@ public:
    //! write samples to a FITS binary table
    static void writeSamples(std::string filename, 
                             std::vector< std::vector<double> > &samples)
-      throw(LikelihoodException);
+      throw(Exception);
 
 private:
 

@@ -3,7 +3,7 @@
  * @brief Declaration of Statistic class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.13 2003/06/10 18:18:30 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.14 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_Statistic_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.13 2003/06/10 18:18:30 burnett Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.14 2003/07/19 04:38:02 jchiang Exp $ 
  */
 
 class Statistic : public SourceModel {
@@ -52,7 +52,7 @@ protected:
    //! generalized column access
    std::pair<long, double*> getColumn(const Table &tableData, 
                                       const std::string &colname) const
-      throw(LikelihoodException);
+      throw(Exception);
 
    //! Event data; read from m_eventFile, stored in Table form
    std::string m_eventFile;

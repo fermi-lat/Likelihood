@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.16 2003/07/18 16:21:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.17 2003/07/19 04:38:03 jchiang Exp $
  */
 
 #include <cassert>
@@ -16,7 +16,7 @@
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -81,7 +81,7 @@ SourceFactory::SourceFactory() {
    } catch (ParameterNotFound &eObj) {
       std::cerr << eObj.what() << std::endl;
       throw;
-   } catch (LikelihoodException &likeException) {
+   } catch (Exception &likeException) {
       std::cerr << "Likelihood::SourceFactory: "
                 << "Cannot create DiffuseSource Milkyway.\n"
                 << likeException.what() << std::endl;
@@ -107,7 +107,7 @@ SourceFactory::SourceFactory() {
    } catch (ParameterNotFound &eObj) {
       std::cerr << eObj.what() << std::endl;
       throw;
-   } catch (LikelihoodException &likeException) {
+   } catch (Exception &likeException) {
       std::cerr << "Likelihood::SourceFactory: "
                 << "Cannot create DiffuseSource EG component.\n"
                 << likeException.what() << std::endl;
@@ -122,7 +122,7 @@ SourceFactory::~SourceFactory() {
 
 void SourceFactory::addSource(const std::string &name, Source* src, 
                               bool fromClone) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    if (!m_prototypes.count(name)) {
       if (fromClone) {
          m_prototypes[name] = src->clone();
@@ -133,7 +133,7 @@ void SourceFactory::addSource(const std::string &name, Source* src,
       std::ostringstream errorMessage;
       errorMessage << "SourceFactory::addSource: A Source named "
                    << name << " already exists.\n";
-      throw LikelihoodException(errorMessage.str());
+      throw Exception(errorMessage.str());
    }
 }
 

@@ -3,7 +3,7 @@
  * @brief Implementation of a simple test function 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.cxx,v 1.9 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.cxx,v 1.10 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include <vector>
@@ -26,7 +26,7 @@ MyFun::MyFun() {
 // built-in unit test (justifies the existence of MyFun)
    try {
       addParam(std::string("Plain"), 3.14159);
-   } catch (LikelihoodException &eObj) {
+   } catch (Exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
 }

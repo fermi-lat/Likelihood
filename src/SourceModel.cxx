@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.19 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.20 2003/06/19 20:16:32 jchiang Exp $
  */
 
 #include <vector>
@@ -32,7 +32,7 @@ SourceModel::~SourceModel() {
 void SourceModel::setParam(const Parameter &param, 
                            const std::string &funcName,
                            const std::string &srcName) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
          Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
@@ -50,7 +50,7 @@ void SourceModel::setParam(const Parameter &param,
    errorMessage << "SourceModel::setParam:  Function " 
                 << funcName << " for Source "
                 << srcName << " was not found.\n";
-   throw LikelihoodException(errorMessage.str());
+   throw Exception(errorMessage.str());
 }
  
 std::vector<double>::const_iterator SourceModel::setParamValues_(
@@ -80,7 +80,7 @@ std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
 Parameter SourceModel::getParam(const std::string &paramName,
                                 const std::string &funcName,
                                 const std::string &srcName) const 
-   throw(LikelihoodException, ParameterNotFound) {
+   throw(Exception, ParameterNotFound) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
          std::vector<Parameter> params;
@@ -100,14 +100,14 @@ Parameter SourceModel::getParam(const std::string &paramName,
                       << "Function " << funcName 
                       << " was not found in Source " 
                       << srcName << "\n";
-         throw LikelihoodException(errorMessage.str());
+         throw Exception(errorMessage.str());
       }
    }
    std::ostringstream errorMessage;
    errorMessage << "SourceModel::getParam: "
                 << "Source " << srcName 
                 << " was not found.\n";
-   throw LikelihoodException(errorMessage.str());
+   throw Exception(errorMessage.str());
 }
 
 void SourceModel::setParamBounds(const std::string &paramName,
@@ -143,7 +143,7 @@ void SourceModel::setParamTrueValue(const std::string &paramName,
 }
 
 void SourceModel::setParams_(std::vector<Parameter> &params, bool setFree) 
-   throw(LikelihoodException, ParameterNotFound) {
+   throw(Exception, ParameterNotFound) {
 // ensure the number of Parameters matches
    unsigned int numParams;
    if (setFree) {
@@ -154,7 +154,7 @@ void SourceModel::setParams_(std::vector<Parameter> &params, bool setFree)
    if (params.size() != numParams) {
       std::string errorMessage = std::string("SourceModel::setParams:\n") 
          + std::string("Inconsistent number of Parameters.");
-      throw LikelihoodException(errorMessage);
+      throw Exception(errorMessage);
    }
 // assume ordering of Parameters in params matches that given by the
 // ordering of the Sources and their Functions
@@ -199,7 +199,7 @@ void SourceModel::addSource(Source *src) {
 }
  
 void SourceModel::deleteSource(const std::string &srcName) 
-   throw(LikelihoodException) {
+   throw(Exception) {
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (srcName == (*s_sources[i]).getName()) {
          s_sources.erase(s_sources.begin() + i, 
@@ -211,7 +211,7 @@ void SourceModel::deleteSource(const std::string &srcName)
    std::ostringstream errorMessage;
    errorMessage << "SourceModel::deleteSource: " 
                 << srcName << " was not found.\n";
-   throw LikelihoodException(errorMessage.str());
+   throw Exception(errorMessage.str());
 }
 
 void SourceModel::deleteAllSources() {

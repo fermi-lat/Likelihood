@@ -7,7 +7,7 @@
 
 //  include everything for the compiler to test
 
-#include "LikelihoodException.h"
+#include "Likelihood/Exception.h"
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Function.h"
 #include "Likelihood/SourceModel.h" 
@@ -221,7 +221,7 @@ void test_Mcmc() {
                 << "minValue: " << eObj.minValue() << "\n"
                 << "maxValue: " << eObj.maxValue() << "\n" 
                 <<std::endl;
-   } catch(LikelihoodException &eObj) {
+   } catch(Exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
 
@@ -519,7 +519,7 @@ void test_FitsImage() {
    
    std::valarray<double> imageData;
    expImage.fetchImageData(imageData);
-   } catch (LikelihoodException eObj) {
+   } catch (Exception eObj) {
       std::cerr << eObj.what() << std::endl;
    } 
    catch (...) {
@@ -681,7 +681,7 @@ void test_Optimizers() {
    try {
      my_lbfgsObj.find_min(verbose, .000001);
    }
-   catch(LikelihoodException& rrr) {
+   catch(Exception& rrr) {
      std::cout << "Exception: " << rrr.what() << std::endl;
    }
    std::cout << "LBFGS exit code: " 
@@ -1406,7 +1406,7 @@ void test_Statistic_class() {
 /* try to access a column that doesn't exist */
    try {
       xi = logLike.getEventColumn("foo");
-   } catch(LikelihoodException &eObj) {
+   } catch(Exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
 
@@ -1874,7 +1874,7 @@ void test_Function_class() {
    try {
       double value = f.getParamValue("foo");
       std::cout << value << std::endl;
-   } catch(LikelihoodException &eObj) {
+   } catch(Exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
 
@@ -1900,7 +1900,7 @@ void test_Function_class() {
 // attempt to change the value of a non-existent parameter
    try {
       f.setParam(std::string("Oscar"), 5.);
-   } catch(LikelihoodException &eObj) {
+   } catch(Exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
 
@@ -1935,7 +1935,7 @@ void test_Function_class() {
 
    try {
       Parameter my_param = f.getParam("Joan");
-   } catch(LikelihoodException &eObj) {
+   } catch(Exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
 

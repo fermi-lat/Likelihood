@@ -2,13 +2,13 @@
  * @file OutOfBounds.h
  * @brief Declaration/definition of OutOfBounds exception class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OutOfBounds.h,v 1.1 2003/06/19 20:16:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OutOfBounds.h,v 1.2 2003/07/19 04:38:01 jchiang Exp $
  */
 
 #ifndef Likelihood_OutOfBounds_h
 #define Likelihood_OutOfBounds_h
 
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -21,15 +21,15 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OutOfBounds.h,v 1.1 2003/06/19 20:16:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OutOfBounds.h,v 1.2 2003/07/19 04:38:01 jchiang Exp $
  */
 
-class OutOfBounds : public LikelihoodException {
+class OutOfBounds : public Exception {
 
 public:
    OutOfBounds(const std::string &errorString, double value, 
                double minValue, double maxValue, int code) : 
-      LikelihoodException(errorString, code), m_value(value), 
+      Exception(errorString, code), m_value(value), 
       m_minValue(minValue), m_maxValue(maxValue) {}
 
    ~OutOfBounds() {}

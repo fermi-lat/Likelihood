@@ -3,13 +3,13 @@
  * @brief Minuit class implementation
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Minuit.cxx,v 1.9 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Minuit.cxx,v 1.10 2003/07/19 04:38:03 jchiang Exp $
  */
 
 #include <sstream>
 #include "Likelihood/Minuit.h"
 #include "Likelihood/Parameter.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
@@ -65,12 +65,12 @@ namespace Likelihood {
     int retCode = doCmd(mline.str());  // Minimize fcn
     if (retCode == 4) {
       // Abnormal termination
-      throw LikelihoodException
+      throw Exception
 	("Minuit abnormal termination. (No convergence?)");
     }
     else if (retCode > 0) {
       // Faulty command line
-      throw LikelihoodException("Minuit bad command line");
+      throw Exception("Minuit bad command line");
     }
 
     // Normal termination.  Extract fitted parameters

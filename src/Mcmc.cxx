@@ -4,7 +4,7 @@
  * a Statistic object using the Variable-at-a-time Metropolis-Hastings
  * update method.
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.7 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.8 2003/07/19 04:38:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -15,7 +15,7 @@
 #include <algorithm>
 #include "fitsio.h"
 #include "Likelihood/Mcmc.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/Exception.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -66,7 +66,7 @@ void Mcmc::generateSamples(std::vector< std::vector<double> > &samples,
 
 void Mcmc::writeSamples(std::string filename, 
                         std::vector< std::vector<double> > &samples) 
-   throw(LikelihoodException) {
+   throw(Exception) {
 
    fitsfile *fptr;
    int status = 0;
@@ -77,7 +77,7 @@ void Mcmc::writeSamples(std::string filename,
    fits_create_file(&fptr, filename.c_str(), &status);
    if (status != 0) {
       fits_report_error(stderr, status);
-      throw LikelihoodException("Mcmc::writeSamples: cfitsio errors.");
+      throw Exception("Mcmc::writeSamples: cfitsio errors.");
    }
 
 // create the binary table, with the labels identifying the content of
@@ -106,7 +106,7 @@ void Mcmc::writeSamples(std::string filename,
 		   tunit, extname, &status);
    if (status != 0) {
       fits_report_error(stderr, status);
-      throw LikelihoodException("Mcmc::writeSamples: cfitsio errors.");
+      throw Exception("Mcmc::writeSamples: cfitsio errors.");
    }
 
    int firstrow  = 1;  /* first row in table to write   */
@@ -125,13 +125,13 @@ void Mcmc::writeSamples(std::string filename,
                      &my_data[0], &status);
       if (status != 0) {
          fits_report_error(stderr, status);
-         throw LikelihoodException("Mcmc::writeSamples: cfitsio errors.");
+         throw Exception("Mcmc::writeSamples: cfitsio errors.");
       }
    }
    fits_close_file(fptr, &status);
    if (status != 0) {
       fits_report_error(stderr, status);
-      throw LikelihoodException("Mcmc::writeSamples: cfitsio errors.");
+      throw Exception("Mcmc::writeSamples: cfitsio errors.");
    }
 }
 

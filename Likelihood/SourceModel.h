@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.19 2003/06/19 20:16:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.20 2003/07/19 04:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.19 2003/06/19 20:16:04 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.20 2003/07/19 04:38:02 jchiang Exp $ 
  */
 
 class SourceModel : public Function {
@@ -41,7 +41,7 @@ public:
    //! setParam method to include function and source name checking
    virtual void setParam(const Parameter &param, const std::string &funcName,
                          const std::string &srcName) 
-      throw(LikelihoodException);
+      throw(Exception);
 
    //! group parameter access (note name mangling for inheritance 
    //! from Function)
@@ -53,14 +53,14 @@ public:
    virtual double getParamValue(const std::string &paramName, 
                                 const std::string &funcName,
                                 const std::string &srcName) const
-      throw(LikelihoodException, ParameterNotFound) {
+      throw(Exception, ParameterNotFound) {
       return getParam(paramName, funcName, srcName).getValue();
    }
    
    virtual Parameter getParam(const std::string &paramName, 
                               const std::string &funcName,
                               const std::string &srcName) const
-      throw(LikelihoodException, ParameterNotFound);
+      throw(Exception, ParameterNotFound);
 
    virtual void setParamBounds(const std::string &paramName,
                                const std::string &funcName,
@@ -80,16 +80,16 @@ public:
       throw(ParameterNotFound, OutOfBounds);
 
    virtual void setParams(std::vector<Parameter> &params) 
-      throw(LikelihoodException, ParameterNotFound) 
+      throw(Exception, ParameterNotFound) 
       {setParams_(params, false);}
 
    virtual void setFreeParams(std::vector<Parameter> &params) 
-      throw(LikelihoodException, ParameterNotFound) 
+      throw(Exception, ParameterNotFound) 
       {setParams_(params, true);}
 
    //! add and delete sources by name
    void addSource(Source *src);
-   void deleteSource(const std::string &srcName) throw(LikelihoodException);
+   void deleteSource(const std::string &srcName) throw(Exception);
 
    //! delete all the sources
    void deleteAllSources();
@@ -121,7 +121,7 @@ protected:
    void fetchDerivs(Arg &x, std::vector<double> &derivs, bool getFree) const;
 
    void setParams_(std::vector<Parameter> &, bool)
-      throw(LikelihoodException, ParameterNotFound);
+      throw(Exception, ParameterNotFound);
 
 };
 

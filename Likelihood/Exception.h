@@ -1,9 +1,9 @@
 /**
- * @file LikelihoodException.h
+ * @file Exception.h
  * @brief Exception class for Likelihood
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikelihoodException.h,v 1.1 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikelihoodException.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
  */
 
 #ifndef LIKELIHOOD_EXCEPTION_H
@@ -13,22 +13,22 @@
 
 namespace Likelihood {
 /**
- * @class LikelihoodException
+ * @class Exception
  *
  * @brief Exception class for Likelihood
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikelihoodException.h,v 1.1 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikelihoodException.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
  */
 
-  class LikelihoodException: public std::exception {
+  class Exception: public std::exception {
   public:
-    LikelihoodException() {}
-    LikelihoodException(std::string errorString, int code=0) : 
+    Exception() {}
+    Exception(std::string errorString, int code=0) : 
       m_what(errorString), m_code(code) 
       {}
-    virtual ~LikelihoodException() throw() {}
+    virtual ~Exception() throw() {}
     virtual const char *what() const throw() {return m_what.c_str();}
     virtual const int code() const {return m_code;}
   protected:
