@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.1 2004/09/22 05:39:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.2 2004/09/22 20:05:38 jchiang Exp $
  */
 
 #include "Likelihood/CountsMap.h"
@@ -26,20 +26,25 @@ SourceMap::SourceMap(Source * src, const CountsMap & dataMap)
 // @todo Generalize this for possible future event types, perhaps
 // making EventTypes a Singleton class in irfsInterface. For now, 0 =
 // Front, 1 = Back.
-
+   std::cerr << "Generating SourceMap for " << m_name;
+   long npts = 2*energies.size()*pixels.size();
+   long icount(0);
    for (int evtType = 0; evtType < 2; evtType++) {
       std::vector<double> model;
       std::vector<double>::const_iterator energy = energies.begin();
       for ( ; energy != energies.end(); ++energy) {
          std::vector<Pixel>::const_iterator pixel = pixels.begin();
          for ( ; pixel != pixels.end(); ++pixel) {
+            if ((icount % (npts/20)) == 0) std::cerr << ".";
             Aeff aeff(src, pixel->dir(), *energy, evtType);
             double value = ExposureCube::instance()->value(pixel->dir(), aeff);
             model.push_back(value);
+            icount++;
          }
       }
       m_models.push_back(model);
    }
+   std::cerr << "!" << std::endl;
 }
 
 double SourceMap::Aeff::operator()(double costheta) const {

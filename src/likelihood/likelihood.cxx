@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.33 2004/09/22 20:05:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.34 2004/09/22 22:49:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,12 +23,12 @@
 #include "tip/Table.h"
 
 #include "optimizers/Drmngb.h"
+#include "optimizers/Exception.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
 #ifdef HAVE_OPT_PP
 #include "optimizers/OptPP.h"
 #endif // HAVE_OPT_PP
-#include "optimizers/Exception.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.33 2004/09/22 20:05:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.34 2004/09/22 22:49:06 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -77,11 +77,15 @@ private:
 
    st_app::AppParGroup & m_pars;
 
-   LogLike * m_logLike;
+   SourceModel * m_logLike;
    bool m_useOptEM;
    optimizers::Optimizer * m_opt;
 
    std::vector<std::string> m_eventFiles;
+
+   CountsMap * m_dataMap;
+
+   std::string m_statistic;
 
    void createStatistic();
    void readEventData();
@@ -91,6 +95,7 @@ private:
    void writeFluxXml();
    void writeCountsSpectra();
    void writeCountsMap();
+   void createCountsMap();
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
 
@@ -101,7 +106,7 @@ st_app::StAppFactory<likelihood> myAppFactory;
 likelihood::likelihood() 
    : st_app::StApp(), m_helper(0), 
      m_pars(st_app::StApp::getParGroup("likelihood")),
-     m_logLike(0), m_useOptEM(false), m_opt(0) {
+     m_logLike(0), m_useOptEM(false), m_opt(0), m_dataMap(0) {
    try {
       m_pars.Prompt();
       m_pars.Save();
@@ -120,8 +125,11 @@ likelihood::likelihood()
 void likelihood::run() {
    m_helper->setRoi();
    m_helper->readExposureMap();
+   std::string eventFile = m_pars["event_file"];
+   st_facilities::Util::file_ok(eventFile);
+   st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
+   createCountsMap();
    createStatistic();
-   readEventData();
 
 // Set the verbosity level and convergence tolerance.
    long verbose = m_pars["fit_verbosity"];
@@ -158,27 +166,35 @@ void likelihood::run() {
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
    writeCountsSpectra();
-   writeCountsMap();
+//   writeCountsMap();
 }
 
 void likelihood::createStatistic() {
-   m_useOptEM = m_pars["Use_OptEM"];
-   if (m_useOptEM) {
+   std::string statistic = m_pars["Statistic"];
+   m_statistic = statistic;  // Wow, this is annoying.
+   if (statistic == "BINNED") {
+      std::string expcube_file = m_pars["exposure_cube_file"];
+      if (expcube_file == "none") {
+         throw std::runtime_error("Please specify an exposure cube file.");
+      }
+      ExposureCube::readExposureCube(expcube_file);
+      m_logLike = new BinnedLikelihood(*m_dataMap);
+      return;
+   } else if (statistic == "OPTEM") {
       m_logLike = new OptEM();
-   } else {
+      m_useOptEM = true;
+   } else if (statistic == "UNBINNED") {
       m_logLike = new LogLike();
    }
+   readEventData();
 }
 
 void likelihood::readEventData() {
-   std::string eventFile = m_pars["event_file"];
    long eventFileHdu = m_pars["event_file_hdu"];
-   st_facilities::Util::file_ok(eventFile);
-   st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
    std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
    for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-      m_logLike->getEvents(*evIt, eventFileHdu);
+      dynamic_cast<LogLike *>(m_logLike)->getEvents(*evIt, eventFileHdu);
    }
 }
 
@@ -188,7 +204,9 @@ void likelihood::readSourceModel() {
 // Read in the Source model for the first time.
       st_facilities::Util::file_ok(sourceModel);
       m_logLike->readXml(sourceModel, m_helper->funcFactory());
-      m_logLike->computeEventResponses();
+      if (m_statistic != "BINNED") {
+         dynamic_cast<LogLike *>(m_logLike)->computeEventResponses();
+      }
    } else {
 // Re-read the Source model from the xml file, allowing only for 
 // Parameter adjustments.
@@ -201,8 +219,8 @@ void likelihood::selectOptimizer(std::string optimizer) {
    delete m_opt;
    m_opt = 0;
    if (optimizer == "") {
-// Type conversions for hoops are not working properly here so
-// workaround the problem with an intermediate variable.
+// Type conversions for hoops do not work properly, so we are
+// forced to use an intermediate variable.
       std::string opt = m_pars["optimizer"];
       optimizer = opt;
    }
@@ -299,16 +317,23 @@ void likelihood::writeCountsMap() {
    if (expcube_file == "none") {
       return;
    }
+   ExposureCube::readExposureCube(expcube_file);
+   m_dataMap->writeOutput("likelihood", "data_map.fits");
    try {
-      ExposureCube::readExposureCube(expcube_file);
-   } catch (std::exception & eObj) {
-      if (st_facilities::Util::expectedException(eObj, "fits error")) {
-         return;
+      CountsMap * modelMap;
+      if (m_statistic == "BINNED") {
+         modelMap = m_logLike->createCountsMap();
       } else {
-         throw;
+         modelMap = m_logLike->createCountsMap(*m_dataMap);
       }
+      modelMap->writeOutput("likelihood", "model_map.fits");
+      delete modelMap;
+   } catch (std::exception & eObj) {
+      std::cout << eObj.what() << std::endl;
    }
+}
 
+void likelihood::createCountsMap() {
 // Create a counts map from the data using the ROI as to get the map
 // dimensions.
    RoiCuts * roiCuts = RoiCuts::instance();
@@ -319,8 +344,9 @@ void likelihood::writeCountsMap() {
    double roi_radius = roi.radius();
    double roi_ra, roi_dec;
    RoiCuts::getRaDec(roi_ra, roi_dec);
-   
-   unsigned long npts = static_cast<unsigned long>(2*roi_radius);
+
+   double pixel_size(0.5);
+   unsigned long npts = static_cast<unsigned long>(2*roi_radius/pixel_size);
    unsigned long nee(21);
 
 // CountsMap and its base class, DataProduct, want *single* event and
@@ -328,35 +354,14 @@ void likelihood::writeCountsMap() {
 // just the first from each vector.
 // @todo sort out how one should handle these data when several FITS
 // files are specified.
-   CountsMap dataMap(m_eventFiles[0], m_helper->scFiles()[0], 
-                     roi_ra, roi_dec, "CAR", npts, npts, 1., 
-                     0, false, "RA", "DEC", elims.first, elims.second, nee);
-                     
+   m_dataMap = new CountsMap(m_eventFiles[0], m_helper->scFiles()[0], 
+                             roi_ra, roi_dec, "CAR", npts, npts, pixel_size, 
+                             0, false, "RA", "DEC", elims.first, 
+                             elims.second, nee);
    for (unsigned int i = 0; i < m_eventFiles.size(); i++) {
       const tip::Table * events 
          = tip::IFileSvc::instance().readTable(m_eventFiles[i], "events");
-      dataMap.binInput(events->begin(), events->end());
-   }
-
-   dataMap.writeOutput("likelihood", "data_map.fits");
-
-   std::vector<double> params;
-   m_logLike->getFreeParamValues(params);
-
-   BinnedLikelihood binnedLogLike(dataMap);
-   std::string xmlFile = m_pars["Source_model_file"];
-   binnedLogLike.reReadXml(xmlFile);
-   binnedLogLike.setFreeParamValues(params);
-   std::cout << "Binned log-likelihood: "
-             << binnedLogLike.value()
-             << std::endl;
-
-   try {
-      CountsMap * modelMap = binnedLogLike.createCountsMap();
-      modelMap->writeOutput("likelihood", "model_map.fits");
-      delete modelMap;
-   } catch (std::exception &eObj) {
-      std::cout << eObj.what() << std::endl;
+      m_dataMap->binInput(events->begin(), events->end());
    }
 }
 
@@ -368,39 +373,41 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<double> fitParams;
    m_logLike->getFreeParamValues(fitParams);
 
-// Compute TS for each source.
    std::map<std::string, double> TsValues;
-   int verbose(0);
-   double tol(1e-4);
-   double logLike_value = m_logLike->value();
-   std::vector<double> null_values;
-   std::cerr << "Computing TS values for each source ("
-             << srcNames.size() << " total)\n";
-   for (unsigned int i = 0; i < srcNames.size(); i++) {
-      std::cerr << ".";
-      if (srcNames[i].find("Diffuse") == std::string::npos) {
-         Source * src = m_logLike->deleteSource(srcNames[i]);
-         if (m_logLike->getNumFreeParams() > 0) {
-            selectOptimizer();
-            try {
-               m_opt->find_min(verbose, tol);
-            } catch (optimizers::Exception &eObj) {
-               std::cout << eObj.what() << std::endl;
-            }
-            null_values.push_back(m_logLike->value());
-            TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
-         } else {
+   if (m_statistic != "BINNED") {
+// Compute TS for each source.
+      int verbose(0);
+      double tol(1e-4);
+      double logLike_value = dynamic_cast<LogLike *>(m_logLike)->value();
+      std::vector<double> null_values;
+      std::cerr << "Computing TS values for each source ("
+                << srcNames.size() << " total)\n";
+      for (unsigned int i = 0; i < srcNames.size(); i++) {
+         std::cerr << ".";
+         if (srcNames[i].find("Diffuse") == std::string::npos) {
+            Source * src = m_logLike->deleteSource(srcNames[i]);
+            if (m_logLike->getNumFreeParams() > 0) {
+               selectOptimizer();
+               try {
+                  m_opt->find_min(verbose, tol);
+               } catch (optimizers::Exception &eObj) {
+                  std::cout << eObj.what() << std::endl;
+               }
+               null_values.push_back(
+                  dynamic_cast<LogLike *>(m_logLike)->value());
+               TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
+            } else {
 // // Not sure this is correct in the case where the model for the null
 // // hypothesis is empty.
 //             TsValues[srcNames[i]] = 2.*logLike_value;
 // A better default value?
-            TsValues[srcNames[i]] = 0.;
+               TsValues[srcNames[i]] = 0.;
+            }
+            m_logLike->addSource(src);
          }
-         m_logLike->addSource(src);
       }
+      std::cerr << "!" << std::endl;
    }
-   std::cerr << "!" << std::endl;
-
 // Reset parameter values.
    m_logLike->setFreeParamValues(fitParams);
 
@@ -429,9 +436,13 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
       }
    }
    std::cout << std::endl 
-             << "-log(Likelihood): " << -m_logLike->value()
-             << std::endl;
-   std::cout << std::endl;
+             << "-log(Likelihood): ";
+   if (m_statistic == "BINNED") {
+      std::cout << -dynamic_cast<BinnedLikelihood *>(m_logLike)->value();
+   } else {
+      std::cout << -dynamic_cast<LogLike *>(m_logLike)->value();
+   }
+   std::cout << "\n" << std::endl;
 }
 
 bool likelihood::prompt(const std::string &query) {
