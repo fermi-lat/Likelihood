@@ -4,13 +4,18 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.7 2004/04/12 03:53:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.8 2004/04/12 23:22:50 jchiang Exp $
  */
 
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 
 #include "fitsio.h"
+
+#include "st_app/AppParGroup.h"
+#include "st_app/StApp.h"
+#include "st_app/StAppFactory.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/Drmngb.h"
@@ -18,10 +23,9 @@
 #include "optimizers/Minuit.h"
 #include "optimizers/Exception.h"
 
-#include "Likelihood/AppBase.h"
+#include "Likelihood/AppHelpers.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Util.h"
-#include "Likelihood/StApp.h"
 
 using namespace Likelihood;
 
@@ -32,19 +36,24 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.7 2004/04/12 03:53:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.8 2004/04/12 23:22:50 jchiang Exp $
  */
-class TsMap : public AppBase {
+class TsMap : public st_app::StApp {
 public:
-   TsMap(hoops::IParGroup & pars) : AppBase(pars), m_opt(0) {
-      setPointSourceSpectrum(m_testSrc);
-      m_testSrc.setName("testSource");
-   }
-   virtual ~TsMap() {
-      delete m_opt;
+   TsMap();
+   virtual ~TsMap() throw() {
+      try {
+         delete m_opt;
+         delete m_helper;
+      } catch (std::exception & eObj) {
+         std::cerr << eObj.what() << std::endl;
+      } catch (...) {
+      }
    }
    virtual void run();
 private:
+   AppHelpers * m_helper;
+   st_app::AppParGroup & m_pars;
    LogLike m_logLike;
    optimizers::Optimizer * m_opt;
    std::vector<double> m_lonValues;
@@ -67,10 +76,28 @@ private:
    void setPointSourceSpectrum(PointSource &src);
 };
 
-StApp<TsMap> my_application("TsMap");
+st_app::StAppFactory<TsMap> myAppFactory;
+
+TsMap::TsMap() : st_app::StApp(), m_helper(0), 
+                 m_pars(st_app::StApp::getParGroup("TsMap")), m_opt(0) {
+   try {
+      m_pars.Prompt();
+      m_pars.Save();
+      m_helper = new AppHelpers(m_pars);
+      setPointSourceSpectrum(m_testSrc);
+      m_testSrc.setName("testSource");
+   } catch (std::exception &eObj) {
+      std::cout << eObj.what() << std::endl;
+      std::exit(1);
+   }  catch (...) {
+      std::cerr << "Caught unknown exception in TsMap constructor."
+                << std::endl;
+      std::exit(1);
+   }
+}
 
 void TsMap::run() {
-   readExposureMap();
+   m_helper->readExposureMap();
    readSrcModel();
    readEventData();
    selectOptimizer();
@@ -82,7 +109,7 @@ void TsMap::run() {
 
 void TsMap::readSrcModel() {
    Util::file_ok(m_pars["Source_model_file"]);
-   m_logLike.readXml(m_pars["Source_model_file"], m_funcFactory);
+   m_logLike.readXml(m_pars["Source_model_file"], m_helper->funcFactory());
 }   
 
 void TsMap::readEventData() {
@@ -176,7 +203,7 @@ void TsMap::makeDoubleVector(double xmin, double xmax, int nx,
 }
 
 void TsMap::setPointSourceSpectrum(PointSource &src) {
-   optimizers::Function * pl = m_funcFactory.create("PowerLaw");
+   optimizers::Function * pl = m_helper->funcFactory().create("PowerLaw");
    double parValues[] = {1., -2., 100.};
    std::vector<double> pars(parValues, parValues + 3);
    pl->setParamValues(pars);
