@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.19 2004/09/22 20:05:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.20 2005/01/13 22:42:01 jchiang Exp $
  */
 
 #include <cmath>
@@ -29,8 +29,7 @@ bool DiffuseSource::s_haveStaticMembers = false;
 std::vector<double> DiffuseSource::s_energies;
 
 DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
-                             bool requireExposure) 
-   throw(Exception) : m_spectrum(0) {
+                             bool requireExposure) : m_spectrum(0) {
    m_spatialDist = spatialDist->clone();
    m_functions["SpatialDist"] = m_spatialDist;
 

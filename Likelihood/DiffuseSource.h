@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.22 2004/09/22 22:49:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.23 2004/11/03 23:50:16 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -43,7 +43,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.22 2004/09/22 22:49:01 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.23 2004/11/03 23:50:16 jchiang Exp $ 
  *  
  */
 
@@ -51,14 +51,21 @@ class DiffuseSource : public Source {
 
 public:
 
-   /// A Function describing the spatial distribution of emission is 
-   /// required for instantiation.
+   /// @param spatialDist A Function object describing the spatial
+   ///        distribution of the emission.
+   /// @param requireExposure If true, then an ExposureMap must have
+   ///        been read in so that the spatially integrated for the
+   ///        spectral calculation; if false, then the map is not
+   ///        integrated.
    DiffuseSource(optimizers::Function *spatialDist,
-                 bool requireExposure = true) throw(Exception);
+                 bool requireExposure = true);
 
    DiffuseSource(const DiffuseSource &rhs);
 
-   virtual ~DiffuseSource() {delete m_spatialDist; delete m_spectrum;}
+   virtual ~DiffuseSource() {
+      delete m_spatialDist;
+      delete m_spectrum;
+   }
 
    /// Returns photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
@@ -88,10 +95,16 @@ public:
    virtual double Npred(double emin, double emax);
 
    /// Return the spatial distribution of the gamma-ray emission
-   double spatialDist(const astro::SkyDir &dir) {
+   double spatialDist(const astro::SkyDir & dir) const {
       SkyDirArg SDarg(dir);
       return (*m_spatialDist)(SDarg);
    }
+
+#ifndef SWIG
+   double spatialDist(SkyDirArg & dir) const {
+      return (*m_spatialDist)(dir);
+   }
+#endif
 
    /// Set the spectral model (should also check that the Parameter
    /// names do not conflict with "longitude" and "latitude" of m_dir)

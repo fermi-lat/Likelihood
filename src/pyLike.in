@@ -20,6 +20,7 @@
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/logSrcModel.h"
+#include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/OneSourceFunc.h"
@@ -96,6 +97,7 @@ using optimizers::Exception;
 %include $(LIKELIHOODROOT)/Likelihood/SpatialMap.h
 %include $(LIKELIHOODROOT)/Likelihood/SrcArg.h
 %include $(LIKELIHOODROOT)/Likelihood/TrapQuad.h
+%include $(LIKELIHOODROOT)/Likelihood/MapCubeFunction.h
 %extend Likelihood::SourceFactory {
    static optimizers::FunctionFactory * funcFactory() {
       optimizers::FunctionFactory * myFuncFactory 
