@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v6     09-Dec-04  JC   removed ROI_file from FTOOLS
     v5r6p1 08-Dec-04  JC   use dataSubselector v3
     v5r6   07-Dec-04  JC   first iteration on reading cuts from DSS
                            keywords; RoiCuts interface is still intact for
