@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v0r7  25-Apr-03   JC/  Working version of DiffuseSource, etc.;
+                      THB  Windows compliance.
     v0r6  25-Mar-03   JC   OptPP class, mainpage.h, update release.notes,
                            [Source, Spectrum]Factory, DiffuseSource, and
                            ExposureMap classes.
