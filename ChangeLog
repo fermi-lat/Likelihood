@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Apr  3 17:22:25 PST 2004
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+replace tuple with tip; tagging v3r3
+    *
+------------------------------------------------------------
 User: jchiang  Sat Apr  3 17:22:24 PST 2004
 Likelihood/src
 
