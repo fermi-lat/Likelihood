@@ -184,27 +184,6 @@ using optimizers::Exception;
       return new optimizers::Mcmc(*self);
    }
 }
-%extend Likelihood::ResponseFunctions {
-   void load(const std::string & respFuncs) {
-      irfLoader::Loader::go();
-      irfInterface::IrfsFactory * myFactory 
-         = irfInterface::IrfsFactory::instance();
-      
-      typedef std::map< std::string, std::vector<std::string> > respMap;
-      const respMap & responseIds = irfLoader::Loader::respIds();
-      respMap::const_iterator it;
-      if ( (it = responseIds.find(respFuncs)) != responseIds.end() ) {
-         const std::vector<std::string> & resps = it->second;
-         for (unsigned int i = 0; i < resps.size(); i++) {
-            self->addRespPtr(i, myFactory->create(resps[i]));
-         }
-         self->setRespName(respFuncs);
-      } else {
-         throw std::invalid_argument("Invalid response function choice: "
-                                     + respFuncs);
-      }
-   }
-}
 // %extend Likelihood::BinnedLikelihood {
 //    static Likelihood::
 //       BinnedLikelihood * create(const std::string & countsMapFile) {

@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.33 2005/03/02 22:55:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.34 2005/03/03 23:24:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -38,7 +38,6 @@ void ScData::readData(std::string file, bool clear) {
 
    double raSCX, decSCX;
    double raSCZ, decSCZ;
-//   double lonGeo, latGeo;
    tip::Table::Iterator it = scData->begin();
    tip::Table::Record & scInterval = *it;
    for ( ; it != scData->end(); ++it) {
@@ -63,14 +62,6 @@ void ScData::readData(std::string file, bool clear) {
                  << std::endl;
          throw std::runtime_error(message.str());
       }
-//       scInterval["lon_geo"].get(lonGeo);
-//       scInterval["lat_geo"].get(latGeo);
-//       astro::EarthCoordinate earthCoord(latGeo, lonGeo);
-//       if (earthCoord.insideSAA()) {
-//          tuple.inSaa = 1;
-//       } else {
-//          tuple.inSaa = 0;
-//       }
       tuple.inSaa = 0;
       vec.push_back(tuple);
    }

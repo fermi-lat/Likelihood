@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.63 2005/03/03 23:24:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.64 2005/03/07 05:18:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -327,7 +327,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    }
 
 // Initialize the exposure vector with zeros
-   exposure = std::vector<double>(energies.size(), 0);
+   exposure.resize(energies.size(), 0);
 
    if (print_output() && verbose) {
       std::cerr << "Computing exposure at (" 
