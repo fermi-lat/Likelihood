@@ -3,9 +3,13 @@
  * @brief Declaration of Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.18 2003/05/22 22:29:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.19 2003/05/23 21:41:20 pln Exp $
  */
+
+#ifdef _MCS_VER
 #pragma warning(disable:4290)
+#endif
+
 #ifndef Function_h
 #define Function_h
 
@@ -36,7 +40,7 @@ class ProductFunction;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.18 2003/05/22 22:29:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.19 2003/05/23 21:41:20 pln Exp $
  */
 
 class Function {
@@ -201,7 +205,7 @@ protected:
  * looked for but not found in the desired Function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.18 2003/05/22 22:29:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.19 2003/05/23 21:41:20 pln Exp $
  */
 class ParameterNotFound : public LikelihoodException {
 
