@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.8 2004/12/08 00:31:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.9 2004/12/08 04:09:52 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -14,6 +14,11 @@
 #include "st_app/AppParGroup.h"
 
 #include "optimizers/FunctionFactory.h"
+
+namespace dataSubselector {
+   class CutBase;
+   class Cuts;
+}
 
 namespace Likelihood {
 
@@ -26,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.8 2004/12/08 00:31:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.9 2004/12/08 04:09:52 jchiang Exp $
  */
 
 class AppHelpers {
@@ -54,8 +59,13 @@ public:
 
    const std::vector<std::string> & scFiles() const {return m_scFiles;}
 
-   static void checkCuts(const std::string & file1, const std::string ext1,
-                         const std::string & file2, const std::string ext2);
+   static void checkCuts(const std::string & file1, const std::string & ext1,
+                         const std::string & file2, const std::string & ext2);
+
+   static void checkTimeCuts(const std::string & file1, 
+                             const std::string & ext1,
+                             const std::string & file2,
+                             const std::string & ext2);
 
 protected:
 
@@ -65,6 +75,10 @@ protected:
 
    void prepareFunctionFactory();
    void createResponseFuncs();
+
+   static void AppHelpers::
+   gatherTimeCuts(dataSubselector::Cuts & cuts,
+                  std::vector<const dataSubselector::CutBase *> time_cuts);
 };
 
 } // namespace Likelihood

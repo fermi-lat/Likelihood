@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.17 2004/12/06 23:30:02 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.18 2004/12/07 01:30:14 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,7 +36,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.17 2004/12/06 23:30:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.18 2004/12/07 01:30:14 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -89,19 +89,6 @@ void ExposureCube::run() {
 
 void ExposureCube::promptForParameters() {
    m_pars.Prompt("evfile");
-   std::string event_file = m_pars["evfile"];
-   if (event_file == "none" || event_file == "") {
-      m_pars.Prompt("ROI_file");
-      std::string Roi_file = m_pars["ROI_file"];
-      if (!st_facilities::Util::fileExists(Roi_file)) {
-         throw std::runtime_error("ROI file " + Roi_file +
-                                  " does not exist.  Please specify a " +
-                                  std::string("valid event file or ") +
-                                  "an ROI file.");
-      }
-   } else {
-      st_facilities::Util::file_ok(m_pars["evfile"]);
-   }
    m_pars.Prompt("scfile");
    m_pars.Prompt("outfile");
    m_pars.Save();
@@ -109,12 +96,7 @@ void ExposureCube::promptForParameters() {
 
 void ExposureCube::readRoiCuts() const {
    std::string event_file = m_pars["evfile"];
-   if (event_file == "none" || event_file == "") {
-      std::string roi_file = m_pars["ROI_file"];
-      Likelihood::RoiCuts::setCuts(roi_file);
-   } else {
-      Likelihood::RoiCuts::instance()->readCuts(m_pars["evfile"]);
-   }
+   Likelihood::RoiCuts::instance()->readCuts(m_pars["evfile"]);
 }
 
 void ExposureCube::createDataCube() {
