@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Dec  5 14:25:48 PST 2004
+Likelihood/data
+
+Modified Files:
+	oneday_events_0000.fits 
+Log Message:
+begin transition to using DSS keywords instead of ROI file
+    *
+------------------------------------------------------------
+User: jchiang  Sun Dec  5 14:25:48 PST 2004
 Likelihood/cmt
 
 Modified Files:
