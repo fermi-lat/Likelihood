@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.22 2004/12/08 04:09:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.23 2004/12/08 21:44:08 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -41,7 +41,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.22 2004/12/08 04:09:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.23 2004/12/08 21:44:08 jchiang Exp $
  */
 
 class RoiCuts {
@@ -104,9 +104,18 @@ public:
 
 protected:
 
-   RoiCuts() {}
+   RoiCuts() : m_energyCut(0), m_skyConeCut(0) {}
 
-   ~RoiCuts() {}
+   ~RoiCuts() {
+      for (int i = m_gtiCuts.size()-1; i > -1; i--) {
+         delete m_gtiCuts.at(i);
+      }
+      for (int i = m_timeCuts.size()-1; i > -1; i--) {
+         delete m_timeCuts.at(i);
+      }
+      delete m_skyConeCut;
+      delete m_energyCut;
+   }
 
 private:
 

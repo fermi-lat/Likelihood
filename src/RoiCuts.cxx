@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.25 2004/12/08 04:09:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.26 2004/12/08 21:44:11 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -168,9 +168,21 @@ void RoiCuts::writeGtiExtension(const std::string & filename) {
 }
 
 void RoiCuts::setRoiData() {
-   setCuts(m_skyConeCut->ra(), m_skyConeCut->dec(),
-           m_skyConeCut->radius(), m_energyCut->minVal(),
-           m_energyCut->maxVal());
+   double ra(0);
+   double dec(0);
+   double radius(180.);
+   if (m_skyConeCut) {
+      ra = m_skyConeCut->ra();
+      dec = m_skyConeCut->dec();
+      radius = m_skyConeCut->radius();
+   }
+   double emin(20.);
+   double emax(2e5);
+   if (m_energyCut) {
+      emin = m_energyCut->minVal();
+      emax = m_energyCut->maxVal();
+   }
+   setCuts(ra, dec, radius, emin, emax);
    s_tLimVec.clear();
    for (unsigned int i = 0; i < m_timeCuts.size(); i++) {
       addTimeInterval(m_timeCuts.at(i)->minVal(), m_timeCuts.at(i)->maxVal());
