@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct 22 10:50:39 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+trap floating point exceptions on linux
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct 22 09:31:38 PDT 2003
 Likelihood/src/test
 
