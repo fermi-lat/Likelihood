@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.54 2004/09/16 04:39:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.55 2004/09/21 14:51:20 jchiang Exp $
  */
 
 #include <cassert>
@@ -465,7 +465,7 @@ CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
    }
 
    std::vector<Pixel> pixels;
-   getPixels(dataMap, pixels);
+   dataMap.getPixels(pixels);
 
    std::vector<double> energies;
    dataMap.getAxisVector(2, energies);
@@ -492,72 +492,6 @@ void SourceModel::computeModelMap(const std::vector<Pixel> & pixels,
                                   *(const_cast<SourceModel *>(this))));
       }
    }
-}
-
-void SourceModel::getPixels(const CountsMap & countsMap,
-                            std::vector<Pixel> & pixels) {
-   pixels.clear();
-   std::vector<astro::SkyDir> pixelDirs;
-   std::vector<double> solidAngles;
-   getPixels(countsMap, pixelDirs, solidAngles);
-   pixels.reserve(pixelDirs.size());
-   for (unsigned int i = 0; i < pixelDirs.size(); i++) {
-      pixels.push_back(Pixel(pixelDirs[i], solidAngles[i]));
-   }
-}
-
-void SourceModel::getPixels(const CountsMap & countsMap, 
-                            std::vector<astro::SkyDir> & pixelDirs,
-                            std::vector<double> & pixelSolidAngles) {
-
-   long nx = countsMap.imageDimension(0);
-   long ny = countsMap.imageDimension(1);
-
-   std::vector<double> longitudes;
-   countsMap.getAxisVector(0, longitudes);
-   std::vector<double> latitudes;
-   countsMap.getAxisVector(1, latitudes);
-   std::vector<double> energies;
-   countsMap.getAxisVector(2, energies);
-
-   pixelDirs.clear();
-   pixelSolidAngles.clear();
-
-   pixelDirs.reserve(nx*ny);
-   pixelSolidAngles.reserve(nx*ny);
-   std::vector<double>::const_iterator latIt = latitudes.begin();
-   for ( ; latIt != latitudes.end() - 1; ++latIt) {
-      double latitude = (*latIt + *(latIt+1))/2.;
-      std::vector<double>::const_iterator lonIt = longitudes.begin();
-      for ( ; lonIt != longitudes.end() - 1; ++lonIt) {
-         double longitude = (*lonIt + *(lonIt+1))/2.;
-         pixelDirs.push_back(astro::SkyDir(longitude, latitude, 
-                                           countsMap.projection()));
-         pixelSolidAngles.push_back(computeSolidAngle(lonIt, latIt, 
-                                                      countsMap.projection()));
-      }
-   }
-}
-
-double SourceModel::computeSolidAngle(std::vector<double>::const_iterator lon,
-                                      std::vector<double>::const_iterator lat,
-                                      const astro::SkyProj & proj) {
-   astro::SkyDir lower_left(*lon, *lat, proj);
-   astro::SkyDir upper_right(*(lon+1), *(lat+1), proj);
-   std::vector<double> theta(2);
-   std::vector<double> phi(2);
-   if (proj.isGalactic()) {
-      phi[0] = lower_left.l()*M_PI/180.;
-      theta[0] = lower_left.b()*M_PI/180.;
-      phi[1] = upper_right.l()*M_PI/180.;
-      theta[1] = upper_right.b()*M_PI/180.;
-   } else {
-      phi[0] = lower_left.ra()*M_PI/180.;
-      theta[0] = lower_left.dec()*M_PI/180.;
-      phi[1] = upper_right.ra()*M_PI/180.;
-      theta[1] = upper_right.dec()*M_PI/180.;
-   }
-   return std::fabs((phi[1] - phi[0])*(sin(theta[1]) - sin(theta[0])));
 }
 
 } // namespace Likelihood

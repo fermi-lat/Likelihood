@@ -3,7 +3,7 @@
  * @brief First cut at a binned likelihood implementation.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.5 2004/09/21 14:51:20 jchiang Exp $
  */
 
 #include "Likelihood/BinnedLikelihood.h"
@@ -14,7 +14,7 @@ namespace Likelihood {
 
 BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap)
    : m_dataMap(dataMap), m_modelIsCurrent(false) {
-   getPixels(dataMap, m_pixels);
+   dataMap.getPixels(m_pixels);
    dataMap.getAxisVector(2, m_energies);
 }
 
