@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.34 2004/02/20 00:02:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.35 2004/05/09 19:17:59 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.34 2004/02/20 00:02:03 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.35 2004/05/09 19:17:59 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -129,7 +129,8 @@ public:
 
    /// Create the source model by reading an XML file.
    virtual void readXml(std::string xmlFile,
-                        optimizers::FunctionFactory &funcFactory);
+                        optimizers::FunctionFactory &funcFactory,
+                        bool requireExposure=true);
 
    /// Re-read an XML file, updating only the Parameters in the
    /// source model.

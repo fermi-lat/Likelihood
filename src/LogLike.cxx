@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.18 2004/06/01 04:27:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.19 2004/06/05 00:27:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -135,38 +135,6 @@ void LogLike::computeEventResponses(double sr_radius) {
    }
    if (diffuse_srcs.size() > 0) {
       computeEventResponses(diffuse_srcs, sr_radius);
-   }
-}
-
-void LogLike::writeEventResponses(std::string fitsFile) {
-   std::vector<std::string> diffuseSrcNames;
-   std::map<std::string, Source *>::iterator srcIt = s_sources.begin();
-   for ( ; srcIt != s_sources.end(); ++srcIt) {
-      if (srcIt->second->getType() == std::string("Diffuse")) {
-         diffuseSrcNames.push_back(srcIt->second->getName());
-      }
-   }
-   if (diffuseSrcNames.size() > 0) {
-      facilities::Util::expandEnvVar(&fitsFile);
-      tip::Table * events 
-         = tip::IFileSvc::instance().editTable(fitsFile, "events");
-      if (events->getNumRecords() != m_events.size()) {
-         throw("LogLike::writeEventResponses:\nNumber of records in " 
-               + fitsFile + " does not match number of events.");
-      }
-      for (unsigned int i = 0; i < diffuseSrcNames.size(); i++) {
-         events->appendField(diffuseSrcNames[i], "1D");
-      }
-      tip::Table::Iterator it = events->begin();
-      tip::Table::Record & row = *it;
-      for (int j = 0 ; it != events->end(); j++, ++it) {
-         std::vector<std::string>::iterator name = diffuseSrcNames.begin();
-         for ( ; name != diffuseSrcNames.end(); ++name) {
-// For now, assume infinite energy resolution.
-            row[*name].set(m_events[j].diffuseResponse(1., *name));
-         }
-      }
-      delete events;
    }
 }
 

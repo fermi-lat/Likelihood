@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.12 2003/10/02 19:08:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.13 2003/11/12 22:01:39 jchiang Exp $
  */
 
 #include <vector>
@@ -46,9 +46,9 @@ DiffuseSource::DiffuseSource(optimizers::Function* spatialDist,
          throw Exception("The ExposureMap is not defined.");
       } else {
          emap->integrateSpatialDist(s_energies, spatialDist, m_exposure);
-         m_srcType = "Diffuse";
       }
    }
+   m_srcType = "Diffuse";
 }
 
 DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {

@@ -4,7 +4,7 @@ version v4r0
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.114 2004/05/24 23:51:30 jchiang Exp $
+# $Id: requirements,v 1.115 2004/05/25 00:56:20 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
@@ -24,6 +24,7 @@ apply_pattern ST_app name=likelihood
 apply_pattern ST_app name=expMap
 apply_pattern ST_app name=TsMap
 apply_pattern ST_app name=makeExposureCube
+apply_pattern ST_app name=diffuseResponses
 
 private
 
