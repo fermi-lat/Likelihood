@@ -3,7 +3,7 @@
  * @brief Psf averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.11 2005/02/28 18:38:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.12 2005/03/01 01:06:55 jchiang Exp $
  */
 
 #include <algorithm>
@@ -28,15 +28,19 @@ void MeanPsf::init() {
    }
 
    m_psfValues.reserve(m_energies.size()*s_separations.size());
+   m_exposure.reserve(m_energies.size());
    for (unsigned int k = 0; k < m_energies.size(); k++) {
       for (unsigned int j = 0; j < s_separations.size(); j++) {
          double aeff_val(0);
          double psf_val(0);
          for (int evtType = 0; evtType < 2; evtType++) {
             Aeff aeff(m_energies[k], evtType, m_observation);
-            aeff_val += m_observation.expCube().value(m_srcDir, aeff);;
+            aeff_val += m_observation.expCube().value(m_srcDir, aeff);
             Psf psf(s_separations[j], m_energies[k], evtType, m_observation);
             psf_val += m_observation.expCube().value(m_srcDir, psf);
+         }
+         if (j == 0) {
+            m_exposure.push_back(aeff_val);
          }
          if (aeff_val > 0) {
             psf_val /= aeff_val;
@@ -128,6 +132,9 @@ double MeanPsf::Aeff::s_phi(0);
 
 double MeanPsf::Aeff::operator()(double cosTheta) const {
    double inclination = acos(cosTheta)*180./M_PI;
+   if (inclination > 70.) {
+      return 0;
+   }
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = m_observation.respFuncs().begin();
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {

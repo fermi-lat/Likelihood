@@ -111,6 +111,7 @@ void meanPsf::writeFitsFile() {
    std::auto_ptr<tip::Table> 
       psf_table(tip::IFileSvc::instance().editTable(output_file, extension));
    psf_table->appendField("Energy", "1D");
+   psf_table->appendField("Exposure", "1D");
    std::ostringstream format;
    format << m_thetas.size() << "D";
    psf_table->appendField("Psf", format.str());
@@ -118,9 +119,13 @@ void meanPsf::writeFitsFile() {
    std::vector<double> psf_values(m_thetas.size());
    tip::Table::Iterator row = psf_table->begin();
    tip::Table::Record & record = *row;
-   for (std::vector<double>::const_iterator energy = m_energies.begin();
-        energy != m_energies.end(); ++energy, ++row) {
+
+   const std::vector<double> & exposure = m_meanPsf->exposure();
+
+   std::vector<double>::const_iterator energy = m_energies.begin();
+   for (int k = 0; energy != m_energies.end(); ++energy, ++row, ++k) {
       record["Energy"].set(*energy);
+      record["Exposure"].set(exposure.at(k));
       tip::Table::Vector<double> Psf = record["Psf"];
       std::vector<double>::const_iterator theta = m_thetas.begin();
       for (unsigned int i = 0; theta != m_thetas.end(); ++theta, ++i) {
