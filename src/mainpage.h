@@ -161,8 +161,8 @@
  - upper bound
  - prompt string
 
- The hidden parameters are not queried for, but they must provided as
- an argument on the command line if quantities that follow it are
+ The hidden parameters are not queried for, but they must be provided
+ as an argument on the command line if quantities that follow it are
  given so that the ordering is preserved.
 
  Here is a sample session in which one day's worth of data simulated
@@ -294,7 +294,7 @@ virgo_region_scData_0001.fits
    description of the various sources to be modeled.  Here's the
    source model file used in the above fit:
 @verbatim
-<source_library title="source library" function_library="$(LIKELIHOODROOT)/xml/A1_Functions.xml">
+<source_library title="source library">
   <source name="Crab" type="PointSource">
     <spectrum type="PowerLaw">
       <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="46.0849" />
@@ -392,20 +392,8 @@ virgo_region_scData_0001.fits
    flux-package style xml file that's suitable for use with either <a
    href="http://www.slac.stanford.edu/~jchiang/O2/doxy-html/">observationSim</a>
    or <a
-   href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/GlastRelease/GlastRelease-v3r3p7/Gleam/v5r5/">Gleam</a>.
-
- - @b query_for_refit If this is set to "yes", then the user is queried if
-   he or she wishes to refit the data.  This allows the source model xml
-   file to be modified by hand between fits, if, for example, one wishes
-   to fix a parameter and/or set the value by hand.  Source positions can
-   also be moved between fits (but they cannot be allowed to be free in
-   the fit).\n\n
-   In order to run @ref likelihood entirely non-interactively, as one
-   would do in a script, this value must be set to "no" in the set of
-   command line arguments.
-
+   href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/GlastRelease/GlastRelease-v3r3p7/Gleam/v5r5/">Gleam</a>.\n\n
 Here's the resulting flux-style xml file for the above fit:
-
 @verbatim
 <source_library title="Likelihood_model">
   <source flux="0.17545" name="Crab">
@@ -450,12 +438,20 @@ Here's the resulting flux-style xml file for the above fit:
   </source>
 </source_library>
 @endverbatim
-
 For the flux-style sources, the name attributes cannot start with a
 numeral and cannot have spaces, so underscores are added.  As a
 convenience, a single composite source is created that comprises all
 of the individual sources.  (NB: The flux for the Galactic Diffuse
 Emission isn't being calculated correctly yet.)
+
+ - @b query_for_refit If this is set to "yes", then the user is queried if
+   he or she wishes to refit the data.  This allows the source model xml
+   file to be modified by hand between fits, if, for example, one wishes
+   to fix a parameter and/or set the value by hand.  Source positions can
+   also be moved between fits (but they cannot be allowed to be free in
+   the fit).\n\n
+   In order to run @ref likelihood entirely non-interactively, as one
+   would do in a script, this value must be set to "no".
 
  @section TsMap TsMap
 

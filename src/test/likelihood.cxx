@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.10 2003/11/18 18:10:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.11 2003/11/22 01:11:55 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -180,8 +180,8 @@ int main(int iargc, char* argv[]) {
 // Write the model to the output xml file.
       std::string xmlFile;
       params.getParam("Source_model_output_file", xmlFile);
-      std::string funcFileName;
-      params.getParam("Function_models_file_name", funcFileName);
+      std::string funcFileName("");
+//      params.getParam("Function_models_file_name", funcFileName);
 
       if (xmlFile != "none") {
          std::cout << "Writing fitted model to " << xmlFile << std::endl;
