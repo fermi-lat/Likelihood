@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Apr 21 13:58:41 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+using st_app::StApp instead st_app::IApp
+    *
+------------------------------------------------------------
+User: jchiang  Wed Apr 21 13:58:41 PDT 2004
 Likelihood/src/expMap
 
 Modified Files:
