@@ -1,5 +1,5 @@
 package Likelihood
-version v4r2
+version v4r3
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
@@ -11,7 +11,6 @@ use astro  v*
 use xml v4r*
 use tip v1*
 use map_tools v*
-#use latResponse v2*
 use optimizers v*
 use facilities v2r*
 use cfitsio v1* IExternal
