@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: pln  Fri May 23 14:41:20 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	FitsImage.h Function.h Parameter.h 
+Log Message:
+Add pragma to prevent VC++ warnings about exception specifications
+    *
+------------------------------------------------------------
 User: jchiang  Thu May 22 15:30:54 PDT 2003
 Likelihood/src/test
 
