@@ -3,7 +3,7 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.16 2003/05/20 23:50:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.17 2003/05/21 23:12:13 jchiang Exp $
  */
 
 #include <iostream>
@@ -42,7 +42,7 @@ double Function::getParamValue(const std::string &paramName) const
 // Return named Parameter
 Parameter *Function::getParam(const std::string &paramName)
    throw(ParameterNotFound) {
-   std::vector<Parameter>::const_iterator it = m_parameter.begin();
+   std::vector<Parameter>::iterator it = m_parameter.begin();
    for (; it != m_parameter.end(); it++) {
       if (paramName == it->getName()) {
          return &(*it);
@@ -91,7 +91,7 @@ void Function::setParamTrueValue(const std::string &paramName,
 void Function::setParamValues(const std::vector<double> &paramVec) 
    throw(LikelihoodException) {
    if (paramVec.size() != m_parameter.size()) {
-      ostringstream errorMessage;
+      std::ostringstream errorMessage;
       errorMessage << "Function::setParamValues: "
                    << "The input vector size does not match "
                    << "the number of parameters.\n";
@@ -112,7 +112,7 @@ std::vector<double>::const_iterator Function::setParamValues_(
 void Function::setFreeParamValues(const std::vector<double> &paramVec) 
    throw(LikelihoodException) {
    if (paramVec.size() != getNumFreeParams()) {
-      ostringstream errorMessage;
+      std::ostringstream errorMessage;
       errorMessage << "Function::setFreeParamValues: "
                    << "The input vector size does not match "
                    << "the number of free parameters.\n";
@@ -197,7 +197,7 @@ void Function::addParam(const std::string &paramName,
 // Check if paramName is already present
    for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
-         ostringstream errorMessage;
+         std::ostringstream errorMessage;
          errorMessage << "Function::addParam: "
                       << "This parameter name already exists: "
                       << paramName << "; "
@@ -210,7 +210,7 @@ void Function::addParam(const std::string &paramName,
       Parameter my_param(paramName, paramValue, isFree);
       m_parameter.push_back(my_param);
    } else {
-      ostringstream errorMessage;
+      std::ostringstream errorMessage;
       errorMessage << "Can't add parameter " << paramName << "; "
                    << "the parameter list is full at " 
                    << m_maxNumParams << ".\n";
@@ -222,7 +222,7 @@ void Function::addParam(const Parameter &param) throw(LikelihoodException) {
    std::vector<Parameter>::const_iterator it = m_parameter.begin();
    for (; it != m_parameter.end(); it++) {
       if (param.getName() == it->getName()) {
-         ostringstream errorMessage;
+         std::ostringstream errorMessage;
          errorMessage << "Function::addParam: "
                       << "This parameter name already exists: "
                       << param.getName() << "; "
@@ -233,7 +233,7 @@ void Function::addParam(const Parameter &param) throw(LikelihoodException) {
    if (m_parameter.size() < m_maxNumParams) {
          m_parameter.push_back(param);
    } else {
-      ostringstream errorMessage;
+      std::ostringstream errorMessage;
       errorMessage << "Can't add parameter " << param.getName() << "; "
                    << "the parameter list is full at " 
                    << m_maxNumParams << ".\n";
