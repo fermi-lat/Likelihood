@@ -5,7 +5,7 @@
 @author J. Chiang
 """
 # @file SimpleDialog.py
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SimpleDialog.py,v 1.1 2005/03/13 19:40:16 jchiang Exp $
 #
 
 import os
@@ -59,6 +59,9 @@ class ParamFileEntry:
     def value(self):
         return self.variable.get()
     def getFile(self):
+        pattern = self.variable.get()
+        if pattern.find('*') != -1:
+            self.pattern = pattern
         if self.pattern is None:
             file = LoadFileDialog(self.parent).go()
         else:
