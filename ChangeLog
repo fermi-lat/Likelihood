@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Wed Jul 30 14:26:59 PDT 2003
+Likelihood/src
+
+Added Files:
+	Drmngb.cxx drmngb_routines.c 
+Log Message:
+Add new optimizer: DRMNGB
+
+    *
+------------------------------------------------------------
 User: pln  Wed Jul 30 14:26:20 PDT 2003
 Likelihood/Likelihood
 
