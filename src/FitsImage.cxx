@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.8 2003/05/29 00:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.9 2003/05/29 20:10:46 jchiang Exp $
  *
  */
 
@@ -363,7 +363,6 @@ void FitsImage::read_fits_image(std::string &filename,
    } else if (status == KEY_NO_EXIST) {
       m_haveRefCoord = false;
    } else {
-      std::cerr << KEY_NO_EXIST << " " << status << std::endl;
       fits_report_error(stderr, status);
       if (status != 0) {
          throw LikelihoodException
@@ -379,7 +378,6 @@ void FitsImage::read_fits_image(std::string &filename,
    } else if (status == KEY_NO_EXIST) {
       m_haveRefCoord = false;
    } else {
-      std::cerr << KEY_NO_EXIST << " " << status << std::endl;
       fits_report_error(stderr, status);
       if (status != 0) {
          throw LikelihoodException

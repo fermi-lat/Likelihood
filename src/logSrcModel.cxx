@@ -1,8 +1,9 @@
-/** @file logSrcModel.cxx
+/** 
+ * @file logSrcModel.cxx
  * @brief logSrcModel class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logSrcModel.cxx,v 1.5 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,7 +22,6 @@ double logSrcModel::value(Arg &xarg) const {
    if (my_value > 0) {
       return log(my_value);
    } else {
-//      std::cerr << "logSrcModel::value: my_value < 0" << std::endl;
       return 0;
    }
 }
