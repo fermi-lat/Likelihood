@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Oct 11 21:41:13 PDT 2004
+Likelihood/src
+
+Modified Files:
+	tutorial.h 
+Log Message:
+update docs; remove unneeded parameter
+    *
+------------------------------------------------------------
+User: jchiang  Mon Oct 11 21:41:13 PDT 2004
 Likelihood/pfiles
 
 Modified Files:
