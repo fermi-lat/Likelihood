@@ -92,8 +92,9 @@ void gtsrcmaps::run() {
 
    double ra, dec;
    getRefCoord(cntsMapFile, ra, dec);
-   RoiCuts::instance()->setCuts(ra, dec, 20., energies.front(), 
-                                energies.back());
+// NB: energies from EBOUNDS are in keV.
+   RoiCuts::instance()->setCuts(ra, dec, 20., energies.front()/1e3, 
+                                energies.back()/1e3);
 
    m_binnedLikelihood = new BinnedLikelihood(dataMap, cntsMapFile);
 

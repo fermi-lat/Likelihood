@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.9 2004/10/08 05:59:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.10 2004/10/09 01:37:43 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -22,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.9 2004/10/08 05:59:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.10 2004/10/09 01:37:43 jchiang Exp $
  */
 
 class SourceMap {
@@ -70,6 +70,8 @@ private:
 
 /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;
+
+   std::vector<double> m_energies;
 
    class Aeff : public Pixel::Aeff {
    public:

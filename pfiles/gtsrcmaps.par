@@ -3,5 +3,5 @@ Spacecraft_file_hdu,i,hl,2,,,Spacecraft file HDU
 Response_functions,s,ql,"FRONT/BACK",FRONT/BACK|FRONT|BACK|GLAST25,,"Response functions to use"
 exposure_cube_file,f,ql,"../data/expcube_1_day.fits",,,"Exposure hypercube file"
 counts_map_file,f,ql,"cntsMap.fits",,,"Counts map file"
-source_model_file,f,ql,"my_source_model.xml",,,"Source model file"
-output_file,f,ql,"srcMaps.fits",,,"SourceMaps output file"
+source_model_file,f,ql,"../work/binnedTest/my_source_model.xml",,,"Source model file"
+output_file,f,ql,"srcMaps2.fits",,,"SourceMaps output file"

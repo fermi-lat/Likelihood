@@ -4,7 +4,7 @@ from map import map
 package = 'Likelihood'
 home = os.environ[package.upper() + 'ROOT']
 apps = ['likelihood', 'makeExposureCube', 'expMap',
-        'TsMap', 'diffuseResponses', 'counts_map', 'meanPsf']
+        'TsMap', 'diffuseResponses', 'counts_map', 'gtsrcmaps']
 #OptPP_dir = '/home/jchiang/data/OPT++2.1'
 #OptPP_dir = '/scratch/jchiang/OPT++2.1'
 OptPP_dir = os.environ['OPTPP_DIR']
@@ -53,7 +53,8 @@ libraries['pil'] = (os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
                     os.path.join(os.environ['GLAST_EXT'], 'pil', '1.9.2',
                                  'lib', 'linux-3.2'))
 
-cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
+#cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
+cflags = ' -DHAVE_OPT_PP -rdynamic -g '
 linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'pthread', 'm', 'dl',
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript']
