@@ -3,6 +3,12 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v0r9  21-Jul-03   JC   Re-organize exceptions, making headers public;
+                           get exceptions to work with gcc 3.3; make
+                           guarding defines in .h files less common.
+                           This is the final tag before ripping out
+                           the Response hierarchy, creating a separate
+                           Optimizer package, and moving to Goodi.
     v0r8  05-Jun-03   JC   Exceptions; PLN's implementations of Lbfgs and 
                            Minuit classes; Mcmc class; more Windows 
                            conformance; migration to and from CCfits
