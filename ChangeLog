@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: burnett  Sat Mar 15 17:42:39 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h Arg.h Event.h EventArg.h Function.h Npred.h Optimizer.h 
+	Parameter.h PointSource.h Psf.h Response.h RoiCuts.h ScData.h 
+	SkyDirFunction.h Source.h SourceModel.h SrcArg.h Statistic.h 
+	Table.h TrapQuad.h dArg.h logSrcModel.h 
+Log Message:
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 11 14:01:20 PST 2003
 Likelihood/src/test/Data
 
