@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 24 17:22:51 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+banish use of old Psf and Aeff classes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct 24 17:22:50 PDT 2003
 Likelihood/Likelihood
 
