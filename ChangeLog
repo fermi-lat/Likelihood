@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 24 16:51:31 PDT 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Event.cxx LogLike.cxx ResponseFunctions.cxx 
+Log Message:
+more energy dispersion implementation
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 24 16:51:30 PDT 2004
 Likelihood/python
 
