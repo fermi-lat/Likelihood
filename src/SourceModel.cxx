@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.30 2003/11/10 23:06:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.31 2003/11/12 22:01:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,6 +23,9 @@
 
 #include "facilities/Util.h"
 
+#include "astro/SkyDir.h"
+
+#include "optimizers/Dom.h"
 #include "optimizers/Arg.h"
 #include "optimizers/FunctionFactory.h"
 
@@ -31,6 +34,7 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/TrapQuad.h"
+#include "Likelihood/PointSource.h"
 #include "Likelihood/SourceModel.h"
 
 namespace {
@@ -351,14 +355,86 @@ void SourceModel::readXml(std::string xmlFile,
    syncParams();
 }
 
+void SourceModel::reReadXml(std::string xmlFile) {
+
+// Expand any environment variables in the xmlFile name.
+   facilities::Util::expandEnvVar(&xmlFile);
+
+   xml::XmlParser *parser = new xml::XmlParser();
+
+   DOM_Document doc = parser->parse(xmlFile.c_str());
+
+   if (doc == 0) { // xml file not parsed successfully
+      std::ostringstream errorMessage;
+      errorMessage << "SourceFactory::readXml: "
+                   << "Input xml file, " << xmlFile
+                   << " not parsed successfully.\n";
+      throw Exception(errorMessage.str());
+   }
+
+   DOM_Element source_library = doc.getDocumentElement();
+   optimizers::Dom::checkTag(source_library, "source_library",
+                             "SourceFactory::readXml");
+
+// Loop through source DOM_Elements and Source objects in parallel.
+   std::vector<DOM_Element> srcs;
+   optimizers::Dom::getElements(source_library, "source", srcs);
+
+   assert(srcs.size() == s_sources.size());
+   for (unsigned int j = 0; j < srcs.size(); j++) {
+      std::string srcType = xml::Dom::getAttribute(srcs[j], "type");
+// Get spectrum and spatialModel elements
+      std::vector<DOM_Element> child;
+      optimizers::Dom::getElements(srcs[j], "spectrum", child);
+      DOM_Element spectrum = child[0];
+      optimizers::Dom::getElements(srcs[j], "spatialModel", child);
+      DOM_Element spatialModel = child[0];
+
+      s_sources[j]->getSrcFuncs()["Spectrum"]->setParams(spectrum);
+      if (srcType == "PointSource") {
+// Extract (RA, Dec) from the parameter elements and use
+// PointSource::setDir(...) method to ensure that exposure gets
+// recalculated.
+         double ra(0), dec(0);
+         std::vector<DOM_Element> params;
+         optimizers::Dom::getElements(spatialModel, "parameter", params);
+         std::vector<DOM_Element>::const_iterator paramIt = params.begin();
+         for ( ; paramIt != params.end(); paramIt++) {
+            std::string name = xml::Dom::getAttribute(*paramIt, "name");
+            if (name == "RA")
+               ra = ::atof(xml::Dom::getAttribute(*paramIt, "value").c_str());
+            if (name == "DEC")
+               dec = ::atof(xml::Dom::getAttribute(*paramIt, "value").c_str());
+         }
+         astro::SkyDir newDir(ra, dec);
+         double tol = 1e-4;
+         if (newDir.difference(
+                dynamic_cast<PointSource *>(s_sources[j])->getDir() ) > tol) {
+// Reset the direction, re-computing the PointSource exposure.
+            s_sources[j]->setDir(newDir);
+         }
+      } else if (srcType == "DiffuseSource") {
+         s_sources[j]->getSrcFuncs()["SpatialDist"]->setParams(spatialModel);
+      } else {
+         std::cerr << "SourceModel::reReadXml: "
+                   << "Unknown Source type: " << srcType << std::endl;
+         assert(false);
+      }
+   }
+   syncParams();
+}
+
 void SourceModel::writeXml(std::string xmlFile,
                            const std::string &functionLibrary) {
+
    xml::XmlParser *parser = new xml::XmlParser();
 
    DOM_Document doc = DOM_Document::createDocument();
 
    DOM_Element srcLib = doc.createElement("source_library");
-   srcLib.setAttribute("function_library", functionLibrary.c_str());
+   if (functionLibrary != "") {
+      srcLib.setAttribute("function_library", functionLibrary.c_str());
+   }
 
 // This attribute value need to be settable, either via data members
 // or by hand.
@@ -546,6 +622,35 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
 
 // void SourceModel::makeCountsMap(const std::string &filename, 
 //                                 const fitsUtils::MapShape &mapShape) {
+
+//    std::vector< std::valarray<double> > map(mapShape.nz());
+//    for (unsigned int k = 0; k < mapShape.nz(); k++) {
+//       map.resize(mapShape.nx()*mapShape.ny());
+//    }
+   
+//    ScData * scData = ScData::instance();
+   
+//    std::vector<double> longitudes = mapShape.x_vector();
+//    std::vector<double> latitudes = mapShape.y_vector();
+//    std::vector<double> energies = mapShape.z_vector();
+
+//    std::vector<astro::SkyDir> pixelDirs;
+//    pixelDirs.reserve(longitudes.size()*latitudes.size());
+//    std::vector<double>::const_iterator lonIt = longitudes.begin();
+//    for ( ; lonIt != longitudes.end(); lonIt++) {
+//       std::vector<double>::const_iterator latIt = latitudes.begin();
+//       for ( ; latIt != latitudes.end(); latIt++) {
+//          pixelDirs.push_back(astro::SkyDir(*lonIt, *latIt, 
+//                                            mapShape.coordType()));
+//       }
+//    }
+
+// // The outer loop is the spacecraft time.
+//    for (unsigned int it = 0; it < scData.vec.size()-1; it++) {
+
+
+//    }
+
 // }
 
 } // namespace Likelihood
