@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.24 2004/06/07 00:46:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.25 2004/07/19 14:16:58 jchiang Exp $
  */
 
 #include <cassert>
@@ -20,8 +20,6 @@
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
 
-// // This include is temporary until tip provides the required access methods.
-// #include "latResponse/../src/DC1.h"
 #include "irfUtil/Util.h"
 
 #include "astro/EarthCoordinate.h"
@@ -98,7 +96,6 @@ void ScData::readData(std::string file, int hdu, bool clear) {
    s_scHdu = hdu;
 
    std::string extName;
-//    latResponse::DC1::getFitsHduName(file, hdu, extName);
    irfUtil::Util::getFitsHduName(file, hdu, extName);
    tip::Table * my_table = tip::IFileSvc::instance().editFile(file, extName);
    tip::Table::Iterator it = my_table->begin();

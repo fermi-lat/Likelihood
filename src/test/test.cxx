@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.21 2004/07/01 17:51:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.22 2004/07/19 19:27:33 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -32,9 +32,6 @@
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
 
-// #include "latResponse/AcceptanceCone.h"
-// #include "latResponse/IrfsFactory.h"
-
 #include "irfInterface/IrfsFactory.h"
 #include "irfInterface/AcceptanceCone.h"
 #include "g25Response/loadIrfs.h"
@@ -59,7 +56,6 @@
 
 using namespace Likelihood;
 using optimizers::Parameter;
-//using latResponse::irfsFactory;
 
 class LikelihoodTests : public CppUnit::TestFixture {
 
@@ -198,7 +194,6 @@ void LikelihoodTests::test_RoiCuts() {
    static double ra = 193.98;
    static double dec = -5.82;
    static double radius = 20.;
-//    latResponse::AcceptanceCone roiCone(astro::SkyDir(ra, dec), radius);
    irfInterface::AcceptanceCone roiCone(astro::SkyDir(ra, dec), radius);
    CPPUNIT_ASSERT(roiCone == roiCuts->extractionRegion());
    double my_ra, my_dec;
