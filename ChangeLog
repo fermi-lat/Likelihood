@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar  2 16:35:29 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h 
+Added Files:
+	useGoodiNames.h 
+Log Message:
+fix test program; start using map_tools
+    *
+------------------------------------------------------------
 User: jchiang  Sun Feb 29 11:56:57 PST 2004
 Likelihood/src/test
 
