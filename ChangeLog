@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 18 09:21:24 PDT 2003
+Likelihood/src
+
+Modified Files:
+	SourceFactory.cxx 
+Log Message:
+use environment variable to find path to Galactic diffuse map
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun 19 13:16:44 PDT 2003
 Likelihood/src/test
 
