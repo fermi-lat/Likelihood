@@ -1,6 +1,8 @@
 #ifndef Source_h
 #define Source_h
 
+#include <map>
+#include "../Likelihood/Function.h"
 #include "astro/SkyDir.h"
 
 namespace Likelihood {
@@ -8,7 +10,7 @@ namespace Likelihood {
 /** 
  * @class Source
  *
- * @brief Base class for gamma-ray sources.
+ * @brief Abstract base class for gamma-ray sources.
  *
  * @author J. Chiang
  *    
@@ -16,6 +18,9 @@ namespace Likelihood {
  */
 
 class Source {
+
+   friend class SourceModel;
+   friend class Statistic;
 
 public:
     
@@ -32,10 +37,13 @@ public:
    void setName(const std::string &name) {m_name = name;};
    std::string getName() const {return m_name;};
 
-private:
+protected:
 
    //! source name
    std::string m_name;
+
+   //! map of Functions describing this source
+   std::map<std::string, Function *> m_functions;
 
 };
 

@@ -13,154 +13,140 @@
 namespace Likelihood {
 
 SourceModel::SourceModel(const SourceModel &rhs) : Function(rhs) {
-   m_functions = rhs.m_functions;
    m_sources = rhs.m_sources;
-   m_paramIterators = rhs.m_paramIterators;
 }
 
-SourceModel::~SourceModel() {
-// is this all good enough?
-   setMaxNumParams(0);
-   m_functions.erase(m_functions.begin(), m_functions.end());
-   m_paramIterators.erase(m_paramIterators.begin(), m_paramIterators.end());
-};
-
-void SourceModel::setParam(const Parameter &param, const std::string &fName) {
-/* loop over the Parameters associated with the function fName
-   and update the matching one */
-   
-   for (unsigned int i = 0; i < m_functions.size(); i++) {
-      if (fName == (*m_functions[i]).getMyName()) {
-	 for (std::vector<Parameter>::iterator iter = m_paramIterators[i];
-	      iter != m_paramIterators[i] 
-		 + (*m_functions[i]).getNumFreeParams();
-	      iter++) {
-	    if ((*iter).getName() == param.getName()) {
-	       (*iter).setValue(param.getValue());
-	       (*iter).setFree(param.isFree());
-/* update the corresponding Parameter in the named Function */
-	       (*m_functions[i]).setParam(param.getName(), param.getValue(),
-					  param.isFree());
-	       return;
-	    }
+void SourceModel::setParam(const Parameter &param, 
+			   const std::string &funcName,
+			   const std::string &srcName) {
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      if (srcName == (*m_sources[i]).getName()) {
+	 if ((*m_sources[i]).m_functions.count(funcName)) {
+	    (*m_sources[i]).m_functions[funcName]->setParam(param.getName(), 
+                                                            param.getValue(),
+                                                            param.isFree());
+// this seems inefficient, but necessary because of m_functions map?
+            m_syncParams();
+	    return;
 	 }
-	 std::cerr << "SourceModel::setParam:  Parameter " << param.getName()
-		   << " was not found." << std::endl;
-	 return;
       }
    }
-   std::cerr << "SourceModel::setParam:  Function " << fName 
-	     << " was not found." << std::endl;
+   std::cerr << "SourceModel::setParam:  Function " 
+	     << funcName << " for source "
+	     << srcName << " was not found." << std::endl;
 }
  
-void SourceModel::setParamValues(const std::vector<double> &paramVec) {
-   if (paramVec.size() != m_parameter.size()) {
-/* should do some exception handling here */
-      std::cerr
-         << "The input vector size does not match the number of parameters."
-         << std::endl;
-   } else {
-      for (unsigned int i = 0; i < m_parameter.size(); i++) {
-	 m_parameter[i].setValue(paramVec[i]);
-      }
+std::vector<double>::const_iterator SourceModel::setParamValues_(
+   std::vector<double>::const_iterator it) { 
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      std::map<std::string, Function *>::iterator 
+	 func_it = (*m_sources[i]).m_functions.begin();
+      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) 
+	 it = (*func_it).second->setParamValues_(it);
    }
    m_syncParams();
+   return it;
+}
+
+std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
+   std::vector<double>::const_iterator it) { 
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      std::map<std::string, Function *>::iterator 
+	 func_it = (*m_sources[i]).m_functions.begin();
+      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) 
+	 it = (*func_it).second->setFreeParamValues_(it);
+   }
+   m_syncParams();
+   return it;
 }
 
 Parameter* SourceModel::getParam(const std::string &paramName,
-				 const std::string &fName) const {
-   for (unsigned int i = 0; i < m_functions.size(); i++) {
-      if (fName == (*m_functions[i]).getMyName()) {
+				 const std::string &funcName,
+                                 const std::string &srcName) const {
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      if (srcName == (*m_sources[i]).getName()) {
 	 std::vector<Parameter> params;
-         (*m_functions[i]).getFreeParams(params);
-	 for (unsigned int j = 0; j < params.size(); j++) 
-	    if (paramName == params[j].getName())
-	       return &(params[j]);
-	 return 0; //if param not found
+         if ((*m_sources[i]).m_functions.count(funcName)) { //check for funcName
+            (*m_sources[i]).m_functions[funcName]->getParams(params);
+            for (unsigned int j = 0; j < params.size(); j++) 
+               if (paramName == params[j].getName())
+                  return &(params[j]);
+            return 0; //if paramName not found
+         }
+         return 0; //if funcName not found
       }
    }
-   return 0; //if function not found
-}
-void SourceModel::addSource(Function *func, const std::string &fName) {
-   if (getMaxNumParams() < getNumParams() + (*func).getNumFreeParams())
-      setMaxNumParams(getNumParams() + (*func).getNumParams());
-
-//! loop over functions to ensure unique names
-
-   for (unsigned int i = 0; i < m_functions.size(); i++) 
-      assert(fName != (*m_functions[i]).getMyName());
-
-//! set the function's name (overwriting the existing name in *func)
-//! and add to the vector of Functions
-
-   (*func).setMyName(fName);
-   m_functions.push_back(func);
-
-//! add the free ones to the Parameter vector
-   std::vector<Parameter> params;
-   (*func).getFreeParams(params);
-   for (unsigned int i = 0; i < params.size() ; i++) {
-      m_parameter.push_back(params[i]);
-
-//! store the pointer to first Parameter to be added to the list
-      if (i == 0) m_paramIterators.push_back(m_parameter.end()-1);
-   }
+   return 0; //if srcName not found
 }
 
-void SourceModel::deleteSource(const std::string &fName) {
-   
-   for (unsigned int i = 0; i < m_functions.size(); i++) {
-      if (fName == (*m_functions[i]).getMyName()) {
-	 m_functions.erase(m_functions.begin() + i, 
-			   m_functions.begin() + i + 1);
-	 break;
-      }
-   }
+void SourceModel::addSource(Source *src) {
+// loop over sources to ensure unique names
+   for (unsigned int i = 0; i < m_sources.size(); i++) 
+      assert((*src).getName() != (*m_sources[i]).getName());
 
-// remake parameter vector from scratch
-   m_parameter.erase(m_parameter.begin(), m_parameter.end());
-   m_paramIterators.erase(m_paramIterators.begin(), m_paramIterators.end());
+// add this one to the vector
+   m_sources.push_back(src);
 
-   for (unsigned int i = 0; i < m_functions.size(); i++) {
+// add the Parameters to the m_parameter vector 
+// (would it be better just to m_syncParams() here?)
+   std::map<std::string, Function *>::iterator 
+      func_it = (*src).m_functions.begin();
+   for (; func_it != (*src).m_functions.end(); func_it++) {
       std::vector<Parameter> params;
-      (*m_functions[i]).getFreeParams(params);
-      for (unsigned int j = 0; j < params.size() ; j++) {
-	 m_parameter.push_back(params[j]);
-	 if (j == 0) m_paramIterators.push_back(m_parameter.end()-1);
+      (*func_it).second->getParams(params);
+      for (unsigned int ip = 0; ip < params.size(); ip++) 
+	 m_parameter.push_back(params[ip]);
+   }      
+}
+ 
+void SourceModel::deleteSource(const std::string &srcName) {
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      if (srcName == (*m_sources[i]).getName()) {
+	 m_sources.erase(m_sources.begin() + i, 
+                         m_sources.begin() + i + 1);
+         m_syncParams();
+         return;
       }
    }
+   std::cerr << "SourceModel::deleteSource: " 
+             << srcName << " was not found." << std::endl;
 }
 
-Function * SourceModel::getFunc(const std::string &fName) {
-   for (unsigned int i = 0; i < m_functions.size(); i++) 
-      if (fName == (*m_functions[i]).getMyName()) 
-	 return m_functions[i];
-   std::cerr << "SourceModel::getFunc: Function " 
-	     << fName << " was not found.";
-   return 0;
+// remake parameter vector from scratch 
+void SourceModel::m_syncParams() {
+// can we just do m_parameter.clear() here?
+   m_parameter.erase(m_parameter.begin(), m_parameter.end());
+
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      std::map<std::string, Function *>::iterator 
+	 func_it = (*m_sources[i]).m_functions.begin();
+      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) {
+         std::vector<Parameter> params;
+         (*func_it).second->getParams(params);
+	 for (unsigned int ip = 0; ip < params.size(); ip++)
+            m_parameter.push_back(params[ip]);
+      }
+   }
 }
 
 void SourceModel::getSrcNames(std::vector<std::string> &names) const {
 // ensure names is empty
    if (!names.empty()) names.erase(names.begin(), names.end());
 
-   for (unsigned int i = 0; i < m_functions.size(); i++) {
-      names.push_back(m_functions[i]->getMyName());
-   }
-}
-
-void SourceModel::getNumSrcParams(std::vector<int> &numParams) const {
-   if (!numParams.empty()) numParams.erase(numParams.begin(), numParams.end());
-
-   for (unsigned int i = 0; i < m_functions.size(); i++) {
-      numParams.push_back(m_functions[i]->getNumFreeParams());
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      names.push_back(m_sources[i]->getName());
    }
 }
 
 double SourceModel::evaluate_at(double x) const {
    double my_val = 0.;
-   for (unsigned int i = 0; i < m_functions.size(); i++) 
-      my_val += (*m_functions[i])(x);
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      std::map<std::string, Function *>::iterator 
+	 func_it = (*m_sources[i]).m_functions.begin();
+      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) {
+	 my_val += (*func_it).second->value(x);
+      }
+   }
    return my_val;
 }
 
@@ -168,23 +154,30 @@ void SourceModel::getDerivs(double x, std::vector<double> &derivs) const {
 // ensure that derivs is empty
    if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
 
-   for (unsigned int i = 0; i < m_functions.size(); i++) {
-      std::vector<double> my_freeDerivs;
-      (*m_functions[i]).getFreeDerivs(x, my_freeDerivs);
-      for (unsigned int j = 0; j < my_freeDerivs.size(); j++)
-	 derivs.push_back(my_freeDerivs[j]);
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      std::map<std::string, Function *>::iterator 
+	 func_it = (*m_sources[i]).m_functions.begin();
+      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) {
+         std::vector<double> my_derivs;
+         (*func_it).second->getDerivs(x, my_derivs);
+         for (unsigned int j = 0; j < my_derivs.size(); j++)
+            derivs.push_back(my_derivs[j]);
+      }
    }
 }
 
-void SourceModel::m_syncParams() {
-   int k = 0;
-   for (unsigned int i = 0; i < m_functions.size(); i++) {
-      int n_params = (*m_functions[i]).getNumFreeParams();
-      for (int j = 0; j < n_params; j++) {
-	 (*m_functions[i]).setParam(m_parameter[k].getName(), 
-				    m_parameter[k].getValue(),
-				    m_parameter[k].isFree());
-	 k++;
+void SourceModel::getFreeDerivs(double x, std::vector<double> &derivs) const {
+// ensure that derivs is empty
+   if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
+
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      std::map<std::string, Function *>::iterator 
+	 func_it = (*m_sources[i]).m_functions.begin();
+      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++) {
+         std::vector<double> my_derivs;
+         (*func_it).second->getFreeDerivs(x, my_derivs);
+         for (unsigned int j = 0; j < my_derivs.size(); j++)
+            derivs.push_back(my_derivs[j]);
       }
    }
 }

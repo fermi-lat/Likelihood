@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/Statistic.h,v 1.1 2003/02/19 01:34:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/Statistic.h,v 1.2 2003/02/23 22:28:59 jchiang Exp $
  */
 
 class Statistic : public SourceModel {
@@ -30,8 +30,8 @@ public:
 
    //! return the objective function value taking the free parameters 
    //! as the function argument
-   double value(const std::vector<double> &paramVec);
-   double operator()(const std::vector<double> &paramVec) 
+   virtual double value(const std::vector<double> &paramVec);
+   virtual double operator()(const std::vector<double> &paramVec) 
       {return value(paramVec);};
 
    void readEventData(const std::string &eventFile, 

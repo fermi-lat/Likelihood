@@ -30,7 +30,7 @@ void Response::readScData(const std::string &file, int hdu) {
                                               scTable[4].val[i], 
                                               scTable[5].val[i]));
       scData.time = scTable[6].val[i]; 
-      scData.inSaa = scTable[7].val[i];
+      scData.inSaa = static_cast<int>(scTable[7].val[i]);
 
       m_scData.push_back(scData);
    }
