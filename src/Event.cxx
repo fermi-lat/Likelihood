@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.23 2004/02/23 22:17:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.24 2004/05/24 23:51:31 jchiang Exp $
  */
 
 #include <cassert>
@@ -79,7 +79,7 @@ double Event::diffuseResponse(double trueEnergy,
                               const std::string &diffuseComponent) const 
    throw(Exception) {
 
-   int indx;
+   int indx(0);
    if (ResponseFunctions::useEdisp()) {
       indx = static_cast<int>((trueEnergy - m_trueEnergies[0])/m_estep);
       if (indx < 0 || indx >= static_cast<int>(m_trueEnergies.size())) {
