@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.4 2004/10/11 01:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.5 2004/10/30 02:46:03 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -19,14 +19,14 @@ namespace Likelihood {
 
 /**
  * @class AppHelpers
- * @brief The methods in this class calls various static methods for
+ * @brief The methods in this class call various static methods for
  * reading in spacecraft data, defining the region-of-interest, and
  * preparing the response functions --- all standard tasks which must
  * be performed as part of any Likelihood analysis.
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.4 2004/10/11 01:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.5 2004/10/30 02:46:03 jchiang Exp $
  */
 
 class AppHelpers {

@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.1 2004/10/05 23:52:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.2 2004/10/06 05:31:14 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -18,6 +18,14 @@
 #include "map_tools/Exposure.h"
 
 namespace Likelihood {
+
+/**
+ * @class BinnedExposure
+ * @brief This class encapsulates the calculation of and access to 
+ * the integral of the effective area over live time.
+ *
+ * @author J. Chiang
+ */
 
 class BinnedExposure {
 

@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.17 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.18 2004/09/28 14:45:37 jchiang Exp $
  *
  */
 
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.17 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.18 2004/09/28 14:45:37 jchiang Exp $
  *
  */
 
@@ -36,7 +36,7 @@ class FitsImage : public st_facilities::FitsImage {
     
 public:
 
-   FitsImage() {}
+   FitsImage() : m_eqRot(0) {}
    FitsImage(const std::string &fitsfile);
    FitsImage(const FitsImage &rhs);
    virtual ~FitsImage() {
