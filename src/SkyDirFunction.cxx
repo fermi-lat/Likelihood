@@ -5,8 +5,10 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.13 2003/10/01 17:03:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.14 2003/10/24 01:57:24 jchiang Exp $
  */
+
+#include "optimizers/ParameterNotFound.h"
 
 #include "Likelihood/SkyDirFunction.h"
 
@@ -37,8 +39,7 @@ void SkyDirFunction::m_init(double ra, double dec) {
 }
 
 void SkyDirFunction::update_m_dir(const std::string paramName, 
-                                  double paramValue) 
-   throw(optimizers::ParameterNotFound) {
+                                  double paramValue) {
    if (paramName == "RA") {
       m_ra = paramValue;
    } else if (paramName == "DEC") {

@@ -3,7 +3,7 @@
  * @brief Declaration of SpectrumFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.10 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.11 2003/11/10 23:06:16 jchiang Exp $
  */
 
 #ifndef Likelihood_SpectrumFactory_h
@@ -37,7 +37,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.10 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpectrumFactory.h,v 1.11 2003/11/10 23:06:16 jchiang Exp $
  *
  */
     
@@ -56,7 +56,7 @@ public:
    //! they explicitly pass a new Function pointer; otherwise,
    //! the destructor will delete their Function.
    void addFunc(const std::string &name, optimizers::Function* func, 
-                bool fromClone = true) throw(optimizers::Exception);
+                bool fromClone = true);
 
    optimizers::Function *makeFunction(const std::string &name);
 

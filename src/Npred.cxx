@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Npred.cxx,v 1.7 2003/08/06 20:52:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Npred.cxx,v 1.8 2004/09/15 23:12:37 jchiang Exp $
  */
 
 #include <vector>
@@ -32,7 +32,7 @@ void Npred::fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs,
                         bool getFree) const {
    if (!derivs.empty()) derivs.clear();
 
-   buildParameterVector(x);
+   const_cast<Npred *>(this)->buildParameterVector(x);
 
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (!getFree || m_parameter[i].isFree())
@@ -40,7 +40,8 @@ void Npred::fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs,
    }
 }
 
-void Npred::buildParameterVector(optimizers::Arg &x) const {
+//void Npred::buildParameterVector(optimizers::Arg &x) const {
+void Npred::buildParameterVector(optimizers::Arg &x) {
    m_parameter.clear();
    Source *src = dynamic_cast<SrcArg &>(x).getValue();
 

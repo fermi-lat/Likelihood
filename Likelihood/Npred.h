@@ -3,7 +3,7 @@
  * @brief Declaration of Npred class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.7 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.8 2003/09/28 15:39:45 jchiang Exp $
  */
 
 #ifndef Likelihood_Npred_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *  
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.7 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.8 2003/09/28 15:39:45 jchiang Exp $
  */
 
 class Npred : public optimizers::Function {
@@ -40,7 +40,7 @@ private:
 
    void fetchDerivs(optimizers::Arg &, std::vector<double> &derivs, 
                     bool getFree) const;
-   void buildParameterVector(optimizers::Arg &) const;
+   void buildParameterVector(optimizers::Arg &);
 
 };
 
