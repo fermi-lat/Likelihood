@@ -28,6 +28,14 @@
 
    <source name="Extragalactic Diffuse Emission" type="DiffuseSource">
       <spectrum type="Extragalactic Diffuse Power-law"></spectrum>
-      <spatialModel type="ConstantValue"></spatialModel>
+      <spatialModel type="ConstantValue">
+         <parameter name="Value"
+                    value="1"
+                    unit="none"
+                    min="0"
+                    max="10"
+                    free="false"
+                    scale="1"/>
+      </spatialModel>
    </source>
 </source_library>

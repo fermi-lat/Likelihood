@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.19 2003/08/06 20:52:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.20 2003/08/13 18:01:16 jchiang Exp $
  */
 
 #include <sstream>
@@ -164,6 +164,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
 
 // Add the source to the vector of prototypes.
       if (src != 0) {
+         src->setName(srcName);
          addSource(srcName, src);
          delete src;
       }
