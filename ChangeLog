@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Jul 20 21:00:13 PDT 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+remove latResponse; replace gas.cel
+    *
+------------------------------------------------------------
+User: jchiang  Tue Jul 20 21:00:13 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
