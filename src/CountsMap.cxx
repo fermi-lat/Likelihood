@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.3 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.5 2004/09/03 18:02:38 jchiang Exp $
  */
 
 #include <algorithm>
@@ -231,6 +231,69 @@ void CountsMap::getAxisVector(int i, std::vector<double> & axisVector) const {
    }
    long j = binners[i]->getNumBins() - 1;
    axisVector.push_back(binners[i]->getInterval(j).end());
+}
+
+void CountsMap::getPixels(std::vector<Pixel> & pixels) const {
+   pixels.clear();
+   std::vector<astro::SkyDir> pixelDirs;
+   std::vector<double> solidAngles;
+   getPixels(pixelDirs, solidAngles);
+   pixels.reserve(pixelDirs.size());
+   for (unsigned int i = 0; i < pixelDirs.size(); i++) {
+      pixels.push_back(Pixel(pixelDirs[i], solidAngles[i]));
+   }
+}
+
+void CountsMap::getPixels(std::vector<astro::SkyDir> & pixelDirs,
+                          std::vector<double> & pixelSolidAngles) const {
+
+   long nx = imageDimension(0);
+   long ny = imageDimension(1);
+
+   std::vector<double> longitudes;
+   getAxisVector(0, longitudes);
+   std::vector<double> latitudes;
+   getAxisVector(1, latitudes);
+   std::vector<double> energies;
+   getAxisVector(2, energies);
+
+   pixelDirs.clear();
+   pixelSolidAngles.clear();
+
+   pixelDirs.reserve(nx*ny);
+   pixelSolidAngles.reserve(nx*ny);
+   std::vector<double>::const_iterator latIt = latitudes.begin();
+   for ( ; latIt != latitudes.end() - 1; ++latIt) {
+      double latitude = (*latIt + *(latIt+1))/2.;
+      std::vector<double>::const_iterator lonIt = longitudes.begin();
+      for ( ; lonIt != longitudes.end() - 1; ++lonIt) {
+         double longitude = (*lonIt + *(lonIt+1))/2.;
+         pixelDirs.push_back(astro::SkyDir(longitude, latitude, projection()));
+         pixelSolidAngles.push_back(computeSolidAngle(lonIt, latIt, 
+                                                      projection()));
+      }
+   }
+}
+
+double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
+                                    std::vector<double>::const_iterator lat,
+                                    const astro::SkyProj & proj) const {
+   astro::SkyDir lower_left(*lon, *lat, proj);
+   astro::SkyDir upper_right(*(lon+1), *(lat+1), proj);
+   std::vector<double> theta(2);
+   std::vector<double> phi(2);
+   if (proj.isGalactic()) {
+      phi[0] = lower_left.l()*M_PI/180.;
+      theta[0] = lower_left.b()*M_PI/180.;
+      phi[1] = upper_right.l()*M_PI/180.;
+      theta[1] = upper_right.b()*M_PI/180.;
+   } else {
+      phi[0] = lower_left.ra()*M_PI/180.;
+      theta[0] = lower_left.dec()*M_PI/180.;
+      phi[1] = upper_right.ra()*M_PI/180.;
+      theta[1] = upper_right.dec()*M_PI/180.;
+   }
+   return std::fabs((phi[1] - phi[0])*(sin(theta[1]) - sin(theta[0])));
 }
 
 } // namespace Likelihood

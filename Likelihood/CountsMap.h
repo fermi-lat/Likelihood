@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.4 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.5 2004/09/13 15:30:39 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -12,6 +12,7 @@
 #include "evtbin/DataProduct.h"
 
 #include "Likelihood/HistND.h"
+#include "Likelihood/Pixel.h"
 
 namespace astro {
    class SkyProj;
@@ -59,6 +60,8 @@ public:
       return m_hist->data();
    }
 
+   void getPixels(std::vector<Pixel> & pixels) const;
+
 protected:
 
    HistND * m_hist;
@@ -70,6 +73,15 @@ protected:
    double m_axis_rot;
    bool m_use_lb;
    astro::SkyProj * m_proj;
+
+private:
+
+   double computeSolidAngle(std::vector<double>::const_iterator lon,
+                            std::vector<double>::const_iterator lat,
+                            const astro::SkyProj & proj) const;
+
+   void getPixels(std::vector<astro::SkyDir> & pixelDirs,
+                  std::vector<double> & pixelSolidAngles) const;
 
 };
 
