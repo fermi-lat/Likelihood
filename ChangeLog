@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: pln  Tue May 20 14:55:38 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Lbfgs.h 
+Log Message:
+Use exceptions instead of return codes
+    *
+------------------------------------------------------------
 User: pln  Tue May 20 14:55:37 PDT 2003
 Likelihood/src
 
