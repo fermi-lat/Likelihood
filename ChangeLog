@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Sun Dec  5 14:25:49 PST 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Event.cxx LikeExposure.cxx RoiCuts.cxx 
+	SConstruct SourceModel.cxx 
+Log Message:
+begin transition to using DSS keywords instead of ROI file
+    *
+------------------------------------------------------------
 User: jchiang  Sun Dec  5 14:25:48 PST 2004
 Likelihood/pfiles
 
