@@ -3,7 +3,7 @@
  * @brief Provide basic utililty functions to Likelihood applications.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.1 2004/04/06 01:16:59 jchiang Exp $
  */
 
 #ifndef Likelihood_Util_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.1 2004/04/06 01:16:59 jchiang Exp $
  */
 
 class Util {
@@ -48,13 +48,15 @@ public:
    }
 
    static void readLines(std::string inputFile, 
-                         std::vector<std::string> &lines) {
+                         std::vector<std::string> &lines,
+                         const std::string &skip = "#") {
       facilities::Util::expandEnvVar(&inputFile);
       std::ifstream file(inputFile.c_str());
       lines.clear();
       std::string line;
       while (std::getline(file, line, '\n')) {
-         if (line != "" && line != " ") { //skip (most) blank lines
+         if (line != "" && line != " "             //skip (most) blank lines 
+             && line.find_first_of(skip) != 0) {   //and commented lines
             lines.push_back(line);
          }
       }
