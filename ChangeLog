@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Fri Nov 21 15:59:44 PST 2003
+Likelihood/python
+
+Modified Files:
+	Likelihood.i 
+Log Message:
+Expose getFreeParamValues, remove ConstantValue
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 18 15:02:33 PST 2003
 Likelihood/src/test
 
