@@ -3,7 +3,7 @@
  * @brief A singleton class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.1 2003/10/22 04:30:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.2 2003/10/22 16:31:33 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.1 2003/10/22 04:30:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.2 2003/10/22 16:31:33 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -38,6 +38,10 @@ public:
 
    static void setRespPtrs(std::map<unsigned int, latResponse::Irfs *> 
                            &respPtrs) {s_respPtrs = respPtrs;}
+
+   static void addRespPtr(unsigned int key,
+                          latResponse::Irfs *respPtr) 
+      {s_respPtrs[key] = respPtr;}
 
    latResponse::Irfs * respPtr(unsigned int eventType);
 

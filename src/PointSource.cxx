@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.28 2003/10/24 05:39:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.29 2003/10/25 00:22:52 jchiang Exp $
  */
 
 #include <vector>
@@ -13,8 +13,6 @@
 
 #include "optimizers/dArg.h"
 
-#include "latResponse/IPsf.h"
-#include "latResponse/IAeff.h"
 #include "latResponse/Irfs.h"
 #include "latResponse/../src/Glast25.h"
 

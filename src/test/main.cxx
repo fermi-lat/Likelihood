@@ -11,10 +11,7 @@
 #include "astro/SkyDir.h"
 
 #include "latResponse/../src/Table.h"
-#include "latResponse/../src/PsfGlast25.h"
-#include "latResponse/../src/AeffGlast25.h"
-#include "latResponse/../src/EdispGlast25.h"
-#include "latResponse/Irfs.h"
+#include "latResponse/IrfsFactory.h"
 
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SourceModel.h" 
@@ -81,18 +78,18 @@ int main() {
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
    read_SC_Response_data();
-   test_SourceModel_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_LogLike();
-   test_SpectrumFactory();
+//    test_SourceModel_class();
+//    test_Event_class();
+//    test_PointSource_class();
+//    test_LogLike();
+//    test_SpectrumFactory();
    fit_3C279();
    fit_anti_center();
-   test_FitsImage();
-   test_ExposureMap();
-   test_SpatialMap();
-   test_DiffuseSource();
-   test_FunctionFactory();
+//    test_FitsImage();
+//    test_ExposureMap();
+//    test_SpatialMap();
+//    test_DiffuseSource();
+//    test_FunctionFactory();
    test_SourceFactory();
    fit_DiffuseSource();
    return 0;
@@ -1243,46 +1240,17 @@ void read_SC_Response_data() {
    test_path = root_path + "/src/test/";
 
 // Prepare the ResponseFunctions object.
-   std::string psf_file = test_path + "CALDB/psf_lat.fits";
-   std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
-   std::map<unsigned int, latResponse::Irfs *> respPtrs;
+   latResponse::IrfsFactory irfsFactory;
 
    bool useCombined = true;
    if (useCombined) {
-      latResponse::IAeff *aeff_new
-         = new latResponse::AeffGlast25(aeff_file,
-                                        latResponse::Glast25::Combined);
-      latResponse::IPsf *psf_new
-         = new latResponse::PsfGlast25(psf_file, 
-                                       latResponse::Glast25::Combined);
-      latResponse::IEdisp *edisp = new latResponse::EdispGlast25();
-
-      respPtrs[latResponse::Glast25::Combined] 
-         = new latResponse::Irfs(aeff_new, psf_new, edisp);
+      ResponseFunctions::addRespPtr(4, 
+                                    irfsFactory.create("Glast25::Combined"));
    } else {
-// use front/back
-      latResponse::IAeff *aeff_f
-         = new latResponse::AeffGlast25(aeff_file, 
-                                        latResponse::Glast25::Front);
-      latResponse::IPsf *psf_f
-         = new latResponse::PsfGlast25(psf_file,
-                                       latResponse::Glast25::Front);
-      latResponse::IEdisp *edisp_f = new latResponse::EdispGlast25();
-      respPtrs[latResponse::Glast25::Front] 
-         = new latResponse::Irfs(aeff_f, psf_f, edisp_f);
-
-      latResponse::IAeff *aeff_b
-         = new latResponse::AeffGlast25(aeff_file, latResponse::Glast25::Back);
-      latResponse::IPsf *psf_b
-         = new latResponse::PsfGlast25(psf_file, latResponse::Glast25::Back);
-      latResponse::IEdisp *edisp_b = new latResponse::EdispGlast25();
-
-      respPtrs[latResponse::Glast25::Back] 
-         = new latResponse::Irfs(aeff_b, psf_b, edisp_b);
+// use front & back
+      ResponseFunctions::addRespPtr(2, irfsFactory.create("Glast25::Front"));
+      ResponseFunctions::addRespPtr(3, irfsFactory.create("Glast25::Back"));
    }
-
-   ResponseFunctions::setRespPtrs(respPtrs);
- 
 }
 
 void print_fit_results(SourceModel &stat) {
