@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.18 2004/09/28 14:45:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.19 2004/11/01 06:27:38 jchiang Exp $
  *
  */
 
@@ -21,6 +21,8 @@
 
 namespace Likelihood {
 
+#include "fitsio.h"
+
 /** 
  * @class FitsImage
  *
@@ -28,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.18 2004/09/28 14:45:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.19 2004/11/01 06:27:38 jchiang Exp $
  *
  */
 
@@ -45,7 +47,15 @@ public:
 
    virtual void getCelestialArrays(std::vector<double> &lonArray,
                                    std::vector<double> &latArray);
-   
+
+   static void fitsReportError(int status, std::string routine="");
+
+   static int findHdu(const std::string & fitsfile,
+                      const std::string & extension);
+
+   static void readColumn(fitsfile * fptr, const std::string & colname,
+                          std::vector<double> & coldata);
+
 #ifndef SWIG
    FitsImage &operator=(const FitsImage &rhs);
 
@@ -77,8 +87,7 @@ private:
 
    bool haveRefCoord();
 
-   void fitsReportError(FILE * stream, int status) const;
-
+   static std::string s_routineName;
 };
 
 } // namespace Likelihood
