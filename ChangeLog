@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep  9 17:04:24 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Table.h 
+Log Message:
+fix memory leak in logLike_ptsrc
+    *
+------------------------------------------------------------
 User: jchiang  Fri Sep  5 13:53:34 PDT 2003
 Likelihood/doc
 
