@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.12 2004/09/25 16:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.13 2004/09/28 04:32:25 jchiang Exp $
  */
 
 #include <memory>
@@ -129,8 +129,6 @@ CountsMap * BinnedLikelihood::createCountsMap() const {
 
    CountsMap * modelMap = new CountsMap(m_dataMap);
          
-// @bug This will not work properly until
-// tip::FitsExtensionManager::setImageDimensions is fixed.
    modelMap->setImage(map);
    return modelMap;
 }
@@ -259,9 +257,15 @@ bool BinnedLikelihood::sourceMapExists(const std::string & srcName,
 
 void BinnedLikelihood::replaceSourceMap(const std::string & srcName,
                                         const std::string & fitsFile) const {
-   (void)(srcName);
-   (void)(fitsFile);
-/// @todo Implement replaceSourceMap method.
+   std::auto_ptr<tip::Image> 
+      image(tip::IFileSvc::instance().editImage(fitsFile, srcName));
+
+   const SourceMap * srcMap = sourceMap(srcName);
+
+   std::vector<float> float_image(srcMap->model().size());
+   std::copy(srcMap->model().begin(), srcMap->model().end(), 
+             float_image.begin());
+   image->set(float_image);
 }
 
 void BinnedLikelihood::addSourceMap(const std::string & srcName,

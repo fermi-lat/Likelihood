@@ -25,9 +25,11 @@ using namespace Likelihood;
 
 class Aeff : public map_tools::Exposure::Aeff {
 public:
-   Aeff(double energy, int evtType) : m_energy(energy), m_evtType(evtType) {}
+   Aeff(double energy, int evtType) : m_energy(energy), m_evtType(evtType),
+      m_cutoff(0.25) {}
    virtual ~Aeff() {}
    virtual double operator()(double cosTheta) const {
+//      return cosTheta < m_cutoff ? 0 : (cosTheta - m_cutoff)/(1. - m_cutoff);
       double inclination = acos(cosTheta);
       std::map<unsigned int, irfInterface::Irfs *>::iterator respIt 
          = ResponseFunctions::instance()->begin();
@@ -43,6 +45,7 @@ public:
 private:
    double m_energy;
    int m_evtType;
+   double m_cutoff;
    static double s_phi;
 };
 
