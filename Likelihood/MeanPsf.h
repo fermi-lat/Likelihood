@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.1 2004/10/04 05:51:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.2 2004/10/05 04:47:56 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -35,10 +35,13 @@ public:
       init();
    }
 
+   MeanPsf() {}
+
    /// @return The value of the psf.
    /// @param energy True photon energy (MeV)
-   /// @param theta Inclination wrt instrument z-axis (degrees)
-   /// @param phi Azimuthal angle wrt instrument x-axis (degrees)
+   /// @param theta Angular distance from true source direction (degrees)
+   /// @param phi Azimuthal angle about true source direction, 
+   ///        currently unused (degrees)
    double operator()(double energy, double theta, double phi=0) const;
 
 private:
