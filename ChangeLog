@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  3 17:21:12 PST 2004
+Likelihood/src
+
+Modified Files:
+	SourceMap.cxx 
+Log Message:
+clear m_srcDirs when needed
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov  3 15:51:22 PST 2004
 Likelihood/src/likelihood
 
