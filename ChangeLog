@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 19 16:02:06 PST 2004
+Likelihood/data
+
+Modified Files:
+	anticenter_model.xml 
+Log Message:
+prepare for Xerces migration; begin refactoring unit test
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb 19 16:02:05 PST 2004
 Likelihood/cmt
 
