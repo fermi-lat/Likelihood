@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.21 2004/04/03 16:42:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.22 2004/04/19 19:59:38 jchiang Exp $
  */
 
 #include <cassert>
@@ -11,6 +11,8 @@
 
 #include <algorithm>
 #include <string>
+#include <sstream>
+#include <stdexcept>
 #include <vector>
 
 #include "facilities/Util.h"
@@ -150,6 +152,47 @@ ScData * ScData::instance() {
       s_instance = new ScData();
    }
    return s_instance;
+}
+
+std::pair<ScData::Iterator, ScData::Iterator> 
+ScData::bracketInterval(double startTime, double stopTime) {
+   
+   ScNtuple startTuple;
+   startTuple.time = startTime;
+   ScData::Iterator lowerBound 
+      = std::lower_bound(vec.begin(), vec.end(), startTuple,
+                         Likelihood::ScData::less_than_time);
+   if (lowerBound == vec.end()) {
+      std::ostringstream message;
+      message << "Likelihood::ScData::bracketInterval:\nStart time " 
+              << startTime << " is out-of-range for "
+              << "existing spacecraft data time range: (" 
+              << (*vec.begin()).time
+              << ", " << (*(vec.end()-1)).time << ")";
+      throw std::out_of_range(message.str());
+   }
+   if ((*lowerBound).time != startTime) --lowerBound;
+
+   ScNtuple stopTuple;
+   stopTuple.time = stopTime;
+   ScData::Iterator upperBound 
+      = std::upper_bound(vec.begin(), vec.end(), stopTuple,
+                         Likelihood::ScData::less_than_time);
+   if (upperBound == vec.end()) {
+      std::ostringstream message;
+      message << "Likelihood::ScData::bracketInterval:\nStop time " 
+              << stopTime << " is out-of-range for "
+              << "existing spacecraft data time range: (" 
+              << (*vec.begin()).time
+              << ", " << (*(vec.end()-1)).time << ")";
+      throw std::out_of_range(message.str());
+   }
+   return std::make_pair(lowerBound, upperBound);
+}
+
+bool ScData::less_than_time(const ScNtuple & scDatum1, 
+                            const ScNtuple & scDatum2) {
+   return scDatum1.time < scDatum2.time;
 }
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.11 2003/10/22 16:31:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.12 2003/11/07 02:27:08 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.11 2003/10/22 16:31:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.12 2003/11/07 02:27:08 jchiang Exp $
  */
 
 class ScData {
@@ -64,6 +64,16 @@ public:
    /// Returns the Singleton object pointer.
    static ScData * instance();
 
+   /// Return a pair of iterators to the ScData intervals enclosing
+   /// the desired start and end times.
+   typedef std::vector<ScNtuple>::iterator Iterator;
+   static std::pair<Iterator, Iterator> bracketInterval(double startTime,
+                                                        double stopTime);
+   static std::pair<Iterator, Iterator> 
+   bracketInterval(const std::pair<double, double> & interval) {
+      return bracketInterval(interval.first, interval.second);
+   }
+
 protected:
 
    ScData(){}
@@ -79,6 +89,9 @@ private:
 
    astro::SkyDir m_zAxis;
    astro::SkyDir m_xAxis;
+
+   static bool less_than_time(const ScNtuple & scDatum1,
+                              const ScNtuple & scDatum2);
 
 };
 
