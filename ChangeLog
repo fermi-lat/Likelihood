@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Mar 21 17:22:51 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+implement destructors, clone methods
+    *
+------------------------------------------------------------
+User: jchiang  Fri Mar 21 17:22:51 PST 2003
 Likelihood/src
 
 Modified Files:
