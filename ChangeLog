@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 29 14:52:31 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	TrapQuad.h 
+Log Message:
+add exceptions
+
+    *
+------------------------------------------------------------
 User: jchiang  Thu May 29 13:15:25 PDT 2003
 Likelihood/src
 
