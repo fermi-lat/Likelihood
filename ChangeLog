@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 20 11:26:07 PDT 2003
+Likelihood/src
+
+Modified Files:
+	ExposureMap.cxx FitsImage.cxx logLike_gauss.h 
+Log Message:
+comment out CCfits usage
+    *
+------------------------------------------------------------
 User: pln  Tue May 13 11:29:45 PDT 2003
 Likelihood/src
 
