@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 11 14:01:16 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Function.h Npred.h Optimizer.h Parameter.h PointSource.h Psf.h 
+	Response.h RoiCuts.h SkyDirFunction.h Source.h SourceModel.h 
+	Statistic.h TrapQuad.h logSrcModel.h 
+Added Files:
+	SrcArg.h 
+Log Message:
+add concrete Optimizer class, anti-center data
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar  6 15:25:44 PST 2003
 Likelihood/src/test
 
