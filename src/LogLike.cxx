@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.36 2005/02/06 22:50:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.37 2005/02/23 00:39:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -37,7 +37,12 @@ namespace {
    std::string sourceName(const std::string & name) {
       std::vector<std::string> tokens;
       facilities::Util::stringTokenize(name, "::", tokens);
-      return tokens.at(1);
+      if (tokens.size() == 1) {
+         return tokens.at(0);
+      } else {
+         return tokens.at(1);
+      }
+      return std::string();
    }
 }
 
