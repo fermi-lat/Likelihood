@@ -4,7 +4,7 @@
 #
 # @author J. Chiang
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.9 2004/12/20 20:13:11 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.10 2005/01/19 02:14:59 jchiang Exp $
 #
 
 #PYTHONDIR = $(GLAST_EXT)/python/2.3/Linux
@@ -36,15 +36,16 @@ INCLUDE = -I$(LIKELIHOODROOT)\
 
 LIBS = -L../$(BINDIR)/ -lLikelihoodLib\
 	-L$(IRFLOADERROOT)/$(BINDIR) -lirfLoaderLib\
-	-L$(DC1RESPONSEROOT)/$(BINDIR) -ldc1ResponseLib\
+	-L$(DC1RESPONSEROOT)/$(BINDIR) -ldc1Response\
 	-L$(G25RESPONSEROOT)/$(BINDIR) -lg25ResponseLib\
 	-L$(TESTRESPONSEROOT)/$(BINDIR) -ltestResponseLib\
+	-L$(DEVRESPONSEROOT)/$(BINDIR) -ldevResponseLib\
 	-L$(IRFUTILROOT)/$(BINDIR) -lirfUtilLib\
 	-L$(IRFINTERFACEROOT)/$(BINDIR) -lirfInterfaceLib\
 	-L$(MAP_TOOLSROOT)/$(BINDIR) -lmap_toolsLib\
 	-L$(ASTROROOT)/$(BINDIR) -lastro\
 	-L$(DATASUBSELECTORROOT)/$(BINDIR) -ldataSubselectorLib\
-	-L$(OPTIMIZERSROOT)/$(BINDIR) -loptimizersLib\
+	-L$(OPTIMIZERSROOT)/$(BINDIR) -loptimizers\
 	-L$(EVTBINROOT)/$(BINDIR) -levtbinLib\
 	-L$(TIPROOT)/$(BINDIR) -ltipLib\
 	-L$(XMLBASEROOT)/$(BINDIR) -lxmlBase\
@@ -53,7 +54,7 @@ LIBS = -L../$(BINDIR)/ -lLikelihoodLib\
 	-L$(GLAST_EXT)/cfitsio/v2470/lib -lcfitsio\
 	-L$(GLAST_EXT)/CLHEP/1.8.0.0/lib -lCLHEP\
 	-L$(GLAST_EXT)/xerces/2.6.0/lib/ -lxerces-c -lpthread\
-	-L$(GLAST_EXT)/ROOT/v3.10.02/root/lib\
+	-L$(GLAST_EXT)/ROOT/v4.02.00/root/lib\
 	-lCore -lCint -lTree -lMatrix -lPhysics\
 	-lHist -lGraf -lGraf3d -lGpad -lRint -lPostscript\
 	-lg2c -L$(SWIG_DIR)/lib -lswigpy -fPIC 

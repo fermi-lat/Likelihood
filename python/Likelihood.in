@@ -46,6 +46,14 @@ using optimizers::Function;
 using optimizers::Exception;
 %}
 %include stl.i
+%exception {
+   try {
+      $action
+   } catch (std::exception & eObj) {
+      PyErr_SetString(PyExc_RuntimeError, const_cast<char*>(eObj.what()));
+      return NULL;
+   }
+}
 %include $(OPTIMIZERSROOT)/optimizers/Function.h
 %include $(OPTIMIZERSROOT)/optimizers/FunctionFactory.h
 %include $(OPTIMIZERSROOT)/optimizers/Optimizer.h
@@ -75,6 +83,8 @@ using optimizers::Exception;
 %include $(LIKELIHOODROOT)/Likelihood/SpatialMap.h
 %include $(LIKELIHOODROOT)/Likelihood/SrcArg.h
 %include $(LIKELIHOODROOT)/Likelihood/TrapQuad.h
+%template(DoublePair) std::pair<double, double>;
+%template(EventVector) std::vector<Likelihood::Event>;
 %template(DoubleVector) std::vector<double>;
 %template(DoubleVectorVector) std::vector< std::vector<double> >;
 %template(StringVector) std::vector<std::string>;
