@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.55 2004/09/21 14:51:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.56 2004/09/22 03:20:21 jchiang Exp $
  */
 
 #include <cassert>
@@ -460,7 +460,7 @@ bool SourceModel::hasSrcNamed(const std::string & srcName) const {
 CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
 
    if (ExposureCube::instance() == 0) {
-      std::runtime_error("SourceModel::makeCountsMap:\n"
+      std::runtime_error("SourceModel::createCountsMap:\n"
                          + std::string("Exposure cube not available."));
    }
 

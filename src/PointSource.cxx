@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.49 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.50 2004/09/15 23:12:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -206,6 +206,24 @@ double PointSource::NpredDeriv(const std::string &paramName) {
       TrapQuad trapQuad(s_energies, myIntegrand);
       return trapQuad.integral();
    }
+}
+
+double PointSource::pixelCounts(double emin, double emax,
+                                double wtMin, double wtMax) const {
+   optimizers::Function & spectrum = *m_spectrum;
+   optimizers::dArg eminArg(emin);
+   optimizers::dArg emaxArg(emax);
+   return (spectrum(emaxArg)*wtMax + spectrum(eminArg)*wtMin)*(emax - emin)/2.;
+}
+
+double PointSource::pixelCountsDeriv(double emin, double emax,
+                                     double wtMin, double wtMax,
+                                     const std::string & paramName) const {
+   optimizers::Function & spectrum = *m_spectrum;
+   optimizers::dArg eminArg(emin);
+   optimizers::dArg emaxArg(emax);
+   return (spectrum.derivByParam(emaxArg, paramName)*wtMax +
+           spectrum.derivByParam(eminArg, paramName)*wtMin)*(emax - emin)/2.;
 }
 
 void PointSource::computeExposure(bool verbose) {
