@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v2r8   05-Feb-04  JC   accommodate astro package (v0r10) interface changes
     v2r7p2 29-Jan-04  JC   fix anonymous scoping; correct patch tag
     v2r7   15-Jan-04  JC   file safety checks added for apps; use hoopsUtil
     v2r6p9 08-Jan-04  JC   use optimizers v*
