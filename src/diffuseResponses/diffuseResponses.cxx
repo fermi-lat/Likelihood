@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.17 2004/12/30 16:45:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.18 2005/01/03 23:01:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -46,7 +46,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.17 2004/12/30 16:45:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.18 2005/01/03 23:01:22 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -92,7 +92,8 @@ diffuseResponses::diffuseResponses()
 void diffuseResponses::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
-   if (m_pars["clobber"] || !haveDiffuseColumns()) {
+   bool clobber = m_pars["clobber"];
+   if (clobber || !haveDiffuseColumns()) {
       m_helper = new AppHelpers(m_pars);
       m_helper->readScData();
       m_srcModel = new SourceModel(true);
