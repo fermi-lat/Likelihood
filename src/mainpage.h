@@ -142,7 +142,7 @@
 /**
  @page userGuide User's Guide
 
- @section likeApp likelihood
+ @section likeApp likelihoodApp
 
  This is an FTOOLS-like interface to the Likelihood class library.
  It uses HOOPS to obtain the command-line parameters and therefore
@@ -170,7 +170,7 @@
  emission, are analyzed.  The region-of-interest is defined around the
  Galactic anticenter.
  @verbatim
-glast-guess1[jchiang] likelihood.exe
+glast-guess1[jchiang] likelihoodApp.exe
 ROI cuts file [RoiCuts.xml] : 
 Spacecraft file [all_sky_1day_scData_0000.fits] : 
 Exposure file [anticenter_expMap.fits] : 
