@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.17 2005/03/03 20:04:17 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.18 2005/03/04 22:08:25 jchiang Exp $
 #
 import os
 import numarray as num
@@ -65,7 +65,7 @@ class SrcAnalysis(object):
         eventFiles = self._fileList(eventFile)
         self.roiCuts.readCuts(eventFiles[0])
         for file in eventFiles:
-            self.logLike.getEvents(file)
+            self.observation.eventCont().getEvents(file)
     def _Nobs(self, emin, emax):
         nobs = 0
         for event in self.events:
