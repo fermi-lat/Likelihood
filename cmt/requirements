@@ -4,7 +4,7 @@ version v2r6p9
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.75 2004/01/08 19:34:37 jchiang Exp $
+# $Id: requirements,v 1.76 2004/01/08 20:19:17 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -30,9 +30,6 @@ macro Likelihood_cppflags "" \
 Linux "-I ../src -g -O -pedantic -D TRAP_FPE -D USE_GOODI " \
 #Linux "-I ../src -g -O -pedantic -D TRAP_FPE " \
 WIN32 '/I..\src /D"USE_GOODI" /wd4290'
-
-# this package uses obsolete C function names, beware	
-macro_append cpplinkflags "" WIN32 " oldnames.lib"
 
 macro_append ROOT_libs ""  WIN32 " libHisT.lib "
 
