@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.16 2004/08/20 15:39:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.17 2004/09/28 04:32:25 jchiang Exp $
  *
  */
 
@@ -20,17 +20,16 @@ namespace Likelihood {
 #include "fitsio.h"
 
 FitsImage::FitsImage(const std::string &fitsfile) 
-   : st_facilities::FitsImage(fitsfile) {
-   if ( (m_haveRefCoord = haveRefCoord()) ) {
+   : st_facilities::FitsImage(fitsfile), m_eqRot(0) {
+   if (haveRefCoord()) {
       m_eqRot = new EquinoxRotation(m_roiRa, m_roiDec);
    }
 }
 
 FitsImage::FitsImage(const FitsImage &rhs) : st_facilities::FitsImage(rhs) {
-   m_haveRefCoord = rhs.m_haveRefCoord;
    m_roiRa = rhs.m_roiRa;
    m_roiDec = rhs.m_roiDec;
-   if (m_haveRefCoord) m_eqRot = rhs.m_eqRot->clone();
+   if (rhs.m_eqRot) m_eqRot = rhs.m_eqRot->clone();
 }
 
 FitsImage& FitsImage::operator=(const FitsImage &rhs) {
@@ -39,10 +38,9 @@ FitsImage& FitsImage::operator=(const FitsImage &rhs) {
       m_axes = rhs.m_axes;
       m_axisVectors = rhs.m_axisVectors;
       m_image = rhs.m_image;
-      m_haveRefCoord = rhs.m_haveRefCoord;
       m_roiRa = rhs.m_roiRa;
       m_roiDec = rhs.m_roiDec;
-      if (m_haveRefCoord) {
+      if (rhs.m_eqRot) {
          delete m_eqRot;
          m_eqRot = rhs.m_eqRot->clone();
       }
@@ -58,7 +56,7 @@ void FitsImage::getCelestialArrays(std::vector<double> &lonArray,
    for (int j = 0; j < m_axes[1].size; j++) {
       for (int i = 0; i < m_axes[0].size; i++) {
          int indx = i + j*m_axes[0].size;
-         if (m_haveRefCoord) {
+         if (m_eqRot) {
             astro::SkyDir inVec(m_axisVectors[0][i], m_axisVectors[1][j]);
             astro::SkyDir outVec;
             m_eqRot->do_rotation(inVec, outVec);
