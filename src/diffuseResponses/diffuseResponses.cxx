@@ -4,7 +4,7 @@
  * diffuse emission.  Assumes infinite energy resolution.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.3 2004/06/06 22:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.4 2004/06/08 17:00:46 jchiang Exp $
  */
 
 #include <cmath>
@@ -24,6 +24,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
@@ -38,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.3 2004/06/06 22:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.4 2004/06/08 17:00:46 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -74,7 +75,8 @@ private:
    void computeEventResponses();
    void writeEventResponses();
    void getDiffuseSources();
-
+   void setGaussianParams(const Event & event, const std::string & name,
+                          tip::Table::Vector<double> & params);
 };
 
 st_app::StAppFactory<diffuseResponses> myAppFactory;
@@ -87,6 +89,7 @@ diffuseResponses::diffuseResponses()
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
       m_srcModel = new SourceModel(true);
+      ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
       std::exit(1);
@@ -182,7 +185,14 @@ void diffuseResponses::writeEventResponses() {
       }
       for (unsigned int i = 0; i < m_srcNames.size(); i++) {
          try {
-            events->appendField(m_srcNames[i], "1D");
+            if (ResponseFunctions::useEdisp()) {
+// Add a 3 dim vector containing the Gaussian parameters describing
+// the energy response.
+               events->appendField(m_srcNames[i], "3D");
+            } else {
+// Infinite energy response, so just add the single value.
+               events->appendField(m_srcNames[i], "1D");
+            }
          } catch (tip::TipException &eObj) {
             std::cout << eObj.what() << "\n"
                       << "Using existing column." << std::endl;
@@ -193,12 +203,39 @@ void diffuseResponses::writeEventResponses() {
       for (int j = 0 ; it != events->end(); j++, ++it) {
          std::vector<std::string>::iterator name = m_srcNames.begin();
          for ( ; name != m_srcNames.end(); ++name) {
-// For now, assume infinite energy resolution.
-            row[*name].set(m_events[j].diffuseResponse(1., *name));
+            if (ResponseFunctions::useEdisp()) {
+               tip::Table::Vector<double> respParams = row[*name];
+               setGaussianParams(m_events[j], *name, respParams);
+            } else {
+// Assume infinite energy resolution.
+               row[*name].set(m_events[j].diffuseResponse(1., *name));
+            }
          }
       }
       delete events;
    }
+}
+
+void diffuseResponses::setGaussianParams(const Event & event,
+                                         const std::string & name,
+                                         tip::Table::Vector<double> & params) {
+   const std::vector<double> & trueEnergies = event.trueEnergies();
+   const std::vector<double> & resp = event.diffuseResponse(name);
+   double integral(0); 
+   double eavg(0);
+   double e2avg(0);
+   for (unsigned int i = 0; i < trueEnergies.size() - 1; i++) {
+      integral += (trueEnergies[i+1] - trueEnergies[i])
+         *(resp[i] + resp[i+1])/2.;
+      eavg += (trueEnergies[i+1] - trueEnergies[i])
+         *(trueEnergies[i]*resp[i] + trueEnergies[i+1]*resp[i+1])/2.;
+      e2avg += (trueEnergies[i+1] - trueEnergies[i])
+         *(trueEnergies[i]*trueEnergies[i]*resp[i] 
+           + trueEnergies[i+1]*trueEnergies[i+1]*resp[i+1])/2.;
+   }
+   params[0] = integral;
+   params[1] = eavg/integral;   // mean value
+   params[2] = sqrt(e2avg/integral - params[1]*params[1]);  // sigma
 }
 
 void diffuseResponses::getDiffuseSources() {

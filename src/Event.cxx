@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.32 2004/07/19 14:16:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.33 2004/07/21 04:00:13 jchiang Exp $
  */
 
 #include <cassert>
@@ -105,6 +105,19 @@ double Event::diffuseResponse(double trueEnergy,
       throw Exception(errorMessage);
    }
    return 0;
+}
+
+const std::vector<double> & 
+Event::diffuseResponse(const std::string & name) const {
+   std::map<std::string, diffuse_response>::const_iterator it;
+   if ((it = m_respDiffuseSrcs.find(name)) == m_respDiffuseSrcs.end()) {
+      std::string errorMessage 
+         = "Event::diffuseResponse: \nDiffuse component " 
+         + name
+         + " does not have an associated diffuse response.\n";
+      throw Exception(errorMessage);
+   }
+   return it->second;
 }
 
 void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 

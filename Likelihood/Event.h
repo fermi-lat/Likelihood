@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.25 2004/06/07 00:46:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.26 2004/06/08 17:00:46 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.25 2004/06/07 00:46:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.26 2004/06/08 17:00:46 jchiang Exp $
  */
 
 class Event {
@@ -92,6 +92,14 @@ public:
    }
 
    static void toLower(std::string & name);
+
+   /// Direct access to vector of true energies.
+   const std::vector<double> & trueEnergies() const {
+      return m_trueEnergies;
+   }
+
+   /// Direct access to diffuse responses.
+   const std::vector<double> & diffuseResponse(const std::string & name) const;
    
 private:
 
