@@ -13,7 +13,8 @@
 
 namespace Likelihood {
 
-CompositeFunction::CompositeFunction(const CompositeFunction &rhs) {
+CompositeFunction::CompositeFunction(const CompositeFunction &rhs) 
+   : Function(rhs) {
 // Make a deep copy since Functions are stored as pointers.
 
    Function *afuncptr = rhs.m_a->clone();

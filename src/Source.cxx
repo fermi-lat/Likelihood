@@ -1,7 +1,8 @@
 /** @file Source.cxx
  * @brief Source class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
 
 #include <vector>

@@ -21,6 +21,9 @@ namespace Likelihood {
  * @brief This class implements the Prototype pattern to return
  * clones of various gamma-ray Sources.
  *
+ * The design of this class is based on the Factory template class
+ * of Hippodraw.
+ *
  * @author J. Chiang
  *    
  * $Header$
@@ -32,8 +35,11 @@ public:
 
    SourceFactory();
 
-   virtual ~SourceFactory() {}
+   virtual ~SourceFactory();
 
+   //! Clients should almost always have fromClone = true; 
+   //! otherwise, the destructor will delete their Source, rather than 
+   //! a clone.
    void addSource(const std::string &name, Source* src, 
                   bool fromClone = true);
 

@@ -23,6 +23,9 @@ namespace Likelihood {
  * @brief This class implements the Prototype pattern to return
  * clones of various spectral components for building Sources.
  *
+ * The design of this class is based on the Factory template class
+ * of Hippodraw.
+ *
  * In future, this class *may* be made Singleton.
  *
  * @author J. Chiang
@@ -40,8 +43,11 @@ public:
       addFunc("AbsEdge", new AbsEdge(), false);
    }
 
-   virtual ~SpectrumFactory() {}
+   virtual ~SpectrumFactory();
 
+   //! Clients should almost always have fromClone = true, unless
+   //! they explicitly pass a new Function pointer; otherwise,
+   //! the destructor will delete their Function.
    void addFunc(const std::string &name, Function* func, 
                 bool fromClone = true);
 

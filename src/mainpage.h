@@ -60,7 +60,7 @@
    behavior of this class is greatly facilitated by the Parameter and
    Arg classes.
 
-   - Likelihood::Parameter This is essentially an NTuple containing
+   - Likelihood::Parameter This is essentially an n-tuple containing
    model parameter information (and access methods) comprising the
    parameter value, scale factor, name, upper and lower bounds and
    whether the parameter is to be considered free or fixed in the
@@ -96,7 +96,7 @@
       - Npred(): predicted number of photons in the ROI
       - NpredDeriv(...): derivative of Npred wrt a Parameter
 
-   - Likelihood::Event An NTuple containing photon event arrival
+   - Likelihood::Event An n-tuple containing photon event arrival
    time, apparent energy and direction, as well as spacecraft attitude
    information at the event arrival time and event-specific response
    function data for use with components of the diffuse emission
@@ -107,14 +107,14 @@
    effective area (Aeff), and the energy dispersion (not yet
    implemented).  These subclasses are all Singleton.
 
-   - Likelihood::RoiCuts An NTuple Singleton class that contains the
+   - Likelihood::RoiCuts An n-tuple Singleton class that contains the
    "region-of-interest" cuts.  These are essentially the bounds of the
    data space as a function of arrival time, apparent energy, apparent
    direction, zenith angle, etc..  Note that these bounds need not
    enclose a simply connected region.
 
    - Likelihood::ScData A Singleton object that contains the
-   spacecraft data NTuples (ScNtuple).
+   spacecraft data n-tuples (ScNtuple).
 
    - Likelihood::SpectrumFactory This class implements the Prototype
    pattern in order to provide a common point of access for retrieving

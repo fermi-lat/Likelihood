@@ -6,7 +6,6 @@
  */
 
 #include <iostream>
-#include <memory>
 
 #include "Likelihood/Function.h"
 #include "Likelihood/SumFunction.h"
@@ -14,6 +13,7 @@
 
 namespace Likelihood {
 
+#if 0 // disable these until assignment operator is provided
 // use of these operators will no doubt leak memory....
 SumFunction &Function::operator+(Function &a) {
    SumFunction *sumFunc = new SumFunction(*this, a);
@@ -24,6 +24,7 @@ ProductFunction &Function::operator*(Function &a) {
    ProductFunction *productFunc = new ProductFunction(*this, a);
    return *productFunc;
 }
+#endif
    
 void Function::setParameter(const std::string &paramName, 
 			    double paramValue,

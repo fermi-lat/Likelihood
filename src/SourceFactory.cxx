@@ -44,6 +44,12 @@ SourceFactory::SourceFactory() {
    addSource("PointSource", &ptsrc, true);
 }
 
+SourceFactory::~SourceFactory() {
+   std::map<std::string, Source *>::iterator it = m_prototypes.begin();
+   for (; it != m_prototypes.end(); it++)
+      delete it->second;
+}
+
 void SourceFactory::addSource(const std::string &name, Source* src, 
                               bool fromClone) {
    if (!m_prototypes.count(name)) {

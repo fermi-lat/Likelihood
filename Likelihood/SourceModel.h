@@ -2,7 +2,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef SourceModel_h
@@ -25,15 +25,16 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.9 2003/03/16 21:53:26 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.10 2003/03/17 00:53:43 jchiang Exp $ */
 
 class SourceModel : public Function {
     
 public:
    
-   SourceModel(){setMaxNumParams(0);}
-   SourceModel(const SourceModel &rhs);
-   virtual ~SourceModel(){}
+   SourceModel() {setMaxNumParams(0); s_refCount++;}
+   SourceModel(const SourceModel &rhs) : Function(rhs) {s_refCount++;}
+
+   virtual ~SourceModel();
 
    //! setParam method to include function and source name checking
    void setParam(const Parameter &param, const std::string &funcName,
@@ -69,6 +70,8 @@ public:
    virtual double value(Arg &x) const {return evaluate_at(x);}
 
 protected:
+
+   static int s_refCount;
 
    static std::vector<Source *> s_sources;
 
