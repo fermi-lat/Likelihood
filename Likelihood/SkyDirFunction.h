@@ -3,7 +3,7 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.16 2004/12/22 16:57:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.17 2004/12/30 00:28:22 jchiang Exp $
  */
 #ifndef Likelihood_SkyDirFunction_h
 #define Likelihood_SkyDirFunction_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.16 2004/12/22 16:57:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.17 2004/12/30 00:28:22 jchiang Exp $
  */
     
 class SkyDirFunction : public optimizers::Function {
@@ -47,6 +47,10 @@ public:
 
    double derivByParam(optimizers::Arg &, const std::string &) const
       {return 0;}
+
+   virtual SkyDirFunction * clone() const {
+      return new SkyDirFunction(*this);
+   }
 
 private:
 

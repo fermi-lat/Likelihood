@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.50 2004/12/22 16:57:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.51 2005/02/01 07:18:56 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -38,7 +38,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.50 2004/12/22 16:57:34 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.51 2005/02/01 07:18:56 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -150,6 +150,10 @@ public:
    void syncParams();
 
 protected:
+
+   virtual SourceModel * clone() const {
+      return new SourceModel(*this);
+   }
 
    static int s_refCount;
 

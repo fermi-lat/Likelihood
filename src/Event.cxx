@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.43 2005/01/11 15:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.44 2005/01/13 22:42:01 jchiang Exp $
  */
 
 #include <cctype>
@@ -18,6 +18,7 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/Exception.h"
+#include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/TrapQuad.h"
@@ -158,7 +159,8 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
                                                      *trueEnergy, m_energy,
                                                      srcDir, m_appDir, m_type);
                for (unsigned int k = 0; k < srcs.size(); k++) {
-                  double srcDist_val = srcs[k]->spatialDist(srcDir);
+                  double srcDist_val 
+                     = srcs[k]->spatialDist(SkyDirArg(srcDir, *trueEnergy));
                   phi_integrands[k].push_back(totalResp*srcDist_val);
                }
             } else {

@@ -4,9 +4,10 @@
  * position-dependent spectral variation.
  * @author jchiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.1 2005/02/14 06:20:15 jchiang Exp $
  */
 
+#include <algorithm>
 #include <stdexcept>
 
 #include "Likelihood/FitsImage.h"
@@ -17,11 +18,77 @@ namespace {
    bool reverse_cmp(double x, double y) {
       return x > y;
    }
+   double interpolatePowerLaw(double x, double x1, double x2,
+                              double y1, double y2) {
+      if (x1 <= 0 || x2 <= 0 || y1 <= 0 || y2 <= 0) {
+         std::ostringstream message;
+         message << "MapCubeFunction::interpolatePowerLaw:\n"
+                 << "abscissa or ordinate values found that are <= 0: "
+                 << "x1 = " << x1 << ", "
+                 << "x2 = " << x2 << ", "
+                 << "y1 = " << y1 << ", "
+                 << "y2 = " << y2 << std::endl;
+         throw std::runtime_error(message.str());
+      }
+      double gamma = std::log(y2/y1)/std::log(x2/x1);
+      double n0 = y1/std::pow(x1, gamma);
+      return n0*std::pow(x, gamma);
+   }
 }
 
 namespace Likelihood {
 
-MapCubeFunction::MapCubeFunction(const std::string & fitsFile) {
+double MapCubeFunction::value(optimizers::Arg & x) const {
+   if (m_image.size() == 0) {
+      return 0;
+   }
+
+   SkyDirArg & dir = dynamic_cast<SkyDirArg&>(x);
+   double lonValue;
+   double latValue;
+   double energy = dir.energy();
+   if (m_coordSys == "Equatorial") {
+      lonValue = dir().ra();
+      latValue = dir().dec();
+   } else {
+      lonValue = dir().l();
+      latValue = dir().b();
+   }
+   if (lonValue < m_lonMin || lonValue > m_lonMax ||
+       latValue < m_latMin || latValue > m_latMax || 
+       energy < m_energies.front() || energy > m_energies.back()) {
+      return 0;
+   }
+
+   int i = findIndex(m_lon, lonValue) - 1;
+   int j = findIndex(m_lat, latValue) - 1;
+   unsigned int k = findIndex(m_energies, energy);
+   k = std::min(k, m_energies.size() - 2);
+
+   int nlon = m_lon.size() - 1;
+   int nlat = m_lat.size() - 1;
+
+   int indx = k*nlon*nlat + j*nlon + i;
+   double y1 = m_image.at(indx);
+   indx = (k+1)*nlon*nlat + j*nlon + i;
+   double y2 = m_image.at(indx);
+   double value = ::interpolatePowerLaw(energy, m_energies.at(k),
+                                        m_energies.at(k+1), y1, y2);
+   return value*getParamValue("Normalization");
+}
+
+void MapCubeFunction::init() {
+   setMaxNumParams(1);
+// Leave this parameter fixed, modifying the overall normalization
+// via a ConstantValue function as the spectral component.
+   addParam("Normalization", 1, false);
+
+   m_funcType = Addend;
+   m_argType = "";
+   m_genericName = "MapCubeFunction";
+}
+
+void MapCubeFunction::readFitsFile(const std::string & fitsFile) {
    FitsImage fitsImage(fitsFile);
 
    std::vector<std::string> axisNames;
@@ -41,8 +108,8 @@ MapCubeFunction::MapCubeFunction(const std::string & fitsFile) {
       throw std::runtime_error(message.str());
    }
 
-   fitsImage.getAxisVector(0, m_lon);
-   fitsImage.getAxisVector(1, m_lat);
+   fitsImage.getPixelBounds(0, m_lon);
+   fitsImage.getPixelBounds(1, m_lat);
    if (m_lon.front() < m_lon.back()) {
       m_lonMin = m_lon.front();
       m_lonMax = m_lon.back();
@@ -61,49 +128,16 @@ MapCubeFunction::MapCubeFunction(const std::string & fitsFile) {
    fitsImage.getImageData(m_image);
 
    readEnergyVector(fitsFile);
-
-   setMaxNumParams(1);
-   addParam("Normalization", 1, true);
-
-   m_funcType = Addend;
-   m_argType = "";
-   m_genericName = "MapCubeFunction";
-}
-
-double MapCubeFunction::value(optimizers::Arg & x) const {
-   SkyDirArg & dir = dynamic_cast<SkyDirArg&>(x);
-   double lonValue;
-   double latValue;
-   double energy = dir.energy();
-   if (m_coordSys == "Equatorial") {
-      lonValue = dir().ra();
-      latValue = dir().dec();
-   } else {
-      lonValue = dir().l();
-      latValue = dir().b();
-   }
-   if (lonValue < m_lonMin || lonValue > m_lonMax ||
-       latValue < m_latMin || latValue > m_latMax || 
-       energy < m_energies.front() || energy > m_energies.back()) {
-      return 0;
-   }
-
-   int i = findIndex(m_lon, lonValue);
-   int j = findIndex(m_lat, latValue);
-   int k = findIndex(m_energies, energy);
-
-   int indx = k*m_lon.size()*m_lat.size() + j*m_lon.size() + i;
-   return m_image.at(indx)*getParamValue("Normalization");
 }
 
 int MapCubeFunction::findIndex(std::vector<double> xx, double x) {
-   std::vector<double>::iterator it;
    if (xx.front() < xx.back()) {
-      return std::upper_bound(xx.begin(), xx.end(), x) - xx.begin() - 1;
+      return std::upper_bound(xx.begin(), xx.end(), x) - xx.begin();
    }
    return std::upper_bound(xx.begin(), xx.end(), x, ::reverse_cmp) 
-      - xx.begin() - 1;
+      - xx.begin();
 }
+
 
 void MapCubeFunction::readEnergyVector(const std::string & fitsFile) {
 

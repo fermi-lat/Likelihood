@@ -3,7 +3,7 @@
  * @brief Expectation maximization for fitting Sources.
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.2 2003/11/08 01:24:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.3 2003/11/22 00:06:12 pln Exp $
  */
 
 #ifndef Likelihood_OptEM_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.2 2003/11/08 01:24:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.3 2003/11/22 00:06:12 pln Exp $
  */
 
   class OptEM: public LogLike {
@@ -31,6 +31,11 @@ namespace Likelihood {
     OptEM() {};
     virtual ~OptEM() {};
     void findMin(const int verbose = 0);
+
+  protected:
+     virtual OptEM * clone() {
+        return new OptEM(*this);
+     }
 
   private:
 

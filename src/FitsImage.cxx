@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.19 2005/01/29 16:01:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.20 2005/02/14 06:20:15 jchiang Exp $
  *
  */
 
@@ -66,6 +66,21 @@ void FitsImage::getCelestialArrays(std::vector<double> &lonArray,
             latArray[indx] = m_axisVectors[1][j];
          }
       }
+   }
+}
+
+void FitsImage::getPixelBounds(unsigned int naxis,
+                               std::vector<double> & pixelBounds) const {
+   getAxisVector(naxis, pixelBounds);
+   double pixelSize = std::fabs(pixelBounds.at(1) - pixelBounds.at(0));
+   if (pixelBounds.back() > pixelBounds.front()) {
+      pixelBounds.push_back(pixelBounds.back() + pixelSize);
+      for (unsigned int i = 0; i < pixelBounds.size(); i++) {
+         pixelBounds.at(i) -= pixelSize;
+      }
+   } else {
+      pixelBounds.insert(pixelBounds.begin(),
+                         pixelBounds.front() + pixelSize);
    }
 }
 
