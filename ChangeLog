@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jun  5 08:22:15 PDT 2004
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx Event.cxx LogLike.cxx SConstruct 
+	SourceFactory.cxx SourceModel.cxx buildBase 
+Log Message:
+diffuseResponses application
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jun  5 08:22:14 PDT 2004
 Likelihood/cmt
 
