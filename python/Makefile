@@ -4,7 +4,7 @@
 #
 # @author J. Chiang
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.8 2004/11/17 07:18:23 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.9 2004/12/20 20:13:11 jchiang Exp $
 #
 
 #PYTHONDIR = $(GLAST_EXT)/python/2.3/Linux
@@ -25,7 +25,7 @@ INCLUDE = -I$(LIKELIHOODROOT)\
 	-I$(EVTBINROOT)\
 	-I$(TIPROOT)\
 	-I$(MAP_TOOLSROOT)\
-	-I$(XMLROOT)\
+	-I$(XMLBASEROOT)\
 	-I$(ST_FACILITIESROOT)\
 	-I$(FACILITIESROOT)\
 	-I$(ST_FACILITIESROOT)\
@@ -47,7 +47,7 @@ LIBS = -L../$(BINDIR)/ -lLikelihoodLib\
 	-L$(OPTIMIZERSROOT)/$(BINDIR) -loptimizersLib\
 	-L$(EVTBINROOT)/$(BINDIR) -levtbinLib\
 	-L$(TIPROOT)/$(BINDIR) -ltipLib\
-	-L$(XMLROOT)/$(BINDIR) -lxml\
+	-L$(XMLBASEROOT)/$(BINDIR) -lxmlBase\
 	-L$(ST_FACILITIESROOT)/$(BINDIR) -lst_facilitiesLib\
 	-L$(FACILITIESROOT)/$(BINDIR) -lfacilities\
 	-L$(GLAST_EXT)/cfitsio/v2470/lib -lcfitsio\
@@ -68,7 +68,10 @@ ${module_base}_wrap.o: ${module_base}_wrap.cxx
 	${CXX} -c ${CFLAGS} ${INCLUDE} -I${PYINCLUDE} $<
 
 ${module_base}_wrap.cxx: ${module_base}.i
-	${SWIG} -runtime -python -c++ ${module_base}.i
+	${SWIG} -python -c++ ${module_base}.i
+
+${module_base}.i: ${module_base}.in
+	python setup.py $<
 
 anew:
 	make clean
