@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb  6 14:50:30 PST 2005
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx mainpage.h 
+Added Files:
+	pyLike.h 
+Log Message:
+pyLike documentation; Src*.py mods
+    *
+------------------------------------------------------------
 User: jchiang  Sun Feb  6 14:50:29 PST 2005
 Likelihood/python
 
