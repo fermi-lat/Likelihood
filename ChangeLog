@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Tue Jul 20 21:00:13 PDT 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Event.cxx LogLike.cxx PointSource.cxx 
+	ResponseFunctions.cxx RoiCuts.cxx SConstruct ScData.cxx 
+Log Message:
+remove latResponse; replace gas.cel
+    *
+------------------------------------------------------------
+User: jchiang  Tue Jul 20 21:00:13 PDT 2004
 Likelihood/cmt
 
 Modified Files:
