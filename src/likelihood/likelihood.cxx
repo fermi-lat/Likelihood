@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.35 2004/09/23 05:41:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.36 2004/09/24 03:54:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,15 +51,12 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.35 2004/09/23 05:41:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.36 2004/09/24 03:54:22 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
-
 public:
-
    likelihood();
-
    virtual ~likelihood() throw() {
       try {
          delete m_logLike;
@@ -68,23 +65,16 @@ public:
       } catch (...) {
       }
    }
-
    virtual void run();
-
 private:
-
    AppHelpers * m_helper;  //blech.
-
    st_app::AppParGroup & m_pars;
 
-   SourceModel * m_logLike;
+   LogLike * m_logLike;
    bool m_useOptEM;
    optimizers::Optimizer * m_opt;
-
    std::vector<std::string> m_eventFiles;
-
    CountsMap * m_dataMap;
-
    std::string m_statistic;
 
    void createStatistic();
@@ -98,7 +88,6 @@ private:
    void createCountsMap();
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
-
 };
 
 st_app::StAppFactory<likelihood> myAppFactory;
@@ -194,7 +183,7 @@ void likelihood::readEventData() {
    std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
    for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-      dynamic_cast<LogLike *>(m_logLike)->getEvents(*evIt, eventFileHdu);
+      m_logLike->getEvents(*evIt, eventFileHdu);
    }
 }
 
@@ -205,7 +194,7 @@ void likelihood::readSourceModel() {
       st_facilities::Util::file_ok(sourceModel);
       m_logLike->readXml(sourceModel, m_helper->funcFactory());
       if (m_statistic != "BINNED") {
-         dynamic_cast<LogLike *>(m_logLike)->computeEventResponses();
+         m_logLike->computeEventResponses();
       } else {
          dynamic_cast<BinnedLikelihood *>(m_logLike)
             ->saveSourceMaps("srcMaps.fits");
@@ -377,40 +366,37 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    m_logLike->getFreeParamValues(fitParams);
 
    std::map<std::string, double> TsValues;
-   if (m_statistic != "BINNED") {
 // Compute TS for each source.
-      int verbose(0);
-      double tol(1e-4);
-      double logLike_value = dynamic_cast<LogLike *>(m_logLike)->value();
-      std::vector<double> null_values;
-      std::cerr << "Computing TS values for each source ("
-                << srcNames.size() << " total)\n";
-      for (unsigned int i = 0; i < srcNames.size(); i++) {
-         std::cerr << ".";
-         if (srcNames[i].find("Diffuse") == std::string::npos) {
-            Source * src = m_logLike->deleteSource(srcNames[i]);
-            if (m_logLike->getNumFreeParams() > 0) {
-               selectOptimizer();
-               try {
-                  m_opt->find_min(verbose, tol);
-               } catch (optimizers::Exception &eObj) {
-                  std::cout << eObj.what() << std::endl;
-               }
-               null_values.push_back(
-                  dynamic_cast<LogLike *>(m_logLike)->value());
-               TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
-            } else {
+   int verbose(0);
+   double tol(1e-4);
+   double logLike_value = m_logLike->value();
+   std::vector<double> null_values;
+   std::cerr << "Computing TS values for each source ("
+             << srcNames.size() << " total)\n";
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      std::cerr << ".";
+      if (srcNames[i].find("Diffuse") == std::string::npos) {
+         Source * src = m_logLike->deleteSource(srcNames[i]);
+         if (m_logLike->getNumFreeParams() > 0) {
+            selectOptimizer();
+            try {
+               m_opt->find_min(verbose, tol);
+            } catch (optimizers::Exception &eObj) {
+               std::cout << eObj.what() << std::endl;
+            }
+            null_values.push_back(m_logLike->value());
+            TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
+         } else {
 // // Not sure this is correct in the case where the model for the null
 // // hypothesis is empty.
 //             TsValues[srcNames[i]] = 2.*logLike_value;
 // A better default value?
-               TsValues[srcNames[i]] = 0.;
-            }
-            m_logLike->addSource(src);
+            TsValues[srcNames[i]] = 0.;
          }
+         m_logLike->addSource(src);
       }
-      std::cerr << "!" << std::endl;
    }
+   std::cerr << "!" << std::endl;
 // Reset parameter values.
    m_logLike->setFreeParamValues(fitParams);
 
@@ -438,14 +424,9 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                    << TsValues[srcNames[i]] << std::endl;
       }
    }
-   std::cout << std::endl 
-             << "-log(Likelihood): ";
-   if (m_statistic == "BINNED") {
-      std::cout << -dynamic_cast<BinnedLikelihood *>(m_logLike)->value();
-   } else {
-      std::cout << -dynamic_cast<LogLike *>(m_logLike)->value();
-   }
-   std::cout << "\n" << std::endl;
+   std::cout << "\n-log(Likelihood): "
+             << -m_logLike->value()
+             << "\n" << std::endl;
 }
 
 bool likelihood::prompt(const std::string &query) {
