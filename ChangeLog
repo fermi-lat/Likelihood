@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 18 13:13:27 PST 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+refactor SourceModel::write_fluxXml to use FluxModel method object
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 18 13:13:26 PST 2004
 Likelihood/Likelihood
 
