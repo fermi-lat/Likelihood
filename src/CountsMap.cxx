@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.13 2004/10/09 14:00:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.14 2004/10/31 18:53:40 jchiang Exp $
  */
 
 #include <algorithm>
@@ -106,6 +106,7 @@ CountsMap::CountsMap(const std::string & countsMapFile)
    binners.push_back(new evtbin::LinearBinner(0.5, m_naxes[1]+0.5, 1., "DEC"));
    readEbounds(countsMapFile, binners);
    readImageData(countsMapFile, binners);
+   setCenter();
    setDataDir();
    deleteBinners(binners);
 }
@@ -210,6 +211,8 @@ void CountsMap::init(std::vector<evtbin::Binner *> & binners,
    m_proj = new astro::SkyProj(proj, m_crpix, m_crval, m_cdelt, 
                                m_axis_rot, use_lb);
 
+   setCenter();
+
    harvestKeywords(event_file, "EVENTS");
 
    adjustTimeKeywords(sc_file);
@@ -230,6 +233,7 @@ CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
    m_use_lb = rhs.m_use_lb;
    m_proj = new astro::SkyProj(m_proj_name, m_crpix, m_crval, m_cdelt, 
                                m_axis_rot, m_use_lb);
+   m_center = rhs.m_center;
 }
 
 CountsMap::~CountsMap() throw() { 
@@ -419,6 +423,16 @@ double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
       theta[1] = upper_right.dec()*M_PI/180.;
    }
    return std::fabs((phi[1] - phi[0])*(sin(theta[1]) - sin(theta[0])));
+}
+
+void CountsMap::setCenter() {
+   if (m_use_lb) {
+      m_center = astro::SkyDir(m_crval[0], m_crval[1], 
+                               astro::SkyDir::GALACTIC);
+   } else {
+      m_center = astro::SkyDir(m_crval[0], m_crval[1],
+                               astro::SkyDir::EQUATORIAL);
+   }
 }
 
 void CountsMap::setDataDir() {
