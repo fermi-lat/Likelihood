@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 18 18:47:42 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Function.h Optimizer.h ProductFunction.h SumFunction.h 
+Log Message:
+replace pointers with references, add AbsEdge class
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 18 10:12:36 PST 2003
 Likelihood/src
 
