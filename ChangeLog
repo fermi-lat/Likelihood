@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: pln  Thu Jun  5 14:39:48 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Lbfgs.h Minuit.h 
+Log Message:
+minor cleanup
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun  4 09:25:42 PDT 2003
 Likelihood/src/test
 
