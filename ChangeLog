@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb 20 20:18:19 PST 2004
+Likelihood/data
+
+Modified Files:
+	anticenter_model.xml likelihood.par 
+Log Message:
+test output of xml builder classes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb 20 20:18:18 PST 2004
 Likelihood/cmt
 
