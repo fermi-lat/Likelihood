@@ -1,7 +1,7 @@
 /** @file CompositeFunction.h
  * @brief Declaration of CompositeFunction class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.2 2003/03/17 00:53:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.5 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef CompositeFunction_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.2 2003/03/17 00:53:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.5 2003/03/22 01:22:50 jchiang Exp $
  *  */
     
 class CompositeFunction : public Function {
@@ -51,6 +51,7 @@ public:
       std::vector<double>::const_iterator it) {
       it = m_a->setParamValues_(it);
       it = m_b->setParamValues_(it);
+      syncParams();
       return it;
    }
 
@@ -58,6 +59,7 @@ public:
       std::vector<double>::const_iterator it) {
       it = m_a->setFreeParamValues_(it);
       it = m_b->setFreeParamValues_(it);
+      syncParams();
       return it;
    }
 
