@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.14 2004/03/12 05:09:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.15 2004/04/03 06:14:14 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -23,7 +23,8 @@
 
 #include "facilities/Util.h"
 
-#include "tuple/ITable.h"
+#include "tip/IFileSvc.h"
+#include "tip/Table.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
@@ -120,11 +121,10 @@ void LikelihoodTests::setUp() {
       m_rootPath = std::string(root);
    }
 // Prepare the ResponseFunctions object.
-//   latResponse::IrfsFactory irfsFactory;
    ResponseFunctions::addRespPtr(2, latResponse::irfsFactory().create("DC1::Front"));
    ResponseFunctions::addRespPtr(3, latResponse::irfsFactory().create("DC1::Back"));
-//    ResponseFunctions::addRespPtr(2, irfsFactory().create("Glast25::Front"));
-//    ResponseFunctions::addRespPtr(3, irfsFactory().create("Glast25::Back"));   
+//    ResponseFunctions::addRespPtr(2, latResponse::irfsFactory().create("Glast25::Front"));
+//    ResponseFunctions::addRespPtr(3, latResponse::irfsFactory().create("Glast25::Back"));   
    
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
@@ -551,26 +551,28 @@ void LikelihoodTests::readEventData(const std::string &eventFile,
    ScData::readData(scDataFile, 2, true);
    ScData * scData = ScData::instance();
 
-   tuple::ITable::Factory & tableFactory = *tuple::ITable::Factory::instance();
-   tuple::ITable * eventTable = tableFactory(eventFile);
-   int type;
+   tip::Table * eventTable = 
+      tip::IFileSvc::instance().editTable(eventFile, "events");
 
-   const double & ra = eventTable->selectColumn("RA");
-   const double & dec = eventTable->selectColumn("DEC");
-   const double & energy = eventTable->selectColumn("ENERGY");
-   const double & time = eventTable->selectColumn("TIME");
-   const double & zenith_angle = eventTable->selectColumn("ZENITH_ANGLE");
-   const double & conversion_layer 
-      = eventTable->selectColumn("CONVERSION_LAYER");
+   double ra, dec, energy, time, zenith_angle;
+   int conversion_layer, type;
+
+   tip::Table::Iterator it = eventTable->begin();
+   tip::Table::Record & row = *it;
    
-   for (tuple::Iterator it = eventTable->begin(); it != eventTable->end();
-        ++it) {
+   for ( ; it != eventTable->end(); ++it) {
       astro::SkyDir zAxis = scData->zAxis(time);
+      row["conversion_layer"].get(conversion_layer);
       if (conversion_layer < 12) {
          type = 0;
       } else {
          type = 1;
       }
+      row["ra"].get(ra);
+      row["dec"].get(dec);
+      row["energy"].get(energy);
+      row["time"].get(time);
+      row["zenith_angle"].get(zenith_angle);
       events.push_back(Event(ra, dec, energy, time, zAxis.ra(), zAxis.dec(),
                              cos(zenith_angle*M_PI/180.), type));
    }

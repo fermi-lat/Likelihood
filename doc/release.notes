@@ -3,6 +3,10 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v3r3   03-Apr-04  JC   Replace tuple with tip
+    v3r2   03-Apr-04  JC   Reorganize application directories;
+                           use STpolicy in requirements file
+    v3r1   03-Apr-04  JC   Replace Table with tip
     v3r0   02-Apr-04  JC   Use tip for FT1/2 I/O
     v2r11  18-Mar-04  JC   Use map_tools for exposure hypercube calculation;
                            added LikeExposure class.
