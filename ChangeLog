@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Jan 10 14:53:10 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	TsMap.cxx expMap.cxx likelihood.cxx 
+Log Message:
+refactor RunParams; add pil exception codes
+    *
+------------------------------------------------------------
+User: jchiang  Sat Jan 10 14:53:10 PST 2004
 Likelihood/src
 
 Modified Files:
