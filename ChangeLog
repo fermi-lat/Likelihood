@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Apr  3 08:42:10 PST 2004
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx ScData.cxx 
+Log Message:
+replace Table with tip
+    *
+------------------------------------------------------------
+User: jchiang  Sat Apr  3 08:42:10 PST 2004
 Likelihood/cmt
 
 Modified Files:
