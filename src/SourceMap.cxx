@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.16 2004/11/04 01:21:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.17 2004/11/05 00:09:56 jchiang Exp $
  */
 
 #include <algorithm>
@@ -53,11 +53,12 @@ unsigned int SourceMap::s_refCount(0);
 
 std::vector<double> SourceMap::s_phi;
 std::vector<double> SourceMap::s_mu;
+std::vector<double> SourceMap::s_theta;
 
 SourceMap::SourceMap(Source * src, const CountsMap * dataMap) 
    : m_name(src->getName()), m_dataMap(dataMap), m_deleteDataMap(false) {
    s_refCount++;
-   if (s_mu.size() == 0 || s_phi.size() == 0) {
+   if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
       prepareAngleArrays(100, 50);
    }
 
@@ -96,6 +97,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
             }
          } else if (haveDiffuseSource) {
             value = sourceRegionIntegral(src, *pixel, *energy);
+         } else {
+            value = 0;
          }
          value *= pixel->solidAngle();
          m_model.at(indx) += value;
@@ -131,7 +134,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
          m_npreds.at(k) += m_model.at(indx);
       }
    }
-   if (s_mu.size() == 0 || s_phi.size() == 0) {
+   if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
       prepareAngleArrays(100, 50);
    }
 }
@@ -204,11 +207,10 @@ double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
    unsigned int indx(0);
    std::vector<double> mu_integrand;
    for (unsigned int i = 0; i < s_mu.size(); i++) {
+      double psf_val = psf(energy, s_theta.at(i));
       std::vector<double> phi_integrand;
       for (unsigned int j = 0; j < s_phi.size(); j++) {
          const astro::SkyDir & srcDir = m_srcDirs.at(indx++);
-         double separation = srcDir.difference(pixel.dir())*180./M_PI;
-         double psf_val = psf(energy, separation);
          double exposure_val = exposure(energy, srcDir.ra(), srcDir.dec());
          double source_strength = diffuseSrc->spatialDist(srcDir);
          phi_integrand.push_back(exposure_val*psf_val*source_strength);
@@ -251,6 +253,11 @@ void SourceMap::prepareAngleArrays(int nmu, int nphi) {
    }
    s_mu.resize(my_mu.size());
    std::copy(my_mu.begin(), my_mu.end(), s_mu.begin());
+
+   s_theta.resize(s_mu.size());
+   for (unsigned int i = 0; i < s_mu.size(); i++) {
+      s_theta.at(i) = acos(s_mu.at(i))*180./M_PI;
+   }
 
    double phistep = 2.*M_PI/(nphi - 1.);
    for (int i = 0; i < nphi; i++) {
