@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.33 2005/03/02 21:03:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.34 2005/03/03 20:04:20 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -27,52 +27,56 @@
 namespace Likelihood {
 
 void RoiCuts::addTimeInterval(double tmin, double tmax) {
-   s_timeCuts.push_back(std::make_pair(tmin, tmax));
+   m_timeCuts.push_back(std::make_pair(tmin, tmax));
+}
+
+void RoiCuts::addGoodTimeInterval(double tmin, double tmax) {
+   m_gtis.push_back(std::make_pair(tmin, tmax));
 }
 
 void RoiCuts::setCuts(double ra, double dec, double roi_radius,
                       double emin, double emax,
                       double tmin, double tmax,
                       double muZenMax) {
-   s_timeCuts.clear();
+   m_timeCuts.clear();
    addTimeInterval(tmin, tmax);
-    
-// min and max energies in MeV.
-   s_eMin = emin;
-   s_eMax = emax;
 
+   m_gtis.clear();
+    
+   m_eMin = emin;
+   m_eMax = emax;
    makeEnergyVector();
         
-   s_roiCone = irfInterface::AcceptanceCone(astro::SkyDir(ra, dec),
+   m_roiCone = irfInterface::AcceptanceCone(astro::SkyDir(ra, dec),
                                             roi_radius);
-   s_muZenMax = muZenMax;
+   m_muZenMax = muZenMax;
 }
 
 void RoiCuts::readCuts(const std::string & eventFile, 
                        const std::string & ext, bool strict) {
-   s_cuts = new dataSubselector::Cuts(eventFile, ext, false);
+   m_cuts = new dataSubselector::Cuts(eventFile, ext, false);
    sortCuts(strict);
    setRoiData();
 }
 
 void RoiCuts::writeDssKeywords(tip::Header & header) const {
-   if (s_cuts) {
-      s_cuts->writeDssKeywords(header);
+   if (m_cuts) {
+      m_cuts->writeDssKeywords(header);
    }
 }
 
 void RoiCuts::writeGtiExtension(const std::string & filename) const {
-   if (s_cuts) {
-      s_cuts->writeGtiExtension(filename);
+   if (m_cuts) {
+      m_cuts->writeGtiExtension(filename);
    }
 }
 
 void RoiCuts::makeEnergyVector(int nee) {
    m_energies.clear();
    m_energies.reserve(nee);
-   double estep = std::log(s_eMax/s_eMin)/(nee - 1.);
+   double estep = std::log(m_eMax/m_eMin)/(nee - 1.);
    for (int i = 0; i < nee; i++) {
-      m_energies.push_back(s_eMin*std::exp(estep*i));
+      m_energies.push_back(m_eMin*std::exp(estep*i));
    }
 }
 
@@ -92,15 +96,16 @@ void RoiCuts::setRoiData() {
       emax = m_energyCut->maxVal();
    }
    setCuts(ra, dec, radius, emin, emax);
-   s_timeCuts.clear();
-   for (unsigned int i = 0; i < m_timeCuts.size(); i++) {
-      addTimeInterval(m_timeCuts.at(i)->minVal(), m_timeCuts.at(i)->maxVal());
+   m_timeCuts.clear();
+   for (unsigned int i = 0; i < m_timeRangeCuts.size(); i++) {
+      addTimeInterval(m_timeRangeCuts.at(i)->minVal(),
+                      m_timeRangeCuts.at(i)->maxVal());
    }
    for (unsigned int i = 0; i < m_gtiCuts.size(); i++) {
       const dataSubselector::Gti & gti = m_gtiCuts.at(i)->gti();
       evtbin::Gti::ConstIterator it;
       for (it = gti.begin(); it != gti.end(); ++it) {
-         addTimeInterval(it->first, it->second);
+         addGoodTimeInterval(it->first, it->second);
       }
    }
 }
@@ -112,8 +117,8 @@ void RoiCuts::sortCuts(bool strict) {
    typedef dataSubselector::SkyConeCut SkyConeCut;
 
    unsigned int nenergy(0), ncone(0), ntime(0);
-   for (unsigned int i = 0; i < s_cuts->size(); i++) {
-      CutBase & cut = const_cast<CutBase &>(s_cuts->operator[](i));
+   for (unsigned int i = 0; i < m_cuts->size(); i++) {
+      CutBase & cut = const_cast<CutBase &>(m_cuts->operator[](i));
       if (cut.type() == "range") {
          RangeCut & rangeCut = dynamic_cast<RangeCut &>(cut);
          std::string colname = rangeCut.colname();
@@ -122,7 +127,7 @@ void RoiCuts::sortCuts(bool strict) {
             m_energyCut = &rangeCut;
          } else if (colname == "TIME") {
             ntime++;
-            m_timeCuts.push_back(&rangeCut);
+            m_timeRangeCuts.push_back(&rangeCut);
          }
       }
       if (cut.type() == "SkyCone") {
@@ -141,40 +146,53 @@ void RoiCuts::sortCuts(bool strict) {
               << "one acceptance cone cut,\n"
               << "and at least one time range and/or GTI cut.\n"
               << "The event file contains the following DSS selections:\n\n";
-      s_cuts->writeCuts(message);
+      m_cuts->writeCuts(message);
       throw std::runtime_error(message.str());
    }
 }
 
 bool RoiCuts::accept(const Event &event) const {
-   if (s_cuts) {
+   if (m_cuts) {
       std::map<std::string, double> params;
       params["TIME"] = event.getArrTime();
       params["ENERGY"] = event.getEnergy();
       params["RA"] = event.getDir().ra();
       params["DEC"] = event.getDir().dec();
-      return s_cuts->accept(params);
+      return m_cuts->accept(params);
    } else {
-      bool acceptEvent = true;
+      bool acceptEvent(false);
 
-/// @todo treat RangeCuts in time differently from GTIs.      
-      for (unsigned int i = 0; i < s_timeCuts.size(); i++) {
-         if (event.getArrTime() < s_timeCuts[i].first ||
-             event.getArrTime() > s_timeCuts[i].second) {
+      if (m_gtis.size() == 0) {
+         acceptEvent = true;
+      } else {
+// Accept the event if it appears in any of the GTIs.
+         for (unsigned int i = 0; i < m_gtis.size(); i++) {
+            if (m_gtis.at(i).first <= event.getArrTime() &&
+                event.getArrTime() <= m_gtis.at(i).second) {
+               acceptEvent = true;
+               break;
+            }
+         }
+      }
+
+// Require the event to lie within all time range cuts.
+      for (unsigned int i = 0; i < m_timeCuts.size(); i++) {
+         if (event.getArrTime() < m_timeCuts[i].first ||
+             event.getArrTime() > m_timeCuts[i].second) {
             acceptEvent = false;
          }
       }
 
-      if (event.getEnergy() < s_eMin || event.getEnergy() > s_eMax) { 
+      if (event.getEnergy() < m_eMin || event.getEnergy() > m_eMax) { 
          acceptEvent = false;
       }
 
-      double dist = event.getSeparation(s_roiCone.center())*180./M_PI;
-      if (dist > s_roiCone.radius()) {
+      double dist = event.getSeparation(m_roiCone.center())*180./M_PI;
+      if (dist > m_roiCone.radius()) {
          acceptEvent = false;
       }
 
-      if (event.getMuZenith() < s_muZenMax){
+      if (event.getMuZenith() < m_muZenMax) {
          acceptEvent = false;
       }
 

@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.63 2005/03/05 06:35:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.64 2005/03/05 18:37:56 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -78,6 +78,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
    CPPUNIT_TEST(test_XmlBuilders);
+   CPPUNIT_TEST(test_LikeExposure);
    CPPUNIT_TEST(test_SourceModel);
    CPPUNIT_TEST(test_SourceDerivs);
    CPPUNIT_TEST(test_PointSource);
@@ -98,6 +99,7 @@ public:
    void test_RoiCuts();
    void test_SourceFactory();
    void test_XmlBuilders();
+   void test_LikeExposure();
    void test_SourceModel();
    void test_SourceDerivs();
    void test_PointSource();
@@ -305,6 +307,32 @@ void LikelihoodTests::test_XmlBuilders() {
 
    XmlDiff xmlDiff(m_sourceXmlFile, m_srcModelXmlFile, "source", "name");
    CPPUNIT_ASSERT(xmlDiff.compare());
+}
+
+void LikelihoodTests::test_LikeExposure() {
+
+   typedef std::pair<double, double> interval;
+   std::vector<interval> timeRangeCuts;
+   std::vector<interval> gtis;
+
+   double start(100.);
+   double stop(200.);
+   timeRangeCuts.push_back(std::make_pair(150., 300.));
+
+   double fraction;
+   LikeExposure::acceptInterval(start, stop, timeRangeCuts, gtis, fraction);
+   
+   ASSERT_EQUALS(fraction, 0.5);
+
+   gtis.push_back(std::make_pair(150., 165.));
+   gtis.push_back(std::make_pair(190., 500.));
+
+   LikeExposure::acceptInterval(start, stop, timeRangeCuts, gtis, fraction);
+
+   ASSERT_EQUALS(fraction, 0.25);
+
+   CPPUNIT_ASSERT(!LikeExposure::acceptInterval(301., 500., timeRangeCuts, 
+                                                gtis, fraction));
 }
 
 void LikelihoodTests::test_SourceModel() {
@@ -595,7 +623,7 @@ void LikelihoodTests::generate_exposureHyperCube() {
    srcFactoryInstance();
    std::vector<std::pair<double, double> > timeCuts;
    m_roiCuts->getTimeCuts(timeCuts);
-   LikeExposure exposure(1., 0.025, timeCuts);
+   LikeExposure exposure(1., 0.025, timeCuts, m_roiCuts->gtis());
    tip::Table * scData = tip::IFileSvc::instance().editTable(m_scFile, "Ext1");
    exposure.load(scData, false);
    std::string output_file = m_rootPath + "/data/expcube_1_day.fits";
