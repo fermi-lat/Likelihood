@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.48 2004/11/06 00:00:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.49 2004/11/08 16:31:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -31,7 +31,6 @@
 #endif // HAVE_OPT_PP
 
 #include "Likelihood/AppHelpers.h"
-#include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/ExposureCube.h"
@@ -53,7 +52,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.48 2004/11/06 00:00:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.49 2004/11/08 16:31:19 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -191,8 +190,8 @@ void likelihood::createStatistic() {
       m_dataMap = new CountsMap(countsMapFile);
       m_logLike = new BinnedLikelihood(*m_dataMap, countsMapFile);
       std::string binnedMap = m_pars["binned_exposure_map"];
-      if (binnedMap != "none" || binnedMap != "") {
-         SourceMap::setBinnedExposure(new BinnedExposure(binnedMap));
+      if (binnedMap != "none" && binnedMap != "") {
+         SourceMap::setBinnedExposure(binnedMap);
       }
       return;
    } else if (m_statistic == "OPTEM") {
