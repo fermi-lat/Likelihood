@@ -71,7 +71,9 @@ using optimizers::Exception;
 %include $(OPTIMIZERSROOT)/optimizers/FunctionFactory.h
 %include $(OPTIMIZERSROOT)/optimizers/Optimizer.h
 %include $(OPTIMIZERSROOT)/optimizers/Mcmc.h
+%rename(FitsImageBase) st_facilities::FitsImage;
 %include $(ST_FACILITIESROOT)/st_facilities/FitsImage.h
+%include $(LIKELIHOODROOT)/Likelihood/FitsImage.h
 %template (FuncPair) std::pair<std::string, optimizers::Function *>;
 %template (FuncMap) std::map<std::string, optimizers::Function *>;
 %include $(LIKELIHOODROOT)/src/Verbosity.h
