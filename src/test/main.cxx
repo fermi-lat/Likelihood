@@ -72,6 +72,7 @@ void test_DiffuseSource();
 void fit_DiffuseSource();
 void print_fit_results(Statistic &stat);
 void test_Mcmc();
+void test_cfitsio();
 
 std::string test_path;
 
@@ -81,7 +82,7 @@ int main() {
 //    test_Function_class();
 //    test_PowerLaw_class();
 //    test_SourceModel_class();
-//    test_Table_class();
+   test_Table_class();
 //    test_Statistic_class();
 //    test_Event_class();
 //    test_PointSource_class();
@@ -99,8 +100,39 @@ int main() {
 //    test_SpatialMap();
 //    test_DiffuseSource();
 //    fit_DiffuseSource();
-   test_Mcmc();
+//    test_Mcmc();
+//    test_cfitsio();
    return 0;
+}
+
+void test_cfitsio() {
+   std::string filename("cfitsio_test.fits");
+   
+// use Mcmc static method to write a test FITS binary file
+   int npts = 40;
+   int ncols = 4;
+   std::vector< std::vector<double> > samples(npts);
+   for (int i = 0; i < npts; i++) {
+      for (int j = 0; j < ncols; j++) {
+         samples[i].push_back(j*i);
+      }
+   }
+   Mcmc::writeSamples(filename, samples);
+
+// read in these data using Table class
+   Table myTable;
+   std::vector<std::string> columnNames;
+   int hdu = 2;
+   myTable.read_FITS_colnames(filename, hdu, columnNames);
+   myTable.add_columns(columnNames);
+   myTable.read_FITS_table(filename, hdu);
+
+   for (int i = 0; i < myTable[0].dim; i++) {
+      for (unsigned int j = 0; j < columnNames.size(); j++) {
+         std::cout << myTable[j].val[i] << "  ";
+      }
+      std::cout << std::endl;
+   }
 }
 
 void test_Mcmc() {
@@ -117,7 +149,7 @@ void test_Mcmc() {
    my_rosen.setParams(params);
 
    std::vector<double> my_sig(2);
-   double scale = 0.5;
+   double scale = 1.;
 #ifdef HAVE_OPT_MINUIT
    int verbose = 1;
    Minuit myMinuitObj(my_rosen);
@@ -130,6 +162,12 @@ void test_Mcmc() {
 #endif //HAVE_OPT_MINUIT
 
    Mcmc myMcmcObj(my_rosen);
+   std::vector<double> widths;
+   myMcmcObj.getTransitionWidths(widths);
+   for (unsigned int i = 0; i < widths.size(); i++) {
+      std::cout << widths[i] << "  "
+                << my_sig[i] << std::endl;
+   }
    myMcmcObj.setTransitionWidths(my_sig);
 
    std::vector< std::vector<double> > mcmc_samples;
@@ -137,8 +175,12 @@ void test_Mcmc() {
 // Do a "burn in"...
    myMcmcObj.generateSamples(mcmc_samples, nsamp);
 // then the real thing...
-   nsamp = 200000;
+   nsamp = 10000;
    myMcmcObj.generateSamples(mcmc_samples, nsamp);
+
+// generate "fake" samples to test cfitsio
+
+   myMcmcObj.writeSamples("Mc.fits", mcmc_samples);
 
    std::cout << "MCMC results for " << nsamp << " trials:" << std::endl;
    for (unsigned int j = 0; j < params.size(); j++) {
