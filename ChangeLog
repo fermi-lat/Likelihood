@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr  6 10:10:37 PDT 2004
+Likelihood/Likelihood
+
+Added Files:
+	AppBase.h 
+Log Message:
+add AppBase, modify likelihood application
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr  5 20:32:27 PDT 2004
 Likelihood/src/likelihood
 
