@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan  3 09:13:22 PST 2005
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+update to map_tools v5r8p2
+    *
+------------------------------------------------------------
 TAG
 Tag name: v6r2, operation: add
 Package: Likelihood
