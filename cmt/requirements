@@ -4,9 +4,10 @@ version v2r3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.52 2003/11/09 15:18:57 jchiang Exp $
+# $Id: requirements,v 1.53 2003/11/10 23:06:17 jchiang Exp $
 
-use xml
+use xml v*
+use facilities v2*
 use astro  v*
 use latResponse v1*
 use optimizers v0*
@@ -19,7 +20,6 @@ apply_pattern package_linkopts
 private
 
 use hoops v*
-use facilities v2*
 
 #use python v2* IExternal
 #macro pydir ../python/
@@ -41,5 +41,5 @@ set PFILES "$(LIKELIHOODROOT)/data"
 # applications
 application test_Likelihood test/main.cxx
 application likelihood test/likelihood.cxx
-application TsMap test/TsMap.cxx
-application expMap test/expMap.cxx
+#application TsMap test/TsMap.cxx
+#application expMap test/expMap.cxx
