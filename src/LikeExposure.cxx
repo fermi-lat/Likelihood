@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.4 2004/04/12 23:22:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.5 2004/09/03 21:46:19 jchiang Exp $
  */
 
 #include <iostream>
@@ -27,7 +27,7 @@ LikeExposure::LikeExposure(double skybin, double costhetabin,
    RoiCuts::instance()->getTimeCuts(m_timeCuts);
 }
 
-void LikeExposure::load(tip::Table * scData) {
+void LikeExposure::load(tip::Table * scData, bool verbose) {
    
    double ra, dec, start, stop, livetime, latGeo, lonGeo;
 
@@ -35,7 +35,7 @@ void LikeExposure::load(tip::Table * scData) {
    tip::Table::Record & row = *it;
    long nrows = scData->getNumRecords();
    for (long irow = 0; it != scData->end(); ++it, ++irow) {
-      if ( (irow % (nrows/20)) == 0 ) std::cerr << "."; 
+      if (verbose && (irow % (nrows/20)) == 0 ) std::cerr << "."; 
       row["livetime"].get(livetime);
       row["start"].get(start);
       row["stop"].get(stop);
@@ -50,7 +50,7 @@ void LikeExposure::load(tip::Table * scData) {
          add(astro::SkyDir(ra, dec), deltat);
       }
    }
-   std::cerr << "!" << std::endl;
+   if (verbose) std::cerr << "!" << std::endl;
 }
 
 bool LikeExposure::acceptInterval(double start, double stop, 
