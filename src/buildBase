@@ -29,14 +29,14 @@ src_files = glob.glob(os.path.join(home, 'src', '*.cxx'))
 src_files.extend(glob.glob(os.path.join(home, 'src', '*.c')))
 
 libNames = libraries.ordered_keys
-libNames.insert(0, package)
+libNames.insert(0, package + "Lib")
 libNames.remove('f2c')
 libNames.extend(rootlibs)
-libNames.extend(['pthread', 'm', 'dl'])
+libNames.extend(['termcap', 'readline', 'g2c', 'pthread', 'm', 'dl'])
 
 env = Environment(CCFLAGS='-g ' + cflags,
                   LINKFLAGS=linkflags)
-library = env.Library(package, src_files, CPPPATH=include_dirs)
+library = env.Library(package + "Lib", src_files, CPPPATH=include_dirs)
 
 test_app = ''.join(('test_', package, '.exe'))
 test_app_files = glob.glob(os.path.join(home, 'src', 'test', '*.cxx'))

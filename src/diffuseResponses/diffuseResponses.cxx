@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.11 2004/11/28 06:58:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.12 2004/12/01 16:46:27 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.11 2004/11/28 06:58:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.12 2004/12/01 16:46:27 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -71,6 +71,7 @@ private:
    std::vector<DiffuseSource *> m_srcs;
    std::vector<std::string> m_srcNames;
 
+   void promptForParameters();
    void setRoi();
    void buildSourceModel();
    void readEventData();
@@ -85,36 +86,29 @@ st_app::StAppFactory<diffuseResponses> myAppFactory;
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), m_srRadius(30.),
-     m_pars(st_app::StApp::getParGroup("diffuseResponses")) {
-   try {
-      m_pars.Prompt();
-      m_pars.Save();
-      Likelihood::Verbosity::instance(m_pars["chatter"]);
-      m_helper = new AppHelpers(m_pars);
-      m_helper->readScData();
-      m_srcModel = new SourceModel(true);
-      ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
-   } catch (std::exception & eObj) {
-      std::cerr << eObj.what() << std::endl;
-      std::exit(1);
-   } catch (...) {
-      std::cerr << "Caught unknown exception in diffuseResponses constructor." 
-                << std::endl;
-      std::exit(1);
-   }
-}
+     m_pars(st_app::StApp::getParGroup("diffuseResponses")) {}
 
 void diffuseResponses::run() {
-   setRoi();
+   promptForParameters();
+   Likelihood::Verbosity::instance(m_pars["chatter"]);
+   m_helper = new AppHelpers(m_pars);
+   m_helper->readScData();
+   m_srcModel = new SourceModel(true);
+   ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
+   m_helper->setRoi();
    buildSourceModel();
    readEventData();
    computeEventResponses();
    writeEventResponses();
 }
 
-void diffuseResponses::setRoi() {
-   std::string xmlFile = m_pars["ROI_file"];
-   RoiCuts::setCuts(xmlFile);
+void diffuseResponses::promptForParameters() {
+   m_pars.Prompt("evfile");
+   m_pars.Prompt("scfile");
+   m_pars.Prompt("source_model_file");
+   m_pars.Prompt("ROI_file");
+   m_pars.Prompt("rspfunc");
+   m_pars.Save();
 }
 
 void diffuseResponses::buildSourceModel() {
@@ -127,8 +121,8 @@ void diffuseResponses::readEventData() {
    std::string eventFile = m_pars["evfile"];
    facilities::Util::expandEnvVar(&eventFile);
    st_facilities::Util::file_ok(eventFile);
-   tip::Table * events 
-      = tip::IFileSvc::instance().editTable(eventFile, m_pars["evtable"]);
+   const tip::Table * events 
+      = tip::IFileSvc::instance().readTable(eventFile, m_pars["evtable"]);
 
    double ra;
    double dec;
@@ -140,8 +134,8 @@ void diffuseResponses::readEventData() {
 
    ScData * scData = ScData::instance();
 
-   tip::Table::Iterator it = events->begin();
-   tip::Table::Record & event = *it;
+   tip::Table::ConstIterator it = events->begin();
+   tip::ConstTableRecord & event = *it;
    for ( ; it != events->end(); ++it) {
       event["ra"].get(ra);
       event["dec"].get(dec);
