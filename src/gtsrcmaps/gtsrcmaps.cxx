@@ -1,3 +1,12 @@
+/**
+ * @file gtsrcmaps.cxx
+ * @brief Compute SourceMaps for use by binned likelihood. Inputs include
+ * a counts map and a source model xml file.
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #include <cstdlib>
 
 #include <fstream>
@@ -92,9 +101,9 @@ void gtsrcmaps::run() {
 
    double ra, dec;
    getRefCoord(cntsMapFile, ra, dec);
-// NB: energies from EBOUNDS are in keV.
-   RoiCuts::instance()->setCuts(ra, dec, 20., energies.front()/1e3, 
-                                energies.back()/1e3);
+
+   RoiCuts::instance()->setCuts(ra, dec, 20., energies.front(),
+                                energies.back());
 
    m_binnedLikelihood = new BinnedLikelihood(dataMap, cntsMapFile);
 
@@ -126,7 +135,8 @@ void gtsrcmaps::getRefCoord(const std::string & countsMapFile,
       ra = dir.ra();
       dec = dir.dec();
    } else {
-      throw std::runtime_error("gtsrcmaps: Unknown coordinate system in "
-                               + countsMapFile);
+      throw std::runtime_error("gtsrcmaps::getRefCoord: " + 
+                               std::string("Unknown coordinate system in ") +
+                               countsMapFile);
    }
 }
