@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  4 17:14:23 PDT 2004
+Likelihood/src
+
+Modified Files:
+	Event.cxx LogLike.cxx 
+Log Message:
+fix up energy dispersion for diffuse sources (in progress)
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  4 17:14:21 PDT 2004
 Likelihood/pfiles
 
