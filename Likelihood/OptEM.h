@@ -3,7 +3,7 @@
  * @brief Expectation maximization for fitting Sources.
  * @author P. L. Nolan
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.2 2003/11/08 01:24:41 jchiang Exp $
  */
 
 #ifndef Likelihood_OptEM_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author P. L. Nolan
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OptEM.h,v 1.2 2003/11/08 01:24:41 jchiang Exp $
  */
 
   class OptEM: public LogLike {
@@ -35,6 +35,9 @@ namespace Likelihood {
   private:
 
   }; //class OptEM
+
+  double chifunc(int);
+
 } // namespace Likelihood
 
 #endif // Likelihood_OptEM_h

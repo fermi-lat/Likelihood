@@ -4,7 +4,7 @@
  *
  * @author P. Nolan
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.2 2003/11/08 01:24:41 jchiang Exp $
  */
 
 #ifndef Likelihood_OneSourceFunc_h
@@ -25,7 +25,7 @@ namespace Likelihood {
     * @brief Extended likelihood function for one source.
     * @author P. Nolan
     *
-    * $Header$
+    * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.2 2003/11/08 01:24:41 jchiang Exp $
     */
   
   class OneSourceFunc: public optimizers::Function {
@@ -46,6 +46,8 @@ namespace Likelihood {
     virtual Function *clone() const {return new OneSourceFunc(*this);}
     virtual void setParams(std::vector<optimizers::Parameter>&)
       throw(optimizers::Exception, optimizers::ParameterNotFound);
+    void setEpsW(double);
+    void setEpsF(double);
 
   protected:
 
@@ -56,6 +58,8 @@ namespace Likelihood {
     Source * m_src;
     std::vector<Event>& m_events;
     std::vector<double> * m_weights;
+    double m_epsw;
+    double m_epsf;
     
   };  // class OneSourceFunc
 } // namespace Likelihood
