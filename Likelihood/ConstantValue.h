@@ -3,7 +3,7 @@
  * @brief Declaration for the ConstantValue Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ConstantValue.h,v 1.4 2003/08/06 20:52:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ConstantValue.h,v 1.5 2003/08/13 18:01:15 jchiang Exp $
  *
  */
 
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ConstantValue.h,v 1.4 2003/08/06 20:52:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ConstantValue.h,v 1.5 2003/08/13 18:01:15 jchiang Exp $
  *
  */
     
@@ -33,9 +33,11 @@ public:
       setMaxNumParams(1);
       addParam("Value", value, true);
 
-// need to double-check these...
+// Need to double-check these...
       m_funcType = Factor;
       m_argType = "";
+
+      m_genericName = "ConstantValue";
    }
 
    virtual ~ConstantValue() {}

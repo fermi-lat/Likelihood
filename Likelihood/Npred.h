@@ -3,7 +3,7 @@
  * @brief Declaration of Npred class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.6 2003/07/19 04:38:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.7 2003/08/06 20:52:03 jchiang Exp $
  */
 
 #ifndef Likelihood_Npred_h
@@ -23,14 +23,14 @@ namespace Likelihood {
  *  
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.6 2003/07/19 04:38:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.7 2003/08/06 20:52:03 jchiang Exp $
  */
 
 class Npred : public optimizers::Function {
     
 public:
 
-   Npred() {}
+   Npred() {m_genericName = "Npred";}
    virtual ~Npred() {}
 
    double value(optimizers::Arg &) const;

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.10 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.11 2003/08/06 20:52:07 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirFunction.h"
@@ -15,6 +15,7 @@ namespace Likelihood {
 SkyDirFunction::SkyDirFunction(const astro::SkyDir &dir) :
    m_lon(dir.ra()), m_lat(dir.dec()), m_dir(dir) {
    m_maxNumParams = 2;
+   m_genericName = "SkyDirFunction";
    addParam("longitude", m_lon, false);
    addParam("latitude", m_lat, false);
 }   
@@ -23,6 +24,7 @@ void SkyDirFunction::m_init(double lon, double lat) {
    m_lon = lon; 
    m_lat = lat; 
    m_maxNumParams = 2;
+   m_genericName = "SkyDirFunction";
 
    m_dir = astro::SkyDir(lon, lat);
 

@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.4 2003/08/06 20:52:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.5 2003/08/13 18:01:16 jchiang Exp $
  *
  */
 
@@ -21,6 +21,7 @@ void SpatialMap::init() {
 // but set it to be unit constant.
    int nParams = 1;
    setMaxNumParams(nParams);
+   m_genericName = "SpatialMap";
    addParam("Prefactor", 1, false);
 }
 

@@ -3,7 +3,7 @@
  * @brief Declaration of logSrcModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.9 2003/08/06 20:52:04 jchiang Exp $
  */
 
 #ifndef Likelihood_logSrcModel_h
@@ -30,14 +30,14 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.8 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.9 2003/08/06 20:52:04 jchiang Exp $
  */
 
 class logSrcModel : public SourceModel {
     
 public:
    
-   logSrcModel() {setMaxNumParams(0);}
+   logSrcModel() {setMaxNumParams(0); m_genericName = "logSrcModel";}
    virtual ~logSrcModel() {}
 
    double value(optimizers::Arg &xarg) const;

@@ -91,7 +91,7 @@ int main() {
 //    test_SpatialMap();
 //    test_DiffuseSource();
 //    test_FunctionFactory();
-   test_SourceFactory();
+//    test_SourceFactory();
    fit_DiffuseSource();
    return 0;
 }
@@ -310,6 +310,9 @@ void fit_DiffuseSource() {
       std::cout << i << "  " << sig[i] << std::endl;
    }
    print_fit_results(logLike);
+
+// Write out the fitted model as an xml file.
+   logLike.writeXml("fittedModel.xml");
 
    std::cout << "*** fit_DiffuseSource: all tests completed ***\n" 
              << std::endl;
