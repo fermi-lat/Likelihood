@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 22 15:30:11 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Function.cxx Minuit.cxx 
+Log Message:
+fix some const-ness compiler complaints
+
+    *
+------------------------------------------------------------
 User: jchiang  Thu May 22 15:29:55 PDT 2003
 Likelihood/Likelihood
 
