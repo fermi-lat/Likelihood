@@ -3,7 +3,7 @@ version v0r9
 
 author James Chiang <jchiang@slac.stanford.edu>
 
-# $Id: requirements,v 1.19 2003/06/10 18:18:30 burnett Exp $
+# $Id: requirements,v 1.20 2003/07/21 22:47:19 jchiang Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
@@ -13,6 +13,7 @@ use CLHEP v2* IExternal
 #use CALDBinterface v*
 
 apply_pattern package_include
+apply_pattern package_linkopts
 
 private
 
@@ -20,13 +21,10 @@ private
 macro Likelihood_cppflags "" Linux "-I ../src -g -pedantic " WIN32 "/I..\src  /wd4290"
 macro_prepend cflags "" Linux "-g"
 
-apply_pattern package_linkopts
-
 # make sure test application gets built when library changes
 macro test_Likelihoodstamps "Likelihood.stamp"
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
-#library Likelihood -no_share $(my_headers) *.cxx
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c
 
 # test application
