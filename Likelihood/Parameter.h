@@ -3,7 +3,7 @@
  * @brief Declaration of Parameter and OutOfBounds classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.13 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.14 2003/05/23 23:43:42 jchiang Exp $
  */
 
 #ifdef _MSC_VER
@@ -34,7 +34,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.13 2003/05/23 22:59:49 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.14 2003/05/23 23:43:42 jchiang Exp $ 
  */
 
 class OutOfBounds;
@@ -43,13 +43,22 @@ class Parameter {
     
 public:
    
-   Parameter() {init(std::string(""), 0., -HUGE, HUGE, true);};
-   Parameter(const std::string &paramName, double paramValue, 
-             bool isFree = true)
-      {init(paramName, paramValue, -HUGE, HUGE, isFree);};
+   Parameter() {init(std::string(""), 0., -HUGE, HUGE, true);}
+
+   /**
+    * @param paramName The name of the Parameter
+    * @param paramValue The (scaled) value of the Parameter
+    * @param minValue Parameter value lower bound
+    * @param maxValue Parameter value upper bound
+    * @param isFree true if the Parameter value is allowed to vary in a fit
+    */
    Parameter(const std::string &paramName, double paramValue, 
              double minValue, double maxValue, bool isFree = true)
-      {init(paramName, paramValue, minValue, maxValue, isFree);};
+      {init(paramName, paramValue, minValue, maxValue, isFree);}
+
+   Parameter(const std::string &paramName, double paramValue, 
+             bool isFree = true)
+      {init(paramName, paramValue, -HUGE, HUGE, isFree);}
 
 // need only member-wise copying
 //   Parameter(const Parameter&);
@@ -57,14 +66,21 @@ public:
    ~Parameter(){}
 
    //! name access
-   void setName(const std::string &paramName) {m_name = paramName;};
+   void setName(const std::string &paramName) {m_name = paramName;}
    std::string getName() const {return m_name;}
    
    //! value access
    void setValue(double value) throw(OutOfBounds);
    double getValue() const {return m_value;}
 
-   //! scale access
+   /**
+    * @brief Scale access.
+    *
+    * The true value of the Parameter is used in the Function
+    * calculation.  Only the (apparent) value is intended to
+    * accessible through the value accessor methods of the Function
+    * class.
+    */
    void setScale(double scale) {m_scale = scale;}
    double getScale() const {return m_scale;}
 
@@ -76,11 +92,11 @@ public:
    void setBounds(double minValue, double maxValue) throw(OutOfBounds);
    void setBounds(const std::pair<double, double> &boundValues) 
       throw(OutOfBounds) {setBounds(boundValues.first, boundValues.second);}
-   std::pair<double, double> getBounds();
+   std::pair<double, double> getBounds() const;
 
    //! free flag access
-   void setFree(bool free) {m_free = free;};
-   bool isFree() const {return m_free;};
+   void setFree(bool free) {m_free = free;}
+   bool isFree() const {return m_free;}
 
 private:
 
@@ -118,7 +134,7 @@ private:
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.13 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.14 2003/05/23 23:43:42 jchiang Exp $
  */
 
 class OutOfBounds : public LikelihoodException {
@@ -129,11 +145,11 @@ public:
       LikelihoodException(errorString, code), m_value(value), 
       m_minValue(minValue), m_maxValue(maxValue) {}
    ~OutOfBounds() {}
-
+   
    double value() {return m_value;}
    double minValue() {return m_minValue;}
    double maxValue() {return m_maxValue;}
-
+   
    enum ERROR_CODES {VALUE_ERROR, BOUNDS_ERROR};
 
 private:

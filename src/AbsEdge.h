@@ -1,17 +1,20 @@
-/** @file AbsEdge.h
+/** 
+ * @file AbsEdge.h
  * @brief AbsEdge class declaration
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.4 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef AbsEdge_h
 #define AbsEdge_h
 
 #include "Likelihood/Function.h"
-#include "Likelihood/Arg.h"
 
 namespace Likelihood {
+
+class Arg;
+
 /** 
  * @class AbsEdge
  *
@@ -20,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.4 2003/03/22 01:22:50 jchiang Exp $
  */
     
 class AbsEdge : public Function {

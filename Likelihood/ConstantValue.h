@@ -1,8 +1,9 @@
-/** @file ConstantValue.h
+/** 
+ * @file ConstantValue.h
  * @brief Declaration for the ConstantValue Function class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ConstantValue.h,v 1.1 2003/05/02 19:02:13 jchiang Exp $
  *
  */
 
@@ -12,6 +13,7 @@
 #include "Likelihood/Function.h"
 
 namespace Likelihood {
+
 /** 
  * @class ConstantValue
  *
@@ -20,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ConstantValue.h,v 1.1 2003/05/02 19:02:13 jchiang Exp $
  *
  */
     

@@ -1,8 +1,9 @@
-/** @file CompositeFunction.cxx
+/** 
+ * @file CompositeFunction.cxx
  * @brief CompositeFunction class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeFunction.cxx,v 1.2 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeFunction.cxx,v 1.5 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #include <vector>
@@ -28,9 +29,9 @@ CompositeFunction::CompositeFunction(const CompositeFunction &rhs)
 
 void CompositeFunction::setParam(const Parameter &param, 
                                  const std::string &funcName) {
-   assert(funcName == m_a->getMyName() || funcName == m_b->getMyName());
+   assert(funcName == m_a->getName() || funcName == m_b->getName());
 
-   if (m_a->getMyName() == funcName) {
+   if (m_a->getName() == funcName) {
       m_a->setParam(param);
    } else {
       m_b->setParam(param);
@@ -40,9 +41,9 @@ void CompositeFunction::setParam(const Parameter &param,
 
 Parameter* CompositeFunction::getParam(const std::string &paramName,
                                        const std::string &funcName) const {
-   assert(funcName == m_a->getMyName() || funcName == m_b->getMyName());
+   assert(funcName == m_a->getName() || funcName == m_b->getName());
 
-   if (m_a->getMyName() == funcName) {
+   if (m_a->getName() == funcName) {
       return m_a->getParam(paramName);
    } else {
       return m_b->getParam(paramName);

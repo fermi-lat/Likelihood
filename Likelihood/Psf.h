@@ -1,18 +1,20 @@
-/** @file Psf.h
+/** 
+ * @file Psf.h
  * @brief Psf class implementation
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.7 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.9 2003/04/25 18:32:18 jchiang Exp $
  */
 
 #ifndef Psf_h
 #define Psf_h
 
-#include "astro/SkyDir.h"
 #include "Likelihood/Response.h"
 #include "Likelihood/Table.h"
 
 namespace Likelihood {
+
+class astro::SkyDir;
 
 /** 
  * @class Psf
@@ -21,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.7 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.9 2003/04/25 18:32:18 jchiang Exp $
  */
 
 class Psf : public Response {
@@ -36,10 +38,10 @@ public:
       {return value(separation, energy, inc);}
 
    //! PSF in sky coordinates
-   double value(astro::SkyDir appDir, double energy, 
-                astro::SkyDir srcDir, double time);
-   double operator()(astro::SkyDir appDir, double energy, 
-                     astro::SkyDir srcDir, double time)
+   double value(const astro::SkyDir &appDir, double energy, 
+                const astro::SkyDir &srcDir, double time);
+   double operator()(const astro::SkyDir &appDir, double energy, 
+                     const astro::SkyDir &srcDir, double time)
       {return value(appDir, energy, srcDir, time);}
 
    //! retrieve PSF parameters (sig1, sig2, wt) in instrument coordinates

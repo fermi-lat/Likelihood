@@ -1,9 +1,9 @@
 /** 
  * @file Function.h
- * @brief Declaration of Function class
+ * @brief Declaration of Function and ParameterNotFound classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.20 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.21 2003/05/23 23:43:41 jchiang Exp $
  */
 
 #ifdef _MSC_VER
@@ -19,14 +19,12 @@
 #include <string>
 
 #include "Likelihood/Parameter.h"
-#include "Likelihood/Arg.h"
 #include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
+class Arg;
 class ParameterNotFound;
-class SumFunction;
-class ProductFunction;
 
 /** 
  * @class Function
@@ -40,7 +38,7 @@ class ProductFunction;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.20 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.21 2003/05/23 23:43:41 jchiang Exp $
  */
 
 class Function {
@@ -55,8 +53,8 @@ public:
    virtual ~Function() {}
 
    //! provide a string identifier
-   void setMyName(std::string functionName) {m_functionName = functionName;}
-   std::string getMyName() const {return m_functionName;}
+   void setName(std::string functionName) {m_functionName = functionName;}
+   std::string getName() const {return m_functionName;}
 
    ///////////////////////
    //! parameter access 
@@ -154,13 +152,6 @@ public:
    //! clone function, with default
    virtual Function *clone() const {return 0;}
 
-#if 0 // disable these until assignment operator is provided
-   ////////////////////////////////////////////////////
-   //! +, * operator overloading (and memory leaking)
-   SumFunction &operator+(Function &);
-   ProductFunction &operator*(Function &);
-#endif
-
    enum FuncType {None, Addend, Factor};
 
    FuncType funcType() {return m_funcType;}
@@ -205,7 +196,7 @@ protected:
  * looked for but not found in the desired Function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.20 2003/05/23 22:59:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.21 2003/05/23 23:43:41 jchiang Exp $
  */
 class ParameterNotFound : public LikelihoodException {
 

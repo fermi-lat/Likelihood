@@ -1,7 +1,8 @@
-/** @file DiffuseSource.cxx
+/** 
+ * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.4 2003/05/02 19:02:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.5 2003/05/20 23:50:15 jchiang Exp $
  */
 
 #include <vector>
@@ -9,15 +10,12 @@
 #include <string>
 #include <cmath>
 
-#include "astro/SkyDir.h"
 #include "Likelihood/DiffuseSource.h"
-#include "Likelihood/Psf.h"
-#include "Likelihood/Aeff.h"
-#include "Likelihood/ScData.h"
+#include "Likelihood/Function.h"
+#include "Likelihood/Event.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/dArg.h"
 #include "Likelihood/TrapQuad.h"
-#include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ExposureMap.h"
 
 namespace Likelihood {

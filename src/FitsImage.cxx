@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.6 2003/05/20 23:50:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.7 2003/05/21 23:12:13 jchiang Exp $
  *
  */
 
@@ -11,7 +11,7 @@
 
 //#define HAVE_CCFITS
 #ifdef HAVE_CCFITS
-#include <CCfits>
+#include <CCfits/CCfits>
 #endif
 
 #include <iostream>
@@ -145,17 +145,19 @@ void FitsImage::AxisParams::computeAxisVector(std::vector<double> &axisVector) {
 #ifdef HAVE_CCFITS
 void FitsImage::read_fits_image(std::string &filename, 
                                 std::vector<AxisParams> &axes,
-                                std::valarray<double> &image) {
+                                std::valarray<double> &image) 
+   throw(LikelihoodException) {
 
 //   FITS::setVerboseMode(true);
 
 // For the "canonical" example of reading a FITS image with CCfits,
 // see the readImage() routine from cookbook.cxx from the CCfits
 // distribution.
-   
-   std::auto_ptr<FITS> pInFile(new FITS(filename, Read, true));
 
-   PHDU& imageHDU = pInFile->pHDU();
+   std::auto_ptr<CCfits::FITS> pInFile(new CCfits::FITS(filename, 
+                                                        CCfits::Read, true));
+
+   CCfits::PHDU& imageHDU = pInFile->pHDU();
 
 // CCfits PHDU::read(...) seems not to like std::valarray<double>...
    try {

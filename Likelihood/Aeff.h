@@ -1,18 +1,20 @@
-/** @file Aeff.h
+/** 
+ * @file Aeff.h
  * @brief Interface definition for the LAT Effective Area class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.7 2003/03/17 00:53:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.9 2003/04/25 18:32:17 jchiang Exp $
  *
  */
 
 #ifndef Aeff_h
 #define Aeff_h
 
-#include "astro/SkyDir.h"
 #include "Likelihood/Response.h"
 #include "Likelihood/Table.h"
 
 namespace Likelihood {
+
+class astro::SkyDir;
 
 /** 
  * @class Aeff
@@ -21,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.7 2003/03/17 00:53:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.9 2003/04/25 18:32:17 jchiang Exp $
  */
 
 class Aeff : public Response {
@@ -36,8 +38,8 @@ public:
       {return value(energy, inclination);};
 
    //! effective area in sky coordinates
-   double value(double energy, astro::SkyDir srcDir, double time);
-   double operator()(double energy, astro::SkyDir srcDir, double time)
+   double value(double energy, const astro::SkyDir &srcDir, double time);
+   double operator()(double energy, const astro::SkyDir &srcDir, double time)
       {return value(energy, srcDir, time);};
 
    //! returns the Singleton object pointer

@@ -1,8 +1,9 @@
-/** @file Event.cxx
+/** 
+ * @file Event.cxx
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.9 2003/04/25 21:51:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.11 2003/05/06 23:47:55 jchiang Exp $
  */
 
 #include "Likelihood/Event.h"
@@ -48,7 +49,7 @@ Event::Event(const Event &event) {
 }
 
 double Event::diffuseResponse(double energy, 
-                              std::string diffuseComponent) const {
+                              const std::string &diffuseComponent) const {
 // Since the energy resolution is presently assumed to be infinite,
 // simply return the (second member of the pair of the) first (and
 // only) element of the diffuse_response vector.
