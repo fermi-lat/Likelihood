@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.18 2005/03/03 20:04:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.19 2005/03/03 23:24:11 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -22,6 +22,7 @@ namespace dataSubselector {
 
 namespace Likelihood {
 
+   class EventContainer;
    class ExposureCube;
    class ExposureMap;
    class Observation;
@@ -38,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.18 2005/03/03 20:04:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.19 2005/03/03 23:24:11 jchiang Exp $
  */
 
 class AppHelpers {
@@ -98,6 +99,7 @@ protected:
    ExposureMap * m_expMap;
    ResponseFunctions * m_respFuncs;
    RoiCuts * m_roiCuts;
+   EventContainer * m_eventCont;
 
    void prepareFunctionFactory();
    void createResponseFuncs();

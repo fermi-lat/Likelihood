@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.1 2005/03/04 07:07:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -74,15 +74,11 @@ void EventContainer::getEvents(std::string event_file) {
          m_events.push_back(thisEvent);
          for (std::vector<std::string>::iterator name = diffuseNames.begin();
               name != diffuseNames.end(); ++name) {
-// The column name for a diffuse response has the IRF name prepended.
-// Strip the IRF name and use the underlying diffuse component name
-// in setDiffuseResponse.
-            std::string srcName = sourceName(*name);
             std::vector<double> gaussianParams;
             if (m_respFuncs.useEdisp()) {
                try {
                   event[*name].get(gaussianParams);
-                  m_events.back().setDiffuseResponse(srcName, gaussianParams);
+                  m_events.back().setDiffuseResponse(*name, gaussianParams);
                } catch (tip::TipException & eObj) {
                   std::string message(eObj.what());
                   if (message.find("FitsColumn::getVector") ==
@@ -93,14 +89,14 @@ void EventContainer::getEvents(std::string event_file) {
             } else {
                try {
                   event[*name].get(gaussianParams);
-                  m_events.back().setDiffuseResponse(srcName,
+                  m_events.back().setDiffuseResponse(*name,
                                                      gaussianParams[0]);
                } catch (tip::TipException &eObj) {
                   std::string message(eObj.what());
                   if (message.find("FitsColumn::getVector") !=
                       std::string::npos) {
                      event[*name].get(respValue);
-                     m_events.back().setDiffuseResponse(srcName, respValue);
+                     m_events.back().setDiffuseResponse(*name, respValue);
                   } else {
                      throw;
                   }
@@ -167,12 +163,15 @@ get_diffuse_names(tip::Table * events,
    const std::vector<std::string> & fields = events->getValidFields();
    for (unsigned int i = 0; i < fields.size(); i++) {
       if (!std::count(s_FT1_columns.begin(), s_FT1_columns.end(), fields[i])) {
-         names.push_back(fields[i]);
+         names.push_back(sourceName(fields[i]));
       }
    }
 }
 
 std::string EventContainer::sourceName(const std::string & name) const {
+// The column name for a diffuse response has the IRF name prepended.
+// Strip the IRF name and use the underlying diffuse component name
+// in setDiffuseResponse.
    std::vector<std::string> tokens;
    facilities::Util::stringTokenize(name, "::", tokens);
    if (tokens.size() == 1) {

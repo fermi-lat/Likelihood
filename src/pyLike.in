@@ -17,6 +17,7 @@
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
+#include "Likelihood/EventContainer.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapCubeFunction.h"
@@ -83,6 +84,7 @@ using optimizers::Exception;
 %include $(LIKELIHOODROOT)/Likelihood/ExposureMap.h
 %include $(LIKELIHOODROOT)/Likelihood/RoiCuts.h
 %include $(LIKELIHOODROOT)/Likelihood/ScData.h
+%include $(LIKELIHOODROOT)/Likelihood/EventContainer.h
 %include $(LIKELIHOODROOT)/Likelihood/Observation.h
 %include $(LIKELIHOODROOT)/Likelihood/SourceModel.h
 %include $(LIKELIHOODROOT)/Likelihood/DiffuseSource.h

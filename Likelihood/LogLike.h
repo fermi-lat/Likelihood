@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.18 2005/03/02 04:51:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.19 2005/03/04 07:07:11 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.18 2005/03/02 04:51:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.19 2005/03/04 07:07:11 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -39,9 +39,6 @@ class LogLike : public SourceModel {
 public:
 
    LogLike(const Observation & observation) : SourceModel(observation) {
-      if (s_FT1_columns.size() == 0) {
-         setFT1_columns();
-      }
       deleteAllSources();
    }
 
@@ -66,18 +63,7 @@ public:
 
    void getEvents(std::string event_file);
 
-   void computeEventResponses(Source &src, double sr_radius = 30);
-
-   void computeEventResponses(std::vector<DiffuseSource *> &srcs, 
-                              double sr_radius = 30);
-
-   void computeEventResponses(double sr_radius = 30);
-
-   unsigned long nEvents() const {return m_events.size();}
-
-   const std::vector<Event> & events() const {
-      return m_events;
-   }
+   void computeEventResponses(double sr_radius=30);
 
 protected:
 
@@ -85,18 +71,9 @@ protected:
       return new LogLike(*this);
    }
 
-   std::vector<Event> m_events;
-
 private:
 
    Npred m_Npred;
-
-   static std::vector<std::string> s_FT1_columns;
-
-   static void setFT1_columns();
-
-   void get_diffuse_names(tip::Table * events, 
-                          std::vector<std::string> & names) const;
 
    double logSourceModel(const Event & event) const;
 
