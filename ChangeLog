@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 13 14:45:50 PDT 2003
+Likelihood/src
+
+Modified Files:
+	SourceFactory.cxx 
+Log Message:
+fix the DiffuseSource construction in SourceFactory (correctly, this time)
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 13 14:06:47 PDT 2003
 Likelihood/xml
 
