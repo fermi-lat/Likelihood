@@ -3,20 +3,22 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.13 2004/03/03 00:35:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.14 2004/04/03 06:14:14 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
 #include <cassert>
+#include <stdexcept>
 
 #include "facilities/Util.h"
 
-// #include "latResponse/../src/Table.h"
-
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+
+// This include is temporary until tip provides column access.
+#include "latResponse/../src/DC1.h"
 
 #include "Likelihood/ScData.h"
 #include "Likelihood/Npred.h"
@@ -112,7 +114,7 @@ void LogLike::computeEventResponses(double sr_radius) {
    if (diffuse_srcs.size() > 0) computeEventResponses(diffuse_srcs, sr_radius);
 }
 
-#ifdef USE_TIP
+#ifdef USE_FT1
 void LogLike::getEvents(std::string event_file, int) {
 
    facilities::Util::expandEnvVar(&event_file);
@@ -184,7 +186,7 @@ void LogLike::getEvents(std::string event_file, int) {
 
    delete events;
 }
-#else // USE_TIP
+#else // USE_FT1
 void LogLike::getEvents(std::string event_file, int hdu) {
 
    facilities::Util::expandEnvVar(&event_file);
@@ -235,45 +237,37 @@ void LogLike::readEventData(const std::string &eventFile, int hdu) {
    m_eventFile = eventFile;
    m_eventHdu = hdu;
 
-   delete m_eventData;
-   m_eventData = new latResponse::Table();
+   std::string extName;
+   latResponse::DC1::getFitsHduName(eventFile, hdu, extName);
 
    std::vector<std::string> columnNames;
-   m_eventData->read_FITS_colnames(m_eventFile, m_eventHdu, columnNames);
-   m_eventData->add_columns(columnNames);
-//    std::cerr << "Columns in " << m_eventFile 
-//              << ", HDU " << m_eventHdu 
-//              << ": \n";
-//    for (unsigned int i = 0; i < columnNames.size(); i++) {
-//       std::cerr << columnNames[i] << "  ";
-//    }
-//    std::cerr << std::endl;
-   m_eventData->read_FITS_table(m_eventFile, m_eventHdu);
+   latResponse::DC1::getFitsColNames(eventFile, hdu, columnNames);
 
+   std::vector<double> my_column;
+   for (unsigned int i = 0; i < columnNames.size(); i++) {
+      latResponse::DC1::getTableVector(eventFile, extName, columnNames[i],
+                                       my_column);
+      m_eventColumns[columnNames[i]] = my_column;
+   }
 }
 
 std::pair<long, std::vector<double> >
-LogLike::getColumn(const latResponse::Table &tableData, 
-                   const std::string &colname) const
-   throw(optimizers::Exception) {
+LogLike::getEventColumn(const std::string &colname) const {
    std::pair<long, std::vector<double> > my_column;
-   std::string colnames;
-   
-// loop over column names, return the matching one
-   for (int i = 0; i < tableData.npar(); i++) {
-      if (colname == std::string(tableData[i].colname)) {
-         my_column.first = tableData[i].dim;
-         my_column.second = tableData[i].val;
-         return my_column;
-      }
-      colnames += " "; colnames += tableData[i].colname;
+
+   if (m_eventColumns.count(colname)) {
+      my_column = std::make_pair(m_eventColumns[colname].size(), 
+                                 m_eventColumns[colname]);
+   } else {
+      std::ostringstream errorMessage;
+      errorMessage << "LogLike::getColumn:\n"
+                   << "Column " << colname 
+                   << " was not found in event data.\n"
+                   << "Valid names are \n" << colnames << "\n";
+      throw std::runtime_error(errorMessage.str());
    }
-   std::ostringstream errorMessage;
-   errorMessage << "LogLike::getColumn:\n"
-                << "Column " << colname << " was not found in event data.\n"
-                << "Valid names are \n" << colnames << "\n";
-   throw Exception(errorMessage.str());
+   return my_column;
 }
-#endif // USE_TIP
+#endif // USE_FT1
 
 } // namespace Likelihood
