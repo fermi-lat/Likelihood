@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Apr 25 14:33:40 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Function.cxx 
+Log Message:
+add a couple methods to Function
+    *
+------------------------------------------------------------
+User: jchiang  Fri Apr 25 14:33:40 PDT 2003
 Likelihood/cmt
 
 Modified Files:
