@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 15 16:12:36 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h PointSource.h Source.h SourceModel.h 
+Added Files:
+	Pixel.h 
+Log Message:
+add derivative calculation for binned analysis; refactor to use Pixel class
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 13 08:30:40 PDT 2004
 Likelihood/src/likelihood
 
