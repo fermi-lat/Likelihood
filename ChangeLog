@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Aug 20 08:39:40 PDT 2004
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx ExposureMap.cxx FitsImage.cxx 
+Log Message:
+include <algorithm> in DiffuseSource.cxx; rename keywords for ROI center
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 19 14:45:55 PDT 2004
 Likelihood/src/makeExposureCube
 
