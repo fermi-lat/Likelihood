@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.8 2004/08/19 21:45:55 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.9 2004/09/02 23:43:24 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -15,6 +15,7 @@
 #include "st_app/StAppFactory.h"
 
 #include "tip/IFileSvc.h"
+#include "tip/Table.h"
 
 #include "st_facilities/Util.h"
 
@@ -30,7 +31,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.8 2004/08/19 21:45:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.9 2004/09/02 23:43:24 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.23 2004/09/03 03:40:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.24 2004/09/03 06:08:56 jchiang Exp $
  */
 
 #include <cmath>
@@ -48,7 +48,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.23 2004/09/03 03:40:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.24 2004/09/03 06:08:56 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -298,8 +298,6 @@ void likelihood::writeCountsMap() {
    RoiCuts::getRaDec(roi_ra, roi_dec);
    
    unsigned long npts = static_cast<unsigned long>(2*roi_radius);
-   double emin(30.);
-   double emax(2e5);
    unsigned long nee(21);
 
 // CountsMap and its base class, DataProduct, want *single* event and
@@ -309,7 +307,7 @@ void likelihood::writeCountsMap() {
 // files are specified.
    CountsMap dataMap(m_eventFiles[0], m_helper->scFiles()[0], 
                      roi_ra, roi_dec, "CAR", npts, npts, 1., 
-                     0, false, "RA", "DEC", emin, emax, nee);
+                     0, false, "RA", "DEC", elims.first, elims.second, nee);
                      
    for (unsigned int i = 0; i < m_eventFiles.size(); i++) {
       const tip::Table * events 

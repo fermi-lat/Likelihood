@@ -28,11 +28,11 @@ HistND::HistND(const std::vector<evtbin::Binner *> & binners) {
    }
 }
 
-HistND::HistND(const HistND & rhs) {
+HistND::HistND(const HistND & rhs) : evtbin::Hist(rhs) {
    const evtbin::Hist::BinnerCont_t & rhs_binners = rhs.getBinners();
    long n_binners = rhs_binners.size();
    m_binners.resize(n_binners);
-   for (unsigned int i = 0; i < n_binners; i++) {
+   for (long i = 0; i < n_binners; i++) {
       m_binners[i] = rhs_binners[i]->clone();
    }
    m_data = rhs.m_data;
