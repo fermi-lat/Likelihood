@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct 14 15:35:14 PDT 2003
+Likelihood/src
+
+Added Files:
+	LogLike.cxx 
+Removed Files:
+	logLike_ptsrc.cxx logLike_ptsrc.h 
+Log Message:
+Change name of logLike_ptsrc to LogLike; move header to public area
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct 14 15:35:13 PDT 2003
 Likelihood/python
 
