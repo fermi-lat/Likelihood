@@ -3,13 +3,14 @@
  * @brief Declaration of Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.15 2003/04/25 21:33:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.16 2003/05/20 23:49:49 jchiang Exp $
  */
 
 #ifndef Function_h
 #define Function_h
 
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <string>
 
@@ -19,6 +20,7 @@
 
 namespace Likelihood {
 
+class ParameterNotFound;
 class SumFunction;
 class ProductFunction;
 
@@ -34,7 +36,7 @@ class ProductFunction;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.15 2003/04/25 21:33:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.16 2003/05/20 23:49:49 jchiang Exp $
  */
 
 class Function {
@@ -46,7 +48,7 @@ public:
 // need only member-wise copying
 //   Function(const Function&);
 
-   virtual ~Function(){}
+   virtual ~Function() {}
 
    //! provide a string identifier
    void setMyName(std::string functionName) {m_functionName = functionName;}
@@ -57,37 +59,43 @@ public:
    //! set Parameter value and free state
    virtual void setParam(const std::string &paramName, 
                          double paramValue, bool isFree)
-      {setParameter(paramName, paramValue, isFree);}
+      throw(ParameterNotFound) {setParameter(paramName, paramValue, isFree);}
 
    //! set Parameter value, preserving current free state
    virtual void setParam(const std::string &paramName, double paramValue) 
-      {setParameter(paramName, paramValue);}
+      throw(ParameterNotFound) {setParameter(paramName, paramValue);}
 
    //! set Parameter using a Parameter object
-   virtual void setParam(const Parameter &param) 
-      {setParameter(param.getName(), param.getValue(), param.isFree());}
+   virtual void setParam(const Parameter &param) throw(ParameterNotFound);
 
-   double getParamValue(const std::string &paramName) const;
-   Parameter* getParam(const std::string &paramName);
-   
-   void setParamBounds(const std::string &paramName, double lower,
-                       double upper);
-   
-   void setParamScale(const std::string &paramName, double scale);
+   double getParamValue(const std::string &paramName) const
+      throw(ParameterNotFound);
 
-   void setParamTrueValue(const std::string &paramName, double paramValue);
+   Parameter *getParam(const std::string &paramName)
+      throw(ParameterNotFound);
+   
+   virtual void setParamBounds(const std::string &paramName, double lower,
+                               double upper) throw(ParameterNotFound);
+   
+   virtual void setParamScale(const std::string &paramName, double scale)
+      throw(ParameterNotFound);
+
+   virtual void setParamTrueValue(const std::string &paramName, 
+                                  double paramValue) throw(ParameterNotFound);
 
    /////////////////////////////////
    //! parameter access in groups 
    unsigned int getNumParams() const {return m_parameter.size();}
 
-   void setParamValues(const std::vector<double> &paramVec);
+   void setParamValues(const std::vector<double> &paramVec)
+      throw(LikelihoodException);
 
    //! do a bit of name mangling to allow for inheritance of setParamValues
    virtual std::vector<double>::const_iterator setParamValues_(
       std::vector<double>::const_iterator);
    
-   void setParams(std::vector<Parameter> &params) throw(LikelihoodException) {
+   virtual void setParams(std::vector<Parameter> &params) 
+      throw(LikelihoodException) {
       if (params.size() == m_parameter.size()) {
          m_parameter = params;
       } else {
@@ -106,7 +114,8 @@ public:
    //! free parameter access
    unsigned int getNumFreeParams() const;
 
-   void setFreeParamValues(const std::vector<double> &paramVec);
+   void setFreeParamValues(const std::vector<double> &paramVec)
+      throw(LikelihoodException);
 
    //! note name mangling here too
    virtual std::vector<double>::const_iterator setFreeParamValues_(
@@ -118,7 +127,8 @@ public:
       {fetchParamValues(values, true);}
    void getFreeParams(std::vector<Parameter> &) const;
 
-   void setFreeParams(std::vector<Parameter> &) throw(LikelihoodException);
+   virtual void setFreeParams(std::vector<Parameter> &) 
+      throw(LikelihoodException);
    
    /////////////////////////////////////
    //! Arg-dependent member functions 
@@ -158,31 +168,56 @@ protected:
 
    std::string m_argType;
 
-   void setMaxNumParams(int nParams) {m_maxNumParams = nParams;}
-
-   void setParameter(const std::string &paramName, double paramValue, 
-                     int isFree = -1);
-
-   //! for subclass constructor use
-   void addParam(const std::string &paramName, double paramValue, bool isFree);
-   void addParam(const std::string &paramName, double paramValue)
-      {addParam(paramName, paramValue, true);}
-   void addParam(const Parameter &param) 
-      {addParam(param.getName(), param.getValue(), param.isFree());}
-
-   void fetchParamValues(std::vector<double> &values, bool getFree) const;
-   void fetchParamNames(std::vector<std::string> &names, bool getFree) const;
-
-   virtual void fetchDerivs(Arg &x ,std::vector<double> &derivs, 
-                            bool getFree) const;
-
    unsigned int m_maxNumParams;
 
    std::string m_functionName;
 
    mutable std::vector<Parameter> m_parameter;
 
+   void setMaxNumParams(int nParams) {m_maxNumParams = nParams;}
+
+   void setParameter(const std::string &paramName, double paramValue, 
+                     int isFree = -1) throw(ParameterNotFound);
+
+   //! for subclass constructor use
+   void addParam(const std::string &paramName, 
+                 double paramValue, bool isFree) throw(LikelihoodException);
+
+   void addParam(const std::string &paramName, double paramValue)
+      throw(LikelihoodException) {addParam(paramName, paramValue, true);}
+
+   void addParam(const Parameter &param) throw(LikelihoodException);
+
+   void fetchParamValues(std::vector<double> &values, bool getFree) const;
+   void fetchParamNames(std::vector<std::string> &names, bool getFree) const;
+
+   virtual void fetchDerivs(Arg &x ,std::vector<double> &derivs, 
+                            bool getFree) const;
 };
+
+/**
+ * @class ParameterNotFound
+ * @brief Returns a standard error message for Parameters 
+ * looked for but not found in the desired Function.
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+class ParameterNotFound : public LikelihoodException {
+
+public:
+   ParameterNotFound(const std::string &paramName, 
+                     const std::string &funcName,
+                     const std::string &routineName) {
+      ostringstream errorMessage;
+      errorMessage << "Function::" << routineName << ": "
+                   << "A Parameter named " << paramName
+                   << " is not a Parameter of Function "
+                   << funcName << "\n";
+      m_what = errorMessage.str();
+      m_code = 0;
+   }
+};   
 
 } // namespace Likelihood
 
