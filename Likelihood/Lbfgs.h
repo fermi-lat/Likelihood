@@ -3,7 +3,7 @@
  * @brief Declaration for the Lbfgs Optimizer subclass.
  * @author P. Nolan, J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Lbfgs.h,v 1.6 2003/05/20 23:49:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Lbfgs.h,v 1.7 2003/05/29 19:41:00 pln Exp $
  */
 
 #ifndef lbfgs_h
@@ -15,9 +15,14 @@
 
 namespace Likelihood {
   
-  // These are copied from f2c.h.  It is problematic to include f2c.h
-  // in C++ code.  It has some macros which can have strange effects.
+  // These typedefs are copied from f2c.h.  It is problematic to 
+  //include f2c.h in C++ code.  It has some macros which can have
+  // strange effects.
+
+  //! f2c implementation of the fortran LOGICAL type
   typedef long int logical; 
+
+  //! type used by f2c to pass length of fortran string
   typedef long ftnlen;
   
   /** 
@@ -29,11 +34,11 @@ namespace Likelihood {
    *
    * @author P. Nolan, J. Chiang
    * 
-   * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Lbfgs.h,v 1.6 2003/05/20 23:49:49 jchiang Exp $
+   * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Lbfgs.h,v 1.7 2003/05/29 19:41:00 pln Exp $
    */
   
   /**
-   * @file ../src/lbfgs_routines.c
+   * @file "lbfgs_routines.c"
    *
    * @brief Fortran code for LBFGS-B translated by f2c
    *
@@ -83,13 +88,17 @@ namespace Likelihood {
   private:
     
     Statistic *m_stat;
+
     //! Number of variable metric corrections to save
     int m_maxVarMetCorr; 
+
     //! Stop after this many function evaluations
     int m_maxIterations; 
-    //! Oneof the stopping criteria
+
+    //! One of the stopping criteria
     double m_pgtol; 
     int m_retCode;
+
     int m_numEvals;
     std::string m_errorString;
   };

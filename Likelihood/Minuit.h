@@ -10,9 +10,10 @@
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Statistic.h"
 
-// These are copied from f2c.h.  Including f2c.h in C++
-// code is problematic.  Some of its macros have weird
+// These typedefs are copied from f2c.h.  Including f2c.h in 
+// C++ code is problematic.  Some of its macros have weird
 // side effects.  
+
 //! f2c implementation of the Fortran LOGICAL type
 typedef long int logical; 
 //! The type used by f2c and g77 for passing the length 
@@ -28,12 +29,16 @@ namespace Likelihood {
    *
    * @author P. Nolan
    *    
+   This class implements an Optimizer by using Minuit, a
+   well-known package from CERN.  It uses only a few of Minuit's
+   features.  It uses only the MIGRAD algorithm.  All variables
+   are treated as bounded.  No user interaction is allowed.
    */
   
   // Doxygen the C file here so it can be left as nearly as
   // possible in its pristine, machine-produced state.
   /**
-   * @file ../src/minuit_routines.c
+   * @file minuit_routines.c
    *
    * @brief The Minuit package translated from Fortran by f2c
    *
@@ -61,14 +66,20 @@ namespace Likelihood {
     virtual ~Minuit() {}
     
     void find_min(int verbose = 0, double tol = 1e-3);
+
     //! Override the default maximum number of function evaluations
     void setMaxEval(int);
+
     //! Minuit return status.   3=OK, 2=forced positive def., 1= not accurate
-    int getQuality(void) const; 
+    int getQuality(void) const;
+ 
     //! Estimated vertical distance from minimum
     double getDistance(void) const; 
-    //! One-sigma confidence regions based on Hessian, assuming this function is a likelihood
+
+    //! One-sigma confidence regions based on Hessian, assuming 
+    // that this function is a likelihood
     std::vector<double> & getUncertainty(void);
+
     //! Symbolic form of the return codes for readability 
     enum MinuitQuality {MINUIT_NOTCALC, MINUIT_DIAG, MINUIT_FORCEDPOS, 
 			MINUIT_NORMAL};

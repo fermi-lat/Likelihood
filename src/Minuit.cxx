@@ -36,7 +36,6 @@ namespace Likelihood {
 
     std::vector<Parameter> params;
     m_stat->getFreeParams(params);
-    int j=1;
     int errorFlag;
 
     int minuitVerbose = verbose - 1;
@@ -45,6 +44,7 @@ namespace Likelihood {
     doCmd(pline.str()); // Set verbosity of Minuit
     doCmd("SET NOWARN");
     // Tell Minuit about parameter values, names, bounds, etc.
+    int j = 1;
     for (std::vector<Parameter>::iterator p = params.begin();
 	 p != params.end(); p++, j++) {
       double scale = 1.0; // Is this the best choice?
@@ -74,13 +74,13 @@ namespace Likelihood {
     if (verbose != 0) {
       std::cout << "Final values: " << std::endl;
     }
-    j = 1;
+    int jj = 1;
     for (std::vector<Parameter>::iterator p = params.begin();
-	 p != params.end(); p++, j++) {
+	 p != params.end(); p++, jj++) {
       std::vector<char> pname(10);
       double pval, error, bnd1, bnd2;
       int ivarbl;
-      mnpout_(&j, &pname[0], &pval, &error, &bnd1, &bnd2, &ivarbl, 
+      mnpout_(&jj, &pname[0], &pval, &error, &bnd1, &bnd2, &ivarbl, 
 	      pname.size());
       p->setValue(pval);
       if (verbose != 0) {
