@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Mar 16 13:53:27 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+sync changes w/ Toby's, add CompositeFunction hierarchy, Rosenbrock test function
+    *
+------------------------------------------------------------
+User: jchiang  Sun Mar 16 13:53:27 PST 2003
 Likelihood/src
 
 Modified Files:
