@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.8 2004/09/24 03:54:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.9 2004/09/25 16:38:08 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -93,6 +93,8 @@ protected:
 
 private:
 
+   CountsMap & operator=(const CountsMap & rhs) {}
+
    void init(std::vector<evtbin::Binner *> & binners, 
              const std::string & event_file, 
              const std::string & sc_file, unsigned long num_x_pix, 
@@ -114,6 +116,7 @@ private:
    void readImageData(const std::string & countsMapfile,
                       std::vector<evtbin::Binner *> & binners);
 
+   void setDataDir();
 };
 
 }

@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.8 2004/10/08 00:28:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.9 2004/10/08 05:59:22 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -22,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.8 2004/10/08 00:28:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.9 2004/10/08 05:59:22 jchiang Exp $
  */
 
 class SourceMap {
@@ -34,10 +34,14 @@ public:
    SourceMap(const std::string & sourceMapsFile, const std::string & srcName);
 
    ~SourceMap() {
-/// @todo need to reference count this
-//       delete s_meanPsf;
-//       delete s_binnedExposure;
-      delete m_dataMap;
+      s_refCount--;
+      if (s_refCount == 0) {
+         delete s_meanPsf;
+         s_meanPsf = 0;
+         delete s_binnedExposure;
+         s_binnedExposure = 0;
+      }
+      if (m_deleteDataMap) delete m_dataMap;
    }
 
    const std::vector<double> & model() const {return m_model;}
@@ -55,6 +59,8 @@ private:
    std::string m_name;
 
    const CountsMap * m_dataMap;
+
+   bool m_deleteDataMap;
 
 /// @brief m_models has the same size as the data in the dataMap plus
 /// one energy plane.
@@ -75,6 +81,7 @@ private:
 
    static MeanPsf * s_meanPsf;
    static BinnedExposure * s_binnedExposure;
+   static unsigned int s_refCount;
 
    static std::vector<double> s_phi;
    static std::vector<double> s_mu;
