@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Nov  5 08:55:19 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+refine likelihood.cxx interface a bit
+    *
+------------------------------------------------------------
+User: jchiang  Wed Nov  5 08:55:19 PST 2003
 Likelihood/src
 
 Modified Files:
