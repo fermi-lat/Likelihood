@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.50 2004/09/03 06:08:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.51 2004/09/03 17:49:59 jchiang Exp $
  */
 
 #include <cassert>
@@ -457,8 +457,7 @@ bool SourceModel::hasSrcNamed(const std::string & srcName) const {
    return true;
 }
 
-void SourceModel::makeCountsMap(const CountsMap & dataMap, 
-                                const std::string & filename) const {
+CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
 
    if (ExposureCube::instance() == 0) {
       std::runtime_error("SourceModel::makeCountsMap:\n"
@@ -466,20 +465,68 @@ void SourceModel::makeCountsMap(const CountsMap & dataMap,
    }
 
    std::vector<double> map;
-   long nx = dataMap.imageDimension(0);
-   long ny = dataMap.imageDimension(1);
-   long nz = dataMap.imageDimension(2);
-   map.resize(nx*ny*nz, 0);
-   
-   std::vector<double> longitudes;
-   dataMap.getAxisVector(0, longitudes);
-   std::vector<double> latitudes;
-   dataMap.getAxisVector(1, latitudes);
-   std::vector<double> energies;
-   dataMap.getAxisVector(2, energies);
 
    std::vector<astro::SkyDir> pixelDirs;
    std::vector<double> pixelSolidAngles;
+   getPixels(dataMap, pixelDirs, pixelSolidAngles);
+
+   std::vector<double> energies;
+   dataMap.getAxisVector(2, energies);
+
+   computeModelMap(pixelDirs, pixelSolidAngles, energies, map);
+
+   CountsMap * modelMap = new CountsMap(dataMap);
+// @bug This will not work properly until
+// tip::FitsExtensionManager::setImageDimensions is fixed.
+   modelMap->setImage(map);
+   return modelMap;
+}
+
+void SourceModel::computeModelMap(const std::vector<astro::SkyDir> & pixelDirs,
+                                  const std::vector<double> & pixelSolidAngles,
+                                  const std::vector<double> & energies,
+                                  std::vector<double> & modelMap) {
+
+   modelMap.resize(pixelDirs.size()*(energies.size()-1));
+
+   std::map<std::string, Source *>::const_iterator src;
+// Loop over pixel directions.
+   for (unsigned int j = 0; j < pixelDirs.size(); j++) {
+      for (unsigned int k = 0; k < energies.size()-1; k++) {
+         int indx = k*pixelDirs.size() + j;
+         for (int evtType = 0; evtType < 2; evtType++) {
+            for (src = s_sources.begin(); src != s_sources.end(); ++src) {
+               Aeff aeff1(src->second, pixelDirs[j], energies[k], evtType);
+               double map_lower =
+                  ExposureCube::instance()->value(pixelDirs[j], aeff1);
+               Aeff aeff2(src->second, pixelDirs[j], energies[k+1], evtType);
+               double map_upper = 
+                  ExposureCube::instance()->value(pixelDirs[j], aeff2);
+               modelMap[indx] += (map_lower + map_upper)/2.*pixelSolidAngles[j]
+                  *(energies[k+1] - energies[k]);
+            } // src
+         } // evtType
+      } // k
+   } // j
+}
+
+void SourceModel::getPixels(const CountsMap & countsMap, 
+                            std::vector<astro::SkyDir> & pixelDirs,
+                            std::vector<double> & pixelSolidAngles) {
+
+   long nx = countsMap.imageDimension(0);
+   long ny = countsMap.imageDimension(1);
+
+   std::vector<double> longitudes;
+   countsMap.getAxisVector(0, longitudes);
+   std::vector<double> latitudes;
+   countsMap.getAxisVector(1, latitudes);
+   std::vector<double> energies;
+   countsMap.getAxisVector(2, energies);
+
+   pixelDirs.clear();
+   pixelSolidAngles.clear();
+
    pixelDirs.reserve(nx*ny);
    pixelSolidAngles.reserve(nx*ny);
    std::vector<double>::const_iterator latIt = latitudes.begin();
@@ -489,39 +536,16 @@ void SourceModel::makeCountsMap(const CountsMap & dataMap,
       for ( ; lonIt != longitudes.end() - 1; ++lonIt) {
          double longitude = (*lonIt + *(lonIt+1))/2.;
          pixelDirs.push_back(astro::SkyDir(longitude, latitude, 
-                                           dataMap.projection()));
+                                           countsMap.projection()));
          pixelSolidAngles.push_back(computeSolidAngle(lonIt, latIt, 
-                                                      dataMap.projection()));
+                                                      countsMap.projection()));
       }
    }
-
-   std::map<std::string, Source *>::const_iterator src;
-
-// loop over pixel directions
-   for (unsigned int j = 0; j < pixelDirs.size(); j++) {
-      for (unsigned int k = 0; k < energies.size()-1; k++) {
-         int indx = k*nx*ny + j;
-         double energy = sqrt(energies[k]*energies[k+1]);
-         for (int evtType = 0; evtType < 2; evtType++) {
-            for (src = s_sources.begin(); src != s_sources.end(); ++src) {
-               Aeff aeff(src->second, pixelDirs[j], energy, evtType);
-               map[indx] += ExposureCube::instance()->value(pixelDirs[j], aeff)
-                  *pixelSolidAngles[j]*(energies[k+1] - energies[k]);
-            } // src
-         } // evtType
-      } // k
-   } // j
-
-   CountsMap modelMap(dataMap);
-// This will not work properly until the
-// tip::FitsExtensionManager::setImageDimensions is fixed.
-   modelMap.setImage(map);
-   modelMap.writeOutput("Likelihood::SourceModel", filename);
 }
 
 double SourceModel::computeSolidAngle(std::vector<double>::const_iterator lon,
                                       std::vector<double>::const_iterator lat,
-                                      const astro::SkyProj & proj) const {
+                                      const astro::SkyProj & proj) {
    astro::SkyDir lower_left(*lon, *lat, proj);
    astro::SkyDir upper_right(*(lon+1), *(lat+1), proj);
    std::vector<double> theta(2);
@@ -540,8 +564,8 @@ double SourceModel::computeSolidAngle(std::vector<double>::const_iterator lon,
    return std::fabs((phi[1] - phi[0])*(sin(theta[1]) - sin(theta[0])));
 }
 
-SourceModel::Aeff::Aeff(Source * src, astro::SkyDir & appDir, double energy,
-                        int type)
+SourceModel::Aeff::Aeff(Source * src, const astro::SkyDir & appDir, 
+                        double energy, int type)
    : m_src(src), m_appDir(appDir), m_energy(energy), m_type(type) {
    PointSource * ptsrc = dynamic_cast<PointSource *>(src);
    if (ptsrc == 0) {
