@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  3 18:56:11 PST 2003
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+fixes in LogLike::getEvents; tagging v2r5p3
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  3 18:56:10 PST 2003
 Likelihood/cmt
 
