@@ -3,9 +3,10 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.14 2003/11/25 19:03:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.15 2003/11/26 01:51:06 jchiang Exp $
  */
 
+#include <cassert>
 #include <vector>
 #include <string>
 #include <cmath>
@@ -61,6 +62,18 @@ void ScData::readData(std::string file, int hdu, bool clear) {
          tuple.zAxis = astro::SkyDir(scRow->raSCZ()*180./M_PI,
                                      scRow->decSCZ()*180./M_PI);
          tuple.time = scRow->startTime();
+// Ensure that startTimes are contiguous.
+         if (vec.size() > 1 && tuple.time < vec[vec.size()-2].time) {
+            std::cerr << "Likelihood::ScData: "
+                      << "The start times in the spacecraft data are not "
+                      << "contiguous.\n"
+                      << "Previous time: " << vec[vec.size()-2].time << "\n"
+                      << "Current time: " << tuple.time << "\n"
+                      << "Current S/C file: " << s_scFile << "\n"
+                      << "Check the ordering of your S/C files." 
+                      << std::endl;
+            assert(tuple.time > vec[vec.size()-2].time);
+         }
          astro::EarthCoordinate earthCoord(scRow->latGeo()*180./M_PI,
                                            scRow->lonGeo()*180./M_PI);
 //          if (earthCoord.insideSAA()) {
