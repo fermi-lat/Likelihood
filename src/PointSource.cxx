@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.36 2004/03/03 00:35:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.37 2004/03/05 18:42:06 jchiang Exp $
  */
 
 #include <vector>
@@ -27,19 +27,6 @@
 #include "Likelihood/TrapQuad.h"
 
 namespace {
-   double sourceEffArea(double energy, double time,
-                        const astro::SkyDir &srcDir) {
-      Likelihood::ScData * scData = Likelihood::ScData::instance();
-   
-      astro::SkyDir zAxis = scData->zAxis(time);
-      astro::SkyDir xAxis = scData->xAxis(time);
-
-      Likelihood::PointSource::Aeff aeff(energy, srcDir);
-
-      double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
-
-      return aeff(cos_theta);
-   }
 }
 
 namespace Likelihood {
@@ -226,8 +213,7 @@ void PointSource::computeExposure(std::vector<double> &energies,
       if (includeInterval) {
          for (unsigned int k = 0; k < energies.size(); k++) {
             double time = (scData->vec[it+1].time + scData->vec[it].time)/2.;
-            exposure[k] += 
-               ::sourceEffArea(energies[k], time, m_dir.getDir())
+            exposure[k] += sourceEffArea(energies[k], time)
                *(scData->vec[it+1].time - scData->vec[it].time);
          }
       }
@@ -247,6 +233,21 @@ void PointSource::makeEnergyVector(int nee) {
    s_energies.reserve(nee);
    for (int i = 0; i < nee; i++)
       s_energies.push_back(emin*exp(i*estep));
+}
+
+double PointSource::sourceEffArea(double energy, double time) const {
+   Likelihood::ScData * scData = Likelihood::ScData::instance();
+
+   astro::SkyDir zAxis = scData->zAxis(time);
+   astro::SkyDir xAxis = scData->xAxis(time);
+
+   const astro::SkyDir & srcDir = m_dir.getDir();
+
+   Likelihood::PointSource::Aeff aeff(energy, srcDir);
+
+   double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
+
+   return aeff(cos_theta);
 }
 
 double PointSource::Aeff::operator()(double cos_theta) const {
@@ -269,9 +270,8 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       latResponse::IPsf *psf = respIt->second->psf();
       latResponse::IAeff *aeff = respIt->second->aeff();
 
-//       double psf_val = psf->angularIntegral(m_energy, m_srcDir,
-//                                             theta, phi, cones);
-      double psf_val = 1.;
+      double psf_val = psf->angularIntegral(m_energy, m_srcDir,
+                                            theta, phi, cones);
       double aeff_val = aeff->value(m_energy, theta, phi);
 
       myEffArea += psf_val*aeff_val;

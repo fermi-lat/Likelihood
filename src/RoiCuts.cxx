@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.16 2004/02/06 00:29:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.17 2004/02/20 00:02:07 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -135,7 +135,7 @@ void RoiCuts::setCuts(std::string xmlFile) {
    delete parser;
 }
 
-void RoiCuts::writeXml(std::string xmlFile, const std::string &roiTitle) {
+DomElement * RoiCuts::rootDomElement(const std::string &roiTitle) {
 
    xml::XmlParser *parser = new xml::XmlParser();
 
@@ -170,17 +170,31 @@ void RoiCuts::writeXml(std::string xmlFile, const std::string &roiTitle) {
                           s_roiCone.radius());
 
    roiElt->appendChild(*coneElt);
-            
-// Expand any environment variables in the xmlFile name.
-   facilities::Util::expandEnvVar(&xmlFile);
+   delete parser;
 
+   return roiElt;
+}
+
+void RoiCuts::writeXml(std::string xmlFile, const std::string &roiTitle) {
+   facilities::Util::expandEnvVar(&xmlFile);
    std::ofstream outFile(xmlFile.c_str());
-   outFile << "<?xml version='1.0' standalone='no'?>\n"
+   writeXml(outFile, roiTitle, true);
+}
+
+void RoiCuts::writeXml(std::ostream & ostr, const std::string & roiTitle,
+                       bool pretty) {
+   DomElement * roiElt = rootDomElement(roiTitle);
+   if (pretty) {
+      ostr << "<?xml version='1.0' standalone='no'?>\n"
            << "<!DOCTYPE Region-of-Interest SYSTEM "
            << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >\n";
-   xml::Dom::prettyPrintElement(*roiElt, outFile, "");
-
-   delete parser;
+      xml::Dom::prettyPrintElement(*roiElt, ostr, "");
+   } else {
+      ostr << "<?xml version='1.0' standalone='no'?>"
+           << "<!DOCTYPE Region-of-Interest SYSTEM "
+           << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >";
+      xml::Dom::printElement(*roiElt, ostr);
+   }
 }
 
 bool RoiCuts::accept(const Event &event) {

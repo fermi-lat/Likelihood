@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.22 2004/02/06 00:29:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.23 2004/02/07 23:14:25 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -117,17 +117,14 @@ int main(int iargc, char* argv[]) {
       hoopsUtil::RunParams params(iargc, argv);
 
 // Set the region-of-interest.
-      std::string roiCutsFile;
-      params.getParam("ROI_cuts_file", roiCutsFile);
+      std::string roiCutsFile = params.getParam<std::string>("ROI_cuts_file");
       ::file_ok(roiCutsFile);
       RoiCuts::setCuts(roiCutsFile);
 
 // Read in the pointing information.
-      std::string scFile;
-      params.getParam("Spacecraft_file", scFile);
+      std::string scFile = params.getParam<std::string>("Spacecraft_file");
       ::file_ok(scFile);
-      long scHdu;
-      params.getParam("Spacecraft_file_hdu", scHdu);
+      long scHdu = params.getParam<long>("Spacecraft_file_hdu");
       std::vector<std::string> scFiles;
       ::resolve_fits_files(scFile, scFiles);
       std::vector<std::string>::const_iterator scIt = scFiles.begin();
@@ -137,16 +134,16 @@ int main(int iargc, char* argv[]) {
       }
 
 // Read in the exposure map file.
-      std::string exposureFile;
-      params.getParam("Exposure_map_file", exposureFile);
+      std::string exposureFile 
+         = params.getParam<std::string>("Exposure_map_file");
       if (exposureFile != "none") {
          ::file_ok(exposureFile);
          ExposureMap::readExposureFile(exposureFile);
       }
 
 // Create the response functions.
-      std::string responseFuncs;
-      params.getParam("Response_functions", responseFuncs);
+      std::string responseFuncs 
+         = params.getParam<std::string>("Response_functions");
 
       std::map< std::string, std::vector<std::string> > responseIds;
       responseIds["FRONT"].push_back("DC1::Front");
@@ -175,8 +172,7 @@ int main(int iargc, char* argv[]) {
       funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
       
       LogLike * logLike = 0;
-      bool useOptEM;
-      params.getParam("Use_OptEM", useOptEM);
+      bool useOptEM = params.getParam<bool>("Use_OptEM");
       if (useOptEM) {
          logLike = new OptEM();
       } else {
@@ -184,10 +180,8 @@ int main(int iargc, char* argv[]) {
       }
    
 // Read in the Event data.
-      std::string eventFile;
-      params.getParam("event_file", eventFile);
-      long eventFileHdu;
-      params.getParam("event_file_hdu", eventFileHdu);
+      std::string eventFile = params.getParam<std::string>("event_file");
+      long eventFileHdu = params.getParam<long>("event_file_hdu");
       std::vector<std::string> eventFiles;
       ::file_ok(eventFile);
       ::resolve_fits_files(eventFile, eventFiles);
@@ -198,10 +192,8 @@ int main(int iargc, char* argv[]) {
       }
 
 // Set the verbosity level and convergence tolerance.
-      long verbose;
-      params.getParam("fit_verbosity", verbose);
-      double tol;
-      params.getParam("fit_tolerance", tol);
+      long verbose = params.getParam<long>("fit_verbosity");
+      double tol = params.getParam<double>("fit_tolerance");
       std::vector<double> errors;
 
 // The fit loop.  If indicated, query the user at the end of each
@@ -209,13 +201,12 @@ int main(int iargc, char* argv[]) {
 // the user to adjust the source model xml file by hand between
 // iterations.
 
-      bool queryLoop;
-      params.getParam("query_for_refit", queryLoop);
+      bool queryLoop = params.getParam<bool>("query_for_refit");
       optimizers::Optimizer * myOpt = 0;
       do {
 // Read in the Source model.
-         std::string sourceModel;
-         params.getParam("Source_model_file", sourceModel);
+         std::string sourceModel 
+            = params.getParam<std::string>("Source_model_file");
          if (logLike->getNumSrcs() == 0) {
 // Read in the Source model for the first time.
             try {
@@ -243,8 +234,7 @@ int main(int iargc, char* argv[]) {
             }
          } else {
 // Select an optimizer.
-            std::string optimizer;
-            params.getParam("optimizer", optimizer);
+            std::string optimizer = params.getParam<std::string>("optimizer");
             try {
                if (optimizer == "LBFGS") {
                   myOpt = new optimizers::Lbfgs(*logLike);
@@ -285,8 +275,8 @@ int main(int iargc, char* argv[]) {
          std::cout << std::endl;
          
 // Write the model to the output xml file.
-         std::string xmlFile;
-         params.getParam("Source_model_output_file", xmlFile);
+         std::string xmlFile 
+            = params.getParam<std::string>("Source_model_output_file");
          std::string funcFileName("");
 //          params.getParam("Function_models_file_name", funcFileName);
 
@@ -297,8 +287,8 @@ int main(int iargc, char* argv[]) {
       } while (queryLoop && prompt("Refit? [y] "));
 
 // Write the model to a flux-style output file.
-      std::string xml_fluxFile;
-      params.getParam("flux_style_model_file", xml_fluxFile);
+      std::string xml_fluxFile 
+         = params.getParam<std::string>("flux_style_model_file");
       if (xml_fluxFile != "none") {
          std::cout << "Writing flux-style xml model file to "
                    << xml_fluxFile << std::endl;

@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.10 2004/01/15 22:16:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.11 2004/01/30 02:28:30 burnett Exp $
  */
 
 #ifdef TRAP_FPE
@@ -20,8 +20,7 @@
 
 #include "facilities/Util.h"
 
-#include "hoops/hoops_exception.h"
-#include "hoopsUtil/RunParams.h"
+#include "hoopsUtil/ParametersBase.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
@@ -29,7 +28,6 @@
 #include "optimizers/Minuit.h"
 #include "optimizers/Drmngb.h"
 #include "optimizers/Exception.h"
-#include "optimizers/../src/PowerLaw.h"
 
 #include "latResponse/IrfsFactory.h"
 
@@ -101,7 +99,6 @@ namespace {
          return;
       }
    }
-
 }
 
 void print_fit_results(SourceModel &stat);
@@ -115,60 +112,101 @@ void write_fits_file(const std::string &filename,
                      const std::string &coordSystem);
 void fitsReportError(FILE *stream, int status);
 
+class Parameters: public hoopsUtil::ParametersBase {
+public:
+   Parameters(int iargc, char* argv[]) 
+      : hoopsUtil::ParametersBase(iargc, argv) {
+      m_roiFile = getValue<std::string>("ROI_cuts_file");
+      m_scFile = getValue<std::string>("Spacecraft_file");
+      m_scHdu = getValue<long>("Spacecraft_file_hdu");
+      m_expFile = getValue<std::string>("Exposure_map_file");
+      m_respFuncs = getValue<std::string>("Response_functions");
+      m_srcModelFile = getValue<std::string>("Source_model_file");
+      m_eventFile = getValue<std::string>("event_file");
+      m_eventHdu = getValue<long>("event_file_hdu");
+      m_optimizer = getValue<std::string>("optimizer");
+      m_verbosity = getValue<long>("fit_verbosity");
+      getValue<double>("fit_tolerance");
+      m_coordSys = getValue<std::string>("Coordinate_system");
+      getValue<double>("lonMax");
+      getValue<double>("lonMin");
+      m_nlon = getValue<long>("Number_of_longitude_points");
+      getValue<double>("latMax");
+      getValue<double>("latMin");
+      m_nlat = getValue<long>("Number_of_latitude_points");
+      m_outfile = getValue<std::string>("TS_map_file");
+   }
+   const std::string & roiFile() {return m_roiFile;}
+   const std::string & scFile() {return m_scFile;}
+   long scHdu() {return m_scHdu;}
+   const std::string & expFile() {return m_expFile;}
+   const std::string & respFuncs() {return m_respFuncs;}
+   const std::string & srcModelFile() {return m_srcModelFile;}
+   const std::string & eventFile() {return m_eventFile;}
+   long eventHdu() {return m_eventHdu;}
+   const std::string & optimizer() {return m_optimizer;}
+   long verbosity() {return m_verbosity;}
+   const std::string & coordSys() {return m_coordSys;}
+   long nlon() {return m_nlon;}
+   long nlat() {return m_nlat;}
+   const std::string & outfile() {return m_outfile;}
+private:
+   std::string m_roiFile;
+   std::string m_scFile;
+   long m_scHdu;
+   std::string m_expFile;
+   std::string m_respFuncs;
+   std::string m_srcModelFile;
+   std::string m_eventFile;
+   long m_eventHdu;
+   std::string m_optimizer;
+   long m_verbosity;
+   std::string m_coordSys;
+   long m_nlon;
+   long m_nlat;
+   std::string m_outfile;
+};
+
 int main(int iargc, char* argv[]) {
 
-// Read in the command-line parameters using HOOPS
-   strcpy(argv[0], "TsMap");
-
    try {
-      hoopsUtil::RunParams params(iargc, argv);
+      Parameters pars(iargc, argv);
 
 // Set the region-of-interest.
-      std::string roiCutsFile;
-      params.getParam("ROI_cuts_file", roiCutsFile);
-      ::file_ok(roiCutsFile);
-      RoiCuts::setCuts(roiCutsFile);
+      ::file_ok(pars.roiFile());
+      RoiCuts::setCuts(pars.roiFile());
 
 // Read in the pointing information.
-      std::string scFile;
-      params.getParam("Spacecraft_file", scFile);
-      long scHdu;
-      params.getParam("Spacecraft_file_hdu", scHdu);
       std::vector<std::string> scFiles;
-      ::file_ok(scFile);
-      ::resolve_fits_files(scFile, scFiles);
+      ::file_ok(pars.scFile());
+      ::resolve_fits_files(pars.scFile(), scFiles);
       std::vector<std::string>::const_iterator scIt = scFiles.begin();
       for ( ; scIt != scFiles.end(); scIt++) {
-         ::file_ok(scFile);
-         ScData::readData(*scIt, scHdu);
+         ::file_ok(*scIt);
+         ScData::readData(*scIt, pars.scHdu());
       }
 
 // Read in the exposure map file.
-      std::string exposureFile;
-      params.getParam("Exposure_map_file", exposureFile);
-      if (exposureFile != "none") {
-         ::file_ok(exposureFile);
-         ExposureMap::readExposureFile(exposureFile);
+      if (pars.expFile() != "none") {
+         ::file_ok(pars.expFile());
+         ExposureMap::readExposureFile(pars.expFile());
       }
 
 // Create the response functions.
-      std::string responseFuncs;
-      params.getParam("Response_functions", responseFuncs);
-
       std::map< std::string, std::vector<std::string> > responseIds;
       responseIds["FRONT"].push_back("DC1::Front");
       responseIds["BACK"].push_back("DC1::Back");
       responseIds["FRONT/BACK"].push_back("DC1::Front");
       responseIds["FRONT/BACK"].push_back("DC1::Back");
 
-      if (responseIds.count(responseFuncs)) {
-         std::vector<std::string> &resps = responseIds[responseFuncs];
+      if (responseIds.count(pars.respFuncs())) {
+         std::vector<std::string> &resps = responseIds[pars.respFuncs()];
          for (unsigned int i = 0; i < resps.size(); i++) {
             ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
          }
       } else {
          std::cerr << "Invalid response function choice: "
-                   << responseFuncs << std::endl;
+                   << pars.respFuncs() << std::endl;
          exit(-1);
       }
 
@@ -185,72 +223,43 @@ int main(int iargc, char* argv[]) {
       funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
    
 // Read in the Source model.
-      std::string sourceModel;
-      params.getParam("Source_model_file", sourceModel);
-      ::file_ok(sourceModel);
-      logLike.readXml(sourceModel, funcFactory);
+      ::file_ok(pars.srcModelFile());
+      logLike.readXml(pars.srcModelFile(), funcFactory);
    
 // Read in the Event data.
-      std::string eventFile;
-      params.getParam("event_file", eventFile);
-      long eventFileHdu;
-      params.getParam("event_file_hdu", eventFileHdu);
       std::vector<std::string> eventFiles;
-      ::file_ok(eventFile);
-      ::resolve_fits_files(eventFile, eventFiles);
+      ::file_ok(pars.eventFile());
+      ::resolve_fits_files(pars.eventFile(), eventFiles);
       std::vector<std::string>::const_iterator evIt = eventFiles.begin();
       for ( ; evIt != eventFiles.end(); evIt++) {
          ::file_ok(*evIt);
-         logLike.getEvents(*evIt, eventFileHdu);
+         logLike.getEvents(*evIt, pars.eventHdu());
       }
 
 // Compute the Event responses to the diffuse components.
       logLike.computeEventResponses();
 
 // Select an optimizer.
-      std::string optimizer;
-      params.getParam("optimizer", optimizer);
       optimizers::Optimizer *myOpt = 0;
-      if (optimizer == "LBFGS") {
+      if (pars.optimizer() == "LBFGS") {
          myOpt = new optimizers::Lbfgs(logLike);
-      } else if (optimizer == "MINUIT") {
+      } else if (pars.optimizer() == "MINUIT") {
          myOpt = new optimizers::Minuit(logLike);
-      } else if (optimizer == "DRMNGB") {
+      } else if (pars.optimizer() == "DRMNGB") {
          myOpt = new optimizers::Drmngb(logLike);
       }
 
-// Set the verbosity level and convergence tolerance.
-      long verbose;
-      params.getParam("fit_verbosity", verbose);
-      double tol;
-      params.getParam("fit_tolerance", tol);
-
-// Retrieve map dimensions.
-      std::string coordSystem;
-      params.getParam("Coordinate_system", coordSystem);
-      double lonMax;
-      params.getParam("Longitude_max", lonMax);
-      double lonMin;
-      params.getParam("Longitude_min", lonMin);
-      long nlon;
-      params.getParam("Number_of_longitude_points", nlon);
-      double latMax;
-      params.getParam("Latitude_max", latMax);
-      double latMin;
-      params.getParam("Latitude_min", latMin);
-      long nlat;
-      params.getParam("Number_of_latitude_points", nlat);
-      
+// Set map grid.
       std::vector<double> lonValues;
-      makeDoubleVector(lonMin, lonMax, nlon, lonValues);
+      makeDoubleVector(pars["lonMin"], pars["lonMax"], pars.nlon(), lonValues);
       std::vector<double> latValues;
-      makeDoubleVector(latMin, latMax, nlat, latValues);
+      makeDoubleVector(pars["latMin"], pars["latMax"], pars.nlat(), latValues);
       
       std::string srcName("testSource");
       optimizers::dArg dummy(1.);
       
 // Save the best-fit value in the null hypothesis.
-      myOpt->find_min(verbose, tol);
+      myOpt->find_min(pars.verbosity(), pars["fit_tolerance"]);
       double logLike0 = logLike(dummy);
 
 // Create a putative PointSource to be moved to each map location.
@@ -266,16 +275,16 @@ int main(int iargc, char* argv[]) {
       for (unsigned int jj = 0; jj < latValues.size(); jj++) {
          myMap[jj].reserve(lonValues.size());
          for (unsigned int ii = 0; ii < lonValues.size(); ii++) {
-            if (coordSystem == "CEL") {
+            if (pars.coordSys() == "CEL") {
                testSrc.setDir(lonValues[ii], latValues[jj], computeExposure);
             } else {
                testSrc.setGalDir(lonValues[ii], latValues[jj], 
                                  computeExposure);
             }
             logLike.addSource(&testSrc);
-            myOpt->find_min(verbose, tol);
+            myOpt->find_min(pars.verbosity(), pars["fit_tolerance"]);
             myMap[jj].push_back(2.*(logLike(dummy) - logLike0));
-            if (verbose > 0) {
+            if (pars.verbosity() > 0) {
                std::cout << lonValues[ii] << "  "
                          << latValues[jj] << "  "
                          << myMap[jj][ii] 
@@ -285,16 +294,14 @@ int main(int iargc, char* argv[]) {
          }
       }
    
-      std::string outputFile;
-      params.getParam("TS_map_file", outputFile);
-      write_fits_file(outputFile, lonValues, latValues, myMap, coordSystem);
-
+      write_fits_file(pars.outfile(), lonValues, latValues, myMap,
+                      pars.coordSys());
       delete myOpt;
 
    } catch (hoops::Hexception &eObj) {
-      std::cout << "HOOPS exception code: "
+      std::cout << "HOOPS exception: "
                 << eObj.Msg() << std::endl;
-   } catch (Exception &eObj) {
+   } catch (std::exception &eObj) {
       std::cout << eObj.what() << std::endl;
    }
 }
@@ -327,7 +334,12 @@ void makeDoubleVector(double xmin, double xmax, int nx,
 }
 
 void setPointSourceSpectrum(PointSource &src) {
-   optimizers::PowerLaw *pl = new optimizers::PowerLaw(1, -2, 100.);
+   static optimizers::FunctionFactory funcFactory;
+   optimizers::Function * pl = funcFactory.create("PowerLaw");
+   double parValues[] = {1., -2., 100.};
+   std::vector<double> pars(parValues, parValues + 3);
+   pl->setParamValues(pars);
+
    optimizers::Parameter indexParam = pl->getParam("Index");
    indexParam.setBounds(-3.5, -1.);
    pl->setParam(indexParam);
