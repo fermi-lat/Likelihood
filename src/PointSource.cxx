@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.44 2004/07/19 14:16:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.45 2004/07/21 04:00:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -262,6 +262,7 @@ void PointSource::makeEnergyVector(int nee) {
    double trueEmin(18.);
    double trueEmax(3.17e5);
    double trueEstep = log(trueEmax/trueEmin)/(npts-1.);
+   s_trueEnergies.clear();
    s_trueEnergies.reserve(npts);
    for (int i = 0; i < npts; i++) {
       s_trueEnergies.push_back(trueEmin*exp(i*trueEstep));
