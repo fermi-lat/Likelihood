@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.18 2005/02/01 00:01:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.19 2005/02/27 06:42:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.18 2005/02/01 00:01:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.19 2005/02/27 06:42:26 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -136,7 +136,8 @@ void TsMap::readEventData() {
    std::vector<std::string>::const_iterator evIt = eventFiles.begin();
    for ( ; evIt != eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-      m_logLike->getEvents(*evIt);
+//      m_logLike->getEvents(*evIt);
+      m_helper->observation().eventCont().getEvents(*evIt);
    }
    m_logLike->computeEventResponses();
 }

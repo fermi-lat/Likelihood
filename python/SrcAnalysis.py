@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.18 2005/03/04 22:08:25 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.19 2005/03/05 00:06:36 jchiang Exp $
 #
 import os
 import numarray as num
@@ -13,41 +13,25 @@ from SrcModel import SourceModel
 
 _funcFactory = pyLike.SourceFactory_funcFactory()
 
-class SrcAnalysis(object):
-    def __init__(self, srcModel, eventFile, scFile, expMap=None, irfs='TEST',
-                 optimizer='Minuit'):
-        self.optimizer = optimizer
-        self.respFuncs = pyLike.ResponseFunctions()
-        self.respFuncs.load(irfs)
-        self.expMap = pyLike.ExposureMap()
+class Observation(object):
+    def __init__(self, eventFile, scFile, expMap=None, irfs='TEST'):
+        self._inputs = eventFile, scFile, expMap, irfs
+        self._respFuncs = pyLike.ResponseFunctions()
+        self._respFuncs.load(irfs)
+        self._expMap = pyLike.ExposureMap()
         if expMap is not None:
-            self.expMap.readExposureFile(expMap)
-        self.scData = pyLike.ScData()
-        self.roiCuts = pyLike.RoiCuts()
-        self.expCube = pyLike.ExposureCube()
-        self.eventCont = pyLike.EventContainer(self.respFuncs, self.roiCuts,
-                                               self.scData)
-        observation = pyLike.Observation(self.respFuncs,
-                                         self.scData,
-                                         self.roiCuts,
-                                         self.expCube,
-                                         self.expMap,
-                                         self.eventCont)
-        self.observation = observation
-        self.logLike = pyLike.LogLike(self.observation)
+            self._expMap.readExposureFile(expMap)
+        self._scData = pyLike.ScData()
+        self._roiCuts = pyLike.RoiCuts()
+        self._expCube = pyLike.ExposureCube()
+        self._eventCont = pyLike.EventContainer(self._respFuncs, self._roiCuts,
+                                                self._scData)
+        self.observation = pyLike.Observation(self._respFuncs, self._scData,
+                                              self._roiCuts, self._expCube,
+                                              self._expMap, self._eventCont)
         self._readData(scFile, eventFile)
-        self.events = self.observation.eventCont().events();
-        self.logLike.readXml(srcModel, _funcFactory)
-        self.logLike.computeEventResponses()
-        self.model = SourceModel(self.logLike)
-        eMin, eMax = self.roiCuts.getEnergyCuts()
-        nee = 21
-        estep = num.log(eMax/eMin)/(nee-1)
-        self.energies = eMin*num.exp(estep*num.arange(nee, type=num.Float))
-        self.disp = None
-        self.resids = None
     def __call__(self):
-        return -self.logLike.value()
+        return self.observation
     def _fileList(self, files):
         if isinstance(files, str):
             return [files]
@@ -58,14 +42,40 @@ class SrcAnalysis(object):
         self._readEvents(eventFile)
     def _readScData(self, scFile):
         scFiles = self._fileList(scFile)
-        self.scData.readData(scFiles[0], True)
+        self._scData.readData(scFiles[0], True)
         for file in scFiles[1:]:
-            self.scData.readData(scFile)
+            self._scData.readData(scFile)
     def _readEvents(self, eventFile):
         eventFiles = self._fileList(eventFile)
-        self.roiCuts.readCuts(eventFiles[0])
+        self._roiCuts.readCuts(eventFiles[0])
         for file in eventFiles:
-            self.observation.eventCont().getEvents(file)
+            self._eventCont.getEvents(file)
+    def __getattr__(self, attrname):
+        return getattr(self.observation, attrname)
+    def __repr__(self):
+        lines = []
+        for item in self._inputs:
+            lines.append(item.__repr__().strip("'"))
+        return '\n'.join(lines)
+
+class SrcAnalysis(object):
+    def __init__(self, srcModel, observation, optimizer='Minuit'):
+        self._inputs = srcModel, observation, optimizer
+        self.observation = observation
+        self.optimizer = optimizer
+        self.events = self.observation.eventCont().events();
+        self.logLike = pyLike.LogLike(self.observation())
+        self.logLike.readXml(srcModel, _funcFactory)
+        self.logLike.computeEventResponses()
+        self.model = SourceModel(self.logLike)
+        eMin, eMax = self.observation.roiCuts().getEnergyCuts()
+        nee = 21
+        estep = num.log(eMax/eMin)/(nee-1)
+        self.energies = eMin*num.exp(estep*num.arange(nee, type=num.Float))
+        self.disp = None
+        self.resids = None
+    def __call__(self):
+        return -self.logLike.value()
     def _Nobs(self, emin, emax):
         nobs = 0
         for event in self.events:
@@ -161,10 +171,15 @@ class SrcAnalysis(object):
                 self.model[i].setError(errors[j])
                 j += 1
         return errors
+    def __repr__(self):
+        lines = []
+        for item in self._inputs:
+            lines.append(item.__repr__().strip("'"))
+        return '\n'.join(lines)
 
 if __name__ == '__main__':
-    srcAnalysis = SrcAnalysis('galdiffuse_model.xml',
-                              'galdiffuse_events_0000.fits',
+    observation = Observation('galdiffuse_events_0000.fits',
                               'galdiffuse_scData_0000.fits',
                               'expMap_test.fits')
+    srcAnalysis = SrcAnalysis('galdiffuse_model.xml', observation)
     srcAnalysis.plot('Galactic Diffuse')

@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v7r0p1 04-Mar-05  JC   explicit save() for exposure_cube, update 
+                           SrcAnalysis to use Observation explicitly
     v7     04-Mar-05  JC   major refactoring: conversion of Singletons
                            RoiCuts, ScData, ExposureMap, ExposureCube,
                            ResponseFunctions to proper classes; added new
