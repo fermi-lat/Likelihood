@@ -3,7 +3,7 @@
  * @brief Psf averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.3 2004/10/05 23:52:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.4 2004/11/08 03:22:22 jchiang Exp $
  */
 
 #include <algorithm>
@@ -81,7 +81,7 @@ void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
 double MeanPsf::Psf::s_phi(0);
 
 double MeanPsf::Psf::operator()(double cosTheta) const {
-   double inclination = acos(cosTheta);
+   double inclination = acos(cosTheta)*180./M_PI;
    std::map<unsigned int, irfInterface::Irfs *>::iterator respIt 
       = ResponseFunctions::instance()->begin();
    for ( ; respIt != ResponseFunctions::instance()->end(); ++respIt) {

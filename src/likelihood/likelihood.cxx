@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.47 2004/11/05 00:09:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.48 2004/11/06 00:00:36 jchiang Exp $
  */
 
 #include <cmath>
@@ -31,6 +31,7 @@
 #endif // HAVE_OPT_PP
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/ExposureCube.h"
@@ -39,6 +40,7 @@
 #include "Likelihood/OptEM.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
+#include "Likelihood/SourceMap.h"
 
 #include "EasyPlot.h"
 
@@ -51,7 +53,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.47 2004/11/05 00:09:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.48 2004/11/06 00:00:36 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -167,6 +169,7 @@ void likelihood::promptForParameters() {
    if (m_statistic == "BINNED") {
       m_pars.Prompt("counts_map_file");
       m_pars.Prompt("exposure_cube_file");
+      m_pars.Prompt("binned_exposure_map");
    } else {
       m_pars.Prompt("Spacecraft_file");
       m_pars.Prompt("event_file");
@@ -187,6 +190,10 @@ void likelihood::createStatistic() {
       st_facilities::Util::file_ok(countsMapFile);
       m_dataMap = new CountsMap(countsMapFile);
       m_logLike = new BinnedLikelihood(*m_dataMap, countsMapFile);
+      std::string binnedMap = m_pars["binned_exposure_map"];
+      if (binnedMap != "none" || binnedMap != "") {
+         SourceMap::setBinnedExposure(new BinnedExposure(binnedMap));
+      }
       return;
    } else if (m_statistic == "OPTEM") {
       m_logLike = new OptEM();
