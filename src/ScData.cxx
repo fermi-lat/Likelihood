@@ -3,10 +3,9 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.29 2004/10/11 01:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.30 2004/11/28 06:58:21 jchiang Exp $
  */
 
-#include <cassert>
 #include <cmath>
 
 #include <algorithm>

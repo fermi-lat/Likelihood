@@ -3,9 +3,9 @@
  * @brief Implementation of a friendly user interface to st_graph.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.4 2004/11/28 06:58:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.5 2005/01/03 23:02:32 jchiang Exp $
  */
-
+#ifdef HAVE_ST_GRAPH
 #include <iostream>
 #include <stdexcept>
 
@@ -163,3 +163,4 @@ void EasyPlot::run() {
    st_graph::Engine & engine(st_graph::Engine::instance());
    engine.run();
 }
+#endif // HAVE_ST_GRAPH

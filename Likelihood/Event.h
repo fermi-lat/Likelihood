@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.29 2004/08/06 14:58:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.30 2004/12/01 16:46:26 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.29 2004/08/06 14:58:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.30 2004/12/01 16:46:26 jchiang Exp $
  */
 
 class Event {
@@ -144,7 +144,6 @@ private:
    /// Angular arrays over the source region for the diffuse integrals.
    static std::vector<double> s_mu;
    static std::vector<double> s_phi;
-   static FitsImage::EquinoxRotation s_eqRot;
    static bool s_haveSourceRegionData;
 
    /// @todo Find a rational way of defining the source region radius.
