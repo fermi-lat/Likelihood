@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 16 23:20:01 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h PointSource.h ResponseFunctions.h Source.h 
+Log Message:
+clean up ResponseFunctions
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 16 13:34:22 PST 2005
 Likelihood/doc
 
