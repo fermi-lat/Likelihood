@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.40 2005/02/15 00:34:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.41 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -214,10 +214,12 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
       }
    }
 
-   Source * src = new PointSource();
-//    dynamic_cast<PointSource *>(src)->setDir(ra, dec);
-   bool updateExposure(true);
-   src->setDir(ra, dec, updateExposure, m_verbose);
+//    Source * src = new PointSource();
+// //    dynamic_cast<PointSource *>(src)->setDir(ra, dec);
+//    bool updateExposure(true);
+//    src->setDir(ra, dec, updateExposure, m_verbose);
+
+   Source * src = new PointSource(ra, dec, m_verbose);
 
    try {
       setSpectrum(src, spectrum, funcFactory);

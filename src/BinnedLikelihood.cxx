@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.19 2005/01/06 23:42:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.20 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <memory>
@@ -128,10 +128,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 }
 
 CountsMap * BinnedLikelihood::createCountsMap() const {
-//    if (ExposureCube::instance() == 0) {
-//       std::runtime_error("BinnedLikelihood::createCountsMap:\n"
-//                          + std::string("Exposure cube not available."));
-//    }
    std::vector<double> map;
    computeModelMap(map);
 

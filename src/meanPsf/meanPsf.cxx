@@ -18,7 +18,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/MeanPsf.h"
-#include "Likelihood/ResponseFunctions.h"
+//#include "Likelihood/ResponseFunctions.h"
 
 using namespace Likelihood;
 
@@ -72,7 +72,7 @@ void meanPsf::run() {
    computeThetas();
    double ra = m_pars["ra"];
    double dec = m_pars["dec"];
-   m_meanPsf = new MeanPsf(ra, dec, m_energies);
+   m_meanPsf = new MeanPsf(ra, dec, m_energies, m_helper->observation());
    writeFitsFile();
    delete m_meanPsf;
 }

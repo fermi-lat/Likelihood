@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.28 2004/09/22 22:49:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.29 2004/12/30 00:28:22 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.28 2004/09/22 22:49:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.29 2004/12/30 00:28:22 jchiang Exp $
  */
 
 class Source {
@@ -127,6 +127,9 @@ protected:
 
    /// map of Functions describing this source
    FuncMap m_functions;
+
+   /// flag to indicate if energy dispersion is to be used.
+   bool m_useEdisp;
 
 };
 
