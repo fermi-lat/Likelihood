@@ -4,7 +4,7 @@
  * edge spectral component
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.8 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.9 2003/08/06 20:52:06 jchiang Exp $
  */
 
 #include <vector>
@@ -32,6 +32,8 @@ void AbsEdge::init(double Tau0, double E0, double Index) {
 // set FuncType and ArgType for use with CompositeFunction hierarchy
    m_funcType = Factor;
    m_argType = "dArg";
+
+   m_genericName = "AbsEdge";
 }
 
 double AbsEdge::value(optimizers::Arg &xarg) const {

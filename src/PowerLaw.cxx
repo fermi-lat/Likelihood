@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.cxx,v 1.13 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.cxx,v 1.14 2003/08/06 20:52:07 jchiang Exp $
  */
 
 #include <vector>
@@ -32,6 +32,8 @@ void PowerLaw::init(double Prefactor, double Index, double Scale) {
 // set FuncType and ArgType for use with CompositeFunction hierarchy
    m_funcType = Addend;
    m_argType = "dArg";
+
+   m_genericName = "PowerLaw";
 }
 
 double PowerLaw::value(optimizers::Arg &xarg) const {
