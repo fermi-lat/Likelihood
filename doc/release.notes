@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v6r2p1 03-Jan-05  JC   updates for map_tools v5r8p2
     v6r2   30-Dec-04  JC   check for Diffuse columns in diffuseResponses
     v6r1   29-Dec-04  JC   sync up to optimizers v2; adjust DSS checking
     v6r0p1 20-Dec-04  JC   more ROI removal
