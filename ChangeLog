@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov 10 15:06:16 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	RunParams.h SkyDirFunction.h SpectrumFactory.h 
+Removed Files:
+	ConstantValue.h 
+Log Message:
+use Function classes from optimizer package; remove redundant code
+    *
+------------------------------------------------------------
 User: cohen  Mon Nov 10 04:54:39 PST 2003
 Likelihood/src
 
