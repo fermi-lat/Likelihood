@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.22 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.23 2004/11/28 06:58:21 jchiang Exp $
  */
 #include <utility>
 #include <algorithm>
@@ -84,12 +84,6 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
 void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
                                        optimizers::Function * spatialDist,
                                        std::vector<double> &exposure) {
-
-// Get the exposure multiplied by the solid angle of the associated
-// pixel
-   std::vector< std::vector<double> > my_exposure;
-   getExposure(my_exposure);
-
    exposure.clear();
    exposure.reserve(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
@@ -109,24 +103,14 @@ void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
       int kk = iterE - s_energies.begin();
       for (unsigned int j = 0; j < s_ra.size(); j++) {
          double expsr = log(energies[k]/(*(iterE-1)))/log(*iterE/(*(iterE-1)));
-         expsr = expsr*(my_exposure[kk][j] - my_exposure[kk-1][j])
-            + my_exposure[kk-1][j];
+         expsr = expsr*(s_exposure[kk][j] - s_exposure[kk-1][j])
+            + s_exposure[kk-1][j];
 
          astro::SkyDir skyDir(s_ra[j], s_dec[j]);
          SkyDirArg dir(skyDir);
          srcExposure += expsr*(*spatialDist)(dir);
       }
       exposure.push_back(srcExposure);
-   }
-}
-
-void ExposureMap::getExposure(std::vector< std::vector<double> > 
-                                &exposure) {
-   if (!exposure.empty()) exposure.clear();
-
-   exposure.reserve(s_exposure.size());
-   for (unsigned int i = 0; i < s_exposure.size(); i++) {
-      exposure.push_back(s_exposure[i]);
    }
 }
 

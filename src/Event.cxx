@@ -3,10 +3,9 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.41 2004/12/05 22:25:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.42 2004/12/30 00:28:23 jchiang Exp $
  */
 
-#include <cassert>
 #include <cctype>
 
 #include <algorithm>
