@@ -3,11 +3,11 @@
  * @brief Response base class declaration
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.18 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.19 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef Response_h
-#define Response_h
+#ifndef Likelihood_Response_h
+#define Likelihood_Response_h
 
 #include <iostream>
 #include <valarray>
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.18 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.19 2003/06/11 17:08:02 jchiang Exp $
  */
 
 class Response {
@@ -64,4 +64,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // Response_h
+#endif // Likelihood_Response_h

@@ -3,11 +3,11 @@
  * @brief Declaration of the TrapQuad class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.5 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.6 2003/05/29 21:52:30 jchiang Exp $
  */
 
-#ifndef TrapQuad_h
-#define TrapQuad_h
+#ifndef Likelihood_TrapQuad_h
+#define Likelihood_TrapQuad_h
 
 #include "Likelihood/Function.h"
 
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.5 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.6 2003/05/29 21:52:30 jchiang Exp $
  */
 
 class TrapQuad {
@@ -59,4 +59,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // TrapQuad_h
+#endif // Likelihood_TrapQuad_h

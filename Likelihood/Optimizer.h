@@ -1,13 +1,14 @@
-/** @file Optimizer.h
+/** 
+ * @file Optimizer.h
  * @brief Declaration of Optimizer base class
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Optimizer.h,v 1.11 2003/05/20 21:13:04 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Optimizer.h,v 1.12 2003/06/10 19:19:55 jchiang Exp $
  */
 
-#ifndef Optimizer_h
-#define Optimizer_h
+#ifndef Likelihood_Optimizer_h
+#define Likelihood_Optimizer_h
 
 #include <iostream>
 
@@ -22,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Optimizer.h,v 1.11 2003/05/20 21:13:04 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Optimizer.h,v 1.12 2003/06/10 19:19:55 jchiang Exp $
  */
 
 class Optimizer {
@@ -40,4 +41,4 @@ protected:
 
 } // namespace Likelhood
 
-#endif // Optimizer_h
+#endif // Likelihood_Optimizer_h

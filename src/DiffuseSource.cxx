@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.6 2003/05/29 00:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.7 2003/06/10 23:58:51 jchiang Exp $
  */
 
 #include <vector>
@@ -17,7 +17,7 @@
 #include "Likelihood/dArg.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/ExposureMap.h"
-#include "LikelihoodException.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 

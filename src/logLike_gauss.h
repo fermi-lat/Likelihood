@@ -3,11 +3,11 @@
  * @brief Declaration of logLike_gauss class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.8 2003/05/20 18:26:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.9 2003/06/11 17:08:05 jchiang Exp $
  */
 
-#ifndef logLike_gauss_h
-#define logLike_gauss_h
+#ifndef Likelihood_logLike_gauss_h
+#define Likelihood_logLike_gauss_h
 
 #include "Likelihood/Statistic.h"
 #include "Likelihood/Arg.h"
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.8 2003/05/20 18:26:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.9 2003/06/11 17:08:05 jchiang Exp $
  */
 
 class logLike_gauss : public Statistic {
@@ -43,4 +43,4 @@ public:
 
 } // namespace Likelihood
 
-#endif // logLike_gauss_h
+#endif // Likelihood_logLike_gauss_h

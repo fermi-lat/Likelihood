@@ -3,11 +3,11 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.6 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef RoiCuts_h
-#define RoiCuts_h
+#ifndef Likelihood_RoiCuts_h
+#define Likelihood_RoiCuts_h
 
 #include <vector>
 #include <string>
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.6 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  */
 
 class RoiCuts {
@@ -88,4 +88,4 @@ private:
 };
 
 } // namespace Likelihood
-#endif // RoiCuts_h
+#endif // Likelihood_RoiCuts_h

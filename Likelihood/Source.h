@@ -4,11 +4,11 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.17 2003/05/02 19:02:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.18 2003/05/29 20:10:30 jchiang Exp $
  */
 
-#ifndef Source_h
-#define Source_h
+#ifndef Likelihood_Source_h
+#define Likelihood_Source_h
 
 #include <iostream>
 #include <map>
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.17 2003/05/02 19:02:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.18 2003/05/29 20:10:30 jchiang Exp $
  */
 
 class Source {
@@ -83,4 +83,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // Source_h
+#endif // Likelihood_Source_h

@@ -3,11 +3,11 @@
  * @brief Psf class implementation
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.14 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.15 2003/06/19 20:16:04 jchiang Exp $
  */
 
-#ifndef Psf_h
-#define Psf_h
+#ifndef Likelihood_Psf_h
+#define Likelihood_Psf_h
 
 #include "Likelihood/Response.h"
 #include "Likelihood/Table.h"
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.14 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.15 2003/06/19 20:16:04 jchiang Exp $
  */
 
 class Psf : public Response {
@@ -79,4 +79,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // Psf_h
+#endif // Likelihood_Psf_h

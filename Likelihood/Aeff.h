@@ -2,12 +2,12 @@
  * @file Aeff.h
  * @brief Interface definition for the LAT Effective Area class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.14 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.15 2003/06/19 20:16:04 jchiang Exp $
  *
  */
 
-#ifndef Aeff_h
-#define Aeff_h
+#ifndef Likelihood_Aeff_h
+#define Likelihood_Aeff_h
 
 #include "Likelihood/Response.h"
 #include "Likelihood/Table.h"
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.14 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.15 2003/06/19 20:16:04 jchiang Exp $
  */
 
 class Aeff : public Response {
@@ -72,4 +72,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // Aeff_h
+#endif // Likelihood_Aeff_h

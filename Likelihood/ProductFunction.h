@@ -3,11 +3,11 @@
  * @brief Declaration of ProductFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef ProductFunction_h
-#define ProductFunction_h
+#ifndef Likelihood_ProductFunction_h
+#define Likelihood_ProductFunction_h
 
 #include "Likelihood/CompositeFunction.h"
 
@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  *
  */
     
@@ -43,4 +43,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // ProductFunction_h
+#endif // Likelihood_ProductFunction_h

@@ -2,12 +2,12 @@
  * @file FunctionTest.cxx
  * @brief Unit test implementation for Function class hierarchy
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FunctionTest.cxx,v 1.3 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FunctionTest.cxx,v 1.4 2003/06/11 17:08:04 jchiang Exp $
  */
 
 #include <cassert>
 #include "Likelihood/FunctionTest.h"
-#include "LikelihoodException.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 

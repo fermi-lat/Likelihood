@@ -3,11 +3,11 @@
  * @brief Declaration of logSrcModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  */
 
-#ifndef logSrcModel_h
-#define logSrcModel_h
+#ifndef Likelihood_logSrcModel_h
+#define Likelihood_logSrcModel_h
 
 #include <vector>
 #include <string>
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.7 2003/06/11 17:08:02 jchiang Exp $
  */
 
 class logSrcModel : public SourceModel {
@@ -55,4 +55,4 @@ protected:
 
 } // namespace Likelihood
 
-#endif // logSrcModel_h
+#endif // Likelihood_logSrcModel_h

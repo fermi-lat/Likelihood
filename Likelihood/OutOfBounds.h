@@ -2,11 +2,11 @@
  * @file OutOfBounds.h
  * @brief Declaration/definition of OutOfBounds exception class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OutOfBounds.h,v 1.1 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OutOfBounds.h,v 1.1 2003/06/19 20:16:04 jchiang Exp $
  */
 
-#ifndef OutOfBounds_h
-#define OutOfBounds_h
+#ifndef Likelihood_OutOfBounds_h
+#define Likelihood_OutOfBounds_h
 
 #include "Likelihood/LikelihoodException.h"
 
@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OutOfBounds.h,v 1.1 2003/06/10 23:58:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OutOfBounds.h,v 1.1 2003/06/19 20:16:04 jchiang Exp $
  */
 
 class OutOfBounds : public LikelihoodException {
@@ -50,4 +50,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // OutOfBounds_h
+#endif // Likelihood_OutOfBounds_h

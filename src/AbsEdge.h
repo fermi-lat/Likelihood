@@ -3,11 +3,11 @@
  * @brief AbsEdge class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.5 2003/05/29 00:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.6 2003/05/29 20:10:45 jchiang Exp $
  */
 
-#ifndef AbsEdge_h
-#define AbsEdge_h
+#ifndef Likelihood_AbsEdge_h
+#define Likelihood_AbsEdge_h
 
 #include "Likelihood/Function.h"
 
@@ -23,7 +23,7 @@ class Arg;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.5 2003/05/29 00:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.6 2003/05/29 20:10:45 jchiang Exp $
  */
     
 class AbsEdge : public Function {
@@ -53,5 +53,5 @@ private:
 
 } // namespace Likelihood
 
-#endif // AbsEdge_h
+#endif // Likelihood_AbsEdge_h
 
