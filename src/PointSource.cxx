@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.60 2005/03/03 00:17:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.61 2005/03/03 07:07:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -184,7 +184,8 @@ double PointSource::Npred() {
 
 // Evaluate the Npred integrand at the abscissa points contained in
 // RoiCuts::energies().
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies = 
+      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
    std::vector<double> NpredIntegrand(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
       optimizers::dArg eArg(energies[k]);
@@ -195,7 +196,8 @@ double PointSource::Npred() {
 }
 
 double PointSource::Npred(double emin, double emax) {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies = 
+      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
 
    if (emin < energies.front() || emax > energies.back()) {
       throw std::out_of_range("PointSource::Npred(emin, emax)");
@@ -235,7 +237,8 @@ double PointSource::Npred(double emin, double emax) {
 }
 
 double PointSource::NpredDeriv(const std::string &paramName) {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies = 
+      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
 
    optimizers::Function *specFunc = m_functions["Spectrum"];
 
@@ -272,7 +275,8 @@ double PointSource::pixelCountsDeriv(double emin, double emax,
 }
 
 void PointSource::computeExposure(bool verbose) {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies = 
+      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
 
    astro::SkyDir srcDir = getDir();
    if (m_observation->expCube().haveFile()) {

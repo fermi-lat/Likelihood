@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.32 2005/03/01 07:17:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.33 2005/03/02 21:03:34 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -25,23 +25,6 @@
 #include "Likelihood/RoiCuts.h"
 
 namespace Likelihood {
-
-std::vector<RoiCuts::timeInterval> RoiCuts::s_timeCuts;
-double RoiCuts::s_eMin(20.);
-double RoiCuts::s_eMax(2e5);
-irfInterface::AcceptanceCone RoiCuts::s_roiCone;
-double RoiCuts::s_muZenMax;
-
-dataSubselector::Cuts * RoiCuts::s_cuts(0);
-
-RoiCuts * RoiCuts::s_instance(0);
-
-RoiCuts * RoiCuts::instance() {
-   if (s_instance == 0) {
-      s_instance = new RoiCuts();
-   }
-   return s_instance;
-}
 
 void RoiCuts::addTimeInterval(double tmin, double tmax) {
    s_timeCuts.push_back(std::make_pair(tmin, tmax));
@@ -68,8 +51,8 @@ void RoiCuts::setCuts(double ra, double dec, double roi_radius,
 void RoiCuts::readCuts(const std::string & eventFile, 
                        const std::string & ext, bool strict) {
    s_cuts = new dataSubselector::Cuts(eventFile, ext, false);
-   s_instance->sortCuts(strict);
-   s_instance->setRoiData();
+   sortCuts(strict);
+   setRoiData();
 }
 
 void RoiCuts::writeDssKeywords(tip::Header & header) const {

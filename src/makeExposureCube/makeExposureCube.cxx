@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.26 2005/02/27 06:42:27 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.27 2005/03/01 01:07:03 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,7 +36,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.26 2005/02/27 06:42:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.27 2005/03/01 01:07:03 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -46,6 +46,7 @@ public:
    virtual ~ExposureCube() throw() {
       try {
          delete m_exposure;
+         delete m_roiCuts;
       } catch (std::exception &eObj) {
          std::cerr << eObj.what() << std::endl;
       } catch (...) {
@@ -99,7 +100,7 @@ void ExposureCube::promptForParameters() {
 
 void ExposureCube::readRoiCuts() {
    std::string event_file = m_pars["evfile"];
-   m_roiCuts = Likelihood::RoiCuts::instance();
+   m_roiCuts = new Likelihood::RoiCuts();
    m_roiCuts->readCuts(m_pars["evfile"], "EVENTS", false);
 }
 

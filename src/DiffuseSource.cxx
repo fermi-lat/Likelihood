@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.24 2005/03/01 07:17:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.25 2005/03/02 01:10:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -36,7 +36,8 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
 // available; furthermore, the ExposureMap object must have been
 // created.
    if (requireExposure) {
-      const std::vector<double> & energies = observation.roiCuts().energies();
+      RoiCuts & roiCuts = const_cast<RoiCuts &>(observation.roiCuts());
+      const std::vector<double> & energies = roiCuts.energies();
       observation.expMap().integrateSpatialDist(energies, spatialDist,
                                                 m_exposure);
    }
@@ -119,7 +120,8 @@ double DiffuseSource::Npred() {
 // Evaluate the Npred integrand at the abscissa points contained in
 // RoiCuts::energies().
 
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   RoiCuts & roiCuts = const_cast<RoiCuts &>(m_observation->roiCuts());
+   const std::vector<double> & energies = roiCuts.energies();
 
    std::vector<double> NpredIntegrand(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
@@ -133,7 +135,8 @@ double DiffuseSource::Npred() {
 double DiffuseSource::NpredDeriv(const std::string &paramName) {
    optimizers::Function * specFunc = m_functions["Spectrum"];
 
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies = 
+      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
 
    if (paramName == std::string("Prefactor")) {
       return Npred()/specFunc->getParamValue("Prefactor");
@@ -150,7 +153,8 @@ double DiffuseSource::NpredDeriv(const std::string &paramName) {
 }
 
 double DiffuseSource::Npred(double emin, double emax) {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies = 
+      const_cast<RoiCuts &>(m_observation->roiCuts()).energies();
 
    if (emin < energies.front() || emax > energies.back()) {
       throw std::out_of_range("DiffuseSource::Npred(emin, emax)");

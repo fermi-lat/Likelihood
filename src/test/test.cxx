@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.59 2005/03/01 01:07:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.60 2005/03/01 07:17:08 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -112,6 +112,11 @@ public:
 private:
 
    Observation * m_observation;
+   static RoiCuts * m_roiCuts;
+   static ScData * m_scData;
+   static ExposureCube * m_expCube;
+   static ExposureMap * m_expMap;
+   static ResponseFunctions * m_respFuncs;
 
    std::string m_rootPath;
    double m_fracTol;
@@ -136,7 +141,7 @@ private:
                                       const std::string & expMapFile="",
                                       const std::string & sourceXmlFile="",
                                       bool requireExposure=true,
-                                      bool verbose=false);
+                                      bool verbose=true);
 
    void readEventData(const std::string & eventFile,
                       const std::string & scDataFile,
@@ -149,8 +154,26 @@ private:
 
 #define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(fabs( (X - Y)/Y ) < m_fracTol)
 
+RoiCuts * LikelihoodTests::m_roiCuts(0);
+ScData * LikelihoodTests::m_scData(0);
+ExposureCube * LikelihoodTests::m_expCube(0);
+ExposureMap * LikelihoodTests::m_expMap(0);
+ResponseFunctions * LikelihoodTests::m_respFuncs(0);
+
 void LikelihoodTests::setUp() {
+   if (m_respFuncs == 0) m_respFuncs = new ResponseFunctions();
+   if (m_scData == 0) m_scData = new ScData();
+   if (m_roiCuts == 0) m_roiCuts = new RoiCuts();
+   if (m_expCube == 0) m_expCube = new ExposureCube();
+   if (m_expMap == 0) m_expMap = new ExposureMap();
+   m_observation = new Observation(m_respFuncs,
+                                   m_scData,
+                                   m_roiCuts,
+                                   m_expCube,
+                                   m_expMap);
+
    Verbosity::instance(0);
+
 // Get root path to test data.
    const char * root = std::getenv("LIKELIHOODROOT");
    if (!root) {  //use relative path from cmt directory
@@ -158,15 +181,16 @@ void LikelihoodTests::setUp() {
    } else {
       m_rootPath = std::string(root);
    }
+
 // Prepare the ResponseFunctions object.
    dc1Response::loadIrfs();
    g25Response::loadIrfs();
    irfInterface::IrfsFactory * myFactory 
       = irfInterface::IrfsFactory::instance();
-//    ResponseFunctions::addRespPtr(0, myFactory->create("DC1::Front"));
-//    ResponseFunctions::addRespPtr(1, myFactory->create("DC1::Back"));
-   ResponseFunctions::addRespPtr(0, myFactory->create("Glast25::Front"));
-   ResponseFunctions::addRespPtr(1, myFactory->create("Glast25::Back"));
+//    m_respFuncs->addRespPtr(0, myFactory->create("DC1::Front"));
+//    m_respFuncs->addRespPtr(1, myFactory->create("DC1::Back"));
+   m_respFuncs->addRespPtr(0, myFactory->create("Glast25::Front"));
+   m_respFuncs->addRespPtr(1, myFactory->create("Glast25::Back"));
 
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
@@ -178,12 +202,6 @@ void LikelihoodTests::setUp() {
    m_scFile = m_rootPath + "/data/oneday_scData_0000.fits";
    m_expMapFile = m_rootPath + "/data/anticenter_expMap.fits";
    m_sourceXmlFile = m_rootPath + "/data/anticenter_model.xml";
-
-   m_observation = new Observation(ResponseFunctions::instance(),
-                                   ScData::instance(),
-                                   RoiCuts::instance(),
-                                   ExposureCube::instance(),
-                                   ExposureMap::instance());
 }
 
 void LikelihoodTests::tearDown() {
@@ -192,27 +210,24 @@ void LikelihoodTests::tearDown() {
    delete m_srcFactory;
    m_srcFactory = 0;
 // @todo Use iterators to traverse RespPtr map for key deletion.
-   ResponseFunctions::deleteRespPtr(0);
-   ResponseFunctions::deleteRespPtr(1);
+   m_respFuncs->deleteRespPtr(0);
+   m_respFuncs->deleteRespPtr(1);
    std::remove(m_fluxXmlFile.c_str());
    std::remove(m_srcModelXmlFile.c_str());
-   delete m_observation;
-   m_observation = 0;
 }
 
 void LikelihoodTests::test_RoiCuts() {
-   RoiCuts * roiCuts = RoiCuts::instance();
-   roiCuts->setCuts();
+   m_roiCuts->setCuts();
 
 // Compare to known default values.
    std::vector<std::pair<double, double> > tlims;
-   roiCuts->getTimeCuts(tlims);
+   m_roiCuts->getTimeCuts(tlims);
    static double tmin = 0;
    static double tmax = 1e12;
    CPPUNIT_ASSERT(fabs(tlims[0].first - tmin) == 0);
    ASSERT_EQUALS(tlims[0].second, tmax);
 
-   std::pair<double, double> energies = roiCuts->getEnergyCuts();
+   std::pair<double, double> energies = m_roiCuts->getEnergyCuts();
    static double emin = 30.;
    static double emax = 3.1623e5;
    ASSERT_EQUALS(energies.first, emin);
@@ -222,16 +237,16 @@ void LikelihoodTests::test_RoiCuts() {
    static double dec = -5.82;
    static double radius = 20.;
    irfInterface::AcceptanceCone roiCone(astro::SkyDir(ra, dec), radius);
-   CPPUNIT_ASSERT(roiCone == roiCuts->extractionRegion());
+   CPPUNIT_ASSERT(roiCone == m_roiCuts->extractionRegion());
    double my_ra, my_dec;
-   roiCuts->getRaDec(my_ra, my_dec);
+   m_roiCuts->getRaDec(my_ra, my_dec);
    ASSERT_EQUALS(my_ra, ra);
    ASSERT_EQUALS(my_dec, dec);
 
 //    std::remove(xmlFile.c_str());
 
 //    std::string infile = m_rootPath + "/data/oneday_events_0000.fits";
-//    roiCuts->readCuts(infile);
+//    m_roiCuts->readCuts(infile);
 }
 
 void LikelihoodTests::test_SourceFactory() {
@@ -420,13 +435,13 @@ void LikelihoodTests::test_SourceDerivs() {
    double dec(28.9);
    double energy(1e3);
    double time(1e3);
-   ScData * scData = ScData::instance();
-   CPPUNIT_ASSERT(scData != 0);
-   astro::SkyDir zAxis = scData->zAxis(time);
+   CPPUNIT_ASSERT(m_scData != 0);
+   astro::SkyDir zAxis = m_scData->zAxis(time);
    double muZenith(1.);
    int type = 0;
    Event myEvent(ra, dec, energy, time, zAxis.ra(), zAxis.dec(), 
-                 muZenith, type);
+                 muZenith, m_respFuncs->useEdisp(), m_respFuncs->respName(), 
+                 type);
 
 // Loop over Sources and check fluxDensity and Npred derivatives
 // for each.
@@ -435,7 +450,7 @@ void LikelihoodTests::test_SourceDerivs() {
       CPPUNIT_ASSERT(src != 0);
       if (src->getType() == "Diffuse") {
          DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(src);
-         myEvent.computeResponse(*diffuse_src);
+         myEvent.computeResponse(*diffuse_src, *m_respFuncs);
       }
       Source::FuncMap srcFuncs = src->getSrcFuncs();
       CPPUNIT_ASSERT(srcFuncs.count("Spectrum"));
@@ -483,11 +498,9 @@ void LikelihoodTests::test_PointSource() {
 
    Source * src = srcFactory->create("Crab Pulsar");
 
-   RoiCuts * roiCuts = RoiCuts::instance();
-
    double Nobs = 0;
    for (unsigned int i = 0; i < events.size(); i++) {
-      if (roiCuts->accept(events[i])) {
+      if (m_roiCuts->accept(events[i])) {
          Nobs++;
       }
    }
@@ -508,13 +521,14 @@ void LikelihoodTests::test_PointSource() {
    for (int j = 0; j < 10; j++) {
       double tmin = j*tstep;
       double tmax = tmin + tstep;
-      roiCuts->setCuts(86.4, 28.9, 25., eminVals[j], 3.16e5, tmin, tmax, -1.);
+      m_roiCuts->setCuts(86.4, 28.9, 25., eminVals[j], 3.16e5,
+                         tmin, tmax, -1.);
 
       dynamic_cast<PointSource *>(src)->setDir(83.57, 22.01, true, false);
 
       Nobs = 0;
       for (unsigned int i = 0; i < events.size(); i++) {
-         if (roiCuts->accept(events[i])) {
+         if (m_roiCuts->accept(events[i])) {
             Nobs++;
          }
       }
@@ -546,19 +560,18 @@ void LikelihoodTests::test_DiffuseSource() {
       expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
 
       SourceFactory * srcFactory = srcFactoryInstance("", expMapFile.str());
-      RoiCuts * roiCuts = RoiCuts::instance();
 
       double tstep = 0.2*8.64e4;
       double tmin = i*tstep;
       double tmax = tmin + tstep;
-      roiCuts->setCuts(anticenter.ra(), anticenter.dec(), 20.,
+      m_roiCuts->setCuts(anticenter.ra(), anticenter.dec(), 20.,
                        30., 3.1623e5, tmin, tmax);
 
       Source * src = srcFactory->create("Galactic Diffuse");
 
       double Nobs = 0;
       for (unsigned int j = 0; j < events.size(); j++) {
-         if (roiCuts->accept(events[j])) {
+         if (m_roiCuts->accept(events[j])) {
             Nobs++;
          }
       }
@@ -576,7 +589,7 @@ void LikelihoodTests::test_DiffuseSource() {
 void LikelihoodTests::generate_exposureHyperCube() {
    srcFactoryInstance();
    std::vector<std::pair<double, double> > timeCuts;
-   RoiCuts::instance()->getTimeCuts(timeCuts);
+   m_roiCuts->getTimeCuts(timeCuts);
    LikeExposure exposure(1., 0.025, timeCuts);
    tip::Table * scData = tip::IFileSvc::instance().editTable(m_scFile, "Ext1");
    exposure.load(scData, false);
@@ -613,7 +626,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
-   ExposureCube::readExposureCube(exposureCubeFile);
+   m_expCube->readExposureCube(exposureCubeFile);
 
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
@@ -706,7 +719,7 @@ void LikelihoodTests::test_MeanPsf() {
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
-   ExposureCube::readExposureCube(exposureCubeFile);
+   m_expCube->readExposureCube(exposureCubeFile);
 
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
@@ -740,7 +753,7 @@ void LikelihoodTests::test_BinnedExposure() {
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
-   ExposureCube::readExposureCube(exposureCubeFile);
+   m_expCube->readExposureCube(exposureCubeFile);
 
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
@@ -774,7 +787,7 @@ void LikelihoodTests::test_SourceMap() {
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
-   ExposureCube::readExposureCube(exposureCubeFile);
+   m_expCube->readExposureCube(exposureCubeFile);
    
    CountsMap dataMap(singleSrcMap(3));
    dataMap.writeOutput("test.cxx", "cntsMap.fits");
@@ -793,8 +806,7 @@ void LikelihoodTests::readEventData(const std::string &eventFile,
                                     const std::string &scDataFile,
                                     std::vector<Event> &events) {
    events.clear();
-   ScData::readData(scDataFile, true);
-   ScData * scData = ScData::instance();
+   m_scData->readData(scDataFile, true);
 
    tip::Table * eventTable = 
       tip::IFileSvc::instance().editTable(eventFile, "events");
@@ -806,7 +818,7 @@ void LikelihoodTests::readEventData(const std::string &eventFile,
    tip::Table::Record & row = *it;
    
    for ( ; it != eventTable->end(); ++it) {
-      astro::SkyDir zAxis = scData->zAxis(time);
+      astro::SkyDir zAxis = m_scData->zAxis(time);
       row["conversion_layer"].get(conversion_layer);
       if (conversion_layer < 12) {
          type = 0;
@@ -819,7 +831,9 @@ void LikelihoodTests::readEventData(const std::string &eventFile,
       row["time"].get(time);
       row["zenith_angle"].get(zenith_angle);
       events.push_back(Event(ra, dec, energy, time, zAxis.ra(), zAxis.dec(),
-                             cos(zenith_angle*M_PI/180.), type));
+                             cos(zenith_angle*M_PI/180.),
+                             m_respFuncs->useEdisp(),
+                             m_respFuncs->respName(), type));
    }
 }   
 
@@ -838,19 +852,17 @@ srcFactoryInstance(const std::string & scFile,
                    const std::string & sourceXmlFile,
                    bool requireExposure, bool verbose) {
    if (m_srcFactory == 0) {
-      RoiCuts * roiCuts = RoiCuts::instance();
-      roiCuts->setCuts(86.404, 28.936, 25., 30., 3.1623e5, 0., 8.64e4);
-
+      m_roiCuts->setCuts(86.404, 28.936, 25., 30., 3.1623e5, 0., 8.64e4);
       if (scFile == "") {
-         ScData::readData(m_scFile, true);
+         m_scData->readData(m_scFile, true);
       } else {
-         ScData::readData(scFile, true);
+         m_scData->readData(scFile, true);
       }
 
       if (expMapFile == "") {
-         ExposureMap::readExposureFile(m_expMapFile);
+         m_expMap->readExposureFile(m_expMapFile);
       } else {
-         ExposureMap::readExposureFile(expMapFile);
+         m_expMap->readExposureFile(expMapFile);
       }
 
       optimizers::FunctionFactory * funcFactory = funcFactoryInstance();
