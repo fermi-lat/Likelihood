@@ -3,7 +3,7 @@
  * @brief Declaration of Parameter and OutOfBounds classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.15 2003/05/29 00:29:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.16 2003/06/10 18:18:29 burnett Exp $
  */
 
 #ifndef Parameter_h
@@ -30,12 +30,12 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.15 2003/05/29 00:29:39 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.16 2003/06/10 18:18:29 burnett Exp $ 
  */
 
-class OutOfBounds;
-
 class Parameter {
+
+   class OutOfBounds;
     
 public:
    
@@ -94,6 +94,40 @@ public:
    void setFree(bool free) {m_free = free;}
    bool isFree() const {return m_free;}
 
+/**
+ * @class OutOfBounds
+ *
+ * @brief Nested exception class to ensure set[True]Value and setBounds 
+ * methods behave consistently with regard to existing values.
+ *
+ * @author J. Chiang
+ *
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.16 2003/06/10 18:18:29 burnett Exp $
+ */
+
+class OutOfBounds : public LikelihoodException {
+
+public:
+   OutOfBounds(const std::string &errorString, double value, 
+               double minValue, double maxValue, int code) : 
+      LikelihoodException(errorString, code), m_value(value), 
+      m_minValue(minValue), m_maxValue(maxValue) {}
+   ~OutOfBounds() {}
+   
+   double value() {return m_value;}
+   double minValue() {return m_minValue;}
+   double maxValue() {return m_maxValue;}
+   
+   enum ERROR_CODES {VALUE_ERROR, BOUNDS_ERROR};
+
+private:
+
+   double m_value;
+   double m_minValue;
+   double m_maxValue;
+
+};
+
 private:
 
    //! set all the Parameter values (with default scaling)
@@ -122,39 +156,6 @@ private:
 
 };
 
-/**
- * @class OutOfBounds
- *
- * @brief Exception class to ensure set[True]Value and setBounds methods
- * behave consistently with regard to existing values.
- *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.15 2003/05/29 00:29:39 jchiang Exp $
- */
-
-class OutOfBounds : public LikelihoodException {
-
-public:
-   OutOfBounds(const std::string &errorString, double value, 
-               double minValue, double maxValue, int code) : 
-      LikelihoodException(errorString, code), m_value(value), 
-      m_minValue(minValue), m_maxValue(maxValue) {}
-   ~OutOfBounds() {}
-   
-   double value() {return m_value;}
-   double minValue() {return m_minValue;}
-   double maxValue() {return m_maxValue;}
-   
-   enum ERROR_CODES {VALUE_ERROR, BOUNDS_ERROR};
-
-private:
-
-   double m_value;
-   double m_minValue;
-   double m_maxValue;
-
-};
 
 } // namespace Likelihood
 
