@@ -3,11 +3,13 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.2 2003/10/18 15:47:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.3 2003/10/25 00:22:49 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
 #define Likelihood_LogLike_h
+
+#include "latResponse/../src/Table.h"
 
 #include "Likelihood/Event.h"
 #include "Likelihood/RoiCuts.h"
@@ -15,10 +17,6 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
-
-namespace latResponse {
-   class Table;
-}
 
 namespace Likelihood {
 
@@ -30,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.2 2003/10/18 15:47:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.3 2003/10/25 00:22:49 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
