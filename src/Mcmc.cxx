@@ -4,10 +4,11 @@
  * a Statistic object using the Variable-at-a-time Metropolis-Hastings
  * update method.
  * @author J. Chiang
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.1 2003/05/23 23:00:17 jchiang Exp $
  */
 
 #include <cmath>
+#include <algorithm>
 #include "Likelihood/Mcmc.h"
 
 namespace Likelihood {
@@ -66,14 +67,14 @@ double Mcmc::drawValue(Parameter &param, double dx, double &transProbRatio) {
    double xl = param.getBounds().first;
    double xu = param.getBounds().second;
    double x0 = param.getValue();
-   double width = min(xu, x0 + dx) - max(xl, x0 - dx);
+   double width = std::min(xu, x0 + dx) - std::max(xl, x0 - dx);
 
 // Draw the trial value...
    double drand = static_cast<double>(rand())/static_cast<double>(RAND_MAX);
-   double y = drand*width + max(xl, x0 - dx);
+   double y = drand*width + std::max(xl, x0 - dx);
 
 // and compute the ratio of the transition probability densities
-   transProbRatio = width/(min(xu, y + dx) - max(xl, y - dx));
+   transProbRatio = width/(std::min(xu, y + dx) - std::max(xl, y - dx));
 
    return y;
 }
