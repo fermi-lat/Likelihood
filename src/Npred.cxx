@@ -1,10 +1,11 @@
-/** @file Npred.cxx
+/** 
+ * @file Npred.cxx
  * @brief Implementation of the Npred class, which encapsulates the
  * Npred methods of Sources in a Function context.
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Npred.cxx,v 1.4 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Npred.cxx,v 1.5 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include <vector>

@@ -1,8 +1,9 @@
-/** @file ProductFunction.h
+/** 
+ * @file ProductFunction.h
  * @brief Declaration of ProductFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.2 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef ProductFunction_h
@@ -14,11 +15,11 @@ namespace Likelihood {
 /** 
  * @class ProductFunction
  *
- * @brief A Function that returns the linear sum of two Functions
+ * @brief A Function that returns the product of two Functions
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.2 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProductFunction.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
  *
  */
     

@@ -1,10 +1,11 @@
-/** @file SpatialMap.cxx
+/** 
+ * @file SpatialMap.cxx
  * @brief Implementation of Function object class that returns interpolated
  * image values of a FITS image file.
  * 
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.2 2003/04/25 18:32:20 jchiang Exp $
  *
  */
 

@@ -1,8 +1,9 @@
-/** @file SumFunction.cxx
+/** 
+ * @file SumFunction.cxx
  * @brief SumFunction class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SumFunction.cxx,v 1.2 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SumFunction.cxx,v 1.5 2003/03/22 01:22:51 jchiang Exp $
  */
 
 #include <vector>

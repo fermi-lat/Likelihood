@@ -3,7 +3,7 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.8 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.9 2003/06/10 18:18:29 burnett Exp $
  */
 #ifndef SkyDirFunction_h
 #define SkyDirFunction_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.8 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.9 2003/06/10 18:18:29 burnett Exp $
  */
     
 class SkyDirFunction : public Function, public astro::SkyDir {
@@ -39,11 +39,12 @@ public:
 
    //! overloaded setParam methods to include updating of m_dir
    void setParam(const std::string &paramName, double paramValue, 
-                 bool isFree) {
+                 bool isFree) throw(ParameterNotFound) {
       setParameter(paramName, paramValue, isFree);
       update_m_dir(paramName, paramValue);
    }
-   void setParam(const std::string &paramName, double paramValue) {
+   void setParam(const std::string &paramName, double paramValue) 
+      throw(ParameterNotFound) {
       setParameter(paramName, paramValue);
       update_m_dir(paramName, paramValue);
    }

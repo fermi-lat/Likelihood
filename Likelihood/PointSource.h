@@ -1,8 +1,9 @@
-/** @file PointSource.h
+/** 
+ * @file PointSource.h
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.17 2003/05/06 23:47:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.18 2003/05/07 19:38:30 jchiang Exp $
  */
 
 #ifndef PointSource_h
@@ -23,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.17 2003/05/06 23:47:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.18 2003/05/07 19:38:30 jchiang Exp $
  */
 
 class PointSource : public Source {

@@ -1,8 +1,9 @@
-/** @file SrcArg.h
+/** 
+ * @file SrcArg.h
  * @brief Declaration of SrcArg class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SrcArg.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef SrcArg_h
@@ -20,7 +21,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SrcArg.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class SrcArg : public Arg {

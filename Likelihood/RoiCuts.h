@@ -1,8 +1,9 @@
-/** @file RoiCuts.h
+/** 
+ * @file RoiCuts.h
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.6 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef RoiCuts_h
@@ -25,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.6 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class RoiCuts {

@@ -1,6 +1,9 @@
-/** @file Minuit.cxx
+/** 
+ * @file Minuit.cxx
  * @brief Minuit class implementation
+ * @author P. Nolan
  *
+ * $Header$
  */
 
 #include <sstream>

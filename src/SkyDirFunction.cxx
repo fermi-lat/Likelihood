@@ -5,11 +5,10 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.8 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.9 2003/06/10 23:58:52 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirFunction.h"
-#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

@@ -2,7 +2,7 @@
  * @file FunctionTest.cxx
  * @brief Unit test implementation for Function class hierarchy
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FunctionTest.cxx,v 1.2 2003/05/29 20:15:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FunctionTest.cxx,v 1.3 2003/06/10 23:58:51 jchiang Exp $
  */
 
 #include <cassert>
@@ -171,7 +171,7 @@ void FunctionTest::derivatives(const std::vector<Arg*> &arguments,
          m_func->setParamValues(new_params);
          double f1 = m_func->value(*my_arg);
          double my_deriv = (f1 - f0)/delta;
-         assert(abs(my_deriv/derivs[i] - 1.) < eps*10.);
+         assert(fabs(my_deriv/derivs[i] - 1.) < eps*10.);
       }
 
 // Check that the free derivatives are being accessed correctly.

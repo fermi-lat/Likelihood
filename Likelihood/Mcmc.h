@@ -2,7 +2,7 @@
  * @file Mcmc.h
  * @brief Mcmc (Markov Chain Monte Carlo) class declaration
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.4 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.5 2003/06/10 23:58:30 jchiang Exp $
  */
 
 #ifndef Mcmc_h
@@ -12,10 +12,9 @@
 #include <string>
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Statistic.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
-
-class LikelihoodException;
 
 /**
  * @class Mcmc
@@ -40,7 +39,7 @@ class LikelihoodException;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.4 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Mcmc.h,v 1.5 2003/06/10 23:58:30 jchiang Exp $
  */
 
 class Mcmc {

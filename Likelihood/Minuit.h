@@ -1,7 +1,8 @@
-/** @file Minuit.h
+/** 
+ * @file Minuit.h
  * @brief Declaration for the Minuit Optimizer subclass.
  * @author P. Nolan
- *
+ * $Header$
  */
 
 #ifndef MINUIT_H

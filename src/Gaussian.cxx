@@ -3,7 +3,7 @@
  * @brief Implementation for the (1D) Gaussian class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.cxx,v 1.10 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.cxx,v 1.11 2003/06/10 23:58:51 jchiang Exp $
  */
 
 #include <vector>
@@ -13,7 +13,6 @@
 
 #include "Likelihood/dArg.h"
 #include "Gaussian.h"
-#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

@@ -1,8 +1,9 @@
-/** @file SumFunction.h
+/** 
+ * @file SumFunction.h
  * @brief Declaration of SumFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SumFunction.h,v 1.2 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SumFunction.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef SumFunction_h
@@ -18,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SumFunction.h,v 1.2 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SumFunction.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
  *
  */
     

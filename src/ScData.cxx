@@ -1,8 +1,9 @@
-/** @file ScData.cxx
+/** 
+ * @file ScData.cxx
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.5 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>

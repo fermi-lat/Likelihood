@@ -3,7 +3,7 @@
  * @brief Response base class declaration
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.17 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.18 2003/06/10 23:58:30 jchiang Exp $
  */
 
 #ifndef Response_h
@@ -13,10 +13,9 @@
 #include <valarray>
 #include "astro/SkyDir.h"
 #include "Likelihood/ScData.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
-
-class LikelihoodException;
 
 /** 
  * @class Response
@@ -29,7 +28,7 @@ class LikelihoodException;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.17 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.18 2003/06/10 23:58:30 jchiang Exp $
  */
 
 class Response {

@@ -1,8 +1,9 @@
-/** @file logLike_gauss.h
+/** 
+ * @file logLike_gauss.h
  * @brief Declaration of logLike_gauss class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.7 2003/03/22 01:22:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.8 2003/05/20 18:26:07 jchiang Exp $
  */
 
 #ifndef logLike_gauss_h
@@ -21,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.7 2003/03/22 01:22:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.h,v 1.8 2003/05/20 18:26:07 jchiang Exp $
  */
 
 class logLike_gauss : public Statistic {

@@ -1,9 +1,10 @@
-/** @file logLike_gauss.cxx
+/** 
+ * @file logLike_gauss.cxx
  * @brief logLike_gauss class implementation
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_gauss.cxx,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include <vector>
