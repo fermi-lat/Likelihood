@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.42 2004/12/30 00:28:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.43 2005/01/11 15:32:18 jchiang Exp $
  */
 
 #include <cctype>
@@ -22,6 +22,8 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/TrapQuad.h"
 
+#include "Likelihood/RoiCuts.h"
+
 namespace {
    double my_acos(double mu) {
       if (mu > 1) {
@@ -38,7 +40,6 @@ namespace Likelihood {
 
 std::vector<double> Event::s_mu;
 std::vector<double> Event::s_phi;
-FitsImage::EquinoxRotation Event::s_eqRot;
 bool Event::s_haveSourceRegionData(false);
 
 Event::Event(double ra, double dec, double energy, double time, 
@@ -120,7 +121,7 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
    std::vector<DiffuseSource *> srcs;
    getNewDiffuseSrcs(srcList, srcs);
    if (srcs.size() == 0) return;
-   
+
    FitsImage::EquinoxRotation eqRot(m_appDir.ra(), m_appDir.dec());
    if (!s_haveSourceRegionData) {
       prepareSrData(sr_radius);

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.44 2004/12/01 16:46:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.45 2004/12/30 00:28:22 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.44 2004/12/01 16:46:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.45 2004/12/30 00:28:22 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -51,8 +51,8 @@ public:
    /// This constructor does ask for exposure to be computed and 
    /// therefore *requires* the spacecraft data to be available and the 
    /// ROI cuts to be specified beforehand.
-   PointSource(double ra, double dec) : m_spectrum(0) 
-      {setDir(ra, dec);  m_srcType = "Point";}
+   PointSource(double ra, double dec, bool verbose=false) : m_spectrum(0) 
+      {setDir(ra, dec, true, verbose);  m_srcType = "Point";}
 
    PointSource(const PointSource &rhs);
 
@@ -146,6 +146,10 @@ public:
 
    virtual Source *clone() const {
       return new PointSource(*this);
+   }
+
+   const std::vector<double> & exposure() const {
+      return m_exposure;
    }
 
    virtual double pixelCounts(double emin, double emax,
