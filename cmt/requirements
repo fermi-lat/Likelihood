@@ -1,6 +1,6 @@
 package Likelihood
 
-# $Id: requirements,v 1.2 2003/01/31 04:04:10 burnett Exp $
+# $Id: requirements,v 1.3 2003/01/31 18:43:25 burnett Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
@@ -14,4 +14,4 @@ macro my_headers "" WIN32 "*.h"
 library Likelihood -no_share $(my_headers) *.cxx
 
 # test application
-application test_Likelihood test/*.cxx
+application test_Likelihood *.cxx test/*.cxx

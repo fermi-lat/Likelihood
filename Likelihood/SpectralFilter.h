@@ -12,7 +12,7 @@
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/src/SpectralFilter.h,v 1.1.1.1 2003/01/30 23:23:03 burnett Exp $
  */
 
 class SpectralFilter : Function {
