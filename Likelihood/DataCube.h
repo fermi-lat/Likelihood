@@ -14,7 +14,7 @@
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/src/DataCube.h,v 1.1.1.1 2003/01/30 23:23:02 burnett Exp $
  */
 
 class DataCube {
