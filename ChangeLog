@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu Oct 23 18:57:24 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Event.cxx ExposureMap.cxx PointSource.cxx RoiCuts.cxx 
+	SkyDirFunction.cxx 
+Log Message:
+save current mods for continued refactoring of PointSource class
+    *
+------------------------------------------------------------
 User: jchiang  Thu Oct 23 18:57:23 PDT 2003
 Likelihood/cmt
 
