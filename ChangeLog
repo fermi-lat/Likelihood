@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon May 24 16:51:30 PDT 2004
+Likelihood/python
+
+Modified Files:
+	Likelihood.i Makefile test.py 
+Log Message:
+more energy dispersion implementation
+    *
+------------------------------------------------------------
+User: jchiang  Mon May 24 16:51:30 PDT 2004
 Likelihood/cmt
 
 Modified Files:
