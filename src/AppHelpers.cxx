@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.4 2004/07/21 04:00:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.5 2004/08/03 21:28:46 jchiang Exp $
  */
 
 #include <map>
@@ -67,25 +67,15 @@ void AppHelpers::readExposureMap() {
 
 void AppHelpers::createResponseFuncs() {
    irfLoader::Loader::go();
-
    IrfsFactory * myFactory = IrfsFactory::instance();
 
    std::string responseFuncs = m_pars["Response_functions"];
-   std::map< std::string, std::vector<std::string> > responseIds;
-#ifdef HAVE_DC2
-   responseIds["DC2"].push_back("DC2::Front");
-   responseIds["DC2"].push_back("DC2::Back");
-#endif
-   responseIds["FRONT"].push_back("DC1::Front");
-   responseIds["BACK"].push_back("DC1::Back");
-   responseIds["FRONT/BACK"].push_back("DC1::Front");
-   responseIds["FRONT/BACK"].push_back("DC1::Back");
-   responseIds["GLAST25"].push_back("Glast25::Front");
-   responseIds["GLAST25"].push_back("Glast25::Back");
-   responseIds["GLAST25_10"].push_back("Glast25::Front_10");
-   responseIds["GLAST25_10"].push_back("Glast25::Back_10");
-   if (responseIds.count(responseFuncs)) {
-      std::vector<std::string> &resps = responseIds[responseFuncs];
+
+   typedef std::map< std::string, std::vector<std::string> > respMap;
+   const respMap & responseIds = irfLoader::Loader::respIds();
+   respMap::const_iterator it;
+   if ( (it = responseIds.find(responseFuncs)) != responseIds.end() ) {
+      const std::vector<std::string> & resps = it->second;
       for (unsigned int i = 0; i < resps.size(); i++) {
          ResponseFunctions::addRespPtr(i, myFactory->create(resps[i]));
       }
