@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.46 2004/11/03 23:51:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.47 2004/11/05 00:09:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.46 2004/11/03 23:51:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.47 2004/11/05 00:09:58 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -146,7 +146,7 @@ void likelihood::run() {
       writeSourceXml();
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
-   writeCountsSpectra();
+//   writeCountsSpectra();
 //   writeCountsMap();
 }
 
@@ -413,9 +413,21 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
          }
          std::cout << std::endl;
       }
-      std::cout << "Npred: "
-                << src->Npred() << std::endl;
-      resultsFile << "Npred  " << src->Npred() << "  ";
+//       std::cout << "Npred: "
+//                 << src->Npred() << std::endl;
+//       resultsFile << "Npred  " << src->Npred() << "  ";
+      if (m_statistic == "BINNED") {
+         const std::vector<double> & data = m_dataMap->data();
+         double total_counts(0);
+         for (unsigned int i = 0; i < data.size(); i++) {
+            total_counts += data[i];
+         }
+         std::cout << "Total number of observed counts: "
+                   << total_counts << std::endl;
+         std::cout << "Total number of model events: "
+                   << dynamic_cast<BinnedLikelihood *>(m_logLike)->npred()
+                   << std::endl;
+      }
       if (TsValues.count(srcNames[i])) {
          std::cout << "TS value: "
                    << TsValues[srcNames[i]] << std::endl;

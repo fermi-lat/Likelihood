@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.45 2004/10/11 01:35:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.46 2004/11/05 00:09:59 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -74,17 +74,17 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
-   CPPUNIT_TEST(test_RoiCuts);
-   CPPUNIT_TEST(test_SourceFactory);
-   CPPUNIT_TEST(test_XmlBuilders);
-   CPPUNIT_TEST(test_SourceModel);
-   CPPUNIT_TEST(test_SourceDerivs);
-   CPPUNIT_TEST(test_PointSource);
-   CPPUNIT_TEST(test_DiffuseSource);
-   CPPUNIT_TEST(test_CountsMap);
-   CPPUNIT_TEST(test_BinnedLikelihood);
-   CPPUNIT_TEST(test_MeanPsf);
-   CPPUNIT_TEST(test_BinnedExposure);
+//    CPPUNIT_TEST(test_RoiCuts);
+//    CPPUNIT_TEST(test_SourceFactory);
+//    CPPUNIT_TEST(test_XmlBuilders);
+//    CPPUNIT_TEST(test_SourceModel);
+//    CPPUNIT_TEST(test_SourceDerivs);
+//    CPPUNIT_TEST(test_PointSource);
+//    CPPUNIT_TEST(test_DiffuseSource);
+//    CPPUNIT_TEST(test_CountsMap);
+//    CPPUNIT_TEST(test_BinnedLikelihood);
+//    CPPUNIT_TEST(test_MeanPsf);
+//    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
    
    CPPUNIT_TEST_SUITE_END();
