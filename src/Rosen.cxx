@@ -1,8 +1,9 @@
-/** @file Rosen.cxx
+/** 
+ * @file Rosen.cxx
  * @brief Implementation for the 2D Rosenbrock objective function
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.cxx,v 1.2 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.cxx,v 1.6 2003/03/22 01:22:51 jchiang Exp $
  */
 
 #include <vector>
@@ -44,7 +45,8 @@ void Rosen::getFreeDerivs(std::vector<double> &freeDerivs) {
 }
 
 double Rosen::derivByParam(Arg &xarg, 
-                           const std::string &paramName) {
+                           const std::string &paramName) 
+   throw(ParameterNotFound) {
    std::vector<double> params;
    getParamValues(params);
 
@@ -56,10 +58,7 @@ double Rosen::derivByParam(Arg &xarg,
    } else if (paramName == "y") {
       return 2.*m_prefactor*(y - x*x);
    }
-   std::cerr << "Rosen::derivByParam: "
-             << "Parameter " << paramName << " is not found."
-             << std::endl;
-   return 0.;
+   throw ParameterNotFound(paramName, getName(), "Rosen::derivByParam");
 }
 
 } // namespace Likelihood

@@ -1,9 +1,10 @@
-/** @file Source.h
+/** 
+ * @file Source.h
  * @brief Source base class declaration
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.16 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.17 2003/05/02 19:02:14 jchiang Exp $
  */
 
 #ifndef Source_h
@@ -24,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.16 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.17 2003/05/02 19:02:14 jchiang Exp $
  */
 
 class Source {

@@ -2,15 +2,20 @@
  * @file Aeff.h
  * @brief Interface definition for the LAT Effective Area class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.9 2003/04/25 18:32:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.10 2003/05/29 00:29:39 jchiang Exp $
  *
  */
+
+#ifdef _MSC_VER
+#pragma warning(disable:4290)
+#endif
 
 #ifndef Aeff_h
 #define Aeff_h
 
 #include "Likelihood/Response.h"
 #include "Likelihood/Table.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
@@ -23,7 +28,7 @@ class astro::SkyDir;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.9 2003/04/25 18:32:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.10 2003/05/29 00:29:39 jchiang Exp $
  */
 
 class Aeff : public Response {
@@ -46,7 +51,8 @@ public:
    static Aeff * instance();
 
    //! method to read in the aeff data
-   void readAeffData(const std::string &aeffFile, int hdu);
+   void readAeffData(const std::string &aeffFile, int hdu)
+      throw(LikelihoodException);
 
 protected:
 

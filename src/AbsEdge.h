@@ -3,7 +3,7 @@
  * @brief AbsEdge class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.4 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.5 2003/05/29 00:30:03 jchiang Exp $
  */
 
 #ifndef AbsEdge_h
@@ -23,7 +23,7 @@ class Arg;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.4 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.h,v 1.5 2003/05/29 00:30:03 jchiang Exp $
  */
     
 class AbsEdge : public Function {
@@ -35,7 +35,8 @@ public:
 
    double value(Arg &) const;
 
-   double derivByParam(Arg &, const std::string &paramName) const;
+   double derivByParam(Arg &, const std::string &paramName) const
+      throw(ParameterNotFound);
 
    virtual Function *clone() const {
       return new AbsEdge(*this);

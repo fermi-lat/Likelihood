@@ -1,9 +1,14 @@
-/** @file SkyDirFunction.h
+/** 
+ * @file SkyDirFunction.h
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.6 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.7 2003/05/02 19:02:14 jchiang Exp $
  */
+
+#ifdef _MSC_VER
+#pragma warning(disable:4290)
+#endif
 
 #ifndef SkyDirFunction_h
 #define SkyDirFunction_h
@@ -23,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.6 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.7 2003/05/02 19:02:14 jchiang Exp $
  */
     
 class SkyDirFunction : public Function, public astro::SkyDir {
@@ -55,7 +60,8 @@ private:
 
    void m_init(double lon, double lat);
    
-   void update_m_dir(std::string paramName, double paramValue);
+   void update_m_dir(std::string paramName, double paramValue)
+      throw(ParameterNotFound);
 
    astro::SkyDir::CoordSystem m_coord_type;
    double m_lon;

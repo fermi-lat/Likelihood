@@ -4,7 +4,7 @@
  * edge spectral component
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.4 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AbsEdge.cxx,v 1.5 2003/05/29 00:30:03 jchiang Exp $
  */
 
 #include <vector>
@@ -52,7 +52,8 @@ double AbsEdge::value(Arg &xarg) const {
 }
 
 double AbsEdge::derivByParam(Arg &xarg, 
-                             const std::string &paramName) const {
+                             const std::string &paramName) const 
+   throw(ParameterNotFound) {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
    enum ParamTypes {Tau0, E0, Index};
@@ -66,11 +67,7 @@ double AbsEdge::derivByParam(Arg &xarg,
    }
 
    if (iparam == -1) {
-// should throw an exception here
-      std::cerr << "AbsEdge::derivByParam: "
-                << "Parameter " << paramName << " is not found."
-                << std::endl;
-      return 0.;
+      throw ParameterNotFound(paramName, getName(), "AbsEdge::derivByParam");
    }
 
    if (x > my_params[E0].getTrueValue()) {

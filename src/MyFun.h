@@ -3,7 +3,7 @@
  * @brief Test function declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.7 2003/05/29 00:30:03 jchiang Exp $
  */
 
 #include "Likelihood/Function.h"
@@ -19,7 +19,7 @@ class Arg;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.7 2003/05/29 00:30:03 jchiang Exp $
  */
     
 class MyFun : public Function {
@@ -30,7 +30,8 @@ public:
 
    double value(Arg &) const;
 
-   double derivByParam(Arg &x, const std::string &paramName) const;
+   double derivByParam(Arg &x, const std::string &paramName) const
+      throw(ParameterNotFound);
 
 private:
 

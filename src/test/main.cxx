@@ -80,11 +80,11 @@ std::string test_path;
 
 int main() {
    read_SC_Response_data();
-   test_Parameter_class();
-   test_Function_class();
-   test_PowerLaw_class();
-   test_SourceModel_class();
-   test_Table_class();
+//    test_Parameter_class();
+//    test_Function_class();
+//    test_PowerLaw_class();
+//    test_SourceModel_class();
+//    test_Table_class();
    test_Statistic_class();
    test_Event_class();
    test_PointSource_class();
@@ -844,13 +844,15 @@ void fit_anti_center() {
    PowerLaw Crab_pl(Prefactor, Gamma, Escale);
 
 //set limits on index
-   Parameter *indexParam = Crab_pl.getParam("Index");
-   indexParam->setBounds(-3.5, -1.);  
+   Parameter indexParam = Crab_pl.getParam("Index");
+   indexParam.setBounds(-3.5, -1.);
+   Crab_pl.setParam(indexParam);
+   
 // set limits on normalization
-   Parameter *prefactorParam = Crab_pl.getParam("Prefactor");
-//   prefactorParam->setBounds(1e-8, 1e-2);
-   prefactorParam->setBounds(1e-3, 1e3);
-   prefactorParam->setScale(1e-9);
+   Parameter prefactorParam = Crab_pl.getParam("Prefactor");
+   prefactorParam.setBounds(1e-3, 1e3);
+   prefactorParam.setScale(1e-9);
+   Crab_pl.setParam(prefactorParam);
 
    Crab.setSpectrum(&Crab_pl);
    Crab.setName("Crab Pulsar");
@@ -869,12 +871,13 @@ void fit_anti_center() {
    PowerLaw Geminga_pl(Prefactor, Gamma, Escale);
 //set limits on index
    indexParam = Geminga_pl.getParam("Index");
-   indexParam->setBounds(-3.5, -1.);  
+   indexParam.setBounds(-3.5, -1.);
+   Geminga_pl.setParam(indexParam);
 // set limits on normalization
    prefactorParam = Geminga_pl.getParam("Prefactor");
-//   prefactorParam->setBounds(1e-8, 1e-2);  
-   prefactorParam->setBounds(1e-3, 1e3);  
-   prefactorParam->setScale(1e-9);
+   prefactorParam.setBounds(1e-3, 1e3);  
+   prefactorParam.setScale(1e-9);
+   Geminga_pl.setParam(prefactorParam);
 
    Geminga.setSpectrum(&Geminga_pl);
    Geminga.setName("Geminga Pulsar");
@@ -893,12 +896,13 @@ void fit_anti_center() {
    PowerLaw _0528_pl(Prefactor, Gamma, Escale);
 //set limits on index
    indexParam = _0528_pl.getParam("Index");
-   indexParam->setBounds(-3.5, -1.);  
+   indexParam.setBounds(-3.5, -1.);  
+   _0528_pl.setParam(indexParam);
 // set limits on normalization
    prefactorParam = _0528_pl.getParam("Prefactor");
-//   prefactorParam->setBounds(1e-8, 1e-2);
-   prefactorParam->setBounds(1e-3, 1e3);
-   prefactorParam->setScale(1e-9);
+   prefactorParam.setBounds(1e-3, 1e3);
+   prefactorParam.setScale(1e-9);
+   _0528_pl.setParam(prefactorParam);
 
    _0528.setSpectrum(&_0528_pl);
    _0528.setName("PKS 0528+134");
@@ -982,14 +986,15 @@ void fit_3C279() {
    PowerLaw pl(Prefactor, Gamma, Escale);
 
 //set limits on index
-   Parameter *indexParam = pl.getParam("Index");
-   indexParam->setBounds(-3.5, -1.);  
+   Parameter indexParam = pl.getParam("Index");
+   indexParam.setBounds(-3.5, -1.);
+   pl.setParam(indexParam);
 
 // set limits on normalization
-   Parameter *prefactorParam = pl.getParam("Prefactor");
-//   prefactorParam->setBounds(1e-8, 1e-2);  
-   prefactorParam->setBounds(1e-3, 1e3);  
-   prefactorParam->setScale(1e-9);
+   Parameter prefactorParam = pl.getParam("Prefactor");
+   prefactorParam.setBounds(1e-3, 1e3);  
+   prefactorParam.setScale(1e-9);
+   pl.setParam(prefactorParam);
 
    _3c279.setSpectrum(&pl);
 
@@ -1065,8 +1070,9 @@ void test_logLike_ptsrc() {
    double Escale = 100.;
 
    PowerLaw pl(Prefactor, Gamma, Escale);
-   Parameter *prefactorParam = pl.getParam("Prefactor");
-   prefactorParam->setScale(1e-9);
+   Parameter prefactorParam = pl.getParam("Prefactor");
+   prefactorParam.setScale(1e-9);
+   pl.setParam(prefactorParam);
 
    _3c279.setSpectrum(&pl);
 
@@ -1328,8 +1334,11 @@ void test_Statistic_class() {
    std::cout << std::endl;
 
 /* try to access a column that doesn't exist */
-
-   xi = logLike.getEventColumn("foo");
+   try {
+      xi = logLike.getEventColumn("foo");
+   } catch(LikelihoodException &eObj) {
+      std::cout << eObj.what() << std::endl;
+   }
 
 /* evaluate the integral over x */
 
@@ -1490,11 +1499,9 @@ void test_Table_class() {
 void test_SourceModel_class() {
    
    SourceModel SrcModel;
-   
-/* instantiate some point sources */
-   
    bool computeExposure = false;
-
+   
+/* create some point sources */
    PointSource _3c279;
    _3c279.setDir(193.98, -5.82, computeExposure);
    _3c279.setSpectrum(new PowerLaw(74.2, -1.96, 0.1));
@@ -1516,7 +1523,6 @@ void test_SourceModel_class() {
    Vela.setName("Vela Pulsar");
 
 /* add these guys to the SouceModel */
-
    SrcModel.addSource(&_3c279);
    SrcModel.addSource(&_3c273);
    SrcModel.addSource(&Crab);
@@ -1536,16 +1542,12 @@ void test_SourceModel_class() {
 
 /* make its scale factor free (this could be made easier, e.g., by
    giving direct parameter access from PointSource) */
-
-   Parameter param = *(SrcModel.getParam(std::string("Scale"), 
-                                         std::string("Spectrum"), 
-                                         std::string("Geminga")));
+   Parameter param = SrcModel.getParam("Scale", "Spectrum", "Geminga");
    param.setFree(true);
-   SrcModel.setParam(param, std::string("Spectrum"), std::string("Geminga"));
+   SrcModel.setParam(param, "Spectrum", "Geminga");
    report_SrcModel_values(SrcModel);
 
 /* derivative tests */
-
    dArg x(20.);
    std::vector<double> params_save;
    SrcModel.getParamValues(params_save);
@@ -1573,7 +1575,6 @@ void test_SourceModel_class() {
    std::cout << std::endl;
 
 /* derivative tests for free parameters only */
-
    SrcModel.getFreeParamValues(params_save);
    SrcModel.getFreeDerivs(x, sm_derivs);
    params = params_save;
@@ -1835,20 +1836,15 @@ void test_Function_class() {
       assert(derivs[i] == pow(2, i));
    }
 
-// test of pointers to Parameter
+// test getParam(...) method
    for (unsigned int i = 0; i < paramNames.size(); i++) {
-      Parameter *ptrP = f.getParam(paramNames[i]);
-      assert(ptrP->getName() == paramNames[i]);
-      assert(ptrP->getValue() == params[i]);
+      Parameter my_param = f.getParam(paramNames[i]);
+      assert(my_param.getName() == paramNames[i]);
+      assert(my_param.getValue() == params[i]);
    }
 
    try {
-      Parameter *ptrP = f.getParam(std::string("Joan"));
-      if (ptrP != NULL) {
-         std::cout << ptrP->getName() << ":  " 
-                   << ptrP->getValue() << "\n" << std::endl;
-      }
-      std::cout << std::endl;
+      Parameter my_param = f.getParam("Joan");
    } catch(LikelihoodException &eObj) {
       std::cout << eObj.what() << std::endl;
    }

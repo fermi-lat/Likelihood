@@ -2,7 +2,7 @@
  * @file CompositeFunction.h
  * @brief Declaration of CompositeFunction class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.7 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.8 2003/05/21 23:11:07 jchiang Exp $
  */
 
 #ifndef CompositeFunction_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.7 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeFunction.h,v 1.8 2003/05/21 23:11:07 jchiang Exp $
  *  */
     
 class CompositeFunction : public Function {
@@ -63,8 +63,8 @@ public:
    }
 
    //! Parameter access including Function name specification
-   virtual Parameter* getParam(const std::string &paramName, 
-                               const std::string &funcName) const;
+   virtual Parameter getParam(const std::string &paramName, 
+                              const std::string &funcName) const;
    
 protected:
 

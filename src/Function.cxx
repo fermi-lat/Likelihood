@@ -3,7 +3,7 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.18 2003/05/22 22:30:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.19 2003/05/29 00:30:03 jchiang Exp $
  */
 
 #include <iostream>
@@ -38,12 +38,12 @@ double Function::getParamValue(const std::string &paramName) const
 }
 
 // Return named Parameter
-Parameter *Function::getParam(const std::string &paramName)
+Parameter Function::getParam(const std::string &paramName) const
    throw(ParameterNotFound) {
    std::vector<Parameter>::iterator it = m_parameter.begin();
    for (; it != m_parameter.end(); it++) {
       if (paramName == it->getName()) {
-         return &(*it);
+         return *it;
       }
    }
    throw(ParameterNotFound(paramName, getName(), "getParam"));
@@ -149,8 +149,8 @@ void Function::setFreeParams(std::vector<Parameter> &params)
       for (unsigned int i = 0; i < m_parameter.size(); i++) {
          if (m_parameter[i].isFree()) {
             m_parameter[i] = params[j];
-            std::cerr << m_parameter[i].getName() << ": " 
-                      << m_parameter[i].getValue() << std::endl;
+//             std::cerr << m_parameter[i].getName() << ": " 
+//                       << m_parameter[i].getValue() << std::endl;
             j++;
          }
       }

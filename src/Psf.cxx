@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT Point-Spread Function class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.11 2003/04/25 21:51:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Psf.cxx,v 1.12 2003/05/29 00:30:03 jchiang Exp $
  */
 
 #include <vector>
@@ -19,7 +19,8 @@ namespace Likelihood {
 
 Psf * Psf::s_instance = 0;
 
-void Psf::readPsfData(const std::string &file, int hdu) {
+void Psf::readPsfData(const std::string &file, int hdu) 
+   throw(LikelihoodException) {
    switch (hdu) {
    case Front:
       m_psfData.add_columns("ENERGY THETA SIG1_F SIG2_F W");
@@ -31,8 +32,7 @@ void Psf::readPsfData(const std::string &file, int hdu) {
       m_psfData.add_columns("ENERGY THETA SIG1_C SIG2_C W");
       break;
    default:
-      std::cerr << "Invalid HDU for PSF data: " << hdu << std::endl;
-      exit(0);
+      throw LikelihoodException("Invalid HDU for PSF data", hdu);
       break;
    }
 

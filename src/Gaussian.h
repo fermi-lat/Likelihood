@@ -1,8 +1,9 @@
-/** @file Gaussian.h
+/** 
+ * @file Gaussian.h
  * @brief Gaussian class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.5 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.8 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef Gaussian_h
@@ -19,7 +20,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.5 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.8 2003/03/22 01:22:50 jchiang Exp $
  */
     
 class Gaussian : public Function {
@@ -31,7 +32,8 @@ public:
 
    double value(Arg &) const;
 
-   double derivByParam(Arg &, const std::string &paramName) const;
+   double derivByParam(Arg &, const std::string &paramName) const
+      throw(ParameterNotFound);
 
    double integral(Arg &xmin, Arg &xmax) const;
 

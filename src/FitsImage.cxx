@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.7 2003/05/21 23:12:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.8 2003/05/29 00:30:03 jchiang Exp $
  *
  */
 
@@ -15,6 +15,7 @@
 #endif
 
 #include <iostream>
+#include <sstream>
 #include <memory>
 #include <cassert>
 #include "Likelihood/FitsImage.h"
@@ -78,11 +79,11 @@ void FitsImage::fetchAxisNames(std::vector<std::string> &axisNames) {
 }
 
 void FitsImage::fetchAxisVector(unsigned int naxis,
-                                std::vector<double> &axisVector) {
+                                std::vector<double> &axisVector) 
+   throw(LikelihoodException) {
    if (naxis >= m_axes.size()) {
-      std::cerr << "FitsImage::fetchAxisVector: Invalid axis number "
-                << naxis << std::endl;
-      assert(false);
+      throw LikelihoodException(
+         "FitsImage::fetchAxisVector: Invalid axis number ", naxis);
    }
    axisVector = m_axisVectors[naxis];
 }
@@ -261,12 +262,12 @@ void FitsImage::read_fits_image(std::string &filename,
 
 // Assume at least 1 image plane, but at most 3 dimensions...
    if (naxes != 2 && naxes != 3) {
-      std::cerr << "FitsImage::read_fits_image: "
-                << "FITS file " << filename 
-                << " does not have the expected number of dimensions:"
-                << " naxes = " << naxes
-                << std::endl;
-      assert(false);
+      std::ostringstream errorMessage;
+      errorMessage << "FitsImage::read_fits_image: \n"
+                   << "FITS file " << filename 
+                   << " does not have the expected number of dimensions:"
+                   << " naxes = " << naxes << "\n";
+      throw LikelihoodException(errorMessage.str());
    }
 
 // prepare the axes vector 

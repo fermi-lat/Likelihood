@@ -1,8 +1,9 @@
-/** @file Response.cxx
+/** 
+ * @file Response.cxx
  * @brief Implementation for Response base class.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.13 2003/04/25 21:51:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.14 2003/05/02 19:02:15 jchiang Exp $
  */
 
 #include <vector>
@@ -18,17 +19,17 @@ namespace Likelihood {
 // default maximum inclination in degrees for strawman response files
 double Response::s_incMax = 70.;
 
-Response::Response() {
+Response::Response() throw(LikelihoodException) {
    ScData *scData = ScData::instance();
    if (!scData) {
-      std::cerr << "*scData not properly instantiated!" << std::endl;
-      exit(0);
+      throw LikelihoodException("*scData not properly instantiated!");
    }
 }
 
 double Response::bilinear(const std::vector<double> &xx, double x, 
                           const std::vector<double> &yy, double y, 
-                          const std::valarray<double> &z) {
+                          const std::valarray<double> &z) 
+   throw(LikelihoodException) {
 
    std::vector<double>::const_iterator ix;
    if (x < *(xx.begin())) {
@@ -69,6 +70,7 @@ double Response::bilinear(const std::vector<double> &xx, double x,
       std::cerr << tt << "  " << uu << "  " 
                 << y1 << "  " << y2 << "  "
                 << y3 << "  " << y4 << "  " << std::endl;
+      throw LikelihoodException("Response::bilinear: \n bailing...");
    }
    return value;
 }

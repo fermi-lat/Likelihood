@@ -3,7 +3,7 @@
  * OPT++ package
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.cxx,v 1.2 2003/03/19 02:47:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.cxx,v 1.3 2003/05/02 19:02:15 jchiang Exp $
  */
 
 #include <cassert>
@@ -123,7 +123,7 @@ void OptPP::find_min(int verbose, double tol) {
 }
 #else
 
-void OptPP::find_min(int verbose, double tol) {
+void OptPP::find_min(int, double) {
 // do nothing
 }
 

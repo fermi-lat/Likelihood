@@ -1,9 +1,14 @@
-/** @file SourceModel.h
+/** 
+ * @file SourceModel.h
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.12 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.14 2003/04/25 18:32:18 jchiang Exp $
  */
+
+#ifdef _MSC_VER
+#pragma warning(disable:4290)
+#endif
 
 #ifndef SourceModel_h
 #define SourceModel_h
@@ -25,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.12 2003/03/25 23:22:02 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.14 2003/04/25 18:32:18 jchiang Exp $ 
  */
 
 class SourceModel : public Function {
@@ -39,7 +44,7 @@ public:
 
    //! setParam method to include function and source name checking
    void setParam(const Parameter &param, const std::string &funcName,
-                 const std::string &srcName);
+                 const std::string &srcName) throw(LikelihoodException);
 
    //! group parameter access (note name mangling for inheritance 
    //! from Function)
@@ -48,13 +53,14 @@ public:
    virtual std::vector<double>::const_iterator setFreeParamValues_(
       std::vector<double>::const_iterator);
 
-   Parameter* getParam(const std::string &paramName, 
-                       const std::string &funcName,
-                       const std::string &srcName) const;
+   Parameter getParam(const std::string &paramName, 
+                      const std::string &funcName,
+                      const std::string &srcName) const
+      throw(LikelihoodException, ParameterNotFound);
 
    //! add and delete sources by name
    void addSource(Source *src);
-   void deleteSource(const std::string &srcName);
+   void deleteSource(const std::string &srcName) throw(LikelihoodException);
 
    //! delete all the sources
    void deleteAllSources();

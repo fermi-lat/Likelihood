@@ -1,8 +1,9 @@
-/** @file PowerLaw.h
+/** 
+ * @file PowerLaw.h
  * @brief Declaration for the PowerLaw Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.9 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.11 2003/04/25 18:32:19 jchiang Exp $
  */
 
 #ifndef PowerLaw_h
@@ -19,7 +20,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.9 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw.h,v 1.11 2003/04/25 18:32:19 jchiang Exp $
  */
     
 class PowerLaw : public Function {
@@ -31,7 +32,8 @@ public:
 
    double value(Arg&) const;
 
-   double derivByParam(Arg &x, const std::string &paramName) const;
+   double derivByParam(Arg &x, const std::string &paramName) const
+      throw(ParameterNotFound);
 
    double integral(Arg &xmin, Arg &xmax) const;
 

@@ -3,20 +3,24 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.11 2003/05/02 19:02:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.12 2003/05/29 00:29:39 jchiang Exp $
  */
+
+#ifdef _MSC_VER
+#pragma warning(disable:4290)
+#endif
 
 #ifndef Event_h
 #define Event_h
 
-#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
-#include <utility>
+//#include <utility>
 
 #include "astro/SkyDir.h"
 #include "Likelihood/FitsImage.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
@@ -29,7 +33,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.11 2003/05/02 19:02:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.12 2003/05/29 00:29:39 jchiang Exp $
  */
 
 class Event {
@@ -57,7 +61,8 @@ public:
    //! return the Event specific diffuse response function 
    //! for the named diffuse component
    double diffuseResponse(double energy, 
-                          const std::string &diffuseComponent) const;
+                          const std::string &diffuseComponent) const
+      throw(LikelihoodException);
     
    //! This method takes the spatial distribution of the emission for
    //! the DiffuseSource src and computes the event-specific response.

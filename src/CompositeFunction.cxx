@@ -3,7 +3,7 @@
  * @brief CompositeFunction class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeFunction.cxx,v 1.5 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeFunction.cxx,v 1.6 2003/05/29 00:30:03 jchiang Exp $
  */
 
 #include <vector>
@@ -39,8 +39,8 @@ void CompositeFunction::setParam(const Parameter &param,
    syncParams();
 }
 
-Parameter* CompositeFunction::getParam(const std::string &paramName,
-                                       const std::string &funcName) const {
+Parameter CompositeFunction::getParam(const std::string &paramName,
+                                      const std::string &funcName) const {
    assert(funcName == m_a->getName() || funcName == m_b->getName());
 
    if (m_a->getName() == funcName) {

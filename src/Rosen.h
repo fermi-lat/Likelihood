@@ -1,8 +1,9 @@
-/** @file Rosen.h
+/** 
+ * @file Rosen.h
  * @brief Declaration for a 2D Rosenbrock objective function
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.h,v 1.2 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include "Likelihood/Statistic.h"
@@ -16,7 +17,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.h,v 1.2 2003/03/17 00:53:44 jchiang Exp $
  */
     
 class Rosen : public Statistic {
@@ -29,7 +30,8 @@ public:
 
    void getFreeDerivs(std::vector<double> &freeDerivs);
 
-   double derivByParam(Arg &, const std::string &paramName);
+   double derivByParam(Arg &, const std::string &paramName)
+      throw(ParameterNotFound);
 
 private:
 
