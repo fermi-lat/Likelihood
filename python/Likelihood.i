@@ -30,7 +30,6 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SrcArg.h"
 #include "Likelihood/TrapQuad.h"
-#include "Likelihood/ConstantValue.h"
 #include "Likelihood/Exception.h"
 #include "Likelihood/LogLike.h"
 #include <vector>
@@ -63,7 +62,6 @@ using optimizers::Function;
 %include ../Likelihood/SpatialMap.h
 %include ../Likelihood/SrcArg.h
 %include ../Likelihood/TrapQuad.h
-%include ../Likelihood/ConstantValue.h
 %template(DoubleVector) std::vector<double>;
 %template(DoubleVectorVector) std::vector< std::vector<double> >;
 %template(StringVector) std::vector<std::string>;
@@ -100,6 +98,9 @@ using optimizers::Function;
    }
    int getNumFreeParams() {
       return self->getNumFreeParams();
+   }
+   void getFreeParamValues(std::vector<double> & params) {
+      self->getFreeParamValues(params);
    }
 }
 %extend Likelihood::Event {
