@@ -4,7 +4,7 @@
  * observation.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Observation.h,v 1.1 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_Observation_h
@@ -32,14 +32,12 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Observation.h,v 1.1 2005/02/27 06:42:24 jchiang Exp $
  */
 
 class Observation {
 
 public:
-
-//   Observation(st_app::AppParGroup & pars);
 
    Observation() : m_respFuncs(0), m_scData(0), m_roiCuts(0), m_expCube(0),
       m_expMap(0) {}

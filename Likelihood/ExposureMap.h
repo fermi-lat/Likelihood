@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.18 2005/03/01 07:17:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.19 2005/03/02 01:10:48 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -14,8 +14,6 @@
 
 #include "optimizers/Function.h"
 
-#include "Likelihood/FitsImage.h"
-
 namespace Likelihood {
 
    class Observation;
@@ -23,7 +21,7 @@ namespace Likelihood {
 /**
  * @class ExposureMap 
  *
- * @brief This Singleton class encapulates and provides exposure map
+ * @brief This class encapulates and provides exposure map
  * information, primarily for use by the DiffuseSource class for
  * integrating the response functions over the spatial distributions
  * of those Sources.
@@ -33,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.18 2005/03/01 07:17:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.19 2005/03/02 01:10:48 jchiang Exp $
  *
  */
 
@@ -41,12 +39,13 @@ class ExposureMap {
 
 public:
 
+   ExposureMap() : m_haveExposureMap(false) {}
+
    ~ExposureMap() {}
 
-   static ExposureMap * instance();
 
    /// Read exposure map FITS file and compute the static data members.
-   static void readExposureFile(std::string exposureFile);
+   void readExposureFile(std::string exposureFile);
 
    /**
     * @brief This method computes the energy-dependent coefficients
@@ -71,20 +70,24 @@ public:
 
    /// Retrieve the RA of each pixel in the image plane
    void getRA(std::vector<double> & ra) const {
-      ra.resize(s_ra.size());
-      ra = s_ra;
+      ra.resize(m_ra.size());
+      ra = m_ra;
    }
 
    /// Retrieve the Dec of each pixel in an image plane
    void getDec(std::vector<double> &dec) const {
-      dec.resize(s_ra.size());
-      dec = s_dec;
+      dec.resize(m_ra.size());
+      dec = m_dec;
    }
 
    /// Retrieve the energies in MeV of each plane in the ExposureMap 
    /// frame stack
    void getEnergies(std::vector<double> &energies) const {
-      energies = s_energies;
+      energies = m_energies;
+   }
+
+   bool haveMap() const {
+      return m_haveExposureMap;
    }
 
    /**
@@ -113,31 +116,23 @@ public:
                              std::vector< std::vector<double> > &dataCube,
                              double ra0, double dec0);
 
-protected:
-
-   ExposureMap() {}
-
 private:
 
-   static ExposureMap * s_instance;
+   bool m_haveExposureMap;
 
-   static bool s_haveExposureMap;
-
-   /// s_ra and s_dec are vectors of size NAXIS1*NAXIS2.
+   /// m_ra and m_dec are vectors of size NAXIS1*NAXIS2.
    /// Traversing these vectors in tandem yields all coordinate pairs
    /// of the image plane.
-   static std::vector<double> s_ra;
-   static std::vector<double> s_dec;
+   std::vector<double> m_ra;
+   std::vector<double> m_dec;
 
    /// True photon energies associated with each image plane.
-   static std::vector<double> s_energies;
+   std::vector<double> m_energies;
 
-   /// s_exposure is a vector of size NAXIS3, corresponding to the
+   /// m_exposure is a vector of size NAXIS3, corresponding to the
    /// number of true energy values identified with each plane in the
    /// exposure data cube.
-   static std::vector< std::vector<double> > s_exposure;
-
-   static FitsImage s_mapData;
+   std::vector< std::vector<double> > m_exposure;
 
 };
 
