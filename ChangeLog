@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 11 07:31:39 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	ExposureMap.h 
+Log Message:
+remove unnecessary getExposure member function
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jan 10 10:10:39 PST 2005
 Likelihood/src/test
 
