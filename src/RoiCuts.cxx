@@ -13,7 +13,7 @@ RoiCuts * RoiCuts::s_instance = 0;
 
 void RoiCuts::setCuts(double ra, double dec, double roi_radius) {
 // get everything for now....
-    m_tLimVec.push_back(std::make_pair(0., HUGE));
+   m_tLimVec.push_back(std::make_pair(0., HUGE));
 
 // default min and max energies in MeV
    m_eMin = 31.623;

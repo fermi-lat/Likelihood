@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header:$ */
+ * $Header: */
 
 class TrapQuad {
     
@@ -30,7 +30,10 @@ public:
    
    TrapQuad(const std::vector<double> &x, const std::vector<double> &y) :
       m_x(x), m_y(y) {m_haveFunc = false;}
-   TrapQuad(Function *func) : m_func(func) {m_haveFunc = true;}
+   TrapQuad(Function *func) {
+      m_func = func;
+      m_haveFunc = true;
+   }
    ~TrapQuad() {}
 
    double integral();

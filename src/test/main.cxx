@@ -23,12 +23,16 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/dArg.h"
+#include "Likelihood/SumFunction.h"
+#include "Likelihood/ProductFunction.h"
 #include "lbfgs.h"
+//#include "OptPP.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
 #include "MyFun.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
+#include "Rosen.h"
 
 using namespace Likelihood;   // for testing purposes only
 
@@ -47,33 +51,88 @@ void test_Psf_class();
 void test_logLike_ptsrc();
 void fit_3C279();
 void fit_anti_center();
+void test_CompositeFunction();
+void test_OptPP();
 
 std::string test_path;
 
 int main(){
    read_SC_Response_data();
-//     test_Parameter_class();
-//     test_Function_class();
-//     test_PowerLaw_class();
-//     test_SourceModel_class();
-//     test_Table_class();
-//     test_Statistic_class();
-//     test_Event_class();
-//     test_PointSource_class();
-//     test_Aeff_class();
-//     test_Psf_class();
-//     test_logLike_ptsrc();
+   test_Parameter_class();
+   test_Function_class();
+   test_PowerLaw_class();
+   test_SourceModel_class();
+   test_Table_class();
+   test_Statistic_class();
+   test_Event_class();
+   test_PointSource_class();
+   test_Aeff_class();
+   test_Psf_class();
+   test_logLike_ptsrc();
+   test_CompositeFunction();
+   test_OptPP();
    fit_3C279();
    fit_anti_center();
    return 0;
 }
 
+/*******************/
+/* Test OptPP code */
+/*******************/
+void test_OptPP() {
+// Test the OptPP code using my standard 2D Rosenbrock test with
+// bounds constraints
+   Rosen my_rosen;
+
+   std::vector<Parameter> params;
+   my_rosen.getParams(params);
+   params[0].setValue(2.);
+   params[0].setBounds(5./4., 10);
+   params[1].setValue(2.);
+   params[1].setBounds(-4., 10);
+   my_rosen.setParams(params);
+
+   int verbose = 3;
+
+// try lbfgs_bcm method first   
+//   lbfgs my_lbfgsObj(&my_rosen);
+//   my_lbfgsObj.find_min(verbose);
+
+//  // now try OptPP
+//     OptPP my_OptppObj(&my_rosen);
+//     my_OptppObj.find_min(verbose);
+
+//     my_rosen.getParams(params);
+//     for (unsigned int i = 0; i < params.size(); i++) 
+//        std::cout << params[i].getName() << ": "
+//                  << params[i].getValue() << std::endl;
+}
+// test_OptPP
+
+void test_CompositeFunction() {
+
+   Gaussian Carl(1., 1., 0.1);
+   Gaussian Fredrich(0.5, 2., 0.3);
+
+   SumFunction gauss_sum(&Carl, &Fredrich);
+
+   Gaussian Johann(.75, 3., 0.5);
+
+   SumFunction another_gauss_sum(&Johann, &gauss_sum);
+
+   int nmax = 100;
+   double xstep = 5./(nmax-1);
+   for (int i = 0; i < nmax; i++) {
+      double x = xstep*i;
+      dArg xarg(x);
+      std::cout << x << "  " << another_gauss_sum(xarg) << std::endl;
+   }
+}
+
 void fit_anti_center() {
 
 // set the ROI cuts
-   RoiCuts::setCuts(83.57, 22.01, 30.);
-
-   logLike_ptsrc logLike;
+   RoiCuts::setCuts(83.57, 22.01, 20.);
 
 /* read in the spacecraft data */
    std::string sc_file = test_path + "/Data/anti_center_sc_0000";
@@ -82,14 +141,18 @@ void fit_anti_center() {
 
 // add the sources to the model
 
+   logLike_ptsrc logLike;
+
 // Crab Pulsar
    double ra = 83.57;
    double dec = 22.01;
    PointSource Crab(ra, dec);
 
-   double Prefactor = 6.46e-4;
+//   double Prefactor = 6.46e-4;
+//   double Prefactor = 6.46e1;
+   double Prefactor = 27.;
    double Gamma = -2.19;
-   double Escale = 1.;
+   double Escale = 100.;
 
    PowerLaw Crab_pl(Prefactor, Gamma, Escale);
 
@@ -98,7 +161,9 @@ void fit_anti_center() {
    indexParam->setBounds(-3.5, -1.);  
 // set limits on normalization
    Parameter *prefactorParam = Crab_pl.getParam("Prefactor");
-   prefactorParam->setBounds(1e-8, 1e-2);
+//   prefactorParam->setBounds(1e-8, 1e-2);
+   prefactorParam->setBounds(1e-3, 1e3);
+   prefactorParam->setScale(1e-9);
 
    Crab.setSpectrum(&Crab_pl);
    Crab.setName("Crab Pulsar");
@@ -109,9 +174,10 @@ void fit_anti_center() {
    dec = 17.86;
    PointSource Geminga(ra, dec);
 
-   Prefactor = 4.866e-5;
+//   Prefactor = 4.866e-5;
+   Prefactor = 23.29;
    Gamma = -1.66;
-   Escale = 1.;
+   Escale = 100.;
 
    PowerLaw Geminga_pl(Prefactor, Gamma, Escale);
 //set limits on index
@@ -119,7 +185,9 @@ void fit_anti_center() {
    indexParam->setBounds(-3.5, -1.);  
 // set limits on normalization
    prefactorParam = Geminga_pl.getParam("Prefactor");
-   prefactorParam->setBounds(1e-8, 1e-2);  
+//   prefactorParam->setBounds(1e-8, 1e-2);  
+   prefactorParam->setBounds(1e-3, 1e3);  
+   prefactorParam->setScale(1e-9);
 
    Geminga.setSpectrum(&Geminga_pl);
    Geminga.setName("Geminga Pulsar");
@@ -130,9 +198,10 @@ void fit_anti_center() {
    dec = 13.38;
    PointSource _0528(ra, dec);
 
-   Prefactor = 1.135e-3;
+//   Prefactor = 1.135e-3;
+   Prefactor = 13.6;
    Gamma = -2.46;
-   Escale = 1.;
+   Escale = 100.;
 
    PowerLaw _0528_pl(Prefactor, Gamma, Escale);
 //set limits on index
@@ -140,7 +209,9 @@ void fit_anti_center() {
    indexParam->setBounds(-3.5, -1.);  
 // set limits on normalization
    prefactorParam = _0528_pl.getParam("Prefactor");
-   prefactorParam->setBounds(1e-8, 1e-2);  
+//   prefactorParam->setBounds(1e-8, 1e-2);
+   prefactorParam->setBounds(1e-3, 1e3);
+   prefactorParam->setScale(1e-9);
 
    _0528.setSpectrum(&_0528_pl);
    _0528.setName("PKS 0528+134");
@@ -153,24 +224,24 @@ void fit_anti_center() {
 // some derivative tests
    std::vector<double> derivs;
    logLike.getFreeDerivs(derivs);
-
+   
    std::vector<double> params;
    logLike.getFreeParamValues(params);
+   
    double statval0 = logLike(params);
-
+   
    for (unsigned int i = 0; i < params.size(); i++) {
       std::vector<double> new_params = params;
-      double dparam = params[i]*1e-7;
+      double dparam = params[0]*1e-7;
       new_params[i] += dparam;
       double statval = logLike(new_params);
       std::cout << derivs[i] << "  " 
-                << (statval - statval0)/dparam 
-                << std::endl;
+                << (statval - statval0)/dparam << std::endl;
    }
-   std::cout << std::endl;
 
 //  // do the fit
-//     lbfgs myOptimizer(&logLike);
+//  //   lbfgs myOptimizer(&logLike);
+//     OptPP myOptimizer(&logLike);
 
 //     int verbose = 3;
 //     myOptimizer.find_min(verbose);
@@ -187,6 +258,91 @@ void fit_3C279() {
 
    double ra = 193.98;
    double dec = -5.82;
+   
+// set the ROI cuts
+   RoiCuts::setCuts(ra, dec, 30.);
+   
+/* read in the spacecraft data */
+   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   int sc_hdu = 2;
+   ScData::readData(sc_file, sc_hdu);
+   
+   logLike_ptsrc logLike;
+
+   PointSource _3c279(ra, dec);
+   
+//    double Prefactor = 5.92e-5;
+//    double Gamma = -1.96;
+//    double Escale = 1;
+
+   double Prefactor = 4.;
+   double Gamma = -2.1;
+   double Escale = 100.;
+   
+   PowerLaw pl(Prefactor, Gamma, Escale);
+
+//set limits on index
+   Parameter *indexParam = pl.getParam("Index");
+   indexParam->setBounds(-3.5, -1.);  
+
+// set limits on normalization
+   Parameter *prefactorParam = pl.getParam("Prefactor");
+//   prefactorParam->setBounds(1e-8, 1e-2);  
+   prefactorParam->setBounds(1e-3, 1e3);  
+   prefactorParam->setScale(1e-9);
+
+   _3c279.setSpectrum(&pl);
+
+   _3c279.setName("3C 279");
+
+   logLike.addSource(&_3c279);
+
+// read in the data
+   std::string event_file = test_path + "/Data/one_src_0000";
+   logLike.getEvents(event_file, 2);
+
+ // some derivative tests
+   std::vector<double> derivs;
+   logLike.getFreeDerivs(derivs);
+   
+   std::vector<double> params;
+   logLike.getFreeParamValues(params);
+   
+   double statval0 = logLike(params);
+   
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::vector<double> new_params = params;
+      double dparam = params[0]*1e-7;
+      new_params[i] += dparam;
+      double statval = logLike(new_params);
+      std::cout << derivs[i] << "  " 
+                << (statval - statval0)/dparam << std::endl;
+   }
+
+//  // do the fit using lbfgs_bcm
+//  //   lbfgs myOptimizer(&logLike);
+
+//  // do the fit using OptPP
+//     OptPP myOptimizer(&logLike);
+   
+//     int verbose = 3;
+//     myOptimizer.find_min(verbose);
+   
+//     std::vector<Parameter> parameters;
+//     logLike.getParams(parameters);
+   
+//     for (unsigned int i = 0; i < parameters.size(); i++)
+//        std::cout << parameters[i].getName() << ": "
+//                  << parameters[i].getValue() << std::endl;
+}
+
+/***********************/
+/* logLike_ptsrc tests */
+/***********************/
+void test_logLike_ptsrc() {
+
+   double ra = 193.98;
+   double dec = -5.82;
 
 // set the ROI cuts
    RoiCuts::setCuts(ra, dec, 30.);
@@ -200,81 +356,15 @@ void fit_3C279() {
 
    PointSource _3c279(ra, dec);
 
-   double Prefactor = 5.92e-5;
+   double Prefactor = 7.;
    double Gamma = -1.96;
-//    double Prefactor = 3e-5;
-//    double Gamma = -2.1;
-   double Escale = 1.;
+   double Escale = 100.;
 
    PowerLaw pl(Prefactor, Gamma, Escale);
-
-//set limits on index
-   Parameter *indexParam = pl.getParam("Index");
-   indexParam->setBounds(-3.5, -1.);  
-
-// set limits on normalization
    Parameter *prefactorParam = pl.getParam("Prefactor");
-   prefactorParam->setBounds(1e-8, 1e-3);  
+   prefactorParam->setScale(1e-9);
 
    _3c279.setSpectrum(&pl);
-
-   _3c279.setName("3C 279");
-
-   logLike.addSource(&_3c279);
-
-// read in the data
-   std::string event_file = test_path + "/Data/one_src_0000";
-   logLike.getEvents(event_file, 2);
-
-// some derivative tests
-   std::vector<double> derivs;
-   logLike.getFreeDerivs(derivs);
-
-   std::vector<double> params;
-   logLike.getFreeParamValues(params);
-   double statval0 = logLike(params);
-
-   for (unsigned int i = 0; i < params.size(); i++) {
-      std::vector<double> new_params = params;
-      double dparam = params[i]*1e-7;
-      new_params[i] += dparam;
-      double statval = logLike(new_params);
-      std::cout << derivs[i] << "  " 
-                << (statval - statval0)/dparam 
-                << std::endl;
-   }
-   std::cout << std::endl;
-
-//  // do the fit
-//     lbfgs myOptimizer(&logLike);
-
-//     int verbose = 3;
-//     myOptimizer.find_min(verbose);
-
-//     std::vector<Parameter> parameters;
-//     logLike.getParams(parameters);
-
-//     for (unsigned int i = 0; i < parameters.size(); i++)
-//        std::cout << parameters[i].getName() << ": "
-//                  << parameters[i].getValue() << std::endl;
-}
-
-/***********************/
-/* logLike_ptsrc tests */
-/***********************/
-void test_logLike_ptsrc() {
-
-   logLike_ptsrc logLike;
-
-   double ra = 193.98;
-   double dec = -5.82;
-   PointSource _3c279(ra, dec);
-
-   double Prefactor = 5.92e-5;
-   double Gamma = -1.96;
-   double Escale = 1.;
-
-   _3c279.setSpectrum(new PowerLaw(Prefactor, Gamma, Escale));
 
    _3c279.setName("3C 279");
 
@@ -286,13 +376,13 @@ void test_logLike_ptsrc() {
    report_SrcModel_values(logLike);
 
    std::vector<Parameter> params;
-   logLike.getParams(params);
+   logLike.getFreeParams(params);
 
 // vary over the Prefactor of the Spectrum and compute the
 // log-likelihood at each step
 
-   double xmin = 5e-6;
-   double xmax = 2e-4;
+   double xmin = 3.;
+   double xmax = 10.;
    int nx = 20;
    double xstep = log(xmax/xmin)/(nx-1.);
 
@@ -312,7 +402,6 @@ void test_logLike_ptsrc() {
    }
 }
 // logLike_ptsrc tests
-
 
 /********************/
 /* Psf class tests */
@@ -368,6 +457,14 @@ void test_Aeff_class() {
 /* PointSource class tests */
 /***************************/
 void test_PointSource_class() {
+
+// set the ROI cuts
+   RoiCuts::setCuts(193.98, -5.82, 30.);
+
+/* read in the spacecraft data */
+   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   int sc_hdu = 2;
+   ScData::readData(sc_file, sc_hdu);
 
 /* put this source at the center of the extraction region for
    Data/one_src_0000 (ra, dec) = (193.98, -5.82) */
@@ -443,6 +540,7 @@ void test_Event_class() {
 
 // get pointer to RoiCuts
    RoiCuts *roi_cuts = RoiCuts::instance();
+   RoiCuts::setCuts(193.98, -5.82, 30);
 
    unsigned int nReject = 0;
 
@@ -691,19 +789,23 @@ void test_SourceModel_class() {
    
 /* instantiate some point sources */
 
-   PointSource _3c279(193.98, -5.82);
+   PointSource _3c279;
+   _3c279.setDir(193.98, -5.82);
    _3c279.setSpectrum(new PowerLaw(74.2, -1.96, 0.1));
    _3c279.setName("3C 279");
 
-   PointSource _3c273(187.25, 2.17);
+   PointSource _3c273;
+   _3c273.setDir(187.25, 2.17);
    _3c273.setSpectrum(new PowerLaw(15.4, -2.58, 0.1));
    _3c273.setName("3C 273");
 
-   PointSource Crab(83.57, 22.01);
+   PointSource Crab;
+   Crab.setDir(83.57, 22.01);
    Crab.setSpectrum(new PowerLaw(226.2, -2.19, 0.1));
    Crab.setName("Crab Pulsar");
 
-   PointSource Vela(128.73, -45.20);
+   PointSource Vela;
+   Vela.setDir(128.73, -45.20);
    Vela.setSpectrum(new PowerLaw(834.3, -1.69, 0.1));
    Vela.setName("Vela Pulsar");
 
@@ -720,7 +822,8 @@ void test_SourceModel_class() {
    report_SrcModel_values(SrcModel);
 
 /* add another function */
-   PointSource Geminga(98.49, 17.86);
+   PointSource Geminga;
+   Geminga.setDir(98.49, 17.86);
    Geminga.setSpectrum(new PowerLaw(352.9, -1.66, 0.1));
    Geminga.setName("Geminga");
    SrcModel.addSource(&Geminga);
@@ -849,9 +952,9 @@ void test_PowerLaw_class() {
 /* reset the parameters and compute some values */
    pl.setParam("Prefactor", 2.);
    pl.setParam("Index", -2.2);
-   for (double xx = 1.05; xx < 1e3; xx *= xx) {
-      dArg xarg(xx);
-      std::cout << xx << "   " << pl(xarg) << std::endl;
+   for (double x = 1.05; x < 1e3; x *= x) {
+      dArg xarg(x);
+      std::cout << x << "   " << pl(xarg) << std::endl;
    }
 
 /* get the derivatives and compare to numerical estimates */
@@ -953,7 +1056,7 @@ void test_Function_class() {
    f.setParam(std::string("Mary"), 2.);
    f.setParam(std::string("Jane"), 3e-5);
 
-   std::vector<std::string> my_paramNames;
+   std::vector<string> my_paramNames;
    f.getParamNames(my_paramNames);
       
    std::cout << "Here they are: " << std::endl;
@@ -977,10 +1080,10 @@ void test_Function_class() {
    f.setParamValues(inputVec);
 
 /* change the value of an existing parameter */
-   f.setParam(std::string("Ruthie"), 10.);
+   f.setParam(string("Ruthie"), 10.);
 
 /* attempt to change the value of a non-existing parameter */
-   f.setParam(std::string("Oscar"), 5.);
+   f.setParam(string("Oscar"), 5.);
       
    std::cout << "The current set of values: " << std::endl;
    std::vector<double> my_params;
@@ -1007,13 +1110,13 @@ void test_Function_class() {
    std::cout << std::endl;
 
 /* test of pointers to Parameter */
-   Parameter *ptrP = f.getParam(std::string("Mary"));
+   Parameter *ptrP = f.getParam(string("Mary"));
    if (ptrP != NULL) {
       std::cout << ptrP->getName() << ":  " 
                 << ptrP->getValue() << std::endl;
    }
       
-   ptrP = f.getParam(std::string("Joan"));
+   ptrP = f.getParam(string("Joan"));
    if (ptrP != NULL) {
       std::cout << ptrP->getName() << ":  " 
                 << ptrP->getValue() << "\n" << std::endl;
@@ -1075,7 +1178,7 @@ void read_SC_Response_data() {
 /* get root path to test data */   
    const char * root = ::getenv("LIKELIHOODROOT");
    if (!root) {  //use relative path from cmt directory
-      test_path = "src/test/";
+      test_path = "../src/test/";
    } else {
       test_path = std::string(root) + "/src/test/";
    }

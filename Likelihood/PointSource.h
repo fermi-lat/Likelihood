@@ -16,7 +16,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:$
+ * $Header:
  */
 
 class PointSource : public Source {
@@ -25,13 +25,6 @@ public:
 
    PointSource() : m_spectrum(0) {
       setDir(0., 0.);
-      if (!m_haveStaticMembers) {
-         m_makeEnergyVector();
-         m_makeSigmaVector();
-         m_haveStaticMembers = true;
-      }
-      computeGaussFractions();
-      computeExposure();
    }
    PointSource(double ra, double dec) : m_spectrum(0) {
       setDir(ra, dec);

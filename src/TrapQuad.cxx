@@ -22,13 +22,15 @@ double TrapQuad::integral(double xmin, double xmax, int npts) {
                 << std::endl;
       return 0;
    }
+   m_x.clear();
+   m_y.clear();
    m_x.reserve(npts);
    m_y.reserve(npts);
    double xstep = (xmax - xmin)/(npts - 1);
    for (int i = 0; i < npts; i++) {
-      m_x[i] = i*xstep + xmin;
+      m_x.push_back(i*xstep + xmin);
       dArg xarg(m_x[i]);
-      m_y[i] = (*m_func)(xarg);
+      m_y.push_back((*m_func)(xarg));
    }
    return compute_integral();
 }
@@ -42,10 +44,11 @@ double TrapQuad::integral(std::vector<double> &xvals) {
    }
    m_x = xvals;
    int npts = m_x.size();
+   m_y.clear();
    m_y.reserve(npts);
    for (int i = 0; i < npts; i++) {
       dArg xarg(m_x[i]);
-      m_y[i] = (*m_func)(xarg);
+      m_y.push_back((*m_func)(xarg));
    }
    return compute_integral();
 }

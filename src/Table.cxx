@@ -1,7 +1,7 @@
 /** @file Table.cxx
 * @brief Implementation of Table member functions
 *
-* $Header:$
+* $Header:
 */
 
 #include "Likelihood/Table.h"

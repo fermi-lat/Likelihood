@@ -1,7 +1,7 @@
 /** @file Statistic.cxx
  * @brief Statistic class implementation
  *
- * $Header:$
+ * $Header:
  */
 
 #include <vector>

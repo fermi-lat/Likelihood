@@ -15,9 +15,9 @@ namespace Likelihood {
 class PowerLaw : public Function {
 public:
 
-   PowerLaw(){m_init(0, -2, 1);};
+   PowerLaw(){m_init(0, -2, 1);}
    PowerLaw(double Prefactor, double Index, double Scale)
-      {m_init(Prefactor, Index, Scale);};
+      {m_init(Prefactor, Index, Scale);}
 
    double value(Arg&) const;
 

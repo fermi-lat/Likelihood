@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header:$ */
+ * $Header: */
 
 class logSrcModel : public SourceModel {
     

@@ -17,7 +17,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header:$ */
+ * $Header: */
 
 class Arg {
     

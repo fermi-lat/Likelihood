@@ -30,9 +30,9 @@ double Gaussian::integral(Arg &xargmin, Arg &xargmax) const {
    getParams(my_params);
    enum paramTypes {Prefactor, Mean, Sigma};
 
-   double f0 = my_params[Prefactor].getValue();
-   double x0 = my_params[Mean].getValue();
-   double sigma = my_params[Sigma].getValue();
+   double f0 = my_params[Prefactor].getTrueValue();
+   double x0 = my_params[Mean].getTrueValue();
+   double sigma = my_params[Sigma].getTrueValue();
 
    double zmin = (xmin - x0)/sqrt(2.)/sigma;
    double zmax = (xmax - x0)/sqrt(2.)/sigma;
@@ -61,10 +61,10 @@ double Gaussian::value(Arg &xarg) const {
    std::vector<Parameter> my_params;
    getParams(my_params);
 
-   return my_params[Prefactor].getValue()/sqrt(2.*M_PI)
-      /my_params[Sigma].getValue()
-      *exp(-pow( (x - my_params[Mean].getValue())
-                 /my_params[Sigma].getValue(), 2 )/2.);
+   return my_params[Prefactor].getTrueValue()/sqrt(2.*M_PI)
+      /my_params[Sigma].getTrueValue()
+      *exp(-pow( (x - my_params[Mean].getTrueValue())
+                 /my_params[Sigma].getTrueValue(), 2 )/2.);
 }
 
 double Gaussian::derivByParam(Arg &xarg, 
@@ -91,16 +91,19 @@ double Gaussian::derivByParam(Arg &xarg,
    
    switch (iparam) {
    case Prefactor:
-      return value(xarg)/my_params[Prefactor].getValue();
+      return value(xarg)/my_params[Prefactor].getTrueValue()
+         *my_params[Prefactor].getScale();
       break;
    case Mean:
-      return value(xarg)*(x - my_params[Mean].getValue())
-         /my_params[Sigma].getValue();
+      return value(xarg)*(x - my_params[Mean].getTrueValue())
+         /my_params[Sigma].getTrueValue()
+         *my_params[Mean].getScale();
       break;
    case Sigma:
-      return value(xarg)/my_params[Sigma].getValue()
-         *( pow((x - my_params[Mean].getValue())/my_params[Sigma].getValue(), 2)
-            - 1. );
+      return value(xarg)/my_params[Sigma].getTrueValue()
+         *( pow((x - my_params[Mean].getTrueValue())
+                /my_params[Sigma].getTrueValue(), 2) - 1. )
+         *my_params[Sigma].getScale();
       break;
    default:
       break;

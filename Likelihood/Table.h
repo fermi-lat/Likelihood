@@ -18,7 +18,7 @@ namespace Likelihood {
  *
  * @author T. Burnett, J. Chiang using code from Y. Ikebe
  *    
- * $Header:$
+ * $Header:
  */
 
 class Table {
