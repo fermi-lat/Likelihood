@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Nov  8 08:31:19 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+radian-degree conversion; binned map access
+    *
+------------------------------------------------------------
+User: jchiang  Mon Nov  8 08:31:19 PST 2004
 Likelihood/src
 
 Modified Files:
