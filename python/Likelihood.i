@@ -11,6 +11,7 @@
 #include "optimizers/ParameterNotFound.h"
 #include "optimizers/Function.h"
 #include "optimizers/FunctionFactory.h"
+#include "optimizers/Mcmc.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
@@ -48,6 +49,7 @@ using optimizers::Exception;
 %include ../../../optimizers/v1r4/optimizers/Function.h
 %include ../../../optimizers/v1r4/optimizers/FunctionFactory.h
 %include ../../../optimizers/v1r4/optimizers/Optimizer.h
+%include ../../../optimizers/v1r4/optimizers/Mcmc.h
 %include ../Likelihood/Exception.h
 %include ../Likelihood/ResponseFunctions.h
 %include ../Likelihood/Event.h
@@ -134,6 +136,9 @@ using optimizers::Exception;
    }
    optimizers::Optimizer * Drmngb() {
       return new optimizers::Drmngb(*self);
+   }
+   optimizers::Mcmc * Mcmc() {
+      return new optimizers::Mcmc(*self);
    }
    static void loadResponseFunctions(const std::string & respFuncs) {
       irfLoader::Loader::go();
