@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar 18 20:56:15 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	TsMap.cxx expMap.cxx likelihood.cxx makeExposureCube.cxx 
+Log Message:
+clean up requirements file; add access to GLAST25 response functions in apps; tagging v2r11
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar 18 20:56:14 PST 2004
 Likelihood/doc
 
