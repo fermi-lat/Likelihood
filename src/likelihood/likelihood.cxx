@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.56 2004/12/07 05:13:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.57 2004/12/08 00:31:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,7 +54,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.56 2004/12/07 05:13:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.57 2004/12/08 00:31:16 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -105,9 +105,10 @@ void likelihood::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(m_pars);
-   m_helper->setRoi();
    if (m_statistic == "BINNED") {
+      m_helper->setRoi(m_pars["counts_map_file"], "", false);
    } else {
+      m_helper->setRoi();
       std::string exposureFile = m_pars["exposure_map_file"];
       if (exposureFile != "none") {
          m_helper->checkCuts(m_pars["evfile"], "EVENTS", exposureFile, "");
@@ -177,8 +178,8 @@ void likelihood::promptForParameters() {
       m_pars.Prompt("scfile");
       m_pars.Prompt("evfile");
       m_pars.Prompt("exposure_map_file");
+      m_pars.Prompt("ROI_file");
    }
-   m_pars.Prompt("ROI_file");
    m_pars.Prompt("source_model_file");
    m_pars.Prompt("source_model_output_file");
    m_helper->checkOutputFile(m_pars["clobber"], 
