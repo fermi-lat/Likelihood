@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: pln  Tue May 20 14:07:38 PDT 2003
+Likelihood/src
+
+Added Files:
+	minuit_routines.c Minuit.cxx intrac.c 
+Log Message:
+Minuit optimizer from CERN
+    *
+------------------------------------------------------------
 User: pln  Tue May 20 11:52:18 PDT 2003
 Likelihood/Likelihood
 
