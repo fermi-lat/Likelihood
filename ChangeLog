@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Sat Apr  3 14:11:57 PST 2004
+Likelihood/src/test
+
+Removed Files:
+	TsMap.cxx expMap.cxx likelihood.cxx main.cxx 
+	makeExposureCube.cxx 
+Log Message:
+reorganize directories, requirements file
+    *
+------------------------------------------------------------
 User: jchiang  Sat Apr  3 14:11:55 PST 2004
 Likelihood/src/old_tests
 
