@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec 10 17:54:45 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+more ROI removal
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec 10 17:54:43 PST 2004
 Likelihood/src/diffuseResponses
 
