@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.16 2004/12/11 01:54:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.17 2005/01/06 23:42:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.16 2004/12/11 01:54:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.17 2005/01/06 23:42:16 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -83,7 +83,7 @@ private:
 st_app::StAppFactory<TsMap> myAppFactory;
 
 TsMap::TsMap() : st_app::StApp(), m_helper(0), 
-                 m_pars(st_app::StApp::getParGroup("TsMap")), m_opt(0) {
+                 m_pars(st_app::StApp::getParGroup("gttsmap")), m_opt(0) {
    try {
       m_pars.Prompt();
       m_pars.Save();

@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v6r4   31-Jan-05  JC   rename applications using gt- prefix
     v6r3p2 31-Jan-05  JC   enable swig module build with cmt
     v6r3p1 14-Jan-05  JC   small fix to results.dat format
     v6r3   13-Jan-05  JC   reformat output of results.dat

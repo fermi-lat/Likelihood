@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.18 2005/01/19 02:15:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.19 2005/01/29 16:01:46 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.18 2005/01/19 02:15:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.19 2005/01/29 16:01:46 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -66,7 +66,7 @@ private:
 st_app::StAppFactory<ExpMap> myAppFactory;
 
 ExpMap::ExpMap() : st_app::StApp(), m_helper(0), 
-                   m_pars(st_app::StApp::getParGroup("expMap")) {}
+                   m_pars(st_app::StApp::getParGroup("gtexpmap")) {}
 
 void ExpMap::run() {
    promptForParameters();

@@ -1,0 +1,16 @@
+evfile,fr,a,"none",,,"Event data file"
+evtable,s,hl,"EVENTS",,,"Event data extension"
+scfile,fr,a,"oneday_scData_0000.fits",,,"Spacecraft data file"
+sctable,s,hl,"Ext1",,,"Spacecraft data extension"
+exposure_cube_file,f,a,"expcube_1_day.fits",,,"Exposure hypercube file"
+outfile,f,a,"expMap.fits",,,"output file name"
+rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions"
+use_energy_dispersion,b,hl,no,,,Use energy dispersion?
+source_region_radius,r,a,30,,,Radius of the source region (in degrees)
+number_of_longitude_points,i,a,120,2,1000,Number of longitude points
+number_of_latitude_points,i,a,120,2,1000,Number of latitude points
+number_of_energies,i,a,20,2,100,Number of energies
+
+chatter,i,h,2,0,4,Output verbosity
+clobber,        b, h, yes, , , "Overwrite existing output files"
+mode,           s, h, "ql", , , "Mode of automatic parameters"
