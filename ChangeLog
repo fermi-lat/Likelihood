@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 13 08:30:39 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h SourceModel.h 
+Added Files:
+	BinnedLikelihood.h 
+Log Message:
+add BinnedLikelihood class
+    *
+------------------------------------------------------------
 User: jchiang  Fri Sep  3 14:48:34 PDT 2004
 Likelihood/doc
 
