@@ -1,4 +1,22 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 10 16:58:52 PDT 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx Aeff.cxx DiffuseSource.cxx Event.cxx FitsImage.cxx 
+	Function.cxx FunctionTest.cxx Gaussian.cxx Lbfgs.cxx Mcmc.cxx 
+	Minuit.cxx MyFun.cxx Parameter.cxx PowerLaw.cxx Psf.cxx 
+	Response.cxx Rosen.cxx SkyDirFunction.cxx SourceFactory.cxx 
+	SourceModel.cxx SpectrumFactory.cxx Statistic.cxx Table.cxx 
+	TrapQuad.cxx 
+Added Files:
+	LikelihoodException.h OutOfBounds.h ParameterNotFound.h 
+Log Message:
+move LikelihoodException from public header files;
+use forward class declarations rather than #include's
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 10 16:58:31 PDT 2003
 Likelihood/Likelihood
 
