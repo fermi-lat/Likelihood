@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v7r1p5 16-Mar-05  JC   update python tutorial; improve gui semantics
     v7r1p4 09-Mar-05  JC   update tutorials
     v7r1p3 08-Mar-05  JC   more TsMap debugging
     v7r1p2 07-Mar-05  JC   debug TsMap; use new evtbin::DataProduct interface;
