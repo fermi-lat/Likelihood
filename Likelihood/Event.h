@@ -1,8 +1,9 @@
-/** @file Event.h
+/** 
+ * @file Event.h
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.10 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.11 2003/05/02 19:02:13 jchiang Exp $
  */
 
 #ifndef Event_h
@@ -28,7 +29,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.10 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.11 2003/05/02 19:02:13 jchiang Exp $
  */
 
 class Event {
@@ -55,7 +56,8 @@ public:
 
    //! return the Event specific diffuse response function 
    //! for the named diffuse component
-   double diffuseResponse(double energy, std::string diffuseComponent) const;
+   double diffuseResponse(double energy, 
+                          const std::string &diffuseComponent) const;
     
    //! This method takes the spatial distribution of the emission for
    //! the DiffuseSource src and computes the event-specific response.

@@ -1,8 +1,9 @@
-/** @file EventArg.h
+/** 
+ * @file EventArg.h
  * @brief Declaration of EventArg class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventArg.h,v 1.4 2003/03/17 00:53:42 jchiang Exp $
  */
 
 #ifndef EventArg_h
@@ -20,7 +21,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventArg.h,v 1.4 2003/03/17 00:53:42 jchiang Exp $
  */
 
 class EventArg : public Arg {

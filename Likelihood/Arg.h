@@ -1,7 +1,8 @@
-/** @file Arg.h
+/** 
+ * @file Arg.h
  * @brief Declaration of Arg class
  * @author J. Chiang
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Arg.h,v 1.4 2003/03/17 00:53:42 jchiang Exp $
  */
 
 #ifndef Arg_h
@@ -18,18 +19,20 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Arg.h,v 1.4 2003/03/17 00:53:42 jchiang Exp $
  */
 
 class Arg {
     
 public:
+
+   Arg() {}
    
    virtual ~Arg() {}
 
 protected:
 
-   Arg() {}
+//   Arg() {}
 
 };
 

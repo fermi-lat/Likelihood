@@ -3,7 +3,7 @@
  * @brief Parameter class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Parameter.cxx,v 1.6 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Parameter.cxx,v 1.7 2003/05/21 23:12:13 jchiang Exp $
  */
 
 #include <vector>
@@ -43,7 +43,7 @@ void Parameter::setBounds(double minValue, double maxValue)
 }
 
 // return bounds as a pair
-std::pair<double, double> Parameter::getBounds() {
+std::pair<double, double> Parameter::getBounds() const {
    std::pair<double, double> my_Bounds(m_minValue, m_maxValue);
    return my_Bounds;
 }

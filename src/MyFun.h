@@ -1,14 +1,16 @@
-/** @file MyFun.h
+/** 
+ * @file MyFun.h
  * @brief Test function declaration.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
 
 #include "Likelihood/Function.h"
-#include "Likelihood/Arg.h"
 
 namespace Likelihood {
+
+class Arg;
 
 /** 
  * @class MyFun
@@ -17,7 +19,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.5 2003/03/16 21:53:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MyFun.h,v 1.6 2003/03/17 00:53:44 jchiang Exp $
  */
     
 class MyFun : public Function {

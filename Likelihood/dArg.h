@@ -1,8 +1,9 @@
-/** @file dArg.h
+/** 
+ * @file dArg.h
  * @brief Declaration of dArg class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/dArg.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef dArg_h
@@ -19,7 +20,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/dArg.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class dArg : public Arg{

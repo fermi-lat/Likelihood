@@ -3,15 +3,13 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.17 2003/05/21 23:12:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.18 2003/05/22 22:30:11 jchiang Exp $
  */
 
 #include <iostream>
 #include <sstream>
 
 #include "Likelihood/Function.h"
-#include "Likelihood/SumFunction.h"
-#include "Likelihood/ProductFunction.h"
 
 namespace Likelihood {
 
@@ -23,7 +21,7 @@ void Function::setParam(const Parameter &param) throw(ParameterNotFound) {
          return;
       } 
    }
-   throw(ParameterNotFound(param.getName(), getMyName(), 
+   throw(ParameterNotFound(param.getName(), getName(), 
                            "setParam(Parameter&)"));
 }
 
@@ -36,7 +34,7 @@ double Function::getParamValue(const std::string &paramName) const
          return it->getValue();
       }
    }
-   throw(ParameterNotFound(paramName, getMyName(), "getParamValue"));
+   throw(ParameterNotFound(paramName, getName(), "getParamValue"));
 }
 
 // Return named Parameter
@@ -48,7 +46,7 @@ Parameter *Function::getParam(const std::string &paramName)
          return &(*it);
       }
    }
-   throw(ParameterNotFound(paramName, getMyName(), "getParam"));
+   throw(ParameterNotFound(paramName, getName(), "getParam"));
 }
 
 void Function::setParamBounds(const std::string &paramName, double lower,
@@ -60,7 +58,7 @@ void Function::setParamBounds(const std::string &paramName, double lower,
          return;
       }
    }
-   throw(ParameterNotFound(paramName, getMyName(), "setParamBounds"));
+   throw(ParameterNotFound(paramName, getName(), "setParamBounds"));
 }
 
 void Function::setParamScale(const std::string &paramName, double scale) 
@@ -72,7 +70,7 @@ void Function::setParamScale(const std::string &paramName, double scale)
          return;
       }
    }
-   throw(ParameterNotFound(paramName, getMyName(), "setParamScale"));
+   throw(ParameterNotFound(paramName, getName(), "setParamScale"));
 }
 
 void Function::setParamTrueValue(const std::string &paramName, 
@@ -85,7 +83,7 @@ void Function::setParamTrueValue(const std::string &paramName,
          return;
       }
    }
-   throw(ParameterNotFound(paramName, getMyName(), "setParamTrueValue"));
+   throw(ParameterNotFound(paramName, getName(), "setParamTrueValue"));
 }
 
 void Function::setParamValues(const std::vector<double> &paramVec) 
@@ -162,19 +160,6 @@ void Function::setFreeParams(std::vector<Parameter> &params)
    }
 }      
 
-#if 0 // disable these until assignment operator is provided
-// use of these operators will no doubt leak memory....
-SumFunction &Function::operator+(Function &a) {
-   SumFunction *sumFunc = new SumFunction(*this, a);
-   return *sumFunc;
-}
-
-ProductFunction &Function::operator*(Function &a) {
-   ProductFunction *productFunc = new ProductFunction(*this, a);
-   return *productFunc;
-}
-#endif
-   
 void Function::setParameter(const std::string &paramName, 
 			    double paramValue,
                             int isFree) throw(ParameterNotFound) {
@@ -187,7 +172,7 @@ void Function::setParameter(const std::string &paramName,
          return;
       }
    }
-   throw(ParameterNotFound(paramName, getMyName(), "setParameter"));
+   throw(ParameterNotFound(paramName, getName(), "setParameter"));
 }
 
 void Function::addParam(const std::string &paramName,
@@ -211,8 +196,9 @@ void Function::addParam(const std::string &paramName,
       m_parameter.push_back(my_param);
    } else {
       std::ostringstream errorMessage;
-      errorMessage << "Can't add parameter " << paramName << "; "
-                   << "the parameter list is full at " 
+      errorMessage << "Function::addParam: " 
+                   << "Can't add parameter " << paramName << ". "
+                   << "The parameter list is full at " 
                    << m_maxNumParams << ".\n";
       throw(LikelihoodException(errorMessage.str()));
    }
