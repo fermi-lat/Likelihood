@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 30 12:23:05 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	likelihood.par 
+Log Message:
+add plot param; fix chatter in likelihood
+    *
+------------------------------------------------------------
 User: jchiang  Mon Nov 29 18:38:37 PST 2004
 Likelihood/src/likelihood
 
