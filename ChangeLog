@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 17 16:27:52 PDT 2004
+Likelihood/python
+
+Modified Files:
+	Makefile 
+Log Message:
+add methods for finding intervals in spacecraft data
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 17 16:27:51 PDT 2004
 Likelihood/cmt
 
