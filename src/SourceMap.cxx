@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.27 2005/02/28 18:38:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.28 2005/03/01 01:06:55 jchiang Exp $
  */
 
 #include <algorithm>
@@ -21,7 +21,6 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
-#include "Likelihood/ExposureCube.h"
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"

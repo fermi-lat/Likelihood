@@ -64,7 +64,9 @@ void meanPsf::run() {
    if (expcube_file == "none") {
       throw std::runtime_error("Please specify an exposure cube file.");
    }
-   m_helper->observation().expCube().readExposureCube(expcube_file);
+   ExposureCube & expCube = 
+      const_cast<ExposureCube &>(m_helper->observation().expCube());
+   expCube.readExposureCube(expcube_file);
    
    computeEnergies();
    computeThetas();

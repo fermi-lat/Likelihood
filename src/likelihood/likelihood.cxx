@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.71 2005/02/27 06:42:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.72 2005/03/01 01:07:01 jchiang Exp $
  */
 
 #include <cmath>
@@ -33,6 +33,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/ExposureCube.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/MapShape.h"
 #include "Likelihood/OptEM.h"
@@ -54,7 +55,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.71 2005/02/27 06:42:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.72 2005/03/01 01:07:01 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -206,7 +207,9 @@ void likelihood::createStatistic() {
       if (expcube_file == "none") {
          throw std::runtime_error("Please specify an exposure cube file.");
       }
-      m_helper->observation().expCube().readExposureCube(expcube_file);
+      ExposureCube & expCube = 
+         const_cast<ExposureCube &>(m_helper->observation().expCube());
+      expCube.readExposureCube(expcube_file);
       std::string countsMapFile = m_pars["counts_map_file"];
       st_facilities::Util::file_ok(countsMapFile);
       m_dataMap = new CountsMap(countsMapFile);
@@ -391,7 +394,9 @@ void likelihood::writeCountsMap() {
    if (expcube_file == "none") {
       return;
    }
-   m_helper->observation().expCube().readExposureCube(expcube_file);
+   ExposureCube & expCube = 
+      const_cast<ExposureCube &>(m_helper->observation().expCube());
+   expCube.readExposureCube(expcube_file);
    m_dataMap->writeOutput("likelihood", "data_map.fits");
    try {
       CountsMap * modelMap;

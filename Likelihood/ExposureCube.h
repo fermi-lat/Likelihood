@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.1 2004/08/23 15:49:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.2 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -24,41 +24,39 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.1 2004/08/23 15:49:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.2 2005/02/27 06:42:24 jchiang Exp $
  */
 
 class ExposureCube {
 
 public:
 
-   static ExposureCube * instance() {
-      return s_instance;
+   ExposureCube() : m_exposure(0), m_haveFile(false) {}
+
+   ~ExposureCube() {
+      delete m_exposure;
    }
 
-   static void delete_instance() {
-      delete s_instance;
-      s_instance = 0;
-   }
-
-   static void readExposureCube(std::string filename) {
-      s_instance = new ExposureCube();
+   void readExposureCube(std::string filename) {
       facilities::Util::expandEnvVar(&filename);
-      s_exposure = new map_tools::Exposure(filename);
+      m_exposure = new map_tools::Exposure(filename);
+      m_haveFile = true;
    }
 
    double value(const astro::SkyDir & dir, 
                 const map_tools::Exposure::Aeff & aeff) const {
-      return (*s_exposure)(dir, aeff);
+      return (*m_exposure)(dir, aeff);
    }
 
-protected:
-
-   ExposureCube() {}
+   bool haveFile() const {
+      return m_haveFile;
+   }
 
 private:
 
-   static ExposureCube * s_instance;
-   static map_tools::Exposure * s_exposure;
+   map_tools::Exposure * m_exposure;
+
+   bool m_haveFile;
 
 };
 
