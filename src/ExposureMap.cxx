@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.11 2003/08/06 20:52:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.12 2003/08/24 19:00:11 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
@@ -143,8 +143,7 @@ ExposureMap * ExposureMap::instance() {
 void ExposureMap::computeMap(const std::string &filename, double sr_radius,
                              int nlon, int nlat, int nenergies) {
    RoiCuts *roi_cuts = RoiCuts::instance();
-   std::pair<astro::SkyDir, double> roi = roi_cuts->getExtractionRegion();
-   astro::SkyDir roiCenter = roi.first;
+   astro::SkyDir roiCenter = roi_cuts->extractionRegion().center();
    FitsImage::EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
 
    double lonstep = 2.*sr_radius/(nlon-1);

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.22 2003/08/16 01:12:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.23 2003/10/02 19:08:06 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.22 2003/08/16 01:12:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.23 2003/10/02 19:08:06 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -149,44 +149,44 @@ private:
    //! method to create the sigma grid for m_gaussFraction
    static void makeSigmaVector(int nsig = 100);
 
-   //! Computes the enclosed fraction of a Gaussian as a function of 
-   //! Gaussian width sigma and stores these data for later
-   //! interpolation. These data depend on the ROI radius and the
-   //! source offset, psi, from the ROI center.
-   void computeGaussFractions();
+//    //! Computes the enclosed fraction of a Gaussian as a function of 
+//    //! Gaussian width sigma and stores these data for later
+//    //! interpolation. These data depend on the ROI radius and the
+//    //! source offset, psi, from the ROI center.
+//    void computeGaussFractions();
 
-   //! fraction of the psf that is contained within the ROI
-   double psfFrac(double energy, double inc);
+//    //! fraction of the psf that is contained within the ROI
+//    double psfFrac(double energy, double inc);
 
-#ifndef SWIG
-   //! nested class that returns the integrand for the m_gaussFraction
-   //! integrals
-   class Gint : public optimizers::Function {
-   public:
-      Gint() {};
-      Gint(double sig, double cr, double cp, double sp) : 
-           m_sig(sig), m_cr(cr), m_cp(cp), m_sp(sp) {}
-      virtual ~Gint(){};
-      double value(optimizers::Arg &mu) const;
-      double derivByParam(optimizers::Arg &, const std::string &) const {return 0;}
-   private:
-      double m_sig;
-      double m_cr;
-      double m_cp;
-      double m_sp;
-   };
-#endif
+// #ifndef SWIG
+//    //! nested class that returns the integrand for the m_gaussFraction
+//    //! integrals
+//    class Gint : public optimizers::Function {
+//    public:
+//       Gint() {};
+//       Gint(double sig, double cr, double cp, double sp) : 
+//            m_sig(sig), m_cr(cr), m_cp(cp), m_sp(sp) {}
+//       virtual ~Gint(){};
+//       double value(optimizers::Arg &mu) const;
+//       double derivByParam(optimizers::Arg &, const std::string &) const {return 0;}
+//    private:
+//       double m_sig;
+//       double m_cr;
+//       double m_cp;
+//       double m_sp;
+//    };
+// #endif
 
-   //! a static object needed to compute the m_gaussFraction integrals
-   //! using the DGAUS8 integrator
-   static Gint s_gfunc;
+//    //! a static object needed to compute the m_gaussFraction integrals
+//    //! using the DGAUS8 integrator
+//    static Gint s_gfunc;
 
-   //! a static member function to provide the interface to s_gfunc
-   //! that is required by DGAUS8
-   static double gfuncIntegrand(double *mu) {
-      optimizers::dArg muarg(*mu);
-      return s_gfunc(muarg);
-   }
+//    //! a static member function to provide the interface to s_gfunc
+//    //! that is required by DGAUS8
+//    static double gfuncIntegrand(double *mu) {
+//       optimizers::dArg muarg(*mu);
+//       return s_gfunc(muarg);
+//    }
 };
 
 } //namespace Likelihood
