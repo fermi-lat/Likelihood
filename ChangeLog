@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: burnett  Tue Jun 10 11:18:30 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+disable VCC warning message in requirements file
+    *
+------------------------------------------------------------
+User: burnett  Tue Jun 10 11:18:30 PDT 2003
 Likelihood/Likelihood
 
 Modified Files:
