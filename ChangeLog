@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Apr  6 19:11:17 PDT 2004
+Likelihood/doc
+
+Added Files:
+	Makefile 
+Log Message:
+replace replicated, boiler-plate st_app code with template
+    *
+------------------------------------------------------------
+User: jchiang  Tue Apr  6 19:11:17 PDT 2004
 Likelihood/Likelihood
 
 Added Files:
