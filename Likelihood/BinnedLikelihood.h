@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.6 2004/09/24 03:54:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.7 2004/09/24 21:02:07 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -14,8 +14,8 @@
 #include "optimizers/dArg.h"
 
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/LogLike.h"
 #include "Likelihood/Pixel.h"
-#include "Likelihood/SourceModel.h"
 
 namespace Likelihood {
 
@@ -26,12 +26,14 @@ class SourceMap;
  *
  */
 
-class BinnedLikelihood : public SourceModel {
+class BinnedLikelihood : public LogLike {
 
 public:
 
    BinnedLikelihood(const CountsMap & dataMap, 
                     const std::string & srcMapsFile="");
+
+   BinnedLikelihood(const std::string & dataMapFile);
                  
    virtual ~BinnedLikelihood() throw() {}
 
@@ -53,7 +55,7 @@ public:
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true) {
       SourceModel::readXml(xmlFile, funcFactory, requireExposure);
-      createSourceMaps();
+      prepareSourceMaps();
    }
 
    virtual CountsMap * createCountsMap() const;
@@ -62,7 +64,7 @@ public:
       return m_srcMaps.find(name)->second;
    }
 
-   void saveSourceMaps(std::string filename="") const;
+   void saveSourceMaps(const std::string & filename) const;
 
    virtual std::vector<double>::const_iterator setParamValues_(
       std::vector<double>::const_iterator);
@@ -85,7 +87,7 @@ private:
 
    std::string m_srcMapsFile;
 
-   void createSourceMaps();
+   void prepareSourceMaps();
 
    void computeModelMap(double & npred) const;
 
@@ -95,7 +97,17 @@ private:
    void setImageDimensions(tip::Image * image, long * dims) const;
 
    void identifyFilledPixels();
+   
+   void fitsReportError(FILE *stream, int status) const;
 
+   bool sourceMapExists(const std::string & srcName, 
+                        const std::string & fitsFile) const;
+
+   void replaceSourceMap(const std::string & srcName, 
+                         const std::string & fitsFile) const;
+
+   void addSourceMap(const std::string & srcName, 
+                     std::string fitsFile="") const;
 };
 
 }
