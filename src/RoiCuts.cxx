@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.17 2004/02/20 00:02:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.18 2004/03/11 05:19:36 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -40,7 +40,8 @@ namespace Likelihood {
 std::vector<RoiCuts::timeInterval> RoiCuts::s_tLimVec;
 double RoiCuts::s_eMin;
 double RoiCuts::s_eMax;
-latResponse::AcceptanceCone RoiCuts::s_roiCone;
+// latResponse::AcceptanceCone RoiCuts::s_roiCone;
+irfInterface::AcceptanceCone RoiCuts::s_roiCone;
 double RoiCuts::s_muZenMax;
 RoiCuts * RoiCuts::s_instance = 0;
 
@@ -59,8 +60,10 @@ void RoiCuts::setCuts(double ra, double dec, double roi_radius,
    s_eMin = emin;
    s_eMax = emax;
         
-   s_roiCone = latResponse::AcceptanceCone(astro::SkyDir(ra, dec),
-                                           roi_radius);
+//    s_roiCone = latResponse::AcceptanceCone(astro::SkyDir(ra, dec),
+//                                            roi_radius);
+   s_roiCone = irfInterface::AcceptanceCone(astro::SkyDir(ra, dec),
+                                            roi_radius);
    s_muZenMax = muZenMax;
 }
 
@@ -127,7 +130,8 @@ void RoiCuts::setCuts(std::string xmlFile) {
    double roiRadius 
       = atof(xml::Dom::getAttribute(child[0], "radius").c_str());
 
-   s_roiCone = latResponse::AcceptanceCone(roiCenter, roiRadius);
+//    s_roiCone = latResponse::AcceptanceCone(roiCenter, roiRadius);
+   s_roiCone = irfInterface::AcceptanceCone(roiCenter, roiRadius);
 
 // Do not apply zenith angle cut for now.
    s_muZenMax = -1.;

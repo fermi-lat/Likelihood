@@ -3,14 +3,17 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.1 2004/04/21 20:58:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.2 2004/05/24 23:51:31 jchiang Exp $
  */
 
 #include <map>
 #include <stdexcept>
 #include <vector>
 
-#include "latResponse/IrfsFactory.h"
+//#include "latResponse/IrfsFactory.h"
+#include "dc1Response/loadIrfs.h"
+#include "g25Response/loadIrfs.h"
+#include "irfInterface/IrfsFactory.h"
 
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -22,7 +25,8 @@
 
 #include "Likelihood/AppHelpers.h"
 
-using latResponse::irfsFactory;
+//using latResponse::irfsFactory;
+using irfInterface::IrfsFactory;
 
 namespace Likelihood {
 
@@ -65,6 +69,11 @@ void AppHelpers::readExposureMap() {
 }
 
 void AppHelpers::createResponseFuncs() {
+   dc1Response::loadIrfs();
+   g25Response::loadIrfs();
+
+   IrfsFactory * myFactory = IrfsFactory::instance();
+
    std::string responseFuncs = m_pars["Response_functions"];
    std::map< std::string, std::vector<std::string> > responseIds;
    responseIds["FRONT"].push_back("DC1::Front");
@@ -78,7 +87,8 @@ void AppHelpers::createResponseFuncs() {
    if (responseIds.count(responseFuncs)) {
       std::vector<std::string> &resps = responseIds[responseFuncs];
       for (unsigned int i = 0; i < resps.size(); i++) {
-         ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
+//          ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
+         ResponseFunctions::addRespPtr(i, myFactory->create(resps[i]));
       }
    } else {
       throw std::invalid_argument("Invalid response function choice: "

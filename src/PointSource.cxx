@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.42 2004/06/01 04:27:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.43 2004/06/30 16:24:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -17,8 +17,8 @@
 
 #include "optimizers/dArg.h"
 
-#include "latResponse/Irfs.h"
-//#include "latResponse/../src/Glast25.h"
+// #include "latResponse/Irfs.h"
+#include "irfInterface/Irfs.h"
 
 #include "map_tools/Exposure.h"
 
@@ -238,7 +238,6 @@ void PointSource::computeExposure(std::vector<double> &energies,
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
       double inc = getSeparation(scData->vec[it].zAxis)*180/M_PI;
-//       if (inc > latResponse::Glast25::incMax()) includeInterval = false;
       if (inc > 90.) includeInterval = false;
 
 // Having checked for relevant constraints, add the exposure
@@ -303,7 +302,8 @@ double PointSource::sourceEffArea(double energy, double time) const {
    return aeff(cos_theta);
 }
    
-std::vector<latResponse::AcceptanceCone *> PointSource::Aeff::s_cones;
+// std::vector<latResponse::AcceptanceCone *> PointSource::Aeff::s_cones;
+std::vector<irfInterface::AcceptanceCone *> PointSource::Aeff::s_cones;
 double PointSource::Aeff::s_emin;
 double PointSource::Aeff::s_emax;
 
@@ -312,7 +312,8 @@ PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir)
    
    if (s_cones.size() == 0) {
       RoiCuts * roiCuts = RoiCuts::instance();
-      s_cones.push_back(const_cast<latResponse::AcceptanceCone *>
+//       s_cones.push_back(const_cast<latResponse::AcceptanceCone *>
+      s_cones.push_back(const_cast<irfInterface::AcceptanceCone *>
                         (&(roiCuts->extractionRegion())));
       s_emin = (roiCuts->getEnergyCuts()).first;
       s_emax = (roiCuts->getEnergyCuts()).second;
@@ -326,19 +327,23 @@ double PointSource::Aeff::operator()(double cos_theta) const {
    ResponseFunctions * respFuncs = ResponseFunctions::instance();
 
    double myEffArea = 0;
-   std::map<unsigned int, latResponse::Irfs *>::iterator respIt
+//    std::map<unsigned int, latResponse::Irfs *>::iterator respIt
+   std::map<unsigned int, irfInterface::Irfs *>::iterator respIt
       = respFuncs->begin();
 
    for ( ; respIt != respFuncs->end(); respIt++) {
-      latResponse::IPsf *psf = respIt->second->psf();
-      latResponse::IAeff *aeff = respIt->second->aeff();
+//       latResponse::IPsf *psf = respIt->second->psf();
+//       latResponse::IAeff *aeff = respIt->second->aeff();
+      irfInterface::IPsf *psf = respIt->second->psf();
+      irfInterface::IAeff *aeff = respIt->second->aeff();
 
       double psf_val = psf->angularIntegral(m_energy, m_srcDir,
                                             theta, phi, s_cones);
       double aeff_val = aeff->value(m_energy, theta, phi);
 
       if (ResponseFunctions::useEdisp()) {
-         latResponse::IEdisp *edisp = respIt->second->edisp();
+//          latResponse::IEdisp *edisp = respIt->second->edisp();
+         irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(s_emin, s_emax, m_energy, 
                                             theta, phi);
          myEffArea += psf_val*aeff_val*edisp_val;
