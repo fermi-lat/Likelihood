@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Jan 29 08:01:45 PST 2005
+Likelihood/doc
+
+Modified Files:
+	Makefile 
+Log Message:
+add swig build
+    *
+------------------------------------------------------------
+User: jchiang  Sat Jan 29 08:01:45 PST 2005
 Likelihood/cmt
 
 Modified Files:
