@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.14 2004/11/08 03:22:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.15 2004/11/11 00:03:27 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -22,7 +22,7 @@ class CountsMap;
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.14 2004/11/08 03:22:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.15 2004/11/11 00:03:27 jchiang Exp $
  */
 
 class SourceMap {
@@ -93,8 +93,7 @@ private:
    static std::vector<double> s_mu;
    static std::vector<double> s_theta;
 
-   double sourceRegionIntegral(Source * src, const Pixel & pixel,
-                               double energy) const;
+   double sourceRegionIntegral(Source * src, double energy) const;
 
    void computeSrcDirs(const Pixel & pixel);
 

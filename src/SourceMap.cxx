@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.19 2004/11/08 03:22:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.20 2004/11/09 00:49:09 jchiang Exp $
  */
 
 #include <algorithm>
@@ -95,7 +95,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
                value += ExposureCube::instance()->value(pixel->dir(), aeff);
             }
          } else if (haveDiffuseSource) {
-            value = sourceRegionIntegral(src, *pixel, *energy);
+            value = sourceRegionIntegral(src, *energy);
          } else {
             value = 0;
          }
@@ -186,8 +186,7 @@ double SourceMap::Aeff::operator()(double costheta) const {
 
 }
 
-double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
-                                       double energy) const {
+double SourceMap::sourceRegionIntegral(Source * src, double energy) const {
    DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
    std::vector<double> energies;
    m_dataMap->getAxisVector(2, energies);

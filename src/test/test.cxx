@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.48 2004/11/08 03:22:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.49 2004/11/11 00:03:33 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -86,7 +86,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
-   
+
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -139,7 +139,7 @@ private:
    void readEventData(const std::string & eventFile,
                       const std::string & scDataFile,
                       std::vector<Event> & events);
-   
+
    void generate_exposureHyperCube();
 
    CountsMap singleSrcMap(unsigned int nee) const;
@@ -164,7 +164,7 @@ void LikelihoodTests::setUp() {
 //    ResponseFunctions::addRespPtr(1, myFactory->create("DC1::Back"));
    ResponseFunctions::addRespPtr(0, myFactory->create("Glast25::Front"));
    ResponseFunctions::addRespPtr(1, myFactory->create("Glast25::Back"));
-   
+
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
 
@@ -283,7 +283,7 @@ void LikelihoodTests::test_SourceModel() {
    SourceFactory * srcFactory = srcFactoryInstance();
    std::vector<std::string> srcNames;
    srcFactory->fetchSrcNames(srcNames);
-   
+
    SourceModel srcModel;
 
    for (unsigned int i = 0; i < srcNames.size(); i++) {
@@ -455,7 +455,7 @@ void LikelihoodTests::test_SourceDerivs() {
          double NpredDeriv_est = (Npred1 - Npred0)/delta;
          double NpredDeriv = src->NpredDeriv(paramNames[j]);
          ASSERT_EQUALS(NpredDeriv_est, NpredDeriv);
-         
+
          srcFuncs["Spectrum"]->setParam(paramNames[j], paramValues[j]);
       }
    }
@@ -475,7 +475,7 @@ void LikelihoodTests::test_PointSource() {
    Source * src = srcFactory->create("Crab Pulsar");
 
    RoiCuts * roiCuts = RoiCuts::instance();
-   
+
    double Nobs = 0;
    for (unsigned int i = 0; i < events.size(); i++) {
       if (roiCuts->accept(events[i])) {
@@ -547,12 +547,12 @@ void LikelihoodTests::test_DiffuseSource() {
 
       std::ostringstream expMapFile;
       expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
-                 
+
       SourceFactory * srcFactory 
          = srcFactoryInstance(roiFile.str(), "", expMapFile.str());
 
       Source * src = srcFactory->create("Galactic Diffuse");
-      
+
       double Nobs = 0;
       for (unsigned int j = 0; j < events.size(); j++) {
          if (roiCuts->accept(events[j])) {
@@ -607,7 +607,7 @@ void LikelihoodTests::test_CountsMap() {
 void LikelihoodTests::test_BinnedLikelihood() {
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
-   
+
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
@@ -654,7 +654,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
 //   std::cout << "Total model counts: " << modelSum << std::endl;
 
    CPPUNIT_ASSERT(fabs(modelSum - dataSum) < 1e-2);
-   
+
    unsigned long npts = dataMap.imageDimension(0);
    std::vector<double> energies;
    modelMap->getAxisVector(2, energies);
@@ -700,7 +700,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
 void LikelihoodTests::test_MeanPsf() {
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
-   
+
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
@@ -734,7 +734,7 @@ void LikelihoodTests::test_MeanPsf() {
 void LikelihoodTests::test_BinnedExposure() {
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
-   
+
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
@@ -756,7 +756,7 @@ void LikelihoodTests::test_BinnedExposure() {
    binnedExposure.writeOutput(filename);
 
    BinnedExposure map2(filename);
-   
+
    double ra(180.);
    double dec(0.);
    for (unsigned int i = 0; i < npts; i++) {
@@ -771,13 +771,13 @@ void LikelihoodTests::test_SourceMap() {
       generate_exposureHyperCube();
    }
    ExposureCube::readExposureCube(exposureCubeFile);
-
+   
    CountsMap dataMap(singleSrcMap(3));
    dataMap.writeOutput("test.cxx", "cntsMap.fits");
-
+   
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", "", false);
-   Source * src = srcFactory->create("Galactic Diffuse");
-//    Source * src =  srcFactory->create("Crab Pulsar");
+ //   Source * src = srcFactory->create("Galactic Diffuse");
+   Source * src =  srcFactory->create("Crab Pulsar");
 
    SourceMap srcMap(src, &dataMap);
 
