@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 10 21:19:19 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h RoiCuts.h 
+Added Files:
+	LikeExposure.h 
+Log Message:
+add code for use with map_tools output
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar  5 10:42:10 PST 2004
 Likelihood/src/test
 
