@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v1r2p2 05-Sep-03  JC   Reorganize python/Likelihood.i; 
+                           use optimizers::Parameter::extractDomData.
     v1r2p1 25-Aug-03  JC   enable module build using IExternal/python on Linux
     v1r2   24-Aug-03  JC   1st attempt at cmt build of python module on Linux
     v1r1   13-Aug-03  JC   Add xml support in SourceFactory.
