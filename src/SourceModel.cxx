@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.61 2004/12/05 22:25:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.62 2004/12/22 06:06:48 jchiang Exp $
  */
 
 #include <cassert>
@@ -143,26 +143,6 @@ optimizers::Parameter SourceModel::getParam(const std::string &paramName,
    std::string errorMessage = "SourceModel::getParam:\nSource "
       + srcName + " was not found.";
    throw optimizers::Exception(errorMessage);
-}
-
-void SourceModel::setParamBounds(const std::string &paramName,
-                                 const std::string &funcName,
-                                 const std::string &srcName,
-                                 double lower, double upper) {
-   optimizers::Parameter my_param = getParam(paramName, funcName, srcName);
-   my_param.setBounds(lower, upper);
-   setParam(my_param, funcName, srcName);
-   syncParams();
-}
-
-void SourceModel::setParamScale(const std::string &paramName,
-                                const std::string &funcName,
-                                const std::string &srcName,
-                                double scale) {
-   optimizers::Parameter my_param = getParam(paramName, funcName, srcName);
-   my_param.setScale(scale);
-   setParam(my_param, funcName, srcName);
-   syncParams();
 }
 
 void SourceModel::setParamTrueValue(const std::string &paramName,

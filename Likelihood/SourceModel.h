@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.48 2004/09/24 21:02:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.49 2004/12/22 06:06:47 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -38,7 +38,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.48 2004/09/24 21:02:07 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.49 2004/12/22 06:06:47 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -77,16 +77,6 @@ public:
    virtual optimizers::Parameter getParam(const std::string &paramName, 
                                           const std::string &funcName,
                                           const std::string &srcName) const;
-
-   virtual void setParamBounds(const std::string &paramName,
-                               const std::string &funcName,
-                               const std::string &srcName,
-                               double lower, double upper);
-
-   virtual void setParamScale(const std::string &paramName,
-                              const std::string &funcName,
-                              const std::string &srcName,
-                              double scale);
 
    virtual void setParamTrueValue(const std::string &paramName,
                                   const std::string &funcName,

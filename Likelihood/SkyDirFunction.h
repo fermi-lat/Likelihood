@@ -3,17 +3,18 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.14 2003/11/10 23:06:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.15 2004/12/22 06:06:47 jchiang Exp $
  */
 #ifndef Likelihood_SkyDirFunction_h
 #define Likelihood_SkyDirFunction_h
 
-#include "optimizers/Function.h"
-#include "optimizers/Arg.h"
-
 #include "astro/SkyDir.h"
 
+#include "optimizers/Arg.h"
+#include "optimizers/Function.h"
+
 namespace Likelihood {
+
 /** 
  * @class SkyDirFunction
  *
@@ -24,10 +25,9 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.14 2003/11/10 23:06:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.15 2004/12/22 06:06:47 jchiang Exp $
  */
     
-//class SkyDirFunction : public optimizers::Function, public astro::SkyDir {
 class SkyDirFunction : public optimizers::Function {
 
 public:
@@ -40,14 +40,8 @@ public:
 
    double value(optimizers::Arg &) const {return 0;}
 
-   /// overloaded setParam methods to include updating of m_dir
-   void setParam(const std::string &paramName, double paramValue, 
-                 bool isFree) {
-      setParameter(paramName, paramValue, isFree);
-      update_m_dir(paramName, paramValue);
-   }
    void setParam(const std::string &paramName, double paramValue) {
-      setParameter(paramName, paramValue);
+      setParam(paramName, paramValue);
       update_m_dir(paramName, paramValue);
    }
 
