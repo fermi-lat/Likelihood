@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Nov  4 19:41:24 PST 2003
+Likelihood/src/test
+
+Added Files:
+	likelihood.cxx 
+Log Message:
+first effort at a standalone application
+    *
+------------------------------------------------------------
+User: jchiang  Tue Nov  4 19:41:24 PST 2003
 Likelihood/src
 
 Added Files:
