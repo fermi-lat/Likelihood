@@ -3,11 +3,13 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.30 2004/03/05 18:42:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.31 2004/03/11 05:19:19 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
 #define Likelihood_PointSource_h
+
+#include <utility>
 
 #include "optimizers/Function.h"
 #include "optimizers/dArg.h"
@@ -27,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.30 2004/03/05 18:42:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.31 2004/03/11 05:19:19 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -124,6 +126,9 @@ public:
    virtual Source *clone() const {
       return new PointSource(*this);
    }
+
+   static bool overlapInterval(const std::pair<double, double> & interval1,
+                               std::pair<double, double> & interval2);
 
 private:
 

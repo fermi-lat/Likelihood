@@ -2,12 +2,14 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.38 2004/03/11 05:19:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.39 2004/03/19 22:46:02 jchiang Exp $
  */
 
-#include <vector>
-#include <string>
 #include <cmath>
+
+#include <algorithm>
+#include <string>
+#include <vector>
 
 #include "facilities/Util.h"
 
@@ -16,7 +18,7 @@
 #include "optimizers/dArg.h"
 
 #include "latResponse/Irfs.h"
-#include "latResponse/../src/Glast25.h"
+//#include "latResponse/../src/Glast25.h"
 
 #include "map_tools/Exposure.h"
 
@@ -216,16 +218,18 @@ void PointSource::computeExposure(std::vector<double> &energies,
    for (unsigned int it = 0; it < npts; it++) {
       if (npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
       bool includeInterval = true;
+      std::pair<double, double> thisInterval;
+      thisInterval.first = scData->vec[it].time;
+      thisInterval.second = scData->vec[it+1].time;
 
 // Check if this interval passes the time cuts
       std::vector< std::pair<double, double> > timeCuts;
       roiCuts->getTimeCuts(timeCuts);
+
       for (unsigned int itcut = 0; itcut < timeCuts.size(); itcut++) {
-         if (scData->vec[it].time < timeCuts[itcut].first ||
-             scData->vec[it].time > timeCuts[itcut].second) {
-            includeInterval = false;
+         if ( !(includeInterval 
+                = overlapInterval(timeCuts[itcut], thisInterval)) )
             break;
-         }
       }
 
 // Check for SAA passage
@@ -241,12 +245,12 @@ void PointSource::computeExposure(std::vector<double> &energies,
 // contribution for each energy
       if (includeInterval) {
          for (unsigned int k = 0; k < energies.size(); k++) {
-            double time = (scData->vec[it+1].time + scData->vec[it].time)/2.;
+            double time = (thisInterval.second + thisInterval.first)/2.;
 //             exposure[k] += sourceEffArea(energies[k], time)
-//                *(scData->vec[it+1].time - scData->vec[it].time);
+//                *(thisInterval.second - thisInterval.first);
             exposure[k] += 
                ::sourceEffArea(energies[k], time, m_dir.getDir())
-               *(scData->vec[it+1].time - scData->vec[it].time);
+               *(thisInterval.second - thisInterval.first);
          }
       }
    }
@@ -309,6 +313,18 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       myEffArea += psf_val*aeff_val;
    }
    return myEffArea;
+}
+
+bool PointSource::overlapInterval(const std::pair<double, double> & interval1,
+                                  std::pair<double, double> & interval2) {
+   double start = std::max(interval1.first, interval2.first);
+   double stop = std::min(interval1.second, interval2.second);
+   if (start < stop) {
+      interval2.first = start;
+      interval2.second = stop;
+      return true;
+   }
+   return false;
 }
 
 } // namespace Likelihood
