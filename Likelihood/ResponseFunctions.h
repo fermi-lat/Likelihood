@@ -3,7 +3,7 @@
  * @brief A singleton class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.2 2003/10/22 16:31:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.3 2003/10/27 01:13:48 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -12,6 +12,10 @@
 #include <map>
 
 #include "latResponse/Irfs.h"
+
+namespace astro {
+   class SkyDir;
+}
 
 namespace Likelihood {
 
@@ -25,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.2 2003/10/22 16:31:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.3 2003/10/27 01:13:48 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -35,6 +39,25 @@ public:
    virtual ~ResponseFunctions() {}
 
    static ResponseFunctions * instance();
+
+   /// Return the total instrument response 
+   /// (= effective area*PSF*energy dispersion).
+   /// @param time MET (seconds).  These are the same time units used
+   ///        by the spacecraft data class ScData.
+   /// @param energy True photon energy (MeV).
+   /// @param appEnergy Measured energy (MeV).
+   /// @param srcDir Assumed source (i.e., true photon) direction.
+   /// @param appDir Apparent photon direction.
+   /// @param type Event type identifying which set of IRFs to use.
+   ///        Presently, 0 = Front part of LAT, 1 = Back part of LAT.
+   ///        2 = Combined (GLAST25 only). 
+   ///        (@todo These IDs need to be rationalized and coordinated 
+   ///        with the latResponse package.)
+   static double totalResponse(double time,
+                               double energy, double appEnergy,
+                               const astro::SkyDir &srcDir,
+                               const astro::SkyDir &appDir,
+                               int type);
 
    static void setRespPtrs(std::map<unsigned int, latResponse::Irfs *> 
                            &respPtrs) {s_respPtrs = respPtrs;}
@@ -50,6 +73,7 @@ public:
 
    std::map<unsigned int, latResponse::Irfs *>::iterator end()
       {return s_respPtrs.end();}
+
 
 protected:
 
