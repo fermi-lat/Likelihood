@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.16 2003/12/04 00:32:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.17 2004/01/06 00:10:28 jchiang Exp $
  */
 
 #include <cassert>
@@ -76,8 +76,8 @@ void ScData::readData(std::string file, int hdu, bool clear) {
                       << std::endl;
             assert(tuple.time > vec[vec.size()-2].time);
          }
-         astro::EarthCoordinate earthCoord(scRow->latGeo()*180./M_PI,
-                                           scRow->lonGeo()*180./M_PI);
+//          astro::EarthCoordinate earthCoord(scRow->latGeo()*180./M_PI,
+//                                            scRow->lonGeo()*180./M_PI);
 //          if (earthCoord.insideSAA()) {
 //             tuple.inSaa = 1;
 //          } else {
