@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.31 2003/11/18 23:02:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.32 2004/01/06 00:10:26 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.31 2003/11/18 23:02:31 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.32 2004/01/06 00:10:26 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -106,9 +106,12 @@ public:
       Function::getFreeDerivs(x, derivs);
    }
 
-   /// add and delete sources by name
+   /// Add a source.
    void addSource(Source *src);
-   void deleteSource(const std::string &srcName) throw(optimizers::Exception);
+
+   /// Delete a source by name and return a copy.
+   Source * deleteSource(const std::string &srcName) 
+      throw(optimizers::Exception);
 
    /// delete all the sources
    void deleteAllSources();

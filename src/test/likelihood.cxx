@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.21 2004/01/30 02:28:30 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.22 2004/02/06 00:29:06 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -42,7 +42,7 @@
 using namespace Likelihood;
 using latResponse::irfsFactory;
 
-void print_fit_results(SourceModel &stat, const std::vector<double> &errors);
+void print_fit_results(LogLike &logLike, const std::vector<double> &errors);
 bool prompt(const std::string &query);
 
 namespace {
@@ -313,22 +313,41 @@ int main(int iargc, char* argv[]) {
    }
 }
 
-void print_fit_results(SourceModel &stat, const std::vector<double> &errors) {
+void print_fit_results(LogLike &logLike, const std::vector<double> &errors) {
    std::vector<std::string> srcNames;
-   stat.getSrcNames(srcNames);
-   std::vector<optimizers::Parameter> parameters;
+   logLike.getSrcNames(srcNames);
 
+// Compute TS for each source.
+   std::map<std::string, double> TsValues;
+   int verbose(0);
+   double tol(1e-4);
+   double logLike_value = logLike.value();
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      if (srcNames[i].find("Diffuse") == std::string::npos) {
+         Source * src = logLike.deleteSource(srcNames[i]);
+         optimizers::Drmngb opt(logLike);
+         opt.find_min(verbose, tol);
+         TsValues[srcNames[i]] = 2.*(logLike_value - logLike.value());
+         logLike.addSource(src);
+      }
+   }
+
+// Restore parameters to their previously fitted values.
+   optimizers::Drmngb opt(logLike);
+   opt.find_min(verbose, tol);
+
+   std::vector<optimizers::Parameter> parameters;
    std::vector<double>::const_iterator errIt = errors.begin();
 
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      Source *src = stat.getSource(srcNames[i]);
+      Source *src = logLike.getSource(srcNames[i]);
       Source::FuncMap srcFuncs = src->getSrcFuncs();
       srcFuncs["Spectrum"]->getParams(parameters);
       std::cout << "\n" << srcNames[i] << ":\n";
-      for (unsigned int i = 0; i < parameters.size(); i++) {
-         std::cout << parameters[i].getName() << ": "
-                   << parameters[i].getValue();
-         if (parameters[i].isFree() && errIt != errors.end()) {
+      for (unsigned int j = 0; j < parameters.size(); j++) {
+         std::cout << parameters[j].getName() << ": "
+                   << parameters[j].getValue();
+         if (parameters[j].isFree() && errIt != errors.end()) {
             std::cout << " +/- " << *errIt;
             errIt++;
          }
@@ -336,6 +355,10 @@ void print_fit_results(SourceModel &stat, const std::vector<double> &errors) {
       }
       std::cout << "Npred: "
                 << src->Npred() << std::endl;
+      if (TsValues.count(srcNames[i])) {
+         std::cout << "TS value: "
+                   << TsValues[srcNames[i]] << std::endl;
+      }
    }
 }
 
