@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep 28 08:39:49 PDT 2003
+Likelihood/xml
+
+Modified Files:
+	A1_Functions.xml 
+Log Message:
+add SourceModel::writeXml
+    *
+------------------------------------------------------------
 User: jchiang  Sun Sep 28 08:39:48 PDT 2003
 Likelihood/src/test
 
