@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: pln  Thu May 29 12:41:00 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Minuit.h Lbfgs.h 
+Log Message:
+Doxygen comments, minor tweaks
+    *
+------------------------------------------------------------
 User: pln  Thu May 29 12:31:24 PDT 2003
 Likelihood
 
