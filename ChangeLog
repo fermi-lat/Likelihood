@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Feb 21 09:10:38 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+start implementing PointSource tests
+    *
+------------------------------------------------------------
 User: jchiang  Sat Feb 21 09:10:37 PST 2004
 Likelihood/src
 
