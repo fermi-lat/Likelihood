@@ -25,11 +25,23 @@ public:
 
    PointSource() : m_spectrum(0) {
       setDir(0., 0.);
-      m_makeEnergyVector();
+      if (!m_haveStaticMembers) {
+         m_makeEnergyVector();
+         m_makeSigmaVector();
+         m_haveStaticMembers = true;
+	 computeGaussFractions();
+         computeExposure();
+      }
    }
    PointSource(double ra, double dec) : m_spectrum(0) {
       setDir(ra, dec);
-      m_makeEnergyVector();
+      if (!m_haveStaticMembers) {
+         m_makeEnergyVector();
+         m_makeSigmaVector();
+         m_haveStaticMembers = true;
+	 computeGaussFractions();
+         computeExposure();
+      }
    }
    PointSource(const PointSource &rhs);
    virtual ~PointSource(){}
@@ -44,6 +56,9 @@ public:
 
    //! predicted number of photons given RoiCuts and ScData
    double Npred();
+
+   //! derivative of Npred wrt named Parameter
+   double NpredDeriv(const std::string &paramName);
 
    //! set source location using J2000 coordinates
    void setDir(double ra, double dec) {
@@ -71,6 +86,15 @@ public:
       m_functions["Spectrum"] = m_spectrum;
    }
 
+   //! computes the enclosed fraction of a Gaussian as a function of 
+   //! Gaussian width sigma and stores these data for later
+   //! interpolation. These data depend on the ROI radius and the
+   //! source offset, psi, from the ROI center.
+   void computeGaussFractions();
+
+   //! computes the integrated exposure at the PointSource sky location
+   void computeExposure();
+
 protected:
 
    //! location on the Celestial sphere 
@@ -81,12 +105,41 @@ protected:
 
 private:
 
+   //! flag to indicate that static member data has been computed
+   static bool m_haveStaticMembers;
+
    //! vector of energy values for Npred spectrum quadrature
-   std::vector<double> m_energies;
+   static std::vector<double> m_energies;
+
+   //! integrated exposure at PointSource sky location
+   std::vector<double> m_exposure;
 
    //! method to create a logrithmically spaced grid given RoiCuts
-   void m_makeEnergyVector(int nee = 100);
-        
+   static void m_makeEnergyVector(int nee = 100);
+
+   //! Gaussian widths in units of radians
+   static std::vector<double> m_sigGauss;
+
+   //! method to create the sigma grid for m_gaussFraction
+   static void m_makeSigmaVector(int nsig = 100);
+
+   //! storage of the ROI contained fraction of a 2D "Gaussian"
+   std::vector<double> m_gaussFraction;
+
+   //! nested class that returns the desired integrand
+   class Gint : public Function {
+   public:
+      Gint(double sig, double cr, double cp, double sp) : 
+	 m_sig(sig), m_cr(cr), m_cp(cp), m_sp(sp) {}
+      virtual ~Gint(){};
+      double value(Arg &mu) const;
+      double derivByParam(Arg &, const std::string &) const {return 0;}
+   private:
+      double m_sig;
+      double m_cr;
+      double m_cp;
+      double m_sp;
+   };
 };
 
 } //namespace Likelihood

@@ -154,33 +154,21 @@ double SourceModel::evaluate_at(Arg &x) const {
    return my_val;
 }
 
-void SourceModel::getDerivs(Arg &x, std::vector<double> &derivs) const {
-// ensure that derivs is empty
-   if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
+void SourceModel::fetchDerivs(Arg &x, std::vector<double> &derivs, 
+                              bool getFree) const {
+   if (!derivs.empty()) derivs.clear();
 
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<double> my_derivs;
-         (*func_it).second->getDerivs(x, my_derivs);
-         for (unsigned int j = 0; j < my_derivs.size(); j++)
-            derivs.push_back(my_derivs[j]);
-      }
-   }
-}
-
-void SourceModel::getFreeDerivs(Arg &x, std::vector<double> &derivs) const {
-// ensure that derivs is empty
-   if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
-
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++) {
-         std::vector<double> my_derivs;
-         (*func_it).second->getFreeDerivs(x, my_derivs);
-         for (unsigned int j = 0; j < my_derivs.size(); j++)
+         if (getFree) {
+            (*func_it).second->getFreeDerivs(x, my_derivs);
+         } else {
+            (*func_it).second->getDerivs(x, my_derivs);
+         }
+         for (unsigned int j = 0; j < my_derivs.size(); j++) 
             derivs.push_back(my_derivs[j]);
       }
    }

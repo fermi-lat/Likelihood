@@ -103,7 +103,6 @@ std::vector<double>::const_iterator Function::setParamValues_(
    return it;
 }
 
-
 void Function::setFreeParamValues(
    const std::vector<double> &paramVec) {
    if (paramVec.size() != getNumFreeParams()) {
@@ -132,8 +131,7 @@ unsigned int Function::getNumFreeParams() const {
 }
 
 void Function::getFreeParams(std::vector<Parameter> &params) const {
-// ensure that params is empty
-   if (!params.empty()) params.erase(params.begin(), params.end());
+   if (!params.empty()) params.clear();
 
    for (unsigned int i = 0; i < m_parameter.size(); i++)
       if (m_parameter[i].isFree()) params.push_back(m_parameter[i]);
@@ -141,8 +139,7 @@ void Function::getFreeParams(std::vector<Parameter> &params) const {
 
 void Function::fetchParamValues(std::vector<double> &values,
 				bool getFree) const {
-// ensure that values is empty
-   if (!values.empty()) values.erase(values.begin(), values.end());
+   if (!values.empty()) values.clear();
 
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (!getFree || m_parameter[i].isFree())
@@ -152,8 +149,7 @@ void Function::fetchParamValues(std::vector<double> &values,
 
 void Function::fetchParamNames(std::vector<std::string> &names,
 			       bool getFree) const {
-// ensure that names is empty
-   if (!names.empty()) names.erase(names.begin(), names.end());
+   if (!names.empty()) names.clear();
 
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (!getFree || m_parameter[i].isFree())
@@ -163,8 +159,6 @@ void Function::fetchParamNames(std::vector<std::string> &names,
 
 void Function::fetchDerivs(Arg &x, std::vector<double> &derivs, 
                            bool getFree) const {
-// ensure that derivs is empty
-//   if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
    if (!derivs.empty()) derivs.clear();
 
    for (unsigned int i = 0; i < m_parameter.size(); i++) {

@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.4 2003/02/27 18:47:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.5 2003/03/04 17:45:31 jchiang Exp $
  */
 
 class Function {
@@ -129,8 +129,8 @@ protected:
    void fetchParamValues(std::vector<double> &values, bool getFree) const;
    void fetchParamNames(std::vector<std::string> &names, bool getFree) const;
 
-   void fetchDerivs(Arg &x , std::vector<double> &derivs, 
-		    bool getFree) const;
+   virtual void fetchDerivs(Arg &x ,std::vector<double> &derivs, 
+                            bool getFree) const;
 
    unsigned int m_maxNumParams;
 
