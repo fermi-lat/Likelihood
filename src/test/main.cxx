@@ -116,11 +116,11 @@ void fit_DiffuseSource() {
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
 
-//   std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
-   std::string expfile = "exp_" + obs_root + ".fits";
+   std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
+//   std::string expfile = "exp_" + obs_root + ".fits";
 
 // compute a new exposure map for these data
-   ExposureMap::computeMap(expfile, 30., 60, 60, 10);
+//   ExposureMap::computeMap(expfile, 30., 60, 60, 10);
 
 // must read in the exposure file prior to creating the SourceFactory
 // object since it contains DiffuseSources
@@ -497,8 +497,12 @@ void test_OptPP() {
 // try lbfgs_bcm method first   
    Lbfgs my_lbfgsObj(my_rosen);
    my_lbfgsObj.find_min(verbose);
-   cout << "LBFGS exit code: " << my_lbfgsObj.getRetCode() << endl;
-   cout << "LBFGS end message: " << my_lbfgsObj.getErrorString() << endl;
+   std::cout << "LBFGS exit code: " 
+             << my_lbfgsObj.getRetCode() 
+             << std::endl;
+   std::cout << "LBFGS end message: " 
+             << my_lbfgsObj.getErrorString() 
+             << std::endl;
 #endif //HAVE_OPT_LBFGS
 
 #ifdef HAVE_OPT_PP

@@ -2,13 +2,13 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.3 2003/04/25 21:51:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.4 2003/05/06 23:47:55 jchiang Exp $
  *
  */
 
 #include "fitsio.h"
 
-#define HAVE_CCFITS
+//#define HAVE_CCFITS
 #ifdef HAVE_CCFITS
 #include "CCfits/CCfits"
 #endif
