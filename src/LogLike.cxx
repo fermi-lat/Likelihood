@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.12 2004/02/07 23:14:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.13 2004/03/03 00:35:30 jchiang Exp $
  */
 
 #include <vector>
@@ -13,18 +13,10 @@
 
 #include "facilities/Util.h"
 
-#ifdef USE_GOODI
-#include "Goodi/GoodiConstants.h"
-#include "Likelihood/useGoodiNames.h"
-#include "Goodi/DataIOServiceFactory.h"
-#include "Goodi/DataFactory.h"
-#include "Goodi/IDataIOService.h"
-#include "Goodi/IData.h"
-#include "Goodi/IEventData.h"
-#include "Goodi/../src/Event.h"
-#endif
+// #include "latResponse/../src/Table.h"
 
-#include "latResponse/../src/Table.h"
+#include "tip/IFileSvc.h"
+#include "tip/Table.h"
 
 #include "Likelihood/ScData.h"
 #include "Likelihood/Npred.h"
@@ -120,19 +112,10 @@ void LogLike::computeEventResponses(double sr_radius) {
    if (diffuse_srcs.size() > 0) computeEventResponses(diffuse_srcs, sr_radius);
 }
 
-#ifdef USE_GOODI
+#ifdef USE_TIP
 void LogLike::getEvents(std::string event_file, int) {
 
    facilities::Util::expandEnvVar(&event_file);
-
-   Goodi::DataIOServiceFactory iosvcCreator;
-   Goodi::DataFactory dataCreator;
-   Goodi::IDataIOService *ioService;
-
-   ioService = iosvcCreator.create(event_file);
-   Goodi::DataType datatype = Goodi::Evt; 
-   Goodi::IEventData *eventData = dynamic_cast<Goodi::IEventData *>
-      (dataCreator.create(datatype, ioService));
 
    RoiCuts * roiCuts = RoiCuts::instance();
    ScData * scData = ScData::instance();
@@ -153,49 +136,55 @@ void LogLike::getEvents(std::string event_file, int) {
 
    unsigned int nTotal(0);
    unsigned int nReject(0);
-   bool done = false;
-   while (!done) {
-      const Goodi::Event *evt = eventData->nextEvent(ioService, done);
-      if (!done) {
-         nTotal++;
-         
-         double time = evt->time();
-         
-         double raSCZ = scData->zAxis(time).ra();
-         double decSCZ = scData->zAxis(time).dec();
-         
-         int eventType;
-         if (evt->convLayer() < 12) { // Front
-            eventType = 0;
-         } else { // Back
-            eventType = 1;
-         }
-         
-         Event thisEvent( evt->ra()*180./M_PI, 
-                          evt->dec()*180./M_PI,
-                          evt->energy()/1e6, 
-                          time,
-                          raSCZ, decSCZ,
-                          cos(evt->zenithAngle()),
-                          eventType);
-         
-         if (roiCuts->accept(thisEvent)) {
-            m_events.push_back(thisEvent);
-         } else {
+
+   facilities::Util::expandEnvVar(&event_file);
+   tip::Table * events = 
+      tip::IFileSvc::instance().editTable(event_file, "events");
+
+   double ra;
+   double dec;
+   double energy;
+   double time;
+   double raSCZ;
+   double decSCZ;
+   double zenAngle;
+   int convLayer;
+   int eventType;
+
+   tip::Table::Iterator it = events->begin();
+   tip::Table::Record & event = *it;
+   for ( ; it != events->end(); ++it, nTotal++) {
+      event["ra"].get(ra);
+      event["dec"].get(dec);
+      event["energy"].get(energy);
+      event["time"].get(time);
+      raSCZ = scData->zAxis(time).ra();
+      decSCZ = scData->zAxis(time).dec();
+      event["zenith_angle"].get(zenAngle);
+      event["conversion_layer"].get(convLayer);
+      if (convLayer < 12) { // Front
+         eventType = 0;
+      } else {
+         eventType = 1;
+      }
+      Event thisEvent(ra, dec, energy, time, raSCZ, decSCZ, 
+                      cos(zenAngle*M_PI/180.), eventType);
+      if (roiCuts->accept(thisEvent)) {
+         m_events.push_back(thisEvent);
+      } else {
             nReject++;
-         }
       }
    }
+
    std::cout << "LogLike::getEvents:\nOut of " 
              << nTotal << " events in file "
              << event_file << ",\n "
              << nTotal - nReject << " were accepted, and "
              << nReject << " were rejected.\n" << std::endl;
 
-   delete eventData;
-   delete ioService;
+   delete events;
 }
-#else // USE_GOODI
+#else // USE_TIP
 void LogLike::getEvents(std::string event_file, int hdu) {
 
    facilities::Util::expandEnvVar(&event_file);
@@ -241,7 +230,6 @@ void LogLike::getEvents(std::string event_file, int hdu) {
              << m_events.size() - nevents << " were accepted, and "
              << nReject << " were rejected.\n" << std::endl;
 }
-#endif // USE_GOODI
 
 void LogLike::readEventData(const std::string &eventFile, int hdu) {
    m_eventFile = eventFile;
@@ -286,5 +274,6 @@ LogLike::getColumn(const latResponse::Table &tableData,
                 << "Valid names are \n" << colnames << "\n";
    throw Exception(errorMessage.str());
 }
+#endif // USE_TIP
 
 } // namespace Likelihood

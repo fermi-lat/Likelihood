@@ -1,19 +1,19 @@
 package Likelihood
-version v2r11
+version v3r0
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.97 2004/03/19 04:56:12 jchiang Exp $
+# $Id: requirements,v 1.98 2004/03/19 23:10:14 jchiang Exp $
 
 use GlastPolicy v5r*
 # use xml needs to be commented out in order to link on VC7.0 and VC7.1...
 #use xml v4r*
 use facilities v2r*
 use astro  v*
-use Goodi v*
+use tip v*
 use map_tools v*
-use latResponse v1*
+use latResponse v2*
 use optimizers v*
 use cfitsio v1* IExternal
 
@@ -30,9 +30,9 @@ use tuple v*
 
 # allow use of internal path
 macro Likelihood_cppflags "" \
-Linux "-I ../src -D TRAP_FPE -D USE_GOODI " \
+Linux "-I ../src -D TRAP_FPE -D USE_TIP " \
 #Linux "-I ../src -D TRAP_FPE " \
-WIN32 '/I..\src /D"USE_GOODI" /wd4290'
+WIN32 '/I..\src /D"USE_TIP" /wd4290'
 
 macro_append ROOT_libs ""  WIN32 " libHisT.lib "
 
