@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.3 2003/11/05 17:33:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.4 2003/11/06 00:31:27 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -42,6 +42,10 @@ using namespace Likelihood;
 void print_fit_results(SourceModel &stat, const std::vector<double> &errors);
 
 int main(int iargc, char* argv[]) {
+
+#ifdef TRAP_FPE
+   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
+#endif
 
 // Read in the command-line parameters using HOOPS
    std::string filename("likelihood.par");

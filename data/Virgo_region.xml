@@ -1,4 +1,4 @@
-<source_library title="prototype sources" function_library="$(LIKELIHOODROOT)/xml/A1_Functions.xml">
+<source_library title="prototype sources" function_library="../xml/A1_Functions.xml">
   <source name="3C 279" type="PointSource">
     <spectrum type="PowerLaw">
       <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="4.66322" />

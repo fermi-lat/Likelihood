@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.26 2003/10/01 21:21:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.27 2003/11/04 19:24:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,6 +19,8 @@
 #include <xercesc/dom/DOM_Element.hpp>
 #include <xercesc/dom/DOM_NodeList.hpp>
 #include <xercesc/dom/DOM_DOMException.hpp>
+
+#include "facilities/Util.h"
 
 #include "optimizers/Arg.h"
 #include "optimizers/FunctionFactory.h"
@@ -302,8 +304,11 @@ void SourceModel::fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs,
    }
 }
 
-void SourceModel::readXml(const std::string &xmlFile,
+void SourceModel::readXml(std::string xmlFile,
                           optimizers::FunctionFactory &funcFactory) {
+
+// Expand any environment variables in the xmlFile name.
+   facilities::Util::expandEnvVar(&xmlFile);
 
 // Create a SourceFactory to read in the xml file.
    SourceFactory srcFactory;
@@ -328,7 +333,7 @@ void SourceModel::readXml(const std::string &xmlFile,
    syncParams();
 }
 
-void SourceModel::writeXml(const std::string &xmlFile,
+void SourceModel::writeXml(std::string xmlFile,
                            const std::string &functionLibrary) {
    xml::XmlParser *parser = new xml::XmlParser();
 
@@ -391,6 +396,9 @@ void SourceModel::writeXml(const std::string &xmlFile,
       }
       srcLib.appendChild(srcElt);
    }
+
+// Expand any environment variables in the xmlFile name.
+   facilities::Util::expandEnvVar(&xmlFile);
 
    std::ofstream outFile(xmlFile.c_str());
 //    outFile << "<?xml version='1.0' standalone='no'?>\n"

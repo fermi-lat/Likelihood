@@ -4,10 +4,9 @@ version v2r2
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.45 2003/11/06 00:31:26 jchiang Exp $
+# $Id: requirements,v 1.46 2003/11/06 00:58:47 jchiang Exp $
 
 use xml
-use hoops v*
 use astro  v*
 use latResponse v1*
 use optimizers v0*
@@ -19,6 +18,7 @@ apply_pattern package_linkopts
 
 private
 
+use hoops v*
 use facilities v2*
 
 #use python v2* IExternal

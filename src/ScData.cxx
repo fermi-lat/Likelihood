@@ -3,12 +3,14 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.11 2003/10/24 05:39:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.12 2003/10/25 00:22:52 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
+
+#include "facilities/Util.h"
 
 #include "latResponse/../src/Table.h"
 
@@ -23,7 +25,10 @@ int ScData::s_scHdu = 0;
 ScData * ScData::s_instance = 0;
 double ScData::s_tstep;
 
-void ScData::readData(const std::string &file, int hdu) {
+void ScData::readData(std::string file, int hdu, bool clear) {
+
+   facilities::Util::expandEnvVar(&file);
+
    s_scFile = file;
    s_scHdu = hdu;
 
@@ -33,8 +38,7 @@ void ScData::readData(const std::string &file, int hdu) {
    scTable.read_FITS_table(file, hdu);
 
 // repack into a more useful format
-   vec.clear();
-   vec.reserve(scTable[0].dim);
+   if (clear) vec.clear();
    for (int i = 0; i < scTable[0].dim; i++) {
       ScNtuple tuple;
 

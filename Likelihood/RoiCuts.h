@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.9 2003/08/17 04:11:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.10 2003/10/24 01:57:21 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -29,7 +29,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.9 2003/08/17 04:11:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.10 2003/10/24 01:57:21 jchiang Exp $
  */
 
 class RoiCuts {
@@ -62,7 +62,7 @@ public:
                        double roi_radius = 50);
 
    /// Read from xml file
-   static void setCuts(const std::string &xmlFile);
+   static void setCuts(std::string xmlFile);
 
    //! apply these cuts to an Event
    bool accept(const Event &);
