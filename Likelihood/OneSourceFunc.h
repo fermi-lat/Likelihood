@@ -3,12 +3,15 @@
  * @brief Extended likelihood function for one source
  *
  * @author P. Nolan
-
- * $Header:
+ *
+ * $Header$
  */
 
-#include "Event.h"
-#include "Source.h"
+#ifndef Likelihood_OneSourceFunc_h
+#define Likelihood_OneSourceFunc_h
+
+#include "Likelihood/Event.h"
+#include "Likelihood/Source.h"
 #include <vector>
 #include "optimizers/Function.h"
 #include "optimizers/Arg.h"
@@ -16,6 +19,14 @@
 #include "optimizers/ParameterNotFound.h"
 
 namespace Likelihood {
+
+   /**
+    * @class OneSourceFunc
+    * @brief Extended likelihood function for one source.
+    * @author P. Nolan
+    *
+    * $Header$
+    */
   
   class OneSourceFunc: public optimizers::Function {
     
@@ -48,3 +59,5 @@ namespace Likelihood {
     
   };  // class OneSourceFunc
 } // namespace Likelihood
+
+#endif // Likelihood_OneSourceFunc_h

@@ -1,3 +1,12 @@
+/**
+ * @file OneSourceFunc.cxx
+ * @brief Extended likelihood function for one source.
+ *
+ * @author P. Nolan
+ *
+ * $Header$
+ */
+
 #include "Likelihood/OneSourceFunc.h"
 #include "Likelihood/Source.h"
 #include "optimizers/Parameter.h"
@@ -20,7 +29,7 @@ namespace Likelihood {
     syncParams();
   }
 
-  double OneSourceFunc::value(optimizers::Arg& arg) const {
+  double OneSourceFunc::value(optimizers::Arg& ) const {
 
     double val = 0.;
     //    double wtot = 0.;
@@ -44,7 +53,7 @@ namespace Likelihood {
     return foo;
   }
 
-  double OneSourceFunc::derivByParam(optimizers::Arg& x, 
+  double OneSourceFunc::derivByParam(optimizers::Arg& , 
 				     const std::string& paramName) const {
 
     double deriv = 0;

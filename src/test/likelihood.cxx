@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.4 2003/11/06 00:31:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.5 2003/11/07 02:27:11 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -32,7 +32,9 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/LogLike.h"
+#include "Likelihood/OptEM.h"
 #include "Likelihood/RunParams.h"
+#include "BrokenPowerLaw.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
 #include "AbsEdge.h"
@@ -88,6 +90,7 @@ int main(int iargc, char* argv[]) {
 // Add the standard prototypes for modeling spectra,
    bool makeClone(false);
    funcFactory.addFunc("PowerLaw", new PowerLaw(), makeClone);
+   funcFactory.addFunc("BrokenPowerLaw", new BrokenPowerLaw(), makeClone);
    funcFactory.addFunc("Gaussian", new Gaussian(), makeClone);
    funcFactory.addFunc("AbsEdge", new AbsEdge(), makeClone);
 
@@ -110,7 +113,7 @@ int main(int iargc, char* argv[]) {
 
 // Select an optimizer.
    std::string optimizer = params.string_par("optimizer");
-   optimizers::Optimizer *myOpt;
+   optimizers::Optimizer *myOpt = 0;
    if (optimizer == "LBFGS") {
       myOpt = new optimizers::Lbfgs(logLike);
    } else if (optimizer == "MINUIT") {
@@ -124,7 +127,11 @@ int main(int iargc, char* argv[]) {
    double tol = params.double_par("fit_tolerance");
 
 // Do the fit.
-   myOpt->find_min(verbose, tol);
+   try {
+      myOpt->find_min(verbose, tol);
+   } catch (optimizers::Exception &eObj) {
+      std::cerr << eObj.what() << std::endl;
+   }
 
 // Evaluate the uncertainties, if available.
    std::vector<double> errors;
