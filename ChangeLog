@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: richard  Fri Dec  5 15:47:37 PST 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+add libHist for windows link
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec  5 07:02:59 PST 2003
 Likelihood/doc
 
