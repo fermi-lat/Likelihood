@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.17 2003/12/06 03:52:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.18 2003/12/06 23:46:38 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -36,6 +36,7 @@
 #include "Likelihood/Exception.h"
 
 using namespace Likelihood;
+using latResponse::irfsFactory;
 
 void print_fit_results(SourceModel &stat, const std::vector<double> &errors);
 bool prompt(const std::string &query);
@@ -79,22 +80,24 @@ int main(int iargc, char* argv[]) {
 // Create the response functions.
       std::string responseFuncs;
       params.getParam("Response_functions", responseFuncs);
-      latResponse::IrfsFactory irfsFactory;
+//      latResponse::IrfsFactory irfsFactory;
       if (responseFuncs == "COMBINED_G25") {
          ResponseFunctions::
-            addRespPtr(4, irfsFactory.create("Glast25::Combined"));
+            addRespPtr(4, irfsFactory().create("Glast25::Combined"));
       } else if (responseFuncs == "FRONT/BACK_G25") {
-         ResponseFunctions::addRespPtr(2,irfsFactory.create("Glast25::Front"));
-         ResponseFunctions::addRespPtr(3, irfsFactory.create("Glast25::Back"));
+         ResponseFunctions::addRespPtr(2,
+                                       irfsFactory().create("Glast25::Front"));
+         ResponseFunctions::addRespPtr(3, 
+                                       irfsFactory().create("Glast25::Back"));
       } else if (responseFuncs == "TESTDC1") {
-         ResponseFunctions::addRespPtr(1, irfsFactory.create("DC1::test"));
+         ResponseFunctions::addRespPtr(1, irfsFactory().create("DC1::test"));
       } else if (responseFuncs == "FRONT") {
-         ResponseFunctions::addRespPtr(5, irfsFactory.create("DC1::Front"));
+         ResponseFunctions::addRespPtr(5, irfsFactory().create("DC1::Front"));
       } else if (responseFuncs == "BACK") {
-         ResponseFunctions::addRespPtr(6, irfsFactory.create("DC1::Back"));
+         ResponseFunctions::addRespPtr(6, irfsFactory().create("DC1::Back"));
       } else if (responseFuncs == "FRONT/BACK") {
-         ResponseFunctions::addRespPtr(5, irfsFactory.create("DC1::Front"));
-         ResponseFunctions::addRespPtr(6, irfsFactory.create("DC1::Back"));
+         ResponseFunctions::addRespPtr(5, irfsFactory().create("DC1::Front"));
+         ResponseFunctions::addRespPtr(6, irfsFactory().create("DC1::Back"));
       }
 
 // Fill a FunctionFactory with Function object prototypes for source
