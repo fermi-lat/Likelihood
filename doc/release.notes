@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v7r2p1 20-Mar-05  JC   use upper_bound to find ScData time interval index
     v7r2   18-Mar-05  JC   move load method to ResponseFunction class
     v7r1p5 16-Mar-05  JC   update python tutorial; improve gui semantics
     v7r1p4 09-Mar-05  JC   update tutorials
