@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.29 2003/10/25 00:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.30 2003/10/27 01:13:50 jchiang Exp $
  */
 
 #include <vector>
@@ -168,13 +168,16 @@ void PointSource::computeExposure(int verbose) {
 void PointSource::computeExposure(std::vector<double> &energies,
                                   std::vector<double> &exposure,
                                   int verbose) {
+   ScData *scData = ScData::instance();
+   RoiCuts *roiCuts = RoiCuts::instance();
+
+// Don't compute anything if there is no ScData.
+   if (scData->vec.size() == 0) return;
+
    if (!s_haveStaticMembers) {
       makeEnergyVector();
       s_haveStaticMembers = true;
    }
-
-   ScData *scData = ScData::instance();
-   RoiCuts *roiCuts = RoiCuts::instance();
 
 // Initialize the exposure vector with zeros
    exposure = std::vector<double>(energies.size(), 0);

@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.5 2003/11/07 02:27:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.6 2003/11/08 21:33:58 jchiang Exp $
  */
 
 #include <vector>
@@ -46,7 +46,7 @@ double LogLike::value(optimizers::Arg&) const {
 }
 
 void LogLike::getFreeDerivs(optimizers::Arg&,
-                                  std::vector<double> &freeDerivs) const {
+                            std::vector<double> &freeDerivs) const {
 
 // retrieve the free derivatives for the log(SourceModel) part
    m_logSrcModel.mySyncParams();

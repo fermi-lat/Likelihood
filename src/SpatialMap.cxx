@@ -5,11 +5,13 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.6 2003/09/28 15:39:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.7 2003/10/25 02:13:49 jchiang Exp $
  *
  */
 
 #include <numeric>
+
+#include "facilities/Util.h"
 
 #include "Likelihood/FitsImage.h" 
 #include "Likelihood/SkyDirArg.h"
@@ -80,7 +82,9 @@ void SpatialMap::init() {
 void SpatialMap::readFitsFile(const std::string &fitsFile) {
    m_fitsFile = fitsFile;
 
-   FitsImage fitsImage(fitsFile);
+   facilities::Util::expandEnvVar(&m_fitsFile);
+
+   FitsImage fitsImage(m_fitsFile);
 
 // Assume 0th and 1st axes are RA and DEC.
    fitsImage.fetchAxisVector(0, m_ra);
