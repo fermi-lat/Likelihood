@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov  2 16:04:48 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	TsMap.par diffuseResponses.par expMap.par exposureMap.par 
+	gtcntsmap.par gtsrcmaps.par likelihood.par 
+	makeExposureCube.par meanPsf.par 
+Log Message:
+set fr parameter types
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov  2 15:20:59 PST 2004
 Likelihood/xml
 
