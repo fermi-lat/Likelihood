@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.11 2004/10/07 04:43:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.12 2004/10/08 00:28:51 jchiang Exp $
  */
 
 #include <algorithm>
@@ -52,17 +52,17 @@ BinnedExposure * SourceMap::s_binnedExposure(0);
 std::vector<double> SourceMap::s_phi;
 std::vector<double> SourceMap::s_mu;
 
-SourceMap::SourceMap(Source * src, const CountsMap & dataMap) 
+SourceMap::SourceMap(Source * src, const CountsMap * dataMap) 
    : m_name(src->getName()), m_dataMap(dataMap) {
    if (s_mu.size() == 0 || s_phi.size() == 0) {
       prepareAngleArrays(100, 50);
    }
 
    std::vector<Pixel> pixels;
-   dataMap.getPixels(pixels);
+   dataMap->getPixels(pixels);
    
    std::vector<double> energies;
-   dataMap.getAxisVector(2, energies);
+   dataMap->getAxisVector(2, energies);
 
    std::cerr << "Generating SourceMap for " << m_name;
    long npts = energies.size()*pixels.size();
@@ -76,7 +76,7 @@ SourceMap::SourceMap(Source * src, const CountsMap & dataMap)
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
       for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
          unsigned long indx = k*pixels.size() + j;
-         if ((icount % (npts/10)) == 0) std::cerr << ".";
+         if ((icount % (npts/20)) == 0) std::cerr << ".";
          double value(0);
          if (dynamic_cast<PointSource *>(src) != 0) {
 /// @todo Ensure the desired event types are correctly included in this
@@ -99,7 +99,7 @@ SourceMap::SourceMap(Source * src, const CountsMap & dataMap)
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const std::string & srcName) 
-   : m_name(srcName), m_dataMap(CountsMap(sourceMapsFile)) {
+   : m_name(srcName), m_dataMap(new CountsMap(sourceMapsFile)) {
    std::auto_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(sourceMapsFile, srcName));
    std::vector<float> image_data;
@@ -108,9 +108,9 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
    std::copy(image_data.begin(), image_data.end(), m_model.begin());
 
    std::vector<Pixel> pixels;
-   m_dataMap.getPixels(pixels);
+   m_dataMap->getPixels(pixels);
    std::vector<double> energies;
-   m_dataMap.getAxisVector(2, energies);
+   m_dataMap->getAxisVector(2, energies);
 
    m_npreds.resize(energies.size(), 0);
    for (unsigned int k = 0; k < energies.size(); k++) {
@@ -137,9 +137,9 @@ void SourceMap::save(const std::string & filename) const {
    fits_create_file(&fptr, filename.c_str(), &status);
    fitsReportError(stderr, status);
 
-   long naxes[] = {m_dataMap.imageDimension(0),
-                   m_dataMap.imageDimension(1),
-                   m_dataMap.imageDimension(2) + 1};
+   long naxes[] = {m_dataMap->imageDimension(0),
+                   m_dataMap->imageDimension(1),
+                   m_dataMap->imageDimension(2) + 1};
    fits_create_img(fptr, DOUBLE_IMG, 3, naxes, &status);
    fitsReportError(stderr, status);
    
@@ -177,7 +177,7 @@ double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
                                        double energy) const {
    DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
    std::vector<double> energies;
-   m_dataMap.getAxisVector(2, energies);
+   m_dataMap->getAxisVector(2, energies);
    if (s_meanPsf == 0) {
       double ra, dec;
       RoiCuts::instance()->getRaDec(ra, dec);

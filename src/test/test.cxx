@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.38 2004/10/07 04:43:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.39 2004/10/08 00:28:52 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -82,7 +82,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
 //    CPPUNIT_TEST(test_PointSource);
 //    CPPUNIT_TEST(test_DiffuseSource);
    CPPUNIT_TEST(test_CountsMap);
-//    CPPUNIT_TEST(test_BinnedLikelihood);
+   CPPUNIT_TEST(test_BinnedLikelihood);
 //    CPPUNIT_TEST(test_MeanPsf);
 //    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
@@ -141,6 +141,8 @@ private:
                       std::vector<Event> & events);
    
    void generate_exposureHyperCube();
+
+   CountsMap singleSrcMap(unsigned int nee) const;
 };
 
 #define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(fabs( (X - Y)/Y ) < m_fracTol)
@@ -578,21 +580,28 @@ void LikelihoodTests::generate_exposureHyperCube() {
    map_tools::ExposureHyperCube cube(exposure, output_file);
 }
 
-void LikelihoodTests::test_CountsMap() {
+CountsMap LikelihoodTests::singleSrcMap(unsigned int nee) const {
    std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
    double ra(83.57);
    double dec(22.01);
    unsigned long npts(40);
    double emin(30.);
    double emax(2e5);
-   unsigned long nee(21);
    CountsMap dataMap(eventFile, m_scFile, ra, dec, "CAR", npts, npts,
                      0.25, 0, false, "RA", "DEC", emin, emax, nee);
    const tip::Table * events 
       = tip::IFileSvc::instance().readTable(eventFile, "events");
    dataMap.binInput(events->begin(), events->end());
+   return dataMap;
+}
+
+void LikelihoodTests::test_CountsMap() {
+   CountsMap dataMap(singleSrcMap(21));
    dataMap.writeOutput("test_CountsMap", "countsMap.fits");
    CountsMap dataMap2("countsMap.fits");
+   for (unsigned int i = 0; i < dataMap.data().size(); i++) {
+      CPPUNIT_ASSERT(dataMap.data()[i] == dataMap2.data()[i]);
+   }
 }
 
 void LikelihoodTests::test_BinnedLikelihood() {
@@ -605,19 +614,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    }
    ExposureCube::readExposureCube(exposureCubeFile);
 
-   std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
-   
-   double ra(83.57);
-   double dec(22.01);
-   unsigned long npts(40);
-   double emin(30.);
-   double emax(2e5);
-   unsigned long nee(21);
-   CountsMap dataMap(eventFile, m_scFile, ra, dec, "CAR", npts, npts,
-                     0.25, 0, false, "RA", "DEC", emin, emax, nee);
-   const tip::Table * events 
-      = tip::IFileSvc::instance().readTable(eventFile, "events");
-   dataMap.binInput(events->begin(), events->end());
+   CountsMap dataMap(singleSrcMap(21));
 
    BinnedLikelihood binnedLogLike(dataMap);
    std::string Crab_model = m_rootPath + "/data/Crab_model.xml";
@@ -658,6 +655,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
 
    CPPUNIT_ASSERT(fabs(modelSum - dataSum) < 1e-2);
    
+   long npts = dataMap.imageDimension(0);
    std::vector<double> energies;
    modelMap->getAxisVector(2, energies);
    for (unsigned int i = 0; i < energies.size()-1; i++) {
@@ -774,22 +772,17 @@ void LikelihoodTests::test_SourceMap() {
    }
    ExposureCube::readExposureCube(exposureCubeFile);
 
-   std::string filename("countsMap.fits");
-   if (!st_facilities::Util::fileExists(filename)) {
-      throw std::runtime_error("test_SourceMap: "+ filename +
-                               " does not exist.");
-   }
-   CountsMap dataMap(filename);
+   CountsMap dataMap(singleSrcMap(15));
+   dataMap.writeOutput("test.cxx", "cntsMap.fits");
 
    SourceFactory * srcFactory 
       = srcFactoryInstance("", "", "", "", false);
    Source * src = srcFactory->create("Galactic Diffuse");
 //   Source * src =  srcFactory->create("Crab Pulsar");
 
-//    std::string binnedMap = m_rootPath + "/data/binnedExposure.fits";
-//    SourceMap::setBinnedExposure(binnedMap);
-   SourceMap srcMap(src, dataMap);
+   SourceMap srcMap(src, &dataMap);
 
+   std::remove("sourceMap.fits");
    srcMap.save("sourceMap.fits");
 }
 
