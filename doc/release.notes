@@ -3,6 +3,13 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v7     04-Mar-05  JC   major refactoring: conversion of Singletons
+                           RoiCuts, ScData, ExposureMap, ExposureCube,
+                           ResponseFunctions to proper classes; added new
+                           EventContainer class, extracted from LogLike;
+                           encapsulation of all observation-specific data 
+                           in new Observation class;  also some fixes to
+                           gtpsf.
     v6r6p3 25-Feb-05  JC   fix to LogLike to ensure backwards
                            compatibility with diff. resp. column names
     v6r6p2 22-Feb-05  JC   prepend IRF name to diffuse response column name
