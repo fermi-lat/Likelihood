@@ -5,6 +5,7 @@
 
 #include "Likelihood/Lbfgs.h"
 #include "Likelihood/Parameter.h"
+#include "Likelihood/LikelihoodException.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -122,21 +123,28 @@ namespace Likelihood {
 	// Abnormal termination in line search
 	m_retCode = LBFGS_ABNO;
 	m_errorString = taskString;
-	break;
+	throw LikelihoodException(taskString, LBFGS_ABNO);
       }
       else if (taskString.substr(0, 5) == "ERROR") {
 	// Error in input parameters
 	m_retCode = LBFGS_ERROR;
 	m_errorString = taskString;
-	break;
+	throw LikelihoodException(taskString, LBFGS_ERROR);
       }
       else {
 	// Something else
 	m_retCode = LBFGS_UNKNOWN;
 	m_errorString = "LBFGS unknown condition";
-	break;
+	throw LikelihoodException(taskString, LBFGS_UNKNOWN);
       }
     }  // End of infinite loop
+
+    // Get parameter values
+    i = 0;
+    for (std::vector<Parameter>::iterator p = params.begin();
+	 p != params.end(); p++, i++) {
+      p->setValue(paramVals[i]);
+    }
   } // End of find_min
 }
 
