@@ -1,3 +1,10 @@
+/** @file PointSource.h
+ * @brief PointSourc class declaration
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #ifndef PointSource_h
 #define PointSource_h
 
@@ -16,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header$
  */
 
 class PointSource : public Source {
@@ -28,10 +35,10 @@ public:
    }
    PointSource(double ra, double dec) : m_spectrum(0) {
       setDir(ra, dec);
-      if (!m_haveStaticMembers) {
-         m_makeEnergyVector();
-         m_makeSigmaVector();
-         m_haveStaticMembers = true;
+      if (!s_haveStaticMembers) {
+         makeEnergyVector();
+         makeSigmaVector();
+         s_haveStaticMembers = true;
       }
       computeGaussFractions();
       computeExposure();
@@ -101,22 +108,22 @@ protected:
 private:
 
    //! flag to indicate that static member data has been computed
-   static bool m_haveStaticMembers;
+   static bool s_haveStaticMembers;
 
    //! vector of energy values for Npred spectrum quadrature
-   static std::vector<double> m_energies;
+   static std::vector<double> s_energies;
 
    //! integrated exposure at PointSource sky location
    std::vector<double> m_exposure;
 
    //! method to create a logrithmically spaced grid given RoiCuts
-   static void m_makeEnergyVector(int nee = 100);
+   static void makeEnergyVector(int nee = 100);
 
    //! Gaussian widths in units of radians
-   static std::vector<double> m_sigGauss;
+   static std::vector<double> s_sigGauss;
 
    //! method to create the sigma grid for m_gaussFraction
-   static void m_makeSigmaVector(int nsig = 100);
+   static void makeSigmaVector(int nsig = 100);
 
    //! storage of the ROI contained fraction of a 2D "Gaussian"
    std::vector<double> m_gaussFraction;

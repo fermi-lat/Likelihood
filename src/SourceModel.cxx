@@ -1,7 +1,8 @@
 /** @file SourceModel.cxx
  * @brief SourceModel class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
 
 #include <vector>
@@ -13,25 +14,25 @@
 
 namespace Likelihood {
 
-std::vector<Source *> SourceModel::m_sources;
+std::vector<Source *> SourceModel::s_sources;
 
 SourceModel::SourceModel(const SourceModel &rhs) : 
    Function(rhs) {
-   m_sources = rhs.m_sources;
+   s_sources = rhs.s_sources;
 }
 
 void SourceModel::setParam(const Parameter &param, 
                            const std::string &funcName,
                            const std::string &srcName) {
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      if (srcName == (*m_sources[i]).getName()) {
-         Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      if (srcName == (*s_sources[i]).getName()) {
+         Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
          if (srcFuncs.count(funcName)) {
             srcFuncs[funcName]->setParam(param.getName(), 
                                          param.getValue(),
                                          param.isFree());
 // this seems inefficient, but necessary because of srcFuncs map(?)
-            m_syncParams();
+            syncParams();
             return;
          }
       }
@@ -43,35 +44,35 @@ void SourceModel::setParam(const Parameter &param,
  
 std::vector<double>::const_iterator SourceModel::setParamValues_(
    std::vector<double>::const_iterator it) { 
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) 
          it = (*func_it).second->setParamValues_(it);
    }
-   m_syncParams();
+   syncParams();
    return it;
 }
 
 std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
    std::vector<double>::const_iterator it) { 
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) 
          it = (*func_it).second->setFreeParamValues_(it);
    }
-   m_syncParams();
+   syncParams();
    return it;
 }
 
 Parameter* SourceModel::getParam(const std::string &paramName,
                                  const std::string &funcName,
                                  const std::string &srcName) const {
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      if (srcName == (*m_sources[i]).getName()) {
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      if (srcName == (*s_sources[i]).getName()) {
          std::vector<Parameter> params;
-         Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+         Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
          if (srcFuncs.count(funcName)) {    //check for funcName
             srcFuncs[funcName]->getParams(params);
             for (unsigned int j = 0; j < params.size(); j++) 
@@ -87,14 +88,14 @@ Parameter* SourceModel::getParam(const std::string &paramName,
 
 void SourceModel::addSource(Source *src) {
 // loop over sources to ensure unique names
-   for (unsigned int i = 0; i < m_sources.size(); i++) 
-      assert((*src).getName() != (*m_sources[i]).getName());
+   for (unsigned int i = 0; i < s_sources.size(); i++) 
+      assert((*src).getName() != (*s_sources[i]).getName());
 
 // add this one to the vector
-   m_sources.push_back(src);
+   s_sources.push_back(src);
 
 // add the Parameters to the m_parameter vector 
-// (would it be better just to use m_syncParams() here?)
+// (would it be better just to use syncParams() here?)
    Source::FuncMap srcFuncs = (*src).getSrcFuncs();
    Source::FuncMap::iterator func_it = srcFuncs.begin();
    for (; func_it != srcFuncs.end(); func_it++) {
@@ -106,11 +107,11 @@ void SourceModel::addSource(Source *src) {
 }
  
 void SourceModel::deleteSource(const std::string &srcName) {
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      if (srcName == (*m_sources[i]).getName()) {
-         m_sources.erase(m_sources.begin() + i, 
-                         m_sources.begin() + i + 1);
-         m_syncParams();
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      if (srcName == (*s_sources[i]).getName()) {
+         s_sources.erase(s_sources.begin() + i, 
+                         s_sources.begin() + i + 1);
+         syncParams();
          return;
       }
    }
@@ -119,11 +120,11 @@ void SourceModel::deleteSource(const std::string &srcName) {
 }
 
 // remake parameter vector from scratch 
-void SourceModel::m_syncParams() {
+void SourceModel::syncParams() {
    m_parameter.clear();
 
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<Parameter> params;
@@ -138,15 +139,15 @@ void SourceModel::getSrcNames(std::vector<std::string> &names) const {
 // ensure names is empty
    if (!names.empty()) names.erase(names.begin(), names.end());
 
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      names.push_back(m_sources[i]->getName());
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      names.push_back(s_sources[i]->getName());
    }
 }
 
 double SourceModel::evaluate_at(Arg &x) const {
    double my_val = 0.;
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          my_val += (*func_it).second->value(x);
@@ -159,8 +160,8 @@ void SourceModel::fetchDerivs(Arg &x, std::vector<double> &derivs,
                               bool getFree) const {
    if (!derivs.empty()) derivs.clear();
 
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<double> my_derivs;

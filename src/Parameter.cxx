@@ -1,7 +1,8 @@
 /** @file Parameter.cxx
  * @brief Parameter class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
 
 #include <vector>

@@ -1,6 +1,8 @@
 /** @file SourceModel.h
  * @brief Declaration of SourceModel class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef SourceModel_h
@@ -23,15 +25,15 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.4 2003/03/04 17:45:32 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.9 2003/03/16 21:53:26 jchiang Exp $ */
 
 class SourceModel : public Function {
     
 public:
    
-   SourceModel(){setMaxNumParams(0);};
+   SourceModel(){setMaxNumParams(0);}
    SourceModel(const SourceModel &rhs);
-   virtual ~SourceModel(){};
+   virtual ~SourceModel(){}
 
    //! setParam method to include function and source name checking
    void setParam(const Parameter &param, const std::string &funcName,
@@ -54,25 +56,25 @@ public:
 
    //! delete all the sources
    void deleteAllSources() {
-      m_sources.clear();
+      s_sources.clear();
       m_parameter.clear();
    }
 
-   unsigned int getNumSrcs() const {return m_sources.size();}
+   unsigned int getNumSrcs() const {return s_sources.size();}
    void getSrcNames(std::vector<std::string> &) const;
 
    // this is a bit convoluted, but necessary for some derived classes 
    // (e.g., logLike_gauss)
    double evaluate_at(Arg &) const;
-   virtual double value(Arg &x) const {return evaluate_at(x);};
+   virtual double value(Arg &x) const {return evaluate_at(x);}
 
 protected:
 
-   static std::vector<Source *> m_sources;
+   static std::vector<Source *> s_sources;
 
    //! method to sync the m_parameter vector with those of the 
-   //! m_sources' Functions
-   void m_syncParams();
+   //! s_sources' Functions
+   void syncParams();
 
    //! disable this since parameters may no longer have unique names
    double derivByParam(Arg &, const std::string &) const {return 0;}

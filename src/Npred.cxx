@@ -1,3 +1,12 @@
+/** @file Npred.cxx
+ * @brief Implementation of the Npred class, which encapsulates the
+ * Npred methods of Sources in a Function context.
+ *
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include "Likelihood/Npred.h"
@@ -42,6 +51,5 @@ void Npred::buildParameterVector(Arg &x) const {
          m_parameter.push_back(params[i]);
    }
 }   
-
 
 } // namespace Likelihood

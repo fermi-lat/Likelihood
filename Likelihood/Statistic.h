@@ -1,6 +1,8 @@
 /** @file Statistic.h
  * @brief Declaration of Statistic class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef Statistic_h
@@ -20,20 +22,20 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.5 2003/03/04 17:45:32 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.8 2003/03/16 21:53:26 jchiang Exp $ */
 
 class Statistic : public SourceModel {
     
 public:
 
-   Statistic(){};
-   virtual ~Statistic(){};
+   Statistic(){}
+   virtual ~Statistic(){}
 
    //! return the objective function value taking the free parameters 
    //! as the function argument
    virtual double value(const std::vector<double> &paramVec) = 0;
    virtual double operator()(const std::vector<double> &paramVec) 
-      {return value(paramVec);};
+      {return value(paramVec);}
 
    //! non-argument version of getFreeDerivs
    virtual void getFreeDerivs(std::vector<double> &) = 0;
@@ -42,7 +44,7 @@ public:
                       const std::string &colnames, int hdu);
 
    std::pair<long, double*> getEventColumn(const std::string &colname) const
-      {return m_getColumn(m_eventData, colname);};
+      {return m_getColumn(m_eventData, colname);}
 
 protected:
 

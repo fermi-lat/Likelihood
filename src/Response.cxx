@@ -1,3 +1,10 @@
+/** @file Response.cxx
+ * @brief Implementation for Response base class.
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -8,7 +15,7 @@
 namespace Likelihood {
 
 // default maximum inclination in degrees for strawman response files
-double Response::incMax = 70.;
+double Response::s_incMax = 70.;
 
 Response::Response() {
    ScData *scData = ScData::instance();
@@ -19,6 +26,7 @@ Response::Response() {
 }
 
 void Response::m_hunt(double *xx, int n, double x, int *jlo) {
+/* (C) Copr. 1986-92 Numerical Recipes Software 0@.1Y.. */
    int jm,jhi,inc;
    int ascnd;
    
@@ -85,10 +93,10 @@ double Response::m_bilinear(int nx, double *xx, int i, double x,
    value = (1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
       + tt*uu*y3 + (1. - tt)*uu*y4; 
    if (value < 0.) {
-      std::cout << "bilinear: value = " << value << " <0\n";
-      std::cout << i << "  " << xx[i] << "  " << x << "  " << xx[i+1] << "\n";
-      std::cout << j << "  " << yy[j] << "  " << y << "  " << yy[j+1] << "\n";
-      std::cout << tt << "  " << uu << "  " 
+      std::cerr << "bilinear: value = " << value << " <0\n";
+      std::cerr << i << "  " << xx[i] << "  " << x << "  " << xx[i+1] << "\n";
+      std::cerr << j << "  " << yy[j] << "  " << y << "  " << yy[j+1] << "\n";
+      std::cerr << tt << "  " << uu << "  " 
                 << y1 << "  " << y2 << "  "
                 << y3 << "  " << y4 << "  " << std::endl;
    }

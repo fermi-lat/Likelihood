@@ -1,7 +1,8 @@
 /** @file logLike_ptsrc.cxx
  * @brief logLike_ptsrc class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
 
 #include <vector>
@@ -31,7 +32,7 @@ double logLike_ptsrc::value(const std::vector<double> &paramVec) {
 
 // the "model integral", a sum over Npred for each source
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      SrcArg sArg(m_sources[i]);
+      SrcArg sArg(s_sources[i]);
       my_value -= m_Npred(sArg);
    }
    
@@ -41,7 +42,7 @@ double logLike_ptsrc::value(const std::vector<double> &paramVec) {
 void logLike_ptsrc::getFreeDerivs(std::vector<double> &freeDerivs) {
 
 // retrieve the free derivatives for the log(SourceModel) part
-   m_logSrcModel.syncParams();
+   m_logSrcModel.mySyncParams();
    std::vector<double> logSrcModelDerivs(m_logSrcModel.getNumFreeParams(), 0);
    for (unsigned int j = 0; j < m_events.size(); j++) {
       std::vector<double> derivs;
@@ -52,12 +53,12 @@ void logLike_ptsrc::getFreeDerivs(std::vector<double> &freeDerivs) {
    }
 
 // the free derivatives for the Npred part must be appended 
-// for each Source in m_sources
+// for each Source in s_sources
    std::vector<double> NpredDerivs;
    NpredDerivs.reserve(m_logSrcModel.getNumFreeParams());
 
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      SrcArg sArg(m_sources[i]);
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      SrcArg sArg(s_sources[i]);
       std::vector<double> derivs;
       m_Npred.getFreeDerivs(sArg, derivs);
       for (unsigned int i = 0; i < derivs.size(); i++) 

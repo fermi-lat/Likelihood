@@ -1,57 +1,65 @@
+/** @file RoiCuts.cxx
+ * @brief Implementation for RoiCuts, a Singleton class that contains
+ * the Regoin-of-Interest cuts.
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #include "Likelihood/RoiCuts.h"
 
 namespace Likelihood {
 
 // definitions of static data
-std::vector<RoiCuts::timeInterval> RoiCuts::m_tLimVec;
-double RoiCuts::m_eMin;
-double RoiCuts::m_eMax;
-astro::SkyDir RoiCuts::m_roiCenter;
-double RoiCuts::m_roiRadius;
-double RoiCuts::m_muZenMax;
+std::vector<RoiCuts::timeInterval> RoiCuts::s_tLimVec;
+double RoiCuts::s_eMin;
+double RoiCuts::s_eMax;
+astro::SkyDir RoiCuts::s_roiCenter;
+double RoiCuts::s_roiRadius;
+double RoiCuts::s_muZenMax;
 RoiCuts * RoiCuts::s_instance = 0;
 
 void RoiCuts::setCuts(double ra, double dec, double roi_radius) {
 // get everything for now....
-   m_tLimVec.push_back(std::make_pair(0., HUGE));
+   s_tLimVec.push_back(std::make_pair(0., HUGE));
 
 // default min and max energies in MeV
-   m_eMin = 31.623;
-   m_eMax = 3.1622e5;
+   s_eMin = 31.623;
+   s_eMax = 3.1622e5;
 
 // // prompt the user for sky extraction region info
 //    double ra;
 //    double dec;
 //    std::cout << "Enter ra and dec (in degrees) of ROI center: ";
 //    std::cin >> ra >> dec;
-    m_roiCenter = astro::SkyDir(ra, dec);
+    s_roiCenter = astro::SkyDir(ra, dec);
 
 //    std::cout << "Enter acceptance cone radius (in degrees): ";
-//    std::cin >> m_roiRadius;
-    m_roiRadius = roi_radius;
+//    std::cin >> s_roiRadius;
+    s_roiRadius = roi_radius;
 
 // accept everything until effect of Zenith angle cuts can be computed
-   m_muZenMax = -1.;
+   s_muZenMax = -1.;
 }
 
 bool RoiCuts::accept(const Event &event) {
    bool acceptEvent = true;
 
-   for (unsigned int i = 0; i < m_tLimVec.size(); i++) {
-      if (event.getArrTime() < m_tLimVec[i].first ||
-          event.getArrTime() > m_tLimVec[i].second) acceptEvent = false;
+   for (unsigned int i = 0; i < s_tLimVec.size(); i++) {
+      if (event.getArrTime() < s_tLimVec[i].first ||
+          event.getArrTime() > s_tLimVec[i].second) acceptEvent = false;
    }
 
-   if (event.getEnergy() < m_eMin || event.getEnergy() > m_eMax) 
+   if (event.getEnergy() < s_eMin || event.getEnergy() > s_eMax) 
       acceptEvent = false;
 
-   double dist = event.getSeparation(m_roiCenter)*180./M_PI;
-   if (dist > m_roiRadius) {
+   double dist = event.getSeparation(s_roiCenter)*180./M_PI;
+   if (dist > s_roiRadius) {
 //      std::cerr << dist << std::endl;
       acceptEvent = false;
    }
 
-   if (event.getMuZenith() < m_muZenMax) acceptEvent = false;
+   if (event.getMuZenith() < s_muZenMax) acceptEvent = false;
 
    return acceptEvent;
 }

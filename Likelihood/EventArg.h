@@ -1,6 +1,8 @@
 /** @file EventArg.h
  * @brief Declaration of EventArg class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef EventArg_h
@@ -18,7 +20,8 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class EventArg : public Arg {
     

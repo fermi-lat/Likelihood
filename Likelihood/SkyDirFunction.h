@@ -1,6 +1,8 @@
 /** @file SkyDirFunction.h
- * @brief Declaration of SkyDirFunction class
- * $Header:
+ * @brief Declaration of the SkyDirFunction class
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef SkyDirFunction_h
@@ -21,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: 
+ * $Header:$
  */
     
 class SkyDirFunction : public Function, public astro::SkyDir {

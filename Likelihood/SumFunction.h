@@ -1,6 +1,8 @@
 /** @file SumFunction.h
  * @brief Declaration of SumFunction class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef SumFunction_h
@@ -16,7 +18,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header$
  *
  */
     

@@ -1,3 +1,10 @@
+/** @file ScData.h
+ * @brief Declaration for ScData class, which contains the spacecraft data
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #ifndef ScData_h
 #define ScData_h
 
@@ -13,13 +20,14 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: */
+ * $Header:$
+ */
 
 class ScData {
 
 public:
 
-   ~ScData(){};
+   ~ScData(){}
 
    //! method to read in the spacecraft data
    static void readData(const std::string &file, int hdu);
@@ -30,8 +38,8 @@ public:
  */
    class ScNtuple {
    public:
-      ScNtuple(){};
-      ~ScNtuple(){};
+      ScNtuple(){}
+      ~ScNtuple(){}
       double time;
       astro::SkyDir zenDir;
       astro::SkyDir xAxis;
@@ -47,14 +55,14 @@ public:
 
 protected:
 
-   ScData(){};
+   ScData(){}
 
 private:
 
    static ScData * s_instance;
    
-   static std::string m_scFile;
-   static int m_scHdu;
+   static std::string s_scFile;
+   static int s_scHdu;
 
 };
 

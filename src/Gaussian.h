@@ -1,3 +1,10 @@
+/** @file Gaussian.h
+ * @brief Gaussian class declaration
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include "Likelihood/Function.h"
 #include "Likelihood/Arg.h"
 
@@ -5,19 +12,19 @@ namespace Likelihood {
 /** 
  * @class Gaussian
  *
- * @brief A Gaussian function
+ * @brief A 1D Gaussian function
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.2 2003/03/04 17:45:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.h,v 1.4 2003/03/16 21:53:26 jchiang Exp $
  */
     
 class Gaussian : public Function {
 public:
 
-   Gaussian(){m_init(0, -2, 1);}
+   Gaussian(){init(0, -2, 1);}
    Gaussian(double Prefactor, double Mean, double Sigma)
-      {m_init(Prefactor, Mean, Sigma);}
+      {init(Prefactor, Mean, Sigma);}
 
    double value(Arg &) const;
 
@@ -27,8 +34,8 @@ public:
 
 private:
 
-   void m_init(double Prefactor, double Mean, double Sigma);
-   double m_erfcc(double x) const;
+   void init(double Prefactor, double Mean, double Sigma);
+   double erfcc(double x) const;
 
 };
 

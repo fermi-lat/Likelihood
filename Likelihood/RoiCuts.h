@@ -1,3 +1,10 @@
+/** @file RoiCuts.h
+ * @brief Declaration for RoiCuts class
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #ifndef RoiCuts_h
 #define RoiCuts_h
 
@@ -18,27 +25,28 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class RoiCuts {
 
 public:
 
-   ~RoiCuts(){};
+   ~RoiCuts(){}
 
    static RoiCuts * instance();
 
    //! access to the cuts
    void getTimeCuts(std::vector< std::pair<double, double> > &tLimVec) const
-      {tLimVec = m_tLimVec;}
+      {tLimVec = s_tLimVec;}
 
    std::pair<double, double> getEnergyCuts() const
-      {return std::make_pair(m_eMin, m_eMax);}
+      {return std::make_pair(s_eMin, s_eMax);}
 
    std::pair<astro::SkyDir, double> getExtractionRegion() const
-      {return std::make_pair(m_roiCenter, m_roiRadius);}
+      {return std::make_pair(s_roiCenter, s_roiRadius);}
 
-   double getMuZenMax() {return m_muZenMax;}
+   double getMuZenMax() {return s_muZenMax;}
 
    //! methods to allow cuts to be specified
    // prompt user (or use PIL for defaults)
@@ -51,7 +59,7 @@ public:
 
 protected:
 
-   RoiCuts(){};
+   RoiCuts(){}
 
 private:
 
@@ -61,20 +69,20 @@ private:
    //! this vector of pairs specify time intervals for event acceptance;
    //! the *intersection* of these intervals will be used
    typedef std::pair<double, double> timeInterval; // this will be generalized
-   static std::vector<timeInterval> m_tLimVec;
+   static std::vector<timeInterval> s_tLimVec;
 
    //! minimum and maximum energies in MeV,
-   static double m_eMin;
-   static double m_eMax;
+   static double s_eMin;
+   static double s_eMax;
 
    //! center of the sky extraction region
-   static astro::SkyDir m_roiCenter;
+   static astro::SkyDir s_roiCenter;
 
    //! acceptance cone half angle in degrees
-   static double m_roiRadius;
+   static double s_roiRadius;
 
    //! cosine of the maximum Zenith angle
-   static double m_muZenMax;
+   static double s_muZenMax;
 
 };
 

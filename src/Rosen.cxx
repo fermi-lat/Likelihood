@@ -1,3 +1,10 @@
+/** @file Rosen.cxx
+ * @brief Implementation for the 2D Rosenbrock objective function
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -6,13 +13,13 @@
 
 namespace Likelihood {
 
-void Rosen::m_init() {
+void Rosen::init() {
    int nParams = 2;
    setMaxNumParams(nParams);
 
    addParam(string("x"), 1, true);
    addParam(string("y"), 1, true);
-//   std::cout << "Rosen::m_init: " << m_parameter.size() << std::endl;
+//   std::cout << "Rosen::init: " << m_parameter.size() << std::endl;
 }
 
 double Rosen::value(const std::vector<double> &params) {

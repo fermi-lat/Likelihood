@@ -1,7 +1,8 @@
 /** @file Event.cxx
  * @brief Event class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
 
 #include "Likelihood/Event.h"
@@ -20,7 +21,6 @@ Event::Event(double ra, double dec, double energy,
 //   m_computeResponse();
 }
 
-//! copy constructor
 Event::Event(const Event &event) {
    m_appDir = event.m_appDir;
    m_energy = event.m_energy;

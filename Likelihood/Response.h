@@ -1,3 +1,10 @@
+/** @file Response.h
+ * @brief Response base class declaration
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #ifndef Response_h
 #define Response_h
 
@@ -13,26 +20,32 @@ namespace Likelihood {
  * Spacecraft info is shared among all derived classes via static data
  * members.
  *
- * Should each derived class -- Aeff, Psf, Edisp -- be Singleton?
+ * Each derived class -- Aeff, Psf, Edisp -- shall be Singleton.
  *
  * @author J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class Response {
     
 public:
     
-   virtual ~Response(){};
+   virtual ~Response(){}
 
    //! type-fields for specifying response file HDUs
    enum HDU {Front = 2, Back, Combined};
 
-   static double incMax;
+   //! return the maximum allowed value of the source inclination wrt
+   //! the instrument z-axis (in degrees)
+   static double incMax() {return s_incMax;}
 
 protected:
 
    Response();
+
+   //! maximum inclination for response files
+   static double s_incMax;
 
    //! share the spacecraft data among all response functions
    ScData * scData;
@@ -47,4 +60,5 @@ protected:
 };
 
 } // namespace Likelihood
+
 #endif // Response_h

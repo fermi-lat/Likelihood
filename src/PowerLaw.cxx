@@ -1,3 +1,10 @@
+/** @file PowerLaw.cxx
+ * @brief Implementation for the PowerLaw Function class
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -11,7 +18,7 @@ namespace Likelihood {
 //! Implement PowerLaw class with three named parameters, 
 //! "Prefactor", "Scale", "Index"
 
-void PowerLaw::m_init(double Prefactor, double Index, double Scale) {
+void PowerLaw::init(double Prefactor, double Index, double Scale) {
 //! initialization function used by constructors
 
    int nParams = 3;
@@ -27,7 +34,7 @@ double PowerLaw::value(Arg &xarg) const {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
 //! assume a standard ordering for the parameters
-   enum paramTypes {Prefactor, Index, Scale};
+   enum ParamTypes {Prefactor, Index, Scale};
 
    std::vector<Parameter> my_params;
    getParams(my_params);
@@ -40,7 +47,7 @@ double PowerLaw::value(Arg &xarg) const {
 double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
-   enum paramTypes {Prefactor, Index, Scale};
+   enum ParamTypes {Prefactor, Index, Scale};
 
    std::vector<Parameter> my_params;
    getParams(my_params);
@@ -82,7 +89,7 @@ double PowerLaw::integral(Arg &xargmin, Arg &xargmax) const {
    double xmin = dynamic_cast<dArg &>(xargmin).getValue();
    double xmax = dynamic_cast<dArg &>(xargmax).getValue();
 
-   enum paramTypes {Prefactor, Index, Scale};
+   enum ParamTypes {Prefactor, Index, Scale};
    std::vector<Parameter> my_params;
    getParams(my_params);
 

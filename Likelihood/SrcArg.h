@@ -1,6 +1,8 @@
 /** @file SrcArg.h
  * @brief Declaration of SrcArg class
- * $Header:
+ * @author J. Chiang
+ *
+ * $Header$
  */
 
 #ifndef SrcArg_h
@@ -18,7 +20,8 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header$
+ */
 
 class SrcArg : public Arg {
     

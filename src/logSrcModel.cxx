@@ -1,7 +1,8 @@
 /** @file logSrcModel.cxx
  * @brief logSrcModel class implementation
+ * @author J. Chiang
  *
- * $Header:
+ * $Header$
  */
 
 #include <cmath>
@@ -15,7 +16,7 @@ double logSrcModel::value(Arg &xarg) const {
 
    double my_value = 0;
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      my_value += m_sources[i]->fluxDensity(evt);
+      my_value += s_sources[i]->fluxDensity(evt);
    }
    if (my_value > 0) {
       return log(my_value);
@@ -33,8 +34,8 @@ void logSrcModel::fetchDerivs(Arg &xarg, std::vector<double> &derivs,
    dynamic_cast<EventArg &>(xarg).fetchValue(evt);
    double srcSum = exp(value(xarg));
 
-   for (unsigned int i = 0; i < m_sources.size(); i++) {
-      Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
+   for (unsigned int i = 0; i < s_sources.size(); i++) {
+      Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<std::string> paramNames;
@@ -45,7 +46,7 @@ void logSrcModel::fetchDerivs(Arg &xarg, std::vector<double> &derivs,
          }
          for (unsigned int j = 0; j < paramNames.size(); j++) {
             derivs.push_back(
-               (*m_sources[i]).fluxDensityDeriv(evt, paramNames[j])/srcSum
+               (*s_sources[i]).fluxDensityDeriv(evt, paramNames[j])/srcSum
                );
          }
       }

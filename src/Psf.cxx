@@ -1,3 +1,10 @@
+/** @file Psf.cxx
+ * @brief Implementation for the LAT Point-Spread Function class
+ * @author J. Chiang
+ * 
+ * $Header$
+ */
+
 #include <vector>
 #include <string>
 #include <cmath>
@@ -57,7 +64,7 @@ double Psf::value(astro::SkyDir appDir, double energy,
 // inclination wrt spacecraft z-axis in degrees
    double inc = srcDir.SkyDir::difference(scData->vec[indx].zAxis)*180./M_PI;
 
-   if (inc < incMax) {
+   if (inc < incMax()) {
       return value(separation, energy, inc);
    } else {
       return 0;
