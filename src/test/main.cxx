@@ -1450,7 +1450,7 @@ void read_SC_Response_data() {
 // Prepare the ResponseFunctions object.
    std::map<unsigned int, latResponse::Irfs *> respPtrs;
 
-   bool useCombined = false;
+   bool useCombined = true;
    if (useCombined) {
       latResponse::IAeff *aeff_new
          = new latResponse::AeffGlast25(aeff_file, Response::Combined);

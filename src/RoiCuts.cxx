@@ -4,9 +4,10 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.8 2003/08/17 04:11:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.9 2003/08/24 19:00:11 jchiang Exp $
  */
 
+#include <cstdlib>
 #include <sstream>
 
 #include "xml/XmlParser.h"
@@ -22,35 +23,26 @@
 
 namespace Likelihood {
 
-// definitions of static data
+// Definitions of static data.
 std::vector<RoiCuts::timeInterval> RoiCuts::s_tLimVec;
 double RoiCuts::s_eMin;
 double RoiCuts::s_eMax;
-astro::SkyDir RoiCuts::s_roiCenter;
-double RoiCuts::s_roiRadius;
+latResponse::AcceptanceCone RoiCuts::s_roiCone;
 double RoiCuts::s_muZenMax;
 RoiCuts * RoiCuts::s_instance = 0;
 
 void RoiCuts::setCuts(double ra, double dec, double roi_radius) {
-// get everything for now....
+// Get everything for now....
    s_tLimVec.push_back(std::make_pair(0., HUGE));
 
-// default min and max energies in MeV
+// Default min and max energies in MeV.
    s_eMin = 31.623;
    s_eMax = 3.1622e5;
 
-// // prompt the user for sky extraction region info
-//    double ra;
-//    double dec;
-//    std::cout << "Enter ra and dec (in degrees) of ROI center: ";
-//    std::cin >> ra >> dec;
-    s_roiCenter = astro::SkyDir(ra, dec);
+   s_roiCone = latResponse::AcceptanceCone(astro::SkyDir(ra, dec),
+                                           roi_radius);
 
-//    std::cout << "Enter acceptance cone radius (in degrees): ";
-//    std::cin >> s_roiRadius;
-    s_roiRadius = roi_radius;
-
-// accept everything until effect of Zenith angle cuts can be computed
+// Accept everything until effect of Zenith angle cuts can be computed.
    s_muZenMax = -1.;
 }
 
@@ -102,13 +94,18 @@ void RoiCuts::setCuts(const std::string &xmlFile) {
    optimizers::Dom::getElements(roi, "acceptanceCone", child);
    double lon = ::atof(xml::Dom::getAttribute(child[0], "longitude").c_str());
    double lat = ::atof(xml::Dom::getAttribute(child[0], "latitude").c_str());
+
+   astro::SkyDir roiCenter;
    if (xml::Dom::getAttribute(child[0], "coordsys") 
        == std::string("Galactic")) {
-      s_roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::GALACTIC);
+      roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::GALACTIC);
    } else {
-      s_roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::CELESTIAL);
+      roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::CELESTIAL);
    }
-   s_roiRadius = ::atof(xml::Dom::getAttribute(child[0], "radius").c_str());
+   double roiRadius 
+      = atof(xml::Dom::getAttribute(child[0], "radius").c_str());
+
+   s_roiCone = latResponse::AcceptanceCone(roiCenter, roiRadius);
 
 // Do not apply zenith angle cut for now.
    s_muZenMax = -1.;
@@ -125,8 +122,8 @@ bool RoiCuts::accept(const Event &event) {
    if (event.getEnergy() < s_eMin || event.getEnergy() > s_eMax) 
       acceptEvent = false;
 
-   double dist = event.getSeparation(s_roiCenter)*180./M_PI;
-   if (dist > s_roiRadius) {
+   double dist = event.getSeparation(s_roiCone.center())*180./M_PI;
+   if (dist > s_roiCone.radius()) {
       acceptEvent = false;
    }
 

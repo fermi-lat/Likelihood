@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.12 2003/09/28 15:39:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SkyDirFunction.cxx,v 1.13 2003/10/01 17:03:22 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirFunction.h"
@@ -16,6 +16,7 @@ SkyDirFunction::SkyDirFunction(const astro::SkyDir &dir) :
    m_ra(dir.ra()), m_dec(dir.dec()), m_dir(dir) {
    m_maxNumParams = 2;
    m_genericName = "SkyDirFunction";
+   m_functionName = "SkyDirFunction";
    addParam("RA", m_ra, false);
    addParam("DEC", m_dec, false);
 }   
@@ -25,6 +26,7 @@ void SkyDirFunction::m_init(double ra, double dec) {
    m_dec = dec; 
    m_maxNumParams = 2;
    m_genericName = "SkyDirFunction";
+   m_functionName = "SkyDirFunction";
 
    m_dir = astro::SkyDir(ra, dec);
 
