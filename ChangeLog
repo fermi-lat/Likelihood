@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 24 16:21:08 PDT 2004
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx ResponseFunctions.cxx 
+Log Message:
+start adding in energy dispersion
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 24 16:21:07 PDT 2004
 Likelihood/doc
 
