@@ -1,5 +1,9 @@
 // test program for Likelihood
 
+#ifdef TRAP_FPE
+#include <fenv.h>
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -79,6 +83,9 @@ std::string root_path;
 std::string test_path;
 
 int main() {
+#ifdef TRAP_FPE
+   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
+#endif
    read_SC_Response_data();
 //    test_SourceModel_class();
 //    test_Table_class();
@@ -1442,14 +1449,36 @@ void read_SC_Response_data() {
 
 // Prepare the ResponseFunctions object.
    std::map<unsigned int, latResponse::Irfs *> respPtrs;
-   latResponse::IAeff *aeff_new
-      = new latResponse::AeffGlast25(aeff_file, Response::Combined);
-   latResponse::IPsf *psf_new
-      = new latResponse::PsfGlast25(psf_file, Response::Combined);
-   latResponse::IEdisp *edisp = new latResponse::EdispGlast25();
 
-   respPtrs[Response::Combined] 
-      = new latResponse::Irfs(aeff_new, psf_new, edisp);
+   bool useCombined = false;
+   if (useCombined) {
+      latResponse::IAeff *aeff_new
+         = new latResponse::AeffGlast25(aeff_file, Response::Combined);
+      latResponse::IPsf *psf_new
+         = new latResponse::PsfGlast25(psf_file, Response::Combined);
+      latResponse::IEdisp *edisp = new latResponse::EdispGlast25();
+
+      respPtrs[Response::Combined] 
+         = new latResponse::Irfs(aeff_new, psf_new, edisp);
+   } else {
+// use front/back
+      latResponse::IAeff *aeff_f
+         = new latResponse::AeffGlast25(aeff_file, Response::Front);
+      latResponse::IPsf *psf_f
+         = new latResponse::PsfGlast25(psf_file, Response::Front);
+      latResponse::IEdisp *edisp_f = new latResponse::EdispGlast25();
+      respPtrs[Response::Front] 
+         = new latResponse::Irfs(aeff_f, psf_f, edisp_f);
+
+      latResponse::IAeff *aeff_b
+         = new latResponse::AeffGlast25(aeff_file, Response::Back);
+      latResponse::IPsf *psf_b
+         = new latResponse::PsfGlast25(psf_file, Response::Back);
+      latResponse::IEdisp *edisp_b = new latResponse::EdispGlast25();
+
+      respPtrs[Response::Back] 
+         = new latResponse::Irfs(aeff_b, psf_b, edisp_b);
+   }
 
    ResponseFunctions::setRespPtrs(respPtrs);
  

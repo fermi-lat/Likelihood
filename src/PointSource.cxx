@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.24 2003/10/22 04:30:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.25 2003/10/22 16:31:36 jchiang Exp $
  */
 
 #include <vector>
@@ -50,7 +50,6 @@ namespace {
          double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
          myResponse += psf_val*aeff_val;
       }
-
       return myResponse;
    }
 }
