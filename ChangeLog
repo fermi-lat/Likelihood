@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: burnett  Tue Jun 10 11:18:30 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h DiffuseSource.h Event.h FitsImage.h Function.h 
+	FunctionTest.h Mcmc.h Parameter.h Psf.h Response.h 
+	SkyDirFunction.h SourceFactory.h SourceModel.h 
+	SpectrumFactory.h Statistic.h Table.h 
+Log Message:
+disable VCC warning message in requirements file
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun  5 17:00:07 PDT 2003
 Likelihood/src/test
 
