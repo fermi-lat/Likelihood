@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Jan 14 22:39:01 PST 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+small fix to results.dat format
+    *
+------------------------------------------------------------
+User: jchiang  Fri Jan 14 22:39:01 PST 2005
 Likelihood/doc
 
 Modified Files:
