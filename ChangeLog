@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul 21 15:14:59 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+change LikelihoodException to Exception
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul 21 15:14:58 PDT 2003
 Likelihood/src
 
