@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.15 2003/11/26 01:51:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.16 2003/12/04 00:32:16 jchiang Exp $
  */
 
 #include <cassert>
@@ -13,12 +13,14 @@
 
 #include "facilities/Util.h"
 
+#ifdef USE_GOODI
 #include "Goodi/GoodiConstants.h"
 #include "Goodi/DataIOServiceFactory.h"
 #include "Goodi/DataFactory.h"
 #include "Goodi/IDataIOService.h"
 #include "Goodi/ISpacecraftData.h"
 #include "Goodi/SCRow.h"
+#endif
 
 #include "astro/EarthCoordinate.h"
 

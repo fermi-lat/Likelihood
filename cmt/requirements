@@ -4,7 +4,7 @@ version v2r6p7
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.71 2003/12/07 17:32:00 jchiang Exp $
+# $Id: requirements,v 1.72 2003/12/10 22:56:18 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -28,8 +28,8 @@ use hoops v*
 # allow use of internal path
 macro Likelihood_cppflags "" \
 Linux "-I ../src -g -O -pedantic -D TRAP_FPE -D USE_GOODI " \
-WIN32 '/I..\src /D"USE_GOODI" /wd4290'
 #Linux "-I ../src -g -O -pedantic -D TRAP_FPE " \
+WIN32 '/I..\src /D"USE_GOODI" /wd4290'
 
 # this package uses obsolete C function names, beware	
 macro_append cpplinkflags "" WIN32 " oldnames.lib"
@@ -53,4 +53,3 @@ application likelihoodApp test/likelihood.cxx
 application TsMap test/TsMap.cxx
 application expMap test/expMap.cxx
 #application test_runParams test/test_runParams.cxx
-
