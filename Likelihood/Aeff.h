@@ -21,9 +21,6 @@ class Aeff : public Response {
     
 public:
 
-   Aeff();
-   Aeff(const std::string &scFile, int hdu) : Response() 
-      {m_readAeffData(scFile, hdu);};
    virtual ~Aeff(){};
 
    //! return the effective area in instrument coordinates
@@ -32,14 +29,26 @@ public:
       {return value(energy, inclination);};
 
    //! effective area in sky coordinates
-   double value(double energy, astro::SkyDir &srcDir, double time);
-   double operator()(double energy, astro::SkyDir &srcDir, double time)
+   double value(double energy, astro::SkyDir srcDir, double time);
+   double operator()(double energy, astro::SkyDir srcDir, double time)
       {return value(energy, srcDir, time);};
+
+   //! returns the Singleton object pointer
+   static Aeff * instance();
+
+   //! method to read in the psf data
+   void readAeffData(const std::string &aeffFile, int hdu);
+
+protected:
+
+   Aeff(){};
 
 private:
 
+   //! pointer to the Singleton instantiation
+   static Aeff * s_instance;
+
    //! effective area stored in straw-man CALDB format
-   void m_readAeffData(const std::string &file, int hdu);
    std::string m_aeffFile;
    int m_aeffHdu;
    Table m_aeffData;

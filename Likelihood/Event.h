@@ -30,11 +30,6 @@ public:
    Event(const Event &);
    virtual ~Event(){};
 
-//    //! set source location using J2000 Equatorial coordinates
-//    void setDir(double ra, double dec);
-
-//    //! set source location via SkyDir class
-//    void setDir(const astro::SkyDir &dir) {m_appDir = dir;};
    astro::SkyDir getDir() const {return m_appDir;};
    astro::SkyDir getScDir() const {return m_scDir;};
 

@@ -23,15 +23,17 @@ class Response {
     
 public:
     
-   Response();
-   Response(const std::string &scFile, int scHdu);
    virtual ~Response(){};
+
+   //! method to read in the spacecraft data
+   void readScData(const std::string &file, int hdu);
 
 protected:
 
+   Response(){};
+
    //! share the spacecraft data among all response functions
    static std::vector<ScNtuple> m_scData;
-   static bool m_haveScData;
         
    //! the NR hunt routine 
    static void m_hunt(double xx[], int nx, double x, int *i);
@@ -44,9 +46,6 @@ private:
 
    std::string m_scFile;
    int m_scHdu;
-
-   //! accessing the spacecraft data
-   void m_readScData(const std::string &file, int hdu);
 
 };
 

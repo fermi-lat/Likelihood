@@ -11,13 +11,10 @@ namespace Likelihood {
 Event::Event(double ra, double dec, double energy, 
              double time, double sc_ra, double sc_dec, double muZenith) {
    
-//! astro::SkyDir needs a setDir(ra, dec) method
-   astro::SkyDir appDir(ra, dec);
-   m_appDir = appDir;
+   m_appDir = astro::SkyDir(ra, dec);
    m_energy = energy;
    m_arrTime = time;
-   astro::SkyDir scDir(sc_ra, sc_dec);
-   m_scDir = scDir;
+   m_scDir = astro::SkyDir(sc_ra, sc_dec);
    m_muZenith = muZenith;
 
 //   m_computeResponse();
@@ -33,10 +30,5 @@ Event::Event(const Event &event) {
    m_respGal = event.m_respGal;
    m_respDiffuseSrcs = event.m_respDiffuseSrcs;
 }
-
-//  void Event::setDir(double ra, double dec) {
-//     astro::SkyDir appDir(ra, dec);
-//     m_appDir = appDir;
-//  }   
 
 } // namespace Likelihood

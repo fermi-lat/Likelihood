@@ -38,17 +38,27 @@ void test_PointSource_class();
 void test_Aeff_class();
 void test_Psf_class();
 
+std::string test_path;
+
 int main(){
-//     test_Parameter_class();
-//     test_Function_class();
-//     test_PowerLaw_class();
-//     test_SourceModel_class();
-//     test_Table_class();
-//     test_Statistic_class();
-//     test_Event_class();
-//     test_PointSource_class();
-//     test_Aeff_class();
-//     test_Psf_class();
+/* get root path to test data */   
+   const char * root = ::getenv("LIKELIHOODROOT");
+   if (!root) {  //use relative path from cmt directory
+      test_path = "../src/test/";
+   } else {
+      test_path = std::string(root) + "/src/test/";
+   }
+
+   test_Parameter_class();
+   test_Function_class();
+   test_PowerLaw_class();
+   test_SourceModel_class();
+   test_Table_class();
+   test_Statistic_class();
+   test_Event_class();
+   test_PointSource_class();
+   test_Aeff_class();
+   test_Psf_class();
    return 0;
 }
 
@@ -56,7 +66,12 @@ int main(){
 /* Psf class tests */
 /********************/
 void test_Psf_class() {
-   Psf psf;
+   Psf *psf = Psf::instance();
+
+   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
+   int psf_hdu = 4;
+
+   psf->readPsfData(psf_file, psf_hdu);
 
    int nenergy = 10;
    double emin = 0.03;
@@ -70,7 +85,7 @@ void test_Psf_class() {
 	 std::cout << energy << "  ";
 
 	 std::vector<double> psf_params;
-	 psf.fillPsfParams(energy, inc, psf_params);
+	 psf->fillPsfParams(energy, inc, psf_params);
 	 std::cout << psf_params[0] << "  "
 		   << psf_params[1] << "  "
 		   << psf_params[2] << "\n";
@@ -83,7 +98,12 @@ void test_Psf_class() {
 /* Aeff class tests */
 /********************/
 void test_Aeff_class() {
-   Aeff aeff;
+   Aeff *aeff = Aeff::instance();
+
+   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
+   int aeff_hdu = 4;
+
+   aeff->readAeffData(aeff_file, aeff_hdu);
 
    int nenergy = 10;
    double emin = 0.03;
@@ -95,7 +115,7 @@ void test_Aeff_class() {
       double energy = emin*exp(estep*i);
       std::cout << energy << "  ";
       for (double inc = 0.; inc <= 70.; inc += 10.) {
-	 std::cout << aeff(energy, inc) << "  ";
+	 std::cout << (*aeff)(energy, inc) << "  ";
       }
       std::cout << std::endl;
    }
@@ -107,13 +127,37 @@ void test_Aeff_class() {
 /***************************/
 void test_PointSource_class() {
 
-/* keep this source at the default location (ra, dec) = (0, 0) */
+/* instantiate the Psf and read in the Psf and spacecraft data */
 
-   PointSource my_ptsrc;
+   Psf * psf = Psf::instance();
 
-   my_ptsrc.setName("Fred");
+   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
+   int psf_hdu = 4;
 
-/* instantiate a PowerLaw for the source spectrum */
+   psf->readPsfData(psf_file, psf_hdu);
+
+   std::string sc_file = test_path + "/Data/one_src_sc_0000";
+   int sc_hdu = 2;
+
+   psf->readScData(sc_file, sc_hdu);
+
+/* instantiate the Aeff and read in the Aeff data */
+
+   Aeff * aeff = Aeff::instance();
+
+   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
+   int aeff_hdu = 4;
+
+   aeff->readAeffData(aeff_file, aeff_hdu);
+
+/* put this source at the center of the extraction region for
+   Data/one_src_0000 (ra, dec) = (193.98, -5.82) */
+   
+   PointSource my_ptsrc(193.98, -5.82);
+
+   my_ptsrc.setName("3C_279");
+
+/* create a PowerLaw object for the source spectrum */
 
    PowerLaw source_pl(1., -2.1, 0.1);  // f(E) = 1.*(E/0.1 GeV)^(-2.1)
    my_ptsrc.setSpectrum(&source_pl);
@@ -125,16 +169,27 @@ void test_PointSource_class() {
    double emax = 30.;
    double estep = log(emax/emin)/(nenergy - 1);
 
-   std::cout << "\nAspect dependent spectrum for source " 
-             << my_ptsrc.getName() << ":" << std::endl;
-   for (int i = 0; i < nenergy; i++) { // loop over energies
-      double energy = emin*exp(estep*i);
-      std::cout << energy << "  ";
-      for (int ra = 0; ra < 30; ra += 5) { // loop over aspect angles
-         astro::SkyDir dir(ra, 0);
-         std::cout << my_ptsrc.fluxDensity(energy, 0., dir) << "  ";
+   std::cout << "\nThe on-source counts spectrum of "
+             << my_ptsrc.getName() 
+             << " as a function of time: " 
+             << std::endl;
+
+   double maxtime = 95.*60.;
+   double tstep = 1e2;
+   double photon_flux;
+   for (double time = 0; time < maxtime; time += tstep) {
+      std::cout << "Time = " << time << std::endl;
+      for (int i = 0; i < nenergy; i++) { // loop over energies
+         double energy = emin*exp(estep*i);
+         if (i == 0) 
+            photon_flux = my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir());
+         if (photon_flux > 0) {
+            std::cout << energy << "  "
+                      << my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir())
+                      << std::endl;
+         }
       }
-      std::cout << std::endl;
+      if (photon_flux > 0) std::cout << std::endl;
    }
 
 } // PointSource class tests
@@ -149,7 +204,10 @@ void test_Event_class() {
 
    Statistic logLike;
 
-   logLike.readEventData("Data/one_src_0000", 
+/* read in EVENT file */
+   std::string event_file = test_path + "/Data/one_src_0000";
+
+   logLike.readEventData(event_file,
                          "RA DEC energy time SC_x SC_y SC_z zenith_angle", 2);
 
    typedef std::pair<long, double*> tableColumn;
@@ -213,9 +271,10 @@ void test_Statistic_class() {
 
    report_SrcModel_values(logLike);
 
-/* data access */
+/* read in EVENT file */
+   std::string event_file = test_path + "Data/normal_dist.fits";
 
-   logLike.readEventData("Data/normal_dist.fits", "xi", 2);
+   logLike.readEventData(event_file, "xi", 2);
 
    std::pair<long, double*> xi = logLike.getEventColumn("xi");
 
@@ -276,10 +335,10 @@ void test_Statistic_class() {
 void test_Table_class() {
 
 /* read in PSF parameters */
+   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
 
-   std::string psf_file("CALDB/psf_lat.fits");
    Table psf_data;
-
+      
    psf_data.add_columns("ENERGY THETA SIG1_F SIG2_F W");
    psf_data.read_FITS_table(psf_file, 2);
 
@@ -302,8 +361,8 @@ void test_Table_class() {
    std::cout << std::endl;
 
 /* read in AEFF parameters */
+   std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
 
-   std::string aeff_file("CALDB/aeff_lat.fits");
    Table aeff_data;
 
    aeff_data.add_columns("ENERGY THETA AEFF_F");
@@ -327,8 +386,8 @@ void test_Table_class() {
    std::cout << std::endl;
 
 /* read in EVENT file */
+   std::string event_file = test_path + "/Data/one_src_0000";
 
-   std::string event_file("Data/one_src_0000");
    Table event_data;
 
    event_data.add_columns("RA DEC energy time SC_x SC_y SC_z zenith_angle");
@@ -357,8 +416,8 @@ void test_Table_class() {
    std::cout << std::endl;
 
 /* Spacecraft data file */
+   std::string sc_file = test_path + "/Data/one_src_sc_0000";
 
-   std::string sc_file("Data/one_src_sc_0000");
    Table sc_data;
 
    sc_data.add_columns("time SC_x SC_y SC_z SAA_flag");

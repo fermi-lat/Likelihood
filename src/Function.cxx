@@ -18,35 +18,14 @@ Function::Function(const Function &func) {
   m_parameter = func.m_parameter;
 }
 
-//! set Parameter value and free flag
-void Function::setParam(const std::string &paramName, double paramValue, 
-                        bool isFree) {
-
-// check if named parameter is present; if so, set value and free state...
-
-   for (unsigned int i=0; i < m_parameter.size(); i++) {
-      if (paramName == m_parameter[i].getName()) {
-	 m_parameter[i].setValue(paramValue);
-	 m_parameter[i].setFree(isFree);
-	 return;
-      }
-   }
-
-// otherwise, complain
-   std::cerr << "Trying to set parameter " << paramName 
-	     << " equal to " << paramValue
-	     << ", " << std::endl 
-	     << "   but it isn't present."
-	     << std::endl;
-}
-
-//! just set Parameter value, preserving current free state
-void Function::setParam(const std::string &paramName, double paramValue) {
-
+void Function::setParameter(const std::string &paramName, double paramValue,
+			    int isFree = -1) {
 // check if parameter is present...
    for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
 	 m_parameter[i].setValue(paramValue);
+// and update the free state if asked (yes, a bit kludgy...)
+	 if (isFree > -1) m_parameter[i].setFree(isFree);
 	 return;
       }
    }
