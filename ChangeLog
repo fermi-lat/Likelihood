@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Sep  2 16:43:23 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+start using evtbin for counts map generation; allow makeExposureCube to read in multiple scData files
+    *
+------------------------------------------------------------
 User: jchiang  Thu Sep  2 16:43:21 PDT 2004
 Likelihood/src/diffuseResponses
 
