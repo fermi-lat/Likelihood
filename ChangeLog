@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jul  1 10:51:11 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+fix diffuse source unit tests
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jul  1 10:51:09 PDT 2004
 Likelihood/src
 
