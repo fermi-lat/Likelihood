@@ -14,23 +14,24 @@ namespace Likelihood {
 /** 
  * @class Statistic
  *
- * @brief Objective functions used for parameter estimation.  Augments
- * the SourceModel class by adding event and spacecraft data.
+ * @brief Absract base class for objective functions used for
+ * parameter estimation.  Augments the SourceModel class by adding
+ * facility for reading and storing data.
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/Statistic.h,v 1.2 2003/02/23 22:28:59 jchiang Exp $
- */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.3 2003/02/27 18:47:43 jchiang Exp $ */
 
 class Statistic : public SourceModel {
     
 public:
 
+   Statistic(){};
    virtual ~Statistic(){};
 
    //! return the objective function value taking the free parameters 
    //! as the function argument
-   virtual double value(const std::vector<double> &paramVec);
+   virtual double value(const std::vector<double> &paramVec) = 0;
    virtual double operator()(const std::vector<double> &paramVec) 
       {return value(paramVec);};
 
@@ -40,7 +41,7 @@ public:
    std::pair<long, double*> getEventColumn(const std::string &colname) const
       {return m_getColumn(m_eventData, colname);};
 
-private:
+protected:
 
    //! generalized column access
    std::pair<long, double*> m_getColumn(const Table &tableData, 

@@ -2,8 +2,9 @@
 #define Source_h
 
 #include <map>
-#include "../Likelihood/Function.h"
 #include "astro/SkyDir.h"
+#include "../Likelihood/Function.h"
+#include "../Likelihood/ScData.h"
 
 namespace Likelihood {
 
@@ -19,12 +20,11 @@ namespace Likelihood {
 
 class Source {
 
-   friend class SourceModel;
-   friend class Statistic;
-
 public:
     
-   Source(){m_name = "";};
+   Source() {
+      ScData *scData = ScData::instance();
+      m_name = "";}
    Source(const Source &rhs) {m_name = rhs.m_name;};
    virtual ~Source(){};
 
@@ -33,17 +33,28 @@ public:
    virtual double fluxDensity(const double energy, const double time,
 			      const astro::SkyDir &dir) const = 0;
 
+   //! the predicted number of photons for a given ROI
+   //! the vector<double> is a place holder for an ROI_cuts class object
+   virtual double Npred(const std::vector<double>) const = 0;
+
    //! access unique source identifier
    void setName(const std::string &name) {m_name = name;};
    std::string getName() const {return m_name;};
 
+   //! return a reference to the m_functions map (NB: not const!)
+   std::map<std::string, Function *> & getSrcFuncs() {return m_functions;}
+
 protected:
+
+   //! spacecraft data for all Sources to share
+   ScData * scData;
 
    //! source name
    std::string m_name;
 
    //! map of Functions describing this source
-   std::map<std::string, Function *> m_functions;
+   typedef std::map<std::string, Function *> FuncMap;
+   FuncMap m_functions;
 
 };
 

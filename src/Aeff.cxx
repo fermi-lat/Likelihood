@@ -9,16 +9,15 @@ namespace Likelihood {
 Aeff * Aeff::s_instance = 0;
 
 void Aeff::readAeffData(const std::string &file, int hdu) {
-   enum {FRONT = 2, BACK, COMBINED};
 
    switch (hdu) {
-   case FRONT:
+   case Front:
       m_aeffData.add_columns("ENERGY THETA AEFF_F");
       break;
-   case BACK:
+   case Back:
       m_aeffData.add_columns("ENERGY THETA AEFF_B");
       break;
-   case COMBINED:
+   case Combined:
       m_aeffData.add_columns("ENERGY THETA AEFF_C");
       break;
    default:
@@ -42,14 +41,13 @@ void Aeff::readAeffData(const std::string &file, int hdu) {
 
 double Aeff::value(double energy, astro::SkyDir dir, double time) {
 // Compute the index corresponding to the desired time.
-// Here we assume the m_scTimes are at regular intervals.
-   double tstep = m_scData[1].time - m_scData[0].time;
+// Here we assume the scData->vec[].times are at regular intervals.
+   double tstep = scData->vec[1].time - scData->vec[0].time;
    int indx;
-   indx = static_cast<int>((time - m_scData[0].time)/tstep);
+   indx = static_cast<int>((time - scData->vec[0].time)/tstep);
 
 // inclination wrt spacecraft z-axis in degrees
-   double inc = dir.SkyDir::difference(m_scData[indx].zAxis)*180./M_PI;
-
+   double inc = dir.SkyDir::difference(scData->vec[indx].zAxis)*180./M_PI;
 
    if (inc < 70.) {
       return value(energy, inc);
@@ -59,9 +57,6 @@ double Aeff::value(double energy, astro::SkyDir dir, double time) {
 }
 
 double Aeff::value(double energy, double inc) {
-// convert energy to MeV
-   energy *= 1e3;
-
 // do a bilinear interpolation on the effective area data
 // this is the ugly code from glean (uses unit-offset kludge of NR 1.2)
 

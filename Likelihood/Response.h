@@ -2,7 +2,7 @@
 #define Response_h
 
 #include "astro/SkyDir.h"
-#include "../Likelihood/ScNtuple.h"
+#include "../Likelihood/ScData.h"
 
 namespace Likelihood {
 
@@ -25,16 +25,16 @@ public:
     
    virtual ~Response(){};
 
-   //! method to read in the spacecraft data
-   void readScData(const std::string &file, int hdu);
+   //! type-fields for specifying response file HDUs
+   enum HDU {Front = 2, Back, Combined};
 
 protected:
 
-   Response(){};
+   Response();
 
    //! share the spacecraft data among all response functions
-   static std::vector<ScNtuple> m_scData;
-        
+   ScData * scData;
+   
    //! the NR hunt routine 
    static void m_hunt(double xx[], int nx, double x, int *i);
 
@@ -42,10 +42,6 @@ protected:
    static double m_bilinear(int nx, double *xx, int i, double x,
 			    int ny, double *yy, int j, double y, double *z);
 
-private:
-
-   std::string m_scFile;
-   int m_scHdu;
 
 };
 
