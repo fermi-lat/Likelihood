@@ -4,7 +4,7 @@ version v4r0
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.115 2004/05/25 00:56:20 jchiang Exp $
+# $Id: requirements,v 1.116 2004/06/05 15:22:14 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
@@ -34,3 +34,5 @@ use st_app v*
 macro LikelihoodLib_cppflags "" \
       Linux " -D USE_FT1 " \
       WIN32 ' /D"USE_FT1" '
+
+macro makeLinkMap ""

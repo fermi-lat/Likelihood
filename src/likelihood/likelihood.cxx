@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.11 2004/06/05 15:22:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.12 2004/06/06 22:43:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.11 2004/06/05 15:22:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.12 2004/06/06 22:43:41 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -230,14 +230,18 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
          Source * src = m_logLike->deleteSource(srcNames[i]);
          if (m_logLike->getNumFreeParams() > 0) {
 // Don't fit if there are no free parameters remaining.
-// #ifdef HAVE_OPT_PP
-//             optimizers::OptPP opt(*m_logLike);
-// #else
+#ifdef HAVE_OPT_PP
+            optimizers::OptPP opt(*m_logLike);
+#else
             optimizers::Drmngb opt(*m_logLike);
-// #endif
-            opt.find_min(verbose, tol);
+#endif
+            try {
+               opt.find_min(verbose, tol);
+            } catch (optimizers::Exception &eObj) {
+               std::cout << eObj.what() << std::endl;
+            }
             null_values.push_back(m_logLike->value());
-            TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
+            TsValues[srcNames[i]] = 2.*(null_values.back() - logLike_value);
          } else {
 // // Not sure this is correct in the case where the model for the null
 // // hypothesis is truly empty.
@@ -250,19 +254,19 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    }
 
 // Restore parameters to their previously fitted values.
-// #ifdef HAVE_OPT_PP
-//    optimizers::OptPP opt(*m_logLike);
-// #else
+#ifdef HAVE_OPT_PP
+   optimizers::OptPP opt(*m_logLike);
+#else
    optimizers::Drmngb opt(*m_logLike);
-// #endif
+#endif
    opt.find_min(verbose, tol);
-   double new_logLike = m_logLike->value();
-   if (new_logLike < logLike_value) {
-      for (unsigned int i = 0; i < srcNames.size(); i++) {
-         TsValues[srcNames[i]] += 2.*(new_logLike - logLike_value);
-      }
-      logLike_value = new_logLike;
-   }
+//    double new_logLike = m_logLike->value();
+//    if (new_logLike < logLike_value) {
+//       for (unsigned int i = 0; i < srcNames.size(); i++) {
+//          TsValues[srcNames[i]] += 2.*(new_logLike - logLike_value);
+//       }
+//       logLike_value = new_logLike;
+//    }
 
    std::vector<optimizers::Parameter> parameters;
    std::vector<double>::const_iterator errIt = errors.begin();

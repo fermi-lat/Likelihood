@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.28 2004/06/06 22:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.29 2004/06/08 17:00:46 jchiang Exp $
  */
 
 #include <cassert>
@@ -130,8 +130,8 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
    for (unsigned int i = 0; i < s_mu.size(); i++) {
       for (unsigned int j = 0; j < s_phi.size(); j++) {
          astro::SkyDir srcDir;
-         getCelestialDir(s_phi[j], s_mu[i], s_eqRot, srcDir);
-//         getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
+//         getCelestialDir(s_phi[j], s_mu[i], s_eqRot, srcDir);
+         getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
          srcDirs.push_back(srcDir);
       }
    }
@@ -203,15 +203,16 @@ void Event::prepareSrData(double sr_radius, int nmu, int nphi) {
    s_eqRot = FitsImage::EquinoxRotation(roiCenter.ra(), roiCenter.dec());
 
    double mumin = cos(sr_radius*M_PI/180);
-   double mustep = (1. - mumin)/(nmu - 1.);
-   for (int i = 0; i < nmu; i++) {
-      s_mu.push_back(mustep*i + mumin);
-   }
-// // Try sampling more densely near theta = 0:
-//    double nscale = static_cast<double>((nmu-1)*(nmu-1));
+// // Uniform sampling in cos(theta)
+//    double mustep = (1. - mumin)/(nmu - 1.);
 //    for (int i = 0; i < nmu; i++) {
-//       s_mu.push_back(1. - i*i/nscale*(1. - mumin));
+//       s_mu.push_back(mustep*i + mumin);
 //    }
+// Try sampling more densely near theta = 0:
+   double nscale = static_cast<double>((nmu-1)*(nmu-1));
+   for (int i = 0; i < nmu; i++) {
+      s_mu.push_back(1. - i*i/nscale*(1. - mumin));
+   }
    double phistep = 2.*M_PI/(nphi - 1.);
    for (int i = 0; i < nphi; i++) {
       s_phi.push_back(phistep*i);
