@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 11 10:08:03 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h DiffuseSource.h Event.h FitsImage.h Function.h 
+	FunctionTest.h Mcmc.h Minuit.h Npred.h Parameter.h 
+	PointSource.h ProductFunction.h Psf.h Response.h RoiCuts.h 
+	ScData.h SkyDirArg.h SkyDirFunction.h SourceFactory.h 
+	SpectrumFactory.h SrcArg.h SumFunction.h Table.h logSrcModel.h 
+Added Files:
+	LikelihoodException.h 
+Log Message:
+get exception stuff to work with gcc 3.3
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 10 16:58:59 PDT 2003
 Likelihood/src/test
 
