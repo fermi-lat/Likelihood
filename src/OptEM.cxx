@@ -3,7 +3,7 @@
  * @brief Implementation for Expectation Maximization class.
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.7 2004/11/28 06:58:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.8 2005/03/02 04:51:10 jchiang Exp $
  */
 
 #include "Verbosity.h"
@@ -21,13 +21,15 @@
 namespace Likelihood {
 
   void OptEM::findMin(const int verbose) {
+
+   const std::vector<Event> & events = m_observation.eventCont().events();
     double oldLogL;
     double logL = 0.;
 
     //! Build array of weight factors
     std::vector<std::vector<double>* > Warray;
     for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      Warray.push_back(new std::vector<double>(m_events.size()));
+      Warray.push_back(new std::vector<double>(events.size()));
     }
 
     unsigned int iteration = 0;
@@ -40,11 +42,11 @@ namespace Likelihood {
       logL = 0.;
 
       //! The E step.  Find weight factors
-      for (unsigned int j = 0; j < m_events.size(); j++) {
+      for (unsigned int j = 0; j < events.size(); j++) {
 	double ztot = 0.;
         std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
         for (unsigned int i = 0 ; srcIt != m_sources.end(); ++srcIt, i++) {
-	  double x = srcIt->second->fluxDensity(m_events[j]);
+	  double x = srcIt->second->fluxDensity(events[j]);
 	  (*Warray[i])[j] = x;
 	  ztot += x;
 	}
@@ -56,7 +58,7 @@ namespace Likelihood {
       //! The M step.  Optimize parameters of each source.
       std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
       for (unsigned int i = 0 ; srcIt != m_sources.end(); ++srcIt, ++i) {
-	OneSourceFunc f(srcIt->second, m_events, Warray[i]); 
+	OneSourceFunc f(srcIt->second, events, Warray[i]); 
 	f.setEpsF(1.e-20);
 	f.setEpsW(1.e-2);
 	nPar += f.getNumFreeParams();

@@ -4,7 +4,7 @@
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OneSourceFunc.cxx,v 1.3 2003/11/22 00:06:16 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OneSourceFunc.cxx,v 1.4 2004/02/23 17:52:55 jchiang Exp $
  */
 
 #include "Likelihood/OneSourceFunc.h"
@@ -17,7 +17,7 @@ namespace Likelihood {
   //! cutoff values for minimum weight and flux
 
   OneSourceFunc::OneSourceFunc(Source * src,
-			       std::vector<Event>& evt,
+			       const std::vector<Event>& evt,
 			       std::vector<double> * weights):
     m_src(src),
     m_events(evt),

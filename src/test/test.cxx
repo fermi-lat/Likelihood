@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.60 2005/03/01 07:17:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.61 2005/03/03 20:04:24 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -46,6 +46,7 @@
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
+#include "Likelihood/EventContainer.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/LikeExposure.h"
@@ -117,6 +118,7 @@ private:
    static ExposureCube * m_expCube;
    static ExposureMap * m_expMap;
    static ResponseFunctions * m_respFuncs;
+   static EventContainer * m_eventCont;
 
    std::string m_rootPath;
    double m_fracTol;
@@ -159,6 +161,7 @@ ScData * LikelihoodTests::m_scData(0);
 ExposureCube * LikelihoodTests::m_expCube(0);
 ExposureMap * LikelihoodTests::m_expMap(0);
 ResponseFunctions * LikelihoodTests::m_respFuncs(0);
+EventContainer * LikelihoodTests::m_eventCont(0);
 
 void LikelihoodTests::setUp() {
    if (m_respFuncs == 0) m_respFuncs = new ResponseFunctions();
@@ -166,11 +169,15 @@ void LikelihoodTests::setUp() {
    if (m_roiCuts == 0) m_roiCuts = new RoiCuts();
    if (m_expCube == 0) m_expCube = new ExposureCube();
    if (m_expMap == 0) m_expMap = new ExposureMap();
+   if (m_eventCont == 0) m_eventCont = new EventContainer(*m_respFuncs,
+                                                          *m_roiCuts, 
+                                                          *m_scData);
    m_observation = new Observation(m_respFuncs,
                                    m_scData,
                                    m_roiCuts,
                                    m_expCube,
-                                   m_expMap);
+                                   m_expMap,
+                                   m_eventCont);
 
    Verbosity::instance(0);
 

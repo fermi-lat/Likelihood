@@ -3,7 +3,7 @@
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.1 2005/03/04 07:07:11 jchiang Exp $
  */
 
 #ifndef Likelihood_EventContainer_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.1 2005/03/04 07:07:11 jchiang Exp $
  */
 
 class EventContainer {
@@ -50,13 +50,10 @@ public:
 
    void getEvents(std::string event_file);
                   
-
    void computeEventResponses(Source & src, double sr_radius=30.);
 
    void computeEventResponses(std::vector<DiffuseSource *> &srcs, 
                               double sr_radius=30.);
-
-   void computeEventResponses(double sr_radius=30.);
 
    unsigned long nEvents() const {
       return m_events.size();

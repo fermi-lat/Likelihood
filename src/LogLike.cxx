@@ -3,56 +3,32 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.42 2005/03/03 23:24:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.43 2005/03/04 07:07:12 jchiang Exp $
  */
 
 #include <cmath>
 
 #include <algorithm>
 #include <fstream>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "facilities/Util.h"
-
-#include "tip/IFileSvc.h"
-#include "tip/Table.h"
-#include "tip/TipException.h"
-
 #include "Likelihood/DiffuseSource.h"
-#include "Likelihood/Npred.h"
-#include "Likelihood/ScData.h"
-#include "Likelihood/SrcArg.h"
-
 #include "Likelihood/LogLike.h"
+#include "Likelihood/Npred.h"
+#include "Likelihood/SrcArg.h"
 
 #include "Verbosity.h"
 
-namespace {
-   std::string sourceName(const std::string & name) {
-      std::vector<std::string> tokens;
-      facilities::Util::stringTokenize(name, "::", tokens);
-      if (tokens.size() == 1) {
-         return tokens.at(0);
-      } else {
-         return tokens.at(1);
-      }
-      return std::string();
-   }
-}
-
 namespace Likelihood {
 
-std::vector<std::string> LogLike::s_FT1_columns;
-
 double LogLike::value(optimizers::Arg&) const {
+   const std::vector<Event> & events = m_observation.eventCont().events();
    double my_value = 0;
    
 // The "data sum"
-   for (unsigned int j = 0; j < m_events.size(); j++) {
-      my_value += logSourceModel(m_events.at(j));
+   for (unsigned int j = 0; j < events.size(); j++) {
+      my_value += logSourceModel(events.at(j));
    }
 
 // The "model integral", a sum over Npred for each source
@@ -101,10 +77,12 @@ void LogLike::getLogSourceModelDerivs(const Event & event,
 void LogLike::getFreeDerivs(optimizers::Arg&,
                             std::vector<double> &freeDerivs) const {
 // retrieve the free derivatives for the log(SourceModel) part
+   const std::vector<Event> & events = m_observation.eventCont().events();
+
    std::vector<double> logSrcModelDerivs(getNumFreeParams(), 0);
-   for (unsigned int j = 0; j < m_events.size(); j++) {
+   for (unsigned int j = 0; j < events.size(); j++) {
       std::vector<double> derivs;
-      getLogSourceModelDerivs(m_events[j], derivs);
+      getLogSourceModelDerivs(events[j], derivs);
       for (unsigned int i = 0; i < derivs.size(); i++) {
          logSrcModelDerivs[i] += derivs[i];
       }
@@ -131,30 +109,10 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
    }
 }
 
-void LogLike::computeEventResponses(Source &src, double sr_radius) {
-   DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
-   if (print_output(3)) {
-      std::cerr << "Computing Event responses for " << src.getName();
-   }
-   for (unsigned int i = 0; i < m_events.size(); i++) {
-      if (print_output(3) && (i % (m_events.size()/20)) == 0) std::cerr << ".";
-      m_events[i].computeResponse(*diffuse_src,
-                                  m_observation.respFuncs(), sr_radius);
-   }
-   if (print_output(3)) std::cerr << "!" << std::endl;
-}
-
-void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs, 
-                                    double sr_radius) {
-   if (print_output(3)) {
-      std::cerr << "Computing Event responses for the DiffuseSources";
-   }
-   for (unsigned int i = 0; i < m_events.size(); i++) {
-      if (print_output(3) && m_events.size() > 20 &&
-          (i % (m_events.size()/20)) == 0) std::cerr << ".";
-      m_events[i].computeResponse(srcs, m_observation.respFuncs(), sr_radius);
-   }
-   if (print_output(3)) std::cerr << "!" << std::endl;
+void LogLike::getEvents(std::string event_file) {
+   EventContainer & eventCont =
+      const_cast<EventContainer &>(m_observation.eventCont());
+   eventCont.getEvents(event_file);
 }
 
 void LogLike::computeEventResponses(double sr_radius) {
@@ -168,125 +126,9 @@ void LogLike::computeEventResponses(double sr_radius) {
       }
    }
    if (diffuse_srcs.size() > 0) {
-      computeEventResponses(diffuse_srcs, sr_radius);
-   }
-}
-
-void LogLike::getEvents(std::string event_file) {
-
-   facilities::Util::expandEnvVar(&event_file);
-   const ScData & scData = m_observation.scData();
-
-   unsigned int nTotal(0);
-   unsigned int nReject(0);
-
-   facilities::Util::expandEnvVar(&event_file);
-   tip::Table * events = 
-      tip::IFileSvc::instance().editTable(event_file, "events");
-
-   double ra;
-   double dec;
-   double energy;
-   double time;
-   double zenAngle;
-   int convLayer;
-   int eventType;
-   double respValue;
-
-   tip::Table::Iterator it = events->begin();
-   tip::Table::Record & event = *it;
-
-   std::vector<std::string> diffuseNames;
-   get_diffuse_names(events, diffuseNames);
-
-   for ( ; it != events->end(); ++it, nTotal++) {
-      event["ra"].get(ra);
-      event["dec"].get(dec);
-      event["energy"].get(energy);
-      event["time"].get(time);
-      event["zenith_angle"].get(zenAngle);
-      event["conversion_layer"].get(convLayer);
-      if (convLayer < 12) { // Front
-         eventType = 0;
-      } else {
-         eventType = 1;
-      }
-      Event thisEvent(ra, dec, energy, time, scData.zAxis(time),
-                      scData.xAxis(time), cos(zenAngle*M_PI/180.), 
-                      m_observation.respFuncs().useEdisp(),
-                      m_observation.respFuncs().respName(), eventType);
-      if (m_observation.roiCuts().accept(thisEvent)) {
-         m_events.push_back(thisEvent);
-         for (std::vector<std::string>::iterator name = diffuseNames.begin();
-              name != diffuseNames.end(); ++name) {
-// The column name for a diffuse response has the IRF name prepended.
-// Strip the IRF name and use the underlying diffuse component name
-// in setDiffuseResponse.
-            std::string srcName = ::sourceName(*name);
-            std::vector<double> gaussianParams;
-            if (m_observation.respFuncs().useEdisp()) {
-               try {
-                  event[*name].get(gaussianParams);
-                  m_events.back().setDiffuseResponse(srcName, gaussianParams);
-               } catch (tip::TipException & eObj) {
-                  std::string message(eObj.what());
-                  if (message.find("FitsColumn::getVector") ==
-                      std::string::npos) {
-                     throw;
-                  }
-               }
-            } else {
-               try {
-                  event[*name].get(gaussianParams);
-                  m_events.back().setDiffuseResponse(srcName,
-                                                     gaussianParams[0]);
-               } catch (tip::TipException &eObj) {
-                  std::string message(eObj.what());
-                  if (message.find("FitsColumn::getVector") !=
-                      std::string::npos) {
-                     event[*name].get(respValue);
-                     m_events.back().setDiffuseResponse(srcName, respValue);
-                  } else {
-                     throw;
-                  }
-               }
-            }
-         }
-      } else {
-         nReject++;
-      }
-   }
-
-   if (print_output(3)) {
-      std::cerr << "LogLike::getEvents:\nOut of " 
-                << nTotal << " events in file "
-                << event_file << ",\n "
-                << nTotal - nReject << " were accepted, and "
-                << nReject << " were rejected.\n" << std::endl;
-   }
-
-   delete events;
-}
-
-void LogLike::setFT1_columns() {
-   std::string colnames("energy ra dec theta phi zenith_angle "
-                        + std::string("earth_azimuth_angle time event_id ")
-                        + "recon_version calib_version imgoodcalprob "
-                        + std::string("imvertexprob imcoreprob impsferrpred ")
-                        + "calenergysum caltotrln imgammaprob "
-                        + std::string("conversion_point conversion_layer ")
-                        + "pulse_phase");
-   facilities::Util::stringTokenize(colnames, " ", s_FT1_columns);
-}
-
-void LogLike::get_diffuse_names(tip::Table * events, 
-                                std::vector<std::string> & names) const {
-   names.clear();
-   const std::vector<std::string> & fields = events->getValidFields();
-   for (unsigned int i = 0; i < fields.size(); i++) {
-      if (!std::count(s_FT1_columns.begin(), s_FT1_columns.end(), fields[i])) {
-         names.push_back(fields[i]);
-      }
+      EventContainer & eventCont =
+         const_cast<EventContainer &>(m_observation.eventCont());
+      eventCont.computeEventResponses(diffuse_srcs, sr_radius);
    }
 }
 

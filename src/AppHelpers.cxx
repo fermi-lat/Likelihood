@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.25 2005/03/03 07:07:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.26 2005/03/03 20:04:19 jchiang Exp $
  */
 
 #include <map>
@@ -21,6 +21,7 @@
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BandFunction.h"
+#include "Likelihood/EventContainer.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/Observation.h"
@@ -43,11 +44,13 @@ AppHelpers::AppHelpers(st_app::AppParGroup & pars)
    m_scData = new ScData();
    m_expCube = new ExposureCube();
    m_expMap = new ExposureMap();
+   m_eventCont = new EventContainer(*m_respFuncs, *m_roiCuts, *m_scData);
    m_observation = new Observation(m_respFuncs,
                                    m_scData,
                                    m_roiCuts,
                                    m_expCube,
-                                   m_expMap);
+                                   m_expMap,
+                                   m_eventCont);
 }
 
 AppHelpers::~AppHelpers() {
@@ -56,6 +59,7 @@ AppHelpers::~AppHelpers() {
    delete m_scData;
    delete m_expCube;
    delete m_expMap;
+   delete m_eventCont;
    delete m_respFuncs;
    delete m_observation;
 }
@@ -144,7 +148,7 @@ void AppHelpers::checkCuts(const std::string & file1,
    dataSubselector::Cuts cuts1(file1, ext1, false);
    dataSubselector::Cuts cuts2(file2, ext2, false);
    if (!(cuts1 == cuts2)) {
-// try comparing output streams
+// Try comparing output streams.
       std::ostringstream c1, c2;
       cuts1.writeCuts(c1);
       cuts2.writeCuts(c2);
