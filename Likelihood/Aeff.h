@@ -2,13 +2,10 @@
  * @file Aeff.h
  * @brief Interface definition for the LAT Effective Area class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.10 2003/05/29 00:29:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.11 2003/05/29 20:10:30 jchiang Exp $
  *
  */
 
-#ifdef _MSC_VER
-#pragma warning(disable:4290)
-#endif
 
 #ifndef Aeff_h
 #define Aeff_h
@@ -28,7 +25,7 @@ class astro::SkyDir;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.10 2003/05/29 00:29:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.11 2003/05/29 20:10:30 jchiang Exp $
  */
 
 class Aeff : public Response {

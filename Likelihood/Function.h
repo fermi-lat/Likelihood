@@ -3,12 +3,8 @@
  * @brief Declaration of Function and ParameterNotFound classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.23 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.24 2003/06/03 23:52:10 jchiang Exp $
  */
-
-#ifdef _MSC_VER
-#pragma warning(disable:4290)
-#endif
 
 #ifndef Function_h
 #define Function_h
@@ -38,7 +34,7 @@ class ParameterNotFound;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.23 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.24 2003/06/03 23:52:10 jchiang Exp $
  */
 
 class Function {
@@ -196,7 +192,7 @@ protected:
  * looked for but not found in the desired Function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.23 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.24 2003/06/03 23:52:10 jchiang Exp $
  */
 class ParameterNotFound : public LikelihoodException {
 

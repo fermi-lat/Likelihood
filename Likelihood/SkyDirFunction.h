@@ -3,13 +3,8 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.7 2003/05/02 19:02:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.8 2003/05/29 20:10:30 jchiang Exp $
  */
-
-#ifdef _MSC_VER
-#pragma warning(disable:4290)
-#endif
-
 #ifndef SkyDirFunction_h
 #define SkyDirFunction_h
 
@@ -28,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.7 2003/05/02 19:02:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.8 2003/05/29 20:10:30 jchiang Exp $
  */
     
 class SkyDirFunction : public Function, public astro::SkyDir {

@@ -3,12 +3,8 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.15 2003/05/29 20:10:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.16 2003/06/03 23:52:10 jchiang Exp $
  */
-
-#ifdef _MSC_VER
-#pragma warning(disable:4290)
-#endif
 
 #ifndef SourceModel_h
 #define SourceModel_h
@@ -30,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.15 2003/05/29 20:10:30 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.16 2003/06/03 23:52:10 jchiang Exp $ 
  */
 
 class SourceModel : public Function {
