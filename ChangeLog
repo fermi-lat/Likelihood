@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  3 15:50:16 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h DiffuseSource.h SourceMap.h 
+Log Message:
+precompute m_srcDirs for a given pixel; use references where appropriate
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov  3 12:46:36 PST 2004
 Likelihood/xml
 
