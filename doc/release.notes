@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v3r9p1 21-May-04  JC   tag before adding energy dispersion
     v3r9   09-May-04  JC   Use map for SourceModel::s_sources.
     v3r8   21-Apr-04  JC   Likelihood::StApp ignored, use st_app::StApp.
     v3r7   12-Apr-04  JC   Use Likelihood::StApp class.

@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.2 2003/10/22 16:31:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.3 2004/02/23 22:17:33 jchiang Exp $
  */
 
 #include "Likelihood/ScData.h"
@@ -14,14 +14,15 @@ namespace Likelihood {
 ResponseFunctions * ResponseFunctions::s_instance = 0;
 
 std::map<unsigned int, latResponse::Irfs *> ResponseFunctions::s_respPtrs;
+
+//bool ResponseFunctions::s_useEdisp(false);
+bool ResponseFunctions::s_useEdisp(true);
    
 double ResponseFunctions::totalResponse(double time, 
                                         double energy, double appEnergy,
                                         const astro::SkyDir &srcDir,
                                         const astro::SkyDir &appDir, 
                                         int type) {
-// This implementation neglects energy dispersion.
-   (void)(appEnergy);
    Likelihood::ResponseFunctions * respFuncs 
       = Likelihood::ResponseFunctions::instance();
    Likelihood::ScData * scData = Likelihood::ScData::instance();
@@ -38,7 +39,14 @@ double ResponseFunctions::totalResponse(double time,
          latResponse::IAeff *aeff = respIt->second->aeff();
          double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
          double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-         myResponse += psf_val*aeff_val;
+         if (s_useEdisp) {
+            latResponse::IEdisp *edisp = respIt->second->edisp();
+            double edisp_val = edisp->value(appEnergy, energy, srcDir, 
+                                            zAxis, xAxis);
+            myResponse += psf_val*aeff_val*edisp_val;
+         } else {
+            myResponse += psf_val*aeff_val;
+         }            
       }
    }
    return myResponse;

@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.39 2004/03/19 22:46:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.40 2004/04/19 00:03:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -43,18 +43,27 @@ namespace {
       cones.push_back(const_cast<latResponse::AcceptanceCone *>
                       (&(roiCuts->extractionRegion())));
 
+// Lower and upper bounds for measured energies.
+      double emin = (roiCuts->getEnergyCuts()).first;
+      double emax = (roiCuts->getEnergyCuts()).second;
+
       double myEffArea = 0;
       std::map<unsigned int, latResponse::Irfs *>::iterator respIt
          = respFuncs->begin();
       for ( ; respIt != respFuncs->end(); respIt++) {
-         
          latResponse::IPsf *psf = respIt->second->psf();
          latResponse::IAeff *aeff = respIt->second->aeff();
-
          double psf_val = psf->angularIntegral(energy, srcDir, 
                                                zAxis, xAxis, cones);
          double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-         myEffArea += psf_val*aeff_val;
+         if (Likelihood::ResponseFunctions::useEdisp()) {
+            latResponse::IEdisp *edisp = respIt->second->edisp();
+            double edisp_val = edisp->integral(emin, emax, energy,
+                                               srcDir, zAxis, xAxis);
+            myEffArea += psf_val*aeff_val*edisp_val;
+         } else {
+            myEffArea += psf_val*aeff_val;
+         }
       }
       return myEffArea;
    }
@@ -66,6 +75,7 @@ map_tools::Exposure * PointSource::s_exposure = 0;
 
 bool PointSource::s_haveStaticMembers = false;
 std::vector<double> PointSource::s_energies;
+std::vector<double> PointSource::s_trueEnergies;
 
 PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 // make a deep copy
@@ -89,17 +99,29 @@ double PointSource::fluxDensity(double energy, double time,
                                 int eventType) const {
 
 // Scale the energy spectrum by the psf value and the effective area
-// and convolve with the energy dispersion (now a delta-function in
-// energy), all of which are functions of time and spacecraft attitude
-// and orbital position.
+// and convolve with the energy dispersion, if appropriate, all of
+// which are functions of time and spacecraft attitude and orbital
+// position.
 
-   optimizers::dArg energy_arg(energy);
-   double spectrum = (*m_spectrum)(energy_arg);
-
-   return ResponseFunctions::totalResponse(time, energy, energy, 
-                                           m_dir.getDir(), dir, eventType)
-      *spectrum;
-                                           
+   if (ResponseFunctions::useEdisp()) {
+      unsigned int npts(s_trueEnergies.size());
+      std::vector<double> my_integrand(npts);
+      for (unsigned int k = 0; k < npts; k++) {
+         optimizers::dArg energy_arg(s_trueEnergies[k]);
+         double spectrum = (*m_spectrum)(energy_arg);
+         my_integrand[k] = spectrum
+            *ResponseFunctions::totalResponse(time, s_trueEnergies[k], energy,
+                                              m_dir.getDir(), dir, eventType);
+      }
+      TrapQuad trapQuad(s_trueEnergies, my_integrand);
+      return trapQuad.integral();
+   } else {
+      optimizers::dArg energy_arg(energy);
+      double spectrum = (*m_spectrum)(energy_arg);
+      return ResponseFunctions::totalResponse(time, energy, energy, 
+                                              m_dir.getDir(), dir, eventType)
+         *spectrum;
+   }
 }
 
 double PointSource::fluxDensityDeriv(double energy, double time,
@@ -113,10 +135,25 @@ double PointSource::fluxDensityDeriv(double energy, double time,
       return fluxDensity(energy, time, dir, eventType)
          /m_spectrum->getParamValue("Prefactor");
    } else {
-      optimizers::dArg energy_arg(energy);
-      return ResponseFunctions::totalResponse(time, energy, energy,
-                                              m_dir.getDir(), dir, eventType)
-         *m_spectrum->derivByParam(energy_arg, paramName);
+      if (ResponseFunctions::useEdisp()) {
+         unsigned int npts(s_trueEnergies.size());
+         std::vector<double> my_integrand(npts);
+         for (unsigned int k = 0; k < npts; k++) {
+            optimizers::dArg energy_arg(s_trueEnergies[k]);
+            my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
+               *ResponseFunctions::totalResponse(time, s_trueEnergies[k], 
+                                                 energy, m_dir.getDir(), 
+                                                 dir, eventType);
+         }
+         TrapQuad trapQuad(s_trueEnergies, my_integrand);
+         return trapQuad.integral();
+      } else {
+         optimizers::dArg energy_arg(energy);
+         return ResponseFunctions::totalResponse(time, energy, energy,
+                                                 m_dir.getDir(), dir, 
+                                                 eventType)
+            *m_spectrum->derivByParam(energy_arg, paramName);
+      }
    }
 }
 
@@ -246,11 +283,11 @@ void PointSource::computeExposure(std::vector<double> &energies,
       if (includeInterval) {
          for (unsigned int k = 0; k < energies.size(); k++) {
             double time = (thisInterval.second + thisInterval.first)/2.;
-//             exposure[k] += sourceEffArea(energies[k], time)
-//                *(thisInterval.second - thisInterval.first);
-            exposure[k] += 
-               ::sourceEffArea(energies[k], time, m_dir.getDir())
+            exposure[k] += sourceEffArea(energies[k], time)
                *(thisInterval.second - thisInterval.first);
+//             exposure[k] += 
+//                ::sourceEffArea(energies[k], time, m_dir.getDir())
+//                *(thisInterval.second - thisInterval.first);
          }
       }
    }
@@ -258,17 +295,33 @@ void PointSource::computeExposure(std::vector<double> &energies,
 }
 
 void PointSource::makeEnergyVector(int nee) {
-   RoiCuts *roiCuts = RoiCuts::instance();
-   
+// A logrithmic grid of true energies for convolving with energy
+// dispersion.  Use hard-wired upper and lower energies.
+   int npts(200);
+   double trueEmin(18.);
+   double trueEmax(3.17e5);
+   double trueEstep = log(trueEmax/trueEmin)/(npts-1.);
+   s_trueEnergies.reserve(npts);
+   for (int i = 0; i < npts; i++) {
+      s_trueEnergies.push_back(trueEmin*exp(i*trueEstep));
+   }
+
+   if (ResponseFunctions::useEdisp()) {
+      s_energies = s_trueEnergies;
+   } else {
+      RoiCuts *roiCuts = RoiCuts::instance();
+      
 // set up a logrithmic grid of energies for doing the integral over 
 // the spectrum
-   double emin = (roiCuts->getEnergyCuts()).first;
-   double emax = (roiCuts->getEnergyCuts()).second;
-   double estep = log(emax/emin)/(nee-1);
+      double emin = (roiCuts->getEnergyCuts()).first;
+      double emax = (roiCuts->getEnergyCuts()).second;
+      double estep = log(emax/emin)/(nee-1);
    
-   s_energies.reserve(nee);
-   for (int i = 0; i < nee; i++)
-      s_energies.push_back(emin*exp(i*estep));
+      s_energies.reserve(nee);
+      for (int i = 0; i < nee; i++) {
+         s_energies.push_back(emin*exp(i*estep));
+      }
+   }
 }
 
 double PointSource::sourceEffArea(double energy, double time) const {
@@ -295,8 +348,10 @@ double PointSource::Aeff::operator()(double cos_theta) const {
    cones.push_back(const_cast<latResponse::AcceptanceCone *>
                    (&(roiCuts->extractionRegion())));
 
-   Likelihood::ResponseFunctions * respFuncs 
-      = Likelihood::ResponseFunctions::instance();
+   double emin = (roiCuts->getEnergyCuts()).first;
+   double emax = (roiCuts->getEnergyCuts()).second;
+
+   ResponseFunctions * respFuncs = ResponseFunctions::instance();
 
    double myEffArea = 0;
    std::map<unsigned int, latResponse::Irfs *>::iterator respIt
@@ -310,7 +365,13 @@ double PointSource::Aeff::operator()(double cos_theta) const {
                                             theta, phi, cones);
       double aeff_val = aeff->value(m_energy, theta, phi);
 
-      myEffArea += psf_val*aeff_val;
+      if (ResponseFunctions::useEdisp()) {
+         latResponse::IEdisp *edisp = respIt->second->edisp();
+         double edisp_val = edisp->integral(emin, emax, m_energy, theta, phi);
+         myEffArea += psf_val*aeff_val*edisp_val;
+      } else {
+         myEffArea += psf_val*aeff_val;
+      }
    }
    return myEffArea;
 }

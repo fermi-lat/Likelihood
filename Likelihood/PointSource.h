@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.32 2004/04/19 00:03:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.33 2004/05/05 01:42:31 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.32 2004/04/19 00:03:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.33 2004/05/05 01:42:31 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -168,6 +168,10 @@ private:
 
    /// vector of energy values for Npred spectrum quadrature
    static std::vector<double> s_energies;
+
+   /// True photon energies for convolving the spectrum with
+   /// the energy dispersion.
+   static std::vector<double> s_trueEnergies;
 
    /// integrated exposure at PointSource sky location
    std::vector<double> m_exposure;
