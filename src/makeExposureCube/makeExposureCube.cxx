@@ -3,11 +3,12 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.9 2004/09/02 23:43:24 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.10 2004/09/03 14:11:03 jchiang Exp $
  */
 
 #include <cstdlib>
 
+#include <iostream>
 #include <sstream>
 
 #include "st_app/AppParGroup.h"
@@ -31,7 +32,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.9 2004/09/02 23:43:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.10 2004/09/03 14:11:03 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -86,6 +87,7 @@ void ExposureCube::createDataCube() {
    std::vector<std::string>::const_iterator scIt = scFiles.begin();
    for ( ; scIt != scFiles.end(); scIt++) {
       st_facilities::Util::file_ok(*scIt);
+      std::cerr << "Working on file " << *scIt << std::endl;
       tip::Table * scData = 
          tip::IFileSvc::instance().editTable(*scIt, "Ext1");
       m_exposure->load(scData);

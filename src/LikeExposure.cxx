@@ -3,8 +3,10 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.3 2004/04/05 18:31:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.4 2004/04/12 23:22:49 jchiang Exp $
  */
+
+#include <iostream>
 
 #include "facilities/Util.h"
 
@@ -31,7 +33,9 @@ void LikeExposure::load(tip::Table * scData) {
 
    tip::Table::Iterator it = scData->begin();
    tip::Table::Record & row = *it;
-   for ( ; it != scData->end(); ++it) {
+   long nrows = scData->getNumRecords();
+   for (long irow = 0; it != scData->end(); ++it, ++irow) {
+      if ( (irow % (nrows/20)) == 0 ) std::cerr << "."; 
       row["livetime"].get(livetime);
       row["start"].get(start);
       row["stop"].get(stop);
@@ -46,6 +50,7 @@ void LikeExposure::load(tip::Table * scData) {
          add(astro::SkyDir(ra, dec), deltat);
       }
    }
+   std::cerr << "!" << std::endl;
 }
 
 bool LikeExposure::acceptInterval(double start, double stop, 
