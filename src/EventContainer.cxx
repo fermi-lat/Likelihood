@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.1 2005/03/04 07:07:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.2 2005/03/04 22:08:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -74,11 +74,12 @@ void EventContainer::getEvents(std::string event_file) {
          m_events.push_back(thisEvent);
          for (std::vector<std::string>::iterator name = diffuseNames.begin();
               name != diffuseNames.end(); ++name) {
+            std::string srcName = sourceName(*name);
             std::vector<double> gaussianParams;
             if (m_respFuncs.useEdisp()) {
                try {
                   event[*name].get(gaussianParams);
-                  m_events.back().setDiffuseResponse(*name, gaussianParams);
+                  m_events.back().setDiffuseResponse(srcName, gaussianParams);
                } catch (tip::TipException & eObj) {
                   std::string message(eObj.what());
                   if (message.find("FitsColumn::getVector") ==
@@ -89,14 +90,14 @@ void EventContainer::getEvents(std::string event_file) {
             } else {
                try {
                   event[*name].get(gaussianParams);
-                  m_events.back().setDiffuseResponse(*name,
+                  m_events.back().setDiffuseResponse(srcName,
                                                      gaussianParams[0]);
                } catch (tip::TipException &eObj) {
                   std::string message(eObj.what());
                   if (message.find("FitsColumn::getVector") !=
                       std::string::npos) {
                      event[*name].get(respValue);
-                     m_events.back().setDiffuseResponse(*name, respValue);
+                     m_events.back().setDiffuseResponse(srcName, respValue);
                   } else {
                      throw;
                   }
@@ -163,7 +164,7 @@ get_diffuse_names(tip::Table * events,
    const std::vector<std::string> & fields = events->getValidFields();
    for (unsigned int i = 0; i < fields.size(); i++) {
       if (!std::count(s_FT1_columns.begin(), s_FT1_columns.end(), fields[i])) {
-         names.push_back(sourceName(fields[i]));
+         names.push_back(fields[i]);
       }
    }
 }
