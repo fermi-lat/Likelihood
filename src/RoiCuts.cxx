@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.13 2003/11/14 00:13:20 petry Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.14 2003/11/18 18:09:42 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -164,11 +164,11 @@ void RoiCuts::writeXml(std::string xmlFile, const std::string &roiTitle) {
    DOM_Element coneElt = doc.createElement("acceptanceCone");
    std::ostringstream ra;
    ra << s_roiCone.center().ra();
-   coneElt.setAttribute("ra", ra.str().c_str());
+   coneElt.setAttribute("longitude", ra.str().c_str());
    std::ostringstream dec;
    dec << s_roiCone.center().dec();
-   coneElt.setAttribute("dec", dec.str().c_str());
-   coneElt.setAttribute("coordsys", "Equatorial");
+   coneElt.setAttribute("latitude", dec.str().c_str());
+   coneElt.setAttribute("coordsys", "J2000");
    std::ostringstream roi_radius;
    roi_radius << s_roiCone.radius();
    coneElt.setAttribute("radius", roi_radius.str().c_str()); 
