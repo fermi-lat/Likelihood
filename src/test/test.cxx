@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.44 2004/10/10 00:17:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.45 2004/10/11 01:35:01 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -725,7 +725,7 @@ void LikelihoodTests::test_MeanPsf() {
          integrand.push_back(psf*sin(thetas[i])*2.*M_PI);
       }
       TrapQuad my_trap(thetas, integrand);
-//       std::ucout << my_trap.integral() << std::endl;
+//       std::cout << my_trap.integral() << std::endl;
 // Yes, this test is pretty weak.
       CPPUNIT_ASSERT(fabs(my_trap.integral() - 1.) < 0.03);
    }
@@ -777,8 +777,8 @@ void LikelihoodTests::test_SourceMap() {
 
    SourceFactory * srcFactory 
       = srcFactoryInstance("", "", "", "", false);
-//   Source * src = srcFactory->create("Galactic Diffuse");
-   Source * src =  srcFactory->create("Crab Pulsar");
+   Source * src = srcFactory->create("Galactic Diffuse");
+//   Source * src =  srcFactory->create("Crab Pulsar");
 
    SourceMap srcMap(src, &dataMap);
 
