@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.24 2005/01/11 15:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.25 2005/01/13 22:42:01 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -106,7 +106,7 @@ void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
          expsr = expsr*(s_exposure[kk][j] - s_exposure[kk-1][j])
             + s_exposure[kk-1][j];
          astro::SkyDir skyDir(s_ra[j], s_dec[j]);
-         SkyDirArg dir(skyDir);
+         SkyDirArg dir(skyDir, energies[k]);
          srcExposure += expsr*(*spatialDist)(dir);
       }
       exposure.push_back(srcExposure);

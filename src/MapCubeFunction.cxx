@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author jchiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.1 2005/02/14 06:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.2 2005/02/15 00:34:46 jchiang Exp $
  */
 
 #include <algorithm>
@@ -74,7 +74,7 @@ double MapCubeFunction::value(optimizers::Arg & x) const {
    double y2 = m_image.at(indx);
    double value = ::interpolatePowerLaw(energy, m_energies.at(k),
                                         m_energies.at(k+1), y1, y2);
-   return value*getParamValue("Normalization");
+   return value*getParam("Normalization").getTrueValue();
 }
 
 void MapCubeFunction::init() {

@@ -106,6 +106,9 @@ using optimizers::Exception;
                              new Likelihood::SkyDirFunction(), false);
       myFuncFactory->addFunc("SpatialMap", new Likelihood::SpatialMap(), 
                              false);
+      myFuncFactory->addFunc("MapCubeFunction",
+                             new Likelihood::MapCubeFunction(), 
+                             false);
       return myFuncFactory;
    }
 }
