@@ -3,7 +3,7 @@
  * @brief Provide basic utililty functions to Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.1 2004/04/06 01:16:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.2 2004/04/28 05:50:59 jchiang Exp $
  */
 
 #ifndef Likelihood_Util_h
@@ -18,6 +18,9 @@
 
 #include "facilities/Util.h"
 
+#include "xml/Dom.h"
+#include "xml/XmlParser.h"
+
 namespace Likelihood {
 
 /**
@@ -26,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.1 2004/04/06 01:16:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Util.h,v 1.2 2004/04/28 05:50:59 jchiang Exp $
  */
 
 class Util {
@@ -81,6 +84,17 @@ public:
          readLines(filename, files);
          return;
       }
+   }
+
+   static bool isXmlFile(std::string filename) {
+      facilities::Util::expandEnvVar(&filename);
+      xml::XmlParser * parser = new xml::XmlParser();
+      DomDocument doc = parser->parse(filename.c_str());
+      delete parser;
+      if (doc == 0) {
+         return false;
+      }
+      return true;
    }
 };
 
