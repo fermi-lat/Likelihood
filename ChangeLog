@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct  1 10:03:22 PDT 2003
+Likelihood/src
+
+Modified Files:
+	SkyDirFunction.cxx SourceFactory.cxx SourceModel.cxx 
+	logLike_ptsrc.h 
+Log Message:
+fix xml i/o for SourceModel class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct  1 10:03:21 PDT 2003
 Likelihood/python
 
