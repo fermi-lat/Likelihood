@@ -4,9 +4,10 @@ version v2r1
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.42 2003/10/25 02:13:48 jchiang Exp $
+# $Id: requirements,v 1.43 2003/10/27 01:16:18 jchiang Exp $
 
 use xml
+use hoops v*
 use astro  v*
 use latResponse v1*
 use optimizers v0*
@@ -29,9 +30,13 @@ macro_prepend cflags "" Linux "-g"
 
 # make sure test application gets built when library changes
 macro test_Likelihoodstamps "Likelihood.stamp"
+macro likelihoodstamps "likelihood.stamp"
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 
-# test application
-application test_Likelihood test/*.cxx
+set PFILES "$(LIKELIHOODROOT)/data"
+
+# applications
+application test_Likelihood test/main.cxx
+application likelihood test/likelihood.cxx
