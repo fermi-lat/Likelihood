@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar  4 14:08:31 PST 2005
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+use EventContainer class
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar  4 14:08:29 PST 2005
 Likelihood/src/likelihood
 
