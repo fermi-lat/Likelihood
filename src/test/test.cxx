@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.27 2004/09/21 20:57:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.28 2004/09/22 20:05:42 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -69,14 +69,14 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
-   CPPUNIT_TEST(test_RoiCuts);
-   CPPUNIT_TEST(test_SourceFactory);
-   CPPUNIT_TEST(test_XmlBuilders);
-   CPPUNIT_TEST(test_SourceModel);
-   CPPUNIT_TEST(test_SourceDerivs);
-   CPPUNIT_TEST(test_SourceModel);
-   CPPUNIT_TEST(test_PointSource);
-   CPPUNIT_TEST(test_DiffuseSource);
+//    CPPUNIT_TEST(test_RoiCuts);
+//    CPPUNIT_TEST(test_SourceFactory);
+//    CPPUNIT_TEST(test_XmlBuilders);
+//    CPPUNIT_TEST(test_SourceModel);
+//    CPPUNIT_TEST(test_SourceDerivs);
+//    CPPUNIT_TEST(test_SourceModel);
+//    CPPUNIT_TEST(test_PointSource);
+//    CPPUNIT_TEST(test_DiffuseSource);
    CPPUNIT_TEST(test_BinnedLikelihood);
    
    CPPUNIT_TEST_SUITE_END();
@@ -593,6 +593,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    BinnedLikelihood binnedLogLike(dataMap);
    std::string Crab_model = m_rootPath + "/data/Crab_model.xml";
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
+   binnedLogLike.saveSourceMaps("srcMaps.fits");
 
    CountsMap * modelMap = binnedLogLike.createCountsMap();
 

@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.6 2004/09/22 03:20:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.7 2004/09/22 05:39:57 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -20,6 +20,10 @@ namespace astro {
 
 namespace evtbin {
    class Binner;
+}
+
+namespace tip {
+   class Header;
 }
 
 namespace Likelihood {
@@ -68,6 +72,8 @@ public:
    const std::vector<double> & data() const {
       return m_hist->data();
    }
+
+   void setKeywords(tip::Header & header) const;
 
    void getPixels(std::vector<Pixel> & pixels) const;
 
