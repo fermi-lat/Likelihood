@@ -1,7 +1,7 @@
 /** @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.18 2003/05/06 23:47:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.19 2003/05/07 19:38:31 jchiang Exp $
  */
 
 #include <vector>
@@ -142,7 +142,7 @@ void PointSource::computeExposure(std::vector<double> &energies,
    }
    unsigned int npts = scData->vec.size()-1;
    for (unsigned int it = 0; it < npts; it++) {
-      if (((it % (npts/20)) == 0) && verbose) std::cerr << ".";
+      if (npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
       bool includeInterval = true;
 
 // Check if this interval passes the time cuts

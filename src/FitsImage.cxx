@@ -2,7 +2,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.4 2003/05/06 23:47:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.5 2003/05/20 18:26:07 jchiang Exp $
  *
  */
 
@@ -30,6 +30,36 @@ FitsImage::FitsImage(std::string &fitsfile) {
       m_axisVectors.push_back(axisVector);
    }
    if (m_haveRefCoord) m_eqRot = new EquinoxRotation(m_lonpole, m_latpole);
+}
+
+FitsImage::FitsImage(const FitsImage &rhs) {
+   m_filename = rhs.m_filename;
+   m_axes = rhs.m_axes;
+   m_axisVectors = rhs.m_axisVectors;
+   m_image.resize(rhs.m_image.size());
+   m_image = rhs.m_image;
+   m_haveRefCoord = rhs.m_haveRefCoord;
+   m_lonpole = rhs.m_lonpole;
+   m_latpole = rhs.m_latpole;
+   if (m_haveRefCoord) m_eqRot = rhs.m_eqRot->clone();
+}
+
+FitsImage& FitsImage::operator=(const FitsImage &rhs) {
+   if (this != &rhs) {
+      m_filename = rhs.m_filename;
+      m_axes = rhs.m_axes;
+      m_axisVectors = rhs.m_axisVectors;
+      m_image.resize(rhs.m_image.size());
+      m_image = rhs.m_image;
+      m_haveRefCoord = rhs.m_haveRefCoord;
+      m_lonpole = rhs.m_lonpole;
+      m_latpole = rhs.m_latpole;
+      if (m_haveRefCoord) {
+         delete m_eqRot;
+         m_eqRot = rhs.m_eqRot->clone();
+      }
+   }
+   return *this;
 }
 
 void FitsImage::fetchAxisDims(std::vector<int> &axisDims) {
@@ -205,7 +235,8 @@ void FitsImage::read_fits_image(std::string &filename,
 #else  //don't HAVE_CCFITS
 void FitsImage::read_fits_image(std::string &filename, 
                                 std::vector<AxisParams> &axes,
-                                std::valarray<double> &image) {
+                                std::valarray<double> &image) 
+   throw(LikelihoodException) {
    
    fitsfile * fptr = 0;
    char *file = const_cast<char *>(filename.c_str());
@@ -213,12 +244,18 @@ void FitsImage::read_fits_image(std::string &filename,
 
    fits_open_file(&fptr, file, READONLY, &status);
    fits_report_error(stderr, status);
+   if (status != 0) {
+      throw LikelihoodException("FitsImage::read_fits_image: cfitsio error");
+   }
 
 // Get dimensions of the data cube
    long naxes;
    char comment[80];
    fits_read_key_lng(fptr, "NAXIS", &naxes, comment, &status);
    fits_report_error(stderr, status);
+   if (status != 0) {
+      throw LikelihoodException("FitsImage::read_fits_image: cfitsio error");
+   }
 
 // Assume at least 1 image plane, but at most 3 dimensions...
    if (naxes != 2 && naxes != 3) {
@@ -250,6 +287,10 @@ void FitsImage::read_fits_image(std::string &filename,
 // axis size
       fits_read_key_lng(fptr, naxis[i], &ivalue, comment, &status);
       fits_report_error(stderr, status);
+      if (status != 0) {
+         throw LikelihoodException
+            ("FitsImage::read_fits_image: cfitsio error");
+      }
       axes[i].size = ivalue;
 
 // Compute the number of pixels in the image.
@@ -267,21 +308,37 @@ void FitsImage::read_fits_image(std::string &filename,
 // reference values
       fits_read_key_dbl(fptr, crval[i], &value, comment, &status);
       fits_report_error(stderr, status);
+      if (status != 0) {
+         throw LikelihoodException
+            ("FitsImage::read_fits_image: cfitsio error");
+      }
       axes[i].refVal = value;
 
 // step sizes
       fits_read_key_dbl(fptr, cdelt[i], &value, comment, &status);
       fits_report_error(stderr, status);
+      if (status != 0) {
+         throw LikelihoodException
+            ("FitsImage::read_fits_image: cfitsio error");
+      }
       axes[i].step = value;
 
 // reference pixels
       fits_read_key_lng(fptr, crpix[i], &ivalue, comment, &status);
       fits_report_error(stderr, status);
+      if (status != 0) {
+         throw LikelihoodException
+            ("FitsImage::read_fits_image: cfitsio error");
+      }
       axes[i].refPixel = ivalue;
 
 // axis types and commentary
       fits_read_key_str(fptr, ctype[i], svalue, comment, &status);
       fits_report_error(stderr, status);
+      if (status != 0) {
+         throw LikelihoodException
+            ("FitsImage::read_fits_image: cfitsio error");
+      }
       axes[i].axisType = svalue;
       axes[i].comment = comment;
       
@@ -305,6 +362,10 @@ void FitsImage::read_fits_image(std::string &filename,
    } else {
       std::cerr << KEY_NO_EXIST << " " << status << std::endl;
       fits_report_error(stderr, status);
+      if (status != 0) {
+         throw LikelihoodException
+            ("FitsImage::read_fits_image: cfitsio error");
+      }
    }
    status = 0;
 
@@ -317,6 +378,10 @@ void FitsImage::read_fits_image(std::string &filename,
    } else {
       std::cerr << KEY_NO_EXIST << " " << status << std::endl;
       fits_report_error(stderr, status);
+      if (status != 0) {
+         throw LikelihoodException
+            ("FitsImage::read_fits_image: cfitsio error");
+      }
    }
    status = 0;
 
@@ -330,6 +395,9 @@ void FitsImage::read_fits_image(std::string &filename,
    fits_read_img_dbl(fptr, group, fpixel, npixels, nullval, 
                      tmpImage, &anynull, &status);
    fits_report_error(stderr, status);
+   if (status != 0) {
+      throw LikelihoodException("FitsImage::read_fits_image: cfitsio error");
+   }
 
    image.resize(npixels);
 
@@ -340,6 +408,9 @@ void FitsImage::read_fits_image(std::string &filename,
 
    fits_close_file(fptr, &status);
    fits_report_error(stderr, status);
+   if (status != 0) {
+      throw LikelihoodException("FitsImage::read_fits_image: cfitsio error");
+   }
 }
 #endif // HAVE_CCFITS
 

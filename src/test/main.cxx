@@ -72,30 +72,30 @@ void print_fit_results(Statistic &stat);
 
 std::string test_path;
 
-int main(){
+int main() {
    read_SC_Response_data();
-//     test_Parameter_class();
-//     test_Function_class();
-//     test_PowerLaw_class();
-//     test_SourceModel_class();
-//     test_Table_class();
-//     test_Statistic_class();
-//     test_Event_class();
-//     test_PointSource_class();
-//     test_Aeff_class();
-//     test_Psf_class();
-//     test_logLike_ptsrc();
-//     test_CompositeFunction();
-//     test_SpectrumFactory();
-//     test_SourceFactory();
-     test_OptPP();
-//     fit_3C279();
-//     fit_anti_center();
-//     test_FitsImage();
-//     test_ExposureMap();
-//     test_SpatialMap();
-//     test_DiffuseSource();
-//   fit_DiffuseSource();
+//    test_Parameter_class();
+//    test_Function_class();
+//    test_PowerLaw_class();
+//    test_SourceModel_class();
+//    test_Table_class();
+//    test_Statistic_class();
+//    test_Event_class();
+//    test_PointSource_class();
+//    test_Aeff_class();
+//    test_Psf_class();
+//    test_logLike_ptsrc();
+//    test_CompositeFunction();
+//    test_SpectrumFactory();
+//    test_SourceFactory();
+   test_OptPP();
+//    fit_3C279();
+//    fit_anti_center();
+//    test_FitsImage();
+//    test_ExposureMap();
+//    test_SpatialMap();
+//    test_DiffuseSource();
+   fit_DiffuseSource();
    return 0;
 }
 
@@ -174,9 +174,8 @@ void fit_DiffuseSource() {
 // do the fit
    OptPP myOpt(logLike);
    myOpt.find_min(verbose);
-#endif
-
    print_fit_results(logLike);
+#endif
 
    std::vector<std::string> srcNames;
    logLike.getSrcNames(srcNames);
@@ -189,6 +188,7 @@ void fit_DiffuseSource() {
       srcFactory.replaceSource(src);
    }
 
+#ifdef HAVE_OPT_LBFGS
 // try to fit again using srcFactory Sources and a different optimizer
    logLike.deleteAllSources();
 
@@ -197,12 +197,31 @@ void fit_DiffuseSource() {
       logLike.addSource(src);
    }
 
-#ifdef HAVE_OPT_LBFGS
    Lbfgs otherOpt(logLike);
    otherOpt.find_min(verbose);
+   print_fit_results(logLike);
 #endif
 
+
+#ifdef HAVE_OPT_MINUIT
+// try to fit again using srcFactory Sources and the MINUIT optimizer
+   logLike.deleteAllSources();
+
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      Source *src = srcFactory.makeSource(srcNames[i]);
+      logLike.addSource(src);
+   }
+
+   verbose = 3;
+   Minuit myMinuitObj(logLike);
+   myMinuitObj.find_min(verbose, .0001);
+
+   std::vector<double> sig = myMinuitObj.getUncertainty();
+   for (unsigned int i=0; i < sig.size(); i++) {
+      std::cout << i << "  " << sig[i] << std::endl;
+   }
    print_fit_results(logLike);
+#endif //HAVE_OPT_MINUIT
 
 } // fit_DiffuseSource
 
@@ -219,7 +238,7 @@ void test_DiffuseSource() {
 //     int sc_hdu = 2;
 //     ScData::readData(sc_file, sc_hdu);
 
-   std::string expfile = test_path + "Data/exp_diffuse_test_2_new.fits";
+   std::string expfile = test_path + "Data/exp_diffuse_test_5_new.fits";
    ExposureMap::readExposureFile(expfile);
 
    std::string galfile = test_path + "Data/gas.cel";

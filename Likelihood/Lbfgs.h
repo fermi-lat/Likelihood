@@ -1,7 +1,9 @@
-/** @file Lbfgs.h
+/**
+ * @file Lbfgs.h
  * @brief Declaration for the Lbfgs Optimizer subclass.
- * @author J. Chiang
+ * @author P. Nolan, J. Chiang
  *
+ * $Header$
  */
 
 #ifndef lbfgs_h
@@ -22,8 +24,9 @@ namespace Likelihood {
  * variable metric implementation of Byrd, Lu, Nocedal, & Zhu 1995,
  * SIAM, J. Sci. Comp., 16, 5 (http://www.netlib.org/opt/lbfgs_bcm.shar).
  *
- * @author J. Chiang
- *    
+ * @author P. Nolan, J. Chiang
+ * 
+ * $Header$
  */
 
 class Lbfgs : public Optimizer {

@@ -87,7 +87,12 @@ namespace Likelihood {
 		  << " = " << pval << std::endl;
       }
     }
-    m_stat->setParams(params);
+//    m_stat->setFreeParams(params);
+
+    std::vector<double> paramValues;
+    for (unsigned int i = 0; i < params.size(); i++) 
+       paramValues.push_back(params[i].getValue());
+    double funcValue = (*m_stat)(paramValues);
 
     // Get information about quality of minimization
     int nVariable, nparx, minStat;

@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.5 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.6 2003/05/06 23:47:54 jchiang Exp $
  */
 
 #ifndef ExposureMap_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.5 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.6 2003/05/06 23:47:54 jchiang Exp $
  *
  */
 
@@ -74,6 +74,8 @@ private:
 
    static ExposureMap * s_instance;
 
+   static bool s_haveExposureMap;
+
    //! s_ra and s_dec are valarrays of size NAXIS1*NAXIS2.
    //! Traversing these valarrays in tandem yields all coordinate pairs
    //! of the image plane.
@@ -88,7 +90,7 @@ private:
    //! exposure data cube.
    static std::vector< std::valarray<double> > s_exposure;
 
-   static FitsImage *s_mapData;
+   static FitsImage s_mapData;
 
    //! write the FITS image file produced by computeMap()
    static void writeFitsFile(const std::string &filename,

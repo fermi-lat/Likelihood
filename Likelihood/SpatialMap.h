@@ -2,7 +2,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.2 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.3 2003/05/02 19:02:14 jchiang Exp $
  *
  */
 
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.2 2003/04/25 18:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.3 2003/05/02 19:02:14 jchiang Exp $
  *
  */
     
@@ -30,6 +30,11 @@ class SpatialMap : public Function, public FitsImage {
 public:
 
    SpatialMap(std::string fitsfile);
+   SpatialMap(const SpatialMap &rhs) : Function(rhs), FitsImage(rhs) {
+      m_ra = rhs.m_ra;
+      m_dec = rhs.m_dec;
+   }
+
    virtual ~SpatialMap() {}
 
    double value(Arg&) const;

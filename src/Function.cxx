@@ -2,7 +2,7 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.14 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.15 2003/04/25 21:33:40 jchiang Exp $
  */
 
 #include <iostream>
@@ -177,6 +177,24 @@ void Function::getFreeParams(std::vector<Parameter> &params) const {
    for (unsigned int i = 0; i < m_parameter.size(); i++)
       if (m_parameter[i].isFree()) params.push_back(m_parameter[i]);
 }
+
+void Function::setFreeParams(std::vector<Parameter> &params) 
+   throw(LikelihoodException) {
+   if (params.size() == getNumFreeParams()) {
+      int j = 0;
+      for (unsigned int i = 0; i < m_parameter.size(); i++) {
+         if (m_parameter[i].isFree()) {
+            m_parameter[i] = params[j];
+            std::cerr << m_parameter[i].getName() << ": " 
+                      << m_parameter[i].getValue() << std::endl;
+            j++;
+         }
+      }
+   } else {
+      throw LikelihoodException
+         ("Function::setFreeParams: incompatible number of parameters.");
+   }
+}      
 
 void Function::fetchParamValues(std::vector<double> &values,
                                 bool getFree) const {

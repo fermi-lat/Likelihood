@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.5 2003/05/06 23:47:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.6 2003/05/20 18:26:07 jchiang Exp $
  */
 
 #include "Likelihood/SkyDirArg.h"
@@ -24,33 +24,34 @@
 namespace Likelihood {
 
 ExposureMap * ExposureMap::s_instance = 0;
-
+bool ExposureMap::s_haveExposureMap = false;
 std::vector<double> ExposureMap::s_energies;
 std::valarray<double> ExposureMap::s_ra;
 std::valarray<double> ExposureMap::s_dec;
 std::vector< std::valarray<double> > ExposureMap::s_exposure;
-FitsImage *ExposureMap::s_mapData = 0;
+FitsImage ExposureMap::s_mapData;
 
 void ExposureMap::readExposureFile(std::string exposureFile) {
 
-   s_mapData = new FitsImage(exposureFile);
+   s_mapData = FitsImage(exposureFile);
 
-   s_mapData->fetchCelestialArrays(s_ra, s_dec);
+   s_mapData.fetchCelestialArrays(s_ra, s_dec);
 
 // Fetch the energy axis abscissa points. Here we assume that the
 // exposure map has at least two image planes, and that the energies
 // are along the third dimension so we set naxis = 2.
    int naxis = 2;
-   s_mapData->fetchAxisVector(naxis, s_energies);
+   s_mapData.fetchAxisVector(naxis, s_energies);
 
 // pixel solid angles
    std::valarray<double> solidAngles;
-   s_mapData->fetchSolidAngles(solidAngles);
+   s_mapData.fetchSolidAngles(solidAngles);
 
 // Fill the vector of the planes of s_exposure for each true photon
 // energy.
+   s_exposure.clear();
    std::valarray<double> exposure;
-   s_mapData->fetchImageData(exposure);
+   s_mapData.fetchImageData(exposure);
 
    int indx = 0;
    int npixels = solidAngles.size();
@@ -62,6 +63,7 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
       }
       s_exposure.push_back(expArray);
    }
+   s_haveExposureMap = true;
 }
 
 void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
@@ -117,7 +119,11 @@ ExposureMap * ExposureMap::instance() {
    if (s_instance == 0) {
       s_instance = new ExposureMap();
    }
-   return s_instance;
+   if (s_haveExposureMap) {
+      return s_instance;
+   } else {
+      return 0;
+   }
 }
 
 void ExposureMap::computeMap(const std::string &filename, double sr_radius,
