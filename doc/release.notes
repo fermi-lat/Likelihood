@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v5r4p1 27-Nov-04  JC   delete file to be clobbered rather than using
+                           flawed "!" syntax.
     v5r4   27-Nov-04  JC   add binned likelihood to python builds;
                            parameter interface updates
     v5r3p2 13-Nov-04  JC   remove Pixel parameter from 
