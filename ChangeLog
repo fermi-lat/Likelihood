@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 10 13:20:42 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Function.h 
+Log Message:
+make ParameterNotFound a nested class in Function
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 10 12:31:09 PDT 2003
 Likelihood/Likelihood
 
