@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 19 16:02:07 PST 2004
+Likelihood/src
+
+Modified Files:
+	OptEM.cxx RoiCuts.cxx SourceFactory.cxx SourceModel.cxx 
+Added Files:
+	FluxBuilder.cxx SourceModelBuilder.cxx XmlBuilder.cxx 
+Removed Files:
+	FluxModel.cxx 
+Log Message:
+prepare for Xerces migration; begin refactoring unit test
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb 19 16:02:06 PST 2004
 Likelihood/data
 
