@@ -3,7 +3,7 @@
  * @brief Declaration of Function and ParameterNotFound classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.27 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.28 2003/06/11 17:08:02 jchiang Exp $
  */
 
 #ifndef Function_h
@@ -15,7 +15,7 @@
 #include <string>
 
 #include "Likelihood/Parameter.h"
-#include "Likelihood/LikelihoodException.h"
+#include "Likelihood/ParameterNotFound.h"
 
 namespace Likelihood {
 
@@ -33,7 +33,7 @@ class Arg;
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.27 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.28 2003/06/11 17:08:02 jchiang Exp $
  */
 
 class Function {
@@ -46,33 +46,6 @@ public:
 //   Function(const Function&);
 
    virtual ~Function() {}
-
-   /**
-    * @class Function::ParameterNotFound
-    *
-    * @brief Nested class that returns a standard error message for
-    * Parameters looked for but not found in the desired Function.
-    *
-    * @author J. Chiang
-    *
-    * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ParameterNotFound.h,v 1.1 2003/06/10 23:58:51 jchiang Exp $
-    */
-
-   class ParameterNotFound : public LikelihoodException {
-
-   public:
-      ParameterNotFound(const std::string &paramName, 
-                        const std::string &funcName,
-                        const std::string &routineName) {
-         std::ostringstream errorMessage;
-         errorMessage << "Function::" << routineName << ": \n"
-                      << "A Parameter named " << paramName
-                      << " is not a Parameter of Function "
-                      << funcName << "\n";
-         m_what = errorMessage.str();
-         m_code = 0;
-      }
-   };
 
    //! provide a string identifier
    void setName(std::string functionName) {m_functionName = functionName;}

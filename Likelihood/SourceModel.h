@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.17 2003/06/10 18:18:30 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.18 2003/06/10 19:19:56 jchiang Exp $
  */
 
 #ifndef SourceModel_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.17 2003/06/10 18:18:30 burnett Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.18 2003/06/10 19:19:56 jchiang Exp $ 
  */
 
 class SourceModel : public Function {
@@ -66,7 +66,7 @@ public:
                                const std::string &funcName,
                                const std::string &srcName,
                                double lower, double upper)
-      throw(ParameterNotFound, Parameter::OutOfBounds);
+      throw(ParameterNotFound, OutOfBounds);
 
    virtual void setParamScale(const std::string &paramName,
                               const std::string &funcName,
@@ -77,7 +77,7 @@ public:
                                   const std::string &funcName,
                                   const std::string &srcName,
                                   double paramValue) 
-      throw(ParameterNotFound, Parameter::OutOfBounds);
+      throw(ParameterNotFound, OutOfBounds);
 
    virtual void setParams(std::vector<Parameter> &params) 
       throw(LikelihoodException, ParameterNotFound) 
