@@ -3,12 +3,13 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.19 2004/06/05 00:27:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.20 2004/06/05 15:22:15 jchiang Exp $
  */
 
 #include <cmath>
 #include <cassert>
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -33,6 +34,8 @@
 #include "Likelihood/LogLike.h"
 
 namespace Likelihood {
+
+std::vector<std::string> LogLike::s_FT1_columns;
 
 double LogLike::value(optimizers::Arg&) const {
 // Compute the EML log-likelihood for a single-point source.
@@ -176,9 +179,14 @@ void LogLike::getEvents(std::string event_file, int) {
    double zenAngle;
    int convLayer;
    int eventType;
+   double respValue;
 
    tip::Table::Iterator it = events->begin();
    tip::Table::Record & event = *it;
+
+   std::vector<std::string> diffuseNames;
+   get_diffuse_names(events, diffuseNames);
+
    for ( ; it != events->end(); ++it, nTotal++) {
       event["ra"].get(ra);
       event["dec"].get(dec);
@@ -197,6 +205,11 @@ void LogLike::getEvents(std::string event_file, int) {
                       cos(zenAngle*M_PI/180.), eventType);
       if (roiCuts->accept(thisEvent)) {
          m_events.push_back(thisEvent);
+         for (std::vector<std::string>::iterator name = diffuseNames.begin();
+              name != diffuseNames.end(); ++name) {
+            event[*name].get(respValue);
+            m_events.back().setDiffuseResponse(*name, respValue);
+         }
       } else {
          nReject++;
       }
@@ -293,5 +306,26 @@ LogLike::getEventColumn(const std::string &colname) const {
    return my_column;
 }
 #endif // USE_FT1
+
+void LogLike::setFT1_columns() {
+   std::string colnames("energy ra dec theta phi zenith_angle "
+                        + std::string("earth_azimuth_angle time event_id ")
+                        + "recon_version calib_version imgoodcalprob "
+                        + std::string("imvertexprob imcoreprob impsferrpred ")
+                        + "calenergysum caltotrln imgammaprob "
+                        + std::string("conversion_point conversion_layer"));
+   facilities::Util::stringTokenize(colnames, " ", s_FT1_columns);
+}
+
+void LogLike::get_diffuse_names(tip::Table * events, 
+                                std::vector<std::string> & names) {
+   names.clear();
+   const std::vector<std::string> & fields = events->getValidFields();
+   for (unsigned int i = 0; i < fields.size(); i++) {
+      if (!std::count(s_FT1_columns.begin(), s_FT1_columns.end(), fields[i])) {
+         names.push_back(fields[i]);
+      }
+   }
+}
 
 } // namespace Likelihood

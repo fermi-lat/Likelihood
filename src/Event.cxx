@@ -3,10 +3,11 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.26 2004/06/05 00:27:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.27 2004/06/05 15:22:15 jchiang Exp $
  */
 
 #include <cassert>
+#include <cctype>
 
 #include <iostream>
 #include <fstream>
@@ -76,9 +77,10 @@ Event::Event(double ra, double dec, double energy,
 }
 
 double Event::diffuseResponse(double trueEnergy, 
-                              const std::string &diffuseComponent) const 
+                              std::string diffuseComponent) const 
    throw(Exception) {
 
+   toLower(diffuseComponent);
    int indx(0);
    if (ResponseFunctions::useEdisp()) {
       indx = static_cast<int>((trueEnergy - m_trueEnergies[0])/m_estep);
@@ -109,8 +111,12 @@ double Event::diffuseResponse(double trueEnergy,
    return 0;
 }
 
-void Event::computeResponse(std::vector<DiffuseSource *> &srcs, 
+void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 
                             double sr_radius) {
+   std::vector<DiffuseSource *> srcs;
+   getNewDiffuseSrcs(srcList, srcs);
+   if (srcs.size() == 0) return;
+   
 // @todo In principle, the source region should be centered on the
 // event direction, making it independent of the ROI, but doing so has
 // not given as good results as using the ROI center.  Need to check
@@ -171,7 +177,9 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcs,
 // Perform the mu-integrals
       for (unsigned int k = 0; k < srcs.size(); k++) {
          TrapQuad muQuad(s_mu, mu_integrands[k]);
-         m_respDiffuseSrcs[srcs[k]->getName()].push_back(muQuad.integral());
+         std::string name = srcs[k]->getName();
+         toLower(name);
+         m_respDiffuseSrcs[name].push_back(muQuad.integral());
       }
    } // loop over trueEnergy
 }
@@ -226,6 +234,24 @@ void Event::getCelestialDir(double phi, double mu,
 // Convert to the unrotated coordinate system (should probably use 
 // Hep3Vector methods here instead).
    eqRot.do_rotation(indir, dir);
+}
+
+void Event::getNewDiffuseSrcs(const std::vector<DiffuseSource *> & srcList,
+                              std::vector<DiffuseSource *> & srcs) const {
+   for (std::vector<DiffuseSource *>::const_iterator it = srcList.begin();
+        it != srcList.end(); ++it) {
+      std::string name = (*it)->getName();
+      toLower(name);
+      if (!m_respDiffuseSrcs.count(name)) {
+         srcs.push_back(*it);
+      }
+   }
+}
+
+void Event::toLower(std::string & name) {
+   for (std::string::iterator it = name.begin(); it != name.end(); ++it) {
+      *it = std::tolower(*it);
+   }
 }
 
 } // namespace Likelihood

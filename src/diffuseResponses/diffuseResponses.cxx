@@ -4,7 +4,7 @@
  * diffuse emission.  Assumes infinite energy resolution.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.1 2004/06/05 00:28:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.2 2004/06/05 15:22:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -38,7 +38,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.1 2004/06/05 00:28:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.2 2004/06/05 15:22:15 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -65,6 +65,7 @@ private:
    st_app::AppParGroup & m_pars;
 
    std::vector<Event> m_events;
+   std::vector<DiffuseSource *> m_srcs;
    std::vector<std::string> m_srcNames;
 
    void setRoi();
@@ -72,7 +73,7 @@ private:
    void readEventData();
    void computeEventResponses();
    void writeEventResponses();
-   void getDiffuseSources(std::vector<DiffuseSource *> &srcs);
+   void getDiffuseSources();
 
 };
 
@@ -158,12 +159,11 @@ void diffuseResponses::readEventData() {
 }
 
 void diffuseResponses::computeEventResponses() {
-   std::vector<DiffuseSource *> srcs;
-   getDiffuseSources(srcs);
+   getDiffuseSources();
    std::vector<Event>::iterator it = m_events.begin();
    for (int i = 0; it != m_events.end(); ++it, i++) {
       if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
-      it->computeResponse(srcs, m_srRadius);
+      it->computeResponse(m_srcs, m_srRadius);
    }
    std::cerr << "!" << std::endl;
 }
@@ -201,13 +201,16 @@ void diffuseResponses::writeEventResponses() {
    }
 }
 
-void diffuseResponses::getDiffuseSources(std::vector<DiffuseSource *> &srcs) {
-   srcs.clear();
-   m_srcModel->getSrcNames(m_srcNames);
-   for (unsigned int i = 0; i < m_srcNames.size(); i++) {
-      Source * my_src = m_srcModel->getSource(m_srcNames[i]);
+void diffuseResponses::getDiffuseSources() {
+   m_srcs.clear();
+   m_srcNames.clear();
+   std::vector<std::string> srcNames;
+   m_srcModel->getSrcNames(srcNames);
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      Source * my_src = m_srcModel->getSource(srcNames[i]);
       if (my_src->getType() == std::string("Diffuse")) {
-         srcs.push_back(dynamic_cast<DiffuseSource *>(my_src));
+         m_srcs.push_back(dynamic_cast<DiffuseSource *>(my_src));
+         m_srcNames.push_back(srcNames[i]);
       }
    }
 }
