@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.49 2004/11/11 00:03:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.50 2004/11/13 15:49:59 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -223,6 +223,9 @@ void LikelihoodTests::test_RoiCuts() {
    ASSERT_EQUALS(my_dec, dec);
 
    std::remove(xmlFile.c_str());
+
+//    std::string infile = m_rootPath + "/data/oneday_events_0000.fits";
+//    roiCuts->readCuts(infile);
 }
 
 void LikelihoodTests::test_SourceFactory() {
@@ -872,11 +875,14 @@ int main() {
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
 
-//    LikelihoodTests testObj;
-//    testObj.setUp();
-//    testObj.test_CountsMap();
-//    testObj.test_SourceMap();
-//    testObj.tearDown();
+//    try {
+//       LikelihoodTests testObj;
+//       testObj.setUp();
+//       testObj.test_RoiCuts();
+//       testObj.tearDown();
+//    } catch (std::exception & eObj) {
+//       std::cout << eObj.what() << std::endl;
+//    }
 
    CppUnit::TextTestRunner runner;
    runner.addTest(LikelihoodTests::suite());

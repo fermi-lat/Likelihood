@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.59 2004/11/11 00:03:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.60 2004/11/28 06:58:21 jchiang Exp $
  */
 
 #include <cassert>
@@ -30,7 +30,6 @@
 #include "Likelihood/Exception.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/ExposureMap.h"
-#include "Likelihood/RoiCuts.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SourceFactory.h"

@@ -4,7 +4,7 @@ version v5r5
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.158 2004/11/29 03:23:14 jchiang Exp $
+# $Id: requirements,v 1.159 2004/12/05 00:26:19 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -18,6 +18,7 @@ use cfitsio v1* IExternal
 use cppunit v1* IExternal
 use irfLoader v0* irfs
 use st_facilities v0*
+use dataSubselector v2r*
 
 apply_pattern ST_library option="-no_share *.c "
 macro_append Likelihood_cppflags " -DHAVE_ST_GRAPH "

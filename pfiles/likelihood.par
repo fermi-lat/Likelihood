@@ -1,7 +1,7 @@
 #
 # parameters common to binned and unbinned
 #
-ROI_file,fr,a,"Roi.xml",,,"ROI file"
+ROI_file,f,a,"Roi.xml",,,"ROI file"
 rspfunc,s,a,"DC1",DC1|DC1F|DC1B|G25|G25F|G25B,,"Response functions to use"
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
@@ -30,5 +30,4 @@ binned_exposure_map,f,a,"none",,,"Binned exposure map"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
-debug,          b, h, no, , , "Activate debugging mode"
 mode,           s, h, "ql", , , "Mode of automatic parameters"

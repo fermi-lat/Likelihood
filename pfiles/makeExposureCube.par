@@ -1,11 +1,12 @@
+evfile,f,a,"none",,,"Event data file"
+evtable,s,hl,"EVENTS",,,"Event data extension"
 scfile,fr,a,"oneday_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,hl,"Ext1",,,"Spacecraft data extension"
+ROI_file,f,a,"none",,,"ROI file"
 outfile,f,a,"expcube_1_day.fits",,,"Output file"
 cos_theta_step,r,hl,0.05,0.,1.,Step size in cos(theta)
 pixel_size,r,hl,1,,,Pixel size (degrees)
-ROI_file,fr,a,"Roi.xml",,,"ROI file"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
-debug,          b, h, no, , , "Activate debugging mode"
 mode,           s, h, "ql", , , "Mode of automatic parameters"
