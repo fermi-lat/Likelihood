@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug  5 16:23:28 PDT 2004
+Likelihood/src
+
+Modified Files:
+	Event.cxx 
+Log Message:
+use correct energy in resp. approx.
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug  5 16:06:01 PDT 2004
 Likelihood/src
 
