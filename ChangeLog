@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Apr  6 15:19:01 PDT 2004
+Likelihood/data
+
+Removed Files:
+	TsMap.par expMap.par likelihood.par test_runParams.par 
+Log Message:
+self-contained application classes
+    *
+------------------------------------------------------------
+User: jchiang  Tue Apr  6 15:19:01 PDT 2004
 Likelihood/cmt
 
 Modified Files:
