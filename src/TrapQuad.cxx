@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.10 2003/08/06 20:52:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.11 2004/12/01 16:46:27 jchiang Exp $
  */
 
 #include "Likelihood/TrapQuad.h"
@@ -16,24 +16,29 @@
 
 namespace Likelihood {
 
-double TrapQuad::integral() throw(optimizers::Exception) {
-   if (m_haveFunc) {
+double TrapQuad::integral() {
+   if (m_func) {
       std::ostringstream errorMessage;
       errorMessage << "TrapQuad::integral:\n"
                    << "This operation requires "
-                   << "instantiation with abscissa and ordinate vectors.\n";
+                   << "object creation with abscissa and ordinate vectors.\n";
       throw optimizers::Exception(errorMessage.str());
    }
-   return compute_integral();
+   double value;
+   if (m_useLog) {
+      value = compute_log_integral();
+   } else {
+      value = compute_integral();
+   }
+   return value;
 }
 
-double TrapQuad::integral(double xmin, double xmax, int npts) 
-   throw(optimizers::Exception) {
-   if (!m_haveFunc) {
+double TrapQuad::integral(double xmin, double xmax, int npts) {
+   if (!m_func) {
       std::ostringstream errorMessage;
       errorMessage << "TrapQuad::integral:\n"
                    << "This operation requires "
-                   << "instantiation with a pointer to a Function object.\n";
+                   << "object creation with a pointer to a Function object.\n";
       throw optimizers::Exception(errorMessage.str());
    }
    m_x.clear();
@@ -46,16 +51,21 @@ double TrapQuad::integral(double xmin, double xmax, int npts)
       optimizers::dArg xarg(m_x[i]);
       m_y.push_back((*m_func)(xarg));
    }
-   return compute_integral();
+   double value;
+   if (m_useLog) {
+      value = compute_log_integral();
+   } else {
+      value = compute_integral();
+   }
+   return value;
 }
 
-double TrapQuad::integral(std::vector<double> &xvals) 
-   throw(optimizers::Exception) {
-   if (!m_haveFunc) {
+double TrapQuad::integral(std::vector<double> &xvals) {
+   if (!m_func) {
       std::ostringstream errorMessage;
       errorMessage << "TrapQuad::integral:\n"
                    << "This operation requires "
-                   << "instantiation with a pointer to a Function object.\n";
+                   << "object creation with a pointer to a Function object.\n";
       throw optimizers::Exception(errorMessage.str());
    }
    m_x = xvals;
@@ -66,7 +76,13 @@ double TrapQuad::integral(std::vector<double> &xvals)
       optimizers::dArg xarg(m_x[i]);
       m_y.push_back((*m_func)(xarg));
    }
-   return compute_integral();
+   double value;
+   if (m_useLog) {
+      value = compute_log_integral();
+   } else {
+      value = compute_integral();
+   }
+   return value;
 }
 
 double TrapQuad::compute_integral() {
@@ -78,8 +94,23 @@ double TrapQuad::compute_integral() {
    return sum;
 }
 
-// double TrapQuad::compute_log_integral() {
-
-// }
+double TrapQuad::compute_log_integral() {
+   double sum(0);
+   for (unsigned int i = 0; i < m_x.size()-1; i++) {
+      if (m_y[i+1] > 0 && m_y[i] > 0) {
+         double b = log(m_y[i+1]/m_y[i])/log(m_x[i+1]/m_x[i]);
+         double a = m_y[i]/pow(m_x[i], b);
+         if (b != -1.) {
+            double gamma = b + 1.;
+            sum += a/gamma*(pow(m_x[i+1], gamma) - pow(m_x[i], gamma));
+         } else {
+            sum += a*log(m_x[i+1]/m_x[i]);
+         }
+      } else {
+         sum += (m_y[i+1] + m_y[i])/2.*(m_x[i+1] - m_x[i]);
+      }
+   }
+   return sum;
+}
 
 } // namespace Likelihood
