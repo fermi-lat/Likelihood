@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 30 09:21:37 PDT 2004
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+add progress indicator to TsMap app
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun 10 10:25:41 PDT 2004
 Likelihood/doc
 
