@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  5 08:55:18 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h RunParams.h 
+Log Message:
+refine likelihood.cxx interface a bit
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov  4 19:41:24 PST 2003
 Likelihood/src/test
 
