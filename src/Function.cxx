@@ -18,16 +18,13 @@ Function::Function(const Function &func) {
   m_parameter = func.m_parameter;
 }
 
-//! resets Parameter values if named Parameter is present,
-//! otherwise adds the Parameter if there is room.
-void Function::setParam(const std::string paramName, 
-                        const double paramValue, 
-                        const bool isFree) {
+//! set Parameter value and free flag
+void Function::setParam(const std::string &paramName, double paramValue, 
+                        bool isFree) {
 
-/* check if parameter is already present; 
-   if so, set it to the new value and free state */
+// check if named parameter is present; if so, set value and free state...
 
-   for (int i=0; i < m_parameter.size(); i++) {
+   for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
 	 m_parameter[i].setValue(paramValue);
 	 m_parameter[i].setFree(isFree);
@@ -35,49 +32,58 @@ void Function::setParam(const std::string paramName,
       }
    }
 
-/* otherwise, add it to the list if there's space */
-   if (m_parameter.size() < m_maxNumParams) {
-      Parameter my_param(paramName, paramValue, isFree);
-      m_parameter.push_back(my_param);
-   } else {
-      std::cerr << "Trying to add a parameter " << paramName 
-		<< " equal to " << paramValue
-		<< ", " << std::endl 
-		<< "   but the parameter list is already full." 
-		<< std::endl;
-   }
+// otherwise, complain
+   std::cerr << "Trying to set parameter " << paramName 
+	     << " equal to " << paramValue
+	     << ", " << std::endl 
+	     << "   but it isn't present."
+	     << std::endl;
 }
 
-void Function::setParam(const std::string paramName, 
-			   const double paramValue) {
+//! just set Parameter value, preserving current free state
+void Function::setParam(const std::string &paramName, double paramValue) {
 
-/* check if parameter is already present; 
-   if so, set it to the new value and retain the previous free state */
-
-   for (int i=0; i < m_parameter.size(); i++) {
+// check if parameter is present...
+   for (unsigned int i=0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
 	 m_parameter[i].setValue(paramValue);
 	 return;
       }
    }
+   std::cerr << "Trying to set parameter " << paramName 
+	     << " equal to " << paramValue << ", \n"
+	     << "   but it isn't present."
+	     << std::endl;
+}
 
-/* otherwise, add it to the list if there's space and assume it's free */
+//! add a Parameter
+void Function::addParam(const std::string &paramName, double paramValue, 
+                        bool isFree) {
+
+// check if named parameter is present; if so, complain....
+   for (unsigned int i=0; i < m_parameter.size(); i++) {
+      if (paramName == m_parameter[i].getName()) {
+	 std::cerr << "This parameter name already exists: "
+		   << paramName << ";\n"
+		   << "   you can't add another one." << std::endl;
+	 return;
+      }
+   }
+// if there's room, add this guy onto the vector
    if (m_parameter.size() < m_maxNumParams) {
-      Parameter my_param(paramName, paramValue, true);
+      Parameter my_param(paramName, paramValue, isFree);
       m_parameter.push_back(my_param);
    } else {
-      std::cerr << "Trying to add a parameter " << paramName 
-		<< " equal to " << paramValue
-		<< ", " << std::endl 
-		<< "   but the parameter list is already full." 
-		<< std::endl;
+      std::cerr << "Can't add parameter " << paramName << ";\n"
+		<< "   The parameter list is full at " 
+		<< m_maxNumParams << "." << std::endl;
    }
 }
 
 //! search for parameter name, return value or zero if not found
-double Function::getParamValue(const std::string paramName) const {
+double Function::getParamValue(const std::string &paramName) const {
 
-   for (int i = 0; i < m_parameter.size(); i++) {
+   for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName())
          return m_parameter[i].getValue();
    }
@@ -89,9 +95,9 @@ double Function::getParamValue(const std::string paramName) const {
 
 //! search for parameter name, return Parameter or NULL pointer 
 //! if not found
-Parameter* Function::getParam(const std::string paramName) {
+Parameter* Function::getParam(const std::string &paramName) {
 
-   for (int i = 0; i < m_parameter.size(); i++) {
+   for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName())
          return &(m_parameter[i]);
    }
@@ -101,56 +107,27 @@ Parameter* Function::getParam(const std::string paramName) {
    return 0;
 }
 
-std::vector<std::string> Function::getParamNames() const {
-   std::vector<std::string> myNames;
-   for (int i = 0; i < m_parameter.size(); i++)
-      myNames.push_back(m_parameter[i].getName());
-   return myNames;
-}
-
-std::vector<double> Function::getParamValues() const {
-   std::vector<double> myValues;
-   for (int i = 0; i < m_parameter.size(); i++) 
-      myValues.push_back(m_parameter[i].getValue());
-   return myValues;
-}
-
-void Function::setParamValues(const std::vector<double> paramVec) {
+void Function::setParamValues(const std::vector<double> &paramVec) {
    if (paramVec.size() != m_parameter.size()) {
 /* should do some exception handling here */
       std::cerr
          << "The input vector size does not match the number of parameters."
          << std::endl;
    } else {
-      for (int i = 0; i < m_parameter.size(); i++) {
+      for (unsigned int i = 0; i < m_parameter.size(); i++) {
 	 m_parameter[i].setValue(paramVec[i]);
       }
    }
 }
 
-int Function::getNumFreeParams() const {
+unsigned int Function::getNumFreeParams() const {
    int j = 0;
-   for (int i = 0; i < m_parameter.size(); i++)
+   for (unsigned int i = 0; i < m_parameter.size(); i++)
       j += m_parameter[i].isFree();
    return j;
 }
 
-std::vector<std::string> Function::getFreeParamNames() const {
-   std::vector<std::string> myNames;
-   for (int i = 0; i < m_parameter.size(); i++)
-      if (m_parameter[i].isFree()) myNames.push_back(m_parameter[i].getName());
-   return myNames;
-}
-
-std::vector<double> Function::getFreeParamValues() const {
-   std::vector<double> myValues;
-   for (int i = 0; i < m_parameter.size(); i++) 
-      if (m_parameter[i].isFree()) 
-	 myValues.push_back(m_parameter[i].getValue());
-   return myValues;
-}
-
-void Function::setFreeParamValues(const std::vector<double> paramVec) {
+void Function::setFreeParamValues(const std::vector<double> &paramVec) {
    if (paramVec.size() != getNumFreeParams()) {
 /* should do some exception handling here */
       std::cerr
@@ -159,17 +136,51 @@ void Function::setFreeParamValues(const std::vector<double> paramVec) {
          << std::endl;
    } else {
       int j = 0;
-      for (int i = 0; i < m_parameter.size(); i++) 
+      for (unsigned int i = 0; i < m_parameter.size(); i++) 
 	 if (m_parameter[i].isFree()) 
 	    m_parameter[i].setValue(paramVec[j++]);
    }
 }
 
-std::vector<Parameter> Function::getFreeParams() const {
-   std::vector<Parameter> myParams;
-   for (int i = 0; i < m_parameter.size(); i++)
-      if (m_parameter[i].isFree()) myParams.push_back(m_parameter[i]);
-   return myParams;
+void Function::getFreeParams(std::vector<Parameter> &params) const {
+// ensure that params is empty
+   if (!params.empty()) params.erase(params.begin(), params.end());
+
+   for (unsigned int i = 0; i < m_parameter.size(); i++)
+      if (m_parameter[i].isFree()) params.push_back(m_parameter[i]);
+}
+
+void Function::fetchParamValues(std::vector<double> &values,
+				bool getFree) const {
+// ensure that values is empty
+   if (!values.empty()) values.erase(values.begin(), values.end());
+
+   for (unsigned int i = 0; i < m_parameter.size(); i++) {
+      if (!getFree || m_parameter[i].isFree())
+	 values.push_back(m_parameter[i].getValue());
+   }
+}
+
+void Function::fetchParamNames(std::vector<std::string> &names,
+			       bool getFree) const {
+// ensure that names is empty
+   if (!names.empty()) names.erase(names.begin(), names.end());
+
+   for (unsigned int i = 0; i < m_parameter.size(); i++) {
+      if (!getFree || m_parameter[i].isFree())
+	 names.push_back(m_parameter[i].getName());
+   }
+}
+
+void Function::fetchDerivs(double x, std::vector<double> &derivs, 
+			   bool getFree) const {
+// ensure that derivs is empty
+   if (!derivs.empty()) derivs.erase(derivs.begin(), derivs.end());
+
+   for (unsigned int i = 0; i < m_parameter.size(); i++) {
+      if (!getFree || m_parameter[i].isFree())
+	 derivs.push_back(derivByParam(x, m_parameter[i].getName()));
+   }
 }
 
 } // namespace Likelihood

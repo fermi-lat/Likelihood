@@ -8,48 +8,38 @@ namespace Likelihood {
 //! Implement PowerLaw class with three named parameters, 
 //! "Prefactor", "Scale", "Index"
 
-void PowerLaw::m_init(const double Prefactor, const double Index,
-		      const double Scale) {
+void PowerLaw::m_init(double Prefactor, double Index, double Scale) {
 //! initialization function used by constructors
 
    int nParams = 3;
    setMaxNumParams(nParams);
 
-   setParam(string("Prefactor"), Prefactor, true);
-   setParam(string("Index"), Index, true);
-   setParam(string("Scale"), Scale, false);   // scale should always be fixed
+   addParam(string("Prefactor"), Prefactor, true);
+   addParam(string("Index"), Index, true);
+   addParam(string("Scale"), Scale, false);   // scale should always be fixed
 }
 
-//! copy constructor
-PowerLaw::PowerLaw(const PowerLaw &func) {
-   setMaxNumParams(func.getMaxNumParams());
-
-   std::vector<Parameter> params = func.getParams();
-
-   for (int i = 0; i < params.size(); i++)
-      setParam(params[i]);
-}
-
-double PowerLaw::value(const double x) const {
+double PowerLaw::value(double x) const {
 //! assume a standard ordering for the parameters
 
    enum paramTypes {Prefactor, Index, Scale};
 
-   std::vector<Parameter> my_params = getParams();
+   std::vector<Parameter> my_params;
+   getParams(my_params);
 
    return my_params[Prefactor].getValue()*pow((x/my_params[Scale].getValue()), 
 					      my_params[Index].getValue());
 }
 
-double PowerLaw::derivByParam(const double x, 
-			      const std::string paramName) const {
+double PowerLaw::derivByParam(double x, const std::string &paramName) const {
 
    enum paramTypes {Prefactor, Index, Scale};
 
-   std::vector<Parameter> my_params = getParams();
+   std::vector<Parameter> my_params;
+   getParams(my_params);
 
    int iparam = -1;
-   for (int i = 0; i < my_params.size(); i++) {
+   for (unsigned int i = 0; i < my_params.size(); i++) {
       if (paramName == my_params[i].getName()) iparam = i;
    }
 
@@ -75,29 +65,20 @@ double PowerLaw::derivByParam(const double x,
    default:
       break;
    }
+   return 0;
 }
 
-std::vector<double> PowerLaw::getDerivs(const double x) const {
+double PowerLaw::integral(double xmin, double xmax) {
 
-   std::vector<string> my_paramName = getParamNames();
-   std::vector<double> my_derivs;
+   enum paramTypes {Prefactor, Index, Scale};
+   std::vector<Parameter> my_params;
+   getParams(my_params);
 
-   for (int i = 0; i < my_paramName.size(); i++) {
-      my_derivs.push_back(derivByParam(x, my_paramName[i]));
-   }
-   return my_derivs;
-}
+   double f0 = my_params[Prefactor].getValue();
+   double Gamma = my_params[Index].getValue();
+   double x0 = my_params[Scale].getValue();
 
-std::vector<double> PowerLaw::getFreeDerivs(const double x) const {
-
-   std::vector<Parameter> my_params = getParams();
-   std::vector<double> my_derivs;
-
-   for (int i = 0; i < my_params.size(); i++) {
-      if (my_params[i].isFree())
-	 my_derivs.push_back(derivByParam(x, my_params[i].getName()));
-   }
-   return my_derivs;
+   return f0/(Gamma+1.)*(pow((xmax/x0), Gamma+1.) - pow((xmin/x0), Gamma+1.));
 }
 
 } // namespace Likelihood
