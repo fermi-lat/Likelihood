@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Dec  9 11:03:37 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+add some dss keyword related checks to binned like apps
+    *
+------------------------------------------------------------
 User: jchiang  Thu Dec  9 11:03:35 PST 2004
 Likelihood/src/gtsrcmaps
 
