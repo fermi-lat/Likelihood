@@ -1,15 +1,10 @@
 // -*- mode: c++ -*-
 %module Likelihood
 %{
-#include "astro/SkyDir.h"
-#include "optimizers/Function.h"
 #include "optimizers/Parameter.h"
-#include "optimizers/Statistic.h"
-#include "latResponse/../src/PsfGlast25.h"
-#include "latResponse/../src/AeffGlast25.h"
-#include "latResponse/../src/EdispGlast25.h"
-#include "latResponse/Irfs.h"
-#include "map_tools/Exposure.h"
+#include "optimizers/ParameterNotFound.h"
+#include "optimizers/Function.h"
+#include "optimizers/FunctionFactory.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
@@ -37,11 +32,14 @@
 #include <string>
 #include <exception>
 using optimizers::Parameter;
+using optimizers::ParameterNotFound;
 using optimizers::Function;
-using optimizers::Statistic;
+using optimizers::Exception;
 %}
 %include stl.i
-%include /nfs/farm/g/glast/u04/jchiang/ST_new/optimizers/v1r1p1/optimizers/Statistic.h
+//%include /home/jchiang/ST/optimizers/v1r1p1/optimizers/Statistic.h
+%include /home/jchiang/ST/optimizers/v1r1p1/optimizers/Function.h
+%include /home/jchiang/ST/optimizers/v1r1p1/optimizers/FunctionFactory.h
 %include ../Likelihood/Exception.h
 %include ../Likelihood/ResponseFunctions.h
 %include ../Likelihood/Event.h
@@ -68,6 +66,17 @@ using optimizers::Statistic;
 %template(DoubleVector) std::vector<double>;
 %template(DoubleVectorVector) std::vector< std::vector<double> >;
 %template(StringVector) std::vector<std::string>;
+%extend Likelihood::SourceFactory {
+   optimizers::FunctionFactory * funcFactory() {
+      optimizers::FunctionFactory * myFuncFactory 
+         = new optimizers::FunctionFactory;
+      myFuncFactory->addFunc("SkyDirFunction", 
+                             new Likelihood::SkyDirFunction(), false);
+      myFuncFactory->addFunc("SpatialMap", new Likelihood::SpatialMap(), 
+                             false);
+      return myFuncFactory;
+   }
+}
 %extend Likelihood::LogLike {
    void print_source_params() {
       std::vector<std::string> srcNames;
@@ -139,24 +148,5 @@ using optimizers::Statistic;
       image.reserve(imageArray.size());
       for (unsigned int i = 0; i < imageArray.size(); i++)
          image.push_back(imageArray[i]);
-   }
-}
-// %extend Likelihood::PointSource {
-//    void setGalDir(double glon, double glat, bool computeExposure=true) {
-//       self->setDir( astro::SkyDir(glon, glat, astro::SkyDir::GALACTIC),
-//                     computeExposure );
-//    }
-// }                                                       
-%extend Likelihood::ResponseFunctions {
-   void addGlast25Resp(const std::string &path, unsigned int hdu) {
-      std::string psfFile = path + "/psf_lat.fits";
-      std::string aeffFile = path + "/aeff_lat.fits";
-      latResponse::IAeff *aeff = new latResponse::AeffGlast25(aeffFile, hdu);
-      latResponse::IPsf *psf = new latResponse::PsfGlast25(psfFile, hdu);
-      latResponse::IEdisp *edisp = new latResponse::EdispGlast25();
-
-      if (hdu < 5 && hdu > 1)
-         Likelihood::ResponseFunctions::addRespPtr(hdu, new latResponse::Irfs
-                                                   (aeff, psf, edisp));
    }
 }

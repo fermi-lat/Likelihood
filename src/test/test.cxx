@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.15 2004/04/03 06:14:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.16 2004/04/04 01:22:25 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -20,6 +20,9 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+
+#include <cppunit/ui/text/TextTestRunner.h>
+#include <cppunit/extensions/HelperMacros.h>
 
 #include "facilities/Util.h"
 
@@ -53,7 +56,18 @@
 using namespace Likelihood;
 using optimizers::Parameter;
 
-class LikelihoodTests {
+class LikelihoodTests : public CppUnit::TestFixture {
+
+   CPPUNIT_TEST_SUITE(LikelihoodTests);
+
+   CPPUNIT_TEST(test_RoiCuts);
+   CPPUNIT_TEST(test_SourceFactory);
+   CPPUNIT_TEST(test_XmlBuilders);
+   CPPUNIT_TEST(test_SourceModel);
+   CPPUNIT_TEST(test_SourceDerivs);
+   CPPUNIT_TEST(test_SourceModel);
+   
+   CPPUNIT_TEST_SUITE_END();
 
 public:
 
@@ -110,7 +124,8 @@ private:
    
 };
 
-#define ASSERT_EQUALS(X, Y) assert(fabs( (X - Y)/Y ) < m_fracTol)
+//#define ASSERT_EQUALS(X, Y) assert(fabs( (X - Y)/Y ) < m_fracTol)
+#define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(fabs( (X - Y)/Y ) < m_fracTol)
 
 void LikelihoodTests::setUp() {
 // Get root path to test data.
@@ -166,7 +181,8 @@ void LikelihoodTests::test_RoiCuts() {
    roiCuts->getTimeCuts(tlims);
    static double tmin = 0;
    static double tmax = 1e12;
-   assert(fabs(tlims[0].first - tmin) == 0);
+//    assert(fabs(tlims[0].first - tmin) == 0);
+   CPPUNIT_ASSERT(fabs(tlims[0].first - tmin) == 0);
    ASSERT_EQUALS(tlims[0].second, tmax);
 
    std::pair<double, double> energies = roiCuts->getEnergyCuts();

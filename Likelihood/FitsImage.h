@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.14 2003/08/13 18:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.15 2004/05/05 01:42:30 jchiang Exp $
  *
  */
 
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.14 2003/08/13 18:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.15 2004/05/05 01:42:30 jchiang Exp $
  *
  */
 
@@ -87,6 +87,7 @@ public:
  */
    class EquinoxRotation {
    public:
+      EquinoxRotation() {}
       EquinoxRotation(double alpha0, double delta0);
       ~EquinoxRotation() {}
       void do_rotation(const astro::SkyDir &inDir, astro::SkyDir &outDir);
