@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 17 16:27:53 PDT 2004
+Likelihood/src
+
+Modified Files:
+	ScData.cxx 
+Log Message:
+add methods for finding intervals in spacecraft data
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 17 16:27:52 PDT 2004
 Likelihood/python
 
