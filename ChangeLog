@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Dec  5 14:25:48 PST 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+begin transition to using DSS keywords instead of ROI file
+    *
+------------------------------------------------------------
 User: jchiang  Sun Dec  5 14:25:47 PST 2004
 Likelihood/Likelihood
 
