@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.53 2005/01/03 23:01:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.54 2005/01/06 23:42:16 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -62,6 +62,8 @@
 #include "Likelihood/SourceModel.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/TrapQuad.h"
+
+#include "Verbosity.h"
 
 #include "SourceData.h"
 #include "XmlDiff.h"
@@ -147,6 +149,7 @@ private:
 #define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(fabs( (X - Y)/Y ) < m_fracTol)
 
 void LikelihoodTests::setUp() {
+   Verbosity::instance(0);
 // Get root path to test data.
    const char * root = std::getenv("LIKELIHOODROOT");
    if (!root) {  //use relative path from cmt directory
