@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: pln  Wed Jul 30 17:13:03 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Drmngb.cxx 
+Added Files:
+	dpptri-blas.c dpptri.c 
+Log Message:
+Routines to support Drmngb.  Cholesky matrix inversion and BLAS.
+
+    *
+------------------------------------------------------------
 User: pln  Wed Jul 30 14:27:07 PDT 2003
 Likelihood/src/test
 
