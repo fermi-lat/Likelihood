@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 24 17:22:54 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+banish use of old Psf and Aeff classes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct 24 17:22:53 PDT 2003
 Likelihood/src
 
