@@ -1,5 +1,7 @@
 // test program for Likelihood
 
+//#define HAVE_OPTIMIZERS
+
 #include <cstring>
 #include <cmath>
 
@@ -26,13 +28,16 @@
 #include "Likelihood/SumFunction.h"
 #include "Likelihood/ProductFunction.h"
 #include "lbfgs.h"
-//#include "OptPP.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
 #include "MyFun.h"
 #include "PowerLaw.h"
 #include "Gaussian.h"
 #include "Rosen.h"
+
+#ifdef HAVE_OPTIMIZERS
+#include "OptPP.h"
+#endif
 
 using namespace Likelihood;   // for testing purposes only
 
@@ -92,20 +97,27 @@ void test_OptPP() {
    params[1].setBounds(-4., 10);
    my_rosen.setParams(params);
 
+#ifdef HAVE_OPTIMIZERS
+
    int verbose = 3;
 
 // try lbfgs_bcm method first   
-//   lbfgs my_lbfgsObj(&my_rosen);
-//   my_lbfgsObj.find_min(verbose);
+   lbfgs my_lbfgsObj(&my_rosen);
+   my_lbfgsObj.find_min(verbose);
 
-//  // now try OptPP
-//     OptPP my_OptppObj(&my_rosen);
-//     my_OptppObj.find_min(verbose);
+// now restart and try OptPP
+   params[0].setValue(2.);
+   params[1].setValue(2.);
+   my_rosen.setParams(params);
+   OptPP my_OptppObj(&my_rosen);
+   my_OptppObj.find_min(verbose);
 
-//     my_rosen.getParams(params);
-//     for (unsigned int i = 0; i < params.size(); i++) 
-//        std::cout << params[i].getName() << ": "
-//                  << params[i].getValue() << std::endl;
+#endif  //HAVE_OPTIMIZERS
+   
+   my_rosen.getParams(params);
+   for (unsigned int i = 0; i < params.size(); i++) 
+      std::cout << params[i].getName() << ": "
+                << params[i].getValue() << std::endl;
 }
 // test_OptPP
 
@@ -239,19 +251,23 @@ void fit_anti_center() {
                 << (statval - statval0)/dparam << std::endl;
    }
 
-//  // do the fit
-//  //   lbfgs myOptimizer(&logLike);
-//     OptPP myOptimizer(&logLike);
+#ifdef HAVE_OPTIMIZERS
 
-//     int verbose = 3;
-//     myOptimizer.find_min(verbose);
+// do the fit
+//   lbfgs myOptimizer(&logLike);
+   OptPP myOptimizer(&logLike);
 
-//     std::vector<Parameter> parameters;
-//     logLike.getParams(parameters);
+   int verbose = 3;
+   myOptimizer.find_min(verbose);
 
-//     for (unsigned int i = 0; i < parameters.size(); i++)
-//        std::cout << parameters[i].getName() << ": "
-//                  << parameters[i].getValue() << std::endl;
+#endif  //HAVE_OPTIMIZERS
+
+   std::vector<Parameter> parameters;
+   logLike.getParams(parameters);
+
+   for (unsigned int i = 0; i < parameters.size(); i++)
+      std::cout << parameters[i].getName() << ": "
+                << parameters[i].getValue() << std::endl;
 }
 
 void fit_3C279() {
@@ -319,21 +335,25 @@ void fit_3C279() {
                 << (statval - statval0)/dparam << std::endl;
    }
 
-//  // do the fit using lbfgs_bcm
-//  //   lbfgs myOptimizer(&logLike);
+#ifdef HAVE_OPTIMIZERS
 
-//  // do the fit using OptPP
-//     OptPP myOptimizer(&logLike);
+// do the fit using lbfgs_bcm
+//   lbfgs myOptimizer(&logLike);
+
+// do the fit using OptPP
+   OptPP myOptimizer(&logLike);
    
-//     int verbose = 3;
-//     myOptimizer.find_min(verbose);
+   int verbose = 3;
+   myOptimizer.find_min(verbose);
+
+#endif  //HAVE_OPTIMIZERS
    
-//     std::vector<Parameter> parameters;
-//     logLike.getParams(parameters);
+   std::vector<Parameter> parameters;
+   logLike.getParams(parameters);
    
-//     for (unsigned int i = 0; i < parameters.size(); i++)
-//        std::cout << parameters[i].getName() << ": "
-//                  << parameters[i].getValue() << std::endl;
+   for (unsigned int i = 0; i < parameters.size(); i++)
+      std::cout << parameters[i].getName() << ": "
+                << parameters[i].getValue() << std::endl;
 }
 
 /***********************/
