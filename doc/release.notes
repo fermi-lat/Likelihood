@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v6r6p1 22-Feb-05  JC   FitsImage, SpatialMap fixes to support
+                           MapCubeFunction
     v6r6   15-Feb-05  JC   added MapCubeFunction
     v6r5   09-Feb-05  JC   added gtpsf app
     v6r4   31-Jan-05  JC   rename applications using gt- prefix
