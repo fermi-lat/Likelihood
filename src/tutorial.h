@@ -506,7 +506,7 @@ Refit? [y]
    Note that after having re-read this file the Prefactor parameter
    was over-written by the application to the fitted value.  For the
    Index parameter, we have set the free flag and value attributes.
-   At this point, we hit <return> to instruct the application to fit
+   At this point, we hit "<return>" to instruct the application to fit
    again.
    @verbatim
 Drmngb return code: 4

@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.8 2003/11/18 18:09:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.9 2003/11/30 23:14:40 jchiang Exp $
  *
  */
 
@@ -83,9 +83,10 @@ void SpatialMap::init() {
 void SpatialMap::readFitsFile(const std::string &fitsFile) {
    m_fitsFile = fitsFile;
 
-   facilities::Util::expandEnvVar(&m_fitsFile);
+   std::string inFile(m_fitsFile);
+   facilities::Util::expandEnvVar(&inFile);
 
-   FitsImage fitsImage(m_fitsFile);
+   FitsImage fitsImage(inFile);
 
 // Assume 0th and 1st axes are RA and DEC.
    fitsImage.fetchAxisVector(0, m_ra);
