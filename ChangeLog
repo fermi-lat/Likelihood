@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Nov  5 16:31:27 PST 2003
+Likelihood/src
+
+Added Files:
+	BrokenPowerLaw.cxx BrokenPowerLaw.h 
+Log Message:
+add TsMap application and BrokenPowerLaw class
+    *
+------------------------------------------------------------
+User: jchiang  Wed Nov  5 16:31:27 PST 2003
 Likelihood/data
 
 Modified Files:
