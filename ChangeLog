@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 18 18:15:02 PST 2005
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+prepare for coming changes in map_tools
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 18 18:15:01 PST 2005
 Likelihood/src/expMap
 
