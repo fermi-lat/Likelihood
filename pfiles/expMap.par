@@ -3,7 +3,6 @@ evtable,s,hl,"EVENTS",,,"Event data extension"
 scfile,fr,a,"oneday_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,hl,"Ext1",,,"Spacecraft data extension"
 exposure_cube_file,f,a,"expcube_1_day.fits",,,"Exposure hypercube file"
-exposure_cube_table,s,h,"",,,"Exposure cube extension"
 outfile,f,a,"expMap.fits",,,"output file name"
 rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions"
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?

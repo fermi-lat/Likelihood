@@ -5,7 +5,7 @@ counts_map_file,fr,a,"countsMap.fits",,,"Counts map file"
 source_model_file,fr,a,"Crab_model.xml",,,"Source model file"
 binned_exposure_map,f,a,"binnedExposure.fits",,,"Binned exposure map"
 outfile,f,a,"srcMaps2.fits",,,"Source maps output file"
-rspfunc,s,a,"DC1",DC1|DC1F|DC1B|G25|G25F|G25B,,"Response functions"
+rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
