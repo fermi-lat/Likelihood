@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Aug 25 14:46:19 PDT 2003
+Likelihood/cmt/fragments
+
+Removed Files:
+	swig swig_library 
+Log Message:
+enable module build using IExternal/python
+    *
+------------------------------------------------------------
 User: jchiang  Mon Aug 25 14:46:18 PDT 2003
 Likelihood/cmt
 
