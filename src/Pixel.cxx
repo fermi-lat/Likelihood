@@ -4,10 +4,9 @@
  * access to model counts and derivatives wrt model parameters.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.2 2004/09/21 14:51:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.3 2004/09/22 22:49:03 jchiang Exp $
  */
 
-#include "Likelihood/ExposureCube.h"
 #include "Likelihood/Pixel.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SourceModel.h"
@@ -25,9 +24,11 @@ double Pixel::modelCounts(double emin, double emax,
       Source * src = srcModel.getSource(srcNames[i]);
       for (int evtType = 0; evtType < 2; evtType++) {
          Aeff aeff1(src, m_dir, emin, evtType);
-         double map_lower = ExposureCube::instance()->value(m_dir, aeff1);
+         double map_lower = 
+            srcModel.observation().expCube().value(m_dir, aeff1);
          Aeff aeff2(src, m_dir, emax, evtType);
-         double map_upper = ExposureCube::instance()->value(m_dir, aeff2);
+         double map_upper = 
+            srcModel.observation().expCube().value(m_dir, aeff2);
          my_counts += (map_lower + map_upper)/2.*m_solidAngle*(emax - emin);
       }
    }
@@ -52,9 +53,11 @@ void Pixel::getFreeDerivs(double emin, double emax, SourceModel & srcModel,
          for (unsigned int i = 0; i < names.size(); i++) {
             for (int evtType = 0; evtType < 2; evtType++) {
                AeffDeriv aeff1(src->second, names[i], m_dir, emin, evtType);
-               double map1 = ExposureCube::instance()->value(m_dir, aeff1);
+               double map1 = 
+                  srcModel.observation().expCube().value(m_dir, aeff1);
                AeffDeriv aeff2(src->second, names[i], m_dir, emax, evtType);
-               double map2 = ExposureCube::instance()->value(m_dir, aeff2);
+               double map2 = 
+                  srcModel.observation().expCube().value(m_dir, aeff2);
                derivs.at(iparam) += (map1 + map2)/2.*m_solidAngle
                   *(emax - emin);
             }

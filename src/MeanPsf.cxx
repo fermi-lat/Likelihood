@@ -3,7 +3,7 @@
  * @brief Psf averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.9 2004/11/28 06:58:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.10 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <algorithm>
@@ -14,9 +14,9 @@
 
 #include "st_facilities/Util.h"
 
-#include "Likelihood/ExposureCube.h"
+//#include "Likelihood/ExposureCube.h"
 #include "Likelihood/MeanPsf.h"
-#include "Likelihood/ResponseFunctions.h"
+//#include "Likelihood/ResponseFunctions.h"
 
 #include "Verbosity.h"
 
@@ -25,10 +25,6 @@ namespace Likelihood {
 std::vector<double> MeanPsf::s_separations;
 
 void MeanPsf::init() {
-   if (ExposureCube::instance() == 0) {
-      throw std::runtime_error("Likelihood::MeanPsf: No exposure hypercube "
-                               + std::string("file."));
-   }
    if (s_separations.size() == 0) {
       createLogArray(1e-4, 70., 200, s_separations);
    }
@@ -39,10 +35,10 @@ void MeanPsf::init() {
          double aeff_val(0);
          double psf_val(0);
          for (int evtType = 0; evtType < 2; evtType++) {
-            Aeff aeff(m_energies[k], evtType);
-            aeff_val += ExposureCube::instance()->value(m_srcDir, aeff);;
-            Psf psf(s_separations[j], m_energies[k], evtType);
-            psf_val += ExposureCube::instance()->value(m_srcDir, psf);
+            Aeff aeff(m_energies[k], evtType, m_observation);
+            aeff_val += m_observation.expCube().value(m_srcDir, aeff);;
+            Psf psf(s_separations[j], m_energies[k], evtType, m_observation);
+            psf_val += m_observation.expCube().value(m_srcDir, psf);
          }
          if (aeff_val > 0) {
             psf_val /= aeff_val;
@@ -103,8 +99,8 @@ double MeanPsf::Psf::operator()(double cosTheta) const {
       return 0;
    }
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
-      = ResponseFunctions::instance()->begin();
-   for ( ; respIt != ResponseFunctions::instance()->end(); ++respIt) {
+      = m_observation.respFuncs().begin();
+   for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {  
          irfInterface::IAeff * aeff = respIt->second->aeff();
          irfInterface::IPsf * psf = respIt->second->psf();
@@ -135,8 +131,8 @@ double MeanPsf::Aeff::s_phi(0);
 double MeanPsf::Aeff::operator()(double cosTheta) const {
    double inclination = acos(cosTheta)*180./M_PI;
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
-      = ResponseFunctions::instance()->begin();
-   for ( ; respIt != ResponseFunctions::instance()->end(); ++respIt) {
+      = m_observation.respFuncs().begin();
+   for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {  
          irfInterface::IAeff * aeff = respIt->second->aeff();
          double aeff_val = aeff->value(m_energy, inclination, s_phi);

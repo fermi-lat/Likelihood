@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.52 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.53 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -39,21 +39,19 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.52 2005/02/15 00:34:42 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.53 2005/02/27 06:42:24 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
 
 public:
    
-#ifndef SWIG
    SourceModel(const Observation & observation, bool verbose=false) 
       : m_observation(observation), m_verbose(verbose) {
       setMaxNumParams(0); 
       m_genericName = "SourceModel";
       s_refCount++;
    }
-#endif // SWIG
 
    SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs),
       m_observation(rhs.m_observation), m_verbose(rhs.m_verbose) {
@@ -149,6 +147,10 @@ public:
    virtual CountsMap * createCountsMap() const {
       throw std::runtime_error("SourceModel::createCountsMap needs to be "
                              + std::string("reimplemented in this subclass."));
+   }
+
+   virtual const Observation & observation() const {
+      return m_observation;
    }
 
    /// method to sync the m_parameter vector with those of the 

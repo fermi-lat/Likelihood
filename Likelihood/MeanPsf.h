@@ -3,17 +3,20 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.3 2004/10/05 23:52:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.4 2004/11/09 00:49:07 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
 #define Likelihood_MeanPsf_h
 
 #include "astro/SkyDir.h"
-
 #include "map_tools/Exposure.h"
 
+#include "Likelihood/Observation.h"
+
 namespace Likelihood {
+
+   class Observation;
 
 /**
  * @class MeanPsf
@@ -24,18 +27,20 @@ class MeanPsf {
 
 public:
 
-   MeanPsf(double ra, double dec, const std::vector<double> & energies) 
+   MeanPsf(double ra, double dec, const std::vector<double> & energies,
+           const Observation & observation) 
       : m_srcDir(ra, dec, astro::SkyDir::EQUATORIAL),
-        m_energies(energies) {
+        m_energies(energies), m_observation(observation) {
       init();
    }
 
-   MeanPsf(const astro::SkyDir & srcDir, const std::vector<double> & energies) 
-      : m_srcDir(srcDir), m_energies(energies) {
+   MeanPsf(const astro::SkyDir & srcDir, const std::vector<double> & energies,
+           const Observation & observation) 
+      : m_srcDir(srcDir), m_energies(energies), m_observation(observation) {
       init();
    }
 
-   MeanPsf() {}
+   MeanPsf() : m_observation(Observation()) {}
 
    /// @return The value of the psf.
    /// @param energy True photon energy (MeV)
@@ -54,6 +59,8 @@ private:
 
    std::vector<double> m_energies;
 
+   const Observation & m_observation;
+
    std::vector<double> m_psfValues;
 
    void init();
@@ -64,27 +71,31 @@ private:
 
    class Psf : public map_tools::Exposure::Aeff {
    public:
-      Psf(double separation, double energy, int evtType) 
-         : m_separation(separation), m_energy(energy), m_evtType(evtType) {}
+      Psf(double separation, double energy, int evtType,
+          const Observation & observation) 
+         : m_separation(separation), m_energy(energy), m_evtType(evtType),
+           m_observation(observation) {}
       virtual ~Psf() {}
       virtual double operator()(double cosTheta) const;
    private:
       double m_separation;
       double m_energy;
       int m_evtType;
+      const Observation & m_observation;
       static double s_phi;
    };
 
    class Aeff : public map_tools::Exposure::Aeff {
    public:
-      Aeff(double energy, int evtType) 
-         : m_energy(energy), m_evtType(evtType) {}
+      Aeff(double energy, int evtType, const Observation & observation) 
+         : m_energy(energy), m_evtType(evtType), m_observation(observation) {}
       virtual ~Aeff() {}
       virtual double operator()(double cosTheta) const;
    private:
       double m_separation;
       double m_energy;
       int m_evtType;
+      const Observation & m_observation;
       static double s_phi;
    };
 

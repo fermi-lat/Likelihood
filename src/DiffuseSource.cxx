@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.21 2005/02/14 06:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.22 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -34,6 +34,7 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
                              bool requireExposure) : m_spectrum(0) {
    m_spatialDist = spatialDist->clone();
    m_functions["SpatialDist"] = m_spatialDist;
+   m_useEdisp = observation.respFuncs().useEdisp();
 
    double emin = observation.roiCuts().getEnergyCuts().first;
    double emax = observation.roiCuts().getEnergyCuts().second;
@@ -67,7 +68,7 @@ DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {
 
 double DiffuseSource::fluxDensity(const Event &evt) const {
    double my_fluxDensity;
-   if (ResponseFunctions::useEdisp()) {
+   if (m_useEdisp) {
       const std::vector<double> & trueEnergies = evt.trueEnergies();
       const std::vector<double> & diffuseResponses 
          = evt.diffuseResponse(getName());
@@ -100,7 +101,7 @@ double DiffuseSource::fluxDensityDeriv(const Event &evt,
       my_fluxDensityDeriv 
          = fluxDensity(evt)/m_spectrum->getParamValue("Prefactor");
    } else {
-      if (ResponseFunctions::useEdisp()) {
+      if (m_useEdisp) {
          const std::vector<double> & trueEnergies = evt.trueEnergies();
          const std::vector<double> & diffuseResponses 
             = evt.diffuseResponse(getName());
