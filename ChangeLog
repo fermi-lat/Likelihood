@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 28 17:30:04 PDT 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx AbsEdge.h Aeff.cxx CompositeFunction.cxx 
+	DiffuseSource.cxx Event.cxx FitsImage.cxx Function.cxx MyFun.h 
+	Parameter.cxx Psf.cxx SourceFactory.cxx 
+Added Files:
+	FunctionTest.cxx 
+Log Message:
+Add FunctionTest class for Function class unit testing.
+Remove unnecessary includes from some class header files.
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 28 17:29:40 PDT 2003
 Likelihood/Likelihood
 
