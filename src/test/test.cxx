@@ -1,9 +1,9 @@
 /**
  * @file test.cxx
- * @brief Test program for Likelihood.  Use CppUnit-like idioms.
+ * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.23 2004/07/21 04:00:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.24 2004/09/16 23:53:21 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -36,12 +36,15 @@
 #include "irfInterface/AcceptanceCone.h"
 #include "g25Response/loadIrfs.h"
 
+#include "map_tools/ExposureHyperCube.h"
+
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FluxBuilder.h"
+#include "Likelihood/LikeExposure.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -87,6 +90,7 @@ public:
    void test_SourceDerivs();
    void test_PointSource();
    void test_DiffuseSource();
+   void generate_exposureHyperCube();
    void test_BinnedLikelihood();
 
 private:
@@ -550,9 +554,20 @@ void LikelihoodTests::test_DiffuseSource() {
    CPPUNIT_ASSERT(chi2 < 4.);
 }
 
+void LikelihoodTests::generate_exposureHyperCube() {
+   std::string RoiFile = m_rootPath + "/data/RoiCuts.xml";
+   LikeExposure exposure(1., 0.025, RoiFile);
+   tip::Table * scData = tip::IFileSvc::instance().editTable(m_scFile, "Ext1");
+   exposure.load(scData, false);
+   std::string output_file = m_rootPath + "/data/expcube_1_day.fits";
+   map_tools::ExposureHyperCube cube(exposure, output_file);
+}
+
 void LikelihoodTests::test_BinnedLikelihood() {
    SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
 
+   generate_exposureHyperCube();
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
    ExposureCube::readExposureCube(exposureCubeFile);
 
