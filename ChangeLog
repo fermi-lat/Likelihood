@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec 24 08:45:46 PST 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+use less strict DSS checks for some apps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec 24 08:45:45 PST 2004
 Likelihood/src/diffuseResponses
 
