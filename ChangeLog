@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 22 19:45:03 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	EventContainer.h 
+Log Message:
+allow cuts to be changed on the fly from python
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 21 16:19:47 PST 2005
 Likelihood/doc
 
