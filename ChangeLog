@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Oct  9 07:00:30 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	SourceMap.h 
+Log Message:
+convert energy bounds read from CountsMap file to MeV
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  8 19:10:22 PDT 2004
 Likelihood/pfiles
 
