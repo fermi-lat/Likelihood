@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.40 2004/10/11 01:35:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.41 2004/10/11 03:07:36 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.40 2004/10/11 01:35:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.41 2004/10/11 03:07:36 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -165,26 +165,32 @@ void likelihood::run() {
 }
 
 void likelihood::promptForParameters() {
-   m_pars.Prompt("Response_functions");
-   ResponseFunctions::setEdispFlag(param<bool>("use_energy_dispersion"));
-   m_pars.Prompt("Source_model_file");
-   m_pars.Prompt("Source_model_output_file");
-   m_pars.Prompt("flux_style_model_file");
-   m_statistic = param<std::string>("Statistic");
-   m_pars.Prompt("optimizer");
-   m_pars.Prompt("fit_verbosity");
-   m_pars.Prompt("query_for_refit");
+//    std::cout << "prompting..." << std::endl;
+//    m_pars.Prompt("Response_functions");
+//    ResponseFunctions::setEdispFlag(param<bool>("use_energy_dispersion"));
+//    m_pars.Prompt("Source_model_file");
+//    m_pars.Prompt("Source_model_output_file");
+//    m_pars.Prompt("flux_style_model_file");
+//    m_statistic = param<std::string>("Statistic");
+//    m_pars.Prompt("optimizer");
+//    m_pars.Prompt("fit_verbosity");
+//    m_pars.Prompt("query_for_refit");
 
-   if (m_statistic == "BINNED") {
-      m_pars.Prompt("counts_map_file");
-      m_pars.Prompt("exposure_cube_file");
-   } else {
-      m_pars.Prompt("ROI_cuts_file");
-      m_pars.Prompt("Spacecraft_file");
-      m_pars.Prompt("event_file");
-      m_pars.Prompt("Exposure_map_file");
-   }
+//    std::cout << "Statistic: " << m_statistic << std::endl;
+//    if (m_statistic == "BINNED") {
+//       m_pars.Prompt("counts_map_file");
+//       m_pars.Prompt("exposure_cube_file");
+//    } else {
+//       m_pars.Prompt("ROI_cuts_file");
+//       m_pars.Prompt("Spacecraft_file");
+//       m_pars.Prompt("event_file");
+//       m_pars.Prompt("Exposure_map_file");
+//    }
+   m_pars.Prompt();
    m_pars.Save();
+   ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
+   std::string temp = m_pars["Statistic"];
+   m_statistic = temp;
 }
 
 void likelihood::createStatistic() {
