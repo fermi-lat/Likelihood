@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.9 2004/02/29 03:00:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.10 2004/02/29 19:56:57 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -628,5 +628,5 @@ int main() {
    unit.test_DiffuseSource();
 
    std::cout << "all tests ok" << std::endl;
-   return 1;
+   return 0;
 }

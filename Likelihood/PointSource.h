@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.27 2003/12/04 04:15:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.28 2004/02/21 17:10:36 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -16,6 +16,10 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Event.h"
 
+namespace map_tools {
+   class Exposure;
+}
+
 namespace Likelihood {
 
 /** 
@@ -25,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.27 2003/12/04 04:15:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.28 2004/02/21 17:10:36 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -34,16 +38,16 @@ class PointSource : public Source {
 
 public:
 
-   //! The default constructor does not compute exposure since 
-   //! it assumes that the spacecraft data is not available or
-   //! that the ROI cuts have not been specified.
+   /// The default constructor does not compute exposure since 
+   /// it assumes that the spacecraft data is not available or
+   /// that the ROI cuts have not been specified.
    // A later setDir(ra, dec, true) will force the exposure to
    // be computed.
    PointSource() : m_spectrum(0) {setDir(0., 0., false); m_srcType = "Point";}
 
-   //! This constructor does ask for exposure to be computed and 
-   //! therefore *requires* the spacecraft data to be available and the 
-   //! ROI cuts to be specified beforehand.
+   /// This constructor does ask for exposure to be computed and 
+   /// therefore *requires* the spacecraft data to be available and the 
+   /// ROI cuts to be specified beforehand.
    PointSource(double ra, double dec) : m_spectrum(0) 
       {setDir(ra, dec);  m_srcType = "Point";}
 
@@ -53,8 +57,12 @@ public:
       delete m_spectrum;
    }
 
-   //! Returns photons/cm^2-s-sr-MeV having been convolved through
-   //! the LAT instrument response
+   /// Read a FITS image file that contains integrated exposure times
+   /// as a function of ra, dec, and cos(inclination).
+   static void readExposureCube(std::string expCubeFile);
+
+   /// Returns photons/cm^2-s-sr-MeV having been convolved through
+   /// the LAT instrument response
    double fluxDensity(const Event &evt) const
       {return fluxDensity(evt.getEnergy(), evt.getArrTime(), evt.getDir(),
                           evt.getType());}
@@ -62,7 +70,7 @@ public:
    double fluxDensity(double energy, double time,
                       const astro::SkyDir &dir, int eventType=2) const;
 
-   //! Returns the derivative wrt to the named Parameter
+   /// Returns the derivative wrt to the named Parameter
    double fluxDensityDeriv(const Event &evt, 
                            const std::string &paramName) const
       {return fluxDensityDeriv(evt.getEnergy(), evt.getArrTime(), 
@@ -72,13 +80,13 @@ public:
                            const astro::SkyDir &dir, int eventType,
                            const std::string &paramName) const;
 
-   //! Predicted number of photons given RoiCuts and ScData
+   /// Predicted number of photons given RoiCuts and ScData
    virtual double Npred();
 
-   //! Derivative of Npred wrt named Parameter
+   /// Derivative of Npred wrt named Parameter
    virtual double NpredDeriv(const std::string &paramName);
 
-   //! Set source location using J2000 coordinates
+   /// Set source location using J2000 coordinates
    void setDir(double ra, double dec, bool updateExposure=true, 
                bool verbose=true) {
       m_dir = SkyDirFunction(astro::SkyDir(ra, dec));
@@ -86,7 +94,7 @@ public:
       if (updateExposure) computeExposure(verbose);
    }
 
-   //! Set source location using Galactic coordinates
+   /// Set source location using Galactic coordinates
    void setGalDir(double l, double b, bool updateExposure=true,
                   bool verbose=true) {
       m_dir = SkyDirFunction(astro::SkyDir(l, b, astro::SkyDir::GALACTIC));
@@ -94,7 +102,7 @@ public:
       if (updateExposure) computeExposure(verbose);
    }
 
-   //! Set source location via SkyDir class
+   /// Set source location via SkyDir class
    void setDir(const astro::SkyDir &dir, bool updateExposure = true,
                bool verbose=true) {
       m_dir = SkyDirFunction(dir);
@@ -104,12 +112,12 @@ public:
 
    astro::SkyDir getDir() const {return m_dir.getDir();}
 
-   //! Angular separation between the source direction and dir in radians
+   /// Angular separation between the source direction and dir in radians
    double getSeparation(const astro::SkyDir &dir) 
       {return dir.SkyDir::difference(m_dir.getDir());}
 
-   //! Set the spectral model (should also check that the Parameter
-   //! names do not conflict with "longitude" and "latitude" of m_dir)
+   /// Set the spectral model (should also check that the Parameter
+   /// names do not conflict with "longitude" and "latitude" of m_dir)
    void setSpectrum(optimizers::Function *spectrum) {
       m_spectrum = spectrum->clone();
       m_functions["Spectrum"] = m_spectrum;
@@ -119,38 +127,49 @@ public:
       return new PointSource(*this);
    }
 
-protected:
-   //! Computes the integrated exposure at the PointSource sky location.
+private:
+
+   /// Static data member containing the exposure time hypercube object,
+   /// used by all PointSource objects.
+   /// @todo Implement a reference count of PointSource objects so
+   ///       this pointer can be deleted when the last PointSource
+   ///       goes away.
+   static map_tools::Exposure * s_exposure;
+
+   /// Computes the integrated exposure at the PointSource sky location.
    void computeExposure(bool verbose);
 
-   //! Compute the integrated exposure using the provided 
-   //! vector of energy values
+   /// Compute the integrated exposure using the provided 
+   /// vector of energy values
    void computeExposure(std::vector<double> &energies,
                         std::vector<double> &exposure,
                         bool verbose);
 
-//    //! provide access to the exposure values
-//    void getExposure(std::vector<double> &exposure) const
-//       {exposure = m_exposure;}
+   /// Use a hypercube computed using map_tools.
+   void computeExposureWithHyperCube(std::vector<double> &energies,
+                                     std::vector<double> &exposure,
+                                     bool verbose);
 
-   //! location on the Celestial sphere 
+   /// Compute the exposure using integrated exposure times tabulated
+   /// as a function of ra, dec, and cos(inclination).
+   void computeExposure();
+
+   /// location on the Celestial sphere 
    SkyDirFunction m_dir;
 
-   //! spectral model
+   /// spectral model
    optimizers::Function *m_spectrum;
 
-private:
-
-   //! flag to indicate that static member data has been computed
+   /// flag to indicate that static member data has been computed
    static bool s_haveStaticMembers;
 
-   //! vector of energy values for Npred spectrum quadrature
+   /// vector of energy values for Npred spectrum quadrature
    static std::vector<double> s_energies;
 
-   //! integrated exposure at PointSource sky location
+   /// integrated exposure at PointSource sky location
    std::vector<double> m_exposure;
 
-   //! method to create a logrithmically spaced grid given RoiCuts
+   /// method to create a logrithmically spaced grid given RoiCuts
    static void makeEnergyVector(int nee = 100);
 
 };
