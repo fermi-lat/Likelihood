@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 10 20:32:23 PST 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+final xerces conversion; problems with builder class destructors; tagging v5r3
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 10 16:03:33 PST 2004
 Likelihood/src/test
 
