@@ -358,7 +358,7 @@ virgo_region_scData_0001.fits
    file.
 
  - @b optimizer The <a
-   href="httphttp://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/ScienceTools/ScienceTools-v0r4p3/optimizers/v0r3/">optimizers</a>
+   href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/ScienceTools/ScienceTools-v0r4p3/optimizers/v0r3/">optimizers</a>
    package provides three optimizers from which to choose, Lbfgs,
    Minuit, and Drmngb.  All three methods use a variant of the class
    of Variable Metric or Quasi-Newton methods for performing the
@@ -531,3 +531,5 @@ a source region size that is significantly larger than the ROI.
 Here's an example <a href="http://glast.stanford.edu/cgi-bin/cvsweb/Likelihood/data/expMap.par?cvsroot=CVS_SLAC">expMap.par</a> file.
 
 */
+
+#include tutorial.h

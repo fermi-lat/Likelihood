@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.20 2003/12/04 00:32:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.21 2003/12/04 04:15:29 jchiang Exp $
  */
 
 #include <cassert>
@@ -59,7 +59,6 @@ namespace {
       }
       return myResponse;
    }
-
 
 }
 
