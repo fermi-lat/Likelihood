@@ -4,13 +4,14 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.12 2004/12/07 01:30:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.13 2004/12/07 05:13:23 jchiang Exp $
  */
 
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 
+#include <memory>
 #include <stdexcept>
 
 #include "st_app/AppParGroup.h"
@@ -18,6 +19,9 @@
 #include "st_app/StAppFactory.h"
 
 #include "st_facilities/Util.h"
+
+#include "tip/IFileSvc.h"
+#include "tip/Image.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/ExposureCube.h"
@@ -36,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.12 2004/12/07 01:30:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.13 2004/12/07 05:13:23 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -121,4 +125,9 @@ void ExpMap::createExposureMap() {
    }
    std::string exposureFile = m_pars["outfile"];
    ExposureMap::computeMap(exposureFile, m_srRadius, nlong, nlat, nenergies);
+
+   std::auto_ptr<tip::Image> 
+      image(tip::IFileSvc::instance().editImage(exposureFile, ""));
+   Likelihood::RoiCuts::instance()->writeDssKeywords(image->getHeader());
+   Likelihood::RoiCuts::instance()->writeGtiExtension(exposureFile);
 }

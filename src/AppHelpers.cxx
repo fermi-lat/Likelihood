@@ -3,10 +3,11 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.12 2004/12/06 20:20:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.13 2004/12/07 01:30:10 jchiang Exp $
  */
 
 #include <map>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
 
@@ -14,6 +15,8 @@
 #include "irfInterface/IrfsFactory.h"
 
 #include "st_facilities/Util.h"
+
+#include "dataSubselector/Cuts.h"
 
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -103,6 +106,27 @@ void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
                    << "Please provide a different output file name."
                    << std::endl;
          std::exit(1);
+      }
+   }
+}
+
+void AppHelpers::checkCuts(const std::string & file1, const std::string ext1,
+                           const std::string & file2, const std::string ext2) {
+   dataSubselector::Cuts cuts1(file1, ext1, false);
+   dataSubselector::Cuts cuts2(file2, ext2, false);
+   if (!(cuts1 == cuts2)) {
+// try comparing output streams
+      std::ostringstream c1, c2;
+      cuts1.writeCuts(c1);
+      cuts2.writeCuts(c2);
+      if (c1.str() != c2.str()) {
+         std::ostringstream message;
+         message << "AppHelpers::checkCuts:\n" 
+                 << "DSS keywords in " << file1;
+         if (ext1 != "") message << "[" << ext1 << "] ";
+         message << "do not match those in " << file2;
+         if (ext2 != "") message << "[" << ext2 << "] ";
+         throw std::runtime_error(message.str());
       }
    }
 }
