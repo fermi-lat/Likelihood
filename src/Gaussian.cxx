@@ -3,7 +3,7 @@
  * @brief Implementation for the (1D) Gaussian class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.cxx,v 1.12 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Gaussian.cxx,v 1.13 2003/08/06 20:52:07 jchiang Exp $
  */
 
 #include <vector>
@@ -31,6 +31,8 @@ void Gaussian::init(double Prefactor, double Mean, double Sigma) {
 // set FuncType and ArgType for use with CompositeFunction hierarchy
    m_funcType = Addend;
    m_argType = "dArg";
+
+   m_genericName = "Gaussian";
 }
 
 double Gaussian::integral(optimizers::Arg &xargmin, 

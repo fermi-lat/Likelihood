@@ -265,16 +265,16 @@ void fit_DiffuseSource() {
    std::vector<std::string> srcNames;
    logLike.getSrcNames(srcNames);
    
-   int verbose = 3;
+//    int verbose = 3;
 
-   Lbfgs myOpt(logLike);
-   try {
-      myOpt.find_min(verbose);
-   } catch (Exception eObj) {
-      std::cerr << eObj.what() << std::endl;
-   } catch (optimizers::Exception eObj) {
-      std::cerr << eObj.what() << std::endl;
-   }
+//    Lbfgs myOpt(logLike);
+//    try {
+//       myOpt.find_min(verbose);
+//    } catch (Exception eObj) {
+//       std::cerr << eObj.what() << std::endl;
+//    } catch (optimizers::Exception eObj) {
+//       std::cerr << eObj.what() << std::endl;
+//    }
    print_fit_results(logLike);
       
 // replace (or add) each Source in srcFactory for later use
@@ -295,20 +295,20 @@ void fit_DiffuseSource() {
       logLike.addSource(src);
    }
 
-   verbose = 3;
-   Minuit myMinuitObj(logLike);
-   try {
-      myMinuitObj.find_min(verbose, .0001);
-   } catch (Exception eObj) {
-      std::cerr << eObj.what() << std::endl;
-   } catch (optimizers::Exception eObj) {
-      std::cerr << eObj.what() << std::endl;
-   }
+//    verbose = 3;
+//    Minuit myMinuitObj(logLike);
+//    try {
+//       myMinuitObj.find_min(verbose, .0001);
+//    } catch (Exception eObj) {
+//       std::cerr << eObj.what() << std::endl;
+//    } catch (optimizers::Exception eObj) {
+//       std::cerr << eObj.what() << std::endl;
+//    }
 
-   std::vector<double> sig = myMinuitObj.getUncertainty();
-   for (unsigned int i=0; i < sig.size(); i++) {
-      std::cout << i << "  " << sig[i] << std::endl;
-   }
+//   std::vector<double> sig = myMinuitObj.getUncertainty();
+//    for (unsigned int i=0; i < sig.size(); i++) {
+//       std::cout << i << "  " << sig[i] << std::endl;
+//    }
    print_fit_results(logLike);
 
 // Write out the fitted model as an xml file.

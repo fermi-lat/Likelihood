@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.24 2003/09/29 15:32:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.25 2003/10/01 17:03:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -352,10 +352,20 @@ void SourceModel::writeXml(const std::string &xmlFile,
       if (srcFuncs.count("Spectrum")) {
          DOM_Element specElt = doc.createElement("spectrum");
          std::string name = srcFuncs["Spectrum"]->genericName();
-         specElt.setAttribute("type", name.c_str());
+         if (name != std::string("")) {
+            specElt.setAttribute("type", name.c_str());
+         } else {
+            std::ostringstream errorMessage;
+            errorMessage << "SourceModel::writeXml: "
+                         << "genericName not found for the spectrum "
+                         << "Function object of Source "
+                         << (*srcIt)->getName() << "."
+                         << std::endl;
+            throw Exception(errorMessage.str());
+         }
          srcFuncs["Spectrum"]->appendParamDomElements(doc, specElt);
          srcElt.appendChild(specElt);
-      }
+      }         
 
       DOM_Element spatialElt = doc.createElement("spatialModel");
       if (srcFuncs.count("Position")) {
