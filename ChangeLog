@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr  6 14:10:15 PDT 2003
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+fix minor bugs in PointSource and CompositeFunction
+    *
+------------------------------------------------------------
 User: jchiang  Sun Apr  6 14:10:14 PDT 2003
 Likelihood/Likelihood
 
