@@ -4,7 +4,7 @@ version v1r3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.36 2003/10/18 15:47:17 jchiang Exp $
+# $Id: requirements,v 1.37 2003/10/22 16:31:35 jchiang Exp $
 
 use xml
 use astro  v*
@@ -25,7 +25,7 @@ use facilities v2*
 #macro pydir ../python/
 
 # allow use of internal path
-macro Likelihood_cppflags "" Linux "-I ../src -g -pedantic " WIN32 "/I..\src  /wd4290"
+macro Likelihood_cppflags "" Linux "-I ../src -g -pedantic -D TRAP_FPE " WIN32 "/I..\src  /wd4290"
 macro_prepend cflags "" Linux "-g"
 
 # make sure test application gets built when library changes
