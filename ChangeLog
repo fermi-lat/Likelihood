@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  4 17:14:24 PDT 2004
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+fix up energy dispersion for diffuse sources (in progress)
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  4 17:14:23 PDT 2004
 Likelihood/src
 
