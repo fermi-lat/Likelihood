@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr 11 20:53:33 PDT 2004
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+catch optimizers::Exception, move writeFitsFile out of destructor
+    *
+------------------------------------------------------------
 User: jchiang  Sun Apr 11 07:58:31 PDT 2004
 Likelihood/src/TsMap
 
