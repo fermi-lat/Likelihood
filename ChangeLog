@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 25 11:03:13 PST 2003
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx ScData.cxx 
+Log Message:
+use Goodi
+    *
+------------------------------------------------------------
 User: jchiang  Sat Nov 22 10:55:02 PST 2003
 Likelihood/src/test
 
