@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.43 2004/06/30 16:24:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.44 2004/07/19 14:16:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -17,7 +17,6 @@
 
 #include "optimizers/dArg.h"
 
-// #include "latResponse/Irfs.h"
 #include "irfInterface/Irfs.h"
 
 #include "map_tools/Exposure.h"
@@ -302,7 +301,6 @@ double PointSource::sourceEffArea(double energy, double time) const {
    return aeff(cos_theta);
 }
    
-// std::vector<latResponse::AcceptanceCone *> PointSource::Aeff::s_cones;
 std::vector<irfInterface::AcceptanceCone *> PointSource::Aeff::s_cones;
 double PointSource::Aeff::s_emin;
 double PointSource::Aeff::s_emax;
@@ -312,7 +310,6 @@ PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir)
    
    if (s_cones.size() == 0) {
       RoiCuts * roiCuts = RoiCuts::instance();
-//       s_cones.push_back(const_cast<latResponse::AcceptanceCone *>
       s_cones.push_back(const_cast<irfInterface::AcceptanceCone *>
                         (&(roiCuts->extractionRegion())));
       s_emin = (roiCuts->getEnergyCuts()).first;
@@ -327,13 +324,10 @@ double PointSource::Aeff::operator()(double cos_theta) const {
    ResponseFunctions * respFuncs = ResponseFunctions::instance();
 
    double myEffArea = 0;
-//    std::map<unsigned int, latResponse::Irfs *>::iterator respIt
    std::map<unsigned int, irfInterface::Irfs *>::iterator respIt
       = respFuncs->begin();
 
    for ( ; respIt != respFuncs->end(); respIt++) {
-//       latResponse::IPsf *psf = respIt->second->psf();
-//       latResponse::IAeff *aeff = respIt->second->aeff();
       irfInterface::IPsf *psf = respIt->second->psf();
       irfInterface::IAeff *aeff = respIt->second->aeff();
 
@@ -342,7 +336,6 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       double aeff_val = aeff->value(m_energy, theta, phi);
 
       if (ResponseFunctions::useEdisp()) {
-//          latResponse::IEdisp *edisp = respIt->second->edisp();
          irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(s_emin, s_emax, m_energy, 
                                             theta, phi);

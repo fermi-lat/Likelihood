@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.22 2004/07/19 14:16:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.23 2004/07/19 19:27:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -22,8 +22,6 @@
 #include "tip/Table.h"
 #include "tip/TipException.h"
 
-// // This include is temporary until tip provides column access.
-// #include "latResponse/../src/DC1.h"
 #include "irfUtil/Util.h"
 
 #include "Likelihood/ScData.h"
@@ -276,16 +274,13 @@ void LogLike::readEventData(const std::string &eventFile, int hdu) {
    m_eventHdu = hdu;
 
    std::string extName;
-//    latResponse::DC1::getFitsHduName(eventFile, hdu, extName);
    irfUtil::Util::getFitsHduName(eventFile, hdu, extName);
 
    std::vector<std::string> columnNames;
-//    latResponse::DC1::getFitsColNames(eventFile, hdu, columnNames);
    irfUtil::Util::getFitsColNames(eventFile, hdu, columnNames);
 
    std::vector<double> my_column;
    for (unsigned int i = 0; i < columnNames.size(); i++) {
-//       latResponse::DC1::getTableVector(eventFile, extName, columnNames[i],
       irfUtil::Util::getTableVector(eventFile, extName, columnNames[i],
                                     my_column);
       m_eventColumns[columnNames[i]] = my_column;

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.35 2004/06/01 04:26:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.36 2004/07/19 14:16:57 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -20,7 +20,6 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Event.h"
 
-// namespace latResponse {
 namespace irfInterface {
    class AcceptanceCone;
 }
@@ -34,7 +33,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.35 2004/06/01 04:26:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.36 2004/07/19 14:16:57 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -211,7 +210,6 @@ private:
       double m_energy;
       astro::SkyDir m_srcDir;
 
-//       static std::vector<latResponse::AcceptanceCone *> s_cones;
       static std::vector<irfInterface::AcceptanceCone *> s_cones;
       static double s_emin, s_emax;
    };

@@ -3,14 +3,13 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.2 2004/05/24 23:51:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.3 2004/07/19 14:16:58 jchiang Exp $
  */
 
 #include <map>
 #include <stdexcept>
 #include <vector>
 
-//#include "latResponse/IrfsFactory.h"
 #include "dc1Response/loadIrfs.h"
 #include "g25Response/loadIrfs.h"
 #include "irfInterface/IrfsFactory.h"
@@ -25,7 +24,6 @@
 
 #include "Likelihood/AppHelpers.h"
 
-//using latResponse::irfsFactory;
 using irfInterface::IrfsFactory;
 
 namespace Likelihood {
