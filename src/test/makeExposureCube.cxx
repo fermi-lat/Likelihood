@@ -4,7 +4,7 @@
  * map_tools/exposure_cube.cxx
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/makeExposureCube.cxx,v 1.1 2004/03/11 05:19:37 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/makeExposureCube.cxx,v 1.2 2004/03/17 23:36:13 jchiang Exp $
  */
 
 #include <sstream>
@@ -24,6 +24,7 @@
 int main(int argc, char * argv[]) {
    hoops::ParPromptGroup pars(argc, argv);
    pars.Prompt();
+   pars.Save();
 
 // The LikeExposure object is a data cube of exposure times in 
 // (ra, dec, cost_theta):

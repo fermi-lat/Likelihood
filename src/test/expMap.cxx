@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.10 2004/03/11 05:19:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.11 2004/03/17 23:36:13 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -103,6 +103,7 @@ int main(int iargc, char* argv[]) {
    try {
       hoops::ParPromptGroup pars(iargc, argv);
       pars.Prompt();
+      pars.Save();
 
 // Set the region-of-interest.
       std::string roiCutsFile = pars["ROI_cuts_file"];
