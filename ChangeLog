@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Aug 25 14:46:18 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+enable module build using IExternal/python
+    *
+------------------------------------------------------------
 User: cohen  Sun Aug 24 14:58:15 PDT 2003
 Likelihood/cmt
 
