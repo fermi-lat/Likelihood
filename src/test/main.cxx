@@ -6,6 +6,7 @@
 
 //  include everything for the compiler to test
 
+#include "Likelihood/LikelihoodException.h"
 #include "Likelihood/Parameter.h"
 #include "Likelihood/Function.h"
 #include "Likelihood/SourceModel.h" 
@@ -31,6 +32,7 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Lbfgs.h"
+#include "Likelihood/Minuit.h"
 #include "OptPP.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
@@ -86,14 +88,14 @@ int main(){
 //     test_CompositeFunction();
 //     test_SpectrumFactory();
 //     test_SourceFactory();
-//     test_OptPP();
+     test_OptPP();
 //     fit_3C279();
 //     fit_anti_center();
 //     test_FitsImage();
 //     test_ExposureMap();
 //     test_SpatialMap();
 //     test_DiffuseSource();
-   fit_DiffuseSource();
+//   fit_DiffuseSource();
    return 0;
 }
 
@@ -486,17 +488,24 @@ void test_OptPP() {
    std::vector<Parameter> params;
    my_rosen.getParams(params);
    params[0].setValue(2.);
-   params[0].setBounds(5./4., 10);
+   params[0].setBounds(-5., 10);
    params[1].setValue(2.);
    params[1].setBounds(-4., 10);
    my_rosen.setParams(params);
 
-   int verbose = 103;
+   int verbose = 1;
 
 #ifdef HAVE_OPT_LBFGS
 // try lbfgs_bcm method first   
    Lbfgs my_lbfgsObj(my_rosen);
-   my_lbfgsObj.find_min(verbose);
+   my_lbfgsObj.setMaxVarMetCorr(12);
+   my_lbfgsObj.setPgtol(.0000001);
+   try {
+     my_lbfgsObj.find_min(verbose, .000001);
+   }
+   catch(LikelihoodException& rrr) {
+     std::cout << "Exception: " << rrr.what() << std::endl;
+   }
    std::cout << "LBFGS exit code: " 
              << my_lbfgsObj.getRetCode() 
              << std::endl;
@@ -504,6 +513,21 @@ void test_OptPP() {
              << my_lbfgsObj.getErrorString() 
              << std::endl;
 #endif //HAVE_OPT_LBFGS
+
+#ifdef HAVE_OPT_MINUIT
+   verbose = 3;
+   params[0].setValue(2.);
+   params[0].setBounds(-10., 10.);
+   params[1].setValue(2.);
+   params[1].setBounds(-10., 10.);
+   my_rosen.setParams(params);
+   Minuit myMinuitObj(my_rosen);
+   myMinuitObj.find_min(verbose, .0001);
+   std::vector<double> sig = myMinuitObj.getUncertainty();
+   for (unsigned int i=0; i < sig.size(); i++) {
+     std::cout << i << "  " << sig[i] << std::endl;
+   }
+#endif //HAVE_OPT_MINUIT
 
 #ifdef HAVE_OPT_PP
 // now restart and try OptPP
