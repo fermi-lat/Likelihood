@@ -1,4 +1,4 @@
-<!--$Header$-->
+<!--$Header: /nfs/slac/g/glast/ground/cvs/Likelihood/xml/A1_Sources.dtd,v 1.4 2004/11/02 23:20:59 jchiang Exp $-->
 <!ELEMENT source_library ((source, default_model*)+ | (source_library)*) >
 <!ATTLIST source_library 
           title CDATA #REQUIRED 
@@ -23,7 +23,6 @@
           name       CDATA   #REQUIRED 
           value      CDATA   #REQUIRED 
 	  error      CDATA   " "
-	  unit       CDATA   " "
 	  min        CDATA   #REQUIRED 
 	  max        CDATA   #REQUIRED 
 	  free       CDATA   #REQUIRED 
