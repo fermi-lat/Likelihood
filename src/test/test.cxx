@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.54 2005/01/06 23:42:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.55 2005/01/07 02:44:22 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -659,7 +659,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    }
 //   std::cout << "Total model counts: " << modelSum << std::endl;
 
-   CPPUNIT_ASSERT(fabs(modelSum - dataSum) < 1e-2);
+   CPPUNIT_ASSERT(fabs(modelSum - dataSum)/dataSum < 1e-3);
 
    unsigned long npts = dataMap.imageDimension(0);
    std::vector<double> energies;
