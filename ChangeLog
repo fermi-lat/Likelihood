@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 22 15:29:55 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Function.h Minuit.h 
+Added Files:
+	Mcmc.h 
+Log Message:
+add std:: to ostringstream's, fix some const-ness compiler complaints
+add Mcmc class
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 21 16:13:13 PDT 2003
 Likelihood/src/test/Data
 
