@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Wed May 21 11:28:04 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Minuit.cxx 
+Log Message:
+Eliminate unneeded #includes.
+
+    *
+------------------------------------------------------------
 User: pln  Wed May 21 11:23:48 PDT 2003
 Likelihood/Likelihood
 
