@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 31 21:27:00 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h ResponseFunctions.h 
+Log Message:
+refactor energy dispersion calcs a bit
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 24 17:56:21 PDT 2004
 Likelihood/src/test
 
