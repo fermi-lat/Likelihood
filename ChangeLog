@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Sep  3 07:11:02 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+fix some warnings; #include tip/Table.h in makeExposureCube
+    *
+------------------------------------------------------------
 User: jchiang  Fri Sep  3 07:11:01 PDT 2004
 Likelihood/src
 
