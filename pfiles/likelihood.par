@@ -6,12 +6,13 @@ exposure_cube_file,f,ql,"expcube_1_day.fits",,,"Exposure hypercube file"
 Response_functions,s,ql,"FRONT/BACK",FRONT/BACK|FRONT|BACK|GLAST25,,"Response functions to use"
 use_energy_dispersion,b,ql,no,,,Use energy dispersion?
 Source_model_file,f,ql,"my_source_model.xml",,,"Source model file"
+SourceMaps_file,f,ql,"srcMaps.fits",,,"SourceMaps file"
 event_file,f,ql,"test_events_0000.fits",,,"Event file"
 event_file_hdu,i,hl,2,,,Event file HDU
 optimizer,s,ql,"MINUIT",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_verbosity,i,ql,1,,,Optimizer verbosity
 fit_tolerance,r,ql,0.0001,,,Fit tolerance
 Source_model_output_file,f,ql,"none",,,"Source model output file"
-Statistic,s,ql,"BINNED",BINNED|UNBINNED|OPTEM,,"Statistic to use"
+Statistic,s,ql,"UNBINNED",BINNED|UNBINNED|OPTEM,,"Statistic to use"
 flux_style_model_file,f,ql,"flux_model.xml",,,"flux-style output file name"
 query_for_refit,b,ql,no,,,Allow for refitting?
