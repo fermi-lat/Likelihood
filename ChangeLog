@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Oct  3 22:51:19 PDT 2004
+Likelihood/Likelihood
+
+Added Files:
+	MeanPsf.h 
+Log Message:
+auxillary class for use by binned diffuse sources
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  1 18:05:08 PDT 2004
 Likelihood/src/exposureMap
 
