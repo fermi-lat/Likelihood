@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 21 16:12:14 PDT 2003
+Likelihood/src
+
+Modified Files:
+	ExposureMap.cxx FitsImage.cxx Function.cxx MyFun.cxx 
+	Parameter.cxx SourceFactory.cxx 
+Log Message:
+add exceptions to Function and Parameter classes
+add try blocks to SourceFactory
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 21 16:11:07 PDT 2003
 Likelihood/Likelihood
 
