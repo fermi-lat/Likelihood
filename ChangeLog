@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Aug 15 18:12:25 PDT 2003
+Likelihood/python
+
+Added Files:
+	Likelihood.i Makefile test.py 
+Log Message:
+add swig/python support on Linux
+    *
+------------------------------------------------------------
 User: jchiang  Fri Aug 15 18:12:24 PDT 2003
 Likelihood/cmt/fragments
 
