@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.30 2004/12/01 16:46:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.31 2005/01/13 22:42:01 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -28,7 +28,7 @@ class DiffuseSource;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.30 2004/12/01 16:46:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.31 2005/01/13 22:42:01 jchiang Exp $
  */
 
 class Event {
@@ -64,8 +64,7 @@ public:
    /// return the Event specific diffuse response function 
    /// for the named diffuse component
    double diffuseResponse(double energy, 
-                          std::string diffuseComponent) const
-      throw(Exception);
+                          std::string diffuseComponent) const;
     
    /// This method takes the spatial distribution of the emission for
    /// the DiffuseSource src and computes the event-specific response.
@@ -90,13 +89,14 @@ public:
    void writeDiffuseResponses(const std::string & filename);
 
    /// Set diffuse response for infinite energy resolution.
-   void setDiffuseResponse(const std::string & srcName, double value) {
+   void setDiffuseResponse(std::string srcName, double value) {
+      srcName = diffuseSrcName(srcName);
       m_respDiffuseSrcs[srcName].clear();
       m_respDiffuseSrcs[srcName].push_back(value);
    }
 
    /// Set diffuse response for finite energy resolution.
-   void setDiffuseResponse(const std::string & srcName, 
+   void setDiffuseResponse(std::string srcName, 
                            const std::vector<double> & gaussianParams);
 
    static void toLower(std::string & name);
@@ -112,6 +112,12 @@ public:
    void computeGaussianParams(const std::string & name, double & norm, 
                               double & mean, double & sigma) const;
    
+   /// @return The srcName with the response function name + "::" prepended.
+   ///         NB: Everything is converted to lower-case since that is
+   ///         what tip returns when you ask for FITS table column names.
+   /// @param srcName The source name.
+   static std::string diffuseSrcName(const std::string & srcName);
+
 private:
 
    /// apparent direction, energy, arrival time, and cosine(zenith angle)

@@ -3,7 +3,7 @@
  * @brief A singleton class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.10 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.11 2004/12/01 16:46:26 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.10 2004/08/23 15:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.11 2004/12/01 16:46:26 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -98,6 +98,12 @@ public:
 
    static void setEdispFlag(bool useEdisp) {s_useEdisp = useEdisp;}
 
+   static const std::string & respName() {return s_respName;}
+
+   static void setRespName(const std::string & respName) {
+      s_respName = respName;
+   }
+
 protected:
 
    ResponseFunctions() {}
@@ -109,6 +115,8 @@ private:
    static std::map<unsigned int, irfInterface::Irfs *> s_respPtrs;
 
    static bool s_useEdisp;
+
+   static std::string s_respName;
 
 };
 
