@@ -34,25 +34,27 @@ def fitStatistic():
     funcFactory = Likelihood.SourceFactory.funcFactory(srcFactory)
     
     logLike = Likelihood.LogLike()
-    srcModel = LikelihoodRoot + "/data/anticenter_model.xml"
+    srcModel = "anticenter_model.xml"
     logLike.readXml(srcModel, funcFactory)
 
-    eventFile = LikelihoodRoot + "/data/single_src_events_0000.fits"
+    eventFile = "test_events_0000.fits"
 
     logLike.getEvents(eventFile, 2)
 
 #    print logLike.value()
 
-#    logLike.computeEventResponses()
+    logLike.computeEventResponses()
 
-#    myOpt = optimizers.Lbfgs(logLike)
-#    myOpt = optimizers.Minuit(logLike)
+    myOpt = logLike.Drmngb()
+#    myOpt = logLike.Lbfgs()
+#    myOpt = logLike.Minuit()
 
-#    verbose = 3
-#    myOpt.find_min(verbose)
+    verbose = 3
+    tol = 1e-5
+    myOpt.find_min(verbose, tol)
 
-#    return (logLike, myOpt)
-    return (logLike, 1)
+    return (logLike, myOpt)
+#    return (logLike, 1)
 
 if __name__ == "__main__":
     (logLike, myOpt) = fitStatistic()

@@ -4,7 +4,7 @@
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.3 2003/11/22 00:06:12 pln Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.4 2004/01/06 00:10:26 jchiang Exp $
  */
 
 #ifndef Likelihood_OneSourceFunc_h
@@ -27,7 +27,7 @@ namespace Likelihood {
     * @brief Extended likelihood function for one source.
     * @author P. Nolan
     *
-    * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.3 2003/11/22 00:06:12 pln Exp $
+    * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.4 2004/01/06 00:10:26 jchiang Exp $
     */
   
 //   class OneSourceFunc: public optimizers::Function {
@@ -47,7 +47,8 @@ namespace Likelihood {
     virtual std::vector<double>::const_iterator
       setParamValues_(std::vector<double>::const_iterator);
 //    virtual Function *clone() const {return new OneSourceFunc(*this);}
-    virtual Statistic *clone() const {return new OneSourceFunc(*this);}
+    virtual optimizers::Statistic *clone() const 
+        {return new OneSourceFunc(*this);}
     virtual void setParams(std::vector<optimizers::Parameter>&)
       throw(optimizers::Exception, optimizers::ParameterNotFound);
     void setEpsW(double);
