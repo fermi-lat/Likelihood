@@ -3,42 +3,33 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.15 2003/10/27 01:13:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.16 2004/08/20 15:39:39 jchiang Exp $
  *
  */
 
-#include "fitsio.h"
+#include <cassert>
 
 #include <iostream>
-#include <sstream>
 #include <memory>
-#include <cassert>
+#include <sstream>
+
 #include "Likelihood/FitsImage.h"
-#include "Likelihood/Exception.h"
 
 namespace Likelihood {
 
-FitsImage::FitsImage(const std::string &fitsfile) {
+#include "fitsio.h"
 
-   m_filename = fitsfile;
-   read_fits_image(m_filename, m_axes, m_image);
-   for (unsigned int i = 0; i < m_axes.size(); i++) {
-      std::vector<double> axisVector;
-      m_axes[i].computeAxisVector(axisVector);
-      m_axisVectors.push_back(axisVector);
+FitsImage::FitsImage(const std::string &fitsfile) 
+   : st_facilities::FitsImage(fitsfile) {
+   if ( (m_haveRefCoord = haveRefCoord()) ) {
+      m_eqRot = new EquinoxRotation(m_roiRa, m_roiDec);
    }
-   if (m_haveRefCoord) m_eqRot = new EquinoxRotation(m_lonpole, m_latpole);
 }
 
-FitsImage::FitsImage(const FitsImage &rhs) {
-   m_filename = rhs.m_filename;
-   m_axes = rhs.m_axes;
-   m_axisVectors = rhs.m_axisVectors;
-   m_image.resize(rhs.m_image.size());
-   m_image = rhs.m_image;
+FitsImage::FitsImage(const FitsImage &rhs) : st_facilities::FitsImage(rhs) {
    m_haveRefCoord = rhs.m_haveRefCoord;
-   m_lonpole = rhs.m_lonpole;
-   m_latpole = rhs.m_latpole;
+   m_roiRa = rhs.m_roiRa;
+   m_roiDec = rhs.m_roiDec;
    if (m_haveRefCoord) m_eqRot = rhs.m_eqRot->clone();
 }
 
@@ -47,11 +38,10 @@ FitsImage& FitsImage::operator=(const FitsImage &rhs) {
       m_filename = rhs.m_filename;
       m_axes = rhs.m_axes;
       m_axisVectors = rhs.m_axisVectors;
-      m_image.resize(rhs.m_image.size());
       m_image = rhs.m_image;
       m_haveRefCoord = rhs.m_haveRefCoord;
-      m_lonpole = rhs.m_lonpole;
-      m_latpole = rhs.m_latpole;
+      m_roiRa = rhs.m_roiRa;
+      m_roiDec = rhs.m_roiDec;
       if (m_haveRefCoord) {
          delete m_eqRot;
          m_eqRot = rhs.m_eqRot->clone();
@@ -60,32 +50,8 @@ FitsImage& FitsImage::operator=(const FitsImage &rhs) {
    return *this;
 }
 
-void FitsImage::fetchAxisDims(std::vector<int> &axisDims) {
-   if (!axisDims.empty()) axisDims.clear();
-
-   for (unsigned int i = 0; i < m_axes.size(); i++)
-      axisDims.push_back(m_axes[i].size);
-}
-
-void FitsImage::fetchAxisNames(std::vector<std::string> &axisNames) {   
-   if (!axisNames.empty()) axisNames.clear();
-
-   for (unsigned int i = 0; i < m_axes.size(); i++)
-      axisNames.push_back(m_axes[i].axisType);
-}
-
-void FitsImage::fetchAxisVector(unsigned int naxis,
-                                std::vector<double> &axisVector) 
-   throw(Exception) {
-   if (naxis >= m_axes.size()) {
-      throw Exception(
-         "FitsImage::fetchAxisVector: Invalid axis number ", naxis);
-   }
-   axisVector = m_axisVectors[naxis];
-}
-
-void FitsImage::fetchCelestialArrays(std::valarray<double> &lonArray,
-                                     std::valarray<double> &latArray) {
+void FitsImage::getCelestialArrays(std::vector<double> &lonArray,
+                                   std::vector<double> &latArray) {
    unsigned int npixels = m_axes[0].size*m_axes[1].size;
    lonArray.resize(npixels);
    latArray.resize(npixels);
@@ -105,216 +71,45 @@ void FitsImage::fetchCelestialArrays(std::valarray<double> &lonArray,
       }
    }
 }
-         
-void FitsImage::fetchSolidAngles(std::valarray<double> &solidAngles){
-// This solid angle calculation *assumes* that m_axes[0] is a
-// longitudinal coordinate and that m_axes[1] is a latitudinal one.
-// Furthermore, the axis units are assumed to be *degrees*, while the
-// solid angles are returned as steradians.
 
-   solidAngles.resize(m_axes[0].size*m_axes[1].size);
-   for (int i = 0; i < m_axes[0].size; i++) {
-      for (int j = 0; j < m_axes[1].size; j++) {
-         int indx = i + j*m_axes[0].size;
-         double thetamin = (m_axisVectors[1][j] - m_axes[1].step/2.)*M_PI/180;
-         double thetamax = (m_axisVectors[1][j] + m_axes[1].step/2.)*M_PI/180;
-         solidAngles[indx] = m_axes[0].step*M_PI/180
-            *(sin(thetamax) - sin(thetamin));
-      }
-   }
-}
+bool FitsImage::haveRefCoord() {
+   bool have_ref_coord;
 
-void FitsImage::fetchImageData(std::valarray<double> &imageData) {
-   imageData.resize(m_image.size());
-   imageData = m_image;
-}
-
-void FitsImage::AxisParams::computeAxisVector(std::vector<double> &axisVector) {
-   if (!axisVector.empty()) axisVector.clear();
-   axisVector.reserve(size);
-   for (int i = 0; i < size; i++) {
-      double value = step*(i - refPixel + 1) + refVal;
-      if (logScale) value = exp(value);
-      axisVector.push_back(value);
-   }
-}
-
-void FitsImage::read_fits_image(std::string &filename, 
-                                std::vector<AxisParams> &axes,
-                                std::valarray<double> &image) 
-   throw(Exception) {
-   
    fitsfile * fptr = 0;
-   char *file = const_cast<char *>(filename.c_str());
+   char * file = const_cast<char *>(m_filename.c_str());
    int status = 0;
 
    fits_open_file(&fptr, file, READONLY, &status);
-   fits_report_error(stderr, status);
-   if (status != 0) {
-      throw Exception("FitsImage::read_fits_image: cfitsio error");
-   }
+   fitsReportError(stderr, status);
 
-// Get dimensions of the data cube
-   long naxes;
-   char comment[80];
-   fits_read_key_lng(fptr, "NAXIS", &naxes, comment, &status);
-   fits_report_error(stderr, status);
-   if (status != 0) {
-      throw Exception("FitsImage::read_fits_image: cfitsio error");
-   }
-
-// Assume at least 1 image plane, but at most 3 dimensions...
-   if (naxes != 2 && naxes != 3) {
-      std::ostringstream errorMessage;
-      errorMessage << "FitsImage::read_fits_image: \n"
-                   << "FITS file " << filename 
-                   << " does not have the expected number of dimensions:"
-                   << " naxes = " << naxes << "\n";
-      throw Exception(errorMessage.str());
-   }
-
-// prepare the axes vector 
-   axes.clear();
-   axes.resize(naxes);
-
-// keyword names
-   char *naxis[] = {"NAXIS1", "NAXIS2", "NAXIS3"};
-   char *crval[] = {"CRVAL1", "CRVAL2", "CRVAL3"};
-   char *cdelt[] = {"CDELT1", "CDELT2", "CDELT3"};
-   char *crpix[] = {"CRPIX1", "CRPIX2", "CRPIX3"};
-   char *ctype[] = {"CTYPE1", "CTYPE2", "CTYPE3"};
-
-   long ivalue;
    double value;
-   char svalue[40];
-
-   long npixels = 1;
-   for (int i = 0; i < naxes; i++) {
-// axis size
-      fits_read_key_lng(fptr, naxis[i], &ivalue, comment, &status);
-      fits_report_error(stderr, status);
-      if (status != 0) {
-         throw Exception
-            ("FitsImage::read_fits_image: cfitsio error");
-      }
-      axes[i].size = ivalue;
-
-// Compute the number of pixels in the image.
-      npixels *= ivalue;
-   }
-
-// account for degenerate case of NAXIS3 = 1
-
-   if (naxes == 3 && axes[2].size == 1) {
-      naxes = 2;
-      axes.resize(naxes);
-   }
-
-   for (int i = 0; i < naxes; i++) {
-// reference values
-      fits_read_key_dbl(fptr, crval[i], &value, comment, &status);
-      fits_report_error(stderr, status);
-      if (status != 0) {
-         throw Exception
-            ("FitsImage::read_fits_image: cfitsio error");
-      }
-      axes[i].refVal = value;
-
-// step sizes
-      fits_read_key_dbl(fptr, cdelt[i], &value, comment, &status);
-      fits_report_error(stderr, status);
-      if (status != 0) {
-         throw Exception
-            ("FitsImage::read_fits_image: cfitsio error");
-      }
-      axes[i].step = value;
-
-// reference pixels
-      fits_read_key_lng(fptr, crpix[i], &ivalue, comment, &status);
-      fits_report_error(stderr, status);
-      if (status != 0) {
-         throw Exception
-            ("FitsImage::read_fits_image: cfitsio error");
-      }
-      axes[i].refPixel = ivalue;
-
-// axis types and commentary
-      fits_read_key_str(fptr, ctype[i], svalue, comment, &status);
-      fits_report_error(stderr, status);
-      if (status != 0) {
-         throw Exception
-            ("FitsImage::read_fits_image: cfitsio error");
-      }
-      axes[i].axisType = svalue;
-      axes[i].comment = comment;
-      
-// Check for logarithmic scaling.
-      int offset = axes[i].axisType.substr(0).find_first_of("log_");
-      if (offset == 0) {
-         axes[i].logScale = true;
-      } else {
-         axes[i].logScale = false;
-      }
-   } // naxes
-
-// Check for ROI_RA and ROI_DEC keywords.
-
+   char comment[80];
    fits_read_key_dbl(fptr, "ROI_RA", &value, comment, &status);
    if (status == 0) {
-      m_lonpole = value;
-      m_haveRefCoord = true;
+      m_roiRa = value;
+      have_ref_coord = true;
    } else if (status == KEY_NO_EXIST) {
-      m_haveRefCoord = false;
+      have_ref_coord = false;
    } else {
-      fits_report_error(stderr, status);
-      if (status != 0) {
-         throw Exception
-            ("FitsImage::read_fits_image: cfitsio error");
-      }
+      fitsReportError(stderr, status);
    }
    status = 0;
 
    fits_read_key_dbl(fptr, "ROI_DEC", &value, comment, &status);
    if (status == 0) {
-      m_latpole = value;
-      m_haveRefCoord = true;
+      m_roiDec = value;
+      have_ref_coord = true;
    } else if (status == KEY_NO_EXIST) {
-      m_haveRefCoord = false;
+      have_ref_coord = false;
    } else {
-      fits_report_error(stderr, status);
-      if (status != 0) {
-         throw Exception
-            ("FitsImage::read_fits_image: cfitsio error");
-      }
+      fitsReportError(stderr, status);
    }
    status = 0;
 
-// Read in the image pixels.
-   long group = 0;
-   long fpixel = 1;
-   double nullval = 0.;
-   int anynull;
-   double *tmpImage;
-   tmpImage = new double[npixels];
-   fits_read_img_dbl(fptr, group, fpixel, npixels, nullval, 
-                     tmpImage, &anynull, &status);
-   fits_report_error(stderr, status);
-   if (status != 0) {
-      throw Exception("FitsImage::read_fits_image: cfitsio error");
-   }
-
-   image.resize(npixels);
-
-   for (int i = 0; i < npixels; i++)
-      image[i] = tmpImage[i];
-
-   delete [] tmpImage;
-
    fits_close_file(fptr, &status);
-   fits_report_error(stderr, status);
-   if (status != 0) {
-      throw Exception("FitsImage::read_fits_image: cfitsio error");
-   }
+   fitsReportError(stderr, status);
+
+   return have_ref_coord;
 }
 
 FitsImage::EquinoxRotation::EquinoxRotation(double alpha0, double delta0) {
@@ -375,5 +170,12 @@ void FitsImage::EquinoxRotation::do_rotation(const astro::SkyDir &inDir,
    }
    outDir = astro::SkyDir(Hep3Vector(outVec[0], outVec[1], outVec[2]));
 }   
+
+void FitsImage::fitsReportError(FILE *stream, int status) const {
+   fits_report_error(stream, status);
+   if (status != 0) {
+      throw std::string("Likelihood::FitsImage: cfitsio error.");
+   }
+}
 
 } // namespace Likelihood

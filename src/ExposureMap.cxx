@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.20 2004/08/20 15:39:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.21 2004/08/23 15:38:56 jchiang Exp $
  */
 #include <utility>
 #include <algorithm>
@@ -36,9 +36,9 @@ namespace Likelihood {
 ExposureMap * ExposureMap::s_instance = 0;
 bool ExposureMap::s_haveExposureMap = false;
 std::vector<double> ExposureMap::s_energies;
-std::valarray<double> ExposureMap::s_ra;
-std::valarray<double> ExposureMap::s_dec;
-std::vector< std::valarray<double> > ExposureMap::s_exposure;
+std::vector<double> ExposureMap::s_ra;
+std::vector<double> ExposureMap::s_dec;
+std::vector< std::vector<double> > ExposureMap::s_exposure;
 FitsImage ExposureMap::s_mapData;
 
 void ExposureMap::readExposureFile(std::string exposureFile) {
@@ -48,28 +48,28 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
 
    s_mapData = FitsImage(exposureFile);
 
-   s_mapData.fetchCelestialArrays(s_ra, s_dec);
+   s_mapData.getCelestialArrays(s_ra, s_dec);
 
 // Fetch the energy axis abscissa points. Here we assume that the
 // exposure map has at least two image planes, and that the energies
 // are along the third dimension so we set naxis = 2.
    int naxis = 2;
-   s_mapData.fetchAxisVector(naxis, s_energies);
+   s_mapData.getAxisVector(naxis, s_energies);
 
 // pixel solid angles
-   std::valarray<double> solidAngles;
-   s_mapData.fetchSolidAngles(solidAngles);
+   std::vector<double> solidAngles;
+   s_mapData.getSolidAngles(solidAngles);
 
 // Fill the vector of the planes of s_exposure for each true photon
 // energy.
    s_exposure.clear();
-   std::valarray<double> exposure;
-   s_mapData.fetchImageData(exposure);
+   std::vector<double> exposure;
+   s_mapData.getImageData(exposure);
 
    int indx = 0;
    int npixels = solidAngles.size();
    for (unsigned int k = 0; k < s_energies.size(); k++) {
-      std::valarray<double> expArray(npixels);
+      std::vector<double> expArray(npixels);
       for (int sa_indx = 0; sa_indx < npixels; sa_indx++) {
          expArray[sa_indx] = solidAngles[sa_indx]*exposure[indx];
          indx++;
@@ -83,10 +83,10 @@ void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
                                        optimizers::Function * spatialDist,
                                        std::vector<double> &exposure) {
 
-// Fetch the exposure multiplied by the solid angle of the associated
+// Get the exposure multiplied by the solid angle of the associated
 // pixel
-   std::vector< std::valarray<double> > my_exposure;
-   fetchExposure(my_exposure);
+   std::vector< std::vector<double> > my_exposure;
+   getExposure(my_exposure);
 
    exposure.clear();
    exposure.reserve(energies.size());
@@ -118,7 +118,7 @@ void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
    }
 }
 
-void ExposureMap::fetchExposure(std::vector< std::valarray<double> > 
+void ExposureMap::getExposure(std::vector< std::vector<double> > 
                                 &exposure) {
    if (!exposure.empty()) exposure.clear();
 
@@ -162,7 +162,7 @@ void ExposureMap::computeMap(std::string filename, double sr_radius,
       energies.push_back(elims.first*exp(estep*k));
    }
 
-   std::vector< std::valarray<double> > exposureCube;
+   std::vector< std::vector<double> > exposureCube;
    exposureCube.resize(nenergies);
    for (int k = 0; k < nenergies; k++)
       exposureCube[k].resize(nlon*nlat);
@@ -199,7 +199,7 @@ void ExposureMap::writeFitsFile(const std::string &filename,
                                 std::vector<double> &glon,
                                 std::vector<double> &glat,
                                 std::vector<double> &energies,
-                                std::vector< std::valarray<double> > &exposure,
+                                std::vector< std::vector<double> > &exposure,
                                 double ra0, double dec0) {
 
    fitsfile *fptr;

@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.8 2004/09/25 06:36:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.9 2004/09/25 16:38:08 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -68,7 +68,7 @@ public:
       return m_srcMaps.find(name)->second;
    }
 
-   void saveSourceMaps(const std::string & filename) const;
+   void saveSourceMaps(const std::string & filename="");
 
    virtual std::vector<double>::const_iterator setParamValues_(
       std::vector<double>::const_iterator);
@@ -99,7 +99,7 @@ private:
 
    void computeModelMap(std::vector<double> & modelMap) const;
 
-   /// Implement some rune-like tip arcana.
+   // Implement some rune-like tip arcana.
    void setImageDimensions(tip::Image * image, long * dims) const;
 
    void identifyFilledPixels();
@@ -113,7 +113,7 @@ private:
                          const std::string & fitsFile) const;
 
    void addSourceMap(const std::string & srcName, 
-                     std::string fitsFile="") const;
+                     const std::string & fitsFile) const;
 };
 
 }

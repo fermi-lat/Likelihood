@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.37 2004/09/25 06:36:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.38 2004/09/25 18:24:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.37 2004/09/25 06:36:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.38 2004/09/25 18:24:34 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -202,8 +202,7 @@ void likelihood::readSourceModel() {
       if (m_statistic != "BINNED") {
          m_logLike->computeEventResponses();
       } else {
-         dynamic_cast<BinnedLikelihood *>(m_logLike)
-            ->saveSourceMaps("srcMaps.fits");
+         dynamic_cast<BinnedLikelihood *>(m_logLike)->saveSourceMaps();
       }
    } else {
 // Re-read the Source model from the xml file, allowing only for 
@@ -343,7 +342,7 @@ void likelihood::createCountsMap() {
    double roi_ra, roi_dec;
    RoiCuts::getRaDec(roi_ra, roi_dec);
 
-   double pixel_size(0.5);
+   double pixel_size(0.25);
    unsigned long npts = static_cast<unsigned long>(2*roi_radius/pixel_size);
    unsigned long nee(21);
 

@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.5 2004/09/24 21:02:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.6 2004/09/25 16:38:08 jchiang Exp $
  */
 
 #include <algorithm>
@@ -38,8 +38,8 @@ SourceMap::SourceMap(Source * src, const CountsMap & dataMap)
 
    m_npreds.resize(energies.size(), 0);
 
-// @todo Ensure the desired event types are correctly included in this
-// calculation.
+/// @todo Ensure the desired event types are correctly included in this
+/// calculation.
    for (int evtType = 0; evtType < 2; evtType++) {
       std::vector<double>::const_iterator energy = energies.begin();
       for (int k = 0; energy != energies.end(); ++energy, k++) {
