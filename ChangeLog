@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 24 19:13:47 PDT 2003
+Likelihood/Likelihood
+
+Removed Files:
+	Response.h 
+Log Message:
+remove Response class; tagging v2r0
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct 24 17:22:54 PDT 2003
 Likelihood/src/test
 
