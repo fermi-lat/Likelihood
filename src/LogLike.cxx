@@ -3,11 +3,10 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.33 2004/12/01 16:46:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.34 2004/12/30 00:28:23 jchiang Exp $
  */
 
 #include <cmath>
-#include <cassert>
 
 #include <algorithm>
 #include <fstream>
