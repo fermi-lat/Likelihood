@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 11 07:32:18 PST 2005
+Likelihood/src
+
+Modified Files:
+	Event.cxx ExposureMap.cxx 
+Log Message:
+remove unnecessary getExposure member function; remove unneeded <cassert>
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 11 07:31:39 PST 2005
 Likelihood/Likelihood
 
