@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.6 2003/12/05 05:39:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.7 2003/12/06 23:46:38 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -192,12 +192,12 @@ int main(int iargc, char* argv[]) {
 
    bool computeExposure(true);
 
-   std::vector< std::vector<double> > myMap(lonValues.size());
+   std::vector< std::vector<double> > myMap(latValues.size());
 
 // Loop over map positions.
-   for (unsigned int ii = 0; ii < lonValues.size(); ii++) {
-      myMap[ii].reserve(latValues.size());
-      for (unsigned int jj = 0; jj < latValues.size(); jj++) {
+   for (unsigned int jj = 0; jj < latValues.size(); jj++) {
+      myMap[jj].reserve(lonValues.size());
+      for (unsigned int ii = 0; ii < lonValues.size(); ii++) {
          if (coordSystem == "CEL") {
             testSrc.setDir(lonValues[ii], latValues[jj], computeExposure);
          } else {
@@ -205,11 +205,11 @@ int main(int iargc, char* argv[]) {
          }
          logLike.addSource(&testSrc);
          myOpt->find_min(verbose, tol);
-         myMap[ii].push_back(2.*(logLike(dummy) - logLike0));
+         myMap[jj].push_back(2.*(logLike(dummy) - logLike0));
          if (verbose > 0) {
             std::cout << lonValues[ii] << "  "
                       << latValues[jj] << "  "
-                      << myMap[ii][jj] 
+                      << myMap[jj][ii] 
                       << std::endl;
          }
          logLike.deleteSource(srcName);
@@ -327,11 +327,11 @@ void write_fits_file(const std::string &filename,
                    "latitude step at ref. pixel", &status);
    fitsReportError(stderr, status);
    
-   float crpix1 = lstep/2.;
+   float crpix1 = 1.0;
    fits_update_key(fptr, TFLOAT, "CRPIX1", &crpix1, 
                    "reference pixel for longitude coordinate", &status);
    fitsReportError(stderr, status);
-   float crpix2 = bstep/2.;
+   float crpix2 = 1.0;
    fits_update_key(fptr, TFLOAT, "CRPIX2", &crpix2, 
                    "reference pixel for latitude coordinate", &status);
    fitsReportError(stderr, status);
