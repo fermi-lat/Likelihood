@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.21 2003/12/04 04:15:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.22 2003/12/07 17:32:02 jchiang Exp $
  */
 
 #include <cassert>
@@ -34,32 +34,6 @@ namespace {
          return acos(mu);
       }
    }
-   double totalResponse(double energy, double time, 
-                        const astro::SkyDir &srcDir,
-                        const astro::SkyDir &appDir, int type) {
-// This implementation neglects energy dispersion.
-      Likelihood::ResponseFunctions * respFuncs 
-         = Likelihood::ResponseFunctions::instance();
-      Likelihood::ScData * scData = Likelihood::ScData::instance();
-   
-      astro::SkyDir zAxis = scData->zAxis(time);
-      astro::SkyDir xAxis = scData->xAxis(time);
-
-      double myResponse = 0;
-      std::map<unsigned int, latResponse::Irfs *>::iterator respIt
-         = respFuncs->begin();
-      for ( ; respIt != respFuncs->end(); respIt++) {
-         if (respIt->second->irfID() == type) {
-            latResponse::IPsf *psf = respIt->second->psf();
-            latResponse::IAeff *aeff = respIt->second->aeff();
-            double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
-            double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-            myResponse += psf_val*aeff_val;
-         }
-      }
-      return myResponse;
-   }
-
 }
 
 namespace Likelihood {
@@ -145,8 +119,10 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcs,
          getCelestialDir(phi[j], mu[i], eqRot, srcDir);
          double inc = m_scDir.SkyDir::difference(srcDir)*180/M_PI;
          if (inc < latResponse::Glast25::incMax()) {
-            double totalResp = ::totalResponse(m_energy, m_arrTime,
-                                               srcDir, m_appDir, m_type);
+            double totalResp 
+               = ResponseFunctions::totalResponse(m_arrTime, 
+                                                  m_energy, m_energy,
+                                                  srcDir, m_appDir, m_type);
             for (unsigned int k = 0; k < srcs.size(); k++) {
                double srcDist_val = srcs[k]->spatialDist(srcDir);
                phi_integrands[k].push_back(totalResp*srcDist_val);
