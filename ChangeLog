@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar 11 21:09:57 PST 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+comment out use of exposure hypercube
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 10 21:21:41 PST 2004
 Likelihood/cmt
 
