@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Sun Dec  5 14:25:48 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	TsMap.par diffuseResponses.par expMap.par gtcntsmap.par 
+	gtsrcmaps.par likelihood.par makeExposureCube.par 
+Log Message:
+begin transition to using DSS keywords instead of ROI file
+    *
+------------------------------------------------------------
+User: jchiang  Sun Dec  5 14:25:48 PST 2004
 Likelihood/data
 
 Modified Files:
