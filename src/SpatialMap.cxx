@@ -5,10 +5,11 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.7 2003/10/25 02:13:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.8 2003/11/18 18:09:43 jchiang Exp $
  *
  */
 
+#include <algorithm>
 #include <numeric>
 
 #include "facilities/Util.h"
