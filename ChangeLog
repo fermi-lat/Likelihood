@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Wed May 21 11:23:48 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Minuit.h 
+Log Message:
+Eliminate unneeded #include files.
+
+    *
+------------------------------------------------------------
 User: pln  Wed May 21 11:21:56 PDT 2003
 Likelihood/Likelihood
 
