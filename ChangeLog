@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 10 20:32:24 PST 2004
+Likelihood/src
+
+Modified Files:
+	FluxBuilder.cxx SConstruct SourceFactory.cxx 
+	SourceModelBuilder.cxx 
+Log Message:
+final xerces conversion; problems with builder class destructors; tagging v5r3
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 10 20:32:23 PST 2004
 Likelihood/doc
 
