@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.15 2004/12/08 04:09:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.16 2004/12/09 07:20:31 jchiang Exp $
  */
 
 #include <map>
@@ -19,14 +19,14 @@
 #include "dataSubselector/CutBase.h"
 #include "dataSubselector/Cuts.h"
 
+#include "Likelihood/AppHelpers.h"
+#include "Likelihood/BandFunction.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SpatialMap.h"
-
-#include "Likelihood/AppHelpers.h"
 
 using irfInterface::IrfsFactory;
 
@@ -47,6 +47,7 @@ void AppHelpers::prepareFunctionFactory() {
    m_funcFactory = new optimizers::FunctionFactory;
    m_funcFactory->addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
    m_funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
+   m_funcFactory->addFunc("BandFunction", new BandFunction(), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,

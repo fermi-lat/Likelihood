@@ -14,9 +14,9 @@ libraries = map()
 default_libraries = ['xmlBase', 'dataSubselectorLib', 'astro',
                      'map_toolsLib', 'evtbinLib', 
                      'tipLib', 'optimizers', 'f2c', 'facilities', 
-                     'st_appLib', 'st_streamLib', 'st_graphLib', 'hoopsLib',
+                     'st_appLib', 'st_streamLib', 'hoopsLib',
                      'irfInterfaceLib', 'irfLoaderLib', 'g25ResponseLib', 
-                     'dc1ResponseLib', 'testResponseLib', 
+                     'dc1Response', 'testResponseLib', 'devResponseLib', 
                      'irfUtilLib', 'st_facilitiesLib']
 
 for lib in default_libraries:
@@ -30,7 +30,7 @@ libraries['cfitsio'] = externalLibrary('cfitsio', 'v2470')
 libraries['CLHEP'] = externalLibrary('CLHEP', '1.8.0.0')
 libraries['xerces-c'] = externalLibrary('xerces', '2.6.0')
 libraries['cppunit'] = externalLibrary('cppunit', '1.9.14')
-libraries['Core'] = externalLibrary('ROOT', os.path.join('v3.10.02', 'root'))
+libraries['Core'] = externalLibrary('ROOT', os.path.join('v4.02.00', 'root'))
 libraries['pil'] = externalLibrary('pil', '1.9.7')
 
 libraries['pil'][1] += (os.path.sep + 'linux-3.2')
@@ -41,8 +41,10 @@ libraries['newmat-linux'] = (os.path.join(OptPP_dir, 'newmat09'),
                              os.path.join(OptPP_dir, 'lib'))
 
 #cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
-cflags = ' -DHAVE_OPT_PP -rdynamic '
-linkflags = ' '
+cflags = ' -DHAVE_OPT_PP -rdynamic -pg'
+#cflags = ' -DHAVE_OPT_PP -rdynamic '
+linkflags = '-pg'
+#linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'Gui']
 Export(['package', 'home', 'apps', 'libraries', 'cflags',
