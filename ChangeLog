@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr  2 22:14:14 PST 2004
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx ScData.cxx 
+Log Message:
+tip migration; tagging v3r0
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr  2 22:14:13 PST 2004
 Likelihood/doc
 
