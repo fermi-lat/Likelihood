@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.39 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.40 2005/03/02 04:51:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -138,7 +138,8 @@ void LogLike::computeEventResponses(Source &src, double sr_radius) {
    }
    for (unsigned int i = 0; i < m_events.size(); i++) {
       if (print_output(3) && (i % (m_events.size()/20)) == 0) std::cerr << ".";
-      m_events[i].computeResponse(*diffuse_src, sr_radius);
+      m_events[i].computeResponse(*diffuse_src,
+                                  m_observation.respFuncs(), sr_radius);
    }
    if (print_output(3)) std::cerr << "!" << std::endl;
 }
@@ -151,7 +152,7 @@ void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs,
    for (unsigned int i = 0; i < m_events.size(); i++) {
       if (print_output(3) && m_events.size() > 20 &&
           (i % (m_events.size()/20)) == 0) std::cerr << ".";
-      m_events[i].computeResponse(srcs, sr_radius);
+      m_events[i].computeResponse(srcs, m_observation.respFuncs(), sr_radius);
    }
    if (print_output(3)) std::cerr << "!" << std::endl;
 }
@@ -211,7 +212,9 @@ void LogLike::getEvents(std::string event_file) {
          eventType = 1;
       }
       Event thisEvent(ra, dec, energy, time, scData.zAxis(time),
-                      scData.xAxis(time), cos(zenAngle*M_PI/180.), eventType);
+                      scData.xAxis(time), cos(zenAngle*M_PI/180.), 
+                      m_observation.respFuncs().useEdisp(),
+                      m_observation.respFuncs().respName(), eventType);
       if (m_observation.roiCuts().accept(thisEvent)) {
          m_events.push_back(thisEvent);
          for (std::vector<std::string>::iterator name = diffuseNames.begin();

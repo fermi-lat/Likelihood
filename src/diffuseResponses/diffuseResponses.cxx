@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.22 2005/02/27 06:42:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.23 2005/03/01 01:06:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.22 2005/02/27 06:42:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.23 2005/03/01 01:06:57 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -81,6 +81,7 @@ private:
    void getDiffuseSources();
    void setGaussianParams(const Event & event, const std::string & name,
                           tip::Table::Vector<double> & params);
+   std::string diffuseSrcName(const std::string & srcName) const;
 };
 
 st_app::StAppFactory<diffuseResponses> myAppFactory;
@@ -98,7 +99,9 @@ void diffuseResponses::run() {
       m_helper->readScData();
       m_srcModel = new SourceModel(m_helper->observation(), true);
       m_useEdisp = m_pars["use_energy_dispersion"];
-      m_helper->observation().respFuncs().setEdispFlag(m_useEdisp);
+      ResponseFunctions & respFuncs = 
+         const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
+      respFuncs.setEdispFlag(m_useEdisp);
       buildSourceModel();
       readEventData();
       computeEventResponses();
@@ -140,13 +143,21 @@ bool diffuseResponses::haveDiffuseColumns() {
    readDiffuseNames(srcNames);
    for (std::vector<std::string>::iterator name = srcNames.begin();
         name != srcNames.end(); ++name) {
-      *name = Event::diffuseSrcName(*name);
+      *name = diffuseSrcName(*name);
       if (std::find(colNames.begin(), colNames.end(), *name) 
           == colNames.end()) {
          return false;
       }
    }
    return true;
+}
+
+std::string diffuseResponses::
+diffuseSrcName(const std::string & srcName) const {
+   std::string name(m_helper->observation().respFuncs().respName() +
+                    "::" + srcName);
+   Event::toLower(name);
+   return name;
 }
 
 void diffuseResponses::buildSourceModel() {
@@ -187,7 +198,10 @@ void diffuseResponses::readEventData() {
          eventType = 1;
       }
       Event thisEvent(ra, dec, energy, time, scData.zAxis(time), 
-                      scData.xAxis(time), cos(zenAngle*M_PI/180.), eventType);
+                      scData.xAxis(time), cos(zenAngle*M_PI/180.), 
+                      m_helper->observation().respFuncs().useEdisp(),
+                      m_helper->observation().respFuncs().respName(),
+                      eventType);
       m_events.push_back(thisEvent);
    }
    delete events;
@@ -200,7 +214,8 @@ void diffuseResponses::computeEventResponses() {
       if (Likelihood::print_output() && (i % (m_events.size()/20)) == 0) {
          std::cerr << ".";
       }
-      it->computeResponse(m_srcs, m_srRadius);
+      it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
+                          m_srRadius);
    }
    if (Likelihood::print_output()) {
       std::cerr << "!" << std::endl;
@@ -244,7 +259,7 @@ void diffuseResponses::writeEventResponses() {
       for (int j = 0 ; it != events->end(); j++, ++it) {
          std::vector<std::string>::iterator name = m_srcNames.begin();
          for ( ; name != m_srcNames.end(); ++name) {
-            std::string fieldName = Event::diffuseSrcName(*name);
+            std::string fieldName = diffuseSrcName(*name);
             if (m_useEdisp) {
                tip::Table::Vector<double> respParams = row[fieldName];
                setGaussianParams(m_events[j], *name, respParams);

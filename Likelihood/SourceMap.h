@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.19 2005/02/15 07:04:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.20 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -16,13 +16,13 @@
 
 namespace Likelihood {
 
-class Source;
-class CountsMap;
+   class Source;
+   class CountsMap;
 
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.19 2005/02/15 07:04:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.20 2005/02/27 06:42:24 jchiang Exp $
  */
 
 class SourceMap {
@@ -83,9 +83,12 @@ private:
    class Aeff : public Pixel::Aeff {
    public:
       Aeff(Source * src, const astro::SkyDir & appDir,
-           double energy, int type)
-         : Pixel::Aeff(src, appDir, energy, type) {}
+           double energy, int type, const Observation & observation)
+         : Pixel::Aeff(src, appDir, energy, type),
+           m_observation(observation) {}
       virtual double operator()(double costheta) const;
+   private:
+      const Observation & m_observation;
    };
 
    static MeanPsf * s_meanPsf;

@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.24 2005/03/02 01:10:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.25 2005/03/03 00:17:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -26,6 +26,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 
 #include "Verbosity.h"
@@ -39,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.24 2005/03/02 01:10:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.25 2005/03/03 00:17:20 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -73,7 +74,9 @@ void ExpMap::run() {
    m_helper = new AppHelpers(m_pars);
    m_helper->readScData();
    bool useEdisp = m_pars["use_energy_dispersion"];
-   m_helper->observation().respFuncs().setEdispFlag(useEdisp);
+   ResponseFunctions & respFuncs =
+      const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
+   respFuncs.setEdispFlag(useEdisp);
    m_helper->setRoi();
    setSourceRegion();
    createExposureMap();

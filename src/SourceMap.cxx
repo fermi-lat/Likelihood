@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.28 2005/03/01 01:06:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.29 2005/03/03 00:17:18 jchiang Exp $
  */
 
 #include <algorithm>
@@ -95,7 +95,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
 /// @todo Ensure the desired event types are correctly included in this
 /// calculation.
             for (int evtType = 0; evtType < 2; evtType++) {
-               Aeff aeff(src, pixel->dir(), *energy, evtType);
+               Aeff aeff(src, pixel->dir(), *energy, evtType, observation);
                value += observation.expCube().value(pixel->dir(), aeff);
             }
          } else if (haveDiffuseSource) {
@@ -189,8 +189,9 @@ void SourceMap::fitsReportError(FILE *stream, int status) const {
 double SourceMap::Aeff::operator()(double costheta) const {
    double inclination = acos(costheta)*180./M_PI;
    static double phi(0);
-   return ResponseFunctions::totalResponse(inclination, phi, m_energy,
-                                           m_energy, m_separation, m_type);
+   return m_observation.respFuncs().totalResponse(inclination, phi, m_energy,
+                                                  m_energy, m_separation,
+                                                  m_type);
 }
 
 bool SourceMap::haveMapCubeFunction(DiffuseSource * src) const {

@@ -1,9 +1,9 @@
 /** 
  * @file ResponseFunctions.h
- * @brief A singleton class to contain the instrument response functions.
+ * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.13 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.14 2005/03/02 22:55:00 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -22,23 +22,23 @@ namespace Likelihood {
 /** 
  * @class ResponseFunctions
  *
- * @brief This class provides global access to a map of pointers to
+ * @brief This class provides access to a map of pointers to
  * irfInterface::Irfs objects.  These pointers are indexed by event
  * type, given as an integer; a map is used since the indices need not
  * be contiguous.
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.13 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.14 2005/03/02 22:55:00 jchiang Exp $
  */
 
 class ResponseFunctions {
     
 public:
     
-   virtual ~ResponseFunctions() {}
+   ResponseFunctions() : m_useEdisp(false), m_respName("") {}
 
-   static ResponseFunctions * instance();
+   virtual ~ResponseFunctions() {}
 
    /// Return the total instrument response 
    /// (= effective area*PSF*energy dispersion).
@@ -53,66 +53,68 @@ public:
    ///        2 = Combined (GLAST25 only). 
    ///        (@todo These IDs need to be rationalized and coordinated 
    ///        with the irfInterface package.)
-   static double totalResponse(double energy, double appEnergy,
-                               const astro::SkyDir & zAxis,
-                               const astro::SkyDir & xAxis,
-                               const astro::SkyDir & srcDir,
-                               const astro::SkyDir & appDir,
-                               int type);
+   double totalResponse(double energy, double appEnergy,
+                        const astro::SkyDir & zAxis,
+                        const astro::SkyDir & xAxis,
+                        const astro::SkyDir & srcDir,
+                        const astro::SkyDir & appDir,
+                        int type) const;
 
-   static double totalResponse(double inclination, double phi, 
-                               double energy, double appEnergy, 
-                               double separation, int evtType);
-
-   static void setRespPtrs(std::map<unsigned int, irfInterface::Irfs *> 
-                           &respPtrs) {s_respPtrs = respPtrs;}
-
-   static void addRespPtr(unsigned int key,
-                          irfInterface::Irfs *respPtr) {
-      s_respPtrs[key] = respPtr;
+   double totalResponse(double inclination, double phi, 
+                        double energy, double appEnergy, 
+                        double separation, int evtType) const;
+   
+   void setRespPtrs(std::map<unsigned int, irfInterface::Irfs *> 
+                    &respPtrs) {
+      m_respPtrs = respPtrs;
    }
 
-   static void deleteRespPtr(unsigned int key) {
-      if (s_respPtrs.count(key)) {
-         delete s_respPtrs[key];
-         s_respPtrs[key] = 0;
+   void addRespPtr(unsigned int key,
+                   irfInterface::Irfs *respPtr) {
+      m_respPtrs[key] = respPtr;
+   }
+
+   void deleteRespPtr(unsigned int key) {
+      if (m_respPtrs.count(key)) {
+         delete m_respPtrs[key];
+         m_respPtrs[key] = 0;
       }
    }
 
-   irfInterface::Irfs * respPtr(unsigned int eventType);
+   irfInterface::Irfs * respPtr(unsigned int eventType) const;
 
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator begin() const {
-      return s_respPtrs.begin();
+      return m_respPtrs.begin();
    }
 
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator end() const {
-      return s_respPtrs.end();
+      return m_respPtrs.end();
    }
 
    /// Whether or not energy dispersion is to be considered.
-   static const bool & useEdisp() {return s_useEdisp;}
-
-   static void setEdispFlag(bool useEdisp) {s_useEdisp = useEdisp;}
-
-   static const std::string & respName() {return s_respName;}
-
-   static void setRespName(const std::string & respName) {
-      s_respName = respName;
+   const bool & useEdisp() const {
+      return m_useEdisp;
    }
 
-protected:
+   void setEdispFlag(bool useEdisp) {
+      m_useEdisp = useEdisp;
+   }
 
-   ResponseFunctions() {}
+   const std::string & respName() const {
+      return m_respName;
+   }
+
+   void setRespName(const std::string & respName) {
+      m_respName = respName;
+   }
 
 private:
 
-   static ResponseFunctions * s_instance;
+   std::map<unsigned int, irfInterface::Irfs *> m_respPtrs;
 
-   static std::map<unsigned int, irfInterface::Irfs *> s_respPtrs;
+   bool m_useEdisp;
 
-   static bool s_useEdisp;
-
-   static std::string s_respName;
+   std::string m_respName;
 
 };
 

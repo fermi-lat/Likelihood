@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.59 2005/03/02 22:55:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.60 2005/03/03 00:17:18 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,8 +19,6 @@
 #include "optimizers/dArg.h"
 
 #include "irfInterface/Irfs.h"
-
-#include "map_tools/Exposure.h"
 
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
@@ -442,7 +440,7 @@ double PointSource::Aeff::operator()(double cos_theta) const {
                                             theta, phi, s_cones);
       double aeff_val = aeff->value(m_energy, theta, phi);
 
-      if (ResponseFunctions::useEdisp()) {
+      if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(s_emin, s_emax, m_energy, 
                                             theta, phi);
