@@ -1,5 +1,18 @@
 ------------------------------------------------------------
 User: jchiang  Sat Feb 26 22:42:25 PST 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx BinnedExposure.cxx BinnedLikelihood.cxx 
+	DiffuseSource.cxx ExposureMap.cxx FluxBuilder.cxx 
+	LikeExposure.cxx LogLike.cxx MeanPsf.cxx PointSource.cxx 
+	ResponseFunctions.cxx RoiCuts.cxx ScData.cxx SourceFactory.cxx 
+	SourceMap.cxx SourceModel.cxx pyLike.in 
+Log Message:
+add Observation class; begin refactoring to replace Singletons
+    *
+------------------------------------------------------------
+User: jchiang  Sat Feb 26 22:42:25 PST 2005
 Likelihood/python
 
 Modified Files:
