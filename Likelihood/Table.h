@@ -3,7 +3,7 @@
  * @brief Declaration of Table class
  * @authors T. Burnett, J. Chiang using code from Y. Ikebe
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.11 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.12 2003/07/21 22:14:57 jchiang Exp $
  */
 
 #ifndef Likelihood_Table_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author T. Burnett, J. Chiang using code from Y. Ikebe
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.11 2003/07/19 04:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Table.h,v 1.12 2003/07/21 22:14:57 jchiang Exp $
  */
 
 class Table {
@@ -58,6 +58,19 @@ public:
          ::strncpy(colname, name.c_str(), sizeof(colname));
       }
       Column():val(0){}
+
+//       Column(const Column &rhs) {
+//          for (int i=0; i < 32; i++)
+//             colname[i] = rhs.colname[i];
+//          colnum = rhs.colnum;
+//          typecode = rhs.typecode;
+//          dim = rhs.dim;
+//          width = rhs.width;
+//          val = new double[rhs.dim];
+//          for (int i=0; i < dim; i++)
+//             val[i] = rhs.val[i];
+//       }
+
       ~Column(){delete[] val;}
       
       char   colname[32]; // name of the Ntuple column

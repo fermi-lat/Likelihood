@@ -3,7 +3,7 @@
  * @brief Declaration of logLike_ptsrc class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.11 2003/07/19 04:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.12 2003/08/06 20:52:09 jchiang Exp $
  */
 
 #ifndef Likelihood_logLike_ptsrc_h
@@ -27,19 +27,20 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.11 2003/07/19 04:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.12 2003/08/06 20:52:09 jchiang Exp $
  */
 
 class logLike_ptsrc : public SourceModel {
     
 public:
 
-   logLike_ptsrc() {
+   logLike_ptsrc() : m_eventData(0) {
       logSrcModel m_logSrcModel;
       Npred m_Npred;
       deleteAllSources();
    }
-   virtual ~logLike_ptsrc() {}
+
+   virtual ~logLike_ptsrc() {delete m_eventData;}
 
    virtual double value(optimizers::Arg&) const;
 
@@ -67,7 +68,7 @@ public:
                       const std::string &colnames, int hdu);
 
    std::pair<long, double*> getEventColumn(const std::string &colname) const
-      {return getColumn(m_eventData, colname);}
+      {return getColumn(*m_eventData, colname);}
 
 protected:
 
@@ -79,7 +80,7 @@ protected:
    //! Event data; read from m_eventFile, stored in Table form
    std::string m_eventFile;
    int m_eventHdu;
-   Table m_eventData;
+   Table *m_eventData;
 
 private:
 
