@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Feb 26 18:14:43 PST 2004
+Likelihood/data
+
+Modified Files:
+	expMap.par 
+Log Message:
+add unit tests for Source classes, disabled for now
+    *
+------------------------------------------------------------
+User: jchiang  Thu Feb 26 18:14:43 PST 2004
 Likelihood/Likelihood
 
 Modified Files:
