@@ -132,6 +132,13 @@
    and spectral information can be stored here, then cloned for later
    use.
 
+   - Likelihood::Optimizer An abstract base class for the algorithms
+   which maximize the objective functions embodied in 
+   Likelihood::Statistic.  After an Optimizer object is constructed
+   using a Statistic, its find_min() method will adjust the values of
+   the Likelihood::Parameter s.  It may not converge to a satisfactory 
+   maximum, so it is important to check for exceptional conditions.
+
  <hr>
  @section notes Release Notes
  @verbinclude release.notes
