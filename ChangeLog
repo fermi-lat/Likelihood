@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  3 16:54:24 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Event.cxx ExposureMap.cxx PointSource.cxx Rosen.h 
+	SourceModel.cxx 
+Log Message:
+Re-implement some Parameter access method from Function in SourceModel.
+Kludge up setParams(...) in Rosen.h.
+Remove some unused parameters in Event and ExposureMap methods.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  3 16:52:36 PDT 2003
 Likelihood/cmt
 
