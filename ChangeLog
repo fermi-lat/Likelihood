@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Aug  6 07:58:29 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h 
+Log Message:
+factor out response parameterization to Event
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug  5 16:23:28 PDT 2004
 Likelihood/src
 
