@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.8 2003/11/10 23:06:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.9 2003/11/12 22:01:41 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -36,6 +36,7 @@
 using namespace Likelihood;
 
 void print_fit_results(SourceModel &stat, const std::vector<double> &errors);
+bool prompt(const std::string &query);
 
 int main(int iargc, char* argv[]) {
 
@@ -94,9 +95,8 @@ int main(int iargc, char* argv[]) {
    bool makeClone(false);
    funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
    funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
-   
-// Use either OptEM or classic Likelihoood.
-   LogLike * logLike;
+
+   LogLike * logLike = 0;
    bool useOptEM;
    params.getParam("Use_OptEM", useOptEM);
    if (useOptEM) {
@@ -104,11 +104,6 @@ int main(int iargc, char* argv[]) {
    } else {
       logLike = new LogLike();
    }
-
-// Read in the Source model.
-   std::string sourceModel;
-   params.getParam("Source_model_file", sourceModel);
-   logLike->readXml(sourceModel, funcFactory);
    
 // Read in the Event data.
    std::string eventFile;
@@ -122,9 +117,6 @@ int main(int iargc, char* argv[]) {
       logLike->getEvents(*evIt, eventFileHdu);
    }
 
-// Compute the Event responses to the diffuse components.
-   logLike->computeEventResponses();
-
 // Set the verbosity level and convergence tolerance.
    long verbose;
    params.getParam("fit_verbosity", verbose);
@@ -132,50 +124,71 @@ int main(int iargc, char* argv[]) {
    params.getParam("fit_tolerance", tol);
    std::vector<double> errors;
 
-   if (useOptEM) {
-      dynamic_cast<OptEM *>(logLike)->findMin(verbose);
-   } else {
-// Select an optimizer.
-      optimizers::Optimizer *myOpt = 0;
-      std::string optimizer;
-      params.getParam("optimizer", optimizer);
-      if (optimizer == "LBFGS") {
-         myOpt = new optimizers::Lbfgs(*logLike);
-      } else if (optimizer == "MINUIT") {
-         myOpt = new optimizers::Minuit(*logLike);
-      } else if (optimizer == "DRMNGB") {
-         myOpt = new optimizers::Drmngb(*logLike);
+// The fit loop.  Query the user at the end of each iteration, if the
+// fit is to be performed again.  This allows the user to adjust the
+// source model xml file by hand between iterations.
+
+   optimizers::Optimizer * myOpt = 0;
+   do {
+// Read in the Source model.
+      std::string sourceModel;
+      params.getParam("Source_model_file", sourceModel);
+      if (logLike->getNumSrcs() == 0) {
+// Read in the Source model for the first time.
+         logLike->readXml(sourceModel, funcFactory);
+         logLike->computeEventResponses();
+      } else {
+// Re-read the Source model from the xml file, allowing only for 
+// Parameter adjustments.
+         logLike->reReadXml(sourceModel);
       }
 
 // Do the fit.
-      try {
-         myOpt->find_min(verbose, tol);
-      } catch (optimizers::Exception &eObj) {
-         std::cerr << eObj.what() << std::endl;
-      }
-
+      if (useOptEM) {
+         dynamic_cast<OptEM *>(logLike)->findMin(verbose);
+      } else {
+// Select an optimizer.
+         std::string optimizer;
+         params.getParam("optimizer", optimizer);
+         if (optimizer == "LBFGS") {
+            myOpt = new optimizers::Lbfgs(*logLike);
+         } else if (optimizer == "MINUIT") {
+            myOpt = new optimizers::Minuit(*logLike);
+         } else if (optimizer == "DRMNGB") {
+            myOpt = new optimizers::Drmngb(*logLike);
+         }
+         try {
+            myOpt->find_min(verbose, tol);
+         } catch (optimizers::Exception &eObj) {
+            std::cerr << eObj.what() << std::endl;
+         }
 // Evaluate the uncertainties, if available.
-      if (optimizer == "MINUIT") {
-         errors = dynamic_cast<optimizers::Minuit *>(myOpt)->getUncertainty();
-      } else if (optimizer == "DRMNGB") {
-         int retCode = dynamic_cast<optimizers::Drmngb *>(myOpt)->getRetCode();
-         std::cerr << "Drmngb return code: " << retCode;
-         errors = dynamic_cast<optimizers::Drmngb *>(myOpt)->getUncertainty();
-      } 
-      delete myOpt;
-   }
-   print_fit_results(*logLike, errors);
+         if (optimizer == "MINUIT") {
+            errors =
+               dynamic_cast<optimizers::Minuit *>(myOpt)->getUncertainty();
+         } else if (optimizer == "DRMNGB") {
+            int retCode =
+               dynamic_cast<optimizers::Drmngb *>(myOpt)->getRetCode();
+            std::cerr << "Drmngb return code: " << retCode;
+            errors = 
+               dynamic_cast<optimizers::Drmngb *>(myOpt)->getUncertainty();
+         }
+         delete myOpt;
+      }
+      print_fit_results(*logLike, errors);
+      std::cout << std::endl;
 
 // Write the model to the output xml file.
-   std::string xmlFile;
-   params.getParam("Source_model_output_file", xmlFile);
-   std::string funcFileName;
-   params.getParam("Function_models_file_name", funcFileName);
+      std::string xmlFile;
+      params.getParam("Source_model_output_file", xmlFile);
+      std::string funcFileName;
+      params.getParam("Function_models_file_name", funcFileName);
 
-   if (xmlFile != "none") {
-      std::cout << "Writing fitted model to " << xmlFile << std::endl;
-      logLike->writeXml(xmlFile, funcFileName);
-   }
+      if (xmlFile != "none") {
+         std::cout << "Writing fitted model to " << xmlFile << std::endl;
+         logLike->writeXml(xmlFile, funcFileName);
+      }
+   } while (prompt("Refit? [y] "));
 
 // Write the model to a flux-style output file.
    std::string xml_fluxFile;
@@ -185,6 +198,7 @@ int main(int iargc, char* argv[]) {
                 << xml_fluxFile << std::endl;
       logLike->write_fluxXml(xml_fluxFile);
    }
+   delete logLike;
 }
 
 void print_fit_results(SourceModel &stat, const std::vector<double> &errors) {
@@ -211,4 +225,14 @@ void print_fit_results(SourceModel &stat, const std::vector<double> &errors) {
       std::cout << "Npred: "
                 << src->Npred() << std::endl;
    }
+}
+
+bool prompt(const std::string &query) {
+   std::cout << query;
+   char answer[2];
+   std::cin.getline(answer, 2);
+   if (std::string(answer) == "y" || std::string(answer) == "") {
+      return true;
+   }
+   return false;
 }
