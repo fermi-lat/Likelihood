@@ -59,7 +59,8 @@ namespace Likelihood {
     if (verbose == 0) {iv[20] = 0;}
     v[31] = tol;
 
-    for (;;) {  // Call drmngb_ in an infinite loop
+    // Call the optimizing function in an infinite loop.
+    for (;;) {
       drmngb_(&paramBounds[0], &scale[0], &funcVal, &gradient[0], &iv[0], &liv,
 	     &lv, &nparams, &v[0], &paramVals[0]);
       int value = iv[0];
@@ -68,8 +69,7 @@ namespace Likelihood {
       }
       else if (value == 2) { // request for the gradient
 	m_stat->getFreeDerivs(gradient);
-	for (dptr p = gradient.begin();
-	     p != gradient.end(); p++) {
+	for (dptr p = gradient.begin(); p != gradient.end(); p++) {
 	  *p = -*p;
 	}
       }
@@ -80,37 +80,31 @@ namespace Likelihood {
       }
     }
 
-    // Get parameter values
+    // Get parameter values and put them back into the Statistic
     int j = 0;
-    for (pptr p = params.begin();
-	 p != params.end(); p++, j++) {
+    for (pptr p = params.begin(); p != params.end(); p++, j++) {
       p->setValue(paramVals[j]);
     }
-    // Put parameter values back into the Statistic
     (*m_stat)(paramVals);
 
-    // Get the Cholesky factor of the Hessian.  It's a triangular
-    // matrix stored in compact fashion, so we treat it as 1-dimensional
-    dptr vp = v.begin() + iv[41] - 1;
+    // Get the Cholesky factor of the Hessian.  It's a lower triangular
+    // matrix stored in compact fashion, so we treat it as 1-dimensional.
+    const dptr vp = v.begin() + iv[41] - 1;
     std::vector<double> hess(vp, vp + nparams*(nparams+1)/2);
 
-    // Undo the Cholesky factorization for the diagonal elements to
-    // find the parameter uncertainties.
+    // Invert the Hessian to produce the covariance matrix.  The result 
+    //is also stored as a compact lower triangular matrix.
+    int info;
+    const char uplo = 'L';
+    dpptri_(&uplo, &nparams, &hess[0], &info, 1);
+
+    // Extract the diagonal elements of the covariance matrix.
+    // Their square roots are the parameter uncertainties.
     m_uncertainty.clear();
-    int rowLength = 1;  // Each row is longer than the one before
-    for (dptr p = hess.begin(); p != hess.end(); /* */ ) { // loop over rows
-      double diag = 0.;
-      dptr endRow = p + rowLength;
-      while (p != endRow) { // Diagonal = sum of factored row^2
-	diag += (*p) * (*p);
-	p++;
-      }
-      rowLength++;
-      // Since this is a likelihood function, 1-sigma uncertainty
-      // is 1/sqrt(Hessian diagonals)
-      m_uncertainty.push_back(1./sqrt(diag));
+    for (int i = 0; i < nparams; i++) {
+      m_uncertainty.push_back(sqrt(hess[i*(i+3)/2]));
     }
-    
+
   } // End of find_min
 }
 
