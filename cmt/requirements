@@ -1,10 +1,10 @@
 package Likelihood
-version v2r5
+version v2r5p1
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.56 2003/11/22 18:54:59 jchiang Exp $
+# $Id: requirements,v 1.57 2003/11/26 01:51:04 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -28,12 +28,12 @@ use hoops v*
 # allow use of internal path
 macro Likelihood_cppflags "" \
 Linux "-I ../src -g -O -pedantic -D TRAP_FPE -D USE_GOODI " \
-#Linux "-I ../src -g -O -pedantic -D TRAP_FPE " \
 WIN32 "/I..\src  /wd4290"
+#Linux "-I ../src -g -O -pedantic -D TRAP_FPE " \
 
 # make sure test applications get built when library changes
 macro test_Likelihoodstamps "Likelihood.stamp"
-macro likelihoodstamps "likelihood.stamp"
+macro likelihoodAppstamps "likelihoodApp.stamp"
 macro TsMapstamps "TsMap.stamp"
 macro expMapstamps "expMap.stamp"
 
@@ -42,6 +42,6 @@ library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 
 # applications
 application test_Likelihood test/main.cxx
-application likelihood test/likelihood.cxx
+application likelihoodApp test/likelihood.cxx
 application TsMap test/TsMap.cxx
 application expMap test/expMap.cxx
