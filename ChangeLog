@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Oct 10 18:35:01 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+refactor parameter access a bit, reorganizing likelihood application mostly
+    *
+------------------------------------------------------------
+User: jchiang  Sun Oct 10 18:35:01 PDT 2004
 Likelihood/src/gtsrcmaps
 
 Modified Files:
