@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.1 2004/03/11 05:19:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.2 2004/04/04 01:22:22 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -27,12 +27,14 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.1 2004/03/11 05:19:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.2 2004/04/04 01:22:22 jchiang Exp $
  */
 
 class LikeExposure : public map_tools::Exposure {
 
 public:
+
+   LikeExposure() {}
 
    LikeExposure(double skybin, double costhetabin, const std::string &roiFile);
 
