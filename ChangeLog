@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 19 16:02:04 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	RoiCuts.h SourceFactory.h SourceModel.h 
+Added Files:
+	FluxBuilder.h SourceModelBuilder.h XmlBuilder.h 
+Removed Files:
+	FluxModel.h 
+Log Message:
+prepare for Xerces migration; begin refactoring unit test
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 18 13:15:00 PST 2004
 Likelihood/src
 
