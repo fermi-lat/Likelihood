@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.10 2004/09/02 23:43:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.11 2004/09/28 04:32:25 jchiang Exp $
  *
  */
 
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.10 2004/09/02 23:43:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.11 2004/09/28 04:32:25 jchiang Exp $
  *
  */
     
@@ -59,7 +59,7 @@ public:
       return new SpatialMap(*this);
    }
 
-   std::string &fitsFile() {return m_fitsFile;}
+   const std::string & fitsFile() const {return m_fitsFile;}
 
 private:
 
