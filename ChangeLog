@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Dec  8 23:20:31 PST 2004
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+begin excising ROI xml input
+    *
+------------------------------------------------------------
+User: jchiang  Wed Dec  8 23:20:31 PST 2004
 Likelihood/src
 
 Modified Files:
