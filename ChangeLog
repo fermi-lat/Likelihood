@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar  4 14:08:25 PST 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Log Message:
+use EventContainer class
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar  4 14:08:23 PST 2005
 Likelihood/Likelihood
 
