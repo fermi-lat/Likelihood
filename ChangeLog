@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  4 08:14:39 PDT 2004
+Likelihood/pfiles
+
+Modified Files:
+	diffuseResponses.par 
+Log Message:
+add ROI_cuts_file entry
+    *
+------------------------------------------------------------
 User: jchiang  Tue Aug  3 14:29:58 PDT 2004
 Likelihood/src/TsMap
 
