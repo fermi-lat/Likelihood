@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 12 14:01:41 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	TsMap.cxx expMap.cxx likelihood.cxx main.cxx 
+Log Message:
+refactor RunParams; kludge DiffuseSource constructor
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 12 14:01:39 PST 2003
 Likelihood/src
 
