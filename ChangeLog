@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Feb  7 15:14:23 PST 2004
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+compute TS in likelihood app; tagging v2r9
+    *
+------------------------------------------------------------
 User: jchiang  Sat Feb  7 15:14:22 PST 2004
 Likelihood/cmt
 
