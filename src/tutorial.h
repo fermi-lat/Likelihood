@@ -3,7 +3,7 @@
 
    @section intro Introduction
 
-   In order to illustrate how to use the likeliood software, this
+   In order to illustrate how to use the likelihood software, this
    narrative is provided and gives a step-by-step description for
    performing an analysis on a highly simplified data set.
 
@@ -16,10 +16,11 @@
    - @ref makeExposureMap This is needed for analyzing diffuse sources
           and so is required for almost any sort of analysis.
    - @ref sourceModelFile The various model parameters are read by
-          likelihood from xml files.  The @b modeldef tool will make
+          likelihood from xml files.  The 
+          <a href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/ScienceTools/ScienceTools-v0r5/modeldef/v1r0p0/userguide.html">modelDef</a> tool will make
           this process easier.
-   - @ref runLikelihood The likelihood application itself.
-   - @ref checkWithObsSim Here we create counts maps using obsSim
+   - @ref runLikelihood , the likelihood application itself.
+   - @ref checkWithObsSim Here we create counts maps using @b obsSim
           for comparison with the data.
    - @ref makeTsMaps This is used for point source localization and for
           finding weaker sources after the stronger sources have
@@ -27,8 +28,9 @@
 
    @section createData Create Simulated Data Using obsSim
 
-   In practice, the data to be analyzed will be downloaded from GSSC
-   server.  However, here we will run the @b obsSim application to
+   In practice, the data to be analyzed will be downloaded from the 
+   <a href="http://glast.gsfc.nasa.gov/cgi-bin/ssc/U1/D1WebQuery.cgi">
+   GSSC server</a>.  However, here we will run the @b obsSim application to
    generate data with a known set of sources so that we can compare
    the results of our fits to the input parameters of the source model
    that was fed to the simulation.
@@ -41,17 +43,19 @@
    and <a
    href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/xml/3EG_catalog_20-1e6MeV.xml?cvsroot=CVS_SLAC">3EG_catalog_20-1e6MeV.xml</a>
    files are provided by default.  (Note that one should only use
-   photon sources from the former one with obsSim).  If one wishes to
+   photon sources from the former with @b obsSim ).  If one wishes to
    use sources from some of the other xml files in <a
    href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/xml/?cvsroot=CVS_SLAC">observationSim/xml</a>
    or from some other source model xml file, there is a hidden
    parameter in the <a
    href="http://glast.stanford.edu/cgi-bin/cvsweb/observationSim/data/obsSim.par?cvsroot=CVS_SLAC">obsSim.par</a>
-   file that will allow one to specify that file.  We will see how to
-   do this when we rerun @b obsSim again below.  The list of sources
-   should be put into a file, which we will call "source_names.dat".
+   file (<a href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/ScienceTools/ScienceTools-v0r5/Likelihood/v2r6p5/userguide.html">What's a .par file?</a>) that will allow one to specify that file.  
+   We will see how to
+   do this when we rerun @b obsSim again below.  
    \n\n
-   For this simple example, we choose the following sources:
+   The list of sources should be put into a file, which we will call
+   "source_names.dat".  For this simple example, we choose the
+   following sources:
    @verbatim
    diffuse-100mev
    anticenter
@@ -118,26 +122,29 @@
    The first file contains FITS binary tables of the photon events,
    having been generated for each source, then passed through the
    instrument response functions (IRFs); and the second contains the
-   spacecraft data --- time stamps, orbit and attitude info, etc.
+   spacecraft data --- time stamps, orbit and attitude information, etc.
    \n\n 
-   There are any number of tools available for displaying data in FITS
-   files.  One can use ds9 directly to do the binning for you:
+   Various tools are available for displaying data in FITS files. 
+   One can use ds9 directly to do the binning for you:
    @verbatim
    > ds9 "test_events_0000.fits[1][bin=ra,dec]"
    @endverbatim
-   But here we use the FTOOL @b fcopy and the extended filename syntax
+   but here we use the FTOOL @b fcopy and the extended filename syntax
    of cfitsio to create a counts map file:
    @verbatim
    > fcopy "test_events_0000.fits[1][bin ra,dec]" all_sky_1day.fits
    @endverbatim
-   The output file can then be viewed using ds9:
+   The <a href="http://glast.gsfc.nasa.gov/ssc/dev/binned_analysis/EventBin_DC1.html">EventBin</a> application, part of the Science Tools
+   distribution, provides capabilities for creating counts maps, in addition
+   to spectra and light curves that are particularly well-suited for LAT 
+   analysis.  In any case, we will use ds9 to view the counts maps:
 
    @image html allsky.png all_sky_1day.fits
    Here is a corresponding image using @ref all3EG.
    \n\n
-   Since we will like to compare these data against a model and will be
+   Since we would like to compare these data against a model and will be
    concentrating on the Galactic anti-center, let's create a more serviceable
-   FITS file for that, concentrating on that region:
+   FITS file, concentrating on that region:
    @verbatim
    > fcopy "test_events_0000.fits[1][bin ra=65:105,dec=2:42]" anticenter_1day.fits
    @endverbatim
@@ -145,10 +152,14 @@
    @section defineROI Define the Region-of-Interest 
    The Region-of-Interest (ROI) comprises a set of selections on photon
    arrival time, energy, and direction.  These selections are made in
-   addition to any that are made using the query to the GSSC database
-   or via the user-level selection tool.  Unfortunately, because of an
-   oversight in the Likelihood implementation, these
-   selections have to @em include any that are made by these other
+   addition to any that are made using the query to the 
+   <a href="http://glast.gsfc.nasa.gov/cgi-bin/ssc/U1/D1WebQuery.cgi">
+   GSSC database</a>
+   or via the 
+   <a href="http://glast.gsfc.nasa.gov/ssc/dev/databases/dataSubselector.html">
+   user-level selection tool</a>.  Unfortunately, because of an
+   oversight in the Likelihood implementation, the ROI
+   selections must @em include any that are made by these other
    tools.  More precisely, the data-space defined by the ROI must lie
    entirely within the intersection of the data-spaces defined by these
    other tools.  For example, if the user-level selection tool selects
@@ -182,7 +193,7 @@
    less than 100 MeV. (Note that we really should consider energy
    dispersion in our choice of emin.)  A similar consideration would
    have to be made if the user-level selection tool also applied an
-   energy cut.  Finally, an acceptance cone defines the part of the
+   energy cut.  Lastly, an acceptance cone defines the part of the
    sky from which photons will be accepted.  The "coordsys" attribute
    can either be "Galactic" or "J2000"; the "radius" attribute gives
    the half-opening angle of the acceptance cone; and units are in
@@ -190,13 +201,26 @@
 
    @section makeExposureMap Make an Exposure Map for a Given ROI
    With the ROI specified, we are now ready to create an exposure map.
-   This map is used by likelihood for computing the expected numbers
-   of events, \f$N_{\rm pred}\f$, from each diffuse source in the
-   source model.  Since this computation involves an integral over the
-   ROI, separate exposure maps must be made for every distinct ROI
-   file, if, for example, one wants to subdivide an observation to
-   look for secular flux variations from a particular source or
-   sources.
+   The type of exposure map used by likelihood differs significantly
+   from the usual notion of exposure maps, which are essentially
+   integrals of effective area over time.  The exposure calculation
+   that likelihood uses consists of an integral of the total response
+   over the entire ROI data-space:
+   \f[ \epsilon(E, \hat{p}) =
+        \int_{\rm ROI} dE^\prime d\hat{p}^\prime dt 
+        R(E^\prime, \hat{p}^\prime; E, \hat{p}, t),
+   \f]
+   where primed quantities indicate measured energies, \f$E^\prime\f$
+   and measured directions, \f$\hat{p}^\prime\f$.
+   This exposure function can then be used to compute the expected
+   numbers of events from a given source, \f$S_i(E, \hat{p})\f$:
+   \f[
+   N_{\rm pred} = \int dE d\hat{p} S_i(E, \hat{p}) \epsilon(E, \hat{p})
+   \f]
+   Since the exposure calculation involves an integral over the ROI,
+   separate exposure maps must be made for every distinct ROI file,
+   if, for example, one wants to subdivide an observation to look for
+   secular flux variations from a particular source or sources.
    \n\n
    We create the exposure map using the @b expMap tool:
    @verbatim
@@ -220,7 +244,7 @@
    smaller pixels should result in a more accurate evaluation of the
    diffuse source fluxes but will also make the exposure map
    calculation itself lengthier.  The number of energies specifies the
-   number of logrithmically spaced intervals bounded by the energy
+   number of logarithmically spaced intervals bounded by the energy
    range given in the ROI cuts xml file.  Here is one image plane of the
    exposure map we just created:
 
@@ -228,7 +252,7 @@
 
    @section sourceModelFile Create a Source Model XML File
    Like the ROI file, the @b likelihoodApp reads the source model
-   from an XML file. The @b modeldef application will provide a
+   from an XML file. The <a href="http://www.slac.stanford.edu/exp/glast/ground/software/RM/documentation/ScienceTools/ScienceTools-v0r5/modeldef/v1r0p0/userguide.html">modelDef</a> application will provide a
    convenient means of defining sources and creating a file of the 
    proper format.  Here is the file we'll be using for our analysis:
    @verbatim
@@ -329,7 +353,7 @@
    optimizers see.  Using the scale attribute is necessary to ensure
    that the parameters describing the objective function,
    -log(likelihood) for this application, all have values lying
-   roughly within a couple orders of magnitude.
+   roughly within a couple orders of magnitude of each other.
    \n\n
    The units for the spectral models are \f${\rm cm}^{-2} {\rm s}^{-1}
    {\rm MeV}^{-1}\f$ for PointSources and \f${\rm cm}^{-2} {\rm
@@ -405,7 +429,8 @@ Allow for refitting? [yes] :
    application is waiting at the "Refit? [y]" prompt so that
    parameters can be adjusted and set free or fixed.  This would be
    similar to the use of the "newpar", "freeze", and "thaw" commands
-   of XSPEC.  A prototype GUI is available as unsupported software
+   of <a href="http://heasarc.gsfc.nasa.gov/docs/xanadu/xspec/index.html">
+   XSPEC</a>.  A prototype GUI is available as unsupported software
    during DC1 to ease this process.
    \n\n
    The "flux-style output file name" specifies the destination of xml
@@ -467,7 +492,7 @@ Refit? [y]
    these numbers to the input values right now; however, for
    reference, the input values of the spectral indices to each of the
    sources are Crab: -2.19, Geminga: -1.66, PKS 0528+134: -2.46, and
-   extragalactic diffuuse: -2.1.  As an exercise, we will edit the
+   extragalactic diffuse: -2.1.  As an exercise, we will edit the
    model file, anticenter_model.xml, and fix the extragalactic diffuse 
    spectral index to the input value.  Here is what we would put:
    @verbatim
@@ -517,13 +542,13 @@ Writing flux-style xml model file to flux_model.xml
    @endverbatim
    Fixing the extragalactic diffuse spectral index doesn't really
    affect the other sources in the model, but it does in fact improve
-   the Prefactor normalization:  the input model value would be 1.32.
+   the Prefactor normalization:  the input model value is 1.32.
 
    @section checkWithObsSim Use obsSim to Check the Model Fit 
    In practice, of course, we will not know what the true parameter
    values are for the sources we are fitting.  One way of comparing
    the fitted model to the data is to create a simulated data set and
-   compare that to the data.  For this purpose, we can use the
+   compare that to the real data.  For this purpose, we can use the
    flux_model.xml file created by the application:
    @verbatim
 <source_library title="Likelihood_model">
@@ -569,7 +594,7 @@ Writing flux-style xml model file to flux_model.xml
    @endverbatim
    We need to hand edit the obsSim.par file and give it this file name, or
    alternatively, one could set the second entry following "XML_source_file"
-   to "ql" as we've done below and the use:
+   to "ql" as we've done here:
    @verbatim
 XML_source_file,f,ql,"flux_model.xml",,,"File of flux-style source definitions"
 Source_list,f,ql,"source_names.dat",,,"File containing source names"
@@ -582,11 +607,11 @@ Start_time,r,hl,0,,,Simulation start time (seconds)
 Pointing_history_file,s,ql,"none",,,"Pointing history file"
 Maximum_number_of_rows,i,hl,200000,,,Maximum number of rows in FITS files
    @endverbatim
-   And lastly, we need to edit the source_names.dat file to contain:
+   We then need to edit the source_names.dat file to contain:
    @verbatim
    all_in_flux_model.xml
    @endverbatim
-   run @b obsSim.exe on this,
+   run @b obsSim,
    @verbatim
    > obsSim.exe 
    File of flux-style source definitions [flux_model.xml] : 
@@ -599,11 +624,11 @@ Maximum_number_of_rows,i,hl,200000,,,Maximum number of rows in FITS files
    Generating events for a simulation time of 86400 seconds....
    Done.
    @endverbatim
-   create a counts map having the same geometry as anticenter_1day.fits:
+   create a counts map having the same geometry as anticenter_1day.fits,
    @verbatim
    > fcopy "model_fit_events_0000.fits[1][bin ra=65:105,dec=2:42]" model_fit_1day.fits
    @endverbatim
-   and compare using ds9:
+   and compare using ds9,
 
    @image html anticenter_1day.png
 
@@ -613,14 +638,15 @@ Maximum_number_of_rows,i,hl,200000,,,Maximum number of rows in FITS files
    limit of the instrument.  The procedure used in the analysis of
    EGRET data was to model the strongest, most obvious sources (with
    some theoretical prejudice as to the true source positions, e.g.,
-   assuming most variable high Galactic latitude sources are blazars),
-   and then create "Test-statistic maps" to search for unmodeled point
-   sources.  These TS maps were created by moving a putative point
-   source through a grid of locations on the sky and maximizing
-   -log(likelihood) for each grid point, with the other, stronger, and
-   presumably well-identified sources included in each of the fits.
-   New fainter sources were then identified at local maxima of the TS
-   map.
+   assuming that most variable high Galactic latitude sources are
+   blazars which can be localized by radio, optical, or X-ray
+   observations), and then create "Test-statistic maps" to search for
+   unmodeled point sources.  These TS maps are created by moving a
+   putative point source through a grid of locations on the sky and
+   maximizing -log(likelihood) at each grid point, with the other,
+   stronger, and presumably well-identified sources included in each
+   of fit.  New, fainter sources are then identified at local maxima
+   of the TS map.
 
    Since we know there are only three point sources in data set, as an
    exercise we will comment-out the weakest source of the three from the
@@ -641,8 +667,8 @@ Maximum_number_of_rows,i,hl,200000,,,Maximum number of rows in FITS files
 -->
 </source_library>
    @endverbatim
-   and we create a TS map (with the same dimensions as our counts maps) to see
-   if we can find PKS 0528+134 using this method:
+   We then create a TS map (with the same dimensions as our counts
+   maps) to see how well PKS 0528+134 is identified using this method:
    @verbatim
    > time TsMap.exe
    ROI cuts file [RoiCuts.xml] : 
@@ -681,15 +707,19 @@ Maximum_number_of_rows,i,hl,200000,,,Maximum number of rows in FITS files
    Computing exposure at (105, 42).....................!
    4084.230u 25.040s 1:13:56.05 92.6%      0+0k 0+0io 6381pf+0w
    @endverbatim
-   Note that no PKS0529p134 source is created or added.
-   Here is the resulting TsMap file compared to the original counts map:
+   Note that no PKS0529p134 source is created or added in the setup to
+   doing the fits over the grid of sky locations.  Here is the
+   resulting TsMap file compared to the original counts map:
 
    @image html TsMap_compare.png
    \n
    The green circle in the left image appears at the location of PKS
    0528+134, (ra, dec) = (82.74, 13.38) degrees.
 
+*/
+
+/** @page All_3EG
    @section all3EG all_3EG_sources + diffuse_100mev
    @image html allsky_3EG.png allsky_3EG.fits
    
-   */
+*/
