@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.29 2005/03/02 01:10:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.30 2005/03/03 00:17:17 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -15,6 +15,7 @@
 #include "facilities/Util.h"
 
 #include "Likelihood/ExposureMap.h"
+#include "Likelihood/FitsImage.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SkyDirArg.h"
@@ -34,50 +35,42 @@ void fitsReportError(FILE *stream, int status) {
 
 namespace Likelihood {
 
-ExposureMap * ExposureMap::s_instance = 0;
-bool ExposureMap::s_haveExposureMap = false;
-std::vector<double> ExposureMap::s_energies;
-std::vector<double> ExposureMap::s_ra;
-std::vector<double> ExposureMap::s_dec;
-std::vector< std::vector<double> > ExposureMap::s_exposure;
-FitsImage ExposureMap::s_mapData;
-
 void ExposureMap::readExposureFile(std::string exposureFile) {
 
 // Expand any environment variables in the exposure file name.
    facilities::Util::expandEnvVar(&exposureFile);
 
-   s_mapData = FitsImage(exposureFile);
+   FitsImage mapData(exposureFile);
 
-   s_mapData.getCelestialArrays(s_ra, s_dec);
+   mapData.getCelestialArrays(m_ra, m_dec);
 
 // Fetch the energy axis abscissa points. Here we assume that the
 // exposure map has at least two image planes, and that the energies
 // are along the third dimension so we set naxis = 2.
    int naxis = 2;
-   s_mapData.getAxisVector(naxis, s_energies);
+   mapData.getAxisVector(naxis, m_energies);
 
 // pixel solid angles
    std::vector<double> solidAngles;
-   s_mapData.getSolidAngles(solidAngles);
+   mapData.getSolidAngles(solidAngles);
 
-// Fill the vector of the planes of s_exposure for each true photon
+// Fill the vector of the planes of m_exposure for each true photon
 // energy.
-   s_exposure.clear();
+   m_exposure.clear();
    std::vector<double> exposure;
-   s_mapData.getImageData(exposure);
+   mapData.getImageData(exposure);
 
    int indx = 0;
    int npixels = solidAngles.size();
-   for (unsigned int k = 0; k < s_energies.size(); k++) {
+   for (unsigned int k = 0; k < m_energies.size(); k++) {
       std::vector<double> expArray(npixels);
       for (int sa_indx = 0; sa_indx < npixels; sa_indx++) {
          expArray[sa_indx] = solidAngles[sa_indx]*exposure[indx];
          indx++;
       }
-      s_exposure.push_back(expArray);
+      m_exposure.push_back(expArray);
    }
-   s_haveExposureMap = true;
+   m_haveExposureMap = true;
 }
 
 void ExposureMap::integrateSpatialDist(const std::vector<double> &energies,
@@ -91,35 +84,24 @@ void ExposureMap::integrateSpatialDist(const std::vector<double> &energies,
 // map data) that will be used for interpolating at energies[k]; here
 // we assume the ExposureMap energies are logarithmically spaced.
       std::vector<double>::const_iterator iterE;
-      if (energies[k] < s_energies[0]) {
-         iterE = s_energies.begin() + 1;
-      } else if (energies[k] >= *(s_energies.end() - 1)) {
-         iterE = s_energies.end() - 1;
+      if (energies[k] < m_energies[0]) {
+         iterE = m_energies.begin() + 1;
+      } else if (energies[k] >= *(m_energies.end() - 1)) {
+         iterE = m_energies.end() - 1;
       } else {
-         iterE = std::upper_bound(s_energies.begin(), s_energies.end(), 
+         iterE = std::upper_bound(m_energies.begin(), m_energies.end(), 
                                   energies[k]);
       }
-      int kk = iterE - s_energies.begin();
-      for (unsigned int j = 0; j < s_ra.size(); j++) {
+      int kk = iterE - m_energies.begin();
+      for (unsigned int j = 0; j < m_ra.size(); j++) {
          double expsr = log(energies[k]/(*(iterE-1)))/log(*iterE/(*(iterE-1)));
-         expsr = expsr*(s_exposure[kk][j] - s_exposure[kk-1][j])
-            + s_exposure[kk-1][j];
-         astro::SkyDir skyDir(s_ra[j], s_dec[j]);
+         expsr = expsr*(m_exposure[kk][j] - m_exposure[kk-1][j])
+            + m_exposure[kk-1][j];
+         astro::SkyDir skyDir(m_ra[j], m_dec[j]);
          SkyDirArg dir(skyDir, energies[k]);
          srcExposure += expsr*(*spatialDist)(dir);
       }
       exposure.push_back(srcExposure);
-   }
-}
-
-ExposureMap * ExposureMap::instance() {
-   if (s_instance == 0) {
-      s_instance = new ExposureMap();
-   }
-   if (s_haveExposureMap) {
-      return s_instance;
-   } else {
-      return 0;
    }
 }
 
