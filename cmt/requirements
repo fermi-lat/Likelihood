@@ -4,14 +4,14 @@ version v2r6p8
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.73 2004/01/06 00:10:27 jchiang Exp $
+# $Id: requirements,v 1.74 2004/01/08 18:36:23 jchiang Exp $
 
 use xml v*
 use facilities v2*
 use astro  v*
 use Goodi v*
 use latResponse v1*
-use optimizers v0*
+use optimizers v*
 use cfitsio v1* IExternal
 use CLHEP v2* IExternal
 
