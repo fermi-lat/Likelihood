@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.56 2005/01/10 18:10:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.57 2005/02/27 06:42:28 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -276,7 +276,7 @@ void LikelihoodTests::test_XmlBuilders() {
    std::vector<std::string> srcNames;
    srcFactory->fetchSrcNames(srcNames);
 
-   FluxBuilder fluxBuilder;
+   FluxBuilder fluxBuilder(30, 2e5);
    SourceModelBuilder srcModelBuilder("", "source library");
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       Source * src = srcFactory->create(srcNames[i]);
@@ -590,7 +590,9 @@ void LikelihoodTests::test_DiffuseSource() {
 void LikelihoodTests::generate_exposureHyperCube() {
    std::string RoiFile = m_rootPath + "/data/RoiCuts.xml";
    RoiCuts::instance()->setCuts(RoiFile);
-   LikeExposure exposure(1., 0.025);
+   std::vector<std::pair<double, double> > timeCuts;
+   RoiCuts::instance()->getTimeCuts(timeCuts);
+   LikeExposure exposure(1., 0.025, timeCuts);
    tip::Table * scData = tip::IFileSvc::instance().editTable(m_scFile, "Ext1");
    exposure.load(scData, false);
    std::string output_file = m_rootPath + "/data/expcube_1_day.fits";
