@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Mar 16 16:53:44 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+attempted to canonicalize to LAT coding conventions, removed some unwanted classes
+    *
+------------------------------------------------------------
+User: jchiang  Sun Mar 16 16:53:44 PST 2003
 Likelihood/src
 
 Modified Files:
