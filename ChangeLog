@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 11 10:23:59 PDT 2004
+Likelihood/python
+
+Modified Files:
+	Likelihood.i Makefile test.py 
+Log Message:
+fixes for swig builds of python modules
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 11 10:23:58 PDT 2004
 Likelihood/Likelihood
 
