@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 25 11:32:19 PDT 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Add a working version of DiffuseSource
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 25 11:32:18 PDT 2003
 Likelihood/Likelihood
 
