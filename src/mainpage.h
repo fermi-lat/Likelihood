@@ -474,33 +474,26 @@ model besides the putative point source.
 Here is an example session of a TsMap run:
 
 @verbatim
-glast-guess1[jchiang] TsMap.exe
-ROI cuts file [../xml/RoiCuts.xml] : 
-Spacecraft file [../src/test/Data/diffuse_test_5_sc_0000] : 
-Exposure file [../src/test/Data/exp_diffuse_test_5_new.fits] : 
-Response functions to use <FRONT/BACK|COMBINED> [FRONT/BACK] : 
-Source model file [../data/Virgo_region_2.xml] : 
-Event file [../src/test/Data/diffuse_test_5_0000] : 
+glast-guess1[jchiang] TsMap.exe 
+ROI cuts file [$(LIKELIHOODROOT)/data/RoiCuts.xml] : 
+Spacecraft file [$(LIKELIHOODROOT)/data/oneday_scData_0000.fits] : 
+Exposure file [none] : 
+Response functions to use <FRONT/BACK|FRONT|BACK> [FRONT/BACK] : 
+Source model file [$(LIKELIHOODROOT)/data/anticenter_model.xml] : 
+Event file [$(LIKELIHOODROOT)/data/oneday_events_0000.fits] : 
 Optimizer <LBFGS|MINUIT|DRMNGB> [DRMNGB] : 
 Optimizer verbosity [0] : 
 Fit tolerance [0.001] : 
-Coordinate system <CEL|GAL> [CEL] : 
-Longitude maximum <-360 - 360> [198] : 
-Longitude minmum <-360 - 360> [190] : 
-Number of longitude points <2 - 200> [20] : 
-Latitude maximum <-90 - 90> [-2] : 
-Latitude minimum <-90 - 90> [-10] : 
-Number of latitude points <2 - 200> [20] : 
-TS map file name [../data/TsMap.fits] : 
-Creating source named Extragalactic Diffuse Emission
-Creating source named Galactic Diffuse Emission
-adding source Extragalactic Diffuse Emission
-adding source Galactic Diffuse Emission
-LogLike::getEvents:
-Out of 609 events in file ../src/test/Data/diffuse_test_5_0000,
- 609 were accepted, and 0 were rejected.
-
-Computing Event responses for the DiffuseSources............
+Coordinate system <CEL|GAL> [GAL] : 
+Longitude minmum <-360 - 360> [160] : 
+Longitude maximum <-360 - 360> [200] : 
+Number of longitude points <2 - 200> [40] : 
+Latitude minimum <-90 - 90> [-20] : 
+Latitude maximum <-90 - 90> [20] : 
+Number of latitude points <2 - 200> [40] : 
+TS map file name [TsMap.fits] : 
+Creating source named Crab
+Computing exposure at (83.57, 22.01)......
 @endverbatim
 
 The first nine parameters are the same as for the @ref likeApp.  The new
@@ -516,16 +509,16 @@ package.  Here's a sample session:
 
 @verbatim
 glast-guess1[jchiang] expMap.exe 
-ROI cuts file [$(LIKELIHOODROOT)/xml/RoiCuts.xml] : 
-Spacecraft file [$(LIKELIHOODROOT)/src/test/Data/diffuse_test_5_sc_0000] : 
-Response functions to use <FRONT/BACK|COMBINED> [COMBINED] : 
-Radius of the source region (in degrees) [31] : 
-Number of longitude points <2 - 1000> [10] : 
-Number of latitude points <2 - 1000> [10] : 
+ROI cuts file [$(LIKELIHOODROOT)/data/RoiCuts.xml] : 
+Spacecraft file [oneday_scData_0000.fits] : $(LIKELIHOODROOT)/data/oneday_scData_0000.fits
+Response functions to use <FRONT/BACK|FRONT|BACK> [FRONT/BACK] : 
+Radius of the source region (in degrees) [30] : 
+Number of longitude points <2 - 1000> [60] : 
+Number of latitude points <2 - 1000> [60] : 
 Number of energies <2 - 100> [10] : 
-Exposure file [test_expMap.fits] : 
-The radius of the source region, 31, should be significantly larger (say 10 deg) than the ROI radius of 30
-Computing the ExposureMap....................!
+Exposure file [anticenter_expMap.fits] : 
+The radius of the source region, 30, should be significantly larger (say by 10 deg) than the ROI radius of 25
+Computing the ExposureMap...................!
 @endverbatim
 
 Note that @b expMap uses the ROI cuts file, which should be the same

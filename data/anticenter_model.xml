@@ -1,0 +1,35 @@
+<source_library title="source library">
+  <source name="Crab" type="PointSource">
+    <spectrum type="PowerLaw">
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="26.8873" />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.19" />
+      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
+    </spectrum>
+    <spatialModel type="SkyDirFunction">
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="83.57" />
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="22.01" />
+    </spatialModel>
+  </source>
+  <source name="Geminga" type="PointSource">
+    <spectrum type="PowerLaw">
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="27.0153" />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-1.66" />
+      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
+    </spectrum>
+    <spatialModel type="SkyDirFunction">
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="98.49" />
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="17.86" />
+    </spatialModel>
+  </source>
+  <source name="PKS0528+134" type="PointSource">
+    <spectrum type="PowerLaw">
+      <parameter max="1000" min="0.001" free="1" name="Prefactor" scale="1e-09" value="13.1308" />
+      <parameter max="-1" min="-3.5" free="1" name="Index" scale="1" value="-2.46" />
+      <parameter max="200" min="50" free="0" name="Scale" scale="1" value="100" />
+    </spectrum>
+    <spatialModel type="SkyDirFunction">
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="RA" scale="1" value="82.74" />
+      <parameter max="3.40282e+38" min="-3.40282e+38" free="0" name="DEC" scale="1" value="13.38" />
+    </spatialModel>
+  </source>
+</source_library>
