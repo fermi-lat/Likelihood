@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Nov  5 08:55:18 PST 2003
+Likelihood/data
+
+Modified Files:
+	Virgo_region.xml likelihood.par 
+Log Message:
+refine likelihood.cxx interface a bit
+    *
+------------------------------------------------------------
+User: jchiang  Wed Nov  5 08:55:18 PST 2003
 Likelihood/Likelihood
 
 Modified Files:
