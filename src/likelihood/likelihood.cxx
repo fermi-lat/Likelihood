@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.13 2004/06/09 17:13:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.14 2004/06/09 23:19:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.13 2004/06/09 17:13:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.14 2004/06/09 23:19:32 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -74,7 +74,7 @@ private:
    void createStatistic();
    void readEventData();
    void readSourceModel();
-   void selectOptimizer();
+   void selectOptimizer(std::string optimizer="");
    void writeSourceXml();
    void writeFluxXml();
    void printFitResults(const std::vector<double> &errors);
@@ -129,9 +129,14 @@ void likelihood::run() {
          selectOptimizer();
          try {
             m_opt->find_min(verbose, tol);
+         } catch (optimizers::Exception & eObj) {
+            std::cerr << eObj.what() << std::endl;
+         }
+         try {
             errors = m_opt->getUncertainty();
          } catch (optimizers::Exception & eObj) {
-            // Allow manual adjustment of fit parameters.
+            std::cerr << "Exception encountered while estimating errors:\n"
+                      << eObj.what() << std::endl;
          }
       }
       printFitResults(errors);
@@ -177,10 +182,15 @@ void likelihood::readSourceModel() {
    }
 }
 
-void likelihood::selectOptimizer() {
+void likelihood::selectOptimizer(std::string optimizer) {
    delete m_opt;
    m_opt = 0;
-   std::string optimizer = m_pars["optimizer"];
+   if (optimizer == "") {
+// Type conversions for hoops are not working properly here so
+// workaround the problem with an intermediate variable.
+      std::string opt = m_pars["optimizer"];
+      optimizer = opt;
+   }
    if (optimizer == "LBFGS") {
       m_opt = new optimizers::Lbfgs(*m_logLike);
    } else if (optimizer == "MINUIT") {
@@ -221,11 +231,14 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
 
 // Compute TS for each source.
    std::map<std::string, double> TsValues;
-   int verbose(1);
+   int verbose(0);
    double tol(1e-4);
    double logLike_value = m_logLike->value();
    std::vector<double> null_values;
+   std::cerr << "Computing TS values for each source ("
+             << srcNames.size() << " total)\n";
    for (unsigned int i = 0; i < srcNames.size(); i++) {
+      std::cerr << ".";
       if (srcNames[i].find("Diffuse") == std::string::npos) {
          Source * src = m_logLike->deleteSource(srcNames[i]);
          if (m_logLike->getNumFreeParams() > 0) {
@@ -239,7 +252,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
             TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
          } else {
 // // Not sure this is correct in the case where the model for the null
-// // hypothesis is truly empty.
+// // hypothesis is empty.
 //             TsValues[srcNames[i]] = 2.*logLike_value;
 // A better default value?
             TsValues[srcNames[i]] = 0.;
@@ -247,6 +260,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
          m_logLike->addSource(src);
       }
    }
+   std::cerr << "!" << std::endl;
    selectOptimizer();
    m_opt->find_min(verbose, tol);
 
