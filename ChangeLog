@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Aug 16 20:38:22 PDT 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Log Message:
+use irfLoader::Util::respIds
+    *
+------------------------------------------------------------
 User: jchiang  Fri Aug 13 10:17:53 PDT 2004
 Likelihood/doc
 
