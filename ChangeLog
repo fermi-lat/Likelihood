@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Dec  4 16:26:19 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	TrapQuad.h 
+Log Message:
+integrals for power-laws across logrithmic intervals
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  1 08:46:28 PST 2004
 Likelihood/src/likelihood
 
