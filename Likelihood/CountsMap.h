@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.7 2004/09/22 05:39:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.8 2004/09/24 03:54:19 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -50,6 +50,8 @@ public:
              double pix_scale, double axis_rot, bool use_lb, 
              const std::string & ra_field, const std::string & dec_field,
              const std::vector<double> & energies);
+
+   CountsMap(const std::string & countsMapFile);
 
    CountsMap(const CountsMap & counts_map);
 
@@ -105,6 +107,12 @@ private:
 
    void getPixels(std::vector<astro::SkyDir> & pixelDirs,
                   std::vector<double> & pixelSolidAngles) const;
+
+   void readKeywords(const std::string & countsMapFile);
+   void readEbounds(const std::string & countsMapfile,
+                    std::vector<evtbin::Binner *> & binners);
+   void readImageData(const std::string & countsMapfile,
+                      std::vector<evtbin::Binner *> & binners);
 
 };
 

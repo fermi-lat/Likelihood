@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.10 2004/09/24 21:02:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.11 2004/09/25 06:36:32 jchiang Exp $
  */
 
 #include <memory>
@@ -187,22 +187,40 @@ void BinnedLikelihood::computeModelMap(double & npred) const {
    m_modelIsCurrent = true;
 }
 
-void BinnedLikelihood::prepareSourceMaps() {
+void BinnedLikelihood::createSourceMaps() {
    std::vector<std::string> srcNames;
    getSrcNames(srcNames);
-//    if (m_srcMapsFile != "") {
-//       std::vector<std::string>::const_iterator name = srcNames.begin();
-//       for ( ; name != srcNames.end(); ++name) {
-//          if (sourceMapExists(*name, m_srcMapsFile)) {
-//             if (m_srcMaps.count(*name)) {
-//                delete m_srcMaps[*name];
-//             }
-//             m_srcMaps[*name] = new SourceMap(m_srcMapsFile, *name);
-//          }
-//       }
-//    }
    std::vector<std::string>::const_iterator name = srcNames.begin();
    for ( ; name != srcNames.end(); ++name) {
+      Source * src = getSource(*name);
+      m_srcMaps[*name] = new SourceMap(src, m_dataMap);
+   }
+}
+
+void BinnedLikelihood::readSourceMaps(std::string filename) {
+   if (filename == "") {
+      if (m_srcMapsFile == "") {
+         throw std::runtime_error("BinnedLikelihood::readSourceMaps: " +
+                                  std::string("need to specify a SourceMaps ") 
+                                  + "file.");
+      }
+      filename = m_srcMapsFile;
+   }
+   std::vector<std::string> srcNames;
+   getSrcNames(srcNames);
+   std::vector<std::string>::const_iterator name = srcNames.begin();
+   for ( ; name != srcNames.end(); ++name) {
+      if (sourceMapExists(*name, m_srcMapsFile)) {
+// Replace an existing map in memory.
+         if (m_srcMaps.count(*name)) {
+            delete m_srcMaps[*name];
+         }
+// @todo Confirm that the CountsMap in m_srcMapsFile matches m_dataMap.
+         m_srcMaps[*name] = new SourceMap(m_srcMapsFile, *name);
+      }
+   }
+// Generate needed maps that not available in the file.
+   for (name = srcNames.begin() ; name != srcNames.end(); ++name) {
       if (!m_srcMaps.count(*name)) {
          Source * src = getSource(*name);
          m_srcMaps[*name] = new SourceMap(src, m_dataMap);

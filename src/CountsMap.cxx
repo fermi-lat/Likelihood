@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.8 2004/09/24 03:54:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.9 2004/09/25 06:36:32 jchiang Exp $
  */
 
 #include <algorithm>
@@ -11,6 +11,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include "facilities/Util.h"
 
 #include "astro/SkyDir.h"
 #include "astro/SkyProj.h"
@@ -92,6 +94,88 @@ CountsMap::CountsMap(const std::string & event_file,
    init(binners, event_file, sc_file, num_x_pix, num_y_pix, 
         ref_ra, ref_dec, pix_scale, energies.front(), energies.back(), 
         energies.size(), use_lb, proj);
+}
+
+CountsMap::CountsMap(const std::string & countsMapFile) : m_use_lb(false) {
+   readKeywords(countsMapFile);
+   std::vector<evtbin::Binner *> binners;
+   binners.push_back(new evtbin::LinearBinner(0.5, m_naxes[0]+0.5, 1., "RA"));
+   binners.push_back(new evtbin::LinearBinner(0.5, m_naxes[1]+0.5, 1., "DEC"));
+   readEbounds(countsMapFile, binners);
+   readImageData(countsMapFile, binners);
+}
+
+void CountsMap::readImageData(const std::string & countsMapFile,
+                              std::vector<evtbin::Binner *> & binners) {
+   m_hist = new HistND(binners);
+   std::auto_ptr<const tip::Image> 
+      image(tip::IFileSvc::instance().readImage(countsMapFile, ""));
+   std::vector<float> image_data;
+   image->get(image_data);
+   std::vector<double> data(image_data.size());
+   std::copy(image_data.begin(), image_data.end(), data.begin());
+   m_hist->setData(data);
+}
+
+void CountsMap::readKeywords(const std::string & countsMapFile) {
+   std::auto_ptr<const tip::Image> 
+      image(tip::IFileSvc::instance().readImage(countsMapFile, ""));
+   const tip::Header & header = image->getHeader();
+   typedef std::vector<tip::PixOrd_t> DimCont_t;
+   DimCont_t dims = image->getImageDimensions();
+   DimCont_t::size_type num_dims = dims.size();
+   if (3 != num_dims) {
+      throw std::runtime_error("CountsMap::readKeywords: "
+                               + std::string("input CountsMap is not 3D."));
+   }
+   for (unsigned int i = 0; i < 3; i++) {
+      m_naxes[i] = dims[i];
+   }
+   header["CRPIX1"].get(m_crpix[0]);
+   header["CRPIX2"].get(m_crpix[1]);
+   header["CRPIX3"].get(m_crpix[2]);
+   header["CRVAL1"].get(m_crval[0]);
+   header["CRVAL2"].get(m_crval[1]);
+   header["CRVAL3"].get(m_crval[2]);
+   header["CDELT1"].get(m_cdelt[0]);
+   header["CDELT2"].get(m_cdelt[1]);
+   header["CDELT3"].get(m_cdelt[2]);
+   header["CROTA2"].get(m_axis_rot);
+   std::string lon_coord;
+   std::string lat_coord;
+   header["CTYPE1"].get(lon_coord);
+   header["CTYPE2"].get(lat_coord);
+   std::vector<std::string> tokens;
+   facilities::Util::stringTokenize(lon_coord, "-", tokens);
+   if (tokens[0] == "GLON") {
+      m_use_lb = true;
+   }
+   m_proj_name = tokens.back();
+   m_proj = new astro::SkyProj(m_proj_name, m_crpix, m_crval, m_cdelt, 
+                               m_axis_rot, m_use_lb);
+}
+
+void CountsMap::readEbounds(const std::string & countsMapFile, 
+                            std::vector<evtbin::Binner *> & binners) {
+   std::auto_ptr<const tip::Table> 
+      ebounds(tip::IFileSvc::instance().readTable(countsMapFile, "EBOUNDS"));
+   tip::Table::ConstIterator it = ebounds->begin();
+   tip::Table::ConstRecord & row = *it;
+   std::vector<double> energies(ebounds->getNumRecords() + 1);
+   double emax;
+   for (int i = 0 ; it != ebounds->end(); ++it, i++) {
+      row["E_MIN"].get(energies.at(i));
+      row["E_MAX"].get(emax);
+   }
+   energies.back() = emax;
+
+   std::vector<evtbin::Binner::Interval> energy_intervals;
+   for (unsigned int i = 0; i < energies.size()-1; i++) {
+      energy_intervals.push_back(evtbin::Binner::Interval(energies[i], 
+                                                          energies[i+1]));
+   }
+   binners.push_back(new evtbin::OrderedBinner(energy_intervals,
+                                               "photon energy"));
 }
 
 void CountsMap::init(std::vector<evtbin::Binner *> & binners, 
