@@ -3,7 +3,7 @@
  * @brief Implementation for Expectation Maximization class.
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.2 2003/11/08 01:24:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.3 2003/11/10 12:54:39 cohen Exp $
  */
 
 #include "Likelihood/OptEM.h"
@@ -54,6 +54,8 @@ namespace Likelihood {
       //! The M step.  Optimize parameters of each source.
       for (unsigned int i = 0; i < getNumSrcs(); i++) {
 	OneSourceFunc f(s_sources[i], m_events, Warray[i]); 
+	f.setEpsF(1.e-20);
+	f.setEpsW(1.e-2);
 	nPar += f.getNumFreeParams();
 	optimizers::Arg arg;
 	//	optimizers::Lbfgs opt(f);
@@ -61,7 +63,7 @@ namespace Likelihood {
 	opt.setNeedCovariance(false);
 	//optimizers::Minuit opt(f);
 	try {
-	  opt.find_min(verbose, .1 * f.getNumFreeParams() * 1.1 * .2,
+	  opt.find_min(verbose, .1 * chifunc(f.getNumFreeParams()),
 		       optimizers::ABSOLUTE);}
 	catch (optimizers::Exception e) {
 	  std::cerr << "Optimizer Exception " << e.code() << std::endl;
@@ -78,12 +80,28 @@ namespace Likelihood {
       if (verbose != 0)
 	std::cout << "Iteration #" << iteration << ", logL = " << logL << 
 	  ", old logL = " << oldLogL  << " params " << nPar << std::endl;
-    } while (abs(logL-oldLogL) > 0.11 * nPar || oldLogL == 0.);
+    } while (abs(logL-oldLogL) > 0.1*chifunc(nPar) || oldLogL == 0.);
 
     //! Clean up before exit
     for (unsigned int i=0; i < getNumSrcs(); i++) {
       delete Warray[i];
     }
+  }
+
+  double chifunc(int ndof) {
+    // chi-squared value whose cumulative probability is 0.683
+    if (ndof <= 0) {
+      throw optimizers::Exception("chifunc invalid input < 1");
+      abort();
+    }
+    double val = 0.;
+    if (ndof < 10) {
+      val = -.2265+ndof*(1.2719+ndof*(-.0097));
+    } else {
+      double x = (ndof-255)/141.5951;
+      val = 265.7118+x*(144.4737+x*(-.2998+x*(.2429+x*(-.1234))));
+    }
+    return val;
   }
 
 } // namespace Likelihood

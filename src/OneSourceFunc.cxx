@@ -4,7 +4,7 @@
  *
  * @author P. Nolan
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OneSourceFunc.cxx,v 1.2 2003/11/08 01:24:44 jchiang Exp $
  */
 
 #include "Likelihood/OneSourceFunc.h"
@@ -15,18 +15,26 @@
 namespace Likelihood {
 
   //! cutoff values for minimum weight and flux
-  const double epsw = 1.e-3;
-  const double epsf = 1.e-20;
 
   OneSourceFunc::OneSourceFunc(Source * src,
 			       std::vector<Event>& evt,
 			       std::vector<double> * weights):
     m_src(src),
     m_events(evt),
-    m_weights(weights) 
+    m_weights(weights),
+    m_epsw(1.e-3),
+    m_epsf(1.e-20)
   {
     m_functionName = "OneSourceFunc";
     syncParams();
+  }
+
+  void OneSourceFunc::setEpsW(double e) {
+    m_epsw = e;
+  }
+
+  void OneSourceFunc::setEpsF(double e) {
+    m_epsf = e;
   }
 
   double OneSourceFunc::value(optimizers::Arg& ) const {
@@ -36,9 +44,9 @@ namespace Likelihood {
     //    int nused = 0;
     for (unsigned int i = 0; i < m_events.size(); i++) {
       double w = (m_weights == NULL) ? 1.0 : (*m_weights)[i];
-      if (w > epsw) {
+      if (w > m_epsw) {
 	double q = m_src->fluxDensity(m_events[i]);
-	if (abs(q) > epsf) {
+	if (abs(q) > m_epsf) {
 	  val += w * log(q);
 	  //	  wtot += w;
 	  //	  nused++;
@@ -60,10 +68,10 @@ namespace Likelihood {
     //    double wtot = 0.;
     for (unsigned int i = 0; i < m_events.size(); i++) {
       double w = (m_weights == NULL) ? 1.0 : (*m_weights)[i];
-      if (w > epsw) {
+      if (w > m_epsw) {
 	//	wtot += w;
 	double q = m_src->fluxDensity(m_events[i]);
-	if (abs(q) > epsf) {
+	if (abs(q) > m_epsf) {
 	  double v = m_src->fluxDensityDeriv(m_events[i], paramName);
 	  deriv += w * v / q;
 	}
