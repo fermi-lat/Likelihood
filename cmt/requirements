@@ -1,10 +1,10 @@
 package Likelihood
-version v1r2
+version v1r2p1
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.29 2003/08/24 19:15:51 jchiang Exp $
+# $Id: requirements,v 1.30 2003/08/24 21:58:15 cohen Exp $
 
 use xml
 use astro  v*
@@ -14,22 +14,11 @@ use cfitsio v1* IExternal
 use f2c v*
 use CLHEP v2* IExternal
 
-use python v2* IExternal
+#use python v2* IExternal
+#macro pydir ../python/
 
 apply_pattern package_include
 apply_pattern package_linkopts
-
-# Kluge. Python isn't a package yet, so this is machine-dependent
-macro pydir ../python/
-#macro PYINCLUDE /usr/include/python2.2
-#macro PYLIB /usr/lib/python2.2
-
-#macro SWIG swig
-#macro swig_nowarn "" Linux "-w"
-#include_dirs $(PYINCLUDE)
-#language swig -suffix=i -linker=$(clink)
-#make_fragment swig 
-##make_fragment swig_library
 
 private
 
@@ -41,7 +30,7 @@ macro_prepend cflags "" Linux "-g"
 macro test_Likelihoodstamps "Likelihood.stamp"
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
-library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)*.i
+library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 
 # test application
 application test_Likelihood test/*.cxx

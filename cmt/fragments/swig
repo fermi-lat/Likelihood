@@ -1,9 +1,0 @@
-SWIG = swig
-
-$(package)_wrap.o: $(package)_wrap.cxx
-	$(CXX) -shared $(includes) -o $@ $<
-
-$(package)_wrap.cxx: $(package).i
-	$(SWIG) -python -c++ $(package).i
-
-
