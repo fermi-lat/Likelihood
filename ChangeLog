@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 24 17:22:53 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Event.cxx LogLike.cxx PointSource.cxx ScData.cxx 
+Removed Files:
+	Aeff.cxx Psf.cxx 
+Log Message:
+banish use of old Psf and Aeff classes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct 24 17:22:51 PDT 2003
 Likelihood/cmt
 
