@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 28 17:30:16 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+Add FunctionTest class for Function class unit testing.
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 28 17:30:04 PDT 2003
 Likelihood/src
 
