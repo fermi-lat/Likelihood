@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 19 14:45:51 PDT 2004
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+fix makeExposureMap parfile names; tagging v4r4p1
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 19 14:45:50 PDT 2004
 Likelihood/cmt
 
