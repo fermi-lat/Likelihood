@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Dec  5 21:23:10 PST 2003
+Likelihood/src/test
+
+Added Files:
+	test_runParams.cxx 
+Log Message:
+test program for hoops
+    *
+------------------------------------------------------------
+User: jchiang  Fri Dec  5 21:23:10 PST 2003
 Likelihood/data
 
 Added Files:
