@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.25 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.26 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -44,7 +44,7 @@ class Observation;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.25 2005/02/15 00:34:42 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.26 2005/02/27 06:42:24 jchiang Exp $ 
  *  
  */
 
@@ -84,6 +84,21 @@ public:
       (void)(energy);
       (void)(appDir);
       (void)(evtType);
+      return 0;
+   }
+
+
+   virtual double fluxDensityDeriv(double inclination, double phi, 
+                                   double energy,
+                                   const astro::SkyDir &appDir,
+                                   int evtType,
+                                   const std::string & paramName) const {
+      (void)(inclination);
+      (void)(phi);
+      (void)(energy);
+      (void)(appDir);
+      (void)(evtType);
+      (void)(paramName);
       return 0;
    }
 
@@ -148,11 +163,6 @@ private:
    /// vector of angle integrated diffuse exposure as as a function of
    /// energy
    std::vector<double> m_exposure;
-
-   /// disable these pure virtual functions inherited from Source
-   void setDir(double, double, bool, bool) {}
-   void setDir(const astro::SkyDir &, bool, bool) {}
-
 };
 
 } //namespace Likelihood

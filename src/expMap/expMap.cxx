@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.20 2005/02/01 00:01:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.21 2005/02/27 06:42:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -24,9 +24,7 @@
 #include "tip/Image.h"
 
 #include "Likelihood/AppHelpers.h"
-#include "Likelihood/ExposureCube.h"
-#include "Likelihood/ExposureMap.h"
-#include "Likelihood/ResponseFunctions.h"
+#include "Likelihood/Observation.h"
 #include "Likelihood/RoiCuts.h"
 
 #include "Verbosity.h"
@@ -40,7 +38,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.20 2005/02/01 00:01:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.21 2005/02/27 06:42:26 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -73,7 +71,8 @@ void ExpMap::run() {
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(m_pars);
    m_helper->readScData();
-   ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
+   bool useEdisp = m_pars["use_energy_dispersion"];
+   m_helper->observation().respFuncs().setEdispFlag(useEdisp);
    m_helper->setRoi();
    setSourceRegion();
    createExposureMap();
@@ -100,18 +99,18 @@ void ExpMap::promptForParameters() {
 
 void ExpMap::setSourceRegion() {
    m_srRadius = m_pars["source_region_radius"];
-   RoiCuts *roiCuts = RoiCuts::instance();
+   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
    if (Likelihood::print_output() &&
-       m_srRadius < roiCuts->extractionRegion().radius() + 10.) {
+       m_srRadius < roiCuts.extractionRegion().radius() + 10.) {
       std::cerr << "The radius of the source region, " << m_srRadius 
                 << ", should be significantly larger (say by 10 deg) "
                 << "than the ROI radius of " 
-                << roiCuts->extractionRegion().radius() << std::endl;
-      if (m_srRadius < roiCuts->extractionRegion().radius()) {
+                << roiCuts.extractionRegion().radius() << std::endl;
+      if (m_srRadius < roiCuts.extractionRegion().radius()) {
          std::ostringstream message;
          message << "The source region radius, " << m_srRadius 
                  << ", should be larger than the ROI radius, "
-                 << roiCuts->extractionRegion().radius();
+                 << roiCuts.extractionRegion().radius();
          throw std::out_of_range(message.str());
       }
    }
@@ -125,14 +124,18 @@ void ExpMap::createExposureMap() {
    std::string expCubeFile = m_pars["exposure_cube_file"];
    if (expCubeFile != "none") {
       st_facilities::Util::file_ok(expCubeFile);
-      ExposureCube::readExposureCube(expCubeFile);
+      m_helper->observation().expCube().readExposureCube(expCubeFile);
    }
    std::string exposureFile = m_pars["outfile"];
-   ExposureMap::computeMap(exposureFile, *RoiCuts::instance(), m_srRadius, 
-                           nlong, nlat, nenergies);
+   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
+   m_helper->observation().expMap().ExposureMap::computeMap(exposureFile,
+                                                            roiCuts,
+                                                            m_srRadius,
+                                                            nlong, nlat,
+                                                            nenergies); 
 
    std::auto_ptr<tip::Image> 
       image(tip::IFileSvc::instance().editImage(exposureFile, ""));
-   Likelihood::RoiCuts::instance()->writeDssKeywords(image->getHeader());
-   Likelihood::RoiCuts::instance()->writeGtiExtension(exposureFile);
+   roiCuts.writeDssKeywords(image->getHeader());
+   roiCuts.writeGtiExtension(exposureFile);
 }

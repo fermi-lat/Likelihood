@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.57 2005/02/27 06:42:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.58 2005/02/28 18:17:12 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -117,7 +117,6 @@ private:
    double m_fracTol;
 
 // File names for m_srcFactory.
-   std::string m_roiFile;
    std::string m_scFile;
    std::string m_expMapFile;
    std::string m_sourceXmlFile;
@@ -133,8 +132,7 @@ private:
    optimizers::FunctionFactory * funcFactoryInstance();
 
    SourceFactory * m_srcFactory;
-   SourceFactory * srcFactoryInstance(const std::string & roiFile="",
-                                      const std::string & scFile="",
+   SourceFactory * srcFactoryInstance(const std::string & scFile="",
                                       const std::string & expMapFile="",
                                       const std::string & sourceXmlFile="",
                                       bool requireExposure=true,
@@ -177,7 +175,6 @@ void LikelihoodTests::setUp() {
    m_funcFactory = 0;
    m_srcFactory = 0;
 
-   m_roiFile = m_rootPath + "/data/anticenter_Roi.xml";
    m_scFile = m_rootPath + "/data/oneday_scData_0000.fits";
    m_expMapFile = m_rootPath + "/data/anticenter_expMap.fits";
    m_sourceXmlFile = m_rootPath + "/data/anticenter_model.xml";
@@ -206,9 +203,6 @@ void LikelihoodTests::tearDown() {
 void LikelihoodTests::test_RoiCuts() {
    RoiCuts * roiCuts = RoiCuts::instance();
    roiCuts->setCuts();
-   std::string xmlFile = m_rootPath + "/data/myROI.xml";
-   roiCuts->writeXml(xmlFile, "my_ROI");
-   RoiCuts::setCuts(xmlFile);
 
 // Compare to known default values.
    std::vector<std::pair<double, double> > tlims;
@@ -230,11 +224,11 @@ void LikelihoodTests::test_RoiCuts() {
    irfInterface::AcceptanceCone roiCone(astro::SkyDir(ra, dec), radius);
    CPPUNIT_ASSERT(roiCone == roiCuts->extractionRegion());
    double my_ra, my_dec;
-   RoiCuts::getRaDec(my_ra, my_dec);
+   roiCuts->getRaDec(my_ra, my_dec);
    ASSERT_EQUALS(my_ra, ra);
    ASSERT_EQUALS(my_dec, dec);
 
-   std::remove(xmlFile.c_str());
+//    std::remove(xmlFile.c_str());
 
 //    std::string infile = m_rootPath + "/data/oneday_events_0000.fits";
 //    roiCuts->readCuts(infile);
@@ -497,7 +491,7 @@ void LikelihoodTests::test_PointSource() {
          Nobs++;
       }
    }
-   src->setDir(83.57, 22.01, true, false);
+   dynamic_cast<PointSource *>(src)->setDir(83.57, 22.01, true, false);
 //    std::cout << Nobs << "  "
 //              << src->Npred() << std::endl;
 
@@ -516,7 +510,7 @@ void LikelihoodTests::test_PointSource() {
       double tmax = tmin + tstep;
       RoiCuts::setCuts(86.4, 28.9, 25., eminVals[j], 3.16e5, tmin, tmax, -1.);
 
-      src->setDir(83.57, 22.01, true, false);
+      dynamic_cast<PointSource *>(src)->setDir(83.57, 22.01, true, false);
 
       Nobs = 0;
       for (unsigned int i = 0; i < events.size(); i++) {
@@ -548,24 +542,17 @@ void LikelihoodTests::test_DiffuseSource() {
       tearDown();
       setUp();
 
-      double tstep = 0.2*8.64e4;
-      double tmin = i*tstep;
-      double tmax = tmin + tstep;
-      RoiCuts::setCuts(anticenter.ra(), anticenter.dec(), 20.,
-                       30., 3.1623e5, tmin, tmax);
-
-      std::ostringstream roiFile;
-      roiFile << m_rootPath << "/data/RoiCuts_" << i << ".xml";
-
-      RoiCuts * roiCuts = RoiCuts::instance();
-
-      roiCuts->writeXml(roiFile.str(), "Anticenter region");
-
       std::ostringstream expMapFile;
       expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
 
-      SourceFactory * srcFactory 
-         = srcFactoryInstance(roiFile.str(), "", expMapFile.str());
+      SourceFactory * srcFactory = srcFactoryInstance("", expMapFile.str());
+      RoiCuts * roiCuts = RoiCuts::instance();
+
+      double tstep = 0.2*8.64e4;
+      double tmin = i*tstep;
+      double tmax = tmin + tstep;
+      roiCuts->setCuts(anticenter.ra(), anticenter.dec(), 20.,
+                       30., 3.1623e5, tmin, tmax);
 
       Source * src = srcFactory->create("Galactic Diffuse");
 
@@ -581,15 +568,13 @@ void LikelihoodTests::test_DiffuseSource() {
 //                 << Nobs << "  "
 //                 << Npred << std::endl;
 
-      std::remove(roiFile.str().c_str());
    }
 //    std::cout << "chi^2 = " << chi2 << std::endl;
    CPPUNIT_ASSERT(chi2 < 4.);
 }
 
 void LikelihoodTests::generate_exposureHyperCube() {
-   std::string RoiFile = m_rootPath + "/data/RoiCuts.xml";
-   RoiCuts::instance()->setCuts(RoiFile);
+   srcFactoryInstance();
    std::vector<std::pair<double, double> > timeCuts;
    RoiCuts::instance()->getTimeCuts(timeCuts);
    LikeExposure exposure(1., 0.025, timeCuts);
@@ -729,7 +714,7 @@ void LikelihoodTests::test_MeanPsf() {
    double ee[] = {1e2, 1e3, 1e4};
    std::vector<double> energies(ee, ee+3);
 
-   MeanPsf Crab_psf(83.57, 22.01, energies);
+   MeanPsf Crab_psf(83.57, 22.01, energies, *m_observation);
    int npts(200);
    double tstep = log(70./1e-4)/(npts-1.);
    std::vector<double> thetas;
@@ -794,7 +779,7 @@ void LikelihoodTests::test_SourceMap() {
    CountsMap dataMap(singleSrcMap(3));
    dataMap.writeOutput("test.cxx", "cntsMap.fits");
    
-   SourceFactory * srcFactory = srcFactoryInstance("", "", "", "", false);
+   SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
  //   Source * src = srcFactory->create("Galactic Diffuse");
    Source * src =  srcFactory->create("Crab Pulsar");
 
@@ -848,18 +833,13 @@ optimizers::FunctionFactory * LikelihoodTests::funcFactoryInstance() {
 }
 
 SourceFactory * LikelihoodTests::
-srcFactoryInstance(const std::string & roiFile,
-                   const std::string & scFile,
+srcFactoryInstance(const std::string & scFile,
                    const std::string & expMapFile,
                    const std::string & sourceXmlFile,
                    bool requireExposure, bool verbose) {
    if (m_srcFactory == 0) {
       RoiCuts * roiCuts = RoiCuts::instance();
-      if (roiFile == "") {
-         roiCuts->setCuts(m_roiFile);
-      } else {
-         roiCuts->setCuts(roiFile);
-      }
+      roiCuts->setCuts(86.404, 28.936, 25., 30., 3.1623e5, 0., 8.64e4);
 
       if (scFile == "") {
          ScData::readData(m_scFile, true);

@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.26 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.27 2005/02/28 18:38:47 jchiang Exp $
  */
 
 #include <algorithm>
@@ -97,7 +97,6 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
 /// calculation.
             for (int evtType = 0; evtType < 2; evtType++) {
                Aeff aeff(src, pixel->dir(), *energy, evtType);
-//               value += ExposureCube::instance()->value(pixel->dir(), aeff);
                value += observation.expCube().value(pixel->dir(), aeff);
             }
          } else if (haveDiffuseSource) {

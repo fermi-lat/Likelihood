@@ -16,9 +16,7 @@
 #include "tip/Table.h"
 
 #include "Likelihood/AppHelpers.h"
-#include "Likelihood/ExposureCube.h"
 #include "Likelihood/MeanPsf.h"
-//#include "Likelihood/ResponseFunctions.h"
 
 using namespace Likelihood;
 
@@ -66,7 +64,7 @@ void meanPsf::run() {
    if (expcube_file == "none") {
       throw std::runtime_error("Please specify an exposure cube file.");
    }
-   ExposureCube::readExposureCube(expcube_file);
+   m_helper->observation().expCube().readExposureCube(expcube_file);
    
    computeEnergies();
    computeThetas();
