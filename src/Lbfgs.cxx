@@ -6,8 +6,9 @@
 #include "Likelihood/Lbfgs.h"
 #include "Likelihood/Parameter.h"
 #include <vector>
-#include <utility>
-#include <cmath>
+#include <algorithm>
+#include <iostream>
+//#include <utility>
 
 namespace Likelihood {
 
@@ -28,105 +29,104 @@ namespace Likelihood {
 
   void Lbfgs::find_min(int verbose, double tol) {
 
-    int iprint = verbose - 2;
     m_numEvals = 0;
-    double factr = tol * 1.0e+16;
     m_errorString.erase();
 
     // Unpack model parameters into the arrays needed by LBFGS
     
-    std::vector<Parameter> Params;
-    m_stat->getFreeParams(Params);
-    const int nparams = Params.size();
+    std::vector<Parameter> params;
+    m_stat->getFreeParams(params);
+    const int nparams = params.size();
     
-    std::vector<double> paramVals;
-    std::vector<double> paramMins;
-    std::vector<double> paramMaxs;
-    paramVals.reserve(nparams);
-    paramMins.reserve(nparams);
-    paramMaxs.reserve(nparams);
-
-    for (std::vector<Parameter>::iterator p = Params.begin();
-	   p != Params.end(); p++) {
-      paramVals.push_back(p->getValue());
-      paramMins.push_back(p->getBounds().first);
-      paramMaxs.push_back(p->getBounds().second);
+    std::vector<double> paramVals(nparams);
+    std::vector<double> paramMins(nparams);
+    std::vector<double> paramMaxs(nparams);
+    int i=0;
+    for (std::vector<Parameter>::iterator p = params.begin();
+	   p != params.end(); p++, i++) {
+      paramVals[i] = p->getValue();
+      paramMins[i] = p->getBounds().first;
+      paramMaxs[i] = p->getBounds().second;
     }
     
     // Create the variables and arrays used by LBFGS
+    // These serve as storage between calls to setulb_,
+    // so they must be declared outside the loop.
+    // Most of them don't need to be initialized.
 
-    const std::vector<int> nbd(nparams, 2); // All params bounded for now
-    std::vector<logical> lsave(4);
-    std::vector<int> intWorkArray(3*nparams);
-    std::vector<int> isave(44);
     double funcVal;
     std::vector<double> gradient(nparams);
+    std::vector<int> isave(44);
+    std::vector<logical> lsave(4);
     std::vector<double> dsave(29);
+    std::vector<char> csave(60, ' ');  // Blank-filled
+    std::vector<int> intWorkArray(3*nparams);
     int workSize = (2*m_maxVarMetCorr + 4) * nparams
       + 12 * m_maxVarMetCorr * (m_maxVarMetCorr + 12);
     std::vector<double> doubleWorkArray(workSize);
 
-    // Fortran-style strings used for communication with LBFGS
+    // Fortran-style string used for communication with LBFGS
 
-    std::vector<char> task(60, ' '), csave(60, ' '); // Blank-filled
-    std::string strt("START"), fg("FG"), newx("NEW_X"), abno("ABNO");
-    std::string errr("ERROR"), conv("CONV");
-    std::copy(strt.begin(), strt.end(), task.begin());
-    std::string taskString;
+    std::vector<char> task(60, ' '); // Blank-filled
+    static const std::string strt("START");
+    std::copy(strt.begin(), strt.end(), task.begin()); // Initialize
     
     // Call LBFGS in an infinite loop.  Break out when it's done.
 
     for (;;) {
+      int iprint = verbose - 2;  
+      double factr = tol * 1.0e+16; // One of the stopping criteria
+      const std::vector<int> nbd(nparams, 2); // All params bounded for now
       setulb_(&nparams, &m_maxVarMetCorr, &paramVals[0], &paramMins[0], 
 	      &paramMaxs[0], &nbd[0], &funcVal, &gradient[0], 
 	      &factr, &m_pgtol, &doubleWorkArray[0], &intWorkArray[0], 
 	      &task[0], &iprint, &csave[0], &lsave[0], &isave[0], &dsave[0], 
 	      task.size(), csave.size());
-      taskString = std::string(task.begin(), task.end());
+      std::string taskString(task.begin(), task.end());
       int taskLength = taskString.find_last_not_of(' ') + 1;
-      taskString = taskString.substr(0, taskLength);
+      taskString.erase(taskLength); // Strip trailing blanks
 
-      if (std::equal(fg.begin(), fg.end(), task.begin())) {
+      if (taskString.substr(0,2) == "FG") {
 	// Request for values of function and gradient.
-	// Flip signs so we are maximizing the function.
+	// LBFGS is a minimizer, so we must flip the signs to maximize.
 	funcVal = -m_stat->value(paramVals);
 	m_stat->getFreeDerivs(gradient);
 	std::transform(gradient.begin(), gradient.end(), gradient.begin(),
-		       negate<double>());
+		       std::negate<double>());
 	m_numEvals++;
 
 	if (verbose != 0) {
-	  std::cout << funcVal << "  ";
+	  std::cout << "LBFGS " << funcVal << "  ";
 	  for (int i = 0; i < nparams; i++) {
 	    std::cout << paramVals[i] << "  " << gradient[i] << " : ";
 	  }
 	  std::cout << std::endl;
 	}
-      }
-      else if (std::equal(newx.begin(), newx.end(), task.begin())) {
+      }  // Don't break.  Call setulb_ again
+      else if (taskString.substr(0, 5) == "NEW_X") {
 	// Ready to move to a new set of parameter values
 	if (isave[33] > m_maxIterations) {
 	  m_retCode = LBFGS_TOOMANY;
 	  m_errorString = "Exceeded Specified Number of Iterations";
 	  break;
 	}
+      }  // Otherwise don't break.  Call setulb_ again.
+      else if (taskString.substr(0, 4) == "CONV") {
+	// Normal convergence
+	m_retCode = LBFGS_NORMAL;
+	m_errorString = taskString;
+	break;
       }
-      else if (std::equal(abno.begin(), abno.end(), task.begin())) {
+      else if (taskString.substr(0, 4) == "ABNO") {
 	// Abnormal termination in line search
 	m_retCode = LBFGS_ABNO;
 	m_errorString = taskString;
 	break;
       }
-      else if (std::equal(errr.begin(), errr.end(), task.begin())) {
-	// Some other type of error
+      else if (taskString.substr(0, 5) == "ERROR") {
+	// Error in input parameters
 	m_retCode = LBFGS_ERROR;
 	m_errorString = taskString;
-	break;
-      }
-      else if (std::equal(conv.begin(), conv.end(), task.begin())) {
-	// Normal convergence
-	m_retCode = LBFGS_NORMAL;
-	m_errorString = "Normal convergence";
 	break;
       }
       else {
