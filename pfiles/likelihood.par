@@ -1,7 +1,7 @@
 #
 # parameters common to binned and unbinned
 #
-rspfunc,s,a,"DC1",DC1|DC1F|DC1B|G25|G25F|G25B,,"Response functions to use"
+rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions to use"
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
 source_model_output_file,f,a,"none",,,"Source model output file"
