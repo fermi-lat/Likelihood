@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sat Oct 18 08:47:16 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h LogLike.h Psf.h 
+Removed Files:
+	Table.h 
+Log Message:
+move Table class to latResponse; tagging v1r3
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct 14 15:35:15 PDT 2003
 Likelihood/src/test
 
