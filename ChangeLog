@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Sep 23 20:54:22 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx CountsMap.cxx SourceMap.cxx 
+Log Message:
+start work to save SourceMaps
+    *
+------------------------------------------------------------
 User: jchiang  Thu Sep 23 20:54:20 PDT 2004
 Likelihood/data
 
