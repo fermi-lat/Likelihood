@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec  6 15:29:57 PST 2004
+Likelihood/pfiles
+
+Modified Files:
+	expMap.par 
+Log Message:
+add GTI extension and DSS keywords to exposure cube output
+    *
+------------------------------------------------------------
 User: jchiang  Mon Dec  6 15:29:53 PST 2004
 Likelihood/Likelihood
 
