@@ -1,4 +1,18 @@
 ------------------------------------------------------------
+User: jchiang  Sun Mar 16 13:53:26 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h Arg.h Event.h EventArg.h Function.h Parameter.h 
+	PointSource.h Psf.h Response.h RoiCuts.h ScData.h 
+	SkyDirFunction.h Source.h SourceModel.h SrcArg.h Statistic.h 
+	Table.h TrapQuad.h dArg.h logSrcModel.h 
+Added Files:
+	CompositeFunction.h ProductFunction.h SumFunction.h 
+Log Message:
+sync changes w/ Toby's, add CompositeFunction hierarchy, Rosenbrock test function
+    *
+------------------------------------------------------------
 User: burnett  Sat Mar 15 17:42:39 PST 2003
 Likelihood/src/test
 
