@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Tue Mar 18 18:47:42 PST 2003
+Likelihood/src
+
+Modified Files:
+	Function.cxx OptPP.cxx OptPP.h lbfgs.h mainpage.h 
+Added Files:
+	AbsEdge.cxx AbsEdge.h 
+Log Message:
+replace pointers with references, add AbsEdge class
+    *
+------------------------------------------------------------
+User: jchiang  Tue Mar 18 18:47:42 PST 2003
 Likelihood/Likelihood
 
 Modified Files:
