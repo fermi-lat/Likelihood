@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 10 16:58:59 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+move LikelihoodException from public header files;
+use forward class declarations rather than #include's
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 10 16:58:52 PDT 2003
 Likelihood/src
 
