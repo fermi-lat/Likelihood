@@ -3,7 +3,7 @@
  * @brief Implementation for the 2D Rosenbrock objective function
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.cxx,v 1.8 2003/06/10 19:21:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Rosen.cxx,v 1.9 2003/06/10 23:58:51 jchiang Exp $
  */
 
 #include <vector>
@@ -11,7 +11,6 @@
 #include <cmath>
 #include "Likelihood/dArg.h"
 #include "Rosen.h"
-#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

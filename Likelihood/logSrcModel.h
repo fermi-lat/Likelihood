@@ -1,8 +1,9 @@
-/** @file logSrcModel.h
+/** 
+ * @file logSrcModel.h
  * @brief Declaration of logSrcModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.5 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #ifndef logSrcModel_h
@@ -29,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.5 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/logSrcModel.h,v 1.6 2003/03/22 01:22:50 jchiang Exp $
  */
 
 class logSrcModel : public SourceModel {

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.12 2003/06/10 20:21:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.13 2003/06/10 23:58:52 jchiang Exp $
  */
 
 #include <cassert>
@@ -17,7 +17,6 @@
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
 #include "LikelihoodException.h"
-#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

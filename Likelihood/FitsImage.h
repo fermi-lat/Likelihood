@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.9 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.10 2003/06/10 23:58:30 jchiang Exp $
  *
  */
 
@@ -14,10 +14,9 @@
 #include <string>
 #include <valarray>
 #include "astro/SkyDir.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
-
-class LikelihoodException;
 
 /** 
  * @class FitsImage
@@ -26,7 +25,7 @@ class LikelihoodException;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.9 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.10 2003/06/10 23:58:30 jchiang Exp $
  *
  */
 

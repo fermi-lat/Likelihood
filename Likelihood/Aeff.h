@@ -2,7 +2,7 @@
  * @file Aeff.h
  * @brief Interface definition for the LAT Effective Area class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.12 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.13 2003/06/10 23:58:29 jchiang Exp $
  *
  */
 
@@ -12,10 +12,10 @@
 
 #include "Likelihood/Response.h"
 #include "Likelihood/Table.h"
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
 
-class LikelihoodException;
 class astro::SkyDir;
 
 /** 
@@ -25,7 +25,7 @@ class astro::SkyDir;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.12 2003/06/10 18:18:29 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.13 2003/06/10 23:58:29 jchiang Exp $
  */
 
 class Aeff : public Response {

@@ -1,6 +1,9 @@
-/** @file Lbfgs.cxx
+/** 
+ * @file Lbfgs.cxx
  * @brief Lbfgs class implementation
+ * @author P. Nolan
  *
+ * $Header$
  */
 
 #include "Likelihood/Lbfgs.h"

@@ -3,14 +3,13 @@
  * @brief Function class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.20 2003/05/29 20:10:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Function.cxx,v 1.21 2003/06/10 23:58:51 jchiang Exp $
  */
 
 #include <iostream>
 #include <sstream>
 
 #include "Likelihood/Function.h"
-#include "ParameterNotFound.h"
 
 namespace Likelihood {
 

@@ -4,7 +4,7 @@
  * a Statistic object using the Variable-at-a-time Metropolis-Hastings
  * update method.
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.5 2003/06/04 16:24:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Mcmc.cxx,v 1.6 2003/06/10 23:58:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -155,8 +155,8 @@ void Mcmc::estimateTransWidths() {
       m_stat->value(new_params);
       std::vector<double> new_derivs;
       m_stat->getFreeDerivs(new_derivs);
-      double hessian = (new_derivs[i] - derivs[i])/delta;
-      m_transitionWidths.push_back(sqrt(abs(1./hessian)));
+      double hessian = fabs((new_derivs[i] - derivs[i])/delta);
+      m_transitionWidths.push_back(sqrt(1./hessian));
    }
 }
 

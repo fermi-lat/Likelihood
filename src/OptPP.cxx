@@ -1,9 +1,10 @@
-/** @file OptPP.cxx
+/** 
+ * @file OptPP.cxx
  * @brief Implementation OptPP class that provides an interface to the
  * OPT++ package
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.cxx,v 1.3 2003/05/02 19:02:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.cxx,v 1.4 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include <cassert>

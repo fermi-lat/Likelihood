@@ -1,8 +1,9 @@
-/** @file Npred.h
+/** 
+ * @file Npred.h
  * @brief Declaration of Npred class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef Npred_h
@@ -22,7 +23,7 @@ namespace Likelihood {
  *  
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.4 2003/03/17 00:53:43 jchiang Exp $
  */
 
 class Npred : public Function {

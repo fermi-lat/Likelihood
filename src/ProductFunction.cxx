@@ -1,8 +1,9 @@
-/** @file ProductFunction.cxx
+/** 
+ * @file ProductFunction.cxx
  * @brief ProductFunction class implementation
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ProductFunction.cxx,v 1.2 2003/03/17 00:53:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ProductFunction.cxx,v 1.5 2003/03/22 01:22:50 jchiang Exp $
  */
 
 #include <vector>

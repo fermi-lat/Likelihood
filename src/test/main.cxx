@@ -44,8 +44,6 @@
 #include "Gaussian.h"
 #include "AbsEdge.h"
 #include "Rosen.h"
-#include "ParameterNotFound.h"
-#include "OutOfBounds.h"
 
 using namespace Likelihood;   // for testing purposes only
 
@@ -1072,9 +1070,9 @@ void fit_3C279() {
 
 #ifdef HAVE_OPT_PP
 // do the fit using OptPP
-   OptPP myOptimizer(logLike);
-   int verbose = 3;
-   myOptimizer.find_min(verbose);
+//   OptPP myOptimizer(logLike);
+//   int verbose = 3;
+//   myOptimizer.find_min(verbose);
 #endif  //HAVE_OPT_PP
    
    std::vector<Parameter> parameters;
@@ -1868,7 +1866,7 @@ void test_Function_class() {
    dArg x(3);
    double f_val = 0;   // recall value(...) implementation from MyFun.cxx
    for (int i = 0; i < 3; i++) {
-      f_val += vals[i]*pow(3, i);
+      f_val += vals[i]*pow(3., i);
    }
    assert(f(x) == f_val);
 
@@ -1918,14 +1916,14 @@ void test_Function_class() {
 // one-by-one:
    x = dArg(2);
    for (unsigned int i = 0; i < paramNames.size(); i++) {
-      assert(f.derivByParam(x, paramNames[i]) == pow(2, i));
+      assert(f.derivByParam(x, paramNames[i]) == pow(2., static_cast<int>(i)));
    }
 
 // all derivatives in one shot:
    std::vector<double> derivs;
    f.getDerivs(x, derivs);
    for (unsigned int i = 0; i < derivs.size(); i++) {
-      assert(derivs[i] == pow(2, i));
+      assert(derivs[i] == pow(2., static_cast<int>(i)));
    }
 
 // test getParam(...) method

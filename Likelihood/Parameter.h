@@ -3,7 +3,7 @@
  * @brief Declaration of Parameter and OutOfBounds classes
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.18 2003/06/10 19:31:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.19 2003/06/10 23:58:30 jchiang Exp $
  */
 
 #ifndef Parameter_h
@@ -12,10 +12,9 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include "Likelihood/LikelihoodException.h"
 
 namespace Likelihood {
-
-class LikelihoodException;
 
 /** 
  * @class Parameter
@@ -31,15 +30,13 @@ class LikelihoodException;
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.18 2003/06/10 19:31:09 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.19 2003/06/10 23:58:30 jchiang Exp $ 
  */
 
 class Parameter {
 
 public:
 
-   class OutOfBounds;
-   
    Parameter() {init(std::string(""), 0., -HUGE, HUGE, true);}
 
    /**
@@ -61,6 +58,37 @@ public:
 //   Parameter(const Parameter&);
 
    ~Parameter(){}
+
+   /**
+    * @class OutOfBounds
+    *
+    * @brief Nested exception class to ensure set[True]Value and setBounds 
+    * methods behave consistently with regard to existing values.
+    *
+    * @author J. Chiang
+    *
+    * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OutOfBounds.h,v 1.1 2003/06/10 23:58:51 jchiang Exp $
+    */
+   class OutOfBounds : public LikelihoodException {
+
+   public:
+      OutOfBounds(const std::string &errorString, double value, 
+                  double minValue, double maxValue, int code) : 
+         LikelihoodException(errorString, code), m_value(value), 
+         m_minValue(minValue), m_maxValue(maxValue) {}
+      ~OutOfBounds() throw() {}
+      
+      double value() {return m_value;}
+      double minValue() {return m_minValue;}
+      double maxValue() {return m_maxValue;}
+      
+      enum ERROR_CODES {VALUE_ERROR, BOUNDS_ERROR};
+
+   private:
+      double m_value;
+      double m_minValue;
+      double m_maxValue;
+   };
 
    //! name access
    void setName(const std::string &paramName) {m_name = paramName;}

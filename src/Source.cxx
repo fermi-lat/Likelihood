@@ -1,8 +1,9 @@
-/** @file Source.cxx
+/** 
+ * @file Source.cxx
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.2 2003/03/22 01:22:51 jchiang Exp $
  */
 
 #include <vector>
