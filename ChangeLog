@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jan 13 14:42:01 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h PointSource.h 
+Log Message:
+reorganize verbosity in Event; remove unused static variable; turn off plotting
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jan 12 12:10:08 PST 2005
 Likelihood/src/likelihood
 
