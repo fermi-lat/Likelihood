@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.51 2005/03/05 18:37:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.52 2005/03/07 05:18:29 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -38,7 +38,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.51 2005/03/05 18:37:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.52 2005/03/07 05:18:29 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -161,6 +161,10 @@ public:
                                 const Observation & observation, 
                                 std::vector<double> & exposure,
                                 bool verbose);
+
+   virtual const std::vector<double> & exposure() const {
+      return m_exposure;
+   }
 
 private:
 

@@ -3,10 +3,17 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.15 2005/03/02 22:55:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.16 2005/03/03 07:07:02 jchiang Exp $
  */
 
+#include <stdexcept>
+
 #include "astro/SkyDir.h"
+
+#include "irfInterface/IrfsFactory.h"
+
+#include "irfLoader/Loader.h"
+
 #include "Likelihood/ResponseFunctions.h"
 
 namespace Likelihood {
@@ -69,6 +76,26 @@ irfInterface::Irfs * ResponseFunctions::respPtr(unsigned int i) const {
       return m_respPtrs.find(i)->second;
    } else {
       return 0;
+   }
+}
+
+void ResponseFunctions::load(const std::string & respFuncs) {
+   irfLoader::Loader::go();
+   irfInterface::IrfsFactory * myFactory 
+      = irfInterface::IrfsFactory::instance();
+      
+   typedef std::map< std::string, std::vector<std::string> > respMap;
+   const respMap & responseIds = irfLoader::Loader::respIds();
+   respMap::const_iterator it;
+   if ( (it = responseIds.find(respFuncs)) != responseIds.end() ) {
+      const std::vector<std::string> & resps = it->second;
+      for (unsigned int i = 0; i < resps.size(); i++) {
+         addRespPtr(i, myFactory->create(resps[i]));
+      }
+      setRespName(respFuncs);
+   } else {
+      throw std::invalid_argument("Invalid response function choice: "
+                                  + respFuncs);
    }
 }
 

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.26 2005/03/03 20:04:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.27 2005/03/04 22:08:26 jchiang Exp $
  */
 
 #include <map>
@@ -109,24 +109,8 @@ void AppHelpers::readExposureMap() {
 
 void AppHelpers::createResponseFuncs() {
    m_respFuncs = new ResponseFunctions();
-   irfLoader::Loader::go();
-   IrfsFactory * myFactory = IrfsFactory::instance();
-
    std::string responseFuncs = m_pars["rspfunc"];
-   m_respFuncs->setRespName(responseFuncs);
-
-   typedef std::map< std::string, std::vector<std::string> > respMap;
-   const respMap & responseIds = irfLoader::Loader::respIds();
-   respMap::const_iterator it;
-   if ( (it = responseIds.find(responseFuncs)) != responseIds.end() ) {
-      const std::vector<std::string> & resps = it->second;
-      for (unsigned int i = 0; i < resps.size(); i++) {
-         m_respFuncs->addRespPtr(i, myFactory->create(resps[i]));
-      }
-   } else {
-      throw std::invalid_argument("Invalid response function choice: "
-                                  + responseFuncs);
-   }
+   m_respFuncs->load(responseFuncs);
 }
 
 void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
