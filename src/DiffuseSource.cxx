@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.14 2004/06/05 15:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.15 2004/06/30 20:21:39 jchiang Exp $
  */
 
 #include <vector>
@@ -16,9 +16,10 @@
 
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
+#include "Likelihood/ExposureMap.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/TrapQuad.h"
-#include "Likelihood/ExposureMap.h"
+#include "Likelihood/ResponseFunctions.h"
 
 namespace Likelihood {
 
@@ -66,36 +67,61 @@ DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {
 }
 
 double DiffuseSource::fluxDensity(const Event &evt) const {
-
-// This trueEnergy is just a place-holder until we have a finite
-// energy dispersion.  In principle, we want to return the convolution
-// of the evt.diffuseResponse with m_spectrum.
-
-   double trueEnergy = evt.getEnergy(); 
-
-// Note that the Event-specific diffuseResponses are assumed to
-// be identified by the DiffuseSource name.
-   optimizers::dArg energy_arg(trueEnergy);
-   return (*m_spectrum)(energy_arg)*evt.diffuseResponse(trueEnergy, getName());
+   double my_fluxDensity;
+   if (ResponseFunctions::useEdisp()) {
+      const std::vector<double> & trueEnergies = evt.trueEnergies();
+      const std::vector<double> & diffuseResponses 
+         = evt.diffuseResponse(getName());
+      unsigned int npts(trueEnergies.size());
+      std::vector<double> my_integrand(npts);
+      for (unsigned int k = 0; k < npts; k++) {
+         optimizers::dArg energy_arg(trueEnergies[k]);
+         my_integrand[k] = (*m_spectrum)(energy_arg)*diffuseResponses[k];
+      }
+      TrapQuad trapQuad(trueEnergies, my_integrand);
+      my_fluxDensity = trapQuad.integral();
+   } else {
+      double trueEnergy = evt.getEnergy(); 
+      optimizers::dArg energy_arg(trueEnergy);
+      my_fluxDensity = (*m_spectrum)(energy_arg)
+         *evt.diffuseResponse(trueEnergy, getName());
+   }
+   return my_fluxDensity;
 }
 
 double DiffuseSource::fluxDensityDeriv(const Event &evt, 
                                        const std::string &paramName) const {
-                                   
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude".
-
+//
 // This method needs to be generalized for spectra that are
 // CompositeFunctions.
-
+   double my_fluxDensityDeriv;
    if (paramName == "Prefactor") {
-      return fluxDensity(evt)/m_spectrum->getParamValue("Prefactor");
+      my_fluxDensityDeriv 
+         = fluxDensity(evt)/m_spectrum->getParamValue("Prefactor");
    } else {
-      double trueEnergy = evt.getEnergy(); 
-      optimizers::dArg energy_arg(trueEnergy);
-      return m_spectrum->derivByParam(energy_arg, paramName)
-         *evt.diffuseResponse(trueEnergy, getName());
+      if (ResponseFunctions::useEdisp()) {
+         const std::vector<double> & trueEnergies = evt.trueEnergies();
+         const std::vector<double> & diffuseResponses 
+            = evt.diffuseResponse(getName());
+         unsigned int npts(trueEnergies.size());
+         std::vector<double> my_integrand(npts);
+         for (unsigned int k = 0; k < npts; k++) {
+            optimizers::dArg energy_arg(trueEnergies[k]);
+            my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
+               *diffuseResponses[k];
+         }
+         TrapQuad trapQuad(trueEnergies, my_integrand);
+         my_fluxDensityDeriv = trapQuad.integral();
+      } else {
+         double trueEnergy = evt.getEnergy(); 
+         optimizers::dArg energy_arg(trueEnergy);
+         my_fluxDensityDeriv = m_spectrum->derivByParam(energy_arg, paramName)
+            *evt.diffuseResponse(trueEnergy, getName());
+      }
    }
+   return my_fluxDensityDeriv;
 }
 
 double DiffuseSource::Npred() {
