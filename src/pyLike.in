@@ -126,6 +126,18 @@ using optimizers::Exception;
       return myFuncFactory;
    }
 }
+%extend Likelihood::Source {
+   double flux() {
+      Likelihood::PointSource * ptsrc = 
+         dynamic_cast<Likelihood::PointSource *>(self);
+      if (ptsrc == 0) {
+         std::ostringstream message;
+         message << "Integrated flux is not available for this source.";
+         throw std::runtime_error(message.str());
+      }
+      return ptsrc->flux();
+   }
+}
 %extend Likelihood::LogLike {
    void print_source_params() {
       std::vector<std::string> srcNames;
@@ -196,16 +208,10 @@ using optimizers::Exception;
 //    }
 // }
 %extend Likelihood::Event {
-   double ra() {
-      return self->getDir().ra();
+   std::pair<double, double> ra_dec() const {
+      return std::make_pair(self->getDir().ra(), self->getDir().dec());
    }
-   double dec() {
-      return self->getDir().dec();
-   }
-   double scRa() {
-      return self->getScDir().ra();
-   }
-   double scDec() {
-      return self->getScDir().dec();
+   std::pair<double, double> sc_dir() const {
+      return std::make_pair(self->getScDir().ra(), self->getScDir().dec());
    }
 }

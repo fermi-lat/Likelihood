@@ -3,7 +3,7 @@
  * @brief Declaration of the TrapQuad class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.9 2003/08/06 20:52:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.10 2004/12/05 00:26:19 jchiang Exp $
  */
 
 #ifndef Likelihood_TrapQuad_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.9 2003/08/06 20:52:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/TrapQuad.h,v 1.10 2004/12/05 00:26:19 jchiang Exp $
  */
 
 class TrapQuad {
@@ -43,7 +43,7 @@ public:
 
    double integral();
    double integral(double xmin, double xmax, int npts = 100);
-   double integral(std::vector<double> &xvals);
+   double integral(const std::vector<double> &xvals);
 
 private:
 
