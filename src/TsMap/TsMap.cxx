@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.15 2004/11/28 06:58:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.16 2004/12/11 01:54:42 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.15 2004/11/28 06:58:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.16 2004/12/11 01:54:42 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -194,7 +194,7 @@ void TsMap::computeMap() {
          try {
             m_opt->find_min(verbosity, tol);
             m_tsMap[jj].push_back(2.*(m_logLike(dummy) - logLike0));
-         } catch (optimizers::Exception &eObj) {
+         } catch (optimizers::Exception &) {
             // Default null value.
             m_tsMap[jj].push_back(0);
          }

@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.14 2004/10/31 18:53:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.15 2004/11/08 03:22:22 jchiang Exp $
  */
 
 #include <algorithm>
@@ -336,8 +336,8 @@ void CountsMap::getAxisVector(int i, std::vector<double> & axisVector) const {
    for (long j = 0; j < binners[i]->getNumBins(); j++) {
       axisVector.push_back(binners[i]->getInterval(j).begin());
    }
-   long j = binners[i]->getNumBins() - 1;
-   axisVector.push_back(binners[i]->getInterval(j).end());
+   long jj = binners[i]->getNumBins() - 1;
+   axisVector.push_back(binners[i]->getInterval(jj).end());
 }
 
 void CountsMap::setKeywords(tip::Header & header) const {
