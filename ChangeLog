@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar  4 14:08:27 PST 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx EventContainer.cxx LogLike.cxx 
+	OneSourceFunc.cxx OptEM.cxx pyLike.in 
+Log Message:
+use EventContainer class
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar  4 14:08:25 PST 2005
 Likelihood/python
 
