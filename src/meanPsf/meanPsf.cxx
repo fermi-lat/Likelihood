@@ -1,6 +1,7 @@
 #include <cstdlib>
 
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -8,6 +9,8 @@
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
 #include "st_app/StAppFactory.h"
+
+#include "st_facilities/Util.h"
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
@@ -66,6 +69,7 @@ void meanPsf::run() {
    ExposureCube::readExposureCube(expcube_file);
    
    computeEnergies();
+   computeThetas();
    double ra = m_pars["ra"];
    double dec = m_pars["dec"];
    m_meanPsf = new MeanPsf(ra, dec, m_energies);
@@ -99,23 +103,42 @@ void meanPsf::computeThetas() {
 void meanPsf::writeFitsFile() {
    std::string output_file = m_pars["outfile"];
    std::string extension = m_pars["outtable"];
+   bool clobber = m_pars["clobber"];
+   if (st_facilities::Util::fileExists(output_file) && !clobber) {
+      throw std::runtime_error(output_file
+                               + " file exists and clobber is set to no.");
+   }
+   std::remove(output_file.c_str());
    tip::IFileSvc::instance().appendTable(output_file, extension);
-   tip::Table * my_table 
-      = tip::IFileSvc::instance().editTable(output_file, extension);
+   std::auto_ptr<tip::Table> 
+      psf_table(tip::IFileSvc::instance().editTable(output_file, extension));
+   psf_table->appendField("Energy", "1D");
    std::ostringstream format;
    format << m_thetas.size() << "D";
-   my_table->appendField("Psf", format.str());
-   my_table->setNumRecords(m_energies.size());
+   psf_table->appendField("Psf", format.str());
+   psf_table->setNumRecords(m_energies.size());
    std::vector<double> psf_values(m_thetas.size());
-   tip::Table::Iterator row= my_table->begin();
+   tip::Table::Iterator row = psf_table->begin();
    tip::Table::Record & record = *row;
    for (std::vector<double>::const_iterator energy = m_energies.begin();
         energy != m_energies.end(); ++energy, ++row) {
+      record["Energy"].set(*energy);
       tip::Table::Vector<double> Psf = record["Psf"];
       std::vector<double>::const_iterator theta = m_thetas.begin();
       for (unsigned int i = 0; theta != m_thetas.end(); ++theta, ++i) {
          Psf[i] = (*m_meanPsf)(*energy, *theta, 0);
       }
    }
-   delete my_table;
+   extension = "THETA";
+   tip::IFileSvc::instance().appendTable(output_file, extension);
+   std::auto_ptr<tip::Table> 
+      theta_table(tip::IFileSvc::instance().editTable(output_file, extension));
+   theta_table->appendField("Theta", "1D");
+   theta_table->setNumRecords(m_thetas.size());
+   row = theta_table->begin();
+   tip::Table::Record & theta_record = *row;
+   for (std::vector<double>::const_iterator theta = m_thetas.begin();
+        theta != m_thetas.end(); ++theta, ++row) {
+      theta_record["Theta"].set(*theta);
+   }
 }

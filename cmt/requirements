@@ -4,7 +4,7 @@ version v6r4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.175 2005/01/29 16:01:45 jchiang Exp $
+# $Id: requirements,v 1.177 2005/02/01 00:01:04 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -30,6 +30,7 @@ apply_pattern ST_app_withDir name=gtlivetimecube dir=makeExposureCube
 apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
 apply_pattern ST_app name=gtcntsmap
 apply_pattern ST_app name=gtsrcmaps
+apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
 
 private
 
