@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.8 2005/01/03 23:01:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.9 2005/02/15 07:04:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -97,6 +97,9 @@ DOMElement * FluxBuilder::fluxSource(Source & src) {
    } else if (sourceType == "GalDiffuse") {
       optimizers::Dom::appendChild(srcElt, galDiffuse(src));
       return srcElt;
+   } else if (sourceType == "MapCube") {
+      optimizers::Dom::appendChild(srcElt, mapCubeSource(src));
+      return srcElt;
    }
    return 0;
 }
@@ -117,12 +120,12 @@ void FluxBuilder::getSourceType(Source &src, std::string & srcType) {
       if (basename == "gas.cel") {
          srcType = "GalDiffuse";
       }      
-//    } else if (srcFuncs.count("SpatialDist")
-//               && srcFuncs["SpatialDist"]->genericName() == "MapCubeFunction") {
-//       std::string fitsFile 
-//          = dynamic_cast<MapCubeFunction*>(srcFuncs["SpatialDist"])->fitsFile();
-//       std::string basename = facilities::Util::basename(fitsFile.c_str());
-//       srcType = "MapCubeFunction";
+   } else if (srcFuncs.count("SpatialDist")
+              && srcFuncs["SpatialDist"]->genericName() == "MapCubeFunction") {
+      std::string fitsFile 
+         = dynamic_cast<MapCubeFunction*>(srcFuncs["SpatialDist"])->fitsFile();
+      std::string basename = facilities::Util::basename(fitsFile.c_str());
+      srcType = "MapCube";
    } else {
       throw Exception(std::string("Likelihood::FluxBuilder::getSourceType:\n")
                       + "unknown source type");
@@ -196,10 +199,10 @@ DOMElement * FluxBuilder::galDiffuse(Source & src) {
    DOMElement * specClassElt = optimizers::Dom::createElement(m_doc,
                                                               "SpectrumClass");
    xmlBase::Dom::addAttribute(specClassElt, std::string("name"), 
-                          std::string("MapSpectrum"));
+                              std::string("MapSpectrum"));
 
    if (srcFuncs["Spectrum"]->genericName() != "PowerLaw") {
-      throw Exception(std::string("SourceModel::write_fluxXml:\n")
+      throw Exception(std::string("FluxBuilder::galDiffuse:\n")
                       + "Galactic Diffuse spectral model is not a power-law.");
    } else {
 // flux::MapSpectrum does not allow one to change the overall scaling
@@ -212,13 +215,49 @@ DOMElement * FluxBuilder::galDiffuse(Source & src) {
              << -srcFuncs["Spectrum"]->getParamValue("Index") << ","
              << "/sources/gas_gal.fits";
       xmlBase::Dom::addAttribute(specClassElt, std::string("params"), 
-                             params.str());
+                                 params.str());
    }
    optimizers::Dom::appendChild(specElt, specClassElt);
    DOMElement * useSpecElt = optimizers::Dom::createElement(m_doc,
                                                             "use_spectrum");
    xmlBase::Dom::addAttribute(useSpecElt, std::string("frame"), 
-                          std::string("galaxy"));
+                              std::string("galaxy"));
+   optimizers::Dom::appendChild(specElt, useSpecElt);
+   return specElt;
+}
+
+DOMElement * FluxBuilder::mapCubeSource(Source & src) {
+   Source::FuncMap & srcFuncs = src.getSrcFuncs();
+
+   DOMElement * specElt = optimizers::Dom::createElement(m_doc, "spectrum");
+   xmlBase::Dom::addAttribute(specElt, std::string("escale"),
+                              std::string("MeV"));
+
+   DOMElement * specClassElt 
+      = optimizers::Dom::createElement(m_doc, "SpectrumClass");
+   xmlBase::Dom::addAttribute(specClassElt, std::string("name"), 
+                              std::string("MapCube"));
+
+   if (srcFuncs["Spectrum"]->genericName() != "ConstantValue") {
+      throw Exception(std::string("FluxBuilder::mapCubeSource:\n")
+                + "MapCube spectral model is not a ConstantValue Function.");
+   } else {
+      double valueParam
+         = srcFuncs["Spectrum"]->getParam("Value").getTrueValue();
+      MapCubeFunction * mapCube 
+         = dynamic_cast<MapCubeFunction *>(srcFuncs["SpatialDist"]);
+      double normalization = valueParam/(1e-4/mapCube->mapIntegral());
+      std::ostringstream params;
+      params << normalization << ","
+             << mapCube->fitsFile();
+      xmlBase::Dom::addAttribute(specClassElt, std::string("params"), 
+                                 params.str());
+   }
+   optimizers::Dom::appendChild(specElt, specClassElt);
+   DOMElement * useSpecElt = optimizers::Dom::createElement(m_doc,
+                                                            "use_spectrum");
+   xmlBase::Dom::addAttribute(useSpecElt, std::string("frame"), 
+                              std::string("galaxy"));
    optimizers::Dom::appendChild(specElt, useSpecElt);
    return specElt;
 }
