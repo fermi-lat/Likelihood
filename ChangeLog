@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar  2 16:35:31 PST 2004
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx PointSource.cxx ScData.cxx 
+Log Message:
+fix test program; start using map_tools
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar  2 16:35:30 PST 2004
 Likelihood/cmt
 
