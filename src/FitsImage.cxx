@@ -2,18 +2,26 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.2 2003/04/25 18:32:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.3 2003/04/25 21:51:29 burnett Exp $
  *
  */
 
 #include "fitsio.h"
+
+#define HAVE_CCFITS
+#ifdef HAVE_CCFITS
+#include "CCfits/CCfits"
+#endif
+
 #include <iostream>
+#include <memory>
+#include <cassert>
 #include "Likelihood/FitsImage.h"
-#include <assert.h>
 
 namespace Likelihood {
 
 FitsImage::FitsImage(std::string &fitsfile) {
+
    m_filename = fitsfile;
    read_fits_image(fitsfile, m_axes, m_image);
    for (unsigned int i = 0; i < m_axes.size(); i++) {
@@ -103,6 +111,98 @@ void FitsImage::AxisParams::computeAxisVector(std::vector<double> &axisVector) {
    }
 }
 
+#ifdef HAVE_CCFITS
+void FitsImage::read_fits_image(std::string &filename, 
+                                std::vector<AxisParams> &axes,
+                                std::valarray<double> &image) {
+
+//   FITS::setVerboseMode(true);
+//   std::cout << "FitsImage::read_fits_image: Using CCfits..." << std::endl;
+
+// For the "canonical" example of reading a FITS image with CCfits,
+// see the readImage() routine from cookbook.cxx from the CCfits
+// distribution.
+   
+   std::auto_ptr<FITS> pInFile(new FITS(filename, Read, true));
+
+   PHDU& imageHDU = pInFile->pHDU();
+
+// CCfits PHDU::read(...) seems not to like std::valarray<double>...
+   try {
+      std::valarray<float> my_image;
+//      std::valarray<double> my_image;
+      imageHDU.read(my_image);
+      image.resize(my_image.size());
+      for (unsigned int i = 0; i < my_image.size(); i++)
+         image[i] = my_image[i];
+   } catch(...) {
+      std::cerr << "Failed to read image data for " 
+                << filename << std::endl;
+   }
+
+// prepare the axes vector
+   int naxes;
+   imageHDU.readKey("NAXIS", naxes);
+   axes.clear();
+   axes.resize(naxes);
+
+// axis dimension IDs (assume at most 3 dimensions)
+   std::string IDnum[] = {std::string("1"), std::string("2"), 
+                          std::string("3")};
+
+// loop over the axes
+   long npixels = 1;
+   for (int i = 0; i < naxes; i++) {
+      imageHDU.readKey(std::string("NAXIS") + IDnum[i], axes[i].size);
+      npixels *= axes[i].size;
+   }
+
+// account for degenerate case of NAXIS3 = 1
+   if (naxes == 3 && axes[2].size == 1) {
+      naxes = 2;
+      axes.resize(naxes);
+   }
+
+   for (int i = 0; i < naxes; i++) {
+      float value;
+      imageHDU.readKey(std::string("CRVAL") + IDnum[i], value);
+      axes[i].refVal = value;
+      imageHDU.readKey(std::string("CDELT") + IDnum[i], value);
+      axes[i].step = value;
+      imageHDU.readKey(std::string("CRPIX") + IDnum[i], value);
+      axes[i].refPixel = static_cast<int>(value);
+      imageHDU.readKey(std::string("CTYPE") + IDnum[i], axes[i].axisType);
+
+// Check for logarithmic scaling.
+      int offset = axes[i].axisType.substr(0).find_first_of("log_");
+      if (offset == 0) {
+         axes[i].logScale = true;
+      } else {
+         axes[i].logScale = false;
+      }
+   }
+
+// Check for LONPOLE and LATPOLE keywords
+   try {
+      float value;
+      imageHDU.readKey(std::string("LONPOLE"), value);
+      m_lonpole = value;
+      m_haveRefCoord = true;
+   } catch (...) {
+      m_haveRefCoord = false;
+   }
+   try {
+      float value;
+      imageHDU.readKey(std::string("LATPOLE"), value);
+      m_latpole = value;
+      m_haveRefCoord = true;
+   } catch (...) {
+      m_haveRefCoord = false;
+   }
+
+}
+
+#else  //don't HAVE_CCFITS
 void FitsImage::read_fits_image(std::string &filename, 
                                 std::vector<AxisParams> &axes,
                                 std::valarray<double> &image) {
@@ -241,6 +341,7 @@ void FitsImage::read_fits_image(std::string &filename,
    fits_close_file(fptr, &status);
    fits_report_error(stderr, status);
 }
+#endif // HAVE_CCFITS
 
 FitsImage::EquinoxRotation::EquinoxRotation(double alpha0, double delta0) {
 

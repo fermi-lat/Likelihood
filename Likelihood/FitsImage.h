@@ -2,7 +2,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.2 2003/04/25 18:32:18 jchiang Exp $
  *
  */
 
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.2 2003/04/25 18:32:18 jchiang Exp $
  *
  */
 
@@ -53,7 +53,8 @@ public:
    //! by traversing the image plane by column number then row.
    //! If m_refCoord == true, then these will be the coordinates in
    //! the unrotated coordinate system (see section 4 of 
-   //! <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">LikeMemo 3</a>.
+   //! <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">
+   //! LikeMemo 3</a>.
    void fetchCelestialArrays(std::valarray<double> &lonArray,
                              std::valarray<double> &latArray);
 
@@ -72,7 +73,8 @@ public:
 /**
  * @class EquinoxRotation
  * @brief Nested class to perform the "Equinox Rotation" described in
- * <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">LikeMemo 3</a>.
+ * <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">
+ * LikeMemo 3</a>.
  */
    class EquinoxRotation {
    public:
@@ -94,9 +96,9 @@ protected:
       AxisParams() {}
       ~AxisParams() {}
       int size;
-      double refVal;
-      double step;
-      int refPixel;
+      float refVal;
+      float step;
+      float refPixel;
       std::string axisType;
       std::string comment;
       bool logScale;

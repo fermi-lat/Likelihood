@@ -49,20 +49,14 @@ Event::Event(const Event &event) {
 
 double Event::diffuseResponse(double energy, 
                               std::string diffuseComponent) const {
-   if (m_respDiffuseSrcs.count(diffuseComponent)) {
-
 // Since the energy resolution is presently assumed to be infinite,
 // simply return the (second member of the pair of the) first (and
 // only) element of the diffuse_response vector.
 
-// Avoid operator[], so use iterator to respect const-ness of map
-      std::map<std::string, diffuse_response>::const_iterator it 
-         = m_respDiffuseSrcs.begin();
-      for (; it != m_respDiffuseSrcs.end(); it++) {
-         if (it->first == diffuseComponent) {
-            return (*it).second[0].second;
-         }
-      }
+   std::map<std::string, diffuse_response>::const_iterator it;
+   if ((it = m_respDiffuseSrcs.find(diffuseComponent))
+       != m_respDiffuseSrcs.end()) {
+      return it->second[0].second;
    } else {
       std::cerr << "Event::diffuseResponse: Diffuse component " 
                 << diffuseComponent 
