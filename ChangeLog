@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul 19 12:27:30 PDT 2004
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx SConstruct SourceModel.cxx 
+Log Message:
+more irfInterface migration; disable 'detailed' TS calculation
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul 19 07:16:58 PDT 2004
 Likelihood/src
 
