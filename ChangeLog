@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Sep  2 20:40:22 PDT 2004
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx HistND.cxx SourceModel.cxx 
+Log Message:
+adjust namespace scoping
+    *
+------------------------------------------------------------
+User: jchiang  Thu Sep  2 20:40:22 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
