@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.21 2005/03/07 05:18:30 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.22 2005/03/13 19:40:16 jchiang Exp $
 #
 import os
 import glob
@@ -30,7 +30,7 @@ class Observation(object):
         self._respFuncs = pyLike.ResponseFunctions()
         self._respFuncs.load(irfs)
         self._expMap = pyLike.ExposureMap()
-        if expMap is not None:
+        if expMap is not None and expMap is not "":
             self._expMap.readExposureFile(expMap)
         self._scData = pyLike.ScData()
         self._roiCuts = pyLike.RoiCuts()
