@@ -4,7 +4,7 @@
    <timeInterval start="0"
                  stop="1"
                  unit="days"/>
-   <energies emin="100." 
+   <energies emin="30." 
              emax="3.1623e5"
              unit="MeV"/>
    <acceptanceCone longitude="180."

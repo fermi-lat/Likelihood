@@ -59,7 +59,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       for (unsigned int k = 0; j < m_energies.size()-1; k++) {
          indx = k*m_pixels.size() + j;
          std::vector<double> my_derivs;
-         m_pixels.getFreeDerivs(m_energies[k], m_energies[k+1], my_derivs);
+         m_pixels[j].getFreeDerivs(m_energies[k], m_energies[k+1], my_derivs);
          for (int i = 0; i < nparams; i++) {
             derivs[i] += (data[indx]/m_model[indx] - 1.)*my_derivs[i];
          }
