@@ -3,7 +3,7 @@
  * @brief Implementation for Expectation Maximization class.
  * @author P. L. Nolan
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.2 2003/11/08 01:24:44 jchiang Exp $
  */
 
 #include "Likelihood/OptEM.h"
@@ -76,8 +76,8 @@ namespace Likelihood {
       }
       iteration++;
       if (verbose != 0)
-	cout << "Iteration #" << iteration << ", logL = " << logL << 
-	  ", old logL = " << oldLogL  << " params " << nPar << endl;
+	std::cout << "Iteration #" << iteration << ", logL = " << logL << 
+	  ", old logL = " << oldLogL  << " params " << nPar << std::endl;
     } while (abs(logL-oldLogL) > 0.11 * nPar || oldLogL == 0.);
 
     //! Clean up before exit
