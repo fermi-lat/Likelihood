@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr 27 08:53:51 PDT 2004
+Likelihood/Likelihood
+
+Removed Files:
+	StApp.h 
+Log Message:
+remove class using st_app::IApp
+    *
+------------------------------------------------------------
 User: jchiang  Wed Apr 21 14:01:42 PDT 2004
 Likelihood/doc
 
