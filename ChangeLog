@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Mar  4 22:35:38 PST 2005
+Likelihood/src
+
+Removed Files:
+	Likelihood.cxx 
+Log Message:
+test program fix; tagging v7r0p1
+    *
+------------------------------------------------------------
+User: jchiang  Fri Mar  4 22:35:38 PST 2005
 Likelihood/python
 
 Modified Files:
