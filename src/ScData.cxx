@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.8 2003/10/18 15:47:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.9 2003/10/22 04:30:33 jchiang Exp $
  */
 
 #include <vector>
@@ -21,6 +21,7 @@ std::vector<ScData::ScNtuple> ScData::vec;
 std::string ScData::s_scFile = "";
 int ScData::s_scHdu = 0;
 ScData * ScData::s_instance = 0;
+double ScData::s_tstep;
 
 void ScData::readData(const std::string &file, int hdu) {
    s_scFile = file;
@@ -50,21 +51,21 @@ void ScData::readData(const std::string &file, int hdu) {
    }
 
 // Assume a constant time step.
-   m_tstep = vec[1].time - vec[0].time;
+   s_tstep = vec[1].time - vec[0].time;
 }
 
-astro::SkyDir &zAxis(double time) {
-   int indx = static_cast<int>((time - vec[0].time)/m_tstep);
-   double frac = (time - vec[indx].time)/m_tstep;
+astro::SkyDir &ScData::zAxis(double time) {
+   int indx = static_cast<int>((time - vec[0].time)/s_tstep);
+   double frac = (time - vec[indx].time)/s_tstep;
    Hep3Vector zDir = frac*(vec[indx+1].zAxis.dir() - vec[indx].zAxis.dir())
       + vec[indx].zAxis.dir();
    m_zAxis = astro::SkyDir(zDir);
    return m_zAxis;
 }
 
-astro::SkyDir &xAxis(double time) {
-   int indx = static_cast<int>((time - vec[0].time)/m_tstep);
-   double frac = (time - vec[indx].time)/m_tstep;
+astro::SkyDir &ScData::xAxis(double time) {
+   int indx = static_cast<int>((time - vec[0].time)/s_tstep);
+   double frac = (time - vec[indx].time)/s_tstep;
    Hep3Vector xDir = frac*(vec[indx+1].xAxis.dir() - vec[indx].xAxis.dir())
       + vec[indx].xAxis.dir();
    m_xAxis = astro::SkyDir(xDir);

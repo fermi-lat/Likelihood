@@ -6,9 +6,13 @@
 #include <cmath>
 #include "astro/SkyDir.h"
 
-//  include everything for the compiler to test
-
 #include "latResponse/../src/Table.h"
+#include "latResponse/../src/PsfGlast25.h"
+#include "latResponse/../src/AeffGlast25.h"
+#include "latResponse/../src/EdispGlast25.h"
+#include "latResponse/Irfs.h"
+
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SourceModel.h" 
 #include "Likelihood/Event.h"
 #include "Likelihood/Source.h"
@@ -1435,6 +1439,20 @@ void read_SC_Response_data() {
    Aeff * aeff = Aeff::instance();
    std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
    aeff->readAeffData(aeff_file, Response::Combined);
+
+// Prepare the ResponseFunctions object.
+   std::map<unsigned int, latResponse::Irfs *> respPtrs;
+   latResponse::IAeff *aeff_new
+      = new latResponse::AeffGlast25(aeff_file, Response::Combined);
+   latResponse::IPsf *psf_new
+      = new latResponse::PsfGlast25(psf_file, Response::Combined);
+   latResponse::IEdisp *edisp = new latResponse::EdispGlast25();
+
+   respPtrs[Response::Combined] 
+      = new latResponse::Irfs(aeff_new, psf_new, edisp);
+
+   ResponseFunctions::setRespPtrs(respPtrs);
+ 
 }
 
 void print_fit_results(SourceModel &stat) {
