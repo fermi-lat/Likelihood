@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 19 15:44:44 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+add SpectrumFactory
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 19 15:44:43 PST 2003
 Likelihood/src
 
