@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  1 22:27:25 PDT 2004
+Likelihood/src
+
+Modified Files:
+	ResponseFunctions.cxx 
+Added Files:
+	SConstruct buildBase 
+Log Message:
+build with SCons
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 31 21:27:00 PDT 2004
 Likelihood/src
 
