@@ -3,12 +3,12 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.25 2004/09/17 01:19:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.26 2004/09/21 14:51:21 jchiang Exp $
  */
 
-//#ifdef TRAP_FPE
+#ifdef TRAP_FPE
 #include <fenv.h>
-//#endif
+#endif
 
 #include <cmath>
 #include <cassert>
@@ -25,6 +25,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "facilities/Util.h"
+
+#include "st_facilities/Util.h"
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
@@ -568,8 +570,10 @@ void LikelihoodTests::test_BinnedLikelihood() {
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
    
-//   generate_exposureHyperCube();
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
    ExposureCube::readExposureCube(exposureCubeFile);
 
    std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
@@ -750,7 +754,9 @@ srcFactoryInstance(const std::string & roiFile,
 }      
 
 int main() {
+#ifdef TRAP_FPE
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
+#endif
 //    LikelihoodTests my_tests;
 //    my_tests.setUp();
 //    my_tests.test_BinnedLikelihood();

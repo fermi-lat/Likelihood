@@ -3,7 +3,7 @@
  * @brief Friendly user interface to st_graph plotting.
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.h,v 1.1 2004/09/21 14:51:20 jchiang Exp $
  */
 
 namespace st_graph {
@@ -46,8 +46,8 @@ private:
    st_graph::IFrame * m_plotFrame;
    std::vector<st_graph::IPlot *> m_plots;
 
-   void scatterPlotErrorBars(const std::vector<double> & x,
-                             std::vector<double> & xerr,
-                             unsigned int nbins=100) const;
+   void scatterPlotSymbolSizes(const std::vector<double> & x,
+                               std::vector<double> & xerr,
+                               unsigned int nbins=100) const;
 
 };

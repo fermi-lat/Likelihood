@@ -3,6 +3,10 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v4r7   21-Sep-04  JC   Added BinnedLikelihood and Pixel classes;
+                           implemented inefficient binned likelihood for
+                           point sources only.  Added plotting of counts
+                           spectrum to likelihood application.
     v4r6p3 03-Sep-04  JC   Add progress indicator for makeExposureCube
     v4r6p2 03-Sep-04  JC   Add CountsMap template file; correct model
                            counts calculation
