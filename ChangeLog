@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Sun Feb 13 22:20:15 PST 2005
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx FitsImage.cxx pyLike.in 
+Added Files:
+	MapCubeFunction.cxx 
+Log Message:
+add MapCubeFunction
+    *
+------------------------------------------------------------
+User: jchiang  Sun Feb 13 22:20:15 PST 2005
 Likelihood/Likelihood
 
 Modified Files:
