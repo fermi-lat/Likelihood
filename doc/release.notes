@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v1r1   13-Aug-03  JC   Add xml support in SourceFactory.
     v1r0   06-Aug-03  JC   Use optimizers package, having removed
                            redundant classes.
     v0r9p2 03-Aug-03  JC   Remove more windows gotchas (final tag?)
