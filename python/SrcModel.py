@@ -4,7 +4,7 @@ SourceModel interface to allow for manipulation of fit parameters.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.1 2005/02/01 07:18:57 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.2 2005/02/02 00:01:16 jchiang Exp $
 #
 import sys
 import pyLike
@@ -35,6 +35,8 @@ class SourceModel(object):
                 for param in func.paramNames:
                     self.params.append(func.getParam(param))
                     src.funcs[funcName].appendParId(indx.next())
+    def __setitem__(self, indx, value):
+        self.params[indx].setValue(value)
     def __getitem__(self, srcName):
         try:
             return self.params[srcName]

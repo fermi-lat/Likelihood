@@ -4,13 +4,12 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.5 2005/02/02 00:01:16 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.6 2005/02/02 06:22:00 jchiang Exp $
 #
 import os, sys
 import numarray as num
 sys.path.insert(0, os.path.join(os.environ['LIKELIHOODROOT'], 'python'))
 import pyLike as Likelihood
-import hippoplotter as plot
 
 _funcFactory = Likelihood.SourceFactory_funcFactory()
 
@@ -59,6 +58,7 @@ class SrcAnalysis(object):
                 nobs += 1
         return nobs
     def plotData(self, yrange=None):
+        import hippoplotter as plot
         nt = plot.newNTuple(([], [], []),
                             ('energy', 'nobs', 'nobs_err'))
         self.data_nt = nt
@@ -77,6 +77,7 @@ class SrcAnalysis(object):
             cnts.append(source.Npred(emin, emax))
         return num.array(cnts)
     def _plot(self, source, oplot=False, yrange=None, color='black'):
+        import hippoplotter as plot
         if oplot and self.disp is not None:
             plot.canvas.selectDisplay(self.disp)
         else:
@@ -103,6 +104,7 @@ class SrcAnalysis(object):
                                       xlog=1, color=color, yrange=(-1, 1))
             self.resids.getDataRep().setSymbol('filled_square', 2)
     def plot(self, srcs=None, oplot=False, yrange=None, color='black'):
+        import hippoplotter as plot
         if isinstance(srcs, str):
             self._plot(srcs, oplot=oplot, yrange=yrange, color=color)
         else:
