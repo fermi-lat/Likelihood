@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar  3 23:07:11 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h 
+Added Files:
+	EventContainer.h 
+Log Message:
+add EventContainer class
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar  3 15:24:17 PST 2005
 Likelihood/src/likelihood
 
