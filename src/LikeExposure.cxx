@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.7 2004/12/05 22:25:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.8 2005/02/27 06:42:25 jchiang Exp $
  */
 
 #include <iostream>
@@ -45,7 +45,8 @@ void LikeExposure::load(tip::Table * scData, bool verbose) {
          deltat *= fraction;
          row["ra_scz"].get(ra);
          row["dec_scz"].get(dec);
-         add(astro::SkyDir(ra, dec), deltat);
+//         add(astro::SkyDir(ra, dec), deltat);
+         fill(astro::SkyDir(ra, dec), deltat);
       }
    }
    if (verbose) std::cerr << "!" << std::endl;

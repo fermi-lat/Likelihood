@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.27 2005/03/01 01:07:03 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.28 2005/03/03 20:04:22 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -17,12 +17,9 @@
 #include "st_app/StAppFactory.h"
 
 #include "tip/IFileSvc.h"
-#include "tip/Image.h"
 #include "tip/Table.h"
 
 #include "st_facilities/Util.h"
-
-#include "map_tools/ExposureHyperCube.h"
 
 #include "Likelihood/LikeExposure.h"
 #include "Likelihood/RoiCuts.h"
@@ -36,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.27 2005/03/01 01:07:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.28 2005/03/03 20:04:22 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -81,11 +78,10 @@ void ExposureCube::run() {
    }
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    createDataCube();
-   map_tools::ExposureHyperCube cube(*m_exposure, output_file);
-   cube.save();
-   std::auto_ptr<tip::Image> 
-      image(tip::IFileSvc::instance().editImage(output_file, ""));
-   m_roiCuts->writeDssKeywords(image->getHeader());
+   m_exposure->write(output_file);
+   std::auto_ptr<tip::Table> 
+      table(tip::IFileSvc::instance().editTable(output_file, "Exposure"));
+   m_roiCuts->writeDssKeywords(table->getHeader());
    m_roiCuts->writeGtiExtension(output_file);
 }
 
@@ -126,4 +122,3 @@ void ExposureCube::createDataCube() {
       delete scData;
    }
 }
-

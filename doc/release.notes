@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v7r0p2 05-Mar-05  JC   use new map_tools interface
     v7r0p1 04-Mar-05  JC   explicit save() for exposure_cube, update 
                            SrcAnalysis to use Observation explicitly
     v7     04-Mar-05  JC   major refactoring: conversion of Singletons

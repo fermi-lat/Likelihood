@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.54 2005/02/28 18:38:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.55 2005/03/02 04:51:10 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -13,8 +13,6 @@
 #include <vector>
 #include <stdexcept>
 #include <string>
-
-#include "map_tools/Exposure.h"
 
 #include "optimizers/Statistic.h"
 
@@ -39,7 +37,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.54 2005/02/28 18:38:46 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.55 2005/03/02 04:51:10 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {

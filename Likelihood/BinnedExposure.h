@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.3 2004/11/01 06:27:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.4 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -14,8 +14,6 @@
 #include <vector>
 
 #include "astro/SkyDir.h"
-
-#include "map_tools/Exposure.h"
 
 namespace Likelihood {
 
@@ -67,7 +65,7 @@ private:
 
    void fitsReportError(FILE * stream, int status) const;
 
-   class Aeff : public map_tools::Exposure::Aeff {
+   class Aeff {
    public:
       Aeff(double energy, int evtType, const Observation & observation) 
          : m_energy(energy), m_evtType(evtType), m_observation(observation) {}
