@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Sep 25 09:38:08 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+add ability to read SourceMaps and CountsMaps
+    *
+------------------------------------------------------------
+User: jchiang  Sat Sep 25 09:38:08 PDT 2004
 Likelihood/src
 
 Modified Files:
