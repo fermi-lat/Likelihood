@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.13 2003/08/13 18:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.14 2004/02/20 00:02:03 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -11,15 +11,14 @@
 
 #include <string>
 #include <map>
+
+#include "xml/Dom.h"
+
 #include "Likelihood/Source.h"
 #include "Likelihood/Exception.h"
 
-class DOM_Element;
-
 namespace optimizers {
-
-class FunctionFactory;
-
+   class FunctionFactory;
 }
 
 namespace Likelihood {
@@ -35,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.13 2003/08/13 18:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.14 2004/02/20 00:02:03 jchiang Exp $
  *
  */
     
@@ -67,15 +66,15 @@ private:
 
    std::map<std::string, Source *> m_prototypes;
 
-   Source *makePointSource(const DOM_Element &spectrum,
-                           const DOM_Element &spatialModel,
+   Source *makePointSource(const DomElement &spectrum,
+                           const DomElement &spatialModel,
                            optimizers::FunctionFactory &funcFactory);
 
-   Source *makeDiffuseSource(const DOM_Element &spectrum,
-                             const DOM_Element &spatialModel,
+   Source *makeDiffuseSource(const DomElement &spectrum,
+                             const DomElement &spatialModel,
                              optimizers::FunctionFactory &funcFactory);
 
-   void setSpectrum(Source *src, const DOM_Element &spectrum,
+   void setSpectrum(Source *src, const DomElement &spectrum,
                     optimizers::FunctionFactory &funcFactory);
 
 };
