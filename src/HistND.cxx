@@ -15,7 +15,7 @@ HistND::HistND(const std::vector<evtbin::Binner *> & binners) {
    m_binners.resize(m_ndims);
    int num_bins(1);
    for (unsigned int i = 0; i < m_ndims; i++) {
-      m_binners[i] = binners[i];
+      m_binners[i] = binners[i]->clone();
       num_bins *= binners[i]->getNumBins();
    }
    m_data.resize(num_bins, 0);
