@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v7r1p2 07-Mar-05  JC   debug TsMap; use new evtbin::DataProduct interface;
+                           disable banner method
     v7r1p1 06-Mar-05  JC   tiny fix to LikeExposure
     v7r1   06-Mar-05  JC   refactor LikeExposure & PointSource to handle
                            time range cuts and GTIs correctly

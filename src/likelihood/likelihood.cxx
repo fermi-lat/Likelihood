@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.76 2005/03/04 22:08:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.77 2005/03/05 06:35:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.76 2005/03/04 22:08:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.77 2005/03/05 06:35:39 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -70,6 +70,7 @@ public:
       }
    }
    virtual void run();
+   virtual void banner() const {}
 
 private:
    AppHelpers * m_helper;
@@ -234,7 +235,6 @@ void likelihood::readEventData() {
    std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
    for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-//      m_logLike->getEvents(*evIt);
       m_helper->observation().eventCont().getEvents(*evIt);
    }
 }

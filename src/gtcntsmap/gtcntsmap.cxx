@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.4 2004/12/09 19:03:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.5 2004/12/20 20:13:11 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -37,6 +37,7 @@ public:
    gtcntsmap();
    virtual ~gtcntsmap() throw() {}
    virtual void run();
+   virtual void banner() const {}
 private:
    st_app::AppParGroup & m_pars;
    dataSubselector::Cuts * m_cuts;

@@ -4,12 +4,14 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.20 2005/03/05 06:35:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.21 2005/03/08 01:28:14 jchiang Exp $
  */
 
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+
+#include <sstream>
 
 #include "fitsio.h"
 
@@ -39,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.20 2005/03/05 06:35:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.21 2005/03/08 01:28:14 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -54,6 +56,7 @@ public:
       }
    }
    virtual void run();
+   virtual void banner() const {}
 private:
    AppHelpers * m_helper;
    st_app::AppParGroup & m_pars;
@@ -89,11 +92,13 @@ TsMap::TsMap() : st_app::StApp(), m_helper(0),
       m_pars.Prompt();
       m_pars.Save();
       m_helper = new AppHelpers(m_pars);
-      m_logLike = new LogLike(m_helper->observation());
+      std::string expCubeFile = m_pars["exposure_cube_file"];
+      m_helper->observation().expCube().readExposureCube(expCubeFile);
       m_helper->readScData();
       m_testSrc = PointSource(0, 0., m_helper->observation());
       setPointSourceSpectrum(m_testSrc);
       m_testSrc.setName("testSource");
+      m_logLike = new LogLike(m_helper->observation());
    } catch (std::exception &eObj) {
       std::cout << eObj.what() << std::endl;
       std::exit(1);
@@ -111,11 +116,11 @@ void TsMap::run() {
    } else {
       m_coordSys = "CEL";
    }
-   Likelihood::Verbosity::instance(m_pars["chatter"]);
+   int chatter = m_pars["chatter"];
+   Likelihood::Verbosity::instance(chatter);
    m_helper->readExposureMap();
    readSrcModel();
    readEventData();
-   m_helper->setRoi(m_eventFiles[0]);
    selectOptimizer();
    setGrid();
    computeMap();
@@ -135,6 +140,7 @@ void TsMap::readEventData() {
       AppHelpers::checkCuts(m_eventFiles[0], "EVENTS",
                             m_eventFiles[i], "EVENTS");
    }
+   m_helper->setRoi(m_eventFiles[0]);
    std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
    for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
@@ -172,6 +178,7 @@ void TsMap::computeMap() {
    optimizers::dArg dummy(1.);
       
    int verbosity = m_pars["chatter"];
+   verbosity -= 2;
    double tol = m_pars["fit_tolerance"];
 //    m_opt->find_min(verbosity, tol);
 //    double logLike0 = (*m_logLike)(dummy);
@@ -204,7 +211,8 @@ void TsMap::computeMap() {
          if (Likelihood::print_output(3)) {
             std::cout << m_lonValues[ii] << "  "
                       << m_latValues[jj] << "  "
-                      << m_tsMap[jj][ii] 
+                      << m_tsMap[jj][ii] << "  "
+                      << m_helper->observation().eventCont().events().size() 
                       << std::endl;
          }
          m_logLike->deleteSource(m_testSrc.getName());
