@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Oct  1 18:05:08 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx SourceModel.cxx 
+Log Message:
+add exposureMap.par
+    *
+------------------------------------------------------------
+User: jchiang  Fri Oct  1 18:05:08 PDT 2004
 Likelihood/pfiles
 
 Added Files:
