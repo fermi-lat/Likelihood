@@ -148,13 +148,12 @@
  @verbinclude requirements
 
  <hr> 
- @todo Exceptions
  @todo Error estimates, confidence regions, etc. 
- @todo Boost.Python
  @todo Energy dispersion
  @todo Generalize Npred calculation, e.g., zenith angle cuts, fit-able 
        source locations
- @todo CCfits
- @todo Minuit++
- 
+ @todo Refactor Statistic and FITS-related classes (Table, FitsImage, etc.)
+ @todo Use more realistic response function data
+ @todo Analyze EGRET data
+ @todo Boost.Python
  */

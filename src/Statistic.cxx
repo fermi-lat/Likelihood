@@ -3,7 +3,7 @@
  * @brief Statistic class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Statistic.cxx,v 1.8 2003/03/25 23:22:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Statistic.cxx,v 1.9 2003/05/29 20:10:46 jchiang Exp $
  */
 
 #include <vector>
@@ -53,7 +53,7 @@ std::pair<long, double*> Statistic::getColumn(const Table &tableData,
       colnames += " "; colnames += tableData[i].colname;
    }
    std::ostringstream errorMessage;
-   errorMessage << "Statistic::m_getColumn:\n"
+   errorMessage << "Statistic::getColumn:\n"
                 << "Column " << colname << " was not found in event data.\n"
                 << "Valid names are \n" << colnames << "\n";
    throw LikelihoodException(errorMessage.str());
