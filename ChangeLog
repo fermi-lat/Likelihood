@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jan 31 23:18:57 PST 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Added Files:
+	SrcModel.py 
+Log Message:
+enable manipulation of model parameters
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jan 31 23:18:57 PST 2005
 Likelihood/Likelihood
 
 Modified Files:
