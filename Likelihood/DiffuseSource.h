@@ -2,7 +2,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.2 2003/03/25 23:22:02 jchiang Exp $
  */
 
 #ifndef DiffuseSource_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.2 2003/03/25 23:22:02 jchiang Exp $ 
  * 
  */
 
@@ -40,7 +40,7 @@ public:
 
    DiffuseSource(const DiffuseSource &rhs);
 
-   virtual ~DiffuseSource() {delete m_spectrum;}
+   virtual ~DiffuseSource() {delete m_spatialDist; delete m_spectrum;}
 
    //! Returns photons/cm^2-s-sr-MeV having been convolved through
    //! the LAT instrument response
@@ -68,10 +68,6 @@ public:
 
 protected:
 
-   //! Computes the exposure integrated over the solid angle subtended by
-   //! the Source
-   void computeExposure();
-
    //! spatial model
    Function *m_spatialDist;
 
@@ -80,7 +76,7 @@ protected:
 
 private:
 
-   //! flag to indicate that static member data has been computed
+   //! flag to indicate that static member data have been computed
    static bool s_haveStaticMembers;
 
    //! vector of energy values for Npred spectrum quadrature

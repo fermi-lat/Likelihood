@@ -2,13 +2,14 @@
  * @brief Response base class declaration
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.12 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.13 2003/03/25 23:22:02 jchiang Exp $
  */
 
 #ifndef Response_h
 #define Response_h
 
 #include <iostream>
+#include <valarray>
 #include "astro/SkyDir.h"
 #include "Likelihood/ScData.h"
 
@@ -25,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.12 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Response.h,v 1.13 2003/03/25 23:22:02 jchiang Exp $
  */
 
 class Response {
@@ -41,6 +42,11 @@ public:
    //! the instrument z-axis (in degrees)
    static double incMax() {return s_incMax;}
 
+   //! my own zeroth order bilinear interpolater
+   static double bilinear(const std::vector<double> &xx, double x,
+                          const std::vector<double> &yy, double y, 
+                          const std::valarray<double> &z);
+
 protected:
 
    Response();
@@ -51,10 +57,6 @@ protected:
    //! share the spacecraft data among all response functions
    ScData * scData;
    
-   //! and my own zeroth order bilinear interpolater
-   static double m_bilinear(int nx, double *xx, int i, double x,
-                            int ny, double *yy, int j, double y, double *z);
-
 };
 
 } // namespace Likelihood

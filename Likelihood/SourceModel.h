@@ -2,7 +2,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.11 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.12 2003/03/25 23:22:02 jchiang Exp $
  */
 
 #ifndef SourceModel_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.11 2003/03/22 01:22:50 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.12 2003/03/25 23:22:02 jchiang Exp $ 
  */
 
 class SourceModel : public Function {
@@ -57,10 +57,10 @@ public:
    void deleteSource(const std::string &srcName);
 
    //! delete all the sources
-   void deleteAllSources() {
-      s_sources.clear();
-      m_parameter.clear();
-   }
+   void deleteAllSources();
+
+   //! return a Source pointer by name
+   Source * getSource(const std::string &srcName);
 
    unsigned int getNumSrcs() const {return s_sources.size();}
    void getSrcNames(std::vector<std::string> &) const;

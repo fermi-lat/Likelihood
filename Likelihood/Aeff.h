@@ -1,7 +1,7 @@
 /** @file Aeff.h
  * @brief Interface definition for the LAT Effective Area class
  * @author J. Chiang
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.7 2003/03/17 00:53:42 jchiang Exp $
  *
  */
 
@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.7 2003/03/17 00:53:42 jchiang Exp $
  */
 
 class Aeff : public Response {
@@ -62,10 +62,7 @@ private:
 
    std::vector<double> m_energy;
    std::vector<double> m_theta;
-
-   //! need to find a better way to store the effective area table,
-   //! perhaps with std::valarray....for now, use a pointer
-   double *m_aeff;
+   std::valarray<double> m_aeff;
 
 };
 
