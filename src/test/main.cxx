@@ -27,6 +27,7 @@
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/SpatialMap.h"
+#include "Likelihood/ConstantValue.h"
 #include "Likelihood/DiffuseSource.h"
 #include "lbfgs.h"
 #include "OptPP.h"
@@ -64,6 +65,7 @@ void test_ExposureMap();
 void test_SpatialMap();
 void test_DiffuseSource();
 void fit_DiffuseSource();
+void print_fit_results(Statistic &stat);
 
 std::string test_path;
 
@@ -116,29 +118,15 @@ void fit_DiffuseSource() {
    std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
    ExposureMap::readExposureFile(expfile);
 
-   std::string galfile = test_path + "Data/gas.cel";
-   SpatialMap galacticModel(galfile);
-// Since gas.cel is integral photon flux above 100 MeV assuming a 
-// photon index of 2.1, the SpatialMap Prefactor needs to be set to
-// the differential flux at 1 MeV.
-   galacticModel.setParam("Prefactor", 1.1*pow(100., 1.1));
+   SourceFactory srcFactory;
 
-   DiffuseSource ourGalaxy(&galacticModel);
-   ourGalaxy.setName("Milky Way");
+   DiffuseSource *ourGalaxy = dynamic_cast<DiffuseSource *>
+      (srcFactory.makeSource("Milky Way"));
 
-// Provide ourGalaxy with a power-law spectrum.
-   PowerLaw gal_pl(pow(100., -2.1), -2.1, 100.);
-   gal_pl.setParamBounds("Prefactor", 1e-3, 1e3);
-   gal_pl.setParamScale("Prefactor", 1e-5);
-   gal_pl.setParamTrueValue("Prefactor", pow(100., -2.1));
-   gal_pl.setParamBounds("Index", -3.5, -1);
-//     gal_pl.setParam("Index", gal_pl.getParamValue("Index"), 
-//                     false); // fix value
-
-   ourGalaxy.setSpectrum(&gal_pl);
+   DiffuseSource *extragalactic = dynamic_cast<DiffuseSource *>
+      (srcFactory.makeSource("EG component"));
 
 // 3C 279
-   SourceFactory srcFactory;
    Source *_3c279 = srcFactory.makeSource("PointSource");
    _3c279->setDir(ra0, dec0);
    _3c279->setName("3C 279");
@@ -147,39 +135,63 @@ void fit_DiffuseSource() {
    logLike_ptsrc logLike;
 
 // add the Sources
-   logLike.addSource(&ourGalaxy);
+   logLike.addSource(ourGalaxy);
+   logLike.addSource(extragalactic);
    logLike.addSource(_3c279);
 
 // read in the data
    std::string event_file = test_path + "Data/" + obs_root + "_0000";
    logLike.getEvents(event_file, 2);
-   logLike.computeEventResponses(ourGalaxy);
 
-#ifdef HAVE_OPTIMIZERS
+// There are a few options for computing the DiffuseSource Event responses:
+
+// individually...
+//     logLike.computeEventResponses(*ourGalaxy);
+//     logLike.computeEventResponses(*extragalactic);
+
+// by constructing a vector of the targeted DiffuseSources...
+//     std::vector<DiffuseSource> srcs;
+//     srcs.push_back(*ourGalaxy);
+//     srcs.push_back(*extragalactic);
+//     logLike.computeEventResponses(srcs);
+
+// or the default way, for all of the DiffuseSources in the SourceModel...
+   logLike.computeEventResponses();
+
+#ifdef HAVE_OPT_PP
 // do the fit
    OptPP myOpt(logLike);
-//   lbfgs myOpt(logLike);
    int verbose = 3;
    myOpt.find_min(verbose);
 #endif
 
-// print Npred for each Source
+   print_fit_results(logLike);
+
    std::vector<std::string> srcNames;
    logLike.getSrcNames(srcNames);
+
+// replace (or add) each Source in srcFactory for later use
+   std::vector<std::string> factoryNames;
+   srcFactory.fetchSrcNames(factoryNames);
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       Source *src = logLike.getSource(srcNames[i]);
-      std::cout << srcNames[i] << ": "
-                << src->Npred() << std::endl;
+      srcFactory.replaceSource(src);
    }
 
-   std::vector<Parameter> params;
-   logLike.getParams(params);
-   for (unsigned int i = 0; i < params.size(); i++) {
-      if (params[i].isFree()) {
-         std::cout << params[i].getName() << ": "
-                   << params[i].getValue() << std::endl;
-      }
+// try to fit again using srcFactory Sources and a different optimizer
+   logLike.deleteAllSources();
+
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      Source *src = srcFactory.makeSource(srcNames[i]);
+      logLike.addSource(src);
    }
+
+#ifdef HAVE_LBFGS
+   lbfgs otherOpt(logLike);
+   otherOpt.find_min(verbose);
+#endif
+
+   print_fit_results(logLike);
 
 } // fit_DiffuseSource
 
@@ -228,7 +240,7 @@ void test_DiffuseSource() {
    for (int i = 0; i < nevents; i++) {
       double dec = decstep*i + decmin;
       my_Events.push_back(Event(ra, dec, energy, time, ra, dec, muZenith));
-      my_Events[i].computeResponse(ourGalaxy, ourGalaxy.getName());
+      my_Events[i].computeResponse(ourGalaxy);
 
       std::cout << dec << "  "
                 << ourGalaxy.fluxDensity(my_Events[i]) << "  "
@@ -414,10 +426,9 @@ void test_SourceFactory() {
                 << (statval - statval0)/dparam << std::endl;
    }
 
-#ifdef HAVE_OPTIMIZERS
+#ifdef HAVE_OPT_PP
 
 // Do the fit
-//   lbfgs myOptimizer(logLike);
    OptPP myOptimizer(logLike);
    
    int verbose = 3;
@@ -435,7 +446,7 @@ void test_SourceFactory() {
    srcFactory.addSource(_0528->getName(), logLike.getSource(_0528->getName()));
    delete _0528;
 
-#endif  //HAVE_OPTIMIZERS
+#endif  //HAVE_OPT_PP
 
 // retrieve the names of the Sources in srcFactory and inspect their
 // spectral Parameters
@@ -471,22 +482,23 @@ void test_OptPP() {
    params[1].setBounds(-4., 10);
    my_rosen.setParams(params);
 
-#ifdef HAVE_OPTIMIZERS
 
    int verbose = 3;
 
+#ifdef HAVE_LBFGS
 // try lbfgs_bcm method first   
 //   lbfgs my_lbfgsObj(my_rosen);
 //   my_lbfgsObj.find_min(verbose);
+#endif //HAVE_LBFGS
 
+#ifdef HAVE_OPT_PP
 // now restart and try OptPP
    params[0].setValue(2.);
    params[1].setValue(2.);
    my_rosen.setParams(params);
    OptPP my_OptppObj(my_rosen);
    my_OptppObj.find_min(verbose);
-
-#endif  //HAVE_OPTIMIZERS
+#endif  //HAVE_OPT_PP
    
    my_rosen.getParams(params);
    for (unsigned int i = 0; i < params.size(); i++) 
@@ -725,16 +737,15 @@ void fit_anti_center() {
                 << (statval - statval0)/dparam << std::endl;
    }
 
-#ifdef HAVE_OPTIMIZERS
+#ifdef HAVE_OPT_PP
 
 // do the fit
-//   lbfgs myOptimizer(logLike);
    OptPP myOptimizer(logLike);
 
    int verbose = 3;
    myOptimizer.find_min(verbose);
 
-#endif  //HAVE_OPTIMIZERS
+#endif  //HAVE_OPT_PP
 
    std::vector<Parameter> parameters;
    logLike.getParams(parameters);
@@ -809,18 +820,21 @@ void fit_3C279() {
                 << (statval - statval0)/dparam << std::endl;
    }
 
-#ifdef HAVE_OPTIMIZERS
+#ifdef HAVE_LBFGS
 
 // do the fit using lbfgs_bcm
 //   lbfgs myOptimizer(logLike);
 
+#endif //HAVE_LBFGS
+
+#ifdef HAVE_OPT_PP
 // do the fit using OptPP
    OptPP myOptimizer(logLike);
    
    int verbose = 3;
    myOptimizer.find_min(verbose);
 
-#endif  //HAVE_OPTIMIZERS
+#endif  //HAVE_OPT_PP
    
    std::vector<Parameter> parameters;
    logLike.getParams(parameters);
@@ -1689,3 +1703,21 @@ void read_SC_Response_data() {
    std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
    aeff->readAeffData(aeff_file, Response::Combined);
 }
+
+void print_fit_results(Statistic &stat) {
+   std::vector<std::string> srcNames;
+   stat.getSrcNames(srcNames);
+   std::vector<Parameter> parameters;
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      Source *src = stat.getSource(srcNames[i]);
+      Source::FuncMap srcFuncs = src->getSrcFuncs();
+      srcFuncs["Spectrum"]->getParams(parameters);
+      std::cout << "\n" << srcNames[i] << ":\n";
+      for (unsigned int i = 0; i < parameters.size(); i++)
+         std::cout << parameters[i].getName() << ": "
+                   << parameters[i].getValue() << std::endl;
+      std::cout << "Npred: "
+                << src->Npred() << std::endl;
+   }
+}
+

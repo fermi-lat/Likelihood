@@ -2,7 +2,7 @@
  * @brief Implementation for Response base class.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.12 2003/04/25 18:32:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.13 2003/04/25 21:51:29 burnett Exp $
  */
 
 #include <vector>
@@ -46,7 +46,7 @@ double Response::bilinear(const std::vector<double> &xx, double x,
    } else if (y >= *(yy.end()-1)) {
       iy = yy.end() - 1;
    } else {
-	   iy = std::upper_bound(yy.begin(), yy.end(), y);
+      iy = std::upper_bound(yy.begin(), yy.end(), y);
    }
    int j = iy - yy.begin();
 

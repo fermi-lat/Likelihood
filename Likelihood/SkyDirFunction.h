@@ -2,7 +2,7 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.6 2003/03/17 00:53:43 jchiang Exp $
  */
 
 #ifndef SkyDirFunction_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.6 2003/03/17 00:53:43 jchiang Exp $
  */
     
 class SkyDirFunction : public Function, public astro::SkyDir {
@@ -48,7 +48,7 @@ public:
       update_m_dir(paramName, paramValue);
    }
 
-   double derivByParam(Arg &, const std::string &paramName) const
+   double derivByParam(Arg &, const std::string &) const
       {return 0;}
 
 private:

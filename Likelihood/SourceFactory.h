@@ -2,7 +2,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.2 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.4 2003/04/25 18:32:18 jchiang Exp $
  */
 
 #ifndef SourceFactory_h
@@ -12,7 +12,6 @@
 #include <map>
 
 #include "Likelihood/Source.h"
-#include "Likelihood/PointSource.h"
 
 namespace Likelihood {
 /** 
@@ -26,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.2 2003/03/22 01:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.4 2003/04/25 18:32:18 jchiang Exp $
  *
  */
     
@@ -42,6 +41,8 @@ public:
    //! a clone.
    void addSource(const std::string &name, Source* src, 
                   bool fromClone = true);
+
+   void replaceSource(Source* src, bool fromClone = true);
 
    Source *makeSource(const std::string &name);
 

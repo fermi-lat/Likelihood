@@ -1,8 +1,9 @@
-/** @file OptPP.h
+/** 
+ * @file OptPP.h
  * @brief OptPP declaration
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.h,v 1.3 2003/03/25 23:22:03 jchiang Exp $
  */
 
 #ifndef OptPP_h
@@ -11,7 +12,7 @@
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Statistic.h"
 
-#ifdef HAVE_OPTIMIZERS
+#ifdef HAVE_OPT_PP
 #include "Opt.h"
 #endif
 
@@ -28,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptPP.h,v 1.3 2003/03/25 23:22:03 jchiang Exp $
  */
 
 class OptPP : public Optimizer {
@@ -44,7 +45,7 @@ protected:
 
    static int s_verbose;
 
-#ifdef HAVE_OPTIMIZERS
+#ifdef HAVE_OPT_PP
    //! interface to the objective function that OPT++ expects
    static void statInterface(int mode, int ndim, const ColumnVector &x,
                              double &fx, ColumnVector &gx, int &result);

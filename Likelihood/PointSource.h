@@ -2,7 +2,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.12 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.15 2003/03/25 23:22:02 jchiang Exp $
  */
 
 #ifndef PointSource_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.12 2003/03/17 00:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.15 2003/03/25 23:22:02 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -35,12 +35,13 @@ public:
    //! that the ROI cuts have not been specified.
    // A later setDir(ra, dec, true) will force the exposure to
    // be computed.
-   PointSource() : m_spectrum(0) {setDir(0., 0., false);}
+   PointSource() : m_spectrum(0) {setDir(0., 0., false); m_srcType = "Point";}
 
    //! This constructor does ask for exposure to be computed and 
    //! therefore *requires* the spacecraft data to be available and the 
    //! ROI cuts to be specified beforehand.
-   PointSource(double ra, double dec) : m_spectrum(0) {setDir(ra, dec);}
+   PointSource(double ra, double dec) : m_spectrum(0) 
+      {setDir(ra, dec);  m_srcType = "Point";}
 
    PointSource(const PointSource &rhs);
 

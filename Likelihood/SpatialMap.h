@@ -2,7 +2,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.2 2003/04/25 18:32:18 jchiang Exp $
  *
  */
 
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.2 2003/04/25 18:32:18 jchiang Exp $
  *
  */
     
@@ -34,7 +34,7 @@ public:
 
    double value(Arg&) const;
 
-   double derivByParam(Arg &x, const std::string &paramName) const
+   double derivByParam(Arg &, const std::string &) const
       {return 0;}
 
    virtual Function *clone() const {
@@ -47,7 +47,7 @@ private:
    std::vector<double> m_dec;
 
    // disable this
-   double integral(Arg &xmin, Arg &xmax) const {return 0;}
+   double integral(Arg &, Arg &) const {return 0;}
 
 };
 
