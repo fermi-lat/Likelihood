@@ -148,15 +148,19 @@ void meanPsf::run() {
 }
 
 void meanPsf::computeEnergies() {
-   double emin(20.);
-   double emax(2e5);
-   int nee(20);
-   double estep = log(emax/emin)/(nee - 1.);
+//    double emin(20.);
+//    double emax(2e5);
+//    int nee(20);
+//    double estep = log(emax/emin)/(nee - 1.);
+//    m_energies.clear();
+//    m_energies.reserve(nee);
+//    for (int i = 0; i < nee; i++) {
+//       m_energies.push_back(emin*exp(estep*i));
+//    }
    m_energies.clear();
-   m_energies.reserve(nee);
-   for (int i = 0; i < nee; i++) {
-      m_energies.push_back(emin*exp(estep*i));
-   }
+   m_energies.push_back(1e2);
+   m_energies.push_back(1e3);
+   m_energies.push_back(1e4);
 }
 
 void meanPsf::computePsf(const std::string & filename) {
@@ -164,7 +168,7 @@ void meanPsf::computePsf(const std::string & filename) {
 
    double sepMin(1e-2);
    double sepMax(70.);
-   int nsep(50);
+   int nsep(40);
    double sep_step = log(sepMax/sepMin)/(nsep-1.);
    std::vector<double> separations;
    for (int j = 0; j < nsep; j++) {

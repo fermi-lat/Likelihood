@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.32 2004/09/28 04:32:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.33 2004/10/04 05:51:20 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -138,22 +138,20 @@ private:
 
 void LikelihoodTests::setUp() {
 // Get root path to test data.
-   const char * root = ::getenv("LIKELIHOODROOT");
+   const char * root = std::getenv("LIKELIHOODROOT");
    if (!root) {  //use relative path from cmt directory
       m_rootPath = "..";
    } else {
       m_rootPath = std::string(root);
    }
 // Prepare the ResponseFunctions object.
-//    ResponseFunctions::addRespPtr(2, irfsFactory().create("DC1::Front"));
-//    ResponseFunctions::addRespPtr(3, irfsFactory().create("DC1::Back"));
    g25Response::loadIrfs();
    irfInterface::IrfsFactory * myFactory 
       = irfInterface::IrfsFactory::instance();
-//    ResponseFunctions::addRespPtr(2, irfsFactory().create("Glast25::Front"));
-//    ResponseFunctions::addRespPtr(3, irfsFactory().create("Glast25::Back"));
-   ResponseFunctions::addRespPtr(2, myFactory->create("Glast25::Front"));
-   ResponseFunctions::addRespPtr(3, myFactory->create("Glast25::Back"));
+//    ResponseFunctions::addRespPtr(2, myFactory->create("DC1::Front"));
+//    ResponseFunctions::addRespPtr(3, myFactory->create("DC1::Back"));
+   ResponseFunctions::addRespPtr(0, myFactory->create("Glast25::Front"));
+   ResponseFunctions::addRespPtr(1, myFactory->create("Glast25::Back"));
    
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
@@ -705,7 +703,7 @@ void LikelihoodTests::test_MeanPsf() {
    ExposureCube::readExposureCube(exposureCubeFile);
 
    MeanPsf Crab_psf(83.57, 22.01);
-   int npts(30);
+   int npts(40);
    double tstep = log(70./1e-2)/(npts-1.);
    for (int i = 0; i < npts; i++) {
       double theta(1e-2*exp(i*tstep));
