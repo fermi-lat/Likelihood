@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 17 14:57:11 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	SourceMap.h 
+Log Message:
+25% speedup in SourceMap calc for diffuse
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 16 23:18:24 PST 2004
 Likelihood/xml
 
