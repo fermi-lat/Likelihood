@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 25 11:32:18 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h CompositeFunction.h DiffuseSource.h Event.h 
+	ExposureMap.h FitsImage.h Psf.h Response.h ScData.h 
+	SourceFactory.h SourceModel.h SpatialMap.h 
+Log Message:
+Add a working version of DiffuseSource
+    *
+------------------------------------------------------------
 User: jchiang  Sun Apr  6 14:10:15 PDT 2003
 Likelihood/src/test
 
