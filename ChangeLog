@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Wed Dec 29 16:28:23 PST 2004
+Likelihood/src
+
+Modified Files:
+	Event.cxx LogLike.cxx RoiCuts.cxx SkyDirFunction.cxx 
+	SourceFactory.cxx buildBase 
+Log Message:
+sync up to optimizers v2; adjust DSS checking; tagging v6r1
+    *
+------------------------------------------------------------
+User: jchiang  Wed Dec 29 16:28:23 PST 2004
 Likelihood/pfiles
 
 Modified Files:
