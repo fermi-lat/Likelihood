@@ -23,6 +23,7 @@
 #include "../Likelihood/ScData.h"
 #include "../Likelihood/RoiCuts.h"
 #include "../Likelihood/dArg.h"
+#include "lbfgs.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
 #include "MyFun.h"
@@ -31,6 +32,7 @@
 
 using namespace Likelihood;   // for testing purposes only
 
+void read_SC_Response_data();
 void test_Parameter_class();
 void test_Function_class();
 void test_PowerLaw_class();
@@ -43,47 +45,219 @@ void test_PointSource_class();
 void test_Aeff_class();
 void test_Psf_class();
 void test_logLike_ptsrc();
+void fit_3C279();
+void fit_anti_center();
 
 std::string test_path;
 
 int main(){
-/* get root path to test data */   
-   const char * root = ::getenv("LIKELIHOODROOT");
-   if (!root) {  //use relative path from cmt directory
-      test_path = "../src/test/";
-   } else {
-      test_path = std::string(root) + "/src/test/";
+   read_SC_Response_data();
+//     test_Parameter_class();
+//     test_Function_class();
+//     test_PowerLaw_class();
+//     test_SourceModel_class();
+//     test_Table_class();
+//     test_Statistic_class();
+//     test_Event_class();
+//     test_PointSource_class();
+//     test_Aeff_class();
+//     test_Psf_class();
+//     test_logLike_ptsrc();
+   fit_3C279();
+   fit_anti_center();
+   return 0;
+}
+
+void fit_anti_center() {
+
+// set the ROI cuts
+   RoiCuts::setCuts(83.57, 22.01, 30.);
+
+   logLike_ptsrc logLike;
+
+/* read in the spacecraft data */
+   std::string sc_file = test_path + "/Data/anti_center_sc_0000";
+   int sc_hdu = 2;
+   ScData::readData(sc_file, sc_hdu);
+
+// add the sources to the model
+
+// Crab Pulsar
+   double ra = 83.57;
+   double dec = 22.01;
+   PointSource Crab(ra, dec);
+
+   double Prefactor = 6.46e-4;
+   double Gamma = -2.19;
+   double Escale = 1.;
+
+   PowerLaw Crab_pl(Prefactor, Gamma, Escale);
+
+//set limits on index
+   Parameter *indexParam = Crab_pl.getParam("Index");
+   indexParam->setBounds(-3.5, -1.);  
+// set limits on normalization
+   Parameter *prefactorParam = Crab_pl.getParam("Prefactor");
+   prefactorParam->setBounds(1e-8, 1e-2);
+
+   Crab.setSpectrum(&Crab_pl);
+   Crab.setName("Crab Pulsar");
+   logLike.addSource(&Crab);
+
+// Geminga Pulsar
+   ra = 98.49;
+   dec = 17.86;
+   PointSource Geminga(ra, dec);
+
+   Prefactor = 4.866e-5;
+   Gamma = -1.66;
+   Escale = 1.;
+
+   PowerLaw Geminga_pl(Prefactor, Gamma, Escale);
+//set limits on index
+   indexParam = Geminga_pl.getParam("Index");
+   indexParam->setBounds(-3.5, -1.);  
+// set limits on normalization
+   prefactorParam = Geminga_pl.getParam("Prefactor");
+   prefactorParam->setBounds(1e-8, 1e-2);  
+
+   Geminga.setSpectrum(&Geminga_pl);
+   Geminga.setName("Geminga Pulsar");
+   logLike.addSource(&Geminga);
+
+// PKS 0528+134
+   ra = 82.74;
+   dec = 13.38;
+   PointSource _0528(ra, dec);
+
+   Prefactor = 1.135e-3;
+   Gamma = -2.46;
+   Escale = 1.;
+
+   PowerLaw _0528_pl(Prefactor, Gamma, Escale);
+//set limits on index
+   indexParam = _0528_pl.getParam("Index");
+   indexParam->setBounds(-3.5, -1.);  
+// set limits on normalization
+   prefactorParam = _0528_pl.getParam("Prefactor");
+   prefactorParam->setBounds(1e-8, 1e-2);  
+
+   _0528.setSpectrum(&_0528_pl);
+   _0528.setName("PKS 0528+134");
+   logLike.addSource(&_0528);
+
+// read in the event data
+   std::string event_file = test_path + "/Data/anti_center_0000";
+   logLike.getEvents(event_file, 2);
+
+// some derivative tests
+   std::vector<double> derivs;
+   logLike.getFreeDerivs(derivs);
+
+   std::vector<double> params;
+   logLike.getFreeParamValues(params);
+   double statval0 = logLike(params);
+
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::vector<double> new_params = params;
+      double dparam = params[i]*1e-7;
+      new_params[i] += dparam;
+      double statval = logLike(new_params);
+      std::cout << derivs[i] << "  " 
+                << (statval - statval0)/dparam 
+                << std::endl;
    }
+   std::cout << std::endl;
+
+//  // do the fit
+//     lbfgs myOptimizer(&logLike);
+
+//     int verbose = 3;
+//     myOptimizer.find_min(verbose);
+
+//     std::vector<Parameter> parameters;
+//     logLike.getParams(parameters);
+
+//     for (unsigned int i = 0; i < parameters.size(); i++)
+//        std::cout << parameters[i].getName() << ": "
+//                  << parameters[i].getValue() << std::endl;
+}
+
+void fit_3C279() {
+
+   double ra = 193.98;
+   double dec = -5.82;
+
+// set the ROI cuts
+   RoiCuts::setCuts(ra, dec, 30.);
 
 /* read in the spacecraft data */
    std::string sc_file = test_path + "/Data/one_src_sc_0000";
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
 
-/* instantiate the Psf and read in its data */
-   Psf * psf = Psf::instance();
-   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
-   psf->readPsfData(psf_file, Response::Combined);
+   logLike_ptsrc logLike;
 
-/* instantiate the Aeff and read in its data */
-   Aeff * aeff = Aeff::instance();
-   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
-   aeff->readAeffData(aeff_file, Response::Combined);
+   PointSource _3c279(ra, dec);
 
-   test_Parameter_class();
-   test_Function_class();
-   test_PowerLaw_class();
-   test_SourceModel_class();
-   test_Table_class();
-   test_Statistic_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_Aeff_class();
-   test_Psf_class();
-   test_logLike_ptsrc();
-   return 0;
+   double Prefactor = 5.92e-5;
+   double Gamma = -1.96;
+//    double Prefactor = 3e-5;
+//    double Gamma = -2.1;
+   double Escale = 1.;
+
+   PowerLaw pl(Prefactor, Gamma, Escale);
+
+//set limits on index
+   Parameter *indexParam = pl.getParam("Index");
+   indexParam->setBounds(-3.5, -1.);  
+
+// set limits on normalization
+   Parameter *prefactorParam = pl.getParam("Prefactor");
+   prefactorParam->setBounds(1e-8, 1e-3);  
+
+   _3c279.setSpectrum(&pl);
+
+   _3c279.setName("3C 279");
+
+   logLike.addSource(&_3c279);
+
+// read in the data
+   std::string event_file = test_path + "/Data/one_src_0000";
+   logLike.getEvents(event_file, 2);
+
+// some derivative tests
+   std::vector<double> derivs;
+   logLike.getFreeDerivs(derivs);
+
+   std::vector<double> params;
+   logLike.getFreeParamValues(params);
+   double statval0 = logLike(params);
+
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::vector<double> new_params = params;
+      double dparam = params[i]*1e-7;
+      new_params[i] += dparam;
+      double statval = logLike(new_params);
+      std::cout << derivs[i] << "  " 
+                << (statval - statval0)/dparam 
+                << std::endl;
+   }
+   std::cout << std::endl;
+
+//  // do the fit
+//     lbfgs myOptimizer(&logLike);
+
+//     int verbose = 3;
+//     myOptimizer.find_min(verbose);
+
+//     std::vector<Parameter> parameters;
+//     logLike.getParams(parameters);
+
+//     for (unsigned int i = 0; i < parameters.size(); i++)
+//        std::cout << parameters[i].getName() << ": "
+//                  << parameters[i].getValue() << std::endl;
 }
-
 
 /***********************/
 /* logLike_ptsrc tests */
@@ -154,14 +328,14 @@ void test_Psf_class() {
    std::cout << "\nPoint Spread Function data:" << std::endl;
    for (double inc = 0.; inc <= 70.; inc += 10.) {
       for (int i = 0; i < nenergy; i++) {
-	 double energy = emin*exp(estep*i);
-	 std::cout << energy << "  ";
+         double energy = emin*exp(estep*i);
+         std::cout << energy << "  ";
 
-	 std::vector<double> psf_params;
-	 psf->fillPsfParams(energy, inc, psf_params);
-	 std::cout << psf_params[0] << "  "
-		   << psf_params[1] << "  "
-		   << psf_params[2] << "\n";
+         std::vector<double> psf_params;
+         psf->fillPsfParams(energy, inc, psf_params);
+         std::cout << psf_params[0] << "  "
+                   << psf_params[1] << "  "
+                   << psf_params[2] << "\n";
       }
       std::cout << std::endl;
    }
@@ -183,7 +357,7 @@ void test_Aeff_class() {
       double energy = emin*exp(estep*i);
       std::cout << energy << "  ";
       for (double inc = 0.; inc <= 70.; inc += 10.) {
-	 std::cout << (*aeff)(energy, inc) << "  ";
+         std::cout << (*aeff)(energy, inc) << "  ";
       }
       std::cout << std::endl;
    }
@@ -227,13 +401,13 @@ void test_PointSource_class() {
       std::cout << "Time = " << time << std::endl;
       for (int i = 0; i < nenergy; i++) { // loop over energies
          double energy = emin*exp(estep*i);
-	 if (i == 0) photon_flux = 
-			my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir());
-	 if (photon_flux > 0) {
-	    std::cout << energy << "  ";
-	    std::cout << my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir())
-		      << std::endl;
-	 }
+         if (i == 0) photon_flux = 
+                        my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir());
+         if (photon_flux > 0) {
+            std::cout << energy << "  ";
+            std::cout << my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir())
+                      << std::endl;
+         }
       }
       if (photon_flux > 0) std::cout << std::endl;
    }
@@ -347,7 +521,7 @@ void test_Statistic_class() {
    int nmax = 10;
    for (int i = 0; i < nmax; i++) {
       std::cout << xi.second[i] 
-		<< std::endl;
+                << std::endl;
    }
    std::cout << std::endl;
 
@@ -360,7 +534,7 @@ void test_Statistic_class() {
    dArg gmin(-1e3);
    dArg gmax(1e3);
    std::cout << gauss.integral(gmin, gmax)
-	     << std::endl << std::endl;
+             << std::endl << std::endl;
 
 /* Compute the log-likelihood of this model */
 
@@ -555,8 +729,8 @@ void test_SourceModel_class() {
    giving direct parameter access from PointSource) */
 
    Parameter param = *(SrcModel.getParam(std::string("Scale"), 
-					 std::string("Spectrum"), 
-					 std::string("Geminga")));
+                                         std::string("Spectrum"), 
+                                         std::string("Geminga")));
    param.setFree(true);
    SrcModel.setParam(param, std::string("Spectrum"), std::string("Geminga"));
    report_SrcModel_values(SrcModel);
@@ -894,3 +1068,25 @@ void test_Parameter_class() {
    }
    std::cout << std::endl;
 } // Parameter class tests
+
+
+void read_SC_Response_data() {
+
+/* get root path to test data */   
+   const char * root = ::getenv("LIKELIHOODROOT");
+   if (!root) {  //use relative path from cmt directory
+      test_path = "../src/test/";
+   } else {
+      test_path = std::string(root) + "/src/test/";
+   }
+
+/* instantiate the Psf and read in its data */
+   Psf * psf = Psf::instance();
+   std::string psf_file = test_path + "/CALDB/psf_lat.fits";
+   psf->readPsfData(psf_file, Response::Combined);
+
+/* instantiate the Aeff and read in its data */
+   Aeff * aeff = Aeff::instance();
+   std::string aeff_file = test_path + "/CALDB/aeff_lat.fits";
+   aeff->readAeffData(aeff_file, Response::Combined);
+}

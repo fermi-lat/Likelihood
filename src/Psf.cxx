@@ -43,7 +43,7 @@ void Psf::readPsfData(const std::string &file, int hdu) {
 }
 
 double Psf::value(astro::SkyDir appDir, double energy, 
-		  astro::SkyDir srcDir, double time) {
+                  astro::SkyDir srcDir, double time) {
 // angle between photon and source directions
    double separation = appDir.SkyDir::difference(srcDir);
 
@@ -57,7 +57,7 @@ double Psf::value(astro::SkyDir appDir, double energy,
 // inclination wrt spacecraft z-axis in degrees
    double inc = srcDir.SkyDir::difference(scData->vec[indx].zAxis)*180./M_PI;
 
-   if (inc < 70.) {
+   if (inc < incMax) {
       return value(separation, energy, inc);
    } else {
       return 0;
@@ -89,7 +89,7 @@ double Psf::value(double separation, double energy, double inc) {
 }
 
 void Psf::fillPsfParams(double energy, double inc, 
-			std::vector<double> &psf_params) {
+                        std::vector<double> &psf_params) {
 
 // do a bilinear interpolation on the effective area data
 // this is the ugly code from glean (uses unit-offset kludge of NR 1.2)
@@ -100,7 +100,8 @@ void Psf::fillPsfParams(double energy, double inc,
 
 // kludge to deal with energies outside of the nominal boundaries 
    if (ie == 0) { 
-      ie = 1;
+//      ie = 1;
+      ie = 0;
    } else if (ie == m_psfData[0].dim) {
       ie = m_psfData[0].dim - 1;
    }

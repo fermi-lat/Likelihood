@@ -30,7 +30,7 @@ double PowerLaw::value(Arg &xarg) const {
    getParams(my_params);
 
    return my_params[Prefactor].getValue()*pow((x/my_params[Scale].getValue()), 
-					      my_params[Index].getValue());
+                                              my_params[Index].getValue());
 }
 
 double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const {
@@ -49,8 +49,8 @@ double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const {
    if (iparam == -1) {
 // should throw an exception here
       std::cerr << "PowerLaw::derivByParam: "
-		<< "Parameter " << paramName << " is not found."
-		<< std::endl;
+                << "Parameter " << paramName << " is not found."
+                << std::endl;
       return 0.;
    }
    
@@ -63,7 +63,7 @@ double PowerLaw::derivByParam(Arg &xarg, const std::string &paramName) const {
       break;
    case Scale:  // shouldn't ever need this, nonetheless....
       return -value(xarg)*(my_params[Index].getValue())
-	 /(my_params[Scale].getValue());
+         /(my_params[Scale].getValue());
       break;
    default:
       break;

@@ -17,7 +17,12 @@ double logSrcModel::value(Arg &xarg) const {
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
       my_value += m_sources[i]->fluxDensity(evt);
    }
-   return my_value;
+   if (my_value > 0) {
+      return log(my_value);
+   } else {
+//      std::cerr << "logSrcModel::value: my_value < 0" << std::endl;
+      return 0;
+   }
 }
 
 void logSrcModel::fetchDerivs(Arg &xarg, std::vector<double> &derivs, 
@@ -26,7 +31,7 @@ void logSrcModel::fetchDerivs(Arg &xarg, std::vector<double> &derivs,
 
    Event evt;
    dynamic_cast<EventArg &>(xarg).fetchValue(evt);
-   double srcSum = value(xarg);
+   double srcSum = exp(value(xarg));
 
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
@@ -40,8 +45,8 @@ void logSrcModel::fetchDerivs(Arg &xarg, std::vector<double> &derivs,
          }
          for (unsigned int j = 0; j < paramNames.size(); j++) {
             derivs.push_back(
-               (*m_sources[i]).fluxDensityDeriv(evt, paramNames[j])
-               /srcSum);
+               (*m_sources[i]).fluxDensityDeriv(evt, paramNames[j])/srcSum
+               );
          }
       }
    }

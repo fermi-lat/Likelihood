@@ -45,6 +45,8 @@ private:
    bool m_haveFunc;
    Function *m_func;
 
+   double compute_integral();
+
 };
 
 } // namespace Likelihood

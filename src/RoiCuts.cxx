@@ -56,10 +56,9 @@ bool RoiCuts::accept(const Event &event) {
    return acceptEvent;
 }
 
-RoiCuts * RoiCuts::instance(double ra, double dec, double roi_radius) {
+RoiCuts * RoiCuts::instance() {
    if (s_instance == 0) {
       s_instance = new RoiCuts();
-      setCuts(ra, dec, roi_radius);
    }
    return s_instance;
 }

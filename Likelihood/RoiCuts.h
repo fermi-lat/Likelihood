@@ -26,8 +26,7 @@ public:
 
    ~RoiCuts(){};
 
-   static RoiCuts * instance(double ra = 193.98, double dec = -5.82, 
-			     double roi_radius = 50.);
+   static RoiCuts * instance();
 
    //! access to the cuts
    void getTimeCuts(std::vector< std::pair<double, double> > &tLimVec) const
@@ -44,7 +43,7 @@ public:
    //! methods to allow cuts to be specified
    // prompt user (or use PIL for defaults)
    static void setCuts(double ra = 193.98, double dec = -5.82, 
-		       double roi_radius = 50);
+                       double roi_radius = 50);
 //   static void setCuts(std::string RoiFile);    // read from (XML?) file
 
    //! apply these cuts to an Event

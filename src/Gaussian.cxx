@@ -66,7 +66,7 @@ double Gaussian::value(Arg &xarg) const {
 }
 
 double Gaussian::derivByParam(Arg &xarg, 
-			      const std::string &paramName) const {
+                              const std::string &paramName) const {
    double x = dynamic_cast<dArg &>(xarg).getValue();
 
    enum paramTypes {Prefactor, Mean, Sigma};
@@ -82,8 +82,8 @@ double Gaussian::derivByParam(Arg &xarg,
    if (iparam == -1) {
 // should throw an exception here
       std::cerr << "Gaussian::derivByParam: "
-		<< "Parameter " << paramName << " is not found."
-		<< std::endl;
+                << "Parameter " << paramName << " is not found."
+                << std::endl;
       return 0.;
    }
    

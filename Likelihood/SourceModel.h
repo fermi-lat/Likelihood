@@ -33,7 +33,7 @@ public:
 
    //! setParam method to include function and source name checking
    void setParam(const Parameter &param, const std::string &funcName,
-		 const std::string &srcName);
+                 const std::string &srcName);
 
    //! group parameter access (note name mangling for inheritance 
    //! from Function)
@@ -43,18 +43,23 @@ public:
       std::vector<double>::const_iterator);
 
    Parameter* getParam(const std::string &paramName, 
-		       const std::string &funcName,
-		       const std::string &srcName) const;
+                       const std::string &funcName,
+                       const std::string &srcName) const;
 
    //! add and delete sources by name
    void addSource(Source *src);
    void deleteSource(const std::string &srcName);
 
+   //! delete all the sources
+   void deleteAllSources() {
+      m_sources.clear();
+   }
+
    unsigned int getNumSrcs() const {return m_sources.size();}
    void getSrcNames(std::vector<std::string> &) const;
 
-   // this is a bit convoluted, but necessary for derived classes 
-   // (e.g., Statistic, logSrcModel)
+   // this is a bit convoluted, but necessary for some derived classes 
+   // (e.g., logLike_gauss)
    double evaluate_at(Arg &) const;
    virtual double value(Arg &x) const {return evaluate_at(x);};
 
@@ -62,7 +67,7 @@ public:
 
 protected:
 
-   std::vector<Source *> m_sources;
+   static std::vector<Source *> m_sources;
 
    //! method to sync the m_parameter vector with those of the 
    //! m_sources' Functions

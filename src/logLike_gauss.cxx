@@ -23,9 +23,11 @@ double logLike_gauss::value(const std::vector<double> &paramVec) {
    for (int j = 0; j < m_eventData[0].dim; j++) {
       double src_sum = 0.;
       for (unsigned int i = 0; i < getNumSrcs(); i++) {
-// NB: Here evaluate_at(Arg) is inherited from SourceModel and
-// evaluates as a function of the data variable. 
-	 dArg xarg(m_eventData[0].val[j]);
+// NB: Here the implementation of evaluate_at(Arg &) is inherited from
+// SourceModel and simply sums the over functions of all the sources
+// evaluated as a function of the argument, assumed to be double,
+// i.e., passed as dArg
+         dArg xarg(m_eventData[0].val[j]);
          src_sum += evaluate_at(xarg);
       }
       my_value += log(src_sum);

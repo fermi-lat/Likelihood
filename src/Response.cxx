@@ -29,40 +29,40 @@ void Response::m_hunt(double *xx, int n, double x, int *jlo) {
    } else {
       inc=1;
       if (x >= xx[*jlo] == ascnd) {
-	 if (*jlo == n) return;
-	 jhi=(*jlo)+1;
-	 while (x >= xx[jhi] == ascnd) {
-	    *jlo=jhi;
-	    inc += inc;
-	    jhi=(*jlo)+inc;
-	    if (jhi > n) {
-	       jhi=n+1;
-	       break;
-	    }
-	 }
+         if (*jlo == n) return;
+         jhi=(*jlo)+1;
+         while (x >= xx[jhi] == ascnd) {
+            *jlo=jhi;
+            inc += inc;
+            jhi=(*jlo)+inc;
+            if (jhi > n) {
+               jhi=n+1;
+               break;
+            }
+         }
       } else {
-	 if (*jlo == 1) {
-	    *jlo=0;
-	    return;
-	 }
-	 jhi=(*jlo)--;
-	 while (x < xx[*jlo] == ascnd) {
-	    jhi=(*jlo);
-	    inc <<= 1;
-	    if (inc >= jhi) {
-	       *jlo=0;
-	       break;
-	    }
-	    else *jlo=jhi-inc;
-	 }
+         if (*jlo == 1) {
+            *jlo=0;
+            return;
+         }
+         jhi=(*jlo)--;
+         while (x < xx[*jlo] == ascnd) {
+            jhi=(*jlo);
+            inc <<= 1;
+            if (inc >= jhi) {
+               *jlo=0;
+               break;
+            }
+            else *jlo=jhi-inc;
+         }
       }
    }
    while (jhi-(*jlo) != 1) {
       jm=(jhi+(*jlo)) >> 1;
       if (x > xx[jm] == ascnd)
-	 *jlo=jm;
+         *jlo=jm;
       else
-	 jhi=jm;
+         jhi=jm;
    }
 }
 

@@ -8,7 +8,7 @@
 
 #include "../Likelihood/Function.h"
 #include "../Likelihood/Source.h"
-#include "../Likelihood/Arg.h"
+#include "../Likelihood/SrcArg.h"
 
 namespace Likelihood {
 
@@ -17,8 +17,6 @@ namespace Likelihood {
  *
  * @brief This class encapsulates the Npred methods of Sources in a
  * Function context.
- *
- * Here Arg is used only as place-holder.
  *  
  * @author J. Chiang
  *    
@@ -28,7 +26,7 @@ class Npred : public Function {
     
 public:
 
-   Npred(Source *src) : m_source(src) {}
+   Npred() {}
    virtual ~Npred() {}
 
    double value(Arg &) const;
@@ -36,9 +34,8 @@ public:
 
 private:
 
-   Source *m_source;
-
    void fetchDerivs(Arg &, std::vector<double> &derivs, bool getFree) const;
+   void buildParameterVector(Arg &) const;
 
 };
 

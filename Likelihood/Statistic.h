@@ -20,7 +20,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.4 2003/02/28 21:51:30 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Statistic.h,v 1.5 2003/03/04 17:45:32 jchiang Exp $ */
 
 class Statistic : public SourceModel {
     
@@ -34,6 +34,9 @@ public:
    virtual double value(const std::vector<double> &paramVec) = 0;
    virtual double operator()(const std::vector<double> &paramVec) 
       {return value(paramVec);};
+
+   //! non-argument version of getFreeDerivs
+   virtual void getFreeDerivs(std::vector<double> &) = 0;
 
    void readEventData(const std::string &eventFile, 
                       const std::string &colnames, int hdu);

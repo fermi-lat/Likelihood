@@ -49,7 +49,7 @@ double Aeff::value(double energy, astro::SkyDir dir, double time) {
 // inclination wrt spacecraft z-axis in degrees
    double inc = dir.SkyDir::difference(scData->vec[indx].zAxis)*180./M_PI;
 
-   if (inc < 70.) {
+   if (inc < incMax) {
       return value(energy, inc);
    } else {
       return 0;
@@ -66,7 +66,8 @@ double Aeff::value(double energy, double inc) {
 
 // kludge to deal with energies outside of the nominal boundaries 
    if (ie == 0) { 
-      ie = 1;
+//      ie = 1;
+      ie = 0;
    } else if (ie == m_aeffData[0].dim) {
       ie = m_aeffData[0].dim - 1;
    }
