@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 18 10:10:36 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	likelihood.cxx main.cxx 
+Log Message:
+add refit query loop to likelihood.cxx; start beefing up unit tests 
+in main.cxx
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 18 10:09:43 PST 2003
 Likelihood/src
 
