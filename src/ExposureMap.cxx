@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.27 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.28 2005/03/01 07:17:07 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -14,10 +14,9 @@
 
 #include "facilities/Util.h"
 
-#include "Likelihood/ExposureCube.h"
 #include "Likelihood/ExposureMap.h"
+#include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
-#include "Likelihood/RoiCuts.h"
 #include "Likelihood/SkyDirArg.h"
 
 #include "Verbosity.h"
@@ -81,7 +80,7 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
    s_haveExposureMap = true;
 }
 
-void ExposureMap::integrateSpatialDist(std::vector<double> &energies,
+void ExposureMap::integrateSpatialDist(const std::vector<double> &energies,
                                        optimizers::Function * spatialDist,
                                        std::vector<double> &exposure) const {
    exposure.clear();
@@ -125,13 +124,14 @@ ExposureMap * ExposureMap::instance() {
 }
 
 void ExposureMap::computeMap(std::string filename, 
-                             const ExposureCube & expCube,
-                             const RoiCuts & roiCuts,
+                             const Observation & observation,
                              double sr_radius, int nlon, int nlat,
                              int nenergies) {
                              
 // Expand any environment variables in the map filename.
    facilities::Util::expandEnvVar(&filename);
+
+   const RoiCuts & roiCuts = observation.roiCuts();
 
    astro::SkyDir roiCenter = roiCuts.extractionRegion().center();
    FitsImage::EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
@@ -167,15 +167,14 @@ void ExposureMap::computeMap(std::string filename,
          eqRot.do_rotation(indir, dir);
          std::vector<double> exposure;
          bool verbose(false);
-//          if (ExposureCube::instance() == 0) {
-//             PointSource::computeExposure(dir, energies, exposure, verbose);
-//          } else {
-//             PointSource::computeExposureWithHyperCube(dir, energies, exposure,
-//                                                       verbose);
-//          }
-         PointSource::computeExposureWithHyperCube(dir, energies, 
-                                                   expCube, roiCuts,
-                                                   exposure, verbose);
+         if (observation.expCube().instance() == 0) {
+            PointSource::computeExposure(dir, energies, observation,
+                                         exposure, verbose);
+         } else {
+            PointSource::computeExposureWithHyperCube(dir, energies, 
+                                                      observation, 
+                                                      exposure, verbose);
+         }
          for (int k = 0; k < nenergies; k++)
             exposureCube[k][indx] = exposure[k];
          indx++;

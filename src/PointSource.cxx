@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.56 2005/02/27 06:42:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.57 2005/03/01 07:17:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -319,16 +319,14 @@ void PointSource::computeExposure(bool verbose) {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
 
    astro::SkyDir srcDir = getDir();
-   if (ExposureCube::instance() == 0) {
+   if (m_observation->expCube().instance() == 0) {
 // Exposure time hypercube is not available, so perform sums using
 // ScData.
-      computeExposure(srcDir, energies, m_exposure, verbose);
+      computeExposure(srcDir, energies, *m_observation,
+                      m_exposure, verbose);
    } else {
-      computeExposureWithHyperCube(srcDir, energies, 
-                                   m_observation->expCube(),
-                                   m_observation->roiCuts(),
-                                   m_exposure,
-                                   verbose);
+      computeExposureWithHyperCube(srcDir, energies, *m_observation,
+                                   m_exposure, verbose);
    }
    if (print_output() && verbose) {
       for (unsigned int i = 0; i < energies.size(); i++) {
@@ -340,8 +338,7 @@ void PointSource::computeExposure(bool verbose) {
 void PointSource::
 computeExposureWithHyperCube(const astro::SkyDir & srcDir,
                              const std::vector<double> & energies, 
-                             const ExposureCube & expCube,
-                             const RoiCuts & roiCuts,
+                             const Observation & observation,
                              std::vector<double> & exposure, 
                              bool verbose) {
    exposure.clear();
@@ -354,8 +351,9 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
    for (std::vector<double>::const_iterator it = energies.begin();
         it != energies.end(); it++) {
       if (print_output() && verbose) std::cerr << ".";
-      PointSource::Aeff aeff(*it, srcDir, roiCuts);
-      double exposure_value = expCube.value(srcDir, aeff);
+      PointSource::Aeff aeff(*it, srcDir, observation.roiCuts(),
+                             observation.respFuncs());
+      double exposure_value = observation.expCube().value(srcDir, aeff);
       exposure.push_back(exposure_value);
    }
    if (print_output() && verbose) std::cerr << "!" << std::endl;
@@ -363,13 +361,17 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
 
 void PointSource::computeExposure(const astro::SkyDir & srcDir,
                                   const std::vector<double> &energies,
+                                  const Observation & observation,
                                   std::vector<double> &exposure,
                                   bool verbose) {
-   RoiCuts *roiCuts = RoiCuts::instance();
-   ScData *scData = ScData::instance();
+   const ScData & scData = observation.scData();
+   const RoiCuts & roiCuts = observation.roiCuts();
+   const ResponseFunctions & respFuncs = observation.respFuncs();
 
 // Don't compute anything if there is no ScData.
-   if (scData->vec.size() == 0) return;
+   if (scData.vec.size() == 0) {
+      return;
+   }
 
 // Initialize the exposure vector with zeros
    exposure = std::vector<double>(energies.size(), 0);
@@ -379,18 +381,18 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
                 << srcDir.ra() << ", " 
                 << srcDir.dec() << ")";
    }
-   unsigned int npts = scData->vec.size()-1;
+   unsigned int npts = scData.vec.size() - 1;
    for (unsigned int it = 0; it < npts; it++) {
       if (print_output() && 
           npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
       bool includeInterval = true;
       std::pair<double, double> thisInterval;
-      thisInterval.first = scData->vec[it].time;
-      thisInterval.second = scData->vec[it+1].time;
+      thisInterval.first = scData.vec[it].time;
+      thisInterval.second = scData.vec[it+1].time;
 
 // Check if this interval passes the time cuts
       std::vector< std::pair<double, double> > timeCuts;
-      roiCuts->getTimeCuts(timeCuts);
+      roiCuts.getTimeCuts(timeCuts);
 
       for (unsigned int itcut = 0; itcut < timeCuts.size(); itcut++) {
          if ( !(includeInterval 
@@ -399,11 +401,11 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
       }
 
 // Check for SAA passage
-      if (scData->vec[it].inSaa) includeInterval = false;
+      if (scData.vec[it].inSaa) includeInterval = false;
 
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
-      double inc = srcDir.difference(scData->vec[it].zAxis)*180/M_PI;
+      double inc = srcDir.difference(scData.vec[it].zAxis)*180/M_PI;
       if (inc > 90.) includeInterval = false;
 
 // Having checked for relevant constraints, add the exposure
@@ -411,7 +413,8 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
       if (includeInterval) {
          for (unsigned int k = 0; k < energies.size(); k++) {
             double time = (thisInterval.second + thisInterval.first)/2.;
-            exposure[k] += sourceEffArea(srcDir, energies[k], time)
+            exposure[k] += sourceEffArea(srcDir, energies[k], time, 
+                                         scData, roiCuts, respFuncs)
                *(thisInterval.second - thisInterval.first);
          }
       }
@@ -433,14 +436,15 @@ void PointSource::makeEnergyVector(int nee) {
 }
 
 double PointSource::sourceEffArea(const astro::SkyDir & srcDir, 
-                                  double energy, double time) {
-   RoiCuts * roiCuts = RoiCuts::instance();
-   ScData * scData = ScData::instance();
+                                  double energy, double time,
+                                  const ScData & scData,
+                                  const RoiCuts & roiCuts,
+                                  const ResponseFunctions & respFuncs) {
 
-   astro::SkyDir zAxis = scData->zAxis(time);
-//   astro::SkyDir xAxis = scData->xAxis(time);
+   astro::SkyDir zAxis = const_cast<ScData &>(scData).zAxis(time);
+//   astro::SkyDir xAxis = const_cast<ScData &>(scData).xAxis(time);
 
-   PointSource::Aeff aeff(energy, srcDir, *roiCuts);
+   PointSource::Aeff aeff(energy, srcDir, roiCuts, respFuncs);
 
    double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
 
@@ -452,8 +456,9 @@ double PointSource::Aeff::s_emin;
 double PointSource::Aeff::s_emax;
 
 PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir,
-                        const RoiCuts & roiCuts)
-   : m_energy(energy), m_srcDir(srcDir) {
+                        const RoiCuts & roiCuts,
+                        const ResponseFunctions & respFuncs)
+   : m_energy(energy), m_srcDir(srcDir), m_respFuncs(respFuncs) {
    
    if (s_cones.size() == 0) {
       s_cones.push_back(const_cast<irfInterface::AcceptanceCone *>
@@ -467,13 +472,11 @@ double PointSource::Aeff::operator()(double cos_theta) const {
    double theta = acos(cos_theta)*180./M_PI;
    static double phi;
 
-   ResponseFunctions * respFuncs = ResponseFunctions::instance();
-
    double myEffArea = 0;
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt
-      = respFuncs->begin();
+      = m_respFuncs.begin();
 
-   for ( ; respIt != respFuncs->end(); respIt++) {
+   for ( ; respIt != m_respFuncs.end(); respIt++) {
       irfInterface::IPsf *psf = respIt->second->psf();
       irfInterface::IAeff *aeff = respIt->second->aeff();
 

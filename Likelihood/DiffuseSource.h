@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.27 2005/03/01 01:06:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.28 2005/03/01 07:17:06 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -44,7 +44,7 @@ class Observation;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.27 2005/03/01 01:06:52 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.28 2005/03/01 07:17:06 jchiang Exp $ 
  *  
  */
 
@@ -140,27 +140,18 @@ public:
                                    double wtMin, double wtMax,
                                    const std::string & paramName) const;
 
-protected:
-
-   /// spatial model
-   optimizers::Function *m_spatialDist;
-
-   /// spectral model
-   optimizers::Function *m_spectrum;
-
 private:
 
-   /// flag to indicate that static member data have been computed
-   static bool s_haveStaticMembers;
+   /// spatial model
+   optimizers::Function * m_spatialDist;
 
-   /// vector of energy values for Npred spectrum quadrature
-   static std::vector<double> s_energies;
+   /// spectral model
+   optimizers::Function * m_spectrum;
 
-   /// method to create a logrithmically spaced grid of energies
-   static void makeEnergyVector(double emin, double emax, int nee = 100);
+   const Observation * m_observation;
 
-   /// vector of angle integrated diffuse exposure as as a function of
-   /// energy
+   /// Angle integrated diffuse exposure as a function of
+   /// RoiCuts::energies()
    std::vector<double> m_exposure;
 };
 

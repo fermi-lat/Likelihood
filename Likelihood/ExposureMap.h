@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.17 2005/03/01 01:06:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.18 2005/03/01 07:17:06 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -18,8 +18,7 @@
 
 namespace Likelihood {
 
-   class ExposureCube;
-   class RoiCuts;
+   class Observation;
 
 /**
  * @class ExposureMap 
@@ -34,7 +33,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.17 2005/03/01 01:06:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.18 2005/03/01 07:17:06 jchiang Exp $
  *
  */
 
@@ -66,7 +65,7 @@ public:
     * @param exposure A vector of exposure values characterizing the
     * DiffuseSource spectral response.
     */
-   void integrateSpatialDist(std::vector<double> &energies, 
+   void integrateSpatialDist(const std::vector<double> &energies, 
                              optimizers::Function * spatialDist, 
                              std::vector<double> &exposure) const;
 
@@ -102,8 +101,7 @@ public:
     * given by the RoiCuts.
     */
    static void computeMap(std::string filename, 
-                          const ExposureCube & expCube,
-                          const RoiCuts & roiCuts,
+                          const Observation & observation,
                           double sr_radius=30, int nlong=60, int nlat=60,
                           int nenergies=10);
 
