@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 28 10:38:46 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	MeanPsf.h Source.h SourceModel.h 
+Log Message:
+more refactoring to use Observation class
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 28 10:17:12 PST 2005
 Likelihood/src/test
 
