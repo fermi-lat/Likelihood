@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul 21 15:14:58 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Aeff.cxx DiffuseSource.cxx Event.cxx FitsImage.cxx 
+	Function.cxx FunctionTest.cxx Lbfgs.cxx Mcmc.cxx Minuit.cxx 
+	MyFun.cxx Psf.cxx Response.cxx Rosen.h SourceFactory.cxx 
+	SourceModel.cxx SpectrumFactory.cxx Statistic.cxx Table.cxx 
+	TrapQuad.cxx 
+Log Message:
+change LikelihoodException to Exception
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul 21 15:14:57 PDT 2003
 Likelihood/Likelihood
 
