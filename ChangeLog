@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb  4 07:06:56 PST 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py SrcModel.py 
+Log Message:
+add error access
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb  2 12:05:08 PST 2005
 Likelihood/pfiles
 
