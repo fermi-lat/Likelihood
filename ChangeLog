@@ -1,4 +1,19 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 18 21:38:03 PDT 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.h Aeff.cxx DiffuseSource.cxx Event.cxx FitsImage.cxx 
+	FunctionTest.cxx Gaussian.h Lbfgs.cxx Mcmc.cxx Minuit.cxx 
+	OptPP.h PowerLaw.h Psf.cxx Response.cxx SourceFactory.cxx 
+	SpectrumFactory.cxx Statistic.cxx Table.cxx TrapQuad.cxx 
+	logLike_gauss.h logLike_ptsrc.h 
+Removed Files:
+	LikelihoodException.h 
+Log Message:
+make guarding #defines in .h files less common
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jul 18 21:38:02 PDT 2003
 Likelihood/Likelihood
 
