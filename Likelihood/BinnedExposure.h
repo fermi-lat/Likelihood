@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.1 2004/10/05 23:52:10 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -35,7 +35,7 @@ public:
    /// @param dec Declination of desired sky location (degrees)
    double operator()(double energy, double ra, double dec) const;
 
-//   void writeOutput(const std::string & filename) const;
+   void writeOutput(const std::string & filename) const;
 
 private:
 
@@ -52,6 +52,8 @@ private:
 
    void linearArray(double xmin, double xmax, unsigned int npts,
                     std::vector<double> &xx) const;
+
+   void fitsReportError(FILE * stream, int status) const;
 
    class Aeff : public map_tools::Exposure::Aeff {
    public:

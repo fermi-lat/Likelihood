@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.7 2004/09/28 04:32:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.8 2004/10/05 23:52:11 jchiang Exp $
  */
 
 #include <algorithm>
@@ -120,6 +120,11 @@ double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
    }
    MeanPsf & psf = *s_meanPsf;
    BinnedExposure & exposure = *s_binnedExposure;
+
+   double sr_radius = RoiCuts::instance()->extractionRegion().radius()
+      *sqrt(2.) + 10.;
+//   prepareSrData(
+
    return 0;
 }
 

@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.34 2004/10/05 01:31:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.35 2004/10/05 04:47:57 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -42,6 +42,7 @@
 
 #include "map_tools/ExposureHyperCube.h"
 
+#include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
@@ -82,6 +83,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_CountsMap);
    CPPUNIT_TEST(test_BinnedLikelihood);
    CPPUNIT_TEST(test_MeanPsf);
+   CPPUNIT_TEST(test_BinnedExposure);
    
    CPPUNIT_TEST_SUITE_END();
 
@@ -100,6 +102,7 @@ public:
    void test_CountsMap();
    void test_BinnedLikelihood();
    void test_MeanPsf();
+   void test_BinnedExposure();
 
 private:
 
@@ -723,6 +726,40 @@ void LikelihoodTests::test_MeanPsf() {
 //       std::cout << my_trap.integral() << std::endl;
 // Yes, this test is pretty weak.
       CPPUNIT_ASSERT(fabs(my_trap.integral() - 1.) < 0.03);
+   }
+}
+
+void LikelihoodTests::test_BinnedExposure() {
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
+   
+   std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   ExposureCube::readExposureCube(exposureCubeFile);
+
+   std::vector<double> energies;
+   unsigned int npts(20);
+   double emin(20.);
+   double emax(2e5);
+   double estep = log(emax/emin)/(npts-1.);
+   for (unsigned int i = 0; i < npts; i++) {
+      energies.push_back(emin*exp(i*estep));
+   }
+   BinnedExposure binnedExposure(energies);
+
+   std::string filename("binnedExposure.fits");
+
+   binnedExposure.writeOutput(filename);
+
+   BinnedExposure map2(filename);
+   
+   double ra(180.);
+   double dec(0.);
+   for (unsigned int i = 0; i < npts; i++) {
+      ASSERT_EQUALS(binnedExposure(energies[i], ra, dec),
+                    map2(energies[i], ra, dec));
    }
 }
 
