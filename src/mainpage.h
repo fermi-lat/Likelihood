@@ -535,5 +535,6 @@ meaning pixels that are typically less than 0.5 degrees on a side.
 Also, since the broad PSFs of the instrument can include significant
 numbers of photons from sources outside of the ROI, one should choose
 a source region size that is significantly larger than the ROI.
+Here's an example <a href="http://glast.stanford.edu/cgi-bin/cvsweb/Likelihood/data/expMap.par?cvsroot=CVS_SLAC">expMap.par</a> file.
 
 */
