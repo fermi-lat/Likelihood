@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.2 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.3 2005/02/15 07:04:41 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  * a function of position on the sky.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.2 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.3 2005/02/15 07:04:41 jchiang Exp $
  */
 
 class MapCubeFunction : public optimizers::Function {
@@ -58,6 +58,9 @@ public:
       return m_fitsFile;
    }
 
+   /// @todo Consider moving this method to FitsImage class.
+   double mapIntegral() const;
+
 private:
 
    std::string m_fitsFile;
@@ -76,6 +79,7 @@ private:
 
    static int findIndex(std::vector<double> xx, double x);
 
+   double powerLawIntegral(double x1, double x2, double y1, double y2) const;
 };
 
 } // namespace Likelihood

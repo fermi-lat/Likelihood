@@ -5,7 +5,7 @@
  * the flux package.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.2 2004/11/11 00:03:27 jchiang Exp $
  */
 
 #ifndef Likelihood_FluxBuilder_h
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.2 2004/11/11 00:03:27 jchiang Exp $
  */
 
 class FluxBuilder : public XmlBuilder {
@@ -53,6 +53,7 @@ private:
    DomElement * srcDirection(optimizers::Function &dir);
    DomElement * solidAngle(double mincos, double maxcos);
    DomElement * galDiffuse(Source & src);
+   DomElement * mapCubeSource(Source & src);
 
    std::vector<double> m_energies;
    void makeEnergyGrid(unsigned int nee=200);
