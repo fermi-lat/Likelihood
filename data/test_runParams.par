@@ -1,0 +1,2 @@
+input file,f,ql,"none",,,"ROI cuts file"
+double value,r,hl,2,,,"Event file HDU"

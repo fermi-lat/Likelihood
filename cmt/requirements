@@ -4,7 +4,7 @@ version v2r6p3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.66 2003/12/06 03:52:39 jchiang Exp $
+# $Id: requirements,v 1.67 2003/12/06 04:58:53 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -50,3 +50,5 @@ application test_Likelihood test/main.cxx
 application likelihoodApp test/likelihood.cxx
 application TsMap test/TsMap.cxx
 application expMap test/expMap.cxx
+application test_runParams test/test_runParams.cxx
+
