@@ -37,7 +37,7 @@ public:
 
    //! overloaded setParam methods to include updating of m_dir
    void setParam(const std::string &paramName, double paramValue, 
-		 bool isFree) {
+                 bool isFree) {
       setParameter(paramName, paramValue, isFree);
       update_m_dir(paramName, paramValue);
    }

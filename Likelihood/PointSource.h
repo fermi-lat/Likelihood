@@ -57,10 +57,10 @@ public:
                            std::string &paramName) const;
 
    //! predicted number of photons given RoiCuts and ScData
-   double Npred();
+   virtual double Npred();
 
    //! derivative of Npred wrt named Parameter
-   double NpredDeriv(const std::string &paramName);
+   virtual double NpredDeriv(const std::string &paramName);
 
    //! set source location using J2000 coordinates
    void setDir(double ra, double dec) {
@@ -128,12 +128,15 @@ private:
    //! storage of the ROI contained fraction of a 2D "Gaussian"
    std::vector<double> m_gaussFraction;
 
+   //! fraction of the psf that is contained within the ROI
+   double psfFrac(double energy, double inc);
+
    //! nested class that returns the integrand for the m_gaussFraction
    //! integrals
    class Gint : public Function {
    public:
       Gint(double sig, double cr, double cp, double sp) : 
-	 m_sig(sig), m_cr(cr), m_cp(cp), m_sp(sp) {}
+           m_sig(sig), m_cr(cr), m_cp(cp), m_sp(sp) {}
       virtual ~Gint(){};
       double value(Arg &mu) const;
       double derivByParam(Arg &, const std::string &) const {return 0;}

@@ -89,8 +89,6 @@ double PointSource::fluxDensityDeriv(double energy, double time,
 }
 
 double PointSource::Npred() {
-// presently implemented without psf cuts....
-
    Function *specFunc = m_functions["Spectrum"];
 
 // evaluate the Npred integrand at the abscissa points contained in
@@ -114,7 +112,8 @@ double PointSource::NpredDeriv(const std::string &paramName) {
       std::vector<double> myIntegrand(m_energies.size());
       for (unsigned int k = 0; k < m_energies.size(); k++) {
          dArg eArg(m_energies[k]);
-         myIntegrand[k] = specFunc->derivByParam(eArg, paramName);
+         myIntegrand[k] = specFunc->derivByParam(eArg, paramName)
+            *m_exposure[k];
       }
       TrapQuad trapQuad(m_energies, myIntegrand);
       return trapQuad.integral();
@@ -136,7 +135,7 @@ void PointSource::computeExposure() {
       std::vector< std::pair<double, double> > timeCuts;
       roiCuts->getTimeCuts(timeCuts);
       for (unsigned int itcut = 0; itcut < timeCuts.size(); itcut++) {
-	 if (scData->vec[it].time < timeCuts[itcut].first ||
+         if (scData->vec[it].time < timeCuts[itcut].first ||
              scData->vec[it].time > timeCuts[itcut].second) {
             includeInterval = false;
             break;
@@ -154,11 +153,42 @@ void PointSource::computeExposure() {
 // for each energy (still need to implement the psf fraction stuff....)
       if (includeInterval) {
          for (unsigned int k = 0; k < m_energies.size(); k++) {
+            double psf_frac = psfFrac(m_energies[k], inc);
             m_exposure[k] += (*aeff)(m_energies[k], inc)
-               *(scData->vec[it+1].time - scData->vec[it].time);
+               *(scData->vec[it+1].time - scData->vec[it].time)
+               *psf_frac;
          }
       }
    }
+}
+
+double PointSource::psfFrac(double energy, double inc) {
+   Psf *psf = Psf::instance();
+// compute the fraction of the psf enclosed for this source at
+// this energy and inclination
+   std::vector<double> psf_params;
+   (*psf).fillPsfParams(energy, inc, psf_params);
+   double sig1 = psf_params[0]*M_PI/180.;
+   double sig2 = psf_params[1]*M_PI/180.;
+   double wt = psf_params[2];
+
+// compute the index assuming constant binsize
+   unsigned int indx = static_cast<int> ((sig1 - m_sigGauss[0])
+                                         /(m_sigGauss[1] - m_sigGauss[0]));
+// interpolate
+   double frac1 = (sig1 - m_sigGauss[indx])
+      /(m_sigGauss[indx+1] - m_sigGauss[indx])
+      *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
+      + m_gaussFraction[indx];
+
+   indx = static_cast<int> ((sig2 - m_sigGauss[0])
+                            /(m_sigGauss[1] - m_sigGauss[0]));
+   double frac2 = (sig2 - m_sigGauss[indx])
+      /(m_sigGauss[indx+1] - m_sigGauss[indx])
+      *(m_gaussFraction[indx+1] - m_gaussFraction[indx]) 
+      + m_gaussFraction[indx];
+
+   return wt*frac1 + (1. - wt)*frac2;
 }
 
 void PointSource::computeGaussFractions() {
@@ -167,7 +197,7 @@ void PointSource::computeGaussFractions() {
 
    RoiCuts *roiCuts = RoiCuts::instance();
 
-   double psi = m_dir.SkyDir::difference(roiCuts->getExtractionRegion().first);
+   double psi = getSeparation(roiCuts->getExtractionRegion().first);
    double roi_radius = roiCuts->getExtractionRegion().second*M_PI/180;
    double mup = cos(roi_radius + psi);
    double mum = cos(roi_radius - psi);
@@ -180,26 +210,29 @@ void PointSource::computeGaussFractions() {
    for (unsigned int i = 0; i < m_sigGauss.size(); i++) {
       double sig = m_sigGauss[i];
       if (m_sigGauss[i] == 0) {
-         m_gaussFraction[i] = 0;
-         break;
-      }
-      double denom = 1. - exp(-2/sig/sig);
-      double gauss_int;
-      if (psi == 0) {
-         gauss_int = 0;
+         m_gaussFraction.push_back(1);
       } else {
+         double denom = 1. - exp(-2/sig/sig);
+         double gauss_int;
+         if (psi == 0) {
+            gauss_int = 0;
+         } else {
 // instantiate the integrand object...
-	 Gint gfunc(m_sigGauss[i], cr, cp, sp);
+            Gint gfunc(m_sigGauss[i], cr, cp, sp);
 // and the integrator object
-         TrapQuad trapQuad(&gfunc);
-         gauss_int = trapQuad.integral(mum, mup, 10000);
+            TrapQuad trapQuad(&gfunc);
+            gauss_int = trapQuad.integral(mup, mum, 10000);
+         }
+         if (psi <= roi_radius) {
+            double value = ((1. - exp((mum-1.)/sig/sig))
+                            + gauss_int/M_PI/sig/sig)/denom;
+            m_gaussFraction.push_back(value);
+         } else {
+            double value =  gauss_int/M_PI/sig/sig/denom;
+            m_gaussFraction.push_back(value);
+         }
       }
-      if (psi <= roi_radius) {
-	 m_gaussFraction.push_back( ((1 - exp((mum-1)/sig/sig))
-				     + gauss_int/M_PI/sig/sig)/denom );
-      } else {
-	 m_gaussFraction.push_back( gauss_int/M_PI/sig/sig/denom );
-      }
+//      std::cout << sig << "  " << m_gaussFraction[i] << std::endl;
    }
 }
 
@@ -210,9 +243,17 @@ double PointSource::Gint::value(Arg &muarg) const {
    if (mu == 1) {
       phi = M_PI;
    } else {
-      phi = acos((m_cr - mu*m_cp)/sqrt(1. - mu*mu)/m_sp);
+      double arg = (m_cr - mu*m_cp)/sqrt(1. - mu*mu)/m_sp;
+      if (arg >= 1.) {
+         phi = 0;
+      } else if (arg <= -1.) {
+         phi = M_PI;
+      } else {
+         phi = acos(arg);
+      }
    }
-   return phi*exp((mu - 1)/m_sig/m_sig);
+   double value = phi*exp((mu - 1)/m_sig/m_sig);
+   return value;
 }
 
 } // namespace Likelihood

@@ -30,14 +30,14 @@ public:
 
    //! PSF in sky coordinates
    double value(astro::SkyDir appDir, double energy, 
-		astro::SkyDir srcDir, double time);
+                astro::SkyDir srcDir, double time);
    double operator()(astro::SkyDir appDir, double energy, 
-		     astro::SkyDir srcDir, double time)
+                     astro::SkyDir srcDir, double time)
       {return value(appDir, energy, srcDir, time);};
 
    //! retrieve PSF parameters (sig1, sig2, wt) in instrument coordinates
    void fillPsfParams(double energy, double inclination,
-		      std::vector<double> &psf_params);
+                      std::vector<double> &psf_params);
 
    //! returns the Singleton object pointer
    static Psf * instance();

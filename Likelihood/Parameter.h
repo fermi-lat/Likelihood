@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/Parameter.h,v 1.2 2003/02/23 22:28:59 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.3 2003/02/27 18:47:43 jchiang Exp $ */
 
 class Parameter {
     
@@ -34,10 +34,10 @@ public:
    
    Parameter() {m_init(std::string(""), 0., -HUGE, HUGE, true);};
    Parameter(const std::string &paramName, double paramValue, 
-	     bool isFree = true)
+             bool isFree = true)
       {m_init(paramName, paramValue, -HUGE, HUGE, isFree);};
    Parameter(const std::string &paramName, double paramValue, 
-	     double minValue, double maxValue, bool isFree = true)
+             double minValue, double maxValue, bool isFree = true)
       {m_init(paramName, paramValue, minValue, maxValue, isFree);};
    Parameter(const Parameter&);
    ~Parameter(){}

@@ -9,37 +9,65 @@
 #include <cmath>
 #include <cassert>
 #include "logLike_ptsrc.h"
+#include "../Likelihood/Npred.h"
+#include "../Likelihood/logSrcModel.h"
+#include "../Likelihood/EventArg.h"
+#include "../Likelihood/SrcArg.h"
 
 namespace Likelihood {
 
 /* compute the EML log-likelihood for a single-point source */
 
 double logLike_ptsrc::value(const std::vector<double> &paramVec) {
-   setParamValues(paramVec);
+   setFreeParamValues(paramVec);
    
    double my_value = 0;
    
 // the "data sum"
    for (unsigned int j = 0; j < m_events.size(); j++) {
-      double src_sum = 0.;
-      src_sum += evaluate_at(m_events[j]);
-      if (src_sum > 0) my_value += log(src_sum);
+      EventArg eArg(m_events[j]);
+      my_value += m_logSrcModel(eArg);
    }
 
 // the "model integral", a sum over Npred for each source
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      my_value -= m_sources[i]->Npred();
+      SrcArg sArg(m_sources[i]);
+      my_value -= m_Npred(sArg);
    }
    
    return my_value;
 }
 
-double logLike_ptsrc::evaluate_at(const Event &evt) const {
-   double my_value = 0;
-   for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      my_value += (*m_sources[i]).fluxDensity(evt);
+void logLike_ptsrc::getFreeDerivs(std::vector<double> &freeDerivs) {
+
+// retrieve the free derivatives for the log(SourceModel) part
+   m_logSrcModel.syncParams();
+   std::vector<double> logSrcModelDerivs(m_logSrcModel.getNumFreeParams(), 0);
+   for (unsigned int j = 0; j < m_events.size(); j++) {
+      std::vector<double> derivs;
+      EventArg eArg(m_events[j]);
+      m_logSrcModel.getFreeDerivs(eArg, derivs);
+      for (unsigned int i = 0; i < derivs.size(); i++)
+         logSrcModelDerivs[i] += derivs[i];
    }
-   return my_value;
+
+// the free derivatives for the Npred part must be appended 
+// for each Source in m_sources
+   std::vector<double> NpredDerivs;
+   NpredDerivs.reserve(m_logSrcModel.getNumFreeParams());
+
+   for (unsigned int i = 0; i < m_sources.size(); i++) {
+      SrcArg sArg(m_sources[i]);
+      std::vector<double> derivs;
+      m_Npred.getFreeDerivs(sArg, derivs);
+      for (unsigned int i = 0; i < derivs.size(); i++) 
+         NpredDerivs.push_back(derivs[i]);
+   }
+
+   freeDerivs.reserve(NpredDerivs.size());
+   freeDerivs.clear();
+   for (unsigned int i = 0; i < NpredDerivs.size(); i++) 
+      freeDerivs[i] = logSrcModelDerivs[i] - NpredDerivs[i];
 }
 
 void logLike_ptsrc::getEvents(const std::string &event_file, int hdu) {

@@ -33,17 +33,17 @@ void Table::read_FITS_table(std::string filename, int hdu)
     int  status=0;
     fitsfile * fp=0;
 
-    fits_open_file(&fp, filename.c_str(),	READONLY, &status);
+    fits_open_file(&fp, filename.c_str(), READONLY, &status);
     if( status !=0) {
         std::cerr << "Could not open FITS file " << filename << std::endl;
         return;
     }
-    fits_report_error(stderr,	status);
+    fits_report_error(stderr, status);
 
     int hdutype=0;
     fits_movabs_hdu(fp, hdu, &hdutype, &status);
     if( status == END_OF_FILE ) status = 0; // ok, I guess??
-    fits_report_error(stderr,	status);
+    fits_report_error(stderr, status);
 
     // these are not used???  Oh, yes they are....
     long lnrows=0;

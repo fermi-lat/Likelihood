@@ -26,12 +26,16 @@ class logLike_gauss : public Statistic {
     
 public:
 
-   logLike_gauss(){};
+   logLike_gauss(){
+      deleteAllSources();
+   };
    virtual ~logLike_gauss(){};
 
    //! return the objective function value taking the free parameters 
    //! as the function argument
    double value(const std::vector<double> &paramVec);
+   
+   void getFreeDerivs(std::vector<double> &) {}
 
 };
 

@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.5 2003/03/04 17:45:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.6 2003/03/06 01:25:42 jchiang Exp $
  */
 
 class Function {
@@ -44,10 +44,9 @@ public:
 
    ///////////////////////
    //! parameter access //
-   ///////////////////////
    //! set Parameter value and free state
    virtual void setParam(const std::string &paramName, 
-			 double paramValue, bool isFree)
+                         double paramValue, bool isFree)
       {setParameter(paramName, paramValue, isFree);}
 
    //! set Parameter value, preserving current free state
@@ -63,7 +62,6 @@ public:
    
    /////////////////////////////////
    //! parameter access in groups //
-   /////////////////////////////////
    unsigned int getNumParams() const {return m_parameter.size();}
 
    void setParamValues(const std::vector<double> &paramVec);
@@ -94,14 +92,13 @@ public:
       {fetchParamValues(values, true);}
    void getFreeParams(std::vector<Parameter> &) const;
    
-   /////////////////////////////////////////
+   /////////////////////////////////////
    //! Arg-dependent member functions //
-   /////////////////////////////////////////
    virtual double value(Arg &) const = 0;
    double operator()(Arg &x) const {return value(x);}
    
    virtual double derivByParam(Arg &x, 
-			       const std::string &paramName) const = 0;
+                               const std::string &paramName) const = 0;
    
    virtual void getDerivs(Arg &x, std::vector<double> &derivs) const
       {fetchDerivs(x, derivs, false);}
@@ -117,7 +114,7 @@ protected:
    void setMaxNumParams(int nParams) {m_maxNumParams = nParams;}
 
    void setParameter(const std::string &paramName, double paramValue, 
-		     int isFree = -1);
+                     int isFree = -1);
 
    //! for subclass constructor use
    void addParam(const std::string &paramName, double paramValue, bool isFree);
@@ -136,7 +133,7 @@ protected:
 
    std::string m_functionName;
 
-   std::vector<Parameter> m_parameter;
+   mutable std::vector<Parameter> m_parameter;
 
 };
 

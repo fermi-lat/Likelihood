@@ -13,30 +13,32 @@
 
 namespace Likelihood {
 
+std::vector<Source *> SourceModel::m_sources;
+
 SourceModel::SourceModel(const SourceModel &rhs) : 
    Function(rhs) {
    m_sources = rhs.m_sources;
 }
 
 void SourceModel::setParam(const Parameter &param, 
-			   const std::string &funcName,
-			   const std::string &srcName) {
+                           const std::string &funcName,
+                           const std::string &srcName) {
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       if (srcName == (*m_sources[i]).getName()) {
          Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
-	 if (srcFuncs.count(funcName)) {
-	    srcFuncs[funcName]->setParam(param.getName(), 
+         if (srcFuncs.count(funcName)) {
+            srcFuncs[funcName]->setParam(param.getName(), 
                                          param.getValue(),
                                          param.isFree());
 // this seems inefficient, but necessary because of srcFuncs map(?)
             m_syncParams();
-	    return;
-	 }
+            return;
+         }
       }
    }
    std::cerr << "SourceModel::setParam:  Function " 
-	     << funcName << " for source "
-	     << srcName << " was not found." << std::endl;
+             << funcName << " for source "
+             << srcName << " was not found." << std::endl;
 }
  
 std::vector<double>::const_iterator SourceModel::setParamValues_(
@@ -45,7 +47,7 @@ std::vector<double>::const_iterator SourceModel::setParamValues_(
       Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) 
-	 it = (*func_it).second->setParamValues_(it);
+         it = (*func_it).second->setParamValues_(it);
    }
    m_syncParams();
    return it;
@@ -57,18 +59,18 @@ std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
       Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) 
-	 it = (*func_it).second->setFreeParamValues_(it);
+         it = (*func_it).second->setFreeParamValues_(it);
    }
    m_syncParams();
    return it;
 }
 
 Parameter* SourceModel::getParam(const std::string &paramName,
-				 const std::string &funcName,
+                                 const std::string &funcName,
                                  const std::string &srcName) const {
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       if (srcName == (*m_sources[i]).getName()) {
-	 std::vector<Parameter> params;
+         std::vector<Parameter> params;
          Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
          if (srcFuncs.count(funcName)) {    //check for funcName
             srcFuncs[funcName]->getParams(params);
@@ -99,14 +101,14 @@ void SourceModel::addSource(Source *src) {
       std::vector<Parameter> params;
       (*func_it).second->getParams(params);
       for (unsigned int ip = 0; ip < params.size(); ip++) 
-	 m_parameter.push_back(params[ip]);
+         m_parameter.push_back(params[ip]);
    }      
 }
  
 void SourceModel::deleteSource(const std::string &srcName) {
    for (unsigned int i = 0; i < m_sources.size(); i++) {
       if (srcName == (*m_sources[i]).getName()) {
-	 m_sources.erase(m_sources.begin() + i, 
+         m_sources.erase(m_sources.begin() + i, 
                          m_sources.begin() + i + 1);
          m_syncParams();
          return;
@@ -127,7 +129,7 @@ void SourceModel::m_syncParams() {
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<Parameter> params;
          (*func_it).second->getParams(params);
-	 for (unsigned int ip = 0; ip < params.size(); ip++)
+         for (unsigned int ip = 0; ip < params.size(); ip++)
             m_parameter.push_back(params[ip]);
       }
    }
@@ -148,7 +150,7 @@ double SourceModel::evaluate_at(Arg &x) const {
       Source::FuncMap srcFuncs = (*m_sources[i]).getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
-	 my_val += (*func_it).second->value(x);
+         my_val += (*func_it).second->value(x);
       }
    }
    return my_val;

@@ -18,11 +18,12 @@ namespace Likelihood {
  * @class logSrcModel
  *
  * @brief A SourceModel subclass that returns as its Function
- * value(Arg &), the quantity log(evaluate_at(EventArg &)).  Thus it
- * forms an additive Function component to the "data sum" in the
- * log-likelihood statistic.  Since it is a Function, the Statistic
- * fetchDerivs() method (which is inherited from SourceModel) can be
- * applied transparently.
+ * value(Arg &), the log of the sum of source flux densities for Arg
+ * cast as an EventArg.  It forms an additive Function component to
+ * the "data sum" in the log-likelihood statistic.  Since it is a
+ * Function, its fetchDerivs() method can be applied transparently
+ * using the get[Free]Derivs() methods inherited from the Function
+ * base class.
  *
  * @authors J. Chiang
  *    
@@ -36,13 +37,16 @@ public:
    logSrcModel(const logSrcModel &rhs);
    virtual ~logSrcModel(){};
 
-   virtual double value(Arg &xarg) const;
-   virtual double derivByParam(Arg&, std::string &) const {return 0;}
+   double value(Arg &xarg) const;
+   double derivByParam(Arg&, std::string &) const {return 0;}
+
+   // would be nice if this wasn't necessary...
+   void syncParams() {m_syncParams();}
 
 protected:
 
-   virtual void fetchDerivs(Arg &x, std::vector<double> &derivs, 
-                            bool getFree) const;
+   void fetchDerivs(Arg &x, std::vector<double> &derivs, 
+                    bool getFree) const;
 
 };
 
