@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr 18 17:03:33 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h 
+Log Message:
+consider sub-intervals for GRB analysis
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 12 16:22:50 PDT 2004
 Likelihood/src/TsMap
 
