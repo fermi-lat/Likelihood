@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 19 14:45:55 PDT 2004
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+fix makeExposureMap parfile names; tagging v4r4p1
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 19 14:45:54 PDT 2004
 Likelihood/src
 
