@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Mar  6 15:25:44 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+added logSrcModel, EventArg classes
+    *
+------------------------------------------------------------
+User: jchiang  Thu Mar  6 15:25:44 PST 2003
 Likelihood/src
 
 Modified Files:
