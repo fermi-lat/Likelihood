@@ -17,7 +17,6 @@
 #include "Likelihood/EventArg.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/ExposureMap.h"
-#include "Likelihood/FitsImage.h"
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/OneSourceFunc.h"
@@ -35,6 +34,8 @@
 #include "Likelihood/Exception.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/BinnedLikelihood.h"
+#include "Likelihood/Pixel.h"
+#include "Likelihood/CountsMap.h"
 #include <vector>
 #include <string>
 #include <exception>
@@ -55,7 +56,8 @@ using optimizers::Exception;
 %include ../Likelihood/DiffuseSource.h
 %include ../Likelihood/EventArg.h
 %include ../Likelihood/ExposureMap.h
-%include ../Likelihood/FitsImage.h
+%include ../Likelihood/Pixel.h
+%include ../Likelihood/CountsMap.h
 %include ../Likelihood/LogLike.h
 %include ../Likelihood/BinnedLikelihood.h
 %include ../Likelihood/logSrcModel.h
@@ -75,7 +77,7 @@ using optimizers::Exception;
 %template(DoubleVectorVector) std::vector< std::vector<double> >;
 %template(StringVector) std::vector<std::string>;
 %extend Likelihood::SourceFactory {
-   optimizers::FunctionFactory * funcFactory() {
+   static optimizers::FunctionFactory * funcFactory() {
       optimizers::FunctionFactory * myFuncFactory 
          = new optimizers::FunctionFactory;
       myFuncFactory->addFunc("SkyDirFunction", 
@@ -98,8 +100,10 @@ using optimizers::Exception;
          for (unsigned int i = 0; i < parameters.size(); i++)
             std::cout << parameters[i].getName() << ": "
                       << parameters[i].getValue() << std::endl;
-         std::cout << "Npred: "
-                   << src->Npred() << std::endl;
+         if (!dynamic_cast<Likelihood::BinnedLikelihood *>(self)) {
+            std::cout << "Npred: "
+                      << src->Npred() << std::endl;
+         }
       }
    }
    void src_param_table() {
@@ -152,20 +156,6 @@ using optimizers::Exception;
    }
 }
 %extend Likelihood::BinnedLikelihood {
-   void print_source_params() {
-      std::vector<std::string> srcNames;
-      self->getSrcNames(srcNames);
-      std::vector<Parameter> parameters;
-      for (unsigned int i = 0; i < srcNames.size(); i++) {
-         Likelihood::Source *src = self->getSource(srcNames[i]);
-         Likelihood::Source::FuncMap srcFuncs = src->getSrcFuncs();
-         srcFuncs["Spectrum"]->getParams(parameters);
-         std::cout << "\n" << srcNames[i] << ":\n";
-         for (unsigned int i = 0; i < parameters.size(); i++)
-            std::cout << parameters[i].getName() << ": "
-                      << parameters[i].getValue() << std::endl;
-      }
-   }
    static Likelihood::
       BinnedLikelihood * create(const std::string & countsMapFile) {
       Likelihood::CountsMap * dataMap = 
@@ -173,21 +163,6 @@ using optimizers::Exception;
       Likelihood::BinnedLikelihood * logLike = 
          new Likelihood::BinnedLikelihood(*dataMap, countsMapFile);
       return logLike;
-   }
-   int getNumFreeParams() {
-      return self->getNumFreeParams();
-   }
-   void getFreeParamValues(std::vector<double> & params) {
-      self->getFreeParamValues(params);
-   }
-   optimizers::Optimizer * Minuit() {
-      return new optimizers::Minuit(*self);
-   }
-   optimizers::Optimizer * Lbfgs() {
-      return new optimizers::Lbfgs(*self);
-   }
-   optimizers::Optimizer * Drmngb() {
-      return new optimizers::Drmngb(*self);
    }
 }
 %extend Likelihood::Event {

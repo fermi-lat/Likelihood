@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.17 2004/11/11 00:03:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.18 2004/11/17 00:02:12 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -27,7 +27,7 @@ namespace Likelihood {
 
 #ifndef SWIG
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
-#endif
+#endif //SWIG
 
 /** 
  * @class SourceFactory
@@ -40,7 +40,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.17 2004/11/11 00:03:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.18 2004/11/17 00:02:12 jchiang Exp $
  *
  */
     

@@ -4,7 +4,7 @@
  * derivatives wrt model parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.4 2004/09/22 05:39:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.5 2004/09/22 20:05:30 jchiang Exp $
  */
 
 #ifndef Likelihood_Pixel_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.4 2004/09/22 05:39:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.5 2004/09/22 20:05:30 jchiang Exp $
  */
 
 class Pixel {
@@ -54,6 +54,7 @@ public:
 
    double solidAngle() const {return m_solidAngle;}
 
+#ifndef SWIG
    class Aeff : public map_tools::Exposure::Aeff {
    public:
       Aeff(Source * src, const astro::SkyDir & appDir, 
@@ -81,6 +82,7 @@ public:
       int m_type;
       double m_separation;
    };
+#endif // SWIG
 
 private:
 

@@ -1,51 +1,40 @@
+#!/usr/bin/env python
+import sys
 from load_data import *
 
-def make_SourceFactory():
-#    funcFactory = optimizers.FunctionFactory()
-#
-#    funcFactory.addFunc("SkyDirFunction", Likelihood.SkyDirFunction())
-#    funcFactory.addFunc("SpatialMap", Likelihood.SpatialMap())
-
+def makeFactories():
     srcFactory = Likelihood.SourceFactory()
-    
     xmlFile = LikelihoodRoot + "/xml/A1_Sources.xml"
+    funcFactory = Likelihood.SourceFactory_funcFactory()
+    srcFactory.readXml(xmlFile, funcFactory )
+    return srcFactory, funcFactory
 
-    funcFactory = Likelihood.SourceFactory.funcFactory()
-    srcFactory.readXml( xmlFile, funcFactory )
+def fitStatistic(binned=False):
 
-    return srcFactory
-
-def fitStatistic():
-
-#    srcFactory = make_SourceFactory()
-#
+#    srcFactory, funcFactory = makeFactories()
 #    ourGalaxy = srcFactory.create("Galactic Diffuse Emission")
 #    extragalactic = srcFactory.create("Extragalactic Diffuse Emission")
 #    Crab = srcFactory.create("Bright Point Source")
 #    Crab.setDir(ra0, dec0, 1, 0)
 #    Crab.setName("Crab")
-#
-#    funcFactory = optimizers.FunctionFactory()
-#
-#    funcFactory.addFunc("SkyDirFunction", Likelihood.SkyDirFunction())
-#    funcFactory.addFunc("SpatialMap", Likelihood.SpatialMap())
 
-    srcFactory = Likelihood.SourceFactory()
-    funcFactory = Likelihood.SourceFactory.funcFactory(srcFactory)
-    
-#    logLike = Likelihood.LogLike()
-    srcMapsFile = "sourceMaps.fits"
-    logLike = Likelihood.BinnedLikelihood_create(srcMapsFile)
-    srcModel = "anticenter_model.xml"
-    logLike.readXml(srcModel, funcFactory)
+    funcFactory = Likelihood.SourceFactory_funcFactory()
+    srcModel = "ptsrcModel.xml"
 
-    eventFile = "test_events_0000.fits"
-
-    logLike.getEvents(eventFile)
+    if not binned:
+        logLike = Likelihood.LogLike()
+        eventFile = "test_events_0000.fits"
+        logLike.getEvents(eventFile)
+        logLike.readXml(srcModel, funcFactory)
+        logLike.computeEventResponses()
+    else:
+        srcMapsFile = "sourceMaps.fits"
+        dataMap = Likelihood.CountsMap(srcMapsFile)
+        logLike = Likelihood.BinnedLikelihood(dataMap, srcMapsFile)
+#        logLike = Likelihood.BinnedLikelihood_create(srcMapsFile)
+        logLike.readXml(srcModel, funcFactory)
 
     print logLike.value()
-
-#    logLike.computeEventResponses()
 
 #    myOpt = logLike.Drmngb()
 #    myOpt = logLike.Lbfgs()
@@ -54,9 +43,10 @@ def fitStatistic():
     verbose = 3
     tol = 1e-5
     myOpt.find_min(verbose, tol)
-#
+
     return (logLike, myOpt)
 
 if __name__ == "__main__":
-    (logLike, myOpt) = fitStatistic()
+    binned = "-b" in sys.argv
+    (logLike, myOpt) = fitStatistic(binned)
     logLike.print_source_params()

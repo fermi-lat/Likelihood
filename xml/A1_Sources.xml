@@ -7,14 +7,12 @@
       <spatialModel type="SkyDirFunction">
          <parameter name="RA"
                     value="0"
-                    unit="degrees"
                     min="-180"
                     max="180"
                     free="false"
                     scale="1"/>
          <parameter name="DEC"
                     value="0"
-                    unit="degrees"
                     min="-90"
                     max="90"
                     free="false"
@@ -34,7 +32,6 @@
       <spatialModel type="ConstantValue">
          <parameter name="Value"
                     value="1"
-                    unit="none"
                     min="0"
                     max="10"
                     free="false"
