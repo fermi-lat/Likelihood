@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.41 2005/03/03 07:07:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.42 2005/03/03 23:24:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -280,7 +280,7 @@ void LogLike::setFT1_columns() {
 }
 
 void LogLike::get_diffuse_names(tip::Table * events, 
-                                std::vector<std::string> & names) {
+                                std::vector<std::string> & names) const {
    names.clear();
    const std::vector<std::string> & fields = events->getValidFields();
    for (unsigned int i = 0; i < fields.size(); i++) {

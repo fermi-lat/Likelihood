@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.17 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.18 2005/03/02 04:51:10 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.17 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.18 2005/03/02 04:51:10 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -85,12 +85,7 @@ protected:
       return new LogLike(*this);
    }
 
-   /// Event data, read from m_eventFile, stored in a map
-   std::string m_eventFile;
-
    std::vector<Event> m_events;
-
-   std::map<std::string, std::vector<double> > m_eventColumns;
 
 private:
 
@@ -101,7 +96,7 @@ private:
    static void setFT1_columns();
 
    void get_diffuse_names(tip::Table * events, 
-                          std::vector<std::string> & names);
+                          std::vector<std::string> & names) const;
 
    double logSourceModel(const Event & event) const;
 
