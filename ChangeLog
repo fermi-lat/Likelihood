@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: pln  Fri Nov  7 13:44:16 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h 
+Log Message:
+Make m_events protected
+
+    *
+------------------------------------------------------------
 User: jchiang  Thu Nov  6 18:49:17 PST 2003
 Likelihood/data
 
