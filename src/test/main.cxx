@@ -497,6 +497,8 @@ void test_OptPP() {
 // try lbfgs_bcm method first   
    Lbfgs my_lbfgsObj(my_rosen);
    my_lbfgsObj.find_min(verbose);
+   cout << "LBFGS exit code: " << my_lbfgsObj.getRetCode() << endl;
+   cout << "LBFGS end message: " << my_lbfgsObj.getErrorString() << endl;
 #endif //HAVE_OPT_LBFGS
 
 #ifdef HAVE_OPT_PP
