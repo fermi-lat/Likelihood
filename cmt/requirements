@@ -4,7 +4,7 @@ version v2r6p1
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.63 2003/12/05 05:39:19 jchiang Exp $
+# $Id: requirements,v 1.64 2003/12/05 15:02:57 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -33,6 +33,8 @@ WIN32 "/I..\src  /wd4290"
 
 # this package uses obsolete C function names, beware	
 macro_append cpplinkflags "" WIN32 " oldnames.lib"
+
+macro_append ROOT_libs ""  WIN32 " libHisT.lib "
 
 # make sure test applications get built when library changes
 macro test_Likelihoodstamps "Likelihood.stamp"
