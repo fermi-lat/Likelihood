@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.64 2005/01/06 23:42:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.65 2005/01/11 15:33:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -56,7 +56,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.64 2005/01/06 23:42:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.65 2005/01/11 15:33:34 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -95,7 +95,7 @@ private:
    bool prompt(const std::string &query);
 };
 
-st_app::StAppFactory<likelihood> myAppFactory;
+st_app::StAppFactory<likelihood> myAppFactory("likelihood");
 
 likelihood::likelihood() 
    : st_app::StApp(), m_helper(0), 
@@ -453,45 +453,44 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<double>::const_iterator errIt = errors.begin();
 
    std::ofstream resultsFile("results.dat");
+   resultsFile << "{";
+
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      Source *src = m_logLike->getSource(srcNames[i]);
+      Source * src = m_logLike->getSource(srcNames[i]);
       Source::FuncMap srcFuncs = src->getSrcFuncs();
       srcFuncs["Spectrum"]->getParams(parameters);
       std::cout << "\n" << srcNames[i] << ":\n";
-      resultsFile << srcNames[i] << ":  ";
+      resultsFile << "'" << srcNames[i] << "': {";
       for (unsigned int j = 0; j < parameters.size(); j++) {
          std::cout << parameters[j].getName() << ": "
                    << parameters[j].getValue();
-         resultsFile << parameters[j].getName() << "  "
-                     << parameters[j].getValue() << "  ";
+         resultsFile << "'" << parameters[j].getName() << "': "
+                     << "'" << parameters[j].getValue();
          if (parameters[j].isFree() && errIt != errors.end()) {
             std::cout << " +/- " << *errIt;
-            resultsFile << *errIt << "  ";
+            resultsFile << " +/- " << *errIt << "',\n";
             errIt++;
          } else {
-            resultsFile << "..." << "  ";
+            resultsFile << "',\n";
          }
          std::cout << std::endl;
       }
       if (m_statistic != "BINNED") {
          std::cout << "Npred: "
                    << src->Npred() << std::endl;
-         resultsFile << "Npred  " << src->Npred() << "  ";
+         resultsFile << "'Npred': '" << src->Npred() << "',\n";
       }
       if (RoiDist.count(srcNames[i])) {
          std::cout << "ROI distance: "
                    << RoiDist[srcNames[i]] << std::endl;
-         resultsFile << "ROI distance  " << RoiDist[srcNames[i]] << std::endl;
-      } else {
-         resultsFile << "ROI distance  " << "..." << std::endl;
-      }         
+         resultsFile << "'ROI distance': '" << RoiDist[srcNames[i]] << "',\n";
+      }
       if (TsValues.count(srcNames[i])) {
          std::cout << "TS value: "
                    << TsValues[srcNames[i]] << std::endl;
-         resultsFile << "TS value  " << TsValues[srcNames[i]] << std::endl;
-      } else {
-         resultsFile << "TS value  " << "..." << std::endl;
-      }         
+         resultsFile << "'TS value': '" << TsValues[srcNames[i]] << "',\n";
+      }
+      resultsFile << "}}" << std::endl;
    }
    if (m_statistic == "BINNED") {
       const std::vector<double> & data = m_dataMap->data();
