@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 11 07:33:34 PST 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+set counts spectrum energy domain to match ROI.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 11 07:32:59 PST 2005
 Likelihood/src/expMap
 
