@@ -9,6 +9,7 @@
 
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Statistic.h"
+#include <string>
 
 namespace Likelihood {
   typedef long int logical;  // Copied from f2c.h
@@ -40,10 +41,11 @@ public:
    void setPgtol(const double pgtol);
    void setMaxIterations(const int iterations);
    int getRetCode(void) const;
+   std::string getErrorString(void) const;
    void find_min(int verbose = 0, double tol = 1e-5);
 
    enum LbfgsReturnCodes {LBFGS_NORMAL, LBFGS_ABNO, LBFGS_ERROR,
-			 LBFGS_TOOMANY};
+			 LBFGS_TOOMANY, LBFGS_UNKNOWN};
     
 private:
 
@@ -52,12 +54,8 @@ private:
    int m_maxIterations;   
    double m_pgtol;
    int m_retCode;
-   int m_verbose;
    int m_numEvals;
-   
-   void lbfgsMin(const int n, double *x, const double *xmin, 
-		const double *xmax, const int iprint,
-		const double tol);
+   std::string m_errorString;
 };
 
  extern "C" {
