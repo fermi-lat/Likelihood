@@ -4417,7 +4417,6 @@ gn, */
 #include <time.h>
   //  *ttime = clock() / (doublereal) CLOCKS_PER_SEC;
   *ttime = (doublereal) clock();
-  printf("TIMER: %f\n", *ttime);
   return 0;
 } /* timer_ */
 
