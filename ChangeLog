@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jan  3 15:02:32 PST 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	EasyPlot.cxx 
+Log Message:
+fixes for Windoze
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jan  3 15:02:31 PST 2005
 Likelihood/src/diffuseResponses
 
