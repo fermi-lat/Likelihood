@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.4 2003/11/05 16:55:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.5 2003/11/07 02:27:10 jchiang Exp $
  */
 
 #include <vector>
@@ -153,7 +153,7 @@ void LogLike::computeEventResponses(double sr_radius) {
          diffuse_srcs.push_back(diffuse_src);
       }
    }
-   computeEventResponses(diffuse_srcs, sr_radius);
+   if (diffuse_srcs.size() > 0) computeEventResponses(diffuse_srcs, sr_radius);
 }
 
 // Methods from the old Likelihood::Statistic class:

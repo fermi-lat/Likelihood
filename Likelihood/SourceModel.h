@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.26 2003/10/31 06:05:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.27 2003/11/07 02:27:08 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.26 2003/10/31 06:05:08 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.27 2003/11/07 02:27:08 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Function {
@@ -123,6 +123,9 @@ public:
    /// Write an XML file for the current source model.
    virtual void writeXml(std::string xmlFile,
                          const std::string &functionLibrary);
+
+   /// Write a flux-style xml file for the current source model.
+   virtual void write_fluxXml(std::string xmlFile);
 
 protected:
 

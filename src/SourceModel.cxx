@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.27 2003/11/04 19:24:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.28 2003/11/07 02:27:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -12,6 +12,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 #include "xml/XmlParser.h"
 #include "xml/Dom.h"
@@ -25,9 +26,26 @@
 #include "optimizers/Arg.h"
 #include "optimizers/FunctionFactory.h"
 
+#include "Likelihood/RoiCuts.h"
 #include "Likelihood/SpatialMap.h"
+#include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SourceFactory.h"
+#include "Likelihood/TrapQuad.h"
 #include "Likelihood/SourceModel.h"
+
+namespace {
+   void add_underscores(std::string &name) {
+// Replace spaces with underscores.
+      std::replace(name.begin(), name.end(), ' ', '_');
+// Prepend underscore if name starts with an integer character.
+      if (static_cast<int>(*name.begin()) >= '0'
+          && static_cast<int>(*name.begin()) <= '9') {
+         std::ostringstream new_name;
+         new_name << "_" << name;
+         name = new_name.str();
+      }
+   }
+}
 
 namespace Likelihood {
 
@@ -396,6 +414,117 @@ void SourceModel::writeXml(std::string xmlFile,
       }
       srcLib.appendChild(srcElt);
    }
+
+// Expand any environment variables in the xmlFile name.
+   facilities::Util::expandEnvVar(&xmlFile);
+
+   std::ofstream outFile(xmlFile.c_str());
+//    outFile << "<?xml version='1.0' standalone='no'?>\n"
+//            << "<!DOCTYPE source_library SYSTEM \"A1_Sources.dtd\" >\n";
+   xml::Dom::prettyPrintElement(srcLib, outFile, "");
+
+   delete parser;
+}
+
+void SourceModel::write_fluxXml(std::string xmlFile) {
+   xml::XmlParser *parser = new xml::XmlParser();
+
+   DOM_Document doc = DOM_Document::createDocument();
+
+   DOM_Element srcLib = doc.createElement("source_library");
+   srcLib.setAttribute("title", "Likelihood_model");
+
+// Create an energy vector for integrating the fluxes from Sources.
+   RoiCuts * roiCuts = RoiCuts::instance();
+   std::pair<double, double> elims = roiCuts->getEnergyCuts();
+   int nee = 200;
+   double estep = log(elims.second/elims.first)/(nee-1);
+   std::vector<double> energies(nee);
+   std::vector<double>::iterator enIt = energies.begin();
+   for (int i=0 ; enIt != energies.end(); enIt++, i++) {
+      *enIt = elims.first*exp(estep*i);
+   }
+
+// Create a nested source containing all sources.
+   DOM_Element allSrcsElt = doc.createElement("source");
+   std::ostringstream allSrcsName;
+   allSrcsName << "all_in_" << xmlFile;
+   allSrcsElt.setAttribute("name", allSrcsName.str().c_str());
+
+// Loop over Sources.
+   std::vector<Source *>::iterator srcIt = s_sources.begin();
+   for ( ; srcIt != s_sources.end(); srcIt++) {
+      DOM_Element srcElt = doc.createElement("source");
+      std::string name = (*srcIt)->getName();
+      ::add_underscores(name);
+      srcElt.setAttribute("name", name.c_str());
+
+// Get each Source's properties in terms of its functions.
+      Source::FuncMap srcFuncs = (*srcIt)->getSrcFuncs();
+
+// Consider only PointSources for now.
+      if (srcFuncs.count("Position")) {
+
+// Compute the flux integrated over the energy range given by the ROI.
+         TrapQuad fluxIntegral(srcFuncs["Spectrum"]);
+         std::ostringstream flux;
+         flux << fluxIntegral.integral(energies)/1e-4;
+         srcElt.setAttribute("flux", flux.str().c_str());
+
+// Prepare the spectrum tag.
+         DOM_Element specElt = doc.createElement("spectrum");
+         specElt.setAttribute("escale", "MeV");
+
+// particle tag.
+         DOM_Element partElt = doc.createElement("particle");
+         partElt.setAttribute("name", "gamma");
+
+// Determine spectral type and set parameter values.
+         DOM_Element spectralTypeElt = doc.createElement("power_law");
+         std::ostringstream emin;
+         emin << elims.first;
+         spectralTypeElt.setAttribute("emin", emin.str().c_str());
+         std::ostringstream emax;
+         emax << elims.second;
+         spectralTypeElt.setAttribute("emax", emax.str().c_str());
+         if (srcFuncs["Spectrum"]->genericName() == "PowerLaw") {
+            std::ostringstream gamma;
+            gamma << -srcFuncs["Spectrum"]->getParamValue("Index");
+            spectralTypeElt.setAttribute("gamma", gamma.str().c_str());
+         } else if (srcFuncs["Spectrum"]->genericName() == "BrokenPowerLaw") {
+            std::ostringstream gamma, gamma2, ebreak;
+            gamma << -srcFuncs["Spectrum"]->getParamValue("Index1");
+            spectralTypeElt.setAttribute("gamma", gamma.str().c_str());
+            gamma2 << -srcFuncs["Spectrum"]->getParamValue("Index2");
+            spectralTypeElt.setAttribute("gamma2", gamma2.str().c_str());
+            ebreak << srcFuncs["Spectrum"]->getParamValue("BreakValue");
+            spectralTypeElt.setAttribute("ebreak", ebreak.str().c_str());
+         }
+         partElt.appendChild(spectralTypeElt);
+         specElt.appendChild(partElt);
+
+// The source direction.
+         DOM_Element dirElt = doc.createElement("celestial_dir");
+         std::ostringstream ra, dec;
+         ra << dynamic_cast<SkyDirFunction *>
+            (srcFuncs["Position"])->getDir().ra();
+         dirElt.setAttribute("ra", ra.str().c_str());
+         dec << dynamic_cast<SkyDirFunction *>
+            (srcFuncs["Position"])->getDir().dec();
+         dirElt.setAttribute("dec", dec.str().c_str());
+         specElt.appendChild(dirElt);
+
+         srcElt.appendChild(specElt);
+      }
+      srcLib.appendChild(srcElt);
+
+// Append the nested sources.
+      DOM_Element nestedSrcElt = doc.createElement("nestedSource");
+      nestedSrcElt.setAttribute("sourceRef", name.c_str());
+      allSrcsElt.appendChild(nestedSrcElt);
+   }
+
+   srcLib.appendChild(allSrcsElt);
 
 // Expand any environment variables in the xmlFile name.
    facilities::Util::expandEnvVar(&xmlFile);
