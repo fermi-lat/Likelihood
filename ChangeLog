@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct  5 16:52:12 PDT 2004
+Likelihood/src
+
+Modified Files:
+	MeanPsf.cxx SourceMap.cxx 
+Added Files:
+	BinnedExposure.cxx 
+Log Message:
+add BinnedExposure for use by SourceMap::sourceRegionIntegral and the computation of diffuse source integrals.
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct  5 16:52:10 PDT 2004
 Likelihood/Likelihood
 
