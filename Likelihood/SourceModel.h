@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.27 2003/11/07 02:27:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.28 2003/11/08 21:33:54 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.27 2003/11/07 02:27:08 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.28 2003/11/08 21:33:54 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Function {
@@ -111,10 +111,7 @@ public:
    unsigned int getNumSrcs() const {return s_sources.size();}
    void getSrcNames(std::vector<std::string> &) const;
 
-   // this is a bit convoluted, but necessary for some derived classes 
-   // (e.g., logLike_gauss)
-   double evaluate_at(optimizers::Arg &) const;
-   virtual double value(optimizers::Arg &x) const {return evaluate_at(x);}
+   virtual double value(optimizers::Arg &x) const;
 
    /// Create the source model by reading an XML file.
    virtual void readXml(std::string xmlFile,

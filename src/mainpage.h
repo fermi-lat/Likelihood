@@ -2,7 +2,7 @@
 
 /** @mainpage package Likelihood
 
- @authors James Chiang, Pat Nolan, Karl Young, Toby Burnett, and others
+ @authors James Chiang, Pat Nolan, Karl Young, and others
 
  @section intro Introduction
 
@@ -142,7 +142,7 @@
 /**
  @page userGuide User's Guide
 
- @section likeApp likelihood application
+ @section likeApp likelihood
 
  This is an FTOOLS-like interface to the Likelihood class library.
  It uses HOOPS to obtain the command-line parameters and therefore
@@ -230,8 +230,8 @@ virgo_region_scData_0001.fits
 
  - If there are diffuse components in the source model, then one must
    provide an exposure map that has been computed using the @ref
-   expMap.  If the data contain only point sources, then the exposure
-   map can be omitted.
+   expMap application.  If the data contain only point sources, then
+   the exposure map can be omitted.
 
  - Presently, only Front/Back and Combined response functions for the
    Glast25 parameterizations are available.
@@ -318,7 +318,7 @@ numeral and cannot have spaces, so underscores have been added.  As a
 convenience, a single composite source is created that comprises all
 of the individual sources.
 
- @section TsMap TsMap application
+ @section TsMap TsMap
 
 In order to find sky locations of point sources, "test statistic" maps
 are created.  These are computed by placing a putative point source at
@@ -374,7 +374,7 @@ an example file <a href="http://glast.stanford.edu/cgi-bin/cvsweb/Likelihood/dat
 
 @verbinclude TsMap.par
 
- @section expMap expMap application
+ @section expMap expMap
 
 This application creates an exposure map for use by the Likelihood
 package.  Here's a sample session:
@@ -394,7 +394,7 @@ Computing the ExposureMap....................!
 @endverbatim
 
 Note that @b expMap uses the ROI cuts file, which should be the same
-one used for the source analysis by the @ref likeApp.  Contrary to
+one used for the source analysis by @ref likeApp.  Contrary to
 this example, one should choose sufficient resolution for the map,
 meaning pixels that are typically less than 0.5 degrees on a side.
 Also, since the broad PSFs of the instrument can include significant

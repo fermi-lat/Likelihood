@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.29 2003/11/08 21:33:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.30 2003/11/10 23:06:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -274,7 +274,7 @@ void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    }
 }
 
-double SourceModel::evaluate_at(optimizers::Arg &x) const {
+double SourceModel::value(optimizers::Arg &x) const {
    double my_val = 0.;
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       Source::FuncMap srcFuncs = (*s_sources[i]).getSrcFuncs();
@@ -543,5 +543,9 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
 
    delete parser;
 }
+
+// void SourceModel::makeCountsMap(const std::string &filename, 
+//                                 const fitsUtils::MapShape &mapShape) {
+// }
 
 } // namespace Likelihood

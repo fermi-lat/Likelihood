@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.1 2003/11/08 01:24:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.2 2003/11/10 23:06:21 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -42,12 +42,15 @@ int main(int iargc, char* argv[]) {
    RunParams params(iargc, argv);
 
 // Set the region-of-interest.
-   std::string roiCutsFile = params.string_par("ROI_cuts_file");
+   std::string roiCutsFile;
+   params.getParam("ROI_cuts_file", roiCutsFile);
    RoiCuts::setCuts(roiCutsFile);
 
 // Read in the pointing information.
-   std::string scFile = params.string_par("Spacecraft_file");
-   int scHdu = static_cast<int>(params.long_par("Spacecraft_file_hdu"));
+   std::string scFile;
+   params.getParam("Spacecraft_file", scFile);
+   long scHdu;
+   params.getParam("Spacecraft_file_hdu", scHdu);
    std::vector<std::string> scFiles;
    RunParams::resolve_fits_files(scFile, scFiles);
    std::vector<std::string>::const_iterator scIt = scFiles.begin();
@@ -56,7 +59,8 @@ int main(int iargc, char* argv[]) {
    }
 
 // Create the response functions.
-   std::string responseFuncs = params.string_par("Response_functions");
+   std::string responseFuncs;
+   params.getParam("Response_functions", responseFuncs);
    latResponse::IrfsFactory irfsFactory;
    if (responseFuncs == "COMBINED") {
       ResponseFunctions::addRespPtr(4, 
@@ -68,7 +72,8 @@ int main(int iargc, char* argv[]) {
 
 // Set the source region radius.  This should be larger than the
 // radius of the region-of-interest.
-   double sr_radius = params.double_par("Source_region_radius");
+   double sr_radius;
+   params.getParam("Source_region_radius", sr_radius);
    RoiCuts *roiCuts = RoiCuts::instance();
    if (sr_radius < roiCuts->extractionRegion().radius() + 10.) {
       std::cerr << "The radius of the source region, " << sr_radius 
@@ -79,12 +84,16 @@ int main(int iargc, char* argv[]) {
    }
 
 // Get the other (hidden) map parameters.
-   int nlong = params.long_par("number_of_longitude_points");
-   int nlat = params.long_par("number_of_latitude_points");
-   int nenergies = params.long_par("number_of_energies");
+   long nlong;
+   params.getParam("number_of_longitude_points", nlong);
+   long nlat;
+   params.getParam("number_of_latitude_points", nlat);
+   long nenergies;
+   params.getParam("number_of_energies", nenergies);
 
 // Create the exposure map.
-   std::string exposureFile = params.string_par("Exposure_map_file");
+   std::string exposureFile;
+   params.getParam("Exposure_map_file", exposureFile);
    ExposureMap::computeMap(exposureFile, sr_radius, nlong, nlat, nenergies);
 
 }
