@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 19 20:05:04 PST 2004
+Likelihood/src
+
+Modified Files:
+	ExposureMap.cxx FluxBuilder.cxx 
+Removed Files:
+	RunParams.cxx 
+Log Message:
+moved to hoopsUtil
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb 19 20:05:03 PST 2004
 Likelihood/cmt
 
