@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr  5 20:32:27 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+use st_app::IApp in likelihood; tagging v3r5
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr  5 20:32:26 PDT 2004
 Likelihood/doc
 
