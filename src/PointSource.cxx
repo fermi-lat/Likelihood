@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.50 2004/09/15 23:12:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.51 2004/09/22 20:05:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -80,10 +80,12 @@ double PointSource::fluxDensity(double energy, double time,
 }
 
 double PointSource::fluxDensity(double inclination, double phi, double energy, 
-                                double separation, int evtType) const {
+                                const astro::SkyDir & appDir, 
+                                int evtType) const {
 // @todo add implementation for energy dispersion.
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
+   double separation = appDir.difference(getDir())*180./M_PI;
    return ResponseFunctions::totalResponse(inclination, phi, energy, energy, 
                                            separation, evtType)*spectrum;
 }
@@ -122,8 +124,9 @@ double PointSource::fluxDensityDeriv(double energy, double time,
 
 double PointSource::
 fluxDensityDeriv(double inclination, double phi, double energy,
-                 double separation, int evtType, 
+                 const astro::SkyDir & appDir, int evtType, 
                  const std::string & paramName) const {
+   double separation = appDir.difference(getDir())*180./M_PI;
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude"
    if (paramName == "Prefactor") {

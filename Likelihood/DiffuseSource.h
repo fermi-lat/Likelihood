@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.20 2004/09/02 23:43:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.21 2004/09/22 20:05:30 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -43,7 +43,7 @@ class Event;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.20 2004/09/02 23:43:15 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.21 2004/09/22 20:05:30 jchiang Exp $ 
  *  
  */
 
@@ -69,11 +69,11 @@ public:
                                    const std::string &paramName) const;
 
    virtual double fluxDensity(double inclination, double phi, double energy,
-                              double separation, int evtType) const {
+                              const astro::SkyDir &appDir, int evtType) const {
       (void)(inclination);
       (void)(phi);
       (void)(energy);
-      (void)(separation);
+      (void)(appDir);
       (void)(evtType);
       return 0;
    }

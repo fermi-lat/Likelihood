@@ -4,7 +4,7 @@
  * access to model counts and derivatives wrt model parameters.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.1 2004/09/15 23:12:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.2 2004/09/21 14:51:20 jchiang Exp $
  */
 
 #include "Likelihood/ExposureCube.h"
@@ -79,7 +79,7 @@ double Pixel::Aeff::operator()(double costheta) const {
    if (m_separation < 90.) {
       double inclination = acos(costheta)*180./M_PI;
       static double phi(0);
-      return m_src->fluxDensity(inclination, phi, m_energy, m_separation,
+      return m_src->fluxDensity(inclination, phi, m_energy, m_appDir,
                                 m_type);
    }
    return 0;
@@ -102,7 +102,7 @@ double Pixel::AeffDeriv::operator()(double costheta) const {
    if (m_separation < 90.) {
       double inclination = acos(costheta)*180./M_PI;
       static double phi(0);
-      return m_src->fluxDensityDeriv(inclination, phi, m_energy, m_separation,
+      return m_src->fluxDensityDeriv(inclination, phi, m_energy, m_appDir,
                                      m_type, m_paramName);
    }
    return 0;
