@@ -4,14 +4,13 @@ version v1r3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.39 2003/10/24 01:57:23 jchiang Exp $
+# $Id: requirements,v 1.40 2003/10/24 05:39:39 jchiang Exp $
 
 use xml
 use astro  v*
 use latResponse v1*
 use optimizers v0*
 use cfitsio v1* IExternal
-#use f2c v*
 use CLHEP v2* IExternal
 
 apply_pattern package_include

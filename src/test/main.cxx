@@ -22,8 +22,8 @@
 #include "Likelihood/Source.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/Response.h"
-#include "Likelihood/Aeff.h"
-#include "Likelihood/Psf.h"
+// #include "Likelihood/Aeff.h"
+// #include "Likelihood/Psf.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/SpectrumFactory.h"
@@ -62,8 +62,8 @@ void test_SourceModel_class();
 void report_SrcModel_values(const SourceModel &SrcModel);
 void test_Event_class();
 void test_PointSource_class();
-void test_Aeff_class();
-void test_Psf_class();
+// void test_Aeff_class();
+// void test_Psf_class();
 void test_LogLike();
 void fit_3C279();
 void fit_anti_center();
@@ -86,21 +86,21 @@ int main() {
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
    read_SC_Response_data();
-//    test_SourceModel_class();
-//    test_Event_class();
-//    test_PointSource_class();
+   test_SourceModel_class();
+   test_Event_class();
+   test_PointSource_class();
 //    test_Aeff_class();
 //    test_Psf_class();
-//    test_LogLike();
-//    test_SpectrumFactory();
-//    fit_3C279();
-//    fit_anti_center();
-//    test_FitsImage();
-//    test_ExposureMap();
-//    test_SpatialMap();
-//    test_DiffuseSource();
-//    test_FunctionFactory();
-//    test_SourceFactory();
+   test_LogLike();
+   test_SpectrumFactory();
+   fit_3C279();
+   fit_anti_center();
+   test_FitsImage();
+   test_ExposureMap();
+   test_SpatialMap();
+   test_DiffuseSource();
+   test_FunctionFactory();
+   test_SourceFactory();
    fit_DiffuseSource();
    return 0;
 }
@@ -231,9 +231,9 @@ void fit_DiffuseSource() {
 //     logLike.computeEventResponses(*extragalactic);
 
 // by constructing a vector of the targeted DiffuseSources...
-//     std::vector<DiffuseSource> srcs;
-//     srcs.push_back(*ourGalaxy);
-//     srcs.push_back(*extragalactic);
+//     std::vector<DiffuseSource *> srcs;
+//     srcs.push_back(ourGalaxy);
+//     srcs.push_back(extragalactic);
 //     logLike.computeEventResponses(srcs);
 
 // or the default way, for all of the DiffuseSources in the SourceModel...
@@ -959,66 +959,66 @@ void test_LogLike() {
 }
 // LogLike tests
 
-/********************/
-/* Psf class tests */
-/********************/
-void test_Psf_class() {
+// /********************/
+// /* Psf class tests */
+// /********************/
+// void test_Psf_class() {
 
-   std::cout << "*** test_Psf_class ***" << std::endl;
+//    std::cout << "*** test_Psf_class ***" << std::endl;
 
-   Psf *psf = Psf::instance();
+//    Psf *psf = Psf::instance();
 
-   int nenergy = 10;
-   double emin = 30;
-   double emax = 3e4;
-   double estep = log(emax/emin)/(nenergy - 1);
+//    int nenergy = 10;
+//    double emin = 30;
+//    double emax = 3e4;
+//    double estep = log(emax/emin)/(nenergy - 1);
 
-   std::cout << "\nPoint Spread Function data:" << std::endl;
-   for (double inc = 0.; inc <= 70.; inc += 10.) {
-      for (int i = 0; i < nenergy; i++) {
-         double energy = emin*exp(estep*i);
-         std::cout << energy << "  ";
+//    std::cout << "\nPoint Spread Function data:" << std::endl;
+//    for (double inc = 0.; inc <= 70.; inc += 10.) {
+//       for (int i = 0; i < nenergy; i++) {
+//          double energy = emin*exp(estep*i);
+//          std::cout << energy << "  ";
 
-         std::vector<double> psf_params;
-         psf->fillPsfParams(energy, inc, psf_params);
-         std::cout << psf_params[0] << "  "
-                   << psf_params[1] << "  "
-                   << psf_params[2] << "\n";
-      }
-      std::cout << std::endl;
-   }
-   std::cout << "*** test_Psf_class: all tests completed ***\n" << std::endl;
+//          std::vector<double> psf_params;
+//          psf->fillPsfParams(energy, inc, psf_params);
+//          std::cout << psf_params[0] << "  "
+//                    << psf_params[1] << "  "
+//                    << psf_params[2] << "\n";
+//       }
+//       std::cout << std::endl;
+//    }
+//    std::cout << "*** test_Psf_class: all tests completed ***\n" << std::endl;
 
-} // Psf class tests
+// } // Psf class tests
 
-/********************/
-/* Aeff class tests */
-/********************/
-void test_Aeff_class() {
+// /********************/
+// /* Aeff class tests */
+// /********************/
+// void test_Aeff_class() {
 
-   std::cout << "*** test_Aeff_class ***" << std::endl;
+//    std::cout << "*** test_Aeff_class ***" << std::endl;
 
-   Aeff *aeff = Aeff::instance();
+//    Aeff *aeff = Aeff::instance();
 
-   int nenergy = 10;
-   double emin = 30;
-   double emax = 3e4;
-   double estep = log(emax/emin)/(nenergy - 1);
+//    int nenergy = 10;
+//    double emin = 30;
+//    double emax = 3e4;
+//    double estep = log(emax/emin)/(nenergy - 1);
 
-   std::cout << "\nEffective area data:" << std::endl;
-   for (int i = 0; i < nenergy; i++) {
-      double energy = emin*exp(estep*i);
-      std::cout << energy << "  ";
-      for (double inc = 0.; inc <= 70.; inc += 10.) {
-         std::cout << (*aeff)(energy, inc) << "  ";
-      }
-      std::cout << std::endl;
-   }
-   std::cout << std::endl;
+//    std::cout << "\nEffective area data:" << std::endl;
+//    for (int i = 0; i < nenergy; i++) {
+//       double energy = emin*exp(estep*i);
+//       std::cout << energy << "  ";
+//       for (double inc = 0.; inc <= 70.; inc += 10.) {
+//          std::cout << (*aeff)(energy, inc) << "  ";
+//       }
+//       std::cout << std::endl;
+//    }
+//    std::cout << std::endl;
 
-   std::cout << "*** test_Aeff_class: all tests completed ***\n" << std::endl;
+//    std::cout << "*** test_Aeff_class: all tests completed ***\n" << std::endl;
 
-} // Aeff class tests
+// } // Aeff class tests
 
 /***************************/
 /* PointSource class tests */
@@ -1310,22 +1310,22 @@ void read_SC_Response_data() {
    }
    test_path = root_path + "/src/test/";
 
-/* instantiate the Psf and read in its data */
-   Psf * psf = Psf::instance();
-   std::string psf_file = test_path + "CALDB/psf_lat.fits";
-   try {
-      psf->readPsfData(psf_file, Response::Combined);
-   } catch (Exception &eObj) {
-      std::cerr << eObj.what() << std::endl;
-      throw;
-   }
+// /* instantiate the Psf and read in its data */
+//    Psf * psf = Psf::instance();
+//    try {
+//       psf->readPsfData(psf_file, Response::Combined);
+//    } catch (Exception &eObj) {
+//       std::cerr << eObj.what() << std::endl;
+//       throw;
+//    }
 
-/* instantiate the Aeff and read in its data */
-   Aeff * aeff = Aeff::instance();
-   std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
-   aeff->readAeffData(aeff_file, Response::Combined);
+// /* instantiate the Aeff and read in its data */
+//    Aeff * aeff = Aeff::instance();
+//    aeff->readAeffData(aeff_file, Response::Combined);
 
 // Prepare the ResponseFunctions object.
+   std::string psf_file = test_path + "CALDB/psf_lat.fits";
+   std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
    std::map<unsigned int, latResponse::Irfs *> respPtrs;
 
    bool useCombined = true;

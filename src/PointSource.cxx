@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.27 2003/10/24 01:57:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.28 2003/10/24 05:39:40 jchiang Exp $
  */
 
 #include <vector>
@@ -16,11 +16,10 @@
 #include "latResponse/IPsf.h"
 #include "latResponse/IAeff.h"
 #include "latResponse/Irfs.h"
+#include "latResponse/../src/Glast25.h"
 
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/PointSource.h"
-#include "Likelihood/Psf.h"
-#include "Likelihood/Aeff.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/TrapQuad.h"
@@ -63,8 +62,9 @@ namespace {
       astro::SkyDir xAxis = scData->xAxis(time);
 
       Likelihood::RoiCuts *roiCuts = Likelihood::RoiCuts::instance();
-      std::vector<latResponse::AcceptanceCone> cones;
-      cones.push_back(roiCuts->extractionRegion());
+      std::vector<latResponse::AcceptanceCone *> cones;
+      cones.push_back(const_cast<latResponse::AcceptanceCone *>
+                      (&(roiCuts->extractionRegion())));
 
       double myEffArea = 0;
       std::map<unsigned int, latResponse::Irfs *>::iterator respIt
@@ -175,7 +175,6 @@ void PointSource::computeExposure(std::vector<double> &energies,
       s_haveStaticMembers = true;
    }
 
-   Aeff *aeff = Aeff::instance();
    ScData *scData = ScData::instance();
    RoiCuts *roiCuts = RoiCuts::instance();
 
@@ -209,7 +208,7 @@ void PointSource::computeExposure(std::vector<double> &energies,
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
       double inc = getSeparation(scData->vec[it].zAxis)*180/M_PI;
-      if (inc > Response::incMax()) includeInterval = false;
+      if (inc > latResponse::Glast25::incMax()) includeInterval = false;
 
 // Having checked for relevant constraints, add the exposure
 // contribution for each energy

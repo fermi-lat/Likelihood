@@ -3,17 +3,23 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.17 2003/07/21 22:14:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.18 2003/10/24 01:57:23 jchiang Exp $
  */
 
 #include <cassert>
 #include <iostream>
 #include <sstream>
 #include <utility>
+
+#include "latResponse/IPsf.h"
+#include "latResponse/IAeff.h"
+#include "latResponse/Irfs.h"
+#include "latResponse/../src/Glast25.h"
+
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Event.h"
-#include "Likelihood/Psf.h"
-#include "Likelihood/Aeff.h"
 #include "Likelihood/RoiCuts.h"
+#include "Likelihood/ScData.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/Exception.h"
@@ -28,6 +34,33 @@ namespace {
          return acos(mu);
       }
    }
+   double totalResponse(double energy, double time, 
+                        const astro::SkyDir &srcDir,
+                        const astro::SkyDir &appDir) {
+// This implementation neglects energy dispersion.
+      Likelihood::ResponseFunctions * respFuncs 
+         = Likelihood::ResponseFunctions::instance();
+      Likelihood::ScData * scData = Likelihood::ScData::instance();
+   
+      astro::SkyDir zAxis = scData->zAxis(time);
+      astro::SkyDir xAxis = scData->xAxis(time);
+
+      double myResponse = 0;
+      std::map<unsigned int, latResponse::Irfs *>::iterator respIt
+         = respFuncs->begin();
+      for ( ; respIt != respFuncs->end(); respIt++) {
+         
+         latResponse::IPsf *psf = respIt->second->psf();
+         latResponse::IAeff *aeff = respIt->second->aeff();
+
+         double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
+         double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
+         myResponse += psf_val*aeff_val;
+      }
+      return myResponse;
+   }
+
+
 }
 
 namespace Likelihood {
@@ -75,67 +108,8 @@ double Event::diffuseResponse(double,
    return 0;
 }
 
-void Event::computeResponse(DiffuseSource &src, double sr_radius) {
-   Psf *psf = Psf::instance();
-   Aeff *aeff = Aeff::instance();
-
-// Create the EquinoxRotation object for this Event.
-//   FitsImage::EquinoxRotation eqRot(m_appDir.ra(), m_appDir.dec());
-// The following instantiates the eqRot object to do the same rotation
-// as performed by my evt_exposr FTOOL
-   RoiCuts *roi_cuts = RoiCuts::instance();
-   astro::SkyDir roiCenter = roi_cuts->extractionRegion().center();
-   FitsImage::EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
-
-// Do this calculation assuming infinite energy resolution and thus
-// compute a single value.
-
-   int nmu = 70;
-   double mumin = cos(sr_radius*M_PI/180);
-   double mustep = (1. - mumin)/(nmu - 1.);
-   std::vector<double> mu;
-   for (int i = 0; i < nmu; i++) mu.push_back(mustep*i + mumin);
-
-   int nphi = 40;
-   double phistep = 2.*M_PI/(nphi - 1.);
-   std::vector<double> phi;
-   for (int i = 0; i < nphi; i++) phi.push_back(phistep*i);
-
-   std::vector<double> mu_integrand;
-   for (int i = 0; i < nmu; i++) {
-      std::vector<double> phi_integrand;
-      for (int j = 0; j < nphi; j++) {
-         astro::SkyDir srcDir;
-         getCelestialDir(phi[j], mu[i], eqRot, srcDir);
-// !!!need to canonicalize angular units for inputs to Psf!!!
-         double inc = m_scDir.SkyDir::difference(srcDir)*180/M_PI;
-         if (inc < Response::incMax()) {
-            double separation = m_appDir.SkyDir::difference(srcDir);
-            double psf_val = (*psf)(separation, m_energy, inc);
-            double aeff_val = (*aeff)(m_energy, inc);
-            double srcDist_val = src.spatialDist(srcDir);
-            phi_integrand.push_back(psf_val*aeff_val*srcDist_val);
-         } else {
-            phi_integrand.push_back(0);
-         }
-      }
-      TrapQuad phiQuad(phi, phi_integrand);
-      mu_integrand.push_back(phiQuad.integral());
-   }
-   TrapQuad muQuad(mu, mu_integrand);
-   diffuse_response diff_resp;
-   diff_resp.push_back(std::make_pair(m_energy, muQuad.integral()));
-
-//     std::cout << diff_resp[0].first << "  "
-//               << diff_resp[0].second << std::endl;
-
-   m_respDiffuseSrcs[src.getName()] = diff_resp;
-}
-
-void Event::computeResponse(std::vector<DiffuseSource> &srcs, 
+void Event::computeResponse(std::vector<DiffuseSource *> &srcs, 
                             double sr_radius) {
-   Psf *psf = Psf::instance();
-   Aeff *aeff = Aeff::instance();
 
 // Create the EquinoxRotation object for this Event.
 //   FitsImage::EquinoxRotation eqRot(m_appDir.ra(), m_appDir.dec());
@@ -167,15 +141,13 @@ void Event::computeResponse(std::vector<DiffuseSource> &srcs,
       for (int j = 0; j < nphi; j++) {
          astro::SkyDir srcDir;
          getCelestialDir(phi[j], mu[i], eqRot, srcDir);
-// !!!need to canonicalize angular units for inputs to Psf!!!
          double inc = m_scDir.SkyDir::difference(srcDir)*180/M_PI;
-         if (inc < Response::incMax()) {
-            double separation = m_appDir.SkyDir::difference(srcDir);
-            double psf_val = (*psf)(separation, m_energy, inc);
-            double aeff_val = (*aeff)(m_energy, inc);
+         if (inc < latResponse::Glast25::incMax()) {
+            double totalResp = ::totalResponse(m_energy, m_arrTime,
+                                               srcDir, m_appDir);
             for (unsigned int k = 0; k < srcs.size(); k++) {
-               double srcDist_val = srcs[k].spatialDist(srcDir);
-               phi_integrands[k].push_back(psf_val*aeff_val*srcDist_val);
+               double srcDist_val = srcs[k]->spatialDist(srcDir);
+               phi_integrands[k].push_back(totalResp*srcDist_val);
             }
          } else {
             for (unsigned int k = 0; k < srcs.size(); k++)
@@ -192,7 +164,7 @@ void Event::computeResponse(std::vector<DiffuseSource> &srcs,
       diffuse_response diff_resp;
       diff_resp.push_back(std::make_pair(m_energy, muQuad.integral()));
 
-      m_respDiffuseSrcs[srcs[k].getName()] = diff_resp;
+      m_respDiffuseSrcs[srcs[k]->getName()] = diff_resp;
    }
 }
 

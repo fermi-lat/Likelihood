@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.1 2003/10/14 22:35:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.2 2003/10/18 15:47:19 jchiang Exp $
  */
 
 #include <vector>
@@ -132,8 +132,8 @@ void LogLike::computeEventResponses(Source &src, double sr_radius) {
    std::cerr << "!" << std::endl;
 }
 
-void LogLike::computeEventResponses(std::vector<DiffuseSource> &srcs, 
-                                          double sr_radius) {
+void LogLike::computeEventResponses(std::vector<DiffuseSource *> &srcs, 
+                                    double sr_radius) {
    std::cerr << "Computing Event responses for the DiffuseSources";
    for (unsigned int i = 0; i < m_events.size(); i++) {
       if ((i % (m_events.size()/20)) == 0) std::cerr << ".";
@@ -143,12 +143,12 @@ void LogLike::computeEventResponses(std::vector<DiffuseSource> &srcs,
 }
 
 void LogLike::computeEventResponses(double sr_radius) {
-   std::vector<DiffuseSource> diffuse_srcs;
+   std::vector<DiffuseSource *> diffuse_srcs;
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (s_sources[i]->getType() == std::string("Diffuse")) {
          DiffuseSource *diffuse_src = 
             dynamic_cast<DiffuseSource *>(s_sources[i]);
-         diffuse_srcs.push_back(*diffuse_src);
+         diffuse_srcs.push_back(diffuse_src);
       }
    }
    computeEventResponses(diffuse_srcs, sr_radius);
@@ -158,7 +158,7 @@ void LogLike::computeEventResponses(double sr_radius) {
 //
 // read in the event data
 void LogLike::readEventData(const std::string &eventFile, 
-                                  const std::string &colnames, int hdu) {
+                            const std::string &colnames, int hdu) {
    m_eventFile = eventFile;
    m_eventHdu = hdu;
 //   m_eventData.add_columns(colnames);
