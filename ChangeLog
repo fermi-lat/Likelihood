@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  4 09:24:41 PDT 2003
+Likelihood/src
+
+Modified Files:
+	Mcmc.cxx 
+Log Message:
+add use CLHEP random number generator instead of system rand
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun  4 09:24:16 PDT 2003
 Likelihood/cmt
 
