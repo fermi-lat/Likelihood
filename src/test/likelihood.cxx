@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.13 2003/11/25 19:03:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.14 2003/12/04 00:32:17 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -79,14 +79,21 @@ int main(int iargc, char* argv[]) {
    std::string responseFuncs;
    params.getParam("Response_functions", responseFuncs);
    latResponse::IrfsFactory irfsFactory;
-   if (responseFuncs == "COMBINED") {
+   if (responseFuncs == "COMBINED_G25") {
       ResponseFunctions::addRespPtr(4, 
                                     irfsFactory.create("Glast25::Combined"));
-   } else if (responseFuncs == "FRONT/BACK") {
+   } else if (responseFuncs == "FRONT/BACK_G25") {
       ResponseFunctions::addRespPtr(2, irfsFactory.create("Glast25::Front"));
       ResponseFunctions::addRespPtr(3, irfsFactory.create("Glast25::Back"));
    } else if (responseFuncs == "TESTDC1") {
       ResponseFunctions::addRespPtr(1, irfsFactory.create("DC1::test"));
+   } else if (responseFuncs == "FRONT") {
+      ResponseFunctions::addRespPtr(5, irfsFactory.create("DC1::Front"));
+   } else if (responseFuncs == "BACK") {
+      ResponseFunctions::addRespPtr(6, irfsFactory.create("DC1::Back"));
+   } else if (responseFuncs == "FRONT/BACK") {
+      ResponseFunctions::addRespPtr(5, irfsFactory.create("DC1::Front"));
+      ResponseFunctions::addRespPtr(6, irfsFactory.create("DC1::Back"));
    }
 
 // Fill a FunctionFactory with Function object prototypes for source
