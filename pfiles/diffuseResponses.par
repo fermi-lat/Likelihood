@@ -4,3 +4,4 @@ Response_functions,s,hl,"FRONT/BACK",FRONT/BACK|FRONT|BACK|GLAST25,,"Response fu
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?
 Source_model_file,f,ql,"diffuse_model.xml",,,"Source model file"
 event_file,f,ql,"oneday_events_0000.fits",,,"Event file"
+ROI_cuts_file,f,ql,"RoiCuts.xml",,,"ROI cuts file"
