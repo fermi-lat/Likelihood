@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.21 2003/08/13 18:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.22 2003/10/02 19:08:06 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.21 2003/08/13 18:01:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.22 2003/10/02 19:08:06 jchiang Exp $
  */
 
 class Source {
@@ -58,9 +58,10 @@ public:
    typedef std::map<std::string, optimizers::Function *> FuncMap;
    FuncMap & getSrcFuncs() {return m_functions;}
 
-   virtual void setDir(double ra, double dec, bool updateExposure = true) = 0;
+   virtual void setDir(double ra, double dec, bool updateExposure=true,
+                       bool verbose=true) = 0;
    virtual void setDir(const astro::SkyDir &dir, 
-                       bool updateExposure = true) = 0;
+                       bool updateExposure=true, bool verbose=true) = 0;
 
    virtual void setSpectrum(optimizers::Function *) = 0;
                        

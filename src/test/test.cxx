@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.3 2004/02/21 04:18:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.4 2004/02/21 05:11:52 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -32,6 +32,7 @@
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
+#include "Likelihood/ScData.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceFactory.h"
@@ -145,6 +146,10 @@ public:
       return m_spatialModels[m_srcId[srcName]];
    }
 
+   const std::vector<std::string> & paramNames() const {
+      return m_paramNames;
+   }
+
    const std::vector<Parameter> & parameters(const std::string & srcName) {
       assert(m_srcId.count(srcName));
       return m_parameters[m_srcId[srcName]];
@@ -170,6 +175,7 @@ private:
    std::vector<std::string> m_srcTypes;
    std::vector<std::string> m_spatialModels;
 
+   std::vector<std::string> m_paramNames;
    std::vector< std::vector<Parameter> > m_parameters;
    void setParameters();
 
@@ -206,6 +212,10 @@ void SourceData::setParameters() {
    m_parameters[id].push_back(Parameter("Prefactor", 23.29, 1e-3, 1e3, true));
    m_parameters[id].push_back(Parameter("Index", -1.66, -1., -3.5, true));
    m_parameters[id].push_back(Parameter("Scale", 1e2, 30., 2e3, false));
+
+   m_paramNames.push_back("Prefactor");
+   m_paramNames.push_back("Index");
+   m_paramNames.push_back("Scale");
 }
 
 class LikelihoodTests {
@@ -227,6 +237,7 @@ public:
    void test_SourceFactory();
    void test_XmlBuilders();
    void test_SourceModel();
+   void test_PointSource();
 
 private:
 
@@ -318,6 +329,7 @@ void LikelihoodTests::test_RoiCuts() {
    ASSERT_EQUALS(my_ra, ra);
    ASSERT_EQUALS(my_dec, dec);
 
+   std::remove(xmlFile.c_str());
    std::cout << ".";
 }
 
@@ -334,10 +346,11 @@ void LikelihoodTests::test_SourceFactory() {
       Source::FuncMap srcFuncs = src->getSrcFuncs();
       assert(src->getType() == m_srcData.srcType(name));
       assert(srcFuncs.count("Spectrum"));
-      ASSERT_EQUALS(srcFuncs["Spectrum"]->getParamValue("Prefactor"),
-                    m_srcData.paramObject(name, "Prefactor").getValue());
-      ASSERT_EQUALS(srcFuncs["Spectrum"]->getParamValue("Index"), 
-                    m_srcData.paramObject(name, "Index").getValue());
+      const std::vector<std::string> & paramNames = m_srcData.paramNames();
+      for (unsigned int j = 0; j < paramNames.size(); j++) {
+         ASSERT_EQUALS(srcFuncs["Spectrum"]->getParamValue(paramNames[j]),
+                       m_srcData.paramObject(name, paramNames[j]).getValue());
+      }
       if (m_srcData.srcType(name) == "Diffuse") {
          assert(srcFuncs.count("SpatialDist"));
          assert(srcFuncs["SpatialDist"]->genericName() 
@@ -388,8 +401,8 @@ void LikelihoodTests::test_SourceModel() {
    }
 
 // Test the parameter values contained in srcModel.
-   char * paramNames[] = {"Prefactor", "Index", "Scale"};
    m_srcData.getSrcNames(srcNames);
+   const std::vector<std::string> & paramNames = m_srcData.paramNames();
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       std::string name = srcNames[i];
       for (unsigned int j = 0; j < 3; j++) {
@@ -431,6 +444,10 @@ void LikelihoodTests::test_SourceModel() {
    std::cout << ".";
 }
 
+void LikelihoodTests::test_PointSource() {
+   SourceFactory * srcFactory = srcFactoryInstance();
+}
+
 optimizers::FunctionFactory * LikelihoodTests::funcFactoryInstance() {
    if (m_funcFactory == 0) {
       m_funcFactory = new optimizers::FunctionFactory();
@@ -444,6 +461,9 @@ SourceFactory * LikelihoodTests::srcFactoryInstance() {
    if (m_srcFactory == 0) {
       RoiCuts * roiCuts = RoiCuts::instance();
       roiCuts->setCuts(m_roiFile);
+
+      std::string scFile = m_rootPath + "/data/oneday_scData_0000.fits";
+      ScData::readData(scFile, 2, true);
 
       ExposureMap::readExposureFile(m_expMapFile);
 
@@ -462,6 +482,7 @@ int main() {
    unit.test_SourceFactory();
    unit.test_XmlBuilders();
    unit.test_SourceModel();
+   unit.test_PointSource();
 
    std::cout << "all tests ok" << std::endl;
    return 1;
