@@ -6,7 +6,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "f2c.h"
+#include "f2c/f2c.h"
 
 /* BLAS REQUIRED BY LAPACK ROUTINE:  dpptri */
 /* ----------------------------------------------------------- */

@@ -1,9 +1,9 @@
 package Likelihood
-version v0r9p1
+version v0r9p2
 
 author James Chiang <jchiang@slac.stanford.edu>
 
-# $Id: requirements,v 1.21 2003/07/24 20:20:20 pln Exp $
+# $Id: requirements,v 1.22 2003/08/03 21:38:51 jchiang Exp $
 
 use astro  v*
 use latResponse v0*
