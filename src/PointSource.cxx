@@ -1,7 +1,8 @@
 /** @file PointSource.cxx
  * @brief PointSource class implementation
- *
- * $Header:
+ * @author J. Chiang
+ * 
+ * $Header$
  */
 
 #include <vector>
