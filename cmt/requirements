@@ -4,7 +4,7 @@ version v5r3p2
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.152 2004/11/11 20:24:45 jchiang Exp $
+# $Id: requirements,v 1.153 2004/11/13 15:53:38 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
@@ -19,7 +19,7 @@ use cppunit v1* IExternal
 use irfLoader v0* irfs
 use st_facilities v0*
 
-apply_pattern ST_library option="-no_share *.c "
+apply_pattern ST_library option="-no_share *.c -DHAVE_ST_GRAPH "
 apply_pattern ST_pfiles
 
 apply_pattern ST_app name=likelihood
