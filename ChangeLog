@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 10 12:21:56 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+add scoping: Parameter::OutOfBounds
+remove #ifdef HAVE_OPT* for Lbfgs and Minuit
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 10 12:21:13 PDT 2003
 Likelihood/src
 
