@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.15 2004/06/30 20:21:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.16 2004/08/13 17:15:27 jchiang Exp $
  */
 
 #include <vector>
@@ -154,6 +154,44 @@ double DiffuseSource::NpredDeriv(const std::string &paramName) {
       TrapQuad trapQuad(s_energies, myIntegrand);
       return trapQuad.integral();
    }
+}
+
+double DiffuseSource::Npred(double emin, double emax) {
+   if (emin < s_energies.front() || emax > s_energies.back()) {
+      throw std::out_of_range("DiffuseSource::Npred(emin, emax)");
+   }
+   std::vector<double>::iterator first 
+      = std::upper_bound(s_energies.begin(), s_energies.end(), emin);
+   std::vector<double>::iterator last 
+      = std::upper_bound(s_energies.begin(), s_energies.end(), emax);
+   std::vector<double> energies(last - first);
+   std::copy(first, last, energies.begin());
+   int begin_offset = first - s_energies.begin();
+   int end_offset = last - s_energies.begin();
+   energies.insert(energies.begin(), emin);
+   energies.push_back(emax);
+   std::vector<double> exposure(last - first);
+   std::copy(m_exposure.begin() + begin_offset,
+             m_exposure.begin() + end_offset,
+             exposure.begin());
+   double begin_exposure = (emin - s_energies[begin_offset - 1])
+      /(s_energies[begin_offset] - s_energies[begin_offset - 1])
+      *(m_exposure[begin_offset] - m_exposure[begin_offset - 1])
+      + m_exposure[begin_offset - 1];
+   double end_exposure = (emin - s_energies[end_offset - 1])
+      /(s_energies[end_offset] - s_energies[end_offset - 1])
+      *(m_exposure[end_offset] - m_exposure[end_offset - 1])
+      + m_exposure[end_offset - 1];
+   exposure.insert(exposure.begin(), begin_exposure);
+   exposure.push_back(end_exposure);
+   optimizers::Function & specFunc = *m_functions["Spectrum"];
+   std::vector<double> integrand(energies.size());
+   for (unsigned int k = 0; k < energies.size(); k++) {
+      optimizers::dArg eArg(energies[k]);
+      integrand[k] = specFunc(eArg)*exposure[k];
+   }
+   TrapQuad trapQuad(energies, integrand);
+   return trapQuad.integral();
 }
    
 void DiffuseSource::makeEnergyVector(int nee) {

@@ -47,7 +47,7 @@ libraries = {'xml': None,
                                   'lib', 'linux-3.2'))
              }
 
-cflags = ' -DHAVE_OPT_PP -DUSE_FT1 -rdynamic -O2 '
+cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
 linkflags = ' '
 rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'pthread', 'm', 'dl',
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'pil',
