@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.4 2004/09/22 05:39:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.5 2004/09/22 20:05:30 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -30,7 +30,8 @@ class BinnedLikelihood : public SourceModel {
 
 public:
 
-   BinnedLikelihood(const CountsMap & dataMap);
+   BinnedLikelihood(const CountsMap & dataMap, 
+                    const std::string & srcMapsFile="");
                  
    virtual ~BinnedLikelihood() throw() {}
 
@@ -52,12 +53,7 @@ public:
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true) {
       SourceModel::readXml(xmlFile, funcFactory, requireExposure);
-      setSourceMaps();
-   }
-
-   virtual void reReadXml(std::string xmlFile) {
-      SourceModel::reReadXml(xmlFile);
-      setSourceMaps();
+      createSourceMaps();
    }
 
    virtual CountsMap * createCountsMap() const;
@@ -65,6 +61,8 @@ public:
    const SourceMap * sourceMap(const std::string & name) const {
       return m_srcMaps.find(name)->second;
    }
+
+   void saveSourceMaps(std::string filename="") const;
 
    virtual std::vector<double>::const_iterator setParamValues_(
       std::vector<double>::const_iterator);
@@ -94,7 +92,12 @@ private:
    mutable std::vector<double> m_model;
    mutable bool m_modelIsCurrent;
 
-   void setSourceMaps();
+   std::string m_srcMapsFile;
+
+   void createSourceMaps();
+
+   /// Implement some rune-like tip arcana.
+   void setImageDimensions(tip::Image * image, long * dims) const;
 
 };
 

@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.6 2004/09/22 03:20:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.7 2004/09/22 05:39:57 jchiang Exp $
  */
 
 #include <algorithm>
@@ -205,24 +205,7 @@ void CountsMap::writeOutput(const std::string & creator,
    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
 
    tip::Header & header = output_image->getHeader();
-   header["CRPIX1"].set(m_crpix[0]);
-   header["CRPIX2"].set(m_crpix[1]);
-   header["CRPIX3"].set(m_crpix[2]);
-   header["CRVAL1"].set(m_crval[0]);
-   header["CRVAL2"].set(m_crval[1]);
-   header["CRVAL3"].set(m_crval[2]);
-   header["CDELT1"].set(m_cdelt[0]);
-   header["CDELT2"].set(m_cdelt[1]);
-   header["CDELT3"].set(m_cdelt[2]);
-   header["CROTA2"].set(m_axis_rot);
-   if (m_use_lb) {
-      header["CTYPE1"].set("GLON-" + m_proj_name);
-      header["CTYPE2"].set("GLAT-" + m_proj_name);
-   } else {
-      header["CTYPE1"].set(binners[0]->getName() + "---" + m_proj_name);
-      header["CTYPE2"].set(binners[1]->getName() + "---" + m_proj_name);
-   }
-   header["CTYPE3"].set(binners[2]->getName());
+   setKeywords(header);
 
 // Resize image dimensions to conform to the binner dimensions.
    for (DimCont_t::size_type index = 0; index != num_dims; ++index) {
@@ -237,6 +220,7 @@ void CountsMap::writeOutput(const std::string & creator,
              float_image.begin());
    output_image->set(float_image);
 
+   writeEbounds(out_file, binners[2]);
    writeGti(out_file);
 //    std::cout << "Done." << std::endl;
 }
@@ -266,6 +250,28 @@ void CountsMap::getAxisVector(int i, std::vector<double> & axisVector) const {
    }
    long j = binners[i]->getNumBins() - 1;
    axisVector.push_back(binners[i]->getInterval(j).end());
+}
+
+void CountsMap::setKeywords(tip::Header & header) const {
+   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
+   header["CRPIX1"].set(m_crpix[0]);
+   header["CRPIX2"].set(m_crpix[1]);
+   header["CRPIX3"].set(m_crpix[2]);
+   header["CRVAL1"].set(m_crval[0]);
+   header["CRVAL2"].set(m_crval[1]);
+   header["CRVAL3"].set(m_crval[2]);
+   header["CDELT1"].set(m_cdelt[0]);
+   header["CDELT2"].set(m_cdelt[1]);
+   header["CDELT3"].set(m_cdelt[2]);
+   header["CROTA2"].set(m_axis_rot);
+   if (m_use_lb) {
+      header["CTYPE1"].set("GLON-" + m_proj_name);
+      header["CTYPE2"].set("GLAT-" + m_proj_name);
+   } else {
+      header["CTYPE1"].set(binners[0]->getName() + "---" + m_proj_name);
+      header["CTYPE2"].set(binners[1]->getName() + "---" + m_proj_name);
+   }
+   header["CTYPE3"].set(binners[2]->getName());
 }
 
 void CountsMap::getPixels(std::vector<Pixel> & pixels) const {
