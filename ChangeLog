@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  3 20:15:29 PST 2003
+Likelihood/src
+
+Modified Files:
+	Event.cxx PointSource.cxx 
+Log Message:
+use conversion layer
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  3 20:15:28 PST 2003
 Likelihood/Likelihood
 
