@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Aug 16 21:11:21 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	RoiCuts.h 
+Log Message:
+xml support for ROI cuts
+    *
+------------------------------------------------------------
 User: jchiang  Fri Aug 15 18:12:26 PDT 2003
 Likelihood/src/test
 
