@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct  8 18:37:46 PDT 2004
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx SourceMap.cxx 
+Log Message:
+add gtsrcmaps app; more work on diffuse source maps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  8 18:37:45 PDT 2004
 Likelihood/cmt
 
