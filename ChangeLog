@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Oct 23 22:39:40 PDT 2003
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx ScData.cxx 
+Removed Files:
+	dgaus8.c 
+Log Message:
+somewhat working version using latResponse v1*
+    *
+------------------------------------------------------------
 User: jchiang  Thu Oct 23 22:39:39 PDT 2003
 Likelihood/cmt
 
