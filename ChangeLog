@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Apr 25 11:32:20 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+Add a working version of DiffuseSource
+    *
+------------------------------------------------------------
+User: jchiang  Fri Apr 25 11:32:20 PDT 2003
 Likelihood/src
 
 Modified Files:
