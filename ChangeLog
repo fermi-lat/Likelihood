@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 27 09:30:20 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+fix runtime bug in logLike_ptsrc.cxx
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 27 09:30:09 PDT 2003
 Likelihood/src
 
