@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon May 24 16:51:31 PDT 2004
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+more energy dispersion implementation
+    *
+------------------------------------------------------------
+User: jchiang  Mon May 24 16:51:31 PDT 2004
 Likelihood/src
 
 Modified Files:
