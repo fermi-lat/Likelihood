@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar  3 15:24:12 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h DiffuseSource.h Observation.h OptEM.h RoiCuts.h 
+	ScData.h 
+Log Message:
+more sensible use of const
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar  3 12:04:24 PST 2005
 Likelihood/src/test
 
