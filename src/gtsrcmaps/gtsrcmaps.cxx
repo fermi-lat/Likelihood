@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.15 2005/03/03 00:17:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.16 2005/03/05 18:37:55 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -62,6 +62,7 @@ public:
       }
    }
    virtual void run();
+   virtual void banner() const {}
 private:
    AppHelpers * m_helper;
    st_app::AppParGroup & m_pars;

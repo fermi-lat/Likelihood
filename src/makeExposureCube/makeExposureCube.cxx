@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.29 2005/03/05 18:37:55 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.30 2005/03/07 05:18:31 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.29 2005/03/05 18:37:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.30 2005/03/07 05:18:31 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -50,6 +50,7 @@ public:
       }
     }
    virtual void run();
+   virtual void banner() const {}
 private:
    st_app::AppParGroup & m_pars;
    Likelihood::LikeExposure * m_exposure;
