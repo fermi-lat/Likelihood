@@ -3,7 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
-    (ongoing)         JC   OptPP class, mainpage.h, update release.notes.
+    v0r6  25-Mar-03   JC   OptPP class, mainpage.h, update release.notes,
+                           [Source, Spectrum]Factory, DiffuseSource, and
+                           ExposureMap classes.
     v0r5  16-Mar-03   JC/  First attempt at a LAT-compliant version;
                       THB  Arg, Optimizer, CompositeFunction hierarchies;
                            logSrcModel, Npred, TrapQuad classes.
