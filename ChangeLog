@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Oct 22 20:57:18 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+restore conditional param read; tagging v5r1p3
+    *
+------------------------------------------------------------
+User: jchiang  Fri Oct 22 20:57:18 PDT 2004
 Likelihood/doc
 
 Modified Files:
