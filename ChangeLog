@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Dec  6 15:46:37 PST 2003
+Likelihood/src
+
+Modified Files:
+	RunParams.cxx mainpage.h 
+Log Message:
+argv fix; added Goodi-compliant data
+    *
+------------------------------------------------------------
 User: jchiang  Sat Dec  6 15:46:36 PST 2003
 Likelihood/doc
 
