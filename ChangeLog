@@ -1,4 +1,21 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 18 21:38:02 PDT 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h Arg.h CompositeFunction.h ConstantValue.h 
+	DiffuseSource.h Event.h EventArg.h ExposureMap.h FitsImage.h 
+	Function.h FunctionTest.h Lbfgs.h Mcmc.h Minuit.h Npred.h 
+	Optimizer.h OutOfBounds.h Parameter.h ParameterNotFound.h 
+	PointSource.h ProductFunction.h Psf.h Response.h RoiCuts.h 
+	ScData.h SkyDirArg.h SkyDirFunction.h Source.h SourceFactory.h 
+	SourceModel.h SpatialMap.h SpectrumFactory.h SrcArg.h 
+	Statistic.h SumFunction.h Table.h TrapQuad.h dArg.h 
+	logSrcModel.h 
+Log Message:
+make guarding #defines in .h files less common
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jul 18 09:21:24 PDT 2003
 Likelihood/src
 
