@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar  4 14:08:23 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h EventContainer.h LogLike.h Observation.h 
+	OneSourceFunc.h 
+Log Message:
+use EventContainer class
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar  3 23:07:12 PST 2005
 Likelihood/src
 
