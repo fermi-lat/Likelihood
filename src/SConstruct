@@ -44,7 +44,7 @@ libraries['newmat-linux'] = (os.path.join(OptPP_dir, 'newmat09'),
 cflags = ' -DHAVE_OPT_PP -rdynamic -O2 '
 #cflags = ' -DHAVE_OPT_PP -DHAVE_ST_GRAPH -rdynamic '
 linkflags = ' '
-rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 'm', 'dl',
+rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'Gui']
 Export(['package', 'home', 'apps', 'libraries', 'cflags',
         'linkflags', 'rootlibs'])
