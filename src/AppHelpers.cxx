@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.14 2004/12/08 00:31:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.15 2004/12/08 04:09:53 jchiang Exp $
  */
 
 #include <map>
@@ -16,6 +16,7 @@
 
 #include "st_facilities/Util.h"
 
+#include "dataSubselector/CutBase.h"
 #include "dataSubselector/Cuts.h"
 
 #include "Likelihood/ExposureMap.h"
@@ -115,8 +116,10 @@ void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
    }
 }
 
-void AppHelpers::checkCuts(const std::string & file1, const std::string ext1,
-                           const std::string & file2, const std::string ext2) {
+void AppHelpers::checkCuts(const std::string & file1,
+                           const std::string & ext1,
+                           const std::string & file2,
+                           const std::string & ext2) {
    dataSubselector::Cuts cuts1(file1, ext1, false);
    dataSubselector::Cuts cuts2(file2, ext2, false);
    if (!(cuts1 == cuts2)) {
@@ -132,6 +135,52 @@ void AppHelpers::checkCuts(const std::string & file1, const std::string ext1,
          message << "do not match those in " << file2;
          if (ext2 != "") message << "[" << ext2 << "] ";
          throw std::runtime_error(message.str());
+      }
+   }
+}
+
+void AppHelpers::checkTimeCuts(const std::string & file1,
+                               const std::string & ext1,
+                               const std::string & file2,
+                               const std::string & ext2) {
+   dataSubselector::Cuts cuts1(file1, ext1, false);
+   dataSubselector::Cuts cuts2(file2, ext2, false);
+// This is a bit fragile as one must assume the ordering of the 
+// cuts is the same for both Cuts objects.
+   std::vector<const dataSubselector::CutBase *> time_cuts1;
+   std::vector<const dataSubselector::CutBase *> time_cuts2;
+   gatherTimeCuts(cuts1, time_cuts1);
+   gatherTimeCuts(cuts2, time_cuts2);
+   bool ok(true);
+   if (time_cuts1.size() == time_cuts2.size()) {
+      for (unsigned int i = 0; i < time_cuts1.size(); i++) {
+         ok = ok && *(time_cuts1[i]) == *(time_cuts2[i]);
+      }
+   } else {
+      ok = false;
+   }
+   if (!ok) {
+      std::ostringstream message;
+      message << "AppHelpers::checkTimeCuts:\n" 
+              << "Time cuts in files " << file1;
+      if (ext1 != "") message << "[" << ext1 << "]";
+      message << " and " << file2;
+      if (ext2 != "") message << "[" << ext2 << "]";
+      message << " do not agree.";
+      throw std::runtime_error(message.str());
+   }                
+}
+
+void AppHelpers::
+gatherTimeCuts(dataSubselector::Cuts & cuts,
+               std::vector<const dataSubselector::CutBase *> time_cuts) {
+   for (unsigned int i = 0; i < cuts.size(); i++) {
+      if ( cuts[i].type() == "GTI" || 
+           (cuts[i].type() == "range" &&
+            dynamic_cast<dataSubselector::RangeCut &>(
+               const_cast<dataSubselector::CutBase &>(cuts[i])).colname() 
+            == "TIME") ) {
+         time_cuts.push_back(&cuts[i]);
       }
    }
 }

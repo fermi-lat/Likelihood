@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.13 2004/12/07 05:13:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.14 2004/12/08 00:31:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.13 2004/12/07 05:13:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.14 2004/12/08 00:31:14 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -82,10 +82,11 @@ void ExpMap::run() {
 void ExpMap::promptForParameters() {
    m_pars.Prompt("evfile");
    m_pars.Prompt("scfile");
-   m_pars.Prompt("ROI_file");
    m_pars.Prompt("exposure_cube_file");
+   AppHelpers::checkTimeCuts(m_pars["evfile"], "EVENTS",
+                             m_pars["exposure_cube_file"], "hypercube");
    m_pars.Prompt("outfile");
-   m_helper->checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
+   AppHelpers::checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
    m_pars.Prompt("rspfunc");
    m_pars.Prompt("source_region_radius");
    m_pars.Prompt("number_of_longitude_points");
