@@ -66,7 +66,7 @@ def fitStatistic():
     _3c279.setDir(ra0, dec0)
     _3c279.setName("3C 279")
 
-    logLike = Likelihood.logLike_ptsrc()
+    logLike = Likelihood.LogLike()
 
     logLike.addSource(ourGalaxy)
     logLike.addSource(extragalactic)

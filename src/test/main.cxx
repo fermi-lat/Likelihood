@@ -8,8 +8,8 @@
 
 //  include everything for the compiler to test
 
+#include "latResponse/../src/Table.h"
 #include "Likelihood/SourceModel.h" 
-#include "Likelihood/Table.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/PointSource.h"
@@ -1083,7 +1083,7 @@ void test_Event_class() {
 
 // read in the event data, then stuff them into an Event class vector
 
-   Table evt_table;
+   latResponse::Table evt_table;
 
 /* read in EVENT file */
    std::string event_file = test_path + "Data/one_src_0000";
@@ -1152,7 +1152,7 @@ void test_Event_class() {
 } // Event class tests
 
 /*********************/
-/* Table class tests */
+/* latResponse::Table class tests */
 /*********************/
 void test_Table_class() {
 
@@ -1161,7 +1161,7 @@ void test_Table_class() {
 /* read in PSF parameters */
    std::string psf_file = test_path + "CALDB/psf_lat.fits";
 
-   Table psf_data;
+   latResponse::Table psf_data;
       
    psf_data.add_columns("ENERGY THETA SIG1_F SIG2_F W");
    psf_data.read_FITS_table(psf_file, 2);
@@ -1187,7 +1187,7 @@ void test_Table_class() {
 /* read in AEFF parameters */
    std::string aeff_file = test_path + "CALDB/aeff_lat.fits";
 
-   Table aeff_data;
+   latResponse::Table aeff_data;
 
    aeff_data.add_columns("ENERGY THETA AEFF_F");
    aeff_data.read_FITS_table(aeff_file, 2);
@@ -1212,7 +1212,7 @@ void test_Table_class() {
 /* read in EVENT file */
    std::string event_file = test_path + "Data/one_src_0000";
 
-   Table event_data;
+   latResponse::Table event_data;
 
    event_data.add_columns("RA DEC energy time SC_x SC_y SC_z zenith_angle");
    event_data.read_FITS_table(event_file, 2);
@@ -1242,7 +1242,7 @@ void test_Table_class() {
 /* Spacecraft data file */
    std::string sc_file = test_path + "Data/one_src_sc_0000";
 
-   Table sc_data;
+   latResponse::Table sc_data;
 
    sc_data.add_columns("time SC_x SC_y SC_z SAA_flag");
    sc_data.read_FITS_table(sc_file, 2);
@@ -1269,7 +1269,7 @@ void test_Table_class() {
 
    std::cout << "*** test_Table_class: all tests completed ***\n" << std::endl;
 
-} // Table class tests
+} // latResponse::Table class tests
 
 /***************************/
 /* SourceModel class tests */

@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.1 2003/10/14 22:35:11 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -15,7 +15,10 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/Npred.h"
-#include "Likelihood/Table.h"
+
+namespace latResponse {
+   class Table;
+}
 
 namespace Likelihood {
 
@@ -27,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.1 2003/10/14 22:35:11 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -75,14 +78,14 @@ public:
 protected:
 
    /// Generalized column access
-   std::pair<long, double*> getColumn(const Table &tableData, 
+   std::pair<long, double*> getColumn(const latResponse::Table &tableData, 
                                       const std::string &colname) const
       throw(optimizers::Exception);
 
    /// Event data; read from m_eventFile, stored in Table form
    std::string m_eventFile;
    int m_eventHdu;
-   Table *m_eventData;
+   latResponse::Table *m_eventData;
 
 private:
 

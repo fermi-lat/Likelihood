@@ -3,6 +3,7 @@
 %{
 #include "astro/SkyDir.h"
 #include "optimizers/Parameter.h"
+#include "latResponse/../src/Table.h"
 #include "Likelihood/Response.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/Aeff.h"
@@ -24,7 +25,6 @@
 #include "Likelihood/SpatialMap.h"
 //#include "../Likelihood/SpectrumFactory.h"
 #include "Likelihood/SrcArg.h"
-#include "Likelihood/Table.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/Exception.h"
@@ -58,7 +58,6 @@ using optimizers::Parameter;
 %include ../Likelihood/SpatialMap.h
 //%include ../Likelihood/SpectrumFactory.h
 %include ../Likelihood/SrcArg.h
-%include ../Likelihood/Table.h
 %include ../Likelihood/TrapQuad.h
 %include ../Likelihood/ConstantValue.h
 %template(DoubleVector) std::vector<double>;

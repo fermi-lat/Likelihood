@@ -3,7 +3,7 @@
  * @brief Implementation for Response base class.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.17 2003/07/19 04:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Response.cxx,v 1.18 2003/07/21 22:14:58 jchiang Exp $
  */
 
 #include <vector>
@@ -11,8 +11,9 @@
 #include <cmath>
 #include <algorithm>
 
+#include "latResponse/../src/Table.h"
+
 #include "Likelihood/Response.h"
-#include "Likelihood/Table.h"
 #include "Likelihood/Exception.h"
 
 namespace Likelihood {

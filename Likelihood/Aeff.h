@@ -2,15 +2,16 @@
  * @file Aeff.h
  * @brief Interface definition for the LAT Effective Area class
  * @author J. Chiang
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.16 2003/07/19 04:38:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.17 2003/07/21 22:14:56 jchiang Exp $
  *
  */
 
 #ifndef Likelihood_Aeff_h
 #define Likelihood_Aeff_h
 
+#include "latResponse/../src/Table.h"
+
 #include "Likelihood/Response.h"
-#include "Likelihood/Table.h"
 #include "Likelihood/Exception.h"
 
 class astro::SkyDir;
@@ -24,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.16 2003/07/19 04:38:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Aeff.h,v 1.17 2003/07/21 22:14:56 jchiang Exp $
  */
 
 class Aeff : public Response {
@@ -62,7 +63,7 @@ private:
    //! effective area stored in straw-man CALDB format
    std::string m_aeffFile;
    int m_aeffHdu;
-   Table m_aeffData;
+   latResponse::Table m_aeffData;
 
    std::vector<double> m_energy;
    std::vector<double> m_theta;

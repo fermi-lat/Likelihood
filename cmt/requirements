@@ -1,14 +1,14 @@
 package Likelihood
-version v1r2p2
+version v1r3
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.34 2003/09/29 15:32:05 jchiang Exp $
+# $Id: requirements,v 1.35 2003/10/01 17:03:19 jchiang Exp $
 
 use xml
 use astro  v*
-#use latResponse v0*
+use latResponse v0*
 use optimizers v0*
 use cfitsio v1* IExternal
 use f2c v*
