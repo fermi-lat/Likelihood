@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 28 17:07:06 PST 2005
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+remove xml I/O from RoiCuts; begin refactoring Source hierarchy; use Observation class in applications
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 28 17:07:05 PST 2005
 Likelihood/src/meanPsf
 
