@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.21 2005/03/08 01:28:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.22 2005/03/08 06:22:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.21 2005/03/08 01:28:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.22 2005/03/08 06:22:07 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -66,7 +66,6 @@ private:
    std::vector<double> m_lonValues;
    std::vector<double> m_latValues;
    std::vector< std::vector<double> > m_tsMap;
-   PointSource m_testSrc;
    std::string m_coordSys;
    void readSrcModel();
    void readEventData();
@@ -87,53 +86,26 @@ private:
 st_app::StAppFactory<TsMap> myAppFactory("gttsmap");
 
 TsMap::TsMap() : st_app::StApp(), m_helper(0), 
-                 m_pars(st_app::StApp::getParGroup("gttsmap")), m_opt(0) {
-   try {
-      m_pars.Prompt();
-      m_pars.Save();
-      m_helper = new AppHelpers(m_pars);
-      std::string expCubeFile = m_pars["exposure_cube_file"];
-      m_helper->observation().expCube().readExposureCube(expCubeFile);
-      m_helper->readScData();
-      m_testSrc = PointSource(0, 0., m_helper->observation());
-      setPointSourceSpectrum(m_testSrc);
-      m_testSrc.setName("testSource");
-      m_logLike = new LogLike(m_helper->observation());
-   } catch (std::exception &eObj) {
-      std::cout << eObj.what() << std::endl;
-      std::exit(1);
-   }  catch (...) {
-      std::cerr << "Caught unknown exception in TsMap constructor."
-                << std::endl;
-      std::exit(1);
-   }
-}
+                 m_pars(st_app::StApp::getParGroup("gttsmap")),
+                 m_logLike(0), m_opt(0) {}
 
 void TsMap::run() {
+   m_pars.Prompt();
+   m_pars.Save();
+
+   int chatter = m_pars["chatter"];
+   Likelihood::Verbosity::instance(chatter);
+
+   m_helper = new AppHelpers(m_pars);
    m_helper->checkOutputFile();
-   if (m_pars["use_lb"]) {
+   bool use_lb = m_pars["use_lb"];
+   if (use_lb) {
       m_coordSys = "GAL";
    } else {
       m_coordSys = "CEL";
    }
-   int chatter = m_pars["chatter"];
-   Likelihood::Verbosity::instance(chatter);
-   m_helper->readExposureMap();
-   readSrcModel();
-   readEventData();
-   selectOptimizer();
-   setGrid();
-   computeMap();
-   writeFitsFile(m_pars["outfile"], m_lonValues, m_latValues,
-                 m_tsMap, m_coordSys);
-}
-
-void TsMap::readSrcModel() {
-   st_facilities::Util::file_ok(m_pars["source_model_file"]);
-   m_logLike->readXml(m_pars["source_model_file"], m_helper->funcFactory());
-}   
-
-void TsMap::readEventData() {
+   std::string expCubeFile = m_pars["exposure_cube_file"];
+   m_helper->observation().expCube().readExposureCube(expCubeFile);
    st_facilities::Util::file_ok(m_pars["evfile"]);
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], m_eventFiles);
    for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
@@ -141,13 +113,34 @@ void TsMap::readEventData() {
                             m_eventFiles[i], "EVENTS");
    }
    m_helper->setRoi(m_eventFiles[0]);
+   m_helper->readScData();
+   m_helper->readExposureMap();
+
+   m_logLike = new LogLike(m_helper->observation());
+   readEventData();
+   readSrcModel();
+
+   selectOptimizer();
+   setGrid();
+
+   computeMap();
+   writeFitsFile(m_pars["outfile"], m_lonValues, m_latValues,
+                 m_tsMap, m_coordSys);
+}
+
+void TsMap::readEventData() {
    std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
    for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
       m_helper->observation().eventCont().getEvents(*evIt);
    }
-   m_logLike->computeEventResponses();
 }
+
+void TsMap::readSrcModel() {
+   st_facilities::Util::file_ok(m_pars["source_model_file"]);
+   m_logLike->readXml(m_pars["source_model_file"], m_helper->funcFactory());
+   m_logLike->computeEventResponses();
+}   
 
 void TsMap::selectOptimizer() {
    std::string optimizer = m_pars["optimizer"];
@@ -175,14 +168,20 @@ void TsMap::setGrid() {
 }
 
 void TsMap::computeMap() {
-   optimizers::dArg dummy(1.);
-      
+   PointSource testSrc(0, 0., m_helper->observation());
+   setPointSourceSpectrum(testSrc);
+   testSrc.setName("testSource");
+
    int verbosity = m_pars["chatter"];
    verbosity -= 2;
    double tol = m_pars["fit_tolerance"];
-//    m_opt->find_min(verbosity, tol);
-//    double logLike0 = (*m_logLike)(dummy);
-   double logLike0 = 0;
+   double logLike0;
+   try {
+      m_opt->find_min(verbosity, tol);
+      logLike0 = m_logLike->value();
+   } catch (...) {
+      logLike0 = 0;
+   }
    bool computeExposure(true);
 
    for (unsigned int jj = 0; jj < m_latValues.size(); jj++) {
@@ -191,20 +190,21 @@ void TsMap::computeMap() {
       }
       for (unsigned int ii = 0; ii < m_lonValues.size(); ii++) {
          if (m_coordSys == "CEL") {
-            m_testSrc.setDir(m_lonValues[ii], m_latValues[jj], 
-                             computeExposure, false);
+            testSrc.setDir(m_lonValues[ii], m_latValues[jj], 
+                           computeExposure, false);
          } else if (m_coordSys == "GAL") {
-            m_testSrc.setGalDir(m_lonValues[ii], m_latValues[jj], 
-                                computeExposure, false);
+            testSrc.setGalDir(m_lonValues[ii], m_latValues[jj], 
+                              computeExposure, false);
          } else {
             throw std::invalid_argument("Invalid coordinate system: "
                                         + m_coordSys);
          }
-         m_logLike->addSource(&m_testSrc);
+         m_logLike->addSource(&testSrc);
          try {
             m_opt->find_min(verbosity, tol);
-            m_tsMap[jj].push_back(2.*((*m_logLike)(dummy) - logLike0));
-         } catch (optimizers::Exception &) {
+            m_tsMap[jj].push_back(2.*(m_logLike->value() - logLike0));
+         } catch (optimizers::Exception &eObj) {
+            std::cerr << eObj.what() << std::endl;
             // Default null value.
             m_tsMap[jj].push_back(0);
          }
@@ -215,7 +215,7 @@ void TsMap::computeMap() {
                       << m_helper->observation().eventCont().events().size() 
                       << std::endl;
          }
-         m_logLike->deleteSource(m_testSrc.getName());
+         m_logLike->deleteSource(testSrc.getName());
       }
    }
    if (Likelihood::print_output()) std::cerr << "!" << std::endl;
