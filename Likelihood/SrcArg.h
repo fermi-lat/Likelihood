@@ -6,8 +6,8 @@
 #ifndef SrcArg_h
 #define SrcArg_h
 
-#include "../Likelihood/Arg.h"
-#include "../Likelihood/Source.h"
+#include "Likelihood/Arg.h"
+#include "Likelihood/Source.h"
 
 namespace Likelihood {
 
@@ -18,7 +18,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header:$ */
 
 class SrcArg : public Arg {
     

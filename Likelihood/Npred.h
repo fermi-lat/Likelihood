@@ -6,9 +6,9 @@
 #ifndef Npred_h
 #define Npred_h
 
-#include "../Likelihood/Function.h"
-#include "../Likelihood/Source.h"
-#include "../Likelihood/SrcArg.h"
+#include "Likelihood/Function.h"
+#include "Likelihood/Source.h"
+#include "Likelihood/SrcArg.h"
 
 namespace Likelihood {
 

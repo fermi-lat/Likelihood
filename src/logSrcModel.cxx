@@ -1,11 +1,11 @@
 /** @file logSrcModel.cxx
  * @brief logSrcModel class implementation
  *
- * $Header:
+ * $Header:$
  */
 
 #include <cmath>
-#include "../Likelihood/logSrcModel.h"
+#include "Likelihood/logSrcModel.h"
 
 namespace Likelihood {
 

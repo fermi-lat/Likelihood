@@ -2,7 +2,7 @@
 #include <string>
 #include <cmath>
 
-#include "../Likelihood/Psf.h"
+#include "Likelihood/Psf.h"
 
 namespace Likelihood {
 

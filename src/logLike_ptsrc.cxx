@@ -1,7 +1,7 @@
 /** @file logLike_ptsrc.cxx
  * @brief logLike_ptsrc class implementation
  *
- * $Header:
+ * $Header:$
  */
 
 #include <vector>
@@ -9,10 +9,10 @@
 #include <cmath>
 #include <cassert>
 #include "logLike_ptsrc.h"
-#include "../Likelihood/Npred.h"
-#include "../Likelihood/logSrcModel.h"
-#include "../Likelihood/EventArg.h"
-#include "../Likelihood/SrcArg.h"
+#include "Likelihood/Npred.h"
+#include "Likelihood/logSrcModel.h"
+#include "Likelihood/EventArg.h"
+#include "Likelihood/SrcArg.h"
 
 namespace Likelihood {
 

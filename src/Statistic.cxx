@@ -1,16 +1,16 @@
 /** @file Statistic.cxx
  * @brief Statistic class implementation
  *
- * $Header:
+ * $Header:$
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
 #include <cassert>
-#include "../Likelihood/Statistic.h"
+#include "Likelihood/Statistic.h"
 
-#include "../Likelihood/Table.h"
+#include "Likelihood/Table.h"
 
 namespace Likelihood {
 

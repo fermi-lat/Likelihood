@@ -3,7 +3,7 @@
 
 #include "astro/SkyDir.h"
 #include "Response.h"
-#include "../Likelihood/Table.h"
+#include "Likelihood/Table.h"
 
 namespace Likelihood {
 
@@ -14,7 +14,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header:$
  */
 
 class Psf : public Response {

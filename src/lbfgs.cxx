@@ -1,7 +1,7 @@
 /** @file lbfgs.cxx
  * @brief lbfgs class implementation
  *
- * $Header:
+ * $Header:$
  */
 
 #include <vector>
@@ -11,7 +11,7 @@
 //                             long (*func)(long *, double *, double *, double *), 
 //                             long *iprint, long *ncall);
 
-#include "../Likelihood/Parameter.h"
+#include "Likelihood/Parameter.h"
 #include "lbfgs.h"
 
 namespace Likelihood {

@@ -1,6 +1,6 @@
 /** @file Parameter.h
  * @brief Declaration of Parameter class
- * $Header:
+ * $Header:$
  */
 
 #ifndef Parameter_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.3 2003/02/27 18:47:43 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Parameter.h,v 1.4 2003/03/11 22:01:15 jchiang Exp $ */
 
 class Parameter {
     

@@ -9,8 +9,8 @@
 #include <vector>
 #include <string>
 
-#include "../Likelihood/SourceModel.h"
-#include "../Likelihood/EventArg.h"
+#include "Likelihood/SourceModel.h"
+#include "Likelihood/EventArg.h"
 
 namespace Likelihood {
 
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header:$ */
 
 class logSrcModel : public SourceModel {
     

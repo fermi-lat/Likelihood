@@ -9,20 +9,20 @@
 //  #include "SpectralFilter.h"
 //  #include "Spectrum.h"
 
-#include "../Likelihood/Parameter.h"
-#include "../Likelihood/Function.h"
-#include "../Likelihood/SourceModel.h" 
-#include "../Likelihood/Table.h"
-#include "../Likelihood/Statistic.h"
-#include "../Likelihood/Event.h"
-#include "../Likelihood/Source.h"
-#include "../Likelihood/PointSource.h"
-#include "../Likelihood/Response.h"
-#include "../Likelihood/Aeff.h"
-#include "../Likelihood/Psf.h"
-#include "../Likelihood/ScData.h"
-#include "../Likelihood/RoiCuts.h"
-#include "../Likelihood/dArg.h"
+#include "Likelihood/Parameter.h"
+#include "Likelihood/Function.h"
+#include "Likelihood/SourceModel.h" 
+#include "Likelihood/Table.h"
+#include "Likelihood/Statistic.h"
+#include "Likelihood/Event.h"
+#include "Likelihood/Source.h"
+#include "Likelihood/PointSource.h"
+#include "Likelihood/Response.h"
+#include "Likelihood/Aeff.h"
+#include "Likelihood/Psf.h"
+#include "Likelihood/ScData.h"
+#include "Likelihood/RoiCuts.h"
+#include "Likelihood/dArg.h"
 #include "lbfgs.h"
 #include "logLike_gauss.h"
 #include "logLike_ptsrc.h"
@@ -849,9 +849,9 @@ void test_PowerLaw_class() {
 /* reset the parameters and compute some values */
    pl.setParam("Prefactor", 2.);
    pl.setParam("Index", -2.2);
-   for (double x = 1.05; x < 1e3; x *= x) {
-      dArg xarg(x);
-      std::cout << x << "   " << pl(xarg) << std::endl;
+   for (double xx = 1.05; xx < 1e3; xx *= xx) {
+      dArg xarg(xx);
+      std::cout << xx << "   " << pl(xarg) << std::endl;
    }
 
 /* get the derivatives and compare to numerical estimates */
@@ -953,7 +953,7 @@ void test_Function_class() {
    f.setParam(std::string("Mary"), 2.);
    f.setParam(std::string("Jane"), 3e-5);
 
-   std::vector<string> my_paramNames;
+   std::vector<std::string> my_paramNames;
    f.getParamNames(my_paramNames);
       
    std::cout << "Here they are: " << std::endl;
@@ -977,10 +977,10 @@ void test_Function_class() {
    f.setParamValues(inputVec);
 
 /* change the value of an existing parameter */
-   f.setParam(string("Ruthie"), 10.);
+   f.setParam(std::string("Ruthie"), 10.);
 
 /* attempt to change the value of a non-existing parameter */
-   f.setParam(string("Oscar"), 5.);
+   f.setParam(std::string("Oscar"), 5.);
       
    std::cout << "The current set of values: " << std::endl;
    std::vector<double> my_params;
@@ -1007,13 +1007,13 @@ void test_Function_class() {
    std::cout << std::endl;
 
 /* test of pointers to Parameter */
-   Parameter *ptrP = f.getParam(string("Mary"));
+   Parameter *ptrP = f.getParam(std::string("Mary"));
    if (ptrP != NULL) {
       std::cout << ptrP->getName() << ":  " 
                 << ptrP->getValue() << std::endl;
    }
       
-   ptrP = f.getParam(string("Joan"));
+   ptrP = f.getParam(std::string("Joan"));
    if (ptrP != NULL) {
       std::cout << ptrP->getName() << ":  " 
                 << ptrP->getValue() << "\n" << std::endl;
@@ -1075,7 +1075,7 @@ void read_SC_Response_data() {
 /* get root path to test data */   
    const char * root = ::getenv("LIKELIHOODROOT");
    if (!root) {  //use relative path from cmt directory
-      test_path = "../src/test/";
+      test_path = "src/test/";
    } else {
       test_path = std::string(root) + "/src/test/";
    }

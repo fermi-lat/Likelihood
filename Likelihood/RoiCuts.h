@@ -6,8 +6,8 @@
 #include <utility>
 #include <cmath>
 #include "astro/SkyDir.h"
-#include "../Likelihood/Event.h"
-#include "../Likelihood/ScData.h"
+#include "Likelihood/Event.h"
+#include "Likelihood/ScData.h"
 
 namespace Likelihood {
 
@@ -18,7 +18,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: */
+ * $Header:$ */
 
 class RoiCuts {
 
@@ -33,10 +33,10 @@ public:
       {tLimVec = m_tLimVec;}
 
    std::pair<double, double> getEnergyCuts() const
-      {return make_pair(m_eMin, m_eMax);}
+   {return std::make_pair(m_eMin, m_eMax);}
 
    std::pair<astro::SkyDir, double> getExtractionRegion() const
-      {return make_pair(m_roiCenter, m_roiRadius);}
+   {return std::make_pair(m_roiCenter, m_roiRadius);}
 
    double getMuZenMax() {return m_muZenMax;}
 

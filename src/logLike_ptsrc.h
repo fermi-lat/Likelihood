@@ -6,12 +6,12 @@
 #ifndef logLike_ptsrc_h
 #define logLike_ptsrc_h
 
-#include "../Likelihood/Event.h"
-#include "../Likelihood/Statistic.h"
-#include "../Likelihood/RoiCuts.h"
-#include "../Likelihood/PointSource.h"
-#include "../Likelihood/logSrcModel.h"
-#include "../Likelihood/Npred.h"
+#include "Likelihood/Event.h"
+#include "Likelihood/Statistic.h"
+#include "Likelihood/RoiCuts.h"
+#include "Likelihood/PointSource.h"
+#include "Likelihood/logSrcModel.h"
+#include "Likelihood/Npred.h"
 
 namespace Likelihood {
 
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: 
+ * $Header:$
  */
 
 class logLike_ptsrc : public Statistic {

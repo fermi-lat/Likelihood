@@ -1,8 +1,8 @@
 #ifndef lbfgs_h
 #define lbfgs_h
 
-#include "../Likelihood/Optimizer.h"
-#include "../Likelihood/Statistic.h"
+#include "Likelihood/Optimizer.h"
+#include "Likelihood/Statistic.h"
 
 namespace Likelihood {
 
@@ -15,7 +15,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header:$
  */
 
 class lbfgs : public Optimizer {

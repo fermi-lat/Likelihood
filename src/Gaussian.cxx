@@ -1,7 +1,9 @@
 #include <vector>
 #include <string>
 #include <cmath>
-#include "../Likelihood/dArg.h"
+#include <iostream>
+
+#include "Likelihood/dArg.h"
 #include "Gaussian.h"
 
 namespace Likelihood {
@@ -15,9 +17,9 @@ void Gaussian::m_init(double Prefactor, double Mean, double Sigma) {
    int nParams = 3;
    setMaxNumParams(nParams);
 
-   addParam(string("Prefactor"), Prefactor, true);
-   addParam(string("Mean"), Mean, true);
-   addParam(string("Sigma"), Sigma, true);
+   addParam(std::string("Prefactor"), Prefactor, true);
+   addParam(std::string("Mean"), Mean, true);
+   addParam(std::string("Sigma"), Sigma, true);
 }
 
 double Gaussian::integral(Arg &xargmin, Arg &xargmax) const {

@@ -1,5 +1,7 @@
-#include "../Likelihood/TrapQuad.h"
-#include "../Likelihood/dArg.h"
+#include "Likelihood/TrapQuad.h"
+#include "Likelihood/dArg.h"
+
+#include <iostream>
 
 namespace Likelihood {
 

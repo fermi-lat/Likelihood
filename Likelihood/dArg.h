@@ -6,7 +6,7 @@
 #ifndef dArg_h
 #define dArg_h
 
-#include "../Likelihood/Arg.h"
+#include "Likelihood/Arg.h"
 
 namespace Likelihood {
 
@@ -17,7 +17,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: */
+ * $Header:$ */
 
 class dArg : public Arg{
     

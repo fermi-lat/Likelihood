@@ -1,11 +1,11 @@
 #ifndef PointSource_h
 #define PointSource_h
 
-#include "../Likelihood/Source.h"
-#include "../Likelihood/Function.h"
-#include "../Likelihood/SkyDirFunction.h"
-#include "../Likelihood/Event.h"
-#include "../Likelihood/Arg.h"
+#include "Likelihood/Source.h"
+#include "Likelihood/Function.h"
+#include "Likelihood/SkyDirFunction.h"
+#include "Likelihood/Event.h"
+#include "Likelihood/Arg.h"
 
 namespace Likelihood {
 
@@ -16,7 +16,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header:
+ * $Header:$
  */
 
 class PointSource : public Source {

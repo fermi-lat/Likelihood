@@ -9,8 +9,8 @@
 #include <vector>
 #include <string>
 
-#include "../Likelihood/Parameter.h"
-#include "../Likelihood/Arg.h"
+#include "Likelihood/Parameter.h"
+#include "Likelihood/Arg.h"
 
 namespace Likelihood {
 
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang, P. Nolan, T. Burnett 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.6 2003/03/06 01:25:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Function.h,v 1.7 2003/03/11 22:01:15 jchiang Exp $
  */
 
 class Function {
