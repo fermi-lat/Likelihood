@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 22 16:39:32 PST 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Event.cxx LogLike.cxx ResponseFunctions.cxx 
+	pyLike.in 
+Log Message:
+prepend IRF name to diffuse response column name
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 22 16:39:30 PST 2005
 Likelihood/Likelihood
 
