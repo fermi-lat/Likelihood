@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.  Use CppUnit-like idioms.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.7 2004/02/24 05:54:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.8 2004/02/27 02:14:44 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -494,6 +494,10 @@ void LikelihoodTests::test_PointSource() {
 //       + "/data/single_src_g25_events_0000.fits";
 //    std::string scDataFile = m_rootPath 
 //       + "/data/single_src_g25_scData_0000.fits";
+
+   tearDown();
+   setUp();
+
    std::vector<Event> events;
    readEventData(eventFile, scDataFile, events);
 
@@ -512,13 +516,14 @@ void LikelihoodTests::test_PointSource() {
    std::cout << Nobs << "  "
              << src->Npred() << std::endl;
 
-// Consider the observation each of the first twenty days, resetting
-// the ROI accordingly and force the PointSource exposure to be
-// recomputed for each interval.
+// Consider the observation over two-day intervals over the first
+// twenty days, resetting the ROI accordingly and force the
+// PointSource exposure to be recomputed for each interval.
    double chi2 = 0;
-   for (int j = 0; j < 20; j++) {
-      double tmin = j*8.64e4;
-      double tmax = tmin + 8.64e4;
+   double tstep = 2.*8.64e4;
+   for (int j = 0; j < 10; j++) {
+      double tmin = j*tstep;
+      double tmax = tmin + tstep;
       RoiCuts::setCuts(86.4, 28.9, 25., 30., 3.16e5, tmin, tmax, -1.);
 
       src->setDir(83.57, 22.01, true, false);
@@ -540,7 +545,7 @@ void LikelihoodTests::test_PointSource() {
 
 void LikelihoodTests::test_DiffuseSource() {
    std::string eventFile = m_rootPath + "/data/galdiffuse_events_0000.fits";
-   std::string scDataFile = m_rootPath + "/data/galdiffuse_scData_0000.fits";
+   std::string scDataFile = m_rootPath + "/data/single_src_scData_0000.fits";
 //    std::string eventFile 
 //       = m_rootPath + "/data/galdiffuse_g25_events_0000.fits";
 //    std::string scDataFile 
@@ -549,24 +554,34 @@ void LikelihoodTests::test_DiffuseSource() {
    std::vector<Event> events;
    readEventData(eventFile, scDataFile, events);
 
+   astro::SkyDir anticenter(180., 0., astro::SkyDir::GALACTIC);
+
    double chi2 = 0;
-   for (int i = 0; i < 10; i++) {
+   for (int i = 0; i < 5; i++) {
       tearDown();
       setUp();
+
+      double tstep = 0.1*8.64e4;
+      double tmin = i*tstep;
+      double tmax = tmin + tstep;
+      RoiCuts::setCuts(anticenter.ra(), anticenter.dec(), 20.,
+                       30., 3.1623e5, tmin, tmax);
+
+      std::ostringstream roiFile;
+      roiFile << m_rootPath << "/data/RoiCuts_" << i << ".xml";
+
+      RoiCuts * roiCuts = RoiCuts::instance();
+
+      roiCuts->writeXml(roiFile.str(), "Anticenter region");
 
       std::ostringstream expMapFile;
       expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
                  
-      std::ostringstream roiFile;
-      roiFile << m_rootPath << "/data/RoiCuts_" << i << ".xml";
-
       SourceFactory * srcFactory 
          = srcFactoryInstance(roiFile.str(), scDataFile, expMapFile.str());
 
       Source * src = srcFactory->create("Galactic Diffuse");
       
-      RoiCuts * roiCuts = RoiCuts::instance();
-
       double Nobs = 0;
       for (unsigned int j = 0; j < events.size(); j++) {
          if (roiCuts->accept(events[j])) {
@@ -578,6 +593,8 @@ void LikelihoodTests::test_DiffuseSource() {
       std::cout << i << "  " 
                 << Nobs << "  "
                 << Npred << std::endl;
+
+      std::remove(roiFile.str().c_str());
    }
    std::cout << "chi^2 = " << chi2 << std::endl;
 }
@@ -669,10 +686,8 @@ int main() {
    unit.test_XmlBuilders();
    unit.test_SourceModel();
    unit.test_SourceDerivs();
-//    unit.tearDown();
-//    unit.setUp();
-//    unit.test_PointSource();
-//    unit.test_DiffuseSource();
+   unit.test_PointSource();
+   unit.test_DiffuseSource();
 
    std::cout << "all tests ok" << std::endl;
    return 1;
