@@ -9,9 +9,9 @@
 
 #include "Likelihood/Optimizer.h"
 #include "Likelihood/Statistic.h"
-#include "Likelihood/cfortran.h"
+//#include "Likelihood/cfortran.h"
 //#include "Likelihood/minuitfcn.h"
-#include "Likelihood/minuit.h"
+//#include "Likelihood/minuit.h"
 
 typedef long int logical;  // Copied from f2c.h
 typedef short ftnlen;
@@ -38,8 +38,8 @@ public:
   void find_min(int verbose = 0, double tol = 1e-3);
 
   void setMaxEval(int);
-  int getQuality(void) const;
-  double getDistance(void) const;
+  int getQuality(void) const; 
+  double getDistance(void) const; 
   std::vector<double> & getUncertainty(void) const;
   
   enum MinuitQuality {MINUIT_NOTCALC, MINUIT_DIAG, MINUIT_FORCEDPOS, 
@@ -60,7 +60,7 @@ public:
 } // namespace Likelihood
 
 extern "C" {
-  void mninit_(int*, int*, int*);
+  void mninit_(const int*, const int*, const int*);
   void mnparm_( int *  num , const char * chnam, double * stval, 
 	        double * step,  double * bnd1 , 
 	        double * bnd2, int * ierror, ftnlen stringlen);
