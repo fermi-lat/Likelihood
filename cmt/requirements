@@ -1,9 +1,9 @@
 package Likelihood
-version v0r6
+version v0r7
 
 author James Chiang <jchiang@slac.stanford.edu>
 
-# $Id: requirements,v 1.8 2003/04/25 18:32:19 jchiang Exp $
+# $Id: requirements,v 1.9 2003/04/25 21:33:39 jchiang Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
@@ -19,8 +19,6 @@ apply_pattern package_linkopts
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx
-
-#macro_append cpplinkflags "" Linux "-lg2c "
 
 # test application
 application test_Likelihood test/*.cxx
