@@ -16,10 +16,9 @@ query_for_refit,b,a,no,,,Allow for refitting?
 #
 # unbinned
 #
-scfile,f,a,"oneday_scData_0000.fits",,,"Spacecraft file"
 evfile,f,a,"test_events_0000.fits",,,"Event file"
+scfile,f,a,"oneday_scData_0000.fits",,,"Spacecraft file"
 exposure_map_file,f,a,"none",,,"Exposure file"
-ROI_file,f,a,"Roi.xml",,,"ROI file"
 plot,b,h,no,,,"Plot unbinned counts spectra?"
 #
 # binned
