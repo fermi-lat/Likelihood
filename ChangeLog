@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 16:17:14 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h ExposureCube.h 
+Log Message:
+convert ExposureCube to proper class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 14:55:04 PST 2005
 Likelihood/src
 
