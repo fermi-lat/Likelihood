@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 24 19:13:50 PDT 2003
+Likelihood/src
+
+Modified Files:
+	SpatialMap.cxx 
+Removed Files:
+	Response.cxx 
+Log Message:
+remove Response class; tagging v2r0
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct 24 19:13:49 PDT 2003
 Likelihood/doc
 
