@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.35 2004/05/09 19:17:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.36 2004/06/05 15:22:14 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -14,6 +14,8 @@
 #include <string>
 
 #include "optimizers/Statistic.h"
+
+#include "Likelihood/MapShape.h"
 #include "Likelihood/Source.h"
 
 namespace optimizers {
@@ -31,7 +33,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.35 2004/05/09 19:17:59 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.36 2004/06/05 15:22:14 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -143,6 +145,10 @@ public:
 
    /// Write a flux-style xml file for the current source model.
    virtual void write_fluxXml(std::string xmlFile);
+
+   /// Create a counts map based on the current model.
+   void makeCountsMap(const std::string & filename,
+                      const MapShape & mapShape);
 
 protected:
 
