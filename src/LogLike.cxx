@@ -3,13 +3,16 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.1 2003/10/14 22:35:14 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
 #include <cassert>
+
+#include "latResponse/../src/Table.h"
+
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/logSrcModel.h"
@@ -161,7 +164,7 @@ void LogLike::readEventData(const std::string &eventFile,
 //   m_eventData.add_columns(colnames);
 
    delete m_eventData;
-   m_eventData = new Table();
+   m_eventData = new latResponse::Table();
 
    std::vector<std::string> columnNames;
    m_eventData->read_FITS_colnames(m_eventFile, m_eventHdu, columnNames);
@@ -179,8 +182,8 @@ void LogLike::readEventData(const std::string &eventFile,
 
 //! return pointer to data columns
 std::pair<long, double*> 
-LogLike::getColumn(const Table &tableData, 
-                         const std::string &colname) const
+LogLike::getColumn(const latResponse::Table &tableData, 
+                   const std::string &colname) const
    throw(optimizers::Exception) {
    std::pair<long, double*> my_column(0, 0);
    std::string colnames;

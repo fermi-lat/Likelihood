@@ -3,15 +3,16 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.6 2003/06/11 17:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.7 2003/08/24 19:00:11 jchiang Exp $
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
 
+#include "latResponse/../src/Table.h"
+
 #include "Likelihood/ScData.h"
-#include "Likelihood/Table.h"
 
 namespace Likelihood {
 
@@ -26,7 +27,7 @@ void ScData::readData(const std::string &file, int hdu) {
    s_scHdu = hdu;
 
 // read in the data (should check on file existence, etc., first...)
-   Table scTable;
+   latResponse::Table scTable;
    scTable.add_columns("SC_x0 SC_x1 SC_x2 SC_x SC_y SC_z time SAA_flag");
    scTable.read_FITS_table(file, hdu);
 
