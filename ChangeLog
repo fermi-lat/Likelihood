@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Dec  6 21:13:23 PST 2004
+Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+write DSS keywords for these apps.
+    *
+------------------------------------------------------------
+User: jchiang  Mon Dec  6 21:13:23 PST 2004
 Likelihood/src/gtcntsmap
 
 Modified Files:
