@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 22 13:05:38 PDT 2004
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx DiffuseSource.cxx PointSource.cxx 
+	SourceMap.cxx SourceModel.cxx 
+Log Message:
+use SourceMap in BinnedLikelihood; add flag for untagged st_graph functionality
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 22 13:05:31 PDT 2004
 Likelihood/Likelihood
 
