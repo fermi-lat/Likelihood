@@ -766,6 +766,11 @@ Computing Event responses for the DiffuseSources.....................!
 
    @image html TsMap.png TsMap.fits
 
-   The green circle indicates the location of 3C 273
-
+   The various circles indicate the locations of the 3EG sources, all
+   of which were included in the simulation.  The red circle is 3C
+   279, the only source that was included in the Ts map model; and the
+   blue circle is at the location of 3C 273.  Several other Ts
+   enhancements appear in the map and seem to be associated with other
+   3EG sources (green circles) that were not included in the the Ts
+   map model.
 */
