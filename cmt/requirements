@@ -1,9 +1,9 @@
 package Likelihood
-version v0r7
+version v0r8
 
 author James Chiang <jchiang@slac.stanford.edu>
 
-# $Id: requirements,v 1.16 2003/06/03 23:52:36 jchiang Exp $
+# $Id: requirements,v 1.17 2003/06/04 16:24:16 jchiang Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
