@@ -1,13 +1,13 @@
 /** 
- * @file logLike_ptsrc.h
- * @brief Declaration of logLike_ptsrc class
+ * @file LogLike.h
+ * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.13 2003/09/10 00:04:24 jchiang Exp $
+ * $Header$
  */
 
-#ifndef Likelihood_logLike_ptsrc_h
-#define Likelihood_logLike_ptsrc_h
+#ifndef Likelihood_LogLike_h
+#define Likelihood_LogLike_h
 
 #include "Likelihood/Event.h"
 #include "Likelihood/RoiCuts.h"
@@ -20,27 +20,27 @@
 namespace Likelihood {
 
 /** 
- * @class logLike_ptsrc
+ * @class LogLike
  *
  * @brief Objective function for the log(likelihood) of a model comprising
- * multiple PointSources.
+ * multiple Sources.
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.h,v 1.13 2003/09/10 00:04:24 jchiang Exp $
+ * $Header$
  */
 
-class logLike_ptsrc : public SourceModel {
+class LogLike : public SourceModel {
     
 public:
 
-   logLike_ptsrc() : m_eventData(0) {
+   LogLike() : m_eventData(0) {
       logSrcModel m_logSrcModel;
       Npred m_Npred;
       deleteAllSources();
    }
 
-   virtual ~logLike_ptsrc() {delete m_eventData;}
+   virtual ~LogLike() {delete m_eventData;}
 
    virtual double value(optimizers::Arg&) const;
 
@@ -74,12 +74,12 @@ public:
 
 protected:
 
-   //! generalized column access
+   /// Generalized column access
    std::pair<long, double*> getColumn(const Table &tableData, 
                                       const std::string &colname) const
       throw(optimizers::Exception);
 
-   //! Event data; read from m_eventFile, stored in Table form
+   /// Event data; read from m_eventFile, stored in Table form
    std::string m_eventFile;
    int m_eventHdu;
    Table *m_eventData;
@@ -100,4 +100,4 @@ private:
 
 } // namespace Likelihood
 
-#endif // Likelihood_logLike_ptsrc_h
+#endif // Likelihood_LogLike_h

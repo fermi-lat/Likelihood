@@ -28,7 +28,7 @@
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/ConstantValue.h"
 #include "Likelihood/Exception.h"
-#include "../src/logLike_ptsrc.h"
+#include "Likelihood/LogLike.h"
 #include <vector>
 #include <string>
 #include <exception>
@@ -45,7 +45,7 @@ using optimizers::Parameter;
 %include ../Likelihood/EventArg.h
 %include ../Likelihood/ExposureMap.h
 %include ../Likelihood/FitsImage.h
-%include ../src/logLike_ptsrc.h
+%include ../Likelihood/LogLike.h
 %include ../Likelihood/logSrcModel.h
 %include ../Likelihood/Npred.h
 %include ../Likelihood/PointSource.h
@@ -64,7 +64,7 @@ using optimizers::Parameter;
 %template(DoubleVector) std::vector<double>;
 %template(DoubleVectorVector) std::vector< std::vector<double> >;
 %template(StringVector) std::vector<std::string>;
-%extend Likelihood::logLike_ptsrc {
+%extend Likelihood::LogLike {
    void print_source_params() {
       std::vector<std::string> srcNames;
       self->getSrcNames(srcNames);

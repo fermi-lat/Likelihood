@@ -1,16 +1,16 @@
 /** 
- * @file logLike_ptsrc.cxx
- * @brief logLike_ptsrc class implementation
+ * @file LogLike.cxx
+ * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/logLike_ptsrc.cxx,v 1.12 2003/08/24 19:00:11 jchiang Exp $
+ * $Header$
  */
 
 #include <vector>
 #include <string>
 #include <cmath>
 #include <cassert>
-#include "logLike_ptsrc.h"
+#include "Likelihood/LogLike.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/logSrcModel.h"
 #include "Likelihood/EventArg.h"
@@ -21,7 +21,7 @@ namespace Likelihood {
 
 /* compute the EML log-likelihood for a single-point source */
 
-double logLike_ptsrc::value(optimizers::Arg&) const {
+double LogLike::value(optimizers::Arg&) const {
 
    double my_value = 0;
    
@@ -40,7 +40,7 @@ double logLike_ptsrc::value(optimizers::Arg&) const {
    return my_value;
 }
 
-void logLike_ptsrc::getFreeDerivs(optimizers::Arg&,
+void LogLike::getFreeDerivs(optimizers::Arg&,
                                   std::vector<double> &freeDerivs) const {
 
 // retrieve the free derivatives for the log(SourceModel) part
@@ -73,7 +73,7 @@ void logLike_ptsrc::getFreeDerivs(optimizers::Arg&,
       freeDerivs.push_back(logSrcModelDerivs[i] - NpredDerivs[i]);
 }
 
-void logLike_ptsrc::getEvents(const std::string &event_file, int hdu) {
+void LogLike::getEvents(const std::string &event_file, int hdu) {
 
    std::string colnames = "RA DEC energy time SC_x SC_y SC_z zenith_angle";
 
@@ -112,14 +112,14 @@ void logLike_ptsrc::getEvents(const std::string &event_file, int hdu) {
       }
    }
 
-   std::cout << "logLike_ptsrc::getEvents:\nOut of " 
+   std::cout << "LogLike::getEvents:\nOut of " 
              << ra.first << " events in file "
              << event_file << ", "
              << m_events.size() - nevents << " were accepted, and "
              << nReject << " were rejected.\n" << std::endl;
 }
 
-void logLike_ptsrc::computeEventResponses(Source &src, double sr_radius) {
+void LogLike::computeEventResponses(Source &src, double sr_radius) {
    DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
    std::cerr << "Computing Event responses for " << src.getName();
    for (unsigned int i = 0; i < m_events.size(); i++) {
@@ -129,7 +129,7 @@ void logLike_ptsrc::computeEventResponses(Source &src, double sr_radius) {
    std::cerr << "!" << std::endl;
 }
 
-void logLike_ptsrc::computeEventResponses(std::vector<DiffuseSource> &srcs, 
+void LogLike::computeEventResponses(std::vector<DiffuseSource> &srcs, 
                                           double sr_radius) {
    std::cerr << "Computing Event responses for the DiffuseSources";
    for (unsigned int i = 0; i < m_events.size(); i++) {
@@ -139,7 +139,7 @@ void logLike_ptsrc::computeEventResponses(std::vector<DiffuseSource> &srcs,
    std::cerr << "!" << std::endl;
 }
 
-void logLike_ptsrc::computeEventResponses(double sr_radius) {
+void LogLike::computeEventResponses(double sr_radius) {
    std::vector<DiffuseSource> diffuse_srcs;
    for (unsigned int i = 0; i < s_sources.size(); i++) {
       if (s_sources[i]->getType() == std::string("Diffuse")) {
@@ -154,7 +154,7 @@ void logLike_ptsrc::computeEventResponses(double sr_radius) {
 // Methods from the old Likelihood::Statistic class:
 //
 // read in the event data
-void logLike_ptsrc::readEventData(const std::string &eventFile, 
+void LogLike::readEventData(const std::string &eventFile, 
                                   const std::string &colnames, int hdu) {
    m_eventFile = eventFile;
    m_eventHdu = hdu;
@@ -179,7 +179,7 @@ void logLike_ptsrc::readEventData(const std::string &eventFile,
 
 //! return pointer to data columns
 std::pair<long, double*> 
-logLike_ptsrc::getColumn(const Table &tableData, 
+LogLike::getColumn(const Table &tableData, 
                          const std::string &colname) const
    throw(optimizers::Exception) {
    std::pair<long, double*> my_column(0, 0);
@@ -195,7 +195,7 @@ logLike_ptsrc::getColumn(const Table &tableData,
       colnames += " "; colnames += tableData[i].colname;
    }
    std::ostringstream errorMessage;
-   errorMessage << "logLike_ptsrc::getColumn:\n"
+   errorMessage << "LogLike::getColumn:\n"
                 << "Column " << colname << " was not found in event data.\n"
                 << "Valid names are \n" << colnames << "\n";
    throw Exception(errorMessage.str());
