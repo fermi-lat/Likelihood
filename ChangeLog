@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Nov  9 07:18:57 PST 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+mv like_test.cxx likelihood.cxx
+    *
+------------------------------------------------------------
 User: jchiang  Sat Nov  8 19:39:25 PST 2003
 Likelihood/src
 
