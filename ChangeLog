@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 16 16:02:15 PST 2004
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+add BinnedLikelihood to SWIG interface
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 16 16:02:13 PST 2004
 Likelihood/Likelihood
 
