@@ -86,14 +86,14 @@ int main(){
 //     test_CompositeFunction();
 //     test_SpectrumFactory();
 //     test_SourceFactory();
-     test_OptPP();
+//     test_OptPP();
 //     fit_3C279();
 //     fit_anti_center();
 //     test_FitsImage();
 //     test_ExposureMap();
 //     test_SpatialMap();
 //     test_DiffuseSource();
-//     fit_DiffuseSource();
+   fit_DiffuseSource();
    return 0;
 }
 
@@ -109,7 +109,7 @@ void fit_DiffuseSource() {
    RoiCuts::setCuts(ra0, dec0, 20.);
 
 /* root name for the observation data files */
-   std::string obs_root = "diffuse_test_5";
+   std::string obs_root = "diffuse_test_4";
 
 /* read in the spacecraft data */
    std::string sc_file = test_path + "Data/" + obs_root + "_sc_0000";

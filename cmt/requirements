@@ -3,11 +3,11 @@ version v0r7
 
 author James Chiang <jchiang@slac.stanford.edu>
 
-# $Id: requirements,v 1.10 2003/04/25 22:05:24 jchiang Exp $
+# $Id: requirements,v 1.11 2003/05/02 21:53:25 pln Exp $
 
 use astro  v*
 use cfitsio v1* IExternal
-use f2c
+use f2c v*
 # use CALDBinterface v*
 
 apply_pattern package_include
