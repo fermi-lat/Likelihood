@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec  3 18:56:09 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h 
+Log Message:
+fixes in LogLike::getEvents; tagging v2r5p3
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec  3 16:33:36 PST 2003
 Likelihood/doc
 
