@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.21 2003/06/03 23:54:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.22 2003/08/06 20:52:07 jchiang Exp $
  */
 
 #include <vector>
@@ -67,7 +67,7 @@ double PointSource::fluxDensity(double energy, double time,
 
 double PointSource::fluxDensityDeriv(double energy, double time,
                                      const astro::SkyDir &dir,
-                                     std::string &paramName) const {
+                                     const std::string &paramName) const {
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude"
 
