@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.9 2003/11/12 22:01:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.10 2003/11/18 18:10:36 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -124,10 +124,13 @@ int main(int iargc, char* argv[]) {
    params.getParam("fit_tolerance", tol);
    std::vector<double> errors;
 
-// The fit loop.  Query the user at the end of each iteration, if the
-// fit is to be performed again.  This allows the user to adjust the
-// source model xml file by hand between iterations.
+// The fit loop.  If indicated, query the user at the end of each
+// iteration whether the fit is to be performed again.  This allows
+// the user to adjust the source model xml file by hand between
+// iterations.
 
+   bool queryLoop;
+   params.getParam("query_for_refit", queryLoop);
    optimizers::Optimizer * myOpt = 0;
    do {
 // Read in the Source model.
@@ -162,16 +165,12 @@ int main(int iargc, char* argv[]) {
          } catch (optimizers::Exception &eObj) {
             std::cerr << eObj.what() << std::endl;
          }
-// Evaluate the uncertainties, if available.
-         if (optimizer == "MINUIT") {
-            errors =
-               dynamic_cast<optimizers::Minuit *>(myOpt)->getUncertainty();
-         } else if (optimizer == "DRMNGB") {
+// Evaluate the uncertainties.
+         errors = myOpt->getUncertainty();
+         if (optimizer == "DRMNGB") {
             int retCode =
                dynamic_cast<optimizers::Drmngb *>(myOpt)->getRetCode();
             std::cerr << "Drmngb return code: " << retCode;
-            errors = 
-               dynamic_cast<optimizers::Drmngb *>(myOpt)->getUncertainty();
          }
          delete myOpt;
       }
@@ -188,7 +187,7 @@ int main(int iargc, char* argv[]) {
          std::cout << "Writing fitted model to " << xmlFile << std::endl;
          logLike->writeXml(xmlFile, funcFileName);
       }
-   } while (prompt("Refit? [y] "));
+   } while (queryLoop && prompt("Refit? [y] "));
 
 // Write the model to a flux-style output file.
    std::string xml_fluxFile;

@@ -46,7 +46,7 @@ def make_SourceFactory():
     funcFactory.addFunc("AbsEdge", optimizers.AbsEdge())
 
     funcFactory.addFunc("SkyDirFunction", Likelihood.SkyDirFunction())
-    funcFactory.addFunc("ConstantValue", Likelihood.ConstantValue())
+    funcFactory.addFunc("ConstantValue", optimizers.ConstantValue())
     funcFactory.addFunc("SpatialMap", Likelihood.SpatialMap())
 
     srcFactory = Likelihood.SourceFactory()

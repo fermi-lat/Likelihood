@@ -4,7 +4,7 @@ version v2r3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.53 2003/11/10 23:06:17 jchiang Exp $
+# $Id: requirements,v 1.54 2003/11/18 18:07:30 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -35,8 +35,6 @@ macro expMapstamps "expMap.stamp"
 
 macro my_headers "" WIN32 "../Likelihood/*.h *.h"
 library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
-
-set PFILES "$(LIKELIHOODROOT)/data"
 
 # applications
 application test_Likelihood test/main.cxx
