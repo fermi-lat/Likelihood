@@ -1,5 +1,5 @@
-Spacecraft_file,f,ql,"test_scData_0000.fits",,,"Spacecraft file"
+Spacecraft_file,fr,ql,"test_scData_0000.fits",,,"Spacecraft file"
 Spacecraft_file_hdu,i,hl,2,,,Spacecraft file HDU
-exposure_cube_file,f,ql,"expcube_1_day.fits",,,"Exposure hypercube file"
+exposure_cube_file,fr,ql,"expcube_1_day.fits",,,"Exposure hypercube file"
 Response_functions,s,ql,"FRONT/BACK",FRONT/BACK|FRONT|BACK|GLAST25,,"Response functions to use"
 output_file_name,f,ql,"exposureMap.fits",,,"Exposure map file"
