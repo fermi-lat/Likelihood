@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.10 2004/06/05 15:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.11 2004/06/30 16:21:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -36,7 +36,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.10 2004/06/05 15:22:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.11 2004/06/30 16:21:37 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -157,8 +157,9 @@ void TsMap::computeMap() {
       
    int verbosity = m_pars["fit_verbosity"];
    double tol = m_pars["fit_tolerance"];
-   m_opt->find_min(verbosity, tol);
-   double logLike0 = m_logLike(dummy);
+//    m_opt->find_min(verbosity, tol);
+//    double logLike0 = m_logLike(dummy);
+   double logLike0 = 0;
    bool computeExposure(true);
    std::string coordSys = m_pars["Coordinate_system"];
 
