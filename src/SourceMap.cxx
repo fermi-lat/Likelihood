@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.18 2004/11/06 00:00:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.19 2004/11/08 03:22:22 jchiang Exp $
  */
 
 #include <algorithm>
@@ -195,6 +195,7 @@ double SourceMap::sourceRegionIntegral(Source * src, const Pixel & pixel,
       double ra = m_dataMap->mapCenter().ra();
       double dec = m_dataMap->mapCenter().dec();
       s_meanPsf = new MeanPsf(ra, dec, energies);
+      s_meanPsf->write("mean_psf.dat");
    }
    if (s_binnedExposure == 0) {
       s_binnedExposure = new BinnedExposure(energies);

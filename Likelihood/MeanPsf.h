@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.2 2004/10/05 04:47:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.3 2004/10/05 23:52:10 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -43,6 +43,8 @@ public:
    /// @param phi Azimuthal angle about true source direction, 
    ///        currently unused (degrees)
    double operator()(double energy, double theta, double phi=0) const;
+
+   void write(const std::string & filename) const;
 
 private:
 
