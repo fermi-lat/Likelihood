@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar  1 14:53:08 PST 2005
+Likelihood/src/meanPsf
+
+Modified Files:
+	meanPsf.cxx 
+Log Message:
+fix exposure weighting in psf calc
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar  1 14:53:06 PST 2005
 Likelihood/src
 
