@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.29 2003/11/18 18:09:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.30 2004/02/20 00:02:07 jchiang Exp $
  */
 
 #include "xml/Dom.h"
@@ -244,7 +244,6 @@ Source * SourceFactory::makeDiffuseSource(const DomElement &spectrum,
    if (type == "SpatialMap") {
       std::string fitsFile 
          = xml::Dom::getAttribute(spatialModel, "file");
-      facilities::Util::expandEnvVar(&fitsFile);
       dynamic_cast<SpatialMap *>(spatialDist)->readFitsFile(fitsFile);
    }
    Source *src;
