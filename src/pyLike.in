@@ -17,8 +17,10 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/EventArg.h"
 #include "Likelihood/Event.h"
+#include "Likelihood/ExposureCube.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/logSrcModel.h"
+#include "Likelihood/MeanPsf.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/OneSourceFunc.h"
 #include "Likelihood/OptEM.h"
@@ -73,11 +75,13 @@ using optimizers::Exception;
 %include $(LIKELIHOODROOT)/Likelihood/SourceModel.h
 %include $(LIKELIHOODROOT)/Likelihood/DiffuseSource.h
 %include $(LIKELIHOODROOT)/Likelihood/EventArg.h
+%include $(LIKELIHOODROOT)/Likelihood/ExposureCube.h
 %include $(LIKELIHOODROOT)/Likelihood/ExposureMap.h
 %include $(LIKELIHOODROOT)/Likelihood/Pixel.h
 %include $(LIKELIHOODROOT)/Likelihood/CountsMap.h
 %include $(LIKELIHOODROOT)/Likelihood/SourceModel.h
 %include $(LIKELIHOODROOT)/Likelihood/LogLike.h
+%include $(LIKELIHOODROOT)/Likelihood/MeanPsf.h
 %include $(LIKELIHOODROOT)/Likelihood/BinnedLikelihood.h
 %include $(LIKELIHOODROOT)/Likelihood/logSrcModel.h
 %include $(LIKELIHOODROOT)/Likelihood/Npred.h
