@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Nov 18 15:02:33 PST 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+continue with unit-test revisions; allow user to specify source_library title in SourceModel::writeXml
+    *
+------------------------------------------------------------
+User: jchiang  Tue Nov 18 15:02:33 PST 2003
 Likelihood/src
 
 Modified Files:
