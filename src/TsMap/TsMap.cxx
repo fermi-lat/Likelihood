@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.5 2004/04/10 21:23:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.6 2004/04/11 14:58:31 jchiang Exp $
  */
 
 #include <cmath>
@@ -31,7 +31,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.5 2004/04/10 21:23:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.6 2004/04/11 14:58:31 jchiang Exp $
  */
 class TsMap : public AppBase {
 public:
@@ -40,8 +40,6 @@ public:
       m_testSrc.setName("testSource");
    }
    virtual ~TsMap() {
-      writeFitsFile(m_pars["TS_map_file"], m_lonValues, m_latValues,
-                    m_tsMap, m_pars["Coordinate_system"]);
       delete m_opt;
    }
    virtual void run();
@@ -77,6 +75,8 @@ void TsMap::run() {
    selectOptimizer();
    setGrid();
    computeMap();
+   writeFitsFile(m_pars["TS_map_file"], m_lonValues, m_latValues,
+                 m_tsMap, m_pars["Coordinate_system"]);
 }
 
 void TsMap::readSrcModel() {
@@ -146,8 +146,12 @@ void TsMap::computeMap() {
                                         + coordSys);
          }
          m_logLike.addSource(&m_testSrc);
-         m_opt->find_min(verbosity, tol);
-         m_tsMap[jj].push_back(2.*(m_logLike(dummy) - logLike0));
+         try {
+            m_opt->find_min(verbosity, tol);
+            m_tsMap[jj].push_back(2.*(m_logLike(dummy) - logLike0));
+         } catch (optimizers::Exception &eObj) {
+            m_tsMap[jj].push_back(0);
+         }
          if (verbosity > 0) {
             std::cout << m_lonValues[ii] << "  "
                       << m_latValues[jj] << "  "
@@ -203,13 +207,12 @@ void TsMap::writeFitsFile(const std::string &filename,
    fits_create_img(fptr, bitpix, naxis, naxes, &status);
    fitsReportError(stderr, status);
 
-// Repack exposure into a C array.
-   double *map_array = new double[lon.size()*lat.size()];
-   int indx = 0;
+// Repack exposure into a 1D vector
+   std::vector<double> mapVector;
+   mapVector.reserve(lon.size()*lat.size());
    for (unsigned int i = 0; i < lon.size(); i++) {
       for (unsigned int j = 0; j < lat.size(); j++) {
-         map_array[indx] = map[i][j];
-         indx++;
+         mapVector.push_back(map[i][j]);
       }
    }
 
@@ -218,8 +221,7 @@ void TsMap::writeFitsFile(const std::string &filename,
    long firstelem = 1;
    long nelements = lon.size()*lat.size();
    fits_write_img_dbl(fptr, group, firstelem, nelements,
-                      map_array, &status);
-   delete[] map_array;
+                      &mapVector[0], &status);
    fitsReportError(stderr, status);
 
 // Write some keywords.
