@@ -3,7 +3,7 @@
  * @brief Psf class implementation
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.13 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.14 2003/06/11 17:08:02 jchiang Exp $
  */
 
 #ifndef Psf_h
@@ -13,9 +13,9 @@
 #include "Likelihood/Table.h"
 #include "Likelihood/LikelihoodException.h"
 
-namespace Likelihood {
-
 class astro::SkyDir;
+
+namespace Likelihood {
 
 /** 
  * @class Psf
@@ -24,7 +24,7 @@ class astro::SkyDir;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.13 2003/06/10 23:58:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Psf.h,v 1.14 2003/06/11 17:08:02 jchiang Exp $
  */
 
 class Psf : public Response {
