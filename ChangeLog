@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug  3 14:28:46 PDT 2004
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx PointSource.cxx SConstruct 
+Log Message:
+use irfLoader; fix s_trueEnergies bug, thereby enabling energy dispersion fits
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Aug  3 14:28:06 PDT 2004
 Likelihood/pfiles
 
