@@ -8,27 +8,24 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/src/Function.h,v 1.1.1.1 2003/01/30 23:23:03 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/src/PowerLaw.h,v 1.1 2003/02/19 01:34:35 jchiang Exp $
  */
     
 class PowerLaw : public Function {
 public:
 
    PowerLaw(){m_init(0, -2, 1);};
-   PowerLaw(const double Prefactor, const double Index, const double Scale)
+   PowerLaw(double Prefactor, double Index, double Scale)
       {m_init(Prefactor, Index, Scale);};
-   PowerLaw(const PowerLaw&);
 
-   virtual double value(const double) const;
-   virtual double operator()(const double x) const {return value(x);};
-   virtual double derivByParam(const double, 
-			       const std::string paramName) const;
-   virtual std::vector<double> getDerivs(const double) const;
-   virtual std::vector<double> getFreeDerivs(const double) const;
+   virtual double value(double) const;
+   virtual double operator()(double x) const {return value(x);};
+   virtual double derivByParam(double, const std::string &paramName) const;
+   virtual double integral(double xmin, double xmax);
 
 private:
 
-   void m_init(const double Prefactor, const double Index, const double Scale);
+   void m_init(double Prefactor, double Index, double Scale);
 
 };
 

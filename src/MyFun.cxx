@@ -7,12 +7,21 @@ namespace Likelihood {
 
 /* implement MyFun as a polynomial of degree m_maxNumParams-1 */
 
-double MyFun::value(const double x) const {
+MyFun::MyFun() {
+   setMaxNumParams(3);
+   addParam(std::string("Ruthie"), 0.);
+   addParam(std::string("Mary"), 0.);
+   addParam(std::string("Jane"), 0.);
+   addParam(std::string("Plain"), 3.14159);
+}
+
+double MyFun::value(double x) const {
 
    double my_val = 0.;
-   std::vector<double> params = getParamValues();
+   std::vector<double> params;
+   getParamValues(params);
 
-   for (int i = 0; i < params.size(); i++) {
+   for (unsigned int i = 0; i < params.size(); i++) {
       my_val += params[i]*pow(x, i);
 //      std::cerr << params[i] << "  " << i;
    }
@@ -21,30 +30,20 @@ double MyFun::value(const double x) const {
    return my_val;
 }
 
-double MyFun::derivByParam(const double x, 
-			   const std::string paramName) const {
+double MyFun::derivByParam(double x, const std::string &paramName) const {
 
-   std::vector<string> my_paramName = getParamNames();
-   std::vector<double> my_param = getParamValues();
+   std::vector<string> my_paramName;
+   getParamNames(my_paramName);
+   std::vector<double> my_param;
+   getParamValues(my_param);
 
-   for (int i = 0; i < my_paramName.size(); i++) {
+   for (unsigned int i = 0; i < my_paramName.size(); i++) {
       if (paramName == my_paramName[i]) 
          return pow(x, i);
    }
    std::cerr << "Parameter " << paramName << " is not found."
              << std::endl;
    return 0.;
-}
-
-std::vector<double> MyFun::getDerivs(const double x) const {
-
-   std::vector<string> my_paramName = getParamNames();
-   std::vector<double> my_derivs;
-
-   for (int i = 0; i < my_paramName.size(); i++) {
-      my_derivs.push_back(derivByParam(x, my_paramName[i]));
-   }
-   return my_derivs;
 }
 
 } // namespace Likelihood
