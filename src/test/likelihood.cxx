@@ -3,17 +3,22 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.18 2003/12/06 23:46:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/likelihood.cxx,v 1.19 2004/01/10 22:53:10 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
 #include <fenv.h>
 #endif
 
-#include <iostream>
-#include <cstring>
 #include <cmath>
+#include <cstring>
 #include <cassert>
+#include <fstream>
+#include <iostream>
+
+#include "facilities/Util.h"
+
+#include "hoopsUtil/RunParams.h"
 
 #include "optimizers/FunctionFactory.h"
 #include "optimizers/Lbfgs.h"
@@ -32,7 +37,6 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/OptEM.h"
-#include "Likelihood/RunParams.h"
 #include "Likelihood/Exception.h"
 
 using namespace Likelihood;
@@ -40,6 +44,65 @@ using latResponse::irfsFactory;
 
 void print_fit_results(SourceModel &stat, const std::vector<double> &errors);
 bool prompt(const std::string &query);
+
+namespace {
+   bool fileExists(const std::string &filename) {
+      std::ifstream file(filename.c_str());
+      return file.is_open();
+   }
+
+   void file_ok(std::string filename) {
+      facilities::Util::expandEnvVar(&filename);
+      if (::fileExists(filename)) {
+         return;
+      } else {
+         std::cout << "likelihood::main:\n"
+                   << "File not found: " << filename
+                   << std::endl;
+//         assert(::fileExists(filename));
+         exit(-1);
+      }
+   }
+
+   void readLines(std::string inputFile, 
+                  std::vector<std::string> &lines) {
+      
+      facilities::Util::expandEnvVar(&inputFile);
+      
+      std::ifstream file(inputFile.c_str());
+      lines.clear();
+      std::string line;
+      while (std::getline(file, line, '\n')) {
+         if (line != "" && line != " ") { //skip (most) blank lines
+            lines.push_back(line);
+         }
+      }
+   }
+
+   void resolve_fits_files(std::string filename, 
+                           std::vector<std::string> &files) {
+      
+      facilities::Util::expandEnvVar(&filename);
+      files.clear();
+      
+// Read the first line of the file and see if the first 6 characters
+// are "SIMPLE".  If so, then we assume it's a FITS file.
+      std::ifstream file(filename.c_str());
+      std::string firstLine;
+      std::getline(file, firstLine, '\n');
+      if (firstLine.find("SIMPLE") == 0) {
+// This is a FITS file. Return that as the sole element in the files
+// vector.
+         files.push_back(filename);
+         return;
+      } else {
+// filename contains a list of fits files.
+         ::readLines(filename, files);
+         return;
+      }
+   }
+
+}
 
 int main(int iargc, char* argv[]) {
 
@@ -51,22 +114,25 @@ int main(int iargc, char* argv[]) {
    strcpy(argv[0], "likelihood");
 
    try {
-      RunParams params(iargc, argv);
+      hoopsUtil::RunParams params(iargc, argv);
 
 // Set the region-of-interest.
       std::string roiCutsFile;
       params.getParam("ROI_cuts_file", roiCutsFile);
+      ::file_ok(roiCutsFile);
       RoiCuts::setCuts(roiCutsFile);
 
 // Read in the pointing information.
       std::string scFile;
       params.getParam("Spacecraft_file", scFile);
+      ::file_ok(scFile);
       long scHdu;
       params.getParam("Spacecraft_file_hdu", scHdu);
       std::vector<std::string> scFiles;
-      RunParams::resolve_fits_files(scFile, scFiles);
+      ::resolve_fits_files(scFile, scFiles);
       std::vector<std::string>::const_iterator scIt = scFiles.begin();
       for ( ; scIt != scFiles.end(); scIt++) {
+         ::file_ok(*scIt);
          ScData::readData(*scIt, scHdu);
       }
 
@@ -74,30 +140,29 @@ int main(int iargc, char* argv[]) {
       std::string exposureFile;
       params.getParam("Exposure_map_file", exposureFile);
       if (exposureFile != "none") {
+         ::file_ok(exposureFile);
          ExposureMap::readExposureFile(exposureFile);
       }
 
 // Create the response functions.
       std::string responseFuncs;
       params.getParam("Response_functions", responseFuncs);
-//      latResponse::IrfsFactory irfsFactory;
-      if (responseFuncs == "COMBINED_G25") {
-         ResponseFunctions::
-            addRespPtr(4, irfsFactory().create("Glast25::Combined"));
-      } else if (responseFuncs == "FRONT/BACK_G25") {
-         ResponseFunctions::addRespPtr(2,
-                                       irfsFactory().create("Glast25::Front"));
-         ResponseFunctions::addRespPtr(3, 
-                                       irfsFactory().create("Glast25::Back"));
-      } else if (responseFuncs == "TESTDC1") {
-         ResponseFunctions::addRespPtr(1, irfsFactory().create("DC1::test"));
-      } else if (responseFuncs == "FRONT") {
-         ResponseFunctions::addRespPtr(5, irfsFactory().create("DC1::Front"));
-      } else if (responseFuncs == "BACK") {
-         ResponseFunctions::addRespPtr(6, irfsFactory().create("DC1::Back"));
-      } else if (responseFuncs == "FRONT/BACK") {
-         ResponseFunctions::addRespPtr(5, irfsFactory().create("DC1::Front"));
-         ResponseFunctions::addRespPtr(6, irfsFactory().create("DC1::Back"));
+
+      std::map< std::string, std::vector<std::string> > responseIds;
+      responseIds["FRONT"].push_back("DC1::Front");
+      responseIds["BACK"].push_back("DC1::Back");
+      responseIds["FRONT/BACK"].push_back("DC1::Front");
+      responseIds["FRONT/BACK"].push_back("DC1::Back");
+
+      if (responseIds.count(responseFuncs)) {
+         std::vector<std::string> &resps = responseIds[responseFuncs];
+         for (unsigned int i = 0; i < resps.size(); i++) {
+            ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
+         }
+      } else {
+         std::cerr << "Invalid response function choice: "
+                   << responseFuncs << std::endl;
+         exit(-1);
       }
 
 // Fill a FunctionFactory with Function object prototypes for source
@@ -124,9 +189,11 @@ int main(int iargc, char* argv[]) {
       long eventFileHdu;
       params.getParam("event_file_hdu", eventFileHdu);
       std::vector<std::string> eventFiles;
-      RunParams::resolve_fits_files(eventFile, eventFiles);
+      ::file_ok(eventFile);
+      ::resolve_fits_files(eventFile, eventFiles);
       std::vector<std::string>::const_iterator evIt = eventFiles.begin();
       for ( ; evIt != eventFiles.end(); evIt++) {
+         ::file_ok(*evIt);
          logLike->getEvents(*evIt, eventFileHdu);
       }
 
@@ -152,6 +219,7 @@ int main(int iargc, char* argv[]) {
          if (logLike->getNumSrcs() == 0) {
 // Read in the Source model for the first time.
             try {
+               ::file_ok(sourceModel);
                logLike->readXml(sourceModel, funcFactory);
             } catch (Likelihood::Exception &eObj) {
                std::cout << eObj.what();
@@ -162,6 +230,7 @@ int main(int iargc, char* argv[]) {
          } else {
 // Re-read the Source model from the xml file, allowing only for 
 // Parameter adjustments.
+            ::file_ok(sourceModel);
             logLike->reReadXml(sourceModel);
          }
 

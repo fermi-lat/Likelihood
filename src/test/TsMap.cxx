@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.8 2003/12/10 20:34:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/TsMap.cxx,v 1.9 2004/01/10 22:53:10 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -18,7 +18,10 @@
 
 #include "fitsio.h"
 
+#include "facilities/Util.h"
+
 #include "hoops/hoops_exception.h"
+#include "hoopsUtil/RunParams.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
@@ -38,11 +41,68 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/LogLike.h"
-#include "Likelihood/RunParams.h"
 #include "Likelihood/Exception.h"
 
 using namespace Likelihood;
 using latResponse::irfsFactory;
+
+namespace {
+   bool fileExists(const std::string &filename) {
+      std::ifstream file(filename.c_str());
+      return file.is_open();
+   }
+
+   void file_ok(std::string filename) {
+      facilities::Util::expandEnvVar(&filename);
+      if (::fileExists(filename)) {
+         return;
+      } else {
+         std::cout << "likelihood::main:\n"
+                   << "File not found: " << filename
+                   << std::endl;
+         exit(-1);
+      }
+   }
+
+   void readLines(std::string inputFile, 
+                  std::vector<std::string> &lines) {
+      
+      facilities::Util::expandEnvVar(&inputFile);
+      
+      std::ifstream file(inputFile.c_str());
+      lines.clear();
+      std::string line;
+      while (std::getline(file, line, '\n')) {
+         if (line != "" && line != " ") { //skip (most) blank lines
+            lines.push_back(line);
+         }
+      }
+   }
+
+   void resolve_fits_files(std::string filename, 
+                           std::vector<std::string> &files) {
+      
+      facilities::Util::expandEnvVar(&filename);
+      files.clear();
+      
+// Read the first line of the file and see if the first 6 characters
+// are "SIMPLE".  If so, then we assume it's a FITS file.
+      std::ifstream file(filename.c_str());
+      std::string firstLine;
+      std::getline(file, firstLine, '\n');
+      if (firstLine.find("SIMPLE") == 0) {
+// This is a FITS file. Return that as the sole element in the files
+// vector.
+         files.push_back(filename);
+         return;
+      } else {
+// filename contains a list of fits files.
+         ::readLines(filename, files);
+         return;
+      }
+   }
+
+}
 
 void print_fit_results(SourceModel &stat);
 void makeDoubleVector(double xmin, double xmax, int nx,
@@ -61,167 +121,175 @@ int main(int iargc, char* argv[]) {
    strcpy(argv[0], "TsMap");
 
    try {
-   RunParams params(iargc, argv);
+      hoopsUtil::RunParams params(iargc, argv);
 
 // Set the region-of-interest.
-   std::string roiCutsFile;
-   params.getParam("ROI_cuts_file", roiCutsFile);
-   RoiCuts::setCuts(roiCutsFile);
+      std::string roiCutsFile;
+      params.getParam("ROI_cuts_file", roiCutsFile);
+      ::file_ok(roiCutsFile);
+      RoiCuts::setCuts(roiCutsFile);
 
 // Read in the pointing information.
-   std::string scFile;
-   params.getParam("Spacecraft_file", scFile);
-   long scHdu;
-   params.getParam("Spacecraft_file_hdu", scHdu);
-   std::vector<std::string> scFiles;
-   RunParams::resolve_fits_files(scFile, scFiles);
-   std::vector<std::string>::const_iterator scIt = scFiles.begin();
-   for ( ; scIt != scFiles.end(); scIt++) {
-      ScData::readData(*scIt, scHdu);
-   }
+      std::string scFile;
+      params.getParam("Spacecraft_file", scFile);
+      long scHdu;
+      params.getParam("Spacecraft_file_hdu", scHdu);
+      std::vector<std::string> scFiles;
+      ::file_ok(scFile);
+      ::resolve_fits_files(scFile, scFiles);
+      std::vector<std::string>::const_iterator scIt = scFiles.begin();
+      for ( ; scIt != scFiles.end(); scIt++) {
+         ::file_ok(scFile);
+         ScData::readData(*scIt, scHdu);
+      }
 
 // Read in the exposure map file.
-   std::string exposureFile;
-   params.getParam("Exposure_map_file", exposureFile);
-   if (exposureFile != "none") {
-      ExposureMap::readExposureFile(exposureFile);
-   }
+      std::string exposureFile;
+      params.getParam("Exposure_map_file", exposureFile);
+      if (exposureFile != "none") {
+         ::file_ok(exposureFile);
+         ExposureMap::readExposureFile(exposureFile);
+      }
 
 // Create the response functions.
-   std::string responseFuncs;
-   params.getParam("Response_functions", responseFuncs);
-//   latResponse::IrfsFactory irfsFactory;
-   if (responseFuncs == "COMBINED_G25") {
-      ResponseFunctions::addRespPtr(4, 
-                                    irfsFactory().create("Glast25::Combined"));
-   } else if (responseFuncs == "FRONT/BACK_G25") {
-      ResponseFunctions::addRespPtr(2, irfsFactory().create("Glast25::Front"));
-      ResponseFunctions::addRespPtr(3, irfsFactory().create("Glast25::Back"));
-   } else if (responseFuncs == "TESTDC1") {
-      ResponseFunctions::addRespPtr(1, irfsFactory().create("DC1::test"));
-   } else if (responseFuncs == "FRONT") {
-      ResponseFunctions::addRespPtr(5, irfsFactory().create("DC1::Front"));
-   } else if (responseFuncs == "BACK") {
-      ResponseFunctions::addRespPtr(6, irfsFactory().create("DC1::Back"));
-   } else if (responseFuncs == "FRONT/BACK") {
-      ResponseFunctions::addRespPtr(5, irfsFactory().create("DC1::Front"));
-      ResponseFunctions::addRespPtr(6, irfsFactory().create("DC1::Back"));
-   }
+      std::string responseFuncs;
+      params.getParam("Response_functions", responseFuncs);
+
+      std::map< std::string, std::vector<std::string> > responseIds;
+      responseIds["FRONT"].push_back("DC1::Front");
+      responseIds["BACK"].push_back("DC1::Back");
+      responseIds["FRONT/BACK"].push_back("DC1::Front");
+      responseIds["FRONT/BACK"].push_back("DC1::Back");
+
+      if (responseIds.count(responseFuncs)) {
+         std::vector<std::string> &resps = responseIds[responseFuncs];
+         for (unsigned int i = 0; i < resps.size(); i++) {
+            ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
+         }
+      } else {
+         std::cerr << "Invalid response function choice: "
+                   << responseFuncs << std::endl;
+         exit(-1);
+      }
 
 // Use unbinned log-likelihood as the objective function.
-   LogLike logLike;
+      LogLike logLike;
 
 // Fill a FunctionFactory with Function object prototypes for source
 // modeling.
-   optimizers::FunctionFactory funcFactory;
+      optimizers::FunctionFactory funcFactory;
 
 // Add the prototypes for modeling spatial distributions.
-   bool makeClone(false);
-   funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
-   funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
+      bool makeClone(false);
+      funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
+      funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
    
 // Read in the Source model.
-   std::string sourceModel;
-   params.getParam("Source_model_file", sourceModel);
-   logLike.readXml(sourceModel, funcFactory);
+      std::string sourceModel;
+      params.getParam("Source_model_file", sourceModel);
+      ::file_ok(sourceModel);
+      logLike.readXml(sourceModel, funcFactory);
    
 // Read in the Event data.
-   std::string eventFile;
-   params.getParam("event_file", eventFile);
-   long eventFileHdu;
-   params.getParam("event_file_hdu", eventFileHdu);
-   std::vector<std::string> eventFiles;
-   RunParams::resolve_fits_files(eventFile, eventFiles);
-   std::vector<std::string>::const_iterator evIt = eventFiles.begin();
-   for ( ; evIt != eventFiles.end(); evIt++) {
-      logLike.getEvents(*evIt, eventFileHdu);
-   }
+      std::string eventFile;
+      params.getParam("event_file", eventFile);
+      long eventFileHdu;
+      params.getParam("event_file_hdu", eventFileHdu);
+      std::vector<std::string> eventFiles;
+      ::file_ok(eventFile);
+      ::resolve_fits_files(eventFile, eventFiles);
+      std::vector<std::string>::const_iterator evIt = eventFiles.begin();
+      for ( ; evIt != eventFiles.end(); evIt++) {
+         ::file_ok(*evIt);
+         logLike.getEvents(*evIt, eventFileHdu);
+      }
 
 // Compute the Event responses to the diffuse components.
-   logLike.computeEventResponses();
+      logLike.computeEventResponses();
 
 // Select an optimizer.
-   std::string optimizer;
-   params.getParam("optimizer", optimizer);
-   optimizers::Optimizer *myOpt = 0;
-   if (optimizer == "LBFGS") {
-      myOpt = new optimizers::Lbfgs(logLike);
-   } else if (optimizer == "MINUIT") {
-      myOpt = new optimizers::Minuit(logLike);
-   } else if (optimizer == "DRMNGB") {
-      myOpt = new optimizers::Drmngb(logLike);
-   }
+      std::string optimizer;
+      params.getParam("optimizer", optimizer);
+      optimizers::Optimizer *myOpt = 0;
+      if (optimizer == "LBFGS") {
+         myOpt = new optimizers::Lbfgs(logLike);
+      } else if (optimizer == "MINUIT") {
+         myOpt = new optimizers::Minuit(logLike);
+      } else if (optimizer == "DRMNGB") {
+         myOpt = new optimizers::Drmngb(logLike);
+      }
 
 // Set the verbosity level and convergence tolerance.
-   long verbose;
-   params.getParam("fit_verbosity", verbose);
-   double tol;
-   params.getParam("fit_tolerance", tol);
+      long verbose;
+      params.getParam("fit_verbosity", verbose);
+      double tol;
+      params.getParam("fit_tolerance", tol);
 
 // Retrieve map dimensions.
-   std::string coordSystem;
-   params.getParam("Coordinate_system", coordSystem);
-   double lonMax;
-   params.getParam("Longitude_max", lonMax);
-   double lonMin;
-   params.getParam("Longitude_min", lonMin);
-   long nlon;
-   params.getParam("Number_of_longitude_points", nlon);
-   double latMax;
-   params.getParam("Latitude_max", latMax);
-   double latMin;
-   params.getParam("Latitude_min", latMin);
-   long nlat;
-   params.getParam("Number_of_latitude_points", nlat);
-
-   std::vector<double> lonValues;
-   makeDoubleVector(lonMin, lonMax, nlon, lonValues);
-   std::vector<double> latValues;
-   makeDoubleVector(latMin, latMax, nlat, latValues);
-
-   std::string srcName("testSource");
-   optimizers::dArg dummy(1.);
-
+      std::string coordSystem;
+      params.getParam("Coordinate_system", coordSystem);
+      double lonMax;
+      params.getParam("Longitude_max", lonMax);
+      double lonMin;
+      params.getParam("Longitude_min", lonMin);
+      long nlon;
+      params.getParam("Number_of_longitude_points", nlon);
+      double latMax;
+      params.getParam("Latitude_max", latMax);
+      double latMin;
+      params.getParam("Latitude_min", latMin);
+      long nlat;
+      params.getParam("Number_of_latitude_points", nlat);
+      
+      std::vector<double> lonValues;
+      makeDoubleVector(lonMin, lonMax, nlon, lonValues);
+      std::vector<double> latValues;
+      makeDoubleVector(latMin, latMax, nlat, latValues);
+      
+      std::string srcName("testSource");
+      optimizers::dArg dummy(1.);
+      
 // Save the best-fit value in the null hypothesis.
-   myOpt->find_min(verbose, tol);
-   double logLike0 = logLike(dummy);
+      myOpt->find_min(verbose, tol);
+      double logLike0 = logLike(dummy);
 
 // Create a putative PointSource to be moved to each map location.
-   PointSource testSrc;
-   setPointSourceSpectrum(testSrc);
-   testSrc.setName(srcName);
-
-   bool computeExposure(true);
-
-   std::vector< std::vector<double> > myMap(latValues.size());
-
+      PointSource testSrc;
+      setPointSourceSpectrum(testSrc);
+      testSrc.setName(srcName);
+      
+      bool computeExposure(true);
+      
+      std::vector< std::vector<double> > myMap(latValues.size());
+      
 // Loop over map positions.
-   for (unsigned int jj = 0; jj < latValues.size(); jj++) {
-      myMap[jj].reserve(lonValues.size());
-      for (unsigned int ii = 0; ii < lonValues.size(); ii++) {
-         if (coordSystem == "CEL") {
-            testSrc.setDir(lonValues[ii], latValues[jj], computeExposure);
-         } else {
-            testSrc.setGalDir(lonValues[ii], latValues[jj], computeExposure);
+      for (unsigned int jj = 0; jj < latValues.size(); jj++) {
+         myMap[jj].reserve(lonValues.size());
+         for (unsigned int ii = 0; ii < lonValues.size(); ii++) {
+            if (coordSystem == "CEL") {
+               testSrc.setDir(lonValues[ii], latValues[jj], computeExposure);
+            } else {
+               testSrc.setGalDir(lonValues[ii], latValues[jj], 
+                                 computeExposure);
+            }
+            logLike.addSource(&testSrc);
+            myOpt->find_min(verbose, tol);
+            myMap[jj].push_back(2.*(logLike(dummy) - logLike0));
+            if (verbose > 0) {
+               std::cout << lonValues[ii] << "  "
+                         << latValues[jj] << "  "
+                         << myMap[jj][ii] 
+                         << std::endl;
+            }
+            logLike.deleteSource(srcName);
          }
-         logLike.addSource(&testSrc);
-         myOpt->find_min(verbose, tol);
-         myMap[jj].push_back(2.*(logLike(dummy) - logLike0));
-         if (verbose > 0) {
-            std::cout << lonValues[ii] << "  "
-                      << latValues[jj] << "  "
-                      << myMap[jj][ii] 
-                      << std::endl;
-         }
-         logLike.deleteSource(srcName);
       }
-   }
    
-   std::string outputFile;
-   params.getParam("TS_map_file", outputFile);
-   write_fits_file(outputFile, lonValues, latValues, myMap, coordSystem);
+      std::string outputFile;
+      params.getParam("TS_map_file", outputFile);
+      write_fits_file(outputFile, lonValues, latValues, myMap, coordSystem);
 
-   delete myOpt;
+      delete myOpt;
 
    } catch (hoops::Hexception &eObj) {
       std::cout << "HOOPS exception code: "

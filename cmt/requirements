@@ -4,7 +4,7 @@ version v2r6p9
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.76 2004/01/08 20:19:17 jchiang Exp $
+# $Id: requirements,v 1.77 2004/01/10 22:53:09 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -21,6 +21,7 @@ apply_pattern package_linkopts
 private
 
 use hoops v*
+use hoopsUtil v*
 
 #use python v2* IExternal
 #macro pydir ../python/
