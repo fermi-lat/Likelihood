@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  6 13:52:13 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+use optimizers package
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  6 13:52:12 PDT 2003
 Likelihood/src
 
