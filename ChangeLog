@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov  7 17:24:44 PST 2003
+Likelihood/src
+
+Modified Files:
+	AbsEdge.cxx BrokenPowerLaw.cxx OneSourceFunc.cxx OptEM.cxx 
+	SourceFactory.cxx 
+Log Message:
+add expMap app; tests for OptEM
+    *
+------------------------------------------------------------
 User: jchiang  Fri Nov  7 17:24:43 PST 2003
 Likelihood/data
 
