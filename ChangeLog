@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 22 16:39:34 PST 2005
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+prepend IRF name to diffuse response column name
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 22 16:39:32 PST 2005
 Likelihood/src
 
