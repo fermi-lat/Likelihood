@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.27 2004/09/13 15:30:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.28 2004/09/15 23:12:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,6 +40,8 @@
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
 
+#include "EasyPlot.h"
+
 using namespace Likelihood;
 
 /**
@@ -49,7 +51,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.27 2004/09/13 15:30:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.28 2004/09/15 23:12:37 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -247,8 +249,10 @@ void likelihood::writeCountsSpectra() {
    for (int k = 0; k < nee; k++) {
       energies.push_back(emin*exp(estep*k));
    }
+   std::vector<double> evals;
    std::vector<std::string> srcNames;
    m_logLike->getSrcNames(srcNames);
+   std::vector< std::vector<double> > npred(srcNames.size());
    std::ofstream outputFile("counts.dat");
    for (int k = 0; k < nee - 1; k++) {
       bool writeLine(true);
@@ -259,6 +263,8 @@ void likelihood::writeCountsSpectra() {
          double Npred;
          try {
             Npred = src->Npred(energies[k], energies[k+1]);
+            if (i == 0) evals.push_back(log10(sqrt(energies[k]*energies[k+1])));
+            npred[i].push_back(log10(Npred));
             line << Npred << "  ";
          } catch (std::out_of_range & eObj) {
             writeLine = false;
@@ -269,6 +275,13 @@ void likelihood::writeCountsSpectra() {
       }
    }
    outputFile.close();
+
+// plot the data
+   EasyPlot plot;
+   for (unsigned int i = 0; i < npred.size(); i++) {
+      plot.histogram(evals, npred[i]);
+   }
+   EasyPlot::run();
 }
 
 void likelihood::writeCountsMap() {

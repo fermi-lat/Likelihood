@@ -4,7 +4,7 @@ version v4r6p3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.133 2004/09/03 17:51:20 jchiang Exp $
+# $Id: requirements,v 1.134 2004/09/03 21:48:33 jchiang Exp $
 
 use STpolicy v*
 use astro  v*
@@ -32,3 +32,4 @@ private
 
 use hoops v*
 use st_app v*
+use st_graph v*

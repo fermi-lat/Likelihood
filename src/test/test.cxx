@@ -3,12 +3,12 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.24 2004/09/16 23:53:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.25 2004/09/17 01:19:22 jchiang Exp $
  */
 
-#ifdef TRAP_FPE
+//#ifdef TRAP_FPE
 #include <fenv.h>
-#endif
+//#endif
 
 #include <cmath>
 #include <cassert>
@@ -31,6 +31,7 @@
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
+#include "optimizers/Minuit.h"
 
 #include "irfInterface/IrfsFactory.h"
 #include "irfInterface/AcceptanceCone.h"
@@ -566,8 +567,8 @@ void LikelihoodTests::generate_exposureHyperCube() {
 void LikelihoodTests::test_BinnedLikelihood() {
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
-
-   generate_exposureHyperCube();
+   
+//   generate_exposureHyperCube();
    std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
    ExposureCube::readExposureCube(exposureCubeFile);
 
@@ -575,7 +576,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    
    double ra(83.57);
    double dec(22.01);
-   unsigned long npts(40);
+   unsigned long npts(20);
    double emin(30.);
    double emax(2e5);
    unsigned long nee(21);
@@ -624,7 +625,47 @@ void LikelihoodTests::test_BinnedLikelihood() {
    }
    std::cout << std::endl;
 
+   std::vector<double> params;
+   binnedLogLike.getFreeParamValues(params);
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::cout << i << "  " << params[i] << "\n";
+   }
+   std::cout << std::endl;
+
+   std::vector<double> derivs;
+   binnedLogLike.getFreeDerivs(derivs);
+   for (unsigned int i = 0; i < derivs.size(); i++) {
+      std::cout << i << "  " << derivs[i] << "\n";
+   }
+   std::cout << std::endl;
+
+   std::cout << "Testing derivatives" << std::endl;
+   double logLike0 = binnedLogLike.value();
+   double eps(1e-5);
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::vector<double> new_params = params;
+      double delta = eps*new_params[i];
+      new_params[i] += delta;
+      binnedLogLike.setFreeParamValues(new_params);
+      double logLike = binnedLogLike.value();
+      std::cout << derivs[i] << "  ";
+      std::cout << logLike << "  " << logLike0 << "  ";
+      std::cout << (logLike - logLike0)/delta << std::endl;
+   }
+
    delete modelMap;
+
+// Try to fit using binned model.
+
+   optimizers::Minuit my_optimizer(binnedLogLike);
+   int verbose(2);
+   double tol(1e-5);
+   my_optimizer.find_min(verbose, tol);
+   binnedLogLike.getFreeParamValues(params);
+   for (unsigned int i = 0; i < params.size(); i++) {
+      std::cout << "parameter " << i << ": " << params[i] << "\n";
+   }
+   std::cout << std::endl;
 }
 
 void LikelihoodTests::readEventData(const std::string &eventFile,
@@ -709,6 +750,12 @@ srcFactoryInstance(const std::string & roiFile,
 }      
 
 int main() {
+   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
+//    LikelihoodTests my_tests;
+//    my_tests.setUp();
+//    my_tests.test_BinnedLikelihood();
+//    my_tests.tearDown();
+
    CppUnit::TextTestRunner runner;
    runner.addTest(LikelihoodTests::suite());
    bool result = runner.run();

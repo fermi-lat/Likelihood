@@ -1,6 +1,9 @@
 /**
  * @file BinnedLikelihood.cxx
+ * @brief First cut at a binned likelihood implementation.
+ * @author J. Chiang
  *
+ * $Header$
  */
 
 #include "Likelihood/BinnedLikelihood.h"
@@ -56,12 +59,16 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    int indx;
    const std::vector<double> & data = m_dataMap.data();
    for (unsigned int j = 0; j < m_pixels.size(); j++) {
-      for (unsigned int k = 0; j < m_energies.size()-1; k++) {
+      for (unsigned int k = 0; k < m_energies.size()-1; k++) {
          indx = k*m_pixels.size() + j;
          std::vector<double> my_derivs;
-         m_pixels[j].getFreeDerivs(m_energies[k], m_energies[k+1], my_derivs);
+         m_pixels[j].getFreeDerivs(m_energies[k], m_energies[k+1], 
+                                   *(const_cast<BinnedLikelihood *>(this)),
+                                   my_derivs);
          for (int i = 0; i < nparams; i++) {
-            derivs[i] += (data[indx]/m_model[indx] - 1.)*my_derivs[i];
+            if (m_model[indx] > 0) {
+               derivs[i] += (data[indx]/m_model[indx] - 1.)*my_derivs[i];
+            }
          }
       }               
    }

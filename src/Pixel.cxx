@@ -1,10 +1,10 @@
 /**
  * @file Pixel.cxx
- * @brief Flyweight representation of pixels on the sky that provides
+ * @brief Fly-weight representation of pixels on the sky that provides
  * access to model counts and derivatives wrt model parameters.
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.1 2004/09/15 23:12:37 jchiang Exp $
  */
 
 #include "Likelihood/ExposureCube.h"
@@ -14,16 +14,15 @@
 
 namespace Likelihood {
 
-SourceModel * Pixel::s_srcModel = new SourceModel();
-
-double Pixel::modelCounts(double emin, double emax) const {
+double Pixel::modelCounts(double emin, double emax, 
+                          SourceModel & srcModel) const {
    std::vector<std::string> srcNames;
-   s_srcModel->getSrcNames(srcNames);
+   srcModel.getSrcNames(srcNames);
 
    double my_counts(0);
 
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      Source * src = s_srcModel->getSource(srcNames[i]);
+      Source * src = srcModel.getSource(srcNames[i]);
       for (int evtType = 0; evtType < 2; evtType++) {
          Aeff aeff1(src, m_dir, emin, evtType);
          double map_lower = ExposureCube::instance()->value(m_dir, aeff1);
@@ -35,13 +34,13 @@ double Pixel::modelCounts(double emin, double emax) const {
    return my_counts;
 }
 
-void Pixel::getFreeDerivs(double emin, double emax, 
+void Pixel::getFreeDerivs(double emin, double emax, SourceModel & srcModel, 
                           std::vector<double> & derivs) const {
-   derivs.resize(s_srcModel->getNumFreeParams(), 0);
+   derivs.resize(srcModel.getNumFreeParams(), 0);
 
    unsigned int iparam(0);
 
-   const std::map<std::string, Source *> & srcMap = s_srcModel->sources();
+   const std::map<std::string, Source *> & srcMap = srcModel.sources();
 
    std::map<std::string, Source *>::const_iterator src = srcMap.begin();
    for ( ; src != srcMap.end(); ++src) {
