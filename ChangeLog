@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Oct 30 22:05:09 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	SourceModel.h 
+Log Message:
+make xml-related methods virtual to allow overloading by subclasses
+    *
+------------------------------------------------------------
 User: jchiang  Sun Oct 26 17:16:20 PST 2003
 Likelihood/doc
 
