@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.6 2004/11/28 06:58:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.7 2004/11/28 21:52:29 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -95,7 +95,7 @@ gtsrcmaps::gtsrcmaps()
 void gtsrcmaps::run() {
    m_helper->checkOutputFile();
    std::string expcube_file = m_pars["exposure_cube_file"];
-   if (expcube_file == "none" || expcube == "" 
+   if (expcube_file == "none" || expcube_file == "" 
        || !st_facilities::Util::fileExists(expcube_file)) {
       throw std::runtime_error("Please specify a valid exposure cube file.");
    }
