@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar  1 20:51:10 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h PointSource.h Source.h SourceModel.h 
+Removed Files:
+	EventArg.h logSrcModel.h 
+Log Message:
+remove logSrcModel, EventArg classes; refactor SourceModel hierachy, making static variables into data members
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar  1 17:10:55 PST 2005
 Likelihood/src/expMap
 
