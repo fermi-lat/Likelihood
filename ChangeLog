@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct  1 10:03:23 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+fix xml i/o for SourceModel class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct  1 10:03:22 PDT 2003
 Likelihood/src
 
