@@ -3,7 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
-    v2r2   26-Oct-03  JC   add likelihood and TsMap applications
+    v2r3   07-Nov-03  JC   add expMap application, OptEM test code
+                      PLN  add OptEM, OneSourceFunc classes
+    v2r2   05-Nov-03  JC   add likelihood and TsMap applications
     v2r1   26-Oct-03  JC   Use latResponse::IrfsFactory
     v2r0   24-Oct-03  JC   Use latResponse package; remove Response hierarchy
     v1r3   18-Oct-03  JC   Move Table class to latResponse; prepare for
