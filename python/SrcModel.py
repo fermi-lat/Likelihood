@@ -4,7 +4,7 @@ SourceModel interface to allow for manipulation of fit parameters.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.3 2005/02/02 20:04:45 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.4 2005/02/04 15:06:56 jchiang Exp $
 #
 import sys
 import pyLike
@@ -31,10 +31,11 @@ class SourceModel(object):
         for srcName in self.srcNames:
             src = self[srcName]
             for funcName in src.funcs:
-                func = src.funcs[funcName]
-                for param in func.paramNames:
-                    self.params.append(func.getParam(param))
-                    src.funcs[funcName].appendParId(indx.next())
+                if funcName == "Spectrum":
+                    func = src.funcs[funcName]
+                    for param in func.paramNames:
+                        self.params.append(func.getParam(param))
+                        src.funcs[funcName].appendParId(indx.next())
     def __setitem__(self, indx, value):
         self.params[indx].setValue(value)
         self.params[indx].setError(0)
@@ -43,13 +44,17 @@ class SourceModel(object):
             return self.params[srcName]
         except:
             try:
-                return self.srcs[srcName]
+                return self.srcs[self._findSrc(srcName)]
             except:
                 pass
+    def _findSrc(self, name):
+        for item in self.srcNames:
+            if item.find(name) != -1:
+                return item
     def __repr__(self):
         lines = []
         for src in self.srcNames:
-            lines.append(src)
+#            lines.append(src)
             lines.append(self[src].__repr__('   '))
         return "\n".join(lines)
 
@@ -62,12 +67,13 @@ class Source(object):
             self.funcs[item] = Function(funcs[item])
     def __getitem__(self, name):
         return self.funcs[name]
-    def __repr__(self, prefix=''):
-        lines = [] 
+    def __repr__(self, prefix='   '):
+        lines = [self.src.getName()]
         for item in self.funcs:
-            lines.append(prefix + item + ": " + self[item].genericName())
-            lines.append(self[item].__repr__(prefix))
-        return "\n".join(lines)
+            if item == "Spectrum":
+                lines.append(prefix + item + ": " + self[item].genericName())
+                lines.append(self[item].__repr__(prefix))
+        return "\n".join(lines) + "\n"
 
 class Function(object):
     def __init__(self, func):

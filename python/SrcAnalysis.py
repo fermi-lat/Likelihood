@@ -4,28 +4,30 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.7 2005/02/02 20:04:45 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.8 2005/02/04 15:06:56 jchiang Exp $
 #
 import os, sys
 import numarray as num
 sys.path.insert(0, os.path.join(os.environ['LIKELIHOODROOT'], 'python'))
-import pyLike as Likelihood
+import pyLike
+from SrcModel import SourceModel
 
-_funcFactory = Likelihood.SourceFactory_funcFactory()
+_funcFactory = pyLike.SourceFactory_funcFactory()
 
 class SrcAnalysis(object):
     def __init__(self, srcModel, eventFile, scFile, expMap=None, irfs='TEST',
                  optimizer='Minuit'):
         self.optimizer = optimizer
-        Likelihood.LogLike_loadResponseFunctions(irfs)
+        pyLike.LogLike_loadResponseFunctions(irfs)
         if expMap is not None:
-            Likelihood.ExposureMap_readExposureFile(expMap)
-        self.logLike = Likelihood.LogLike()
+            pyLike.ExposureMap_readExposureFile(expMap)
+        self.logLike = pyLike.LogLike()
         self._readData(scFile, eventFile)
         self.events = self.logLike.events();
         self.logLike.readXml(srcModel, _funcFactory)
         self.logLike.computeEventResponses()
-        eMin, eMax = Likelihood.RoiCuts_instance().getEnergyCuts()
+        self.model = SourceModel(self.logLike)
+        eMin, eMax = pyLike.RoiCuts_instance().getEnergyCuts()
         nee = 21
         estep = num.log(eMax/eMin)/(nee-1)
         self.energies = eMin*num.exp(estep*num.arange(nee, type=num.Float))
@@ -43,12 +45,12 @@ class SrcAnalysis(object):
         self._readEvents(eventFile)
     def _readScData(self, scFile):
         scFiles = self._fileList(scFile)
-        Likelihood.ScData_readData(scFiles[0], True)
+        pyLike.ScData_readData(scFiles[0], True)
         for file in scFiles[1:]:
-            Likelihood.ScData_readData(scFile)
+            pyLike.ScData_readData(scFile)
     def _readEvents(self, eventFile):
         eventFiles = self._fileList(eventFile)
-        Likelihood.RoiCuts_instance().readCuts(eventFiles[0])
+        pyLike.RoiCuts_instance().readCuts(eventFiles[0])
         for file in eventFiles:
             self.logLike.getEvents(file)
     def _Nobs(self, emin, emax):
@@ -76,74 +78,73 @@ class SrcAnalysis(object):
         for emin, emax in zip(self.energies[:-1], self.energies[1:]):
             cnts.append(source.Npred(emin, emax))
         return num.array(cnts)
-    def _plot(self, source, oplot=False, yrange=None, color='black'):
+    def _plot_model(self, source, yrange=None, lineStyle="Dot",
+                    color='black'):
         import hippoplotter as plot
-        if oplot and self.disp is not None:
+        if self.disp is not None:
             plot.canvas.selectDisplay(self.disp)
         else:
             self.plotData(yrange)
             
-        col = lambda x: num.array(self.data_nt.getColumn(x))
+        self.col = lambda x: num.array(self.data_nt.getColumn(x))
         
-        energies = col('energy')
-        model = self._srcCnts(self.logLike.getSource(source))
-        plot.scatter(energies, model, pointRep='Line', oplot=1, color=color)
+        energies = self.col('energy')
+        try:
+            model = self._srcCnts(self.logLike.getSource(source))
+        except:
+            model = source
+        plot.scatter(energies, model, oplot=True, pointRep='Line',
+                     lineStyle=lineStyle, color=color)
+        return model
+    def _plot_residuals(self, model, oplot=None, color='black'):
+        import hippoplotter as plot
+        resid = (self.col('nobs') - model)/model
+        resid_err = self.col('nobs_err')/model
 
-        resid = (col('nobs') - model)/model
-        resid_err = col('nobs_err')/model
-
+        energies = self.col('energy')
         nt = plot.newNTuple((energies, resid, resid_err),
-                            ('energy', 'resid', 'resid_err'))
+                            ('energy', 'residuals', 'resid_err'))
         if oplot and self.resids is not None:
             plot.canvas.selectDisplay(self.resids)
-            rep = plot.XYPlot(nt, 'energy', 'resid', yerr='resid_err',
-                                      xlog=1, oplot=1, color=color)
+            rep = plot.XYPlot(nt, 'energy', 'residuals', yerr='resid_err',
+                              xlog=1, oplot=1, color=color)
             rep.setSymbol('filled_square', 2)
         else:
-            self.resids = plot.XYPlot(nt, 'energy', 'resid', yerr='resid_err',
-                                      xlog=1, color=color, yrange=(-1, 1))
+            self.resids = plot.XYPlot(nt, 'energy', 'residuals',
+                                      yerr='resid_err', xlog=1, color=color,
+                                      yrange=(-1, 1))
             self.resids.getDataRep().setSymbol('filled_square', 2)
     def plot(self, srcs=None, oplot=False, yrange=None, color='black'):
         import hippoplotter as plot
         if isinstance(srcs, str):
-            self._plot(srcs, oplot=oplot, yrange=yrange, color=color)
+            total = self._plot_model(srcs, yrange=yrange, color=color,
+                                     lineStyle='Solid')
         else:
             if srcs is None:
-                srcs = Likelihood.StringVector()
+                srcs = pyLike.StringVector()
                 self.logLike.getSrcNames(srcs)
-            self._plot(srcs[0], oplot=oplot, yrange=yrange, color=color)
+            total = self._plot_model(srcs[0], yrange=yrange, color=color)
             if len(srcs) > 1:
                 for src in list(srcs[1:]):
-                    self._plot(src, oplot=True, color=color)
-    def fit(self, optimizer=None, verbose=3, tol=1e-5):
-        errors = self._errors(optimizer, verbose, tol)
-        self._walk(errors)
+                    total += self._plot_model(src, color=color)
+            self._plot_model(total, color=color, lineStyle='Solid')
+        self._plot_residuals(total, oplot=oplot, color=color)
+    def fit(self, verbosity=3, tol=1e-5, optimizer=None):
+        errors = self._errors(optimizer, verbosity, tol)
         return -self.logLike.value()
-    def _errors(self, optimizer=None, verbose=0, tol=1e-5):
+    def _errors(self, optimizer=None, verbosity=0, tol=1e-5):
         self.logLike.syncParams()
         if optimizer is None:
             optimizer = self.optimizer
         myOpt = eval("self.logLike.%s()" % optimizer)
-        myOpt.find_min(verbose, tol)
-        return tuple(myOpt.getUncertainty())
-    def _walk(self, errors=None):
-        if errors is None:
-            errors = self._errors()
-        i = 0
-        srcNames = Likelihood.StringVector()
-        self.logLike.getSrcNames(srcNames)
-        for srcName in srcNames:
-            src = self.logLike.getSource(srcName)
-            srcFuncs = src.getSrcFuncs()
-            for funcName in srcFuncs.keys():
-                func = srcFuncs[funcName]
-                parNames = Likelihood.StringVector()
-                func.getParamNames(parNames)
-                for parName in parNames:
-                    par = func.parameter(parName)
-                    if par.isFree():
-                        par.setError(errors[i])
-                        i += 1
+        myOpt.find_min(verbosity, tol)
+        errors = myOpt.getUncertainty()
+        j = 0
+        for i in range(len(self.model.params)):
+            if self.model[i].isFree():
+                self.model[i].setError(errors[j])
+                j += 1
+        return errors
 
 if __name__ == '__main__':
     srcAnalysis = SrcAnalysis('galdiffuse_model.xml',
