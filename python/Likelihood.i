@@ -1,6 +1,10 @@
 // -*- mode: c++ -*-
 %module Likelihood
 %{
+#include "optimizers/Lbfgs.h"
+#include "optimizers/Drmngb.h"
+#include "optimizers/Minuit.h"
+#include "optimizers/Optimizer.h"
 #include "optimizers/Parameter.h"
 #include "optimizers/ParameterNotFound.h"
 #include "optimizers/Function.h"
@@ -37,9 +41,10 @@ using optimizers::Function;
 using optimizers::Exception;
 %}
 %include stl.i
-//%include /home/jchiang/ST/optimizers/v1r1p1/optimizers/Statistic.h
-%include /home/jchiang/ST/optimizers/v1r1p1/optimizers/Function.h
-%include /home/jchiang/ST/optimizers/v1r1p1/optimizers/FunctionFactory.h
+//%include /home/jchiang/ST/optimizers/v1r3/optimizers/Statistic.h
+%include /home/jchiang/ST/optimizers/v1r3/optimizers/Function.h
+%include /home/jchiang/ST/optimizers/v1r3/optimizers/FunctionFactory.h
+%include /home/jchiang/ST/optimizers/v1r3/optimizers/Optimizer.h
 %include ../Likelihood/Exception.h
 %include ../Likelihood/ResponseFunctions.h
 %include ../Likelihood/Event.h
@@ -113,6 +118,15 @@ using optimizers::Exception;
    }
    void getFreeParamValues(std::vector<double> & params) {
       self->getFreeParamValues(params);
+   }
+   optimizers::Optimizer * Minuit() {
+      return new optimizers::Minuit(*self);
+   }
+   optimizers::Optimizer * Lbfgs() {
+      return new optimizers::Lbfgs(*self);
+   }
+   optimizers::Optimizer * Drmngb() {
+      return new optimizers::Drmngb(*self);
    }
 }
 %extend Likelihood::Event {

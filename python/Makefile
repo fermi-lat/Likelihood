@@ -4,7 +4,7 @@
 #
 # @author J. Chiang
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.4 2004/05/17 23:27:52 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.5 2004/05/24 23:51:30 jchiang Exp $
 #
 
 SWIG = /usr/local/bin/swig -w401 -w402
@@ -17,7 +17,7 @@ PYINCLUDE = -I/usr/local/include/python2.3
 CFLAGS = -w -g -fPIC
 
 INCLUDE = -I$(LIKELIHOODROOT)\
-	-I$(LATRESPONSEROOT)\
+	-I$(IRFINTERFACEROOT)\
 	-I$(ASTROROOT)\
 	-I$(OPTIMIZERSROOT)\
 	-I$(MAP_TOOLSROOT)\
@@ -30,7 +30,7 @@ INCLUDE = -I$(LIKELIHOODROOT)\
 	-I$(GLAST_EXT)/xerces/1.7.0/include/xercesc
 
 LIBS = -L../$(BINDIR)/ -lLikelihoodLib\
-	-L$(LATRESPONSEROOT)/$(BINDIR) -llatResponseLib\
+	-L$(IRFINTERFACEROOT)/$(BINDIR) -lirfInterfaceLib\
 	-L$(MAP_TOOLSROOT)/$(BINDIR) -lmap_toolsLib\
 	-L$(ASTROROOT)/$(BINDIR) -lastro\
 	-L$(OPTIMIZERSROOT)/$(BINDIR) -loptimizersLib\
