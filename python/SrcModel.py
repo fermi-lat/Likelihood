@@ -4,7 +4,7 @@ SourceModel interface to allow for manipulation of fit parameters.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.4 2005/02/04 15:06:56 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.5 2005/02/06 22:50:29 jchiang Exp $
 #
 import sys
 import pyLike
@@ -25,6 +25,7 @@ class SourceModel(object):
         for name in srcNames:
             self.srcs[name] = Source(self.logLike.getSource(name))
         self._walk()
+        self.printFreeOnly = False
     def _walk(self):
         indx = ids()
         self.params = []
@@ -54,8 +55,7 @@ class SourceModel(object):
     def __repr__(self):
         lines = []
         for src in self.srcNames:
-#            lines.append(src)
-            lines.append(self[src].__repr__('   '))
+            lines.append(self[src].__repr__('   ', self.printFreeOnly))
         return "\n".join(lines)
 
 class Source(object):
@@ -67,12 +67,12 @@ class Source(object):
             self.funcs[item] = Function(funcs[item])
     def __getitem__(self, name):
         return self.funcs[name]
-    def __repr__(self, prefix='   '):
+    def __repr__(self, prefix='   ', free_only=False):
         lines = [self.src.getName()]
         for item in self.funcs:
             if item == "Spectrum":
                 lines.append(prefix + item + ": " + self[item].genericName())
-                lines.append(self[item].__repr__(prefix))
+                lines.append(self[item].__repr__(prefix, free_only))
         return "\n".join(lines) + "\n"
 
 class Function(object):
@@ -93,11 +93,12 @@ class Function(object):
         return self.params[name]
     def appendParId(self, indx):
         self._parIds.append(indx)
-    def __repr__(self, prefix=''):
+    def __repr__(self, prefix='', free_only=False):
         lines = []
         for indx, parName in zip(self._parIds, self.paramNames):
             par = self.getParam(parName)
-            lines.append("%-3i%s%s" % (indx, prefix, par.__repr__()))
+            if not free_only or par.isFree():
+                lines.append("%-3i%s%s" % (indx, prefix, par.__repr__()))
         return "\n".join(lines)
     def __getattr__(self, attrname):
         return getattr(self.func, attrname)
