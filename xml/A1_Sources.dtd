@@ -1,11 +1,12 @@
-<!ELEMENT source_library ((source)+ | (source_library)*) >
+<!ELEMENT source_library ((source, default_model*)+ | (source_library)*) >
 <!ATTLIST source_library 
           title CDATA #REQUIRED 
           function_library CDATA " " >
 <!ELEMENT source (spectrum, spatialModel) >
 <!ATTLIST source
           name       CDATA   #REQUIRED 
-          type       CDATA   #REQUIRED >
+          type       CDATA   #REQUIRED 
+          ROI_dist   CDATA   " " >
 <!ELEMENT spectrum (parameter*) >
 <!ATTLIST spectrum 
           type       CDATA   #REQUIRED 
@@ -18,8 +19,13 @@
 <!ATTLIST parameter 
           name       CDATA   #REQUIRED 
           value      CDATA   #REQUIRED 
+	  error      CDATA   " "
 	  unit       CDATA   " "
 	  min        CDATA   #REQUIRED 
 	  max        CDATA   #REQUIRED 
 	  free       CDATA   #REQUIRED 
 	  scale      CDATA   #REQUIRED >
+<!ELEMENT default_model (model_component*) >
+<!ELEMENT model_component EMPTY >
+<!ATTLIST model_component
+          name       CDATA   #REQUIRED >
