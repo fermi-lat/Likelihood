@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 21 07:51:20 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	Pixel.h SourceModel.h 
+Log Message:
+working version of BinnedLikelihood for point sources; plotting interface
+    *
+------------------------------------------------------------
 User: jchiang  Thu Sep 16 18:19:22 PDT 2004
 Likelihood/src/test
 
