@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.1 2004/04/03 22:11:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.2 2004/04/06 03:32:26 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -29,6 +29,7 @@
 
 #include "latResponse/IrfsFactory.h"
 
+#include "Likelihood/AppBase.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SourceModel.h" 
 #include "Likelihood/Source.h"
@@ -44,11 +45,11 @@
 using namespace Likelihood;
 using latResponse::irfsFactory;
 
-class likelihood : public st_app::IApp {
+class likelihood : public AppBase {
 
 public:
 
-   likelihood() : st_app::IApp("likelihood"), m_logLike(0),
+   likelihood() : AppBase("likelihood"), m_logLike(0),
                   m_useOptEM(false), m_opt(0) {}
 
    virtual ~likelihood() throw() {}
@@ -57,17 +58,11 @@ public:
 
 private:
 
-   optimizers::FunctionFactory m_funcFactory;
    LogLike * m_logLike;
    bool m_useOptEM;
    optimizers::Optimizer * m_opt;
 
-   void setUp();
-   void tearDown();
-   void setRoi();
-   void readScData();
-   void readExposureMap();
-   void createResponseFuncs();
+   virtual void tearDown();
    void createStatistic();
    void readEventData();
    void readSourceModel();
@@ -83,10 +78,7 @@ st_app::IApp * my_application = new likelihood();
 
 void likelihood::run() {
    setUp();
-   setRoi();
-   readScData();
    readExposureMap();
-   createResponseFuncs();
    createStatistic();
    readEventData();
 
@@ -122,71 +114,8 @@ void likelihood::run() {
    tearDown();
 }
 
-void likelihood::setUp() {
-#ifdef TRAP_FPE
-   feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
-#endif
-   hoopsPrompt();
-   hoopsSave();
-   bool makeClone(false);
-   m_funcFactory.addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
-   m_funcFactory.addFunc("SpatialMap", new SpatialMap(), makeClone);
-}
-
 void likelihood::tearDown() {
    delete m_logLike;
-}
-
-void likelihood::setRoi() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string roiCutsFile = pars["ROI_cuts_file"];
-   Util::file_ok(roiCutsFile);
-   RoiCuts::setCuts(roiCutsFile);
-}
-
-void likelihood::readScData() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string scFile = pars["Spacecraft_file"];
-   Util::file_ok(scFile);
-   long scHdu = pars["Spacecraft_file_hdu"];
-   std::vector<std::string> scFiles;
-   Util::resolve_fits_files(scFile, scFiles);
-   std::vector<std::string>::const_iterator scIt = scFiles.begin();
-   for ( ; scIt != scFiles.end(); scIt++) {
-      Util::file_ok(*scIt);
-      ScData::readData(*scIt, scHdu);
-   }
-}
-
-void likelihood::readExposureMap() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string exposureFile = pars["Exposure_map_file"];
-   if (exposureFile != "none") {
-      Util::file_ok(exposureFile);
-      ExposureMap::readExposureFile(exposureFile);
-   }
-}
-
-void likelihood::createResponseFuncs() {
-   hoops::IParGroup & pars = hoopsGetParGroup();
-   std::string responseFuncs = pars["Response_functions"];
-   std::map< std::string, std::vector<std::string> > responseIds;
-   responseIds["FRONT"].push_back("DC1::Front");
-   responseIds["BACK"].push_back("DC1::Back");
-   responseIds["FRONT/BACK"].push_back("DC1::Front");
-   responseIds["FRONT/BACK"].push_back("DC1::Back");
-   responseIds["GLAST25"].push_back("Glast25::Front");
-   responseIds["GLAST25"].push_back("Glast25::Back");
-   
-   if (responseIds.count(responseFuncs)) {
-      std::vector<std::string> &resps = responseIds[responseFuncs];
-      for (unsigned int i = 0; i < resps.size(); i++) {
-         ResponseFunctions::addRespPtr(i, irfsFactory().create(resps[i]));
-      }
-   } else {
-      throw std::invalid_argument("Invalid response function choice: "
-                                  + responseFuncs);
-   }
 }
 
 void likelihood::createStatistic() {
