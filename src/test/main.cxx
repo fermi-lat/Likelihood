@@ -116,11 +116,11 @@ void fit_DiffuseSource() {
    int sc_hdu = 2;
    ScData::readData(sc_file, sc_hdu);
 
-   std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
-//   std::string expfile = "exp_dt5.fits";
+//   std::string expfile = test_path + "Data/exp_" + obs_root + "_new.fits";
+   std::string expfile = "exp_" + obs_root + ".fits";
 
 // compute a new exposure map for these data
-//   ExposureMap::computeMap(expfile, 30., 60, 60, 10);
+   ExposureMap::computeMap(expfile, 30., 60, 60, 10);
 
 // must read in the exposure file prior to creating the SourceFactory
 // object since it contains DiffuseSources

@@ -2,7 +2,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.15 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.17 2003/05/06 23:47:54 jchiang Exp $
  */
 
 #ifndef PointSource_h
@@ -12,7 +12,7 @@
 #include "Likelihood/Function.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Event.h"
-#include "Likelihood/Arg.h"
+#include "Likelihood/dArg.h"
 
 namespace Likelihood {
 
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.15 2003/03/25 23:22:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.17 2003/05/06 23:47:54 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -161,6 +161,7 @@ private:
    //! integrals
    class Gint : public Function {
    public:
+      Gint() {};
       Gint(double sig, double cr, double cp, double sp) : 
            m_sig(sig), m_cr(cr), m_cp(cp), m_sp(sp) {}
       virtual ~Gint(){};
@@ -172,6 +173,17 @@ private:
       double m_cp;
       double m_sp;
    };
+
+   //! a static object needed to compute the m_gaussFraction integrals
+   //! using the DGAUS8 integrator
+   static Gint s_gfunc;
+
+   //! a static member function to provide the interface to s_gfunc
+   //! that is required by DGAUS8
+   static double gfuncIntegrand(double *mu) {
+      dArg muarg(*mu);
+      return s_gfunc(muarg);
+   }
 };
 
 } //namespace Likelihood

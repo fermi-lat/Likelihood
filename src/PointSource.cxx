@@ -1,7 +1,7 @@
 /** @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.16 2003/04/25 18:32:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.18 2003/05/06 23:47:55 jchiang Exp $
  */
 
 #include <vector>
@@ -19,6 +19,14 @@
 
 namespace Likelihood {
 
+typedef double (*D_fp)(double*);    // "from" f2c.h
+
+extern "C" {
+   int dgaus8_(D_fp fun, double *a, double *b, 
+               double *err, double *ans, long *ierr);
+}
+
+PointSource::Gint PointSource::s_gfunc;
 bool PointSource::s_haveStaticMembers = false;
 std::vector<double> PointSource::s_energies;
 std::vector<double> PointSource::s_sigGauss;
@@ -195,12 +203,19 @@ void PointSource::computeGaussFractions() {
          if (psi == 0) {
             gauss_int = 0;
          } else {
-// instantiate the integrand object...
-            Gint gfunc(sig, cr, cp, sp);
-// and the integrator object
-            TrapQuad trapQuad(&gfunc);
-//            gauss_int = trapQuad.integral(mup, mum, 10000);
-            gauss_int = trapQuad.integral(mup, mum, 1000);
+// set the object providing the integrand
+            s_gfunc = Gint(sig, cr, cp, sp);
+// use DGAUS8 to perform the integral
+            double err = 1e-5;
+            long ierr;
+            dgaus8_(&PointSource::gfuncIntegrand, &mup, &mum, 
+                    &err, &gauss_int, &ierr);
+// // instantiate the integrand object...
+//             Gint gfunc(sig, cr, cp, sp);
+// // and the integrator object
+//             TrapQuad trapQuad(&gfunc);
+// //            gauss_int = trapQuad.integral(mup, mum, 10000);
+//             gauss_int = trapQuad.integral(mup, mum, 1000);
          }
          if (psi <= roi_radius) {
             double value = ((1. - exp((mum-1.)/sig/sig))
