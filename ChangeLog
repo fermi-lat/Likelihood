@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon May 24 17:56:20 PDT 2004
+Likelihood/doc
+
+Modified Files:
+	Doxyfile release.notes 
+Log Message:
+add flag to use energy dispersion; cppunit; tagging v4r0
+    *
+------------------------------------------------------------
+User: jchiang  Mon May 24 17:56:20 PDT 2004
 Likelihood/cmt
 
 Modified Files:
