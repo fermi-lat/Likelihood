@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr  6 15:23:42 PDT 2004
+Likelihood/Likelihood
+
+Removed Files:
+	useGoodiNames.h 
+Log Message:
+tagging v3r6
+    *
+------------------------------------------------------------
 User: jchiang  Tue Apr  6 15:19:06 PDT 2004
 Likelihood/src/makeExposureCube
 
