@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 23 09:52:55 PST 2004
+Likelihood/src
+
+Modified Files:
+	OneSourceFunc.cxx 
+Log Message:
+change abs(...) to fabs(...) in OptEM classes; move SourceData into separate files
+    *
+------------------------------------------------------------
 User: jchiang  Sat Feb 21 09:10:38 PST 2004
 Likelihood/src/test
 
