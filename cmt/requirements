@@ -1,10 +1,10 @@
 package Likelihood
-version v2r9
+version v2r10
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.89 2004/02/21 04:18:17 jchiang Exp $
+# $Id: requirements,v 1.90 2004/02/25 18:58:13 jchiang Exp $
 
 use xml v*
 use facilities v2*
@@ -29,7 +29,7 @@ use tuple v*
 
 # allow use of internal path
 macro Likelihood_cppflags "" \
-Linux "-I ../src -g -pedantic -D TRAP_FPE -D USE_GOODI " \
+Linux "-I ../src -g -pedantic -O -D TRAP_FPE -D USE_GOODI " \
 #Linux "-I ../src -g -pedantic -D TRAP_FPE " \
 WIN32 '/I..\src /D"USE_GOODI" /wd4290'
 
@@ -50,6 +50,6 @@ library Likelihood -no_share $(my_headers) *.cxx *.f *.c $(pydir)/*.i
 # applications
 application test_Likelihood test/test.cxx test/SourceData.cxx
 #application old_tests test/main.cxx
-#application likelihoodApp test/likelihood.cxx
-#application TsMap test/TsMap.cxx
-#application expMap test/expMap.cxx
+application likelihoodApp test/likelihood.cxx
+application TsMap test/TsMap.cxx
+application expMap test/expMap.cxx
