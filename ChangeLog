@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec  5 20:58:53 PST 2003
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+uncomment test apps in requirements
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec  5 19:52:41 PST 2003
 Likelihood/src/test
 
