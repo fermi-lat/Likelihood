@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Jun  5 08:22:16 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+diffuseResponses application
+    *
+------------------------------------------------------------
+User: jchiang  Sat Jun  5 08:22:16 PDT 2004
 Likelihood/src/expMap
 
 Modified Files:
