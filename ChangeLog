@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Oct 10 18:34:59 PDT 2004
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h BinnedLikelihood.h LogLike.h ScData.h 
+Log Message:
+refactor parameter access a bit, reorganizing likelihood application mostly
+    *
+------------------------------------------------------------
 User: jchiang  Sat Oct  9 17:17:02 PDT 2004
 Likelihood/src/test
 
