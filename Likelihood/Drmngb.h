@@ -91,6 +91,8 @@ namespace Likelihood {
 		 const int * n, double * v, double *x);
     void divset_(const int * kind, int * iv, const int * liv, const int * lv, 
 		double * v);
+    void dpptri_(const char * uplo, const int * n, double * array,
+		 int * info, int strlen);
   }
   
 } // namespace Likelihood
