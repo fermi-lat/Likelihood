@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Dec  9 11:03:34 PST 2004
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+add some dss keyword related checks to binned like apps
+    *
+------------------------------------------------------------
 User: jchiang  Thu Dec  9 11:03:33 PST 2004
 Likelihood/src
 
