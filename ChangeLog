@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jan 12 12:10:08 PST 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+reformat results.dat in format amenable to python
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 11 07:33:34 PST 2005
 Likelihood/src/likelihood
 
