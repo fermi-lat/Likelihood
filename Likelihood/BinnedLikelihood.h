@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.7 2004/09/24 21:02:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.8 2004/09/25 06:36:32 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -55,7 +55,11 @@ public:
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true) {
       SourceModel::readXml(xmlFile, funcFactory, requireExposure);
-      prepareSourceMaps();
+      if (m_srcMapsFile == "") {
+         createSourceMaps();
+      } else {
+         readSourceMaps();
+      }
    }
 
    virtual CountsMap * createCountsMap() const;
@@ -87,7 +91,9 @@ private:
 
    std::string m_srcMapsFile;
 
-   void prepareSourceMaps();
+   void createSourceMaps();
+
+   void readSourceMaps(std::string filename="");
 
    void computeModelMap(double & npred) const;
 

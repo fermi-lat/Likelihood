@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.29 2004/09/24 03:54:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.30 2004/09/25 06:36:33 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -77,6 +77,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_SourceModel);
    CPPUNIT_TEST(test_PointSource);
    CPPUNIT_TEST(test_DiffuseSource);
+   CPPUNIT_TEST(test_CountsMap);
    CPPUNIT_TEST(test_BinnedLikelihood);
    
    CPPUNIT_TEST_SUITE_END();
@@ -93,7 +94,7 @@ public:
    void test_SourceDerivs();
    void test_PointSource();
    void test_DiffuseSource();
-   void generate_exposureHyperCube();
+   void test_CountsMap();
    void test_BinnedLikelihood();
 
 private:
@@ -128,6 +129,7 @@ private:
                       const std::string & scDataFile,
                       std::vector<Event> & events);
    
+   void generate_exposureHyperCube();
 };
 
 #define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(fabs( (X - Y)/Y ) < m_fracTol)
@@ -566,6 +568,23 @@ void LikelihoodTests::generate_exposureHyperCube() {
    map_tools::ExposureHyperCube cube(exposure, output_file);
 }
 
+void LikelihoodTests::test_CountsMap() {
+   std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
+   double ra(83.57);
+   double dec(22.01);
+   unsigned long npts(40);
+   double emin(30.);
+   double emax(2e5);
+   unsigned long nee(21);
+   CountsMap dataMap(eventFile, m_scFile, ra, dec, "CAR", npts, npts,
+                     0.25, 0, false, "RA", "DEC", emin, emax, nee);
+   const tip::Table * events 
+      = tip::IFileSvc::instance().readTable(eventFile, "events");
+   dataMap.binInput(events->begin(), events->end());
+   dataMap.writeOutput("test_CountsMap", "countsMap.fits");
+   CountsMap dataMap2("countsMap.fits");
+}
+
 void LikelihoodTests::test_BinnedLikelihood() {
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
@@ -759,6 +778,11 @@ int main() {
 #ifdef TRAP_FPE
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
+
+//    LikelihoodTests testObj;
+//    testObj.setUp();
+//    testObj.test_CountsMap();
+//    testObj.tearDown();
 
    CppUnit::TextTestRunner runner;
    runner.addTest(LikelihoodTests::suite());
