@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Aug 16 21:11:23 PDT 2003
+Likelihood/src/test
+
+Modified Files:
+	main.cxx 
+Log Message:
+xml support for ROI cuts
+    *
+------------------------------------------------------------
 User: jchiang  Sat Aug 16 21:11:22 PDT 2003
 Likelihood/src
 
