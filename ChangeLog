@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  2 16:46:51 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h ExposureMap.h Observation.h 
+Log Message:
+convert ExposureMap
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  2 16:17:25 PST 2005
 Likelihood/src/meanPsf
 
