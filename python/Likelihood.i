@@ -34,7 +34,7 @@
 #include <exception>
 using optimizers::Parameter;
 %}
-//%import ../../../optimizers/v0r1p1/python/optimizers.i
+%include stl.i
 %include ../Likelihood/Exception.h
 %include ../Likelihood/Response.h
 %include ../Likelihood/Event.h
@@ -61,61 +61,10 @@ using optimizers::Parameter;
 %include ../Likelihood/Table.h
 %include ../Likelihood/TrapQuad.h
 %include ../Likelihood/ConstantValue.h
-%include stl.i
 %template(DoubleVector) std::vector<double>;
 %template(DoubleVectorVector) std::vector< std::vector<double> >;
 %template(StringVector) std::vector<std::string>;
-%extend Likelihood::Aeff {
-   void readAeffData(char *aeffFile, int hdu) {
-      self->readAeffData(std::string(aeffFile), hdu);
-   }
-}
-%extend Likelihood::ExposureMap {
-   static void readExposureFile(char *exposureFile) {
-      Likelihood::ExposureMap::readExposureFile(std::string(exposureFile));
-   }
-   static void computeMap(char *exposureFile, double sr_radius = 70,
-                          int nlong = 60, int nlat = 60, int nenergies = 10) {
-      Likelihood::ExposureMap::computeMap(std::string(exposureFile),
-                                          sr_radius, nlong, nlat, nenergies);
-   }
-}
-%extend Likelihood::Psf {
-   void readPsfData(char *psfFile, int hdu) {
-      self->readPsfData(std::string(psfFile), hdu);
-   }
-}
-%extend Likelihood::ScData {
-   static void readData(char *file, int hdu) {
-      Likelihood::ScData::readData(std::string(file), hdu);
-   }
-}
-%extend Likelihood::Source {
-   void setName(char *name) {
-      self->setName(std::string(name));
-   }
-}
-%extend Likelihood::SourceFactory {
-   void addSource(char *name, Source *src, bool fromClone = true) {
-      self->addSource(std::string(name), src, fromClone);
-   }
-   Source *create(char *name) {
-      return self->create(std::string(name));
-   }
-}
-%extend Likelihood::SourceModel {
-   Parameter getParam(char *paramName, char *funcName, char *srcName) const {
-      return self->getParam(std::string(paramName), std::string(funcName),
-                            std::string(srcName));
-   }
-   Source *getSource(char *srcName) {
-      return self->getSource(std::string(srcName));
-   }
-}
 %extend Likelihood::logLike_ptsrc {
-   void getEvents(char *eventFile, int hdu) {
-      self->getEvents(std::string(eventFile), hdu);
-   }
    void print_source_params() {
       std::vector<std::string> srcNames;
       self->getSrcNames(srcNames);
