@@ -88,15 +88,39 @@ Parameter* Function::getParam(const std::string &paramName) {
 
 void Function::setParamValues(const std::vector<double> &paramVec) {
    if (paramVec.size() != m_parameter.size()) {
-/* should do some exception handling here */
       std::cerr
          << "The input vector size does not match the number of parameters."
          << std::endl;
    } else {
-      for (unsigned int i = 0; i < m_parameter.size(); i++) {
-	 m_parameter[i].setValue(paramVec[i]);
-      }
+      std::vector<double>::const_iterator it = paramVec.begin();
+      setParamValues_(it);
    }
+}
+
+std::vector<double>::const_iterator Function::setParamValues_(
+   std::vector<double>::const_iterator it) {
+   for (unsigned int i = 0; i < m_parameter.size(); i++) 
+      m_parameter[i].setValue(*it++);
+   return it;
+}
+
+void Function::setFreeParamValues(const std::vector<double> &paramVec) {
+   if (paramVec.size() != getNumFreeParams()) {
+      std::cerr
+         << "The input vector size does not match"
+	 << " the number of free parameters."
+         << std::endl;
+   } else {
+      std::vector<double>::const_iterator it = paramVec.begin();
+      setFreeParamValues_(it);
+   }
+}
+
+std::vector<double>::const_iterator Function::setFreeParamValues_(
+   std::vector<double>::const_iterator it) {
+   for (unsigned int i = 0; i < m_parameter.size(); i++) 
+      if (m_parameter[i].isFree()) m_parameter[i].setValue(*it++);
+   return it;
 }
 
 unsigned int Function::getNumFreeParams() const {
@@ -104,21 +128,6 @@ unsigned int Function::getNumFreeParams() const {
    for (unsigned int i = 0; i < m_parameter.size(); i++)
       j += m_parameter[i].isFree();
    return j;
-}
-
-void Function::setFreeParamValues(const std::vector<double> &paramVec) {
-   if (paramVec.size() != getNumFreeParams()) {
-/* should do some exception handling here */
-      std::cerr
-         << "The input vector size does not match"
-	 << " the number of free parameters."
-         << std::endl;
-   } else {
-      int j = 0;
-      for (unsigned int i = 0; i < m_parameter.size(); i++) 
-	 if (m_parameter[i].isFree()) 
-	    m_parameter[i].setValue(paramVec[j++]);
-   }
 }
 
 void Function::getFreeParams(std::vector<Parameter> &params) const {

@@ -45,7 +45,7 @@ double Aeff::value(double energy, astro::SkyDir dir, double time) {
 // Here we assume the m_scTimes are at regular intervals.
    double tstep = m_scData[1].time - m_scData[0].time;
    int indx;
-   indx = (time - m_scData[0].time)/tstep;
+   indx = static_cast<int>((time - m_scData[0].time)/tstep);
 
 // inclination wrt spacecraft z-axis in degrees
    double inc = dir.SkyDir::difference(m_scData[indx].zAxis)*180./M_PI;

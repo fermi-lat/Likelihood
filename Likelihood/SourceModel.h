@@ -9,8 +9,8 @@
 #include <vector>
 #include <string>
 
-#include "Function.h"
-#include "Source.h"
+#include "../Likelihood/Function.h"
+#include "../Likelihood/Source.h"
 
 namespace Likelihood {
 
@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/SourceModel.h,v 1.1 2003/02/19 01:34:33 jchiang Exp $ */
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools/Likelihood/Likelihood/SourceModel.h,v 1.2 2003/02/23 22:28:59 jchiang Exp $ */
 
 class SourceModel : public Function {
     
@@ -29,50 +29,46 @@ public:
    
    SourceModel(){setMaxNumParams(0);};
    SourceModel(const SourceModel &rhs);
-   virtual ~SourceModel();
+   virtual ~SourceModel(){};
 
-   //! overloaded setParam to include function name checking
-   void setParam(const Parameter &param, const std::string &fName);
+   //! setParam method to include function and source name checking
+   void setParam(const Parameter &param, const std::string &funcName,
+		 const std::string &srcName);
 
-   //! overloaded setParamValues to ensure synching with 
-   //! m_function parameters
-   void setParamValues(const std::vector<double> &paramVec);
+   //! group parameter access (note name mangling for inheritance 
+   //! from Function)
+   virtual std::vector<double>::const_iterator setParamValues_(
+      std::vector<double>::const_iterator);
+   virtual std::vector<double>::const_iterator setFreeParamValues_(
+      std::vector<double>::const_iterator);
 
    Parameter* getParam(const std::string &paramName, 
-		       const std::string &fName) const;
+		       const std::string &funcName,
+		       const std::string &srcName) const;
 
    //! add and delete sources by name
-   void addSource(Function *func, const std::string &fName);
-   void addSource(Source *src, const std::string &srcName);
-   void deleteSource(const std::string &fName);
+   void addSource(Source *src);
+   void deleteSource(const std::string &srcName);
 
-   //! function access
-   Function * getFunc(const std::string &fName);
-   unsigned int getNumSrcs() const {return m_functions.size();};
+   unsigned int getNumSrcs() const {return m_sources.size();}
    void getSrcNames(std::vector<std::string> &) const;
-   void getNumSrcParams(std::vector<int> &) const;
 
-// this is a bit convoluted, but necessary for derived classes (e.g., Statistic)
+   // this is a bit convoluted, but necessary for derived classes 
+   // (e.g., Statistic)
    double evaluate_at(double) const;
    virtual double value(double x) const {return evaluate_at(x);};
    virtual double operator()(double x) const {return value(x);};
+
    virtual void getDerivs(double, std::vector<double>&) const;
+   virtual void getFreeDerivs(double, std::vector<double>&) const;
 
 protected:
 
-   std::vector<Function *> m_functions;
    std::vector<Source *> m_sources;
 
-private:
-   
-   //! update the parameters in m_functions with those contained
-   //! in m_parameters
+   //! method to sync the m_parameter vector with those of the 
+   //! m_sources' Functions
    void m_syncParams();
-
-   //! need to keep track of which parameters go with which function,
-   //! so we set up a vector of iterators to Parameter
-
-   std::vector<std::vector<Parameter>::iterator> m_paramIterators;
 
 };
 

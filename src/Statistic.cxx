@@ -26,13 +26,17 @@ double Statistic::value(const std::vector<double> &paramVec) {
       for (unsigned int i = 0; i < getNumSrcs(); i++)
 // NB: Here evaluate_at(double) is inherited from SourceModel and
 // evaluates as a function of the data variable.  This will need
-// generalization in SourceModel, i.e., an Event class instance should
+// generalization in SourceModel, i.e., an Event class object should
 // be passed instead.
          src_sum += evaluate_at(m_eventData[0].val[j]);
       my_value += log(src_sum);
    }
    for (unsigned int i = 0; i < getNumSrcs(); i++) {
-      my_value -= (*m_functions[i]).integral(-1e3, 1e3);
+// should typedef this map...
+      std::map<std::string, Function *>::iterator 
+         func_it = (*m_sources[i]).m_functions.begin();
+      for (; func_it != (*m_sources[i]).m_functions.end(); func_it++)
+         my_value -= (*func_it).second->integral(-1e3, 1e3);
    }
    
    return my_value;

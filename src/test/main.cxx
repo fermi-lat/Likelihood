@@ -43,9 +43,9 @@ std::string test_path;
 int main(){
 /* get root path to test data */   
    const char * root = ::getenv("LIKELIHOODROOT");
-   if (!root) {  //use relative path from cmt directory
+   if (!root) {
       test_path = "../src/test/";
-   } else {
+   } else {  //use relative path from cmt directory
       test_path = std::string(root) + "/src/test/";
    }
 
@@ -174,20 +174,21 @@ void test_PointSource_class() {
              << " as a function of time: " 
              << std::endl;
 
+   double photon_flux;
+
    double maxtime = 95.*60.;
    double tstep = 1e2;
-   double photon_flux;
    for (double time = 0; time < maxtime; time += tstep) {
       std::cout << "Time = " << time << std::endl;
       for (int i = 0; i < nenergy; i++) { // loop over energies
          double energy = emin*exp(estep*i);
-         if (i == 0) 
-            photon_flux = my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir());
-         if (photon_flux > 0) {
-            std::cout << energy << "  "
-                      << my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir())
-                      << std::endl;
-         }
+	 if (i == 0) photon_flux = 
+			my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir());
+	 if (photon_flux > 0) {
+	    std::cout << energy << "  ";
+	    std::cout << my_ptsrc.fluxDensity(energy, time, my_ptsrc.getDir())
+		      << std::endl;
+	 }
       }
       if (photon_flux > 0) std::cout << std::endl;
    }
@@ -199,26 +200,25 @@ void test_PointSource_class() {
 /*********************/
 void test_Event_class() {
 
-// instantiate a Statistic, read in the event data, then
-// stuff them into an Event class vector
+// read in the event data, then stuff them into an Event class vector
 
-   Statistic logLike;
+   Table evt_table;
 
 /* read in EVENT file */
    std::string event_file = test_path + "/Data/one_src_0000";
 
-   logLike.readEventData(event_file,
-                         "RA DEC energy time SC_x SC_y SC_z zenith_angle", 2);
+   evt_table.add_columns("RA DEC energy time SC_x SC_y SC_z zenith_angle");
+   evt_table.read_FITS_table(event_file, 2);
 
    typedef std::pair<long, double*> tableColumn;
-   tableColumn ra = logLike.getEventColumn("RA");
-   tableColumn dec = logLike.getEventColumn("DEC");
-   tableColumn energy = logLike.getEventColumn("energy");
-   tableColumn time = logLike.getEventColumn("time");
-   tableColumn sc_x = logLike.getEventColumn("SC_x");
-   tableColumn sc_y = logLike.getEventColumn("SC_y");
-   tableColumn sc_z = logLike.getEventColumn("SC_z");
-   tableColumn zenangle = logLike.getEventColumn("zenith_angle");
+   tableColumn ra(evt_table[0].dim, evt_table[0].val);
+   tableColumn dec(evt_table[1].dim, evt_table[1].val);
+   tableColumn energy(evt_table[2].dim, evt_table[2].val);
+   tableColumn time(evt_table[3].dim, evt_table[3].val);
+   tableColumn sc_x(evt_table[4].dim, evt_table[4].val);
+   tableColumn sc_y(evt_table[5].dim, evt_table[5].val);
+   tableColumn sc_z(evt_table[6].dim, evt_table[6].val);
+   tableColumn zenangle(evt_table[7].dim, evt_table[7].val);
 
    std::vector<Event> my_events;
 
@@ -258,20 +258,22 @@ void test_Event_class() {
 void test_Statistic_class() {
    Statistic logLike;
 
-/* SourceModel function access */
+/* Try to analyze data from a 1D Gaussian distribution using the new
+   Function and SourceModel interfaces (i.e., with iterators and
+   Sources) */
 
-   PowerLaw pl1(2., -2.5, 1.);
-   logLike.addSource(&pl1, "power_law_1");
+/* for this test, the position is arbitrary --- use default (0, 0) --- */
+   PointSource ptsrc;
 
-   PowerLaw pl2(10., -1.7, 1.);
-   logLike.addSource(&pl2, "power_law_2");
+/* but the "Spectrum" is not... */
+   Gaussian gauss(1e4, 20., 5.);
+   ptsrc.setSpectrum(&gauss);
+   ptsrc.setName("Fredrich");
 
-   PowerLaw pl3(1., -2., 20.);
-   logLike.addSource(&pl3, "power_law_3");
-
+   logLike.addSource(&ptsrc);
    report_SrcModel_values(logLike);
 
-/* read in EVENT file */
+/* read in "event" file */
    std::string event_file = test_path + "Data/normal_dist.fits";
 
    logLike.readEventData(event_file, "xi", 2);
@@ -291,20 +293,6 @@ void test_Statistic_class() {
 
    xi = logLike.getEventColumn("foo");
 
-/* delete existing functions and replace with a Gaussian */
-
-   std::vector<std::string> fNames;
-   logLike.getSrcNames(fNames);
-   for (unsigned int i = 0; i < fNames.size(); i++) 
-      logLike.deleteSource(fNames[i]);
-   
-// these are the numbers used to generate the data in "Data/normal_dist.fits"
-   Gaussian gauss(1e4, 20., 5.);
-
-   logLike.addSource(&gauss, "Gauss_model");
-
-   report_SrcModel_values(logLike);
-
 /* evaluate the integral over x */
 
    std::cout << gauss.integral(-1e3, 1e3) << std::endl << std::endl;
@@ -312,8 +300,8 @@ void test_Statistic_class() {
 /* Compute the log-likelihood of this model */
 
 // first get the vector of parameters
-   std::vector<double> params;
-   logLike.getParamValues(params);
+   std::vector<Parameter> params;
+   logLike.getParams(params);
 
 // now, vary over the first parameter and compute the log-likelihood
 // at each step
@@ -323,9 +311,19 @@ void test_Statistic_class() {
    int nx = 20;
    double xstep = log(xmax/xmin)/(nx-1.);
 
+   unsigned int j;
    for (int i = 0; i < nx; i++) {
-      params[0] = xmin*exp(xstep*i);
-      std::cout << params[0] << "  " << logLike(params) << std::endl;
+      for (j = 0; j < params.size(); j++) {
+         if (params[j].getName() == "Prefactor") {
+            params[j].setValue(xmin*exp(xstep*i));
+            break;
+         }
+      }
+      std::vector<double> param_vals;
+      for (unsigned int k = 0; k < params.size(); k++)
+         param_vals.push_back(params[k].getValue());
+      std::cout << params[j].getValue() << "  " 
+                << logLike(param_vals) << std::endl;
    }
 } // Statistic class tests
 
@@ -449,68 +447,53 @@ void test_Table_class() {
 /* SourceModel class tests */
 /***************************/
 void test_SourceModel_class() {
-      
+   
    SourceModel SrcModel;
 
-/* add some initial functions */
-   PowerLaw pl1(1., -2., 1.);
-   PowerLaw pl2(3., -2.5, 10.);
-   PowerLaw pl3(5., -1.9, 5.);
+/* instantiate some point sources */
 
-   SrcModel.addSource(&pl1, string("Joe"));
-   SrcModel.addSource(&pl2, string("Blow"));
-   SrcModel.addSource(&pl3, string("John"));
+   PointSource _3c279(193.98, -5.82);
+   _3c279.setSpectrum(new PowerLaw(74.2, -2.96, 0.1));
+   _3c279.setName("3C 279");
 
-// should see 1  -2  3  -2.5  5  -1.9
-//            Joe  Blow  John
+   PointSource _3c273(187.25, 2.17);
+   _3c273.setSpectrum(new PowerLaw(15.4, -2.58, 0.1));
+   _3c273.setName("3C 273");
+
+   PointSource Crab(83.57, 22.01);
+   Crab.setSpectrum(new PowerLaw(226.2, -2.19, 0.1));
+   Crab.setName("Crab Pulsar");
+
+   PointSource Vela(128.73, -45.20);
+   Vela.setSpectrum(new PowerLaw(834.3, -1.69, 0.1));
+   Vela.setName("Vela Pulsar");
+
+/* add these guys to the SouceModel */
+
+   SrcModel.addSource(&_3c279);
+   SrcModel.addSource(&_3c273);
+   SrcModel.addSource(&Crab);
+   SrcModel.addSource(&Vela);
    report_SrcModel_values(SrcModel);
 
-/* delete a function */
-   SrcModel.deleteSource(string("Blow"));
-
-// should see 1  -2  5  -1.9
-//            Joe  John
+/* delete a Source */
+   SrcModel.deleteSource("Crab Pulsar");
    report_SrcModel_values(SrcModel);
 
 /* add another function */
-   PowerLaw pl4(4.2, -1.7, 3.);
+   PointSource Geminga(98.49, 17.86);
+   Geminga.setSpectrum(new PowerLaw(352.9, -1.66, 0.1));
+   Geminga.setName("Geminga");
+   SrcModel.addSource(&Geminga);
 
-/* make its scale factor free */
-   pl4.setParam("Scale", pl4.getParamValue("Scale"), true);
-   SrcModel.addSource(&pl4, string("Doe"));
+/* make its scale factor free (this could be made easier, e.g., by
+   giving direct parameter access from PointSource) */
 
-// should see 1  -2  5  -1.9  4.2  -1.7  3
-//            Joe  John  Doe
-   report_SrcModel_values(SrcModel);
-
-/* set Joe's spectral index to be fixed */
-   Function *my_func = SrcModel.getFunc("Joe");
-   (*my_func).setParam("Index", (*my_func).getParamValue("Index"), false);
-
-   SrcModel.deleteSource("Joe");
-   SrcModel.addSource(my_func, "Joe");
-
-// should see 5  -1.9  4.2  -1.7  3  1
-//            John  Doe  Joe
-   report_SrcModel_values(SrcModel);
-
-/* get the parameter names */
-
-// should see Prefactor  Index  Prefactor  Index  Scale  Prefactor
-   std::vector<std::string> paramNames;
-   SrcModel.getParamNames(paramNames);
-   for (unsigned int i = 0; i < paramNames.size(); i++) {
-      std::cout << paramNames[i] << "   ";
-   }
-   std::cout << std::endl;
-   std::cout << std::endl;
-
-/* reset Doe's prefactor */
-   Parameter my_param("Prefactor", 13.7, true);
-   SrcModel.setParam(my_param, "Doe");
-
-// should see 5  -1.9  13.7  -1.7  3  1
-//            John  Doe  Joe
+   Parameter param = *(SrcModel.getParam(std::string("Scale"), 
+					 std::string("Spectrum"), 
+					 std::string("Geminga")));
+   param.setFree(true);
+   SrcModel.setParam(param, std::string("Spectrum"), std::string("Geminga"));
    report_SrcModel_values(SrcModel);
 
 /* derivative tests */
@@ -536,31 +519,63 @@ void test_SourceModel_class() {
       std::cout << -num_deriv << std::endl;
 
 // reset the parameters for next time around
-      SrcModel.setParamValues(params_save);
-      params = params_save;
-   }
-   std::cout << std::endl;
+     SrcModel.setParamValues(params_save);
+     params = params_save;
+  }
+  std::cout << std::endl;
+
+/* derivative tests for free parameters only */
+
+   SrcModel.getFreeParamValues(params_save);
+   SrcModel.getFreeDerivs(x, sm_derivs);
+   params = params_save;
+
+   std::cout << "SrcModel Derivatives for Free Parameters: " << std::endl;
+   for (unsigned int i = 0; i < sm_derivs.size(); i++) {
+      std::cout << sm_derivs[i] << ":  ";
+
+// compute the numerical derivative wrt this parameter
+      double delta_param = fabs(params_save[i]/1e7);
+      double num_deriv = SrcModel(x);
+      params[i] += delta_param;
+      SrcModel.setFreeParamValues(params);
+      num_deriv -= SrcModel(x);
+      num_deriv /= delta_param;
+      std::cout << -num_deriv << std::endl;
+
+// reset the parameters for next time around
+     SrcModel.setFreeParamValues(params_save);
+     params = params_save;
+  }
+  std::cout << std::endl;
 
 } // Source Model Class tests
 
 void report_SrcModel_values(const SourceModel &SrcModel) {
 
-/* retrieve parameter values */
-   std::vector<double> paramValues;
-   SrcModel.getParamValues(paramValues);
-   for (unsigned int i = 0; i < paramValues.size(); i++) {
-      std::cout << paramValues[i] << "  ";
-   }
-   std::cout << std::endl;
+/* retrieve Free parameter values */
+  std::vector<double> paramValues;
+  SrcModel.getFreeParamValues(paramValues);
+  for (unsigned int i = 0; i < paramValues.size(); i++) {
+     std::cout << paramValues[i] << "  ";
+  }
+  std::cout << std::endl;
+
+/* retrieve all parameter values */
+  SrcModel.getParamValues(paramValues);
+  for (unsigned int i = 0; i < paramValues.size(); i++) {
+     std::cout << paramValues[i] << "  ";
+  }
+  std::cout << std::endl;
    
-/* retrieve function names */
-   std::vector<std::string> srcNames;
-   SrcModel.getSrcNames(srcNames);
-   for (unsigned int i = 0; i < srcNames.size(); i++) {
-      std::cout << srcNames[i] << "  ";
-   }
-   std::cout << std::endl;
-   std::cout << std::endl;
+/* retrieve Source names */
+  std::vector<std::string> srcNames;
+  SrcModel.getSrcNames(srcNames);
+  for (unsigned int i = 0; i < srcNames.size(); i++) {
+     std::cout << srcNames[i] << "  ";
+  }
+  std::cout << std::endl;
+  std::cout << std::endl;
 }
 
 /************************/
