@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.2 2003/11/10 23:06:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/expMap.cxx,v 1.3 2003/11/12 22:01:41 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -62,12 +62,21 @@ int main(int iargc, char* argv[]) {
    std::string responseFuncs;
    params.getParam("Response_functions", responseFuncs);
    latResponse::IrfsFactory irfsFactory;
-   if (responseFuncs == "COMBINED") {
+   if (responseFuncs == "COMBINED_G25") {
       ResponseFunctions::addRespPtr(4, 
                                     irfsFactory.create("Glast25::Combined"));
-   } else if (responseFuncs == "FRONT/BACK") {
+   } else if (responseFuncs == "FRONT/BACK_G25") {
       ResponseFunctions::addRespPtr(2, irfsFactory.create("Glast25::Front"));
       ResponseFunctions::addRespPtr(3, irfsFactory.create("Glast25::Back"));
+   } else if (responseFuncs == "TESTDC1") {
+      ResponseFunctions::addRespPtr(1, irfsFactory.create("DC1::test"));
+   } else if (responseFuncs == "FRONT") {
+      ResponseFunctions::addRespPtr(5, irfsFactory.create("DC1::Front"));
+   } else if (responseFuncs == "BACK") {
+      ResponseFunctions::addRespPtr(6, irfsFactory.create("DC1::Back"));
+   } else if (responseFuncs == "FRONT/BACK") {
+      ResponseFunctions::addRespPtr(5, irfsFactory.create("DC1::Front"));
+      ResponseFunctions::addRespPtr(6, irfsFactory.create("DC1::Back"));
    }
 
 // Set the source region radius.  This should be larger than the
