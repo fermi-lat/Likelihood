@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.19 2003/10/25 00:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.20 2003/12/04 00:32:16 jchiang Exp $
  */
 
 #include <cassert>
@@ -49,13 +49,13 @@ namespace {
       std::map<unsigned int, latResponse::Irfs *>::iterator respIt
          = respFuncs->begin();
       for ( ; respIt != respFuncs->end(); respIt++) {
-         
-         latResponse::IPsf *psf = respIt->second->psf();
-         latResponse::IAeff *aeff = respIt->second->aeff();
-
-         double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
-         double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-         myResponse += psf_val*aeff_val;
+         if (respIt->second->irfID() == type) {
+            latResponse::IPsf *psf = respIt->second->psf();
+            latResponse::IAeff *aeff = respIt->second->aeff();
+            double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
+            double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
+            myResponse += psf_val*aeff_val;
+         }
       }
       return myResponse;
    }
