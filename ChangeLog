@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Dec  7 16:31:15 PST 2004
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+write and check DSS selections
+    *
+------------------------------------------------------------
 User: jchiang  Tue Dec  7 16:31:13 PST 2004
 Likelihood/src
 
