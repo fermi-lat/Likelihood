@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr  3 15:08:38 PST 2003
+Likelihood/Likelihood
+
+Modified Files:
+	Aeff.h DiffuseSource.h ExposureMap.h Psf.h Response.h ScData.h 
+	SourceFactory.h SourceModel.h 
+Added Files:
+	FitsImage.h SpatialMap.h 
+Log Message:
+add SpatialMap, FitsImage classes and test data
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 25 15:25:20 PST 2003
 Likelihood/doc
 
