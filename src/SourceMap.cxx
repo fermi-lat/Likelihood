@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.20 2004/11/09 00:49:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.21 2004/11/13 15:49:58 jchiang Exp $
  */
 
 #include <algorithm>
@@ -80,7 +80,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap)
    std::vector<Pixel>::const_iterator pixel = pixels.begin();
    for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
       if (haveDiffuseSource) {
-         computeSrcDirs(*pixel);
+         computeSrcDirs(*pixel, src);
       }
       std::vector<double>::const_iterator energy = energies.begin();
       for (int k = 0; energy != energies.end(); ++energy, k++) {
@@ -210,10 +210,10 @@ double SourceMap::sourceRegionIntegral(Source * src, double energy) const {
       double psf_val = psf(energy, s_theta.at(i));
       std::vector<double> phi_integrand;
       for (unsigned int j = 0; j < s_phi.size(); j++) {
-         const astro::SkyDir & srcDir = m_srcDirs.at(indx++);
+         const astro::SkyDir & srcDir = m_srcDirs.at(indx);
          double exposure_val = exposure(energy, srcDir.ra(), srcDir.dec());
-         double source_strength = diffuseSrc->spatialDist(srcDir);
-         phi_integrand.push_back(exposure_val*psf_val*source_strength);
+         phi_integrand.push_back(exposure_val*psf_val
+                                 *m_srcStrengths.at(indx++));
       }
       TrapQuad phiQuad(s_phi, phi_integrand);
       mu_integrand.push_back(phiQuad.integral());
@@ -224,17 +224,21 @@ double SourceMap::sourceRegionIntegral(Source * src, double energy) const {
    return value;
 }
 
-void SourceMap::computeSrcDirs(const Pixel & pixel) {
+void SourceMap::computeSrcDirs(const Pixel & pixel, Source * src) {
+   DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
+
 // Rotation matrix from Equatorial coords to local coord system
    FitsImage::EquinoxRotation eqRot(pixel.dir().ra(), pixel.dir().dec());
 
    m_srcDirs.clear();
+   m_srcStrengths.clear();
 // Loop over source region locations.
    for (unsigned int i = 0; i < s_mu.size(); i++) {
       for (unsigned int j = 0; j < s_phi.size(); j++) {
          astro::SkyDir srcDir;
          getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
          m_srcDirs.push_back(srcDir);
+         m_srcStrengths.push_back(diffuseSrc->spatialDist(srcDir));
       }
    }
 }

@@ -31,8 +31,8 @@ src_files.extend(glob.glob(os.path.join(home, 'src', '*.c')))
 libNames = libraries.ordered_keys
 libNames.insert(0, package)
 libNames.remove('f2c')
-libNames.append('pthread')
 libNames.extend(rootlibs)
+libNames.extend(['pthread', 'm', 'dl'])
 
 env = Environment(CCFLAGS='-g ' + cflags,
                   LINKFLAGS=linkflags)
