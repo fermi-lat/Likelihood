@@ -3,14 +3,16 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.15 2004/02/20 22:51:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.16 2004/06/05 15:22:14 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
 #define Likelihood_SourceFactory_h
 
-#include <string>
 #include <map>
+#include <string>
+
+#include <xercesc/dom/DOM.hpp>
 
 #include "xml/Dom.h"
 
@@ -23,6 +25,8 @@ namespace optimizers {
 
 namespace Likelihood {
 
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+
 /** 
  * @class SourceFactory
  *
@@ -34,7 +38,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.15 2004/02/20 22:51:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.16 2004/06/05 15:22:14 jchiang Exp $
  *
  */
     
@@ -69,16 +73,16 @@ private:
 
    bool m_requireExposure;
 
-   Source *makePointSource(const DomElement &spectrum,
-                           const DomElement &spatialModel,
-                           optimizers::FunctionFactory &funcFactory);
+   Source *makePointSource(const DOMElement * spectrum,
+                           const DOMElement * spatialModel,
+                           optimizers::FunctionFactory & funcFactory);
 
-   Source *makeDiffuseSource(const DomElement &spectrum,
-                             const DomElement &spatialModel,
-                             optimizers::FunctionFactory &funcFactory);
+   Source *makeDiffuseSource(const DOMElement * spectrum,
+                             const DOMElement * spatialModel,
+                             optimizers::FunctionFactory & funcFactory);
 
-   void setSpectrum(Source *src, const DomElement &spectrum,
-                    optimizers::FunctionFactory &funcFactory);
+   void setSpectrum(Source *src, const DOMElement *spectrum,
+                    optimizers::FunctionFactory & funcFactory);
 
 };
 

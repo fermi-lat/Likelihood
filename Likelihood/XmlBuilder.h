@@ -4,16 +4,19 @@
  * the flux and Likelihood packages.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
  */
 
 #ifndef Likelihood_XmlBuilder_h
 #define Likelihood_XmlBuilder_h
 
+#include <xercesc/util/XercesDefs.hpp>
+
 #include <string>
 
-#include "xml/Dom.h"
-#include "xml/XmlParser.h"
+namespace xml {
+   class XmlParser;
+}
 
 namespace Likelihood {
 
@@ -29,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
  */
 
 class XmlBuilder {
@@ -48,7 +51,7 @@ protected:
 
    xml::XmlParser * m_parser;
 
-   DomDocument * m_doc;
+   XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * m_doc;
 
 };
 

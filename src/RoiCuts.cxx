@@ -4,37 +4,33 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.19 2004/07/19 14:16:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.20 2004/07/21 04:00:13 jchiang Exp $
  */
 
 #include <cstdlib>
-#include <sstream>
+
 #include <fstream>
+#include <sstream>
 #include <string>
+
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/dom/DOM.hpp>
 
 #include "xml/Dom.h"
 #include "xml/XmlParser.h"
 
 #include "facilities/Util.h"
 
+#include "optimizers/Dom.h"
+
 #include "Likelihood/Exception.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/RoiCuts.h"
 
-namespace {
-   DomDocument * createDocument() {
-      DomDocument * doc = new DOM_Document();
-      *doc = DOM_Document::createDocument();
-      return doc;
-   }
-   DomElement * createElement(DomDocument * doc, const std::string & name) {
-      DomElement * elt = new DOM_Element();
-      *elt = doc->createElement(name.c_str());
-      return elt;
-   }
-}
-
 namespace Likelihood {
+
+XERCES_CPP_NAMESPACE_USE
 
 // Definitions of static data.
 std::vector<RoiCuts::timeInterval> RoiCuts::s_tLimVec;
@@ -68,9 +64,9 @@ void RoiCuts::setCuts(std::string xmlFile) {
         
    facilities::Util::expandEnvVar(&xmlFile);
         
-   xml::XmlParser *parser = new xml::XmlParser();
+   xml::XmlParser * parser = new xml::XmlParser();
         
-   DomDocument doc = parser->parse(xmlFile.c_str());
+   DOMDocument * doc = parser->parse(xmlFile.c_str());
         
    if (doc == 0) { // xml file not parsed successfully
       std::string errorMessage = "RoiCuts::setCuts:\nInput xml file, "
@@ -79,7 +75,7 @@ void RoiCuts::setCuts(std::string xmlFile) {
    }
 
 // Direct Xerces API call.        
-   DomElement roi = doc.getDocumentElement();
+   DOMElement * roi = doc->getDocumentElement();
    if (!xml::Dom::checkTagName(roi, "Region-of-Interest")) {
       throw Exception(std::string("RoiCuts::setCuts:\n")
                       + "Region-of-Interest root element not found in "
@@ -88,13 +84,14 @@ void RoiCuts::setCuts(std::string xmlFile) {
         
 // Read in time intervals.
    s_tLimVec.clear();
-   std::vector<DomElement> times;
+   std::vector<DOMElement *> times;
    xml::Dom::getChildrenByTagName(roi, "timeInterval", times);
    
-   std::vector<DomElement>::const_iterator timeIt = times.begin();
+   std::vector<DOMElement *>::const_iterator timeIt = times.begin();
    for ( ; timeIt != times.end(); timeIt++) {
-      double start = ::atof(xml::Dom::getAttribute(*timeIt, "start").c_str());
-      double stop = ::atof(xml::Dom::getAttribute(*timeIt, "stop").c_str());
+      double start 
+         = std::atof(xml::Dom::getAttribute(*timeIt, "start").c_str());
+      double stop = std::atof(xml::Dom::getAttribute(*timeIt, "stop").c_str());
       if (xml::Dom::getAttribute(*timeIt, "unit") == "days") { 
 // convert to seconds
          start *= 8.64e4;
@@ -104,10 +101,10 @@ void RoiCuts::setCuts(std::string xmlFile) {
    }
    
 // Energy interval.
-   std::vector<DomElement> child;
+   std::vector<DOMElement *> child;
    xml::Dom::getChildrenByTagName(roi, "energies", child);
-   s_eMin = ::atof(xml::Dom::getAttribute(child[0], "emin").c_str());
-   s_eMax = ::atof(xml::Dom::getAttribute(child[0], "emax").c_str());
+   s_eMin = std::atof(xml::Dom::getAttribute(child[0], "emin").c_str());
+   s_eMax = std::atof(xml::Dom::getAttribute(child[0], "emax").c_str());
    if (xml::Dom::getAttribute(child[0], "unit") == "GeV") {
 // Convert to MeV.
       s_eMin *= 1e3;
@@ -116,8 +113,10 @@ void RoiCuts::setCuts(std::string xmlFile) {
 
    xml::Dom::getChildrenByTagName(roi, "acceptanceCone", child);
    astro::SkyDir roiCenter;
-   double lon = ::atof(xml::Dom::getAttribute(child[0], "longitude").c_str());
-   double lat = ::atof(xml::Dom::getAttribute(child[0], "latitude").c_str());
+   double lon 
+      = std::atof(xml::Dom::getAttribute(child[0], "longitude").c_str());
+   double lat 
+      = std::atof(xml::Dom::getAttribute(child[0], "latitude").c_str());
    if (xml::Dom::getAttribute(child[0], "coordsys") 
        == std::string("Galactic")) {
       roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::GALACTIC);
@@ -135,41 +134,44 @@ void RoiCuts::setCuts(std::string xmlFile) {
    delete parser;
 }
 
-DomElement * RoiCuts::rootDomElement(const std::string &roiTitle) {
+DOMElement * RoiCuts::rootDomElement(const std::string &roiTitle) {
 
-   xml::XmlParser *parser = new xml::XmlParser();
+   xml::XmlParser * parser = new xml::XmlParser();
 
-   DomDocument * doc = ::createDocument();
+   DOMDocument * doc = optimizers::Dom::createDocument();
 
-   DomElement * roiElt = ::createElement(doc, "Region-of-Interest");
-   xml::Dom::addAttribute(*roiElt, "title", roiTitle.c_str());
+   DOMElement * roiElt = optimizers::Dom::createElement(doc,
+                                                        "Region-of-Interest");
+   xml::Dom::addAttribute(roiElt, "title", roiTitle.c_str());
 
 // Loop over time intervals
    std::vector<timeInterval>::iterator tintIt = s_tLimVec.begin();
    for ( ; tintIt != s_tLimVec.end(); tintIt++) {
-      DomElement * tintElt = ::createElement(doc, "timeInterval");
-      xml::Dom::addAttribute(*tintElt, std::string("start"), tintIt->first);
-      xml::Dom::addAttribute(*tintElt, std::string("stop"), tintIt->second);
-      xml::Dom::addAttribute(*tintElt, "unit", "seconds");
-      roiElt->appendChild(*tintElt);
+      DOMElement * tintElt = optimizers::Dom::createElement(doc,
+                                                            "timeInterval");
+      xml::Dom::addAttribute(tintElt, std::string("start"), tintIt->first);
+      xml::Dom::addAttribute(tintElt, std::string("stop"), tintIt->second);
+      xml::Dom::addAttribute(tintElt, "unit", "seconds");
+      optimizers::Dom::appendChild(roiElt, tintElt);
    }
 
-   DomElement * energElt = ::createElement(doc, "energies");
-   xml::Dom::addAttribute(*energElt, std::string("emin"), s_eMin);
-   xml::Dom::addAttribute(*energElt, std::string("emax"), s_eMax);
-   xml::Dom::addAttribute(*energElt, "unit", "MeV");
-   roiElt->appendChild(*energElt);
+   DOMElement * energElt = optimizers::Dom::createElement(doc, "energies");
+   xml::Dom::addAttribute(energElt, std::string("emin"), s_eMin);
+   xml::Dom::addAttribute(energElt, std::string("emax"), s_eMax);
+   xml::Dom::addAttribute(energElt, "unit", "MeV");
+   optimizers::Dom::appendChild(roiElt, energElt);
 
-   DomElement * coneElt = ::createElement(doc, "acceptanceCone");
-   xml::Dom::addAttribute(*coneElt, std::string("longitude"), 
+   DOMElement * coneElt = optimizers::Dom::createElement(doc,
+                                                         "acceptanceCone");
+   xml::Dom::addAttribute(coneElt, std::string("longitude"), 
                           s_roiCone.center().ra());
-   xml::Dom::addAttribute(*coneElt, std::string("latitude"), 
+   xml::Dom::addAttribute(coneElt, std::string("latitude"), 
                           s_roiCone.center().dec());
-   xml::Dom::addAttribute(*coneElt, "coordsys", "J2000");
-   xml::Dom::addAttribute(*coneElt, std::string("radius"), 
+   xml::Dom::addAttribute(coneElt, "coordsys", "J2000");
+   xml::Dom::addAttribute(coneElt, std::string("radius"), 
                           s_roiCone.radius());
 
-   roiElt->appendChild(*coneElt);
+   optimizers::Dom::appendChild(roiElt, coneElt);
    delete parser;
 
    return roiElt;
@@ -183,17 +185,17 @@ void RoiCuts::writeXml(std::string xmlFile, const std::string &roiTitle) {
 
 void RoiCuts::writeXml(std::ostream & ostr, const std::string & roiTitle,
                        bool pretty) {
-   DomElement * roiElt = rootDomElement(roiTitle);
+   DOMElement * roiElt = rootDomElement(roiTitle);
    if (pretty) {
       ostr << "<?xml version='1.0' standalone='no'?>\n"
            << "<!DOCTYPE Region-of-Interest SYSTEM "
            << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >\n";
-      xml::Dom::prettyPrintElement(*roiElt, ostr, "");
+      xml::Dom::prettyPrintElement(roiElt, ostr, "");
    } else {
       ostr << "<?xml version='1.0' standalone='no'?>"
            << "<!DOCTYPE Region-of-Interest SYSTEM "
            << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >";
-      xml::Dom::printElement(*roiElt, ostr);
+      xml::Dom::printElement(roiElt, ostr);
    }
 }
 

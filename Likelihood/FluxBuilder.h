@@ -5,7 +5,7 @@
  * the flux package.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.1 2004/02/18 21:13:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
  */
 
 #ifndef Likelihood_FluxBuilder_h
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.1 2004/02/18 21:13:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.1 2004/02/20 00:02:03 jchiang Exp $
  */
 
 class FluxBuilder : public XmlBuilder {
@@ -44,9 +44,9 @@ public:
       
 private:
 
+   typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DomElement;
    DomElement * m_srcLib;
    DomElement * m_allSrcsElt;
-
    void getSourceType(Source &src, std::string &srcType);
    DomElement * fluxSource(Source & src);
    DomElement * gammaSpectrum(optimizers::Function &spectrum);
