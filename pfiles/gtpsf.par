@@ -1,0 +1,15 @@
+exposure_cube_file,fr,a,"expcube_1_day.fits",,,"Exposure hypercube file"
+outfile,f,a,"psf.fits",,,"output file name"
+outtable,s,h,"PSF",,,"output file extension"
+rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions"
+ra,r,a,83.57,0,360,Source Right Ascension (J2000 degrees)
+dec,r,a,22.01,-90,90,Source Declination (J2000 degrees)
+emin,r,a,20.,,,"minimum energy (MeV)"
+emax,r,a,2e5,,,"maximum energy (MeV)"
+numenergies,i,a,20,,,"number of energies"
+thetamax,r,a,30.,,,"maximum angle (degrees)"
+numthetas,i,a,300,,,"number of angles"
+
+chatter,i,h,2,0,4,Output verbosity
+clobber,        b, h, yes, , , "Overwrite existing output files"
+mode,           s, h, "ql", , , "Mode of automatic parameters"
