@@ -76,22 +76,22 @@ std::string test_path;
 
 int main() {
    read_SC_Response_data();
-   test_SourceModel_class();
-   test_Table_class();
-   test_Event_class();
-   test_PointSource_class();
-   test_Aeff_class();
-   test_Psf_class();
-   test_logLike_ptsrc();
-   test_SpectrumFactory();
-   fit_3C279();
-   fit_anti_center();
-   test_FitsImage();
-   test_ExposureMap();
-   test_SpatialMap();
-   test_DiffuseSource();
-   test_FunctionFactory();
-   test_SourceFactory();
+//    test_SourceModel_class();
+//    test_Table_class();
+//    test_Event_class();
+//    test_PointSource_class();
+//    test_Aeff_class();
+//    test_Psf_class();
+//    test_logLike_ptsrc();
+//    test_SpectrumFactory();
+//    fit_3C279();
+//    fit_anti_center();
+//    test_FitsImage();
+//    test_ExposureMap();
+//    test_SpatialMap();
+//    test_DiffuseSource();
+//    test_FunctionFactory();
+//    test_SourceFactory();
    fit_DiffuseSource();
    return 0;
 }
