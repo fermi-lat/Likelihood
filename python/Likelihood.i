@@ -4,11 +4,12 @@
 #include "astro/SkyDir.h"
 #include "optimizers/Function.h"
 #include "optimizers/Parameter.h"
-#include "latResponse/../src/Table.h"
+#include "optimizers/Statistic.h"
 #include "latResponse/../src/PsfGlast25.h"
 #include "latResponse/../src/AeffGlast25.h"
 #include "latResponse/../src/EdispGlast25.h"
 #include "latResponse/Irfs.h"
+#include "map_tools/Exposure.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
@@ -37,8 +38,10 @@
 #include <exception>
 using optimizers::Parameter;
 using optimizers::Function;
+using optimizers::Statistic;
 %}
 %include stl.i
+%include /nfs/farm/g/glast/u04/jchiang/ST_new/optimizers/v1r1p1/optimizers/Statistic.h
 %include ../Likelihood/Exception.h
 %include ../Likelihood/ResponseFunctions.h
 %include ../Likelihood/Event.h
@@ -138,12 +141,12 @@ using optimizers::Function;
          image.push_back(imageArray[i]);
    }
 }
-%extend Likelihood::PointSource {
-   void setGalDir(double glon, double glat, bool computeExposure=true) {
-      self->setDir( astro::SkyDir(glon, glat, astro::SkyDir::GALACTIC),
-                    computeExposure );
-   }
-}                                                       
+// %extend Likelihood::PointSource {
+//    void setGalDir(double glon, double glat, bool computeExposure=true) {
+//       self->setDir( astro::SkyDir(glon, glat, astro::SkyDir::GALACTIC),
+//                     computeExposure );
+//    }
+// }                                                       
 %extend Likelihood::ResponseFunctions {
    void addGlast25Resp(const std::string &path, unsigned int hdu) {
       std::string psfFile = path + "/psf_lat.fits";

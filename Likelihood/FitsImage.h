@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.13 2003/07/21 22:14:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.14 2003/08/13 18:01:15 jchiang Exp $
  *
  */
 
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.13 2003/07/21 22:14:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.14 2003/08/13 18:01:15 jchiang Exp $
  *
  */
 
@@ -40,7 +40,9 @@ public:
       if (m_haveRefCoord) delete m_eqRot;
    }
 
+#ifndef SWIG
    FitsImage &operator=(const FitsImage &rhs);
+#endif
 
    //! A vector of the image axes dimensions
    void fetchAxisDims(std::vector<int> &axisDims);
@@ -76,6 +78,7 @@ public:
    //! will be indexed by column then row, indx = i + j*NAXIS1.
    void fetchSolidAngles(std::valarray<double> &solidAngles);
 
+#ifndef SWIG
 /**
  * @class EquinoxRotation
  * @brief Nested class to perform the "Equinox Rotation" described in
@@ -93,6 +96,7 @@ public:
    private:
       std::vector< std::vector<double> > rotMatrix;
    };                       
+#endif
 
 protected:
 

@@ -10,43 +10,29 @@ sys.path.append(LikelihoodRoot + "/python")
 
 import optimizers, latResponse, Likelihood
 
-caldbPath = LikelihoodRoot + "/src/test/CALDB"
+irfsFactory = latResponse.irfsFactory()
 
-ra0 = 193.98
-dec0 = -5.82
-#Likelihood.RoiCuts_setCuts(ra0, dec0, 20.)
+ra0 = 83.57
+dec0 = 22.01
 
-Likelihood.RoiCuts_setCuts(LikelihoodRoot+"/xml/RoiCuts.xml")
-#ra0 = 0.; dec0 = 0.
-#Likelihood.RoiCuts_getRaDec(ra0, dec0)
-#print ra0, dec0
+Likelihood.RoiCuts_setCuts(LikelihoodRoot+"/data/RoiCuts.xml")
 
 roiCuts = Likelihood.RoiCuts_instance()
-#roiCuts.getRaDec( ra0, dec0 )
-#print ra0, dec0
-print roiCuts.extractionRegion().radius()
 
-obs_root = "diffuse_test_5"
-
-sc_file = LikelihoodRoot + "/src/test/Data/" + obs_root + "_sc_0000"
+sc_file = LikelihoodRoot + "/data/single_src_scData_0000.fits"
 sc_hdu = 2
 Likelihood.ScData_readData( sc_file, sc_hdu )
 
-expFile = LikelihoodRoot + "/src/test/Data/exp_" + obs_root + "_new.fits"
-Likelihood.ExposureMap_readExposureFile( expFile )
+Likelihood.ResponseFunctions_addRespPtr(0, irfsFactory.create('DC1::Front'))
+Likelihood.ResponseFunctions_addRespPtr(1, irfsFactory.create('DC1::Back'))
 
-respFunctions = Likelihood.ResponseFunctions_instance()
-respFunctions.addGlast25Resp(LikelihoodRoot + "/src/test/CALDB/", 4)
+#expFile = LikelihoodRoot + "/src/test/Data/exp_" + obs_root + "_new.fits"
+#Likelihood.ExposureMap_readExposureFile( expFile )
 
 def make_SourceFactory():
     funcFactory = optimizers.FunctionFactory()
 
-    funcFactory.addFunc("PowerLaw", optimizers.PowerLaw())
-    funcFactory.addFunc("Gaussian", optimizers.Gaussian())
-    funcFactory.addFunc("AbsEdge", optimizers.AbsEdge())
-
     funcFactory.addFunc("SkyDirFunction", Likelihood.SkyDirFunction())
-    funcFactory.addFunc("ConstantValue", optimizers.ConstantValue())
     funcFactory.addFunc("SpatialMap", Likelihood.SpatialMap())
 
     srcFactory = Likelihood.SourceFactory()
@@ -61,19 +47,19 @@ def fitStatistic():
 
     srcFactory = make_SourceFactory()
 
-    ourGalaxy = srcFactory.create("Galactic Diffuse Emission")
-    extragalactic = srcFactory.create("Extragalactic Diffuse Emission")
-    _3c279 = srcFactory.create("Bright Point Source")
-    _3c279.setDir(ra0, dec0)
-    _3c279.setName("3C 279")
+#    ourGalaxy = srcFactory.create("Galactic Diffuse Emission")
+#    extragalactic = srcFactory.create("Extragalactic Diffuse Emission")
+    Crab = srcFactory.create("Bright Point Source")
+    Crab.setDir(ra0, dec0, 0)
+    Crab.setName("Crab")
 
     logLike = Likelihood.LogLike()
 
-    logLike.addSource(ourGalaxy)
-    logLike.addSource(extragalactic)
-    logLike.addSource(_3c279)
+#    logLike.addSource(ourGalaxy)
+#    logLike.addSource(extragalactic)
+    logLike.addSource(Crab)
 
-    eventFile = LikelihoodRoot + "/src/test/Data/" + obs_root + "_0000"
+    eventFile = LikelihoodRoot + "/data/single_src_events_0000.fits"
 
     logLike.getEvents(eventFile, 2)
 

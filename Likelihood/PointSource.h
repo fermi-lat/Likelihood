@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.31 2004/03/11 05:19:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.32 2004/04/19 00:03:32 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.31 2004/03/11 05:19:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.32 2004/04/19 00:03:32 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -179,6 +179,7 @@ private:
    /// integrals (when exposure time hypercubes are not available.)
    double sourceEffArea(double energy, double time) const;
 
+#ifndef SWIG
    /**
     * @class Aeff
     *
@@ -204,6 +205,7 @@ private:
       astro::SkyDir m_srcDir;
 
    };
+#endif
 
 };
 

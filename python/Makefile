@@ -4,41 +4,45 @@
 #
 # @author J. Chiang
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.1 2003/08/16 01:12:25 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/Makefile,v 1.2 2003/08/17 04:11:21 jchiang Exp $
 #
 
-#CXX = /usr/local/bin/g++
-#SWIG = /u1/local/bin/swig
 SWIG = swig
-pypath = /usr/local
+SWIG_DIR = /scratch/local
+PYTHONDIR = $(GLAST_EXT)/python/2.3/Linux
+PYINCLUDE = -I$(PYTHONDIR)/include
 
 CFLAGS = -w
 
-INCLUDE = -I$(CMTPATH)/Likelihood/v1r1\
-	-I$(CMTPATH)/latResponse/v0r2\
-	-I$(CMTPATH)/astro/v0r4\
-	-I$(CMTPATH)/optimizers/v0r1p1\
-	-I$(CMTPATH)/xml/v4r3p0/\
-	-I$(CMTPATH)/facilities/v2r7p2\
-	-I$(CMTPATH)/f2c/v2\
-	-I$(CMTPATH)/GlastPolicy/v5r2p1\
-	-I$(GLAST_EXT)/cfitsio/v2410/include\
-	-I$(GLAST_EXT)/CLHEP/1.8.0.0/include\
+INCLUDE = -I$(LIKELIHOODROOT)\
+	-I$(LATRESPONSEROOT)\
+	-I$(ASTROROOT)\
+	-I$(OPTIMIZERSROOT)\
+	-I$(MAP_TOOLSROOT)\
+	-I$(XMLROOT)\
+	-I$(FACILITIESROOT)\
+	-I$(F2CROOT)\
+	-I$(CFITSIO_DIR)/include\
+	-I$(CLHEP_DIR)/1.8.0.0/include\
 	-I$(GLAST_EXT)/xerces/1.7.0/include\
 	-I$(GLAST_EXT)/xerces/1.7.0/include/xercesc
+#	-I$(TIPROOT)\
 
-PYINCLUDE = -I$(pypath)/include/python2.2
-
-LIBS = -L../rh72_gcc2953/ -lLikelihood\
-	-L$(CMTPATH)/latResponse/v0r2/rh72_gcc2953 -llatResponse\
-	-L$(CMTPATH)/astro/v0r4/rh72_gcc2953 -lastro\
-	-L$(CMTPATH)/optimizers/v0r1p1/rh72_gcc2953 -loptimizers\
-	-L$(CMTPATH)/xml/v4r3p0/rh72_gcc2953 -lxml\
-	-L$(CMTPATH)/facilities/v2r7p2/rh72_gcc2953 -lfacilities\
-	-L$(GLAST_EXT)/cfitsio/v2410/lib -lcfitsio\
-	-L$(GLAST_EXT)/CLHEP/1.8.0.0/lib -lCLHEP\
+LIBS = -L../$(BINDIR)/ -lLikelihoodLib\
+	-L$(LATRESPONSEROOT)/$(BINDIR) -llatResponseLib\
+	-L$(ASTROROOT)/$(BINDIR) -lastro\
+	-L$(OPTIMIZERSROOT)/$(BINDIR) -loptimizersLib\
+	-L$(MAP_TOOLSROOT)/$(BINDIR) -lmap_toolsLib\
+	-L$(TIPROOT)/$(BINDIR) -ltipLib\
+	-L$(XMLROOT)/$(BINDIR) -lxml\
+	-L$(FACILITIESROOT)/$(BINDIR) -lfacilities\
+	-L$(CFITSIO_DIR)/lib -lcfitsio\
+	-L$(CLHEP_DIR)/1.8.0.0/lib -lCLHEP\
 	-L$(GLAST_EXT)/xerces/1.7.0/lib/ -lxerces-c1_7_0 -lpthread\
-	-lg2c -lswigpy
+	-L$(GLAST_EXT)/ROOT/v3.10.02/root/lib\
+	-lCore -lCint -lTree -lMatrix -lPhysics\
+	-lHist -lGraf -lGraf3d -lGpad -lRint -lPostscript\
+	-lg2c -L$(SWIG_DIR)/lib -lswigpy
 
 module_base = Likelihood
 module_name = _${module_base}.so

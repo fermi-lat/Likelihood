@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.7 2004/01/06 00:10:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.8 2004/04/03 16:42:09 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.7 2004/01/06 00:10:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.8 2004/04/03 16:42:09 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -69,12 +69,14 @@ public:
 
    void computeEventResponses(double sr_radius = 30);
 
+#ifndef SWIG
 // Methods and data members from old Likelihood::Statistic:
    void readEventData(const std::string &eventFile, int hdu);
 
    /// Generalized column access
    std::pair<long, std::vector<double> > 
    getEventColumn(const std::string &colname) const;
+#endif
 
    unsigned long nEvents() const {return m_events.size();}
 
