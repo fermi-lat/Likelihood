@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.17 2005/01/26 06:53:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.18 2005/02/15 00:34:45 jchiang Exp $
  */
 
 #include <map>
@@ -92,6 +92,7 @@ void AppHelpers::createResponseFuncs() {
    IrfsFactory * myFactory = IrfsFactory::instance();
 
    std::string responseFuncs = m_pars["rspfunc"];
+   ResponseFunctions::setRespName(responseFuncs);
 
    typedef std::map< std::string, std::vector<std::string> > respMap;
    const respMap & responseIds = irfLoader::Loader::respIds();

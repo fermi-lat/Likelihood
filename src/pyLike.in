@@ -28,6 +28,7 @@
 #include "Likelihood/OneSourceFunc.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/PointSource.h"
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SkyDirArg.h"
@@ -42,6 +43,7 @@
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/Pixel.h"
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/../src/Verbosity.h"
 #include <vector>
 #include <string>
 #include <exception>
@@ -72,6 +74,7 @@ using optimizers::Exception;
 %include $(ST_FACILITIESROOT)/st_facilities/FitsImage.h
 %template (FuncPair) std::pair<std::string, optimizers::Function *>;
 %template (FuncMap) std::map<std::string, optimizers::Function *>;
+%include $(LIKELIHOODROOT)/src/Verbosity.h
 %include $(LIKELIHOODROOT)/Likelihood/Exception.h
 %include $(LIKELIHOODROOT)/Likelihood/ResponseFunctions.h
 %include $(LIKELIHOODROOT)/Likelihood/Event.h
@@ -188,6 +191,7 @@ using optimizers::Exception;
             Likelihood::ResponseFunctions::
                addRespPtr(i, myFactory->create(resps[i]));
          }
+         Likelihood::ResponseFunctions::setRespName(respFuncs);
       } else {
          throw std::invalid_argument("Invalid response function choice: "
                                      + respFuncs);

@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.19 2005/01/03 23:02:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.20 2005/02/01 00:01:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -46,7 +46,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.19 2005/01/03 23:02:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.20 2005/02/01 00:01:12 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -93,8 +93,8 @@ void diffuseResponses::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    bool clobber = m_pars["clobber"];
+   m_helper = new AppHelpers(m_pars);
    if (clobber || !haveDiffuseColumns()) {
-      m_helper = new AppHelpers(m_pars);
       m_helper->readScData();
       m_srcModel = new SourceModel(true);
       ResponseFunctions::setEdispFlag(m_pars["use_energy_dispersion"]);
@@ -139,7 +139,7 @@ bool diffuseResponses::haveDiffuseColumns() {
    readDiffuseNames(srcNames);
    for (std::vector<std::string>::iterator name = srcNames.begin();
         name != srcNames.end(); ++name) {
-      Event::toLower(*name);
+      *name = Event::diffuseSrcName(*name);
       if (std::find(colNames.begin(), colNames.end(), *name) 
           == colNames.end()) {
          return false;
@@ -220,13 +220,15 @@ void diffuseResponses::writeEventResponses() {
       }
       for (unsigned int i = 0; i < m_srcNames.size(); i++) {
          try {
+            std::string fieldName = ResponseFunctions::respName() 
+               + "::" + m_srcNames[i];
             if (ResponseFunctions::useEdisp()) {
 // Add a 3 dim vector containing the Gaussian parameters describing
 // the energy response.
-               events->appendField(m_srcNames[i], "3D");
+               events->appendField(fieldName, "3D");
             } else {
 // Infinite energy response, so just add the single value.
-               events->appendField(m_srcNames[i], "1D");
+               events->appendField(fieldName, "1D");
             }
          } catch (tip::TipException &eObj) {
             if (Likelihood::print_output()) {
@@ -240,12 +242,13 @@ void diffuseResponses::writeEventResponses() {
       for (int j = 0 ; it != events->end(); j++, ++it) {
          std::vector<std::string>::iterator name = m_srcNames.begin();
          for ( ; name != m_srcNames.end(); ++name) {
+            std::string fieldName = Event::diffuseSrcName(*name);
             if (ResponseFunctions::useEdisp()) {
-               tip::Table::Vector<double> respParams = row[*name];
+               tip::Table::Vector<double> respParams = row[fieldName];
                setGaussianParams(m_events[j], *name, respParams);
             } else {
 // Assume infinite energy resolution.
-               row[*name].set(m_events[j].diffuseResponse(1., *name));
+               row[fieldName].set(m_events[j].diffuseResponse(1., *name));
             }
          }
       }
@@ -276,4 +279,3 @@ void diffuseResponses::getDiffuseSources() {
       }
    }
 }
-

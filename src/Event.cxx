@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.44 2005/01/13 22:42:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.45 2005/02/15 00:34:45 jchiang Exp $
  */
 
 #include <cctype>
@@ -69,10 +69,8 @@ Event::Event(double ra, double dec, double energy, double time,
 }
 
 double Event::diffuseResponse(double trueEnergy, 
-                              std::string diffuseComponent) const 
-   throw(Exception) {
-
-   toLower(diffuseComponent);
+                              std::string diffuseComponent) const {
+   diffuseComponent = diffuseSrcName(diffuseComponent);
    int indx(0);
    if (ResponseFunctions::useEdisp()) {
       indx = static_cast<int>((trueEnergy - m_trueEnergies[0])/m_estep);
@@ -105,7 +103,7 @@ double Event::diffuseResponse(double trueEnergy,
 
 const std::vector<double> & 
 Event::diffuseResponse(std::string name) const {
-   toLower(name);
+   name = diffuseSrcName(name);
    std::map<std::string, diffuse_response>::const_iterator it;
    if ((it = m_respDiffuseSrcs.find(name)) == m_respDiffuseSrcs.end()) {
       std::string errorMessage 
@@ -180,7 +178,7 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
       for (unsigned int k = 0; k < srcs.size(); k++) {
          TrapQuad muQuad(s_mu, mu_integrands[k]);
          std::string name = srcs[k]->getName();
-         toLower(name);
+         name = diffuseSrcName(name);
          m_respDiffuseSrcs[name].push_back(muQuad.integral());
       }
    } // loop over trueEnergy
@@ -278,7 +276,7 @@ void Event::getNewDiffuseSrcs(const std::vector<DiffuseSource *> & srcList,
    for (std::vector<DiffuseSource *>::const_iterator it = srcList.begin();
         it != srcList.end(); ++it) {
       std::string name = (*it)->getName();
-      toLower(name);
+      name = diffuseSrcName(name);
       if (!m_respDiffuseSrcs.count(name)) {
          srcs.push_back(*it);
       }
@@ -291,8 +289,15 @@ void Event::toLower(std::string & name) {
    }
 }
 
-void Event::setDiffuseResponse(const std::string & srcName,
+std::string Event::diffuseSrcName(const std::string & srcName) {
+   std::string name(ResponseFunctions::respName() + "::" + srcName);
+   toLower(name);
+   return name;
+}
+
+void Event::setDiffuseResponse(std::string srcName,
                                const std::vector<double> & gaussianParams) {
+   srcName = diffuseSrcName(srcName);
    static double sqrt2pi = sqrt(2.*M_PI);
    std::vector<double>::const_iterator energy = m_trueEnergies.begin();
    m_respDiffuseSrcs[srcName].clear();
