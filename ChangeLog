@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov 10 15:06:20 PST 2003
+Likelihood/src
+
+Modified Files:
+	RunParams.cxx SourceFactory.cxx SourceModel.cxx mainpage.h 
+Removed Files:
+	AbsEdge.cxx AbsEdge.h BrokenPowerLaw.cxx BrokenPowerLaw.h 
+	Gaussian.cxx Gaussian.h PowerLaw.cxx PowerLaw.h 
+Log Message:
+use Function classes from optimizer package; remove redundant code
+    *
+------------------------------------------------------------
 User: jchiang  Mon Nov 10 15:06:18 PST 2003
 Likelihood/data
 
