@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 18 14:22:18 PDT 2004
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+begin to output counts spectra
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 18 14:22:17 PDT 2004
 Likelihood/src
 
