@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 23 14:16:34 PST 2004
+Likelihood/Likelihood
+
+Modified Files:
+	ResponseFunctions.h 
+Log Message:
+put replicated code from PointSource and Event here
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 23 09:52:57 PST 2004
 Likelihood/src/test
 
