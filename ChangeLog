@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Thu Mar  6 15:25:44 PST 2003
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx logLike_ptsrc.cxx 
+Added Files:
+	logSrcModel.cxx 
+Log Message:
+added logSrcModel, EventArg classes
+    *
+------------------------------------------------------------
+User: jchiang  Thu Mar  6 15:25:44 PST 2003
 Likelihood/Likelihood
 
 Modified Files:
