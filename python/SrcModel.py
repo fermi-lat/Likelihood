@@ -4,7 +4,7 @@ SourceModel interface to allow for manipulation of fit parameters.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.5 2005/02/06 22:50:29 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcModel.py,v 1.6 2005/02/10 01:28:03 jchiang Exp $
 #
 import sys
 import pyLike
@@ -18,8 +18,21 @@ def ids(istart=0):
 class SourceModel(object):
     def __init__(self, logLike):
         self.logLike = logLike
+        self._loadSources()
+    def delete(self, source):
+        src = self.logLike.deleteSource(source)
+        self._loadSources()
+        return src
+    def add(self, source):
+        try:
+            print "adding ", source.getName()
+            self.logLike.addSource(source)
+            self._loadSources()
+        except:
+            pass
+    def _loadSources(self):
         srcNames = pyLike.StringVector()
-        logLike.getSrcNames(srcNames)
+        self.logLike.getSrcNames(srcNames)
         self.srcNames = tuple(srcNames)
         self.srcs = {}
         for name in srcNames:
