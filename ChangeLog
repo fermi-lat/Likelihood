@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 10 21:19:36 PST 2004
+Likelihood/src
+
+Modified Files:
+	ExposureMap.cxx PointSource.cxx RoiCuts.cxx 
+Added Files:
+	LikeExposure.cxx 
+Log Message:
+add code for use with map_tools output
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 10 21:19:19 PST 2004
 Likelihood/Likelihood
 
