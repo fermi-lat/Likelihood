@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon May 31 21:27:00 PDT 2004
+Likelihood/src
+
+Modified Files:
+	Event.cxx LogLike.cxx PointSource.cxx ResponseFunctions.cxx 
+Log Message:
+refactor energy dispersion calcs a bit
+    *
+------------------------------------------------------------
+User: jchiang  Mon May 31 21:27:00 PDT 2004
 Likelihood/Likelihood
 
 Modified Files:
