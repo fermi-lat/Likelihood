@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.16 2004/12/30 00:28:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.17 2004/12/30 16:45:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,8 +21,8 @@
 
 #include "st_facilities/Util.h"
 
-#include "xml/Dom.h"
-#include "xml/XmlParser.h"
+#include "xmlBase/Dom.h"
+#include "xmlBase/XmlParser.h"
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
@@ -46,7 +46,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.16 2004/12/30 00:28:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.17 2004/12/30 16:45:44 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -117,14 +117,14 @@ void diffuseResponses::promptForParameters() {
 void diffuseResponses::readDiffuseNames(std::vector<std::string> & srcNames) {
    srcNames.clear();
    std::string xmlFile = m_pars["source_model_file"];
-   xml::XmlParser * parser = new xml::XmlParser();
+   xmlBase::XmlParser * parser = new xmlBase::XmlParser();
    DOMDocument * doc = parser->parse(xmlFile.c_str());
    DOMElement * source_library = doc->getDocumentElement();
    std::vector<DOMElement *> srcs;
-   xml::Dom::getChildrenByTagName(source_library, "source", srcs);
+   xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
    for (unsigned int i = 0; i < srcs.size(); i++) {
-      if (xml::Dom::getAttribute(srcs[i], "type") == "DiffuseSource") {
-         srcNames.push_back(xml::Dom::getAttribute(srcs[i], "name"));
+      if (xmlBase::Dom::getAttribute(srcs[i], "type") == "DiffuseSource") {
+         srcNames.push_back(xmlBase::Dom::getAttribute(srcs[i], "name"));
       }
    }
 }

@@ -3,7 +3,7 @@
  * @brief Class to compare two XML files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.h,v 1.1 2004/02/29 19:56:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.h,v 1.2 2004/11/11 04:32:24 jchiang Exp $
  */
 
 #ifndef LikelihoodTests_XmlDiff_h
@@ -15,7 +15,7 @@
 
 #include <xercesc/dom/DOM.hpp>
 
-#include "xml/Dom.h"
+#include "xmlBase/Dom.h"
 
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
@@ -38,7 +38,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.h,v 1.1 2004/02/29 19:56:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.h,v 1.2 2004/11/11 04:32:24 jchiang Exp $
  */
 
 class XmlDiff {

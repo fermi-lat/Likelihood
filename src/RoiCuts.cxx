@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.27 2004/12/24 16:45:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.28 2004/12/30 00:28:23 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -18,8 +18,8 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOM.hpp>
 
-#include "xml/Dom.h"
-#include "xml/XmlParser.h"
+#include "xmlBase/Dom.h"
+#include "xmlBase/XmlParser.h"
 
 #include "facilities/Util.h"
 
@@ -78,7 +78,7 @@ void RoiCuts::setCuts(std::string xmlFile) {
         
    facilities::Util::expandEnvVar(&xmlFile);
         
-   xml::XmlParser * parser = new xml::XmlParser();
+   xmlBase::XmlParser * parser = new xmlBase::XmlParser();
         
    DOMDocument * doc = parser->parse(xmlFile.c_str());
         
@@ -90,7 +90,7 @@ void RoiCuts::setCuts(std::string xmlFile) {
 
 // Direct Xerces API call.        
    DOMElement * roi = doc->getDocumentElement();
-   if (!xml::Dom::checkTagName(roi, "Region-of-Interest")) {
+   if (!xmlBase::Dom::checkTagName(roi, "Region-of-Interest")) {
       throw Exception(std::string("RoiCuts::setCuts:\n")
                       + "Region-of-Interest root element not found in "
                       + xmlFile);
@@ -99,14 +99,15 @@ void RoiCuts::setCuts(std::string xmlFile) {
 // Read in time intervals.
    s_tLimVec.clear();
    std::vector<DOMElement *> times;
-   xml::Dom::getChildrenByTagName(roi, "timeInterval", times);
+   xmlBase::Dom::getChildrenByTagName(roi, "timeInterval", times);
    
    std::vector<DOMElement *>::const_iterator timeIt = times.begin();
    for ( ; timeIt != times.end(); timeIt++) {
-      double start 
-         = std::atof(xml::Dom::getAttribute(*timeIt, "start").c_str());
-      double stop = std::atof(xml::Dom::getAttribute(*timeIt, "stop").c_str());
-      if (xml::Dom::getAttribute(*timeIt, "unit") == "days") { 
+      double start =
+         std::atof(xmlBase::Dom::getAttribute(*timeIt, "start").c_str());
+      double stop = 
+         std::atof(xmlBase::Dom::getAttribute(*timeIt, "stop").c_str());
+      if (xmlBase::Dom::getAttribute(*timeIt, "unit") == "days") { 
 // convert to seconds
          start *= 8.64e4;
          stop *= 8.64e4;
@@ -116,29 +117,29 @@ void RoiCuts::setCuts(std::string xmlFile) {
    
 // Energy interval.
    std::vector<DOMElement *> child;
-   xml::Dom::getChildrenByTagName(roi, "energies", child);
-   s_eMin = std::atof(xml::Dom::getAttribute(child[0], "emin").c_str());
-   s_eMax = std::atof(xml::Dom::getAttribute(child[0], "emax").c_str());
-   if (xml::Dom::getAttribute(child[0], "unit") == "GeV") {
+   xmlBase::Dom::getChildrenByTagName(roi, "energies", child);
+   s_eMin = std::atof(xmlBase::Dom::getAttribute(child[0], "emin").c_str());
+   s_eMax = std::atof(xmlBase::Dom::getAttribute(child[0], "emax").c_str());
+   if (xmlBase::Dom::getAttribute(child[0], "unit") == "GeV") {
 // Convert to MeV.
       s_eMin *= 1e3;
       s_eMax *= 1e3;
    }
 
-   xml::Dom::getChildrenByTagName(roi, "acceptanceCone", child);
+   xmlBase::Dom::getChildrenByTagName(roi, "acceptanceCone", child);
    astro::SkyDir roiCenter;
    double lon 
-      = std::atof(xml::Dom::getAttribute(child[0], "longitude").c_str());
+      = std::atof(xmlBase::Dom::getAttribute(child[0], "longitude").c_str());
    double lat 
-      = std::atof(xml::Dom::getAttribute(child[0], "latitude").c_str());
-   if (xml::Dom::getAttribute(child[0], "coordsys") 
+      = std::atof(xmlBase::Dom::getAttribute(child[0], "latitude").c_str());
+   if (xmlBase::Dom::getAttribute(child[0], "coordsys") 
        == std::string("Galactic")) {
       roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::GALACTIC);
    } else {
       roiCenter = astro::SkyDir(lon, lat, astro::SkyDir::EQUATORIAL);
    }
    double roiRadius 
-      = atof(xml::Dom::getAttribute(child[0], "radius").c_str());
+      = atof(xmlBase::Dom::getAttribute(child[0], "radius").c_str());
 
    s_roiCone = irfInterface::AcceptanceCone(roiCenter, roiRadius);
 
@@ -250,12 +251,12 @@ void RoiCuts::writeXml(std::ostream & ostr, const std::string & roiTitle,
       ostr << "<?xml version='1.0' standalone='no'?>\n"
            << "<!DOCTYPE Region-of-Interest SYSTEM "
            << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >\n";
-      xml::Dom::prettyPrintElement(roiElt, ostr, "");
+      xmlBase::Dom::prettyPrintElement(roiElt, ostr, "");
    } else {
       ostr << "<?xml version='1.0' standalone='no'?>"
            << "<!DOCTYPE Region-of-Interest SYSTEM "
            << "\"$(LIKELIHOODROOT)/xml/RoiCuts.dtd\" >";
-      xml::Dom::printElement(roiElt, ostr);
+      xmlBase::Dom::printElement(roiElt, ostr);
    }
    roiElt->release();
 }
@@ -298,39 +299,39 @@ bool RoiCuts::accept(const Event &event) {
 
 DOMElement * RoiCuts::rootDomElement(const std::string &roiTitle) {
 
-   xml::XmlParser * parser = new xml::XmlParser();
+   xmlBase::XmlParser * parser = new xmlBase::XmlParser();
 
    DOMDocument * doc = optimizers::Dom::createDocument();
 
    DOMElement * roiElt = optimizers::Dom::createElement(doc,
                                                         "Region-of-Interest");
-   xml::Dom::addAttribute(roiElt, "title", roiTitle.c_str());
+   xmlBase::Dom::addAttribute(roiElt, "title", roiTitle.c_str());
 
 // Loop over time intervals
    std::vector<timeInterval>::iterator tintIt = s_tLimVec.begin();
    for ( ; tintIt != s_tLimVec.end(); tintIt++) {
       DOMElement * tintElt = optimizers::Dom::createElement(doc,
                                                             "timeInterval");
-      xml::Dom::addAttribute(tintElt, std::string("start"), tintIt->first);
-      xml::Dom::addAttribute(tintElt, std::string("stop"), tintIt->second);
-      xml::Dom::addAttribute(tintElt, "unit", "seconds");
+      xmlBase::Dom::addAttribute(tintElt, std::string("start"), tintIt->first);
+      xmlBase::Dom::addAttribute(tintElt, std::string("stop"), tintIt->second);
+      xmlBase::Dom::addAttribute(tintElt, "unit", "seconds");
       optimizers::Dom::appendChild(roiElt, tintElt);
    }
 
    DOMElement * energElt = optimizers::Dom::createElement(doc, "energies");
-   xml::Dom::addAttribute(energElt, std::string("emin"), s_eMin);
-   xml::Dom::addAttribute(energElt, std::string("emax"), s_eMax);
-   xml::Dom::addAttribute(energElt, "unit", "MeV");
+   xmlBase::Dom::addAttribute(energElt, std::string("emin"), s_eMin);
+   xmlBase::Dom::addAttribute(energElt, std::string("emax"), s_eMax);
+   xmlBase::Dom::addAttribute(energElt, "unit", "MeV");
    optimizers::Dom::appendChild(roiElt, energElt);
 
    DOMElement * coneElt = optimizers::Dom::createElement(doc,
                                                          "acceptanceCone");
-   xml::Dom::addAttribute(coneElt, std::string("longitude"), 
+   xmlBase::Dom::addAttribute(coneElt, std::string("longitude"), 
                           s_roiCone.center().ra());
-   xml::Dom::addAttribute(coneElt, std::string("latitude"), 
+   xmlBase::Dom::addAttribute(coneElt, std::string("latitude"), 
                           s_roiCone.center().dec());
-   xml::Dom::addAttribute(coneElt, "coordsys", "J2000");
-   xml::Dom::addAttribute(coneElt, std::string("radius"), 
+   xmlBase::Dom::addAttribute(coneElt, "coordsys", "J2000");
+   xmlBase::Dom::addAttribute(coneElt, std::string("radius"), 
                           s_roiCone.radius());
 
    optimizers::Dom::appendChild(roiElt, coneElt);

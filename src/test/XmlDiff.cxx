@@ -3,14 +3,14 @@
  * @brief Class to compare two XML files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.cxx,v 1.1 2004/02/29 19:56:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.cxx,v 1.2 2004/11/11 04:32:24 jchiang Exp $
  */
 
 #include <fstream>
 
 #include "facilities/Util.h"
 
-#include "xml/XmlParser.h"
+#include "xmlBase/XmlParser.h"
 
 #include "XmlDiff.h"
 
@@ -22,7 +22,7 @@ XmlDiff::XmlDiff(std::string file1, std::string file2,
    facilities::Util::expandEnvVar(&file1);
    facilities::Util::expandEnvVar(&file2);
 
-   xml::XmlParser * parser = new xml::XmlParser();
+   xmlBase::XmlParser * parser = new xmlBase::XmlParser();
 
    DOMDocument * doc1 = parser->parse(file1.c_str());
    createDomElementMap(doc1->getDocumentElement(), m_domMap1);
@@ -59,10 +59,10 @@ bool XmlDiff::compare() {
 void XmlDiff::createDomElementMap(const DOMElement * rootElt, 
                                   DomMap & domMap) {
    std::vector<DOMElement *> elts;
-   xml::Dom::getChildrenByTagName(rootElt, m_tagName, elts);
+   xmlBase::Dom::getChildrenByTagName(rootElt, m_tagName, elts);
    domMap.clear();
    for (unsigned int i = 0; i < elts.size(); i++) {
-      std::string name = xml::Dom::getAttribute(elts[i], m_attribute);
+      std::string name = xmlBase::Dom::getAttribute(elts[i], m_attribute);
       domMap[name] = elts[i];
    }
 }
@@ -72,7 +72,7 @@ void XmlDiff::writeReserializedFile(const std::string & filename,
    std::ofstream outfile(filename.c_str());
    DomMap::const_iterator it;
    for (it = domMap.begin(); it != domMap.end(); it++) {
-      xml::Dom::prettyPrintElement(it->second, outfile, std::string(""));
+      xmlBase::Dom::prettyPrintElement(it->second, outfile, std::string(""));
    }
    outfile.close();
 }

@@ -5,13 +5,13 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.36 2004/11/28 06:58:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.37 2004/12/30 00:28:23 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
 
-#include "xml/Dom.h"
-#include "xml/XmlParser.h"
+#include "xmlBase/Dom.h"
+#include "xmlBase/XmlParser.h"
 
 #include "facilities/Util.h"
 
@@ -89,7 +89,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
    throw(Exception) {
    m_requireExposure = requireExposure;
 
-   xml::XmlParser * parser = new xml::XmlParser();
+   xmlBase::XmlParser * parser = new xmlBase::XmlParser();
 
    DOMDocument * doc = parser->parse(xmlFile.c_str());
 
@@ -101,7 +101,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
 
 // Direct Xerces API call...still available in Xerces 2.6.0:
    DOMElement * source_library = doc->getDocumentElement();
-   if (!xml::Dom::checkTagName(source_library, "source_library")) {
+   if (!xmlBase::Dom::checkTagName(source_library, "source_library")) {
       throw Exception("SourceFactory::readXml:\nsource_library not found in "
          + xmlFile);
    }
@@ -109,7 +109,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
 // Prepare the FunctionFactory object using the xml file specified in
 // the source_library tag.
    std::string function_library 
-      = xml::Dom::getAttribute(source_library, "function_library");
+      = xmlBase::Dom::getAttribute(source_library, "function_library");
    if (function_library.find("xml") != std::string::npos) {
       facilities::Util::expandEnvVar(&function_library);
       try {
@@ -121,15 +121,15 @@ void SourceFactory::readXml(const std::string &xmlFile,
 
 // Loop through source elements, adding each as a Source object prototype.
    std::vector<DOMElement *> srcs;
-   xml::Dom::getChildrenByTagName(source_library, "source", srcs);
+   xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
    std::vector<DOMElement *>::const_iterator srcIt = srcs.begin();
    for ( ; srcIt != srcs.end(); srcIt++) {
 
 // Get the type of this source which is either PointSource or
 // DiffuseSource (CompositeSource pending)...
-      std::string srcType = xml::Dom::getAttribute(*srcIt, "type");
+      std::string srcType = xmlBase::Dom::getAttribute(*srcIt, "type");
 // and its name.
-      std::string srcName = xml::Dom::getAttribute(*srcIt, "name");
+      std::string srcName = xmlBase::Dom::getAttribute(*srcIt, "name");
 
       if (m_verbose && print_output()) {
          std::cout << "Creating source named "
@@ -142,14 +142,14 @@ void SourceFactory::readXml(const std::string &xmlFile,
 
       DOMElement * spectrum;
       try {
-         xml::Dom::getChildrenByTagName(*srcIt, "spectrum", child);
+         xmlBase::Dom::getChildrenByTagName(*srcIt, "spectrum", child);
          spectrum = child[0];
       } catch (optimizers::Exception &eObj) {
          std::cerr << eObj.what() << std::endl;
          throw;
       }
 
-      xml::Dom::getChildrenByTagName(*srcIt, "spatialModel", child);
+      xmlBase::Dom::getChildrenByTagName(*srcIt, "spatialModel", child);
       DOMElement * spatialModel = child[0];
 
 // The processing logic for the spatialModel depends on the source
@@ -182,7 +182,7 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
                                         const DOMElement * spatialModel,
                                         optimizers::FunctionFactory 
                                         &funcFactory) {
-   std::string funcType = xml::Dom::getAttribute(spatialModel, "type");
+   std::string funcType = xmlBase::Dom::getAttribute(spatialModel, "type");
    if (funcType != "SkyDirFunction") {
       std::string errorMessage = std::string("SourceFactory::readXml:\n") 
          + "Trying to create a PointSource with a spatialModel of type "
@@ -199,15 +199,15 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
 // Extract the (RA, Dec) from the parameter elements.
    double ra(0), dec(0);
    std::vector<DOMElement *> params;
-   xml::Dom::getChildrenByTagName(spatialModel, "parameter", params);
+   xmlBase::Dom::getChildrenByTagName(spatialModel, "parameter", params);
    std::vector<DOMElement *>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
-      std::string name = xml::Dom::getAttribute(*paramIt, "name");
+      std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
       if (name == "RA") {
-         ra = ::atof( xml::Dom::getAttribute(*paramIt, "value").c_str() );
+         ra = ::atof( xmlBase::Dom::getAttribute(*paramIt, "value").c_str() );
       }
       if (name == "DEC") {
-         dec = ::atof( xml::Dom::getAttribute(*paramIt, "value").c_str() );
+         dec = ::atof( xmlBase::Dom::getAttribute(*paramIt, "value").c_str() );
       }
    }
 
@@ -237,10 +237,10 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
                                           const DOMElement * spatialModel,
                                           optimizers::FunctionFactory 
                                           &funcFactory) {
-   std::string type = xml::Dom::getAttribute(spatialModel, "type");
+   std::string type = xmlBase::Dom::getAttribute(spatialModel, "type");
    optimizers::Function *spatialDist = funcFactory.create(type);
    std::vector<DOMElement *> params;
-   xml::Dom::getChildrenByTagName(spatialModel, "parameter", params);
+   xmlBase::Dom::getChildrenByTagName(spatialModel, "parameter", params);
    std::vector<DOMElement *>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
       optimizers::Parameter parameter;
@@ -249,7 +249,7 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
    }
    if (type == "SpatialMap") {
       std::string fitsFile 
-         = xml::Dom::getAttribute(spatialModel, "file");
+         = xmlBase::Dom::getAttribute(spatialModel, "file");
       dynamic_cast<SpatialMap *>(spatialDist)->readFitsFile(fitsFile);
    }
    Source * src;
@@ -267,12 +267,12 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
 
 void SourceFactory::setSpectrum(Source *src, const DOMElement * spectrum, 
                                 optimizers::FunctionFactory &funcFactory) {
-   std::string type = xml::Dom::getAttribute(spectrum, "type");
+   std::string type = xmlBase::Dom::getAttribute(spectrum, "type");
    optimizers::Function *spec = funcFactory.create(type);
 
 // Fetch the parameter elements (if any).
    std::vector<DOMElement *> params;
-   xml::Dom::getChildrenByTagName(spectrum, "parameter", params);
+   xmlBase::Dom::getChildrenByTagName(spectrum, "parameter", params);
    if (params.size() > 0) {
       std::vector<DOMElement *>::const_iterator paramIt = params.begin();
       for ( ; paramIt != params.end(); paramIt++) {
