@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.24 2005/03/16 21:32:30 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.25 2005/03/23 03:45:04 jchiang Exp $
 #
 import os
 import glob
@@ -201,13 +201,13 @@ class SrcAnalysis(object):
     def fit(self, verbosity=3, tol=1e-5, optimizer=None):
         errors = self._errors(optimizer, verbosity, tol)
         return -self.logLike.value()
-    def _errors(self, optimizer=None, verbosity=0, tol=1e-5):
+    def _errors(self, optimizer=None, verbosity=0, tol=1e-5, useBase=False):
         self.logLike.syncParams()
         if optimizer is None:
             optimizer = self.optimizer
         myOpt = eval("self.logLike.%s()" % optimizer)
         myOpt.find_min(verbosity, tol)
-        errors = myOpt.getUncertainty()
+        errors = myOpt.getUncertainty(useBase)
         j = 0
         for i in range(len(self.model.params)):
             if self.model[i].isFree():
