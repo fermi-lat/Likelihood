@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr  8 10:35:03 PDT 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+update SrcAnalysis for useBase option in Optimizer::getUncertainty; get rid of graphing stuff
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr  8 10:35:01 PDT 2005
 Likelihood/python
 
