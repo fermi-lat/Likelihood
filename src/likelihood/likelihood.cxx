@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.78 2005/03/08 06:22:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.79 2005/04/08 06:29:24 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -48,8 +48,6 @@
 
 #include "Verbosity.h"
 
-#include "EasyPlot.h"
-
 using namespace Likelihood;
 
 /**
@@ -59,7 +57,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.78 2005/03/08 06:22:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.79 2005/04/08 06:29:24 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -159,13 +157,17 @@ void likelihood::run() {
          try {
             m_opt->find_min(verbose, tol);
          } catch (optimizers::Exception & eObj) {
-            std::cerr << eObj.what() << std::endl;
+            std::cerr << "Exception encountered while minimizing "
+                      << "objective function:\n";
+            throw;
+//            std::cerr << eObj.what() << std::endl;
          }
          try {
             errors = m_opt->getUncertainty();
          } catch (optimizers::Exception & eObj) {
-            std::cerr << "Exception encountered while estimating errors:\n"
-                      << eObj.what() << std::endl;
+            std::cerr << "Exception encountered while estimating errors:\n";
+            throw;
+//                      << eObj.what() << std::endl;
          }
       }
       if (Likelihood::print_output()) {
@@ -358,13 +360,6 @@ void likelihood::writeCountsSpectra() {
          try {
             Npred = src->Npred(energies[k], energies[k+1]);
             if (i==0) evals.push_back(log10(sqrt(energies[k]*energies[k+1])));
-#ifdef HAVE_ST_GRAPH
-            if (Npred == 0) {
-               npred[i].push_back(log10(Npred));
-            } else {
-               npred[i].push_back(-10.);
-            }
-#endif
             line << Npred << "  ";
          } catch (std::out_of_range &) {
             writeLine = false;
@@ -376,23 +371,6 @@ void likelihood::writeCountsSpectra() {
    }
    outputFile.close();
 
-#ifdef HAVE_ST_GRAPH
-// plot the data
-   if (m_pars["plot"]) {
-      try {
-         EasyPlot plot("");
-         for (unsigned int i = 0; i < npred.size(); i++) {
-            plot.linePlot(evals, npred[i]);
-         }
-         EasyPlot::run();
-      } catch (std::exception &eObj) {
-         std::string message = "RootEngine could not create";
-         if (!st_facilities::Util::expectedException(eObj, message)) {
-            throw;
-         }
-      }
-   }
-#endif // HAVE_ST_GRAPH
 }
 
 void likelihood::writeCountsMap() {
