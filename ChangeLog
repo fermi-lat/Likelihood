@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Apr  7 23:29:24 PDT 2005
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx PointSource.cxx 
+Log Message:
+derivative fixes
+    *
+------------------------------------------------------------
+User: jchiang  Thu Apr  7 23:29:24 PDT 2005
 Likelihood/cmt
 
 Modified Files:
