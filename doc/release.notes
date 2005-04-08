@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v7r3   08-Mar-05  JC   derivative fixes in Source classes; add access
+                           to Optimizer::getUncertainty option in python
     v7r2p4 24-Mar-05  JC   replace static data members in PointSource::Aeff;
                            expose PointSource::flux() and RoiCuts::roiCone 
                            to Python; be able to change cuts from Python
