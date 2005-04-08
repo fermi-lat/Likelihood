@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.67 2005/03/22 00:18:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.68 2005/03/25 05:16:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -133,9 +133,10 @@ double PointSource::fluxDensityDeriv(double energy,
    const ResponseFunctions & respFuncs = m_observation->respFuncs();
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude"
-   if (paramName == "Prefactor") {
-      return fluxDensity(energy, zAxis, xAxis, dir, eventType)
-         /m_spectrum->getParamValue("Prefactor");
+   double prefactor;
+   if (paramName == "Prefactor" && 
+       (prefactor = m_spectrum->getParamValue("Prefactor")) !=0) {
+      return fluxDensity(energy, zAxis, xAxis, dir, eventType)/prefactor;
    } else {
       if (respFuncs.useEdisp()) {
          unsigned int npts(s_trueEnergies.size());
@@ -167,9 +168,11 @@ fluxDensityDeriv(double inclination, double phi, double energy,
    double separation = appDir.difference(getDir())*180./M_PI;
 // For now, just implement for spectral Parameters and neglect
 // the spatial ones, "longitude" and "latitude"
-   if (paramName == "Prefactor") {
+   double prefactor;
+   if (paramName == "Prefactor" && 
+       (prefactor = m_spectrum->getParamValue("Prefactor")) != 0) {
       return fluxDensity(inclination, phi, energy, separation, evtType)
-         /m_spectrum->getParamValue("Prefactor");
+         /prefactor;
    } else {
 /// @todo Implement for finite energy resolution case.
       optimizers::dArg energy_arg(energy);
@@ -237,8 +240,10 @@ double PointSource::NpredDeriv(const std::string &paramName) {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
    optimizers::Function *specFunc = m_functions["Spectrum"];
 
-   if (paramName == std::string("Prefactor")) {
-      return Npred()/specFunc->getParamValue("Prefactor");
+   double prefactor;
+   if (paramName == std::string("Prefactor") && 
+       (prefactor = specFunc->getParamValue("Prefactor")) != 0) {
+      return Npred()/prefactor;
    } else {  // loop over energies and fill integrand vector
       std::vector<double> myIntegrand(energies.size());
       for (unsigned int k = 0; k < energies.size(); k++) {

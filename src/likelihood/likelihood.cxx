@@ -3,8 +3,12 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.77 2005/03/05 06:35:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.78 2005/03/08 06:22:08 jchiang Exp $
  */
+
+#ifdef TRAP_FPE
+#include <fenv.h>
+#endif
 
 #include <cmath>
 #include <cstdlib>
@@ -55,7 +59,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.77 2005/03/05 06:35:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.78 2005/03/08 06:22:08 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {

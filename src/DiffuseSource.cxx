@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.26 2005/03/03 20:04:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.27 2005/03/03 23:24:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -87,9 +87,10 @@ double DiffuseSource::fluxDensityDeriv(const Event &evt,
 // This method needs to be generalized for spectra that are
 // CompositeFunctions.
    double my_fluxDensityDeriv;
-   if (paramName == "Prefactor") {
-      my_fluxDensityDeriv 
-         = fluxDensity(evt)/m_spectrum->getParamValue("Prefactor");
+   double prefactor;
+      if (paramName == "Prefactor" && 
+          (prefactor = m_spectrum->getParamValue("Prefactor")) != 0) {
+      my_fluxDensityDeriv = fluxDensity(evt)/prefactor;
    } else {
       if (m_useEdisp) {
          const std::vector<double> & trueEnergies = evt.trueEnergies();
@@ -137,8 +138,10 @@ double DiffuseSource::NpredDeriv(const std::string &paramName) {
 
    const std::vector<double> & energies = m_observation->roiCuts().energies();
 
-   if (paramName == std::string("Prefactor")) {
-      return Npred()/specFunc->getParamValue("Prefactor");
+   double prefactor;
+   if (paramName == std::string("Prefactor") &&
+       (prefactor = specFunc->getParamValue("Prefactor")) != 0) {
+      return Npred()/prefactor;
    } else {  // loop over energies and fill integrand vector
       std::vector<double> myIntegrand(energies.size());
       for (unsigned int k = 0; k < energies.size(); k++) {
