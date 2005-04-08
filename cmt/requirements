@@ -4,7 +4,7 @@ version v7r2p4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.198 2005/03/22 00:19:45 jchiang Exp $
+# $Id: requirements,v 1.199 2005/03/25 05:16:33 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -20,7 +20,7 @@ use irfLoader v0* irfs
 use st_facilities v0*
 use dataSubselector v3*
 
-apply_pattern ST_library option="-no_share *.c "
+apply_pattern ST_library option=" -no_share *.c -DTRAP_FPE "
 apply_pattern ST_pfiles
 
 apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
@@ -40,7 +40,6 @@ private
 
 use hoops v*
 use st_app v*
-#use st_graph v*
 
 use SwigPolicy v*
 apply_pattern swig_module name="pyLike"
