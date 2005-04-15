@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Apr 14 21:30:02 PDT 2005
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+use exposure cube, when possible; ensure scData indices are in range
+    *
+------------------------------------------------------------
+User: jchiang  Thu Apr 14 21:30:02 PDT 2005
 Likelihood/python
 
 Modified Files:
