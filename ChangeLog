@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr 14 21:30:02 PDT 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Log Message:
+use exposure cube, when possible; ensure scData indices are in range
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr  8 11:27:53 PDT 2005
 Likelihood/doc
 
