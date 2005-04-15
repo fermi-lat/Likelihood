@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.27 2005/03/03 23:24:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.28 2005/04/08 06:29:24 jchiang Exp $
  */
 
 #include <cmath>
@@ -38,8 +38,14 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
    if (requireExposure) {
       const RoiCuts & roiCuts = observation.roiCuts();
       const std::vector<double> & energies = roiCuts.energies();
-      observation.expMap().integrateSpatialDist(energies, spatialDist,
-                                                m_exposure);
+      if (observation.expMap().haveMap()) {
+         observation.expMap().integrateSpatialDist(energies, spatialDist,
+                                                   m_exposure);
+      } else {
+         std::string what("DiffuseSource: An exposure map must be defined ");
+         what += "if diffuse sources are in the model.";
+         throw std::runtime_error(what);
+      }
    }
    m_srcType = "Diffuse";
 }
