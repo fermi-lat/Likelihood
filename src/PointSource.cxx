@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.68 2005/03/25 05:16:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.69 2005/04/08 06:29:24 jchiang Exp $
  */
 
 #include <cmath>
@@ -348,7 +348,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    }
 //   unsigned int npts = scData.vec.size() - 1;
    unsigned int npts = scData.time_index(roiCuts.maxTime()) + 1;
-   for (unsigned int it = 0; it < npts && it < scData.vec.size(); it++) {
+   for (unsigned int it = 0; it < npts && it < scData.vec.size()-1; it++) {
       if (print_output() && 
           npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
       double start(scData.vec[it].time);
@@ -371,9 +371,12 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
       if (includeInterval) {
          for (unsigned int k = 0; k < energies.size(); k++) {
             double time = (start + stop)/2.;
-            exposure[k] += sourceEffArea(srcDir, energies[k], time, 
-                                         scData, roiCuts, respFuncs)
-               *(stop - start)*fraction;
+            double effArea = sourceEffArea(srcDir, energies[k], time, 
+                                           scData, roiCuts, respFuncs);
+            if (effArea < 0 || fraction < 0 || (stop-start) < 0) {
+               std::cout << effArea << std::endl;
+            }
+            exposure[k] += effArea*(stop - start)*fraction;
          }
       }
    }
