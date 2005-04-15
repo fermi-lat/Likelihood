@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.69 2005/04/08 06:29:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.70 2005/04/15 04:30:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -351,8 +351,8 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    for (unsigned int it = 0; it < npts && it < scData.vec.size()-1; it++) {
       if (print_output() && 
           npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
-      double start(scData.vec[it].time);
-      double stop(scData.vec[it+1].time);
+      double start(scData.vec.at(it).time);
+      double stop(scData.vec.at(it+1).time);
       double fraction(0);
 
       bool includeInterval = 
@@ -361,7 +361,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
 
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
-      double inc = srcDir.difference(scData.vec[it].zAxis)*180/M_PI;
+      double inc = srcDir.difference(scData.vec.at(it).zAxis)*180/M_PI;
       if (inc > 90.) {
          includeInterval = false;
       }
