@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 15 18:14:27 PDT 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx PointSource.cxx pyLike.in 
+Log Message:
+refactor so that AppHelpers can be exposed to Python
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 15 18:14:26 PDT 2005
 Likelihood/Likelihood
 
