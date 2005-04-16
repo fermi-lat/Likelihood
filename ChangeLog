@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Apr 15 18:14:29 PDT 2005
+Likelihood/src/meanPsf
+
+Modified Files:
+	meanPsf.cxx 
+Log Message:
+refactor so that AppHelpers can be exposed to Python
+    *
+------------------------------------------------------------
+User: jchiang  Fri Apr 15 18:14:29 PDT 2005
 Likelihood/src/likelihood
 
 Modified Files:
