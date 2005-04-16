@@ -14,6 +14,7 @@
 #include "optimizers/Mcmc.h"
 #include "st_facilities/FitsImage.h"
 #include "Likelihood/FitsImage.h"
+#include "Likelihood/AppHelpers.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
@@ -42,7 +43,8 @@
 #include "Likelihood/Pixel.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/Observation.h"
-#include "Likelihood/../src/Verbosity.h"
+//#include "Likelihood/../src/Verbosity.h"
+#include "src/Verbosity.h"
 #include <vector>
 #include <string>
 #include <exception>
@@ -88,6 +90,7 @@ using optimizers::Exception;
 %include $(LIKELIHOODROOT)/Likelihood/ScData.h
 %include $(LIKELIHOODROOT)/Likelihood/EventContainer.h
 %include $(LIKELIHOODROOT)/Likelihood/Observation.h
+%include $(LIKELIHOODROOT)/Likelihood/AppHelpers.h
 %include $(LIKELIHOODROOT)/Likelihood/SourceModel.h
 %include $(LIKELIHOODROOT)/Likelihood/DiffuseSource.h
 %include $(LIKELIHOODROOT)/Likelihood/Pixel.h

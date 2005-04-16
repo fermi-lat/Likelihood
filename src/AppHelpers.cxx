@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.27 2005/03/04 22:08:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.28 2005/03/17 07:20:02 jchiang Exp $
  */
 
 #include <map>
@@ -35,7 +35,7 @@ using irfInterface::IrfsFactory;
 
 namespace Likelihood {
 
-AppHelpers::AppHelpers(st_app::AppParGroup & pars)
+AppHelpers::AppHelpers(st_app::AppParGroup * pars)
    : m_pars(pars), m_funcFactory(0) {
    prepareFunctionFactory();
    createResponseFuncs();
@@ -84,12 +84,14 @@ void AppHelpers::setRoi(const std::string & filename,
       roiCuts.readCuts(filename, ext, strict);
       return;
    }
-   std::string event_file = m_pars["evfile"];
+   st_app::AppParGroup & pars(*m_pars);
+   std::string event_file = pars["evfile"];
    roiCuts.readCuts(event_file, "EVENTS", strict);
 }
 
 void AppHelpers::readScData() {
-   std::string scFile = m_pars["scfile"];
+   st_app::AppParGroup & pars(*m_pars);
+   std::string scFile = pars["scfile"];
    st_facilities::Util::file_ok(scFile);
    st_facilities::Util::resolve_fits_files(scFile, m_scFiles);
    std::vector<std::string>::const_iterator scIt = m_scFiles.begin();
@@ -100,7 +102,8 @@ void AppHelpers::readScData() {
 }
 
 void AppHelpers::readExposureMap() {
-   std::string exposureFile = m_pars["exposure_map_file"];
+   st_app::AppParGroup & pars(*m_pars);
+   std::string exposureFile = pars["exposure_map_file"];
    if (exposureFile != "none") {
       st_facilities::Util::file_ok(exposureFile);
       m_expMap->readExposureFile(exposureFile);
@@ -109,7 +112,8 @@ void AppHelpers::readExposureMap() {
 
 void AppHelpers::createResponseFuncs() {
    m_respFuncs = new ResponseFunctions();
-   std::string responseFuncs = m_pars["rspfunc"];
+   st_app::AppParGroup & pars(*m_pars);
+   std::string responseFuncs = pars["rspfunc"];
    m_respFuncs->load(responseFuncs);
 }
 

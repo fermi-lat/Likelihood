@@ -49,7 +49,7 @@ meanPsf::meanPsf()
    try {
       m_pars.Prompt();
       m_pars.Save();
-      m_helper = new AppHelpers(m_pars);
+      m_helper = new AppHelpers(&m_pars);
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
       std::exit(1);

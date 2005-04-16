@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.70 2005/04/15 04:30:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.71 2005/04/15 21:56:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -447,6 +447,9 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       } else {
          myEffArea += psf_val*aeff_val;
       }
+   }
+   if (myEffArea < 0) {
+      return 0;
    }
    return myEffArea;
 }

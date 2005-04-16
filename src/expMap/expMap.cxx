@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.27 2005/03/05 18:37:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.28 2005/03/08 06:22:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.27 2005/03/05 18:37:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.28 2005/03/08 06:22:07 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -72,7 +72,7 @@ ExpMap::ExpMap() : st_app::StApp(), m_helper(0),
 void ExpMap::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
-   m_helper = new AppHelpers(m_pars);
+   m_helper = new AppHelpers(&m_pars);
    m_helper->readScData();
    bool useEdisp = m_pars["use_energy_dispersion"];
    ResponseFunctions & respFuncs =

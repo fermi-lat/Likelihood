@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.19 2005/03/03 23:24:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.20 2005/03/04 22:08:22 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -39,14 +39,18 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.19 2005/03/03 23:24:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.20 2005/03/04 22:08:22 jchiang Exp $
  */
 
 class AppHelpers {
 
 public:
 
-   AppHelpers(st_app::AppParGroup & pars);
+   AppHelpers() : m_pars(0), m_funcFactory(0), m_observation(0),
+                  m_scData(0), m_expCube(0), m_expMap(0), m_respFuncs(0),
+                  m_roiCuts(0), m_eventCont(0) {}
+#ifndef SWIG
+   AppHelpers(st_app::AppParGroup * pars);
 
    ~AppHelpers();
 
@@ -58,10 +62,9 @@ public:
                const std::string & ext="EVENTS",
                bool strict=true);
 
-   static void checkOutputFile(bool clobber, const std::string & filename);
-
    void checkOutputFile() {
-      checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
+      st_app::AppParGroup & pars(*m_pars);
+      checkOutputFile(pars["clobber"], pars["outfile"]);
    }
 
    const std::vector<std::string> & scFiles() const {
@@ -75,6 +78,9 @@ public:
    Observation & observation() {
       return *m_observation;
    }
+#endif // SWIG
+
+   static void checkOutputFile(bool clobber, const std::string & filename);
 
    static void checkCuts(const std::string & file1, const std::string & ext1,
                          const std::string & file2, const std::string & ext2);
@@ -86,9 +92,7 @@ public:
 
 protected:
 
-//   AppHelpers(const AppHelpers & rhs) {}
-
-   st_app::AppParGroup & m_pars;
+   st_app::AppParGroup * m_pars;
    optimizers::FunctionFactory * m_funcFactory;
    std::vector<std::string> m_scFiles;
 
@@ -104,12 +108,9 @@ protected:
    void prepareFunctionFactory();
    void createResponseFuncs();
 
-#ifndef SWIG   
    static void AppHelpers::
    gatherTimeCuts(dataSubselector::Cuts & cuts,
                   std::vector<const dataSubselector::CutBase *> time_cuts);
-#endif // SWIG
-
 };
 
 } // namespace Likelihood
