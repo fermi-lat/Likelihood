@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 15 22:47:19 PDT 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Log Message:
+add checks for DSS consistency
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 15 18:14:29 PDT 2005
 Likelihood/src/meanPsf
 
