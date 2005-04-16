@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.79 2005/04/08 06:29:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.80 2005/04/08 17:35:03 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -57,7 +57,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.79 2005/04/08 06:29:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.80 2005/04/08 17:35:03 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -108,7 +108,7 @@ likelihood::likelihood()
 void likelihood::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
-   m_helper = new AppHelpers(m_pars);
+   m_helper = new AppHelpers(&m_pars);
    bool useEdisp = m_pars["use_energy_dispersion"];
    ResponseFunctions & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());

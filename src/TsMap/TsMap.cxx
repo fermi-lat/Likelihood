@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.22 2005/03/08 06:22:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.23 2005/03/09 05:46:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.22 2005/03/08 06:22:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.23 2005/03/09 05:46:00 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -96,7 +96,7 @@ void TsMap::run() {
    int chatter = m_pars["chatter"];
    Likelihood::Verbosity::instance(chatter);
 
-   m_helper = new AppHelpers(m_pars);
+   m_helper = new AppHelpers(&m_pars);
    m_helper->checkOutputFile();
    bool use_lb = m_pars["use_lb"];
    if (use_lb) {
