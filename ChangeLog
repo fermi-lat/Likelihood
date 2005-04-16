@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Apr 15 18:14:27 PDT 2005
+Likelihood/src/counts_map
+
+Modified Files:
+	counts_map.cxx 
+Log Message:
+refactor so that AppHelpers can be exposed to Python
+    *
+------------------------------------------------------------
+User: jchiang  Fri Apr 15 18:14:27 PDT 2005
 Likelihood/src/TsMap
 
 Modified Files:
