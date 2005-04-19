@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.80 2005/04/08 17:35:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.81 2005/04/16 01:14:29 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -57,7 +57,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.80 2005/04/08 17:35:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.81 2005/04/16 01:14:29 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -109,6 +109,12 @@ void likelihood::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(&m_pars);
+   std::string expcube_file = m_pars["exposure_cube_file"];
+   if (expcube_file != "none" && expcube_file != "") {
+      ExposureCube & expCube = 
+         const_cast<ExposureCube &>(m_helper->observation().expCube());
+      expCube.readExposureCube(expcube_file);
+   }
    bool useEdisp = m_pars["use_energy_dispersion"];
    ResponseFunctions & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
@@ -188,13 +194,13 @@ void likelihood::promptForParameters() {
    m_statistic = statistic;
    if (m_statistic == "BINNED") {
       m_pars.Prompt("counts_map_file");
-      m_pars.Prompt("exposure_cube_file");
       m_pars.Prompt("binned_exposure_map");
    } else {
       m_pars.Prompt("scfile");
       m_pars.Prompt("evfile");
       m_pars.Prompt("exposure_map_file");
    }
+   m_pars.Prompt("exposure_cube_file");
    m_pars.Prompt("source_model_file");
    m_pars.Prompt("source_model_output_file");
    AppHelpers::checkOutputFile(m_pars["clobber"], 
@@ -212,13 +218,11 @@ void likelihood::promptForParameters() {
 
 void likelihood::createStatistic() {
    if (m_statistic == "BINNED") {
-      std::string expcube_file = m_pars["exposure_cube_file"];
-      if (expcube_file == "none") {
-         throw std::runtime_error("Please specify an exposure cube file.");
+      if (!m_helper->observation().expCube().haveFile()) {
+         throw std::runtime_error
+            ("An exposure cube file is required for binned analysis. "
+             "Please specify an exposure cube file.");
       }
-      ExposureCube & expCube = 
-         const_cast<ExposureCube &>(m_helper->observation().expCube());
-      expCube.readExposureCube(expcube_file);
       std::string countsMapFile = m_pars["counts_map_file"];
       st_facilities::Util::file_ok(countsMapFile);
       m_dataMap = new CountsMap(countsMapFile);
