@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr 18 17:30:30 PDT 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+read in exposure cube for unbinned
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 15 22:47:19 PDT 2005
 Likelihood/python
 
