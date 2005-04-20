@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr 19 18:49:53 PDT 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Log Message:
+check for eventFile
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 18 17:30:30 PDT 2005
 Likelihood/src/likelihood
 
