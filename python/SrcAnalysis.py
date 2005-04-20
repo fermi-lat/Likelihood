@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.28 2005/04/15 21:56:35 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.29 2005/04/16 05:47:19 jchiang Exp $
 #
 import os
 import glob
@@ -46,15 +46,16 @@ class Observation(object):
                                               self._expMap, self._eventCont)
         self._readData(scFile, eventFile)
     def _checkCuts(self, eventFile, expMap=None, expCube=None):
-        eventFiles = self._fileList(eventFile)
-        checkCuts = pyLike.AppHelpers_checkCuts
-        checkTimeCuts = pyLike.AppHelpers_checkTimeCuts
-        for file in eventFiles[1:]:
-            checkCuts(eventFiles[0], 'EVENTS', file, 'EVENTS')
-        if expMap is not None and expMap != '':
-            checkCuts(eventFiles[0], 'EVENTS', expMap, '')
-        if expCube is not None and expCube != '':
-            checkTimeCuts(eventFiles[0], 'EVENTS', expCube, 'Exposure')
+        if eventFile is not None:
+            eventFiles = self._fileList(eventFile)
+            checkCuts = pyLike.AppHelpers_checkCuts
+            checkTimeCuts = pyLike.AppHelpers_checkTimeCuts
+            for file in eventFiles[1:]:
+                checkCuts(eventFiles[0], 'EVENTS', file, 'EVENTS')
+            if expMap is not None and expMap != '':
+                checkCuts(eventFiles[0], 'EVENTS', expMap, '')
+            if expCube is not None and expCube != '':
+                checkTimeCuts(eventFiles[0], 'EVENTS', expCube, 'Exposure')
     def _obsDialog(self):
         paramDict = map()
         paramDict['eventFile'] = Param('file', '*.fits')
