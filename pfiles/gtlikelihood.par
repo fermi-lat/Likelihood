@@ -3,6 +3,7 @@
 #
 rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions to use"
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?
+exposure_cube_file,f,a,"expcube_1_day.fits",,,"Exposure hypercube file"
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
 source_model_output_file,f,a,"none",,,"Source model output file"
 flux_style_model_file,f,a,"flux_model.xml",,,"flux-style output file name"
@@ -25,9 +26,9 @@ plot,b,h,no,,,"Plot unbinned counts spectra?"
 # binned
 #
 counts_map_file,f,a,"srcMaps.fits",,,"Counts map file"
-exposure_cube_file,f,a,"expcube_1_day.fits",,,"Exposure hypercube file"
 binned_exposure_map,f,a,"none",,,"Binned exposure map"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
+debug,          b, h, no, , , "Activate debugging mode"
 mode,           s, h, "ql", , , "Mode of automatic parameters"

@@ -40,7 +40,7 @@ private:
    void writeFitsFile();
 };
 
-st_app::StAppFactory<meanPsf> myAppFactory;
+st_app::StAppFactory<meanPsf> myAppFactory("gtpsf");
 
 meanPsf::meanPsf() 
    : st_app::StApp(), m_helper(0),
