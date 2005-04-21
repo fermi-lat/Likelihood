@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr 21 10:29:11 PDT 2005
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+enable debug mode for test program
+    *
+------------------------------------------------------------
 User: jchiang  Tue Apr 19 18:49:53 PDT 2005
 Likelihood/python
 
