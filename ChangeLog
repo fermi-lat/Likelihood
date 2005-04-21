@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr 21 12:00:22 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtcntsmap.par gtdiffresp.par gtexpmap.par gtlikelihood.par 
+	gtlivetimecube.par gtpsf.par gtsrcmaps.par 
+Log Message:
+enable debug mode for all apps; tagging v7r4
+    *
+------------------------------------------------------------
 User: jchiang  Thu Apr 21 12:00:20 PDT 2005
 Likelihood/doc
 
