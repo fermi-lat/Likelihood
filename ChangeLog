@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr 21 12:00:31 PDT 2005
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+enable debug mode for all apps; tagging v7r4
+    *
+------------------------------------------------------------
 User: jchiang  Thu Apr 21 12:00:29 PDT 2005
 Likelihood/src/gtsrcmaps
 
