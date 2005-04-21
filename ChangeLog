@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr 21 12:00:24 PDT 2005
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+enable debug mode for all apps; tagging v7r4
+    *
+------------------------------------------------------------
 User: jchiang  Thu Apr 21 12:00:22 PDT 2005
 Likelihood/pfiles
 
