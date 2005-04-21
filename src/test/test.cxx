@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.65 2005/03/07 05:18:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.66 2005/03/18 01:05:20 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -914,19 +914,70 @@ srcFactoryInstance(const std::string & scFile,
    return m_srcFactory;
 }      
 
-int main() {
+int main(int iargc, char * argv[]) {
 
 #ifdef TRAP_FPE
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
 
-//       LikelihoodTests testObj;
-//       testObj.setUp();
-//       testObj.test_PointSource();
-//       testObj.tearDown();
+   if (iargc > 1 && std::string(argv[1]) == "-d") { // debug mode
+      LikelihoodTests testObj;
 
-   CppUnit::TextTestRunner runner;
-   runner.addTest(LikelihoodTests::suite());
-   bool result = runner.run();
-   if (!result) return 1;
+      testObj.setUp();
+      testObj.test_RoiCuts();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_SourceFactory();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_XmlBuilders();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_LikeExposure();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_SourceModel();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_SourceDerivs();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_PointSource();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_DiffuseSource();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_CountsMap();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_BinnedLikelihood();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_MeanPsf();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_BinnedExposure();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_SourceMap();
+      testObj.tearDown();
+   } else {
+      CppUnit::TextTestRunner runner;
+      runner.addTest(LikelihoodTests::suite());
+      bool result = runner.run();
+      if (!result) return 1;
+   }
 }
