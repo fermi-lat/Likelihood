@@ -4,7 +4,7 @@ version v7r4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.201 2005/04/08 18:27:51 jchiang Exp $
+# $Id: requirements,v 1.202 2005/04/21 19:00:18 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -31,6 +31,7 @@ apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
 apply_pattern ST_app name=gtcntsmap
 apply_pattern ST_app name=gtsrcmaps
 apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
+apply_pattern ST_app_withDir name=gtbackfile dir=backfile
 
 path_remove PYTHONPATH Likelihood
 path_append PYTHONPATH $(LIKELIHOODROOT)/$(BINDIR)
