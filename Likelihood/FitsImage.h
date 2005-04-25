@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.23 2005/02/18 00:54:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.24 2005/02/24 06:32:46 jchiang Exp $
  *
  */
 
@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include "fitsio.h"
+
 #include "astro/SkyDir.h"
 
 #include "st_facilities/FitsImage.h"
@@ -21,8 +23,6 @@
 
 namespace Likelihood {
 
-#include "fitsio.h"
-
 /** 
  * @class FitsImage
  *
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.23 2005/02/18 00:54:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.24 2005/02/24 06:32:46 jchiang Exp $
  *
  */
 
