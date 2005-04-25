@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr 25 13:41:46 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	FitsImage.h 
+Log Message:
+add gtbackfile app for Xspec analyses
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 25 13:41:07 PDT 2005
 Likelihood/src/backfile
 
