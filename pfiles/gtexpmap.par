@@ -4,7 +4,7 @@ scfile,fr,a,"oneday_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,hl,"Ext1",,,"Spacecraft data extension"
 exposure_cube_file,f,a,"expcube_1_day.fits",,,"Exposure hypercube file"
 outfile,f,a,"expMap.fits",,,"output file name"
-rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions"
+rspfunc,s,a,"DC1",,,"Response functions"
 use_energy_dispersion,b,hl,no,,,Use energy dispersion?
 source_region_radius,r,a,30,,,Radius of the source region (in degrees)
 number_of_longitude_points,i,a,120,2,1000,Number of longitude points
