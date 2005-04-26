@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.1 2005/04/25 20:41:49 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -23,6 +23,8 @@
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
 
+#include "st_facilities/FitsUtil.h"
+
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/LogLike.h"
 
@@ -33,7 +35,7 @@
  * 
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.1 2005/04/25 20:41:49 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
@@ -87,11 +89,11 @@ void BackFile::run() {
       if (std::find(srcNames.begin(), srcNames.end(), target)
           != srcNames.end()) {
          std::cout << "Excluding source " << target 
-                   << " from background model.";
+                   << " from background model." << std::endl;
       } else if (target != "none" && target != "") {
          std::cout << "Source named '" << target << "' not found.\n"
                    << "Using all sources in input model for "
-                   << "background estimate.";
+                   << "background estimate." << std::endl;
       }
    }         
 
@@ -124,6 +126,8 @@ void BackFile::run() {
 
    writeBackFile(bg_counts);
    setHeaderKeyword(infile, "SPECTRUM", "BACKFILE", outfile);
+
+   st_facilities::FitsUtil::writeChecksums(outfile);
 }
 
 void BackFile::getEbounds(std::vector<double> & emin,
