@@ -1,0 +1,13 @@
+pha_file,fr,a,"Vela.pha",,,"pha file"
+outfile,f,a,"foo.pha",,,"output file"
+scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft file"
+exposure_cube_file,fr,a,"expCubeFile.fits",,,"Exposure hypercube file"
+exposure_map_file,fr,a,"none",,,"Exposure file"
+rspfunc,s,a,"G25F",,,"Response functions to use"
+source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
+target_source,s,a,"none",,,"Target source name (excluded from background estimate)"
+
+chatter,i,h,2,0,4,Output verbosity
+clobber,        b, h, yes, , , "Overwrite existing output files"
+debug,          b, h, no, , , "Activate debugging mode"
+mode,           s, h, "ql", , , "Mode of automatic parameters"
