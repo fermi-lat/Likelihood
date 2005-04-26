@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Apr 25 22:00:10 PDT 2005
+Likelihood/src/backfile
+
+Modified Files:
+	backfile.cxx 
+Log Message:
+write checksums
+    *
+------------------------------------------------------------
+User: jchiang  Mon Apr 25 22:00:10 PDT 2005
 Likelihood/pfiles
 
 Modified Files:
