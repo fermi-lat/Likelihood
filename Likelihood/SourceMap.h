@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.20 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.21 2005/03/03 07:07:01 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -16,13 +16,14 @@
 
 namespace Likelihood {
 
-   class Source;
    class CountsMap;
+   class Source;
+   class PointSource;
 
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.20 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.21 2005/03/03 07:07:01 jchiang Exp $
  */
 
 class SourceMap {
@@ -34,16 +35,7 @@ public:
 
    SourceMap(const std::string & sourceMapsFile, const std::string & srcName);
 
-   ~SourceMap() {
-      s_refCount--;
-      if (s_refCount == 0) {
-         delete s_meanPsf;
-         s_meanPsf = 0;
-         delete s_binnedExposure;
-         s_binnedExposure = 0;
-      }
-      if (m_deleteDataMap) delete m_dataMap;
-   }
+   ~SourceMap();
 
    const std::vector<double> & model() const {return m_model;}
 
@@ -54,6 +46,8 @@ public:
    }
 
    void save(const std::string & filename) const;
+   
+   double maxPsfRadius(PointSource * src) const;
 
 private:
 

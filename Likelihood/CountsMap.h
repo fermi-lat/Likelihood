@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.12 2004/10/31 18:53:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.13 2004/11/08 03:22:21 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -80,6 +80,8 @@ public:
    void setKeywords(tip::Header & header) const;
 
    void getPixels(std::vector<Pixel> & pixels) const;
+
+   void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const;
 
    const astro::SkyDir & mapCenter() const {return m_center;}
 

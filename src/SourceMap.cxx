@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.29 2005/03/03 00:17:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.30 2005/03/03 07:07:02 jchiang Exp $
  */
 
 #include <algorithm>
@@ -113,7 +113,78 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          icount++;
       }
    }
+//    if (havePointSource) {
+//       PointSource * ptsrc = dynamic_cast<PointSource *>(src);
+//       correctWithPsfIntegral(ptsrc);
+//    }
    if (print_output()) std::cerr << "!" << std::endl;
+}
+
+SourceMap::~SourceMap() {
+   s_refCount--;
+   if (s_refCount == 0) {
+      delete s_meanPsf;
+      s_meanPsf = 0;
+      delete s_binnedExposure;
+      s_binnedExposure = 0;
+   }
+   if (m_deleteDataMap) delete m_dataMap;
+}
+
+// void SourceMap::
+// getMapCorrections(PointSource * src, 
+//                   const std::vector<Pixels> & pixels,
+//                   const std::vector<double> & energies,
+//                   const Observation & observation,
+//                   std::vector< std::vector<double> > & mapCorrections) {
+//    static int n_evtTypes(2);
+//    psfCorrections.resize(n_eventTypes);
+//    for (int i = 0; i < n_eventTypes; i++) {
+//       psfCorrections.at(i).resize(energies.size());
+//    }
+
+//    astro::SkyDir & srcDir = src->getDir();
+//    double psfRadius(maxPsfRadius(src));
+
+//    std::vector<Pixel> containedPixels;
+//    for (unsigned int j = 0; j < pixels.size(); j++) {
+//       if (srcDir.difference(pixels.at(j).dir()) <= psfRadius) {
+//          containedPixels.push_back(pixels.at(j));
+//       }
+//    }
+
+//    for (int evtType = 0; evtType < n_evtTypes; evtType++) {
+//       for (unsigned int k = 0; k < energies.size(); k++) {
+//          unsigned long indx = k*pixels.size() + j;
+//          double value(0);
+
+
+
+//             Psf aeff(src, pixel->dir(), *energy, evtType, observation);
+//             value += observation.expCube().value(pixel->dir(), aeff);
+//          }
+//          value *= pixel->solidAngle();
+//          m_model.at(indx) += value;
+//          m_npreds.at(k) += value;
+//          icount++;
+//       }
+//    }
+   
+// }
+
+double SourceMap::maxPsfRadius(PointSource * src) const {
+   std::vector<astro::SkyDir> pixelDirs;
+   m_dataMap->getBoundaryPixelDirs(pixelDirs);
+
+   const astro::SkyDir & srcDir = src->getDir();
+   double radius = srcDir.difference(pixelDirs.at(0));
+   for (unsigned int i = 1; i < pixelDirs.size(); i++) {
+      double new_rad = srcDir.difference(pixelDirs.at(i));
+      if (new_rad < radius ) {
+         radius = new_rad;
+      }
+   }
+   return radius;
 }
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
