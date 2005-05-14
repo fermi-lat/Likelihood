@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri May 13 17:59:09 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h MeanPsf.h SourceMap.h 
+Log Message:
+continue work on binned source maps
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 25 22:00:10 PDT 2005
 Likelihood/src/backfile
 
