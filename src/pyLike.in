@@ -34,6 +34,7 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/SourceModel.h"
+#include "Likelihood/SourceMap.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SrcArg.h"
 #include "Likelihood/TrapQuad.h"
@@ -68,6 +69,9 @@ using optimizers::Exception;
 %template(DoubleVectorVector) std::vector< std::vector<double> >;
 %template(DoubleVectorPair) std::vector< std::pair<double, double> >;
 %template(StringVector) std::vector<std::string>;
+%include $(ASTROROOT)/astro/SkyProj.h
+%include $(ASTROROOT)/astro/SkyDir.h
+%template(SkyDirVector) std::vector<astro::SkyDir>;
 %feature("autodoc", "1");
 %include $(OPTIMIZERSROOT)/optimizers/Parameter.h
 %include $(OPTIMIZERSROOT)/optimizers/Function.h
@@ -103,6 +107,7 @@ using optimizers::Exception;
 %include $(LIKELIHOODROOT)/Likelihood/OneSourceFunc.h
 %include $(LIKELIHOODROOT)/Likelihood/OptEM.h
 %include $(LIKELIHOODROOT)/Likelihood/PointSource.h
+%include $(LIKELIHOODROOT)/Likelihood/SourceMap.h
 %include $(LIKELIHOODROOT)/Likelihood/SkyDirArg.h
 %include $(LIKELIHOODROOT)/Likelihood/SkyDirFunction.h
 %include $(LIKELIHOODROOT)/Likelihood/SourceFactory.h

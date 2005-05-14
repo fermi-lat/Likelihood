@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.16 2005/01/06 23:42:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.17 2005/03/08 01:28:12 jchiang Exp $
  */
 
 #include <algorithm>
@@ -377,6 +377,41 @@ void CountsMap::getPixels(std::vector<Pixel> & pixels) const {
    }
 }
 
+void CountsMap::
+getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const {
+   pixelDirs.clear();
+   long nx = imageDimension(0);
+   long ny = imageDimension(1);
+
+   std::vector<double> longitudes;
+   getAxisVector(0, longitudes);
+   std::vector<double> latitudes;
+   getAxisVector(1, latitudes);
+
+   pixelDirs.reserve(2*nx + 2*ny);
+   unsigned int i(0);
+   unsigned int j(0);
+   for (j = 0; j < latitudes.size(); j++) {
+      astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
+      pixelDirs.push_back(dir);
+   }
+   i = longitudes.size() - 1;
+   for (j = 0; j < latitudes.size(); j++) {
+      astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
+      pixelDirs.push_back(dir);
+   }
+   j = 0;
+   for (i = 0; i < longitudes.size(); i++) {
+      astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
+      pixelDirs.push_back(dir);
+   }
+   j = latitudes.size() - 1;
+   for (i = 0; i < longitudes.size(); i++) {
+      astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
+      pixelDirs.push_back(dir);
+   }
+}
+
 void CountsMap::getPixels(std::vector<astro::SkyDir> & pixelDirs,
                           std::vector<double> & pixelSolidAngles) const {
 
@@ -387,8 +422,6 @@ void CountsMap::getPixels(std::vector<astro::SkyDir> & pixelDirs,
    getAxisVector(0, longitudes);
    std::vector<double> latitudes;
    getAxisVector(1, latitudes);
-   std::vector<double> energies;
-   getAxisVector(2, energies);
 
    pixelDirs.clear();
    pixelSolidAngles.clear();

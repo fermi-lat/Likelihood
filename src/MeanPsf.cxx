@@ -1,9 +1,9 @@
 /**
  * @file MeanPsf.cxx
- * @brief Psf averaged over an observation.
+ * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.12 2005/03/01 01:06:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.13 2005/03/01 22:53:06 jchiang Exp $
  */
 
 #include <algorithm>
@@ -31,19 +31,19 @@ void MeanPsf::init() {
    m_exposure.reserve(m_energies.size());
    for (unsigned int k = 0; k < m_energies.size(); k++) {
       for (unsigned int j = 0; j < s_separations.size(); j++) {
-         double aeff_val(0);
+         double expsr_val(0);
          double psf_val(0);
          for (int evtType = 0; evtType < 2; evtType++) {
             Aeff aeff(m_energies[k], evtType, m_observation);
-            aeff_val += m_observation.expCube().value(m_srcDir, aeff);
+            expsr_val += m_observation.expCube().value(m_srcDir, aeff);
             Psf psf(s_separations[j], m_energies[k], evtType, m_observation);
             psf_val += m_observation.expCube().value(m_srcDir, psf);
          }
          if (j == 0) {
-            m_exposure.push_back(aeff_val);
+            m_exposure.push_back(expsr_val);
          }
-         if (aeff_val > 0) {
-            psf_val /= aeff_val;
+         if (expsr_val > 0) {
+            psf_val /= expsr_val;
          } else {
             psf_val = 0;
          }
@@ -81,6 +81,10 @@ void MeanPsf::write(const std::string & filename) const {
       output_file << std::endl;
    }
    output_file.close();
+}
+
+double MeanPsf::exposure(double energy) const {
+   return st_facilities::Util::interpolate(m_energies, m_exposure, energy);
 }
 
 void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,

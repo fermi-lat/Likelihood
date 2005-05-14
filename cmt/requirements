@@ -4,7 +4,7 @@ version v7r3
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.201 2005/04/08 18:27:51 jchiang Exp $
+# $Id: requirements,v 1.204 2005/04/26 05:00:09 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -23,15 +23,15 @@ use dataSubselector v3*
 apply_pattern ST_library option=" -no_share *.c -DTRAP_FPE "
 apply_pattern ST_pfiles
 
-apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
-apply_pattern ST_app_withDir name=gtexpmap dir=expMap
-apply_pattern ST_app_withDir name=gttsmap dir=TsMap
-apply_pattern ST_app_withDir name=gtlivetimecube dir=makeExposureCube
-apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
-apply_pattern ST_app name=gtcntsmap
-apply_pattern ST_app name=gtsrcmaps
-apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
-apply_pattern ST_app_withDir name=gtbackfile dir=backfile
+#apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
+#apply_pattern ST_app_withDir name=gtexpmap dir=expMap
+#apply_pattern ST_app_withDir name=gttsmap dir=TsMap
+#apply_pattern ST_app_withDir name=gtlivetimecube dir=makeExposureCube
+#apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
+#apply_pattern ST_app name=gtcntsmap
+#apply_pattern ST_app name=gtsrcmaps
+#apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
+#apply_pattern ST_app_withDir name=gtbackfile dir=backfile
 
 path_remove PYTHONPATH Likelihood
 path_append PYTHONPATH $(LIKELIHOODROOT)/$(BINDIR)

@@ -5,7 +5,7 @@ sctable,s,hl,"Ext1",,,"Spacecraft data extension"
 outfile,f,a,"countsMap.fits",,,"Output file name"
 emin,r,a,30,20,3e5,Minimum energy (MeV)
 emax,r,a,200000,20,3e5,Maximum energy (MeV)
-nenergies,i,a,21,2,40,Number of energy bounds
+nenergies,i,a,21,2,100,Number of energy bounds
 ra,r,ql,86.4,0,360,Right Ascension of map center (degrees)
 dec,r,ql,28.9,-90,90,Declination of map center (degrees)
 nra,i,ql,160,2,,Number of longitude pixels
