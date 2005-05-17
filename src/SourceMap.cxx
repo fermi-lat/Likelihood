@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.30 2005/03/03 07:07:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.31 2005/05/14 00:59:15 jchiang Exp $
  */
 
 #include <algorithm>
@@ -78,46 +78,61 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
 
    m_npreds.resize(energies.size(), 0);
 
+   std::vector<Pixel>::const_iterator pixel = pixels.begin();
+
    bool havePointSource = dynamic_cast<PointSource *>(src) != 0;
    bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
 
-   std::vector<Pixel>::const_iterator pixel = pixels.begin();
-   for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
-      if (haveDiffuseSource) {
+   if (haveDiffuseSource) {
+      DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
+      for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
          computeSrcDirs(*pixel, src);
-      }
-      std::vector<double>::const_iterator energy = energies.begin();
-      for (int k = 0; energy != energies.end(); ++energy, k++) {
-         unsigned long indx = k*pixels.size() + j;
-         if (print_output() && (icount % (npts/20)) == 0) std::cerr << ".";
-         double value(0);
-         if (havePointSource) {
-/// @todo Ensure the desired event types are correctly included in this
-/// calculation.
-            for (int evtType = 0; evtType < 2; evtType++) {
-               Aeff aeff(src, pixel->dir(), *energy, evtType, observation);
-               value += observation.expCube().value(pixel->dir(), aeff);
-            }
-         } else if (haveDiffuseSource) {
-            DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
+         std::vector<double>::const_iterator energy = energies.begin();
+         for (int k = 0; energy != energies.end(); ++energy, k++) {
+            unsigned long indx = k*pixels.size() + j;
+            if (print_output() && (icount % (npts/20)) == 0) std::cerr << ".";
+            double value(0);
             if (haveMapCubeFunction(diffuseSrc)) {
                recomputeSrcStrengths(diffuseSrc, *energy);
             }
             value = sourceRegionIntegral(*energy, observation);
-         } else {
-            value = 0;
+            value *= pixel->solidAngle();
+            m_model.at(indx) += value;
+            m_npreds.at(k) += value;
+            icount++;
          }
-         value *= pixel->solidAngle();
-         m_model.at(indx) += value;
-         m_npreds.at(k) += value;
-         icount++;
+      }
+   } else if (havePointSource) {
+      PointSource * pointSrc = dynamic_cast<PointSource *>(src);
+
+      const astro::SkyDir & dir(pointSrc->getDir());
+      MeanPsf meanPsf(dir.ra(), dir.dec(), energies, observation);
+
+      std::vector<double> exposure;
+      for (unsigned int k = 0; k < energies.size(); k++) {
+         exposure.push_back(meanPsf.exposure(energies.at(k)));
+      }
+
+      for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
+         std::vector<double>::const_iterator energy = energies.begin();
+         for (int k = 0; energy != energies.end(); ++energy, k++) {
+            unsigned long indx = k*pixels.size() + j;
+            if (print_output() && (icount % (npts/20)) == 0) {
+               std::cerr << ".";
+            }
+            double value = (meanPsf(energies.at(k), 
+                                    dir.difference(pixel->dir())*180./M_PI)
+                            *exposure.at(k));
+            value *= pixel->solidAngle();
+            m_model.at(indx) += value;
+            m_npreds.at(k) += value;
+            icount++;
+         }
       }
    }
-//    if (havePointSource) {
-//       PointSource * ptsrc = dynamic_cast<PointSource *>(src);
-//       correctWithPsfIntegral(ptsrc);
-//    }
-   if (print_output()) std::cerr << "!" << std::endl;
+   if (print_output()) {
+      std::cerr << "!" << std::endl;
+   }
 }
 
 SourceMap::~SourceMap() {

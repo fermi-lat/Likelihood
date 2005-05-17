@@ -3,11 +3,14 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.13 2005/03/01 22:53:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.14 2005/05/14 00:59:15 jchiang Exp $
  */
+
+#include <cmath>
 
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -85,6 +88,54 @@ void MeanPsf::write(const std::string & filename) const {
 
 double MeanPsf::exposure(double energy) const {
    return st_facilities::Util::interpolate(m_energies, m_exposure, energy);
+}
+
+double MeanPsf::integral(double angle, double energy) const {
+   int sepmax = std::upper_bound(s_separations.begin(), s_separations.end(),
+                                 angle) - s_separations.begin();
+   int k = std::upper_bound(m_energies.begin(), m_energies.end(),
+                            energy) - m_energies.begin() - 1;
+   if (sepmax <= 0) {
+      return 0;
+   } else if (sepmax > static_cast<int>(s_separations.size()-1)) {
+      return 1;
+   }
+   if (k <= 0 || k > static_cast<int>(m_energies.size()-1)) {
+      std::ostringstream what;
+      what << "MeanPsf::integral: energy " << energy << " out-of-range.";
+      throw std::out_of_range(what.str());
+   }
+   double theta1;
+   double theta2;
+   double integral1(0);
+   double integral2(0);
+   for (int j = 0; j < sepmax; j++) {
+      int indx1 = k*s_separations.size() + j;
+      theta1 = s_separations.at(j)*M_PI/180.;
+      theta2 = s_separations.at(j+1)*M_PI/180.;
+      integral1 += ((m_psfValues.at(indx1)*std::sin(theta1)
+                     + m_psfValues.at(indx1+1)*std::sin(theta2))/2.
+                    *(theta2 - theta1));
+
+      int indx2 = indx1 + s_separations.size();
+      integral2 += ((m_psfValues.at(indx2)*std::sin(theta1)
+                     + m_psfValues.at(indx2+1)*std::sin(theta2))/2.
+                    *(theta2 - theta1));
+   }
+   theta1 = s_separations.at(sepmax-1)*M_PI/180.;
+   theta2 = angle*M_PI/180.;
+   integral1 += (operator()(m_energies.at(k), angle)*std::sin(theta2) +
+                 operator()(m_energies.at(k), s_separations.at(sepmax-1))
+                 *std::sin(theta1))/2.*(theta2 - theta1);
+
+   integral2 += (operator()(m_energies.at(k+1), angle)*std::sin(theta2) +
+                 operator()(m_energies.at(k+1), s_separations.at(sepmax-1))
+                 *std::sin(theta1))/2.*(theta2 - theta1);
+
+   double value = 2.*M_PI*((energy - m_energies.at(k))/
+                           (m_energies.at(k+1) - m_energies.at(k))
+                           *(integral2 - integral1) + integral1);
+   return value;
 }
 
 void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
