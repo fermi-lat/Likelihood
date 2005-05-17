@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 17 06:44:14 PDT 2005
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+apply psf integral corrections to SourceMap
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 17 06:44:13 PDT 2005
 Likelihood/src
 
