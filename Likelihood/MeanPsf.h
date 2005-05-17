@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.8 2005/03/05 18:37:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.9 2005/05/14 00:59:09 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -65,7 +65,13 @@ public:
    ///         energy in units of cm^2-s.
    /// @param energy True photon energy (MeV).
    double exposure(double energy) const;
-   
+
+   /// @return Integral over solid angle for an acceptance cone centered
+   ///         on the psf.
+   /// @param angle Acceptance cone angle (degrees).
+   /// @param energy Energy at which to evaluate the integral (MeV).
+   double integral(double angle, double energy) const;
+
 private:
 
    static std::vector<double> s_separations;
