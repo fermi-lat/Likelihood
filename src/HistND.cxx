@@ -44,7 +44,7 @@ HistND::~HistND() throw() {}
 
 void HistND::fillBin(const std::vector<double> & values, double weight) {
    long indx = binIndex(values);
-   if (indx > 0) {
+   if (indx >= 0) {
       m_data[indx] += weight;
    }
 }

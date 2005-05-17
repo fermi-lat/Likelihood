@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.71 2005/04/15 21:56:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.72 2005/04/16 01:14:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -353,6 +353,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
           npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
       double start(scData.vec.at(it).time);
       double stop(scData.vec.at(it+1).time);
+      double livetime(scData.vec.at(it).livetime);
       double fraction(0);
 
       bool includeInterval = 
@@ -376,7 +377,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
             if (effArea < 0 || fraction < 0 || (stop-start) < 0) {
                std::cout << effArea << std::endl;
             }
-            exposure[k] += effArea*(stop - start)*fraction;
+            exposure[k] += effArea*livetime*fraction;
          }
       }
    }

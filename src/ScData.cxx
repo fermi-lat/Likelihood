@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.36 2005/03/20 19:01:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.37 2005/03/20 23:12:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -43,6 +43,7 @@ void ScData::readData(std::string file, bool clear) {
    for ( ; it != scData->end(); ++it) {
       ScNtuple tuple;
       scInterval["start"].get(tuple.time);
+      scInterval["livetime"].get(tuple.livetime);
       scInterval["ra_scx"].get(raSCX);
       scInterval["dec_scx"].get(decSCX);
       tuple.xAxis = astro::SkyDir(raSCX, decSCX);
