@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 16 17:26:38 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	MeanPsf.h 
+Log Message:
+use MeanPsf for point source SourceMaps
+    *
+------------------------------------------------------------
 User: jchiang  Fri May 13 17:59:16 PDT 2005
 Likelihood/src
 
