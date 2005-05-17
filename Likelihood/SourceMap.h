@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.21 2005/03/03 07:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.22 2005/05/14 00:59:09 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -23,7 +23,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.21 2005/03/03 07:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.22 2005/05/14 00:59:09 jchiang Exp $
  */
 
 class SourceMap {
@@ -110,6 +110,11 @@ private:
 
    void recomputeSrcStrengths(DiffuseSource * src, double energy);
 
+   void getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
+                          const std::vector<Pixel> & pixels,
+                          const std::vector<double> & energies,
+                          std::vector<double> & mapCorrections) const;
+   
 };
 
 } // namespace Likelihood

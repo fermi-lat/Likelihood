@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.13 2004/11/08 03:22:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.14 2005/05/14 00:59:09 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -84,6 +84,8 @@ public:
    void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const;
 
    const astro::SkyDir & mapCenter() const {return m_center;}
+
+   bool withinBounds(const astro::SkyDir & dir, double energy) const;
 
 protected:
 

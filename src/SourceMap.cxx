@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.31 2005/05/14 00:59:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.32 2005/05/17 00:26:40 jchiang Exp $
  */
 
 #include <algorithm>
@@ -113,6 +113,12 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          exposure.push_back(meanPsf.exposure(energies.at(k)));
       }
 
+      std::vector<double> mapCorrections(energies.size(), 1.);
+      if (dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
+         getMapCorrections(pointSrc, meanPsf, pixels, energies,
+                           mapCorrections);
+      }
+
       for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
          std::vector<double>::const_iterator energy = energies.begin();
          for (int k = 0; energy != energies.end(); ++energy, k++) {
@@ -123,7 +129,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
             double value = (meanPsf(energies.at(k), 
                                     dir.difference(pixel->dir())*180./M_PI)
                             *exposure.at(k));
-            value *= pixel->solidAngle();
+            value *= pixel->solidAngle()*mapCorrections.at(k);
             m_model.at(indx) += value;
             m_npreds.at(k) += value;
             icount++;
@@ -146,46 +152,33 @@ SourceMap::~SourceMap() {
    if (m_deleteDataMap) delete m_dataMap;
 }
 
-// void SourceMap::
-// getMapCorrections(PointSource * src, 
-//                   const std::vector<Pixels> & pixels,
-//                   const std::vector<double> & energies,
-//                   const Observation & observation,
-//                   std::vector< std::vector<double> > & mapCorrections) {
-//    static int n_evtTypes(2);
-//    psfCorrections.resize(n_eventTypes);
-//    for (int i = 0; i < n_eventTypes; i++) {
-//       psfCorrections.at(i).resize(energies.size());
-//    }
-
-//    astro::SkyDir & srcDir = src->getDir();
-//    double psfRadius(maxPsfRadius(src));
-
-//    std::vector<Pixel> containedPixels;
-//    for (unsigned int j = 0; j < pixels.size(); j++) {
-//       if (srcDir.difference(pixels.at(j).dir()) <= psfRadius) {
-//          containedPixels.push_back(pixels.at(j));
-//       }
-//    }
-
-//    for (int evtType = 0; evtType < n_evtTypes; evtType++) {
-//       for (unsigned int k = 0; k < energies.size(); k++) {
-//          unsigned long indx = k*pixels.size() + j;
-//          double value(0);
-
-
-
-//             Psf aeff(src, pixel->dir(), *energy, evtType, observation);
-//             value += observation.expCube().value(pixel->dir(), aeff);
-//          }
-//          value *= pixel->solidAngle();
-//          m_model.at(indx) += value;
-//          m_npreds.at(k) += value;
-//          icount++;
-//       }
-//    }
+void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
+                                  const std::vector<Pixel> & pixels,
+                                  const std::vector<double> & energies,
+                                  std::vector<double> & mapCorrections) const {
+   const astro::SkyDir & srcDir = src->getDir();
+   double psfRadius(maxPsfRadius(src));
    
-// }
+   std::vector<unsigned int> containedPixels;
+   for (unsigned int j = 0; j < pixels.size(); j++) {
+      if (srcDir.difference(pixels.at(j).dir())*180./M_PI <= psfRadius) {
+         containedPixels.push_back(j);
+      }
+   }
+   mapCorrections.reserve(energies.size());
+   for (unsigned int k = 0; k < energies.size()-1; k++) {
+      double map_integral(0);
+      std::vector<unsigned int>::const_iterator j = containedPixels.begin();
+      for ( ; j != containedPixels.end(); ++j) {
+         const Pixel & pix = pixels.at(*j);
+         map_integral += pix.solidAngle()*
+            meanPsf(energies.at(k), srcDir.difference(pix.dir())*180./M_PI);
+      }
+      mapCorrections.push_back(meanPsf.integral(psfRadius, energies.at(k))
+                               /map_integral);
+   }
+   mapCorrections.push_back(mapCorrections.back());
+}
 
 double SourceMap::maxPsfRadius(PointSource * src) const {
    std::vector<astro::SkyDir> pixelDirs;
@@ -199,7 +192,7 @@ double SourceMap::maxPsfRadius(PointSource * src) const {
          radius = new_rad;
       }
    }
-   return radius;
+   return radius*180./M_PI;
 }
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
@@ -293,7 +286,7 @@ double SourceMap::sourceRegionIntegral(double energy,
       double ra = m_dataMap->mapCenter().ra();
       double dec = m_dataMap->mapCenter().dec();
       s_meanPsf = new MeanPsf(ra, dec, energies, observation);
-      s_meanPsf->write("mean_psf.dat");
+//      s_meanPsf->write("mean_psf.dat");
    }
    if (s_binnedExposure == 0) {
       s_binnedExposure = new BinnedExposure(energies, observation);

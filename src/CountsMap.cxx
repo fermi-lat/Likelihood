@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.17 2005/03/08 01:28:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.18 2005/05/14 00:59:15 jchiang Exp $
  */
 
 #include <algorithm>
@@ -248,6 +248,14 @@ CountsMap::~CountsMap() throw() {
       std::cerr << eObj.what() << std::endl;
    } catch (...) {
    }
+}
+
+bool CountsMap::withinBounds(const astro::SkyDir & dir, double energy) const {
+   std::pair<double, double> coord = dir.project(*m_proj);
+   double my_values[] = {coord.first, coord.second, energy};
+   std::vector<double> values(my_values, my_values + 3);
+   long indx = m_hist->binIndex(values);
+   return indx >= 0;
 }
 
 void CountsMap::binInput(tip::Table::ConstIterator begin, 
