@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Tue May 17 06:44:13 PDT 2005
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx HistND.cxx LikeExposure.cxx MeanPsf.cxx 
+	PointSource.cxx ScData.cxx SourceMap.cxx 
+Log Message:
+apply psf integral corrections to SourceMap
+    *
+------------------------------------------------------------
+User: jchiang  Tue May 17 06:44:13 PDT 2005
 Likelihood/Likelihood
 
 Modified Files:
