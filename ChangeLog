@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 17 06:44:13 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h ScData.h SourceMap.h 
+Log Message:
+apply psf integral corrections to SourceMap
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 16 17:26:40 PDT 2005
 Likelihood/src
 
