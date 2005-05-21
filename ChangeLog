@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sat May 21 16:39:01 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h FitsImage.h SourceMap.h 
+Added Files:
+	EquinoxRotation.h 
+Log Message:
+refactor EquinoxRotation
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 17 06:44:14 PDT 2005
 Likelihood/src/gtcntsmap
 
