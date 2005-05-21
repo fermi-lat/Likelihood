@@ -4,13 +4,14 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.6 2005/03/03 00:17:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.7 2005/03/03 07:07:02 jchiang Exp $
  */
 
 #include <cmath>
 
 #include <algorithm>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 
 #include "tip/Header.h"
@@ -92,8 +93,13 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
                                                       m_energies.end(),
                                                       energy);
    if (ie == m_energies.end()) {
-      throw std::runtime_error("BinnedExposure::operator(): The energy " +
-                               std::string("selected is not available."));
+      std::ostringstream what;
+      what << "BinnedExposure::operator(): The energy " << energy 
+           << " is not available.\nHere are the relevant energies:\n";
+      for (unsigned int i = 0; i < m_energies.size(); i++) {
+         what << m_energies.at(i) << "\n";
+      }
+      throw std::runtime_error(what.str());
    }
    unsigned int k = ie - m_energies.begin();
    if (ra < 0) ra += 360.; 

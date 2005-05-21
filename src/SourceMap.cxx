@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.32 2005/05/17 00:26:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.33 2005/05/17 13:44:13 jchiang Exp $
  */
 
 #include <algorithm>
@@ -21,6 +21,7 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
@@ -108,10 +109,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       const astro::SkyDir & dir(pointSrc->getDir());
       MeanPsf meanPsf(dir.ra(), dir.dec(), energies, observation);
 
-      std::vector<double> exposure;
-      for (unsigned int k = 0; k < energies.size(); k++) {
-         exposure.push_back(meanPsf.exposure(energies.at(k)));
-      }
+      const std::vector<double> & exposure = meanPsf.exposure();
 
       std::vector<double> mapCorrections(energies.size(), 1.);
       if (dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
@@ -288,11 +286,11 @@ double SourceMap::sourceRegionIntegral(double energy,
       s_meanPsf = new MeanPsf(ra, dec, energies, observation);
 //      s_meanPsf->write("mean_psf.dat");
    }
+   MeanPsf & psf = *s_meanPsf;
    if (s_binnedExposure == 0) {
       s_binnedExposure = new BinnedExposure(energies, observation);
       s_binnedExposure->writeOutput("binned_exposure.fits");
    }
-   MeanPsf & psf = *s_meanPsf;
    BinnedExposure & exposure = *s_binnedExposure;
 
 // Loop over source region locations.
@@ -301,11 +299,10 @@ double SourceMap::sourceRegionIntegral(double energy,
    for (unsigned int i = 0; i < s_mu.size(); i++) {
       double psf_val = psf(energy, s_theta.at(i));
       std::vector<double> phi_integrand;
-      for (unsigned int j = 0; j < s_phi.size(); j++) {
+      for (unsigned int j = 0; j < s_phi.size(); j++, indx++) {
          const astro::SkyDir & srcDir = m_srcDirs.at(indx);
-         double exposure_val = exposure(energy, srcDir.ra(), srcDir.dec());
-         phi_integrand.push_back(exposure_val*psf_val
-                                 *m_srcStrengths.at(indx++));
+         double exposr = exposure(energy, srcDir.ra(), srcDir.dec());
+         phi_integrand.push_back(exposr*psf_val*m_srcStrengths.at(indx));
       }
       TrapQuad phiQuad(s_phi, phi_integrand);
       mu_integrand.push_back(phiQuad.integral());
@@ -320,7 +317,7 @@ void SourceMap::computeSrcDirs(const Pixel & pixel, Source * src) {
    DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
 
 // Rotation matrix from Equatorial coords to local coord system
-   FitsImage::EquinoxRotation eqRot(pixel.dir().ra(), pixel.dir().dec());
+   EquinoxRotation eqRot(pixel.dir().ra(), pixel.dir().dec());
 
    m_srcDirs.clear();
    m_srcStrengths.clear();
@@ -372,7 +369,7 @@ void SourceMap::prepareAngleArrays(int nmu, int nphi) {
 }
 
 void SourceMap::getCelestialDir(double phi, double mu, 
-                                FitsImage::EquinoxRotation & eqRot,
+                                EquinoxRotation & eqRot,
                                 astro::SkyDir & dir) const {
    double sp = sin(phi);
    double arg = mu/sqrt(1 - (1 - mu*mu)*sp*sp);
@@ -387,8 +384,7 @@ void SourceMap::getCelestialDir(double phi, double mu,
 // The direction in "Equinox rotated" coordinates
    astro::SkyDir indir(alpha*180/M_PI, delta*180/M_PI);
 
-// Convert to the unrotated coordinate system (should probably use 
-// Hep3Vector methods here instead).
+// Convert to the unrotated coordinate system.
    eqRot.do_rotation(indir, dir);
 }
 

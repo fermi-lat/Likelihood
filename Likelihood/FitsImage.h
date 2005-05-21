@@ -3,7 +3,7 @@
  * @brief Declaration of FitsImage class
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.24 2005/02/24 06:32:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.25 2005/04/25 20:41:46 jchiang Exp $
  *
  */
 
@@ -22,6 +22,8 @@
 #include "Likelihood/Exception.h"
 
 namespace Likelihood {
+   
+   class EquinoxRotation;
 
 /** 
  * @class FitsImage
@@ -30,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.24 2005/02/24 06:32:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitsImage.h,v 1.25 2005/04/25 20:41:46 jchiang Exp $
  *
  */
 
@@ -44,9 +46,7 @@ public:
 
    FitsImage(const Likelihood::FitsImage &rhs);
 
-   virtual ~FitsImage() {
-      delete m_eqRot;
-   }
+   virtual ~FitsImage();
 
    virtual void getCelestialArrays(std::vector<double> &lonArray,
                                    std::vector<double> &latArray);
@@ -69,24 +69,24 @@ public:
 
    FitsImage &operator=(const FitsImage &rhs);
 
-/**
- * @class EquinoxRotation
- * @brief Nested class to perform the "Equinox Rotation" described in
- * <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">
- * LikeMemo 3</a>.
- */
-   class EquinoxRotation {
-   public:
-      EquinoxRotation() {}
-      EquinoxRotation(double alpha0, double delta0);
-      ~EquinoxRotation() {}
-      void do_rotation(const astro::SkyDir &inDir, astro::SkyDir &outDir);
-      EquinoxRotation *clone() const {
-         return new EquinoxRotation(*this);
-      }
-   private:
-      std::vector< std::vector<double> > rotMatrix;
-   };                       
+// /**
+//  * @class EquinoxRotation
+//  * @brief Nested class to perform the "Equinox Rotation" described in
+//  * <a href="http://lheawww.gsfc.nasa.gov/~jchiang/SSC/like_3.ps">
+//  * LikeMemo 3</a>.
+//  */
+//    class EquinoxRotation {
+//    public:
+//       EquinoxRotation() {}
+//       EquinoxRotation(double alpha0, double delta0);
+//       ~EquinoxRotation() {}
+//       void do_rotation(const astro::SkyDir &inDir, astro::SkyDir &outDir);
+//       EquinoxRotation *clone() const {
+//          return new EquinoxRotation(*this);
+//       }
+//    private:
+//       std::vector< std::vector<double> > rotMatrix;
+//    };                       
 #endif
 
 private:

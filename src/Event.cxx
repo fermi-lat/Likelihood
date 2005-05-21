@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.47 2005/03/02 22:55:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.48 2005/03/03 07:07:02 jchiang Exp $
  */
 
 #include <cctype>
@@ -17,6 +17,7 @@
 
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
+#include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/Exception.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -124,7 +125,7 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
    getNewDiffuseSrcs(srcList, srcs);
    if (srcs.size() == 0) return;
 
-   FitsImage::EquinoxRotation eqRot(m_appDir.ra(), m_appDir.dec());
+   EquinoxRotation eqRot(m_appDir.ra(), m_appDir.dec());
    if (!s_haveSourceRegionData) {
       prepareSrData(sr_radius);
    }
@@ -254,8 +255,8 @@ void Event::prepareSrData(double sr_radius, int nmu, int nphi) {
 }
 
 void Event::getCelestialDir(double phi, double mu, 
-                            FitsImage::EquinoxRotation &eqRot,
-                            astro::SkyDir &dir) {
+                            EquinoxRotation & eqRot,
+                            astro::SkyDir & dir) {
    double sp = sin(phi);
    double arg = mu/sqrt(1 - (1 - mu*mu)*sp*sp);
    double alpha;
