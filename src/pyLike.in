@@ -15,8 +15,10 @@
 #include "st_facilities/FitsImage.h"
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/BinnedExposure.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/EventContainer.h"
 #include "Likelihood/ExposureCube.h"
@@ -80,6 +82,7 @@ using optimizers::Exception;
 %include $(OPTIMIZERSROOT)/optimizers/Mcmc.h
 %rename(FitsImageBase) st_facilities::FitsImage;
 %include $(ST_FACILITIESROOT)/st_facilities/FitsImage.h
+%include $(LIKELIHOODROOT)/Likelihood/EquinoxRotation.h
 %include $(LIKELIHOODROOT)/Likelihood/FitsImage.h
 %template (FuncPair) std::pair<std::string, optimizers::Function *>;
 %template (FuncMap) std::map<std::string, optimizers::Function *>;
@@ -94,10 +97,12 @@ using optimizers::Exception;
 %include $(LIKELIHOODROOT)/Likelihood/ScData.h
 %include $(LIKELIHOODROOT)/Likelihood/EventContainer.h
 %include $(LIKELIHOODROOT)/Likelihood/Observation.h
+%include $(LIKELIHOODROOT)/Likelihood/BinnedExposure.h
 %include $(LIKELIHOODROOT)/Likelihood/AppHelpers.h
 %include $(LIKELIHOODROOT)/Likelihood/SourceModel.h
 %include $(LIKELIHOODROOT)/Likelihood/DiffuseSource.h
 %include $(LIKELIHOODROOT)/Likelihood/Pixel.h
+%template (PixelVector) std::vector<Likelihood::Pixel>;
 %include $(LIKELIHOODROOT)/Likelihood/CountsMap.h
 %include $(LIKELIHOODROOT)/Likelihood/SourceModel.h
 %include $(LIKELIHOODROOT)/Likelihood/LogLike.h
@@ -119,6 +124,18 @@ using optimizers::Exception;
    static std::string coordSys(const std::string & fitsFile) {
       Likelihood::FitsImage image(fitsFile);
       return image.coordSys();
+   }
+}
+%extend Likelihood::EquinoxRotation {
+   astro::SkyDir fromMapCoords(const astro::SkyDir & inDir) {
+      astro::SkyDir outDir(0, 0);
+      self->do_rotation(inDir, outDir, false);
+      return outDir;
+   }
+   astro::SkyDir toMapCoords(const astro::SkyDir & inDir) {
+      astro::SkyDir outDir(0, 0);
+      self->do_rotation(inDir, outDir, true);
+      return outDir;
    }
 }
 %extend Likelihood::SourceFactory {

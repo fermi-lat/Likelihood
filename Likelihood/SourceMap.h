@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.22 2005/05/14 00:59:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.23 2005/05/17 13:44:13 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -17,13 +17,14 @@
 namespace Likelihood {
 
    class CountsMap;
-   class Source;
+   class EquinoxRotation;
    class PointSource;
+   class Source;
 
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.22 2005/05/14 00:59:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.23 2005/05/17 13:44:13 jchiang Exp $
  */
 
 class SourceMap {
@@ -101,7 +102,7 @@ private:
    void prepareAngleArrays(int nmu=100, int nphi=50);
 
    void getCelestialDir(double phi, double mu, 
-                        FitsImage::EquinoxRotation & eqRot,
+                        EquinoxRotation & eqRot,
                         astro::SkyDir & dir) const;
 
    void fitsReportError(FILE *stream, int status) const;

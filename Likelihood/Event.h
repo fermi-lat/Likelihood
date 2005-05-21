@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.32 2005/02/23 00:39:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.33 2005/03/03 07:07:01 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -14,12 +14,14 @@
 #include <map>
 
 #include "astro/SkyDir.h"
-#include "Likelihood/FitsImage.h"
+
 #include "Likelihood/Exception.h"
+#include "Likelihood/FitsImage.h"
 
 namespace Likelihood {
 
    class DiffuseSource;
+   class EquinoxRotation;
    class ResponseFunctions;
 
 /** 
@@ -29,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.32 2005/02/23 00:39:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.33 2005/03/03 07:07:01 jchiang Exp $
  */
 
 class Event {
@@ -149,8 +151,8 @@ private:
 
    /// Compute Celestial direction from (phi, mu) in Equinox-centered
    /// coordinates.
-   void getCelestialDir(double phi, double mu, FitsImage::EquinoxRotation
-                        &eqRot, astro::SkyDir &dir);
+   void getCelestialDir(double phi, double mu, EquinoxRotation & eqRot,
+                        astro::SkyDir &dir);
 
    /// Angular arrays over the source region for the diffuse integrals.
    static std::vector<double> s_mu;

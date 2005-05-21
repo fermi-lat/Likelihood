@@ -5,7 +5,7 @@
  * for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.30 2005/03/03 00:17:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.31 2005/03/03 00:46:55 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -14,6 +14,7 @@
 
 #include "facilities/Util.h"
 
+#include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/Observation.h"
@@ -116,7 +117,7 @@ void ExposureMap::computeMap(std::string filename,
    const RoiCuts & roiCuts = observation.roiCuts();
 
    astro::SkyDir roiCenter = roiCuts.extractionRegion().center();
-   FitsImage::EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
+   EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
 
    double lonstep = 2.*sr_radius/(nlon-1);
    double latstep = 2.*sr_radius/(nlat-1);
@@ -157,8 +158,9 @@ void ExposureMap::computeMap(std::string filename,
             PointSource::computeExposure(dir, energies, observation,
                                          exposure, verbose);
          }
-         for (int k = 0; k < nenergies; k++)
+         for (int k = 0; k < nenergies; k++) {
             exposureCube[k][indx] = exposure[k];
+         }
          indx++;
       }
    }

@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.18 2005/05/14 00:59:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.19 2005/05/17 13:44:13 jchiang Exp $
  */
 
 #include <algorithm>
@@ -350,6 +350,14 @@ void CountsMap::getAxisVector(int i, std::vector<double> & axisVector) const {
    }
    long jj = binners[i]->getNumBins() - 1;
    axisVector.push_back(binners[i]->getInterval(jj).end());
+// // The following only works for plate-carree projections:
+//    if (i < 2) {
+//       for (unsigned int j = 0; j < axisVector.size(); j++) {
+//          axisVector.at(j) -= m_crpix[i];
+//          axisVector.at(j) *= m_cdelt[i];
+//          axisVector.at(j) += m_crval[i];
+//       }
+//    }
 }
 
 void CountsMap::setKeywords(tip::Header & header) const {
@@ -467,7 +475,11 @@ double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
       phi[1] = upper_right.ra()*M_PI/180.;
       theta[1] = upper_right.dec()*M_PI/180.;
    }
-   return std::fabs((phi[1] - phi[0])*(sin(theta[1]) - sin(theta[0])));
+   double dphi = std::fabs(phi[1] - phi[0]);
+   if (dphi > M_PI) {
+      dphi = 2.*M_PI - dphi;
+   }
+   return dphi*std::fabs(sin(theta[1]) - sin(theta[0]));
 }
 
 void CountsMap::setCenter() {
