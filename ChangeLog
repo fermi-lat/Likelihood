@@ -1,5 +1,17 @@
 ------------------------------------------------------------
 User: jchiang  Sat May 21 16:39:02 PDT 2005
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx CountsMap.cxx Event.cxx ExposureMap.cxx 
+	FitsImage.cxx SourceMap.cxx pyLike.in 
+Added Files:
+	EquinoxRotation.cxx 
+Log Message:
+refactor EquinoxRotation
+    *
+------------------------------------------------------------
+User: jchiang  Sat May 21 16:39:02 PDT 2005
 Likelihood/cmt
 
 Modified Files:
