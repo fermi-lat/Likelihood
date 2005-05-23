@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.23 2005/05/17 13:44:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.24 2005/05/21 23:39:01 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -24,7 +24,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.23 2005/05/17 13:44:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.24 2005/05/21 23:39:01 jchiang Exp $
  */
 
 class SourceMap {
@@ -94,8 +94,7 @@ private:
    static std::vector<double> s_mu;
    static std::vector<double> s_theta;
 
-   double sourceRegionIntegral(double energy,
-                               const Observation & observation) const;
+   double sourceRegionIntegral(double energy) const;
 
    void computeSrcDirs(const Pixel & pixel, Source * src);
 
@@ -115,7 +114,8 @@ private:
                           const std::vector<Pixel> & pixels,
                           const std::vector<double> & energies,
                           std::vector<double> & mapCorrections) const;
-   
+
+   void computeExposureAndPsf(const Observation & observation);
 };
 
 } // namespace Likelihood

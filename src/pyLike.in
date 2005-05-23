@@ -16,6 +16,7 @@
 #include "Likelihood/FitsImage.h"
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedExposure.h"
+#include "Likelihood/Convolve.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/EquinoxRotation.h"
@@ -87,6 +88,7 @@ using optimizers::Exception;
 %template (FuncPair) std::pair<std::string, optimizers::Function *>;
 %template (FuncMap) std::map<std::string, optimizers::Function *>;
 %include $(LIKELIHOODROOT)/src/Verbosity.h
+%include $(LIKELIHOODROOT)/Likelihood/Convolve.h
 %include $(LIKELIHOODROOT)/Likelihood/Exception.h
 %include $(LIKELIHOODROOT)/Likelihood/ResponseFunctions.h
 %include $(LIKELIHOODROOT)/Likelihood/Event.h
