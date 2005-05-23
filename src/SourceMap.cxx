@@ -4,11 +4,12 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.34 2005/05/21 23:39:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.35 2005/05/23 05:51:26 jchiang Exp $
  */
 
 #include <algorithm>
 #include <deque>
+#include <iostream>
 #include <memory>
 
 #include "tip/IFileSvc.h"
@@ -27,6 +28,7 @@
 #include "Likelihood/PointSource.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/ResponseFunctions.h"
+#include "Likelihood/RotatedMap.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
@@ -42,6 +44,38 @@ namespace {
          return M_PI;
       } else {
          return acos(mu);
+      }
+   }
+   double maxRadius(const std::vector<Likelihood::Pixel> & pixels,
+                    const astro::SkyDir & dir) {
+      std::vector<Likelihood::Pixel>::const_iterator pixel = pixels.begin();
+      double maxValue(0);
+      for ( ; pixel != pixels.end(); ++pixel) {
+         double dist = pixel->dir().difference(dir);
+         if (dist > maxValue) {
+            maxValue = dist;
+         }
+      }
+      return maxValue*180./M_PI;
+   }
+   void getSolidAngles(const Likelihood::CountsMap & cmap,
+                       std::vector< std::vector<double> > & image) {
+      std::vector<Likelihood::Pixel> pixels;
+      cmap.getPixels(pixels);
+      std::vector<double> lons;
+      std::vector<double> lats;
+      cmap.getAxisVector(0, lons);
+      cmap.getAxisVector(1, lats);
+      image.clear();
+      image.reserve(lons.size());
+      for (unsigned int i = 0; i < lons.size()-1; i++) {
+         std::vector<double> row;
+         row.reserve(lats.size());
+         for (unsigned int j = 0; j < lons.size()-1; j++) {
+            int indx = j*(lons.size()-1) + i;
+            row.push_back(pixels.at(indx).solidAngle());
+         }
+         image.push_back(row);
       }
    }
 }
@@ -72,7 +106,9 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    std::vector<double> energies;
    dataMap->getAxisVector(2, energies);
 
-   if (print_output()) std::cerr << "Generating SourceMap for " << m_name;
+   if (print_output()) {
+      std::cerr << "Generating SourceMap for " << m_name;
+   }
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
    long icount(0);
@@ -84,27 +120,34 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    bool havePointSource = dynamic_cast<PointSource *>(src) != 0;
    bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
 
+   std::vector< std::vector<double> > solidAngles;
+   ::getSolidAngles(*dataMap, solidAngles);
+
    if (haveDiffuseSource) {
       computeExposureAndPsf(observation);
       DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
-      for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
-//         computeSrcDirs(*pixel, src);
-         std::vector<double>::const_iterator energy = energies.begin();
-         for (int k = 0; energy != energies.end(); ++energy, k++) {
-            unsigned long indx = k*pixels.size() + j;
-            if (print_output() && (icount % (npts/20)) == 0) std::cerr << ".";
-            double value(0);
-            if (haveMapCubeFunction(diffuseSrc)) {
-               recomputeSrcStrengths(diffuseSrc, *energy);
+      const astro::SkyDir & map_center = dataMap->mapCenter();
+/// @todo Replace this hard-wired value for radius extension (consider 
+/// psf energy dependence).
+      double radius = ::maxRadius(pixels, map_center) + 10.;
+/// @todo Replace this hard-wired value for the pixel size.
+      unsigned int mapsize(static_cast<unsigned int>(2*radius/0.25));
+      RotatedMap diffuseMap(*diffuseSrc, map_center.ra(),
+                            map_center.dec(), radius, mapsize);
+/// @todo Include energy dependence for MapCubeSource.
+      std::vector<double>::const_iterator energy = energies.begin();
+      unsigned int indx(0);
+      for (int k = 0; energy != energies.end(); ++energy, k++) {
+         RotatedMap convolvedMap = diffuseMap.convolve(*energy, *s_meanPsf,
+                                                       *s_binnedExposure);
+         for (pixel = pixels.begin(); pixel != pixels.end(); ++pixel, indx++) {
+            if (print_output() && (indx % (npts/20)) == 0) {
+               std::cerr << ".";
             }
-//            value = sourceRegionIntegral(*energy);
-            value = ((*s_binnedExposure)(*energy, pixel->dir().ra(),
-                                         pixel->dir().dec())
-                     *diffuseSrc->spatialDist(pixel->dir()));
-            value *= pixel->solidAngle();
-            m_model.at(indx) += value;
-            m_npreds.at(k) += value;
-            icount++;
+/// @todo This is incorrect; need to multiply by solid angle before convolving
+/// with the psf.
+            m_model.at(indx) = convolvedMap(pixel->dir())*pixel->solidAngle();
+            m_npreds.at(k) += m_model.at(indx);
          }
       }
    } else if (havePointSource) {

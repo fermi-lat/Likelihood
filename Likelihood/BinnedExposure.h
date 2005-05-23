@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.4 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.5 2005/03/05 18:37:53 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -17,6 +17,7 @@
 
 namespace Likelihood {
 
+   class EquinoxRotation;
    class Observation;
 
 /**
@@ -45,6 +46,12 @@ public:
    double operator()(double energy, double ra, double dec) const;
 
    void writeOutput(const std::string & filename) const;
+
+   void getRotatedImage(double energy, 
+                        const std::vector<double> & lons, 
+                        const std::vector<double> & lats, 
+                        const EquinoxRotation & rot,
+                        std::vector< std::vector<double> > & image) const;
 
 private:
 
