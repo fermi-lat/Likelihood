@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sun May 22 22:51:26 PDT 2005
+Likelihood/src
+
+Modified Files:
+	EquinoxRotation.cxx MeanPsf.cxx SourceMap.cxx pyLike.in 
+Added Files:
+	Convolve.cxx RotatedMap.cxx 
+Log Message:
+add Convolve and RotatedMap classes
+    *
+------------------------------------------------------------
 User: jchiang  Sun May 22 22:51:25 PDT 2005
 Likelihood/cmt
 
