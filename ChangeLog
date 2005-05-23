@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sun May 22 22:51:25 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	EquinoxRotation.h MeanPsf.h SourceMap.h 
+Added Files:
+	Convolve.h RotatedMap.h 
+Log Message:
+add Convolve and RotatedMap classes
+    *
+------------------------------------------------------------
 User: jchiang  Sat May 21 16:39:02 PDT 2005
 Likelihood/src
 
