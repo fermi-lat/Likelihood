@@ -4,15 +4,52 @@
  * rotated to an equinox-centered coordinate system.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RotatedMap.cxx,v 1.1 2005/05/23 05:51:26 jchiang Exp $
  */
 
 #include "st_facilities/Util.h"
 
+#include "Likelihood/BinnedExposure.h"
 #include "Likelihood/Convolve.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/RotatedMap.h"
+
+namespace {
+   class Image : public std::vector< std::vector<double> > {
+   public:
+      Image() {}
+      void multiply(const std::vector< std::vector<double> > & other) {
+         if (this->size() != other.size() ||
+             this->at(0).size() != other.at(0).size()) {
+            throw std::runtime_error("Image::multiply: array sizes do "
+                                     "not match.");
+         }
+         for (unsigned int i = 0; i < this->size(); i++) {
+            if (this->at(i).size() != other.at(i).size()) {
+               throw std::runtime_error("Image::multiply: inconsistent "
+                                        "row lengths.");
+            }
+            for (unsigned int j = 0; j < this->at(i).size(); j++) {
+               this->at(i).at(j) *= other.at(i).at(j);
+            }
+         }
+      }
+      void normalize() {
+         double total(0);
+         for (unsigned int i = 0; i < this->size(); i++) {
+            for (unsigned int j = 0; j < this->at(i).size(); j++) {
+               total += this->at(i).at(j);
+            }
+         }
+         for (unsigned int i = 0; i < this->size(); i++) {
+            for (unsigned int j = 0; j < this->at(i).size(); j++) {
+               this->at(i).at(j) /= total;
+            }
+         }
+      }
+   };
+} // unnamed namespace
 
 namespace Likelihood {
 
@@ -55,10 +92,15 @@ double RotatedMap::operator()(const astro::SkyDir & dir) const {
    return st_facilities::Util::bilinear(m_lons, lon, m_lats, lat, m_image);
 }
 
-RotatedMap RotatedMap::convolve(const MeanPsf & psf, double energy) const {
-   std::vector< std::vector<double> > psf_image;
+RotatedMap RotatedMap::convolve(double energy, const MeanPsf & psf,
+                                const BinnedExposure & exposure) const {
+   ::Image counts;
+   exposure.getRotatedImage(energy, m_lons, m_lats, m_rot, counts);
+   counts.multiply(m_image);
+   ::Image psf_image;
    psf.getImage(energy, 0, 0, m_lons, m_lats, psf_image);
-   return RotatedMap(Convolve::convolve2d(m_image, psf_image),
+   psf_image.normalize();
+   return RotatedMap(Convolve::convolve2d(counts, psf_image),
                      m_lons, m_lats, m_rot);
 }
 
@@ -82,9 +124,9 @@ void RotatedMap::linearArray(double xmin, double xmax, int npts,
                              std::vector<double> & x) const {
    double xstep = (xmax - xmin)/(npts - 1);
    x.clear();
-   x.reserve(npts);
+   x.resize(npts);
    for (unsigned int i = 0; i < x.size(); i++) {
-      x.push_back(xstep*i + xmin);
+      x.at(i) = xstep*i + xmin;
    }
 }
 

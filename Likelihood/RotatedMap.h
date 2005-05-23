@@ -4,7 +4,7 @@
  * rotated to an equinox-centered coordinate system.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RotatedMap.h,v 1.1 2005/05/23 05:51:25 jchiang Exp $
  */
 
 #ifndef Likelihood_RotatedMap_h
@@ -18,6 +18,7 @@
 
 namespace Likelihood {
 
+class BinnedExposure;
 class DiffuseSource;
 class MeanPsf;
 
@@ -27,7 +28,7 @@ class MeanPsf;
  * rotated to an equinox-centered coordinate system.
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RotatedMap.h,v 1.1 2005/05/23 05:51:25 jchiang Exp $
  */
 
 class RotatedMap {
@@ -39,7 +40,8 @@ public:
 
    double operator()(const astro::SkyDir & dir) const;
 
-   RotatedMap convolve(const MeanPsf & psf, double energy) const;
+   RotatedMap convolve(double energy, const MeanPsf & psf,
+                       const BinnedExposure & exposure) const;
 
    void getUnrotatedMap(std::vector< std::vector<double> > & map,
                         const std::vector<double> & ras,
@@ -47,6 +49,22 @@ public:
                         astro::SkyDir::CoordSystem 
                         coordSys=astro::SkyDir::EQUATORIAL) const;
 
+   const std::vector< std::vector<double> > & image() const {
+      return m_image;
+   }
+
+   const std::vector<double> & lons() const {
+      return m_lons;
+   }
+
+   const std::vector<double> & lats() const {
+      return m_lats;
+   }
+
+   const EquinoxRotation & rotation() const {
+      return m_rot;
+   }
+   
 private:
 
    std::vector< std::vector<double> > m_image;
