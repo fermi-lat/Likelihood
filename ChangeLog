@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 23 12:12:52 PDT 2005
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx RotatedMap.cxx SourceMap.cxx 
+Log Message:
+first working version of using fftw-based convolution in SourceMaps
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 23 12:12:51 PDT 2005
 Likelihood/Likelihood
 
