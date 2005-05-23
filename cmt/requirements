@@ -4,7 +4,7 @@ version v7r4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.205 2005/05/14 00:59:11 jchiang Exp $
+# $Id: requirements,v 1.206 2005/05/21 23:39:02 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -32,6 +32,8 @@ apply_pattern ST_app name=gtcntsmap
 apply_pattern ST_app name=gtsrcmaps
 apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
 apply_pattern ST_app_withDir name=gtbackfile dir=backfile
+
+macro_append Likelihood_linkopts "" Linux " -lfftw3 -lm "
 
 path_remove PYTHONPATH Likelihood
 path_append PYTHONPATH $(LIKELIHOODROOT)/$(BINDIR)

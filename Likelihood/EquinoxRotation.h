@@ -4,7 +4,7 @@
  * system that has its equinox at that location.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EquinoxRotation.h,v 1.1 2005/05/21 23:39:01 jchiang Exp $
  */
 
 #ifndef Likelihood_EquinoxRotation_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  * LikeMemo 3</a>.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EquinoxRotation.h,v 1.1 2005/05/21 23:39:01 jchiang Exp $
  */
 
 class EquinoxRotation {
@@ -37,7 +37,7 @@ public:
    ~EquinoxRotation() {}
   
    void do_rotation(const astro::SkyDir & inDir, astro::SkyDir & outDir,
-                    bool reverse=false);
+                    bool toMapCoords=false) const;
   
    EquinoxRotation * clone() const {
       return new EquinoxRotation(*this);

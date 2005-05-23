@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.9 2005/05/14 00:59:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.10 2005/05/17 00:26:37 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -71,6 +71,19 @@ public:
    /// @param angle Acceptance cone angle (degrees).
    /// @param energy Energy at which to evaluate the integral (MeV).
    double integral(double angle, double energy) const;
+
+   /// @brief Compute the an image of the psf on a longitude-latitude
+   ///        grid, assuming the psf center is at (lon0, lat0)
+   /// @param energy True energy at which the psf is evaluated (MeV)
+   /// @param lon0 Reference longitude (degrees)
+   /// @param lat0 Reference latitude (degrees)
+   /// @param lons Input longitude array (degrees)
+   /// @param lons Input latitude array (degrees)
+   /// @param image The output psf image (sr^-1)
+   void getImage(double energy, double lon0, double lat0,
+                 const std::vector<double> lons,
+                 const std::vector<double> lats,
+                 std::vector< std::vector<double> > & image) const;
 
 private:
 

@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.33 2005/05/17 13:44:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.34 2005/05/21 23:39:02 jchiang Exp $
  */
 
 #include <algorithm>
@@ -85,9 +85,10 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
 
    if (haveDiffuseSource) {
+      computeExposureAndPsf(observation);
       DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
       for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
-         computeSrcDirs(*pixel, src);
+//         computeSrcDirs(*pixel, src);
          std::vector<double>::const_iterator energy = energies.begin();
          for (int k = 0; energy != energies.end(); ++energy, k++) {
             unsigned long indx = k*pixels.size() + j;
@@ -96,7 +97,10 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
             if (haveMapCubeFunction(diffuseSrc)) {
                recomputeSrcStrengths(diffuseSrc, *energy);
             }
-            value = sourceRegionIntegral(*energy, observation);
+//            value = sourceRegionIntegral(*energy);
+            value = ((*s_binnedExposure)(*energy, pixel->dir().ra(),
+                                         pixel->dir().dec())
+                     *diffuseSrc->spatialDist(pixel->dir()));
             value *= pixel->solidAngle();
             m_model.at(indx) += value;
             m_npreds.at(k) += value;
@@ -276,21 +280,22 @@ bool SourceMap::haveMapCubeFunction(DiffuseSource * src) const {
    return srcFuncs["SpatialDist"]->genericName() == "MapCubeFunction";
 }
 
-double SourceMap::sourceRegionIntegral(double energy,
-                                       const Observation & observation) const {
+void SourceMap::computeExposureAndPsf(const Observation & observation) {
    std::vector<double> energies;
    m_dataMap->getAxisVector(2, energies);
    if (s_meanPsf == 0) {
       double ra = m_dataMap->mapCenter().ra();
       double dec = m_dataMap->mapCenter().dec();
       s_meanPsf = new MeanPsf(ra, dec, energies, observation);
-//      s_meanPsf->write("mean_psf.dat");
    }
-   MeanPsf & psf = *s_meanPsf;
    if (s_binnedExposure == 0) {
       s_binnedExposure = new BinnedExposure(energies, observation);
       s_binnedExposure->writeOutput("binned_exposure.fits");
    }
+}
+
+double SourceMap::sourceRegionIntegral(double energy) const {
+   MeanPsf & psf = *s_meanPsf;
    BinnedExposure & exposure = *s_binnedExposure;
 
 // Loop over source region locations.

@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.15 2005/05/17 00:26:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.16 2005/05/17 13:44:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -136,6 +136,24 @@ double MeanPsf::integral(double angle, double energy) const {
                            (m_energies.at(k+1) - m_energies.at(k))
                            *(integral2 - integral1) + integral1);
    return value;
+}
+
+void MeanPsf::getImage(double energy, double lon0, double lat0,
+                       const std::vector<double> lons,
+                       const std::vector<double> lats,
+                       std::vector< std::vector<double> > & image) const {
+   astro::SkyDir center(lon0, lat0);
+   image.clear();
+   image.reserve(lons.size());
+   for (unsigned int i = 0; i < lons.size(); i++) {
+      std::vector<double> row;
+      for (unsigned int j = 0; j < lats.size(); j++) {
+         astro::SkyDir my_dir(lons.at(i), lats.at(j));
+         double dist = my_dir.difference(center)*180./M_PI;
+         row.push_back(this->operator()(energy, dist, 0));
+      }
+      image.push_back(row);
+   }
 }
 
 void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
