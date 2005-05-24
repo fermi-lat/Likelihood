@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.35 2005/05/23 05:51:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.36 2005/05/23 19:12:52 jchiang Exp $
  */
 
 #include <algorithm>
@@ -144,8 +144,6 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
             if (print_output() && (indx % (npts/20)) == 0) {
                std::cerr << ".";
             }
-/// @todo This is incorrect; need to multiply by solid angle before convolving
-/// with the psf.
             m_model.at(indx) = convolvedMap(pixel->dir())*pixel->solidAngle();
             m_npreds.at(k) += m_model.at(indx);
          }
