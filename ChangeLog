@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 24 08:02:22 PDT 2005
+Likelihood/src
+
+Modified Files:
+	SourceMap.cxx 
+Log Message:
+remove unneeded code
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 24 08:02:21 PDT 2005
 Likelihood/Likelihood
 
