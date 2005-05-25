@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 25 12:41:29 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtsrcmaps.par 
+Log Message:
+add psfcorrection flag
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 25 12:41:27 PDT 2005
 Likelihood/cmt
 
