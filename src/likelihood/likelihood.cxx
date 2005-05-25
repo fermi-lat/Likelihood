@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.81 2005/04/16 01:14:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.82 2005/04/19 00:30:29 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -57,7 +57,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.81 2005/04/16 01:14:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.82 2005/04/19 00:30:29 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -226,8 +226,14 @@ void likelihood::createStatistic() {
       std::string countsMapFile = m_pars["counts_map_file"];
       st_facilities::Util::file_ok(countsMapFile);
       m_dataMap = new CountsMap(countsMapFile);
+      bool apply_psf_corrections(false);
+      try {
+         apply_psf_corrections = m_pars["apply_psf_corrections"];
+      } catch (std::exception & eObj) {
+         // assume parameter does not exist, so use default value.
+      }
       m_logLike = new BinnedLikelihood(*m_dataMap, m_helper->observation(),
-                                       countsMapFile);
+                                       countsMapFile, apply_psf_corrections);
       std::string binnedMap = m_pars["binned_exposure_map"];
       if (binnedMap != "none" && binnedMap != "") {
          SourceMap::setBinnedExposure(binnedMap);

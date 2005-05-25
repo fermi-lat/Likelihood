@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.21 2005/02/28 18:38:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.22 2005/03/03 00:17:17 jchiang Exp $
  */
 
 #include <memory>
@@ -26,9 +26,10 @@ namespace Likelihood {
 
 BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
                                    const Observation & observation,
-                                   const std::string & srcMapsFile)
+                                   const std::string & srcMapsFile,
+                                   bool applyPsfCorrections)
    : LogLike(observation), m_dataMap(dataMap), m_modelIsCurrent(false),
-     m_srcMapsFile(srcMapsFile) {
+     m_srcMapsFile(srcMapsFile), m_applyPsfCorrections(applyPsfCorrections) {
    dataMap.getPixels(m_pixels);
    dataMap.getAxisVector(2, m_energies);
    identifyFilledPixels();
@@ -194,7 +195,8 @@ void BinnedLikelihood::createSourceMaps() {
    std::vector<std::string>::const_iterator name = srcNames.begin();
    for ( ; name != srcNames.end(); ++name) {
       Source * src = getSource(*name);
-      m_srcMaps[*name] = new SourceMap(src, &m_dataMap, m_observation);
+      m_srcMaps[*name] = new SourceMap(src, &m_dataMap, m_observation,
+                                       m_applyPsfCorrections);
    }
 }
 
@@ -224,7 +226,8 @@ void BinnedLikelihood::readSourceMaps(std::string filename) {
    for (name = srcNames.begin() ; name != srcNames.end(); ++name) {
       if (!m_srcMaps.count(*name)) {
          Source * src = getSource(*name);
-         m_srcMaps[*name] = new SourceMap(src, &m_dataMap, m_observation);
+         m_srcMaps[*name] = new SourceMap(src, &m_dataMap, m_observation,
+                                          m_applyPsfCorrections);
       }
    }
 }

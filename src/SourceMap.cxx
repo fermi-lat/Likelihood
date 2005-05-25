@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.36 2005/05/23 19:12:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.37 2005/05/24 15:02:21 jchiang Exp $
  */
 
 #include <algorithm>
@@ -93,8 +93,10 @@ std::vector<double> SourceMap::s_mu;
 std::vector<double> SourceMap::s_theta;
 
 SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
-                     const Observation & observation) 
-   : m_name(src->getName()), m_dataMap(dataMap), m_deleteDataMap(false) {
+                     const Observation & observation, 
+                     bool applyPsfCorrections) 
+   : m_name(src->getName()), m_dataMap(dataMap),
+     m_deleteDataMap(false) {
    s_refCount++;
    if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
       prepareAngleArrays();
@@ -157,7 +159,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       const std::vector<double> & exposure = meanPsf.exposure();
 
       std::vector<double> mapCorrections(energies.size(), 1.);
-      if (dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
+      if (applyPsfCorrections &&
+          dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
          getMapCorrections(pointSrc, meanPsf, pixels, energies,
                            mapCorrections);
       }
@@ -359,9 +362,8 @@ double SourceMap::sourceRegionIntegral(double energy) const {
    return value;
 }
 
-void SourceMap::computeSrcDirs(const Pixel & pixel, Source * src) {
-   DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
-
+void SourceMap::computeSrcDirs(const Pixel & pixel, 
+                               DiffuseSource * diffuseSrc) {
 // Rotation matrix from Equatorial coords to local coord system
    EquinoxRotation eqRot(pixel.dir().ra(), pixel.dir().dec());
 

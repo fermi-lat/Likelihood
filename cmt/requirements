@@ -4,7 +4,7 @@ version v7r4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.206 2005/05/21 23:39:02 jchiang Exp $
+# $Id: requirements,v 1.207 2005/05/23 05:51:25 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -16,11 +16,12 @@ use optimizers v2*
 use facilities v2r*
 use cfitsio v1* IExternal
 use cppunit v1* IExternal
+use fftw v* IExternal
 use irfLoader v0* irfs
 use st_facilities v0*
 use dataSubselector v3*
 
-apply_pattern ST_library option=" -no_share *.c -DTRAP_FPE "
+apply_pattern ST_library option=" -no_share *.c "
 apply_pattern ST_pfiles
 
 apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
@@ -32,8 +33,6 @@ apply_pattern ST_app name=gtcntsmap
 apply_pattern ST_app name=gtsrcmaps
 apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
 apply_pattern ST_app_withDir name=gtbackfile dir=backfile
-
-macro_append Likelihood_linkopts "" Linux " -lfftw3 -lm "
 
 path_remove PYTHONPATH Likelihood
 path_append PYTHONPATH $(LIKELIHOODROOT)/$(BINDIR)
