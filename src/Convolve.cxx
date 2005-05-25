@@ -4,14 +4,14 @@
  *        FFTW library
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Convolve.cxx,v 1.1 2005/05/23 05:51:26 jchiang Exp $
  */
 
 #include <iostream>
 #include <stdexcept>
 #include <vector>
 
-#include <fftw3.h>
+#include "fftw/fftw3.h"
 
 #include "Likelihood/Convolve.h"
 
