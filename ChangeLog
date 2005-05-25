@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 25 12:41:27 PDT 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+add psfcorrection flag
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 25 12:41:25 PDT 2005
 Likelihood/Likelihood
 
