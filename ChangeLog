@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 25 17:23:25 PDT 2005
+Likelihood/src
+
+Modified Files:
+	RotatedMap.cxx 
+Log Message:
+include <algorithm> for windows
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 25 12:41:35 PDT 2005
 Likelihood/src/likelihood
 
