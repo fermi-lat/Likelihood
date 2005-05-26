@@ -4,8 +4,10 @@
  * rotated to an equinox-centered coordinate system.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RotatedMap.cxx,v 1.1 2005/05/23 05:51:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RotatedMap.cxx,v 1.2 2005/05/23 19:12:52 jchiang Exp $
  */
+
+#include <algorithm>
 
 #include "st_facilities/Util.h"
 
