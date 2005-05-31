@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon May 30 23:54:41 PDT 2005
+Likelihood/src
+
+Modified Files:
+	pyLike.in 
+Log Message:
+some changes to allow for model counts maps from python
+    *
+------------------------------------------------------------
+User: jchiang  Mon May 30 23:54:41 PDT 2005
 Likelihood/python
 
 Modified Files:
