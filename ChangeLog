@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 30 23:54:40 PDT 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+some changes to allow for model counts maps from python
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 25 17:23:25 PDT 2005
 Likelihood/src
 
