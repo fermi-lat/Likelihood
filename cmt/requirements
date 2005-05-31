@@ -4,7 +4,7 @@ version v7r4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.207 2005/05/23 05:51:25 jchiang Exp $
+# $Id: requirements,v 1.208 2005/05/25 19:41:27 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -37,6 +37,9 @@ apply_pattern ST_app_withDir name=gtbackfile dir=backfile
 path_remove PYTHONPATH Likelihood
 path_append PYTHONPATH $(LIKELIHOODROOT)/$(BINDIR)
 path_append PYTHONPATH $(LIKELIHOODROOT)/python
+
+path_remove PATH Likelihood
+path_append PATH $(LIKELIHOODROOT)/$(BINDIR)
 
 private
 

@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.29 2005/04/16 05:47:19 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.30 2005/04/20 01:49:53 jchiang Exp $
 #
 import os
 import glob
@@ -24,10 +24,12 @@ def _resolveFileList(files):
 
 class Observation(object):
     def __init__(self, eventFile=None, scFile=None, expMap=None,
-                 expCube=None, irfs='TEST'):
+                 expCube=None, irfs='TEST', checkCuts=True):
+        self.checkCuts = checkCuts
         if eventFile is None and scFile is None:
             eventFile, scFile, expMap, expCube, irfs = self._obsDialog()
-        self._checkCuts(eventFile, expMap, expCube)
+        if checkCuts:
+            self._checkCuts(eventFile, expMap, expCube)
         self._inputs = eventFile, scFile, expMap, irfs
         self._respFuncs = pyLike.ResponseFunctions()
         self._respFuncs.load(irfs)
@@ -90,7 +92,6 @@ class Observation(object):
     def _readEvents(self, eventFile):
         if eventFile is not None:
             eventFiles = self._fileList(eventFile)
-            self._roiCuts.readCuts(eventFiles[0])
             self._roiCuts.readCuts(eventFiles[0], 'EVENTS', False)
             for file in eventFiles:
                 self._eventCont.getEvents(file)
