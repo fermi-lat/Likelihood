@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 30 23:54:42 PDT 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+some changes to allow for model counts maps from python
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 30 23:54:41 PDT 2005
 Likelihood/src
 
