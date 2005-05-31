@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.82 2005/04/19 00:30:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.83 2005/05/25 19:41:35 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -57,7 +57,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.82 2005/04/19 00:30:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.83 2005/05/25 19:41:35 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -229,7 +229,7 @@ void likelihood::createStatistic() {
       bool apply_psf_corrections(false);
       try {
          apply_psf_corrections = m_pars["apply_psf_corrections"];
-      } catch (std::exception & eObj) {
+      } catch (...) {
          // assume parameter does not exist, so use default value.
       }
       m_logLike = new BinnedLikelihood(*m_dataMap, m_helper->observation(),

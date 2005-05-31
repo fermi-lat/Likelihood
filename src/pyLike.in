@@ -76,7 +76,10 @@ using optimizers::Exception;
 %include $(ASTROROOT)/astro/SkyDir.h
 %template(SkyDirVector) std::vector<astro::SkyDir>;
 %feature("autodoc", "1");
+%include $(OPTIMIZERSROOT)/optimizers/Arg.h
+%include $(OPTIMIZERSROOT)/optimizers/dArg.h
 %include $(OPTIMIZERSROOT)/optimizers/Parameter.h
+%template(ParameterVector) std::vector<optimizers::Parameter>;
 %include $(OPTIMIZERSROOT)/optimizers/Function.h
 %include $(OPTIMIZERSROOT)/optimizers/FunctionFactory.h
 %include $(OPTIMIZERSROOT)/optimizers/Optimizer.h
