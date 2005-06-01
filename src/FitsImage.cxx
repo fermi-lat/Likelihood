@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.23 2005/02/18 04:17:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.24 2005/05/21 23:39:02 jchiang Exp $
  *
  */
 
@@ -151,66 +151,6 @@ bool FitsImage::haveRefCoord() {
 
    return have_ref_coord;
 }
-
-// FitsImage::EquinoxRotation::EquinoxRotation(double alpha0, double delta0) {
-
-//    rotMatrix.clear();
-
-// // convert to radians
-//    alpha0 *= M_PI/180;
-//    delta0 *= M_PI/180;
-
-// // build the rotation matrix, using Fortran-like indexing, i.e.,
-// // rotMatrix[row][column].  Note that this is the *transpose* of the
-// // matrix given in LikeMemo 3.
-   
-//    double ca = cos(alpha0);
-//    double sa = sin(alpha0);
-//    double cd = cos(delta0);
-//    double sd = sin(delta0);
-
-//    std::vector<double> row(3);
-
-//    row[0] = cd*ca;
-//    row[1] = -sa;
-//    row[2] = -sd*ca;
-//    rotMatrix.push_back(row);
-
-//    row[0] = cd*sa;
-//    row[1] = ca;
-//    row[2] = -sd*sa;
-//    rotMatrix.push_back(row);
-
-//    row[0] = sd;
-//    row[1] = 0;
-//    row[2] = cd;
-//    rotMatrix.push_back(row);
-// }
-
-// void FitsImage::EquinoxRotation::do_rotation(const astro::SkyDir &inDir,
-//                                              astro::SkyDir &outDir) {
-// // I'm sure there is a Hep3Vector way to do this, nonetheless....
-
-//    std::vector<double> inVec(3), outVec(3);
-
-// // Need to ensure that inDir is created using 
-// // (ra, dec) = (longitude, latitude)
-//    double alpha = inDir.ra()*M_PI/180;
-//    double delta = inDir.dec()*M_PI/180;
-//    inVec[0] = cos(delta)*cos(alpha);
-//    inVec[1] = cos(delta)*sin(alpha);
-//    inVec[2] = sin(delta);
-
-// // Apply the rotation
-
-//    for (int i = 0; i < 3; i++) {
-//       outVec[i] = 0;
-//       for (int j = 0; j < 3; j++) {
-//          outVec[i] += rotMatrix[i][j]*inVec[j];
-//       }
-//    }
-//    outDir = astro::SkyDir(Hep3Vector(outVec[0], outVec[1], outVec[2]));
-// }   
 
 int FitsImage::findHdu(const std::string & fitsFile, 
                        const std::string & extension) {
