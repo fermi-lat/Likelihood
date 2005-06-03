@@ -3,8 +3,8 @@ evtable,s,hl,"EVENTS",,,"Event data extension"
 scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,hl,"Ext1",,,"Spacecraft data extension"
 outfile,f,a,"expCubeFile.fits",,,"Output file"
-cos_theta_step,r,a,0.05,0.,1.,Step size in cos(theta)
-pixel_size,r,a,1,,,Pixel size (degrees)
+cos_theta_step,r,a,0.025,0.,1.,"Step size in cos(theta)"
+pixel_size,r,a,1,,,"Pixel size (degrees)"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
