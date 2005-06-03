@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jun  3 14:28:28 PDT 2005
+Likelihood/src
+
+Modified Files:
+	SourceFactory.cxx 
+Log Message:
+clean up some unnecessary catch blocks; enable Ts calculation if null hypothesis has no free parameters
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jun  3 14:28:25 PDT 2005
 Likelihood/pfiles
 
