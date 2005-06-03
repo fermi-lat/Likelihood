@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.37 2005/05/24 15:02:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.38 2005/05/25 19:41:31 jchiang Exp $
  */
 
 #include <algorithm>
@@ -211,6 +211,7 @@ void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
          containedPixels.push_back(j);
       }
    }
+   mapCorrections.clear();
    mapCorrections.reserve(energies.size());
    for (unsigned int k = 0; k < energies.size()-1; k++) {
       double map_integral(0);
