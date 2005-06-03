@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.44 2005/03/17 07:20:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.45 2005/06/01 17:42:23 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -219,10 +219,6 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
    try {
       setSpectrum(src, spectrum, funcFactory);
       return src;
-   } catch (optimizers::Exception &eObj) {
-      if (print_output()) std::cout << eObj.what() << std::endl;
-   } catch (Exception &eObj) {
-      if (print_output()) std::cout << eObj.what() << std::endl;
    } catch (std::exception &eObj) {
       if (print_output()) std::cout << eObj.what() << std::endl;
    } catch (...) {
@@ -260,10 +256,6 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
       src = new DiffuseSource(spatialDist, m_observation, m_requireExposure);
       setSpectrum(src, spectrum, funcFactory);
       return src;
-   } catch (optimizers::Exception &eObj) {
-      if (print_output()) std::cout << eObj.what() << std::endl;
-   } catch (Exception &eObj) {
-      if (print_output()) std::cout << eObj.what() << std::endl;
    } catch (std::exception &eObj) {
       if (print_output()) std::cout << eObj.what() << std::endl;
    } catch (...) {
