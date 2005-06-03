@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jun  3 14:28:25 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtlikelihood.par gtlivetimecube.par 
+Log Message:
+clean up some unnecessary catch blocks; enable Ts calculation if null hypothesis has no free parameters
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jun  3 08:52:37 PDT 2005
 Likelihood/src
 
