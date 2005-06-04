@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.16 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.17 2005/05/25 19:41:24 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.16 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.17 2005/05/25 19:41:24 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -40,7 +40,8 @@ public:
    BinnedLikelihood(const CountsMap & dataMap, 
                     const Observation & observation,
                     const std::string & srcMapsFile="",
-                    bool applyPsfCorrections=false);
+                    bool computePointSources=true,
+                    bool applyPsfCorrections=true);
 
 //   BinnedLikelihood(const std::string & dataMapFile);
                  
@@ -108,6 +109,8 @@ private:
 
    std::string m_srcMapsFile;
 
+   bool m_computePointSources;
+
    bool m_applyPsfCorrections;
 
    void createSourceMaps();
@@ -125,8 +128,8 @@ private:
    
    void fitsReportError(FILE *stream, int status) const;
 
-   bool sourceMapExists(const std::string & srcName, 
-                        const std::string & fitsFile) const;
+   bool fileHasSourceMap(const std::string & srcName, 
+                         const std::string & fitsFile) const;
 
    void replaceSourceMap(const std::string & srcName, 
                          const std::string & fitsFile) const;

@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.25 2005/05/23 05:51:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.26 2005/05/25 19:41:24 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -24,7 +24,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.25 2005/05/23 05:51:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.26 2005/05/25 19:41:24 jchiang Exp $
  */
 
 class SourceMap {
@@ -51,27 +51,34 @@ public:
    
    double maxPsfRadius(PointSource * src) const;
 
+   const std::string & srcType() const {
+      return m_srcType;
+   }
+
 private:
 
    std::string m_name;
+
+   /// @brief "Diffuse" or "Point"
+   std::string m_srcType;
 
    const CountsMap * m_dataMap;
 
    bool m_deleteDataMap;
 
-/// @brief m_models has the same size as the data in the dataMap plus
-/// one energy plane.
-///
-/// @todo Keep track of event types included in a given SourceMap.
+   /// @brief m_models has the same size as the data in the dataMap plus
+   /// one energy plane.
+   ///
+   /// @todo Keep track of event types included in a given SourceMap.
    std::vector<double> m_model;
 
-/// @brief Each entry is the angular integral over the energy plane.
+   /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;
 
    std::vector<double> m_energies;
 
-/// @brief This vector of SkyDir objects is used by
-/// sourceRegionIntegral for diffuse sources
+   /// @brief This vector of SkyDir objects is used by
+   /// sourceRegionIntegral for diffuse sources
    std::vector<astro::SkyDir> m_srcDirs;
 
    std::vector<double> m_srcStrengths;
