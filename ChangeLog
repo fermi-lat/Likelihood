@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jun  4 13:05:07 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h BinnedLikelihood.h SourceMap.h 
+Log Message:
+add option to compute point source maps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jun  3 14:28:30 PDT 2005
 Likelihood/src/likelihood
 
