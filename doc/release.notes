@@ -3,6 +3,11 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v8     04-Jun-05  JC   add gtbackfile app for multimission Xspec analysis; 
+                           reimplementation of SourceMaps using fftw
+                           for convolutions enabling reasonably fast
+                           and accurate binned analysis for diffuse
+                           sources.
     v7r4   21-Apr-05  JC   use exposure cube in unbinned analysis if desired;
                            refactor AppHelpers for Python exposure; updates
                            to SrcAnalysis.py; enable debug mode for all apps
