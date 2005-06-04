@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Jun  4 13:05:08 PDT 2005
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx SourceMap.cxx 
+Log Message:
+add option to compute point source maps
+    *
+------------------------------------------------------------
+User: jchiang  Sat Jun  4 13:05:08 PDT 2005
 Likelihood/pfiles
 
 Modified Files:
