@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jun  6 08:23:34 PDT 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+set the errors in the xml output from likelihood fit
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jun  6 08:23:34 PDT 2005
 Likelihood/src
 
 Modified Files:
