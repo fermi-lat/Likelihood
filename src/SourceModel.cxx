@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.67 2005/03/01 01:06:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.68 2005/03/02 04:51:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -158,7 +158,7 @@ void SourceModel::setParamTrueValue(const std::string &paramName,
 
 void SourceModel::setParams_(std::vector<optimizers::Parameter> &params, 
                              bool setFree) {
-   std::cout << "calling setParams_" << std::endl;
+//   std::cout << "calling setParams_" << std::endl;
 // Ensure the number of Parameters matches.
    unsigned int numParams;
    if (setFree) {
