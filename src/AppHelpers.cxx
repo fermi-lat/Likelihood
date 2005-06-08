@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.28 2005/03/17 07:20:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.29 2005/04/16 01:14:26 jchiang Exp $
  */
 
 #include <map>
@@ -25,6 +25,7 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/PowerLaw2.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
@@ -75,6 +76,7 @@ void AppHelpers::prepareFunctionFactory() {
    m_funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
    m_funcFactory->addFunc("BandFunction", new BandFunction(), makeClone);
    m_funcFactory->addFunc("MapCubeFunction", new MapCubeFunction(), makeClone);
+   m_funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,

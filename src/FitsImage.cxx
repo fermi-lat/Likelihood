@@ -3,7 +3,7 @@
  * @brief Implementation of FitsImage member functions
  * @authors J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.24 2005/05/21 23:39:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitsImage.cxx,v 1.25 2005/06/01 17:42:23 jchiang Exp $
  *
  */
 
@@ -113,7 +113,7 @@ void FitsImage::getPixelBounds(unsigned int naxis,
 bool FitsImage::haveRefCoord() {
    s_routineName = "haveRefCoord";
 
-   bool have_ref_coord;
+   bool have_ref_coord(false);
 
    fitsfile * fptr = 0;
    char * file = const_cast<char *>(m_filename.c_str());

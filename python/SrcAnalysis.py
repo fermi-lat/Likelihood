@@ -4,7 +4,7 @@ Interface to SWIG-wrapped C++ classes.
 @author J. Chiang <jchiang@slac.stanford.edu>
 """
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.30 2005/04/20 01:49:53 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/python/SrcAnalysis.py,v 1.31 2005/05/31 06:54:41 jchiang Exp $
 #
 import os
 import glob
@@ -237,6 +237,10 @@ class SrcAnalysis(object):
         for item in self._inputs:
             lines.append(item.__repr__().strip("'"))
         return '\n'.join(lines)
+    def thaw(self, i):
+        self.model[i].setFree(1)
+    def freeze(self, i):
+        self.model[i].setFree(0)
 
 if __name__ == '__main__':
     observation = Observation('galdiffuse_events_0000.fits',

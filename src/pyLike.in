@@ -11,6 +11,7 @@
 #include "optimizers/ParameterNotFound.h"
 #include "optimizers/Function.h"
 #include "optimizers/FunctionFactory.h"
+#include "optimizers/FunctionTest.h"
 #include "optimizers/Mcmc.h"
 #include "st_facilities/FitsImage.h"
 #include "Likelihood/FitsImage.h"
@@ -30,6 +31,7 @@
 #include "Likelihood/OneSourceFunc.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/PointSource.h"
+#include "Likelihood/PowerLaw2.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
@@ -81,6 +83,7 @@ using optimizers::Exception;
 %include $(OPTIMIZERSROOT)/optimizers/Parameter.h
 %template(ParameterVector) std::vector<optimizers::Parameter>;
 %include $(OPTIMIZERSROOT)/optimizers/Function.h
+%include $(OPTIMIZERSROOT)/optimizers/FunctionTest.h
 %include $(OPTIMIZERSROOT)/optimizers/FunctionFactory.h
 %include $(OPTIMIZERSROOT)/optimizers/Optimizer.h
 %include $(OPTIMIZERSROOT)/optimizers/Mcmc.h
@@ -153,6 +156,9 @@ using optimizers::Exception;
                              false);
       myFuncFactory->addFunc("MapCubeFunction",
                              new Likelihood::MapCubeFunction(), 
+                             false);
+      myFuncFactory->addFunc("PowerLaw2",
+                             new Likelihood::PowerLaw2(), 
                              false);
       return myFuncFactory;
    }
