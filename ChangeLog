@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  7 23:32:44 PDT 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx DiffuseSource.cxx FitsImage.cxx pyLike.in 
+Added Files:
+	PowerLaw2.cxx 
+Log Message:
+add PowerLaw2
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  7 23:32:43 PDT 2005
 Likelihood/python
 
