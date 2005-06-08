@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.28 2005/04/08 06:29:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.29 2005/04/15 21:56:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -144,7 +144,7 @@ double DiffuseSource::NpredDeriv(const std::string &paramName) {
 
    const std::vector<double> & energies = m_observation->roiCuts().energies();
 
-   double prefactor;
+   double prefactor(1.);
    if (paramName == std::string("Prefactor") &&
        (prefactor = specFunc->getParamValue("Prefactor")) != 0) {
       return Npred()/prefactor;
