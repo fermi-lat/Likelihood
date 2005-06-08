@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Jun  7 23:32:43 PDT 2005
+Likelihood/python
+
+Modified Files:
+	SrcAnalysis.py 
+Log Message:
+add PowerLaw2
+    *
+------------------------------------------------------------
+User: jchiang  Tue Jun  7 23:32:43 PDT 2005
 Likelihood/Likelihood
 
 Added Files:
