@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.1 2005/06/08 06:32:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.2 2005/06/08 22:27:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -88,12 +88,13 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
 
    switch (iparam) {
    case Integral:
-      return one_m_gam/x/(pow_x2 - pow_x1);
+      return one_m_gam/x/(pow_x2 - pow_x1)*m_parameter[Integral].getScale();
       break;
    case Index:
       return -( NN/x*(pow_x1*(1. - one_m_gam*std::log(x1)) -
                       pow_x2*(1. - one_m_gam*std::log(x2)))
-                /(pow_x2 - pow_x1)/(pow_x2 - pow_x1) );
+                /(pow_x2 - pow_x1)/(pow_x2 - pow_x1) )
+         *m_parameter[Index].getScale();
       break;
    case LowerLimit:
    case UpperLimit:
