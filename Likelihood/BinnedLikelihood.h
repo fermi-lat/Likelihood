@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.17 2005/05/25 19:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.18 2005/06/04 20:05:07 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -11,15 +11,13 @@
 
 #include <map>
 
+#include "tip/Image.h"
+
 #include "optimizers/dArg.h"
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Pixel.h"
-
-namespace tip {
-   class Image;
-}
 
 namespace Likelihood {
 
@@ -30,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.17 2005/05/25 19:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.18 2005/06/04 20:05:07 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -121,7 +119,6 @@ private:
 
    void computeModelMap(std::vector<double> & modelMap) const;
 
-   // Implement some rune-like tip arcana.
    void setImageDimensions(tip::Image * image, long * dims) const;
 
    void identifyFilledPixels();
