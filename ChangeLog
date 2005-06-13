@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun 13 07:35:39 PDT 2005
+Likelihood/xml
+
+Removed Files:
+	RoiCuts.dtd RoiCuts.xml 
+Log Message:
+remove RoiCuts files
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jun 13 07:34:15 PDT 2005
 Likelihood/Likelihood
 
