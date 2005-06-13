@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun 13 07:34:15 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h 
+Log Message:
+include tip/Image.h
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun  9 09:11:40 PDT 2005
 Likelihood/src
 
