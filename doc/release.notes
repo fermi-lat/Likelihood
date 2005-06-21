@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v8r0p1 20-Jun-05  JC   add PowerLaw2; fix for new tip/Image implementation;
+                           write errors to xml output.
     v8     04-Jun-05  JC   add gtbackfile app for multimission Xspec analysis; 
                            reimplementation of SourceMaps using fftw
                            for convolutions enabling reasonably fast
