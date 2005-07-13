@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v8r1   13-Jul-05  JC   remove python module build
     v8r0p2 07-Jul-05  JC   include <algorithm> in backfile.cxx for Windows
     v8r0p1 20-Jun-05  JC   add PowerLaw2; fix for new tip/Image implementation;
                            write errors to xml output.
