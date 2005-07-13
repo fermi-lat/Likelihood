@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jul 13 10:17:44 PDT 2005
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx 
+Removed Files:
+	pyLike.h pyLike.in 
+Log Message:
+remove python module build
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jul 13 10:17:41 PDT 2005
 Likelihood/cmt
 
