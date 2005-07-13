@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jul 13 10:17:41 PDT 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+remove python module build
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jul  7 17:11:12 PDT 2005
 Likelihood/doc
 
