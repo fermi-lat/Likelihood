@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.8 2005/05/21 23:39:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.9 2005/05/23 19:12:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -151,7 +151,9 @@ void BinnedExposure::computeMap() {
 
    m_exposureMap.resize(m_ras.size()*m_decs.size()*m_energies.size(), 0);
    int iter(0);
-   if (print_output()) std::cerr << "Computing binned exposure map";
+   if (print_output()) {
+      std::cerr << "Computing binned exposure map";
+   }
    for (unsigned int j = 0; j < m_decs.size(); j++) {
       for (unsigned int i = 0; i < m_ras.size(); i++) {
          if ( print_output() && 
@@ -171,7 +173,9 @@ void BinnedExposure::computeMap() {
          iter++;
       }
    }
-   if (print_output()) std::cerr << "!" << std::endl;
+   if (print_output()) {
+      std::cerr << "!" << std::endl;
+   }
 }
 
 void BinnedExposure::linearArray(double xmin, double xmax, unsigned int npts,
@@ -282,14 +286,39 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    fitsReportError(stderr, status);
 
 // Write the energy array as a binary table.  
-/// @bug Only the Energy column is needed, but tip can't read binary
-/// tables that have just one column, so we are forced to add a dummy
-/// column.
+// /// @bug Only the Energy column is needed, but tip can't read binary
+// /// tables that have just one column, so we are forced to add a dummy
+// /// column.
+//    int nrows = m_energies.size();
+//    int tfields = 2;
+//    char * ttype[] = {"Energy", "Emax"};
+//    char * tform[] = {"1D", "1D"};
+//    char * tunit[] = {"MeV", "MeV"};
+//    char extname[] = "Energies";
+   
+//    int firstrow  = 1;
+//    int firstelem = 1;
+   
+//    fits_create_tbl(fptr, BINARY_TBL, nrows, tfields, ttype, tform,
+//                    tunit, extname, &status);
+//    fitsReportError(stderr, status);
+   
+//    fits_write_col(fptr, TDOUBLE, 1, firstrow, firstelem, nrows, 
+//                   const_cast<double *>(&m_energies[0]), &status);
+//    fitsReportError(stderr, status);
+
+//    fits_write_col(fptr, TDOUBLE, 2, firstrow, firstelem, nrows, 
+//                   const_cast<double *>(&m_energies[0]), &status);
+//    fitsReportError(stderr, status);
+   
+//    fits_close_file(fptr, &status);
+//    fitsReportError(stderr, status);
+
    int nrows = m_energies.size();
-   int tfields = 2;
-   char * ttype[] = {"Energy", "Emax"};
-   char * tform[] = {"1D", "1D"};
-   char * tunit[] = {"MeV", "MeV"};
+   int tfields = 1;
+   char * ttype[] = {"Energy"};
+   char * tform[] = {"1D"};
+   char * tunit[] = {"MeV"};
    char extname[] = "Energies";
    
    int firstrow  = 1;
@@ -300,10 +329,6 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    fitsReportError(stderr, status);
    
    fits_write_col(fptr, TDOUBLE, 1, firstrow, firstelem, nrows, 
-                  const_cast<double *>(&m_energies[0]), &status);
-   fitsReportError(stderr, status);
-
-   fits_write_col(fptr, TDOUBLE, 2, firstrow, firstelem, nrows, 
                   const_cast<double *>(&m_energies[0]), &status);
    fitsReportError(stderr, status);
    
