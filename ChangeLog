@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul 18 15:55:01 PDT 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Added Files:
+	LogParabola.cxx 
+Log Message:
+add LogParabola function
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul 18 15:54:59 PDT 2005
 Likelihood/Likelihood
 
