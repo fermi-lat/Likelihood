@@ -3,7 +3,7 @@
  * @brief Implementation for the BandFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.3 2004/12/22 06:00:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.1 2005/01/26 06:53:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -98,26 +98,31 @@ double BandFunction::derivByParam(optimizers::Arg & xarg,
    enum ParamTypes {norm, alpha, beta, Ep};
    switch (iparam) {
    case norm:
-      return value(xarg)/pars[0];
+      return value(xarg)/pars[0]*m_parameter[norm].getScale();
    case alpha:
       if (energy < ebreak) {
-         return value(xarg)*(std::log(energy) - energy/epeak);
+         return value(xarg)*(std::log(energy) - energy/epeak)
+            *m_parameter[alpha].getScale();
       } else {
          return value(xarg)*(std::log(ebreak)*(epeak*(pars[2] + 2.)
-                                               /(pars[1]+2.)/(pars[1]+2.)-1.));
+                                               /(pars[1]+2.)/(pars[1]+2.)-1.))
+            *m_parameter[alpha].getScale();
       }
    case beta:
       if (energy < ebreak) {
          return 0;
       } else {
          return value(xarg)*(1. + std::log(energy) + epeak/(pars[1] + 2.)
-                             *std::log(ebreak));
+                             *std::log(ebreak))
+            *m_parameter[beta].getScale();
       }
    case Ep:
       if (energy < ebreak) {
-         return value(xarg)*(2. + pars[1])*energy/epeak;
+         return value(xarg)*(2. + pars[1])*energy/epeak
+            *m_parameter[Ep].getScale();
       } else {
-         return value(xarg)*(pars[1] - pars[2])/epeak;
+         return value(xarg)*(pars[1] - pars[2])/epeak
+            *m_parameter[Ep].getScale();
       }
    default:
       break;
