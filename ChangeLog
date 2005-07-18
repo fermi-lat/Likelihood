@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul 18 15:54:59 PDT 2005
+Likelihood/Likelihood
+
+Added Files:
+	LogParabola.h 
+Log Message:
+add LogParabola function
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jul 13 10:19:26 PDT 2005
 Likelihood/doc
 
