@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul 18 20:43:30 PDT 2005
+Likelihood/python
+
+Removed Files:
+	Likelihood.in Makefile SimpleDialog.py SrcAnalysis.py 
+	SrcModel.py load_data.py setup.py test.py 
+Log Message:
+remove python modules
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul 18 16:36:52 PDT 2005
 Likelihood/doc
 
