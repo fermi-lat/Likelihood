@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  3 22:30:03 PDT 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx BinnedLikelihood.cxx LikeExposure.cxx 
+	LogLike.cxx 
+Log Message:
+compute counts spectrum for binned analysis; add cputime and num evaluation output
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  3 22:30:02 PDT 2005
 Likelihood/pfiles
 
