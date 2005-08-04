@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Aug  3 22:30:02 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtdiffresp.par gtlikelihood.par gtsrcmaps.par 
+Log Message:
+compute counts spectrum for binned analysis; add cputime and num evaluation output
+    *
+------------------------------------------------------------
+User: jchiang  Wed Aug  3 22:30:02 PDT 2005
 Likelihood/Likelihood
 
 Modified Files:
