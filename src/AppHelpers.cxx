@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.30 2005/06/08 06:32:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.31 2005/07/18 22:55:00 jchiang Exp $
  */
 
 #include <map>
@@ -123,7 +123,7 @@ void AppHelpers::createResponseFuncs() {
 
 void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
    if (!clobber) {
-      if (st_facilities::Util::fileExists(file)) {
+      if (file != "none" && st_facilities::Util::fileExists(file)) {
          std::cout << "Output file " << file 
                    << " already exists and you have set 'clobber' to 'no'.\n"
                    << "Please provide a different output file name."

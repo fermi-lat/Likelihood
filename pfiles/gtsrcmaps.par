@@ -5,7 +5,7 @@ counts_map_file,fr,a,"countsMap.fits",,,"Counts map file"
 source_model_file,fr,a,"Crab_model.xml",,,"Source model file"
 binned_exposure_map,f,a,"binnedExposure.fits",,,"Binned exposure map"
 outfile,f,a,"srcMaps2.fits",,,"Source maps output file"
-rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions"
+rspfunc,s,a,"DC1A",DC1A|G25|TEST,,"Response functions"
 compute_point_sources,b,h,yes,,,"compute point source maps"
 apply_psf_corrections,b,h,yes,,,"apply psf integral corrections"
 
