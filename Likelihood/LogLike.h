@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.19 2005/03/04 07:07:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.20 2005/03/04 22:08:22 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -31,14 +31,15 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.19 2005/03/04 07:07:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.20 2005/03/04 22:08:22 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
     
 public:
 
-   LogLike(const Observation & observation) : SourceModel(observation) {
+   LogLike(const Observation & observation) : SourceModel(observation),
+      m_nevals(0) {
       deleteAllSources();
    }
 
@@ -70,6 +71,8 @@ protected:
    virtual LogLike * clone() const {
       return new LogLike(*this);
    }
+
+   mutable unsigned long m_nevals;
 
 private:
 

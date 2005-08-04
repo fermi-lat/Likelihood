@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.24 2005/06/04 20:05:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.25 2005/06/13 14:37:19 jchiang Exp $
  */
 
 #include <memory>
@@ -18,6 +18,8 @@
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/SourceModel.h"
+
+#include "Verbosity.h"
 
 namespace Likelihood {
 
@@ -34,6 +36,7 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
    dataMap.getPixels(m_pixels);
    dataMap.getAxisVector(2, m_energies);
    identifyFilledPixels();
+   computeCountsSpectrum();
 }
 
 double BinnedLikelihood::value(optimizers::Arg &dummy) const {
@@ -53,6 +56,12 @@ double BinnedLikelihood::value(optimizers::Arg &dummy) const {
    }
    my_value -= npred;
 
+   if (print_output()) {
+      std::cout << m_nevals << "  "
+                << my_value << std::endl;
+   }
+   m_nevals++;
+   
    return my_value;
 }
 
@@ -348,6 +357,24 @@ void BinnedLikelihood::identifyFilledPixels() {
       if (data.at(i) > 0) {
          m_filledPixels.push_back(i);
       }
+   }
+}
+
+void BinnedLikelihood::computeCountsSpectrum() {
+   m_countsSpectrum.clear();
+   size_t nx(m_dataMap.imageDimension(0));
+   size_t ny(m_dataMap.imageDimension(1));
+   size_t nz(m_dataMap.imageDimension(2));
+   size_t indx(0);
+   for (size_t k = 0; k < nz; k++) {
+      double ntot(0);
+      for (size_t j = 0; j < ny; j++) {
+         for (size_t i = 0; i < nx; i++) {
+            ntot += m_dataMap.data().at(indx);
+            indx++;
+         }
+      }
+      m_countsSpectrum.push_back(ntot);
    }
 }
 

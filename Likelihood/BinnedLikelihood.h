@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.18 2005/06/04 20:05:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.19 2005/06/13 14:34:15 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.18 2005/06/04 20:05:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.19 2005/06/13 14:34:15 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -85,6 +85,14 @@ public:
    virtual std::vector<double>::const_iterator setFreeParamValues_(
       std::vector<double>::const_iterator);
 
+   const std::vector<double> & energies() const {
+      return m_energies;
+   }
+
+   const std::vector<double> & countsSpectrum() const {
+      return m_countsSpectrum;
+   }
+
 protected:
 
    virtual BinnedLikelihood * clone() const {
@@ -97,6 +105,8 @@ private:
 
    std::vector<Pixel> m_pixels;
    std::vector<double> m_energies;
+
+   std::vector<double> m_countsSpectrum;
 
    std::vector<unsigned int> m_filledPixels;
 
@@ -133,6 +143,8 @@ private:
 
    void addSourceMap(const std::string & srcName, 
                      const std::string & fitsFile) const;
+
+   void computeCountsSpectrum();
 };
 
 }
