@@ -1,7 +1,7 @@
 #
 # parameters common to binned and unbinned
 #
-rspfunc,s,a,"TEST",DC1A|G25|TEST,,"Response functions to use"
+rspfunc,s,a,"TEST",DC1|DC1A|G25|TEST,,"Response functions to use"
 use_energy_dispersion,b,hl,no,,,"Use energy dispersion?"
 exposure_cube_file,f,a,"expCubeFile.fits",,,"Exposure hypercube file"
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
