@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.44 2005/03/04 22:08:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.45 2005/08/04 05:30:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ double LogLike::value(optimizers::Arg&) const {
       SrcArg sArg(srcIt->second);
       my_value -= m_Npred(sArg);
    }
-   if (print_output()) {
+   if (print_output(4)) {
       std::cout << m_nevals << "  "
                 << my_value << "  "
                 << std::clock() - start << std::endl;
