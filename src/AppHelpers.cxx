@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.31 2005/07/18 22:55:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.32 2005/08/04 05:30:02 jchiang Exp $
  */
 
 #include <map>
@@ -139,7 +139,8 @@ void AppHelpers::checkCuts(const std::string & file1,
                            const std::string & ext2) {
    dataSubselector::Cuts cuts1(file1, ext1, false);
    dataSubselector::Cuts cuts2(file2, ext2, false);
-   if (!(cuts1 == cuts2)) {
+//   if (!(cuts1 == cuts2)) {
+   if (!(cuts1.compareWithoutGtis(cuts2))) {
 // Try comparing output streams.
       std::ostringstream c1, c2;
       cuts1.writeCuts(c1);
