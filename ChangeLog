@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug 16 21:22:22 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtlikelihood.par 
+Log Message:
+increase output level for cputime reporting
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  3 22:30:03 PDT 2005
 Likelihood/src/likelihood
 
