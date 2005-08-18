@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.33 2005/08/17 04:23:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.34 2005/08/18 00:08:01 jchiang Exp $
  */
 
 #include <map>
@@ -90,7 +90,9 @@ void AppHelpers::setRoi(const std::string & filename,
    }
    st_app::AppParGroup & pars(*m_pars);
    std::string event_file = pars["evfile"];
-   roiCuts.readCuts(event_file, "EVENTS", strict);
+   std::vector<std::string> eventFiles;
+   st_facilities::Util::resolve_fits_files(event_file, eventFiles);
+   roiCuts.readCuts(eventFiles, "EVENTS", strict);
 }
 
 void AppHelpers::readScData() {
@@ -136,39 +138,148 @@ void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
 void AppHelpers::checkCuts(const std::string & file1,
                            const std::string & ext1,
                            const std::string & file2,
-                           const std::string & ext2) {
-   dataSubselector::Cuts cuts1(file1, ext1, false);
-   dataSubselector::Cuts cuts2(file2, ext2, false);
-//   if (!(cuts1 == cuts2)) {
-   if (!(cuts1.compareWithoutGtis(cuts2))) {
-// Try comparing output streams.
+                           const std::string & ext2,
+                           bool compareGtis,
+                           bool relyOnStreams) {
+   bool checkColumns(false);
+   dataSubselector::Cuts cuts1(file1, ext1, checkColumns);
+   dataSubselector::Cuts cuts2(file2, ext2, checkColumns);
+   if (!checkCuts(cuts1, cuts2, compareGtis, relyOnStreams)) {
+      std::ostringstream message;
+      message << "AppHelpers::checkCuts:\n" 
+              << "DSS keywords ";
+      if (compareGtis) {
+         message << "and GTIs ";
+      }
+      message << "in " << file1;
+      if (ext1 != "") {
+         message << "[" << ext1 << "] ";
+      }
+      message << "do not match those in " << file2;
+      if (ext2 != "") {
+         message << "[" << ext2 << "] ";
+      }
+      throw std::runtime_error(message.str());
+   }
+}
+
+void AppHelpers::checkCuts(const std::vector<std::string> & files1,
+                           const std::string & ext1,
+                           const std::string & file2,
+                           const std::string & ext2,
+                           bool compareGtis, 
+                           bool relyOnStreams) {
+   bool checkColumns(false);
+   dataSubselector::Cuts cuts1(files1, ext1, checkColumns);
+   dataSubselector::Cuts cuts2(file2, ext2, checkColumns);
+   if (!checkCuts(cuts1, cuts2, compareGtis, relyOnStreams)) {
+      std::ostringstream message;
+      message << "AppHelpers::checkCuts:\n" 
+              << "DSS keywords ";
+      if (compareGtis) {
+         message << "and GTIs ";
+      }
+      message << "in \n";
+      for (unsigned int i = 0; i < files1.size(); i++) {
+         message << files1.at(i) << "\n";
+      }
+      if (ext1 != "") {
+         message << "in extension " << ext1 << "\n";
+      }
+      message << "do not match those in " << file2;
+      if (ext2 != "") {
+         message << "[" << ext2 << "] ";
+      }
+      throw std::runtime_error(message.str());
+   }
+}
+
+bool AppHelpers::checkCuts(const dataSubselector::Cuts & cuts1,
+                           const dataSubselector::Cuts & cuts2,
+                           bool compareGtis, bool relyOnStreams) {
+   bool standardTest;
+   if (relyOnStreams) {
       std::ostringstream c1, c2;
       cuts1.writeCuts(c1);
       cuts2.writeCuts(c2);
-      if (c1.str() != c2.str()) {
-         std::ostringstream message;
-         message << "AppHelpers::checkCuts:\n" 
-                 << "DSS keywords in " << file1;
-         if (ext1 != "") message << "[" << ext1 << "] ";
-         message << "do not match those in " << file2;
-         if (ext2 != "") message << "[" << ext2 << "] ";
-         throw std::runtime_error(message.str());
+      standardTest = (c1.str() == c2.str());
+   } else {
+      if (compareGtis) {
+         standardTest = (cuts1 == cuts2);
+      } else {
+         standardTest = cuts1.compareWithoutGtis(cuts2);
       }
    }
+   return standardTest;
 }
 
 void AppHelpers::checkTimeCuts(const std::string & file1,
                                const std::string & ext1,
                                const std::string & file2,
-                               const std::string & ext2) {
+                               const std::string & ext2,
+                               bool compareGtis) {
    dataSubselector::Cuts cuts1(file1, ext1, false);
    dataSubselector::Cuts cuts2(file2, ext2, false);
+   if (!checkTimeCuts(cuts1, cuts2, compareGtis)) {
+      std::ostringstream message;
+      message << "AppHelpers::checkTimeCuts:\n" 
+              << "Time range cuts ";
+      if (compareGtis) {
+         message << "and GTI extensions ";
+      }
+      message << "in files " << file1;
+      if (ext1 != "") {
+         message << "[" << ext1 << "]";
+      }
+      message << " and " << file2;
+      if (ext2 != "") {
+         message << "[" << ext2 << "]";
+      }
+      message << " do not agree.";
+      throw std::runtime_error(message.str());
+   }
+}
+
+void AppHelpers::checkTimeCuts(const std::vector<std::string> & files1,
+                               const std::string & ext1,
+                               const std::string & file2,
+                               const std::string & ext2,
+                               bool compareGtis) {
+   dataSubselector::Cuts cuts1(files1, ext1, false);
+   dataSubselector::Cuts cuts2(file2, ext2, false);
+   if (!checkTimeCuts(cuts1, cuts2, compareGtis)) {
+      std::ostringstream message;
+      message << "AppHelpers::checkTimeCuts:\n" 
+              << "Time range cuts ";
+      if (compareGtis) {
+         message << "and GTI extensions ";
+      }
+      message << "in files \n";
+      for (unsigned int i = 0; i < files1.size(); i++) {
+         message << files1.at(i);
+         if (ext1 != "") {
+            message << "[" << ext1 << "]";
+         }
+      }
+      message << "\n";
+      message << " and " << file2;
+      if (ext2 != "") {
+         message << "[" << ext2 << "]\n";
+      }
+      message << " do not agree.";
+      throw std::runtime_error(message.str());
+   }
+}
+
+bool AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
+                               const dataSubselector::Cuts & cuts2,
+                               bool compareGtis) {
 // This is a bit fragile as one must assume the ordering of the 
 // cuts is the same for both Cuts objects.
    std::vector<const dataSubselector::CutBase *> time_cuts1;
    std::vector<const dataSubselector::CutBase *> time_cuts2;
-   gatherTimeCuts(cuts1, time_cuts1);
-   gatherTimeCuts(cuts2, time_cuts2);
+   gatherTimeCuts(cuts1, time_cuts1, compareGtis);
+   gatherTimeCuts(cuts2, time_cuts2, compareGtis);
    bool ok(true);
    if (time_cuts1.size() == time_cuts2.size()) {
       for (unsigned int i = 0; i < time_cuts1.size(); i++) {
@@ -177,30 +288,16 @@ void AppHelpers::checkTimeCuts(const std::string & file1,
    } else {
       ok = false;
    }
-   if (!ok) {
-      std::ostringstream message;
-      message << "AppHelpers::checkTimeCuts:\n" 
-              << "Time cuts in files " << file1;
-      if (ext1 != "") message << "[" << ext1 << "]";
-      message << " and " << file2;
-      if (ext2 != "") message << "[" << ext2 << "]";
-      message << " do not agree.";
-      throw std::runtime_error(message.str());
-   }                
+   return ok;
 }
 
 void AppHelpers::
-gatherTimeCuts(dataSubselector::Cuts & cuts,
-               std::vector<const dataSubselector::CutBase *> time_cuts) {
+gatherTimeCuts(const dataSubselector::Cuts & cuts,
+               std::vector<const dataSubselector::CutBase *> time_cuts,
+               bool compareGtis) {
    for (unsigned int i = 0; i < cuts.size(); i++) {
-// Do not consider GTIs since they will not generally be the same for
-// any group of event files.
-//       if ( cuts[i].type() == "GTI" || 
-//            (cuts[i].type() == "range" &&
-//             dynamic_cast<dataSubselector::RangeCut &>(
-//                const_cast<dataSubselector::CutBase &>(cuts[i])).colname() 
-//             == "TIME") ) {
-      if ( (cuts[i].type() == "range" &&
+      if ( (compareGtis && cuts[i].type() == "GTI") || 
+           (cuts[i].type() == "range" &&
             dynamic_cast<dataSubselector::RangeCut &>(
                const_cast<dataSubselector::CutBase &>(cuts[i])).colname() 
             == "TIME") ) {

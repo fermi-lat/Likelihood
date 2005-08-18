@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.86 2005/06/06 15:23:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.87 2005/08/04 05:30:03 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -58,7 +58,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.86 2005/06/06 15:23:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.87 2005/08/04 05:30:03 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -134,12 +134,19 @@ void likelihood::run() {
       std::string eventFile = m_pars["evfile"];
       st_facilities::Util::file_ok(eventFile);
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
+      bool compareGtis(false);
       for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
          AppHelpers::checkCuts(m_eventFiles[0], "EVENTS", m_eventFiles[i],
-                               "EVENTS");
+                               "EVENTS", compareGtis);
       }
-      if (exposureFile != "none") {
-         m_helper->checkCuts(m_eventFiles[0], "EVENTS", exposureFile, "");
+      compareGtis = true;
+      if (exposureFile != "none" && exposureFile != "") {
+         AppHelpers::checkCuts(m_eventFiles, "EVENTS", exposureFile, "",
+                               compareGtis);
+      }
+      if (expcube_file != "none" && expcube_file != "") {
+         AppHelpers::checkCuts(m_eventFiles, "EVENTS", expcube_file, "",
+                               compareGtis);
       }
       m_helper->setRoi(m_eventFiles[0]);
       m_helper->readScData();
