@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 17 17:07:59 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtdiffresp.par 
+Log Message:
+changes to accommodate need to merge gtis in event files
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 17 17:07:56 PDT 2005
 Likelihood/Likelihood
 
