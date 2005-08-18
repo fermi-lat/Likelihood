@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.26 2005/04/16 01:14:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.27 2005/04/21 19:00:24 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.26 2005/04/16 01:14:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.27 2005/04/21 19:00:24 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -74,11 +74,11 @@ private:
 
    void promptForParameters();
    void readDiffuseNames(std::vector<std::string> & srcNames);
-   bool haveDiffuseColumns();
+   bool haveDiffuseColumns(const std::string & eventFile);
    void buildSourceModel();
-   void readEventData();
+   void readEventData(std::string eventFile);
    void computeEventResponses();
-   void writeEventResponses();
+   void writeEventResponses(std::string eventFile);
    void getDiffuseSources();
    void setGaussianParams(const Event & event, const std::string & name,
                           tip::Table::Vector<double> & params);
@@ -96,21 +96,29 @@ void diffuseResponses::run() {
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    bool clobber = m_pars["clobber"];
    m_helper = new AppHelpers(&m_pars);
-   if (clobber || !haveDiffuseColumns()) {
-      m_helper->readScData();
-      m_srcModel = new SourceModel(m_helper->observation(), true);
-      m_useEdisp = m_pars["use_energy_dispersion"];
-      ResponseFunctions & respFuncs = 
-         const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
-      respFuncs.setEdispFlag(m_useEdisp);
-      buildSourceModel();
-      readEventData();
-      computeEventResponses();
-      writeEventResponses();
-   } else {
-      if (Likelihood::print_output()) {
-         std::cout << "Diffuse columns have already been computed...exiting."
-                   << std::endl;
+   m_helper->readScData();
+   m_srcModel = new SourceModel(m_helper->observation(), true);
+   m_useEdisp = m_pars["use_energy_dispersion"];
+   ResponseFunctions & respFuncs = 
+      const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
+   respFuncs.setEdispFlag(m_useEdisp);
+   std::vector<std::string> eventFiles;
+   st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
+   std::vector<std::string>::const_iterator evtfile;
+   buildSourceModel();
+   std::cerr << "Working on...\n";
+   for (evtfile = eventFiles.begin(); evtfile != eventFiles.end(); ++evtfile) {
+      if (clobber || !haveDiffuseColumns(*evtfile)) {
+         std::cerr << *evtfile;
+         readEventData(*evtfile);
+         computeEventResponses();
+         writeEventResponses(*evtfile);
+      } else {
+         if (Likelihood::print_output()) {
+            std::cerr << "Diffuse columns have already been computed for "
+                      << *evtfile << "...skipping it." 
+                      << std::endl;
+         }
       }
    }
 }
@@ -135,9 +143,9 @@ void diffuseResponses::readDiffuseNames(std::vector<std::string> & srcNames) {
    }
 }
 
-bool diffuseResponses::haveDiffuseColumns() {
+bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
    std::auto_ptr<const tip::Table> 
-      events(tip::IFileSvc::instance().readTable(m_pars["evfile"],
+      events(tip::IFileSvc::instance().readTable(eventFile,
                                                  m_pars["evtable"]));
    const std::vector<std::string> & colNames = events->getValidFields();
    std::vector<std::string> srcNames;
@@ -167,8 +175,8 @@ void diffuseResponses::buildSourceModel() {
    m_srcModel->readXml(sourceModel, m_helper->funcFactory(), false);
 }
 
-void diffuseResponses::readEventData() {
-   std::string eventFile = m_pars["evfile"];
+void diffuseResponses::readEventData(std::string eventFile) {
+   m_events.clear();
    facilities::Util::expandEnvVar(&eventFile);
    st_facilities::Util::file_ok(eventFile);
    const tip::Table * events 
@@ -223,9 +231,8 @@ void diffuseResponses::computeEventResponses() {
    }
 }
 
-void diffuseResponses::writeEventResponses() {
+void diffuseResponses::writeEventResponses(std::string eventFile) {
    if (m_srcNames.size() > 0) {
-      std::string eventFile = m_pars["evfile"];
       facilities::Util::expandEnvVar(&eventFile);
       st_facilities::Util::file_ok(eventFile);
       tip::Table * events 
