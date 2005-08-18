@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 18 10:38:43 PDT 2005
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+add methods to check GTIs from groups of files
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 18 10:38:41 PDT 2005
 Likelihood/src/expMap
 
