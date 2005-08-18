@@ -3,6 +3,12 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v9     18-Aug-05  JC   require all event files to be fed to gtlivetimecube,
+                           et al. in order to merge GTIs. Check merged GTI 
+                           from event files against single GTI in expcube 
+                           and expmap files. Allow multiple files to be fed 
+                           to gtdiffresp. Set ROI in gtlikelihood using 
+                           merged GTI extensions.
     v8r1p1 18-Jul-05  JC   add LogParabola; correct derivatives in BandFunction
     v8r1   13-Jul-05  JC   remove python module build
     v8r0p2 07-Jul-05  JC   include <algorithm> in backfile.cxx for Windows
