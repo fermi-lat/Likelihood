@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.31 2005/03/22 00:18:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.32 2005/03/25 05:16:32 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -39,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.31 2005/03/22 00:18:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.32 2005/03/25 05:16:32 jchiang Exp $
  */
 
 class RoiCuts {
@@ -103,9 +103,16 @@ public:
                 double tmin = 0., double tmax = 1e12,
                 double muZenMax = -1.);
 
-   /// Read from the DSS keywords in the eventFile. (Series of event
-   /// files are required to have the same DSS keywords.)
+   /// Read from the DSS keywords in a single eventFile.
    void readCuts(const std::string & eventFile,
+                 const std::string & ext="EVENTS",
+                 bool strict=true);
+
+   /// Read from the DSS keywords from several eventFiles. These
+   /// files are required to have the same DSS keywords, but the
+   /// GTIs need not be the same. The GTIs from the various files 
+   /// will be concatenated into a single Gti object.
+   void readCuts(const std::vector<std::string> & eventFiles,
                  const std::string & ext="EVENTS",
                  bool strict=true);
 
