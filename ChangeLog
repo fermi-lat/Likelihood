@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 18 14:57:29 PDT 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+allow multiple event files for gtdiffresp; set roi from all event files in likelihood
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 18 14:57:27 PDT 2005
 Likelihood/src/diffuseResponses
 
