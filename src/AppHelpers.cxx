@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.32 2005/08/04 05:30:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.33 2005/08/17 04:23:57 jchiang Exp $
  */
 
 #include <map>
@@ -193,8 +193,14 @@ void AppHelpers::
 gatherTimeCuts(dataSubselector::Cuts & cuts,
                std::vector<const dataSubselector::CutBase *> time_cuts) {
    for (unsigned int i = 0; i < cuts.size(); i++) {
-      if ( cuts[i].type() == "GTI" || 
-           (cuts[i].type() == "range" &&
+// Do not consider GTIs since they will not generally be the same for
+// any group of event files.
+//       if ( cuts[i].type() == "GTI" || 
+//            (cuts[i].type() == "range" &&
+//             dynamic_cast<dataSubselector::RangeCut &>(
+//                const_cast<dataSubselector::CutBase &>(cuts[i])).colname() 
+//             == "TIME") ) {
+      if ( (cuts[i].type() == "range" &&
             dynamic_cast<dataSubselector::RangeCut &>(
                const_cast<dataSubselector::CutBase &>(cuts[i])).colname() 
             == "TIME") ) {
