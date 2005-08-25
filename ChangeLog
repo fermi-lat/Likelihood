@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 25 12:40:21 PDT 2005
+Likelihood/src/gtmodelmap
+
+Added Files:
+	gtmodelmap.cxx 
+Log Message:
+add gtmodelmap application
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 25 12:40:19 PDT 2005
 Likelihood/src
 
