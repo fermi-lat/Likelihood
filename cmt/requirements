@@ -4,7 +4,7 @@ version v9
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.216 2005/08/18 22:02:26 jchiang Exp $
+# $Id: requirements,v 1.217 2005/08/25 19:40:17 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -24,15 +24,15 @@ use dataSubselector v3*
 apply_pattern ST_library option=" -no_share *.c "
 apply_pattern ST_pfiles
 
-#apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
-#apply_pattern ST_app_withDir name=gtexpmap dir=expMap
-#apply_pattern ST_app_withDir name=gttsmap dir=TsMap
-#apply_pattern ST_app_withDir name=gtlivetimecube dir=makeExposureCube
-#apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
-#apply_pattern ST_app name=gtcntsmap
-#apply_pattern ST_app name=gtsrcmaps
-#apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
-#apply_pattern ST_app_withDir name=gtbackfile dir=backfile
+apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
+apply_pattern ST_app_withDir name=gtexpmap dir=expMap
+apply_pattern ST_app_withDir name=gttsmap dir=TsMap
+apply_pattern ST_app_withDir name=gtlivetimecube dir=makeExposureCube
+apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
+apply_pattern ST_app name=gtcntsmap
+apply_pattern ST_app name=gtsrcmaps
+apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
+apply_pattern ST_app_withDir name=gtbackfile dir=backfile
 apply_pattern ST_app name=gtmodelmap
 
 private
