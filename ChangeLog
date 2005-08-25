@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 25 12:57:31 PDT 2005
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+add doxy comments
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 25 12:41:22 PDT 2005
 Likelihood/pfiles
 
