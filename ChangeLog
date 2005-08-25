@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 25 12:40:17 PDT 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+add gtmodelmap application
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 25 12:36:36 PDT 2005
 Likelihood/src/gtmodelmap
 
