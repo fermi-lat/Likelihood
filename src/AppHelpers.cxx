@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.34 2005/08/18 00:08:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.35 2005/08/18 17:38:36 jchiang Exp $
  */
 
 #include <map>
@@ -38,7 +38,7 @@ using irfInterface::IrfsFactory;
 namespace Likelihood {
 
 AppHelpers::AppHelpers(st_app::AppParGroup * pars)
-   : m_pars(pars), m_funcFactory(0) {
+   : m_pars(pars), m_funcFactory(0), m_respFuncs(0) {
    prepareFunctionFactory();
    createResponseFuncs();
 
