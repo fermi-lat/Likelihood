@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v9r1   25-Aug-05  JC   add gtmodelmap application
     v9     18-Aug-05  JC   require all event files to be fed to gtlivetimecube,
                            et al. in order to merge GTIs. Check merged GTI 
                            from event files against single GTI in expcube 
