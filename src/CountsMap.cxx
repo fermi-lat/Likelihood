@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.19 2005/05/17 13:44:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.20 2005/05/21 23:39:02 jchiang Exp $
  */
 
 #include <algorithm>
@@ -299,8 +299,8 @@ void CountsMap::writeOutput(const std::string & creator,
    DimCont_t::size_type num_dims = dims.size();
    if (3 != num_dims) {
       throw std::runtime_error("CountsMap::writeOutput "
-                               + std::string("cannot write a count map ")
-                               + "to an image which is not 3D");
+                               "cannot write a count map "
+                               "to an image which is not 3D");
    }
    
    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
