@@ -1,3 +1,11 @@
+/**
+ * @file gtmodelmap.cxx
+ * @brief Compute a model counts map based on binned likelihood fits.
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <iostream>
 #include <map>
 #include <memory>
@@ -54,6 +62,17 @@ namespace {
       }
    }
 }
+
+/**
+ * @class ModelMap
+ *
+ * @brief Derived class of st_app::StApp for summing up source maps
+ * with the spectal fit parameters from a binned likelihood analysis
+ * applied.
+ *
+ * @author J. Chiang
+ *
+ */
 
 class ModelMap : public st_app::StApp {
 
@@ -175,7 +194,12 @@ void ModelMap::sumOutputMap() {
    std::map<std::string, optimizers::Function *>::iterator it;
    for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
       std::string srcName = it->first;
-      getMap(srcName);
+      try {
+         getMap(srcName);
+      } catch (tip::TipException & eObj) {
+         std::cout << "Cannot read source map for model component "
+                   << srcName << ". Skipping it." << std::endl;
+      }
       if (it == m_spectra.begin()) {
          m_outmap.resize(m_srcmap.size(), 0);
       }
