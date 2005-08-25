@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 25 12:41:22 PDT 2005
+Likelihood/pfiles
+
+Added Files:
+	gtmodelmap.par 
+Log Message:
+add parfile; uncomment apps in req file
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 25 12:41:20 PDT 2005
 Likelihood/cmt
 
