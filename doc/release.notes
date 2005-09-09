@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v9r1p2 09-Sep-05  JC   check only time cuts for exposure cube file
     v9r1p1 25-Aug-05  JC   use evtbin v*
     v9r1   25-Aug-05  JC   add gtmodelmap application
     v9     18-Aug-05  JC   require all event files to be fed to gtlivetimecube,
