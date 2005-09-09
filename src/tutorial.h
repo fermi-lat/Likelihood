@@ -317,6 +317,59 @@
    application is called <a href="http://confluence.slac.stanford.edu/display/ST/Source+Model+Editor">ModelEditor.py</a> and is
    available from the <a href="http://glast.stanford.edu/cgi-bin/cvsweb/likeGui/?hideattic=1&cvsroot=CVS_SLAC">likeGui</a> package.)
 
+
+   Several spectral functions are available:
+
+   - @b PowerLaw This model has three parameters, Prefactor, Index, Scale:
+   \f[
+
+   dN/dE = N_0 \left(\frac{E}{E_0}\right)^\gamma
+%   {\rm PowerLaw}(x) = {\rm Prefactor} 
+%                       \left(\frac{x}{\rm Scale}\right)^{\rm Index}
+   \f]
+
+   - @b BrokenPowerLaw
+
+   \f[
+   {\rm BrokenPowerLaw}(x) = \left\{ \begin{array}{ll}
+   {\rm Prefactor} \left(x/{\rm BreakValue}\right)^{\rm Index1}
+   & \mbox{if $x < $ BreakValue} \\
+   {\rm Prefactor} \left(x/{\rm BreakValue}\right)^{\rm Index2}
+   & \mbox{otherwise}
+   \end{array} \right.
+   \f]
+
+   - @b PowerLaw2 This function uses the integrated flux as a free
+   parameter rather than the "Prefactor":
+
+   \f[
+   {\rm PowerLaw2}(x) = \frac{{\rm Integral} (1 + {\rm Index})}
+         {{\rm UpperLimit}^{1 + {\rm Index}} 
+         - {\rm LowerLimit}^{1 + {\rm Index}}} x^{\rm Index}
+   \f]
+
+   As should be apparent from this definition, the flux given by the
+   Integral parameter is integrated over the range (LowerLimit,
+   UpperLimit).  Use of this model allows the errors on the integrated
+   flux to be evaluated directly by likelihood, obviating the need
+   to propagate the errors if using the PowerLaw form.
+
+   - @b LogParabola This is typically used for modeling Blazar spectra.
+
+   \f[
+   {\rm LogParabola}(x) = {\rm norm} x^{-({\rm alpha} + {\rm beta}\log x)}
+   \f]
+   
+   - @b BandFunction This function is used to model GRB spectra
+
+   \f[
+   bf(x) = \left\{\begin{array}{ll}
+   N_0 x^\alpha \exp(-x(2 + \alpha)/E_p) & \mbox{if $x < E_p$}\\
+   N_0 \left(E_p (\alpha - \beta)/(\alpha + 2)\right)^{\beta - \alpha}
+   x^\beta & \mbox{otherwise}
+   \end{array} \right.
+   \f]
+
    There are two kinds of sources that one can define,
    <tt>PointSource</tt> and <tt>DiffuseSource</tt>.  In turn, each
    type of source comprises two components, a <tt>spectrum</tt> and a
