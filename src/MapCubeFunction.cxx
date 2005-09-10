@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author jchiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.5 2005/02/15 17:01:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.6 2005/02/18 00:54:19 jchiang Exp $
  */
 
 #include <algorithm>
@@ -53,6 +53,10 @@ double MapCubeFunction::value(optimizers::Arg & x) const {
    } else {
       lonValue = dir().l();
       latValue = dir().b();
+   }
+// Try to account for maps that have longitude range -180 to 180:
+   if (lonValue > m_lonMax) {
+      lonValue -= 360.;
    }
    if (lonValue < m_lonMin || lonValue > m_lonMax ||
        latValue < m_latMin || latValue > m_latMax || 
