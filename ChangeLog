@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Sep 10 12:32:00 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	RotatedMap.h 
+Log Message:
+include energy-dependence for MapCubeFunction in SourceMap calc; tagging v9r1p3
+    *
+------------------------------------------------------------
 User: jchiang  Sat Sep 10 10:06:09 PDT 2005
 Likelihood/src/TsMap
 
