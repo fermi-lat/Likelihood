@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Sep 10 10:06:09 PDT 2005
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx MapCubeFunction.cxx SourceFactory.cxx 
+Log Message:
+account for longitude ranges of -180, 180 in MapCubeFunction FITS files; TsMap updates re: expCube and DC1A irfs
+    *
+------------------------------------------------------------
 User: jchiang  Sat Sep 10 10:06:08 PDT 2005
 Likelihood/pfiles
 
