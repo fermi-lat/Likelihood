@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Sep 10 16:23:50 PDT 2005
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+bug fix in energy interpolation; tagging v9r1p4
+    *
+------------------------------------------------------------
 User: jchiang  Sat Sep 10 16:23:49 PDT 2005
 Likelihood/cmt
 
