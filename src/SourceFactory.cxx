@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.45 2005/06/01 17:42:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.46 2005/06/03 21:28:28 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -118,7 +118,10 @@ void SourceFactory::readXml(const std::string &xmlFile,
       try {
          funcFactory.readXml(function_library);
       } catch (optimizers::Exception &eObj) {
-         if (print_output()) std::cout << eObj.what() << std::endl;
+         if (print_output()) {
+            std::cout << eObj.what() << std::endl;
+         }
+         throw;
       }
    }
 
@@ -257,7 +260,10 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
       setSpectrum(src, spectrum, funcFactory);
       return src;
    } catch (std::exception &eObj) {
-      if (print_output()) std::cout << eObj.what() << std::endl;
+      if (print_output()) {
+         std::cout << eObj.what() << std::endl;
+      }
+      throw;
    } catch (...) {
       std::cerr << "Unexpected exception from SourceFactory::setSpectrum" 
                 << std::endl;

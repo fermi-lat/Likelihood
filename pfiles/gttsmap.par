@@ -7,7 +7,7 @@ exposure_cube_file,f,a,"none",,,"Exposure hypercube file"
 source_model_file,fr,a,"anticenter_model.xml",,,"Source model file"
 outfile,f,a,"TsMap.fits",,,"TS map file name"
 
-rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions to use"
+rspfunc,s,a,"DC1A",DC1|DC1A|G25|TEST,,"Response functions to use"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_tolerance,r,a,0.001,,,Fit tolerance
 
