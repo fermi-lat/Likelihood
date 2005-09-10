@@ -4,7 +4,7 @@
  * rotated to an equinox-centered coordinate system.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RotatedMap.h,v 1.2 2005/05/23 19:12:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RotatedMap.h,v 1.3 2005/05/24 15:02:21 jchiang Exp $
  */
 
 #ifndef Likelihood_RotatedMap_h
@@ -28,7 +28,7 @@ class MeanPsf;
  * rotated to an equinox-centered coordinate system.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RotatedMap.h,v 1.2 2005/05/23 19:12:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RotatedMap.h,v 1.3 2005/05/24 15:02:21 jchiang Exp $
  */
 
 class RotatedMap {
@@ -36,7 +36,7 @@ class RotatedMap {
 public:
 
    RotatedMap(const DiffuseSource & diffuseSource, double ra, double dec,
-              double radius, int npts);
+              double radius, int npts, double energy=100.);
 
    double operator()(const astro::SkyDir & dir) const;
 

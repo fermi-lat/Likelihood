@@ -3,6 +3,10 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v9r1p3 10-Sep-05  JC   Bug fix in MapCubeFunction for FITS files with
+                           longitude ranges (-180, 180); include energy-
+                           dependence of MapCube sources in SourceMap
+                           calcuation
     v9r1p2 09-Sep-05  JC   check only time cuts for exposure cube file
     v9r1p1 25-Aug-05  JC   use evtbin v*
     v9r1   25-Aug-05  JC   add gtmodelmap application
