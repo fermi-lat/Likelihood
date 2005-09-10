@@ -4,7 +4,7 @@
  * rotated to an equinox-centered coordinate system.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RotatedMap.cxx,v 1.2 2005/05/23 19:12:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RotatedMap.cxx,v 1.3 2005/05/26 00:23:25 jchiang Exp $
  */
 
 #include <algorithm>
@@ -16,6 +16,7 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/RotatedMap.h"
+#include "Likelihood/SkyDirArg.h"
 
 namespace {
    class Image : public std::vector< std::vector<double> > {
@@ -56,7 +57,8 @@ namespace {
 namespace Likelihood {
 
 RotatedMap::RotatedMap(const DiffuseSource & diffuseSource,
-                       double ra, double dec, double radius, int npts) {
+                       double ra, double dec, double radius, int npts,
+                       double energy) {
    m_rot = EquinoxRotation(ra, dec);
    linearArray(-radius, radius, npts, m_lons);
    linearArray(-radius, radius, npts, m_lats);
@@ -67,7 +69,8 @@ RotatedMap::RotatedMap(const DiffuseSource & diffuseSource,
       for (unsigned int j = 0; j < m_lats.size(); j++) {
          astro::SkyDir localDir(m_lons.at(i), m_lats.at(j));
          m_rot.do_rotation(localDir, trueDir);
-         row.push_back(diffuseSource.spatialDist(trueDir));
+         SkyDirArg my_dir(trueDir, energy);
+         row.push_back(diffuseSource.spatialDist(my_dir));
       }
       m_image.push_back(row);
    }
