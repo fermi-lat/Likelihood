@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v9r1p4 10-Sep-05  JC   Bug fix in energy interpolation in MapCubeFunction
     v9r1p3 10-Sep-05  JC   Bug fix in MapCubeFunction for FITS files with
                            longitude ranges (-180, 180); include energy-
                            dependence of MapCube sources in SourceMap
