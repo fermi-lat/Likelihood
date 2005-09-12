@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 12 15:16:15 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h 
+Log Message:
+use sctable, evtable for ext names; tagging v9r1p5
+    *
+------------------------------------------------------------
 User: jchiang  Sat Sep 10 16:23:51 PDT 2005
 Likelihood/src
 
