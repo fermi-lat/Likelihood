@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 12 15:16:19 PDT 2005
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+use sctable, evtable for ext names; tagging v9r1p5
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 12 15:16:17 PDT 2005
 Likelihood/cmt
 
