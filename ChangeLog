@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 12 15:16:22 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtbackfile.par gtcntsmap.par gtdiffresp.par gtexpmap.par 
+	gtlikelihood.par gtlivetimecube.par gtsrcmaps.par gttsmap.par 
+Log Message:
+use sctable, evtable for ext names; tagging v9r1p5
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 12 15:16:19 PDT 2005
 Likelihood/doc
 
