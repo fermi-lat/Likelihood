@@ -1,9 +1,10 @@
 pha_file,fr,a,"Vela.pha",,,"pha file"
 outfile,f,a,"foo.pha",,,"output file"
 scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft file"
-exposure_cube_file,fr,a,"expCubeFile.fits",,,"Exposure hypercube file"
+sctable,s,h,"Ext1",,,"Spacecraft data extension"
+exposure_cube_file,fr,a,"expCube.fits",,,"Exposure hypercube file"
 exposure_map_file,fr,a,"none",,,"Exposure file"
-rspfunc,s,a,"G25F",,,"Response functions to use"
+rspfunc,s,a,"DC1AF",,,"Response functions to use"
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
 target_source,s,a,"none",,,"Target source name (excluded from background estimate)"
 

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.89 2005/08/18 21:57:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.90 2005/09/09 14:29:37 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -58,7 +58,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.89 2005/08/18 21:57:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.90 2005/09/09 14:29:37 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -132,20 +132,21 @@ void likelihood::run() {
    } else {
       std::string exposureFile = m_pars["exposure_map_file"];
       std::string eventFile = m_pars["evfile"];
+      std::string evtable = m_pars["evtable"];
       st_facilities::Util::file_ok(eventFile);
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
       bool compareGtis(false);
       for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
-         AppHelpers::checkCuts(m_eventFiles[0], "EVENTS", m_eventFiles[i],
-                               "EVENTS", compareGtis);
+         AppHelpers::checkCuts(m_eventFiles[0], evtable, m_eventFiles[i],
+                               evtable, compareGtis);
       }
       compareGtis = true;
       if (exposureFile != "none" && exposureFile != "") {
-         AppHelpers::checkCuts(m_eventFiles, "EVENTS", exposureFile, "",
+         AppHelpers::checkCuts(m_eventFiles, evtable, exposureFile, "",
                                compareGtis);
       }
       if (expcube_file != "none" && expcube_file != "") {
-         AppHelpers::checkTimeCuts(m_eventFiles, "EVENTS", expcube_file, 
+         AppHelpers::checkTimeCuts(m_eventFiles, evtable, expcube_file, 
                                    "Exposure", compareGtis);
       }
       m_helper->setRoi();

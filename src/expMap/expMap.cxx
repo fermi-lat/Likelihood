@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.30 2005/04/21 19:00:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.31 2005/08/18 17:38:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.30 2005/04/21 19:00:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.31 2005/08/18 17:38:41 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -88,10 +88,11 @@ void ExpMap::promptForParameters() {
    m_pars.Prompt("scfile");
    m_pars.Prompt("exposure_cube_file");
    std::string expCubeFile = m_pars["exposure_cube_file"];
+   std::string evtable = m_pars["evtable"];
    if (expCubeFile != "none") {
       std::vector<std::string> eventFiles;
       st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
-      AppHelpers::checkTimeCuts(eventFiles, "EVENTS",
+      AppHelpers::checkTimeCuts(eventFiles, evtable,
                                 m_pars["exposure_cube_file"], "Exposure");
    }
    m_pars.Prompt("outfile");

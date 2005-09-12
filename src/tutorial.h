@@ -320,13 +320,20 @@
 
    Several spectral functions are available:
 
-   - @b PowerLaw This model has three parameters, Prefactor, Index, Scale:
+   - @b PowerLaw This function has the form
    \f[
 
    dN/dE = N_0 \left(\frac{E}{E_0}\right)^\gamma
 %   {\rm PowerLaw}(x) = {\rm Prefactor} 
 %                       \left(\frac{x}{\rm Scale}\right)^{\rm Index}
    \f]
+
+   where the parameters in the xml definition have the following
+   identifications:
+
+     - Prefactor = \f$N_0\f$
+     - Index = \f$\gamma\f$
+     - Scale = \f$E_0\f$
 
    - @b BrokenPowerLaw
 

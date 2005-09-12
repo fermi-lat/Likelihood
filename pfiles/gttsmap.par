@@ -1,7 +1,7 @@
 evfile,fr,a,"test_events_0000.fits",,,"Event data file"
-evtable,s,hl,"EVENTS",,,Event data extension
+evtable,s,h,"EVENTS",,,Event data extension
 scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
-sctable,s,hl,"Ext1",,,Spacecraft file HDU
+sctable,s,h,"Ext1",,,Spacecraft file HDU
 exposure_map_file,f,a,"none",,,"Exposure map file"
 exposure_cube_file,f,a,"none",,,"Exposure hypercube file"
 source_model_file,fr,a,"anticenter_model.xml",,,"Source model file"
