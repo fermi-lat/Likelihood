@@ -2,7 +2,7 @@
 # parameters common to binned and unbinned
 #
 rspfunc,s,a,"TEST",DC1|DC1A|G25|TEST,,"Response functions to use"
-use_energy_dispersion,b,hl,no,,,"Use energy dispersion?"
+use_energy_dispersion,b,h,no,,,"Use energy dispersion?"
 exposure_cube_file,f,a,"expCubeFile.fits",,,"Exposure hypercube file"
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
 source_model_output_file,f,h,"none",,,"Source model output file"
@@ -19,7 +19,9 @@ query_for_refit,b,h,no,,,"Allow for refitting?"
 # unbinned
 #
 evfile,f,a,"test_events_0000.fits",,,"Event file"
+evtable,s,h,"EVENTS",,,"Event table extension"
 scfile,f,a,"test_scData_0000.fits",,,"Spacecraft file"
+sctable,s,h,"Ext1",,,"Spacecraft table extension"
 exposure_map_file,f,a,"none",,,"Unbinned exposure map"
 plot,b,h,no,,,"Plot unbinned counts spectra?"
 #

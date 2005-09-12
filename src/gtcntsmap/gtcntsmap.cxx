@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.8 2005/05/17 13:44:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.9 2005/08/18 17:38:43 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -70,18 +70,21 @@ void gtcntsmap::run() {
    AppHelpers::checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
                                
    std::string event_file = m_pars["evfile"];
+   std::string evtable = m_pars["evtable"];
    std::vector<std::string> eventFiles;
    st_facilities::Util::resolve_fits_files(event_file, eventFiles);
    bool compareGtis(false);
    for (unsigned int i = 1; i < eventFiles.size(); i++) {
-      AppHelpers::checkCuts(eventFiles[0], "EVENTS",
-                            eventFiles[i], "EVENTS",
+      AppHelpers::checkCuts(eventFiles[0], evtable,
+                            eventFiles[i], evtable,
                             compareGtis);
    }
 
-   m_cuts = new dataSubselector::Cuts(eventFiles[0]);
+   m_cuts = new dataSubselector::Cuts(eventFiles[0], evtable);
 
    std::string sc_file = m_pars["scfile"];
+   std::string sc_table = m_pars["sctable"];
+
    std::vector<std::string> scDataFiles;
    st_facilities::Util::resolve_fits_files(sc_file, scDataFiles);
 
@@ -99,9 +102,9 @@ void gtcntsmap::run() {
    long ndec = m_pars["ndec"];
    double pixel_size = m_pars["pixel_size"];
    bool use_lb = m_pars["use_lb"];
-   CountsMap cmap(eventFiles[0], scDataFiles[0], ra, dec, "CAR",
-                  nra, ndec, pixel_size, 0, use_lb, "RA", "DEC", 
-                  energies);
+   CountsMap cmap(eventFiles[0], evtable, scDataFiles[0], sc_table,
+                  ra, dec, "CAR", nra, ndec, pixel_size, 0, use_lb, 
+                  "RA", "DEC", energies);
    
    for (unsigned int i = 0; i < eventFiles.size(); i++) {
       const tip::Table * events 

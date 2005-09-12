@@ -1,7 +1,7 @@
 evfile,fr,a,"test_events_0000.fits",,,"Event data file"
-evtable,s,hl,"EVENTS",,,"Event data extension"
+evtable,s,h,"EVENTS",,,"Event data extension"
 scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
-sctable,s,hl,"Ext1",,,"Spacecraft data extension"
+sctable,s,h,"Ext1",,,"Spacecraft data extension"
 outfile,f,a,"countsMap.fits",,,"Output file name"
 emin,r,a,30,20,3e5,Minimum energy (MeV)
 emax,r,a,200000,20,3e5,Maximum energy (MeV)

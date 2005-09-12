@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.25 2005/08/18 17:38:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.26 2005/09/10 17:06:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.25 2005/08/18 17:38:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.26 2005/09/10 17:06:09 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -110,10 +110,11 @@ void TsMap::run() {
    }
    st_facilities::Util::file_ok(m_pars["evfile"]);
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], m_eventFiles);
+   std::string ev_table = m_pars["evtable"];
    bool compareGtis(false);
    for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
-      AppHelpers::checkCuts(m_eventFiles[0], "EVENTS",
-                            m_eventFiles[i], "EVENTS",
+      AppHelpers::checkCuts(m_eventFiles[0], ev_table,
+                            m_eventFiles[i], ev_table,
                             compareGtis);
    }
    m_helper->setRoi(m_eventFiles[0]);

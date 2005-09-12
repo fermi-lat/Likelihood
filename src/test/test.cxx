@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.66 2005/03/18 01:05:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.67 2005/04/21 17:29:11 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -641,7 +641,8 @@ CountsMap LikelihoodTests::singleSrcMap(unsigned int nee) const {
    unsigned long npts(40);
    double emin(30.);
    double emax(2e5);
-   CountsMap dataMap(eventFile, m_scFile, ra, dec, "CAR", npts, npts,
+   CountsMap dataMap(eventFile, "EVENTS", m_scFile, "Ext1", 
+                     ra, dec, "CAR", npts, npts,
                      0.25, 0, false, "RA", "DEC", emin, emax, nee);
    const tip::Table * events 
       = tip::IFileSvc::instance().readTable(eventFile, "events");

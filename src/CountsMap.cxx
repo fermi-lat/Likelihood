@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.20 2005/05/21 23:39:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.21 2005/08/25 19:40:19 jchiang Exp $
  */
 
 #include <algorithm>
@@ -32,15 +32,17 @@
 
 namespace Likelihood {
 
-CountsMap::CountsMap(const std::string & event_file, 
+CountsMap::CountsMap(const std::string & event_file,
+                     const std::string & ev_table,
                      const std::string & sc_file, 
+                     const std::string & sc_table,
                      double ref_ra, double ref_dec, const std::string & proj, 
                      unsigned long num_x_pix, unsigned long num_y_pix, 
                      double pix_scale, double axis_rot, bool use_lb,
                      const std::string & ra_field, 
                      const std::string & dec_field, 
                      double emin, double emax, unsigned long nenergies) 
-   : DataProduct(event_file, "EVENTS", evtbin::Gti(event_file)), m_hist(0), 
+   : DataProduct(event_file, ev_table, evtbin::Gti(event_file)), m_hist(0), 
      m_proj_name(proj), 
      m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
      m_use_lb(use_lb), m_proj(0) {
@@ -58,21 +60,24 @@ CountsMap::CountsMap(const std::string & event_file,
    binners.push_back(new evtbin::LogBinner(emin, emax, nenergies, 
                                            "photon energy"));
 
-   init(binners, event_file, sc_file, num_x_pix, num_y_pix, 
-        ref_ra, ref_dec, pix_scale, emin, emax, nenergies, use_lb, proj);
+   init(binners, event_file, ev_table, sc_file, sc_table,
+        num_x_pix, num_y_pix, ref_ra, ref_dec, pix_scale, 
+        emin, emax, nenergies, use_lb, proj);
 
    deleteBinners(binners);
 }
 
 CountsMap::CountsMap(const std::string & event_file, 
+                     const std::string & ev_table, 
                      const std::string & sc_file, 
+                     const std::string & sc_table, 
                      double ref_ra, double ref_dec, const std::string & proj, 
                      unsigned long num_x_pix, unsigned long num_y_pix, 
                      double pix_scale, double axis_rot, bool use_lb,
                      const std::string & ra_field, 
                      const std::string & dec_field, 
                      const std::vector<double> & energies)
-   : DataProduct(event_file, "EVENTS", evtbin::Gti(event_file)), 
+   : DataProduct(event_file, ev_table, evtbin::Gti(event_file)), 
      m_hist(0), m_proj_name(proj), 
      m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
      m_use_lb(use_lb), m_proj(0) {
@@ -94,8 +99,9 @@ CountsMap::CountsMap(const std::string & event_file,
    }
    binners.push_back(new evtbin::OrderedBinner(energy_intervals,
                                                "photon energy"));
-   init(binners, event_file, sc_file, num_x_pix, num_y_pix, 
-        ref_ra, ref_dec, pix_scale, energies.front(), energies.back(), 
+   init(binners, event_file, ev_table, sc_file, sc_table, 
+        num_x_pix, num_y_pix, ref_ra, ref_dec, pix_scale,
+        energies.front(), energies.back(), 
         energies.size(), use_lb, proj);
 
    deleteBinners(binners);
@@ -191,8 +197,10 @@ void CountsMap::readEbounds(const std::string & countsMapFile,
 
 void CountsMap::init(std::vector<evtbin::Binner *> & binners, 
                      const std::string & event_file, 
-                     const std::string & sc_file, unsigned long num_x_pix, 
-                     unsigned long num_y_pix, double ref_ra, double ref_dec, 
+                     const std::string & ev_table,
+                     const std::string & sc_file, const std::string & sc_table,
+                     unsigned long num_x_pix, unsigned long num_y_pix,
+                     double ref_ra, double ref_dec, 
                      double pix_scale, double emin, double emax, 
                      unsigned long nenergies, bool use_lb, 
                      const std::string & proj) {
@@ -217,9 +225,9 @@ void CountsMap::init(std::vector<evtbin::Binner *> & binners,
 
    setCenter();
 
-   harvestKeywords(event_file, "EVENTS");
+   harvestKeywords(event_file, ev_table);
 
-   adjustTimeKeywords(sc_file);
+   adjustTimeKeywords(sc_file, sc_table);
 
    setDataDir();
 }
