@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 12 15:16:26 PDT 2005
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+use sctable, evtable for ext names; tagging v9r1p5
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 12 15:16:24 PDT 2005
 Likelihood/src
 
