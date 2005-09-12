@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 12 15:16:30 PDT 2005
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+use sctable, evtable for ext names; tagging v9r1p5
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 12 15:16:28 PDT 2005
 Likelihood/src/expMap
 
