@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 14 13:06:14 PDT 2005
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+restore static library build
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 14 13:06:12 PDT 2005
 Likelihood/cmt
 
