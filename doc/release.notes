@@ -3,7 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
-    v8r2   13-Sep-05  JC   do not compute Ts for sources without 
+    v9r2p1 14-Sep-05  JC   restore static library build
+    v9r2   13-Sep-05  JC   do not compute Ts for sources without 
                            free parameters
     v9r1p5 12-Sep-05  JC   use sctable, evtable for extension names
     v9r1p4 10-Sep-05  JC   Bug fix in energy interpolation in MapCubeFunction
