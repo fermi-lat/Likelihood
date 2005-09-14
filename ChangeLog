@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 14 13:06:12 PDT 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+restore static library build
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 13 22:47:19 PDT 2005
 Likelihood/src/likelihood
 
