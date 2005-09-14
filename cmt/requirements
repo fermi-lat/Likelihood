@@ -1,10 +1,10 @@
 package Likelihood
-version v9r2
+version v9r2p1
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.224 2005/09/12 22:16:17 jchiang Exp $
+# $Id: requirements,v 1.225 2005/09/14 05:47:18 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -21,9 +21,7 @@ use irfLoader v0* irfs
 use st_facilities v0*
 use dataSubselector v3*
 
-#apply_pattern ST_library option=" -no_share *.c "
-apply_pattern ST_library option=" *.c "
-apply_pattern shared_st_library
+apply_pattern ST_library option=" -no_share *.c "
 apply_pattern ST_pfiles
 
 apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
