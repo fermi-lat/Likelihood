@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 13 22:47:19 PDT 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+do not compute Ts for fixed sources
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 13 22:47:18 PDT 2005
 Likelihood/doc
 
