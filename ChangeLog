@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Sep 13 22:47:18 PDT 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+do not compute Ts for fixed sources
+    *
+------------------------------------------------------------
+User: jchiang  Tue Sep 13 22:47:18 PDT 2005
 Likelihood/Likelihood
 
 Modified Files:
