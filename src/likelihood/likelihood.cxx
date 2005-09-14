@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.90 2005/09/09 14:29:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.91 2005/09/12 22:16:32 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -58,7 +58,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.90 2005/09/09 14:29:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.91 2005/09/12 22:16:32 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -458,8 +458,10 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
       = m_helper->observation().roiCuts().extractionRegion().center();
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       std::cerr << ".";
-      if (m_logLike->getSource(srcNames[i])->getType() == "Point") {
-         Source * src = m_logLike->deleteSource(srcNames[i]);
+      Source * src = m_logLike->getSource(srcNames[i]);
+      if (src->getType() == "Point" &&
+          src->spectrum().getNumFreeParams() > 0) {
+         src = m_logLike->deleteSource(srcNames[i]);
          if (m_statistic != "BINNED") {
             RoiDist[srcNames[i]] = dynamic_cast<PointSource *>(src)->getDir().
                difference(roiCenter)*180./M_PI;

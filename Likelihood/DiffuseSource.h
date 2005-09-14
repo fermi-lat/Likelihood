@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.30 2005/03/03 23:24:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.31 2005/03/17 07:20:01 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -44,7 +44,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.30 2005/03/03 23:24:11 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.31 2005/03/17 07:20:01 jchiang Exp $ 
  *  
  */
 
@@ -142,6 +142,10 @@ public:
 
    virtual const std::vector<double> & exposure() const {
       return m_exposure;
+   }
+
+   virtual const optimizers::Function & spectrum() const {
+      return * m_spectrum;
    }
 
 private:
