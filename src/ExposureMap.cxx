@@ -1,11 +1,10 @@
 /**
  * @file ExposureMap.cxx
- * @brief Implementation for the Singleton ExposureMap class. This
- * class encapsulates exposure map information and makes it available
- * for use (primarily) by the DiffuseSource class.
+ * @brief This class encapsulates exposure map information and makes
+ * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.31 2005/03/03 00:46:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.32 2005/05/21 23:39:02 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
