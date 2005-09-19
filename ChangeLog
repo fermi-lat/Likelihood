@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep 18 17:19:17 PDT 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx ExposureMap.cxx 
+Added Files:
+	BrokenPowerLaw2.cxx 
+Log Message:
+add BrokenPowerLaw2
+    *
+------------------------------------------------------------
 User: jchiang  Sun Sep 18 17:19:16 PDT 2005
 Likelihood/Likelihood
 
