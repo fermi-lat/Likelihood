@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.22 2005/06/04 20:05:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.23 2005/08/18 17:38:34 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -40,7 +40,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.22 2005/06/04 20:05:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.23 2005/08/18 17:38:34 jchiang Exp $
  */
 
 class AppHelpers {
@@ -137,6 +137,10 @@ protected:
    gatherTimeCuts(const dataSubselector::Cuts & cuts,
                   std::vector<const dataSubselector::CutBase *> time_cuts,
                   bool compareGtis);
+
+   static void AppHelpers::
+   gatherGtiCuts(const dataSubselector::Cuts & cuts,
+                 std::vector<const dataSubselector::CutBase *> time_cuts);
 
 private:
 
