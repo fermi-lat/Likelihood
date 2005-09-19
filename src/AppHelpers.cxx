@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.37 2005/09/12 22:16:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.38 2005/09/19 00:19:17 jchiang Exp $
  */
 
 #include <map>
@@ -277,12 +277,29 @@ void AppHelpers::checkTimeCuts(const std::vector<std::string> & files1,
 bool AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
                                const dataSubselector::Cuts & cuts2,
                                bool compareGtis) {
-// This is a bit fragile as one must assume the ordering of the 
-// cuts is the same for both Cuts objects.
+// // This is a bit fragile as one must assume the ordering of the 
+// // cuts is the same for both Cuts objects.
+//    std::vector<const dataSubselector::CutBase *> time_cuts1;
+//    std::vector<const dataSubselector::CutBase *> time_cuts2;
+//    gatherTimeCuts(cuts1, time_cuts1, compareGtis);
+//    gatherTimeCuts(cuts2, time_cuts2, compareGtis);
+//    bool ok(true);
+//    if (time_cuts1.size() == time_cuts2.size()) {
+//       for (unsigned int i = 0; i < time_cuts1.size(); i++) {
+//          ok = ok && *(time_cuts1[i]) == *(time_cuts2[i]);
+//       }
+//    } else {
+//       ok = false;
+//    }
+//    return ok;
+
+// Assume GTIs encapsulate all of the time range information, so that
+// individual time range cuts need not be checked.
+   (void)(compareGtis);
    std::vector<const dataSubselector::CutBase *> time_cuts1;
    std::vector<const dataSubselector::CutBase *> time_cuts2;
-   gatherTimeCuts(cuts1, time_cuts1, compareGtis);
-   gatherTimeCuts(cuts2, time_cuts2, compareGtis);
+   gatherGtiCuts(cuts1, time_cuts1);
+   gatherGtiCuts(cuts2, time_cuts2);
    bool ok(true);
    if (time_cuts1.size() == time_cuts2.size()) {
       for (unsigned int i = 0; i < time_cuts1.size(); i++) {
@@ -305,6 +322,16 @@ gatherTimeCuts(const dataSubselector::Cuts & cuts,
                const_cast<dataSubselector::CutBase &>(cuts[i])).colname() 
             == "TIME") ) {
          time_cuts.push_back(&cuts[i]);
+      }
+   }
+}
+
+void AppHelpers::
+gatherGtiCuts(const dataSubselector::Cuts & cuts,
+              std::vector<const dataSubselector::CutBase *> gti_cuts) {
+   for (unsigned int i = 0; i < cuts.size(); i++) {
+      if (cuts[i].type() == "GTI") {
+         gti_cuts.push_back(&cuts[i]);
       }
    }
 }
