@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 19 16:37:20 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h 
+Log Message:
+add tool to add livetimecubes
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 19 16:36:46 PDT 2005
 Likelihood/src/gtaddlivetime
 
