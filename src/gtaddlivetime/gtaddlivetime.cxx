@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.34 2005/09/12 22:16:34 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.1 2005/09/19 23:37:26 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.34 2005/09/12 22:16:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.1 2005/09/19 23:37:26 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
@@ -140,9 +140,7 @@ void AddLivetime::addFiles() {
    delete outtable;
    outtable = tip::IFileSvc::instance().editTable(outfile, table_name);
 
-   my_header = outtable->getHeader();
-
-   new_cuts.writeDssKeywords(my_header);
+   new_cuts.writeDssKeywords(outtable->getHeader());
    delete outtable;
 
    new_cuts.writeGtiExtension(outfile);
