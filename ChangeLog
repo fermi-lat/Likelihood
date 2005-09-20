@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 20 11:48:14 PDT 2005
+Likelihood/src/gtaddlivetime
+
+Modified Files:
+	gtaddlivetime.cxx 
+Log Message:
+cannot reuse a reference
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 19 22:38:06 PDT 2005
 Likelihood/pfiles
 
