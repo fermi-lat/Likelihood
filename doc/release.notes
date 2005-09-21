@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v9r3   21-Sep-05  JC   add BrokenPowerLaw2 and gtaddlivetime application
     v9r2p1 14-Sep-05  JC   restore static library build
     v9r2   13-Sep-05  JC   do not compute Ts for sources without 
                            free parameters
