@@ -3,7 +3,7 @@
  * @brief Implementation for the LogParabola class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogParabola.cxx,v 1.1 2005/07/18 22:55:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogParabola.cxx,v 1.2 2005/07/18 23:32:56 jchiang Exp $
  */
 
 #include <cmath>
@@ -94,7 +94,8 @@ double LogParabola::derivByParam(optimizers::Arg & xarg,
    case beta:
       return -pars[0]*logx*logx*dfdnorm*m_parameter[beta].getScale();
    case Eb:
-      return pars[0]*logx*pars[2]/pars[3]*dfdnorm*m_parameter[Eb].getScale();
+      return value(xarg)/pars[3]*(pars[1] + 2.*pars[2]*logx)
+         *m_parameter[Eb].getScale();
    default:
       break;
    }
