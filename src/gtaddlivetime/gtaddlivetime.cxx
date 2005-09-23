@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.1 2005/09/19 23:37:26 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.2 2005/09/20 18:48:12 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.1 2005/09/19 23:37:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.2 2005/09/20 18:48:12 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
@@ -130,17 +130,8 @@ void AddLivetime::addFiles() {
    dataSubselector::Cuts new_cuts =
       dataSubselector::Cuts::mergeGtis(my_cuts);
 
-   tip::Header & my_header(outtable->getHeader());
-
-   double ndskeys;
-   my_header["NDSKEYS"].get(ndskeys);
-   dataSubselector::Cuts::removeDssKeywords(outfile, table_name, 
-                                            static_cast<int>(ndskeys));
-
-   delete outtable;
-   outtable = tip::IFileSvc::instance().editTable(outfile, table_name);
-
    new_cuts.writeDssKeywords(outtable->getHeader());
+
    delete outtable;
 
    new_cuts.writeGtiExtension(outfile);
