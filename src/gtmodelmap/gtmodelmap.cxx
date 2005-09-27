@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.2 2005/08/25 19:57:30 jchiang Exp $
  */
 
 #include <iostream>
@@ -32,6 +32,7 @@
 #include "optimizers/FunctionFactory.h"
 
 #include "Likelihood/BandFunction.h"
+#include "Likelihood/BrokenPowerLaw2.h"
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/PowerLaw2.h"
@@ -285,4 +286,6 @@ void ModelMap::prepareFunctionFactory() {
    m_funcFactory->addFunc("MapCubeFunction", new Likelihood::MapCubeFunction(),
                           makeClone);
    m_funcFactory->addFunc("PowerLaw2", new Likelihood::PowerLaw2(), makeClone);
+   m_funcFactory->addFunc("BrokenPowerLaw2", new Likelihood::BrokenPowerLaw2(),
+                          makeClone);
 }
