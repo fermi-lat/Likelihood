@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 26 17:11:31 PDT 2005
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+add BrokenPowerLaw2
+    *
+------------------------------------------------------------
 User: jchiang  Fri Sep 23 13:56:45 PDT 2005
 Likelihood/src/gtaddlivetime
 
