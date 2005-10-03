@@ -1,7 +1,7 @@
 exposure_cube_file,fr,a,"expcube_1_day.fits",,,"Exposure hypercube file"
 outfile,f,a,"psf.fits",,,"output file name"
 outtable,s,h,"PSF",,,"output file extension"
-rspfunc,s,a,"DC1",DC1|G25|TEST,,"Response functions"
+rspfunc,s,a,"DC1A",DC1|DC1A|G25|TEST,,"Response functions"
 ra,r,a,83.57,0,360,Source Right Ascension (J2000 degrees)
 dec,r,a,22.01,-90,90,Source Declination (J2000 degrees)
 emin,r,a,20.,,,"minimum energy (MeV)"
