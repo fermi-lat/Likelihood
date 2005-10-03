@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct  3 10:39:04 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtpsf.par 
+Log Message:
+allow DC1A irfs
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct  3 08:02:44 PDT 2005
 Likelihood/src/test
 
