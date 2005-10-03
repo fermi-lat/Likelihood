@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct  3 08:02:43 PDT 2005
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx BinnedLikelihood.cxx CountsMap.cxx 
+	Event.cxx ExposureMap.cxx MapCubeFunction.cxx RoiCuts.cxx 
+	SourceMap.cxx SourceModel.cxx SpatialMap.cxx 
+Removed Files:
+	FitsImage.cxx 
+Log Message:
+major refactoring to use wcslib/SkyProj, removal of cfitsio calls
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct  3 08:02:42 PDT 2005
 Likelihood/pfiles
 
