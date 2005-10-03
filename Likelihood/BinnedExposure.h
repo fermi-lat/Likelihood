@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.5 2005/03/05 18:37:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.6 2005/05/23 19:12:51 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -56,7 +56,9 @@ public:
 private:
 
    const Observation * m_observation;
-   std::vector<double> m_exposureMap;
+
+   std::vector<float> m_exposureMap;
+
    std::vector<double> m_ras;
    std::vector<double> m_decs;
    std::vector<double> m_energies;

@@ -2,15 +2,18 @@
  * @file MapCubeFunction.cxx
  * @brief Encapsulation of 3D FITS image of a diffuse source with 
  * position-dependent spectral variation.
- * @author jchiang
+ * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.7 2005/09/10 17:06:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.8 2005/09/10 23:23:51 jchiang Exp $
  */
 
 #include <algorithm>
+#include <sstream>
 #include <stdexcept>
 
-#include "Likelihood/FitsImage.h"
+#include "st_facilities/FitsImage.h"
+
+#include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/SkyDirArg.h"
 
@@ -38,48 +41,47 @@ namespace {
 
 namespace Likelihood {
 
+MapCubeFunction::MapCubeFunction(const MapCubeFunction & rhs)
+   : optimizers::Function(rhs), m_fitsFile(rhs.m_fitsFile),
+     m_nlon(rhs.m_nlon), m_nlat(rhs.m_nlat) {
+   m_proj = new astro::SkyProj(*rhs.m_proj);
+   m_energies = rhs.m_energies;
+   m_image = rhs.m_image;
+}
+
+MapCubeFunction::~MapCubeFunction() {
+   delete m_proj;
+}
+
 double MapCubeFunction::value(optimizers::Arg & x) const {
    if (m_image.size() == 0) {
       return 0;
    }
 
-   SkyDirArg & dir = dynamic_cast<SkyDirArg&>(x);
-   double lonValue;
-   double latValue;
+   SkyDirArg & dir = dynamic_cast<SkyDirArg &>(x);
    double energy = dir.energy();
-   if (m_coordSys == "Equatorial") {
-      lonValue = dir().ra();
-      latValue = dir().dec();
-   } else {
-      lonValue = dir().l();
-      latValue = dir().b();
-   }
-// Try to account for maps that have longitude range -180 to 180:
-   if (lonValue > m_lonMax) {
-      lonValue -= 360.;
-   }
-   if (lonValue < m_lonMin || lonValue > m_lonMax ||
-       latValue < m_latMin || latValue > m_latMax || 
-       energy < m_energies.front() || energy > m_energies.back()) {
-      return 0;
-   }
 
-   int i = findIndex(m_lon, lonValue) - 1;
-   int j = findIndex(m_lat, latValue) - 1;
    unsigned int k = findIndex(m_energies, energy) - 1;
    k = std::min(k, m_energies.size() - 2);
 
-   int nlon = m_lon.size() - 1;
-   int nlat = m_lat.size() - 1;
+   std::pair<double, double> pixel = dir().project(*m_proj);
 
-   int indx = k*nlon*nlat + j*nlon + i;
-   double y1 = m_image.at(indx);
-   indx = (k+1)*nlon*nlat + j*nlon + i;
-   double y2 = m_image.at(indx);
+// NB: wcslib (through astro::SkyProj) starts indexing pixels with
+// 1, not 0, so apply correction here to avoid off-by-one error.
+   int i = static_cast<int>(pixel.first) - 1;
+   int j = static_cast<int>(pixel.second) - 1;
 
-   double value = ::interpolatePowerLaw(energy, m_energies.at(k),
-                                        m_energies.at(k+1), y1, y2);
-   return value*getParam("Normalization").getTrueValue();
+   int indx = (k*m_nlat + j)*m_nlon + i;
+   try {
+      double y1 = m_image.at(indx);
+      double y2 = m_image.at(indx + m_nlon*m_nlat);
+
+      double value = ::interpolatePowerLaw(energy, m_energies.at(k),
+                                           m_energies.at(k+1), y1, y2);
+      return value*getParam("Normalization").getTrueValue();
+   } catch (std::exception &) {
+      return 0;
+   }
 }
 
 void MapCubeFunction::init() {
@@ -94,33 +96,22 @@ void MapCubeFunction::init() {
 }
 
 void MapCubeFunction::readFitsFile(const std::string & fitsFile) {
-   m_fitsFile = fitsFile;
-   FitsImage fitsImage(fitsFile);
-
-   m_coordSys = fitsImage.coordSys();
-   fitsImage.getPixelBounds(0, m_lon);
-   fitsImage.getPixelBounds(1, m_lat);
-   if (m_lon.front() < m_lon.back()) {
-      m_lonMin = m_lon.front();
-      m_lonMax = m_lon.back();
-   } else {
-      m_lonMin = m_lon.back();
-      m_lonMax = m_lon.front();
-   }
-   if (m_lat.front() < m_lat.back()) {
-      m_latMin = m_lat.front();
-      m_latMax = m_lat.back();
-   } else {
-      m_latMin = m_lat.back();
-      m_latMax = m_lat.front();
-   }
+   st_facilities::FitsImage fitsImage(fitsFile);
 
    fitsImage.getImageData(m_image);
 
-   readEnergyVector(fitsFile);
+   std::vector<int> naxes;
+   fitsImage.getAxisDims(naxes);
+   m_nlon = naxes.at(0);
+   m_nlat = naxes.at(1);
+
+   m_proj = st_facilities::FitsImage::skyProjCreate(fitsFile);
+
+   ExposureMap::readEnergyExtension(fitsFile, m_energies);
 }
 
-int MapCubeFunction::findIndex(std::vector<double> xx, double x) {
+int MapCubeFunction::
+findIndex(const std::vector<double> & xx, double x) const {
    if (xx.front() < xx.back()) {
       return std::upper_bound(xx.begin(), xx.end(), x) - xx.begin();
    }
@@ -128,50 +119,21 @@ int MapCubeFunction::findIndex(std::vector<double> xx, double x) {
       - xx.begin();
 }
 
-
-void MapCubeFunction::readEnergyVector(const std::string & fitsFile) {
-
-   std::string routineName("readEnergyVector");
-
-   int hdu = FitsImage::findHdu(fitsFile, "ENERGIES");
-   
-   int status(0);
-   fitsfile * fptr = 0;
-
-   fits_open_file(&fptr, fitsFile.c_str(), READONLY, &status);
-   FitsImage::fitsReportError(status, routineName);
-
-   int hdutype(0);
-   fits_movabs_hdu(fptr, hdu, &hdutype, &status);
-   FitsImage::fitsReportError(status, routineName);
-
-   long nrows(0);
-   fits_get_num_rows(fptr, &nrows, &status);
-   FitsImage::fitsReportError(status, routineName);
-
-   FitsImage::readColumn(fptr, "Energy", m_energies);
-
-   fits_close_file(fptr, &status);
-   FitsImage::fitsReportError(status, routineName);
-}
-
 double MapCubeFunction::mapIntegral() const {
-   FitsImage fitsImage(m_fitsFile);
+   st_facilities::FitsImage fitsImage(m_fitsFile);
    std::vector<double> solidAngles;
 
    fitsImage.getSolidAngles(solidAngles);
 
-   unsigned int nlon(m_lon.size()-1);
-   unsigned int nlat(m_lat.size()-1);
-
    double map_integral(0);
-   for (unsigned int j = 0; j < nlat; j++) {
-      for (unsigned int i = 0; i < nlon; i++) {
+   for (int j = 0; j < m_nlat; j++) {
+      for (int i = 0; i < m_nlon; i++) {
          for (unsigned int k = 1; k < m_energies.size(); k++) {
-            unsigned int indx = k*nlon*nlat + j*nlon + i;
-            map_integral += solidAngles.at(j*nlon + i)*
+            unsigned int indx = (k*m_nlat + j)*m_nlon + i;
+            map_integral += solidAngles.at(j*m_nlon + i)*
                powerLawIntegral(m_energies.at(k-1), m_energies.at(k),
-                                m_image.at(indx-nlon*nlat), m_image.at(indx));
+                                m_image.at(indx-m_nlon*m_nlat),
+                                m_image.at(indx));
          }
       }
    }

@@ -5,14 +5,20 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.14 2005/02/17 23:22:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.15 2005/02/18 00:54:19 jchiang Exp $
  *
  */
 
-#include <algorithm>
-#include <numeric>
+#include <memory>
+#include <stdexcept>
 
 #include "facilities/Util.h"
+
+#include "tip/IFileSvc.h"
+#include "tip/Image.h"
+#include "tip/Header.h"
+
+#include "astro/SkyProj.h"
 
 #include "st_facilities/Util.h"
 #include "st_facilities/FitsImage.h"
@@ -21,6 +27,18 @@
 #include "Likelihood/SpatialMap.h"
 
 namespace Likelihood {
+
+SpatialMap::SpatialMap(const SpatialMap & rhs) 
+   : optimizers::Function(rhs), m_fitsFile(rhs.m_fitsFile),
+     m_extension(rhs.m_extension), m_naxis1(rhs.m_naxis1),
+     m_naxis2(rhs.m_naxis2), m_naxis3(rhs.m_naxis3) {
+   m_image = rhs.m_image;
+   m_proj = new astro::SkyProj(*rhs.m_proj);
+}
+
+SpatialMap::~SpatialMap() {
+   delete m_proj;
+}
 
 void SpatialMap::init() {
 // This Function has one Parameter, an overall normalization, 
@@ -32,65 +50,71 @@ void SpatialMap::init() {
    setParamAlwaysFixed("Prefactor");
 }
 
-void SpatialMap::readFitsFile(const std::string &fitsFile) {
+void SpatialMap::readFitsFile(const std::string & fitsFile,
+                              const std::string & extension) {
    m_fitsFile = fitsFile;
+   m_extension = extension;
 
-   std::string inFile(m_fitsFile);
-   facilities::Util::expandEnvVar(&inFile);
-
-   FitsImage fitsImage(inFile);
-
-   m_coordSys = fitsImage.coordSys();
-
-// Assume 0th and 1st axes are RA and DEC.
-   fitsImage.getAxisVector(0, m_ra);
-// wrap to +/- 180
-   for (unsigned int i = 0; i < m_ra.size(); i++) {
-      if (m_ra.at(i) > 180) {
-         m_ra.at(i) -= 360;
-      }
+   facilities::Util::expandEnvVar(&m_fitsFile);
+   const tip::Image * image = 
+      tip::IFileSvc::instance().readImage(m_fitsFile, extension);
+   
+   image->get(m_image);
+   
+   const tip::Header & header = image->getHeader();
+   
+   header["NAXIS1"].get(m_naxis1);
+   header["NAXIS2"].get(m_naxis2);
+   m_naxis3 = 1;
+   try {
+      header["NAXIS3"].get(m_naxis3);
+   } catch (...) {
    }
-   if (m_ra.front() < m_ra.back()) {
-      m_raMin = m_ra.front();
-      m_raMax = m_ra.back();
-   } else {
-      m_raMin = m_ra.back();
-      m_raMax = m_ra.front();
-   }
-   fitsImage.getAxisVector(1, m_dec);
-   if (m_dec.front() < m_dec.back()) {
-      m_decMin = m_dec.front();
-      m_decMax = m_dec.back();
-   } else {
-      m_decMin = m_dec.back();
-      m_decMax = m_dec.front();
-   }
-   fitsImage.getImageData(m_image);
+
+   delete image;
+
+   m_proj = st_facilities::FitsImage::skyProjCreate(m_fitsFile, extension);
 }
 
-double SpatialMap::value(optimizers::Arg& arg) const {
+double SpatialMap::value(optimizers::Arg & arg) const {
    astro::SkyDir dir;
    dynamic_cast<SkyDirArg &>(arg).fetchValue(dir);
-
-   double ra, dec;
-   if (m_coordSys == "Equatorial") {
-      ra = dir.ra();
-      dec = dir.dec();
-   } else {
-      ra = dir.l();
-      dec = dir.b();
-   }
-
-// wrap to +/-180
-   if (ra > 180) ra -= 360;
-
-   if (dec < m_decMin || dec > m_decMax || ra < m_raMin || ra > m_raMax) {
+   
+   std::pair<double, double> pixels = dir.project(*m_proj);
+   if (pixels.first < 0 || pixels.first > m_naxis1 ||
+       pixels.second < 0 || pixels.second > m_naxis2) {
       return 0;
    }
-   double my_value = 
-      st_facilities::Util::bilinear(m_dec, dec, m_ra, ra, m_image);
-      
-   return m_parameter[0].getTrueValue()*my_value;
+
+   double x, y;
+   if (m_proj->isGalactic()) {
+      x = dir.l();
+      y = dir.b();
+   } else {
+      x = dir.ra();
+      y = dir.dec();
+   }
+
+   size_t ix = static_cast<size_t>(pixels.first);
+   size_t iy = static_cast<size_t>(pixels.second);
+
+   std::pair<double, double> lower_left = m_proj->pix2sph(ix, iy);
+   std::pair<double, double> upper_right = m_proj->pix2sph(ix+1, iy+1);
+
+   double uu((x - lower_left.first)/(upper_right.first - lower_left.first));
+   double tt((y - lower_left.second)/(upper_right.second - lower_left.second));
+
+// NB: wcslib starts indexing pixels with 1, not 0; so we need to 
+// apply correction for the off-by-one error here.
+   double y1(m_image.at(m_naxis1*(iy-1) + (ix-1)));
+   double y2(m_image.at(m_naxis1*iy + ix - 1));
+   double y3(m_image.at(m_naxis1*iy + ix));
+   double y4(m_image.at(m_naxis1*(iy-1) + ix));
+
+   double value((1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
+                + tt*uu*y3 + (1. - tt)*uu*y4);
+
+   return value;
 }
 
 } // namespace Likelihood

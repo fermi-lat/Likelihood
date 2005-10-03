@@ -3,7 +3,7 @@
  * @brief Declaration of SkyDirArg class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirArg.h,v 1.4 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirArg.h,v 1.5 2005/02/14 06:20:15 jchiang Exp $
  */
 
 #ifndef Likelihood_SkyDirArg_h
@@ -21,7 +21,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirArg.h,v 1.4 2003/08/06 20:52:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirArg.h,v 1.5 2005/02/14 06:20:15 jchiang Exp $
  */
 
 class SkyDirArg : public optimizers::Arg {
@@ -33,6 +33,7 @@ public:
 
    SkyDirArg(double ra, double dec, double energy=100.) : 
       m_val(astro::SkyDir(ra, dec)), m_energy(energy) {}
+
    virtual ~SkyDirArg() {}
 
    void fetchValue(astro::SkyDir &dir) const {dir = m_val;}

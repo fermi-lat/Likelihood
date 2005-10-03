@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.19 2005/03/02 01:10:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.20 2005/03/03 00:46:51 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.19 2005/03/02 01:10:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureMap.h,v 1.20 2005/03/03 00:46:51 jchiang Exp $
  *
  */
 
@@ -42,7 +42,6 @@ public:
    ExposureMap() : m_haveExposureMap(false) {}
 
    ~ExposureMap() {}
-
 
    /// Read exposure map FITS file and compute the static data members.
    void readExposureFile(std::string exposureFile);
@@ -58,11 +57,11 @@ public:
     * LikeMemo 3</a>, equations 20, 29, and 30 in particular.
     *
     * @param energies A vector of energies at which the DiffuseSource
-    * spectrum is evaluated.
+    *        spectrum is evaluated.
     * @param spatialDist A Function object that takes a SkyDirArg as 
-    * its argument.
+    *        its argument.
     * @param exposure A vector of exposure values characterizing the
-    * DiffuseSource spectral response.
+    *        DiffuseSource spectral response.
     */
    void integrateSpatialDist(const std::vector<double> &energies, 
                              optimizers::Function * spatialDist, 
@@ -103,18 +102,13 @@ public:
     * These are logarithmically spaced with upper and lower bounds
     * given by the RoiCuts.
     */
-   static void computeMap(std::string filename, 
-                          const Observation & observation,
-                          double sr_radius=30, int nlong=60, int nlat=60,
-                          int nenergies=10);
+   void computeMap(std::string filename, 
+                   const Observation & observation,
+                   double sr_radius=30, int nlong=60, int nlat=60,
+                   int nenergies=10);
 
-   /// write the FITS image file produced by computeMap()
-   static void writeFitsFile(const std::string &filename,
-                             std::vector<double> &lon,
-                             std::vector<double> &lat,
-                             std::vector<double> &energies,
-                             std::vector< std::vector<double> > &dataCube,
-                             double ra0, double dec0);
+   static void readEnergyExtension(const std::string & filename,
+                                   std::vector<double> & energies);
 
 private:
 
@@ -134,6 +128,11 @@ private:
    /// exposure data cube.
    std::vector< std::vector<double> > m_exposure;
 
+   void writeFitsFile(const std::string & filename,
+                      const std::vector<long> & naxes,
+                      double * crpix, double * crval, double * cdelt,
+                      const std::vector<double> & energies, 
+                      const std::vector<float> & expMap);
 };
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.9 2005/08/18 17:38:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.10 2005/09/12 22:16:30 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -101,9 +101,10 @@ void gtcntsmap::run() {
    long nra = m_pars["nra"];
    long ndec = m_pars["ndec"];
    double pixel_size = m_pars["pixel_size"];
+   std::string projection = m_pars["proj"];
    bool use_lb = m_pars["use_lb"];
    CountsMap cmap(eventFiles[0], evtable, scDataFiles[0], sc_table,
-                  ra, dec, "CAR", nra, ndec, pixel_size, 0, use_lb, 
+                  ra, dec, projection, nra, ndec, pixel_size, 0, use_lb, 
                   "RA", "DEC", energies);
    
    for (unsigned int i = 0; i < eventFiles.size(); i++) {

@@ -4,53 +4,40 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.32 2005/05/21 23:39:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.33 2005/09/19 00:19:17 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
 
-#include "fitsio.h"
+#include "tip/Header.h"
+#include "tip/IFileSvc.h"
+#include "tip/Image.h"
 
 #include "facilities/Util.h"
 
+#include "st_facilities/FitsImage.h"
+#include "st_facilities/Util.h"
+
 #include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/ExposureMap.h"
-#include "Likelihood/FitsImage.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SkyDirArg.h"
 
 #include "Verbosity.h"
 
-namespace {
-
-void fitsReportError(FILE *stream, int status) {
-   fits_report_error(stream, status);
-   if (status != 0) {
-      throw std::string("writeExposureFile: cfitsio error.");
-   }
-}
-
-} // unnamed namespace
-
 namespace Likelihood {
 
 void ExposureMap::readExposureFile(std::string exposureFile) {
 
-// Expand any environment variables in the exposure file name.
    facilities::Util::expandEnvVar(&exposureFile);
 
-   FitsImage mapData(exposureFile);
+   st_facilities::FitsImage mapData(exposureFile);
 
    mapData.getCelestialArrays(m_ra, m_dec);
 
-// Fetch the energy axis abscissa points. Here we assume that the
-// exposure map has at least two image planes, and that the energies
-// are along the third dimension so we set naxis = 2.
-   int naxis = 2;
-   mapData.getAxisVector(naxis, m_energies);
+   readEnergyExtension(exposureFile, m_energies);
 
-// pixel solid angles
    std::vector<double> solidAngles;
    mapData.getSolidAngles(solidAngles);
 
@@ -65,7 +52,7 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
    for (unsigned int k = 0; k < m_energies.size(); k++) {
       std::vector<double> expArray(npixels);
       for (int sa_indx = 0; sa_indx < npixels; sa_indx++) {
-         expArray[sa_indx] = solidAngles[sa_indx]*exposure[indx];
+         expArray.at(sa_indx) = solidAngles.at(sa_indx)*exposure.at(indx);
          indx++;
       }
       m_exposure.push_back(expArray);
@@ -73,9 +60,9 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
    m_haveExposureMap = true;
 }
 
-void ExposureMap::integrateSpatialDist(const std::vector<double> &energies,
+void ExposureMap::integrateSpatialDist(const std::vector<double> & energies,
                                        optimizers::Function * spatialDist,
-                                       std::vector<double> &exposure) const {
+                                       std::vector<double> & exposure) const {
    exposure.clear();
    exposure.reserve(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
@@ -109,21 +96,12 @@ void ExposureMap::computeMap(std::string filename,
                              const Observation & observation,
                              double sr_radius, int nlon, int nlat,
                              int nenergies) {
-                             
-// Expand any environment variables in the map filename.
+
    facilities::Util::expandEnvVar(&filename);
 
    const RoiCuts & roiCuts = observation.roiCuts();
 
    astro::SkyDir roiCenter = roiCuts.extractionRegion().center();
-   EquinoxRotation eqRot(roiCenter.ra(), roiCenter.dec());
-
-   double lonstep = 2.*sr_radius/(nlon-1);
-   double latstep = 2.*sr_radius/(nlat-1);
-   std::vector<double> lon;
-   for (int i = 0; i < nlon; i++) lon.push_back(lonstep*i - sr_radius);
-   std::vector<double> lat;
-   for (int j = 0; j < nlat; j++) lat.push_back(latstep*j - sr_radius);
 
    std::pair<double, double> elims = roiCuts.getEnergyCuts();
    double estep = log(elims.second/elims.first)/(nenergies - 1);
@@ -132,22 +110,39 @@ void ExposureMap::computeMap(std::string filename,
       energies.push_back(elims.first*exp(estep*k));
    }
 
-   std::vector< std::vector<double> > exposureCube;
-   exposureCube.resize(nenergies);
-   for (int k = 0; k < nenergies; k++)
-      exposureCube[k].resize(nlon*nlat);
+   double crpix[] = {nlon/2 + 0.5, nlat/2 + 0.5, 1.};
+   double crval[] = {roiCenter.ra(), roiCenter.dec(), energies.front()};
+   double cdelt[] = {2.*sr_radius/(nlon-1), 2.*sr_radius/(nlat-1), estep};
 
-   if (print_output()) std::cerr << "Computing the ExposureMap";
-   int indx = 0;
+   std::vector<long> naxes(3);
+   naxes.at(0) = nlon;
+   naxes.at(1) = nlat;
+   naxes.at(2) = nenergies;
+
+   astro::SkyProj proj("TAN", crpix, crval, cdelt, 0, false);
+
+   std::vector<double> exposure;
+   exposure.reserve(nenergies);
+
+   std::vector<float> expMap;
+   expMap.resize(nenergies*nlat*nlon);
+
+   if (print_output()) {
+      std::cerr << "Computing the ExposureMap";
+   }
+
+   int ncount = 0;
    for (int j = 0; j < nlat; j++) {
       for (int i = 0; i < nlon; i++) {
-         if (print_output() && (indx % ((nlon*nlat)/20)) == 0) {
+         if (print_output() && (ncount % ((nlon*nlat)/20)) == 0) {
             std::cerr << ".";
          }
-         astro::SkyDir indir(lon[i], lat[j]);
-         astro::SkyDir dir;
-         eqRot.do_rotation(indir, dir);
-         std::vector<double> exposure;
+
+// NB: wcslib (via astro::SkyProj) starts indexing pixels at 1, not 0, 
+// so apply correction here to avoid off-by-one error.
+         std::pair<double, double> coords = proj.pix2sph(i+1, j+1);
+         astro::SkyDir dir(coords.first, coords.second);
+
          bool verbose(false);
          if (observation.expCube().haveFile()) {
             PointSource::computeExposureWithHyperCube(dir, energies, 
@@ -158,146 +153,87 @@ void ExposureMap::computeMap(std::string filename,
                                          exposure, verbose);
          }
          for (int k = 0; k < nenergies; k++) {
-            exposureCube[k][indx] = exposure[k];
+            int indx = (k*nlat + j)*nlon + i;
+            expMap.at(indx) = exposure[k];
          }
-         indx++;
+         ncount++;
       }
    }
-   if (print_output()) std::cerr << "!" << std::endl;
-   writeFitsFile(filename, lon, lat, energies, exposureCube, 
-                 roiCenter.ra(), roiCenter.dec());
+   if (print_output()) {
+      std::cerr << "!" << std::endl;
+   }
+
+   writeFitsFile(filename, naxes, crpix, crval, cdelt, energies, expMap);
 }
 
-void ExposureMap::writeFitsFile(const std::string &filename, 
-                                std::vector<double> &glon,
-                                std::vector<double> &glat,
-                                std::vector<double> &energies,
-                                std::vector< std::vector<double> > &exposure,
-                                double ra0, double dec0) {
-
-   fitsfile *fptr;
-   int status = 0;
+void ExposureMap::writeFitsFile(const std::string & filename,
+                                const std::vector<long> & naxes,
+                                double * crpix, double * crval, double * cdelt,
+                                const std::vector<double> & energies, 
+                                const std::vector<float> & expMap) {
    
-// Always overwrite an existing file.
-   remove(filename.c_str());
-   fits_create_file(&fptr, filename.c_str(), &status);
-   fitsReportError(stderr, status);
+   if (st_facilities::Util::fileExists(filename)) {
+      std::remove(filename.c_str());
+   }
+   std::string ext("PRIMARY");
+   tip::IFileSvc::instance().appendImage(filename, ext, naxes);
+   tip::Image * image = tip::IFileSvc::instance().editImage(filename, ext);
 
-   int bitpix = DOUBLE_IMG;
-   long naxis = 3;
-   long naxes[] = {glon.size(), glat.size(), energies.size()};
-   fits_create_img(fptr, bitpix, naxis, naxes, &status);
-   fitsReportError(stderr, status);
+   tip::Header & header = image->getHeader();
 
-// Write the exposure map data.
-   long group = 0;
-   long dim1 = glon.size();
-   long dim2 = glat.size();
+   header["TELESCOP"].set("GLAST");
+   header["INSTRUME"].set("LAT SIMULATION");
+   header["DATE-OBS"].set("");
+   header["DATE-END"].set("");
 
-// Repack exposure into a C array.
-   double *exp_array = new double[glon.size()*glat.size()*energies.size()];
-   int indx = 0;
-   for (unsigned int k = 0; k < energies.size(); k++) {
-      for (unsigned int i = 0; i < exposure[k].size(); i++) {
-         exp_array[indx] = exposure[k][i];
-         indx++;
-      }
+   header["CRVAL1"].set(crval[0]);
+   header["CRPIX1"].set(crpix[0]);
+   header["CDELT1"].set(cdelt[0]);
+   header["CTYPE1"].set("RA---TAN");
+
+   header["CRVAL2"].set(crval[1]);
+   header["CRPIX2"].set(crpix[1]);
+   header["CDELT2"].set(cdelt[1]);
+   header["CTYPE2"].set("DEC--TAN");
+
+   header["CRVAL3"].set(crval[2]);
+   header["CRPIX3"].set(crpix[2]);
+   header["CDELT3"].set(cdelt[2]);
+   header["CTYPE3"].set("log_Energy");
+
+   image->set(expMap);
+   delete image;
+
+   ext = "ENERGIES";
+   tip::IFileSvc::instance().appendTable(filename, ext);
+   tip::Table * table = tip::IFileSvc::instance().editTable(filename, ext);
+   table->appendField("Energy", "1D");
+   table->setNumRecords(energies.size());
+
+   tip::Table::Iterator row = table->begin();
+   tip::Table::Record & record = *row;
+
+   std::vector<double>::const_iterator energy = energies.begin();
+   for ( ; energy != energies.end(); ++energy, ++row) {
+      record["Energy"].set(*energy);
    }
 
-   fits_write_3d_dbl(fptr, group, dim1, dim2, 
-                     glon.size(), glat.size(), energies.size(),
-                     exp_array, &status);
-   delete[] exp_array;
-   fitsReportError(stderr, status);
+   delete table;
+}
 
-// Write some keywords.
-   double l0 = glon[0];
-   fits_update_key(fptr, TDOUBLE, "CRVAL1", &l0, 
-                   "longitude of reference pixel", &status);
-   fitsReportError(stderr, status);
-   double b0 = glat[0];
-   fits_update_key(fptr, TDOUBLE, "CRVAL2", &b0, 
-                   "latitude of reference pixel", &status);
-   fitsReportError(stderr, status);
-   
-   double lstep = glon[1] - glon[0];
-   fits_update_key(fptr, TDOUBLE, "CDELT1", &lstep, 
-                   "longitude step at ref. pixel", &status);
-   fitsReportError(stderr, status);
-   double bstep = glat[1] - glat[0];
-   fits_update_key(fptr, TDOUBLE, "CDELT2", &bstep, 
-                   "latitude step at ref. pixel", &status);
-   fitsReportError(stderr, status);
-   
-   float crpix1 = 1.0;
-   fits_update_key(fptr, TFLOAT, "CRPIX1", &crpix1, 
-                   "reference pixel for longitude coordinate", &status);
-   fitsReportError(stderr, status);
-   float crpix2 = 1.0;
-   fits_update_key(fptr, TFLOAT, "CRPIX2", &crpix2, 
-                   "reference pixel for latitude coordinate", &status);
-   fitsReportError(stderr, status);
-   
-   char *ctype1 = "GLON-CAR";
-   fits_update_key(fptr, TSTRING, "CTYPE1", ctype1, 
-                   "right ascension", &status);
-   fitsReportError(stderr, status);
-   char *ctype2 = "GLAT-CAR";
-   fits_update_key(fptr, TSTRING, "CTYPE2", ctype2, 
-                   "declination", &status);
-   fitsReportError(stderr, status);
+void ExposureMap::readEnergyExtension(const std::string & filename,
+                                      std::vector<double> & energies) {
+   std::auto_ptr<const tip::Table> 
+      table(tip::IFileSvc::instance().readTable(filename, "ENERGIES"));
+   energies.resize(table->getNumRecords());
 
-   double logEmin = log(energies[0]);
-   fits_update_key(fptr, TDOUBLE, "CRVAL3", &logEmin,
-                   "reference value for log_energy coordinate", &status);
-   fitsReportError(stderr, status);
+   tip::Table::ConstIterator row = table->begin();
+   tip::ConstTableRecord & record = *row;
 
-   int nee = energies.size();
-   double estep = log(energies[nee-1]/energies[0])/(nee-1);
-   fits_update_key(fptr, TDOUBLE, "CDELT3", &estep, 
-                   "step in log_energy coordinate", &status);
-   fitsReportError(stderr, status);
-
-   float crpix3 = 1.;
-   fits_update_key(fptr, TFLOAT, "CRPIX3", &crpix3,
-                   "reference pixel for log_energy coordinate", &status);
-   fitsReportError(stderr, status);
-
-   char *ctype3 = "log_MeV";
-   fits_update_key(fptr, TSTRING, "CTYPE3", ctype3,
-                   "units for log_energy", &status);
-   fitsReportError(stderr, status);
-
-   fits_update_key(fptr, TDOUBLE, "ROI_RA", &ra0, "RA of ROI center", 
-                   &status);
-   fitsReportError(stderr, status);
-   fits_update_key(fptr, TDOUBLE, "ROI_DEC", &dec0, "DEC of ROI center",
-                   &status);
-   fitsReportError(stderr, status);
-   
-// Write the energy array as a binary table.
-   int nrows = energies.size();
-   int tfields = 1;
-   char *ttype[] = {"Energy"};
-   char *tform[] = {"1D"};
-   char *tunit[] = {"MeV"};
-   char extname[] = "True Photon Energy Array";
-   
-   int firstrow  = 1;
-   int firstelem = 1;
-   
-   fits_create_tbl(fptr, BINARY_TBL, nrows, tfields, ttype, tform,
-                   tunit, extname, &status);
-   fitsReportError(stderr, status);
-   
-   fits_write_col(fptr, TDOUBLE, 1, firstrow, firstelem, nrows, 
-                  &energies[0], &status);
-   fitsReportError(stderr, status);
-   
-   fits_close_file(fptr, &status);
-   fitsReportError(stderr, status);
-   
-   return;
+   std::vector<double>::iterator energy = energies.begin();
+   for ( ; energy != energies.end(); ++energy, ++row) {
+      record["Energy"].get(*energy);
+   }
 }
 
 } // namespace Likelihood
