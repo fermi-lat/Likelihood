@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.22 2005/09/12 22:16:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.23 2005/10/03 15:02:43 jchiang Exp $
  */
 
 #include <algorithm>
@@ -377,7 +377,7 @@ void CountsMap::setKeywords(tip::Header & header) const {
       header["CTYPE2"].set("GLAT-" + m_proj_name);
    } else {
       header["CTYPE1"].set(binners[0]->getName() + "---" + m_proj_name);
-      header["CTYPE2"].set(binners[1]->getName() + "---" + m_proj_name);
+      header["CTYPE2"].set(binners[1]->getName() + "--" + m_proj_name);
    }
    header["CTYPE3"].set(binners[2]->getName());
 }
