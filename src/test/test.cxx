@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.68 2005/09/12 22:16:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.69 2005/10/03 15:02:44 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -74,19 +74,19 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
-//    CPPUNIT_TEST(test_RoiCuts);
-//    CPPUNIT_TEST(test_SourceFactory);
-//    CPPUNIT_TEST(test_XmlBuilders);
-//    CPPUNIT_TEST(test_LikeExposure);
-//    CPPUNIT_TEST(test_SourceModel);
-//    CPPUNIT_TEST(test_SourceDerivs);
-//    CPPUNIT_TEST(test_PointSource);
+   CPPUNIT_TEST(test_RoiCuts);
+   CPPUNIT_TEST(test_SourceFactory);
+   CPPUNIT_TEST(test_XmlBuilders);
+   CPPUNIT_TEST(test_LikeExposure);
+   CPPUNIT_TEST(test_SourceModel);
+   CPPUNIT_TEST(test_SourceDerivs);
+   CPPUNIT_TEST(test_PointSource);
    CPPUNIT_TEST(test_DiffuseSource);
-//    CPPUNIT_TEST(test_CountsMap);
-//    CPPUNIT_TEST(test_BinnedLikelihood);
-//    CPPUNIT_TEST(test_MeanPsf);
-//    CPPUNIT_TEST(test_BinnedExposure);
-//    CPPUNIT_TEST(test_SourceMap);
+   CPPUNIT_TEST(test_CountsMap);
+   CPPUNIT_TEST(test_BinnedLikelihood);
+   CPPUNIT_TEST(test_MeanPsf);
+   CPPUNIT_TEST(test_BinnedExposure);
+   CPPUNIT_TEST(test_SourceMap);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -524,8 +524,8 @@ void LikelihoodTests::test_SourceDerivs() {
 void LikelihoodTests::test_PointSource() {
    std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
 
-//    tearDown();
-//    setUp();
+   tearDown();
+   setUp();
 
    std::vector<Event> events;
    readEventData(eventFile, m_scFile, events);
@@ -625,10 +625,10 @@ void LikelihoodTests::test_DiffuseSource() {
       delete src;
    }
    debug_output << "chi^2 = " << chi2 << std::endl;
-//    if (chi2 >= 5.) {
+   if (chi2 >= 6.) {
       std::cout << debug_output.str() << std::endl;
-//    }
-   CPPUNIT_ASSERT(chi2 < 5.);
+   }
+   CPPUNIT_ASSERT(chi2 < 6.);
 }
 
 void LikelihoodTests::generate_exposureHyperCube() {

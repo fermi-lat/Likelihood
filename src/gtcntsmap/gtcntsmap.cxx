@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.10 2005/09/12 22:16:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.11 2005/10/03 15:02:43 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -80,7 +80,7 @@ void gtcntsmap::run() {
                             compareGtis);
    }
 
-   m_cuts = new dataSubselector::Cuts(eventFiles[0], evtable);
+   m_cuts = new dataSubselector::Cuts(eventFiles, evtable);
 
    std::string sc_file = m_pars["scfile"];
    std::string sc_table = m_pars["sctable"];
