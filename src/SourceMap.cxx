@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.41 2005/09/10 19:32:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.42 2005/10/03 15:02:43 jchiang Exp $
  */
 
 #include <algorithm>
@@ -80,8 +80,6 @@ namespace {
 }
 
 namespace Likelihood {
-
-#include "fitsio.h"
 
 MeanPsf * SourceMap::s_meanPsf(0);
 BinnedExposure * SourceMap::s_binnedExposure(0);
@@ -247,10 +245,12 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
    s_refCount++;
    std::auto_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(sourceMapsFile, srcName));
-   std::vector<float> image_data;
-   image->get(image_data);
-   m_model.resize(image_data.size());
-   std::copy(image_data.begin(), image_data.end(), m_model.begin());
+   m_model.clear();
+   image->get(m_model);
+//    std::vector<float> image_data;
+//    image->get(image_data);
+//    m_model.resize(image_data.size());
+//    std::copy(image_data.begin(), image_data.end(), m_model.begin());
 
    std::vector<Pixel> pixels;
    m_dataMap->getPixels(pixels);
@@ -269,46 +269,6 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
       prepareAngleArrays();
    }
 }
-
-// void SourceMap::save(const std::string & filename) const {
-//    if (st_facilities::Util::fileExists(filename)) {
-//       throw std::runtime_error("SourceMap::save: " + filename 
-//                                + " already exists.");
-//    }
-
-//    fitsfile * fptr;
-//    int status(0);
-
-//    fits_create_file(&fptr, filename.c_str(), &status);
-//    fitsReportError(stderr, status);
-
-//    long naxes[] = {m_dataMap->imageDimension(0),
-//                    m_dataMap->imageDimension(1),
-//                    m_dataMap->imageDimension(2) + 1};
-//    fits_create_img(fptr, DOUBLE_IMG, 3, naxes, &status);
-//    fitsReportError(stderr, status);
-   
-//    long group(0);
-//    const std::vector<double> & data = model();
-//    fits_write_3d_dbl(fptr, group, naxes[0], naxes[1], naxes[0], naxes[1],
-//                      naxes[2], const_cast<double *>(&data[0]), &status);
-//    fitsReportError(stderr, status);
-
-//    fits_update_key(fptr, TSTRING, "EXTNAME", 
-//                    const_cast<char *>(m_name.c_str()), "SourceMap name",
-//                    &status);
-//    fitsReportError(stderr, status);
-
-//    fits_close_file(fptr, &status);
-//    fitsReportError(stderr, status);
-// }
-
-// void SourceMap::fitsReportError(FILE *stream, int status) const {
-//    if (status != 0) {
-//       fits_report_error(stream, status);
-//       throw std::runtime_error("SourceMap::save: cfitsio error.");
-//    }
-// }
 
 double SourceMap::Aeff::operator()(double costheta) const {
    double inclination = acos(costheta)*180./M_PI;
