@@ -1,4 +1,18 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct  3 08:02:42 PDT 2005
+Likelihood/data
+
+Modified Files:
+	anticenter_expMap.fits expMap_0.fits expMap_1.fits 
+	expMap_2.fits expMap_3.fits expMap_4.fits 
+	galdiffuse_events_0000.fits oneday_scData_0000.fits 
+	single_src_events_0000.fits 
+Removed Files:
+	anticenter_Roi.xml oneday_events_0000.fits 
+Log Message:
+major refactoring to use wcslib/SkyProj, removal of cfitsio calls
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct  3 08:02:37 PDT 2005
 Likelihood/Likelihood
 
