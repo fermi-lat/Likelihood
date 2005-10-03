@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.13 2005/02/17 23:22:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.14 2005/02/18 00:54:17 jchiang Exp $
  *
  */
 
@@ -12,9 +12,12 @@
 
 #include "optimizers/Function.h"
 
-#include "Likelihood/FitsImage.h"
+namespace astro {
+   class SkyProj;
+}
 
 namespace Likelihood {
+
 /** 
  * @class SpatialMap
  *
@@ -23,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.13 2005/02/17 23:22:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.14 2005/02/18 00:54:17 jchiang Exp $
  *
  */
     
@@ -31,39 +34,49 @@ class SpatialMap : public optimizers::Function {
 
 public:
 
-   SpatialMap() {init();}
-
-   SpatialMap(const std::string &fitsFile) {
+   SpatialMap() : m_proj(0) {
       init();
-      readFitsFile(fitsFile);
    }
 
-   virtual ~SpatialMap() {}
+   SpatialMap(const std::string & fitsFile, const std::string & extension="")
+      : m_proj(0) {
+      init();
+      readFitsFile(fitsFile, extension);
+   }
+
+   SpatialMap::SpatialMap(const SpatialMap &);
+
+   virtual ~SpatialMap();
 
    double value(optimizers::Arg&) const;
 
-   double derivByParam(optimizers::Arg &, const std::string &) const
-      {return 0;}
+   double derivByParam(optimizers::Arg &, const std::string &) const {
+      return 0;
+   }
 
-   void readFitsFile(const std::string &fitsFile);
+   void readFitsFile(const std::string & fitsFile,
+                     const std::string & extension="");
 
    virtual optimizers::Function *clone() const {
       return new SpatialMap(*this);
    }
 
-   const std::string & fitsFile() const {return m_fitsFile;}
+   const std::string & fitsFile() const {
+      return m_fitsFile;
+   }
 
 private:
 
    std::string m_fitsFile;
-   std::vector<double> m_ra;
-   double m_raMin, m_raMax;
-   std::vector<double> m_dec;
-   double m_decMin, m_decMax;
+   std::string m_extension;
 
-   std::string m_coordSys;
+   std::vector<float> m_image;
 
-   std::vector<double> m_image;
+   int m_naxis1; 
+   int m_naxis2; 
+   int m_naxis3;
+
+   astro::SkyProj * m_proj;
 
    void init();
 

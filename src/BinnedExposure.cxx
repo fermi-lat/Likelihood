@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.9 2005/05/23 19:12:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.10 2005/07/13 17:17:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -27,8 +27,6 @@
 
 namespace Likelihood {
 
-#include "fitsio.h"
-
 BinnedExposure::BinnedExposure() : m_observation(0) {}
 
 BinnedExposure::BinnedExposure(const std::vector<double> & energies,
@@ -40,10 +38,9 @@ BinnedExposure::BinnedExposure(const std::vector<double> & energies,
 BinnedExposure::BinnedExposure(const std::string & filename) {
    std::auto_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(filename, ""));
-   std::vector<float> data;
-   image->get(data);
-   m_exposureMap.resize(data.size());
-   std::copy(data.begin(), data.end(), m_exposureMap.begin());
+
+   m_exposureMap.clear();
+   image->get(m_exposureMap);
 
    const tip::Header & header = image->getHeader();
 
@@ -146,8 +143,8 @@ BinnedExposure::findIndex(std::vector<double>::const_iterator begin,
 }
 
 void BinnedExposure::computeMap() {
-   linearArray(0., 360., 361, m_ras);
-   linearArray(-90., 90., 181, m_decs);
+   linearArray(0., 360., 360, m_ras);
+   linearArray(-90., 90., 180, m_decs);
 
    m_exposureMap.resize(m_ras.size()*m_decs.size()*m_energies.size(), 0);
    int iter(0);
@@ -203,146 +200,59 @@ double BinnedExposure::Aeff::operator()(double cosTheta) const {
 }
 
 void BinnedExposure::writeOutput(const std::string & filename) const {
-   fitsfile *fptr;
-   int status = 0;
-   
-// Always overwrite an existing file.
-   remove(filename.c_str());
-   fits_create_file(&fptr, filename.c_str(), &status);
-   fitsReportError(stderr, status);
+   std::remove(filename.c_str());
 
-   int bitpix = DOUBLE_IMG;
-   long naxis = 3;
-   long naxes[] = {m_ras.size(), m_decs.size(), m_energies.size()};
-   fits_create_img(fptr, bitpix, naxis, naxes, &status);
-   fitsReportError(stderr, status);
+   std::vector<long> dims(3);
+   dims.at(0) = m_ras.size();
+   dims.at(1) = m_decs.size();
+   dims.at(2) = m_energies.size();
 
-// Write the exposure map data.
-   long group = 0;
-   long dim1 = m_ras.size();
-   long dim2 = m_decs.size();
+   std::string ext("PRIMARY");
+   tip::IFileSvc::instance().appendImage(filename, ext, dims);
+   tip::Image * image = tip::IFileSvc::instance().editImage(filename, ext);
 
-   fits_write_3d_dbl(fptr, group, dim1, dim2, 
-                     m_ras.size(), m_decs.size(), m_energies.size(),
-                     const_cast<double *>(&m_exposureMap[0]), &status);
-   fitsReportError(stderr, status);
+   image->set(m_exposureMap);
 
-// Write some keywords.
-   double ra0 = m_ras[180];
-   fits_update_key(fptr, TDOUBLE, "CRVAL1", &ra0, 
-                   "RA of reference pixel", &status);
-   fitsReportError(stderr, status);
-   double dec0 = m_decs[90];
-   fits_update_key(fptr, TDOUBLE, "CRVAL2", &dec0, 
-                   "Dec of reference pixel", &status);
-   fitsReportError(stderr, status);
-   
-   double rastep = m_ras[1] - m_ras[0];
-   fits_update_key(fptr, TDOUBLE, "CDELT1", &rastep, 
-                   "RA step at reference pixel", &status);
-   fitsReportError(stderr, status);
-   double decstep = m_decs[1] - m_decs[0];
-   fits_update_key(fptr, TDOUBLE, "CDELT2", &decstep, 
-                   "Dec step at reference pixel", &status);
-   fitsReportError(stderr, status);
-   
-   float crpix1 = 180.;
-   fits_update_key(fptr, TFLOAT, "CRPIX1", &crpix1, 
-                   "reference pixel for RA coordinate", &status);
-   fitsReportError(stderr, status);
-   float crpix2 = 90.;
-   fits_update_key(fptr, TFLOAT, "CRPIX2", &crpix2, 
-                   "reference pixel for Dec coordinate", &status);
-   fitsReportError(stderr, status);
-   
-   char * ctype1 = "RA---CAR";
-   fits_update_key(fptr, TSTRING, "CTYPE1", ctype1, 
-                   "right ascension", &status);
-   fitsReportError(stderr, status);
-   char * ctype2 = "DEC--CAR";
-   fits_update_key(fptr, TSTRING, "CTYPE2", ctype2, 
-                   "declination", &status);
-   fitsReportError(stderr, status);
+   tip::Header & header(image->getHeader());
 
-   double logEmin = log(m_energies[0]);
-   fits_update_key(fptr, TDOUBLE, "CRVAL3", &logEmin,
-                   "reference value for log_energy coordinate", &status);
-   fitsReportError(stderr, status);
+   header["TELESCOP"].set("GLAST");
+   header["INSTRUME"].set("LAT SIMULATION");
+   header["DATE-OBS"].set("");
+   header["DATE-END"].set("");
+
+   header["CRVAL1"].set(m_ras[0]);
+   header["CRPIX1"].set(0);
+   header["CDELT1"].set(m_ras[1] - m_ras[0]);
+   header["CTYPE1"].set("RA---CAR");
+
+   header["CRVAL2"].set(m_decs[0]);
+   header["CRPIX2"].set(0);
+   header["CDELT2"].set(m_decs[1] - m_decs[0]);
+   header["CTYPE2"].set("DEC--CAR");
 
    int nee = m_energies.size();
-   double estep = log(m_energies[nee-1]/m_energies[0])/(nee-1);
-   fits_update_key(fptr, TDOUBLE, "CDELT3", &estep, 
-                   "step in log_energy coordinate", &status);
-   fitsReportError(stderr, status);
+   header["CRVAL3"].set(log(m_energies.at(0)));
+   header["CRPIX3"].set(1);
+   header["CDELT3"].set(log(m_energies.at(nee-1)/m_energies.at(0))/(nee-1));
+   header["CTYPE3"].set("log_Energy");
 
-   float crpix3 = 1.;
-   fits_update_key(fptr, TFLOAT, "CRPIX3", &crpix3,
-                   "reference pixel for log_energy coordinate", &status);
-   fitsReportError(stderr, status);
+   delete image;
 
-   char * ctype3 = "log_MeV";
-   fits_update_key(fptr, TSTRING, "CTYPE3", ctype3,
-                   "units for log_energy", &status);
-   fitsReportError(stderr, status);
+   ext = "ENERGIES";
+   tip::IFileSvc::instance().appendTable(filename, ext);
+   tip::Table * table = tip::IFileSvc::instance().editTable(filename, ext);
+   table->appendField("Energy", "1D");
+   table->setNumRecords(m_energies.size());
 
-// Write the energy array as a binary table.  
-// /// @bug Only the Energy column is needed, but tip can't read binary
-// /// tables that have just one column, so we are forced to add a dummy
-// /// column.
-//    int nrows = m_energies.size();
-//    int tfields = 2;
-//    char * ttype[] = {"Energy", "Emax"};
-//    char * tform[] = {"1D", "1D"};
-//    char * tunit[] = {"MeV", "MeV"};
-//    char extname[] = "Energies";
-   
-//    int firstrow  = 1;
-//    int firstelem = 1;
-   
-//    fits_create_tbl(fptr, BINARY_TBL, nrows, tfields, ttype, tform,
-//                    tunit, extname, &status);
-//    fitsReportError(stderr, status);
-   
-//    fits_write_col(fptr, TDOUBLE, 1, firstrow, firstelem, nrows, 
-//                   const_cast<double *>(&m_energies[0]), &status);
-//    fitsReportError(stderr, status);
+   tip::Table::Iterator row = table->begin();
+   tip::Table::Record & record = *row;
 
-//    fits_write_col(fptr, TDOUBLE, 2, firstrow, firstelem, nrows, 
-//                   const_cast<double *>(&m_energies[0]), &status);
-//    fitsReportError(stderr, status);
-   
-//    fits_close_file(fptr, &status);
-//    fitsReportError(stderr, status);
-
-   int nrows = m_energies.size();
-   int tfields = 1;
-   char * ttype[] = {"Energy"};
-   char * tform[] = {"1D"};
-   char * tunit[] = {"MeV"};
-   char extname[] = "Energies";
-   
-   int firstrow  = 1;
-   int firstelem = 1;
-   
-   fits_create_tbl(fptr, BINARY_TBL, nrows, tfields, ttype, tform,
-                   tunit, extname, &status);
-   fitsReportError(stderr, status);
-   
-   fits_write_col(fptr, TDOUBLE, 1, firstrow, firstelem, nrows, 
-                  const_cast<double *>(&m_energies[0]), &status);
-   fitsReportError(stderr, status);
-   
-   fits_close_file(fptr, &status);
-   fitsReportError(stderr, status);
-   
-   return;
-}
-
-void BinnedExposure::fitsReportError(FILE *stream, int status) const {
-   fits_report_error(stream, status);
-   if (status != 0) {
-      throw std::runtime_error("BinnedExposure: cfitsio error.");
+   std::vector<double>::const_iterator energy = m_energies.begin();
+   for ( ; energy != m_energies.end(); ++energy, ++row) {
+      record["Energy"].set(*energy);
    }
+
+   delete table;
 }
 
 } // namespace Likelihood

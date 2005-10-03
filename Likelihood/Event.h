@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.33 2005/03/03 07:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.34 2005/05/21 23:39:01 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -16,7 +16,6 @@
 #include "astro/SkyDir.h"
 
 #include "Likelihood/Exception.h"
-#include "Likelihood/FitsImage.h"
 
 namespace Likelihood {
 
@@ -31,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.33 2005/03/03 07:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.34 2005/05/21 23:39:01 jchiang Exp $
  */
 
 class Event {

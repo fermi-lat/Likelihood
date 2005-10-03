@@ -6,11 +6,12 @@ outfile,f,a,"countsMap.fits",,,"Output file name"
 emin,r,a,30,20,3e5,Minimum energy (MeV)
 emax,r,a,200000,20,3e5,Maximum energy (MeV)
 nenergies,i,a,21,2,100,Number of energy bounds
-ra,r,ql,86.4,0,360,Right Ascension of map center (degrees)
-dec,r,ql,28.9,-90,90,Declination of map center (degrees)
-nra,i,ql,160,2,,Number of longitude pixels
-ndec,i,ql,160,2,,Number of latitude pixels
-pixel_size,r,ql,0.25,1e-2,2,Pixel size (degrees)
+ra,r,a,86.4,0,360,Right Ascension of map center (degrees)
+dec,r,a,28.9,-90,90,Declination of map center (degrees)
+nra,i,a,160,2,,Number of longitude pixels
+ndec,i,a,160,2,,Number of latitude pixels
+pixel_size,r,a,0.25,1e-2,2,Pixel size (degrees)
+proj,s,a,"CAR",AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN,,Projection method
 use_lb,b,h,no,,,"Use Galactic coordinates"
 
 chatter,i,h,2,0,4,Output verbosity

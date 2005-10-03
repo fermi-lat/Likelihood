@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.40 2005/06/04 20:05:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.41 2005/09/10 19:32:01 jchiang Exp $
  */
 
 #include <algorithm>
@@ -23,7 +23,6 @@
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/EquinoxRotation.h"
-#include "Likelihood/FitsImage.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/Observation.h"
@@ -134,7 +133,6 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       double radius = ::maxRadius(pixels, map_center) + 10.;
 /// @todo Replace this hard-wired value for the pixel size.
       unsigned int mapsize(static_cast<unsigned int>(2*radius/0.25));
-/// @todo Include energy dependence for MapCubeSource.
       std::vector<double>::const_iterator energy = energies.begin();
       unsigned int indx(0);
       for (int k = 0; energy != energies.end(); ++energy, k++) {
@@ -272,45 +270,45 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
    }
 }
 
-void SourceMap::save(const std::string & filename) const {
-   if (st_facilities::Util::fileExists(filename)) {
-      throw std::runtime_error("SourceMap::save: " + filename 
-                               + " already exists.");
-   }
+// void SourceMap::save(const std::string & filename) const {
+//    if (st_facilities::Util::fileExists(filename)) {
+//       throw std::runtime_error("SourceMap::save: " + filename 
+//                                + " already exists.");
+//    }
 
-   fitsfile * fptr;
-   int status(0);
+//    fitsfile * fptr;
+//    int status(0);
 
-   fits_create_file(&fptr, filename.c_str(), &status);
-   fitsReportError(stderr, status);
+//    fits_create_file(&fptr, filename.c_str(), &status);
+//    fitsReportError(stderr, status);
 
-   long naxes[] = {m_dataMap->imageDimension(0),
-                   m_dataMap->imageDimension(1),
-                   m_dataMap->imageDimension(2) + 1};
-   fits_create_img(fptr, DOUBLE_IMG, 3, naxes, &status);
-   fitsReportError(stderr, status);
+//    long naxes[] = {m_dataMap->imageDimension(0),
+//                    m_dataMap->imageDimension(1),
+//                    m_dataMap->imageDimension(2) + 1};
+//    fits_create_img(fptr, DOUBLE_IMG, 3, naxes, &status);
+//    fitsReportError(stderr, status);
    
-   long group(0);
-   const std::vector<double> & data = model();
-   fits_write_3d_dbl(fptr, group, naxes[0], naxes[1], naxes[0], naxes[1],
-                     naxes[2], const_cast<double *>(&data[0]), &status);
-   fitsReportError(stderr, status);
+//    long group(0);
+//    const std::vector<double> & data = model();
+//    fits_write_3d_dbl(fptr, group, naxes[0], naxes[1], naxes[0], naxes[1],
+//                      naxes[2], const_cast<double *>(&data[0]), &status);
+//    fitsReportError(stderr, status);
 
-   fits_update_key(fptr, TSTRING, "EXTNAME", 
-                   const_cast<char *>(m_name.c_str()), "SourceMap name",
-                   &status);
-   fitsReportError(stderr, status);
+//    fits_update_key(fptr, TSTRING, "EXTNAME", 
+//                    const_cast<char *>(m_name.c_str()), "SourceMap name",
+//                    &status);
+//    fitsReportError(stderr, status);
 
-   fits_close_file(fptr, &status);
-   fitsReportError(stderr, status);
-}
+//    fits_close_file(fptr, &status);
+//    fitsReportError(stderr, status);
+// }
 
-void SourceMap::fitsReportError(FILE *stream, int status) const {
-   if (status != 0) {
-      fits_report_error(stream, status);
-      throw std::runtime_error("SourceMap::save: cfitsio error.");
-   }
-}
+// void SourceMap::fitsReportError(FILE *stream, int status) const {
+//    if (status != 0) {
+//       fits_report_error(stream, status);
+//       throw std::runtime_error("SourceMap::save: cfitsio error.");
+//    }
+// }
 
 double SourceMap::Aeff::operator()(double costheta) const {
    double inclination = acos(costheta)*180./M_PI;

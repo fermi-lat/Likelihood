@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.19 2005/06/13 14:34:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.20 2005/08/04 05:30:02 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.19 2005/06/13 14:34:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.20 2005/08/04 05:30:02 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -133,7 +133,7 @@ private:
 
    void identifyFilledPixels();
    
-   void fitsReportError(FILE *stream, int status) const;
+//    void fitsReportError(FILE *stream, int status) const;
 
    bool fileHasSourceMap(const std::string & srcName, 
                          const std::string & fitsFile) const;

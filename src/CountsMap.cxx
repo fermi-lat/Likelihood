@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.21 2005/08/25 19:40:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.22 2005/09/12 22:16:24 jchiang Exp $
  */
 
 #include <algorithm>
@@ -358,14 +358,6 @@ void CountsMap::getAxisVector(int i, std::vector<double> & axisVector) const {
    }
    long jj = binners[i]->getNumBins() - 1;
    axisVector.push_back(binners[i]->getInterval(jj).end());
-// // The following only works for plate-carree projections:
-//    if (i < 2) {
-//       for (unsigned int j = 0; j < axisVector.size(); j++) {
-//          axisVector.at(j) -= m_crpix[i];
-//          axisVector.at(j) *= m_cdelt[i];
-//          axisVector.at(j) += m_crval[i];
-//       }
-//    }
 }
 
 void CountsMap::setKeywords(tip::Header & header) const {

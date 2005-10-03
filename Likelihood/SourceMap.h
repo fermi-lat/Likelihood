@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.26 2005/05/25 19:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.27 2005/06/04 20:05:07 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -24,7 +24,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.26 2005/05/25 19:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.27 2005/06/04 20:05:07 jchiang Exp $
  */
 
 class SourceMap {
@@ -39,7 +39,7 @@ public:
 
    ~SourceMap();
 
-   const std::vector<double> & model() const {return m_model;}
+   const std::vector<float> & model() const {return m_model;}
 
    const std::vector<double> & npreds() const {return m_npreds;}
    
@@ -47,7 +47,7 @@ public:
       s_binnedExposure = new BinnedExposure(filename);
    }
 
-   void save(const std::string & filename) const;
+//   void save(const std::string & filename) const;
    
    double maxPsfRadius(PointSource * src) const;
 
@@ -70,7 +70,8 @@ private:
    /// one energy plane.
    ///
    /// @todo Keep track of event types included in a given SourceMap.
-   std::vector<double> m_model;
+//   std::vector<double> m_model;
+   std::vector<float> m_model;
 
    /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;

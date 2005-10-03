@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.27 2005/08/17 04:22:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.28 2005/09/10 17:06:09 jchiang Exp $
  */
 
 #include <memory>
@@ -23,7 +23,7 @@
 
 namespace Likelihood {
 
-#include "fitsio.h"
+//#include "fitsio.h"
 
 BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
                                    const Observation & observation,
@@ -102,7 +102,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
          for (src = my_srcs.begin(); src != my_srcs.end(); ++src) {
             std::string srcName = src->second->getName();
             const SourceMap & srcMap = sourceMap(srcName);
-            const std::vector<double> & model = srcMap.model();
+            const std::vector<float> & model = srcMap.model();
 // This implementation assumes that only the spectral part of each
 // Source has free parameters.
             Source::FuncMap srcFuncs = src->second->getSrcFuncs();
@@ -161,7 +161,7 @@ void BinnedLikelihood::computeModelMap(std::vector<double> & modelMap) const {
             const SourceMap * srcMap = srcIt->second;
             const Source * src 
                = const_cast<BinnedLikelihood *>(this)->getSource(name);
-            const std::vector<double> & model = srcMap->model();
+            const std::vector<float> & model = srcMap->model();
             modelMap[imin] += src->pixelCounts(m_energies[k], m_energies[k+1],
                                                model[imin], model[imax]);
          }
@@ -181,7 +181,7 @@ void BinnedLikelihood::computeModelMap(double & npred) const {
       const Source * src 
          = const_cast<BinnedLikelihood *>(this)->getSource(name);
       if (src) {
-         const std::vector<double> & model = srcMap->model();
+         const std::vector<float> & model = srcMap->model();
          for (unsigned int i = 0; i < m_filledPixels.size(); i++) {
             unsigned long imin = m_filledPixels[i];
             unsigned long imax = imin + m_pixels.size();
@@ -281,14 +281,10 @@ void BinnedLikelihood::replaceSourceMap(const std::string & srcName,
                                         const std::string & fitsFile) const {
    const SourceMap & srcMap = sourceMap(srcName);
 
-   std::vector<float> float_image(srcMap.model().size());
-   std::copy(srcMap.model().begin(), srcMap.model().end(), 
-             float_image.begin());
-
    std::auto_ptr<tip::Image> 
       image(tip::IFileSvc::instance().editImage(fitsFile, srcName));
 
-   image->set(float_image);
+   image->set(srcMap.model());
 }
 
 void BinnedLikelihood::addSourceMap(const std::string & srcName,
@@ -299,40 +295,61 @@ void BinnedLikelihood::addSourceMap(const std::string & srcName,
                                + " is not available.");
    }
 
-   fitsfile * fptr;
-   int status(0);
+   std::vector<long> naxes;
+   naxes.push_back(m_dataMap.imageDimension(0));
+   naxes.push_back(m_dataMap.imageDimension(1));
+   naxes.push_back(m_energies.size());
 
-   fits_open_file(&fptr, fitsFile.c_str(), READWRITE, &status);
-   fitsReportError(stderr, status);
+   tip::IFileSvc::instance().appendImage(fitsFile, srcName, naxes);
+   tip::Image * image = tip::IFileSvc::instance().editImage(fitsFile, srcName);
+      
+   image->set(m_srcMaps.find(srcName)->second->model());
 
-   long naxes[] = {m_dataMap.imageDimension(0),
-                   m_dataMap.imageDimension(1),
-                   m_energies.size()};
-   fits_create_img(fptr, DOUBLE_IMG, 3, naxes, &status);
-   fitsReportError(stderr, status);
+   delete image;
+}
+
+// void BinnedLikelihood::addSourceMap(const std::string & srcName,
+//                                     const std::string & fitsFile) const {
+//    if (!m_srcMaps.count(srcName)) {
+//       throw std::runtime_error("BinnedLikelihood::addSourceMap: " +
+//                                std::string("Source ") + srcName 
+//                                + " is not available.");
+//    }
+
+//    fitsfile * fptr;
+//    int status(0);
+
+//    fits_open_file(&fptr, fitsFile.c_str(), READWRITE, &status);
+//    fitsReportError(stderr, status);
+
+//    long naxes[] = {m_dataMap.imageDimension(0),
+//                    m_dataMap.imageDimension(1),
+//                    m_energies.size()};
+//    fits_create_img(fptr, DOUBLE_IMG, 3, naxes, &status);
+//    fitsReportError(stderr, status);
    
-   long group(0);
-   const std::vector<double> & data = m_srcMaps.find(srcName)->second->model();
-   fits_write_3d_dbl(fptr, group, naxes[0], naxes[1], naxes[0], naxes[1],
-                     naxes[2], const_cast<double *>(&data[0]), &status);
-   fitsReportError(stderr, status);
+//    long group(0);
+//    const std::vector<double> & data = m_srcMaps.find(srcName)->second->model();
+//    fits_write_3d_dbl(fptr, group, naxes[0], naxes[1], naxes[0], naxes[1],
+//                      naxes[2], const_cast<double *>(&data[0]), &status);
+//    fitsReportError(stderr, status);
 
-   fits_update_key(fptr, TSTRING, "EXTNAME", 
-                   const_cast<char *>(srcName.c_str()), "SourceMap name",
-                   &status);
-   fitsReportError(stderr, status);
+//    fits_update_key(fptr, TSTRING, "EXTNAME", 
+//                    const_cast<char *>(srcName.c_str()), "SourceMap name",
+//                    &status);
+//    fitsReportError(stderr, status);
 
-   fits_close_file(fptr, &status);
-   fitsReportError(stderr, status);
-}
+//    fits_close_file(fptr, &status);
+//    fitsReportError(stderr, status);
+// }
 
-void BinnedLikelihood::fitsReportError(FILE *stream, int status) const {
-   if (status != 0) {
-      fits_report_error(stream, status);
-      throw std::runtime_error("BinnedLikelihood::addSourceMap: "
-                               + std::string("cfitsio error."));
-   }
-}
+// void BinnedLikelihood::fitsReportError(FILE *stream, int status) const {
+//    if (status != 0) {
+//       fits_report_error(stream, status);
+//       throw std::runtime_error("BinnedLikelihood::addSourceMap: "
+//                                + std::string("cfitsio error."));
+//    }
+// }
 
 void BinnedLikelihood::setImageDimensions(tip::Image * image, 
                                           long * dimensions) const {

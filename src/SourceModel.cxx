@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.68 2005/03/02 04:51:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.69 2005/06/06 15:23:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -12,8 +12,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#include "fitsio.h"
 
 #include "xmlBase/Dom.h"
 #include "xmlBase/XmlParser.h"
@@ -38,15 +36,6 @@
 #include "Likelihood/SourceModel.h"
 
 #include "Verbosity.h"
-
-namespace {
-   void fitsReportError(FILE *stream, int status) {
-      fits_report_error(stream, status);
-      if (status != 0) {
-         throw std::runtime_error("writeExposureFile: cfitsio error.");
-      }
-   }
-} // unnamed namespace
 
 namespace Likelihood {
 

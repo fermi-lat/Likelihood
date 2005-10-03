@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.3 2005/02/15 07:04:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.4 2005/02/15 17:01:29 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction_h
@@ -11,9 +11,11 @@
 
 #include "optimizers/Function.h"
 
-namespace Likelihood {
+namespace astro {
+   class SkyProj;
+}
 
-   class SkyDirArg;
+namespace Likelihood {
 
 /**
  * @class MapCubeFunction
@@ -22,23 +24,26 @@ namespace Likelihood {
  * a function of position on the sky.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.3 2005/02/15 07:04:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.4 2005/02/15 17:01:29 jchiang Exp $
  */
 
 class MapCubeFunction : public optimizers::Function {
 
 public:
    
-   MapCubeFunction() {
+   MapCubeFunction() : m_fitsFile(""), m_proj(0), m_nlon(0), m_nlat(0) {
       init();
    }
 
-   MapCubeFunction(const std::string & fitsFile) {
+   MapCubeFunction(const std::string & fitsFile) 
+      : m_fitsFile(fitsFile), m_proj(0), m_nlon(0), m_nlat(0) {
       init();
       readFitsFile(fitsFile);
    }
 
-   virtual ~MapCubeFunction() {}
+   MapCubeFunction(const MapCubeFunction &);
+
+   virtual ~MapCubeFunction();
 
    virtual double value(optimizers::Arg &) const;
 
@@ -65,19 +70,18 @@ private:
 
    std::string m_fitsFile;
 
-   std::string m_coordSys;
-   std::vector<double> m_image;
-   std::vector<double> m_lon;
-   double m_lonMin, m_lonMax;
-   std::vector<double> m_lat;
-   double m_latMin, m_latMax;
+   astro::SkyProj * m_proj;
+
+   int m_nlon;
+   int m_nlat;
+
    std::vector<double> m_energies;
+
+   std::vector<double> m_image;
 
    void init();
 
-   void readEnergyVector(const std::string & fitsFile);
-
-   static int findIndex(std::vector<double> xx, double x);
+   int findIndex(const std::vector<double> & xx, double x) const;
 
    double powerLawIntegral(double x1, double x2, double y1, double y2) const;
 };
