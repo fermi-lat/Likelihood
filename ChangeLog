@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct  3 08:02:37 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedExposure.h BinnedLikelihood.h Event.h ExposureMap.h 
+	MapCubeFunction.h SkyDirArg.h SourceMap.h SpatialMap.h 
+Removed Files:
+	FitsImage.h 
+Log Message:
+major refactoring to use wcslib/SkyProj, removal of cfitsio calls
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 26 17:11:31 PDT 2005
 Likelihood/src/gtmodelmap
 
