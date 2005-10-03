@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Oct  3 08:02:42 PDT 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtcntsmap.par 
+Log Message:
+major refactoring to use wcslib/SkyProj, removal of cfitsio calls
+    *
+------------------------------------------------------------
+User: jchiang  Mon Oct  3 08:02:42 PDT 2005
 Likelihood/data
 
 Modified Files:
