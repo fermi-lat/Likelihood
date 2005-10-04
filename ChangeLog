@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct  3 22:38:08 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	MapCubeFunction.h SpatialMap.h 
+Log Message:
+create m_proj before other data members if possible to mitigate corruption
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct  3 15:44:54 PDT 2005
 Likelihood/src
 
