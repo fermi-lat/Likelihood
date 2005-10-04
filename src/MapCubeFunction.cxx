@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.8 2005/09/10 23:23:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.9 2005/10/03 15:02:43 jchiang Exp $
  */
 
 #include <algorithm>
@@ -44,9 +44,23 @@ namespace Likelihood {
 MapCubeFunction::MapCubeFunction(const MapCubeFunction & rhs)
    : optimizers::Function(rhs), m_fitsFile(rhs.m_fitsFile),
      m_nlon(rhs.m_nlon), m_nlat(rhs.m_nlat) {
-   m_proj = new astro::SkyProj(*rhs.m_proj);
+   m_proj = new astro::SkyProj(*(rhs.m_proj));
    m_energies = rhs.m_energies;
    m_image = rhs.m_image;
+}
+
+MapCubeFunction & MapCubeFunction::operator=(const MapCubeFunction &rhs) {
+   if (this != &rhs) {
+      delete m_proj;
+      m_proj = new astro::SkyProj(*(rhs.m_proj));
+      optimizers::Function::operator=(rhs);
+      m_fitsFile = rhs.m_fitsFile;
+      m_nlon = rhs.m_nlon;
+      m_nlat = rhs.m_nlat;
+      m_energies = rhs.m_energies;
+      m_image = rhs.m_image;
+   }
+   return *this;
 }
 
 MapCubeFunction::~MapCubeFunction() {
@@ -96,6 +110,8 @@ void MapCubeFunction::init() {
 }
 
 void MapCubeFunction::readFitsFile(const std::string & fitsFile) {
+   m_proj = st_facilities::FitsImage::skyProjCreate(fitsFile);
+
    st_facilities::FitsImage fitsImage(fitsFile);
 
    fitsImage.getImageData(m_image);
@@ -104,8 +120,6 @@ void MapCubeFunction::readFitsFile(const std::string & fitsFile) {
    fitsImage.getAxisDims(naxes);
    m_nlon = naxes.at(0);
    m_nlat = naxes.at(1);
-
-   m_proj = st_facilities::FitsImage::skyProjCreate(fitsFile);
 
    ExposureMap::readEnergyExtension(fitsFile, m_energies);
 }
