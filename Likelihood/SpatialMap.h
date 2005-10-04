@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.14 2005/02/18 00:54:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.15 2005/10/03 15:02:37 jchiang Exp $
  *
  */
 
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.14 2005/02/18 00:54:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.15 2005/10/03 15:02:37 jchiang Exp $
  *
  */
     
@@ -45,6 +45,8 @@ public:
    }
 
    SpatialMap::SpatialMap(const SpatialMap &);
+
+   SpatialMap & operator=(const SpatialMap &);
 
    virtual ~SpatialMap();
 

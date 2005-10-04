@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.15 2005/02/18 00:54:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.16 2005/10/03 15:02:43 jchiang Exp $
  *
  */
 
@@ -29,11 +29,29 @@
 namespace Likelihood {
 
 SpatialMap::SpatialMap(const SpatialMap & rhs) 
-   : optimizers::Function(rhs), m_fitsFile(rhs.m_fitsFile),
-     m_extension(rhs.m_extension), m_naxis1(rhs.m_naxis1),
-     m_naxis2(rhs.m_naxis2), m_naxis3(rhs.m_naxis3) {
+   : optimizers::Function(rhs) {
+   m_proj = new astro::SkyProj(*(rhs.m_proj));
+   m_fitsFile = rhs.m_fitsFile;
+   m_extension = rhs.m_extension;
+   m_naxis1 = rhs.m_naxis1;
+   m_naxis2 = rhs.m_naxis2;
+   m_naxis3 = rhs.m_naxis3;
    m_image = rhs.m_image;
-   m_proj = new astro::SkyProj(*rhs.m_proj);
+}
+
+SpatialMap & SpatialMap::operator=(const SpatialMap & rhs) {
+   if (this != &rhs) {
+      m_proj = new astro::SkyProj(*(rhs.m_proj));
+      optimizers::Function::operator=(rhs);
+      m_fitsFile = rhs.m_fitsFile;
+      m_extension = rhs.m_extension;
+      m_naxis1 = rhs.m_naxis1;
+      m_naxis2 = rhs.m_naxis2;
+      m_naxis3 = rhs.m_naxis3;
+      m_image = rhs.m_image;
+      delete m_proj;
+   }
+   return *this;
 }
 
 SpatialMap::~SpatialMap() {
@@ -56,6 +74,9 @@ void SpatialMap::readFitsFile(const std::string & fitsFile,
    m_extension = extension;
 
    facilities::Util::expandEnvVar(&m_fitsFile);
+
+   m_proj = st_facilities::FitsImage::skyProjCreate(m_fitsFile, extension);
+
    const tip::Image * image = 
       tip::IFileSvc::instance().readImage(m_fitsFile, extension);
    
@@ -72,8 +93,6 @@ void SpatialMap::readFitsFile(const std::string & fitsFile,
    }
 
    delete image;
-
-   m_proj = st_facilities::FitsImage::skyProjCreate(m_fitsFile, extension);
 }
 
 double SpatialMap::value(optimizers::Arg & arg) const {

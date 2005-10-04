@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.29 2005/04/15 21:56:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.30 2005/06/08 06:32:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -136,7 +136,8 @@ double DiffuseSource::Npred() {
       NpredIntegrand[k] = (*specFunc)(eArg)*m_exposure[k];
    }
    TrapQuad trapQuad(energies, NpredIntegrand);
-   return trapQuad.integral();
+   double value(trapQuad.integral());
+   return value;
 }
 
 double DiffuseSource::NpredDeriv(const std::string &paramName) {

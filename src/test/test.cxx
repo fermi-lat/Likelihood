@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.69 2005/10/03 15:02:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.70 2005/10/03 20:09:26 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -619,9 +619,9 @@ void LikelihoodTests::test_DiffuseSource() {
       double Npred = src->Npred();
       chi2 += pow((Nobs - Npred), 2)/Nobs;
       debug_output << i << "  " 
-                   << Nobs << "  "
-                   << Npred << "  " 
-                   << expMapFile.str() << std::endl;
+                << Nobs << "  "
+                << Npred << "  " 
+                << expMapFile.str() << std::endl;
       delete src;
    }
    debug_output << "chi^2 = " << chi2 << std::endl;
