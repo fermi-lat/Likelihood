@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Oct  3 22:38:08 PDT 2005
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx MapCubeFunction.cxx SpatialMap.cxx 
+Log Message:
+create m_proj before other data members if possible to mitigate corruption
+    *
+------------------------------------------------------------
+User: jchiang  Mon Oct  3 22:38:08 PDT 2005
 Likelihood/Likelihood
 
 Modified Files:
