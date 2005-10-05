@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.4 2005/09/10 19:32:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.1 2005/10/05 00:59:38 jchiang Exp $
  */
 
 #include <algorithm>
@@ -108,28 +108,29 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
 }
 
 WcsMap::~WcsMap() {
-// astro::SkyProj copy constructor is not implemented properly so we
-// must ensure this pointer is not deleted here and live with the
-// resulting memory leak when this object is deleted.
-//   delete m_proj;
+// // astro::SkyProj copy constructor is not implemented properly so we
+// // must ensure this pointer is not deleted here and live with the
+// // resulting memory leak when this object is deleted.
+   delete m_proj;
 }
 
 WcsMap::WcsMap(const WcsMap & rhs) 
    : m_refDir(rhs.m_refDir), m_image(rhs.m_image), 
      m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2) {
-// astro::SkyProj copy constructor is not implemented properly so we
-// must share this pointer, ensure it is not deleted in the destructor,
-// and live with the resulting memory leak when this object is deleted.
-   m_proj = rhs.m_proj;
+// // astro::SkyProj copy constructor is not implemented properly so we
+// // must share this pointer, ensure it is not deleted in the destructor,
+// // and live with the resulting memory leak when this object is deleted.
+//    m_proj = rhs.m_proj;
+   m_proj = new astro::SkyProj(*(rhs.m_proj));
 }
 
 WcsMap & WcsMap::operator=(const WcsMap & rhs) {
    if (this != &rhs) {
-// astro::SkyProj copy constructor is not implemented properly so we
-// must share this pointer, ensure it is not deleted in the destructor,
-// and live with the resulting memory leak when this object is deleted.
-//      delete m_proj;
-      m_proj = rhs.m_proj;
+// // astro::SkyProj copy constructor is not implemented properly so we
+// // must share this pointer, ensure it is not deleted in the destructor,
+// // and live with the resulting memory leak when this object is deleted.
+      delete m_proj;
+      m_proj = new astro::SkyProj(*(rhs.m_proj));
       m_refDir = rhs.m_refDir;
       m_image = rhs.m_image;
       m_naxis1 = rhs.m_naxis1;
@@ -162,6 +163,20 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
 
    double uu((x - lower_left.first)/(upper_right.first - lower_left.first));
    double tt((y - lower_left.second)/(upper_right.second - lower_left.second));
+
+   if (ix == 0 && iy == 0) {
+      return m_image.at(0).at(0);
+   }
+
+   if (ix == 0) {
+      return tt*(m_image.at(iy).at(ix) - m_image.at(iy-1).at(ix))
+         + m_image.at(iy-1).at(ix);
+   }
+
+   if (iy == 0) {
+      return uu*(m_image.at(iy).at(ix) - m_image.at(iy).at(ix-1))
+         + m_image.at(iy).at(ix-1);
+   }
 
 // NB: wcslib starts indexing pixels with 1, not 0; so we need to 
 // apply correction for the off-by-one error here.
