@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.28 2005/10/03 15:02:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.29 2005/10/05 00:59:33 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -23,7 +23,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.28 2005/10/03 15:02:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.29 2005/10/05 00:59:33 jchiang Exp $
  */
 
 class SourceMap {
@@ -67,19 +67,10 @@ private:
    /// one energy plane.
    ///
    /// @todo Keep track of event types included in a given SourceMap.
-//   std::vector<double> m_model;
    std::vector<float> m_model;
 
    /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;
-
-   std::vector<double> m_energies;
-
-   /// @brief This vector of SkyDir objects is used by
-   /// sourceRegionIntegral for diffuse sources
-   std::vector<astro::SkyDir> m_srcDirs;
-
-   std::vector<double> m_srcStrengths;
 
    class Aeff : public Pixel::Aeff {
    public:
