@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct  5 07:24:43 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	SourceMap.h 
+Log Message:
+attempts to get around improper SkyProj copy constructor
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct  4 17:59:38 PDT 2005
 Likelihood/src
 
