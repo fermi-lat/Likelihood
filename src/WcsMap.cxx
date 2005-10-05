@@ -4,10 +4,11 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.1 2005/10/05 00:59:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.2 2005/10/05 14:24:43 jchiang Exp $
  */
 
 #include <algorithm>
+#include <stdexcept>
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
@@ -111,26 +112,27 @@ WcsMap::~WcsMap() {
 // // astro::SkyProj copy constructor is not implemented properly so we
 // // must ensure this pointer is not deleted here and live with the
 // // resulting memory leak when this object is deleted.
-   delete m_proj;
+//   delete m_proj;
 }
 
 WcsMap::WcsMap(const WcsMap & rhs) 
    : m_refDir(rhs.m_refDir), m_image(rhs.m_image), 
      m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2) {
-// // astro::SkyProj copy constructor is not implemented properly so we
-// // must share this pointer, ensure it is not deleted in the destructor,
-// // and live with the resulting memory leak when this object is deleted.
-//    m_proj = rhs.m_proj;
-   m_proj = new astro::SkyProj(*(rhs.m_proj));
+// astro::SkyProj copy constructor is not implemented properly so we
+// must share this pointer, ensure it is not deleted in the destructor,
+// and live with the resulting memory leak when this object is deleted.
+   m_proj = rhs.m_proj;
+//    m_proj = new astro::SkyProj(*(rhs.m_proj));
 }
 
 WcsMap & WcsMap::operator=(const WcsMap & rhs) {
    if (this != &rhs) {
-// // astro::SkyProj copy constructor is not implemented properly so we
-// // must share this pointer, ensure it is not deleted in the destructor,
-// // and live with the resulting memory leak when this object is deleted.
-      delete m_proj;
-      m_proj = new astro::SkyProj(*(rhs.m_proj));
+// astro::SkyProj copy constructor is not implemented properly so we
+// must share this pointer, ensure it is not deleted in the destructor,
+// and live with the resulting memory leak when this object is deleted.
+      m_proj = rhs.m_proj;
+//       delete m_proj;
+//       m_proj = new astro::SkyProj(*(rhs.m_proj));
       m_refDir = rhs.m_refDir;
       m_image = rhs.m_image;
       m_naxis1 = rhs.m_naxis1;
@@ -140,39 +142,28 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
 }
 
 double WcsMap::operator()(const astro::SkyDir & dir) const {
-   std::pair<double, double> pixels = dir.project(*m_proj);
-   if (pixels.first < 0 || pixels.first > m_naxis1 ||
-       pixels.second < 0 || pixels.second > m_naxis2) {
+   std::pair<double, double> pixel = dir.project(*m_proj);
+
+   double x(pixel.first);
+   double y(pixel.second);
+
+   if (x < 0 || x > m_naxis1 || y < 0 || y > m_naxis2) {
       return 0;
    }
 
-   double x, y;
-   if (m_proj->isGalactic()) {
-      x = dir.l();
-      y = dir.b();
-   } else {
-      x = dir.ra();
-      y = dir.dec();
-   }
+   size_t ix = static_cast<size_t>(x);
+   size_t iy = static_cast<size_t>(y);
 
-   size_t ix = static_cast<size_t>(pixels.first);
-   size_t iy = static_cast<size_t>(pixels.second);
-
-   std::pair<double, double> lower_left = m_proj->pix2sph(ix, iy);
-   std::pair<double, double> upper_right = m_proj->pix2sph(ix+1, iy+1);
-
-   double uu((x - lower_left.first)/(upper_right.first - lower_left.first));
-   double tt((y - lower_left.second)/(upper_right.second - lower_left.second));
+   double uu(x - ix);
+   double tt(y - iy);
 
    if (ix == 0 && iy == 0) {
       return m_image.at(0).at(0);
    }
-
    if (ix == 0) {
       return tt*(m_image.at(iy).at(ix) - m_image.at(iy-1).at(ix))
          + m_image.at(iy-1).at(ix);
    }
-
    if (iy == 0) {
       return uu*(m_image.at(iy).at(ix) - m_image.at(iy).at(ix-1))
          + m_image.at(iy).at(ix-1);
