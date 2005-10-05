@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.27 2005/06/04 20:05:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.28 2005/10/03 15:02:37 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -17,14 +17,13 @@
 namespace Likelihood {
 
    class CountsMap;
-   class EquinoxRotation;
    class PointSource;
    class Source;
 
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.27 2005/06/04 20:05:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.28 2005/10/03 15:02:37 jchiang Exp $
  */
 
 class SourceMap {
@@ -47,8 +46,6 @@ public:
       s_binnedExposure = new BinnedExposure(filename);
    }
 
-//   void save(const std::string & filename) const;
-   
    double maxPsfRadius(PointSource * src) const;
 
    const std::string & srcType() const {
@@ -103,21 +100,9 @@ private:
    static std::vector<double> s_mu;
    static std::vector<double> s_theta;
 
-   double sourceRegionIntegral(double energy) const;
-
-   void computeSrcDirs(const Pixel & pixel, DiffuseSource * src);
-
    void prepareAngleArrays(int nmu=100, int nphi=50);
 
-   void getCelestialDir(double phi, double mu, 
-                        EquinoxRotation & eqRot,
-                        astro::SkyDir & dir) const;
-
-   void fitsReportError(FILE *stream, int status) const;
-
    bool haveMapCubeFunction(DiffuseSource * src) const;
-
-   void recomputeSrcStrengths(DiffuseSource * src, double energy);
 
    void getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
                           const std::vector<Pixel> & pixels,
