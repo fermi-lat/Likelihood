@@ -4,7 +4,7 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.33 2005/09/19 00:19:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.34 2005/10/03 15:02:43 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -119,7 +119,7 @@ void ExposureMap::computeMap(std::string filename,
    naxes.at(1) = nlat;
    naxes.at(2) = nenergies;
 
-   astro::SkyProj proj("TAN", crpix, crval, cdelt, 0, false);
+   astro::SkyProj proj("STG", crpix, crval, cdelt, 0, false);
 
    std::vector<double> exposure;
    exposure.reserve(nenergies);
@@ -189,12 +189,12 @@ void ExposureMap::writeFitsFile(const std::string & filename,
    header["CRVAL1"].set(crval[0]);
    header["CRPIX1"].set(crpix[0]);
    header["CDELT1"].set(cdelt[0]);
-   header["CTYPE1"].set("RA---TAN");
+   header["CTYPE1"].set("RA---STG");
 
    header["CRVAL2"].set(crval[1]);
    header["CRPIX2"].set(crpix[1]);
    header["CDELT2"].set(cdelt[1]);
-   header["CTYPE2"].set("DEC--TAN");
+   header["CTYPE2"].set("DEC--STG");
 
    header["CRVAL3"].set(crval[2]);
    header["CRPIX3"].set(crpix[2]);

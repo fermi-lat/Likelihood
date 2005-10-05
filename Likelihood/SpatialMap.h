@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.15 2005/10/03 15:02:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.16 2005/10/04 05:38:08 jchiang Exp $
  *
  */
 
@@ -13,10 +13,12 @@
 #include "optimizers/Function.h"
 
 namespace astro {
-   class SkyProj;
+   class SkyDir;
 }
 
 namespace Likelihood {
+
+class WcsMap;
 
 /** 
  * @class SpatialMap
@@ -26,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.15 2005/10/03 15:02:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.16 2005/10/04 05:38:08 jchiang Exp $
  *
  */
     
@@ -34,32 +36,28 @@ class SpatialMap : public optimizers::Function {
 
 public:
 
-   SpatialMap() : m_proj(0) {
-      init();
-   }
+   SpatialMap();
 
-   SpatialMap(const std::string & fitsFile, const std::string & extension="")
-      : m_proj(0) {
-      init();
-      readFitsFile(fitsFile, extension);
-   }
+   SpatialMap(const std::string & fitsFile, const std::string & extension="");
 
-   SpatialMap::SpatialMap(const SpatialMap &);
+   SpatialMap(const SpatialMap &);
 
    SpatialMap & operator=(const SpatialMap &);
 
    virtual ~SpatialMap();
 
-   double value(optimizers::Arg&) const;
+   double value(optimizers::Arg &) const;
+
+   double value(const astro::SkyDir &) const;
+
+   void readFitsFile(const std::string & fitsFile,
+                     const std::string & extension="");
 
    double derivByParam(optimizers::Arg &, const std::string &) const {
       return 0;
    }
 
-   void readFitsFile(const std::string & fitsFile,
-                     const std::string & extension="");
-
-   virtual optimizers::Function *clone() const {
+   virtual optimizers::Function * clone() const {
       return new SpatialMap(*this);
    }
 
@@ -69,16 +67,10 @@ public:
 
 private:
 
+   WcsMap * m_wcsmap;
+
    std::string m_fitsFile;
    std::string m_extension;
-
-   std::vector<float> m_image;
-
-   int m_naxis1; 
-   int m_naxis2; 
-   int m_naxis3;
-
-   astro::SkyProj * m_proj;
 
    void init();
 
