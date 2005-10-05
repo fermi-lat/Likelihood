@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct  4 17:59:33 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	SourceMap.h SpatialMap.h 
+Added Files:
+	WcsMap.h 
+Log Message:
+use wcs projections instead of ad hoc rotated CAR maps
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct  3 22:38:09 PDT 2005
 Likelihood/src/test
 
