@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Oct  5 07:24:43 PDT 2005
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx CountsMap.cxx SourceMap.cxx WcsMap.cxx 
+Log Message:
+attempts to get around improper SkyProj copy constructor
+    *
+------------------------------------------------------------
+User: jchiang  Wed Oct  5 07:24:43 PDT 2005
 Likelihood/Likelihood
 
 Modified Files:
