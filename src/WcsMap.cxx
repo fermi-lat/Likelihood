@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.2 2005/10/05 14:24:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.3 2005/10/05 22:58:18 jchiang Exp $
  */
 
 #include <algorithm>
@@ -147,30 +147,25 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    double x(pixel.first);
    double y(pixel.second);
 
-   if (x < 0 || x > m_naxis1 || y < 0 || y > m_naxis2) {
-      return 0;
-   }
-
    size_t ix = static_cast<size_t>(x);
    size_t iy = static_cast<size_t>(y);
+
+// NB: wcslib starts indexing pixels with 1, not 0.
+   if (ix < 1) {
+      ix = 1;
+   } else if (ix > m_naxis1 - 1) {
+      ix = m_naxis1 - 1;
+   }
+
+   if (iy < 1) {
+      iy = 1;
+   } else if (iy > m_naxis2 - 1) {
+      iy = m_naxis2 - 1;
+   }
 
    double uu(x - ix);
    double tt(y - iy);
 
-   if (ix == 0 && iy == 0) {
-      return m_image.at(0).at(0);
-   }
-   if (ix == 0) {
-      return tt*(m_image.at(iy).at(ix) - m_image.at(iy-1).at(ix))
-         + m_image.at(iy-1).at(ix);
-   }
-   if (iy == 0) {
-      return uu*(m_image.at(iy).at(ix) - m_image.at(iy).at(ix-1))
-         + m_image.at(iy).at(ix-1);
-   }
-
-// NB: wcslib starts indexing pixels with 1, not 0; so we need to 
-// apply correction for the off-by-one error here.
    double y1(m_image.at(iy-1).at(ix-1));
    double y2(m_image.at(iy).at(ix-1));
    double y3(m_image.at(iy).at(ix));
