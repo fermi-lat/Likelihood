@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.25 2005/10/05 14:24:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.26 2005/10/05 22:58:18 jchiang Exp $
  */
 
 #include <algorithm>
@@ -36,7 +36,8 @@ namespace {
    double sphericalAngle(const astro::SkyDir & A, 
                          const astro::SkyDir & B, 
                          const astro::SkyDir & C) {
-      double arg = 1. - A().dot(C()) - B().dot(A()) + B().dot(C());
+//      double arg = 1. - A().dot(C()) - B().dot(A()) + B().dot(C());
+      double arg =(A() - B()).dot(A() - C());
       if (std::fabs(arg) <= 1) {
          return std::acos(arg);
       } else if (arg < 0) {
