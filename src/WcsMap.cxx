@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.3 2005/10/05 22:58:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.4 2005/10/06 04:45:15 jchiang Exp $
  */
 
 #include <algorithm>
@@ -147,8 +147,8 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    double x(pixel.first);
    double y(pixel.second);
 
-   size_t ix = static_cast<size_t>(x);
-   size_t iy = static_cast<size_t>(y);
+   int ix = static_cast<int>(x);
+   int iy = static_cast<int>(y);
 
 // NB: wcslib starts indexing pixels with 1, not 0.
    if (ix < 1) {
