@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.27 2005/10/06 04:45:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.28 2005/10/07 00:51:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -14,13 +14,15 @@
 
 #include "facilities/Util.h"
 
-#include "astro/SkyDir.h"
-#include "astro/SkyProj.h"
-
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
 #include "tip/Table.h"
 #include "tip/tip_types.h"
+
+#include "astro/SkyDir.h"
+#include "astro/SkyProj.h"
+
+#include "st_facilities/FitsImage.h"
 
 #include "evtbin/Gti.h"
 #include "evtbin/LinearBinner.h"
@@ -29,23 +31,6 @@
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/HistND.h"
-
-namespace {
-// Approximation to spherical angle between planes defined by three 
-// unit vectors.
-   double sphericalAngle(const astro::SkyDir & A, 
-                         const astro::SkyDir & B, 
-                         const astro::SkyDir & C) {
-//      double arg = 1. - A().dot(C()) - B().dot(A()) + B().dot(C());
-      double arg =(A() - B()).dot(A() - C());
-      if (std::fabs(arg) <= 1) {
-         return std::acos(arg);
-      } else if (arg < 0) {
-         return M_PI;
-      }
-      return 0;
-   }
-}
 
 namespace Likelihood {
 
@@ -203,7 +188,7 @@ void CountsMap::readEbounds(const std::string & countsMapFile,
    energies.back() = emax;
 
    std::vector<evtbin::Binner::Interval> energy_intervals;
-// convert to MeV
+// Convert to MeV
    for (unsigned int i = 0; i < energies.size()-1; i++) {
       energy_intervals.push_back(evtbin::Binner::Interval(energies[i]/1e3, 
                                                           energies[i+1]/1e3));
@@ -483,15 +468,7 @@ double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
    astro::SkyDir C(*(lon+1), *(lat+1), proj);
    astro::SkyDir D(*(lon+1), *lat, proj);
 
-   double dOmega1 = A.difference(B)*A.difference(D)
-      *((A()-B()).unit().cross((A() - D()).unit())).mag();
-
-   double dOmega2 = C.difference(B)*C.difference(D)
-      *((C()-B()).unit().cross((C() - D()).unit())).mag();
-
-   return (dOmega1 + dOmega2)/2.;
-
-//    return A.difference(B)*B.difference(C);
+   return st_facilities::FitsImage::solidAngle(A, B, C, D);
 }
 
 void CountsMap::setCenter() {
