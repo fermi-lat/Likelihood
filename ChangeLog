@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Thu Oct  6 23:03:40 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedExposure.h 
+Removed Files:
+	RotatedMap.h 
+Log Message:
+use wcslib in ExposureMap
+    *
+------------------------------------------------------------
 User: jchiang  Thu Oct  6 17:51:37 PDT 2005
 Likelihood/src
 
