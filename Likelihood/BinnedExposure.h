@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.6 2005/05/23 19:12:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.7 2005/10/03 15:02:37 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -13,11 +13,12 @@
 #include <string>
 #include <vector>
 
-#include "astro/SkyDir.h"
+namespace astro {
+   class SkyProj;
+}
 
 namespace Likelihood {
 
-   class EquinoxRotation;
    class Observation;
 
 /**
@@ -47,11 +48,9 @@ public:
 
    void writeOutput(const std::string & filename) const;
 
-   void getRotatedImage(double energy, 
-                        const std::vector<double> & lons, 
-                        const std::vector<double> & lats, 
-                        const EquinoxRotation & rot,
-                        std::vector< std::vector<double> > & image) const;
+   const std::vector<double> & energies() const {
+      return m_energies;
+   }
 
 private:
 
@@ -59,20 +58,13 @@ private:
 
    std::vector<float> m_exposureMap;
 
-   std::vector<double> m_ras;
-   std::vector<double> m_decs;
    std::vector<double> m_energies;
 
-   unsigned int findIndex(std::vector<double>::const_iterator begin,
-                          std::vector<double>::const_iterator end,
-                          double value) const;
+   astro::SkyProj * m_proj;
+
+   std::vector<long> m_naxes;
 
    void computeMap();
-
-   void linearArray(double xmin, double xmax, unsigned int npts,
-                    std::vector<double> &xx) const;
-
-   void fitsReportError(FILE * stream, int status) const;
 
    class Aeff {
    public:
