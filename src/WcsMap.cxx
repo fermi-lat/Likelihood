@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.4 2005/10/06 04:45:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.5 2005/10/06 15:36:55 jchiang Exp $
  */
 
 #include <algorithm>
@@ -47,7 +47,7 @@ namespace {
 namespace Likelihood {
 
 WcsMap::WcsMap(const std::string & filename,
-               const std::string & extension) {
+               const std::string & extension) : m_proj(0) {
 
    m_proj = st_facilities::FitsImage::skyProjCreate(filename, extension);
 
