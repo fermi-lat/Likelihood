@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct  7 09:19:40 PDT 2005
+Likelihood/src/test/Data
+
+Modified Files:
+	gas.cel 
+Log Message:
+correct EGRET diffuse model header for wcs
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  7 09:19:36 PDT 2005
 Likelihood/src
 
