@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.70 2005/10/03 20:09:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.71 2005/10/04 05:38:09 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -748,13 +748,16 @@ void LikelihoodTests::test_BinnedLikelihood() {
       new_params[i] += delta;
       binnedLogLike.setFreeParamValues(new_params);
       double logLike = binnedLogLike.value();
-//       std::cout << derivs[i] << "  ";
-//       std::cout << logLike << "  " << logLike0 << "  ";
-//       std::cout << (logLike - logLike0)/delta << std::endl;
+//      std::cout << i << "  ";
+//      std::cout << derivs[i] << "  ";
+//      std::cout << logLike << "  " << logLike0 << "  ";
+//      std::cout << (logLike - logLike0)/delta << std::endl;
 
 // Another weak test.
-      CPPUNIT_ASSERT(fabs(derivs[i] - (logLike - logLike0)/delta)/derivs[i] 
-                     < 1e-2);
+      double num_deriv = fabs((derivs[i] - (logLike - logLike0)/delta)
+                              /derivs[i]);
+//      std::cout << "numerical deriv: " << num_deriv << std::endl;
+      CPPUNIT_ASSERT(num_deriv < 5e-2);
    }
 
    delete modelMap;
