@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct  7 09:19:36 PDT 2005
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+correct EGRET diffuse model header for wcs
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct  7 08:16:05 PDT 2005
 Likelihood/src
 
