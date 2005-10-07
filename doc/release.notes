@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v10r0  07-Oct-05  JC   Use wcslib projections throughout, breaking
+                           backwards compatibility with old unbinned
+                           exposure maps
     v9r3p1 23-Sep-05  JC   in gtaddlivetime, use new Cuts::writeDssKeywords()
                            enabled by  tip::Header::find, erase
     v9r3   21-Sep-05  JC   add BrokenPowerLaw2 and gtaddlivetime application
