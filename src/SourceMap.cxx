@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.44 2005/10/05 00:59:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.45 2005/10/05 14:24:43 jchiang Exp $
  */
 
 #include <algorithm>
@@ -58,26 +58,6 @@ namespace {
       }
       return maxValue*180./M_PI;
    }
-   void getSolidAngles(const Likelihood::CountsMap & cmap,
-                       std::vector< std::vector<double> > & image) {
-      std::vector<Likelihood::Pixel> pixels;
-      cmap.getPixels(pixels);
-      std::vector<double> lons;
-      std::vector<double> lats;
-      cmap.getAxisVector(0, lons);
-      cmap.getAxisVector(1, lats);
-      image.clear();
-      image.reserve(lons.size());
-      for (unsigned int i = 0; i < lons.size()-1; i++) {
-         std::vector<double> row;
-         row.reserve(lats.size());
-         for (unsigned int j = 0; j < lons.size()-1; j++) {
-            int indx = j*(lons.size()-1) + i;
-            row.push_back(pixels.at(indx).solidAngle());
-         }
-         image.push_back(row);
-      }
-   }
 }
 
 namespace Likelihood {
@@ -119,9 +99,6 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
 
    bool havePointSource = dynamic_cast<PointSource *>(src) != 0;
    bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
-
-   std::vector< std::vector<double> > solidAngles;
-   ::getSolidAngles(*dataMap, solidAngles);
 
    if (haveDiffuseSource) {
       computeExposureAndPsf(observation);
