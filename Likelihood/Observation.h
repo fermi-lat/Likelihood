@@ -4,7 +4,7 @@
  * observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Observation.h,v 1.3 2005/03/03 23:24:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Observation.h,v 1.4 2005/03/04 22:08:22 jchiang Exp $
  */
 
 #ifndef Likelihood_Observation_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Observation.h,v 1.3 2005/03/03 23:24:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Observation.h,v 1.4 2005/03/04 22:08:22 jchiang Exp $
  */
 
 class Observation {
@@ -101,8 +101,7 @@ public:
 
 private:
 
-   /// @todo Replace all these pointers with objects and convert all
-   /// these classes from Singletons to proper classes.
+   /// @todo Assert ownership of these pointers and delete in destructor.
    ResponseFunctions * m_respFuncs;
    ScData * m_scData;
    RoiCuts * m_roiCuts;

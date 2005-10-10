@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.28 2005/10/07 00:51:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.29 2005/10/07 15:16:04 jchiang Exp $
  */
 
 #include <algorithm>
@@ -23,6 +23,7 @@
 #include "astro/SkyProj.h"
 
 #include "st_facilities/FitsImage.h"
+#include "st_facilities/Util.h"
 
 #include "evtbin/Gti.h"
 #include "evtbin/LinearBinner.h"
@@ -409,24 +410,37 @@ getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const {
    pixelDirs.reserve(2*nx + 2*ny);
    unsigned int i(0);
    unsigned int j(0);
-   for (j = 0; j < latitudes.size(); j++) {
-      astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
-      pixelDirs.push_back(dir);
-   }
-   i = longitudes.size() - 1;
-   for (j = 0; j < latitudes.size(); j++) {
-      astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
-      pixelDirs.push_back(dir);
-   }
-   j = 0;
-   for (i = 0; i < longitudes.size(); i++) {
-      astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
-      pixelDirs.push_back(dir);
-   }
-   j = latitudes.size() - 1;
-   for (i = 0; i < longitudes.size(); i++) {
-      astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
-      pixelDirs.push_back(dir);
+   try {
+      for (j = 0; j < latitudes.size(); j++) {
+         astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
+         pixelDirs.push_back(dir);
+      }
+      i = longitudes.size() - 1;
+      for (j = 0; j < latitudes.size(); j++) {
+         astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
+         pixelDirs.push_back(dir);
+      }
+      j = 0;
+      for (i = 0; i < longitudes.size(); i++) {
+         astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
+         pixelDirs.push_back(dir);
+      }
+      j = latitudes.size() - 1;
+      for (i = 0; i < longitudes.size(); i++) {
+         astro::SkyDir dir(longitudes.at(i), latitudes.at(j), projection());
+         pixelDirs.push_back(dir);
+      }
+   } catch (std::exception & eObj) {
+      if (st_facilities::Util::expectedException(eObj, 
+                                                 "SkyProj wcslib error")) {
+         throw std::runtime_error("The counts map appears to contain "
+                                  "projection boundaries, e.g., the outer "
+                                  "edge of a Hammer-Aitoff map.\n Please "
+                                  "analyze a smaller region of the sky that "
+                                  "does not include the projection boundary.");
+      } else {
+         throw;
+      }
    }
 }
 
@@ -452,9 +466,20 @@ void CountsMap::getPixels(std::vector<astro::SkyDir> & pixelDirs,
       std::vector<double>::const_iterator lonIt = longitudes.begin();
       for ( ; lonIt != longitudes.end() - 1; ++lonIt) {
          double longitude = (*lonIt + *(lonIt+1))/2.;
-         pixelDirs.push_back(astro::SkyDir(longitude, latitude, projection()));
-         pixelSolidAngles.push_back(computeSolidAngle(lonIt, latIt, 
+         try {
+            pixelDirs.push_back(astro::SkyDir(longitude, latitude,
+                                              projection()));
+            pixelSolidAngles.push_back(computeSolidAngle(lonIt, latIt, 
                                                       projection()));
+         } catch (std::exception & eObj) {
+            if (st_facilities::Util::
+                expectedException(eObj, "SkyProj wcslib error")) {
+               // Attempted to create a pixel outside of the map boundary for
+               // the current projection, so skip this pixel.
+            } else {
+               throw;
+            }
+         }
       }
    }
 }
