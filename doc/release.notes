@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v10r0p1 10-Oct-05 JC   Enable gtmodelmap to create model counts maps
+                           without having to run gtsrcmaps first.
     v10r0  07-Oct-05  JC   Use wcslib projections throughout, breaking
                            backwards compatibility with old unbinned
                            exposure maps
