@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct 10 14:42:07 PDT 2005
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Added Files:
+	SourceMapRegistry.cxx SourceMapRegistry.h 
+Log Message:
+enable gtmodelmap to create model counts maps for sources not in the input counts map file.
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct 10 14:42:04 PDT 2005
 Likelihood/src
 
