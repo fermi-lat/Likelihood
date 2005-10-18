@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct 18 14:40:56 PDT 2005
+Likelihood/src
+
+Modified Files:
+	Event.cxx LogLike.cxx MapCubeFunction.cxx PointSource.cxx 
+Log Message:
+expand source region size for diffuse responses integral
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct 18 14:40:53 PDT 2005
 Likelihood/Likelihood
 
