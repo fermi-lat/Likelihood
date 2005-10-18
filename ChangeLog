@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct 18 14:40:58 PDT 2005
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+expand source region size for diffuse responses integral
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct 18 14:40:56 PDT 2005
 Likelihood/src
 
