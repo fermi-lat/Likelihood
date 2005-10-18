@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.72 2005/04/16 01:14:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.73 2005/05/17 13:44:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -97,8 +97,9 @@ double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
    } else {
       optimizers::dArg energy_arg(energy);
       double spectrum = (*m_spectrum)(energy_arg);
-      return spectrum*respFuncs.totalResponse(energy, energy, zAxis, xAxis,
-                                              m_dir.getDir(), dir, eventType);
+      double resp(respFuncs.totalResponse(energy, energy, zAxis, xAxis,
+                                          m_dir.getDir(), dir, eventType));
+      return spectrum*resp;
    }
 }
 

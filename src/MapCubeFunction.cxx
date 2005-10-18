@@ -4,14 +4,17 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.10 2005/10/04 05:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.11 2005/10/05 00:59:38 jchiang Exp $
  */
 
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
 
+#include "facilities/Util.h"
+
 #include "st_facilities/FitsImage.h"
+#include "st_facilities/Util.h"
 
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapCubeFunction.h"
@@ -118,7 +121,10 @@ void MapCubeFunction::init() {
    m_genericName = "MapCubeFunction";
 }
 
-void MapCubeFunction::readFitsFile(const std::string & fitsFile) {
+void MapCubeFunction::readFitsFile(const std::string & fits_file) {
+   std::string fitsFile(fits_file);
+   facilities::Util::expandEnvVar(&fitsFile);
+   st_facilities::Util::file_ok(fitsFile);
    m_proj = st_facilities::FitsImage::skyProjCreate(fitsFile);
 
    st_facilities::FitsImage fitsImage(fitsFile);
