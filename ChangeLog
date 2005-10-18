@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct 18 14:40:53 PDT 2005
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h EventContainer.h LogLike.h 
+Log Message:
+expand source region size for diffuse responses integral
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct 10 14:43:40 PDT 2005
 Likelihood/doc
 
