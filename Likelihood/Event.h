@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.34 2005/05/21 23:39:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.35 2005/10/03 15:02:37 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.34 2005/05/21 23:39:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.35 2005/10/03 15:02:37 jchiang Exp $
  */
 
 class Event {
@@ -77,7 +77,7 @@ public:
    /// distribution of src will be integrated.
    void computeResponse(DiffuseSource &src, 
                         const ResponseFunctions & respFuncs, 
-                        double sr_radius=30.) {
+                        double sr_radius=80.) {
       std::vector<DiffuseSource *> srcs;
       srcs.push_back(&src);
       computeResponse(srcs, respFuncs, sr_radius);
@@ -86,7 +86,7 @@ public:
    /// Compute the reponse integrals for a vector of DiffuseSources
    void computeResponse(std::vector<DiffuseSource *> &srcs, 
                         const ResponseFunctions & respFuncs, 
-                        double sr_radius=30.);
+                        double sr_radius=80.);
 
    /// Write the diffuse responses for each source to a file.
    void writeDiffuseResponses(const std::string & filename);
