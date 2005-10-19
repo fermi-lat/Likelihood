@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.3 2005/06/09 16:11:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.4 2005/10/19 06:14:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -86,14 +86,22 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
    double x2 = m_parameter[UpperLimit].getTrueValue()/x;
 
    double one_m_gam(1. - gamma);
+   if (gamma == 1) { // ugly kluge for Index
+      one_m_gam = 1e-7;
+   }
+
    double pow_x1(std::pow(x1, one_m_gam));
    double pow_x2(std::pow(x2, one_m_gam));
 
    switch (iparam) {
    case Integral:
+      if (gamma == 1) {
+         return 1./x/std::log(x2/x1)*m_parameter[Integral].getScale();
+      }
       return one_m_gam/x/(pow_x2 - pow_x1)*m_parameter[Integral].getScale();
       break;
    case Index:
+// What is the correct expression for gamma = 1?
       return -( NN/x*(pow_x1*(1. - one_m_gam*std::log(x1)) -
                       pow_x2*(1. - one_m_gam*std::log(x2)))
                 /(pow_x2 - pow_x1)/(pow_x2 - pow_x1) )
