@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.46 2005/08/17 04:22:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.47 2005/10/18 21:40:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -52,7 +52,7 @@ double LogLike::logSourceModel(const Event & event) const {
    double my_value(0);
    std::map<std::string, Source *>::const_iterator source = m_sources.begin();
    for ( ; source != m_sources.end(); ++source) {
-      double fluxDens = source->second->fluxDensity(event);
+      double fluxDens(source->second->fluxDensity(event));
       my_value += fluxDens;
    }
    if (my_value > 0) {
