@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.14 2005/08/04 05:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.15 2005/09/19 23:37:24 jchiang Exp $
  */
 
 #include <algorithm>
@@ -33,18 +33,18 @@ void LikeExposure::load(tip::Table * scData, bool verbose) {
    tip::Table::Record & row = *it;
    long nrows = scData->getNumRecords();
 
-   double maxTime(3.2e8);  // No random access iterator in tip, so we
-                           // have to assume some large value.
+   double maxTime(0);
    for (unsigned int i=0; i < m_timeCuts.size(); i++) {
-      if (m_timeCuts.at(i).second < maxTime) {
+      if (m_timeCuts.at(i).second > maxTime) {
          maxTime = m_timeCuts.at(i).second;
       }
    }
    for (unsigned int i=0; i < m_gtis.size(); i++) {
-      if (m_gtis.at(i).second < maxTime) {
+      if (m_gtis.at(i).second > maxTime) {
          maxTime = m_gtis.at(i).second;
       }
    }
+
 // We assume that the time intervals are 30 sec long, even though the
 // time_candle source in flux is hacked to behave incorrectly such
 // that we cannot extract the time interval size from the data; plus

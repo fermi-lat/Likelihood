@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.38 2005/08/18 00:08:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.39 2005/10/03 15:02:43 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -162,7 +162,6 @@ void RoiCuts::sortCuts(bool strict) {
    if (strict && (ncone != 1 || ntime == 0)) {
       std::ostringstream message;
       message << "RoiCuts::sortCuts:\n"
-//              << "There should be exactly one energy range cut, "
               << "There should be exactly "
               << "one acceptance cone cut,\n"
               << "and at least one time range and/or GTI cut.\n"
@@ -173,53 +172,43 @@ void RoiCuts::sortCuts(bool strict) {
 }
 
 bool RoiCuts::accept(const Event &event) const {
-//    if (m_cuts) {
-//       std::map<std::string, double> params;
-//       params["TIME"] = event.getArrTime();
-//       params["ENERGY"] = event.getEnergy();
-//       params["RA"] = event.getDir().ra();
-//       params["DEC"] = event.getDir().dec();
-//       return m_cuts->accept(params);
-//    } else {
-      bool acceptEvent(false);
-
-      if (m_gtis.size() == 0) {
-         acceptEvent = true;
-      } else {
+   bool acceptEvent(false);
+   
+   if (m_gtis.size() == 0) {
+      acceptEvent = true;
+   } else {
 // Accept the event if it appears in any of the GTIs.
-         for (unsigned int i = 0; i < m_gtis.size(); i++) {
-            if (m_gtis.at(i).first <= event.getArrTime() &&
-                event.getArrTime() <= m_gtis.at(i).second) {
-               acceptEvent = true;
-               break;
-            }
+      for (unsigned int i = 0; i < m_gtis.size(); i++) {
+         if (m_gtis.at(i).first <= event.getArrTime() &&
+             event.getArrTime() <= m_gtis.at(i).second) {
+            acceptEvent = true;
+            break;
          }
       }
+   }
 
 // Require the event to lie within all time range cuts.
-      for (unsigned int i = 0; i < m_timeCuts.size(); i++) {
-         if (event.getArrTime() < m_timeCuts[i].first ||
-             event.getArrTime() > m_timeCuts[i].second) {
-            acceptEvent = false;
-         }
-      }
-
-      if (event.getEnergy() < m_eMin || event.getEnergy() > m_eMax) { 
+   for (unsigned int i = 0; i < m_timeCuts.size(); i++) {
+      if (event.getArrTime() < m_timeCuts[i].first ||
+          event.getArrTime() > m_timeCuts[i].second) {
          acceptEvent = false;
       }
+   }
 
-      double dist = event.getSeparation(m_roiCone.center())*180./M_PI;
-      if (dist > m_roiCone.radius()) {
-         acceptEvent = false;
-      }
+   if (event.getEnergy() < m_eMin || event.getEnergy() > m_eMax) { 
+      acceptEvent = false;
+   }
 
-      if (event.getMuZenith() < m_muZenMax) {
-         acceptEvent = false;
-      }
+   double dist = event.getSeparation(m_roiCone.center())*180./M_PI;
+   if (dist > m_roiCone.radius()) {
+      acceptEvent = false;
+   }
 
-      return acceptEvent;
-//    }
-//    return false;
+   if (event.getMuZenith() < m_muZenMax) {
+      acceptEvent = false;
+   }
+
+   return acceptEvent;
 }
 
 } // namespace Likelihood

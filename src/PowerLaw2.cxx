@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.2 2005/06/08 22:27:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.3 2005/06/09 16:11:40 jchiang Exp $
  */
 
 #include <cmath>
@@ -52,7 +52,10 @@ double PowerLaw2::value(optimizers::Arg & xarg) const {
    double gamma = -m_parameter[Index].getTrueValue();
    double x1 = m_parameter[LowerLimit].getTrueValue();
    double x2 = m_parameter[UpperLimit].getTrueValue();
-
+   
+   if (gamma == 1.) {
+      return NN/x/std::log(x2/x1);
+   }
    double one_m_gam = 1. - gamma;
 
    return (NN*one_m_gam*std::pow(x, -gamma)
