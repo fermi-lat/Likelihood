@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 21 13:22:33 PDT 2005
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx SourceFactory.cxx 
+Added Files:
+	FileFunction.cxx 
+Log Message:
+add FileFunction class
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct 21 13:22:31 PDT 2005
 Likelihood/Likelihood
 
