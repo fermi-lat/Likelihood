@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v10r0p3 21-Oct-05 JC   Add FileFunction class.
     v10r0p2 19-Oct-05 JC   Fix for diffuse responses at low energies;
                            derivative fixes for PowerLaw2 for gamma=1; 
                            correct GTI handling in LikeExposure
