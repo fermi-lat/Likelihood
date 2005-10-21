@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.46 2005/06/03 21:28:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.47 2005/09/10 17:06:09 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -20,6 +20,7 @@
 
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Exception.h"
+#include "Likelihood/FileFunction.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
@@ -272,10 +273,10 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
    return 0;
 }
 
-void SourceFactory::setSpectrum(Source *src, const DOMElement * spectrum, 
-                                optimizers::FunctionFactory &funcFactory) {
+void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum, 
+                                optimizers::FunctionFactory & funcFactory) {
    std::string type = xmlBase::Dom::getAttribute(spectrum, "type");
-   optimizers::Function *spec = funcFactory.create(type);
+   optimizers::Function * spec = funcFactory.create(type);
 
 // Fetch the parameter elements (if any).
    std::vector<DOMElement *> params;
@@ -286,7 +287,14 @@ void SourceFactory::setSpectrum(Source *src, const DOMElement * spectrum,
          std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
          spec->parameter(name).extractDomData(*paramIt);
       }
-   }  
+   }
+
+// If FileFunction, read in the data:
+   if (type == "FileFunction") {
+      std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
+      dynamic_cast<FileFunction *>(spec)->readFunction(filename);
+   }
+
    src->setSpectrum(spec);
 }
 
