@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 21 13:22:31 PDT 2005
+Likelihood/Likelihood
+
+Added Files:
+	FileFunction.h 
+Log Message:
+add FileFunction class
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct 19 15:16:48 PDT 2005
 Likelihood/doc
 
