@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.28 2005/08/18 21:57:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.29 2005/10/18 21:40:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.28 2005/08/18 21:57:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.29 2005/10/18 21:40:57 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -106,10 +106,14 @@ void diffuseResponses::run() {
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
    std::vector<std::string>::const_iterator evtfile;
    buildSourceModel();
-   std::cerr << "Working on...\n";
+   if (Likelihood::print_output()) {
+      std::cerr << "Working on...\n";
+   }
    for (evtfile = eventFiles.begin(); evtfile != eventFiles.end(); ++evtfile) {
       if (clobber || !haveDiffuseColumns(*evtfile)) {
-         std::cerr << *evtfile;
+         if (Likelihood::print_output()) {
+            std::cerr << *evtfile;
+         }
          readEventData(*evtfile);
          computeEventResponses();
          writeEventResponses(*evtfile);
