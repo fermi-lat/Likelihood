@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov 11 21:13:11 PST 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+write out results.dat even if chatter=0
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct 28 08:30:25 PDT 2005
 Likelihood/doc
 
