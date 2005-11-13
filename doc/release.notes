@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v10r1   12-Nov-05 JC   write out results.dat from gtlikelihood even if
+                           chatter=0; clean up gtdiffresp screen output
     v10r0p4 28-Oct-05 JC   Bug fix: set m_fitsFile data member in
                            MapCubeFunction::readFitsFile
     v10r0p3 21-Oct-05 JC   Add FileFunction class.
