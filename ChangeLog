@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov 14 17:46:25 PST 2005
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+increase precision of log(likelihood) output
+    *
+------------------------------------------------------------
 User: jchiang  Sat Nov 12 20:29:44 PST 2005
 Likelihood/doc
 
