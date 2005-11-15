@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.92 2005/09/14 05:47:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.93 2005/11/12 05:13:11 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -16,6 +16,7 @@
 #include <ctime>
 
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 
 #include "st_app/AppParGroup.h"
@@ -58,7 +59,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.92 2005/09/14 05:47:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.93 2005/11/12 05:13:11 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -203,6 +204,7 @@ void likelihood::run() {
    if (Likelihood::print_output()) {
       std::cout << "Elapsed CPU time: " << cputime() << std::endl;
    }
+   delete m_helper;
 }
 
 void likelihood::setErrors(const std::vector<double> & errors) {
@@ -574,9 +576,12 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    resultsFile.close();
    if (Likelihood::print_output()) {
       std::cout << "\n-log(Likelihood): "
+                << std::setprecision(10)
                 << -m_logLike->value()
                 << "\n" << std::endl;
    }
+   delete m_opt;
+   m_opt = 0;
 }
 
 bool likelihood::prompt(const std::string &query) {
