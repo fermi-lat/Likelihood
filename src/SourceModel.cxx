@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.70 2005/10/03 15:02:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.71 2005/11/16 03:08:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -36,6 +36,7 @@
 #include "Likelihood/SourceModel.h"
 
 #include "Verbosity.h"
+#include "XmlParser.h"
 
 namespace Likelihood {
 
@@ -321,7 +322,7 @@ void SourceModel::reReadXml(std::string xmlFile) {
 
    facilities::Util::expandEnvVar(&xmlFile);
 
-   xmlBase::XmlParser *parser = new xmlBase::XmlParser();
+   xmlBase::XmlParser * parser = XmlParser::instance();
 
    DOMDocument * doc = parser->parse(xmlFile.c_str());
 
@@ -395,7 +396,7 @@ void SourceModel::reReadXml(std::string xmlFile) {
       }
    }
    syncParams();
-   delete parser;
+   delete doc;
 }
 
 void SourceModel::writeXml(std::string xmlFile,
