@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 16 12:00:33 PST 2005
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx SourceFactory.cxx SourceModel.cxx 
+	XmlBuilder.cxx 
+Added Files:
+	XmlParser.cxx XmlParser.h 
+Log Message:
+use single XmlParser instance
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 15 23:16:55 PST 2005
 Likelihood/src
 
