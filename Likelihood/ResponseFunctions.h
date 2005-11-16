@@ -3,7 +3,7 @@
  * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.15 2005/03/03 07:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.16 2005/03/17 07:20:01 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.15 2005/03/03 07:07:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.16 2005/03/17 07:20:01 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -38,7 +38,7 @@ public:
     
    ResponseFunctions() : m_useEdisp(false), m_respName("") {}
 
-   virtual ~ResponseFunctions() {}
+   ~ResponseFunctions();
 
    /// Return the total instrument response 
    /// (= effective area*PSF*energy dispersion).

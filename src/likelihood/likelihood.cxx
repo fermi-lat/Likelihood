@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.93 2005/11/12 05:13:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.94 2005/11/15 01:46:24 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -59,7 +59,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.93 2005/11/12 05:13:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.94 2005/11/15 01:46:24 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -68,6 +68,8 @@ public:
    virtual ~likelihood() throw() {
       try {
          delete m_logLike;
+         delete m_opt;
+         delete m_dataMap;
       } catch (std::exception & eObj) {
          std::cout << eObj.what() << std::endl;
       } catch (...) {
