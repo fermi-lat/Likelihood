@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.48 2005/10/21 20:22:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.49 2005/11/16 03:08:15 jchiang Exp $
  */
 
 #include <memory>
@@ -177,7 +177,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
          delete src;
       }
    }
-//   delete parser;
+   delete parser;
 }
 
 void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
