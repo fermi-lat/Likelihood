@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.69 2005/06/06 15:23:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.70 2005/10/03 15:02:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -312,6 +312,7 @@ void SourceModel::readXml(std::string xmlFile,
          std::cout << "adding source " << *nameIt << std::endl;
       }
       addSource(src);
+      delete src;
    }
    syncParams();
 }

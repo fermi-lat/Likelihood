@@ -5,8 +5,10 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.47 2005/09/10 17:06:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.48 2005/10/21 20:22:33 jchiang Exp $
  */
+
+#include <memory>
 
 #include <xercesc/util/XercesDefs.hpp>
 
@@ -259,6 +261,7 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
    try {
       src = new DiffuseSource(spatialDist, m_observation, m_requireExposure);
       setSpectrum(src, spectrum, funcFactory);
+      delete spatialDist;
       return src;
    } catch (std::exception &eObj) {
       if (print_output()) {
@@ -296,6 +299,7 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
    }
 
    src->setSpectrum(spec);
+   delete spec;
 }
 
 } // namespace Likelihood
