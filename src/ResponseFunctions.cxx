@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.17 2005/03/17 07:20:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.18 2005/11/16 03:08:15 jchiang Exp $
  */
 
 #include <stdexcept>
@@ -19,7 +19,6 @@
 namespace Likelihood {
    
 ResponseFunctions::~ResponseFunctions() {
-   irfInterface::IrfsFactory::delete_instance();
    std::map<size_t, irfInterface::Irfs *>::iterator it(m_respPtrs.begin());
    for ( ; it != m_respPtrs.end(); ++it) {
       deleteRespPtr(it->first);
