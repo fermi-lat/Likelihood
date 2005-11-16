@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 15 19:08:16 PST 2005
+Likelihood/src
+
+Modified Files:
+	ResponseFunctions.cxx SourceFactory.cxx SourceModel.cxx 
+Log Message:
+memory management
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 15 19:08:13 PST 2005
 Likelihood/Likelihood
 
