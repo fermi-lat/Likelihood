@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.12 2005/10/07 06:03:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.13 2005/11/17 01:47:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,8 +19,6 @@
 #include "tip/Image.h"
 
 #include "astro/SkyProj.h"
-
-#include "st_facilities/FitsImage.h"
 
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/Observation.h"
@@ -39,7 +37,7 @@ BinnedExposure::BinnedExposure(const std::vector<double> & energies,
 
 BinnedExposure::BinnedExposure(const std::string & filename) 
    : m_observation(0), m_proj(0) {
-   m_proj = st_facilities::FitsImage::skyProjCreate(filename);
+   m_proj = new astro::SkyProj(filename);
 
    std::auto_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(filename, ""));

@@ -4,12 +4,13 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.8 2005/10/07 06:03:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.9 2005/11/17 01:47:24 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
 #define Likelihood_BinnedExposure_h
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -52,6 +53,19 @@ public:
 
    const std::vector<double> & energies() const {
       return m_energies;
+   }
+
+protected:
+
+// Disable copy constructor and copy assignment operator
+   BinnedExposure(const BinnedExposure &) {
+      throw std::runtime_error("BinnedExposure copy constructor is disabled");
+   }
+
+   BinnedExposure & operator=(const BinnedExposure &) {
+      throw std::runtime_error("BinnedExposure copy assignment operator "
+                               "is disabled");
+      return *this;
    }
 
 private:

@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.6 2005/10/07 16:19:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.7 2005/11/17 15:11:33 jchiang Exp $
  */
 
 #include <algorithm>
@@ -14,7 +14,6 @@
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
 
-#include "st_facilities/FitsImage.h"
 #include "st_facilities/Util.h"
 
 #include "Likelihood/BinnedExposure.h"
@@ -49,7 +48,7 @@ namespace Likelihood {
 WcsMap::WcsMap(const std::string & filename,
                const std::string & extension) : m_proj(0) {
 
-   m_proj = st_facilities::FitsImage::skyProjCreate(filename, extension);
+   m_proj = new astro::SkyProj(filename, extension);
 
    const tip::Image * image = 
       tip::IFileSvc::instance().readImage(filename, extension);
@@ -121,8 +120,8 @@ WcsMap::WcsMap(const WcsMap & rhs)
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
 // and live with the resulting memory leak when this object is deleted.
-//   m_proj = rhs.m_proj;
-   m_proj = new astro::SkyProj(*(rhs.m_proj));
+//   m_proj = new astro::SkyProj(*(rhs.m_proj));
+   m_proj = rhs.m_proj;
 }
 
 WcsMap & WcsMap::operator=(const WcsMap & rhs) {
@@ -130,9 +129,9 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
 // and live with the resulting memory leak when this object is deleted.
-//      m_proj = rhs.m_proj;
-      delete m_proj;
-      m_proj = new astro::SkyProj(*(rhs.m_proj));
+//      delete m_proj;
+//      m_proj = new astro::SkyProj(*(rhs.m_proj));
+      m_proj = rhs.m_proj;
       m_refDir = rhs.m_refDir;
       m_image = rhs.m_image;
       m_naxis1 = rhs.m_naxis1;

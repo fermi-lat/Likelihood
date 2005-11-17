@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.30 2005/10/10 21:42:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.31 2005/11/17 15:11:32 jchiang Exp $
  */
 
 #include <algorithm>
@@ -246,9 +246,9 @@ CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
    }
    m_axis_rot = rhs.m_axis_rot;
    m_use_lb = rhs.m_use_lb;
-//    m_proj = new astro::SkyProj(m_proj_name, m_crpix, m_crval, m_cdelt, 
-//                                m_axis_rot, m_use_lb);
-   m_proj = new astro::SkyProj(*(rhs.m_proj));
+//   m_proj = new astro::SkyProj(*(rhs.m_proj));
+   m_proj = new astro::SkyProj(m_proj_name, m_crpix, m_crval, m_cdelt, 
+                               m_axis_rot, m_use_lb);
    m_center = rhs.m_center;
 }
 
