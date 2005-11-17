@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov 17 07:11:32 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h SourceMap.h 
+Log Message:
+memory management
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 16 17:47:28 PST 2005
 Likelihood/src
 
