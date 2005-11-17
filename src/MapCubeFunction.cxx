@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.12 2005/10/18 21:40:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.13 2005/10/28 15:29:02 jchiang Exp $
  */
 
 #include <algorithm>
@@ -50,6 +50,7 @@ MapCubeFunction::MapCubeFunction(const MapCubeFunction & rhs)
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
 // and live with the resulting memory leak when this object is deleted.
+//   m_proj = new astro::SkyProj(*(rhs.m_proj));
    m_proj = rhs.m_proj;
    m_energies = rhs.m_energies;
    m_image = rhs.m_image;
@@ -60,7 +61,8 @@ MapCubeFunction & MapCubeFunction::operator=(const MapCubeFunction &rhs) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
 // and live with the resulting memory leak when this object is deleted.
-//      delete m_proj;
+//       delete m_proj;
+//       m_proj = new astro::SkyProj(*(rhs.m_proj));
       m_proj = rhs.m_proj;
       optimizers::Function::operator=(rhs);
       m_fitsFile = rhs.m_fitsFile;
@@ -76,7 +78,7 @@ MapCubeFunction::~MapCubeFunction() {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must ensure this pointer is not deleted here and live with the
 // resulting memory leak when this object is deleted.
-//  delete m_proj;
+//   delete m_proj;
 }
 
 double MapCubeFunction::value(optimizers::Arg & x) const {
@@ -126,7 +128,7 @@ void MapCubeFunction::readFitsFile(const std::string & fits_file) {
    facilities::Util::expandEnvVar(&fitsFile);
    st_facilities::Util::file_ok(fitsFile);
    m_fitsFile = fitsFile;
-   m_proj = st_facilities::FitsImage::skyProjCreate(fitsFile);
+   m_proj = new astro::SkyProj(fitsFile);
 
    st_facilities::FitsImage fitsImage(fitsFile);
 
