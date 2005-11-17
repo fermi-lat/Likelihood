@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.29 2005/10/05 00:59:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.30 2005/10/05 14:24:43 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -23,7 +23,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.29 2005/10/05 00:59:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.30 2005/10/05 14:24:43 jchiang Exp $
  */
 
 class SourceMap {
@@ -42,9 +42,7 @@ public:
 
    const std::vector<double> & npreds() const {return m_npreds;}
    
-   static void setBinnedExposure(const std::string & filename) {
-      s_binnedExposure = new BinnedExposure(filename);
-   }
+   static void setBinnedExposure(const std::string & filename);
 
    double maxPsfRadius(PointSource * src) const;
 
