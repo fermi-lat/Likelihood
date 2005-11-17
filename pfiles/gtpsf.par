@@ -1,4 +1,4 @@
-exposure_cube_file,fr,a,"expcube_1_day.fits",,,"Exposure hypercube file"
+exposure_cube_file,fr,a,"expCube.fits",,,"Exposure hypercube file"
 outfile,f,a,"psf.fits",,,"output file name"
 outtable,s,h,"PSF",,,"output file extension"
 rspfunc,s,a,"DC1A",DC1|DC1A|G25|TEST,,"Response functions"
