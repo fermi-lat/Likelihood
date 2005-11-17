@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.7 2005/10/03 15:02:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.8 2005/10/07 06:03:40 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -39,6 +39,8 @@ public:
                   const Observation & observation);
 
    BinnedExposure(const std::string & filename);
+
+   ~BinnedExposure();
 
    /// @return Exposure (effective area integrated over time) (cm^2-s)
    /// @param energy True photon energy (MeV)
