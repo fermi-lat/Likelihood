@@ -1,9 +1,9 @@
 #
 # parameters common to binned and unbinned
 #
-rspfunc,s,a,"TEST",DC1|DC1A|G25|TEST,,"Response functions to use"
+rspfunc,s,a,"DC1A",DC1|DC1A|G25|TEST,,"Response functions to use"
 use_energy_dispersion,b,h,no,,,"Use energy dispersion?"
-exposure_cube_file,f,a,"expCubeFile.fits",,,"Exposure hypercube file"
+exposure_cube_file,f,a,"none",,,"Exposure hypercube file"
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
 source_model_output_file,f,h,"none",,,"Source model output file"
 flux_style_model_file,f,h,"none",,,"flux-style output file name"
@@ -11,7 +11,7 @@ flux_style_model_file,f,h,"none",,,"flux-style output file name"
 # choice of objective function and optimizer
 #
 statistic,s,a,"UNBINNED",BINNED|UNBINNED|OPTEM,,"Statistic to use"
-optimizer,s,a,"MINUIT",LBFGS|MINUIT|DRMNGB,,"Optimizer"
+optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_tolerance,r,h,0.0001,,,"Fit tolerance"
 find_Ts_mins,b,h,no,,,Re-optimize for TS fits?
 query_for_refit,b,h,no,,,"Allow for refitting?"
