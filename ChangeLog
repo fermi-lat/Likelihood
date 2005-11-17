@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov 17 14:24:51 PST 2005
+Likelihood/pfiles
+
+Modified Files:
+	gtdiffresp.par gtexpmap.par gtlikelihood.par 
+	gtlivetimecube.par gtpsf.par gtsrcmaps.par gttsmap.par 
+Log Message:
+rationalize default values somewhat
+    *
+------------------------------------------------------------
 User: jchiang  Thu Nov 17 14:01:38 PST 2005
 Likelihood/src
 
