@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 16 17:47:25 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedExposure.h 
+Log Message:
+add destructor
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 16 12:53:50 PST 2005
 Likelihood/src
 
