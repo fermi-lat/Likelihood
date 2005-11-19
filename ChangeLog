@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov 18 20:59:53 PST 2005
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx PointSource.cxx 
+Log Message:
+fix Npred energy interpolations
+    *
+------------------------------------------------------------
 TAG
 Tag name: v10r2, operation: add
 Package: Likelihood
