@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.74 2005/10/18 21:40:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.75 2005/11/16 20:00:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -209,14 +209,17 @@ double PointSource::Npred(double emin, double emax) {
       = std::upper_bound(energies.begin(), energies.end(), emax);
    std::vector<double> my_energies(last - first);
    std::copy(first, last, my_energies.begin());
-   int begin_offset = first - energies.begin();
-   int end_offset = last - energies.begin();
+   size_t begin_offset = first - energies.begin();
+   size_t end_offset = last - energies.begin();
    my_energies.insert(my_energies.begin(), emin);
    my_energies.push_back(emax);
    std::vector<double> exposure(last - first);
    std::copy(m_exposure.begin() + begin_offset,
              m_exposure.begin() + end_offset,
              exposure.begin());
+   if (end_offset == energies.size()) {
+      end_offset = energies.size() - 1;
+   }
    double begin_exposure = (emin - energies.at(begin_offset - 1))
       /(energies.at(begin_offset) - energies.at(begin_offset - 1))
       *(m_exposure.at(begin_offset) - m_exposure.at(begin_offset - 1))
