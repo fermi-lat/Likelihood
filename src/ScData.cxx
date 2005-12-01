@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.37 2005/03/20 23:12:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.38 2005/05/17 13:44:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -71,6 +71,14 @@ void ScData::readData(std::string file, bool clear) {
 }         
 
 unsigned int ScData::time_index(double time) const {
+   if (time < vec.front().time || time > vec.back().time) {
+      std::ostringstream message;
+      message << "Requested time of " << time << " "
+              << "lies outside the range of valid times in the "
+              << "pointing/livetime history: " 
+              << vec.front().time << " to " << vec.back().time << "MET s";
+      throw std::runtime_error(message.str());
+   }
    ScNtuple my_vec;
    my_vec.time = time;
    std::vector<ScNtuple>::const_iterator it
