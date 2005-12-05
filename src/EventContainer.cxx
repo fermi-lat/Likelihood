@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.2 2005/03/04 22:08:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.3 2005/03/04 22:54:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -88,20 +88,22 @@ void EventContainer::getEvents(std::string event_file) {
                   }
                }
             } else {
-               try {
-                  event[*name].get(gaussianParams);
-                  m_events.back().setDiffuseResponse(srcName,
-                                                     gaussianParams[0]);
-               } catch (tip::TipException &eObj) {
-                  std::string message(eObj.what());
-                  if (message.find("FitsColumn::getVector") !=
-                      std::string::npos) {
-                     event[*name].get(respValue);
-                     m_events.back().setDiffuseResponse(srcName, respValue);
-                  } else {
-                     throw;
-                  }
-               }
+               event[*name].get(respValue);
+               m_events.back().setDiffuseResponse(srcName, respValue);
+//                try {
+//                   event[*name].get(gaussianParams);
+//                   m_events.back().setDiffuseResponse(srcName,
+//                                                      gaussianParams[0]);
+//                } catch (tip::TipException &eObj) {
+//                   std::string message(eObj.what());
+//                   if (message.find("FitsColumn::getVector") !=
+//                       std::string::npos) {
+//                      event[*name].get(respValue);
+//                      m_events.back().setDiffuseResponse(srcName, respValue);
+//                   } else {
+//                      throw;
+//                   }
+//                }
             }
          }
       } else {
@@ -146,6 +148,18 @@ void EventContainer::computeEventResponses(std::vector<DiffuseSource *> &srcs,
    if (print_output(3)) std::cerr << "!" << std::endl;
 }
 
+std::vector<double> 
+EventContainer::nobs(const std::vector<double> & ebounds) const {
+   std::vector<double> my_nobs(ebounds.size()-1, 0);
+   for (size_t i = 0; i < m_events.size(); i++) {
+      size_t k = std::upper_bound(ebounds.begin(), ebounds.end(),
+                                  m_events.at(i).getEnergy()) 
+         - ebounds.begin() - 1;
+      my_nobs.at(k)++;
+   }
+   return my_nobs;
+}
+
 void EventContainer::setFT1_columns() const {
    std::string colnames("energy ra dec theta phi zenith_angle "
                         + std::string("earth_azimuth_angle time event_id ")
@@ -153,7 +167,7 @@ void EventContainer::setFT1_columns() const {
                         + std::string("imvertexprob imcoreprob impsferrpred ")
                         + "calenergysum caltotrln imgammaprob "
                         + std::string("conversion_point conversion_layer ")
-                        + "pulse_phase");
+                        + "pulse_phase mc_src_id");
    facilities::Util::stringTokenize(colnames, " ", s_FT1_columns);
 }
 
