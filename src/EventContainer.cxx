@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.3 2005/03/04 22:54:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.4 2005/12/05 00:34:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -125,14 +125,18 @@ void EventContainer::getEvents(std::string event_file) {
 void EventContainer::computeEventResponses(Source & src, double sr_radius) {
                       
    DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
-   if (print_output(3)) {
+   if (print_output()) {
       std::cerr << "Computing Event responses for " << src.getName();
    }
    for (unsigned int i = 0; i < m_events.size(); i++) {
-      if (print_output(3) && (i % (m_events.size()/20)) == 0) std::cerr << ".";
+      if (print_output() && (i % (m_events.size()/20)) == 0) {
+         std::cerr << ".";
+      }
       m_events[i].computeResponse(*diffuse_src, m_respFuncs, sr_radius);
    }
-   if (print_output(3)) std::cerr << "!" << std::endl;
+   if (print_output()) {
+      std::cerr << "!" << std::endl;
+   }
 }
 
 void EventContainer::computeEventResponses(std::vector<DiffuseSource *> &srcs,

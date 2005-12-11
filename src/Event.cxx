@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.50 2005/10/03 15:02:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.51 2005/10/18 21:40:55 jchiang Exp $
  */
 
 #include <cctype>
@@ -12,6 +12,7 @@
 #include <deque>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <sstream>
 #include <utility>
 
@@ -166,6 +167,9 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
                for (unsigned int k = 0; k < srcs.size(); k++) {
                   double srcDist_val 
                      = srcs[k]->spatialDist(SkyDirArg(srcDir, *trueEnergy));
+                  if (srcDist_val < 0) {
+                     throw std::runtime_error("srcDist_val < 0");
+                  }
                   phi_integrands[k].push_back(totalResp*srcDist_val);
                }
             } else {
@@ -186,6 +190,11 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
          TrapQuad muQuad(s_mu, mu_integrands[k]);
          std::string name = srcs[k]->getName();
          name = diffuseSrcName(name);
+         double respValue = muQuad.integral();
+         if (respValue < 0) {
+            throw std::runtime_error("Negative diffuse response value computed"
+                                     " in Likelihood::Event::computeResponse");
+         }
          m_respDiffuseSrcs[name].push_back(muQuad.integral());
       }
    } // loop over trueEnergy
