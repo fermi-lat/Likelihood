@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.46 2005/10/10 21:42:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.47 2005/11/17 15:11:33 jchiang Exp $
  */
 
 #include <algorithm>
@@ -122,6 +122,9 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
             }
             m_model.at(indx) = convolvedMap(pixel->dir())*pixel->solidAngle();
             m_npreds.at(k) += m_model.at(indx);
+            if (pixel->solidAngle() == 0) {
+               throw std::runtime_error("pixel solid angle is zero");
+            }
          }
       }
    } else if (havePointSource) {

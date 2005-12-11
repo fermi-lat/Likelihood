@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.7 2005/11/17 15:11:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.8 2005/11/17 22:01:38 jchiang Exp $
  */
 
 #include <algorithm>
@@ -150,16 +150,23 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    int iy = static_cast<int>(y);
 
 // NB: wcslib starts indexing pixels with 1, not 0.
-   if (ix < 1) {
-      ix = 1;
-   } else if (ix > m_naxis1 - 1) {
-      ix = m_naxis1 - 1;
-   }
 
-   if (iy < 1) {
-      iy = 1;
-   } else if (iy > m_naxis2 - 1) {
-      iy = m_naxis2 - 1;
+/// @todo Understand why the following commented-out code was ever used,
+/// rather than simply returning 0 for a point outside the map.
+//    if (ix < 1) {
+//       ix = 1;
+//    } else if (ix > m_naxis1 - 1) {
+//       ix = m_naxis1 - 1;
+//    }
+
+//    if (iy < 1) {
+//       iy = 1;
+//    } else if (iy > m_naxis2 - 1) {
+//       iy = m_naxis2 - 1;
+//    }
+
+   if (ix < 1 || ix > m_naxis1 - 1 || iy < 1 || iy > m_naxis2 - 1) {
+      return 0;
    }
 
    double uu(x - ix);
@@ -172,6 +179,10 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
 
    double value((1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
                 + tt*uu*y3 + (1. - tt)*uu*y4);
+
+   if (value < 0) {
+      throw std::runtime_error("WcsMap::operator(): value < 0");
+   }
 
    return value;
 }
