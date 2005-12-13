@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.29 2005/10/18 21:40:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.30 2005/11/12 05:48:01 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.29 2005/10/18 21:40:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.30 2005/11/12 05:48:01 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -204,12 +204,7 @@ void diffuseResponses::readEventData(std::string eventFile) {
       event["energy"].get(energy);
       event["time"].get(time);
       event["zenith_angle"].get(zenAngle);
-      event["conversion_layer"].get(convLayer);
-      if (convLayer < 12) { // Front
-         eventType = 0;
-      } else {
-         eventType = 1;
-      }
+      event["event_class"].get(eventType);
       Event thisEvent(ra, dec, energy, time, scData.zAxis(time), 
                       scData.xAxis(time), cos(zenAngle*M_PI/180.), 
                       m_helper->observation().respFuncs().useEdisp(),

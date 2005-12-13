@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.4 2005/12/05 00:34:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.5 2005/12/11 00:38:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -44,7 +44,6 @@ void EventContainer::getEvents(std::string event_file) {
    double energy;
    double time;
    double zenAngle;
-   int convLayer;
    int eventType;
    double respValue;
 
@@ -60,12 +59,7 @@ void EventContainer::getEvents(std::string event_file) {
       event["energy"].get(energy);
       event["time"].get(time);
       event["zenith_angle"].get(zenAngle);
-      event["conversion_layer"].get(convLayer);
-      if (convLayer < 12) { // Front
-         eventType = 0;
-      } else {
-         eventType = 1;
-      }
+      event["event_class"].get(eventType);
       Event thisEvent(ra, dec, energy, time, m_scData.zAxis(time),
                       m_scData.xAxis(time), cos(zenAngle*M_PI/180.), 
                       m_respFuncs.useEdisp(), m_respFuncs.respName(),
@@ -165,13 +159,11 @@ EventContainer::nobs(const std::vector<double> & ebounds) const {
 }
 
 void EventContainer::setFT1_columns() const {
-   std::string colnames("energy ra dec theta phi zenith_angle "
+   std::string colnames("energy ra dec l b theta phi zenith_angle "
                         + std::string("earth_azimuth_angle time event_id ")
-                        + "recon_version calib_version imgoodcalprob "
-                        + std::string("imvertexprob imcoreprob impsferrpred ")
-                        + "calenergysum caltotrln imgammaprob "
-                        + std::string("conversion_point conversion_layer ")
-                        + "pulse_phase mc_src_id");
+                        + "recon_version calib_version "
+                        + std::string("event_class conversion_type ")
+                        + "livetime pulse_phase mc_src_id orbital_phase");
    facilities::Util::stringTokenize(colnames, " ", s_FT1_columns);
 }
 
@@ -181,8 +173,11 @@ get_diffuse_names(tip::Table * events,
    names.clear();
    const std::vector<std::string> & fields = events->getValidFields();
    for (unsigned int i = 0; i < fields.size(); i++) {
-      if (!std::count(s_FT1_columns.begin(), s_FT1_columns.end(), fields[i])) {
-         names.push_back(fields[i]);
+//       if (!std::count(s_FT1_columns.begin(), s_FT1_columns.end(), fields[i])) {
+//          names.push_back(fields[i]);
+//       }
+      if (fields.at(i).find("::") != std::string::npos) {
+         names.push_back(fields.at(i));
       }
    }
 }
