@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec 12 21:47:17 PST 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+use v* in req file; tagging v11r0p1
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11, operation: add
 Package: Likelihood
