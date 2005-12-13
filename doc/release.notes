@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11     12-Dec-05 JC   use new FT1 def
     v10r2p1 18-Nov-05 JC   fix [Point,Diffuse]Source::Npred(...) energy
                            interpolations
     v10r2   17-Nov-05 JC   repair some memory leaks; increase precision of
