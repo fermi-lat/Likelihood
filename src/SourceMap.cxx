@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.47 2005/11/17 15:11:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.48 2005/12/11 00:38:58 jchiang Exp $
  */
 
 #include <algorithm>
@@ -113,7 +113,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       unsigned int indx(0);
       for (int k = 0; energy != energies.end(); ++energy, k++) {
          WcsMap diffuseMap(*diffuseSrc, map_center.ra(), map_center.dec(),
-                           radius, mapsize, *energy);
+                           radius, mapsize, *energy, "STG", 
+                           dataMap->projection().isGalactic());
          WcsMap convolvedMap = diffuseMap.convolve(*energy, *s_meanPsf, 
                                                    *s_binnedExposure);
          for (pixel = pixels.begin(); pixel != pixels.end(); ++pixel, indx++) {
