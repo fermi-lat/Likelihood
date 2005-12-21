@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.9 2005/12/11 00:38:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.10 2005/12/21 15:24:51 jchiang Exp $
  */
 
 #include <algorithm>
@@ -86,6 +86,11 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
                double ra, double dec, double radius, int npts,
                double energy, const std::string & proj_name, bool use_lb) 
    : m_refDir(ra, dec) {
+   if (use_lb) { // convert to l, b
+      astro::SkyDir tmp_dir(ra, dec);
+      ra = tmp_dir.l();
+      dec = tmp_dir.b();
+   }
    double crpix[] = {npts/2, npts/2};
    double crval[] = {ra, dec};
    double cdelt[] = {2.*radius/(npts-1.), 2.*radius/(npts-1.)};
