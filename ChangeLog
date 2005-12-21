@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec 21 07:24:50 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	WcsMap.h 
+Log Message:
+use same coordinate system for internal SourceMap data
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceToolsv6r2, operation: add
 Package: Likelihood
