@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.4 2005/09/10 19:31:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.1 2005/10/05 00:59:33 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap_h
@@ -26,7 +26,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.4 2005/09/10 19:31:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.1 2005/10/05 00:59:33 jchiang Exp $
  */
 
 class WcsMap {
@@ -37,7 +37,7 @@ public:
 
    WcsMap(const DiffuseSource & diffuseSource, double ra, double dec,
           double radius, int npts, double energy=100.,
-          const std::string & proj_name="STG");
+          const std::string & proj_name="STG", bool use_lb=false);
 
    ~WcsMap();
 

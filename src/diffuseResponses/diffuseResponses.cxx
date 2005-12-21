@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.30 2005/11/12 05:48:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.31 2005/12/13 05:25:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.30 2005/11/12 05:48:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.31 2005/12/13 05:25:48 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -191,7 +191,6 @@ void diffuseResponses::readEventData(std::string eventFile) {
    double energy;
    double time;
    double zenAngle;
-   int convLayer;
    int eventType;
 
    ScData & scData = const_cast<ScData &>(m_helper->observation().scData());
