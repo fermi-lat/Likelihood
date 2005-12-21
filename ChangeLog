@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Dec 21 14:02:26 PST 2005
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+rotate to l, b if needed; tagging v11r0p2
+    *
+------------------------------------------------------------
+User: jchiang  Wed Dec 21 14:02:26 PST 2005
 Likelihood/cmt
 
 Modified Files:
