@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec 21 14:02:27 PST 2005
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+rotate to l, b if needed; tagging v11r0p2
+    *
+------------------------------------------------------------
 User: jchiang  Wed Dec 21 14:02:26 PST 2005
 Likelihood/doc
 
