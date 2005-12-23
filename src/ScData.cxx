@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.39 2005/12/01 21:33:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.40 2005/12/02 00:35:04 jchiang Exp $
  */
 
 #include <cmath>
@@ -25,12 +25,13 @@
 
 namespace Likelihood {
 
-void ScData::readData(std::string file, bool clear) {
+void ScData::readData(std::string file, bool clear,
+                      const std::string & sctable) {
    facilities::Util::expandEnvVar(&file);
 
    m_scFile = file;
 
-   tip::Table * scData = tip::IFileSvc::instance().editTable(file, "ext1");
+   tip::Table * scData = tip::IFileSvc::instance().editTable(file, sctable);
 
    if (clear) {
       vec.clear();
