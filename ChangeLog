@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec 23 11:57:46 PST 2005
+Likelihood/Likelihood
+
+Modified Files:
+	ScData.h 
+Log Message:
+use SC_DATA instead of Ext1; ensure par file value is used
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r0p2, operation: add
 Package: Likelihood
