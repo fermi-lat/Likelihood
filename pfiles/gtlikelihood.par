@@ -21,7 +21,7 @@ query_for_refit,b,h,no,,,"Allow for refitting?"
 evfile,f,a,"test_events_0000.fits",,,"Event file"
 evtable,s,h,"EVENTS",,,"Event table extension"
 scfile,f,a,"test_scData_0000.fits",,,"Spacecraft file"
-sctable,s,h,"Ext1",,,"Spacecraft table extension"
+sctable,s,h,"SC_DATA",,,"Spacecraft table extension"
 exposure_map_file,f,a,"none",,,"Unbinned exposure map"
 plot,b,h,no,,,"Plot unbinned counts spectra?"
 #

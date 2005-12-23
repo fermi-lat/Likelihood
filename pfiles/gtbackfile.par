@@ -1,7 +1,7 @@
 pha_file,fr,a,"Vela.pha",,,"pha file"
 outfile,f,a,"foo.pha",,,"output file"
 scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft file"
-sctable,s,h,"Ext1",,,"Spacecraft data extension"
+sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 exposure_cube_file,fr,a,"expCube.fits",,,"Exposure hypercube file"
 exposure_map_file,fr,a,"none",,,"Exposure file"
 rspfunc,s,a,"DC1AF",,,"Response functions to use"

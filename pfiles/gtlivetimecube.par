@@ -1,7 +1,7 @@
 evfile,fr,a,"test_events_0000.fits",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
 scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
-sctable,s,h,"Ext1",,,"Spacecraft data extension"
+sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 outfile,f,a,"expCube.fits",,,"Output file"
 cos_theta_step,r,a,0.025,0.,1.,"Step size in cos(theta)"
 pixel_size,r,a,1,,,"Pixel size (degrees)"
