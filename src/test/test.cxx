@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.71 2005/10/04 05:38:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.72 2005/10/07 18:38:13 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -636,7 +636,8 @@ void LikelihoodTests::generate_exposureHyperCube() {
    std::vector<std::pair<double, double> > timeCuts;
    m_roiCuts->getTimeCuts(timeCuts);
    LikeExposure exposure(1., 0.025, timeCuts, m_roiCuts->gtis());
-   tip::Table * scData = tip::IFileSvc::instance().editTable(m_scFile, "Ext1");
+   tip::Table * scData = tip::IFileSvc::instance().editTable(m_scFile,
+                                                             "SC_DATA");
    exposure.load(scData, false);
    std::string output_file = m_rootPath + "/data/expcube_1_day.fits";
    exposure.write(output_file);
@@ -649,7 +650,7 @@ CountsMap LikelihoodTests::singleSrcMap(unsigned int nee) const {
    unsigned long npts(40);
    double emin(30.);
    double emax(2e5);
-   CountsMap dataMap(eventFile, "EVENTS", m_scFile, "Ext1", 
+   CountsMap dataMap(eventFile, "EVENTS", m_scFile, "SC_DATA", 
                      ra, dec, "CAR", npts, npts,
                      0.25, 0, false, "RA", "DEC", emin, emax, nee);
    const tip::Table * events 
