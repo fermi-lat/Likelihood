@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Dec 24 07:25:03 PST 2005
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+update input file for unit tests; tagging v11r0p4
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r0p3, operation: add
 Package: Likelihood
