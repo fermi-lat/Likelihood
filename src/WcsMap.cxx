@@ -4,10 +4,11 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.10 2005/12/21 15:24:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.11 2005/12/21 22:02:27 jchiang Exp $
  */
 
 #include <algorithm>
+#include <iostream>
 #include <stdexcept>
 
 #include "tip/Header.h"
@@ -87,9 +88,8 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
                double energy, const std::string & proj_name, bool use_lb) 
    : m_refDir(ra, dec) {
    if (use_lb) { // convert to l, b
-      astro::SkyDir tmp_dir(ra, dec);
-      ra = tmp_dir.l();
-      dec = tmp_dir.b();
+      ra = m_refDir.l();
+      dec = m_refDir.b();
    }
    double crpix[] = {npts/2, npts/2};
    double crval[] = {ra, dec};
@@ -97,12 +97,19 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
 
    m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
 
+   astro::SkyDir::CoordSystem coordSys;
+   if (use_lb) {
+      coordSys = astro::SkyDir::GALACTIC;
+   } else {
+      coordSys = astro::SkyDir::EQUATORIAL;
+   }
+
    m_image.reserve(npts);
    for (int j = 0; j < npts; j++) {
-      std::vector<double> row(npts);
+      std::vector<double> row(npts, 0);
       for (int i = 0; i < npts; i++) {
          std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-         astro::SkyDir dir(coord.first, coord.second);
+         astro::SkyDir dir(coord.first, coord.second, coordSys);
          SkyDirArg my_dir(dir, energy);
          row.at(i) = diffuseSource.spatialDist(my_dir);
       }
@@ -146,6 +153,7 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
 }
 
 double WcsMap::operator()(const astro::SkyDir & dir) const {
+// NB: wcslib starts indexing pixels with 1, not 0.
    std::pair<double, double> pixel = dir.project(*m_proj);
 
    double x(pixel.first);
@@ -154,25 +162,13 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    int ix = static_cast<int>(x);
    int iy = static_cast<int>(y);
 
-// NB: wcslib starts indexing pixels with 1, not 0.
-
-/// @todo Understand why the following commented-out code was ever used,
-/// rather than simply returning 0 for a point outside the map.
-//    if (ix < 1) {
-//       ix = 1;
-//    } else if (ix > m_naxis1 - 1) {
-//       ix = m_naxis1 - 1;
-//    }
-
-//    if (iy < 1) {
-//       iy = 1;
-//    } else if (iy > m_naxis2 - 1) {
-//       iy = m_naxis2 - 1;
-//    }
-
-   if (ix < 1 || ix > m_naxis1 - 1 || iy < 1 || iy > m_naxis2 - 1) {
+// Extrapolate beyond formal boundary by one pixel
+   if (ix < 0 || ix > m_naxis1 || iy < 0 || iy > m_naxis2) {
       return 0;
    }
+
+   ix = std::min(std::max(1, ix), m_naxis1 - 1);
+   iy = std::min(std::max(1, iy), m_naxis2 - 1);
 
    double uu(x - ix);
    double tt(y - iy);
@@ -198,15 +194,22 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
    counts.resize(m_naxis2);
    ::Image psf_image;
    psf_image.resize(m_naxis2);
+
+   astro::SkyDir::CoordSystem coordSys;
+   if (m_proj->isGalactic()) {
+      coordSys = astro::SkyDir::GALACTIC;
+   } else {
+      coordSys = astro::SkyDir::EQUATORIAL;
+   }
+
    for (int j = 0; j < m_naxis2; j++) {
       counts.at(j).resize(m_naxis1);
       psf_image.at(j).resize(m_naxis1);
       for (int i = 0; i < m_naxis1; i++) {
          std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-         astro::SkyDir dir(coord.first, coord.second);
+         astro::SkyDir dir(coord.first, coord.second, coordSys);
          counts.at(j).at(i) = 
-            m_image.at(j).at(i)*exposure(energy, coord.first, coord.second);
-
+            m_image.at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
          double theta = m_refDir.difference(dir)*180./M_PI;
          psf_image.at(j).at(i) = psf(energy, theta, 0);
       }
