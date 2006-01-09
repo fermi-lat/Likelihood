@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.15 2005/05/17 13:44:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.16 2005/09/12 22:16:15 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -88,6 +88,8 @@ public:
    const astro::SkyDir & mapCenter() const {return m_center;}
 
    bool withinBounds(const astro::SkyDir & dir, double energy) const;
+
+   const std::string & proj_name() const {return m_proj_name;}
 
 protected:
 
