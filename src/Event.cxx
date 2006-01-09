@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.51 2005/10/18 21:40:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.52 2005/12/11 00:38:58 jchiang Exp $
  */
 
 #include <cctype>
@@ -42,6 +42,7 @@ namespace {
 namespace Likelihood {
 
 std::vector<double> Event::s_mu;
+std::vector<double> Event::s_mu_2;
 std::vector<double> Event::s_phi;
 bool Event::s_haveSourceRegionData(false);
 
@@ -121,7 +122,7 @@ Event::diffuseResponse(std::string name) const {
 
 void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 
                             const ResponseFunctions & respFuncs,
-                            double sr_radius) {
+                            double sr_radius, double sr_radius2) {
    std::vector<DiffuseSource *> srcs;
    getNewDiffuseSrcs(srcList, srcs);
    if (srcs.size() == 0) {
@@ -131,15 +132,22 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
    double dec0(m_appDir.dec());
    EquinoxRotation eqRot(ra0, dec0);
    if (!s_haveSourceRegionData) {
-      prepareSrData(sr_radius);
+      prepareSrData(sr_radius, sr_radius2);
+   }
+
+   std::vector<double> muArray(s_mu);
+// If inclination is greater than 80 degrees, use s_mu_2, that
+// covers a larger solid angle:
+   if (m_scDir.difference(m_appDir)*180./M_PI > 80.) {
+      muArray = s_mu_2;
    }
 
 // Create a vector of srcDirs looping over the source region locations.
    std::vector<astro::SkyDir> srcDirs;
-   for (unsigned int i = 0; i < s_mu.size(); i++) {
+   for (unsigned int i = 0; i < muArray.size(); i++) {
       for (unsigned int j = 0; j < s_phi.size(); j++) {
          astro::SkyDir srcDir;
-         getCelestialDir(s_phi[j], s_mu[i], eqRot, srcDir);
+         getCelestialDir(s_phi[j], muArray[i], eqRot, srcDir);
          srcDirs.push_back(srcDir);
       }
    }
@@ -150,7 +158,7 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
 // trapezoidal integrator for integration over mu.
       std::vector< std::vector<double> > mu_integrands;
       mu_integrands.resize(srcs.size());
-      for (unsigned int i = 0; i < s_mu.size(); i++) {
+      for (unsigned int i = 0; i < muArray.size(); i++) {
 
 // Prepare phi-integrand arrays.
          std::vector< std::vector<double> > phi_integrands;
@@ -187,7 +195,7 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
 
 // Perform the mu-integrals
       for (unsigned int k = 0; k < srcs.size(); k++) {
-         TrapQuad muQuad(s_mu, mu_integrands[k]);
+         TrapQuad muQuad(muArray, mu_integrands[k]);
          std::string name = srcs[k]->getName();
          name = diffuseSrcName(name);
          double respValue = muQuad.integral();
@@ -244,27 +252,28 @@ void Event::writeDiffuseResponses(const std::string & filename) {
    outfile.close();
 }
 
-void Event::prepareSrData(double sr_radius, int nmu, int nphi) {
-   double mumin = cos(sr_radius*M_PI/180);
-// // Uniform sampling in cos(theta)
-//    double mustep = (1. - mumin)/(nmu - 1.);
-//    for (int i = 0; i < nmu; i++) {
-//       s_mu.push_back(mustep*i + mumin);
-//    }
-
-// Try sampling more densely near theta = 0:
-   std::deque<double> my_mu;
-   double nscale = static_cast<double>((nmu-1)*(nmu-1));
-   for (int i = 0; i < nmu; i++) {
-      my_mu.push_front(1. - i*i/nscale*(1. - mumin));
-   }
-   s_mu.resize(my_mu.size());
-   std::copy(my_mu.begin(), my_mu.end(), s_mu.begin());
+void Event::prepareSrData(double sr_radius, double sr_radius2) {
+   fillMuArray(sr_radius, 100, s_mu);
+   fillMuArray(sr_radius2, 200, s_mu_2);
+   int nphi(50);
    double phistep = 2.*M_PI/(nphi - 1.);
    for (int i = 0; i < nphi; i++) {
       s_phi.push_back(phistep*i);
    }
    s_haveSourceRegionData = true;
+}
+
+void Event::fillMuArray(double sr_radius, int nmu, 
+                       std::vector<double> & mu) const {
+   double mumin = cos(sr_radius*M_PI/180);
+// Sample more densely near theta = 0:
+   std::deque<double> my_mu;
+   double nscale = static_cast<double>((nmu-1)*(nmu-1));
+   for (int i = 0; i < nmu; i++) {
+      my_mu.push_front(1. - i*i/nscale*(1. - mumin));
+   }
+   mu.resize(my_mu.size());
+   std::copy(my_mu.begin(), my_mu.end(), mu.begin());
 }
 
 void Event::getCelestialDir(double phi, double mu, 

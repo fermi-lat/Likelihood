@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.31 2005/12/13 05:25:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.32 2005/12/21 15:24:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.31 2005/12/13 05:25:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.32 2005/12/21 15:24:51 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -88,7 +88,7 @@ private:
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffresp");
 
 diffuseResponses::diffuseResponses() 
-   : st_app::StApp(), m_helper(0), m_srcModel(0), m_srRadius(80.),
+   : st_app::StApp(), m_helper(0), m_srcModel(0), m_srRadius(30.),
      m_pars(st_app::StApp::getParGroup("gtdiffresp")) {}
 
 void diffuseResponses::run() {

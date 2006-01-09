@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.35 2005/10/03 15:02:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.36 2005/10/18 21:40:52 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.35 2005/10/03 15:02:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.36 2005/10/18 21:40:52 jchiang Exp $
  */
 
 class Event {
@@ -77,16 +77,16 @@ public:
    /// distribution of src will be integrated.
    void computeResponse(DiffuseSource &src, 
                         const ResponseFunctions & respFuncs, 
-                        double sr_radius=80.) {
+                        double sr_radius=30., double sr_radius2=80.) {
       std::vector<DiffuseSource *> srcs;
       srcs.push_back(&src);
-      computeResponse(srcs, respFuncs, sr_radius);
+      computeResponse(srcs, respFuncs, sr_radius, sr_radius2);
    }
 
    /// Compute the reponse integrals for a vector of DiffuseSources
    void computeResponse(std::vector<DiffuseSource *> &srcs, 
                         const ResponseFunctions & respFuncs, 
-                        double sr_radius=80.);
+                        double sr_radius=30., double sr_radius2=80);
 
    /// Write the diffuse responses for each source to a file.
    void writeDiffuseResponses(const std::string & filename);
@@ -156,13 +156,19 @@ private:
    /// Angular arrays over the source region for the diffuse integrals.
    static std::vector<double> s_mu;
    static std::vector<double> s_phi;
+   static std::vector<double> s_mu_2;
    static bool s_haveSourceRegionData;
 
-   /// @todo Find a rational way of defining the source region radius.
-   /// For now, use the default values passed from
-   /// computeResponse(...)
-   void prepareSrData(double sr_region, int nmu=100, int nphi=50);
-//   void prepareSrData(double sr_region, int nmu=70, int nphi=40);
+   /// @todo Find a more rational way of defining the source region
+   /// radius.  For now, use the default values passed from
+   /// computeResponse(...).
+   /// @param sr_radius Default to use for most events
+   /// @param sr_radius2 Use this in cases where the apparent
+   /// inclination lies outside the region of non-zero effective area
+   /// (i.e., for theta > 78 degrees).
+   void prepareSrData(double sr_radius, double sr_radius2);
+
+   void fillMuArray(double sr_radius, int nmu, std::vector<double> & mu) const;
 
    void getNewDiffuseSrcs(const std::vector<DiffuseSource *> & srcList,
                           std::vector<DiffuseSource *> & srcs) const;
