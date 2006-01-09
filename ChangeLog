@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan  8 16:35:29 PST 2006
+Likelihood/src
+
+Modified Files:
+	Event.cxx 
+Log Message:
+use larger integration region for high inclination events
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jan  8 16:35:26 PST 2006
 Likelihood/Likelihood
 
