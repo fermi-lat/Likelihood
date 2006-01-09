@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan  8 22:43:28 PST 2006
+Likelihood/src
+
+Modified Files:
+	SourceMap.cxx WcsMap.cxx 
+Log Message:
+fix for Galactic coords
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jan  8 22:43:27 PST 2006
 Likelihood/Likelihood
 
