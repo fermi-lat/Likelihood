@@ -3,6 +3,10 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r0p6 09-Jan-06 JC   SourceMap/WcsMap fixes for Galactic coords;
+                           short term fix for Event::computeResponse to
+                           use larger integration regions only for high
+                           apparent inclination events.
     v11r0p5 24-Dec-05 JC   test program bug fix
     v11r0p4 24-Dec-05 JC   update test file with new FT2 extension name
     v11r0p3 23-Dec-05 JC   par file updates for SC_DATA
