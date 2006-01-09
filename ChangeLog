@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan  8 16:35:26 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h EventContainer.h LogLike.h 
+Log Message:
+use larger integration region for high inclination events
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r0p5, operation: add
 Package: Likelihood
