@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan  8 22:43:27 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h 
+Log Message:
+fix for Galactic coords
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jan  8 16:35:31 PST 2006
 Likelihood/src/diffuseResponses
 
