@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 13 16:32:49 PST 2006
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx SourceFactory.cxx 
+Added Files:
+	ExpCutoff.cxx 
+Log Message:
+add ExpCutoff from Luis
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 13 16:32:47 PST 2006
 Likelihood/Likelihood
 
