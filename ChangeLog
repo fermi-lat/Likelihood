@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 13 16:32:52 PST 2006
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+add ExpCutoff from Luis
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 13 16:32:49 PST 2006
 Likelihood/src
 
