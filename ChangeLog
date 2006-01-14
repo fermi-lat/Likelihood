@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 13 16:32:47 PST 2006
+Likelihood/Likelihood
+
+Added Files:
+	ExpCutoff.h 
+Log Message:
+add ExpCutoff from Luis
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r0p6, operation: add
 Package: Likelihood
