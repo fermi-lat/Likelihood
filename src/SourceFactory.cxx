@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.51 2005/11/16 20:00:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.52 2005/11/17 15:11:32 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -139,7 +139,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
 // and its name.
       std::string srcName = xmlBase::Dom::getAttribute(*srcIt, "name");
 
-      if (m_verbose && print_output()) {
+      if (print_output(3)) {
          std::cout << "Creating source named "
                    << srcName << std::endl;
       }
