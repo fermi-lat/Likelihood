@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan 15 08:01:39 PST 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+enable new Ts approx for binned analysis
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jan 14 17:57:03 PST 2006
 Likelihood/src/likelihood
 
