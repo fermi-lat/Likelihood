@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jan 14 17:57:03 PST 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+improved Ts estimator
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 13 16:32:52 PST 2006
 Likelihood/src/diffuseResponses
 
