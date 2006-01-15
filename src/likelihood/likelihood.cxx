@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.94 2005/11/15 01:46:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.95 2005/11/16 03:08:18 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -18,6 +18,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -50,6 +51,52 @@
 
 #include "Verbosity.h"
 
+namespace {
+   class NormNames {
+   public:
+      static NormNames * instance() {
+         if (s_instance == 0) {
+            s_instance = new NormNames();
+         }
+         return s_instance;
+      }
+
+      const std::string & operator[](const std::string & name) const {
+         std::map<std::string, std::string>::const_iterator it;
+         it = m_normNames.find(name);
+         return it->second;
+      }
+   private:
+      static NormNames * s_instance;
+      NormNames() {
+         m_normNames["ConstantValue"] = "Value";
+         m_normNames["BrokenPowerLaw"] = "Prefactor";
+         m_normNames["BrokenPowerLaw2"] = "Integral";
+         m_normNames["PowerLaw"] = "Prefactor";
+         m_normNames["PowerLaw2"] = "Integral";
+         m_normNames["Gaussian"] = "Prefactor";
+         m_normNames["FileFunction"] = "Normalization";
+         m_normNames["LogParabola"] = "norm";
+      }
+      std::map<std::string, std::string> m_normNames;
+   };
+   NormNames * NormNames::s_instance(0);
+
+   double ptsrcSeparation(Likelihood::Source * src1,
+                          Likelihood::Source * src2) {
+      Likelihood::PointSource * 
+         ptsrc1(dynamic_cast<Likelihood::PointSource *>(src1));
+      Likelihood::PointSource * 
+         ptsrc2(dynamic_cast<Likelihood::PointSource *>(src2));
+      if (ptsrc1 == 0  || ptsrc2 == 0) {
+         throw std::runtime_error("likelihood::ptsrcSeparation: Attempt "
+                                  "to compute separation between two Source "
+                                  "objects that are not both PointSources.");
+      }
+      return ptsrc1->getDir().difference(ptsrc2->getDir())*180./M_PI;
+   }
+}
+
 using namespace Likelihood;
 
 /**
@@ -59,7 +106,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.94 2005/11/15 01:46:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.95 2005/11/16 03:08:18 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -105,6 +152,14 @@ private:
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
    void setErrors(const std::vector<double> & errors);
+
+   Source * m_tsSrc;
+   double m_maxdist;
+   void renormModel();
+   void npredValues(double &, double &) const;
+   optimizers::Parameter & normPar(Source *) const;
+   bool isDiffuseOrNearby(Source *) const;
+   double observedCounts();
 };
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlikelihood");
@@ -112,7 +167,8 @@ st_app::StAppFactory<likelihood> myAppFactory("gtlikelihood");
 likelihood::likelihood() 
    : st_app::StApp(), m_helper(0), 
      m_pars(st_app::StApp::getParGroup("gtlikelihood")),
-     m_logLike(0), m_opt(0), m_dataMap(0), m_cpuStart(std::clock()) {
+     m_logLike(0), m_opt(0), m_dataMap(0), m_cpuStart(std::clock()),
+     m_tsSrc(0), m_maxdist(10.) {
 }
 
 void likelihood::run() {
@@ -469,9 +525,10 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
       Source * src = m_logLike->getSource(srcNames[i]);
       if (src->getType() == "Point" &&
           src->spectrum().getNumFreeParams() > 0) {
-         src = m_logLike->deleteSource(srcNames[i]);
+         m_tsSrc = m_logLike->deleteSource(srcNames[i]);
          if (m_statistic != "BINNED") {
-            RoiDist[srcNames[i]] = dynamic_cast<PointSource *>(src)->getDir().
+            RoiDist[srcNames[i]] = 
+               dynamic_cast<PointSource *>(m_tsSrc)->getDir().
                difference(roiCenter)*180./M_PI;
          }
          if (m_logLike->getNumFreeParams() > 0) {
@@ -482,6 +539,8 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                } catch (std::exception & eObj) {
                   std::cout << eObj.what() << std::endl;
                }
+            } else {
+               renormModel();
             }
             null_values.push_back(m_logLike->value());
             TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
@@ -494,7 +553,8 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                std::cout << eObj.what() << std::endl;
             }
          }
-         m_logLike->addSource(src);
+         m_logLike->addSource(m_tsSrc);
+         m_logLike->setFreeParamValues(fitParams);
       }
    }
    if (Likelihood::print_output()) {
@@ -584,6 +644,66 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    }
    delete m_opt;
    m_opt = 0;
+}
+
+void likelihood::renormModel() {
+   double freeNpred; 
+   double totalNpred;
+   npredValues(freeNpred, totalNpred);
+   if (freeNpred <= 0) {
+      return;
+   }
+   double deficit(observedCounts() - totalNpred);
+   double renormFactor(1. + deficit/freeNpred);
+   std::vector<std::string> srcNames;
+   m_logLike->getSrcNames(srcNames);
+   for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
+        srcName != srcNames.end(); ++srcName) {
+      Source * src(m_logLike->getSource(*srcName));
+      optimizers::Parameter & par(normPar(src));
+      if (par.isFree() && isDiffuseOrNearby(src)) {
+         double newValue(par.getValue()*renormFactor);
+         par.setValue(newValue);
+      }
+   }   
+}
+
+double likelihood::observedCounts() {
+   if (m_statistic == "Binned") {
+   }
+   return m_helper->observation().eventCont().events().size();
+}
+
+void likelihood::npredValues(double & freeNpred, double & totalNpred) const {
+   std::vector<std::string> srcNames;
+   m_logLike->getSrcNames(srcNames);
+   freeNpred = 0;
+   totalNpred = 0;
+   for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
+        srcName != srcNames.end(); ++srcName) {
+      Source * src = m_logLike->getSource(*srcName);
+      double npred(src->Npred());
+      totalNpred += npred;
+      if (normPar(src).isFree() && isDiffuseOrNearby(src)) {
+         freeNpred += npred;
+      }
+   }
+}
+
+optimizers::Parameter & likelihood::normPar(Source * src) const {
+   ::NormNames & normNames(*::NormNames::instance());
+   const optimizers::Function & spectrum(src->spectrum());
+   const std::string & parname(normNames[spectrum.genericName()]);
+   return const_cast<optimizers::Function &>(spectrum).parameter(parname);
+}
+
+bool likelihood::isDiffuseOrNearby(Source * src) const {
+   if (src->getType() == "Diffuse") {
+      return true;
+   } else if (::ptsrcSeparation(m_tsSrc, src) < m_maxdist) {
+      return true;
+   }
+   return false;
 }
 
 bool likelihood::prompt(const std::string &query) {
