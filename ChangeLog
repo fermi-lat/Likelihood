@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 17 23:10:21 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h SourceModel.h 
+Log Message:
+clean up mods
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 17 18:40:30 PST 2006
 Likelihood/src/likelihood
 
