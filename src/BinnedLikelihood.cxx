@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.32 2005/10/10 21:42:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.33 2005/11/17 15:11:32 jchiang Exp $
  */
 
 #include <memory>
@@ -28,10 +28,11 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
                                    const std::string & srcMapsFile,
                                    bool computePointSources,
                                    bool applyPsfCorrections)
-   : LogLike(observation), m_dataMap(dataMap), m_modelIsCurrent(false),
-     m_srcMapsFile(srcMapsFile), m_computePointSources(computePointSources),
+   : LogLike(observation), m_dataMap(dataMap), m_pixels(dataMap.pixels()),
+     m_modelIsCurrent(false), m_srcMapsFile(srcMapsFile),
+     m_computePointSources(computePointSources),
      m_applyPsfCorrections(applyPsfCorrections) {
-   dataMap.getPixels(m_pixels);
+//   dataMap.getPixels(m_pixels);
    dataMap.getAxisVector(2, m_energies);
    identifyFilledPixels();
    computeCountsSpectrum();
@@ -50,7 +51,8 @@ double BinnedLikelihood::value(optimizers::Arg &dummy) const {
    double npred;
    computeModelMap(npred);
 
-   const std::vector<double> & data = m_dataMap.data();
+//   const std::vector<double> & data = m_dataMap.data();
+   const std::vector<float> & data = m_dataMap.data();
    double my_value(0);
 
    for (unsigned int i = 0; i < m_filledPixels.size(); i++) {
@@ -95,7 +97,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    if (!m_modelIsCurrent) {
       computeModelMap(npred);
    }
-   const std::vector<double> & data = m_dataMap.data();
+//   const std::vector<double> & data = m_dataMap.data();
+   const std::vector<float> & data = m_dataMap.data();
    for (unsigned int j = 0; j < m_filledPixels.size(); j++) {
       unsigned long imin = m_filledPixels[j];
       unsigned long imax = imin + m_pixels.size();
@@ -143,7 +146,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 }
 
 CountsMap * BinnedLikelihood::createCountsMap() const {
-   std::vector<double> map;
+   std::vector<float> map;
    computeModelMap(map);
 
    CountsMap * modelMap = new CountsMap(m_dataMap);
@@ -152,7 +155,7 @@ CountsMap * BinnedLikelihood::createCountsMap() const {
    return modelMap;
 }
 
-void BinnedLikelihood::computeModelMap(std::vector<double> & modelMap) const {
+void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap) const {
    modelMap.clear();
    modelMap.resize(m_pixels.size()*(m_energies.size()-1), 0);
    for (unsigned int k = 0; k < m_energies.size()-1; k++) {
@@ -336,7 +339,8 @@ void BinnedLikelihood::setImageDimensions(tip::Image * image,
 }
 
 void BinnedLikelihood::identifyFilledPixels() {
-   const std::vector<double> & data = m_dataMap.data();
+//   const std::vector<double> & data = m_dataMap.data();
+   const std::vector<float> & data = m_dataMap.data();
    m_filledPixels.clear();
    for (unsigned int i = 0; i < data.size(); i++) {
       if (data.at(i) > 0) {
