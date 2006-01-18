@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 17 18:40:22 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h CountsMap.h HistND.h MapCubeFunction.h 
+	SourceModel.h 
+Log Message:
+improve memory usage for gtmodelmap
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jan 15 08:01:39 PST 2006
 Likelihood/src/likelihood
 
