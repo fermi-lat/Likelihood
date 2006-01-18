@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 17 18:40:26 PST 2006
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx CountsMap.cxx MapCubeFunction.cxx 
+	SourceMap.cxx SourceModel.cxx 
+Log Message:
+improve memory usage for gtmodelmap
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 17 18:40:22 PST 2006
 Likelihood/Likelihood
 
