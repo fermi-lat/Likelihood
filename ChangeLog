@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 17 18:40:28 PST 2006
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+improve memory usage for gtmodelmap
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 17 18:40:26 PST 2006
 Likelihood/src
 
