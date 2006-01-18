@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.96 2006/01/15 01:57:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.97 2006/01/15 16:01:38 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -106,7 +106,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.96 2006/01/15 01:57:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.97 2006/01/15 16:01:38 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -622,7 +622,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    }
    resultsFile << "}" << std::endl;
    if (m_statistic == "BINNED") {
-      const std::vector<double> & data = m_dataMap->data();
+      const std::vector<float> & data = m_dataMap->data();
       double total_counts(0);
       for (unsigned int i = 0; i < data.size(); i++) {
             total_counts += data[i];

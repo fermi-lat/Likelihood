@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.31 2005/11/17 15:11:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.32 2005/11/17 22:01:38 jchiang Exp $
  */
 
 #include <algorithm>
@@ -131,9 +131,10 @@ void CountsMap::readImageData(const std::string & countsMapFile,
       image(tip::IFileSvc::instance().readImage(countsMapFile, ""));
    std::vector<float> image_data;
    image->get(image_data);
-   std::vector<double> data(image_data.size());
-   std::copy(image_data.begin(), image_data.end(), data.begin());
-   m_hist->setData(data);
+//    std::vector<double> data(image_data.size());
+//    std::copy(image_data.begin(), image_data.end(), data.begin());
+//    m_hist->setData(data);
+   m_hist->setData(image_data);
 }
 
 void CountsMap::readKeywords(const std::string & countsMapFile) {
@@ -337,7 +338,10 @@ void CountsMap::writeOutput(const std::string & creator,
    writeGti(out_file);
 }
 
-void CountsMap::setImage(const std::vector<double> & image) {
+// void CountsMap::setImage(const std::vector<double> & image) {
+//    m_hist->setData(image);
+// }
+void CountsMap::setImage(const std::vector<float> & image) {
    m_hist->setData(image);
 }
 
@@ -386,15 +390,29 @@ void CountsMap::setKeywords(tip::Header & header) const {
    header["CTYPE3"].set(binners[2]->getName());
 }
 
-void CountsMap::getPixels(std::vector<Pixel> & pixels) const {
-   pixels.clear();
-   std::vector<astro::SkyDir> pixelDirs;
-   std::vector<double> solidAngles;
-   getPixels(pixelDirs, solidAngles);
-   pixels.reserve(pixelDirs.size());
-   for (unsigned int i = 0; i < pixelDirs.size(); i++) {
-      pixels.push_back(Pixel(pixelDirs[i], solidAngles[i]));
+// void CountsMap::getPixels(std::vector<Pixel> & pixels) const {
+//    pixels.clear();
+//    std::vector<astro::SkyDir> pixelDirs;
+//    std::vector<double> solidAngles;
+//    getPixels(pixelDirs, solidAngles);
+//    pixels.reserve(pixelDirs.size());
+//    for (unsigned int i = 0; i < pixelDirs.size(); i++) {
+//       pixels.push_back(Pixel(pixelDirs[i], solidAngles[i]));
+//    }
+// }
+
+
+const std::vector<Pixel> & CountsMap::pixels() const {
+   if (m_pixels.empty()) {
+      std::vector<astro::SkyDir> pixelDirs;
+      std::vector<double> solidAngles;
+      getPixels(pixelDirs, solidAngles);
+      m_pixels.reserve(pixelDirs.size());
+      for (unsigned int i = 0; i < pixelDirs.size(); i++) {
+         m_pixels.push_back(Pixel(pixelDirs[i], solidAngles[i]));
+      }
    }
+   return m_pixels;
 }
 
 void CountsMap::

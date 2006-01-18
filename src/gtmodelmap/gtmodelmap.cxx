@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.3 2005/09/27 00:11:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.4 2005/10/10 21:42:06 jchiang Exp $
  */
 
 #include <iostream>
@@ -33,6 +33,8 @@
 
 #include "Likelihood/BandFunction.h"
 #include "Likelihood/BrokenPowerLaw2.h"
+#include "Likelihood/ExpCutoff.h"
+#include "Likelihood/FileFunction.h"
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/PowerLaw2.h"
@@ -83,7 +85,7 @@ public:
 
    ModelMap() : st_app::StApp(),
                 m_pars(st_app::StApp::getParGroup("gtmodelmap")),
-                m_funcFactory(0) {}
+                m_funcFactory(0), m_srcmap(0) {}
    virtual ~ModelMap() throw() {
       try {
          delete m_funcFactory;
@@ -108,7 +110,7 @@ private:
    std::vector<double> m_emins;
    std::vector<double> m_emaxs;
 
-   std::vector<float> m_srcmap;
+   std::vector<float> * m_srcmap;
    std::vector<float> m_outmap;
 
    void prepareFunctionFactory();
@@ -208,7 +210,7 @@ void ModelMap::sumOutputMap() {
                    << srcName << ". Skipping it." << std::endl;
       }
       if (it == m_spectra.begin()) {
-         m_outmap.resize(m_srcmap.size(), 0);
+         m_outmap.resize(m_srcmap->size(), 0);
       }
       ::Spectrum spec(it->second);
       size_t image_size = m_outmap.size()/(m_emins.size() + 1);
@@ -219,8 +221,8 @@ void ModelMap::sumOutputMap() {
          for (unsigned int i = 0; i < image_size; i++) {
             size_t j0 = k*image_size + i;
             size_t j1 = j0 + image_size;
-            m_outmap.at(i) += (m_srcmap.at(j0)*spec(emin) +
-                               m_srcmap.at(j1)*spec(emax))*de;
+            m_outmap.at(i) += (m_srcmap->at(j0)*spec(emin) +
+                               m_srcmap->at(j1)*spec(emax))*de;
          }
       }
    }
@@ -228,12 +230,18 @@ void ModelMap::sumOutputMap() {
 
 void ModelMap::getMap(const std::string & srcName) {
    if (m_registry) {
-      m_srcmap = m_registry->sourceMap(srcName);
+      m_srcmap = &m_registry->sourceMap(srcName);
    } else {
       std::string srcMaps_file = m_pars["srcmaps"];
       std::auto_ptr<const tip::Image> 
          image(tip::IFileSvc::instance().readImage(srcMaps_file, srcName));
-      image->get(m_srcmap);
+      const std::vector<long> & dims = image->getImageDimensions();
+      size_t image_size(1);
+      for (size_t i = 0; i < dims.size(); i++) {
+         image_size *= dims.at(i);
+      }
+      m_srcmap = new std::vector<float>(image_size);
+      image->get(*m_srcmap);
    }
 }
 
@@ -298,6 +306,9 @@ void ModelMap::prepareFunctionFactory() {
    m_funcFactory->addFunc("PowerLaw2", new Likelihood::PowerLaw2(), makeClone);
    m_funcFactory->addFunc("BrokenPowerLaw2", new Likelihood::BrokenPowerLaw2(),
                           makeClone);
+   m_funcFactory->addFunc("FileFunction", new Likelihood::FileFunction(),
+                          makeClone);
+   m_funcFactory->addFunc("ExpCutoff", new Likelihood::ExpCutoff(), makeClone);
 }
 
 void ModelMap::createRegistry() {

@@ -3,7 +3,7 @@
  * @brief N-dimensional histogram.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/HistND.h,v 1.3 2004/09/25 16:38:08 jchiang Exp $
  */
 
 #ifndef Likelihood_HistND_h
@@ -51,15 +51,15 @@ public:
    
    double operator[](long index) const;
 
-   const std::vector<double> & data() const {return m_data;}
+   const std::vector<float> & data() const {return m_data;}
    
-   void setData(const std::vector<double> & data) {m_data = data;}
+   void setData(const std::vector<float> & data) {m_data = data;}
 
    HistND * clone() const {return new HistND(*this);}
 
 private:
 
-   std::vector<double> m_data;
+   std::vector<float> m_data;
      
    unsigned int m_ndims;
      

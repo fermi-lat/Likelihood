@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.50 2006/01/09 06:43:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.51 2006/01/09 20:15:58 jchiang Exp $
  */
 
 #include <algorithm>
@@ -80,8 +80,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       prepareAngleArrays();
    }
 
-   std::vector<Pixel> pixels;
-   dataMap->getPixels(pixels);
+   const std::vector<Pixel> & pixels(dataMap->pixels());
    
    std::vector<double> energies;
    dataMap->getAxisVector(2, energies);
@@ -240,8 +239,8 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
    m_model.clear();
    image->get(m_model);
 
-   std::vector<Pixel> pixels;
-   m_dataMap->getPixels(pixels);
+   const std::vector<Pixel> & pixels(m_dataMap->pixels());
+   
    std::vector<double> energies;
    m_dataMap->getAxisVector(2, energies);
 
