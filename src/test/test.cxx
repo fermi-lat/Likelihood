@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.72 2005/10/07 18:38:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.73 2005/12/24 21:36:26 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -703,14 +703,14 @@ void LikelihoodTests::test_BinnedLikelihood() {
    dataMap.writeOutput("test_Likelihood", "dataMap.fits");
    modelMap->writeOutput("test_Likelihood", "modelMap.fits");
 
-   const std::vector<double> & data = dataMap.data();
+   const std::vector<float> & data = dataMap.data();
    double dataSum(0);
    for (unsigned int i = 0; i < data.size(); i++) {
       dataSum += data[i];
    }
 //   std::cout << "Total counts in data map: " << dataSum << std::endl;
 
-   const std::vector<double> & model = modelMap->data();
+   const std::vector<float> & model = modelMap->data();
    double modelSum(0);
    for (unsigned int i = 0; i < model.size(); i++) {
       modelSum += model[i];

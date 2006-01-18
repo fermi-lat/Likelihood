@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.17 2006/01/09 06:43:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.18 2006/01/18 02:40:22 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -67,7 +67,6 @@ public:
    virtual void writeOutput(const std::string & creator, 
                             const std::string & out_file) const;
 
-//   void setImage(const std::vector<double> & image);
    void setImage(const std::vector<float> & image);
    
    long imageDimension(int idim) const;
@@ -76,16 +75,12 @@ public:
 
    const astro::SkyProj & projection() const {return *m_proj;}
 
-//    const std::vector<double> & data() const {
-//       return m_hist->data();
-//    }
    const std::vector<float> & data() const {
       return m_hist->data();
    }
 
    void setKeywords(tip::Header & header) const;
 
-//   void getPixels(std::vector<Pixel> & pixels) const;
    const std::vector<Pixel> & pixels() const;
 
    void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const;

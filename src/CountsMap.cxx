@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.32 2005/11/17 22:01:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.33 2006/01/18 02:40:25 jchiang Exp $
  */
 
 #include <algorithm>
@@ -131,9 +131,6 @@ void CountsMap::readImageData(const std::string & countsMapFile,
       image(tip::IFileSvc::instance().readImage(countsMapFile, ""));
    std::vector<float> image_data;
    image->get(image_data);
-//    std::vector<double> data(image_data.size());
-//    std::copy(image_data.begin(), image_data.end(), data.begin());
-//    m_hist->setData(data);
    m_hist->setData(image_data);
 }
 
@@ -329,18 +326,12 @@ void CountsMap::writeOutput(const std::string & creator,
    output_image->setImageDimensions(dims);
 
 // Copy bins into image.
-   std::vector<float> float_image(m_hist->data().size());
-   std::copy(m_hist->data().begin(), m_hist->data().end(),
-             float_image.begin());
-   output_image->set(float_image);
+   output_image->set(m_hist->data());
 
    writeEbounds(out_file, binners[2]);
    writeGti(out_file);
 }
 
-// void CountsMap::setImage(const std::vector<double> & image) {
-//    m_hist->setData(image);
-// }
 void CountsMap::setImage(const std::vector<float> & image) {
    m_hist->setData(image);
 }
@@ -389,18 +380,6 @@ void CountsMap::setKeywords(tip::Header & header) const {
    }
    header["CTYPE3"].set(binners[2]->getName());
 }
-
-// void CountsMap::getPixels(std::vector<Pixel> & pixels) const {
-//    pixels.clear();
-//    std::vector<astro::SkyDir> pixelDirs;
-//    std::vector<double> solidAngles;
-//    getPixels(pixelDirs, solidAngles);
-//    pixels.reserve(pixelDirs.size());
-//    for (unsigned int i = 0; i < pixelDirs.size(); i++) {
-//       pixels.push_back(Pixel(pixelDirs[i], solidAngles[i]));
-//    }
-// }
-
 
 const std::vector<Pixel> & CountsMap::pixels() const {
    if (m_pixels.empty()) {
