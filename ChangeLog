@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 17 23:10:23 PST 2006
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx CountsMap.cxx MapCubeFunction.cxx 
+	SourceModel.cxx 
+Log Message:
+clean up mods
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 17 23:10:21 PST 2006
 Likelihood/Likelihood
 
