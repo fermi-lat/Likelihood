@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.97 2006/01/15 16:01:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.98 2006/01/18 02:40:30 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -106,7 +106,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.97 2006/01/15 16:01:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.98 2006/01/18 02:40:30 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -153,6 +153,9 @@ private:
    bool prompt(const std::string &query);
    void setErrors(const std::vector<double> & errors);
 
+   void computeTsValues(const std::vector<std::string> & srcNames,
+                        std::map<std::string, double> & TsValues, 
+                        std::map<std::string, double> & RoiDist);
    Source * m_tsSrc;
    double m_maxdist;
    void renormModel();
@@ -173,7 +176,7 @@ likelihood::likelihood()
 
 void likelihood::run() {
    promptForParameters();
-   Likelihood::Verbosity::instance(m_pars["chatter"]);
+   Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(&m_pars);
    std::string expcube_file = m_pars["exposure_cube_file"];
    if (expcube_file != "none" && expcube_file != "") {
@@ -259,7 +262,7 @@ void likelihood::run() {
       writeCountsSpectra();
    }
 //   writeCountsMap();
-   if (Likelihood::print_output()) {
+   if (print_output()) {
       std::cout << "Elapsed CPU time: " << cputime() << std::endl;
    }
    delete m_helper;
@@ -398,7 +401,7 @@ void likelihood::writeSourceXml() {
    std::string xmlFile = m_pars["source_model_output_file"];
    std::string funcFileName("");
    if (xmlFile != "none") {
-      if (Likelihood::print_output()) {
+      if (print_output()) {
          std::cout << "Writing fitted model to " << xmlFile << std::endl;
       }
       m_logLike->writeXml(xmlFile, funcFileName);
@@ -408,7 +411,7 @@ void likelihood::writeSourceXml() {
 void likelihood::writeFluxXml() {
    std::string xml_fluxFile = m_pars["flux_style_model_file"];
    if (xml_fluxFile != "none") {
-      if (Likelihood::print_output()) {
+      if (print_output()) {
          std::cout << "Writing flux-style xml model file to "
                    << xml_fluxFile << std::endl;
       }
@@ -470,7 +473,6 @@ void likelihood::writeCountsSpectra() {
       }
    }
    outputFile.close();
-
 }
 
 void likelihood::writeCountsMap() {
@@ -501,25 +503,112 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<std::string> srcNames;
    m_logLike->getSrcNames(srcNames);
    
+   std::map<std::string, double> TsValues;
+   std::map<std::string, double> RoiDist;
+
+   computeTsValues(srcNames, TsValues, RoiDist);
+
+   std::vector<optimizers::Parameter> parameters;
+   std::vector<double>::const_iterator errIt = errors.begin();
+
+   std::ofstream resultsFile("results.dat");
+   resultsFile << "{";
+
+   double totalNpred(0);
+   for (unsigned int i = 0; i < srcNames.size(); i++) {
+      Source * src = m_logLike->getSource(srcNames[i]);
+      Source::FuncMap srcFuncs = src->getSrcFuncs();
+      srcFuncs["Spectrum"]->getParams(parameters);
+      if (print_output()) {
+         std::cout << "\n" << srcNames[i] << ":\n";
+      }
+      resultsFile << "'" << srcNames[i] << "': {";
+      for (unsigned int j = 0; j < parameters.size(); j++) {
+         if (print_output()) {
+            std::cout << parameters[j].getName() << ": "
+                      << parameters[j].getValue();
+         }
+         resultsFile << "'" << parameters[j].getName() << "': "
+                     << "'" << parameters[j].getValue();
+         if (parameters[j].isFree() && errIt != errors.end()) {
+            if (print_output()) {
+               std::cout << " +/- " << *errIt;
+            }
+            resultsFile << " +/- " << *errIt << "',\n";
+            errIt++;
+         } else {
+            resultsFile << "',\n";
+         }
+         if (print_output()) {
+            std::cout << std::endl;
+         }
+      }
+      if (m_statistic != "BINNED") {
+         double npred(src->Npred());
+         if (print_output()) {
+            std::cout << "Npred: "
+                      << npred << std::endl;
+         }
+         resultsFile << "'Npred': '" << npred << "',\n";
+         totalNpred += npred;
+      }
+      if (RoiDist.count(srcNames[i])) {
+         if (print_output()) {      
+            std::cout << "ROI distance: "
+                      << RoiDist[srcNames[i]] << std::endl;
+         }
+         resultsFile << "'ROI distance': '" << RoiDist[srcNames[i]] << "',\n";
+      }
+      if (TsValues.count(srcNames[i])) {
+         if (print_output()) {
+            std::cout << "TS value: "
+                      << TsValues[srcNames[i]] << std::endl;
+         }
+         resultsFile << "'TS value': '" << TsValues[srcNames[i]] << "',\n";
+      }
+      resultsFile << "},\n";
+   }
+   resultsFile << "}" << std::endl;
+   if (print_output()) {
+      std::cout << "\nTotal number of observed counts: "
+                << observedCounts() << std::endl;
+      std::cout << "Total number of model events: ";
+      if (m_statistic == "BINNED") {
+         std::cout << dynamic_cast<BinnedLikelihood *>(m_logLike)->npred();
+      } else {
+         std::cout << totalNpred;
+      }
+      std::cout << std::endl;
+   }
+   resultsFile.close();
+   if (print_output()) {
+      std::cout << "\n-log(Likelihood): "
+                << std::setprecision(10)
+                << -m_logLike->value()
+                << "\n" << std::endl;
+   }
+   delete m_opt;
+   m_opt = 0;
+}
+
+void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
+                                 std::map<std::string, double> & TsValues,
+                                 std::map<std::string, double> & RoiDist) {
 // Save current set of parameters.
    std::vector<double> fitParams;
    m_logLike->getFreeParamValues(fitParams);
-   
-   std::map<std::string, double> TsValues;
-   std::map<std::string, double> RoiDist;
-// Compute TS for each source.
+   double logLike_value = m_logLike->value();
+
    int verbose(0);
    double tol(1e-4);
-   double logLike_value = m_logLike->value();
-   std::vector<double> null_values;
-   if (Likelihood::print_output()) {
+   if (print_output()) {
       std::cerr << "Computing TS values for each source ("
                 << srcNames.size() << " total)\n";
    }
    astro::SkyDir roiCenter 
       = m_helper->observation().roiCuts().extractionRegion().center();
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      if (Likelihood::print_output()) {
+      if (print_output()) {
          std::cerr << ".";
       }
       Source * src = m_logLike->getSource(srcNames[i]);
@@ -542,8 +631,8 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
             } else {
                renormModel();
             }
-            null_values.push_back(m_logLike->value());
-            TsValues[srcNames[i]] = 2.*(logLike_value - null_values.back());
+            double null_value(m_logLike->value());
+            TsValues[srcNames[i]] = 2.*(logLike_value - null_value);
          } else {
 // Null hypothesis has no remaining free parameters, so skip the fit
 // (and hope that the model isn't empty).
@@ -557,93 +646,11 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
          m_logLike->setFreeParamValues(fitParams);
       }
    }
-   if (Likelihood::print_output()) {
+   if (print_output()) {
       std::cerr << "!" << std::endl;
    }
 // Reset parameter values.
    m_logLike->setFreeParamValues(fitParams);
-
-   std::vector<optimizers::Parameter> parameters;
-   std::vector<double>::const_iterator errIt = errors.begin();
-
-   std::ofstream resultsFile("results.dat");
-   resultsFile << "{";
-
-   for (unsigned int i = 0; i < srcNames.size(); i++) {
-      Source * src = m_logLike->getSource(srcNames[i]);
-      Source::FuncMap srcFuncs = src->getSrcFuncs();
-      srcFuncs["Spectrum"]->getParams(parameters);
-      if (Likelihood::print_output()) {
-         std::cout << "\n" << srcNames[i] << ":\n";
-      }
-      resultsFile << "'" << srcNames[i] << "': {";
-      for (unsigned int j = 0; j < parameters.size(); j++) {
-         if (Likelihood::print_output()) {
-            std::cout << parameters[j].getName() << ": "
-                      << parameters[j].getValue();
-         }
-         resultsFile << "'" << parameters[j].getName() << "': "
-                     << "'" << parameters[j].getValue();
-         if (parameters[j].isFree() && errIt != errors.end()) {
-            if (Likelihood::print_output()) {
-               std::cout << " +/- " << *errIt;
-            }
-            resultsFile << " +/- " << *errIt << "',\n";
-            errIt++;
-         } else {
-            resultsFile << "',\n";
-         }
-         if (Likelihood::print_output()) {
-            std::cout << std::endl;
-         }
-      }
-      if (m_statistic != "BINNED") {
-         if (Likelihood::print_output()) {
-            std::cout << "Npred: "
-                      << src->Npred() << std::endl;
-         }
-         resultsFile << "'Npred': '" << src->Npred() << "',\n";
-      }
-      if (RoiDist.count(srcNames[i])) {
-         if (Likelihood::print_output()) {      
-            std::cout << "ROI distance: "
-                      << RoiDist[srcNames[i]] << std::endl;
-         }
-         resultsFile << "'ROI distance': '" << RoiDist[srcNames[i]] << "',\n";
-      }
-      if (TsValues.count(srcNames[i])) {
-         if (Likelihood::print_output()) {
-            std::cout << "TS value: "
-                      << TsValues[srcNames[i]] << std::endl;
-         }
-         resultsFile << "'TS value': '" << TsValues[srcNames[i]] << "',\n";
-      }
-      resultsFile << "},\n";
-   }
-   resultsFile << "}" << std::endl;
-   if (m_statistic == "BINNED") {
-      const std::vector<float> & data = m_dataMap->data();
-      double total_counts(0);
-      for (unsigned int i = 0; i < data.size(); i++) {
-            total_counts += data[i];
-      }
-      if (Likelihood::print_output()) {
-         std::cout << "Total number of observed counts: "
-                   << total_counts << std::endl;
-         std::cout << "Total number of model events: "
-                   << dynamic_cast<BinnedLikelihood *>(m_logLike)->npred()
-                   << std::endl;
-      }
-   }
-   resultsFile.close();
-   if (Likelihood::print_output()) {
-      std::cout << "\n-log(Likelihood): "
-                << std::setprecision(10)
-                << -m_logLike->value()
-                << "\n" << std::endl;
-   }
-   delete m_opt;
-   m_opt = 0;
 }
 
 void likelihood::renormModel() {
@@ -669,7 +676,7 @@ void likelihood::renormModel() {
 }
 
 double likelihood::observedCounts() {
-   if (m_statistic == "Binned") {
+   if (m_statistic == "BINNED") {
       BinnedLikelihood * logLike = dynamic_cast<BinnedLikelihood *>(m_logLike);
       const std::vector<double> & counts(logLike->countsSpectrum());
       double totalCounts(0);
