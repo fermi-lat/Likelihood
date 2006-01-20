@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.40 2005/12/02 00:35:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.41 2005/12/23 19:57:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -92,7 +92,7 @@ unsigned int ScData::time_index(double time) const {
 }
 
 astro::SkyDir ScData::zAxis(double time) const {
-   unsigned int indx = time_index(time);
+   size_t indx = time_index(time);
    indx = std::min(indx, vec.size()-2);
    double frac = (time - vec[indx].time)
       /(vec.at(indx+1).time - vec.at(indx).time);
@@ -102,7 +102,7 @@ astro::SkyDir ScData::zAxis(double time) const {
 }
 
 astro::SkyDir ScData::xAxis(double time) const {
-   unsigned int indx = time_index(time);
+   size_t indx = time_index(time);
    indx = std::min(indx, vec.size()-2);
    double frac = (time - vec[indx].time)
       /(vec.at(indx+1).time - vec.at(indx).time);
