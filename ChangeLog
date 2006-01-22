@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan 22 07:28:46 PST 2006
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx 
+Log Message:
+use Env::getDataDir etc
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 20 21:21:38 PST 2006
 Likelihood/src
 
