@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.34 2006/01/18 07:10:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.35 2006/01/21 05:21:38 jchiang Exp $
  */
 
 #include <algorithm>
@@ -299,7 +299,9 @@ void CountsMap::binInput(tip::Table::ConstIterator begin,
 void CountsMap::writeOutput(const std::string & creator, 
                             const std::string & out_file) const {
 
-   createFile(creator, out_file, m_data_dir + "LatCountsMapTemplate");
+   createFile(creator, out_file, 
+              st_facilities::Env::appendFileName(m_data_dir,
+                                                 "LatCountsMapTemplate"));
    
    std::auto_ptr<tip::Image> 
        output_image(tip::IFileSvc::instance().editImage(out_file, ""));
