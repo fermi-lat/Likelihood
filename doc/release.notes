@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r1p1 29-Jan-06 JC   enable gui, set versions
     v11r1   22-Jan-06 JC   add ExpCutoff class from Luis; improve Ts estimator;
                            improve memory usage for gtmodelmap; changes for
                            Mac/gcc3.3; use Env::getDataDir
