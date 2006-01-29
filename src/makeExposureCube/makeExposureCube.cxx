@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.33 2005/08/18 00:08:03 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.34 2005/09/12 22:16:34 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,13 +33,15 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.33 2005/08/18 00:08:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.34 2005/09/12 22:16:34 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
    ExposureCube() : st_app::StApp(), 
                     m_pars(st_app::StApp::getParGroup("gtlivetimecube")), 
-                    m_exposure(0), m_roiCuts(0) {}
+                    m_exposure(0), m_roiCuts(0) {
+      setVersion(s_cvs_id);
+   }
    virtual ~ExposureCube() throw() {
       try {
          delete m_exposure;
@@ -50,20 +52,30 @@ public:
       }
     }
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
 private:
    st_app::AppParGroup & m_pars;
    Likelihood::LikeExposure * m_exposure;
    Likelihood::RoiCuts * m_roiCuts;
-   void promptForParameters();
    void readRoiCuts();
    void createDataCube();
+   static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<ExposureCube> myAppFactory("gtlivetimecube");
 
+std::string ExposureCube::s_cvs_id("$Name$");
+
+void ExposureCube::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
+   }
+}
+
 void ExposureCube::run() {
-   promptForParameters();
+   m_pars.Prompt();
+   m_pars.Save();
    readRoiCuts();
    std::string output_file = m_pars["outfile"];
    if (st_facilities::Util::fileExists(output_file)) {
@@ -84,15 +96,6 @@ void ExposureCube::run() {
       table(tip::IFileSvc::instance().editTable(output_file, "Exposure"));
    m_roiCuts->writeDssKeywords(table->getHeader());
    m_roiCuts->writeGtiExtension(output_file);
-}
-
-void ExposureCube::promptForParameters() {
-   m_pars.Prompt("evfile");
-   m_pars.Prompt("scfile");
-   m_pars.Prompt("outfile");
-   m_pars.Prompt("cos_theta_step");
-   m_pars.Prompt("pixel_size");
-   m_pars.Save();
 }
 
 void ExposureCube::readRoiCuts() {

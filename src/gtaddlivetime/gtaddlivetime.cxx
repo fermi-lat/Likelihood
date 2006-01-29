@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.2 2005/09/20 18:48:12 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.3 2005/09/23 20:56:44 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,13 +33,15 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.2 2005/09/20 18:48:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.3 2005/09/23 20:56:44 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
 public:
    AddLivetime() : st_app::StApp(), 
-                   m_pars(st_app::StApp::getParGroup("gtaddlivetime")) {}
+                   m_pars(st_app::StApp::getParGroup("gtaddlivetime")) {
+   setVersion(s_cvs_id);
+}
    virtual ~AddLivetime() throw() {
       try {
       } catch (std::exception &eObj) {
@@ -48,15 +50,26 @@ public:
       }
     }
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
 private:
    st_app::AppParGroup & m_pars;
    void promptForParameters();
    void checkGtis();
    void addFiles();
+
+   static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<AddLivetime> myAppFactory("gtaddlivetime");
+
+std::string AddLivetime::s_cvs_id("$Name$");
+
+void AddLivetime::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
+   }
+}
 
 void AddLivetime::run() {
    promptForParameters();

@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.11 2005/10/03 15:02:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.12 2005/10/03 20:09:24 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -37,7 +37,7 @@ public:
    gtcntsmap();
    virtual ~gtcntsmap() throw() {}
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
 private:
    st_app::AppParGroup & m_pars;
    dataSubselector::Cuts * m_cuts;
@@ -46,27 +46,30 @@ private:
    void logArray(double xmin, double xmax, unsigned int nx,
                  std::vector<double> & xx) const;
    void checkEnergies(double emin, double emax) const;
+
+   static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<gtcntsmap> myAppFactory("gtcntsmap");
 
 gtcntsmap::gtcntsmap() : st_app::StApp(), 
    m_pars(st_app::StApp::getParGroup("gtcntsmap")), m_cuts(0) {
-   try {
-      m_pars.Prompt();
-      m_pars.Save();
-      Likelihood::Verbosity::instance(m_pars["chatter"]);
-   } catch (std::exception & eObj) {
-      std::cerr << eObj.what() << std::endl;
-      std::exit(1);
-   } catch (...) {
-      std::cerr << "Caught unknown exception in gtcntsmap constructor." 
-                << std::endl;
-      std::exit(1);
+   setVersion(s_cvs_id);
+}
+
+std::string gtcntsmap::s_cvs_id("$Name$");
+
+void gtcntsmap::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
    }
 }
 
 void gtcntsmap::run() {
+   m_pars.Prompt();
+   m_pars.Save();
+   Likelihood::Verbosity::instance(m_pars["chatter"]);
    AppHelpers::checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
                                
    std::string event_file = m_pars["evfile"];

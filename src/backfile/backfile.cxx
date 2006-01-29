@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.2 2005/04/26 05:00:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.3 2005/07/07 22:03:07 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,17 +36,19 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.2 2005/04/26 05:00:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.3 2005/07/07 22:03:07 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
 public:
    BackFile() : st_app::StApp(),
-                m_pars(st_app::StApp::getParGroup("gtbackfile")) {}
+                m_pars(st_app::StApp::getParGroup("gtbackfile")) {
+      setVersion(s_cvs_id);
+   }
    virtual ~BackFile() throw() {}
 
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
 private:
    st_app::AppParGroup & m_pars;
    Likelihood::AppHelpers * m_helper;
@@ -58,9 +60,19 @@ private:
                          const std::string & extension,
                          const std::string & keyname,
                          const std::string & value) const;
+   static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<BackFile> myAppFactory("gtbackfile");
+
+std::string BackFile::s_cvs_id("$Name$");
+
+void BackFile::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
+   }
+}
 
 void BackFile::setup() {
    m_pars.Prompt();

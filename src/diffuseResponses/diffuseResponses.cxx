@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.33 2006/01/09 00:35:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.34 2006/01/14 00:32:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.33 2006/01/09 00:35:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.34 2006/01/14 00:32:51 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -57,11 +57,11 @@ public:
    virtual ~diffuseResponses() throw() {}
 
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
 
 private:
 
-   AppHelpers * m_helper;  //blech.
+   AppHelpers * m_helper;
    SourceModel * m_srcModel;
    double m_srRadius;
    st_app::AppParGroup & m_pars;
@@ -83,13 +83,26 @@ private:
    void setGaussianParams(const Event & event, const std::string & name,
                           tip::Table::Vector<double> & params);
    std::string diffuseSrcName(const std::string & srcName) const;
+
+   static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffresp");
 
+std::string diffuseResponses::s_cvs_id("$Name$");
+
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), m_srRadius(30.),
-     m_pars(st_app::StApp::getParGroup("gtdiffresp")) {}
+     m_pars(st_app::StApp::getParGroup("gtdiffresp")) {
+   setVersion(s_cvs_id);
+}
+
+void diffuseResponses::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
+   }
+}
 
 void diffuseResponses::run() {
    promptForParameters();

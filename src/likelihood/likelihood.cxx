@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.98 2006/01/18 02:40:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.99 2006/01/18 07:10:24 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -33,6 +33,7 @@
 #include "optimizers/Exception.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
+#include "optimizers/newMinuit.h"
 #ifdef HAVE_OPT_PP
 #include "optimizers/OptPP.h"
 #endif // HAVE_OPT_PP
@@ -106,7 +107,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.98 2006/01/18 02:40:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.99 2006/01/18 07:10:24 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -123,7 +124,7 @@ public:
       }
    }
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
    double cputime() const {
       return static_cast<double>(std::clock() - m_cpuStart)/1e6;
    }
@@ -163,15 +164,36 @@ private:
    optimizers::Parameter & normPar(Source *) const;
    bool isDiffuseOrNearby(Source *) const;
    double observedCounts();
+
+   static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlikelihood");
+
+std::string likelihood::s_cvs_id("$Name$");
+
+void likelihood::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
+   }
+}
 
 likelihood::likelihood() 
    : st_app::StApp(), m_helper(0), 
      m_pars(st_app::StApp::getParGroup("gtlikelihood")),
      m_logLike(0), m_opt(0), m_dataMap(0), m_cpuStart(std::clock()),
      m_tsSrc(0), m_maxdist(20.) {
+   setVersion(s_cvs_id);
+   m_pars.setSwitch("statistic");
+   m_pars.setCase("statistic", "BINNED", "counts_map_file");
+   m_pars.setCase("statistic", "BINNED", "binned_exposure_map");
+   m_pars.setCase("statistic", "BINNED", "apply_psf_corrections");
+   m_pars.setCase("statistic", "UNBINNED", "evfile");
+   m_pars.setCase("statistic", "UNBINNED", "evtable");
+   m_pars.setCase("statistic", "UNBINNED", "scfile");
+   m_pars.setCase("statistic", "UNBINNED", "sctable");
+   m_pars.setCase("statistic", "UNBINNED", "exposure_map_file");
 }
 
 void likelihood::run() {
@@ -232,27 +254,23 @@ void likelihood::run() {
    do {
       readSourceModel();
 // Do the fit.
-      if (m_statistic == "OPTEM") {
-         dynamic_cast<OptEM *>(m_logLike)->findMin(verbose);
-      } else {
 /// @todo Allow the optimizer to be re-selected here by the user.    
-         selectOptimizer();
+      selectOptimizer();
+      try {
+         m_opt->find_min(verbose, tol);
          try {
-            m_opt->find_min(verbose, tol);
-            try {
-               errors = m_opt->getUncertainty();
-               setErrors(errors);
-            } catch (optimizers::Exception & eObj) {
-               std::cerr << "Exception encountered while estimating errors:\n";
-               std::cerr << eObj.what() << std::endl;
-//                throw;
-            }
+            errors = m_opt->getUncertainty();
+            setErrors(errors);
          } catch (optimizers::Exception & eObj) {
-            std::cerr << "Exception encountered while minimizing "
-                      << "objective function:\n";
+            std::cerr << "Exception encountered while estimating errors:\n";
             std::cerr << eObj.what() << std::endl;
-//            throw;
+//             throw;
          }
+      } catch (optimizers::Exception & eObj) {
+         std::cerr << "Exception encountered while minimizing "
+                   << "objective function:\n";
+         std::cerr << eObj.what() << std::endl;
+//          throw;
       }
       printFitResults(errors);
       writeSourceXml();
@@ -332,8 +350,6 @@ void likelihood::createStatistic() {
          SourceMap::setBinnedExposure(binnedMap);
       }
       return;
-   } else if (m_statistic == "OPTEM") {
-      m_logLike = new OptEM(m_helper->observation());
    } else if (m_statistic == "UNBINNED") {
       m_logLike = new LogLike(m_helper->observation());
    }
@@ -385,6 +401,8 @@ void likelihood::selectOptimizer(std::string optimizer) {
       m_opt = new optimizers::Lbfgs(*m_logLike);
    } else if (optimizer == "MINUIT") {
       m_opt = new optimizers::Minuit(*m_logLike);
+   } else if (optimizer == "NEWMINUIT") {
+      m_opt = new optimizers::newMinuit(*m_logLike);
    } else if (optimizer == "DRMNGB") {
       m_opt = new optimizers::Drmngb(*m_logLike);
 #ifdef HAVE_OPT_PP
@@ -622,6 +640,8 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
          }
          if (m_logLike->getNumFreeParams() > 0) {
             selectOptimizer();
+// Save value for null hypothesis before modifying parameters.
+            double null_value(m_logLike->value());
             if (m_pars["find_Ts_mins"]) {
                try {
                   m_opt->find_min(verbose, tol);
@@ -631,7 +651,7 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
             } else {
                renormModel();
             }
-            double null_value(m_logLike->value());
+            null_value = std::max(m_logLike->value(), null_value);
             TsValues[srcNames[i]] = 2.*(logLike_value - null_value);
          } else {
 // Null hypothesis has no remaining free parameters, so skip the fit
