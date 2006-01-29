@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jan 28 23:20:01 PST 2006
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+gui & version number changes; windows fix for gtmodelmap
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jan 28 23:19:59 PST 2006
 Likelihood/src/gtaddlivetime
 
