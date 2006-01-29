@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jan 28 23:20:03 PST 2006
+Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+gui & version number changes; windows fix for gtmodelmap
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jan 28 23:20:02 PST 2006
 Likelihood/src/gtmodelmap
 
