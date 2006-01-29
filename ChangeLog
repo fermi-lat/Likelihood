@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jan 28 23:19:52 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+gui & version number changes; windows fix for gtmodelmap
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r1, operation: add
 Package: Likelihood
