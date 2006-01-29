@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.31 2005/08/18 17:38:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.32 2005/09/12 22:16:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.31 2005/08/18 17:38:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.32 2005/09/12 22:16:28 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -54,7 +54,7 @@ public:
       }
    }
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
 private:
    AppHelpers * m_helper;
    st_app::AppParGroup & m_pars;
@@ -62,12 +62,24 @@ private:
    void promptForParameters();
    void setSourceRegion();
    void createExposureMap();
+   static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<ExpMap> myAppFactory("gtexpmap");
 
+std::string ExpMap::s_cvs_id("$Name$");
+
 ExpMap::ExpMap() : st_app::StApp(), m_helper(0), 
-                   m_pars(st_app::StApp::getParGroup("gtexpmap")) {}
+                   m_pars(st_app::StApp::getParGroup("gtexpmap")) {
+   setVersion(s_cvs_id);
+}
+
+void ExpMap::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
+   }
+}
 
 void ExpMap::run() {
    promptForParameters();

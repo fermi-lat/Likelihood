@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.4 2005/10/10 21:42:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.5 2006/01/18 02:40:28 jchiang Exp $
  */
 
 #include <iostream>
@@ -85,7 +85,9 @@ public:
 
    ModelMap() : st_app::StApp(),
                 m_pars(st_app::StApp::getParGroup("gtmodelmap")),
-                m_funcFactory(0), m_srcmap(0) {}
+                m_funcFactory(0), m_srcmap(0) {
+      setVersion(s_cvs_id);
+   }
    virtual ~ModelMap() throw() {
       try {
          delete m_funcFactory;
@@ -95,7 +97,7 @@ public:
       }
    }
    virtual void run();
-   virtual void banner() const {};
+   virtual void banner() const;
 
 private:
 
@@ -122,10 +124,21 @@ private:
    void trimExtensions();
 
    void getMap(const std::string & srcName);
+
+   static std::string s_cvs_id;
                 
 };
 
 st_app::StAppFactory<ModelMap> myAppFactory("gtmodelmap");
+
+std::string ModelMap::s_cvs_id("$Name$");
+
+void ModelMap::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
+   }
+}
 
 void ModelMap::run() {
    m_pars.Prompt();
@@ -205,7 +218,7 @@ void ModelMap::sumOutputMap() {
       std::string srcName = it->first;
       try {
          getMap(srcName);
-      } catch (tip::TipException & eObj) {
+      } catch (tip::TipException &) {
          std::cout << "Cannot read source map for model component "
                    << srcName << ". Skipping it." << std::endl;
       }
@@ -230,17 +243,13 @@ void ModelMap::sumOutputMap() {
 
 void ModelMap::getMap(const std::string & srcName) {
    if (m_registry) {
-      m_srcmap = &m_registry->sourceMap(srcName);
+      m_srcmap = 
+         const_cast<std::vector<float> *>(&m_registry->sourceMap(srcName));
    } else {
       std::string srcMaps_file = m_pars["srcmaps"];
       std::auto_ptr<const tip::Image> 
          image(tip::IFileSvc::instance().readImage(srcMaps_file, srcName));
-      const std::vector<long> & dims = image->getImageDimensions();
-      size_t image_size(1);
-      for (size_t i = 0; i < dims.size(); i++) {
-         image_size *= dims.at(i);
-      }
-      m_srcmap = new std::vector<float>(image_size);
+      m_srcmap = new std::vector<float>(0);
       image->get(*m_srcmap);
    }
 }

@@ -4,7 +4,7 @@ version v11r1
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.244 2006/01/09 20:15:52 jchiang Exp $
+# $Id: requirements,v 1.234 2005/10/28 15:30:22 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -21,7 +21,9 @@ use irfLoader v* irfs
 use st_facilities v*
 use dataSubselector v*
 
-apply_pattern ST_library option=" -no_share *.c "
+#apply_pattern ST_library option=" -no_share *.c "
+apply_pattern ST_library option=" *.c "
+apply_pattern shared_st_library
 apply_pattern ST_pfiles
 
 apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood

@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.20 2005/05/25 19:41:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.21 2005/06/04 20:05:09 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -62,7 +62,7 @@ public:
       }
    }
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
 private:
    AppHelpers * m_helper;
    st_app::AppParGroup & m_pars;
@@ -72,6 +72,8 @@ private:
    void getRefCoord(const std::string & countsMapFile, 
                     double & ra, double & dec) const;
 
+   static std::string s_cvs_id;
+
 };
 
 st_app::StAppFactory<gtsrcmaps> myAppFactory("gtsrcmaps");
@@ -80,23 +82,24 @@ gtsrcmaps::gtsrcmaps()
    : st_app::StApp(), m_helper(0),
      m_pars(st_app::StApp::getParGroup("gtsrcmaps")),
      m_binnedLikelihood(0) {
-   try {
-      m_pars.Prompt();
-      m_pars.Save();
-      Likelihood::Verbosity::instance(m_pars["chatter"]);
-      m_helper = new AppHelpers(&m_pars);
-      m_helper->readScData();
-   } catch (std::exception & eObj) {
-      std::cerr << eObj.what() << std::endl;
-      std::exit(1);
-   } catch (...) {
-      std::cerr << "Caught unknown exception in gtsrcmaps constructor." 
-                << std::endl;
-      std::exit(1);
+   setVersion(s_cvs_id);
+}
+
+std::string gtsrcmaps::s_cvs_id("$Name$");
+
+void gtsrcmaps::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
    }
 }
 
 void gtsrcmaps::run() {
+   m_pars.Prompt();
+   m_pars.Save();
+   Likelihood::Verbosity::instance(m_pars["chatter"]);
+   m_helper = new AppHelpers(&m_pars);
+   m_helper->readScData();
    m_helper->checkOutputFile();
    m_helper->checkTimeCuts(m_pars["counts_map_file"], "",
                            m_pars["exposure_cube_file"], "Exposure");

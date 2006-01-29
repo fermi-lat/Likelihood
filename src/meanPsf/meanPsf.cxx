@@ -25,7 +25,7 @@ public:
    meanPsf();
    virtual ~meanPsf() throw() {}
    virtual void run();
-   virtual void banner() const {}
+   virtual void banner() const;
 private:
    AppHelpers * m_helper;
    st_app::AppParGroup & m_pars;
@@ -38,29 +38,32 @@ private:
    void computeEnergies();
    void computeThetas();
    void writeFitsFile();
+
+   static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<meanPsf> myAppFactory("gtpsf");
+
+std::string meanPsf::s_cvs_id("$Name$");
 
 meanPsf::meanPsf() 
    : st_app::StApp(), m_helper(0),
      m_pars(st_app::StApp::getParGroup("gtpsf")),
      m_meanPsf(0) {
-   try {
-      m_pars.Prompt();
-      m_pars.Save();
-      m_helper = new AppHelpers(&m_pars);
-   } catch (std::exception & eObj) {
-      std::cerr << eObj.what() << std::endl;
-      std::exit(1);
-   } catch (...) {
-      std::cerr << "Caught unknown exception in meanPsf constructor." 
-                << std::endl;
-      std::exit(1);
+   setVersion(s_cvs_id);
+}
+
+void meanPsf::banner() const {
+   int verbosity = m_pars["chatter"];
+   if (verbosity > 2) {
+      st_app::StApp::banner();
    }
 }
 
 void meanPsf::run() {
+   m_pars.Prompt();
+   m_pars.Save();
+   m_helper = new AppHelpers(&m_pars);
    std::string expcube_file = m_pars["exposure_cube_file"];
    if (expcube_file == "none") {
       throw std::runtime_error("Please specify an exposure cube file.");

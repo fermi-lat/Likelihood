@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r1   22-Jan-06 JC   add ExpCutoff class from Luis; improve Ts estimator;
+                           improve memory usage for gtmodelmap; changes for
+                           Mac/gcc3.3; use Env::getDataDir
     v11r0p6 09-Jan-06 JC   SourceMap/WcsMap fixes for Galactic coords;
                            short term fix for Event::computeResponse to
                            use larger integration regions only for high
