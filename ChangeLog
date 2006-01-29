@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jan 28 23:19:55 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtaddlivetime.par gtbackfile.par gtcntsmap.par gtdiffresp.par 
+	gtexpmap.par gtlikelihood.par gtlivetimecube.par 
+	gtmodelmap.par gtpsf.par gtsrcmaps.par gttsmap.par 
+Log Message:
+gui & version number changes; windows fix for gtmodelmap
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jan 28 23:19:53 PST 2006
 Likelihood/doc
 
