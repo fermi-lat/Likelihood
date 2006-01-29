@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jan 28 23:20:06 PST 2006
+Likelihood/src/meanPsf
+
+Modified Files:
+	meanPsf.cxx 
+Log Message:
+gui & version number changes; windows fix for gtmodelmap
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jan 28 23:20:05 PST 2006
 Likelihood/src/makeExposureCube
 
