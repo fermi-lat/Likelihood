@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.73 2005/12/24 21:36:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.74 2006/01/18 07:10:25 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -636,8 +636,8 @@ void LikelihoodTests::generate_exposureHyperCube() {
    std::vector<std::pair<double, double> > timeCuts;
    m_roiCuts->getTimeCuts(timeCuts);
    LikeExposure exposure(1., 0.025, timeCuts, m_roiCuts->gtis());
-   tip::Table * scData = tip::IFileSvc::instance().editTable(m_scFile,
-                                                             "SC_DATA");
+   const tip::Table * scData = tip::IFileSvc::instance().readTable(m_scFile,
+                                                                   "SC_DATA");
    exposure.load(scData, false);
    std::string output_file = m_rootPath + "/data/expcube_1_day.fits";
    exposure.write(output_file);

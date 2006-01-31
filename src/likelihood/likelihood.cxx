@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.99 2006/01/18 07:10:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.100 2006/01/29 07:20:04 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -107,7 +107,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.99 2006/01/18 07:10:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.100 2006/01/29 07:20:04 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -170,7 +170,7 @@ private:
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlikelihood");
 
-std::string likelihood::s_cvs_id("$Name$");
+std::string likelihood::s_cvs_id("$Name:  $");
 
 void likelihood::banner() const {
    int verbosity = m_pars["chatter"];
@@ -649,7 +649,9 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
                   std::cout << eObj.what() << std::endl;
                }
             } else {
-               renormModel();
+               if (m_statistic != "BINNED") {
+                  renormModel();
+               }
             }
             null_value = std::max(m_logLike->value(), null_value);
             TsValues[srcNames[i]] = 2.*(logLike_value - null_value);

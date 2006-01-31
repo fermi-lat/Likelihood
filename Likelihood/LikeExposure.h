@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.7 2005/03/07 05:18:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.8 2005/03/25 21:21:31 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.7 2005/03/07 05:18:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.8 2005/03/25 21:21:31 jchiang Exp $
  */
 
 class LikeExposure : public map_tools::Exposure {
@@ -38,7 +38,7 @@ public:
                 const std::vector< std::pair<double, double> > & timeCuts,
                 const std::vector< std::pair<double, double> > & gtis);
 
-   void load(tip::Table * tuple, bool verbose=true);
+   void load(const tip::Table * tuple, bool verbose=true);
 
    /// @param start MET start time of interval (seconds)
    /// @param stop MET stop time of interval (seconds)
