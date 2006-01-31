@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 31 14:00:15 PST 2006
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx ScData.cxx 
+Log Message:
+use const table * in reading in ScData; skip source-specific npred calcs in gtlikelihood for binned analysis
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 31 14:00:12 PST 2006
 Likelihood/Likelihood
 
