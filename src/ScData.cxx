@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.41 2005/12/23 19:57:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.42 2006/01/20 18:20:56 jchiang Exp $
  */
 
 #include <cmath>
@@ -31,7 +31,8 @@ void ScData::readData(std::string file, bool clear,
 
    m_scFile = file;
 
-   tip::Table * scData = tip::IFileSvc::instance().editTable(file, sctable);
+   const tip::Table * scData = 
+      tip::IFileSvc::instance().readTable(file, sctable);
 
    if (clear) {
       vec.clear();
@@ -39,8 +40,8 @@ void ScData::readData(std::string file, bool clear,
 
    double raSCX, decSCX;
    double raSCZ, decSCZ;
-   tip::Table::Iterator it = scData->begin();
-   tip::Table::Record & scInterval = *it;
+   tip::Table::ConstIterator it = scData->begin();
+   tip::ConstTableRecord & scInterval = *it;
    for ( ; it != scData->end(); ++it) {
       ScNtuple tuple;
       scInterval["start"].get(tuple.time);
