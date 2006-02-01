@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jan 31 17:27:29 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtlikelihood.par 
+Log Message:
+back-off on Minuit++ until we can link against it on windows
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jan 31 14:00:20 PST 2006
 Likelihood/src/test
 
