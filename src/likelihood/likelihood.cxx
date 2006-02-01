@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.100 2006/01/29 07:20:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.101 2006/01/31 22:00:17 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -33,7 +33,7 @@
 #include "optimizers/Exception.h"
 #include "optimizers/Lbfgs.h"
 #include "optimizers/Minuit.h"
-#include "optimizers/newMinuit.h"
+//#include "optimizers/newMinuit.h"
 #ifdef HAVE_OPT_PP
 #include "optimizers/OptPP.h"
 #endif // HAVE_OPT_PP
@@ -107,7 +107,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.100 2006/01/29 07:20:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.101 2006/01/31 22:00:17 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -401,8 +401,8 @@ void likelihood::selectOptimizer(std::string optimizer) {
       m_opt = new optimizers::Lbfgs(*m_logLike);
    } else if (optimizer == "MINUIT") {
       m_opt = new optimizers::Minuit(*m_logLike);
-   } else if (optimizer == "NEWMINUIT") {
-      m_opt = new optimizers::newMinuit(*m_logLike);
+//    } else if (optimizer == "NEWMINUIT") {
+//       m_opt = new optimizers::newMinuit(*m_logLike);
    } else if (optimizer == "DRMNGB") {
       m_opt = new optimizers::Drmngb(*m_logLike);
 #ifdef HAVE_OPT_PP
