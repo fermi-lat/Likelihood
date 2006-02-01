@@ -11,7 +11,8 @@ flux_style_model_file,f,h,"none",,,"flux-style output file name"
 # choice of objective function and optimizer
 #
 statistic,s,a,"UNBINNED",BINNED|UNBINNED,,"Statistic to use"
-optimizer,s,a,"DRMNGB",LBFGS|MINUIT|NEWMINUIT|DRMNGB,,"Optimizer"
+#optimizer,s,a,"DRMNGB",LBFGS|MINUIT|NEWMINUIT|DRMNGB,,"Optimizer"
+optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_tolerance,r,h,0.0001,,,"Fit tolerance"
 find_Ts_mins,b,h,no,,,Re-optimize for TS fits?
 query_for_refit,b,h,no,,,"Allow for refitting?"
