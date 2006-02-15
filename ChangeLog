@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 14 21:35:11 PST 2006
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+workaround for dc2 irf out of range problems
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r1p2, operation: add
 Package: Likelihood
