@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.76 2005/11/19 04:59:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.77 2005/12/13 05:25:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -417,8 +417,19 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
    PointSource::Aeff aeff(energy, srcDir, roiCuts, respFuncs);
 
    double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
+   
+   double effArea(0);
+   try {
+      effArea = aeff(cos_theta);
+   } catch (std::exception & eObj) {
+      if (print_output(3)) {
+         std::cout << eObj.what() << "\n"
+                   << "cos_theta = " << cos_theta
+                   << std::endl;
+      }
+   }
 
-   return aeff(cos_theta);
+   return effArea;
 }
 
 PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir,
@@ -444,10 +455,12 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       irfInterface::IPsf *psf = respIt->second->psf();
       irfInterface::IAeff *aeff = respIt->second->aeff();
 
+      double aeff_val = aeff->value(m_energy, theta, phi);
+      if (aeff_val == 0) {
+         return 0;
+      }
       double psf_val = psf->angularIntegral(m_energy, m_srcDir,
                                             theta, phi, m_cones);
-      double aeff_val = aeff->value(m_energy, theta, phi);
-
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 
