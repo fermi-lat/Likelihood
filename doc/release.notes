@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r1p3 14-Feb-06 JC   catch exceptions thrown during
+                           PointSource::sourceEffArea (related to DC2 Psf
+                           deficiencies)
     v11r1p2 01-Feb-06 JC   use const table * in ScData; back-off Minuit++ until
                            we can link against it on Windows; skip npred calc
                            for binned analysis in gtlikelihood
