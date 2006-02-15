@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 14 23:13:19 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+guard against IRF misbehavior; update par files for DC2; tagging v11r1p3
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 14 21:35:11 PST 2006
 Likelihood/src
 
