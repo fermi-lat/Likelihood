@@ -1,10 +1,10 @@
 package Likelihood
-version v11r1p2
+version v11r1p3
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.247 2006/01/29 21:04:07 jchiang Exp $
+# $Id: requirements,v 1.248 2006/02/01 20:26:46 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -20,6 +20,8 @@ use fftw v* IExternal
 use irfLoader v* irfs
 use st_facilities v*
 use dataSubselector v*
+use hoops v*
+use st_app v*
 
 apply_pattern ST_library option=" -no_share *.c "
 apply_pattern ST_pfiles
@@ -35,8 +37,3 @@ apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
 apply_pattern ST_app_withDir name=gtbackfile dir=backfile
 apply_pattern ST_app name=gtmodelmap
 apply_pattern ST_app name=gtaddlivetime
-
-private
-
-use hoops v*
-use st_app v*

@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.77 2005/12/13 05:25:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.78 2006/02/15 05:35:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -332,6 +332,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
                                   const Observation & observation,
                                   std::vector<double> &exposure,
                                   bool verbose) {
+   (void)(verbose);
    const ScData & scData = observation.scData();
    const RoiCuts & roiCuts = observation.roiCuts();
    const ResponseFunctions & respFuncs = observation.respFuncs();
@@ -345,7 +346,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    exposure.clear();
    exposure.resize(energies.size());
 
-   if (print_output() && verbose) {
+   if (print_output()) {
       std::cerr << "Computing exposure at (" 
                 << srcDir.ra() << ", " 
                 << srcDir.dec() << ")";
@@ -357,8 +358,9 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
       npts = scData.time_index(roiCuts.maxTime()) + 1;
    }
    for (unsigned int it = 0; it < npts && it < scData.vec.size()-1; it++) {
-      if (print_output() && 
-          npts/20 > 0 && ((it % (npts/20)) == 0) && verbose) std::cerr << ".";
+      if (print_output() && npts/20 > 0 && ((it % (npts/20)) == 0)) {
+         std::cerr << ".";
+      }
       double start(scData.vec.at(it).time);
       double stop(scData.vec.at(it+1).time);
       double livetime(scData.vec.at(it).livetime);
@@ -389,7 +391,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
          }
       }
    }
-   if (print_output() && verbose) std::cerr << "!" << std::endl;
+   if (print_output()) std::cerr << "!" << std::endl;
 }
 
 void PointSource::makeEnergyVector(int nee) {
@@ -427,8 +429,13 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
                    << "cos_theta = " << cos_theta
                    << std::endl;
       }
+   } catch (...) {
+      if (print_output(3)) {
+         std::cout << "caught unknown exception for "
+                   << "cos_theta = " << cos_theta
+                   << std::endl;
+      }
    }
-
    return effArea;
 }
 

@@ -2,7 +2,7 @@ srcmaps,fr,a,"srcMaps.fits",,,"Source maps file"
 source_model_file,fr,a,"srcModel.xml",,,"Source model file"
 outfile,f,a,"model_map.fits",,,"Output file"
 
-rspfunc,s,h,DC1A,,,"Response functions"
+rspfunc,s,h,DC2,,,"Response functions"
 expcube,f,h,none,,,"Exposure cube"
 binned_exposure,f,h,none,,,"Binned exposure map"
 
