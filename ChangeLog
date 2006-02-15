@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Feb 14 23:13:21 PST 2006
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+guard against IRF misbehavior; update par files for DC2; tagging v11r1p3
+    *
+------------------------------------------------------------
+User: jchiang  Tue Feb 14 23:13:21 PST 2006
 Likelihood/pfiles
 
 Modified Files:
