@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 14 23:13:21 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtdiffresp.par gtexpmap.par gtlikelihood.par gtmodelmap.par 
+	gtpsf.par gtsrcmaps.par gttsmap.par 
+Log Message:
+guard against IRF misbehavior; update par files for DC2; tagging v11r1p3
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 14 23:13:20 PST 2006
 Likelihood/doc
 
