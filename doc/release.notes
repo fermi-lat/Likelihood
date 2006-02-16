@@ -3,6 +3,10 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r2   16-Feb-06 JC   loop over respIds to get evtTypes for binned
+                           analysis; use extFiles/galdiffuse; allow user-
+                           specifiable binned exp map name for output in
+                           gtsrcmaps & sync up par name with gtmodelmap
     v11r1p3 14-Feb-06 JC   catch exceptions thrown during
                            PointSource::sourceEffArea (related to DC2 Psf
                            deficiencies)
