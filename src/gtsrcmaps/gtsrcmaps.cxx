@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.21 2005/06/04 20:05:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.22 2006/01/29 07:20:02 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -85,7 +85,7 @@ gtsrcmaps::gtsrcmaps()
    setVersion(s_cvs_id);
 }
 
-std::string gtsrcmaps::s_cvs_id("$Name$");
+std::string gtsrcmaps::s_cvs_id("$Name:  $");
 
 void gtsrcmaps::banner() const {
    int verbosity = m_pars["chatter"];
@@ -122,7 +122,8 @@ void gtsrcmaps::run() {
    roiCuts.setCuts(ra, dec, 20., energies.front(), energies.back());
 
    std::string binnedMap = m_pars["binned_exposure_map"];
-   if (binnedMap != "none" && binnedMap != "") {
+   SourceMap::setBinnedExpMapName(binnedMap);
+   if (st_facilities::Util::fileExists(binnedMap)) {
       SourceMap::setBinnedExposure(binnedMap);
    }
    bool computePointSources =
