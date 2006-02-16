@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 15 23:11:51 PST 2006
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx MeanPsf.cxx Pixel.cxx PointSource.cxx 
+Log Message:
+loop over respIds
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r1p3, operation: add
 Package: Likelihood
