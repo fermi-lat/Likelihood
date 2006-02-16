@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 16 10:25:54 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtsrcmaps.par 
+Log Message:
+address jira LK 18: allow user-specifiable binned exposure map name for map creation
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb 16 10:25:53 PST 2006
 Likelihood/Likelihood
 
