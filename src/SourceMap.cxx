@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.51 2006/01/09 20:15:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.52 2006/01/18 02:40:25 jchiang Exp $
  */
 
 #include <algorithm>
@@ -62,6 +62,7 @@ namespace {
 
 namespace Likelihood {
 
+std::string SourceMap::s_expMapFileName;
 MeanPsf * SourceMap::s_meanPsf(0);
 BinnedExposure * SourceMap::s_binnedExposure(0);
 unsigned int SourceMap::s_refCount(0);
@@ -183,6 +184,7 @@ void SourceMap::setBinnedExposure(const std::string & filename) {
       s_binnedExposure = 0;
    }
    s_binnedExposure = new BinnedExposure(filename);
+   s_expMapFileName = filename;
 }
 
 void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
@@ -280,7 +282,7 @@ void SourceMap::computeExposureAndPsf(const Observation & observation) {
    }
    if (s_binnedExposure == 0) {
       s_binnedExposure = new BinnedExposure(energies, observation);
-      s_binnedExposure->writeOutput("binned_exposure.fits");
+      s_binnedExposure->writeOutput(s_expMapFileName);
    }
 }
 

@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.30 2005/10/05 14:24:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.31 2005/11/17 15:11:32 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -23,7 +23,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.30 2005/10/05 14:24:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.31 2005/11/17 15:11:32 jchiang Exp $
  */
 
 class SourceMap {
@@ -48,6 +48,14 @@ public:
 
    const std::string & srcType() const {
       return m_srcType;
+   }
+
+   static void setBinnedExpMapName(const std::string & filename) {
+      s_expMapFileName = filename;
+   }
+
+   static const std::string & binnedExpMap() {
+      return s_expMapFileName;
    }
 
 private:
@@ -80,6 +88,9 @@ private:
    private:
       const Observation & m_observation;
    };
+
+/// @bug The binned exposure and mean psf handling is not thread safe.
+   static std::string s_expMapFileName;
 
    static MeanPsf * s_meanPsf;
    static BinnedExposure * s_binnedExposure;
