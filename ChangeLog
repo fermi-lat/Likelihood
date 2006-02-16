@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Feb 16 10:25:54 PST 2006
+Likelihood/src
+
+Modified Files:
+	SourceMap.cxx 
+Log Message:
+address jira LK 18: allow user-specifiable binned exposure map name for map creation
+    *
+------------------------------------------------------------
+User: jchiang  Thu Feb 16 10:25:54 PST 2006
 Likelihood/pfiles
 
 Modified Files:
