@@ -24,7 +24,7 @@
    <source name="Galactic Diffuse Emission" type="DiffuseSource">
       <spectrum type="PowerLaw"></spectrum>
       <spatialModel type="SpatialMap" 
-                    file="$(LIKELIHOODROOT)/src/test/Data/gas.cel">
+                    file="$(EXTFILESSYS)/galdiffuse/EGRET_diffuse_cel.fits">
       </spatialModel>
    </source>
 
