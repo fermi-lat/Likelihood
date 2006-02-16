@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 16 10:31:08 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtmodelmap.par 
+Log Message:
+change par name to match gtsrcmaps par
+    *
+------------------------------------------------------------
 User: jchiang  Thu Feb 16 10:25:55 PST 2006
 Likelihood/src/gtsrcmaps
 
