@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.78 2006/02/15 05:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.79 2006/02/15 07:13:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -463,11 +463,20 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       irfInterface::IAeff *aeff = respIt->second->aeff();
 
       double aeff_val = aeff->value(m_energy, theta, phi);
-      if (aeff_val == 0) {
+      if (aeff_val < 0.1) { // kluge.  Psf is likely not well defined out here.
          return 0;
       }
-      double psf_val = psf->angularIntegral(m_energy, m_srcDir,
-                                            theta, phi, m_cones);
+// Sledgehammer approach to handle IRF misbehavior, probably not needed given
+// the aeff_val < 0.1 test.
+      double psf_val(0);
+      try {
+         psf_val = psf->angularIntegral(m_energy, m_srcDir,
+                                        theta, phi, m_cones);
+      } catch (std::exception & eObj) { 
+         if (print_output(3)) {
+            std::cout << eObj.what() << std::endl;
+         }
+      }
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 

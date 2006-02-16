@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.13 2005/11/17 01:47:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.14 2005/11/17 22:01:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -120,7 +120,10 @@ void BinnedExposure::computeMap() {
          astro::SkyDir dir(coord.first, coord.second);
          for (unsigned int k = 0; k < m_energies.size(); k++) {
             unsigned int indx = (k*m_naxes.at(1) + j)*m_naxes.at(0) + i;
-            for (int evtType = 0; evtType < 2; evtType++) {
+            std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+               resp = m_observation->respFuncs().begin();
+            for (; resp != m_observation->respFuncs().end(); ++resp) {
+               int evtType = resp->second->irfID();
                Aeff aeff(m_energies[k], evtType, *m_observation);
                m_exposureMap.at(indx)
                   += m_observation->expCube().value(dir, aeff);
