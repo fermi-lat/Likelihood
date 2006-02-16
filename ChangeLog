@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 16 10:04:44 PST 2006
+Likelihood/data
+
+Modified Files:
+	Virgo_region.xml Virgo_region_2.xml anticenter_model.xml 
+	anticenter_model_bpl.xml 
+Log Message:
+use extFiles/galdiffuse
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 15 23:11:51 PST 2006
 Likelihood/src
 
