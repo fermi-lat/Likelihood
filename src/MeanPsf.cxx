@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.16 2005/05/17 13:44:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.17 2005/05/23 05:51:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -36,7 +36,10 @@ void MeanPsf::init() {
       for (unsigned int j = 0; j < s_separations.size(); j++) {
          double expsr_val(0);
          double psf_val(0);
-         for (int evtType = 0; evtType < 2; evtType++) {
+         std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+            resp = m_observation.respFuncs().begin();
+         for (; resp != m_observation.respFuncs().end(); ++resp) {
+            int evtType = resp->second->irfID();
             Aeff aeff(m_energies[k], evtType, m_observation);
             expsr_val += m_observation.expCube().value(m_srcDir, aeff);
             Psf psf(s_separations[j], m_energies[k], evtType, m_observation);

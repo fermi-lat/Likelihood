@@ -4,7 +4,7 @@
  * access to model counts and derivatives wrt model parameters.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.3 2004/09/22 22:49:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.4 2005/02/28 18:38:46 jchiang Exp $
  */
 
 #include "Likelihood/Pixel.h"
@@ -22,7 +22,10 @@ double Pixel::modelCounts(double emin, double emax,
 
    for (unsigned int i = 0; i < srcNames.size(); i++) {
       Source * src = srcModel.getSource(srcNames[i]);
-      for (int evtType = 0; evtType < 2; evtType++) {
+      std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+         = srcModel.observation().respFuncs().begin();
+      for ( ; respIt != srcModel.observation().respFuncs().end(); ++respIt) {
+         int evtType = respIt->second->irfID();
          Aeff aeff1(src, m_dir, emin, evtType);
          double map_lower = 
             srcModel.observation().expCube().value(m_dir, aeff1);
@@ -51,7 +54,11 @@ void Pixel::getFreeDerivs(double emin, double emax, SourceModel & srcModel,
          std::vector<std::string> names;
          func->second->getFreeParamNames(names);
          for (unsigned int i = 0; i < names.size(); i++) {
-            for (int evtType = 0; evtType < 2; evtType++) {
+            std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+               respIt = srcModel.observation().respFuncs().begin();
+            for ( ; respIt != srcModel.observation().respFuncs().end();
+                  ++respIt) {
+               int evtType = respIt->second->irfID();
                AeffDeriv aeff1(src->second, names[i], m_dir, emin, evtType);
                double map1 = 
                   srcModel.observation().expCube().value(m_dir, aeff1);
