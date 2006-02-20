@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.34 2006/01/14 00:32:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.35 2006/01/29 07:19:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,7 +45,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.34 2006/01/14 00:32:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.35 2006/01/29 07:19:57 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -89,7 +89,7 @@ private:
 
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffresp");
 
-std::string diffuseResponses::s_cvs_id("$Name$");
+std::string diffuseResponses::s_cvs_id("$Name:  $");
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), m_srRadius(30.),
@@ -109,7 +109,7 @@ void diffuseResponses::run() {
    Likelihood::Verbosity::instance(m_pars["chatter"]);
    bool clobber = m_pars["clobber"];
    m_helper = new AppHelpers(&m_pars);
-   m_helper->setRoi();
+   m_helper->setRoi("", "EVENTS", false);
    m_helper->readScData();
    m_srcModel = new SourceModel(m_helper->observation(), true);
    m_useEdisp = m_pars["use_energy_dispersion"];
