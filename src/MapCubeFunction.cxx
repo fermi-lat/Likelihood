@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.16 2006/01/18 07:10:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.17 2006/01/20 18:20:55 jchiang Exp $
  */
 
 #include <algorithm>
@@ -126,7 +126,14 @@ void MapCubeFunction::init() {
 void MapCubeFunction::readFitsFile(const std::string & fits_file) {
    std::string fitsFile(fits_file);
    facilities::Util::expandEnvVar(&fitsFile);
-   st_facilities::Util::file_ok(fitsFile);
+//   st_facilities::Util::file_ok(fitsFile);
+   if (!st_facilities::Util::fileExists(fitsFile)) {
+// The following to stdout is necessary since Xerces seems to corrupt
+// the exception handling when this method is called from
+// SourceFactory::readXml and the program simply aborts.
+      std::cout << "File not found: " << fitsFile << std::endl;
+      throw std::runtime_error("File not found: " + fitsFile);
+   }
    m_fitsFile = fitsFile;
    m_proj = new astro::SkyProj(fitsFile);
 
