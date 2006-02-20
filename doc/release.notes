@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r2p2 20-Feb-06 JC   update respfunc choice in par files
     v11r2p1 19-Feb-06 JC   bug fix: allow gtdiffresp to process unfiltered
                            FT1 files
     v11r2   16-Feb-06 JC   loop over respIds to get evtTypes for binned
