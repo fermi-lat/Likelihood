@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 20 15:23:02 PST 2006
+Likelihood/src
+
+Modified Files:
+	MapCubeFunction.cxx SpatialMap.cxx 
+Log Message:
+more reliable tests for model map existence; update gtbackfile for single class irfs
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 20 15:23:00 PST 2006
 Likelihood/pfiles
 
