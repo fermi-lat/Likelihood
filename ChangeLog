@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb 19 16:18:07 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+gtdiffresp bug fix; tagging v11r2p1
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r2, operation: add
 Package: Likelihood
