@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 20 10:28:37 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtdiffresp.par gtexpmap.par gtlikelihood.par gtmodelmap.par 
+	gtpsf.par gtsrcmaps.par gttsmap.par 
+Log Message:
+update parfiles; tagging v11r2p2
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 20 10:28:36 PST 2006
 Likelihood/doc
 
