@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 22 09:47:58 PST 2006
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	SourceMapRegistry.cxx 
+Log Message:
+allow user-specifiable binned exposure map name for gtmodelmap
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 22 08:14:04 PST 2006
 Likelihood/src
 
