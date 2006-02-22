@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 22 08:14:03 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtlikelihood.par 
+Log Message:
+print message describing valid response functions
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r2p3, operation: add
 Package: Likelihood
