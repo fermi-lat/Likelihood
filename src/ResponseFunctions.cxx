@@ -3,9 +3,10 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.19 2005/11/16 20:53:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.20 2006/01/20 18:20:56 jchiang Exp $
  */
 
+#include <sstream>
 #include <stdexcept>
 
 #include "astro/SkyDir.h"
@@ -102,8 +103,14 @@ void ResponseFunctions::load(const std::string & respFuncs) {
       }
       setRespName(respFuncs);
    } else {
-      throw std::invalid_argument("Invalid response function choice: "
-                                  + respFuncs);
+      std::ostringstream message;
+      message << "Invalid response function choice: " << respFuncs << "\n"
+              << "Valid choices are \n";
+      for (respMap::const_iterator resp = responseIds.begin();
+           resp != responseIds.end(); ++resp) {
+         message << resp->first << "\n";
+      }
+      throw std::invalid_argument(message.str());
    }
 }
 
