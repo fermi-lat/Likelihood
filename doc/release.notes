@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r2p4 22-Feb-06 JC   allow user-specifiable binned exp map name 
+                           for output in gtmodelmap ala gtsrcmaps
     v11r2p3 21-Feb-06 JC   print out error message in SourceFactory::readXml
                            since default exception handling is broken
     v11r2p2 20-Feb-06 JC   update respfunc choice in par files
