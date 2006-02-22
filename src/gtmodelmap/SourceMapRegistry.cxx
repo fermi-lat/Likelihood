@@ -6,7 +6,7 @@
  * in BinnedLikelhood.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.cxx,v 1.1 2005/10/10 21:42:06 jchiang Exp $
  */
 
 #include "st_facilities/Util.h"
@@ -54,9 +54,13 @@ SourceMapRegistry::SourceMapRegistry(const std::string & countsMap,
    m_observation = new Likelihood::Observation(respFuncs, scData, roiCuts,
                                                expCube, expMap, eventCont);
 
-   if (binnedExpMap != "" && binnedExpMap != "none") {
+   Likelihood::SourceMap::setBinnedExpMapName(binnedExpMap);
+   if (st_facilities::Util::fileExists(binnedExpMap)) {
       Likelihood::SourceMap::setBinnedExposure(binnedExpMap);
    }
+//    if (binnedExpMap != "" && binnedExpMap != "none") {
+//       Likelihood::SourceMap::setBinnedExposure(binnedExpMap);
+//    }
 
    m_countsMap = new Likelihood::CountsMap(countsMap);
 
