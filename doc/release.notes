@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r2p5 22-Feb-06 JC   read dss keywords to ascertain dc2 event class
+                           combination
     v11r2p4 22-Feb-06 JC   allow user-specifiable binned exp map name 
                            for output in gtmodelmap ala gtsrcmaps
     v11r2p3 21-Feb-06 JC   print out error message in SourceFactory::readXml

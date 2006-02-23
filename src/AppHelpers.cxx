@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.42 2006/01/14 00:32:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.43 2006/02/23 01:54:49 jchiang Exp $
  */
 
 #include <map>
@@ -158,7 +158,14 @@ void AppHelpers::createResponseFuncs() {
    m_respFuncs = new ResponseFunctions();
    st_app::AppParGroup & pars(*m_pars);
    std::string respBase = pars["rspfunc"];
-   std::string evfile = pars["evfile"];
+   std::string evfile;
+   try {
+      std::string myfile = pars["evfile"];
+      evfile = myfile;  // sheesh.
+   } catch (...) {
+      std::string myfile = pars["counts_map_file"];
+      evfile = myfile;
+   }
    std::vector<std::string> files;
    st_facilities::Util::resolve_fits_files(evfile, files);
    if (respBase == "DSS") {
