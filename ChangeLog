@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 22 17:54:49 PST 2006
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx RoiCuts.cxx 
+Log Message:
+automatic irf selection based on dss keywords that is overrideable
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 22 17:54:47 PST 2006
 Likelihood/pfiles
 
