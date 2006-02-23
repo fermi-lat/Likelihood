@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 22 17:54:52 PST 2006
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+automatic irf selection based on dss keywords that is overrideable
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 22 17:54:51 PST 2006
 Likelihood/src/TsMap
 
