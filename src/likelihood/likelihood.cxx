@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.101 2006/01/31 22:00:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.102 2006/02/01 01:27:31 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -107,7 +107,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.101 2006/01/31 22:00:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.102 2006/02/01 01:27:31 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -219,14 +219,19 @@ void likelihood::run() {
       st_facilities::Util::file_ok(eventFile);
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
       bool compareGtis(false);
+      bool relyOnStreams(false);
+      std::string respfunc = m_pars["rspfunc"];
+      bool skipEventClassCuts(respfunc != "DSS");
       for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
          AppHelpers::checkCuts(m_eventFiles[0], evtable, m_eventFiles[i],
-                               evtable, compareGtis);
+                               evtable, compareGtis, relyOnStreams,
+                               skipEventClassCuts);
       }
       compareGtis = true;
       if (exposureFile != "none" && exposureFile != "") {
          AppHelpers::checkCuts(m_eventFiles, evtable, exposureFile, "",
-                               compareGtis);
+                               compareGtis, relyOnStreams,
+                               skipEventClassCuts);
       }
       if (expcube_file != "none" && expcube_file != "") {
          AppHelpers::checkTimeCuts(m_eventFiles, evtable, expcube_file, 

@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.12 2005/10/03 20:09:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.13 2006/01/29 07:20:00 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -57,7 +57,7 @@ gtcntsmap::gtcntsmap() : st_app::StApp(),
    setVersion(s_cvs_id);
 }
 
-std::string gtcntsmap::s_cvs_id("$Name$");
+std::string gtcntsmap::s_cvs_id("$Name:  $");
 
 void gtcntsmap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -77,10 +77,14 @@ void gtcntsmap::run() {
    std::vector<std::string> eventFiles;
    st_facilities::Util::resolve_fits_files(event_file, eventFiles);
    bool compareGtis(false);
+   bool relyOnStreams(false);
+   std::string respfunc = m_pars["rspfunc"];
+   bool skipEventClassCuts(respfunc != "DSS");
    for (unsigned int i = 1; i < eventFiles.size(); i++) {
       AppHelpers::checkCuts(eventFiles[0], evtable,
                             eventFiles[i], evtable,
-                            compareGtis);
+                            compareGtis, relyOnStreams, 
+                            skipEventClassCuts);
    }
 
    m_cuts = new dataSubselector::Cuts(eventFiles, evtable);
