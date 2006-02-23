@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.41 2005/12/23 19:57:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.42 2006/01/14 00:32:49 jchiang Exp $
  */
 
 #include <map>
@@ -102,6 +102,36 @@ void AppHelpers::setRoi(const std::string & filename,
    roiCuts.readCuts(eventFiles, evtable, strict);
 }
 
+std::string AppHelpers::responseFuncs(const std::string & file,
+                                      const std::string & respBase) {
+   static char * respcombos[] = {"DC2", "DC2FA", "DC2BA", "DC2FB", "DC2BB", 
+                                 "DC2_A"};
+   if (respBase != "DC2") {
+      return respBase;
+   }
+// If just DC2 is given, then parse the EVENT_CLASS keyword to find
+// the proper combination.
+   dataSubselector::Cuts cuts(file, "EVENTS");
+
+   for (unsigned int i = 0; i < cuts.size(); i++) {
+      if (cuts[i].type() == "range") {
+         const dataSubselector::RangeCut & myCut = 
+            dynamic_cast<dataSubselector::RangeCut &>(
+               const_cast<dataSubselector::CutBase &>(cuts[i]));
+         if (myCut.colname() == "EVENT_CLASS") {
+            if (myCut.intervalType() == dataSubselector::RangeCut::MAXONLY
+                && myCut.maxVal() == 1) {
+               return "DC2_A";
+            } else {
+               return respcombos[static_cast<int>(myCut.minVal())+1];
+            }
+         }
+      }
+   }
+// Default action: use all event classes
+   return respBase;
+}
+
 void AppHelpers::readScData() {
    st_app::AppParGroup & pars(*m_pars);
    std::string scFile = pars["scfile"];
@@ -127,8 +157,16 @@ void AppHelpers::readExposureMap() {
 void AppHelpers::createResponseFuncs() {
    m_respFuncs = new ResponseFunctions();
    st_app::AppParGroup & pars(*m_pars);
-   std::string responseFuncs = pars["rspfunc"];
-   m_respFuncs->load(responseFuncs);
+   std::string respBase = pars["rspfunc"];
+   std::string evfile = pars["evfile"];
+   std::vector<std::string> files;
+   st_facilities::Util::resolve_fits_files(evfile, files);
+   if (respBase == "DSS") {
+      std::string respFuncs = responseFuncs(files.front(), "DC2");
+      m_respFuncs->load(respFuncs);
+   } else {
+      m_respFuncs->load(respBase);
+   }      
 }
 
 void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
@@ -148,10 +186,14 @@ void AppHelpers::checkCuts(const std::string & file1,
                            const std::string & file2,
                            const std::string & ext2,
                            bool compareGtis,
-                           bool relyOnStreams) {
+                           bool relyOnStreams,
+                           bool skipEventClassCuts) {
    bool checkColumns(false);
-   dataSubselector::Cuts cuts1(file1, ext1, checkColumns);
-   dataSubselector::Cuts cuts2(file2, ext2, checkColumns);
+   bool skipTimeRangeCuts(false);
+   dataSubselector::Cuts cuts1(file1, ext1, checkColumns,
+                               skipTimeRangeCuts, skipEventClassCuts);
+   dataSubselector::Cuts cuts2(file2, ext2, checkColumns,
+                               skipTimeRangeCuts, skipEventClassCuts);
    if (!checkCuts(cuts1, cuts2, compareGtis, relyOnStreams)) {
       std::ostringstream message;
       message << "AppHelpers::checkCuts:\n" 
@@ -176,10 +218,14 @@ void AppHelpers::checkCuts(const std::vector<std::string> & files1,
                            const std::string & file2,
                            const std::string & ext2,
                            bool compareGtis, 
-                           bool relyOnStreams) {
+                           bool relyOnStreams, 
+                           bool skipEventClassCuts) {
    bool checkColumns(false);
-   dataSubselector::Cuts cuts1(files1, ext1, checkColumns);
-   dataSubselector::Cuts cuts2(file2, ext2, checkColumns);
+   bool skipTimeRangeCuts(false);
+   dataSubselector::Cuts cuts1(files1, ext1, checkColumns,
+                               skipTimeRangeCuts, skipEventClassCuts);
+   dataSubselector::Cuts cuts2(file2, ext2, checkColumns,
+                               skipTimeRangeCuts, skipEventClassCuts);
    if (!checkCuts(cuts1, cuts2, compareGtis, relyOnStreams)) {
       std::ostringstream message;
       message << "AppHelpers::checkCuts:\n" 
@@ -226,8 +272,8 @@ void AppHelpers::checkTimeCuts(const std::string & file1,
                                const std::string & file2,
                                const std::string & ext2,
                                bool compareGtis) {
-   dataSubselector::Cuts cuts1(file1, ext1, false);
-   dataSubselector::Cuts cuts2(file2, ext2, false);
+   dataSubselector::Cuts cuts1(file1, ext1, false, false, true);
+   dataSubselector::Cuts cuts2(file2, ext2, false, false, true);
    if (!checkTimeCuts(cuts1, cuts2, compareGtis)) {
       std::ostringstream message;
       message << "AppHelpers::checkTimeCuts:\n" 
@@ -253,8 +299,8 @@ void AppHelpers::checkTimeCuts(const std::vector<std::string> & files1,
                                const std::string & file2,
                                const std::string & ext2,
                                bool compareGtis) {
-   dataSubselector::Cuts cuts1(files1, ext1, false);
-   dataSubselector::Cuts cuts2(file2, ext2, false);
+   dataSubselector::Cuts cuts1(files1, ext1, false, false, true);
+   dataSubselector::Cuts cuts2(file2, ext2, false, false, true);
    if (!checkTimeCuts(cuts1, cuts2, compareGtis)) {
       std::ostringstream message;
       message << "AppHelpers::checkTimeCuts:\n" 

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.23 2005/08/18 17:38:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.24 2005/09/19 23:37:20 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -40,7 +40,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.23 2005/08/18 17:38:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.24 2005/09/19 23:37:20 jchiang Exp $
  */
 
 class AppHelpers {
@@ -79,6 +79,7 @@ public:
    Observation & observation() {
       return *m_observation;
    }
+                  
 #endif // SWIG
 
    template<typename T>
@@ -89,14 +90,16 @@ public:
 
    static void checkCuts(const std::string & file1, const std::string & ext1,
                          const std::string & file2, const std::string & ext2,
-                         bool compareGtis=true, bool relyOnStreams=false);
+                         bool compareGtis=true, bool relyOnStreams=false,
+                         bool skipEventClassCuts=false);
 
    static void checkCuts(const std::vector<std::string> & files1,
                          const std::string & ext1,
                          const std::string & file2,
                          const std::string & ext2,
                          bool compareGtis=true,
-                         bool relyOnStreams=false);
+                         bool relyOnStreams=false,
+                         bool skipEventClassCuts=false);
 
    static void checkTimeCuts(const std::string & file1, 
                              const std::string & ext1,
@@ -109,6 +112,9 @@ public:
                              const std::string & file2,
                              const std::string & ext2,
                              bool compareGtis=true);
+
+   static std::string responseFuncs(const std::string & file,
+                                    const std::string & respBase);
 
 protected:
 
@@ -147,6 +153,8 @@ private:
    static bool checkCuts(const dataSubselector::Cuts & cuts1,
                          const dataSubselector::Cuts & cuts2,
                          bool compareGtis, bool relyOnStreams);
+
+   
 };
 
 template<typename T>
