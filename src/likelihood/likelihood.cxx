@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.102 2006/02/01 01:27:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.103 2006/02/23 01:54:53 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -107,7 +107,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.102 2006/02/01 01:27:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.103 2006/02/23 01:54:53 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -655,7 +655,7 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
                }
             } else {
                if (m_statistic != "BINNED") {
-                  renormModel();
+//                  renormModel();
                }
             }
             null_value = std::max(m_logLike->value(), null_value);
