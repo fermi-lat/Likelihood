@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 27 19:20:42 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+temporary patch to comment out attempt at a better Ts estimator; tagging v11r2p6
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r2p5, operation: add
 Package: Likelihood
