@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.20 2006/01/20 18:20:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.21 2006/02/22 16:14:04 jchiang Exp $
  */
 
 #include <sstream>
@@ -33,11 +33,13 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
                                         const astro::SkyDir & srcDir,
                                         const astro::SkyDir & appDir, 
                                         int type) const {
+   bool foundResponse(false);
    double myResponse(0);
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = begin();
    for ( ; respIt != end(); respIt++) {
-      if (respIt->second->irfID() == type) {  
+      if (respIt->second->irfID() == type) {
+         foundResponse = true;
          irfInterface::IPsf * psf = respIt->second->psf();
          irfInterface::IAeff * aeff = respIt->second->aeff();
          double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
@@ -52,17 +54,23 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
          }            
       }
    }
+   if (!foundResponse) {
+      throw std::runtime_error("Could not find appropriate response functions "
+                               "for these event data.");
+   }
    return myResponse;
 }
 
 double ResponseFunctions::totalResponse(double inclination, double phi,
                                         double energy, double appEnergy,
                                         double separation, int type) const {
+   bool foundResponse(false);
    double myResponse(0);
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = begin();
    for ( ; respIt != end(); respIt++) {
       if (respIt->second->irfID() == type) {  
+         foundResponse = true;
          irfInterface::IPsf * psf = respIt->second->psf();
          irfInterface::IAeff * aeff = respIt->second->aeff();
          double psf_val = psf->value(separation, energy, inclination, phi);
@@ -76,6 +84,10 @@ double ResponseFunctions::totalResponse(double inclination, double phi,
             myResponse += psf_val*aeff_val;
          }            
       }
+   }
+   if (!foundResponse) {
+      throw std::runtime_error("Could not find appropriate response functions "
+                               "for these event data.");
    }
    return myResponse;
 }   
