@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 27 19:20:43 PST 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+temporary patch to comment out attempt at a better Ts estimator; tagging v11r2p6
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 27 19:20:42 PST 2006
 Likelihood/doc
 
