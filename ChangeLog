@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 28 12:15:33 PST 2006
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx ResponseFunctions.cxx RoiCuts.cxx 
+Log Message:
+some patches for handling DSS keyword identification of DC2 irf combinations
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r2p6, operation: add
 Package: Likelihood
