@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.43 2006/02/23 01:54:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.44 2006/02/23 07:30:15 jchiang Exp $
  */
 
 #include <map>
@@ -111,8 +111,17 @@ std::string AppHelpers::responseFuncs(const std::string & file,
    }
 // If just DC2 is given, then parse the EVENT_CLASS keyword to find
 // the proper combination.
-   dataSubselector::Cuts cuts(file, "EVENTS");
-
+   dataSubselector::Cuts cuts;
+   try {
+      cuts = dataSubselector::Cuts(file, "EVENTS");
+   } catch (tip::TipException & eObj) { 
+      if (st_facilities::Util::expectedException(eObj, "Could not open")) {
+// Probably have a counts map file:
+         cuts = dataSubselector::Cuts(file, "", false);
+      } else {
+         throw;
+      }
+   }
    for (unsigned int i = 0; i < cuts.size(); i++) {
       if (cuts[i].type() == "range") {
          const dataSubselector::RangeCut & myCut = 

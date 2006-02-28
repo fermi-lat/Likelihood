@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.40 2005/10/19 06:14:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.41 2006/02/23 01:54:49 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -63,7 +63,8 @@ void RoiCuts::readCuts(const std::string & eventFile,
 
 void RoiCuts::readCuts(const std::vector<std::string> & eventFiles, 
                        const std::string & ext, bool strict) {
-   m_cuts = new dataSubselector::Cuts(eventFiles, ext, false, false, true);
+//   m_cuts = new dataSubselector::Cuts(eventFiles, ext, false, false, true);
+   m_cuts = new dataSubselector::Cuts(eventFiles, ext, false, false, false);
    sortCuts(strict);
    setRoiData();
 }
