@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Mar 10 15:35:48 PST 2006
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+ensure correct file (if any) is queried for detection of response functions using DSS keywords
+    *
+------------------------------------------------------------
+User: jchiang  Fri Mar 10 15:35:48 PST 2006
 Likelihood/src/diffuseResponses
 
 Modified Files:
