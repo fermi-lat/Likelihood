@@ -3,7 +3,7 @@
  * @brief Integral over time of effective area for an all-sky map.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/exposureMap/exposureMap.cxx,v 1.5 2004/10/11 01:35:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/exposureMap/exposureMap.cxx,v 1.6 2005/04/16 01:14:28 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -53,7 +53,7 @@ exposureMap::exposureMap()
    try {
       m_pars.Prompt();
       m_pars.Save();
-      m_helper = new AppHelpers(&m_pars);
+      m_helper = new AppHelpers(&m_pars, "none");
       m_helper->readScData();
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
