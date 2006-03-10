@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Mar 10 15:35:47 PST 2006
+Likelihood/src/backfile
+
+Modified Files:
+	backfile.cxx 
+Log Message:
+ensure correct file (if any) is queried for detection of response functions using DSS keywords
+    *
+------------------------------------------------------------
+User: jchiang  Fri Mar 10 15:35:47 PST 2006
 Likelihood/src/TsMap
 
 Modified Files:
