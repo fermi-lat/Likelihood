@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Mar 10 15:35:45 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtbackfile.par gtmodelmap.par gtpsf.par gtsrcmaps.par 
+Log Message:
+ensure correct file (if any) is queried for detection of response functions using DSS keywords
+    *
+------------------------------------------------------------
+User: jchiang  Fri Mar 10 15:35:45 PST 2006
 Likelihood/Likelihood
 
 Modified Files:
