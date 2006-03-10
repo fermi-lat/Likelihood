@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 10 15:35:51 PST 2006
+Likelihood/src/meanPsf
+
+Modified Files:
+	meanPsf.cxx 
+Log Message:
+ensure correct file (if any) is queried for detection of response functions using DSS keywords
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar 10 15:35:50 PST 2006
 Likelihood/src/likelihood
 
