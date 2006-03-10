@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.3 2005/07/07 22:03:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.4 2006/01/29 07:19:56 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,7 +36,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.3 2005/07/07 22:03:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.4 2006/01/29 07:19:56 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
@@ -65,7 +65,7 @@ private:
 
 st_app::StAppFactory<BackFile> myAppFactory("gtbackfile");
 
-std::string BackFile::s_cvs_id("$Name$");
+std::string BackFile::s_cvs_id("$Name:  $");
 
 void BackFile::banner() const {
    int verbosity = m_pars["chatter"];
@@ -77,7 +77,7 @@ void BackFile::banner() const {
 void BackFile::setup() {
    m_pars.Prompt();
    m_pars.Save();
-   m_helper = new Likelihood::AppHelpers(&m_pars);
+   m_helper = new Likelihood::AppHelpers(&m_pars, "none");
    std::string scfile = m_pars["scfile"];
    m_helper->observation().scData().readData(scfile);
    std::string expMap = m_pars["exposure_map_file"];

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.44 2006/02/23 07:30:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.45 2006/02/28 20:15:33 jchiang Exp $
  */
 
 #include <map>
@@ -40,10 +40,11 @@ using irfInterface::IrfsFactory;
 
 namespace Likelihood {
 
-AppHelpers::AppHelpers(st_app::AppParGroup * pars)
+AppHelpers::AppHelpers(st_app::AppParGroup * pars,
+                       const std::string & analysisType) 
    : m_pars(pars), m_funcFactory(0), m_respFuncs(0) {
    prepareFunctionFactory();
-   createResponseFuncs();
+   createResponseFuncs(analysisType);
 
    m_roiCuts = new RoiCuts();
    m_scData = new ScData();
@@ -163,17 +164,20 @@ void AppHelpers::readExposureMap() {
    }
 }
 
-void AppHelpers::createResponseFuncs() {
+void AppHelpers::createResponseFuncs(const std::string & analysisType) {
    m_respFuncs = new ResponseFunctions();
    st_app::AppParGroup & pars(*m_pars);
    std::string respBase = pars["rspfunc"];
    std::string evfile;
-   try {
+   if (analysisType == "UNBINNED") {
       std::string myfile = pars["evfile"];
-      evfile = myfile;  // sheesh.
-   } catch (...) {
+      evfile = myfile;
+   } else if (analysisType == "BINNED") {
       std::string myfile = pars["counts_map_file"];
       evfile = myfile;
+   } else {
+      m_respFuncs->load(respBase);
+      return;
    }
    std::vector<std::string> files;
    st_facilities::Util::resolve_fits_files(evfile, files);

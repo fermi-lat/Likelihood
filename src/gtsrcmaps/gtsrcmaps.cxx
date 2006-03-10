@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.22 2006/01/29 07:20:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.23 2006/02/16 18:25:55 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -98,7 +98,7 @@ void gtsrcmaps::run() {
    m_pars.Prompt();
    m_pars.Save();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
-   m_helper = new AppHelpers(&m_pars);
+   m_helper = new AppHelpers(&m_pars, "BINNED");
    m_helper->readScData();
    m_helper->checkOutputFile();
    m_helper->checkTimeCuts(m_pars["counts_map_file"], "",

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.103 2006/02/23 01:54:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.104 2006/02/28 03:20:43 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -107,7 +107,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.103 2006/02/23 01:54:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.104 2006/02/28 03:20:43 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -199,7 +199,8 @@ likelihood::likelihood()
 void likelihood::run() {
    promptForParameters();
    Verbosity::instance(m_pars["chatter"]);
-   m_helper = new AppHelpers(&m_pars);
+   std::string statistic = m_pars["statistic"];
+   m_helper = new AppHelpers(&m_pars, statistic);
    std::string expcube_file = m_pars["exposure_cube_file"];
    if (expcube_file != "none" && expcube_file != "") {
       ExposureCube & expCube = 

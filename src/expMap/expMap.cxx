@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.32 2005/09/12 22:16:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.33 2006/01/29 07:19:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.32 2005/09/12 22:16:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.33 2006/01/29 07:19:58 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -67,7 +67,7 @@ private:
 
 st_app::StAppFactory<ExpMap> myAppFactory("gtexpmap");
 
-std::string ExpMap::s_cvs_id("$Name$");
+std::string ExpMap::s_cvs_id("$Name:  $");
 
 ExpMap::ExpMap() : st_app::StApp(), m_helper(0), 
                    m_pars(st_app::StApp::getParGroup("gtexpmap")) {
@@ -84,7 +84,7 @@ void ExpMap::banner() const {
 void ExpMap::run() {
    promptForParameters();
    Likelihood::Verbosity::instance(m_pars["chatter"]);
-   m_helper = new AppHelpers(&m_pars);
+   m_helper = new AppHelpers(&m_pars, "UNBINNED");
    m_helper->readScData();
    bool useEdisp = m_pars["use_energy_dispersion"];
    ResponseFunctions & respFuncs =
