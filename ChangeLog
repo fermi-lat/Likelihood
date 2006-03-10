@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Mar 10 15:35:50 PST 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+ensure correct file (if any) is queried for detection of response functions using DSS keywords
+    *
+------------------------------------------------------------
+User: jchiang  Fri Mar 10 15:35:50 PST 2006
 Likelihood/src/gtsrcmaps
 
 Modified Files:
