@@ -1,4 +1,14 @@
+/**
+ * @file Verbosity.cxx
+ * @brief Implementation for Singleton class to control output level.
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
+#define ST_DLL_EXPORTS
 #include "Verbosity.h"
+#undef ST_DLL_EXPORTS
 
 namespace Likelihood {
 
