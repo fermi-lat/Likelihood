@@ -3,15 +3,17 @@
  * @brief Singleton to store verbosity level for screen output and whether
  * files are to be overwritten.
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Verbosity.h,v 1.1 2004/11/27 20:02:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Verbosity.h,v 1.1 2004/11/28 06:58:21 jchiang Exp $
  */
 
 #ifndef Likelihood_Verbosity_h
 #define Likelihood_Verbosity_h
 
+#include "st_facilities/libStApiExports.h"
+
 namespace Likelihood {
 
-class Verbosity {
+class SCIENCETOOLS_API Verbosity {
 
 public:
    static Verbosity * instance(unsigned int verbosity=2, bool clobber=true) {
