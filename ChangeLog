@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 13 09:14:16 PST 2006
+Likelihood/src
+
+Modified Files:
+	Verbosity.cxx Verbosity.h XmlParser.cxx XmlParser.h 
+Log Message:
+use st_facilities/libStApiExports.h
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 13 09:14:15 PST 2006
 Likelihood/cmt
 
