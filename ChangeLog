@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Mar 15 13:34:06 PST 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtmodelmap.par gtsrcmaps.par 
+Log Message:
+enable model maps to be created without doing the convolutions with the psf
+    *
+------------------------------------------------------------
+User: jchiang  Wed Mar 15 13:34:06 PST 2006
 Likelihood/Likelihood
 
 Modified Files:
