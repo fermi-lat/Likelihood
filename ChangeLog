@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 15 13:34:07 PST 2006
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx SourceMap.cxx 
+Log Message:
+enable model maps to be created without doing the convolutions with the psf
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 15 13:34:06 PST 2006
 Likelihood/pfiles
 
