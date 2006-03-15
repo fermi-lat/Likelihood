@@ -3,7 +3,7 @@
  * @brief Class to manage creation of SourceMaps for gtmodelmap application.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.h,v 1.1 2005/10/10 21:42:06 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMapRegistry_h
@@ -37,7 +37,8 @@ public:
                      const std::string & irfs,
                      const std::string & expCube,
                      const std::string & binnedExpMap,
-                     optimizers::FunctionFactory & funcFactory);
+                     optimizers::FunctionFactory & funcFactory,
+                     bool performConvolution=true);
 
    ~SourceMapRegistry();
 

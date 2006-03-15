@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.34 2006/01/18 02:40:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.35 2006/01/18 07:10:22 jchiang Exp $
  */
 
 #include <memory>
@@ -27,11 +27,13 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
                                    const Observation & observation,
                                    const std::string & srcMapsFile,
                                    bool computePointSources,
-                                   bool applyPsfCorrections)
+                                   bool applyPsfCorrections,
+                                   bool performConvolution)
    : LogLike(observation), m_dataMap(dataMap), m_pixels(dataMap.pixels()),
      m_modelIsCurrent(false), m_srcMapsFile(srcMapsFile),
      m_computePointSources(computePointSources),
-     m_applyPsfCorrections(applyPsfCorrections) {
+     m_applyPsfCorrections(applyPsfCorrections),
+     m_performConvolution(performConvolution) {
    dataMap.getAxisVector(2, m_energies);
    identifyFilledPixels();
    computeCountsSpectrum();
@@ -218,7 +220,8 @@ void BinnedLikelihood::createSourceMaps() {
 
 SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
    Source * src = getSource(srcName);
-   return new SourceMap(src, &m_dataMap, m_observation, m_applyPsfCorrections);
+   return new SourceMap(src, &m_dataMap, m_observation, m_applyPsfCorrections,
+                        m_performConvolution);
 }
 
 void BinnedLikelihood::readSourceMaps(std::string filename) {
@@ -249,7 +252,8 @@ void BinnedLikelihood::readSourceMaps(std::string filename) {
          Source * src = getSource(*name);
          if (src->getType() == "Diffuse" || m_computePointSources) {
             m_srcMaps[*name] = new SourceMap(src, &m_dataMap, m_observation,
-                                             m_applyPsfCorrections);
+                                             m_applyPsfCorrections,
+                                             m_performConvolution);
          }
       }
    }
