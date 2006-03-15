@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 15 13:34:06 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h Pixel.h SourceMap.h 
+Log Message:
+enable model maps to be created without doing the convolutions with the psf
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 13 09:14:16 PST 2006
 Likelihood/src
 
