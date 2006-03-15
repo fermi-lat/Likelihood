@@ -5,6 +5,7 @@ outfile,f,a,"model_map.fits",,,"Output file"
 rspfunc,s,a,DC2,,,"Response functions"
 expcube,f,h,none,,,"Exposure cube"
 binned_exposure_map,f,h,none,,,"Binned exposure map"
+perform_convolution,b,h,yes,,,"Perform convolution with psf"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

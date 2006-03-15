@@ -6,8 +6,9 @@ source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
 binned_exposure_map,f,a,"binned_exposure.fits",,,"Binned exposure map"
 outfile,f,a,"srcMaps.fits",,,"Source maps output file"
 rspfunc,s,h,"DSS",,,"Response functions"
-compute_point_sources,b,h,yes,,,"compute point source maps"
-apply_psf_corrections,b,h,yes,,,"apply psf integral corrections"
+perform_convolution,b,h,yes,,,"Perform convolution with psf"
+compute_point_sources,b,h,yes,,,"Compute point source maps"
+apply_psf_corrections,b,h,yes,,,"Apply psf integral corrections"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

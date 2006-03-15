@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.6 2006/01/29 07:20:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.7 2006/02/16 18:31:08 jchiang Exp $
  */
 
 #include <iostream>
@@ -326,10 +326,12 @@ void ModelMap::createRegistry() {
    std::string irfs = m_pars["rspfunc"];
    std::string expCube = m_pars["expcube"];
    std::string binnedExpMap = m_pars["binned_exposure_map"];
+   bool performConvolution = m_pars["perform_convolution"];
 
    if (expCube != "none") {
       m_registry = new SourceMapRegistry(countsMap, xmlFile, irfs, expCube,
-                                         binnedExpMap, *m_funcFactory);
+                                         binnedExpMap, *m_funcFactory,
+                                         performConvolution);
    } else {
       m_registry = 0;
    }
