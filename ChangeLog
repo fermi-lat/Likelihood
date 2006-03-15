@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 15 13:34:08 PST 2006
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	SourceMapRegistry.cxx SourceMapRegistry.h gtmodelmap.cxx 
+Log Message:
+enable model maps to be created without doing the convolutions with the psf
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 15 13:34:07 PST 2006
 Likelihood/src
 
