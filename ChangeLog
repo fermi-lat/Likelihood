@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 15 22:20:09 PST 2006
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx ResponseFunctions.cxx SourceFactory.cxx 
+	SourceModel.cxx Verbosity.h XmlBuilder.cxx XmlParser.cxx 
+	XmlParser.h 
+Log Message:
+various workarounds because of incorrect linkage by cmt on Windows
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 15 22:20:00 PST 2006
 Likelihood/cmt
 
