@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 15 22:20:00 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+various workarounds because of incorrect linkage by cmt on Windows
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r2p9, operation: add
 Package: Likelihood
