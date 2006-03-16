@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.45 2006/02/28 20:15:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.46 2006/03/10 23:35:46 jchiang Exp $
  */
 
 #include <map>
@@ -11,7 +11,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include "irfLoader/Loader.h"
+// #undef ST_API_EXPORTS
+// #include "irfLoader/Loader.h"
 #include "irfInterface/IrfsFactory.h"
 
 #include "st_facilities/Util.h"
