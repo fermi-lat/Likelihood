@@ -3,7 +3,7 @@
  * @brief Singleton wrapper for xmlBase::XmlParser instance
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlParser.h,v 1.1 2005/11/16 20:00:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlParser.h,v 1.2 2006/03/13 17:14:16 jchiang Exp $
  */
 
 #ifndef Likelihood_XmlParser_h
@@ -11,7 +11,7 @@
 
 #include "xmlBase/XmlParser.h"
 
-#include "st_facilities/libStApiExports.h"
+//#include "st_facilities/libStApiExports.h"
 
 namespace Likelihood {
 
@@ -23,7 +23,8 @@ namespace Likelihood {
  * @author J. Chiang
  */
 
-class SCIENCETOOLS_API XmlParser {
+//class SCIENCETOOLS_API XmlParser {
+class XmlParser {
 
 public:
 
