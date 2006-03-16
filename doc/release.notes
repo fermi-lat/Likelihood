@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r3   15-Mar-06 JC   convert to shared library
     v11r2p9 15-Mar-06 JC   fix for A1_Sources.dtd allowing either ordering
                            of model components; enable SourceMap generation
                            without psf convolution
