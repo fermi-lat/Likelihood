@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r2p9 15-Mar-06 JC   fix for A1_Sources.dtd allowing either ordering
+                           of model components; enable SourceMap generation
+                           without psf convolution
     v11r2p8 11-Mar-06 JC   one more attempt at getting DSS keyword handling
                            of EVENT_CLASS selections correct
     v11r2p7 28-Feb-06 JC   more fixes for DSS keyword handling of EVENT_CLASS
