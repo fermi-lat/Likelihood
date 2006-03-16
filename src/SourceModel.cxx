@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.73 2006/01/18 02:40:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.74 2006/01/18 07:10:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -322,7 +322,8 @@ void SourceModel::reReadXml(std::string xmlFile) {
 
    facilities::Util::expandEnvVar(&xmlFile);
 
-   xmlBase::XmlParser * parser = XmlParser::instance();
+//   xmlBase::XmlParser * parser = XmlParser::instance();
+   xmlBase::XmlParser * parser = XmlParser_instance();
 
    DOMDocument * doc = parser->parse(xmlFile.c_str());
 

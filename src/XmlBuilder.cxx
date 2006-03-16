@@ -3,7 +3,7 @@
  * @brief Concrete implementation that is shareable by subclasses.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlBuilder.cxx,v 1.4 2005/01/03 23:01:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlBuilder.cxx,v 1.5 2005/11/16 20:00:32 jchiang Exp $
  */
 
 #include "xmlBase/XmlParser.h"
@@ -17,7 +17,8 @@
 namespace Likelihood {
 
 XmlBuilder::XmlBuilder() {
-   m_parser = XmlParser::instance();
+//   m_parser = XmlParser::instance();
+   m_parser = XmlParser_instance();
    m_doc = optimizers::Dom::createDocument();
 }
 
