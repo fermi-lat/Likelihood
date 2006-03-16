@@ -1,9 +1,9 @@
-<!--$Header: /nfs/slac/g/glast/ground/cvs/Likelihood/xml/A1_Sources.dtd,v 1.4 2004/11/02 23:20:59 jchiang Exp $-->
+<!--$Header: /nfs/slac/g/glast/ground/cvs/Likelihood/xml/A1_Sources.dtd,v 1.5 2004/11/03 20:46:35 jchiang Exp $-->
 <!ELEMENT source_library ((source, default_model*)+ | (source_library)*) >
 <!ATTLIST source_library 
           title CDATA #REQUIRED 
           function_library CDATA " " >
-<!ELEMENT source (spectrum, spatialModel) >
+<!ELEMENT source ((spectrum, spatialModel) | (spatialModel, spectrum)) >
 <!ATTLIST source
           name       CDATA   #REQUIRED 
           type       CDATA   #REQUIRED 
