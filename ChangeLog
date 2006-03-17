@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 17 10:05:18 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h 
+Log Message:
+correct rookie mistake: pass time_cuts, gti_cuts args by *reference*
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r3, operation: add
 Package: Likelihood
