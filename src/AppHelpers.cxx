@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.46 2006/03/10 23:35:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.47 2006/03/16 06:20:06 jchiang Exp $
  */
 
 #include <map>
@@ -385,7 +385,7 @@ bool AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
 
 void AppHelpers::
 gatherTimeCuts(const dataSubselector::Cuts & cuts,
-               std::vector<const dataSubselector::CutBase *> time_cuts,
+               std::vector<const dataSubselector::CutBase *> & time_cuts,
                bool compareGtis) {
    for (unsigned int i = 0; i < cuts.size(); i++) {
       if ( (compareGtis && cuts[i].type() == "GTI") || 
@@ -400,7 +400,7 @@ gatherTimeCuts(const dataSubselector::Cuts & cuts,
 
 void AppHelpers::
 gatherGtiCuts(const dataSubselector::Cuts & cuts,
-              std::vector<const dataSubselector::CutBase *> gti_cuts) {
+              std::vector<const dataSubselector::CutBase *> & gti_cuts) {
    for (unsigned int i = 0; i < cuts.size(); i++) {
       if (cuts[i].type() == "GTI") {
          gti_cuts.push_back(&cuts[i]);
