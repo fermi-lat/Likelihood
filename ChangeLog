@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Mar 18 12:10:44 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	SourceMap.h 
+Log Message:
+export static symbols in SourceMap on Windows
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar 17 10:05:19 PST 2006
 Likelihood/src
 
