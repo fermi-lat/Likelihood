@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Mar 18 12:10:45 PST 2006
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx SourceMap.cxx 
+Log Message:
+export static symbols in SourceMap on Windows
+    *
+------------------------------------------------------------
 User: jchiang  Sat Mar 18 12:10:44 PST 2006
 Likelihood/cmt
 
