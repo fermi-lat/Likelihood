@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Mar 18 15:10:17 PST 2006
+Likelihood/src/gtaddlivetime
+
+Modified Files:
+	gtaddlivetime.cxx 
+Log Message:
+disable GTI comparison in gtaddlivetime; tagging v11r3p2
+    *
+------------------------------------------------------------
 User: jchiang  Sat Mar 18 15:10:16 PST 2006
 Likelihood/doc
 
