@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.3 2005/09/23 20:56:44 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.4 2006/01/29 07:19:59 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.3 2005/09/23 20:56:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.4 2006/01/29 07:19:59 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
@@ -62,7 +62,7 @@ private:
 
 st_app::StAppFactory<AddLivetime> myAppFactory("gtaddlivetime");
 
-std::string AddLivetime::s_cvs_id("$Name$");
+std::string AddLivetime::s_cvs_id("$Name:  $");
 
 void AddLivetime::banner() const {
    int verbosity = m_pars["chatter"];
@@ -85,11 +85,11 @@ void AddLivetime::promptForParameters() {
 }
 
 void AddLivetime::checkGtis() {
-   std::string infile1 = m_pars["infile1"];
-   std::string infile2 = m_pars["infile2"];
-   std::string table_name = m_pars["table"];
-   Likelihood::AppHelpers::checkTimeCuts(infile1, table_name,
-                                         infile2, table_name);
+//    std::string infile1 = m_pars["infile1"];
+//    std::string infile2 = m_pars["infile2"];
+//    std::string table_name = m_pars["table"];
+//    Likelihood::AppHelpers::checkTimeCuts(infile1, table_name,
+//                                          infile2, table_name);
 }
 
 void AddLivetime::addFiles() {
