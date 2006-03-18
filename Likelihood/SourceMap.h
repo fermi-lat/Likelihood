@@ -4,11 +4,13 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.32 2006/02/16 18:25:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.33 2006/03/15 21:34:05 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
 #define Likelihood_SourceMap_h
+
+#include "st_facilities/libStApiExports.h"
 
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/MeanPsf.h"
@@ -23,10 +25,14 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.32 2006/02/16 18:25:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.33 2006/03/15 21:34:05 jchiang Exp $
  */
 
+#ifdef SWIG
 class SourceMap {
+#else
+class SCIENCETOOLS_API SourceMap {
+#endif
 
 public:
 

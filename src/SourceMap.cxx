@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.53 2006/02/16 18:25:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.54 2006/03/15 21:34:07 jchiang Exp $
  */
 
 #include <algorithm>
@@ -29,7 +29,9 @@
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/Source.h"
+#define ST_DLL_EXPORTS
 #include "Likelihood/SourceMap.h"
+#undef ST_DLL_EXPORTS
 #include "Likelihood/TrapQuad.h"
 
 #include "Likelihood/WcsMap.h"
