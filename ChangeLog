@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Mar 18 12:10:44 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+export static symbols in SourceMap on Windows
+    *
+------------------------------------------------------------
+User: jchiang  Sat Mar 18 12:10:44 PST 2006
 Likelihood/Likelihood
 
 Modified Files:
