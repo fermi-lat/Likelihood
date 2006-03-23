@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 22 16:21:26 PST 2006
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx SourceMap.cxx 
+Added Files:
+	BrokenPowerLawExpCutoff.cxx 
+Log Message:
+add BrokenPowerLawExpCutoff
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 22 16:21:25 PST 2006
 Likelihood/Likelihood
 
