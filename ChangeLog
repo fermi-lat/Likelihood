@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 22 16:21:24 PST 2006
+Likelihood
+
+Modified Files:
+	.cvsignore 
+Log Message:
+add BrokenPowerLawExpCutoff
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r3p2, operation: add
 Package: Likelihood
