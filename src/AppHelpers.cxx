@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.47 2006/03/16 06:20:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.48 2006/03/17 18:05:19 jchiang Exp $
  */
 
 #include <map>
@@ -23,6 +23,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BandFunction.h"
 #include "Likelihood/BrokenPowerLaw2.h"
+#include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/EventContainer.h"
 #include "Likelihood/ExpCutoff.h"
 #include "Likelihood/ExposureMap.h"
@@ -85,6 +86,8 @@ void AppHelpers::prepareFunctionFactory() {
    m_funcFactory->addFunc("MapCubeFunction", new MapCubeFunction(), makeClone);
    m_funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
    m_funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
+   m_funcFactory->addFunc("BrokenPowerLawExpCutoff", 
+                          new BrokenPowerLawExpCutoff(), makeClone);
    m_funcFactory->addFunc("FileFunction", new FileFunction(), makeClone);
    m_funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
 }
