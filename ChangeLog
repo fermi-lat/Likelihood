@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 22 16:21:25 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	Pixel.h WcsMap.h 
+Added Files:
+	BrokenPowerLawExpCutoff.h 
+Log Message:
+add BrokenPowerLawExpCutoff
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 22 16:21:24 PST 2006
 Likelihood
 
