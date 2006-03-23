@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.54 2006/03/15 21:34:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.55 2006/03/18 20:10:45 jchiang Exp $
  */
 
 #include <algorithm>
@@ -169,7 +169,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       } else {
          const std::vector<Pixel>::const_iterator targetPixel = 
             Pixel::find(pixels.begin(), pixels.end(),
-                        Pixel(dir.ra(), dir.dec(), 1));
+                        Pixel(dir.ra(), dir.dec(), 1), 2.);
          if (targetPixel != pixels.end()) {
             size_t ipix = targetPixel - pixels.begin();
             std::vector<double>::const_iterator energy = energies.begin();
