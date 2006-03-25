@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.48 2006/03/17 18:05:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.49 2006/03/23 00:21:26 jchiang Exp $
  */
 
 #include <map>
@@ -86,10 +86,10 @@ void AppHelpers::prepareFunctionFactory() {
    m_funcFactory->addFunc("MapCubeFunction", new MapCubeFunction(), makeClone);
    m_funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
    m_funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
-   m_funcFactory->addFunc("BrokenPowerLawExpCutoff", 
-                          new BrokenPowerLawExpCutoff(), makeClone);
    m_funcFactory->addFunc("FileFunction", new FileFunction(), makeClone);
    m_funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
+   m_funcFactory->addFunc("BPLExpCutoff", new BrokenPowerLawExpCutoff(),
+                          makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,
