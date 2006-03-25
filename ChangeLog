@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 24 16:00:19 PST 2006
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx BrokenPowerLawExpCutoff.cxx Convolve.cxx 
+	WcsMap.cxx 
+Log Message:
+substiantial bug fixes for convolutions of non-square maps
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 22 16:21:26 PST 2006
 Likelihood/src
 
