@@ -3,7 +3,7 @@
  * @brief Implementation for the ExpCutoff Function class
  * @author Jennifer Carson
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLawExpCutoff.cxx,v 1.1 2006/03/23 00:21:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,7 @@ void BrokenPowerLawExpCutoff::init(double Prefactor, double Index1,
    m_funcType = Addend;
    m_argType = "dArg";
 
-   m_genericName = "BrokenPowerLawExpCutoff";
+   m_genericName = "BPLExpCutoff";
 }
 
 double BrokenPowerLawExpCutoff::value(optimizers::Arg &xarg) const {

@@ -4,7 +4,7 @@
  *        FFTW library
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Convolve.cxx,v 1.1 2005/05/23 05:51:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Convolve.cxx,v 1.2 2005/05/25 19:41:31 jchiang Exp $
  */
 
 #include <iostream>
@@ -18,11 +18,11 @@
 namespace {
    fftw_complex * 
    complexVector(const std::vector<double> & input, bool fill=true) {
-      unsigned int npts = input.size();
+      size_t npts = input.size();
       fftw_complex * output;
       output = (fftw_complex *) fftw_malloc(sizeof(fftw_complex)*npts);
       if (fill) {
-         for (unsigned int i = 0; i < npts; i++) {
+         for (size_t i = 0; i < npts; i++) {
             output[i][0] = input.at(i);
             output[i][1] = 0;
          }
@@ -32,8 +32,8 @@ namespace {
 
    fftw_complex * 
    complexArray(const std::vector< std::vector<double> > & input,
-                bool fill=true, unsigned int nx=0, unsigned int ny=0) {
-      unsigned int dx(0), dy(0);
+                bool fill=true, size_t nx=0, size_t ny=0) {
+      size_t dx(0), dy(0);
       if (ny == 0 || ny < input.size()) {
          ny = input.size();
       } else {
@@ -47,17 +47,31 @@ namespace {
       fftw_complex * output;
       output = (fftw_complex *) fftw_malloc(sizeof(fftw_complex)*nx*ny);
       if (fill) {
-         for (unsigned int i = 0; i < nx*ny; i++) {
+         for (size_t i = 0; i < nx*ny; i++) {
             output[i][0] = 0;
             output[i][1] = 0;
          }
-         for (unsigned int i = 0; i < input.size(); i++) {
-            for (unsigned int j = 0; j < input.at(i).size(); j++) {
-               unsigned int indx = (i + dx)*ny + j + dy;
+         for (size_t j = 0; j < input.size(); j++) {
+            for (size_t i = 0; i < input.at(j).size(); i++) {
+               size_t indx = (j + dy)*nx + i + dx;
                if (indx < nx*ny) {
-                  output[indx][0] = input.at(i).at(j);
+                  output[indx][0] = input.at(j).at(i);
                }
             }
+         }
+      }
+      return output;
+   }
+   std::vector< std::vector<double> > 
+   subArray(std::vector< std::vector<double> > & input,
+            const std::vector< std::vector<double> > & signal) {
+      size_t dx = (input.size() - signal.size())/2;
+      size_t dy = (input.at(0).size() - signal.at(0).size())/2;
+      std::vector< std::vector<double> > output(signal.size());
+      for (size_t i = 0; i < signal.size(); i++) {
+         output.at(i).resize(signal.at(i).size());
+         for (size_t j = 0; j < signal.at(i).size(); j++) {
+            output.at(i).at(j) = input.at(i + dx).at(j + dy);
          }
       }
       return output;
@@ -74,12 +88,18 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
                                "be smaller than the signal size.");
    }
 
-   int nx = signal.at(0).size();
-   int ny = signal.size();
-   unsigned int npts = nx*ny;
+   size_t nx = signal.at(0).size();
+   size_t ny = signal.size();
+// pad out the signal array so that it is n x n
+   if (nx < ny) {
+      nx = ny;
+   } else if (ny < nx) {
+      ny = nx;
+   }
+   size_t npts = nx*ny;
 
-   fftw_complex * in = ::complexArray(signal);
-   fftw_complex * out = ::complexArray(signal, false);
+   fftw_complex * in = ::complexArray(signal, true, nx, ny);
+   fftw_complex * out = ::complexArray(signal, false, nx, ny);
    fftw_plan splan = fftw_plan_dft_2d(nx, ny, in, out,
                                       FFTW_FORWARD, FFTW_ESTIMATE);
    fftw_execute(splan);
@@ -90,9 +110,9 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
                                       FFTW_FORWARD, FFTW_ESTIMATE);
    fftw_execute(pplan);
 
-   fftw_complex * iconv = ::complexArray(signal, false);
-   fftw_complex * oconv = ::complexArray(signal, false);
-   for (unsigned int i = 0; i < npts; i++) {
+   fftw_complex * iconv = ::complexArray(signal, false, nx, ny);
+   fftw_complex * oconv = ::complexArray(signal, false, nx, ny);
+   for (size_t i = 0; i < npts; i++) {
       iconv[i][0] = out[i][0]*opsf[i][0] - out[i][1]*opsf[i][1];
       iconv[i][1] = out[i][0]*opsf[i][1] + out[i][1]*opsf[i][0];
    }
@@ -100,31 +120,29 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
                                       FFTW_BACKWARD, FFTW_ESTIMATE);
    fftw_execute(cplan);
 
-   unsigned int indx;
+   size_t indx;
    std::vector< std::vector<double> > output;
-   output.reserve(signal.size());
-   for (unsigned int i = signal.size()/2 - 1; i < signal.size(); i++) {
+   output.reserve(ny);
+   for (size_t i = ny/2 - 1; i < ny; i++) {
       std::vector<double> local;
-      for (unsigned int j = signal.at(i).size()/2 - 1;
-           j < signal.at(i).size(); j++) {
-         indx = i*signal.at(i).size() + j;
+      for (size_t j = nx/2 - 1; j < nx; j++) {
+         indx = i*nx + j;
          local.push_back(oconv[indx][0]/npts);
       }
-      for (unsigned int j = 0; j < signal.at(i).size()/2 - 1; j++) {
-         indx = i*signal.at(i).size() + j;
+      for (size_t j = 0; j < nx/2 - 1; j++) {
+         indx = i*nx + j;
          local.push_back(oconv[indx][0]/npts);
       }
       output.push_back(local);
    }
-   for (unsigned int i = 0; i < signal.size()/2 - 1; i++) {
+   for (size_t i = 0; i < ny/2 - 1; i++) {
       std::vector<double> local;
-      for (unsigned int j = signal.at(i).size()/2 - 1;
-           j < signal.at(i).size(); j++) {
-         indx = i*signal.at(i).size() + j;
+      for (size_t j = nx/2 - 1; j < nx; j++) {
+         indx = i*nx + j;
          local.push_back(oconv[indx][0]/npts);
       }
-      for (unsigned int j = 0; j < signal.at(i).size()/2 - 1; j++) {
-         indx = i*signal.at(i).size() + j;
+      for (size_t j = 0; j < nx/2 - 1; j++) {
+         indx = i*nx + j;
          local.push_back(oconv[indx][0]/npts);
       }
       output.push_back(local);
@@ -141,7 +159,7 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
    fftw_free(iconv);
    fftw_free(oconv);
 
-   return output;
+   return ::subArray(output, signal);
 }
 
 std::vector<double> 
@@ -166,7 +184,7 @@ Convolve::convolve(const std::vector<double> & signal,
 
    fftw_complex * iconv = ::complexVector(signal, false);
    fftw_complex * oconv = ::complexVector(signal, false);
-   for (unsigned int i = 0; i < signal.size(); i++) {
+   for (size_t i = 0; i < signal.size(); i++) {
       iconv[i][0] = out[i][0]*opsf[i][0] - out[i][1]*opsf[i][1];
       iconv[i][1] = out[i][0]*opsf[i][1] + out[i][1]*opsf[i][0];
    }
@@ -176,10 +194,10 @@ Convolve::convolve(const std::vector<double> & signal,
 
    std::vector<double> output;
    output.reserve(signal.size());
-   for (unsigned int i = signal.size()/2-1; i < signal.size(); i++) {
+   for (size_t i = signal.size()/2-1; i < signal.size(); i++) {
       output.push_back(oconv[i][0]/signal.size());
    }
-   for (unsigned int i = 0; i < signal.size()/2-1; i++) {
+   for (size_t i = 0; i < signal.size()/2-1; i++) {
       output.push_back(oconv[i][0]/signal.size());
    }
 

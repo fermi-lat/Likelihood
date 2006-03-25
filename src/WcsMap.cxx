@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.11 2005/12/21 22:02:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.12 2006/01/09 06:43:28 jchiang Exp $
  */
 
 #include <algorithm>
@@ -63,11 +63,18 @@ WcsMap::WcsMap(const std::string & filename,
    header["NAXIS2"].get(m_naxis2);
 
    int ix, iy;
-   header["CRVAL1"].get(ix);
-   header["CRVAL2"].get(iy);
+   header["CRPIX1"].get(ix);
+   header["CRPIX2"].get(iy);
+
+   astro::SkyDir::CoordSystem coordSys;
+   if (m_proj->isGalactic()) {
+      coordSys = astro::SkyDir::GALACTIC;
+   } else {
+      coordSys = astro::SkyDir::EQUATORIAL;
+   }
 
    std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
-   m_refDir = astro::SkyDir(coord.first, coord.second);
+   m_refDir = astro::SkyDir(coord.first, coord.second, coordSys);
 
    delete image;
 
@@ -214,7 +221,6 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
          psf_image.at(j).at(i) = psf(energy, theta, 0);
       }
    }
-
    psf_image.normalize();
 
    WcsMap my_image(*this);
