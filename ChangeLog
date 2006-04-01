@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 31 16:04:02 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	ScData.h 
+Log Message:
+fix endtime bug; try to speed up LikeExposure calculation
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r3p3, operation: add
 Package: Likelihood
