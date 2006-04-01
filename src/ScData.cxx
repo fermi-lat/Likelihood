@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.42 2006/01/20 18:20:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.43 2006/01/31 22:00:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,6 +45,7 @@ void ScData::readData(std::string file, bool clear,
    for ( ; it != scData->end(); ++it) {
       ScNtuple tuple;
       scInterval["start"].get(tuple.time);
+      scInterval["stop"].get(tuple.stoptime);
       scInterval["livetime"].get(tuple.livetime);
       scInterval["ra_scx"].get(raSCX);
       scInterval["dec_scx"].get(decSCX);
@@ -74,7 +75,7 @@ void ScData::readData(std::string file, bool clear,
 
 unsigned int ScData::time_index(double time) const {
    double tmin(vec.front().time);
-   double tmax(vec.back().time);
+   double tmax(vec.back().stoptime);
    double tol(1e-5);
    if (time < tmin - tol || time > tmax + tol) {
       std::ostringstream message;

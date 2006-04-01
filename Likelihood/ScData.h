@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.22 2005/05/17 13:44:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.23 2005/12/23 19:57:46 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.22 2005/05/17 13:44:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.23 2005/12/23 19:57:46 jchiang Exp $
  */
 
 class ScData {
@@ -47,6 +47,7 @@ public:
       ScNtuple(){}
       ~ScNtuple(){}
       double time;
+      double stoptime;
       double livetime;
       astro::SkyDir zenDir;
       astro::SkyDir xAxis;
