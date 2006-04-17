@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r3p5 17-Apr-06 JC   use st_stream for screen output
     v11r3p4 31-Mar-06 JC   fix endtime bug; try to speed up LikeExposure calc
     v11r3p3 26-Mar-06 JC   kludgey bug-fixes for Convolve for non-square maps
     v11r3p2 18-Mar-06 JC   disable GTI comparison in gtaddlivetime
