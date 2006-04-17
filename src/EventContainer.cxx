@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.5 2005/12/11 00:38:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.6 2005/12/13 05:25:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -11,6 +11,8 @@
 #include <algorithm>
 
 #include "facilities/Util.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
@@ -22,11 +24,22 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 
-#include "Verbosity.h"
-
 namespace Likelihood {
 
 std::vector<std::string> EventContainer::s_FT1_columns;
+
+EventContainer::EventContainer(const ResponseFunctions & respFuncs, 
+                               const RoiCuts & roiCuts, const ScData & scData) 
+   : m_respFuncs(respFuncs), m_roiCuts(roiCuts), m_scData(scData),
+     m_formatter(new st_stream::StreamFormatter("EventContainer", "", 2)) {
+   if (s_FT1_columns.size() == 0) {
+      setFT1_columns();
+   }
+}
+
+EventContainer::~EventContainer() {
+   delete m_formatter;
+}
 
 void EventContainer::getEvents(std::string event_file) {
 
@@ -105,13 +118,11 @@ void EventContainer::getEvents(std::string event_file) {
       }
    }
 
-   if (print_output(3)) {
-      std::cerr << "EventContainer::getEvents:\nOut of " 
-                << nTotal << " events in file "
-                << event_file << ",\n "
-                << nTotal - nReject << " were accepted, and "
-                << nReject << " were rejected.\n" << std::endl;
-   }
+   m_formatter->info(3) << "EventContainer::getEvents:\nOut of " 
+                        << nTotal << " events in file "
+                        << event_file << ",\n "
+                        << nTotal - nReject << " were accepted, and "
+                        << nReject << " were rejected.\n" << std::endl;
 
    delete events;
 }
@@ -119,31 +130,27 @@ void EventContainer::getEvents(std::string event_file) {
 void EventContainer::computeEventResponses(Source & src, double sr_radius) {
                       
    DiffuseSource *diffuse_src = dynamic_cast<DiffuseSource *>(&src);
-   if (print_output()) {
-      std::cerr << "Computing Event responses for " << src.getName();
-   }
+   m_formatter->info() << "Computing Event responses for " << src.getName();
    for (unsigned int i = 0; i < m_events.size(); i++) {
-      if (print_output() && (i % (m_events.size()/20)) == 0) {
-         std::cerr << ".";
+      if ((i % (m_events.size()/20)) == 0) {
+         m_formatter->info() << ".";
       }
       m_events[i].computeResponse(*diffuse_src, m_respFuncs, sr_radius);
    }
-   if (print_output()) {
-      std::cerr << "!" << std::endl;
-   }
+   m_formatter->info() << "!" << std::endl;
 }
 
 void EventContainer::computeEventResponses(std::vector<DiffuseSource *> &srcs,
                                            double sr_radius) {
-   if (print_output(3)) {
-      std::cerr << "Computing Event responses for the DiffuseSources";
-   }
+
+   m_formatter->info(3) << "Computing Event responses for the DiffuseSources";
    for (unsigned int i = 0; i < m_events.size(); i++) {
-      if (print_output(3) && m_events.size() > 20 &&
-          (i % (m_events.size()/20)) == 0) std::cerr << ".";
+      if (m_events.size() > 20 && (i % (m_events.size()/20)) == 0) {
+         m_formatter->info(3) << ".";
+      }          
       m_events[i].computeResponse(srcs, m_respFuncs, sr_radius);
    }
-   if (print_output(3)) std::cerr << "!" << std::endl;
+   m_formatter->info(3) << "!" << std::endl;
 }
 
 std::vector<double> 

@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.36 2006/02/20 00:18:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.37 2006/03/10 23:35:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -32,7 +34,6 @@
 #include "Likelihood/Event.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
-#include "Verbosity.h"
 
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
@@ -45,7 +46,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.36 2006/02/20 00:18:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.37 2006/03/10 23:35:48 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -54,7 +55,19 @@ public:
 
    diffuseResponses();
 
-   virtual ~diffuseResponses() throw() {}
+   virtual ~diffuseResponses() throw() {
+      try {
+         delete m_helper;
+         delete m_srcModel;
+         delete m_formatter;
+      } catch (std::exception & eObj) {
+         std::cerr << eObj.what() << std::endl;
+      } catch (...) {
+         std::cerr << "caught unknown exception in "
+                   << "diffuseResponse destructor." 
+                   << std::endl;
+      }
+   }
 
    virtual void run();
    virtual void banner() const;
@@ -63,6 +76,8 @@ private:
 
    AppHelpers * m_helper;
    SourceModel * m_srcModel;
+   st_stream::StreamFormatter * m_formatter;
+   
    double m_srRadius;
    st_app::AppParGroup & m_pars;
 
@@ -92,7 +107,9 @@ st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffresp");
 std::string diffuseResponses::s_cvs_id("$Name:  $");
 
 diffuseResponses::diffuseResponses() 
-   : st_app::StApp(), m_helper(0), m_srcModel(0), m_srRadius(30.),
+   : st_app::StApp(), m_helper(0), m_srcModel(0), 
+     m_formatter(new st_stream::StreamFormatter("gtdiffresp", "", 2)),
+     m_srRadius(30.),
      m_pars(st_app::StApp::getParGroup("gtdiffresp")) {
    setVersion(s_cvs_id);
 }
@@ -106,7 +123,6 @@ void diffuseResponses::banner() const {
 
 void diffuseResponses::run() {
    promptForParameters();
-   Likelihood::Verbosity::instance(m_pars["chatter"]);
    bool clobber = m_pars["clobber"];
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
    m_helper->setRoi("", "EVENTS", false);
@@ -120,23 +136,18 @@ void diffuseResponses::run() {
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
    std::vector<std::string>::const_iterator evtfile;
    buildSourceModel();
-   if (Likelihood::print_output()) {
-      std::cerr << "Working on...\n";
-   }
+   m_formatter->info() << "Working on...\n";
    for (evtfile = eventFiles.begin(); evtfile != eventFiles.end(); ++evtfile) {
       if (clobber || !haveDiffuseColumns(*evtfile)) {
-         if (Likelihood::print_output()) {
-            std::cerr << *evtfile;
-         }
+         m_formatter->info() << *evtfile;
          readEventData(*evtfile);
          computeEventResponses();
          writeEventResponses(*evtfile);
       } else {
-         if (Likelihood::print_output()) {
-            std::cerr << "Diffuse columns have already been computed for "
-                      << *evtfile << "...skipping it." 
-                      << std::endl;
-         }
+         m_formatter->info() << "Diffuse columns have already been "
+                             << "computed for "
+                             << *evtfile << "...skipping it." 
+                             << std::endl;
       }
    }
 }
@@ -232,15 +243,13 @@ void diffuseResponses::computeEventResponses() {
    getDiffuseSources();
    std::vector<Event>::iterator it = m_events.begin();
    for (int i = 0; it != m_events.end(); ++it, i++) {
-      if (Likelihood::print_output() && (i % (m_events.size()/20)) == 0) {
-         std::cerr << ".";
+      if ((i % (m_events.size()/20)) == 0) {
+         m_formatter->info() << ".";
       }
       it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
                           m_srRadius);
    }
-   if (Likelihood::print_output()) {
-      std::cerr << "!" << std::endl;
-   }
+   m_formatter->info() << "!" << std::endl;
 }
 
 void diffuseResponses::writeEventResponses(std::string eventFile) {
@@ -268,10 +277,8 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
                events->appendField(fieldName, "1D");
             }
          } catch (tip::TipException &eObj) {
-            if (Likelihood::print_output()) {
-               std::cout << eObj.what() << "\n"
-                         << "Using existing column." << std::endl;
-            }
+            m_formatter->info() << eObj.what() << "\n"
+                                << "Using existing column." << std::endl;
          }
       }
       tip::Table::Iterator it = events->begin();
