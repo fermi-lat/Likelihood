@@ -3,13 +3,15 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.17 2006/01/31 22:00:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.18 2006/04/01 00:04:03 jchiang Exp $
  */
 
 #include <algorithm>
 #include <iostream>
 
 #include "facilities/Util.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "tip/Table.h"
 
@@ -66,9 +68,10 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
       nrows = static_cast<long>(maxTime/30.);
    }
    
+   st_stream::StreamFormatter formatter("LikeExposure", "load", 2);
    for (long irow = 0; it != scData->end(); ++it, ++irow) {
       if (verbose && (irow % (nrows/20)) == 0 ) {
-         std::cerr << "."; 
+         formatter.info() << "."; 
       }
       row["livetime"].get(livetime);
       row["start"].get(start);
@@ -84,7 +87,9 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
          fill(astro::SkyDir(ra, dec), deltat*fraction);
       }
    }
-   if (verbose) std::cerr << "!" << std::endl;
+   if (verbose) {
+      formatter.info() << "!" << std::endl;
+   }
 }
 
 bool LikeExposure::

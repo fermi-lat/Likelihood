@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.53 2006/01/14 00:32:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.54 2006/03/16 06:20:06 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -14,6 +14,8 @@
 #include "xmlBase/XmlParser.h"
 
 #include "facilities/Util.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "optimizers/Exception.h"
 #include "optimizers/FunctionFactory.h"
@@ -28,7 +30,6 @@
 #include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
 
-#include "Verbosity.h"
 #include "XmlParser.h"
 
 namespace Likelihood {
@@ -36,13 +37,16 @@ namespace Likelihood {
 XERCES_CPP_NAMESPACE_USE
 
 SourceFactory::SourceFactory(const Observation & observation, bool verbose) 
-   : m_verbose(verbose), m_observation(observation) {
+   : m_verbose(verbose), m_observation(observation), 
+     m_formatter(new st_stream::StreamFormatter("SourceFactory", "", 2)) {
 }
 
 SourceFactory::~SourceFactory() {
    std::map<std::string, Source *>::iterator it = m_prototypes.begin();
-   for (; it != m_prototypes.end(); it++)
+   for (; it != m_prototypes.end(); it++) {
       delete it->second;
+   }
+   delete m_formatter;
 }
 
 Source *SourceFactory::create(const std::string &name) throw(Exception) {
@@ -78,12 +82,10 @@ void SourceFactory::replaceSource(Source* src, bool fromClone) {
          m_prototypes[src->getName()] = src;
       }
    } else {
-      if (print_output()) {
-         std::cerr << "SourceFactory::replaceSource: A Source named "
-                   << src->getName() << " does not yet exist.\n"
-                   << "Adding it instead. "
-                   << std::endl;
-      }
+      m_formatter->info() << "SourceFactory::replaceSource: A Source named "
+                          << src->getName() << " does not yet exist.\n"
+                          << "Adding it instead. "
+                          << std::endl;
       addSource(src->getName(), src, fromClone);
    }
 }
@@ -121,9 +123,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
       try {
          funcFactory.readXml(function_library);
       } catch (optimizers::Exception &eObj) {
-         if (print_output()) {
-            std::cout << eObj.what() << std::endl;
-         }
+         m_formatter->err() << eObj.what() << std::endl;
          throw;
       }
    }
@@ -140,10 +140,8 @@ void SourceFactory::readXml(const std::string &xmlFile,
 // and its name.
       std::string srcName = xmlBase::Dom::getAttribute(*srcIt, "name");
 
-      if (print_output(3)) {
-         std::cout << "Creating source named "
-                   << srcName << std::endl;
-      }
+      m_formatter->info(3) << "Creating source named "
+                           << srcName << std::endl;
 
 // Retrieve the spectrum and spatialModel elements (there should only
 // be one of each).
@@ -154,7 +152,7 @@ void SourceFactory::readXml(const std::string &xmlFile,
          xmlBase::Dom::getChildrenByTagName(*srcIt, "spectrum", child);
          spectrum = child[0];
       } catch (optimizers::Exception &eObj) {
-         std::cerr << eObj.what() << std::endl;
+         m_formatter->err() << eObj.what() << std::endl;
          throw;
       }
       
@@ -227,12 +225,12 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
       setSpectrum(src, spectrum, funcFactory);
       return src;
    } catch (std::exception &eObj) {
-      if (print_output()) {
-         std::cout << eObj.what() << std::endl;
-      }
+      m_formatter->err() << eObj.what() << std::endl;
+      throw;
    } catch (...) {
-      std::cerr << "Unexpected exception from SourceFactory::setSpectrum" 
-                << std::endl;
+      m_formatter->err() << "Unexpected exception from "
+                         << "SourceFactory::setSpectrum" 
+                         << std::endl;
       throw;
    }
    return 0;
@@ -267,13 +265,12 @@ Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum,
       delete spatialDist;
       return src;
    } catch (std::exception &eObj) {
-      if (print_output()) {
-         std::cout << eObj.what() << std::endl;
-      }
+      m_formatter->err() << eObj.what() << std::endl;
       throw;
    } catch (...) {
-      std::cerr << "Unexpected exception from SourceFactory::setSpectrum" 
-                << std::endl;
+      m_formatter->err() << "Unexpected exception from "
+                         << "SourceFactory::setSpectrum" 
+                         << std::endl;
       throw;
    }
    return 0;

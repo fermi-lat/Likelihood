@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.33 2006/01/29 07:19:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.34 2006/03/10 23:35:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -13,6 +13,8 @@
 
 #include <memory>
 #include <stdexcept>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -29,8 +31,6 @@
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 
-#include "Verbosity.h"
-
 using namespace Likelihood;
 
 /**
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.33 2006/01/29 07:19:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.34 2006/03/10 23:35:48 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -83,7 +83,6 @@ void ExpMap::banner() const {
 
 void ExpMap::run() {
    promptForParameters();
-   Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
    m_helper->readScData();
    bool useEdisp = m_pars["use_energy_dispersion"];
@@ -120,12 +119,13 @@ void ExpMap::promptForParameters() {
 void ExpMap::setSourceRegion() {
    m_srRadius = m_pars["source_region_radius"];
    const RoiCuts & roiCuts = m_helper->observation().roiCuts();
-   if (Likelihood::print_output() &&
-       m_srRadius < roiCuts.extractionRegion().radius() + 10.) {
-      std::cerr << "The radius of the source region, " << m_srRadius 
-                << ", should be significantly larger (say by 10 deg) "
-                << "than the ROI radius of " 
-                << roiCuts.extractionRegion().radius() << std::endl;
+   if (m_srRadius < roiCuts.extractionRegion().radius() + 10.) {
+      st_stream::StreamFormatter formatter("gtexpmap", "setSourceRegion", 2);
+      formatter.info() << "The radius of the source region, " << m_srRadius 
+                       << ", should be significantly larger (say by 10 deg) "
+                       << "than the ROI radius of " 
+                       << roiCuts.extractionRegion().radius() 
+                       << std::endl;
       if (m_srRadius < roiCuts.extractionRegion().radius()) {
          std::ostringstream message;
          message << "The source region radius, " << m_srRadius 

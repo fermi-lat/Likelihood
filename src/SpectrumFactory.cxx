@@ -4,12 +4,14 @@
  * Prototype pattern to return clones of various spectral components 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.9 2003/08/06 20:52:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpectrumFactory.cxx,v 1.10 2004/12/22 06:06:48 jchiang Exp $
  */
 
 #include <cassert>
 
 #include <sstream>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "optimizers/Exception.h"
 
@@ -20,8 +22,9 @@ namespace Likelihood {
 SpectrumFactory::~SpectrumFactory() {
    std::map<std::string, optimizers::Function *>::iterator it 
       = m_prototypes.begin();
-   for (; it != m_prototypes.end(); it++)
+   for (; it != m_prototypes.end(); it++) {
       delete it->second;
+   }
 }
 
 void SpectrumFactory::addFunc(const std::string &name, 
@@ -47,11 +50,13 @@ optimizers::Function *SpectrumFactory::makeFunction(const std::string &name) {
 }
 
 void SpectrumFactory::listFunctions() {
-   std::cout << "SpectrumFactory Functions: " << std::endl;
+   st_stream::StreamFormatter formatter("SpectrumFactory", "listFunctions", 2);
+   formatter.info() << "SpectrumFactory Functions: " << std::endl;
    std::map<std::string, optimizers::Function *>::const_iterator 
       it = m_prototypes.begin();
-   for (; it != m_prototypes.end(); it++)
-      std::cout << it->first << std::endl;
+   for (; it != m_prototypes.end(); it++) {
+      formatter.info() << it->first << std::endl;
+   }
 }
 
 } // namespace Likelihood

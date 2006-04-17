@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.74 2006/01/18 07:10:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.75 2006/03/16 06:20:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -17,6 +17,8 @@
 #include "xmlBase/XmlParser.h"
 
 #include "facilities/Util.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "astro/SkyDir.h"
 
@@ -35,7 +37,6 @@
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/SourceModel.h"
 
-#include "Verbosity.h"
 #include "XmlParser.h"
 
 namespace Likelihood {
@@ -43,13 +44,16 @@ namespace Likelihood {
 XERCES_CPP_NAMESPACE_USE
 
 SourceModel::SourceModel(const Observation & observation, bool verbose) 
-   : m_observation(observation), m_verbose(verbose) {
+   : m_observation(observation), m_verbose(verbose), 
+     m_formatter(new st_stream::StreamFormatter("SourceModel", "", 2)) {
    setMaxNumParams(0); 
    m_genericName = "SourceModel";
 }
 
 SourceModel::SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs),
    m_observation(rhs.m_observation), m_verbose(rhs.m_verbose) {
+//   delete m_formatter;
+   m_formatter = new st_stream::StreamFormatter("SourceModel", "", 2);
 }
 
 SourceModel::~SourceModel() {
@@ -58,6 +62,7 @@ SourceModel::~SourceModel() {
       delete (*it).second;
    }
    m_sources.clear();
+   delete m_formatter;
 }
 
 void SourceModel::setParam(const optimizers::Parameter &param, 
@@ -115,7 +120,7 @@ optimizers::Parameter SourceModel::getParam(const std::string &paramName,
                srcFuncs.find(funcName)->second;
             my_function->getParams(params);
          } catch (optimizers::Exception &eObj) {
-            std::cerr << eObj.what() << std::endl;
+            m_formatter->err() << eObj.what() << std::endl;
             throw;
          }                 
          for (unsigned int j = 0; j < params.size(); j++) {
@@ -148,7 +153,6 @@ void SourceModel::setParamTrueValue(const std::string &paramName,
 
 void SourceModel::setParams_(std::vector<optimizers::Parameter> &params, 
                              bool setFree) {
-//   std::cout << "calling setParams_" << std::endl;
 // Ensure the number of Parameters matches.
    unsigned int numParams;
    if (setFree) {
@@ -295,10 +299,8 @@ void SourceModel::readXml(std::string xmlFile,
    try {
       srcFactory.readXml(xmlFile, funcFactory, requireExposure);
    } catch (xmlBase::DomException & eObj) {
-      if (print_output()) {
-         std::cout << "SourceModel::readXml:\n DomException: " 
-                   << eObj.what() << std::endl;
-      }
+      m_formatter->err() << "SourceModel::readXml:\n DomException: " 
+                         << eObj.what() << std::endl;
    }
 
 // Loop over the sources that are now contained in srcFactory and add
@@ -308,9 +310,9 @@ void SourceModel::readXml(std::string xmlFile,
 
    std::vector<std::string>::iterator nameIt = srcNames.begin();
    for ( ; nameIt != srcNames.end(); nameIt++) {
-      Source *src = srcFactory.create(*nameIt);
-      if (print_output() && m_verbose) {
-         std::cout << "adding source " << *nameIt << std::endl;
+      Source * src = srcFactory.create(*nameIt);
+      if (m_verbose) {
+         m_formatter->info() << "adding source " << *nameIt << std::endl;
       }
       addSource(src);
       delete src;

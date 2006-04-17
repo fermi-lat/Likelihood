@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.47 2005/10/18 21:40:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.48 2005/10/19 06:14:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -13,6 +13,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/LogLike.h"
@@ -39,11 +41,10 @@ double LogLike::value(optimizers::Arg&) const {
       SrcArg sArg(srcIt->second);
       my_value -= m_Npred(sArg);
    }
-   if (print_output(4)) {
-      std::cout << m_nevals << "  "
-                << my_value << "  "
-                << std::clock() - start << std::endl;
-   }
+   st_stream::StreamFormatter formatter("LogLike", "value", 4);
+   formatter.info() << m_nevals << "  "
+                    << my_value << "  "
+                    << std::clock() - start << std::endl;
    m_nevals++;
    return my_value;
 }

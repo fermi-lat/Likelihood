@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.7 2006/02/16 18:31:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.8 2006/03/15 21:34:08 jchiang Exp $
  */
 
 #include <iostream>
@@ -21,6 +21,8 @@
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
 #include "tip/Table.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -92,7 +94,7 @@ public:
       try {
          delete m_funcFactory;
       } catch (std::exception & eObj) {
-         std::cout << eObj.what() << std::endl;
+         std::cerr << eObj.what() << std::endl;
       } catch (...) {
       }
    }
@@ -216,11 +218,12 @@ void ModelMap::sumOutputMap() {
    std::map<std::string, optimizers::Function *>::iterator it;
    for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
       std::string srcName = it->first;
+      st_stream::StreamFormatter formatter("gtmodelmap", "sumOutputMap", 2);
       try {
          getMap(srcName);
       } catch (tip::TipException &) {
-         std::cout << "Cannot read source map for model component "
-                   << srcName << ". Skipping it." << std::endl;
+         formatter.info() << "Cannot read source map for model component "
+                          << srcName << ". Skipping it." << std::endl;
       }
       if (it == m_spectra.begin()) {
          m_outmap.resize(m_srcmap->size(), 0);

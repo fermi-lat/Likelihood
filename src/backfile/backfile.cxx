@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.4 2006/01/29 07:19:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.5 2006/03/10 23:35:47 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -14,6 +14,8 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -36,7 +38,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.4 2006/01/29 07:19:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.5 2006/03/10 23:35:47 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
@@ -52,6 +54,7 @@ public:
 private:
    st_app::AppParGroup & m_pars;
    Likelihood::AppHelpers * m_helper;
+
    void setup();
    void getEbounds(std::vector<double> & emin,
                    std::vector<double> & emax) const;
@@ -97,17 +100,17 @@ void BackFile::run() {
    logLike.getSrcNames(srcNames);
 
    std::string target = m_pars["target_source"];
-   unsigned int chatter = m_pars["chatter"];
-   if (chatter > 1) {
-      if (std::find(srcNames.begin(), srcNames.end(), target)
-          != srcNames.end()) {
-         std::cout << "Excluding source " << target 
-                   << " from background model." << std::endl;
-      } else if (target != "none" && target != "") {
-         std::cout << "Source named '" << target << "' not found.\n"
-                   << "Using all sources in input model for "
-                   << "background estimate." << std::endl;
-      }
+
+   st_stream::StreamFormatter formatter("gtbackfile", "run", 2);
+
+   if (std::find(srcNames.begin(), srcNames.end(), target)
+       != srcNames.end()) {
+      formatter.info() << "Excluding source " << target 
+                       << " from background model." << std::endl;
+   } else if (target != "none" && target != "") {
+      formatter.info() << "Source named '" << target << "' not found.\n"
+                       << "Using all sources in input model for "
+                       << "background estimate." << std::endl;
    }         
 
    std::vector<double> emin;
