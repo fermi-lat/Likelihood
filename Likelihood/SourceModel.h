@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.57 2006/01/18 02:40:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.58 2006/01/18 07:10:20 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -19,6 +19,10 @@
 #include "Likelihood/Pixel.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/Source.h"
+
+namespace st_stream {
+   class StreamFormatter;
+}
 
 namespace optimizers {
    class FunctionFactory;
@@ -37,7 +41,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.57 2006/01/18 02:40:22 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.58 2006/01/18 07:10:20 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -188,6 +192,8 @@ protected:
 private:
 
    bool m_verbose;
+
+   st_stream::StreamFormatter * m_formatter;
 
    void computeModelMap(const std::vector<Pixel> & pixels,
                         const std::vector<double> & energies,

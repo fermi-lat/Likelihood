@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.34 2005/09/12 22:16:34 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.35 2006/01/29 07:20:05 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -24,8 +26,6 @@
 #include "Likelihood/LikeExposure.h"
 #include "Likelihood/RoiCuts.h"
 
-#include "Verbosity.h"
-
 /**
  * @class ExposureCube
  * @brief Class to encapsulate methods for creating an exposure
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.34 2005/09/12 22:16:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.35 2006/01/29 07:20:05 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -64,7 +64,7 @@ private:
 
 st_app::StAppFactory<ExposureCube> myAppFactory("gtlivetimecube");
 
-std::string ExposureCube::s_cvs_id("$Name$");
+std::string ExposureCube::s_cvs_id("$Name:  $");
 
 void ExposureCube::banner() const {
    int verbosity = m_pars["chatter"];
@@ -82,10 +82,12 @@ void ExposureCube::run() {
       if (m_pars["clobber"]) {
          std::remove(output_file.c_str());
       } else {
-         std::cout << "Output file " << output_file 
-                   << " already exists and you have set 'clobber' to 'no'.\n"
-                   << "Please provide a different output file name." 
-                   << std::endl;
+         st_stream::StreamFormatter formatter("gtlivetimecube", "run", 2);
+         formatter.err() << "Output file " << output_file 
+                         << " already exists,\n"
+                         << "and you have set 'clobber' to 'no'.\n"
+                         << "Please provide a different output file name." 
+                         << std::endl;
          std::exit(1);
       }
    }
@@ -121,12 +123,17 @@ void ExposureCube::createDataCube() {
    std::vector<std::string>::const_iterator scIt = scFiles.begin();
    for ( ; scIt != scFiles.end(); scIt++) {
       st_facilities::Util::file_ok(*scIt);
-      if (Likelihood::print_output()) {
-         std::cerr << "Working on file " << *scIt << std::endl;
-      }
+      st_stream::StreamFormatter formatter("gtlivetimecube", "createDataCube",
+                                           2);
+      formatter->err() << "Working on file " << *scIt << std::endl;
       tip::Table * scData = 
          tip::IFileSvc::instance().editTable(*scIt, m_pars["sctable"]);
-      m_exposure->load(scData, Likelihood::print_output());
+      int chatter = m_pars["chatter"];
+      bool print_output(true);
+      if (chatter < 2) {
+         print_output = false;
+      }
+      m_exposure->load(scData, print_output);
       delete scData;
    }
 }

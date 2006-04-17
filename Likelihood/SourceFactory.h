@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.20 2005/01/03 23:01:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.21 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -19,6 +19,10 @@
 #include "Likelihood/Exception.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/Source.h"
+
+namespace st_stream {
+   class StreamFormatter;
+}
 
 namespace optimizers {
    class FunctionFactory;
@@ -41,7 +45,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.20 2005/01/03 23:01:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.21 2005/02/27 06:42:24 jchiang Exp $
  *
  */
     
@@ -77,6 +81,8 @@ private:
    bool m_requireExposure;
 
    const Observation & m_observation;
+
+   st_stream::StreamFormatter * m_formatter;
 
 #ifndef SWIG
    Source *makePointSource(const DOMElement * spectrum,

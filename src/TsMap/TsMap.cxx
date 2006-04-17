@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.29 2006/02/23 01:54:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.30 2006/03/10 23:35:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -14,6 +14,8 @@
 #include <sstream>
 
 #include "fitsio.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -30,7 +32,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/LogLike.h"
 
-#include "Verbosity.h"
+//#include "Verbosity.h"
 
 using namespace Likelihood;
 
@@ -41,7 +43,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.29 2006/02/23 01:54:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.30 2006/03/10 23:35:47 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -62,6 +64,8 @@ private:
    st_app::AppParGroup & m_pars;
    LogLike * m_logLike;
    optimizers::Optimizer * m_opt;
+   st_stream::StreamFormatter * m_formatter;
+
    std::vector<std::string> m_eventFiles;
    std::vector<double> m_lonValues;
    std::vector<double> m_latValues;
@@ -89,7 +93,9 @@ st_app::StAppFactory<TsMap> myAppFactory("gttsmap");
 
 TsMap::TsMap() : st_app::StApp(), m_helper(0), 
                  m_pars(st_app::StApp::getParGroup("gttsmap")),
-                 m_logLike(0), m_opt(0) {
+                 m_logLike(0), m_opt(0),
+                 m_formatter(new st_stream::StreamFormatter("gttsmap", "", 2)) 
+{
    setVersion(s_cvs_id);
 }
 
@@ -105,9 +111,6 @@ void TsMap::banner() const {
 void TsMap::run() {
    m_pars.Prompt();
    m_pars.Save();
-
-   int chatter = m_pars["chatter"];
-   Likelihood::Verbosity::instance(chatter);
 
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
    m_helper->checkOutputFile();
@@ -206,8 +209,8 @@ void TsMap::computeMap() {
    bool computeExposure(true);
 
    for (unsigned int jj = 0; jj < m_latValues.size(); jj++) {
-      if (Likelihood::print_output() && (jj % m_latValues.size()/20) == 0) {
-         std::cerr << ".";
+      if ((jj % m_latValues.size()/20) == 0) {
+         m_formatter->info() << ".";
       }
       for (unsigned int ii = 0; ii < m_lonValues.size(); ii++) {
          if (m_coordSys == "CEL") {
@@ -225,21 +228,19 @@ void TsMap::computeMap() {
             m_opt->find_min(verbosity, tol);
             m_tsMap[jj].push_back(2.*(m_logLike->value() - logLike0));
          } catch (optimizers::Exception &eObj) {
-            std::cerr << eObj.what() << std::endl;
+            m_formatter->err() << eObj.what() << std::endl;
             // Default null value.
             m_tsMap[jj].push_back(0);
          }
-         if (Likelihood::print_output(3)) {
-            std::cout << m_lonValues[ii] << "  "
-                      << m_latValues[jj] << "  "
-                      << m_tsMap[jj][ii] << "  "
-                      << m_helper->observation().eventCont().events().size() 
-                      << std::endl;
-         }
+         m_formatter->info(3) << m_lonValues[ii] << "  "
+                              << m_latValues[jj] << "  "
+                              << m_tsMap[jj][ii] << "  "
+                              << m_helper->observation().eventCont().events().size() 
+                              << std::endl;
          m_logLike->deleteSource(testSrc.getName());
       }
    }
-   if (Likelihood::print_output()) std::cerr << "!" << std::endl;
+   m_formatter->info() << "!" << std::endl;
 }
 
 void TsMap::makeDoubleVector(double xmin, double xmax, int nx,
@@ -360,6 +361,6 @@ void TsMap::writeFitsFile(const std::string &filename,
 void TsMap::fitsReportError(FILE *stream, int status) {
    fits_report_error(stream, status);
    if (status != 0) {
-      throw std::runtime_error("writeExposureFile: cfitsio error.");
+      throw std::runtime_error("TsMap::writeFitsFile: cfitsio error.");
    }
 }
