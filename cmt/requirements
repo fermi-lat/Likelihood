@@ -4,7 +4,7 @@ version v11r3p4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.267 2006/03/26 22:39:01 jchiang Exp $
+# $Id: requirements,v 1.268 2006/04/01 00:05:03 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -23,6 +23,9 @@ use dataSubselector v*
 use hoops v*
 use st_app v*
 
+#macro_append cppflags "" Linux " -pg "
+#macro_append Likelihood_linkopts "" Linux " -pg "
+
 #apply_pattern ST_library option=" -no_share *.c "
 apply_pattern ST_library option=" *.c "
 apply_pattern shared_st_library
@@ -39,4 +42,3 @@ apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
 apply_pattern ST_app_withDir name=gtbackfile dir=backfile
 apply_pattern ST_app name=gtmodelmap
 apply_pattern ST_app name=gtaddlivetime
-

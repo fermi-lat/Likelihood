@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.17 2006/01/20 18:20:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.18 2006/02/20 23:23:02 jchiang Exp $
  */
 
 #include <algorithm>
@@ -12,6 +12,8 @@
 #include <stdexcept>
 
 #include "facilities/Util.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "st_facilities/FitsImage.h"
 #include "st_facilities/Util.h"
@@ -131,7 +133,9 @@ void MapCubeFunction::readFitsFile(const std::string & fits_file) {
 // The following to stdout is necessary since Xerces seems to corrupt
 // the exception handling when this method is called from
 // SourceFactory::readXml and the program simply aborts.
-      std::cout << "File not found: " << fitsFile << std::endl;
+      st_stream::StreamFormatter formatter("MapCubeFunction",
+                                           "readFitsFile", 2);
+      formatter.info() << "File not found: " << fitsFile << std::endl;
       throw std::runtime_error("File not found: " + fitsFile);
    }
    m_fitsFile = fitsFile;

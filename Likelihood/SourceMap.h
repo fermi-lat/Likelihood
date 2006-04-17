@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.33 2006/03/15 21:34:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.34 2006/03/18 20:10:44 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -16,6 +16,10 @@
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/Pixel.h"
 
+namespace st_stream {
+   class StreamFormatter;
+}
+
 namespace Likelihood {
 
    class CountsMap;
@@ -25,7 +29,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.33 2006/03/15 21:34:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.34 2006/03/18 20:10:44 jchiang Exp $
  */
 
 #ifdef SWIG
@@ -73,6 +77,8 @@ private:
    std::string m_srcType;
 
    const CountsMap * m_dataMap;
+
+   st_stream::StreamFormatter * m_formatter;
 
    bool m_deleteDataMap;
 

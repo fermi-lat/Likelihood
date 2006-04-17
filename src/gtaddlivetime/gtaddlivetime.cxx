@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.4 2006/01/29 07:19:59 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.5 2006/03/18 23:10:17 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -24,8 +24,6 @@
 
 #include "Likelihood/AppHelpers.h"
 
-#include "Verbosity.h"
-
 /**
  * @class AddLivetime
  * @brief For two exposure hypercube files, add the livetimes and merge the
@@ -33,7 +31,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.4 2006/01/29 07:19:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.5 2006/03/18 23:10:17 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {

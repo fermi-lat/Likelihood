@@ -3,7 +3,7 @@
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.5 2005/12/05 00:34:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.6 2006/01/09 00:35:25 jchiang Exp $
  */
 
 #ifndef Likelihood_EventContainer_h
@@ -13,6 +13,10 @@
 #include <vector>
 
 #include "Likelihood/Event.h"
+
+namespace st_stream {
+   class StreamFormatter;
+}
 
 namespace tip {
    class Table;
@@ -31,7 +35,7 @@ namespace Likelihood {
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.5 2005/12/05 00:34:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.6 2006/01/09 00:35:25 jchiang Exp $
  */
 
 class EventContainer {
@@ -39,14 +43,9 @@ class EventContainer {
 public:
 
    EventContainer(const ResponseFunctions & respFuncs, 
-                  const RoiCuts & roiCuts, const ScData & scData) 
-      : m_respFuncs(respFuncs), m_roiCuts(roiCuts), m_scData(scData) {
-      if (s_FT1_columns.size() == 0) {
-         setFT1_columns();
-      }
-   }
+                  const RoiCuts & roiCuts, const ScData & scData);
 
-   ~EventContainer() {}
+   ~EventContainer();
 
    void getEvents(std::string event_file);
                   
@@ -74,6 +73,8 @@ private:
    const ResponseFunctions & m_respFuncs;
    const RoiCuts & m_roiCuts;
    const ScData & m_scData;
+
+   st_stream::StreamFormatter * m_formatter;
 
    std::vector<Event> m_events;
 

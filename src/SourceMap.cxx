@@ -4,13 +4,15 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.55 2006/03/18 20:10:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.56 2006/03/23 00:21:26 jchiang Exp $
  */
 
 #include <algorithm>
 #include <deque>
 #include <iostream>
 #include <memory>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
@@ -35,8 +37,6 @@
 #include "Likelihood/TrapQuad.h"
 
 #include "Likelihood/WcsMap.h"
-
-#include "Verbosity.h"
 
 namespace {
    double my_acos(double mu) {
@@ -78,7 +78,9 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                      bool applyPsfCorrections,
                      bool performConvolution) 
    : m_name(src->getName()), m_srcType(src->getType()),
-     m_dataMap(dataMap), m_deleteDataMap(false) {
+     m_dataMap(dataMap), 
+     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
+     m_deleteDataMap(false) {
    s_refCount++;
    if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
       prepareAngleArrays();
@@ -89,9 +91,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    std::vector<double> energies;
    dataMap->getAxisVector(2, energies);
 
-   if (print_output()) {
-      std::cerr << "Generating SourceMap for " << m_name;
-   }
+   m_formatter->info() << "Generating SourceMap for " << m_name;
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
    long icount(0);
@@ -124,8 +124,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                                                *s_binnedExposure);
          }
          for (pixel = pixels.begin(); pixel != pixels.end(); ++pixel, indx++) {
-            if (print_output() && (indx % (npts/20)) == 0) {
-               std::cerr << ".";
+            if ((indx % (npts/20)) == 0) {
+               m_formatter->info() << ".";
             }
             m_model.at(indx) = convolvedMap(pixel->dir())*pixel->solidAngle();
             m_npreds.at(k) += m_model.at(indx);
@@ -154,8 +154,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
             std::vector<double>::const_iterator energy = energies.begin();
             for (int k = 0; energy != energies.end(); ++energy, k++) {
                unsigned long indx = k*pixels.size() + j;
-               if (print_output() && (icount % (npts/20)) == 0) {
-                  std::cerr << ".";
+               if ((icount % (npts/20)) == 0) {
+                  m_formatter->info() << ".";
                }
                double value = (meanPsf(energies.at(k), 
                                        dir.difference(pixel->dir())*180./M_PI)
@@ -181,9 +181,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          }
       }
    }
-   if (print_output()) {
-      std::cerr << "!" << std::endl;
-   }
+   m_formatter->info() << "!" << std::endl;
 }
 
 SourceMap::~SourceMap() {
@@ -197,6 +195,7 @@ SourceMap::~SourceMap() {
    if (m_deleteDataMap) {
       delete m_dataMap;
    }
+   delete m_formatter;
 }
 
 void SourceMap::setBinnedExposure(const std::string & filename) {

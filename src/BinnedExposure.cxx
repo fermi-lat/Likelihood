@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.14 2005/11/17 22:01:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.15 2006/02/16 07:11:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -14,6 +14,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "st_stream/StreamFormatter.h"
+
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
@@ -22,8 +24,6 @@
 
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/Observation.h"
-
-#include "Verbosity.h"
 
 namespace Likelihood {
 
@@ -107,14 +107,13 @@ void BinnedExposure::computeMap() {
 
    m_exposureMap.resize(m_naxes.at(0)*m_naxes.at(1)*m_energies.size(), 0);
    int iter(0);
-   if (print_output()) {
-      std::cerr << "Computing binned exposure map";
-   }
+   st_stream::StreamFormatter formatter("BinnedExposure", "computeMap", 2);
+   formatter.info() << "Computing binned exposure map";
+
    for (int j = 0; j < m_naxes.at(1); j++) {
       for (int i = 0; i < m_naxes.at(0); i++) {
-         if (print_output() && 
-             (iter % ((m_naxes.at(1)*m_naxes.at(0))/20)) == 0) {
-            std::cerr << ".";
+         if ((iter % ((m_naxes.at(1)*m_naxes.at(0))/20)) == 0) {
+            formatter.info() << ".";
          }
          std::pair<double, double> coord = m_proj->pix2sph(i + 1, j + 1);
          astro::SkyDir dir(coord.first, coord.second);
@@ -132,9 +131,7 @@ void BinnedExposure::computeMap() {
          iter++;
       }
    }
-   if (print_output()) {
-      std::cerr << "!" << std::endl;
-   }
+   formatter.info() << "!" << std::endl;
 }
 
 double BinnedExposure::Aeff::s_phi(0);
