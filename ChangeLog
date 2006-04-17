@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr 16 22:52:21 PDT 2006
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx LikeExposure.cxx LogLike.cxx 
+	SourceFactory.cxx SourceModel.cxx SpectrumFactory.cxx 
+Log Message:
+using st_stream
+    *
+------------------------------------------------------------
 User: jchiang  Sun Apr 16 22:52:20 PDT 2006
 Likelihood/Likelihood
 
