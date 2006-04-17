@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr 16 22:52:20 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	SourceFactory.h SourceModel.h 
+Log Message:
+using st_stream
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r3p4, operation: add
 Package: Likelihood
