@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr 17 22:43:45 PDT 2006
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+forgotten items in move to st_stream
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 17 22:43:44 PDT 2006
 Likelihood/src/TsMap
 
