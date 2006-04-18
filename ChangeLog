@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr 17 22:43:44 PDT 2006
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Event.cxx ExposureMap.cxx LogLike.cxx OptEM.cxx 
+	PointSource.cxx SpatialMap.cxx 
+Removed Files:
+	Verbosity.cxx Verbosity.h 
+Log Message:
+forgotten items in move to st_stream
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 17 22:43:43 PDT 2006
 Likelihood/Likelihood
 
