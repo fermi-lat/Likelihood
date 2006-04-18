@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.52 2005/12/11 00:38:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.53 2006/01/09 00:35:29 jchiang Exp $
  */
 
 #include <cctype>
@@ -327,7 +327,6 @@ void Event::setDiffuseResponse(std::string srcName,
    static double sqrt2pi = sqrt(2.*M_PI);
    std::vector<double>::const_iterator energy = m_trueEnergies.begin();
    m_respDiffuseSrcs[srcName].clear();
-//   std::cout << "setDiffuseResponse: " << srcName << std::endl;
    for ( ; energy != m_trueEnergies.end(); ++energy) {
       double value = gaussianParams[0]/sqrt2pi/gaussianParams[2]
          *exp(-(*energy - gaussianParams[1])*(*energy - gaussianParams[1])

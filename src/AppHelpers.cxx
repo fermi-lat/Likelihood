@@ -3,13 +3,15 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.50 2006/03/25 00:00:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.51 2006/04/01 00:04:03 jchiang Exp $
  */
 
 #include <map>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "irfInterface/IrfsFactory.h"
 
@@ -194,10 +196,12 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
 void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
    if (!clobber) {
       if (file != "none" && st_facilities::Util::fileExists(file)) {
-         std::cout << "Output file " << file 
-                   << " already exists and you have set 'clobber' to 'no'.\n"
-                   << "Please provide a different output file name."
-                   << std::endl;
+         st_stream::StreamFormatter formatter("AppHelpers", 
+                                              "checkOutputFile", 2);
+         formatter.info() << "Output file " << file << " already exists,\n" 
+                          << "and you have set 'clobber' to 'no'.\n"
+                          << "Please provide a different output file name."
+                          << std::endl;
          std::exit(1);
       }
    }

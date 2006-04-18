@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.48 2005/10/19 06:14:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.49 2006/04/17 05:52:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -20,8 +20,6 @@
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/SrcArg.h"
-
-#include "Verbosity.h"
 
 namespace Likelihood {
 

@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.79 2006/02/15 07:13:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.80 2006/02/16 07:11:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -13,6 +13,8 @@
 #include <vector>
 
 #include "facilities/Util.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "astro/SkyDir.h"
 
@@ -28,13 +30,12 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/TrapQuad.h"
 
-#include "Verbosity.h"
-
 namespace Likelihood {
 
 std::vector<double> PointSource::s_trueEnergies(0);
 
-PointSource::PointSource() : m_spectrum(0), m_observation(0) {
+PointSource::PointSource() 
+   : m_spectrum(0), m_observation(0) {
    setDir(0., 0., false);
    m_srcType = "Point";
    if (s_trueEnergies.empty()) {
@@ -42,9 +43,9 @@ PointSource::PointSource() : m_spectrum(0), m_observation(0) {
    }
 }
 
-PointSource::
-PointSource(double ra, double dec, const Observation & observation,
-            bool verbose) : m_spectrum(0), m_observation(&observation) {
+PointSource::PointSource(double ra, double dec,
+                         const Observation & observation, bool verbose) 
+   : m_spectrum(0), m_observation(&observation) {
    setDir(ra, dec, true, verbose);
    m_srcType = "Point";
    if (s_trueEnergies.empty()) {
@@ -61,6 +62,10 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 
    m_exposure = rhs.m_exposure;
    m_observation = rhs.m_observation;
+}
+
+PointSource::~PointSource() {
+   delete m_spectrum;
 }
 
 double PointSource::fluxDensity(double energy, double time,
@@ -290,9 +295,12 @@ void PointSource::computeExposure(bool verbose) {
       computeExposure(srcDir, energies, *m_observation,
                       m_exposure, verbose);
    }
-   if (print_output() && verbose) {
+   if (verbose) {
+      st_stream::StreamFormatter formatter("PointSource",
+                                           "computeExposure", 2);
       for (unsigned int i = 0; i < energies.size(); i++) {
-         std::cout << energies.at(i) << "  " << m_exposure.at(i) << std::endl;
+         formatter.info() << energies.at(i) << "  " 
+                          << m_exposure.at(i) << std::endl;
       }
    }
 }
@@ -311,20 +319,26 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
                              bool verbose) {
    exposure.clear();
 
-   if (print_output() && verbose) {
-      std::cerr << "Computing exposure at (" 
-                << srcDir.ra() << ", " 
-                << srcDir.dec() << ")";
+   st_stream::StreamFormatter formatter("PointSource",
+                                        "computeExposureWithHyperCube", 2);
+   if (verbose) {
+      formatter.info() << "Computing exposure at (" 
+                       << srcDir.ra() << ", " 
+                       << srcDir.dec() << ")";
    }
    for (std::vector<double>::const_iterator it = energies.begin();
         it != energies.end(); it++) {
-      if (print_output() && verbose) std::cerr << ".";
+      if (verbose) {
+         formatter.info() << ".";
+      }
       PointSource::Aeff aeff(*it, srcDir, observation.roiCuts(),
                              observation.respFuncs());
       double exposure_value = observation.expCube().value(srcDir, aeff);
       exposure.push_back(exposure_value);
    }
-   if (print_output() && verbose) std::cerr << "!" << std::endl;
+   if (verbose) {
+      formatter.info() << "!" << std::endl;
+   }
 }
 
 void PointSource::computeExposure(const astro::SkyDir & srcDir,
@@ -346,11 +360,11 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    exposure.clear();
    exposure.resize(energies.size());
 
-   if (print_output()) {
-      std::cerr << "Computing exposure at (" 
-                << srcDir.ra() << ", " 
-                << srcDir.dec() << ")";
-   }
+   st_stream::StreamFormatter formatter("PointSource",
+                                        "computeExposureWithHyperCube", 2);
+   formatter.info() << "Computing exposure at (" 
+                    << srcDir.ra() << ", " 
+                    << srcDir.dec() << ")";
    size_t npts;
    if (roiCuts.maxTime() > scData.vec.back().time) {
       npts = scData.vec.size() - 1;
@@ -358,8 +372,8 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
       npts = scData.time_index(roiCuts.maxTime()) + 1;
    }
    for (unsigned int it = 0; it < npts && it < scData.vec.size()-1; it++) {
-      if (print_output() && npts/20 > 0 && ((it % (npts/20)) == 0)) {
-         std::cerr << ".";
+      if (npts/20 > 0 && ((it % (npts/20)) == 0)) {
+         formatter.info() << ".";
       }
       double start(scData.vec.at(it).time);
       double stop(scData.vec.at(it+1).time);
@@ -385,13 +399,13 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
             double effArea = sourceEffArea(srcDir, energies[k], time, 
                                            scData, roiCuts, respFuncs);
             if (effArea < 0 || fraction < 0 || (stop-start) < 0) {
-               std::cout << effArea << std::endl;
+               formatter.info() << effArea << std::endl;
             }
             exposure[k] += effArea*livetime*fraction;
          }
       }
    }
-   if (print_output()) std::cerr << "!" << std::endl;
+   formatter.info() << "!" << std::endl;
 }
 
 void PointSource::makeEnergyVector(int nee) {
@@ -420,21 +434,19 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
 
    double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
    
+   st_stream::StreamFormatter formatter("PointSource", "sourceEffArea", 3);
+
    double effArea(0);
    try {
       effArea = aeff(cos_theta);
    } catch (std::exception & eObj) {
-      if (print_output(3)) {
-         std::cout << eObj.what() << "\n"
-                   << "cos_theta = " << cos_theta
-                   << std::endl;
-      }
+      formatter.info() << eObj.what() << "\n"
+                       << "cos_theta = " << cos_theta
+                       << std::endl;
    } catch (...) {
-      if (print_output(3)) {
-         std::cout << "caught unknown exception for "
-                   << "cos_theta = " << cos_theta
-                   << std::endl;
-      }
+      formatter.info() << "caught unknown exception for "
+                       << "cos_theta = " << cos_theta
+                       << std::endl;
    }
    return effArea;
 }
@@ -473,9 +485,9 @@ double PointSource::Aeff::operator()(double cos_theta) const {
          psf_val = psf->angularIntegral(m_energy, m_srcDir,
                                         theta, phi, m_cones);
       } catch (std::exception & eObj) { 
-         if (print_output(3)) {
-            std::cout << eObj.what() << std::endl;
-         }
+         st_stream::StreamFormatter formatter("PointSource::Aeff", 
+                                              "operator()", 2);
+         formatter.info() << eObj.what() << std::endl;
       }
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();

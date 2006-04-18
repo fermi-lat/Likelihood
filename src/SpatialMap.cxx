@@ -5,13 +5,15 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.18 2005/10/05 00:59:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.19 2006/02/20 23:23:02 jchiang Exp $
  *
  */
 
 #include <stdexcept>
 
 #include "facilities/Util.h"
+
+#include "st_stream/StreamFormatter.h"
 
 #include "st_facilities/Util.h"
 
@@ -78,7 +80,8 @@ void SpatialMap::readFitsFile(const std::string & fitsFile,
 // The following to stdout is necessary since Xerces seems to corrupt
 // the exception handling when this method is called from
 // SourceFactory::readXml and the program simply aborts.
-      std::cout << "File not found: " << m_fitsFile << std::endl;
+      st_stream::StreamFormatter formatter("SpatialMap", "readFitsFile", 2);
+      formatter.err() << "File not found: " << m_fitsFile << std::endl;
       throw std::runtime_error("File not found: " + m_fitsFile);
    }
    m_wcsmap = new WcsMap(m_fitsFile, extension);

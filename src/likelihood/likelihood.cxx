@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.105 2006/03/10 23:35:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.106 2006/04/17 05:52:23 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -51,8 +51,6 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
-
-#include "Verbosity.h"
 
 namespace {
    class NormNames {
@@ -109,7 +107,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.105 2006/03/10 23:35:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.106 2006/04/17 05:52:23 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -206,7 +204,6 @@ likelihood::likelihood()
 
 void likelihood::run() {
    promptForParameters();
-   Verbosity::instance(m_pars["chatter"]);
    std::string statistic = m_pars["statistic"];
    m_helper = new AppHelpers(&m_pars, statistic);
    std::string expcube_file = m_pars["exposure_cube_file"];
