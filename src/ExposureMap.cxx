@@ -4,10 +4,12 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.34 2005/10/03 15:02:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.35 2005/10/05 00:59:38 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
@@ -23,8 +25,6 @@
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SkyDirArg.h"
-
-#include "Verbosity.h"
 
 namespace Likelihood {
 
@@ -127,15 +127,15 @@ void ExposureMap::computeMap(std::string filename,
    std::vector<float> expMap;
    expMap.resize(nenergies*nlat*nlon);
 
-   if (print_output()) {
-      std::cerr << "Computing the ExposureMap";
-   }
+   st_stream::StreamFormatter formatter("ExposureMap", "computeMap", 2);
+
+   formatter.info() << "Computing the ExposureMap";
 
    int ncount = 0;
    for (int j = 0; j < nlat; j++) {
       for (int i = 0; i < nlon; i++) {
-         if (print_output() && (ncount % ((nlon*nlat)/20)) == 0) {
-            std::cerr << ".";
+         if ((ncount % ((nlon*nlat)/20)) == 0) {
+            formatter.info() << ".";
          }
 
 // NB: wcslib (via astro::SkyProj) starts indexing pixels at 1, not 0, 
@@ -159,9 +159,7 @@ void ExposureMap::computeMap(std::string filename,
          ncount++;
       }
    }
-   if (print_output()) {
-      std::cerr << "!" << std::endl;
-   }
+   formatter.info() << "!" << std::endl;
 
    writeFitsFile(filename, naxes, crpix, crval, cdelt, energies, expMap);
 }

@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.24 2006/03/10 23:35:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.25 2006/03/15 21:34:08 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -41,8 +41,6 @@
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/RoiCuts.h"
-
-#include "Verbosity.h"
 
 using namespace Likelihood;
 
@@ -97,7 +95,6 @@ void gtsrcmaps::banner() const {
 void gtsrcmaps::run() {
    m_pars.Prompt();
    m_pars.Save();
-   Likelihood::Verbosity::instance(m_pars["chatter"]);
    m_helper = new AppHelpers(&m_pars, "BINNED");
    m_helper->readScData();
    m_helper->checkOutputFile();

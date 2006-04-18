@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.14 2006/02/23 01:54:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.15 2006/02/23 07:30:17 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -27,8 +27,6 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/RoiCuts.h"
-
-#include "Verbosity.h"
 
 using namespace Likelihood;
 
@@ -69,7 +67,6 @@ void gtcntsmap::banner() const {
 void gtcntsmap::run() {
    m_pars.Prompt();
    m_pars.Save();
-   Likelihood::Verbosity::instance(m_pars["chatter"]);
    AppHelpers::checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
                                
    std::string event_file = m_pars["evfile"];

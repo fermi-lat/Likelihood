@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.30 2006/03/10 23:35:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.31 2006/04/17 05:52:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -32,8 +32,6 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/LogLike.h"
 
-//#include "Verbosity.h"
-
 using namespace Likelihood;
 
 /**
@@ -43,7 +41,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.30 2006/03/10 23:35:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.31 2006/04/17 05:52:21 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:

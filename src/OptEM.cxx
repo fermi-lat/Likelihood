@@ -3,10 +3,10 @@
  * @brief Implementation for Expectation Maximization class.
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.8 2005/03/02 04:51:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.9 2005/03/04 22:08:27 jchiang Exp $
  */
 
-#include "Verbosity.h"
+#include "st_stream/StreamFormatter.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/OneSourceFunc.h"
 #include "optimizers/Lbfgs.h"
@@ -34,6 +34,7 @@ namespace Likelihood {
 
     unsigned int iteration = 0;
     int nPar;
+    st_stream::StreamFormatter formatter("OptEM", "findMin", 2);
 
     //! Main EM loop.  Repeat until log(L) converges.
     do {
@@ -67,26 +68,26 @@ namespace Likelihood {
 	optimizers::Drmngb opt(f);
 	opt.setNeedCovariance(false);
 	//optimizers::Minuit opt(f);
+
 	try {
-	  opt.find_min(verbose, .1 * chifunc(f.getNumFreeParams()),
-		       optimizers::ABSOLUTE);}
-	catch (optimizers::Exception e) {
-           if (print_output()) {
-              std::cerr << "Optimizer Exception " << e.code() << std::endl;
-              std::cerr << "  " << e.what() << std::endl;
-              std::cerr << " on iteration " << iteration+1
-                        << " source " << i+1 << std::endl;
-           }
-	  //	  assert(0);
+           opt.find_min(verbose, .1 * chifunc(f.getNumFreeParams()),
+                        optimizers::ABSOLUTE);
+        } catch (optimizers::Exception & e) {
+           formatter.info() << "Optimizer Exception " << e.code()
+                            << "  " << e.what()
+                            << " on iteration " << iteration+1
+                            << " source " << i+1 << std::endl;
 	}
 
 	logL += f.value(arg);
-	//	std::cout << "Function value " << f.value(arg) << endl;
+//         formatter.info() << "Function value " << f.value(arg) << std::endl;
       }
       iteration++;
-      if (print_output() && verbose != 0)
-	std::cout << "Iteration #" << iteration << ", logL = " << logL << 
-	  ", old logL = " << oldLogL  << " params " << nPar << std::endl;
+      if (verbose != 0) {
+         formatter.info() << "Iteration #" << iteration 
+                          << ", logL = " << logL << ", old logL = " 
+                          << oldLogL  << " params " << nPar << std::endl;
+      }
     } while (fabs(logL-oldLogL) > 0.1*chifunc(nPar) || oldLogL == 0.);
 
     //! Clean up before exit
