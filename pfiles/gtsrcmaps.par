@@ -1,4 +1,4 @@
-scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
+scfile,f,a,"test_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
 exposure_cube_file,fr,a,"expCube.fits",,,"Exposure hypercube file"
 counts_map_file,fr,a,"countsMap.fits",,,"Counts map file"

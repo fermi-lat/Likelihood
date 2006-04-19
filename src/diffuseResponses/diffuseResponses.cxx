@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.37 2006/03/10 23:35:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.38 2006/04/17 16:14:46 jchiang Exp $
  */
 
 #include <cmath>
@@ -46,7 +46,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.37 2006/03/10 23:35:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.38 2006/04/17 16:14:46 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -201,7 +201,7 @@ diffuseSrcName(const std::string & srcName) const {
 void diffuseResponses::buildSourceModel() {
    std::string sourceModel = m_pars["source_model_file"];
    st_facilities::Util::file_ok(sourceModel);
-   m_srcModel->readXml(sourceModel, m_helper->funcFactory(), false);
+   m_srcModel->readXml(sourceModel, m_helper->funcFactory(), false, false);
 }
 
 void diffuseResponses::readEventData(std::string eventFile) {

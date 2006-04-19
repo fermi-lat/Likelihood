@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.54 2006/03/16 06:20:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.55 2006/04/17 05:52:20 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -49,7 +49,7 @@ SourceFactory::~SourceFactory() {
    delete m_formatter;
 }
 
-Source *SourceFactory::create(const std::string &name) throw(Exception) {
+Source * SourceFactory::create(const std::string &name) {
    if (!m_prototypes.count(name)) {
       std::string errorMessage 
          = "SourceFactory::create:\nCannot create Source named " + name + ".";
@@ -59,8 +59,7 @@ Source *SourceFactory::create(const std::string &name) throw(Exception) {
 }
 
 void SourceFactory::addSource(const std::string &name, Source* src, 
-                              bool fromClone) 
-   throw(Exception) {
+                              bool fromClone) {
    if (!m_prototypes.count(name)) {
       if (fromClone) {
          m_prototypes[name] = src->clone();
@@ -90,13 +89,12 @@ void SourceFactory::replaceSource(Source* src, bool fromClone) {
    }
 }
 
-void SourceFactory::readXml(const std::string &xmlFile,
-                            optimizers::FunctionFactory &funcFactory,
-                            bool requireExposure)
-   throw(Exception) {
+void SourceFactory::readXml(const std::string & xmlFile,
+                            optimizers::FunctionFactory & funcFactory,
+                            bool requireExposure,
+                            bool addPointSources) {
    m_requireExposure = requireExposure;
 
-//   xmlBase::XmlParser * parser = XmlParser::instance();
    xmlBase::XmlParser * parser = XmlParser_instance();
 
    DOMDocument * doc = parser->parse(xmlFile.c_str());
@@ -161,8 +159,8 @@ void SourceFactory::readXml(const std::string &xmlFile,
 
 // The processing logic for the spatialModel depends on the source
 // type, so we must consider each case individually:
-      Source *src = 0;
-      if (srcType == "PointSource") {
+      Source * src = 0;
+      if (addPointSources && srcType == "PointSource") {
          src = makePointSource(spectrum, spatialModel, funcFactory);
       } else if (srcType == "DiffuseSource") {
          src = makeDiffuseSource(spectrum, spatialModel, funcFactory);
@@ -186,10 +184,10 @@ void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
       srcNames.push_back(it->first);
 }
 
-Source * SourceFactory::makePointSource(const DOMElement * spectrum, 
-                                        const DOMElement * spatialModel,
-                                        optimizers::FunctionFactory 
-                                        &funcFactory) {
+Source * SourceFactory::
+makePointSource(const DOMElement * spectrum, 
+                const DOMElement * spatialModel,
+                optimizers::FunctionFactory & funcFactory) {
    std::string funcType = xmlBase::Dom::getAttribute(spatialModel, "type");
    if (funcType != "SkyDirFunction") {
       std::string errorMessage = std::string("SourceFactory::readXml:\n") 
@@ -236,10 +234,10 @@ Source * SourceFactory::makePointSource(const DOMElement * spectrum,
    return 0;
 }
 
-Source * SourceFactory::makeDiffuseSource(const DOMElement * spectrum, 
-                                          const DOMElement * spatialModel,
-                                          optimizers::FunctionFactory 
-                                          &funcFactory) {
+Source * SourceFactory::
+makeDiffuseSource(const DOMElement * spectrum, 
+                  const DOMElement * spatialModel,
+                  optimizers::FunctionFactory & funcFactory) {
    std::string type = xmlBase::Dom::getAttribute(spatialModel, "type");
    optimizers::Function *spatialDist = funcFactory.create(type);
    std::vector<DOMElement *> params;
