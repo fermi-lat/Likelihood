@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr 18 22:41:58 PDT 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtbackfile.par gtcntsmap.par gtdiffresp.par gtexpmap.par 
+	gtlivetimecube.par gtsrcmaps.par gttsmap.par 
+Log Message:
+skip PointSource prep for gtdiffresp; tagging v11r3p6
+    *
+------------------------------------------------------------
 User: jchiang  Tue Apr 18 22:41:57 PDT 2006
 Likelihood/doc
 
