@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r3p6 18-Apr-06 JC   more st_stream conversion; skip PointSource
+                           prep in SourceFactory for gtdiffresp; change
+                           evfile and scfile from "fr" to "f" in par files
     v11r3p5 17-Apr-06 JC   use st_stream for screen output
     v11r3p4 31-Mar-06 JC   fix endtime bug; try to speed up LikeExposure calc
     v11r3p3 26-Mar-06 JC   kludgey bug-fixes for Convolve for non-square maps

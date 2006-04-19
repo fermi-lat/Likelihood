@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.75 2006/03/16 06:20:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.76 2006/04/17 05:52:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -289,7 +289,8 @@ void SourceModel::fetchDerivs(optimizers::Arg &x,
 
 void SourceModel::readXml(std::string xmlFile,
                           optimizers::FunctionFactory &funcFactory,
-                          bool requireExposure) {
+                          bool requireExposure,
+                          bool addPointSources) {
 
 // Expand any environment variables in the xmlFile name.
    facilities::Util::expandEnvVar(&xmlFile);
@@ -297,7 +298,8 @@ void SourceModel::readXml(std::string xmlFile,
 // Create a SourceFactory to read in the xml file.
    SourceFactory srcFactory(m_observation);
    try {
-      srcFactory.readXml(xmlFile, funcFactory, requireExposure);
+      srcFactory.readXml(xmlFile, funcFactory, requireExposure,
+                         addPointSources);
    } catch (xmlBase::DomException & eObj) {
       m_formatter->err() << "SourceModel::readXml:\n DomException: " 
                          << eObj.what() << std::endl;

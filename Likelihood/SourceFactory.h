@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.21 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.22 2006/04/17 05:52:20 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -45,7 +45,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.21 2005/02/27 06:42:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.22 2006/04/17 05:52:20 jchiang Exp $
  *
  */
     
@@ -57,20 +57,21 @@ public:
 
    virtual ~SourceFactory();
 
-   Source *create(const std::string &name) throw(Exception);
+   Source * create(const std::string & name);
 
    /// Clients should almost always have fromClone = true; otherwise,
    /// the destructor will delete their Source, rather than a clone.
-   void addSource(const std::string &name, Source* src, 
-                  bool fromClone = true) throw(Exception);
+   void addSource(const std::string &name, Source * src, 
+                  bool fromClone=true);
 
-   void replaceSource(Source* src, bool fromClone = true);
+   void replaceSource(Source * src, bool fromClone=true);
 
-   void readXml(const std::string &xmlFile,
-                optimizers::FunctionFactory&,
-                bool requireExposure=true) throw(Exception);
+   void readXml(const std::string & xmlFile,
+                optimizers::FunctionFactory &,
+                bool requireExposure=true,
+                bool addPointSources=true);
 
-   void fetchSrcNames(std::vector<std::string> &srcNames);
+   void fetchSrcNames(std::vector<std::string> & srcNames);
 
 private:
 

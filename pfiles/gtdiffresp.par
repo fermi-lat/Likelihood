@@ -1,6 +1,6 @@
-evfile,fr,a,"test_events_0000.fits",,,"Event data file"
+evfile,f,a,"test_events_0000.fits",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
-scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
+scfile,f,a,"test_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
 rspfunc,s,h,"DSS",,,"Response functions to use"
