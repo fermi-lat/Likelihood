@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr 18 22:41:59 PDT 2006
+Likelihood/src
+
+Modified Files:
+	SourceFactory.cxx SourceModel.cxx 
+Log Message:
+skip PointSource prep for gtdiffresp; tagging v11r3p6
+    *
+------------------------------------------------------------
 User: jchiang  Tue Apr 18 22:41:58 PDT 2006
 Likelihood/pfiles
 
