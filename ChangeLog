@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr 20 13:05:37 PDT 2006
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+write just time-related DSS keywords to gtlivetimecube output; tagging v11r3p8
+    *
+------------------------------------------------------------
 User: jchiang  Thu Apr 20 13:05:36 PDT 2006
 Likelihood/cmt
 
