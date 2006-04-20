@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr 20 07:53:38 PDT 2006
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+clean up exception message
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r3p7, operation: add
 Package: Likelihood
