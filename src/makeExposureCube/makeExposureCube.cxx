@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.36 2006/04/17 05:52:24 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.37 2006/04/17 16:14:49 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.36 2006/04/17 05:52:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.37 2006/04/17 16:14:49 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -95,7 +95,7 @@ void ExposureCube::run() {
    m_exposure->write(output_file);
    std::auto_ptr<tip::Table> 
       table(tip::IFileSvc::instance().editTable(output_file, "Exposure"));
-   m_roiCuts->writeDssKeywords(table->getHeader());
+   m_roiCuts->writeDssTimeKeywords(table->getHeader());
    m_roiCuts->writeGtiExtension(output_file);
 }
 
