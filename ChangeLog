@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Apr 19 20:47:36 PDT 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+SourceMap constructor, BinnedLikelihood::readXml bug fixes; tagging v11r3p7
+    *
+------------------------------------------------------------
+User: jchiang  Wed Apr 19 20:47:36 PDT 2006
 Likelihood/Likelihood
 
 Modified Files:
