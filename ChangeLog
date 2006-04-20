@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr 19 20:47:36 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h 
+Log Message:
+SourceMap constructor, BinnedLikelihood::readXml bug fixes; tagging v11r3p7
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r3p6, operation: add
 Package: Likelihood
