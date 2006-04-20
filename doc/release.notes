@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r3p7 19-Apr-06 JC   implement BinnedLikelihood::readXml to match
+                           base class interface; fix SourceMap constructor
+                           bug
     v11r3p6 18-Apr-06 JC   more st_stream conversion; skip PointSource
                            prep in SourceFactory for gtdiffresp; change
                            evfile and scfile from "fr" to "f" in par files
