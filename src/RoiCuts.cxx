@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.41 2006/02/23 01:54:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.42 2006/02/28 20:15:33 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -72,6 +72,12 @@ void RoiCuts::readCuts(const std::vector<std::string> & eventFiles,
 void RoiCuts::writeDssKeywords(tip::Header & header) const {
    if (m_cuts) {
       m_cuts->writeDssKeywords(header);
+   }
+}
+
+void RoiCuts::writeDssTimeKeywords(tip::Header & header) const {
+   if (m_cuts) {
+      m_cuts->writeDssTimeKeywords(header);
    }
 }
 

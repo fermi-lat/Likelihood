@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r3p8 20-Apr-06 JC   write just time-related DSS keywords to 
+                           gtlivetimecube output files
     v11r3p7 19-Apr-06 JC   implement BinnedLikelihood::readXml to match
                            base class interface; fix SourceMap constructor
                            bug

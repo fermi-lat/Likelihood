@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.32 2005/03/25 05:16:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.33 2005/08/18 00:07:55 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -39,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.32 2005/03/25 05:16:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.33 2005/08/18 00:07:55 jchiang Exp $
  */
 
 class RoiCuts {
@@ -121,6 +121,9 @@ public:
 
    /// Write DSS keywords to a FITS header
    void writeDssKeywords(tip::Header & header) const;
+
+   /// Write DSS time-related keywords to a FITS header
+   void writeDssTimeKeywords(tip::Header & header) const;
 
    /// Write the GTI extension to the FITS file
    void writeGtiExtension(const std::string & filename) const;
