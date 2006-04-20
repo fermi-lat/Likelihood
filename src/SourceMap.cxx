@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.56 2006/03/23 00:21:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.57 2006/04/17 16:14:44 jchiang Exp $
  */
 
 #include <algorithm>
@@ -254,6 +254,7 @@ double SourceMap::maxPsfRadius(PointSource * src) const {
 SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const std::string & srcName) 
    : m_name(srcName), m_dataMap(new CountsMap(sourceMapsFile)),
+     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
      m_deleteDataMap(true) {
    s_refCount++;
    std::auto_ptr<const tip::Image> 

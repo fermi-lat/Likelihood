@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.76 2006/04/17 05:52:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.77 2006/04/19 05:41:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -52,7 +52,7 @@ SourceModel::SourceModel(const Observation & observation, bool verbose)
 
 SourceModel::SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs),
    m_observation(rhs.m_observation), m_verbose(rhs.m_verbose) {
-//   delete m_formatter;
+   delete m_formatter;
    m_formatter = new st_stream::StreamFormatter("SourceModel", "", 2);
 }
 
