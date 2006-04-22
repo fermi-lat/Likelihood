@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 21 17:15:16 PDT 2006
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+gtcntsmap par file refactoring; fix convolution bug plaguing large field AITOFF maps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 21 17:15:15 PDT 2006
 Likelihood/src
 
