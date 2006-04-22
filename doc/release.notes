@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r3p9 21-Apr-06 JC   fix wcs projection problem with convolution 
+                           of large field Aitoff maps; refactor parameter
+                           interface of gtcntsmap to query for coordsys
     v11r3p8 20-Apr-06 JC   write just time-related DSS keywords to 
                            gtlivetimecube output files
     v11r3p7 19-Apr-06 JC   implement BinnedLikelihood::readXml to match
