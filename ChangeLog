@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 21 17:15:15 PDT 2006
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx SourceMap.cxx WcsMap.cxx 
+Log Message:
+gtcntsmap par file refactoring; fix convolution bug plaguing large field AITOFF maps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 21 17:15:14 PDT 2006
 Likelihood/pfiles
 
