@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.35 2006/01/21 05:21:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.36 2006/01/22 15:28:45 jchiang Exp $
  */
 
 #include <algorithm>
@@ -468,15 +468,18 @@ void CountsMap::getPixels(std::vector<astro::SkyDir> & pixelDirs,
       for ( ; lonIt != longitudes.end() - 1; ++lonIt) {
          double longitude = (*lonIt + *(lonIt+1))/2.;
          try {
-            pixelDirs.push_back(astro::SkyDir(longitude, latitude,
-                                              projection()));
-            pixelSolidAngles.push_back(computeSolidAngle(lonIt, latIt, 
-                                                      projection()));
+            astro::SkyDir my_dir(longitude, latitude, projection());
+            double solid_angle(computeSolidAngle(lonIt, latIt, projection()));
+            pixelDirs.push_back(my_dir);
+            pixelSolidAngles.push_back(solid_angle);
          } catch (std::exception & eObj) {
             if (st_facilities::Util::
                 expectedException(eObj, "SkyProj wcslib error")) {
                // Attempted to create a pixel outside of the map boundary for
-               // the current projection, so skip this pixel.
+               // the current projection, so fill solid angle with zero
+               // and place default direction in pixel dir.
+               pixelDirs.push_back(astro::SkyDir(0, 0));
+               pixelSolidAngles.push_back(0);
             } else {
                throw;
             }
@@ -494,7 +497,13 @@ double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
    astro::SkyDir C(*(lon+1), *(lat+1), proj);
    astro::SkyDir D(*(lon+1), *lat, proj);
 
-   return st_facilities::FitsImage::solidAngle(A, B, C, D);
+   double solidAngle(st_facilities::FitsImage::solidAngle(A, B, C, D));
+
+//    if (solidAngle == 0) {
+//       std::cout << "CountsMap::computeSolidAngle: "
+//                 << "solid angle = 0 at " << *lon << ", " << *lat << std::endl;
+//    }
+   return solidAngle;
 }
 
 void CountsMap::setCenter() {

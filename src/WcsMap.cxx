@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.13 2006/03/25 00:00:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.14 2006/04/01 00:04:03 jchiang Exp $
  */
 
 #include <algorithm>
@@ -115,10 +115,14 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    for (int j = 0; j < npts; j++) {
       std::vector<double> row(npts, 0);
       for (int i = 0; i < npts; i++) {
-         std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-         astro::SkyDir dir(coord.first, coord.second, coordSys);
-         SkyDirArg my_dir(dir, energy);
-         row.at(i) = diffuseSource.spatialDist(my_dir);
+         if (m_proj->testpix2sph(i+1, j+1) == 0) {
+            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
+            astro::SkyDir dir(coord.first, coord.second, coordSys);
+            SkyDirArg my_dir(dir, energy);
+            row.at(i) = diffuseSource.spatialDist(my_dir);
+         } else {
+            row.at(i) = 0;
+         }
       }
       m_image.push_back(row);
    }
@@ -213,12 +217,16 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
       counts.at(j).resize(m_naxis1, 0);
       psf_image.at(j).resize(m_naxis1);
       for (int i = 0; i < m_naxis1; i++) {
-         std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-         astro::SkyDir dir(coord.first, coord.second, coordSys);
-         counts.at(j).at(i) = 
-            m_image.at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
-         double theta = m_refDir.difference(dir)*180./M_PI;
-         psf_image.at(j).at(i) = psf(energy, theta, 0);
+         if (m_proj->testpix2sph(i+1, j+1) == 0) {
+            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
+            astro::SkyDir dir(coord.first, coord.second, coordSys);
+            counts.at(j).at(i) = 
+               m_image.at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
+            double theta = m_refDir.difference(dir)*180./M_PI;
+            psf_image.at(j).at(i) = psf(energy, theta, 0);
+         } else {
+            psf_image.at(j).at(i) = 0;
+         }
       }
    }
    psf_image.normalize();
