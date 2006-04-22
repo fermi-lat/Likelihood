@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.15 2006/02/23 07:30:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.16 2006/04/18 05:43:45 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -40,6 +40,7 @@ private:
    st_app::AppParGroup & m_pars;
    dataSubselector::Cuts * m_cuts;
 
+   void promptForParameters();
    void writeDssCuts() const;
    void logArray(double xmin, double xmax, unsigned int nx,
                  std::vector<double> & xx) const;
@@ -53,6 +54,11 @@ st_app::StAppFactory<gtcntsmap> myAppFactory("gtcntsmap");
 gtcntsmap::gtcntsmap() : st_app::StApp(), 
    m_pars(st_app::StApp::getParGroup("gtcntsmap")), m_cuts(0) {
    setVersion(s_cvs_id);
+   m_pars.setSwitch("use_lb");
+   m_pars.setCase("use_lb", "yes", "glon");
+   m_pars.setCase("use_lb", "yes", "glat");
+   m_pars.setCase("use_lb", "no", "ra");
+   m_pars.setCase("use_lb", "no", "dec");
 }
 
 std::string gtcntsmap::s_cvs_id("$Name:  $");
@@ -65,8 +71,7 @@ void gtcntsmap::banner() const {
 }
 
 void gtcntsmap::run() {
-   m_pars.Prompt();
-   m_pars.Save();
+   promptForParameters();
    AppHelpers::checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
                                
    std::string event_file = m_pars["evfile"];
@@ -101,11 +106,15 @@ void gtcntsmap::run() {
 
    double ra = m_pars["ra"];
    double dec = m_pars["dec"];
+   bool use_lb = m_pars["use_lb"];
+   if (use_lb) {
+      ra = m_pars["glon"];
+      dec = m_pars["glat"];
+   }
    long nra = m_pars["nra"];
    long ndec = m_pars["ndec"];
    double pixel_size = m_pars["pixel_size"];
    std::string projection = m_pars["proj"];
-   bool use_lb = m_pars["use_lb"];
    CountsMap cmap(eventFiles[0], evtable, scDataFiles[0], sc_table,
                   ra, dec, projection, nra, ndec, pixel_size, 0, use_lb, 
                   "RA", "DEC", energies);
@@ -120,6 +129,29 @@ void gtcntsmap::run() {
    cmap.writeOutput("gtcntsmap", output_file);
    writeDssCuts();
    delete m_cuts;
+}
+
+void gtcntsmap::promptForParameters() {
+   m_pars.Prompt("evfile");
+   m_pars.Prompt("scfile");
+   m_pars.Prompt("outfile");
+   m_pars.Prompt("emin");
+   m_pars.Prompt("emax");
+   m_pars.Prompt("nenergies");
+   m_pars.Prompt("use_lb");
+   bool use_lb = m_pars["use_lb"];
+   if (use_lb) {
+      m_pars.Prompt("glon");
+      m_pars.Prompt("glat");
+   } else {
+      m_pars.Prompt("ra");
+      m_pars.Prompt("dec");
+   }
+   m_pars.Prompt("nra");
+   m_pars.Prompt("ndec");
+   m_pars.Prompt("pixel_size");
+   m_pars.Prompt("proj");
+   m_pars.Save();
 }
 
 void gtcntsmap::writeDssCuts() const {
