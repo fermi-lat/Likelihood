@@ -4,7 +4,7 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.35 2005/10/05 00:59:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.36 2006/04/18 05:43:43 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -130,6 +130,12 @@ void ExposureMap::computeMap(std::string filename,
    st_stream::StreamFormatter formatter("ExposureMap", "computeMap", 2);
 
    formatter.info() << "Computing the ExposureMap";
+   if (observation.expCube().haveFile()) {
+      formatter.info() << " using " << observation.expCube().fileName()
+                       << std::endl;
+   } else {
+      formatter.info() << " (no expCube file given) " << std::endl;
+   }
 
    int ncount = 0;
    for (int j = 0; j < nlat; j++) {
