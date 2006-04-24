@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.53 2006/01/09 00:35:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.54 2006/04/18 05:43:43 jchiang Exp $
  */
 
 #include <cctype>
@@ -301,7 +301,7 @@ void Event::getNewDiffuseSrcs(const std::vector<DiffuseSource *> & srcList,
                               std::vector<DiffuseSource *> & srcs) const {
    for (std::vector<DiffuseSource *>::const_iterator it = srcList.begin();
         it != srcList.end(); ++it) {
-      std::string name = (*it)->getName();
+      std::string name((*it)->getName());
       name = diffuseSrcName(name);
       if (!m_respDiffuseSrcs.count(name)) {
          srcs.push_back(*it);
