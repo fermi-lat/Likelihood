@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr 24 15:31:10 PDT 2006
+Likelihood/src
+
+Modified Files:
+	Event.cxx EventContainer.cxx ExposureMap.cxx 
+Log Message:
+give warning that diffuse responses are being calculated from gtlikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 24 15:31:07 PDT 2006
 Likelihood/Likelihood
 
