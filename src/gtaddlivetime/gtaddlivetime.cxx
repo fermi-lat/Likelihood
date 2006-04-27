@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.5 2006/03/18 23:10:17 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.6 2006/04/17 16:14:47 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -11,6 +11,8 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+
+#include "st_facilities/Util.h"
 
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
@@ -31,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.5 2006/03/18 23:10:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.6 2006/04/17 16:14:47 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
@@ -51,8 +53,9 @@ public:
    virtual void banner() const;
 private:
    st_app::AppParGroup & m_pars;
+   std::vector<std::string> m_fileList;
+
    void promptForParameters();
-   void checkGtis();
    void addFiles();
 
    static std::string s_cvs_id;
@@ -71,76 +74,82 @@ void AddLivetime::banner() const {
 
 void AddLivetime::run() {
    promptForParameters();
-   checkGtis();
    addFiles();
 }
 
 void AddLivetime::promptForParameters() {
    m_pars.Prompt("infile1");
-   m_pars.Prompt("infile2");
+   std::string infile1 = m_pars["infile1"];
+   st_facilities::Util::resolve_fits_files(infile1, m_fileList);
+   if (m_fileList.size() == 1) {
+      m_pars.Prompt("infile2");
+      std::string infile2 = m_pars["infile2"];
+      m_fileList.push_back(infile2);
+   }
    m_pars.Prompt("outfile");
    m_pars.Save();
 }
 
-void AddLivetime::checkGtis() {
-//    std::string infile1 = m_pars["infile1"];
-//    std::string infile2 = m_pars["infile2"];
-//    std::string table_name = m_pars["table"];
-//    Likelihood::AppHelpers::checkTimeCuts(infile1, table_name,
-//                                          infile2, table_name);
-}
-
 void AddLivetime::addFiles() {
-   std::string infile1 = m_pars["infile1"];
-   std::string infile2 = m_pars["infile2"];
-   std::string table_name = m_pars["table"];
-   const tip::Table * table1 = 
-      tip::IFileSvc::instance().readTable(infile1, table_name);
-   const tip::Table * table2 = 
-      tip::IFileSvc::instance().readTable(infile2, table_name);
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
 
-   if (table1->getNumRecords() != table2->getNumRecords()) {
-      std::ostringstream message;
-      message << "The size of the Exposure extension in " << infile1
-              << " does not match the size of the extension in  " << infile2;
-      throw std::runtime_error(message.str());
+   std::string tableName = m_pars["table"];
+
+   const tip::Table * table(fileSvc.readTable(m_fileList.front(), tableName));
+      
+   std::vector< std::vector<double> > rows(table->getNumRecords());
+   tip::Table::ConstIterator it = table->begin();
+   tip::ConstTableRecord & row = *it;
+   for (size_t i=0; it != table->end(); ++it, i++) {
+      row["COSBINS"].get(rows.at(i));
+   }
+   delete table;
+
+   std::vector<dataSubselector::Cuts> my_cuts;
+   my_cuts.push_back(dataSubselector::Cuts(m_fileList.front(), tableName,
+                                           false, true));
+
+   for (size_t k=1; k < m_fileList.size(); k++) {
+      const tip::Table * table(fileSvc.readTable(m_fileList.at(k), tableName));
+      if (rows.size() != static_cast<size_t>(table->getNumRecords())) {
+         std::ostringstream message;
+         message << "The size of the Exposure extension in " 
+                 << m_fileList.at(k)
+                 << " does not match the size of the extension in  " 
+                 << m_fileList.front();
+         throw std::runtime_error(message.str());
+      }
+      tip::Table::ConstIterator it = table->begin();
+      tip::ConstTableRecord & row = *it;
+      for (size_t i=0; it != table->end(); ++it, i++) {
+         std::vector<double> my_row;
+         row["COSBINS"].get(my_row);
+         if (rows.at(i).size() != my_row.size()) {
+            std::ostringstream message;
+            message << "The number of COSBINS columns in "
+                    << m_fileList.at(k)
+                    << " does not match the number of columns in "
+                    << m_fileList.front();
+            throw std::runtime_error(message.str());
+         }
+         for (size_t j=0; j < my_row.size(); j++) {
+            rows.at(i).at(j) += my_row.at(j);
+         }
+      }
+      delete table;
+      my_cuts.push_back(dataSubselector::Cuts(m_fileList.at(k), tableName,
+                                              false, true));
    }
 
    std::string outfile = m_pars["outfile"];
-   tip::IFileSvc::instance().createFile(outfile, infile1);
-   tip::Table * outtable = 
-      tip::IFileSvc::instance().editTable(outfile, table_name);
-
-   tip::Table::ConstIterator it1 = table1->begin();
-   tip::ConstTableRecord & row1 = *it1;
-
-   tip::Table::ConstIterator it2 = table2->begin();
-   tip::ConstTableRecord & row2 = *it2;
-
-   tip::Table::Iterator it3 = outtable->begin();
-   tip::Table::Record & outrow = *it3;
-
-   for ( ; it1 != table1->end(); ++it1, ++it2, ++it3) {
-      std::vector<double> x1, x2, sum;
-      row1["COSBINS"].get(x1);
-      row2["COSBINS"].get(x2);
-      for (unsigned int i = 0; i < x1.size(); i++) {
-         sum.push_back(x1.at(i) + x2.at(i));
-      }
-      outrow["COSBINS"].set(sum);
+   fileSvc.createFile(outfile, m_fileList.front());
+   tip::Table * outtable(fileSvc.editTable(outfile, tableName));
+   tip::Table::Iterator it2 = outtable->begin();
+   for (size_t i=0; it2 != outtable->end(); ++it2, i++) {
+      (*it2)["COSBINS"].set(rows.at(i));
    }
 
-   delete table1;
-   delete table2;
-
-   std::vector<dataSubselector::Cuts> my_cuts;
-
-   my_cuts.push_back(dataSubselector::Cuts(infile1, table_name, false, true));
-   my_cuts.push_back(dataSubselector::Cuts(infile2, table_name, false, true));
-
-   dataSubselector::Cuts new_cuts =
-      dataSubselector::Cuts::mergeGtis(my_cuts);
-
+   dataSubselector::Cuts new_cuts = dataSubselector::Cuts::mergeGtis(my_cuts);
    new_cuts.writeDssKeywords(outtable->getHeader());
 
    delete outtable;
