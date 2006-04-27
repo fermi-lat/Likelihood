@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr 27 08:20:03 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h WcsMap.h 
+Log Message:
+unconvolved SourceMap bug fix
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r4, operation: add
 Package: Likelihood
