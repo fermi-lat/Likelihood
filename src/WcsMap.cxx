@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.14 2006/04/01 00:04:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.15 2006/04/22 00:15:15 jchiang Exp $
  */
 
 #include <algorithm>
@@ -200,7 +200,8 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
 }
 
 WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
-                        const BinnedExposure & exposure) const {
+                        const BinnedExposure & exposure,
+                        bool performConvolution) const {
    ::Image counts;
    counts.resize(m_naxis2);
    ::Image psf_image;
@@ -232,7 +233,11 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
    psf_image.normalize();
 
    WcsMap my_image(*this);
-   my_image.m_image = Convolve::convolve2d(counts, psf_image);
+   if (performConvolution) {
+      my_image.m_image = Convolve::convolve2d(counts, psf_image);
+   } else {
+      my_image.m_image = counts;
+   }
 
    return my_image;
 }

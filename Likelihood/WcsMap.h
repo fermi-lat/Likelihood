@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.2 2005/12/21 15:24:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.3 2006/03/23 00:21:25 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap_h
@@ -26,7 +26,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.2 2005/12/21 15:24:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.3 2006/03/23 00:21:25 jchiang Exp $
  */
 
 class WcsMap {
@@ -48,7 +48,8 @@ public:
    double operator()(const astro::SkyDir & dir) const;
 
    WcsMap convolve(double energy, const MeanPsf & psf,
-                   const BinnedExposure & exposure) const;
+                   const BinnedExposure & exposure,
+                   bool performConvolution=true) const;
 
    const std::vector< std::vector<double> > & image() const {
       return m_image;
