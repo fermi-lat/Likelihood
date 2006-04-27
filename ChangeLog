@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr 26 22:17:27 PDT 2006
+Likelihood/src/gtaddlivetime
+
+Modified Files:
+	gtaddlivetime.cxx 
+Log Message:
+enable gtaddlivetime to accept a list of input files; tagging v11r4
+    *
+------------------------------------------------------------
 User: jchiang  Wed Apr 26 22:17:25 PDT 2006
 Likelihood/doc
 
