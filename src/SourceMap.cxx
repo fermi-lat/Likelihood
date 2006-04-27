@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.58 2006/04/20 03:47:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.59 2006/04/22 00:15:15 jchiang Exp $
  */
 
 #include <algorithm>
@@ -24,7 +24,6 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
-#include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/Observation.h"
@@ -119,11 +118,11 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                            radius, mapsize, *energy, dataMap->proj_name(),
                            dataMap->projection().isGalactic());
          WcsMap convolvedMap(diffuseMap);
-         if (performConvolution) {
-            convolvedMap = diffuseMap.convolve(*energy, *s_meanPsf, 
-                                               *s_binnedExposure);
-         }
-         for (pixel = pixels.begin(); pixel != pixels.end(); ++pixel, indx++) {
+         convolvedMap = diffuseMap.convolve(*energy, *s_meanPsf, 
+                                            *s_binnedExposure,
+                                            performConvolution);
+         for (pixel = pixels.begin(); pixel != pixels.end();
+              ++pixel, indx++) {
             if ((indx % (npts/20)) == 0) {
                m_formatter->info() << ".";
             }
@@ -175,8 +174,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
             std::vector<double>::const_iterator energy = energies.begin();
             for (int k = 0; energy != energies.end(); ++energy, k++) {
                size_t indx = k*pixels.size() + ipix;
-               m_model.at(indx) = 1;
-               m_npreds.at(k) = 1;
+               m_model.at(indx) = exposure.at(k);
+               m_npreds.at(k) = m_model.at(indx);
             }
          }
       }

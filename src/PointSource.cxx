@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.80 2006/02/16 07:11:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.81 2006/04/18 05:43:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -34,8 +34,8 @@ namespace Likelihood {
 
 std::vector<double> PointSource::s_trueEnergies(0);
 
-PointSource::PointSource() 
-   : m_spectrum(0), m_observation(0) {
+PointSource::PointSource(const Observation * observation) 
+   : m_spectrum(0), m_observation(observation) {
    setDir(0., 0., false);
    m_srcType = "Point";
    if (s_trueEnergies.empty()) {

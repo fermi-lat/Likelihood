@@ -4,7 +4,7 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.36 2006/04/18 05:43:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.37 2006/04/24 22:31:10 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -20,7 +20,6 @@
 #include "st_facilities/FitsImage.h"
 #include "st_facilities/Util.h"
 
-#include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
