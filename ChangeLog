@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May  1 07:42:29 PDT 2006
+Likelihood/src
+
+Modified Files:
+	SourceModel.cxx 
+Log Message:
+delete old code
+    *
+------------------------------------------------------------
 User: jchiang  Thu Apr 27 08:20:07 PDT 2006
 Likelihood/src
 
