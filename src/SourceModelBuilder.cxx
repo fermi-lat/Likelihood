@@ -4,7 +4,7 @@
  * files for the Likelihood package source models.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.8 2005/02/15 17:01:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.9 2005/06/06 15:23:34 jchiang Exp $
  */
 
 #include <fstream>
@@ -46,9 +46,7 @@ void SourceModelBuilder::addSource(Source & src) {
 void SourceModelBuilder::write(std::string xmlFile) {
    facilities::Util::expandEnvVar(&xmlFile);
    std::ofstream outFile(xmlFile.c_str());
-   outFile << "<?xml version=\"1.0\" standalone=\"no\"?>\n"
-           << "<!DOCTYPE source_library SYSTEM "
-           << "\"$(LIKELIHOODROOT)/xml/A1_Sources.dtd\" >\n";
+   outFile << "<?xml version=\"1.0\" standalone=\"no\"?>\n";
 
    xmlBase::Dom::prettyPrintElement(m_srcLib, outFile, std::string(""));
 }
