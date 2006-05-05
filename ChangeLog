@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri May  5 09:58:09 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h 
+Log Message:
+issue warnings re: GTI inconsistencies, not exceptions; tagging v11r4p1
+    *
+------------------------------------------------------------
 User: jchiang  Mon May  1 08:55:53 PDT 2006
 Likelihood/src
 
