@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r4p1 05-May-06 JC   as per request of the ScienceTools working group,
+                           only issue warnings, not exceptions, if GTI 
+                           extensions do not match between files
     v11r4   26-Apr-06 JC   enable gtaddlivetime to accept a list of input files
     v11r3p9 21-Apr-06 JC   fix wcs projection problem with convolution 
                            of large field Aitoff maps; refactor parameter

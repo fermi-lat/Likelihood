@@ -1,4 +1,4 @@
-srcmaps,fr,a,"srcMaps.fits",,,"Source maps file"
+srcmaps,fr,a,"srcMaps.fits",,,"Source maps (or counts map) file"
 source_model_file,fr,a,"srcModel.xml",,,"Source model file"
 outfile,f,a,"model_map.fits",,,"Output file"
 
