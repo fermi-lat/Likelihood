@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.26 2006/03/10 23:35:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.27 2006/03/17 18:05:18 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -16,9 +16,10 @@
 
 #include "optimizers/FunctionFactory.h"
 
+#include "dataSubselector/Cuts.h"
+
 namespace dataSubselector {
    class CutBase;
-   class Cuts;
 }
 
 namespace Likelihood {
@@ -40,7 +41,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.26 2006/03/10 23:35:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.27 2006/03/17 18:05:18 jchiang Exp $
  */
 
 class AppHelpers {
@@ -91,8 +92,10 @@ public:
 
    static void checkCuts(const std::string & file1, const std::string & ext1,
                          const std::string & file2, const std::string & ext2,
-                         bool compareGtis=true, bool relyOnStreams=false,
-                         bool skipEventClassCuts=false);
+                         bool compareGtis=true,
+                         bool relyOnStreams=false,
+                         bool skipEventClassCuts=false,
+                         bool gtiWarningOnly=true);
 
    static void checkCuts(const std::vector<std::string> & files1,
                          const std::string & ext1,
@@ -100,19 +103,22 @@ public:
                          const std::string & ext2,
                          bool compareGtis=true,
                          bool relyOnStreams=false,
-                         bool skipEventClassCuts=false);
+                         bool skipEventClassCuts=false,
+                         bool gtiWarningOnly=true);
 
    static void checkTimeCuts(const std::string & file1, 
                              const std::string & ext1,
                              const std::string & file2,
                              const std::string & ext2,
-                             bool compareGtis=true);
+                             bool compareGtis=true,
+                             bool gtiWarningOnly=true);
 
    static void checkTimeCuts(const std::vector<std::string> & files1,
                              const std::string & ext1,
                              const std::string & file2,
                              const std::string & ext2,
-                             bool compareGtis=true);
+                             bool compareGtis=true,
+                             bool gtiWarningOnly=true);
 
    static std::string responseFuncs(const std::string & file,
                                     const std::string & respBase);
@@ -135,27 +141,19 @@ protected:
    void prepareFunctionFactory();
    void createResponseFuncs(const std::string & analysisType);
 
-   static bool AppHelpers::
-   checkTimeCuts(const dataSubselector::Cuts & cuts1,
-                 const dataSubselector::Cuts & cuts2,
-                 bool compareGtis);
-
-   static void AppHelpers::
-   gatherTimeCuts(const dataSubselector::Cuts & cuts,
-                  std::vector<const dataSubselector::CutBase *> & time_cuts,
-                  bool compareGtis);
-
-   static void AppHelpers::
-   gatherGtiCuts(const dataSubselector::Cuts & cuts,
-                 std::vector<const dataSubselector::CutBase *> & time_cuts);
-
-private:
-
    static bool checkCuts(const dataSubselector::Cuts & cuts1,
                          const dataSubselector::Cuts & cuts2,
                          bool compareGtis, bool relyOnStreams);
 
-   
+   static bool checkTimeCuts(const dataSubselector::Cuts & cuts1,
+                             const dataSubselector::Cuts & cuts2,
+                             bool compareGtis);
+
+   static dataSubselector::Cuts gtiCuts(const dataSubselector::Cuts &);
+
+   static void 
+   gatherGtiCuts(const dataSubselector::Cuts & cuts,
+                 std::vector<const dataSubselector::CutBase *> & time_cuts);
 };
 
 template<typename T>
