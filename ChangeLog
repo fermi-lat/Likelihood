@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri May  5 09:58:11 PDT 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtmodelmap.par 
+Log Message:
+issue warnings re: GTI inconsistencies, not exceptions; tagging v11r4p1
+    *
+------------------------------------------------------------
+User: jchiang  Fri May  5 09:58:11 PDT 2006
 Likelihood/doc
 
 Modified Files:
