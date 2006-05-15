@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 15 13:12:10 PDT 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtaddlivetime.par 
+Log Message:
+set input file par types as f rather than fr
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r4p1, operation: add
 Package: Likelihood
