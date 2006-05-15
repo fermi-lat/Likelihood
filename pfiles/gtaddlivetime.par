@@ -1,5 +1,5 @@
-infile1,fr,a,"expCube_00.fits",,,"Livetime cube 1"
-infile2,fr,a,"expCube_01.fits",,,"Livetime cube 2"
+infile1,f,a,"expCube_00.fits",,,"Livetime cube 1"
+infile2,f,a,"expCube_01.fits",,,"Livetime cube 2"
 table,s,h,"Exposure",,,"Name of extension containing livetime"
 outfile,f,a,"expCube.fits",,,"Output file"
 
