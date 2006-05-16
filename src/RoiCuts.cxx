@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.42 2006/02/28 20:15:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.43 2006/04/20 20:05:37 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -173,7 +173,8 @@ void RoiCuts::sortCuts(bool strict) {
               << "one acceptance cone cut,\n"
               << "and at least one time range and/or GTI cut.\n"
               << "The event file contains the following DSS selections:\n\n";
-      m_cuts->writeCuts(message);
+      bool suppressGtis(true);
+      m_cuts->writeCuts(message, suppressGtis);
       throw std::runtime_error(message.str());
    }
 }
