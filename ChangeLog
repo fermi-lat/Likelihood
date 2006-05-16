@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 16 12:09:45 PDT 2006
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx 
+Log Message:
+suppress writing out of GTI start and stop times in exception message
+    *
+------------------------------------------------------------
 User: jchiang  Mon May 15 13:12:10 PDT 2006
 Likelihood/pfiles
 
