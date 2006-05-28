@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun May 28 15:26:42 PDT 2006
+Likelihood/src
+
+Modified Files:
+	ExpCutoff.cxx PointSource.cxx 
+Log Message:
+calculate PointSource model flux for any energy band
+    *
+------------------------------------------------------------
 User: jchiang  Sun May 28 15:26:41 PDT 2006
 Likelihood/Likelihood
 
