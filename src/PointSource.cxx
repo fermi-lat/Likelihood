@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.81 2006/04/18 05:43:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.82 2006/04/27 15:20:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -307,6 +307,17 @@ void PointSource::computeExposure(bool verbose) {
 
 double PointSource::flux() const {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
+   TrapQuad fluxIntegral(m_spectrum);
+   return fluxIntegral.integral(energies);
+}
+
+double PointSource::flux(double emin, double emax, size_t npts) const {
+   std::vector<double> energies;
+   energies.reserve(npts);
+   double estep(std::log(emax/emin)/float(npts-1));
+   for (size_t k=0; k < npts; k++) {
+      energies.push_back(emin*std::exp(estep*k));
+   }
    TrapQuad fluxIntegral(m_spectrum);
    return fluxIntegral.integral(energies);
 }

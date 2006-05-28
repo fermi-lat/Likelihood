@@ -58,11 +58,10 @@ double ExpCutoff::value(optimizers::Arg &xarg) const {
    double p2 = my_params[P2].getTrueValue();
    double p3 = my_params[P3].getTrueValue();
 
-   double ln = log(x/ebreak);
-
    if (x < ebreak) {
       return prefactor*pow(x/scale, index);
    } else {
+      double ln = log(x/ebreak);
       return prefactor*pow(x/scale, index)*exp(-( (x-ebreak)/p1 
                                                   + p2*ln + p3*ln*ln));
    }

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.56 2006/04/18 05:43:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.57 2006/04/27 15:20:02 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.56 2006/04/18 05:43:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.57 2006/04/27 15:20:02 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -175,6 +175,10 @@ public:
    /// @return Photon flux integrated over the ROI energy bounds. 
    /// Units are #/cm^2/s
    double flux() const;
+
+   /// @return Photon flux integrated over the given energy range.
+   /// Units are #/cm^2/s
+   double flux(double emin, double emax, size_t npts=100) const;
 
 private:
 
