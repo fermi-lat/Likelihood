@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  7 11:22:54 PDT 2006
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx SourceModelBuilder.cxx 
+Log Message:
+start re-integrating plotting in gtlikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Sun May 28 15:26:42 PDT 2006
 Likelihood/src
 
