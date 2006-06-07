@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.106 2006/04/17 05:52:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.107 2006/04/18 05:43:46 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -51,6 +51,8 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
+
+#include "EasyPlot.h"
 
 namespace {
    class NormNames {
@@ -107,7 +109,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.106 2006/04/17 05:52:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.107 2006/04/18 05:43:46 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -477,17 +479,36 @@ void likelihood::writeCountsSpectra() {
    m_logLike->getSrcNames(srcNames);
    std::vector< std::vector<double> > npred(srcNames.size());
    std::ofstream outputFile("counts.dat");
+   std::vector<double> my_nobs;
+   std::vector<double> my_nobs_err;
    for (int k = 0; k < nee - 1; k++) {
       bool writeLine(true);
       std::ostringstream line;
+      double nobs_val(myData.nobs(energies[k], energies[k+1]));
+      evals.push_back(std::log10(sqrt(energies[k]*energies[k+1])));
+      if (nobs_val > 0) {
+         my_nobs.push_back(std::log10(nobs_val));
+         my_nobs_err.push_back(std::sqrt(nobs_val)/nobs_val);
+      } else {
+         my_nobs.push_back(-10);
+         my_nobs_err.push_back(0);
+      }
+      std::cout << k << "  " 
+                << std::pow(10., evals.at(k)) << "  "
+                << my_nobs.back() << "  "
+                << my_nobs_err.back() << std::endl;
       line << sqrt(energies[k]*energies[k+1]) << "   "
-           << myData.nobs(energies[k], energies[k+1]) << "  ";
+           << nobs_val << "  ";
       for (unsigned int i = 0; i < srcNames.size(); i++) {
          Source * src = m_logLike->getSource(srcNames[i]);
          double Npred;
          try {
             Npred = src->Npred(energies[k], energies[k+1]);
-            if (i==0) evals.push_back(log10(sqrt(energies[k]*energies[k+1])));
+            if (Npred != 0) {
+               npred[i].push_back(std::log10(Npred));
+            } else {
+               npred[i].push_back(-10.);
+            }
             line << Npred << "  ";
          } catch (std::out_of_range &) {
             writeLine = false;
@@ -498,6 +519,23 @@ void likelihood::writeCountsSpectra() {
       }
    }
    outputFile.close();
+// plot the data 
+   if (m_pars["plot"]) {
+      try {
+         EasyPlot plot("");
+         plot.linePlot(evals, my_nobs);
+         for (unsigned int i = 0; i < npred.size(); i++) {
+            plot.linePlot(evals, npred[i]);
+         }
+         plot.scatter(evals, my_nobs, my_nobs_err);
+         EasyPlot::run();
+      } catch (std::exception &eObj) {
+         std::string message = "RootEngine could not create";
+         if (!st_facilities::Util::expectedException(eObj, message)) {
+            throw;
+         }
+      }
+   }
 }
 
 void likelihood::writeCountsMap() {
