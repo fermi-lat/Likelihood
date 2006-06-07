@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.36 2006/01/22 15:28:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.37 2006/04/22 00:15:15 jchiang Exp $
  */
 
 #include <algorithm>
@@ -517,12 +517,6 @@ void CountsMap::setCenter() {
 }
 
 void CountsMap::setDataDir() {
-// Reset data dir for LatCountsMapTemplate
-//    char * root_path = std::getenv("LIKELIHOODROOT");
-//    if (!root_path) {
-//       throw std::runtime_error("LIKELIHOODROOT not set.");
-//    }
-//    m_data_dir = std::string(root_path) + "/data/";
    m_data_dir = st_facilities::Env::getDataDir("Likelihood");
 }
 

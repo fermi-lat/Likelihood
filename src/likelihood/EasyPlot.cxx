@@ -3,9 +3,8 @@
  * @brief Implementation of a friendly user interface to st_graph.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.5 2005/01/03 23:02:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.6 2005/01/13 22:42:02 jchiang Exp $
  */
-#ifdef HAVE_ST_GRAPH
 #include <iostream>
 #include <stdexcept>
 
@@ -47,6 +46,12 @@ void EasyPlot::scatter(const std::vector<double> & x,
                        const std::vector<double> & y,
                        const std::vector<double> & xerr,
                        const std::vector<double> & yerr) {
+//    for (size_t k = 0; k < x.size(); k++) {
+//       std::cout << x.at(k) << "  "
+//                 << xerr.at(k) << "  "
+//                 << y.at(k) << "  "
+//                 << yerr.at(k) << std::endl;
+//    }
    st_graph::Engine & engine(st_graph::Engine::instance());
    st_graph::IPlot * plot = 
       engine.createPlot(m_plotFrame, "scat", 
@@ -58,18 +63,24 @@ void EasyPlot::scatter(const std::vector<double> & x,
 void EasyPlot::scatter(const std::vector<double> & x,
                        const std::vector<double> & y,
                        const std::vector<double> & yerr) {
-// It would be nice if one could work in plot frame coordinates or if
-// one could specify the plotting symbols.  Instead we use data
-// coordinates and are forced to guess-timate the proper symbol size
-// assuming the plot x-scale is set using the x-axis min and max.
-// These guess-timates will likely worsen as other data sets are added
-// and the plot x-scale changes.
-   if (x.size() == 0) {
-      return;
-   }
-   std::vector<double> xerr;
-   scatterPlotErrorBars(x, xerr);
-   scatter(x, y, xerr, yerr);
+// // It would be nice if one could work in plot frame coordinates or if
+// // one could specify the plotting symbols.  Instead we use data
+// // coordinates and are forced to guess-timate the proper symbol size
+// // assuming the plot x-scale is set using the x-axis min and max.
+// // These guess-timates will likely worsen as other data sets are added
+// // and the plot x-scale changes.
+//    if (x.size() == 0) {
+//       return;
+//    }
+//    std::vector<double> xerr;
+//    scatterPlotErrorBars(x, xerr);
+//    scatter(x, y, xerr, yerr);
+   st_graph::Engine & engine(st_graph::Engine::instance());
+   st_graph::IPlot * plot = 
+      engine.createPlot(m_plotFrame, "scat", 
+                        values(x.begin(), x.end()),
+                        valuesWithErrors(y.begin(), y.end(), yerr.begin()));
+   m_plots.push_back(plot);
 }
 
 void EasyPlot::scatter(const std::vector<double> & x,
@@ -151,7 +162,8 @@ void EasyPlot::scatterPlotErrorBars(const std::vector<double> & x,
       if (x[i] < xmin) xmin = x[i];
       if (x[i] > xmin) xmax = x[i];
    }
-   double xstep = (xmax - xmin)/nbins;
+//   double xstep = (xmax - xmin)/nbins;
+   double xstep = (xmax - xmin)/npts;
    xerr.reserve(npts);
    for (unsigned int i = 0; i < npts; i++) {
       xerr.push_back(xstep);
@@ -163,4 +175,3 @@ void EasyPlot::run() {
    st_graph::Engine & engine(st_graph::Engine::instance());
    engine.run();
 }
-#endif // HAVE_ST_GRAPH
