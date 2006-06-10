@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.107 2006/04/18 05:43:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.108 2006/06/07 18:22:55 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -31,14 +31,8 @@
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
 
-#include "optimizers/Drmngb.h"
-#include "optimizers/Exception.h"
-#include "optimizers/Lbfgs.h"
-#include "optimizers/Minuit.h"
-//#include "optimizers/newMinuit.h"
-#ifdef HAVE_OPT_PP
-#include "optimizers/OptPP.h"
-#endif // HAVE_OPT_PP
+#include "optimizers/Optimizer.h"
+#include "optimizers/OptimizerFactory.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
@@ -109,7 +103,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.107 2006/04/18 05:43:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.108 2006/06/07 18:22:55 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -409,22 +403,8 @@ void likelihood::selectOptimizer(std::string optimizer) {
       std::string opt = m_pars["optimizer"];
       optimizer = opt;
    }
-   if (optimizer == "LBFGS") {
-      m_opt = new optimizers::Lbfgs(*m_logLike);
-   } else if (optimizer == "MINUIT") {
-      m_opt = new optimizers::Minuit(*m_logLike);
-//    } else if (optimizer == "NEWMINUIT") {
-//       m_opt = new optimizers::newMinuit(*m_logLike);
-   } else if (optimizer == "DRMNGB") {
-      m_opt = new optimizers::Drmngb(*m_logLike);
-#ifdef HAVE_OPT_PP
-   } else if (optimizer == "OPTPP") {
-      m_opt = new optimizers::OptPP(*m_logLike);
-#endif // HAVE_OPT_PP
-   }
-   if (m_opt == 0) {
-      throw std::invalid_argument("Invalid optimizer choice: " + optimizer);
-   }
+   m_opt = optimizers::OptimizerFactory::instance().create(optimizer,
+                                                           *m_logLike);
 }
 
 void likelihood::writeSourceXml() {
@@ -490,13 +470,9 @@ void likelihood::writeCountsSpectra() {
          my_nobs.push_back(std::log10(nobs_val));
          my_nobs_err.push_back(std::sqrt(nobs_val)/nobs_val);
       } else {
-         my_nobs.push_back(-10);
+         my_nobs.push_back(-3);
          my_nobs_err.push_back(0);
       }
-      std::cout << k << "  " 
-                << std::pow(10., evals.at(k)) << "  "
-                << my_nobs.back() << "  "
-                << my_nobs_err.back() << std::endl;
       line << sqrt(energies[k]*energies[k+1]) << "   "
            << nobs_val << "  ";
       for (unsigned int i = 0; i < srcNames.size(); i++) {
@@ -507,7 +483,7 @@ void likelihood::writeCountsSpectra() {
             if (Npred != 0) {
                npred[i].push_back(std::log10(Npred));
             } else {
-               npred[i].push_back(-10.);
+               npred[i].push_back(-3.);
             }
             line << Npred << "  ";
          } catch (std::out_of_range &) {
@@ -522,11 +498,18 @@ void likelihood::writeCountsSpectra() {
 // plot the data 
    if (m_pars["plot"]) {
       try {
-         EasyPlot plot("");
-         plot.linePlot(evals, my_nobs);
+         EasyPlot plot("Counts Spectra");
+         std::vector<double> npred_tot(npred.at(0).size(), 0);
          for (unsigned int i = 0; i < npred.size(); i++) {
             plot.linePlot(evals, npred[i]);
+            for (size_t k = 0; k < npred_tot.size(); k++) {
+               npred_tot.at(k) += std::pow(10., npred.at(i).at(k));
+            }
          }
+         for (size_t k = 0; k < npred_tot.size(); k++) {
+            npred_tot.at(k) = std::log10(npred_tot.at(k));
+         }
+         plot.linePlot(evals, npred_tot);
          plot.scatter(evals, my_nobs, my_nobs_err);
          EasyPlot::run();
       } catch (std::exception &eObj) {

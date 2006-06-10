@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.31 2006/04/17 05:52:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.32 2006/04/18 05:43:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -24,9 +24,8 @@
 #include "st_facilities/Util.h"
 
 #include "optimizers/dArg.h"
-#include "optimizers/Drmngb.h"
-#include "optimizers/Lbfgs.h"
-#include "optimizers/Minuit.h"
+#include "optimizers/Optimizer.h"
+#include "optimizers/OptimizerFactory.h"
 #include "optimizers/Exception.h"
 
 #include "Likelihood/AppHelpers.h"
@@ -41,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.31 2006/04/17 05:52:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.32 2006/04/18 05:43:44 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -166,16 +165,8 @@ void TsMap::readSrcModel() {
 
 void TsMap::selectOptimizer() {
    std::string optimizer = m_pars["optimizer"];
-   if (optimizer == "LBFGS") {
-      m_opt = new optimizers::Lbfgs(*m_logLike);
-   } else if (optimizer == "MINUIT") {
-      m_opt = new optimizers::Minuit(*m_logLike);
-   } else if (optimizer == "DRMNGB") {
-      m_opt = new optimizers::Drmngb(*m_logLike);
-   }
-   if (m_opt == 0) {
-      throw std::invalid_argument("Invalid optimizer choice: " + optimizer);
-   }
+   m_opt = optimizers::OptimizerFactory::instance().create(optimizer,
+                                                           *m_logLike);
 }
 
 void TsMap::setGrid() {

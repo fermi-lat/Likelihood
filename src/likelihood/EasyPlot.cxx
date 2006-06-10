@@ -3,7 +3,7 @@
  * @brief Implementation of a friendly user interface to st_graph.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.6 2005/01/13 22:42:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.7 2006/06/07 18:22:55 jchiang Exp $
  */
 #include <iostream>
 #include <stdexcept>
@@ -46,12 +46,6 @@ void EasyPlot::scatter(const std::vector<double> & x,
                        const std::vector<double> & y,
                        const std::vector<double> & xerr,
                        const std::vector<double> & yerr) {
-//    for (size_t k = 0; k < x.size(); k++) {
-//       std::cout << x.at(k) << "  "
-//                 << xerr.at(k) << "  "
-//                 << y.at(k) << "  "
-//                 << yerr.at(k) << std::endl;
-//    }
    st_graph::Engine & engine(st_graph::Engine::instance());
    st_graph::IPlot * plot = 
       engine.createPlot(m_plotFrame, "scat", 
@@ -155,6 +149,7 @@ void EasyPlot::histogram(const std::vector<double> & x,
 void EasyPlot::scatterPlotErrorBars(const std::vector<double> & x,
                                     std::vector<double> & xerr,
                                     unsigned int nbins) const {
+   (void)(nbins);
    unsigned int npts(x.size());
    double xmax(x[0]);
    double xmin(x[0]);
