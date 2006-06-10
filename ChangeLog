@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jun 10 16:35:40 PDT 2006
+Likelihood/src
+
+Modified Files:
+	SourceModelBuilder.cxx 
+Log Message:
+write out file attribute for FileFunction spectral model
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jun 10 08:08:37 PDT 2006
 Likelihood/src/likelihood
 
