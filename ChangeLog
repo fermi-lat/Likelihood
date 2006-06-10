@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Jun 10 08:08:37 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	EasyPlot.cxx likelihood.cxx 
+Log Message:
+use OptimizerFactory
+    *
+------------------------------------------------------------
+User: jchiang  Sat Jun 10 08:08:37 PDT 2006
 Likelihood/src/TsMap
 
 Modified Files:
