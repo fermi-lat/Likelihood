@@ -3,6 +3,10 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r5   11-Jun-06 JC   expose PointSource model flux for any energy band;
+                           re-integrate plotting in gtlikelihood; use 
+                           OptimizerFactory; write out file attribute for 
+                           FileFunction spectral model
     v11r4p1 05-May-06 JC   as per request of the ScienceTools working group,
                            only issue warnings, not exceptions, if GTI 
                            extensions do not match between files
