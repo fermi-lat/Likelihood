@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.15 2006/04/22 00:15:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.16 2006/04/27 15:20:07 jchiang Exp $
  */
 
 #include <algorithm>
@@ -62,7 +62,7 @@ WcsMap::WcsMap(const std::string & filename,
    header["NAXIS1"].get(m_naxis1);
    header["NAXIS2"].get(m_naxis2);
 
-   int ix, iy;
+   double ix, iy;
    header["CRPIX1"].get(ix);
    header["CRPIX2"].get(iy);
 
@@ -98,7 +98,7 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
       ra = m_refDir.l();
       dec = m_refDir.b();
    }
-   double crpix[] = {npts/2, npts/2};
+   double crpix[] = {npts/2., npts/2.};
    double crval[] = {ra, dec};
    double cdelt[] = {2.*radius/(npts-1.), 2.*radius/(npts-1.)};
 
@@ -112,11 +112,16 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    }
 
    m_image.reserve(npts);
+   double ix, iy;
    for (int j = 0; j < npts; j++) {
       std::vector<double> row(npts, 0);
+      iy = j - 0.5;
       for (int i = 0; i < npts; i++) {
+         ix = i - 0.5;
          if (m_proj->testpix2sph(i+1, j+1) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
+//          if (m_proj->testpix2sph(ix, iy) == 0) {
+//             std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
             SkyDirArg my_dir(dir, energy);
             row.at(i) = diffuseSource.spatialDist(my_dir);
@@ -170,33 +175,35 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    double x(pixel.first);
    double y(pixel.second);
 
-   int ix = static_cast<int>(x);
-   int iy = static_cast<int>(y);
+   int ix = static_cast<int>(x - 0.5);
+   int iy = static_cast<int>(y - 0.5);
 
 // Extrapolate beyond formal boundary by one pixel
-   if (ix < 0 || ix > m_naxis1 || iy < 0 || iy > m_naxis2) {
+   if (ix < 0 || ix >= m_naxis1 || iy < 0 || iy >= m_naxis2) {
       return 0;
    }
 
-   ix = std::min(std::max(1, ix), m_naxis1 - 1);
-   iy = std::min(std::max(1, iy), m_naxis2 - 1);
+//    ix = std::min(std::max(1, ix), m_naxis1 - 1);
+//    iy = std::min(std::max(1, iy), m_naxis2 - 1);
 
-   double uu(x - ix);
-   double tt(y - iy);
+   return m_image.at(iy).at(ix);
 
-   double y1(m_image.at(iy-1).at(ix-1));
-   double y2(m_image.at(iy).at(ix-1));
-   double y3(m_image.at(iy).at(ix));
-   double y4(m_image.at(iy-1).at(ix));
+//    double uu(x - ix);
+//    double tt(y - iy);
 
-   double value((1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
-                + tt*uu*y3 + (1. - tt)*uu*y4);
+//    double y1(m_image.at(iy-1).at(ix-1));
+//    double y2(m_image.at(iy).at(ix-1));
+//    double y3(m_image.at(iy).at(ix));
+//    double y4(m_image.at(iy-1).at(ix));
 
-   if (value < 0) {
-      throw std::runtime_error("WcsMap::operator(): value < 0");
-   }
+//    double value((1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
+//                 + tt*uu*y3 + (1. - tt)*uu*y4);
 
-   return value;
+//    if (value < 0) {
+//       throw std::runtime_error("WcsMap::operator(): value < 0");
+//    }
+
+//    return value;
 }
 
 WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
