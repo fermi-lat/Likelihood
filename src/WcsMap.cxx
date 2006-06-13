@@ -4,8 +4,10 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.16 2006/04/27 15:20:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.17 2006/06/13 03:30:03 jchiang Exp $
  */
+
+#include <cmath>
 
 #include <algorithm>
 #include <iostream>
@@ -98,9 +100,9 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
       ra = m_refDir.l();
       dec = m_refDir.b();
    }
-   double crpix[] = {npts/2., npts/2.};
+   double crpix[] = {npts/2. + 0.5, npts/2. + 0.5};
    double crval[] = {ra, dec};
-   double cdelt[] = {2.*radius/(npts-1.), 2.*radius/(npts-1.)};
+   double cdelt[] = {2.*radius/npts, 2.*radius/npts};
 
    m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
 
@@ -114,14 +116,12 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    m_image.reserve(npts);
    double ix, iy;
    for (int j = 0; j < npts; j++) {
+      iy = j + 1.;
       std::vector<double> row(npts, 0);
-      iy = j - 0.5;
       for (int i = 0; i < npts; i++) {
-         ix = i - 0.5;
-         if (m_proj->testpix2sph(i+1, j+1) == 0) {
-            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-//          if (m_proj->testpix2sph(ix, iy) == 0) {
-//             std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
+         ix = i + 1.;
+         if (m_proj->testpix2sph(ix, iy) == 0) {
+            std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
             SkyDirArg my_dir(dir, energy);
             row.at(i) = diffuseSource.spatialDist(my_dir);
@@ -175,18 +175,17 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    double x(pixel.first);
    double y(pixel.second);
 
-   int ix = static_cast<int>(x - 0.5);
-   int iy = static_cast<int>(y - 0.5);
+   int ix(static_cast<int>(std::floor(x - 0.5)));
+   int iy(static_cast<int>(std::floor(y - 0.5)));
 
-// Extrapolate beyond formal boundary by one pixel
    if (ix < 0 || ix >= m_naxis1 || iy < 0 || iy >= m_naxis2) {
       return 0;
    }
 
+   return m_image.at(iy).at(ix);
+
 //    ix = std::min(std::max(1, ix), m_naxis1 - 1);
 //    iy = std::min(std::max(1, iy), m_naxis2 - 1);
-
-   return m_image.at(iy).at(ix);
 
 //    double uu(x - ix);
 //    double tt(y - iy);
