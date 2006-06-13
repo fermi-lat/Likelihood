@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun 12 20:30:03 PDT 2006
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+debugging Jean's offset problem
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r5, operation: add
 Package: Likelihood
