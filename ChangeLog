@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 13 21:43:12 PDT 2006
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+temporary bug fix for WcsMap
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 13 06:44:50 PDT 2006
 Likelihood/src
 
