@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.17 2006/06/13 03:30:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.18 2006/06/13 13:44:50 jchiang Exp $
  */
 
 #include <cmath>
@@ -100,7 +100,7 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
       ra = m_refDir.l();
       dec = m_refDir.b();
    }
-   double crpix[] = {npts/2. + 0.5, npts/2. + 0.5};
+   double crpix[] = {npts/2., npts/2.};
    double crval[] = {ra, dec};
    double cdelt[] = {2.*radius/npts, 2.*radius/npts};
 
@@ -116,10 +116,10 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    m_image.reserve(npts);
    double ix, iy;
    for (int j = 0; j < npts; j++) {
-      iy = j + 1.;
+      iy = j + 2.;
       std::vector<double> row(npts, 0);
       for (int i = 0; i < npts; i++) {
-         ix = i + 1.;
+         ix = i + 2.;
          if (m_proj->testpix2sph(ix, iy) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
@@ -224,8 +224,8 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
       counts.at(j).resize(m_naxis1, 0);
       psf_image.at(j).resize(m_naxis1);
       for (int i = 0; i < m_naxis1; i++) {
-         if (m_proj->testpix2sph(i+1, j+1) == 0) {
-            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
+         if (m_proj->testpix2sph(i+1.5, j+1.5) == 0) {
+            std::pair<double, double> coord = m_proj->pix2sph(i+1.5, j+1.5);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
             counts.at(j).at(i) = 
                m_image.at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
