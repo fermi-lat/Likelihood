@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jun 16 20:00:27 PDT 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+interpolate in log-log space; tagging v11r5p2
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r5p1, operation: add
 Package: Likelihood
