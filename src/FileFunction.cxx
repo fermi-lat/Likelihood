@@ -3,7 +3,7 @@
  * @brief Implementation for the FileFunction Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.5 2005/10/19 22:13:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.1 2005/10/21 20:22:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -37,11 +37,9 @@ FileFunction::FileFunction(double Normalization) : m_filename("") {
 }
 
 double FileFunction::value(optimizers::Arg & xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
-
+   double x(std::log(dynamic_cast<optimizers::dArg &>(xarg).getValue()));
    double norm = m_parameter[0].getTrueValue();
-
-   return norm*st_facilities::Util::interpolate(m_x, m_y, x);
+   return norm*std::exp(st_facilities::Util::interpolate(m_x, m_y, x));
 }
 
 double FileFunction::
@@ -50,10 +48,8 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
       throw optimizers::ParameterNotFound(paramName, getName(),
                                           "FileFunction::derivByParam");
    }
-
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
-   
-   return st_facilities::Util::interpolate(m_x, m_y, x);
+   double x(std::log(dynamic_cast<optimizers::dArg &>(xarg).getValue()));
+   return std::exp(st_facilities::Util::interpolate(m_x, m_y, x));
 }
 
 void FileFunction::readFunction(const std::string & filename) {
@@ -68,8 +64,10 @@ void FileFunction::readFunction(const std::string & filename) {
    for (size_t i = 0; i < lines.size(); i++) {
       std::vector<std::string> tokens;
       facilities::Util::stringTokenize(lines.at(i), " \t", tokens);
-      m_x.push_back(facilities::Util::stringToDouble(tokens.at(0)));
-      m_y.push_back(facilities::Util::stringToDouble(tokens.at(1)));
+      double xval(facilities::Util::stringToDouble(tokens.at(0)));
+      double yval(facilities::Util::stringToDouble(tokens.at(1)));
+      m_x.push_back(std::log(xval));
+      m_y.push_back(std::log(yval));
    }
 }   
 
