@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun 20 10:12:51 PDT 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+fix FileFunction deriv bug; tagging v11r5p3
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r5p2, operation: add
 Package: Likelihood
