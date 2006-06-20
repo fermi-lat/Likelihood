@@ -3,7 +3,7 @@
  * @brief Implementation for the FileFunction Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.1 2005/10/21 20:22:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.2 2006/06/17 03:00:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -49,7 +49,8 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
                                           "FileFunction::derivByParam");
    }
    double x(std::log(dynamic_cast<optimizers::dArg &>(xarg).getValue()));
-   return std::exp(st_facilities::Util::interpolate(m_x, m_y, x));
+   double scale(m_parameter[0].getScale());
+   return scale*std::exp(st_facilities::Util::interpolate(m_x, m_y, x));
 }
 
 void FileFunction::readFunction(const std::string & filename) {
