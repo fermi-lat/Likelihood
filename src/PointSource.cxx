@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.82 2006/04/27 15:20:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.83 2006/05/28 22:26:42 jchiang Exp $
  */
 
 #include <cmath>
@@ -229,7 +229,7 @@ double PointSource::Npred(double emin, double emax) {
       /(energies.at(begin_offset) - energies.at(begin_offset - 1))
       *(m_exposure.at(begin_offset) - m_exposure.at(begin_offset - 1))
       + m_exposure.at(begin_offset - 1);
-   double end_exposure = (emin - energies.at(end_offset - 1))
+   double end_exposure = (emax - energies.at(end_offset - 1))
       /(energies.at(end_offset) - energies.at(end_offset - 1))
       *(m_exposure.at(end_offset) - m_exposure.at(end_offset - 1))
       + m_exposure.at(end_offset - 1);
