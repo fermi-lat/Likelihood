@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun 22 09:51:17 PDT 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+fix PointSource::Npred(emin, emax) bug reported by Jean; tagging v11r5p4
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r5p3, operation: add
 Package: Likelihood
