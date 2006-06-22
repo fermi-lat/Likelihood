@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Jun 22 09:51:18 PDT 2006
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+fix PointSource::Npred(emin, emax) bug reported by Jean; tagging v11r5p4
+    *
+------------------------------------------------------------
+User: jchiang  Thu Jun 22 09:51:18 PDT 2006
 Likelihood/doc
 
 Modified Files:
