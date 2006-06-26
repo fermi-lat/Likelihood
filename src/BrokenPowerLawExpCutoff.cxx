@@ -1,9 +1,9 @@
 /**
  * @file ExpCutoff2.cxx
- * @brief Implementation for the ExpCutoff Function class
+ * @brief Implementation for the BrokenPowerLawExpCutoff Function class
  * @author Jennifer Carson
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLawExpCutoff.cxx,v 1.1 2006/03/23 00:21:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLawExpCutoff.cxx,v 1.2 2006/03/25 00:00:19 jchiang Exp $
  */
 
 #include <cmath>
