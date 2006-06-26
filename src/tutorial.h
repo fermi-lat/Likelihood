@@ -307,132 +307,232 @@
      </source>
    </source_library>
    @endverbatim
-   We'll call this source model file "Virgo_model.xml".
    \n\n
 
-   We won't discuss the format of this file in great detail, but we
-   will note some of the more salient features.  (Note that there is a
-   GUI application available for generating and editing these XML
-   files so that one need not edit the XML source code directly.  This
-   application is called <a href="http://confluence.slac.stanford.edu/display/ST/Source+Model+Editor">ModelEditor.py</a> and is
-   available from the <a href="http://glast.stanford.edu/cgi-bin/cvsweb/likeGui/?hideattic=1&cvsroot=CVS_SLAC">likeGui</a> package.)
+   - Two types of sources can be defined, PointSource and DiffuseSource.
 
+   - Each type comprises a spectrum and a spatialModel component.
 
-   Several spectral functions are available:
+   - Model parameters are described by a set of attributes. The
+     actual value of a given parameter that is used in the
+     calculation is the value attribute multiplied by the scale
+     attribute. The value attribute is what the optimizers see. Using
+     the scale attribute is necessary to ensure that the parameters
+     describing the objective function, -log(likelihood) for this
+     application, all have values lying roughly within an
+     order-of-magnitude of each other.
+
+   - Each parameter has a range of valid values that can be specified.
+
+   - The free attribute determines whether the parameter will be
+     allowed to be fixed or free in the fitting process. Free flag
+     attributes are currently disabled for spatial model parameters
+     since fitting for these parameters has not been implemented
+     (primarily due to the enormous overhead associated with
+     computing the energy-dependent response functions for each
+     source component).
+
+   - The units for the spectral models are 
+     \f${\rm cm}^{-2}\,{\rm s}^{-1}\,{\rm MeV}^{-1}\f$
+     for point sources and 
+     \f${\rm cm}^{-2}\,{\rm s}^{-1}\,{\rm MeV}^{-1}\,{\rm sr}^{-1}\f$
+     for diffuse sources
+
+   - Several spectral functions are available:
 
    - @b PowerLaw This function has the form
    \f[
-
-   dN/dE = N_0 \left(\frac{E}{E_0}\right)^\gamma
-%   {\rm PowerLaw}(x) = {\rm Prefactor} 
-%                       \left(\frac{x}{\rm Scale}\right)^{\rm Index}
+   \frac{dN}{dE} = N_0 \left(\frac{E}{E_0}\right)^\gamma
    \f]
-
-   where the parameters in the xml definition have the following
-   identifications:
-
+   where the parameters in the XML definition have the following
+   mappings:
      - Prefactor = \f$N_0\f$
      - Index = \f$\gamma\f$
      - Scale = \f$E_0\f$
 
    - @b BrokenPowerLaw
-
    \f[
-   {\rm BrokenPowerLaw}(x) = \left\{ \begin{array}{ll}
-   {\rm Prefactor} \left(x/{\rm BreakValue}\right)^{\rm Index1}
-   & \mbox{if $x < $ BreakValue} \\
-   {\rm Prefactor} \left(x/{\rm BreakValue}\right)^{\rm Index2}
-   & \mbox{otherwise}
-   \end{array} \right.
+   \frac{dN}{dE} = N_0 \times\left\{\begin{array}{ll}
+                                    (E/E_b)^{\gamma_1} & \mbox{if $E < E_b$}\\
+                                    (E/E_b)^{\gamma_2} & \mbox{otherwise}
+                                    \end{array} \right.
    \f]
+   where
+     - Prefactor = \f$N_0\f$
+     - Index1 = \f$\gamma_1\f$
+     - Index2 = \f$\gamma_2\f$
+     - BreakValue = \f$E_b\f$
 
    - @b PowerLaw2 This function uses the integrated flux as a free
-   parameter rather than the "Prefactor":
-
+   parameter rather than the Prefactor:
    \f[
-   {\rm PowerLaw2}(x) = \frac{{\rm Integral} (1 + {\rm Index})}
-         {{\rm UpperLimit}^{1 + {\rm Index}} 
-         - {\rm LowerLimit}^{1 + {\rm Index}}} x^{\rm Index}
+   \frac{dN}{dE} = \frac{N(\gamma+1)E^{\gamma}}
+                        {E_{\rm max}^{\gamma+1} - E_{\rm min}^{\gamma+1}}
    \f]
+   where 
+   <ul>
+     <li> Integral = \f$N\f$
+     <li> Index = \f$\gamma\f$
+     <li> LowerLimit = \f$E_{\rm min}\f$
+     <li> UpperLimit = \f$E_{\rm max}\f$
+   </ul><br>
+   The UpperLimit and LowerLimit parameters are always treated as
+   fixed, and as should be apparent from this definition, the flux
+   given by the Integral parameter is over the range (LowerLimit,
+   UpperLimit). Use of this model allows the errors on the integrated
+   flux to be evaluated directly by likelihood, obviating the need to
+   propagate the errors if one is using the PowerLaw form.
 
-   As should be apparent from this definition, the flux given by the
-   Integral parameter is integrated over the range (LowerLimit,
-   UpperLimit).  Use of this model allows the errors on the integrated
-   flux to be evaluated directly by likelihood, obviating the need
-   to propagate the errors if using the PowerLaw form.
+   - @b BrokenPowerLaw2 Similar to PowerLaw2, the integral flux
+   is the free parameter rather than the Prefactor:
+   \f[
+   \frac{dN}{dE} = N_0(N, E_{\rm min}, E_{\rm max}, \gamma_1, \gamma_2)
+                   \times\left\{\begin{array}{ll}
+                                (E/E_b)^{\gamma_1} & \mbox{if $E < E_b$}\\
+                                (E/E_b)^{\gamma_2} & \mbox{otherwise}
+                                \end{array} \right.
+   \f]
+   where
+   \f[
+   \newcommand{\emin}{{E_{\rm min}}}
+   \newcommand{\emax}{{E_{\rm max}}}
+   \newcommand{\pfrac}[2]{\left(\frac{#1}{#2}\right)}
+   \newcommand{\Int}{{\displaystyle\int}}
+   N_0(N, E_{\rm min}, E_{\rm max}, \gamma_1, \gamma_2)
+        = N \times \left\{\begin{array}{ll}
+                   \left[ \Int_\emin^\emax \pfrac{E}{E_b}^{\gamma_1} dE\right]^{-1}
+                   & \mbox{$\emax < E_b$}\\
+                   \left[ \Int_\emin^\emax \pfrac{E}{E_b}^{\gamma_2} dE\right]^{-1}
+                   & \mbox{$\emin > E_b$}\\
+                   \left[ \Int_\emin^{E_b} \pfrac{E}{E_b}^{\gamma_1} dE
+                   + \Int_{E_b}^\emax \pfrac{E}{E_b}^{\gamma_2} dE
+                   \right]^{-1}
+                   & \mbox{otherwise}\end{array}\right.
+   \f]
+   and 
+     - Integral = \f$N\f$
+     - Index1 = \f$\gamma_1\f$
+     - Index2 = \f$\gamma_2\f$
+     - BreakValue = \f$E_b\f$
+     - LowerLimit = \f$E_{\rm min}\f$
+     - UpperLimit = \f$E_{\rm max}\f$
 
    - @b LogParabola This is typically used for modeling Blazar spectra.
-
    \f[
-   {\rm LogParabola}(x) = {\rm norm} x^{-({\rm alpha} + {\rm beta}\log x)}
+   \newcommand{\pfrac}[2]{\left(\frac{#1}{#2}\right)}
+   \frac{dN}{dE} = N_0\pfrac{E}{E_b}^{-(\alpha + \beta\log(E/E_b))}
    \f]
-   
-   - @b BandFunction This function is used to model GRB spectra
+   where
+     - norm = \f$N_0\f$
+     - alpha = \f$\alpha\f$
+     - beta = \f$\beta\f$
+     - Eb = \f$E_b\f$
 
+   - @b ExpCutoff An exponentially cut-off power-law used for modeling
+     blazar spectra subject to absorption by the extragalactic
+     background light (EBL).  This model was implemented by Luis Reyes
+     (<tt>lreyes@milkyway.gsfc.nasa.gov</tt>).
    \f[
-   bf(x) = \left\{\begin{array}{ll}
-   N_0 x^\alpha \exp(-x(2 + \alpha)/E_p) & \mbox{if $x < E_p$}\\
+   \newcommand{\pfrac}[2]{\left(\frac{#1}{#2}\right)}
+   \frac{dN}{dE} = N_0 \times \left\{\begin{array}{ll}
+                              \pfrac{E}{E_0}^\gamma & \mbox{$E < E_b$}\\
+                              \pfrac{E}{E_0}^\gamma
+         \exp\left[ - ( (E - E_b)/p_1 + p_2\log(E/E_b) + p_3\log^2(E/E_b) )
+             \right] & \mbox{otherwise} \end{array}\right.
+   \f]
+   where
+     - Prefactor = \f$N_0\f$
+     - Index = \f$\gamma\f$
+     - Scale = \f$E_0\f$
+     - Ebreak = \f$E_b\f$
+     - P1 = \f$p_1\f$
+     - P2 = \f$p_2\f$
+     - P3 = \f$p_3\f$
+
+   - @b BPLExpCutoff An exponentially cut-off broken power-law,
+     implemented by Jennifer Carson (<tt>carson@slac.stanford.edu</tt>).
+   \f[
+   \newcommand{\pfrac}[2]{\left(\frac{#1}{#2}\right)}
+   \newcommand{\eabs}{{E_{\rm abs}}}
+   \frac{dN}{dE} = N_0 \times \left\{\begin{array}{ll}
+          \pfrac{E}{E_b}^{\gamma_1} & \mbox{$E < E_b$ and $E < \eabs$}\\
+          \pfrac{E}{E_b}^{\gamma_2} & \mbox{$E > E_b$ and $E < \eabs$}\\
+          \pfrac{E}{E_b}^{\gamma_1}\exp[-(E - \eabs)/p_1] 
+                          & \mbox{$E < E_b$ and $E > \eabs$}\\
+          \pfrac{E}{E_b}^{\gamma_2}\exp[-(E - \eabs)/p_1] 
+                          & \mbox{$E > E_b$ and $E > \eabs$}\end{array}\right.
+   \f]
+   where
+     - Prefactor = \f$N_0\f$
+     - Index1 = = \f$\gamma_1\f$
+     - Index2 = \f$\gamma_2\f$
+     - BreakValue = \f$E_b\f$
+     - Eabs = \f$E_{\rm abs}\f$
+     - P1 = \f$p_1\f$
+
+   - @b Gaussian A Gaussian function that can be used to model an emission
+     line.
+   \f[
+   \frac{dN}{dE} = \frac{N_0}{\sigma\sqrt{2\pi}} 
+                   \exp\left[\frac{-( E - \bar{E} )^2}{2\sigma^2}\right]
+   \f]
+   where
+     - Prefactor = \f$N_0\f$
+     - Mean = \f$\bar{E}\f$
+     - Sigma = \f$\sigma\f$
+
+   - @b ConstantValue A constant-valued function, independent of energy.
+   \f[
+   \frac{dN}{dE} = N_0
+   \f]
+   where 
+     - Value = \f$N_0\f$
+
+   - @b FileFunction A function defined using an input ASCII file 
+   with columns of energy and differential flux values.  The energy 
+   units are assumed to be MeV and the flux values are assumed to 
+   \f${\rm cm}^{-2}\,{\rm s}^{-1}\,{\rm MeV}^{-1}\f$
+   for a point source and 
+   \f${\rm cm}^{-2}\,{\rm s}^{-1}\,{\rm MeV}^{-1}\,{\rm sr}^{-1}\f$
+   for a diffuse source.  The sole parameter is a multiplicative
+   normalization.
+   \f[
+   \frac{dN}{dE} = N_0\left.\frac{dN}{dE}\right|_{\rm file}
+   \f]
+   where
+     - Normalization = \f$N_0\f$
+
+   - @b BandFunction This function is used to model GRB spectra
+   \f[
+   \frac{dN}{dE} = \left\{\begin{array}{ll}
+   N_0 E^\alpha \exp(-E(2 + \alpha)/E_p) & \mbox{if $E < E_p$}\\
    N_0 \left(E_p (\alpha - \beta)/(\alpha + 2)\right)^{\beta - \alpha}
-   x^\beta & \mbox{otherwise}
+   E^\beta & \mbox{otherwise}
    \end{array} \right.
    \f]
+   where
+     - norm = \f$N_0\f$
+     - alpha = \f$\alpha\f$
+     - beta = \f$\beta\f$
+     - Ep = \f$E_p\f$
 
-   There are two kinds of sources that one can define,
-   <tt>PointSource</tt> and <tt>DiffuseSource</tt>.  In turn, each
-   type of source comprises two components, a <tt>spectrum</tt> and a
-   <tt>spatialModel</tt>.  One can choose from among various sorts of
-   spectral types, the two most relevant ones being <tt>PowerLaw</tt>
-   and <tt>BrokenPowerLaw</tt>.  Additional spectral models will be
-   available eventually, and it is intended that the user will be able
-   to create custom spectral models that will be loadable dynamically
-   by the application.
-   \n\n
-   There are four spatial models available: <tt>SkyDirFunction</tt>,
-   <tt>ConstantValue</tt>, <tt>SpatialMap</tt>, and
-   <tt>MapCubeFunction</tt>.  The first one describes a direction on
-   the sky and is used only for point sources.  The latter three are
-   used by diffuse sources.  <tt>ConstantValue</tt> provides a
-   constant value regardless of what argument value it takes.  It is
-   used in this context to model the isotropic diffuse emission.
-   However, as a function, it is fairly general and can even be used
-   in a spectral model, as it is when the spatial model is a
-   <tt>MapCubeFunction</tt>.  <tt>SpatialMap</tt> uses a FITS image
-   file as a template for determining the distribution of photons on
-   the sky.  The EGRET diffuse model is given in the FITS file
-   <tt>gas.cel</tt>, which describes the Galactic diffuse emission, as
-   the photon distribution template.  <tt>MapCubeFunction</tt> is used
-   for diffuse sources that are modeled by a 3 dimensional FITS map in
-   two position coordinates and energy, thereby allow arbitrary
-   spectral variation as a function of sky position.
-   \n\n
-   Model parameters are described by a specific set of attributes.
-   The actual value of a given parameter that is used in the
-   calculation is the <tt>value</tt> attribute multiplied by the
-   <tt>scale</tt> attribute.  The <tt>value</tt> attribute is what the
-   optimizers see.  Using the <tt>scale</tt> attribute is necessary to
-   ensure that the parameters describing the objective function,
-   -log(likelihood) for this application, all have values lying
-   roughly within an order-of-magnitude of each other.
-   \n\n
-   The units for the spectral models are \f${\rm cm}^{-2} {\rm s}^{-1}
-   {\rm MeV}^{-1}\f$ for point sources and \f${\rm cm}^{-2} {\rm
-   s}^{-1} {\rm MeV}^{-1} {\rm sr}^{-1}\f$ for diffuse sources.  The
-   <tt>Prefactor</tt> values in the power-law models are the function
-   values evaluated at the <tt>Scale</tt> values, e.g.,
-   \f[
-   {\rm PowerLaw}(x) = {\rm Prefactor} \times 
-                       \left(\frac{x}{\rm Scale}\right)^{\rm Index}.
-   \f]
-   Each parameter has a range of valid values that can be specified.
-   This is important for the <tt>Prefactor</tt> parameters since
-   negative values are not allowed for source fluxes.  Lastly, there
-   is a <tt>free</tt> attribute that determines whether the parameter
-   will be allowed to be fixed or free in the fitting process.
-   Presently, the free flag attributes are disabled for spatial model
-   parameters since fitting for these parameters has not been
-   implemented largely because of the enormous overhead associated with
-   computing the energy-dependent response functions for each source
-   component.
+   - Four spatial models are available:
+     - SkyDirFunction describes a direction on the sky and is used
+       only for point sources.
+     - ConstantValue provides a constant value regardless of what
+       argument value it takes. In the current context, ConstantValue
+       is used to model the isotropic diffuse emission. As a function,
+       however, ConstantValue is fairly general and can even be used
+       in a spectral model; as it is when the spatial model is a
+       MapCubeFunction.
+     - SpatialMap uses a FITS image file as a template for determining
+       the distribution of photons on the sky. The EGRET diffuse model
+       is given in the FITS file gas.cel, which describes the
+       interstellar emission.
+     - MapCubeFunction used for diffuse sources that are modeled by a
+       3 dimensional FITS map (two sky coordinates and energy),
+       thereby allowing arbitrary spectral variation as a function of
+       sky position.
 
    @section computeDiffuseResps Compute the Diffuse Source Responses.
    If these quantities are not precomputed using the @b gtdiffresp
