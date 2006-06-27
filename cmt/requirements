@@ -4,7 +4,7 @@ version v11r5p4
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.280 2006/06/20 17:12:50 jchiang Exp $
+# $Id: requirements,v 1.281 2006/06/22 16:51:16 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -22,6 +22,7 @@ use st_facilities v*
 use dataSubselector v*
 use hoops v*
 use st_app v*
+use st_graph v*
 
 #macro_append cppflags "" Linux " -pg "
 #macro_append Likelihood_linkopts "" Linux " -pg "
