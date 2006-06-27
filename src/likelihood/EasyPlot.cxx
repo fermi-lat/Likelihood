@@ -3,11 +3,12 @@
  * @brief Implementation of a friendly user interface to st_graph.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.7 2006/06/07 18:22:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.8 2006/06/10 15:08:37 jchiang Exp $
  */
 #include <iostream>
 #include <stdexcept>
 
+#include "st_graph/Axis.h"
 #include "st_graph/Engine.h"
 #include "st_graph/IEventReceiver.h"
 #include "st_graph/IFrame.h"
@@ -21,11 +22,11 @@ typedef st_graph::ValueSpreadSequence<vctr::const_iterator> valuesWithErrors;
 typedef st_graph::LowerBoundSequence<vctr::const_iterator> lowerBounds;
 typedef st_graph::PointSequence<vctr::const_iterator> values;
 
-EasyPlot::EasyPlot(const std::string & title,
+EasyPlot::EasyPlot(st_graph::IFrame * mainFrame, const std::string & title,
+                   bool logX, bool logY,
                    unsigned int xsize, unsigned int ysize)
-   : m_mainFrame(0), m_plotFrame(0) {
+   : m_mainFrame(mainFrame), m_plotFrame(0), m_logX(logX), m_logY(logY) {
    st_graph::Engine & engine(st_graph::Engine::instance());
-   m_mainFrame = engine.createMainFrame(0, xsize, ysize);
    m_plotFrame = engine.createPlotFrame(m_mainFrame, title, xsize, ysize);
 }
 
@@ -35,7 +36,6 @@ EasyPlot::~EasyPlot() throw() {
          delete m_plots[i];
       }
       delete m_plotFrame;
-      delete m_mainFrame;
    } catch (std::exception & eObj) {
       std::cerr << eObj.what() << std::endl;
    } catch (...) {
@@ -51,6 +51,8 @@ void EasyPlot::scatter(const std::vector<double> & x,
       engine.createPlot(m_plotFrame, "scat", 
                         valuesWithErrors(x.begin(), x.end(), xerr.begin()),
                         valuesWithErrors(y.begin(), y.end(), yerr.begin()));
+   setScale(plot);
+   plot->setLineStyle("none");
    m_plots.push_back(plot);
 }
 
@@ -74,6 +76,8 @@ void EasyPlot::scatter(const std::vector<double> & x,
       engine.createPlot(m_plotFrame, "scat", 
                         values(x.begin(), x.end()),
                         valuesWithErrors(y.begin(), y.end(), yerr.begin()));
+   setScale(plot);
+   plot->setLineStyle("none");
    m_plots.push_back(plot);
 }
 
@@ -98,6 +102,8 @@ void EasyPlot::linePlot(const std::vector<double> & x,
    st_graph::IPlot * plot = 
       engine.createPlot(m_plotFrame, "scat", values(x.begin(), x.end()),
                         values(y.begin(), y.end()));
+   setScale(plot);
+   plot->setCurveType("curve");
    m_plots.push_back(plot);
 }
 void EasyPlot::histogram(const std::vector<double> &x,
@@ -112,6 +118,7 @@ void EasyPlot::histogram(const std::vector<double> &x,
       engine.createPlot(m_plotFrame, "hist", 
                         lowerBounds(xx.begin(), xx.end()),
                         values(y.begin(), y.end()));
+   setScale(plot);
    m_plots.push_back(plot);
 }
 
@@ -146,6 +153,8 @@ void EasyPlot::histogram(const std::vector<double> & x,
    histogram(xx, y, xerr);
 }
 
+st_graph::IFrame * EasyPlot::getPlotFrame() { return m_plotFrame; }
+
 void EasyPlot::scatterPlotErrorBars(const std::vector<double> & x,
                                     std::vector<double> & xerr,
                                     unsigned int nbins) const {
@@ -164,6 +173,12 @@ void EasyPlot::scatterPlotErrorBars(const std::vector<double> & x,
       xerr.push_back(xstep);
    }
    return;
+}
+
+void EasyPlot::setScale(st_graph::IPlot * plot) {
+  std::vector<st_graph::Axis> & axes(plot->getAxes());
+  axes.at(0).setScaleMode(m_logX ? st_graph::Axis::eLog : st_graph::Axis::eLinear);
+  axes.at(1).setScaleMode(m_logY ? st_graph::Axis::eLog : st_graph::Axis::eLinear);
 }
 
 void EasyPlot::run() {
