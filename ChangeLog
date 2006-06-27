@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: peachey  Tue Jun 27 08:57:50 PDT 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Include explicit requirement for st_graph.
+
+    *
+------------------------------------------------------------
 User: peachey  Tue Jun 27 08:56:05 PDT 2006
 Likelihood/src/likelihood
 
