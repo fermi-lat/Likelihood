@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: peachey  Tue Jun 27 08:56:05 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	EasyPlot.cxx EasyPlot.h likelihood.cxx 
+Log Message:
+Reenable plotting, using st_graph's direct support for log plots.
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jun 26 15:47:01 PDT 2006
 Likelihood/src
 
