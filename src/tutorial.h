@@ -504,10 +504,13 @@
 
    - @b BandFunction This function is used to model GRB spectra
    \f[
-   \frac{dN}{dE} = \left\{\begin{array}{ll}
-   N_0 E^\alpha \exp(-E(2 + \alpha)/E_p) & \mbox{if $E < E_p$}\\
-   N_0 \left(E_p (\alpha - \beta)/(\alpha + 2)\right)^{\beta - \alpha}
-   E^\beta & \mbox{otherwise}
+   \newcommand{\pfrac}[2]{{(#1/#2)}}
+   \frac{dN}{dE} = N_0 \times \left\{\begin{array}{ll}
+      \pfrac{E}{0.1}^\alpha \exp\left[-(E/E_p)(\alpha + 2)\right] 
+         & \mbox{if $E < E_p(\alpha - \beta)/(\alpha + 2)$}\\
+      \pfrac{E}{0.1}^\beta\left[\pfrac{E_p}{0.1} 
+      \frac{\alpha - \beta}{\alpha + 2}\right]^{\beta - \alpha} 
+      \exp(\beta - \alpha) & \mbox{otherwise}
    \end{array} \right.
    \f]
    where
