@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.108 2006/06/07 18:22:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.109 2006/06/10 15:08:37 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -27,6 +27,10 @@
 #include "st_app/StAppFactory.h"
 
 #include "st_facilities/Util.h"
+
+#include "st_graph/Engine.h"
+#include "st_graph/IFrame.h"
+#include "st_graph/Placer.h"
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
@@ -103,7 +107,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.108 2006/06/07 18:22:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.109 2006/06/10 15:08:37 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -465,12 +469,12 @@ void likelihood::writeCountsSpectra() {
       bool writeLine(true);
       std::ostringstream line;
       double nobs_val(myData.nobs(energies[k], energies[k+1]));
-      evals.push_back(std::log10(sqrt(energies[k]*energies[k+1])));
+      evals.push_back(sqrt(energies[k]*energies[k+1]));
       if (nobs_val > 0) {
-         my_nobs.push_back(std::log10(nobs_val));
+         my_nobs.push_back(nobs_val);
          my_nobs_err.push_back(std::sqrt(nobs_val)/nobs_val);
       } else {
-         my_nobs.push_back(-3);
+         my_nobs.push_back(1.e-3);
          my_nobs_err.push_back(0);
       }
       line << sqrt(energies[k]*energies[k+1]) << "   "
@@ -480,10 +484,10 @@ void likelihood::writeCountsSpectra() {
          double Npred;
          try {
             Npred = src->Npred(energies[k], energies[k+1]);
-            if (Npred != 0) {
-               npred[i].push_back(std::log10(Npred));
+            if (Npred > 0) {
+               npred[i].push_back(Npred);
             } else {
-               npred[i].push_back(-3.);
+               npred[i].push_back(1.e-3);
             }
             line << Npred << "  ";
          } catch (std::out_of_range &) {
@@ -498,19 +502,35 @@ void likelihood::writeCountsSpectra() {
 // plot the data 
    if (m_pars["plot"]) {
       try {
-         EasyPlot plot("Counts Spectra");
+         // Create the main frame to hold all plot frames.
+         st_graph::Engine & engine(st_graph::Engine::instance());
+         std::auto_ptr<st_graph::IFrame> mainFrame(engine.createMainFrame(0, 600, 600));
+         // Create the plot.
+         EasyPlot plot(mainFrame.get(), "Counts Spectra", true, true, 600, 300);
          std::vector<double> npred_tot(npred.at(0).size(), 0);
          for (unsigned int i = 0; i < npred.size(); i++) {
             plot.linePlot(evals, npred[i]);
             for (size_t k = 0; k < npred_tot.size(); k++) {
-               npred_tot.at(k) += std::pow(10., npred.at(i).at(k));
+               npred_tot.at(k) += npred.at(i).at(k);
             }
-         }
-         for (size_t k = 0; k < npred_tot.size(); k++) {
-            npred_tot.at(k) = std::log10(npred_tot.at(k));
          }
          plot.linePlot(evals, npred_tot);
          plot.scatter(evals, my_nobs, my_nobs_err);
+
+         EasyPlot residuals_plot(mainFrame.get(), "Residuals", true, false, 600, 300);
+
+         st_graph::TopEdge top_edge(residuals_plot.getPlotFrame());
+         top_edge.below(st_graph::BottomEdge(plot.getPlotFrame()));
+
+         std::vector<double> residuals(npred_tot.size(), 0.);
+         std::vector<double> residuals_err(npred_tot.size(), 0.);
+         for (unsigned int i = 0; i < npred_tot.size(); ++i) {
+             residuals.at(i)=(my_nobs.at(i)-npred_tot.at(i) )/ npred_tot.at(i);
+             residuals_err.at(i)= my_nobs_err.at(i)/npred_tot.at(i);
+         }
+
+         residuals_plot.scatter(evals, residuals, residuals_err);
+
          EasyPlot::run();
       } catch (std::exception &eObj) {
          std::string message = "RootEngine could not create";
