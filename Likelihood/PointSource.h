@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.57 2006/04/27 15:20:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.58 2006/05/28 22:26:40 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.57 2006/04/27 15:20:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.58 2006/05/28 22:26:40 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -95,7 +95,7 @@ public:
    virtual double NpredDeriv(const std::string &paramName);
 
    /// Predicted number of counts within a given energy range
-   virtual double Npred(double emin, double emax);
+   virtual double Npred(double emin, double emax) const;
 
    /// Set source location using J2000 coordinates
    void setDir(double ra, double dec, bool updateExposure=true, 

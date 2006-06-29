@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.7 2006/04/17 16:14:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.8 2006/04/24 22:31:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -164,8 +164,8 @@ std::vector<double>
 EventContainer::nobs(const std::vector<double> & ebounds) const {
    std::vector<double> my_nobs(ebounds.size()-1, 0);
    for (size_t i = 0; i < m_events.size(); i++) {
-      size_t k = std::upper_bound(ebounds.begin(), ebounds.end(),
-                                  m_events.at(i).getEnergy()) 
+      double energy = m_events.at(i).getEnergy();
+      size_t k = std::upper_bound(ebounds.begin(), ebounds.end(), energy)
          - ebounds.begin() - 1;
       my_nobs.at(k)++;
    }
