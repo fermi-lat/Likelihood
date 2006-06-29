@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.1 2006/06/29 00:45:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -29,13 +29,16 @@ void CountsSpectra::setEbounds(double emin, double emax, size_t nbounds) {
    m_ebounds.reserve(nbounds);
    for (size_t k = 0; k < nbounds; k++) {
       m_ebounds.push_back(emin*std::exp(k*estep));
-      std::cout << m_ebounds.back() << std::endl;
    }
 }
 
 void CountsSpectra::getSrcCounts(const std::string & srcName,
                                  std::vector<double> & srcCounts) const {
    const Source * src(const_cast<LogLike &>(m_logLike).getSource(srcName));
+   if (!src) {
+      throw std::runtime_error("CountsSpectra: Source " + srcName + 
+                               " not found.");
+   }
    srcCounts.clear();
    srcCounts.reserve(m_ebounds.size() - 1);
    if (m_binnedLike) {
@@ -60,6 +63,10 @@ void CountsSpectra::getSrcFluxes(const std::string & srcName,
                                  std::vector<double> & srcFluxes) const {
    check_ebounds();
    const Source * src(const_cast<LogLike &>(m_logLike).getSource(srcName));
+   if (!src) {
+      throw std::runtime_error("CountsSpectra: Source " + srcName + 
+                               " not found.");
+   }
    const PointSource * ptsrc = 
       dynamic_cast<PointSource *>(const_cast<Source *>(src));
    if (!ptsrc) {
@@ -102,7 +109,7 @@ void CountsSpectra::writeTable(const std::string & outfile) const {
    counts->setNumRecords(m_ebounds.size() - 1);
    tip::Table::Iterator row = counts->begin();
    tip::Table::Record & record = *row;
-   for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
+   for (size_t k = 0; k < m_ebounds.size() - 1; ++row, k++) {
       record["ObsCounts"].set(obsCounts.at(k));
       for (size_t i = 0; i < sourceNames.size(); i++) {
          record[sourceNames.at(i)].set(srcCnts.at(i).at(k));
@@ -127,7 +134,7 @@ void CountsSpectra::writeTable(const std::string & outfile) const {
    
    fluxes->setNumRecords(m_ebounds.size() - 1);
    row = fluxes->begin();
-   for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
+   for (size_t k = 0; k < m_ebounds.size() - 1; ++row, k++) {
       for (size_t i = 0; i < sourceNames.size(); i++) {
          try {
             record[sourceNames.at(i)].set(srcFluxes.at(i).at(k));
@@ -147,7 +154,7 @@ void CountsSpectra::writeTable(const std::string & outfile) const {
    ebounds->setNumRecords(m_ebounds.size() - 1);
 
    row = ebounds->begin();
-   for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
+   for (size_t k = 0; k < m_ebounds.size() - 1; ++row, k++) {
       record["E_MIN"].set(m_ebounds.at(k));
       record["E_MAX"].set(m_ebounds.at(k+1));
    }
