@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 28 22:59:05 PDT 2006
+Likelihood/src
+
+Modified Files:
+	CountsSpectra.cxx 
+Log Message:
+increment iterator
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun 28 17:45:30 PDT 2006
 Likelihood/src
 
