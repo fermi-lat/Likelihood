@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun 29 11:52:36 PDT 2006
+Likelihood/src
+
+Modified Files:
+	CountsSpectra.cxx SourceModel.cxx 
+Log Message:
+use CountsSpectra in gtlikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun 29 11:52:35 PDT 2006
 Likelihood/Likelihood
 
