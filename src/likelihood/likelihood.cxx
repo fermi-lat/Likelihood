@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.109 2006/06/10 15:08:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.110 2006/06/27 15:56:05 peachey Exp $
  */
 
 #ifdef TRAP_FPE
@@ -41,6 +41,7 @@
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/CountsSpectra.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/MapShape.h"
@@ -107,7 +108,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.109 2006/06/10 15:08:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.110 2006/06/27 15:56:05 peachey Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -153,6 +154,7 @@ private:
    void writeSourceXml();
    void writeFluxXml();
    void writeCountsSpectra();
+   void plotCountsSpectra();
    void writeCountsMap();
    void printFitResults(const std::vector<double> &errors);
    bool prompt(const std::string &query);
@@ -290,6 +292,9 @@ void likelihood::run() {
    writeFluxXml();
    if (m_statistic != "BINNED") {
       writeCountsSpectra();
+   }
+   if (m_pars["plot"]) {
+      plotCountsSpectra();
    }
 //   writeCountsMap();
    m_formatter->info() << "Elapsed CPU time: " << cputime() << std::endl;
@@ -448,95 +453,79 @@ private:
 };
 
 void likelihood::writeCountsSpectra() {
-   const EventData myData(m_helper->observation().eventCont().events());
-   std::vector<double> energies;
+   CountsSpectra counts(*m_logLike);
+
    const RoiCuts & roiCuts = m_helper->observation().roiCuts();
-   double emin = roiCuts.getEnergyCuts().first;
-   double emax = roiCuts.getEnergyCuts().second;
-   int nee(20);
-   double estep = log(emax/emin)/(nee-1);
-   for (int k = 0; k < nee; k++) {
-      energies.push_back(emin*exp(estep*k));
-   }
+   double emin(roiCuts.getEnergyCuts().first);
+   double emax(roiCuts.getEnergyCuts().second);
+   counts.setEbounds(emin, emax, 21);
+
+   counts.writeTable("counts_spectra.fits");
+}
+
+void likelihood::plotCountsSpectra() {
+   CountsSpectra counts(*m_logLike);
+
+   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
+   double emin(roiCuts.getEnergyCuts().first);
+   double emax(roiCuts.getEnergyCuts().second);
+   counts.setEbounds(emin, emax, 21);
+
+   std::vector<double> nobs;
+   counts.getObsCounts(nobs);
+   std::vector<double> nobs_err;
+
+   const std::vector<double> & ebounds(counts.ebounds());
    std::vector<double> evals;
-   std::vector<std::string> srcNames;
-   m_logLike->getSrcNames(srcNames);
-   std::vector< std::vector<double> > npred(srcNames.size());
-   std::ofstream outputFile("counts.dat");
-   std::vector<double> my_nobs;
-   std::vector<double> my_nobs_err;
-   for (int k = 0; k < nee - 1; k++) {
-      bool writeLine(true);
-      std::ostringstream line;
-      double nobs_val(myData.nobs(energies[k], energies[k+1]));
-      evals.push_back(sqrt(energies[k]*energies[k+1]));
-      if (nobs_val > 0) {
-         my_nobs.push_back(nobs_val);
-         my_nobs_err.push_back(std::sqrt(nobs_val)/nobs_val);
-      } else {
-         my_nobs.push_back(1.e-3);
-         my_nobs_err.push_back(0);
-      }
-      line << sqrt(energies[k]*energies[k+1]) << "   "
-           << nobs_val << "  ";
-      for (unsigned int i = 0; i < srcNames.size(); i++) {
-         Source * src = m_logLike->getSource(srcNames[i]);
-         double Npred;
-         try {
-            Npred = src->Npred(energies[k], energies[k+1]);
-            if (Npred > 0) {
-               npred[i].push_back(Npred);
-            } else {
-               npred[i].push_back(1.e-3);
-            }
-            line << Npred << "  ";
-         } catch (std::out_of_range &) {
-            writeLine = false;
-         }
-      }
-      if (writeLine) {
-         outputFile << line.str() << std::endl;
-      }
+   for (size_t k = 0; k < ebounds.size()-1; k++) {
+      evals.push_back(std::sqrt(ebounds.at(k)*ebounds.at(k+1)));
+      nobs_err.push_back(std::sqrt(nobs.at(k)));
    }
-   outputFile.close();
-// plot the data 
-   if (m_pars["plot"]) {
-      try {
-         // Create the main frame to hold all plot frames.
-         st_graph::Engine & engine(st_graph::Engine::instance());
-         std::auto_ptr<st_graph::IFrame> mainFrame(engine.createMainFrame(0, 600, 600));
-         // Create the plot.
-         EasyPlot plot(mainFrame.get(), "Counts Spectra", true, true, 600, 300);
-         std::vector<double> npred_tot(npred.at(0).size(), 0);
-         for (unsigned int i = 0; i < npred.size(); i++) {
-            plot.linePlot(evals, npred[i]);
-            for (size_t k = 0; k < npred_tot.size(); k++) {
-               npred_tot.at(k) += npred.at(i).at(k);
-            }
+
+   std::vector<std::string> sourceNames;
+   m_logLike->getSrcNames(sourceNames);
+   std::vector<std::vector<double> > npred(sourceNames.size());
+   for (size_t i = 0; i < sourceNames.size(); i++) {
+      counts.getSrcCounts(sourceNames.at(i), npred.at(i));
+   }
+
+   try {
+      // Create the main frame to hold all plot frames.
+      st_graph::Engine & engine(st_graph::Engine::instance());
+      std::auto_ptr<st_graph::IFrame> 
+         mainFrame(engine.createMainFrame(0, 600, 600));
+      // Create the plot.
+      EasyPlot plot(mainFrame.get(), "Counts Spectra", true, true, 600, 300);
+      std::vector<double> npred_tot(npred.at(0).size(), 0);
+      for (unsigned int i = 0; i < npred.size(); i++) {
+         plot.linePlot(evals, npred[i]);
+         for (size_t k = 0; k < npred_tot.size(); k++) {
+            npred_tot.at(k) += npred.at(i).at(k);
          }
-         plot.linePlot(evals, npred_tot);
-         plot.scatter(evals, my_nobs, my_nobs_err);
+      }
+      plot.linePlot(evals, npred_tot);
+      plot.scatter(evals, nobs, nobs_err);
+      
+      EasyPlot residuals_plot(mainFrame.get(), "Residuals", true, false, 
+                              600, 300);
 
-         EasyPlot residuals_plot(mainFrame.get(), "Residuals", true, false, 600, 300);
+      st_graph::TopEdge top_edge(residuals_plot.getPlotFrame());
+      top_edge.below(st_graph::BottomEdge(plot.getPlotFrame()));
 
-         st_graph::TopEdge top_edge(residuals_plot.getPlotFrame());
-         top_edge.below(st_graph::BottomEdge(plot.getPlotFrame()));
+      std::vector<double> residuals(npred_tot.size(), 0.);
+      std::vector<double> residuals_err(npred_tot.size(), 0.);
+      for (unsigned int i = 0; i < npred_tot.size(); ++i) {
+         residuals.at(i) = (nobs.at(i) - npred_tot.at(i))/npred_tot.at(i);
+         residuals_err.at(i) = nobs_err.at(i)/npred_tot.at(i);
+      }
 
-         std::vector<double> residuals(npred_tot.size(), 0.);
-         std::vector<double> residuals_err(npred_tot.size(), 0.);
-         for (unsigned int i = 0; i < npred_tot.size(); ++i) {
-             residuals.at(i)=(my_nobs.at(i)-npred_tot.at(i) )/ npred_tot.at(i);
-             residuals_err.at(i)= my_nobs_err.at(i)/npred_tot.at(i);
-         }
-
-         residuals_plot.scatter(evals, residuals, residuals_err);
-
-         EasyPlot::run();
-      } catch (std::exception &eObj) {
-         std::string message = "RootEngine could not create";
-         if (!st_facilities::Util::expectedException(eObj, message)) {
-            throw;
-         }
+      residuals_plot.scatter(evals, residuals, residuals_err);
+      
+      EasyPlot::run();
+   } catch (std::exception &eObj) {
+      std::string message = "RootEngine could not create";
+      if (!st_facilities::Util::expectedException(eObj, message)) {
+         throw;
       }
    }
 }

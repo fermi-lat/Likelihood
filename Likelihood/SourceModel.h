@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.59 2006/04/17 05:52:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.60 2006/04/19 05:41:56 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.59 2006/04/17 05:52:20 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.60 2006/04/19 05:41:56 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -108,6 +108,9 @@ public:
 
    /// return a Source pointer by name
    Source * getSource(const std::string &srcName);
+
+   /// @return reference to the desired source
+   const Source & source(const std::string & srcName) const;
 
    /// @return reference to the Source map.
    const std::map<std::string, Source *> & sources() const {

@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.78 2006/04/20 03:47:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.79 2006/05/01 14:42:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -226,6 +226,16 @@ Source * SourceModel::getSource(const std::string &srcName) {
       return m_sources[srcName];
    }
    return 0;
+}
+
+const Source & SourceModel::source(const std::string & srcName) const {
+   std::map<std::string, Source *>::const_iterator my_src =
+      m_sources.find(srcName);
+   if (my_src == m_sources.end()) {
+      throw std::runtime_error("SourceModel::source: Source " + 
+                               srcName + " not found.");
+   }
+   return *(my_src->second);
 }
 
 void SourceModel::getSrcNames(std::vector<std::string> &names) const {
