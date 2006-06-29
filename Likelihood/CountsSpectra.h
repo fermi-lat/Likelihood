@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsSpectra.h,v 1.1 2006/06/29 00:45:28 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsSpectra_h
@@ -66,6 +66,14 @@ private:
    std::vector<double> m_ebounds;
 
    void check_ebounds() const;
+
+   void writeCounts(const std::string & outfile, 
+                    const std::vector<std::string> & sourceNames) const;
+
+   void writeFluxes(const std::string & outfile, 
+                    const std::vector<std::string> & sourceNames) const;
+
+   void writeEbounds(const std::string & outfile) const;
 
 };
 

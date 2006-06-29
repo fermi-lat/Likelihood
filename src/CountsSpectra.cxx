@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.1 2006/06/29 00:45:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.2 2006/06/29 05:59:05 jchiang Exp $
  */
 
 #include <cmath>
@@ -85,8 +85,20 @@ void CountsSpectra::getSrcFluxes(const std::string & srcName,
 void CountsSpectra::writeTable(const std::string & outfile) const {
    std::remove(outfile.c_str());
 
-   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
+   std::vector<std::string> sourceNames;
+   m_logLike.getSrcNames(sourceNames);
+
+   writeCounts(outfile, sourceNames);
+   writeFluxes(outfile, sourceNames);
+   writeEbounds(outfile);
+}
+
+void CountsSpectra::
+writeCounts(const std::string & outfile, 
+            const std::vector<std::string> & sourceNames) const {
    std::string extname("COUNTS_SPECTRA");
+
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
    fileSvc.appendTable(outfile, extname);
    tip::Table * counts(fileSvc.editTable(outfile, extname));
 
@@ -94,11 +106,8 @@ void CountsSpectra::writeTable(const std::string & outfile) const {
    std::vector<double> obsCounts;
    getObsCounts(obsCounts);
 
-   std::vector<std::string> sourceNames;
-   m_logLike.getSrcNames(sourceNames);
-   std::vector<std::string>::const_iterator source = sourceNames.begin();
-
    std::vector<std::vector<double> > srcCnts;
+   std::vector<std::string>::const_iterator source = sourceNames.begin();
    for ( ; source != sourceNames.end(); ++source) {
       counts->appendField(*source, "1D");
       std::vector<double> my_counts;
@@ -116,36 +125,47 @@ void CountsSpectra::writeTable(const std::string & outfile) const {
       }
    }
    delete counts;
+}
 
-   extname = "FLUXES";
+void CountsSpectra::
+writeFluxes(const std::string & outfile, 
+            const std::vector<std::string> & sourceNames) const {
+   std::string extname("FLUXES");
+
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
    fileSvc.appendTable(outfile, extname);
    tip::Table * fluxes(fileSvc.editTable(outfile, extname));
 
-   std::vector<std::vector<double> > srcFluxes;
+   std::map<std::string, std::vector<double> > srcFluxes;
+   std::vector<std::string>::const_iterator source = sourceNames.begin();
    for (source = sourceNames.begin(); source != sourceNames.end(); ++source) {
-      try {
+      if (m_logLike.source(*source).getType() == "Point") {
          std::vector<double> my_fluxes;
          getSrcFluxes(*source, my_fluxes);
-         srcFluxes.push_back(my_fluxes);
+         srcFluxes[*source] = my_fluxes;
          fluxes->appendField(*source, "1D");
-      } catch (...) {
       }
    }
-   
+
    fluxes->setNumRecords(m_ebounds.size() - 1);
-   row = fluxes->begin();
+   tip::Table::Iterator row = fluxes->begin();
+   tip::Table::Record & record = *row;
    for (size_t k = 0; k < m_ebounds.size() - 1; ++row, k++) {
-      for (size_t i = 0; i < sourceNames.size(); i++) {
-         try {
-            record[sourceNames.at(i)].set(srcFluxes.at(i).at(k));
-         } catch (...) {
+      for (source = sourceNames.begin(); source != sourceNames.end();
+           ++source) {
+         if (m_logLike.source(*source).getType() == "Point") {
+            record[*source].set(srcFluxes[*source].at(k));
          }
       }
    }
    delete fluxes;
+}
 
-   extname = "EBOUNDS";
+void CountsSpectra::
+writeEbounds(const std::string & outfile) const {
+   std::string extname("EBOUNDS");
 
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
    fileSvc.appendTable(outfile, extname);
    tip::Table * ebounds(fileSvc.editTable(outfile, extname));
 
@@ -153,7 +173,8 @@ void CountsSpectra::writeTable(const std::string & outfile) const {
    ebounds->appendField("E_MAX", "1D");
    ebounds->setNumRecords(m_ebounds.size() - 1);
 
-   row = ebounds->begin();
+   tip::Table::Iterator row = ebounds->begin();
+   tip::Table::Record & record = *row;
    for (size_t k = 0; k < m_ebounds.size() - 1; ++row, k++) {
       record["E_MIN"].set(m_ebounds.at(k));
       record["E_MAX"].set(m_ebounds.at(k+1));
