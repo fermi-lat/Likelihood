@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.34 2005/03/17 07:20:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.35 2005/09/14 05:47:18 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.34 2005/03/17 07:20:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.35 2005/09/14 05:47:18 jchiang Exp $
  */
 
 class Source {
@@ -76,7 +76,7 @@ public:
    virtual double NpredDeriv(const std::string &paramName) = 0;
 
    /// Predicted number of counts within a specified energy range.
-   virtual double Npred(double emin, double emax) = 0;
+   virtual double Npred(double emin, double emax) const = 0;
 
    /// Set the Function used for modeling the source spectrum.
    virtual void setSpectrum(optimizers::Function *) = 0;

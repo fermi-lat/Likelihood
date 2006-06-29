@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.83 2006/05/28 22:26:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.84 2006/06/22 16:51:18 jchiang Exp $
  */
 
 #include <cmath>
@@ -203,7 +203,7 @@ double PointSource::Npred() {
    return trapQuad.integral();
 }
 
-double PointSource::Npred(double emin, double emax) {
+double PointSource::Npred(double emin, double emax) const {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
    if (emin < energies.front() || emax > energies.back()) {
       throw std::out_of_range("PointSource::Npred(emin, emax)");
@@ -235,7 +235,11 @@ double PointSource::Npred(double emin, double emax) {
       + m_exposure.at(end_offset - 1);
    exposure.insert(exposure.begin(), begin_exposure);
    exposure.push_back(end_exposure);
-   optimizers::Function & specFunc = *m_functions["Spectrum"];
+
+   FuncMap::const_iterator my_func = m_functions.find("Spectrum");
+   const optimizers::Function & specFunc = 
+      const_cast<optimizers::Function &>(*my_func->second);
+
    std::vector<double> integrand(my_energies.size());
    for (unsigned int k = 0; k < my_energies.size(); k++) {
       optimizers::dArg eArg(my_energies.at(k));

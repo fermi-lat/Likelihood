@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.31 2005/03/17 07:20:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.32 2005/09/14 05:47:18 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -44,7 +44,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.31 2005/03/17 07:20:01 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.32 2005/09/14 05:47:18 jchiang Exp $ 
  *  
  */
 
@@ -108,7 +108,7 @@ public:
    virtual double NpredDeriv(const std::string &paramName);
 
    /// Predicted number of counts within a specified energy range
-   virtual double Npred(double emin, double emax);
+   virtual double Npred(double emin, double emax) const;
 
    /// Return the spatial distribution of the gamma-ray emission
    double spatialDist(const astro::SkyDir & dir) const {
