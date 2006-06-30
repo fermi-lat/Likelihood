@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.59 2006/04/22 00:15:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.60 2006/04/27 15:20:07 jchiang Exp $
  */
 
 #include <algorithm>
@@ -62,6 +62,12 @@ namespace {
 }
 
 namespace Likelihood {
+
+/// @bug Use of this function (by CountsSpectra.cxx) is necessitated by
+/// annoying linkage problems on Windows.
+void getNpreds(const SourceMap & srcMap, std::vector<double> & npreds) {
+   npreds = srcMap.npreds();
+}
 
 std::string SourceMap::s_expMapFileName;
 MeanPsf * SourceMap::s_meanPsf(0);
