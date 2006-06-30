@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.2 2006/06/29 05:59:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.3 2006/06/29 18:52:36 jchiang Exp $
  */
 
 #include <cmath>
@@ -43,8 +43,15 @@ void CountsSpectra::getSrcCounts(const std::string & srcName,
    srcCounts.reserve(m_ebounds.size() - 1);
    if (m_binnedLike) {
 /// @todo reimplement LogLike::Npred for BinnedLikelihood
-      const std::vector<double> & 
-         npreds(m_binnedLike->sourceMap(srcName).npreds());
+
+/// @bug We cannot use the following const reference because of brain-dead
+/// linkage problems on Windows.
+///       const std::vector<double> & 
+///          npreds(m_binnedLike->sourceMap(srcName).npreds());
+/// so we are forced to use instead the getNpreds function that pollutes our
+/// namespace.
+      std::vector<double> npreds;
+      getNpreds(m_binnedLike->sourceMap(srcName), npreds);
       for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
          srcCounts.push_back(src->pixelCounts(m_ebounds.at(k),
                                               m_ebounds.at(k+1),
