@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r6p1 30-Jun-06 JC   workaround for linking on Windows
     v11r6   29-Jun-06 JC   Add CountsSpectra class; write out FITS file 
                            with counts spectra and fluxes instead of counts.dat
     v11r5p4 22-Jun-06 JC   fix PointSource::Npred(emin, emax) bug
