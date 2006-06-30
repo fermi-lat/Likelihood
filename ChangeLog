@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Jun 30 08:41:24 PDT 2006
+Likelihood/src
+
+Modified Files:
+	CountsSpectra.cxx SourceMap.cxx 
+Log Message:
+workaround for frustrating inadequacies of linking on Windows
+    *
+------------------------------------------------------------
+User: jchiang  Fri Jun 30 08:41:24 PDT 2006
 Likelihood/Likelihood
 
 Modified Files:
