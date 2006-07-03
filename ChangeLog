@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul  3 10:05:32 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	EasyPlot.cxx 
+Log Message:
+re-activate bilinear interpolation in WcsMap::operator()
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul  3 10:05:31 PDT 2006
 Likelihood/src
 
