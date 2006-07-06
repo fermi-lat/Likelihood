@@ -4,7 +4,7 @@ scfile,f,a,"test_scData_0000.fits",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft file HDU
 exposure_map_file,f,a,"none",,,"Exposure map file"
 exposure_cube_file,f,a,"none",,,"Exposure hypercube file"
-source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
+source_model_file,f,a,"my_source_model.xml",,,"Source model file"
 outfile,f,a,"TsMap.fits",,,"TS map file name"
 
 rspfunc,s,h,"DSS",,,"Response functions to use"

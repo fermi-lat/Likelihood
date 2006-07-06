@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.32 2006/04/18 05:43:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.33 2006/06/10 15:08:36 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.32 2006/04/18 05:43:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.33 2006/06/10 15:08:36 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -158,9 +158,12 @@ void TsMap::readEventData() {
 }
 
 void TsMap::readSrcModel() {
-   st_facilities::Util::file_ok(m_pars["source_model_file"]);
-   m_logLike->readXml(m_pars["source_model_file"], m_helper->funcFactory());
-   m_logLike->computeEventResponses();
+   std::string srcModelFile = m_pars["source_model_file"];
+   if (srcModelFile != "" && srcModelFile != "none") {
+      st_facilities::Util::file_ok(srcModelFile);
+      m_logLike->readXml(srcModelFile, m_helper->funcFactory());
+      m_logLike->computeEventResponses();
+   }
 }   
 
 void TsMap::selectOptimizer() {
