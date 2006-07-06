@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jul  5 17:29:03 PDT 2006
+Likelihood/pfiles
+
+Modified Files:
+	gttsmap.par 
+Log Message:
+allow for null input model in ts map generation
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r6p2, operation: add
 Package: Likelihood
