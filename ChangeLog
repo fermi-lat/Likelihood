@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Jul  7 12:43:10 PDT 2006
+Likelihood/src/gtfindsrc
+
+Added Files:
+	gtfindsrc.cxx 
+Log Message:
+add gtfindsrc application
+    *
+------------------------------------------------------------
+User: jchiang  Fri Jul  7 12:43:10 PDT 2006
 Likelihood/pfiles
 
 Added Files:
