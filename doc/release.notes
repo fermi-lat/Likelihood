@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r7   07-Jul-06 JC   add gtfindsrc tool
     v11r6p2 03-Jul-06 JC   re-activate bilinear interpolation in 
                            WcsMap::operator()
     v11r6p1 30-Jun-06 JC   workaround for linking on Windows
