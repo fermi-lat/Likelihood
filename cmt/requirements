@@ -4,7 +4,7 @@ version v11r6p2
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.284 2006/06/30 16:06:41 jchiang Exp $
+# $Id: requirements,v 1.285 2006/07/03 17:06:44 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -43,3 +43,4 @@ apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
 apply_pattern ST_app_withDir name=gtbackfile dir=backfile
 apply_pattern ST_app name=gtmodelmap
 apply_pattern ST_app name=gtaddlivetime
+apply_pattern ST_app name=gtfindsrc
