@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r7p1 11-Jul-06 JC   use refactored optimizers::Amoeba class
     v11r7   07-Jul-06 JC   add gtfindsrc tool
     v11r6p2 03-Jul-06 JC   re-activate bilinear interpolation in 
                            WcsMap::operator()
