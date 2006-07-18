@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jul 18 08:15:34 PDT 2006
+Likelihood/src
+
+Modified Files:
+	ResponseFunctions.cxx 
+Log Message:
+refactor to use std::map<...>::find method
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r7p2, operation: add
 Package: Likelihood
