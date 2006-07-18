@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.22 2006/02/28 20:15:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.23 2006/03/16 06:20:06 jchiang Exp $
  */
 
 #include <sstream>
@@ -34,30 +34,24 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
                                         const astro::SkyDir & srcDir,
                                         const astro::SkyDir & appDir, 
                                         int type) const {
-   bool foundResponse(false);
-   double myResponse(0);
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
-      = begin();
-   for ( ; respIt != end(); respIt++) {
-      if (respIt->second->irfID() == type) {
-         foundResponse = true;
-         irfInterface::IPsf * psf = respIt->second->psf();
-         irfInterface::IAeff * aeff = respIt->second->aeff();
-         double psf_val = psf->value(appDir, energy, srcDir, zAxis, xAxis);
-         double aeff_val = aeff->value(energy, srcDir, zAxis, xAxis);
-         if (m_useEdisp) {
-            irfInterface::IEdisp * edisp = respIt->second->edisp();
-            double edisp_val = edisp->value(appEnergy, energy, srcDir, 
-                                            zAxis, xAxis);
-            myResponse += psf_val*aeff_val*edisp_val;
-         } else {
-            myResponse += psf_val*aeff_val;
-         }            
-      }
-   }
-   if (!foundResponse) {
+   double myResponse;
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   if (!irfs) {
       throw std::runtime_error("Could not find appropriate response functions "
                                "for these event data.");
+   } else {
+      irfInterface::IPsf * psf(irfs->psf());
+      irfInterface::IAeff * aeff(irfs->aeff());
+      double psf_val(psf->value(appDir, energy, srcDir, zAxis, xAxis));
+      double aeff_val(aeff->value(energy, srcDir, zAxis, xAxis));
+      if (m_useEdisp) {
+         irfInterface::IEdisp * edisp(irfs->edisp());
+         double edisp_val(edisp->value(appEnergy, energy, srcDir, 
+                                       zAxis, xAxis));
+         myResponse = psf_val*aeff_val*edisp_val;
+      } else {
+         myResponse = psf_val*aeff_val;
+      }
    }
    return myResponse;
 }
@@ -65,50 +59,43 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
 double ResponseFunctions::totalResponse(double inclination, double phi,
                                         double energy, double appEnergy,
                                         double separation, int type) const {
-   bool foundResponse(false);
-   double myResponse(0);
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
-      = begin();
-   for ( ; respIt != end(); respIt++) {
-      if (respIt->second->irfID() == type) {  
-         foundResponse = true;
-         irfInterface::IPsf * psf = respIt->second->psf();
-         irfInterface::IAeff * aeff = respIt->second->aeff();
-         double psf_val = psf->value(separation, energy, inclination, phi);
-         double aeff_val = aeff->value(energy, inclination, phi);
-         if (m_useEdisp) {
-            irfInterface::IEdisp * edisp = respIt->second->edisp();
-            double edisp_val = edisp->value(appEnergy, energy, 
-                                            inclination, phi);
-            myResponse += psf_val*aeff_val*edisp_val;
-         } else {
-            myResponse += psf_val*aeff_val;
-         }            
-      }
-   }
-   if (!foundResponse) {
+   double myResponse;
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   if (!irfs) {
       throw std::runtime_error("Could not find appropriate response functions "
                                "for these event data.");
+   } else {
+      irfInterface::IPsf * psf(irfs->psf());
+      irfInterface::IAeff * aeff(irfs->aeff());
+      double psf_val(psf->value(separation, energy, inclination, phi));
+      double aeff_val(aeff->value(energy, inclination, phi));
+      if (m_useEdisp) {
+         irfInterface::IEdisp * edisp(irfs->edisp());
+         double edisp_val(edisp->value(appEnergy, energy, inclination, phi));
+         myResponse = psf_val*aeff_val*edisp_val;
+      } else {
+         myResponse = psf_val*aeff_val;
+      }
    }
    return myResponse;
 }   
 
 irfInterface::Irfs * ResponseFunctions::respPtr(unsigned int i) const {
-   if (m_respPtrs.count(i)) {
-      return m_respPtrs.find(i)->second;
+   typedef std::map<unsigned int, irfInterface::Irfs *> IrfMap_t;
+   IrfMap_t::const_iterator irfs(m_respPtrs.find(i));
+   if (irfs != m_respPtrs.end()) {
+      return irfs->second;
    } else {
       return 0;
    }
 }
 
 void ResponseFunctions::load(const std::string & respFuncs) {
-//   irfLoader::Loader::go();
    irfLoader::Loader_go();
    irfInterface::IrfsFactory * myFactory 
       = irfInterface::IrfsFactory::instance();
       
    typedef std::map< std::string, std::vector<std::string> > respMap;
-//   const respMap & responseIds = irfLoader::Loader::respIds();
    const respMap & responseIds = irfLoader::Loader_respIds();
    respMap::const_iterator it;
    if ( (it = responseIds.find(respFuncs)) != responseIds.end() ) {
