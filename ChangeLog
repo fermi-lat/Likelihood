@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: peachey  Mon Aug 14 07:26:19 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	EasyPlot.cxx EasyPlot.h likelihood.cxx 
+Log Message:
+Improvements to plotting: add axes titles and custom line colors.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jul 18 08:15:34 PDT 2006
 Likelihood/src
 
