@@ -3,7 +3,7 @@
  * @brief Implementation of a friendly user interface to st_graph.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.9 2006/06/27 15:56:05 peachey Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.10 2006/07/03 17:05:32 jchiang Exp $
  */
 #include <iostream>
 #include <stdexcept>
@@ -24,8 +24,9 @@ typedef st_graph::PointSequence<vctr::const_iterator> values;
 
 EasyPlot::EasyPlot(st_graph::IFrame * mainFrame, const std::string & title,
                    bool logX, bool logY,
+                   const std::string &xAxisTitle, const std::string &yAxisTitle,
                    unsigned int xsize, unsigned int ysize)
-   : m_mainFrame(mainFrame), m_plotFrame(0), m_logX(logX), m_logY(logY) {
+   : m_mainFrame(mainFrame), m_plotFrame(0), m_logX(logX), m_logY(logY), m_xAxisTitle(xAxisTitle), m_yAxisTitle(yAxisTitle) {
    st_graph::Engine & engine(st_graph::Engine::instance());
    m_plotFrame = engine.createPlotFrame(m_mainFrame, title, xsize, ysize);
 }
@@ -45,32 +46,40 @@ EasyPlot::~EasyPlot() throw() {
 void EasyPlot::scatter(const std::vector<double> & x,
                        const std::vector<double> & y,
                        const std::vector<double> & xerr,
-                       const std::vector<double> & yerr) {
+                       const std::vector<double> & yerr,
+                       int color,
+                       const std::string & line_style) {
    st_graph::Engine & engine(st_graph::Engine::instance());
    st_graph::IPlot * plot = 
       engine.createPlot(m_plotFrame, "scat", 
                         valuesWithErrors(x.begin(), x.end(), xerr.begin()),
                         valuesWithErrors(y.begin(), y.end(), yerr.begin()));
    setScale(plot);
-   plot->setLineStyle("none");
+   plot->setLineColor(color);
+   plot->setLineStyle(line_style);
    m_plots.push_back(plot);
 }
 
 void EasyPlot::scatter(const std::vector<double> & x,
                        const std::vector<double> & y,
-                       const std::vector<double> & yerr) {
+                       const std::vector<double> & yerr,
+                       int color,
+                       const std::string & line_style) {
    st_graph::Engine & engine(st_graph::Engine::instance());
    st_graph::IPlot * plot = 
       engine.createPlot(m_plotFrame, "scat", 
                         values(x.begin(), x.end()),
                         valuesWithErrors(y.begin(), y.end(), yerr.begin()));
    setScale(plot);
-   plot->setLineStyle("none");
+   plot->setLineColor(color);
+   plot->setLineStyle(line_style);
    m_plots.push_back(plot);
 }
 
 void EasyPlot::scatter(const std::vector<double> & x,
-                       const std::vector<double> & y) {
+                       const std::vector<double> & y,
+                       int color,
+                       const std::string & line_style) {
    if (x.size() == 0) {
       return;
    }
@@ -78,11 +87,13 @@ void EasyPlot::scatter(const std::vector<double> & x,
    scatterPlotErrorBars(x, xerr);
    std::vector<double> yerr;
    scatterPlotErrorBars(y, yerr);
-   scatter(x, y, xerr, yerr);
+   scatter(x, y, xerr, yerr, color, line_style);
 }
 
 void EasyPlot::linePlot(const std::vector<double> & x,
-                        const std::vector<double> & y) {
+                        const std::vector<double> & y,
+                        int color,
+                        const std::string & line_style) {
    if (x.size() == 0) {
       return;
    }
@@ -91,27 +102,37 @@ void EasyPlot::linePlot(const std::vector<double> & x,
       engine.createPlot(m_plotFrame, "scat", values(x.begin(), x.end()),
                         values(y.begin(), y.end()));
    setScale(plot);
+   plot->setLineColor(color);
+   plot->setLineStyle(line_style);
    plot->setCurveType("curve");
    m_plots.push_back(plot);
 }
 void EasyPlot::histogram(const std::vector<double> &x,
                          const std::vector<double> &y,
-                         const std::vector<double> &xwidth) {
+                         const std::vector<double> &xwidth,
+                         int color,
+                         const std::string & line_style) {
    st_graph::Engine & engine(st_graph::Engine::instance());
+#if 0
    std::vector<double> xx;
    for (unsigned int i = 0; i < x.size(); i++) {
       xx.push_back(x[i] - xwidth[i]/2.);
    }
+#endif
    st_graph::IPlot * plot = 
       engine.createPlot(m_plotFrame, "hist", 
-                        lowerBounds(xx.begin(), xx.end()),
+                        lowerBounds(x.begin(), x.end()),
                         values(y.begin(), y.end()));
+   plot->setLineColor(color);
+   plot->setLineStyle(line_style);
    setScale(plot);
    m_plots.push_back(plot);
 }
 
 void EasyPlot::histogram(const std::vector<double> & x, 
-                         const std::vector<double> & y) {
+                         const std::vector<double> & y,
+                         int color,
+                         const std::string & line_style) {
 // This routine computes Voronoi cells and resets the x values to the
 // cell midpoints since Sequence cannot handle asymmetric "spreads".
 
@@ -138,7 +159,7 @@ void EasyPlot::histogram(const std::vector<double> & x,
    }
    xerr.push_back(x.back() - *(x.end()-2));
 
-   histogram(xx, y, xerr);
+   histogram(xx, y, xerr, color, line_style);
 }
 
 st_graph::IFrame * EasyPlot::getPlotFrame() { return m_plotFrame; }
@@ -166,7 +187,9 @@ void EasyPlot::scatterPlotErrorBars(const std::vector<double> & x,
 void EasyPlot::setScale(st_graph::IPlot * plot) {
   std::vector<st_graph::Axis> & axes(plot->getAxes());
   axes.at(0).setScaleMode(m_logX ? st_graph::Axis::eLog : st_graph::Axis::eLinear);
+  axes.at(0).setTitle(m_xAxisTitle);
   axes.at(1).setScaleMode(m_logY ? st_graph::Axis::eLog : st_graph::Axis::eLinear);
+  axes.at(1).setTitle(m_yAxisTitle);
 }
 
 void EasyPlot::run() {
