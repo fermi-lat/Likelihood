@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.112 2006/06/30 00:20:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.113 2006/07/14 23:59:03 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -108,7 +108,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.112 2006/06/30 00:20:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.113 2006/07/14 23:59:03 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -477,19 +477,44 @@ void likelihood::plotCountsSpectra() {
    counts.getObsCounts(nobs);
    std::vector<double> nobs_err;
 
-   const std::vector<double> & ebounds(counts.ebounds());
+   std::vector<double> ebounds(counts.ebounds());
    std::vector<double> evals;
+   std::vector<double> ewidth;
    for (size_t k = 0; k < ebounds.size()-1; k++) {
       evals.push_back(std::sqrt(ebounds.at(k)*ebounds.at(k+1)));
+      ewidth.push_back(ebounds.at(k+1)-ebounds.at(k));
       nobs_err.push_back(std::sqrt(nobs.at(k)));
+   }
+
+   // Normalize counts by bin-width to get counts/energy.
+   for (size_t k = 0; k < ewidth.size(); k++) {
+      nobs[k] /= ewidth[k];
+      nobs_err[k] /= ewidth[k];
+   }
+   
+   // Set up a finer spectrum, in order to plot the predicted counts with higher resolution.
+   CountsSpectra fine_counts(*m_logLike);
+   std::vector<double>::size_type num_fine_points = ebounds.size() * 1;
+   fine_counts.setEbounds(ebounds.front(), ebounds.back(), num_fine_points);
+
+   std::vector<double> fine_ebounds(fine_counts.ebounds());
+   std::vector<double> fine_evals;
+   std::vector<double> fine_ewidth;
+   for (size_t k = 0; k < fine_ebounds.size()-1; k++) {
+      fine_evals.push_back(std::sqrt(fine_ebounds.at(k)*fine_ebounds.at(k+1)));
+      fine_ewidth.push_back(fine_ebounds.at(k+1)-fine_ebounds.at(k));
    }
 
    std::vector<std::string> sourceNames;
    m_logLike->getSrcNames(sourceNames);
    std::vector<std::vector<double> > npred(sourceNames.size());
+   std::vector<std::vector<double> > fine_npred(sourceNames.size());
    for (size_t i = 0; i < sourceNames.size(); i++) {
       counts.getSrcCounts(sourceNames.at(i), npred.at(i));
+      fine_counts.getSrcCounts(sourceNames.at(i), fine_npred.at(i));
    }
+
+   std::vector<double> zero(fine_evals.size(), 1.);
 
    try {
       // Create the main frame to hold all plot frames.
@@ -497,19 +522,32 @@ void likelihood::plotCountsSpectra() {
       std::auto_ptr<st_graph::IFrame> 
          mainFrame(engine.createMainFrame(0, 600, 600));
       // Create the plot.
-      EasyPlot plot(mainFrame.get(), "Counts Spectra", true, true, 600, 300);
+      EasyPlot plot(mainFrame.get(), "", true, true, "Energy (MeV)", "counts/MeV", 600, 400);
+      plot.scatter(evals, nobs, nobs_err);
       std::vector<double> npred_tot(npred.at(0).size(), 0);
+      std::vector<double> fine_npred_tot(fine_npred.at(0).size(), 0);
+      int color = st_graph::Color::eBlack;
       for (unsigned int i = 0; i < npred.size(); i++) {
-         plot.linePlot(evals, npred[i]);
+         for (size_t k = 0; k < ewidth.size(); k++) {
+            npred[i][k] /= ewidth[k];
+         }
+         for (size_t k = 0; k < fine_ewidth.size(); k++) {
+            fine_npred[i][k] /= fine_ewidth[k];
+         }
+         color = st_graph::Color::nextColor(color);
+         plot.linePlot(fine_evals, fine_npred[i], color);
          for (size_t k = 0; k < npred_tot.size(); k++) {
             npred_tot.at(k) += npred.at(i).at(k);
          }
+         for (size_t k = 0; k < fine_npred_tot.size(); k++) {
+            fine_npred_tot.at(k) += fine_npred.at(i).at(k);
+         }
       }
-      plot.linePlot(evals, npred_tot);
-      plot.scatter(evals, nobs, nobs_err);
+      plot.linePlot(fine_evals, fine_npred_tot);
       
-      EasyPlot residuals_plot(mainFrame.get(), "Residuals", true, false, 
-                              600, 300);
+      EasyPlot residuals_plot(mainFrame.get(), "", true, false, "Energy (MeV)", "(counts - model) / model",
+                              600, 200);
+      std::vector<double> zero(evals.size(), 0.);
 
       st_graph::TopEdge top_edge(residuals_plot.getPlotFrame());
       top_edge.below(st_graph::BottomEdge(plot.getPlotFrame()));
@@ -522,6 +560,7 @@ void likelihood::plotCountsSpectra() {
       }
 
       residuals_plot.scatter(evals, residuals, residuals_err);
+      residuals_plot.linePlot(evals, zero, st_graph::Color::eBlack, "dashed");
       
       EasyPlot::run();
    } catch (std::exception &eObj) {
@@ -610,7 +649,6 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
          resultsFile << "'TS value': '" << TsValues[srcNames[i]] << "',\n";
       }
       resultsFile << "},\n";
-      resultsFile << "'-log(Likelihood)': '" << -m_logLike->value() << "',\n";
    }
    resultsFile << "}" << std::endl;
 
