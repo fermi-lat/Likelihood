@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r7p3 15-Aug-06 JC   tagging James and Analia's mods to EasyPlot using
+                           st_graph v1r7
     v11r7p2 14-Jul-06 JC   bug-fixes for zero input counts and gtfindsrc
                            destructor; add log-likelihood value to results.dat
     v11r7p1 11-Jul-06 JC   use refactored optimizers::Amoeba class
