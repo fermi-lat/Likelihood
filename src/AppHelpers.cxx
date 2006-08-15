@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.52 2006/04/18 05:43:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.53 2006/05/05 16:58:12 jchiang Exp $
  */
 
 #include <map>
@@ -12,8 +12,6 @@
 #include <vector>
 
 #include "st_stream/StreamFormatter.h"
-
-#include "irfInterface/IrfsFactory.h"
 
 #include "st_facilities/Util.h"
 
@@ -37,8 +35,6 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SpatialMap.h"
-
-using irfInterface::IrfsFactory;
 
 namespace Likelihood {
 
