@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: peachey  Tue Aug 15 07:54:46 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	EasyPlot.cxx 
+Log Message:
+Restore previous behavior for histogram, which was accidentally
+committed in modified form in conjunction with other plotting changes.
+
+    *
+------------------------------------------------------------
 User: peachey  Mon Aug 14 07:26:19 PDT 2006
 Likelihood/src/likelihood
 
