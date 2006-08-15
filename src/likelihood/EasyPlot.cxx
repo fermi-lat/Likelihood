@@ -3,7 +3,7 @@
  * @brief Implementation of a friendly user interface to st_graph.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.10 2006/07/03 17:05:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.cxx,v 1.11 2006/08/14 14:26:17 peachey Exp $
  */
 #include <iostream>
 #include <stdexcept>
@@ -113,15 +113,13 @@ void EasyPlot::histogram(const std::vector<double> &x,
                          int color,
                          const std::string & line_style) {
    st_graph::Engine & engine(st_graph::Engine::instance());
-#if 0
    std::vector<double> xx;
    for (unsigned int i = 0; i < x.size(); i++) {
       xx.push_back(x[i] - xwidth[i]/2.);
    }
-#endif
    st_graph::IPlot * plot = 
       engine.createPlot(m_plotFrame, "hist", 
-                        lowerBounds(x.begin(), x.end()),
+                        lowerBounds(xx.begin(), xx.end()),
                         values(y.begin(), y.end()));
    plot->setLineColor(color);
    plot->setLineStyle(line_style);
