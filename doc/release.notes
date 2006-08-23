@@ -3,6 +3,11 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r8   23-Aug-06 JC   do not set table size if no sources have been added
+                           in CountsSpectra::writeFluxes; change diffuse 
+                           response delimiter to "__" from "::"; add par file
+                           control over writing output files results.dat and
+                           counts_spectra.fits
     v11r7p3 15-Aug-06 JC   tagging James and Analia's mods to EasyPlot using
                            st_graph v1r7
     v11r7p2 14-Jul-06 JC   bug-fixes for zero input counts and gtfindsrc
