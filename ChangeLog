@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 23 12:26:13 PDT 2006
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+change gtdiffresp delimiter to __ from :: ; add annoying workarounds to ensure backward compatibility
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 23 12:26:12 PDT 2006
 Likelihood/src
 
