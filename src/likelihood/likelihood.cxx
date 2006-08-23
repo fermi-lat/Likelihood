@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.113 2006/07/14 23:59:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.114 2006/08/14 14:26:18 peachey Exp $
  */
 
 #ifdef TRAP_FPE
@@ -108,7 +108,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.113 2006/07/14 23:59:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.114 2006/08/14 14:26:18 peachey Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -290,7 +290,9 @@ void likelihood::run() {
       writeSourceXml();
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
-   writeCountsSpectra();
+   if (m_pars["write_output_files"]) {
+      writeCountsSpectra();
+   }
    if (m_pars["plot"]) {
       plotCountsSpectra();
    }
@@ -335,6 +337,7 @@ void likelihood::promptForParameters() {
    m_pars.Prompt("rspfunc");
    m_pars.Prompt("use_energy_dispersion");
    m_pars.Prompt("optimizer");
+   m_pars.Prompt("write_output_files");
    m_pars.Prompt("query_for_refit");
 
    m_pars.Save();
@@ -608,6 +611,10 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<double>::const_iterator errIt = errors.begin();
 
    std::ofstream resultsFile("results.dat");
+   if (!m_pars["write_output_files"]) {
+      resultsFile.clear(std::ios::failbit);
+   }
+
    resultsFile << "{";
 
    double totalNpred(0);
@@ -663,6 +670,10 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    }
    m_formatter->info() << std::endl;
    resultsFile.close();
+
+   if (!m_pars["write_output_files"]) {
+      std::remove("results.dat");
+   }
 
    m_formatter->info().precision(10);
    m_formatter->info() << "\n-log(Likelihood): "

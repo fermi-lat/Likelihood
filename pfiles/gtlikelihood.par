@@ -15,6 +15,7 @@ statistic,s,a,"UNBINNED",BINNED|UNBINNED,,"Statistic to use"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_tolerance,r,h,0.0001,,,"Fit tolerance"
 find_Ts_mins,b,h,no,,,Re-optimize for TS fits?
+write_output_files,b,h,yes,,,Write output files?
 query_for_refit,b,h,no,,,"Allow for refitting?"
 #
 # unbinned
