@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.9 2006/06/29 00:45:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.10 2006/07/14 16:49:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -190,21 +190,23 @@ get_diffuse_names(tip::Table * events,
    names.clear();
    const std::vector<std::string> & fields = events->getValidFields();
    for (unsigned int i = 0; i < fields.size(); i++) {
-//       if (!std::count(s_FT1_columns.begin(), s_FT1_columns.end(), fields[i])) {
-//          names.push_back(fields[i]);
-//       }
-      if (fields.at(i).find("::") != std::string::npos) {
+      if (fields.at(i).find("__") != std::string::npos ||
+          fields.at(i).find("::") != std::string::npos) {
          names.push_back(fields.at(i));
       }
    }
 }
-
+   
 std::string EventContainer::sourceName(const std::string & name) const {
 // The column name for a diffuse response has the IRF name prepended.
 // Strip the IRF name and use the underlying diffuse component name
 // in setDiffuseResponse.
    std::vector<std::string> tokens;
-   facilities::Util::stringTokenize(name, "::", tokens);
+   if (name.find("__") != std::string::npos) {
+      facilities::Util::stringTokenize(name, "__", tokens);
+   } else if (name.find("::") != std::string::npos) {
+      facilities::Util::stringTokenize(name, "::", tokens);
+   }
    if (tokens.size() == 1) {
       return tokens.at(0);
    } else {
