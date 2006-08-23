@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.3 2006/06/29 18:52:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.4 2006/06/30 15:41:24 jchiang Exp $
  */
 
 #include <cmath>
@@ -154,14 +154,16 @@ writeFluxes(const std::string & outfile,
       }
    }
 
-   fluxes->setNumRecords(m_ebounds.size() - 1);
-   tip::Table::Iterator row = fluxes->begin();
-   tip::Table::Record & record = *row;
-   for (size_t k = 0; k < m_ebounds.size() - 1; ++row, k++) {
-      for (source = sourceNames.begin(); source != sourceNames.end();
-           ++source) {
-         if (m_logLike.source(*source).getType() == "Point") {
-            record[*source].set(srcFluxes[*source].at(k));
+   if (srcFluxes.size() > 0) {
+      fluxes->setNumRecords(m_ebounds.size() - 1);
+      tip::Table::Iterator row = fluxes->begin();
+      tip::Table::Record & record = *row;
+      for (size_t k = 0; k < m_ebounds.size() - 1; ++row, k++) {
+         for (source = sourceNames.begin(); source != sourceNames.end();
+              ++source) {
+            if (m_logLike.source(*source).getType() == "Point") {
+               record[*source].set(srcFluxes[*source].at(k));
+            }
          }
       }
    }
