@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.54 2006/04/18 05:43:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.55 2006/04/24 22:31:10 jchiang Exp $
  */
 
 #include <cctype>
@@ -316,7 +316,7 @@ void Event::toLower(std::string & name) {
 }
 
 std::string Event::diffuseSrcName(const std::string & srcName) const {
-   std::string name(*m_respName + "::" + srcName);
+   std::string name(*m_respName + "__" + srcName);
    toLower(name);
    return name;
 }

@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.38 2006/04/17 16:14:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.39 2006/04/19 05:41:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,6 +39,15 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 using namespace Likelihood;
 
+namespace {
+   std::string alt_diffuseSrcName(const std::string srcName,
+                                  const Observation & obs) {
+      std::string name(obs.respFuncs().respName() + "::" + srcName);
+      Event::toLower(name);
+      return name;
+   }
+} // anonymous namespace
+
 /**
  * @class diffuseResponses
  * @brief FTOOL to add diffuse response information to an FT1 file for
@@ -46,7 +55,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.38 2006/04/17 16:14:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.39 2006/04/19 05:41:59 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -181,8 +190,10 @@ bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
    readDiffuseNames(srcNames);
    for (std::vector<std::string>::iterator name = srcNames.begin();
         name != srcNames.end(); ++name) {
+      std::string altName(::alt_diffuseSrcName(*name,m_helper->observation()));
       *name = diffuseSrcName(*name);
-      if (std::find(colNames.begin(), colNames.end(), *name) 
+      if (std::find(colNames.begin(), colNames.end(), *name) == colNames.end()
+          && std::find(colNames.begin(), colNames.end(), altName) 
           == colNames.end()) {
          return false;
       }
@@ -193,7 +204,7 @@ bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
 std::string diffuseResponses::
 diffuseSrcName(const std::string & srcName) const {
    std::string name(m_helper->observation().respFuncs().respName() +
-                    "::" + srcName);
+                    "__" + srcName);
    Event::toLower(name);
    return name;
 }
@@ -267,7 +278,7 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
          try {
             std::string fieldName = 
                m_helper->observation().respFuncs().respName() 
-               + "::" + m_srcNames[i];
+               + "__" + m_srcNames[i];
             if (m_useEdisp) {
 // Add a 3 dim vector containing the Gaussian parameters describing
 // the energy response.
