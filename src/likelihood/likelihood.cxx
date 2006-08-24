@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.114 2006/08/14 14:26:18 peachey Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.115 2006/08/23 20:05:00 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -108,7 +108,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.114 2006/08/14 14:26:18 peachey Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.115 2006/08/23 20:05:00 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -611,7 +611,8 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<double>::const_iterator errIt = errors.begin();
 
    std::ofstream resultsFile("results.dat");
-   if (!m_pars["write_output_files"]) {
+   bool write_output_files = m_pars["write_output_files"];
+   if (!write_output_files) {
       resultsFile.clear(std::ios::failbit);
    }
 
@@ -671,7 +672,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    m_formatter->info() << std::endl;
    resultsFile.close();
 
-   if (!m_pars["write_output_files"]) {
+   if (!write_output_files) {
       std::remove("results.dat");
    }
 
