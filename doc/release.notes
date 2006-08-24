@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r8p1 23-Aug-06 JC   YAWW (Yet Another Windows Workaround) (yawn)
     v11r8   23-Aug-06 JC   do not set table size if no sources have been added
                            in CountsSpectra::writeFluxes; change diffuse 
                            response delimiter to "__" from "::"; add par file
