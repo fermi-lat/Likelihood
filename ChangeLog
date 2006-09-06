@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep  6 15:06:21 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h Event.h LogLike.h SourceModel.h 
+Log Message:
+begin refactoring to re-evaluate only contributions to likelihood from modified source components
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r8p1, operation: add
 Package: Likelihood
