@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.55 2006/04/24 22:31:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.56 2006/08/23 19:26:11 jchiang Exp $
  */
 
 #include <cctype>
@@ -23,6 +23,7 @@
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/ScData.h"
+#include "Likelihood/Source.h"
 #include "Likelihood/TrapQuad.h"
 
 #include "Likelihood/RoiCuts.h"
@@ -46,13 +47,15 @@ std::vector<double> Event::s_mu_2;
 std::vector<double> Event::s_phi;
 bool Event::s_haveSourceRegionData(false);
 
+Event::Event() : m_respName(""), m_modelSum(0) {}
+
 Event::Event(double ra, double dec, double energy, double time, 
              const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
              double muZenith, bool useEdisp, const std::string & respName,
              int type) 
    : m_appDir(astro::SkyDir(ra, dec)), m_energy(energy), m_arrTime(time),
      m_muZenith(muZenith), m_type(type), m_scDir(scZAxis), m_scXDir(scXAxis),
-     m_useEdisp(useEdisp), m_respName(&respName) {
+     m_useEdisp(useEdisp), m_respName(respName), m_modelSum(0) {
    if (m_useEdisp) {
 // For <15% energy resolution, consider true energies over the range
 // (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
@@ -316,9 +319,30 @@ void Event::toLower(std::string & name) {
 }
 
 std::string Event::diffuseSrcName(const std::string & srcName) const {
-   std::string name(*m_respName + "__" + srcName);
+   std::string name(m_respName + "__" + srcName);
    toLower(name);
    return name;
+}
+
+void Event::updateModelSum(const Source & src) {
+   double contribution(src.fluxDensity(*this));
+   const std::string & srcName(src.getName());
+   std::map<std::string, double>::iterator fluxDensity;
+   if ((fluxDensity = m_fluxDensities.find(srcName)) 
+       != m_fluxDensities.end()) {
+      m_modelSum -= fluxDensity->second;
+   }
+   m_modelSum += contribution;
+   m_fluxDensities[srcName] = contribution;
+}
+
+void Event::deleteSource(const std::string & srcName) {
+   m_modelSum -= m_fluxDensities[srcName];
+   m_fluxDensities.erase(srcName);
+}
+
+void Event::resetModelSum() {
+   m_modelSum = 0;
 }
 
 void Event::setDiffuseResponse(std::string srcName,

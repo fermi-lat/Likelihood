@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.79 2006/05/01 14:42:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.80 2006/06/29 18:52:36 jchiang Exp $
  */
 
 #include <cmath>
@@ -65,10 +65,12 @@ SourceModel::~SourceModel() {
    delete m_formatter;
 }
 
-void SourceModel::setParam(const optimizers::Parameter &param, 
-                           const std::string &funcName,
-                           const std::string &srcName) {
+void SourceModel::setParam(const optimizers::Parameter & param, 
+                           const std::string & funcName,
+                           const std::string & srcName) {
+   m_modified.clear();
    if (m_sources.count(srcName)) {
+      m_modified.push_back(srcName);
       Source::FuncMap srcFuncs = (*m_sources[srcName]).getSrcFuncs();
       if (srcFuncs.count(funcName)) {
          srcFuncs[funcName]->setParam(param);
@@ -81,27 +83,43 @@ void SourceModel::setParam(const optimizers::Parameter &param,
    throw optimizers::Exception(errorMessage);
 }
  
-std::vector<double>::const_iterator SourceModel::setParamValues_(
-   std::vector<double>::const_iterator it) { 
+std::vector<double>::const_iterator 
+SourceModel::setParamValues_(std::vector<double>::const_iterator it) {
+   m_modified.clear();
+   std::vector<double>::const_iterator lastParam(it);
+
    std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
       Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++) 
+      for ( ; func_it != srcFuncs.end(); func_it++) {
          it = (*func_it).second->setParamValues_(it);
+      }
+      if (it != lastParam) {
+         m_modified.push_back(srcIt->first);
+      }
+      lastParam = it;
    }
    syncParams();
    return it;
 }
 
-std::vector<double>::const_iterator SourceModel::setFreeParamValues_(
-   std::vector<double>::const_iterator it) { 
+std::vector<double>::const_iterator 
+SourceModel::setFreeParamValues_(std::vector<double>::const_iterator it) {
+   m_modified.clear();
+   std::vector<double>::const_iterator lastParam(it);
+
    std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
       Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
       Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++) 
-         it = (*func_it).second->setFreeParamValues_(it);
+      for ( ; func_it != srcFuncs.end(); func_it++) {
+         it = func_it->second->setFreeParamValues_(it);
+      }
+      if (it != lastParam) {
+         m_modified.push_back(srcIt->first);
+      }
+      lastParam = it;
    }
    syncParams();
    return it;
@@ -165,6 +183,8 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
          + "Inconsistent number of Parameters.";
       throw optimizers::Exception(errorMessage);
    }
+   m_modified.clear();
+
 // Assume ordering of Parameters in params matches that given by the
 // ordering of the Sources and their Functions.
    int k = 0;  // params' index
@@ -179,6 +199,9 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
          } else { 
             numParams = func_it->second->getNumParams();
          }
+         if (numParams > 0) {
+            m_modified.push_back(srcIt->first);
+         }
          for (unsigned int j = 0; j < numParams; j++) {
             func_it->second->setParam(params[k]);
             k++;
@@ -190,8 +213,13 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
 
 void SourceModel::addSource(Source *src) {
    if (!m_sources.count(src->getName())) {
+      m_modified.clear();
       m_sources[src->getName()] = src->clone();
       syncParams();
+      for (std::map<std::string, Source *>::const_iterator src 
+              = m_sources.begin(); src != m_sources.end(); ++src) {
+         m_modified.push_back(src->first);
+      }
    } else {
       throw Exception("Likelihood::SourceModel:\nSource named " 
                       + src->getName() + " alread exists.");

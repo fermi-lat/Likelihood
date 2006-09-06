@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.60 2006/04/19 05:41:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.61 2006/06/29 18:52:34 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.60 2006/04/19 05:41:56 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.61 2006/06/29 18:52:34 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -101,7 +101,7 @@ public:
    void addSource(Source *src);
 
    /// Delete a source by name and return a copy.
-   Source * deleteSource(const std::string &srcName);
+   virtual Source * deleteSource(const std::string &srcName);
 
    /// delete all the sources
    void deleteAllSources();
@@ -170,6 +170,9 @@ protected:
    }
 
    std::map<std::string, Source *> m_sources;
+
+   /// A vector of Sources that have modified parameters.
+   std::vector<std::string> m_modified;
 
    /// disable this since parameters may no longer have unique names
    double derivByParam(optimizers::Arg &, const std::string &) 
