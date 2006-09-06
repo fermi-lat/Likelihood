@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.37 2006/01/09 00:35:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.38 2006/04/24 22:31:07 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -22,6 +22,7 @@ namespace Likelihood {
    class DiffuseSource;
    class EquinoxRotation;
    class ResponseFunctions;
+   class Source;
 
 /** 
  * @class Event
@@ -30,14 +31,14 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.37 2006/01/09 00:35:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.38 2006/04/24 22:31:07 jchiang Exp $
  */
 
 class Event {
     
 public:
 
-   Event() : m_respName(0) {}
+   Event();
 
    Event(double ra, double dec, double energy, double time, 
          const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
@@ -126,6 +127,17 @@ public:
    /// @param srcName The source name.
    std::string diffuseSrcName(const std::string & srcName) const;
 
+   /// Add or subtract contribution from a given source to m_modelSum.
+   void updateModelSum(const Source & src);
+
+   void resetModelSum();
+
+   double modelSum() const {
+      return m_modelSum;
+   }
+
+   void deleteSource(const std::string & srcName);
+
 private:
 
    /// apparent direction, energy, arrival time, and cosine(zenith angle)
@@ -142,7 +154,11 @@ private:
    astro::SkyDir m_scXDir;
 
    bool m_useEdisp;
-   const std::string * m_respName;
+   std::string m_respName;
+
+   double m_modelSum;
+
+   std::map<std::string, double> m_fluxDensities;
    
    /// Vector of true energies.
    double m_estep;
