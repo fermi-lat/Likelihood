@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep  6 21:46:04 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h 
+Log Message:
+more refactoring
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep  6 15:06:22 PDT 2006
 Likelihood/src
 
