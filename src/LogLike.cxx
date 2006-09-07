@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.50 2006/04/18 05:43:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.51 2006/09/06 22:06:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -26,7 +26,7 @@ namespace Likelihood {
 double LogLike::value(optimizers::Arg&) const {
    std::clock_t start = std::clock();
    const std::vector<Event> & events = m_observation.eventCont().events();
-   double my_value = 0;
+   double my_value(0);
    
 // The "data sum"
    for (unsigned int j = 0; j < events.size(); j++) {
@@ -36,9 +36,23 @@ double LogLike::value(optimizers::Arg&) const {
 // The "model integral", a sum over Npred for each source
    std::map<std::string, Source *>::const_iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
-      SrcArg sArg(srcIt->second);
-      my_value -= m_Npred(sArg);
+//          SrcArg sArg(srcIt->second);
+//          my_value -= m_Npred(sArg);
+      const std::string & srcName(srcIt->first);
+      std::map<std::string, double>::const_iterator npredIt 
+         = m_npredValues.find(srcName);
+      if (std::find(m_modified.begin(), m_modified.end(), srcName) 
+          != m_modified.end() || npredIt == m_npredValues.end()) {
+         if (npredIt != m_npredValues.end()) {
+            m_modelIntegral -= npredIt->second;
+         }
+         
+         SrcArg sArg(srcIt->second);
+         m_npredValues[srcName] = m_Npred(sArg);
+         m_modelIntegral += m_npredValues[srcName];
+      }
    }
+   my_value -= m_modelIntegral;
    st_stream::StreamFormatter formatter("LogLike", "value", 4);
    formatter.info() << m_nevals << "  "
                     << my_value << "  "
@@ -48,12 +62,6 @@ double LogLike::value(optimizers::Arg&) const {
 }
 
 double LogLike::logSourceModel(const Event & event) const {
-   double my_value(0);
-//    std::map<std::string, Source *>::const_iterator source = m_sources.begin();
-//    for ( ; source != m_sources.end(); ++source) {
-//       const_cast<Event &>(event).updateModelSum(*(source->second));
-//    }
-   
    for (size_t i = 0; i < m_modified.size(); i++) {
       std::map<std::string, Source *>::const_iterator 
          source(m_sources.find(m_modified.at(i)));
@@ -61,7 +69,7 @@ double LogLike::logSourceModel(const Event & event) const {
          const_cast<Event &>(event).updateModelSum(*(source->second));
       }
    }
-   my_value = event.modelSum();
+   double my_value(event.modelSum());
    if (my_value > 0) {
       return std::log(my_value);
    }
