@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.51 2006/09/06 22:06:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.52 2006/09/07 04:46:05 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,6 +23,12 @@
 
 namespace Likelihood {
 
+LogLike::LogLike(const Observation & observation) 
+   : SourceModel(observation), m_nevals(0) {
+   deleteAllSources();
+}
+
+
 double LogLike::value(optimizers::Arg&) const {
    std::clock_t start = std::clock();
    const std::vector<Event> & events = m_observation.eventCont().events();
@@ -36,23 +42,9 @@ double LogLike::value(optimizers::Arg&) const {
 // The "model integral", a sum over Npred for each source
    std::map<std::string, Source *>::const_iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
-//          SrcArg sArg(srcIt->second);
-//          my_value -= m_Npred(sArg);
-      const std::string & srcName(srcIt->first);
-      std::map<std::string, double>::const_iterator npredIt 
-         = m_npredValues.find(srcName);
-      if (std::find(m_modified.begin(), m_modified.end(), srcName) 
-          != m_modified.end() || npredIt == m_npredValues.end()) {
-         if (npredIt != m_npredValues.end()) {
-            m_modelIntegral -= npredIt->second;
-         }
-         
-         SrcArg sArg(srcIt->second);
-         m_npredValues[srcName] = m_Npred(sArg);
-         m_modelIntegral += m_npredValues[srcName];
-      }
+      SrcArg sArg(srcIt->second);
+      my_value -= m_Npred(sArg);
    }
-   my_value -= m_modelIntegral;
    st_stream::StreamFormatter formatter("LogLike", "value", 4);
    formatter.info() << m_nevals << "  "
                     << my_value << "  "
@@ -62,14 +54,13 @@ double LogLike::value(optimizers::Arg&) const {
 }
 
 double LogLike::logSourceModel(const Event & event) const {
-   for (size_t i = 0; i < m_modified.size(); i++) {
-      std::map<std::string, Source *>::const_iterator 
-         source(m_sources.find(m_modified.at(i)));
-      if (source != m_sources.end()) {
-         const_cast<Event &>(event).updateModelSum(*(source->second));
-      }
+   double my_value(0);
+   std::map<std::string, Source *>::const_iterator 
+      source(m_sources.begin());
+   for ( ; source != m_sources.end(); ++source) {
+      double fluxDens(source->second->fluxDensity(event));
+      my_value += fluxDens;
    }
-   double my_value(event.modelSum());
    if (my_value > 0) {
       return std::log(my_value);
    }
@@ -100,7 +91,7 @@ void LogLike::getLogSourceModelDerivs(const Event & event,
 
 void LogLike::getFreeDerivs(optimizers::Arg&,
                             std::vector<double> &freeDerivs) const {
-// retrieve the free derivatives for the log(SourceModel) part
+// Retrieve the free derivatives for the log(SourceModel) part
    const std::vector<Event> & events = m_observation.eventCont().events();
 
    std::vector<double> logSrcModelDerivs(getNumFreeParams(), 0);
@@ -122,8 +113,9 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
       SrcArg sArg(srcIt->second);
       std::vector<double> derivs;
       m_Npred.getFreeDerivs(sArg, derivs);
-      for (unsigned int i = 0; i < derivs.size(); i++) 
+      for (unsigned int i = 0; i < derivs.size(); i++) {
          NpredDerivs.push_back(derivs[i]);
+      }
    }
 
    freeDerivs.reserve(NpredDerivs.size());
@@ -134,10 +126,6 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
 }
 
 Source * LogLike::deleteSource(const std::string & srcName) {
-   const std::vector<Event> & events = m_observation.eventCont().events();
-   for (size_t j = 0; j < events.size(); j++) {
-      const_cast<std::vector<Event> &>(events).at(j).deleteSource(srcName);
-   }
    return SourceModel::deleteSource(srcName);
 }
 
