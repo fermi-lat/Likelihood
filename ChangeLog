@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Sep  8 20:55:58 PDT 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+attempts to speedup thwarted by optimization algorithms wanting to change all parameters at each step.
+    *
+------------------------------------------------------------
+User: jchiang  Fri Sep  8 20:55:58 PDT 2006
 Likelihood/Likelihood
 
 Modified Files:
