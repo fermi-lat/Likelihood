@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Sep  8 20:55:59 PDT 2006
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx SourceModel.cxx 
+Log Message:
+attempts to speedup thwarted by optimization algorithms wanting to change all parameters at each step.
+    *
+------------------------------------------------------------
 User: jchiang  Fri Sep  8 20:55:58 PDT 2006
 Likelihood/cmt
 
