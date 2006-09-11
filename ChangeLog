@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 11 14:18:54 PDT 2006
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx BinnedLikelihood.cxx LogLike.cxx 
+	ResponseFunctions.cxx RoiCuts.cxx SourceModel.cxx 
+Log Message:
+update model sums for free sources only; do not check for acceptance by time range cuts separately since gtis handle this
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 11 14:18:53 PDT 2006
 Likelihood/cmt
 
