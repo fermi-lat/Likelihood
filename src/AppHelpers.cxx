@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.53 2006/05/05 16:58:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.54 2006/08/15 15:03:53 jchiang Exp $
  */
 
 #include <map>
@@ -183,7 +183,7 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
    st_facilities::Util::resolve_fits_files(evfile, files);
    if (respBase == "DSS") {
       std::string respFuncs = responseFuncs(files.front(), "DC2");
-      m_respFuncs->load(respFuncs);
+      m_respFuncs->load(respFuncs, "DC2");
    } else {
       m_respFuncs->load(respBase);
    }      

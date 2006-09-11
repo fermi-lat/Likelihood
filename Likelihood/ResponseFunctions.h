@@ -3,7 +3,7 @@
  * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.16 2005/03/17 07:20:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.17 2005/11/16 03:08:13 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.16 2005/03/17 07:20:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.17 2005/11/16 03:08:13 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -108,7 +108,7 @@ public:
       m_respName = respName;
    }
 
-   void load(const std::string & respFuncs);
+   void load(const std::string & respFuncs, const std::string & respBase="");
 
 private:
 

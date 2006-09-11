@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.23 2006/03/16 06:20:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.24 2006/07/18 15:15:34 jchiang Exp $
  */
 
 #include <sstream>
@@ -90,7 +90,8 @@ irfInterface::Irfs * ResponseFunctions::respPtr(unsigned int i) const {
    }
 }
 
-void ResponseFunctions::load(const std::string & respFuncs) {
+void ResponseFunctions::load(const std::string & respFuncs,
+                             const std::string & respBase) {
    irfLoader::Loader_go();
    irfInterface::IrfsFactory * myFactory 
       = irfInterface::IrfsFactory::instance();
@@ -103,7 +104,11 @@ void ResponseFunctions::load(const std::string & respFuncs) {
       for (unsigned int i = 0; i < resps.size(); i++) {
          addRespPtr(i, myFactory->create(resps[i]));
       }
-      setRespName(respFuncs);
+      if (respBase == "") {
+         setRespName(respFuncs);
+      } else {
+         setRespName(respBase);
+      }
    } else {
       std::ostringstream message;
       message << "Invalid response function choice: " << respFuncs << "\n"
