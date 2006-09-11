@@ -4,7 +4,7 @@ version v11r8p1
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.293 2006/09/09 03:55:58 jchiang Exp $
+# $Id: requirements,v 1.294 2006/09/11 21:18:53 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -30,7 +30,7 @@ use st_graph v*
 #apply_pattern ST_library option=" -no_share *.c "
 apply_pattern ST_library option=" *.c "
 apply_pattern shared_st_library
-#apply_pattern ST_pfiles
+apply_pattern ST_pfiles
 
 apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
 apply_pattern ST_app_withDir name=gtexpmap dir=expMap
