@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.52 2006/09/07 04:46:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.53 2006/09/09 03:55:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -28,11 +28,12 @@ LogLike::LogLike(const Observation & observation)
    deleteAllSources();
 }
 
-
 double LogLike::value(optimizers::Arg&) const {
    std::clock_t start = std::clock();
    const std::vector<Event> & events = m_observation.eventCont().events();
    double my_value(0);
+
+   findFreeSrcs();
    
 // The "data sum"
    for (unsigned int j = 0; j < events.size(); j++) {
@@ -54,13 +55,17 @@ double LogLike::value(optimizers::Arg&) const {
 }
 
 double LogLike::logSourceModel(const Event & event) const {
-   double my_value(0);
-   std::map<std::string, Source *>::const_iterator 
-      source(m_sources.begin());
-   for ( ; source != m_sources.end(); ++source) {
-      double fluxDens(source->second->fluxDensity(event));
-      my_value += fluxDens;
+//    double my_value(0);
+//    std::map<std::string, Source *>::const_iterator 
+//       source(m_sources.begin());
+//    for ( ; source != m_sources.end(); ++source) {
+//       double fluxDens(source->second->fluxDensity(event));
+//       my_value += fluxDens;
+//    }
+   for (size_t i = 0; i < m_freeSrcs.size(); i++) {
+      const_cast<Event &>(event).updateModelSum(*m_freeSrcs.at(i));
    }
+   double my_value(event.modelSum());
    if (my_value > 0) {
       return std::log(my_value);
    }
@@ -125,7 +130,19 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
    }
 }
 
+void LogLike::addSource(Source * src) {
+   SourceModel::addSource(src);
+   const std::vector<Event> & events = m_observation.eventCont().events();
+   for (size_t j = 0; j < events.size(); j++) {
+      const_cast<std::vector<Event> &>(events).at(j).updateModelSum(*src);
+   }
+}
+
 Source * LogLike::deleteSource(const std::string & srcName) {
+   const std::vector<Event> & events = m_observation.eventCont().events();
+   for (size_t j = 0; j < events.size(); j++) {
+      const_cast<std::vector<Event> &>(events).at(j).deleteSource(srcName);
+   }
    return SourceModel::deleteSource(srcName);
 }
 
@@ -149,6 +166,24 @@ void LogLike::computeEventResponses(double sr_radius) {
       EventContainer & eventCont =
          const_cast<EventContainer &>(m_observation.eventCont());
       eventCont.computeEventResponses(diffuse_srcs, sr_radius);
+   }
+}
+
+void LogLike::findFreeSrcs() const {
+   m_freeSrcs.clear();
+   std::map<std::string, Source *>::const_iterator src(m_sources.begin());
+   for ( ; src != m_sources.end(); ++src) {
+      Source::FuncMap & srcFuncs(src->second->getSrcFuncs());
+      Source::FuncMap::const_iterator func(srcFuncs.begin());
+      bool haveFreePars(false);
+      for ( ; func != srcFuncs.end(); ++func) {
+         if (func->second->getNumFreeParams() > 0) {
+            haveFreePars = true;
+         }
+      }
+      if (haveFreePars) {
+         m_freeSrcs.push_back(src->second);
+      }
    }
 }
 

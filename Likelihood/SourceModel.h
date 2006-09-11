@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.62 2006/09/06 22:06:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.63 2006/09/09 03:55:57 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.62 2006/09/06 22:06:21 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.63 2006/09/09 03:55:57 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -98,7 +98,7 @@ public:
    }
 
    /// Add a source.
-   void addSource(Source *src);
+   virtual void addSource(Source *src);
 
    /// Delete a source by name and return a copy.
    virtual Source * deleteSource(const std::string &srcName);

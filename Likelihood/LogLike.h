@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.25 2006/09/07 04:46:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.26 2006/09/09 03:55:57 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.25 2006/09/07 04:46:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.26 2006/09/09 03:55:57 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -59,6 +59,8 @@ public:
       getFreeDerivs(dummy, freeDerivs);
    }
 
+   virtual void addSource(Source * src);
+
    virtual Source * deleteSource(const std::string & srcName);
 
    void getEvents(std::string event_file);
@@ -73,9 +75,15 @@ protected:
 
    mutable unsigned long m_nevals;
 
+   mutable std::vector<Source *> m_freeSrcs;
+
+   void findFreeSrcs() const;
+
 private:
 
    Npred m_Npred;
+
+   std::map<std::string, double> m_npredValues;
 
    double logSourceModel(const Event & event) const;
 
