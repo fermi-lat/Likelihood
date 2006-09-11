@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 11 14:18:52 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h LogLike.h ResponseFunctions.h SourceModel.h 
+Log Message:
+update model sums for free sources only; do not check for acceptance by time range cuts separately since gtis handle this
+    *
+------------------------------------------------------------
 User: jchiang  Fri Sep  8 20:55:59 PDT 2006
 Likelihood/src
 
