@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: peachey  Thu Sep 14 13:38:41 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	CountsSpectra.h 
+Log Message:
+Add getTotalSrcCounts method for computing the total source counts
+from all model components.
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 11 14:22:55 PDT 2006
 Likelihood/cmt
 
