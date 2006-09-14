@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: peachey  Thu Sep 14 13:39:40 PDT 2006
+Likelihood/src/likelihood
+
+Added Files:
+	MathUtil.cxx MathUtil.h 
+Log Message:
+Add math utilities, needed for computing terms in Poissonian significance.
+
+    *
+------------------------------------------------------------
 User: peachey  Thu Sep 14 13:38:42 PDT 2006
 Likelihood/src
 
