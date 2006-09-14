@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsSpectra.h,v 1.1 2006/06/29 00:45:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsSpectra.h,v 1.2 2006/06/29 18:52:34 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsSpectra_h
@@ -49,6 +49,8 @@ public:
 
    void getSrcFluxes(const std::string & ptSrcName, 
                      std::vector<double> & srcFluxes) const;
+
+   void getTotalSrcCounts(std::vector<double> & srcCounts) const;
 
    void getObsCounts(std::vector<double> & counts) const;
 

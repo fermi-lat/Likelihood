@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.4 2006/06/30 15:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.5 2006/08/23 16:07:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -86,6 +86,25 @@ void CountsSpectra::getSrcFluxes(const std::string & srcName,
    srcFluxes.reserve(m_ebounds.size() - 1);
    for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
       srcFluxes.push_back(ptsrc->flux(m_ebounds.at(k), m_ebounds.at(k+1)));
+   }
+}
+
+void CountsSpectra::getTotalSrcCounts(std::vector<double> & srcCounts) const {
+   srcCounts.clear();
+   std::vector<std::string> sourceNames;
+   m_logLike.getSrcNames(sourceNames);
+   if (!sourceNames.empty()) {
+      // Get counts due to first source.
+      getSrcCounts(sourceNames.at(0), srcCounts);
+      for (size_t i = 1; i < sourceNames.size(); i++) {
+         std::vector<double> componentCounts(srcCounts.size(), 0.);
+         // Get counts due to ith component.
+         getSrcCounts(sourceNames.at(i), componentCounts);
+         // Add this component to the total.
+         for (size_t j = 0; j < componentCounts.size(); j++) {
+            srcCounts[j] += componentCounts[j];
+         }
+      }
    }
 }
 
