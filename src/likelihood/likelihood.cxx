@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.115 2006/08/23 20:05:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.116 2006/08/24 04:35:33 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -52,6 +52,7 @@
 #include "Likelihood/SourceMap.h"
 
 #include "EasyPlot.h"
+#include "MathUtil.h"
 
 namespace {
    class NormNames {
@@ -108,7 +109,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.115 2006/08/23 20:05:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.116 2006/08/24 04:35:33 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -157,6 +158,7 @@ private:
    void plotCountsSpectra();
    void writeCountsMap();
    void printFitResults(const std::vector<double> &errors);
+   void printFitQuality() const;
    bool prompt(const std::string &query);
    void setErrors(const std::vector<double> & errors);
 
@@ -660,6 +662,9 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    }
    resultsFile << "}" << std::endl;
 
+   // Check quality of the fit and issue warning if it appears not to be good.
+   printFitQuality();
+
    m_formatter->info() << "\nTotal number of observed counts: "
                        << observedCounts() << "\n"
                        << "Total number of model events: ";
@@ -683,6 +688,62 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                        << "\n" << std::endl;
    delete m_opt;
    m_opt = 0;
+}
+
+void likelihood::printFitQuality() const {
+   CountsSpectra countsSpec(*m_logLike);
+
+   if (m_statistic == "UNBINNED") {
+      const RoiCuts & roiCuts = m_helper->observation().roiCuts();
+      double emin(roiCuts.getEnergyCuts().first);
+      double emax(roiCuts.getEnergyCuts().second);
+      countsSpec.setEbounds(emin, emax, 21);
+   }
+
+   std::vector<double> counts;
+   std::vector<double> srcCounts;
+   const std::vector<double> & ebounds(countsSpec.ebounds());
+   countsSpec.getObsCounts(counts);
+   countsSpec.getTotalSrcCounts(srcCounts);
+
+   int lastEnergy = srcCounts.size();
+   std::vector<double> & mean(srcCounts);
+   std::vector<double> significance_val(lastEnergy, 0.);
+   std::vector<double> threshold(lastEnergy, 0.);
+
+   for (int k = 0; k < lastEnergy; k++) {
+      if (counts[k]>0) {//counts>0
+         threshold[k]=0.05;
+         if (mean[k]>0) { //counts> 0 mean>0
+            significance_val[k]=MathUtil::poissonSig(counts[k],mean[k]);
+         } else {
+            significance_val[k]=MathUtil::poissonSig(counts[k],mean[k]);
+         }
+      } else {//counts=0    
+         if (mean[k]>0){
+            significance_val[k]=1./mean[k]; 
+            threshold[k]=0.5;//this number may change
+         } else {//counts=mean=0
+            significance_val[k]=1;//always >threshold
+            threshold[k]=0.05;
+         }
+      }
+   }
+
+   bool aboveThreshold_sig = false;
+   for (int k = 0; k < lastEnergy; k++) {
+      if (significance_val[k] < threshold[k]) {
+         if (!aboveThreshold_sig) m_formatter->warn() << "WARNING: Fit may be bad in range [" << ebounds.at(k) << ", ";
+         aboveThreshold_sig = true;
+      } else if (aboveThreshold_sig) {
+         aboveThreshold_sig = false;
+         m_formatter->warn() << ebounds.at(k) << "] (MeV)" << std::endl;
+      }
+   }
+
+   // Print the rest of the warning if the last point was above the threshold.
+   if (aboveThreshold_sig)
+      m_formatter->warn() << ebounds.at(lastEnergy) << "] (MeV)" << std::endl;
 }
 
 void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
