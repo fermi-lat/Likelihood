@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: peachey  Thu Sep 14 13:39:48 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+Add warning for fits whose Poissonian significance is less than a threshold value.
+
+    *
+------------------------------------------------------------
 User: peachey  Thu Sep 14 13:39:40 PDT 2006
 Likelihood/src/likelihood
 
