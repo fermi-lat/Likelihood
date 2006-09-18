@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.117 2006/09/14 20:39:48 peachey Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.118 2006/09/18 16:52:05 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -109,7 +109,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.117 2006/09/14 20:39:48 peachey Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.118 2006/09/18 16:52:05 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -738,7 +738,10 @@ void likelihood::printFitQuality() const {
    bool aboveThreshold_sig = false;
    for (int k = 0; k < lastEnergy; k++) {
       if (significance_val[k] < threshold[k]) {
-         if (!aboveThreshold_sig) m_formatter->warn() << "WARNING: Fit may be bad in range [" << ebounds.at(k) << ", ";
+         if (!aboveThreshold_sig) {
+            m_formatter->warn() << "WARNING: Fit may be bad in range [" 
+                                << ebounds.at(k) << ", ";
+         }
          aboveThreshold_sig = true;
       } else if (aboveThreshold_sig) {
          aboveThreshold_sig = false;
