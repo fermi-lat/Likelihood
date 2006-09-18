@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 18 09:50:49 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h 
+Log Message:
+allow for different pixel sizes in x and y directions
+
+    *
+------------------------------------------------------------
 User: peachey  Thu Sep 14 13:39:48 PDT 2006
 Likelihood/src/likelihood
 
