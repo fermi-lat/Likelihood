@@ -3,6 +3,13 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r9   18-Sep-06 JC   recompute contributions to unbinned likelihood
+                           only for sources with free parameters; 
+                           add warnings if fit appears to be "suspect" for
+                           certain energy ranges based on Poisson probabilities
+                           (Analia and James); 
+                           allow for different pixel sizes in x and y 
+                           directions for gtcntsmap (Larry Wai request)
     v11r8p1 23-Aug-06 JC   YAWW (Yet Another Windows Workaround) (yawn)
     v11r8   23-Aug-06 JC   do not set table size if no sources have been added
                            in CountsSpectra::writeFluxes; change diffuse 
