@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 18 13:59:24 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h SourceModel.h 
+Log Message:
+evaluate Npreds, etc. only for sources with free params
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 18 09:52:05 PDT 2006
 Likelihood/src/likelihood
 
