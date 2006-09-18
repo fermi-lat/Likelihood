@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 18 09:52:05 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+fix plotting code: one cannot reset the energy bounds for binned analysis;
+reformat to conform to coding conventions
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 18 09:51:24 PDT 2006
 Likelihood/src/gtcntsmap
 
