@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.82 2006/09/09 03:55:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.83 2006/09/11 21:18:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -44,10 +44,14 @@ namespace Likelihood {
 XERCES_CPP_NAMESPACE_USE
 
 SourceModel::SourceModel(const Observation & observation, bool verbose) 
-   : m_observation(observation), m_verbose(verbose), 
+   : m_observation(observation), m_useNewImp(true), m_verbose(verbose), 
      m_formatter(new st_stream::StreamFormatter("SourceModel", "", 2)) {
    setMaxNumParams(0); 
    m_genericName = "SourceModel";
+   char * useOldImp(::getenv("USE_OLD_LOGLIKE"));
+   if (useOldImp) {
+      m_useNewImp = false;
+   }
 }
 
 SourceModel::SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs),
@@ -271,10 +275,14 @@ void SourceModel::syncParams() { // remake parameter vector from scratch
       Source::FuncMap::iterator func_it = srcFuncs.begin();
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<optimizers::Parameter> params;
-         (*func_it).second->getParams(params);
-         for (unsigned int ip = 0; ip < params.size(); ip++)
+         func_it->second->getParams(params);
+         for (size_t ip = 0; ip < params.size(); ip++) {
             m_parameter.push_back(params[ip]);
+         }
       }
+   }
+   if (m_useNewImp) {
+      findFreeSrcs();
    }
 }
 
@@ -478,6 +486,24 @@ void SourceModel::computeModelMap(const std::vector<Pixel> & pixels,
          modelMap.push_back(
             pixels[j].modelCounts(energies[k], energies[k+1],
                                   *(const_cast<SourceModel *>(this))));
+      }
+   }
+}
+
+void SourceModel::findFreeSrcs() {
+   m_freeSrcs.clear();
+   std::map<std::string, Source *>::const_iterator src(m_sources.begin());
+   for ( ; src != m_sources.end(); ++src) {
+      Source::FuncMap & srcFuncs(src->second->getSrcFuncs());
+      Source::FuncMap::const_iterator func(srcFuncs.begin());
+      bool haveFreePars(false);
+      for ( ; func != srcFuncs.end(); ++func) {
+         if (func->second->getNumFreeParams() > 0) {
+            haveFreePars = true;
+         }
+      }
+      if (haveFreePars) {
+         m_freeSrcs.push_back(src->second);
       }
    }
 }

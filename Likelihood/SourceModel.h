@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.63 2006/09/09 03:55:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.64 2006/09/11 21:18:51 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.63 2006/09/09 03:55:57 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.64 2006/09/11 21:18:51 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -159,7 +159,7 @@ public:
 
    /// method to sync the m_parameter vector with those of the 
    /// m_sources' Functions
-   void syncParams();
+   virtual void syncParams();
 
 protected:
 
@@ -180,6 +180,12 @@ protected:
 
    void setParams_(std::vector<optimizers::Parameter> &, bool);
 
+   std::vector<Source *> m_freeSrcs;
+
+   bool m_useNewImp;
+
+   void findFreeSrcs();
+
    /// Although these member functions are required by being a
    /// Statistic subclass, they are not needed for any practical use
    /// of SourceModel objects themselves, so we implement them here in
@@ -192,6 +198,7 @@ protected:
    virtual void getFreeDerivs(std::vector<double> &derivs) const {
       derivs.clear();
    }
+
 
 private:
 
