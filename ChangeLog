@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 18 13:59:31 PDT 2006
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx SourceModel.cxx 
+Log Message:
+evaluate Npreds, etc. only for sources with free params
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 18 13:59:24 PDT 2006
 Likelihood/Likelihood
 
