@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.16 2006/04/18 05:43:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.17 2006/04/22 00:15:16 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -113,11 +113,12 @@ void gtcntsmap::run() {
    }
    long nra = m_pars["nra"];
    long ndec = m_pars["ndec"];
-   double pixel_size = m_pars["pixel_size"];
+   double x_pixel_size = m_pars["x_pixel_size"];
+   double y_pixel_size = m_pars["y_pixel_size"];
    std::string projection = m_pars["proj"];
    CountsMap cmap(eventFiles[0], evtable, scDataFiles[0], sc_table,
-                  ra, dec, projection, nra, ndec, pixel_size, 0, use_lb, 
-                  "RA", "DEC", energies);
+                  ra, dec, projection, nra, ndec, x_pixel_size,
+                  y_pixel_size, 0, use_lb, "RA", "DEC", energies);
    
    for (unsigned int i = 0; i < eventFiles.size(); i++) {
       const tip::Table * events 
@@ -149,7 +150,8 @@ void gtcntsmap::promptForParameters() {
    }
    m_pars.Prompt("nra");
    m_pars.Prompt("ndec");
-   m_pars.Prompt("pixel_size");
+   m_pars.Prompt("x_pixel_size");
+   m_pars.Prompt("y_pixel_size");
    m_pars.Prompt("proj");
    m_pars.Save();
 }
