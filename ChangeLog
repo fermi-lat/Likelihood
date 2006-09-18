@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 18 09:51:07 PDT 2006
+Likelihood/pfiles
+
+Modified Files:
+	gtcntsmap.par 
+Log Message:
+allow for different pixel sizes in x and y directions
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 18 09:50:49 PDT 2006
 Likelihood/Likelihood
 
