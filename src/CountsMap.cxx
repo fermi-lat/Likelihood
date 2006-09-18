@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.37 2006/04/22 00:15:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.38 2006/06/07 18:22:54 jchiang Exp $
  */
 
 #include <algorithm>
@@ -65,7 +65,7 @@ CountsMap::CountsMap(const std::string & event_file,
                                            "photon energy"));
 
    init(binners, event_file, ev_table, sc_file, sc_table,
-        num_x_pix, num_y_pix, ref_ra, ref_dec, pix_scale, 
+        num_x_pix, num_y_pix, ref_ra, ref_dec, pix_scale, pix_scale,
         emin, emax, nenergies, use_lb, proj);
 
    deleteBinners(binners);
@@ -104,7 +104,48 @@ CountsMap::CountsMap(const std::string & event_file,
    binners.push_back(new evtbin::OrderedBinner(energy_intervals,
                                                "photon energy"));
    init(binners, event_file, ev_table, sc_file, sc_table, 
-        num_x_pix, num_y_pix, ref_ra, ref_dec, pix_scale,
+        num_x_pix, num_y_pix, ref_ra, ref_dec, pix_scale, pix_scale,
+        energies.front(), energies.back(), 
+        energies.size(), use_lb, proj);
+
+   deleteBinners(binners);
+}
+
+CountsMap::CountsMap(const std::string & event_file, 
+                     const std::string & ev_table, 
+                     const std::string & sc_file, 
+                     const std::string & sc_table, 
+                     double ref_ra, double ref_dec, const std::string & proj, 
+                     unsigned long num_x_pix, unsigned long num_y_pix, 
+                     double x_pix_scale, double y_pix_scale,
+                     double axis_rot, bool use_lb,
+                     const std::string & ra_field, 
+                     const std::string & dec_field, 
+                     const std::vector<double> & energies)
+   : DataProduct(event_file, ev_table, evtbin::Gti(event_file)), 
+     m_hist(0), m_proj_name(proj), 
+     m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
+     m_use_lb(use_lb), m_proj(0) {
+
+   std::vector<evtbin::Binner *> binners;
+
+// The astro::SkyDir::project method will convert ra and dec into 
+// bin indices, so we set up the LinearBinners generically by index.
+   binners.push_back(new evtbin::LinearBinner(0.5, num_x_pix + 0.5, 1., 
+                                              ra_field));
+   binners.push_back(new evtbin::LinearBinner(0.5, num_y_pix + 0.5, 1., 
+                                              dec_field));
+
+// Use custom energy bins.
+   std::vector<evtbin::Binner::Interval> energy_intervals;
+   for (unsigned int i = 0; i < energies.size()-1; i++) {
+      energy_intervals.push_back(evtbin::Binner::Interval(energies[i], 
+                                                          energies[i+1]));
+   }
+   binners.push_back(new evtbin::OrderedBinner(energy_intervals,
+                                               "photon energy"));
+   init(binners, event_file, ev_table, sc_file, sc_table, 
+        num_x_pix, num_y_pix, ref_ra, ref_dec, x_pix_scale, y_pix_scale,
         energies.front(), energies.back(), 
         energies.size(), use_lb, proj);
 
@@ -203,7 +244,8 @@ void CountsMap::init(std::vector<evtbin::Binner *> & binners,
                      const std::string & sc_file, const std::string & sc_table,
                      unsigned long num_x_pix, unsigned long num_y_pix,
                      double ref_ra, double ref_dec, 
-                     double pix_scale, double emin, double emax, 
+                     double x_pix_scale, double y_pix_scale, 
+                     double emin, double emax, 
                      unsigned long nenergies, bool use_lb, 
                      const std::string & proj) {
 
@@ -218,8 +260,8 @@ void CountsMap::init(std::vector<evtbin::Binner *> & binners,
    m_crval[0] = ref_ra;
    m_crval[1] = ref_dec;
    m_crval[2] = emin;
-   m_cdelt[0] = -pix_scale;
-   m_cdelt[1] = pix_scale;
+   m_cdelt[0] = -x_pix_scale;
+   m_cdelt[1] = y_pix_scale;
    m_cdelt[2] = log(emax/emin)/(nenergies-1.);
    
    m_proj = new astro::SkyProj(proj, m_crpix, m_crval, m_cdelt, 
