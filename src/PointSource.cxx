@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.85 2006/06/29 00:45:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.86 2006/07/06 00:29:04 jchiang Exp $
  */
 
 #include <cmath>
@@ -392,9 +392,12 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
       double livetime(scData.vec.at(it).livetime);
       double fraction(0);
 
+      std::vector< std::pair<double, double> > timeRanges;
+      std::vector< std::pair<double, double> > gtis;
+      roiCuts.getTimeCuts(timeRanges);
+      roiCuts.getGtis(gtis);
       bool includeInterval = 
-         LikeExposure::acceptInterval(start, stop, roiCuts.timeRangeCuts(),
-                                      roiCuts.gtis(), fraction);
+         LikeExposure::acceptInterval(start, stop, timeRanges, gtis, fraction);
 
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
