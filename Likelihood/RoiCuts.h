@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.33 2005/08/18 00:07:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.34 2006/04/20 20:05:35 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -35,11 +35,11 @@ namespace Likelihood {
 /** 
  * @class RoiCuts
  *
- * @brief NTuple Singleton class to represent Region-of-interest cuts.
+ * @brief Class to represent Region-of-interest cuts.
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.33 2005/08/18 00:07:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.34 2006/04/20 20:05:35 jchiang Exp $
  */
 
 class RoiCuts {
