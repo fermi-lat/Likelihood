@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 19 07:03:03 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	RoiCuts.h 
+Log Message:
+fix for change in time interval handling
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r9, operation: add
 Package: Likelihood
