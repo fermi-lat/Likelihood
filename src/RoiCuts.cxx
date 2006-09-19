@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.44 2006/05/16 19:09:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.45 2006/09/11 21:18:54 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -44,6 +44,7 @@ void RoiCuts::setCuts(double ra, double dec, double roi_radius,
    m_maxTime = tmax;
 
    m_gtis.clear();
+   addGoodTimeInterval(tmin, tmax);
 
    m_eMin = emin;
    m_eMax = emax;
