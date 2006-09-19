@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Sep 19 16:07:33 PDT 2006
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+refactor RoiCuts class to use dataSubselector classes for photon acceptance (in principle, should not be necessary since gtselect applies these cuts)
+    *
+------------------------------------------------------------
+User: jchiang  Tue Sep 19 16:07:33 PDT 2006
 Likelihood/src
 
 Modified Files:
