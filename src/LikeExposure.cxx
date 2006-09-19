@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.18 2006/04/01 00:04:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.19 2006/04/17 05:52:20 jchiang Exp $
  */
 
 #include <algorithm>
@@ -47,11 +47,6 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
    long nrows = scData->getNumRecords();
 
    double maxTime(0);
-   for (unsigned int i=0; i < m_timeCuts.size(); i++) {
-      if (m_timeCuts.at(i).second > maxTime) {
-         maxTime = m_timeCuts.at(i).second;
-      }
-   }
    for (unsigned int i=0; i < m_gtis.size(); i++) {
       if (m_gtis.at(i).second > maxTime) {
          maxTime = m_gtis.at(i).second;
@@ -64,8 +59,9 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
 // there is again no random access iterator available to allow us to
 // infer the time interval size a priori.  In any case, nrows is just
 // used for calculating the progress bar.
-   if (static_cast<long>(maxTime/30.) < nrows) {
-      nrows = static_cast<long>(maxTime/30.);
+   long nrows_guess(static_cast<long>(maxTime/30.));
+   if (nrows_guess < nrows) {
+      nrows = nrows_guess;
    }
    
    st_stream::StreamFormatter formatter("LikeExposure", "load", 2);

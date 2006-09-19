@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.45 2006/09/11 21:18:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.46 2006/09/19 14:03:04 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -27,24 +27,42 @@
 namespace Likelihood {
 
 void RoiCuts::addTimeInterval(double tmin, double tmax) {
-   m_timeCuts.push_back(std::make_pair(tmin, tmax));
+   m_timeRangeCuts.push_back(new dataSubselector::RangeCut("TIME", "s",
+                                                           tmin, tmax));
 }
 
-void RoiCuts::addGoodTimeInterval(double tmin, double tmax) {
-   m_gtis.push_back(std::make_pair(tmin, tmax));
+void RoiCuts::
+getTimeCuts(std::vector< std::pair<double, double> > & timeCuts) const {
+   timeCuts.clear();
+   for (size_t i = 0; i < m_timeRangeCuts.size(); i++) {
+      timeCuts.push_back(std::make_pair(m_timeRangeCuts.at(i)->minVal(),
+                                        m_timeRangeCuts.at(i)->maxVal()));
+   }
+}
+
+void RoiCuts::getGtis(std::vector< std::pair<double, double> > & gtis) const {
+   gtis.clear();
+// There should be at most one GTI extension.
+   if (!m_gtiCuts.empty()) {
+      const dataSubselector::Gti & gti(m_gtiCuts.at(0)->gti());
+      evtbin::Gti::ConstIterator it(gti.begin());
+      for ( ; it != gti.end(); ++it) {
+         gtis.push_back(std::make_pair(it->first, it->second));
+      }
+   }
 }
 
 void RoiCuts::setCuts(double ra, double dec, double roi_radius,
                       double emin, double emax,
                       double tmin, double tmax,
                       double muZenMax) {
-   m_timeCuts.clear();
+   for (size_t i = 0; i < m_timeRangeCuts.size(); i++) {
+      delete m_timeRangeCuts.at(i);
+   }
+   m_timeRangeCuts.clear();
    addTimeInterval(tmin, tmax);
    m_minTime = tmin;
    m_maxTime = tmax;
-
-   m_gtis.clear();
-   addGoodTimeInterval(tmin, tmax);
 
    m_eMin = emin;
    m_eMax = emax;
@@ -113,24 +131,6 @@ void RoiCuts::setRoiData() {
       emax = m_energyCut->maxVal();
    }
    setCuts(ra, dec, radius, emin, emax);
-   m_timeCuts.clear();
-   for (unsigned int i = 0; i < m_timeRangeCuts.size(); i++) {
-      addTimeInterval(m_timeRangeCuts.at(i)->minVal(),
-                      m_timeRangeCuts.at(i)->maxVal());
-      if (i == 0 || m_timeRangeCuts.at(i)->minVal() < m_minTime) {
-         m_minTime = m_timeRangeCuts.at(i)->minVal();
-      }
-      if (i == 0 || m_timeRangeCuts.at(i)->maxVal() > m_maxTime) {
-         m_maxTime = m_timeRangeCuts.at(i)->maxVal();
-      }
-   }
-   for (unsigned int i = 0; i < m_gtiCuts.size(); i++) {
-      const dataSubselector::Gti & gti = m_gtiCuts.at(i)->gti();
-      evtbin::Gti::ConstIterator it;
-      for (it = gti.begin(); it != gti.end(); ++it) {
-         addGoodTimeInterval(it->first, it->second);
-      }
-   }
 }
 
 void RoiCuts::sortCuts(bool strict) {
@@ -182,27 +182,23 @@ void RoiCuts::sortCuts(bool strict) {
 
 bool RoiCuts::accept(const Event &event) const {
    bool acceptEvent(false);
-   
-   if (m_gtis.size() == 0) {
+
+   std::map<std::string, double> thisEvent;
+   thisEvent["TIME"] = event.getArrTime();
+
+   if (m_gtiCuts.size() == 0) {
       acceptEvent = true;
    } else {
 // Accept the event if it appears in any of the GTIs.
-      for (unsigned int i = 0; i < m_gtis.size(); i++) {
-         if (m_gtis.at(i).first <= event.getArrTime() &&
-             event.getArrTime() <= m_gtis.at(i).second) {
-            acceptEvent = true;
-            break;
-         }
+      for (size_t i = 0; i < m_gtiCuts.size(); i++) {
+         acceptEvent = acceptEvent || m_gtiCuts.at(i)->accept(thisEvent);
       }
    }
 
-// // Require the event to lie within all time range cuts.
-//    for (unsigned int i = 0; i < m_timeCuts.size(); i++) {
-//       if (event.getArrTime() < m_timeCuts[i].first ||
-//           event.getArrTime() > m_timeCuts[i].second) {
-//          acceptEvent = false;
-//       }
-//    }
+// Require the event to lie within all time range cuts.
+   for (size_t i = 0; i < m_timeRangeCuts.size(); i++) {
+      acceptEvent = m_timeRangeCuts.at(i)->accept(thisEvent);
+   }
 
    if (event.getEnergy() < m_eMin || event.getEnergy() > m_eMax) { 
       acceptEvent = false;

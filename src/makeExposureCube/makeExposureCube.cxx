@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.37 2006/04/17 16:14:49 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.38 2006/04/20 20:05:38 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.37 2006/04/17 16:14:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.38 2006/04/20 20:05:38 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -110,11 +110,12 @@ void ExposureCube::readRoiCuts() {
 
 void ExposureCube::createDataCube() {
    std::vector<std::pair<double, double> > timeCuts;
+   std::vector<std::pair<double, double> > gtis;
    m_roiCuts->getTimeCuts(timeCuts);
+   m_roiCuts->getGtis(gtis);
    m_exposure = new Likelihood::LikeExposure(m_pars["pixel_size"], 
                                              m_pars["cos_theta_step"],
-                                             m_roiCuts->timeRangeCuts(),
-                                             m_roiCuts->gtis());
+                                             timeCuts, gtis);
    std::string scFile = m_pars["scfile"];
    st_facilities::Util::file_ok(scFile);
    std::vector<std::string> scFiles;
