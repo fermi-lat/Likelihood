@@ -3,6 +3,7 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r9p1 19-Sep-06 JC   refactor RoiCuts class
     v11r9   18-Sep-06 JC   recompute contributions to unbinned likelihood
                            only for sources with free parameters; 
                            add warnings if fit appears to be "suspect" for
