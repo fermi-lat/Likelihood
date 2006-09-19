@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 19 07:03:04 PDT 2006
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx 
+Log Message:
+fix for change in time interval handling
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 19 07:03:03 PDT 2006
 Likelihood/Likelihood
 
