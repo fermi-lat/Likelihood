@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.77 2006/09/19 23:07:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.78 2006/09/20 19:02:29 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -228,7 +228,7 @@ void LikelihoodTests::tearDown() {
 }
 
 void LikelihoodTests::test_RoiCuts() {
-   m_roiCuts->setCuts();
+   m_roiCuts->setCuts(193.98, -5.82, 20, 30, 3.1623e5, 0, 1e12, -1, true);
 
 // Compare to known default values.
    std::vector<std::pair<double, double> > tlims;
@@ -555,7 +555,8 @@ void LikelihoodTests::test_PointSource() {
    for (int j = 0; j < 10; j++) {
       double tmin = j*tstep;
       double tmax = tmin + tstep;
-      m_roiCuts->setCuts(86.4, 28.9, 25., eminVals[j], 2e5, tmin, tmax, -1.);
+      m_roiCuts->setCuts(86.4, 28.9, 25., eminVals[j], 2e5, tmin, tmax, -1.,
+                         true);
 
       dynamic_cast<PointSource *>(src)->setDir(83.57, 22.01, true, false);
 
@@ -603,7 +604,7 @@ void LikelihoodTests::test_DiffuseSource() {
       double tmin = i*tstep;
       double tmax = tmin + tstep;
       m_roiCuts->setCuts(anticenter.ra(), anticenter.dec(), 20., 30., 2e5,
-                         tmin, tmax);
+                         tmin, tmax, -1., true);
 
       Source * src = srcFactory->create("Galactic Diffuse");
 
@@ -898,7 +899,7 @@ srcFactoryInstance(const std::string & scFile,
                    const std::string & sourceXmlFile,
                    bool requireExposure, bool verbose) {
    if (m_srcFactory == 0) {
-      m_roiCuts->setCuts(86.404, 28.936, 25., 30., 2e5, 0., 8.64e4);
+      m_roiCuts->setCuts(86.404, 28.936, 25., 30., 2e5, 0., 8.64e4, -1., true);
       if (scFile == "") {
          m_scData->readData(m_scFile, true);
       } else {
