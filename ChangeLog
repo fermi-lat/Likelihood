@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 20 12:02:28 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h 
+Log Message:
+temporary fixes to BinnedLikelihood; need to tease apart inheritance from LogLike
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r9p1, operation: add
 Package: Likelihood
