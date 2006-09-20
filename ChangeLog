@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Sep 20 12:02:28 PDT 2006
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+temporary fixes to BinnedLikelihood; need to tease apart inheritance from LogLike
+    *
+------------------------------------------------------------
+User: jchiang  Wed Sep 20 12:02:28 PDT 2006
 Likelihood/Likelihood
 
 Modified Files:
