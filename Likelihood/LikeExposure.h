@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.8 2005/03/25 21:21:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.9 2006/01/31 22:00:11 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.8 2005/03/25 21:21:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.9 2006/01/31 22:00:11 jchiang Exp $
  */
 
 class LikeExposure : public map_tools::Exposure {
@@ -62,6 +62,12 @@ private:
 
    static bool overlaps(const std::pair<double, double> & interval1,
                         std::pair<double, double> & interval2);
+
+   /// Minimum time to be considered given GTIs (MET s)
+   double m_tmin;
+
+   /// Maximum time to be considered given GTIs (MET s)
+   double m_tmax;
 
 };
 
