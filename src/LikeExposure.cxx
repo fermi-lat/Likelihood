@@ -3,11 +3,12 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.19 2006/04/17 05:52:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.20 2006/09/19 23:07:32 jchiang Exp $
  */
 
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 #include "facilities/Util.h"
 
@@ -36,45 +37,61 @@ LikeExposure(double skybin, double costhetabin,
              const std::vector< std::pair<double, double> > & timeCuts,
              const std::vector< std::pair<double, double> > & gtis)
    : map_tools::Exposure(skybin, costhetabin), m_timeCuts(timeCuts),
-     m_gtis(gtis) {}
+     m_gtis(gtis) {
+   if (!gtis.empty()) {
+      for (size_t i = 0; i < gtis.size(); i++) {
+         if (i == 0 || gtis.at(i).first < m_tmin) {
+            m_tmin = gtis.at(i).first;
+         }
+         if (i == 0 || gtis.at(i).second > m_tmax) {
+            m_tmax = gtis.at(i).second;
+         }
+      }
+   } else {
+      throw std::runtime_error("LikeExposure::LikeExposure: GTIs are empty.\n"
+                               "Cannot proceed with livetime calculation.");
+   }
+}
 
 void LikeExposure::load(const tip::Table * scData, bool verbose) {
+   st_stream::StreamFormatter formatter("LikeExposure", "load", 2);
    
    double ra, dec, start, stop, livetime;
 
-   tip::Table::ConstIterator it = scData->begin();
+   tip::Table::ConstIterator it = scData->end();
    tip::ConstTableRecord & row = *it;
-   long nrows = scData->getNumRecords();
 
-   double maxTime(0);
-   for (unsigned int i=0; i < m_gtis.size(); i++) {
-      if (m_gtis.at(i).second > maxTime) {
-         maxTime = m_gtis.at(i).second;
+   --it;
+   long nrows(scData->getNumRecords());
+   for ( ; it != scData->begin(); --it, nrows--) {
+      row["stop"].get(stop);
+      if (stop < m_tmax) {
+         break;
       }
    }
 
-// We assume that the time intervals are 30 sec long, even though the
-// time_candle source in flux is hacked to behave incorrectly such
-// that we cannot extract the time interval size from the data; plus
-// there is again no random access iterator available to allow us to
-// infer the time interval size a priori.  In any case, nrows is just
-// used for calculating the progress bar.
-   long nrows_guess(static_cast<long>(maxTime/30.));
-   if (nrows_guess < nrows) {
-      nrows = nrows_guess;
+   it = scData->begin();
+   for ( ; it != scData->end(); ++it, nrows--) {
+      row["start"].get(start);
+      if (start > m_tmin) {
+         break;
+      }
    }
-   
-   st_stream::StreamFormatter formatter("LikeExposure", "load", 2);
-   for (long irow = 0; it != scData->end(); ++it, ++irow) {
-      if (verbose && (irow % (nrows/20)) == 0 ) {
+
+   long istep(nrows/20);
+   if (istep == 0) {
+      istep = 1;
+   }
+
+   --it;
+
+   for (long irow = 0; it != scData->end() && start < m_tmax; ++it, ++irow) {
+      if (verbose && (irow % istep) == 0 ) {
          formatter.info() << "."; 
       }
       row["livetime"].get(livetime);
       row["start"].get(start);
       row["stop"].get(stop);
-      if (start > maxTime) {
-         break;
-      }
       double deltat = livetime;
       double fraction;
       if (acceptInterval(start, stop, m_timeCuts, m_gtis, fraction)) {
