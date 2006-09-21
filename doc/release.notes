@@ -3,6 +3,10 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r9p4 21-Sep-06 JC   skip irrelevant rows in SC data in
+                           LikeExposure::load thereby speeding up
+                           gtlivetimecube for shorter subintervals of
+                           long observations
     v11r9p3 20-Sep-06 JC   kluge for time range handling in RoiCuts and
                            test code...to be refactored.
     v11r9p2 20-Sep-06 JC   patches for BinnedLikelihood and test program
