@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.8 2006/03/15 21:34:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.9 2006/04/17 05:52:23 jchiang Exp $
  */
 
 #include <iostream>
@@ -32,6 +32,8 @@
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
+
+#include "dataSubselector/Cuts.h"
 
 #include "Likelihood/BandFunction.h"
 #include "Likelihood/BrokenPowerLaw2.h"
@@ -166,6 +168,8 @@ void ModelMap::writeOutputMap() {
    dims.resize(2);
    output_image->setImageDimensions(dims);
    output_image->set(m_outmap);
+   dataSubselector::Cuts my_cuts(infile, "", false);
+   my_cuts.writeGtiExtension(outfile);
 }
 
 void ModelMap::trimExtensions() {
