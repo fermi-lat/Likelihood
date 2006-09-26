@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r9p5 26-Sep-06 JC   allow for arbitrary energy binning in CountsMap 
+                           and gtcntsmap; fill GTI extension with proper values
     v11r9p4 21-Sep-06 JC   skip irrelevant rows in SC data in
                            LikeExposure::load thereby speeding up
                            gtlivetimecube for shorter subintervals of
