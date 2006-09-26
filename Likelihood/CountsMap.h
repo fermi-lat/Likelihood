@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.19 2006/01/18 07:10:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.20 2006/09/18 16:50:49 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -63,6 +63,16 @@ public:
              double axis_rot, bool use_lb, 
              const std::string & ra_field, const std::string & dec_field,
              const std::vector<double> & energies);
+
+   CountsMap(const std::string & event_file, const std::string & ev_table,
+             const std::string & sc_file, const std::string & sc_table,
+             double ref_ra, double ref_dec, const std::string & proj,
+             unsigned long num_x_pix, unsigned long num_y_pix, 
+             double x_pix_scale, double y_pix_scale, 
+             double axis_rot, bool use_lb, 
+             const std::string & ra_field, const std::string & dec_field,
+             const std::vector<double> & emins, 
+             const std::vector<double> & emaxs);
 
    CountsMap(const std::string & countsMapFile);
 

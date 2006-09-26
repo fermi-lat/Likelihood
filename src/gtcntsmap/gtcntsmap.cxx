@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.17 2006/04/22 00:15:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.18 2006/09/18 16:51:23 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -42,9 +42,12 @@ private:
 
    void promptForParameters();
    void writeDssCuts() const;
-   void logArray(double xmin, double xmax, unsigned int nx,
-                 std::vector<double> & xx) const;
+   void logArray(double xmin, double xmax, size_t nx,
+                 std::vector<double> & xmins, 
+                 std::vector<double> & xmaxs) const;
    void checkEnergies(double emin, double emax) const;
+   void readEbounds(std::vector<double> & emins,
+                    std::vector<double> & emaxs) const;
 
    static std::string s_cvs_id;
 };
@@ -59,6 +62,11 @@ gtcntsmap::gtcntsmap() : st_app::StApp(),
    m_pars.setCase("use_lb", "yes", "glat");
    m_pars.setCase("use_lb", "no", "ra");
    m_pars.setCase("use_lb", "no", "dec");
+   m_pars.setSwitch("energybinalg");
+   m_pars.setCase("energybinalg", "LOG", "emin");
+   m_pars.setCase("energybinalg", "LOG", "emax");
+   m_pars.setCase("energybinalg", "LOG", "nenergies");
+   m_pars.setCase("energybinalg", "FILE", "energybinfile");
 }
 
 std::string gtcntsmap::s_cvs_id("$Name:  $");
@@ -81,7 +89,7 @@ void gtcntsmap::run() {
    bool compareGtis(false);
    bool relyOnStreams(false);
    bool skipEventClassCuts(true);
-   for (unsigned int i = 1; i < eventFiles.size(); i++) {
+   for (size_t i = 1; i < eventFiles.size(); i++) {
       AppHelpers::checkCuts(eventFiles[0], evtable,
                             eventFiles[i], evtable,
                             compareGtis, relyOnStreams, 
@@ -96,13 +104,18 @@ void gtcntsmap::run() {
    std::vector<std::string> scDataFiles;
    st_facilities::Util::resolve_fits_files(sc_file, scDataFiles);
 
-   double emin = m_pars["emin"];
-   double emax = m_pars["emax"];
-   checkEnergies(emin, emax);
-   long nenergies = m_pars["nenergies"];
-
-   std::vector<double> energies;
-   logArray(emin, emax, nenergies, energies);
+   std::vector<double> emins;
+   std::vector<double> emaxs;
+   std::string binningAlg = m_pars["energybinalg"];
+   if (binningAlg == "FILE") {
+      readEbounds(emins, emaxs);
+   } else {
+      double emin = m_pars["emin"];
+      double emax = m_pars["emax"];
+      long nenergies = m_pars["nenergies"];
+      logArray(emin, emax, nenergies, emins, emaxs);
+   }
+   checkEnergies(emins.front(), emaxs.back());
 
    double ra = m_pars["ra"];
    double dec = m_pars["dec"];
@@ -118,9 +131,9 @@ void gtcntsmap::run() {
    std::string projection = m_pars["proj"];
    CountsMap cmap(eventFiles[0], evtable, scDataFiles[0], sc_table,
                   ra, dec, projection, nra, ndec, x_pixel_size,
-                  y_pixel_size, 0, use_lb, "RA", "DEC", energies);
+                  y_pixel_size, 0, use_lb, "RA", "DEC", emins, emaxs);
    
-   for (unsigned int i = 0; i < eventFiles.size(); i++) {
+   for (size_t i = 0; i < eventFiles.size(); i++) {
       const tip::Table * events 
          = tip::IFileSvc::instance().readTable(eventFiles[i], "events");
       cmap.binInput(events->begin(), events->end());
@@ -136,9 +149,15 @@ void gtcntsmap::promptForParameters() {
    m_pars.Prompt("evfile");
    m_pars.Prompt("scfile");
    m_pars.Prompt("outfile");
-   m_pars.Prompt("emin");
-   m_pars.Prompt("emax");
-   m_pars.Prompt("nenergies");
+   m_pars.Prompt("energybinalg");
+   std::string binningAlg = m_pars["energybinalg"];
+   if (binningAlg == "LOG") {
+      m_pars.Prompt("emin");
+      m_pars.Prompt("emax");
+      m_pars.Prompt("nenergies");
+   } else {
+      m_pars.Prompt("energybinfile");
+   }
    m_pars.Prompt("use_lb");
    bool use_lb = m_pars["use_lb"];
    if (use_lb) {
@@ -164,11 +183,13 @@ void gtcntsmap::writeDssCuts() const {
    m_cuts->writeGtiExtension(output_file);
 }
 
-void gtcntsmap::logArray(double xmin, double xmax, unsigned int nx,
-                         std::vector<double> & xx) const {
+void gtcntsmap::logArray(double xmin, double xmax, size_t nx,
+                         std::vector<double> & xmins,
+                         std::vector<double> & xmaxs) const {
    double xstep = log(xmax/xmin)/(nx - 1.);
-   for (unsigned int i = 0; i < nx; i++) {
-      xx.push_back(xmin*exp(i*xstep));
+   for (size_t i = 0; i < nx - 1; i++) {
+      xmins.push_back(xmin*exp(i*xstep));
+      xmaxs.push_back(xmin*exp((i+1)*xstep));
    }
 }
 
@@ -182,5 +203,21 @@ void gtcntsmap::checkEnergies(double emin, double emax) const {
               << " do not lie within the event file DSS selections:\n\n";
       m_cuts->writeCuts(message);
       throw std::runtime_error(message.str());
+   }
+}
+
+void gtcntsmap::readEbounds(std::vector<double> & emins,
+                            std::vector<double> & emaxs) const {
+   std::string binfile = m_pars["energybinfile"];
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
+   const tip::Table * table(fileSvc.readTable(binfile, "ENERGYBINS"));
+   tip::Table::ConstIterator it = table->begin();
+   tip::ConstTableRecord & row(*it);
+   double emin, emax;
+   for ( ; it != table->end(); ++it) {
+      row["E_MIN"].get(emin);
+      row["E_MAX"].get(emax);
+      emins.push_back(emin);
+      emaxs.push_back(emax);
    }
 }
