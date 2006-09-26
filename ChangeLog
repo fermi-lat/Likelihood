@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 26 13:13:09 PDT 2006
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx 
+Log Message:
+allow for custom energy bins
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r9p4, operation: add
 Package: Likelihood
