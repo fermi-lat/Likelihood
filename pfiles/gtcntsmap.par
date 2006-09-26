@@ -7,7 +7,7 @@ energybinalg,s,a,"LOG",LOG|FILE,,Binning algorithm
 emin,r,a,30,20,3e5,Minimum energy (MeV)
 emax,r,a,200000,20,3e5,Maximum energy (MeV)
 nenergies,i,a,21,2,100,Number of energy bounds
-energybinfile,f,a,"",,,"Energy bin definition file name"
+energybinfile,f,a,"none",,,"Energy bin definition file name"
 use_lb,b,a,no,,,"Use Galactic coordinates"
 ra,r,a,86.4,0,360,Right Ascension of map center (degrees)
 dec,r,a,28.9,-90,90,Declination of map center (degrees)
