@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 26 13:13:26 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	CountsMap.h 
+Log Message:
+allow for custom energy bins
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 26 13:13:09 PDT 2006
 Likelihood/src
 
