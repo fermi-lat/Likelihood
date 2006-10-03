@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Oct  3 13:52:13 PDT 2006
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+allow submaps in gtexpmap; tagging v11r9p6
+    *
+------------------------------------------------------------
+User: jchiang  Tue Oct  3 13:52:13 PDT 2006
 Likelihood/src
 
 Modified Files:
