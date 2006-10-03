@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct  3 13:52:09 PDT 2006
+Likelihood/Likelihood
+
+Modified Files:
+	ExposureMap.h 
+Log Message:
+allow submaps in gtexpmap; tagging v11r9p6
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r9p5, operation: add
 Package: Likelihood
