@@ -4,7 +4,7 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.37 2006/04/24 22:31:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.38 2006/04/27 15:20:07 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -94,7 +94,9 @@ void ExposureMap::integrateSpatialDist(const std::vector<double> & energies,
 void ExposureMap::computeMap(std::string filename, 
                              const Observation & observation,
                              double sr_radius, int nlon, int nlat,
-                             int nenergies) {
+                             int nenergies, bool compute_submap,
+                             int nlongmin, int nlongmax, 
+                             int nlatmin, int nlatmax) {
 
    facilities::Util::expandEnvVar(&filename);
 
@@ -137,9 +139,26 @@ void ExposureMap::computeMap(std::string filename,
    }
 
    int ncount = 0;
-   for (int j = 0; j < nlat; j++) {
-      for (int i = 0; i < nlon; i++) {
-         if ((ncount % ((nlon*nlat)/20)) == 0) {
+
+   int imin(0);
+   int imax(nlon);
+   int jmin(0);
+   int jmax(nlat);
+   if (compute_submap) {
+      imin = std::max(0, nlongmin);
+      imax = std::min(nlon, nlongmax);
+      jmin = std::max(0, nlatmin);
+      jmax = std::min(nlat, nlatmax);
+   }
+
+//    for (int j = 0; j < nlat; j++) {
+//       for (int i = 0; i < nlon; i++) {
+//          if ((ncount % ((nlon*nlat)/20)) == 0) {
+//             formatter.info() << ".";
+//          }
+   for (int j = jmin; j < jmax; j++) {
+      for (int i = imin; i < imax; i++) {
+         if ((ncount % (((imax-imin)*(jmax-jmin))/20)) == 0) {
             formatter.info() << ".";
          }
 

@@ -10,6 +10,11 @@ source_region_radius,r,a,30,,,Radius of the source region (in degrees)
 number_of_longitude_points,i,a,120,2,1000,Number of longitude points
 number_of_latitude_points,i,a,120,2,1000,Number of latitude points
 number_of_energies,i,a,20,2,100,Number of energies
+compute_submap,b,h,no,,,"Compute submap?"
+nlongmin,i,h,0,,,"minimum longitude index"
+nlongmax,i,h,0,,,"maximum longitude index"
+nlatmin,i,h,0,,,"minimum latitude index"
+nlatmax,i,h,0,,,"minimum latitude index"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

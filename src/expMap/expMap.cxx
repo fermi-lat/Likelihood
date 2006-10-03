@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.36 2006/06/07 18:22:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.37 2006/06/20 17:12:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.36 2006/06/07 18:22:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.37 2006/06/20 17:12:57 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -72,6 +72,11 @@ std::string ExpMap::s_cvs_id("$Name:  $");
 ExpMap::ExpMap() : st_app::StApp(), m_helper(0), 
                    m_pars(st_app::StApp::getParGroup("gtexpmap")) {
    setVersion(s_cvs_id);
+   m_pars.setSwitch("compute_submap");
+   m_pars.setCase("compute_submap", "yes", "nlongmin");
+   m_pars.setCase("compute_submap", "yes", "nlongmax");
+   m_pars.setCase("compute_submap", "yes", "nlatmin");
+   m_pars.setCase("compute_submap", "yes", "nlatmax");
 }
 
 void ExpMap::banner() const {
@@ -117,6 +122,13 @@ void ExpMap::promptForParameters() {
    m_pars.Prompt("number_of_longitude_points");
    m_pars.Prompt("number_of_latitude_points");
    m_pars.Prompt("number_of_energies");
+   bool compute_submap = m_pars["compute_submap"];
+   if (compute_submap) {
+      m_pars.Prompt("nlongmin");
+      m_pars.Prompt("nlongmax");
+      m_pars.Prompt("nlatmin");
+      m_pars.Prompt("nlatmax");
+   }
    m_pars.Save();
 }
 
@@ -155,10 +167,22 @@ void ExpMap::createExposureMap() {
    std::string exposureFile = m_pars["outfile"];
    const Observation & observation = m_helper->observation();
    const RoiCuts & roiCuts = observation.roiCuts();
+   bool compute_submap = m_pars["compute_submap"];
+   int nlongmin(0);
+   int nlongmax(0);
+   int nlatmin(0);
+   int nlatmax(0);
+   if (compute_submap) {
+      nlongmin = m_pars["nlongmin"];
+      nlongmax = m_pars["nlongmax"];
+      nlatmin = m_pars["nlatmin"];
+      nlatmax = m_pars["nlatmax"];
+   }
    m_helper->observation().expMap().computeMap(exposureFile, observation,
                                                m_srRadius, nlong, nlat,
-                                               nenergies); 
-
+                                               nenergies, compute_submap,
+                                               nlongmin, nlongmax,
+                                               nlatmin, nlatmax); 
    std::auto_ptr<tip::Image> 
       image(tip::IFileSvc::instance().editImage(exposureFile, ""));
    roiCuts.writeDssKeywords(image->getHeader());
