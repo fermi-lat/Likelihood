@@ -3,6 +3,8 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r9p7 10-Oct-06 JC   set default fit tolerance to 1e-5 for gtlikelihood
+                           and gttsmap
     v11r9p6 03-Oct-06 JC   allow submaps to be computed in gtexpmap, thereby
                            enabling simple parallelization.
     v11r9p5 26-Sep-06 JC   allow for arbitrary energy binning in CountsMap 
