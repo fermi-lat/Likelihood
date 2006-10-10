@@ -9,7 +9,7 @@ outfile,f,a,"TsMap.fits",,,"TS map file name"
 
 rspfunc,s,h,"DSS",,,"Response functions to use"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
-fit_tolerance,r,a,0.001,,,Fit tolerance
+fit_tolerance,r,a,1e-5,,,Fit tolerance
 
 ra_min,r,a,160,-360,360,RA minimum
 ra_max,r,a,200,-360,360,RA maximum
