@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.118 2006/09/18 16:52:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.119 2006/09/18 20:59:56 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -109,7 +109,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.118 2006/09/18 16:52:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.119 2006/09/18 20:59:56 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -823,6 +823,9 @@ void likelihood::renormModel() {
    }
    double deficit(observedCounts() - totalNpred);
    double renormFactor(1. + deficit/freeNpred);
+   if (renormFactor < 1.) {
+      renormFactor = 1.;
+   }
    std::vector<std::string> srcNames;
    m_logLike->getSrcNames(srcNames);
    for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
