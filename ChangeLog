@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct 11 13:15:51 PDT 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+ensure renorm factor is at least unity; tagging v11r9p8
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r9p7, operation: add
 Package: Likelihood
