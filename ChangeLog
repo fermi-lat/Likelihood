@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Oct 11 13:15:52 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+ensure renorm factor is at least unity; tagging v11r9p8
+    *
+------------------------------------------------------------
+User: jchiang  Wed Oct 11 13:15:52 PDT 2006
 Likelihood/doc
 
 Modified Files:
