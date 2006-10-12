@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Oct 12 10:00:58 PDT 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+re-enable Ts estimator; tagging v11r9p9
+    *
+------------------------------------------------------------
+User: jchiang  Thu Oct 12 10:00:58 PDT 2006
 Likelihood/doc
 
 Modified Files:
