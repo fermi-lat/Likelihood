@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov  2 14:54:59 PST 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+put plotting before query to refit
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r9p9, operation: add
 Package: Likelihood
