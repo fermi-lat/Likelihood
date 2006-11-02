@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.121 2006/10/12 17:00:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.122 2006/10/12 17:23:38 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -109,7 +109,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.121 2006/10/12 17:00:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.122 2006/10/12 17:23:38 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -290,13 +290,13 @@ void likelihood::run() {
       }
       printFitResults(errors);
       writeSourceXml();
+      if (m_pars["plot"]) {
+         plotCountsSpectra();
+      }
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
    if (m_pars["write_output_files"]) {
       writeCountsSpectra();
-   }
-   if (m_pars["plot"]) {
-      plotCountsSpectra();
    }
 //   writeCountsMap();
    m_formatter->info() << "Elapsed CPU time: " << cputime() << std::endl;
