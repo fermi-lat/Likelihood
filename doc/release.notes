@@ -3,6 +3,9 @@
     @brief Package coordinators: J. Chiang
 
     @verbatim
+    v11r9p10 3-Nov-06 JC   re-enable single energy range requirement in
+                           DSS keywords; put plotting before query to refit
+                           in gtlikelihood
     v11r9p9 12-Oct-06 JC   re-enable better Ts estimator
     v11r9p8 11-Oct-06 JC   ensure renormalization factor in approximate
                            TS calculation is at least unity (gtlikelihood)
