@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Nov 12 15:59:52 PST 2006
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Log Message:
+add LogLike::syncSrcParams(...) for parameter manipulation for fixed sources
+    *
+------------------------------------------------------------
 User: jchiang  Sun Nov 12 15:59:51 PST 2006
 Likelihood/Likelihood
 
