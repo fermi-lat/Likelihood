@@ -1,8 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
+    $Id$
 
     @verbatim
+    v11r10  12-Nov-06 JC   add LogLike::syncSrcParams(...)
     v11r9p10 3-Nov-06 JC   re-enable single energy range requirement in
                            DSS keywords; put plotting before query to refit
                            in gtlikelihood
