@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.39 2006/09/18 16:51:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.40 2006/09/26 20:13:08 jchiang Exp $
  */
 
 #include <algorithm>
@@ -189,7 +189,7 @@ CountsMap::CountsMap(const std::string & event_file,
                                                "photon energy"));
    init(binners, event_file, ev_table, sc_file, sc_table, 
         num_x_pix, num_y_pix, ref_ra, ref_dec, x_pix_scale, y_pix_scale,
-        emins.front(), emaxs.back(), emins.size(), use_lb, proj);
+        emins.front(), emaxs.back(), emins.size()+1, use_lb, proj);
 
    deleteBinners(binners);
 }
