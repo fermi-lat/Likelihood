@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov 16 15:08:44 PST 2006
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx 
+Log Message:
+fix off-by one error
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r10, operation: add
 Package: Likelihood
