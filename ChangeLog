@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec  4 09:13:28 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+skip checking for column names in expMap file; tagging v11r11
+    *
+------------------------------------------------------------
 User: jchiang  Sun Dec  3 17:38:23 PST 2006
 Likelihood/src/likelihood
 
