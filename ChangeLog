@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Dec  3 17:38:21 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+check only that expMap energy bounds bracket evfile energy bounds
+    *
+------------------------------------------------------------
+User: jchiang  Sun Dec  3 17:38:21 PST 2006
 Likelihood/Likelihood
 
 Modified Files:
