@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id$
+    $Id: release.notes,v 1.193 2006/11/13 00:01:21 jchiang Exp $
 
     @verbatim
+    v11r11  04-Dec-06 JC   ensure only that expMap energy bounds contain
+                           evfile energy range
     v11r10  12-Nov-06 JC   add LogLike::syncSrcParams(...)
     v11r9p10 3-Nov-06 JC   re-enable single energy range requirement in
                            DSS keywords; put plotting before query to refit
