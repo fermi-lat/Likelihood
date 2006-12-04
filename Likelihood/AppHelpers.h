@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.27 2006/03/17 18:05:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.28 2006/05/05 16:58:09 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.27 2006/03/17 18:05:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.28 2006/05/05 16:58:09 jchiang Exp $
  */
 
 class AppHelpers {
@@ -119,6 +119,11 @@ public:
                              const std::string & ext2,
                              bool compareGtis=true,
                              bool gtiWarningOnly=true);
+
+   static void checkExpMapCuts(const std::vector<std::string> & evfiles,
+                               const std::string & expMap,
+                               const std::string & evfileExt="EVENTS",
+                               const std::string & expMapExt="");
 
    static std::string responseFuncs(const std::string & file,
                                     const std::string & respBase);

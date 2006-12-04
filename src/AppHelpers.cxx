@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.54 2006/08/15 15:03:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.55 2006/09/11 21:18:53 jchiang Exp $
  */
 
 #include <map>
@@ -35,6 +35,22 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SpatialMap.h"
+
+namespace {
+   void getRangeBounds(const std::vector<dataSubselector::RangeCut *> & cuts,
+                       double & xmin, double & xmax) {
+      xmin = cuts.at(0)->minVal();
+      xmax = cuts.at(0)->maxVal();
+      for (size_t j = 0; j < cuts.size(); j++) {
+         if (xmin < cuts.at(j)->minVal()) {
+            xmin = cuts.at(j)->minVal();
+         }
+         if (xmax > cuts.at(j)->maxVal()) {
+            xmax = cuts.at(j)->maxVal();
+         }
+      }
+   }
+}
 
 namespace Likelihood {
 
@@ -425,6 +441,43 @@ bool AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
       ok = false;
    }
    return ok;
+}
+
+void AppHelpers::
+checkExpMapCuts(const std::vector<std::string> & evFiles,
+                const std::string & expMap,
+                const std::string & evfileExt,
+                const std::string & expMapExt) {
+   dataSubselector::Cuts evCuts(evFiles, evfileExt);
+   dataSubselector::Cuts expMapCuts(expMap, expMapExt);
+
+   std::vector<dataSubselector::RangeCut *> evEnergyCuts;
+   std::vector<dataSubselector::RangeCut *> expMapEnergyCuts;
+
+   evCuts.removeRangeCuts("ENERGY", evEnergyCuts);
+   expMapCuts.removeRangeCuts("ENERGY", expMapEnergyCuts);
+
+   if (evCuts != expMapCuts) {
+      std::ostringstream message;
+      message << "AppHelpers::checkExpMapCuts:\n"
+              << "Inconsistent DSS keywords in "
+              << "event file(s) and unbinned exposure map file."
+              << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   double ev_emin, ev_emax;
+   ::getRangeBounds(evEnergyCuts, ev_emin, ev_emax);
+
+   double expMap_emin, expMap_emax;
+   ::getRangeBounds(expMapEnergyCuts, expMap_emin, expMap_emax);
+
+   if (expMap_emin > ev_emin || expMap_emax < ev_emax) {
+      std::ostringstream message;
+      message << "AppHelpers::checkExpMapCuts:\n"
+              << "Energy ranges for event file(s) and "
+              << "unbinned exposure map are not consistent.";
+      throw std::runtime_error(message.str());
+   }
 }
 
 void AppHelpers::
