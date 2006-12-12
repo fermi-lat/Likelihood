@@ -7,6 +7,7 @@ exposure_cube_file,f,a,"none",,,"Exposure hypercube file"
 source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
 source_model_output_file,f,h,"none",,,"Source model output file"
 flux_style_model_file,f,h,"none",,,"flux-style output file name"
+check_fit,b,h,yes,,,"Issue warnings regarding fit?"
 #
 # choice of objective function and optimizer
 #

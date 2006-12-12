@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.123 2006/11/02 22:54:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.124 2006/12/04 01:38:23 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -109,7 +109,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.123 2006/11/02 22:54:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.124 2006/12/04 01:38:23 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -239,9 +239,6 @@ void likelihood::run() {
       }
       compareGtis = true;
       if (exposureFile != "none" && exposureFile != "") {
-//          AppHelpers::checkCuts(m_eventFiles, evtable, exposureFile, "",
-//                                compareGtis, relyOnStreams,
-//                                skipEventClassCuts);
          AppHelpers::checkExpMapCuts(m_eventFiles, exposureFile, evtable, "");
       }
       if (expcube_file != "none" && expcube_file != "") {
@@ -668,8 +665,11 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    }
    resultsFile << "}" << std::endl;
 
-   // Check quality of the fit and issue warning if it appears not to be good.
-   printFitQuality();
+   bool check_fit = m_pars["check_fit"];
+   if (check_fit) {
+// Check quality of the fit and issue warning if it appears not to be good.
+      printFitQuality();
+   }
 
    m_formatter->info() << "\nTotal number of observed counts: "
                        << observedCounts() << "\n"
