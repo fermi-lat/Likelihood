@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.194 2006/12/04 17:13:29 jchiang Exp $
+    $Id: release.notes,v 1.195 2006/12/12 18:07:27 jchiang Exp $
 
     @verbatim
+    v11r11p2 14-Dec-06 JP  catch exception when warning code doesn't converge
     v11r11p1 12-Dec-06 JC  add option to disable fit checking in gtlikelihood
     v11r11  04-Dec-06 JC   ensure only that expMap energy bounds contain
                            evfile energy range
