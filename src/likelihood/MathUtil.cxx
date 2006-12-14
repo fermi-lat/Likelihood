@@ -2,13 +2,13 @@
  * @file MathUtil.cxx
  * @brief Implementation of MathUtil class.
  * @author Analia Cillis
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/MathUtil.cxx,v 1.1 2006/09/14 20:39:40 peachey Exp $
 */
 #include "MathUtil.h"
 #include <math.h>
 #include <stdexcept>
 
-#define RAND_ITMAX      1000//before was 100
+#define RAND_ITMAX      10000//before was 1000
 #define RAND_EPS        3.0e-7
 
 double  MathUtil::gammln(double x){
