@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: peachey  Thu Dec 14 13:03:22 PST 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	MathUtil.cxx 
+Log Message:
+Add more iterations to make convergence more likely.
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r11p1, operation: add
 Package: Likelihood
