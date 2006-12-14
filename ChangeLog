@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: peachey  Thu Dec 14 13:04:07 PST 2006
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+Catch exception thrown when poissonSig fails to converge.
+Issue a warning in this case, but do not cause likelihood as a whole to fail.
+
+    *
+------------------------------------------------------------
 User: peachey  Thu Dec 14 13:03:22 PST 2006
 Likelihood/src/likelihood
 
