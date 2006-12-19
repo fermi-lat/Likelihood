@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Dec 19 12:59:47 PST 2006
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx ExposureMap.cxx ResponseFunctions.cxx 
+Log Message:
+bug fix in DiffuseSource::Npred(double, double); tagging v11r11p3
+    *
+------------------------------------------------------------
 User: jchiang  Tue Dec 19 12:59:46 PST 2006
 Likelihood/doc
 
