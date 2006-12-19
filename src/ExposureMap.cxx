@@ -4,7 +4,7 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.38 2006/04/27 15:20:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.39 2006/10/03 20:52:12 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -151,14 +151,13 @@ void ExposureMap::computeMap(std::string filename,
       jmax = std::min(nlat, nlatmax);
    }
 
-//    for (int j = 0; j < nlat; j++) {
-//       for (int i = 0; i < nlon; i++) {
-//          if ((ncount % ((nlon*nlat)/20)) == 0) {
-//             formatter.info() << ".";
-//          }
    for (int j = jmin; j < jmax; j++) {
       for (int i = imin; i < imax; i++) {
-         if ((ncount % (((imax-imin)*(jmax-jmin))/20)) == 0) {
+         int step(((imax-imin)*(jmax-jmin))/20);
+         if (step == 0) {
+            step = 2;
+         }
+         if ((ncount % step) == 0) {
             formatter.info() << ".";
          }
 

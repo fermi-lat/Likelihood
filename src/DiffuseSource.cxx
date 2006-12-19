@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.32 2005/11/19 04:59:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.33 2006/06/29 00:45:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -188,7 +188,7 @@ double DiffuseSource::Npred(double emin, double emax) const {
       /(energies.at(begin_offset) - energies.at(begin_offset - 1))
       *(m_exposure.at(begin_offset) - m_exposure.at(begin_offset - 1))
       + m_exposure.at(begin_offset - 1);
-   double end_exposure = (emin - energies.at(end_offset - 1))
+   double end_exposure = (emax - energies.at(end_offset - 1))
       /(energies.at(end_offset) - energies.at(end_offset - 1))
       *(m_exposure.at(end_offset) - m_exposure.at(end_offset - 1))
       + m_exposure.at(end_offset - 1);
