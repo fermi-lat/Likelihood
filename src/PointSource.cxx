@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.86 2006/07/06 00:29:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.87 2006/09/19 23:07:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -35,7 +35,7 @@ namespace Likelihood {
 std::vector<double> PointSource::s_trueEnergies(0);
 
 PointSource::PointSource(const Observation * observation) 
-   : m_spectrum(0), m_observation(observation) {
+   : Source(observation) {
    setDir(0., 0., false);
    m_srcType = "Point";
    if (s_trueEnergies.empty()) {
@@ -45,7 +45,7 @@ PointSource::PointSource(const Observation * observation)
 
 PointSource::PointSource(double ra, double dec,
                          const Observation & observation, bool verbose) 
-   : m_spectrum(0), m_observation(&observation) {
+   : Source(&observation) {
    setDir(ra, dec, true, verbose);
    m_srcType = "Point";
    if (s_trueEnergies.empty()) {
@@ -65,7 +65,6 @@ PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
 }
 
 PointSource::~PointSource() {
-   delete m_spectrum;
 }
 
 double PointSource::fluxDensity(double energy, double time,
@@ -185,87 +184,6 @@ fluxDensityDeriv(double inclination, double phi, double energy,
       return respFuncs.totalResponse(inclination, phi, energy, 
                                      energy, separation, evtType)
          *m_spectrum->derivByParam(energy_arg, paramName);
-   }
-}
-
-double PointSource::Npred() {
-   optimizers::Function *specFunc = m_functions["Spectrum"];
-
-// Evaluate the Npred integrand at the abscissa points contained in
-// RoiCuts::energies().
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
-   std::vector<double> NpredIntegrand(energies.size());
-   for (unsigned int k = 0; k < energies.size(); k++) {
-      optimizers::dArg eArg(energies[k]);
-      NpredIntegrand[k] = (*specFunc)(eArg)*m_exposure[k];
-   }
-   TrapQuad trapQuad(energies, NpredIntegrand);
-   return trapQuad.integral();
-}
-
-double PointSource::Npred(double emin, double emax) const {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
-   if (emin < energies.front() || emax > energies.back()) {
-      throw std::out_of_range("PointSource::Npred(emin, emax)");
-   }
-   std::vector<double>::const_iterator first 
-      = std::upper_bound(energies.begin(), energies.end(), emin);
-   std::vector<double>::const_iterator last 
-      = std::upper_bound(energies.begin(), energies.end(), emax);
-   std::vector<double> my_energies(last - first);
-   std::copy(first, last, my_energies.begin());
-   size_t begin_offset = first - energies.begin();
-   size_t end_offset = last - energies.begin();
-   my_energies.insert(my_energies.begin(), emin);
-   my_energies.push_back(emax);
-   std::vector<double> exposure(last - first);
-   std::copy(m_exposure.begin() + begin_offset,
-             m_exposure.begin() + end_offset,
-             exposure.begin());
-   if (end_offset == energies.size()) {
-      end_offset = energies.size() - 1;
-   }
-   double begin_exposure = (emin - energies.at(begin_offset - 1))
-      /(energies.at(begin_offset) - energies.at(begin_offset - 1))
-      *(m_exposure.at(begin_offset) - m_exposure.at(begin_offset - 1))
-      + m_exposure.at(begin_offset - 1);
-   double end_exposure = (emax - energies.at(end_offset - 1))
-      /(energies.at(end_offset) - energies.at(end_offset - 1))
-      *(m_exposure.at(end_offset) - m_exposure.at(end_offset - 1))
-      + m_exposure.at(end_offset - 1);
-   exposure.insert(exposure.begin(), begin_exposure);
-   exposure.push_back(end_exposure);
-
-   FuncMap::const_iterator my_func = m_functions.find("Spectrum");
-   const optimizers::Function & specFunc = 
-      const_cast<optimizers::Function &>(*my_func->second);
-
-   std::vector<double> integrand(my_energies.size());
-   for (unsigned int k = 0; k < my_energies.size(); k++) {
-      optimizers::dArg eArg(my_energies.at(k));
-      integrand.at(k) = specFunc(eArg)*exposure.at(k);
-   }
-   TrapQuad trapQuad(my_energies, integrand);
-   return trapQuad.integral();
-}
-
-double PointSource::NpredDeriv(const std::string &paramName) {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
-   optimizers::Function *specFunc = m_functions["Spectrum"];
-
-   double prefactor;
-   if (paramName == std::string("Prefactor") && 
-       (prefactor = specFunc->getParamValue("Prefactor")) != 0) {
-      return Npred()/prefactor;
-   } else {  // loop over energies and fill integrand vector
-      std::vector<double> myIntegrand(energies.size());
-      for (unsigned int k = 0; k < energies.size(); k++) {
-         optimizers::dArg eArg(energies[k]);
-         myIntegrand[k] = specFunc->derivByParam(eArg, paramName)
-            *m_exposure[k];
-      }
-      TrapQuad trapQuad(energies, myIntegrand);
-      return trapQuad.integral();
    }
 }
 

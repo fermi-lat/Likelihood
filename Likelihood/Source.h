@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.35 2005/09/14 05:47:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.36 2006/06/29 00:45:29 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -23,6 +23,8 @@ namespace astro {
 
 namespace Likelihood {
 
+   class Observation;
+
 /** 
  * @class Source
  *
@@ -30,18 +32,20 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.35 2005/09/14 05:47:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.36 2006/06/29 00:45:29 jchiang Exp $
  */
 
 class Source {
 
 public:
     
-   Source();
+   Source(const Observation * observation=0);
 
    Source(const Source &rhs);
 
-   virtual ~Source() {}
+   virtual ~Source() {
+      delete m_spectrum;
+   }
 
    /// @return photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
@@ -70,16 +74,20 @@ public:
                                    const std::string & paramName) const = 0;
 
    /// Predicted number of photons.
-   virtual double Npred() = 0;
+   virtual double Npred();
 
    /// Derivative of Npred wrt named Parameter
-   virtual double NpredDeriv(const std::string &paramName) = 0;
+   virtual double NpredDeriv(const std::string & paramName);
 
    /// Predicted number of counts within a specified energy range.
-   virtual double Npred(double emin, double emax) const = 0;
+   virtual double Npred(double emin, double emax) const;
 
-   /// Set the Function used for modeling the source spectrum.
-   virtual void setSpectrum(optimizers::Function *) = 0;
+   /// Set the spectral model (should also check that the Parameter
+   /// names do not conflict with "longitude" and "latitude" of m_dir)
+   virtual void setSpectrum(optimizers::Function * spectrum) {
+      m_spectrum = spectrum->clone();
+      m_functions["Spectrum"] = m_spectrum;
+   }
                        
    virtual void setName(const std::string & name) {
       m_name = name;
@@ -136,6 +144,15 @@ protected:
 
    /// Map of Functions describing this source.
    std::map<std::string, optimizers::Function *> m_functions;
+
+   /// spectral model
+   optimizers::Function * m_spectrum;
+
+   const Observation * m_observation;
+
+   /// Angle integrated diffuse exposure as a function of
+   /// RoiCuts::energies()
+   std::vector<double> m_exposure;
 
 };
 
