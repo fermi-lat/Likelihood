@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.196 2006/12/14 21:05:17 peachey Exp $
+    $Id: release.notes,v 1.197 2006/12/19 20:59:46 jchiang Exp $
 
     @verbatim
+    v11r12   19-Dec-06 JC  refactor Source hierarchy, moving common member
+                           function implementations to base class
     v11r11p3 19-Dec-06 JC  bug fix in DiffuseSource::Npred(double, double)
     v11r11p2 14-Dec-06 JP  catch exception when warning code doesn't converge
     v11r11p1 12-Dec-06 JC  add option to disable fit checking in gtlikelihood

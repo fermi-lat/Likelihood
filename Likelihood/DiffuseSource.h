@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.32 2005/09/14 05:47:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.33 2006/06/29 00:45:28 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -44,7 +44,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.32 2005/09/14 05:47:18 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.33 2006/06/29 00:45:28 jchiang Exp $ 
  *  
  */
 
@@ -58,7 +58,7 @@ public:
    ///        been read in so that the spatially integrated for the
    ///        spectral calculation; if false, then the map is not
    ///        integrated.
-   DiffuseSource(optimizers::Function *spatialDist,
+   DiffuseSource(optimizers::Function * spatialDist,
                  const Observation & observation,
                  bool requireExposure = true);
 
@@ -66,7 +66,6 @@ public:
 
    virtual ~DiffuseSource() {
       delete m_spatialDist;
-      delete m_spectrum;
    }
 
    /// Returns photons/cm^2-s-sr-MeV having been convolved through
@@ -101,15 +100,6 @@ public:
       return 0;
    }
 
-   /// Predicted number of photons given RoiCuts and ScData
-   virtual double Npred();
-   
-   /// Derivative of Npred wrt named Parameter
-   virtual double NpredDeriv(const std::string &paramName);
-
-   /// Predicted number of counts within a specified energy range
-   virtual double Npred(double emin, double emax) const;
-
    /// Return the spatial distribution of the gamma-ray emission
    double spatialDist(const astro::SkyDir & dir) const {
       SkyDirArg SDarg(dir);
@@ -121,13 +111,6 @@ public:
       return (*m_spatialDist)(dir);
    }
 #endif
-
-   /// Set the spectral model (should also check that the Parameter
-   /// names do not conflict with "longitude" and "latitude" of m_dir)
-   void setSpectrum(optimizers::Function *spectrum) {
-      m_spectrum = spectrum->clone();
-      m_functions["Spectrum"] = m_spectrum;
-   }
 
    virtual Source *clone() const {
       return new DiffuseSource(*this);
@@ -153,14 +136,6 @@ private:
    /// spatial model
    optimizers::Function * m_spatialDist;
 
-   /// spectral model
-   optimizers::Function * m_spectrum;
-
-   const Observation * m_observation;
-
-   /// Angle integrated diffuse exposure as a function of
-   /// RoiCuts::energies()
-   std::vector<double> m_exposure;
 };
 
 } //namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.58 2006/05/28 22:26:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.59 2006/06/29 00:45:29 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.58 2006/05/28 22:26:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.59 2006/06/29 00:45:29 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -88,15 +88,6 @@ public:
                                    int evtType, const std::string & paramName)
       const;
 
-   /// Predicted number of photons given RoiCuts and ScData
-   virtual double Npred();
-
-   /// Derivative of Npred wrt named Parameter
-   virtual double NpredDeriv(const std::string &paramName);
-
-   /// Predicted number of counts within a given energy range
-   virtual double Npred(double emin, double emax) const;
-
    /// Set source location using J2000 coordinates
    void setDir(double ra, double dec, bool updateExposure=true, 
                bool verbose=true) {
@@ -128,13 +119,6 @@ public:
    /// Angular separation between the source direction and dir in radians
    double getSeparation(const astro::SkyDir &dir) const {
       return dir.SkyDir::difference(m_dir.getDir());
-   }
-
-   /// Set the spectral model (@todo Should check that the Parameter
-   /// names do not conflict with "longitude" and "latitude" of m_dir)
-   void setSpectrum(optimizers::Function *spectrum) {
-      m_spectrum = spectrum->clone();
-      m_functions["Spectrum"] = m_spectrum;
    }
 
    virtual Source *clone() const {
@@ -184,15 +168,6 @@ private:
 
    /// location on the Celestial sphere 
    SkyDirFunction m_dir;
-
-   /// spectral model
-   optimizers::Function * m_spectrum;
-
-   /// integrated exposure at PointSource sky location
-   std::vector<double> m_exposure;
-
-   /// Observation object to keep track of ROI, spacecraft data, etc.
-   const Observation * m_observation;
 
    /// True photon energies for convolving the spectrum with
    /// the energy dispersion.
