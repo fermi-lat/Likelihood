@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Dec 19 18:00:28 PST 2006
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h PointSource.h Source.h 
+Log Message:
+refactor Source hierarchy; tagging v11r12
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r11p3, operation: add
 Package: Likelihood
