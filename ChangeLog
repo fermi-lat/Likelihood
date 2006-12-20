@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Dec 19 18:00:29 PST 2006
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+refactor Source hierarchy; tagging v11r12
+    *
+------------------------------------------------------------
+User: jchiang  Tue Dec 19 18:00:29 PST 2006
 Likelihood/cmt
 
 Modified Files:
