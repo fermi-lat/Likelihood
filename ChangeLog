@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Dec 24 11:52:35 PST 2006
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+#include <algorithm> in Source.cxx; tagging v11r12p1
+    *
+------------------------------------------------------------
+User: jchiang  Sun Dec 24 11:52:35 PST 2006
 Likelihood/cmt
 
 Modified Files:
