@@ -3,9 +3,10 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.6 2005/03/01 07:17:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.7 2006/12/20 02:00:29 jchiang Exp $
  */
 
+#include <algorithm>
 #include <stdexcept>
 
 #include "optimizers/dArg.h"
