@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec 25 13:27:22 PST 2006
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+tagging v11r12p2
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r12p1, operation: add
 Package: Likelihood
