@@ -1,10 +1,10 @@
 package Likelihood
-version v11r12p1
+version v11r12p2
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.312 2006/12/20 02:00:29 jchiang Exp $
+# $Id: requirements,v 1.313 2006/12/24 19:52:35 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -33,14 +33,14 @@ apply_pattern shared_st_library
 apply_pattern ST_pfiles
 
 apply_pattern ST_app_withDir name=gtlikelihood dir=likelihood
-#apply_pattern ST_app_withDir name=gtexpmap dir=expMap
-#apply_pattern ST_app_withDir name=gttsmap dir=TsMap
-#apply_pattern ST_app_withDir name=gtlivetimecube dir=makeExposureCube
-#apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
-#apply_pattern ST_app name=gtcntsmap
-#apply_pattern ST_app name=gtsrcmaps
-#apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
-#apply_pattern ST_app_withDir name=gtbackfile dir=backfile
-#apply_pattern ST_app name=gtmodelmap
-#apply_pattern ST_app name=gtaddlivetime
-#apply_pattern ST_app name=gtfindsrc
+apply_pattern ST_app_withDir name=gtexpmap dir=expMap
+apply_pattern ST_app_withDir name=gttsmap dir=TsMap
+apply_pattern ST_app_withDir name=gtlivetimecube dir=makeExposureCube
+apply_pattern ST_app_withDir name=gtdiffresp dir=diffuseResponses
+apply_pattern ST_app name=gtcntsmap
+apply_pattern ST_app name=gtsrcmaps
+apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
+apply_pattern ST_app_withDir name=gtbackfile dir=backfile
+apply_pattern ST_app name=gtmodelmap
+apply_pattern ST_app name=gtaddlivetime
+apply_pattern ST_app name=gtfindsrc
