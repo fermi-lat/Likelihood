@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.10 2006/07/14 16:49:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.11 2006/08/23 19:26:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -202,17 +202,13 @@ std::string EventContainer::sourceName(const std::string & name) const {
 // Strip the IRF name and use the underlying diffuse component name
 // in setDiffuseResponse.
    std::vector<std::string> tokens;
-   if (name.find("__") != std::string::npos) {
-      facilities::Util::stringTokenize(name, "__", tokens);
-   } else if (name.find("::") != std::string::npos) {
-      facilities::Util::stringTokenize(name, "::", tokens);
+   std::string::size_type pos;
+   if ((pos = name.find("__")) != std::string::npos) {
+      return name.substr(pos+2);
+   } else if ((pos = name.find("::")) != std::string::npos) {
+      return name.substr(pos+2);
    }
-   if (tokens.size() == 1) {
-      return tokens.at(0);
-   } else {
-      return tokens.at(1);
-   }
-   return std::string();
+   return name;
 }
 
 } // namespace Likelihood
