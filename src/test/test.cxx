@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.78 2006/09/20 19:02:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.79 2006/09/20 23:43:39 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -188,7 +188,7 @@ void LikelihoodTests::setUp() {
    }
 
 // Prepare the ResponseFunctions object.
-   dc1aResponse::loadIrfs();
+   dc1aResponse::load_irfs();
    irfInterface::IrfsFactory * myFactory 
       = irfInterface::IrfsFactory::instance();
    m_respFuncs->addRespPtr(0, myFactory->create("DC1A::Front"));
