@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.28 2006/05/05 16:58:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.29 2006/12/04 01:38:20 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.28 2006/05/05 16:58:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.29 2006/12/04 01:38:20 jchiang Exp $
  */
 
 class AppHelpers {
@@ -60,6 +60,7 @@ public:
    optimizers::FunctionFactory & funcFactory();
 
    void readScData();
+   void readScData(double tstart, double tstop);
    void readExposureMap();
    void setRoi(const std::string & filename="",
                const std::string & ext="EVENTS",
