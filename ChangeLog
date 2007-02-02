@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb  2 13:08:00 PST 2007
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h ScData.h 
+Log Message:
+just read in the spacecraft data over the relevant time range for the given event files
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r12p4, operation: add
 Package: Likelihood
