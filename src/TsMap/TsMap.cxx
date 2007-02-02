@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.34 2006/07/06 00:29:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.35 2007/02/02 22:22:08 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.34 2006/07/06 00:29:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.35 2007/02/02 22:22:08 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -186,7 +186,15 @@ void TsMap::setGrid() {
 }
 
 void TsMap::computeMap() {
-   PointSource testSrc(0, 0., m_helper->observation());
+   double ra(m_lonValues.front());
+   double dec(m_latValues.front());
+   bool use_lb = m_pars["use_lb"];
+   if (use_lb) {
+      astro::SkyDir my_dir(ra, dec, astro::SkyDir::GALACTIC);
+      ra = my_dir.ra();
+      dec = my_dir.dec();
+   }
+   PointSource testSrc(ra, dec, m_helper->observation());
    setPointSourceSpectrum(testSrc);
    testSrc.setName("testSource");
 
