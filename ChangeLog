@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb  2 13:08:04 PST 2007
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+just read in the spacecraft data over the relevant time range for the given event files
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb  2 13:08:02 PST 2007
 Likelihood/src
 
