@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.56 2006/12/04 01:38:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.57 2006/12/04 17:13:30 jchiang Exp $
  */
 
 #include <map>
@@ -168,6 +168,19 @@ void AppHelpers::readScData() {
    for ( ; scIt != m_scFiles.end(); scIt++) {
       st_facilities::Util::file_ok(*scIt);
       m_scData->readData(*scIt, false, sctable);
+   }
+}
+
+void AppHelpers::readScData(double tstart, double tstop) {
+   st_app::AppParGroup & pars(*m_pars);
+   std::string scFile = pars["scfile"];
+   std::string sctable = pars["sctable"];
+   st_facilities::Util::file_ok(scFile);
+   st_facilities::Util::resolve_fits_files(scFile, m_scFiles);
+   std::vector<std::string>::const_iterator scIt = m_scFiles.begin();
+   for ( ; scIt != m_scFiles.end(); scIt++) {
+      st_facilities::Util::file_ok(*scIt);
+      m_scData->readData(*scIt, tstart, tstop, false, sctable);
    }
 }
 

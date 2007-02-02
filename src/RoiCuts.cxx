@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.48 2006/09/20 23:43:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.49 2006/11/03 16:49:35 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -132,7 +132,19 @@ void RoiCuts::setRoiData() {
       emin = m_energyCut->minVal();
       emax = m_energyCut->maxVal();
    }
-   setCuts(ra, dec, radius, emin, emax);
+   std::vector<const dataSubselector::GtiCut *> gtiCuts;
+   m_cuts->getGtiCuts(gtiCuts);
+   double tmin(gtiCuts.front()->gti().minValue());
+   double tmax(gtiCuts.front()->gti().maxValue());
+   for (size_t i(1); i < gtiCuts.size(); i++) {
+      if (gtiCuts.at(i)->gti().minValue() < tmin) {
+         tmin = gtiCuts.at(i)->gti().minValue();
+      }
+      if (gtiCuts.at(i)->gti().maxValue() < tmax) {
+         tmax = gtiCuts.at(i)->gti().maxValue();
+      }
+   }
+   setCuts(ra, dec, radius, emin, emax, tmin, tmax);
 }
 
 void RoiCuts::sortCuts(bool strict) {
