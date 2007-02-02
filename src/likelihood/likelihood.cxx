@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.126 2006/12/14 21:04:07 peachey Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.127 2007/02/02 21:08:04 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -109,7 +109,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.126 2006/12/14 21:04:07 peachey Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.127 2007/02/02 21:08:04 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -246,8 +246,7 @@ void likelihood::run() {
                                    "Exposure", compareGtis);
       }
       m_helper->setRoi();
-      m_helper->readScData(m_helper->observation().roiCuts().minTime(),
-                           m_helper->observation().roiCuts().maxTime());
+      m_helper->readScData();
       m_helper->readExposureMap();
    }
    createStatistic();

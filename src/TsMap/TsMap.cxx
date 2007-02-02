@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.33 2006/06/10 15:08:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.34 2006/07/06 00:29:04 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.33 2006/06/10 15:08:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.34 2006/07/06 00:29:04 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -133,7 +133,9 @@ void TsMap::run() {
                             m_eventFiles[i], ev_table,
                             compareGtis, relyOnStreams, skipEventClassCuts);
    }
-   m_helper->setRoi(m_eventFiles[0]);
+/// @bug Ascertain why this was called with just the first event file.
+///   m_helper->setRoi(m_eventFiles[0]);
+   m_helper->setRoi();
    m_helper->readScData();
    m_helper->readExposureMap();
 
