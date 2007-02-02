@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb  2 14:22:08 PST 2007
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Log Message:
+read in only the spacecraft data intervals that are covered by the event data
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb  2 14:22:07 PST 2007
 Likelihood/Likelihood
 
