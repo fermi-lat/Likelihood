@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.88 2006/12/20 02:00:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.89 2007/02/09 14:54:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -255,20 +255,20 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
 
    st_stream::StreamFormatter formatter("PointSource",
                                         "computeExposureWithHyperCube", 3);
-   formatter.info() << "Computing exposure at (" 
+   formatter.warn() << "Computing exposure at (" 
                     << srcDir.ra() << ", " 
                     << srcDir.dec() << ")";
    for (std::vector<double>::const_iterator it = energies.begin();
         it != energies.end(); it++) {
       if (verbose) {
-         formatter.info() << ".";
+         formatter.warn() << ".";
       }
       PointSource::Aeff aeff(*it, srcDir, observation.roiCuts(),
                              observation.respFuncs());
       double exposure_value = observation.expCube().value(srcDir, aeff);
       exposure.push_back(exposure_value);
    }
-   formatter.info() << "!" << std::endl;
+   formatter.warn() << "!" << std::endl;
 }
 
 void PointSource::computeExposure(const astro::SkyDir & srcDir,
@@ -292,7 +292,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
 
    st_stream::StreamFormatter formatter("PointSource",
                                         "computeExposure", 3);
-   formatter.info() << "Computing exposure at (" 
+   formatter.warn() << "Computing exposure at (" 
                     << srcDir.ra() << ", " 
                     << srcDir.dec() << ")";
    size_t npts;
@@ -303,7 +303,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    }
    for (unsigned int it = 0; it < npts && it < scData.vec.size()-1; it++) {
       if (npts/20 > 0 && ((it % (npts/20)) == 0)) {
-         formatter.info() << ".";
+         formatter.warn() << ".";
       }
       double start(scData.vec.at(it).time);
       double stop(scData.vec.at(it+1).time);
@@ -332,13 +332,13 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
             double effArea = sourceEffArea(srcDir, energies[k], time, 
                                            scData, roiCuts, respFuncs);
             if (effArea < 0 || fraction < 0 || (stop-start) < 0) {
-               formatter.info() << effArea << std::endl;
+               formatter.warn() << effArea << std::endl;
             }
             exposure[k] += effArea*livetime*fraction;
          }
       }
    }
-   formatter.info() << "!" << std::endl;
+   formatter.warn() << "!" << std::endl;
 }
 
 void PointSource::makeEnergyVector(int nee) {
@@ -373,11 +373,11 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
 //    try {
       effArea = aeff(cos_theta);
 //    } catch (std::exception & eObj) {
-//       formatter.info() << eObj.what() << "\n"
+//       formatter.warn() << eObj.what() << "\n"
 //                        << "cos_theta = " << cos_theta
 //                        << std::endl;
 //    } catch (...) {
-//       formatter.info() << "caught unknown exception for "
+//       formatter.warn() << "caught unknown exception for "
 //                        << "cos_theta = " << cos_theta
 //                        << std::endl;
 //    }
@@ -420,7 +420,7 @@ double PointSource::Aeff::operator()(double cos_theta) const {
 //       } catch (std::exception & eObj) { 
 //          st_stream::StreamFormatter formatter("PointSource::Aeff", 
 //                                               "operator()", 2);
-//          formatter.info() << eObj.what() << std::endl;
+//          formatter.warn() << eObj.what() << std::endl;
 //       }
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();

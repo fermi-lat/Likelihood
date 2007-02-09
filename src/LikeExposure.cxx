@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.20 2006/09/19 23:07:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.21 2006/09/21 20:46:34 jchiang Exp $
  */
 
 #include <algorithm>
@@ -87,7 +87,7 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
 
    for (long irow = 0; it != scData->end() && start < m_tmax; ++it, ++irow) {
       if (verbose && (irow % istep) == 0 ) {
-         formatter.info() << "."; 
+         formatter.warn() << "."; 
       }
       row["livetime"].get(livetime);
       row["start"].get(start);
@@ -101,7 +101,7 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
       }
    }
    if (verbose) {
-      formatter.info() << "!" << std::endl;
+      formatter.warn() << "!" << std::endl;
    }
 }
 

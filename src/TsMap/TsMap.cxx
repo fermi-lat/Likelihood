@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.35 2007/02/02 22:22:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.36 2007/02/02 23:42:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.35 2007/02/02 22:22:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.36 2007/02/02 23:42:23 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -212,7 +212,7 @@ void TsMap::computeMap() {
 
    for (unsigned int jj = 0; jj < m_latValues.size(); jj++) {
       if ((jj % m_latValues.size()/20) == 0) {
-         m_formatter->info() << ".";
+         m_formatter->warn() << ".";
       }
       for (unsigned int ii = 0; ii < m_lonValues.size(); ii++) {
          if (m_coordSys == "CEL") {
@@ -242,7 +242,7 @@ void TsMap::computeMap() {
          m_logLike->deleteSource(testSrc.getName());
       }
    }
-   m_formatter->info() << "!" << std::endl;
+   m_formatter->warn() << "!" << std::endl;
 }
 
 void TsMap::makeDoubleVector(double xmin, double xmax, int nx,

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.55 2006/04/17 05:52:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.56 2006/04/19 05:41:59 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -217,7 +217,14 @@ makePointSource(const DOMElement * spectrum,
       }
    }
 
-   Source * src = new PointSource(ra, dec, m_observation, m_verbose);
+   Source * src(0);
+   if (m_requireExposure) {
+      src = new PointSource(ra, dec, m_observation, m_verbose);
+   } else { // for BinnedLikelihood, skip the exposure calculation
+      src = new PointSource();
+      dynamic_cast<PointSource *>(src)->setDir(ra, dec, m_requireExposure,
+                                               m_verbose);
+   }
 
    try {
       setSpectrum(src, spectrum, funcFactory);
