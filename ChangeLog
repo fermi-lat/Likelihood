@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Feb  9 13:48:06 PST 2007
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+change to StreamFormatter::warn() to get unbuffered screen output; skip unneeded exposure calculation in SourceFactory when doing a binned analysis
+    *
+------------------------------------------------------------
+User: jchiang  Fri Feb  9 13:48:06 PST 2007
 Likelihood/src
 
 Modified Files:
