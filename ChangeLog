@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb  9 06:54:59 PST 2007
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+comment out do-nothing exception handling
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r12p5, operation: add
 Package: Likelihood
