@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.28 2006/09/11 21:18:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.29 2006/09/20 19:02:28 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.28 2006/09/11 21:18:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.29 2006/09/20 19:02:28 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -64,7 +64,7 @@ public:
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true, 
                         bool addPointSources=true) {
-      SourceModel::readXml(xmlFile, funcFactory, requireExposure,
+      SourceModel::readXml(xmlFile, funcFactory, requireExposure=false,
                            addPointSources);
       if (m_srcMapsFile == "") {
          createSourceMaps();

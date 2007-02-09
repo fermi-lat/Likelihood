@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.127 2007/02/02 21:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.128 2007/02/02 22:22:10 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -109,7 +109,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.127 2007/02/02 21:08:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.128 2007/02/02 22:22:10 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -775,7 +775,7 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
    astro::SkyDir roiCenter 
       = m_helper->observation().roiCuts().extractionRegion().center();
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      m_formatter->info() << ".";
+      m_formatter->warn() << ".";
       Source * src = m_logLike->getSource(srcNames[i]);
       if (src->getType() == "Point" &&
           src->spectrum().getNumFreeParams() > 0) {
@@ -816,7 +816,7 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
          m_logLike->setFreeParamValues(fitParams);
       }
    }
-   m_formatter->info() << "!" << std::endl;
+   m_formatter->warn() << "!" << std::endl;
 // Reset parameter values.
    m_logLike->setFreeParamValues(fitParams);
 }

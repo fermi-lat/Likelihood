@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.40 2006/08/23 19:26:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.41 2006/09/07 18:26:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.40 2006/08/23 19:26:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.41 2006/09/07 18:26:41 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -145,15 +145,15 @@ void diffuseResponses::run() {
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
    std::vector<std::string>::const_iterator evtfile;
    buildSourceModel();
-   m_formatter->info() << "Working on...\n";
+   m_formatter->warn() << "Working on...\n";
    for (evtfile = eventFiles.begin(); evtfile != eventFiles.end(); ++evtfile) {
       if (clobber || !haveDiffuseColumns(*evtfile)) {
-         m_formatter->info() << *evtfile;
+         m_formatter->warn() << *evtfile;
          readEventData(*evtfile);
          computeEventResponses();
          writeEventResponses(*evtfile);
       } else {
-         m_formatter->info() << "Diffuse columns have already been "
+         m_formatter->warn() << "Diffuse columns have already been "
                              << "computed for "
                              << *evtfile << "...skipping it." 
                              << std::endl;
@@ -259,12 +259,12 @@ void diffuseResponses::computeEventResponses() {
          factor = 1;
       }
       if ((i % factor) == 0) {
-         m_formatter->info() << ".";
+         m_formatter->warn() << ".";
       }
       it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
                           m_srRadius);
    }
-   m_formatter->info() << "!" << std::endl;
+   m_formatter->warn() << "!" << std::endl;
 }
 
 void diffuseResponses::writeEventResponses(std::string eventFile) {
@@ -301,7 +301,7 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
                // do nothing if tip fails us again here.
             }
          } catch (tip::TipException &eObj) {
-            m_formatter->info() << eObj.what() << "\n"
+            m_formatter->warn() << eObj.what() << "\n"
                                 << "Using existing column." << std::endl;
          }
       }

@@ -4,7 +4,7 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.39 2006/10/03 20:52:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.40 2006/12/19 20:59:47 jchiang Exp $
  */
 #include <algorithm>
 #include <utility>
@@ -158,7 +158,7 @@ void ExposureMap::computeMap(std::string filename,
             step = 2;
          }
          if ((ncount % step) == 0) {
-            formatter.info() << ".";
+            formatter.warn() << ".";
          }
 
 // NB: wcslib (via astro::SkyProj) starts indexing pixels at 1, not 0, 
@@ -182,7 +182,7 @@ void ExposureMap::computeMap(std::string filename,
          ncount++;
       }
    }
-   formatter.info() << "!" << std::endl;
+   formatter.warn() << "!" << std::endl;
 
    writeFitsFile(filename, naxes, crpix, crval, cdelt, energies, expMap);
 }
