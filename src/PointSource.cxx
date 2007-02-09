@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.87 2006/09/19 23:07:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.88 2006/12/20 02:00:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -370,17 +370,17 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
    st_stream::StreamFormatter formatter("PointSource", "sourceEffArea", 3);
 
    double effArea(0);
-   try {
+//    try {
       effArea = aeff(cos_theta);
-   } catch (std::exception & eObj) {
-      formatter.info() << eObj.what() << "\n"
-                       << "cos_theta = " << cos_theta
-                       << std::endl;
-   } catch (...) {
-      formatter.info() << "caught unknown exception for "
-                       << "cos_theta = " << cos_theta
-                       << std::endl;
-   }
+//    } catch (std::exception & eObj) {
+//       formatter.info() << eObj.what() << "\n"
+//                        << "cos_theta = " << cos_theta
+//                        << std::endl;
+//    } catch (...) {
+//       formatter.info() << "caught unknown exception for "
+//                        << "cos_theta = " << cos_theta
+//                        << std::endl;
+//    }
    return effArea;
 }
 
@@ -414,14 +414,14 @@ double PointSource::Aeff::operator()(double cos_theta) const {
 // Sledgehammer approach to handle IRF misbehavior, probably not needed given
 // the aeff_val < 0.1 test.
       double psf_val(0);
-      try {
+//       try {
          psf_val = psf->angularIntegral(m_energy, m_srcDir,
                                         theta, phi, m_cones);
-      } catch (std::exception & eObj) { 
-         st_stream::StreamFormatter formatter("PointSource::Aeff", 
-                                              "operator()", 2);
-         formatter.info() << eObj.what() << std::endl;
-      }
+//       } catch (std::exception & eObj) { 
+//          st_stream::StreamFormatter formatter("PointSource::Aeff", 
+//                                               "operator()", 2);
+//          formatter.info() << eObj.what() << std::endl;
+//       }
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 
