@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.55 2006/09/18 20:59:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.56 2006/11/12 23:59:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,6 +21,8 @@
 #include "Likelihood/Npred.h"
 #include "Likelihood/SrcArg.h"
 
+#include "Likelihood/Accumulator.h"
+
 namespace Likelihood {
 
 LogLike::LogLike(const Observation & observation) 
@@ -36,6 +38,7 @@ double LogLike::value(optimizers::Arg&) const {
 // The "data sum"
    for (size_t j = 0; j < events.size(); j++) {
       my_value += logSourceModel(events.at(j));
+      m_accumulator.add(logSourceModel(events.at(j)));
    }
 
 // The "model integral", a sum over Npred for each source
@@ -44,20 +47,25 @@ double LogLike::value(optimizers::Arg&) const {
          npred(m_npredValues.begin());
       for ( ; npred != m_npredValues.end(); ++npred) {
          my_value -= npred->second;
+         m_accumulator.add(-npred->second);
       }
    } else {
       std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
       for ( ; srcIt != m_sources.end(); ++srcIt) {
          SrcArg sArg(srcIt->second);
          my_value -= m_Npred(sArg);
+         m_accumulator.add(-m_Npred(sArg));
       }
    }
+   double my_total(m_accumulator.total());
    st_stream::StreamFormatter formatter("LogLike", "value", 4);
    formatter.info() << m_nevals << "  "
                     << my_value << "  "
+                    << my_total << "  "
                     << std::clock() - start << std::endl;
    m_nevals++;
-   return my_value;
+//   return my_value;
+   return my_total;
 }
 
 double LogLike::logSourceModel(const Event & event) const {
