@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.28 2006/09/18 20:59:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.29 2006/11/12 23:59:51 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -11,6 +11,7 @@
 
 #include <map>
 
+#include "Likelihood/Accumulator.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/Npred.h"
@@ -31,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.28 2006/09/18 20:59:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.29 2006/11/12 23:59:51 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -82,6 +83,8 @@ protected:
 private:
 
    Npred m_Npred;
+
+   mutable Accumulator m_accumulator;
 
    std::map<std::string, double> m_npredValues;
 
