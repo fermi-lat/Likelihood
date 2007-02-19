@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb 19 10:05:32 PST 2007
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Added Files:
+	Accumulator.cxx 
+Log Message:
+add Accumulator class
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 19 10:05:31 PST 2007
 Likelihood/Likelihood
 
