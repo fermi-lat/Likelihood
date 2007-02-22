@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.29 2006/11/12 23:59:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.30 2007/02/19 18:05:31 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.29 2006/11/12 23:59:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.30 2007/02/19 18:05:31 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -87,6 +87,8 @@ private:
    mutable Accumulator m_accumulator;
 
    std::map<std::string, double> m_npredValues;
+
+   mutable Accumulator m_accumulator;
 
    double logSourceModel(const Event & event) const;
 
