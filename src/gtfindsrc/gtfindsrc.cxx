@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.2 2006/07/12 02:12:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.3 2006/07/14 16:49:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -11,6 +11,7 @@
 #include <cstring>
 
 #include <fstream>
+#include <iomanip>
 #include <stdexcept>
 
 #include "st_stream/StreamFormatter.h"
@@ -245,6 +246,7 @@ public:
       }
       optimizers::dArg dummy(1.);
       double test_value = -m_logLike(dummy);
+      m_formatter.info().precision(10);
       m_formatter.info() << coords[0] << "  "
                          << coords[1] << "  "
                          << test_value << std::endl;
@@ -292,11 +294,17 @@ double findSrc::fitPosition(double step) {
    if (m_testSrc->getName() == "testSource") {
       m_logLike->deleteSource("testSource");
    }
-   double pos_error(errEst(func.testPoints()));
+   double pos_error(0);
+   try {
+      pos_error = errEst(func.testPoints());
+   } catch (std::runtime_error & eObj) {
+      formatter.info() << eObj.what() << std::endl;
+   }
    std::string outfile = m_pars["outfile"];
    const std::vector< std::vector<double> > & testPoints(func.testPoints());
    if (outfile != "" && outfile != "none") {
       std::ofstream output(outfile.c_str());
+      output << std::setprecision(10);
       for (size_t i = 0; i < testPoints.size(); i++) {
          output << testPoints.at(i).at(0) << "  "
                 << testPoints.at(i).at(1) << "  "
@@ -336,6 +344,10 @@ errEst(const std::vector< std::vector<double> > & testPoints) const {
       }
    }
    double AA( (npts*Sxy - Sy*Sx)/(npts*Sxx - Sx*Sx) );
+   if (AA <= 0) {
+      throw std::runtime_error("A reliable positional error estimate cannot "
+                               "be made.  Please inspect the output file");
+   }
    return 180./M_PI/std::sqrt(2.*AA);
 }
 

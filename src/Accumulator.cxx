@@ -4,7 +4,7 @@
  * bins before summing.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Accumulator.cxx,v 1.1 2007/02/19 18:05:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -14,6 +14,9 @@
 #include "Likelihood/Accumulator.h"
 
 namespace Likelihood {
+
+Accumulator::Accumulator() : m_setOuterBounds(true), m_first(true), 
+                             m_total(0), m_npts(10) {}
 
 void Accumulator::add(double value) {
    double absvalue(std::abs(value));
@@ -33,23 +36,27 @@ void Accumulator::add(double value) {
    if (m_first) {
       m_total += value;
    } else {
-      m_partialSums.at(indx(absvalue)) += value;
+      m_partialSums.at(indx(absvalue)).add(value);
    }
 }
 
 double Accumulator::total() {
    if (m_first) {
       m_first = false;
-      m_partialSums.resize(m_npts, 0);
+      m_partialSums.resize(m_npts);
       return m_total;
    }
-   std::stable_sort(m_partialSums.begin(), m_partialSums.end());
-   m_total = 0;
+   std::vector<double> sums;
    for (size_t i(0); i < m_partialSums.size(); i++) {
-      m_total += m_partialSums.at(i);
+      sums.push_back(m_partialSums.at(i).total());
+   }
+   std::stable_sort(sums.begin(), sums.end());
+   m_total = 0;
+   for (size_t i(0); i < sums.size(); i++) {
+      m_total += sums.at(i);
    }
    m_partialSums.clear();
-   m_partialSums.resize(m_npts, 0);
+   m_partialSums.resize(m_npts);
    return m_total;
 }
 

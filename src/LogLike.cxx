@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.56 2006/11/12 23:59:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.57 2007/02/19 18:05:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -16,12 +16,11 @@
 
 #include "st_stream/StreamFormatter.h"
 
+#include "Likelihood/Accumulator.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Npred.h"
 #include "Likelihood/SrcArg.h"
-
-#include "Likelihood/Accumulator.h"
 
 namespace Likelihood {
 
