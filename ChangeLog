@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb 23 18:25:51 PST 2007
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+reorder function calls
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb 23 07:44:35 PST 2007
 Likelihood/Likelihood
 
