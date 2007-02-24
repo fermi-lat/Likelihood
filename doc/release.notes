@@ -1,9 +1,14 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.203 2007/02/02 23:43:50 jchiang Exp $
+    $Id: release.notes,v 1.204 2007/02/09 21:52:20 jchiang Exp $
 
     @verbatim
+    v11r13   23-Feb-07 JC  gtfindsrc bug fixes: initial likelihood evaluation
+                           now returns correct log-likelihood; error estimator
+                           made more robust, issuing a warning if a reliable
+                           error estimate cannot be made; added Accumulator
+                           class, used in unbinned likelihood.
     v11r12p6 09-Feb-07 JC  use StreamFormatter::warn() to get unbuffered
                            screen output; skip unneeded exposure calculations
                            in BinnedLikelihood; bug-fix for psf corrections

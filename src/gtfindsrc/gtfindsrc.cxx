@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.4 2007/02/22 22:08:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.5 2007/02/24 02:25:50 jchiang Exp $
  */
 
 #include <cmath>
@@ -291,7 +291,8 @@ double findSrc::fitPosition(double step) {
    st_stream::StreamFormatter formatter("findSrc", "fitPosition", 2);
    LikeFunc func(*m_opt, *m_logLike, *m_testSrc, formatter, coordSys, 
                  tol, reopt);
-   optimizers::Amoeba my_amoeba(func, coords, step);
+   bool addstep;
+   optimizers::Amoeba my_amoeba(func, coords, step, addstep=true);
    double pos_tol = m_pars["amoeba_tolerance"];
    double statValue = my_amoeba.findMin(coords, pos_tol);
    if (m_testSrc->getName() == "testSource") {
