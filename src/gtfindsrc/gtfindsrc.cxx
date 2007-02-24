@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.3 2006/07/14 16:49:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.4 2007/02/22 22:08:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -67,9 +67,9 @@ private:
    std::vector<std::string> m_eventFiles;
 
    void promptForInputData();
+   void readEventData();
    void readSrcModel();
    void identifyTarget();
-   void readEventData();
    void selectOptimizer();
    double fitPosition(double step=0.1);
    double errEst(const std::vector< std::vector<double> > & testPoints) const;
@@ -133,9 +133,9 @@ void findSrc::run() {
    m_helper->readExposureMap();
 
    m_logLike = new LogLike(m_helper->observation());
+   readEventData();
    readSrcModel();
    identifyTarget();
-   readEventData();
    selectOptimizer();
    m_pars.Save();
    fitPosition();
@@ -163,6 +163,18 @@ void findSrc::promptForInputData() {
    }
 }
 
+void findSrc::readEventData() {
+   std::vector<std::string> eventFiles;
+   std::string evfile = m_pars["evfile"];
+   Util::file_ok(evfile);
+   Util::resolve_fits_files(evfile, eventFiles);
+   std::vector<std::string>::const_iterator evIt = eventFiles.begin();
+   for ( ; evIt != eventFiles.end(); evIt++) {
+      Util::file_ok(*evIt);
+      m_helper->observation().eventCont().getEvents(*evIt);
+   }
+}
+
 void findSrc::readSrcModel() {
    std::string srcModelFile = m_pars["source_model_file"];
    if (srcModelFile != "" && srcModelFile != "none") {
@@ -171,8 +183,12 @@ void findSrc::readSrcModel() {
       formatter.info() << "Building source model from "
                        << srcModelFile << std::endl;
       m_logLike->readXml(srcModelFile, m_helper->funcFactory());
+      m_logLike->computeEventResponses();
+// evaluate log-likelihood using the input source model
+      std::cout << "-log-likelihood of input source model: "
+                << -m_logLike->value() << std::endl;
    }
-}   
+}
 
 void findSrc::identifyTarget() {
    m_pars.Prompt("target_source");
@@ -197,19 +213,6 @@ void findSrc::identifyTarget() {
       throw std::runtime_error("Target source " + target + 
                                " is not a point source.");
    }
-}
-
-void findSrc::readEventData() {
-   std::vector<std::string> eventFiles;
-   std::string evfile = m_pars["evfile"];
-   Util::file_ok(evfile);
-   Util::resolve_fits_files(evfile, eventFiles);
-   std::vector<std::string>::const_iterator evIt = eventFiles.begin();
-   for ( ; evIt != eventFiles.end(); evIt++) {
-      Util::file_ok(*evIt);
-      m_helper->observation().eventCont().getEvents(*evIt);
-   }
-   m_logLike->computeEventResponses();
 }
 
 void findSrc::selectOptimizer() {
@@ -346,7 +349,7 @@ errEst(const std::vector< std::vector<double> > & testPoints) const {
    double AA( (npts*Sxy - Sy*Sx)/(npts*Sxx - Sx*Sx) );
    if (AA <= 0) {
       throw std::runtime_error("A reliable positional error estimate cannot "
-                               "be made.  Please inspect the output file");
+                               "be made.\nPlease inspect the output file");
    }
    return 180./M_PI/std::sqrt(2.*AA);
 }
