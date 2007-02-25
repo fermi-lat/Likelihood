@@ -3,13 +3,14 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.6 2007/02/24 05:36:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.7 2007/02/25 15:35:19 jchiang Exp $
  */
 
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include <stdexcept>
