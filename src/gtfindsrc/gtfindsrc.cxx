@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.5 2007/02/24 02:25:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.6 2007/02/24 05:36:27 jchiang Exp $
  */
 
 #include <cmath>
@@ -263,6 +263,10 @@ public:
    const std::vector< std::vector<double> > & testPoints() const {
       return m_testPoints;
    }
+   // Sort from highest to lowest function value.
+   void sortPoints() {
+      std::stable_sort(m_testPoints.begin(), m_testPoints.end(), compare);
+   }
 private:
    optimizers::Optimizer & m_opt;
    LogLike & m_logLike;
@@ -273,6 +277,12 @@ private:
    bool m_findMin;
 
    std::vector< std::vector<double> > m_testPoints;
+
+   // Want to sort from highest to lowest.
+   static bool compare(const std::vector<double> & x,
+                       const std::vector<double> & y) {
+      return x.at(2) > y.at(2);
+   }
 };
 
 double findSrc::fitPosition(double step) {
@@ -298,6 +308,7 @@ double findSrc::fitPosition(double step) {
    if (m_testSrc->getName() == "testSource") {
       m_logLike->deleteSource("testSource");
    }
+   func.sortPoints();
    double pos_error(0);
    try {
       pos_error = errEst(func.testPoints());
