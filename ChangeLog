@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb 25 07:35:19 PST 2007
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+sort results so that best fit is returned as last entry
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r13, operation: add
 Package: Likelihood
