@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.204 2007/02/09 21:52:20 jchiang Exp $
+    $Id: release.notes,v 1.205 2007/02/24 05:36:27 jchiang Exp $
 
     @verbatim
+    v11r13p2 25-Feb-07 JC  #include <algorithm> in gtfindsrc.cxx
+    v11r13p1 25-Feb-07 JC  sort results in gtfindsrc
     v11r13   23-Feb-07 JC  gtfindsrc bug fixes: initial likelihood evaluation
                            now returns correct log-likelihood; error estimator
                            made more robust, issuing a warning if a reliable
