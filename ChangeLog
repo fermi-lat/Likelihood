@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb 25 11:54:02 PST 2007
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+include <algorithm> in gtfindsrc.cxx; tagging v11r13p2
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r13p1, operation: add
 Package: Likelihood
