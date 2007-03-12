@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.7 2007/02/25 15:35:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.8 2007/02/25 19:54:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -359,11 +359,13 @@ errEst(const std::vector< std::vector<double> > & testPoints) const {
          npts++;
       }
    }
-   double AA( (npts*Sxy - Sy*Sx)/(npts*Sxx - Sx*Sx) );
-   if (AA <= 0) {
+   double numerator(npts*Sxy - Sy*Sx);
+   double denominator(npts*Sxx - Sx*Sx);
+   if (denominator == 0 || numerator == 0 || numerator/denominator <= 0 ) {
       throw std::runtime_error("A reliable positional error estimate cannot "
                                "be made.\nPlease inspect the output file");
    }
+   double AA(numerator/denominator);
    return 180./M_PI/std::sqrt(2.*AA);
 }
 
