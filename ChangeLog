@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 14 13:11:11 PDT 2007
+Likelihood/src
+
+Modified Files:
+	MapCubeFunction.cxx SpatialMap.cxx 
+Log Message:
+preserve env vars for FITS file specifications in xml
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 14 13:10:43 PDT 2007
 Likelihood/pfiles
 
