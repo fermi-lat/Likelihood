@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.19 2006/02/20 23:23:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.20 2006/04/18 05:43:43 jchiang Exp $
  *
  */
 
@@ -74,17 +74,19 @@ void SpatialMap::readFitsFile(const std::string & fitsFile,
    m_fitsFile = fitsFile;
    m_extension = extension;
 
-   facilities::Util::expandEnvVar(&m_fitsFile);
+   std::string expandedFileName(fitsFile);
 
-   if (!st_facilities::Util::fileExists(m_fitsFile)) {
-// The following to stdout is necessary since Xerces seems to corrupt
-// the exception handling when this method is called from
+   facilities::Util::expandEnvVar(&expandedFileName);
+
+   if (!st_facilities::Util::fileExists(expandedFileName)) {
+// The following to StreamFormatter is necessary since Xerces seems to
+// corrupt the exception handling when this method is called from
 // SourceFactory::readXml and the program simply aborts.
       st_stream::StreamFormatter formatter("SpatialMap", "readFitsFile", 2);
-      formatter.err() << "File not found: " << m_fitsFile << std::endl;
-      throw std::runtime_error("File not found: " + m_fitsFile);
+      formatter.err() << "File not found: " << expandedFileName << std::endl;
+      throw std::runtime_error("File not found: " + expandedFileName);
    }
-   m_wcsmap = new WcsMap(m_fitsFile, extension);
+   m_wcsmap = new WcsMap(expandedFileName, extension);
 }
 
 double SpatialMap::value(optimizers::Arg & arg) const {
