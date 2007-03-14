@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.8 2007/02/25 19:54:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.9 2007/03/12 17:28:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -66,6 +66,8 @@ private:
    optimizers::Optimizer * m_opt;
    PointSource * m_testSrc;
    std::vector<std::string> m_eventFiles;
+
+   double m_logLike0;
 
    void promptForInputData();
    void readEventData();
@@ -186,8 +188,9 @@ void findSrc::readSrcModel() {
       m_logLike->readXml(srcModelFile, m_helper->funcFactory());
       m_logLike->computeEventResponses();
 // evaluate log-likelihood using the input source model
+      m_logLike0 = -m_logLike->value();
       std::cout << "-log-likelihood of input source model: "
-                << -m_logLike->value() << std::endl;
+                << m_logLike0 << std::endl;
    }
 }
 
@@ -230,10 +233,10 @@ public:
    LikeFunc(optimizers::Optimizer & opt, LogLike & logLike, 
             PointSource & testSrc, st_stream::StreamFormatter & formatter, 
             const std::string & coordSys="CEL",
-            double tol=1e-5, bool findMin=true)
+            double tol=1e-5, bool findMin=true, double logLike_offset=0)
       : m_opt(opt), m_logLike(logLike), m_testSrc(testSrc),
         m_formatter(formatter), m_coordSys(coordSys), 
-        m_tol(tol), m_findMin(findMin) {
+        m_tol(tol), m_findMin(findMin), m_logLike_offset(logLike_offset) {
       m_logLike.addSource(&m_testSrc);
    }
    virtual ~LikeFunc() {}
@@ -249,7 +252,7 @@ public:
          m_opt.find_min(0, m_tol);
       }
       optimizers::dArg dummy(1.);
-      double test_value = -m_logLike(dummy);
+      double test_value = -m_logLike(dummy) - m_logLike_offset;
       m_formatter.info().precision(10);
       m_formatter.info() << coords[0] << "  "
                          << coords[1] << "  "
@@ -277,6 +280,8 @@ private:
    double m_tol;
    bool m_findMin;
 
+   double m_logLike_offset;
+
    std::vector< std::vector<double> > m_testPoints;
 
    // Want to sort from highest to lowest.
@@ -301,7 +306,7 @@ double findSrc::fitPosition(double step) {
    bool reopt = m_pars["reoptimize"];
    st_stream::StreamFormatter formatter("findSrc", "fitPosition", 2);
    LikeFunc func(*m_opt, *m_logLike, *m_testSrc, formatter, coordSys, 
-                 tol, reopt);
+                 tol, reopt, m_logLike0);
    bool addstep;
    optimizers::Amoeba my_amoeba(func, coords, step, addstep=true);
    double pos_tol = m_pars["amoeba_tolerance"];
