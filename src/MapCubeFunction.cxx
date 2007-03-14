@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.18 2006/02/20 23:23:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.19 2006/04/17 16:14:44 jchiang Exp $
  */
 
 #include <algorithm>
@@ -138,7 +138,8 @@ void MapCubeFunction::readFitsFile(const std::string & fits_file) {
       formatter.info() << "File not found: " << fitsFile << std::endl;
       throw std::runtime_error("File not found: " + fitsFile);
    }
-   m_fitsFile = fitsFile;
+//   m_fitsFile = fitsFile;
+   m_fitsFile = fits_file;
    m_proj = new astro::SkyProj(fitsFile);
 
    st_facilities::FitsImage fitsImage(fitsFile);
@@ -162,7 +163,9 @@ findIndex(const std::vector<double> & xx, double x) const {
 }
 
 double MapCubeFunction::mapIntegral() const {
-   st_facilities::FitsImage fitsImage(m_fitsFile);
+   std::string fitsFile(m_fitsFile);
+   facilities::Util::expandEnvVar(&fitsFile);
+   st_facilities::FitsImage fitsImage(fitsFile);
    std::vector<double> solidAngles;
 
    fitsImage.getSolidAngles(solidAngles);
