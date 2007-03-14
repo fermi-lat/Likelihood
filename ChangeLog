@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 14 13:10:43 PDT 2007
+Likelihood/pfiles
+
+Modified Files:
+	gtfindsrc.par 
+Log Message:
+use "absolute" convergence for position tolerance
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 14 13:10:21 PDT 2007
 Likelihood/doc
 
