@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 14 13:11:49 PDT 2007
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+use absolute convergence criterion (approximate by subtracting initial value
+of log-likelihood)
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 14 13:11:11 PDT 2007
 Likelihood/src
 
