@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 16 15:18:23 PDT 2007
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+clean up spurious TNULL1 keyword
+
+    *
+------------------------------------------------------------
 User: jchiang  Fri Mar 16 15:18:06 PDT 2007
 Likelihood/doc
 
