@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Mar 16 15:07:39 PDT 2007
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+add TSTART and TSTOP keywords to gtlivetimecube output
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r14, operation: add
 Package: Likelihood
