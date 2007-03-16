@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.39 2006/09/19 23:07:33 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.40 2007/03/16 22:07:38 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,7 +33,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.39 2006/09/19 23:07:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.40 2007/03/16 22:07:38 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -101,6 +101,7 @@ void ExposureCube::run() {
    tip::Header & header(table->getHeader());
    header["TSTART"].set(m_roiCuts->minTime());
    header["TSTOP"].set(m_roiCuts->maxTime());
+   header.erase("TNULL1");
 }
 
 void ExposureCube::readRoiCuts() {
