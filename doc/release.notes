@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.207 2007/03/12 17:30:22 jchiang Exp $
+    $Id: release.notes,v 1.208 2007/03/14 20:10:20 jchiang Exp $
 
     @verbatim
+    v11r14p1 16-Mar-07 JC  add TSTART, TSTOP keywords to gtlivetimecube
+                           Exposure extension header
     v11r14   14-Mar-07 JC  subtract initial logLike as offset in gtfindsrc
                            to approximate absolute fit tolerance in position
                            estimate; preserve environment variables when
