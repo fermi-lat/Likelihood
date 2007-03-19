@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 19 11:20:30 PDT 2007
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx 
+Log Message:
+use relative tolerance of 1e-5 for finding desired energy level in binned exposure maps
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r14p1, operation: add
 Package: Likelihood
