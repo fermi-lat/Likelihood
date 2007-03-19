@@ -1,9 +1,13 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.208 2007/03/14 20:10:20 jchiang Exp $
+    $Id: release.notes,v 1.209 2007/03/16 22:18:05 jchiang Exp $
 
     @verbatim
+    v11r14p2 19-Mar-07 JC  use relative tolerance of 1e-5 for finding desired 
+                           energy level in binned exposure maps; ensure 
+                           computed energy bounds match requested values 
+                           in gtcntsmap (JIRA LK-31)
     v11r14p1 16-Mar-07 JC  add TSTART, TSTOP keywords to gtlivetimecube
                            Exposure extension header
     v11r14   14-Mar-07 JC  subtract initial logLike as offset in gtfindsrc
