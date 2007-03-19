@@ -3,7 +3,7 @@
  * @brief Creates counts maps for use by binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.18 2006/09/18 16:51:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtcntsmap/gtcntsmap.cxx,v 1.19 2006/09/26 20:13:46 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -191,6 +191,8 @@ void gtcntsmap::logArray(double xmin, double xmax, size_t nx,
       xmins.push_back(xmin*exp(i*xstep));
       xmaxs.push_back(xmin*exp((i+1)*xstep));
    }
+// Ensure endpoint matches specified exactly.
+   xmaxs.back() = xmax;
 }
 
 void gtcntsmap::checkEnergies(double emin, double emax) const {
