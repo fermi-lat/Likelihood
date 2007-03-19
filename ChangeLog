@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 19 12:03:27 PDT 2007
+Likelihood/src/gtcntsmap
+
+Modified Files:
+	gtcntsmap.cxx 
+Log Message:
+ensure computed energy bounds match requested values; suppress warning in CountsMap compile
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 19 12:03:26 PDT 2007
 Likelihood/Likelihood
 
