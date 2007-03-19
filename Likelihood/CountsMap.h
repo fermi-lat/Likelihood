@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.20 2006/09/18 16:50:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.21 2006/09/26 20:13:26 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -128,7 +128,7 @@ private:
 
    mutable std::vector<Pixel> m_pixels;
 
-   CountsMap & operator=(const CountsMap & rhs) {return *this;}
+   CountsMap & operator=(const CountsMap &) {return *this;}
 
    void init(std::vector<evtbin::Binner *> & binners, 
              const std::string & event_file, const std::string & ev_table,
