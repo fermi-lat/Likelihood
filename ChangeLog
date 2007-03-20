@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Tue Mar 20 13:28:24 PDT 2007
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Added Files:
+	PowerLawSuperExpCutoff.cxx 
+Log Message:
+add Damien Parent's PowerLawSuperExpCutoff function
+    *
+------------------------------------------------------------
+User: jchiang  Tue Mar 20 13:28:24 PDT 2007
 Likelihood/Likelihood
 
 Added Files:
