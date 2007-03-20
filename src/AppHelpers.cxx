@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.58 2007/02/02 21:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.59 2007/02/02 22:22:07 jchiang Exp $
  */
 
 #include <map>
@@ -29,6 +29,7 @@
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
@@ -102,6 +103,8 @@ void AppHelpers::prepareFunctionFactory() {
    m_funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
    m_funcFactory->addFunc("BPLExpCutoff", new BrokenPowerLawExpCutoff(),
                           makeClone);
+   m_funcFactory->addFunc("PowerLawSuperExpCutoff", 
+                          new PowerLawSuperExpCutoff(), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,
