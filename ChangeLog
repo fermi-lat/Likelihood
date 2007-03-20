@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 20 13:28:24 PDT 2007
+Likelihood/Likelihood
+
+Added Files:
+	PowerLawSuperExpCutoff.h 
+Log Message:
+add Damien Parent's PowerLawSuperExpCutoff function
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r14p2, operation: add
 Package: Likelihood
