@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Mar 20 16:46:23 PDT 2007
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+integrate PowerLawSuperExpCutoff
+    *
+------------------------------------------------------------
+User: jchiang  Tue Mar 20 16:46:23 PDT 2007
 Likelihood/src
 
 Modified Files:
