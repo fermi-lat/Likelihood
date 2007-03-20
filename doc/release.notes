@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.209 2007/03/16 22:18:05 jchiang Exp $
+    $Id: release.notes,v 1.210 2007/03/19 19:05:39 jchiang Exp $
 
     @verbatim
+    v11r15   20-Mar-07 JC  add Damien Parent's PowerLawSuperExpCutoff for
+                           modeling pulsar spectra
     v11r14p2 19-Mar-07 JC  use relative tolerance of 1e-5 for finding desired 
                            energy level in binned exposure maps; ensure 
                            computed energy bounds match requested values 
