@@ -3,6 +3,7 @@
  * @brief Declaration for the PowerLawSuperExpCutoff Function class
  * @author Damien Parent
  *
+ * $Header$
  */
 
 #ifndef Likelihood_PowerLawSuperExpCutoff_h

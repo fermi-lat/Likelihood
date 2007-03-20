@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.59 2007/02/02 22:22:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.60 2007/03/20 20:28:24 jchiang Exp $
  */
 
 #include <map>
@@ -103,7 +103,7 @@ void AppHelpers::prepareFunctionFactory() {
    m_funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
    m_funcFactory->addFunc("BPLExpCutoff", new BrokenPowerLawExpCutoff(),
                           makeClone);
-   m_funcFactory->addFunc("PowerLawSuperExpCutoff", 
+   m_funcFactory->addFunc("PLSuperExpCutoff", 
                           new PowerLawSuperExpCutoff(), makeClone);
 }
 

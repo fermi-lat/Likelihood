@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLawSuperExpCutoff Function class
  * @author Damien Parent
  *
- * $Header: 
+ * $Header$
  */
 
 #include <cmath>
