@@ -3,12 +3,13 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.45 2007/02/02 21:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.46 2007/03/27 15:03:25 jchiang Exp $
  */
 
 #include <cmath>
 
 #include <algorithm>
+#include <iomanip>
 #include <string>
 #include <sstream>
 #include <stdexcept>
@@ -81,9 +82,11 @@ void ScData::readData(std::string file, double tstart,
    m_scFile = file;
 
    std::ostringstream filter;
+   filter << std::setprecision(10);
    filter << "(START >= " << tstart
           << ") && (STOP <= " << tstop << ")";
-
+//    std::cout << "ScData::readData: using filter string: \n" 
+//              << "  " << filter.str() << std::endl;
    const tip::Table * scData = 
       tip::IFileSvc::instance().readTable(file, sctable, filter.str());
 
@@ -98,13 +101,13 @@ void ScData::readData(std::string file, double tstart,
    for ( ; it != scData->end(); ++it) {
       ScNtuple tuple;
       scInterval["start"].get(tuple.time);
-      if (tuple.time > tstop) {
-         break;
-      }
+//       if (tuple.time > tstop) {
+//          break;
+//       }
       scInterval["stop"].get(tuple.stoptime);
-      if (tuple.stoptime < tstart) {
-         continue;
-      }
+//       if (tuple.stoptime <= tstart) {
+//          continue;
+//       }
       scInterval["livetime"].get(tuple.livetime);
       scInterval["ra_scx"].get(raSCX);
       scInterval["dec_scx"].get(decSCX);
