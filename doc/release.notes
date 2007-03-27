@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.210 2007/03/19 19:05:39 jchiang Exp $
+    $Id: release.notes,v 1.211 2007/03/20 23:54:59 jchiang Exp $
 
     @verbatim
+    v11r15p1 27-Mar-07 JC  use filter string to limit part of FT2 data
+                           that is read in
     v11r15   20-Mar-07 JC  add Damien Parent's PowerLawSuperExpCutoff for
                            modeling pulsar spectra
     v11r14p2 19-Mar-07 JC  use relative tolerance of 1e-5 for finding desired 
