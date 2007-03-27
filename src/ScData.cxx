@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.44 2006/04/01 00:04:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.45 2007/02/02 21:08:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -80,8 +80,12 @@ void ScData::readData(std::string file, double tstart,
 
    m_scFile = file;
 
+   std::ostringstream filter;
+   filter << "(START >= " << tstart
+          << ") && (STOP <= " << tstop << ")";
+
    const tip::Table * scData = 
-      tip::IFileSvc::instance().readTable(file, sctable);
+      tip::IFileSvc::instance().readTable(file, sctable, filter.str());
 
    if (clear) {
       vec.clear();
