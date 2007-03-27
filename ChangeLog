@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 27 08:03:25 PDT 2007
+Likelihood/src
+
+Modified Files:
+	ScData.cxx 
+Log Message:
+improve efficiency of reading in spacecraft data using filter string
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r15, operation: add
 Package: Likelihood
