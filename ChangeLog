@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr  8 15:44:28 PDT 2007
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+modify gtfindsrc output; make convergence criterion more like an absolute tolerance; tagging v11r15p2
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r15p1, operation: add
 Package: Likelihood
