@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Apr  8 15:44:29 PDT 2007
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+modify gtfindsrc output; make convergence criterion more like an absolute tolerance; tagging v11r15p2
+    *
+------------------------------------------------------------
+User: jchiang  Sun Apr  8 15:44:29 PDT 2007
 Likelihood/doc
 
 Modified Files:
