@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.9 2007/03/12 17:28:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.10 2007/03/14 20:11:49 jchiang Exp $
  */
 
 #include <cmath>
@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 #include <stdexcept>
 
 #include "st_stream/StreamFormatter.h"
@@ -252,7 +253,7 @@ public:
          m_opt.find_min(0, m_tol);
       }
       optimizers::dArg dummy(1.);
-      double test_value = -m_logLike(dummy) - m_logLike_offset;
+      double test_value = -m_logLike(dummy) - m_logLike_offset + 1.;
       m_formatter.info().precision(10);
       m_formatter.info() << coords[0] << "  "
                          << coords[1] << "  "
@@ -307,6 +308,13 @@ double findSrc::fitPosition(double step) {
    st_stream::StreamFormatter formatter("findSrc", "fitPosition", 2);
    LikeFunc func(*m_opt, *m_logLike, *m_testSrc, formatter, coordSys, 
                  tol, reopt, m_logLike0);
+
+   std::ostringstream initial_values;
+   initial_values << "initial starting values: "
+                  << std::setprecision(10)
+                  << coords[0] << "  "
+                  << coords[1] << "  "
+                  << m_logLike0;
    bool addstep;
    optimizers::Amoeba my_amoeba(func, coords, step, addstep=true);
    double pos_tol = m_pars["amoeba_tolerance"];
@@ -332,6 +340,11 @@ double findSrc::fitPosition(double step) {
                 << testPoints.at(i).at(2) << "  "
                 << pos_error << std::endl;
       }
+      output << initial_values.str() << "\n";
+      output << "final values: "
+             << testPoints.back().at(0) << "  "
+             << testPoints.back().at(1) << "  "
+             << statValue + m_logLike0 - 1. << std::endl;
       output.close();
    }
    formatter.info() << "Best fit position: "
