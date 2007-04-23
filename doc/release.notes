@@ -1,9 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.212 2007/03/27 17:52:53 jchiang Exp $
+    $Id: release.notes,v 1.213 2007/04/08 22:44:29 jchiang Exp $
 
     @verbatim
+    v11r15p3 23-Apr-07 JC  apply padding to start and stop times in 
+                           ScData::readData to ensure non-empty set
+                           of FT2 intervals is found.
     v11r15p2 08-Mar-07 JC  modify output of gtfindsrc so that initial
                            and final values are summarized in the output
                            file; add unity to objective function to 
