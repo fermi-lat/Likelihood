@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.46 2007/03/27 15:03:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.47 2007/03/27 17:52:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -77,6 +77,9 @@ void ScData::readData(std::string file, bool clear,
 void ScData::readData(std::string file, double tstart, 
                       double tstop, bool clear,
                       const std::string & sctable) {
+   static double maxIntervalSize(30);
+   tstart -= 2*maxIntervalSize;
+   tstop += 2*maxIntervalSize;
    facilities::Util::expandEnvVar(&file);
 
    m_scFile = file;
