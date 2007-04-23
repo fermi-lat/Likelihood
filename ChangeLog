@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr 23 11:29:59 PDT 2007
+Likelihood/src
+
+Modified Files:
+	ScData.cxx 
+Log Message:
+add padding to start and start times to ensure non-empty SC_DATA intervals
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r15p2, operation: add
 Package: Likelihood
