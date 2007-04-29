@@ -1,10 +1,12 @@
-evfile,f,a,"test_events_0000.fits",,,"Event data file"
+evfile,s,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
-scfile,f,a,"test_scData_0000.fits",,,"Spacecraft data file"
+scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 outfile,f,a,"expCube.fits",,,"Output file"
 cos_theta_step,r,a,0.025,0.,1.,"Step size in cos(theta)"
 pixel_size,r,a,1,,,"Pixel size (degrees)"
+tmin,r,h,0,,,"Minimum time (MET)"
+tmax,r,h,0,,,"Maximum time (MET)"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

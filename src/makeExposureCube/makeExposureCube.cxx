@@ -3,11 +3,12 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.40 2007/03/16 22:07:38 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.41 2007/03/16 22:18:23 jchiang Exp $
  */
 
 #include <cstdlib>
 
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -26,6 +27,37 @@
 #include "Likelihood/LikeExposure.h"
 #include "Likelihood/RoiCuts.h"
 
+namespace {
+   void getTBounds(const std::vector< std::pair<double, double> > & gtis,
+                   double & tmin, double & tmax) {
+      if (gtis.size() > 0) {
+         tmin = gtis.at(0).first;
+         tmax = gtis.at(0).second;
+      }
+      for (size_t i(0); i < gtis.size(); i++) {
+         if (gtis.at(i).first < tmin) {
+            tmin = gtis.at(i).first;
+         }
+         if (gtis.at(i).second > tmax) {
+            tmax = gtis.at(i).second;
+         }
+      }         
+   }
+   void getTimeBounds(const std::vector< std::pair<double, double> > & gtis,
+                      const std::vector< std::pair<double, double> > & tranges,
+                      double & tmin, double & tmax) {
+      getTBounds(gtis, tmin, tmax);
+      double t0(tmin), t1(tmax);
+      getTBounds(tranges, t0, t1);
+      if (t0 < tmin) {
+         tmin = t0;
+      }
+      if (t1 > tmax) {
+         tmax = t1;
+      }
+   }
+}
+
 /**
  * @class ExposureCube
  * @brief Class to encapsulate methods for creating an exposure
@@ -33,7 +65,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.40 2007/03/16 22:07:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.41 2007/03/16 22:18:23 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -106,11 +138,17 @@ void ExposureCube::run() {
 
 void ExposureCube::readRoiCuts() {
    std::string event_file = m_pars["evfile"];
-   std::string evtable = m_pars["evtable"];
-   std::vector<std::string> eventFiles;
-   st_facilities::Util::resolve_fits_files(event_file, eventFiles);
    m_roiCuts = new Likelihood::RoiCuts();
-   m_roiCuts->readCuts(eventFiles, evtable, false);
+   if (event_file != "") {
+      std::string evtable = m_pars["evtable"];
+      std::vector<std::string> eventFiles;
+      st_facilities::Util::resolve_fits_files(event_file, eventFiles);
+      m_roiCuts->readCuts(eventFiles, evtable, false);
+   } else {
+      double tmin = m_pars["tmin"];
+      double tmax = m_pars["tmax"];
+      m_roiCuts->setCuts(0, 0, 180, 30, 3e5, tmin, tmax, -1, true);
+   }
 }
 
 void ExposureCube::createDataCube() {
@@ -118,6 +156,17 @@ void ExposureCube::createDataCube() {
    std::vector<std::pair<double, double> > gtis;
    m_roiCuts->getTimeCuts(timeCuts);
    m_roiCuts->getGtis(gtis);
+
+   double tmin, tmax;
+   ::getTimeBounds(gtis, timeCuts, tmin, tmax);
+   static double maxIntervalSize(30);
+   tmin -= 2.*maxIntervalSize;
+   tmax += 2.*maxIntervalSize;
+   std::ostringstream filter;
+   filter << std::setprecision(20);
+   filter << "(START >= " << tmin << ") && (STOP <= " << tmax << ")";
+   std::cout << "applying filter: " << filter.str() << std::endl;
+
    m_exposure = new Likelihood::LikeExposure(m_pars["pixel_size"], 
                                              m_pars["cos_theta_step"],
                                              timeCuts, gtis);
@@ -131,8 +180,9 @@ void ExposureCube::createDataCube() {
       st_stream::StreamFormatter formatter("gtlivetimecube", 
                                            "createDataCube", 2);
       formatter.err() << "Working on file " << *scIt << std::endl;
-      tip::Table * scData = 
-         tip::IFileSvc::instance().editTable(*scIt, m_pars["sctable"]);
+      const tip::Table * scData = 
+         tip::IFileSvc::instance().readTable(*scIt, m_pars["sctable"],
+                                             filter.str());
       int chatter = m_pars["chatter"];
       bool print_output(true);
       if (chatter < 2) {
