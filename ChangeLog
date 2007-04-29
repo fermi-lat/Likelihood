@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Apr 29 14:09:29 PDT 2007
+Likelihood/pfiles
+
+Modified Files:
+	gtlivetimecube.par 
+Log Message:
+use extended filename syntax to prefilter FT2 file; enable livetimecube generation without FT1 file
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r15p3, operation: add
 Package: Likelihood
