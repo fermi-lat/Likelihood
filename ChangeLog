@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Apr 29 14:09:29 PDT 2007
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx 
+Log Message:
+use extended filename syntax to prefilter FT2 file; enable livetimecube generation without FT1 file
+    *
+------------------------------------------------------------
+User: jchiang  Sun Apr 29 14:09:29 PDT 2007
 Likelihood/pfiles
 
 Modified Files:
