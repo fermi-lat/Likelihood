@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.213 2007/04/08 22:44:29 jchiang Exp $
+    $Id: release.notes,v 1.214 2007/04/23 18:32:40 jchiang Exp $
 
     @verbatim
+    v11r16   29-Apr-07 JC  enable livetimecube generation without FT1 file
     v11r15p3 23-Apr-07 JC  apply padding to start and stop times in 
                            ScData::readData to ensure non-empty set
                            of FT2 intervals is found.
