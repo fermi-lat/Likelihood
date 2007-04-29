@@ -1,10 +1,10 @@
 package Likelihood
-version v11r15p3
+version v11r16
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.327 2007/04/08 22:44:28 jchiang Exp $
+# $Id: requirements,v 1.328 2007/04/23 18:32:39 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -24,10 +24,6 @@ use hoops v*
 use st_app v*
 use st_graph v*
 
-#macro_append cppflags "" Linux " -pg "
-#macro_append Likelihood_linkopts "" Linux " -pg "
-
-#apply_pattern ST_library option=" -no_share *.c "
 apply_pattern ST_library option=" *.c "
 apply_pattern shared_st_library
 apply_pattern ST_pfiles
