@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.61 2006/06/30 15:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.62 2007/02/09 21:48:05 jchiang Exp $
  */
 
 #include <algorithm>
@@ -341,5 +341,11 @@ void SourceMap::prepareAngleArrays(int nmu, int nphi) {
       s_phi.push_back(phistep*i);
    }
 }
+   void SourceMap::setBinnedExpMapName(const std::string & filename) {
+      s_expMapFileName = filename;
+   }
 
+    const std::string & SourceMap::binnedExpMap() {
+      return s_expMapFileName;
+   }
 } // namespace Likelihood
