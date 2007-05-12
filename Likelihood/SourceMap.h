@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.35 2006/04/17 16:14:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.36 2006/06/30 15:41:24 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -29,13 +29,13 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.35 2006/04/17 16:14:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.36 2006/06/30 15:41:24 jchiang Exp $
  */
 
 #ifdef SWIG
 class SourceMap {
 #else
-class SCIENCETOOLS_API SourceMap {
+class  SCIENCETOOLS_API SourceMap {
 #endif
 
 public:
@@ -60,15 +60,9 @@ public:
    const std::string & srcType() const {
       return m_srcType;
    }
+   static void setBinnedExpMapName(const std::string & filename);
 
-   static void setBinnedExpMapName(const std::string & filename) {
-      s_expMapFileName = filename;
-   }
-
-   static const std::string & binnedExpMap() {
-      return s_expMapFileName;
-   }
-
+   static const std::string & binnedExpMap();
 private:
 
    std::string m_name;
