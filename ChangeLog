@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: burnett  Sat May 12 06:16:48 PDT 2007
+Likelihood/Likelihood
+
+Modified Files:
+	SourceMap.h 
+Log Message:
+move implementations to cxx file, needed by vcc8
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r16p1, operation: add
 Package: Likelihood
