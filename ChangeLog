@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun May 13 12:44:38 PDT 2007
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+test for separation between simplex points in case there is a discontinuity in the likelihood surface
+    *
+------------------------------------------------------------
 User: burnett  Sat May 12 06:16:49 PDT 2007
 Likelihood/src
 
