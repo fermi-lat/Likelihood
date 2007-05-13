@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.10 2007/03/14 20:11:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.11 2007/04/08 22:44:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -254,15 +254,21 @@ public:
       }
       optimizers::dArg dummy(1.);
       double test_value = -m_logLike(dummy) - m_logLike_offset + 1.;
-      m_formatter.info().precision(10);
-      m_formatter.info() << coords[0] << "  "
-                         << coords[1] << "  "
-                         << test_value << std::endl;
+//       m_formatter.info().precision(10);
+//       m_formatter.info() << coords[0] << "  "
+//                          << coords[1] << "  "
+//                          << test_value << std::endl;
       std::vector<double> point;
       point.push_back(coords[0]);
       point.push_back(coords[1]);
       point.push_back(test_value);
       m_testPoints.push_back(point);
+      static double pos_tol(1e-3);
+      size_t len(m_testPoints.size());
+      if (len > 2 && separation(m_testPoints.at(len-2), m_testPoints.at(len-1))
+          < pos_tol) {
+         throw Exception("positional tolerance satified");
+      }
       return test_value;
    }
    const std::vector< std::vector<double> > & testPoints() const {
@@ -272,6 +278,17 @@ public:
    void sortPoints() {
       std::stable_sort(m_testPoints.begin(), m_testPoints.end(), compare);
    }
+   class Exception : public std::exception {
+   public:
+      Exception(const std::string & message) : m_what(message) {}
+      virtual ~Exception() throw() {}
+      virtual const char * what() const throw() {
+         return m_what.c_str();
+      }
+   private:
+      std::string m_what;
+   };
+
 private:
    optimizers::Optimizer & m_opt;
    LogLike & m_logLike;
@@ -289,6 +306,13 @@ private:
    static bool compare(const std::vector<double> & x,
                        const std::vector<double> & y) {
       return x.at(2) > y.at(2);
+   }
+
+   double separation(const std::vector<double> & x,
+                     const std::vector<double> & y) const {
+      astro::SkyDir dir0(x.at(0), x.at(1));
+      astro::SkyDir dir1(y.at(0), y.at(1));
+      return dir0.difference(dir1)*180./M_PI;
    }
 };
 
@@ -318,11 +342,17 @@ double findSrc::fitPosition(double step) {
    bool addstep;
    optimizers::Amoeba my_amoeba(func, coords, step, addstep=true);
    double pos_tol = m_pars["amoeba_tolerance"];
-   double statValue = my_amoeba.findMin(coords, pos_tol);
+   try {
+      my_amoeba.findMin(coords, pos_tol);
+   } catch (LikeFunc::Exception & eObj) {
+      formatter.info() << eObj.what() << std::endl;
+   }
+
    if (m_testSrc->getName() == "testSource") {
       m_logLike->deleteSource("testSource");
    }
    func.sortPoints();
+   double statValue(func.testPoints().back().at(2));
    double pos_error(0);
    try {
       pos_error = errEst(func.testPoints());
