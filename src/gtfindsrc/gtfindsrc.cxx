@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.11 2007/04/08 22:44:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.12 2007/05/13 19:44:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -234,10 +234,12 @@ public:
    LikeFunc(optimizers::Optimizer & opt, LogLike & logLike, 
             PointSource & testSrc, st_stream::StreamFormatter & formatter, 
             const std::string & coordSys="CEL",
-            double tol=1e-5, bool findMin=true, double logLike_offset=0)
+            double tol=1e-5, bool findMin=true, double logLike_offset=0,
+            double accuracy=1e-3)
       : m_opt(opt), m_logLike(logLike), m_testSrc(testSrc),
         m_formatter(formatter), m_coordSys(coordSys), 
-        m_tol(tol), m_findMin(findMin), m_logLike_offset(logLike_offset) {
+        m_tol(tol), m_findMin(findMin), m_logLike_offset(logLike_offset),
+        m_accuracy(accuracy) {
       m_logLike.addSource(&m_testSrc);
    }
    virtual ~LikeFunc() {}
@@ -263,10 +265,9 @@ public:
       point.push_back(coords[1]);
       point.push_back(test_value);
       m_testPoints.push_back(point);
-      static double pos_tol(1e-3);
       size_t len(m_testPoints.size());
       if (len > 2 && separation(m_testPoints.at(len-2), m_testPoints.at(len-1))
-          < pos_tol) {
+          < m_accuracy) {
          throw Exception("positional tolerance satified");
       }
       return test_value;
@@ -297,8 +298,8 @@ private:
    std::string m_coordSys;
    double m_tol;
    bool m_findMin;
-
    double m_logLike_offset;
+   double m_accuracy;
 
    std::vector< std::vector<double> > m_testPoints;
 
@@ -329,9 +330,10 @@ double findSrc::fitPosition(double step) {
    }
    double tol = m_pars["fit_tolerance"];
    bool reopt = m_pars["reoptimize"];
+   double accuracy = m_pars["pos_accuracy"];
    st_stream::StreamFormatter formatter("findSrc", "fitPosition", 2);
    LikeFunc func(*m_opt, *m_logLike, *m_testSrc, formatter, coordSys, 
-                 tol, reopt, m_logLike0);
+                 tol, reopt, m_logLike0, accuracy);
 
    std::ostringstream initial_values;
    initial_values << "initial starting values: "
