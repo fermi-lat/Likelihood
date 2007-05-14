@@ -18,7 +18,7 @@ optimizer,s,a,"MINUIT",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_tolerance,r,a,1e-8,,,Tolerance for -log(Likelihood) at each trial point
 reoptimize,b,h,yes,,,Reoptimize at each location
 amoeba_tolerance,r,a,0.001,,,Covergence tolerance for positional fit
-pos_accuracy,r,h,0.001,,,Minimum ccuracy for best-fit position (deg)
+pos_accuracy,r,h,0.001,,,Accuracy for best-fit position (deg)
 
 chatter,        i, h, 2, , , "Output verbosity"
 clobber,        b, h, yes, , , "Overwrite existing output files"
