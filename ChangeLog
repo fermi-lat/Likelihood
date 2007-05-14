@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun May 13 17:41:19 PDT 2007
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+add positional accuracy constraint
+    *
+------------------------------------------------------------
 User: jchiang  Sun May 13 17:41:18 PDT 2007
 Likelihood/pfiles
 
