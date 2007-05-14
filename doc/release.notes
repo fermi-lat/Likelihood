@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.215 2007/04/29 21:11:20 jchiang Exp $
+    $Id: release.notes,v 1.216 2007/04/30 04:00:40 jchiang Exp $
 
     @verbatim
+    v11r17   13-May-07 JC  move static symbols from SourceMap.h to .cxx file;
+                           add positional accuracy parameter to gtfindsrc
     v11r16p1 29-Apr-07 JC  relegate FT2 prefilter message to chatter level 4
     v11r16   29-Apr-07 JC  enable livetimecube generation without FT1 file
     v11r15p3 23-Apr-07 JC  apply padding to start and stop times in 
