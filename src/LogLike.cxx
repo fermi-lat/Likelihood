@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.57 2007/02/19 18:05:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.58 2007/02/22 22:08:24 jchiang Exp $
  */
 
 #include <cmath>
@@ -223,6 +223,10 @@ void LogLike::syncSrcParams(const std::string & srcName) {
          const_cast<Event &>(events.at(j)).updateModelSum(*source->second);
       }
    }
+}
+
+double LogLike::NpredValue(const std::string & srcName) const {
+   return const_cast<Source &>(source(srcName)).Npred();
 }
 
 } // namespace Likelihood

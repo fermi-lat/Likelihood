@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.31 2007/02/22 22:08:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.32 2007/02/23 15:44:35 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.31 2007/02/22 22:08:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.32 2007/02/23 15:44:35 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -71,6 +71,8 @@ public:
    virtual void syncParams();
 
    virtual void syncSrcParams(const std::string & srcName);
+
+   virtual double NpredValue(const std::string & srcName) const;
 
 protected:
 
