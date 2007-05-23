@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 23 08:32:18 PDT 2007
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h LogLike.h 
+Log Message:
+add access to Npred for binned likelihood; tagging v11r18
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r17p1, operation: add
 Package: Likelihood
