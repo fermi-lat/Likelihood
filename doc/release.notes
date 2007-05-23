@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.217 2007/05/14 01:45:44 jchiang Exp $
+    $Id: release.notes,v 1.218 2007/05/15 05:35:33 jchiang Exp $
 
     @verbatim
+    v11r18   23-May-07 JC  add direct access to Npred calculation for
+                           binned likelihood
     v11r17p1 14-May-07 JC  update TSTART and TSTOP keywords in EXPOSURE
                            header for gtaddlivetime
     v11r17   13-May-07 JC  move static symbols from SourceMap.h to .cxx file;
