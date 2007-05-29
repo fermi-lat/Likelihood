@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Mon May 28 21:46:49 PDT 2007
+Likelihood/pfiles
+
+Modified Files:
+	gtbackfile.par gtcntsmap.par gtdiffresp.par gtexpmap.par 
+	gtfindsrc.par gtlikelihood.par gtmodelmap.par gtpsf.par 
+	gtsrcmaps.par gttsmap.par 
+Log Message:
+change default rspfunc to HANDOFF; disable build of gtcntsmap in favor of gtbin; tagging v11r19
+    *
+------------------------------------------------------------
+User: jchiang  Mon May 28 21:46:49 PDT 2007
 Likelihood/doc
 
 Modified Files:
