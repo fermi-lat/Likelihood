@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 29 10:18:20 PDT 2007
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+add default values for unused branch of analysis; tagging v11r19p1
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 29 10:18:19 PDT 2007
 Likelihood/cmt
 
