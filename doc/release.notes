@@ -1,9 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.219 2007/05/23 15:32:19 jchiang Exp $
+    $Id: release.notes,v 1.220 2007/05/29 04:46:48 jchiang Exp $
 
     @verbatim
+    v11r19p1 29-May-07 JC  give default par file values for input files for
+                           gtlikelihood (needed for unused branch, binned
+                           vs unbinned); reinstate gtcntsmap for now
     v11r19   28-May-07 JC  change default rspfunc to HANDOFF; disable   
                            gtcntsmap in favor of gtbin
     v11r18   23-May-07 JC  add direct access to Npred calculation for

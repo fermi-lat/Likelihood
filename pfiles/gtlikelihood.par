@@ -1,4 +1,6 @@
 #
+# $Header$
+#
 # parameters common to binned and unbinned
 #
 rspfunc,s,a,"HANDOFF",,,"Response functions to use"
@@ -21,16 +23,16 @@ query_for_refit,b,h,no,,,"Allow for refitting?"
 #
 # unbinned
 #
-evfile,f,a,"",,,"Event file"
+evfile,f,a,"none",,,"Event file"
 evtable,s,h,"EVENTS",,,"Event table extension"
-scfile,f,a,"",,,"Spacecraft file"
+scfile,f,a,"none",,,"Spacecraft file"
 sctable,s,h,"SC_DATA",,,"Spacecraft table extension"
 exposure_map_file,f,a,"none",,,"Unbinned exposure map"
 plot,b,h,no,,,"Plot unbinned counts spectra?"
 #
 # binned
 #
-counts_map_file,f,a,"",,,"Counts map file"
+counts_map_file,f,a,"none",,,"Counts map file"
 binned_exposure_map,f,a,"none",,,"Binned exposure map"
 apply_psf_corrections,b,h,yes,,,"apply psf integral corrections"
 
