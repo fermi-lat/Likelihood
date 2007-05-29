@@ -1,11 +1,14 @@
-scfile,f,a,"test_scData_0000.fits",,,"Spacecraft data file"
+#
+# $Header$
+#
+scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
-exposure_cube_file,fr,a,"expCube.fits",,,"Exposure hypercube file"
-counts_map_file,fr,a,"countsMap.fits",,,"Counts map file"
-source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
-binned_exposure_map,f,a,"binned_exposure.fits",,,"Binned exposure map"
-outfile,f,a,"srcMaps.fits",,,"Source maps output file"
-rspfunc,s,h,"DSS",,,"Response functions"
+exposure_cube_file,fr,a,"",,,"Exposure hypercube file"
+counts_map_file,fr,a,"",,,"Counts map file"
+source_model_file,fr,a,"",,,"Source model file"
+binned_exposure_map,f,a,"none",,,"Binned exposure map"
+outfile,f,a,"",,,"Source maps output file"
+rspfunc,s,a,"HANDOFF",,,"Response functions"
 perform_convolution,b,h,yes,,,"Perform convolution with psf"
 compute_point_sources,b,h,yes,,,"Compute point source maps"
 apply_psf_corrections,b,h,yes,,,"Apply psf integral corrections"
