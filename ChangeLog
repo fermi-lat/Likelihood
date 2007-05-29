@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 29 10:18:19 PDT 2007
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+add default values for unused branch of analysis; tagging v11r19p1
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r19, operation: add
 Package: Likelihood
