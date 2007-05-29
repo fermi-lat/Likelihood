@@ -1,8 +1,11 @@
-srcmaps,fr,a,"srcMaps.fits",,,"Source maps (or counts map) file"
-source_model_file,fr,a,"srcModel.xml",,,"Source model file"
-outfile,f,a,"model_map.fits",,,"Output file"
+#
+# $Header$
+#
+srcmaps,fr,a,"",,,"Source maps (or counts map) file"
+source_model_file,fr,a,"",,,"Source model file"
+outfile,f,a,"",,,"Output file"
 
-rspfunc,s,a,DC2,,,"Response functions"
+rspfunc,s,a,HANDOFF,,,"Response functions"
 expcube,f,h,none,,,"Exposure cube"
 binned_exposure_map,f,h,none,,,"Binned exposure map"
 perform_convolution,b,h,yes,,,"Perform convolution with psf"

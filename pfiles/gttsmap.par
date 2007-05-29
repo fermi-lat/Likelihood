@@ -1,13 +1,16 @@
-evfile,f,a,"test_events_0000.fits",,,"Event data file"
+#
+# $Header$
+#
+evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,Event data extension
-scfile,f,a,"test_scData_0000.fits",,,"Spacecraft data file"
+scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft file HDU
 exposure_map_file,f,a,"none",,,"Exposure map file"
 exposure_cube_file,f,a,"none",,,"Exposure hypercube file"
-source_model_file,f,a,"my_source_model.xml",,,"Source model file"
-outfile,f,a,"TsMap.fits",,,"TS map file name"
+source_model_file,f,a,"",,,"Source model file"
+outfile,f,a,"",,,"TS map file name"
 
-rspfunc,s,h,"DSS",,,"Response functions to use"
+rspfunc,s,a,"HANDOFF",,,"Response functions to use"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 fit_tolerance,r,a,1e-5,,,Fit tolerance
 

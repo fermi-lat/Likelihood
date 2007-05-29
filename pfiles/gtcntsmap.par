@@ -1,18 +1,21 @@
-evfile,f,a,"test_events_0000.fits",,,"Event data file"
+#
+# $Header$
+#
+evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
-scfile,fr,a,"test_scData_0000.fits",,,"Spacecraft data file"
+scfile,fr,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
-outfile,f,a,"countsMap.fits",,,"Output file name"
+outfile,f,a,"",,,"Output file name"
 energybinalg,s,a,"LOG",LOG|FILE,,Binning algorithm
 emin,r,a,30,20,3e5,Minimum energy (MeV)
 emax,r,a,200000,20,3e5,Maximum energy (MeV)
 nenergies,i,a,21,2,100,Number of energy bounds
 energybinfile,f,a,"none",,,"Energy bin definition file name"
 use_lb,b,a,no,,,"Use Galactic coordinates"
-ra,r,a,86.4,0,360,Right Ascension of map center (degrees)
-dec,r,a,28.9,-90,90,Declination of map center (degrees)
-glon,r,a,180,0,360,Galactic longitude of map center (degrees)
-glat,r,a,0,-90,90,Galactic latitude of map center (degrees)
+ra,r,a,,0,360,Right Ascension of map center (degrees)
+dec,r,a,,-90,90,Declination of map center (degrees)
+glon,r,a,,0,360,Galactic longitude of map center (degrees)
+glat,r,a,,-90,90,Galactic latitude of map center (degrees)
 nra,i,a,160,2,,Number of longitude pixels
 ndec,i,a,160,2,,Number of latitude pixels
 x_pixel_size,r,a,0.25,1e-2,2,Longitude pixel size (degrees)

@@ -1,11 +1,14 @@
-pha_file,fr,a,"Vela.pha",,,"pha file"
-outfile,f,a,"foo.pha",,,"output file"
-scfile,f,a,"test_scData_0000.fits",,,"Spacecraft file"
+#
+# $Header$
+#
+pha_file,fr,a,"",,,"pha file"
+outfile,f,a,"",,,"output file"
+scfile,f,a,"",,,"Spacecraft file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
-exposure_cube_file,fr,a,"expCube.fits",,,"Exposure hypercube file"
+exposure_cube_file,fr,a,"",,,"Exposure hypercube file"
 exposure_map_file,fr,a,"none",,,"Exposure file"
-rspfunc,s,a,"DC2",,,"Response functions to use"
-source_model_file,fr,a,"my_source_model.xml",,,"Source model file"
+rspfunc,s,a,"HANDOFF",,,"Response functions to use"
+source_model_file,fr,a,"",,,"Source model file"
 target_source,s,a,"none",,,"Target source name (excluded from background estimate)"
 
 chatter,i,h,2,0,4,Output verbosity

@@ -1,10 +1,13 @@
+#
+# $Header$
+#
 evfile,f,a,"",,,Event file
 evtable,s,h,EVENTS,,,Event data extension
 scfile,f,a,"",,,Spacecraft file
 sctable,s,h,SC_DATA,,,Spacecraft data extension
 outfile,f,a,"",,,Output file for trial points
 
-rspfunc,s,h,DSS,,,Response functions to use
+rspfunc,s,a,HANDOFF,,,Response functions to use
 exposure_cube_file,f,a,"none",,,Livetime cube file
 exposure_map_file,f,a,"none",,,Unbinned exposure map
 source_model_file,f,a,"none",,,Source model file

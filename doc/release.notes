@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.218 2007/05/15 05:35:33 jchiang Exp $
+    $Id: release.notes,v 1.219 2007/05/23 15:32:19 jchiang Exp $
 
     @verbatim
+    v11r19   28-May-07 JC  change default rspfunc to HANDOFF; disable   
+                           gtcntsmap in favor of gtbin
     v11r18   23-May-07 JC  add direct access to Npred calculation for
                            binned likelihood
     v11r17p1 14-May-07 JC  update TSTART and TSTOP keywords in EXPOSURE
