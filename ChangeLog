@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun  4 21:56:40 PDT 2007
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+application name changes; tagging v12
+    *
+------------------------------------------------------------
 TAG
 Tag name: v11r19p1, operation: add
 Package: Likelihood
