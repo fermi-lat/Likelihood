@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jun  4 22:11:18 PDT 2007
+Likelihood/src/backfile
+
+Modified Files:
+	backfile.cxx 
+Log Message:
+application name changes propagated to par files and application implementations
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jun  4 22:11:18 PDT 2007
 Likelihood/pfiles
 
 Added Files:
