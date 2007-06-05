@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jun  4 22:11:19 PDT 2007
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+application name changes propagated to par files and application implementations
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jun  4 22:11:19 PDT 2007
 Likelihood/src/gtaddlivetime
 
 Modified Files:
