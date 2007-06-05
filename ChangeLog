@@ -1,4 +1,17 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun  4 22:11:18 PDT 2007
+Likelihood/pfiles
+
+Added Files:
+	gtbkg.par gtdiffrsp.par gtlike.par gtltcube.par gtltsum.par 
+	gtmodel.par 
+Removed Files:
+	gtaddlivetime.par gtbackfile.par gtcntsmap.par gtdiffresp.par 
+	gtlikelihood.par gtlivetimecube.par gtmodelmap.par 
+Log Message:
+application name changes propagated to par files and application implementations
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jun  4 21:56:40 PDT 2007
 Likelihood/doc
 
