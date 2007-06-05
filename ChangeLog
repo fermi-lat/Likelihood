@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jun  4 22:11:20 PDT 2007
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+application name changes propagated to par files and application implementations
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jun  4 22:11:20 PDT 2007
 Likelihood/src/likelihood
 
 Modified Files:
