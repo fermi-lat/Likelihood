@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.42 2007/04/29 21:09:29 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.43 2007/04/30 04:00:40 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -65,12 +65,12 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.42 2007/04/29 21:09:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.43 2007/04/30 04:00:40 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
    ExposureCube() : st_app::StApp(), 
-                    m_pars(st_app::StApp::getParGroup("gtlivetimecube")), 
+                    m_pars(st_app::StApp::getParGroup("gtltcube")), 
                     m_exposure(0), m_roiCuts(0) {
       setVersion(s_cvs_id);
    }
@@ -94,7 +94,7 @@ private:
    static std::string s_cvs_id;
 };
 
-st_app::StAppFactory<ExposureCube> myAppFactory("gtlivetimecube");
+st_app::StAppFactory<ExposureCube> myAppFactory("gtltcube");
 
 std::string ExposureCube::s_cvs_id("$Name:  $");
 
@@ -114,7 +114,7 @@ void ExposureCube::run() {
       if (m_pars["clobber"]) {
          std::remove(output_file.c_str());
       } else {
-         st_stream::StreamFormatter formatter("gtlivetimecube", "run", 2);
+         st_stream::StreamFormatter formatter("gtltcube", "run", 2);
          formatter.err() << "Output file " << output_file 
                          << " already exists,\n"
                          << "and you have set 'clobber' to 'no'.\n"
@@ -152,7 +152,7 @@ void ExposureCube::readRoiCuts() {
 }
 
 void ExposureCube::createDataCube() {
-   st_stream::StreamFormatter formatter("gtlivetimecube", 
+   st_stream::StreamFormatter formatter("gtltcube", 
                                         "createDataCube", 2);
 
    std::vector<std::pair<double, double> > timeCuts;

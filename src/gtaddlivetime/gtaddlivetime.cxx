@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.7 2006/04/27 05:17:27 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.8 2007/05/15 05:35:33 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -33,13 +33,13 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.7 2006/04/27 05:17:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.8 2007/05/15 05:35:33 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
 public:
    AddLivetime() : st_app::StApp(), 
-                   m_pars(st_app::StApp::getParGroup("gtaddlivetime")) {
+                   m_pars(st_app::StApp::getParGroup("gtltsum")) {
    setVersion(s_cvs_id);
 }
    virtual ~AddLivetime() throw() {
@@ -61,7 +61,7 @@ private:
    static std::string s_cvs_id;
 };
 
-st_app::StAppFactory<AddLivetime> myAppFactory("gtaddlivetime");
+st_app::StAppFactory<AddLivetime> myAppFactory("gtltsum");
 
 std::string AddLivetime::s_cvs_id("$Name:  $");
 

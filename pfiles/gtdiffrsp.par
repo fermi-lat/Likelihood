@@ -1,5 +1,5 @@
 #
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtdiffresp.par,v 1.13 2007/05/29 04:46:49 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"

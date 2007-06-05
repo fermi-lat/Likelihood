@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.9 2006/04/17 05:52:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.10 2006/09/26 21:54:11 jchiang Exp $
  */
 
 #include <iostream>
@@ -66,7 +66,7 @@ namespace {
    void fitsReportError(FILE * stream, int status) {
       if (status != 0) {
          fits_report_error(stream, status);
-         throw std::runtime_error("gtmodelmap::trimExtensions(): "
+         throw std::runtime_error("gtmodel::trimExtensions(): "
                                   "cfitsio error.");
       }
    }
@@ -88,7 +88,7 @@ class ModelMap : public st_app::StApp {
 public:
 
    ModelMap() : st_app::StApp(),
-                m_pars(st_app::StApp::getParGroup("gtmodelmap")),
+                m_pars(st_app::StApp::getParGroup("gtmodel")),
                 m_funcFactory(0), m_srcmap(0) {
       setVersion(s_cvs_id);
    }
@@ -133,7 +133,7 @@ private:
                 
 };
 
-st_app::StAppFactory<ModelMap> myAppFactory("gtmodelmap");
+st_app::StAppFactory<ModelMap> myAppFactory("gtmodel");
 
 std::string ModelMap::s_cvs_id("$Name:  $");
 
@@ -207,7 +207,7 @@ void ModelMap::trimExtensions() {
    ::fitsReportError(stderr, status);
 
 // update creator keyword
-   char * creator = "gtmodelmap";
+   char * creator = "gtmodel";
    fits_update_key(fptr, TSTRING, "CREATOR", creator,
                    "Software creating file", &status);
    ::fitsReportError(stderr, status);
@@ -222,7 +222,7 @@ void ModelMap::sumOutputMap() {
    std::map<std::string, optimizers::Function *>::iterator it;
    for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
       std::string srcName = it->first;
-      st_stream::StreamFormatter formatter("gtmodelmap", "sumOutputMap", 2);
+      st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap", 2);
       try {
          getMap(srcName);
       } catch (tip::TipException &) {

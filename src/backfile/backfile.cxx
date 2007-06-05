@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.6 2006/04/17 05:52:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.7 2006/06/22 18:24:43 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -38,13 +38,13 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.6 2006/04/17 05:52:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.7 2006/06/22 18:24:43 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
 public:
    BackFile() : st_app::StApp(),
-                m_pars(st_app::StApp::getParGroup("gtbackfile")) {
+                m_pars(st_app::StApp::getParGroup("gtbkg")) {
       setVersion(s_cvs_id);
    }
    virtual ~BackFile() throw() {}
@@ -66,7 +66,7 @@ private:
    static std::string s_cvs_id;
 };
 
-st_app::StAppFactory<BackFile> myAppFactory("gtbackfile");
+st_app::StAppFactory<BackFile> myAppFactory("gtbkg");
 
 std::string BackFile::s_cvs_id("$Name:  $");
 
@@ -104,7 +104,7 @@ void BackFile::run() {
 
    std::string target = m_pars["target_source"];
 
-   st_stream::StreamFormatter formatter("gtbackfile", "run", 2);
+   st_stream::StreamFormatter formatter("gtbkg", "run", 2);
 
    if (std::find(srcNames.begin(), srcNames.end(), target)
        != srcNames.end()) {

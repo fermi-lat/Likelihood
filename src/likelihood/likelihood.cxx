@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.129 2007/02/09 21:48:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.130 2007/03/20 23:46:23 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -110,7 +110,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.129 2007/02/09 21:48:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.130 2007/03/20 23:46:23 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -177,7 +177,7 @@ private:
    static std::string s_cvs_id;
 };
 
-st_app::StAppFactory<likelihood> myAppFactory("gtlikelihood");
+st_app::StAppFactory<likelihood> myAppFactory("gtlike");
 
 std::string likelihood::s_cvs_id("$Name:  $");
 
@@ -190,9 +190,9 @@ void likelihood::banner() const {
 
 likelihood::likelihood() 
    : st_app::StApp(), m_helper(0), 
-     m_pars(st_app::StApp::getParGroup("gtlikelihood")),
+     m_pars(st_app::StApp::getParGroup("gtlike")),
      m_logLike(0), m_opt(0), m_dataMap(0), 
-     m_formatter(new st_stream::StreamFormatter("gtlikelihood", "", 2)),
+     m_formatter(new st_stream::StreamFormatter("gtlike", "", 2)),
      m_cpuStart(std::clock()),
      m_tsSrc(0), m_maxdist(20.) {
    setVersion(s_cvs_id);
