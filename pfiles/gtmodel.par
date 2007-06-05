@@ -1,5 +1,5 @@
 #
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtmodelmap.par,v 1.11 2007/05/29 04:46:49 jchiang Exp $
 #
 srcmaps,fr,a,"",,,"Source maps (or counts map) file"
 source_model_file,fr,a,"",,,"Source model file"

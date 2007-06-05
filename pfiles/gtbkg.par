@@ -1,5 +1,5 @@
 #
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtbackfile.par,v 1.9 2007/05/29 04:46:49 jchiang Exp $
 #
 pha_file,fr,a,"",,,"pha file"
 outfile,f,a,"",,,"output file"

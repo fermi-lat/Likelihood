@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.41 2006/09/07 18:26:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.42 2007/02/09 21:48:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.41 2006/09/07 18:26:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.42 2007/02/09 21:48:07 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -111,15 +111,15 @@ private:
    static std::string s_cvs_id;
 };
 
-st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffresp");
+st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffrsp");
 
 std::string diffuseResponses::s_cvs_id("$Name:  $");
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), 
-     m_formatter(new st_stream::StreamFormatter("gtdiffresp", "", 2)),
+     m_formatter(new st_stream::StreamFormatter("gtdiffrsp", "", 2)),
      m_srRadius(30.),
-     m_pars(st_app::StApp::getParGroup("gtdiffresp")) {
+     m_pars(st_app::StApp::getParGroup("gtdiffrsp")) {
    setVersion(s_cvs_id);
 }
 
