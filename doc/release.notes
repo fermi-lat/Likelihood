@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.220 2007/05/29 04:46:48 jchiang Exp $
+    $Id: release.notes,v 1.221 2007/05/29 17:18:20 jchiang Exp $
 
     @verbatim
+    v12      04-Jun-07 JC  application name changes
     v11r19p1 29-May-07 JC  give default par file values for input files for
                            gtlikelihood (needed for unused branch, binned
                            vs unbinned); reinstate gtcntsmap for now
