@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Jun  7 14:19:50 PDT 2007
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+response function handling bug-fix; enable quick approximate TS calculation for binned analysis in gtlikelihood
+    *
+------------------------------------------------------------
+User: jchiang  Thu Jun  7 14:19:50 PDT 2007
 Likelihood/src
 
 Modified Files:
