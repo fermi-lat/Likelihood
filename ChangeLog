@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun  7 14:19:50 PDT 2007
+Likelihood/src
+
+Modified Files:
+	ResponseFunctions.cxx 
+Log Message:
+response function handling bug-fix; enable quick approximate TS calculation for binned analysis in gtlikelihood
+    *
+------------------------------------------------------------
 TAG
 Tag name: v12, operation: add
 Package: Likelihood
