@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.130 2007/03/20 23:46:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.131 2007/06/05 05:11:20 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -110,7 +110,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.130 2007/03/20 23:46:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.131 2007/06/05 05:11:20 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -797,10 +797,8 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
                   m_formatter->err() << eObj.what() << std::endl;
                }
             } else {
-               if (m_statistic != "BINNED") {
-                  renormModel();
-                  m_logLike->syncParams();
-               }
+               renormModel();
+               m_logLike->syncParams();
             }
             null_value = std::max(m_logLike->value(), null_value);
             TsValues[srcNames[i]] = 2.*(logLike_value - null_value);
@@ -868,7 +866,7 @@ void likelihood::npredValues(double & freeNpred, double & totalNpred) const {
    for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
         srcName != srcNames.end(); ++srcName) {
       Source * src = m_logLike->getSource(*srcName);
-      double npred(src->Npred());
+      double npred(m_logLike->NpredValue(*srcName));
       totalNpred += npred;
       if (normPar(src).isFree() && isDiffuseOrNearby(src)) {
          freeNpred += npred;

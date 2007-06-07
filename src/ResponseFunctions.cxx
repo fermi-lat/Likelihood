@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.25 2006/09/11 21:18:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.26 2006/12/19 20:59:47 jchiang Exp $
  */
 
 #include <sstream>
@@ -67,7 +67,7 @@ double ResponseFunctions::totalResponse(double inclination, double phi,
    if (!irfs) {
       std::ostringstream message;
       message << "Could not find appropriate response functions "
-              << "for these event data."
+              << "for these event data." << std::endl
               << "Event class requested: " << type << std::endl;
       throw std::runtime_error(message.str());
    } else {
@@ -108,7 +108,8 @@ void ResponseFunctions::load(const std::string & respFuncs,
    if ( (it = responseIds.find(respFuncs)) != responseIds.end() ) {
       const std::vector<std::string> & resps = it->second;
       for (unsigned int i = 0; i < resps.size(); i++) {
-         addRespPtr(i, myFactory->create(resps[i]));
+         irfInterface::Irfs * irfs(myFactory->create(resps[i]));
+         addRespPtr(irfs->irfID(), irfs);
       }
       if (respBase == "") {
          setRespName(respFuncs);
