@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 TAG
+Tag name: v12, operation: mov
+Package: Likelihood
+User: glast  Tue Jun 12 08:49:47 2007
+Files:
+  Likelihood/src/ResponseFunctions.cxx  1.27
+
+    *
+------------------------------------------------------------
+TAG
 Tag name: v11r19p1, operation: mov
 Package: Likelihood
 User: glast  Tue Jun 12 08:49:38 2007
