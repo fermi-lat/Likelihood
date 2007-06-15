@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.131 2007/06/05 05:11:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.132 2007/06/07 21:19:50 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -81,6 +81,7 @@ namespace {
          m_normNames["FileFunction"] = "Normalization";
          m_normNames["LogParabola"] = "norm";
          m_normNames["PLSuperExpCutoff"] = "Prefactor";
+         m_normNames["ExpCutoff"] = "Prefactor";
       }
       std::map<std::string, std::string> m_normNames;
    };
@@ -110,7 +111,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.131 2007/06/05 05:11:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.132 2007/06/07 21:19:50 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
