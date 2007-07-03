@@ -1,19 +1,19 @@
 #
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtexpmap.par,v 1.13 2007/05/29 04:46:49 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
 scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
-exposure_cube_file,f,a,"",,,"Exposure hypercube file"
+expcube,f,a,"",,,"Exposure hypercube file"
 outfile,f,a,"",,,"output file name"
-rspfunc,s,a,"HANDOFF",,,"Response functions"
-use_energy_dispersion,b,h,no,,,Use energy dispersion?
-source_region_radius,r,a,30,,,Radius of the source region (in degrees)
-number_of_longitude_points,i,a,120,2,1000,Number of longitude points
-number_of_latitude_points,i,a,120,2,1000,Number of latitude points
-number_of_energies,i,a,20,2,100,Number of energies
-compute_submap,b,h,no,,,"Compute submap?"
+irfs,s,a,"HANDOFF",,,"Response functions"
+edisp,b,h,no,,,Use energy dispersion?
+srcrad,r,a,30,,,Radius of the source region (in degrees)
+nlong,i,a,120,2,1000,Number of longitude points
+nlat,i,a,120,2,1000,Number of latitude points
+nenergies,i,a,20,2,100,Number of energies
+submap,b,h,no,,,"Compute submap?"
 nlongmin,i,h,0,,,"minimum longitude index"
 nlongmax,i,h,0,,,"maximum longitude index"
 nlatmin,i,h,0,,,"minimum latitude index"

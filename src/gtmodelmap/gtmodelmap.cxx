@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.10 2006/09/26 21:54:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.11 2007/06/05 05:11:19 jchiang Exp $
  */
 
 #include <iostream>
@@ -262,7 +262,7 @@ void ModelMap::getMap(const std::string & srcName) {
 }
 
 void ModelMap::readSpectra() {
-   std::string model_file = m_pars["source_model_file"];
+   std::string model_file = m_pars["srcmdl"];
 
    xmlBase::XmlParser * parser = new xmlBase::XmlParser();
    DOMDocument * doc = parser->parse(model_file.c_str());
@@ -329,11 +329,11 @@ void ModelMap::prepareFunctionFactory() {
 
 void ModelMap::createRegistry() {
    std::string countsMap = m_pars["srcmaps"];
-   std::string xmlFile = m_pars["source_model_file"];
-   std::string irfs = m_pars["rspfunc"];
+   std::string xmlFile = m_pars["srcmdl"];
+   std::string irfs = m_pars["irfs"];
    std::string expCube = m_pars["expcube"];
-   std::string binnedExpMap = m_pars["binned_exposure_map"];
-   bool performConvolution = m_pars["perform_convolution"];
+   std::string binnedExpMap = m_pars["bexpmap"];
+   bool performConvolution = m_pars["convol"];
 
    if (expCube != "none") {
       m_registry = new SourceMapRegistry(countsMap, xmlFile, irfs, expCube,

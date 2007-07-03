@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.7 2006/06/22 18:24:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.8 2007/06/05 05:11:18 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -38,7 +38,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.7 2006/06/22 18:24:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.8 2007/06/05 05:11:18 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
@@ -83,26 +83,26 @@ void BackFile::setup() {
    m_helper = new Likelihood::AppHelpers(&m_pars, "none");
    std::string scfile = m_pars["scfile"];
    m_helper->observation().scData().readData(scfile);
-   std::string expMap = m_pars["exposure_map_file"];
+   std::string expMap = m_pars["expmap"];
    m_helper->observation().expMap().readExposureFile(expMap);
    m_helper->observation().roiCuts().readCuts(expMap, "");
-   std::string expCube = m_pars["exposure_cube_file"];
+   std::string expCube = m_pars["expcube"];
    m_helper->observation().expCube().readExposureCube(expCube);
 
-   std::string phafile = m_pars["pha_file"];
+   std::string phafile = m_pars["phafile"];
    m_helper->checkCuts(phafile, "SPECTRUM", expMap, "");
 }
 
 void BackFile::run() {
    setup();
    Likelihood::LogLike logLike(m_helper->observation());
-   std::string srcModel = m_pars["source_model_file"];
+   std::string srcModel = m_pars["srcmdl"];
    logLike.readXml(srcModel, m_helper->funcFactory());
 
    std::vector<std::string> srcNames;
    logLike.getSrcNames(srcNames);
 
-   std::string target = m_pars["target_source"];
+   std::string target = m_pars["target"];
 
    st_stream::StreamFormatter formatter("gtbkg", "run", 2);
 
@@ -137,7 +137,7 @@ void BackFile::run() {
       bg_counts.push_back(counts);
    }
    
-   std::string infile = m_pars["pha_file"];
+   std::string infile = m_pars["phafile"];
    std::string outfile = m_pars["outfile"];
 
    tip::FitsTipFile inputfile(infile);
@@ -151,7 +151,7 @@ void BackFile::run() {
 
 void BackFile::getEbounds(std::vector<double> & emin,
                           std::vector<double> & emax) const {
-   std::string pha_file = m_pars["pha_file"];
+   std::string pha_file = m_pars["phafile"];
    std::auto_ptr<const tip::Table>
       ebounds(tip::IFileSvc::instance().readTable(pha_file, "EBOUNDS"));
 

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.132 2007/06/07 21:19:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.133 2007/06/15 18:29:42 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -111,7 +111,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.132 2007/06/07 21:19:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.133 2007/06/15 18:29:42 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -198,41 +198,41 @@ likelihood::likelihood()
      m_tsSrc(0), m_maxdist(20.) {
    setVersion(s_cvs_id);
    m_pars.setSwitch("statistic");
-   m_pars.setCase("statistic", "BINNED", "counts_map_file");
-   m_pars.setCase("statistic", "BINNED", "binned_exposure_map");
-   m_pars.setCase("statistic", "BINNED", "apply_psf_corrections");
+   m_pars.setCase("statistic", "BINNED", "cmap");
+   m_pars.setCase("statistic", "BINNED", "bexpmap");
+   m_pars.setCase("statistic", "BINNED", "psfcorr");
    m_pars.setCase("statistic", "UNBINNED", "evfile");
    m_pars.setCase("statistic", "UNBINNED", "evtable");
    m_pars.setCase("statistic", "UNBINNED", "scfile");
    m_pars.setCase("statistic", "UNBINNED", "sctable");
-   m_pars.setCase("statistic", "UNBINNED", "exposure_map_file");
+   m_pars.setCase("statistic", "UNBINNED", "expmap");
 }
 
 void likelihood::run() {
    promptForParameters();
    std::string statistic = m_pars["statistic"];
    m_helper = new AppHelpers(&m_pars, statistic);
-   std::string expcube_file = m_pars["exposure_cube_file"];
+   std::string expcube_file = m_pars["expcube"];
    if (expcube_file != "none" && expcube_file != "") {
       ExposureCube & expCube = 
          const_cast<ExposureCube &>(m_helper->observation().expCube());
       expCube.readExposureCube(expcube_file);
    }
-   bool useEdisp = m_pars["use_energy_dispersion"];
+   bool useEdisp = m_pars["edisp"];
    ResponseFunctions & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(useEdisp);
    if (m_statistic == "BINNED") {
-      m_helper->setRoi(m_pars["counts_map_file"], "", false);
+      m_helper->setRoi(m_pars["cmap"], "", false);
    } else {
-      std::string exposureFile = m_pars["exposure_map_file"];
+      std::string exposureFile = m_pars["expmap"];
       std::string eventFile = m_pars["evfile"];
       std::string evtable = m_pars["evtable"];
       st_facilities::Util::file_ok(eventFile);
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
       bool compareGtis(false);
       bool relyOnStreams(false);
-      std::string respfunc = m_pars["rspfunc"];
+      std::string respfunc = m_pars["irfs"];
       bool skipEventClassCuts(respfunc != "DSS");
       for (size_t i = 1; i < m_eventFiles.size(); i++) {
          AppHelpers::checkCuts(m_eventFiles[0], evtable, m_eventFiles[i],
@@ -258,14 +258,14 @@ void likelihood::run() {
 // ST proclaimed nominal verbosity level is 2, but optimizers expect 1, so
 // we subtract 1.
    if (verbose > 1) verbose--;
-   double tol = m_pars["fit_tolerance"];
+   double tol = m_pars["ftol"];
    std::vector<double> errors;
 
 // The fit loop.  If indicated, query the user at the end of each
 // iteration whether the fit is to be performed again.  This allows
 // the user to adjust the source model xml file by hand between
 // iterations.
-   bool queryLoop = m_pars["query_for_refit"];
+   bool queryLoop = m_pars["refit"];
    do {
       readSourceModel();
 // Do the fit.
@@ -295,7 +295,7 @@ void likelihood::run() {
       }
    } while (queryLoop && prompt("Refit? [y] "));
    writeFluxXml();
-   if (m_pars["write_output_files"]) {
+   if (m_pars["save"]) {
       writeCountsSpectra();
    }
 //   writeCountsMap();
@@ -321,26 +321,26 @@ void likelihood::promptForParameters() {
    std::string statistic = m_pars["statistic"];
    m_statistic = statistic;
    if (m_statistic == "BINNED") {
-      m_pars.Prompt("counts_map_file");
-      m_pars.Prompt("binned_exposure_map");
+      m_pars.Prompt("cmap");
+      m_pars.Prompt("bexpmap");
    } else {
       m_pars.Prompt("scfile");
       m_pars.Prompt("evfile");
-      m_pars.Prompt("exposure_map_file");
+      m_pars.Prompt("expmap");
    }
-   m_pars.Prompt("exposure_cube_file");
-   m_pars.Prompt("source_model_file");
-   m_pars.Prompt("source_model_output_file");
+   m_pars.Prompt("expcube");
+   m_pars.Prompt("srcmdl");
+   m_pars.Prompt("sfile");
    AppHelpers::checkOutputFile(m_pars["clobber"], 
-                               m_pars["source_model_output_file"]);
+                               m_pars["sfile"]);
    m_pars.Prompt("flux_style_model_file");
    AppHelpers::checkOutputFile(m_pars["clobber"], 
-                               m_pars["flux_style_model_file"]);
-   m_pars.Prompt("rspfunc");
-   m_pars.Prompt("use_energy_dispersion");
+                               m_pars["fluxmdl"]);
+   m_pars.Prompt("irfs");
+   m_pars.Prompt("edisp");
    m_pars.Prompt("optimizer");
-   m_pars.Prompt("write_output_files");
-   m_pars.Prompt("query_for_refit");
+   m_pars.Prompt("save");
+   m_pars.Prompt("refit");
 
    m_pars.Save();
 }
@@ -352,18 +352,18 @@ void likelihood::createStatistic() {
             ("An exposure cube file is required for binned analysis. "
              "Please specify an exposure cube file.");
       }
-      std::string countsMapFile = m_pars["counts_map_file"];
+      std::string countsMapFile = m_pars["cmap"];
       st_facilities::Util::file_ok(countsMapFile);
       m_dataMap = new CountsMap(countsMapFile);
       bool apply_psf_corrections(false);
       try {
-         apply_psf_corrections = m_pars["apply_psf_corrections"];
+         apply_psf_corrections = m_pars["psfcorr"];
       } catch (...) {
          // assume parameter does not exist, so use default value.
       }
       m_logLike = new BinnedLikelihood(*m_dataMap, m_helper->observation(),
                                        countsMapFile, apply_psf_corrections);
-      std::string binnedMap = m_pars["binned_exposure_map"];
+      std::string binnedMap = m_pars["bexpmap"];
       if (binnedMap != "none" && binnedMap != "") {
          SourceMap::setBinnedExposure(binnedMap);
       }
@@ -383,7 +383,7 @@ void likelihood::readEventData() {
 }
 
 void likelihood::readSourceModel() {
-   std::string sourceModel = m_pars["source_model_file"];
+   std::string sourceModel = m_pars["srcmdl"];
    bool requireExposure(true);
    if (m_statistic == "BINNED") {
       requireExposure = false;
@@ -420,7 +420,7 @@ void likelihood::selectOptimizer(std::string optimizer) {
 }
 
 void likelihood::writeSourceXml() {
-   std::string xmlFile = m_pars["source_model_output_file"];
+   std::string xmlFile = m_pars["sfile"];
    std::string funcFileName("");
    if (xmlFile != "none") {
       m_formatter->info() << "Writing fitted model to " 
@@ -430,7 +430,7 @@ void likelihood::writeSourceXml() {
 }
 
 void likelihood::writeFluxXml() {
-   std::string xml_fluxFile = m_pars["flux_style_model_file"];
+   std::string xml_fluxFile = m_pars["fluxmdl"];
    if (xml_fluxFile != "none") {
       m_formatter->info() << "Writing flux-style xml model file to "
                           << xml_fluxFile << std::endl;
@@ -583,7 +583,7 @@ void likelihood::plotCountsSpectra() {
 
 void likelihood::writeCountsMap() {
 // If there is no valid exposure_cube_file, do nothing and return.
-   std::string expcube_file = m_pars["exposure_cube_file"];
+   std::string expcube_file = m_pars["expcube"];
    if (expcube_file == "none") {
       return;
    }
@@ -618,7 +618,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<double>::const_iterator errIt = errors.begin();
 
    std::ofstream resultsFile("results.dat");
-   bool write_output_files = m_pars["write_output_files"];
+   bool write_output_files = m_pars["save"];
    if (!write_output_files) {
       resultsFile.clear(std::ios::failbit);
    }
@@ -791,7 +791,7 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
             selectOptimizer();
 // Save value for null hypothesis before modifying parameters.
             double null_value(m_logLike->value());
-            if (m_pars["find_Ts_mins"]) {
+            if (m_pars["tsmin"]) {
                try {
                   m_opt->find_min(verbose, tol);
                } catch (std::exception & eObj) {

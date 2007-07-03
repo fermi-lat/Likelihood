@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.36 2007/02/02 23:42:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.37 2007/02/09 21:48:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.36 2007/02/02 23:42:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.37 2007/02/09 21:48:06 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -111,13 +111,9 @@ void TsMap::run() {
 
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
    m_helper->checkOutputFile();
-   bool use_lb = m_pars["use_lb"];
-   if (use_lb) {
-      m_coordSys = "GAL";
-   } else {
-      m_coordSys = "CEL";
-   }
-   std::string expCubeFile = m_pars["exposure_cube_file"];
+   std::string coordSys = m_pars["coordsys"];
+   m_coordSys = coordSys;
+   std::string expCubeFile = m_pars["expcube"];
    if (expCubeFile != "" && expCubeFile != "none") {
       m_helper->observation().expCube().readExposureCube(expCubeFile);
    }
@@ -126,7 +122,7 @@ void TsMap::run() {
    std::string ev_table = m_pars["evtable"];
    bool compareGtis(false);
    bool relyOnStreams(false);
-   std::string respfunc = m_pars["rspfunc"];
+   std::string respfunc = m_pars["irfs"];
    bool skipEventClassCuts(respfunc != "DSS");
    for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
       AppHelpers::checkCuts(m_eventFiles[0], ev_table,
@@ -160,7 +156,7 @@ void TsMap::readEventData() {
 }
 
 void TsMap::readSrcModel() {
-   std::string srcModelFile = m_pars["source_model_file"];
+   std::string srcModelFile = m_pars["srcmdl"];
    if (srcModelFile != "" && srcModelFile != "none") {
       st_facilities::Util::file_ok(srcModelFile);
       m_logLike->readXml(srcModelFile, m_helper->funcFactory());
@@ -188,8 +184,8 @@ void TsMap::setGrid() {
 void TsMap::computeMap() {
    double ra(m_lonValues.front());
    double dec(m_latValues.front());
-   bool use_lb = m_pars["use_lb"];
-   if (use_lb) {
+   std::string coordSys = m_pars["coordsys"];
+   if (coordSys == "GAL") {
       astro::SkyDir my_dir(ra, dec, astro::SkyDir::GALACTIC);
       ra = my_dir.ra();
       dec = my_dir.dec();
@@ -200,7 +196,7 @@ void TsMap::computeMap() {
 
    int verbosity = m_pars["chatter"];
    verbosity -= 2;
-   double tol = m_pars["fit_tolerance"];
+   double tol = m_pars["ftol"];
    double logLike0;
    try {
       m_opt->find_min(verbosity, tol);

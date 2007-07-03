@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.25 2006/03/15 21:34:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.26 2006/04/18 05:43:45 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -98,15 +98,15 @@ void gtsrcmaps::run() {
    m_helper = new AppHelpers(&m_pars, "BINNED");
    m_helper->readScData();
    m_helper->checkOutputFile();
-   m_helper->checkTimeCuts(m_pars["counts_map_file"], "",
-                           m_pars["exposure_cube_file"], "Exposure");
+   m_helper->checkTimeCuts(m_pars["cmap"], "",
+                           m_pars["expcube"], "Exposure");
 
-   std::string expCubeFile = m_pars["exposure_cube_file"];
+   std::string expCubeFile = m_pars["expcube"];
    ExposureCube & expCube = 
       const_cast<ExposureCube &>(m_helper->observation().expCube());
    expCube.readExposureCube(expCubeFile);
 
-   std::string cntsMapFile = m_pars["counts_map_file"];
+   std::string cntsMapFile = m_pars["cmap"];
    dataSubselector::Cuts my_cuts(cntsMapFile, "", false);
    CountsMap dataMap(cntsMapFile);
    std::vector<double> energies;
@@ -118,23 +118,23 @@ void gtsrcmaps::run() {
    RoiCuts &roiCuts = const_cast<RoiCuts &>(m_helper->observation().roiCuts());
    roiCuts.setCuts(ra, dec, 20., energies.front(), energies.back());
 
-   std::string binnedMap = m_pars["binned_exposure_map"];
+   std::string binnedMap = m_pars["bexpmap"];
    SourceMap::setBinnedExpMapName(binnedMap);
    if (st_facilities::Util::fileExists(binnedMap)) {
       SourceMap::setBinnedExposure(binnedMap);
    }
    bool computePointSources =
-      AppHelpers::param(m_pars, "compute_point_sources", true);
+      AppHelpers::param(m_pars, "ptsrc", true);
    bool psf_corrections =
-      AppHelpers::param(m_pars, "apply_psf_corrections", true);
+      AppHelpers::param(m_pars, "psfcorr", true);
    bool perform_convolution = 
-      AppHelpers::param(m_pars, "perform_convolution", true);
+      AppHelpers::param(m_pars, "convol", true);
    m_binnedLikelihood = 
       new BinnedLikelihood(dataMap, m_helper->observation(),
                            cntsMapFile, computePointSources, psf_corrections,
                            perform_convolution);
 
-   std::string srcModelFile = m_pars["source_model_file"];
+   std::string srcModelFile = m_pars["srcmdl"];
    m_binnedLikelihood->readXml(srcModelFile, m_helper->funcFactory(), false);
 
    std::string srcMapsFile = m_pars["outfile"];

@@ -1,3 +1,12 @@
+/**
+ * @file meanPsf.cxx
+ * @brief Application to compute a spectrally weighted Psf averaged over
+ * an observaition.
+ * @author J. Chiang
+ *
+ * $Header$
+ */
+
 #include <cstdlib>
 
 #include <iostream>
@@ -64,7 +73,7 @@ void meanPsf::run() {
    m_pars.Prompt();
    m_pars.Save();
    m_helper = new AppHelpers(&m_pars, "none");
-   std::string expcube_file = m_pars["exposure_cube_file"];
+   std::string expcube_file = m_pars["expcube"];
    if (expcube_file == "none") {
       throw std::runtime_error("Please specify an exposure cube file.");
    }
@@ -84,7 +93,7 @@ void meanPsf::run() {
 void meanPsf::computeEnergies() {
    double emin = m_pars["emin"];
    double emax = m_pars["emax"];
-   long nee = m_pars["numenergies"];
+   long nee = m_pars["nenergies"];
    double estep = log(emax/emin)/(nee - 1.);
    m_energies.clear();
    m_energies.reserve(nee);
@@ -95,7 +104,7 @@ void meanPsf::computeEnergies() {
 
 void meanPsf::computeThetas() {
    double theta_max = m_pars["thetamax"];
-   int nth = m_pars["numthetas"];
+   int nth = m_pars["ntheta"];
 
    m_thetas.clear();
    m_thetas.reserve(nth);

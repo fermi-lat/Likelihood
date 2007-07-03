@@ -1,14 +1,14 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtmodelmap.par,v 1.11 2007/05/29 04:46:49 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtmodel.par,v 1.1 2007/06/05 05:11:18 jchiang Exp $
 #
 srcmaps,fr,a,"",,,"Source maps (or counts map) file"
-source_model_file,fr,a,"",,,"Source model file"
+srcmdl,fr,a,"",,,"Source model file"
 outfile,f,a,"",,,"Output file"
 
-rspfunc,s,a,HANDOFF,,,"Response functions"
+irfs,s,a,HANDOFF,,,"Response functions"
 expcube,f,h,none,,,"Exposure cube"
-binned_exposure_map,f,h,none,,,"Binned exposure map"
-perform_convolution,b,h,yes,,,"Perform convolution with psf"
+bexpmap,f,h,none,,,"Binned exposure map"
+convol,b,h,yes,,,"Perform convolution with psf"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

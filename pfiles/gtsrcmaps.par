@@ -1,17 +1,17 @@
 #
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtsrcmaps.par,v 1.24 2007/05/29 04:46:49 jchiang Exp $
 #
 scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
-exposure_cube_file,fr,a,"",,,"Exposure hypercube file"
-counts_map_file,fr,a,"",,,"Counts map file"
-source_model_file,fr,a,"",,,"Source model file"
-binned_exposure_map,f,a,"none",,,"Binned exposure map"
+expcube,fr,a,"",,,"Exposure hypercube file"
+cmap,fr,a,"",,,"Counts map file"
+srcmdl,fr,a,"",,,"Source model file"
+bexpmap,f,a,"none",,,"Binned exposure map"
 outfile,f,a,"",,,"Source maps output file"
-rspfunc,s,a,"HANDOFF",,,"Response functions"
-perform_convolution,b,h,yes,,,"Perform convolution with psf"
-compute_point_sources,b,h,yes,,,"Compute point source maps"
-apply_psf_corrections,b,h,yes,,,"Apply psf integral corrections"
+irfs,s,a,"HANDOFF",,,"Response functions"
+convol,b,h,yes,,,"Perform convolution with psf"
+ptsrc,b,h,yes,,,"Compute point source maps"
+psfcorr,b,h,yes,,,"Apply psf integral corrections"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
