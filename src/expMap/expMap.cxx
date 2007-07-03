@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.38 2006/10/03 20:52:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.39 2007/02/02 22:22:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.38 2006/10/03 20:52:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.39 2007/02/02 22:22:09 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -94,7 +94,7 @@ void ExpMap::run() {
    promptForParameters();
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
 //    m_helper->readScData();
-   bool useEdisp = m_pars["use_energy_dispersion"];
+   bool useEdisp = m_pars["edisp"];
    ResponseFunctions & respFuncs =
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(useEdisp);
@@ -107,23 +107,23 @@ void ExpMap::run() {
 void ExpMap::promptForParameters() {
    m_pars.Prompt("evfile");
    m_pars.Prompt("scfile");
-   m_pars.Prompt("exposure_cube_file");
-   std::string expCubeFile = m_pars["exposure_cube_file"];
+   m_pars.Prompt("expcube");
+   std::string expCubeFile = m_pars["expcube"];
    std::string evtable = m_pars["evtable"];
    if (expCubeFile != "none") {
       std::vector<std::string> eventFiles;
       st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
       AppHelpers::checkTimeCuts(eventFiles, evtable,
-                                m_pars["exposure_cube_file"], "Exposure");
+                                m_pars["expcube"], "Exposure");
    }
    m_pars.Prompt("outfile");
    AppHelpers::checkOutputFile(m_pars["clobber"], m_pars["outfile"]);
-   m_pars.Prompt("rspfunc");
-   m_pars.Prompt("source_region_radius");
-   m_pars.Prompt("number_of_longitude_points");
-   m_pars.Prompt("number_of_latitude_points");
-   m_pars.Prompt("number_of_energies");
-   bool compute_submap = m_pars["compute_submap"];
+   m_pars.Prompt("irfs");
+   m_pars.Prompt("srcrad");
+   m_pars.Prompt("nlong");
+   m_pars.Prompt("nlat");
+   m_pars.Prompt("nenergies");
+   bool compute_submap = m_pars["submap"];
    if (compute_submap) {
       m_pars.Prompt("nlongmin");
       m_pars.Prompt("nlongmax");
@@ -134,7 +134,7 @@ void ExpMap::promptForParameters() {
 }
 
 void ExpMap::setSourceRegion() {
-   m_srRadius = m_pars["source_region_radius"];
+   m_srRadius = m_pars["srcrad"];
    const RoiCuts & roiCuts = m_helper->observation().roiCuts();
    if (m_srRadius < roiCuts.extractionRegion().radius() + 10.) {
       st_stream::StreamFormatter formatter("gtexpmap", "setSourceRegion", 2);
@@ -154,11 +154,11 @@ void ExpMap::setSourceRegion() {
 }
 
 void ExpMap::createExposureMap() {
-   long nlong = m_pars["number_of_longitude_points"];
-   long nlat = m_pars["number_of_latitude_points"];
-   long nenergies = m_pars["number_of_energies"];
+   long nlong = m_pars["nlong"];
+   long nlat = m_pars["nlat"];
+   long nenergies = m_pars["nenergies"];
 // Exposure hypercube file.
-   std::string expCubeFile = m_pars["exposure_cube_file"];
+   std::string expCubeFile = m_pars["expcube"];
    if (expCubeFile != "none") {
       st_facilities::Util::file_ok(expCubeFile);
       ExposureCube & expCube = 
@@ -168,7 +168,7 @@ void ExpMap::createExposureMap() {
    std::string exposureFile = m_pars["outfile"];
    const Observation & observation = m_helper->observation();
    const RoiCuts & roiCuts = observation.roiCuts();
-   bool compute_submap = m_pars["compute_submap"];
+   bool compute_submap = m_pars["submap"];
    int nlongmin(0);
    int nlongmax(0);
    int nlatmin(0);

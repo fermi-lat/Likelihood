@@ -1,25 +1,24 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtlikelihood.par,v 1.19 2007/05/29 17:18:20 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtlike.par,v 1.1 2007/06/05 05:11:18 jchiang Exp $
 #
 # parameters common to binned and unbinned
 #
-rspfunc,s,a,"HANDOFF",,,"Response functions to use"
-use_energy_dispersion,b,h,no,,,"Use energy dispersion?"
-exposure_cube_file,f,a,"none",,,"Exposure hypercube file"
-source_model_file,fr,a,"",,,"Source model file"
-source_model_output_file,f,h,"none",,,"Source model output file"
-flux_style_model_file,f,h,"none",,,"flux-style output file name"
+irfs,s,a,"HANDOFF",,,"Response functions to use"
+edisp,b,h,no,,,"Use energy dispersion?"
+expcube,f,a,"none",,,"Exposure hypercube file"
+srcmdl,fr,a,"",,,"Source model file"
+sfile,f,h,"none",,,"Source model output file"
+fluxmdl,f,h,"none",,,"flux-style output file name"
 check_fit,b,h,yes,,,"Issue warnings regarding fit?"
 #
 # choice of objective function and optimizer
 #
 statistic,s,a,"UNBINNED",BINNED|UNBINNED,,"Statistic to use"
-#optimizer,s,a,"DRMNGB",LBFGS|MINUIT|NEWMINUIT|DRMNGB,,"Optimizer"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
-fit_tolerance,r,h,1e-5,,,"Fit tolerance"
-find_Ts_mins,b,h,no,,,Re-optimize for TS fits?
-write_output_files,b,h,yes,,,Write output files?
-query_for_refit,b,h,no,,,"Allow for refitting?"
+ftol,r,h,1e-5,,,"Fit tolerance"
+tsmin,b,h,no,,,Re-optimize for TS fits?
+save,b,h,yes,,,Write output files?
+refit,b,h,no,,,"Allow for refitting?"
 #
 # unbinned
 #
@@ -27,14 +26,14 @@ evfile,f,a,"none",,,"Event file"
 evtable,s,h,"EVENTS",,,"Event table extension"
 scfile,f,a,"none",,,"Spacecraft file"
 sctable,s,h,"SC_DATA",,,"Spacecraft table extension"
-exposure_map_file,f,a,"none",,,"Unbinned exposure map"
+expmap,f,a,"none",,,"Unbinned exposure map"
 plot,b,h,no,,,"Plot unbinned counts spectra?"
 #
 # binned
 #
-counts_map_file,f,a,"none",,,"Counts map file"
-binned_exposure_map,f,a,"none",,,"Binned exposure map"
-apply_psf_corrections,b,h,yes,,,"apply psf integral corrections"
+cmap,f,a,"none",,,"Counts map file"
+bexpmap,f,a,"none",,,"Binned exposure map"
+psfcorr,b,h,yes,,,"apply psf integral corrections"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

@@ -1,7 +1,7 @@
-infile1,f,a,"expCube_00.fits",,,"Livetime cube 1"
-infile2,f,a,"expCube_01.fits",,,"Livetime cube 2"
+infile1,f,a,"",,,"Livetime cube 1 or list of files"
+infile2,f,a,"",,,"Livetime cube 2"
 table,s,h,"Exposure",,,"Name of extension containing livetime"
-outfile,f,a,"expCube.fits",,,"Output file"
+outfile,f,a,"",,,"Output file"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

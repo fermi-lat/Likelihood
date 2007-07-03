@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.12 2007/05/13 19:44:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.13 2007/05/14 00:41:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -97,7 +97,7 @@ void findSrc::run() {
    promptForInputData();
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
 
-   std::string expcube_file = m_pars["exposure_cube_file"];
+   std::string expcube_file = m_pars["expcube"];
    if (expcube_file != "none" && expcube_file != "") {
       ExposureCube & expCube = 
          const_cast<ExposureCube &>(m_helper->observation().expCube());
@@ -108,14 +108,14 @@ void findSrc::run() {
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(false);
 
-   std::string exposureFile = m_pars["exposure_map_file"];
+   std::string exposureFile = m_pars["expmap"];
    std::string eventFile = m_pars["evfile"];
    std::string evtable = m_pars["evtable"];
    st_facilities::Util::file_ok(eventFile);
    st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
    bool compareGtis(false);
    bool relyOnStreams(false);
-   std::string respfunc = m_pars["rspfunc"];
+   std::string respfunc = m_pars["irfs"];
    bool skipEventClassCuts(respfunc != "DSS");
    for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
       AppHelpers::checkCuts(m_eventFiles[0], evtable, m_eventFiles[i],
@@ -143,10 +143,10 @@ void findSrc::run() {
    selectOptimizer();
    m_pars.Save();
    fitPosition();
-   std::string target = m_pars["target_source"];
+   std::string target = m_pars["target"];
    bool clobber = m_pars["clobber"];
    if (clobber && m_logLike->getSource(target)) {
-      std::string srcModelFile = m_pars["source_model_file"];
+      std::string srcModelFile = m_pars["srcmdl"];
       m_logLike->writeXml(srcModelFile);
    }
 }
@@ -155,10 +155,10 @@ void findSrc::promptForInputData() {
    m_pars.Prompt("evfile");
    m_pars.Prompt("scfile");
    m_pars.Prompt("outfile");
-   m_pars.Prompt("rspfunc");
-   m_pars.Prompt("exposure_cube_file");
-   m_pars.Prompt("exposure_map_file");
-   m_pars.Prompt("source_model_file");
+   m_pars.Prompt("irfs");
+   m_pars.Prompt("expcube");
+   m_pars.Prompt("expmap");
+   m_pars.Prompt("srcmdl");
    std::string outfile = m_pars["outfile"];
    bool clobber = m_pars["clobber"];
    if (!clobber && st_facilities::Util::fileExists(outfile)) {
@@ -180,7 +180,7 @@ void findSrc::readEventData() {
 }
 
 void findSrc::readSrcModel() {
-   std::string srcModelFile = m_pars["source_model_file"];
+   std::string srcModelFile = m_pars["srcmdl"];
    if (srcModelFile != "" && srcModelFile != "none") {
       Util::file_ok(srcModelFile);
       st_stream::StreamFormatter formatter("findSrc", "readSrcModel", 2);
@@ -196,8 +196,8 @@ void findSrc::readSrcModel() {
 }
 
 void findSrc::identifyTarget() {
-   m_pars.Prompt("target_source");
-   std::string target = m_pars["target_source"];
+   m_pars.Prompt("target");
+   std::string target = m_pars["target"];
    Source * candidateSrc(0);
    try {
       candidateSrc = m_logLike->deleteSource(target);
@@ -222,8 +222,8 @@ void findSrc::identifyTarget() {
 
 void findSrc::selectOptimizer() {
    m_pars.Prompt("optimizer");
-   m_pars.Prompt("fit_tolerance");
-   m_pars.Prompt("amoeba_tolerance");
+   m_pars.Prompt("ftol");
+   m_pars.Prompt("atol");
    std::string optimizer = m_pars["optimizer"];
    m_opt = optimizers::OptimizerFactory::instance().create(optimizer, 
                                                            *m_logLike);
@@ -319,18 +319,20 @@ private:
 
 double findSrc::fitPosition(double step) {
    std::vector<double> coords(2);
-   bool use_lb = m_pars["use_lb"];
-   std::string coordSys("CEL");
+   std::string coordSys = m_pars["coordsys"];
+   bool use_lb(true);
+   if (coordsys != "GAL") {
+      use_lb = false;
+   }
    coords[0] = m_testSrc->getDir().ra();
    coords[1] = m_testSrc->getDir().dec();
    if (use_lb) {
-      coordSys = "GAL";
       coords[0] = m_testSrc->getDir().l();
       coords[1] = m_testSrc->getDir().b();
    }
-   double tol = m_pars["fit_tolerance"];
-   bool reopt = m_pars["reoptimize"];
-   double accuracy = m_pars["pos_accuracy"];
+   double tol = m_pars["ftol"];
+   bool reopt = m_pars["reopt"];
+   double accuracy = m_pars["posacc"];
    st_stream::StreamFormatter formatter("findSrc", "fitPosition", 2);
    LikeFunc func(*m_opt, *m_logLike, *m_testSrc, formatter, coordSys, 
                  tol, reopt, m_logLike0, accuracy);
@@ -343,7 +345,7 @@ double findSrc::fitPosition(double step) {
                   << m_logLike0;
    bool addstep;
    optimizers::Amoeba my_amoeba(func, coords, step, addstep=true);
-   double pos_tol = m_pars["amoeba_tolerance"];
+   double pos_tol = m_pars["atol"];
    try {
       my_amoeba.findMin(coords, pos_tol);
    } catch (LikeFunc::Exception & eObj) {
@@ -420,14 +422,20 @@ errEst(const std::vector< std::vector<double> > & testPoints) const {
 }
 
 void findSrc::setTestSource() {
-   m_pars.Prompt("use_lb");
-   m_pars.Prompt("lon0");
-   m_pars.Prompt("lat0");
-   double ra = m_pars["lon0"];
-   double dec = m_pars["lat0"];
-   if (m_pars["use_lb"]) {
-      astro::SkyDir srcDir(m_pars["lon0"], m_pars["lat0"],
-                           astro::SkyDir::GALACTIC);
+   double ra, dec;
+   m_pars.Prompt("coordsys");
+   std::string coordSys = m_pars["coordsys"];
+   if (coordSys == "CEL") {
+      m_pars.Prompt("ra");
+      m_pars.Prompt("dec");
+      double my_ra = m_pars["ra"];
+      double my_dec = m_pars["dec"];
+      ra = my_ra;
+      dec = my_dec;
+   } else {
+      m_pars.Prompt("l");
+      m_pars.Prompt("b");
+      astro::SkyDir srcDir(m_pars["l"], m_pars["b"], astro::SkyDir::GALACTIC);
       ra = srcDir.ra();
       dec = srcDir.dec();
    }

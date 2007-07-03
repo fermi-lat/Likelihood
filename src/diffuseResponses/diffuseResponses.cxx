@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.42 2007/02/09 21:48:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.43 2007/06/05 05:11:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.42 2007/02/09 21:48:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.43 2007/06/05 05:11:19 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -137,7 +137,7 @@ void diffuseResponses::run() {
    m_helper->setRoi("", "EVENTS", false);
    m_helper->readScData();
    m_srcModel = new SourceModel(m_helper->observation(), true);
-   m_useEdisp = m_pars["use_energy_dispersion"];
+   m_useEdisp = m_pars["edisp"];
    ResponseFunctions & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(m_useEdisp);
@@ -168,7 +168,7 @@ void diffuseResponses::promptForParameters() {
 
 void diffuseResponses::readDiffuseNames(std::vector<std::string> & srcNames) {
    srcNames.clear();
-   std::string xmlFile = m_pars["source_model_file"];
+   std::string xmlFile = m_pars["srcmdl"];
    xmlBase::XmlParser * parser = new xmlBase::XmlParser();
    DOMDocument * doc = parser->parse(xmlFile.c_str());
    DOMElement * source_library = doc->getDocumentElement();
@@ -210,7 +210,7 @@ diffuseSrcName(const std::string & srcName) const {
 }
 
 void diffuseResponses::buildSourceModel() {
-   std::string sourceModel = m_pars["source_model_file"];
+   std::string sourceModel = m_pars["srcmdl"];
    st_facilities::Util::file_ok(sourceModel);
    m_srcModel->readXml(sourceModel, m_helper->funcFactory(), false, false);
 }
