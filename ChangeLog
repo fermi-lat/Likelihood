@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Jul  3 15:48:21 PDT 2007
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+parameter name changes
+    *
+------------------------------------------------------------
+User: jchiang  Tue Jul  3 15:48:21 PDT 2007
 Likelihood/src/expMap
 
 Modified Files:
