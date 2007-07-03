@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jul  3 15:48:22 PDT 2007
+Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+parameter name changes
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jul  3 15:48:21 PDT 2007
 Likelihood/src/gtmodelmap
 
