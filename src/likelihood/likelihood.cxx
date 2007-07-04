@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.133 2007/06/15 18:29:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.134 2007/07/03 22:48:22 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -111,7 +111,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.133 2007/06/15 18:29:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.134 2007/07/03 22:48:22 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -333,7 +333,7 @@ void likelihood::promptForParameters() {
    m_pars.Prompt("sfile");
    AppHelpers::checkOutputFile(m_pars["clobber"], 
                                m_pars["sfile"]);
-   m_pars.Prompt("flux_style_model_file");
+   m_pars.Prompt("fluxmdl");
    AppHelpers::checkOutputFile(m_pars["clobber"], 
                                m_pars["fluxmdl"]);
    m_pars.Prompt("irfs");

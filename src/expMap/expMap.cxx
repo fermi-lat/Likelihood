@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.39 2007/02/02 22:22:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.40 2007/07/03 22:48:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.39 2007/02/02 22:22:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.40 2007/07/03 22:48:20 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -72,11 +72,11 @@ std::string ExpMap::s_cvs_id("$Name:  $");
 ExpMap::ExpMap() : st_app::StApp(), m_helper(0), 
                    m_pars(st_app::StApp::getParGroup("gtexpmap")) {
    setVersion(s_cvs_id);
-   m_pars.setSwitch("compute_submap");
-   m_pars.setCase("compute_submap", "yes", "nlongmin");
-   m_pars.setCase("compute_submap", "yes", "nlongmax");
-   m_pars.setCase("compute_submap", "yes", "nlatmin");
-   m_pars.setCase("compute_submap", "yes", "nlatmax");
+   m_pars.setSwitch("submap");
+   m_pars.setCase("submap", "yes", "nlongmin");
+   m_pars.setCase("submap", "yes", "nlongmax");
+   m_pars.setCase("submap", "yes", "nlatmin");
+   m_pars.setCase("submap", "yes", "nlatmax");
 }
 
 void ExpMap::banner() const {
