@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.13 2007/05/14 00:41:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.14 2007/07/03 22:48:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -321,7 +321,7 @@ double findSrc::fitPosition(double step) {
    std::vector<double> coords(2);
    std::string coordSys = m_pars["coordsys"];
    bool use_lb(true);
-   if (coordsys != "GAL") {
+   if (coordSys != "GAL") {
       use_lb = false;
    }
    coords[0] = m_testSrc->getDir().ra();
