@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Jul 11 14:21:11 PDT 2007
+Likelihood/pfiles
+
+Modified Files:
+	gttsmap.par 
+Log Message:
+gttsmap par name updates; pass time variable to IRF calls; check xml parsing in SourceFactory; tagging v13r1
+    *
+------------------------------------------------------------
+User: jchiang  Wed Jul 11 14:21:11 PDT 2007
 Likelihood/doc
 
 Modified Files:
