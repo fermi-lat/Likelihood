@@ -1,10 +1,10 @@
 package Likelihood
-version v13
+version v13r1
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.336 2007/06/05 04:56:40 jchiang Exp $
+# $Id: requirements,v 1.337 2007/07/04 01:15:24 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -27,6 +27,9 @@ use st_graph v*
 apply_pattern ST_library option=" *.c "
 apply_pattern shared_st_library
 apply_pattern ST_pfiles
+
+#macro_append cppflags " -pg "
+#macro_append cpplinkflags " -pg "
 
 apply_pattern ST_app_withDir name=gtlike dir=likelihood
 apply_pattern ST_app_withDir name=gtexpmap dir=expMap

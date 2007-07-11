@@ -4,7 +4,7 @@
  * "test-statistic" maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.37 2007/02/09 21:48:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.38 2007/07/03 22:48:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.37 2007/02/09 21:48:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.38 2007/07/03 22:48:19 jchiang Exp $
  */
 class TsMap : public st_app::StApp {
 public:
@@ -171,10 +171,10 @@ void TsMap::selectOptimizer() {
 }
 
 void TsMap::setGrid() {
-   int nlon = m_pars["nra"];
-   int nlat = m_pars["ndec"];
-   makeDoubleVector(m_pars["ra_min"], m_pars["ra_max"], nlon, m_lonValues);
-   makeDoubleVector(m_pars["dec_min"], m_pars["dec_max"], nlat, m_latValues);
+   int nlon = m_pars["nx"];
+   int nlat = m_pars["ny"];
+   makeDoubleVector(m_pars["xref_min"], m_pars["xref_max"], nlon, m_lonValues);
+   makeDoubleVector(m_pars["yref_min"], m_pars["yref_max"], nlat, m_latValues);
    m_tsMap.resize(nlat);
    for (int i = 0; i < nlat; i++) {
       m_tsMap.reserve(nlon);

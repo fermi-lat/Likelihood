@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.59 2006/06/29 00:45:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.60 2006/12/20 02:00:28 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.59 2006/06/29 00:45:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.60 2006/12/20 02:00:28 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -216,7 +216,8 @@ private:
    public:
 
       Aeff(double energy, const astro::SkyDir &srcDir,
-           const RoiCuts & roiCuts, const ResponseFunctions & respFuncs);
+           const RoiCuts & roiCuts, const ResponseFunctions & respFuncs,
+           double time=0);
 
       virtual ~Aeff() {}
 
@@ -228,6 +229,8 @@ private:
       astro::SkyDir m_srcDir;
 
       const ResponseFunctions & m_respFuncs;
+
+      double m_time;
 
       std::vector<irfInterface::AcceptanceCone *> m_cones;
       double m_emin, m_emax;

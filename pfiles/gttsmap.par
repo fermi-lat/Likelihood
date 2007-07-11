@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttsmap.par,v 1.16 2007/05/29 04:46:49 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttsmap.par,v 1.17 2007/07/03 22:48:19 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,Event data extension
@@ -14,12 +14,12 @@ irfs,s,a,"HANDOFF",,,"Response functions to use"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 ftol,r,a,1e-5,,,Fit tolerance
 
-ra_min,r,a,160,-360,360,RA minimum
-ra_max,r,a,200,-360,360,RA maximum
-nra,i,a,40,2,200,Number of RA points
-dec_min,r,a,-20,-90,90,Dec minimum
-dec_max,r,a,20,-90,90,Dec maximum
-ndec,i,a,40,2,200,Number of Dec points
+xref_min,r,a,160,-360,360,x coordinate minimum
+xref_max,r,a,200,-360,360,x coordinate maximum
+nx,i,a,40,2,200,Number of x coordinate points
+yref_min,r,a,-20,-90,90,y coordinate minimum
+yref_max,r,a,20,-90,90,y coordinte maximum
+ny,i,a,40,2,200,Number of y coordinate points
 coordsys,s,a,CEL,CEL|GAL,,"Coordinate system"
 
 chatter,i,h,2,0,4,Output verbosity

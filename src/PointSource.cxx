@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.89 2007/02/09 14:54:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.90 2007/02/09 21:48:05 jchiang Exp $
  */
 
 #include <cmath>
@@ -363,7 +363,7 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
    astro::SkyDir zAxis = scData.zAxis(time);
 //   astro::SkyDir xAxis = scData.xAxis(time);
 
-   PointSource::Aeff aeff(energy, srcDir, roiCuts, respFuncs);
+   PointSource::Aeff aeff(energy, srcDir, roiCuts, respFuncs, time);
 
    double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
    
@@ -386,8 +386,9 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
 
 PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir,
                         const RoiCuts & roiCuts,
-                        const ResponseFunctions & respFuncs)
-   : m_energy(energy), m_srcDir(srcDir), m_respFuncs(respFuncs) {
+                        const ResponseFunctions & respFuncs, 
+                        double time)
+   : m_energy(energy), m_srcDir(srcDir), m_respFuncs(respFuncs), m_time(time) {
    
    m_cones.push_back(const_cast<irfInterface::AcceptanceCone *>
                      (&(roiCuts.extractionRegion())));
@@ -407,7 +408,7 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       irfInterface::IPsf *psf = respIt->second->psf();
       irfInterface::IAeff *aeff = respIt->second->aeff();
 
-      double aeff_val = aeff->value(m_energy, theta, phi);
+      double aeff_val = aeff->value(m_energy, theta, phi, m_time);
       if (aeff_val < 0.1) { // kluge.  Psf is likely not well defined out here.
          return 0;
       }
@@ -416,7 +417,7 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       double psf_val(0);
 //       try {
          psf_val = psf->angularIntegral(m_energy, m_srcDir,
-                                        theta, phi, m_cones);
+                                        theta, phi, m_cones, m_time);
 //       } catch (std::exception & eObj) { 
 //          st_stream::StreamFormatter formatter("PointSource::Aeff", 
 //                                               "operator()", 2);
@@ -425,7 +426,7 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 
-                                            theta, phi);
+                                            theta, phi, m_time);
          myEffArea += psf_val*aeff_val*edisp_val;
       } else {
          myEffArea += psf_val*aeff_val;
