@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Jul 11 14:21:12 PDT 2007
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+gttsmap par name updates; pass time variable to IRF calls; check xml parsing in SourceFactory; tagging v13r1
+    *
+------------------------------------------------------------
+User: jchiang  Wed Jul 11 14:21:12 PDT 2007
 Likelihood/src
 
 Modified Files:
