@@ -3,7 +3,7 @@
  * @brief Implementation for the LogParabola class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogParabola.cxx,v 1.2 2005/07/18 23:32:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogParabola.cxx,v 1.3 2005/09/23 18:15:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -53,6 +53,7 @@ void LogParabola::init(double norm, double alpha, double beta, double Eb) {
    m_argType = "dArg";
 
    m_genericName = "LogParabola";
+   m_normParName = "norm";
 }
 
 double LogParabola::value(optimizers::Arg & xarg) const {

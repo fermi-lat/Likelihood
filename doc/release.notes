@@ -1,9 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.223 2007/07/04 01:15:24 jchiang Exp $
+    $Id: release.notes,v 1.224 2007/07/11 21:21:11 jchiang Exp $
 
     @verbatim
+    v13r1p1  13-Jul-07 JC  use Function::normPar member function to
+                           help set renormalization approx to Ts calc in
+                           gtlike.
     v13r1    11-Jul-07 JC  adjust par names in gttsmap; pass time variable
                            in calls to IRF functions from PointSource class;
                            check for xml parsing in SourceFactory.

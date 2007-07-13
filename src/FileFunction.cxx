@@ -3,7 +3,7 @@
  * @brief Implementation for the FileFunction Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.2 2006/06/17 03:00:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.3 2006/06/20 17:12:56 jchiang Exp $
  */
 
 #include <cmath>
@@ -34,6 +34,7 @@ FileFunction::FileFunction(double Normalization) : m_filename("") {
    m_argType = "dArg";
 
    m_genericName = "FileFunction";
+   m_normParName = "Normalization";
 }
 
 double FileFunction::value(optimizers::Arg & xarg) const {

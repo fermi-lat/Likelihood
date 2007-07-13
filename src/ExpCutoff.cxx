@@ -39,6 +39,7 @@ void ExpCutoff::init(double Prefactor, double Index, double Scale,
    m_argType = "dArg";
 
    m_genericName = "ExpCutoff";
+   m_normParName = "Prefactor";
 }
 
 double ExpCutoff::value(optimizers::Arg &xarg) const {

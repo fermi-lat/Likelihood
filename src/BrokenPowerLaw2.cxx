@@ -3,7 +3,7 @@
  * @brief Implementation for the BrokenPowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw2.cxx,v 1.3 2005/06/09 16:11:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw2.cxx,v 1.1 2005/09/19 00:19:17 jchiang Exp $
  */
 
 #include <cmath>
@@ -43,6 +43,7 @@ BrokenPowerLaw2::BrokenPowerLaw2(double Integral, double Index1,
    m_argType = "dArg";
 
    m_genericName = "BrokenPowerLaw2";
+   m_normParName = "Integral";
 }
 
 double BrokenPowerLaw2::value(optimizers::Arg & xarg) const {

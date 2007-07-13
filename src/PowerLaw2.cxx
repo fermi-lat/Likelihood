@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.4 2005/10/19 06:14:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.5 2005/10/19 22:13:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,6 +40,7 @@ PowerLaw2::PowerLaw2(double Integral, double Index,
    m_argType = "dArg";
 
    m_genericName = "PowerLaw2";
+   m_normParName = "Integral";
 }
 
 double PowerLaw2::value(optimizers::Arg & xarg) const {
