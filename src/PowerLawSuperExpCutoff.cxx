@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLawSuperExpCutoff Function class
  * @author Damien Parent
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff.cxx,v 1.2 2007/03/20 23:46:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -44,6 +44,7 @@ namespace Likelihood {
     m_funcType = Addend;
     m_argType = "dArg";
     m_genericName = "PLSuperExpCutoff";
+    m_normParName = "Prefactor";
   } 
   // end of initialization
   

@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.20 2006/04/18 05:43:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.21 2007/03/14 20:11:10 jchiang Exp $
  *
  */
 
@@ -67,6 +67,7 @@ void SpatialMap::init() {
    m_genericName = "SpatialMap";
    addParam("Prefactor", 1, false);
    setParamAlwaysFixed("Prefactor");
+   m_normParName = "Prefactor";
 }
 
 void SpatialMap::readFitsFile(const std::string & fitsFile,

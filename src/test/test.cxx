@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.79 2006/09/20 23:43:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.80 2007/01/30 00:24:20 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -62,6 +62,12 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/TrapQuad.h"
 
+#include "Likelihood/BandFunction.h"
+#include "Likelihood/BrokenPowerLaw2.h"
+#include "Likelihood/BrokenPowerLawExpCutoff.h"
+#include "Likelihood/PowerLaw2.h"
+#include "Likelihood/PowerLawSuperExpCutoff.h"
+
 #include "SourceData.h"
 #include "XmlDiff.h"
 
@@ -85,6 +91,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
+   CPPUNIT_TEST(test_rescaling);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -106,6 +113,7 @@ public:
    void test_MeanPsf();
    void test_BinnedExposure();
    void test_SourceMap();
+   void test_rescaling();
 
 private:
 
@@ -849,6 +857,22 @@ void LikelihoodTests::test_SourceMap() {
    SourceMap srcMap(src, &dataMap, *m_observation);
 }
 
+void LikelihoodTests::test_rescaling() {
+   std::vector<optimizers::Function *> my_functions;
+   my_functions.push_back(new BandFunction());
+   my_functions.push_back(new BrokenPowerLaw2());
+   my_functions.push_back(new BrokenPowerLawExpCutoff());
+   my_functions.push_back(new PowerLaw2());
+   my_functions.push_back(new PowerLawSuperExpCutoff());
+   optimizers::dArg xx(100);
+   double factor(2);
+   for (size_t i(0); i < my_functions.size(); i++) {
+      double value(my_functions.at(i)->operator()(xx));
+      my_functions.at(i)->rescale(factor);
+      ASSERT_EQUALS(2*value, my_functions.at(i)->operator()(xx));
+   }
+}
+
 void LikelihoodTests::readEventData(const std::string &eventFile,
                                     const std::string &scDataFile,
                                     std::vector<Event> &events) {
@@ -922,7 +946,7 @@ srcFactoryInstance(const std::string & scFile,
       }
    }
    return m_srcFactory;
-}      
+}
 
 int main(int iargc, char * argv[]) {
 
@@ -983,6 +1007,10 @@ int main(int iargc, char * argv[]) {
 
       testObj.setUp();
       testObj.test_SourceMap();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_rescaling();
       testObj.tearDown();
    } else {
       CppUnit::TextTestRunner runner;

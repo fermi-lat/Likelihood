@@ -3,7 +3,7 @@
  * @brief Implementation for the BandFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.1 2005/01/26 06:53:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.2 2005/07/18 23:32:56 jchiang Exp $
  */
 
 #include <cmath>
@@ -53,6 +53,7 @@ void BandFunction::init(double norm, double alpha, double beta, double Ep) {
    m_argType = "dArg";
 
    m_genericName = "BandFunction";
+   m_normParName = "norm";
 }
 
 double BandFunction::value(optimizers::Arg &xarg) const {

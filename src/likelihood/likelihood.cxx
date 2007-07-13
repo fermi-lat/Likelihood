@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.134 2007/07/03 22:48:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.135 2007/07/04 00:16:56 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -55,38 +55,6 @@
 #include "MathUtil.h"
 
 namespace {
-   class NormNames {
-   public:
-      static NormNames * instance() {
-         if (s_instance == 0) {
-            s_instance = new NormNames();
-         }
-         return s_instance;
-      }
-
-      const std::string & operator[](const std::string & name) const {
-         std::map<std::string, std::string>::const_iterator it;
-         it = m_normNames.find(name);
-         return it->second;
-      }
-   private:
-      static NormNames * s_instance;
-      NormNames() {
-         m_normNames["ConstantValue"] = "Value";
-         m_normNames["BrokenPowerLaw"] = "Prefactor";
-         m_normNames["BrokenPowerLaw2"] = "Integral";
-         m_normNames["PowerLaw"] = "Prefactor";
-         m_normNames["PowerLaw2"] = "Integral";
-         m_normNames["Gaussian"] = "Prefactor";
-         m_normNames["FileFunction"] = "Normalization";
-         m_normNames["LogParabola"] = "norm";
-         m_normNames["PLSuperExpCutoff"] = "Prefactor";
-         m_normNames["ExpCutoff"] = "Prefactor";
-      }
-      std::map<std::string, std::string> m_normNames;
-   };
-   NormNames * NormNames::s_instance(0);
-
    double ptsrcSeparation(Likelihood::Source * src1,
                           Likelihood::Source * src2) {
       Likelihood::PointSource * 
@@ -111,7 +79,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.134 2007/07/03 22:48:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.135 2007/07/04 00:16:56 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -209,6 +177,7 @@ likelihood::likelihood()
 }
 
 void likelihood::run() {
+   std::cout << "using new imp" << std::endl;
    promptForParameters();
    std::string statistic = m_pars["statistic"];
    m_helper = new AppHelpers(&m_pars, statistic);
@@ -876,10 +845,8 @@ void likelihood::npredValues(double & freeNpred, double & totalNpred) const {
 }
 
 optimizers::Parameter & likelihood::normPar(Source * src) const {
-   ::NormNames & normNames(*::NormNames::instance());
    const optimizers::Function & spectrum(src->spectrum());
-   const std::string & parname(normNames[spectrum.genericName()]);
-   return const_cast<optimizers::Function &>(spectrum).parameter(parname);
+   return const_cast<optimizers::Function &>(spectrum).normPar();
 }
 
 bool likelihood::isDiffuseOrNearby(Source * src) const {

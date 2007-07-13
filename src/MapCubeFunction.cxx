@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.19 2006/04/17 16:14:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.20 2007/03/14 20:11:10 jchiang Exp $
  */
 
 #include <algorithm>
@@ -123,6 +123,7 @@ void MapCubeFunction::init() {
    m_funcType = Addend;
    m_argType = "";
    m_genericName = "MapCubeFunction";
+   m_normParName = "Normalization";
 }
 
 void MapCubeFunction::readFitsFile(const std::string & fits_file) {
