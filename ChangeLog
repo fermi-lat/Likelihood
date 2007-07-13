@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 13 08:35:11 PDT 2007
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+use Function::normPar(); tagging v13r1p1
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jul 13 08:35:10 PDT 2007
 Likelihood/cmt
 
