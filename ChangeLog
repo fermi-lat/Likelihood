@@ -1,5 +1,17 @@
 ------------------------------------------------------------
 User: jchiang  Fri Jul 13 08:35:11 PDT 2007
+Likelihood/src
+
+Modified Files:
+	BandFunction.cxx BrokenPowerLaw2.cxx 
+	BrokenPowerLawExpCutoff.cxx ExpCutoff.cxx FileFunction.cxx 
+	LogParabola.cxx MapCubeFunction.cxx PowerLaw2.cxx 
+	PowerLawSuperExpCutoff.cxx SpatialMap.cxx 
+Log Message:
+use Function::normPar(); tagging v13r1p1
+    *
+------------------------------------------------------------
+User: jchiang  Fri Jul 13 08:35:11 PDT 2007
 Likelihood/doc
 
 Modified Files:
