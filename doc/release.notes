@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.224 2007/07/11 21:21:11 jchiang Exp $
+    $Id: release.notes,v 1.225 2007/07/13 15:35:10 jchiang Exp $
 
     @verbatim
+    v13r2    27-Jul-07 JC  add DRMNFB and NEWMINUIT as optimizer options
+                           in gtlike
     v13r1p1  13-Jul-07 JC  use Function::normPar member function to
                            help set renormalization approx to Ts calc in
                            gtlike.
