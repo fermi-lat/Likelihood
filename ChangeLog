@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 27 08:48:36 PDT 2007
+Likelihood/pfiles
+
+Modified Files:
+	gtlike.par 
+Log Message:
+add DRMNFB and NEWMINUIT
+    *
+------------------------------------------------------------
 TAG
 Tag name: v13r1p1, operation: add
 Package: Likelihood
