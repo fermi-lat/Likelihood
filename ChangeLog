@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 27 08:49:23 PDT 2007
+Likelihood/src
+
+Modified Files:
+	Source.cxx 
+Log Message:
+relax slightly constraints on Npred(emin, emax)
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jul 27 08:48:36 PDT 2007
 Likelihood/pfiles
 
