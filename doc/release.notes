@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.225 2007/07/13 15:35:10 jchiang Exp $
+    $Id: release.notes,v 1.226 2007/07/27 15:51:19 jchiang Exp $
 
     @verbatim
+    v13r2p1  28-Jul-07 JC  add documentation for PLSuperExpCutoff
     v13r2    27-Jul-07 JC  add DRMNFB and NEWMINUIT as optimizer options
                            in gtlike
     v13r1p1  13-Jul-07 JC  use Function::normPar member function to
