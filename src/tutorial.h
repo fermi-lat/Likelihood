@@ -519,6 +519,20 @@
      - beta = \f$\beta\f$
      - Ep = \f$E_p\f$
 
+   - @b PLSuperExpCutoff For modeling pulsars, implemented by Damien Parent 
+   (<tt>parent@cenbg.in2p3.fr</tt>)
+   \f[
+   \newcommand{\pfrac}[2]{\left(\frac{#1}{#2}\right)}
+   \frac{dN}{dE} = N_0 \pfrac{E}{E_0}^{\gamma_1}
+                   \exp\left(-\pfrac{E}{E_c}^{\gamma_2}\right)
+   \f]
+   where
+     - Prefactor = \f$N_0\f$
+     - Index1 = \f$\gamma_1\f$
+     - Scale = \f$E_0\f$
+     - Cutoff = \f$E_c\f$
+     - Index2 = \f$\gamma_2\f$
+
    - Four spatial models are available:
      - SkyDirFunction describes a direction on the sky and is used
        only for point sources.
