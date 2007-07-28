@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jul 28 16:00:05 PDT 2007
+Likelihood/src
+
+Modified Files:
+	tutorial.h 
+Log Message:
+add documentation for PLSuperExpCutoff
+    *
+------------------------------------------------------------
 TAG
 Tag name: v13r2, operation: add
 Package: Likelihood
