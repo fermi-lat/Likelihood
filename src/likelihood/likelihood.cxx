@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.135 2007/07/04 00:16:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.136 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -79,7 +79,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.135 2007/07/04 00:16:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.136 2007/07/13 15:35:11 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -177,7 +177,6 @@ likelihood::likelihood()
 }
 
 void likelihood::run() {
-   std::cout << "using new imp" << std::endl;
    promptForParameters();
    std::string statistic = m_pars["statistic"];
    m_helper = new AppHelpers(&m_pars, statistic);
