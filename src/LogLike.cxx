@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.58 2007/02/22 22:08:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.59 2007/05/23 15:32:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -25,7 +25,7 @@
 namespace Likelihood {
 
 LogLike::LogLike(const Observation & observation) 
-   : SourceModel(observation), m_nevals(0) {
+   : SourceModel(observation), m_nevals(0), m_bestValueSoFar(-1e38) {
    deleteAllSources();
 }
 
@@ -63,7 +63,10 @@ double LogLike::value(optimizers::Arg&) const {
                     << my_total << "  "
                     << std::clock() - start << std::endl;
    m_nevals++;
-//   return my_value;
+//    if (::getenv("BYPASS_ACCUMULATOR")) {
+//       return my_value;
+//    }
+   saveBestFit(my_total);
    return my_total;
 }
 
@@ -227,6 +230,18 @@ void LogLike::syncSrcParams(const std::string & srcName) {
 
 double LogLike::NpredValue(const std::string & srcName) const {
    return const_cast<Source &>(source(srcName)).Npred();
+}
+
+void LogLike::saveBestFit(double logLikeValue) const {
+   if (logLikeValue > m_bestValueSoFar) {
+      getFreeParamValues(m_bestFitParsSoFar);
+      m_bestValueSoFar = logLikeValue;
+   }
+}
+
+void LogLike::restoreBestFit() {
+   setFreeParamValues(m_bestFitParsSoFar);
+   syncParams();
 }
 
 } // namespace Likelihood
