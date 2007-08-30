@@ -1,10 +1,13 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.227 2007/07/28 23:01:13 jchiang Exp $
+    $Id: release.notes,v 1.228 2007/08/27 17:42:11 jchiang Exp $
 
     @verbatim
-    v13p3    27-Aug-07 JC  temp fix for gtmodel output LK-35
+    v13r4    30-Aug-07 JC  add code to LogLike to save best fit pars
+                           and allow them to be restored in case an Optimizer
+                           object throws an exception
+    v13r3    27-Aug-07 JC  temp fix for gtmodel output LK-35
     v13r2p1  28-Jul-07 JC  add documentation for PLSuperExpCutoff
     v13r2    27-Jul-07 JC  add DRMNFB and NEWMINUIT as optimizer options
                            in gtlike
