@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 30 16:08:04 PDT 2007
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Log Message:
+add code to memoize and restore best fits
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 30 16:07:58 PDT 2007
 Likelihood/src
 
