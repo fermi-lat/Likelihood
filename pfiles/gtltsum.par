@@ -1,5 +1,8 @@
+#
+# $Header$
+#
 infile1,f,a,"",,,"Livetime cube 1 or list of files"
-infile2,f,a,"",,,"Livetime cube 2"
+infile2,f,a,"none",,,"Livetime cube 2"
 table,s,h,"Exposure",,,"Name of extension containing livetime"
 outfile,f,a,"",,,"Output file"
 
