@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.228 2007/08/27 17:42:11 jchiang Exp $
+    $Id: release.notes,v 1.229 2007/08/30 23:16:25 jchiang Exp $
 
     @verbatim
+    v13r4p1  06-Sep-07 JC  set default value for infile2 in gtltsum.par
     v13r4    30-Aug-07 JC  add code to LogLike to save best fit pars
                            and allow them to be restored in case an Optimizer
                            object throws an exception
