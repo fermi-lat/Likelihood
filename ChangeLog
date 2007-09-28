@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: golpa  Fri Sep 28 12:10:22 PDT 2007
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+Use common utilities
+    *
+------------------------------------------------------------
 User: golpa  Fri Sep 28 12:10:21 PDT 2007
 Likelihood/src/old_tests
 
