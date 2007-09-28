@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.40 2006/09/26 20:13:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.41 2006/11/16 23:08:44 jchiang Exp $
  */
 
 #include <algorithm>
@@ -25,6 +25,8 @@
 #include "st_facilities/Env.h"
 #include "st_facilities/FitsImage.h"
 #include "st_facilities/Util.h"
+
+#include "facilities/commonUtilities.h"
 
 #include "evtbin/Gti.h"
 #include "evtbin/LinearBinner.h"
@@ -385,8 +387,8 @@ void CountsMap::writeOutput(const std::string & creator,
                             const std::string & out_file) const {
 
    createFile(creator, out_file, 
-              st_facilities::Env::appendFileName(m_data_dir,
-                                                 "LatCountsMapTemplate"));
+              facilities::commonUtilities::joinPath(m_data_dir,
+						    "LatCountsMapTemplate"));
    
    std::auto_ptr<tip::Image> 
        output_image(tip::IFileSvc::instance().editImage(out_file, ""));
@@ -602,7 +604,7 @@ void CountsMap::setCenter() {
 }
 
 void CountsMap::setDataDir() {
-   m_data_dir = st_facilities::Env::getDataDir("Likelihood");
+   m_data_dir = facilities::commonUtilities::getDataPath("Likelihood");
 }
 
 void CountsMap::deleteBinners(std::vector<evtbin::Binner *> & binners) const {

@@ -43,6 +43,8 @@
 #include "optimizers/../src/Gaussian.h"
 #include "optimizers/../src/AbsEdge.h"
 
+#include "facilities/commonUtilities.h"
+
 // Various using declarations/directives for testing purposes only
 using namespace Likelihood;
 using optimizers::Parameter;
@@ -373,7 +375,7 @@ void fit_DiffuseSource() {
 // Write out the fitted model as an xml file.
 //   xmlFile = root_path + "/xml/fittedModel.xml";
    xmlFile = "fittedModel.xml";
-   logLike.writeXml(xmlFile, "$(LIKELIHOODROOT)/xml/A1_Functions.xml");
+   logLike.writeXml(xmlFile, facilities::commonUtilities::joinPath(facilities::commonUtilities::getXmlPath("Likelihood"), "A1_Functions.xml"));
 
 // Clear the sources in logLike.
    logLike.deleteAllSources();
@@ -1312,7 +1314,7 @@ void test_SourceModel_class() {
    }
 
    xmlFile = "myModel.xml";
-   SrcModel.writeXml(xmlFile, "$(LIKELIHOODROOT)/xml/A1_Functions.xml");
+   SrcModel.writeXml(xmlFile, facilities::commonUtilities::joinPath(facilities::commonUtilities::getXmlPath("Likelihood"), "A1_Functions.xml"));
 
 // Save the current set of model parameters.
    std::vector<Parameter> parameters;
@@ -1374,7 +1376,7 @@ void report_SrcModel_values(const SourceModel &SrcModel) {
 void setUp() {
 
 // Get root path to test data.
-   const char * root = ::getenv("LIKELIHOODROOT");
+   const char * root = facilities::commonUtilities::getPackagePath("Likelihood").c_str()
    if (!root) {  //use relative path from cmt directory
       root_path = "..";
    } else {
