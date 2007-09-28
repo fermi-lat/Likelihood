@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.80 2007/01/30 00:24:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.81 2007/07/13 15:35:12 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -24,6 +24,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "facilities/Util.h"
+#include "facilities/commonUtilities.h"
 
 #include "st_facilities/Util.h"
 
@@ -188,7 +189,7 @@ void LikelihoodTests::setUp() {
 
 
 // Get root path to test data.
-   const char * root = std::getenv("LIKELIHOODROOT");
+   const char * root = facilities::commonUtilities::getPackagePath("Likelihood").c_str();
    if (!root) {  //use relative path from cmt directory
       m_rootPath = "..";
    } else {
