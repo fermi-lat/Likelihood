@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: golpa  Fri Sep 28 12:10:21 PDT 2007
+Likelihood/src
+
+Modified Files:
+	CountsMap.cxx 
+Log Message:
+Use common utilities
+    *
+------------------------------------------------------------
 TAG
 Tag name: v13r4p1, operation: add
 Package: Likelihood
