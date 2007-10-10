@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct 10 13:03:13 PDT 2007
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h 
+Log Message:
+fix restoreBestFit function after deleteSource or addSource
+    *
+------------------------------------------------------------
 User: golpa  Fri Sep 28 12:10:22 PDT 2007
 Likelihood/src/test
 
