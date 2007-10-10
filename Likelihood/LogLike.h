@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.33 2007/05/23 15:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.34 2007/08/30 23:07:33 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.33 2007/05/23 15:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.34 2007/08/30 23:07:33 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -84,6 +84,8 @@ protected:
 
    mutable unsigned long m_nevals;
 
+   mutable double m_bestValueSoFar;
+
    void saveBestFit(double logLikeValue) const;
 
 private:
@@ -99,7 +101,6 @@ private:
    void getLogSourceModelDerivs(const Event & event,
                                 std::vector<double> & derivs) const;
 
-   mutable double m_bestValueSoFar;
    mutable std::vector<double> m_bestFitParsSoFar;
 
 };
