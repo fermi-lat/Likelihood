@@ -1,9 +1,13 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.229 2007/08/30 23:16:25 jchiang Exp $
+    $Id: release.notes,v 1.230 2007/09/06 16:08:04 jchiang Exp $
 
     @verbatim
+    v13r5    10-Oct-07 JC  set m_bestValueSoFar in LogLike.cxx and 
+                           BinnedLikelihood.cxx so that 
+                           LogLike::restoreBestFit() works after deleteSource
+                           or addSource (LK-38)
     v13r4p1  06-Sep-07 JC  set default value for infile2 in gtltsum.par
     v13r4    30-Aug-07 JC  add code to LogLike to save best fit pars
                            and allow them to be restored in case an Optimizer
