@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.59 2007/05/23 15:32:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.60 2007/08/30 23:08:04 jchiang Exp $
  */
 
 #include <cmath>
@@ -170,6 +170,7 @@ void LogLike::addSource(Source * src) {
    }
    SrcArg sArg(src);
    m_npredValues[src->getName()] = m_Npred(sArg);
+   m_bestValueSoFar = -1e38;
 }
 
 Source * LogLike::deleteSource(const std::string & srcName) {
@@ -178,6 +179,7 @@ Source * LogLike::deleteSource(const std::string & srcName) {
       const_cast<std::vector<Event> &>(events).at(j).deleteSource(srcName);
    }
    m_npredValues.erase(srcName);
+   m_bestValueSoFar = -1e38;
    return SourceModel::deleteSource(srcName);
 }
 
