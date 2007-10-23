@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.230 2007/09/06 16:08:04 jchiang Exp $
+    $Id: release.notes,v 1.231 2007/10/10 20:08:17 jchiang Exp $
 
     @verbatim
+    v13r5p1  22-Oct-07 JC  get around bug in commonUtilities::getPackagePath
     v13r5    10-Oct-07 JC  set m_bestValueSoFar in LogLike.cxx and 
                            BinnedLikelihood.cxx so that 
                            LogLike::restoreBestFit() works after deleteSource
