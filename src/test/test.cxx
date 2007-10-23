@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.81 2007/07/13 15:35:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.82 2007/09/28 19:10:22 golpa Exp $
  */
 
 #ifdef TRAP_FPE
@@ -193,7 +193,7 @@ void LikelihoodTests::setUp() {
    if (!root) {  //use relative path from cmt directory
       m_rootPath = "..";
    } else {
-      m_rootPath = std::string(root);
+      m_rootPath = facilities::commonUtilities::getPackagePath("Likelihood");
    }
 
 // Prepare the ResponseFunctions object.
