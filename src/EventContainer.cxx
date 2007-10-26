@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.12 2007/01/06 01:10:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.13 2007/02/09 21:48:05 jchiang Exp $
  */
 
 #include <cmath>
@@ -189,10 +189,14 @@ get_diffuse_names(tip::Table * events,
                   std::vector<std::string> & names) const {
    names.clear();
    const std::vector<std::string> & fields = events->getValidFields();
+   std::string respName(m_respFuncs.respName());
+   Event::toLower(respName);
    for (unsigned int i = 0; i < fields.size(); i++) {
       if (fields.at(i).find("__") != std::string::npos ||
           fields.at(i).find("::") != std::string::npos) {
-         names.push_back(fields.at(i));
+         if (fields.at(i).find(respName) == 0) {
+            names.push_back(fields.at(i));
+         }
       }
    }
 }
