@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 26 14:43:35 PDT 2007
+Likelihood/src
+
+Modified Files:
+	EventContainer.cxx 
+Log Message:
+check to ensure response function name matches the gtdiffrsp column
+    *
+------------------------------------------------------------
 TAG
 Tag name: v13r5p1, operation: add
 Package: Likelihood
