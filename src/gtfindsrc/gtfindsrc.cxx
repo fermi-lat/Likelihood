@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.14 2007/07/03 22:48:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.15 2007/07/04 00:16:56 jchiang Exp $
  */
 
 #include <cmath>
@@ -75,7 +75,7 @@ private:
    void readSrcModel();
    void identifyTarget();
    void selectOptimizer();
-   double fitPosition(double step=0.1);
+   double fitPosition(double step=0.3);
    double errEst(const std::vector< std::vector<double> > & testPoints) const;
    void setTestSource();
 };
@@ -91,7 +91,7 @@ st_app::StAppFactory<findSrc> myAppFactory("gtfindsrc");
 
 findSrc::findSrc() : st_app::StApp(), m_helper(0), 
                      m_pars(st_app::StApp::getParGroup("gtfindsrc")), 
-                     m_logLike(0), m_opt(0), m_testSrc(0) {}
+                     m_logLike(0), m_opt(0), m_testSrc(0), m_logLike0(0) {}
 
 void findSrc::run() {
    promptForInputData();
