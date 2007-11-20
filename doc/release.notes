@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.233 2007/10/26 23:07:24 jchiang Exp $
+    $Id: release.notes,v 1.234 2007/11/07 20:26:15 jchiang Exp $
 
     @verbatim
+    v13r6    19-Nov-07 JC  assume underlying powerlaw for computing
+                           pixelCounts integrals
     v13r5p3  07-Nov-07 JC  initialize reference value m_logLike0 to zero
                            in findSrc constructor so that gtfindsrc works
                            properly with point-source only models
