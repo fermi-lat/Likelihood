@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.91 2007/07/11 21:21:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.92 2007/11/20 03:29:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -194,7 +194,7 @@ double PointSource::pixelCounts(double emin, double emax,
    optimizers::dArg emaxArg(emax);
    double y1(spectrum(eminArg)*wtMin);
    double y2(spectrum(emaxArg)*wtMax);
-   if (!::getenv("USE_OLD_PIX_EST")) {
+   if (::getenv("USE_OLD_PIX_EST")) {
       return (y1 + y2)*(emax - emin)/2.;
    }
    double gam(std::log(y2/y1)/std::log(emax/emin));
