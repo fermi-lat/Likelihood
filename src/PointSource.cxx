@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.90 2007/02/09 21:48:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.91 2007/07/11 21:21:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -192,7 +192,17 @@ double PointSource::pixelCounts(double emin, double emax,
    optimizers::Function & spectrum = *m_spectrum;
    optimizers::dArg eminArg(emin);
    optimizers::dArg emaxArg(emax);
-   return (spectrum(emaxArg)*wtMax + spectrum(eminArg)*wtMin)*(emax - emin)/2.;
+   double y1(spectrum(eminArg)*wtMin);
+   double y2(spectrum(emaxArg)*wtMax);
+   if (!::getenv("USE_OLD_PIX_EST")) {
+      return (y1 + y2)*(emax - emin)/2.;
+   }
+   double gam(std::log(y2/y1)/std::log(emax/emin));
+   double y0(y2/std::pow(emax, gam));
+   if (gam == -1) {
+      return y0*std::log(emax/emin);
+   }
+   return y0/(gam + 1.)*(std::pow(emax, gam + 1.) - std::pow(emin, gam + 1.));
 }
 
 double PointSource::pixelCountsDeriv(double emin, double emax,
@@ -201,8 +211,25 @@ double PointSource::pixelCountsDeriv(double emin, double emax,
    optimizers::Function & spectrum = *m_spectrum;
    optimizers::dArg eminArg(emin);
    optimizers::dArg emaxArg(emax);
-   return (spectrum.derivByParam(emaxArg, paramName)*wtMax +
-           spectrum.derivByParam(eminArg, paramName)*wtMin)*(emax - emin)/2.;
+   double y1(spectrum(eminArg)*wtMin);
+   double y2(spectrum(emaxArg)*wtMax);
+   double dy1dp(spectrum.derivByParam(eminArg, paramName)*wtMin);
+   double dy2dp(spectrum.derivByParam(emaxArg, paramName)*wtMax);
+   if (::getenv("USE_OLD_PIX_EST")) {
+      return (dy1dp + dy2dp)*(emax - emin)/2.;
+   }
+   double gam(std::log(y2/y1)/std::log(emax/emin));
+   double y0(y2/std::pow(emax, gam));
+   double dgamdp((dy2dp/y2 - dy1dp/y1)/std::log(emax/emin));
+   double dy0dp((dy2dp - y2*dgamdp*std::log(emax))/std::pow(emax, gam));
+   if (gam == -1) {
+      return dy0dp*std::log(emax/emin);
+   }
+   return (dy0dp*(std::pow(emax, gam+1.) - std::pow(emin, gam+1.))/(gam+1.) +
+           y0*dgamdp/(gam+1.)*((std::pow(emax, gam+1.)*std::log(emax)
+                                - std::pow(emin, gam+1.)*std::log(emin))
+                               - (std::pow(emax, gam+1.)-std::pow(emin, gam+1.))
+                               /(gam+1.)));
 }
 
 void PointSource::computeExposure(bool verbose) {
