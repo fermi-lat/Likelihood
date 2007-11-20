@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.82 2007/09/28 19:10:22 golpa Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.83 2007/10/23 00:28:21 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -726,7 +726,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    }
 //   std::cout << "Total model counts: " << modelSum << std::endl;
 
-   CPPUNIT_ASSERT(fabs(modelSum - dataSum)/dataSum < 1e-3);
+   CPPUNIT_ASSERT(fabs(modelSum - dataSum)/dataSum < 1e-2);
 
    unsigned long npts = dataMap.imageDimension(0);
    std::vector<double> energies;
@@ -758,15 +758,15 @@ void LikelihoodTests::test_BinnedLikelihood() {
       new_params[i] += delta;
       binnedLogLike.setFreeParamValues(new_params);
       double logLike = binnedLogLike.value();
-//      std::cout << i << "  ";
-//      std::cout << derivs[i] << "  ";
-//      std::cout << logLike << "  " << logLike0 << "  ";
-//      std::cout << (logLike - logLike0)/delta << std::endl;
-
+//       std::cout << i << "  ";
+//       std::cout << derivs[i] << "  ";
+//       std::cout << logLike << "  " << logLike0 << "  ";
+//       std::cout << (logLike - logLike0)/delta << std::endl;
+      
 // Another weak test.
       double num_deriv = fabs((derivs[i] - (logLike - logLike0)/delta)
                               /derivs[i]);
-//      std::cout << "numerical deriv: " << num_deriv << std::endl;
+//       std::cout << "numerical deriv: " << num_deriv << std::endl;
       CPPUNIT_ASSERT(num_deriv < 5e-2);
    }
 
@@ -957,7 +957,6 @@ int main(int iargc, char * argv[]) {
 
    if (iargc > 1 && std::string(argv[1]) == "-d") { // debug mode
       LikelihoodTests testObj;
-
       testObj.setUp();
       testObj.test_RoiCuts();
       testObj.tearDown();
