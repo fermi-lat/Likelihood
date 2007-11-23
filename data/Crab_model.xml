@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE source_library
-  SYSTEM '$(LIKELIHOODROOT)/xml/A1_Sources.dtd'>
+  SYSTEM '$(LIKELIHOODXMLPATH)/A1_Sources.dtd'>
 <source_library title="source library">
     <source name="Crab Pulsar" type="PointSource">
       <spectrum type="PowerLaw">

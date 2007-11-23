@@ -475,12 +475,12 @@ Here is an example session of a TsMap run:
 
 @verbatim
 glast-guess1[jchiang] TsMap.exe 
-ROI cuts file [$(LIKELIHOODROOT)/data/RoiCuts.xml] : 
-Spacecraft file [$(LIKELIHOODROOT)/data/oneday_scData_0000.fits] : 
+ROI cuts file [$(LIKELIHOODDATAPATH/RoiCuts.xml] : 
+Spacecraft file [$(LIKELIHOODDATAPATH)/oneday_scData_0000.fits] : 
 Exposure file [none] : 
 Response functions to use <FRONT/BACK|FRONT|BACK> [FRONT/BACK] : 
-Source model file [$(LIKELIHOODROOT)/data/anticenter_model.xml] : 
-Event file [$(LIKELIHOODROOT)/data/oneday_events_0000.fits] : 
+Source model file [$(LIKELIHOODDATAPATH)/anticenter_model.xml] : 
+Event file [$(LIKELIHOODDATAPATH)/oneday_events_0000.fits] : 
 Optimizer <LBFGS|MINUIT|DRMNGB> [DRMNGB] : 
 Optimizer verbosity [0] : 
 Fit tolerance [0.001] : 
@@ -509,8 +509,8 @@ package.  Here's a sample session:
 
 @verbatim
 glast-guess1[jchiang] expMap.exe 
-ROI cuts file [$(LIKELIHOODROOT)/data/RoiCuts.xml] : 
-Spacecraft file [oneday_scData_0000.fits] : $(LIKELIHOODROOT)/data/oneday_scData_0000.fits
+ROI cuts file [$(LIKELIHOODDATAPATH)/RoiCuts.xml] : 
+Spacecraft file [oneday_scData_0000.fits] : $(LIKELIHOODDATAPATH)/oneday_scData_0000.fits
 Response functions to use <FRONT/BACK|FRONT|BACK> [FRONT/BACK] : 
 Radius of the source region (in degrees) [30] : 
 Number of longitude points <2 - 1000> [60] : 
