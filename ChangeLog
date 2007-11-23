@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: golpa  Fri Nov 23 08:58:02 PST 2007
+Likelihood/data
+
+Modified Files:
+	Crab_model.xml Virgo_region.xml Virgo_region_2.xml 
+	anticenter_model.xml anticenter_model_bpl.xml 
+Log Message:
+Converted paths in data files to new format
+    *
+------------------------------------------------------------
 TAG
 Tag name: v13r6p1, operation: add
 Package: Likelihood
