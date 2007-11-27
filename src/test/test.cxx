@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.83 2007/10/23 00:28:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.84 2007/11/20 03:29:58 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -172,6 +172,7 @@ ResponseFunctions * LikelihoodTests::m_respFuncs(0);
 EventContainer * LikelihoodTests::m_eventCont(0);
 
 void LikelihoodTests::setUp() {
+   facilities::commonUtilities::setupEnvironment();
    if (m_respFuncs == 0) m_respFuncs = new ResponseFunctions();
    if (m_scData == 0) m_scData = new ScData();
    if (m_roiCuts == 0) m_roiCuts = new RoiCuts();
