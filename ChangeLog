@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Nov 27 12:07:54 PST 2007
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+run setupEnvironment in test program for xml changes; tagging v13r6p2
+    *
+------------------------------------------------------------
+User: jchiang  Tue Nov 27 12:07:54 PST 2007
 Likelihood/doc
 
 Modified Files:
