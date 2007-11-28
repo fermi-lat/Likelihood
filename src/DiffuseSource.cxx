@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.36 2007/11/20 03:29:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.37 2007/11/28 16:01:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -129,7 +129,7 @@ double DiffuseSource::pixelCounts(double emin, double emax,
    double y1(spectrum(eminArg)*wtMin);
    double y2(spectrum(emaxArg)*wtMax);
    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
-      return (y1 + y2)*(emax-emin)/2.;
+      return (y1 + y2)*(emax - emin)/2.;
    }
    double gam(std::log(y2/y1)/std::log(emax/emin));
    double y0(y2/std::pow(emax, gam));
@@ -162,7 +162,7 @@ double DiffuseSource::pixelCountsDeriv(double emin, double emax,
    return (dy0dp*(std::pow(emax, gam+1.) - std::pow(emin, gam+1.))/(gam+1.) +
            y0*dgamdp/(gam+1.)*((std::pow(emax, gam+1.)*std::log(emax)
                                 - std::pow(emin, gam+1.)*std::log(emin))
-                               - (std::pow(emax, gam+1.)-std::pow(emin, gam+1.))
+                               - (std::pow(emax,gam+1.)-std::pow(emin,gam+1.))
                                /(gam+1.)));
 }
 
