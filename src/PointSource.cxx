@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.92 2007/11/20 03:29:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.93 2007/11/20 05:51:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -194,7 +194,7 @@ double PointSource::pixelCounts(double emin, double emax,
    optimizers::dArg emaxArg(emax);
    double y1(spectrum(eminArg)*wtMin);
    double y2(spectrum(emaxArg)*wtMax);
-   if (::getenv("USE_OLD_PIX_EST")) {
+   if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
       return (y1 + y2)*(emax - emin)/2.;
    }
    double gam(std::log(y2/y1)/std::log(emax/emin));
@@ -215,7 +215,7 @@ double PointSource::pixelCountsDeriv(double emin, double emax,
    double y2(spectrum(emaxArg)*wtMax);
    double dy1dp(spectrum.derivByParam(eminArg, paramName)*wtMin);
    double dy2dp(spectrum.derivByParam(emaxArg, paramName)*wtMax);
-   if (::getenv("USE_OLD_PIX_EST")) {
+   if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
       return (dy1dp + dy2dp)*(emax - emin)/2.;
    }
    double gam(std::log(y2/y1)/std::log(emax/emin));
@@ -228,7 +228,7 @@ double PointSource::pixelCountsDeriv(double emin, double emax,
    return (dy0dp*(std::pow(emax, gam+1.) - std::pow(emin, gam+1.))/(gam+1.) +
            y0*dgamdp/(gam+1.)*((std::pow(emax, gam+1.)*std::log(emax)
                                 - std::pow(emin, gam+1.)*std::log(emin))
-                               - (std::pow(emax, gam+1.)-std::pow(emin, gam+1.))
+                               - (std::pow(emax,gam+1.)-std::pow(emin,gam+1.))
                                /(gam+1.)));
 }
 
