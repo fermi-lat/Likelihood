@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Dec  3 12:33:48 PST 2007
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx 
+Log Message:
+fix fencepost error in LikeExposure::load; tagging v13r6p4
+    *
+------------------------------------------------------------
+User: jchiang  Mon Dec  3 12:33:48 PST 2007
 Likelihood/doc
 
 Modified Files:
