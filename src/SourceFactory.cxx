@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.57 2007/02/09 21:48:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.58 2007/07/11 21:21:12 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -138,6 +138,8 @@ void SourceFactory::readXml(const std::string & xmlFile,
 // and its name.
       std::string srcName = xmlBase::Dom::getAttribute(*srcIt, "name");
 
+      m_currentSrcName = srcName;
+
       m_formatter->info(3) << "Creating source named "
                            << srcName << std::endl;
 
@@ -232,6 +234,9 @@ makePointSource(const DOMElement * spectrum,
    }
 
    Source * src(0);
+
+   checkRoiDist(ra, dec);
+
    if (m_requireExposure) {
       src = new PointSource(ra, dec, m_observation, m_verbose);
    } else { // for BinnedLikelihood, skip the exposure calculation
@@ -319,6 +324,21 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
 
    src->setSpectrum(spec);
    delete spec;
+}
+
+void SourceFactory::checkRoiDist(double ra, double dec) const {
+   std::vector<double> roiPars(m_observation.roiCuts().roiCone());
+   astro::SkyDir roiDir(roiPars.at(0), roiPars.at(1));
+   double radius(roiPars.at(2));
+   astro::SkyDir srcDir(ra, dec);
+   double sep(srcDir.difference(roiDir)*180./M_PI);
+   if (sep > radius + 10) {
+      m_formatter->warn() << "WARNING: Point source " << m_currentSrcName
+                          << " lies " << sep 
+                          << " degrees from the ROI center at RA, Dec = " 
+                          << roiPars.at(0) << ", " << roiPars.at(1)
+                          << std::endl;
+   }
 }
 
 } // namespace Likelihood

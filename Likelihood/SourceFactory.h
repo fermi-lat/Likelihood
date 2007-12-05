@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.22 2006/04/17 05:52:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.23 2006/04/19 05:41:56 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -45,7 +45,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.22 2006/04/17 05:52:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.23 2006/04/19 05:41:56 jchiang Exp $
  *
  */
     
@@ -97,6 +97,10 @@ private:
    void setSpectrum(Source *src, const DOMElement *spectrum,
                     optimizers::FunctionFactory & funcFactory);
 #endif
+
+   void checkRoiDist(double ra, double dec) const;
+
+   std::string m_currentSrcName;
 
 };
 

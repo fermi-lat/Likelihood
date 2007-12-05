@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.238 2007/11/28 16:34:55 jchiang Exp $
+    $Id: release.notes,v 1.239 2007/12/03 20:33:47 jchiang Exp $
 
     @verbatim
+    v13r7    05-Dec-07 JC  print warning message if point source is > 
+                           roi_radius + 10 deg from roi center (LK-30)
     v13r6p4  03-Dec-07 JC  fix fencepost error in LikeExposure::load that
                            caused zero livetimes for short (<30 s) 
                            user-selected intervals
