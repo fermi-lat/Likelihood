@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Dec  5 11:09:51 PST 2007
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+print warning message if point source is > roi_radius + 10 deg from roi center; tagging v13r7
+    *
+------------------------------------------------------------
+User: jchiang  Wed Dec  5 11:09:51 PST 2007
 Likelihood/Likelihood
 
 Modified Files:
