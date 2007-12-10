@@ -1,5 +1,17 @@
 ------------------------------------------------------------
 User: jchiang  Sun Dec  9 23:29:51 PST 2007
+Likelihood/src
+
+Modified Files:
+	Event.cxx EventContainer.cxx 
+Added Files:
+	DiffRespIntegrand.cxx 
+Log Message:
+use dgaus8 in diffuse response calculation
+
+    *
+------------------------------------------------------------
+User: jchiang  Sun Dec  9 23:29:51 PST 2007
 Likelihood/Likelihood
 
 Modified Files:
