@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.56 2006/08/23 19:26:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.57 2006/09/06 22:06:22 jchiang Exp $
  */
 
 #include <cctype>
@@ -22,11 +22,13 @@
 #include "Likelihood/Exception.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/ResponseFunctions.h"
+#include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/TrapQuad.h"
 
-#include "Likelihood/RoiCuts.h"
+#include "st_facilities/GaussianQuadrature.h"
+#include "Likelihood/DiffRespIntegrand.h"
 
 namespace {
    double my_acos(double mu) {
@@ -121,6 +123,27 @@ Event::diffuseResponse(std::string name) const {
       throw Exception(errorMessage);
    }
    return it->second;
+}
+
+void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList, 
+                              const ResponseFunctions & respFuncs) {
+   std::vector<DiffuseSource *> srcs;
+   getNewDiffuseSrcs(srcList, srcs);
+   if (srcs.size() == 0) {
+      return;
+   }
+   double mumin(-1);
+   double mumax(1);
+   double err(1e-2);
+   int ierr;
+   for (size_t i(0); i < srcs.size(); i++) {
+      std::string name(diffuseSrcName(srcs.at(i)->getName()));
+      DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i));
+      double respValue = 
+         st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
+                                                   mumax, err, ierr);
+      m_respDiffuseSrcs[name].push_back(respValue);
+   }
 }
 
 void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 

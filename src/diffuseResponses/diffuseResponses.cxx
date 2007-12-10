@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.43 2007/06/05 05:11:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.44 2007/07/03 22:48:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.43 2007/06/05 05:11:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.44 2007/07/03 22:48:20 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -113,7 +113,7 @@ private:
 
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffrsp");
 
-std::string diffuseResponses::s_cvs_id("$Name:  $");
+std::string diffuseResponses::s_cvs_id("$Name: v13r6p3 $");
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), 
@@ -261,8 +261,12 @@ void diffuseResponses::computeEventResponses() {
       if ((i % factor) == 0) {
          m_formatter->warn() << ".";
       }
-      it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
-                          m_srRadius);
+      if (::getenv("USE_NEW_DIFFRESP_CALC")) {
+         it->computeResponseGQ(m_srcs, m_helper->observation().respFuncs()); 
+      } else {
+         it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
+                             m_srRadius);
+      }
    }
    m_formatter->warn() << "!" << std::endl;
 }

@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.38 2006/04/24 22:31:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.39 2006/09/06 22:06:21 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.38 2006/04/24 22:31:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.39 2006/09/06 22:06:21 jchiang Exp $
  */
 
 class Event {
@@ -68,6 +68,9 @@ public:
    double diffuseResponse(double energy, 
                           std::string diffuseComponent) const;
     
+   void computeResponseGQ(std::vector<DiffuseSource *> & srcs, 
+                          const ResponseFunctions & respFuncs);
+
    /// This method takes the spatial distribution of the emission for
    /// the DiffuseSource src and computes the event-specific response.
    /// See section 1 of 
@@ -84,7 +87,7 @@ public:
       computeResponse(srcs, respFuncs, sr_radius, sr_radius2);
    }
 
-   /// Compute the reponse integrals for a vector of DiffuseSources
+   /// Compute the response integrals for a vector of DiffuseSources
    void computeResponse(std::vector<DiffuseSource *> &srcs, 
                         const ResponseFunctions & respFuncs, 
                         double sr_radius=30., double sr_radius2=80);
