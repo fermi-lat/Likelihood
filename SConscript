@@ -1,6 +1,6 @@
-#-*- python -*-
+# -*- python -*-
 #
-# $Id$
+# $Id: SConscript,v 1.2 2007/12/11 16:40:12 jchiang Exp $
 
 import glob, os
 
@@ -12,6 +12,9 @@ LikelihoodLib = libEnv.StaticLibrary('Likelihood',
                                      listFiles(['src/*.c', 'src/*.cxx']))
 
 progEnv.Tool('LikelihoodLib')
+
+test_LikelihoodBin = progEnv.program('test_Likelihood',
+                                     listFiles(['src/test/*.cxx']))
 
 gtlikeBin = progEnv.Program('gtlike',listFiles(['src/likelihood/*.cxx']))
 
@@ -37,8 +40,9 @@ gtfindsrcBin = progEnv.Program('gtfindsrc', listFiles(['src/gtfindsrc/*.cxx']))
 
 progEnv.Tool('registerObjects', package = 'Likelihood', 
              libraries = [LikelihoodLib], 
-             includes = listFiles(['Likelihood/*.h']), 
-             pfiles = listFiles(['pfiles/*.par']),
              binaries = [gtlikeBin, gtexpmapBin, gttsmapBin, gtltcubeBin,
                          gtdiffrspBin, gtsrcmapsBin, gtpsfBin, gtbkgBin, 
-                         gtmodelBin, gtltsumBin, gtfindsrcBin])
+                         gtmodelBin, gtltsumBin, gtfindsrcBin],
+             testApps = [test_LikelihoodBin],
+             includes = listFiles(['Likelihood/*.h']), 
+             pfiles = listFiles(['pfiles/*.par']))
