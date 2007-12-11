@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffRespIntegrand.h,v 1.1 2007/12/10 07:29:50 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffRespIntegrand_h
@@ -15,11 +15,10 @@ namespace astro {
    class SkyDir;
 }
 
-#include "Likelihood/EquinoxRotation.h"
-
 namespace Likelihood {
 
 class DiffuseSource;
+class EquinoxRotation;
 class Event;
 class ResponseFunctions;
 
@@ -33,11 +32,10 @@ public:
 
    DiffRespIntegrand(const Event & event,
                      const ResponseFunctions & respFuncs,
-                     const DiffuseSource & src);
+                     const DiffuseSource & src,
+                     const EquinoxRotation & eqRot);
 
    double operator()(double mu) const;
-
-private:
 
    /**
     * @class DiffRespPhiIntegrand
@@ -64,11 +62,12 @@ private:
 
    };
 
+private:
+
    const Event & m_event;
    const ResponseFunctions & m_respFuncs;
    const DiffuseSource & m_src;
-
-   EquinoxRotation m_eqRot;
+   const EquinoxRotation & m_eqRot;
 
 };
 

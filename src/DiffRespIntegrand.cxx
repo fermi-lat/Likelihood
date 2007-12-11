@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffRespIntegrand.cxx,v 1.1 2007/12/10 07:29:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -13,6 +13,7 @@
 #include "st_facilities/GaussianQuadrature.h"
 
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/ResponseFunctions.h"
 
@@ -35,10 +36,9 @@ namespace Likelihood {
 DiffRespIntegrand::
 DiffRespIntegrand(const Event & event,
                   const ResponseFunctions & respFuncs,
-                  const DiffuseSource & src)
-   : m_event(event), m_respFuncs(respFuncs), m_src(src) {
-   m_eqRot = EquinoxRotation(event.getDir().ra(), event.getDir().dec());
-}
+                  const DiffuseSource & src,
+                  const EquinoxRotation & eqRot)
+   : m_event(event), m_respFuncs(respFuncs), m_src(src), m_eqRot(eqRot) {}
 
 double DiffRespIntegrand::operator()(double mu) const {
    DiffRespPhiIntegrand phiIntegrand(mu, *this);
