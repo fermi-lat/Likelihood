@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.136 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.137 2007/08/27 17:26:04 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -68,6 +68,16 @@ namespace {
       }
       return ptsrc1->getDir().difference(ptsrc2->getDir())*180./M_PI;
    }
+   void strip_at_sign(std::string & input) {
+      if (input.find_first_of("@") == 0) {
+         std::string output = "";
+         std::string::iterator it = input.begin() + 1;
+         for ( ; it != input.end(); ++it) {
+            output += *it;
+         }
+         input = output;
+      }
+   }
 }
 
 using namespace Likelihood;
@@ -79,7 +89,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.136 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.137 2007/08/27 17:26:04 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -196,6 +206,7 @@ void likelihood::run() {
       std::string exposureFile = m_pars["expmap"];
       std::string eventFile = m_pars["evfile"];
       std::string evtable = m_pars["evtable"];
+      ::strip_at_sign(eventFile);
       st_facilities::Util::file_ok(eventFile);
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
       bool compareGtis(false);
