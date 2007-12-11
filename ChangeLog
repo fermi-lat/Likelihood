@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: jchiang  Mon Dec 10 23:14:49 PST 2007
+Likelihood/src
+
+Modified Files:
+	DiffRespIntegrand.cxx Event.cxx 
+Added Files:
+	LogNormalMuDist.cxx LogNormalMuDist.h 
+Log Message:
+use log normal sampling of offset angle for diffuse response calculation
+
+    *
+------------------------------------------------------------
 User: jchiang  Mon Dec 10 23:14:48 PST 2007
 Likelihood/Likelihood
 
