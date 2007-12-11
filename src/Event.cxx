@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.57 2006/09/06 22:06:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.58 2007/12/10 07:29:51 jchiang Exp $
  */
 
 #include <cctype>
@@ -29,6 +29,8 @@
 
 #include "st_facilities/GaussianQuadrature.h"
 #include "Likelihood/DiffRespIntegrand.h"
+
+#include "LogNormalMuDist.h"
 
 namespace {
    double my_acos(double mu) {
@@ -136,15 +138,51 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
    double mumax(1);
    double err(1e-2);
    int ierr;
+
+   EquinoxRotation eqRot(getDir().ra(), getDir().dec());
    for (size_t i(0); i < srcs.size(); i++) {
       std::string name(diffuseSrcName(srcs.at(i)->getName()));
-      DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i));
+      DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot);
       double respValue = 
          st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
                                                    mumax, err, ierr);
       m_respDiffuseSrcs[name].push_back(respValue);
    }
 }
+
+// void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 
+//                             const ResponseFunctions & respFuncs,
+//                             double sr_radius, double sr_radius2) {
+//    std::vector<DiffuseSource *> srcs;
+//    getNewDiffuseSrcs(srcList, srcs);
+//    if (srcs.size() == 0) {
+//       return;
+//    }
+
+//    EquinoxRotation eqRot(getDir().ra(), getDir().dec());
+
+//    const std::vector<double> & muArray =
+//       LogNormalMuDist::instance()->muPoints(m_energy);
+
+//    double err(1e-1);
+//    int ierr;
+
+//    for (size_t i(0); i < srcs.size(); i++) {
+//       std::string name(diffuseSrcName(srcs.at(i)->getName()));
+//       std::vector<double> integrand;
+//       DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot);
+//       for (size_t j(0); j < muArray.size(); j++) {
+//          DiffRespIntegrand::DiffRespPhiIntegrand foo(muArray.at(j), 
+//                                                      muIntegrand);
+//          double value = st_facilities::GaussianQuadrature::
+//             dgaus8(foo, 0, 2*M_PI, err, ierr);
+//          integrand.push_back(value);
+//       }
+//       TrapQuad muQuad(muArray, integrand);
+//       m_respDiffuseSrcs[name].push_back(muQuad.integral());
+//    }
+// }
+
 
 void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 
                             const ResponseFunctions & respFuncs,
@@ -161,12 +199,15 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
       prepareSrData(sr_radius, sr_radius2);
    }
 
-   std::vector<double> muArray(s_mu);
-// If inclination is greater than 80 degrees, use s_mu_2, that
-// covers a larger solid angle:
-   if (m_scDir.difference(m_appDir)*180./M_PI > 80.) {
-      muArray = s_mu_2;
-   }
+//    std::vector<double> muArray(s_mu);
+// // If inclination is greater than 80 degrees, use s_mu_2, that
+// // covers a larger solid angle:
+//    if (m_scDir.difference(m_appDir)*180./M_PI > 80.) {
+//       muArray = s_mu_2;
+//    }
+
+   const std::vector<double> & muArray =
+      LogNormalMuDist::instance()->muPoints(m_energy);
 
 // Create a vector of srcDirs looping over the source region locations.
    std::vector<astro::SkyDir> srcDirs;
@@ -290,16 +331,48 @@ void Event::prepareSrData(double sr_radius, double sr_radius2) {
 }
 
 void Event::fillMuArray(double sr_radius, int nmu, 
-                       std::vector<double> & mu) const {
-   double mumin = cos(sr_radius*M_PI/180);
-// Sample more densely near theta = 0:
-   std::deque<double> my_mu;
-   double nscale = static_cast<double>((nmu-1)*(nmu-1));
-   for (int i = 0; i < nmu; i++) {
-      my_mu.push_front(1. - i*i/nscale*(1. - mumin));
-   }
-   mu.resize(my_mu.size());
-   std::copy(my_mu.begin(), my_mu.end(), mu.begin());
+                        std::vector<double> & mu) const {
+//    double mumin = cos(sr_radius*M_PI/180);
+// // Sample more densely near theta = 0:
+//    std::deque<double> my_mu;
+//    double nscale = static_cast<double>((nmu-1)*(nmu-1));
+//    for (int i = 0; i < nmu; i++) {
+//       my_mu.push_front(1. - i*i/nscale*(1. - mumin));
+//    }
+//    mu.resize(my_mu.size());
+//    std::copy(my_mu.begin(), my_mu.end(), mu.begin());
+
+//    double one_m_mu[] = {5.22906e-06, 1.13481e-05, 1.85455e-05, 2.68409e-05,
+//                         3.62683e-05, 4.68339e-05, 5.86167e-05, 7.16618e-05,
+//                         8.60305e-05, 1.01793e-04, 1.19020e-04, 1.37776e-04,
+//                         1.58140e-04, 1.80313e-04, 2.04256e-04, 2.30022e-04,
+//                         2.58057e-04, 2.88043e-04, 3.20447e-04, 3.55255e-04,
+//                         3.92521e-04, 4.32754e-04, 4.75544e-04, 5.21851e-04,
+//                         5.70961e-04, 6.24026e-04, 6.80406e-04, 7.40933e-04,
+//                         8.05721e-04, 8.74407e-04, 9.48961e-04, 1.02656e-03,
+//                         1.11241e-03, 1.20181e-03, 1.29860e-03, 1.40184e-03,
+//                         1.51031e-03, 1.62982e-03, 1.75387e-03, 1.88928e-03,
+//                         2.03329e-03, 2.18415e-03, 2.35182e-03, 2.52568e-03,
+//                         2.71457e-03, 2.91773e-03, 3.12821e-03, 3.36548e-03,
+//                         3.61242e-03, 3.87667e-03, 4.16746e-03, 4.46873e-03,
+//                         4.80398e-03, 5.16041e-03, 5.53458e-03, 5.95799e-03,
+//                         6.39695e-03, 6.87942e-03, 7.40369e-03, 7.94715e-03,
+//                         8.57575e-03, 9.22864e-03, 9.94570e-03, 1.07339e-02,
+//                         1.15550e-02, 1.25117e-02, 1.35061e-02, 1.46251e-02,
+//                         1.58408e-02, 1.71580e-02, 1.86531e-02, 2.02231e-02,
+//                         2.20740e-02, 2.40050e-02, 2.62824e-02, 2.86946e-02,
+//                         3.15273e-02, 3.45642e-02, 3.81605e-02, 4.20163e-02,
+//                         4.66868e-02, 5.17741e-02, 5.78414e-02, 6.47894e-02,
+//                         7.27099e-02, 8.24593e-02, 9.37943e-02, 1.07163e-01,
+//                         1.23816e-01, 1.44448e-01, 1.70216e-01, 2.03157e-01,
+//                         2.46342e-01, 3.04421e-01, 3.87505e-01, 5.10091e-01,
+//                         7.07397e-01, 1.05980e+00, 1.73826e+00};
+//    std::deque<double> my_mu;
+//    for (size_t i(0); i < 99; i++) {
+//       my_mu.push_front(1. - one_m_mu[i]);
+//    }
+//    mu.resize(my_mu.size());
+//    std::copy(my_mu.begin(), my_mu.end(), mu.begin());
 }
 
 void Event::getCelestialDir(double phi, double mu, 
