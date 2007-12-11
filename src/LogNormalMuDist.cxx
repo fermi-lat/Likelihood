@@ -1,12 +1,12 @@
 /**
  * @file LogNormalMuDist.cxx
  * @brief Implementation of function to compute a log-Normal
- * distribution of sampling points in cos(theta) for diffuse response
- * integral.
+ * distribution of sampling points in offset angle for diffuse
+ * response integral.
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogNormalMuDist.cxx,v 1.1 2007/12/11 07:14:49 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,9 +45,9 @@ LogNormalMuDist * LogNormalMuDist::instance() {
 
 LogNormalMuDist::
 LogNormalMuDist(double muSlope, double muIntercept, double sigma,
-                double emin, double emax, size_t numEnergies)
+                double emin, double emax, size_t numEnergies, size_t numMu)
    : m_sigma(sigma), m_logEmin(std::log(emin)), m_logEmax(std::log(emax)),
-     m_numEnergies(numEnergies),
+     m_numEnergies(numEnergies), m_numMu(numMu),
      m_estep((m_logEmax - m_logEmin)/(numEnergies - 1)) {
 
    m_muPoints.clear();
@@ -67,7 +67,7 @@ const std::vector<double> & LogNormalMuDist::muPoints(double energy) const {
 void LogNormalMuDist::createSample(double mu, std::vector<double> & mus) {
    double xmin(1e-4);
    double xmax(2.*M_PI);
-   size_t nx(200);
+   size_t nx(m_numMu);
 
    std::vector<double> xx;
    std::vector<double> cdf;
