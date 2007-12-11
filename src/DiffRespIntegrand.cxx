@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffRespIntegrand.cxx,v 1.1 2007/12/10 07:29:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffRespIntegrand.cxx,v 1.2 2007/12/11 07:14:49 jchiang Exp $
  */
 
 #include <cmath>
@@ -47,6 +47,10 @@ double DiffRespIntegrand::operator()(double mu) const {
    double phimax(2*M_PI);
    double err(1e-1);
    int ierr;
+
+//    std::cout << mu << "  "
+//              << ::my_acos(mu) << "  "
+//              << m_event.getEnergy() << std::endl;
 
    return st_facilities::GaussianQuadrature::dgaus8(phiIntegrand, phimin,
                                                     phimax, err, ierr);
