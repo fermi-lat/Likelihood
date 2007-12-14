@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Dec 14 11:18:11 PST 2007
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx Event.cxx LikeExposure.cxx ScData.cxx 
+Log Message:
+add checks, warnings and exceptions if no FT2 data are read in for a given set of FT1 data (LK-39)
+    *
+------------------------------------------------------------
 User: jchiang  Fri Dec 14 11:18:10 PST 2007
 Likelihood/Likelihood
 
