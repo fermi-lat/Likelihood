@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.61 2007/03/20 23:46:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.62 2007/07/03 22:48:19 jchiang Exp $
  */
 
 #include <map>
@@ -169,11 +169,7 @@ void AppHelpers::readScData() {
    std::string sctable = pars["sctable"];
    st_facilities::Util::file_ok(scFile);
    st_facilities::Util::resolve_fits_files(scFile, m_scFiles);
-   std::vector<std::string>::const_iterator scIt = m_scFiles.begin();
-   for ( ; scIt != m_scFiles.end(); scIt++) {
-      st_facilities::Util::file_ok(*scIt);
-      m_scData->readData(*scIt, tmin, tmax, false, sctable);
-   }
+   m_scData->readData(m_scFiles, tmin, tmax);
 }
 
 void AppHelpers::readExposureMap() {

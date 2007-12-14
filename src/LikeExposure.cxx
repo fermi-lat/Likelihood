@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.22 2007/02/09 21:48:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.23 2007/12/03 20:33:48 jchiang Exp $
  */
 
 #include <algorithm>
@@ -37,7 +37,7 @@ LikeExposure(double skybin, double costhetabin,
              const std::vector< std::pair<double, double> > & timeCuts,
              const std::vector< std::pair<double, double> > & gtis)
    : map_tools::Exposure(skybin, costhetabin), m_timeCuts(timeCuts),
-     m_gtis(gtis) {
+     m_gtis(gtis), m_numIntervals(0) {
    if (!gtis.empty()) {
       for (size_t i = 0; i < gtis.size(); i++) {
          if (i == 0 || gtis.at(i).first < m_tmin) {
@@ -63,6 +63,9 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
 
    --it;
    long nrows(scData->getNumRecords());
+   if (nrows == 0) {
+      return;
+   }
    for ( ; it != scData->begin(); --it, nrows--) {
       row["stop"].get(stop);
       if (stop < m_tmax) {
@@ -103,6 +106,7 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
          row["ra_scz"].get(ra);
          row["dec_scz"].get(dec);
          fill(astro::SkyDir(ra, dec), deltat*fraction);
+         m_numIntervals++;
       }
    }
    if (verbose) {

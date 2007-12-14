@@ -3,7 +3,7 @@
  * @brief Declaration for ScData class, which contains the spacecraft data
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.24 2006/04/01 00:04:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.25 2007/02/02 21:07:59 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -22,7 +22,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.24 2006/04/01 00:04:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.25 2007/02/02 21:07:59 jchiang Exp $
  */
 
 class ScData {
@@ -40,6 +40,12 @@ public:
    /// Method to read in the spacecraft data with start and stop times
    void readData(std::string file, double tstart, double tstop,
                  bool clear=false,
+                 const std::string & sctable="SC_DATA");
+
+   /// Read in data from several input files and check to see if no
+   /// intervals are read in.
+   void readData(const std::vector<std::string> & scFiles, 
+                 double tstart, double tstop,
                  const std::string & sctable="SC_DATA");
    
 #ifndef SWIG

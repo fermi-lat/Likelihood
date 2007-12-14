@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.44 2007/06/05 05:11:20 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.45 2007/07/03 22:48:22 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -65,7 +65,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.44 2007/06/05 05:11:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.45 2007/07/03 22:48:22 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -191,5 +191,12 @@ void ExposureCube::createDataCube() {
       }
       m_exposure->load(scData, print_output);
       delete scData;
+   }
+
+   if (m_exposure->numIntervals() == 0) {
+      formatter.warn() << "WARNING: No intervals have been read in from "
+                       << "the FT2 files that correspond to the FT1 data.\n"
+                       << "All livetimes will be identically zero."
+                       << std::endl;
    }
 }
