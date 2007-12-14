@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.9 2006/01/31 22:00:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.10 2006/09/21 20:46:32 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.9 2006/01/31 22:00:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.10 2006/09/21 20:46:32 jchiang Exp $
  */
 
 class LikeExposure : public map_tools::Exposure {
@@ -39,6 +39,10 @@ public:
                 const std::vector< std::pair<double, double> > & gtis);
 
    void load(const tip::Table * tuple, bool verbose=true);
+
+   size_t numIntervals() const {
+      return m_numIntervals;
+   }
 
    /// @param start MET start time of interval (seconds)
    /// @param stop MET stop time of interval (seconds)
@@ -68,6 +72,9 @@ private:
 
    /// Maximum time to be considered given GTIs (MET s)
    double m_tmax;
+
+   /// Number of FT2 intervals that have been loaded.
+   size_t m_numIntervals;
 
 };
 

@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.47 2007/03/27 17:52:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.48 2007/04/23 18:29:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,6 +21,8 @@
 #include "tip/Table.h"
 
 #include "astro/EarthCoordinate.h"
+
+#include "st_facilities/Util.h"
 
 #include "Likelihood/ScData.h"
 
@@ -136,6 +138,21 @@ void ScData::readData(std::string file, double tstart,
    }
 
    delete scData;
+}
+
+void ScData::readData(const std::vector<std::string> & scFiles, 
+                      double tstart, double tstop,
+                      const std::string & sctable) {
+   vec.clear();
+   std::vector<std::string>::const_iterator scIt = scFiles.begin();
+   for ( ; scIt != scFiles.end(); scIt++) {
+      st_facilities::Util::file_ok(*scIt);
+      readData(*scIt, tstart, tstop, false, sctable);
+   }
+   if (vec.size() == 0) {
+      throw std::runtime_error("No spacecraft time intervals were read in "
+                               "for the desired range of FT1 data.");
+   }
 }
 
 unsigned int ScData::time_index(double time) const {
