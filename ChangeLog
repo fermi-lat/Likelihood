@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Jan 10 12:03:44 PST 2008
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+write livetime cube files using template file and fill in the various boilerplate keywords
+    *
+------------------------------------------------------------
+User: jchiang  Thu Jan 10 12:03:44 PST 2008
 Likelihood/src
 
 Modified Files:
