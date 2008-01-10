@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jan  9 21:17:55 PST 2008
+Likelihood/data
+
+Added Files:
+	LivetimeCubeTemplate 
+Log Message:
+add livetime cube template file
+    *
+------------------------------------------------------------
 TAG
 Tag name: v13r9, operation: add
 Package: Likelihood
