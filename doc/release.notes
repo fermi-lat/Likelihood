@@ -1,9 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.241 2007/12/11 20:48:11 jchiang Exp $
+    $Id: release.notes,v 1.242 2007/12/14 19:20:38 jchiang Exp $
 
     @verbatim
+    v13r10   10-Jan-08 JC  use LivetimeCubeTemplate to write gtltcube output,
+                           filling in CTHETABOUNDS extension, RA, Dec pixel
+                           values and various OGIP header keyword boilerplate
     v13r9    14-Dec-07 JC  add ScData::readData member function to read
                            in multiple files and check for zero FT2 
                            intervals (LK-39)
