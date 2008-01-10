@@ -1,5 +1,5 @@
 # Definition of Livetime cube file (see LS-003)
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.1 2008/01/10 05:17:54 jchiang Exp $
 
 SIMPLE  = T                        / file does conform to FITS standard
 BITPIX  = 8                        / number of bits per data pixel
@@ -17,13 +17,13 @@ TSTART  =                          / mission time of the obs. start
 TSTOP   =                          / mission time of the obs. end
 TIMEUNIT= 's'                      / units for the time related keywords
 TIMESYS = 'TT'                     / type of time system that is used
-GPS_OUT =                          / whether GPS time was unavailable at any time during this interval
+GPS_OUT = F                        / whether GPS time was unavailable at any time during this interval
 MJDREFI = 51910.0                  / Int. part of MJD of SC clock start
 MJDREFF =     7.428703703703703D-4 / Frac. part of MJD of SC clock start
 OBSERVER= 'Peter Michelson'        / LAT PI
 FILENAME= 'gll_lt_rnnnnnnnnnn_vxxx.fit' / name of this file: nnnnnnnnnn = MET of beginning of run xxx = version number
 ORIGIN  = 'LISOC'                  / name of organization making file
-CREATOR =                          / software and version creating file
+CREATOR = 'gtltcube'               / software and version creating file
 VERSION = 1                        / release version of the file
 END
 
@@ -55,17 +55,17 @@ TIMEUNIT= 's'                      / units for the time related keywords
 TIMEZERO= 0.0                      / clock correction
 TIMESYS = 'TT'                     / type of time system that is used
 TIMEREF = 'LOCAL'                  / reference frame used for times
-CLOCKAPP=                          / clock drift correction applied?
-GPS_OUT =                          / GPS time unavailable at any time during interval?
-PIXTYPE = 'HEALPIX '               / 
-ORDERING= 'NESTED  '               / 
+CLOCKAPP= F                        / clock drift correction applied?
+GPS_OUT = F                        / GPS time unavailable at any time during interval?
+PIXTYPE = 'HEALPIX '               / Indicates this is a HEALPix representation
+ORDERING= 'NESTED  '               / Can be NESTED or RING
 HIER_CRD= 'EQU     '               / 
-NSIDE   =                          / 
-FIRSTPIX=                          / 
-LASTPIX =                          / 
-THETABIN= 'SQRT(1-COSTHETA)'       / 
-NBRBINS =                          / 
-COSMIN  =                       0. / 
+NSIDE   =                          / Number of pixels per side per dodecahedron face
+FIRSTPIX=                          / First pixel index
+LASTPIX =                          / Last pixel index
+THETABIN= 'SQRT(1-COSTHETA)'       / Costheta binning scheme
+NBRBINS =                          / Number of costheta bins
+COSMIN  =                       0. / Minimum costheta value
 NDSKEYS =                        1 / # of data subspace keywords in header
 DSTYP1  = 'TIME    '               / 
 DSUNI1  = 's       '               / 
@@ -105,23 +105,19 @@ DATE-OBS= 'YYYY-MM-DDThh:mm:ss'       / start date/time of the obs. (UTC)
 DATE-END= 'YYYY-MM-DDThh:mm:ss'       / end date/time of the obs. (UTC)
 OBSERVER= 'Peter Michelson'           / LAT PI
 ORIGIN  = 'LISOC'                     / name of organization making file
-TTYPE1  = 'CHANNEL'            / COSTHETA bin number
-TFORM1  = 'I'                  / Data format of this field
-TTYPE2  = 'CTHETA_MIN'         / Lower boundary of the COSTHETA bin
+TTYPE1  = 'CTHETA_MIN'         / Lower boundary of the COSTHETA bin
+TFORM1  = 'E'                  / Data format of this field
+TLMIN1  = -1.0                    / minimum value
+TLMAX1  = 1.0                     / maximum value
+TTYPE2  = 'CTHETA_MAX'         / Upper boundary of the COSTHETA bin
 TFORM2  = 'E'                  / Data format of this field
 TLMIN2  = -1.0                    / minimum value
 TLMAX2  = 1.0                     / maximum value
-TTYPE3  = 'CTHETA_MAX'         / Upper boundary of the COSTHETA bin
-TFORM3  = 'E'                  / Data format of this field
-TLMIN3  = -1.0                    / minimum value
-TLMAX3  = 1.0                     / maximum value
 EXTNAME = 'CTHETABOUNDS'       / Extension name
 HDUCLASS= 'OGIP'               / Format confirms to OGIP standard
-HDUCLAS1=                      / Extension contains ??
-HDUCLAS2=                      / Extension contains ??
+#HDUCLAS1=                      / Extension contains ??
+#HDUCLAS2=                      / Extension contains ??
 HDUVERS =                0.0.0 / Version number of the format
-CREATOR =                      / Software and version creating file
-
 
 XTENSION= 'BINTABLE'                  / binary table extension
 BITPIX  = 8                           / 8-bit bytes
@@ -154,8 +150,8 @@ TIMEUNIT= 's'                         / units for time-related keywords
 TIMEZERO= 0.0                         / clock correction
 TIMESYS = 'TT'                        / type of time system that is used
 TIMEREF = 'LOCAL'                     / reference frame used for times
-CLOCKAPP=                             / clock drift correction applied?
-GPS_OUT =                             / GPS time was unavailable at any time during this interval?
+CLOCKAPP= F                           / clock drift correction applied?
+GPS_OUT = F                           / GPS time was unavailable at any time during this interval?
 ONTIME  =                             / sum of GTI lengths
 TELAPSE =                             / time between first GTI START and last GTI STOP
 TTYPE1  = 'START'                     / start time of good time intervals

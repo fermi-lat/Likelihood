@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.45 2007/07/03 22:48:22 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.46 2007/12/14 19:18:11 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -65,7 +65,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.45 2007/07/03 22:48:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.46 2007/12/14 19:18:11 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -91,6 +91,8 @@ private:
    Likelihood::RoiCuts * m_roiCuts;
    void readRoiCuts();
    void createDataCube();
+   void writeDateKeywords(const std::string & outfile, 
+                          double tstart, double tstop) const;
    static std::string s_cvs_id;
 };
 
@@ -124,16 +126,39 @@ void ExposureCube::run() {
       }
    }
    createDataCube();
-   m_exposure->write(output_file);
+//   m_exposure->write(output_file);
+   m_exposure->writeFile(output_file);
    std::auto_ptr<tip::Table> 
       table(tip::IFileSvc::instance().editTable(output_file, "Exposure"));
    m_roiCuts->writeDssTimeKeywords(table->getHeader());
    m_roiCuts->writeGtiExtension(output_file);
    
+   double tstart(m_roiCuts->minTime());
+   double tstop(m_roiCuts->maxTime());
    tip::Header & header(table->getHeader());
-   header["TSTART"].set(m_roiCuts->minTime());
-   header["TSTOP"].set(m_roiCuts->maxTime());
-   header.erase("TNULL1");
+   header["TSTART"].set(tstart);
+   header["TSTOP"].set(tstop);
+
+   writeDateKeywords(output_file, tstart, tstop);
+}
+
+void ExposureCube::writeDateKeywords(const std::string & outfile, 
+                                     double tstart, double tstop) const {
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
+   std::vector<std::string> extnames;
+   extnames.push_back("");
+   extnames.push_back("EXPOSURE");
+   extnames.push_back("CTHETABOUNDS");
+   extnames.push_back("GTI");
+   for (std::vector<std::string>::const_iterator name(extnames.begin());
+        name != extnames.end(); ++name) {
+      tip::Extension * hdu(fileSvc.editExtension(outfile, *name));
+      st_facilities::Util::writeDateKeywords(hdu, tstart, tstop, *name!="");
+      if (*name == "") {
+         hdu->getHeader()["CREATOR"].set("gtltcube " + getVersion());
+      }
+      delete hdu;
+   }
 }
 
 void ExposureCube::readRoiCuts() {

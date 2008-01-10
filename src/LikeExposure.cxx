@@ -3,18 +3,26 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.23 2007/12/03 20:33:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.24 2007/12/14 19:18:11 jchiang Exp $
  */
 
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
+#include "facilities/commonUtilities.h"
 #include "facilities/Util.h"
 
 #include "st_stream/StreamFormatter.h"
 
+#include "fitsio.h"
+
+#include "tip/IFileSvc.h"
 #include "tip/Table.h"
+
+#include "healpix/CosineBinner.h"
+#include "healpix/HealpixArray.h"
 
 #include "Likelihood/LikeExposure.h"
 #include "Likelihood/RoiCuts.h"
@@ -36,8 +44,8 @@ LikeExposure::
 LikeExposure(double skybin, double costhetabin, 
              const std::vector< std::pair<double, double> > & timeCuts,
              const std::vector< std::pair<double, double> > & gtis)
-   : map_tools::Exposure(skybin, costhetabin), m_timeCuts(timeCuts),
-     m_gtis(gtis), m_numIntervals(0) {
+   : map_tools::Exposure(skybin, costhetabin), m_costhetabin(costhetabin),
+     m_timeCuts(timeCuts), m_gtis(gtis), m_numIntervals(0) {
    if (!gtis.empty()) {
       for (size_t i = 0; i < gtis.size(); i++) {
          if (i == 0 || gtis.at(i).first < m_tmin) {
@@ -58,8 +66,8 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
    
    double ra, dec, start, stop, livetime;
 
-   tip::Table::ConstIterator it = scData->end();
-   tip::ConstTableRecord & row = *it;
+   tip::Table::ConstIterator it(scData->end());
+   tip::ConstTableRecord & row(*it);
 
    --it;
    long nrows(scData->getNumRecords());
@@ -112,6 +120,88 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
    if (verbose) {
       formatter.warn() << "!" << std::endl;
    }
+}
+
+void LikeExposure::writeFile(const std::string & outfile) const {
+   std::string dataPath = 
+      facilities::commonUtilities::getDataPath("Likelihood");
+   std::string templateFile = 
+      facilities::commonUtilities::joinPath(dataPath, "LivetimeCubeTemplate");
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
+   fileSvc.createFile(outfile, templateFile);
+
+   writeLivetimes(outfile);
+
+   writeCosbins(outfile);
+}
+
+void LikeExposure::writeLivetimes(const std::string & outfile) const {
+   setCosbinsFieldFormat(outfile);
+
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
+   tip::Table * table = fileSvc.editTable(outfile, "EXPOSURE");
+   table->setNumRecords(data().size());
+
+   tip::Table::Iterator it(table->begin());
+   tip::TableRecord & row(*it);
+
+   healpix::HealpixArray<healpix::CosineBinner>::const_iterator 
+      pixel(data().begin());
+
+   for ( ; pixel != data().end(); ++pixel, ++it) {
+      row["COSBINS"].set(*pixel);
+      astro::SkyDir dir(data().dir(pixel));
+      row["RA"].set(dir.ra());
+      row["DEC"].set(dir.dec());
+   }
+
+   tip::Header & header(table->getHeader());
+   header["PIXTYPE"].set("HEALPIX"); 
+   header["ORDERING"].set("NESTED"); 
+   header["HIER_CRD"].set(data().healpix().galactic()? "GAL" : "EQU");
+//   header["COORDTYPE"].set(data().healpix().galactic()? "GAL" : "EQU");
+   header["NSIDE"].set(data().healpix().nside()); 
+   header["FIRSTPIX"].set(0); 
+   header["LASTPIX"].set(data().size()-1); 
+   header["THETABIN"].set(healpix::CosineBinner::thetaBinning());
+   header["NBRBINS"].set(healpix::CosineBinner::nbins());
+   header["COSMIN"].set(healpix::CosineBinner::cosmin());
+
+   delete table;
+}
+
+void LikeExposure::writeCosbins(const std::string & outfile) const {
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
+   tip::Table * table = fileSvc.editTable(outfile, "CTHETABOUNDS");
+   table->setNumRecords(healpix::CosineBinner::nbins());
+
+   tip::Table::Iterator it(table->begin());
+   tip::TableRecord & row(*it);
+   
+   std::vector<double> mubounds;
+   computeCosbins(mubounds);
+
+   for (size_t i(0); i < mubounds.size() -1; i++, ++it) {
+      row["CTHETA_MIN"].set(mubounds.at(i));
+      row["CTHETA_MAX"].set(mubounds.at(i+1));
+   }
+   delete table;
+}
+   
+void LikeExposure::setCosbinsFieldFormat(const std::string & outfile) const {
+   int status(0);
+
+   fitsfile * fptr(0);
+   std::string extfilename(outfile + "[EXPOSURE]");
+   fits_open_file(&fptr, extfilename.c_str(), READWRITE, &status);
+   fitsReportError(status, "LikeExposure::setCosbinsFieldFormat");
+   
+   int colnum(1); // by assumption
+   fits_modify_vector_len(fptr, colnum, data().at(0).size(), &status);
+   fitsReportError(status, "LikeExposure::setCosbinsFieldFormat");
+
+   fits_close_file(fptr, &status);
+   fitsReportError(status, "LikeExposure::setCosbinsFieldFormat");
 }
 
 bool LikeExposure::
@@ -183,6 +273,32 @@ overlap(const std::pair<double, double> & interval1,
       return stop - start;
    }
    return 0;
+}
+
+void LikeExposure::
+fitsReportError(int status, const std::string & routine) const {
+   if (status == 0) {
+      return;
+   }
+   fits_report_error(stderr, status);
+   std::ostringstream message;
+   message << routine << ": CFITSIO error " << status;
+   throw std::runtime_error(message.str());
+}
+
+void LikeExposure::
+computeCosbins(std::vector<double> & mubounds) const {
+   bool sqrtbins(healpix::CosineBinner::thetaBinning() == "SQRT(1-COSTHETA)");
+   double cosmin(healpix::CosineBinner::cosmin());
+   size_t nbins(healpix::CosineBinner::nbins());
+   mubounds.clear();
+   for (int i(nbins); i >= 0; i--) {
+      double factor(static_cast<double>(i)/nbins);
+      if (sqrtbins) {
+         factor *= factor;
+      }
+      mubounds.push_back(1. - factor*(1. - cosmin));
+   }
 }
 
 } // namespace Likelihood
