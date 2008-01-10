@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.93 2007/11/20 05:51:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.94 2007/11/28 16:01:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -281,7 +281,7 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
    exposure.clear();
 
    st_stream::StreamFormatter formatter("PointSource",
-                                        "computeExposureWithHyperCube", 3);
+                                        "computeExposureWithHyperCube", 4);
    formatter.warn() << "Computing exposure at (" 
                     << srcDir.ra() << ", " 
                     << srcDir.dec() << ")";
@@ -318,7 +318,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    exposure.resize(energies.size());
 
    st_stream::StreamFormatter formatter("PointSource",
-                                        "computeExposure", 3);
+                                        "computeExposure", 4);
    formatter.warn() << "Computing exposure at (" 
                     << srcDir.ra() << ", " 
                     << srcDir.dec() << ")";
@@ -394,7 +394,7 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
 
    double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
    
-   st_stream::StreamFormatter formatter("PointSource", "sourceEffArea", 3);
+//   st_stream::StreamFormatter formatter("PointSource", "sourceEffArea", 3);
 
    double effArea(0);
 //    try {
