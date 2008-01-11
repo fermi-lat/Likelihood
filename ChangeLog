@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 11 15:48:15 PST 2008
+Likelihood/src
+
+Modified Files:
+	EventContainer.cxx LogNormalMuDist.cxx LogNormalMuDist.h 
+	ResponseFunctions.cxx 
+Log Message:
+some clean up; use conversion_type and new event_class definition
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 11 12:23:48 PST 2008
 Likelihood/data
 
