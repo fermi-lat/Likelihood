@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 11 12:23:48 PST 2008
+Likelihood/data
+
+Modified Files:
+	LivetimeCubeTemplate 
+Log Message:
+set TFIELDS keywords correctly
+    *
+------------------------------------------------------------
 TAG
 Tag name: v13r10, operation: add
 Package: Likelihood
