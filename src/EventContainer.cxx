@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.14 2007/10/26 21:43:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.15 2007/12/10 07:29:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -52,12 +52,24 @@ void EventContainer::getEvents(std::string event_file) {
    tip::Table * events = 
       tip::IFileSvc::instance().editTable(event_file, "events");
 
+   int evclsver(0); // version of event class definition
+
+   tip::Header & header(events->getHeader());
+   try {
+      header["EVCLSVER"].get(evclsver);
+   } catch(tip::TipException) {
+      // keyword missing so use default value
+   }
+
    double ra;
    double dec;
    double energy;
    double time;
    double zenAngle;
+   int eventClass;
+   int conversionType;
    int eventType;
+
    double respValue;
 
    tip::Table::Iterator it = events->begin();
@@ -72,7 +84,13 @@ void EventContainer::getEvents(std::string event_file) {
       event["energy"].get(energy);
       event["time"].get(time);
       event["zenith_angle"].get(zenAngle);
-      event["event_class"].get(eventType);
+      event["conversion_type"].get(conversionType);
+      event["event_class"].get(eventClass);
+      if (evclsver == 0) {
+         eventType = eventClass;
+      } else {
+         eventType = conversionType + 2*eventClass;
+      }
       Event thisEvent(ra, dec, energy, time, m_scData.zAxis(time),
                       m_scData.xAxis(time), cos(zenAngle*M_PI/180.), 
                       m_respFuncs.useEdisp(), m_respFuncs.respName(),
