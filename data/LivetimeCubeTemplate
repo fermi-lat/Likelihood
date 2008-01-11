@@ -1,5 +1,5 @@
 # Definition of Livetime cube file (see LS-003)
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.1 2008/01/10 05:17:54 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.2 2008/01/10 20:03:44 jchiang Exp $
 
 SIMPLE  = T                        / file does conform to FITS standard
 BITPIX  = 8                        / number of bits per data pixel
@@ -34,7 +34,7 @@ NAXIS1  =                          / width of table in bytes
 NAXIS2  =                          / number of rows in table
 PCOUNT  =                        0 / size of special data area
 GCOUNT  = 1                        / one data group (required keyword)
-TFIELDS =                        1 / number of fields in each row
+TFIELDS =                        3 / number of fields in each row
 CHECKSUM=                          / checksum for entire HDU
 DATASUM =                          / checksum for data table
 TELESCOP= 'GLAST'                  / name of telescope generating data
@@ -93,7 +93,7 @@ NAXIS1   =                    0 / Number of bytes per row
 NAXIS2   =                    0 / Number of rows
 PCOUNT   =                    0 / Normally 0 (no varying arrays)
 GCOUNT   =                    1 / Required value
-TFIELDS  =                    0 / Number of columns in table
+TFIELDS  =                    2 / Number of columns in table
 CHECKSUM=                             / checksum for entire HDU
 DATASUM =                             / checksum for data table
 TELESCOP= 'GLAST'                     / name of telescope generating data
