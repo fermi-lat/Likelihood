@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Jan 31 14:23:29 PST 2008
+Likelihood/src/backfile
+
+Modified Files:
+	backfile.cxx 
+Log Message:
+use implementation independent TipFile instead of FitsTipFile in gtbkg; remove unused SpectrumFactory class
+    *
+------------------------------------------------------------
+User: jchiang  Thu Jan 31 14:23:29 PST 2008
 Likelihood/src
 
 Modified Files:
