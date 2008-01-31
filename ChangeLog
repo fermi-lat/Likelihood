@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: golpa  Thu Jan 31 09:16:01 PST 2008
+Likelihood
+
+Modified Files:
+	SConscript 
+Log Message:
+Fixed typo in SConscript file
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 11 15:48:15 PST 2008
 Likelihood/src
 
