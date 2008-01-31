@@ -1,7 +1,7 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtpsf.par,v 1.10 2007/05/29 04:46:49 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtpsf.par,v 1.11 2007/07/03 22:48:19 jchiang Exp $
 #
-expcube,fr,a,"",,,"Exposure hypercube file"
+expcube,fr,a,"",,,"Livetime cube file"
 outfile,f,a,"",,,"output file name"
 outtable,s,h,"PSF",,,"output file extension"
 irfs,s,a,"HANDOFF",,,"Response functions"

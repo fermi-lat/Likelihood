@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.8 2007/06/05 05:11:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.9 2007/07/03 22:48:20 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -21,10 +21,10 @@
 #include "st_app/StApp.h"
 #include "st_app/StAppFactory.h"
 
-#include "src/FitsTipFile.h"
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+#include "tip/TipFile.h"
 
 #include "st_facilities/FitsUtil.h"
 
@@ -38,7 +38,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.8 2007/06/05 05:11:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.9 2007/07/03 22:48:20 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
@@ -140,7 +140,8 @@ void BackFile::run() {
    std::string infile = m_pars["phafile"];
    std::string outfile = m_pars["outfile"];
 
-   tip::FitsTipFile inputfile(infile);
+   tip::TipFile inputfile = tip::IFileSvc::instance().openFile(infile);
+
    inputfile.copyFile(outfile);
 
    writeBackFile(bg_counts);

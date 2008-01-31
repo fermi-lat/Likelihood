@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.58 2007/07/11 21:21:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.59 2007/12/05 19:09:52 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -27,7 +27,6 @@
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SpatialMap.h"
-#include "Likelihood/SpectrumFactory.h"
 #include "Likelihood/SourceFactory.h"
 
 #include "XmlParser.h"
