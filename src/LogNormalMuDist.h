@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogNormalMuDist.h,v 1.2 2007/12/11 20:42:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogNormalMuDist.h,v 1.3 2008/01/11 23:48:14 jchiang Exp $
  */
 
 #ifndef Likelihood_LogNormalMuDist_h
@@ -35,7 +35,7 @@ protected:
 
    LogNormalMuDist(double muSlope=-0.4, double muIntercept=0.46,
                    double sigma=1.20, double emin=30, double emax=3e5,
-                   size_t numEnergies=30, size_t numMu=200);
+                   size_t numEnergies=30, size_t numMu=100);
 
 private:
 
