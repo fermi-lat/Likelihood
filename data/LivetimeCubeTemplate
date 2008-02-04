@@ -1,5 +1,5 @@
 # Definition of Livetime cube file (see LS-003)
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.2 2008/01/10 20:03:44 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.3 2008/01/11 20:23:48 jchiang Exp $
 
 SIMPLE  = T                        / file does conform to FITS standard
 BITPIX  = 8                        / number of bits per data pixel
@@ -103,6 +103,8 @@ RADECSYS= 'FK5'                       / world coord. system for this file (FK5 o
 DATE    = 'YYYY-MM-DDThh:mm:ss'       / file creation date (UTC)
 DATE-OBS= 'YYYY-MM-DDThh:mm:ss'       / start date/time of the obs. (UTC)
 DATE-END= 'YYYY-MM-DDThh:mm:ss'       / end date/time of the obs. (UTC)
+TSTART  =                          / mission time of the obs. start
+TSTOP   =                          / mission time of the obs. end
 OBSERVER= 'Peter Michelson'           / LAT PI
 ORIGIN  = 'LISOC'                     / name of organization making file
 TTYPE1  = 'CTHETA_MIN'         / Lower boundary of the COSTHETA bin
