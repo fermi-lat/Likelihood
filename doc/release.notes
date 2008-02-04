@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.243 2008/01/10 20:24:16 jchiang Exp $
+    $Id: release.notes,v 1.244 2008/02/02 22:44:31 jchiang Exp $
 
     @verbatim
+    v13r11p1 04-Feb-08 JC  write filename to PHDU of gtltcube outfile
     v13r11   31-Jan-08 JC  remove unused SpectrumFactory class;
                            use tip::TipFile instead of tip::FitsTipFile in 
                            gtbkg; new code for handling event_class and
