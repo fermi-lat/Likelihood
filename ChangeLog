@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb  4 13:55:18 PST 2008
+Likelihood/data
+
+Modified Files:
+	LivetimeCubeTemplate 
+Log Message:
+write filename to PHDU of gtltcube outfile
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb  4 13:55:17 PST 2008
 Likelihood/Likelihood
 
