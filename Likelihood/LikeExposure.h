@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.11 2007/12/14 19:18:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.12 2008/01/10 20:03:43 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -83,6 +83,8 @@ private:
 
    static bool overlaps(const std::pair<double, double> & interval1,
                         std::pair<double, double> & interval2);
+
+   void writeFilename(const std::string & outfile) const;
 
    void writeLivetimes(const std::string & outfile) const;
 
