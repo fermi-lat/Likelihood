@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb  4 13:55:17 PST 2008
+Likelihood/Likelihood
+
+Modified Files:
+	LikeExposure.h 
+Log Message:
+write filename to PHDU of gtltcube outfile
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-11-00, operation: add
 Package: Likelihood
