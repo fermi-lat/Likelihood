@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Feb 12 10:06:25 PST 2008
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+bug fix for reading scData files that have start times well after the user-selected/gti specified range
+    *
+------------------------------------------------------------
+User: jchiang  Tue Feb 12 10:06:25 PST 2008
 Likelihood/src
 
 Modified Files:
