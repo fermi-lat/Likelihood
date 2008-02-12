@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.46 2007/12/14 19:18:11 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.47 2008/01/10 20:03:44 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -65,7 +65,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.46 2007/12/14 19:18:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.47 2008/01/10 20:03:44 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -209,6 +209,8 @@ void ExposureCube::createDataCube() {
       const tip::Table * scData = 
          tip::IFileSvc::instance().readTable(*scIt, m_pars["sctable"],
                                              filter.str());
+      formatter.info(4) << "read " << scData->getNumRecords() 
+                        << " rows" << std::endl;
       int chatter = m_pars["chatter"];
       bool print_output(true);
       if (chatter < 2) {

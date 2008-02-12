@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.25 2008/01/10 20:03:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.26 2008/02/04 21:55:18 jchiang Exp $
  */
 
 #include <algorithm>
@@ -69,6 +69,8 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
    tip::Table::ConstIterator it(scData->end());
    tip::ConstTableRecord & row(*it);
 
+// Count the rows within the user selected time interval (m_tmin, m_tmax)
+// by counting inwards from the top and bottom of the scData.
    --it;
    long nrows(scData->getNumRecords());
    if (nrows == 0) {
@@ -81,25 +83,27 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
       }
    }
 
-   double last_start;
    it = scData->begin();
    for ( ; it != scData->end(); ++it, nrows--) {
-      last_start = start;
       row["start"].get(start);
       if (start > m_tmin) {
          break;
       }
    }
-// Reset to the FT2 interval start time that precedes the
-// user-selected interval.
-   start = last_start; 
 
+// Reset to the FT2 interval to the one that preceeds the
+// user-selected interval, if possible; and set the start time to that
+// of the initial row.
+   if (it != scData->begin()) {
+      --it;
+   }
+   row["start"].get(start);
+
+// Set the step size for the printing out the little progress dots.
    long istep(nrows/20);
    if (istep == 0) {
       istep = 1;
    }
-
-   --it;
 
    for (long irow = 0; it != scData->end() && start < m_tmax; ++it, ++irow) {
       if (verbose && (irow % istep) == 0 ) {
