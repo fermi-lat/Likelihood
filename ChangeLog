@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Feb 14 22:41:40 PST 2008
+Likelihood/pfiles
+
+Modified Files:
+	gtltcube.par 
+Log Message:
+add file_version parameter
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-11-02, operation: add
 Package: Likelihood
