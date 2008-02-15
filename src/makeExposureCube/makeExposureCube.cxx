@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.47 2008/01/10 20:03:44 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.48 2008/02/12 18:06:25 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -65,7 +65,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.47 2008/01/10 20:03:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.48 2008/02/12 18:06:25 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -156,6 +156,8 @@ void ExposureCube::writeDateKeywords(const std::string & outfile,
       st_facilities::Util::writeDateKeywords(hdu, tstart, tstop, *name!="");
       if (*name == "") {
          hdu->getHeader()["CREATOR"].set("gtltcube " + getVersion());
+         std::string file_version = m_pars["file_version"];
+         hdu->getHeader()["VERSION"].set(file_version);
       }
       delete hdu;
    }
