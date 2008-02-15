@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.245 2008/02/04 21:56:20 jchiang Exp $
+    $Id: release.notes,v 1.246 2008/02/12 18:08:06 jchiang Exp $
 
     @verbatim
+    v13r11p3 14-Feb-08 JC  add file_version parameter to gtltcube
     v13r11p2 12-Feb-08 JC  bug fix in LikeExposure for reading in
                            scdata files with start times well after the
                            user-selected/GTI range
