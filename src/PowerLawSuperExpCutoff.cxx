@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLawSuperExpCutoff Function class
  * @author Damien Parent
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff.cxx,v 1.2 2007/03/20 23:46:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff.cxx,v 1.3 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -61,7 +61,7 @@ namespace Likelihood {
     double prefactor = my_params[Prefactor].getTrueValue();
     double index1 = my_params[Index1].getTrueValue();
     double scale = my_params[Scale].getTrueValue();
-    double cutoff = my_params[Cutoff].getValue();
+    double cutoff = my_params[Cutoff].getTrueValue();
     double index2 = my_params[Index2].getTrueValue();
     
     // De Jager
@@ -81,7 +81,7 @@ namespace Likelihood {
     double prefactor = my_params[Prefactor].getTrueValue();
     double index1 = my_params[Index1].getTrueValue();
     double scale = my_params[Scale].getTrueValue();
-    double cutoff = my_params[Cutoff].getValue();
+    double cutoff = my_params[Cutoff].getTrueValue();
     double index2 = my_params[Index2].getTrueValue();
     
     int iparam = -1;
