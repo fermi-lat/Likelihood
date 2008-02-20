@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 20 11:36:29 PST 2008
+Likelihood/src/gtaddlivetime
+
+Modified Files:
+	gtaddlivetime.cxx 
+Log Message:
+propagate new TSTART, TSTOP keywords to all HDUs, set CREATOR to gtltsum
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 20 11:35:40 PST 2008
 Likelihood/src
 
