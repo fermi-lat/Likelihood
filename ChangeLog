@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 20 11:35:40 PST 2008
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx 
+Log Message:
+use COORDTYPE instead of HIER_CRD, since this is what healpix uses
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 20 11:35:22 PST 2008
 Likelihood/data
 
