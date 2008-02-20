@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 20 11:35:22 PST 2008
+Likelihood/data
+
+Modified Files:
+	LivetimeCubeTemplate 
+Log Message:
+use COORDTYPE instead of HIER_CRD, since this is what healpix uses
+
+    *
+------------------------------------------------------------
 User: golpa  Wed Feb 20 08:55:45 PST 2008
 Likelihood
 
