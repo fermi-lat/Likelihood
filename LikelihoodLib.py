@@ -1,5 +1,6 @@
+#$Id$
 def generate(env, **kw):
-    env.Tool('addLibrary', library=['Likelihood'], package = 'Likelihood')
+    env.Tool('addLibrary', library=['Likelihood'])
     env.Tool('astroLib')
     env.Tool('xmlBaseLib')
     env.Tool('tipLib')
@@ -12,6 +13,7 @@ def generate(env, **kw):
     env.Tool('hoopsLib')
     env.Tool('st_appLib')
     env.Tool('st_graphLib')
+    env.Tool('healpixLib')
     env.Tool('addLibrary', library=env['cfitsioLibs'])
     env.Tool('addLibrary', library=env['fftwLibs'])
     
