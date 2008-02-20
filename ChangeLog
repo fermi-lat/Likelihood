@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 20 11:37:18 PST 2008
+Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+temporary bug-fix for reading of scData...disable it since it is not used
+in the calculation
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 20 11:36:29 PST 2008
 Likelihood/src/gtaddlivetime
 
