@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.26 2008/02/04 21:55:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.27 2008/02/12 18:06:24 jchiang Exp $
  */
 
 #include <algorithm>
@@ -171,8 +171,8 @@ void LikeExposure::writeLivetimes(const std::string & outfile) const {
    tip::Header & header(table->getHeader());
    header["PIXTYPE"].set("HEALPIX"); 
    header["ORDERING"].set("NESTED"); 
-   header["HIER_CRD"].set(data().healpix().galactic()? "GAL" : "EQU");
-//   header["COORDTYPE"].set(data().healpix().galactic()? "GAL" : "EQU");
+//   header["HIER_CRD"].set(data().healpix().galactic()? "GAL" : "EQU");
+   header["COORDTYPE"].set(data().healpix().galactic()? "GAL" : "EQU");
    header["NSIDE"].set(data().healpix().nside()); 
    header["FIRSTPIX"].set(0); 
    header["LASTPIX"].set(data().size()-1); 
