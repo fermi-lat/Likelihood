@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: golpa  Thu Feb 21 16:25:36 PST 2008
+Likelihood
+
+Modified Files:
+	SConscript 
+Log Message:
+Clone program environment into test environment to use cppunit
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-11-05, operation: add
 Package: Likelihood
