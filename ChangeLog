@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Feb 23 16:40:19 PST 2008
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+use Gaussian quadrature calculation of diffuse responses by default
+    *
+------------------------------------------------------------
+User: jchiang  Sat Feb 23 16:40:19 PST 2008
 Likelihood/src
 
 Modified Files:
