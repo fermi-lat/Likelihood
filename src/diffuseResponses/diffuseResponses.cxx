@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.44 2007/07/03 22:48:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.45 2007/12/10 07:29:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.44 2007/07/03 22:48:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.45 2007/12/10 07:29:51 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -113,7 +113,7 @@ private:
 
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffrsp");
 
-std::string diffuseResponses::s_cvs_id("$Name: v13r6p3 $");
+std::string diffuseResponses::s_cvs_id("$Name:  $");
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), 
@@ -261,12 +261,11 @@ void diffuseResponses::computeEventResponses() {
       if ((i % factor) == 0) {
          m_formatter->warn() << ".";
       }
-      if (::getenv("USE_NEW_DIFFRESP_CALC")) {
-         it->computeResponseGQ(m_srcs, m_helper->observation().respFuncs()); 
-      } else {
-         it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
-                             m_srRadius);
-      }
+/// @todo Implement an accurate, faster default calculation; use Gaussian
+/// quadrature version for now.
+//       it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
+//                           m_srRadius);
+      it->computeResponseGQ(m_srcs, m_helper->observation().respFuncs()); 
    }
    m_formatter->warn() << "!" << std::endl;
 }
