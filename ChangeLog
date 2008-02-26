@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: glastrm  Mon Feb 25 18:34:06 PST 2008
+ScienceTools-scons/Likelihood
+
+Modified Files:
+	LikelihoodLib.py SConscript 
+Log Message:
+Set lib dependencies up for when building libraries
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-12-00, operation: add
 Package: Likelihood
