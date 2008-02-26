@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 TAG
+Tag name: Likelihood-13-12-00, operation: mov
+Package: Likelihood
+User: glast  Mon Feb 25 18:36:35 2008
+Files:
+  Likelihood/LikelihoodLib.py  1.3
+  Likelihood/SConscript  1.6
+
+    *
+------------------------------------------------------------
+TAG
 Tag name: v13r12, operation: mov
 Package: Likelihood
 User: glast  Mon Feb 25 18:36:17 2008
