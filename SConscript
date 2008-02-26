@@ -1,13 +1,12 @@
 # -*- python -*-
 #
-# $Id: SConscript,v 1.4 2008/01/31 17:16:01 golpa Exp $
-
-import glob, os
+# $Id: SConscript,v 1.5 2008/02/22 00:25:36 golpa Exp $
 
 Import('baseEnv', 'listFiles')
 progEnv = baseEnv.Clone()
 libEnv = baseEnv.Clone()
 
+libEnv.Tool('LikelihoodLib', depsOnly = 1)
 LikelihoodLib = libEnv.StaticLibrary('Likelihood', 
                                      listFiles(['src/*.c', 'src/*.cxx']))
 

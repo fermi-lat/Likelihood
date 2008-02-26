@@ -1,6 +1,7 @@
-#$Id$
+#$Id: LikelihoodLib.py,v 1.2 2008/02/20 16:55:44 golpa Exp $
 def generate(env, **kw):
-    env.Tool('addLibrary', library=['Likelihood'])
+    if not kw.get('depsOnly',0):
+        env.Tool('addLibrary', library=['Likelihood'])
     env.Tool('astroLib')
     env.Tool('xmlBaseLib')
     env.Tool('tipLib')
