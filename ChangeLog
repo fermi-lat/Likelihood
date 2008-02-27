@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 26 16:20:15 PST 2008
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx 
+Log Message:
+strip directory from output file name in header
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-12-00, operation: mov
 Package: Likelihood
