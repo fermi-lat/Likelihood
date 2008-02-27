@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.27 2008/02/12 18:06:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.28 2008/02/20 19:35:40 jchiang Exp $
  */
 
 #include <algorithm>
@@ -144,7 +144,7 @@ void LikeExposure::writeFile(const std::string & outfile) const {
 void LikeExposure::writeFilename(const std::string & outfile) const {
    tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
    tip::Image * phdu(fileSvc.editImage(outfile, ""));
-   phdu->getHeader()["FILENAME"].set(outfile);
+   phdu->getHeader()["FILENAME"].set(facilities::Util::basename(outfile));
    delete phdu;
 }
 
