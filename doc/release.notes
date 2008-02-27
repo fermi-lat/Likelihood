@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.249 2008/02/20 19:48:10 jchiang Exp $
+    $Id: release.notes,v 1.250 2008/02/24 00:41:20 jchiang Exp $
 
     @verbatim
+    v13r12p1 26-Feb-08 JC  strip directory from FILENAME in PHDU of gtltcube
+                           output
     v13r12   23-Feb-08 JC  use Gaussian quadrature calculation of
                            diffuse responses
     v13r11p5 20-Feb-08 JC  gtsrcmaps bug-fix for reading in scData;
