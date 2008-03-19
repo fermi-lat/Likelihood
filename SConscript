@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: SConscript,v 1.5 2008/02/22 00:25:36 golpa Exp $
+# $Id: SConscript,v 1.6 2008/02/26 02:34:05 glastrm Exp $
 
 Import('baseEnv', 'listFiles')
 progEnv = baseEnv.Clone()
@@ -46,4 +46,5 @@ progEnv.Tool('registerObjects', package = 'Likelihood',
                          gtmodelBin, gtltsumBin, gtfindsrcBin],
              testApps = [test_LikelihoodBin],
              includes = listFiles(['Likelihood/*.h']), 
-             pfiles = listFiles(['pfiles/*.par']))
+             pfiles = listFiles(['pfiles/*.par']),
+             data = listFiles(['data/*'], recursive = True))
