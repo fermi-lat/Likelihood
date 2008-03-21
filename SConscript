@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: SConscript,v 1.6 2008/02/26 02:34:05 glastrm Exp $
+# $Id: SConscript,v 1.7 2008/03/19 21:32:16 glastrm Exp $
 
 Import('baseEnv', 'listFiles')
 progEnv = baseEnv.Clone()
@@ -47,4 +47,5 @@ progEnv.Tool('registerObjects', package = 'Likelihood',
              testApps = [test_LikelihoodBin],
              includes = listFiles(['Likelihood/*.h']), 
              pfiles = listFiles(['pfiles/*.par']),
-             data = listFiles(['data/*'], recursive = True))
+             data = listFiles(['data/*'], recursive = True),
+             xml = listFiles(['xml/*'], recursive = True))
