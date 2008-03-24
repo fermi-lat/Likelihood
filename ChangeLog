@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 24 15:45:41 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h ResponseFunctions.h 
+Log Message:
+clean up commented out code; add event_class and conversion_type handling for collecting desired IRFs
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-12-01, operation: mov
 Package: Likelihood
