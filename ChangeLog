@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Mar 24 15:45:42 PDT 2008
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+clean up commented out code; add event_class and conversion_type handling for collecting desired IRFs
+    *
+------------------------------------------------------------
+User: jchiang  Mon Mar 24 15:45:42 PDT 2008
 Likelihood/data
 
 Modified Files:
