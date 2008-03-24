@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.94 2007/11/28 16:01:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.95 2008/01/10 20:03:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -371,8 +371,8 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
 void PointSource::makeEnergyVector(int nee) {
 // A logrithmic grid of true energies for convolving with energy
 // dispersion.  Use hard-wired upper and lower energies.
-   double trueEmin(18.);
-   double trueEmax(3.17e5);
+   double trueEmin(10.);
+   double trueEmax(6e5);
    double trueEstep = log(trueEmax/trueEmin)/(nee-1.);
    s_trueEnergies.clear();
    s_trueEnergies.reserve(nee);
@@ -393,21 +393,9 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
    PointSource::Aeff aeff(energy, srcDir, roiCuts, respFuncs, time);
 
    double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
-   
-//   st_stream::StreamFormatter formatter("PointSource", "sourceEffArea", 3);
 
    double effArea(0);
-//    try {
-      effArea = aeff(cos_theta);
-//    } catch (std::exception & eObj) {
-//       formatter.warn() << eObj.what() << "\n"
-//                        << "cos_theta = " << cos_theta
-//                        << std::endl;
-//    } catch (...) {
-//       formatter.warn() << "caught unknown exception for "
-//                        << "cos_theta = " << cos_theta
-//                        << std::endl;
-//    }
+   effArea = aeff(cos_theta);
    return effArea;
 }
 
@@ -439,17 +427,9 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       if (aeff_val < 0.1) { // kluge.  Psf is likely not well defined out here.
          return 0;
       }
-// Sledgehammer approach to handle IRF misbehavior, probably not needed given
-// the aeff_val < 0.1 test.
       double psf_val(0);
-//       try {
-         psf_val = psf->angularIntegral(m_energy, m_srcDir,
-                                        theta, phi, m_cones, m_time);
-//       } catch (std::exception & eObj) { 
-//          st_stream::StreamFormatter formatter("PointSource::Aeff", 
-//                                               "operator()", 2);
-//          formatter.warn() << eObj.what() << std::endl;
-//       }
+      psf_val = psf->angularIntegral(m_energy, m_srcDir,
+                                     theta, phi, m_cones, m_time);
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 

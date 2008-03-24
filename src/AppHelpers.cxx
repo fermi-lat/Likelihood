@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.62 2007/07/03 22:48:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.63 2007/12/14 19:18:11 jchiang Exp $
  */
 
 #include <map>
@@ -202,8 +202,53 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       std::string respFuncs = responseFuncs(files.front(), "DC2");
       m_respFuncs->load(respFuncs, "DC2");
    } else {
-      m_respFuncs->load(respBase);
+      std::vector<size_t> selectedEvtTypes;
+      getSelectedEvtTypes(files.front(), selectedEvtTypes);
+//      m_respFuncs->load(respBase);
+      m_respFuncs->load(respBase, "", selectedEvtTypes);
    }      
+}
+
+void AppHelpers::
+getSelectedEvtTypes(const std::string & evfile,
+                    std::vector<size_t> & selectedEvtTypes) {
+   selectedEvtTypes.clear();
+//    st_app::AppParGroup & pars(*m_pars);
+//    dataSubselector::Cuts my_cuts(evfile, pars["evtable"]);
+    dataSubselector::Cuts my_cuts(evfile, "EVENTS");
+   std::vector<size_t> convtypes;
+   std::vector<size_t> eventclasses;
+   for (size_t i(0); i < my_cuts.size(); i++) {
+      if (my_cuts[i].type() == "range") {
+         dataSubselector::RangeCut & rangeCut
+            = dynamic_cast<dataSubselector::RangeCut &>(const_cast<dataSubselector::CutBase &>(my_cuts[i]));
+         if (rangeCut.colname() == "EVENT_CLASS") {
+            for (size_t j(static_cast<size_t>(rangeCut.minVal())); 
+                 j < static_cast<size_t>(rangeCut.maxVal()+1); j++) {
+               eventclasses.push_back(j);
+            }
+         }
+         if (rangeCut.colname() == "CONVERSION_TYPE") {
+            convtypes.push_back(static_cast<size_t>(rangeCut.minVal()));
+         }
+      }
+   }
+   if (eventclasses.empty()) {
+      for (size_t i(0); i < 11; i++) {
+         eventclasses.push_back(i);
+      }
+   }
+   if (convtypes.empty()) {
+      convtypes.push_back(0);
+      convtypes.push_back(1);
+   }
+   std::vector<size_t>::const_iterator ec(eventclasses.begin());
+   for ( ; ec != eventclasses.end(); ++ec) {
+      std::vector<size_t>::const_iterator ct(convtypes.begin());
+      for ( ; ct != convtypes.end(); ++ct) {
+         selectedEvtTypes.push_back((*ec)*2 + *ct);
+      }
+   }
 }
 
 void AppHelpers::checkOutputFile(bool clobber, const std::string & file) {
