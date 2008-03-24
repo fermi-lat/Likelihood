@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: glastrm  Mon Mar 24 16:43:49 PDT 2008
+ScienceTools-scons/Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+Changes to obtain data path rather than packageRootPath
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 24 15:45:44 PDT 2008
 Likelihood/src/expMap
 
