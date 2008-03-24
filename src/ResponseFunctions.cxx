@@ -3,9 +3,10 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.27 2007/06/07 21:19:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.28 2008/01/11 23:48:14 jchiang Exp $
  */
 
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
 
@@ -97,10 +98,11 @@ irfInterface::Irfs * ResponseFunctions::respPtr(unsigned int i) const {
 }
 
 void ResponseFunctions::load(const std::string & respFuncs,
-                             const std::string & respBase) {
+                             const std::string & respBase,
+                             const std::vector<size_t> & evtTypes) {
    irfLoader::Loader_go();
-   irfInterface::IrfsFactory * myFactory 
-      = irfInterface::IrfsFactory::instance();
+
+   irfInterface::IrfsFactory * myFactory(irfInterface::IrfsFactory::instance());
       
    typedef std::map< std::string, std::vector<std::string> > respMap_t;
    const respMap_t & responseIds = irfLoader::Loader_respIds();
@@ -109,7 +111,12 @@ void ResponseFunctions::load(const std::string & respFuncs,
       const std::vector<std::string> & resps = it->second;
       for (unsigned int i = 0; i < resps.size(); i++) {
          irfInterface::Irfs * irfs(myFactory->create(resps[i]));
-         addRespPtr(irfs->irfID(), irfs);
+         if (evtTypes.empty() ||
+             std::count(evtTypes.begin(), evtTypes.end(), irfs->irfID()) > 0) {
+            addRespPtr(irfs->irfID(), irfs);
+         } else {
+            delete irfs;
+         }
       }
       if (respBase == "") {
          setRespName(respFuncs);

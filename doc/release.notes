@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.250 2008/02/24 00:41:20 jchiang Exp $
+    $Id: release.notes,v 1.251 2008/02/27 00:21:22 jchiang Exp $
 
     @verbatim
+    v13r12p2 06-Mar-08 JC  switch to COORSYS in LiveTimeCubeTemplate
     v13r12p1 26-Feb-08 JC  strip directory from FILENAME in PHDU of gtltcube
                            output
     v13r12   23-Feb-08 JC  use Gaussian quadrature calculation of

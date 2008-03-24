@@ -1,5 +1,5 @@
 # Definition of Livetime cube file (see LS-003)
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.4 2008/02/04 21:55:18 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.5 2008/02/20 19:35:22 jchiang Exp $
 
 SIMPLE  = T                        / file does conform to FITS standard
 BITPIX  = 8                        / number of bits per data pixel
@@ -59,7 +59,7 @@ CLOCKAPP= F                        / clock drift correction applied?
 GPS_OUT = F                        / GPS time unavailable at any time during interval?
 PIXTYPE = 'HEALPIX '               / Indicates this is a HEALPix representation
 ORDERING= 'NESTED  '               / Can be NESTED or RING
-COORDTYPE= 'EQU     '               / 
+COORDSYS= 'EQU     '               / 
 NSIDE   =                          / Number of pixels per side per dodecahedron face
 FIRSTPIX=                          / First pixel index
 LASTPIX =                          / Last pixel index
