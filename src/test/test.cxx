@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.84 2007/11/20 03:29:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.85 2007/11/27 20:07:54 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -194,7 +194,7 @@ void LikelihoodTests::setUp() {
    if (!root) {  //use relative path from cmt directory
       m_rootPath = "..";
    } else {
-      m_rootPath = facilities::commonUtilities::getPackagePath("Likelihood");
+      m_rootPath = facilities::commonUtilities::getDataPath("Likelihood");
    }
 
 // Prepare the ResponseFunctions object.
@@ -211,9 +211,9 @@ void LikelihoodTests::setUp() {
    m_funcFactory = 0;
    m_srcFactory = 0;
 
-   m_scFile = m_rootPath + "/data/oneday_scData_0000.fits";
-   m_expMapFile = m_rootPath + "/data/anticenter_expMap.fits";
-   m_sourceXmlFile = m_rootPath + "/data/anticenter_model.xml";
+   m_scFile = facilities::commonUtilities::joinPath(m_rootPath,"oneday_scData_0000.fits");
+   m_expMapFile = facilities::commonUtilities::joinPath(m_rootPath,"anticenter_expMap.fits");
+   m_sourceXmlFile = facilities::commonUtilities::joinPath(m_rootPath, "anticenter_model.xml");
 }
 
 void LikelihoodTests::deleteExpMap() {
@@ -308,10 +308,10 @@ void LikelihoodTests::test_XmlBuilders() {
       fluxBuilder.addSource(*src);
       srcModelBuilder.addSource(*src);
    }
-   m_fluxXmlFile = m_rootPath + "/data/fluxBuilder.xml";
+   m_fluxXmlFile = facilities::commonUtilities::joinPath(m_rootPath, "fluxBuilder.xml");
    fluxBuilder.write(m_fluxXmlFile);
 
-   m_srcModelXmlFile = m_rootPath + "/data/srcModelBuilder.xml";
+   m_srcModelXmlFile = facilities::commonUtilities::joinPath(m_rootPath, "srcModelBuilder.xml");
    srcModelBuilder.write(m_srcModelXmlFile);
 
    XmlDiff xmlDiff(m_sourceXmlFile, m_srcModelXmlFile, "source", "name");
@@ -529,7 +529,7 @@ void LikelihoodTests::test_SourceDerivs() {
 }
 
 void LikelihoodTests::test_PointSource() {
-   std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
+   std::string eventFile = facilities::commonUtilities::joinPath(m_rootPath, "single_src_events_0000.fits");
 
    tearDown();
    setUp();
@@ -590,7 +590,7 @@ void LikelihoodTests::test_PointSource() {
 }
 
 void LikelihoodTests::test_DiffuseSource() {
-   std::string eventFile = m_rootPath + "/data/galdiffuse_events_0000.fits";
+   std::string eventFile = facilities::commonUtilities::joinPath(m_rootPath, "galdiffuse_events_0000.fits");
 
    std::vector<Event> events;
    readEventData(eventFile, m_scFile, events);
@@ -606,7 +606,7 @@ void LikelihoodTests::test_DiffuseSource() {
       setUp();
 
       std::ostringstream expMapFile;
-      expMapFile << m_rootPath << "/data/expMap_" << i << ".fits";
+      expMapFile << m_rootPath << "/expMap_" << i << ".fits";
 
       SourceFactory * srcFactory = srcFactoryInstance("", expMapFile.str());
 
@@ -649,12 +649,12 @@ void LikelihoodTests::generate_exposureHyperCube() {
    const tip::Table * scData = tip::IFileSvc::instance().readTable(m_scFile,
                                                                    "SC_DATA");
    exposure.load(scData, false);
-   std::string output_file = m_rootPath + "/data/expcube_1_day.fits";
+   std::string output_file = facilities::commonUtilities::joinPath(m_rootPath, "/expcube_1_day.fits");
    exposure.write(output_file);
 }
 
 CountsMap LikelihoodTests::singleSrcMap(unsigned int nee) const {
-   std::string eventFile = m_rootPath + "/data/single_src_events_0000.fits";
+   std::string eventFile = facilities::commonUtilities::joinPath(m_rootPath, "single_src_events_0000.fits");
    double ra(83.57);
    double dec(22.01);
    unsigned long npts(40);
@@ -679,7 +679,7 @@ void LikelihoodTests::test_CountsMap() {
 }
 
 void LikelihoodTests::test_BinnedLikelihood() {
-   std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   std::string exposureCubeFile = facilities::commonUtilities::joinPath(m_rootPath, "expcube_1_day.fits");
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
@@ -691,7 +691,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    CountsMap dataMap(singleSrcMap(21));
 
    BinnedLikelihood binnedLogLike(dataMap, *m_observation);
-   std::string Crab_model = m_rootPath + "/data/Crab_model.xml";
+   std::string Crab_model = facilities::commonUtilities::joinPath(m_rootPath, "Crab_model.xml");
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
    binnedLogLike.saveSourceMaps("srcMaps.fits");
 
@@ -775,7 +775,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
 }
 
 void LikelihoodTests::test_MeanPsf() {
-   std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   std::string exposureCubeFile = facilities::commonUtilities::joinPath(m_rootPath, "expcube_1_day.fits");
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
@@ -809,7 +809,7 @@ void LikelihoodTests::test_MeanPsf() {
 }
 
 void LikelihoodTests::test_BinnedExposure() {
-   std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   std::string exposureCubeFile = facilities::commonUtilities::joinPath(m_rootPath, "expcube_1_day.fits");
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
@@ -843,7 +843,7 @@ void LikelihoodTests::test_BinnedExposure() {
 }
 
 void LikelihoodTests::test_SourceMap() {
-   std::string exposureCubeFile = m_rootPath + "/data/expcube_1_day.fits";
+   std::string exposureCubeFile = facilities::commonUtilities::joinPath(m_rootPath, "expcube_1_day.fits");
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
