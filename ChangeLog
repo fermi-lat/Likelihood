@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 24 15:45:43 PDT 2008
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx LikeExposure.cxx PointSource.cxx 
+	ResponseFunctions.cxx 
+Log Message:
+clean up commented out code; add event_class and conversion_type handling for collecting desired IRFs
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 24 15:45:42 PDT 2008
 Likelihood/doc
 
