@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.63 2007/12/14 19:18:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.64 2008/03/24 22:45:43 jchiang Exp $
  */
 
 #include <map>
@@ -203,25 +203,29 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       m_respFuncs->load(respFuncs, "DC2");
    } else {
       std::vector<size_t> selectedEvtTypes;
-      getSelectedEvtTypes(files.front(), selectedEvtTypes);
+      getSelectedEvtTypes(files.front(), analysisType, selectedEvtTypes);
 //      m_respFuncs->load(respBase);
       m_respFuncs->load(respBase, "", selectedEvtTypes);
-   }      
+   }
 }
 
 void AppHelpers::
 getSelectedEvtTypes(const std::string & evfile,
+                    const std::string & analysisType,
                     std::vector<size_t> & selectedEvtTypes) {
    selectedEvtTypes.clear();
-//    st_app::AppParGroup & pars(*m_pars);
-//    dataSubselector::Cuts my_cuts(evfile, pars["evtable"]);
-    dataSubselector::Cuts my_cuts(evfile, "EVENTS");
+   std::string extname("EVENTS");
+   if (analysisType == "BINNED") {
+      extname = "";
+   }
+   dataSubselector::Cuts my_cuts(evfile, extname, false);
    std::vector<size_t> convtypes;
    std::vector<size_t> eventclasses;
    for (size_t i(0); i < my_cuts.size(); i++) {
       if (my_cuts[i].type() == "range") {
          dataSubselector::RangeCut & rangeCut
-            = dynamic_cast<dataSubselector::RangeCut &>(const_cast<dataSubselector::CutBase &>(my_cuts[i]));
+            = dynamic_cast<dataSubselector::RangeCut &>
+            (const_cast<dataSubselector::CutBase &>(my_cuts[i]));
          if (rangeCut.colname() == "EVENT_CLASS") {
             for (size_t j(static_cast<size_t>(rangeCut.minVal())); 
                  j < static_cast<size_t>(rangeCut.maxVal()+1); j++) {
