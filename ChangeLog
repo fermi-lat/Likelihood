@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 24 21:52:45 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	AppHelpers.h 
+Log Message:
+different interfaces for binned vs unbinned
+    *
+------------------------------------------------------------
 User: glastrm  Mon Mar 24 16:43:49 PDT 2008
 ScienceTools-scons/Likelihood/src/test
 
