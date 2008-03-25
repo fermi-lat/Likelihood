@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 24 21:52:46 PDT 2008
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Log Message:
+different interfaces for binned vs unbinned
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 24 21:52:45 PDT 2008
 Likelihood/Likelihood
 
