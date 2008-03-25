@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.31 2007/02/02 22:22:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.32 2008/03/24 22:45:41 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.31 2007/02/02 22:22:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.32 2008/03/24 22:45:41 jchiang Exp $
  */
 
 class AppHelpers {
@@ -129,6 +129,7 @@ public:
                                     const std::string & respBase);
 
    static void getSelectedEvtTypes(const std::string & evfile,
+                                   const std::string & analysisType,
                                    std::vector<size_t> & selectedEvtTypes);
 
 protected:
