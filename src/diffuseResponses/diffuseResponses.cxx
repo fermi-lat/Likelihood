@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.45 2007/12/10 07:29:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.46 2008/02/24 00:40:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.45 2007/12/10 07:29:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.46 2008/02/24 00:40:19 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -222,11 +222,22 @@ void diffuseResponses::readEventData(std::string eventFile) {
    const tip::Table * events 
       = tip::IFileSvc::instance().readTable(eventFile, m_pars["evtable"]);
 
+   int evclsver(0); // version of event class definition
+
+   const tip::Header & header(events->getHeader());
+   try {
+      header["EVCLSVER"].get(evclsver);
+   } catch(tip::TipException) {
+      // keyword missing so use default value
+   }
+
    double ra;
    double dec;
    double energy;
    double time;
    double zenAngle;
+   int event_class;
+   int conversion_type;
    int eventType;
 
    ScData & scData = const_cast<ScData &>(m_helper->observation().scData());
@@ -239,7 +250,13 @@ void diffuseResponses::readEventData(std::string eventFile) {
       event["energy"].get(energy);
       event["time"].get(time);
       event["zenith_angle"].get(zenAngle);
-      event["event_class"].get(eventType);
+      event["event_class"].get(event_class);
+      event["conversion_type"].get(conversion_type);
+      if (evclsver == 0) {
+         eventType = event_class;
+      } else {
+         eventType = conversion_type + 2*event_class;
+      }
       Event thisEvent(ra, dec, energy, time, scData.zAxis(time), 
                       scData.xAxis(time), cos(zenAngle*M_PI/180.), 
                       m_helper->observation().respFuncs().useEdisp(),

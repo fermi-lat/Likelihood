@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.64 2008/03/24 22:45:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.65 2008/03/25 04:52:46 jchiang Exp $
  */
 
 #include <map>
@@ -204,7 +204,6 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
    } else {
       std::vector<size_t> selectedEvtTypes;
       getSelectedEvtTypes(files.front(), analysisType, selectedEvtTypes);
-//      m_respFuncs->load(respBase);
       m_respFuncs->load(respBase, "", selectedEvtTypes);
    }
 }
