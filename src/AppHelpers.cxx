@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.65 2008/03/25 04:52:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.66 2008/03/27 03:23:03 jchiang Exp $
  */
 
 #include <map>
@@ -236,6 +236,7 @@ getSelectedEvtTypes(const std::string & evfile,
          }
       }
    }
+// No DSS selections on EVENT_CLASS or CONVERSION_TYPE, so get everything.
    if (eventclasses.empty()) {
       for (size_t i(0); i < 11; i++) {
          eventclasses.push_back(i);
