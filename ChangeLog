@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr  2 07:52:55 PDT 2008
+Likelihood/data
+
+Added Files:
+	TsMapTemplate 
+Log Message:
+use wcslib (and FITS template) for TS maps
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-13-00, operation: add
 Package: Likelihood
