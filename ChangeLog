@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Apr  2 07:52:55 PDT 2008
+Likelihood/pfiles
+
+Modified Files:
+	gttsmap.par 
+Log Message:
+use wcslib (and FITS template) for TS maps
+    *
+------------------------------------------------------------
+User: jchiang  Wed Apr  2 07:52:55 PDT 2008
 Likelihood/data
 
 Added Files:
