@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.252 2008/03/24 22:45:42 jchiang Exp $
+    $Id: release.notes,v 1.253 2008/03/31 21:15:36 jchiang Exp $
 
     @verbatim
+    v13e14   02-Apr-08 JC  use wcslib in gttsmap, standardize parfile interface
     v13r13   29-Mar-08 JC  use ScData::ScNtuple::stoptime in 
                            PointSource::computeExposure;
                            add new event class handling code (retaining
