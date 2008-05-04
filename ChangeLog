@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun May  4 15:03:28 PDT 2008
+Likelihood/pfiles
+
+Modified Files:
+	gttsmap.par 
+Log Message:
+remove commented out lines
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-14-00, operation: add
 Package: Likelihood
