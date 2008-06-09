@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.19 2006/06/14 04:43:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.20 2006/07/03 17:05:31 jchiang Exp $
  */
 
 #include <cmath>
@@ -49,7 +49,9 @@ namespace {
 namespace Likelihood {
 
 WcsMap::WcsMap(const std::string & filename,
-               const std::string & extension) : m_proj(0) {
+               const std::string & extension,
+               bool interpolate) 
+  : m_proj(0), m_interpolate(interpolate) {
 
    m_proj = new astro::SkyProj(filename, extension);
 
@@ -94,8 +96,9 @@ WcsMap::WcsMap(const std::string & filename,
 
 WcsMap::WcsMap(const DiffuseSource & diffuseSource,
                double ra, double dec, double radius, int npts,
-               double energy, const std::string & proj_name, bool use_lb) 
-   : m_refDir(ra, dec) {
+               double energy, const std::string & proj_name, bool use_lb,
+               bool interpolate) 
+   : m_refDir(ra, dec), m_interpolate(interpolate) {
    if (use_lb) { // convert to l, b
       ra = m_refDir.l();
       dec = m_refDir.b();
@@ -116,10 +119,10 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    m_image.reserve(npts);
    double ix, iy;
    for (int j = 0; j < npts; j++) {
-      iy = j + 2.;
+      iy = j + 1.;
       std::vector<double> row(npts, 0);
       for (int i = 0; i < npts; i++) {
-         ix = i + 2.;
+         ix = i + 1.;
          if (m_proj->testpix2sph(ix, iy) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
@@ -175,43 +178,40 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    double x(pixel.first);
    double y(pixel.second);
 
-
 // The following code simply finds the pixel in which the sky location
 // lives and returns the value.
-#if 0
-   int ix(static_cast<int>(std::floor(x - 0.5)));
-   int iy(static_cast<int>(std::floor(y - 0.5)));
+   if (!m_interpolate) {
+      int ix(static_cast<int>(std::floor(x - 0.5)));
+      int iy(static_cast<int>(std::floor(y - 0.5)));
 
-   if (ix < 0 || ix >= m_naxis1 || iy < 0 || iy >= m_naxis2) {
-      return 0;
+      if (ix < 0 || ix >= m_naxis1 || iy < 0 || iy >= m_naxis2) {
+         return 0;
+      }
+
+      return m_image.at(iy).at(ix);
    }
-
-   return m_image.at(iy).at(ix);
-#else
 // This code tries to do a bilinear interpolation on the pixel values.
    int ix(static_cast<int>(x));
    int iy(static_cast<int>(y));
    ix = std::min(std::max(1, ix), m_naxis1 - 1);
    iy = std::min(std::max(1, iy), m_naxis2 - 1);
-
+   
    double uu(x - ix);
    double tt(y - iy);
-
+   
    double y1(m_image.at(iy-1).at(ix-1));
    double y2(m_image.at(iy).at(ix-1));
    double y3(m_image.at(iy).at(ix));
    double y4(m_image.at(iy-1).at(ix));
-
+   
    double value((1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
                 + tt*uu*y3 + (1. - tt)*uu*y4);
-
+   
    if (value < 0) {
-//      throw std::runtime_error("WcsMap::operator(): value < 0");
       value = 0;
    }
-
+   
    return value;
-#endif
 }
 
 WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
@@ -233,8 +233,8 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
       counts.at(j).resize(m_naxis1, 0);
       psf_image.at(j).resize(m_naxis1);
       for (int i = 0; i < m_naxis1; i++) {
-         if (m_proj->testpix2sph(i+1.5, j+1.5) == 0) {
-            std::pair<double, double> coord = m_proj->pix2sph(i+1.5, j+1.5);
+         if (m_proj->testpix2sph(i+1, j+1) == 0) {
+            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
             counts.at(j).at(i) = 
                m_image.at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
