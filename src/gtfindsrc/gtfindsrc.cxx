@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.15 2007/07/04 00:16:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.16 2007/11/07 20:24:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -268,7 +268,7 @@ public:
       size_t len(m_testPoints.size());
       if (len > 2 && separation(m_testPoints.at(len-2), m_testPoints.at(len-1))
           < m_accuracy) {
-         throw Exception("positional tolerance satified");
+         throw Exception("positional tolerance satisfied");
       }
       return test_value;
    }

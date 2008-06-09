@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.3 2006/03/23 00:21:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.4 2006/04/27 15:20:02 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap_h
@@ -26,18 +26,20 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.3 2006/03/23 00:21:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.4 2006/04/27 15:20:02 jchiang Exp $
  */
 
 class WcsMap {
 
 public:
 
-   WcsMap(const std::string & filename, const std::string & extension="");
+   WcsMap(const std::string & filename, const std::string & extension="",
+          bool interpolate=true);
 
    WcsMap(const DiffuseSource & diffuseSource, double ra, double dec,
           double radius, int npts, double energy=100.,
-          const std::string & proj_name="STG", bool use_lb=false);
+          const std::string & proj_name="STG", bool use_lb=false,
+          bool interpolate=false);
 
    ~WcsMap();
 
@@ -65,6 +67,8 @@ private:
    int m_naxis2;
 
    astro::SkyProj * m_proj;
+   
+   bool m_interpolate;
 
    WcsMap() : m_proj(0) {}
 
