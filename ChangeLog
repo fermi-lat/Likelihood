@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jun  9 13:55:00 PDT 2008
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+add interpolation option in WcsMap constructor to be set as true for DiffuseSource, but set to false inside of SourceMap; remove ad hoc offsets and use off-by-one offsets based on wcslib pixel numbering convention
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jun  9 13:55:00 PDT 2008
 Likelihood/src
 
 Modified Files:
