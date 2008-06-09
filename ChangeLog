@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun  9 13:54:59 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	WcsMap.h 
+Log Message:
+add interpolation option in WcsMap constructor to be set as true for DiffuseSource, but set to false inside of SourceMap; remove ad hoc offsets and use off-by-one offsets based on wcslib pixel numbering convention
+    *
+------------------------------------------------------------
 User: jchiang  Sun May  4 15:03:28 PDT 2008
 Likelihood/pfiles
 
