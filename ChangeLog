@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: glastrm  Thu Jun 19 13:41:46 PDT 2008
+ScienceTools-scons/Likelihood
+
+Modified Files:
+	SConscript 
+Log Message:
+Added Author and Version fields
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-15-00, operation: add
 Package: Likelihood
