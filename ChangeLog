@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun 23 20:21:16 PDT 2008
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+kluge to handle psf integrals for new event classes more efficiently
+    *
+------------------------------------------------------------
 TAG
 Tag name: v13r15, operation: mov
 Package: Likelihood
