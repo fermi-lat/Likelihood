@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.96 2008/03/24 22:45:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.97 2008/03/29 22:53:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -419,7 +419,8 @@ double PointSource::Aeff::operator()(double cos_theta) const {
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt
       = m_respFuncs.begin();
 
-   for ( ; respIt != m_respFuncs.end(); respIt++) {
+   std::map<int, double> psf_vals;
+   for ( ; respIt != m_respFuncs.end(); ++respIt) {
       irfInterface::IPsf *psf = respIt->second->psf();
       irfInterface::IAeff *aeff = respIt->second->aeff();
 
@@ -427,9 +428,24 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       if (aeff_val < 0.1) { // kluge.  Psf is likely not well defined out here.
          return 0;
       }
+
+      //
+      // Use irfID % 2 to determine if the psf is front(0) or back(1).
+      // Assume the IRFs are in class order and use the psf associated
+      // with the lowest class number.
+      //
+      int id(respIt->second->irfID() % 2);
+
       double psf_val(0);
-      psf_val = psf->angularIntegral(m_energy, m_srcDir,
-                                     theta, phi, m_cones, m_time);
+      std::map<int, double>::const_iterator psf_it(psf_vals.find(id));
+      if (psf_it == psf_vals.end()) {
+         psf_val = psf->angularIntegral(m_energy, m_srcDir,
+                                        theta, phi, m_cones, m_time);
+         psf_vals[id] = psf_val;
+      } else {
+         psf_val = psf_it->second;
+      }
+
       if (m_respFuncs.useEdisp()) {
          irfInterface::IEdisp *edisp = respIt->second->edisp();
          double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 
