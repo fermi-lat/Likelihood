@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.97 2008/03/29 22:53:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.98 2008/06/24 03:21:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -432,7 +432,9 @@ double PointSource::Aeff::operator()(double cos_theta) const {
       //
       // Use irfID % 2 to determine if the psf is front(0) or back(1).
       // Assume the IRFs are in class order and use the psf associated
-      // with the lowest class number.
+      // with the lowest class number.  This should be backwards
+      // compatible with Pass 5 style IRFs where there is only one
+      // event class.
       //
       int id(respIt->second->irfID() % 2);
 
