@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.254 2008/04/03 00:14:25 jchiang Exp $
+    $Id: release.notes,v 1.255 2008/06/09 21:12:55 jchiang Exp $
 
     @verbatim
+    v13r15p1 03-Jul-08 JC  add energy range requirement to error message
+                           in RoiCuts::sortCuts  
     v13r15   09-Jun-08 JC  fix gtsrcmaps offset bug
     v13e14   02-Apr-08 JC  use wcslib in gttsmap, standardize parfile interface
     v13r13   29-Mar-08 JC  use ScData::ScNtuple::stoptime in 
