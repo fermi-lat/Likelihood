@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jul  3 14:03:50 PDT 2008
+Likelihood/src
+
+Modified Files:
+	RoiCuts.cxx 
+Log Message:
+add need for energy range cut to error message that checks FT1 files.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun 24 21:02:14 PDT 2008
 Likelihood/src
 
