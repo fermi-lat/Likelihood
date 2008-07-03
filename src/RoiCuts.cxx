@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.50 2007/02/02 21:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.51 2007/04/29 21:09:29 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -198,7 +198,7 @@ void RoiCuts::sortCuts(bool strict) {
 //   if (strict && (ncone != 1 || ntime == 0)) {
       std::ostringstream message;
       message << "RoiCuts::sortCuts:\n"
-              << "There should be exactly "
+              << "There should be exactly one energy range cut, "
               << "one acceptance cone cut,\n"
               << "and at least one time range and/or GTI cut.\n"
               << "The event file contains the following DSS selections:\n\n";
