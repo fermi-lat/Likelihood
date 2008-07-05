@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Jul  5 14:44:29 PDT 2008
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+include zenith angle cut in gtltcube for Julie
+    *
+------------------------------------------------------------
+User: jchiang  Sat Jul  5 14:44:29 PDT 2008
 Likelihood/src
 
 Modified Files:
