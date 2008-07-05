@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.12 2008/01/10 20:03:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.13 2008/02/04 21:55:17 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -35,7 +35,8 @@ public:
 
    LikeExposure(double skybin, double costhetabin,
                 const std::vector< std::pair<double, double> > & timeCuts,
-                const std::vector< std::pair<double, double> > & gtis);
+                const std::vector< std::pair<double, double> > & gtis,
+                double zenmax=180.);
 
    void load(const tip::Table * tuple, bool verbose=true);
 
