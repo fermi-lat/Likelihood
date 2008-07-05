@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Jul  5 14:44:28 PDT 2008
+Likelihood/pfiles
+
+Modified Files:
+	gtltcube.par 
+Log Message:
+include zenith angle cut in gtltcube for Julie
+    *
+------------------------------------------------------------
+User: jchiang  Sat Jul  5 14:44:28 PDT 2008
 Likelihood/Likelihood
 
 Modified Files:
