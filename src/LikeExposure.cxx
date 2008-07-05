@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.29 2008/02/27 00:20:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.30 2008/03/24 22:45:43 jchiang Exp $
  */
 
 #include <algorithm>
@@ -43,9 +43,10 @@ namespace Likelihood {
 LikeExposure::
 LikeExposure(double skybin, double costhetabin, 
              const std::vector< std::pair<double, double> > & timeCuts,
-             const std::vector< std::pair<double, double> > & gtis)
-   : map_tools::Exposure(skybin, costhetabin), m_costhetabin(costhetabin),
-     m_timeCuts(timeCuts), m_gtis(gtis), m_numIntervals(0) {
+             const std::vector< std::pair<double, double> > & gtis,
+             double zenmax)
+   : map_tools::Exposure(skybin, costhetabin, std::cos(zenmax*M_PI/180.)), 
+     m_costhetabin(costhetabin), m_timeCuts(timeCuts), m_gtis(gtis), m_numIntervals(0) {
    if (!gtis.empty()) {
       for (size_t i = 0; i < gtis.size(); i++) {
          if (i == 0 || gtis.at(i).first < m_tmin) {
@@ -64,7 +65,7 @@ LikeExposure(double skybin, double costhetabin,
 void LikeExposure::load(const tip::Table * scData, bool verbose) {
    st_stream::StreamFormatter formatter("LikeExposure", "load", 2);
    
-   double ra, dec, start, stop, livetime;
+   double ra, dec, ra_zenith, dec_zenith, start, stop, livetime;
 
    tip::Table::ConstIterator it(scData->end());
    tip::ConstTableRecord & row(*it);
@@ -117,7 +118,10 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
       if (acceptInterval(start, stop, m_timeCuts, m_gtis, fraction)) {
          row["ra_scz"].get(ra);
          row["dec_scz"].get(dec);
-         fill(astro::SkyDir(ra, dec), deltat*fraction);
+         row["ra_zenith"].get(ra_zenith);
+         row["dec_zenith"].get(dec_zenith);
+         fill(astro::SkyDir(ra, dec), astro::SkyDir(ra_zenith, dec_zenith), 
+              deltat*fraction);
          m_numIntervals++;
       }
    }
