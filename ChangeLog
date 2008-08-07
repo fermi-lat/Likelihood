@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Wed Aug  6 23:11:35 PDT 2008
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx DiffuseSource.cxx PointSource.cxx 
+	Source.cxx 
+Log Message:
+avoid accelerated method for computing npred for binned likelihood; still need to propagate to derivatives calculation in BinnedLikelihood
+    *
+------------------------------------------------------------
+User: jchiang  Wed Aug  6 23:11:35 PDT 2008
 Likelihood/pfiles
 
 Modified Files:
