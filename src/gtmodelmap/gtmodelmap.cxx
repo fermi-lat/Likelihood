@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.13 2007/08/27 17:25:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.14 2008/08/07 05:56:08 jchiang Exp $
  */
 
 #include <iostream>
@@ -395,6 +395,7 @@ void ModelMap::createRegistry() {
                                          binnedExpMap, *m_funcFactory,
                                          performConvolution);
    } else {
-      m_registry = 0;
+//      m_registry = 0;
+      throw std::runtime_error("You must specify a livetime cube file.");
    }
 }

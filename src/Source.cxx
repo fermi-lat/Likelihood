@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.8 2006/12/24 19:52:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.9 2007/07/27 15:49:23 jchiang Exp $
  */
 
 #include <algorithm>
@@ -118,6 +118,30 @@ double Source::NpredDeriv(const std::string &paramName) {
       TrapQuad trapQuad(energies, myIntegrand);
       return trapQuad.integral();
    }
+}
+
+double Source::powerlaw_integral_est(double x1, double x2, 
+                                     double y1, double y2, 
+                                     double wt1, double wt2) {
+   double gam(std::log(y2/y1)/std::log(x2/x1));
+   double y0(y2/std::pow(x2, gam));
+
+   double xbar;
+   if (gam == -1) {
+      xbar = (x2 - x1)/std::log(x2/x1);
+   } else if (gam == -2) {
+      xbar = std::log(x2/x1)/(1./x1 - 1./x2);
+   } else {
+      xbar = (gam + 1.)/(gam + 2.)*(std::pow(x2, gam+2.) - std::pow(x1, gam+2.))
+         /(std::pow(x2, gam+1.) - std::pow(x1, gam+1.));
+   }
+
+   double wtbar((xbar - x1)/(x2 - x1)*(wt2 - wt1) + wt1);
+
+   if (gam == -1) {
+      return wtbar*y0*std::log(x2/x1);
+   }
+   return wtbar*y0/(gam+1.)*(std::pow(x2, gam+1.) - std::pow(x1, gam+1.));
 }
 
 } // namespace Likelihood
