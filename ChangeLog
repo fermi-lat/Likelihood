@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  6 23:11:35 PDT 2008
+Likelihood/pfiles
+
+Modified Files:
+	gtmodel.par 
+Log Message:
+avoid accelerated method for computing npred for binned likelihood; still need to propagate to derivatives calculation in BinnedLikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  6 23:11:34 PDT 2008
 Likelihood/Likelihood
 
