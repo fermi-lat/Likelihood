@@ -1,9 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.256 2008/07/03 21:05:06 jchiang Exp $
+    $Id: release.notes,v 1.257 2008/07/05 21:47:21 jchiang Exp $
 
     @verbatim
+    v13r17   07-Aug-08 JC  sync up counts model map implementation in gtmodel
+                           with code in BinnedLikelihood.cxx (need to refactor
+                           duplicated code)
     v13r16   05-Jul-08 JC  add zenith angle cut in gtltcube for Julie
     v13r15p1 03-Jul-08 JC  add energy range requirement to error message
                            in RoiCuts::sortCuts  
