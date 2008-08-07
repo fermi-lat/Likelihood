@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.99 2008/06/25 04:02:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.100 2008/08/07 06:11:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -201,8 +201,7 @@ double PointSource::pixelCounts(double emin, double emax,
    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
       return (y1 + y2)*(emax - emin)/2.;
    }
-   
-//   return powerlaw_integral_est(emin, emax, f1, f2, wtMin, wtMax);
+
    double gam(std::log(y2/y1)/std::log(emax/emin));
    double y0(y2/std::pow(emax, gam));
    if (gam == -1) {
@@ -229,8 +228,6 @@ double PointSource::pixelCountsDeriv(double emin, double emax,
       return (dy1dp + dy2dp)*(emax - emin)/2.;
    }
 
-//    return powerlaw_integral_est(emin, emax, f1, f2, wtMin, wtMax);
-
    double gam(std::log(y2/y1)/std::log(emax/emin));
    double y0(y2/std::pow(emax, gam));
    double dgamdp((dy2dp/y2 - dy1dp/y1)/std::log(emax/emin));
@@ -238,7 +235,7 @@ double PointSource::pixelCountsDeriv(double emin, double emax,
    if (gam == -1) {
       return dy0dp*std::log(emax/emin);
    }
-   return (dy0dp*(std::pow(emax, gam+1.) - std::pow(emin, gam+1.))/(gam+1.) +
+   return (dy0dp*(std::pow(emax,gam+1.)-std::pow(emin, gam+1.))/(gam+1.) +
            y0*dgamdp/(gam+1.)*((std::pow(emax, gam+1.)*std::log(emax)
                                 - std::pow(emin, gam+1.)*std::log(emin))
                                - (std::pow(emax,gam+1.)-std::pow(emin,gam+1.))
