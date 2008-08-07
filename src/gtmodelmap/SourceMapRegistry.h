@@ -3,7 +3,7 @@
  * @brief Class to manage creation of SourceMaps for gtmodelmap application.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.h,v 1.1 2005/10/10 21:42:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.h,v 1.2 2006/03/15 21:34:08 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMapRegistry_h
@@ -20,6 +20,7 @@ namespace Likelihood {
    class BinnedLikelihood;
    class CountsMap;
    class Observation;
+   class Source;
    class SourceMap;
 }
 
@@ -43,6 +44,8 @@ public:
    ~SourceMapRegistry();
 
    const std::vector<float> & sourceMap(const std::string & srcName);
+
+   const Likelihood::Source & source(const std::string & srcName) const;
 
 private:
 

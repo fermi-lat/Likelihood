@@ -3,10 +3,10 @@
  * @brief Implementation for a class that manages SourceMaps for
  * gtmodelmap.  This class attempts to be lightweight by using lazy
  * evaluation of the SourceMaps and not storing the maps internally
- * in BinnedLikelhood.
+ * in BinnedLikelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.cxx,v 1.2 2006/02/22 17:47:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.cxx,v 1.3 2006/03/15 21:34:08 jchiang Exp $
  */
 
 #include "st_facilities/Util.h"
@@ -22,6 +22,7 @@
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
+#include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
 
 #include "SourceMapRegistry.h"
@@ -59,14 +60,11 @@ SourceMapRegistry::SourceMapRegistry(const std::string & countsMap,
    if (st_facilities::Util::fileExists(binnedExpMap)) {
       Likelihood::SourceMap::setBinnedExposure(binnedExpMap);
    }
-//    if (binnedExpMap != "" && binnedExpMap != "none") {
-//       Likelihood::SourceMap::setBinnedExposure(binnedExpMap);
-//    }
 
    m_countsMap = new Likelihood::CountsMap(countsMap);
 
-   bool computePointSources(false);
-   bool applyPsfCorrections(false);
+   bool computePointSources(true);
+   bool applyPsfCorrections(true);
    m_logLike = new Likelihood::BinnedLikelihood(*m_countsMap, *m_observation,
                                                 countsMap, computePointSources,
                                                 applyPsfCorrections,
@@ -103,4 +101,9 @@ SourceMapRegistry::sourceMap(const std::string & srcName) {
    m_sourceMap = m_logLike->createSourceMap(srcName);
 
    return m_sourceMap->model();
+}
+
+const Likelihood::Source & 
+SourceMapRegistry::source(const std::string & srcName) const {
+   return m_logLike->source(srcName);
 }
