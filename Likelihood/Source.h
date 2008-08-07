@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.36 2006/06/29 00:45:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.37 2006/12/20 02:00:28 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -32,7 +32,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.36 2006/06/29 00:45:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.37 2006/12/20 02:00:28 jchiang Exp $
  */
 
 class Source {
@@ -153,6 +153,10 @@ protected:
    /// Angle integrated diffuse exposure as a function of
    /// RoiCuts::energies()
    std::vector<double> m_exposure;
+
+   static double powerlaw_integral_est(double x1, double x2, 
+                                       double y1, double y2, 
+                                       double wt1, double wt2);
 
 };
 

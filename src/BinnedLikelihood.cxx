@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.44 2007/08/30 23:07:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.45 2007/10/10 20:03:14 jchiang Exp $
  */
 
 #include <memory>
@@ -205,14 +205,24 @@ void BinnedLikelihood::computeModelMap(double & npred) const {
             unsigned long imin = m_filledPixels[i];
             unsigned long imax = imin + m_pixels.size();
             unsigned long k = imin/m_pixels.size();
-            m_model.at(i) += src->pixelCounts(m_energies[k], m_energies[k+1],
-                                              model[imin], model[imax]);
+            double value = src->pixelCounts(m_energies[k], m_energies[k+1],
+                                            model[imin], model[imax]);
+            m_model.at(i) += value;
          }
-         const std::vector<double> & npreds = srcMap->npreds();
-         for (unsigned int k = 0; k < m_energies.size()-1; k++) {
-            npred += src->pixelCounts(m_energies[k], m_energies[k+1],
-                                      npreds[k], npreds[k+1]);
+         size_t npix(model.size()/m_energies.size());
+         for (size_t i(0); i < npix; i++) {
+            for (size_t k(0); k < m_energies.size()-1; k++) {
+               size_t imin(k*npix + i);
+               size_t imax(imin + npix);
+               npred += src->pixelCounts(m_energies[k], m_energies[k+1],
+                                         model[imin], model[imax]);
+            }
          }
+//          const std::vector<double> & npreds = srcMap->npreds();
+//          for (unsigned int k = 0; k < m_energies.size()-1; k++) {
+//             npred += src->pixelCounts(m_energies[k], m_energies[k+1],
+//                                       npreds[k], npreds[k+1]);
+//          }
       }
    }
    m_modelIsCurrent = true;
@@ -383,12 +393,26 @@ void BinnedLikelihood::syncParams() {
 }
 
 double BinnedLikelihood::NpredValue(const std::string & srcName) const {
-   const std::vector<double> & npreds(sourceMap(srcName).npreds());
+//    const std::vector<double> & npreds(sourceMap(srcName).npreds());
+//    const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
+//    double value(0);
+//    for (size_t k(0); k < energies().size()-1; k++) {
+//       value += src->pixelCounts(energies().at(k), energies().at(k+1),
+//                                 npreds.at(k), npreds.at(k+1));
+//    }
+//    return value;
+
+   const std::vector<float> & model = sourceMap(srcName).model();
    const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
    double value(0);
-   for (size_t k(0); k < energies().size()-1; k++) {
-      value += src->pixelCounts(energies().at(k), energies().at(k+1),
-                                npreds.at(k), npreds.at(k+1));
+   size_t npix(model.size()/m_energies.size());
+   for (size_t i(0); i < npix; i++) {
+      for (size_t k(0); k < m_energies.size()-1; k++) {
+         size_t imin(k*npix + i);
+         size_t imax(imin + npix);
+         value += src->pixelCounts(m_energies[k], m_energies[k+1],
+                                   model[imin], model[imax]);
+      }
    }
    return value;
 }

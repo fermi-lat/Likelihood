@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.98 2008/06/24 03:21:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.99 2008/06/25 04:02:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -192,11 +192,17 @@ double PointSource::pixelCounts(double emin, double emax,
    optimizers::Function & spectrum = *m_spectrum;
    optimizers::dArg eminArg(emin);
    optimizers::dArg emaxArg(emax);
-   double y1(spectrum(eminArg)*wtMin);
-   double y2(spectrum(emaxArg)*wtMax);
+
+   double f1(spectrum(eminArg));
+   double f2(spectrum(emaxArg));
+
+   double y1(f1*wtMin);
+   double y2(f2*wtMax);
    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
       return (y1 + y2)*(emax - emin)/2.;
    }
+   
+//   return powerlaw_integral_est(emin, emax, f1, f2, wtMin, wtMax);
    double gam(std::log(y2/y1)/std::log(emax/emin));
    double y0(y2/std::pow(emax, gam));
    if (gam == -1) {
@@ -213,11 +219,18 @@ double PointSource::pixelCountsDeriv(double emin, double emax,
    optimizers::dArg emaxArg(emax);
    double y1(spectrum(eminArg)*wtMin);
    double y2(spectrum(emaxArg)*wtMax);
-   double dy1dp(spectrum.derivByParam(eminArg, paramName)*wtMin);
-   double dy2dp(spectrum.derivByParam(emaxArg, paramName)*wtMax);
+
+   double f1(spectrum.derivByParam(eminArg, paramName));
+   double f2(spectrum.derivByParam(emaxArg, paramName));
+
+   double dy1dp(f1*wtMin);
+   double dy2dp(f2*wtMax);
    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
       return (dy1dp + dy2dp)*(emax - emin)/2.;
    }
+
+//    return powerlaw_integral_est(emin, emax, f1, f2, wtMin, wtMax);
+
    double gam(std::log(y2/y1)/std::log(emax/emin));
    double y0(y2/std::pow(emax, gam));
    double dgamdp((dy2dp/y2 - dy1dp/y1)/std::log(emax/emin));
