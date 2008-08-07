@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  6 23:11:34 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	Source.h 
+Log Message:
+avoid accelerated method for computing npred for binned likelihood; still need to propagate to derivatives calculation in BinnedLikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  6 22:56:08 PDT 2008
 Likelihood/src/gtmodelmap
 
