@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.38 2007/11/28 16:34:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.39 2008/08/07 06:11:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -136,8 +136,6 @@ double DiffuseSource::pixelCounts(double emin, double emax,
       return (y1 + y2)*(emax - emin)/2.;
    }
 
-//   return powerlaw_integral_est(emin, emax, f1, f2, wtMin, wtMax);
-
    double gam(std::log(y2/y1)/std::log(emax/emin));
    double y0(y2/std::pow(emax, gam));
    if (gam == -1) {
@@ -164,8 +162,6 @@ double DiffuseSource::pixelCountsDeriv(double emin, double emax,
    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
       return (dy1dp + dy2dp)*(emax - emin)/2.;
    }
-
-//    return powerlaw_integral_est(emin, emax, f1, f2, wtMin, wtMax);
 
    double gam(std::log(y2/y1)/std::log(emax/emin));
    double y0(y2/std::pow(emax, gam));
