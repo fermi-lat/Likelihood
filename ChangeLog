@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug  7 09:22:10 PDT 2008
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx DiffuseSource.cxx PointSource.cxx 
+Log Message:
+back off on recent changes from last couple days in pixelCounts estimates
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug  6 23:11:36 PDT 2008
 Likelihood/src/gtmodelmap
 
