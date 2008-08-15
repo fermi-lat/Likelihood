@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.137 2007/08/27 17:26:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.138 2007/12/11 00:41:05 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -89,7 +89,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.137 2007/08/27 17:26:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.138 2007/12/11 00:41:05 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -444,7 +444,8 @@ void likelihood::writeCountsSpectra() {
       counts.setEbounds(emin, emax, 21);
    }
 
-   counts.writeTable("counts_spectra.fits");
+   std::string outfile = m_pars["specfile"];
+   counts.writeTable(outfile);
 }
 
 void likelihood::plotCountsSpectra() {
@@ -596,7 +597,9 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<optimizers::Parameter> parameters;
    std::vector<double>::const_iterator errIt = errors.begin();
 
-   std::ofstream resultsFile("results.dat");
+   std::string outfile = m_pars["results"];
+
+   std::ofstream resultsFile(outfile.c_str());
    bool write_output_files = m_pars["save"];
    if (!write_output_files) {
       resultsFile.clear(std::ios::failbit);
@@ -665,7 +668,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    resultsFile.close();
 
    if (!write_output_files) {
-      std::remove("results.dat");
+      std::remove(outfile.c_str());
    }
 
    m_formatter->info().precision(10);

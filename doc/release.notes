@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.257 2008/07/05 21:47:21 jchiang Exp $
+    $Id: release.notes,v 1.258 2008/08/07 16:27:51 jchiang Exp $
 
     @verbatim
+    v13r17p1 13-Aug-08 JC  add gtlike.par file options to set the name of the
+                           results.dat and counts_spectra.fits files.
     v13r17   07-Aug-08 JC  sync up counts model map implementation in gtmodel
                            with code in BinnedLikelihood.cxx (need to refactor
                            duplicated code)
@@ -11,7 +13,7 @@
     v13r15p1 03-Jul-08 JC  add energy range requirement to error message
                            in RoiCuts::sortCuts  
     v13r15   09-Jun-08 JC  fix gtsrcmaps offset bug
-    v13e14   02-Apr-08 JC  use wcslib in gttsmap, standardize parfile interface
+    v13r14   02-Apr-08 JC  use wcslib in gttsmap, standardize parfile interface
     v13r13   29-Mar-08 JC  use ScData::ScNtuple::stoptime in 
                            PointSource::computeExposure;
                            add new event class handling code (retaining
