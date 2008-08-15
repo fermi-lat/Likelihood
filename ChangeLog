@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 14 20:44:53 PDT 2008
+Likelihood/pfiles
+
+Modified Files:
+	gtlike.par 
+Log Message:
+add par file params for output files for gtlike; tagging v13r17p1
+    *
+------------------------------------------------------------
 User: jchiang  Thu Aug 14 20:44:52 PDT 2008
 Likelihood/doc
 
