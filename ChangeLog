@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Aug 14 20:44:52 PDT 2008
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+add par file params for output files for gtlike; tagging v13r17p1
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-17-00, operation: add
 Package: Likelihood
