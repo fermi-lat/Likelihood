@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.22 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.23 2008/08/16 02:06:07 jchiang Exp $
  *
  */
 
@@ -87,7 +87,7 @@ void SpatialMap::readFitsFile(const std::string & fitsFile,
       formatter.err() << "File not found: " << expandedFileName << std::endl;
       throw std::runtime_error("File not found: " + expandedFileName);
    }
-   m_wcsmap = new WcsMap(expandedFileName, extension, false);
+   m_wcsmap = new WcsMap(expandedFileName, extension);
 }
 
 double SpatialMap::value(optimizers::Arg & arg) const {
