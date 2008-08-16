@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.20 2006/07/03 17:05:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.21 2008/06/09 20:55:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -47,6 +47,9 @@ namespace {
 } // unnamed namespace
 
 namespace Likelihood {
+
+WcsMap::WcsMap() : m_proj(0), m_interpolate(false) {}
+
 
 WcsMap::WcsMap(const std::string & filename,
                const std::string & extension,
@@ -105,7 +108,9 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    }
    double crpix[] = {npts/2., npts/2.};
    double crval[] = {ra, dec};
-   double cdelt[] = {2.*radius/npts, 2.*radius/npts};
+   double cdelt[] = {-2.*radius/npts, 2.*radius/npts};
+
+   std::cout << "cdelt: " << cdelt[0] << "  " << cdelt[1] << std::endl;
 
    m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
 
@@ -119,10 +124,10 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    m_image.reserve(npts);
    double ix, iy;
    for (int j = 0; j < npts; j++) {
-      iy = j + 1.;
+      iy = j + 1;
       std::vector<double> row(npts, 0);
       for (int i = 0; i < npts; i++) {
-         ix = i + 1.;
+         ix = i + 1;
          if (m_proj->testpix2sph(ix, iy) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
@@ -147,7 +152,8 @@ WcsMap::~WcsMap() {
 
 WcsMap::WcsMap(const WcsMap & rhs) 
    : m_refDir(rhs.m_refDir), m_image(rhs.m_image), 
-     m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2) {
+     m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2), 
+     m_interpolate(rhs.m_interpolate) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
 // and live with the resulting memory leak when this object is deleted.
@@ -167,6 +173,7 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
       m_image = rhs.m_image;
       m_naxis1 = rhs.m_naxis1;
       m_naxis2 = rhs.m_naxis2;
+      m_interpolate = rhs.m_interpolate;
    }
    return *this;
 }
@@ -217,11 +224,6 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
 WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
                         const BinnedExposure & exposure,
                         bool performConvolution) const {
-   ::Image counts;
-   counts.resize(m_naxis2);
-   ::Image psf_image;
-   psf_image.resize(m_naxis2);
-
    astro::SkyDir::CoordSystem coordSys;
    if (m_proj->isGalactic()) {
       coordSys = astro::SkyDir::GALACTIC;
@@ -229,22 +231,56 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
       coordSys = astro::SkyDir::EQUATORIAL;
    }
 
+// Compute unconvolved counts map by multiplying intensity image by exposure.
+   ::Image counts;
+   counts.resize(m_naxis2);
+
    for (int j = 0; j < m_naxis2; j++) {
       counts.at(j).resize(m_naxis1, 0);
-      psf_image.at(j).resize(m_naxis1);
       for (int i = 0; i < m_naxis1; i++) {
          if (m_proj->testpix2sph(i+1, j+1) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
             counts.at(j).at(i) = 
                m_image.at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
-            double theta = m_refDir.difference(dir)*180./M_PI;
-            psf_image.at(j).at(i) = psf(energy, theta, 0);
-         } else {
-            psf_image.at(j).at(i) = 0;
          }
       }
    }
+
+// Fill a square array with an image of the Psf at the same binning
+// resolution as the source image.  Use the smaller of the image map
+// dimensions to determine the psf image size.
+// @todo handle cases where m_naxis1 or m_naxis2 are odd.
+   int npix, imin, imax, jmin, jmax;
+   if (m_naxis1 <= m_naxis2) {
+      npix = m_naxis1;
+      imin = 0;
+      imax = npix;
+      jmin = (m_naxis2 - m_naxis1)/2;
+      jmax = (m_naxis2 + m_naxis1)/2;
+   } else {
+      npix = m_naxis2;
+      imin = (m_naxis1 - m_naxis2)/2;
+      imax = (m_naxis1 + m_naxis2)/2;
+      jmin = 0;
+      jmax = npix;
+   }
+
+   ::Image psf_image;
+   psf_image.resize(npix);
+
+   for (int j = jmin; j < jmax; j++) {
+      psf_image.at(j).resize(npix, 0);
+      for (int i = imin; i < imax; i++) {
+         if (m_proj->testpix2sph(i+1, j+1) == 0) {
+            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
+            astro::SkyDir dir(coord.first, coord.second, coordSys);
+            double theta = m_refDir.difference(dir)*180./M_PI;
+            psf_image.at(j).at(i) = psf(energy, theta, 0);
+         }
+      }
+   }
+
    psf_image.normalize();
 
    WcsMap my_image(*this);

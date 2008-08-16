@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.62 2007/02/09 21:48:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.63 2007/05/12 13:16:49 burnett Exp $
  */
 
 #include <algorithm>
@@ -114,15 +114,16 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       const astro::SkyDir & map_center = dataMap->mapCenter();
 /// @todo Replace this hard-wired value for radius extension (consider 
 /// psf energy dependence).
-      double radius = ::maxRadius(pixels, map_center) + 10.;
-/// @todo Replace this hard-wired value for the pixel size.
-      unsigned int mapsize(static_cast<unsigned int>(2*radius/0.25));
+      double radius = int(::maxRadius(pixels, map_center) + 10.);
+      double pix_size = std::min(std::abs(dataMap->cdelt1()), 
+                                 std::abs(dataMap->cdelt2()));
+      unsigned int mapsize(static_cast<unsigned int>(2*radius/pix_size));
       std::vector<double>::const_iterator energy = energies.begin();
       unsigned int indx(0);
       for (int k = 0; energy != energies.end(); ++energy, k++) {
          WcsMap diffuseMap(*diffuseSrc, map_center.ra(), map_center.dec(),
                            radius, mapsize, *energy, dataMap->proj_name(),
-                           dataMap->projection().isGalactic());
+                           dataMap->projection().isGalactic(), false);
          WcsMap convolvedMap(diffuseMap);
          convolvedMap = diffuseMap.convolve(*energy, *s_meanPsf, 
                                             *s_binnedExposure,
