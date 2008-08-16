@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.259 2008/08/15 03:44:52 jchiang Exp $
+    $Id: release.notes,v 1.260 2008/08/16 07:07:12 jchiang Exp $
 
     @verbatim
+    v13r17p3 16-Aug-08 JC  implement my_round for windows
     v13r17p2 16-Aug-08 JC  final (?) fixes to WcsMap, MapCubeFunction, 
                            and SourceMaps to use wcs coordinates correctly
     v13r17p1 13-Aug-08 JC  add gtlike.par file options to set the name of the
