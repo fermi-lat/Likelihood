@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Fri Aug 15 19:06:07 PDT 2008
+Likelihood/src
+
+Modified Files:
+	MapCubeFunction.cxx SourceMap.cxx SpatialMap.cxx WcsMap.cxx 
+Log Message:
+more model map tweaks
+    *
+------------------------------------------------------------
+User: jchiang  Fri Aug 15 19:06:07 PDT 2008
 Likelihood/Likelihood
 
 Modified Files:
