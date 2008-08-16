@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Aug 16 00:07:12 PDT 2008
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+unset default irfs in parfile; tagging v13r17p2
+    *
+------------------------------------------------------------
 User: jchiang  Fri Aug 15 22:24:35 PDT 2008
 Likelihood/src
 
