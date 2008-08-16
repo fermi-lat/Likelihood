@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Sat Aug 16 00:07:13 PDT 2008
+Likelihood/pfiles
+
+Modified Files:
+	gtbkg.par gtdiffrsp.par gtexpmap.par gtfindsrc.par gtlike.par 
+	gtmodel.par gtpsf.par gtsrcmaps.par gttsmap.par 
+Log Message:
+unset default irfs in parfile; tagging v13r17p2
+    *
+------------------------------------------------------------
 User: jchiang  Sat Aug 16 00:07:12 PDT 2008
 Likelihood/doc
 
