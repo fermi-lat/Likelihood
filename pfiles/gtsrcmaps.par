@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtsrcmaps.par,v 1.24 2007/05/29 04:46:49 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtsrcmaps.par,v 1.25 2007/07/03 22:48:19 jchiang Exp $
 #
 scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
@@ -8,7 +8,7 @@ cmap,fr,a,"",,,"Counts map file"
 srcmdl,fr,a,"",,,"Source model file"
 bexpmap,f,a,"none",,,"Binned exposure map"
 outfile,f,a,"",,,"Source maps output file"
-irfs,s,a,"HANDOFF",,,"Response functions"
+irfs,s,a,"",,,"Response functions"
 convol,b,h,yes,,,"Perform convolution with psf"
 ptsrc,b,h,yes,,,"Compute point source maps"
 psfcorr,b,h,yes,,,"Apply psf integral corrections"

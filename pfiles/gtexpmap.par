@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtexpmap.par,v 1.13 2007/05/29 04:46:49 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtexpmap.par,v 1.14 2007/07/03 22:48:19 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
@@ -7,7 +7,7 @@ scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 expcube,f,a,"",,,"Exposure hypercube file"
 outfile,f,a,"",,,"output file name"
-irfs,s,a,"HANDOFF",,,"Response functions"
+irfs,s,a,"",,,"Response functions"
 edisp,b,h,no,,,Use energy dispersion?
 srcrad,r,a,30,,,Radius of the source region (in degrees)
 nlong,i,a,120,2,1000,Number of longitude points

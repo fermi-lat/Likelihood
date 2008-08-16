@@ -1,12 +1,12 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtdiffrsp.par,v 1.1 2007/06/05 05:11:18 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtdiffrsp.par,v 1.2 2007/07/03 22:48:18 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
 scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 srcmdl,fr,a,"",,,"Source model file"
-irfs,s,a,"HANDOFF",,,"Response functions to use"
+irfs,s,a,"",,,"Response functions to use"
 edisp,b,h,no,,,Use energy dispersion?
 
 chatter,i,h,2,0,4,Output verbosity
