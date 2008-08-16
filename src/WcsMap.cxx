@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.22 2008/08/16 02:06:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.23 2008/08/16 05:24:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,6 +45,13 @@ namespace {
       }
    };
 
+   double my_round(double x) {
+      int xint = static_cast<int>(x);
+      if (x - xint >= 0.5) {
+         return xint + 1.;
+      }
+      return xint;
+   }
 } // unnamed namespace
 
 namespace Likelihood {
@@ -187,8 +194,8 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
 // The following code simply finds the pixel in which the sky location
 // lives and returns the value.
    if (!m_interpolate) {
-      int ix(static_cast<int>(::round(x)) - 1);
-      int iy(static_cast<int>(::round(y)) - 1);
+      int ix(static_cast<int>(::my_round(x)) - 1);
+      int iy(static_cast<int>(::my_round(y)) - 1);
 
       if (ix < 0 || ix >= m_naxis1 || iy < 0 || iy >= m_naxis2) {
          return 0;
