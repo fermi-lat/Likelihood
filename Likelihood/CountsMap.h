@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.21 2006/09/26 20:13:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.22 2007/03/19 19:03:25 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -109,6 +109,9 @@ public:
    bool withinBounds(const astro::SkyDir & dir, double energy) const;
 
    const std::string & proj_name() const {return m_proj_name;}
+
+   double cdelt1() const {return m_cdelt[0];}
+   double cdelt2() const {return m_cdelt[1];}
 
 protected:
 

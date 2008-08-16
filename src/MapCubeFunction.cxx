@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.20 2007/03/14 20:11:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.21 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #include <algorithm>
@@ -90,6 +90,9 @@ double MapCubeFunction::value(optimizers::Arg & x) const {
 
    SkyDirArg & dir = dynamic_cast<SkyDirArg &>(x);
    double energy = dir.energy();
+
+   double ra = dir().ra();
+   double dec = dir().dec();
 
    size_t k = findIndex(m_energies, energy) - 1;
    k = std::min(k, m_energies.size() - 2);
