@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Aug 15 22:24:35 PDT 2008
+Likelihood/src
+
+Modified Files:
+	MapCubeFunction.cxx SourceMap.cxx SpatialMap.cxx WcsMap.cxx 
+Log Message:
+use round to get pixel index
+    *
+------------------------------------------------------------
 User: jchiang  Fri Aug 15 22:24:34 PDT 2008
 Likelihood/Likelihood
 
