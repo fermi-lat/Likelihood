@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.63 2007/05/12 13:16:49 burnett Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.64 2008/08/16 02:06:07 jchiang Exp $
  */
 
 #include <algorithm>
@@ -114,20 +114,19 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       const astro::SkyDir & map_center = dataMap->mapCenter();
 /// @todo Replace this hard-wired value for radius extension (consider 
 /// psf energy dependence).
-      double radius = int(::maxRadius(pixels, map_center) + 10.);
+      double radius = ::maxRadius(pixels, map_center) + 10.;
       double pix_size = std::min(std::abs(dataMap->cdelt1()), 
-                                 std::abs(dataMap->cdelt2()));
+                                 std::abs(dataMap->cdelt2()))/2.;
       unsigned int mapsize(static_cast<unsigned int>(2*radius/pix_size));
       std::vector<double>::const_iterator energy = energies.begin();
       unsigned int indx(0);
       for (int k = 0; energy != energies.end(); ++energy, k++) {
          WcsMap diffuseMap(*diffuseSrc, map_center.ra(), map_center.dec(),
-                           radius, mapsize, *energy, dataMap->proj_name(),
-                           dataMap->projection().isGalactic(), false);
-         WcsMap convolvedMap(diffuseMap);
-         convolvedMap = diffuseMap.convolve(*energy, *s_meanPsf, 
-                                            *s_binnedExposure,
-                                            performConvolution);
+                           pix_size, mapsize, *energy, dataMap->proj_name(),
+                           dataMap->projection().isGalactic());
+         WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
+                                                 *s_binnedExposure,
+                                                 performConvolution));
          for (pixel = pixels.begin(); pixel != pixels.end();
               ++pixel, indx++) {
             if ((indx % (npts/20)) == 0) {

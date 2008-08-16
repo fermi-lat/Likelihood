@@ -4,8 +4,10 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.21 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.22 2008/08/16 02:06:07 jchiang Exp $
  */
+
+#include <cmath>
 
 #include <algorithm>
 #include <sstream>
@@ -91,9 +93,6 @@ double MapCubeFunction::value(optimizers::Arg & x) const {
    SkyDirArg & dir = dynamic_cast<SkyDirArg &>(x);
    double energy = dir.energy();
 
-   double ra = dir().ra();
-   double dec = dir().dec();
-
    size_t k = findIndex(m_energies, energy) - 1;
    k = std::min(k, m_energies.size() - 2);
 
@@ -101,8 +100,8 @@ double MapCubeFunction::value(optimizers::Arg & x) const {
 
 // NB: wcslib (through astro::SkyProj) starts indexing pixels with
 // 1, not 0, so apply correction here to avoid off-by-one error.
-   int i = static_cast<int>(pixel.first) - 1;
-   int j = static_cast<int>(pixel.second) - 1;
+   int i = static_cast<int>(::round(pixel.first)) - 1;
+   int j = static_cast<int>(::round(pixel.second)) - 1;
 
    int indx = (k*m_nlat + j)*m_nlon + i;
    try {
