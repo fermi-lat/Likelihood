@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Aug 16 08:54:23 PDT 2008
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+implement my_round (for windows)
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-17-02, operation: add
 Package: Likelihood
