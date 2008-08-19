@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+TAG
+Tag name: v13r17p5, operation: mov
+Package: Likelihood
+User: glastrm  Mon Aug 18 21:30:32 2008
+Files:
+  Likelihood/SConscript  1.17
+
+    *
+------------------------------------------------------------
 User: glastrm  Mon Aug 18 21:30:26 PDT 2008
 Likelihood
 
