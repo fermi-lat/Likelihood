@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.22 2008/08/16 02:06:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.23 2008/08/16 05:24:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -43,6 +43,14 @@ namespace {
       double gamma = std::log(y2/y1)/std::log(x2/x1);
       double n0 = y1/std::pow(x1, gamma);
       return n0*std::pow(x, gamma);
+   }
+
+   double my_round(double x) {
+      int xint = static_cast<int>(x);
+      if (x - xint >= 0.5) {
+         return xint + 1.;
+      }
+      return xint;
    }
 }
 
@@ -100,8 +108,8 @@ double MapCubeFunction::value(optimizers::Arg & x) const {
 
 // NB: wcslib (through astro::SkyProj) starts indexing pixels with
 // 1, not 0, so apply correction here to avoid off-by-one error.
-   int i = static_cast<int>(::round(pixel.first)) - 1;
-   int j = static_cast<int>(::round(pixel.second)) - 1;
+   int i = static_cast<int>(::my_round(pixel.first)) - 1;
+   int j = static_cast<int>(::my_round(pixel.second)) - 1;
 
    int indx = (k*m_nlat + j)*m_nlon + i;
    try {
