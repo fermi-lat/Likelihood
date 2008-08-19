@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Aug 18 17:40:08 PDT 2008
+Likelihood/src
+
+Modified Files:
+	MapCubeFunction.cxx 
+Log Message:
+fix for windows; tagging v13r17p4
+    *
+------------------------------------------------------------
+User: jchiang  Mon Aug 18 17:40:08 PDT 2008
 Likelihood/doc
 
 Modified Files:
