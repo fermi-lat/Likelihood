@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.261 2008/08/16 15:55:45 jchiang Exp $
+    $Id: release.notes,v 1.262 2008/08/19 00:40:08 jchiang Exp $
 
     @verbatim
+    v13r17p5 18-Aug-08 JC  would be nice to be able to move tags and/or have
+                           a real development environment on windows.
     v13r17p4 18-Aug-08 JC  use my_round in MapCubeFunction, also for windows
     v13r17p3 16-Aug-08 JC  implement my_round for windows
     v13r17p2 16-Aug-08 JC  final (?) fixes to WcsMap, MapCubeFunction, 
