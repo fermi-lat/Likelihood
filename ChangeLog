@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Aug 18 17:40:07 PDT 2008
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+fix for windows; tagging v13r17p4
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-17-03, operation: add
 Package: Likelihood
