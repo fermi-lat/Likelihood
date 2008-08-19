@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.23 2008/08/16 05:24:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.24 2008/08/16 15:54:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -204,8 +204,8 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
       return m_image.at(iy).at(ix);
    }
 // This code tries to do a bilinear interpolation on the pixel values.
-   int ix(static_cast<int>(::round(x)));
-   int iy(static_cast<int>(::round(y)));
+   int ix(static_cast<int>(::my_round(x)));
+   int iy(static_cast<int>(::my_round(y)));
    ix = std::min(std::max(1, ix), m_naxis1 - 1);
    iy = std::min(std::max(1, iy), m_naxis2 - 1);
    
