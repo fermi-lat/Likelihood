@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.36 2006/06/30 15:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.37 2007/05/12 13:16:48 burnett Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -29,7 +29,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.36 2006/06/30 15:41:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.37 2007/05/12 13:16:48 burnett Exp $
  */
 
 #ifdef SWIG
@@ -43,7 +43,10 @@ public:
    SourceMap(Source * src, const CountsMap * dataMap,
              const Observation & observation,
              bool applyPsfCorrections=false,
-             bool performConvolution=true);
+             bool performConvolution=true,
+             bool resample=true,
+             double resamp_factor=2,
+             double internal_pix_size=0.25);
 
    SourceMap(const std::string & sourceMapsFile, const std::string & srcName);
 

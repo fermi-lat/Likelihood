@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.64 2008/08/16 02:06:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.65 2008/08/16 05:24:34 jchiang Exp $
  */
 
 #include <algorithm>
@@ -81,7 +81,10 @@ std::vector<double> SourceMap::s_theta;
 SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                      const Observation & observation, 
                      bool applyPsfCorrections,
-                     bool performConvolution) 
+                     bool performConvolution,
+                     bool resample,
+                     double resamp_factor,
+                     double pix_size) 
    : m_name(src->getName()), m_srcType(src->getType()),
      m_dataMap(dataMap), 
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
@@ -114,9 +117,11 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       const astro::SkyDir & map_center = dataMap->mapCenter();
 /// @todo Replace this hard-wired value for radius extension (consider 
 /// psf energy dependence).
-      double radius = ::maxRadius(pixels, map_center) + 10.;
-      double pix_size = std::min(std::abs(dataMap->cdelt1()), 
-                                 std::abs(dataMap->cdelt2()))/2.;
+      double radius = std::min(180., ::maxRadius(pixels, map_center) + 10.);
+      if (resample) {
+         pix_size = std::min(std::abs(dataMap->cdelt1()), 
+                             std::abs(dataMap->cdelt2()))/resamp_factor;
+      }
       unsigned int mapsize(static_cast<unsigned int>(2*radius/pix_size));
       std::vector<double>::const_iterator energy = energies.begin();
       unsigned int indx(0);

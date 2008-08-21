@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.30 2007/02/09 21:48:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.31 2007/05/23 15:32:18 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.30 2007/02/09 21:48:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.31 2007/05/23 15:32:18 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -40,10 +40,11 @@ public:
                     const std::string & srcMapsFile="",
                     bool computePointSources=true,
                     bool applyPsfCorrections=true,
-                    bool performConvolution=true);
+                    bool performConvolution=true,
+                    bool resample=true,
+                    double resamp_factor=2,
+                    double pix_size=0.25);
 
-//   BinnedLikelihood(const std::string & dataMapFile);
-                 
    virtual ~BinnedLikelihood() throw();
 
    virtual double value(optimizers::Arg &) const;
@@ -144,6 +145,12 @@ private:
    bool m_applyPsfCorrections;
 
    bool m_performConvolution;
+
+   bool m_resample;
+   
+   double m_resamp_factor;
+   
+   double m_pix_size;
 
    void createSourceMaps();
 
