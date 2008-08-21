@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 20 17:32:08 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h SourceMap.h 
+Log Message:
+all users to control resampling resolution for internal maps used for convolution
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-17-05, operation: add
 Package: Likelihood
