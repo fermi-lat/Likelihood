@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Aug 20 17:32:09 PDT 2008
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	SourceMapRegistry.cxx SourceMapRegistry.h gtmodelmap.cxx 
+Log Message:
+all users to control resampling resolution for internal maps used for convolution
+    *
+------------------------------------------------------------
+User: jchiang  Wed Aug 20 17:32:09 PDT 2008
 Likelihood/src
 
 Modified Files:
