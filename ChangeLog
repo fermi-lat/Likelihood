@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 20 17:32:09 PDT 2008
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx SourceMap.cxx 
+Log Message:
+all users to control resampling resolution for internal maps used for convolution
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 20 17:32:08 PDT 2008
 Likelihood/pfiles
 
