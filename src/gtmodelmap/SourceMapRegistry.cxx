@@ -6,7 +6,7 @@
  * in BinnedLikelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.cxx,v 1.3 2006/03/15 21:34:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.cxx,v 1.4 2008/08/07 05:56:08 jchiang Exp $
  */
 
 #include "st_facilities/Util.h"
@@ -33,7 +33,10 @@ SourceMapRegistry::SourceMapRegistry(const std::string & countsMap,
                                      const std::string & expCubeFile,
                                      const std::string & binnedExpMap,
                                      optimizers::FunctionFactory & funcFactory,
-                                     bool performConvolution)
+                                     bool performConvolution, 
+                                     bool resample,
+                                     double resamp_factor,
+                                     double pix_size)
    : m_observation(0), m_countsMap(0), m_logLike(0), m_sourceMap(0) {
 
    Likelihood::ResponseFunctions * respFuncs = 
@@ -68,7 +71,8 @@ SourceMapRegistry::SourceMapRegistry(const std::string & countsMap,
    m_logLike = new Likelihood::BinnedLikelihood(*m_countsMap, *m_observation,
                                                 countsMap, computePointSources,
                                                 applyPsfCorrections,
-                                                performConvolution);
+                                                performConvolution, resample,
+                                                resamp_factor, pix_size);
    m_logLike->readXml(xmlFile, funcFactory, false);
 }
 

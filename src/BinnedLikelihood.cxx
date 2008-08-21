@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.46 2008/08/07 06:11:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.47 2008/08/07 16:22:10 jchiang Exp $
  */
 
 #include <memory>
@@ -30,12 +30,18 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
                                    const std::string & srcMapsFile,
                                    bool computePointSources,
                                    bool applyPsfCorrections,
-                                   bool performConvolution)
+                                   bool performConvolution, 
+                                   bool resample,
+                                   double resamp_factor,
+                                   double pix_size)
    : LogLike(observation), m_dataMap(dataMap), m_pixels(dataMap.pixels()),
      m_modelIsCurrent(false), m_srcMapsFile(srcMapsFile),
      m_computePointSources(computePointSources),
      m_applyPsfCorrections(applyPsfCorrections),
-     m_performConvolution(performConvolution) {
+     m_performConvolution(performConvolution), 
+     m_resample(resample), 
+     m_resamp_factor(resamp_factor),
+     m_pix_size(pix_size) {
    dataMap.getAxisVector(2, m_energies);
    identifyFilledPixels();
    computeCountsSpectrum();
@@ -229,7 +235,8 @@ void BinnedLikelihood::createSourceMaps() {
 SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
    Source * src = getSource(srcName);
    return new SourceMap(src, &m_dataMap, m_observation, m_applyPsfCorrections,
-                        m_performConvolution);
+                        m_performConvolution, m_resample, m_resamp_factor, 
+                        m_pix_size);
 }
 
 void BinnedLikelihood::readSourceMaps(std::string filename) {
@@ -260,7 +267,9 @@ void BinnedLikelihood::readSourceMaps(std::string filename) {
          if (src->getType() == "Diffuse" || m_computePointSources) {
             m_srcMaps[*name] = new SourceMap(src, &m_dataMap, m_observation,
                                              m_applyPsfCorrections,
-                                             m_performConvolution);
+                                             m_performConvolution,
+                                             m_resample, m_resamp_factor,
+                                             m_pix_size);
          }
       }
    }
