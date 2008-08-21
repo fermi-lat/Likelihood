@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Aug 20 17:32:08 PDT 2008
+Likelihood/pfiles
+
+Modified Files:
+	gtmodel.par 
+Log Message:
+all users to control resampling resolution for internal maps used for convolution
+    *
+------------------------------------------------------------
+User: jchiang  Wed Aug 20 17:32:08 PDT 2008
 Likelihood/Likelihood
 
 Modified Files:
