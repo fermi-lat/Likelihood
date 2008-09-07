@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep  7 13:34:24 PDT 2008
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+reverse order of CTHETABOUNDS
+    *
+------------------------------------------------------------
 User: jchiang  Sun Sep  7 13:34:10 PDT 2008
 Likelihood/src
 
