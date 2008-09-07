@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep  7 13:34:10 PDT 2008
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx 
+Log Message:
+reverse order of CTHETABOUNDS
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 20 17:32:09 PDT 2008
 Likelihood/src/gtmodelmap
 
