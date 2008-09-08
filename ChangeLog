@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep  7 20:53:34 PDT 2008
+Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+enable users to set resampling for convolution
+    *
+------------------------------------------------------------
 User: jchiang  Sun Sep  7 20:53:23 PDT 2008
 Likelihood/pfiles
 
