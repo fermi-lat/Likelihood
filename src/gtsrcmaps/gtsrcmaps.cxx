@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.27 2007/07/03 22:48:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.28 2008/02/20 19:37:17 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -131,10 +131,16 @@ void gtsrcmaps::run() {
       AppHelpers::param(m_pars, "psfcorr", true);
    bool perform_convolution = 
       AppHelpers::param(m_pars, "convol", true);
+
+   bool resample = m_pars["resample"];
+   int resamp_factor = m_pars["rfactor"];
+   double pix_size = m_pars["binsz"];
+
    m_binnedLikelihood = 
       new BinnedLikelihood(dataMap, m_helper->observation(),
                            cntsMapFile, computePointSources, psf_corrections,
-                           perform_convolution);
+                           perform_convolution, resample, resamp_factor,
+                           pix_size);
 
    std::string srcModelFile = m_pars["srcmdl"];
    m_binnedLikelihood->readXml(srcModelFile, m_helper->funcFactory(), false);
