@@ -4,7 +4,7 @@ version v13r17p6
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.377 2008/08/19 04:08:30 jchiang Exp $
+# $Id: requirements,v 1.378 2008/09/08 04:08:17 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -23,7 +23,9 @@ use dataSubselector v*
 use hoops v*
 use st_app v*
 use st_graph v*
+use f2c *
 
+macro_append lib_source "-s=dmfit *.cxx *.c" WIN32 "-s=dmfit *.h *.cxx *.c"
 apply_pattern ST_library option=" *.c "
 apply_pattern shared_st_library
 apply_pattern ST_pfiles
