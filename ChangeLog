@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: cohen  Tue Sep  9 07:12:10 PDT 2008
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Log Message:
+add dmfit model
+    *
+------------------------------------------------------------
+User: cohen  Tue Sep  9 07:12:10 PDT 2008
 Likelihood/cmt
 
 Modified Files:
