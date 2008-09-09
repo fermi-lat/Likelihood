@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: cohen  Tue Sep  9 07:12:11 PDT 2008
+Likelihood/src/dmfit
+
+Added Files:
+	DMFitFunction.cxx dmfit_comm.c dmfit_comm.f dmfit_func.c 
+	dmfit_func.f dmfit_load.c dmfit_load.f gammamc_dif.dat test.f 
+Log Message:
+add dmfit model
+    *
+------------------------------------------------------------
 User: cohen  Tue Sep  9 07:12:10 PDT 2008
 Likelihood/src
 
