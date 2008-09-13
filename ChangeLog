@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Sep 13 14:29:22 PDT 2008
+Likelihood/src/dmfit
+
+Modified Files:
+	dmfit_comm.c dmfit_func.c dmfit_load.c 
+Log Message:
+use f2c/f2c.h in include
+    *
+------------------------------------------------------------
 User: cohen  Tue Sep  9 07:12:11 PDT 2008
 Likelihood/src/dmfit
 
