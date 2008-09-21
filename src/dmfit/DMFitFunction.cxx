@@ -3,7 +3,7 @@
  * @brief Implementation for the DMFitFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DMFitFunction.cxx,v 1.3 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.1 2008/09/09 14:12:10 cohen Exp $
  */
 
 #include <cmath>
@@ -59,7 +59,7 @@ void DMFitFunction::init(double norm, double mass, double bratio,
    m_filename="$(LIKELIHOODROOT)/src/dmfit/gammamc_dif.dat";
    facilities::Util::expandEnvVar(&m_filename);
    st_facilities::Util::file_ok(m_filename);
-   std::cout<<"Loading file "<<m_filename<<std::endl; 
+//   std::cout<<"Loading file "<<m_filename<<std::endl; 
    dmfit_load__(m_filename.c_str(),m_filename.size());
 }
 
