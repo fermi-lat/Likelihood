@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 22 07:14:36 PDT 2008
+Likelihood/Likelihood
+
+Added Files:
+	CompositeLikelihood.h 
+Log Message:
+add CompositeLikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Sun Sep 21 11:46:02 PDT 2008
 Likelihood/src/dmfit
 
