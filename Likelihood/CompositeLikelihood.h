@@ -7,7 +7,7 @@
  * 
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.1 2008/09/22 14:14:36 jchiang Exp $
  */
 
 #ifndef Likelihood_CompositeLikelihood_h
@@ -15,8 +15,11 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "optimizers/Statistic.h"
+
+#include "Likelihood/LogLike.h"
 
 namespace Likelihood {
 
@@ -35,8 +38,8 @@ public:
    void addComponent(const std::string & srcName, LogLike & component);
 
    virtual double value() const;
-   virtual void getFreeParams(std::vector<Parameter> & params) const;
-   virtual void setFreeParamValues(std::vector<double> & values);
+   virtual void getFreeParams(std::vector<optimizers::Parameter> &params) const;
+   virtual void setFreeParamValues(const std::vector<double> & values);
    virtual unsigned int getNumFreeParams() const;
    virtual void getFreeDerivs(std::vector<double> & derivs) const;
 
