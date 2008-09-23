@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 23 10:49:07 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	CompositeLikelihood.h 
+Log Message:
+updated parameter handling code
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 23 10:48:48 PDT 2008
 Likelihood/src
 
