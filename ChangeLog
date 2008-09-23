@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 23 10:50:16 PDT 2008
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Added Files:
+	FluxDeriv.h 
+Log Message:
+code to support error estimates on integrated fluxes
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 23 10:49:07 PDT 2008
 Likelihood/Likelihood
 
