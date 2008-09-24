@@ -1,9 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.263 2008/08/19 04:08:31 jchiang Exp $
+    $Id: release.notes,v 1.264 2008/09/08 04:08:18 jchiang Exp $
 
     @verbatim
+    v13r18   24-Sep-08 JC  implemented PointSource::[fluxDeriv, energyFlux,
+                           energyFluxDeriv] member functions to be used
+                           by pyLikelihood for error estimates
     v13r17p6 07-Sep-08 JC  reverse order of CTHETABOUNDS in gtltcube output
                            so that it matches convention in healpix/CosBinner;
                            allow users to set resampling level in SourceMap
