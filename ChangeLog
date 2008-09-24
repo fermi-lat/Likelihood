@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 23 18:32:47 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	PointSource.h 
+Log Message:
+add fluxDeriv interface
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 23 18:32:06 PDT 2008
 Likelihood/src
 
