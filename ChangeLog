@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 24 16:48:54 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	CompositeLikelihood.h 
+Log Message:
+derivative accumulation imp for CompositeLikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 24 16:48:29 PDT 2008
 Likelihood/src
 
