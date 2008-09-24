@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.102 2008/09/23 17:50:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.103 2008/09/24 01:32:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -96,8 +96,8 @@ namespace {
          double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
          return energy*m_func.derivByParam(x, m_parName);
       }
-      virtual double derivByParam(optimizers::Arg & x,
-                                  const std::string & parname) const {
+      virtual double derivByParam(optimizers::Arg &,
+                                  const std::string &) const {
          throw std::runtime_error("EnergyFluxDeriv::derivByParam: "
                                   "not implemented");
       }
@@ -379,6 +379,46 @@ double PointSource::fluxDeriv(const std::string & parName,
       energies.push_back(emin*std::exp(estep*k));
    }
    ::FluxDeriv my_functor(*m_spectrum, parName);
+   TrapQuad fluxIntegral(&my_functor);
+   return fluxIntegral.integral(energies);
+}
+
+double PointSource::energyFlux() const {
+   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   ::EnergyFlux my_functor(*m_spectrum);
+   TrapQuad fluxIntegral(&my_functor);
+   return fluxIntegral.integral(energies);
+}
+
+double PointSource::energyFluxDeriv(const std::string & parName) const {
+   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   ::EnergyFluxDeriv my_functor(*m_spectrum, parName);
+   TrapQuad fluxIntegral(&my_functor);
+   return fluxIntegral.integral(energies);
+}
+
+double PointSource::energyFlux(double emin, double emax, size_t npts) const {
+   std::vector<double> energies;
+   energies.reserve(npts);
+   double estep(std::log(emax/emin)/float(npts-1));
+   for (size_t k=0; k < npts; k++) {
+      energies.push_back(emin*std::exp(estep*k));
+   }
+   ::EnergyFlux my_functor(*m_spectrum);
+   TrapQuad fluxIntegral(&my_functor);
+   return fluxIntegral.integral(energies);
+}
+
+double PointSource::energyFluxDeriv(const std::string & parName,
+                                    double emin, double emax, 
+                                    size_t npts) const {
+   std::vector<double> energies;
+   energies.reserve(npts);
+   double estep(std::log(emax/emin)/float(npts-1));
+   for (size_t k=0; k < npts; k++) {
+      energies.push_back(emin*std::exp(estep*k));
+   }
+   ::EnergyFluxDeriv my_functor(*m_spectrum, parName);
    TrapQuad fluxIntegral(&my_functor);
    return fluxIntegral.integral(energies);
 }
