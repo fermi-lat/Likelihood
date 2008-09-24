@@ -6,7 +6,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.2 2008/09/23 17:48:48 jchiang Exp $
  */
 
 #include <sstream>
@@ -163,26 +163,51 @@ unsigned int CompositeLikelihood::getNumFreeParams() const {
    return npars + m_components.size() - 1;
 }
 
-// void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
-//    std::vector<double> par_derivs;
-//    std::vector<double> norm_derivs;
-//    ComponentConstIterator_t it(m_components.begin());
-//    for ( ; it != m_components.end(); ++it) {
+void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
+   ComponentConstIterator_t it(m_components.begin());
+   for ( ; it != m_components.end(); ++it) {
+      const std::string & commonSrcName(it->first);
+      std::map<std::string, Source *>::const_iterator 
+         src(it->second->sources().begin());
+      for ( ; src != it->second->sources().end(); ++src) {
+         if (src->first != commonSrcName) { 
+            optimizers::dArg dummy(1);
+            std::vector<double> my_derivs;
+            src->second->spectrum().getFreeDerivs(dummy, my_derivs);
+            for (size_t i(0); i < my_derivs.size(); i++) {
+               derivs.push_back(my_derivs.at(i));
+            }
+         }
+      }
+   }
 
+// Need to sum up the contributions to the derivatives of the spectral 
+// parameters for the common source types.
 
-//    size_t nsrcs(m_components.size());
-// //
-// // Get the derivatives wrt to the free parameters of the first component.
-// // component values, then reset the normalization parameters.
-// // 
-//    ComponentConstIterator_t it(m_components.begin());
-//    for ( ; it != m_components.end(); ++it) {
-//       it->second->getFreeDerivs(derivs);
+// // Loop over LogLike components again, this time gathering up the
+// // common source type params (for the first component) and
+// // normalization parameters for subsequent ones.
+//    std::vector<optimizers::Parameter> my_params;
+//    for (it = m_components.begin(); it != m_components.end(); ++it) {
+//       const std::string & commonSrcName(it->first);
+//       const Source * my_source = 
+//          it->second->sources().find(commonSrcName)->second;
+//       if (it == m_components.begin()) {
+//          my_source->spectrum().getFreeParams(my_params);
+//          for (size_t i(0); i < my_params.size(); i++) {
+//             params.push_back(my_params.at(i));
+//          }
+//       } else {
+//          const optimizers::Parameter & normPar = 
+//             const_cast<optimizers::Function &>(my_source->spectrum()).normPar();
+//          if (normPar.isFree()) {
+//             params.push_back(normPar);
+//          }
+//       }
 //    }
-//    for (size_t i(nsrcs-1), it=m_components.end()-1; i > 0; --it, i--) {
-//       it->second->normPar().setValue(values.at(i));
-//    }
+      
+
    
-// }
+}
 
 } // namespace Likleihood
