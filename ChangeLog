@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 23 18:26:31 PDT 2008
+Likelihood/src
+
+Modified Files:
+	CompositeLikelihood.cxx 
+Log Message:
+use anonymous namespace for Functor classes
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 23 10:50:16 PDT 2008
 Likelihood/src
 
