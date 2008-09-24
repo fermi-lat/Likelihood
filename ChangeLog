@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 24 16:48:29 PDT 2008
+Likelihood/src
+
+Modified Files:
+	CompositeLikelihood.cxx 
+Log Message:
+derivative accumulation imp for CompositeLikelihood
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-18-00, operation: add
 Package: Likelihood
