@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.61 2007/07/11 21:21:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.62 2008/09/24 01:32:47 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.61 2007/07/11 21:21:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.62 2008/09/24 01:32:47 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -171,6 +171,22 @@ public:
    /// over the given energy range.
    double fluxDeriv(const std::string & parName, 
                     double emin, double emax, size_t npts=100) const;
+
+   /// @return Energy flux integrated over the ROI energy bounds. 
+   /// Units are MeV/cm^2/s
+   double energyFlux() const;
+
+   /// @return Derivative of integrated energy flux wrt the named parameter
+   double energyFluxDeriv(const std::string & parName) const;
+
+   /// @return Energy flux integrated over the given energy range.
+   /// Units are MeV/cm^2/s
+   double energyFlux(double emin, double emax, size_t npts=100) const;
+
+   /// @return Derivative of integrated energy flux wrt the named parameter
+   /// over the given energy range.
+   double energyFluxDeriv(const std::string & parName, 
+                          double emin, double emax, size_t npts=100) const;
 
 private:
 
