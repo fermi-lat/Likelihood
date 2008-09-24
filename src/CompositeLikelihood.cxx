@@ -6,7 +6,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.2 2008/09/23 17:48:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.3 2008/09/24 01:26:31 jchiang Exp $
  */
 
 #include <sstream>
@@ -28,6 +28,17 @@ void CompositeLikelihood::addComponent(const std::string & srcName,
               << srcName;
       throw std::runtime_error(message.str());
    }
+   Source * my_source(component.sources().find(srcName)->second);
+   if (m_components.empty()) {
+      m_normParName = const_cast<optimizers::Function *>(my_source->spectrum())
+         .normPar().getName();
+      m_commonFuncName = my_source->spectrum().genericName();
+   } else {
+      if (m_commonFuncName != my_source->spectrum().genericName()) {
+         throw std::runtime_error("Inconsistent common source type.");
+      }
+   }
+         
    m_components[srcName] = &component;
 }
 
@@ -65,25 +76,26 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
       }
    }
 
-// Loop over LogLike components again, this time gathering up the
-// common source type params (for the first component) and
-// normalization parameters for subsequent ones.
+// Collect the common source type params for the first component, excluding its
+// normalization parameter.
+   it = m_components.begin();
+   const std::string & commonSrcName(it->first);
+   const Source * my_source(it->second->sources().find(commonSrcName)->second);
    std::vector<optimizers::Parameter> my_params;
-   for (it = m_components.begin(); it != m_components.end(); ++it) {
-      const std::string & commonSrcName(it->first);
-      const Source * my_source = 
-         it->second->sources().find(commonSrcName)->second;
-      if (it == m_components.begin()) {
-         my_source->spectrum().getFreeParams(my_params);
-         for (size_t i(0); i < my_params.size(); i++) {
-            params.push_back(my_params.at(i));
-         }
-      } else {
-         const optimizers::Parameter & normPar = 
-            const_cast<optimizers::Function &>(my_source->spectrum()).normPar();
-         if (normPar.isFree()) {
-            params.push_back(normPar);
-         }
+   my_source->spectrum().getFreeParams(my_params);
+   for (size_t i(0); i < my_params.size(); i++) {
+      if (my_params.at(i).getName() != m_normParName) {
+         params.push_back(my_params.at(i));
+      }
+   }
+
+// Loop over components again and collect the normalization parameters
+// for all of the common source type objects.
+   for ( ; it != m_components.end(); ++it) {
+      const optimizers::Parameter & normPar = 
+         const_cast<optimizers::Function &>(my_source->spectrum()).normPar();
+      if (normPar.isFree()) {
+         params.push_back(normPar);
       }
    }
 }
@@ -127,16 +139,14 @@ setFreeParamValues(const std::vector<double> & values) {
 
    std::vector<std::string> parNames;
    my_spectrum.getFreeParamNames(parNames);
-   std::string normParName(my_spectrum.normPar().getName());
 
    std::map<std::string, double> parValues;
    for (size_t i(0); i < parNames.size(); i++, ++vals) {
-      if (parNames.at(i) != normParName) {
+      if (parNames.at(i) != m_normParName) {
          parValues[parNames.at(i)] = *vals;
+         my_spectrum.setParam(parNames.at(i), *vals);
       }
-      my_spectrum.setParam(parNames.at(i), *vals);
    }
-   ++it;
 
 // Loop over remaining LogLike components, setting the common source
 // type params for all components and the normalization parameters
@@ -147,11 +157,13 @@ setFreeParamValues(const std::vector<double> & values) {
                                                 .find(commonSrcName)->second);
       optimizers::Function & my_spectrum = 
          const_cast<optimizers::Function &>(my_source->spectrum());
-      for (size_t i(0); i < parNames.size(); i++) {
-         my_spectrum.setParam(parNames.at(i), parValues[parNames.at(i)]);
+      if (it != m_components.begin()) {
+         for (size_t i(0); i < parNames.size(); i++) {
+            my_spectrum.setParam(parNames.at(i), parValues[parNames.at(i)]);
+         }
       }
       if (my_spectrum.normPar().isFree()) {
-         my_spectrum.setParam(normParName, *vals);
+         my_spectrum.setParam(m_normParName, *vals);
          ++vals;
       }
    }
@@ -164,50 +176,78 @@ unsigned int CompositeLikelihood::getNumFreeParams() const {
 }
 
 void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
+// Build vector of component parameter names.  This list should have
+// the same ordering as the derivatives wrt the free parameters.
+   std::vector<double> freeDerivs;
+   std::vector<std::pair<std::string, std::string> > componentPars;
+   std::vector<int> commonSrcTypeFlag;
+
    ComponentConstIterator_t it(m_components.begin());
+// Determine the number of spectral shape parameters (i.e., excluding
+// the normalization) for the common source type object in the first
+// component.
+   const optimizers::Function & my_spectrum = 
+      it->second->sources().find(it->first)->second->spectrum();
+   std::vector<optimizers::Parameter> pars;
+   my_spectrum.getFreeParams(pars);
+   size_t npars(0);
+   for (size_t i(0); i < pars.size(); i++) {
+      if (pars.at(i).getName() != m_normParName) {
+         npars++;
+      }
+   }
+
    for ( ; it != m_components.end(); ++it) {
-      const std::string & commonSrcName(it->first);
-      std::map<std::string, Source *>::const_iterator 
-         src(it->second->sources().begin());
+      std::map<std::string, Source *>::const_iterator src 
+         = it->second->sources().begin();
       for ( ; src != it->second->sources().end(); ++src) {
-         if (src->first != commonSrcName) { 
-            optimizers::dArg dummy(1);
-            std::vector<double> my_derivs;
-            src->second->spectrum().getFreeDerivs(dummy, my_derivs);
-            for (size_t i(0); i < my_derivs.size(); i++) {
-               derivs.push_back(my_derivs.at(i));
+         std::vector<std::string> parNames;
+         src->second->spectrum().getFreeParamNames(parNames);
+         for (size_t i(0); i < parNames.size(); i++) {
+            componentPars.push_back(std::make_pair(src->first, 
+                                                   parNames.at(i)));
+            if (it->first == src->first) {
+               commonSrcTypeFlag.push_back(1);
+            } else {
+               commonSrcTypeFlag.push_back(0);
             }
+         }
+      }
+      std::vector<double> my_derivs;
+      it->second->getFreeDerivs(my_derivs);
+      for (size_t i(0); i < my_derivs.size(); i++) {
+         freeDerivs.push_back(my_derivs.at(i));
+      }
+   }
+
+// Loop through elements and append derivatives not associated with
+// the common source type. For the common source type objects, collect
+// normalization derivatives, and sum up spectral derivatives.
+   derivs.clear();
+   std::vector<double> specParDerivs(npars, 0);
+   std::vector<double> normDerivs;
+   size_t ipar(0);
+   for (size_t i(0); i < freeDerivs.size(); i++) {
+      if (commonSrcTypeFlag.at(i) == 0) {
+         derivs.push_back(freeDerivs.at(i));
+      } else {
+         if (componentPars.at(i)->second == m_normParName) {
+            normDerivs.push_back(freeDerivs.at(i));
+         } else {
+            specParDerivs.at(ipar % npars) += freeDerivs.at(i);
+            ipar++;
          }
       }
    }
 
-// Need to sum up the contributions to the derivatives of the spectral 
-// parameters for the common source types.
-
-// // Loop over LogLike components again, this time gathering up the
-// // common source type params (for the first component) and
-// // normalization parameters for subsequent ones.
-//    std::vector<optimizers::Parameter> my_params;
-//    for (it = m_components.begin(); it != m_components.end(); ++it) {
-//       const std::string & commonSrcName(it->first);
-//       const Source * my_source = 
-//          it->second->sources().find(commonSrcName)->second;
-//       if (it == m_components.begin()) {
-//          my_source->spectrum().getFreeParams(my_params);
-//          for (size_t i(0); i < my_params.size(); i++) {
-//             params.push_back(my_params.at(i));
-//          }
-//       } else {
-//          const optimizers::Parameter & normPar = 
-//             const_cast<optimizers::Function &>(my_source->spectrum()).normPar();
-//          if (normPar.isFree()) {
-//             params.push_back(normPar);
-//          }
-//       }
-//    }
-      
-
-   
+// Finally, append spectral shape derivatives and then normalization 
+// derivatives.
+   for (size_t i(0); i < specParDerivs.size(); i++) {
+      derivs.push_back(specParDerivs.at(i));
+   }
+   for (size_t i(0); i < normDerivs.size(); i++) {
+      derivs.push_back(normDerivs.at(i));
+   }
 }
 
 } // namespace Likleihood
