@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Sep 23 21:48:39 PDT 2008
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+add interface to energy flux
+    *
+------------------------------------------------------------
+User: jchiang  Tue Sep 23 21:48:39 PDT 2008
 Likelihood/Likelihood
 
 Modified Files:
