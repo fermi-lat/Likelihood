@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 23 18:26:38 PDT 2008
+Likelihood/src
+
+Removed Files:
+	FluxDeriv.h 
+Log Message:
+use anonymous namespace for Functor classes
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 23 18:26:31 PDT 2008
 Likelihood/src
 
