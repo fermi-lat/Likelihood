@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 23 18:32:06 PDT 2008
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+use anonymous namespace for Functor classes
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 23 18:26:38 PDT 2008
 Likelihood/src
 
