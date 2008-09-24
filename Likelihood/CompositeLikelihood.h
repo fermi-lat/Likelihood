@@ -7,7 +7,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.1 2008/09/22 14:14:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.2 2008/09/23 17:49:07 jchiang Exp $
  */
 
 #ifndef Likelihood_CompositeLikelihood_h
@@ -54,6 +54,9 @@ private:
    typedef ComponentMap_t::const_iterator ComponentConstIterator_t;
 
    ComponentMap_t m_components;
+
+   std::string m_normParName;
+   std::string m_commonFuncName;
 
 };
 
