@@ -7,7 +7,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.2 2008/09/23 17:49:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.3 2008/09/24 23:48:54 jchiang Exp $
  */
 
 #ifndef Likelihood_CompositeLikelihood_h
@@ -31,9 +31,9 @@ class CompositeLikelihood : public optimizers::Statistic {
 
 public:
 
-   CompositeLikelihood();
+   CompositeLikelihood() : optimizers::Statistic() {}
 
-   virtual ~CompositeLikelihood() throw();
+   virtual ~CompositeLikelihood() throw() {}
 
    void addComponent(const std::string & srcName, LogLike & component);
 
@@ -45,7 +45,15 @@ public:
 
    void syncParams();
 
-   double NpredValue(const std::string & srcName) const;
+   double NpredValue(const std::string &) const {return 0;}
+
+protected:
+
+   double value(optimizers::Arg&) const {return 0;}
+
+   double derivByParam(optimizers::Arg&, const std::string&) const {return 0;}
+
+   optimizers::Function * clone() const {return 0;}
 
 private:
 

@@ -6,7 +6,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.4 2008/09/24 23:48:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.5 2008/09/25 00:37:59 jchiang Exp $
  */
 
 #include <sstream>
@@ -15,10 +15,6 @@
 #include "Likelihood/CompositeLikelihood.h"
 
 namespace Likelihood {
-
-CompositeLikelihood::CompositeLikelihood() : optimizers::Statistic() {}
-
-CompositeLikelihood::~CompositeLikelihood() throw() {}
 
 void CompositeLikelihood::addComponent(const std::string & srcName, 
                                        LogLike & component) {
@@ -118,7 +114,7 @@ setFreeParamValues(const std::vector<double> & values) {
       for ( ; src != it->second->sources().end(); ++src) {
          if (src->first != commonSrcName) { 
             size_t npar(src->second->spectrum().getNumFreeParams());
-            std::vector<double> my_values(npar);
+            std::vector<double> my_values;
             for (size_t i(0); i < npar; i++, ++vals) {
                my_values.push_back(*vals);
             }
@@ -141,10 +137,11 @@ setFreeParamValues(const std::vector<double> & values) {
    my_spectrum.getFreeParamNames(parNames);
 
    std::map<std::string, double> parValues;
-   for (size_t i(0); i < parNames.size(); i++, ++vals) {
+   for (size_t i(0); i < parNames.size(); i++) {
       if (parNames.at(i) != m_normParName) {
          parValues[parNames.at(i)] = *vals;
          my_spectrum.setParam(parNames.at(i), *vals);
+         ++vals;
       }
    }
 
@@ -167,12 +164,44 @@ setFreeParamValues(const std::vector<double> & values) {
          ++vals;
       }
    }
+
+   syncParams();
+}
+
+void CompositeLikelihood::syncParams() {
+   for (ComponentIterator_t it(m_components.begin()); 
+        it != m_components.end(); ++it) {
+      it->second->syncParams();
+   }
 }
 
 unsigned int CompositeLikelihood::getNumFreeParams() const {
    ComponentConstIterator_t it(m_components.begin());
-   unsigned int npars(it->second->getNumFreeParams());
-   return npars + m_components.size() - 1;
+   unsigned int npars(0);
+   for ( ; it != m_components.end(); ++it) {
+      std::map<std::string, Source *>::const_iterator src =
+         it->second->sources().begin();
+      for ( ; src != it->second->sources().end(); ++src) {
+         if (it->first != src->first) {
+            npars += src->second->spectrum().getNumFreeParams();
+         }
+      }
+      const optimizers::Function & my_spectrum
+         = it->second->sources().find(it->first)->second->spectrum();
+      if (it == m_components.begin()) {
+         std::vector<optimizers::Parameter> pars;
+         my_spectrum.getFreeParams(pars);
+         for (size_t i(0); i < pars.size(); i++) {
+            if (pars.at(i).getName() != m_normParName) {
+               npars++;
+            }
+         }
+      }
+      if (const_cast<optimizers::Function &>(my_spectrum).normPar().isFree()) {
+         npars++;
+      }
+   }
+   return npars;
 }
 
 void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
