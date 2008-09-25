@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 24 17:37:59 PDT 2008
+Likelihood/src
+
+Modified Files:
+	CompositeLikelihood.cxx 
+Log Message:
+pointer vs reference bug-fixes
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 24 16:48:54 PDT 2008
 Likelihood/Likelihood
 
