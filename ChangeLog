@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Sep 25 10:31:22 PDT 2008
+Likelihood/src/dmfit
+
+Modified Files:
+	DMFitFunction.cxx 
+Log Message:
+fixes for compiler errors on rh9_gcc32, VC8
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 24 23:13:21 PDT 2008
 Likelihood/src
 
