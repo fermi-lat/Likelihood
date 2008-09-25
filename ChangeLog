@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 24 23:13:21 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	CompositeLikelihood.h 
+Log Message:
+reimplemente getNumFreeParams
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 24 17:37:59 PDT 2008
 Likelihood/src
 
