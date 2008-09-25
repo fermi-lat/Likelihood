@@ -3,7 +3,7 @@
  * @brief Implementation for the DMFitFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.1 2008/09/09 14:12:10 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.2 2008/09/21 18:46:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -60,7 +60,7 @@ void DMFitFunction::init(double norm, double mass, double bratio,
    facilities::Util::expandEnvVar(&m_filename);
    st_facilities::Util::file_ok(m_filename);
 //   std::cout<<"Loading file "<<m_filename<<std::endl; 
-   dmfit_load__(m_filename.c_str(),m_filename.size());
+   dmfit_load__(const_cast<char *>(m_filename.c_str()),m_filename.size());
 }
 
 double DMFitFunction::value(optimizers::Arg &xarg) const {
@@ -102,13 +102,14 @@ double DMFitFunction::derivByParam(optimizers::Arg & xarg,
    long int ch0 = m_parameter[3].getTrueValue();
    long int ch1 = m_parameter[4].getTrueValue();
 
+   double value(0);
    switch(iparam) {
    case norm:
      return m_parameter[0].getScale()*
        (b*dmfit_de__(&m,&ch0,&x)+(1.-b)*dmfit_de__(&m,&ch1,&x))/1000.;
      break;
    case mass:
-     double value= m_parameter[1].getScale()*
+     value= m_parameter[1].getScale()*
        n*(b*dmfit_dm__(&m,&ch0,&x)+(1.-b)*dmfit_dm__(&m,&ch1,&x))/1000.;
      //std::cout<<m<<" "<<ch0<<" "<<x<<" "<<dmfit_dm__(&m,&ch0,&x)<<std::endl;
      return value;
