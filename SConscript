@@ -1,7 +1,7 @@
 # -*- python -*-
-# $Id: SConscript,v 1.19 2008/09/24 17:30:31 glastrm Exp $
+# $Id: SConscript,v 1.20 2008/09/25 21:30:33 glastrm Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Pat Nolan <pln@razzle.stanford.edu>
-# Version: Likelihood-13-18-01
+# Version: Likelihood-13-18-02
 
 Import('baseEnv', 'listFiles')
 progEnv = baseEnv.Clone()
