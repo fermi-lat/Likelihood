@@ -6,9 +6,10 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.5 2008/09/25 00:37:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.6 2008/09/25 06:13:21 jchiang Exp $
  */
 
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -88,6 +89,7 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
 // Loop over components again and collect the normalization parameters
 // for all of the common source type objects.
    for ( ; it != m_components.end(); ++it) {
+      const Source * my_source(it->second->sources().find(it->first)->second);
       const optimizers::Parameter & normPar = 
          const_cast<optimizers::Function &>(my_source->spectrum()).normPar();
       if (normPar.isFree()) {
@@ -108,11 +110,10 @@ setFreeParamValues(const std::vector<double> & values) {
    std::vector<double>::const_iterator vals(values.begin());
    ComponentIterator_t it(m_components.begin());
    for ( ; it != m_components.end(); ++it) {
-      const std::string & commonSrcName(it->first);
       std::map<std::string, Source *>::const_iterator 
          src(it->second->sources().begin());
       for ( ; src != it->second->sources().end(); ++src) {
-         if (src->first != commonSrcName) { 
+         if (src->first != it->first) { 
             size_t npar(src->second->spectrum().getNumFreeParams());
             std::vector<double> my_values;
             for (size_t i(0); i < npar; i++, ++vals) {
@@ -127,9 +128,8 @@ setFreeParamValues(const std::vector<double> & values) {
 // Set the common source parameters for the first component, saving the
 // values for the non-normPar parameters for the later components.
    it = m_components.begin();
-   const std::string & commonSrcName(it->first);
    Source * my_source = const_cast<Source *>(it->second->sources()
-                                             .find(commonSrcName)->second);
+                                             .find(it->first)->second);
    optimizers::Function & my_spectrum = 
       const_cast<optimizers::Function &>(my_source->spectrum());
 
@@ -149,18 +149,17 @@ setFreeParamValues(const std::vector<double> & values) {
 // type params for all components and the normalization parameters
 // where needed.
    for ( ; it != m_components.end(); ++it) {
-      const std::string & commonSrcName(it->first);
-      Source * my_source = const_cast<Source *>(it->second->sources()
-                                                .find(commonSrcName)->second);
-      optimizers::Function & my_spectrum = 
+      my_source = const_cast<Source *>(it->second->sources()
+                                       .find(it->first)->second);
+      optimizers::Function & my_spec = 
          const_cast<optimizers::Function &>(my_source->spectrum());
-      if (it != m_components.begin()) {
-         for (size_t i(0); i < parNames.size(); i++) {
-            my_spectrum.setParam(parNames.at(i), parValues[parNames.at(i)]);
+      for (size_t i(0); i < parNames.size(); i++) {
+         if (parNames.at(i) != m_normParName) {
+            my_spec.setParam(parNames.at(i), parValues[parNames.at(i)]);
          }
       }
-      if (my_spectrum.normPar().isFree()) {
-         my_spectrum.setParam(m_normParName, *vals);
+      if (my_spec.normPar().isFree()) {
+         my_spec.setParam(m_normParName, *vals);
          ++vals;
       }
    }

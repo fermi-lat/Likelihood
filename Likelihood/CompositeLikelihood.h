@@ -7,7 +7,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.3 2008/09/24 23:48:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.4 2008/09/25 06:13:21 jchiang Exp $
  */
 
 #ifndef Likelihood_CompositeLikelihood_h
@@ -49,7 +49,7 @@ public:
 
 protected:
 
-   double value(optimizers::Arg&) const {return 0;}
+   double value(optimizers::Arg&) const {return value();}
 
    double derivByParam(optimizers::Arg&, const std::string&) const {return 0;}
 
