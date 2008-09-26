@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.265 2008/09/24 16:31:32 jchiang Exp $
+    $Id: release.notes,v 1.266 2008/09/25 20:43:46 jchiang Exp $
 
     @verbatim
+    v13r18p2 26-Sep-08 JC  comment out DMFitFunction because of dm__load__ 
+                           problem in RM
     v13r18p1 25-Sep-08 JC  DMFitFunction fixes for VC8 and rh9_gcc32 builds
     v13r18   24-Sep-08 JC  implemented PointSource::[fluxDeriv, energyFlux,
                            energyFluxDeriv] member functions to be used
