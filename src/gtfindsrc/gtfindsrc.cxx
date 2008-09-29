@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.16 2007/11/07 20:24:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.17 2008/06/09 20:55:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -124,9 +124,10 @@ void findSrc::run() {
    }
    compareGtis = true;
    if (exposureFile != "none" && exposureFile != "") {
-      AppHelpers::checkCuts(m_eventFiles, evtable, exposureFile, "",
-                            compareGtis, relyOnStreams,
-                            skipEventClassCuts);
+         AppHelpers::checkExpMapCuts(m_eventFiles, exposureFile, evtable, "");
+//       AppHelpers::checkCuts(m_eventFiles, evtable, exposureFile, "",
+//                             compareGtis, relyOnStreams,
+//                             skipEventClassCuts);
    }
    if (expcube_file != "none" && expcube_file != "") {
       AppHelpers::checkTimeCuts(m_eventFiles, evtable, expcube_file, 
