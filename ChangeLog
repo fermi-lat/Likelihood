@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Sep 29 08:55:06 PDT 2008
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Log Message:
+re-enable DMFitFunction
+    *
+------------------------------------------------------------
 User: jchiang  Mon Sep 29 08:54:42 PDT 2008
 Likelihood/src/gtfindsrc
 
