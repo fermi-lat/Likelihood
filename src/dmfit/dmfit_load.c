@@ -1,13 +1,6 @@
-/* dmfit_load.f -- translated by f2c (version 20031025).
-   You must link the resulting object file with libf2c:
-	on Microsoft Windows system, link with libf2c.lib;
-	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
-	or, if you install libf2c.a in a standard place, with -lf2c -lm
-	-- in that order, at the end of the command line, as in
-		cc *.o -lf2c -lm
-	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
-
-		http://www.netlib.org/f2c/libf2c.zip
+/* dmfit_load.f -- translated by f2c (version 19991025).
+   You must link the resulting object file with the libraries:
+	-lf2c -lm   (in that order)
 */
 
 #include "f2c/f2c.h"
@@ -25,7 +18,9 @@ struct {
 
 static integer c__1 = 1;
 
-integer dmfit_load__(char *filename, ftnlen filename_len)
+integer dmfit_load__(filename, filename_len)
+char *filename;
+ftnlen filename_len;
 {
     /* Format strings */
     static char fmt_2000[] = "(1000(1x,e12.6))";
@@ -36,12 +31,12 @@ integer dmfit_load__(char *filename, ftnlen filename_len)
     cllist cl__1;
 
     /* Builtin functions */
-    integer f_open(olist *), s_rsfe(cilist *), do_fio(integer *, char *, 
-	    ftnlen), e_rsfe(void), f_clos(cllist *);
+    integer f_open(), s_rsfe(), do_fio(), e_rsfe(), f_clos();
 
     /* Local variables */
-    static integer j, k, l, zn;
+    static integer j, k, l;
     static doublereal milow[8];
+    static integer zn;
 
     /* Fortran I/O blocks */
     static cilist io___6 = { 0, 13, 0, fmt_2000, 0 };
@@ -71,7 +66,7 @@ integer dmfit_load__(char *filename, ftnlen filename_len)
     for (j = 1; j <= 8; ++j) {
 	for (k = 1; k <= 18; ++k) {
 	    for (l = 0; l <= 250; ++l) {
-		hasim_1.phidif[l + (k + j * 18) * 252 - 4787] = 0.f;
+		hasim_1.phidif[l + (k + j * 18) * 252 - 4787] = (float)0.;
 	    }
 	}
     }
@@ -79,7 +74,7 @@ integer dmfit_load__(char *filename, ftnlen filename_len)
 /*        open(unit=13,file='gammamc_dif.dat',status='old', */
     o__1.oerr = 0;
     o__1.ounit = 13;
-    o__1.ofnmlen = 100;
+    o__1.ofnmlen = filename_len;
     o__1.ofnm = filename;
     o__1.orl = 0;
     o__1.osta = "old";

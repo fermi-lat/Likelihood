@@ -11,7 +11,7 @@ c-----data tables
 c-----lowest mass index
       real*8 milow(8)
 
-      character*100 filename
+      character*(*) filename
 
         zn=250
 c...lowest mass index for channel j
