@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.25 2008/08/19 04:08:31 jchiang Exp $
+ * $Header$
  */
 
 #include <cmath>
@@ -106,7 +106,7 @@ WcsMap::WcsMap(const std::string & filename,
 }
 
 WcsMap::WcsMap(const DiffuseSource & diffuseSource,
-               double ra, double dec, double pix_size, int nxpix, int nypix,
+               double ra, double dec, double pix_size, int npts,
                double energy, const std::string & proj_name, bool use_lb,
                bool interpolate) 
    : m_refDir(ra, dec), m_interpolate(interpolate) {
@@ -114,7 +114,7 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
       ra = m_refDir.l();
       dec = m_refDir.b();
    }
-   double crpix[] = {nxpix/2., nypix/2.};
+   double crpix[] = {npts/2., npts/2.};
    double crval[] = {ra, dec};
    double cdelt[] = {-pix_size, pix_size};
 
@@ -127,12 +127,12 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
       coordSys = astro::SkyDir::EQUATORIAL;
    }
 
-   m_image.reserve(nypix);
+   m_image.reserve(npts);
    double ix, iy;
-   for (int j = 0; j < nypix; j++) {
+   for (int j = 0; j < npts; j++) {
       iy = j + 1.;
-      std::vector<double> row(nxpix, 0);
-      for (int i = 0; i < nxpix; i++) {
+      std::vector<double> row(npts, 0);
+      for (int i = 0; i < npts; i++) {
          ix = i + 1.;
          if (m_proj->testpix2sph(ix, iy) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
@@ -145,8 +145,8 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
       }
       m_image.push_back(row);
    }
-   m_naxis1 = nxpix;
-   m_naxis2 = nypix;
+   m_naxis1 = npts;
+   m_naxis2 = npts;
 }
 
 WcsMap::~WcsMap() {
@@ -206,13 +206,11 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
 // This code tries to do a bilinear interpolation on the pixel values.
    int ix(static_cast<int>(::my_round(x)));
    int iy(static_cast<int>(::my_round(y)));
-
-// Return zero if asked to extrapolate beyond map boundaries.
-   if (ix < 1 || ix > m_naxis1 || iy < 1 || iy > m_naxis2) {
-      return 0;
-   }
 //    ix = std::min(std::max(1, ix), m_naxis1 - 1);
 //    iy = std::min(std::max(1, iy), m_naxis2 - 1);
+   if (ix  < 1 || ix > m_naxis1 || iy < 1 || iy > m_naxis2) {
+      return 0;
+   }
    
    double uu(x - ix);
    double tt(y - iy);
@@ -281,13 +279,13 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
    psf_image.resize(npix);
 
    for (int j = jmin; j < jmax; j++) {
-      psf_image.at(j-jmin).resize(npix, 0);
+      psf_image.at(j).resize(npix, 0);
       for (int i = imin; i < imax; i++) {
          if (m_proj->testpix2sph(i+1, j+1) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
             double theta = m_refDir.difference(dir)*180./M_PI;
-            psf_image.at(j-jmin).at(i-imin) = psf(energy, theta, 0);
+            psf_image.at(j).at(i) = psf(energy, theta, 0);
          }
       }
    }
