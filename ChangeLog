@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 30 10:22:15 PDT 2008
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+return zero if asked to extrapolate beyond map boundaries.
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-18-03, operation: add
 Package: Likelihood
