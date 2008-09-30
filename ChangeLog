@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 30 10:46:15 PDT 2008
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+roll-back unintended changes to map boundary handling.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 30 10:28:05 PDT 2008
 Likelihood/doc
 
