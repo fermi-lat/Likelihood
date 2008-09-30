@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.267 2008/09/26 15:34:34 jchiang Exp $
+    $Id: release.notes,v 1.268 2008/09/29 15:57:40 jchiang Exp $
 
     @verbatim
+    v13r18p4 30-Sep-08 JC  bug-fix for WcsMap: do not extrapolate beyond
+                           map boundaries
     v13r18p3 29-Sep-08 JC  use character*(*) in filename declaration in
                            dmfit_load.f to avoid hard-wired character array;
                            re-enable DMFitFunction
