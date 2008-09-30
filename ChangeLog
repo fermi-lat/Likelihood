@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 30 10:47:50 PDT 2008
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+remove commented out code
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 30 10:46:15 PDT 2008
 Likelihood/src
 
