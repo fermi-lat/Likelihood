@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct  1 10:51:45 PDT 2008
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+range checking bug-fix
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-18-04, operation: add
 Package: Likelihood
