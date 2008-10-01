@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.27 2008/09/30 17:46:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -208,7 +208,7 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    int iy(static_cast<int>(::my_round(y)));
 //    ix = std::min(std::max(1, ix), m_naxis1 - 1);
 //    iy = std::min(std::max(1, iy), m_naxis2 - 1);
-   if (ix  < 1 || ix > m_naxis1 || iy < 1 || iy > m_naxis2) {
+   if (ix  < 1 || ix >= m_naxis1 || iy < 1 || iy >= m_naxis2) {
       return 0;
    }
    
