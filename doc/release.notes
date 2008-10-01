@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.268 2008/09/29 15:57:40 jchiang Exp $
+    $Id: release.notes,v 1.269 2008/09/30 17:28:05 jchiang Exp $
 
     @verbatim
+    v13r18p5 01-Oct-08 JC  fix error in the range checking code for 
+                           preceeding tag
     v13r18p4 30-Sep-08 JC  bug-fix for WcsMap: do not extrapolate beyond
                            map boundaries
     v13r18p3 29-Sep-08 JC  use character*(*) in filename declaration in
