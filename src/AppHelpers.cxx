@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.69 2008/09/26 15:31:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.70 2008/09/29 15:55:06 jchiang Exp $
  */
 
 #include <map>
@@ -106,7 +106,7 @@ void AppHelpers::prepareFunctionFactory() {
                           makeClone);
    m_funcFactory->addFunc("PLSuperExpCutoff", 
                           new PowerLawSuperExpCutoff(), makeClone);
-   m_funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
+//   m_funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,
