@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 10 08:23:19 PDT 2008
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Log Message:
+disable DMFitFunction since it reads in a file not included in the binary distribution
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-18-05, operation: add
 Package: Likelihood
