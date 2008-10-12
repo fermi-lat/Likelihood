@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.59 2007/12/05 19:09:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.60 2008/01/31 22:23:29 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -23,6 +23,7 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Exception.h"
 #include "Likelihood/FileFunction.h"
+#include "Likelihood/DMFitFunction.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
@@ -319,6 +320,10 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
    if (type == "FileFunction") {
       std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
       dynamic_cast<FileFunction *>(spec)->readFunction(filename);
+   }
+   if (type == "DMFitFunction") {
+      std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
+      dynamic_cast<DMFitFunction *>(spec)->readFunction(filename);
    }
 
    src->setSpectrum(spec);

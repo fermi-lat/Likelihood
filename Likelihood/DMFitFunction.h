@@ -3,7 +3,7 @@
  * @brief Declaration for the DMFit Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.1 2005/01/26 06:53:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.1 2008/09/09 14:12:09 cohen Exp $
  */
 
 #ifndef Likelihood_DMFitFunction_h
@@ -23,14 +23,14 @@ namespace Likelihood {
  *
  * @author J. Cohen-Tanugi, based on the DMFit package by S. Profumo and T. Jeltema
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.1 2005/01/26 06:53:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.1 2008/09/09 14:12:09 cohen Exp $
  */
     
 class DMFitFunction : public optimizers::Function {
 
 public:
 
-   DMFitFunction() {
+  DMFitFunction() : m_filename(""){
      init(1., 100., 1.0, 1, 1);
    }
 
@@ -40,7 +40,7 @@ public:
    /// @param channel0 : index of the first final state
    /// @param channel1 : index of the second final state   
    DMFitFunction(double norm, double mass, double bratio, 
-                 int channel0, int channel1) {
+                 int channel0, int channel1) : m_filename(""){
      init(norm, mass, bratio, channel0, channel1);
    }
 
@@ -50,6 +50,12 @@ public:
 
    virtual Function *clone() const {
       return new DMFitFunction(*this);
+   }
+
+   void readFunction(const std::string & filename);
+
+   const std::string & filename() const {
+      return m_filename;
    }
 
 protected:
