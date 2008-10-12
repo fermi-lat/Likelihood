@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: cohen  Sun Oct 12 14:25:06 PDT 2008
+Likelihood/src/dmfit
+
+Modified Files:
+	DMFitFunction.cxx 
+Log Message:
+file is now passed as attribute in the XML structure, rather than harcoded in DMFitFunction.cxx
+    *
+------------------------------------------------------------
+User: cohen  Sun Oct 12 14:25:06 PDT 2008
 Likelihood/src
 
 Modified Files:
