@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Sun Oct 12 14:25:05 PDT 2008
+Likelihood/Likelihood
+
+Modified Files:
+	DMFitFunction.h 
+Log Message:
+file is now passed as attribute in the XML structure, rather than harcoded in DMFitFunction.cxx
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-18-06, operation: add
 Package: Likelihood
