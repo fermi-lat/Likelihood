@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: cohen  Mon Oct 13 04:01:24 PDT 2008
+Likelihood/src/dmfit
+
+Modified Files:
+	dmfit_comm.c dmfit_comm.f dmfit_func.c dmfit_func.f 
+	gammamc_dif.dat 
+Log Message:
+add the cosmo component, though it is not debugged yet
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-18-07, operation: add
 Package: Likelihood
