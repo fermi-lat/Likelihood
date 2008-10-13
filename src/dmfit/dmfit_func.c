@@ -15,7 +15,7 @@
 /* Common Block Declarations */
 
 struct {
-    real phidif[36288]	/* was [252][18][8] */;
+    real phidif[45360]	/* was [252][18][10] */;
     integer hasmooth;
 } hasim_;
 
@@ -84,6 +84,8 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 /*     7: W+ W- */
 /*     8: Z Z */
 /*     9: c \bar c */
+/*     10: cosmo b \bar b */
+/*     11: cosmo gam gam Line */
 
 /*     Notice that if a channel is not kinematically available */
 /*     (e.g., ch 7 with MX < M_W), then automatically we fit */
@@ -97,8 +99,11 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 /* -----whether or not to smooth the interpolation */
 /* -----masses of top, W, Z */
 /* -----lowest mass index */
+/*      real*8 milow(10) */
 /* -----this is the reference channel */
 /* -----variables to initialize tables */
+/* ,ntype */
+/*      integer j,k,l */
 /* -----number of decades tabulated */
 /* -----backup masses and energies for low energy extrapolation */
 /* -----function that computes the differential \gamma flux from e+e- */
@@ -195,6 +200,10 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 	chref = 6;
     } else if (*ch == 9) {
 	chref = 1;
+    } else if (*ch == 10) {
+	chref = 9;
+    } else if (*ch == 11) {
+	chref = 10;
     } else {
 	chref = 4;
     }
@@ -259,6 +268,7 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 		i__1, &m1i, &chref);
 	flux = flux * .434294481903 / (*ee * 10.);
     } else {
+/*           write(*,*) CH,zi,m1i,EE,yieldget(zi,m1i,chref) */
 	i__1 = zi + 1;
 	phi1 = (1.f - zpl) * yieldget_(&zi, &m1i, &chref) + zpl * yieldget_(&
 		i__1, &m1i, &chref);

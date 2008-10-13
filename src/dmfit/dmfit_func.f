@@ -26,6 +26,8 @@ c     6: gluon gluon
 c     7: W+ W-
 c     8: Z Z
 c     9: c \bar c
+c     10: cosmo b \bar b
+c     11: cosmo gam gam Line
 c
 c     Notice that if a channel is not kinematically available
 c     (e.g., ch 7 with MX < M_W), then automatically we fit
@@ -48,14 +50,15 @@ c-----whether or not to smooth the interpolation
 c-----masses of top, W, Z
       real*8 mt,mw,mz
 c-----lowest mass index
-      real*8 milow(8)
+c      real*8 milow(10)
 
 c-----this is the reference channel
       integer chref
 
 c-----variables to initialize tables
-      integer i,ntype
-      integer j,k,l
+      integer i
+c,ntype
+c      integer j,k,l
       integer zi,m1i,m2i,zn
       real*8 z,ndec,zpl,tmp
       real*8 mi(18),mp1,mp2
@@ -76,7 +79,7 @@ c-----function that computes the differential \gamma flux from e+e-
 
 c-----data tables     
       real phidif
-      common/hasim/phidif(-1:250,18,8),hasmooth
+      common/hasim/phidif(-1:250,18,10),hasmooth
 
 
 ********************************************************************
@@ -163,6 +166,10 @@ c-----for the e+e- channel, go ahead and compute it!
          chref=6
       elseif(CH.eq.9) then
          chref=1
+      elseif(CH.eq.10) then
+         chref=9
+      elseif(CH.eq.11) then
+         chref=10
       else
          chref=4
       endif
@@ -236,7 +243,7 @@ c-----interpolation: lower energy
           FLUX=FLUX*lge/(ndec*EE)
 
         else
-
+c           write(*,*) CH,zi,m1i,EE,yieldget(zi,m1i,chref)
           phi1 =
      &      (1.0-zpl)*yieldget(zi,m1i,chref)+
      &      zpl*yieldget(zi+1,m1i,chref)
