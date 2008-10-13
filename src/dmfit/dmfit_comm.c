@@ -15,7 +15,7 @@
 /* Common Block Declarations */
 
 struct {
-    real phidif[36288]	/* was [252][18][8] */;
+    real phidif[45360]	/* was [252][18][10] */;
     integer hasmooth;
 } hasim_;
 
