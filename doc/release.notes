@@ -1,9 +1,14 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.271 2008/10/10 15:27:04 jchiang Exp $
+    $Id: release.notes,v 1.272 2008/10/12 21:53:57 jchiang Exp $
 
     @verbatim
+    v13r19   28-Oct-08 JC  implement BinnedLikelihood::syncSrcParams;
+                           enable parfile option to choose relative or 
+                           absolute convergence tolerance in gtlike 
+                           (still need to propagate this to gttsmap,
+                           gtfindsrc)
     v13r18p7 12-Oct-08 JC  Johann's mods to have DMFitFunction read its
                            data file via xml def attribute
     v13r18p6 10-Oct-08 JC  comment out DMFitFunction until it handles the
