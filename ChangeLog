@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Oct 28 10:21:54 PDT 2008
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+implement BinnedLikelihood::syncSrcParams (needed by pyLikelihood/UpperLimits.py; enable option to switch between relative and absolute convergence tolerance in gtlike
+    *
+------------------------------------------------------------
 User: jchiang  Tue Oct 28 10:21:53 PDT 2008
 Likelihood/src
 
