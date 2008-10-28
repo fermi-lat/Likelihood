@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.31 2007/05/23 15:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.32 2008/08/21 00:32:08 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.31 2007/05/23 15:32:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.32 2008/08/21 00:32:08 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -113,6 +113,8 @@ public:
    virtual Source * deleteSource(const std::string & srcName);
 
    virtual void syncParams();
+
+   virtual void syncSrcParams(const std::string & srcName);
 
    virtual double NpredValue(const std::string & srcName) const;
 
