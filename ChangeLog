@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Nov  7 12:41:38 PST 2008
+Likelihood/src/gtaddlivetime
+
+Modified Files:
+	gtaddlivetime.cxx 
+Log Message:
+use fcopy to create the output file for gtltsum so that RA, DEC column values are copied to the output
+    *
+------------------------------------------------------------
 User: jchiang  Fri Nov  7 12:41:37 PST 2008
 Likelihood/src
 
