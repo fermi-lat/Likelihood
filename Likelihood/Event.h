@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.39 2006/09/06 22:06:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.40 2007/12/10 07:29:50 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.39 2006/09/06 22:06:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.40 2007/12/10 07:29:50 jchiang Exp $
  */
 
 class Event {
@@ -141,6 +141,14 @@ public:
 
    void deleteSource(const std::string & srcName);
 
+   void set_ctbclasslevel(int ctbclasslevel) {
+      m_ctbclasslevel = ctbclasslevel;
+   }
+
+   int ctbclasslevel() const {
+      return m_ctbclasslevel;
+   }
+
 private:
 
    /// apparent direction, energy, arrival time, and cosine(zenith angle)
@@ -171,6 +179,9 @@ private:
    /// energy redistribution function for each diffuse source.
    typedef std::vector<double> diffuse_response;
    std::map<std::string, diffuse_response> m_respDiffuseSrcs;
+
+   /// Use this variable to keep track of Classification tree info.
+   int m_ctbclasslevel;
 
    /// Compute Celestial direction from (phi, mu) in Equinox-centered
    /// coordinates.

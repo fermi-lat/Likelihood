@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.59 2007/12/11 07:14:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.60 2007/12/14 19:18:11 jchiang Exp $
  */
 
 #include <cctype>
@@ -51,7 +51,7 @@ std::vector<double> Event::s_mu_2;
 std::vector<double> Event::s_phi;
 bool Event::s_haveSourceRegionData(false);
 
-Event::Event() : m_respName(""), m_modelSum(0) {}
+Event::Event() : m_respName(""), m_modelSum(0), m_ctbclasslevel(0) {}
 
 Event::Event(double ra, double dec, double energy, double time, 
              const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
@@ -59,7 +59,8 @@ Event::Event(double ra, double dec, double energy, double time,
              int type) 
    : m_appDir(astro::SkyDir(ra, dec)), m_energy(energy), m_arrTime(time),
      m_muZenith(muZenith), m_type(type), m_scDir(scZAxis), m_scXDir(scXAxis),
-     m_useEdisp(useEdisp), m_respName(respName), m_modelSum(0) {
+     m_useEdisp(useEdisp), m_respName(respName), m_modelSum(0),
+     m_ctbclasslevel(0) {
    if (m_useEdisp) {
 // For <15% energy resolution, consider true energies over the range
 // (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
