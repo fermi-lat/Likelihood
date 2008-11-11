@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.40 2007/12/10 07:29:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.41 2008/11/11 17:38:56 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.40 2007/12/10 07:29:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.41 2008/11/11 17:38:56 jchiang Exp $
  */
 
 class Event {
@@ -69,7 +69,8 @@ public:
                           std::string diffuseComponent) const;
     
    void computeResponseGQ(std::vector<DiffuseSource *> & srcs, 
-                          const ResponseFunctions & respFuncs);
+                          const ResponseFunctions & respFuncs,
+                          bool useDummyValue=false);
 
    /// This method takes the spatial distribution of the emission for
    /// the DiffuseSource src and computes the event-specific response.

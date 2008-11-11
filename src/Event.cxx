@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.60 2007/12/14 19:18:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.61 2008/11/11 17:38:58 jchiang Exp $
  */
 
 #include <cctype>
@@ -129,7 +129,8 @@ Event::diffuseResponse(std::string name) const {
 }
 
 void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList, 
-                              const ResponseFunctions & respFuncs) {
+                              const ResponseFunctions & respFuncs,
+                              bool useDummyValue) {
    std::vector<DiffuseSource *> srcs;
    getNewDiffuseSrcs(srcList, srcs);
    if (srcs.size() == 0) {
@@ -143,11 +144,15 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
    EquinoxRotation eqRot(getDir().ra(), getDir().dec());
    for (size_t i(0); i < srcs.size(); i++) {
       std::string name(diffuseSrcName(srcs.at(i)->getName()));
-      DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot);
-      double respValue = 
-         st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
-                                                   mumax, err, ierr);
-      m_respDiffuseSrcs[name].push_back(respValue);
+      if (useDummyValue) {
+         m_respDiffuseSrcs[name].push_back(0);
+      } else {
+         DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot);
+         double respValue = 
+            st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
+                                                      mumax, err, ierr);
+         m_respDiffuseSrcs[name].push_back(respValue);
+      }
    }
 }
 
