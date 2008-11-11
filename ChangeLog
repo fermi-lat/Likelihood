@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Nov 11 09:38:58 PST 2008
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+kludge to add ctbclasslevel selection in gtdiffrsp
+    *
+------------------------------------------------------------
+User: jchiang  Tue Nov 11 09:38:58 PST 2008
 Likelihood/src
 
 Modified Files:
