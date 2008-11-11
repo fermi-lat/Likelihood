@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Nov 11 09:49:48 PST 2008
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h 
+Log Message:
+flag to add dummy value
+    *
+------------------------------------------------------------
 User: jchiang  Tue Nov 11 09:38:58 PST 2008
 Likelihood/src/diffuseResponses
 
