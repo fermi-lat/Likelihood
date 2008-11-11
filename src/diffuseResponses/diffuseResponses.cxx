@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.48 2008/11/11 17:38:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.49 2008/11/11 17:57:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.48 2008/11/11 17:38:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.49 2008/11/11 17:57:07 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -223,8 +223,10 @@ void diffuseResponses::readEventData(std::string eventFile) {
       = tip::IFileSvc::instance().readTable(eventFile, m_pars["evtable"]);
 
    const std::vector<std::string> & colNames = events->getValidFields();
-
-   if (std:
+   bool has_ctbclasslevel(false);
+   if (std::count(colNames.begin(), colNames.end(), "ctbclasslevel") != 0) {
+      has_ctbclasslevel = true;
+   }
 
    int evclsver(0); // version of event class definition
 
