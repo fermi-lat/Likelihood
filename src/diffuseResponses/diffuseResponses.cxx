@@ -4,7 +4,7 @@
  * diffuse emission.  
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.46 2008/02/24 00:40:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.47 2008/03/27 03:23:04 jchiang Exp $
  */
 
 #include <cmath>
@@ -55,7 +55,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.46 2008/02/24 00:40:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.47 2008/03/27 03:23:04 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -239,6 +239,7 @@ void diffuseResponses::readEventData(std::string eventFile) {
    int event_class;
    int conversion_type;
    int eventType;
+   int ctbclasslevel;
 
    ScData & scData = const_cast<ScData &>(m_helper->observation().scData());
 
@@ -252,6 +253,7 @@ void diffuseResponses::readEventData(std::string eventFile) {
       event["zenith_angle"].get(zenAngle);
       event["event_class"].get(event_class);
       event["conversion_type"].get(conversion_type);
+      event["ctbclasslevel"].get(ctbclasslevel);
       if (evclsver == 0) {
          eventType = event_class;
       } else {
@@ -262,6 +264,7 @@ void diffuseResponses::readEventData(std::string eventFile) {
                       m_helper->observation().respFuncs().useEdisp(),
                       m_helper->observation().respFuncs().respName(),
                       eventType);
+      thisEvent.set_ctbclasslevel(ctbclasslevel);
       m_events.push_back(thisEvent);
    }
    delete events;
@@ -270,6 +273,7 @@ void diffuseResponses::readEventData(std::string eventFile) {
 void diffuseResponses::computeEventResponses() {
    getDiffuseSources();
    std::vector<Event>::iterator it = m_events.begin();
+   int ctbclasslevel_min = m_pars["ctbmin"];
    for (int i = 0; it != m_events.end(); ++it, i++) {
       int factor(m_events.size()/20);
       if (factor == 0) {
@@ -282,7 +286,9 @@ void diffuseResponses::computeEventResponses() {
 /// quadrature version for now.
 //       it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
 //                           m_srRadius);
-      it->computeResponseGQ(m_srcs, m_helper->observation().respFuncs()); 
+      if (it->ctbclasslevel() >= ctbclasslevel_min) {
+         it->computeResponseGQ(m_srcs, m_helper->observation().respFuncs()); 
+      }
    }
    m_formatter->warn() << "!" << std::endl;
 }
