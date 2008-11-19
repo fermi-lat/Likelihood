@@ -1,7 +1,7 @@
 # -*- python -*-
-# $Id: SConscript,v 1.26 2008/10/12 22:30:39 glastrm Exp $
+# $Id: SConscript,v 1.28 2008/11/11 22:30:40 glastrm Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Pat Nolan <pln@razzle.stanford.edu>
-# Version: Likelihood-13-19-00
+# Version: Likelihood-13-20-00
 
 Import('baseEnv', 'listFiles')
 progEnv = baseEnv.Clone()
@@ -9,7 +9,8 @@ libEnv = baseEnv.Clone()
 
 libEnv.Tool('LikelihoodLib', depsOnly = 1)
 LikelihoodLib = libEnv.StaticLibrary('Likelihood', 
-                                     listFiles(['src/*.c', 'src/*.cxx']))
+                                     listFiles(['src/*.c', 'src/*.cxx',
+                                                'src/dmfit/*.cxx', 'src/dmfit/*.c']))
 
 progEnv.Tool('LikelihoodLib')
 
