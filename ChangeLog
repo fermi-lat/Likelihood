@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: glastrm  Wed Nov 19 12:50:59 PST 2008
+ScienceTools-scons/Likelihood
+
+Modified Files:
+	SConscript 
+Log Message:
+dmfit subdir part of Likelihood library now
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-20-00, operation: add
 Package: Likelihood
