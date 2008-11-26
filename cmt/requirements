@@ -4,7 +4,7 @@ version v13r20
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.388 2008/10/28 17:49:49 jchiang Exp $
+# $Id: requirements,v 1.389 2008/11/11 22:08:35 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -28,7 +28,7 @@ use f2c *
 macro_append lib_source "-s=dmfit *.cxx *.c" WIN32 "-s=dmfit *.h *.cxx *.c"
 apply_pattern ST_library option=" *.c "
 apply_pattern shared_st_library
-apply_pattern ST_pfiles
+#apply_pattern ST_pfiles
 
 #macro_append cppflags " -pg "
 #macro_append cpplinkflags " -pg "
