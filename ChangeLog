@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 26 15:35:01 PST 2008
+Likelihood/Likelihood
+
+Modified Files:
+	EventContainer.h 
+Log Message:
+new diffuse response column code
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-13-20-00, operation: mov
 Package: Likelihood
