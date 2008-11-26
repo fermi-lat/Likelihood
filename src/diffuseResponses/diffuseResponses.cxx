@@ -1,10 +1,9 @@
 /**
  * @file diffuseResponses.cxx
- * @brief Adds diffuse response information for extragalactic and Galactic
- * diffuse emission.  
+ * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.49 2008/11/11 17:57:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.50 2008/11/11 21:56:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -14,6 +13,8 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+
+#include "facilities/Util.h"
 
 #include "st_stream/StreamFormatter.h"
 
@@ -30,6 +31,7 @@
 #include "tip/Table.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/DiffRespNames.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/ScData.h"
@@ -55,7 +57,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.49 2008/11/11 17:57:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.50 2008/11/11 21:56:10 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -94,10 +96,15 @@ private:
    std::vector<DiffuseSource *> m_srcs;
    std::vector<std::string> m_srcNames;
 
+   DiffRespNames m_columnNames;
+
    bool m_useEdisp;
 
    void promptForParameters();
    void readDiffuseNames(std::vector<std::string> & srcNames);
+   void readDiffRespNames(std::auto_ptr<const tip::Table> events,
+                          std::vector<std::string> & colnames) const;
+   void readExistingDiffRespKeys(const tip::Table * events);
    bool haveDiffuseColumns(const std::string & eventFile);
    void buildSourceModel();
    void readEventData(std::string eventFile);
@@ -185,12 +192,14 @@ bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
    std::auto_ptr<const tip::Table> 
       events(tip::IFileSvc::instance().readTable(eventFile,
                                                  m_pars["evtable"]));
-   const std::vector<std::string> & colNames = events->getValidFields();
+   std::vector<std::string> colNames;
+   readDiffRespNames(events, colNames);
+
    std::vector<std::string> srcNames;
    readDiffuseNames(srcNames);
    for (std::vector<std::string>::iterator name = srcNames.begin();
         name != srcNames.end(); ++name) {
-      std::string altName(::alt_diffuseSrcName(*name,m_helper->observation()));
+      std::string altName(::alt_diffuseSrcName(*name, m_helper->observation()));
       *name = diffuseSrcName(*name);
       if (std::find(colNames.begin(), colNames.end(), *name) == colNames.end()
           && std::find(colNames.begin(), colNames.end(), altName) 
@@ -199,6 +208,28 @@ bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
       }
    }
    return true;
+}
+
+void diffuseResponses::
+readDiffRespNames(std::auto_ptr<const tip::Table> events,
+                  std::vector<std::string> & colnames) const {
+// Read in DIFRSPxx names (or column names if using old format)
+   const tip::Header & header(events->getHeader());
+   int ndifrsp;
+   try {
+      header["NDIFRSP"].get(ndifrsp);
+   } catch(tip::TipException) { 
+// Assume we have the old format, so just read in column names.
+      colnames = events->getValidFields();
+      return;
+   }
+   for (int i(0); i < ndifrsp; i++) {
+      std::ostringstream keyname;
+      keyname << "DIFRSP" << i;
+      std::string colname;
+      header[keyname.str()].get(colname);
+      colnames.push_back(colname);
+   }
 }
 
 std::string diffuseResponses::
@@ -304,60 +335,68 @@ void diffuseResponses::computeEventResponses() {
 }
 
 void diffuseResponses::writeEventResponses(std::string eventFile) {
-   if (m_srcNames.size() > 0) {
-      facilities::Util::expandEnvVar(&eventFile);
-      st_facilities::Util::file_ok(eventFile);
-      tip::Table * events 
-         = tip::IFileSvc::instance().editTable(eventFile, m_pars["evtable"]);
-      if (static_cast<unsigned int>(events->getNumRecords()) 
-          != m_events.size()) {
-         throw("LogLike::writeEventResponses:\nNumber of records in " 
-               + eventFile + " does not match number of events.");
-      }
-      for (unsigned int i = 0; i < m_srcNames.size(); i++) {
-         try {
-            std::string fieldName = 
-               m_helper->observation().respFuncs().respName() 
-               + "__" + m_srcNames[i];
-            if (m_useEdisp) {
+   if (m_srcNames.size() == 0) {
+      return;
+   }
+   facilities::Util::expandEnvVar(&eventFile);
+   st_facilities::Util::file_ok(eventFile);
+   tip::Table * events 
+      = tip::IFileSvc::instance().editTable(eventFile, m_pars["evtable"]);
+   if (static_cast<size_t>(events->getNumRecords()) != m_events.size()) {
+      throw std::runtime_error("LogLike::writeEventResponses:\nNumber of records in " 
+            + eventFile + " does not match number of events.");
+   }
+   readExistingDiffRespKeys(events);
+/// Add the column names to m_columnNames.
+   for (size_t i(0); i < m_srcNames.size(); i++) {
+      try {
+         std::string columnName(diffuseSrcName(m_srcNames[i]));
+         m_columnNames.addColumn(columnName);
+         std::string fieldName(m_columnNames.key(columnName));
+         if (m_useEdisp) {
 // Add a 3 dim vector containing the Gaussian parameters describing
 // the energy response.
-               events->appendField(fieldName, "3D");
-            } else {
+            events->appendField(fieldName, "3E");
+         } else {
 // Infinite energy response, so just add the single value.
-               events->appendField(fieldName, "1D");
-            }
-// repair field by removing incorrect TNULL keyword that is added by tip:
-            int fieldIndex = events->getFieldIndex(fieldName) + 1;
-            std::ostringstream nullkeyword;
-            nullkeyword << "TNULL" << fieldIndex;
-            try {
-               events->getHeader().erase(nullkeyword.str());
-            } catch (...) {
-               // do nothing if tip fails us again here.
-            }
-         } catch (tip::TipException &eObj) {
-            m_formatter->warn() << eObj.what() << "\n"
-                                << "Using existing column." << std::endl;
+            events->appendField(fieldName, "1E");
          }
-      }
-      tip::Table::Iterator it = events->begin();
-      tip::Table::Record & row = *it;
-      for (int j = 0 ; it != events->end(); j++, ++it) {
-         std::vector<std::string>::iterator name = m_srcNames.begin();
-         for ( ; name != m_srcNames.end(); ++name) {
-            std::string fieldName = diffuseSrcName(*name);
-            if (m_useEdisp) {
-               tip::Table::Vector<double> respParams = row[fieldName];
-               setGaussianParams(m_events[j], *name, respParams);
-            } else {
-// Assume infinite energy resolution.
-               row[fieldName].set(m_events[j].diffuseResponse(1., *name));
-            }
+// Repair field by removing incorrect TNULL keyword that is added by tip:
+         int fieldIndex = events->getFieldIndex(fieldName) + 1;
+         std::ostringstream nullkeyword;
+         nullkeyword << "TNULL" << fieldIndex;
+         try {
+            events->getHeader().erase(nullkeyword.str());
+         } catch (...) {
+            // do nothing if tip fails us again here.
          }
+      } catch (tip::TipException &eObj) {
+//          m_formatter->warn() << eObj.what() << "\n"
+//                              << "Using existing column." << std::endl;
       }
-      delete events;
    }
+   tip::Table::Iterator it = events->begin();
+   tip::Table::Record & row = *it;
+   for (int j = 0 ; it != events->end(); j++, ++it) {
+      std::vector<std::string>::iterator name = m_srcNames.begin();
+      for ( ; name != m_srcNames.end(); ++name) {
+         std::string fieldName = m_columnNames.key(diffuseSrcName(*name));
+         if (m_useEdisp) {
+            tip::Table::Vector<double> respParams = row[fieldName];
+            setGaussianParams(m_events[j], *name, respParams);
+         } else {
+// Assume infinite energy resolution.
+            row[fieldName].set(m_events[j].diffuseResponse(1., *name));
+         }
+      }
+   }
+// Set DIFRSPxx keywords.
+   for (size_t i(0); i < m_columnNames.size(); i++) {
+      std::string diffrspName(m_columnNames[i]);
+      std::string key(m_columnNames.key(diffrspName));
+      events->getHeader()[key].set(diffrspName);
+   }
+   delete events;
 }
 
 void diffuseResponses::setGaussianParams(const Event & event,
@@ -380,6 +419,21 @@ void diffuseResponses::getDiffuseSources() {
       if (my_src->getType() == std::string("Diffuse")) {
          m_srcs.push_back(dynamic_cast<DiffuseSource *>(my_src));
          m_srcNames.push_back(srcNames[i]);
+      }
+   }
+}
+
+void diffuseResponses::readExistingDiffRespKeys(const tip::Table * events) {
+   const tip::Header & header(events->getHeader());
+   int nkeys;
+   header["NDIFRSP"].get(nkeys);
+   for (int i(0); i < nkeys; i++) {
+      std::ostringstream keyname;
+      keyname << "DIFRSP" << i;
+      std::string colname;
+      header[keyname.str()].get(colname);
+      if (colname != "NONE") {
+         m_columnNames.addColumn(colname);
       }
    }
 }

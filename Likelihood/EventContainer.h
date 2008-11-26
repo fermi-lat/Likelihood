@@ -3,7 +3,7 @@
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.6 2006/01/09 00:35:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.7 2006/04/17 16:14:38 jchiang Exp $
  */
 
 #ifndef Likelihood_EventContainer_h
@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+#include "Likelihood/DiffRespNames.h"
 #include "Likelihood/Event.h"
 
 namespace st_stream {
@@ -35,7 +36,7 @@ namespace Likelihood {
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.6 2006/01/09 00:35:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.7 2006/04/17 16:14:38 jchiang Exp $
  */
 
 class EventContainer {
@@ -84,6 +85,9 @@ private:
 
    void get_diffuse_names(tip::Table * events, 
                           std::vector<std::string> & names) const;
+
+   void get_diffuse_names(tip::Table * events, 
+                          DiffRespNames & diffRespNames) const;
 
    std::string sourceName(const std::string & name) const;
 

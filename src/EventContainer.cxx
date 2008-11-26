@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.16 2008/01/11 23:48:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.17 2008/02/24 00:40:18 jchiang Exp $
  */
 
 #include <cmath>
@@ -76,7 +76,18 @@ void EventContainer::getEvents(std::string event_file) {
    tip::Table::Record & event = *it;
 
    std::vector<std::string> diffuseNames;
-   get_diffuse_names(events, diffuseNames);
+   DiffRespNames diffRespNames;
+   bool haveOldDiffRespCols(false);
+   try {
+      int ndifrsp;
+      header["NDIFRSP"].get(ndifrsp);
+      get_diffuse_names(events, diffRespNames);
+      diffuseNames = diffRespNames.colnames();
+   } catch(tip::TipException) {
+// Use old diffuse response column names.
+      get_diffuse_names(events, diffuseNames);
+      haveOldDiffRespCols = true;
+   }
 
    for ( ; it != events->end(); ++it, nTotal++) {
       event["ra"].get(ra);
@@ -113,22 +124,14 @@ void EventContainer::getEvents(std::string event_file) {
                   }
                }
             } else {
-               event[*name].get(respValue);
+               std::string colname;
+               if (haveOldDiffRespCols) {
+                  colname = *name;
+               } else {
+                  colname = diffRespNames.key(*name);
+               }
+               event[colname].get(respValue);
                m_events.back().setDiffuseResponse(srcName, respValue);
-//                try {
-//                   event[*name].get(gaussianParams);
-//                   m_events.back().setDiffuseResponse(srcName,
-//                                                      gaussianParams[0]);
-//                } catch (tip::TipException &eObj) {
-//                   std::string message(eObj.what());
-//                   if (message.find("FitsColumn::getVector") !=
-//                       std::string::npos) {
-//                      event[*name].get(respValue);
-//                      m_events.back().setDiffuseResponse(srcName, respValue);
-//                   } else {
-//                      throw;
-//                   }
-//                }
             }
          }
       } else {
@@ -212,17 +215,34 @@ void EventContainer::setFT1_columns() const {
 void EventContainer::
 get_diffuse_names(tip::Table * events, 
                   std::vector<std::string> & names) const {
+/// Read in the diffuse respnose columns assuming the old column naming
+/// scheme.
    names.clear();
-   const std::vector<std::string> & fields = events->getValidFields();
+   const std::vector<std::string> & fields(events->getValidFields());
    std::string respName(m_respFuncs.respName());
    Event::toLower(respName);
-   for (unsigned int i = 0; i < fields.size(); i++) {
+   for (size_t i = 0; i < fields.size(); i++) {
       if (fields.at(i).find("__") != std::string::npos ||
           fields.at(i).find("::") != std::string::npos) {
          if (fields.at(i).find(respName) == 0) {
             names.push_back(fields.at(i));
          }
       }
+   }
+}
+   
+void EventContainer::
+get_diffuse_names(tip::Table * events, 
+                  DiffRespNames & diffRespNames) const {
+   const tip::Header & header(events->getHeader());
+   int nkeys;
+   header["NDIFRSP"].get(nkeys);
+   for (int i(0); i < nkeys; i++) {
+      std::ostringstream keyname;
+      keyname << "DIFRSP" << i;
+      std::string colname;
+      header[keyname.str()].get(colname);
+      diffRespNames.addColumn(colname);
    }
 }
    
