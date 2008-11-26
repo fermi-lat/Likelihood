@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov 26 15:35:02 PST 2008
+Likelihood/src
+
+Modified Files:
+	CompositeLikelihood.cxx EventContainer.cxx 
+Log Message:
+new diffuse response column code
+    *
+------------------------------------------------------------
 User: jchiang  Wed Nov 26 15:35:01 PST 2008
 Likelihood/cmt
 
