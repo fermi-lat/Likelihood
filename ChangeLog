@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Nov 29 07:53:49 PST 2008
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+add DiffRespNames class; tagging v14r0p1
+    *
+------------------------------------------------------------
+User: jchiang  Sat Nov 29 07:53:49 PST 2008
 Likelihood/cmt
 
 Modified Files:
