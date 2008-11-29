@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.50 2008/11/11 21:56:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.51 2008/11/26 23:35:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -57,7 +57,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.50 2008/11/11 21:56:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.51 2008/11/26 23:35:02 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -97,13 +97,14 @@ private:
    std::vector<std::string> m_srcNames;
 
    DiffRespNames m_columnNames;
+   size_t m_ndifrsp;
 
    bool m_useEdisp;
 
    void promptForParameters();
    void readDiffuseNames(std::vector<std::string> & srcNames);
    void readDiffRespNames(std::auto_ptr<const tip::Table> events,
-                          std::vector<std::string> & colnames) const;
+                          std::vector<std::string> & colnames);
    void readExistingDiffRespKeys(const tip::Table * events);
    bool haveDiffuseColumns(const std::string & eventFile);
    void buildSourceModel();
@@ -212,18 +213,19 @@ bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
 
 void diffuseResponses::
 readDiffRespNames(std::auto_ptr<const tip::Table> events,
-                  std::vector<std::string> & colnames) const {
+                  std::vector<std::string> & colnames) {
 // Read in DIFRSPxx names (or column names if using old format)
    const tip::Header & header(events->getHeader());
-   int ndifrsp;
+   int nkeys;
    try {
-      header["NDIFRSP"].get(ndifrsp);
-   } catch(tip::TipException) { 
+      header["NDIFRSP"].get(nkeys);
+      m_ndifrsp = nkeys;
+   } catch(tip::TipException & eObj) {
 // Assume we have the old format, so just read in column names.
       colnames = events->getValidFields();
       return;
    }
-   for (int i(0); i < ndifrsp; i++) {
+   for (size_t i(0); i < m_ndifrsp; i++) {
       std::ostringstream keyname;
       keyname << "DIFRSP" << i;
       std::string colname;
@@ -343,8 +345,10 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
    tip::Table * events 
       = tip::IFileSvc::instance().editTable(eventFile, m_pars["evtable"]);
    if (static_cast<size_t>(events->getNumRecords()) != m_events.size()) {
-      throw std::runtime_error("LogLike::writeEventResponses:\nNumber of records in " 
-            + eventFile + " does not match number of events.");
+      throw std::runtime_error("diffuseResponses::writeEventResponses:" + 
+                               ("\nNumber of records in " 
+                                + eventFile 
+                                + " does not match number of events."));
    }
    readExistingDiffRespKeys(events);
 /// Add the column names to m_columnNames.
@@ -396,6 +400,9 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
       std::string key(m_columnNames.key(diffrspName));
       events->getHeader()[key].set(diffrspName);
    }
+   if (m_columnNames.size() > m_ndifrsp) {
+      events->getHeader()["NDIFRSP"].set(m_columnNames.size());
+   }      
    delete events;
 }
 

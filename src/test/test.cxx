@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.85 2007/11/27 20:07:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.86 2008/03/24 23:43:49 glastrm Exp $
  */
 
 #ifdef TRAP_FPE
@@ -42,6 +42,7 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/DiffRespNames.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/EventContainer.h"
@@ -93,6 +94,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
    CPPUNIT_TEST(test_rescaling);
+   CPPUNIT_TEST(test_DiffRespNames);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -115,6 +117,7 @@ public:
    void test_BinnedExposure();
    void test_SourceMap();
    void test_rescaling();
+   void test_DiffRespNames();
 
 private:
 
@@ -872,6 +875,35 @@ void LikelihoodTests::test_rescaling() {
       double value(my_functions.at(i)->operator()(xx));
       my_functions.at(i)->rescale(factor);
       ASSERT_EQUALS(2*value, my_functions.at(i)->operator()(xx));
+   }
+}
+
+void LikelihoodTests::test_DiffRespNames() {
+   DiffRespNames foo;
+   
+   foo.addColumn("P6_V1_DIFFUSE__Extragalactic Diffuse");
+   foo.addColumn("P6_V1_DIFFUSE__GALPROP Diffuse");
+   
+   CPPUNIT_ASSERT("P6_V1_DIFFUSE__Extragalactic Diffuse" == foo[0]);
+   CPPUNIT_ASSERT("P6_V1_DIFFUSE__Extragalactic Diffuse" == foo["DIFRSP0"]);
+                 
+   CPPUNIT_ASSERT("P6_V1_DIFFUSE__GALPROP Diffuse" == foo[1]);
+   CPPUNIT_ASSERT("P6_V1_DIFFUSE__GALPROP Diffuse" == foo["DIFRSP1"]);
+
+   CPPUNIT_ASSERT("DIFRSP0" == foo.key("P6_V1_DIFFUSE__Extragalactic Diffuse"));
+   CPPUNIT_ASSERT("DIFRSP1" == foo.key("P6_V1_DIFFUSE__GALPROP Diffuse"));
+   
+   try {
+      std::cout << foo[2] << std::endl;
+   } catch (std::out_of_range & eObj) {
+   }
+   try {
+      std::cout << foo["DIFRSP2"] << std::endl;
+   } catch (std::out_of_range & eObj) {
+   }
+   try {
+      std::cout << foo["DIFRPSs0"] << std::endl;
+   } catch (DiffRespNameError & eObj) {
    }
 }
 

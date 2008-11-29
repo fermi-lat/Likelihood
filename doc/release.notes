@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.273 2008/10/28 17:49:50 jchiang Exp $
+    $Id: release.notes,v 1.274 2008/11/11 22:08:36 jchiang Exp $
 
     @verbatim
+    v14      28-Nov-08 JC  New diffuse response column name implementation
     v13r20   11-Nov-08 JC  CTBCLASSLEVEL kludge in Event class and 
                            gtdiffrsp.
     v13r19   28-Oct-08 JC  implement BinnedLikelihood::syncSrcParams;
