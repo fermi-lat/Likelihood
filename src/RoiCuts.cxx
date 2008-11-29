@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.51 2007/04/29 21:09:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.52 2008/07/03 21:03:50 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -19,6 +19,7 @@
 #include "tip/Header.h"
 
 #include "dataSubselector/Gti.h"
+#include "dataSubselector/RangeCut.h"
 
 #include "Likelihood/Exception.h"
 #include "Likelihood/Event.h"
@@ -177,6 +178,11 @@ void RoiCuts::sortCuts(bool strict) {
             if (nenergy == 0 || rangeCut.supercedes(*m_energyCut)) {
                nenergy++;
                m_energyCut = &rangeCut;
+            }
+            if (m_energyCut->intervalType() != 
+                dataSubselector::RangeCut::CLOSED) {
+               throw std::runtime_error("Energy range cut in FT1 file must "
+                                        "have both an upper and lower bound.");
             }
          } else if (colname == "TIME") {
             ntime++;
