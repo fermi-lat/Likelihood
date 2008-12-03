@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.31 2008/07/05 21:44:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.32 2008/09/07 20:34:10 jchiang Exp $
  */
 
 #include <algorithm>
@@ -73,7 +73,7 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
 // Count the rows within the user selected time interval (m_tmin, m_tmax)
 // by counting inwards from the top and bottom of the scData.
    --it;
-   long nrows(scData->getNumRecords());
+   tip::Index_t nrows(scData->getNumRecords());
    if (nrows == 0) {
       return;
    }
@@ -101,12 +101,12 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
    row["start"].get(start);
 
 // Set the step size for the printing out the little progress dots.
-   long istep(nrows/20);
+   tip::Index_t istep(nrows/20);
    if (istep == 0) {
       istep = 1;
    }
 
-   for (long irow = 0; it != scData->end() && start < m_tmax; ++it, ++irow) {
+   for (tip::Index_t irow = 0; it != scData->end() && start < m_tmax; ++it, ++irow) {
       if (verbose && (irow % istep) == 0 ) {
          formatter.warn() << "."; 
       }
