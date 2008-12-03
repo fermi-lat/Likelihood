@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.275 2008/11/29 05:52:18 jchiang Exp $
+    $Id: release.notes,v 1.276 2008/11/29 15:53:49 jchiang Exp $
 
     @verbatim
+    v14r0p2  03-Dec-08 JC  use tip::Index_t instead of long for references to
+                           tip::Table numRecords
     v14r0p1  29-Nov-08 JC  add DiffRespNames class
     v14      28-Nov-08 JC  New diffuse response column name implementation
     v13r20   11-Nov-08 JC  CTBCLASSLEVEL kludge in Event class and 
