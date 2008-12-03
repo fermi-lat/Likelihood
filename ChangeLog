@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Dec  3 10:16:47 PST 2008
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx 
+Log Message:
+use tip::Index_t; tagging v14r0p2
+    *
+------------------------------------------------------------
+User: jchiang  Wed Dec  3 10:16:47 PST 2008
 Likelihood/doc
 
 Modified Files:
