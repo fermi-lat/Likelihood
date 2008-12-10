@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Dec  9 17:35:56 PST 2008
+Likelihood/src
+
+Modified Files:
+	tutorial.h 
+Log Message:
+add code to convert old FT1 files to new diffrsp format; fix exponent in expression for band function in tutorial.h
+    *
+------------------------------------------------------------
+User: jchiang  Tue Dec  9 17:35:56 PST 2008
 Likelihood/pfiles
 
 Modified Files:
