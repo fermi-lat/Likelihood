@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Dec 10 09:22:57 PST 2008
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Log Message:
+bug-fix for coding ineffeciency from S. Fegan; bug fixes for gtdiffrsp conversion of FT1 files
+    *
+------------------------------------------------------------
 User: jchiang  Tue Dec  9 17:35:57 PST 2008
 Likelihood/src/diffuseResponses
 
