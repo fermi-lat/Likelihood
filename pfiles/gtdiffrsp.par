@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtdiffrsp.par,v 1.4 2008/11/11 17:38:57 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtdiffrsp.par,v 1.5 2008/11/11 17:57:06 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
@@ -9,6 +9,7 @@ srcmdl,fr,a,"",,,"Source model file"
 irfs,s,a,"",,,"Response functions to use"
 edisp,b,h,no,,,Use energy dispersion?
 ctbmin,i,h,0,,,"Minimum CTBCLASSLEVEL value"
+convert,b,h,no,,,"convert header to new diffrsp format?"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, no, , , "Overwrite existing output files"

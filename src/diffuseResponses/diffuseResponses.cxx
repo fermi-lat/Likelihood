@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.51 2008/11/26 23:35:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.52 2008/11/29 05:52:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -57,7 +57,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.51 2008/11/26 23:35:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.52 2008/11/29 05:52:19 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -102,6 +102,8 @@ private:
    bool m_useEdisp;
 
    void promptForParameters();
+   void checkColumnVersion(const std::string & evfile) const;
+   void convert_header(const std::string & evfile) const;
    void readDiffuseNames(std::vector<std::string> & srcNames);
    void readDiffRespNames(std::auto_ptr<const tip::Table> events,
                           std::vector<std::string> & colnames);
@@ -155,6 +157,7 @@ void diffuseResponses::run() {
    buildSourceModel();
    m_formatter->warn() << "Working on...\n";
    for (evtfile = eventFiles.begin(); evtfile != eventFiles.end(); ++evtfile) {
+      checkColumnVersion(*evtfile);
       if (clobber || !haveDiffuseColumns(*evtfile)) {
          m_formatter->warn() << *evtfile;
          readEventData(*evtfile);
@@ -172,6 +175,50 @@ void diffuseResponses::run() {
 void diffuseResponses::promptForParameters() {
    m_pars.Prompt();
    m_pars.Save();
+}
+
+void diffuseResponses::checkColumnVersion(const std::string & evfile) const {
+   const tip::Table *
+      events(tip::IFileSvc::instance().readTable(evfile, m_pars["evtable"]));
+   const tip::Header & header(events->getHeader());
+   if (header.find("NDIFRSP") == header.end()) {
+      delete events;
+      if (!m_pars["convert"]) {
+         throw std::runtime_error("NDIFRSP keyword not found in EVENTS HDU of "
+                                  + evfile + " and convert=no.");
+      }
+      m_formatter->warn() << "Converting EVENTS header for "
+                          << evfile
+                          << std::endl;
+      convert_header(evfile);      
+   }
+}
+
+void diffuseResponses::convert_header(const std::string & evfile) const {
+   std::auto_ptr<tip::Table> 
+      events(tip::IFileSvc::instance().editTable(evfile, m_pars["evtable"]));
+   tip::Header & header(events->getHeader());
+   const tip::Table::FieldCont & validFields(events->getValidFields());
+   std::vector<size_t> diffrsp_indx;
+   for (size_t i(0); i < validFields.size(); i++) {
+      if (validFields.at(i).find("__") != std::string::npos ||
+          validFields.at(i).find("::") != std::string::npos) {
+         diffrsp_indx.push_back(i);
+      }
+   }
+   header.append(tip::KeyRecord("NDIFRSP", diffrsp_indx.size(), 
+                                "Number of diffuse response columns."));
+   for (size_t j(0); j < diffrsp_indx.size(); j++) {
+      std::ostringstream key;
+      key << "DIFRSP" << j;
+      header.append(
+         tip::KeyRecord(key.str(), 
+                        validFields.at(diffrsp_indx.at(j)), 
+                        "Diffuse response label for source model component"));
+      std::ostringstream ttype;
+      ttype << "TTYPE" << diffrsp_indx.at(j) + 1;
+      header[ttype.str()].set(key.str());
+   }
 }
 
 void diffuseResponses::readDiffuseNames(std::vector<std::string> & srcNames) {

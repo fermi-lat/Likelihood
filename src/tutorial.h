@@ -509,7 +509,7 @@
       \pfrac{E}{0.1}^\alpha \exp\left[-(E/E_p)(\alpha + 2)\right] 
          & \mbox{if $E < E_p(\alpha - \beta)/(\alpha + 2)$}\\
       \pfrac{E}{0.1}^\beta\left[\pfrac{E_p}{0.1} 
-      \frac{\alpha - \beta}{\alpha + 2}\right]^{\beta - \alpha} 
+      \frac{\alpha - \beta}{\alpha + 2}\right]^{\alpha - \beta} 
       \exp(\beta - \alpha) & \mbox{otherwise}
    \end{array} \right.
    \f]
