@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.53 2008/12/10 01:35:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.54 2008/12/10 17:22:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -57,7 +57,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.53 2008/12/10 01:35:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.54 2008/12/10 17:22:58 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -183,7 +183,8 @@ void diffuseResponses::checkColumnVersion(const std::string & evfile) const {
    const tip::Header & header(events->getHeader());
    if (header.find("NDIFRSP") == header.end()) {
       delete events;
-      if (!m_pars["convert"]) {
+      bool convert = m_pars["convert"];
+      if (!convert) {
          std::ostringstream message;
          message <<"NDIFRSP keyword not found in EVENTS HDU of "
                  << evfile
