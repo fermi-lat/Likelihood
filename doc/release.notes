@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.277 2008/12/03 18:16:47 jchiang Exp $
+    $Id: release.notes,v 1.278 2008/12/10 17:47:26 jchiang Exp $
 
     @verbatim
+    v14r1p1  10-Dec-08 JC  use intermediate variable for m_pars["convert"]
+                           in diffuseResponses.cxx for Windows build
     v14r1    10-Dec-08 JC  bug-fix for coding inefficiency in LogLike (from
                            S. Fegan); conversion of old FT1 files in gtdiffrsp
     v14r0p2  03-Dec-08 JC  use tip::Index_t instead of long for references to
