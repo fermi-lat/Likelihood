@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.52 2008/11/29 05:52:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.53 2008/12/10 01:35:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -57,7 +57,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.52 2008/11/29 05:52:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.53 2008/12/10 01:35:57 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -184,14 +184,20 @@ void diffuseResponses::checkColumnVersion(const std::string & evfile) const {
    if (header.find("NDIFRSP") == header.end()) {
       delete events;
       if (!m_pars["convert"]) {
-         throw std::runtime_error("NDIFRSP keyword not found in EVENTS HDU of "
-                                  + evfile + " and convert=no.");
+         std::ostringstream message;
+         message <<"NDIFRSP keyword not found in EVENTS HDU of "
+                 << evfile
+                 << ", and convert=no.\n"
+                 << "gtdiffrsp cannot proceed unless you convert this file.";
+         throw std::runtime_error(message.str());
       }
       m_formatter->warn() << "Converting EVENTS header for "
                           << evfile
                           << std::endl;
-      convert_header(evfile);      
+      convert_header(evfile);
+      return;
    }
+   delete events;
 }
 
 void diffuseResponses::convert_header(const std::string & evfile) const {
