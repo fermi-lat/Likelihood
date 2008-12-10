@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.276 2008/11/29 15:53:49 jchiang Exp $
+    $Id: release.notes,v 1.277 2008/12/03 18:16:47 jchiang Exp $
 
     @verbatim
+    v14r1    10-Dec-08 JC  bug-fix for coding inefficiency in LogLike (from
+                           S. Fegan); conversion of old FT1 files in gtdiffrsp
     v14r0p2  03-Dec-08 JC  use tip::Index_t instead of long for references to
                            tip::Table numRecords
     v14r0p1  29-Nov-08 JC  add DiffRespNames class
