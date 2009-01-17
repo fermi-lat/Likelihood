@@ -3,7 +3,7 @@
  * @brief Implementation for the FileFunction Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.3 2006/06/20 17:12:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.4 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -56,11 +56,12 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
 
 void FileFunction::readFunction(const std::string & filename) {
    m_filename = filename;
-   facilities::Util::expandEnvVar(&m_filename);
-   st_facilities::Util::file_ok(m_filename);
+   std::string input_file(filename);
+   facilities::Util::expandEnvVar(&input_file);
+   st_facilities::Util::file_ok(input_file);
    std::vector<std::string> lines;
    bool removeWindowsCRs(true);
-   st_facilities::Util::readLines(m_filename, lines, "#", removeWindowsCRs);
+   st_facilities::Util::readLines(input_file, lines, "#", removeWindowsCRs);
    m_x.clear();
    m_y.clear();
    for (size_t i = 0; i < lines.size(); i++) {
