@@ -1,5 +1,19 @@
 ------------------------------------------------------------
 User: sfegan  Mon Jan 19 07:18:18 PST 2009
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+1) Added cache for IRFs in unbinned likelihood
+2) Added cache for names of diffuse response in unbinned likelihood
+3) Added cache for parameters in PowerLaw2
+4) Modified "main" likelihood programs to call LogLike::getEvents which
+   is required to correctly initialize the IRF cache
+
+    *
+------------------------------------------------------------
+User: sfegan  Mon Jan 19 07:18:18 PST 2009
 Likelihood/src
 
 Modified Files:
