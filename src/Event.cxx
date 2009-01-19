@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.61 2008/11/11 17:38:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.62 2008/11/11 17:49:48 jchiang Exp $
  */
 
 #include <cctype>
@@ -82,8 +82,8 @@ Event::Event(double ra, double dec, double energy, double time,
 }
 
 double Event::diffuseResponse(double trueEnergy, 
-                              std::string diffuseComponent) const {
-   diffuseComponent = diffuseSrcName(diffuseComponent);
+                              const std::string& srcName) const {
+   const std::string & diffuseComponent(diffuseSrcName(srcName));
    int indx(0);
    if (m_useEdisp) {
       indx = static_cast<int>((trueEnergy - m_trueEnergies[0])/m_estep);
@@ -115,13 +115,14 @@ double Event::diffuseResponse(double trueEnergy,
 }
 
 const std::vector<double> & 
-Event::diffuseResponse(std::string name) const {
-   name = diffuseSrcName(name);
+Event::diffuseResponse(const std::string& srcName) const {
+   const std::string & diffuseComponent(diffuseSrcName(srcName));
    std::map<std::string, diffuse_response>::const_iterator it;
-   if ((it = m_respDiffuseSrcs.find(name)) == m_respDiffuseSrcs.end()) {
+   if ((it = m_respDiffuseSrcs.find(diffuseComponent))
+       == m_respDiffuseSrcs.end()) {
       std::string errorMessage 
          = "Event::diffuseResponse: \nDiffuse component " 
-         + name
+         + diffuseComponent
          + " does not have an associated diffuse response.\n";
       throw Exception(errorMessage);
    }
@@ -143,7 +144,7 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
 
    EquinoxRotation eqRot(getDir().ra(), getDir().dec());
    for (size_t i(0); i < srcs.size(); i++) {
-      std::string name(diffuseSrcName(srcs.at(i)->getName()));
+      const std::string& name(diffuseSrcName(srcs.at(i)->getName()));
       if (useDummyValue) {
          m_respDiffuseSrcs[name].push_back(0);
       } else {
@@ -269,8 +270,7 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
 // Perform the mu-integrals
       for (unsigned int k = 0; k < srcs.size(); k++) {
          TrapQuad muQuad(muArray, mu_integrands[k]);
-         std::string name = srcs[k]->getName();
-         name = diffuseSrcName(name);
+	 const std::string & name(diffuseSrcName(srcs[k]->getName()));
          double respValue = muQuad.integral();
          if (respValue < 0) {
             throw std::runtime_error("Negative diffuse response value computed"
@@ -408,8 +408,7 @@ void Event::getNewDiffuseSrcs(const std::vector<DiffuseSource *> & srcList,
                               std::vector<DiffuseSource *> & srcs) const {
    for (std::vector<DiffuseSource *>::const_iterator it = srcList.begin();
         it != srcList.end(); ++it) {
-      std::string name((*it)->getName());
-      name = diffuseSrcName(name);
+      const std::string & name(diffuseSrcName((*it)->getName()));
       if (!m_respDiffuseSrcs.count(name)) {
          srcs.push_back(*it);
       }
@@ -422,14 +421,21 @@ void Event::toLower(std::string & name) {
    }
 }
 
-std::string Event::diffuseSrcName(const std::string & srcName) const {
-   std::string name(m_respName + "__" + srcName);
-   toLower(name);
-   return name;
+const std::string & Event::diffuseSrcName(const std::string & srcName) const {
+   std::map<std::string, std::string>::iterator it = 
+     m_diffSrcNames.find(srcName);
+   if(it == m_diffSrcNames.end())
+     {
+       std::string name(m_respName + "__" + srcName);
+       toLower(name);
+       m_diffSrcNames[srcName] = name;
+       return m_diffSrcNames[srcName];
+     }
+   return it->second;
 }
 
-void Event::updateModelSum(const Source & src) {
-   double contribution(src.fluxDensity(*this));
+void Event::updateModelSum(const Source & src, CachedResponse* cResp) {
+   double contribution(src.fluxDensity(*this, cResp));
    const std::string & srcName(src.getName());
    std::map<std::string, double>::iterator fluxDensity;
    if ((fluxDensity = m_fluxDensities.find(srcName)) 
@@ -449,17 +455,17 @@ void Event::resetModelSum() {
    m_modelSum = 0;
 }
 
-void Event::setDiffuseResponse(std::string srcName,
+void Event::setDiffuseResponse(const std::string& srcName,
                                const std::vector<double> & gaussianParams) {
-   srcName = diffuseSrcName(srcName);
+   const std::string & diffuseComponent(diffuseSrcName(srcName));
    static double sqrt2pi = sqrt(2.*M_PI);
    std::vector<double>::const_iterator energy = m_trueEnergies.begin();
-   m_respDiffuseSrcs[srcName].clear();
+   m_respDiffuseSrcs[diffuseComponent].clear();
    for ( ; energy != m_trueEnergies.end(); ++energy) {
       double value = gaussianParams[0]/sqrt2pi/gaussianParams[2]
          *exp(-(*energy - gaussianParams[1])*(*energy - gaussianParams[1])
               /gaussianParams[2]/gaussianParams[2]/2.);
-      m_respDiffuseSrcs[srcName].push_back(value);
+      m_respDiffuseSrcs[diffuseComponent].push_back(value);
    }
 }
 

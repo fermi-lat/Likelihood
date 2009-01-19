@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.62 2008/09/24 01:32:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.63 2008/09/24 04:48:39 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.62 2008/09/24 01:32:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.63 2008/09/24 04:48:39 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -68,24 +68,28 @@ public:
 
    /// Returns photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
-   virtual double fluxDensity(const Event &evt) const {
+     virtual double fluxDensity(const Event &evt,
+				CachedResponse* cResp = 0) const {
       return fluxDensity(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
-                         evt.getDir(), evt.getType());
+                         evt.getDir(), evt.getType(), cResp);
    }
 
    virtual double fluxDensity(double inclination, double phi, double energy, 
-                              const astro::SkyDir & appDir, int evtType) const;
+                              const astro::SkyDir & appDir, int evtType,
+			      CachedResponse* cResp = 0) const;
 
    /// Returns the derivative wrt to the named Parameter
    virtual double fluxDensityDeriv(const Event &evt, 
-                                   const std::string &paramName) const {
+                                   const std::string &paramName,
+				   CachedResponse* cResp = 0) const {
       return fluxDensityDeriv(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
-                              evt.getDir(),evt.getType(), paramName);
+                              evt.getDir(),evt.getType(), paramName, cResp);
    }
 
    virtual double fluxDensityDeriv(double inclination, double phi, 
                                    double energy, const astro::SkyDir & appDir,
-                                   int evtType, const std::string & paramName)
+                                   int evtType, const std::string & paramName,
+				   CachedResponse* cResp = 0)
       const;
 
    /// Set source location using J2000 coordinates
@@ -202,19 +206,23 @@ private:
 
    double fluxDensity(double energy, const astro::SkyDir & zAxis,
                       const astro::SkyDir & xAxis,
-                      const astro::SkyDir & dir, int eventType=2) const;
+                      const astro::SkyDir & dir, int eventType=2,
+		      CachedResponse* cResp = 0) const;
 
    double fluxDensity(double energy, double time,
-                      const astro::SkyDir &dir, int eventType=2) const;
+                      const astro::SkyDir &dir, int eventType=2,
+		      CachedResponse* cResp = 0) const;
 
    double fluxDensityDeriv(double energy, const astro::SkyDir & zAxis,
                            const astro::SkyDir & xAxis,
                            const astro::SkyDir &dir, int eventType,
-                           const std::string &paramName) const;
+                           const std::string &paramName,
+			   CachedResponse* cResp = 0) const;
 
    double fluxDensityDeriv(double energy, double time,
                            const astro::SkyDir &dir, int eventType,
-                           const std::string &paramName) const;
+                           const std::string &paramName,
+			   CachedResponse* cResp = 0) const;
 
    /// method to create a logrithmically spaced grid given RoiCuts
    static void makeEnergyVector(int nee = 100);
