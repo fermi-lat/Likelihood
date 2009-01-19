@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.37 2006/12/20 02:00:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.38 2008/08/07 06:11:34 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -32,12 +32,13 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.37 2006/12/20 02:00:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.38 2008/08/07 06:11:34 jchiang Exp $
  */
 
 class Source {
 
 public:
+   typedef std::pair<bool, double> CachedResponse;
     
    Source(const Observation * observation=0);
 
@@ -49,7 +50,8 @@ public:
 
    /// @return photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
-   virtual double fluxDensity(const Event &evt) const = 0;
+     virtual double fluxDensity(const Event &evt, 
+				CachedResponse* cResp = 0) const = 0;
 
    /// @return fluxDensity in instrument coordinates (photons/cm^2-s-sr-MeV)
    /// @param inclination angle of source direction wrt the instrument
@@ -62,16 +64,18 @@ public:
    ///        0 vs 1
    virtual double fluxDensity(double inclination, double phi, double energy, 
                               const astro::SkyDir & appDir, 
-                              int evtType) const = 0;
+                              int evtType, CachedResponse* cResp = 0) const = 0;
 
    /// Derivatives of fluxDensity wrt model Parameters
    virtual double fluxDensityDeriv(const Event &evt, 
-                                   const std::string &paramName) const = 0;
+                                   const std::string &paramName,
+				   CachedResponse* cResp = 0) const = 0;
 
    virtual double fluxDensityDeriv(double inclination, double phi, 
                                    double energy, const astro::SkyDir & appDir,
                                    int evtType, 
-                                   const std::string & paramName) const = 0;
+                                   const std::string & paramName,
+				   CachedResponse* cResp = 0) const = 0;
 
    /// Predicted number of photons.
    virtual double Npred();

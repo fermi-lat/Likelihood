@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.61 2007/10/10 20:03:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.61 2007/10/10 20:03:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -25,7 +25,10 @@
 namespace Likelihood {
 
 LogLike::LogLike(const Observation & observation) 
-   : SourceModel(observation), m_nevals(0), m_bestValueSoFar(-1e38) {
+  : SourceModel(observation), m_nevals(0), m_bestValueSoFar(-1e38),
+    m_evSrcRespCache() {
+   const std::vector<Event> & events = m_observation.eventCont().events();
+   m_evSrcRespCache.resize(events.size());
    deleteAllSources();
 }
 
@@ -36,7 +39,7 @@ double LogLike::value(optimizers::Arg&) const {
    
 // The "data sum"
    for (size_t j = 0; j < events.size(); j++) {
-      double addend(logSourceModel(events.at(j)));
+      double addend(logSourceModel(events.at(j), &m_evSrcRespCache.at(j)));
       my_value += addend;
       m_accumulator.add(addend);
    }
@@ -53,7 +56,7 @@ double LogLike::value(optimizers::Arg&) const {
       std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
       for ( ; srcIt != m_sources.end(); ++srcIt) {
          SrcArg sArg(srcIt->second);
-         double addend(m_Npred(sArg));
+	 double addend = m_Npred(sArg);
          my_value -= addend;
          m_accumulator.add(-addend);
       }
@@ -72,18 +75,24 @@ double LogLike::value(optimizers::Arg&) const {
    return my_total;
 }
 
-double LogLike::logSourceModel(const Event & event) const {
+double LogLike::logSourceModel(const Event & event,
+		 std::map<std::string, CachedResponse>* srcRespCache) const {
    double my_value(0);
    if (m_useNewImp) {
       for (size_t i = 0; i < m_freeSrcs.size(); i++) {
-         const_cast<Event &>(event).updateModelSum(*m_freeSrcs.at(i));
+	 const Source* source = m_freeSrcs.at(i);
+	 CachedResponse* cResp=0;
+	 if(srcRespCache)cResp = &(*srcRespCache)[source->getName()];
+         const_cast<Event &>(event).updateModelSum(*m_freeSrcs.at(i), cResp);
       }
       my_value = event.modelSum();
    } else {
       std::map<std::string, Source *>::const_iterator 
          source(m_sources.begin());
       for ( ; source != m_sources.end(); ++source) {
-         double fluxDens(source->second->fluxDensity(event));
+	 CachedResponse* cResp=0;
+	 if(srcRespCache)cResp = &(*srcRespCache)[source->second->getName()];
+         double fluxDens(source->second->fluxDensity(event, cResp));
          my_value += fluxDens;
       }
    }
@@ -94,21 +103,24 @@ double LogLike::logSourceModel(const Event & event) const {
 }
 
 void LogLike::getLogSourceModelDerivs(const Event & event,
-                                      std::vector<double> & derivs) const {
+                                      std::vector<double> & derivs,
+	      std::map<std::string, CachedResponse>* srcRespCache) const {
    derivs.clear();
    derivs.reserve(getNumFreeParams());
-   double srcSum = std::exp(logSourceModel(event));
+   double srcSum = std::exp(logSourceModel(event,srcRespCache));
 
    std::map<std::string, Source *>::const_iterator source = m_sources.begin();
    for ( ; source != m_sources.end(); ++source) {
       Source::FuncMap srcFuncs = source->second->getSrcFuncs();
       Source::FuncMap::const_iterator func_it = srcFuncs.begin();
+      CachedResponse* cResp=0;
+      if(srcRespCache)cResp = &(*srcRespCache)[source->second->getName()];
       for (; func_it != srcFuncs.end(); func_it++) {
          std::vector<std::string> paramNames;
          (*func_it).second->getFreeParamNames(paramNames);
          for (size_t j = 0; j < paramNames.size(); j++) {
             derivs.push_back(
-               source->second->fluxDensityDeriv(event, paramNames[j])/srcSum
+     source->second->fluxDensityDeriv(event, paramNames[j], cResp)/srcSum
                );
          }
       }
@@ -123,7 +135,7 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
    std::vector<double> logSrcModelDerivs(getNumFreeParams(), 0);
    for (size_t j = 0; j < events.size(); j++) {
       std::vector<double> derivs;
-      getLogSourceModelDerivs(events[j], derivs);
+      getLogSourceModelDerivs(events[j], derivs, &m_evSrcRespCache.at(j));
       for (size_t i = 0; i < derivs.size(); i++) {
          logSrcModelDerivs[i] += derivs[i];
       }
@@ -167,8 +179,10 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
 void LogLike::addSource(Source * src) {
    SourceModel::addSource(src);
    const std::vector<Event> & events = m_observation.eventCont().events();
+   std::string srcName = src->getName();
    for (size_t j = 0; j < events.size(); j++) {
-      const_cast<std::vector<Event> &>(events).at(j).updateModelSum(*src);
+      CachedResponse* cResp = &m_evSrcRespCache[j][srcName];
+      const_cast<std::vector<Event> &>(events).at(j).updateModelSum(*src, cResp);
    }
    SrcArg sArg(src);
    m_npredValues[src->getName()] = m_Npred(sArg);
@@ -180,6 +194,8 @@ Source * LogLike::deleteSource(const std::string & srcName) {
    for (size_t j = 0; j < events.size(); j++) {
       const_cast<std::vector<Event> &>(events).at(j).deleteSource(srcName);
    }
+   for (size_t j = 0; j < m_evSrcRespCache.size(); j++)
+     m_evSrcRespCache[j].erase(srcName);
    m_npredValues.erase(srcName);
    m_bestValueSoFar = -1e38;
    return SourceModel::deleteSource(srcName);
@@ -189,6 +205,8 @@ void LogLike::getEvents(std::string event_file) {
    EventContainer & eventCont =
       const_cast<EventContainer &>(m_observation.eventCont());
    eventCont.getEvents(event_file);
+   m_evSrcRespCache.clear();
+   m_evSrcRespCache.resize(eventCont.events().size());
 }
 
 void LogLike::computeEventResponses(double sr_radius) {
@@ -227,7 +245,8 @@ void LogLike::syncSrcParams(const std::string & srcName) {
       m_npredValues[source->first] = m_Npred(sArg);
       const std::vector<Event> & events(m_observation.eventCont().events());
       for (size_t j(0); j < events.size(); j++) {
-         const_cast<Event &>(events.at(j)).updateModelSum(*source->second);
+	 CachedResponse* cResp = &m_evSrcRespCache[j][srcName];
+         const_cast<Event &>(events.at(j)).updateModelSum(*source->second,cResp);
       }
    }
 }

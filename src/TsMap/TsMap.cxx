@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.40 2008/04/02 14:52:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.41 2008/04/03 00:12:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -93,7 +93,7 @@ TsMap::TsMap()
    setVersion(s_cvs_id);
 }
 
-std::string TsMap::s_cvs_id("$Name:  $");
+std::string TsMap::s_cvs_id("$Name: ScienceTools-HEAD-1-705 $");
 
 void TsMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -147,7 +147,7 @@ void TsMap::readEventData() {
    std::vector<std::string>::const_iterator evFile(m_eventFiles.begin());
    for ( ; evFile != m_eventFiles.end(); ++evFile) {
       st_facilities::Util::file_ok(*evFile);
-      m_helper->observation().eventCont().getEvents(*evFile);
+      m_logLike->getEvents(*evFile);
    }
 }
 

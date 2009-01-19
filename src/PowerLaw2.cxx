@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.5 2005/10/19 22:13:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PowerLaw2.cxx,v 1.6 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,6 +19,9 @@
 #include "Likelihood/PowerLaw2.h"
 
 namespace Likelihood {
+
+double PowerLaw2::s_cX = 0;
+double PowerLaw2::s_cLogX = 0;
 
 PowerLaw2::PowerLaw2(double Integral, double Index, 
                      double LowerLimit, double UpperLimit) {
@@ -41,6 +44,10 @@ PowerLaw2::PowerLaw2(double Integral, double Index,
 
    m_genericName = "PowerLaw2";
    m_normParName = "Integral";
+
+   m_cGamma = Index+1;
+   m_cX = 0;
+   updateCache(1.0, Index, LowerLimit, UpperLimit);
 }
 
 double PowerLaw2::value(optimizers::Arg & xarg) const {
@@ -50,17 +57,16 @@ double PowerLaw2::value(optimizers::Arg & xarg) const {
    enum ParamTypes {Integral, Index, LowerLimit, UpperLimit};
 
    double NN = m_parameter[Integral].getTrueValue();
-   double gamma = -m_parameter[Index].getTrueValue();
+   double gamma = m_parameter[Index].getTrueValue();
    double x1 = m_parameter[LowerLimit].getTrueValue();
    double x2 = m_parameter[UpperLimit].getTrueValue();
-   
-   if (gamma == 1.) {
-      return NN/x/std::log(x2/x1);
-   }
-   double one_m_gam = 1. - gamma;
 
-   return (NN*one_m_gam*std::pow(x, -gamma)
-           /(std::pow(x2, one_m_gam) - std::pow(x1, one_m_gam)));
+   updateCache(x, gamma, x1, x2);
+
+   if (gamma == -1.0)
+     return NN/x/(m_cLogXHi - m_cLogXLo);
+   else
+     return NN*m_cGXFact*m_cPowX;
 }
 
 double PowerLaw2::
@@ -71,6 +77,7 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {
          iparam = i;
+	 break;
       }
    }
 
@@ -82,31 +89,33 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
    enum ParamTypes {Integral, Index, LowerLimit, UpperLimit};
 
    double NN = m_parameter[Integral].getTrueValue();
-   double gamma = -m_parameter[Index].getTrueValue();
-   double x1 = m_parameter[LowerLimit].getTrueValue()/x;
-   double x2 = m_parameter[UpperLimit].getTrueValue()/x;
+   double gamma = m_parameter[Index].getTrueValue();
+   double x1 = m_parameter[LowerLimit].getTrueValue();
+   double x2 = m_parameter[UpperLimit].getTrueValue();
 
-   double one_m_gam(1. - gamma);
-   if (gamma == 1) { // ugly kluge for Index
-      one_m_gam = 1e-7;
-   }
+   updateCache(x, gamma, x1, x2);
 
-   double pow_x1(std::pow(x1, one_m_gam));
-   double pow_x2(std::pow(x2, one_m_gam));
-
+   double val = 0;
    switch (iparam) {
    case Integral:
-      if (gamma == 1) {
-         return 1./x/std::log(x2/x1)*m_parameter[Integral].getScale();
+      if (gamma == -1.) {
+	 val = 1./x/(m_cLogXHi - m_cLogXLo);
+      } else {
+	 val = m_cGXFact*m_cPowX;
       }
-      return one_m_gam/x/(pow_x2 - pow_x1)*m_parameter[Integral].getScale();
+      return val * m_parameter[Integral].getScale();
       break;
    case Index:
-// What is the correct expression for gamma = 1?
-      return -( NN/x*(pow_x1*(1. - one_m_gam*std::log(x1)) -
-                      pow_x2*(1. - one_m_gam*std::log(x2)))
-                /(pow_x2 - pow_x1)/(pow_x2 - pow_x1) )
-         *m_parameter[Index].getScale();
+      if (gamma == -1.) {
+	 val = -NN/(2.*x)*(m_cLogXHi+m_cLogXLo-2.*s_cLogX)/
+	   (m_cLogXHi-m_cLogXLo);
+      } else {
+	 double one_p_gamma = 1.+gamma;
+	 val = NN*(m_cPowXHi*(1.-one_p_gamma*(m_cLogXHi-s_cLogX)) -
+		   m_cPowXLo*(1.-one_p_gamma*(m_cLogXLo-s_cLogX)))/
+	   std::pow(m_cPowXHi - m_cPowXLo,2)*m_cPowX;
+      }
+      return val * m_parameter[Index].getScale();
       break;
    case LowerLimit:
    case UpperLimit:

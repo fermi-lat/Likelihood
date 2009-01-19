@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.139 2008/08/15 03:44:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.140 2008/10/28 17:21:54 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -89,7 +89,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.139 2008/08/15 03:44:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.140 2008/10/28 17:21:54 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -160,7 +160,7 @@ private:
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlike");
 
-std::string likelihood::s_cvs_id("$Name:  $");
+std::string likelihood::s_cvs_id("$Name: ScienceTools-HEAD-1-705 $");
 
 void likelihood::banner() const {
    int verbosity = m_pars["chatter"];
@@ -367,7 +367,10 @@ void likelihood::readEventData() {
    std::vector<std::string>::const_iterator evIt = m_eventFiles.begin();
    for ( ; evIt != m_eventFiles.end(); evIt++) {
       st_facilities::Util::file_ok(*evIt);
-      m_helper->observation().eventCont().getEvents(*evIt);
+      if (m_statistic == "BINNED")
+	m_helper->observation().eventCont().getEvents(*evIt); // Why?
+      else if (m_statistic == "UNBINNED")
+	m_logLike->getEvents(*evIt);
    }
 }
 

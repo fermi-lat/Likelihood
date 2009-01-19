@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.41 2008/11/11 17:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Event.h,v 1.42 2008/11/11 17:49:48 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.41 2008/11/11 17:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Event.h,v 1.42 2008/11/11 17:49:48 jchiang Exp $
  */
 
 class Event {
@@ -66,7 +66,7 @@ public:
    /// return the Event specific diffuse response function 
    /// for the named diffuse component
    double diffuseResponse(double energy, 
-                          std::string diffuseComponent) const;
+                          const std::string& srcName) const;
     
    void computeResponseGQ(std::vector<DiffuseSource *> & srcs, 
                           const ResponseFunctions & respFuncs,
@@ -102,14 +102,14 @@ public:
    void writeDiffuseResponses(const std::string & filename);
 
    /// Set diffuse response for infinite energy resolution.
-   void setDiffuseResponse(std::string srcName, double value) {
-      srcName = diffuseSrcName(srcName);
-      m_respDiffuseSrcs[srcName].clear();
-      m_respDiffuseSrcs[srcName].push_back(value);
+   void setDiffuseResponse(const std::string& srcName, double value) {
+     const std::string & diffuseComponent = diffuseSrcName(srcName);
+      m_respDiffuseSrcs[diffuseComponent].clear();
+      m_respDiffuseSrcs[diffuseComponent].push_back(value);
    }
 
    /// Set diffuse response for finite energy resolution.
-   void setDiffuseResponse(std::string srcName, 
+   void setDiffuseResponse(const std::string& srcName, 
                            const std::vector<double> & gaussianParams);
 
    static void toLower(std::string & name);
@@ -120,19 +120,21 @@ public:
    }
 
    /// Direct access to diffuse responses.
-   const std::vector<double> & diffuseResponse(std::string name) const;
+   const std::vector<double> & diffuseResponse(const std::string& srcName) const;
 
-   void computeGaussianParams(const std::string & name, double & norm, 
+   void computeGaussianParams(const std::string & srcName, double & norm, 
                               double & mean, double & sigma) const;
    
    /// @return The srcName with the response function name + "::" prepended.
    ///         NB: Everything is converted to lower-case since that is
    ///         what tip returns when you ask for FITS table column names.
    /// @param srcName The source name.
-   std::string diffuseSrcName(const std::string & srcName) const;
+   const std::string& diffuseSrcName(const std::string & srcName) const;
 
    /// Add or subtract contribution from a given source to m_modelSum.
-   void updateModelSum(const Source & src);
+   //typedef Source::CachedResponse CachedResponse; -- cannot do this!
+   typedef std::pair<bool, double> CachedResponse;
+   void updateModelSum(const Source & src, CachedResponse* cResp = 0);
 
    void resetModelSum();
 
@@ -180,6 +182,7 @@ private:
    /// energy redistribution function for each diffuse source.
    typedef std::vector<double> diffuse_response;
    std::map<std::string, diffuse_response> m_respDiffuseSrcs;
+   mutable std::map<std::string, std::string> m_diffSrcNames;
 
    /// Use this variable to keep track of Classification tree info.
    int m_ctbclasslevel;
