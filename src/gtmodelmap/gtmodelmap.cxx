@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.16 2008/08/21 00:32:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.17 2008/09/30 17:47:50 jchiang Exp $
  */
 
 #include <iostream>
@@ -42,6 +42,7 @@
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/PowerLaw2.h"
+#include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SpatialMap.h"
@@ -350,6 +351,8 @@ void ModelMap::prepareFunctionFactory() {
    m_funcFactory->addFunc("FileFunction", new Likelihood::FileFunction(),
                           makeClone);
    m_funcFactory->addFunc("ExpCutoff", new Likelihood::ExpCutoff(), makeClone);
+   m_funcFactory->addFunc("PLSuperExpCutoff", 
+                          new Likelihood::PowerLawSuperExpCutoff(), makeClone);
 }
 
 void ModelMap::createRegistry() {
