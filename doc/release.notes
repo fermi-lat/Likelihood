@@ -1,9 +1,13 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.278 2008/12/10 17:47:26 jchiang Exp $
+    $Id: release.notes,v 1.279 2008/12/10 21:50:43 jchiang Exp $
 
     @verbatim
+    v14r2    19-Jan-08 JC  speed improvements from S. Fegan including
+                           caching of response function calculations (see
+                           ChangeLog); add PLSuperExpCutoff to gtmodel; save
+                           env vars in FileFunction filenames in xml file
     v14r1p1  10-Dec-08 JC  use intermediate variable for m_pars["convert"]
                            in diffuseResponses.cxx for Windows build
     v14r1    10-Dec-08 JC  bug-fix for coding inefficiency in LogLike (from
