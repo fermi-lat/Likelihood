@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.10 2005/05/17 00:26:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.11 2005/05/23 05:51:25 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -38,8 +38,6 @@ public:
       : m_srcDir(srcDir), m_energies(energies), m_observation(observation) {
       init();
    }
-
-//   MeanPsf() : m_observation(Observation()) {}
 
    /// @return The value of the psf.
    /// @param energy True photon energy (MeV)
@@ -111,13 +109,12 @@ private:
          : m_separation(separation), m_energy(energy), m_evtType(evtType),
            m_observation(observation) {}
       virtual ~Psf() {}
-      virtual double operator()(double cosTheta) const;
+      virtual double operator()(double cosTheta, double phi=0) const;
    private:
       double m_separation;
       double m_energy;
       int m_evtType;
       const Observation & m_observation;
-      static double s_phi;
    };
 
    class Aeff {
@@ -125,13 +122,12 @@ private:
       Aeff(double energy, int evtType, const Observation & observation) 
          : m_energy(energy), m_evtType(evtType), m_observation(observation) {}
       virtual ~Aeff() {}
-      virtual double operator()(double cosTheta) const;
+      virtual double operator()(double cosTheta, double phi=0) const;
    private:
       double m_separation;
       double m_energy;
       int m_evtType;
       const Observation & m_observation;
-      static double s_phi;
    };
 
 };

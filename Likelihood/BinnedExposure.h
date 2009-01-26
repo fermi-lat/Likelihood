@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.9 2005/11/17 01:47:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.10 2005/11/17 22:01:35 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -87,12 +87,11 @@ private:
       Aeff(double energy, int evtType, const Observation & observation) 
          : m_energy(energy), m_evtType(evtType), m_observation(observation) {}
       virtual ~Aeff() {}
-      virtual double operator()(double cosTheta) const;
+      virtual double operator()(double cosTheta, double phi=0) const;
    private:
       double m_energy;
       int m_evtType;
       const Observation & m_observation;
-      static double s_phi;
    };
 
 };

@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.104 2008/09/24 04:48:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.105 2009/01/19 15:18:18 sfegan Exp $
  */
 
 #include <cmath>
@@ -186,12 +186,15 @@ double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
       optimizers::dArg energy_arg(energy);
       double spectrum = (*m_spectrum)(energy_arg);
       double resp(0);
-      if(cResp && cResp->first) {
+      if (cResp && cResp->first) {
 	 resp = cResp->second;
       } else {
 	 resp = respFuncs.totalResponse(energy, energy, zAxis, xAxis,
 					m_dir.getDir(), dir, eventType);
-	 if(cResp)cResp->first=true, cResp->second=resp;
+	 if (cResp) {
+            cResp->first = true;
+            cResp->second = resp;
+         }
       }
       return spectrum*resp;
    }
@@ -201,18 +204,20 @@ double PointSource::fluxDensity(double inclination, double phi, double energy,
                                 const astro::SkyDir & appDir, 
                                 int evtType,
 				CachedResponse* cResp) const {
-/// @todo add implementation for energy dispersion.
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
    double separation = appDir.difference(getDir())*180./M_PI;
    const ResponseFunctions & respFuncs = m_observation->respFuncs();
    double resp(0);
-   if(cResp && cResp->first)
+   if (cResp && cResp->first) {
       resp = cResp->second;
-   else {
+   } else {
       resp = respFuncs.totalResponse(inclination, phi, energy, energy, 
 				     separation, evtType);
-      if(cResp)cResp->first=true, cResp->second=resp;
+      if (cResp) {
+         cResp->first = true;
+         cResp->second = resp;
+      }
    }
    return spectrum*resp;
 }
@@ -573,16 +578,19 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
                                   const ScData & scData,
                                   const RoiCuts & roiCuts,
                                   const ResponseFunctions & respFuncs) {
-
    astro::SkyDir zAxis = scData.zAxis(time);
-//   astro::SkyDir xAxis = scData.xAxis(time);
+   astro::SkyDir xAxis = scData.xAxis(time);
 
    PointSource::Aeff aeff(energy, srcDir, roiCuts, respFuncs, time);
 
    double cos_theta = zAxis()*const_cast<astro::SkyDir&>(srcDir)();
 
+   CLHEP::Hep3Vector yhat(zAxis().cross(xAxis()));
+   double phi = 180./M_PI*std::atan2(yhat.dot(srcDir()), 
+                                     xAxis().dot(srcDir()));
+
    double effArea(0);
-   effArea = aeff(cos_theta);
+   effArea = aeff(cos_theta, phi);
    return effArea;
 }
 
@@ -598,9 +606,8 @@ PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir,
    m_emax = roiCuts.getEnergyCuts().second;
 }
 
-double PointSource::Aeff::operator()(double cos_theta) const {
+double PointSource::Aeff::operator()(double cos_theta, double phi) const {
    double theta = acos(cos_theta)*180./M_PI;
-   static double phi;
 
    double myEffArea = 0;
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt

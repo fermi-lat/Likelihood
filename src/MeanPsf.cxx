@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.18 2006/02/16 07:11:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.19 2006/04/17 16:14:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -169,9 +169,7 @@ void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
    }
 }
 
-double MeanPsf::Psf::s_phi(0);
-
-double MeanPsf::Psf::operator()(double cosTheta) const {
+double MeanPsf::Psf::operator()(double cosTheta, double phi) const {
    double inclination = acos(cosTheta)*180./M_PI;
    if (inclination > 70.) {
       return 0;
@@ -182,9 +180,8 @@ double MeanPsf::Psf::operator()(double cosTheta) const {
       if (respIt->second->irfID() == m_evtType) {  
          irfInterface::IAeff * aeff = respIt->second->aeff();
          irfInterface::IPsf * psf = respIt->second->psf();
-         double aeffValue = aeff->value(m_energy, inclination, s_phi);
-         double psfValue = psf->value(m_separation, m_energy, inclination, 
-                                      s_phi);
+         double aeffValue = aeff->value(m_energy, inclination, phi);
+         double psfValue = psf->value(m_separation, m_energy, inclination, phi);
          double psf_val = aeffValue*psfValue;
          if (psf_val < 0) {
             if (inclination > 69.) {  // ugly kluge
@@ -194,7 +191,7 @@ double MeanPsf::Psf::operator()(double cosTheta) const {
             formatter.info() << "separation: " << m_separation << "  "
                              << "energy: " << m_energy << "  "
                              << "inclination: " <<inclination << "  "
-                             << "phi: " << s_phi << std::endl;
+                             << "phi: " << phi << std::endl;
             throw std::runtime_error("MeanPsf::Psf::operator(): psf_val < 0");
          }
          return psf_val;
@@ -203,9 +200,7 @@ double MeanPsf::Psf::operator()(double cosTheta) const {
    return 0;
 }
 
-double MeanPsf::Aeff::s_phi(0);
-
-double MeanPsf::Aeff::operator()(double cosTheta) const {
+double MeanPsf::Aeff::operator()(double cosTheta, double phi) const {
    double inclination = acos(cosTheta)*180./M_PI;
    if (inclination > 70.) {
       return 0;
@@ -215,7 +210,7 @@ double MeanPsf::Aeff::operator()(double cosTheta) const {
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {  
          irfInterface::IAeff * aeff = respIt->second->aeff();
-         double aeff_val = aeff->value(m_energy, inclination, s_phi);
+         double aeff_val = aeff->value(m_energy, inclination, phi);
          return aeff_val;
       }
    }
