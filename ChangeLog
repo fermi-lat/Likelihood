@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan 25 17:24:25 PST 2009
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedExposure.h MeanPsf.h Pixel.h PointSource.h SourceMap.h 
+Log Message:
+compute phi, add phi-dependence to Aeff function class interfaces
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-02-00, operation: add
 Package: Likelihood
