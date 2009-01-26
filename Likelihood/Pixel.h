@@ -4,7 +4,7 @@
  * derivatives wrt model parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.8 2006/03/15 21:34:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.9 2006/03/23 00:21:25 jchiang Exp $
  */
 
 #ifndef Likelihood_Pixel_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.8 2006/03/15 21:34:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.9 2006/03/23 00:21:25 jchiang Exp $
  */
 
 class Pixel {
@@ -81,7 +81,7 @@ public:
    public:
       Aeff(Source * src, const astro::SkyDir & appDir, 
            double energy, int type);
-      virtual double operator()(double costheta) const;
+      virtual double operator()(double costheta, double phi=0) const;
    protected:
       Source * m_src;
       const astro::SkyDir & m_appDir;
@@ -95,7 +95,7 @@ public:
       AeffDeriv(Source * src, const std::string & paramName, 
                 const astro::SkyDir & appDir, double energy, int type);
       virtual ~AeffDeriv() {}
-      virtual double operator()(double costheta) const;
+      virtual double operator()(double costheta, double phi=0) const;
    protected:
       Source * m_src;
       std::string m_paramName;

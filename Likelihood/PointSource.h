@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.63 2008/09/24 04:48:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.64 2009/01/19 15:18:17 sfegan Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.63 2008/09/24 04:48:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.64 2009/01/19 15:18:17 sfegan Exp $
  */
 
 class PointSource : public Source {
@@ -253,7 +253,7 @@ private:
 
       virtual ~Aeff() {}
 
-      virtual double operator()(double cos_theta) const;
+      virtual double operator()(double cos_theta, double phi=0) const;
 
    private:
 
