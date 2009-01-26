@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan 25 17:24:26 PST 2009
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx MeanPsf.cxx Pixel.cxx PointSource.cxx 
+	SourceMap.cxx 
+Log Message:
+compute phi, add phi-dependence to Aeff function class interfaces
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jan 25 17:24:25 PST 2009
 Likelihood/Likelihood
 
