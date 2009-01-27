@@ -1,9 +1,8 @@
 /** 
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
- * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.3 2008/09/25 17:31:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.4 2008/10/12 21:25:06 cohen Exp $
  */
 
 #include <cmath>
@@ -13,6 +12,8 @@
 
 #include "optimizers/dArg.h"
 #include "optimizers/ParameterNotFound.h"
+#include "optimizers/f2c_types.h"
+typedef double doublereal;
 
 #include "Likelihood/DMFitFunction.h"
 
@@ -23,7 +24,7 @@
 extern "C" {
 #endif
 
-#include "f2c/f2c.h"
+//#include "f2c/f2c.h"
 doublereal yieldget_ (integer *zi, integer *mxi, integer *ch);
 doublereal llg_ (doublereal *x, doublereal *mx, doublereal *ml);
 integer dmfit_load__ (char *filename, ftnlen filename_len);
@@ -65,8 +66,10 @@ double DMFitFunction::value(optimizers::Arg &xarg) const {
    double n=m_parameter[0].getTrueValue();
    double m=m_parameter[1].getTrueValue();
    double b=m_parameter[2].getTrueValue();
-   long int ch0 = m_parameter[3].getTrueValue();
-   long int ch1 = m_parameter[4].getTrueValue();
+//    long int ch0 = m_parameter[3].getTrueValue();
+//    long int ch1 = m_parameter[4].getTrueValue();
+   integer ch0 = m_parameter[3].getTrueValue();
+   integer ch1 = m_parameter[4].getTrueValue();
 
 
    double my_value=n*(b*dmfit_de__(&m,&ch0,&x)
@@ -94,8 +97,10 @@ double DMFitFunction::derivByParam(optimizers::Arg & xarg,
    double n=m_parameter[0].getTrueValue();
    double m=m_parameter[1].getTrueValue();
    double b=m_parameter[2].getTrueValue();
-   long int ch0 = m_parameter[3].getTrueValue();
-   long int ch1 = m_parameter[4].getTrueValue();
+//    long int ch0 = m_parameter[3].getTrueValue();
+//    long int ch1 = m_parameter[4].getTrueValue();
+   integer ch0 = m_parameter[3].getTrueValue();
+   integer ch1 = m_parameter[4].getTrueValue();
 
    double value(0);
    switch(iparam) {
