@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.17 2008/09/30 17:47:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.18 2009/01/19 18:30:33 jchiang Exp $
  */
 
 #include <iostream>
@@ -35,17 +35,8 @@
 
 #include "dataSubselector/Cuts.h"
 
-#include "Likelihood/BandFunction.h"
-#include "Likelihood/BrokenPowerLaw2.h"
-#include "Likelihood/ExpCutoff.h"
-#include "Likelihood/FileFunction.h"
-#include "Likelihood/LogParabola.h"
-#include "Likelihood/MapCubeFunction.h"
-#include "Likelihood/PowerLaw2.h"
-#include "Likelihood/PowerLawSuperExpCutoff.h"
-#include "Likelihood/SkyDirFunction.h"
+#include "Likelihood/AppHelpers.h"
 #include "Likelihood/Source.h"
-#include "Likelihood/SpatialMap.h"
 
 #include "SourceMapRegistry.h"
 
@@ -333,26 +324,8 @@ void ModelMap::readEnergyBounds() {
 }
 
 void ModelMap::prepareFunctionFactory() {
-   bool makeClone(false);
    m_funcFactory = new optimizers::FunctionFactory();
-   m_funcFactory->addFunc("SkyDirFunction", new Likelihood::SkyDirFunction(),
-                          makeClone);
-   m_funcFactory->addFunc("SpatialMap", new Likelihood::SpatialMap(),
-                          makeClone);
-   m_funcFactory->addFunc("BandFunction", new Likelihood::BandFunction(),
-                          makeClone);
-   m_funcFactory->addFunc("LogParabola", new Likelihood::LogParabola(),
-                          makeClone);
-   m_funcFactory->addFunc("MapCubeFunction", new Likelihood::MapCubeFunction(),
-                          makeClone);
-   m_funcFactory->addFunc("PowerLaw2", new Likelihood::PowerLaw2(), makeClone);
-   m_funcFactory->addFunc("BrokenPowerLaw2", new Likelihood::BrokenPowerLaw2(),
-                          makeClone);
-   m_funcFactory->addFunc("FileFunction", new Likelihood::FileFunction(),
-                          makeClone);
-   m_funcFactory->addFunc("ExpCutoff", new Likelihood::ExpCutoff(), makeClone);
-   m_funcFactory->addFunc("PLSuperExpCutoff", 
-                          new Likelihood::PowerLawSuperExpCutoff(), makeClone);
+   Likelihood::AppHelpers::addFunctionPrototypes(m_funcFactory);
 }
 
 void ModelMap::createRegistry() {
