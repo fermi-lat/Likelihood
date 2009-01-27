@@ -1,10 +1,13 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.279 2008/12/10 21:50:43 jchiang Exp $
+    $Id: release.notes,v 1.280 2009/01/19 18:36:49 jchiang Exp $
 
     @verbatim
-    v14r2    19-Jan-08 JC  speed improvements from S. Fegan including
+    v14r2p1  26-Jan-09 JC  add AppHelpers::addFunctionPrototypes; use in
+                           gtmodel so that the available functions 
+                           are consistent.
+    v14r2    19-Jan-09 JC  speed improvements from S. Fegan including
                            caching of response function calculations (see
                            ChangeLog); add PLSuperExpCutoff to gtmodel; save
                            env vars in FileFunction filenames in xml file
