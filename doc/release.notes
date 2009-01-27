@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.280 2009/01/19 18:36:49 jchiang Exp $
+    $Id: release.notes,v 1.281 2009/01/27 00:31:02 jchiang Exp $
 
     @verbatim
+    v14r2p2  27-Jan-09 JC  use typedefs from optimizers/f2c_types.h in 
+                           DMFitFunction.cxx
     v14r2p1  26-Jan-09 JC  add AppHelpers::addFunctionPrototypes; use in
                            gtmodel so that the available functions 
                            are consistent.
