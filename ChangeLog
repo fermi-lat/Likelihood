@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jan 26 16:25:57 PST 2009
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+use static function in AppHelpers to have central implementation of code to load Function prototypes
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jan 26 16:25:57 PST 2009
 Likelihood/src
 
 Modified Files:
