@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.71 2008/10/10 15:23:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.72 2008/10/12 21:25:06 cohen Exp $
  */
 
 #include <map>
@@ -91,22 +91,27 @@ optimizers::FunctionFactory & AppHelpers::funcFactory() {
 }
 
 void AppHelpers::prepareFunctionFactory() {
-   bool makeClone(false);
    m_funcFactory = new optimizers::FunctionFactory;
-   m_funcFactory->addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
-   m_funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
-   m_funcFactory->addFunc("BandFunction", new BandFunction(), makeClone);
-   m_funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
-   m_funcFactory->addFunc("MapCubeFunction", new MapCubeFunction(), makeClone);
-   m_funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
-   m_funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
-   m_funcFactory->addFunc("FileFunction", new FileFunction(), makeClone);
-   m_funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
-   m_funcFactory->addFunc("BPLExpCutoff", new BrokenPowerLawExpCutoff(),
-                          makeClone);
-   m_funcFactory->addFunc("PLSuperExpCutoff", 
-                          new PowerLawSuperExpCutoff(), makeClone);
-   m_funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
+   addFunctionPrototypes(m_funcFactory);
+}
+
+void AppHelpers::
+addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
+   bool makeClone(false);
+   funcFactory->addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
+   funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
+   funcFactory->addFunc("BandFunction", new BandFunction(), makeClone);
+   funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
+   funcFactory->addFunc("MapCubeFunction", new MapCubeFunction(), makeClone);
+   funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
+   funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
+   funcFactory->addFunc("FileFunction", new FileFunction(), makeClone);
+   funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
+   funcFactory->addFunc("BPLExpCutoff", new BrokenPowerLawExpCutoff(),
+                        makeClone);
+   funcFactory->addFunc("PLSuperExpCutoff", 
+                        new PowerLawSuperExpCutoff(), makeClone);
+   funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,
