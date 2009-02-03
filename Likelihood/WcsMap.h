@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.6 2008/08/16 02:06:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.7 2008/08/16 05:24:34 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap_h
@@ -26,7 +26,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.6 2008/08/16 02:06:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.7 2008/08/16 05:24:34 jchiang Exp $
  */
 
 class WcsMap {
@@ -69,6 +69,8 @@ private:
    astro::SkyProj * m_proj;
    
    bool m_interpolate;
+
+   bool m_isPeriodic;
 
    WcsMap();
 

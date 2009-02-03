@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.27 2008/09/30 17:46:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.28 2008/10/01 17:51:45 jchiang Exp $
  */
 
 #include <cmath>
@@ -62,10 +62,10 @@ WcsMap::WcsMap() : m_proj(0), m_interpolate(false) {}
 WcsMap::WcsMap(const std::string & filename,
                const std::string & extension,
                bool interpolate) 
-  : m_proj(0), m_interpolate(interpolate) {
-
+   : m_proj(0), m_interpolate(interpolate), m_isPeriodic(false) {
+   
    m_proj = new astro::SkyProj(filename, extension);
-
+   
    const tip::Image * image = 
       tip::IFileSvc::instance().readImage(filename, extension);
    
@@ -80,6 +80,12 @@ WcsMap::WcsMap(const std::string & filename,
    double ix, iy;
    header["CRPIX1"].get(ix);
    header["CRPIX2"].get(iy);
+
+   double cdelt1;
+   header["CDELT1"].get(cdelt1);
+   if (::my_round(m_naxis1*cdelt1) == 360.) {
+      m_isPeriodic = true;
+   }
 
    astro::SkyDir::CoordSystem coordSys;
    if (m_proj->isGalactic()) {
@@ -191,41 +197,56 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
    double x(pixel.first);
    double y(pixel.second);
 
+   if (m_isPeriodic) {
+      x = std::fmod(x, m_naxis1);
+   }
+
 // The following code simply finds the pixel in which the sky location
 // lives and returns the value.
    if (!m_interpolate) {
       int ix(static_cast<int>(::my_round(x)) - 1);
       int iy(static_cast<int>(::my_round(y)) - 1);
 
-      if (ix < 0 || ix >= m_naxis1 || iy < 0 || iy >= m_naxis2) {
+      if ((!m_isPeriodic && (ix < 0 || ix >= m_naxis1)) 
+          || iy < 0 || iy >= m_naxis2) {
          return 0;
       }
-
+      if (ix < 0 && ix >= -1) {
+         ix = 0;
+      }
       return m_image.at(iy).at(ix);
    }
 // This code tries to do a bilinear interpolation on the pixel values.
-   int ix(static_cast<int>(::my_round(x)));
-   int iy(static_cast<int>(::my_round(y)));
-//    ix = std::min(std::max(1, ix), m_naxis1 - 1);
-//    iy = std::min(std::max(1, iy), m_naxis2 - 1);
-   if (ix  < 1 || ix >= m_naxis1 || iy < 1 || iy >= m_naxis2) {
+
+   int ix(static_cast<int>(x));
+   int iy(static_cast<int>(y));
+
+   if (((ix  < 1 || ix >= m_naxis1) && !m_isPeriodic) 
+       || iy < 1 || iy >= m_naxis2) {
       return 0;
    }
    
-   double uu(x - ix);
-   double tt(y - iy);
-   
-   double y1(m_image.at(iy-1).at(ix-1));
-   double y2(m_image.at(iy).at(ix-1));
+   double tt(x - ix);
+   double uu(y - iy);
+
+   double y1, y4;
+
+   if (m_isPeriodic && ix == 0) {
+      y1 = m_image.at(iy-1).back();
+      y4 = m_image.at(iy).back();
+   } else {
+      y1 = m_image.at(iy-1).at(ix-1);
+      y4 = m_image.at(iy).at(ix-1);
+   }
+   double y2(m_image.at(iy-1).at(ix));
    double y3(m_image.at(iy).at(ix));
-   double y4(m_image.at(iy-1).at(ix));
    
    double value((1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
                 + tt*uu*y3 + (1. - tt)*uu*y4);
-   
-   if (value < 0) {
-      value = 0;
-   }
+
+//    if (value < 0) {
+//       value = 0;
+//    }
    
    return value;
 }
@@ -285,7 +306,7 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
             std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
             astro::SkyDir dir(coord.first, coord.second, coordSys);
             double theta = m_refDir.difference(dir)*180./M_PI;
-            psf_image.at(j).at(i) = psf(energy, theta, 0);
+            psf_image.at(j-jmin).at(i-imin) = psf(energy, theta, 0);
          }
       }
    }
