@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb  2 23:24:25 PST 2009
+Likelihood/src
+
+Modified Files:
+	WcsMap.cxx 
+Log Message:
+clarify and correct bilinear interpolation
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-02-02, operation: add
 Package: Likelihood
