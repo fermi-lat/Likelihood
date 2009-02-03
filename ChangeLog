@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb  2 23:24:36 PST 2009
+Likelihood/Likelihood
+
+Modified Files:
+	WcsMap.h 
+Log Message:
+clarify and correct bilinear interpolation
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb  2 23:24:25 PST 2009
 Likelihood/src
 
