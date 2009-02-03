@@ -1,9 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.281 2009/01/27 00:31:02 jchiang Exp $
+    $Id: release.notes,v 1.282 2009/01/27 16:15:22 jchiang Exp $
 
     @verbatim
+    v14r2p3  03-Jan-09 JC  Use periodic BCs for all sky maps to avoid
+                           deficits near boundaries.  Bug-fixes for bilinear
+                           interpolation in WcsMap.
     v14r2p2  27-Jan-09 JC  use typedefs from optimizers/f2c_types.h in 
                            DMFitFunction.cxx
     v14r2p1  26-Jan-09 JC  add AppHelpers::addFunctionPrototypes; use in
