@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.6 2005/10/04 05:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.7 2006/01/18 02:40:22 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction_h
@@ -24,19 +24,21 @@ namespace Likelihood {
  * a function of position on the sky.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.6 2005/10/04 05:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.7 2006/01/18 02:40:22 jchiang Exp $
  */
 
 class MapCubeFunction : public optimizers::Function {
 
 public:
    
-   MapCubeFunction() : m_fitsFile(""), m_proj(0), m_nlon(0), m_nlat(0) {
+   MapCubeFunction() : m_fitsFile(""), m_proj(0), m_nlon(0), m_nlat(0),
+                       m_isPeriodic(false) {
       init();
    }
 
    MapCubeFunction(const std::string & fitsFile) 
-      : m_fitsFile(fitsFile), m_proj(0), m_nlon(0), m_nlat(0) {
+      : m_fitsFile(fitsFile), m_proj(0), m_nlon(0), m_nlat(0),
+        m_isPeriodic(false)  {
       init();
       readFitsFile(fitsFile);
    }
@@ -76,6 +78,8 @@ private:
 
    int m_nlon;
    int m_nlat;
+
+   bool m_isPeriodic;
 
    std::vector<double> m_energies;
 

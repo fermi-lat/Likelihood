@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.7 2008/08/16 05:24:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.8 2009/02/03 07:24:36 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap_h
@@ -26,7 +26,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.7 2008/08/16 05:24:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.8 2009/02/03 07:24:36 jchiang Exp $
  */
 
 class WcsMap {
@@ -57,6 +57,28 @@ public:
       return m_image;
    }
 
+   /// @return Solid angle of the (ilon, ilat) pixel
+   static double solidAngle(const astro::SkyProj & proj, 
+                            double ilon, double ilat);
+
+   double solidAngle(double ilon, double ilat) const;
+
+   /// @return Pixel value as a function index
+   double pixelValue(double ilon, double ilat) const;
+   
+   /// @return SkyDir corresponding to the pixel indices
+   astro::SkyDir skyDir(double ilon, double ilat) const;
+
+   int nxpix() const {
+      return m_naxis1;
+   }
+
+   int nypix() const {
+      return m_naxis2;
+   }
+
+   bool insideMap(const astro::SkyDir & dir) const;
+
 private:
 
    astro::SkyDir m_refDir;
@@ -71,6 +93,8 @@ private:
    bool m_interpolate;
 
    bool m_isPeriodic;
+
+   astro::SkyDir::CoordSystem m_coordSys;
 
    WcsMap();
 

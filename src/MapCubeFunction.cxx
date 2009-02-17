@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.23 2008/08/16 05:24:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.24 2008/08/19 00:40:08 jchiang Exp $
  */
 
 #include <cmath>
@@ -14,6 +14,10 @@
 #include <stdexcept>
 
 #include "facilities/Util.h"
+
+#include "tip/Header.h"
+#include "tip/Image.h"
+#include "tip/IFileSvc.h"
 
 #include "st_stream/StreamFormatter.h"
 
@@ -58,7 +62,7 @@ namespace Likelihood {
 
 MapCubeFunction::MapCubeFunction(const MapCubeFunction & rhs)
    : optimizers::Function(rhs), m_fitsFile(rhs.m_fitsFile),
-     m_nlon(rhs.m_nlon), m_nlat(rhs.m_nlat) {
+     m_nlon(rhs.m_nlon), m_nlat(rhs.m_nlat), m_isPeriodic(rhs.m_isPeriodic) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
 // and live with the resulting memory leak when this object is deleted.
@@ -111,6 +115,14 @@ double MapCubeFunction::value(optimizers::Arg & x) const {
    int i = static_cast<int>(::my_round(pixel.first)) - 1;
    int j = static_cast<int>(::my_round(pixel.second)) - 1;
 
+   if ((!m_isPeriodic && (i < 0 || i >= m_nlon)) 
+       || j < 0 || j >= m_nlat) {
+      return 0;
+   }
+   if (i < 0 && i >= -1) {
+      i = 0;
+   }
+
    int indx = (k*m_nlat + j)*m_nlon + i;
    try {
       double y1 = m_image.at(indx);
@@ -139,7 +151,6 @@ void MapCubeFunction::init() {
 void MapCubeFunction::readFitsFile(const std::string & fits_file) {
    std::string fitsFile(fits_file);
    facilities::Util::expandEnvVar(&fitsFile);
-//   st_facilities::Util::file_ok(fitsFile);
    if (!st_facilities::Util::fileExists(fitsFile)) {
 // The following to stdout is necessary since Xerces seems to corrupt
 // the exception handling when this method is called from
@@ -149,7 +160,7 @@ void MapCubeFunction::readFitsFile(const std::string & fits_file) {
       formatter.info() << "File not found: " << fitsFile << std::endl;
       throw std::runtime_error("File not found: " + fitsFile);
    }
-//   m_fitsFile = fitsFile;
+   /// Save unexpanded FITS file name for later writing to output xml file
    m_fitsFile = fits_file;
    m_proj = new astro::SkyProj(fitsFile);
 
@@ -160,6 +171,15 @@ void MapCubeFunction::readFitsFile(const std::string & fits_file) {
    fitsImage.getAxisDims(naxes);
    m_nlon = naxes.at(0);
    m_nlat = naxes.at(1);
+
+   double cdelt1;
+   const tip::Image * image(tip::IFileSvc::instance().readImage(fitsFile, ""));
+   const tip::Header & header = image->getHeader();
+   header["CDELT1"].get(cdelt1);
+   if (::my_round(m_nlon*cdelt1) == 360.) {
+      m_isPeriodic = true;
+   }
+   delete image;
 
    ExposureMap::readEnergyExtension(fitsFile, m_energies);
 }

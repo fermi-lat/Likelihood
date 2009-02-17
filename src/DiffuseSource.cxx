@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.40 2008/08/07 16:22:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.41 2009/01/19 15:18:18 sfegan Exp $
  */
 
 #include <cmath>
@@ -27,7 +27,7 @@ namespace Likelihood {
 DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
                              const Observation & observation,
                              bool requireExposure) 
-   : Source(&observation) {
+   : Source(&observation), m_discrete(false) {
    m_spatialDist = spatialDist->clone();
    m_functions["SpatialDist"] = m_spatialDist;
    m_useEdisp = observation.respFuncs().useEdisp();
@@ -60,6 +60,7 @@ DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {
    m_exposure = rhs.m_exposure;
 
    m_observation = rhs.m_observation;
+   m_discrete = rhs.m_discrete;
 }
 
 double DiffuseSource::fluxDensity(const Event &evt,
@@ -179,6 +180,10 @@ double DiffuseSource::pixelCountsDeriv(double emin, double emax,
                                 - std::pow(emin, gam+1.)*std::log(emin))
                                - (std::pow(emax,gam+1.)-std::pow(emin,gam+1.))
                                /(gam+1.)));
+}
+
+double DiffuseSource::flux() const {
+   
 }
 
 } // namespace Likelihood

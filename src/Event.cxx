@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.62 2008/11/11 17:49:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.63 2009/01/19 15:18:18 sfegan Exp $
  */
 
 #include <cctype>
@@ -25,6 +25,7 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/Source.h"
+#include "Likelihood/SpatialMap.h"
 #include "Likelihood/TrapQuad.h"
 
 #include "st_facilities/GaussianQuadrature.h"
@@ -148,48 +149,27 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
       if (useDummyValue) {
          m_respDiffuseSrcs[name].push_back(0);
       } else {
-         DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot);
-         double respValue = 
-            st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
-                                                      mumax, err, ierr);
+         bool haveRespValue(false);
+         double respValue(0);
+         if (srcs.at(i)->discrete()) {
+            const SpatialMap * spatialMap = 
+               dynamic_cast<SpatialMap *>(const_cast<optimizers::Function *>
+                                          (srcs.at(i)->spatialDist()));
+            if (spatialMap->insideMap(getDir())) {
+               respValue = spatialMap->diffuseResponse(respFuncs, *this);
+               haveRespValue = true;
+            }
+         } 
+         if (!haveRespValue) {
+            DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot);
+            respValue = 
+               st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
+                                                         mumax, err, ierr);
+         }
          m_respDiffuseSrcs[name].push_back(respValue);
       }
    }
 }
-
-// void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 
-//                             const ResponseFunctions & respFuncs,
-//                             double sr_radius, double sr_radius2) {
-//    std::vector<DiffuseSource *> srcs;
-//    getNewDiffuseSrcs(srcList, srcs);
-//    if (srcs.size() == 0) {
-//       return;
-//    }
-
-//    EquinoxRotation eqRot(getDir().ra(), getDir().dec());
-
-//    const std::vector<double> & muArray =
-//       LogNormalMuDist::instance()->muPoints(m_energy);
-
-//    double err(1e-1);
-//    int ierr;
-
-//    for (size_t i(0); i < srcs.size(); i++) {
-//       std::string name(diffuseSrcName(srcs.at(i)->getName()));
-//       std::vector<double> integrand;
-//       DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot);
-//       for (size_t j(0); j < muArray.size(); j++) {
-//          DiffRespIntegrand::DiffRespPhiIntegrand foo(muArray.at(j), 
-//                                                      muIntegrand);
-//          double value = st_facilities::GaussianQuadrature::
-//             dgaus8(foo, 0, 2*M_PI, err, ierr);
-//          integrand.push_back(value);
-//       }
-//       TrapQuad muQuad(muArray, integrand);
-//       m_respDiffuseSrcs[name].push_back(muQuad.integral());
-//    }
-// }
-
 
 void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 
                             const ResponseFunctions & respFuncs,
