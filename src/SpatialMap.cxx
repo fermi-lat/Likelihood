@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.23 2008/08/16 02:06:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.24 2008/08/16 05:24:34 jchiang Exp $
  *
  */
 
@@ -17,6 +17,8 @@
 
 #include "st_facilities/Util.h"
 
+#include "Likelihood/Event.h"
+#include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/WcsMap.h"
@@ -98,6 +100,37 @@ double SpatialMap::value(optimizers::Arg & arg) const {
 
 double SpatialMap::value(const astro::SkyDir & dir) const {
    return m_wcsmap->operator()(dir);
+}
+
+double SpatialMap::diffuseResponse(const ResponseFunctions & respFuncs,
+                                   const Event & event) const {
+   double my_value(0);
+   for (int ilon(1); ilon < m_wcsmap->nxpix()+1; ilon++) {
+      for (int ilat(1); ilat < m_wcsmap->nypix()+1; ilat++) {
+         astro::SkyDir srcDir(m_wcsmap->skyDir(ilon, ilat));
+         double totalResponse = 
+            respFuncs.totalResponse(event.getEnergy(), event.getEnergy(),
+                                    event.zAxis(), event.xAxis(),
+                                    srcDir, event.getDir(), event.getType());
+         double addend(m_wcsmap->pixelValue(ilon, ilat)*
+                       m_wcsmap->solidAngle(ilon, ilat)*
+                       totalResponse);
+         my_value += addend;
+//          std::cout << ilon << "  "
+//                    << ilat << "  "
+//                    << srcDir.ra() << "  "
+//                    << srcDir.dec() << "  "
+//                    << m_wcsmap->pixelValue(ilon, ilat) << "  "
+//                    << m_wcsmap->solidAngle(ilon, ilat) << "  "
+//                    << totalResponse << "  "
+//                    << addend << std::endl;
+      }
+   }
+   return my_value;
+}
+
+bool SpatialMap::insideMap(const astro::SkyDir & dir) const {
+   return m_wcsmap->insideMap(dir);
 }
 
 } // namespace Likelihood

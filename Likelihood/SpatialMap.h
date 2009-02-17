@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.16 2005/10/04 05:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.17 2005/10/05 00:59:33 jchiang Exp $
  *
  */
 
@@ -18,6 +18,8 @@ namespace astro {
 
 namespace Likelihood {
 
+class Event;
+class ResponseFunctions;
 class WcsMap;
 
 /** 
@@ -28,7 +30,7 @@ class WcsMap;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.16 2005/10/04 05:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.17 2005/10/05 00:59:33 jchiang Exp $
  *
  */
     
@@ -64,6 +66,12 @@ public:
    const std::string & fitsFile() const {
       return m_fitsFile;
    }
+
+   double diffuseResponse(const ResponseFunctions & respFuncs,
+                          const Event & event) const;
+
+   /// @return Determine whether a given direction is inside the map
+   bool insideMap(const astro::SkyDir & dir) const;
 
 private:
 

@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.29 2009/02/03 07:24:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.30 2009/02/03 18:06:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -87,15 +87,14 @@ WcsMap::WcsMap(const std::string & filename,
       m_isPeriodic = true;
    }
 
-   astro::SkyDir::CoordSystem coordSys;
    if (m_proj->isGalactic()) {
-      coordSys = astro::SkyDir::GALACTIC;
+      m_coordSys = astro::SkyDir::GALACTIC;
    } else {
-      coordSys = astro::SkyDir::EQUATORIAL;
+      m_coordSys = astro::SkyDir::EQUATORIAL;
    }
 
    std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
-   m_refDir = astro::SkyDir(coord.first, coord.second, coordSys);
+   m_refDir = astro::SkyDir(coord.first, coord.second, m_coordSys);
 
    delete image;
 
@@ -126,11 +125,10 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
 
    m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
 
-   astro::SkyDir::CoordSystem coordSys;
    if (use_lb) {
-      coordSys = astro::SkyDir::GALACTIC;
+      m_coordSys = astro::SkyDir::GALACTIC;
    } else {
-      coordSys = astro::SkyDir::EQUATORIAL;
+      m_coordSys = astro::SkyDir::EQUATORIAL;
    }
 
    m_image.reserve(npts);
@@ -142,7 +140,7 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
          ix = i + 1.;
          if (m_proj->testpix2sph(ix, iy) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
-            astro::SkyDir dir(coord.first, coord.second, coordSys);
+            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
             SkyDirArg my_dir(dir, energy);
             row.at(i) = diffuseSource.spatialDist(my_dir);
          } else {
@@ -165,7 +163,9 @@ WcsMap::~WcsMap() {
 WcsMap::WcsMap(const WcsMap & rhs) 
    : m_refDir(rhs.m_refDir), m_image(rhs.m_image), 
      m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2), 
-     m_interpolate(rhs.m_interpolate) {
+     m_interpolate(rhs.m_interpolate),
+     m_isPeriodic(rhs.m_isPeriodic),
+     m_coordSys(rhs.m_coordSys) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
 // and live with the resulting memory leak when this object is deleted.
@@ -201,20 +201,8 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
       x = std::fmod(x, m_naxis1);
    }
 
-// The following code simply finds the pixel in which the sky location
-// lives and returns the value.
    if (!m_interpolate) {
-      int ix(static_cast<int>(::my_round(x)) - 1);
-      int iy(static_cast<int>(::my_round(y)) - 1);
-
-      if ((!m_isPeriodic && (ix < 0 || ix >= m_naxis1)) 
-          || iy < 0 || iy >= m_naxis2) {
-         return 0;
-      }
-      if (ix < 0 && ix >= -1) {
-         ix = 0;
-      }
-      return m_image.at(iy).at(ix);
+      return pixelValue(x, y);
    }
 // This code tries to do a bilinear interpolation on the pixel values.
 
@@ -254,13 +242,6 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
 WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
                         const BinnedExposure & exposure,
                         bool performConvolution) const {
-   astro::SkyDir::CoordSystem coordSys;
-   if (m_proj->isGalactic()) {
-      coordSys = astro::SkyDir::GALACTIC;
-   } else {
-      coordSys = astro::SkyDir::EQUATORIAL;
-   }
-
 // Compute unconvolved counts map by multiplying intensity image by exposure.
    ::Image counts;
    counts.resize(m_naxis2);
@@ -270,7 +251,7 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
       for (int i = 0; i < m_naxis1; i++) {
          if (m_proj->testpix2sph(i+1, j+1) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-            astro::SkyDir dir(coord.first, coord.second, coordSys);
+            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
             counts.at(j).at(i) = 
                m_image.at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
          }
@@ -304,7 +285,7 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
       for (int i = imin; i < imax; i++) {
          if (m_proj->testpix2sph(i+1, j+1) == 0) {
             std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-            astro::SkyDir dir(coord.first, coord.second, coordSys);
+            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
             double theta = m_refDir.difference(dir)*180./M_PI;
             psf_image.at(j-jmin).at(i-imin) = psf(energy, theta, 0);
          }
@@ -321,6 +302,64 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
    }
 
    return my_image;
+}
+
+double WcsMap::solidAngle(const astro::SkyProj & proj, 
+                          double ilon, double ilat) {
+   std::pair<double, double> center(proj.pix2sph(ilon, ilat));
+   std::pair<double, double> left(proj.pix2sph(ilon - 0.5, ilat));
+   std::pair<double, double> right(proj.pix2sph(ilon + 0.5, ilat));
+   std::pair<double, double> bottom(proj.pix2sph(ilon, ilat - 0.5));
+   std::pair<double, double> top(proj.pix2sph(ilon, ilat + 0.5));
+
+   double cos_lat = std::fabs(std::cos(center.second*M_PI/180.));
+   double delta_lon = std::fabs(std::fmod((right.first - left.first + 360.),
+                                          360.))*M_PI/180.;
+   double delta_lat = (top.second - bottom.second)*M_PI/180.;
+
+   double dOmega = std::fabs(delta_lon*delta_lat*cos_lat);
+
+   return dOmega;
+}
+
+double WcsMap::solidAngle(double ilon, double ilat) const {
+   return solidAngle(*m_proj, ilon, ilat);
+}
+
+double WcsMap::pixelValue(double ilon, double ilat) const {
+// Find the pixel in which the sky location lives and returns the value.
+   int ix(static_cast<int>(::my_round(ilon)) - 1);
+   int iy(static_cast<int>(::my_round(ilat)) - 1);
+
+   if ((!m_isPeriodic && (ix < 0 || ix >= m_naxis1)) 
+       || iy < 0 || iy >= m_naxis2) {
+      return 0;
+   }
+   if (ix < 0 && ix >= -1) {
+      ix = 0;
+   }
+   return m_image.at(iy).at(ix);
+}
+
+astro::SkyDir WcsMap::skyDir(double ilon, double ilat) const {
+   std::pair<double, double> coords(m_proj->pix2sph(ilon, ilat));
+   return astro::SkyDir(coords.first, coords.second, m_coordSys);
+}
+
+bool WcsMap::insideMap(const astro::SkyDir & dir) const {
+   std::pair<double, double> pixel = dir.project(*m_proj);
+
+   double x(pixel.first);
+   double y(pixel.second);
+
+   int ix(static_cast<int>(x));
+   int iy(static_cast<int>(y));
+
+   if ((!m_isPeriodic && (ix < 1 || ix >= m_naxis1))
+       || iy < 1 || iy >= m_naxis2) {
+      return false;
+   }
+   return true;
 }
 
 } // namespace Likelihood
