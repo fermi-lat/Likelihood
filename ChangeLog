@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: jchiang  Mon Feb 16 22:48:47 PST 2009
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx Event.cxx MapCubeFunction.cxx 
+	SourceFactory.cxx SpatialMap.cxx WcsMap.cxx 
+Log Message:
+start support for getting fluxes for diffuse sources; failed attempts to improve diffuse response calc for discrete sources
+    *
+------------------------------------------------------------
+User: jchiang  Mon Feb 16 22:48:47 PST 2009
 Likelihood/Likelihood
 
 Modified Files:
