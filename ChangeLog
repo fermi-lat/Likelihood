@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Feb 18 10:13:39 PST 2009
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+Juergen's suggestion to initialize m_ndifrsp in diffuseResponses.cxx; refactoring of SpatialMap using MapBase class and usage of new interface in Event::computeResponseGQ
+    *
+------------------------------------------------------------
+User: jchiang  Wed Feb 18 10:13:39 PST 2009
 Likelihood/src
 
 Modified Files:
