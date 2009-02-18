@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.64 2009/02/17 06:48:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.65 2009/02/18 02:01:38 jchiang Exp $
  */
 
 #include <cctype>
@@ -155,10 +155,10 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
          mumax = 1;
          double phimin(0);
          double phimax(2.*M_PI);
-         if (srcs.at(i)->discrete()) {
-            optimizers::Function * foo = 
-               const_cast<optimizers::Function *>(srcs.at(i)->spatialDist());
-            const SpatialMap * spatialMap = dynamic_cast<SpatialMap *>(foo);
+         optimizers::Function * foo = 
+            const_cast<optimizers::Function *>(srcs.at(i)->spatialDist());
+         const SpatialMap * spatialMap = dynamic_cast<SpatialMap *>(foo);
+         if (spatialMap != 0) {
             std::pair<astro::SkyDir, astro::SkyDir> dirs 
                = spatialMap->minMaxDistPixels(getDir());
             mumin = dirs.second().dot(getDir()());
@@ -191,7 +191,7 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
                   } else if (phimax < 0) {
                      double tmp = phimin;
                      phimin = phimax - 2*M_PI;
-                     phimax = phimin;
+                     phimax = tmp;
                   }
                }
             }
@@ -203,9 +203,6 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
             respValue = 
                st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
                                                          mumax, err, ierr);
-            std::cout << phimin << "  "
-                      << phimax << "  "
-                      << respValue << std::endl;
          }
          m_respDiffuseSrcs[name].push_back(respValue);
       }

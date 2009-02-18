@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.140 2008/10/28 17:21:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.141 2009/01/19 15:18:19 sfegan Exp $
  */
 
 #ifdef TRAP_FPE
@@ -44,7 +44,6 @@
 #include "Likelihood/CountsSpectra.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/LogLike.h"
-#include "Likelihood/MapShape.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/RoiCuts.h"
@@ -89,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.140 2008/10/28 17:21:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.141 2009/01/19 15:18:19 sfegan Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -160,7 +159,7 @@ private:
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlike");
 
-std::string likelihood::s_cvs_id("$Name: ScienceTools-HEAD-1-705 $");
+std::string likelihood::s_cvs_id("$Name:  $");
 
 void likelihood::banner() const {
    int verbosity = m_pars["chatter"];
