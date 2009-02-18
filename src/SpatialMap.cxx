@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.25 2009/02/17 06:48:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.26 2009/02/18 02:01:38 jchiang Exp $
  *
  */
 
@@ -53,7 +53,7 @@ SpatialMap & SpatialMap::operator=(const SpatialMap & rhs) {
       if (rhs.m_wcsmap) {
          m_wcsmap = new WcsMap(*(rhs.m_wcsmap));
       }
-    }
+   }
    return *this;
 }
 
