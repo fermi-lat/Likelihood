@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 18 12:52:46 PST 2009
+Likelihood/src
+
+Modified Files:
+	Event.cxx MapCubeFunction.cxx 
+Log Message:
+make MapCubeFunction a subclass of MapBase
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 18 12:52:45 PST 2009
 Likelihood/pfiles
 
