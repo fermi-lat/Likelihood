@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 17 22:57:43 PST 2009
+Likelihood/src
+
+Modified Files:
+	Event.cxx SpatialMap.cxx 
+Added Files:
+	MapBase.cxx 
+Log Message:
+add MapBase class to provide common functionality needed for integration limits for diffuse response calculations
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 17 22:57:42 PST 2009
 Likelihood/Likelihood
 
