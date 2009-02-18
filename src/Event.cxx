@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.66 2009/02/18 06:57:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.67 2009/02/18 18:13:38 jchiang Exp $
  */
 
 #include <cctype>
@@ -20,12 +20,13 @@
 #include "Likelihood/Event.h"
 #include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/Exception.h"
-#include "Likelihood/SkyDirArg.h"
+#include "Likelihood/MapBase.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
+#include "Likelihood/SkyDirArg.h"
 #include "Likelihood/Source.h"
-#include "Likelihood/SpatialMap.h"
+//#include "Likelihood/SpatialMap.h"
 #include "Likelihood/TrapQuad.h"
 
 #include "st_facilities/GaussianQuadrature.h"
@@ -156,10 +157,10 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
          double phimax(2.*M_PI);
          optimizers::Function * foo = 
             const_cast<optimizers::Function *>(srcs.at(i)->spatialDist());
-         const SpatialMap * spatialMap = dynamic_cast<SpatialMap *>(foo);
-         if (spatialMap != 0) {
-            spatialMap->getDiffRespLimits(getDir(), mumin, mumax,
-                                          phimin, phimax);
+         const MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
+         if (mapBaseObject != 0) {
+            mapBaseObject->getDiffRespLimits(getDir(), mumin, mumax,
+                                             phimin, phimax);
          }
          DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot,
                                        phimin, phimax);

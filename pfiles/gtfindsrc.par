@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtfindsrc.par,v 1.6 2007/07/03 22:48:19 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtfindsrc.par,v 1.7 2008/08/16 07:07:12 jchiang Exp $
 #
 evfile,f,a,"",,,Event file
 evtable,s,h,EVENTS,,,Event data extension
@@ -19,7 +19,7 @@ dec,r,a,0,-90,90,Initial source Declination (deg)
 l,r,a,0,-360,360,Initial source Galactic longitude (deg)
 b,r,a,0,-90,90,Intial source Galactic latitude (deg)
 
-optimizer,s,a,"MINUIT",LBFGS|MINUIT|DRMNGB,,"Optimizer"
+optimizer,s,a,"MINUIT",DRMNFB|NEWMINUIT|MINUIT|DRMNGB|LBFGS,,"Optimizer"
 ftol,r,a,1e-8,,,Tolerance for -log(Likelihood) at each trial point
 reopt,b,h,yes,,,Reoptimize at each location
 atol,r,a,0.001,,,Covergence tolerance for positional fit
