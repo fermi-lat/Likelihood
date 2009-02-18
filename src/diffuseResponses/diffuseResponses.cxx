@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.54 2008/12/10 17:22:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.55 2008/12/10 21:50:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -57,7 +57,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.54 2008/12/10 17:22:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.55 2008/12/10 21:50:44 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -129,7 +129,8 @@ diffuseResponses::diffuseResponses()
    : st_app::StApp(), m_helper(0), m_srcModel(0), 
      m_formatter(new st_stream::StreamFormatter("gtdiffrsp", "", 2)),
      m_srRadius(30.),
-     m_pars(st_app::StApp::getParGroup("gtdiffrsp")) {
+     m_pars(st_app::StApp::getParGroup("gtdiffrsp")),
+     m_ndifrsp(0) {
    setVersion(s_cvs_id);
 }
 

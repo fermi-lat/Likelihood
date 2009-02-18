@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.31 2009/02/17 06:48:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.32 2009/02/18 02:01:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -368,8 +368,8 @@ WcsMap::minMaxDistPixels(const astro::SkyDir & dir) const {
    double min_dist = dir.difference(closest);
    astro::SkyDir farthest(skyDir(1, 1));
    double max_dist = dir.difference(closest);
-   size_t i(2);
-   size_t j(1);
+   int i(2);
+   int j(1);
    for ( ; i < m_naxis1 + 1; i++) { // i = 2, m_naxis1; j = 1
       astro::SkyDir current(skyDir(i, j));
       double dist(dir.difference(current));

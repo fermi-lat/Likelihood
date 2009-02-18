@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.26 2009/02/18 02:01:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.27 2009/02/18 06:57:43 jchiang Exp $
  *
  */
 
@@ -25,40 +25,29 @@
 
 namespace Likelihood {
 
-SpatialMap::SpatialMap() : m_wcsmap(0) {
+SpatialMap::SpatialMap() : optimizers::Function(), MapBase() {
    init();      
 }
 
 SpatialMap::SpatialMap(const std::string & fitsFile,
-                       const std::string & extension) : m_wcsmap(0) {
+                       const std::string & extension) 
+   : optimizers::Function(), MapBase(fitsFile, extension) {
    init();
-   readFitsFile(fitsFile, extension);
 }
 
 SpatialMap::SpatialMap(const SpatialMap & rhs) 
-   : optimizers::Function(rhs) {
-   m_fitsFile = rhs.m_fitsFile;
-   m_extension = rhs.m_extension;
-   if (rhs.m_wcsmap) {
-      m_wcsmap = new WcsMap(*(rhs.m_wcsmap));
-   }
+   : optimizers::Function(rhs), MapBase(rhs) {
 }
 
 SpatialMap & SpatialMap::operator=(const SpatialMap & rhs) {
    if (this != &rhs) {
       optimizers::Function::operator=(rhs);
-      m_fitsFile = rhs.m_fitsFile;
-      m_extension = rhs.m_extension;
-      delete m_wcsmap;
-      if (rhs.m_wcsmap) {
-         m_wcsmap = new WcsMap(*(rhs.m_wcsmap));
-      }
+      MapBase::operator=(rhs);
    }
    return *this;
 }
 
 SpatialMap::~SpatialMap() {
-   delete m_wcsmap;
 }
 
 void SpatialMap::init() {
@@ -72,26 +61,6 @@ void SpatialMap::init() {
    m_normParName = "Prefactor";
 }
 
-void SpatialMap::readFitsFile(const std::string & fitsFile,
-                              const std::string & extension) {
-   m_fitsFile = fitsFile;
-   m_extension = extension;
-
-   std::string expandedFileName(fitsFile);
-
-   facilities::Util::expandEnvVar(&expandedFileName);
-
-   if (!st_facilities::Util::fileExists(expandedFileName)) {
-// The following to StreamFormatter is necessary since Xerces seems to
-// corrupt the exception handling when this method is called from
-// SourceFactory::readXml and the program simply aborts.
-      st_stream::StreamFormatter formatter("SpatialMap", "readFitsFile", 2);
-      formatter.err() << "File not found: " << expandedFileName << std::endl;
-      throw std::runtime_error("File not found: " + expandedFileName);
-   }
-   m_wcsmap = new WcsMap(expandedFileName, extension);
-}
-
 double SpatialMap::value(optimizers::Arg & arg) const {
    astro::SkyDir dir;
    dynamic_cast<SkyDirArg &>(arg).fetchValue(dir);
@@ -100,46 +69,6 @@ double SpatialMap::value(optimizers::Arg & arg) const {
 
 double SpatialMap::value(const astro::SkyDir & dir) const {
    return m_wcsmap->operator()(dir);
-}
-
-double SpatialMap::diffuseResponse(const ResponseFunctions & respFuncs,
-                                   const Event & event) const {
-   double my_value(0);
-   for (int ilon(1); ilon < m_wcsmap->nxpix()+1; ilon++) {
-      for (int ilat(1); ilat < m_wcsmap->nypix()+1; ilat++) {
-         astro::SkyDir srcDir(m_wcsmap->skyDir(ilon, ilat));
-         double totalResponse = 
-            respFuncs.totalResponse(event.getEnergy(), event.getEnergy(),
-                                    event.zAxis(), event.xAxis(),
-                                    srcDir, event.getDir(), event.getType());
-         double addend(m_wcsmap->pixelValue(ilon, ilat)*
-                       m_wcsmap->solidAngle(ilon, ilat)*
-                       totalResponse);
-         my_value += addend;
-//          std::cout << ilon << "  "
-//                    << ilat << "  "
-//                    << srcDir.ra() << "  "
-//                    << srcDir.dec() << "  "
-//                    << m_wcsmap->pixelValue(ilon, ilat) << "  "
-//                    << m_wcsmap->solidAngle(ilon, ilat) << "  "
-//                    << totalResponse << "  "
-//                    << addend << std::endl;
-      }
-   }
-   return my_value;
-}
-
-bool SpatialMap::insideMap(const astro::SkyDir & dir) const {
-   return m_wcsmap->insideMap(dir);
-}
-
-std::pair<astro::SkyDir, astro::SkyDir> 
-SpatialMap::minMaxDistPixels(const astro::SkyDir & dir) const {
-   return m_wcsmap->minMaxDistPixels(dir);
-}
-
-void SpatialMap::getCorners(std::vector<astro::SkyDir> & corners) const {
-   m_wcsmap->getCorners(corners);
 }
 
 } // namespace Likelihood
