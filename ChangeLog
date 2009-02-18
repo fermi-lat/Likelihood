@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Feb 17 22:57:43 PST 2009
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+add MapBase class to provide common functionality needed for integration limits for diffuse response calculations
+    *
+------------------------------------------------------------
+User: jchiang  Tue Feb 17 22:57:43 PST 2009
 Likelihood/src
 
 Modified Files:
