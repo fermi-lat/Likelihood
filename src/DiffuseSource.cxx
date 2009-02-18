@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.41 2009/01/19 15:18:18 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.42 2009/02/17 06:48:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -99,8 +99,8 @@ double DiffuseSource::fluxDensityDeriv(const Event &evt,
 // CompositeFunctions.
    double my_fluxDensityDeriv;
    double prefactor;
-      if (paramName == "Prefactor" && 
-          (prefactor = m_spectrum->getParamValue("Prefactor")) != 0) {
+   if (paramName == "Prefactor" && 
+       (prefactor = m_spectrum->getParamValue("Prefactor")) != 0) {
       my_fluxDensityDeriv = fluxDensity(evt)/prefactor;
    } else {
       if (m_useEdisp) {
@@ -182,8 +182,8 @@ double DiffuseSource::pixelCountsDeriv(double emin, double emax,
                                /(gam+1.)));
 }
 
-double DiffuseSource::flux() const {
+// double DiffuseSource::flux() const {
    
-}
+// }
 
 } // namespace Likelihood
