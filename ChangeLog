@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 17 22:57:42 PST 2009
+Likelihood/Likelihood
+
+Added Files:
+	MapBase.h 
+Removed Files:
+	MapShape.h 
+Log Message:
+add MapBase class to provide common functionality needed for integration limits for diffuse response calculations
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 17 18:01:38 PST 2009
 Likelihood/src
 
