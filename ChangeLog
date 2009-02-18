@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 17 18:01:37 PST 2009
+Likelihood/Likelihood
+
+Modified Files:
+	DiffRespIntegrand.h DiffuseSource.h SpatialMap.h WcsMap.h 
+Log Message:
+code to set bounds for diffuse response calculation for discrete sources
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb 16 22:48:47 PST 2009
 Likelihood/src
 
