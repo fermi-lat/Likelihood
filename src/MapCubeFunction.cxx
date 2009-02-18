@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.24 2008/08/19 00:40:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.25 2009/02/17 06:48:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -60,8 +60,20 @@ namespace {
 
 namespace Likelihood {
 
+MapCubeFunction::MapCubeFunction() 
+   : optimizers::Function(), MapBase(), 
+     m_fitsFile(""), m_proj(0), m_nlon(0), m_nlat(0), m_isPeriodic(false) {
+   init();
+}
+
+MapCubeFunction::MapCubeFunction(const std::string & fitsFile) 
+   : optimizers::Function(), MapBase(fitsFile), m_proj(0), m_nlon(0), 
+     m_nlat(0), m_isPeriodic(false)  {
+   init();
+}
+
 MapCubeFunction::MapCubeFunction(const MapCubeFunction & rhs)
-   : optimizers::Function(rhs), m_fitsFile(rhs.m_fitsFile),
+   : optimizers::Function(rhs), MapBase(rhs),
      m_nlon(rhs.m_nlon), m_nlat(rhs.m_nlat), m_isPeriodic(rhs.m_isPeriodic) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
@@ -81,7 +93,7 @@ MapCubeFunction & MapCubeFunction::operator=(const MapCubeFunction &rhs) {
 //       m_proj = new astro::SkyProj(*(rhs.m_proj));
       m_proj = rhs.m_proj;
       optimizers::Function::operator=(rhs);
-      m_fitsFile = rhs.m_fitsFile;
+      MapBase::operator=(rhs);
       m_nlon = rhs.m_nlon;
       m_nlat = rhs.m_nlat;
       m_energies = rhs.m_energies;
@@ -148,23 +160,16 @@ void MapCubeFunction::init() {
    m_normParName = "Normalization";
 }
 
-void MapCubeFunction::readFitsFile(const std::string & fits_file) {
-   std::string fitsFile(fits_file);
-   facilities::Util::expandEnvVar(&fitsFile);
-   if (!st_facilities::Util::fileExists(fitsFile)) {
-// The following to stdout is necessary since Xerces seems to corrupt
-// the exception handling when this method is called from
-// SourceFactory::readXml and the program simply aborts.
-      st_stream::StreamFormatter formatter("MapCubeFunction",
-                                           "readFitsFile", 2);
-      formatter.info() << "File not found: " << fitsFile << std::endl;
-      throw std::runtime_error("File not found: " + fitsFile);
-   }
-   /// Save unexpanded FITS file name for later writing to output xml file
-   m_fitsFile = fits_file;
-   m_proj = new astro::SkyProj(fitsFile);
+void MapCubeFunction::readFitsFile(const std::string & fitsFile, 
+                                   const std::string & extension) {
+   MapBase::readFitsFile(fitsFile, extension);
 
-   st_facilities::FitsImage fitsImage(fitsFile);
+   std::string expandedFileName(fitsFile);
+   facilities::Util::expandEnvVar(&expandedFileName);
+
+   m_proj = new astro::SkyProj(expandedFileName);
+
+   st_facilities::FitsImage fitsImage(expandedFileName);
    m_image = fitsImage.imageData();
 
    std::vector<int> naxes;
@@ -173,7 +178,8 @@ void MapCubeFunction::readFitsFile(const std::string & fits_file) {
    m_nlat = naxes.at(1);
 
    double cdelt1;
-   const tip::Image * image(tip::IFileSvc::instance().readImage(fitsFile, ""));
+   const tip::Image * image =
+      tip::IFileSvc::instance().readImage(expandedFileName, "");
    const tip::Header & header = image->getHeader();
    header["CDELT1"].get(cdelt1);
    if (::my_round(m_nlon*cdelt1) == 360.) {
@@ -181,7 +187,7 @@ void MapCubeFunction::readFitsFile(const std::string & fits_file) {
    }
    delete image;
 
-   ExposureMap::readEnergyExtension(fitsFile, m_energies);
+   ExposureMap::readEnergyExtension(expandedFileName, m_energies);
 }
 
 int MapCubeFunction::
