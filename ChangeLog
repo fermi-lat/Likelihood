@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Feb 18 12:52:44 PST 2009
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h MapCubeFunction.h 
+Log Message:
+make MapCubeFunction a subclass of MapBase
+    *
+------------------------------------------------------------
 User: jchiang  Wed Feb 18 10:13:39 PST 2009
 Likelihood/src/diffuseResponses
 
