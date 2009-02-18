@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 17 18:01:38 PST 2009
+Likelihood/src
+
+Modified Files:
+	DiffRespIntegrand.cxx DiffuseSource.cxx Event.cxx 
+	SpatialMap.cxx WcsMap.cxx 
+Log Message:
+code to set bounds for diffuse response calculation for discrete sources
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 17 18:01:37 PST 2009
 Likelihood/Likelihood
 
