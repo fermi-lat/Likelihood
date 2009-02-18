@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.35 2009/01/19 15:18:17 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.36 2009/02/17 06:48:47 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -44,7 +44,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.35 2009/01/19 15:18:17 sfegan Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.36 2009/02/17 06:48:47 jchiang Exp $ 
  *  
  */
 
@@ -149,37 +149,37 @@ public:
       m_discrete = discrete;
    }
 
-   /// @return Photon flux integrated over the ROI energy bounds. 
-   /// Units are #/cm^2/s
-   double flux() const;
+//    /// @return Photon flux integrated over the ROI energy bounds. 
+//    /// Units are #/cm^2/s
+//    double flux() const;
 
-   /// @return Derivative of integrated photon flux wrt the named parameter
-   double fluxDeriv(const std::string & parName) const;
+//    /// @return Derivative of integrated photon flux wrt the named parameter
+//    double fluxDeriv(const std::string & parName) const;
 
-   /// @return Photon flux integrated over the given energy range.
-   /// Units are #/cm^2/s
-   double flux(double emin, double emax, size_t npts=100) const;
+//    /// @return Photon flux integrated over the given energy range.
+//    /// Units are #/cm^2/s
+//    double flux(double emin, double emax, size_t npts=100) const;
 
-   /// @return Derivative of integrated photon flux wrt the named parameter
-   /// over the given energy range.
-   double fluxDeriv(const std::string & parName, 
-                    double emin, double emax, size_t npts=100) const;
+//    /// @return Derivative of integrated photon flux wrt the named parameter
+//    /// over the given energy range.
+//    double fluxDeriv(const std::string & parName, 
+//                     double emin, double emax, size_t npts=100) const;
 
-   /// @return Energy flux integrated over the ROI energy bounds. 
-   /// Units are MeV/cm^2/s
-   double energyFlux() const;
+//    /// @return Energy flux integrated over the ROI energy bounds. 
+//    /// Units are MeV/cm^2/s
+//    double energyFlux() const;
 
-   /// @return Derivative of integrated energy flux wrt the named parameter
-   double energyFluxDeriv(const std::string & parName) const;
+//    /// @return Derivative of integrated energy flux wrt the named parameter
+//    double energyFluxDeriv(const std::string & parName) const;
 
-   /// @return Energy flux integrated over the given energy range.
-   /// Units are MeV/cm^2/s
-   double energyFlux(double emin, double emax, size_t npts=100) const;
+//    /// @return Energy flux integrated over the given energy range.
+//    /// Units are MeV/cm^2/s
+//    double energyFlux(double emin, double emax, size_t npts=100) const;
 
-   /// @return Derivative of integrated energy flux wrt the named parameter
-   /// over the given energy range.
-   double energyFluxDeriv(const std::string & parName, 
-                          double emin, double emax, size_t npts=100) const;
+//    /// @return Derivative of integrated energy flux wrt the named parameter
+//    /// over the given energy range.
+//    double energyFluxDeriv(const std::string & parName, 
+//                           double emin, double emax, size_t npts=100) const;
 
 private:
 

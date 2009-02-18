@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.24 2008/08/16 05:24:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.25 2009/02/17 06:48:47 jchiang Exp $
  *
  */
 
@@ -131,6 +131,15 @@ double SpatialMap::diffuseResponse(const ResponseFunctions & respFuncs,
 
 bool SpatialMap::insideMap(const astro::SkyDir & dir) const {
    return m_wcsmap->insideMap(dir);
+}
+
+std::pair<astro::SkyDir, astro::SkyDir> 
+SpatialMap::minMaxDistPixels(const astro::SkyDir & dir) const {
+   return m_wcsmap->minMaxDistPixels(dir);
+}
+
+void SpatialMap::getCorners(std::vector<astro::SkyDir> & corners) const {
+   m_wcsmap->getCorners(corners);
 }
 
 } // namespace Likelihood

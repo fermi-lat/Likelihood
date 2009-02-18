@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.30 2009/02/03 18:06:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.31 2009/02/17 06:48:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -360,6 +360,74 @@ bool WcsMap::insideMap(const astro::SkyDir & dir) const {
       return false;
    }
    return true;
+}
+
+std::pair<astro::SkyDir, astro::SkyDir> 
+WcsMap::minMaxDistPixels(const astro::SkyDir & dir) const {
+   astro::SkyDir closest(skyDir(1, 1));
+   double min_dist = dir.difference(closest);
+   astro::SkyDir farthest(skyDir(1, 1));
+   double max_dist = dir.difference(closest);
+   size_t i(2);
+   size_t j(1);
+   for ( ; i < m_naxis1 + 1; i++) { // i = 2, m_naxis1; j = 1
+      astro::SkyDir current(skyDir(i, j));
+      double dist(dir.difference(current));
+      if (dist < min_dist) {
+         min_dist = dist;
+         closest = current;
+      }
+      if (dist > max_dist) {
+         max_dist = dist;
+         farthest = current;
+      }
+   }
+   for (j = 2 ; j < m_naxis2 + 1; j++) { // i = m_naxis1; j = 2, m_naxis2
+      astro::SkyDir current(skyDir(i, j));
+      double dist(dir.difference(current));
+      if (dist < min_dist) {
+         min_dist = dist;
+         closest = current;
+      }
+      if (dist > max_dist) {
+         max_dist = dist;
+         farthest = current;
+      }
+   }
+   for (i = 1; i < m_naxis1; i++) { // i = 1, m_naxis1-1; j = m_naxis2
+      astro::SkyDir current(skyDir(i, j));
+      double dist(dir.difference(current));
+      if (dist < min_dist) {
+         min_dist = dist;
+         closest = current;
+      }
+      if (dist > max_dist) {
+         max_dist = dist;
+         farthest = current;
+      }
+   }
+   i = 1;
+   for (j = 2; j < m_naxis2; j++) { // i = 1; j = 2, m_naxis2-1
+      astro::SkyDir current(skyDir(i, j));
+      double dist(dir.difference(current));
+      if (dist < min_dist) {
+         min_dist = dist;
+         closest = current;
+      }
+      if (dist > max_dist) {
+         max_dist = dist;
+         farthest = current;
+      }
+   }
+   return std::make_pair(closest, farthest);
+}
+
+void WcsMap::getCorners(std::vector<astro::SkyDir> & corners) const {
+   corners.clear();
+   corners.push_back(skyDir(1, 1));
+   corners.push_back(skyDir(1, m_naxis2));
+   corners.push_back(skyDir(m_naxis1, m_naxis2));
+   corners.push_back(skyDir(m_naxis1, 1));
 }
 
 } // namespace Likelihood

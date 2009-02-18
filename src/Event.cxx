@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.63 2009/01/19 15:18:18 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.64 2009/02/17 06:48:47 jchiang Exp $
  */
 
 #include <cctype>
@@ -151,20 +151,61 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
       } else {
          bool haveRespValue(false);
          double respValue(0);
+         mumin = -1;
+         mumax = 1;
+         double phimin(0);
+         double phimax(2.*M_PI);
          if (srcs.at(i)->discrete()) {
-            const SpatialMap * spatialMap = 
-               dynamic_cast<SpatialMap *>(const_cast<optimizers::Function *>
-                                          (srcs.at(i)->spatialDist()));
-            if (spatialMap->insideMap(getDir())) {
-               respValue = spatialMap->diffuseResponse(respFuncs, *this);
-               haveRespValue = true;
+            optimizers::Function * foo = 
+               const_cast<optimizers::Function *>(srcs.at(i)->spatialDist());
+            const SpatialMap * spatialMap = dynamic_cast<SpatialMap *>(foo);
+            std::pair<astro::SkyDir, astro::SkyDir> dirs 
+               = spatialMap->minMaxDistPixels(getDir());
+            mumin = dirs.second().dot(getDir()());
+            if (!spatialMap->insideMap(getDir())) {
+               mumax = dirs.first().dot(getDir()());
+               std::vector<astro::SkyDir> corners;
+               spatialMap->getCorners(corners);
+               double mu = corners.front()().dot(getDir()());
+               phimin = DiffRespIntegrand::phiValue(mu, corners.front(),
+                                                    eqRot);
+               phimax = phimin;
+               for (size_t k(1); k < corners.size(); k++) {
+                  mu = corners.at(k)().dot(getDir()());
+                  double phitest = DiffRespIntegrand::phiValue(mu,
+                                                               corners.at(k),
+                                                               eqRot);
+                  if (phitest < phimin) {
+                     phimin = phitest;
+                  }
+                  if (phitest > phimax) {
+                     phimax = phitest;
+                  }
+               }
+               double dphi(phimax - phimin);
+               if (dphi > M_PI) {
+                  if (phimin < 0) {
+                     double tmp = phimax;
+                     phimax = 2*M_PI + phimin;
+                     phimin = tmp;
+                  } else if (phimax < 0) {
+                     double tmp = phimin;
+                     phimin = phimax - 2*M_PI;
+                     phimax = phimin;
+                  }
+               }
             }
-         } 
+         }
+
          if (!haveRespValue) {
-            DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot);
+            DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot,
+                                          phimin, phimax);
             respValue = 
                st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
                                                          mumax, err, ierr);
+            std::cout << phimin << "  "
+                      << phimax << "  "
+                      << respValue << std::endl;
          }
          m_respDiffuseSrcs[name].push_back(respValue);
       }
