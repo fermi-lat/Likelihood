@@ -1,10 +1,10 @@
 package Likelihood
-version v14r2p3
+version v14r3
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.399 2009/02/03 18:08:21 jchiang Exp $
+# $Id: requirements,v 1.400 2009/02/18 18:13:38 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -28,19 +28,19 @@ use f2c *
 macro_append lib_source "-s=dmfit *.cxx *.c" WIN32 "-s=dmfit *.h *.cxx *.c"
 apply_pattern ST_library option=" *.c "
 apply_pattern shared_st_library
-#apply_pattern ST_pfiles
-#
-##macro_append cppflags " -pg "
-##macro_append cpplinkflags " -pg "
-#
-#apply_pattern ST_app_withDir name=gtlike dir=likelihood
-#apply_pattern ST_app_withDir name=gtexpmap dir=expMap
-#apply_pattern ST_app_withDir name=gttsmap dir=TsMap
-#apply_pattern ST_app_withDir name=gtltcube dir=makeExposureCube
-#apply_pattern ST_app_withDir name=gtdiffrsp dir=diffuseResponses
-#apply_pattern ST_app name=gtsrcmaps
-#apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
-#apply_pattern ST_app_withDir name=gtbkg dir=backfile
-#apply_pattern ST_app_withDir name=gtmodel dir=gtmodelmap
-#apply_pattern ST_app_withDir name=gtltsum dir=gtaddlivetime
-#apply_pattern ST_app name=gtfindsrc
+apply_pattern ST_pfiles
+
+#macro_append cppflags " -pg "
+#macro_append cpplinkflags " -pg "
+
+apply_pattern ST_app_withDir name=gtlike dir=likelihood
+apply_pattern ST_app_withDir name=gtexpmap dir=expMap
+apply_pattern ST_app_withDir name=gttsmap dir=TsMap
+apply_pattern ST_app_withDir name=gtltcube dir=makeExposureCube
+apply_pattern ST_app_withDir name=gtdiffrsp dir=diffuseResponses
+apply_pattern ST_app name=gtsrcmaps
+apply_pattern ST_app_withDir name=gtpsf dir=meanPsf
+apply_pattern ST_app_withDir name=gtbkg dir=backfile
+apply_pattern ST_app_withDir name=gtmodel dir=gtmodelmap
+apply_pattern ST_app_withDir name=gtltsum dir=gtaddlivetime
+apply_pattern ST_app name=gtfindsrc

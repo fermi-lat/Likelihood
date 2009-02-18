@@ -1,9 +1,14 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.282 2009/01/27 16:15:22 jchiang Exp $
+    $Id: release.notes,v 1.283 2009/02/03 18:08:21 jchiang Exp $
 
     @verbatim
+    v14r3    18-Jan-09 JC  some fixes to gtdiffrsp and gtfindsrc.par from
+                           Juergen; add MapBase superclass for SpatialMap
+                           and MapCubeFunction to enable refactoring of
+                           diffuse response calculations for FITS-image
+                           based models.
     v14r2p3  03-Jan-09 JC  Use periodic BCs for all sky maps to avoid
                            deficits near boundaries.  Bug-fixes for bilinear
                            interpolation in WcsMap.
