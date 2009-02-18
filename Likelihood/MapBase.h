@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.1 2009/02/18 06:57:42 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -17,6 +17,8 @@
 #include "astro/SkyDir.h"
 
 namespace Likelihood {
+
+class WcsMap;
 
 /**
  * @class MapBase
@@ -37,10 +39,14 @@ public:
 
    virtual ~MapBase();
 
+   virtual void readFitsFile(const std::string & fitsFile,
+                             const std::string & extension="");
+
    virtual bool insideMap(const astro::SkyDir & dir) const;
 
-   virtual void getDiffRespLimits(double & mumin, double & mumax,
-                                  double & phimin, double phimax) const;
+   virtual void getDiffRespLimits(const astro::SkyDir & dir, 
+                                  double & mumin, double & mumax,
+                                  double & phimin, double & phimax) const;
 
 protected:
 

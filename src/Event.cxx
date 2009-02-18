@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.65 2009/02/18 02:01:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.66 2009/02/18 06:57:43 jchiang Exp $
  */
 
 #include <cctype>
@@ -149,7 +149,6 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
       if (useDummyValue) {
          m_respDiffuseSrcs[name].push_back(0);
       } else {
-         bool haveRespValue(false);
          double respValue(0);
          mumin = -1;
          mumax = 1;
@@ -159,51 +158,14 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
             const_cast<optimizers::Function *>(srcs.at(i)->spatialDist());
          const SpatialMap * spatialMap = dynamic_cast<SpatialMap *>(foo);
          if (spatialMap != 0) {
-            std::pair<astro::SkyDir, astro::SkyDir> dirs 
-               = spatialMap->minMaxDistPixels(getDir());
-            mumin = dirs.second().dot(getDir()());
-            if (!spatialMap->insideMap(getDir())) {
-               mumax = dirs.first().dot(getDir()());
-               std::vector<astro::SkyDir> corners;
-               spatialMap->getCorners(corners);
-               double mu = corners.front()().dot(getDir()());
-               phimin = DiffRespIntegrand::phiValue(mu, corners.front(),
-                                                    eqRot);
-               phimax = phimin;
-               for (size_t k(1); k < corners.size(); k++) {
-                  mu = corners.at(k)().dot(getDir()());
-                  double phitest = DiffRespIntegrand::phiValue(mu,
-                                                               corners.at(k),
-                                                               eqRot);
-                  if (phitest < phimin) {
-                     phimin = phitest;
-                  }
-                  if (phitest > phimax) {
-                     phimax = phitest;
-                  }
-               }
-               double dphi(phimax - phimin);
-               if (dphi > M_PI) {
-                  if (phimin < 0) {
-                     double tmp = phimax;
-                     phimax = 2*M_PI + phimin;
-                     phimin = tmp;
-                  } else if (phimax < 0) {
-                     double tmp = phimin;
-                     phimin = phimax - 2*M_PI;
-                     phimax = tmp;
-                  }
-               }
-            }
-         }
-
-         if (!haveRespValue) {
-            DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot,
+            spatialMap->getDiffRespLimits(getDir(), mumin, mumax,
                                           phimin, phimax);
-            respValue = 
-               st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
-                                                         mumax, err, ierr);
          }
+         DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot,
+                                       phimin, phimax);
+         respValue = 
+            st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
+                                                      mumax, err, ierr);
          m_respDiffuseSrcs[name].push_back(respValue);
       }
    }
