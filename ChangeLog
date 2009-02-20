@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb 20 11:45:23 PST 2009
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx 
+Log Message:
+begin implementation of DiffuseSource::flux(...)
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-03-00, operation: add
 Package: Likelihood
