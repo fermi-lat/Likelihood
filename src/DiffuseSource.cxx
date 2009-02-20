@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.43 2009/02/18 02:01:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.44 2009/02/18 18:13:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -181,8 +181,16 @@ double DiffuseSource::pixelCountsDeriv(double emin, double emax,
                                /(gam+1.)));
 }
 
-// double DiffuseSource::flux() const {
+double DiffuseSource::flux() const {
+   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   std::vector<double> integrand;
+   for (size_t k(0); k < energies.size(); k++) {
+      
+   }
    
-// }
+   TrapQuad fluxIntegral(m_spectrum);
+   return fluxIntegral.integral(energies);
+   
+}
 
 } // namespace Likelihood
