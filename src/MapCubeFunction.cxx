@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.25 2009/02/17 06:48:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.26 2009/02/18 20:52:46 jchiang Exp $
  */
 
 #include <cmath>
@@ -27,6 +27,7 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/SkyDirArg.h"
+#include "Likelihood/WcsMap.h"
 
 namespace {
    bool reverse_cmp(double x, double y) {
@@ -82,6 +83,7 @@ MapCubeFunction::MapCubeFunction(const MapCubeFunction & rhs)
    m_proj = rhs.m_proj;
    m_energies = rhs.m_energies;
    m_image = rhs.m_image;
+   m_mapIntegrals = rhs.m_mapIntegrals;
 }
 
 MapCubeFunction & MapCubeFunction::operator=(const MapCubeFunction &rhs) {
@@ -98,6 +100,7 @@ MapCubeFunction & MapCubeFunction::operator=(const MapCubeFunction &rhs) {
       m_nlat = rhs.m_nlat;
       m_energies = rhs.m_energies;
       m_image = rhs.m_image;
+      m_mapIntegrals = rhs.m_mapIntegrals;
    }
    return *this;
 }
@@ -188,6 +191,8 @@ void MapCubeFunction::readFitsFile(const std::string & fitsFile,
    delete image;
 
    ExposureMap::readEnergyExtension(expandedFileName, m_energies);
+
+   computeMapIntegrals();
 }
 
 int MapCubeFunction::
@@ -234,6 +239,36 @@ double MapCubeFunction::powerLawIntegral(double x1, double x2,
       integral = n0*std::log(x2/x1);
    }
    return integral;
+}
+
+double MapCubeFunction::mapIntegral(double energy) const {
+   if (energy < m_energies.front() || energy > m_energies.back()) {
+      return 0;
+   }
+   size_t k = std::upper_bound(m_energies.begin(), m_energies.end(),
+                               energy) - m_energies.begin();
+   if (energy == m_energies.at(k)) {
+      return m_mapIntegrals.at(k);
+   }
+   double value = (m_mapIntegrals.at(k-1)*
+                   std::exp((std::log(energy/m_energies.at(k-1)))
+                            /(std::log(m_energies.at(k)/m_energies.at(k-1)))
+                            *std::log(m_mapIntegrals.at(k)/m_mapIntegrals.at(k-1))));
+   return value;
+}
+
+void MapCubeFunction::computeMapIntegrals() {
+   m_mapIntegrals.clear();
+   for (size_t k(0); k < m_energies.size(); k++) {
+      m_mapIntegrals.push_back(0);
+      for (int i(0); i < m_nlon; i++) {
+         for (int j(0); j < m_nlat; j++) {
+            size_t indx((k*m_nlat + j)*m_nlon + i);
+            m_mapIntegrals.back() += (m_wcsmap->solidAngle(i, j)
+                                      *m_image.at(indx));
+         }
+      }
+   }
 }
 
 }

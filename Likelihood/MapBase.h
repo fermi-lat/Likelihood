@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.1 2009/02/18 06:57:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.2 2009/02/18 18:13:37 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -38,6 +38,8 @@ public:
    MapBase & operator=(const MapBase & rhs);
 
    virtual ~MapBase();
+
+   virtual double mapIntegral(double energy) const = 0;
 
    virtual void readFitsFile(const std::string & fitsFile,
                              const std::string & extension="");

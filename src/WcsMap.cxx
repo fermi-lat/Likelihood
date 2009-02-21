@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.32 2009/02/18 02:01:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.33 2009/02/18 18:13:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -56,13 +56,14 @@ namespace {
 
 namespace Likelihood {
 
-WcsMap::WcsMap() : m_proj(0), m_interpolate(false) {}
+WcsMap::WcsMap() : m_proj(0), m_interpolate(false), m_mapIntegral(0) {}
 
 
 WcsMap::WcsMap(const std::string & filename,
                const std::string & extension,
                bool interpolate) 
-   : m_proj(0), m_interpolate(interpolate), m_isPeriodic(false) {
+   : m_proj(0), m_interpolate(interpolate), m_isPeriodic(false),
+     m_mapIntegral(0) {
    
    m_proj = new astro::SkyProj(filename, extension);
    
@@ -108,13 +109,15 @@ WcsMap::WcsMap(const std::string & filename,
       }
       m_image.push_back(row);
    }
+
+   computeMapIntegral();
 }
 
 WcsMap::WcsMap(const DiffuseSource & diffuseSource,
                double ra, double dec, double pix_size, int npts,
                double energy, const std::string & proj_name, bool use_lb,
                bool interpolate) 
-   : m_refDir(ra, dec), m_interpolate(interpolate) {
+   : m_refDir(ra, dec), m_interpolate(interpolate), m_mapIntegral() {
    if (use_lb) { // convert to l, b
       ra = m_refDir.l();
       dec = m_refDir.b();
@@ -151,6 +154,8 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    }
    m_naxis1 = npts;
    m_naxis2 = npts;
+
+   computeMapIntegral();
 }
 
 WcsMap::~WcsMap() {
@@ -165,7 +170,8 @@ WcsMap::WcsMap(const WcsMap & rhs)
      m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2), 
      m_interpolate(rhs.m_interpolate),
      m_isPeriodic(rhs.m_isPeriodic),
-     m_coordSys(rhs.m_coordSys) {
+     m_coordSys(rhs.m_coordSys),
+     m_mapIntegral(rhs.m_mapIntegral) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the destructor,
 // and live with the resulting memory leak when this object is deleted.
@@ -186,6 +192,7 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
       m_naxis1 = rhs.m_naxis1;
       m_naxis2 = rhs.m_naxis2;
       m_interpolate = rhs.m_interpolate;
+      m_mapIntegral = rhs.m_mapIntegral;
    }
    return *this;
 }
@@ -428,6 +435,19 @@ void WcsMap::getCorners(std::vector<astro::SkyDir> & corners) const {
    corners.push_back(skyDir(1, m_naxis2));
    corners.push_back(skyDir(m_naxis1, m_naxis2));
    corners.push_back(skyDir(m_naxis1, 1));
+}
+
+double WcsMap::mapIntegral() const {
+   return m_mapIntegral;
+}
+
+void WcsMap::computeMapIntegral() {
+   m_mapIntegral = 0;
+   for (int i(0); i < m_naxis1; i++) {
+      for (int j(0); j < m_naxis2; j++) {
+         m_mapIntegral += solidAngle(i, j)*m_image.at(j).at(i);
+      }
+   }
 }
 
 } // namespace Likelihood

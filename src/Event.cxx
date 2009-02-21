@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.67 2009/02/18 18:13:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.68 2009/02/18 20:52:46 jchiang Exp $
  */
 
 #include <cctype>
@@ -26,7 +26,6 @@
 #include "Likelihood/ScData.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/Source.h"
-//#include "Likelihood/SpatialMap.h"
 #include "Likelihood/TrapQuad.h"
 
 #include "st_facilities/GaussianQuadrature.h"

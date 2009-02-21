@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.38 2009/02/18 18:13:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.39 2009/02/18 20:52:44 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -44,7 +44,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.38 2009/02/18 18:13:37 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.39 2009/02/18 20:52:44 jchiang Exp $ 
  *  
  */
 
@@ -141,12 +141,12 @@ public:
       return * m_spectrum;
    }
 
-//    /// @return Photon flux integrated over the ROI energy bounds. 
-//    /// Units are #/cm^2/s
-//    double flux() const;
+   /// @return Photon flux integrated over the ROI energy bounds. 
+   /// Units are #/cm^2/s
+   double flux() const;
 
-//    /// @return Derivative of integrated photon flux wrt the named parameter
-//    double fluxDeriv(const std::string & parName) const;
+   /// @return Derivative of integrated photon flux wrt the named parameter
+   double fluxDeriv(const std::string & parName) const;
 
 //    /// @return Photon flux integrated over the given energy range.
 //    /// Units are #/cm^2/s

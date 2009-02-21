@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.19 2009/02/18 02:01:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.20 2009/02/18 18:13:37 jchiang Exp $
  *
  */
 
@@ -15,6 +15,7 @@
 #include "optimizers/Function.h"
 
 #include "Likelihood/MapBase.h"
+#include "Likelihood/WcsMap.h"
 
 namespace astro {
    class SkyDir;
@@ -34,7 +35,7 @@ class WcsMap;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.19 2009/02/18 02:01:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.20 2009/02/18 18:13:37 jchiang Exp $
  *
  */
     
@@ -66,6 +67,11 @@ public:
 
    const std::string & fitsFile() const {
       return m_fitsFile;
+   }
+
+   virtual double mapIntegral(double energy) const {
+      (void)(energy);
+      return m_wcsmap->mapIntegral();
    }
 
 private:
