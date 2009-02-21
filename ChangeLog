@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Feb 20 18:03:18 PST 2009
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h MapBase.h MapCubeFunction.h Source.h 
+	SpatialMap.h WcsMap.h 
+Log Message:
+more map integral implementation for diffuse source fluxes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb 20 11:45:23 PST 2009
 Likelihood/src
 
