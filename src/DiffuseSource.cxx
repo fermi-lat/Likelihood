@@ -2,13 +2,14 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.44 2009/02/18 18:13:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.45 2009/02/20 19:45:23 jchiang Exp $
  */
 
 #include <cmath>
 
 #include <algorithm>
 #include <string>
+#include <stdexcept>
 #include <valarray>
 #include <vector>
 
@@ -19,6 +20,7 @@
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/ExposureMap.h"
+#include "Likelihood/MapBase.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/TrapQuad.h"
 
@@ -182,15 +184,26 @@ double DiffuseSource::pixelCountsDeriv(double emin, double emax,
 }
 
 double DiffuseSource::flux() const {
+   optimizers::Function * foo = 
+      const_cast<optimizers::Function *>(this->spatialDist());
+   const MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
+
+   if (!mapBaseObject) {
+      throw std::runtime_error("Flux calculations are not available for this "
+                               + ("diffuse source: " + getName()));
+   }
+
    const std::vector<double> & energies = m_observation->roiCuts().energies();
    std::vector<double> integrand;
    for (size_t k(0); k < energies.size(); k++) {
-      
+      optimizers::dArg energyArg(energies.at(k));
+      integrand.push_back(m_spectrum->operator()(energyArg)
+                          *mapBaseObject->mapIntegral(energies.at(k)));
    }
    
-   TrapQuad fluxIntegral(m_spectrum);
-   return fluxIntegral.integral(energies);
-   
+   bool useLog;
+   TrapQuad fluxIntegral(energies, integrand, useLog=true);
+   return fluxIntegral.integral();
 }
 
 } // namespace Likelihood

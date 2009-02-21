@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.8 2009/02/17 06:48:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.9 2009/02/18 20:52:44 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  * a function of position on the sky.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.8 2009/02/17 06:48:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.9 2009/02/18 20:52:44 jchiang Exp $
  */
 
 class MapCubeFunction : public optimizers::Function, public MapBase {
@@ -65,6 +65,11 @@ public:
    /// @todo Consider moving this method to FitsImage class.
    double mapIntegral() const;
 
+   /// @return The angular integral of the differential flux as a
+   /// function of energy (implementation for
+   /// MapBase::mapIntegral(double) const)
+   virtual double mapIntegral(double energy) const;
+
 private:
 
    std::string m_fitsFile;
@@ -80,11 +85,15 @@ private:
 
    std::vector<float> m_image;
 
+   std::vector<double> m_mapIntegrals;
+
    void init();
 
    int findIndex(const std::vector<double> & xx, double x) const;
 
    double powerLawIntegral(double x1, double x2, double y1, double y2) const;
+
+   void computeMapIntegrals();
 };
 
 } // namespace Likelihood
