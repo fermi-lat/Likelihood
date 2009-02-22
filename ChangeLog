@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb 22 12:20:56 PST 2009
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h Source.h 
+Log Message:
+correct solid angle code for pixels; add pure virtual functions for flux and energyFlux calculations to Source class
+    *
+------------------------------------------------------------
 User: jchiang  Fri Feb 20 18:03:20 PST 2009
 Likelihood/src
 
