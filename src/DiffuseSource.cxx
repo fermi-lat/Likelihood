@@ -2,19 +2,15 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.45 2009/02/20 19:45:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.46 2009/02/21 02:03:20 jchiang Exp $
  */
-
-#include <cmath>
 
 #include <algorithm>
 #include <string>
-#include <stdexcept>
 #include <valarray>
 #include <vector>
 
 #include "optimizers/Function.h"
-#include "optimizers/dArg.h"
 #include "optimizers/Exception.h"
 
 #include "Likelihood/DiffuseSource.h"
@@ -22,7 +18,6 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapBase.h"
 #include "Likelihood/Observation.h"
-#include "Likelihood/TrapQuad.h"
 
 namespace Likelihood {
 
@@ -183,27 +178,60 @@ double DiffuseSource::pixelCountsDeriv(double emin, double emax,
                                /(gam+1.)));
 }
 
-double DiffuseSource::flux() const {
+const MapBase * DiffuseSource::mapBaseObject() const {
    optimizers::Function * foo = 
       const_cast<optimizers::Function *>(this->spatialDist());
    const MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
-
    if (!mapBaseObject) {
       throw std::runtime_error("Flux calculations are not available for this "
                                + ("diffuse source: " + getName()));
    }
+   return mapBaseObject;
+}
 
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
-   std::vector<double> integrand;
-   for (size_t k(0); k < energies.size(); k++) {
-      optimizers::dArg energyArg(energies.at(k));
-      integrand.push_back(m_spectrum->operator()(energyArg)
-                          *mapBaseObject->mapIntegral(energies.at(k)));
-   }
-   
-   bool useLog;
-   TrapQuad fluxIntegral(energies, integrand, useLog=true);
-   return fluxIntegral.integral();
+double DiffuseSource::flux() const {
+   return computeEnergyIntegral(*m_spectrum, 
+                                m_observation->roiCuts().energies());
+}
+
+double DiffuseSource::fluxDeriv(const std::string & parName) const {
+   FluxDeriv my_functor(*m_spectrum, parName);
+   return computeEnergyIntegral(my_functor,
+                                m_observation->roiCuts().energies());
+}
+
+double DiffuseSource::flux(double emin, double emax, size_t npts) const {
+   return computeEnergyIntegral(*m_spectrum, emin, emax, npts);
+}
+
+double DiffuseSource::fluxDeriv(const std::string & parName,
+                                double emin, double emax, size_t npts) const {
+   FluxDeriv my_functor(*m_spectrum, parName);
+   return computeEnergyIntegral(my_functor, emin, emax, npts);
+}
+
+double DiffuseSource::energyFlux() const {
+   EnergyFlux my_functor(*m_spectrum);
+   return computeEnergyIntegral(my_functor, 
+                                m_observation->roiCuts().energies());
+}
+
+double DiffuseSource::energyFluxDeriv(const std::string & parName) const {
+   EnergyFluxDeriv my_functor(*m_spectrum, parName);
+   return computeEnergyIntegral(my_functor, 
+                                m_observation->roiCuts().energies());
+}
+
+double DiffuseSource::energyFlux(double emin, double emax, size_t npts) const {
+   EnergyFlux my_functor(*m_spectrum);
+   return computeEnergyIntegral(my_functor, emin, emax, npts);
+}
+
+double DiffuseSource::energyFluxDeriv(const std::string & parName,
+                                    double emin, double emax, 
+                                    size_t npts) const {
+   EnergyFluxDeriv my_functor(*m_spectrum, parName);
+   return computeEnergyIntegral(my_functor, emin, emax, npts);
 }
 
 } // namespace Likelihood

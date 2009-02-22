@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.33 2009/02/18 18:13:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.34 2009/02/21 02:03:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -320,8 +320,11 @@ double WcsMap::solidAngle(const astro::SkyProj & proj,
    std::pair<double, double> top(proj.pix2sph(ilon, ilat + 0.5));
 
    double cos_lat = std::fabs(std::cos(center.second*M_PI/180.));
-   double delta_lon = std::fabs(std::fmod((right.first - left.first + 360.),
-                                          360.))*M_PI/180.;
+
+   astro::SkyDir rightDir(right.first, right.second);
+   astro::SkyDir leftDir(left.first, left.second);
+   double delta_lon = std::acos(leftDir().dot(rightDir()));
+
    double delta_lat = (top.second - bottom.second)*M_PI/180.;
 
    double dOmega = std::fabs(delta_lon*delta_lat*cos_lat);

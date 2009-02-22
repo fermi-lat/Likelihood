@@ -3,17 +3,22 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.39 2009/02/18 20:52:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.40 2009/02/21 02:03:18 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
 #define Likelihood_DiffuseSource_h
 
+#include <cmath>
+
 #include <stdexcept>
 
+#include "optimizers/dArg.h"
+
+#include "Likelihood/Exception.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SkyDirArg.h"
-#include "Likelihood/Exception.h"
+#include "Likelihood/TrapQuad.h"
 
 namespace optimizers {
    class Function;
@@ -22,6 +27,7 @@ namespace optimizers {
 namespace Likelihood {
 
    class Event;
+   class MapBase;
    class Observation;
 
 /** 
@@ -44,7 +50,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.39 2009/02/18 20:52:44 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.40 2009/02/21 02:03:18 jchiang Exp $ 
  *  
  */
 
@@ -143,40 +149,69 @@ public:
 
    /// @return Photon flux integrated over the ROI energy bounds. 
    /// Units are #/cm^2/s
-   double flux() const;
+   virtual double flux() const;
 
    /// @return Derivative of integrated photon flux wrt the named parameter
    double fluxDeriv(const std::string & parName) const;
 
-//    /// @return Photon flux integrated over the given energy range.
-//    /// Units are #/cm^2/s
-//    double flux(double emin, double emax, size_t npts=100) const;
+   /// @return Photon flux integrated over the given energy range.
+   /// Units are #/cm^2/s
+   double flux(double emin, double emax, size_t npts=100) const;
 
-//    /// @return Derivative of integrated photon flux wrt the named parameter
-//    /// over the given energy range.
-//    double fluxDeriv(const std::string & parName, 
-//                     double emin, double emax, size_t npts=100) const;
+   /// @return Derivative of integrated photon flux wrt the named parameter
+   /// over the given energy range.
+   double fluxDeriv(const std::string & parName, 
+                    double emin, double emax, size_t npts=100) const;
 
-//    /// @return Energy flux integrated over the ROI energy bounds. 
-//    /// Units are MeV/cm^2/s
-//    double energyFlux() const;
+   /// @return Energy flux integrated over the ROI energy bounds. 
+   /// Units are MeV/cm^2/s
+   virtual double energyFlux() const;
 
-//    /// @return Derivative of integrated energy flux wrt the named parameter
-//    double energyFluxDeriv(const std::string & parName) const;
+   /// @return Derivative of integrated energy flux wrt the named parameter
+   double energyFluxDeriv(const std::string & parName) const;
 
-//    /// @return Energy flux integrated over the given energy range.
-//    /// Units are MeV/cm^2/s
-//    double energyFlux(double emin, double emax, size_t npts=100) const;
+   /// @return Energy flux integrated over the given energy range.
+   /// Units are MeV/cm^2/s
+   double energyFlux(double emin, double emax, size_t npts=100) const;
 
-//    /// @return Derivative of integrated energy flux wrt the named parameter
-//    /// over the given energy range.
-//    double energyFluxDeriv(const std::string & parName, 
-//                           double emin, double emax, size_t npts=100) const;
+   /// @return Derivative of integrated energy flux wrt the named parameter
+   /// over the given energy range.
+   double energyFluxDeriv(const std::string & parName, 
+                          double emin, double emax, size_t npts=100) const;
+
+   const MapBase * mapBaseObject() const;
 
 private:
 
    /// spatial model
    optimizers::Function * m_spatialDist;
+
+   template<typename Functor>
+   double computeEnergyIntegral(const Functor & func, 
+                                double emin, double emax, size_t npts) const {
+      std::vector<double> energies;
+      energies.reserve(npts);
+      double estep(std::log(emax/emin)/float(npts-1));
+      for (size_t k(0); k < npts; k++) {
+         energies.push_back(emin*std::exp(estep*k));
+      }
+      return computeEnergyIntegral(func, energies);
+   }
+
+   template<typename Functor>
+   double computeEnergyIntegral(const Functor & func, 
+                                const std::vector<double> & energies) const {
+      std::vector<double> integrand;
+      integrand.reserve(energies.size());
+      for (size_t k(0); k < energies.size(); k++) {
+         optimizers::dArg arg(energies.at(k));
+         integrand.push_back(func(arg)
+                             *mapBaseObject()->mapIntegral(energies.at(k)));
+      }
+      bool useLog;
+      TrapQuad fluxIntegral(energies, integrand, useLog=true);
+      return fluxIntegral.integral();
+   }
 
 };
 
