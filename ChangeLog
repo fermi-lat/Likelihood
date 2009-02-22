@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb 22 12:20:57 PST 2009
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx PointSource.cxx WcsMap.cxx 
+Log Message:
+correct solid angle code for pixels; add pure virtual functions for flux and energyFlux calculations to Source class
+    *
+------------------------------------------------------------
 User: jchiang  Sun Feb 22 12:20:56 PST 2009
 Likelihood/Likelihood
 
