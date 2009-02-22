@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.105 2009/01/19 15:18:18 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.106 2009/01/26 01:24:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -30,87 +30,6 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/TrapQuad.h"
-
-namespace { 
-
-/**
- * @class FluxDeriv
- * @brief Functor class that wraps a Function to provide an interface
- * to that function's partial derivative wrt a named parameter.
- */
-   class FluxDeriv : public optimizers::Function {
-   public:
-      FluxDeriv(const optimizers::Function & func, const std::string & parName) 
-         : m_func(func), m_parName(parName) {}
-      virtual double value(optimizers::Arg & x) const {
-         return m_func.derivByParam(x, m_parName);
-      }
-      virtual double derivByParam(optimizers::Arg &,
-                                  const std::string &) const {
-         throw std::runtime_error("FluxDeriv::deriveByParam not implemented");
-      }
-   protected:
-      virtual Function * clone() const {
-         return 0;
-      }
-   private:
-      const optimizers::Function & m_func;
-      std::string m_parName;
-   };
-
-/**
- * @class EnergyFlux
- * @brief Functor class to be used to compute energy fluxes.
- */
-   class EnergyFlux : public optimizers::Function {
-   public:
-      EnergyFlux(const optimizers::Function & func) : m_func(func) {}
-      virtual double value(optimizers::Arg & x) const {
-         double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
-         return energy*m_func(x);
-      }
-      virtual double derivByParam(optimizers::Arg & x,
-                                  const std::string & parname) const {
-         double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
-         return energy*m_func.derivByParam(x, parname);
-      }
-   protected:
-      virtual Function * clone() const {
-         return 0;
-      }
-   private:
-      const optimizers::Function & m_func;
-   };
-
-/**
- * @class EnergyFluxDeriv
- * @brief Functor class to be used to compute energy flux derivatives
- * wrt fit parameters.
- */
-   class EnergyFluxDeriv : public optimizers::Function {
-   public:
-      EnergyFluxDeriv(const optimizers::Function & func,
-                      const std::string & parName) 
-         : m_func(func), m_parName(parName) {}
-      virtual double value(optimizers::Arg & x) const {
-         double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
-         return energy*m_func.derivByParam(x, m_parName);
-      }
-      virtual double derivByParam(optimizers::Arg &,
-                                  const std::string &) const {
-         throw std::runtime_error("EnergyFluxDeriv::derivByParam: "
-                                  "not implemented");
-      }
-   protected:
-      virtual Function * clone() const {
-         return 0;
-      }
-   private:
-      const optimizers::Function & m_func;
-      std::string m_parName;
-   };
-
-} // anonymous namespace
 
 namespace Likelihood {
 
@@ -394,7 +313,7 @@ double PointSource::flux() const {
 
 double PointSource::fluxDeriv(const std::string & parName) const {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
-   ::FluxDeriv my_functor(*m_spectrum, parName);
+   FluxDeriv my_functor(*m_spectrum, parName);
    TrapQuad fluxIntegral(&my_functor);
    return fluxIntegral.integral(energies);
 }
@@ -418,21 +337,21 @@ double PointSource::fluxDeriv(const std::string & parName,
    for (size_t k=0; k < npts; k++) {
       energies.push_back(emin*std::exp(estep*k));
    }
-   ::FluxDeriv my_functor(*m_spectrum, parName);
+   FluxDeriv my_functor(*m_spectrum, parName);
    TrapQuad fluxIntegral(&my_functor);
    return fluxIntegral.integral(energies);
 }
 
 double PointSource::energyFlux() const {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
-   ::EnergyFlux my_functor(*m_spectrum);
+   EnergyFlux my_functor(*m_spectrum);
    TrapQuad fluxIntegral(&my_functor);
    return fluxIntegral.integral(energies);
 }
 
 double PointSource::energyFluxDeriv(const std::string & parName) const {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
-   ::EnergyFluxDeriv my_functor(*m_spectrum, parName);
+   EnergyFluxDeriv my_functor(*m_spectrum, parName);
    TrapQuad fluxIntegral(&my_functor);
    return fluxIntegral.integral(energies);
 }
@@ -444,7 +363,7 @@ double PointSource::energyFlux(double emin, double emax, size_t npts) const {
    for (size_t k=0; k < npts; k++) {
       energies.push_back(emin*std::exp(estep*k));
    }
-   ::EnergyFlux my_functor(*m_spectrum);
+   EnergyFlux my_functor(*m_spectrum);
    TrapQuad fluxIntegral(&my_functor);
    return fluxIntegral.integral(energies);
 }
@@ -458,7 +377,7 @@ double PointSource::energyFluxDeriv(const std::string & parName,
    for (size_t k=0; k < npts; k++) {
       energies.push_back(emin*std::exp(estep*k));
    }
-   ::EnergyFluxDeriv my_functor(*m_spectrum, parName);
+   EnergyFluxDeriv my_functor(*m_spectrum, parName);
    TrapQuad fluxIntegral(&my_functor);
    return fluxIntegral.integral(energies);
 }

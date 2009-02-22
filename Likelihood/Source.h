@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.39 2009/01/19 15:18:17 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.40 2009/02/21 02:03:18 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -12,7 +12,9 @@
 
 #include <iostream>
 #include <map>
+#include <stdexcept>
 
+#include "optimizers/dArg.h"
 #include "optimizers/Function.h"
 
 #include "Likelihood/Event.h"
@@ -32,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.39 2009/01/19 15:18:17 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.40 2009/02/21 02:03:18 jchiang Exp $
  */
 
 class Source {
@@ -137,6 +139,33 @@ public:
 
    virtual double flux() const = 0;
 
+   virtual double fluxDeriv(const std::string & parName) const = 0;
+
+   /// @return Photon flux integrated over the given energy range.
+   /// Units are #/cm^2/s
+   virtual double flux(double emin, double emax, size_t npts=100) const = 0;
+
+   /// @return Derivative of integrated photon flux wrt the named parameter
+   /// over the given energy range.
+   virtual double fluxDeriv(const std::string & parName, double emin,
+                            double emax, size_t npts=100) const = 0;
+
+   /// @return Energy flux integrated over the ROI energy bounds. 
+   /// Units are MeV/cm^2/s
+   virtual double energyFlux() const = 0;
+
+   /// @return Derivative of integrated energy flux wrt the named parameter
+   virtual double energyFluxDeriv(const std::string & parName) const = 0;
+
+   /// @return Energy flux integrated over the given energy range.
+   /// Units are MeV/cm^2/s
+   virtual double energyFlux(double emin, double emax,
+                             size_t npts=100) const = 0;
+
+   /// @return Derivative of integrated energy flux wrt the named parameter
+   /// over the given energy range.
+   virtual double energyFluxDeriv(const std::string & parName, double emin,
+                                  double emax, size_t npts=100) const = 0;
 protected:
 
    /// A unique source name.
@@ -163,6 +192,86 @@ protected:
    static double powerlaw_integral_est(double x1, double x2, 
                                        double y1, double y2, 
                                        double wt1, double wt2);
+
+/// Nested classes for computing photon flux derivatives and energy
+/// fluxes and flux derivatives.
+
+/**
+ * @class FluxDeriv
+ * @brief Functor class that wraps a Function to provide an interface
+ * to that function's partial derivative wrt a named parameter.
+ */
+   class FluxDeriv : public optimizers::Function {
+   public:
+      FluxDeriv(const optimizers::Function & func, const std::string & parName) 
+         : m_func(func), m_parName(parName) {}
+      virtual double value(optimizers::Arg & x) const {
+         return m_func.derivByParam(x, m_parName);
+      }
+      virtual double derivByParam(optimizers::Arg &,
+                                  const std::string &) const {
+         throw std::runtime_error("FluxDeriv::deriveByParam not implemented");
+      }
+   protected:
+      virtual Function * clone() const {
+         return 0;
+      }
+   private:
+      const optimizers::Function & m_func;
+      std::string m_parName;
+   };
+
+/**
+ * @class EnergyFlux
+ * @brief Functor class to be used to compute energy fluxes.
+ */
+   class EnergyFlux : public optimizers::Function {
+   public:
+      EnergyFlux(const optimizers::Function & func) : m_func(func) {}
+      virtual double value(optimizers::Arg & x) const {
+         double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
+         return energy*m_func(x);
+      }
+      virtual double derivByParam(optimizers::Arg & x,
+                                  const std::string & parname) const {
+         double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
+         return energy*m_func.derivByParam(x, parname);
+      }
+   protected:
+      virtual Function * clone() const {
+         return 0;
+      }
+   private:
+      const optimizers::Function & m_func;
+   };
+
+/**
+ * @class EnergyFluxDeriv
+ * @brief Functor class to be used to compute energy flux derivatives
+ * wrt fit parameters.
+ */
+   class EnergyFluxDeriv : public optimizers::Function {
+   public:
+      EnergyFluxDeriv(const optimizers::Function & func,
+                      const std::string & parName) 
+         : m_func(func), m_parName(parName) {}
+      virtual double value(optimizers::Arg & x) const {
+         double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
+         return energy*m_func.derivByParam(x, m_parName);
+      }
+      virtual double derivByParam(optimizers::Arg &,
+                                  const std::string &) const {
+         throw std::runtime_error("EnergyFluxDeriv::derivByParam: "
+                                  "not implemented");
+      }
+   protected:
+      virtual Function * clone() const {
+         return 0;
+      }
+   private:
+      const optimizers::Function & m_func;
+      std::string m_parName;
+   };
 
 };
 
