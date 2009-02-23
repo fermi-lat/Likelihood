@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.2 2009/02/18 18:13:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.3 2009/02/21 02:03:18 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -65,6 +65,16 @@ private:
    
    void getCorners(std::vector<astro::SkyDir> & corners) const;
 
+};
+
+class MapBaseException : public std::exception {
+public:
+   MapBaseException() {}
+   MapBaseException(std::string errorString) : m_what(errorString) {}
+   virtual ~MapBaseException() throw() {}
+   virtual const char *what() const throw() {return m_what.c_str();}
+protected:
+   std::string m_what;
 };
 
 } // namespace Likelihood
