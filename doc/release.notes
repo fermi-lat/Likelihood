@@ -1,10 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.283 2009/02/03 18:08:21 jchiang Exp $
+    $Id: release.notes,v 1.284 2009/02/18 22:18:58 jchiang Exp $
 
     @verbatim
-    v14r3    18-Jan-09 JC  some fixes to gtdiffrsp and gtfindsrc.par from
+    v14r4    22-Feb-09 JC  enable flux calculations for isotropic and 
+                           map-based diffuse sources
+    v14r3    18-Feb-09 JC  some fixes to gtdiffrsp and gtfindsrc.par from
                            Juergen; add MapBase superclass for SpatialMap
                            and MapCubeFunction to enable refactoring of
                            diffuse response calculations for FITS-image
