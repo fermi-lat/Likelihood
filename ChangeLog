@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb 22 16:38:11 PST 2009
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx Event.cxx 
+Log Message:
+enable flux calculations for ConstantValue source
+    *
+------------------------------------------------------------
 User: jchiang  Sun Feb 22 16:38:10 PST 2009
 Likelihood/Likelihood
 
