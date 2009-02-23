@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Feb 22 16:38:10 PST 2009
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h MapBase.h 
+Log Message:
+enable flux calculations for ConstantValue source
+    *
+------------------------------------------------------------
 User: jchiang  Sun Feb 22 12:21:36 PST 2009
 Likelihood/cmt
 
