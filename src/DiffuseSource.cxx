@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.46 2009/02/21 02:03:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.47 2009/02/22 20:20:57 jchiang Exp $
  */
 
 #include <algorithm>
@@ -183,10 +183,18 @@ const MapBase * DiffuseSource::mapBaseObject() const {
       const_cast<optimizers::Function *>(this->spatialDist());
    const MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
    if (!mapBaseObject) {
-      throw std::runtime_error("Flux calculations are not available for this "
-                               + ("diffuse source: " + getName()));
+      throw MapBaseException("Flux calculations are not available for this "
+                             + ("diffuse source: " + getName()));
    }
    return mapBaseObject;
+}
+
+double DiffuseSource::angularIntegral(double energy) const {
+   if (spatialDist()->genericName() == "ConstantValue") { 
+// Here we have an isotropic source
+      return 4*M_PI;
+   }
+   return mapBaseObject()->mapIntegral(energy);
 }
 
 double DiffuseSource::flux() const {
