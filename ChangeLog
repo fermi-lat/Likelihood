@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: cohen  Wed Mar  4 03:24:27 PST 2009
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx SourceFactory.cxx 
+Log Message:
+Implementation of DMFitFunction2, which fits the integrated flux rather than a normalisation
+    *
+------------------------------------------------------------
+User: cohen  Wed Mar  4 03:24:27 PST 2009
 Likelihood/Likelihood
 
 Added Files:
