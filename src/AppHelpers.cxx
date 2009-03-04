@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.72 2008/10/12 21:25:06 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.73 2009/01/27 00:25:56 jchiang Exp $
  */
 
 #include <map>
@@ -37,6 +37,7 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/DMFitFunction.h"
+#include "Likelihood/DMFitFunction2.h"
 
 namespace {
    void getRangeBounds(const std::vector<dataSubselector::RangeCut *> & cuts,
@@ -112,6 +113,7 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("PLSuperExpCutoff", 
                         new PowerLawSuperExpCutoff(), makeClone);
    funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
+   funcFactory->addFunc("DMFitFunction2", new DMFitFunction2(), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,

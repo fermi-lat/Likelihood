@@ -321,3 +321,95 @@ doublereal dmfit_dm__(doublereal *mx, integer *ch, doublereal *ee)
     return ret_val;
 } /* dmfit_dm__ */
 
+/* ******************************************************************** */
+/* -----DMFIT \int_E^MX (dN/dE) dE */
+doublereal dmfit_deint__(doublereal *mx, integer *ch, doublereal *ee)
+{
+    /* System generated locals */
+    integer i__1;
+    doublereal ret_val;
+
+    /* Builtin functions */
+    double log(doublereal), exp(doublereal);
+
+    /* Local variables */
+    extern doublereal dmfit_de__(doublereal *, integer *, doublereal *);
+    static doublereal integral;
+    static integer ii;
+    static doublereal ene1, ene2, dnde1, dnde2, delta;
+    static integer nstep;
+
+/* -----ARGUMENTS: */
+/* -----the other function, which we want to integrate... */
+/* -----auxiliary variables */
+/*     sets to 0 the integral */
+    integral = 0.;
+/*     defines the number of steps - say 100 */
+    nstep = 100;
+/*     case where energy is above the mass - flux is 0 */
+    if (*ee >= *mx) {
+	ret_val = 0.;
+	return ret_val;
+    }
+/*     integration */
+    i__1 = nstep;
+    for (ii = 0; ii <= i__1; ++ii) {
+	ene1 = *ee * exp((log(*mx) - log(*ee)) * (doublereal) ii / (
+		doublereal) nstep);
+	ene2 = *ee * exp((log(*mx) - log(*ee)) * (doublereal) (ii + 1) / (
+		doublereal) nstep);
+	delta = ene2 - ene1;
+	dnde1 = dmfit_de__(mx, ch, &ene1);
+	dnde2 = dmfit_de__(mx, ch, &ene2);
+	integral += (dnde1 + dnde2) * delta / 2.;
+    }
+    ret_val = integral;
+    return ret_val;
+} /* dmfit_deint__ */
+
+/* ******************************************************************** */
+/* -----DMFIT \int_E^MX (dN/dM) dE */
+doublereal dmfit_dmint__(doublereal *mx, integer *ch, doublereal *ee)
+{
+    /* System generated locals */
+    integer i__1;
+    doublereal ret_val;
+
+    /* Builtin functions */
+    double log(doublereal), exp(doublereal);
+
+    /* Local variables */
+    extern doublereal dmfit_dm__(doublereal *, integer *, doublereal *);
+    static doublereal integral;
+    static integer ii;
+    static doublereal ene1, ene2, dnde1, dnde2, delta;
+    static integer nstep;
+
+/* -----ARGUMENTS: */
+/* -----the other function, which we want to integrate... */
+/* -----auxiliary variables */
+/*     sets to 0 the integral */
+    integral = 0.;
+/*     defines the number of steps - say 100 */
+    nstep = 100;
+/*     case where energy is above the mass - flux is 0 */
+    if (*ee >= *mx) {
+	ret_val = 0.;
+	return ret_val;
+    }
+/*     integration */
+    i__1 = nstep;
+    for (ii = 0; ii <= i__1; ++ii) {
+	ene1 = *ee * exp((log(*mx) - log(*ee)) * (doublereal) ii / (
+		doublereal) nstep);
+	ene2 = *ee * exp((log(*mx) - log(*ee)) * (doublereal) (ii + 1) / (
+		doublereal) nstep);
+	delta = ene2 - ene1;
+	dnde1 = dmfit_dm__(mx, ch, &ene1);
+	dnde2 = dmfit_dm__(mx, ch, &ene2);
+	integral += (dnde1 + dnde2) * delta / 2.;
+    }
+    ret_val = integral;
+    return ret_val;
+} /* dmfit_dmint__ */
+
