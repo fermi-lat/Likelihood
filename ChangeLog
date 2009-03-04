@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Wed Mar  4 03:25:23 PST 2009
+Likelihood/src/dmfit
+
+Modified Files:
+	dmfit_func.c dmfit_func.f 
+Log Message:
+Implementation of DMFitFunction2, which fits the integrated flux rather than a normalisation
+    *
+------------------------------------------------------------
 User: cohen  Wed Mar  4 03:24:27 PST 2009
 Likelihood/src
 
