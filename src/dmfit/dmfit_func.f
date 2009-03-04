@@ -319,3 +319,112 @@ c     this sets the "delta" for the computation of the derivative
 
       return
       end
+
+c********************************************************************
+c-----DMFIT \int_E^MX (dN/dE) dE
+
+      REAL*8 FUNCTION dmfit_deint(MX,CH,EE)
+
+      IMPLICIT NONE
+
+c-----ARGUMENTS:
+
+      REAL*8 MX,EE
+      INTEGER CH
+      
+c-----the other function, which we want to integrate...
+
+      REAL*8 dmfit_de
+
+c-----auxiliary variables
+
+      REAL*8 delta,integral,ene1,ene2,dnde1,dnde2
+      INTEGER nstep,ii
+
+
+c     sets to 0 the integral
+      integral=0.d0
+
+c     defines the number of steps - say 100
+      nstep=100
+
+c     case where energy is above the mass - flux is 0
+      if (EE.ge.MX) then
+         dmfit_deint=0.d0
+         return
+      endif
+
+c     integration
+      do ii=0,nstep
+
+         ene1=EE*dexp((dlog(MX)-dlog(EE))*dble(ii)/dble(nstep))
+         ene2=EE*dexp((dlog(MX)-dlog(EE))*dble(ii+1)/dble(nstep))
+
+         delta=ene2-ene1
+
+         dnde1=dmfit_de(MX,CH,ene1)
+         dnde2=dmfit_de(MX,CH,ene2)
+
+         integral=integral+(dnde1+dnde2)*delta/2.d0
+
+       enddo
+
+       dmfit_deint=integral
+
+       return
+       end
+
+
+c********************************************************************
+c-----DMFIT \int_E^MX (dN/dM) dE
+
+      REAL*8 FUNCTION dmfit_dmint(MX,CH,EE)
+
+      IMPLICIT NONE
+
+c-----ARGUMENTS:
+
+      REAL*8 MX,EE
+      INTEGER CH
+      
+c-----the other function, which we want to integrate...
+
+      REAL*8 dmfit_dm
+
+c-----auxiliary variables
+
+      REAL*8 delta,integral,ene1,ene2,dnde1,dnde2
+      INTEGER nstep,ii
+
+
+c     sets to 0 the integral
+      integral=0.d0
+
+c     defines the number of steps - say 100
+      nstep=100
+
+c     case where energy is above the mass - flux is 0
+      if (EE.ge.MX) then
+         dmfit_dmint=0.d0
+         return
+      endif
+
+c     integration
+      do ii=0,nstep
+
+         ene1=EE*dexp((dlog(MX)-dlog(EE))*dble(ii)/dble(nstep))
+         ene2=EE*dexp((dlog(MX)-dlog(EE))*dble(ii+1)/dble(nstep))
+
+         delta=ene2-ene1
+
+         dnde1=dmfit_dm(MX,CH,ene1)
+         dnde2=dmfit_dm(MX,CH,ene2)
+
+         integral=integral+(dnde1+dnde2)*delta/2.d0
+
+       enddo
+
+       dmfit_dmint=integral
+
+       return
+       end
