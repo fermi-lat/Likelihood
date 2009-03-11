@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 10 21:35:00 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	MapCubeFunction.h 
+Log Message:
+cache solid angle calculation in MapCubeFunction, compute integrals only when needed; set nphibins for phi-dependent livetime calculation
+    *
+------------------------------------------------------------
 User: cohen  Wed Mar  4 03:25:23 PST 2009
 Likelihood/src/dmfit
 
