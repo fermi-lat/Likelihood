@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.50 2008/07/05 21:44:29 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.51 2008/09/07 20:34:24 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -23,6 +23,8 @@
 #include "tip/Table.h"
 
 #include "st_facilities/Util.h"
+
+#include "healpix/CosineBinner.h"
 
 #include "Likelihood/LikeExposure.h"
 #include "Likelihood/RoiCuts.h"
@@ -65,7 +67,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.50 2008/07/05 21:44:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.51 2008/09/07 20:34:24 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -205,6 +207,14 @@ void ExposureCube::createDataCube() {
                         << "If you don't understand this comment, " << std::endl
                         << "then you probably shouldn't be applying this cut." 
                         << std::endl;
+   }
+
+   // Set the number of phibins using the static function interface
+   // from healpix::CosineBinner (this is how
+   // map_tools/exposure_cube.cxx does it.)
+   double nphibins = m_pars["phibins"];
+   if (nphibins > 0) {
+      healpix::CosineBinner::setPhiBins(nphibins);
    }
 
    m_exposure = new Likelihood::LikeExposure(m_pars["binsize"], 
