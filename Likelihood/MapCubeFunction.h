@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.9 2009/02/18 20:52:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.10 2009/02/21 02:03:18 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  * a function of position on the sky.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.9 2009/02/18 20:52:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction.h,v 1.10 2009/02/21 02:03:18 jchiang Exp $
  */
 
 class MapCubeFunction : public optimizers::Function, public MapBase {
@@ -71,8 +71,6 @@ public:
    virtual double mapIntegral(double energy) const;
 
 private:
-
-   std::string m_fitsFile;
 
    astro::SkyProj * m_proj;
 

@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.26 2009/02/18 20:52:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.27 2009/02/21 02:03:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -63,7 +63,7 @@ namespace Likelihood {
 
 MapCubeFunction::MapCubeFunction() 
    : optimizers::Function(), MapBase(), 
-     m_fitsFile(""), m_proj(0), m_nlon(0), m_nlat(0), m_isPeriodic(false) {
+     m_proj(0), m_nlon(0), m_nlat(0), m_isPeriodic(false) {
    init();
 }
 
@@ -191,8 +191,6 @@ void MapCubeFunction::readFitsFile(const std::string & fitsFile,
    delete image;
 
    ExposureMap::readEnergyExtension(expandedFileName, m_energies);
-
-   computeMapIntegrals();
 }
 
 int MapCubeFunction::
@@ -247,6 +245,9 @@ double MapCubeFunction::mapIntegral(double energy) const {
    }
    size_t k = std::upper_bound(m_energies.begin(), m_energies.end(),
                                energy) - m_energies.begin();
+   if (m_mapIntegrals.empty()) {
+      const_cast<MapCubeFunction *>(this)->computeMapIntegrals();
+   }
    if (energy == m_energies.at(k)) {
       return m_mapIntegrals.at(k);
    }
@@ -258,14 +259,18 @@ double MapCubeFunction::mapIntegral(double energy) const {
 }
 
 void MapCubeFunction::computeMapIntegrals() {
+   std::vector<double> solidAngles;
    m_mapIntegrals.clear();
    for (size_t k(0); k < m_energies.size(); k++) {
       m_mapIntegrals.push_back(0);
-      for (int i(0); i < m_nlon; i++) {
-         for (int j(0); j < m_nlat; j++) {
+      for (int j(0); j < m_nlat; j++) {
+         for (int i(0); i < m_nlon; i++) {
+            if (k == 0) {
+               solidAngles.push_back(m_wcsmap->solidAngle(i, j));
+            }
+            size_t pix(m_nlon*j + i);
             size_t indx((k*m_nlat + j)*m_nlon + i);
-            m_mapIntegrals.back() += (m_wcsmap->solidAngle(i, j)
-                                      *m_image.at(indx));
+            m_mapIntegrals.back() += (solidAngles.at(pix)*m_image.at(indx));
          }
       }
    }
