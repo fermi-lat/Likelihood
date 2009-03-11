@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 10 21:35:01 PDT 2009
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+cache solid angle calculation in MapCubeFunction, compute integrals only when needed; set nphibins for phi-dependent livetime calculation
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 10 21:35:00 PDT 2009
 Likelihood/src
 
