@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.51 2008/09/07 20:34:24 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.52 2009/03/11 04:35:01 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -67,7 +67,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.51 2008/09/07 20:34:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.52 2009/03/11 04:35:01 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -212,7 +212,7 @@ void ExposureCube::createDataCube() {
    // Set the number of phibins using the static function interface
    // from healpix::CosineBinner (this is how
    // map_tools/exposure_cube.cxx does it.)
-   double nphibins = m_pars["phibins"];
+   long nphibins = m_pars["phibins"];
    if (nphibins > 0) {
       healpix::CosineBinner::setPhiBins(nphibins);
    }

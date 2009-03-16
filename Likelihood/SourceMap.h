@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.38 2008/08/21 00:32:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.39 2009/01/26 01:24:25 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -29,7 +29,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.38 2008/08/21 00:32:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.39 2009/01/26 01:24:25 jchiang Exp $
  */
 
 #ifdef SWIG
@@ -95,6 +95,9 @@ private:
          : Pixel::Aeff(src, appDir, energy, type),
            m_observation(observation) {}
       virtual double operator()(double costheta, double phi=0) const;
+      virtual double integral(double cosTheta, double phi=0) const {
+         return operator()(cosTheta, phi);
+      }
    private:
       const Observation & m_observation;
    };

@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.14 2008/07/05 21:44:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.15 2008/12/03 18:16:45 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -42,7 +42,6 @@ public:
    void load(const tip::Table * tuple, bool verbose=true);
 
    tip::Index_t numIntervals() const {
-//   size_t numIntervals() const {
       return m_numIntervals;
    }
 
