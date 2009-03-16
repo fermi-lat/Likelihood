@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 16 13:44:59 PDT 2009
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+phi dependence in livetime cube calculation
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 16 13:44:58 PDT 2009
 Likelihood/src
 
