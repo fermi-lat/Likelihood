@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 17 13:02:23 PDT 2009
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Log Message:
+add LogLike::saveCurrentFit() for use by UpperLimits
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 17 13:02:22 PDT 2009
 Likelihood/Likelihood
 
