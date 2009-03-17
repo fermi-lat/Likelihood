@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 17 13:02:22 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h 
+Log Message:
+add LogLike::saveCurrentFit() for use by UpperLimits
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-04-01, operation: add
 Package: Likelihood
