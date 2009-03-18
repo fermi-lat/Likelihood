@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.27 2009/02/21 02:03:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.28 2009/03/11 04:35:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -71,6 +71,7 @@ MapCubeFunction::MapCubeFunction(const std::string & fitsFile)
    : optimizers::Function(), MapBase(fitsFile), m_proj(0), m_nlon(0), 
      m_nlat(0), m_isPeriodic(false)  {
    init();
+   readFitsFile(fitsFile);
 }
 
 MapCubeFunction::MapCubeFunction(const MapCubeFunction & rhs)
@@ -203,19 +204,14 @@ findIndex(const std::vector<double> & xx, double x) const {
 }
 
 double MapCubeFunction::mapIntegral() const {
-   std::string fitsFile(m_fitsFile);
-   facilities::Util::expandEnvVar(&fitsFile);
-   st_facilities::FitsImage fitsImage(fitsFile);
-   std::vector<double> solidAngles;
-
-   fitsImage.getSolidAngles(solidAngles);
-
+   const std::vector< std::vector<double> > & solidAngles 
+      = m_wcsmap->solidAngles();
    double map_integral(0);
    for (int j = 0; j < m_nlat; j++) {
       for (int i = 0; i < m_nlon; i++) {
          for (unsigned int k = 1; k < m_energies.size(); k++) {
             unsigned int indx = (k*m_nlat + j)*m_nlon + i;
-            map_integral += solidAngles.at(j*m_nlon + i)*
+            map_integral += solidAngles.at(i).at(j)*
                powerLawIntegral(m_energies.at(k-1), m_energies.at(k),
                                 m_image.at(indx-m_nlon*m_nlat),
                                 m_image.at(indx));
@@ -259,18 +255,15 @@ double MapCubeFunction::mapIntegral(double energy) const {
 }
 
 void MapCubeFunction::computeMapIntegrals() {
-   std::vector<double> solidAngles;
+   const std::vector< std::vector<double> > & solidAngles
+      = m_wcsmap->solidAngles();
    m_mapIntegrals.clear();
    for (size_t k(0); k < m_energies.size(); k++) {
       m_mapIntegrals.push_back(0);
       for (int j(0); j < m_nlat; j++) {
          for (int i(0); i < m_nlon; i++) {
-            if (k == 0) {
-               solidAngles.push_back(m_wcsmap->solidAngle(i, j));
-            }
-            size_t pix(m_nlon*j + i);
             size_t indx((k*m_nlat + j)*m_nlon + i);
-            m_mapIntegrals.back() += (solidAngles.at(pix)*m_image.at(indx));
+            m_mapIntegrals.back() += solidAngles.at(i).at(j)*m_image.at(indx);
          }
       }
    }
