@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.34 2009/02/21 02:03:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.35 2009/02/22 20:20:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -167,6 +167,7 @@ WcsMap::~WcsMap() {
 
 WcsMap::WcsMap(const WcsMap & rhs) 
    : m_refDir(rhs.m_refDir), m_image(rhs.m_image), 
+     m_solidAngles(rhs.m_solidAngles),
      m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2), 
      m_interpolate(rhs.m_interpolate),
      m_isPeriodic(rhs.m_isPeriodic),
@@ -189,6 +190,7 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
       m_proj = rhs.m_proj;
       m_refDir = rhs.m_refDir;
       m_image = rhs.m_image;
+      m_solidAngles = rhs.m_solidAngles;
       m_naxis1 = rhs.m_naxis1;
       m_naxis2 = rhs.m_naxis2;
       m_interpolate = rhs.m_interpolate;
@@ -319,21 +321,32 @@ double WcsMap::solidAngle(const astro::SkyProj & proj,
    std::pair<double, double> bottom(proj.pix2sph(ilon, ilat - 0.5));
    std::pair<double, double> top(proj.pix2sph(ilon, ilat + 0.5));
 
-   double cos_lat = std::fabs(std::cos(center.second*M_PI/180.));
-
    astro::SkyDir rightDir(right.first, right.second);
    astro::SkyDir leftDir(left.first, left.second);
    double delta_lon = std::acos(leftDir().dot(rightDir()));
 
    double delta_lat = (top.second - bottom.second)*M_PI/180.;
 
-   double dOmega = std::fabs(delta_lon*delta_lat*cos_lat);
+   double dOmega = std::fabs(delta_lon*delta_lat);
 
    return dOmega;
 }
 
 double WcsMap::solidAngle(double ilon, double ilat) const {
    return solidAngle(*m_proj, ilon, ilat);
+}
+
+const std::vector< std::vector<double> > & WcsMap::solidAngles() const {
+   if (m_solidAngles.empty()) {
+      for (int i(0); i < m_naxis1; i++) {
+         std::vector<double> row;
+         for (int j(0); j < m_naxis2; j++) {
+            row.push_back(solidAngle(i, j));
+         }
+         m_solidAngles.push_back(row);
+      }
+   }
+   return m_solidAngles;
 }
 
 double WcsMap::pixelValue(double ilon, double ilat) const {
@@ -448,7 +461,7 @@ void WcsMap::computeMapIntegral() {
    m_mapIntegral = 0;
    for (int i(0); i < m_naxis1; i++) {
       for (int j(0); j < m_naxis2; j++) {
-         m_mapIntegral += solidAngle(i, j)*m_image.at(j).at(i);
+         m_mapIntegral += solidAngles().at(i).at(j)*m_image.at(j).at(i);
       }
    }
 }

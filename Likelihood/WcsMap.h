@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.10 2009/02/18 02:01:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.11 2009/02/21 02:03:18 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap_h
@@ -27,7 +27,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.10 2009/02/18 02:01:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.11 2009/02/21 02:03:18 jchiang Exp $
  */
 
 class WcsMap {
@@ -64,6 +64,8 @@ public:
 
    double solidAngle(double ilon, double ilat) const;
 
+   const std::vector< std::vector<double> > & solidAngles() const;
+
    /// @return Pixel value as a function index
    double pixelValue(double ilon, double ilat) const;
    
@@ -92,6 +94,8 @@ private:
    astro::SkyDir m_refDir;
 
    std::vector< std::vector<double> > m_image;
+
+   mutable std::vector< std::vector<double> > m_solidAngles;
 
    int m_naxis1;
    int m_naxis2;
