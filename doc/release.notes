@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.286 2009/03/16 23:20:46 jchiang Exp $
+    $Id: release.notes,v 1.287 2009/03/17 20:14:05 jchiang Exp $
 
     @verbatim
+    v14r4p3  18-Mar-09 JC  bug-fix in WcsMap::solidAngle(...)
     v14r4p2  17-Mar-09 JC  add LogLike::saveCurrentFit() for use by 
                            pyLikelihood/UpperLimits.py
     v14r4p1  16-Mar-09 JC  phi-dependence in livetime cube (requires map_tools
