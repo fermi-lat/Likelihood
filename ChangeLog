@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 18 15:53:35 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	WcsMap.h 
+Log Message:
+fix bug in solid angle calculation; improve caching of those values
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-04-02, operation: add
 Package: Likelihood
