@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar 19 10:59:08 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	DMFitFunction2.h 
+Log Message:
+fix DMFitFunction2 for windows build, silence other windows build warnings
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-04-03, operation: add
 Package: Likelihood
