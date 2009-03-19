@@ -3,7 +3,7 @@
  * @brief Declaration for the DMFit Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction2.h,v 1.1 2009/03/04 11:24:27 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction2.h,v 1.2 2009/03/19 17:59:08 jchiang Exp $
  */
 
 #ifndef Likelihood_DMFitFunction2_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Cohen-Tanugi, based on the DMFit package by S. Profumo and T. Jeltema
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction2.h,v 1.1 2009/03/04 11:24:27 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction2.h,v 1.2 2009/03/19 17:59:08 jchiang Exp $
  */
     
 class DMFitFunction2 : public optimizers::Function {
@@ -67,9 +67,6 @@ protected:
    }
 
 private:
-//    void updateCache(const double x, const double m, 
-//                     const double b, const int ch0,
-//                     const int ch1,  const double emin) const;
     
    void updateCache(double x, double m, 
                     double b, int ch0,
