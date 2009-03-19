@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Mar 19 10:59:09 PDT 2009
+Likelihood/src
+
+Modified Files:
+	Event.cxx ExposureCube.cxx 
+Log Message:
+fix DMFitFunction2 for windows build, silence other windows build warnings
+    *
+------------------------------------------------------------
 User: jchiang  Thu Mar 19 10:59:08 PDT 2009
 Likelihood/Likelihood
 
