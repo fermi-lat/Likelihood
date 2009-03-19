@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: cohen  Thu Mar 19 15:24:55 PDT 2009
+Likelihood/src/dmfit
+
+Modified Files:
+	DMFitFunction2.cxx DMFitFunction.cxx 
+Log Message:
+cosmetic cleanup after Jim fixes
+    *
+------------------------------------------------------------
+User: cohen  Thu Mar 19 15:24:55 PDT 2009
 Likelihood/Likelihood
 
 Modified Files:
