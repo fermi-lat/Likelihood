@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.287 2009/03/17 20:14:05 jchiang Exp $
+    $Id: release.notes,v 1.288 2009/03/18 22:54:34 jchiang Exp $
 
     @verbatim
+    v14r4p4  19-Mar-09 JC  bug-fixes for windows build of DMFitFunction2
     v14r4p3  18-Mar-09 JC  bug-fix in WcsMap::solidAngle(...)
     v14r4p2  17-Mar-09 JC  add LogLike::saveCurrentFit() for use by 
                            pyLikelihood/UpperLimits.py
