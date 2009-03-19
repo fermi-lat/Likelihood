@@ -3,7 +3,7 @@
  * @brief Implementation for ExposureCube wrapper class of map_tools::Exposure
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureCube.cxx,v 1.3 2009/03/16 23:19:07 jchiang Exp $
  */
 
 #include "tip/Header.h"
@@ -21,7 +21,7 @@ bool ExposureCube::phiDependence(const std::string & filename) const {
    long nphibins;
    try {
       header["PHIBINS"].get(nphibins);
-   } catch (tip::TipException & eObj) {
+   } catch (tip::TipException &) {
       nphibins = 0;
    }
    return nphibins > 0;
