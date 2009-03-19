@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Thu Mar 19 15:24:55 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	DMFitFunction2.h 
+Log Message:
+cosmetic cleanup after Jim fixes
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-04-04, operation: add
 Package: Likelihood
