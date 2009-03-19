@@ -2,7 +2,7 @@
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.4 2008/10/12 21:25:06 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.5 2009/01/27 16:14:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -24,7 +24,6 @@ typedef double doublereal;
 extern "C" {
 #endif
 
-//#include "f2c/f2c.h"
 doublereal yieldget_ (integer *zi, integer *mxi, integer *ch);
 doublereal llg_ (doublereal *x, doublereal *mx, doublereal *ml);
 integer dmfit_load__ (char *filename, ftnlen filename_len);
@@ -66,10 +65,8 @@ double DMFitFunction::value(optimizers::Arg &xarg) const {
    double n=m_parameter[0].getTrueValue();
    double m=m_parameter[1].getTrueValue();
    double b=m_parameter[2].getTrueValue();
-//    long int ch0 = m_parameter[3].getTrueValue();
-//    long int ch1 = m_parameter[4].getTrueValue();
-   integer ch0 = m_parameter[3].getTrueValue();
-   integer ch1 = m_parameter[4].getTrueValue();
+   integer ch0 = static_cast<integer>(m_parameter[3].getTrueValue());
+   integer ch1 = static_cast<integer>(m_parameter[4].getTrueValue());
 
 
    double my_value=n*(b*dmfit_de__(&m,&ch0,&x)
@@ -97,10 +94,8 @@ double DMFitFunction::derivByParam(optimizers::Arg & xarg,
    double n=m_parameter[0].getTrueValue();
    double m=m_parameter[1].getTrueValue();
    double b=m_parameter[2].getTrueValue();
-//    long int ch0 = m_parameter[3].getTrueValue();
-//    long int ch1 = m_parameter[4].getTrueValue();
-   integer ch0 = m_parameter[3].getTrueValue();
-   integer ch1 = m_parameter[4].getTrueValue();
+   integer ch0 = static_cast<integer>(m_parameter[3].getTrueValue());
+   integer ch1 = static_cast<integer>(m_parameter[4].getTrueValue());
 
    double value(0);
    switch(iparam) {
@@ -111,7 +106,6 @@ double DMFitFunction::derivByParam(optimizers::Arg & xarg,
    case mass:
      value= m_parameter[1].getScale()*
        n*(b*dmfit_dm__(&m,&ch0,&x)+(1.-b)*dmfit_dm__(&m,&ch1,&x))/1000.;
-     //std::cout<<m<<" "<<ch0<<" "<<x<<" "<<dmfit_dm__(&m,&ch0,&x)<<std::endl;
      return value;
      break;
    case bratio:
@@ -126,7 +120,6 @@ double DMFitFunction::derivByParam(optimizers::Arg & xarg,
     m_filename = filename;
     facilities::Util::expandEnvVar(&m_filename);
     st_facilities::Util::file_ok(m_filename);
-    //std::cout<<"Loading file "<<m_filename<<std::endl; 
     dmfit_load__(const_cast<char *>(m_filename.c_str()),m_filename.size());
   }
 
