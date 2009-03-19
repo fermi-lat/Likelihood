@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.69 2009/02/21 02:03:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.70 2009/02/23 00:38:11 jchiang Exp $
  */
 
 #include <cctype>
@@ -158,7 +158,7 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
             srcs.at(i)->mapBaseObject()->getDiffRespLimits(getDir(), 
                                                            mumin, mumax,
                                                            phimin, phimax);
-         } catch (MapBaseException & eObj) {
+         } catch (MapBaseException &) {
             // do nothing
          }
          DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot,
@@ -185,13 +185,6 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
    if (!s_haveSourceRegionData) {
       prepareSrData(sr_radius, sr_radius2);
    }
-
-//    std::vector<double> muArray(s_mu);
-// // If inclination is greater than 80 degrees, use s_mu_2, that
-// // covers a larger solid angle:
-//    if (m_scDir.difference(m_appDir)*180./M_PI > 80.) {
-//       muArray = s_mu_2;
-//    }
 
    const std::vector<double> & muArray =
       LogNormalMuDist::instance()->muPoints(m_energy);

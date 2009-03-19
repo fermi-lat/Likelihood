@@ -2,7 +2,7 @@
  * @file DMFitFunction2.cxx
  * @brief Implementation for the DMFitFunction2 class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction2.cxx,v 1.5 2009/01/27 16:14:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction2.cxx,v 1.1 2009/03/04 11:24:26 cohen Exp $
  */
 
 #include <cmath>
@@ -71,8 +71,8 @@ double DMFitFunction2::value(optimizers::Arg &xarg) const {
   double n=m_parameter[0].getTrueValue();
   double m=m_parameter[1].getTrueValue();
   double b=m_parameter[2].getTrueValue();
-  integer ch0 = m_parameter[3].getTrueValue();
-  integer ch1 = m_parameter[4].getTrueValue();
+  integer ch0 = static_cast<integer>(m_parameter[3].getTrueValue());
+  integer ch1 = static_cast<integer>(m_parameter[4].getTrueValue());
   double emin = m_parameter[5].getTrueValue()*escale;
 
   updateCache(x, m, b, ch0, ch1, emin);
@@ -108,8 +108,8 @@ double DMFitFunction2::derivByParam(optimizers::Arg & xarg,
    double n=m_parameter[0].getTrueValue();
    double m=m_parameter[1].getTrueValue();
    double b=m_parameter[2].getTrueValue();
-   integer ch0 = m_parameter[3].getTrueValue();
-   integer ch1 = m_parameter[4].getTrueValue();
+   integer ch0 = static_cast<integer>(m_parameter[3].getTrueValue());
+   integer ch1 = static_cast<integer>(m_parameter[4].getTrueValue());
    double emin = m_parameter[5].getTrueValue()*escale;
 
    updateCache(x, m, b, ch0, ch1, emin);
@@ -151,25 +151,33 @@ double DMFitFunction2::derivByParam(optimizers::Arg & xarg,
     dmfit_load__(const_cast<char *>(m_filename.c_str()),m_filename.size());
 
     //Check and enforce XML input non-degeneracy
-    double bratio = m_parameter[2].getTrueValue();
-    integer ch0 = m_parameter[3].getTrueValue();
-    integer ch1 = m_parameter[4].getTrueValue();
+//    double bratio = m_parameter[2].getTrueValue();  // This isn't used.
+    integer ch0 = static_cast<integer>(m_parameter[3].getTrueValue());
+    integer ch1 = static_cast<integer>(m_parameter[4].getTrueValue());
     if((ch0==ch1) && getParam("bratio").isFree())
       {
         std::cout<<"bratio set fixed to 1, as channels 0 and 1 are identical"<<std::endl;
         setParam("bratio",1.);
-        getParam("bratio").setFree(false);
+//        getParam("bratio").setFree(false);
+        parameter("bratio").setFree(false);
       }
   }
 
 
-  void DMFitFunction2::updateCache(const double x,
-                                  const double m, 
-                                  const double b,
-                                  const int ch0,
-                                  const int ch1,
-                                  const double emin)     
+//   void DMFitFunction2::updateCache(const double x,
+//                                   const double m, 
+//                                   const double b,
+//                                   const int ch0,
+//                                   const int ch1,
+//                                   const double emin)     
+  void DMFitFunction2::updateCache(double x,
+                                  double m, 
+                                  double b,
+                                  int ch0,
+                                  int ch1,
+                                  double emin)     
     const {
+     (void)(x);
     if(m != m_dmMass)
       {
         m_int_dnde0 = dmfit_deint__(&m,&ch0,&emin);
