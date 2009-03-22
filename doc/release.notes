@@ -1,9 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.289 2009/03/19 18:00:16 jchiang Exp $
+    $Id: release.notes,v 1.290 2009/03/20 23:11:15 jchiang Exp $
 
     @verbatim
+    v14r5    22-Mar-09 JC  set diffuse response name using column name from
+                           FT1 file to ensure that IRFs are included in 
+                           the label.
     v14r4p5  20-Mar-09 JC  DMFitFunction[2] cosmetic clean-up by Johann
     v14r4p4  19-Mar-09 JC  bug-fixes for windows build of DMFitFunction2
     v14r4p3  18-Mar-09 JC  bug-fix in WcsMap::solidAngle(...)
