@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Event.h,v 1.42 2008/11/11 17:49:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.43 2009/01/19 15:18:17 sfegan Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Event.h,v 1.42 2008/11/11 17:49:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.43 2009/01/19 15:18:17 sfegan Exp $
  */
 
 class Event {
@@ -102,10 +102,14 @@ public:
    void writeDiffuseResponses(const std::string & filename);
 
    /// Set diffuse response for infinite energy resolution.
-   void setDiffuseResponse(const std::string& srcName, double value) {
-     const std::string & diffuseComponent = diffuseSrcName(srcName);
-      m_respDiffuseSrcs[diffuseComponent].clear();
-      m_respDiffuseSrcs[diffuseComponent].push_back(value);
+//    void setDiffuseResponse(const std::string& srcName, double value) {
+//      const std::string & diffuseComponent = diffuseSrcName(srcName);
+//       m_respDiffuseSrcs[diffuseComponent].clear();
+//       m_respDiffuseSrcs[diffuseComponent].push_back(value);
+//    }
+   void setDiffuseResponse(const std::string & componentName, double value) {
+      m_respDiffuseSrcs[componentName].clear();
+      m_respDiffuseSrcs[componentName].push_back(value);
    }
 
    /// Set diffuse response for finite energy resolution.
