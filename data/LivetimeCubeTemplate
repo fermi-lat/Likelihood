@@ -1,5 +1,5 @@
 # Definition of Livetime cube file (see LS-003)
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.5 2008/02/20 19:35:22 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.6 2008/03/24 22:45:42 jchiang Exp $
 
 SIMPLE  = T                        / file does conform to FITS standard
 BITPIX  = 8                        / number of bits per data pixel
@@ -66,6 +66,7 @@ LASTPIX =                          / Last pixel index
 THETABIN= 'SQRT(1-COSTHETA)'       / Costheta binning scheme
 NBRBINS =                          / Number of costheta bins
 COSMIN  =                       0. / Minimum costheta value
+PHIBINS =                        0 / Number of phi bins
 NDSKEYS =                        1 / # of data subspace keywords in header
 DSTYP1  = 'TIME    '               / 
 DSUNI1  = 's       '               / 
