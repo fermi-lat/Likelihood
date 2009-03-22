@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Mar 22 13:06:31 PDT 2009
+Likelihood/data
+
+Modified Files:
+	LivetimeCubeTemplate 
+Log Message:
+add PHIBINS keyword
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-04-05, operation: add
 Package: Likelihood
