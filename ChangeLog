@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Mar 22 15:16:59 PDT 2009
+Likelihood/src
+
+Modified Files:
+	EventContainer.cxx 
+Log Message:
+set diffuse response component name using column name from FT1 file
+    *
+------------------------------------------------------------
+User: jchiang  Sun Mar 22 15:16:59 PDT 2009
 Likelihood/Likelihood
 
 Modified Files:
