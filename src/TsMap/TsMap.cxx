@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.41 2008/04/03 00:12:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.42 2009/01/19 15:18:18 sfegan Exp $
  */
 
 #include <cmath>
@@ -93,7 +93,7 @@ TsMap::TsMap()
    setVersion(s_cvs_id);
 }
 
-std::string TsMap::s_cvs_id("$Name: ScienceTools-HEAD-1-705 $");
+std::string TsMap::s_cvs_id("$Name:  $");
 
 void TsMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -201,9 +201,14 @@ void TsMap::computeMap() {
    int verbosity = m_pars["chatter"];
    verbosity -= 2;
    double tol = m_pars["ftol"];
+   std::string tol_type = m_pars["toltype"];
+   optimizers::TOLTYPE tolType(optimizers::ABSOLUTE);
+   if (tol_type == "REL") {
+      tolType = optimizers::RELATIVE;
+   }
    double logLike0;
    try {
-      m_opt->find_min(verbosity, tol);
+      m_opt->find_min(verbosity, tol, tolType);
       logLike0 = m_logLike->value();
    } catch (...) {
       logLike0 = 0;
@@ -224,7 +229,7 @@ void TsMap::computeMap() {
 
       m_logLike->addSource(&testSrc);
       try {
-         m_opt->find_min(verbosity, tol);
+         m_opt->find_min(verbosity, tol, tolType);
          m_tsMap.push_back(2.*(m_logLike->value() - logLike0));
       } catch (optimizers::Exception & eObj) {
          m_formatter->err() << eObj.what() << std::endl;
