@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 23 16:29:11 PDT 2009
+Likelihood/pfiles
+
+Modified Files:
+	gtfindsrc.par gtlike.par gttsmap.par 
+Log Message:
+switch to absolute tolerances for log-likelihood fitting
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 23 07:12:27 PDT 2009
 Likelihood/pfiles
 
