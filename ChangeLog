@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 23 16:29:12 PDT 2009
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+switch to absolute tolerances for log-likelihood fitting
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 23 16:29:11 PDT 2009
 Likelihood/pfiles
 
