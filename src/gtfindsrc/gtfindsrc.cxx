@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.18 2008/09/29 15:54:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.19 2009/01/19 15:18:18 sfegan Exp $
  */
 
 #include <cmath>
@@ -236,11 +236,12 @@ public:
             PointSource & testSrc, st_stream::StreamFormatter & formatter, 
             const std::string & coordSys="CEL",
             double tol=1e-5, bool findMin=true, double logLike_offset=0,
-            double accuracy=1e-3)
+            double accuracy=1e-3, 
+            optimizers::TOLTYPE tolType=optimizers::ABSOLUTE)
       : m_opt(opt), m_logLike(logLike), m_testSrc(testSrc),
         m_formatter(formatter), m_coordSys(coordSys), 
         m_tol(tol), m_findMin(findMin), m_logLike_offset(logLike_offset),
-        m_accuracy(accuracy) {
+        m_accuracy(accuracy), m_tolType(tolType) {
       m_logLike.addSource(&m_testSrc);
    }
    virtual ~LikeFunc() {}
@@ -253,7 +254,7 @@ public:
       }
       m_logLike.addSource(&m_testSrc);
       if (m_findMin) {
-         m_opt.find_min(0, m_tol);
+         m_opt.find_min(0, m_tol, m_tolType);
       }
       optimizers::dArg dummy(1.);
       double test_value = -m_logLike(dummy) - m_logLike_offset + 1.;
@@ -301,6 +302,7 @@ private:
    bool m_findMin;
    double m_logLike_offset;
    double m_accuracy;
+   optimizers::TOLTYPE m_tolType;
 
    std::vector< std::vector<double> > m_testPoints;
 
@@ -332,6 +334,11 @@ double findSrc::fitPosition(double step) {
       coords[1] = m_testSrc->getDir().b();
    }
    double tol = m_pars["ftol"];
+   std::string tol_type = m_pars["toltype"];
+   optimizers::TOLTYPE tolType(optimizers::ABSOLUTE);
+   if (tol_type == "REL") {
+      tolType = optimizers::RELATIVE;
+   }
    bool reopt = m_pars["reopt"];
    double accuracy = m_pars["posacc"];
    st_stream::StreamFormatter formatter("findSrc", "fitPosition", 2);

@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttsmap.par,v 1.20 2008/05/04 22:03:28 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttsmap.par,v 1.21 2008/08/16 07:07:12 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,Event data extension
@@ -13,6 +13,7 @@ outfile,f,a,"",,,"TS map file name"
 irfs,s,a,"",,,"Response functions to use"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 ftol,r,a,1e-5,,,Fit tolerance
+toltype,s,h,"ABS","ABS|REL",,"Fit tolerance convergence type (absolute vs relative)"
 
 nxpix,i,a,,,,Number of X axis pixels
 nypix,i,a,,,,Number of Y axis pixels
