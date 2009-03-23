@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 23 16:29:13 PDT 2009
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+switch to absolute tolerances for log-likelihood fitting
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 23 16:29:12 PDT 2009
 Likelihood/src/TsMap
 
