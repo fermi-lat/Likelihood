@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.291 2009/03/22 22:18:33 jchiang Exp $
+    $Id: release.notes,v 1.292 2009/03/23 23:47:05 jchiang Exp $
 
     @verbatim
+    v14r6p1  25-Mar-09 JC  improve handling of exponential cutoffs in binned
+                           analysis
     v14r6    23-Mar-09 JC  switch to absolute tolerances (ftol=0.01 in parfiles)
     v14r5    22-Mar-09 JC  set diffuse response name using column name from
                            FT1 file to ensure that IRFs are included in 
