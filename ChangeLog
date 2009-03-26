@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Mar 25 18:32:43 PDT 2009
+Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx PointSource.cxx Source.cxx 
+Log Message:
+modifications to handle exponentially cutoff spectra in binned analysis
+    *
+------------------------------------------------------------
+User: jchiang  Wed Mar 25 18:32:43 PDT 2009
 Likelihood/Likelihood
 
 Modified Files:
