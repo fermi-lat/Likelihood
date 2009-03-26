@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.40 2009/02/21 02:03:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.41 2009/02/22 20:20:56 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -34,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.40 2009/02/21 02:03:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.41 2009/02/22 20:20:56 jchiang Exp $
  */
 
 class Source {
@@ -127,11 +127,11 @@ public:
    /// Integrate the product of the source spectrum with the given
    /// SourceMap pixel values.
    virtual double pixelCounts(double emin, double emax, 
-                              double wtMin, double wtMax) const = 0;
+                              double wtMin, double wtMax) const;
 
    virtual double pixelCountsDeriv(double emin, double emax, 
                                    double wtMin, double wtMax,
-                                   const std::string & paramName) const = 0;
+                                   const std::string & paramName) const;
 
    virtual const std::vector<double> & exposure() const = 0;
 

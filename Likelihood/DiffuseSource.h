@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.41 2009/02/22 20:20:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.42 2009/02/23 00:38:10 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -50,7 +50,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.41 2009/02/22 20:20:56 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.42 2009/02/23 00:38:10 jchiang Exp $ 
  *  
  */
 
@@ -131,13 +131,6 @@ public:
    virtual Source *clone() const {
       return new DiffuseSource(*this);
    }
-
-   virtual double pixelCounts(double emin, double emax,
-                              double wtMin, double wtMax) const;
-
-   virtual double pixelCountsDeriv(double emin, double emax,
-                                   double wtMin, double wtMax,
-                                   const std::string & paramName) const;
 
    virtual const std::vector<double> & exposure() const {
       return m_exposure;

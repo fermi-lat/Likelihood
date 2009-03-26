@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.65 2009/01/26 01:24:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.66 2009/03/16 20:44:57 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.65 2009/01/26 01:24:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.66 2009/03/16 20:44:57 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -128,13 +128,6 @@ public:
    virtual Source *clone() const {
       return new PointSource(*this);
    }
-
-   virtual double pixelCounts(double emin, double emax,
-                              double wtMin, double wtMax) const;
-
-   virtual double pixelCountsDeriv(double emin, double emax, 
-                                   double wtMin, double wtMax,
-                                   const std::string & paramName) const;
 
    /// Compute the integrated exposure using the provided 
    /// vector of energy values
