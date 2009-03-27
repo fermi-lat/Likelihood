@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.12 2004/12/05 00:26:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.13 2005/03/25 05:16:33 jchiang Exp $
  */
 
 #include "Likelihood/TrapQuad.h"
@@ -99,11 +99,10 @@ double TrapQuad::compute_log_integral() {
    for (unsigned int i = 0; i < m_x.size()-1; i++) {
       if (m_y[i+1] > 0 && m_y[i] > 0) {
          double b = log(m_y[i+1]/m_y[i])/log(m_x[i+1]/m_x[i]);
-         double a = m_y[i]/pow(m_x[i], b);
          if (b != -1.) {
-            double gamma = b + 1.;
-            sum += a/gamma*(pow(m_x[i+1], gamma) - pow(m_x[i], gamma));
+            sum += m_y[i]/(b + 1.)*(m_x[i+1]*pow(m_x[i+1]/m_x[i], b) - m_x[i]);
          } else {
+            double a = m_y[i]/pow(m_x[i], b);
             sum += a*log(m_x[i+1]/m_x[i]);
          }
       } else {
