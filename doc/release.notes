@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.292 2009/03/23 23:47:05 jchiang Exp $
+    $Id: release.notes,v 1.293 2009/03/26 04:20:35 jchiang Exp $
 
     @verbatim
+    v14r6p2  31-Mar-09 JC  bug-fix in quadrature code for steep spectra
     v14r6p1  25-Mar-09 JC  improve handling of exponential cutoffs in binned
                            analysis
     v14r6    23-Mar-09 JC  switch to absolute tolerances (ftol=0.01 in parfiles)
