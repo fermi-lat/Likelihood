@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.10 2008/02/20 19:36:29 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.11 2008/11/07 20:41:38 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -34,7 +34,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.10 2008/02/20 19:36:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.11 2008/11/07 20:41:38 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
@@ -179,6 +179,8 @@ void AddLivetime::addFiles() {
 
    new_cuts.writeGtiExtension(outfile);
    writeDateKeywords(outfile, tstart, tstop);
+
+   st_facilities::FitsUtil::writeFilename(outfile);
 }
 
 void AddLivetime::writeDateKeywords(const std::string & outfile,
