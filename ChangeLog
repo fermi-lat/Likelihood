@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Apr  2 12:12:54 PDT 2009
+Likelihood/src/gtaddlivetime
+
+Modified Files:
+	gtaddlivetime.cxx 
+Log Message:
+ensure m_tol is used in TS calculation in likelihood.cxx; set FILENAME keyword in gtltsum output
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-06-02, operation: add
 Package: Likelihood
