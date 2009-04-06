@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr  6 16:01:41 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	ExposureCube.h 
+Log Message:
+Use wrapper class to convert phi to degrees when calling map_tools::Exposure::integral
+    *
+------------------------------------------------------------
 User: glastrm  Mon Apr  6 12:07:39 PDT 2009
 ScienceTools-scons/Likelihood/src/dmfit
 
