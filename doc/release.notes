@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.294 2009/03/31 15:26:25 jchiang Exp $
+    $Id: release.notes,v 1.295 2009/04/02 19:14:26 jchiang Exp $
 
     @verbatim
+    v14r7p1  06-Apr-09 JC  Use wrapper class to convert phi to degrees when 
+                           calling map_tools::Exposure::integral
     v14r7    02-Apr-09 JC  ensure m_tol is used in TS calculation in likelihood;
                            write FILENAME keyword in gtltsum output
     v14r6p2  31-Mar-09 JC  bug-fix in quadrature code for steep spectra
