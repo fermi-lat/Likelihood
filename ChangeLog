@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: glastrm  Mon Apr  6 12:07:39 PDT 2009
+ScienceTools-scons/Likelihood/src/dmfit
+
+Modified Files:
+	dmfit_func.c 
+Log Message:
+Initialize global var so mac compiles correctly
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-07-00, operation: add
 Package: Likelihood
