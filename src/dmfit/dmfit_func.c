@@ -17,7 +17,7 @@
 struct {
     real phidif[45360]	/* was [252][18][10] */;
     integer hasmooth;
-} hasim_;
+} hasim_ = {{0}, 0};
 
 #define hasim_1 hasim_
 
