@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.7 2009/03/16 23:19:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.8 2009/04/06 23:01:41 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -24,7 +24,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.7 2009/03/16 23:19:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.8 2009/04/06 23:01:41 jchiang Exp $
  */
 
 class ExposureCube {
@@ -46,6 +46,7 @@ public:
       m_hasPhiDependence = phiDependence(filename);
    }
 
+#ifndef SWIG
    template<class T>
    double value(const astro::SkyDir & dir, const T & aeff) const {
       if (m_hasPhiDependence) {
@@ -54,6 +55,7 @@ public:
       }
       return (*m_exposure)(dir, aeff);
    }
+#endif
 
    bool haveFile() const {
       return m_haveFile;
@@ -75,6 +77,7 @@ private:
 
    bool phiDependence(const std::string & filename) const;
 
+#ifndef SWIG
    // healpix::CosineBinner::integral assumes that phi is in radians instead of
    // degrees, contrary to established conventions.  This class wraps the 
    // integral(costh, phi) method to do the conversion.
@@ -89,6 +92,7 @@ private:
    private:
       const Aeff & m_aeff;
    };
+#endif
 
 };
 
