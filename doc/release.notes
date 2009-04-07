@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.295 2009/04/02 19:14:26 jchiang Exp $
+    $Id: release.notes,v 1.296 2009/04/06 23:02:58 jchiang Exp $
 
     @verbatim
+    v14r7p2  07-Apr-09 JC  add protecting #ifndefs in ExposureCube for 
+                           SWIG build
     v14r7p1  06-Apr-09 JC  Use wrapper class to convert phi to degrees when 
                            calling map_tools::Exposure::integral
     v14r7    02-Apr-09 JC  ensure m_tol is used in TS calculation in likelihood;
