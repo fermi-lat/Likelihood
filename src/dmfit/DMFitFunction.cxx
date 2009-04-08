@@ -2,7 +2,7 @@
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.5 2009/01/27 16:14:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.6 2009/03/19 22:24:55 cohen Exp $
  */
 
 #include <cmath>
@@ -117,10 +117,14 @@ double DMFitFunction::derivByParam(optimizers::Arg & xarg,
 }
 
   void DMFitFunction::readFunction(const std::string & filename) {
-    m_filename = filename;
-    facilities::Util::expandEnvVar(&m_filename);
-    st_facilities::Util::file_ok(m_filename);
-    dmfit_load__(const_cast<char *>(m_filename.c_str()),m_filename.size());
+// Save data member version, preserving any environment variables.
+    m_filename = filename; 
+// Use expanded local copy for reading the data.
+    std::string expanded_filename = filename;
+    facilities::Util::expandEnvVar(&expanded_filename);
+    st_facilities::Util::file_ok(expanded_filename);
+    dmfit_load__(const_cast<char *>(expanded_filename.c_str()),
+                 expanded_filename.size());
   }
 
 } // namespace Likelihood
