@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr  8 09:24:45 PDT 2009
+Likelihood/src
+
+Modified Files:
+	ResponseFunctions.cxx SourceModelBuilder.cxx 
+Log Message:
+preserve env vars in m_filename in DMFitFunction classes; write out filename to xml definition
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-07-02, operation: add
 Package: Likelihood
