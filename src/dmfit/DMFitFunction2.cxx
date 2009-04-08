@@ -2,7 +2,7 @@
  * @file DMFitFunction2.cxx
  * @brief Implementation for the DMFitFunction2 class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction2.cxx,v 1.2 2009/03/19 17:59:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction2.cxx,v 1.3 2009/03/19 22:24:55 cohen Exp $
  */
 
 #include <cmath>
@@ -143,11 +143,15 @@ double DMFitFunction2::derivByParam(optimizers::Arg & xarg,
 }
 
   void DMFitFunction2::readFunction(const std::string & filename) {
-    m_filename = filename;
-    facilities::Util::expandEnvVar(&m_filename);
-    st_facilities::Util::file_ok(m_filename);
-    //std::cout<<"Loading file "<<m_filename<<std::endl; 
-    dmfit_load__(const_cast<char *>(m_filename.c_str()),m_filename.size());
+// Save data member version, preserving any environment variables.
+    m_filename = filename; 
+// Use expanded local copy for reading the data.
+    std::string expanded_filename = filename;
+    facilities::Util::expandEnvVar(&expanded_filename);
+    st_facilities::Util::file_ok(expanded_filename);
+    //std::cout<<"Loading file "<<expanded_filename<<std::endl; 
+    dmfit_load__(const_cast<char *>(expanded_filename.c_str()),
+                 expanded_filename.size());
 
     //Check and enforce XML input non-degeneracy
     integer ch0 = static_cast<integer>(m_parameter[3].getTrueValue());
