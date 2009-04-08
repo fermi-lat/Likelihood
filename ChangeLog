@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Apr  8 09:24:46 PDT 2009
+Likelihood/src/dmfit
+
+Modified Files:
+	DMFitFunction.cxx DMFitFunction2.cxx 
+Log Message:
+preserve env vars in m_filename in DMFitFunction classes; write out filename to xml definition
+    *
+------------------------------------------------------------
 User: jchiang  Wed Apr  8 09:24:45 PDT 2009
 Likelihood/src
 
