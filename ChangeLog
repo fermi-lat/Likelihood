@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Sat May  2 15:25:27 PDT 2009
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+revert to relative tolerance in find_min call after interface change in optimizers
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-14-07-03, operation: add
 Package: Likelihood
