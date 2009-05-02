@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.297 2009/04/07 15:40:05 jchiang Exp $
+    $Id: release.notes,v 1.298 2009/04/10 14:50:58 jchiang Exp $
 
     @verbatim
+    v14r7p4  02-May-09 JC  test program fix to account for interface change
+                           in optimizers::Optimizer::find_min (REL -> ABS tol)
     v14r7p3  08-Apr-09 JC  write out filename for DMFitFunction[2] models to
                            xml file definition
     v14r7p2  07-Apr-09 JC  add protecting #ifndefs in ExposureCube for 
