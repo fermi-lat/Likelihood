@@ -3,11 +3,12 @@
  * @brief Implementation for the BandFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.2 2005/07/18 23:32:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.3 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #include <cmath>
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -41,13 +42,15 @@ namespace {
 
 namespace Likelihood {
 
-void BandFunction::init(double norm, double alpha, double beta, double Ep) {
-   setMaxNumParams(4);
+void BandFunction::init(double norm, double alpha, double beta, double Ep,
+                        double scale) {
+   setMaxNumParams(5);
 
    addParam("norm", norm, true);
    addParam("alpha", alpha, true);
    addParam("beta", beta, true);
    addParam("Ep", Ep, true);
+   addParam("Scale", scale, false);
 
    m_funcType = Addend;
    m_argType = "dArg";
@@ -59,9 +62,10 @@ void BandFunction::init(double norm, double alpha, double beta, double Ep) {
 double BandFunction::value(optimizers::Arg &xarg) const {
    ::Pars pars(m_parameter);
 
-// energy is scaled by 100 keV:
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue()/0.1;
-   double epeak(pars[3]/0.1);
+// energy is scaled by pars[4]
+   double scale(pars[4]);
+   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue()/scale;
+   double epeak(pars[3]/scale);
    double ebreak = epeak*(pars[1] - pars[2])/(pars[1] + 2.);
 
    double my_value;
@@ -77,11 +81,12 @@ double BandFunction::value(optimizers::Arg &xarg) const {
 }
 
 double BandFunction::derivByParam(optimizers::Arg & xarg,
-                          const std::string & paramName) const {
+                                  const std::string & paramName) const {
    ::Pars pars(m_parameter);
 
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue()/0.1;
-   double epeak(pars[3]/0.1);
+   double scale(pars[4]);
+   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue()/scale;
+   double epeak(pars[3]/scale);
    double ebreak = epeak*(pars[1] - pars[2])/(pars[1] + 2.);
 
    int iparam = -1;
@@ -96,7 +101,7 @@ double BandFunction::derivByParam(optimizers::Arg & xarg,
                                           "BandFunction::derivByParam");
    }
    
-   enum ParamTypes {norm, alpha, beta, Ep};
+   enum ParamTypes {norm, alpha, beta, Ep, Scale};
    switch (iparam) {
    case norm:
       return value(xarg)/pars[0]*m_parameter[norm].getScale();
@@ -125,6 +130,10 @@ double BandFunction::derivByParam(optimizers::Arg & xarg,
          return value(xarg)*(pars[1] - pars[2])/epeak
             *m_parameter[Ep].getScale();
       }
+   case Scale:
+      throw std::runtime_error("BandFunction::derivByParam: attempt to "
+                               "take derivative wrt a fixed parameter.");
+      break;
    default:
       break;
    }
