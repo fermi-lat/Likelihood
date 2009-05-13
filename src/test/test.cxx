@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.87 2008/11/29 05:52:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.88 2009/05/02 22:25:27 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -33,6 +33,7 @@
 
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
+#include "optimizers/FunctionTest.h"
 #include "optimizers/Minuit.h"
 
 #include "irfInterface/IrfsFactory.h"
@@ -80,6 +81,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
+   CPPUNIT_TEST(test_BandFunction);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
    CPPUNIT_TEST(test_XmlBuilders);
@@ -103,6 +105,7 @@ public:
    void setUp();
    void tearDown();
 
+   void test_BandFunction();
    void test_RoiCuts();
    void test_SourceFactory();
    void test_XmlBuilders();
@@ -238,6 +241,30 @@ void LikelihoodTests::tearDown() {
    m_respFuncs->deleteRespPtr(1);
    std::remove(m_fluxXmlFile.c_str());
    std::remove(m_srcModelXmlFile.c_str());
+}
+
+void LikelihoodTests::test_BandFunction() {
+   Likelihood::BandFunction band(1, -1.5, -2.5, 1e3, 100.);
+   optimizers::FunctionTest tester(band, "BandFunction");
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("norm", 1));
+   params.push_back(optimizers::Parameter("alpha", -1.5));
+   params.push_back(optimizers::Parameter("beta", -2.5));
+   params.push_back(optimizers::Parameter("Ep", 0.1));
+   params.push_back(optimizers::Parameter("Scale", 0.1));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
 }
 
 void LikelihoodTests::test_RoiCuts() {
@@ -990,6 +1017,10 @@ int main(int iargc, char * argv[]) {
 
    if (iargc > 1 && std::string(argv[1]) == "-d") { // debug mode
       LikelihoodTests testObj;
+      testObj.setUp();
+      testObj.test_BandFunction();
+      testObj.tearDown();
+
       testObj.setUp();
       testObj.test_RoiCuts();
       testObj.tearDown();

@@ -3,11 +3,12 @@
  * @brief Implementation for the BandFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.3 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.4 2009/05/13 04:17:42 jchiang Exp $
  */
 
 #include <cmath>
 
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -62,20 +63,24 @@ void BandFunction::init(double norm, double alpha, double beta, double Ep,
 double BandFunction::value(optimizers::Arg &xarg) const {
    ::Pars pars(m_parameter);
 
-// energy is scaled by pars[4]
+   double N0(pars[0]);
+   double alpha(pars[1]);
+   double beta(pars[2]);
    double scale(pars[4]);
    double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue()/scale;
    double epeak(pars[3]/scale);
-   double ebreak = epeak*(pars[1] - pars[2])/(pars[1] + 2.);
+   double ebreak = epeak*(alpha - beta);
+
+   if (alpha <= beta) {
+      return N0*std::pow(energy, beta);
+   }
 
    double my_value;
    if (energy < ebreak) {
-      my_value = pars[0]*std::pow(energy, pars[1])
-         *std::exp(-energy*(2. + pars[1])/epeak);
+      my_value = N0*std::pow(energy, alpha)*std::exp(-energy/epeak);
    } else {
-      my_value = pars[0]*std::pow(epeak*(pars[1] - pars[2])/(pars[1] + 2.),
-                                  pars[1] - pars[2])
-         *std::exp(pars[2] - pars[1])*std::pow(energy, pars[2]);
+      my_value = N0*std::pow(energy, beta)*std::pow(ebreak, alpha - beta)
+         *std::exp(beta - alpha);
    }
    return my_value;
 }
@@ -84,10 +89,13 @@ double BandFunction::derivByParam(optimizers::Arg & xarg,
                                   const std::string & paramName) const {
    ::Pars pars(m_parameter);
 
+   double N0(pars[0]);
+   double alpha(pars[1]);
+   double beta(pars[2]);
    double scale(pars[4]);
    double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue()/scale;
    double epeak(pars[3]/scale);
-   double ebreak = epeak*(pars[1] - pars[2])/(pars[1] + 2.);
+   double ebreak = epeak*(alpha - beta);
 
    int iparam = -1;
    for (unsigned int i = 0; i < pars.size(); i++) {
@@ -101,33 +109,40 @@ double BandFunction::derivByParam(optimizers::Arg & xarg,
                                           "BandFunction::derivByParam");
    }
    
-   enum ParamTypes {norm, alpha, beta, Ep, Scale};
+   enum ParamTypes {Norm, Alpha, Beta, Ep, Scale};
    switch (iparam) {
-   case norm:
-      return value(xarg)/pars[0]*m_parameter[norm].getScale();
-   case alpha:
-      if (energy < ebreak) {
-         return value(xarg)*(std::log(energy) - energy/epeak)
-            *m_parameter[alpha].getScale();
-      } else {
-         return value(xarg)*(std::log(ebreak)*(epeak*(pars[2] + 2.)
-                                               /(pars[1]+2.)/(pars[1]+2.)-1.))
-            *m_parameter[alpha].getScale();
+   case Norm:
+      return value(xarg)/N0*m_parameter[Norm].getScale();
+   case Alpha:
+      if (alpha <= beta) {
+         return N0*std::pow(energy, alpha)*std::log(energy)
+            *m_parameter[Alpha].getScale();
       }
-   case beta:
+      if (energy < ebreak) {
+         return value(xarg)*std::log(energy)
+            *m_parameter[Alpha].getScale();
+      } else {
+         return value(xarg)*std::log(epeak*(alpha - beta))
+            *m_parameter[Alpha].getScale();
+      }
+   case Beta:
+      if (alpha <= beta) {
+         return N0*std::pow(energy, beta)*std::log(energy)
+            *m_parameter[Beta].getScale();
+      }
       if (energy < ebreak) {
          return 0;
       } else {
-         return value(xarg)*(1. + std::log(energy) + epeak/(pars[1] + 2.)
-                             *std::log(ebreak))
-            *m_parameter[beta].getScale();
+         return value(xarg)*std::log(energy/epeak/(alpha - beta))*m_parameter[Beta].getScale();
       }
    case Ep:
+      if (alpha <= beta) {
+         return 0;
+      }
       if (energy < ebreak) {
-         return value(xarg)*(2. + pars[1])*energy/epeak
-            *m_parameter[Ep].getScale();
+         return value(xarg)*energy/epeak/(epeak*scale)*m_parameter[Ep].getScale();
       } else {
-         return value(xarg)*(pars[1] - pars[2])/epeak
+         return value(xarg)*(alpha - beta)/(epeak*scale)
             *m_parameter[Ep].getScale();
       }
    case Scale:
