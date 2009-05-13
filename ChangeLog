@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 12 21:17:43 PDT 2009
+Likelihood/src
+
+Modified Files:
+	BandFunction.cxx 
+Log Message:
+add Scale parameter for power-law energy scale
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-12-00, operation: add
 Package: Likelihood
