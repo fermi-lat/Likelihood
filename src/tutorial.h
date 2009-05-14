@@ -506,10 +506,10 @@
    \f[
    \newcommand{\pfrac}[2]{{(#1/#2)}}
    \frac{dN}{dE} = N_0 \times \left\{\begin{array}{ll}
-      \pfrac{E}{0.1}^\alpha \exp\left[-(E/E_p)(\alpha + 2)\right] 
-         & \mbox{if $E < E_p(\alpha - \beta)/(\alpha + 2)$}\\
-      \pfrac{E}{0.1}^\beta\left[\pfrac{E_p}{0.1} 
-      \frac{\alpha - \beta}{\alpha + 2}\right]^{\alpha - \beta} 
+      \pfrac{E}{E_0}^\alpha \exp\left[-(E/E_p)\right] 
+         & \mbox{if $E < E_p(\alpha - \beta)$}\\
+      \pfrac{E}{E_0}^\beta\left[\pfrac{E_p}{E_0} 
+      (\alpha - \beta)\right]^{\alpha - \beta} 
       \exp(\beta - \alpha) & \mbox{otherwise}
    \end{array} \right.
    \f]
@@ -518,6 +518,7 @@
      - alpha = \f$\alpha\f$
      - beta = \f$\beta\f$
      - Ep = \f$E_p\f$
+     - Scale = \f$E_0\f$
 
    - @b PLSuperExpCutoff For modeling pulsars, implemented by Damien Parent 
    (<tt>parent@cenbg.in2p3.fr</tt>)
