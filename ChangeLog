@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 14 15:15:56 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	ExposureCube.h 
+Log Message:
+remove unnecessary class qualifier that was confusing gcc 4.0 into thinking the constructor was a template specialization
+
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 13 16:47:19 PDT 2009
 Likelihood/src
 
