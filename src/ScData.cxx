@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.49 2007/12/14 19:18:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.50 2009/05/15 04:10:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -24,7 +24,7 @@
 
 #include "st_facilities/Util.h"
 
-#include "irfInterface/EfficiencyFactor.h"
+//#include "irfInterface/EfficiencyFactor.h"
 
 #include "Likelihood/ScData.h"
 
@@ -99,9 +99,9 @@ void ScData::readData(std::string file, double tstart,
 
    if (clear) {
       vec.clear();
-      irfInterface::EfficiencyFactor::clearFt2Data();
+//      irfInterface::EfficiencyFactor::clearFt2Data();
    }
-   irfInterface::EfficiencyFactor::readFt2File(file);
+//   irfInterface::EfficiencyFactor::readFt2File(file);
 
    double raSCX, decSCX;
    double raSCZ, decSCZ;
