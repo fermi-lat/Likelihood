@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.42 2009/01/19 15:18:18 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.43 2009/03/23 23:29:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -208,7 +208,7 @@ void TsMap::computeMap() {
    }
    double logLike0;
    try {
-      m_opt->find_min(verbosity, tol, tolType);
+      m_opt->find_min_only(verbosity, tol, tolType);
       logLike0 = m_logLike->value();
    } catch (...) {
       logLike0 = 0;
@@ -229,7 +229,7 @@ void TsMap::computeMap() {
 
       m_logLike->addSource(&testSrc);
       try {
-         m_opt->find_min(verbosity, tol, tolType);
+         m_opt->find_min_only(verbosity, tol, tolType);
          m_tsMap.push_back(2.*(m_logLike->value() - logLike0));
       } catch (optimizers::Exception & eObj) {
          m_formatter->err() << eObj.what() << std::endl;
