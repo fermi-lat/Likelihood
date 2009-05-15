@@ -1,9 +1,13 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.299 2009/05/02 22:29:46 jchiang Exp $
+    $Id: release.notes,v 1.300 2009/05/14 22:20:17 jchiang Exp $
 
     @verbatim
+    v14r9    14-May-09 JC  use optimizers::Optimizer::find_min_only in 
+                           gttsmap, gtfindsrc and likelihood (for TS 
+                           computation); multiply error est. in gtfindsrc 
+                           by 1.51
     v14r8    14-May-09 JC  re-write BandFunction to use same functional form
                            as Xspec version; remove unnecessary class qualifier
                            from ExposureCube::AeffWrapper constructor that
