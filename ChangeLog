@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu May 14 21:12:21 PDT 2009
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+use comment out EfficiencyFactor usage for now
+    *
+------------------------------------------------------------
+User: jchiang  Thu May 14 21:12:21 PDT 2009
 Likelihood/src
 
 Modified Files:
