@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu May 14 21:10:42 PDT 2009
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+use find_min_only in gttsmap, gtfindsrc
+    *
+------------------------------------------------------------
+User: jchiang  Thu May 14 21:10:42 PDT 2009
 Likelihood/src/TsMap
 
 Modified Files:
