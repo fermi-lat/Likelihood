@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 14 21:12:21 PDT 2009
+Likelihood/src
+
+Modified Files:
+	ScData.cxx 
+Log Message:
+use comment out EfficiencyFactor usage for now
+    *
+------------------------------------------------------------
 User: jchiang  Thu May 14 21:10:42 PDT 2009
 Likelihood/src/gtfindsrc
 
