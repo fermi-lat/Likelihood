@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.143 2009/04/02 19:12:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.144 2009/04/09 18:18:59 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -88,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.143 2009/04/02 19:12:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.144 2009/04/09 18:18:59 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -791,7 +791,7 @@ void likelihood::computeTsValues(const std::vector<std::string> & srcNames,
             double null_value(m_logLike->value());
             if (m_pars["tsmin"]) {
                try {
-                  m_opt->find_min(verbose, m_tol, m_tolType);
+                  m_opt->find_min_only(verbose, m_tol, m_tolType);
                } catch (std::exception & eObj) {
                   m_formatter->err() << eObj.what() << std::endl;
                }
