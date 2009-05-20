@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed May 20 12:30:47 PDT 2009
+Likelihood/pfiles
+
+Modified Files:
+	gtdiffrsp.par 
+Log Message:
+pass 7 changes: use EVENT_CLASS value instead of CTBCLASSLEVEL in filtering in gtdiffrsp
+    *
+------------------------------------------------------------
 User: jchiang  Wed May 20 12:30:46 PDT 2009
 Likelihood/Likelihood
 
