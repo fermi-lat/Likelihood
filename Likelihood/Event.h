@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.43 2009/01/19 15:18:17 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.44 2009/03/22 22:16:58 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.43 2009/01/19 15:18:17 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.44 2009/03/22 22:16:58 jchiang Exp $
  */
 
 class Event {
@@ -59,9 +59,18 @@ public:
    double getMuZenith() const {return m_muZenith;}
    int getType() const {return m_type;}
 
+   void set_classLevel(int classLevel) {
+      m_classLevel = classLevel;
+   }
+
+   int classLevel() const {
+      return m_classLevel;
+   }
+
    /// separation in units of radians
-   double getSeparation(const astro::SkyDir &dir) const 
-      {return m_appDir.SkyDir::difference(dir);}
+   double getSeparation(const astro::SkyDir &dir) const {
+      return m_appDir.SkyDir::difference(dir);
+   }
 
    /// return the Event specific diffuse response function 
    /// for the named diffuse component
@@ -148,14 +157,6 @@ public:
 
    void deleteSource(const std::string & srcName);
 
-   void set_ctbclasslevel(int ctbclasslevel) {
-      m_ctbclasslevel = ctbclasslevel;
-   }
-
-   int ctbclasslevel() const {
-      return m_ctbclasslevel;
-   }
-
 private:
 
    /// apparent direction, energy, arrival time, and cosine(zenith angle)
@@ -166,6 +167,9 @@ private:
 
    /// Event type (front vs back for now)
    int m_type;
+
+   /// Classification tree class level (EVENT_CLASS in FT1).
+   int m_classLevel;
 
    /// spacecraft info at event arrival time
    astro::SkyDir m_scDir;
@@ -182,14 +186,13 @@ private:
    double m_estep;
    std::vector<double> m_trueEnergies;
 
+   std::vector<double> m_true_energies;
+
    /// Response function data, unique to each event, and comprising an
    /// energy redistribution function for each diffuse source.
    typedef std::vector<double> diffuse_response;
    std::map<std::string, diffuse_response> m_respDiffuseSrcs;
    mutable std::map<std::string, std::string> m_diffSrcNames;
-
-   /// Use this variable to keep track of Classification tree info.
-   int m_ctbclasslevel;
 
    /// Compute Celestial direction from (phi, mu) in Equinox-centered
    /// coordinates.

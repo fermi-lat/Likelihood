@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.29 2008/03/24 22:45:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.30 2009/04/08 16:24:45 jchiang Exp $
  */
 
 #include <algorithm>
@@ -134,6 +134,40 @@ void ResponseFunctions::load(const std::string & respFuncs,
       }
       throw std::invalid_argument(message.str());
    }
+}
+
+double ResponseFunctions::edisp(double emeas, double etrue, 
+                                const astro::SkyDir & appDir,
+                                const astro::SkyDir & zAxis,
+                                const astro::SkyDir & xAxis,
+                                int type) const {
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   if (!irfs) {
+      std::ostringstream message;
+      message << "Could not find appropriate response functions "
+              << "for these event data."
+              << "Event class requested: " << type << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   irfInterface::IEdisp * edisp(irfs->edisp());
+   return edisp->value(emeas, etrue, appDir, zAxis, xAxis);
+}
+
+double ResponseFunctions::aeff(double etrue, 
+                               const astro::SkyDir & appDir,
+                               const astro::SkyDir & zAxis,
+                               const astro::SkyDir & xAxis,
+                               int type) const {
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   if (!irfs) {
+      std::ostringstream message;
+      message << "Could not find appropriate response functions "
+              << "for these event data."
+              << "Event class requested: " << type << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   irfInterface::IAeff * aeff(irfs->aeff());
+   return aeff->value(etrue, appDir, zAxis, xAxis);
 }
 
 } // namespace Likelihood
