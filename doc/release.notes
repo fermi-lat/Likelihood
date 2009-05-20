@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.300 2009/05/14 22:20:17 jchiang Exp $
+    $Id: release.notes,v 1.301 2009/05/15 04:14:12 jchiang Exp $
 
     @verbatim
+    v14r10   20-May-09 JC  pass 7 changes: use EVENT_CLASS as classlevel
+                           variable in gtdiffrsp filtering
     v14r9    14-May-09 JC  use optimizers::Optimizer::find_min_only in 
                            gttsmap, gtfindsrc and likelihood (for TS 
                            computation); multiply error est. in gtfindsrc 
