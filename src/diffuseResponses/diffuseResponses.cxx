@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.55 2008/12/10 21:50:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.56 2009/02/18 18:13:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -57,7 +57,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.55 2008/12/10 21:50:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.56 2009/02/18 18:13:39 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -310,12 +310,6 @@ void diffuseResponses::readEventData(std::string eventFile) {
    const tip::Table * events 
       = tip::IFileSvc::instance().readTable(eventFile, m_pars["evtable"]);
 
-   const std::vector<std::string> & colNames = events->getValidFields();
-   bool has_ctbclasslevel(false);
-   if (std::count(colNames.begin(), colNames.end(), "ctbclasslevel") != 0) {
-      has_ctbclasslevel = true;
-   }
-
    int evclsver(0); // version of event class definition
 
    const tip::Header & header(events->getHeader());
@@ -333,7 +327,6 @@ void diffuseResponses::readEventData(std::string eventFile) {
    int event_class;
    int conversion_type;
    int eventType;
-   int ctbclasslevel;
 
    ScData & scData = const_cast<ScData &>(m_helper->observation().scData());
 
@@ -347,13 +340,8 @@ void diffuseResponses::readEventData(std::string eventFile) {
       event["zenith_angle"].get(zenAngle);
       event["event_class"].get(event_class);
       event["conversion_type"].get(conversion_type);
-      if (has_ctbclasslevel) {
-         event["ctbclasslevel"].get(ctbclasslevel);
-      } else {
-         ctbclasslevel = 0;
-      }
       if (evclsver == 0) {
-         eventType = event_class;
+         eventType = conversion_type;
       } else {
          eventType = conversion_type + 2*event_class;
       }
@@ -362,7 +350,7 @@ void diffuseResponses::readEventData(std::string eventFile) {
                       m_helper->observation().respFuncs().useEdisp(),
                       m_helper->observation().respFuncs().respName(),
                       eventType);
-      thisEvent.set_ctbclasslevel(ctbclasslevel);
+      thisEvent.set_classLevel(event_class);
       m_events.push_back(thisEvent);
    }
    delete events;
@@ -371,7 +359,7 @@ void diffuseResponses::readEventData(std::string eventFile) {
 void diffuseResponses::computeEventResponses() {
    getDiffuseSources();
    std::vector<Event>::iterator it = m_events.begin();
-   int ctbclasslevel_min = m_pars["ctbmin"];
+   int classLevel_min = m_pars["evclsmin"];
    for (int i = 0; it != m_events.end(); ++it, i++) {
       int factor(m_events.size()/20);
       if (factor == 0) {
@@ -384,7 +372,7 @@ void diffuseResponses::computeEventResponses() {
 /// quadrature version for now.
 //       it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
 //                           m_srRadius);
-      bool useDummyValue(it->ctbclasslevel() < ctbclasslevel_min);
+      bool useDummyValue(it->classLevel() < classLevel_min);
       it->computeResponseGQ(m_srcs, m_helper->observation().respFuncs(),
                             useDummyValue);
    }

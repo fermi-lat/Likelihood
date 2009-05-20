@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.18 2008/11/26 23:35:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.19 2009/03/22 22:16:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -98,7 +98,7 @@ void EventContainer::getEvents(std::string event_file) {
       event["conversion_type"].get(conversionType);
       event["event_class"].get(eventClass);
       if (evclsver == 0) {
-         eventType = eventClass;
+         eventType = conversionType;
       } else {
          eventType = conversionType + 2*eventClass;
       }
@@ -131,7 +131,6 @@ void EventContainer::getEvents(std::string event_file) {
                   colname = diffRespNames.key(*name);
                }
                event[colname].get(respValue);
-//               m_events.back().setDiffuseResponse(srcName, respValue);
                m_events.back().setDiffuseResponse(*name, respValue);
             }
          }
