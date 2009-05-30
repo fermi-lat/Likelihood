@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat May 30 15:35:43 PDT 2009
+Likelihood/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+alternative implementation of diffuse response calc for small maps; handle cases where ltcube lacks phi-dependence; tagging v14r11
+    *
+------------------------------------------------------------
+User: jchiang  Sat May 30 15:35:43 PDT 2009
 Likelihood/cmt
 
 Modified Files:
