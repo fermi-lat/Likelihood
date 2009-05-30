@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.107 2009/02/22 20:20:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.108 2009/03/26 01:32:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -347,7 +347,8 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
          formatter.warn() << ".";
       }
       PointSource::Aeff aeff(*it, srcDir, observation.roiCuts(),
-                             observation.respFuncs());
+                             observation.respFuncs(), 0,
+                             observation.expCube().hasPhiDependence());
       double exposure_value = observation.expCube().value(srcDir, aeff);
       exposure.push_back(exposure_value);
    }
@@ -461,8 +462,9 @@ double PointSource::sourceEffArea(const astro::SkyDir & srcDir,
 PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir,
                         const RoiCuts & roiCuts,
                         const ResponseFunctions & respFuncs, 
-                        double time)
-   : m_energy(energy), m_srcDir(srcDir), m_respFuncs(respFuncs), m_time(time) {
+                        double time, bool usePhiDependence)
+   : m_energy(energy), m_srcDir(srcDir), m_respFuncs(respFuncs),
+     m_time(time), m_usePhiDependence(usePhiDependence) {
    
    m_cones.push_back(const_cast<irfInterface::AcceptanceCone *>
                      (&(roiCuts.extractionRegion())));
@@ -482,7 +484,10 @@ double PointSource::Aeff::operator()(double cos_theta, double phi) const {
       irfInterface::IPsf *psf = respIt->second->psf();
       irfInterface::IAeff *aeff = respIt->second->aeff();
 
+      bool savedPhiDepState(aeff->usePhiDependence());
+      aeff->setPhiDependence(m_usePhiDependence);
       double aeff_val = aeff->value(m_energy, theta, phi, m_time);
+      aeff->setPhiDependence(savedPhiDepState);
       if (aeff_val < 0.1) { // kluge.  Psf is likely not well defined out here.
          return 0;
       }

@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.3 2009/02/21 02:03:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.4 2009/02/23 00:38:10 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -16,9 +16,9 @@
 
 #include "astro/SkyDir.h"
 
-namespace Likelihood {
+#include "Likelihood/WcsMap.h"
 
-class WcsMap;
+namespace Likelihood {
 
 /**
  * @class MapBase
@@ -49,6 +49,10 @@ public:
    virtual void getDiffRespLimits(const astro::SkyDir & dir, 
                                   double & mumin, double & mumax,
                                   double & phimin, double & phimax) const;
+
+   const WcsMap & wcsmap() const {
+      return *m_wcsmap;
+   }
 
 protected:
 

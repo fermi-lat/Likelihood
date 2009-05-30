@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapBase.cxx,v 1.1 2009/02/18 06:57:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapBase.cxx,v 1.2 2009/02/18 18:13:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,7 +21,6 @@
 #include "Likelihood/DiffRespIntegrand.h"
 #include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/MapBase.h"
-#include "Likelihood/WcsMap.h"
 
 namespace Likelihood {
 

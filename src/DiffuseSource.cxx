@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.48 2009/02/23 00:38:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.49 2009/03/26 01:32:43 jchiang Exp $
  */
 
 #include <algorithm>
@@ -180,10 +180,31 @@ double DiffuseSource::energyFlux(double emin, double emax, size_t npts) const {
 }
 
 double DiffuseSource::energyFluxDeriv(const std::string & parName,
-                                    double emin, double emax, 
-                                    size_t npts) const {
+                                      double emin, double emax, 
+                                      size_t npts) const {
    EnergyFluxDeriv my_functor(*m_spectrum, parName);
    return computeEnergyIntegral(my_functor, emin, emax, npts);
+}
+
+double DiffuseSource::diffuseResponse(const Event & evt) const {
+   double trueEnergy(evt.getEnergy());
+   const ResponseFunctions & respFuncs(m_observation->respFuncs());
+   const WcsMap & wcsmap(mapBaseObject()->wcsmap());
+   const std::vector< std::vector<double> > & solidAngles(wcsmap.solidAngles());
+   double my_value(0);
+   for (size_t i(0); i < solidAngles.size(); i++) {
+      for (size_t j(0); j < solidAngles.at(i).size(); j++) {
+         // WcsMap::skyDir uses wcslib pixel numbering, i.e., starting with 1
+         astro::SkyDir srcDir(wcsmap.skyDir(i+1, j+1));
+         double mapValue(spatialDist(SkyDirArg(srcDir, trueEnergy)));
+         my_value += (respFuncs.totalResponse(trueEnergy, evt.getEnergy(), 
+                                              evt.zAxis(), evt.xAxis(),
+                                              srcDir, evt.getDir(),
+                                              evt.getType())
+                      *mapValue*solidAngles.at(i).at(j));
+      }
+   }
+   return my_value;
 }
 
 } // namespace Likelihood

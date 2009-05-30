@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.9 2009/04/07 15:38:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.10 2009/05/14 22:15:56 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -15,6 +15,8 @@
 
 #include "map_tools/Exposure.h"
 
+#include "latResponse/IrfLoader.h"
+
 namespace Likelihood {
 
 /**
@@ -24,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.9 2009/04/07 15:38:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.10 2009/05/14 22:15:56 jchiang Exp $
  */
 
 class ExposureCube {
@@ -63,6 +65,10 @@ public:
 
    const std::string & fileName() const {
       return m_fileName;
+   }
+
+   bool hasPhiDependence() const {
+      return m_hasPhiDependence;
    }
 
 private:
