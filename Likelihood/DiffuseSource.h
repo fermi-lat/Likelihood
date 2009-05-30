@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.42 2009/02/23 00:38:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.43 2009/03/26 01:32:42 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -50,7 +50,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.42 2009/02/23 00:38:10 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.43 2009/03/26 01:32:42 jchiang Exp $ 
  *  
  */
 
@@ -175,6 +175,8 @@ public:
    const MapBase * mapBaseObject() const;
 
    double angularIntegral(double energy) const;
+
+   double diffuseResponse(const Event & evt) const;
 
 private:
 
