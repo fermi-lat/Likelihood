@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.35 2009/03/16 20:44:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.36 2009/06/01 06:50:39 jchiang Exp $
  */
 
 #include <algorithm>
@@ -71,24 +71,6 @@ LikeExposure::LikeExposure(const LikeExposure & other)
      m_tmax(other.m_tmax), m_numIntervals(other.m_numIntervals), 
      m_weightedExposure(new map_tools::Exposure(*other.m_weightedExposure)) {
 }
-
-// LikeExposure & LikeExposure::operator=(const LikeExposure & rhs) {
-//    if (this != &rhs) {
-//       map_tools::Exposure::operator=(rhs);
-//       m_costhetabin = rhs.m_costhetabin;
-//       m_timeCuts = rhs.m_timeCuts;
-//       m_gtis = rhs.m_gtis;
-//       m_tmin = rhs.m_tmin;
-//       m_tmax = rhs.m_tmax;
-//       m_numIntervals = rhs.m_numIntervals;
-//       delete m_weightedExposure;
-//       m_weightedExposure = 0;
-//       if (rhs.m_weightedExposure) {
-//          m_weightedExposure = new map_tools::Exposure(*rhs.m_weightedExposure);
-//       }
-//    }
-//    return *this;
-// }
 
 void LikeExposure::load(const tip::Table * scData, bool verbose) {
    st_stream::StreamFormatter formatter("LikeExposure", "load", 2);
@@ -187,6 +169,8 @@ void LikeExposure::writeFile(const std::string & outfile) const {
 
    writeLivetimes(outfile);
 
+   writeLivetimes(outfile, m_weightedExposure, "WEIGHTED_EXPOSURE");
+
    writeCosbins(outfile);
 }
 
@@ -197,22 +181,27 @@ void LikeExposure::writeFilename(const std::string & outfile) const {
    delete phdu;
 }
 
-void LikeExposure::writeLivetimes(const std::string & outfile) const {
-   setCosbinsFieldFormat(outfile);
+void LikeExposure::writeLivetimes(const std::string & outfile,
+                                  const map_tools::Exposure * self,
+                                  const std::string & extname) const {
+   if (self == 0) {
+      self = this;
+   }
+   setCosbinsFieldFormat(outfile, self, extname);
 
    tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
-   tip::Table * table = fileSvc.editTable(outfile, "EXPOSURE");
-   table->setNumRecords(data().size());
+   tip::Table * table = fileSvc.editTable(outfile, extname);
+   table->setNumRecords(self->data().size());
 
    tip::Table::Iterator it(table->begin());
    tip::TableRecord & row(*it);
 
    healpix::HealpixArray<healpix::CosineBinner>::const_iterator 
-      pixel(data().begin());
+      pixel(self->data().begin());
 
-   for ( ; pixel != data().end(); ++pixel, ++it) {
+   for ( ; pixel != self->data().end(); ++pixel, ++it) {
       row["COSBINS"].set(*pixel);
-      astro::SkyDir dir(data().dir(pixel));
+      astro::SkyDir dir(self->data().dir(pixel));
       row["RA"].set(dir.ra());
       row["DEC"].set(dir.dec());
    }
@@ -220,10 +209,10 @@ void LikeExposure::writeLivetimes(const std::string & outfile) const {
    tip::Header & header(table->getHeader());
    header["PIXTYPE"].set("HEALPIX"); 
    header["ORDERING"].set("NESTED"); 
-   header["COORDSYS"].set(data().healpix().galactic()? "GAL" : "EQU");
-   header["NSIDE"].set(data().healpix().nside()); 
+   header["COORDSYS"].set(self->data().healpix().galactic()? "GAL" : "EQU");
+   header["NSIDE"].set(self->data().healpix().nside()); 
    header["FIRSTPIX"].set(0); 
-   header["LASTPIX"].set(data().size() - 1); 
+   header["LASTPIX"].set(self->data().size() - 1); 
    header["THETABIN"].set(healpix::CosineBinner::thetaBinning());
    header["NBRBINS"].set(healpix::CosineBinner::nbins());
    header["COSMIN"].set(healpix::CosineBinner::cosmin());
@@ -250,16 +239,18 @@ void LikeExposure::writeCosbins(const std::string & outfile) const {
    delete table;
 }
    
-void LikeExposure::setCosbinsFieldFormat(const std::string & outfile) const {
+void LikeExposure::setCosbinsFieldFormat(const std::string & outfile,
+                                         const map_tools::Exposure * self,
+                                         const std::string & extname) const {
    int status(0);
 
    fitsfile * fptr(0);
-   std::string extfilename(outfile + "[EXPOSURE]");
+   std::string extfilename(outfile + "[" + extname + "]");
    fits_open_file(&fptr, extfilename.c_str(), READWRITE, &status);
    fitsReportError(status, "LikeExposure::setCosbinsFieldFormat");
    
    int colnum(1); // by assumption
-   fits_modify_vector_len(fptr, colnum, data().at(0).size(), &status);
+   fits_modify_vector_len(fptr, colnum, self->data().at(0).size(), &status);
    fitsReportError(status, "LikeExposure::setCosbinsFieldFormat");
 
    fits_close_file(fptr, &status);
