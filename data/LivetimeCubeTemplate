@@ -1,5 +1,5 @@
 # Definition of Livetime cube file (see LS-003)
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.6 2008/03/24 22:45:42 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/data/LivetimeCubeTemplate,v 1.7 2009/03/22 20:06:31 jchiang Exp $
 
 SIMPLE  = T                        / file does conform to FITS standard
 BITPIX  = 8                        / number of bits per data pixel
@@ -47,6 +47,66 @@ DATE-END= 'YYYY-MM-DDThh:mm:ss'    / end date/time of the obs. (UTC)
 OBSERVER= 'Peter Michelson'        / LAT PI
 ORIGIN  = 'LISOC'                  / name of organization making file
 EXTNAME = 'EXPOSURE'               / name of this binary table extension
+TSTART  =                          / mission time of the obs. start
+TSTOP   =                          / mission time of the obs. end
+MJDREFI = 51910.0                  / Int. part of MJD of SC clock start
+MJDREFF =     7.428703703703703D-4 / Frac. part of MJD of SC clock start
+TIMEUNIT= 's'                      / units for the time related keywords
+TIMEZERO= 0.0                      / clock correction
+TIMESYS = 'TT'                     / type of time system that is used
+TIMEREF = 'LOCAL'                  / reference frame used for times
+CLOCKAPP= F                        / clock drift correction applied?
+GPS_OUT = F                        / GPS time unavailable at any time during interval?
+PIXTYPE = 'HEALPIX '               / Indicates this is a HEALPix representation
+ORDERING= 'NESTED  '               / Can be NESTED or RING
+COORDSYS= 'EQU     '               / 
+NSIDE   =                          / Number of pixels per side per dodecahedron face
+FIRSTPIX=                          / First pixel index
+LASTPIX =                          / Last pixel index
+THETABIN= 'SQRT(1-COSTHETA)'       / Costheta binning scheme
+NBRBINS =                          / Number of costheta bins
+COSMIN  =                       0. / Minimum costheta value
+PHIBINS =                        0 / Number of phi bins
+NDSKEYS =                        1 / # of data subspace keywords in header
+DSTYP1  = 'TIME    '               / 
+DSUNI1  = 's       '               / 
+DSVAL1  = 'TABLE   '               / 
+DSREF1  = ':GTI    '               / 
+TTYPE1  = 'COSBINS'                / 
+TFORM1  = '39E'                    / data format of field: 4-byte REAL
+TUNIT1  = 's'                      / physical unit of field
+TTYPE2  = 'RA'                     / RA of HEALPixel center
+TFORM2  = 'E'
+TUNIT2  = 'deg'
+TLMIN2  = 0.0                      / minimum value
+TLMAX2  = 360.0                    / maximum value
+TTYPE3  = 'DEC'                    / DEC of HEALPixel center
+TFORM3  = 'E'
+TUNIT3  = 'deg'
+TLMIN3  = -90.0                    / minimum value
+TLMAX3  = 90.0                     / maximum value
+END
+
+XTENSION= 'BINTABLE'               / binary table extension
+BITPIX  = 8                        / 8-bit bytes
+NAXIS   = 2                        / 2-dimensional binary table
+NAXIS1  =                          / width of table in bytes
+NAXIS2  =                          / number of rows in table
+PCOUNT  =                        0 / size of special data area
+GCOUNT  = 1                        / one data group (required keyword)
+TFIELDS =                        3 / number of fields in each row
+CHECKSUM=                          / checksum for entire HDU
+DATASUM =                          / checksum for data table
+TELESCOP= 'GLAST'                  / name of telescope generating data
+INSTRUME= 'LAT'                    / name of instr. generating data
+EQUINOX = 2000.0                   / equinox for ra and dec
+RADECSYS= 'FK5'                    / world coord. system for this file (FK5 or FK4)
+DATE    = 'YYYY-MM-DDThh:mm:ss'    / file creation date (UTC)
+DATE-OBS= 'YYYY-MM-DDThh:mm:ss'    / start date/time of the obs. (UTC)
+DATE-END= 'YYYY-MM-DDThh:mm:ss'    / end date/time of the obs. (UTC)
+OBSERVER= 'Peter Michelson'        / LAT PI
+ORIGIN  = 'LISOC'                  / name of organization making file
+EXTNAME = 'WEIGHTED_EXPOSURE'      / name of this binary table extension
 TSTART  =                          / mission time of the obs. start
 TSTOP   =                          / mission time of the obs. end
 MJDREFI = 51910.0                  / Int. part of MJD of SC clock start

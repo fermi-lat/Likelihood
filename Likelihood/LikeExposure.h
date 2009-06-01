@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.16 2009/03/16 20:44:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.17 2009/06/01 06:50:39 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -102,11 +102,15 @@ private:
 
    void writeFilename(const std::string & outfile) const;
 
-   void writeLivetimes(const std::string & outfile) const;
+   void writeLivetimes(const std::string & outfile,
+                       const map_tools::Exposure * self=0,
+                       const std::string & extname="EXPOSURE") const;
 
    void writeCosbins(const std::string & outfile) const;
 
-   void setCosbinsFieldFormat(const std::string & outfile) const;
+   void setCosbinsFieldFormat(const std::string & outfile,
+                              const map_tools::Exposure * self,
+                              const std::string & extname) const;
 
    void fitsReportError(int status, const std::string & routine) const;
 
