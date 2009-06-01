@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.34 2009/03/11 04:35:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.35 2009/03/16 20:44:58 jchiang Exp $
  */
 
 #include <algorithm>
@@ -46,7 +46,10 @@ LikeExposure(double skybin, double costhetabin,
              const std::vector< std::pair<double, double> > & gtis,
              double zenmax)
    : map_tools::Exposure(skybin, costhetabin, std::cos(zenmax*M_PI/180.)), 
-     m_costhetabin(costhetabin), m_timeCuts(timeCuts), m_gtis(gtis), m_numIntervals(0) {
+     m_costhetabin(costhetabin), m_timeCuts(timeCuts), m_gtis(gtis),
+     m_numIntervals(0), 
+     m_weightedExposure(new map_tools::Exposure(skybin, costhetabin, 
+                                                std::cos(zenmax*M_PI/180.))) {
    if (!gtis.empty()) {
       for (size_t i = 0; i < gtis.size(); i++) {
          if (i == 0 || gtis.at(i).first < m_tmin) {
@@ -61,6 +64,31 @@ LikeExposure(double skybin, double costhetabin,
                                "Cannot proceed with livetime calculation.");
    }
 }
+
+LikeExposure::LikeExposure(const LikeExposure & other) 
+   : map_tools::Exposure(other), m_costhetabin(other.m_costhetabin),
+     m_timeCuts(other.m_timeCuts), m_gtis(other.m_gtis), m_tmin(other.m_tmin),
+     m_tmax(other.m_tmax), m_numIntervals(other.m_numIntervals), 
+     m_weightedExposure(new map_tools::Exposure(*other.m_weightedExposure)) {
+}
+
+// LikeExposure & LikeExposure::operator=(const LikeExposure & rhs) {
+//    if (this != &rhs) {
+//       map_tools::Exposure::operator=(rhs);
+//       m_costhetabin = rhs.m_costhetabin;
+//       m_timeCuts = rhs.m_timeCuts;
+//       m_gtis = rhs.m_gtis;
+//       m_tmin = rhs.m_tmin;
+//       m_tmax = rhs.m_tmax;
+//       m_numIntervals = rhs.m_numIntervals;
+//       delete m_weightedExposure;
+//       m_weightedExposure = 0;
+//       if (rhs.m_weightedExposure) {
+//          m_weightedExposure = new map_tools::Exposure(*rhs.m_weightedExposure);
+//       }
+//    }
+//    return *this;
+// }
 
 void LikeExposure::load(const tip::Table * scData, bool verbose) {
    st_stream::StreamFormatter formatter("LikeExposure", "load", 2);
@@ -106,7 +134,8 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
       istep = 1;
    }
 
-   for (tip::Index_t irow = 0; it != scData->end() && start < m_tmax; ++it, ++irow) {
+   for (tip::Index_t irow = 0; it != scData->end() && start < m_tmax;
+        ++it, ++irow) {
       if (verbose && (irow % istep) == 0 ) {
          formatter.warn() << "."; 
       }
@@ -122,14 +151,22 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
          row["dec_scx"].get(decx);
          row["ra_zenith"].get(ra_zenith);
          row["dec_zenith"].get(dec_zenith);
+         double weight(livetime/(stop - start));
          if (healpix::CosineBinner::nphibins() == 0) {
             fill(astro::SkyDir(ra, dec), astro::SkyDir(ra_zenith, dec_zenith), 
                  deltat*fraction);
+            m_weightedExposure->fill(astro::SkyDir(ra, dec),
+                                     astro::SkyDir(ra_zenith, dec_zenith), 
+                                     deltat*fraction*weight);
          } else {
             fill_zenith(astro::SkyDir(ra, dec), astro::SkyDir(rax, decx),
                         astro::SkyDir(ra_zenith, dec_zenith), 
                         deltat*fraction);
-         }            
+            m_weightedExposure->fill_zenith(astro::SkyDir(ra, dec),
+                                            astro::SkyDir(rax, decx),
+                                            astro::SkyDir(ra_zenith,dec_zenith),
+                                            deltat*fraction*weight);
+         }
          m_numIntervals++;
       }
    }
@@ -186,7 +223,7 @@ void LikeExposure::writeLivetimes(const std::string & outfile) const {
    header["COORDSYS"].set(data().healpix().galactic()? "GAL" : "EQU");
    header["NSIDE"].set(data().healpix().nside()); 
    header["FIRSTPIX"].set(0); 
-   header["LASTPIX"].set(data().size()-1); 
+   header["LASTPIX"].set(data().size() - 1); 
    header["THETABIN"].set(healpix::CosineBinner::thetaBinning());
    header["NBRBINS"].set(healpix::CosineBinner::nbins());
    header["COSMIN"].set(healpix::CosineBinner::cosmin());
