@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun  1 16:34:31 PDT 2009
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx ScData.cxx 
+Log Message:
+code for weighted livetime extension
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jun  1 16:34:30 PDT 2009
 Likelihood/data
 
