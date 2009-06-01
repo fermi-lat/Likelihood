@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun May 31 23:50:39 PDT 2009
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx 
+Log Message:
+code for livetime frac weighted exposure
+    *
+------------------------------------------------------------
+User: jchiang  Sun May 31 23:50:39 PDT 2009
 Likelihood/Likelihood
 
 Modified Files:
