@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.13 2009/06/02 06:21:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.14 2009/06/02 16:43:41 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -13,9 +13,9 @@
 
 #include "astro/SkyDir.h"
 
-#include "map_tools/Exposure.h"
+#include "irfInterface/EfficiencyFactor.h"
 
-#include "latResponse/IrfLoader.h"
+#include "map_tools/Exposure.h"
 
 namespace Likelihood {
 
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.13 2009/06/02 06:21:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.14 2009/06/02 16:43:41 jchiang Exp $
  */
 
 class ExposureCube {
@@ -61,6 +61,20 @@ public:
          return m_weightedExposure->operator()(dir, aeff);
       }
       return (*m_exposure)(dir, aeff);
+   }
+
+   // Compute the exposure with trigger rate- and energy-dependent
+   // efficiency corrections.
+   template<class T>
+   double value(const astro::SkyDir & dir, const T & aeff, 
+                double energy) const {
+      double factor1, factor2;
+      m_efficiencyFactor.getLivetimeFactors(energy, factor1, factor2);
+      double exposure(factor1*value(dir, aeff));
+      if (factor2 != 0) {
+         exposure += factor2*value(dir, aeff, true);
+      }
+      return exposure;
    }
 #endif
 
@@ -97,6 +111,8 @@ private:
 
    map_tools::Exposure * m_exposure;
    map_tools::Exposure * m_weightedExposure;
+
+   irfInterface::EfficiencyFactor m_efficiencyFactor;
 
    bool m_haveFile;
 
