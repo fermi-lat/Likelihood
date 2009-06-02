@@ -1,5 +1,5 @@
 # @file gtltcube.par
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtltcube.par,v 1.4 2008/07/05 21:44:28 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtltcube.par,v 1.5 2009/03/16 20:44:58 jchiang Exp $
 #
 evfile,s,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
@@ -7,7 +7,7 @@ scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 outfile,f,a,"expCube.fits",,,"Output file"
 dcostheta,r,a,0.025,0.,1.,"Step size in cos(theta)"
-binsize,r,a,1,,,"Pixel size (degrees)"
+binsz,r,a,1,,,"Pixel size (degrees)"
 phibins,i,h,0,,,"Number of phi bins"
 tmin,r,h,0,,,"Minimum time (MET)"
 tmax,r,h,0,,,"Maximum time (MET)"

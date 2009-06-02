@@ -3,7 +3,7 @@
  * @brief Implementation for ExposureCube wrapper class of map_tools::Exposure
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureCube.cxx,v 1.4 2009/03/19 17:59:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureCube.cxx,v 1.5 2009/06/02 06:21:43 jchiang Exp $
  */
 
 #include "tip/Header.h"
@@ -13,6 +13,16 @@
 #include "Likelihood/ExposureCube.h"
 
 namespace Likelihood {
+
+ExposureCube::ExposureCube(const ExposureCube & other) 
+   : m_exposure(new map_tools::Exposure(*(other.m_exposure))),
+     m_weightedExposure(0), m_haveFile(other.m_haveFile),
+     m_fileName(other.m_fileName), 
+     m_hasPhiDependence(other.m_hasPhiDependence) {
+   if (other.m_weightedExposure) {
+      m_weightedExposure = new map_tools::Exposure(*(other.m_weightedExposure));
+   }
+}
 
 void ExposureCube::readExposureCube(std::string filename) {
    facilities::Util::expandEnvVar(&filename);
