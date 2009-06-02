@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  2 12:19:51 PDT 2009
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx ScData.cxx 
+Log Message:
+refactor ScData class
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  2 12:19:50 PDT 2009
 Likelihood/Likelihood
 
