@@ -1,9 +1,9 @@
 /** 
  * @file ScData.h
- * @brief Declaration for ScData class, which contains the spacecraft data
+ * @brief Spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.26 2007/12/14 19:18:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.27 2009/06/02 19:19:49 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -18,11 +18,8 @@ namespace Likelihood {
 /** 
  * @class ScData
  *
- * @brief Container for spacecraft data.
+ * @brief Interface to spacecraft data
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.26 2007/12/14 19:18:10 jchiang Exp $
  */
 
 class ScData {
@@ -35,8 +32,7 @@ public:
 
    /// Method to read in the spacecraft data.
    void readData(std::string file, double tstart, double tstop,
-                 bool clear=false,
-                 const std::string & sctable="SC_DATA");
+                 bool clear=false, const std::string & sctable="SC_DATA");
 
    /// Read in data from several input files and check to see if no
    /// intervals are read in.
@@ -51,54 +47,40 @@ public:
    astro::SkyDir xAxis(double time) const;
 
    size_t numIntervals() const {
-      return vec.size();
+      return m_start.size();
    }
 
    double start(size_t i) const {
-      return vec.at(i).time;
+      return m_start.at(i);
    }
 
    double stop(size_t i) const {
-      return vec.at(i).stoptime;
+      return m_stop.at(i);
    }
 
    double livetime(size_t i) const {
-      return vec.at(i).livetime;
+      return m_livetime.at(i);
+   }
+
+   const astro::SkyDir & xAxis(size_t i) const {
+      return m_xAxis.at(i);
    }
 
    const astro::SkyDir & zAxis(size_t i) const {
-      return vec.at(i).zAxis;
+      return m_zAxis.at(i);
    }
 
-   unsigned int time_index(double time) const;
+   size_t time_index(double time) const;
 
 private:
-   
-/** 
- * @class ScNtuple
- * @brief Nested NTuple class to represent spacecraft data.
- */
-   class ScNtuple {
-   public:
-      ScNtuple(){}
-      ~ScNtuple(){}
-      double time;
-      double stoptime;
-      double livetime;
-      astro::SkyDir zenDir;
-      astro::SkyDir xAxis;
-      astro::SkyDir zAxis;
-      int inSaa;
-   };
 
-   /// The spacecraft data itself. (This may be moved to the private 
-   /// area and replaced here with access methods.)
-   std::vector<ScNtuple> vec;
+   std::vector<double> m_start;
+   std::vector<double> m_stop;
+   std::vector<double> m_livetime;
+   std::vector<astro::SkyDir> m_zAxis;
+   std::vector<astro::SkyDir> m_xAxis;
 
-   std::string m_scFile;
-
-   static bool less_than_time(const ScNtuple & scDatum1,
-                              const ScNtuple & scDatum2);
+   void clear_arrays();
 
 };
 

@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.109 2009/05/30 22:35:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.110 2009/06/02 19:19:50 jchiang Exp $
  */
 
 #include <cmath>
@@ -388,9 +388,6 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
       if (npts/20 > 0 && ((it % (npts/20)) == 0)) {
          formatter.warn() << ".";
       }
-//       double start(scData.vec.at(it).time);
-//       double stop(scData.vec.at(it).stoptime);
-//       double livetime(scData.vec.at(it).livetime);
       double start(scData.start(it));
       double stop(scData.stop(it));
       double livetime(scData.livetime(it));
