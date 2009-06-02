@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.11 2009/05/30 22:35:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.12 2009/06/02 01:22:36 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -26,41 +26,36 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.11 2009/05/30 22:35:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.12 2009/06/02 01:22:36 jchiang Exp $
  */
 
 class ExposureCube {
 
 public:
 
-   ExposureCube() : m_exposure(0), m_weightedExposure(0), m_haveFile(false), 
-                    m_fileName(""),
+   ExposureCube() : m_exposure(0), m_weightedExposure(0), 
+                    m_haveFile(false), m_fileName(""),
                     m_hasPhiDependence(false) {}
 
    ~ExposureCube() {
       delete m_exposure;
    }
 
-   void readExposureCube(std::string filename) {
-      facilities::Util::expandEnvVar(&filename);
-      m_fileName = filename;
-      m_exposure = new map_tools::Exposure(filename);
-      try {
-         m_weightedExposure = new map_tools::Exposure(filename,
-                                                      "WEIGHTED_EXPOSURE");
-      } catch(tip::TipException &) {
-         m_weightedExposure = 0;
-      }
-      m_haveFile = true;
-      m_hasPhiDependence = phiDependence(filename);
-   }
+   void readExposureCube(std::string filename);
 
 #ifndef SWIG
    template<class T>
-   double value(const astro::SkyDir & dir, const T & aeff) const {
+   double value(const astro::SkyDir & dir, const T & aeff,
+                bool weighted_lt=false) const {
       if (m_hasPhiDependence) {
          AeffWrapper<T> myAeff(aeff);
+         if (!weighted_lt && m_weightedExposure) {
+            return m_weightedExposure->integral(dir, myAeff);
+         }
          return m_exposure->integral(dir, myAeff);
+      }
+      if (!weighted_lt && m_weightedExposure) {
+         return m_weightedExposure->operator()(dir, aeff);
       }
       return (*m_exposure)(dir, aeff);
    }
