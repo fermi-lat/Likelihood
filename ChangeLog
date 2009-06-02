@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  2 12:19:50 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	ScData.h 
+Log Message:
+refactor ScData class
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  2 09:43:44 PDT 2009
 Likelihood/src/gtaddlivetime
 
