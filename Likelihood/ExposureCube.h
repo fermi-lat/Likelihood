@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.10 2009/05/14 22:15:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.11 2009/05/30 22:35:42 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -26,14 +26,15 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.10 2009/05/14 22:15:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.11 2009/05/30 22:35:42 jchiang Exp $
  */
 
 class ExposureCube {
 
 public:
 
-   ExposureCube() : m_exposure(0), m_haveFile(false), m_fileName(""),
+   ExposureCube() : m_exposure(0), m_weightedExposure(0), m_haveFile(false), 
+                    m_fileName(""),
                     m_hasPhiDependence(false) {}
 
    ~ExposureCube() {
@@ -44,6 +45,12 @@ public:
       facilities::Util::expandEnvVar(&filename);
       m_fileName = filename;
       m_exposure = new map_tools::Exposure(filename);
+      try {
+         m_weightedExposure = new map_tools::Exposure(filename,
+                                                      "WEIGHTED_EXPOSURE");
+      } catch(tip::TipException &) {
+         m_weightedExposure = 0;
+      }
       m_haveFile = true;
       m_hasPhiDependence = phiDependence(filename);
    }
@@ -92,6 +99,7 @@ private:
 #endif
 
    map_tools::Exposure * m_exposure;
+   map_tools::Exposure * m_weightedExposure;
 
    bool m_haveFile;
 
