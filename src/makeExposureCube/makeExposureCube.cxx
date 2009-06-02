@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.52 2009/03/11 04:35:01 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.53 2009/03/16 20:44:59 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -67,7 +67,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.52 2009/03/11 04:35:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.53 2009/03/16 20:44:59 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -217,7 +217,7 @@ void ExposureCube::createDataCube() {
       healpix::CosineBinner::setPhiBins(nphibins);
    }
 
-   m_exposure = new Likelihood::LikeExposure(m_pars["binsize"], 
+   m_exposure = new Likelihood::LikeExposure(m_pars["binsz"], 
                                              m_pars["dcostheta"],
                                              timeCuts, gtis, zmax);
    std::string scFile = m_pars["scfile"];

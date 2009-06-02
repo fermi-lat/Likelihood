@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.108 2009/03/26 01:32:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.109 2009/05/30 22:35:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -366,7 +366,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    const ResponseFunctions & respFuncs = observation.respFuncs();
 
 // Don't compute anything if there is no ScData.
-   if (scData.vec.size() == 0) {
+   if (scData.numIntervals() == 0) {
       return;
    }
 
@@ -379,19 +379,21 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
    formatter.warn() << "Computing exposure at (" 
                     << srcDir.ra() << ", " 
                     << srcDir.dec() << ")";
-   size_t npts;
-   if (roiCuts.maxTime() > scData.vec.back().stoptime) {
-      npts = scData.vec.size() - 1;
-   } else {
+   size_t npts(scData.numIntervals() - 1);
+   if (roiCuts.maxTime() <= scData.stop(npts)) {
       npts = scData.time_index(roiCuts.maxTime()) + 1;
    }
-   for (size_t it = 0; it < npts && it < scData.vec.size(); it++) {
+
+   for (size_t it = 0; it < npts && it < scData.numIntervals(); it++) {
       if (npts/20 > 0 && ((it % (npts/20)) == 0)) {
          formatter.warn() << ".";
       }
-      double start(scData.vec.at(it).time);
-      double stop(scData.vec.at(it).stoptime);
-      double livetime(scData.vec.at(it).livetime);
+//       double start(scData.vec.at(it).time);
+//       double stop(scData.vec.at(it).stoptime);
+//       double livetime(scData.vec.at(it).livetime);
+      double start(scData.start(it));
+      double stop(scData.stop(it));
+      double livetime(scData.livetime(it));
       double fraction(0);
 
       std::vector< std::pair<double, double> > timeRanges;
@@ -403,7 +405,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
 
 // Compute the inclination and check if it's within response matrix
 // cut-off angle
-      double inc = srcDir.difference(scData.vec.at(it).zAxis)*180/M_PI;
+      double inc = srcDir.difference(scData.zAxis(it))*180/M_PI;
       if (inc > 90.) {
          includeInterval = false;
       }
