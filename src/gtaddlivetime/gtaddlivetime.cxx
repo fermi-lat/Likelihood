@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.11 2008/11/07 20:41:38 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.12 2009/04/02 19:12:54 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -34,7 +34,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.11 2008/11/07 20:41:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.12 2009/04/02 19:12:54 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
@@ -57,7 +57,7 @@ private:
    std::vector<std::string> m_fileList;
 
    void promptForParameters();
-   void addFiles();
+   void addTables(const std::string & tableName, bool writeGtis=true);
    void writeDateKeywords(const std::string & outfile,
                           double tstart, double tstop) const;
 
@@ -77,7 +77,14 @@ void AddLivetime::banner() const {
 
 void AddLivetime::run() {
    promptForParameters();
-   addFiles();
+   st_facilities::FitsUtil::fcopy(m_fileList.front(), m_pars["outfile"],
+                                  m_pars["table"], "", m_pars["clobber"]);
+   addTables(m_pars["table"]);
+   try {
+      addTables(m_pars["table2"], false);
+   } catch(tip::TipException &) {
+      // do nothing
+   }
 }
 
 void AddLivetime::promptForParameters() {
@@ -93,10 +100,9 @@ void AddLivetime::promptForParameters() {
    m_pars.Save();
 }
 
-void AddLivetime::addFiles() {
+void AddLivetime::addTables(const std::string & tableName,
+                            bool writeGtis) {
    tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
-
-   std::string tableName = m_pars["table"];
 
    const tip::Table * table(fileSvc.readTable(m_fileList.front(), tableName));
       
@@ -158,11 +164,6 @@ void AddLivetime::addFiles() {
    }
 
    std::string outfile = m_pars["outfile"];
-
-   bool clobber = m_pars["clobber"];
-   st_facilities::FitsUtil::fcopy(m_fileList.front(), outfile, 
-                                  tableName, "", clobber);
-
    tip::Table * outtable(fileSvc.editTable(outfile, tableName));
    tip::Table::Iterator it2 = outtable->begin();
    for (size_t i=0; it2 != outtable->end(); ++it2, i++) {
@@ -177,10 +178,11 @@ void AddLivetime::addFiles() {
 
    delete outtable;
 
-   new_cuts.writeGtiExtension(outfile);
-   writeDateKeywords(outfile, tstart, tstop);
-
-   st_facilities::FitsUtil::writeFilename(outfile);
+   if (writeGtis) {
+      new_cuts.writeGtiExtension(outfile);
+      writeDateKeywords(outfile, tstart, tstop);
+      st_facilities::FitsUtil::writeFilename(outfile);
+   }
 }
 
 void AddLivetime::writeDateKeywords(const std::string & outfile,
@@ -188,16 +190,21 @@ void AddLivetime::writeDateKeywords(const std::string & outfile,
    tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
    std::vector<std::string> extnames;
    extnames.push_back("");
-   extnames.push_back("EXPOSURE");
+   extnames.push_back(m_pars["table"]);
+   extnames.push_back(m_pars["table2"]);
    extnames.push_back("CTHETABOUNDS");
    extnames.push_back("GTI");
    for (std::vector<std::string>::const_iterator name(extnames.begin());
         name != extnames.end(); ++name) {
-      tip::Extension * hdu(fileSvc.editExtension(outfile, *name));
-      st_facilities::Util::writeDateKeywords(hdu, tstart, tstop, *name!="");
-      if (*name == "") {
-         hdu->getHeader()["CREATOR"].set("gtltsum " + getVersion());
+      try {
+         tip::Extension * hdu(fileSvc.editExtension(outfile, *name));
+         st_facilities::Util::writeDateKeywords(hdu, tstart, tstop, *name!="");
+         if (*name == "") {
+            hdu->getHeader()["CREATOR"].set("gtltsum " + getVersion());
+         }
+         delete hdu;
+      } catch (tip::TipException &) {
+         // do nothing
       }
-      delete hdu;
    }
 }
