@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  2 14:55:42 PDT 2009
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx MeanPsf.cxx PointSource.cxx 
+Log Message:
+add new ExposureCube::value method where efficiency correctiosn can take place
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  2 14:55:41 PDT 2009
 Likelihood/Likelihood
 
