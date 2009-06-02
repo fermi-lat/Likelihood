@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jun  1 23:21:43 PDT 2009
+Likelihood/src
+
+Modified Files:
+	ExposureCube.cxx 
+Log Message:
+read weighted exposure extension
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jun  1 23:21:43 PDT 2009
 Likelihood/Likelihood
 
 Modified Files:
