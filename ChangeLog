@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  2 12:19:52 PDT 2009
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+refactor ScData class
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  2 12:19:51 PDT 2009
 Likelihood/src/backfile
 
