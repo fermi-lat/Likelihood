@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  2 14:55:41 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	ExposureCube.h 
+Log Message:
+add new ExposureCube::value method where efficiency correctiosn can take place
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  2 13:51:40 PDT 2009
 Likelihood/src/test
 
