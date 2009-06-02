@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Jun  2 09:43:44 PDT 2009
+Likelihood/src/gtaddlivetime
+
+Modified Files:
+	gtaddlivetime.cxx 
+Log Message:
+gtltsum to added weighed exposure extension; bug fix for ExposureCube when selecting weighted exposure
+    *
+------------------------------------------------------------
+User: jchiang  Tue Jun  2 09:43:44 PDT 2009
 Likelihood/src
 
 Modified Files:
