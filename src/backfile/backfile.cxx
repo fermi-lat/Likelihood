@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.9 2007/07/03 22:48:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.10 2008/01/31 22:23:29 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -38,7 +38,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.9 2007/07/03 22:48:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.10 2008/01/31 22:23:29 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
@@ -81,11 +81,13 @@ void BackFile::setup() {
    m_pars.Prompt();
    m_pars.Save();
    m_helper = new Likelihood::AppHelpers(&m_pars, "none");
-   std::string scfile = m_pars["scfile"];
-   m_helper->observation().scData().readData(scfile);
    std::string expMap = m_pars["expmap"];
    m_helper->observation().expMap().readExposureFile(expMap);
-   m_helper->observation().roiCuts().readCuts(expMap, "");
+//   m_helper->observation().roiCuts().readCuts(expMap, "");
+   m_helper->setRoi(expMap, "");
+   m_helper->readScData();
+//    std::string scfile = m_pars["scfile"];
+//    m_helper->observation().scData().readData(scfile);
    std::string expCube = m_pars["expcube"];
    m_helper->observation().expCube().readExposureCube(expCube);
 
