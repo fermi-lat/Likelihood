@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Jun  2 12:19:51 PDT 2009
+Likelihood/src/backfile
+
+Modified Files:
+	backfile.cxx 
+Log Message:
+refactor ScData class
+    *
+------------------------------------------------------------
+User: jchiang  Tue Jun  2 12:19:51 PDT 2009
 Likelihood/src
 
 Modified Files:
