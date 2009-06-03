@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.53 2009/03/16 20:44:59 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.54 2009/06/02 19:19:52 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -67,7 +67,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.53 2009/03/16 20:44:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.54 2009/06/02 19:19:52 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -93,6 +93,8 @@ private:
    Likelihood::RoiCuts * m_roiCuts;
    void readRoiCuts();
    void createDataCube();
+   void writeTableKeywords(const std::string & outfile,
+                           const std::string & tablename) const;
    void writeDateKeywords(const std::string & outfile, 
                           double tstart, double tstop) const;
    static std::string s_cvs_id;
@@ -129,18 +131,26 @@ void ExposureCube::run() {
    }
    createDataCube();
    m_exposure->writeFile(output_file);
-   std::auto_ptr<tip::Table> 
-      table(tip::IFileSvc::instance().editTable(output_file, "Exposure"));
-   m_roiCuts->writeDssTimeKeywords(table->getHeader());
+   writeTableKeywords(output_file, "EXPOSURE");
+   writeTableKeywords(output_file, "WEIGHTED_EXPOSURE");
+
    m_roiCuts->writeGtiExtension(output_file);
-   
+   double tstart(m_roiCuts->minTime());
+   double tstop(m_roiCuts->maxTime());
+
+   writeDateKeywords(output_file, tstart, tstop);
+}
+
+void ExposureCube::writeTableKeywords(const std::string & outfile,
+                                      const std::string & tablename) const {
+   std::auto_ptr<tip::Table> 
+      table(tip::IFileSvc::instance().editTable(outfile, tablename));
+   m_roiCuts->writeDssTimeKeywords(table->getHeader());
    double tstart(m_roiCuts->minTime());
    double tstop(m_roiCuts->maxTime());
    tip::Header & header(table->getHeader());
    header["TSTART"].set(tstart);
    header["TSTOP"].set(tstop);
-
-   writeDateKeywords(output_file, tstart, tstop);
 }
 
 void ExposureCube::writeDateKeywords(const std::string & outfile, 
@@ -149,6 +159,7 @@ void ExposureCube::writeDateKeywords(const std::string & outfile,
    std::vector<std::string> extnames;
    extnames.push_back("");
    extnames.push_back("EXPOSURE");
+   extnames.push_back("WEIGHTED_EXPOSURE");
    extnames.push_back("CTHETABOUNDS");
    extnames.push_back("GTI");
    for (std::vector<std::string>::const_iterator name(extnames.begin());

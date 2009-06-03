@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.12 2009/04/02 19:12:54 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.13 2009/06/02 16:43:44 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -34,7 +34,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.12 2009/04/02 19:12:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.13 2009/06/02 16:43:44 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
@@ -82,8 +82,8 @@ void AddLivetime::run() {
    addTables(m_pars["table"]);
    try {
       addTables(m_pars["table2"], false);
-   } catch(tip::TipException &) {
-      // do nothing
+   } catch(tip::TipException & eObj) {
+      std::cout << eObj.what() << std::endl;
    }
 }
 
@@ -203,8 +203,8 @@ void AddLivetime::writeDateKeywords(const std::string & outfile,
             hdu->getHeader()["CREATOR"].set("gtltsum " + getVersion());
          }
          delete hdu;
-      } catch (tip::TipException &) {
-         // do nothing
+      } catch (tip::TipException & eObj) {
+         std::cout << eObj.what() << std::endl;
       }
    }
 }
