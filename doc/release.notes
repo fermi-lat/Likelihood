@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.303 2009/05/30 22:35:43 jchiang Exp $
+    $Id: release.notes,v 1.304 2009/06/03 19:12:45 jchiang Exp $
 
     @verbatim
+    v15r0p1  03-Jun-09 JC  bug fix for gtltcube: write time-related header
+                           keywords for WEIGHTED_EXPOSURE extension
     v15      03-Jun-09 JC  trigger rate- and energy-dependent efficiency 
                            corrections (based on David P.'s parametrization
                            and using the decomposition of the livetime
