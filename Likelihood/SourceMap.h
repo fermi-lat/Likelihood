@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.39 2009/01/26 01:24:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.40 2009/03/16 20:44:57 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -29,7 +29,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.39 2009/01/26 01:24:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.40 2009/03/16 20:44:57 jchiang Exp $
  */
 
 #ifdef SWIG
@@ -66,6 +66,7 @@ public:
    static void setBinnedExpMapName(const std::string & filename);
 
    static const std::string & binnedExpMap();
+
 private:
 
    std::string m_name;
@@ -87,20 +88,6 @@ private:
 
    /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;
-
-   class Aeff : public Pixel::Aeff {
-   public:
-      Aeff(Source * src, const astro::SkyDir & appDir,
-           double energy, int type, const Observation & observation)
-         : Pixel::Aeff(src, appDir, energy, type),
-           m_observation(observation) {}
-      virtual double operator()(double costheta, double phi=0) const;
-      virtual double integral(double cosTheta, double phi=0) const {
-         return operator()(cosTheta, phi);
-      }
-   private:
-      const Observation & m_observation;
-   };
 
 /// @bug The binned exposure and mean psf handling is not thread safe.
    static std::string s_expMapFileName;

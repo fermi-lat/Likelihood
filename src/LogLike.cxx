@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.63 2009/01/19 15:18:18 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.64 2009/03/17 20:02:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -93,6 +93,7 @@ double LogLike::logSourceModel(const Event & event,
 	 CachedResponse* cResp=0;
 	 if(srcRespCache)cResp = &(*srcRespCache)[source->second->getName()];
          double fluxDens(source->second->fluxDensity(event, cResp));
+         fluxDens *= event.efficiency();
          my_value += fluxDens;
       }
    }
@@ -119,9 +120,10 @@ void LogLike::getLogSourceModelDerivs(const Event & event,
          std::vector<std::string> paramNames;
          (*func_it).second->getFreeParamNames(paramNames);
          for (size_t j = 0; j < paramNames.size(); j++) {
-            derivs.push_back(
-     source->second->fluxDensityDeriv(event, paramNames[j], cResp)/srcSum
-               );
+            double fluxDensDeriv = 
+               source->second->fluxDensityDeriv(event, paramNames[j], cResp);
+            fluxDensDeriv *= event.efficiency();
+            derivs.push_back(fluxDensDeriv/srcSum);
          }
       }
    }

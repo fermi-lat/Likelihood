@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.41 2009/02/22 20:20:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.42 2009/03/26 01:32:42 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -34,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.41 2009/02/22 20:20:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.42 2009/03/26 01:32:42 jchiang Exp $
  */
 
 class Source {
@@ -52,8 +52,8 @@ public:
 
    /// @return photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
-     virtual double fluxDensity(const Event &evt, 
-				CachedResponse* cResp = 0) const = 0;
+   virtual double fluxDensity(const Event &evt, 
+                              CachedResponse* cResp = 0) const = 0;
 
    /// @return fluxDensity in instrument coordinates (photons/cm^2-s-sr-MeV)
    /// @param inclination angle of source direction wrt the instrument

@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.66 2008/08/21 00:32:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.67 2009/01/26 01:24:26 jchiang Exp $
  */
 
 #include <algorithm>
@@ -293,13 +293,6 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
    if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
       prepareAngleArrays();
    }
-}
-
-double SourceMap::Aeff::operator()(double costheta, double phi) const {
-   double inclination = acos(costheta)*180./M_PI;
-   return m_observation.respFuncs().totalResponse(inclination, phi, m_energy,
-                                                  m_energy, m_separation,
-                                                  m_type);
 }
 
 bool SourceMap::haveMapCubeFunction(DiffuseSource * src) const {
