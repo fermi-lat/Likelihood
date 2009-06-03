@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  3 14:28:47 PDT 2009
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+gtltcube bug-fix; tagging v15r0p1
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun  3 14:28:46 PDT 2009
 Likelihood/src/gtaddlivetime
 
