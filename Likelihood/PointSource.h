@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.67 2009/03/26 01:32:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.68 2009/05/30 22:35:42 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -42,7 +42,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.67 2009/03/26 01:32:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.68 2009/05/30 22:35:42 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -68,8 +68,8 @@ public:
 
    /// Returns photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
-     virtual double fluxDensity(const Event &evt,
-				CachedResponse* cResp = 0) const {
+   virtual double fluxDensity(const Event & evt,
+                              CachedResponse* cResp = 0) const {
       return fluxDensity(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
                          evt.getDir(), evt.getType(), cResp);
    }
@@ -89,8 +89,7 @@ public:
    virtual double fluxDensityDeriv(double inclination, double phi, 
                                    double energy, const astro::SkyDir & appDir,
                                    int evtType, const std::string & paramName,
-				   CachedResponse* cResp = 0)
-      const;
+				   CachedResponse* cResp = 0) const;
 
    /// Set source location using J2000 coordinates
    void setDir(double ra, double dec, bool updateExposure=true, 

@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.44 2009/03/22 22:16:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.45 2009/05/20 19:30:45 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -31,7 +31,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.44 2009/03/22 22:16:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.45 2009/05/20 19:30:45 jchiang Exp $
  */
 
 class Event {
@@ -43,7 +43,7 @@ public:
    Event(double ra, double dec, double energy, double time, 
          const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
          double muZenith, bool useEdisp, const std::string & respName,
-         int type=2);
+         int type=2, double efficiency=1);
 
    ~Event() {}
 
@@ -157,6 +157,10 @@ public:
 
    void deleteSource(const std::string & srcName);
 
+   double efficiency() const {
+      return m_efficiency;
+   }
+
 private:
 
    /// apparent direction, energy, arrival time, and cosine(zenith angle)
@@ -187,6 +191,9 @@ private:
    std::vector<double> m_trueEnergies;
 
    std::vector<double> m_true_energies;
+
+   /// Efficiency correction at the time and energy of this event.
+   double m_efficiency;
 
    /// Response function data, unique to each event, and comprising an
    /// energy redistribution function for each diffuse source.
