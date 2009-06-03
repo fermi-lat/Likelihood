@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  2 22:43:10 PDT 2009
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx MeanPsf.cxx Pixel.cxx ScData.cxx 
+Log Message:
+include efficiency corrections for each call to ExposureCube::value(...)
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  2 22:43:09 PDT 2009
 Likelihood/Likelihood
 
