@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.53 2009/06/02 19:19:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.54 2009/06/02 20:51:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -115,6 +115,11 @@ size_t ScData::time_index(double time) const {
       = std::upper_bound(m_start.begin(), m_start.end(), time);
    size_t indx = it - m_start.begin() - 1;
    return indx;
+}
+
+double ScData::livetimefrac(double time) const {
+   size_t indx = time_index(time);
+   return m_livetime.at(indx)/(m_stop.at(indx) - m_start.at(indx));
 }
 
 astro::SkyDir ScData::xAxis(double time) const {

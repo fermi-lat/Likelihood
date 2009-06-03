@@ -3,7 +3,7 @@
  * @brief Spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.27 2009/06/02 19:19:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.28 2009/06/02 20:51:39 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -40,10 +40,13 @@ public:
                  double tstart, double tstop,
                  const std::string & sctable="SC_DATA");
 
-   /// Return the spacecraft z-axis as a function of MET.
+   /// Livetime fraction as a function of MET
+   double livetimefrac(double time) const;
+
+   /// Spacecraft z-axis as a function of MET.
    astro::SkyDir zAxis(double time) const;
 
-   /// Return the spacecraft x-axis as a function of MET.
+   /// Spacecraft x-axis as a function of MET.
    astro::SkyDir xAxis(double time) const;
 
    size_t numIntervals() const {

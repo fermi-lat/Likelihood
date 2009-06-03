@@ -4,7 +4,7 @@
  * access to model counts and derivatives wrt model parameters.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.5 2006/02/16 07:11:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.6 2009/01/26 01:24:26 jchiang Exp $
  */
 
 #include "Likelihood/Pixel.h"
@@ -27,11 +27,15 @@ double Pixel::modelCounts(double emin, double emax,
       for ( ; respIt != srcModel.observation().respFuncs().end(); ++respIt) {
          int evtType = respIt->second->irfID();
          Aeff aeff1(src, m_dir, emin, evtType);
+//          double map_lower = 
+//             srcModel.observation().expCube().value(m_dir, aeff1);
          double map_lower = 
-            srcModel.observation().expCube().value(m_dir, aeff1);
+            srcModel.observation().expCube().value(m_dir, aeff1, emin);
          Aeff aeff2(src, m_dir, emax, evtType);
+//          double map_upper = 
+//             srcModel.observation().expCube().value(m_dir, aeff2);
          double map_upper = 
-            srcModel.observation().expCube().value(m_dir, aeff2);
+            srcModel.observation().expCube().value(m_dir, aeff2, emax);
          my_counts += (map_lower + map_upper)/2.*m_solidAngle*(emax - emin);
       }
    }
@@ -60,11 +64,15 @@ void Pixel::getFreeDerivs(double emin, double emax, SourceModel & srcModel,
                   ++respIt) {
                int evtType = respIt->second->irfID();
                AeffDeriv aeff1(src->second, names[i], m_dir, emin, evtType);
+//                double map1 = 
+//                   srcModel.observation().expCube().value(m_dir, aeff1);
                double map1 = 
-                  srcModel.observation().expCube().value(m_dir, aeff1);
+                  srcModel.observation().expCube().value(m_dir, aeff1, emin);
                AeffDeriv aeff2(src->second, names[i], m_dir, emax, evtType);
+//                double map2 = 
+//                   srcModel.observation().expCube().value(m_dir, aeff2);
                double map2 = 
-                  srcModel.observation().expCube().value(m_dir, aeff2);
+                  srcModel.observation().expCube().value(m_dir, aeff2, emax);
                derivs.at(iparam) += (map1 + map2)/2.*m_solidAngle
                   *(emax - emin);
             }
