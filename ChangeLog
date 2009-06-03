@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  2 22:43:09 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	ScData.h 
+Log Message:
+include efficiency corrections for each call to ExposureCube::value(...)
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  2 14:55:42 PDT 2009
 Likelihood/src
 
