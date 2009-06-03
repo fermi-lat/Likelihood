@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  3 12:04:54 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	Event.h PointSource.h Source.h SourceMap.h 
+Log Message:
+efficiency correction updates; remove unused code in SourceMap
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jun  2 22:43:10 PDT 2009
 Likelihood/src
 
