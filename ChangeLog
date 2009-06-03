@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  3 12:04:55 PDT 2009
+Likelihood/src
+
+Modified Files:
+	Event.cxx EventContainer.cxx LogLike.cxx SourceMap.cxx 
+Log Message:
+efficiency correction updates; remove unused code in SourceMap
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun  3 12:04:54 PDT 2009
 Likelihood/Likelihood
 
