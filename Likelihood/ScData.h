@@ -3,7 +3,7 @@
  * @brief Spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.29 2009/06/03 05:43:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScData.h,v 1.30 2009/06/04 17:45:46 jchiang Exp $
  */
 
 #ifndef Likelihood_ScData_h
@@ -82,8 +82,6 @@ private:
    std::vector<double> m_livetime;
    std::vector<astro::SkyDir> m_zAxis;
    std::vector<astro::SkyDir> m_xAxis;
-
-   double m_dt;
 
    void clear_arrays();
 
