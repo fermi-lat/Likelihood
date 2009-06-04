@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun  4 13:58:11 PDT 2009
+Likelihood/src
+
+Modified Files:
+	ScData.cxx 
+Log Message:
+binary search is faster for real merged FT2 files.
+
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun  4 10:45:47 PDT 2009
 Likelihood/src
 
