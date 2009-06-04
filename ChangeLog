@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  3 22:53:07 PDT 2009
+Likelihood/src
+
+Modified Files:
+	ScData.cxx 
+Log Message:
+check if queried time lies within a valid FT2 interval
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-00-01, operation: add
 Package: Likelihood
