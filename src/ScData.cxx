@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.54 2009/06/02 20:51:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.55 2009/06/03 05:43:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -119,6 +119,10 @@ size_t ScData::time_index(double time) const {
 
 double ScData::livetimefrac(double time) const {
    size_t indx = time_index(time);
+   if (time < m_start.at(indx) || time > m_stop.at(indx)) {
+// Desired time doesn't lie within an FT2 interval.
+      return 0;
+   }
    return m_livetime.at(indx)/(m_stop.at(indx) - m_start.at(indx));
 }
 
