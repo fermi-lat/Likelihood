@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun  4 10:45:47 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	ScData.h 
+Log Message:
+faster lookup for intervals in FT2
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun  3 22:53:07 PDT 2009
 Likelihood/src
 
