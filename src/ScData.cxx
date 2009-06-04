@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.56 2009/06/04 05:53:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.57 2009/06/04 17:45:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -121,29 +121,9 @@ size_t ScData::time_index(double time) const {
               << tmin << " to " << tmax << "MET s";
       throw std::runtime_error(message.str());
    }
-//    std::vector<double>::const_iterator it 
-//       = std::upper_bound(m_start.begin(), m_start.end(), time);
-//    size_t indx = it - m_start.begin() - 1;
-//    std::cout << indx << "  ";
-
-   size_t indx = static_cast<size_t>((time - m_start.front())/m_dt);
-// Intervals may not be uniform, so must do a search.  The offsets
-// from the computed index should be constant and small over large
-// ranges, so a linear search from the computed point is reasonable.
-   indx = std::min(indx, m_start.size()-1);
-   if (m_start.at(indx) > time) {
-      while (m_start.at(indx) > time && indx > 0) {
-         indx--;
-      }
-      return indx;
-   }
-// Ensure we have not fallen short of the desired interval.
-   if (m_start.at(indx) < time) {
-      while (m_start.at(indx) < time && indx < m_start.size()) {
-         ++indx;
-      }
-      --indx;
-   }
+   std::vector<double>::const_iterator it 
+      = std::upper_bound(m_start.begin(), m_start.end(), time);
+   size_t indx = it - m_start.begin() - 1;
    return indx;
 }
 
