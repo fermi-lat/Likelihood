@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Jun  7 23:05:49 PDT 2009
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+add SmoothBrokenPowerLaw from Benoit
+    *
+------------------------------------------------------------
+User: jchiang  Sun Jun  7 23:05:49 PDT 2009
 Likelihood/src
 
 Modified Files:
