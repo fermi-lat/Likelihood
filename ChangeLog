@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jun  7 23:05:49 PDT 2009
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Added Files:
+	SmoothBrokenPowerLaw.cxx 
+Log Message:
+add SmoothBrokenPowerLaw from Benoit
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jun  7 23:05:48 PDT 2009
 Likelihood/Likelihood
 
