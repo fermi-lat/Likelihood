@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.73 2009/01/27 00:25:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.74 2009/03/04 11:24:27 cohen Exp $
  */
 
 #include <map>
@@ -221,30 +221,32 @@ void AppHelpers::
 getSelectedEvtTypes(const std::string & evfile,
                     const std::string & analysisType,
                     std::vector<size_t> & selectedEvtTypes) {
-   selectedEvtTypes.clear();
-   std::string extname("EVENTS");
-   if (analysisType == "BINNED") {
-      extname = "";
-   }
-   dataSubselector::Cuts my_cuts(evfile, extname, false);
+   (void)(evfile);
+   (void)(analysisType);
+//    selectedEvtTypes.clear();
+//    std::string extname("EVENTS");
+//    if (analysisType == "BINNED") {
+//       extname = "";
+//    }
+//    dataSubselector::Cuts my_cuts(evfile, extname, false);
    std::vector<size_t> convtypes;
    std::vector<size_t> eventclasses;
-   for (size_t i(0); i < my_cuts.size(); i++) {
-      if (my_cuts[i].type() == "range") {
-         dataSubselector::RangeCut & rangeCut
-            = dynamic_cast<dataSubselector::RangeCut &>
-            (const_cast<dataSubselector::CutBase &>(my_cuts[i]));
-         if (rangeCut.colname() == "EVENT_CLASS") {
-            for (size_t j(static_cast<size_t>(rangeCut.minVal())); 
-                 j < static_cast<size_t>(rangeCut.maxVal()+1); j++) {
-               eventclasses.push_back(j);
-            }
-         }
-         if (rangeCut.colname() == "CONVERSION_TYPE") {
-            convtypes.push_back(static_cast<size_t>(rangeCut.minVal()));
-         }
-      }
-   }
+//    for (size_t i(0); i < my_cuts.size(); i++) {
+//       if (my_cuts[i].type() == "range") {
+//          dataSubselector::RangeCut & rangeCut
+//             = dynamic_cast<dataSubselector::RangeCut &>
+//             (const_cast<dataSubselector::CutBase &>(my_cuts[i]));
+//          if (rangeCut.colname() == "EVENT_CLASS") {
+//             for (size_t j(static_cast<size_t>(rangeCut.minVal())); 
+//                  j < static_cast<size_t>(rangeCut.maxVal()+1); j++) {
+//                eventclasses.push_back(j);
+//             }
+//          }
+//          if (rangeCut.colname() == "CONVERSION_TYPE") {
+//             convtypes.push_back(static_cast<size_t>(rangeCut.minVal()));
+//          }
+//       }
+//    }
 // No DSS selections on EVENT_CLASS or CONVERSION_TYPE, so get everything.
    if (eventclasses.empty()) {
       for (size_t i(0); i < 11; i++) {
