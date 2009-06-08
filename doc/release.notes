@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.307 2009/06/08 05:14:09 jchiang Exp $
+    $Id: release.notes,v 1.308 2009/06/08 06:07:07 jchiang Exp $
 
     @verbatim
+    v15r1p1  08-Jun-09 JC  fix to SmoothBrokenPowerLaw from Benoit
     v15r1    07-Jun-09 JC  add SmoothBrokenPowerLaw from Benoit
     v15r0p3  07-Jun-09 JC  disable event class cut filtering in AppHelpers
     v15r0p2  04-Jun-09 JC  check if requested time lies in valid FT2 interval
