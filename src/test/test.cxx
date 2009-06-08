@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.89 2009/05/13 23:47:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.90 2009/06/02 20:51:40 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -70,6 +70,7 @@
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
+#include "Likelihood/SmoothBrokenPowerLaw.h"
 
 #include "SourceData.h"
 #include "XmlDiff.h"
@@ -82,6 +83,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
    CPPUNIT_TEST(test_BandFunction);
+   CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
    CPPUNIT_TEST(test_XmlBuilders);
@@ -106,6 +108,7 @@ public:
    void tearDown();
 
    void test_BandFunction();
+   void test_SmoothBrokenPowerLaw();
    void test_RoiCuts();
    void test_SourceFactory();
    void test_XmlBuilders();
@@ -252,6 +255,31 @@ void LikelihoodTests::test_BandFunction() {
    params.push_back(optimizers::Parameter("beta", -2.5));
    params.push_back(optimizers::Parameter("Ep", 0.1));
    params.push_back(optimizers::Parameter("Scale", 0.1));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
+}
+
+void LikelihoodTests::test_SmoothBrokenPowerLaw() {
+   Likelihood::SmoothBrokenPowerLaw foo(10, -2.1, 100, -2.1, 1e3, 0.2);
+   optimizers::FunctionTest tester(foo, "SmoothBrokenPowerLaw");
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("Prefactor", 10));
+   params.push_back(optimizers::Parameter("Index1", -2.1));
+   params.push_back(optimizers::Parameter("Scale", 100.));
+   params.push_back(optimizers::Parameter("Index2", -2.1));
+   params.push_back(optimizers::Parameter("BreakValue", 1e3));
+   params.push_back(optimizers::Parameter("Beta", 0.2));
 
    std::vector<optimizers::Arg *> args;
    args.push_back(new optimizers::dArg(100));
