@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jun  9 08:00:54 PDT 2009
+Likelihood/src
+
+Modified Files:
+	SmoothBrokenPowerLaw.cxx 
+Log Message:
+Benoit's fixes
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-01-01, operation: add
 Package: Likelihood
