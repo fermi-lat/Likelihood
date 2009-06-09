@@ -68,7 +68,7 @@ namespace Likelihood {
     double beta = my_params[Beta].getTrueValue();
     
     // 
-    return prefactor * pow(x/scale,index1) * pow(1+ pow(x/breakvalue,beta),(index2-index1)/beta);
+    return prefactor * pow(x/scale,index1) * pow(1+ pow(x/breakvalue,(index1-index2)/beta),-beta);
   }
   
   
@@ -103,19 +103,19 @@ namespace Likelihood {
 	return value(xarg) / prefactor * my_params[Prefactor].getScale();
 	break;
       case Index1:
-	return value(xarg) * (log(x/scale)-log(1+ pow(x/breakvalue,beta))/beta)* my_params[Index1].getScale();
+	return value(xarg) * (log(x/scale)-log(x/breakvalue)*pow(x/breakvalue,(index1-index2)/beta)/(1+ pow(x/breakvalue,(index1-index2)/beta))) * my_params[Index1].getScale();
 	break;
       case Scale:
 	return -value(xarg) * index1/ scale * my_params[Scale].getScale();
 	break;
       case Index2:
-	return value(xarg) *log(1+ pow(x/breakvalue,beta))/beta* my_params[Index2].getScale();
+	return value(xarg) *log(x/breakvalue)*pow(x/breakvalue,(index1-index2)/beta)/(1+ pow(x/breakvalue,(index1-index2)/beta))* my_params[Index2].getScale();
 	break;
       case BreakValue:
-	return value(xarg) * (index1-index2)/(1+ pow(x/breakvalue,beta))*pow(x/breakvalue,beta)/breakvalue*my_params[BreakValue].getScale();
+	return value(xarg) *(index1-index2) *pow(x/breakvalue,(index1-index2)/beta)/(1+ pow(x/breakvalue,(index1-index2)/beta))/breakvalue *my_params[BreakValue].getScale();
 	break;
       case Beta:
-	return  value(xarg) * ( (index1-index2)/pow(beta,2) * log(1+ pow(x/breakvalue,beta)) + (index2-index1)/beta/(1+ pow(x/breakvalue,-beta))*log(x/breakvalue)) * my_params[Beta].getScale();
+	return  value(xarg) * (-log(1+ pow(x/breakvalue,(index1-index2)/beta))+(index1-index2)*log(x/breakvalue)/beta/(1+ pow(x/breakvalue,-(index1-index2)/beta))) * my_params[Beta].getScale();
 	break;
       default:
 	break;
