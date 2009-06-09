@@ -534,6 +534,21 @@
      - Cutoff = \f$E_c\f$
      - Index2 = \f$\gamma_2\f$
 
+   - @b SmoothBrokenPowerLaw  Implemented by Benoit Lott 
+   (<tt>lott@cenbg.in2p3.fr</tt>)
+   \f[
+   \frac{dN}{dE} = N_0\left(\frac{E}{E_0}\right)^{\alpha_1} 
+                   \displaystyle \left(1+\left(\frac{E}{E_b}\right)
+                   ^\frac{\alpha_1-\alpha_2}{\beta}\right)^{-\beta}
+   \f]
+   where
+     - Prefactor = \f$N_0\f$
+     - Index1 = \f$\alpha_1\f$
+     - Scale = \f$E_0\f$
+     - Index2 = \f$\alpha_2\f$
+     - BreakValue = \f$E_b\f$
+     - Beta = \f$\beta\f$
+
    - Four spatial models are available:
      - SkyDirFunction describes a direction on the sky and is used
        only for point sources.
