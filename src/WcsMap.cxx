@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.35 2009/02/22 20:20:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.36 2009/03/18 22:53:36 jchiang Exp $
  */
 
 #include <cmath>
@@ -82,11 +82,11 @@ WcsMap::WcsMap(const std::string & filename,
    header["CRPIX1"].get(ix);
    header["CRPIX2"].get(iy);
 
-   double cdelt1;
-   header["CDELT1"].get(cdelt1);
-   if (::my_round(m_naxis1*cdelt1) == 360.) {
+   header["CDELT1"].get(m_cdelt1);
+   if (::my_round(m_naxis1*m_cdelt1) == 360.) {
       m_isPeriodic = true;
    }
+   header["CDELT2"].get(m_cdelt2);
 
    if (m_proj->isGalactic()) {
       m_coordSys = astro::SkyDir::GALACTIC;
@@ -125,6 +125,8 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    double crpix[] = {npts/2., npts/2.};
    double crval[] = {ra, dec};
    double cdelt[] = {-pix_size, pix_size};
+   m_cdelt1 = -pix_size;
+   m_cdelt2 = pix_size;
 
    m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
 
@@ -171,6 +173,8 @@ WcsMap::WcsMap(const WcsMap & rhs)
      m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2), 
      m_interpolate(rhs.m_interpolate),
      m_isPeriodic(rhs.m_isPeriodic),
+     m_cdelt1(rhs.m_cdelt1),
+     m_cdelt2(rhs.m_cdelt2),
      m_coordSys(rhs.m_coordSys),
      m_mapIntegral(rhs.m_mapIntegral) {
 // astro::SkyProj copy constructor is not implemented properly so we
@@ -193,6 +197,8 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
       m_solidAngles = rhs.m_solidAngles;
       m_naxis1 = rhs.m_naxis1;
       m_naxis2 = rhs.m_naxis2;
+      m_cdelt1 = rhs.m_cdelt1;
+      m_cdelt2 = rhs.m_cdelt2;
       m_interpolate = rhs.m_interpolate;
       m_mapIntegral = rhs.m_mapIntegral;
    }
@@ -287,16 +293,37 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
    }
 
    ::Image psf_image;
-   psf_image.resize(npix);
 
-   for (int j = jmin; j < jmax; j++) {
+//    psf_image.resize(npix);
+//    for (int j = jmin; j < jmax; j++) {
+//       psf_image.at(j).resize(npix, 0);
+//       for (int i = imin; i < imax; i++) {
+//          if (m_proj->testpix2sph(i+0.5, j+0.5) == 0) {
+//             std::pair<double, double> coord = m_proj->pix2sph(i+0.5, j+0.5);
+//             astro::SkyDir dir(coord.first, coord.second, m_coordSys);
+//             double theta = m_refDir.difference(dir)*180./M_PI;
+//             psf_image.at(j-jmin).at(i-imin) = psf(energy, theta, 0);
+//          }
+//       }
+//    }
+
+   npix = (npix/2)*2;   // ensure even number of pixels in each dimension
+   double refpix = static_cast<double>(npix + 1)/2.;  // refpix at center
+   double crpix[] = {refpix, refpix};
+   double crval[] = {m_refDir.ra(), m_refDir.dec()}; // actually arbitrary
+   double cdelt[] = {m_cdelt1, m_cdelt2}; // ensure same resolution as input map
+   astro::SkyProj my_proj(m_proj->projType(), crpix, crval, cdelt);
+
+   psf_image.resize(npix);
+   for (int j(0); j < npix; j++) {
       psf_image.at(j).resize(npix, 0);
-      for (int i = imin; i < imax; i++) {
-         if (m_proj->testpix2sph(i+1, j+1) == 0) {
-            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
+      for (int i(0); i < npix; i++) {
+         if (my_proj.testpix2sph(i+1, j+1) == 0) {
+            std::pair<double, double> coord = my_proj.pix2sph(i+1, j+1);
+            astro::SkyDir dir(coord.first, coord.second, 
+                              astro::SkyDir::EQUATORIAL);
             double theta = m_refDir.difference(dir)*180./M_PI;
-            psf_image.at(j-jmin).at(i-imin) = psf(energy, theta, 0);
+            psf_image.at(j).at(i) = psf(energy, theta, 0);
          }
       }
    }
