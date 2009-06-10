@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.310 2009/06/09 15:14:05 jchiang Exp $
+    $Id: release.notes,v 1.311 2009/06/10 18:09:30 jchiang Exp $
 
     @verbatim
+    v15r1p4  10-Jun-09 JC  turn off interpolation for SpatialMap sources 
+                           (was causing problems with convolved maps)
     v15r1p3  10-Jun-09 JC  fix half-pix offset in psf map generation in
                            WcsMap::convolve
     v15r1p2  09-Jun-09 JC  more fixes to SmoothBrokenPowerLaw from Benoit
