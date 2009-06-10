@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 10 10:57:10 PDT 2009
+Likelihood/src
+
+Modified Files:
+	MapCubeFunction.cxx WcsMap.cxx tutorial.h 
+Log Message:
+fix half-pix offset error in psf generation for WcsMap::convolve; bug-fix for periodic BCs in allsky maps
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-01-02, operation: add
 Package: Likelihood
