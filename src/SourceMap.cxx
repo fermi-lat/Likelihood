@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.67 2009/01/26 01:24:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.68 2009/06/03 19:04:55 jchiang Exp $
  */
 
 #include <algorithm>
@@ -122,7 +122,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          pix_size = std::min(std::abs(dataMap->cdelt1()), 
                              std::abs(dataMap->cdelt2()))/resamp_factor;
       }
-      unsigned int mapsize(static_cast<unsigned int>(2*radius/pix_size));
+      unsigned int mapsize(2*static_cast<unsigned int>(radius/pix_size));
       std::vector<double>::const_iterator energy = energies.begin();
       unsigned int indx(0);
       for (int k = 0; energy != energies.end(); ++energy, k++) {

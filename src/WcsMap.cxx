@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.37 2009/06/10 17:57:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.38 2009/06/10 18:09:31 jchiang Exp $
  */
 
 #include <cmath>
@@ -121,7 +121,9 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
       ra = m_refDir.l();
       dec = m_refDir.b();
    }
-   double crpix[] = {npts/2., npts/2.};
+//   double refpix = static_cast<double>(npts + 1)/2.;
+   double refpix = static_cast<double>(npts)/2.;
+   double crpix[] = {refpix, refpix};
    double crval[] = {ra, dec};
    double cdelt[] = {-pix_size, pix_size};
    m_cdelt1 = -pix_size;
@@ -306,7 +308,6 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
 //       }
 //    }
 
-   npix = (npix/2)*2;   // ensure even number of pixels in each dimension
    double refpix = static_cast<double>(npix + 1)/2.;  // refpix at center
    double crpix[] = {refpix, refpix};
    double crval[] = {m_refDir.ra(), m_refDir.dec()}; // actually arbitrary
