@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.29 2009/03/18 22:53:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction.cxx,v 1.30 2009/06/10 17:57:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -28,7 +28,6 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/SkyDirArg.h"
-#include "Likelihood/WcsMap.h"
 
 namespace {
    bool reverse_cmp(double x, double y) {
