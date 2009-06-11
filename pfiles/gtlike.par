@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtlike.par,v 1.7 2009/03/23 14:12:27 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtlike.par,v 1.8 2009/03/23 23:29:11 jchiang Exp $
 #
 # parameters common to binned and unbinned
 #
@@ -8,7 +8,6 @@ edisp,b,h,no,,,"Use energy dispersion?"
 expcube,f,a,"none",,,"Exposure hypercube file"
 srcmdl,fr,a,"",,,"Source model file"
 sfile,f,h,"none",,,"Source model output file"
-fluxmdl,f,h,"none",,,"flux-style output file name"
 check_fit,b,h,yes,,,"Issue warnings regarding fit?"
 results,f,h,"results.dat",,,"Output file for fit results"
 specfile,f,h,"counts_spectra.fits",,,"Output file for counts spectra"
