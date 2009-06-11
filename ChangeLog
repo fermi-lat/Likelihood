@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Thu Jun 11 14:46:49 PDT 2009
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+remove fluxmdl option
+    *
+------------------------------------------------------------
+User: jchiang  Thu Jun 11 14:46:49 PDT 2009
 Likelihood/pfiles
 
 Modified Files:
