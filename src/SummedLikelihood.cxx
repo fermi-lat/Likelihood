@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SummedLikelihood.cxx,v 1.8 2008/11/26 23:35:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SummedLikelihood.cxx,v 1.1 2009/06/05 23:42:01 jchiang Exp $
  */
 
 #include <iostream>
@@ -67,7 +67,7 @@ void SummedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 // Build vector of component parameter names.  This list should have
 // the same ordering as the derivatives wrt the free parameters.
    m_components.front()->getFreeDerivs(derivs);
-   for (ComponentIterator_t it(m_components.begin() + 1);
+   for (ComponentConstIterator_t it(m_components.begin() + 1);
         it != m_components.end(); ++it) {
       std::vector<double> freeDerivs;
       (*it)->getFreeDerivs(freeDerivs);
