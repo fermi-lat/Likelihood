@@ -3,7 +3,7 @@
  * @brief Implementation for the FileFunction Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.4 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.5 2009/01/17 21:42:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -52,6 +52,20 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
    double x(std::log(dynamic_cast<optimizers::dArg &>(xarg).getValue()));
    double scale(m_parameter[0].getScale());
    return scale*std::exp(st_facilities::Util::interpolate(m_x, m_y, x));
+}
+
+double FileFunction::interpolateFlux(double logEnergy) const {
+   double flux(0);
+   try {
+      flux = std::exp(st_facilities::Util::interpolate(m_x, m_y, logEnergy));
+   } catch (std::range_error & eObj) {
+      std::ostringstream message;
+      message << "Requested energy, " << std::exp(logEnergy) 
+              << ", lies outside the range of the input file, "
+              << std::exp(m_x.front()) << ", " << std::exp(m_x.back());
+      throw std::range_error(message.str());
+   }
+   return flux;
 }
 
 void FileFunction::readFunction(const std::string & filename) {
