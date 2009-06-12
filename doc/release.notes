@@ -1,9 +1,10 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.311 2009/06/10 18:09:30 jchiang Exp $
+    $Id: release.notes,v 1.312 2009/06/10 23:11:52 jchiang Exp $
 
     @verbatim
+    v15r1p5  11-Jun-09 JC  improve error message for naive FileFunction users
     v15r1p4  10-Jun-09 JC  turn off interpolation for SpatialMap sources 
                            (was causing problems with convolved maps)
     v15r1p3  10-Jun-09 JC  fix half-pix offset in psf map generation in
