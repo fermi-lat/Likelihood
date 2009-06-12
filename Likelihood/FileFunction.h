@@ -3,7 +3,7 @@
  * @brief Declaration for the FileFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.1 2005/06/08 06:32:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.1 2005/10/21 20:22:31 jchiang Exp $
  */
 
 #ifndef Likelihood_FileFunction_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.1 2005/06/08 06:32:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.1 2005/10/21 20:22:31 jchiang Exp $
  */
     
 class FileFunction : public optimizers::Function {
@@ -55,6 +55,8 @@ protected:
    double integral(optimizers::Arg & xmin, optimizers::Arg & xmax) const;
 
 private:
+
+   double interpolateFlux(double logEnergy) const;
 
    std::vector<double> m_x;
    std::vector<double> m_y;
