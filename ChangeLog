@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jun 12 13:04:12 PDT 2009
+Likelihood/src
+
+Modified Files:
+	SummedLikelihood.cxx 
+Log Message:
+const correctness fix
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-01-05, operation: add
 Package: Likelihood
