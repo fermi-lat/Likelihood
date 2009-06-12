@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun 11 21:45:29 PDT 2009
+Likelihood/src
+
+Modified Files:
+	FileFunction.cxx 
+Log Message:
+improve error message for FileFunction
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun 11 14:46:49 PDT 2009
 Likelihood/src/likelihood
 
