@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun 15 22:51:08 PDT 2009
+Likelihood/Likelihood
+
+Added Files:
+	EblAtten.h 
+Log Message:
+add EblAtten.h
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-15-02, operation: add
 Package: Likelihood
