@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Jun 17 12:58:12 PDT 2009
+Likelihood/src
+
+Added Files:
+	EblAtten.cxx 
+Log Message:
+EblAtten implementation
+    *
+------------------------------------------------------------
+User: jchiang  Wed Jun 17 12:58:12 PDT 2009
 Likelihood/Likelihood
 
 Modified Files:
