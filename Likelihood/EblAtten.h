@@ -4,52 +4,72 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EblAtten.h,v 1.1 2009/06/16 05:51:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EblAtten.h,v 1.2 2009/06/17 19:58:12 jchiang Exp $
  */
+
+#include "optimizers/Function.h"
+
+#include "eblAtten/EblAtten.h"
 
 namespace Likelihood {
 
 class EblAtten : public optimizers::Function {
    
-   EblAtten(const optimizers::Function & spectrum);
+public:
+
+   EblAtten();
+
+   EblAtten(const optimizers::Function & spectrum,
+            double tau_norm=1, double redshift=0, 
+            size_t ebl_model=0);
 
    EblAtten(const EblAtten & other);
 
-   ~EblAtten();
+   ~EblAtten() throw();
 
    virtual double value(optimizers::Arg & x) const;
    virtual double derivByParam(optimizers::Arg & x,
                                const std::string & paramName) const;
-   virtual double integral(optimizers::Arg & xmin, 
-                           optimizers::Arg & xmax) const;
    virtual Function * clone() const {
       return new EblAtten(*this);
    }
 
-   /// Set the Parameter value
-   virtual void setParam(const std::string & parName, double value);
+//    /// Set the Parameter value
+//    virtual void setParam(const std::string & parName, double value);
 
    /// Set a Parameter using a Parameter object.
    virtual void setParam(const optimizers::Parameter &param);
 
-   /// Return the Parameter value by name.
-   virtual double getParamValue(const std::string & parName) const;
+//    /// Return the Parameter value by name.
+//    virtual double getParamValue(const std::string & parName) const;
 
-   /// Return the Parameter object by name.
-   virtual const optimizers::Parameter & 
-   getParam(const std::string & parName) const;
+//    /// Return the Parameter object by name.
+//    virtual const optimizers::Parameter & 
+//    getParam(const std::string & parName) const;
 
+//    virtual optimizers::Parameter & parameter(const std::string & parName);
+
+//    virtual optimizers::Parameter & normPar();
+
+//    virtual void getFreeParams(std::vector<optimizers::Parameter> &) const;
+
+//    virtual std::vector<double>::const_iterator
+//    setParamValues_(std::vector<double>::const_iterator it);
+
+//    virtual void setParams(const std::vector<optimizers::Parameter> & pars);
+
+//    virtual std::vector<double>::const_iterator
+//    setFreeParamValues_(std::vector<double>::const_iterator it);
 
 private:
    
    optimizers::Function * m_spectrum;
 
-   IRB::EblAtten * m_tau;
+   mutable IRB::EblAtten * m_tau;
+
+   void init(double tau_norm=1, double redshift=0, size_t ebl_model=0);
 
    double attenuation(double energy) const;
-
-   bool is_ebl_param(const std::string & paramName) const;
-
 };
 
 } // namespace Likelihood

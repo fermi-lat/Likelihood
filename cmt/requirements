@@ -4,7 +4,7 @@ version v15r1p6
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.432 2009/06/12 05:04:13 jchiang Exp $
+# $Id: requirements,v 1.433 2009/06/12 20:05:14 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -20,6 +20,7 @@ use fftw v* IExternal
 use irfLoader v* irfs
 use st_facilities v*
 use dataSubselector v*
+use eblAtten v* celestialSources
 use hoops v*
 use st_app v*
 use st_graph v*
