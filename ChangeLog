@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun 18 23:36:15 PDT 2009
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+add EblAtten:: function prototypes
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun 18 23:36:14 PDT 2009
 Likelihood/src
 
