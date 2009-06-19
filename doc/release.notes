@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.313 2009/06/12 05:04:13 jchiang Exp $
+    $Id: release.notes,v 1.314 2009/06/12 20:05:15 jchiang Exp $
 
     @verbatim
+    v15r2    19-Jun-09 JC  add EblAtten class and various EblAtten::* 
+                           prototypes to AppHelpers::addFunctionPrototypes
     v15r1p6  12-Jun-09 JC  const correctness fix in SummedLikelihood.cxx
     v15r1p5  11-Jun-09 JC  improve error message for naive FileFunction users
     v15r1p4  10-Jun-09 JC  turn off interpolation for SpatialMap sources 
