@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EblAtten.cxx,v 1.2 2009/06/19 03:39:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EblAtten.cxx,v 1.3 2009/06/19 04:44:09 jchiang Exp $
  */
 
 #include <algorithm>
@@ -66,6 +66,17 @@ EblAtten::EblAtten(const EblAtten & other)
    setParRefs();
 }
 
+EblAtten & EblAtten::operator=(const EblAtten & rhs) {
+   if (this != &rhs) {
+      delete m_spectrum;
+      delete m_tau;
+      m_spectrum = rhs.m_spectrum->clone();
+      m_tau = new IRB::EblAtten(*rhs.m_tau);
+      setParRefs();
+   }
+   return *this;
+}
+
 EblAtten::~EblAtten() throw() {
    try {
       delete m_spectrum;
@@ -77,7 +88,6 @@ EblAtten::~EblAtten() throw() {
 double EblAtten::value(optimizers::Arg & xarg) const {
    double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue();
    return m_spectrum->operator()(xarg)*attenuation(energy);
-//   return m_spectrum->operator()(xarg);
 }
 
 double EblAtten::derivByParam(optimizers::Arg & xarg,
@@ -109,18 +119,10 @@ double EblAtten::derivByParam(optimizers::Arg & xarg,
    }
    double zz(m_parameter[redshift].getTrueValue());
    return -value(xarg)*m_tau->operator()(energy, zz);
-//   return m_spectrum->derivByParam(xarg, paramName);
 }
 
-// void EblAtten::setParam(const std::string & parName, double value) {
-//    try {
-//       m_spectrum->setParam(parName, value);
-//    } catch (optimizers::ParameterNotFound &) {
-//    }
-//    optimizers::Function::setParam(parName, value);
-// }
-
 void EblAtten::setParam(const optimizers::Parameter & param) {
+// This version preserves the references to the m_spectrum parameters.
    optimizers::Parameter & my_par(parameter(param.getName()));
    my_par.setName(param.getName());
    my_par.setValue(param.getValue());
@@ -130,65 +132,6 @@ void EblAtten::setParam(const optimizers::Parameter & param) {
    my_par.setAlwaysFixed(param.alwaysFixed());
    my_par.setError(param.error());
 }
-
-// double EblAtten::getParamValue(const std::string & parName) const {
-//    try {
-//       return m_spectrum->getParamValue(parName);
-//    } catch (optimizers::ParameterNotFound &) {
-//    }
-//    return optimizers::Function::getParamValue(parName);
-// }
-
-// const optimizers::Parameter & 
-// EblAtten::getParam(const std::string & parName) const {
-//    try {
-//       return m_spectrum->getParam(parName);
-//    } catch (optimizers::ParameterNotFound &) {
-//    }
-//    return optimizers::Function::getParam(parName);
-// }
-
-// optimizers::Parameter & EblAtten::parameter(const std::string & parName) {
-//    try {
-//       return m_spectrum->parameter(parName);
-//    } catch (optimizers::ParameterNotFound &) {
-//    }
-//    return optimizers::Function::parameter(parName);
-// }
-
-// optimizers::Parameter & EblAtten::normPar() {
-//    return m_spectrum->normPar();
-// }
-
-// void EblAtten::getFreeParams(std::vector<optimizers::Parameter> & pars) const {
-//    m_spectrum->getFreeParams(pars);
-//    for (size_t i(m_spectrum->getNumParams()); i < m_parameter.size(); i++) {
-//       pars.push_back(m_parameter.at(i));
-//    }
-// }
-
-// std::vector<double>::const_iterator
-// EblAtten::setParamValues_(std::vector<double>::const_iterator it) {
-//    it = m_spectrum->setParamValues_(it);
-//    it -= m_spectrum->getNumParams();
-//    return Function::setParamValues_(it);
-// }
-
-// void EblAtten::setParams(const std::vector<optimizers::Parameter> & pars) {
-//    Function::setParams(pars);
-//    std::vector<optimizers::Parameter> spec_pars;
-//    spec_pars.resize(m_spectrum->getNumParams());
-//    std::copy(pars.begin(), pars.begin() + spec_pars.size(), 
-//              spec_pars.begin());
-//    m_spectrum->setParams(spec_pars);
-// }
-
-// std::vector<double>::const_iterator
-// EblAtten::setFreeParamValues_(std::vector<double>::const_iterator it) {
-//    it = m_spectrum->setFreeParamValues_(it);
-//    it -= m_spectrum->getNumFreeParams();
-//    return Function::setFreeParamValues_(it);
-// }
 
 double EblAtten::attenuation(double energy) const {
    int tau_norm(m_spectrum->getNumParams());

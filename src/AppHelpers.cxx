@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.76 2009/06/08 06:05:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.77 2009/06/19 03:39:33 jchiang Exp $
  */
 
 #include <map>
@@ -118,9 +118,24 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         new PowerLawSuperExpCutoff(), makeClone);
    funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
    funcFactory->addFunc("DMFitFunction2", new DMFitFunction2(), makeClone);
+
    funcFactory->addFunc("EblAtten::PowerLaw2", new EblAtten(), makeClone);
    funcFactory->addFunc("EblAtten::BrokenPowerLaw2", 
                         new EblAtten(BrokenPowerLaw2()), makeClone);
+   funcFactory->addFunc("EblAtten::LogParabola", 
+                        new EblAtten(LogParabola()), makeClone);
+   funcFactory->addFunc("EblAtten::BandFunction", 
+                        new EblAtten(BandFunction()), makeClone);
+   funcFactory->addFunc("EblAtten::SmoothBrokenPowerLaw", 
+                        new EblAtten(SmoothBrokenPowerLaw()), makeClone);
+   funcFactory->addFunc("EblAtten::FileFunction", 
+                        new EblAtten(FileFunction()), makeClone);
+   funcFactory->addFunc("EblAtten::ExpCutoff", 
+                        new EblAtten(ExpCutoff()), makeClone);
+   funcFactory->addFunc("EblAtten::BPLExpCutoff", 
+                        new EblAtten(BrokenPowerLawExpCutoff()), makeClone);
+   funcFactory->addFunc("EblAtten::PLSuperExpCutoff", 
+                        new EblAtten(PowerLawSuperExpCutoff()), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,
