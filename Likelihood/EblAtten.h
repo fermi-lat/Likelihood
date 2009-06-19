@@ -4,7 +4,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EblAtten.h,v 1.2 2009/06/17 19:58:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EblAtten.h,v 1.3 2009/06/19 03:39:31 jchiang Exp $
  */
 
 #include "optimizers/Function.h"
@@ -69,7 +69,10 @@ private:
 
    void init(double tau_norm=1, double redshift=0, size_t ebl_model=0);
 
+   void setParRefs();
+
    double attenuation(double energy) const;
+
 };
 
 } // namespace Likelihood
