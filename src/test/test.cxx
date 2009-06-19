@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.90 2009/06/02 20:51:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.91 2009/06/08 06:05:49 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -68,6 +68,7 @@
 #include "Likelihood/BandFunction.h"
 #include "Likelihood/BrokenPowerLaw2.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
+#include "Likelihood/EblAtten.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
@@ -82,23 +83,24 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
-   CPPUNIT_TEST(test_BandFunction);
-   CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
-   CPPUNIT_TEST(test_RoiCuts);
-   CPPUNIT_TEST(test_SourceFactory);
-   CPPUNIT_TEST(test_XmlBuilders);
-   CPPUNIT_TEST(test_LikeExposure);
-   CPPUNIT_TEST(test_SourceModel);
-   CPPUNIT_TEST(test_SourceDerivs);
-   CPPUNIT_TEST(test_PointSource);
-   CPPUNIT_TEST(test_DiffuseSource);
-   CPPUNIT_TEST(test_CountsMap);
-   CPPUNIT_TEST(test_BinnedLikelihood);
-   CPPUNIT_TEST(test_MeanPsf);
-   CPPUNIT_TEST(test_BinnedExposure);
-   CPPUNIT_TEST(test_SourceMap);
-   CPPUNIT_TEST(test_rescaling);
-   CPPUNIT_TEST(test_DiffRespNames);
+//    CPPUNIT_TEST(test_BandFunction);
+//    CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
+   CPPUNIT_TEST(test_EblAtten);
+//    CPPUNIT_TEST(test_RoiCuts);
+//    CPPUNIT_TEST(test_SourceFactory);
+//    CPPUNIT_TEST(test_XmlBuilders);
+//    CPPUNIT_TEST(test_LikeExposure);
+//    CPPUNIT_TEST(test_SourceModel);
+//    CPPUNIT_TEST(test_SourceDerivs);
+//    CPPUNIT_TEST(test_PointSource);
+//    CPPUNIT_TEST(test_DiffuseSource);
+//    CPPUNIT_TEST(test_CountsMap);
+//    CPPUNIT_TEST(test_BinnedLikelihood);
+//    CPPUNIT_TEST(test_MeanPsf);
+//    CPPUNIT_TEST(test_BinnedExposure);
+//    CPPUNIT_TEST(test_SourceMap);
+//    CPPUNIT_TEST(test_rescaling);
+//    CPPUNIT_TEST(test_DiffRespNames);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -109,6 +111,7 @@ public:
 
    void test_BandFunction();
    void test_SmoothBrokenPowerLaw();
+   void test_EblAtten();
    void test_RoiCuts();
    void test_SourceFactory();
    void test_XmlBuilders();
@@ -280,6 +283,32 @@ void LikelihoodTests::test_SmoothBrokenPowerLaw() {
    params.push_back(optimizers::Parameter("Index2", -2.1));
    params.push_back(optimizers::Parameter("BreakValue", 1e3));
    params.push_back(optimizers::Parameter("Beta", 0.2));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
+}
+
+void LikelihoodTests::test_EblAtten() {
+   Likelihood::EblAtten foo(PowerLaw2(1, -2.1, 20, 2e5), 1, 0.5, 0);
+   optimizers::FunctionTest tester(foo, "EblAtten::PowerLaw2");
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("Integral", 1));
+   params.push_back(optimizers::Parameter("Index", -2.1));
+   params.push_back(optimizers::Parameter("LowerLimit", 20.));
+   params.push_back(optimizers::Parameter("UpperLimit", 2e5));
+   params.push_back(optimizers::Parameter("tau_norm", 1));
+   params.push_back(optimizers::Parameter("redshift", 0.5));
+   params.push_back(optimizers::Parameter("ebl_model", 0));
 
    std::vector<optimizers::Arg *> args;
    args.push_back(new optimizers::dArg(100));
@@ -1047,6 +1076,10 @@ int main(int iargc, char * argv[]) {
       LikelihoodTests testObj;
       testObj.setUp();
       testObj.test_BandFunction();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_EblAtten();
       testObj.tearDown();
 
       testObj.setUp();
