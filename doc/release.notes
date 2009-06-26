@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.314 2009/06/12 20:05:15 jchiang Exp $
+    $Id: release.notes,v 1.315 2009/06/19 20:45:06 jchiang Exp $
 
     @verbatim
+    v15r2p1  26-Jun-09 JC  enable @-sign prepending for lists of files fed
+                           to gttsmap
     v15r2    19-Jun-09 JC  add EblAtten class and various EblAtten::* 
                            prototypes to AppHelpers::addFunctionPrototypes
     v15r1p6  12-Jun-09 JC  const correctness fix in SummedLikelihood.cxx
