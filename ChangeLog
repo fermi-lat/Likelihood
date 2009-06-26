@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jun 26 13:17:51 PDT 2009
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+remove needless file_ok checking so that @-prepended names of files lists can be handled correctly
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-02-00, operation: add
 Package: Likelihood
