@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.43 2009/03/23 23:29:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.44 2009/05/15 04:10:42 jchiang Exp $
  */
 
 #include <cmath>
@@ -114,7 +114,6 @@ void TsMap::run() {
    if (expCubeFile != "" && expCubeFile != "none") {
       m_helper->observation().expCube().readExposureCube(expCubeFile);
    }
-   st_facilities::Util::file_ok(m_pars["evfile"]);
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], m_eventFiles);
    std::string ev_table = m_pars["evtable"];
    bool compareGtis;
