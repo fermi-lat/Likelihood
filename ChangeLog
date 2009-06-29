@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun 29 08:01:03 PDT 2009
+Likelihood
+
+Modified Files:
+	LikelihoodLib.py 
+Log Message:
+add eblAttenLib for SCons build
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-02-01, operation: add
 Package: Likelihood
