@@ -1,4 +1,4 @@
-#$Id: LikelihoodLib.py,v 1.2 2008/02/20 16:55:44 golpa Exp $
+#$Id: LikelihoodLib.py,v 1.3 2008/02/26 02:34:05 glastrm Exp $
 def generate(env, **kw):
     if not kw.get('depsOnly',0):
         env.Tool('addLibrary', library=['Likelihood'])
@@ -15,6 +15,7 @@ def generate(env, **kw):
     env.Tool('st_appLib')
     env.Tool('st_graphLib')
     env.Tool('healpixLib')
+    env.Tool('eblAttenLib')
     env.Tool('addLibrary', library=env['cfitsioLibs'])
     env.Tool('addLibrary', library=env['fftwLibs'])
     
