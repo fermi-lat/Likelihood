@@ -1,9 +1,11 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.316 2009/06/26 20:19:27 jchiang Exp $
+    $Id: release.notes,v 1.317 2009/06/29 15:02:22 jchiang Exp $
 
     @verbatim
+    * EOH *
+
     v15r2p2  29-Jun-09 JC  add eblAttenLib for SCons build
     v15r2p1  26-Jun-09 JC  enable @-sign prepending for lists of files fed
                            to gttsmap
