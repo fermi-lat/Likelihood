@@ -1,11 +1,13 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.317 2009/06/29 15:02:22 jchiang Exp $
+    $Id: release.notes,v 1.318 2009/07/01 16:16:08 heather Exp $
 
     @verbatim
     * EOH *
 
+    v15r3    08-Jul-09 JC  flip CDELT1 sign in gttsmap to conform to astronomy
+                           conventions for sky images.
     v15r2p2  29-Jun-09 JC  add eblAttenLib for SCons build
     v15r2p1  26-Jun-09 JC  enable @-sign prepending for lists of files fed
                            to gttsmap
