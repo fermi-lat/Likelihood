@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.44 2009/05/15 04:10:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.45 2009/06/26 20:17:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -179,7 +179,7 @@ void TsMap::setGrid() {
    m_crpix = std::vector<double>(crpix, crpix+2);
    double crval[] = {xref, yref};
    m_crval = std::vector<double>(crval, crval+2);
-   double cdelt[] = {binsize, binsize};
+   double cdelt[] = {-binsize, binsize};
    m_cdelt = std::vector<double>(cdelt, cdelt+2);
    astro::SkyProj proj(proj_name, crpix, crval, cdelt, 0, is_galactic);
 
