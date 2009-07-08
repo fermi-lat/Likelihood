@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jul  8 08:57:38 PDT 2009
+Likelihood/src/TsMap
+
+Modified Files:
+	TsMap.cxx 
+Log Message:
+flip cdelt1 sign in tsmap (JB request)
+    *
+------------------------------------------------------------
 User: heather  Wed Jul  1 09:16:08 PDT 2009
 Likelihood/doc
 
