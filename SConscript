@@ -1,5 +1,5 @@
 # -*- python -*-
-# $Id: SConscript,v 1.72 2009/06/29 15:30:56 glastrm Exp $
+# $Id: SConscript,v 1.73 2009/07/08 16:30:30 glastrm Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Pat Nolan <pln@razzle.stanford.edu>
 # Version: Likelihood-15-03-00
 
@@ -41,12 +41,13 @@ gtltsumBin = progEnv.Program('gtltsum', listFiles(['src/gtaddlivetime/*.cxx']))
 
 gtfindsrcBin = progEnv.Program('gtfindsrc', listFiles(['src/gtfindsrc/*.cxx']))
 
-progEnv.Tool('registerObjects', package = 'Likelihood', 
-             libraries = [LikelihoodLib], 
-             binaries = [gtlikeBin, gtexpmapBin, gttsmapBin, gtltcubeBin,
-                         gtdiffrspBin, gtsrcmapsBin, gtpsfBin, gtbkgBin, 
-                         gtmodelBin, gtltsumBin, gtfindsrcBin],
-             testApps = [test_LikelihoodBin],
+progEnv.Tool('registerTargets', package = 'Likelihood', 
+             staticLibraryCxts = [[LikelihoodLib,libEnv]], 
+             binaryCxts = [[gtlikeBin,progEnv], [gtexpmapBin,progEnv], [gttsmapBin,progEnv],
+                           [gtltcubeBin,progEnv], [gtdiffrspBin,progEnv], [gtsrcmapsBin,progEnv],
+                           [gtpsfBin,progEnv], [gtbkgBin,progEnv], [gtmodelBin,progEnv],
+                           [gtltsumBin,progEnv], [gtfindsrcBin,progEnv]],
+             testAppCxts = [[test_LikelihoodBin, testEnv]],
              includes = listFiles(['Likelihood/*.h']), 
              pfiles = listFiles(['pfiles/*.par']),
              data = listFiles(['data/*'], recursive = True),
