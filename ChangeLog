@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 24 18:14:07 PDT 2009
+Likelihood/src
+
+Modified Files:
+	LikeExposure.cxx 
+Log Message:
+skip zero length intervals; raise exception for intervals with START > STOP
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-03-01, operation: add
 Package: Likelihood
