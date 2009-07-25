@@ -3,10 +3,11 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.36 2009/06/01 06:50:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.37 2009/06/01 23:34:30 jchiang Exp $
  */
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -262,7 +263,18 @@ acceptInterval(double start, double stop,
                const std::vector< std::pair<double, double> > & timeCuts,
                const std::vector< std::pair<double, double> > & gtis,
                double & fraction) {
-                                  
+   if (stop < start) {
+      std::ostringstream message;
+      message << "FT2 files has an interval with START > STOP:\n START = "
+              << std::setprecision(15) << start << "\n STOP = "
+              << stop;
+      throw std::runtime_error(message.str());
+   }
+   if (start == stop) {
+      fraction = 0;
+      return false;
+   }
+
    std::pair<double, double> candidateInterval(start, stop);
 
    typedef std::vector< std::pair<double, double> > IntervalCont_t;
