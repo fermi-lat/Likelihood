@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.320 2009/07/15 23:49:07 jrb Exp $
+    $Id: release.notes,v 1.321 2009/07/25 20:45:06 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-15-03-02 25-Jul-2009 jchiang protect against invalid START/STOP values in FT2 files
     v15r3p1  15-Jul-09 jrb Update SConscript
     v15r3    08-Jul-09 JC  flip CDELT1 sign in gttsmap to conform to astronomy
                            conventions for sky images.
