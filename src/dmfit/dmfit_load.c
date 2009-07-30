@@ -7,8 +7,8 @@
 
 /* Common Block Declarations */
 
-struct {
-    real phidif[36288]	/* was [252][18][8] */;
+extern struct {
+    real phidif[45360]	/* was [252][18][8] */;
     integer hasmooth;
 } hasim_;
 

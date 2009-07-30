@@ -1,9 +1,9 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtlike.par,v 1.8 2009/03/23 23:29:11 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtlike.par,v 1.9 2009/06/11 21:46:48 jchiang Exp $
 #
 # parameters common to binned and unbinned
 #
-irfs,s,a,"",,,"Response functions to use"
+irfs,s,a,"P6_V3_DIFFUSE",,,"Response functions to use"
 edisp,b,h,no,,,"Use energy dispersion?"
 expcube,f,a,"none",,,"Exposure hypercube file"
 srcmdl,fr,a,"",,,"Source model file"
