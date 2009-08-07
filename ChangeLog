@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Fri Aug  7 04:29:52 PDT 2009
+Likelihood/src/dmfit
+
+Modified Files:
+	DMFitFunction.cxx 
+Log Message:
+fix the missing derivative with respect to 1/m2 which had remained hidden within the normalization constant. This has no effect seemingly on the fit, but now m**2 is explicit in the code, and the normalization value changes accordingly
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-15-04, operation: add
 Package: Likelihood
