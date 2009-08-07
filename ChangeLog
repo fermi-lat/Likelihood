@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Fri Aug  7 09:29:16 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	DMFitFunction.h 
+Log Message:
+change the API of DMFitFunction to now include a forced fixed normalization and a new parameter, sigmav
+    *
+------------------------------------------------------------
 User: cohen  Fri Aug  7 04:29:52 PDT 2009
 Likelihood/src/dmfit
 
