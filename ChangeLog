@@ -1,4 +1,18 @@
 ------------------------------------------------------------
+TAG
+Tag name: ScienceTools-09-15-00, operation: add
+Package: Likelihood
+User: glastrm  Fri Aug  7 18:46:20 2009
+Files:
+  Likelihood/Likelihood/SummedLikelihood.h  1.1
+  Likelihood/Likelihood/EblAtten.h  1.5
+  Likelihood/Likelihood/SmoothBrokenPowerLaw.h  1.1
+  Likelihood/src/EblAtten.cxx  1.4
+  Likelihood/src/SummedLikelihood.cxx  1.2
+  Likelihood/src/SmoothBrokenPowerLaw.cxx  1.3
+
+    *
+------------------------------------------------------------
 User: cohen  Fri Aug  7 09:29:17 PDT 2009
 Likelihood/src/dmfit
 
