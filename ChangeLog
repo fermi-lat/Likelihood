@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug 11 10:36:29 PDT 2009
+Likelihood/src
+
+Modified Files:
+	BinnedExposure.cxx SourceMap.cxx 
+Log Message:
+improve interactive handling of binned exposure map
+    *
+------------------------------------------------------------
 User: jchiang  Tue Aug 11 10:36:28 PDT 2009
 Likelihood/pfiles
 
