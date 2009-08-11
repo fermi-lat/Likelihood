@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug 11 10:36:30 PDT 2009
+Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+improve interactive handling of binned exposure map
+    *
+------------------------------------------------------------
 User: jchiang  Tue Aug 11 10:36:29 PDT 2009
 Likelihood/src
 
