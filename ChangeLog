@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Aug 11 10:36:28 PDT 2009
+Likelihood/pfiles
+
+Modified Files:
+	gtsrcmaps.par 
+Log Message:
+improve interactive handling of binned exposure map
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-04-00, operation: add
 Package: Likelihood
