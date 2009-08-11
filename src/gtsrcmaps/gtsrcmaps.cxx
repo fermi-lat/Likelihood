@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.28 2008/02/20 19:37:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.29 2008/09/08 03:53:34 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -96,9 +96,6 @@ void gtsrcmaps::run() {
    m_pars.Prompt();
    m_pars.Save();
    m_helper = new AppHelpers(&m_pars, "BINNED");
-/// @todo scData is not actually used by gtsrcmaps, so it should be removed
-/// from the parfile.
-//   m_helper->readScData();
    m_helper->checkOutputFile();
    m_helper->checkTimeCuts(m_pars["cmap"], "",
                            m_pars["expcube"], "Exposure");
@@ -125,12 +122,9 @@ void gtsrcmaps::run() {
    if (st_facilities::Util::fileExists(binnedMap)) {
       SourceMap::setBinnedExposure(binnedMap);
    }
-   bool computePointSources =
-      AppHelpers::param(m_pars, "ptsrc", true);
-   bool psf_corrections =
-      AppHelpers::param(m_pars, "psfcorr", true);
-   bool perform_convolution = 
-      AppHelpers::param(m_pars, "convol", true);
+   bool computePointSources = AppHelpers::param(m_pars, "ptsrc", true);
+   bool psf_corrections = AppHelpers::param(m_pars, "psfcorr", true);
+   bool perform_convolution = AppHelpers::param(m_pars, "convol", true);
 
    bool resample = m_pars["resample"];
    int resamp_factor = m_pars["rfactor"];
