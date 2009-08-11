@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.20 2009/06/02 21:55:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.21 2009/06/03 05:43:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -139,8 +139,6 @@ void BinnedExposure::computeMap() {
             for (; resp != m_observation->respFuncs().end(); ++resp) {
                int evtType = resp->second->irfID();
                Aeff aeff(m_energies[k], evtType, *m_observation);
-//                m_exposureMap.at(indx)
-//                   += m_observation->expCube().value(dir, aeff);
                m_exposureMap.at(indx)
                   +=m_observation->expCube().value(dir, aeff, m_energies.at(k));
             }

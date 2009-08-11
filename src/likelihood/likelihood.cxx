@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.145 2009/05/15 04:12:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.146 2009/06/11 21:46:49 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -88,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.145 2009/05/15 04:12:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.146 2009/06/11 21:46:49 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -357,8 +357,6 @@ void likelihood::createStatistic() {
       std::string binnedMap = m_pars["bexpmap"];
       if (binnedMap != "none" && binnedMap != "") {
          SourceMap::setBinnedExposure(binnedMap);
-      } else {
-         throw std::runtime_error("Binned exposure map has not been provided");
       }
       return;
    } else if (m_statistic == "UNBINNED") {

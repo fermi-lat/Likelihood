@@ -1,7 +1,7 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtsrcmaps.par,v 1.26 2008/08/16 07:07:12 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtsrcmaps.par,v 1.27 2008/09/08 03:53:22 jchiang Exp $
 #
-scfile,f,a,"",,,"Spacecraft data file"
+scfile,f,h,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
 expcube,fr,a,"",,,"Exposure hypercube file"
 cmap,fr,a,"",,,"Counts map file"

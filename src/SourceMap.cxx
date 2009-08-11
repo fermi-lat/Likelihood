@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.68 2009/06/03 19:04:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.69 2009/06/10 23:10:35 jchiang Exp $
  */
 
 #include <algorithm>
@@ -309,8 +309,19 @@ void SourceMap::computeExposureAndPsf(const Observation & observation) {
       s_meanPsf = new MeanPsf(ra, dec, energies, observation);
    }
    if (s_binnedExposure == 0) {
-      s_binnedExposure = new BinnedExposure(energies, observation);
-      s_binnedExposure->writeOutput(s_expMapFileName);
+      st_stream::StreamFormatter formatter("SourceMap", "computeMap", 2);
+      if (s_expMapFileName == "" || s_expMapFileName == "none") {
+         formatter.info() << "\nBinned exposure map not specified. "
+                          << "\nEnter filename of existing map or "
+                          << "the name to be used for a new map: ";
+         std::cin >> s_expMapFileName;
+      }
+      try {
+         s_binnedExposure = new BinnedExposure(s_expMapFileName);
+      } catch (tip::TipException &) {
+         s_binnedExposure = new BinnedExposure(energies, observation);
+         s_binnedExposure->writeOutput(s_expMapFileName);
+      }
    }
 }
 
