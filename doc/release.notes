@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.324 2009/08/11 17:38:19 jchiang Exp $
+    $Id: release.notes,v 1.325 2009/08/21 19:52:10 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-15-05-01 21-Aug-2009 jchiang apply Prefactor in SpatialMap
  Likelihood-15-05-00 11-Aug-2009 jchiang improve interative handling 
                                          of binned exposure map filename
  Likelihood-15-04-00 09-Aug-2009 jchiang tagging Johann's dmfit changes
