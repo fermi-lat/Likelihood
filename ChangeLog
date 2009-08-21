@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Aug 21 12:51:04 PDT 2009
+Likelihood/src
+
+Modified Files:
+	SpatialMap.cxx 
+Log Message:
+enable application of Prefactor parameter
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-15-01-02, operation: del
 Package: Likelihood
