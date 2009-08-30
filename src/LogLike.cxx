@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.64 2009/03/17 20:02:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.65 2009/06/03 19:04:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -270,6 +270,7 @@ void LogLike::restoreBestFit() {
 }
 
 void LogLike::saveCurrentFit() {
+   syncParams();
    m_bestValueSoFar = -1e38;
    optimizers::Arg dummy;
    saveBestFit(value(dummy));
