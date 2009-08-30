@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Aug 30 16:09:35 PDT 2009
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Log Message:
+sync params in case free flag has been [un]set
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-06-00, operation: add
 Package: Likelihood
