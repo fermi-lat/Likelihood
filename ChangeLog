@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Aug 31 08:21:06 PDT 2009
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Log Message:
+save (restore) all parameters (instead of just free ones) in save(restore)BestFit
+    *
+------------------------------------------------------------
 User: jchiang  Sun Aug 30 16:09:35 PDT 2009
 Likelihood/src
 
