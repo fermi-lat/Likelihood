@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep  1 21:51:46 PDT 2009
+Likelihood/Likelihood
+
+Modified Files:
+	SkyDirFunction.h 
+Log Message:
+bug fix for SkyDirFunction; changes requested by Johann for gtfindsrc
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-06-01, operation: add
 Package: Likelihood
