@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.146 2009/06/11 21:46:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.147 2009/08/11 17:36:30 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -88,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.146 2009/06/11 21:46:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.147 2009/08/11 17:36:30 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -136,7 +136,6 @@ private:
    void readSourceModel();
    void selectOptimizer(std::string optimizer="");
    void writeSourceXml();
-//   void writeFluxXml();
    void writeCountsSpectra();
    void plotCountsSpectra();
    void writeCountsMap();
@@ -284,7 +283,6 @@ void likelihood::run() {
          plotCountsSpectra();
       }
    } while (queryLoop && prompt("Refit? [y] "));
-//   writeFluxXml();
    if (m_pars["save"]) {
       writeCountsSpectra();
    }
@@ -422,15 +420,6 @@ void likelihood::writeSourceXml() {
       m_logLike->writeXml(xmlFile, funcFileName);
    }
 }
-
-// void likelihood::writeFluxXml() {
-//    std::string xml_fluxFile = m_pars["fluxmdl"];
-//    if (xml_fluxFile != "none") {
-//       m_formatter->info() << "Writing flux-style xml model file to "
-//                           << xml_fluxFile << std::endl;
-//       m_logLike->write_fluxXml(xml_fluxFile);
-//    }
-// }
 
 class EventData {
 public:
