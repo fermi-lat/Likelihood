@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep  1 21:51:47 PDT 2009
+Likelihood/src/gtfindsrc
+
+Modified Files:
+	gtfindsrc.cxx 
+Log Message:
+bug fix for SkyDirFunction; changes requested by Johann for gtfindsrc
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep  1 21:51:46 PDT 2009
 Likelihood/Likelihood
 
