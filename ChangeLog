@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep  2 08:13:03 PDT 2009
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+remove commented out code
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep  1 21:51:47 PDT 2009
 Likelihood/src/gtfindsrc
 
