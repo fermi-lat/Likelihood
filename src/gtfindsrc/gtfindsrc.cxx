@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.20 2009/03/23 23:29:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.21 2009/05/15 04:10:42 jchiang Exp $
  */
 
 #include <cmath>
@@ -354,6 +354,7 @@ double findSrc::fitPosition(double step) {
    bool addstep;
    optimizers::Amoeba my_amoeba(func, coords, step, addstep=true);
    double pos_tol = m_pars["atol"];
+   astro::SkyDir initDir(coords.at(0), coords.at(1));
    try {
       my_amoeba.findMin(coords, pos_tol);
    } catch (LikeFunc::Exception & eObj) {
@@ -382,11 +383,17 @@ double findSrc::fitPosition(double step) {
                 << testPoints.at(i).at(2) << "  "
                 << pos_error << std::endl;
       }
+      astro::SkyDir finalDir(testPoints.back().at(0), testPoints.back().at(1));
+      double angsep(initDir.difference(finalDir));
+
       output << initial_values.str() << "\n";
       output << "final values: "
              << testPoints.back().at(0) << "  "
              << testPoints.back().at(1) << "  "
              << statValue + m_logLike0 - 1. << std::endl;
+      output << std::setprecision(10);
+      output << "angular separation: " << angsep*180./M_PI 
+             << " degrees" << std::endl;
       output.close();
    }
    formatter.info() << "Best fit position: "
@@ -394,6 +401,12 @@ double findSrc::fitPosition(double step) {
                     << testPoints.back().at(1) << "\n"
                     << "Error circle radius: " << pos_error
                     << std::endl;
+   if (m_testSrc->getName() != "testSource") {
+      Source * src = m_logLike->getSource(m_testSrc->getName());
+      optimizers::Function * skyDirFunc = src->getSrcFuncs()["Position"];
+      skyDirFunc->setParam("RA", testPoints.back().at(0));
+      skyDirFunc->setParam("DEC", testPoints.back().at(1));
+   }
    return statValue;
 }
 
