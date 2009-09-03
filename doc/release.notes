@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.327 2009/08/30 00:29:30 jchiang Exp $
+    $Id: release.notes,v 1.328 2009/08/31 15:22:28 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-15-07-00 03-Sep-2009 jchiang improvements to gtfindsrc output from Johann
  Likelihood-15-06-01 31-Aug-2009 jchiang save all parameters in saveBestFit
  Likelihood-15-06-00 29-Aug-2009 jchiang add gtebl application
  Likelihood-15-05-01 21-Aug-2009 jchiang apply Prefactor in SpatialMap
