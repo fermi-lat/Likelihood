@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 23 10:15:38 PDT 2009
+Likelihood/pfiles
+
+Modified Files:
+	gtlike.par 
+Log Message:
+set default convergence tolerance to 1e-3
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-07-00, operation: add
 Package: Likelihood
