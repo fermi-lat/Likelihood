@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.147 2009/08/11 17:36:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.148 2009/09/02 15:13:03 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -88,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.147 2009/08/11 17:36:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.148 2009/09/02 15:13:03 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -205,7 +205,8 @@ void likelihood::run() {
          const_cast<ExposureCube &>(m_helper->observation().expCube());
       expCube.readExposureCube(expcube_file);
    }
-   bool useEdisp = m_pars["edisp"];
+//   bool useEdisp = m_pars["edisp"];
+   bool useEdisp = false;
    ResponseFunctions & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(useEdisp);
@@ -325,7 +326,7 @@ void likelihood::promptForParameters() {
 //    AppHelpers::checkOutputFile(m_pars["clobber"], 
 //                                m_pars["fluxmdl"]);
    m_pars.Prompt("irfs");
-   m_pars.Prompt("edisp");
+//   m_pars.Prompt("edisp");
    m_pars.Prompt("optimizer");
    m_pars.Prompt("save");
    m_pars.Prompt("refit");
