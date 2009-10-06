@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.56 2009/02/18 18:13:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.57 2009/05/20 19:30:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -57,7 +57,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.56 2009/02/18 18:13:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.57 2009/05/20 19:30:48 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -148,7 +148,8 @@ void diffuseResponses::run() {
    m_helper->setRoi("", "EVENTS", false);
    m_helper->readScData();
    m_srcModel = new SourceModel(m_helper->observation(), true);
-   m_useEdisp = m_pars["edisp"];
+//   m_useEdisp = m_pars["edisp"];
+   m_useEdisp = false;
    ResponseFunctions & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(m_useEdisp);
