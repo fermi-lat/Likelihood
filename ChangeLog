@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Oct  5 17:31:31 PDT 2009
+Likelihood/src
+
+Modified Files:
+	PointSource.cxx 
+Log Message:
+remove energy dispersion option from parfiles and comment out enabling code in application interfaces
+    *
+------------------------------------------------------------
 User: jchiang  Mon Oct  5 17:31:30 PDT 2009
 Likelihood/pfiles
 
