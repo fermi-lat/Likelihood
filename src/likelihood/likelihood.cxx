@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.148 2009/09/02 15:13:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.149 2009/10/06 00:31:34 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -88,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.148 2009/09/02 15:13:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.149 2009/10/06 00:31:34 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -130,6 +130,8 @@ private:
 
    optimizers::TOLTYPE m_tolType;
 
+   std::vector< std::vector<double> > m_covarianceMatrix;
+
    void promptForParameters();
    void createStatistic();
    void readEventData();
@@ -154,6 +156,7 @@ private:
    optimizers::Parameter & normPar(Source *) const;
    bool isDiffuseOrNearby(Source *) const;
    double observedCounts();
+   double sourceFlux(const std::string & srcName, double & fluxError);
 
    static std::string s_cvs_id;
 };
@@ -278,6 +281,12 @@ void likelihood::run() {
                             << eObj.what() << std::endl;
 //          throw;
       }
+      try {
+         m_covarianceMatrix = m_opt->covarianceMatrix();
+      } catch (std::runtime_error &) {
+         m_covarianceMatrix.clear();
+      }
+
       printFitResults(errors);
       writeSourceXml();
       if (m_pars["plot"]) {
@@ -590,6 +599,74 @@ void likelihood::writeCountsMap() {
    }
 }
 
+double likelihood::sourceFlux(const std::string & srcName, double & fluxError) {
+   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
+   double emin(roiCuts.getEnergyCuts().first);
+   double emax(roiCuts.getEnergyCuts().second);
+
+   Source * my_source(m_logLike->getSource(srcName));
+
+   if (my_source->spectrum().getNumFreeParams() == 0 ||
+       m_covarianceMatrix.empty()) {
+      fluxError = 0;
+      return my_source->flux(emin, emax);
+   }
+
+   std::vector<std::string> sourceNames;
+   m_logLike->getSrcNames(sourceNames);
+
+   std::map<std::string, int> par_index_map;
+   int indx(0);
+   for (size_t i(0); i < sourceNames.size(); i++) {
+      const std::string & src(sourceNames.at(i));
+      std::vector<std::string> parNames;
+      m_logLike->getSource(src)->spectrum().getFreeParamNames(parNames);
+      for (size_t j(0); j < parNames.size(); j++) {
+         par_index_map[src + "::" + parNames.at(j)] = indx;
+         indx++;
+      }
+   }
+   if (m_covarianceMatrix.size() != par_index_map.size()) {
+      throw std::runtime_error("Covariance matrix size does not match the "
+                               "number of free parameters.");
+   }
+
+   std::vector< std::vector<double> > my_covar;
+   std::vector<std::string> srcpars;
+   my_source->spectrum().getFreeParamNames(srcpars);
+   std::vector<std::string> pars;
+   for (size_t i(0); i < srcpars.size(); i++) {
+      pars.push_back(srcName + "::" + srcpars.at(i));
+   }
+   for (size_t i(0); i < pars.size(); i++) {
+      int ix = par_index_map[pars.at(i)];
+      std::vector<double> row;
+      for (size_t j(0); j < pars.size(); j++) {
+         row.push_back(m_covarianceMatrix.at(ix).at(par_index_map[pars.at(j)]));
+      }
+      my_covar.push_back(row);
+   }
+   std::vector<double> partials;
+   size_t npts(1000);
+   for (size_t i(0); i < srcpars.size(); i++) {
+      partials.push_back(my_source->fluxDeriv(srcpars.at(i), emin, emax, npts));
+   }
+   std::vector<double> covar_dot_partials;
+   for (size_t i(0); i < my_covar.size(); i++) {
+      double value(0);
+      for (size_t j(0); j < partials.size(); j++) {
+         value += my_covar.at(i).at(j)*partials.at(j);
+      }
+      covar_dot_partials.push_back(value);
+   }
+   fluxError = 0;
+   for (size_t i(0); i < partials.size(); i++) {
+      fluxError += partials.at(i)*covar_dot_partials.at(i);
+   }
+   fluxError = std::sqrt(fluxError);
+   return my_source->flux(emin, emax);
+}
+
 void likelihood::printFitResults(const std::vector<double> &errors) {
    std::vector<std::string> srcNames;
    m_logLike->getSrcNames(srcNames);
@@ -650,6 +727,16 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                              << TsValues[srcNames[i]] << std::endl;
          resultsFile << "'TS value': '" << TsValues[srcNames[i]] << "',\n";
       }
+      double fluxError;
+      double flux = sourceFlux(srcNames[i], fluxError);
+      m_formatter->info() << "Flux: " << flux;
+      resultsFile << "'Flux': '" << flux;
+      if (fluxError > 0) {
+         m_formatter->info() << " +/- " << fluxError;
+         resultsFile << " +/- " << fluxError;
+      }
+      m_formatter->info() << " photons/cm^2/s" << std::endl;
+      resultsFile << "',\n";
       resultsFile << "},\n";
    }
    resultsFile << "}" << std::endl;
@@ -657,6 +744,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    bool check_fit = m_pars["check_fit"];
    if (check_fit) {
 // Check quality of the fit and issue warning if it appears not to be good.
+      m_formatter->info() << "\n";
       printFitQuality();
    }
 
