@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Oct 23 13:23:30 PDT 2009
+Likelihood/src/likelihood
+
+Modified Files:
+	likelihood.cxx 
+Log Message:
+tweak formatting of output and give energy range for photon fluxes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Oct 23 13:05:01 PDT 2009
 Likelihood/src/likelihood
 
