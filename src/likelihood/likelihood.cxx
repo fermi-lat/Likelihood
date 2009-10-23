@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.149 2009/10/06 00:31:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.150 2009/10/23 20:05:00 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -88,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.149 2009/10/06 00:31:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.150 2009/10/23 20:05:00 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -688,6 +688,13 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
    }
 
    resultsFile << "{";
+
+   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
+   double emin(roiCuts.getEnergyCuts().first);
+   double emax(roiCuts.getEnergyCuts().second);
+
+   m_formatter->info() << "\nPhoton fluxes are computed for the energy range " 
+                       << emin << " to " << emax << " MeV" << std::endl;
 
    double totalNpred(0);
    for (unsigned int i = 0; i < srcNames.size(); i++) {
