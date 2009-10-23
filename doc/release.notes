@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.329 2009/09/03 17:44:50 jchiang Exp $
+    $Id: release.notes,v 1.330 2009/10/19 19:17:34 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-15-08-00 23-Oct-2009 jchiang add fluxes and errors to gtlike output
  Likelihood-15-07-01 19-Oct-2009 jchiang skip calculation of PowerLaw2::m_cGXFact when gamma=-1
  Likelihood-15-07-00 03-Sep-2009 jchiang improvements to gtfindsrc output from Johann
  Likelihood-15-06-01 31-Aug-2009 jchiang save all parameters in saveBestFit
