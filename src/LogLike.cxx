@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.66 2009/08/30 23:09:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.67 2009/08/31 15:21:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -78,15 +78,15 @@ double LogLike::value(optimizers::Arg&) const {
 double LogLike::logSourceModel(const Event & event,
 		 std::map<std::string, CachedResponse>* srcRespCache) const {
    double my_value(0);
-   if (m_useNewImp) {
-      for (size_t i = 0; i < m_freeSrcs.size(); i++) {
-	 const Source* source = m_freeSrcs.at(i);
-	 CachedResponse* cResp=0;
-	 if(srcRespCache)cResp = &(*srcRespCache)[source->getName()];
-         const_cast<Event &>(event).updateModelSum(*m_freeSrcs.at(i), cResp);
-      }
-      my_value = event.modelSum();
-   } else {
+//    if (m_useNewImp) {
+//       for (size_t i = 0; i < m_freeSrcs.size(); i++) {
+// 	 const Source* source = m_freeSrcs.at(i);
+// 	 CachedResponse* cResp=0;
+// 	 if(srcRespCache)cResp = &(*srcRespCache)[source->getName()];
+//          const_cast<Event &>(event).updateModelSum(*m_freeSrcs.at(i), cResp);
+//       }
+//       my_value = event.modelSum();
+//    } else {
       std::map<std::string, Source *>::const_iterator 
          source(m_sources.begin());
       for ( ; source != m_sources.end(); ++source) {
@@ -96,7 +96,7 @@ double LogLike::logSourceModel(const Event & event,
          fluxDens *= event.efficiency();
          my_value += fluxDens;
       }
-   }
+//    }
    if (my_value > 0) {
       return std::log(my_value);
    }

@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.73 2009/05/30 22:35:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.74 2009/06/03 19:04:55 jchiang Exp $
  */
 
 #include <cctype>
@@ -417,7 +417,7 @@ const std::string & Event::diffuseSrcName(const std::string & srcName) const {
 }
 
 void Event::updateModelSum(const Source & src, CachedResponse* cResp) {
-   double contribution(src.fluxDensity(*this, cResp));
+   double contribution(src.fluxDensity(*this, cResp)*efficiency());
    const std::string & srcName(src.getName());
    std::map<std::string, double>::iterator fluxDensity;
    if ((fluxDensity = m_fluxDensities.find(srcName)) 
@@ -435,6 +435,7 @@ void Event::deleteSource(const std::string & srcName) {
 
 void Event::resetModelSum() {
    m_modelSum = 0;
+   m_fluxDensities.clear();
 }
 
 void Event::setDiffuseResponse(const std::string& srcName,
