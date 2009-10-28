@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct 28 11:33:23 PDT 2009
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+strip at sign for scfile input
+    *
+------------------------------------------------------------
 User: jchiang  Wed Oct 28 11:33:22 PDT 2009
 Likelihood/src
 
