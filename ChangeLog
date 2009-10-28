@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct 28 11:31:54 PDT 2009
+Likelihood/src
+
+Modified Files:
+	Event.cxx LogLike.cxx 
+Log Message:
+disable Event::updateModelSum in LogLike (unbinned calculation)
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-15-08-01, operation: add
 Package: Likelihood
