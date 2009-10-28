@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.77 2009/06/19 03:39:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.78 2009/06/19 06:36:14 jchiang Exp $
  */
 
 #include <map>
@@ -53,6 +53,16 @@ namespace {
          if (xmax > cuts.at(j)->maxVal()) {
             xmax = cuts.at(j)->maxVal();
          }
+      }
+   }
+   void strip_at_sign(std::string & input) {
+      if (input.find_first_of("@") == 0) {
+         std::string output = "";
+         std::string::iterator it = input.begin() + 1;
+         for ( ; it != input.end(); ++it) {
+            output += *it;
+         }
+         input = output;
       }
    }
 }
@@ -198,6 +208,7 @@ void AppHelpers::readScData() {
    st_app::AppParGroup & pars(*m_pars);
    std::string scFile = pars["scfile"];
    std::string sctable = pars["sctable"];
+   ::strip_at_sign(scFile);
    st_facilities::Util::file_ok(scFile);
    st_facilities::Util::resolve_fits_files(scFile, m_scFiles);
    m_scData->readData(m_scFiles, tmin, tmax);
