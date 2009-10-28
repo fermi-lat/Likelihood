@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.42 2008/03/24 22:45:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.43 2009/10/06 00:31:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.42 2008/03/24 22:45:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.43 2009/10/06 00:31:33 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -93,7 +93,6 @@ void ExpMap::run() {
                     << "Do not use them for binned analyses." << std::endl;
    promptForParameters();
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
-//   bool useEdisp = m_pars["edisp"];
    bool useEdisp = false;
    ResponseFunctions & respFuncs =
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
