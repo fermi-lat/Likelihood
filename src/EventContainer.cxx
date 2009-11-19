@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.20 2009/05/20 19:30:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.21 2009/06/03 19:04:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -18,7 +18,7 @@
 #include "tip/Table.h"
 #include "tip/TipException.h"
 
-#include "irfInterface/EfficiencyFactor.h"
+#include "irfInterface/IEfficiencyFactor.h"
 
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/EventContainer.h"
@@ -91,8 +91,6 @@ void EventContainer::getEvents(std::string event_file) {
       haveOldDiffRespCols = true;
    }
 
-   irfInterface::EfficiencyFactor eff_factor;
-
    for ( ; it != events->end(); ++it, nTotal++) {
       event["ra"].get(ra);
       event["dec"].get(dec);
@@ -106,7 +104,13 @@ void EventContainer::getEvents(std::string event_file) {
       } else {
          eventType = conversionType + 2*eventClass;
       }
-      double efficiency(eff_factor.value(energy, m_scData.livetimefrac(time)));
+      const irfInterface::IEfficiencyFactor * eff_factor =
+         m_respFuncs.respPtr(eventType)->efficiencyFactor();
+
+      double efficiency(1);
+      if (eff_factor) {
+         efficiency = eff_factor->value(energy, m_scData.livetimefrac(time));
+      }
       Event thisEvent(ra, dec, energy, time, m_scData.zAxis(time),
                       m_scData.xAxis(time), cos(zenAngle*M_PI/180.), 
                       m_respFuncs.useEdisp(), m_respFuncs.respName(),

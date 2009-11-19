@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.58 2009/06/04 20:58:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.59 2009/06/04 22:24:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,8 +23,6 @@
 #include "astro/EarthCoordinate.h"
 
 #include "st_facilities/Util.h"
-
-#include "irfInterface/EfficiencyFactor.h"
 
 #include "Likelihood/ScData.h"
 
