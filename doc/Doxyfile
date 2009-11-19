@@ -1,6 +1,0 @@
-PROJECT_NAME           = "GLAST/LAT Likelihood Prototype"
-#PROJECT_NUMBER         = "v4r*"
-FILE_PATTERNS          = *.h *.cxx *.c
-STRIP_CODE_COMMENTS    = NO
-EXAMPLE_PATH           = "../cmt" "." "../data" "../python"
-#QUIET                  = YES
