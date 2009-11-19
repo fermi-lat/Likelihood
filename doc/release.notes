@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.332 2009/10/23 21:09:59 jchiang Exp $
+    $Id: release.notes,v 1.333 2009/10/28 18:34:08 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-15-09-00 19-Nov-2009 jchiang use new irfInterface::IEfficiencyFactor interface
  Likelihood-15-08-02 28-Oct-2009 jchiang disable use of Event::updateModelSum in LogLike
  Likelihood-15-08-01 23-Oct-2009 jchiang trap errors from SourceModel::readXml and emit user-friendly error message
  Likelihood-15-08-00 23-Oct-2009 jchiang add fluxes and errors to gtlike output
