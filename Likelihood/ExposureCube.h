@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.14 2009/06/02 16:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.15 2009/06/02 21:55:41 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -13,7 +13,7 @@
 
 #include "astro/SkyDir.h"
 
-#include "irfInterface/EfficiencyFactor.h"
+#include "irfInterface/IEfficiencyFactor.h"
 
 #include "map_tools/Exposure.h"
 
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.14 2009/06/02 16:43:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.15 2009/06/02 21:55:41 jchiang Exp $
  */
 
 class ExposureCube {
@@ -34,6 +34,7 @@ class ExposureCube {
 public:
 
    ExposureCube() : m_exposure(0), m_weightedExposure(0), 
+                    m_efficiencyFactor(0),
                     m_haveFile(false), m_fileName(""),
                     m_hasPhiDependence(false) {}
 
@@ -42,9 +43,14 @@ public:
    ~ExposureCube() {
       delete m_exposure;
       delete m_weightedExposure;
+      delete m_efficiencyFactor;
    }
 
    void readExposureCube(std::string filename);
+
+   void setEfficiencyFactor(const irfInterface::IEfficiencyFactor * eff) {
+      m_efficiencyFactor = eff->clone();
+   }
 
 #ifndef SWIG
    template<class T>
@@ -68,8 +74,10 @@ public:
    template<class T>
    double value(const astro::SkyDir & dir, const T & aeff, 
                 double energy) const {
-      double factor1, factor2;
-      m_efficiencyFactor.getLivetimeFactors(energy, factor1, factor2);
+      double factor1(1), factor2(0);
+      if (m_efficiencyFactor) {
+         m_efficiencyFactor->getLivetimeFactors(energy, factor1, factor2);
+      }
       double exposure(factor1*value(dir, aeff));
       if (factor2 != 0) {
          exposure += factor2*value(dir, aeff, true);
@@ -112,7 +120,7 @@ private:
    map_tools::Exposure * m_exposure;
    map_tools::Exposure * m_weightedExposure;
 
-   irfInterface::EfficiencyFactor m_efficiencyFactor;
+   irfInterface::IEfficiencyFactor * m_efficiencyFactor;
 
    bool m_haveFile;
 
