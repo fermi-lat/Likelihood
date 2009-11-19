@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Nov 19 14:40:30 PST 2009
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx 
+Log Message:
+set the efficiency factor in ExposureCube in AppHelpers
+    *
+------------------------------------------------------------
 User: jchiang  Thu Nov 19 14:40:29 PST 2009
 Likelihood/Likelihood
 
