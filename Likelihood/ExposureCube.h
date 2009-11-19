@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.15 2009/06/02 21:55:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.16 2009/11/19 18:38:56 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.15 2009/06/02 21:55:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.16 2009/11/19 18:38:56 jchiang Exp $
  */
 
 class ExposureCube {
@@ -49,7 +49,9 @@ public:
    void readExposureCube(std::string filename);
 
    void setEfficiencyFactor(const irfInterface::IEfficiencyFactor * eff) {
-      m_efficiencyFactor = eff->clone();
+      if (eff) {
+         m_efficiencyFactor = eff->clone();
+      }
    }
 
 #ifndef SWIG
