@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: elwinter  Wed Dec 16 11:04:16 PST 2009
+Likelihood/src
+
+Modified Files:
+	ExposureMap.cxx 
+Log Message:
+Added <memory> header needed for gcc4 build.
+
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 11:00:02 PST 2009
 Likelihood/pfiles
 
