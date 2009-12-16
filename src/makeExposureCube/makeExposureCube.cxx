@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.54 2009/06/02 19:19:52 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.55 2009/06/03 21:28:47 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <memory>
 #include <stdexcept>
 
 #include "st_stream/StreamFormatter.h"
@@ -67,7 +68,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.54 2009/06/02 19:19:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.55 2009/06/03 21:28:47 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -102,7 +103,7 @@ private:
 
 st_app::StAppFactory<ExposureCube> myAppFactory("gtltcube");
 
-std::string ExposureCube::s_cvs_id("$Name:  $");
+std::string ExposureCube::s_cvs_id("$Name: v15r7p0 $");
 
 void ExposureCube::banner() const {
    int verbosity = m_pars["chatter"];
