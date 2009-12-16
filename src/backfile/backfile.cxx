@@ -5,13 +5,14 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.10 2008/01/31 22:23:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.11 2009/06/02 19:19:51 jchiang Exp $
  */
 
 #include <cstdlib>
 
 #include <algorithm>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 
@@ -38,7 +39,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.10 2008/01/31 22:23:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.11 2009/06/02 19:19:51 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
@@ -68,7 +69,7 @@ private:
 
 st_app::StAppFactory<BackFile> myAppFactory("gtbkg");
 
-std::string BackFile::s_cvs_id("$Name:  $");
+std::string BackFile::s_cvs_id("$Name: v15r7p0 $");
 
 void BackFile::banner() const {
    int verbosity = m_pars["chatter"];
