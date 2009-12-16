@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: elwinter  Wed Dec 16 11:14:49 PST 2009
+Likelihood/src/dmfit
+
+Modified Files:
+	dmfit_load.c 
+Log Message:
+Changed definition of hasim_ structure to an extern declaration so it
+would refer to the definition in dmfit_func.c. Also corrected size of
+phidif[] array in hasim_ structure to match definition.
+
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 11:10:58 PST 2009
 Likelihood/src/dmfit
 
