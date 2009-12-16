@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtfindsrc.par,v 1.8 2009/02/18 20:52:45 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtfindsrc.par,v 1.9 2009/03/23 23:29:11 jchiang Exp $
 #
 evfile,f,a,"",,,Event file
 evtable,s,h,EVENTS,,,Event data extension
@@ -7,7 +7,7 @@ scfile,f,a,"",,,Spacecraft file
 sctable,s,h,SC_DATA,,,Spacecraft data extension
 outfile,f,a,"",,,Output file for trial points
 
-irfs,s,a,"",,,Response functions to use
+irfs,s,a,"P6_V3_DIFFUSE",,,Response functions to use
 expcube,f,a,"none",,,Livetime cube file
 expmap,f,a,"none",,,Unbinned exposure map
 srcmdl,f,a,"none",,,Source model file
