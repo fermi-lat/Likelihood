@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: elwinter  Wed Dec 16 11:10:58 PST 2009
+Likelihood/src/dmfit
+
+Modified Files:
+	dmfit_comm.c 
+Log Message:
+Changed definition of hasim_ structure to be an extern declaration, so
+it would refer to the definition in dmfit_func.c.
+
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 11:07:48 PST 2009
 Likelihood/src/diffuseResponses
 
