@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: elwinter  Wed Dec 16 10:46:34 PST 2009
+Likelihood/pfiles
+
+Modified Files:
+	gtmodel.par 
+Log Message:
+Added P6_V3_DIFFUSE as default value of irfs parameter.
+
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 10:45:22 PST 2009
 Likelihood/pfiles
 
