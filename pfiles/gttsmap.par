@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttsmap.par,v 1.21 2008/08/16 07:07:12 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttsmap.par,v 1.22 2009/03/23 23:29:11 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,Event data extension
@@ -10,7 +10,7 @@ expcube,f,a,"none",,,"Exposure hypercube file"
 srcmdl,f,a,"",,,"Source model file"
 outfile,f,a,"",,,"TS map file name"
 
-irfs,s,a,"",,,"Response functions to use"
+irfs,s,a,"P6_V3_DIFFUSE",,,"Response functions to use"
 optimizer,s,a,"DRMNGB",LBFGS|MINUIT|DRMNGB,,"Optimizer"
 ftol,r,a,1e-5,,,Fit tolerance
 toltype,s,h,"ABS","ABS|REL",,"Fit tolerance convergence type (absolute vs relative)"
