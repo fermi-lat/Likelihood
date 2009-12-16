@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: elwinter  Wed Dec 16 11:16:23 PST 2009
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+Added <memory> header needed for gcc4 build.
+
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 11:14:49 PST 2009
 Likelihood/src/dmfit
 
