@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: elwinter  Wed Dec 16 10:41:41 PST 2009
+Likelihood/pfiles
+
+Modified Files:
+	gtdiffrsp.par 
+Log Message:
+Changed default value of irfs to P6_V3_DIFFUSE.
+
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 10:28:13 PST 2009
 Likelihood/pfiles
 
