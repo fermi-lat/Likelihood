@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: elwinter  Wed Dec 16 10:49:29 PST 2009
+Likelihood/pfiles
+
+Modified Files:
+	gtsrcmaps.par 
+Log Message:
+Added P6_V3_DIFFUSE as the default value of the irfs parameter.
+
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 10:48:20 PST 2009
 Likelihood/pfiles
 
