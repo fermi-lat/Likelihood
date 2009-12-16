@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: elwinter  Wed Dec 16 11:07:48 PST 2009
+Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+Added <memory> header needed for gcc4 build.
+
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 11:05:46 PST 2009
 Likelihood/src/backfile
 
