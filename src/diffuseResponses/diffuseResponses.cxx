@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.57 2009/05/20 19:30:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.58 2009/10/06 00:31:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 #include "facilities/Util.h"
 
@@ -57,7 +58,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.57 2009/05/20 19:30:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.58 2009/10/06 00:31:32 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {

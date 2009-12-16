@@ -4,9 +4,10 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.40 2006/12/19 20:59:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.41 2007/02/09 21:48:05 jchiang Exp $
  */
 #include <algorithm>
+#include <memory>
 #include <utility>
 
 #include "st_stream/StreamFormatter.h"
