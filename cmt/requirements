@@ -1,10 +1,10 @@
 package Likelihood
-version v15r10p0
+version v15r11p0
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.452 2009/11/19 23:28:46 jchiang Exp $
+# $Id: requirements,v 1.453 2009/11/19 23:38:07 jchiang Exp $
 
 use STpolicy v*
 use astro v*
