@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.10 2008/08/07 06:11:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.11 2009/03/26 01:32:43 jchiang Exp $
  */
 
 #include <algorithm>
@@ -50,12 +50,12 @@ double Source::Npred() {
 
 double Source::Npred(double emin, double emax) const {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
-   if (fabs((emin - energies.front())/emin) < 1e-2) {
-      emin = energies.front();
-   }
-   if (fabs((emax - energies.back())/emax) < 1e-2) {
-      emax = energies.back();
-   }
+//    if (fabs((emin - energies.front())/emin) < 1e-2) {
+//       emin = energies.front();
+//    }
+//    if (fabs((emax - energies.back())/emax) < 1e-2) {
+//       emax = energies.back();
+//    }
    if (emin < energies.front() || emax > energies.back()) {
       throw std::out_of_range("Source::Npred(emin, emax)");
    }
