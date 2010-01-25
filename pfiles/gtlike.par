@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtlike.par,v 1.11 2009/10/06 00:31:30 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtlike.par,v 1.12 2009/12/16 18:45:22 elwinter Exp $
 #
 # parameters common to binned and unbinned
 #
@@ -14,7 +14,7 @@ specfile,f,h,"counts_spectra.fits",,,"Output file for counts spectra"
 # choice of objective function and optimizer
 #
 statistic,s,a,"UNBINNED",BINNED|UNBINNED,,"Statistic to use"
-optimizer,s,a,"DRMNFB",DRMNFB|NEWMINUIT|MINUIT|DRMNGB|LBFGS,,"Optimizer"
+optimizer,s,a,"MINUIT",DRMNFB|NEWMINUIT|MINUIT|DRMNGB|LBFGS,,"Optimizer"
 ftol,r,h,1e-3,,,"Fit tolerance"
 toltype,s,h,"ABS","ABS|REL",,"Fit tolerance convergence type (absolute vs relative)"
 tsmin,b,h,no,,,Re-optimize for TS fits?
