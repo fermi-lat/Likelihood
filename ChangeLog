@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jan 24 22:12:46 PST 2010
+Likelihood/pfiles
+
+Modified Files:
+	gtlike.par 
+Log Message:
+set default to minuit
+    *
+------------------------------------------------------------
 User: elwinter  Wed Dec 16 11:16:23 PST 2009
 Likelihood/src/makeExposureCube
 
