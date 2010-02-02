@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Feb  1 22:48:47 PST 2010
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+add LogNormal function
+    *
+------------------------------------------------------------
+User: jchiang  Mon Feb  1 22:48:47 PST 2010
 Likelihood/src
 
 Added Files:
