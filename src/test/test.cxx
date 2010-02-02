@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.92 2009/06/19 03:39:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.93 2009/06/19 06:36:15 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -50,6 +50,7 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/LikeExposure.h"
+#include "LogNormal.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
@@ -83,6 +84,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
+   CPPUNIT_TEST(test_LogNormal);
    CPPUNIT_TEST(test_BandFunction);
    CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
    CPPUNIT_TEST(test_EblAtten);
@@ -109,6 +111,7 @@ public:
    void setUp();
    void tearDown();
 
+   void test_LogNormal();
    void test_BandFunction();
    void test_SmoothBrokenPowerLaw();
    void test_EblAtten();
@@ -247,6 +250,28 @@ void LikelihoodTests::tearDown() {
    m_respFuncs->deleteRespPtr(1);
    std::remove(m_fluxXmlFile.c_str());
    std::remove(m_srcModelXmlFile.c_str());
+}
+
+void LikelihoodTests::test_LogNormal() {
+   Likelihood::LogNormal func(1, 3, 2);
+   optimizers::FunctionTest tester(func, "LogNormal");
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("Prefactor", 1));
+   params.push_back(optimizers::Parameter("Log10_Mean", 3));
+   params.push_back(optimizers::Parameter("Log10_Sigma", 2));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
 }
 
 void LikelihoodTests::test_BandFunction() {
@@ -1074,6 +1099,10 @@ int main(int iargc, char * argv[]) {
 
    if (iargc > 1 && std::string(argv[1]) == "-d") { // debug mode
       LikelihoodTests testObj;
+      testObj.setUp();
+      testObj.test_LogNormal();
+      testObj.tearDown();
+
       testObj.setUp();
       testObj.test_BandFunction();
       testObj.tearDown();
