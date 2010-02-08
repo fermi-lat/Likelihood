@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.63 2009/02/18 18:13:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.64 2009/03/04 11:24:27 cohen Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -156,7 +156,8 @@ void SourceFactory::readXml(const std::string & xmlFile,
             std::ostringstream message;
             message << "Error parsing xml model file: \n"
                     << xmlFile << "\n"
-                    << "for source " << srcName;
+                    << "for source " << srcName << "\n"
+                    << "Missing spectral model component.";
             throw Exception(message.str());
          }
          spectrum = child[0];
@@ -170,7 +171,9 @@ void SourceFactory::readXml(const std::string & xmlFile,
          std::ostringstream message;
          message << "Error parsing xml model file: \n"
                  << xmlFile << "\n"
-                 << "for source " << srcName;
+                 << "for source " << srcName << ".\n"
+                 << "Missing spatial model component.\n"
+                 << "Please check that you are using the correct xml format.";
          throw Exception(message.str());
       }
       DOMElement * spatialModel = child[0];
