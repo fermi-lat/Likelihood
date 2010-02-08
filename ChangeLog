@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Feb  8 10:45:59 PST 2010
+Likelihood/src
+
+Modified Files:
+	LogNormal.cxx 
+Log Message:
+correct LogNormal derivative calc
+    *
+------------------------------------------------------------
 User: jchiang  Mon Feb  8 10:44:57 PST 2010
 Likelihood/src
 
