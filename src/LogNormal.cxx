@@ -3,7 +3,7 @@
  * @brief Log-Normal distribution for spectral modeling.  log10 is applied
  * to the energy value.
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogNormal.cxx,v 1.1 2010/02/02 06:48:46 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,8 +41,8 @@ double LogNormal::value(optimizers::Arg & xarg) const {
    double foo((log10x - pars[Log10_Mean].getTrueValue())
               /pars[Log10_Sigma].getTrueValue());
 
-   return pars[Prefactor].getTrueValue()/std::sqrt(2.*M_PI)/x
-      /pars[Log10_Mean].getTrueValue()*std::exp(-foo*foo/2.);
+   return pars[Prefactor].getTrueValue()*std::log(10.)/std::sqrt(2.*M_PI)/x
+      /pars[Log10_Sigma].getTrueValue()*std::exp(-foo*foo/2.);
 }
 
 double LogNormal::derivByParam(optimizers::Arg & xarg,
@@ -78,10 +78,10 @@ double LogNormal::derivByParam(optimizers::Arg & xarg,
       break;
    case Log10_Mean:
       return pars[Log10_Mean].getScale()*value(xarg)*foo/log10sigma;
+         
       break;
    case Log10_Sigma:
-      return pars[Log10_Sigma].getScale()*value(xarg)/log10sigma
-         *(foo*foo/log10sigma - 1.);
+      return pars[Log10_Sigma].getScale()*value(xarg)/log10sigma*(foo*foo - 1.);
       break;
    default:
       break;
