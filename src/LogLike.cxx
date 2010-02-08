@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.67 2009/08/31 15:21:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.68 2009/10/28 18:31:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -17,6 +17,7 @@
 #include "st_stream/StreamFormatter.h"
 
 #include "Likelihood/Accumulator.h"
+#include "Likelihood/Exception.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Npred.h"
@@ -87,19 +88,20 @@ double LogLike::logSourceModel(const Event & event,
 //       }
 //       my_value = event.modelSum();
 //    } else {
-      std::map<std::string, Source *>::const_iterator 
-         source(m_sources.begin());
-      for ( ; source != m_sources.end(); ++source) {
-	 CachedResponse* cResp=0;
-	 if(srcRespCache)cResp = &(*srcRespCache)[source->second->getName()];
-         double fluxDens(source->second->fluxDensity(event, cResp));
-         fluxDens *= event.efficiency();
-         my_value += fluxDens;
-      }
+   std::map<std::string, Source *>::const_iterator 
+      source(m_sources.begin());
+   for ( ; source != m_sources.end(); ++source) {
+      CachedResponse* cResp=0;
+      if(srcRespCache)cResp = &(*srcRespCache)[source->second->getName()];
+      double fluxDens(source->second->fluxDensity(event, cResp));
+      fluxDens *= event.efficiency();
+      my_value += fluxDens;
+   }
 //    }
    if (my_value > 0) {
       return std::log(my_value);
    }
+//    throw std::runtime_error("negative probability density for this event.");
    return 0;
 }
 
