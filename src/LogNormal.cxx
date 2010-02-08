@@ -3,7 +3,7 @@
  * @brief Log-Normal distribution for spectral modeling.  log10 is applied
  * to the energy value.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogNormal.cxx,v 1.1 2010/02/02 06:48:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogNormal.cxx,v 1.2 2010/02/08 18:45:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -11,7 +11,7 @@
 #include "optimizers/dArg.h"
 #include "optimizers/ParameterNotFound.h"
 
-#include "LogNormal.h"
+#include "Likelihood/LogNormal.h"
 
 namespace Likelihood {
 
