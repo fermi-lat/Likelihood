@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.93 2009/06/19 06:36:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.94 2010/02/02 06:48:47 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -50,7 +50,7 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/LikeExposure.h"
-#include "LogNormal.h"
+#include "Likelihood/LogNormal.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
