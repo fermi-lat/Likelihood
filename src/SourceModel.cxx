@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.84 2006/09/18 20:59:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.85 2009/10/23 20:44:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -318,17 +318,11 @@ void SourceModel::readXml(std::string xmlFile,
 
 // Create a SourceFactory to read in the xml file.
    SourceFactory srcFactory(m_observation);
-//    try {
-//       srcFactory.readXml(xmlFile, funcFactory, requireExposure,
-//                          addPointSources);
-//    } catch (xmlBase::DomException & eObj) {
-//       m_formatter->err() << "SourceModel::readXml:\n DomException: " 
-//                          << eObj.what() << std::endl;
-//    }
    try {
       srcFactory.readXml(xmlFile, funcFactory, requireExposure,
                          addPointSources);
-   } catch (...) {
+   } catch (xmlBase::DomException & eObj) {
+      m_formatter->err() << eObj.what() << std::endl;
       std::ostringstream message;
       message << "\nError reading in the xml model file.\n"
               << "Please check that you are using the correct xml "
