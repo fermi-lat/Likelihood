@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.38 2009/06/10 18:09:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.39 2009/06/10 23:10:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -77,10 +77,6 @@ WcsMap::WcsMap(const std::string & filename,
    header["NAXIS1"].get(m_naxis1);
    header["NAXIS2"].get(m_naxis2);
 
-   double ix, iy;
-   header["CRPIX1"].get(ix);
-   header["CRPIX2"].get(iy);
-
    header["CDELT1"].get(m_cdelt1);
    if (::my_round(m_naxis1*m_cdelt1) == 360.) {
       m_isPeriodic = true;
@@ -93,6 +89,9 @@ WcsMap::WcsMap(const std::string & filename,
       m_coordSys = astro::SkyDir::EQUATORIAL;
    }
 
+   double ix, iy;
+   header["CRPIX1"].get(ix);
+   header["CRPIX2"].get(iy);
    std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
    m_refDir = astro::SkyDir(coord.first, coord.second, m_coordSys);
 
@@ -116,13 +115,12 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
                double ra, double dec, double pix_size, int npts,
                double energy, const std::string & proj_name, bool use_lb,
                bool interpolate) 
-   : m_refDir(ra, dec), m_interpolate(interpolate), m_mapIntegral() {
+   : m_refDir(ra, dec), m_interpolate(interpolate), m_mapIntegral(0) {
    if (use_lb) { // convert to l, b
       ra = m_refDir.l();
       dec = m_refDir.b();
    }
-//   double refpix = static_cast<double>(npts + 1)/2.;
-   double refpix = static_cast<double>(npts)/2.;
+   double refpix = static_cast<double>(npts + 1)/2.;
    double crpix[] = {refpix, refpix};
    double crval[] = {ra, dec};
    double cdelt[] = {-pix_size, pix_size};
@@ -274,6 +272,13 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
       }
    }
 
+   WcsMap my_image(*this);
+
+   if (!performConvolution) {
+      my_image.m_image = counts;
+      return my_image;
+   }
+      
 // Fill a square array with an image of the Psf at the same binning
 // resolution as the source image.  Use the smaller of the image map
 // dimensions to determine the psf image size.
@@ -295,25 +300,12 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
 
    ::Image psf_image;
 
-//    psf_image.resize(npix);
-//    for (int j = jmin; j < jmax; j++) {
-//       psf_image.at(j).resize(npix, 0);
-//       for (int i = imin; i < imax; i++) {
-//          if (m_proj->testpix2sph(i+0.5, j+0.5) == 0) {
-//             std::pair<double, double> coord = m_proj->pix2sph(i+0.5, j+0.5);
-//             astro::SkyDir dir(coord.first, coord.second, m_coordSys);
-//             double theta = m_refDir.difference(dir)*180./M_PI;
-//             psf_image.at(j-jmin).at(i-imin) = psf(energy, theta, 0);
-//          }
-//       }
-//    }
-
    double refpix = static_cast<double>(npix + 1)/2.;  // refpix at center
    double crpix[] = {refpix, refpix};
    double crval[] = {m_refDir.ra(), m_refDir.dec()}; // actually arbitrary
    double cdelt[] = {m_cdelt1, m_cdelt2}; // ensure same resolution as input map
    astro::SkyProj my_proj(m_proj->projType(), crpix, crval, cdelt);
-
+      
    psf_image.resize(npix);
    for (int j(0); j < npix; j++) {
       psf_image.at(j).resize(npix, 0);
@@ -330,12 +322,7 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
 
    psf_image.normalize();
 
-   WcsMap my_image(*this);
-   if (performConvolution) {
-      my_image.m_image = Convolve::convolve2d(counts, psf_image);
-   } else {
-      my_image.m_image = counts;
-   }
+   my_image.m_image = Convolve::convolve2d(counts, psf_image);
 
    return my_image;
 }
