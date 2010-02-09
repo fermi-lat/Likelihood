@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Feb  9 13:08:36 PST 2010
+Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+enable interpolation for convolved maps
+    *
+------------------------------------------------------------
+User: jchiang  Tue Feb  9 13:08:36 PST 2010
 Likelihood/src/gtmodelmap
 
 Modified Files:
