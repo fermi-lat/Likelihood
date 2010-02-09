@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapBase.cxx,v 1.3 2009/05/30 22:35:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapBase.cxx,v 1.4 2009/06/10 23:10:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -75,7 +75,8 @@ void MapBase::readFitsFile(const std::string & fitsFile,
    }
 
    delete m_wcsmap;
-   m_wcsmap = new WcsMap(expandedFileName, extension, false);
+//   m_wcsmap = new WcsMap(expandedFileName, extension, false);
+   m_wcsmap = new WcsMap(expandedFileName, extension, true);
 }
 
 bool MapBase::insideMap(const astro::SkyDir & dir) const {

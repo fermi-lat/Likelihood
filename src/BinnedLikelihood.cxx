@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.50 2008/11/07 20:41:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.51 2010/02/08 18:42:37 jchiang Exp $
  */
 
 #include <memory>
@@ -32,16 +32,14 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
                                    bool applyPsfCorrections,
                                    bool performConvolution, 
                                    bool resample,
-                                   double resamp_factor,
-                                   double pix_size)
+                                   double resamp_factor)
    : LogLike(observation), m_dataMap(dataMap), m_pixels(dataMap.pixels()),
      m_modelIsCurrent(false), m_srcMapsFile(srcMapsFile),
      m_computePointSources(computePointSources),
      m_applyPsfCorrections(applyPsfCorrections),
      m_performConvolution(performConvolution), 
      m_resample(resample), 
-     m_resamp_factor(resamp_factor),
-     m_pix_size(pix_size) {
+     m_resamp_factor(resamp_factor) {
    dataMap.getAxisVector(2, m_energies);
    identifyFilledPixels();
    computeCountsSpectrum();
@@ -164,8 +162,8 @@ CountsMap * BinnedLikelihood::createCountsMap() const {
 
 void BinnedLikelihood::readXml(std::string xmlFile, 
                                optimizers::FunctionFactory & funcFactory,
-                               bool requireExposure=true, 
-                               bool addPointSources=true) {
+                               bool requireExposure, 
+                               bool addPointSources) {
    SourceModel::readXml(xmlFile, funcFactory, requireExposure=false,
                         addPointSources);
    if (m_srcMapsFile == "") {
@@ -248,8 +246,7 @@ void BinnedLikelihood::createSourceMaps() {
 SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
    Source * src = getSource(srcName);
    return new SourceMap(src, &m_dataMap, m_observation, m_applyPsfCorrections,
-                        m_performConvolution, m_resample, m_resamp_factor, 
-                        m_pix_size);
+                        m_performConvolution, m_resample, m_resamp_factor);
 }
 
 void BinnedLikelihood::readSourceMaps(std::string filename) {
@@ -281,8 +278,7 @@ void BinnedLikelihood::readSourceMaps(std::string filename) {
             m_srcMaps[*name] = new SourceMap(src, &m_dataMap, m_observation,
                                              m_applyPsfCorrections,
                                              m_performConvolution,
-                                             m_resample, m_resamp_factor,
-                                             m_pix_size);
+                                             m_resample, m_resamp_factor);
          }
       }
    }

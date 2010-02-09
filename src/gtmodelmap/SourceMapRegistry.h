@@ -3,7 +3,7 @@
  * @brief Class to manage creation of SourceMaps for gtmodelmap application.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.h,v 1.3 2008/08/07 05:56:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.h,v 1.4 2008/08/21 00:32:09 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMapRegistry_h
@@ -41,8 +41,7 @@ public:
                      optimizers::FunctionFactory & funcFactory,
                      bool performConvolution=true,
                      bool resample=true,
-                     double resamp_factor=2,
-                     double pix_size=0.25);
+                     double resamp_factor=2);
 
    ~SourceMapRegistry();
 

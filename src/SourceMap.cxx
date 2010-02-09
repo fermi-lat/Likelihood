@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.69 2009/06/10 23:10:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.70 2009/08/11 17:36:29 jchiang Exp $
  */
 
 #include <algorithm>
@@ -83,8 +83,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                      bool applyPsfCorrections,
                      bool performConvolution,
                      bool resample,
-                     double resamp_factor,
-                     double pix_size) 
+                     double resamp_factor)
    : m_name(src->getName()), m_srcType(src->getType()),
      m_dataMap(dataMap), 
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
@@ -118,17 +117,18 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
 /// @todo Replace this hard-wired value for radius extension (consider 
 /// psf energy dependence).
       double radius = std::min(180., ::maxRadius(pixels, map_center) + 10.);
-      if (resample) {
-         pix_size = std::min(std::abs(dataMap->cdelt1()), 
-                             std::abs(dataMap->cdelt2()))/resamp_factor;
+      if (!resample) {
+         resamp_factor = 1;
       }
+      double pix_size = std::min(std::abs(dataMap->cdelt1()), 
+                                 std::abs(dataMap->cdelt2()))/resamp_factor;
       unsigned int mapsize(2*static_cast<unsigned int>(radius/pix_size));
       std::vector<double>::const_iterator energy = energies.begin();
       unsigned int indx(0);
       for (int k = 0; energy != energies.end(); ++energy, k++) {
          WcsMap diffuseMap(*diffuseSrc, map_center.ra(), map_center.dec(),
                            pix_size, mapsize, *energy, dataMap->proj_name(),
-                           dataMap->projection().isGalactic());
+                           dataMap->projection().isGalactic(), true);
          WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
                                                  *s_binnedExposure,
                                                  performConvolution));

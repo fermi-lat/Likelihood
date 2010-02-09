@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtsrcmaps.par,v 1.28 2009/08/11 17:36:27 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtsrcmaps.par,v 1.29 2009/12/16 18:49:29 elwinter Exp $
 #
 scfile,f,h,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
@@ -12,7 +12,6 @@ irfs,s,a,"P6_V3_DIFFUSE",,,"Response functions"
 convol,b,h,yes,,,"Perform convolution with psf"
 resample,b,h,yes,,,"Resample input counts map for convolution"
 rfactor,i,h,2,,,"Resampling factor"
-binsz,r,h,0.25,,,"Fixed pixel size of internal model map"
 ptsrc,b,h,yes,,,"Compute point source maps"
 psfcorr,b,h,yes,,,"Apply psf integral corrections"
 
