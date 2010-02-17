@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.39 2009/06/10 23:10:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.40 2010/02/09 21:08:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -159,6 +159,54 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    computeMapIntegral();
 }
 
+WcsMap::WcsMap(const DiffuseSource & diffuseSource,
+               double ra, double dec, 
+               double crpix1, double crpix2, 
+               double cdelt1, double cdelt2,
+               int naxis1, int naxis2,
+               double energy, const std::string & proj_name, bool use_lb,
+               bool interpolate) 
+   : m_refDir(ra, dec), 
+     m_naxis1(naxis1), m_naxis2(naxis2), m_interpolate(interpolate), 
+     m_cdelt1(cdelt1), m_cdelt2(cdelt2), 
+     m_mapIntegral(0) {
+   if (use_lb) { // convert to l, b
+      ra = m_refDir.l();
+      dec = m_refDir.b();
+   }
+   double crpix[] = {crpix1, crpix2};
+   double crval[] = {ra, dec};
+   double cdelt[] = {cdelt1, cdelt2};
+
+   m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
+
+   if (use_lb) {
+      m_coordSys = astro::SkyDir::GALACTIC;
+   } else {
+      m_coordSys = astro::SkyDir::EQUATORIAL;
+   }
+
+   m_image.reserve(naxis2);
+   double ix, iy;
+   for (int j = 0; j < naxis2; j++) {
+      iy = j + 1.;
+      std::vector<double> row(naxis1, 0);
+      for (int i = 0; i < naxis1; i++) {
+         ix = i + 1.;
+         if (m_proj->testpix2sph(ix, iy) == 0) {
+            std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
+            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
+            SkyDirArg my_dir(dir, energy);
+            row.at(i) = diffuseSource.spatialDist(my_dir);
+         } else {
+            row.at(i) = 0;
+         }
+      }
+      m_image.push_back(row);
+   }
+   computeMapIntegral();
+}
+
 WcsMap::~WcsMap() {
 // // astro::SkyProj copy constructor is not implemented properly so we
 // // must ensure this pointer is not deleted here and live with the
@@ -282,24 +330,20 @@ WcsMap WcsMap::convolve(double energy, const MeanPsf & psf,
 // Fill a square array with an image of the Psf at the same binning
 // resolution as the source image.  Use the smaller of the image map
 // dimensions to determine the psf image size.
-// @todo handle cases where m_naxis1 or m_naxis2 are odd.
-   int npix, imin, imax, jmin, jmax;
+   int npix;
    if (m_naxis1 <= m_naxis2) {
       npix = m_naxis1;
-      imin = 0;
-      imax = npix;
-      jmin = (m_naxis2 - m_naxis1)/2;
-      jmax = (m_naxis2 + m_naxis1)/2;
    } else {
       npix = m_naxis2;
-      imin = (m_naxis1 - m_naxis2)/2;
-      imax = (m_naxis1 + m_naxis2)/2;
-      jmin = 0;
-      jmax = npix;
    }
 
    ::Image psf_image;
 
+   // Ensure the psf array size is odd in each dimension, so that the
+   // center pixel corresponds to the center of the PSF.
+   if (npix % 2 == 0) {
+      npix -= 1;
+   }
    double refpix = static_cast<double>(npix + 1)/2.;  // refpix at center
    double crpix[] = {refpix, refpix};
    double crval[] = {m_refDir.ra(), m_refDir.dec()}; // actually arbitrary
