@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.72 2010/02/17 04:06:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.73 2010/02/17 05:11:17 jchiang Exp $
  */
 
 #include <algorithm>
@@ -116,13 +116,13 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       const astro::SkyDir & mapRefDir = dataMap->refDir();
 /// @todo Replace this hard-wired value for radius extension (consider 
 /// psf energy dependence).
-//       double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
+      double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
       if (!resample) {
          resamp_factor = 1;
       }
-//       double pix_size = std::min(std::abs(dataMap->cdelt1()), 
-//                                  std::abs(dataMap->cdelt2()))/resamp_factor;
-//       unsigned int mapsize(2*static_cast<unsigned int>(radius/pix_size));
+      double pix_size = std::min(std::abs(dataMap->cdelt1()), 
+                                 std::abs(dataMap->cdelt2()))/resamp_factor;
+      unsigned int mapsize(2*static_cast<unsigned int>(radius/pix_size));
       std::vector<double>::const_iterator energy = energies.begin();
       unsigned int indx(0);
 // Compute extension of map sides for psf tails. Add +/-10 degrees.
@@ -132,19 +132,44 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       int naxis2 = (dataMap->naxis2() 
                     + static_cast<int>(20.*resamp_factor
                                        /std::fabs(dataMap->cdelt2())));
+      if (naxis1 % 2 == 1) {
+         naxis1 += 1;
+      }
+      if (naxis2 % 2 == 1) {
+         naxis2 += 1;
+      }
       for (int k = 0; energy != energies.end(); ++energy, k++) {
+         WcsMap * diffuseMap(0);
+         if (std::fabs(dataMap->crpix1() - (dataMap->naxis1() + 1)/2.) < 0.01 &&
+             std::fabs(dataMap->crpix2() - (dataMap->naxis2() + 1)/2.) < 0.01) {
+            diffuseMap = new WcsMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
+                                    pix_size, mapsize, *energy, 
+                                    dataMap->proj_name(),
+                                    dataMap->projection().isGalactic(), true);
+         } else {
+            diffuseMap = new WcsMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
+                                    dataMap->crpix1(), dataMap->crpix2(),
+                                    dataMap->cdelt1(), dataMap->cdelt2(),
+                                    naxis1, naxis2,
+                                    *energy, dataMap->proj_name(), 
+                                    dataMap->projection().isGalactic(), true);
+         }
 //          WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
 //                            pix_size, mapsize, *energy, dataMap->proj_name(),
 //                            dataMap->projection().isGalactic(), true);
-         WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
-                           dataMap->crpix1(), dataMap->crpix2(),
-                           dataMap->cdelt1(), dataMap->cdelt2(),
-                           naxis1, naxis2,
-                           *energy, dataMap->proj_name(), 
-                           dataMap->projection().isGalactic(), true);
-         WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
-                                                 *s_binnedExposure,
-                                                 performConvolution));
+//          WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
+//                            dataMap->crpix1(), dataMap->crpix2(),
+//                            dataMap->cdelt1(), dataMap->cdelt2(),
+//                            naxis1, naxis2,
+//                            *energy, dataMap->proj_name(), 
+//                            dataMap->projection().isGalactic(), true);
+//          WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
+//                                                  *s_binnedExposure,
+//                                                  performConvolution));
+         WcsMap convolvedMap(diffuseMap->convolve(*energy, *s_meanPsf, 
+                                                  *s_binnedExposure,
+                                                  performConvolution));
+         delete diffuseMap;
          for (pixel = pixels.begin(); pixel != pixels.end();
               ++pixel, indx++) {
             if ((indx % (npts/20)) == 0) {
