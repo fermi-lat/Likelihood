@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.73 2010/02/17 05:11:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.74 2010/02/17 07:12:16 jchiang Exp $
  */
 
 #include <algorithm>
@@ -114,62 +114,61 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       computeExposureAndPsf(observation);
       DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
       const astro::SkyDir & mapRefDir = dataMap->refDir();
-/// @todo Replace this hard-wired value for radius extension (consider 
-/// psf energy dependence).
-      double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
       if (!resample) {
          resamp_factor = 1;
       }
-      double pix_size = std::min(std::abs(dataMap->cdelt1()), 
-                                 std::abs(dataMap->cdelt2()))/resamp_factor;
-      unsigned int mapsize(2*static_cast<unsigned int>(radius/pix_size));
-      std::vector<double>::const_iterator energy = energies.begin();
-      unsigned int indx(0);
-// Compute extension of map sides for psf tails. Add +/-10 degrees.
-      int naxis1 = (dataMap->naxis1() 
-                    + static_cast<int>(20.*resamp_factor
-                                       /std::fabs(dataMap->cdelt1())));
-      int naxis2 = (dataMap->naxis2() 
-                    + static_cast<int>(20.*resamp_factor
-                                       /std::fabs(dataMap->cdelt2())));
-      if (naxis1 % 2 == 1) {
-         naxis1 += 1;
-      }
-      if (naxis2 % 2 == 1) {
-         naxis2 += 1;
-      }
-      for (int k = 0; energy != energies.end(); ++energy, k++) {
-         WcsMap * diffuseMap(0);
-         if (std::fabs(dataMap->crpix1() - (dataMap->naxis1() + 1)/2.) < 0.01 &&
-             std::fabs(dataMap->crpix2() - (dataMap->naxis2() + 1)/2.) < 0.01) {
-            diffuseMap = new WcsMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
-                                    pix_size, mapsize, *energy, 
-                                    dataMap->proj_name(),
-                                    dataMap->projection().isGalactic(), true);
-         } else {
-            diffuseMap = new WcsMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
-                                    dataMap->crpix1(), dataMap->crpix2(),
-                                    dataMap->cdelt1(), dataMap->cdelt2(),
-                                    naxis1, naxis2,
-                                    *energy, dataMap->proj_name(), 
-                                    dataMap->projection().isGalactic(), true);
+      double crpix1, crpix2;
+      int naxis1, naxis2;
+      double cdelt1 = dataMap->cdelt1()/resamp_factor;
+      double cdelt2 = dataMap->cdelt2()/resamp_factor;
+      if (dataMap->conformingMap()) {
+         double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
+         // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
+         // expression for the mapsize ensures that the number of
+         // pixels in each dimension is even.
+         int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
+         naxis1 = mapsize;
+         naxis2 = mapsize;
+         crpix1 = (naxis1 + 1.)/2.;
+         crpix2 = (naxis2 + 1.)/2.;
+         if (!resample) { 
+            // Use integer or half-integer reference pixel based on
+            // input counts map, even though naxis1 and naxis2 both
+            // must be even.
+            if (dataMap->naxis1() % 2 == 1) {
+               crpix1 += 0.5;
+            }
+            if (dataMap->naxis2() % 2 == 1) {
+               crpix2 += 0.5;
+            }
          }
-//          WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
-//                            pix_size, mapsize, *energy, dataMap->proj_name(),
-//                            dataMap->projection().isGalactic(), true);
-//          WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
-//                            dataMap->crpix1(), dataMap->crpix2(),
-//                            dataMap->cdelt1(), dataMap->cdelt2(),
-//                            naxis1, naxis2,
-//                            *energy, dataMap->proj_name(), 
-//                            dataMap->projection().isGalactic(), true);
-//          WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
-//                                                  *s_binnedExposure,
-//                                                  performConvolution));
-         WcsMap convolvedMap(diffuseMap->convolve(*energy, *s_meanPsf, 
-                                                  *s_binnedExposure,
-                                                  performConvolution));
-         delete diffuseMap;
+      } else {
+         // The counts map was not created by gtbin, so just adopt the
+         // map geometry without adding padding for psf leakage since
+         // this cannot be done in general without redefining the
+         // reference pixel and reference direction.
+         naxis1 = dataMap->naxis1()*resamp_factor;
+         naxis2 = dataMap->naxis2()*resamp_factor;
+         // Ensure an even number of pixels in each direction.
+         if (naxis1 % 2 == 1) {
+            naxis1 += 1;
+         }
+         if (naxis2 % 2 == 1) {
+            naxis2 += 1;
+         }
+         crpix1 = dataMap->crpix1()*resamp_factor;
+         crpix2 = dataMap->crpix2()*resamp_factor;
+      }
+      unsigned int indx(0);
+      std::vector<double>::const_iterator energy = energies.begin();
+      for (int k(0); energy != energies.end(); ++energy, k++) {
+         WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
+                           crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
+                           *energy, dataMap->proj_name(), 
+                           dataMap->projection().isGalactic(), true);
+         WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
+                                                 *s_binnedExposure,
+                                                 performConvolution));
          for (pixel = pixels.begin(); pixel != pixels.end();
               ++pixel, indx++) {
             if ((indx % (npts/20)) == 0) {

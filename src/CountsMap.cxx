@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.42 2007/09/28 19:10:21 golpa Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.43 2010/02/17 05:11:17 jchiang Exp $
  */
 
 #include <algorithm>
@@ -208,6 +208,7 @@ CountsMap::CountsMap(const std::string & countsMapFile)
    setRefDir();
    setDataDir();
    deleteBinners(binners);
+   checkMapConforms();
 }
 
 void CountsMap::readImageData(const std::string & countsMapFile,
@@ -319,6 +320,8 @@ void CountsMap::init(std::vector<evtbin::Binner *> & binners,
    adjustTimeKeywords(sc_file, sc_table);
 
    setDataDir();
+
+   checkMapConforms();
 }
 
 CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
@@ -336,6 +339,7 @@ CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
    m_proj = new astro::SkyProj(m_proj_name, m_crpix, m_crval, m_cdelt, 
                                m_axis_rot, m_use_lb);
    m_refDir = rhs.m_refDir;
+   m_conforms = rhs.m_conforms;
 }
 
 CountsMap::~CountsMap() throw() { 
@@ -611,6 +615,15 @@ void CountsMap::deleteBinners(std::vector<evtbin::Binner *> & binners) const {
    for (std::vector<evtbin::Binner *>::reverse_iterator it = binners.rbegin();
         it != binners.rend(); ++it) {
       delete *it;
+   }
+}
+
+void CountsMap::checkMapConforms() {
+   m_conforms = false;
+   if (static_cast<int>(2.*m_crpix[0]) == static_cast<int>(m_naxes[0] + 1.) &&
+       static_cast<int>(2.*m_crpix[1]) == static_cast<int>(m_naxes[1] + 1.) &&
+       std::fabs(m_cdelt[0]) != std::fabs(m_cdelt[1])) {
+      m_conforms = true;
    }
 }
 
