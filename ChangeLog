@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb 16 23:12:17 PST 2010
+Likelihood/src
+
+Modified Files:
+	SourceMap.cxx 
+Log Message:
+generate ref pixel centered map for gtbin-conforming map; otherwise, adopt geometry of counts map
+    *
+------------------------------------------------------------
 User: jchiang  Tue Feb 16 21:11:17 PST 2010
 Likelihood/src
 
