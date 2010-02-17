@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.23 2008/08/16 02:06:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.24 2010/02/17 04:06:52 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -104,7 +104,7 @@ public:
 
    void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const;
 
-   const astro::SkyDir & mapCenter() const {return m_center;}
+   const astro::SkyDir & refDir() const {return m_refDir;}
 
    bool withinBounds(const astro::SkyDir & dir, double energy) const;
 
@@ -131,7 +131,7 @@ protected:
 
 private:
 
-   astro::SkyDir m_center;
+   astro::SkyDir m_refDir;
 
    mutable std::vector<Pixel> m_pixels;
 
@@ -159,7 +159,7 @@ private:
    void readImageData(const std::string & countsMapfile,
                       std::vector<evtbin::Binner *> & binners);
 
-   void setCenter();
+   void setRefDir();
 
    void setDataDir();
 
