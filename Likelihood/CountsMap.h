@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.22 2007/03/19 19:03:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.23 2008/08/16 02:06:07 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -112,6 +112,10 @@ public:
 
    double cdelt1() const {return m_cdelt[0];}
    double cdelt2() const {return m_cdelt[1];}
+   double crpix1() const {return m_crpix[0];}
+   double crpix2() const {return m_crpix[1];}
+   long naxis1() const {return m_naxes[0];}
+   long naxis2() const {return m_naxes[1];}
 
 protected:
 
