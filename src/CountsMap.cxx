@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.43 2010/02/17 05:11:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.44 2010/02/17 19:00:29 jchiang Exp $
  */
 
 #include <algorithm>
@@ -622,7 +622,7 @@ void CountsMap::checkMapConforms() {
    m_conforms = false;
    if (static_cast<int>(2.*m_crpix[0]) == static_cast<int>(m_naxes[0] + 1.) &&
        static_cast<int>(2.*m_crpix[1]) == static_cast<int>(m_naxes[1] + 1.) &&
-       std::fabs(m_cdelt[0]) != std::fabs(m_cdelt[1])) {
+       std::fabs(m_cdelt[0]) == std::fabs(m_cdelt[1])) {
       m_conforms = true;
    }
 }
