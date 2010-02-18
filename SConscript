@@ -1,5 +1,5 @@
 # -*- python -*-
-# $Id: SConscript,v 1.93 2010/02/17 07:14:07 jchiang Exp $
+# $Id: SConscript,v 1.94 2010/02/17 19:02:35 jchiang Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Pat Nolan <pln@razzle.stanford.edu>
 # Version: Likelihood-16-02-00
 
@@ -7,8 +7,7 @@ Import('baseEnv', 'listFiles')
 progEnv = baseEnv.Clone()
 libEnv = baseEnv.Clone()
 
-libEnv.Tool('LikelihoodLib', depsOnly = 1)
-LikelihoodLib = libEnv.StaticLibrary('Likelihood', 
+LikelihoodLib = libEnv.SharedLibrary('Likelihood', 
                                      listFiles(['src/*.c', 'src/*.cxx',
                                                 'src/dmfit/*.cxx', 'src/dmfit/*.c']))
 
@@ -42,7 +41,7 @@ gtltsumBin = progEnv.Program('gtltsum', listFiles(['src/gtaddlivetime/*.cxx']))
 gtfindsrcBin = progEnv.Program('gtfindsrc', listFiles(['src/gtfindsrc/*.cxx']))
 
 progEnv.Tool('registerTargets', package = 'Likelihood', 
-             staticLibraryCxts = [[LikelihoodLib,libEnv]], 
+             libraryCxts = [[LikelihoodLib,libEnv]], 
              binaryCxts = [[gtlikeBin,progEnv], [gtexpmapBin,progEnv], [gttsmapBin,progEnv],
                            [gtltcubeBin,progEnv], [gtdiffrspBin,progEnv], [gtsrcmapsBin,progEnv],
                            [gtpsfBin,progEnv], [gtbkgBin,progEnv], [gtmodelBin,progEnv],
