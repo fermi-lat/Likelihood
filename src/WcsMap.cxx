@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.40 2010/02/09 21:08:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.41 2010/02/17 04:06:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -263,17 +263,36 @@ double WcsMap::operator()(const astro::SkyDir & dir) const {
       x = std::fmod(x, m_naxis1);
    }
 
+   if ((!m_isPeriodic && (x < 0.5 || x > m_naxis1 + 0.5)) ||
+       y < 0.5 || y > m_naxis2 + 0.5) {
+      // Sky location is outside of map, so do not extrapolate and return 0.
+      return 0;
+   }
+
    if (!m_interpolate) {
       return pixelValue(x, y);
    }
-// This code tries to do a bilinear interpolation on the pixel values.
 
+// This code tries to do a bilinear interpolation on the pixel values.
    int ix(static_cast<int>(x));
    int iy(static_cast<int>(y));
 
-   if ((!m_isPeriodic && (ix < 1 || ix >= m_naxis1))
-       || iy < 1 || iy >= m_naxis2) {
-      return 0;
+// Points within half a pixel of the edges of the map need to be
+// extrapolated in the context of the bilinear scheme, even though
+// they are formally inside the map.
+   if (!m_isPeriodic) {
+      if (ix < 1) {
+         ix = 1;
+      }
+      if (ix >= m_naxis1) {
+         ix = m_naxis1 - 1;
+      }
+   }
+   if (iy < 1) {
+      iy = 1;
+   }
+   if (iy >= m_naxis2) {
+      iy = m_naxis2 - 1;
    }
    
    double tt(x - ix);
