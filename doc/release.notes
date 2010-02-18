@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.340 2010/02/17 07:14:07 jchiang Exp $
+    $Id: release.notes,v 1.341 2010/02/17 19:02:35 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-02-01 18-Feb-2010 jchiang ensure that interpolation extends to the very edge of the model map in WcsMap
  Likelihood-16-02-00 17-Feb-2010 jchiang handle counts maps with odd numbers of pixels when resampling is turned off (both ill-advised conditions)
  Likelihood-16-01-00 16-Feb-2010 jchiang use odd number of pixels for psf image; ensure source image has even number; kluge for non-standard counts map geometries
  Likelihood-16-00-00 09-Feb-2010 jchiang enable interpolation of model maps for binned analysis convolution
