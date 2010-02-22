@@ -1,11 +1,14 @@
 # -*- python -*-
-# $Id: SConscript,v 1.95 2010/02/18 01:14:21 jrb Exp $
+# $Id: SConscript,v 1.96 2010/02/18 20:09:27 jchiang Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Pat Nolan <pln@razzle.stanford.edu>
 # Version: Likelihood-16-02-01
 
 Import('baseEnv', 'listFiles')
 progEnv = baseEnv.Clone()
 libEnv = baseEnv.Clone()
+
+if baseEnv['PLATFORM'] == "win32":
+    libEnv.Tool('LikelihoodLib', depsOnly = 1)
 
 LikelihoodLib = libEnv.SharedLibrary('Likelihood', 
                                      listFiles(['src/*.c', 'src/*.cxx',
