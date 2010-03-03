@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.85 2009/10/23 20:44:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.86 2010/02/08 20:20:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -198,6 +198,7 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
 void SourceModel::addSource(Source *src) {
    if (!m_sources.count(src->getName())) {
       m_sources[src->getName()] = src->clone();
+      m_sources[src->getName()]->setObservation(&m_observation);
       syncParams();
    } else {
       throw Exception("Likelihood::SourceModel:\nSource named " 
