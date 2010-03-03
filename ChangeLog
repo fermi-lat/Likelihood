@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  3 10:09:10 PST 2010
+Likelihood/src
+
+Modified Files:
+	SourceModel.cxx 
+Log Message:
+set observation in SourceModel::addSource
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar  3 10:09:09 PST 2010
 Likelihood/Likelihood
 
