@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar  3 10:09:09 PST 2010
+Likelihood/Likelihood
+
+Modified Files:
+	Source.h 
+Log Message:
+set observation in SourceModel::addSource
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-16-00, operation: add
 Package: Likelihood
