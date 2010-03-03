@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.42 2009/03/26 01:32:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.43 2009/06/03 19:04:54 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -34,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.42 2009/03/26 01:32:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.43 2009/06/03 19:04:54 jchiang Exp $
  */
 
 class Source {
@@ -166,6 +166,15 @@ public:
    /// over the given energy range.
    virtual double energyFluxDeriv(const std::string & parName, double emin,
                                   double emax, size_t npts=100) const = 0;
+
+   const Observation * observation() const {
+      return m_observation;
+   }
+
+   void setObservation(const Observation * observation) {
+      m_observation = observation;
+   }
+
 protected:
 
    /// A unique source name.
