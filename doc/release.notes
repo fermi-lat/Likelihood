@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.345 2010/02/24 20:20:10 jrb Exp $
+    $Id: release.notes,v 1.346 2010/02/24 20:55:52 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-03-00 07-Mar-2010 jchiang add Source::setSpectrum(std::string &)
  Likelihood-16-02-05 24-Feb-2010 jchiang bug-fix for fencepost error in EventContainer::nobs
  Likelihood-16-02-04 24-Feb-2010    jrb fix linking for mac
  Likelihood-16-02-03 24-Feb-2010    jrb fix linking for mac
