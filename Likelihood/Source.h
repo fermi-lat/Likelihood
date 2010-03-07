@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.43 2009/06/03 19:04:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.44 2010/03/03 18:09:09 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -34,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.43 2009/06/03 19:04:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.44 2010/03/03 18:09:09 jchiang Exp $
  */
 
 class Source {
@@ -94,6 +94,9 @@ public:
       m_spectrum = spectrum->clone();
       m_functions["Spectrum"] = m_spectrum;
    }
+
+   /// Set the spectral model by name.
+   virtual void setSpectrum(const std::string & functionName);
                        
    virtual void setName(const std::string & name) {
       m_name = name;

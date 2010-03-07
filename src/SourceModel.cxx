@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.86 2010/02/08 20:20:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.87 2010/03/03 18:09:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -229,7 +229,7 @@ void SourceModel::deleteAllSources() {
    m_parameter.clear();
 }
 
-Source * SourceModel::getSource(const std::string &srcName) {
+Source * SourceModel::getSource(const std::string & srcName) {
    if (m_sources.count(srcName)) {
       return m_sources[srcName];
    }
