@@ -1,11 +1,12 @@
 /**
  * @file gtsrcprob.cxx
- * @brief Add model count rate densities for each source component to
- * the FT1 file based on a xml model definition.  These quantities 
- * are proportional to the 
+ * @brief Add probabilities for each event that it belongs to the
+ * various model components given an xml model definition.  These
+ * probabilities are proportional to the count rate densities
+ * computed in Source::fluxDensity(...).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.59 2009/12/16 19:07:48 elwinter Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcprob/gtsrcprob.cxx,v 1.1 2010/03/30 00:03:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -15,6 +16,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <memory>
 
 #include "facilities/Util.h"
@@ -45,12 +47,7 @@ using namespace Likelihood;
 
 /**
  * @class SourceProbs
- * @brief FTOOL to add diffuse response information to an FT1 file for
- * extragalactic and Galactic diffuse emission.
- *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceProbs/SourceProbs.cxx,v 1.59 2009/12/16 19:07:48 elwinter Exp $
+ * 
  */
 
 class SourceProbs : public st_app::StApp {
@@ -81,14 +78,16 @@ private:
    AppHelpers * m_helper;
    SourceModel * m_sourceModel;
    st_stream::StreamFormatter * m_formatter;
-   
-   double m_srRadius;
+
    st_app::AppParGroup & m_pars;
+
+   std::vector<std::string> m_srclist;
 
    void promptForParameters();
    void buildSourceModel();
    void readEventData();
    void writeDensities() const;
+   void getSourceList();
    std::string columnName(std::string srcName) const;
 
    static std::string s_cvs_id;
@@ -114,12 +113,12 @@ void SourceProbs::banner() const {
 
 void SourceProbs::run() {
    promptForParameters();
-//   bool clobber = m_pars["clobber"];
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
    m_helper->setRoi("", "EVENTS", false);
    m_helper->readScData();
    buildSourceModel();
    readEventData();
+   getSourceList();
    writeDensities();
 }
 
@@ -147,6 +146,18 @@ void SourceProbs::readEventData() {
    m_helper->observation().eventCont().getEvents(evfile);
 }
 
+void SourceProbs::getSourceList() {
+   std::string srclist = m_pars["srclist"];
+   if (srclist == "" || srclist == "none") {
+      m_sourceModel->getSrcNames(m_srclist);
+      return;
+   }
+   std::string skip;
+   bool cleanlines;
+   st_facilities::Util::readLines(srclist, m_srclist, skip="#",
+                                  cleanlines=true);
+}
+
 void SourceProbs::writeDensities() const {
    std::string outfile = m_pars["outfile"];
 
@@ -160,18 +171,20 @@ void SourceProbs::writeDensities() const {
    tip::Table * evtable
       = tip::IFileSvc::instance().editTable(outfile, m_pars["evtable"]);
 
-// Add the column names for the probability densities to the output file.
-   std::vector<std::string> srcNames;
-   m_sourceModel->getSrcNames(srcNames);
-
-   for (size_t i(0); i < srcNames.size(); i++) {
+// Add the column names for the probabilities to the output file.
+   for (size_t i(0); i < m_srclist.size(); i++) {
       try {
-         evtable->appendField(srcNames.at(i), "1E");
+         evtable->appendField(m_srclist.at(i), "1E");
       } catch (tip::TipException & eObj) {
          // Column with this name already exists, so do nothing and 
          // just reuse it.
       }
    }
+
+// Grab the names of all of the model components for the normalization 
+// calculation.
+   std::vector<std::string> srcNames;
+   m_sourceModel->getSrcNames(srcNames);
 
 // Loop over ft1 events and output file rows.
    const std::vector<Event> & 
@@ -180,10 +193,19 @@ void SourceProbs::writeDensities() const {
    tip::Table::Iterator it = evtable->begin();
    tip::Table::Record & row = *it;
    for (size_t j(0); it != evtable->end(); j++, ++it) {
-       std::vector<std::string>::iterator name = srcNames.begin();
-       for ( ; name != srcNames.end(); ++name) {
+       std::map<std::string, double> densities;
+       double normalization(0);
+       // Loop over all sources in the model to determine the normalization.
+       for (std::vector<std::string>::iterator name(srcNames.begin());
+            name != srcNames.end(); ++name) {
           const Source & src(m_sourceModel->source(*name));
-          row[*name].set(src.fluxDensity(events.at(j)));
+          densities[*name] = src.fluxDensity(events.at(j));
+          normalization += densities[*name];
+       }
+       // Loop over items in the desired source list.
+       for (std::vector<std::string>::const_iterator name(m_srclist.begin());
+            name != m_srclist.end(); ++name) {
+          row[*name].set(densities[*name]/normalization);
        }
    }
    delete evtable;
