@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Mar 29 17:03:26 PDT 2010
+Likelihood/src/gtsrcprob
+
+Added Files:
+	gtsrcprob.cxx 
+Log Message:
+add gtsrcprob application
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 29 17:03:25 PDT 2010
 Likelihood/pfiles
 
