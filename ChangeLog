@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 30 11:15:05 PDT 2010
+Likelihood/pfiles
+
+Modified Files:
+	gtsrcprob.par 
+Log Message:
+write probabilities instead of flux densities; enable users to give ascii list of desired sources
+    *
+------------------------------------------------------------
 User: jchiang  Mon Mar 29 17:03:26 PDT 2010
 Likelihood/src/gtsrcprob
 
