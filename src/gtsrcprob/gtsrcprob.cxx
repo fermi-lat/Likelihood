@@ -6,7 +6,7 @@
  * computed in Source::fluxDensity(...).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcprob/gtsrcprob.cxx,v 1.1 2010/03/30 00:03:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcprob/gtsrcprob.cxx,v 1.2 2010/03/30 18:15:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -125,6 +125,23 @@ void SourceProbs::run() {
 void SourceProbs::promptForParameters() {
    m_pars.Prompt();
    m_pars.Save();
+
+   std::string evfile = m_pars["evfile"];
+   std::string outfile = m_pars["outfile"];
+
+   if (outfile == evfile) {
+      m_formatter->info() << "The output file cannot be the same as the "
+                          << "input file. \nPlease specify a different output "
+                          << "filename." << std::endl;
+      std::exit(0);
+   }
+   bool clobber = m_pars["clobber"];
+   if (!clobber && st_facilities::Util::fileExists(outfile)) {
+      m_formatter->info() << "The output file already exists and clobber=yes.\n"
+                          << "Please specify a different output "
+                          << "filename." << std::endl;
+      std::exit(0);
+   }      
 }
  
 void SourceProbs::buildSourceModel() {
