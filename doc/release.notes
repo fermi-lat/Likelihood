@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.347 2010/03/07 20:02:23 jchiang Exp $
+    $Id: release.notes,v 1.348 2010/03/30 18:25:12 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-04-01 05-Apr-2010 jchiang improve clobber handling in gtsrcprob
  Likelihood-16-04-00 30-Mar-2010 jchiang add gtsrcprob application
  Likelihood-16-03-00 07-Mar-2010 jchiang add Source::setSpectrum(std::string &)
  Likelihood-16-02-05 24-Feb-2010 jchiang bug-fix for fencepost error in EventContainer::nobs
