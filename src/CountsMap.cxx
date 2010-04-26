@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.44 2010/02/17 19:00:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.45 2010/02/18 20:08:09 jchiang Exp $
  */
 
 #include <algorithm>
@@ -427,6 +427,9 @@ void CountsMap::writeOutput(const std::string & creator,
 }
 
 void CountsMap::setImage(const std::vector<float> & image) {
+   m_hist->setData(image);
+}
+void CountsMap::setImage(const std::vector<double> & image) {
    m_hist->setData(image);
 }
 
