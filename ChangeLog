@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jrb  Mon Apr 26 11:10:42 PDT 2010
+Likelihood
+
+Modified Files:
+	SConscript 
+Log Message:
+stag/GoGui_auto-tag
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-04-02, operation: add
 Package: Likelihood
