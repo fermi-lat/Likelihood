@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.25 2010/02/17 05:11:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.26 2010/02/17 19:00:27 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -87,6 +87,7 @@ public:
                             const std::string & out_file) const;
 
    void setImage(const std::vector<float> & image);
+   void setImage(const std::vector<double> & image);
    
    long imageDimension(int idim) const;
 

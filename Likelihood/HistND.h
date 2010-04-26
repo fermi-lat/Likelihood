@@ -3,12 +3,13 @@
  * @brief N-dimensional histogram.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/HistND.h,v 1.3 2004/09/25 16:38:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/HistND.h,v 1.4 2006/01/18 02:40:22 jchiang Exp $
  */
 
 #ifndef Likelihood_HistND_h
 #define Likelihood_HistND_h
 
+#include <algorithm>
 #include <vector>
 
 #include "evtbin/Hist.h"
@@ -54,6 +55,10 @@ public:
    const std::vector<float> & data() const {return m_data;}
    
    void setData(const std::vector<float> & data) {m_data = data;}
+   void setData(const std::vector<double> & data) {
+      m_data.resize(data.size(), 0);
+      std::copy(data.begin(), data.end(), m_data.begin());
+   }
 
    HistND * clone() const {return new HistND(*this);}
 

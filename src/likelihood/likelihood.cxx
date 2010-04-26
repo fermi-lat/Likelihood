@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.150 2009/10/23 20:05:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.151 2009/10/23 20:23:29 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -88,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.150 2009/10/23 20:05:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.151 2009/10/23 20:23:29 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -157,6 +157,8 @@ private:
    bool isDiffuseOrNearby(Source *) const;
    double observedCounts();
    double sourceFlux(const std::string & srcName, double & fluxError);
+
+   void getElims(double & emin, double & emax) const;
 
    static std::string s_cvs_id;
 };
@@ -599,10 +601,21 @@ void likelihood::writeCountsMap() {
    }
 }
 
+void likelihood::getElims(double & emin, double & emax) const {
+   if (m_statistic == "UNBINNED") {
+      const RoiCuts & roiCuts = m_helper->observation().roiCuts();
+      emin = roiCuts.getEnergyCuts().first;
+      emax = roiCuts.getEnergyCuts().second;
+   } else {
+      CountsSpectra counts(*m_logLike);
+      emin = counts.ebounds().front();
+      emax = counts.ebounds().back();
+   }
+}
+
 double likelihood::sourceFlux(const std::string & srcName, double & fluxError) {
-   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
-   double emin(roiCuts.getEnergyCuts().first);
-   double emax(roiCuts.getEnergyCuts().second);
+   double emin, emax;
+   getElims(emin, emax);
 
    Source * my_source(m_logLike->getSource(srcName));
 
@@ -689,9 +702,8 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
 
    resultsFile << "{";
 
-   const RoiCuts & roiCuts = m_helper->observation().roiCuts();
-   double emin(roiCuts.getEnergyCuts().first);
-   double emax(roiCuts.getEnergyCuts().second);
+   double emin, emax;
+   getElims(emin, emax);
 
    m_formatter->info() << "\nPhoton fluxes are computed for the energy range " 
                        << emin << " to " << emax << " MeV" << std::endl;
