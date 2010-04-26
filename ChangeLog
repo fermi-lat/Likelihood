@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Apr 26 10:11:06 PDT 2010
+Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+fix emin,emax discovery for gtlike flux calculations in binned case; suppress double->int warnings in SourceMap; enable CountsMap to set the image data using a vector<couble>
+    *
+------------------------------------------------------------
 User: jchiang  Mon Apr 26 10:11:01 PDT 2010
 Likelihood/Likelihood
 
