@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr 27 15:58:24 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h 
+Log Message:
+sum convolved maps before integrating over energy range of each pixel
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-04-02, operation: add
 Package: Likelihood
