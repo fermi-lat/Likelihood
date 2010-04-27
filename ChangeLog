@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Apr 27 15:58:25 PDT 2010
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+sum convolved maps before integrating over energy range of each pixel
+    *
+------------------------------------------------------------
 User: jchiang  Tue Apr 27 15:58:24 PDT 2010
 Likelihood/Likelihood
 
