@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.34 2010/02/08 18:41:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.35 2010/02/09 21:08:33 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.34 2010/02/08 18:41:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.35 2010/02/09 21:08:33 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -165,6 +165,9 @@ private:
                      const std::string & fitsFile) const;
 
    void computeCountsSpectrum();
+
+   double spectrum(const Source * src, double energy) const;
+   double pixelCounts(double emin, double emax, double y1, double y2) const;
 };
 
 }
