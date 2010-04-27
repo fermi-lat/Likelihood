@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.349 2010/04/05 19:14:19 jchiang Exp $
+    $Id: release.notes,v 1.350 2010/04/26 18:10:47 jrb Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-04-03 27-Apr-2010 jchiang sum convolved maps before integrating over energy range for each pixel in BinnedLikelihood
  Likelihood-16-04-02 26-Apr-2010    jrb bug-fix for flux calculation in gtlike binned mode
  Likelihood-16-04-01 05-Apr-2010 jchiang improve clobber handling in gtsrcprob
  Likelihood-16-04-00 30-Mar-2010 jchiang add gtsrcprob application
