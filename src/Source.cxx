@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.12 2010/01/25 22:20:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.13 2010/03/07 18:23:58 jchiang Exp $
  */
 
 #include <algorithm>
@@ -139,7 +139,10 @@ void Source::setSpectrum(const std::string & functionName) {
       }
       throw Exception(message.str());
    }
+}
 
+bool Source::fixedSpectrum() const {
+   return m_spectrum->getNumFreeParams() == 0;
 }
 
 double Source::pixelCounts(double emin, double emax,

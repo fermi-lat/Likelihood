@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.19 2009/01/27 00:25:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.20 2010/02/09 21:08:36 jchiang Exp $
  */
 
 #include <iostream>
@@ -137,6 +137,8 @@ private:
 
    void getMap(const std::string & srcName);
 
+   double pixelCounts(double emin, double emax, double y1, double y2) const;
+
    static std::string s_cvs_id;
                 
 };
@@ -235,35 +237,88 @@ void ModelMap::trimExtensions() {
 }
 
 void ModelMap::sumOutputMap() {
-   std::map<std::string, optimizers::Function *>::iterator it;
-   for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
-      std::string srcName = it->first;
-      st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap", 2);
-      try {
-         getMap(srcName);
-      } catch (tip::TipException &) {
-         formatter.info() << "Cannot read source map for model component "
-                          << srcName << ". Skipping it." << std::endl;
-      }
-
-      const Likelihood::Source & source(m_registry->source(srcName));
-
-      if (it == m_spectra.begin()) {
-         m_outmap.resize(m_srcmap->size(), 0);
-      }
-      size_t image_size = m_outmap.size()/(m_emins.size() + 1);
-      for (size_t k(0); k < m_emins.size(); k++) {
-         double & emin = m_emins.at(k);
-         double & emax = m_emaxs.at(k);
+   st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap2", 2);
+   for (size_t k(0); k < m_emins.size(); k++) {
+      double & emin(m_emins.at(k));
+      double & emax(m_emaxs.at(k));
+      std::vector<double> map0;
+      std::vector<double> map1;
+      size_t image_size(0);
+      std::map<std::string, optimizers::Function *>::iterator it;
+      for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
+         std::string srcName = it->first;
+         try {
+            getMap(srcName);
+            if (image_size == 0) {
+               m_outmap.resize(m_srcmap->size(), 0);
+               image_size = m_outmap.size()/(m_emins.size() + 1);
+               map0.resize(image_size, 0);
+               map1.resize(image_size, 0);
+            }
+         } catch (tip::TipException &) {
+            formatter.info() << "Cannot read source map for model component "
+                             << srcName << ". Skipping it." << std::endl;
+         }
          for (size_t i(0); i < image_size; i++) {
             size_t j0 = k*image_size + i;
+            optimizers::dArg eminArg(emin);
+            map0.at(i) += it->second->operator()(eminArg)*m_srcmap->at(j0);
+
             size_t j1 = j0 + image_size;
-            m_outmap.at(i) += source.pixelCounts(emin, emax, m_srcmap->at(j0),
-                                                 m_srcmap->at(j1));
+            optimizers::dArg emaxArg(emax);
+            map1.at(i) += it->second->operator()(emaxArg)*m_srcmap->at(j1);
          }
+      }
+      for (size_t i(0); i < image_size; i++) {
+         m_outmap.at(i) = pixelCounts(emin, emax, map0.at(i), map1.at(i));
       }
    }
 }
+
+double ModelMap::pixelCounts(double emin, double emax,
+                             double y1, double y2) const {
+   if (::getenv("USE_OLD_PIX_EST")) {
+      return (y1 + y2)*(emax - emin)/2.;
+   }
+   double gam(std::log(y2/y1)/std::log(emax/emin));
+   if (gam == -1) {
+      double y0(y2/std::pow(emax, gam));
+      return y0*std::log(emax/emin);
+   }
+
+   return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
+}
+
+// void ModelMap::sumOutputMap() {
+//    std::map<std::string, optimizers::Function *>::iterator it;
+//    for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
+//       std::string srcName = it->first;
+//       st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap", 2);
+//       try {
+//          getMap(srcName);
+//       } catch (tip::TipException &) {
+//          formatter.info() << "Cannot read source map for model component "
+//                           << srcName << ". Skipping it." << std::endl;
+//       }
+
+//       const Likelihood::Source & source(m_registry->source(srcName));
+
+//       if (it == m_spectra.begin()) {
+//          m_outmap.resize(m_srcmap->size(), 0);
+//       }
+//       size_t image_size = m_outmap.size()/(m_emins.size() + 1);
+//       for (size_t k(0); k < m_emins.size(); k++) {
+//          double & emin = m_emins.at(k);
+//          double & emax = m_emaxs.at(k);
+//          for (size_t i(0); i < image_size; i++) {
+//             size_t j0 = k*image_size + i;
+//             size_t j1 = j0 + image_size;
+//             m_outmap.at(i) += source.pixelCounts(emin, emax, m_srcmap->at(j0),
+//                                                  m_srcmap->at(j1));
+//          }
+//       }
+//    }
+// }
 
 void ModelMap::getMap(const std::string & srcName) {
    if (m_registry) {
