@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Apr 30 15:17:45 PDT 2010
+Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+modify gtmodel to perform sum over source contributions before integrating over energy so that it behaves the same way as BinnedLikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Fri Apr 30 15:17:44 PDT 2010
 Likelihood/src
 
