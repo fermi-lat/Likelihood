@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.5 2006/08/23 16:07:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.6 2006/09/14 20:38:42 peachey Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,8 @@ void CountsSpectra::getSrcCounts(const std::string & srcName,
 /// so we are forced to use instead the getNpreds function that pollutes our
 /// namespace.
       std::vector<double> npreds;
-      getNpreds(m_binnedLike->sourceMap(srcName), npreds);
+//      getNpreds(m_binnedLike->sourceMap(srcName), npreds);
+      m_binnedLike->getNpreds(srcName, npreds);
       for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
          srcCounts.push_back(src->pixelCounts(m_ebounds.at(k),
                                               m_ebounds.at(k+1),
