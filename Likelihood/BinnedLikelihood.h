@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.38 2010/05/03 00:57:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.39 2010/05/03 18:25:12 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.38 2010/05/03 00:57:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.39 2010/05/03 18:25:12 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -65,7 +65,7 @@ public:
                         bool requireExposure=true, 
                         bool addPointSources=true);
 
-   virtual CountsMap * createCountsMap() const;
+//   virtual CountsMap * createCountsMap() const;
 
    double npred();
 
@@ -163,7 +163,8 @@ private:
 
    void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
                      const std::string & srcName,
-                     const SourceMap * srcMap=0) const;
+                     const SourceMap * srcMap=0, 
+                     bool subtract=false) const;
 
    void setImageDimensions(tip::Image * image, long * dims) const;
 
@@ -185,6 +186,8 @@ private:
    double pixelCounts(double emin, double emax, double y1, double y2) const;
 
    double NpredValue(const std::string & name, const SourceMap & srcMap) const;
+
+   void updateFixedModelWts();
 };
 
 }

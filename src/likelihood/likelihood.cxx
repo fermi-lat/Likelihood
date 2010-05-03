@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.151 2009/10/23 20:23:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.152 2010/04/26 17:11:12 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -88,7 +88,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.151 2009/10/23 20:23:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.152 2010/04/26 17:11:12 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -140,7 +140,7 @@ private:
    void writeSourceXml();
    void writeCountsSpectra();
    void plotCountsSpectra();
-   void writeCountsMap();
+//   void writeCountsMap();
    void printFitResults(const std::vector<double> &errors);
    void printFitQuality() const;
    bool prompt(const std::string &query);
@@ -577,29 +577,29 @@ void likelihood::plotCountsSpectra() {
    }
 }
 
-void likelihood::writeCountsMap() {
-// If there is no valid exposure_cube_file, do nothing and return.
-   std::string expcube_file = m_pars["expcube"];
-   if (expcube_file == "none") {
-      return;
-   }
-   ExposureCube & expCube = 
-      const_cast<ExposureCube &>(m_helper->observation().expCube());
-   expCube.readExposureCube(expcube_file);
-   m_dataMap->writeOutput("likelihood", "data_map.fits");
-   try {
-      CountsMap * modelMap;
-      if (m_statistic == "BINNED") {
-         modelMap = m_logLike->createCountsMap();
-      } else {
-         modelMap = m_logLike->createCountsMap(*m_dataMap);
-      }
-      modelMap->writeOutput("likelihood", "model_map.fits");
-      delete modelMap;
-   } catch (std::exception & eObj) {
-      m_formatter->err() << eObj.what() << std::endl;
-   }
-}
+// void likelihood::writeCountsMap() {
+// // If there is no valid exposure_cube_file, do nothing and return.
+//    std::string expcube_file = m_pars["expcube"];
+//    if (expcube_file == "none") {
+//       return;
+//    }
+//    ExposureCube & expCube = 
+//       const_cast<ExposureCube &>(m_helper->observation().expCube());
+//    expCube.readExposureCube(expcube_file);
+//    m_dataMap->writeOutput("likelihood", "data_map.fits");
+//    try {
+//       CountsMap * modelMap;
+//       if (m_statistic == "BINNED") {
+//          modelMap = m_logLike->createCountsMap();
+//       } else {
+//          modelMap = m_logLike->createCountsMap(*m_dataMap);
+//       }
+//       modelMap->writeOutput("likelihood", "model_map.fits");
+//       delete modelMap;
+//    } catch (std::exception & eObj) {
+//       m_formatter->err() << eObj.what() << std::endl;
+//    }
+// }
 
 void likelihood::getElims(double & emin, double & emax) const {
    if (m_statistic == "UNBINNED") {
