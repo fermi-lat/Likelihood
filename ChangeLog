@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May  3 16:16:34 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h 
+Log Message:
+remove un-fixed sources from m_fixedSources map; restore computeModelMap(...) function for unit tests
+    *
+------------------------------------------------------------
 User: jchiang  Mon May  3 14:56:12 PDT 2010
 Likelihood/src/likelihood
 
