@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.351 2010/04/27 22:59:55 jchiang Exp $
+    $Id: release.notes,v 1.352 2010/04/30 22:19:08 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-05-00 03-May-2010 jchiang combine map information for fixed sources in BinnedLikelihood to save space
  Likelihood-16-04-04 30-Apr-2010 jchiang modify gtmodel so that it sums the source components before integrating over energy as in the recent mods to BinnedLikelihood
  Likelihood-16-04-03 27-Apr-2010 jchiang sum convolved maps before integrating over energy range for each pixel in BinnedLikelihood
  Likelihood-16-04-02 26-Apr-2010    jrb bug-fix for flux calculation in gtlike binned mode
