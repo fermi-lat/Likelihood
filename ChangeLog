@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May  3 14:56:11 PDT 2010
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+more fixed source map development; cleanup unused code
+    *
+------------------------------------------------------------
 User: jchiang  Mon May  3 14:56:10 PDT 2010
 Likelihood/Likelihood
 
