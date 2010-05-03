@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.55 2010/05/03 18:25:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.56 2010/05/03 21:56:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -71,7 +71,7 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
    }
    my_value -= npred;
 
-   st_stream::StreamFormatter formatter("BinnedLikelihood", "value", 2);
+   st_stream::StreamFormatter formatter("BinnedLikelihood", "value", 4);
    formatter.info() << m_nevals << "  "
                     << my_value << "  "
                     << npred << std::endl;
@@ -158,15 +158,15 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    }
 }
 
-// CountsMap * BinnedLikelihood::createCountsMap() const {
-//    std::vector<float> map;
-//    computeModelMap(map);
+CountsMap * BinnedLikelihood::createCountsMap() const {
+   std::vector<float> map;
+   computeModelMap(map);
 
-//    CountsMap * modelMap = new CountsMap(m_dataMap);
+   CountsMap * modelMap = new CountsMap(m_dataMap);
          
-//    modelMap->setImage(map);
-//    return modelMap;
-// }
+   modelMap->setImage(map);
+   return modelMap;
+}
 
 void BinnedLikelihood::readXml(std::string xmlFile, 
                                optimizers::FunctionFactory & funcFactory,
@@ -191,32 +191,35 @@ Source * BinnedLikelihood::deleteSource(const std::string & srcName) {
    return SourceModel::deleteSource(srcName);
 }
 
-// void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap) const {
-//    modelMap.clear();
-//    modelMap.resize(m_pixels.size()*(m_energies.size()-1), 0);
-//    for (size_t k(0); k < m_energies.size()-1; k++) {
-//       double emin(m_energies.at(k));
-//       double emax(m_energies.at(k+1));
-//       for (size_t j(0); j < m_pixels.size(); j++) {
-//          size_t imin(k*m_pixels.size() + j);
-//          size_t imax(imin + m_pixels.size());
-//          std::map<std::string, SourceMap *>::const_iterator srcIt
-//             = m_srcMaps.begin();
-//          for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
-//             const std::string & name(srcIt->first);
-//             const SourceMap * srcMap(srcIt->second);
-//             const Source * src 
-//                = const_cast<BinnedLikelihood *>(this)->getSource(name);
-//             const std::vector<float> & model(srcMap->model());
-//             modelMap.at(imin) += src->pixelCounts(emin, emax,
-//                                                   model.at(imin), 
-//                                                   model.at(imax));
-//          }
-//       }
-//    }
-// }
+void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap) const {
+   modelMap.clear();
+   modelMap.resize(m_pixels.size()*(m_energies.size()-1), 0);
+   for (size_t k(0); k < m_energies.size()-1; k++) {
+      double emin(m_energies.at(k));
+      double emax(m_energies.at(k+1));
+      for (size_t j(0); j < m_pixels.size(); j++) {
+         size_t imin(k*m_pixels.size() + j);
+         size_t imax(imin + m_pixels.size());
+         std::map<std::string, SourceMap *>::const_iterator srcIt
+            = m_srcMaps.begin();
+         for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
+            const std::string & name(srcIt->first);
+            const SourceMap * srcMap(srcIt->second);
+            const Source * src 
+               = const_cast<BinnedLikelihood *>(this)->getSource(name);
+            const std::vector<float> & model(srcMap->model());
+            modelMap.at(imin) += src->pixelCounts(emin, emax,
+                                                  model.at(imin), 
+                                                  model.at(imax));
+         }
+      }
+   }
+}
 
 void BinnedLikelihood::updateFixedModelWts() {
+   if (m_fixedSources.empty()) {
+      return;
+   }
    std::vector<std::string> fixedSources;
    fixedSources.reserve(m_fixedSources.size());
    for (size_t i(0); i < m_fixedSources.size(); i++) {
@@ -226,6 +229,7 @@ void BinnedLikelihood::updateFixedModelWts() {
          bool subtract;
          addSourceWts(m_fixedModelWts, srcName, srcMap, subtract=true);
          m_srcMaps[srcName] = srcMap;
+         m_fixedModelNpreds.erase(srcName);
       } else {
          fixedSources.push_back(srcName);
       }
