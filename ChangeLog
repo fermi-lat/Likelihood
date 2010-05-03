@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May  3 11:25:12 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h SourceMap.h 
+Log Message:
+initial implementation of combined binned map data for fixed sources
+    *
+------------------------------------------------------------
 User: jchiang  Sun May  2 17:57:10 PDT 2010
 Likelihood/Likelihood
 
