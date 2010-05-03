@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.37 2010/04/30 22:18:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.38 2010/05/03 00:57:10 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.37 2010/04/30 22:18:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.38 2010/05/03 00:57:10 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -81,6 +81,9 @@ public:
    const CountsMap & countsMap() const {
       return m_dataMap;
    }
+
+   void getNpreds(const std::string & srcName,
+                  std::vector<double> & npreds) const;
 
    SourceMap * createSourceMap(const std::string & srcName);
 
@@ -145,7 +148,8 @@ private:
 
    std::vector<std::string> m_fixedSources;
 
-   SourceMap * m_fixedMapSum;
+   std::vector<std::pair<double, double> > m_fixedModelWts;
+   std::map<std::string, double> m_fixedModelNpreds;
    
    void createSourceMaps();
 
@@ -157,6 +161,10 @@ private:
 
    void computeModelMap(std::vector<float> & modelMap) const;
 
+   void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
+                     const std::string & srcName,
+                     const SourceMap * srcMap=0) const;
+
    void setImageDimensions(tip::Image * image, long * dims) const;
 
    void identifyFilledPixels();
@@ -167,14 +175,16 @@ private:
    void replaceSourceMap(const std::string & srcName, 
                          const std::string & fitsFile) const;
 
-   void addSourceMap(const std::string & srcName, 
-                     const std::string & fitsFile) const;
+   void appendSourceMap(const std::string & srcName, 
+                        const std::string & fitsFile) const;
 
    void computeCountsSpectrum();
 
    double spectrum(const Source * src, double energy) const;
 
    double pixelCounts(double emin, double emax, double y1, double y2) const;
+
+   double NpredValue(const std::string & name, const SourceMap & srcMap) const;
 };
 
 }

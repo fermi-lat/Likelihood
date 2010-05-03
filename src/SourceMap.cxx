@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.75 2010/02/17 19:00:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.76 2010/04/26 17:11:09 jchiang Exp $
  */
 
 #include <algorithm>
@@ -63,11 +63,11 @@ namespace {
 
 namespace Likelihood {
 
-/// @bug Use of this function (by CountsSpectra.cxx) is necessitated by
-/// annoying linkage problems on Windows.
-void getNpreds(const SourceMap & srcMap, std::vector<double> & npreds) {
-   npreds = srcMap.npreds();
-}
+// /// @bug Use of this function (by CountsSpectra.cxx) is necessitated by
+// /// annoying linkage problems on Windows.
+// void getNpreds(const SourceMap & srcMap, std::vector<double> & npreds) {
+//    npreds = srcMap.npreds();
+// }
 
 std::string SourceMap::s_expMapFileName;
 MeanPsf * SourceMap::s_meanPsf(0);
@@ -245,6 +245,17 @@ SourceMap::~SourceMap() {
    delete m_formatter;
 }
 
+void SourceMap::addMap(const std::vector<float> & other_model) {
+   if (other_model.size() != m_model.size()) {
+      throw std::runtime_error("SourceMap::addMap: "
+                               "model map sizes don't match");
+   }
+   for (size_t j(0); j < m_model.size(); j++) {
+      m_model.at(j) += other_model.at(j);
+   }
+   computeNpredArray();
+}
+
 void SourceMap::setBinnedExposure(const std::string & filename) {
    if (s_binnedExposure != 0) {
       delete s_binnedExposure;
@@ -314,21 +325,26 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
    m_model.clear();
    image->get(m_model);
 
+   computeNpredArray();
+
+   if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
+      prepareAngleArrays();
+   }
+}
+
+void SourceMap::computeNpredArray() {
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
    
    std::vector<double> energies;
    m_dataMap->getAxisVector(2, energies);
 
    m_npreds.resize(energies.size(), 0);
-   for (unsigned int k = 0; k < energies.size(); k++) {
+   for (size_t k(0); k < energies.size(); k++) {
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
-      for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
-         unsigned long indx = k*pixels.size() + j;
+      for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
+         size_t indx(k*pixels.size() + j);
          m_npreds.at(k) += m_model.at(indx);
       }
-   }
-   if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
-      prepareAngleArrays();
    }
 }
 
