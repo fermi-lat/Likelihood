@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May  3 11:25:15 PDT 2010
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx CountsSpectra.cxx SourceMap.cxx 
+Log Message:
+initial implementation of combined binned map data for fixed sources
+    *
+------------------------------------------------------------
 User: jchiang  Mon May  3 11:25:12 PDT 2010
 Likelihood/Likelihood
 
