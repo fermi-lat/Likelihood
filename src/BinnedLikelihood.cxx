@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.57 2010/05/03 23:16:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.58 2010/05/04 15:50:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -184,11 +184,25 @@ void BinnedLikelihood::readXml(std::string xmlFile,
 void BinnedLikelihood::addSource(Source * src) {
    m_bestValueSoFar = -1e38;
    SourceModel::addSource(src);
+   if (m_srcMaps.find(src->getName()) == m_srcMaps.end()) {
+      m_srcMaps[src->getName()] = getSourceMap(src->getName());
+   }
 }
 
 Source * BinnedLikelihood::deleteSource(const std::string & srcName) {
    m_bestValueSoFar = -1e38;
-   return SourceModel::deleteSource(srcName);
+// Check if this is a fixed source, and if so, remove it from the fixed model.
+   std::vector<std::string>::iterator srcIt = 
+      std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
+   if (source(srcName).fixedSpectrum() && srcIt != m_fixedSources.end()) {
+      SourceMap * srcMap(getSourceMap(srcName));
+      bool subtract;
+      addSourceWts(m_fixedModelWts, srcName, srcMap, subtract=true);
+      m_fixedModelNpreds.erase(srcName);
+      m_fixedSources.erase(srcIt);
+   }
+   Source * src(SourceModel::deleteSource(srcName));
+   return src;
 }
 
 void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap) const {
