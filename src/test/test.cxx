@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.94 2010/02/02 06:48:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.95 2010/02/08 23:41:25 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -98,6 +98,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_DiffuseSource);
    CPPUNIT_TEST(test_CountsMap);
    CPPUNIT_TEST(test_BinnedLikelihood);
+   CPPUNIT_TEST(test_BinnedLikelihood_2);
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
@@ -125,6 +126,7 @@ public:
    void test_DiffuseSource();
    void test_CountsMap();
    void test_BinnedLikelihood();
+   void test_BinnedLikelihood_2();
    void test_MeanPsf();
    void test_BinnedExposure();
    void test_SourceMap();
@@ -886,8 +888,80 @@ void LikelihoodTests::test_BinnedLikelihood() {
    delete modelMap;
 }
 
+double fit(BinnedLikelihood & like, double tol=1e-5, int verbose=0) {
+   optimizers::Minuit my_optimizer(like);
+   my_optimizer.find_min(verbose, tol);
+   double fit_value(like.value());
+   return fit_value;
+}
+
+void LikelihoodTests::test_BinnedLikelihood_2() {
+   std::string exposureCubeFile = 
+      facilities::commonUtilities::joinPath(m_rootPath, "expcube_1_day.fits");
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   m_expCube->readExposureCube(exposureCubeFile);
+
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
+
+   CountsMap dataMap(singleSrcMap(21));
+
+   BinnedLikelihood like0(dataMap, *m_observation);
+   std::string anticenter_model = 
+      facilities::commonUtilities::joinPath(m_rootPath,"anticenter_model_2.xml");
+   like0.readXml(anticenter_model, *m_funcFactory);
+
+   BinnedLikelihood like1(dataMap, *m_observation);
+   like1.readXml(anticenter_model, *m_funcFactory);
+
+   double fit_value0 = fit(like0);
+
+   Source * src = like1.deleteSource("PKS 0528+134");
+   like1.addSource(src);
+   double fit_value1 = fit(like1);
+
+   ASSERT_EQUALS(fit_value0, fit_value1);
+
+   BinnedLikelihood like2(dataMap, *m_observation);
+   like2.readXml(anticenter_model, *m_funcFactory);
+
+   BinnedLikelihood like3(dataMap, *m_observation);
+   anticenter_model = 
+      facilities::commonUtilities::joinPath(m_rootPath,"anticenter_model_3.xml");
+   like3.readXml(anticenter_model, *m_funcFactory);
+
+   delete like2.deleteSource("PKS 0528+134");
+
+   double fit_value2 = fit(like2);
+   double fit_value3 = fit(like3);
+
+   ASSERT_EQUALS(fit_value2, fit_value3);
+
+   BinnedLikelihood like4(dataMap, *m_observation);
+   anticenter_model = 
+      facilities::commonUtilities::joinPath(m_rootPath,"anticenter_model_2.xml");
+   like4.readXml(anticenter_model, *m_funcFactory);
+   like4.source("PKS 0528+134").spectrum().parameter("Prefactor").setFree(true);
+   like4.source("PKS 0528+134").spectrum().parameter("Index").setFree(true);
+   like4.syncParams();
+
+   double fit_value4 = fit(like4);
+
+   BinnedLikelihood like5(dataMap, *m_observation);
+   anticenter_model = 
+      facilities::commonUtilities::joinPath(m_rootPath,"anticenter_model_4.xml");
+   like5.readXml(anticenter_model, *m_funcFactory);
+
+   double fit_value5 = fit(like5);
+   
+   ASSERT_EQUALS(fit_value4, fit_value5);
+}
+
 void LikelihoodTests::test_MeanPsf() {
-   std::string exposureCubeFile = facilities::commonUtilities::joinPath(m_rootPath, "expcube_1_day.fits");
+   std::string exposureCubeFile = 
+      facilities::commonUtilities::joinPath(m_rootPath, "expcube_1_day.fits");
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
    }
