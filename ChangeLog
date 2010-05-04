@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue May  4 16:49:52 PDT 2010
+Likelihood/pfiles
+
+Modified Files:
+	gttsmap.par 
+Log Message:
+add NEWMINUIT and DRMNFB to optimizer choices
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-05-01, operation: add
 Package: Likelihood
