@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May  4 15:30:24 PDT 2010
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+add test code new BinnedLikelihood implementation
+    *
+------------------------------------------------------------
 User: jchiang  Tue May  4 15:30:23 PDT 2010
 Likelihood/src
 
