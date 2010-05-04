@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May  4 08:50:53 PDT 2010
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+code to update stored summed model if a free source becomes fixed.
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-05-00, operation: add
 Package: Likelihood
