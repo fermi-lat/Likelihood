@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.56 2010/05/03 21:56:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.57 2010/05/03 23:16:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -217,9 +217,14 @@ void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap) const {
 }
 
 void BinnedLikelihood::updateFixedModelWts() {
-   if (m_fixedSources.empty()) {
-      return;
+// Save current set of free sources.
+   std::vector<std::string> freeSources;
+   std::map<std::string, SourceMap *>::const_iterator srcIt(m_srcMaps.begin());
+   for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
+      freeSources.push_back(srcIt->first);
    }
+
+// Remove fixed sources that have become free.
    std::vector<std::string> fixedSources;
    fixedSources.reserve(m_fixedSources.size());
    for (size_t i(0); i < m_fixedSources.size(); i++) {
@@ -232,6 +237,25 @@ void BinnedLikelihood::updateFixedModelWts() {
          m_fixedModelNpreds.erase(srcName);
       } else {
          fixedSources.push_back(srcName);
+      }
+   }
+
+// Add sources that have become fixed.
+   for (size_t i(0); i < freeSources.size(); i++) {
+      const std::string & srcName(freeSources.at(i));
+      try {
+         if (source(srcName).fixedSpectrum()) {
+            SourceMap * srcMap(m_srcMaps[srcName]);
+            addSourceWts(m_fixedModelWts, srcName, srcMap);
+            m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
+            m_srcMaps.erase(srcName);
+            delete srcMap;
+            fixedSources.push_back(srcName);
+         }
+      } catch (std::runtime_error & eObj) {
+         // This occurs when computing the TS and the source has been
+         // removed from the model temporarily for the null
+         // hypothesis.
       }
    }
    m_fixedSources = fixedSources;
