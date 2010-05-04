@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue May  4 15:27:02 PDT 2010
+Likelihood/data
+
+Added Files:
+	anticenter_model_2.xml anticenter_model_3.xml 
+	anticenter_model_4.xml 
+Log Message:
+add xml model files for new BinnedLikelihood tests
+    *
+------------------------------------------------------------
 User: jchiang  Tue May  4 08:50:53 PDT 2010
 Likelihood/src
 
