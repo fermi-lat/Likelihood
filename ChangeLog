@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu May  6 10:58:23 PDT 2010
+Likelihood/src/makeExposureCube
+
+Modified Files:
+	makeExposureCube.cxx 
+Log Message:
+remove zmax!=180 warning and let users live with the consequences
+    *
+------------------------------------------------------------
 User: jchiang  Tue May  4 16:49:52 PDT 2010
 Likelihood/pfiles
 
