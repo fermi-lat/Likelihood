@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.55 2009/06/03 21:28:47 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.56 2009/12/16 19:16:23 elwinter Exp $
  */
 
 #include <cstdlib>
@@ -68,7 +68,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.55 2009/06/03 21:28:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.56 2009/12/16 19:16:23 elwinter Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -103,7 +103,7 @@ private:
 
 st_app::StAppFactory<ExposureCube> myAppFactory("gtltcube");
 
-std::string ExposureCube::s_cvs_id("$Name: v15r7p0 $");
+std::string ExposureCube::s_cvs_id("$Name:  $");
 
 void ExposureCube::banner() const {
    int verbosity = m_pars["chatter"];
@@ -211,15 +211,6 @@ void ExposureCube::createDataCube() {
    formatter.info(4) << "applying filter: " << filter.str() << std::endl;
 
    double zmax = m_pars["zmax"];
-   if (zmax < 180.) {
-      formatter.info(2) << "WARNING: You have chosen to apply a zenith angle cut of "
-                        << zmax << " degrees." << std::endl
-                        << "Applying such a cut for this tool is not equivalent to \n"
-                        << "applying a zenith angle cut in gtselect." << std::endl
-                        << "If you don't understand this comment, " << std::endl
-                        << "then you probably shouldn't be applying this cut." 
-                        << std::endl;
-   }
 
    // Set the number of phibins using the static function interface
    // from healpix::CosineBinner (this is how
