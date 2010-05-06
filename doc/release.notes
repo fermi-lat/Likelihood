@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.353 2010/05/03 23:19:09 jchiang Exp $
+    $Id: release.notes,v 1.354 2010/05/04 22:34:16 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-05-02 06-May-2010 jchiang remove zmax!=180 warning from gtltcube
  Likelihood-16-05-01 04-May-2010 jchiang update summed fixed-source model if a free source becomes fixed in binned analysis; related updates for BinnedLikelihood::[add,delete]Source; added test code
  Likelihood-16-05-00 03-May-2010 jchiang combine map information for fixed sources in BinnedLikelihood to save space
  Likelihood-16-04-04 30-Apr-2010 jchiang modify gtmodel so that it sums the source components before integrating over energy as in the recent mods to BinnedLikelihood
