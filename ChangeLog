@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon May 10 10:04:44 PDT 2010
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+remove redundant calls of getSourceMap(...)
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-06-00, operation: add
 Package: Likelihood
