@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sun May  9 21:20:41 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h 
+Added Files:
+	EventSourceCache.h 
+Log Message:
+add Stephen's changes for the response caching
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-05-02, operation: add
 Package: Likelihood
