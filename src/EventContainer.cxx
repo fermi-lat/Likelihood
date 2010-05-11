@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.22 2009/11/19 18:38:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.23 2010/02/24 20:50:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -201,16 +201,23 @@ void EventContainer::computeEventResponses(std::vector<DiffuseSource *> &srcs,
 }
 
 std::vector<double> 
-EventContainer::nobs(const std::vector<double> & ebounds) const {
+EventContainer::nobs(const std::vector<double> & ebounds,
+                     const Source * src) const {
    std::vector<double> my_nobs(ebounds.size()-1, 0);
-   for (size_t i = 0; i < m_events.size(); i++) {
-      double energy = m_events.at(i).getEnergy();
+   for (size_t i(0); i < m_events.size(); i++) {
+      const Event & event(m_events.at(i));
+      double energy = event.getEnergy();
       size_t k = std::upper_bound(ebounds.begin(), ebounds.end(), energy)
          - ebounds.begin() - 1;
       if (energy == ebounds.back()) {
          k = my_nobs.size() - 1;
       }
-      my_nobs.at(k)++;
+      if (src) {
+         my_nobs.at(k) += (src->fluxDensity(event)*event.efficiency()
+                           /event.modelSum());
+      } else {
+         my_nobs.at(k)++;
+      }
    }
    return my_nobs;
 }
