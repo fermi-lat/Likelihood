@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.69 2010/02/08 18:44:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.70 2010/05/10 04:20:42 jchiang Exp $
  */
 
 #include <cmath>
@@ -81,27 +81,41 @@ double LogLike::value(optimizers::Arg&) const {
 double LogLike::logSourceModel(const Event & event,
 			       ResponseCache::EventRef* srcRespCache) const {
    double my_value(0);
-//    if (m_useNewImp) {
-//       for (size_t i = 0; i < m_freeSrcs.size(); i++) {
-// 	     const Source* source = m_freeSrcs.at(i);
-// 	     CachedResponse* cResp=0;
-// 	     if(srcRespCache)
-//               cResp = &srcRespCache->getCachedValue(source->getName());
-//           const_cast<Event &>(event).updateModelSum(*m_freeSrcs.at(i), cResp);
-//       }
-//       my_value = event.modelSum();
-//    } else {
-   std::map<std::string, Source *>::const_iterator 
-      source(m_sources.begin());
-   for ( ; source != m_sources.end(); ++source) {
-      CachedResponse* cResp=0;
-      if(srcRespCache)
-	  cResp = &srcRespCache->getCachedValue(source->second->getName());
-      double fluxDens(source->second->fluxDensity(event, cResp));
-      fluxDens *= event.efficiency();
-      my_value += fluxDens;
-   }
-//    }
+// This part was commented out in v15r8p2 (Feb 8, 2010), either for
+// accuracy reasons or because there was some problem related to the
+// handling of the free state of sources.
+   // if (m_useNewImp) {
+   //    for (size_t i = 0; i < m_freeSrcs.size(); i++) {
+   //           const Source* source = m_freeSrcs.at(i);
+   //           CachedResponse* cResp=0;
+   //           if(srcRespCache)
+   //            cResp = &srcRespCache->getCachedValue(source->getName());
+   //        const_cast<Event &>(event).updateModelSum(*m_freeSrcs.at(i), cResp);
+   //    }
+   //    my_value = event.modelSum();
+   // } else {
+      std::map<std::string, Source *>::const_iterator 
+         source(m_sources.begin());
+      for ( ; source != m_sources.end(); ++source) {
+         CachedResponse* cResp=0;
+         if (srcRespCache) {
+            cResp = &srcRespCache->getCachedValue(source->second->getName());
+         }
+// Event::modelSum() will be used for the per event source
+// probabilities so we need to update the Event::m_modelSum value.
+         if (std::count(m_freeSrcs.begin(), m_freeSrcs.end(), source->second)) {
+            const_cast<Event &>(event).updateModelSum(*source->second, cResp);
+         }
+         double fluxDens(source->second->fluxDensity(event, cResp));
+         fluxDens *= event.efficiency();
+         my_value += fluxDens;
+      }
+      if (std::fabs((my_value - event.modelSum())/my_value) > 1e-5) {
+         std::cout << event.getEnergy() << "  "
+                   << my_value << "  "
+                   << event.modelSum() << std::endl;
+      }
+   // }
    if (my_value > 0) {
       return std::log(my_value);
    }
@@ -194,7 +208,7 @@ void LogLike::addSource(Source * src) {
 
    bool useCachedResp(false);
    if(m_useNewImp) {
-      // New implentation: use the response cache if there are free parameters
+      // New implementation: use the response cache if there are free parameters
       Source::FuncMap & srcFuncs(src->getSrcFuncs());
       for (Source::FuncMap::const_iterator func = srcFuncs.begin();
            func != srcFuncs.end(); ++func) {
