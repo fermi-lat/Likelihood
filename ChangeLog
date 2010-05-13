@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu May 13 13:32:16 PDT 2010
+Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Log Message:
+protect modelsum comparison against cases where an empty source model is used (e.g., in gttsmap)
+    *
+------------------------------------------------------------
 User: jchiang  Thu May 13 13:30:24 PDT 2010
 ScienceTools-scons/Likelihood
 
