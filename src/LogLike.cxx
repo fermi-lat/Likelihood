@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.70 2010/05/10 04:20:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.71 2010/05/11 15:51:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -110,7 +110,7 @@ double LogLike::logSourceModel(const Event & event,
          fluxDens *= event.efficiency();
          my_value += fluxDens;
       }
-      if (std::fabs((my_value - event.modelSum())/my_value) > 1e-5) {
+      if (my_value > 0 && std::fabs((my_value - event.modelSum())/my_value) > 1e-5) {
          std::cout << event.getEnergy() << "  "
                    << my_value << "  "
                    << event.modelSum() << std::endl;
