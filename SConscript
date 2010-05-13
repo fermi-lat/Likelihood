@@ -1,5 +1,5 @@
 # -*- python -*-
-# $Id: SConscript,v 1.112 2010/05/10 04:28:24 jchiang Exp $
+# $Id: SConscript,v 1.113 2010/05/10 17:06:58 jchiang Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Pat Nolan <pln@razzle.stanford.edu>
 # Version: Likelihood-16-06-01
 
@@ -10,7 +10,8 @@ libEnv = baseEnv.Clone()
 libEnv.Tool('addLinkDeps', package='Likelihood', toBuild='shared')
 LikelihoodLib = libEnv.SharedLibrary('Likelihood', 
                                      listFiles(['src/*.c', 'src/*.cxx',
-                                                'src/dmfit/*.cxx', 'src/dmfit/*.c']))
+                                                'src/dmfit/*.cxx', 
+                                                'src/dmfit/*.c']))
 
 progEnv.Tool('LikelihoodLib')
 
@@ -31,6 +32,8 @@ gtdiffrspBin = progEnv.Program('gtdiffrsp', listFiles(['src/diffuseResponses/*.c
 
 gtsrcmapsBin = progEnv.Program('gtsrcmaps', listFiles(['src/gtsrcmaps/*.cxx']))
 
+gtsrcprobBin = progEnv.Program('gtsrcprob', listFiles(['src/gtsrcprob/*.cxx']))
+
 gtpsfBin = progEnv.Program('gtpsf', listFiles(['src/meanPsf/*.cxx']))
 
 gtbkgBin = progEnv.Program('gtbkg', listFiles(['src/backfile/*.cxx']))
@@ -42,11 +45,19 @@ gtltsumBin = progEnv.Program('gtltsum', listFiles(['src/gtaddlivetime/*.cxx']))
 gtfindsrcBin = progEnv.Program('gtfindsrc', listFiles(['src/gtfindsrc/*.cxx']))
 
 progEnv.Tool('registerTargets', package = 'Likelihood', 
-             libraryCxts = [[LikelihoodLib,libEnv]], 
-             binaryCxts = [[gtlikeBin,progEnv], [gtexpmapBin,progEnv], [gttsmapBin,progEnv],
-                           [gtltcubeBin,progEnv], [gtdiffrspBin,progEnv], [gtsrcmapsBin,progEnv],
-                           [gtpsfBin,progEnv], [gtbkgBin,progEnv], [gtmodelBin,progEnv],
-                           [gtltsumBin,progEnv], [gtfindsrcBin,progEnv]],
+             libraryCxts = [[LikelihoodLib, libEnv]], 
+             binaryCxts = [[gtlikeBin, progEnv], 
+                           [gtexpmapBin, progEnv],
+                           [gttsmapBin, progEnv],
+                           [gtltcubeBin, progEnv],
+                           [gtdiffrspBin, progEnv],
+                           [gtsrcmapsBin, progEnv],
+                           [gtsrcprobBin, progEnv],
+                           [gtpsfBin, progEnv],
+                           [gtbkgBin, progEnv],
+                           [gtmodelBin, progEnv],
+                           [gtltsumBin, progEnv],
+                           [gtfindsrcBin, progEnv]],
              testAppCxts = [[test_LikelihoodBin, testEnv]],
              includes = listFiles(['Likelihood/*.h']), 
              pfiles = listFiles(['pfiles/*.par']),
