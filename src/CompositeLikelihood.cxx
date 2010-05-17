@@ -6,7 +6,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.7 2008/09/26 00:27:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CompositeLikelihood.cxx,v 1.8 2008/11/26 23:35:02 jchiang Exp $
  */
 
 #include <iostream>
@@ -35,15 +35,14 @@ void CompositeLikelihood::addComponent(const std::string & srcName,
          throw std::runtime_error("Inconsistent common source type.");
       }
    }
-         
-   m_components[srcName] = &component;
+   m_components[&component] = srcName;
 }
 
 double CompositeLikelihood::value() const {
    double my_value(0);
    ComponentConstIterator_t it(m_components.begin());
    for ( ; it != m_components.end(); ++it) {
-      my_value += it->second->value();
+      my_value += it->first->value();
    }
    return my_value;
 }
@@ -54,8 +53,8 @@ double CompositeLikelihood::value() const {
 //    ComponentConstIterator_t it(m_components.begin());
 //    for ( ; it != m_components.end(); ++it) {
 //       std::map<std::string, Source *>::const_iterator src
-//          = it->second->sources().begin();
-//       if (src != it->first) {
+//          = it->first->sources().begin();
+//       if (src != it->second) {
          
 //       }
 //    }
@@ -72,10 +71,10 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
 // reserve to the end.
    ComponentConstIterator_t it(m_components.begin());
    for ( ; it != m_components.end(); ++it) {
-      const std::string & commonSrcName(it->first);
+      const std::string & commonSrcName(it->second);
       std::map<std::string, Source *>::const_iterator 
-         src(it->second->sources().begin());
-      for ( ; src != it->second->sources().end(); ++src) {
+         src(it->first->sources().begin());
+      for ( ; src != it->first->sources().end(); ++src) {
          if (src->first != commonSrcName) { 
             std::vector<optimizers::Parameter> my_params;
             src->second->spectrum().getFreeParams(my_params);
@@ -89,8 +88,8 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
 // Collect the common source type params for the first component, excluding its
 // normalization parameter.
    it = m_components.begin();
-   const std::string & commonSrcName(it->first);
-   const Source * my_source(it->second->sources().find(commonSrcName)->second);
+   const std::string & commonSrcName(it->second);
+   const Source * my_source(it->first->sources().find(commonSrcName)->second);
    std::vector<optimizers::Parameter> my_params;
    my_source->spectrum().getFreeParams(my_params);
    for (size_t i(0); i < my_params.size(); i++) {
@@ -102,7 +101,7 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
 // Loop over components again and collect the normalization parameters
 // for all of the common source type objects.
    for ( ; it != m_components.end(); ++it) {
-      const Source * my_source(it->second->sources().find(it->first)->second);
+      const Source * my_source(it->first->sources().find(it->second)->second);
       const optimizers::Parameter & normPar = 
          const_cast<optimizers::Function &>(my_source->spectrum()).normPar();
       if (normPar.isFree()) {
@@ -124,9 +123,9 @@ setFreeParamValues(const std::vector<double> & values) {
    ComponentIterator_t it(m_components.begin());
    for ( ; it != m_components.end(); ++it) {
       std::map<std::string, Source *>::const_iterator 
-         src(it->second->sources().begin());
-      for ( ; src != it->second->sources().end(); ++src) {
-         if (src->first != it->first) { 
+         src(it->first->sources().begin());
+      for ( ; src != it->first->sources().end(); ++src) {
+         if (src->first != it->second) { 
             size_t npar(src->second->spectrum().getNumFreeParams());
             std::vector<double> my_values;
             for (size_t i(0); i < npar; i++, ++vals) {
@@ -141,8 +140,8 @@ setFreeParamValues(const std::vector<double> & values) {
 // Set the common source parameters for the first component, saving the
 // values for the non-normPar parameters for the later components.
    it = m_components.begin();
-   Source * my_source = const_cast<Source *>(it->second->sources()
-                                             .find(it->first)->second);
+   Source * my_source = const_cast<Source *>(it->first->sources()
+                                             .find(it->second)->second);
    optimizers::Function & my_spectrum = 
       const_cast<optimizers::Function &>(my_source->spectrum());
 
@@ -162,8 +161,8 @@ setFreeParamValues(const std::vector<double> & values) {
 // type params for all components and the normalization parameters
 // where needed.
    for ( ; it != m_components.end(); ++it) {
-      my_source = const_cast<Source *>(it->second->sources()
-                                       .find(it->first)->second);
+      my_source = const_cast<Source *>(it->first->sources()
+                                       .find(it->second)->second);
       optimizers::Function & my_spec = 
          const_cast<optimizers::Function &>(my_source->spectrum());
       for (size_t i(0); i < parNames.size(); i++) {
@@ -183,7 +182,7 @@ setFreeParamValues(const std::vector<double> & values) {
 void CompositeLikelihood::syncParams() {
    for (ComponentIterator_t it(m_components.begin()); 
         it != m_components.end(); ++it) {
-      it->second->syncParams();
+      it->first->syncParams();
    }
 }
 
@@ -192,14 +191,14 @@ unsigned int CompositeLikelihood::getNumFreeParams() const {
    unsigned int npars(0);
    for ( ; it != m_components.end(); ++it) {
       std::map<std::string, Source *>::const_iterator src =
-         it->second->sources().begin();
-      for ( ; src != it->second->sources().end(); ++src) {
-         if (it->first != src->first) {
+         it->first->sources().begin();
+      for ( ; src != it->first->sources().end(); ++src) {
+         if (it->second != src->first) {
             npars += src->second->spectrum().getNumFreeParams();
          }
       }
       const optimizers::Function & my_spectrum
-         = it->second->sources().find(it->first)->second->spectrum();
+         = it->first->sources().find(it->second)->second->spectrum();
       if (it == m_components.begin()) {
          std::vector<optimizers::Parameter> pars;
          my_spectrum.getFreeParams(pars);
@@ -228,7 +227,7 @@ void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 // the normalization) for the common source type object in the first
 // component.
    const optimizers::Function & my_spectrum = 
-      it->second->sources().find(it->first)->second->spectrum();
+      it->first->sources().find(it->second)->second->spectrum();
    std::vector<optimizers::Parameter> pars;
    my_spectrum.getFreeParams(pars);
    size_t npars(0);
@@ -240,14 +239,14 @@ void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
    for ( ; it != m_components.end(); ++it) {
       std::map<std::string, Source *>::const_iterator src 
-         = it->second->sources().begin();
-      for ( ; src != it->second->sources().end(); ++src) {
+         = it->first->sources().begin();
+      for ( ; src != it->first->sources().end(); ++src) {
          std::vector<std::string> parNames;
          src->second->spectrum().getFreeParamNames(parNames);
          for (size_t i(0); i < parNames.size(); i++) {
             componentPars.push_back(std::make_pair(src->first, 
                                                    parNames.at(i)));
-            if (it->first == src->first) {
+            if (it->second == src->first) {
                commonSrcTypeFlag.push_back(1);
             } else {
                commonSrcTypeFlag.push_back(0);
@@ -255,7 +254,7 @@ void CompositeLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
          }
       }
       std::vector<double> my_derivs;
-      it->second->getFreeDerivs(my_derivs);
+      it->first->getFreeDerivs(my_derivs);
       for (size_t i(0); i < my_derivs.size(); i++) {
          freeDerivs.push_back(my_derivs.at(i));
       }
