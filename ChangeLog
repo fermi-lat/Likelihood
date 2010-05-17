@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon May 17 14:17:49 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	CompositeLikelihood.cxx LogLike.cxx 
+Log Message:
+sway key/value types in m_components map in CompositeLikelihood; this will allow different components to have the same name for the 'stacked' source component
+    *
+------------------------------------------------------------
+User: jchiang  Mon May 17 14:17:49 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
 Modified Files:
