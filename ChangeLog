@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 18 09:01:25 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	DiffuseSource.h PointSource.h Source.h 
+Log Message:
+refactor SourceModel implementation to use only spectrum parts of contained functions
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-06-02, operation: add
 Package: Likelihood
