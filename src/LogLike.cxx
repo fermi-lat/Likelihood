@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.72 2010/05/13 20:32:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.73 2010/05/17 21:17:49 jchiang Exp $
  */
 
 #include <cmath>
@@ -133,21 +133,33 @@ void LogLike::getLogSourceModelDerivs(const Event & event,
 
    std::map<std::string, Source *>::const_iterator source = m_sources.begin();
    for ( ; source != m_sources.end(); ++source) {
-      Source::FuncMap srcFuncs = source->second->getSrcFuncs();
-      Source::FuncMap::const_iterator func_it = srcFuncs.begin();
-      CachedResponse* cResp=0;
-      for (; func_it != srcFuncs.end(); func_it++) {
-         std::vector<std::string> paramNames;
-         (*func_it).second->getFreeParamNames(paramNames);
-         // Only set cResp for sources with at least 1 free param
-         if((cResp==0)&&(!paramNames.empty())&&(srcRespCache))
-            cResp = &srcRespCache->getCachedValue(source->second->getName());
-         for (size_t j = 0; j < paramNames.size(); j++) {
-            double fluxDensDeriv = 
-	       source->second->fluxDensityDeriv(event, paramNames[j], cResp);
-            fluxDensDeriv *= event.efficiency();
-            derivs.push_back(fluxDensDeriv/srcSum);
-         }
+//       Source::FuncMap srcFuncs = source->second->getSrcFuncs();
+//       Source::FuncMap::const_iterator func_it = srcFuncs.begin();
+//       CachedResponse* cResp=0;
+//       for (; func_it != srcFuncs.end(); func_it++) {
+//          std::vector<std::string> paramNames;
+//          (*func_it).second->getFreeParamNames(paramNames);
+//          // Only set cResp for sources with at least 1 free param
+//          if((cResp==0)&&(!paramNames.empty())&&(srcRespCache))
+//             cResp = &srcRespCache->getCachedValue(source->second->getName());
+//          for (size_t j = 0; j < paramNames.size(); j++) {
+//             double fluxDensDeriv = 
+// 	       source->second->fluxDensityDeriv(event, paramNames[j], cResp);
+//             fluxDensDeriv *= event.efficiency();
+//             derivs.push_back(fluxDensDeriv/srcSum);
+//          }
+//       }
+      CachedResponse * cResp(0);
+      std::vector<std::string> paramNames;
+      source->second->spectrum().getFreeParamNames(paramNames);
+      if ( (cResp == 0) && (!paramNames.empty()) && (srcRespCache) ) {
+         cResp = &srcRespCache->getCachedValue(source->second->getName());
+      }
+      for (size_t j(0); j < paramNames.size(); j++) {
+         double fluxDensDeriv = 
+            source->second->fluxDensityDeriv(event, paramNames.at(j), cResp);
+         fluxDensDeriv *= event.efficiency();
+         derivs.push_back(fluxDensDeriv/srcSum);
       }
    }
 }
@@ -198,7 +210,7 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
    freeDerivs.reserve(NpredDerivs.size());
    freeDerivs.clear();
    for (size_t i = 0; i < NpredDerivs.size(); i++) {
-      freeDerivs.push_back(logSrcModelDerivs[i] - NpredDerivs[i]);
+      freeDerivs.push_back(logSrcModelDerivs.at(i) - NpredDerivs.at(i));
    }
 }
 
@@ -208,15 +220,18 @@ void LogLike::addSource(Source * src) {
    std::string srcName = src->getName();
 
    bool useCachedResp(false);
-   if(m_useNewImp) {
+   if (m_useNewImp) {
       // New implementation: use the response cache if there are free parameters
-      Source::FuncMap & srcFuncs(src->getSrcFuncs());
-      for (Source::FuncMap::const_iterator func = srcFuncs.begin();
-           func != srcFuncs.end(); ++func) {
-         if (func->second->getNumFreeParams() > 0) {
-            useCachedResp = true;
-            break;
-         }
+//       Source::FuncMap & srcFuncs(src->getSrcFuncs());
+//       for (Source::FuncMap::const_iterator func = srcFuncs.begin();
+//            func != srcFuncs.end(); ++func) {
+//          if (func->second->getNumFreeParams() > 0) {
+//             useCachedResp = true;
+//             break;
+//          }
+//       }
+      if (src->spectrum().getNumFreeParams() > 0) {
+         useCachedResp = true;
       }
    } else {
       // Old implementation: always use the response cache
