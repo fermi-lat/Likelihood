@@ -4,7 +4,7 @@
  * access to model counts and derivatives wrt model parameters.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Pixel.cxx,v 1.6 2009/01/26 01:24:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Pixel.cxx,v 1.7 2009/06/03 05:43:10 jchiang Exp $
  */
 
 #include "Likelihood/Pixel.h"
@@ -52,32 +52,47 @@ void Pixel::getFreeDerivs(double emin, double emax, SourceModel & srcModel,
 
    std::map<std::string, Source *>::const_iterator src = srcMap.begin();
    for ( ; src != srcMap.end(); ++src) {
-      Source::FuncMap srcFuncs = src->second->getSrcFuncs();
-      Source::FuncMap::const_iterator func = srcFuncs.begin();
-      for ( ; func != srcFuncs.end(); ++func) {
-         std::vector<std::string> names;
-         func->second->getFreeParamNames(names);
-         for (unsigned int i = 0; i < names.size(); i++) {
-            std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
-               respIt = srcModel.observation().respFuncs().begin();
-            for ( ; respIt != srcModel.observation().respFuncs().end();
-                  ++respIt) {
-               int evtType = respIt->second->irfID();
-               AeffDeriv aeff1(src->second, names[i], m_dir, emin, evtType);
+//       Source::FuncMap srcFuncs = src->second->getSrcFuncs();
+//       Source::FuncMap::const_iterator func = srcFuncs.begin();
+//       for ( ; func != srcFuncs.end(); ++func) {
+//          std::vector<std::string> names;
+//          func->second->getFreeParamNames(names);
+//          for (unsigned int i = 0; i < names.size(); i++) {
+//             std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+//                respIt = srcModel.observation().respFuncs().begin();
+//             for ( ; respIt != srcModel.observation().respFuncs().end();
+//                   ++respIt) {
+//                int evtType = respIt->second->irfID();
+//                AeffDeriv aeff1(src->second, names[i], m_dir, emin, evtType);
 //                double map1 = 
-//                   srcModel.observation().expCube().value(m_dir, aeff1);
-               double map1 = 
-                  srcModel.observation().expCube().value(m_dir, aeff1, emin);
-               AeffDeriv aeff2(src->second, names[i], m_dir, emax, evtType);
+//                   srcModel.observation().expCube().value(m_dir, aeff1, emin);
+//                AeffDeriv aeff2(src->second, names[i], m_dir, emax, evtType);
 //                double map2 = 
-//                   srcModel.observation().expCube().value(m_dir, aeff2);
-               double map2 = 
-                  srcModel.observation().expCube().value(m_dir, aeff2, emax);
-               derivs.at(iparam) += (map1 + map2)/2.*m_solidAngle
-                  *(emax - emin);
-            }
-            iparam++;
+//                   srcModel.observation().expCube().value(m_dir, aeff2, emax);
+//                derivs.at(iparam) += (map1 + map2)/2.*m_solidAngle
+//                   *(emax - emin);
+//             }
+//             iparam++;
+//          }
+//       }
+      std::vector<std::string> names;
+      src->second->spectrum().getFreeParamNames(names);
+      for (size_t i(0); i < names.size(); i++) {
+         std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+            respIt = srcModel.observation().respFuncs().begin();
+         for ( ; respIt != srcModel.observation().respFuncs().end();
+               ++respIt) {
+            int evtType = respIt->second->irfID();
+            AeffDeriv aeff1(src->second, names[i], m_dir, emin, evtType);
+            double map1 = 
+               srcModel.observation().expCube().value(m_dir, aeff1, emin);
+            AeffDeriv aeff2(src->second, names[i], m_dir, emax, evtType);
+            double map2 = 
+               srcModel.observation().expCube().value(m_dir, aeff2, emax);
+            derivs.at(iparam) += (map1 + map2)/2.*m_solidAngle
+               *(emax - emin);
          }
+         iparam++;
       }
    }
 }
