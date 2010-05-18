@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue May 18 09:01:26 PDT 2010
+Likelihood/src
+
+Modified Files:
+	SourceModel.cxx 
+Log Message:
+refactor SourceModel implementation to use only spectrum parts of contained functions
+    *
+------------------------------------------------------------
 User: jchiang  Tue May 18 09:01:25 PDT 2010
 Likelihood/Likelihood
 
