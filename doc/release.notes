@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.357 2010/05/10 17:06:59 jchiang Exp $
+    $Id: release.notes,v 1.358 2010/05/17 22:54:14 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-06-03 18-May-2010 jchiang refactor SourceModel and subclasses to use explicitly only the spectrum part of the functions contained within the Source objects
  Likelihood-16-06-02 17-May-2010 jchiang refactor component map in CompositeLikelihood to allow for repeated names of 'stacked' sources
  Likelihood-16-06-01 10-May-2010 jchiang bug-fix for BinnedLikelihood: remove redundant calls to getSourceMap(...) in readSourceMaps
  Likelihood-16-06-00 09-May-2010 jchiang Stephen's refactoring of the response function caching to save memory
