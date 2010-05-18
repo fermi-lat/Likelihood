@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.45 2010/03/07 18:23:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.46 2010/04/30 22:18:11 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -34,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.45 2010/03/07 18:23:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.46 2010/04/30 22:18:11 jchiang Exp $
  */
 
 class Source {
@@ -141,7 +141,13 @@ public:
 
    virtual const std::vector<double> & exposure() const = 0;
 
-   virtual const optimizers::Function & spectrum() const = 0;
+   virtual const optimizers::Function & spectrum() const {
+      return *m_spectrum;
+   }
+
+   virtual optimizers::Function & spectrum() {
+      return *m_spectrum;
+   }
 
    virtual double flux() const = 0;
 

@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.87 2010/03/03 18:09:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.88 2010/03/07 18:23:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -73,9 +73,14 @@ void SourceModel::setParam(const optimizers::Parameter & param,
                            const std::string & funcName,
                            const std::string & srcName) {
    if (m_sources.count(srcName)) {
-      Source::FuncMap srcFuncs = (*m_sources[srcName]).getSrcFuncs();
-      if (srcFuncs.count(funcName)) {
-         srcFuncs[funcName]->setParam(param);
+      // Source::FuncMap srcFuncs = (*m_sources[srcName]).getSrcFuncs();
+      // if (srcFuncs.count(funcName)) {
+      //    srcFuncs[funcName]->setParam(param);
+      //    syncParams();
+      //    return;
+      // }
+      if ("Spectrum" == funcName) {
+         m_sources[srcName]->spectrum().setParam(param);
          syncParams();
          return;
       }
@@ -89,11 +94,12 @@ std::vector<double>::const_iterator
 SourceModel::setParamValues_(std::vector<double>::const_iterator it) {
    std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
-      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for ( ; func_it != srcFuncs.end(); func_it++) {
-         it = (*func_it).second->setParamValues_(it);
-      }
+      // Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
+      // Source::FuncMap::iterator func_it = srcFuncs.begin();
+      // for ( ; func_it != srcFuncs.end(); func_it++) {
+      //    it = (*func_it).second->setParamValues_(it);
+      // }
+      it = srcIt->second->spectrum().setParamValues_(it);
    }
    syncParams();
    return it;
@@ -103,11 +109,12 @@ std::vector<double>::const_iterator
 SourceModel::setFreeParamValues_(std::vector<double>::const_iterator it) {
    std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
    for (size_t i = 0 ; srcIt != m_sources.end(); ++srcIt, i++) {
-      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for ( ; func_it != srcFuncs.end(); func_it++) {
-         it = func_it->second->setFreeParamValues_(it);
-      }
+      // Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
+      // Source::FuncMap::iterator func_it = srcFuncs.begin();
+      // for ( ; func_it != srcFuncs.end(); func_it++) {
+      //    it = func_it->second->setFreeParamValues_(it);
+      // }
+      it = srcIt->second->spectrum().setFreeParamValues_(it);
    }
    syncParams();
    return it;
@@ -119,16 +126,23 @@ optimizers::Parameter SourceModel::getParam(const std::string &paramName,
    if (m_sources.count(srcName)) {
       std::vector<optimizers::Parameter> params;
       const Source * my_source = m_sources.find(srcName)->second;
-      const Source::FuncMap & srcFuncs = my_source->getSrcFuncs();
-      if (srcFuncs.count(funcName)) {    //check for funcName
+      // const Source::FuncMap & srcFuncs = my_source->getSrcFuncs();
+      // if (srcFuncs.count(funcName)) {    //check for funcName
+      //    try {
+      //       const optimizers::Function * my_function =
+      //          srcFuncs.find(funcName)->second;
+      //       my_function->getParams(params);
+      //    } catch (optimizers::Exception &eObj) {
+      //       m_formatter->err() << eObj.what() << std::endl;
+      //       throw;
+      //    }
+      if ("Spectrum" == funcName) {
          try {
-            const optimizers::Function * my_function =
-               srcFuncs.find(funcName)->second;
-            my_function->getParams(params);
-         } catch (optimizers::Exception &eObj) {
+            my_source->spectrum().getParams(params);
+         } catch (optimizers::Exception & eObj) {
             m_formatter->err() << eObj.what() << std::endl;
             throw;
-         }                 
+         }
          for (unsigned int j = 0; j < params.size(); j++) {
             if (paramName == params[j].getName()) {
                return params[j];
@@ -137,7 +151,7 @@ optimizers::Parameter SourceModel::getParam(const std::string &paramName,
          throw optimizers::ParameterNotFound(paramName, funcName, 
                                              "SourceModel::getParam");
       }
-      std::string errorMessage = "SourceModel::getParam:\n Function"
+      std::string errorMessage = "SourceModel::getParam:\n Function "
          + funcName + " was not found in Source " 
          + srcName + ".";
       throw optimizers::Exception(errorMessage);
@@ -177,19 +191,29 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
    int k = 0;  // params' index
    std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
-      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++) {
-         unsigned int numParams;
-         if (setFree) {
-            numParams = func_it->second->getNumFreeParams();
-         } else { 
-            numParams = func_it->second->getNumParams();
-         }
-         for (unsigned int j = 0; j < numParams; j++) {
-            func_it->second->setParam(params[k]);
-            k++;
-         }
+      // Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
+      // Source::FuncMap::iterator func_it = srcFuncs.begin();
+      // for (; func_it != srcFuncs.end(); func_it++) {
+      //    unsigned int numParams;
+      //    if (setFree) {
+      //       numParams = func_it->second->getNumFreeParams();
+      //    } else { 
+      //       numParams = func_it->second->getNumParams();
+      //    }
+      //    for (unsigned int j = 0; j < numParams; j++) {
+      //       func_it->second->setParam(params[k]);
+      //       k++;
+      //    }
+      // }
+      size_t numParams;
+      if (setFree) {
+         numParams = srcIt->second->spectrum().getNumFreeParams();
+      } else {
+         numParams = srcIt->second->spectrum().getNumParams();
+      }
+      for (size_t j(0); j < numParams; j++) {
+         srcIt->second->spectrum().setParam(params[k]);
+         k++;
       }
    }
    syncParams();
@@ -258,11 +282,12 @@ double SourceModel::value(optimizers::Arg &x) const {
    double my_val = 0.;
    std::map<std::string, Source *>::const_iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
-      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++) {
-         my_val += (*func_it).second->value(x);
-      }
+      // Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
+      // Source::FuncMap::iterator func_it = srcFuncs.begin();
+      // for (; func_it != srcFuncs.end(); func_it++) {
+      //    my_val += (*func_it).second->value(x);
+      // }
+      my_val += srcIt->second->spectrum().value(x);
    }
    return my_val;
 }
@@ -272,14 +297,19 @@ void SourceModel::syncParams() { // remake parameter vector from scratch
 
    std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
-      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++) {
-         std::vector<optimizers::Parameter> params;
-         func_it->second->getParams(params);
-         for (size_t ip = 0; ip < params.size(); ip++) {
-            m_parameter.push_back(params[ip]);
-         }
+      // Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
+      // Source::FuncMap::iterator func_it = srcFuncs.begin();
+      // for (; func_it != srcFuncs.end(); func_it++) {
+      //    std::vector<optimizers::Parameter> params;
+      //    func_it->second->getParams(params);
+      //    for (size_t ip = 0; ip < params.size(); ip++) {
+      //       m_parameter.push_back(params[ip]);
+      //    }
+      // }
+      std::vector<optimizers::Parameter> params;
+      srcIt->second->spectrum().getParams(params);
+      for (size_t ip(0); ip < params.size(); ip++) {
+         m_parameter.push_back(params.at(ip));
       }
    }
    if (m_useNewImp) {
@@ -294,17 +324,26 @@ void SourceModel::fetchDerivs(optimizers::Arg &x,
 
    std::map<std::string, Source *>::const_iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
-      Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
-      Source::FuncMap::iterator func_it = srcFuncs.begin();
-      for (; func_it != srcFuncs.end(); func_it++) {
-         std::vector<double> my_derivs;
-         if (getFree) {
-            (*func_it).second->getFreeDerivs(x, my_derivs);
-         } else {
-            (*func_it).second->getDerivs(x, my_derivs);
-         }
-         for (unsigned int j = 0; j < my_derivs.size(); j++) 
-            derivs.push_back(my_derivs[j]);
+      // Source::FuncMap srcFuncs = srcIt->second->getSrcFuncs();
+      // Source::FuncMap::iterator func_it = srcFuncs.begin();
+      // for (; func_it != srcFuncs.end(); func_it++) {
+      //    std::vector<double> my_derivs;
+      //    if (getFree) {
+      //       (*func_it).second->getFreeDerivs(x, my_derivs);
+      //    } else {
+      //       (*func_it).second->getDerivs(x, my_derivs);
+      //    }
+      //    for (unsigned int j = 0; j < my_derivs.size(); j++) 
+      //       derivs.push_back(my_derivs[j]);
+      // }
+      std::vector<double> my_derivs;
+      if (getFree) {
+         srcIt->second->spectrum().getFreeDerivs(x, my_derivs);
+      } else {
+         srcIt->second->spectrum().getDerivs(x, my_derivs);
+      }
+      for (size_t j(0); j < my_derivs.size(); j++) {
+         derivs.push_back(my_derivs.at(j));
       }
    }
 }
@@ -499,14 +538,15 @@ void SourceModel::findFreeSrcs() {
    m_freeSrcs.clear();
    std::map<std::string, Source *>::const_iterator src(m_sources.begin());
    for ( ; src != m_sources.end(); ++src) {
-      Source::FuncMap & srcFuncs(src->second->getSrcFuncs());
-      Source::FuncMap::const_iterator func(srcFuncs.begin());
-      bool haveFreePars(false);
-      for ( ; func != srcFuncs.end(); ++func) {
-         if (func->second->getNumFreeParams() > 0) {
-            haveFreePars = true;
-         }
-      }
+      // Source::FuncMap & srcFuncs(src->second->getSrcFuncs());
+      // Source::FuncMap::const_iterator func(srcFuncs.begin());
+      // bool haveFreePars(false);
+      // for ( ; func != srcFuncs.end(); ++func) {
+      //    if (func->second->getNumFreeParams() > 0) {
+      //       haveFreePars = true;
+      //    }
+      // }
+      bool haveFreePars = (src->second->spectrum().getNumFreeParams() > 0);
       if (haveFreePars) {
          m_freeSrcs.push_back(src->second);
       }

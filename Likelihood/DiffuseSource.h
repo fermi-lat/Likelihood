@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.43 2009/03/26 01:32:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.44 2009/05/30 22:35:42 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -50,7 +50,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.43 2009/03/26 01:32:42 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.44 2009/05/30 22:35:42 jchiang Exp $ 
  *  
  */
 
@@ -136,9 +136,13 @@ public:
       return m_exposure;
    }
 
-   virtual const optimizers::Function & spectrum() const {
-      return * m_spectrum;
-   }
+   // virtual const optimizers::Function & spectrum() const {
+   //    return * m_spectrum;
+   // }
+
+   // virtual optimizers::Function & spectrum() {
+   //    return *m_spectrum;
+   // }
 
    /// @return Photon flux integrated over the ROI energy bounds. 
    /// Units are #/cm^2/s
