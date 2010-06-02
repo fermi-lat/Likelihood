@@ -4,10 +4,12 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.41 2007/02/09 21:48:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.42 2009/12/16 19:04:16 elwinter Exp $
  */
+
 #include <algorithm>
 #include <memory>
+#include <sstream>
 #include <utility>
 
 #include "st_stream/StreamFormatter.h"
@@ -230,6 +232,18 @@ void ExposureMap::writeFitsFile(const std::string & filename,
    tip::IFileSvc::instance().appendTable(filename, ext);
    tip::Table * table = tip::IFileSvc::instance().editTable(filename, ext);
    table->appendField("Energy", "1D");
+// Repair field by removing TNULL keyword that is added by tip. The
+// null value is usually ok for integers, but is inappropriate for
+// floats and is not needed by either, so we remove it in every case.
+   int fieldIndex = table->getFieldIndex("Energy") + 1;
+   std::ostringstream nullkeyword;
+   nullkeyword << "TNULL" << fieldIndex;
+   try {
+      table->getHeader().erase(nullkeyword.str());
+   } catch (...) {
+      // do nothing if tip fails us again
+   }
+
    table->setNumRecords(energies.size());
 
    tip::Table::Iterator row = table->begin();
