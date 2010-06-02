@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.43 2009/10/06 00:31:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.44 2009/10/28 18:33:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.43 2009/10/06 00:31:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.44 2009/10/28 18:33:23 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -183,8 +183,26 @@ void ExpMap::createExposureMap() {
                                                nenergies, compute_submap,
                                                nlongmin, nlongmax,
                                                nlatmin, nlatmax); 
-   std::auto_ptr<tip::Image> 
-      image(tip::IFileSvc::instance().editImage(exposureFile, ""));
+   tip::Image * image = 
+      tip::IFileSvc::instance().editImage(exposureFile, "");
    roiCuts.writeDssKeywords(image->getHeader());
    roiCuts.writeGtiExtension(exposureFile);
+
+   std::vector< std::pair<double, double> > timeCuts;
+   roiCuts.getGtis(timeCuts);
+
+   double tstart(timeCuts.front().first);
+   double tstop(timeCuts.back().second);
+   for (size_t i(1); i < timeCuts.size()-1; i++) {
+      if (timeCuts.at(i).first < tstart) {
+         tstart = timeCuts.at(i).first;
+      }
+      if (timeCuts.at(i).second > tstop) {
+         tstop = timeCuts.at(i).second;
+      }
+   }
+   bool extension;
+   st_facilities::Util::writeDateKeywords(image, tstart, tstop,
+                                          extension=false);
+   delete image;
 }
