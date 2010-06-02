@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  2 15:04:16 PDT 2010
+Likelihood/src/expMap
+
+Modified Files:
+	expMap.cxx 
+Log Message:
+address STGEN-106@JIRA: fverify failures for gtexpmap output
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jun  2 15:04:15 PDT 2010
 Likelihood/src
 
