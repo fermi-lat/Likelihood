@@ -4,7 +4,7 @@
  * direction.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EquinoxRotation.cxx,v 1.1 2005/05/21 23:39:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EquinoxRotation.cxx,v 1.2 2005/05/23 05:51:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -69,7 +69,7 @@ void EquinoxRotation::do_rotation(const astro::SkyDir & inDir,
          }
       }
    }
-   outDir = astro::SkyDir(Hep3Vector(outVec[0], outVec[1], outVec[2]));
+   outDir = astro::SkyDir(CLHEP::Hep3Vector(outVec[0], outVec[1], outVec[2]));
 }
 
 } // namespace Likelihood 

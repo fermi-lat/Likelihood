@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScData.cxx,v 1.59 2009/06/04 22:24:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ScData.cxx,v 1.60 2009/11/19 18:38:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -128,7 +128,7 @@ astro::SkyDir ScData::xAxis(double time) const {
    size_t indx = time_index(time);
    indx = std::min(indx, m_xAxis.size() - 2);
    double frac = (time - start(indx))/(start(indx+1) - start(indx));
-   Hep3Vector zDir = frac*(xAxis(indx+1).dir() - xAxis(indx).dir())
+   CLHEP::Hep3Vector zDir = frac*(xAxis(indx+1).dir() - xAxis(indx).dir())
       + xAxis(indx).dir();
    return astro::SkyDir(zDir.unit());
 }
@@ -137,7 +137,7 @@ astro::SkyDir ScData::zAxis(double time) const {
    size_t indx = time_index(time);
    indx = std::min(indx, m_zAxis.size() - 2);
    double frac = (time - start(indx))/(start(indx+1) - start(indx));
-   Hep3Vector zDir = frac*(zAxis(indx+1).dir() - zAxis(indx).dir())
+   CLHEP::Hep3Vector zDir = frac*(zAxis(indx+1).dir() - zAxis(indx).dir())
       + zAxis(indx).dir();
    return astro::SkyDir(zDir.unit());
 }
