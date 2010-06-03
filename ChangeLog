@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun  2 21:13:14 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	EquinoxRotation.cxx ScData.cxx 
+Log Message:
+add CLHEP qualifiers
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-06-04, operation: add
 Package: Likelihood
