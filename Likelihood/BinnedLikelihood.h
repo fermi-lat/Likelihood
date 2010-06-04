@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.40 2010/05/03 21:56:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.41 2010/05/03 23:16:34 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.40 2010/05/03 21:56:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.41 2010/05/03 23:16:34 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -150,6 +150,10 @@ private:
 
    std::vector<std::pair<double, double> > m_fixedModelWts;
    std::map<std::string, double> m_fixedModelNpreds;
+
+   /// Map of model parameters, to be used to determine if fixed
+   /// sources have changed parameter values.
+   std::map<std::string, std::vector<double> > m_modelPars;
    
    void createSourceMaps();
 
@@ -188,6 +192,11 @@ private:
    double NpredValue(const std::string & name, const SourceMap & srcMap) const;
 
    void updateFixedModelWts();
+
+   void buildFixedModelWts();
+
+   bool fixedModelUpdated() const;
+
 };
 
 }

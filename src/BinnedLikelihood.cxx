@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.60 2010/05/10 17:04:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.61 2010/05/18 18:27:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -125,34 +125,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
             }
             const SourceMap & srcMap = sourceMap(srcName);
             const std::vector<float> & model = srcMap.model();
-// // This implementation assumes that only the spectral part of each
-// // Source has free parameters.
-//             Source::FuncMap srcFuncs = src->second->getSrcFuncs();
-//             Source::FuncMap::const_iterator func = srcFuncs.begin();
-//             for ( ; func != srcFuncs.end(); ++func) {
-//                std::vector<std::string> paramNames;
-//                func->second->getFreeParamNames(paramNames);
-//                for (size_t i(0); i < paramNames.size(); i++) {
-//                   double my_deriv = 
-//                      src->second->pixelCountsDeriv(emin, emax,
-//                                                    model.at(jmin), 
-//                                                    model.at(jmax),
-//                                                    paramNames.at(i));
-//                   derivs.at(iparam) += data.at(jmin)/m_model.at(j)*my_deriv;
-//                   if (j == 0) {
-//                      const std::vector<double> & npreds = srcMap.npreds();
-//                      for (size_t kk(0); kk < m_energies.size()-1; kk++) {
-//                         derivs.at(iparam) -= 
-//                            src->second->pixelCountsDeriv(m_energies.at(kk), 
-//                                                          m_energies.at(kk+1),
-//                                                          npreds.at(kk), 
-//                                                          npreds.at(kk+1),
-//                                                          paramNames.at(i));
-//                      }
-//                   }
-//                   iparam++;
-//                }
-//            }
             std::vector<std::string> paramNames;
             src->second->spectrum().getFreeParamNames(paramNames);
             for (size_t i(0); i < paramNames.size(); i++) {
@@ -209,6 +181,9 @@ void BinnedLikelihood::addSource(Source * src) {
    if (m_srcMaps.find(src->getName()) == m_srcMaps.end()) {
       m_srcMaps[src->getName()] = getSourceMap(src->getName());
    }
+   std::vector<double> pars;
+   src->spectrum().getParamValues(pars);
+   m_modelPars[src->getName()] = pars;
 }
 
 Source * BinnedLikelihood::deleteSource(const std::string & srcName) {
@@ -247,6 +222,67 @@ void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap) const {
             modelMap.at(imin) += src->pixelCounts(emin, emax,
                                                   model.at(imin), 
                                                   model.at(imax));
+         }
+      }
+   }
+}
+
+bool BinnedLikelihood::fixedModelUpdated() const {
+// Check if the fixed list has changed.
+   std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
+   std::vector<std::string> fixedSources;
+   for ( ; srcIt != m_sources.end(); ++srcIt) {
+      if (srcIt->second->fixedSpectrum()) {
+         fixedSources.push_back(srcIt->first);
+         if (std::count(m_fixedSources.begin(), m_fixedSources.end(), 
+                        fixedSources.back()) != 1) {
+            return true;
+         }
+      }
+   }
+   if (fixedSources.size() != m_fixedSources.size()) {
+      return true;
+   }
+   
+// Compare current parameter values for fixed sources with saved
+   for (srcIt = m_sources.begin(); srcIt != m_sources.end(); ++srcIt) {
+      const std::string & name(srcIt->first);
+      std::map<std::string, std::vector<double> >::const_iterator
+         savedPars = m_modelPars.find(name);
+      if (savedPars == m_modelPars.end()) {
+         throw std::runtime_error("BinnedLikelihood::fixedModelUpdated: "
+                                  "inconsistent m_modelPars.");
+      }
+      std::vector<double> parValues;
+      srcIt->second->spectrum().getParamValues(parValues);
+      for (size_t j(0); j < parValues.size(); j++) {
+         if (parValues.at(j) != savedPars->second.at(j)) {
+            return true;
+         }
+      }
+   }
+   return false;
+}
+
+void BinnedLikelihood::buildFixedModelWts() {
+   m_fixedSources.clear();
+   m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
+   std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
+   for ( ; srcIt != m_sources.end(); ++srcIt) {
+      const std::string & srcName(srcIt->first);
+      if (srcIt->second->fixedSpectrum()) {
+         SourceMap * srcMap(0);
+         std::map<std::string, SourceMap *>::const_iterator srcMapIt
+            = m_srcMaps.find(srcName);
+         if (srcMapIt == m_srcMaps.end()) {
+            srcMap = getSourceMap(srcName);
+         } else {
+            srcMap = srcMapIt->second;
+         }
+         addSourceWts(m_fixedModelWts, srcName, srcMap);
+         m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
+         if (srcMapIt == m_srcMaps.end()) {
+            delete srcMap;
          }
       }
    }
@@ -303,7 +339,10 @@ void BinnedLikelihood::computeModelMap(double & npred) const {
    std::vector<std::pair<double, double> > modelWts;
    modelWts.resize(m_filledPixels.size());
 
-   const_cast<BinnedLikelihood *>(this)->updateFixedModelWts();
+//   const_cast<BinnedLikelihood *>(this)->updateFixedModelWts();
+   if (fixedModelUpdated()) {
+      const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
+   }
 
    for (size_t j(0); j < m_fixedModelWts.size(); j++) {
       modelWts.at(j).first = m_fixedModelWts.at(j).first;
