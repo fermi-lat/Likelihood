@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.76 2010/04/26 17:11:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.77 2010/05/03 18:25:15 jchiang Exp $
  */
 
 #include <algorithm>
@@ -83,7 +83,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                      bool applyPsfCorrections,
                      bool performConvolution,
                      bool resample,
-                     double resamp_factor)
+                     double resamp_factor,
+                     bool verbose)
    : m_name(src->getName()), m_srcType(src->getType()),
      m_dataMap(dataMap), 
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
@@ -98,7 +99,9 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    std::vector<double> energies;
    dataMap->getAxisVector(2, energies);
 
-   m_formatter->warn() << "Generating SourceMap for " << m_name;
+   if (verbose) {
+      m_formatter->warn() << "Generating SourceMap for " << m_name;
+   }
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
    long icount(0);
@@ -171,7 +174,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                                                  performConvolution));
          for (pixel = pixels.begin(); pixel != pixels.end();
               ++pixel, indx++) {
-            if ((indx % (npts/20)) == 0) {
+            if (verbose && (indx % (npts/20)) == 0) {
                m_formatter->warn() << ".";
             }
             if (pixel->solidAngle() > 0) {
@@ -201,7 +204,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
             std::vector<double>::const_iterator energy = energies.begin();
             for (int k = 0; energy != energies.end(); ++energy, k++) {
                unsigned long indx = k*pixels.size() + j;
-               if ((icount % (npts/20)) == 0) {
+               if (verbose && (icount % (npts/20)) == 0) {
                   m_formatter->warn() << ".";
                }
                double value = (meanPsf(energies.at(k), 
@@ -228,7 +231,9 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          }
       }
    }
-   m_formatter->warn() << "!" << std::endl;
+   if (verbose) {
+      m_formatter->warn() << "!" << std::endl;
+   }
 }
 
 SourceMap::~SourceMap() {
