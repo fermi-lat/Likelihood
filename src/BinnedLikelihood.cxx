@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.61 2010/05/18 18:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.62 2010/06/04 22:50:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -171,7 +171,7 @@ void BinnedLikelihood::readXml(std::string xmlFile,
    if (m_srcMapsFile == "") {
       createSourceMaps();
    } else {
-      readSourceMaps();
+      buildFixedModelWts();
    }
 }
 
@@ -246,18 +246,20 @@ bool BinnedLikelihood::fixedModelUpdated() const {
    
 // Compare current parameter values for fixed sources with saved
    for (srcIt = m_sources.begin(); srcIt != m_sources.end(); ++srcIt) {
-      const std::string & name(srcIt->first);
-      std::map<std::string, std::vector<double> >::const_iterator
-         savedPars = m_modelPars.find(name);
-      if (savedPars == m_modelPars.end()) {
-         throw std::runtime_error("BinnedLikelihood::fixedModelUpdated: "
-                                  "inconsistent m_modelPars.");
-      }
-      std::vector<double> parValues;
-      srcIt->second->spectrum().getParamValues(parValues);
-      for (size_t j(0); j < parValues.size(); j++) {
-         if (parValues.at(j) != savedPars->second.at(j)) {
-            return true;
+      if (srcIt->second->fixedSpectrum()) {
+         const std::string & name(srcIt->first);
+         std::map<std::string, std::vector<double> >::const_iterator
+            savedPars = m_modelPars.find(name);
+         if (savedPars == m_modelPars.end()) {
+            throw std::runtime_error("BinnedLikelihood::fixedModelUpdated: "
+                                     "inconsistent m_modelPars.");
+         }
+         std::vector<double> parValues;
+         srcIt->second->spectrum().getParamValues(parValues);
+         for (size_t j(0); j < parValues.size(); j++) {
+            if (parValues.at(j) != savedPars->second.at(j)) {
+               return true;
+            }
          }
       }
    }
@@ -266,11 +268,13 @@ bool BinnedLikelihood::fixedModelUpdated() const {
 
 void BinnedLikelihood::buildFixedModelWts() {
    m_fixedSources.clear();
+   m_fixedModelWts.clear();
    m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
    std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
    for ( ; srcIt != m_sources.end(); ++srcIt) {
       const std::string & srcName(srcIt->first);
       if (srcIt->second->fixedSpectrum()) {
+         m_fixedSources.push_back(srcName);
          SourceMap * srcMap(0);
          std::map<std::string, SourceMap *>::const_iterator srcMapIt
             = m_srcMaps.find(srcName);
@@ -281,56 +285,29 @@ void BinnedLikelihood::buildFixedModelWts() {
          }
          addSourceWts(m_fixedModelWts, srcName, srcMap);
          m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
-         if (srcMapIt == m_srcMaps.end()) {
-            delete srcMap;
-         }
-      }
-   }
-}
-
-void BinnedLikelihood::updateFixedModelWts() {
-// Save current set of free sources.
-   std::vector<std::string> freeSources;
-   std::map<std::string, SourceMap *>::const_iterator srcIt(m_srcMaps.begin());
-   for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
-      freeSources.push_back(srcIt->first);
-   }
-
-// Remove fixed sources that have become free.
-   std::vector<std::string> fixedSources;
-   fixedSources.reserve(m_fixedSources.size());
-   for (size_t i(0); i < m_fixedSources.size(); i++) {
-      const std::string & srcName(m_fixedSources.at(i));
-      if (!source(srcName).fixedSpectrum()) {
-         SourceMap * srcMap(getSourceMap(srcName));
-         bool subtract;
-         addSourceWts(m_fixedModelWts, srcName, srcMap, subtract=true);
-         m_srcMaps[srcName] = srcMap;
-         m_fixedModelNpreds.erase(srcName);
-      } else {
-         fixedSources.push_back(srcName);
-      }
-   }
-
-// Add sources that have become fixed.
-   for (size_t i(0); i < freeSources.size(); i++) {
-      const std::string & srcName(freeSources.at(i));
-      try {
-         if (source(srcName).fixedSpectrum()) {
-            SourceMap * srcMap(m_srcMaps[srcName]);
-            addSourceWts(m_fixedModelWts, srcName, srcMap);
-            m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
+         if (srcMapIt != m_srcMaps.end()) {
             m_srcMaps.erase(srcName);
-            delete srcMap;
-            fixedSources.push_back(srcName);
          }
-      } catch (std::runtime_error & eObj) {
-         // This occurs when computing the TS and the source has been
-         // removed from the model temporarily for the null
-         // hypothesis.
+         delete srcMap;
+         std::vector<double> pars;
+         srcIt->second->spectrum().getParamValues(pars);
+         m_modelPars[srcName] = pars;
+      } else { 
+// Process non-fixed sources.
+//
+// Ensure model map is avaiable.
+         std::map<std::string, SourceMap *>::const_iterator srcMapIt
+            = m_srcMaps.find(srcName);
+         if (srcMapIt == m_srcMaps.end()) {
+            m_srcMaps[srcName] = getSourceMap(srcName);
+         }
+// Delete any lingering Npred values from fixed map since they must be
+// computed on-the-fly for non-fixed sources.
+         if (m_fixedModelNpreds.find(srcName) != m_fixedModelNpreds.end()) {
+            m_fixedModelNpreds.erase(srcName);
+         }
       }
    }
-   m_fixedSources = fixedSources;
 }
 
 void BinnedLikelihood::computeModelMap(double & npred) const {
@@ -339,7 +316,6 @@ void BinnedLikelihood::computeModelMap(double & npred) const {
    std::vector<std::pair<double, double> > modelWts;
    modelWts.resize(m_filledPixels.size());
 
-//   const_cast<BinnedLikelihood *>(this)->updateFixedModelWts();
    if (fixedModelUpdated()) {
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
    }
@@ -452,39 +428,6 @@ SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
    Source * src = getSource(srcName);
    return new SourceMap(src, &m_dataMap, m_observation, m_applyPsfCorrections,
                         m_performConvolution, m_resample, m_resamp_factor);
-}
-
-void BinnedLikelihood::readSourceMaps(std::string filename) {
-   if (filename == "") {
-      if (m_srcMapsFile == "") {
-         throw std::runtime_error("BinnedLikelihood::readSourceMaps: " 
-                                  "need to specify a SourceMaps file.");
-      }
-      filename = m_srcMapsFile;
-   }
-   std::vector<std::string> srcNames;
-   getSrcNames(srcNames);
-   std::vector<std::string>::const_iterator name(srcNames.begin());
-   for ( ; name != srcNames.end(); ++name) {
-      if (source(*name).fixedSpectrum()) {
-         if (m_fixedSources.empty()) {
-            m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
-         }
-         m_fixedSources.push_back(*name);
-         const SourceMap * srcMap(getSourceMap(*name));
-         addSourceWts(m_fixedModelWts, *name, srcMap);
-         m_fixedModelNpreds[*name] = NpredValue(*name, *srcMap);
-         delete srcMap;
-      } else {
-// The initial generation of the source maps is now performed when
-// readXml(...) is called, which calls addSource(...), which in turn
-// calls getSourceMap(...)
-         // if (m_srcMaps.count(*name)) {
-         //    delete m_srcMaps[*name];
-         // }
-         // m_srcMaps[*name] = getSourceMap(*name);
-      }
-   }
 }
 
 SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName) const {
