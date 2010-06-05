@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.360 2010/06/02 22:05:34 jchiang Exp $
+    $Id: release.notes,v 1.361 2010/06/03 14:40:48 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-06-06 04-Jun-2010 jchiang refactor handling of fixed maps in BinnedLikelihood so that changes to parameter values for fixed sources are handled
  Likelihood-16-06-05 03-Jun-2010 jchiang add CLHEP qualifiers in prep for CLHEP 2.0.4.6
  Likelihood-16-06-04 02-Jun-2010 jchiang address STGEN-106@JIRA: fverify failures for gtexpmap output
  Likelihood-16-06-03 18-May-2010 jchiang refactor SourceModel and subclasses to use explicitly only the spectrum part of the functions contained within the Source objects
