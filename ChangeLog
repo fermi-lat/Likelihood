@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jun  4 23:42:29 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h SourceMap.h 
+Log Message:
+refactor handling of fixed maps
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jun  4 15:50:06 PDT 2010
 ScienceTools-scons/Likelihood/src
 
