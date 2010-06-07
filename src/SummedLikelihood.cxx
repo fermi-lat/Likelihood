@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SummedLikelihood.cxx,v 1.1 2009/06/05 23:42:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SummedLikelihood.cxx,v 1.2 2009/06/12 20:04:12 jchiang Exp $
  */
 
 #include <iostream>
@@ -61,6 +61,15 @@ void SummedLikelihood::syncParams() {
 
 unsigned int SummedLikelihood::getNumFreeParams() const {
    return m_components.front()->getNumFreeParams();
+}
+
+void SummedLikelihood::fetchParamValues(std::vector<double> & values,
+                                        bool getFree) const {
+   if (getFree) {
+      m_components.front()->getFreeParamValues(values);
+   } else {
+      m_components.front()->getParamValues(values);
+   }
 }
 
 void SummedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {

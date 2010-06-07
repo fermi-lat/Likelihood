@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SummedLikelihood.h,v 1.5 2008/09/26 00:27:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SummedLikelihood.h,v 1.1 2009/06/05 23:41:59 jchiang Exp $
  */
 
 #ifndef Likelihood_SummedLikelihood_h
@@ -54,6 +54,9 @@ protected:
 
    optimizers::Function * clone() const {return 0;}
 
+   virtual void fetchParamValues(std::vector<double> & values,
+                                 bool getFree) const;
+
 private:
 
    typedef std::vector<LogLike *> ComponentVector_t;
@@ -64,6 +67,8 @@ private:
 
    std::string m_normParName;
    std::string m_commonFuncName;
+
+   
 
 };
 
