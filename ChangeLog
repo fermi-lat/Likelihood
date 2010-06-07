@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Mon Jun  7 11:01:08 PDT 2010
+Likelihood/src
+
+Modified Files:
+	SummedLikelihood.cxx 
+Log Message:
+implement fetchParamValues so that SummedLikelihood works with DRMN[GB,FB], LBFGS optimizers
+    *
+------------------------------------------------------------
+User: jchiang  Mon Jun  7 11:01:08 PDT 2010
 Likelihood/Likelihood
 
 Modified Files:
