@@ -3,7 +3,7 @@
  * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.20 2009/05/20 19:30:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.21 2009/11/19 18:38:56 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.20 2009/05/20 19:30:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.21 2009/11/19 18:38:56 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -89,6 +89,10 @@ public:
 
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator end() const {
       return m_respPtrs.end();
+   }
+
+   const irfInterface::IEfficiencyFactor * efficiencyFactor() const {
+      return begin()->second->efficiencyFactor();
    }
 
    /// Whether or not energy dispersion is to be considered.
