@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.362 2010/06/05 06:44:11 jchiang Exp $
+    $Id: release.notes,v 1.363 2010/06/07 18:02:40 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-07-00 07-Jun-2010 jchiang implement ResponseFunctions::efficiencyFactor()
  Likelihood-16-06-07 07-Jun-2010 jchiang implement fetchParamValues so that SummedLikelihood works with DRMN[GB,FB], LBFGS optimizers
  Likelihood-16-06-06 04-Jun-2010 jchiang refactor handling of fixed maps in BinnedLikelihood so that changes to parameter values for fixed sources are handled
  Likelihood-16-06-05 03-Jun-2010 jchiang add CLHEP qualifiers in prep for CLHEP 2.0.4.6
