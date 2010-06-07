@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jun  7 11:01:08 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	SummedLikelihood.h 
+Log Message:
+implement fetchParamValues so that SummedLikelihood works with DRMN[GB,FB], LBFGS optimizers
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-06-06, operation: add
 Package: Likelihood
