@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jun 13 11:22:39 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h 
+Log Message:
+set verbosity for regenerating source maps after initial source model is built
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-07-00, operation: add
 Package: Likelihood
