@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.42 2010/06/04 22:50:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.43 2010/06/05 06:42:29 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.42 2010/06/04 22:50:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.43 2010/06/05 06:42:29 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -157,7 +157,8 @@ private:
    
    void createSourceMaps();
 
-   SourceMap * getSourceMap(const std::string & srcName) const;
+   SourceMap * getSourceMap(const std::string & srcName,
+                            bool verbose=true) const;
 
    void computeModelMap(double & npred) const;
 

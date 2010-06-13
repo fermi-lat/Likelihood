@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.62 2010/06/04 22:50:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.63 2010/06/05 06:42:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -192,7 +192,7 @@ Source * BinnedLikelihood::deleteSource(const std::string & srcName) {
    std::vector<std::string>::iterator srcIt = 
       std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
    if (source(srcName).fixedSpectrum() && srcIt != m_fixedSources.end()) {
-      SourceMap * srcMap(getSourceMap(srcName));
+      SourceMap * srcMap(getSourceMap(srcName, false));
       bool subtract;
       addSourceWts(m_fixedModelWts, srcName, srcMap, subtract=true);
       m_fixedModelNpreds.erase(srcName);
@@ -279,7 +279,7 @@ void BinnedLikelihood::buildFixedModelWts() {
          std::map<std::string, SourceMap *>::const_iterator srcMapIt
             = m_srcMaps.find(srcName);
          if (srcMapIt == m_srcMaps.end()) {
-            srcMap = getSourceMap(srcName);
+            srcMap = getSourceMap(srcName, false);
          } else {
             srcMap = srcMapIt->second;
          }
@@ -299,7 +299,7 @@ void BinnedLikelihood::buildFixedModelWts() {
          std::map<std::string, SourceMap *>::const_iterator srcMapIt
             = m_srcMaps.find(srcName);
          if (srcMapIt == m_srcMaps.end()) {
-            m_srcMaps[srcName] = getSourceMap(srcName);
+            m_srcMaps[srcName] = getSourceMap(srcName, false);
          }
 // Delete any lingering Npred values from fixed map since they must be
 // computed on-the-fly for non-fixed sources.
@@ -430,7 +430,8 @@ SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
                         m_performConvolution, m_resample, m_resamp_factor);
 }
 
-SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName) const {
+SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName, 
+                                           bool verbose) const {
    if (fileHasSourceMap(srcName, m_srcMapsFile)) {
       return new SourceMap(m_srcMapsFile, srcName);
    }
@@ -440,7 +441,8 @@ SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName) const {
       return new SourceMap(src, &m_dataMap, m_observation,
                            m_applyPsfCorrections,
                            m_performConvolution,
-                           m_resample, m_resamp_factor);
+                           m_resample, m_resamp_factor,
+                           verbose);
    }
    return 0;
 }
