@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Jun 13 11:22:40 PDT 2010
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+set verbosity for regenerating source maps after initial source model is built
+    *
+------------------------------------------------------------
 User: jchiang  Sun Jun 13 11:22:39 PDT 2010
 Likelihood/Likelihood
 
