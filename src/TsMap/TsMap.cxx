@@ -4,10 +4,11 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsMap/TsMap.cxx,v 1.45 2009/06/26 20:17:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.46 2009/07/08 15:57:38 jchiang Exp $
  */
 
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 

@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.152 2010/04/26 17:11:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.153 2010/05/03 21:56:12 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <memory>
 
 #include "st_stream/StreamFormatter.h"
 
@@ -88,7 +89,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.152 2010/04/26 17:11:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.153 2010/05/03 21:56:12 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {

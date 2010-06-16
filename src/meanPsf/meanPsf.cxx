@@ -4,9 +4,10 @@
  * an observaition.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/meanPsf/meanPsf.cxx,v 1.14 2007/07/03 22:48:23 jchiang Exp $
  */
 
+#include <cstdio>
 #include <cstdlib>
 
 #include <iostream>

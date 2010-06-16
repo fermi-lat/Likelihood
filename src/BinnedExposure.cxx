@@ -4,10 +4,11 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.21 2009/06/03 05:43:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.22 2009/08/11 17:36:29 jchiang Exp $
  */
 
 #include <cmath>
+#include <cstdio>
 
 #include <algorithm>
 #include <memory>

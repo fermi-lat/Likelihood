@@ -3,9 +3,10 @@
  * @brief Class to compare two XML files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/XmlDiff.cxx,v 1.2 2004/11/11 04:32:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/XmlDiff.cxx,v 1.3 2005/01/03 23:01:24 jchiang Exp $
  */
 
+#include <cstdio>
 #include <fstream>
 
 #include "facilities/Util.h"

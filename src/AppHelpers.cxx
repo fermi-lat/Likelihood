@@ -3,8 +3,10 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.81 2010/02/08 18:48:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.82 2010/06/07 20:08:33 jchiang Exp $
  */
+
+#include <cstdlib>
 
 #include <map>
 #include <sstream>
