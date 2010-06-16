@@ -4,8 +4,10 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExposureMap.cxx,v 1.42 2009/12/16 19:04:16 elwinter Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureMap.cxx,v 1.43 2010/06/02 22:04:15 jchiang Exp $
  */
+
+#include <cstdio>
 
 #include <algorithm>
 #include <memory>

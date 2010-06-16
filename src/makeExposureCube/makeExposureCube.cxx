@@ -3,9 +3,10 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.56 2009/12/16 19:16:23 elwinter Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.57 2010/05/06 17:58:23 jchiang Exp $
  */
 
+#include <cstdio>
 #include <cstdlib>
 
 #include <iomanip>
@@ -68,7 +69,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.56 2009/12/16 19:16:23 elwinter Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.57 2010/05/06 17:58:23 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
