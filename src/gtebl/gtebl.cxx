@@ -4,10 +4,11 @@
  * redshift and EBL model.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/irfs/irfLoader/src/gtebl/gtebl.cxx,v 1.1 2008/02/22 07:25:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtebl/gtebl.cxx,v 1.1 2009/08/30 00:21:22 jchiang Exp $
  */
 
 #include <cmath>
+#include <cstdlib>
 
 #include <fstream>
 #include <stdexcept>

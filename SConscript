@@ -1,5 +1,5 @@
 # -*- python -*-
-# $Id: SConscript,v 1.121 2010/06/07 20:51:16 jchiang Exp $
+# $Id: SConscript,v 1.122 2010/06/13 18:27:23 jchiang Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Pat Nolan <pln@razzle.stanford.edu>
 # Version: Likelihood-16-07-01
 
@@ -32,6 +32,8 @@ gtdiffrspBin = progEnv.Program('gtdiffrsp', listFiles(['src/diffuseResponses/*.c
 
 gtsrcmapsBin = progEnv.Program('gtsrcmaps', listFiles(['src/gtsrcmaps/*.cxx']))
 
+gteblBin = progEnv.Program('gtebl', listFiles(['src/gtebl/*.cxx']))
+
 gtsrcprobBin = progEnv.Program('gtsrcprob', listFiles(['src/gtsrcprob/*.cxx']))
 
 gtpsfBin = progEnv.Program('gtpsf', listFiles(['src/meanPsf/*.cxx']))
@@ -54,6 +56,7 @@ progEnv.Tool('registerTargets', package = 'Likelihood',
                            [gtsrcmapsBin, progEnv],
                            [gtsrcprobBin, progEnv],
                            [gtpsfBin, progEnv],
+                           [gteblBin, progEnv],
                            [gtbkgBin, progEnv],
                            [gtmodelBin, progEnv],
                            [gtltsumBin, progEnv],
