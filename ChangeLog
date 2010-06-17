@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Jun 16 17:08:25 PDT 2010
+ScienceTools-scons/Likelihood/src/gtebl
+
+Modified Files:
+	gtebl.cxx 
+Log Message:
+add gtebl to SConscript
+    *
+------------------------------------------------------------
+User: jchiang  Wed Jun 16 17:08:25 PDT 2010
 ScienceTools-scons/Likelihood
 
 Modified Files:
