@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.95 2010/02/08 23:41:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.96 2010/05/04 22:30:24 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -943,8 +943,8 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
    anticenter_model = 
       facilities::commonUtilities::joinPath(m_rootPath,"anticenter_model_2.xml");
    like4.readXml(anticenter_model, *m_funcFactory);
-   like4.source("PKS 0528+134").spectrum().parameter("Prefactor").setFree(true);
-   like4.source("PKS 0528+134").spectrum().parameter("Index").setFree(true);
+   like4.getSource("PKS 0528+134")->spectrum().parameter("Prefactor").setFree(true);
+   like4.getSource("PKS 0528+134")->spectrum().parameter("Index").setFree(true);
    like4.syncParams();
 
    double fit_value4 = fit(like4);
