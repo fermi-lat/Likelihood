@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jun 19 08:17:20 PDT 2010
+Likelihood/Likelihood
+
+Added Files:
+	RadialProfile.h 
+Log Message:
+completed(?) RadialProfile class
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jun 18 22:27:31 PDT 2010
 ScienceTools-scons/Likelihood/src
 
