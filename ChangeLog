@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jun 19 08:17:22 PDT 2010
+Likelihood/src
+
+Modified Files:
+	RadialProfile.cxx 
+Removed Files:
+	RadialProfile.h 
+Log Message:
+completed(?) RadialProfile class
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jun 19 08:17:20 PDT 2010
 Likelihood/Likelihood
 
