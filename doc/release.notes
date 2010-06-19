@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.364 2010/06/07 20:51:16 jchiang Exp $
+    $Id: release.notes,v 1.365 2010/06/13 18:27:23 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-08-00 19-Jun-2010 jchiang add RadialProfile spatial model
  Likelihood-16-07-01 13-Jun-2010 jchiang set verbosity for getSourceMap in BinnedLikelihod
  Likelihood-16-07-00 07-Jun-2010 jchiang implement ResponseFunctions::efficiencyFactor()
  Likelihood-16-06-07 07-Jun-2010 jchiang implement fetchParamValues so that SummedLikelihood works with DRMN[GB,FB], LBFGS optimizers
