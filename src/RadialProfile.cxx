@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RadialProfile.cxx,v 1.1 2010/06/19 05:27:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RadialProfile.cxx,v 1.2 2010/06/19 15:17:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -33,9 +33,13 @@ RadialProfile::RadialProfile(const std::string & template_file)
 
 RadialProfile::RadialProfile(const RadialProfile & other) 
    : optimizers::Function(other),
-     m_center(new astro::SkyDir(*other.m_center)) ,
+     m_center(0),
      m_theta(other.m_theta), 
-     m_profile(other.m_profile) {}
+     m_profile(other.m_profile) {
+   if (other.m_center) {
+      m_center = new astro::SkyDir(*other.m_center);
+   }
+}
 
 RadialProfile::~RadialProfile() {
    delete m_center;
@@ -44,7 +48,9 @@ RadialProfile::~RadialProfile() {
 RadialProfile & RadialProfile::operator=(const RadialProfile & rhs) {
    if (this != &rhs) {
       optimizers::Function::operator=(rhs);
-      m_center = new astro::SkyDir(*rhs.m_center);
+      if (rhs.m_center) {
+         m_center = new astro::SkyDir(*rhs.m_center);
+      }
       m_theta = rhs.m_theta;
       m_profile = rhs.m_profile;
    }
@@ -54,8 +60,8 @@ RadialProfile & RadialProfile::operator=(const RadialProfile & rhs) {
 double RadialProfile::value(optimizers::Arg & x) const {
    SkyDirArg & dir = dynamic_cast<SkyDirArg &>(x);
    if (m_center == 0) {
-      m_center = new astro::SkyDir(getParam("ra").getValue(),
-                                   getParam("dec").getValue());
+      m_center = new astro::SkyDir(getParam("RA").getValue(),
+                                   getParam("DEC").getValue());
    }
    double offset = dir().difference(*m_center)*180./M_PI;
    size_t indx(0);
@@ -91,13 +97,13 @@ void RadialProfile::init() {
    parameter("Normalization").setBounds(0, 10);
    setParamAlwaysFixed("Normalization");
 
-   addParam("ra", 0, false);
-   parameter("ra").setBounds(-360, 360);
-   setParamAlwaysFixed("ra");
+   addParam("RA", 0, false);
+   parameter("RA").setBounds(-360, 360);
+   setParamAlwaysFixed("RA");
 
-   addParam("dec", 0, false);
-   parameter("dec").setBounds(-90, 90);
-   setParamAlwaysFixed("dec");
+   addParam("DEC", 0, false);
+   parameter("DEC").setBounds(-90, 90);
+   setParamAlwaysFixed("DEC");
 
    m_genericName = "RadialProfile";
    m_normParName = "Normalization";

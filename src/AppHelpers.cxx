@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.82 2010/06/07 20:08:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.83 2010/06/16 22:49:51 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -35,6 +35,7 @@
 #include "Likelihood/Observation.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/PowerLaw2.h"
+#include "Likelihood/RadialProfile.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
@@ -121,6 +122,7 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
    funcFactory->addFunc("LogNormal", new LogNormal(), makeClone);
    funcFactory->addFunc("MapCubeFunction", new MapCubeFunction(), makeClone);
+   funcFactory->addFunc("RadialProfile", new RadialProfile(), makeClone);
    funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
    funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
    funcFactory->addFunc("SmoothBrokenPowerLaw", new SmoothBrokenPowerLaw(), 
