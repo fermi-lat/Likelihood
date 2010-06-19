@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jun 18 22:27:31 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Added Files:
+	RadialProfile.cxx RadialProfile.h 
+Log Message:
+add RadialProfile spatial model
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-17-00, operation: add
 Package: Likelihood
