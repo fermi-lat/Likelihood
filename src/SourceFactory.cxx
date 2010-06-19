@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.64 2009/03/04 11:24:27 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.65 2010/02/08 20:20:52 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -29,6 +29,7 @@
 #include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
+#include "Likelihood/RadialProfile.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SourceFactory.h"
 
@@ -286,6 +287,9 @@ makeDiffuseSource(const DOMElement * spectrum,
       std::string fitsFile 
          = xmlBase::Dom::getAttribute(spatialModel, "file");
       dynamic_cast<MapCubeFunction *>(spatialDist)->readFitsFile(fitsFile);
+   } else if (type == "RadialProfile") {
+      std::string tpl_file(xmlBase::Dom::getAttribute(spatialModel, "file"));
+      dynamic_cast<RadialProfile *>(spatialDist)->readTemplateFile(tpl_file);
    }
    Source * src;
    try {
