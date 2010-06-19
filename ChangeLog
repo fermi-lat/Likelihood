@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jun 19 15:26:31 PDT 2010
+Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx RadialProfile.cxx SourceFactory.cxx 
+Log Message:
+add RadialProfile to SourceFactory and AppHelpers; fix coordinate names
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jun 19 15:26:30 PDT 2010
 Likelihood/Likelihood
 
