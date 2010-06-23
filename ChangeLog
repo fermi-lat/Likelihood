@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jun 23 15:31:40 PDT 2010
+ScienceTools-scons/Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+bug-fix for gtmodel: add code to read in ascii files for FileFunction, DMFitFunction[2] models
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-08-00, operation: add
 Package: Likelihood
