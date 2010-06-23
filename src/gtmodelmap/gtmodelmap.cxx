@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.20 2010/02/09 21:08:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.21 2010/04/30 22:17:45 jchiang Exp $
  */
 
 #include <iostream>
@@ -36,6 +36,9 @@
 #include "dataSubselector/Cuts.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/FileFunction.h"
+#include "Likelihood/DMFitFunction.h"
+#include "Likelihood/DMFitFunction2.h"
 #include "Likelihood/Source.h"
 
 #include "SourceMapRegistry.h"
@@ -145,7 +148,7 @@ private:
 
 st_app::StAppFactory<ModelMap> myAppFactory("gtmodel");
 
-std::string ModelMap::s_cvs_id("$Name:  $");
+std::string ModelMap::s_cvs_id("$Name: ScienceTools-LATEST-1-3163 $");
 
 void ModelMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -356,6 +359,21 @@ void ModelMap::readSpectra() {
       optimizers::Function * func = m_funcFactory->create(type);
       func->setParams(spectrum);
       std::string name = xmlBase::Dom::getAttribute(sources.at(i), "name");
+
+// If FileFunction or DMFitFunction[2], read in the data:
+      if (type == "FileFunction") {
+         std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
+         dynamic_cast<Likelihood::FileFunction *>(func)->readFunction(filename);
+      }
+      if (type == "DMFitFunction") {
+         std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
+         dynamic_cast<Likelihood::DMFitFunction *>(func)->readFunction(filename);
+      }
+      if (type == "DMFitFunction2") {
+         std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
+         dynamic_cast<Likelihood::DMFitFunction2 *>(func)->readFunction(filename);
+      }
+
       m_spectra[name] = func;
    }
 }
