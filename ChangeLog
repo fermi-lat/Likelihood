@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun 24 14:43:40 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx RadialProfile.cxx 
+Log Message:
+enable flux integral calculations for RadialProfile diffuse sources
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun 24 14:43:39 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
