@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.49 2009/03/26 01:32:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.50 2009/05/30 22:35:44 jchiang Exp $
  */
 
 #include <algorithm>
@@ -17,6 +17,7 @@
 #include "Likelihood/Event.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapBase.h"
+#include "Likelihood/RadialProfile.h"
 #include "Likelihood/Observation.h"
 
 namespace Likelihood {
@@ -137,6 +138,11 @@ double DiffuseSource::angularIntegral(double energy) const {
    if (spatialDist()->genericName() == "ConstantValue") { 
 // Here we have an isotropic source
       return 4*M_PI;
+   } else if (spatialDist()->genericName() == "RadialProfile") {
+      optimizers::Function * foo = 
+         const_cast<optimizers::Function *>(this->spatialDist());
+      const RadialProfile * profile = dynamic_cast<RadialProfile *>(foo);
+      return profile->angularIntegral();
    }
    return mapBaseObject()->mapIntegral(energy);
 }
