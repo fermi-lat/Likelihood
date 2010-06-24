@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RadialProfile.h,v 1.1 2010/06/19 15:17:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RadialProfile.h,v 1.2 2010/06/19 22:26:30 jchiang Exp $
  */
 
 #ifndef Likelihood_RadialProfile_h
@@ -52,6 +52,8 @@ public:
       return new RadialProfile(*this);
    }
 
+   double angularIntegral() const;
+   
 private:
 
    // disable this

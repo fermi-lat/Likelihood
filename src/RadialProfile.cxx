@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RadialProfile.cxx,v 1.2 2010/06/19 15:17:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RadialProfile.cxx,v 1.3 2010/06/19 22:26:31 jchiang Exp $
  */
 
 #include <cmath>
@@ -16,8 +16,9 @@
 #include "astro/SkyDir.h"
 #include "st_facilities/Util.h"
 
-#include "Likelihood/SkyDirArg.h"
 #include "Likelihood/RadialProfile.h"
+#include "Likelihood/SkyDirArg.h"
+#include "Likelihood/TrapQuad.h"
 
 namespace Likelihood {
 
@@ -88,6 +89,17 @@ double RadialProfile::derivByParam(optimizers::Arg & x,
 
 void RadialProfile::setCenter(double ra, double dec) {
    m_center = new astro::SkyDir(ra, dec);
+}
+
+double RadialProfile::angularIntegral() const {
+   std::vector<double> xvals;
+   std::vector<double> yvals;
+   for (size_t i(0); i < m_theta.size(); i++) {
+      xvals.push_back(m_theta.at(i)*M_PI/180.);
+      yvals.push_back(std::sin(xvals.back())*m_profile.at(i)*2.*M_PI);
+   }
+   TrapQuad quadrature(xvals, yvals);
+   return quadrature.integral();
 }
 
 void RadialProfile::init() {
