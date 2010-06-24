@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jun 24 14:43:39 PDT 2010
+ScienceTools-scons/Likelihood/Likelihood
+
+Modified Files:
+	RadialProfile.h 
+Log Message:
+enable flux integral calculations for RadialProfile diffuse sources
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-08-01, operation: add
 Package: Likelihood
