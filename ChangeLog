@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul  5 09:29:22 PDT 2010
+Likelihood/src
+
+Modified Files:
+	MapBase.cxx SourceMap.cxx 
+Log Message:
+delete WcsMap instances after creating convolved map
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jun 24 14:43:40 PDT 2010
 ScienceTools-scons/Likelihood/src
 
