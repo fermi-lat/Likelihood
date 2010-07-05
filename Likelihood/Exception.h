@@ -3,7 +3,7 @@
  * @brief Exception class for Likelihood
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikelihoodException.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Exception.h,v 1.1 2003/07/21 22:14:56 jchiang Exp $
  */
 
 #ifndef LIKELIHOOD_EXCEPTION_H
@@ -19,7 +19,7 @@ namespace Likelihood {
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikelihoodException.h,v 1.5 2003/06/11 17:08:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Exception.h,v 1.1 2003/07/21 22:14:56 jchiang Exp $
  */
 
   class Exception: public std::exception {
@@ -30,7 +30,7 @@ namespace Likelihood {
       {}
     virtual ~Exception() throw() {}
     virtual const char *what() const throw() {return m_what.c_str();}
-    virtual const int code() const {return m_code;}
+    virtual int code() const {return m_code;}
   protected:
     std::string m_what;
     int m_code;
