@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul  5 09:30:08 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	Exception.h 
+Log Message:
+remove extraneous type qualifier
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul  5 09:29:46 PDT 2010
 Likelihood/Likelihood
 
