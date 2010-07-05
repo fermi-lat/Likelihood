@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul  5 09:29:46 PDT 2010
+Likelihood/Likelihood
+
+Modified Files:
+	MapBase.h 
+Log Message:
+delete WcsMap instances after creating convolved map
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul  5 09:29:22 PDT 2010
 Likelihood/src
 
