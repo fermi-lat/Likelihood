@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.78 2010/06/04 22:50:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.79 2010/07/05 16:29:19 jchiang Exp $
  */
 
 #include <algorithm>
@@ -187,8 +187,13 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       }
 // Delete model map for map-based diffuse sources to save memory.  The
 // map will be reloaded dynamically if it is needed again.
-      MapBase * mapBaseObj(const_cast<MapBase *>(diffuseSrc->mapBaseObject()));
-      mapBaseObj->deleteMap();
+      try {
+         MapBase * mapBaseObj = 
+            const_cast<MapBase *>(diffuseSrc->mapBaseObject());
+         mapBaseObj->deleteMap();
+      } catch (MapBaseException & eObj) {
+         // Not a map-based source, so do nothing.
+      }
    } else if (havePointSource) {
       PointSource * pointSrc = dynamic_cast<PointSource *>(src);
 
