@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul  5 10:53:30 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	SourceMap.cxx 
+Log Message:
+try/catch block to handle non-map-based diffuse sources
+    *
+------------------------------------------------------------
 User: jchiang  Mon Jul  5 09:30:08 PDT 2010
 Likelihood/Likelihood
 
