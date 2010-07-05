@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.4 2009/02/23 00:38:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.5 2009/05/30 22:35:42 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -44,6 +44,8 @@ public:
    virtual void readFitsFile(const std::string & fitsFile,
                              const std::string & extension="");
 
+   virtual void readFitsFile();
+
    virtual bool insideMap(const astro::SkyDir & dir) const;
 
    virtual void getDiffRespLimits(const astro::SkyDir & dir, 
@@ -51,7 +53,15 @@ public:
                                   double & phimin, double & phimax) const;
 
    const WcsMap & wcsmap() const {
+      if (!m_wcsmap) {
+         const_cast<MapBase *>(this)->readFitsFile();
+      }
       return *m_wcsmap;
+   }
+
+   virtual void deleteMap() {
+      delete m_wcsmap;
+      m_wcsmap = 0;
    }
 
 protected:

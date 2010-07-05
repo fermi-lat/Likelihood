@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapBase.cxx,v 1.4 2009/06/10 23:10:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapBase.cxx,v 1.5 2010/02/09 21:08:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -27,8 +27,8 @@ namespace Likelihood {
 MapBase::MapBase() : m_wcsmap(0), m_fitsFile(""), m_extension("") {}
 
 MapBase::MapBase(const std::string & fitsFile, const std::string & extension) 
-   : m_wcsmap(0) {
-   readFitsFile(fitsFile, extension);
+   : m_wcsmap(0), m_fitsFile(fitsFile), m_extension(extension) {
+   readFitsFile();
 }
 
 MapBase::~MapBase() {
@@ -60,8 +60,11 @@ void MapBase::readFitsFile(const std::string & fitsFile,
                            const std::string & extension) {
    m_fitsFile = fitsFile;
    m_extension = extension;
+   readFitsFile();
+}
 
-   std::string expandedFileName(fitsFile);
+void MapBase::readFitsFile() {
+   std::string expandedFileName(m_fitsFile);
 
    facilities::Util::expandEnvVar(&expandedFileName);
 
@@ -75,8 +78,7 @@ void MapBase::readFitsFile(const std::string & fitsFile,
    }
 
    delete m_wcsmap;
-//   m_wcsmap = new WcsMap(expandedFileName, extension, false);
-   m_wcsmap = new WcsMap(expandedFileName, extension, true);
+   m_wcsmap = new WcsMap(expandedFileName, m_extension, true);
 }
 
 bool MapBase::insideMap(const astro::SkyDir & dir) const {

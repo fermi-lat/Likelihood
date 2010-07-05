@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.77 2010/05/03 18:25:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.78 2010/06/04 22:50:06 jchiang Exp $
  */
 
 #include <algorithm>
@@ -24,6 +24,7 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/MapBase.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/Observation.h"
@@ -184,6 +185,10 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
             }
          }
       }
+// Delete model map for map-based diffuse sources to save memory.  The
+// map will be reloaded dynamically if it is needed again.
+      MapBase * mapBaseObj(const_cast<MapBase *>(diffuseSrc->mapBaseObject()));
+      mapBaseObj->deleteMap();
    } else if (havePointSource) {
       PointSource * pointSrc = dynamic_cast<PointSource *>(src);
 
