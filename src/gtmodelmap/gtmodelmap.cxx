@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.21 2010/04/30 22:17:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.22 2010/06/23 22:31:40 jchiang Exp $
  */
 
 #include <iostream>
@@ -135,6 +135,7 @@ private:
    void readEnergyBounds();
    void createRegistry();
    void sumOutputMap();
+   void sumOutputMap_old();
    void writeOutputMap();
    void trimExtensions();
 
@@ -148,7 +149,7 @@ private:
 
 st_app::StAppFactory<ModelMap> myAppFactory("gtmodel");
 
-std::string ModelMap::s_cvs_id("$Name: ScienceTools-LATEST-1-3163 $");
+std::string ModelMap::s_cvs_id("$Name:  $");
 
 void ModelMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -240,7 +241,7 @@ void ModelMap::trimExtensions() {
 }
 
 void ModelMap::sumOutputMap() {
-   st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap2", 2);
+   st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap", 2);
    for (size_t k(0); k < m_emins.size(); k++) {
       double & emin(m_emins.at(k));
       double & emax(m_emaxs.at(k));
@@ -273,7 +274,7 @@ void ModelMap::sumOutputMap() {
          }
       }
       for (size_t i(0); i < image_size; i++) {
-         m_outmap.at(i) = pixelCounts(emin, emax, map0.at(i), map1.at(i));
+         m_outmap.at(i) += pixelCounts(emin, emax, map0.at(i), map1.at(i));
       }
    }
 }
@@ -292,36 +293,36 @@ double ModelMap::pixelCounts(double emin, double emax,
    return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
 }
 
-// void ModelMap::sumOutputMap() {
-//    std::map<std::string, optimizers::Function *>::iterator it;
-//    for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
-//       std::string srcName = it->first;
-//       st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap", 2);
-//       try {
-//          getMap(srcName);
-//       } catch (tip::TipException &) {
-//          formatter.info() << "Cannot read source map for model component "
-//                           << srcName << ". Skipping it." << std::endl;
-//       }
+void ModelMap::sumOutputMap_old() {
+   std::map<std::string, optimizers::Function *>::iterator it;
+   for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
+      std::string srcName = it->first;
+      st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap", 2);
+      try {
+         getMap(srcName);
+      } catch (tip::TipException &) {
+         formatter.info() << "Cannot read source map for model component "
+                          << srcName << ". Skipping it." << std::endl;
+      }
 
-//       const Likelihood::Source & source(m_registry->source(srcName));
+      const Likelihood::Source & source(m_registry->source(srcName));
 
-//       if (it == m_spectra.begin()) {
-//          m_outmap.resize(m_srcmap->size(), 0);
-//       }
-//       size_t image_size = m_outmap.size()/(m_emins.size() + 1);
-//       for (size_t k(0); k < m_emins.size(); k++) {
-//          double & emin = m_emins.at(k);
-//          double & emax = m_emaxs.at(k);
-//          for (size_t i(0); i < image_size; i++) {
-//             size_t j0 = k*image_size + i;
-//             size_t j1 = j0 + image_size;
-//             m_outmap.at(i) += source.pixelCounts(emin, emax, m_srcmap->at(j0),
-//                                                  m_srcmap->at(j1));
-//          }
-//       }
-//    }
-// }
+      if (it == m_spectra.begin()) {
+         m_outmap.resize(m_srcmap->size(), 0);
+      }
+      size_t image_size = m_outmap.size()/(m_emins.size() + 1);
+      for (size_t k(0); k < m_emins.size(); k++) {
+         double & emin = m_emins.at(k);
+         double & emax = m_emaxs.at(k);
+         for (size_t i(0); i < image_size; i++) {
+            size_t j0 = k*image_size + i;
+            size_t j1 = j0 + image_size;
+            m_outmap.at(i) += source.pixelCounts(emin, emax, m_srcmap->at(j0),
+                                                 m_srcmap->at(j1));
+         }
+      }
+   }
+}
 
 void ModelMap::getMap(const std::string & srcName) {
    if (m_registry) {
