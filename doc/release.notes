@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.367 2010/06/23 22:33:05 jchiang Exp $
+    $Id: release.notes,v 1.368 2010/07/05 18:19:36 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-08-03 05-Jul-2010 jchiang bug-fix for gtmodel
  Likelihood-16-08-02 05-Jul-2010 jchiang delete WcsMap instances after creating convolved map to save memory
  Likelihood-16-08-01 23-Jun-2010 jchiang bug-fix for gtmodel: add code to read FileFunction DMFitFunction[2] models
  Likelihood-16-08-00 19-Jun-2010 jchiang add RadialProfile spatial model
