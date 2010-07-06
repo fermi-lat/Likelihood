@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Jul  5 20:45:13 PDT 2010
+ScienceTools-scons/Likelihood/src/gtmodelmap
+
+Modified Files:
+	gtmodelmap.cxx 
+Log Message:
+bug-fix: forgot to sum over energy planes using +=
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-08-02, operation: add
 Package: Likelihood
