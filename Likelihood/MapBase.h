@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.5 2009/05/30 22:35:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapBase.h,v 1.6 2010/07/05 16:29:46 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -42,7 +42,8 @@ public:
    virtual double mapIntegral(double energy) const = 0;
 
    virtual void readFitsFile(const std::string & fitsFile,
-                             const std::string & extension="");
+                             const std::string & extension="",
+                             bool loadMap=true);
 
    virtual void readFitsFile();
 
@@ -70,6 +71,8 @@ protected:
 
    std::string m_fitsFile;
    std::string m_extension;
+
+   virtual WcsMap & wcsmap();
 
 private:
    
