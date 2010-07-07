@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jul  6 18:05:30 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx DiffuseSource.cxx MapBase.cxx 
+	MapCubeFunction.cxx SourceFactory.cxx SourceModel.cxx 
+Log Message:
+save some space by not loading model maps in binned case and deleting maps after initial use in unbinned case
+    *
+------------------------------------------------------------
 User: jchiang  Tue Jul  6 18:05:29 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
