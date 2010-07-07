@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.153 2010/05/03 21:56:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.154 2010/06/16 22:49:53 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -89,7 +89,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.153 2010/05/03 21:56:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.154 2010/06/16 22:49:53 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -390,6 +390,8 @@ void likelihood::readEventData() {
 void likelihood::readSourceModel() {
    std::string sourceModel = m_pars["srcmdl"];
    bool requireExposure(true);
+   bool addPointSources;
+   bool loadMaps;
    if (m_statistic == "BINNED") {
       requireExposure = false;
    }
@@ -397,7 +399,8 @@ void likelihood::readSourceModel() {
 // Read in the Source model for the first time.
       st_facilities::Util::file_ok(sourceModel);
       m_logLike->readXml(sourceModel, m_helper->funcFactory(), 
-                         requireExposure);
+                         requireExposure, addPointSources=true,
+                         loadMaps=(m_statistic!="BINNED"));
       if (m_statistic != "BINNED") {
          m_logLike->computeEventResponses();
       } else {

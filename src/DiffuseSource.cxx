@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.50 2009/05/30 22:35:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.51 2010/06/24 21:43:40 jchiang Exp $
  */
 
 #include <algorithm>
@@ -39,6 +39,12 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
       if (observation.expMap().haveMap()) {
          observation.expMap().integrateSpatialDist(energies, spatialDist,
                                                    m_exposure);
+         try {
+            // Delete internal representation of the map to save memory.
+            mapBaseObject()->deleteMap();
+         } catch (MapBaseException & eObj) {
+            // do nothing
+         }
       } else {
          std::string what("DiffuseSource: An exposure map must be defined ");
          what += "if diffuse sources are in the model.";

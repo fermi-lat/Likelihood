@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.23 2006/04/19 05:41:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.24 2007/12/05 19:09:50 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -45,7 +45,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.23 2006/04/19 05:41:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.24 2007/12/05 19:09:50 jchiang Exp $
  *
  */
     
@@ -69,7 +69,8 @@ public:
    void readXml(const std::string & xmlFile,
                 optimizers::FunctionFactory &,
                 bool requireExposure=true,
-                bool addPointSources=true);
+                bool addPointSources=true,
+                bool loadMaps=true);
 
    void fetchSrcNames(std::vector<std::string> & srcNames);
 
@@ -92,7 +93,8 @@ private:
 
    Source *makeDiffuseSource(const DOMElement * spectrum,
                              const DOMElement * spatialModel,
-                             optimizers::FunctionFactory & funcFactory);
+                             optimizers::FunctionFactory & funcFactory,
+                             bool loadMap=true);
 
    void setSpectrum(Source *src, const DOMElement *spectrum,
                     optimizers::FunctionFactory & funcFactory);

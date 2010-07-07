@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapBase.cxx,v 1.5 2010/02/09 21:08:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.6 2010/07/05 16:29:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -57,10 +57,13 @@ MapBase & MapBase::operator=(const MapBase & rhs) {
 }
 
 void MapBase::readFitsFile(const std::string & fitsFile,
-                           const std::string & extension) {
+                           const std::string & extension,
+                           bool loadMap) {
    m_fitsFile = fitsFile;
    m_extension = extension;
-   readFitsFile();
+   if (loadMap) {
+      readFitsFile();
+   }
 }
 
 void MapBase::readFitsFile() {
@@ -81,8 +84,16 @@ void MapBase::readFitsFile() {
    m_wcsmap = new WcsMap(expandedFileName, m_extension, true);
 }
 
+WcsMap & MapBase::wcsmap() {
+   if (m_wcsmap == 0) {
+      readFitsFile();
+   }
+   return *m_wcsmap;
+}
+
 bool MapBase::insideMap(const astro::SkyDir & dir) const {
-   return m_wcsmap->insideMap(dir);
+//   return m_wcsmap->insideMap(dir);
+   return wcsmap().insideMap(dir);
 }
 
 void MapBase::getDiffRespLimits(const astro::SkyDir & dir, 
@@ -136,14 +147,17 @@ void MapBase::getDiffRespLimits(const astro::SkyDir & dir,
 void MapBase::getMinMaxDistPixels(const astro::SkyDir & dir,
                                   astro::SkyDir & closestPixel, 
                                   astro::SkyDir & farthestPixel) const {
+//    std::pair<astro::SkyDir, astro::SkyDir> pixels =
+//       m_wcsmap->minMaxDistPixels(dir);
    std::pair<astro::SkyDir, astro::SkyDir> pixels =
-      m_wcsmap->minMaxDistPixels(dir);
+      wcsmap().minMaxDistPixels(dir);
    closestPixel = pixels.first;
    farthestPixel = pixels.second;
 }
 
 void MapBase::getCorners(std::vector<astro::SkyDir> & corners) const {
-   m_wcsmap->getCorners(corners);
+//    m_wcsmap->getCorners(corners);
+   wcsmap().getCorners(corners);
 }
 
 } // namespace Likelihood

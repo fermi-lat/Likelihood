@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.65 2010/02/08 20:20:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.66 2010/06/19 22:26:31 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -95,7 +95,8 @@ void SourceFactory::replaceSource(Source* src, bool fromClone) {
 void SourceFactory::readXml(const std::string & xmlFile,
                             optimizers::FunctionFactory & funcFactory,
                             bool requireExposure,
-                            bool addPointSources) {
+                            bool addPointSources, 
+                            bool loadMaps) {
    m_requireExposure = requireExposure;
 
    xmlBase::XmlParser * parser = XmlParser_instance();
@@ -185,7 +186,8 @@ void SourceFactory::readXml(const std::string & xmlFile,
       if (addPointSources && srcType == "PointSource") {
          src = makePointSource(spectrum, spatialModel, funcFactory);
       } else if (srcType == "DiffuseSource") {
-         src = makeDiffuseSource(spectrum, spatialModel, funcFactory);
+         src = makeDiffuseSource(spectrum, spatialModel, funcFactory,
+                                 loadMaps);
       }
 
 // Add the source to the vector of prototypes.
@@ -269,7 +271,8 @@ makePointSource(const DOMElement * spectrum,
 Source * SourceFactory::
 makeDiffuseSource(const DOMElement * spectrum, 
                   const DOMElement * spatialModel,
-                  optimizers::FunctionFactory & funcFactory) {
+                  optimizers::FunctionFactory & funcFactory,
+                  bool loadMap) {
    std::string type = xmlBase::Dom::getAttribute(spatialModel, "type");
    optimizers::Function * spatialDist = funcFactory.create(type);
    std::vector<DOMElement *> params;
@@ -282,11 +285,13 @@ makeDiffuseSource(const DOMElement * spectrum,
    if (type == "SpatialMap") {
       std::string fitsFile 
          = xmlBase::Dom::getAttribute(spatialModel, "file");
-      dynamic_cast<SpatialMap *>(spatialDist)->readFitsFile(fitsFile);
+      dynamic_cast<SpatialMap *>(spatialDist)->readFitsFile(fitsFile, "",
+                                                            loadMap);
    } else if (type == "MapCubeFunction") {
       std::string fitsFile 
          = xmlBase::Dom::getAttribute(spatialModel, "file");
-      dynamic_cast<MapCubeFunction *>(spatialDist)->readFitsFile(fitsFile);
+      dynamic_cast<MapCubeFunction *>(spatialDist)->readFitsFile(fitsFile, "",
+                                                                 loadMap);
    } else if (type == "RadialProfile") {
       std::string tpl_file(xmlBase::Dom::getAttribute(spatialModel, "file"));
       dynamic_cast<RadialProfile *>(spatialDist)->readTemplateFile(tpl_file);
