@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Tue Jul  6 18:05:29 PDT 2010
+ScienceTools-scons/Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h MapBase.h MapCubeFunction.h SourceFactory.h 
+	SourceModel.h 
+Log Message:
+save some space by not loading model maps in binned case and deleting maps after initial use in unbinned case
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-08-03, operation: add
 Package: Likelihood
