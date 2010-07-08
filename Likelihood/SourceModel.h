@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.65 2006/09/18 20:59:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.66 2010/07/07 01:05:29 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @authors J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.65 2006/09/18 20:59:24 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.66 2010/07/07 01:05:29 jchiang Exp $ 
  */
 
 class SourceModel : public optimizers::Statistic {
@@ -161,6 +161,14 @@ public:
    /// method to sync the m_parameter vector with those of the 
    /// m_sources' Functions
    virtual void syncParams();
+
+   const std::vector<optimizers::Parameter> & parameters() const {
+      return m_parameter;
+   }
+
+   std::vector<optimizers::Parameter> & parameters() {
+      return m_parameter;
+   }
 
 protected:
 
