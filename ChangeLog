@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jul  7 18:48:45 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	TiedParameter.cxx 
+Log Message:
+include <algorithm>
+    *
+------------------------------------------------------------
 User: jchiang  Wed Jul  7 18:09:39 PDT 2010
 ScienceTools-scons/Likelihood/src
 
