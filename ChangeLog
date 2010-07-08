@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jul  7 18:09:38 PDT 2010
+ScienceTools-scons/Likelihood/Likelihood
+
+Added Files:
+	TiedParameter.h 
+Log Message:
+add TiedParameter class
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-09-00, operation: add
 Package: Likelihood
