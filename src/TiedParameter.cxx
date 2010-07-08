@@ -5,8 +5,10 @@
  *
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TiedParameter.cxx,v 1.1 2010/07/08 01:09:39 jchiang Exp $
  */
+
+#include <algorithm>
 
 #include "Likelihood/TiedParameter.h"
 
