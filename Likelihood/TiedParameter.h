@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/TiedParameter.h,v 1.1 2010/07/08 01:09:38 jchiang Exp $
  */
 
 #ifndef Likelihood_TiedParameter_h
@@ -13,18 +13,19 @@
 
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "optimizers/Parameter.h"
 
 namespace Likelihood {
 
+class LogLike;
+
 class TiedParameter : public optimizers::Parameter {
 
 public:
 
-   TiedParameter(const std::string & name, double value,
-                 double minValue, double maxValue,
-                 bool isFree, double error);
+   TiedParameter();
 
    TiedParameter(const TiedParameter & other);
 
@@ -32,11 +33,11 @@ public:
 
    TiedParameter & operator=(const TiedParameter & rhs);
    
-   void addParam(optimizers::Parameter & par);
+   void addParam(LogLike & like, size_t i);
 
-   void removeParam(optimizers::Parameter & par);
+   void removeParam(LogLike & like, size_t i);
 
-   bool has_member(const optimizers::Parameter & par) const;
+   bool has_member(const LogLike & like, size_t i) const;
 
    virtual void setName(const std::string name);
 
@@ -54,9 +55,16 @@ public:
 
    virtual void setError(double error);
 
+   typedef std::vector<std::pair<LogLike *, size_t> > ParVector_t;
+   typedef ParVector_t::iterator ParVectorIterator_t;
+   typedef ParVector_t::const_iterator ParVectorConstIterator_t;
+
+   const ParVector_t & pars() const {
+      return m_pars;
+   }
+
 private:
 
-   typedef std::vector<optimizers::Parameter *> ParVector_t;
    ParVector_t m_pars;
 
 };

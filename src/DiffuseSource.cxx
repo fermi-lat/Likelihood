@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.51 2010/06/24 21:43:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.52 2010/07/07 01:05:30 jchiang Exp $
  */
 
 #include <algorithm>
@@ -134,7 +134,18 @@ const MapBase * DiffuseSource::mapBaseObject() const {
       const_cast<optimizers::Function *>(this->spatialDist());
    const MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
    if (!mapBaseObject) {
-      throw MapBaseException("Flux calculations are not available for this "
+      throw MapBaseException("MapBase object not found for this "
+                             + ("diffuse source: " + getName()));
+   }
+   return mapBaseObject;
+}
+
+MapBase * DiffuseSource::mapBaseObject() {
+   optimizers::Function * foo = 
+      const_cast<optimizers::Function *>(this->spatialDist());
+   MapBase * mapBaseObject = dynamic_cast<MapBase *>(foo);
+   if (!mapBaseObject) {
+      throw MapBaseException("MapBase object not found for this "
                              + ("diffuse source: " + getName()));
    }
    return mapBaseObject;
