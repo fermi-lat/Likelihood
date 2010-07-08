@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: jchiang  Thu Jul  8 16:10:37 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	DiffuseSource.cxx TiedParameter.cxx 
+Added Files:
+	Composite2.cxx 
+Log Message:
+add Composite2 class
+    *
+------------------------------------------------------------
+User: jchiang  Thu Jul  8 16:10:37 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
 Modified Files:
