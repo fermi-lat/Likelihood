@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jul  8 20:57:49 PDT 2010
+ScienceTools-scons/Likelihood/Likelihood
+
+Modified Files:
+	Composite2.h 
+Log Message:
+ensure first added parameter is used to set values for all of the others
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jul  8 16:10:37 PDT 2010
 ScienceTools-scons/Likelihood/src
 
