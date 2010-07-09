@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul  9 12:22:24 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	Composite2.cxx TiedParameter.cxx 
+Log Message:
+re-write syncParams so that spectral functions update from the SourceModel m_parameter data member; push_back tied param indices onto m_components[...] vector so that getFreeDerivs works properly
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jul  8 20:57:50 PDT 2010
 ScienceTools-scons/Likelihood/src
 
