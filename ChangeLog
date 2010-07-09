@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Thu Jul  8 20:57:50 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	Composite2.cxx TiedParameter.cxx 
+Log Message:
+ensure first added parameter is used to set values for all of the others
+    *
+------------------------------------------------------------
 User: jchiang  Thu Jul  8 20:57:49 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
