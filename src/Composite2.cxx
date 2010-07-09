@@ -6,9 +6,10 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.9 2010/05/17 21:17:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.1 2010/07/08 23:10:37 jchiang Exp $
  */
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -17,12 +18,28 @@
 
 namespace Likelihood {
 
+Composite2::~Composite2() throw() {
+   try {
+      std::vector<TiedParameter *>::iterator it(m_tiedPars.begin());
+      for ( ; it != m_tiedPars.end(); ++it) {
+         delete *it;
+      }
+   } catch (...) {
+   }
+}
+
 void Composite2::addComponent(LogLike & like) {
    std::vector<size_t> tiedPars;
    m_components[&like] = tiedPars;
 }
 
 void Composite2::tieParameters(const TiedParameter::ParVector_t & pars) {
+   TiedParameter::ParVectorConstIterator_t it(pars.begin());
+   TiedParameter * tiedPar = new TiedParameter();
+   for ( ; it != pars.end(); ++it) {
+      tiedPar->addParam(*it->first, it->second);
+   }
+   m_tiedPars.push_back(tiedPar);
 }
 
 double Composite2::value() const {
@@ -142,6 +159,7 @@ void Composite2::getFreeDerivs(std::vector<double> & derivs) const {
                // normal free parameter
                derivs.push_back(freeDerivs.at(j));
             } else {
+               // tied parameter: sum up contribution from individual params
                std::pair<LogLike *, size_t> item = std::make_pair(it->first, i);
                std::vector<TiedParameter *>::const_iterator tp 
                   = m_tiedPars.begin();
