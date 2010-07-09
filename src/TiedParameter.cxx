@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TiedParameter.cxx,v 1.3 2010/07/08 23:10:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TiedParameter.cxx,v 1.4 2010/07/09 03:57:50 jchiang Exp $
  */
 
 #include <algorithm>
@@ -70,7 +70,8 @@ void TiedParameter::setName(const std::string name) {
 void TiedParameter::setValue(double value) {
    optimizers::Parameter::setValue(value);
    for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
-      it->first->parameters().at(it->second).setValue(value);
+      size_t indx = it->second;
+      it->first->parameters().at(indx).setValue(value);
    }
 }
 

@@ -6,7 +6,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.1 2010/07/08 23:10:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.2 2010/07/09 03:57:50 jchiang Exp $
  */
 
 #include <algorithm>
@@ -38,6 +38,7 @@ void Composite2::tieParameters(const TiedParameter::ParVector_t & pars) {
    TiedParameter * tiedPar = new TiedParameter();
    for ( ; it != pars.end(); ++it) {
       tiedPar->addParam(*it->first, it->second);
+      m_components[it->first].push_back(it->second);
    }
    m_tiedPars.push_back(tiedPar);
 }
@@ -114,7 +115,14 @@ setFreeParamValues(const std::vector<double> & values) {
 void Composite2::syncParams() {
    for (ComponentIterator_t it(m_components.begin()); 
         it != m_components.end(); ++it) {
-      it->first->syncParams();
+      std::vector<optimizers::Parameter> freePars;
+      const std::vector<optimizers::Parameter> & pars(it->first->parameters());
+      for (size_t i(0); i < pars.size(); i++) {
+         if (pars.at(i).isFree()) {
+            freePars.push_back(pars.at(i));
+         }
+      }
+      it->first->setFreeParams(freePars);
    }
 }
 
