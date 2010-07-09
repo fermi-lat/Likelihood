@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TiedParameter.cxx,v 1.2 2010/07/08 01:48:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TiedParameter.cxx,v 1.3 2010/07/08 23:10:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -33,8 +33,12 @@ TiedParameter & TiedParameter::operator=(const TiedParameter & rhs) {
 }
 
 void TiedParameter::addParam(LogLike & like, size_t i) {
+   if (m_pars.empty()) {
+      optimizers::Parameter::operator=(like.parameters().at(i));
+   }
    if (!has_member(like, i)) {
       m_pars.push_back(std::make_pair(&like, i));
+      like.parameters().at(i) = *this;
    }
 }
 

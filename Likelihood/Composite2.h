@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Composite2.h,v 1.6 2010/05/17 21:17:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Composite2.h,v 1.1 2010/07/08 23:10:36 jchiang Exp $
  */
 
 #ifndef Likelihood_Composite2_h
@@ -33,7 +33,7 @@ public:
 
    Composite2() : optimizers::Statistic() {}
 
-   virtual ~Composite2() throw() {}
+   virtual ~Composite2() throw();
 
    void addComponent(LogLike & component);
 
