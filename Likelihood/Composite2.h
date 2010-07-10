@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Composite2.h,v 1.2 2010/07/09 03:57:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Composite2.h,v 1.3 2010/07/10 06:12:16 jchiang Exp $
  */
 
 #ifndef Likelihood_Composite2_h
@@ -47,6 +47,21 @@ public:
 
    /// Set the errors for the free parameters.
    void setErrors(const std::vector<double> & errors);
+
+   /// Find the parameter index (in the optimizer context, i.e., the
+   /// index number among the free parameters) in the composite model
+   /// for the specified parameter.  This is for use with the
+   /// minosError function in the python interface.
+   ///
+   /// @return The desired index.  -1 will be returned if the
+   /// parameter is fixed, or if the par_index does not exist in the 
+   /// specified LogLike object.
+   ///
+   /// @param like The LogLike object with the desired parameter.
+   /// @param par_index The "absolute" index (i.e., including the
+   /// fixed pars) of the parameter in the LogLike object.
+   ///
+   int findIndex(const LogLike & like, size_t par_index) const;
 
    void syncParams();
 
