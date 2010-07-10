@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Composite2.h,v 1.1 2010/07/08 23:10:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Composite2.h,v 1.2 2010/07/09 03:57:49 jchiang Exp $
  */
 
 #ifndef Likelihood_Composite2_h
@@ -44,6 +44,9 @@ public:
    virtual void setFreeParamValues(const std::vector<double> & values);
    virtual unsigned int getNumFreeParams() const;
    virtual void getFreeDerivs(std::vector<double> & derivs) const;
+
+   /// Set the errors for the free parameters.
+   void setErrors(const std::vector<double> & errors);
 
    void syncParams();
 
