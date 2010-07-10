@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Jul 10 10:02:25 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	Composite2.cxx TiedParameter.cxx 
+Log Message:
+code to support minosError in python interface
+    *
+------------------------------------------------------------
 User: jchiang  Sat Jul 10 10:02:24 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
