@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/TiedParameter.h,v 1.1 2010/07/08 01:09:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/TiedParameter.h,v 1.2 2010/07/08 23:10:36 jchiang Exp $
  */
 
 #ifndef Likelihood_TiedParameter_h
@@ -62,6 +62,8 @@ public:
    const ParVector_t & pars() const {
       return m_pars;
    }
+
+   bool containsIndex(const LogLike & like, size_t par_index) const;
 
 private:
 

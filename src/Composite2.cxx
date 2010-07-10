@@ -1,12 +1,11 @@
 /**
  * @file Composite2.cxx
- * @brief Statistic object that comprises LogLike objects that have a
- * source (e.g. DM source) with common fit parameters intended to be
- * tied together.
+ * @brief Composite log-likelihood that allows for tying together of
+ * arbitrary combinations of parameters.
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.3 2010/07/09 19:22:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.4 2010/07/10 06:12:18 jchiang Exp $
  */
 
 #include <algorithm>
@@ -20,8 +19,8 @@ namespace Likelihood {
 
 Composite2::~Composite2() throw() {
    try {
-      std::vector<TiedParameter *>::iterator it(m_tiedPars.begin());
-      for ( ; it != m_tiedPars.end(); ++it) {
+      for (std::vector<TiedParameter *>::iterator it(m_tiedPars.begin());
+           it != m_tiedPars.end(); ++it) {
          delete *it;
       }
    } catch (...) {
@@ -34,9 +33,9 @@ void Composite2::addComponent(LogLike & like) {
 }
 
 void Composite2::tieParameters(const TiedParameter::ParVector_t & pars) {
-   TiedParameter::ParVectorConstIterator_t it(pars.begin());
    TiedParameter * tiedPar = new TiedParameter();
-   for ( ; it != pars.end(); ++it) {
+   for (TiedParameter::ParVectorConstIterator_t it(pars.begin());
+        it != pars.end(); ++it) {
       tiedPar->addParam(*it->first, it->second);
       m_components[it->first].push_back(it->second);
    }
@@ -45,8 +44,8 @@ void Composite2::tieParameters(const TiedParameter::ParVector_t & pars) {
 
 double Composite2::value() const {
    double my_value(0);
-   ComponentConstIterator_t it(m_components.begin());
-   for ( ; it != m_components.end(); ++it) {
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
       my_value += it->first->value();
    }
    return my_value;
@@ -58,10 +57,9 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
    if (m_components.empty()) {
       throw std::runtime_error("getFreeParams: empty composite list");
    }
-
 // Loop over LogLike components and gather up free, untied parameters
-   ComponentConstIterator_t it(m_components.begin());
-   for ( ; it != m_components.end(); ++it) {
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
       const std::vector<size_t> & tiedPars(it->second);
       const std::vector<optimizers::Parameter> & pars(it->first->parameters());
       for (size_t i(0); i < pars.size(); i++) {
@@ -71,7 +69,6 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
          }
       }
    }
-   
 // Add the free TiedParameters.  The copy operation will slice the
 // TiedParameter attributes, but that's ok in this context.
    for (size_t i(0); i < m_tiedPars.size(); i++) {
@@ -86,12 +83,10 @@ setFreeParamValues(const std::vector<double> & values) {
    if (m_components.empty()) {
       throw std::runtime_error("setFreeParamValues: empty composite list");
    }
-
    size_t j(0);
-
 // Loop over LogLike components and set free, untied parameters
-   ComponentConstIterator_t it(m_components.begin());
-   for ( ; it != m_components.end(); ++it) {
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
       const std::vector<size_t> & tiedPars(it->second);
       std::vector<optimizers::Parameter> & pars(it->first->parameters());
       for (size_t i(0); i < pars.size(); i++) {
@@ -101,14 +96,12 @@ setFreeParamValues(const std::vector<double> & values) {
          }
       }
    }
-   
 // Set the free TiedParameters.
    for (size_t i(0); i < m_tiedPars.size(); i++) {
       if (m_tiedPars.at(i)->isFree()) {
          m_tiedPars.at(i)->setValue(values.at(j++));
       }
    }
-
    syncParams();
 }
 
@@ -116,12 +109,10 @@ void Composite2::setErrors(const std::vector<double> & errors) {
    if (m_components.empty()) {
       throw std::runtime_error("setErrors: empty composite list");
    }
-
    size_t j(0);
-
 // Loop over LogLike components and set free, untied parameters
-   ComponentConstIterator_t it(m_components.begin());
-   for ( ; it != m_components.end(); ++it) {
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
       const std::vector<size_t> & tiedPars(it->second);
       std::vector<optimizers::Parameter> & pars(it->first->parameters());
       for (size_t i(0); i < pars.size(); i++) {
@@ -131,14 +122,12 @@ void Composite2::setErrors(const std::vector<double> & errors) {
          }
       }
    }
-   
 // Set the free TiedParameters.
    for (size_t i(0); i < m_tiedPars.size(); i++) {
       if (m_tiedPars.at(i)->isFree()) {
          m_tiedPars.at(i)->setError(errors.at(j++));
       }
    }
-
    syncParams();
 }
 
@@ -159,8 +148,8 @@ void Composite2::syncParams() {
 unsigned int Composite2::getNumFreeParams() const {
    unsigned int npars(0);
 // Loop over LogLike components and count free, untied parameters
-   ComponentConstIterator_t it(m_components.begin());
-   for ( ; it != m_components.end(); ++it) {
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
       const std::vector<size_t> & tiedPars(it->second);
       const std::vector<optimizers::Parameter> & pars(it->first->parameters());
       for (size_t i(0); i < pars.size(); i++) {
@@ -170,7 +159,6 @@ unsigned int Composite2::getNumFreeParams() const {
          }
       }
    }
-   
 // Add the free TiedParameters.  The copy operation will slice the
 // TiedParameter attributes, but that's ok in this context.
    for (size_t i(0); i < m_tiedPars.size(); i++) {
@@ -184,8 +172,8 @@ unsigned int Composite2::getNumFreeParams() const {
 void Composite2::getFreeDerivs(std::vector<double> & derivs) const {
    derivs.clear();
    std::vector<double> tp_derivs(m_tiedPars.size(), 0);
-   ComponentConstIterator_t it(m_components.begin());
-   for ( ; it != m_components.end(); ++it) {
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
       const std::vector<size_t> & tiedPars(it->second);
       const std::vector<optimizers::Parameter> & pars(it->first->parameters());
       std::vector<double> freeDerivs;
@@ -212,10 +200,54 @@ void Composite2::getFreeDerivs(std::vector<double> & derivs) const {
          }
       } // pars.at(i)
    } // m_components
-      
+   /// Append the derivative sums for the tied parameters.
    for (size_t k(0); k < tp_derivs.size(); k++) {
       derivs.push_back(tp_derivs.at(k));
    }
+}
+
+int Composite2::findIndex(const LogLike & like, size_t par_index) const {
+   int j(0);
+/// Loop over components and free, untied parameters, advancing index
+/// until the desired par_index is found.
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
+      const std::vector<size_t> & tiedPars(it->second);
+      const std::vector<optimizers::Parameter> & 
+         pars(it->first->parameters());
+      if (&like == it->first) {
+         /// LogLike object matches, so loop over parameters and if
+         /// index matches, return the incremented index value, j.
+         for (size_t i(0); i < pars.size(); i++) {
+            if (std::count(tiedPars.begin(), tiedPars.end(), i) != 0
+                || !pars.at(i).isFree()) {
+               continue;
+            }
+            if (par_index == i) {
+               return j;
+            }
+            j++;
+         }
+      } else {
+         /// LogLike object does not match, so just loop over free,
+         /// untied parameters and increment the j index.
+         for (size_t i(0); i < pars.size(); i++) {
+            if (std::count(tiedPars.begin(), tiedPars.end(), i) != 0
+                || !pars.at(i).isFree()) {
+               continue;
+            }
+            j++;
+         }
+      }
+   }
+/// Loop over tied parameters.
+   for (size_t i(0); i < m_tiedPars.size(); i++) {
+      if (m_tiedPars.at(i)->containsIndex(like, par_index)) {
+         return j;
+      }
+      j++;
+   }
+   return -1;
 }
 
 } // namespace Likleihood

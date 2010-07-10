@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TiedParameter.cxx,v 1.4 2010/07/09 03:57:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TiedParameter.cxx,v 1.5 2010/07/09 19:22:24 jchiang Exp $
  */
 
 #include <algorithm>
@@ -115,6 +115,17 @@ void TiedParameter::setError(double error) {
    for (ParVectorIterator_t it(m_pars.begin()); it != m_pars.end(); ++it) {
       it->first->parameters().at(it->second).setError(error);
    }
+}
+
+bool TiedParameter::
+containsIndex(const LogLike & like, size_t par_index) const {
+   ParVectorConstIterator_t it(m_pars.begin());
+   for ( ; it != m_pars.end(); ++it) {
+      if (it->first == &like && it->second == par_index) {
+         return true;
+      }
+   }
+   return false;
 }
 
 } //namespace Likelihood
