@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul  9 23:12:16 PDT 2010
+ScienceTools-scons/Likelihood/Likelihood
+
+Modified Files:
+	Composite2.h 
+Log Message:
+add setErrors
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jul  9 12:22:24 PDT 2010
 ScienceTools-scons/Likelihood/src
 
