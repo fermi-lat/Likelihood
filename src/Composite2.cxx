@@ -6,7 +6,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.2 2010/07/09 03:57:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.3 2010/07/09 19:22:24 jchiang Exp $
  */
 
 #include <algorithm>
@@ -106,6 +106,36 @@ setFreeParamValues(const std::vector<double> & values) {
    for (size_t i(0); i < m_tiedPars.size(); i++) {
       if (m_tiedPars.at(i)->isFree()) {
          m_tiedPars.at(i)->setValue(values.at(j++));
+      }
+   }
+
+   syncParams();
+}
+
+void Composite2::setErrors(const std::vector<double> & errors) {
+   if (m_components.empty()) {
+      throw std::runtime_error("setErrors: empty composite list");
+   }
+
+   size_t j(0);
+
+// Loop over LogLike components and set free, untied parameters
+   ComponentConstIterator_t it(m_components.begin());
+   for ( ; it != m_components.end(); ++it) {
+      const std::vector<size_t> & tiedPars(it->second);
+      std::vector<optimizers::Parameter> & pars(it->first->parameters());
+      for (size_t i(0); i < pars.size(); i++) {
+         if (pars.at(i).isFree() 
+             && std::count(tiedPars.begin(), tiedPars.end(), i) == 0) {
+            pars.at(i).setError(errors.at(j++));
+         }
+      }
+   }
+   
+// Set the free TiedParameters.
+   for (size_t i(0); i < m_tiedPars.size(); i++) {
+      if (m_tiedPars.at(i)->isFree()) {
+         m_tiedPars.at(i)->setError(errors.at(j++));
       }
    }
 
