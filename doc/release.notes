@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.370 2010/07/07 04:28:49 jchiang Exp $
+    $Id: release.notes,v 1.371 2010/07/10 17:07:43 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-11-00 21-Jul-2010 jchiang gtdiffrsp mods to handle selective diffuse response calculations using new bitmap EVENT_CLASS formatting
  Likelihood-16-10-00 10-Jul-2010 jchiang Composite2 and TiedParameter classes added for 'stacking' analysis with arbitrary tied parameters
  Likelihood-16-09-00 06-Jul-2010 jchiang avoid loading maps for binned analysis; delete maps after use in unbinned case
  Likelihood-16-08-03 05-Jul-2010 jchiang bug-fix for gtmodel
