@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtdiffrsp.par,v 1.8 2009/10/06 00:31:30 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtdiffrsp.par,v 1.9 2009/12/16 18:41:40 elwinter Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
@@ -8,6 +8,7 @@ sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 srcmdl,fr,a,"",,,"Source model file"
 irfs,s,a,"P6_V3_DIFFUSE",,,"Response functions to use"
 evclsmin,i,h,0,,,"Minimum event class level"
+evclass,i,h,0,,,"Target class level"
 convert,b,h,no,,,"convert header to new diffrsp format?"
 
 chatter,i,h,2,0,4,Output verbosity
