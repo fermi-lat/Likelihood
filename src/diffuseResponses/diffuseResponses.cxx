@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.58 2009/10/06 00:31:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.59 2009/12/16 19:07:48 elwinter Exp $
  */
 
 #include <cmath>
@@ -58,7 +58,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.58 2009/10/06 00:31:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.59 2009/12/16 19:07:48 elwinter Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -102,7 +102,10 @@ private:
 
    bool m_useEdisp;
 
+   std::string m_passVer;
+
    void promptForParameters();
+   void testPassVersion(const std::string & evfile);
    void checkColumnVersion(const std::string & evfile) const;
    void convert_header(const std::string & evfile) const;
    void readDiffuseNames(std::vector<std::string> & srcNames);
@@ -124,14 +127,15 @@ private:
 
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffrsp");
 
-std::string diffuseResponses::s_cvs_id("$Name:  $");
+std::string diffuseResponses::s_cvs_id("$Name: ScienceTools-LATEST-1-3163 $");
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), 
      m_formatter(new st_stream::StreamFormatter("gtdiffrsp", "", 2)),
      m_srRadius(30.),
      m_pars(st_app::StApp::getParGroup("gtdiffrsp")),
-     m_ndifrsp(0) {
+     m_ndifrsp(0),
+     m_passVer("") {
    setVersion(s_cvs_id);
 }
 
@@ -160,6 +164,7 @@ void diffuseResponses::run() {
    buildSourceModel();
    m_formatter->warn() << "Working on...\n";
    for (evtfile = eventFiles.begin(); evtfile != eventFiles.end(); ++evtfile) {
+      testPassVersion(*evtfile);
       checkColumnVersion(*evtfile);
       if (clobber || !haveDiffuseColumns(*evtfile)) {
          m_formatter->warn() << *evtfile;
@@ -180,10 +185,33 @@ void diffuseResponses::promptForParameters() {
    m_pars.Save();
 }
 
+void diffuseResponses::testPassVersion(const std::string & evfile) {
+// Save the pass version.  This is needed to ensure pass versions are
+// the same across input FT1 files and to determine which form of the
+// EVENT_CLASS variable to use (e.g., the v7.3 bitmap version or not).
+   const tip::Table *
+      events(tip::IFileSvc::instance().readTable(evfile, m_pars["evtable"]));
+   const tip::Header & header(events->getHeader());
+   std::string passVer("NONE");
+   try {
+      header["PASS_VER"].get(passVer);
+   } catch (tip::TipException &) {
+   }
+   if (m_passVer == "") {
+      m_passVer = passVer;
+   } else if (m_passVer != passVer) {
+      delete events;
+      throw std::runtime_error("PASS_VER is not consistent across "
+                               "input FT1 files");
+   }
+   delete events;
+}
+
 void diffuseResponses::checkColumnVersion(const std::string & evfile) const {
    const tip::Table *
       events(tip::IFileSvc::instance().readTable(evfile, m_pars["evtable"]));
    const tip::Header & header(events->getHeader());
+// Check diffuse response header column form.
    if (header.find("NDIFRSP") == header.end()) {
       delete events;
       bool convert = m_pars["convert"];
@@ -361,7 +389,18 @@ void diffuseResponses::readEventData(std::string eventFile) {
 void diffuseResponses::computeEventResponses() {
    getDiffuseSources();
    std::vector<Event>::iterator it = m_events.begin();
-   int classLevel_min = m_pars["evclsmin"];
+   unsigned int classLevel_targ;
+   if (m_passVer == "NONE") {
+      classLevel_targ = m_pars["evclsmin"];
+   } else {
+      unsigned int evtclass = m_pars["evclass"];
+      if (evtclass > 32) {
+         throw std::runtime_error("Invalid event class identifier. "
+                                  "Value must be < 32");
+      }
+      /// Do the bit shift to get the mask.
+      classLevel_targ = 1 << evtclass;
+   }
    for (int i = 0; it != m_events.end(); ++it, i++) {
       int factor(m_events.size()/20);
       if (factor == 0) {
@@ -374,7 +413,14 @@ void diffuseResponses::computeEventResponses() {
 /// quadrature version for now.
 //       it->computeResponse(m_srcs, m_helper->observation().respFuncs(), 
 //                           m_srRadius);
-      bool useDummyValue(it->classLevel() < classLevel_min);
+      bool useDummyValue(false);
+      if (m_passVer == "NONE") {
+         useDummyValue = (it->classLevel() < classLevel_targ);
+      } else {
+         // Apply bit-wise "and" to see if this event is part of the
+         // target class.
+         useDummyValue = ((it->classLevel() & classLevel_targ) == 0);
+      }
       it->computeResponseGQ(m_srcs, m_helper->observation().respFuncs(),
                             useDummyValue);
    }
