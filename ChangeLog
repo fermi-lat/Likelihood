@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Jul 21 09:38:04 PDT 2010
+ScienceTools-scons/Likelihood/pfiles
+
+Modified Files:
+	gtdiffrsp.par 
+Log Message:
+code to handle selective diffuse response calculations using new bitmap EVENT_CLASS formatting
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-10-00, operation: add
 Package: Likelihood
