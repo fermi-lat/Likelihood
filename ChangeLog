@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 23 09:09:07 PDT 2010
+ScienceTools-scons/Likelihood/pfiles
+
+Modified Files:
+	gtdiffrsp.par 
+Log Message:
+enable evclass=INDEF as default for gtdiffrsp
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-11-00, operation: add
 Package: Likelihood
