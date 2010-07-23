@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jul 23 09:09:08 PDT 2010
+ScienceTools-scons/Likelihood/src/diffuseResponses
+
+Modified Files:
+	diffuseResponses.cxx 
+Log Message:
+enable evclass=INDEF as default for gtdiffrsp
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jul 23 09:09:07 PDT 2010
 ScienceTools-scons/Likelihood/pfiles
 
