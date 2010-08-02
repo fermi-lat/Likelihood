@@ -6,7 +6,7 @@
  * computed in Source::fluxDensity(...).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcprob/gtsrcprob.cxx,v 1.2 2010/03/30 18:15:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcprob/gtsrcprob.cxx,v 1.3 2010/04/05 19:13:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -18,6 +18,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <sstream>
 
 #include "facilities/Util.h"
 
@@ -188,13 +189,23 @@ void SourceProbs::writeDensities() const {
    tip::Table * evtable
       = tip::IFileSvc::instance().editTable(outfile, m_pars["evtable"]);
 
+   tip::Table::FieldCont columns(evtable->getValidFields());
 // Add the column names for the probabilities to the output file.
    for (size_t i(0); i < m_srclist.size(); i++) {
-      try {
+      // Check if desired column name exists, if not, then add it to
+      // the table.
+      std::string fieldName(columnName(m_srclist.at(i)));
+      if (std::count(columns.begin(), columns.end(), fieldName) == 0) {
          evtable->appendField(m_srclist.at(i), "1E");
-      } catch (tip::TipException & eObj) {
-         // Column with this name already exists, so do nothing and 
-         // just reuse it.
+         // Delete TNULL that is added incorrectly by tip for floats.
+         int fieldIndex = evtable->getFieldIndex(m_srclist.at(i)) + 1;
+         std::ostringstream nullkeyword;
+         nullkeyword << "TNULL" << fieldIndex;
+         try {
+            evtable->getHeader().erase(nullkeyword.str());
+         } catch (...) {
+            // do nothing if tip fails us again
+         }
       }
    }
 
