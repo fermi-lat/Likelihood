@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.64 2010/06/13 18:22:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.65 2010/07/07 01:05:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -180,7 +180,10 @@ void BinnedLikelihood::addSource(Source * src) {
    m_bestValueSoFar = -1e38;
    SourceModel::addSource(src);
    if (m_srcMaps.find(src->getName()) == m_srcMaps.end()) {
-      m_srcMaps[src->getName()] = getSourceMap(src->getName());
+      SourceMap * srcMap(getSourceMap(src->getName()));
+      if (srcMap) {
+         m_srcMaps[src->getName()] = srcMap;
+      }
    }
    std::vector<double> pars;
    src->spectrum().getParamValues(pars);
@@ -300,7 +303,10 @@ void BinnedLikelihood::buildFixedModelWts() {
          std::map<std::string, SourceMap *>::const_iterator srcMapIt
             = m_srcMaps.find(srcName);
          if (srcMapIt == m_srcMaps.end()) {
-            m_srcMaps[srcName] = getSourceMap(srcName, false);
+            SourceMap * srcMap(getSourceMap(srcName));
+            if (srcMap) {
+               m_srcMaps[srcName] = srcMap;
+            }
          }
 // Delete any lingering Npred values from fixed map since they must be
 // computed on-the-fly for non-fixed sources.
