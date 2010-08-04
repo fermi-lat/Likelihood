@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug  4 11:18:56 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+bug-fix for gtsrcmaps ptsrc=no case
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-11-02, operation: add
 Package: Likelihood
