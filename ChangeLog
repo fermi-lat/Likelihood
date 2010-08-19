@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Aug 18 21:10:40 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+ensure that SourceMaps are created and written out in gtsrcmaps even if the component parameters are all fixed
+    *
+------------------------------------------------------------
+User: jchiang  Wed Aug 18 21:10:40 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
 Modified Files:
