@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.32 2010/02/17 19:00:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.33 2010/08/04 18:18:57 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -83,7 +83,7 @@ gtsrcmaps::gtsrcmaps()
    setVersion(s_cvs_id);
 }
 
-std::string gtsrcmaps::s_cvs_id("$Name: ScienceTools-LATEST-1-3163 $");
+std::string gtsrcmaps::s_cvs_id("$Name:  $");
 
 void gtsrcmaps::banner() const {
    int verbosity = m_pars["chatter"];
@@ -135,8 +135,10 @@ void gtsrcmaps::run() {
                            perform_convolution, resample, resamp_factor);
 
    std::string srcModelFile = m_pars["srcmdl"];
+   bool loadMaps, createAllMaps;
    m_binnedLikelihood->readXml(srcModelFile, m_helper->funcFactory(), false,
-                               computePointSources);
+                               computePointSources, loadMaps=true,
+                               createAllMaps=true);
 
    std::string srcMapsFile = m_pars["outfile"];
 
