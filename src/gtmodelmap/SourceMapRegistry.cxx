@@ -6,7 +6,7 @@
  * in BinnedLikelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/SourceMapRegistry.cxx,v 1.5 2008/08/21 00:32:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/SourceMapRegistry.cxx,v 1.6 2010/02/09 21:08:36 jchiang Exp $
  */
 
 #include "st_facilities/Util.h"
@@ -72,7 +72,9 @@ SourceMapRegistry::SourceMapRegistry(const std::string & countsMap,
                                                 applyPsfCorrections,
                                                 performConvolution, resample,
                                                 resamp_factor);
-   m_logLike->readXml(xmlFile, funcFactory, false);
+   bool loadMaps, createAllMaps;
+   m_logLike->readXml(xmlFile, funcFactory, false, computePointSources,
+                      loadMaps=true, createAllMaps=true);
 }
 
 SourceMapRegistry::~SourceMapRegistry() {
