@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 25 13:30:25 PDT 2010
+Likelihood
+
+Modified Files:
+	SConscript 
+Log Message:
+stag/GoGui_auto-tag
+    *
+------------------------------------------------------------
 User: jchiang  Wed Aug 25 13:28:44 PDT 2010
 ScienceTools-scons/Likelihood/src/gtmodelmap
 
