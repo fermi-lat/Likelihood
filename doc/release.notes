@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.375 2010/08/04 18:20:09 jchiang Exp $
+    $Id: release.notes,v 1.376 2010/08/19 04:34:24 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-11-05 25-Aug-2010 jchiang gtmodel bug-fix for inclusion of fixed sources that are not in the source maps file
  Likelihood-16-11-04 18-Aug-2010 jchiang bug-fix: ensure SourceMaps are written out by gtsrcmaps when component parameters are fixed
  Likelihood-16-11-03 04-Aug-2010 jchiang bug-fix for gtsrcmaps ptsrc=no
  Likelihood-16-11-02 02-Aug-2010 jchiang clean up TNULLs incorrectly inserted by tip for added columns in gtsrcprob
