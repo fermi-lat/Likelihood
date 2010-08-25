@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Aug 25 13:28:43 PDT 2010
+ScienceTools-scons/Likelihood/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+bug-fix for inclusion of fixed sources not in source map in gtmodel
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-18-01, operation: add
 Package: Likelihood
