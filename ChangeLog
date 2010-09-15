@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 15 14:03:25 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	CountsSpectra.cxx 
+Log Message:
+clean up commented-out code; move SourceMap::getSourceMap(...) to public area for access from python
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 15 14:03:24 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
