@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.46 2010/08/19 04:10:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.47 2010/09/15 21:03:24 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -15,6 +15,7 @@
 
 #include "optimizers/dArg.h"
 
+#include "Likelihood/Accumulator.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Pixel.h"
@@ -28,7 +29,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.46 2010/08/19 04:10:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.47 2010/09/15 21:03:24 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -159,7 +160,11 @@ private:
    /// Map of model parameters, to be used to determine if fixed
    /// sources have changed parameter values.
    std::map<std::string, std::vector<double> > m_modelPars;
-   
+
+   /// Accumulators for derivatives.
+   mutable std::map<long, Accumulator> m_posDerivs;
+   mutable std::map<long, Accumulator> m_negDerivs;
+
    void createSourceMaps();
 
    void computeModelMap(double & npred) const;
