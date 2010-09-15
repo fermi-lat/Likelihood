@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Sep 14 18:25:34 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx Source.cxx 
+Log Message:
+use trapezoidal quadrature over energy of pixel counts
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-18-03, operation: add
 Package: Likelihood
