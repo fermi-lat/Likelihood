@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 15 16:47:45 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx LogLike.cxx 
+Log Message:
+use Accumulator in BinnedLikelihood
+    *
+------------------------------------------------------------
 User: jchiang  Wed Sep 15 16:47:44 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
