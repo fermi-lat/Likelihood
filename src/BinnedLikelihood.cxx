@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.68 2010/09/15 01:25:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.69 2010/09/15 20:37:45 jchiang Exp $
  */
 
 #include <cmath>
@@ -66,19 +66,25 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
    for (size_t i(0); i < m_filledPixels.size(); i++) {
       if (m_model.at(i) > 0) {
          size_t j(m_filledPixels.at(i));
-         my_value += data.at(j)*std::log(m_model.at(i));
+         double addend = data.at(j)*std::log(m_model.at(i));
+         my_value += addend;
+         m_accumulator.add(addend);
       }
    }
    my_value -= npred;
+   m_accumulator.add(-npred);
 
    st_stream::StreamFormatter formatter("BinnedLikelihood", "value", 4);
    formatter.info() << m_nevals << "  "
                     << my_value << "  "
                     << npred << std::endl;
    m_nevals++;
-   
-   saveBestFit(my_value);
-   return my_value;
+
+   double my_total(m_accumulator.total());
+//    saveBestFit(my_value);
+//    return my_value;
+   saveBestFit(my_total);
+   return my_total;
 }
 
 double BinnedLikelihood::npred() {
@@ -116,6 +122,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       double emax(m_energies.at(k+1));
       if (m_model.at(j) > 0) {
          long iparam(0);
+         if (m_posDerivs.find(iparam) == m_posDerivs.end()) {
+            m_posDerivs[iparam] = Accumulator();
+            m_negDerivs[iparam] = Accumulator();
+         }
          const std::map<std::string, Source *> & my_srcs = sources();
          std::map<std::string, Source *>::const_iterator src;
          for (src = my_srcs.begin(); src != my_srcs.end(); ++src) {
@@ -134,22 +144,36 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
                                                 model.at(jmin), 
                                                 model.at(jmax),
                                                 paramNames.at(i));
-               derivs.at(iparam) += data.at(jmin)/m_model.at(j)*my_deriv;
+               double addend(data.at(jmin)/m_model.at(j)*my_deriv);
+               derivs.at(iparam) += addend;
+               if (addend > 0) {
+                  m_posDerivs[iparam].add(addend);
+               } else {
+                  m_negDerivs[iparam].add(addend);
+               }
                if (j == 0) {
                   const std::vector<double> & npreds = srcMap.npreds();
                   for (size_t kk(0); kk < m_energies.size()-1; kk++) {
-                     derivs.at(iparam) -= 
-                        src->second->pixelCountsDeriv(m_energies.at(kk), 
-                                                      m_energies.at(kk+1),
-                                                      npreds.at(kk), 
-                                                      npreds.at(kk+1),
-                                                      paramNames.at(i));
+                     addend = src->second->pixelCountsDeriv(m_energies.at(kk), 
+                                                            m_energies.at(kk+1),
+                                                            npreds.at(kk), 
+                                                            npreds.at(kk+1),
+                                                            paramNames.at(i));
+                     derivs.at(iparam) -= addend;
+                     if (-addend > 0) {
+                        m_posDerivs[iparam].add(-addend);
+                     } else {
+                        m_negDerivs[iparam].add(-addend);
+                     }
                   }
                }
                iparam++;
             }
          }
       }
+   }
+   for (size_t i(0); i < derivs.size(); i++) {
+      derivs[i] = m_posDerivs[i].total() + m_negDerivs[i].total(); 
    }
 }
 

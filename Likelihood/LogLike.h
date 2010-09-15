@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.37 2009/03/17 20:02:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.38 2010/05/10 04:20:41 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -33,7 +33,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.37 2009/03/17 20:02:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.38 2010/05/10 04:20:41 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
@@ -91,11 +91,13 @@ protected:
 
    void saveBestFit(double logLikeValue) const;
 
+protected:   
+
+   mutable Accumulator m_accumulator;
+
 private:
 
    Npred m_Npred;
-
-   mutable Accumulator m_accumulator;
 
    std::map<std::string, double> m_npredValues;
 
