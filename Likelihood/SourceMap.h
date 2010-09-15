@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.44 2010/06/04 22:50:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.45 2010/06/05 06:42:29 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -29,7 +29,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.44 2010/06/04 22:50:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.45 2010/06/05 06:42:29 jchiang Exp $
  */
 
 #ifdef SWIG
@@ -116,8 +116,6 @@ private:
 
    void computeNpredArray();
 };
-
-//void getNpreds(const SourceMap & srcMap, std::vector<double> & npreds);
 
 } // namespace Likelihood
 
