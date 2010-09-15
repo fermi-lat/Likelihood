@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.13 2010/03/07 18:23:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.14 2010/04/30 22:17:44 jchiang Exp $
  */
 
 #include <algorithm>
@@ -156,17 +156,17 @@ double Source::pixelCounts(double emin, double emax,
 
    double y1(f1*wtMin);
    double y2(f2*wtMax);
-   if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
-      return (y1 + y2)*(emax - emin)/2.;
-   }
+   return (y1 + y2)*(emax - emin)/2.;
+//    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
+//       return (y1 + y2)*(emax - emin)/2.;
+//    }
 
-   double gam(std::log(y2/y1)/std::log(emax/emin));
-   if (gam == -1) {
-      double y0(y2/std::pow(emax, gam));
-      return y0*std::log(emax/emin);
-   }
+//    double gam(std::log(y2/y1)/std::log(emax/emin));
+//    if (gam == -1) {
+//       return y2*emax*std::log(emax/emin);
+//    }
 
-   return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
+//    return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
 }
 
 double Source::pixelCountsDeriv(double emin, double emax,
@@ -183,22 +183,23 @@ double Source::pixelCountsDeriv(double emin, double emax,
 
    double dy1dp(f1*wtMin);
    double dy2dp(f2*wtMax);
-   if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
-      return (dy1dp + dy2dp)*(emax - emin)/2.;
-   }
+   return (dy1dp + dy2dp)*(emax - emin)/2.;
+//    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
+//       return (dy1dp + dy2dp)*(emax - emin)/2.;
+//    }
 
-   double gam(std::log(y2/y1)/std::log(emax/emin));
-   double dgamdp((dy2dp/y2 - dy1dp/y1)/std::log(emax/emin));
-   double dy0dp_numerator(dy2dp - y2*dgamdp*std::log(emax));
-   if (gam == -1) {
-      double dy0dp(dy0dp_numerator/std::pow(emax, gam));
-      return dy0dp*std::log(emax/emin);
-   }
-   return (dy0dp_numerator*(emax - std::pow(emin/emax, gam)*emin)/(gam+1.) +
-           y2*dgamdp/(gam+1.)*((emax*std::log(emax)
-                                - std::pow(emin/emax, gam)*emin*std::log(emin))
-                               - (emax - emin*std::pow(emin/emax, gam))
-                               /(gam+1.)));
+//    double gam(std::log(y2/y1)/std::log(emax/emin));
+//    if (gam == -1) {
+//       return dy2dp*emax*std::log(emax/emin);
+//    }
+
+//    double dgamdp((dy2dp/y2 - dy1dp/y1)/std::log(emax/emin));
+//    double epow(std::pow(emin/emax, gam));
+
+//    double part1 = dy2dp*(emax - emin*epow);
+//    double part2 = y2*dgamdp*(emax - emin*epow)/(gam + 1.);
+//    double part3 = y2*(emin*dgamdp*epow*std::log(emin/emax));
+//    return (part1 - part2 - part3)/(gam + 1.);
 }
 
 double Source::powerlaw_integral_est(double x1, double x2, 

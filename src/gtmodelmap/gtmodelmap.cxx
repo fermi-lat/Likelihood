@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.22 2010/06/23 22:31:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.23 2010/07/06 03:45:13 jchiang Exp $
  */
 
 #include <iostream>
@@ -281,16 +281,17 @@ void ModelMap::sumOutputMap() {
 
 double ModelMap::pixelCounts(double emin, double emax,
                              double y1, double y2) const {
-   if (::getenv("USE_OLD_PIX_EST")) {
-      return (y1 + y2)*(emax - emin)/2.;
-   }
-   double gam(std::log(y2/y1)/std::log(emax/emin));
-   if (gam == -1) {
-      double y0(y2/std::pow(emax, gam));
-      return y0*std::log(emax/emin);
-   }
+   return (y1 + y2)*(emax - emin)/2.;
+//    if (::getenv("USE_OLD_PIX_EST")) {
+//       return (y1 + y2)*(emax - emin)/2.;
+//    }
+//    double gam(std::log(y2/y1)/std::log(emax/emin));
+//    if (gam == -1) {
+//       double y0(y2/std::pow(emax, gam));
+//       return y0*std::log(emax/emin);
+//    }
 
-   return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
+//    return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
 }
 
 void ModelMap::sumOutputMap_old() {

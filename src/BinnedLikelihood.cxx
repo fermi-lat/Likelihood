@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.66 2010/08/04 18:18:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.67 2010/08/19 04:10:40 jchiang Exp $
  */
 
 #include <cmath>
@@ -106,6 +106,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    if (!m_modelIsCurrent) {
       computeModelMap(npred);
    }
+   computeModelMap(npred);
    const std::vector<float> & data = m_dataMap.data();
    for (size_t j(0); j < m_filledPixels.size(); j++) {
       size_t jmin(m_filledPixels.at(j));
@@ -409,16 +410,17 @@ double BinnedLikelihood::spectrum(const Source * src, double energy) const {
 
 double BinnedLikelihood::pixelCounts(double emin, double emax,
                                      double y1, double y2) const {
-   if (::getenv("USE_OLD_PIX_EST")) {
-      return (y1 + y2)*(emax - emin)/2.;
-   }
-   double gam(std::log(y2/y1)/std::log(emax/emin));
-   if (gam == -1) {
-      double y0(y2/std::pow(emax, gam));
-      return y0*std::log(emax/emin);
-   }
+   return (y1 + y2)*(emax - emin)/2.;
+//    if (::getenv("USE_OLD_PIX_EST")) {
+//       return (y1 + y2)*(emax - emin)/2.;
+//    }
+//    double gam(std::log(y2/y1)/std::log(emax/emin));
+//    if (gam == -1) {
+//       double y0(y2/std::pow(emax, gam));
+//       return y0*std::log(emax/emin);
+//    }
 
-   return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
+//    return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
 }
 
 void BinnedLikelihood::createSourceMaps() {
