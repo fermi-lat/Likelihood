@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: jchiang  Wed Sep 15 13:37:45 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+suppress messages associated with unavoidable source map regeneration for fixed sources missing from the source maps FITS file.
+
+    *
+------------------------------------------------------------
 User: jchiang  Tue Sep 14 18:25:34 PDT 2010
 ScienceTools-scons/Likelihood/src/gtmodelmap
 
