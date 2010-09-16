@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.376 2010/08/19 04:34:24 jchiang Exp $
+    $Id: release.notes,v 1.377 2010/08/25 20:30:25 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-12-00 15-Sep-2010 jchiang revert to linear quadrature for computing Npred and derivatives
  Likelihood-16-11-05 25-Aug-2010 jchiang gtmodel bug-fix for inclusion of fixed sources that are not in the source maps file
  Likelihood-16-11-04 18-Aug-2010 jchiang bug-fix: ensure SourceMaps are written out by gtsrcmaps when component parameters are fixed
  Likelihood-16-11-03 04-Aug-2010 jchiang bug-fix for gtsrcmaps ptsrc=no
