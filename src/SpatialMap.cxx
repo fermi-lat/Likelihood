@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.28 2009/02/18 18:13:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SpatialMap.cxx,v 1.29 2009/08/21 19:51:04 jchiang Exp $
  *
  */
 
@@ -69,7 +69,7 @@ double SpatialMap::value(optimizers::Arg & arg) const {
 
 double SpatialMap::value(const astro::SkyDir & dir) const {
    double pref = m_parameter[0].getTrueValue();
-   return pref*m_wcsmap->operator()(dir);
+   return pref*wcsmap().operator()(dir);
 }
 
 } // namespace Likelihood

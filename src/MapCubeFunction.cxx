@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction.cxx,v 1.31 2009/06/10 18:09:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction.cxx,v 1.32 2010/07/07 01:05:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -220,8 +220,6 @@ findIndex(const std::vector<double> & xx, double x) const {
 }
 
 double MapCubeFunction::mapIntegral() const {
-//    const std::vector< std::vector<double> > & solidAngles 
-//       = m_wcsmap->solidAngles();
    const std::vector< std::vector<double> > & solidAngles 
       = wcsmap().solidAngles();
    double map_integral(0);
@@ -273,8 +271,6 @@ double MapCubeFunction::mapIntegral(double energy) const {
 }
 
 void MapCubeFunction::computeMapIntegrals() {
-//    const std::vector< std::vector<double> > & solidAngles
-//       = m_wcsmap->solidAngles();
    const std::vector< std::vector<double> > & solidAngles
       = wcsmap().solidAngles();
    m_mapIntegrals.clear();

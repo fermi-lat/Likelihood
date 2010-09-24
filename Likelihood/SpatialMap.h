@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.20 2009/02/18 18:13:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.21 2009/02/21 02:03:18 jchiang Exp $
  *
  */
 
@@ -35,7 +35,7 @@ class WcsMap;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.20 2009/02/18 18:13:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.21 2009/02/21 02:03:18 jchiang Exp $
  *
  */
     
@@ -71,7 +71,7 @@ public:
 
    virtual double mapIntegral(double energy) const {
       (void)(energy);
-      return m_wcsmap->mapIntegral();
+      return wcsmap().mapIntegral();
    }
 
 private:
