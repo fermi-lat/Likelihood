@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.377 2010/08/25 20:30:25 jchiang Exp $
+    $Id: release.notes,v 1.378 2010/09/16 00:03:05 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-12-01 24-Sep-2010 jchiang use wcsmap() instead of m_wcsmap in SpatialMap::mapIntegral().  This addresses LK-60@JIRA.
  Likelihood-16-12-00 15-Sep-2010 jchiang revert to linear quadrature for computing Npred and derivatives
  Likelihood-16-11-05 25-Aug-2010 jchiang gtmodel bug-fix for inclusion of fixed sources that are not in the source maps file
  Likelihood-16-11-04 18-Aug-2010 jchiang bug-fix: ensure SourceMaps are written out by gtsrcmaps when component parameters are fixed
