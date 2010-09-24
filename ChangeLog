@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Fri Sep 24 11:15:17 PDT 2010
+ScienceTools-scons/Likelihood/Likelihood
+
+Modified Files:
+	SpatialMap.h 
+Log Message:
+use wcsmap() instead of m_wcsmap in SpatialMap::mapIntegral().  This addresses LK-60@JIRA.  tagging v16r12p1
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-12-00, operation: add
 Package: Likelihood
