@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.83 2010/06/16 22:49:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.84 2010/06/19 22:26:31 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -172,8 +172,8 @@ void AppHelpers::setRoi(const std::string & filename,
 
 std::string AppHelpers::responseFuncs(const std::string & file,
                                       const std::string & respBase) {
-   static char * respcombos[] = {"DC2", "DC2FA", "DC2BA", "DC2FB", "DC2BB", 
-                                 "DC2_A"};
+   static const char * respcombos[] = {"DC2", "DC2FA", "DC2BA", 
+                                       "DC2FB", "DC2BB", "DC2_A"};
    if (respBase != "DC2") {
       return respBase;
    }
