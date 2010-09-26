@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep 26 12:16:03 PDT 2010
+ScienceTools-scons/Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+switch to absolute tolerance in binned test
+    *
+------------------------------------------------------------
 User: jchiang  Sun Sep 26 11:32:06 PDT 2010
 ScienceTools-scons/Likelihood/src/test
 
