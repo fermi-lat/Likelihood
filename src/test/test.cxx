@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.98 2010/09/26 00:19:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.99 2010/09/26 18:32:06 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -813,7 +813,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
    optimizers::Minuit my_optimizer(binnedLogLike);
    int verbose(0);
    double tol(1e-5);
-   my_optimizer.find_min(verbose, tol, optimizers::RELATIVE);
+   my_optimizer.find_min(verbose, tol, optimizers::ABSOLUTE);
 
     std::vector<double> params;
 //    binnedLogLike.getFreeParamValues(params);
