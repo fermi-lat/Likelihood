@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep 26 12:48:23 PDT 2010
+Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+32-bit tweak
+    *
+------------------------------------------------------------
 User: jchiang  Sun Sep 26 12:16:03 PDT 2010
 ScienceTools-scons/Likelihood/src/test
 
