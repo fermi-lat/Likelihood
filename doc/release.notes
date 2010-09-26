@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.379 2010/09/24 18:16:08 jchiang Exp $
+    $Id: release.notes,v 1.380 2010/09/26 00:28:04 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-12-03 26-Sep-2010 jchiang get tests working on 32 and 64 bit machines
  Likelihood-16-12-02 25-Sep-2010 jchiang strengthen derivative test for binned case
  Likelihood-16-12-01 24-Sep-2010 jchiang use wcsmap() instead of m_wcsmap in SpatialMap::mapIntegral().  This addresses LK-60@JIRA.
  Likelihood-16-12-00 15-Sep-2010 jchiang revert to linear quadrature for computing Npred and derivatives
