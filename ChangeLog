@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sun Sep 26 11:32:06 PDT 2010
+ScienceTools-scons/Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+tweak test tol for 64bit
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-12-02, operation: add
 Package: Likelihood
