@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Sep 25 17:19:29 PDT 2010
+ScienceTools-scons/Likelihood/src/test
+
+Modified Files:
+	test.cxx 
+Log Message:
+strengthen derivative test for binned analysis (somewhat)
+    *
+------------------------------------------------------------
 User: jchiang  Sat Sep 25 17:19:27 PDT 2010
 ScienceTools-scons/Likelihood/src
 
