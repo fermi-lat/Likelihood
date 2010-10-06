@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Oct  6 14:16:40 PDT 2010
+ScienceTools-scons/Likelihood/Likelihood
+
+Modified Files:
+	BinnedLikelihood.h 
+Log Message:
+allow clients to restrict energy bands used in binned analysis
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-18-05, operation: add
 Package: Likelihood
