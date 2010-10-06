@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Oct  6 14:16:40 PDT 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+allow clients to restrict energy bands used in binned analysis
+    *
+------------------------------------------------------------
+User: jchiang  Wed Oct  6 14:16:40 PDT 2010
 ScienceTools-scons/Likelihood/Likelihood
 
 Modified Files:
