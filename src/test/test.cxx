@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.101 2010/09/26 19:48:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.102 2010/09/26 19:55:32 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -809,83 +809,89 @@ void LikelihoodTests::test_BinnedLikelihood() {
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
    binnedLogLike.saveSourceMaps("srcMaps.fits");
 
+/// Loop twice. In first iteration, do tests using all energy bands.  In second, 
+/// restrict bands to (5, 15) for derivative calculations
+   for (size_t iter(0); iter < 2; iter++) {
 // Try to fit using binned model.
-   optimizers::Minuit my_optimizer(binnedLogLike);
-   int verbose(0);
-   double tol(1e-5);
-   my_optimizer.find_min(verbose, tol, optimizers::RELATIVE);
+      optimizers::Minuit my_optimizer(binnedLogLike);
+      int verbose(0);
+      double tol(1e-5);
+      my_optimizer.find_min(verbose, tol, optimizers::RELATIVE);
 
-    std::vector<double> params;
+      std::vector<double> params;
 //    binnedLogLike.getFreeParamValues(params);
 //    for (unsigned int i = 0; i < params.size(); i++) {
 //       std::cout << "parameter " << i << ": " << params[i] << "\n";
 //    }
 //    std::cout << std::endl;
 
-   CountsMap * modelMap = binnedLogLike.createCountsMap();
+      CountsMap * modelMap = binnedLogLike.createCountsMap();
 
-   dataMap.writeOutput("test_Likelihood", "dataMap.fits");
-   modelMap->writeOutput("test_Likelihood", "modelMap.fits");
+      dataMap.writeOutput("test_Likelihood", "dataMap.fits");
+      modelMap->writeOutput("test_Likelihood", "modelMap.fits");
 
-   const std::vector<float> & data = dataMap.data();
-   double dataSum(0);
-   for (unsigned int i = 0; i < data.size(); i++) {
-      dataSum += data[i];
-   }
+      const std::vector<float> & data = dataMap.data();
+      double dataSum(0);
+      for (unsigned int i = 0; i < data.size(); i++) {
+         dataSum += data[i];
+      }
 //   std::cout << "Total counts in data map: " << dataSum << std::endl;
 
-   const std::vector<float> & model = modelMap->data();
-   double modelSum(0);
-   for (unsigned int i = 0; i < model.size(); i++) {
-      modelSum += model[i];
-   }
+      const std::vector<float> & model = modelMap->data();
+      double modelSum(0);
+      for (unsigned int i = 0; i < model.size(); i++) {
+         modelSum += model[i];
+      }
 //   std::cout << "Total model counts: " << modelSum << std::endl;
 
-   CPPUNIT_ASSERT(fabs(modelSum - dataSum)/dataSum < 1e-2);
+      CPPUNIT_ASSERT(fabs(modelSum - dataSum)/dataSum < 1e-2);
 
-   unsigned long npts = dataMap.imageDimension(0);
-   std::vector<double> energies;
-   modelMap->getAxisVector(2, energies);
-   for (unsigned int i = 0; i < energies.size()-1; i++) {
-      double data_counts(0);
-      double model_counts(0);
-      for (unsigned int j = 0; j < npts*npts; j++) {
-         int indx = npts*npts*i + j;
-         data_counts += data[indx];
-         model_counts += model[indx];
-      }
+      unsigned long npts = dataMap.imageDimension(0);
+      std::vector<double> energies;
+      modelMap->getAxisVector(2, energies);
+      for (unsigned int i = 0; i < energies.size()-1; i++) {
+         double data_counts(0);
+         double model_counts(0);
+         for (unsigned int j = 0; j < npts*npts; j++) {
+            int indx = npts*npts*i + j;
+            data_counts += data[indx];
+            model_counts += model[indx];
+         }
 //       std::cout << energies[i] << "  "
 //                 << data_counts << "  "
 //                 << model_counts << "\n";
-   }
+      }
 //    std::cout << std::endl;
 
-   std::vector<double> derivs;
-   binnedLogLike.getFreeDerivs(derivs);
-   binnedLogLike.getFreeParamValues(params);
+      if (iter == 1) {
+         binnedLogLike.set_klims(5, 15);
+      }
+      std::vector<double> derivs;
+      binnedLogLike.getFreeDerivs(derivs);
+      binnedLogLike.getFreeParamValues(params);
 
-//   std::cout << "Testing derivatives" << std::endl;
-   double logLike0 = binnedLogLike.value();
-   double eps(1e-7);
-   for (unsigned int i = 0; i < params.size(); i++) {
-      std::vector<double> new_params = params;
-      double delta = eps*new_params[i];
-      new_params[i] += delta;
-      binnedLogLike.setFreeParamValues(new_params);
-      double logLike = binnedLogLike.value();
-//       std::cout << i << "  ";
-//       std::cout << derivs[i] << "  ";
-//       std::cout << logLike << "  " << logLike0 << "  ";
-//       std::cout << (logLike - logLike0)/delta << std::endl;
+//       std::cout << "Testing derivatives" << std::endl;
+      double logLike0 = binnedLogLike.value();
+      double eps(1e-7);
+      for (unsigned int i = 0; i < params.size(); i++) {
+         std::vector<double> new_params = params;
+         double delta = eps*new_params[i];
+         new_params[i] += delta;
+         binnedLogLike.setFreeParamValues(new_params);
+         double logLike = binnedLogLike.value();
+//          std::cout << i << "  ";
+//          std::cout << derivs[i] << "  ";
+//          std::cout << logLike << "  " << logLike0 << "  ";
+//          std::cout << (logLike - logLike0)/delta << std::endl;
       
 // Another weak test.
-      double num_deriv = fabs((derivs[i] - (logLike - logLike0)/delta)
-                              /derivs[i]);
-//       std::cout << "numerical deriv: " << num_deriv << std::endl;
-      CPPUNIT_ASSERT(num_deriv < 5e-2);
-   }
-
-   delete modelMap;
+         double num_deriv = fabs((derivs[i] - (logLike - logLike0)/delta)
+                                 /derivs[i]);
+//          std::cout << "numerical deriv: " << num_deriv << std::endl;
+         CPPUNIT_ASSERT(num_deriv < 5e-2);
+      }
+      delete modelMap;
+   } // end of iter loop for different energy ranges (via BinnedLikelihood::set_klims(...))
 }
 
 double fit(BinnedLikelihood & like, double tol=1e-5, int verbose=0) {
