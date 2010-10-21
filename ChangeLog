@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Thu Oct 21 16:11:28 PDT 2010
+Likelihood/src/dmfit
+
+Modified Files:
+	dmfit_func.c dmfit_func.f 
+Log Message:
+fix the scaling behavior of DMFIT below 10GeV
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-18-06, operation: add
 Package: Likelihood
