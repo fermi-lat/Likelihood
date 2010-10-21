@@ -1,4 +1,4 @@
-/* dmfit_func.f -- translated by f2c (version 20031025).
+/* dmfit_func.f -- translated by f2c (version 20090411).
    You must link the resulting object file with libf2c:
 	on Microsoft Windows system, link with libf2c.lib;
 	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
@@ -17,7 +17,7 @@
 struct {
     real phidif[45360]	/* was [252][18][10] */;
     integer hasmooth;
-} hasim_ = {{0}, 0};
+} hasim_;
 
 #define hasim_1 hasim_
 
@@ -280,6 +280,9 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 	flux = flux * .434294481903 / (*ee * 10.);
     }
 /* L105: */
+    if (mxold < 10. && *ch != 1) {
+	flux /= mxold / 10.;
+    }
     ret_val = flux;
 /* -----here we restore the input values if they were altered */
     *ee = eeold;

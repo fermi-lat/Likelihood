@@ -259,6 +259,11 @@ c           write(*,*) CH,zi,m1i,EE,yieldget(zi,m1i,chref)
 
  105    continue
 
+        if(MXOLD.lt.10.d0.and.CH.ne.1) then
+           FLUX=FLUX/(MXOLD/10.d0)
+        endif
+
+
         dmfit_de=FLUX
 
 c-----here we restore the input values if they were altered
