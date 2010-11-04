@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.33 2010/08/04 18:18:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.34 2010/08/19 04:10:41 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -118,8 +119,13 @@ void gtsrcmaps::run() {
    roiCuts.setCuts(ra, dec, 20., energies.front(), energies.back());
 
    std::string binnedMap = m_pars["bexpmap"];
-   SourceMap::setBinnedExpMapName(binnedMap);
-   if (st_facilities::Util::fileExists(binnedMap)) {
+   if (!st_facilities::Util::fileExists(binnedMap)) {
+      std::ostringstream message;
+      message << "Binned exposure map file named "
+              << binnedMap << " does not exist.";
+      throw std::runtime_error(message.str());
+   } else {
+      SourceMap::setBinnedExpMapName(binnedMap);
       SourceMap::setBinnedExposure(binnedMap);
    }
    bool computePointSources = AppHelpers::param(m_pars, "ptsrc", true);
