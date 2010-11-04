@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.382 2010/10/06 21:18:18 jchiang Exp $
+    $Id: release.notes,v 1.383 2010/10/21 23:17:15 cohen Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-14-00 03-Nov-2010 jchiang disable binned exposure map generation in gtsrcmaps
  Likelihood-16-13-01 22-Oct-2010 cohen   fix the scaling behavior of DMFIT below 10GeV
  Likelihood-16-13-00 06-Oct-2010 jchiang allow clients to select subrange of energy bands in binned analysis
  Likelihood-16-12-03 26-Sep-2010 jchiang get tests working on 32 and 64 bit machines
