@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Wed Nov  3 21:16:49 PDT 2010
+ScienceTools-scons/Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+disable binned exposure map calculation in gtsrcmaps
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-16-13-01, operation: add
 Package: Likelihood
