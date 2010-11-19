@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.383 2010/10/21 23:17:15 cohen Exp $
+    $Id: release.notes,v 1.384 2010/11/04 04:20:31 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-16-15-00 19-Nov-2010 jchiang bug-fix in BinnedExposure.cxx: check if binned exposure map is in Galactic coordinates when returning map values
  Likelihood-16-14-00 03-Nov-2010 jchiang disable binned exposure map generation in gtsrcmaps
  Likelihood-16-13-01 22-Oct-2010 cohen   fix the scaling behavior of DMFIT below 10GeV
  Likelihood-16-13-00 06-Oct-2010 jchiang allow clients to select subrange of energy bands in binned analysis
