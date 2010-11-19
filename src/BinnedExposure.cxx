@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.22 2009/08/11 17:36:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.23 2010/06/16 22:49:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -95,7 +95,13 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
    std::vector<double>::const_iterator ie = ::findNearest(m_energies, energy);
    unsigned int k = ie - m_energies.begin();
 
-   std::pair<double, double> pixel = m_proj->sph2pix(ra, dec);
+   std::pair<double, double> pixel;
+   if (m_proj->isGalactic()) {
+      astro::SkyDir my_dir(ra, dec);
+      pixel = m_proj->sph2pix(my_dir.l(), my_dir.b());
+   } else {
+      pixel = m_proj->sph2pix(ra, dec);
+   }
 
    int i = static_cast<int>(pixel.first) - 1;
    int j = static_cast<int>(pixel.second) - 1;
