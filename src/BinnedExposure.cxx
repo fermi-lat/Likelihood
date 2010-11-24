@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.23 2010/06/16 22:49:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.24 2010/11/19 20:54:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -24,6 +24,7 @@
 #include "astro/SkyProj.h"
 
 #include "Likelihood/BinnedExposure.h"
+#include "Likelihood/CountsMap.h"
 #include "Likelihood/Observation.h"
 
 namespace {
@@ -59,6 +60,12 @@ BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0) {}
 BinnedExposure::BinnedExposure(const std::vector<double> & energies,
                                const Observation & observation) 
    : m_observation(&observation), m_energies(energies), m_proj(0) {
+   computeMap();
+}
+
+BinnedExposure(const CountsMap * cmap,
+               const Observation & observation) {
+   setMapGeometry(cmap);
    computeMap();
 }
 
@@ -112,6 +119,20 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
       return m_exposureMap.at(indx);
    } catch (std::out_of_range &) {
       return 0;
+   }
+}
+
+void BinnedExposure::setMapGeometry(const CountsMap * cmap) {
+   if (cmap != 0) {
+      m_proj_name = cmap->proj_name();
+      m_crpix[0] = cmap->crpix1();
+      m_crpix[1] = cmap->crpix2();
+      m_crval[0] = cmap->crval1();
+      m_crval[1] = cmap->crval2();
+      m_cdelt[0] = cmap->cdelt1();
+      m_cdelt[1] = cmap->cdelt2();
+      m_crot
+      m_isGalactic = cmap->isGalactic();
    }
 }
 
