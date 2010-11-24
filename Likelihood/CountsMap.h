@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.26 2010/02/17 19:00:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CountsMap.h,v 1.27 2010/04/26 17:11:00 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -115,10 +115,14 @@ public:
    double cdelt2() const {return m_cdelt[1];}
    double crpix1() const {return m_crpix[0];}
    double crpix2() const {return m_crpix[1];}
+   double crval1() const {return m_crval[0];}
+   double crval2() const {return m_crval[1];}
+   double crota2() const {return m_axis_rot;}
    long naxis1() const {return m_naxes[0];}
    long naxis2() const {return m_naxes[1];}
 
    bool conformingMap() const {return m_conforms;}
+   bool isGalactic() const {return m_use_lb;}
 
 protected:
 
