@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.21 2009/06/02 21:55:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.22 2009/06/03 05:43:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -214,6 +214,11 @@ double MeanPsf::Aeff::operator()(double cosTheta, double phi) const {
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {  
          irfInterface::IAeff * aeff = respIt->second->aeff();
+	 //turn off phi dependence if it is absent from
+	 //the livetime cube
+	 if (!m_observation.expCube().hasPhiDependence()){
+	   aeff->setPhiDependence(false);
+	 }
          double aeff_val = aeff->value(m_energy, inclination, phi);
          return aeff_val;
       }
