@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.25 2010/11/24 05:11:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.26 2010/11/25 12:52:38 cohen Exp $
  */
 
 #include <cmath>
@@ -57,15 +57,28 @@ namespace Likelihood {
 
 BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0) {}
 
-BinnedExposure::BinnedExposure(const std::vector<double> & energies,
-                               const Observation & observation) 
-   : m_observation(&observation), m_energies(energies), m_proj(0) {
+BinnedExposure::BinnedExposure(const CountsMap & cmap,
+                               const Observation & observation,
+                               bool useEbounds) {
+   setMapGeometry(cmap);
+   if (!useEbounds) {
+      for (size_t k(0); k < m_energies.size()-1; k++) {
+         m_energies[k] = std::sqrt(m_energies[k]*m_energies[k+1]);
+      }
+      m_energies.pop_back();
+      m_naxes[2] -= 1;
+   }
    computeMap();
 }
 
-BinnedExposure(const CountsMap * cmap,
-               const Observation & observation) {
-   setMapGeometry(cmap);
+BinnedExposure::BinnedExposure(const std::vector<double> & energies,
+                               const std::string & proj_name,
+                               const std::string & coordsys,
+                               const Observation & observation) 
+   : m_energies(energies), m_proj_name(proj_name), 
+     m_isGalactic(coordsys=="GAL"),
+     m_observation(&observation), m_proj(0) {
+   setMapGeometry();
    computeMap();
 }
 
@@ -122,31 +135,40 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
    }
 }
 
-void BinnedExposure::setMapGeometry(const CountsMap * cmap) {
-   if (cmap != 0) {
-      m_proj_name = cmap->proj_name();
-      m_crpix[0] = cmap->crpix1();
-      m_crpix[1] = cmap->crpix2();
-      m_crval[0] = cmap->crval1();
-      m_crval[1] = cmap->crval2();
-      m_cdelt[0] = cmap->cdelt1();
-      m_cdelt[1] = cmap->cdelt2();
-      m_crot
-      m_isGalactic = cmap->isGalactic();
-   }
+void BinnedExposure::setMapGeometry(const CountsMap & cmap) {
+   m_proj_name = cmap.proj_name();
+   m_crpix[0] = cmap.crpix1();
+   m_crpix[1] = cmap.crpix2();
+   m_crval[0] = cmap.crval1();
+   m_crval[1] = cmap.crval2();
+   m_cdelt[0] = cmap.cdelt1();
+   m_cdelt[1] = cmap.cdelt2();
+   m_crota2 = cmap.crota2();
+   m_naxes.resize(3, 0);
+   m_naxes[0] = cmap.naxis1();
+   m_naxes[1] = cmap.naxis2();
+   m_naxes[2] = cmap.energies().size();
+   m_energies = cmap.energies();
+   m_isGalactic = cmap.isGalactic();
+}
+
+void BinnedExposure::setMapGeometry() {
+   m_naxes.resize(3, 0);
+   m_naxes[0] = 360;
+   m_naxes[1] = 180;
+   m_naxes[2] = m_energies.size();
+   m_crpix[0] = m_naxes[0]/2. + 0.5;
+   m_crpix[1] = m_naxes[1]/2. + 0.5;
+   m_crval[0] = 180.;
+   m_crval[1] = 0;
+   m_cdelt[0] = -1;
+   m_cdelt[1] = 1;
+   m_crota2 = 0;
 }
 
 void BinnedExposure::computeMap() {
-   m_naxes.push_back(360);
-   m_naxes.push_back(180);
-   m_naxes.push_back(m_energies.size());
-
-   double crpix[] = {m_naxes.at(0)/2 + 0.5, m_naxes.at(1)/2 + 0.5};
-   double crval[] = {180., 0};
-   double cdelt[] = {-1, 1};
-   double crota2(0);
-
-   m_proj = new astro::SkyProj("CAR", crpix, crval, cdelt, crota2, false);
+   m_proj = new astro::SkyProj(m_proj_name, &m_crpix[0], &m_crval[0],
+                               &m_cdelt[0], m_crota2, m_isGalactic);
 
    m_exposureMap.resize(m_naxes.at(0)*m_naxes.at(1)*m_energies.size(), 0);
    int iter(0);
@@ -166,7 +188,7 @@ void BinnedExposure::computeMap() {
                resp = m_observation->respFuncs().begin();
             for (; resp != m_observation->respFuncs().end(); ++resp) {
                int evtType = resp->second->irfID();
-               Aeff aeff(m_energies[k], evtType, *m_observation);
+               ExposureCube::Aeff aeff(m_energies[k], evtType, *m_observation);
                m_exposureMap.at(indx)
                   +=m_observation->expCube().value(dir, aeff, m_energies.at(k));
             }
@@ -175,25 +197,6 @@ void BinnedExposure::computeMap() {
       }
    }
    formatter.warn() << "!" << std::endl;
-}
-
-double BinnedExposure::Aeff::operator()(double cosTheta, double phi) const {
-   double inclination = acos(cosTheta)*180./M_PI;
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
-      = m_observation.respFuncs().begin();
-   for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
-      if (respIt->second->irfID() == m_evtType) {
-         irfInterface::IAeff * aeff = respIt->second->aeff();
-	 //turn off phi dependence if it is absent from
-	 //the livetime cube
-	 if (!m_observation.expCube().hasPhiDependence()){
-	   aeff->setPhiDependence(false);
-	 }
-         double aeff_val = aeff->value(m_energy, inclination, phi);
-         return aeff_val;
-      }
-   }
-   return 0;
 }
 
 void BinnedExposure::writeOutput(const std::string & filename) const {
@@ -208,19 +211,25 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    tip::Header & header(image->getHeader());
 
    header["TELESCOP"].set("GLAST");
-   header["INSTRUME"].set("LAT SIMULATION");
+   header["INSTRUME"].set("LAT");
    header["DATE-OBS"].set("");
    header["DATE-END"].set("");
 
-   header["CRVAL1"].set(180.);
-   header["CRPIX1"].set(m_naxes.at(0)/2 + 0.5);
-   header["CDELT1"].set(-1.);
-   header["CTYPE1"].set("RA---CAR");
+   header["CRVAL1"].set(m_crval[0]);
+   header["CRPIX1"].set(m_naxes[0]/2 + 0.5);
+   header["CDELT1"].set(m_cdelt[0]);
 
-   header["CRVAL2"].set(0);
-   header["CRPIX2"].set(m_naxes.at(1)/2 + 0.5);
-   header["CDELT2"].set(1.);
-   header["CTYPE2"].set("DEC--CAR");
+   header["CRVAL2"].set(m_crval[1]);
+   header["CRPIX2"].set(m_naxes[1]/2 + 0.5);
+   header["CDELT2"].set(m_cdelt[1]);
+
+   if (m_isGalactic) {
+      header["CTYPE1"].set("GLON-" + m_proj_name);
+      header["CTYPE2"].set("GLAT-" + m_proj_name);
+   } else {
+      header["CTYPE1"].set("RA---" + m_proj_name);
+      header["CTYPE2"].set("DEC--" + m_proj_name);
+   }
 
    int nee = m_energies.size();
    header["CRVAL3"].set(log(m_energies.at(0)));

@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.12 2009/01/26 01:24:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MeanPsf.h,v 1.13 2009/03/16 20:44:57 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -109,22 +109,6 @@ private:
          : m_separation(separation), m_energy(energy), m_evtType(evtType),
            m_observation(observation) {}
       virtual ~Psf() {}
-      virtual double operator()(double cosTheta, double phi=0) const;
-      virtual double integral(double cosTheta, double phi=0) const {
-         return operator()(cosTheta, phi);
-      }
-   private:
-      double m_separation;
-      double m_energy;
-      int m_evtType;
-      const Observation & m_observation;
-   };
-
-   class Aeff {
-   public:
-      Aeff(double energy, int evtType, const Observation & observation) 
-         : m_energy(energy), m_evtType(evtType), m_observation(observation) {}
-      virtual ~Aeff() {}
       virtual double operator()(double cosTheta, double phi=0) const;
       virtual double integral(double cosTheta, double phi=0) const {
          return operator()(cosTheta, phi);

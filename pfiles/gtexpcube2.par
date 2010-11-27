@@ -1,0 +1,24 @@
+# $Header$
+#
+# General parameters.
+infile,f,a,"",,,"Livetime cube file"
+cmap,f,a,"none",,,"Counts map file (none for all-sky map)"
+outfile,f,a,"",,,"Output file name"
+irfs,s,a,"P6_V3_DIFFUSE",,,"Response functions to use"
+
+# Parameters for all-sky map.
+emin,r,a,100,,,"Minimum energy (MeV)"
+emax,r,a,10000,,,"Maximum energy (MeV)"
+enumbins,i,a,4,,,"Number of logarithmically uniform energy bins"
+coordsys,s,a,"CEL",CEL|GAL,,"Coordinate system (CEL - celestial, GAL -galactic)"
+proj,s,a,"CAR",AIT|ARC|CAR|ZEA|GLS|MER|NCP|SIN|STG|TAN,,"Projection method"
+
+# Hidden parameters.
+bincalc,s,h,"EDGE",EDGE|CENTER,,"Energy values as bounds or logrithmic centers of energy bins"
+ignorephi,     b, h, "no", , , "Ignore phi information in Livetime cube"
+table,         s, h, "EXPOSURE",,,"Exposure cube extension"
+
+chatter,i,h,2,0,4,Output verbosity
+clobber,        b, h, yes, , , "Overwrite existing output files"
+debug,          b, h, no, , , "Activate debugging mode"
+mode,           s, h, "ql", , , "Mode of automatic parameters"

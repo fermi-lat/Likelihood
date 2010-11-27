@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.16 2009/11/19 18:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.17 2009/11/19 22:40:29 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -19,6 +19,8 @@
 
 namespace Likelihood {
 
+   class Observation;
+
 /**
  * @class ExposureCube
  * @brief Exposure time as a function of sky position and inclination
@@ -26,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.16 2009/11/19 18:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.17 2009/11/19 22:40:29 jchiang Exp $
  */
 
 class ExposureCube {
@@ -86,7 +88,7 @@ public:
       }
       return exposure;
    }
-#endif
+#endif // SWIG
 
    bool haveFile() const {
       return m_haveFile;
@@ -99,6 +101,20 @@ public:
    bool hasPhiDependence() const {
       return m_hasPhiDependence;
    }
+
+   class Aeff {
+   public:
+      Aeff(double energy, int evtType, const Observation & observation); 
+      virtual ~Aeff() {}
+      virtual double operator()(double cosTheta, double phi=0) const;
+      virtual double integral(double cosTheta, double phi=0) const {
+         return operator()(cosTheta, phi);
+      }
+   private:
+      double m_energy;
+      int m_evtType;
+      const Observation & m_observation;
+   };
 
 private:
 

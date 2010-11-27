@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CountsMap.h,v 1.27 2010/04/26 17:11:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CountsMap.h,v 1.28 2010/11/24 05:11:26 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -124,6 +124,10 @@ public:
    bool conformingMap() const {return m_conforms;}
    bool isGalactic() const {return m_use_lb;}
 
+   const std::vector<double> & energies() const {
+      return m_energies;
+   }
+
 protected:
 
    HistND * m_hist;
@@ -135,6 +139,8 @@ protected:
    double m_axis_rot;
    bool m_use_lb;
    astro::SkyProj * m_proj;
+
+   std::vector<double> m_energies;
 
 private:
 

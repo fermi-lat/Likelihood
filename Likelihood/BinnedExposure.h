@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.12 2009/03/16 20:44:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.13 2010/11/24 05:11:26 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -37,12 +37,16 @@ public:
 
    BinnedExposure();
 
+   BinnedExposure(const CountsMap & cmap, 
+                  const Observation & observation, 
+                  bool useEbounds=true);
+
    BinnedExposure(const std::vector<double> & energies,
+                  const std::string & proj,
+                  const std::string & coordsys,
                   const Observation & observation);
 
    BinnedExposure(const std::string & filename);
-
-   BinnedExposure(const CountsMap * cmap, const Observation & observation);
 
    ~BinnedExposure();
 
@@ -71,7 +75,9 @@ protected:
       return *this;
    }
 
-   void setMapGeometry(const CountsMap * cmap);
+   void setMapGeometry(const CountsMap & cmap);
+
+   void setMapGeometry();
 
 private:
 
@@ -88,30 +94,14 @@ private:
    double m_crpix[2];
    double m_crval[2];
    double m_cdelt[2];
-   double m_crota2(0);
-   bool m_isGalactic
+   double m_crota2;
+   bool m_isGalactic;
 
    astro::SkyProj * m_proj;
 
    std::vector<long> m_naxes;
 
    void computeMap();
-
-   class Aeff {
-   public:
-      Aeff(double energy, int evtType, const Observation & observation) 
-         : m_energy(energy), m_evtType(evtType), m_observation(observation) {}
-      virtual ~Aeff() {}
-      virtual double operator()(double cosTheta, double phi=0) const;
-      virtual double integral(double cosTheta, double phi=0) const {
-         return operator()(cosTheta, phi);
-      }
-   private:
-      double m_energy;
-      int m_evtType;
-      const Observation & m_observation;
-   };
-
 };
 
 } // namespace Likelihood
