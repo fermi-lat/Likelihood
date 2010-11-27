@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.27 2010/11/27 07:17:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.28 2010/11/27 17:01:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -176,13 +176,18 @@ void BinnedExposure::computeMap() {
    st_stream::StreamFormatter formatter("BinnedExposure", "computeMap", 2);
    formatter.warn() << "Computing binned exposure map";
 
+   astro::SkyDir::CoordSystem coordsys(astro::SkyDir::EQUATORIAL);
+   if (m_isGalactic) {
+      coordsys = astro::SkyDir::GALACTIC;
+   }
+
    for (int j = 0; j < m_naxes.at(1); j++) {
       for (int i = 0; i < m_naxes.at(0); i++) {
          if ((iter % ((m_naxes.at(1)*m_naxes.at(0))/20)) == 0) {
             formatter.warn() << ".";
          }
          std::pair<double, double> coord = m_proj->pix2sph(i + 1, j + 1);
-         astro::SkyDir dir(coord.first, coord.second);
+         astro::SkyDir dir(coord.first, coord.second, coordsys);
          for (unsigned int k = 0; k < m_energies.size(); k++) {
             unsigned int indx = (k*m_naxes.at(1) + j)*m_naxes.at(0) + i;
             std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
