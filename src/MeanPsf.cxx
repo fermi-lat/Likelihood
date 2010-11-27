@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.22 2009/06/03 05:43:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.23 2010/11/25 12:52:38 cohen Exp $
  */
 
 #include <cmath>
@@ -40,12 +40,11 @@ void MeanPsf::init() {
             resp = m_observation.respFuncs().begin();
          for (; resp != m_observation.respFuncs().end(); ++resp) {
             int evtType = resp->second->irfID();
-            Aeff aeff(m_energies[k], evtType, m_observation);
-//            expsr_val += m_observation.expCube().value(m_srcDir, aeff);
+//            Aeff aeff(m_energies[k], evtType, m_observation);
+            ExposureCube::Aeff aeff(m_energies[k], evtType, m_observation);
             expsr_val += m_observation.expCube().value(m_srcDir, aeff,
                                                        m_energies[k]);
             Psf psf(s_separations[j], m_energies[k], evtType, m_observation);
-//            psf_val += m_observation.expCube().value(m_srcDir, psf);
             psf_val += m_observation.expCube().value(m_srcDir, psf,
                                                      m_energies[k]);
          }
@@ -199,28 +198,6 @@ double MeanPsf::Psf::operator()(double cosTheta, double phi) const {
             throw std::runtime_error("MeanPsf::Psf::operator(): psf_val < 0");
          }
          return psf_val;
-      }
-   }
-   return 0;
-}
-
-double MeanPsf::Aeff::operator()(double cosTheta, double phi) const {
-   double inclination = acos(cosTheta)*180./M_PI;
-   if (inclination > 70.) {
-      return 0;
-   }
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
-      = m_observation.respFuncs().begin();
-   for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
-      if (respIt->second->irfID() == m_evtType) {  
-         irfInterface::IAeff * aeff = respIt->second->aeff();
-	 //turn off phi dependence if it is absent from
-	 //the livetime cube
-	 if (!m_observation.expCube().hasPhiDependence()){
-	   aeff->setPhiDependence(false);
-	 }
-         double aeff_val = aeff->value(m_energy, inclination, phi);
-         return aeff_val;
       }
    }
    return 0;
