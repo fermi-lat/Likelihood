@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.26 2010/11/25 12:52:38 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.27 2010/11/27 07:17:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -59,7 +59,8 @@ BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0) {}
 
 BinnedExposure::BinnedExposure(const CountsMap & cmap,
                                const Observation & observation,
-                               bool useEbounds) {
+                               bool useEbounds) 
+   : m_observation(&observation), m_proj(0) {
    setMapGeometry(cmap);
    if (!useEbounds) {
       for (size_t k(0); k < m_energies.size()-1; k++) {
