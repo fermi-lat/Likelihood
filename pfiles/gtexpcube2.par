@@ -1,19 +1,17 @@
-# $Header$
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpcube2.par,v 1.1 2010/11/27 07:17:20 jchiang Exp $
 #
 # General parameters.
 infile,f,a,"",,,"Livetime cube file"
-cmap,f,a,"none",,,"Counts map file (none for all-sky map)"
+cmap,f,a,"",,,"Counts map file"
 outfile,f,a,"",,,"Output file name"
 irfs,s,a,"P6_V3_DIFFUSE",,,"Response functions to use"
 
 # Parameters for all-sky map.
-emin,r,a,100,,,"Minimum energy (MeV)"
-emax,r,a,10000,,,"Maximum energy (MeV)"
-enumbins,i,a,4,,,"Number of logarithmically uniform energy bins"
 coordsys,s,a,"CEL",CEL|GAL,,"Coordinate system (CEL - celestial, GAL -galactic)"
 proj,s,a,"CAR",AIT|ARC|CAR|ZEA|GLS|MER|NCP|SIN|STG|TAN,,"Projection method"
 
 # Hidden parameters.
+allsky,b,h,no,,,"Create all-sky map"
 bincalc,s,h,"EDGE",EDGE|CENTER,,"Energy values as bounds or logrithmic centers of energy bins"
 ignorephi,     b, h, "no", , , "Ignore phi information in Livetime cube"
 table,         s, h, "EXPOSURE",,,"Exposure cube extension"
