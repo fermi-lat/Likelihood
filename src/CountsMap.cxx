@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsMap.cxx,v 1.46 2010/04/26 17:11:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsMap.cxx,v 1.47 2010/11/27 07:17:21 jchiang Exp $
  */
 
 #include <algorithm>
@@ -273,7 +273,10 @@ void CountsMap::readEbounds(const std::string & countsMapFile,
    }
    energies.back() = emax;
 
-   m_energies = energies;
+   m_energies.clear();
+   for (size_t k(0); k < energies.size(); k++) {
+      m_energies.push_back(energies[k]/1e3);
+   }
 
    std::vector<evtbin::Binner::Interval> energy_intervals;
 // Convert to MeV

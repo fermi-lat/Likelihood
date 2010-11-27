@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
 w *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.2 2010/11/27 07:17:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.3 2010/11/27 17:01:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -94,7 +94,7 @@ void ExpCube::run() {
    }
    std::vector<double> energies;
    cmap.getAxisVector(2, energies);
-
+   
    BinnedExposure bexpmap(energies, m_pars["proj"], m_pars["coordsys"],
                           m_helper->observation());
    bexpmap.writeOutput(m_pars["outfile"]);
