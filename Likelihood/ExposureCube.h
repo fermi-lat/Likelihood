@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.17 2009/11/19 22:40:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.18 2010/11/27 07:17:19 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.17 2009/11/19 22:40:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.18 2010/11/27 07:17:19 jchiang Exp $
  */
 
 class ExposureCube {
@@ -110,7 +110,7 @@ public:
       virtual double integral(double cosTheta, double phi=0) const {
          return operator()(cosTheta, phi);
       }
-   private:
+   protected:
       double m_energy;
       int m_evtType;
       const Observation & m_observation;
