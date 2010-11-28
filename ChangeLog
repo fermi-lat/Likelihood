@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Nov 27 23:16:00 PST 2010
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	ExposureCube.cxx 
+Log Message:
+leave phi-dependence unset if it is unset already
+    *
+------------------------------------------------------------
 User: jchiang  Sat Nov 27 19:52:10 PST 2010
 ScienceTools-scons/Likelihood/src/gtexpcube2
 
