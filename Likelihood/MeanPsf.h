@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MeanPsf.h,v 1.13 2009/03/16 20:44:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MeanPsf.h,v 1.14 2010/11/27 07:17:19 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -118,6 +118,13 @@ private:
       double m_energy;
       int m_evtType;
       const Observation & m_observation;
+   };
+
+   class Aeff : public ExposureCube::Aeff {
+   public:
+      Aeff(double energy, int evtType, const Observation & observation) 
+         : ExposureCube::Aeff(energy, evtType, observation) {}
+      virtual double operator()(double cosTheta, double phi=0) const;
    };
 
 };
