@@ -3,7 +3,7 @@
  * @brief Implementation for ExposureCube wrapper class of map_tools::Exposure
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.8 2010/11/27 07:17:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.9 2010/11/28 03:52:08 jchiang Exp $
  */
 
 #include "tip/Header.h"
@@ -61,11 +61,13 @@ ExposureCube::Aeff::Aeff(double energy, int evtType,
    : m_energy(energy), m_evtType(evtType), m_observation(observation) {
 // Turn off phi-dependence if omitted from livetime cube.
    bool phi_dependence(m_observation.expCube().hasPhiDependence());
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
-      = m_observation.respFuncs().begin();
-   for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
-      respIt->second->aeff()->setPhiDependence(phi_dependence);
-   }   
+   if (!phi_dependence) {
+      std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+         = m_observation.respFuncs().begin();
+      for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
+         respIt->second->aeff()->setPhiDependence(false);
+      }
+   }
 }
 
 double ExposureCube::Aeff::operator()(double cosTheta, double phi) const {
