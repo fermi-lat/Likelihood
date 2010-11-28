@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.103 2010/10/06 21:16:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.104 2010/11/27 07:17:23 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -976,27 +976,33 @@ void LikelihoodTests::test_MeanPsf() {
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
 
-   double ee[] = {1e2, 1e3, 1e4};
-   std::vector<double> energies(ee, ee+3);
+   double ee[] = {1e2, 1e3, 1e4, 1e5};
+   std::vector<double> energies(ee, ee+4);
 
    MeanPsf Crab_psf(83.57, 22.01, energies, *m_observation);
    int npts(200);
-   double tstep = log(70./1e-4)/(npts-1.);
+   double thmin(1e-4);
+   double thmax(180);
+   double tstep = std::log(thmax/thmin)/(npts-1.);
    std::vector<double> thetas;
+   thetas.push_back(0);
    for (int i = 0; i < npts; i++) {
-      thetas.push_back(1e-2*exp(i*tstep)*M_PI/180.);
+      thetas.push_back(thmin*exp(i*tstep)*M_PI/180.);
    }
 
    for (unsigned int k = 0; k < energies.size(); k++) {
       std::vector<double> integrand;
-      for (int i = 0; i < npts; i++) {
+      for (int i = 0; i < thetas.size(); i++) {
          double psf = Crab_psf(energies[k], thetas[i]*180./M_PI);
          integrand.push_back(psf*sin(thetas[i])*2.*M_PI);
       }
       TrapQuad my_trap(thetas, integrand);
-//       std::cout << my_trap.integral() << std::endl;
+      double integral(my_trap.integral());
+      // std::cout << energies[k] << "  " 
+      //           << integral << "  "
+      //           << 1. - integral << std::endl;
 // Yes, this test is pretty weak.
-      CPPUNIT_ASSERT(fabs(my_trap.integral() - 1.) < 0.03);
+      CPPUNIT_ASSERT(fabs(my_trap.integral() - 1.) < 0.032);
    }
 }
 
