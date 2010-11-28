@@ -3,7 +3,7 @@
  * @brief Implementation for ExposureCube wrapper class of map_tools::Exposure
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.7 2009/11/19 18:38:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.8 2010/11/27 07:17:21 jchiang Exp $
  */
 
 #include "tip/Header.h"
@@ -64,9 +64,7 @@ ExposureCube::Aeff::Aeff(double energy, int evtType,
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = m_observation.respFuncs().begin();
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
-      if (respIt->second->irfID() == m_evtType) {
-         respIt->second->aeff()->setPhiDependence(phi_dependence);
-      }
+      respIt->second->aeff()->setPhiDependence(phi_dependence);
    }   
 }
 
