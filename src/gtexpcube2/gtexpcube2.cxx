@@ -2,8 +2,8 @@
  * @file gtexpcube2.cxx
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
-w *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.3 2010/11/27 17:01:55 jchiang Exp $
+ *
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.4 2010/11/27 17:55:26 jchiang Exp $
  */
 
 #include <cmath>
@@ -48,6 +48,7 @@ private:
    st_app::AppParGroup & m_pars;
    double m_srRadius;
    void promptForParameters();
+   void set_phi_status();
    static std::string s_cvs_id;
 };
 
@@ -73,12 +74,13 @@ void ExpCube::run() {
    m_helper->checkOutputFile();
 
    std::string ltcube_file = m_pars["infile"];
-   m_helper->checkTimeCuts(m_pars["cmap"], "",
-                           ltcube_file, "Exposure");
+   m_helper->checkTimeCuts(m_pars["cmap"], "", ltcube_file, "Exposure");
 
    ExposureCube & ltcube = 
       const_cast<ExposureCube &>(m_helper->observation().expCube());
    ltcube.readExposureCube(ltcube_file);
+
+   set_phi_status();
 
    bool useEbounds(true);
    if (m_pars["bincalc"] == "CENTER") {
@@ -111,4 +113,17 @@ void ExpCube::promptForParameters() {
       m_pars.Prompt("proj");
    }
    m_pars.Save();
+}
+
+void ExpCube::set_phi_status() {
+   // If indicated, turn off phi-dependence for all IRFs.
+   bool ignorephi = m_pars["ignorephi"];
+   if (ignorephi) {
+      const Observation & observation(m_helper->observation());
+      std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
+         = observation.respFuncs().begin();
+      for ( ; respIt != observation.respFuncs().end(); ++respIt) {
+         respIt->second->aeff()->setPhiDependence(false);
+      }
+   }
 }

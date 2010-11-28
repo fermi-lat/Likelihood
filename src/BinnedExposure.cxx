@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.28 2010/11/27 17:01:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.29 2010/11/27 22:44:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -22,6 +22,8 @@
 #include "tip/Image.h"
 
 #include "astro/SkyProj.h"
+
+#include "st_facilities/Util.h"
 
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
@@ -117,12 +119,14 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
    unsigned int k = ie - m_energies.begin();
 
    std::pair<double, double> pixel;
-   if (m_proj->isGalactic()) {
-      astro::SkyDir my_dir(ra, dec);
-      pixel = m_proj->sph2pix(my_dir.l(), my_dir.b());
-   } else {
-      pixel = m_proj->sph2pix(ra, dec);
-   }
+   // if (m_proj->isGalactic()) {
+   //    astro::SkyDir my_dir(ra, dec);
+   //    pixel = m_proj->sph2pix(my_dir.l(), my_dir.b());
+   // } else {
+   //    pixel = m_proj->sph2pix(ra, dec);
+   // }
+   st_facilities::Util::skyDir2pixel(*m_proj, astro::SkyDir(ra, dec),
+                                     pixel.first, pixel.second);
 
    int i = static_cast<int>(pixel.first) - 1;
    int j = static_cast<int>(pixel.second) - 1;
@@ -176,18 +180,21 @@ void BinnedExposure::computeMap() {
    st_stream::StreamFormatter formatter("BinnedExposure", "computeMap", 2);
    formatter.warn() << "Computing binned exposure map";
 
-   astro::SkyDir::CoordSystem coordsys(astro::SkyDir::EQUATORIAL);
-   if (m_isGalactic) {
-      coordsys = astro::SkyDir::GALACTIC;
-   }
+   // astro::SkyDir::CoordSystem coordsys(astro::SkyDir::EQUATORIAL);
+   // if (m_isGalactic) {
+   //    coordsys = astro::SkyDir::GALACTIC;
+   // }
 
    for (int j = 0; j < m_naxes.at(1); j++) {
       for (int i = 0; i < m_naxes.at(0); i++) {
          if ((iter % ((m_naxes.at(1)*m_naxes.at(0))/20)) == 0) {
             formatter.warn() << ".";
          }
-         std::pair<double, double> coord = m_proj->pix2sph(i + 1, j + 1);
-         astro::SkyDir dir(coord.first, coord.second, coordsys);
+         // std::pair<double, double> coord = m_proj->pix2sph(i + 1, j + 1);
+         // astro::SkyDir dir(coord.first, coord.second, coordsys);
+         astro::SkyDir dir;
+         st_facilities::Util::pixel2SkyDir(*m_proj, i + 1, j + 1, dir);
+                                           
          for (unsigned int k = 0; k < m_energies.size(); k++) {
             unsigned int indx = (k*m_naxes.at(1) + j)*m_naxes.at(0) + i;
             std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
