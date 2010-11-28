@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.384 2010/11/04 04:20:31 jchiang Exp $
+    $Id: release.notes,v 1.385 2010/11/19 21:28:29 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-00-00 27-Nov-2010 jchiang add gtexpcube2; implement phi-dependence flags
  Likelihood-16-15-00 19-Nov-2010 jchiang bug-fix in BinnedExposure.cxx: check if binned exposure map is in Galactic coordinates when returning map values
  Likelihood-16-14-00 03-Nov-2010 jchiang disable binned exposure map generation in gtsrcmaps
  Likelihood-16-13-01 22-Oct-2010 cohen   fix the scaling behavior of DMFIT below 10GeV
