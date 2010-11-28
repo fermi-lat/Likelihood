@@ -1,10 +1,10 @@
 package Likelihood
-version v17r0p0
+version v17r0p1
 
 author James Chiang <jchiang@slac.stanford.edu>
 author Pat Nolan <pln@razzle.stanford.edu>
 
-# $Id: requirements,v 1.506 2010/11/19 21:27:26 jchiang Exp $
+# $Id: requirements,v 1.507 2010/11/28 07:18:40 jchiang Exp $
 
 use STpolicy v*
 use astro v*
@@ -47,3 +47,4 @@ apply_pattern ST_app_withDir name=gtltsum dir=gtaddlivetime
 apply_pattern ST_app name=gtfindsrc
 apply_pattern ST_app name=gtebl
 apply_pattern ST_app name=gtsrcprob
+apply_pattern ST_app name=gtexpcube2
