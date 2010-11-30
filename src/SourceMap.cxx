@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.80 2010/07/05 17:53:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.81 2010/11/27 07:17:21 jchiang Exp $
  */
 
 #include <algorithm>
@@ -387,8 +387,7 @@ void SourceMap::computeExposureAndPsf(const Observation & observation) {
       try {
          s_binnedExposure = new BinnedExposure(s_expMapFileName);
       } catch (tip::TipException &) {
-         s_binnedExposure = new BinnedExposure(energies, "CAR", "CEL",
-                                               observation);
+         s_binnedExposure = new BinnedExposure(energies, observation);
          s_binnedExposure->writeOutput(s_expMapFileName);
       }
    }

@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.30 2010/11/28 03:52:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.31 2010/11/30 05:04:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -16,6 +16,8 @@
 #include <stdexcept>
 
 #include "st_stream/StreamFormatter.h"
+
+#include "st_app/AppParGroup.h"
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
@@ -75,13 +77,14 @@ BinnedExposure::BinnedExposure(const CountsMap & cmap,
 }
 
 BinnedExposure::BinnedExposure(const std::vector<double> & energies,
-                               const std::string & proj_name,
-                               const std::string & coordsys,
-                               const Observation & observation) 
-   : m_energies(energies), m_proj_name(proj_name), 
-     m_isGalactic(coordsys=="GAL"),
-     m_observation(&observation), m_proj(0) {
-   setMapGeometry();
+                               const Observation & observation,
+                               const st_app::AppParGroup * pars) 
+   : m_energies(energies), m_observation(&observation), m_proj(0) {
+   if (pars) {
+      setMapGeometry(*pars);
+   } else {
+      setMapGeometry();
+   }
    computeMap();
 }
 
@@ -151,7 +154,27 @@ void BinnedExposure::setMapGeometry(const CountsMap & cmap) {
    m_isGalactic = cmap.isGalactic();
 }
 
+void BinnedExposure::setMapGeometry(const st_app::AppParGroup & pars) {
+   m_naxes.resize(3, 0);
+   m_naxes[0] = pars["nxpix"];
+   m_naxes[1] = pars["nypix"];
+   m_naxes[2] = m_energies.size();
+   double binsz = pars["binsz"];
+   m_cdelt[0] = -binsz;
+   m_cdelt[1] = binsz;
+   m_crval[0] = pars["xref"];
+   m_crval[1] = pars["yref"];
+   m_crota2 = pars["axisrot"];
+   std::string proj_name = pars["proj"];
+   m_proj_name = proj_name;
+   m_crpix[0] = m_naxes[0]/2. + 0.5;
+   m_crpix[1] = m_naxes[1]/2. + 0.5;
+   m_isGalactic = (pars["coordsys"] == "GAL");
+}
+
 void BinnedExposure::setMapGeometry() {
+   m_proj_name = "CAR";
+   m_isGalactic = false;
    m_naxes.resize(3, 0);
    m_naxes[0] = 360;
    m_naxes[1] = 180;
