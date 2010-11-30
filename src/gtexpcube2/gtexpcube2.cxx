@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.6 2010/11/30 07:04:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.7 2010/11/30 07:20:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -116,7 +116,7 @@ void ExpCube::run() {
 void ExpCube::generateEnergies(std::vector<double> & energies) const {
    double emin = m_pars["emin"];
    double emax = m_pars["emax"];
-   size_t enumbins = m_pars["enumbins"];
+   int enumbins = m_pars["enumbins"];
    double estep = std::log(emax/emin)/enumbins;
    energies.clear();
    for (size_t k(0); k < enumbins + 1; k++) {
