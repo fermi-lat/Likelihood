@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov 29 23:51:13 PST 2010
+ScienceTools-scons/Likelihood/src/gtexpcube2
+
+Modified Files:
+	gtexpcube2.cxx 
+Log Message:
+finish mods to enable user-defined map geometry in gtexpcube2
+    *
+------------------------------------------------------------
 User: jchiang  Mon Nov 29 23:51:12 PST 2010
 ScienceTools-scons/Likelihood/src
 
