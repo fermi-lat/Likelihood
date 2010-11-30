@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.386 2010/11/28 07:30:47 jchiang Exp $
+    $Id: release.notes,v 1.387 2010/11/28 23:13:22 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-00-02 29-Nov-2010 jchiang allow user-specified geometry in gtexpcube2
  Likelihood-17-00-01 28-Nov-2010 jchiang unit test fixes
  Likelihood-17-00-00 27-Nov-2010 jchiang add gtexpcube2; implement phi-dependence flags
  Likelihood-16-15-00 19-Nov-2010 jchiang bug-fix in BinnedExposure.cxx: check if binned exposure map is in Galactic coordinates when returning map values
