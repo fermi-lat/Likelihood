@@ -1,4 +1,4 @@
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpcube2.par,v 1.2 2010/11/27 17:01:53 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpcube2.par,v 1.3 2010/11/30 07:04:14 jchiang Exp $
 #
 # General parameters.
 infile,f,a,"",,,"Livetime cube file"
@@ -7,12 +7,12 @@ outfile,f,a,"",,,"Output file name"
 irfs,s,a,"P6_V3_DIFFUSE",,,"Response functions to use"
 
 # Parameters for user-defined map.
-nxpix,i,a,,,,"Size of the X axis in pixels"
-nypix,i,a,,,,"Size of the Y axis in pixels"
-binsz,r,a,,,,"Image scale (in degrees/pixel)"
-coordsys,s,a,CEL,CEL|GAL,,"Coordinate system (CEL - celestial, GAL -galactic)"
-xref,r,a,,,,"First coordinate of image center in degrees (RA or galactic l)"
-yref,r,a,,,,"Second coordinate of image center in degrees (DEC or galactic b)"
+nxpix,i,a,360,,,"Size of the X axis in pixels"
+nypix,i,a,180,,,"Size of the Y axis in pixels"
+binsz,r,a,1,,,"Image scale (in degrees/pixel)"
+coordsys,s,a,GAL,CEL|GAL,,"Coordinate system (CEL - celestial, GAL -galactic)"
+xref,r,a,0,,,"First coordinate of image center in degrees (RA or galactic l)"
+yref,r,a,0,,,"Second coordinate of image center in degrees (DEC or galactic b)"
 axisrot,r,a,0.,,,"Rotation angle of image axis, in degrees"
 proj,s,a,"CAR",,,"Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN"
 emin,r,a,100,,,"Start energy (MeV) of first bin"
