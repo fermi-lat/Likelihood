@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.13 2010/11/24 05:11:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.14 2010/11/27 07:17:19 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -13,6 +13,10 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+namespace st_app {
+   class AppParGroup;
+}
 
 namespace astro {
    class SkyProj;
@@ -42,9 +46,8 @@ public:
                   bool useEbounds=true);
 
    BinnedExposure(const std::vector<double> & energies,
-                  const std::string & proj,
-                  const std::string & coordsys,
-                  const Observation & observation);
+                  const Observation & observation,
+                  const st_app::AppParGroup * pars=0);
 
    BinnedExposure(const std::string & filename);
 
@@ -76,6 +79,8 @@ protected:
    }
 
    void setMapGeometry(const CountsMap & cmap);
+
+   void setMapGeometry(const st_app::AppParGroup & pars);
 
    void setMapGeometry();
 

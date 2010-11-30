@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.4 2010/11/27 17:55:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.5 2010/11/28 03:52:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -49,6 +49,7 @@ private:
    double m_srRadius;
    void promptForParameters();
    void set_phi_status();
+   void generateEnergies(std::vector<double> & energies) const;
    static std::string s_cvs_id;
 };
 
@@ -70,36 +71,57 @@ void ExpCube::banner() const {
 
 void ExpCube::run() {
    promptForParameters();
-   m_helper = new AppHelpers(&m_pars, "BINNED");
-   m_helper->checkOutputFile();
 
+   std::string cmap_file = m_pars["cmap"];
    std::string ltcube_file = m_pars["infile"];
-   m_helper->checkTimeCuts(m_pars["cmap"], "", ltcube_file, "Exposure");
-
-   ExposureCube & ltcube = 
-      const_cast<ExposureCube &>(m_helper->observation().expCube());
-   ltcube.readExposureCube(ltcube_file);
-
-   set_phi_status();
 
    bool useEbounds(true);
    if (m_pars["bincalc"] == "CENTER") {
       useEbounds = false;
    }
-   CountsMap cmap(m_pars["cmap"]);
+   set_phi_status();
 
-   bool allsky = m_pars["allsky"];
-   if (!allsky) {
+   if (cmap_file != "none") {
+      m_helper = new AppHelpers(&m_pars, "BINNED");
+   } else {
+      m_helper = new AppHelpers(&m_pars, "NONE");
+   }
+   m_helper->checkOutputFile();
+   ExposureCube & ltcube = 
+      const_cast<ExposureCube &>(m_helper->observation().expCube());
+   ltcube.readExposureCube(ltcube_file);
+
+   if (cmap_file != "none") {
+// Create map to match counts map.
+      m_helper->checkTimeCuts(cmap_file, "", ltcube_file, "Exposure");
+      CountsMap cmap(cmap_file);
       BinnedExposure bexpmap(cmap, m_helper->observation(), useEbounds);
       bexpmap.writeOutput(m_pars["outfile"]);
       return;
    }
+
+// Create map for user-defined geometry.
    std::vector<double> energies;
-   cmap.getAxisVector(2, energies);
-   
-   BinnedExposure bexpmap(energies, m_pars["proj"], m_pars["coordsys"],
-                          m_helper->observation());
+   generateEnergies(energies);
+   if (!useEbounds) {
+      for (size_t k(0); k < energies.size() - 1; k++) {
+         energies[k] = std::sqrt(energies[k]*energies[k+1]);
+      }
+      energies.pop_back();
+   }
+   BinnedExposure bexpmap(energies, m_helper->observation(), &m_pars);
    bexpmap.writeOutput(m_pars["outfile"]);
+}
+
+void ExpCube::generateEnergies(std::vector<double> & energies) const {
+   double emin = m_pars["emin"];
+   double emax = m_pars["emax"];
+   size_t enumbins = m_pars["enumbins"];
+   double estep = std::log(emax/emin)/(enumbins - 1);
+   energies.clear();
+   for (size_t k(0); k < enumbins; k++) {
+      energies.push_back(emin*std::exp(estep*k));
+   }
 }
 
 void ExpCube::promptForParameters() {
@@ -107,10 +129,19 @@ void ExpCube::promptForParameters() {
    m_pars.Prompt("cmap");
    m_pars.Prompt("outfile");
    m_pars.Prompt("irfs");
-   bool allsky = m_pars["allsky"];
-   if (allsky) {
+   std::string cmap = m_pars["cmap"];
+   if (cmap == "none") {
+      m_pars.Prompt("nxpix");
+      m_pars.Prompt("nypix");
+      m_pars.Prompt("binsz");
       m_pars.Prompt("coordsys");
+      m_pars.Prompt("xref");
+      m_pars.Prompt("yref");
+      m_pars.Prompt("axisrot");
       m_pars.Prompt("proj");
+      m_pars.Prompt("emin");
+      m_pars.Prompt("emax");
+      m_pars.Prompt("enumbins");
    }
    m_pars.Save();
 }
