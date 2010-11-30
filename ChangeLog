@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Mon Nov 29 23:05:00 PST 2010
+ScienceTools-scons/Likelihood/pfiles
+
+Modified Files:
+	gtexpcube2.par 
+Log Message:
+set defaults for all-sky map
+    *
+------------------------------------------------------------
 User: jchiang  Mon Nov 29 23:04:16 PST 2010
 ScienceTools-scons/Likelihood/src/test
 
