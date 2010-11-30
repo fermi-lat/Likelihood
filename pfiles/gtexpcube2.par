@@ -1,4 +1,4 @@
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpcube2.par,v 1.3 2010/11/30 07:04:14 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpcube2.par,v 1.4 2010/11/30 07:04:59 jchiang Exp $
 #
 # General parameters.
 infile,f,a,"",,,"Livetime cube file"
@@ -17,7 +17,7 @@ axisrot,r,a,0.,,,"Rotation angle of image axis, in degrees"
 proj,s,a,"CAR",,,"Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN"
 emin,r,a,100,,,"Start energy (MeV) of first bin"
 emax,r,a,3e5,,,"Stop energy (MeV) of last bin"
-enumbins,i,a,10,,,"Number of logrithmically-spaced energy bins"
+enumbins,i,a,10,,,"Number of logarithmically-spaced energy bins"
 
 # Hidden parameters.
 bincalc,s,h,"EDGE",EDGE|CENTER,,"Energy values as bounds or logrithmic centers of energy bins"
