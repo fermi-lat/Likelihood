@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.29 2010/11/27 22:44:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.30 2010/11/28 03:52:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -119,12 +119,6 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
    unsigned int k = ie - m_energies.begin();
 
    std::pair<double, double> pixel;
-   // if (m_proj->isGalactic()) {
-   //    astro::SkyDir my_dir(ra, dec);
-   //    pixel = m_proj->sph2pix(my_dir.l(), my_dir.b());
-   // } else {
-   //    pixel = m_proj->sph2pix(ra, dec);
-   // }
    st_facilities::Util::skyDir2pixel(*m_proj, astro::SkyDir(ra, dec),
                                      pixel.first, pixel.second);
 
@@ -180,20 +174,24 @@ void BinnedExposure::computeMap() {
    st_stream::StreamFormatter formatter("BinnedExposure", "computeMap", 2);
    formatter.warn() << "Computing binned exposure map";
 
-   // astro::SkyDir::CoordSystem coordsys(astro::SkyDir::EQUATORIAL);
-   // if (m_isGalactic) {
-   //    coordsys = astro::SkyDir::GALACTIC;
-   // }
-
    for (int j = 0; j < m_naxes.at(1); j++) {
-      for (int i = 0; i < m_naxes.at(0); i++) {
+      for (int i = 0; i < m_naxes.at(0); i++, iter++) {
          if ((iter % ((m_naxes.at(1)*m_naxes.at(0))/20)) == 0) {
             formatter.warn() << ".";
          }
          // std::pair<double, double> coord = m_proj->pix2sph(i + 1, j + 1);
          // astro::SkyDir dir(coord.first, coord.second, coordsys);
          astro::SkyDir dir;
-         st_facilities::Util::pixel2SkyDir(*m_proj, i + 1, j + 1, dir);
+         try {
+            st_facilities::Util::pixel2SkyDir(*m_proj, i + 1, j + 1, dir);
+         } catch (...) {
+            // The astro::SkyProj class throws a SkyProjException
+            // here, but SkyProjException is annoyingly defined in
+            // SkyProj.cxx
+            // http://www-glast.stanford.edu/cgi-bin/viewcvs/astro/src/SkyProj.cxx?revision=1.27&view=markup
+            // so that client code cannot catch it directly. Amazing.
+            continue;
+         }
                                            
          for (unsigned int k = 0; k < m_energies.size(); k++) {
             unsigned int indx = (k*m_naxes.at(1) + j)*m_naxes.at(0) + i;
@@ -206,7 +204,6 @@ void BinnedExposure::computeMap() {
                   +=m_observation->expCube().value(dir, aeff, m_energies.at(k));
             }
          }
-         iter++;
       }
    }
    formatter.warn() << "!" << std::endl;
