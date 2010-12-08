@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.8 2010/11/30 07:51:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.9 2010/12/08 00:49:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -80,13 +80,13 @@ void ExpCube::run() {
    if (bincalc == "CENTER") {
       useEbounds = false;
    }
-   set_phi_status();
 
    if (cmap_file != "none") {
       m_helper = new AppHelpers(&m_pars, "BINNED");
    } else {
       m_helper = new AppHelpers(&m_pars, "NONE");
    }
+   set_phi_status();
    m_helper->checkOutputFile();
    ExposureCube & ltcube = 
       const_cast<ExposureCube &>(m_helper->observation().expCube());
