@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.14 2010/11/27 07:17:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.15 2010/11/30 07:04:13 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -13,6 +13,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#include "Likelihood/ExposureCube.h"
 
 namespace st_app {
    class AppParGroup;
@@ -106,7 +108,21 @@ private:
 
    std::vector<long> m_naxes;
 
+   double m_costhmin;
+
    void computeMap();
+
+   class Aeff : public ExposureCube::Aeff {
+   public:
+      Aeff(double energy, int evtType, const Observation & observation,
+           double costhmin) 
+         : ExposureCube::Aeff(energy, evtType, observation),
+           m_costhmin(costhmin) {}
+      virtual double operator()(double cosTheta, double phi=0) const;
+   private:
+      double m_costhmin;
+   };
+   
 };
 
 } // namespace Likelihood
