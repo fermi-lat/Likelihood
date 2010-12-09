@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.32 2010/11/30 07:04:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.33 2010/11/30 07:51:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -59,12 +59,13 @@ namespace {
 
 namespace Likelihood {
 
-BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0) {}
+BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0), 
+                                   m_costhmin(-1) {}
 
 BinnedExposure::BinnedExposure(const CountsMap & cmap,
                                const Observation & observation,
                                bool useEbounds) 
-   : m_observation(&observation), m_proj(0) {
+   : m_observation(&observation), m_proj(0), m_costhmin(-1) {
    setMapGeometry(cmap);
    if (!useEbounds) {
       for (size_t k(0); k < m_energies.size()-1; k++) {
@@ -79,7 +80,8 @@ BinnedExposure::BinnedExposure(const CountsMap & cmap,
 BinnedExposure::BinnedExposure(const std::vector<double> & energies,
                                const Observation & observation,
                                const st_app::AppParGroup * pars) 
-   : m_energies(energies), m_observation(&observation), m_proj(0) {
+   : m_energies(energies), m_observation(&observation), m_proj(0),
+     m_costhmin(-1) {
    if (pars) {
       setMapGeometry(*pars);
    } else {
@@ -89,7 +91,7 @@ BinnedExposure::BinnedExposure(const std::vector<double> & energies,
 }
 
 BinnedExposure::BinnedExposure(const std::string & filename) 
-   : m_observation(0), m_proj(0) {
+   : m_observation(0), m_proj(0), m_costhmin(-1) {
    m_proj = new astro::SkyProj(filename);
 
    std::auto_ptr<const tip::Image> 
@@ -171,6 +173,10 @@ void BinnedExposure::setMapGeometry(const st_app::AppParGroup & pars) {
    m_crpix[1] = m_naxes[1]/2. + 0.5;
    std::string coordsys = pars["coordsys"];
    m_isGalactic = (coordsys == "GAL");
+   double thmax = pars["thmax"];
+   if (thmax < 180.) {
+      m_costhmin = std::cos(thmax*M_PI/180.);
+   }
 }
 
 void BinnedExposure::setMapGeometry() {
@@ -223,7 +229,7 @@ void BinnedExposure::computeMap() {
                resp = m_observation->respFuncs().begin();
             for (; resp != m_observation->respFuncs().end(); ++resp) {
                int evtType = resp->second->irfID();
-               ExposureCube::Aeff aeff(m_energies[k], evtType, *m_observation);
+               Aeff aeff(m_energies[k], evtType, *m_observation, m_costhmin);
                m_exposureMap.at(indx)
                   +=m_observation->expCube().value(dir, aeff, m_energies.at(k));
             }
@@ -288,6 +294,13 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    }
 
    delete table;
+}
+
+double BinnedExposure::Aeff::operator()(double cosTheta, double phi) const {
+   if (cosTheta < m_costhmin) {
+      return 0;
+   }
+   return ExposureCube::Aeff::operator()(cosTheta, phi);
 }
 
 } // namespace Likelihood
