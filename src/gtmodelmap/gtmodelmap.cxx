@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.23 2010/07/06 03:45:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.24 2010/09/15 01:25:34 jchiang Exp $
  */
 
 #include <iostream>
@@ -81,6 +81,12 @@ namespace {
       fits_close_file(fptr, &status);
       fitsReportError(stderr, status);
    }
+
+   void tolower(std::string & name) {
+      for (std::string::iterator it = name.begin(); it != name.end(); ++it) {
+         *it = std::tolower(*it);
+      }
+   }
 }
 
 /**
@@ -135,7 +141,6 @@ private:
    void readEnergyBounds();
    void createRegistry();
    void sumOutputMap();
-   void sumOutputMap_old();
    void writeOutputMap();
    void trimExtensions();
 
@@ -174,6 +179,7 @@ void ModelMap::writeOutputMap() {
    std::string infile = m_pars["srcmaps"];
    std::string outfile = m_pars["outfile"];
    bool clobber = m_pars["clobber"];
+   std::string outtype = m_pars["outtype"];
    tip::IFileSvc::instance().createFile(outfile, infile, clobber);
    
    std::vector<long> new_dims;
@@ -183,9 +189,11 @@ void ModelMap::writeOutputMap() {
    DimCont_t dims = my_image->getImageDimensions();
    new_dims.push_back(dims.at(0));
    new_dims.push_back(dims.at(1));
+   if (outtype == "CCUBE") {
+      new_dims.push_back(dims.at(2));
+   }
    delete my_image;
-
-   fitsResizeImage(outfile, -32, 2, new_dims);
+   fitsResizeImage(outfile, -32, new_dims.size(), new_dims);
 
    std::auto_ptr<tip::Image>
       output_image(tip::IFileSvc::instance().editImage(outfile, ""));
@@ -241,6 +249,7 @@ void ModelMap::trimExtensions() {
 }
 
 void ModelMap::sumOutputMap() {
+   std::string outtype = m_pars["outtype"];
    st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap", 2);
    for (size_t k(0); k < m_emins.size(); k++) {
       double & emin(m_emins.at(k));
@@ -274,7 +283,12 @@ void ModelMap::sumOutputMap() {
          }
       }
       for (size_t i(0); i < image_size; i++) {
-         m_outmap.at(i) += pixelCounts(emin, emax, map0.at(i), map1.at(i));
+         if (outtype == "CMAP") {
+            m_outmap.at(i) += pixelCounts(emin, emax, map0.at(i), map1.at(i));
+         } else {
+            size_t indx = i + k*image_size;
+            m_outmap.at(indx) = pixelCounts(emin, emax, map0.at(i), map1.at(i));
+         }
       }
    }
 }
@@ -292,37 +306,6 @@ double ModelMap::pixelCounts(double emin, double emax,
 //    }
 
 //    return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
-}
-
-void ModelMap::sumOutputMap_old() {
-   std::map<std::string, optimizers::Function *>::iterator it;
-   for (it = m_spectra.begin(); it != m_spectra.end(); ++it) {
-      std::string srcName = it->first;
-      st_stream::StreamFormatter formatter("gtmodel", "sumOutputMap", 2);
-      try {
-         getMap(srcName);
-      } catch (tip::TipException &) {
-         formatter.info() << "Cannot read source map for model component "
-                          << srcName << ". Skipping it." << std::endl;
-      }
-
-      const Likelihood::Source & source(m_registry->source(srcName));
-
-      if (it == m_spectra.begin()) {
-         m_outmap.resize(m_srcmap->size(), 0);
-      }
-      size_t image_size = m_outmap.size()/(m_emins.size() + 1);
-      for (size_t k(0); k < m_emins.size(); k++) {
-         double & emin = m_emins.at(k);
-         double & emax = m_emaxs.at(k);
-         for (size_t i(0); i < image_size; i++) {
-            size_t j0 = k*image_size + i;
-            size_t j1 = j0 + image_size;
-            m_outmap.at(i) += source.pixelCounts(emin, emax, m_srcmap->at(j0),
-                                                 m_srcmap->at(j1));
-         }
-      }
-   }
 }
 
 void ModelMap::getMap(const std::string & srcName) {

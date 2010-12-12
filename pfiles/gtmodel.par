@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtmodel.par,v 1.6 2009/12/16 18:46:34 elwinter Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtmodel.par,v 1.7 2010/02/09 21:08:34 jchiang Exp $
 #
 srcmaps,fr,a,"",,,"Source maps (or counts map) file"
 srcmdl,fr,a,"",,,"Source model file"
@@ -11,6 +11,7 @@ bexpmap,f,a,none,,,"Binned exposure map"
 convol,b,h,yes,,,"Perform convolution with psf"
 resample,b,h,yes,,,"Resample input counts map for convolution"
 rfactor,i,h,2,,,"Resampling factor"
+outtype,s,h,"CMAP",CCUBE|CMAP,,"Output type"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
