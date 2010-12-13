@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.390 2010/12/09 22:51:40 jchiang Exp $
+    $Id: release.notes,v 1.391 2010/12/12 23:53:55 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-01-01 12-Dec-2010 jchiang write EBOUNDS extension for ccubes from gtmodel
  Likelihood-17-01-00 12-Dec-2010 jchiang enable ccube output for gtmodel
  Likelihood-17-00-04 09-Dec-2010 jchiang add thmax parameter option for gtexpcube2
  Likelihood-17-00-03 08-Dec-2010 jchiang bug-fixes for bincalc and ignorephi options for gtexpcube2: bincalc=CENTER had no effect, and ignorephi=yes would cause a crash
