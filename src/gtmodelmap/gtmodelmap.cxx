@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.24 2010/09/15 01:25:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.25 2010/12/12 23:52:22 jchiang Exp $
  */
 
 #include <iostream>
@@ -180,7 +180,7 @@ void ModelMap::writeOutputMap() {
    std::string outfile = m_pars["outfile"];
    bool clobber = m_pars["clobber"];
    std::string outtype = m_pars["outtype"];
-   tip::IFileSvc::instance().createFile(outfile, infile, clobber);
+   st_facilities::FitsUtil::fcopy(infile, outfile, "", "", clobber);
    
    std::vector<long> new_dims;
    const tip::Image * my_image = 
@@ -204,6 +204,7 @@ void ModelMap::writeOutputMap() {
 
 void ModelMap::trimExtensions() {
    std::string outfile = m_pars["outfile"];
+   std::string outtype = m_pars["outtype"];
    tip::FileSummary hdus;
    tip::IFileSvc::instance().getFileSummary(outfile, hdus);
    size_t nhdus = hdus.size();
@@ -213,7 +214,7 @@ void ModelMap::trimExtensions() {
    ::fitsReportError(stderr, status);
    for (size_t i = 1; i < nhdus; i++) {
       std::string hduname = hdus.at(i).getExtId();
-      if (hduname != "GTI") {
+      if (hduname != "GTI" && (hduname != "EBOUNDS" || outtype == "CMAP")) {
          fits_movnam_hdu(fptr, ANY_HDU, const_cast<char *>(hduname.c_str()), 
                          0, &status);
          ::fitsReportError(stderr, status);
@@ -221,20 +222,22 @@ void ModelMap::trimExtensions() {
          ::fitsReportError(stderr, status);
       }
    }
+   if (outtype == "CMAP") {
 // delete axis 3 keywords in PRIMARY HDU
-   fits_movabs_hdu(fptr, 1, &hdutype, &status);
-   ::fitsReportError(stderr, status);
+      fits_movabs_hdu(fptr, 1, &hdutype, &status);
+      ::fitsReportError(stderr, status);
 
-   fits_delete_key(fptr, "CTYPE3", &status);
-   ::fitsReportError(stderr, status);
-   fits_delete_key(fptr, "CRPIX3", &status);
-   ::fitsReportError(stderr, status);
-   fits_delete_key(fptr, "CRVAL3", &status);
-   ::fitsReportError(stderr, status);
-   fits_delete_key(fptr, "CDELT3", &status);
-   ::fitsReportError(stderr, status);
-   fits_delete_key(fptr, "CUNIT3", &status);
-   ::fitsReportError(stderr, status);
+      fits_delete_key(fptr, "CTYPE3", &status);
+      ::fitsReportError(stderr, status);
+      fits_delete_key(fptr, "CRPIX3", &status);
+      ::fitsReportError(stderr, status);
+      fits_delete_key(fptr, "CRVAL3", &status);
+      ::fitsReportError(stderr, status);
+      fits_delete_key(fptr, "CDELT3", &status);
+      ::fitsReportError(stderr, status);
+      fits_delete_key(fptr, "CUNIT3", &status);
+      ::fitsReportError(stderr, status);
+   }
 
 // update creator keyword
    char * creator = "gtmodel";
