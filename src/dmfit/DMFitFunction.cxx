@@ -2,7 +2,7 @@
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.8 2009/08/07 11:29:52 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.9 2009/08/07 16:29:17 cohen Exp $
  */
 
 #include <cmath>
@@ -58,7 +58,7 @@ static  enum  {norm,sigmav,mass,bratio,channel0,channel1} ParamType;
    m_argType = "dArg";
 
    m_genericName = "DMFitFunction";
-   m_normParName = "norm";
+   m_normParName = "sigmav";
 
 }
 
