@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.9 2010/12/08 00:49:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.10 2010/12/08 07:29:17 jchiang Exp $
  */
 
 #include <cmath>
@@ -115,13 +115,32 @@ void ExpCube::run() {
 }
 
 void ExpCube::generateEnergies(std::vector<double> & energies) const {
-   double emin = m_pars["emin"];
-   double emax = m_pars["emax"];
-   int enumbins = m_pars["enumbins"];
-   double estep = std::log(emax/emin)/enumbins;
    energies.clear();
-   for (size_t k(0); k < enumbins + 1; k++) {
-      energies.push_back(emin*std::exp(estep*k));
+   std::string ebinalg = m_pars["ebinalg"];
+   if (ebinalg == "FILE") {
+      std::string ebinfile = m_pars["ebinfile"];
+      const tip::Table * energybins = 
+         tip::IFileSvc::instance().readTable(ebinfile, "ENERGYBINS");
+      tip::Table::ConstIterator it = energybins->begin();
+      tip::ConstTableRecord & row = *it;
+      double energy;
+      double emax;
+      for ( ; it != energybins->end(); ++it) {
+         row["E_MIN"].get(energy);
+         // Note that energies in gtbindef output are in units of keV.
+         energies.push_back(energy/1e3);
+         row["E_MAX"].get(emax);
+      }
+      energies.push_back(emax/1e3);
+      delete energybins;
+   } else {
+      double emin = m_pars["emin"];
+      double emax = m_pars["emax"];
+      int enumbins = m_pars["enumbins"];
+      double estep = std::log(emax/emin)/enumbins;
+      for (size_t k(0); k < enumbins + 1; k++) {
+         energies.push_back(emin*std::exp(estep*k));
+      }
    }
 }
 
@@ -140,9 +159,14 @@ void ExpCube::promptForParameters() {
       m_pars.Prompt("yref");
       m_pars.Prompt("axisrot");
       m_pars.Prompt("proj");
-      m_pars.Prompt("emin");
-      m_pars.Prompt("emax");
-      m_pars.Prompt("enumbins");
+      std::string ebinalg = m_pars["ebinalg"];
+      if (ebinalg == "FILE") {
+         m_pars.Prompt("ebinfile");
+      } else {
+         m_pars.Prompt("emin");
+         m_pars.Prompt("emax");
+         m_pars.Prompt("enumbins");
+      }
    }
    m_pars.Save();
 }
