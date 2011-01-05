@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.391 2010/12/12 23:53:55 jchiang Exp $
+    $Id: release.notes,v 1.392 2010/12/13 00:20:24 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-02-00 04-Jan-2011 jchiang enable ebinfile input to gtexpcube2
  Likelihood-17-01-01 12-Dec-2010 jchiang write EBOUNDS extension for ccubes from gtmodel
  Likelihood-17-01-00 12-Dec-2010 jchiang enable ccube output for gtmodel
  Likelihood-17-00-04 09-Dec-2010 jchiang add thmax parameter option for gtexpcube2
