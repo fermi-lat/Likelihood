@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.14 2010/04/30 22:17:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.15 2010/09/15 01:25:34 jchiang Exp $
  */
 
 #include <algorithm>
@@ -156,6 +156,9 @@ double Source::pixelCounts(double emin, double emax,
 
    double y1(f1*wtMin);
    double y2(f2*wtMax);
+   if (::getenv("USE_LOG_LOG_QUADRATURE")) {
+      return (y1*emin + y2*emax)/2.*std::log(emax/emin);
+   }
    return (y1 + y2)*(emax - emin)/2.;
 //    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
 //       return (y1 + y2)*(emax - emin)/2.;
@@ -183,6 +186,9 @@ double Source::pixelCountsDeriv(double emin, double emax,
 
    double dy1dp(f1*wtMin);
    double dy2dp(f2*wtMax);
+   if (::getenv("USE_LOG_LOG_QUADRATURE")) {
+      return (dy1dp*emin + dy2dp*emax)/2.*std::log(emax/emin);
+   }
    return (dy1dp + dy2dp)*(emax - emin)/2.;
 //    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
 //       return (dy1dp + dy2dp)*(emax - emin)/2.;
