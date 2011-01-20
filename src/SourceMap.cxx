@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.81 2010/11/27 07:17:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.82 2010/11/30 07:04:14 jchiang Exp $
  */
 
 #include <algorithm>
@@ -63,12 +63,6 @@ namespace {
 }
 
 namespace Likelihood {
-
-// /// @bug Use of this function (by CountsSpectra.cxx) is necessitated by
-// /// annoying linkage problems on Windows.
-// void getNpreds(const SourceMap & srcMap, std::vector<double> & npreds) {
-//    npreds = srcMap.npreds();
-// }
 
 std::string SourceMap::s_expMapFileName;
 MeanPsf * SourceMap::s_meanPsf(0);
@@ -166,10 +160,12 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       unsigned int indx(0);
       std::vector<double>::const_iterator energy = energies.begin();
       for (int k(0); energy != energies.end(); ++energy, k++) {
+         bool interpolate;
          WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
                            crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
                            *energy, dataMap->proj_name(), 
-                           dataMap->projection().isGalactic(), true);
+                           dataMap->projection().isGalactic(), 
+                           interpolate=true);
          WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
                                                  *s_binnedExposure,
                                                  performConvolution));
