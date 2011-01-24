@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.105 2010/11/28 16:52:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.106 2010/11/30 07:04:16 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -870,25 +870,25 @@ void LikelihoodTests::test_BinnedLikelihood() {
       binnedLogLike.getFreeDerivs(derivs);
       binnedLogLike.getFreeParamValues(params);
 
-//       std::cout << "Testing derivatives" << std::endl;
+      // std::cout << "Testing derivatives" << std::endl;
       double logLike0 = binnedLogLike.value();
-      double eps(1e-7);
+      double eps(1e-8);
       for (unsigned int i = 0; i < params.size(); i++) {
          std::vector<double> new_params = params;
          double delta = eps*new_params[i];
          new_params[i] += delta;
          binnedLogLike.setFreeParamValues(new_params);
          double logLike = binnedLogLike.value();
-//          std::cout << i << "  ";
-//          std::cout << derivs[i] << "  ";
-//          std::cout << logLike << "  " << logLike0 << "  ";
-//          std::cout << (logLike - logLike0)/delta << std::endl;
+         // std::cout << i << "  ";
+         // std::cout << derivs[i] << "  ";
+         // std::cout << logLike << "  " << logLike0 << "  ";
+         // std::cout << (logLike - logLike0)/delta << std::endl;
       
 // Another weak test.
          double num_deriv = fabs((derivs[i] - (logLike - logLike0)/delta)
                                  /derivs[i]);
-//          std::cout << "numerical deriv: " << num_deriv << std::endl;
-         CPPUNIT_ASSERT(num_deriv < 5e-2);
+         // std::cout << "numerical deriv: " << num_deriv << std::endl;
+         CPPUNIT_ASSERT(num_deriv < 6e-2);
       }
       delete modelMap;
    } // end of iter loop for different energy ranges (via BinnedLikelihood::set_klims(...))
@@ -1235,6 +1235,10 @@ int main(int iargc, char * argv[]) {
 
       testObj.setUp();
       testObj.test_BinnedLikelihood();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_BinnedLikelihood_2();
       testObj.tearDown();
 
       testObj.setUp();
