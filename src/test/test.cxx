@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.106 2010/11/30 07:04:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.107 2011/01/24 01:08:47 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -873,19 +873,34 @@ void LikelihoodTests::test_BinnedLikelihood() {
       // std::cout << "Testing derivatives" << std::endl;
       double logLike0 = binnedLogLike.value();
       double eps(1e-8);
+      volatile double temp;
+      double diff;
       for (unsigned int i = 0; i < params.size(); i++) {
          std::vector<double> new_params = params;
          double delta = eps*new_params[i];
-         new_params[i] += delta;
+         temp = new_params[i] + delta;
+         delta = temp - new_params[i];
+         new_params[i] = temp;
          binnedLogLike.setFreeParamValues(new_params);
-         double logLike = binnedLogLike.value();
+         double logLike_plus = binnedLogLike.value();
+         diff = delta;
+
+         delta *= -1;
+         new_params = params;
+         temp = new_params[i] + delta;
+         delta = temp - new_params[i];
+         new_params[i] = temp;
+         binnedLogLike.setFreeParamValues(new_params);
+         double logLike_minus = binnedLogLike.value();
+         diff -= delta;
+
          // std::cout << i << "  ";
          // std::cout << derivs[i] << "  ";
-         // std::cout << logLike << "  " << logLike0 << "  ";
-         // std::cout << (logLike - logLike0)/delta << std::endl;
+         // std::cout << logLike_plus << "  " << logLike_minus << "  ";
+         // std::cout << (logLike_plus - logLike_minus)/diff << std::endl;
       
 // Another weak test.
-         double num_deriv = fabs((derivs[i] - (logLike - logLike0)/delta)
+         double num_deriv = fabs((derivs[i] - (logLike_plus - logLike_minus)/diff)
                                  /derivs[i]);
          // std::cout << "numerical deriv: " << num_deriv << std::endl;
          CPPUNIT_ASSERT(num_deriv < 6e-2);
