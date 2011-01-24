@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.394 2011/01/20 22:53:01 jchiang Exp $
+    $Id: release.notes,v 1.395 2011/01/24 01:10:01 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-03-02 23-Jan-2011 jchiang use 3-point formula for numerical deriv in binned test
  Likelihood-17-03-01 23-Jan-2011 jchiang adjust accuracy of numerical deriv calculation in binned test
  Likelihood-17-03-00 20-Jan-2011 jchiang make trapezoidal rule integration in log-log space the default behavior for the binned Npred calculations
  Likelihood-17-02-00 04-Jan-2011 jchiang enable ebinfile input to gtexpcube2
