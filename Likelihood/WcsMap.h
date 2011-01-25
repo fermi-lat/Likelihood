@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.14 2009/06/10 18:09:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap.h,v 1.15 2010/02/17 04:06:52 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap_h
@@ -27,7 +27,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap.h,v 1.14 2009/06/10 18:09:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap.h,v 1.15 2010/02/17 04:06:52 jchiang Exp $
  */
 
 class WcsMap {
@@ -94,6 +94,14 @@ public:
    void getCorners(std::vector<astro::SkyDir> & corners) const;
 
    double mapIntegral() const;
+
+   double cdelt1() const {
+      return m_cdelt1;
+   }
+
+   double cdelt2() const {
+      return m_cdelt2;
+   }
 
 private:
 
