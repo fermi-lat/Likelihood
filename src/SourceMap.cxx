@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.83 2011/01/20 00:26:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.84 2011/01/25 04:09:06 jchiang Exp $
  */
 
 #include <algorithm>
@@ -125,6 +125,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       int naxis1, naxis2;
       double cdelt1 = dataMap->cdelt1()/resamp_factor;
       double cdelt2 = dataMap->cdelt2()/resamp_factor;
+      size_t nx_offset(0), ny_offset(0);
       if (dataMap->conformingMap()) {
          double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
          // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
@@ -146,6 +147,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                crpix2 += 0.5;
             }
          }
+         nx_offset = (mapsize - dataMap->naxis1()*resamp_factor)/2;
+         ny_offset = (mapsize - dataMap->naxis2()*resamp_factor)/2;
       } else {
          // The counts map was not created by gtbin, so just adopt the
          // map geometry without adding padding for psf leakage since
@@ -163,7 +166,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          crpix1 = dataMap->crpix1()*resamp_factor;
          crpix2 = dataMap->crpix2()*resamp_factor;
       }
-      unsigned int indx(0);
+      size_t counter(0);
       std::vector<double>::const_iterator energy = energies.begin();
       for (int k(0); energy != energies.end(); ++energy, k++) {
          bool interpolate;
@@ -175,19 +178,37 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
                                                  *s_binnedExposure,
                                                  performConvolution));
-         std::cout << convolvedMap.nxpix() << "  "
-                   << convolvedMap.nypix() << std::endl;
-         for (pixel = pixels.begin(); pixel != pixels.end();
-              ++pixel, indx++) {
-            if (verbose && (indx % (npts/20)) == 0) {
-               m_formatter->warn() << ".";
-            }
-            if (pixel->solidAngle() > 0) {
-               m_model.at(indx) = (convolvedMap(pixel->dir())
-                                   *pixel->solidAngle());
-               m_npreds.at(k) += m_model.at(indx);
+         size_t rfac(resamp_factor);
+         double solid_angle;
+         for (size_t j(ny_offset); j < naxis2 - ny_offset; j++) {
+            for (size_t i(nx_offset); i < naxis1 - nx_offset; i++) {
+               if ((i % rfac == 0) && (j % rfac == 0)) {
+                  counter++;
+                  if (verbose && (counter % (npts/20)) == 0) {
+                     m_formatter->warn() << ".";
+                  }
+               }
+               size_t pix_index = ((j-ny_offset)/rfac)*dataMap->naxis1() 
+                  + ((i-nx_offset)/rfac);
+               solid_angle = pixels.at(pix_index).solidAngle();
+               size_t indx = (k*dataMap->naxis1()*dataMap->naxis2() +
+                              + pix_index);
+               m_model[indx] += (convolvedMap.image()[j][i]/resamp_factor
+                                 *solid_angle);
             }
          }
+
+         // for (pixel = pixels.begin(); pixel != pixels.end();
+         //      ++pixel, indx++) {
+         //    if (verbose && (indx % (npts/20)) == 0) {
+         //       m_formatter->warn() << ".";
+         //    }
+         //    if (pixel->solidAngle() > 0) {
+         //       m_model.at(indx) = (convolvedMap(pixel->dir())
+         //                           *pixel->solidAngle());
+         //       m_npreds.at(k) += m_model.at(indx);
+         //    }
+         // }
       }
 // Delete model map for map-based diffuse sources to save memory.  The
 // map will be reloaded dynamically if it is needed again.
