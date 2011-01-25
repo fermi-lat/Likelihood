@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.45 2010/06/05 06:42:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.46 2010/09/15 21:03:24 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -23,13 +23,14 @@ namespace st_stream {
 namespace Likelihood {
 
    class CountsMap;
+   class DiffuseSource;
    class PointSource;
    class Source;
 
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.45 2010/06/05 06:42:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.46 2010/09/15 21:03:24 jchiang Exp $
  */
 
 #ifdef SWIG
@@ -115,6 +116,9 @@ private:
    void computeExposureAndPsf(const Observation & observation);
 
    void computeNpredArray();
+
+   double computeResampFactor(const DiffuseSource & src,
+                              const CountsMap & dataMap) const;
 };
 
 } // namespace Likelihood

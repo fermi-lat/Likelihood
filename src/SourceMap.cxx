@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.82 2010/11/30 07:04:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.83 2011/01/20 00:26:40 jchiang Exp $
  */
 
 #include <algorithm>
@@ -108,12 +108,18 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    bool havePointSource = dynamic_cast<PointSource *>(src) != 0;
    bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
 
+   std::cout << dataMap->naxis1() << "  "
+             << dataMap->naxis2() << std::endl;
+
    if (haveDiffuseSource) {
       computeExposureAndPsf(observation);
       DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
       const astro::SkyDir & mapRefDir = dataMap->refDir();
       if (!resample) {
          resamp_factor = 1;
+      } else {
+         resamp_factor = std::max(resamp_factor, 
+                                  computeResampFactor(*diffuseSrc, *dataMap));
       }
       double crpix1, crpix2;
       int naxis1, naxis2;
@@ -169,6 +175,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
                                                  *s_binnedExposure,
                                                  performConvolution));
+         std::cout << convolvedMap.nxpix() << "  "
+                   << convolvedMap.nypix() << std::endl;
          for (pixel = pixels.begin(); pixel != pixels.end();
               ++pixel, indx++) {
             if (verbose && (indx % (npts/20)) == 0) {
@@ -413,11 +421,29 @@ void SourceMap::prepareAngleArrays(int nmu, int nphi) {
       s_phi.push_back(phistep*i);
    }
 }
-   void SourceMap::setBinnedExpMapName(const std::string & filename) {
-      s_expMapFileName = filename;
-   }
+void SourceMap::setBinnedExpMapName(const std::string & filename) {
+   s_expMapFileName = filename;
+}
 
-    const std::string & SourceMap::binnedExpMap() {
-      return s_expMapFileName;
+const std::string & SourceMap::binnedExpMap() {
+   return s_expMapFileName;
+}
+
+double SourceMap::computeResampFactor(const DiffuseSource & src,
+                                      const CountsMap & dataMap) const {
+   double data_pixel_size = std::min(std::fabs(dataMap.cdelt1()), 
+                                     std::fabs(dataMap.cdelt2()));
+   double model_pixel_size = data_pixel_size;
+   try {
+      model_pixel_size = 
+         std::min(std::fabs(src.mapBaseObject()->wcsmap().cdelt1()),
+                  std::fabs(src.mapBaseObject()->wcsmap().cdelt2()));
+   } catch (MapBaseException &) {
+      // do nothing
    }
+   double resamp_factor = 
+      std::max(2, static_cast<int>(data_pixel_size/model_pixel_size));
+   return resamp_factor;
+}
+
 } // namespace Likelihood
