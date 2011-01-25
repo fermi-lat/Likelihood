@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.395 2011/01/24 01:10:01 jchiang Exp $
+    $Id: release.notes,v 1.396 2011/01/24 05:55:52 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-04-00 25-Jan-2011 jchiang In SourceMaps and WcsMap: compute minimal resampling factor based on model and counts map pixel sizes
  Likelihood-17-03-02 23-Jan-2011 jchiang use 3-point formula for numerical deriv in binned test
  Likelihood-17-03-01 23-Jan-2011 jchiang adjust accuracy of numerical deriv calculation in binned test
  Likelihood-17-03-00 20-Jan-2011 jchiang make trapezoidal rule integration in log-log space the default behavior for the binned Npred calculations
