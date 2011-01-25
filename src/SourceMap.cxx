@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.85 2011/01/25 07:56:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.86 2011/01/25 16:42:57 jchiang Exp $
  */
 
 #include <algorithm>
@@ -123,6 +123,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       double cdelt1 = dataMap->cdelt1()/resamp_factor;
       double cdelt2 = dataMap->cdelt2()/resamp_factor;
       size_t nx_offset(0), ny_offset(0);
+      size_t nx_offset_upper(0), ny_offset_upper(0);
       if (dataMap->conformingMap()) {
          double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
          // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
@@ -133,19 +134,23 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          naxis2 = mapsize;
          crpix1 = (naxis1 + 1.)/2.;
          crpix2 = (naxis2 + 1.)/2.;
+         nx_offset = (mapsize - dataMap->naxis1()*resamp_factor)/2;
+         ny_offset = (mapsize - dataMap->naxis2()*resamp_factor)/2;
+         nx_offset_upper = (mapsize - dataMap->naxis1()*resamp_factor)/2;
+         ny_offset_upper = (mapsize - dataMap->naxis2()*resamp_factor)/2;
          if (!resample) { 
             // Use integer or half-integer reference pixel based on
             // input counts map, even though naxis1 and naxis2 both
             // must be even.
             if (dataMap->naxis1() % 2 == 1) {
                crpix1 += 0.5;
+               nx_offset += 1;
             }
             if (dataMap->naxis2() % 2 == 1) {
                crpix2 += 0.5;
+               ny_offset += 1;
             }
          }
-         nx_offset = (mapsize - dataMap->naxis1()*resamp_factor)/2;
-         ny_offset = (mapsize - dataMap->naxis2()*resamp_factor)/2;
       } else {
          // The counts map was not created by gtbin, so just adopt the
          // map geometry without adding padding for psf leakage since
@@ -162,6 +167,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          }
          crpix1 = dataMap->crpix1()*resamp_factor;
          crpix2 = dataMap->crpix2()*resamp_factor;
+         nx_offset_upper += 1;
+         ny_offset_upper += 1;
       }
       size_t counter(0);
       std::vector<double>::const_iterator energy = energies.begin();
@@ -177,8 +184,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                                                  performConvolution));
          size_t rfac(resamp_factor);
          double solid_angle;
-         for (size_t j(ny_offset); j < naxis2 - ny_offset; j++) {
-            for (size_t i(nx_offset); i < naxis1 - nx_offset; i++) {
+         for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
+            for (size_t i(nx_offset); i < naxis1 - nx_offset_upper; i++) {
                if ((i % rfac == 0) && (j % rfac == 0)) {
                   counter++;
                   if (verbose && (counter % (npts/20)) == 0) {
