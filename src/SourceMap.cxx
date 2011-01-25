@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.84 2011/01/25 04:09:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.85 2011/01/25 07:56:10 jchiang Exp $
  */
 
 #include <algorithm>
@@ -108,9 +108,6 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    bool havePointSource = dynamic_cast<PointSource *>(src) != 0;
    bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
 
-   std::cout << dataMap->naxis1() << "  "
-             << dataMap->naxis2() << std::endl;
-
    if (haveDiffuseSource) {
       computeExposureAndPsf(observation);
       DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
@@ -193,7 +190,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                solid_angle = pixels.at(pix_index).solidAngle();
                size_t indx = (k*dataMap->naxis1()*dataMap->naxis2() +
                               + pix_index);
-               m_model[indx] += (convolvedMap.image()[j][i]/resamp_factor
+               m_model[indx] += (convolvedMap.image()[j][i]
+                                 /resamp_factor/resamp_factor
                                  *solid_angle);
             }
          }
