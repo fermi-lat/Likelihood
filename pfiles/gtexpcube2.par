@@ -1,4 +1,4 @@
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpcube2.par,v 1.6 2010/12/09 22:50:06 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpcube2.par,v 1.7 2011/01/04 04:58:18 jchiang Exp $
 #
 # General parameters.
 infile,f,a,"",,,"Livetime cube file"
@@ -25,6 +25,7 @@ ebinfile,s,a,NONE,,,"Name of FITS file containing the energy bin definition"
 bincalc,s,h,"EDGE",EDGE|CENTER,,"Energy values as bounds or logrithmic centers of energy bins"
 ignorephi,     b, h, "no", , , "Ignore phi information in Livetime cube"
 thmax, r, h, 180,,,"Maximum off-axis angle to include in effective area integration"
+thmin, r, h, 0,,,"Minimum off-axis angle to include in effective area integration"
 table,         s, h, "EXPOSURE",,,"Exposure cube extension"
 
 chatter,i,h,2,0,4,Output verbosity
