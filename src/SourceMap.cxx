@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.86 2011/01/25 16:42:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.87 2011/01/25 22:16:11 jchiang Exp $
  */
 
 #include <algorithm>
@@ -118,6 +118,8 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          resamp_factor = std::max(resamp_factor, 
                                   computeResampFactor(*diffuseSrc, *dataMap));
       }
+      m_formatter->info(4) << "resampling factor: " 
+                           << resamp_factor << std::endl;
       double crpix1, crpix2;
       int naxis1, naxis2;
       double cdelt1 = dataMap->cdelt1()/resamp_factor;
