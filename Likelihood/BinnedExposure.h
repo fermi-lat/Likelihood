@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.15 2010/11/30 07:04:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.16 2010/12/09 22:50:05 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -109,18 +109,20 @@ private:
    std::vector<long> m_naxes;
 
    double m_costhmin;
+   double m_costhmax;
 
    void computeMap();
 
    class Aeff : public ExposureCube::Aeff {
    public:
       Aeff(double energy, int evtType, const Observation & observation,
-           double costhmin) 
+           double costhmin, double costhmax) 
          : ExposureCube::Aeff(energy, evtType, observation),
-           m_costhmin(costhmin) {}
+           m_costhmin(costhmin), m_costhmax(costhmax) {}
       virtual double operator()(double cosTheta, double phi=0) const;
    private:
       double m_costhmin;
+      double m_costhmax;
    };
    
 };
