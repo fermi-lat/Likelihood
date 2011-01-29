@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.74 2010/05/18 18:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.75 2010/09/15 23:47:44 jchiang Exp $
  */
 
 #include <cmath>
@@ -73,6 +73,15 @@ double LogLike::value(optimizers::Arg&) const {
 //    if (::getenv("BYPASS_ACCUMULATOR")) {
 //       return my_value;
 //    }
+
+/// Add in contribution from priors.
+   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
+   for ( ; par != m_parameter.end(); ++par) {
+      if (par->isFree()) {
+         my_total += par->log_prior();
+      }
+   }
+
    saveBestFit(my_total);
    return my_total;
 }
@@ -211,6 +220,16 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
    for (size_t i = 0; i < NpredDerivs.size(); i++) {
       freeDerivs.push_back(logSrcModelDerivs.at(i) - NpredDerivs.at(i));
    }
+
+   /// Derivatives from priors.
+   size_t i(0);
+   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
+   for ( ; par != m_parameter.end(); ++par) {
+      if (par->isFree()) {
+         freeDerivs[i] += par->log_prior_deriv();
+         i++;
+      }
+   }
 }
 
 void LogLike::addSource(Source * src) {
@@ -331,6 +350,12 @@ void LogLike::saveCurrentFit() {
    m_bestValueSoFar = -1e38;
    optimizers::Arg dummy;
    saveBestFit(value(dummy));
+}
+
+void LogLike::addPrior(size_t index,
+                       optimizers::Function & log_prior,
+                       optimizers::Function & log_prior_deriv) {
+   m_parameter[index].setPrior(log_prior, log_prior_deriv);
 }
 
 } // namespace Likelihood
