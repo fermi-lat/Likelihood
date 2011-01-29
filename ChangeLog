@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 28 22:53:03 PST 2011
+ScienceTools-scons/Likelihood/Likelihood
+
+Modified Files:
+	LogLike.h 
+Added Files:
+	LogGaussian.h LogGaussianDeriv.h 
+Log Message:
+add LogLike::addPrior and prior handling; add LogGaussian and LogGaussianDeriv classes
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-17-04-02, operation: add
 Package: Likelihood
