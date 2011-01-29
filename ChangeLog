@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Fri Jan 28 22:53:04 PST 2011
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	LogLike.cxx 
+Added Files:
+	LogGaussian.cxx LogGaussianDeriv.cxx 
+Log Message:
+add LogLike::addPrior and prior handling; add LogGaussian and LogGaussianDeriv classes
+    *
+------------------------------------------------------------
 User: jchiang  Fri Jan 28 22:53:03 PST 2011
 ScienceTools-scons/Likelihood/Likelihood
 
