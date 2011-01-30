@@ -3,7 +3,7 @@
  * @brief Implementation for the LogGaussian Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogGaussian.cxx,v 1.7 2009/01/19 15:18:18 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogGaussian.cxx,v 1.1 2011/01/29 06:53:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -86,9 +86,13 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
    return 0;
 }
 
-double LogGaussian::integral(optimizers::Arg & x_min, 
-                           optimizers::Arg & x_max) const {
-   return 0;
+double LogGaussian::derivative(optimizers::Arg & xarg) const {
+   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+   enum ParamTypes {Norm, Mean, Sigma};
+   double norm = m_parameter[Norm].getTrueValue();
+   double mean = m_parameter[Mean].getTrueValue();
+   double sigma = m_parameter[Sigma].getTrueValue();
+   return norm*(-(x - mean)/sigma/sigma);
 }
 
 } // namespace Likelihood
