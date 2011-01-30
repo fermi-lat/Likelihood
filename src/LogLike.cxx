@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.75 2010/09/15 23:47:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.76 2011/01/29 06:53:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -78,7 +78,7 @@ double LogLike::value(optimizers::Arg&) const {
    std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
    for ( ; par != m_parameter.end(); ++par) {
       if (par->isFree()) {
-         my_total += par->log_prior();
+         my_total += par->log_prior_value();
       }
    }
 
@@ -353,9 +353,8 @@ void LogLike::saveCurrentFit() {
 }
 
 void LogLike::addPrior(size_t index,
-                       optimizers::Function & log_prior,
-                       optimizers::Function & log_prior_deriv) {
-   m_parameter[index].setPrior(log_prior, log_prior_deriv);
+                       optimizers::Function & log_prior) {
+   m_parameter[index].setPrior(log_prior);
 }
 
 } // namespace Likelihood
