@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Tue Feb  1 14:03:52 PST 2011
+Likelihood/src
+
+Modified Files:
+	BinnedLikelihood.cxx 
+Log Message:
+add the prior meachanism to BinnedLikelihood
+    *
+------------------------------------------------------------
 User: cohen  Tue Feb  1 14:03:37 PST 2011
 Likelihood/src/dmfit
 
