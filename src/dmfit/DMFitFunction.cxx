@@ -2,7 +2,7 @@
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.9 2009/08/07 16:29:17 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.10 2010/12/17 00:55:37 kadrlica Exp $
  */
 
 #include <cmath>
@@ -50,7 +50,7 @@ static  enum  {norm,sigmav,mass,bratio,channel0,channel1} ParamType;
    addParam("channel0", channel0, false);
    addParam("channel1", channel1, false);
 
-   setParamAlwaysFixed("norm");
+   //setParamAlwaysFixed("norm");
    setParamAlwaysFixed("channel0");
    setParamAlwaysFixed("channel1");
 
