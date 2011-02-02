@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.399 2011/01/28 22:29:02 jchiang Exp $
+    $Id: release.notes,v 1.400 2011/02/02 06:58:48 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-05-01 02-Feb-2011 jchiang bug-fix for including priors from fixed params in likelihood calculations
  Likelihood-17-05-00 01-Feb-2011 jchiang enable priors on individual parameters
  Likelihood-17-04-02 28-Jan-2011 jchiang used ifdefs in test program to avoid f2c'd code for Mac builds in RM
  Likelihood-17-04-01 26-Jan-2011 jchiang add thmin to gtexpcube2; write out resampling factor in gtsrcmaps when chatter=4
