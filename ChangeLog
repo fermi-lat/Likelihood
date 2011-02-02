@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Tue Feb  1 17:21:49 PST 2011
+ScienceTools-scons/Likelihood/src/test
+
+Modified Files:
+	XmlDiff.cxx 
+Log Message:
+using XERCES_CPP_NAMESPACE_QUALIFIER
+    *
+------------------------------------------------------------
+User: jchiang  Tue Feb  1 17:21:49 PST 2011
 ScienceTools-scons/Likelihood/src/gtmodelmap
 
 Modified Files:
