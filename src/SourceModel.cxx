@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.89 2010/05/18 16:01:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.90 2010/07/07 01:05:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,7 +41,9 @@
 
 namespace Likelihood {
 
-XERCES_CPP_NAMESPACE_USE
+//XERCES_CPP_NAMESPACE_USE
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 SourceModel::SourceModel(const Observation & observation, bool verbose) 
    : m_observation(observation), m_useNewImp(true), m_verbose(verbose), 

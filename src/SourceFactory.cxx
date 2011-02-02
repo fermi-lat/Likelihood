@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.66 2010/06/19 22:26:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.67 2010/07/07 01:05:30 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -37,7 +37,9 @@
 
 namespace Likelihood {
 
-XERCES_CPP_NAMESPACE_USE
+//XERCES_CPP_NAMESPACE_USE
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 SourceFactory::SourceFactory(const Observation & observation, bool verbose) 
    : m_verbose(verbose), m_observation(observation), 

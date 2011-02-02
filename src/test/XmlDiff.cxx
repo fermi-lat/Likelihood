@@ -3,7 +3,7 @@
  * @brief Class to compare two XML files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/XmlDiff.cxx,v 1.3 2005/01/03 23:01:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/XmlDiff.cxx,v 1.4 2010/06/16 22:49:55 jchiang Exp $
  */
 
 #include <cstdio>
@@ -15,7 +15,9 @@
 
 #include "XmlDiff.h"
 
-XERCES_CPP_NAMESPACE_USE
+//XERCES_CPP_NAMESPACE_USE
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 XmlDiff::XmlDiff(std::string file1, std::string file2,
                  const std::string & tagName, const std::string & attribute) 
