@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Tue Feb  1 17:21:48 PST 2011
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	SourceFactory.cxx SourceModel.cxx 
+Log Message:
+using XERCES_CPP_NAMESPACE_QUALIFIER
+    *
+------------------------------------------------------------
 User: cohen  Tue Feb  1 14:03:52 PST 2011
 Likelihood/src
 
