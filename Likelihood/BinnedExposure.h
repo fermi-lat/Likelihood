@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.17 2011/01/26 07:26:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.18 2011/02/04 05:14:18 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -41,7 +41,7 @@ class BinnedExposure {
 
 public:
 
-   // BinnedExposure();
+   BinnedExposure();
 
    BinnedExposure(const CountsMap & cmap, 
                   const Observation & observation, 
