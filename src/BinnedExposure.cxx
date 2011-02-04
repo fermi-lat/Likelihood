@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.34 2010/12/09 22:50:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.35 2011/01/26 07:26:57 jchiang Exp $
  */
 
 #include <cmath>
@@ -59,12 +59,13 @@ namespace {
 
 namespace Likelihood {
 
-BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0), 
-                                   m_costhmin(-1), m_costhmax(1) {}
+// BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0), 
+//                                    m_costhmin(-1), m_costhmax(1) {}
 
 BinnedExposure::BinnedExposure(const CountsMap & cmap,
                                const Observation & observation,
-                               bool useEbounds) 
+                               bool useEbounds,
+                               const st_app::AppParGroup * pars)
    : m_observation(&observation), m_proj(0), m_costhmin(-1), m_costhmax(1) {
    setMapGeometry(cmap);
    if (!useEbounds) {
@@ -73,6 +74,9 @@ BinnedExposure::BinnedExposure(const CountsMap & cmap,
       }
       m_energies.pop_back();
       m_naxes[2] -= 1;
+   }
+   if (pars) {
+      setCosThetaBounds(*pars);
    }
    computeMap();
 }
@@ -84,6 +88,7 @@ BinnedExposure::BinnedExposure(const std::vector<double> & energies,
      m_costhmin(-1), m_costhmax(1) {
    if (pars) {
       setMapGeometry(*pars);
+      setCosThetaBounds(*pars);
    } else {
       setMapGeometry();
    }
@@ -173,14 +178,6 @@ void BinnedExposure::setMapGeometry(const st_app::AppParGroup & pars) {
    m_crpix[1] = m_naxes[1]/2. + 0.5;
    std::string coordsys = pars["coordsys"];
    m_isGalactic = (coordsys == "GAL");
-   double thmin = pars["thmin"];
-   if (thmin > 0) {
-      m_costhmax = std::cos(thmin*M_PI/180.);
-   }
-   double thmax = pars["thmax"];
-   if (thmax < 180.) {
-      m_costhmin = std::cos(thmax*M_PI/180.);
-   }
 }
 
 void BinnedExposure::setMapGeometry() {
@@ -299,6 +296,17 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    }
 
    delete table;
+}
+
+void BinnedExposure::setCosThetaBounds(const st_app::AppParGroup & pars) {
+   double thmin = pars["thmin"];
+   if (thmin > 0) {
+      m_costhmax = std::cos(thmin*M_PI/180.);
+   }
+   double thmax = pars["thmax"];
+   if (thmax < 180.) {
+      m_costhmin = std::cos(thmax*M_PI/180.);
+   }
 }
 
 double BinnedExposure::Aeff::operator()(double cosTheta, double phi) const {

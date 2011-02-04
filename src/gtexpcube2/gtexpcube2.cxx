@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.10 2010/12/08 07:29:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.11 2011/01/04 04:58:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -96,7 +96,8 @@ void ExpCube::run() {
 // Create map to match counts map.
       m_helper->checkTimeCuts(cmap_file, "", ltcube_file, "Exposure");
       CountsMap cmap(cmap_file);
-      BinnedExposure bexpmap(cmap, m_helper->observation(), useEbounds);
+      BinnedExposure bexpmap(cmap, m_helper->observation(), useEbounds, 
+                             &m_pars);
       bexpmap.writeOutput(m_pars["outfile"]);
       return;
    }
