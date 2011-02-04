@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.35 2011/01/26 07:26:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.36 2011/02/04 05:14:20 jchiang Exp $
  */
 
 #include <cmath>
@@ -59,8 +59,8 @@ namespace {
 
 namespace Likelihood {
 
-// BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0), 
-//                                    m_costhmin(-1), m_costhmax(1) {}
+BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0), 
+                                   m_costhmin(-1), m_costhmax(1) {}
 
 BinnedExposure::BinnedExposure(const CountsMap & cmap,
                                const Observation & observation,
