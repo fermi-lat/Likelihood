@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.16 2010/12/09 22:50:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.17 2011/01/26 07:26:55 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -41,11 +41,12 @@ class BinnedExposure {
 
 public:
 
-   BinnedExposure();
+   // BinnedExposure();
 
    BinnedExposure(const CountsMap & cmap, 
                   const Observation & observation, 
-                  bool useEbounds=true);
+                  bool useEbounds=true,
+                  const st_app::AppParGroup * pars=0);
 
    BinnedExposure(const std::vector<double> & energies,
                   const Observation & observation,
@@ -110,6 +111,8 @@ private:
 
    double m_costhmin;
    double m_costhmax;
+
+   void setCosThetaBounds(const st_app::AppParGroup & pars);
 
    void computeMap();
 
