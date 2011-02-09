@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction.cxx,v 1.32 2010/07/07 01:05:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction.cxx,v 1.33 2010/09/24 18:15:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -113,12 +113,12 @@ MapCubeFunction::~MapCubeFunction() {
 //   delete m_proj;
 }
 
-double MapCubeFunction::value(optimizers::Arg & x) const {
+double MapCubeFunction::value(optimizers::Arg & xarg) const {
    if (m_image.size() == 0) {
       return 0;
    }
 
-   SkyDirArg & dir = dynamic_cast<SkyDirArg &>(x);
+   SkyDirArg & dir = dynamic_cast<SkyDirArg &>(xarg);
    double energy = dir.energy();
 
    size_t k = findIndex(m_energies, energy) - 1;
@@ -126,35 +126,74 @@ double MapCubeFunction::value(optimizers::Arg & x) const {
 
    std::pair<double, double> pixel = dir().project(*m_proj);
 
-// NB: wcslib (through astro::SkyProj) starts indexing pixels with
-// 1, not 0, so apply correction here to avoid off-by-one error.
-   int i = static_cast<int>(::my_round(pixel.first)) - 1;
-   int j = static_cast<int>(::my_round(pixel.second)) - 1;
+   double x(pixel.first);
+   double y(pixel.second);
 
-   if (m_isPeriodic && i >= m_nlon) {
-      i -= m_nlon;
+   if (m_isPeriodic) {
+      x = std::fmod(x, m_nlon);
    }
 
-   if ((!m_isPeriodic && (i < 0 || i >= m_nlon)) 
-       || j < 0 || j >= m_nlat) {
+   if ((!m_isPeriodic && (x < 0.5 || x > m_nlon + 0.5)) ||
+       y < 0.5 || y > m_nlat + 0.5) {
+      // Sky location is outside of map, so do not extrapolate and return 0.
       return 0;
    }
-   if (i < 0 && i >= -1) {
-      i = 0;
+
+// This code tries to do a bilinear interpolation on the pixel values.
+   int ix(static_cast<int>(x));
+   int iy(static_cast<int>(y));
+
+// Points within half a pixel of the edges of the map need to be
+// extrapolated in the context of the bilinear scheme, even though
+// they are formally inside the map.
+   if (!m_isPeriodic) {
+      if (ix < 1) {
+         ix = 1;
+      }
+      if (ix >= m_nlon) {
+         ix = m_nlon - 1;
+      }
    }
-
-   int indx = (k*m_nlat + j)*m_nlon + i;
-   try {
-      double y1 = m_image.at(indx);
-      double y2 = m_image.at(indx + m_nlon*m_nlat);
-
-      double value = ::interpolatePowerLaw(energy, m_energies.at(k),
+   if (iy < 1) {
+      iy = 1;
+   }
+   if (iy >= m_nlat) {
+      iy = m_nlat - 1;
+   }
+   
+// Perform bilinear interpolation for the image planes that bracket
+// the desired energy.
+   double y1 = bilinear_interpolation(k, ix, iy, x, y);
+   double y2 = bilinear_interpolation(k + 1, ix, iy, x, y);
+   if (y1 == 0 || y2 == 0) {
+      return 0;
+   }
+   double value = ::interpolatePowerLaw(energy, m_energies.at(k),
                                            m_energies.at(k+1), y1, y2);
-      return value*getParam("Normalization").getTrueValue();
-   } catch (std::exception &) {
-      return 0;
-   }
+   return value*getParam("Normalization").getTrueValue();
 }
+
+double MapCubeFunction::
+bilinear_interpolation(size_t k, int ix, int iy, double x, double y) const {
+   double tt(x - ix);
+   double uu(y - iy);
+
+   double y1, y4;
+
+   if (m_isPeriodic && ix == 0) {
+      y1 = m_image.at((k*m_nlat + iy - 1)*m_nlon + m_nlon - 1);
+      y4 = m_image.at((k*m_nlat + iy)*m_nlon + m_nlon - 1);
+   } else {
+      y1 = m_image.at((k*m_nlat + iy - 1)*m_nlon + ix - 1);
+      y4 = m_image.at((k*m_nlat + iy)*m_nlon + ix - 1);
+   }
+   double y2(m_image.at((k*m_nlat + iy - 1)*m_nlon + ix));
+   double y3(m_image.at((k*m_nlat + iy)*m_nlon + ix));
+   
+   double value((1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
+                + tt*uu*y3 + (1. - tt)*uu*y4);
+   return value;
+}                                               
 
 void MapCubeFunction::init() {
    setMaxNumParams(1);
