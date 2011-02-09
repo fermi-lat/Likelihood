@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.401 2011/02/02 19:07:22 jchiang Exp $
+    $Id: release.notes,v 1.402 2011/02/04 17:08:14 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-05-03 09-Feb-2011 jchiang fix offset in MapCubeFunction.cxx---same as fix previously applied in WscMap.cxx
  Likelihood-17-05-02 04-Feb-2011 jchiang enable thmin, thmax for ccube geometry input for gtexpcube2
  Likelihood-17-05-01 02-Feb-2011 jchiang bug-fix for including priors from fixed params in likelihood calculations
  Likelihood-17-05-00 01-Feb-2011 jchiang enable priors on individual parameters
