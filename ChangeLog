@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Wed Feb  9 15:11:50 PST 2011
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	MapCubeFunction.cxx 
+Log Message:
+pixel offset fixes for MapCubeFunction (similar to those in WcsMap
+    *
+------------------------------------------------------------
+User: jchiang  Wed Feb  9 15:11:50 PST 2011
 ScienceTools-scons/Likelihood/Likelihood
 
 Modified Files:
