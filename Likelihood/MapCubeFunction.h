@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction.h,v 1.11 2009/03/11 04:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction.h,v 1.12 2010/07/07 01:05:29 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction_h
@@ -26,7 +26,7 @@ namespace Likelihood {
  * a function of position on the sky.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction.h,v 1.11 2009/03/11 04:34:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction.h,v 1.12 2010/07/07 01:05:29 jchiang Exp $
  */
 
 class MapCubeFunction : public optimizers::Function, public MapBase {
@@ -97,6 +97,9 @@ private:
    double powerLawIntegral(double x1, double x2, double y1, double y2) const;
 
    void computeMapIntegrals();
+
+   double bilinear_interpolation(size_t k, int ix, int iy,
+                                 double x, double y) const;
 };
 
 } // namespace Likelihood
