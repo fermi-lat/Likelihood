@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.36 2011/02/04 05:14:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.37 2011/02/04 17:06:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -276,7 +276,11 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    int nee = m_energies.size();
    header["CRVAL3"].set(log(m_energies.at(0)));
    header["CRPIX3"].set(1);
-   header["CDELT3"].set(log(m_energies.at(nee-1)/m_energies.at(0))/(nee-1));
+   if (nee == 1) {
+      header["CDELT3"].set(0);
+   } else {
+      header["CDELT3"].set(log(m_energies.at(nee-1)/m_energies.at(0))/(nee-1));
+   }
    header["CTYPE3"].set("log_Energy");
 
    delete image;
