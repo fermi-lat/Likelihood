@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Thu Feb 17 14:09:43 PST 2011
+Likelihood/Likelihood
+
+Modified Files:
+	Composite2.h 
+Log Message:
+add correct syncing of m_parameter member and getParams method
+    *
+------------------------------------------------------------
 User: cohen  Thu Feb 17 14:09:42 PST 2011
 Likelihood/src
 
