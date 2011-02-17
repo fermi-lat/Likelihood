@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Composite2.h,v 1.3 2010/07/10 06:12:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Composite2.h,v 1.4 2010/07/10 17:02:24 jchiang Exp $
  */
 
 #ifndef Likelihood_Composite2_h
@@ -41,6 +41,7 @@ public:
 
    virtual double value() const;
    virtual void getFreeParams(std::vector<optimizers::Parameter> &params) const;
+   virtual void fetchParamValues(std::vector<double> &values, bool getFree) const;
    virtual void setFreeParamValues(const std::vector<double> & values);
    virtual unsigned int getNumFreeParams() const;
    virtual void getFreeDerivs(std::vector<double> & derivs) const;
@@ -66,6 +67,8 @@ public:
    void syncParams();
 
    double NpredValue(const std::string &) const {return 0;}
+
+   TiedParameter* getTiedParam(const LogLike & like, size_t i);
 
 protected:
 
