@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Thu Feb 17 14:09:42 PST 2011
+Likelihood/src
+
+Modified Files:
+	Composite2.cxx 
+Log Message:
+add correct syncing of m_parameter member and getParams method
+    *
+------------------------------------------------------------
 TAG
 Tag name: Likelihood-17-05-05, operation: add
 Package: Likelihood
