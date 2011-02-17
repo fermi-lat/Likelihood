@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.4 2010/07/10 06:12:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Composite2.cxx,v 1.5 2010/07/10 17:02:25 jchiang Exp $
  */
 
 #include <algorithm>
@@ -78,6 +78,18 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
    }
 }
 
+  void Composite2::fetchParamValues(std::vector<double> &values, bool getFree) const {
+    if (!values.empty()) values.clear();
+    std::vector<optimizers::Parameter> params;
+    if(getFree)
+      getFreeParams(params);
+    else
+      getParams(params);
+    for(int i=0;i<params.size();i++){
+      values.push_back(params.at(i).getValue());
+    }
+  }
+
 void Composite2::
 setFreeParamValues(const std::vector<double> & values) {
    if (m_components.empty()) {
@@ -132,16 +144,27 @@ void Composite2::setErrors(const std::vector<double> & errors) {
 }
 
 void Composite2::syncParams() {
+   m_parameter.clear();
    for (ComponentIterator_t it(m_components.begin()); 
         it != m_components.end(); ++it) {
+      const std::vector<size_t> & tiedPars(it->second);
       std::vector<optimizers::Parameter> freePars;
       const std::vector<optimizers::Parameter> & pars(it->first->parameters());
       for (size_t i(0); i < pars.size(); i++) {
          if (pars.at(i).isFree()) {
             freePars.push_back(pars.at(i));
          }
+	 //Fill the optimizers::Function m_parameter vector component 
+	 //by component, leaving the tied parameters for the end 
+         if (std::count(tiedPars.begin(), tiedPars.end(), i) == 0) {
+            m_parameter.push_back(pars.at(i));
+         }
       }
       it->first->setFreeParams(freePars);
+   }
+   //Now fill m_parameter with the tied parameters.
+   for (size_t i(0); i < m_tiedPars.size(); i++) {
+     m_parameter.push_back(*m_tiedPars.at(i));
    }
 }
 
@@ -250,4 +273,13 @@ int Composite2::findIndex(const LogLike & like, size_t par_index) const {
    return -1;
 }
 
+  TiedParameter* Composite2::getTiedParam(const LogLike & like, size_t i) {
+    std::vector<TiedParameter *>::const_iterator tp 
+                  = m_tiedPars.begin();
+    for (; tp != m_tiedPars.end(); ++tp) {
+      if((*tp)->has_member(like,i))
+	return *tp;
+    }
+  }
+  
 } // namespace Likleihood
