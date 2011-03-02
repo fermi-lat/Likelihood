@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.86 2011/01/29 19:27:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.87 2011/01/30 00:30:58 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -15,6 +15,8 @@
 
 #include "st_stream/StreamFormatter.h"
 
+#include "astro/SkyDir.h"
+
 #include "st_facilities/Util.h"
 
 #include "dataSubselector/CutBase.h"
@@ -22,8 +24,10 @@
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BandFunction.h"
+#include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BrokenPowerLaw2.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
+#include "Likelihood/CountsMap.h"
 #include "Likelihood/EblAtten.h"
 #include "Likelihood/EventContainer.h"
 #include "Likelihood/ExpCutoff.h"
@@ -603,6 +607,56 @@ AppHelpers::gtiCuts(const dataSubselector::Cuts & cuts) {
       my_gtiCuts.addCut(*gti_cuts.at(i));
    }
    return my_gtiCuts;
+}
+
+void AppHelpers::
+checkExposureMap(const std::string & cmapfile,
+                 const std::string & emapfile) {
+   CountsMap cmap(cmapfile);
+   BinnedExposure emap(emapfile);
+   
+   double energy(emap.energies()[0]);
+
+   std::vector<size_t> ii, jj;
+
+   size_t i;
+   size_t j(1);
+   for (i=1; i < cmap.naxis1() + 1; i++) {
+      ii.push_back(i);
+      jj.push_back(j);
+   }
+
+   i = cmap.naxis1();
+   for (; j < cmap.naxis2() + 1; j++) {
+      ii.push_back(i);
+      jj.push_back(j);
+   }
+
+   j = cmap.naxis2();
+   for (; i > 0; i--) {
+      ii.push_back(i);
+      jj.push_back(j);
+   }
+   
+   i = 1;
+   for (; j > 0; j--) {
+      ii.push_back(i);
+      jj.push_back(j);
+   }
+   for (size_t indx(0); indx < ii.size(); indx++) {
+      astro::SkyDir my_dir;
+      st_facilities::Util::pixel2SkyDir(cmap.projection(), ii[indx], jj[indx], my_dir);
+      try {
+         emap(energy, my_dir.ra(), my_dir.dec());
+      } catch (std::runtime_error & eObj) {
+         if (st_facilities::Util::
+             expectedException(eObj, "outside of the map boundaries")) {
+            throw std::runtime_error("Counts map not covered by exposure map.");
+         } else {
+            throw;
+         }
+      }
+   }
 }
 
 } // namespace Likelihood

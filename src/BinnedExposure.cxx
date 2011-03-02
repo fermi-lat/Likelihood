@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.37 2011/02/04 17:06:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.38 2011/02/11 20:56:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -60,13 +60,15 @@ namespace {
 namespace Likelihood {
 
 BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0), 
-                                   m_costhmin(-1), m_costhmax(1) {}
+                                   m_costhmin(-1), m_costhmax(1),
+                                   m_enforce_boundaries(false) {}
 
 BinnedExposure::BinnedExposure(const CountsMap & cmap,
                                const Observation & observation,
                                bool useEbounds,
                                const st_app::AppParGroup * pars)
-   : m_observation(&observation), m_proj(0), m_costhmin(-1), m_costhmax(1) {
+   : m_observation(&observation), m_proj(0), m_costhmin(-1), m_costhmax(1),
+     m_enforce_boundaries(false) {
    setMapGeometry(cmap);
    if (!useEbounds) {
       for (size_t k(0); k < m_energies.size()-1; k++) {
@@ -85,7 +87,7 @@ BinnedExposure::BinnedExposure(const std::vector<double> & energies,
                                const Observation & observation,
                                const st_app::AppParGroup * pars) 
    : m_energies(energies), m_observation(&observation), m_proj(0),
-     m_costhmin(-1), m_costhmax(1) {
+     m_costhmin(-1), m_costhmax(1),m_enforce_boundaries(false)  {
    if (pars) {
       setMapGeometry(*pars);
       setCosThetaBounds(*pars);
@@ -96,7 +98,8 @@ BinnedExposure::BinnedExposure(const std::vector<double> & energies,
 }
 
 BinnedExposure::BinnedExposure(const std::string & filename) 
-   : m_observation(0), m_proj(0), m_costhmin(-1), m_costhmax(1) {
+   : m_observation(0), m_proj(0), m_costhmin(-1), m_costhmax(1),
+     m_enforce_boundaries(false) {
    m_proj = new astro::SkyProj(filename);
 
    std::auto_ptr<const tip::Image> 
@@ -132,16 +135,20 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
    st_facilities::Util::skyDir2pixel(*m_proj, astro::SkyDir(ra, dec),
                                      pixel.first, pixel.second);
 
-   int i = static_cast<int>(pixel.first) - 1;
-   int j = static_cast<int>(pixel.second) - 1;
+   int i = static_cast<int>(pixel.first - 1);
+   int j = static_cast<int>(pixel.second - 1);
 
    unsigned int indx = (k*m_naxes.at(1) + j)*m_naxes.at(0) + i;
 
    try {
       return m_exposureMap.at(indx);
    } catch (std::out_of_range &) {
-      return 0;
+      if (m_enforce_boundaries) {
+         throw std::runtime_error("Request for exposure at a sky position that "
+                                  "is outside of the map boundaries.");
+      }
    }
+   return 0;
 }
 
 void BinnedExposure::setMapGeometry(const CountsMap & cmap) {

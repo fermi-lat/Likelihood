@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.34 2009/01/27 00:25:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.35 2011/01/29 19:27:43 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.34 2009/01/27 00:25:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.35 2011/01/29 19:27:43 jchiang Exp $
  */
 
 class AppHelpers {
@@ -135,6 +135,12 @@ public:
                                    std::vector<size_t> & selectedEvtTypes);
 
    static void addFunctionPrototypes(optimizers::FunctionFactory * funcFactory);
+
+   /// Compare the geometry of a binned exposure map to the counts
+   /// (our source) map it is intended to serve.  Raise an exception
+   /// if the exposure map does not cover the counts map.
+   static void checkExposureMap(const std::string & cmapfile,
+                                const std::string & emapfile);
 
 protected:
 
