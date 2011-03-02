@@ -6,7 +6,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CompositeLikelihood.cxx,v 1.8 2008/11/26 23:35:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.9 2010/05/17 21:17:49 jchiang Exp $
  */
 
 #include <iostream>
@@ -111,11 +111,23 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
 }
 
 void CompositeLikelihood::
+fetchParamValues(std::vector<double> &values, bool getFree) const {
+  if (!values.empty()) values.clear();
+  std::vector<optimizers::Parameter> params;
+  if(getFree)
+    getFreeParams(params);
+  else
+    getParams(params);
+  for(int i=0;i<params.size();i++){
+    values.push_back(params.at(i).getValue());
+  }
+}
+
+void CompositeLikelihood::
 setFreeParamValues(const std::vector<double> & values) {
    if (m_components.empty()) {
       throw std::runtime_error("getFreeParams: empty composite list");
    }
-
 // Loop over LogLike components and set the free Parameters for all of
 // the Sources, except for the common source types, which we handle
 // at the end.
@@ -136,7 +148,6 @@ setFreeParamValues(const std::vector<double> & values) {
          }
       }
    }
-
 // Set the common source parameters for the first component, saving the
 // values for the non-normPar parameters for the later components.
    it = m_components.begin();
@@ -156,6 +167,7 @@ setFreeParamValues(const std::vector<double> & values) {
          ++vals;
       }
    }
+
 
 // Loop over remaining LogLike components, setting the common source
 // type params for all components and the normalization parameters
@@ -180,10 +192,23 @@ setFreeParamValues(const std::vector<double> & values) {
 }
 
 void CompositeLikelihood::syncParams() {
+   m_parameter.clear();
+   optimizers::Parameter saved_par;
    for (ComponentIterator_t it(m_components.begin()); 
         it != m_components.end(); ++it) {
       it->first->syncParams();
+      const std::vector<optimizers::Parameter> & pars(it->first->parameters());
+      for (size_t i(0); i < pars.size(); i++) {
+	if(pars.at(i).getName()!=m_normParName){
+	  m_parameter.push_back(pars.at(i));
+	}
+	else {
+	  saved_par=pars.at(i);
+	}
+      }
    }
+   //Finally sync the tied parameter, taken from the last component as it does not matter
+   m_parameter.push_back(saved_par);
 }
 
 unsigned int CompositeLikelihood::getNumFreeParams() const {
