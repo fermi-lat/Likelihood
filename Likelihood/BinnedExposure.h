@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.18 2011/02/04 05:14:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.19 2011/02/04 17:06:53 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -68,6 +68,10 @@ public:
       return m_energies;
    }
 
+   void setBoundaryFlag(bool enforce_boundaries) {
+      m_enforce_boundaries = enforce_boundaries;
+   }
+
 protected:
 
 // Disable copy constructor and copy assignment operator
@@ -111,6 +115,8 @@ private:
 
    double m_costhmin;
    double m_costhmax;
+
+   bool m_enforce_boundaries;
 
    void setCosThetaBounds(const st_app::AppParGroup & pars);
 

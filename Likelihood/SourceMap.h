@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.46 2010/09/15 21:03:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.47 2011/01/25 04:09:04 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -30,7 +30,7 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.46 2010/09/15 21:03:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.47 2011/01/25 04:09:04 jchiang Exp $
  */
 
 #ifdef SWIG
@@ -70,6 +70,10 @@ public:
    static void setBinnedExpMapName(const std::string & filename);
 
    static const std::string & binnedExpMap();
+
+   static BinnedExposure & binnedExposure() {
+      return *s_binnedExposure;
+   }
 
 private:
 
