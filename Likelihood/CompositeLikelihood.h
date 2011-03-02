@@ -7,7 +7,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.6 2010/05/17 21:17:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CompositeLikelihood.h,v 1.7 2011/03/02 11:02:08 cohen Exp $
  */
 
 #ifndef Likelihood_CompositeLikelihood_h
@@ -42,7 +42,8 @@ public:
    virtual void setFreeParamValues(const std::vector<double> & values);
    virtual unsigned int getNumFreeParams() const;
    virtual void getFreeDerivs(std::vector<double> & derivs) const;
-   virtual void fetchParamValues(std::vector<double> &values, bool getFree) const;
+   virtual void fetchParamValues(std::vector<double> & values, 
+                                 bool getFree) const;
    void syncParams();
 
    double NpredValue(const std::string &) const {return 0;}

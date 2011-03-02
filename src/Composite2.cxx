@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Composite2.cxx,v 1.5 2010/07/10 17:02:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.6 2011/02/17 22:09:42 cohen Exp $
  */
 
 #include <algorithm>
@@ -162,7 +162,7 @@ void Composite2::syncParams() {
       }
       it->first->setFreeParams(freePars);
    }
-   //Now fill m_parameter with the tied parameters.
+   // Now fill m_parameter with the tied parameters.
    for (size_t i(0); i < m_tiedPars.size(); i++) {
      m_parameter.push_back(*m_tiedPars.at(i));
    }
@@ -225,7 +225,9 @@ void Composite2::getFreeDerivs(std::vector<double> & derivs) const {
    } // m_components
    /// Append the derivative sums for the tied parameters.
    for (size_t k(0); k < tp_derivs.size(); k++) {
-      derivs.push_back(tp_derivs.at(k));
+      if (m_tiedPars.at(k)->isFree()) {
+         derivs.push_back(tp_derivs.at(k));
+      }
    }
 }
 
