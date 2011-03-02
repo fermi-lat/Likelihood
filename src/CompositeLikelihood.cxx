@@ -6,7 +6,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeLikelihood.cxx,v 1.9 2010/05/17 21:17:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CompositeLikelihood.cxx,v 1.10 2011/03/02 11:02:10 cohen Exp $
  */
 
 #include <iostream>
@@ -111,16 +111,19 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
 }
 
 void CompositeLikelihood::
-fetchParamValues(std::vector<double> &values, bool getFree) const {
-  if (!values.empty()) values.clear();
-  std::vector<optimizers::Parameter> params;
-  if(getFree)
-    getFreeParams(params);
-  else
-    getParams(params);
-  for(int i=0;i<params.size();i++){
-    values.push_back(params.at(i).getValue());
-  }
+fetchParamValues(std::vector<double> & values, bool getFree) const {
+   if (!values.empty()) {
+      values.clear();
+   }
+   std::vector<optimizers::Parameter> params;
+   if (getFree) {
+      getFreeParams(params);
+   } else {
+      getParams(params);
+   }
+   for (int i=0; i < params.size(); i++) {
+      values.push_back(params.at(i).getValue());
+   }
 }
 
 void CompositeLikelihood::
@@ -199,15 +202,15 @@ void CompositeLikelihood::syncParams() {
       it->first->syncParams();
       const std::vector<optimizers::Parameter> & pars(it->first->parameters());
       for (size_t i(0); i < pars.size(); i++) {
-	if(pars.at(i).getName()!=m_normParName){
+	if (pars.at(i).getName() != m_normParName) {
 	  m_parameter.push_back(pars.at(i));
-	}
-	else {
+	} else {
 	  saved_par=pars.at(i);
 	}
       }
    }
-   //Finally sync the tied parameter, taken from the last component as it does not matter
+   //Finally sync the tied parameter, taken from the last component as
+   //it does not matter
    m_parameter.push_back(saved_par);
 }
 
