@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: cohen  Wed Mar  2 03:02:10 PST 2011
+Likelihood/src
+
+Modified Files:
+	CompositeLikelihood.cxx 
+Log Message:
+fix getParamValues which has the same issue in CompositeLikelihood as in Composite2
+    *
+------------------------------------------------------------
 User: cohen  Wed Mar  2 03:02:09 PST 2011
 Likelihood/Likelihood
 
