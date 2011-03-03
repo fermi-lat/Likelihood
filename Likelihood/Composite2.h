@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Composite2.h,v 1.4 2010/07/10 17:02:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Composite2.h,v 1.5 2011/02/17 22:09:43 cohen Exp $
  */
 
 #ifndef Likelihood_Composite2_h
@@ -68,7 +68,7 @@ public:
 
    double NpredValue(const std::string &) const {return 0;}
 
-   TiedParameter* getTiedParam(const LogLike & like, size_t i);
+   TiedParameter & getTiedParam(const LogLike & like, size_t i);
 
 protected:
 
