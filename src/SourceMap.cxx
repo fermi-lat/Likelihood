@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.88 2011/01/26 17:48:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.89 2011/02/10 23:13:55 jchiang Exp $
  */
 
 #include <algorithm>
@@ -218,18 +218,6 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                                  *solid_angle);
             }
          }
-
-         // for (pixel = pixels.begin(); pixel != pixels.end();
-         //      ++pixel, indx++) {
-         //    if (verbose && (indx % (npts/20)) == 0) {
-         //       m_formatter->warn() << ".";
-         //    }
-         //    if (pixel->solidAngle() > 0) {
-         //       m_model.at(indx) = (convolvedMap(pixel->dir())
-         //                           *pixel->solidAngle());
-         //       m_npreds.at(k) += m_model.at(indx);
-         //    }
-         // }
       }
 // Delete model map for map-based diffuse sources to save memory.  The
 // map will be reloaded dynamically if it is needed again.
@@ -241,54 +229,114 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
          // Not a map-based source, so do nothing.
       }
    } else if (havePointSource) {
-      PointSource * pointSrc = dynamic_cast<PointSource *>(src);
+      makePointSourceMap(src, dataMap, observation, applyPsfCorrections,
+                         performConvolution, verbose, energies);
+//       PointSource * pointSrc = dynamic_cast<PointSource *>(src);
 
-      const astro::SkyDir & dir(pointSrc->getDir());
-      MeanPsf meanPsf(dir.ra(), dir.dec(), energies, observation);
+//       const astro::SkyDir & dir(pointSrc->getDir());
+//       MeanPsf meanPsf(dir.ra(), dir.dec(), energies, observation);
 
-      const std::vector<double> & exposure = meanPsf.exposure();
+//       const std::vector<double> & exposure = meanPsf.exposure();
 
-      if (performConvolution) {
-         std::vector<double> mapCorrections(energies.size(), 1.);
-         if (applyPsfCorrections &&
-             dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
-            getMapCorrections(pointSrc, meanPsf, pixels, energies,
-                              mapCorrections);
-         }
+//       if (performConvolution) {
+//          std::vector<double> mapCorrections(energies.size(), 1.);
+//          if (applyPsfCorrections &&
+//              dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
+//             getMapCorrections(pointSrc, meanPsf, pixels, energies,
+//                               mapCorrections);
+//          }
 
-         for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
-            std::vector<double>::const_iterator energy = energies.begin();
-            for (int k = 0; energy != energies.end(); ++energy, k++) {
-               unsigned long indx = k*pixels.size() + j;
-               if (verbose && (icount % (npts/20)) == 0) {
-                  m_formatter->warn() << ".";
-               }
-               double value = (meanPsf(energies.at(k), 
-                                       dir.difference(pixel->dir())*180./M_PI)
-                               *exposure.at(k));
-               value *= pixel->solidAngle()*mapCorrections.at(k);
-               m_model.at(indx) += value;
-               m_npreds.at(k) += value;
-               icount++;
-            }
-         }
-      } else {
-         const std::vector<Pixel>::const_iterator targetPixel = 
-            Pixel::find(pixels.begin(), pixels.end(),
-                        Pixel(dir.ra(), dir.dec(), 1), 2.);
-         if (targetPixel != pixels.end()) {
-            size_t ipix = targetPixel - pixels.begin();
-            std::vector<double>::const_iterator energy = energies.begin();
-            for (int k = 0; energy != energies.end(); ++energy, k++) {
-               size_t indx = k*pixels.size() + ipix;
-               m_model.at(indx) = exposure.at(k);
-               m_npreds.at(k) = m_model.at(indx);
-            }
-         }
-      }
+//          for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
+//             std::vector<double>::const_iterator energy = energies.begin();
+//             for (int k = 0; energy != energies.end(); ++energy, k++) {
+//                unsigned long indx = k*pixels.size() + j;
+//                if (verbose && (icount % (npts/20)) == 0) {
+//                   m_formatter->warn() << ".";
+//                }
+//                double value = (meanPsf(energies.at(k), 
+//                                        dir.difference(pixel->dir())*180./M_PI)
+//                                *exposure.at(k));
+//                value *= pixel->solidAngle()*mapCorrections.at(k);
+//                m_model.at(indx) += value;
+//                m_npreds.at(k) += value;
+//                icount++;
+//             }
+//          }
+//       } else {
+//          const std::vector<Pixel>::const_iterator targetPixel = 
+//             Pixel::find(pixels.begin(), pixels.end(),
+//                         Pixel(dir.ra(), dir.dec(), 1), 2.);
+//          if (targetPixel != pixels.end()) {
+//             size_t ipix = targetPixel - pixels.begin();
+//             std::vector<double>::const_iterator energy = energies.begin();
+//             for (int k = 0; energy != energies.end(); ++energy, k++) {
+//                size_t indx = k*pixels.size() + ipix;
+//                m_model.at(indx) = exposure.at(k);
+//                m_npreds.at(k) = m_model.at(indx);
+//             }
+//          }
+//       }
    }
    if (verbose) {
       m_formatter->warn() << "!" << std::endl;
+   }
+}
+
+void SourceMap::makePointSourceMap(Source * src,
+                                   const CountsMap * dataMap,
+                                   const Observation & observation,
+                                   bool applyPsfCorrections,
+                                   bool performConvolution,
+                                   bool verbose,
+                                   const std::vector<double> & energies) {
+   PointSource * pointSrc = dynamic_cast<PointSource *>(src);
+   const std::vector<Pixel> & pixels(dataMap->pixels());
+
+   const astro::SkyDir & dir(pointSrc->getDir());
+   MeanPsf meanPsf(dir.ra(), dir.dec(), energies, observation);
+   
+   const std::vector<double> & exposure = meanPsf.exposure();
+   long npts = energies.size()*pixels.size();
+   
+   if (performConvolution) {
+      long icount(0);
+      std::vector<double> mapCorrections(energies.size(), 1.);
+      if (applyPsfCorrections &&
+          dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
+            getMapCorrections(pointSrc, meanPsf, pixels, energies,
+                              mapCorrections);
+      }
+
+      std::vector<Pixel>::const_iterator pixel(pixels.begin());
+      for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
+         std::vector<double>::const_iterator energy = energies.begin();
+         for (int k = 0; energy != energies.end(); ++energy, k++) {
+            unsigned long indx = k*pixels.size() + j;
+            if (verbose && (icount % (npts/20)) == 0) {
+               m_formatter->warn() << ".";
+            }
+            double value = (meanPsf(energies.at(k), 
+                                    dir.difference(pixel->dir())*180./M_PI)
+                            *exposure.at(k));
+            value *= pixel->solidAngle()*mapCorrections.at(k);
+            m_model.at(indx) += value;
+            m_npreds.at(k) += value;
+            icount++;
+         }
+      }
+   } else {
+      const std::vector<Pixel>::const_iterator targetPixel = 
+         Pixel::find(pixels.begin(), pixels.end(),
+                     Pixel(dir.ra(), dir.dec(), 1), 2.);
+      if (targetPixel != pixels.end()) {
+         size_t ipix = targetPixel - pixels.begin();
+         std::vector<double>::const_iterator energy = energies.begin();
+         for (int k = 0; energy != energies.end(); ++energy, k++) {
+            size_t indx = k*pixels.size() + ipix;
+            m_model.at(indx) = exposure.at(k);
+            m_npreds.at(k) = m_model.at(indx);
+         }
+      }
    }
 }
 

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.7 2011/03/02 23:49:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.8 2011/03/03 06:11:58 jchiang Exp $
  */
 
 #include <algorithm>
@@ -282,6 +282,7 @@ TiedParameter & Composite2::getTiedParam(const LogLike & like, size_t i) {
          return *(*tp);
       }
    }
+   throw std::runtime_error("Parameter not found.");
 }
   
 } // namespace Likleihood
