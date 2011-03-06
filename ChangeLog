@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Mar  5 21:31:26 PST 2011
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	Composite2.cxx SourceMap.cxx 
+Log Message:
+refactor point source convolution in SourceMap
+    *
+------------------------------------------------------------
 User: jchiang  Sat Mar  5 21:31:25 PST 2011
 ScienceTools-scons/Likelihood/Likelihood
 
