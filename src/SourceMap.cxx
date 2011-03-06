@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.89 2011/02/10 23:13:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.90 2011/03/06 05:31:26 jchiang Exp $
  */
 
 #include <algorithm>
@@ -89,214 +89,187 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
       prepareAngleArrays();
    }
 
-   const std::vector<Pixel> & pixels(dataMap->pixels());
-   
-   std::vector<double> energies;
-   dataMap->getAxisVector(2, energies);
-
    if (verbose) {
       m_formatter->warn() << "Generating SourceMap for " << m_name;
    }
-   long npts = energies.size()*pixels.size();
-   m_model.resize(npts, 0);
-   long icount(0);
-
-   m_npreds.resize(energies.size(), 0);
-
-   std::vector<Pixel>::const_iterator pixel = pixels.begin();
 
    bool havePointSource = dynamic_cast<PointSource *>(src) != 0;
    bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
 
    if (haveDiffuseSource) {
-      computeExposureAndPsf(observation);
-      DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
-      const astro::SkyDir & mapRefDir = dataMap->refDir();
-      if (!resample) {
-         resamp_factor = 1;
-      } else {
-         resamp_factor = std::max(resamp_factor, 
-                                  computeResampFactor(*diffuseSrc, *dataMap));
-      }
-      m_formatter->info(4) << "resampling factor: " 
-                           << resamp_factor << std::endl;
-      double crpix1, crpix2;
-      int naxis1, naxis2;
-      double cdelt1 = dataMap->cdelt1()/resamp_factor;
-      double cdelt2 = dataMap->cdelt2()/resamp_factor;
-      size_t nx_offset(0), ny_offset(0);
-      size_t nx_offset_upper(0), ny_offset_upper(0);
-      if (dataMap->conformingMap()) {
-         double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
-         // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
-         // expression for the mapsize ensures that the number of
-         // pixels in each dimension is even.
-         int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
-         naxis1 = mapsize;
-         naxis2 = mapsize;
-         crpix1 = (naxis1 + 1.)/2.;
-         crpix2 = (naxis2 + 1.)/2.;
-         nx_offset = (mapsize - dataMap->naxis1()*resamp_factor)/2;
-         ny_offset = (mapsize - dataMap->naxis2()*resamp_factor)/2;
-         nx_offset_upper = (mapsize - dataMap->naxis1()*resamp_factor)/2;
-         ny_offset_upper = (mapsize - dataMap->naxis2()*resamp_factor)/2;
-         /// For cases where the resampling factor is an odd number, 
-         /// there may be a row or column of pixels not accounted for
-         /// by n[xy]_offset.  Here we add that row or column back in if
-         /// it is missing.
-         int xtest = static_cast<int>((naxis1 - nx_offset - nx_offset_upper) 
-                                      - dataMap->naxis1()*resamp_factor);
-         if (xtest != 0) {
-            nx_offset += 1;
-         }
-         int ytest = static_cast<int>((naxis2 - ny_offset - ny_offset_upper) 
-                                      - dataMap->naxis2()*resamp_factor);
-         if (ytest != 0) {
-            ny_offset += 1;
-         }
-         if (!resample) { 
-            // Use integer or half-integer reference pixel based on
-            // input counts map, even though naxis1 and naxis2 both
-            // must be even.
-            if (dataMap->naxis1() % 2 == 1) {
-               crpix1 += 0.5;
-               nx_offset += 1;
-            }
-            if (dataMap->naxis2() % 2 == 1) {
-               crpix2 += 0.5;
-               ny_offset += 1;
-            }
-         }
-      } else {
-         // The counts map was not created by gtbin, so just adopt the
-         // map geometry without adding padding for psf leakage since
-         // this cannot be done in general without redefining the
-         // reference pixel and reference direction.
-         naxis1 = static_cast<int>(dataMap->naxis1()*resamp_factor);
-         naxis2 = static_cast<int>(dataMap->naxis2()*resamp_factor);
-         // Ensure an even number of pixels in each direction.
-         if (naxis1 % 2 == 1) {
-            naxis1 += 1;
-         }
-         if (naxis2 % 2 == 1) {
-            naxis2 += 1;
-         }
-         crpix1 = dataMap->crpix1()*resamp_factor;
-         crpix2 = dataMap->crpix2()*resamp_factor;
-         nx_offset_upper += 1;
-         ny_offset_upper += 1;
-      }
-      size_t counter(0);
-      std::vector<double>::const_iterator energy = energies.begin();
-      for (int k(0); energy != energies.end(); ++energy, k++) {
-         bool interpolate;
-         WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
-                           crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
-                           *energy, dataMap->proj_name(), 
-                           dataMap->projection().isGalactic(), 
-                           interpolate=true);
-         WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
-                                                 *s_binnedExposure,
-                                                 performConvolution));
-         size_t rfac(resamp_factor);
-         double solid_angle;
-         for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
-            for (size_t i(nx_offset); i < naxis1 - nx_offset_upper; i++) {
-               if ((i % rfac == 0) && (j % rfac == 0)) {
-                  counter++;
-                  if (verbose && (counter % (npts/20)) == 0) {
-                     m_formatter->warn() << ".";
-                  }
-               }
-               size_t pix_index = ((j-ny_offset)/rfac)*dataMap->naxis1() 
-                  + ((i-nx_offset)/rfac);
-               solid_angle = pixels.at(pix_index).solidAngle();
-               size_t indx = (k*dataMap->naxis1()*dataMap->naxis2() +
-                              + pix_index);
-               m_model[indx] += (convolvedMap.image()[j][i]
-                                 /resamp_factor/resamp_factor
-                                 *solid_angle);
-            }
-         }
-      }
-// Delete model map for map-based diffuse sources to save memory.  The
-// map will be reloaded dynamically if it is needed again.
-      try {
-         MapBase * mapBaseObj = 
-            const_cast<MapBase *>(diffuseSrc->mapBaseObject());
-         mapBaseObj->deleteMap();
-      } catch (MapBaseException & eObj) {
-         // Not a map-based source, so do nothing.
-      }
+      makeDiffuseMap(src, dataMap, observation, applyPsfCorrections,
+                     performConvolution, resample, resamp_factor,
+                     verbose);
    } else if (havePointSource) {
       makePointSourceMap(src, dataMap, observation, applyPsfCorrections,
-                         performConvolution, verbose, energies);
-//       PointSource * pointSrc = dynamic_cast<PointSource *>(src);
-
-//       const astro::SkyDir & dir(pointSrc->getDir());
-//       MeanPsf meanPsf(dir.ra(), dir.dec(), energies, observation);
-
-//       const std::vector<double> & exposure = meanPsf.exposure();
-
-//       if (performConvolution) {
-//          std::vector<double> mapCorrections(energies.size(), 1.);
-//          if (applyPsfCorrections &&
-//              dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
-//             getMapCorrections(pointSrc, meanPsf, pixels, energies,
-//                               mapCorrections);
-//          }
-
-//          for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
-//             std::vector<double>::const_iterator energy = energies.begin();
-//             for (int k = 0; energy != energies.end(); ++energy, k++) {
-//                unsigned long indx = k*pixels.size() + j;
-//                if (verbose && (icount % (npts/20)) == 0) {
-//                   m_formatter->warn() << ".";
-//                }
-//                double value = (meanPsf(energies.at(k), 
-//                                        dir.difference(pixel->dir())*180./M_PI)
-//                                *exposure.at(k));
-//                value *= pixel->solidAngle()*mapCorrections.at(k);
-//                m_model.at(indx) += value;
-//                m_npreds.at(k) += value;
-//                icount++;
-//             }
-//          }
-//       } else {
-//          const std::vector<Pixel>::const_iterator targetPixel = 
-//             Pixel::find(pixels.begin(), pixels.end(),
-//                         Pixel(dir.ra(), dir.dec(), 1), 2.);
-//          if (targetPixel != pixels.end()) {
-//             size_t ipix = targetPixel - pixels.begin();
-//             std::vector<double>::const_iterator energy = energies.begin();
-//             for (int k = 0; energy != energies.end(); ++energy, k++) {
-//                size_t indx = k*pixels.size() + ipix;
-//                m_model.at(indx) = exposure.at(k);
-//                m_npreds.at(k) = m_model.at(indx);
-//             }
-//          }
-//       }
+                         performConvolution, verbose);
    }
    if (verbose) {
       m_formatter->warn() << "!" << std::endl;
    }
 }
 
+void SourceMap::makeDiffuseMap(Source * src, 
+                               const CountsMap * dataMap,
+                               const Observation & observation,
+                               bool applyPsfCorrections,
+                               bool performConvolution,
+                               bool resample,
+                               double resamp_factor,
+                               bool verbose) {
+   DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
+
+   const std::vector<Pixel> & pixels(dataMap->pixels());
+   std::vector<double> energies;
+   dataMap->getAxisVector(2, energies);
+
+   long npts = energies.size()*pixels.size();
+   m_model.resize(npts, 0);
+
+   m_npreds.resize(energies.size(), 0);
+
+   std::vector<Pixel>::const_iterator pixel = pixels.begin();
+
+   computeExposureAndPsf(observation);
+   const astro::SkyDir & mapRefDir = dataMap->refDir();
+   if (!resample) {
+      resamp_factor = 1;
+   } else {
+      resamp_factor = std::max(resamp_factor, 
+                               computeResampFactor(*diffuseSrc, *dataMap));
+   }
+   m_formatter->info(4) << "resampling factor: " 
+                        << resamp_factor << std::endl;
+   double crpix1, crpix2;
+   int naxis1, naxis2;
+   double cdelt1 = dataMap->cdelt1()/resamp_factor;
+   double cdelt2 = dataMap->cdelt2()/resamp_factor;
+   size_t nx_offset(0), ny_offset(0);
+   size_t nx_offset_upper(0), ny_offset_upper(0);
+   if (dataMap->conformingMap()) {
+      double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
+      // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
+      // expression for the mapsize ensures that the number of
+      // pixels in each dimension is even.
+      int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
+      naxis1 = mapsize;
+      naxis2 = mapsize;
+      crpix1 = (naxis1 + 1.)/2.;
+      crpix2 = (naxis2 + 1.)/2.;
+      nx_offset = (mapsize - dataMap->naxis1()*resamp_factor)/2;
+      ny_offset = (mapsize - dataMap->naxis2()*resamp_factor)/2;
+      nx_offset_upper = (mapsize - dataMap->naxis1()*resamp_factor)/2;
+      ny_offset_upper = (mapsize - dataMap->naxis2()*resamp_factor)/2;
+      /// For cases where the resampling factor is an odd number, 
+      /// there may be a row or column of pixels not accounted for
+      /// by n[xy]_offset.  Here we add that row or column back in if
+      /// it is missing.
+      int xtest = static_cast<int>((naxis1 - nx_offset - nx_offset_upper) 
+                                   - dataMap->naxis1()*resamp_factor);
+      if (xtest != 0) {
+         nx_offset += 1;
+      }
+      int ytest = static_cast<int>((naxis2 - ny_offset - ny_offset_upper) 
+                                   - dataMap->naxis2()*resamp_factor);
+      if (ytest != 0) {
+         ny_offset += 1;
+      }
+      if (!resample) { 
+         // Use integer or half-integer reference pixel based on
+         // input counts map, even though naxis1 and naxis2 both
+         // must be even.
+         if (dataMap->naxis1() % 2 == 1) {
+            crpix1 += 0.5;
+            nx_offset += 1;
+         }
+         if (dataMap->naxis2() % 2 == 1) {
+            crpix2 += 0.5;
+            ny_offset += 1;
+         }
+      }
+   } else {
+      // The counts map was not created by gtbin, so just adopt the
+      // map geometry without adding padding for psf leakage since
+      // this cannot be done in general without redefining the
+      // reference pixel and reference direction.
+      naxis1 = static_cast<int>(dataMap->naxis1()*resamp_factor);
+      naxis2 = static_cast<int>(dataMap->naxis2()*resamp_factor);
+      // Ensure an even number of pixels in each direction.
+      if (naxis1 % 2 == 1) {
+         naxis1 += 1;
+      }
+      if (naxis2 % 2 == 1) {
+         naxis2 += 1;
+      }
+      crpix1 = dataMap->crpix1()*resamp_factor;
+      crpix2 = dataMap->crpix2()*resamp_factor;
+      nx_offset_upper += 1;
+      ny_offset_upper += 1;
+   }
+   size_t counter(0);
+   std::vector<double>::const_iterator energy = energies.begin();
+   for (int k(0); energy != energies.end(); ++energy, k++) {
+      bool interpolate;
+      WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
+                        crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
+                        *energy, dataMap->proj_name(), 
+                        dataMap->projection().isGalactic(), 
+                        interpolate=true);
+      WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
+                                              *s_binnedExposure,
+                                              performConvolution));
+      size_t rfac(resamp_factor);
+      double solid_angle;
+      for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
+         for (size_t i(nx_offset); i < naxis1 - nx_offset_upper; i++) {
+            if ((i % rfac == 0) && (j % rfac == 0)) {
+               counter++;
+               if (verbose && (counter % (npts/20)) == 0) {
+                  m_formatter->warn() << ".";
+               }
+            }
+            size_t pix_index = ((j-ny_offset)/rfac)*dataMap->naxis1() 
+               + ((i-nx_offset)/rfac);
+            solid_angle = pixels.at(pix_index).solidAngle();
+            size_t indx = k*dataMap->naxis1()*dataMap->naxis2() + pix_index;
+            m_model[indx] += (convolvedMap.image()[j][i]
+                              /resamp_factor/resamp_factor
+                              *solid_angle);
+         }
+      }
+      }
+// Delete model map for map-based diffuse sources to save memory.  The
+// map will be reloaded dynamically if it is needed again.
+   try {
+      MapBase * mapBaseObj = 
+         const_cast<MapBase *>(diffuseSrc->mapBaseObject());
+      mapBaseObj->deleteMap();
+   } catch (MapBaseException & eObj) {
+      // Not a map-based source, so do nothing.
+   }
+}
 void SourceMap::makePointSourceMap(Source * src,
                                    const CountsMap * dataMap,
                                    const Observation & observation,
                                    bool applyPsfCorrections,
                                    bool performConvolution,
-                                   bool verbose,
-                                   const std::vector<double> & energies) {
+                                   bool verbose) {
    PointSource * pointSrc = dynamic_cast<PointSource *>(src);
    const std::vector<Pixel> & pixels(dataMap->pixels());
+   std::vector<double> energies;
+   dataMap->getAxisVector(2, energies);
+
+   long npts = energies.size()*pixels.size();
+   m_model.resize(npts, 0);
+
+   m_npreds.resize(energies.size(), 0);
+
+   std::vector<Pixel>::const_iterator pixel = pixels.begin();
 
    const astro::SkyDir & dir(pointSrc->getDir());
    MeanPsf meanPsf(dir.ra(), dir.dec(), energies, observation);
    
    const std::vector<double> & exposure = meanPsf.exposure();
-   long npts = energies.size()*pixels.size();
    
    if (performConvolution) {
       long icount(0);
