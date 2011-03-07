@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sun Mar  6 22:15:22 PST 2011
+ScienceTools-scons/Likelihood/src/gtsrcmaps
+
+Modified Files:
+	gtsrcmaps.cxx 
+Log Message:
+add error messages associated with binned exposure map checks in gtlike and gtsrcmaps
+    *
+------------------------------------------------------------
+User: jchiang  Sun Mar  6 22:15:22 PST 2011
 ScienceTools-scons/Likelihood/src
 
 Modified Files:
