@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.35 2010/11/04 04:16:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.36 2011/03/02 04:43:54 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -146,9 +146,27 @@ void gtsrcmaps::run() {
 
    std::string srcModelFile = m_pars["srcmdl"];
    bool loadMaps, createAllMaps;
-   m_binnedLikelihood->readXml(srcModelFile, m_helper->funcFactory(), false,
-                               computePointSources, loadMaps=true,
-                               createAllMaps=true);
+   try {
+      m_binnedLikelihood->readXml(srcModelFile, m_helper->funcFactory(), false,
+                                  computePointSources, loadMaps=true,
+                                  createAllMaps=true);
+   } catch(std::runtime_error & eObj) {
+      std::string message("Request for exposure at a sky position "
+                          "that is outside of the map boundaries.");
+      if (st_facilities::Util::expectedException(eObj, message)) {
+         std::ostringstream app_message;
+         app_message << "\n" << message << "\n\n"
+                     << "The contribution of the diffuse source outside of "
+                     << "the exposure \nand counts map boundaries is being "
+                     << "computed to account for PSF \nleakage into the "
+                     << "analysis region.  To handle this, use an all-sky\n"
+                     << "binned exposure map.  Alternatively, to neglect "
+                     << "contributions \n"
+                     << "outside of the counts map region, use the "
+                     << "emapbnds=no option when \nrunning gtsrcmaps.";
+         throw std::runtime_error(app_message.str());
+      }
+   }
 
    std::string srcMapsFile = m_pars["outfile"];
 

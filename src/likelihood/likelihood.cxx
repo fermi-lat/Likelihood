@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.155 2010/07/07 01:05:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.156 2010/09/15 21:03:25 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -89,7 +89,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.155 2010/07/07 01:05:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.156 2010/09/15 21:03:25 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -364,6 +364,7 @@ void likelihood::createStatistic() {
       m_logLike = new BinnedLikelihood(*m_dataMap, m_helper->observation(),
                                        countsMapFile, apply_psf_corrections);
       std::string binnedMap = m_pars["bexpmap"];
+      AppHelpers::checkExposureMap(m_pars["cmap"], m_pars["bexpmap"]);
       if (binnedMap != "none" && binnedMap != "") {
          SourceMap::setBinnedExposure(binnedMap);
       }
