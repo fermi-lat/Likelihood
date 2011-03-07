@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.38 2011/02/11 20:56:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.39 2011/03/02 04:43:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -140,13 +140,19 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
 
    unsigned int indx = (k*m_naxes.at(1) + j)*m_naxes.at(0) + i;
 
+   bool within_bounds = (i >= 0 && i < m_naxes[0] &&
+                         j >= 0 && j < m_naxes[1] &&
+                         k >= 0 && k < m_energies.size());
+
+   if (m_enforce_boundaries && !within_bounds) {
+      throw std::runtime_error("Request for exposure at a sky position that "
+                               "is outside of the map boundaries.");
+   }
+
    try {
       return m_exposureMap.at(indx);
    } catch (std::out_of_range &) {
-      if (m_enforce_boundaries) {
-         throw std::runtime_error("Request for exposure at a sky position that "
-                                  "is outside of the map boundaries.");
-      }
+      // Range check performed already, so do nothing and return 0.
    }
    return 0;
 }
