@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap.cxx,v 1.41 2010/02/17 04:06:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap.cxx,v 1.42 2010/02/18 20:08:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+
+#include "st_stream/StreamFormatter.h"
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
@@ -83,16 +85,21 @@ WcsMap::WcsMap(const std::string & filename,
    }
    header["CDELT2"].get(m_cdelt2);
 
+   header["CRPIX1"].get(m_crpix1);
+   header["CRPIX2"].get(m_crpix2);
+
+   header["CRVAL1"].get(m_crval1);
+   header["CRVAL2"].get(m_crval2);
+
+   header["CROTA2"].get(m_crota2);
+
    if (m_proj->isGalactic()) {
       m_coordSys = astro::SkyDir::GALACTIC;
    } else {
       m_coordSys = astro::SkyDir::EQUATORIAL;
    }
 
-   double ix, iy;
-   header["CRPIX1"].get(ix);
-   header["CRPIX2"].get(iy);
-   std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
+   std::pair<double, double> coord = m_proj->pix2sph(m_crpix1, m_crpix2);
    m_refDir = astro::SkyDir(coord.first, coord.second, m_coordSys);
 
    delete image;
@@ -122,10 +129,15 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
    }
    double refpix = static_cast<double>(npts + 1)/2.;
    double crpix[] = {refpix, refpix};
+   m_crpix1 = crpix[0];
+   m_crpix2 = crpix[1];
    double crval[] = {ra, dec};
+   m_crval1 = crval[0];
+   m_crval2 = crval[1];
    double cdelt[] = {-pix_size, pix_size};
    m_cdelt1 = -pix_size;
    m_cdelt2 = pix_size;
+   m_crota2 = 0;
 
    m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
 
@@ -167,8 +179,11 @@ WcsMap::WcsMap(const DiffuseSource & diffuseSource,
                double energy, const std::string & proj_name, bool use_lb,
                bool interpolate) 
    : m_refDir(ra, dec), 
-     m_naxis1(naxis1), m_naxis2(naxis2), m_interpolate(interpolate), 
+     m_naxis1(naxis1), m_naxis2(naxis2), 
+     m_crpix1(crpix1), m_crpix2(crpix2),
      m_cdelt1(cdelt1), m_cdelt2(cdelt2), 
+     m_crota2(0),
+     m_interpolate(interpolate), 
      m_mapIntegral(0) {
    if (use_lb) { // convert to l, b
       ra = m_refDir.l();
@@ -218,10 +233,15 @@ WcsMap::WcsMap(const WcsMap & rhs)
    : m_refDir(rhs.m_refDir), m_image(rhs.m_image), 
      m_solidAngles(rhs.m_solidAngles),
      m_naxis1(rhs.m_naxis1), m_naxis2(rhs.m_naxis2), 
-     m_interpolate(rhs.m_interpolate),
-     m_isPeriodic(rhs.m_isPeriodic),
+     m_crpix1(rhs.m_crpix1),
+     m_crpix2(rhs.m_crpix2),
+     m_crval1(rhs.m_crval1),
+     m_crval2(rhs.m_crval2),
      m_cdelt1(rhs.m_cdelt1),
      m_cdelt2(rhs.m_cdelt2),
+     m_crota2(rhs.m_crota2),
+     m_interpolate(rhs.m_interpolate),
+     m_isPeriodic(rhs.m_isPeriodic),
      m_coordSys(rhs.m_coordSys),
      m_mapIntegral(rhs.m_mapIntegral) {
 // astro::SkyProj copy constructor is not implemented properly so we
@@ -244,8 +264,13 @@ WcsMap & WcsMap::operator=(const WcsMap & rhs) {
       m_solidAngles = rhs.m_solidAngles;
       m_naxis1 = rhs.m_naxis1;
       m_naxis2 = rhs.m_naxis2;
+      m_crpix1 = rhs.m_crpix1;
+      m_crpix2 = rhs.m_crpix2;
+      m_crval1 = rhs.m_crval1;
+      m_crval2 = rhs.m_crval2;
       m_cdelt1 = rhs.m_cdelt1;
       m_cdelt2 = rhs.m_cdelt2;
+      m_crota2 = rhs.m_crota2;
       m_interpolate = rhs.m_interpolate;
       m_mapIntegral = rhs.m_mapIntegral;
    }
@@ -541,6 +566,88 @@ void WcsMap::computeMapIntegral() {
          m_mapIntegral += solidAngles().at(i).at(j)*m_image.at(j).at(i);
       }
    }
+}
+
+WcsMap * WcsMap::rebin(unsigned int factor, bool average) {
+   WcsMap * my_map = new WcsMap(*this);
+   int dnxp = factor - (m_naxis1 % factor);
+   if (dnxp == factor) {
+      dnxp = 0;
+   }
+   int dnyp = factor - (m_naxis2 % factor);
+   if (dnyp == factor) {
+      dnyp = 0;
+   }
+   my_map->m_naxis1 = (m_naxis1 + dnxp)/factor;
+   my_map->m_naxis2 = (m_naxis2 + dnyp)/factor;
+
+   // Set reference pixel, keeping same reference direction.
+   my_map->m_crpix1 = (m_crpix1 - 0.5)/factor + 0.5;
+   my_map->m_crpix2 = (m_crpix2 - 0.5)/factor + 0.5;
+
+   // apply the rebinning factor to the pixel size at the reference direction.
+   my_map->m_cdelt1 = m_cdelt1*factor;
+   my_map->m_cdelt2 = m_cdelt2*factor;
+
+   // Set the projection (assuming the astro::SkyProj destructor is
+   // still not implemented correctly so that we cannot delete the
+   // pointer to it).
+   double crpix[2] = {my_map->m_crpix1, my_map->m_crpix2};
+   double cdelt[2] = {my_map->m_cdelt1, my_map->m_cdelt2};
+   double crval[2];
+   if (m_proj->isGalactic()) {
+      crval[0] = m_refDir.l();
+      crval[1] = m_refDir.b();
+   } else {
+      crval[0] = m_refDir.ra();
+      crval[1] = m_refDir.dec();
+   }
+   my_map->m_proj = new astro::SkyProj(m_proj->projType(), crpix, crval, cdelt,
+                                       m_crota2, m_proj->isGalactic());
+
+   st_stream::StreamFormatter formatter("WcsMap", "", 2);
+
+   formatter.info(4) << "naxis1: " << my_map->m_naxis1 << "\n"
+                     << "naxis2: " << my_map->m_naxis2 << "\n";
+
+   formatter.info(4) << "crpix1: " << crpix[0] << "\n"
+                     << "crpix2: " << crpix[1] << "\n";
+
+   formatter.info(4) << "cdelt1: " << cdelt[0] << "\n"
+                     << "cdelt2: " << cdelt[1] << "\n";
+
+   formatter.info(4) << "crval1: " << crval[0] << "\n"
+                     << "crval2: " << crval[1] << "\n";
+
+   my_map->m_image.resize(my_map->m_naxis2);
+   std::vector< std::vector<double> > my_solidAngles;
+   for (size_t j(0); j < my_map->m_naxis2; j++) {
+      my_map->m_image[j].resize(my_map->m_naxis1, 0);
+      my_solidAngles.push_back(std::vector<double>(my_map->m_naxis1, 0));
+   }
+
+   for (size_t i(0); i < m_naxis1; i++) {
+      unsigned int ii = i/factor;
+      for (size_t j(0); j < m_naxis2; j++) {
+         unsigned int jj = j/factor;
+         my_map->m_image.at(jj).at(ii) += m_image[j][i]*solidAngles()[j][i];
+         if (average) {
+            my_solidAngles.at(jj).at(ii) += solidAngles()[j][i];
+         }
+      }
+   }
+   if (average) {
+      for (size_t ii(0); ii < my_map->m_naxis2; ii++) {
+         for (size_t jj(0); jj < my_map->m_naxis1; jj++) {
+            my_map->m_image[jj][ii] /= my_solidAngles[jj][ii];
+         }
+      }
+   }
+   my_map->m_solidAngles.clear();
+
+   computeMapIntegral();
+
+   return my_map;
 }
 
 } // namespace Likelihood

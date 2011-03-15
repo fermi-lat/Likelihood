@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapBase.h,v 1.6 2010/07/05 16:29:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapBase.h,v 1.7 2010/07/07 01:05:29 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -60,10 +60,14 @@ public:
       return *m_wcsmap;
    }
 
+   virtual WcsMap & wcsmap();
+
    virtual void deleteMap() {
       delete m_wcsmap;
       m_wcsmap = 0;
    }
+
+   virtual void rebin(unsigned int factor, bool average=true);
 
 protected:
 
@@ -71,8 +75,6 @@ protected:
 
    std::string m_fitsFile;
    std::string m_extension;
-
-   virtual WcsMap & wcsmap();
 
 private:
    
