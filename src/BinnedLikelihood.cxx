@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.74 2011/02/01 22:03:51 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.75 2011/02/02 19:02:50 jchiang Exp $
  */
 
 #include <cmath>
@@ -34,14 +34,17 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
                                    bool applyPsfCorrections,
                                    bool performConvolution, 
                                    bool resample,
-                                   double resamp_factor)
+                                   double resamp_factor,
+                                   double minbinsz)
    : LogLike(observation), m_dataMap(dataMap), m_pixels(dataMap.pixels()),
      m_modelIsCurrent(false), m_srcMapsFile(srcMapsFile),
      m_computePointSources(computePointSources),
      m_applyPsfCorrections(applyPsfCorrections),
      m_performConvolution(performConvolution), 
      m_resample(resample), 
-     m_resamp_factor(resamp_factor), m_kmin(0) {
+     m_resamp_factor(resamp_factor), 
+     m_minbinsz(minbinsz),
+     m_kmin(0) {
    dataMap.getAxisVector(2, m_energies);
    m_kmax = m_energies.size() - 1;
    identifyFilledPixels();
@@ -503,7 +506,8 @@ void BinnedLikelihood::createSourceMaps() {
 SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
    Source * src = getSource(srcName);
    return new SourceMap(src, &m_dataMap, m_observation, m_applyPsfCorrections,
-                        m_performConvolution, m_resample, m_resamp_factor);
+                        m_performConvolution, m_resample, m_resamp_factor,
+                        m_minbinsz);
 }
 
 SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName, 
@@ -518,7 +522,7 @@ SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName,
                            m_applyPsfCorrections,
                            m_performConvolution,
                            m_resample, m_resamp_factor,
-                           verbose);
+                           m_minbinsz, verbose);
    }
    return 0;
 }

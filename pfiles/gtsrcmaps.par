@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtsrcmaps.par,v 1.30 2010/02/09 21:08:34 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtsrcmaps.par,v 1.31 2011/03/02 04:43:53 jchiang Exp $
 #
 scfile,f,h,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
@@ -12,6 +12,7 @@ irfs,s,a,"P6_V3_DIFFUSE",,,"Response functions"
 convol,b,h,yes,,,"Perform convolution with psf"
 resample,b,h,yes,,,"Resample input counts map for convolution"
 rfactor,i,h,2,,,"Resampling factor"
+minbinsz,r,h,0.1,,,"Minimum pixel size for rebinning fine maps"
 ptsrc,b,h,yes,,,"Compute point source maps"
 psfcorr,b,h,yes,,,"Apply psf integral corrections"
 emapbnds,b,h,yes,,,"Enforce boundaries of exposure map"

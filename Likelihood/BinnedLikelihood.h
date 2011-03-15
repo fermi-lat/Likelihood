@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.48 2010/09/15 23:47:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.49 2010/10/06 21:16:40 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.48 2010/09/15 23:47:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.49 2010/10/06 21:16:40 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -43,7 +43,8 @@ public:
                     bool applyPsfCorrections=true,
                     bool performConvolution=true,
                     bool resample=true,
-                    double resamp_factor=2);
+                    double resamp_factor=2,
+                    double minbinsz=0.1);
 
    virtual ~BinnedLikelihood() throw();
 
@@ -158,6 +159,8 @@ private:
    bool m_resample;
    
    double m_resamp_factor;
+   
+   double m_minbinsz;
 
    std::vector<std::string> m_fixedSources;
 

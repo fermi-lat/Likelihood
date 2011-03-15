@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.90 2011/03/06 05:31:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.91 2011/03/06 20:21:09 jchiang Exp $
  */
 
 #include <algorithm>
@@ -79,6 +79,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                      bool performConvolution,
                      bool resample,
                      double resamp_factor,
+                     double minbinsz,
                      bool verbose)
    : m_name(src->getName()), m_srcType(src->getType()),
      m_dataMap(dataMap), 
@@ -99,7 +100,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    if (haveDiffuseSource) {
       makeDiffuseMap(src, dataMap, observation, applyPsfCorrections,
                      performConvolution, resample, resamp_factor,
-                     verbose);
+                     minbinsz, verbose);
    } else if (havePointSource) {
       makePointSourceMap(src, dataMap, observation, applyPsfCorrections,
                          performConvolution, verbose);
@@ -116,8 +117,28 @@ void SourceMap::makeDiffuseMap(Source * src,
                                bool performConvolution,
                                bool resample,
                                double resamp_factor,
+                               double minbinsz,
                                bool verbose) {
    DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
+
+// If the diffuse source is represented by an underlying map, then
+// rebin according to the minimum bin size.
+   try {
+      MapBase & tmp(*diffuseSrc->mapBaseObject());
+      if (tmp.wcsmap().cdelt1() < minbinsz || 
+          tmp.wcsmap().cdelt2() < minbinsz) {
+         double cdelt1 = std::fabs(tmp.wcsmap().cdelt1());
+         double cdelt2 = std::fabs(tmp.wcsmap().cdelt2());
+         unsigned int factor = 
+            std::max(static_cast<unsigned int>(minbinsz/cdelt1),
+                     static_cast<unsigned int>(minbinsz/cdelt2));
+         m_formatter->info(4) << "\nrebinning factor: " 
+                              << factor << std::endl;
+         tmp.rebin(factor);
+      }
+   } catch (MapBaseException &) {
+      // do nothing
+   }
 
    const std::vector<Pixel> & pixels(dataMap->pixels());
    std::vector<double> energies;
@@ -152,14 +173,19 @@ void SourceMap::makeDiffuseMap(Source * src,
       // expression for the mapsize ensures that the number of
       // pixels in each dimension is even.
       int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
+      m_formatter->info(4) << "mapsize: " << mapsize << std::endl;
       naxis1 = mapsize;
       naxis2 = mapsize;
       crpix1 = (naxis1 + 1.)/2.;
       crpix2 = (naxis2 + 1.)/2.;
-      nx_offset = (mapsize - dataMap->naxis1()*resamp_factor)/2;
-      ny_offset = (mapsize - dataMap->naxis2()*resamp_factor)/2;
-      nx_offset_upper = (mapsize - dataMap->naxis1()*resamp_factor)/2;
-      ny_offset_upper = (mapsize - dataMap->naxis2()*resamp_factor)/2;
+      nx_offset = 
+         static_cast<size_t>((mapsize - dataMap->naxis1()*resamp_factor)/2);
+      ny_offset = 
+         static_cast<size_t>((mapsize - dataMap->naxis2()*resamp_factor)/2);
+      nx_offset_upper = 
+         static_cast<size_t>((mapsize - dataMap->naxis1()*resamp_factor)/2);
+      ny_offset_upper = 
+         static_cast<size_t>((mapsize - dataMap->naxis2()*resamp_factor)/2);
       /// For cases where the resampling factor is an odd number, 
       /// there may be a row or column of pixels not accounted for
       /// by n[xy]_offset.  Here we add that row or column back in if
@@ -218,7 +244,7 @@ void SourceMap::makeDiffuseMap(Source * src,
       WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
                                               *s_binnedExposure,
                                               performConvolution));
-      size_t rfac(resamp_factor);
+      size_t rfac(static_cast<size_t>(resamp_factor));
       double solid_angle;
       for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
          for (size_t i(nx_offset); i < naxis1 - nx_offset_upper; i++) {
