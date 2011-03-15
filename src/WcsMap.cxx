@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap.cxx,v 1.42 2010/02/18 20:08:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap.cxx,v 1.43 2011/03/15 05:37:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -91,7 +91,8 @@ WcsMap::WcsMap(const std::string & filename,
    header["CRVAL1"].get(m_crval1);
    header["CRVAL2"].get(m_crval2);
 
-   header["CROTA2"].get(m_crota2);
+//   header["CROTA2"].get(m_crota2);
+   m_crota2 = 0;
 
    if (m_proj->isGalactic()) {
       m_coordSys = astro::SkyDir::GALACTIC;
