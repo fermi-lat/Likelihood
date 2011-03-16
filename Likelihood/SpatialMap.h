@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.21 2009/02/21 02:03:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.22 2010/09/24 18:15:17 jchiang Exp $
  *
  */
 
@@ -15,7 +15,6 @@
 #include "optimizers/Function.h"
 
 #include "Likelihood/MapBase.h"
-#include "Likelihood/WcsMap.h"
 
 namespace astro {
    class SkyDir;
@@ -25,7 +24,6 @@ namespace Likelihood {
 
 class Event;
 class ResponseFunctions;
-class WcsMap;
 
 /** 
  * @class SpatialMap
@@ -35,7 +33,7 @@ class WcsMap;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.21 2009/02/21 02:03:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.22 2010/09/24 18:15:17 jchiang Exp $
  *
  */
     

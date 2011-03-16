@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapBase.h,v 1.7 2010/07/07 01:05:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapBase.h,v 1.8 2011/03/15 05:37:31 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -16,7 +16,7 @@
 
 #include "astro/SkyDir.h"
 
-#include "Likelihood/WcsMap.h"
+#include "Likelihood/WcsMap2.h"
 
 namespace Likelihood {
 
@@ -53,14 +53,18 @@ public:
                                   double & mumin, double & mumax,
                                   double & phimin, double & phimax) const;
 
-   const WcsMap & wcsmap() const {
+   virtual const std::string & fitsFile() const {
+      return m_fitsFile;
+   }
+
+   const WcsMap2 & wcsmap() const {
       if (!m_wcsmap) {
          const_cast<MapBase *>(this)->readFitsFile();
       }
       return *m_wcsmap;
    }
 
-   virtual WcsMap & wcsmap();
+   virtual WcsMap2 & wcsmap();
 
    virtual void deleteMap() {
       delete m_wcsmap;
@@ -71,7 +75,7 @@ public:
 
 protected:
 
-   WcsMap * m_wcsmap;
+   WcsMap2 * m_wcsmap;
 
    std::string m_fitsFile;
    std::string m_extension;

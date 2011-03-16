@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction2.h,v 1.13 2011/02/09 23:11:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction2.h,v 1.1 2011/03/16 00:19:37 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction2_h
@@ -66,8 +66,6 @@ public:
    }
 
 private:
-
-   WcsMap2 * m_wcsmap;
 
    void init();
 

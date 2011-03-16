@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.52 2010/07/07 01:05:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.53 2010/07/08 23:10:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -212,7 +212,7 @@ double DiffuseSource::energyFluxDeriv(const std::string & parName,
 double DiffuseSource::diffuseResponse(const Event & evt) const {
    double trueEnergy(evt.getEnergy());
    const ResponseFunctions & respFuncs(m_observation->respFuncs());
-   const WcsMap & wcsmap(mapBaseObject()->wcsmap());
+   const WcsMap2 & wcsmap(mapBaseObject()->wcsmap());
    const std::vector< std::vector<double> > & solidAngles(wcsmap.solidAngles());
    double my_value(0);
    for (size_t i(0); i < solidAngles.size(); i++) {

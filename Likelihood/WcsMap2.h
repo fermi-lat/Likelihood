@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.17 2011/03/15 05:37:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.1 2011/03/16 00:19:37 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -27,7 +27,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.17 2011/03/15 05:37:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.1 2011/03/16 00:19:37 jchiang Exp $
  */
 
 class WcsMap2 {
@@ -54,9 +54,7 @@ public:
 
    WcsMap2 & operator=(const WcsMap2 &);
 
-   double operator()(const astro::SkyDir & dir, int k) const;
-
-   double operator()(const astro::SkyDir & dir, double energy) const;
+   double operator()(const astro::SkyDir & dir, double energy=-1) const;
 
    WcsMap2 convolve(double energy, const MeanPsf & psf,
                     const BinnedExposure & exposure,
@@ -76,7 +74,7 @@ public:
    const std::vector< std::vector<double> > & solidAngles() const;
 
    /// @return Pixel value as a function of index
-   double pixelValue(double ilon, double ilat, int k) const;
+   double pixelValue(double ilon, double ilat, int k=0) const;
    
    /// @return SkyDir corresponding to the pixel indices
    astro::SkyDir skyDir(double ilon, double ilat) const;
@@ -129,6 +127,7 @@ private:
 
    mutable ImagePlane_t m_solidAngles;
 
+   int m_naxes;
    int m_naxis1;
    int m_naxis2;
    int m_naxis3;
@@ -157,6 +156,8 @@ private:
    void computeMapIntegral();
 
    void check_energy_index(int k) const;
+
+   double operator()(const astro::SkyDir & dir, int k) const;
 
 };
 

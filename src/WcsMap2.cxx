@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.44 2011/03/15 06:35:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.1 2011/03/16 00:19:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -79,18 +79,17 @@ namespace {
 
 namespace Likelihood {
 
-WcsMap2::WcsMap2() : m_proj(0), m_interpolate(false), m_mapIntegral(0) {}
+WcsMap2::WcsMap2() : m_refDir(0, 0), m_proj(0), m_interpolate(false),
+                     m_mapIntegral(0) {}
 
 WcsMap2::WcsMap2(const std::string & filename,
                  const std::string & extension,
                  bool interpolate) 
-   : m_proj(0), m_interpolate(interpolate), m_isPeriodic(false),
-     m_mapIntegral(0) {
+   : m_proj(0), m_naxis3(1), m_interpolate(interpolate),
+     m_isPeriodic(false), m_mapIntegral(0) {
    
    m_proj = new astro::SkyProj(filename, extension);
 
-   ExposureMap::readEnergyExtension(filename, m_energies);
-   
    const tip::Image * image = 
       tip::IFileSvc::instance().readImage(filename, extension);
    
@@ -98,14 +97,22 @@ WcsMap2::WcsMap2(const std::string & filename,
    image->get(my_image);
 
    const tip::Header & header = image->getHeader();
-   
+
+   header["NAXIS"].get(m_naxes);
    header["NAXIS1"].get(m_naxis1);
    header["NAXIS2"].get(m_naxis2);
-   header["NAXIS3"].get(m_naxis3);
 
-   if (m_naxis3 != m_energies.size()) {
-      throw std::runtime_error("NAXIS3 does not match the number of rows "
-                               "in the ENERGIES extension.");
+   if (m_naxes == 3) {
+      header["NAXIS3"].get(m_naxis3);
+   }
+   if (m_naxis3 > 1) {
+      ExposureMap::readEnergyExtension(filename, m_energies);
+      if (m_naxis3 != m_energies.size()) {
+         throw std::runtime_error("NAXIS3 does not match the number of rows "
+                                  "in the ENERGIES extension.");
+      }
+   } else {
+      m_energies.push_back(100.);
    }
 
    header["CDELT1"].get(m_cdelt1);
@@ -206,6 +213,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    m_naxis1 = npts;
    m_naxis2 = npts;
    m_naxis3 = 1;
+   m_energies.push_back(energy);
 
    computeMapIntegral();
 }
@@ -268,6 +276,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    }
    m_image.clear();
    m_image.push_back(image_plane);
+   m_energies.push_back(energy);
    computeMapIntegral();
 }
 
@@ -292,6 +301,7 @@ WcsMap2::WcsMap2(const WcsMap2 & rhs)
      m_cdelt1(rhs.m_cdelt1),
      m_cdelt2(rhs.m_cdelt2),
      m_crota2(rhs.m_crota2),
+     m_energies(rhs.m_energies),
      m_interpolate(rhs.m_interpolate),
      m_isPeriodic(rhs.m_isPeriodic),
      m_coordSys(rhs.m_coordSys),
@@ -325,6 +335,7 @@ WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
       m_cdelt1 = rhs.m_cdelt1;
       m_cdelt2 = rhs.m_cdelt2;
       m_crota2 = rhs.m_crota2;
+      m_energies = rhs.m_energies;
       m_interpolate = rhs.m_interpolate;
       m_isPeriodic = rhs.m_isPeriodic;
       m_coordSys = rhs.m_coordSys;
@@ -399,11 +410,19 @@ double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
 }
 
 double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
+   if (energy < 0) {
+      energy = m_energies.front();
+   }
+
    if (energy < m_energies.front() || energy > m_energies.back()) {
       throw std::runtime_error("WcsMap2: Requested energy is out-of-range.");
    }
-   int k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
-      - m_energies.begin() - 1;
+
+   int k(0);
+   if (m_naxis3 == 3) {
+      k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
+         - m_energies.begin() - 1;
+   }
    double y1 = operator()(dir, k);
    if (energy == m_energies[k]) { 
       return y1;
@@ -744,7 +763,7 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
 }
 
 void WcsMap2::check_energy_index(int k) const {
-   if (k < 0 || k > m_naxis3) {
+   if (m_naxes == 3 && (k < 0 || k > m_naxis3)) {
       throw std::runtime_error("WcsMap2: Requested energy index is "
                                "out-of-range.");
    }

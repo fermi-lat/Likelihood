@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.37 2011/03/07 06:15:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.38 2011/03/15 05:37:34 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -168,6 +168,7 @@ void gtsrcmaps::run() {
                      << "emapbnds=no option when \nrunning gtsrcmaps.";
          throw std::runtime_error(app_message.str());
       }
+      throw;
    }
 
    std::string srcMapsFile = m_pars["outfile"];
