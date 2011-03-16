@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Wed Mar 16 15:22:52 PDT 2011
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	AppHelpers.cxx DiffuseSource.cxx FluxBuilder.cxx MapBase.cxx 
+	MapCubeFunction2.cxx SourceFactory.cxx SourceMap.cxx 
+	SourceModelBuilder.cxx SpatialMap.cxx WcsMap2.cxx 
+Log Message:
+switch to WcsMap2 and MapCubeFunction2 everywhere
+    *
+------------------------------------------------------------
 User: jchiang  Wed Mar 16 15:22:51 PDT 2011
 ScienceTools-scons/Likelihood/Likelihood
 
