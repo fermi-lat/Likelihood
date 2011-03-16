@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: jchiang  Tue Mar 15 17:19:38 PDT 2011
+ScienceTools-scons/Likelihood/src
+
+Modified Files:
+	MapCubeFunction.cxx WcsMap.cxx 
+Added Files:
+	MapCubeFunction2.cxx WcsMap2.cxx 
+Log Message:
+add temporary files with new implementations for WcsMap and MapCubeFunction
+    *
+------------------------------------------------------------
 User: jchiang  Tue Mar 15 17:19:37 PDT 2011
 ScienceTools-scons/Likelihood/Likelihood
 
