@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction.h,v 1.12 2010/07/07 01:05:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction.h,v 1.13 2011/02/09 23:11:50 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction_h
@@ -21,12 +21,11 @@ namespace Likelihood {
 
 /**
  * @class MapCubeFunction
+ *
  * @brief Encapsulation of a 3D FITS image, e.g., with RA, Dec, energy
  * dimensions, for modeling diffuse sources with spectral variation as
  * a function of position on the sky.
- * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction.h,v 1.12 2010/07/07 01:05:29 jchiang Exp $
  */
 
 class MapCubeFunction : public optimizers::Function, public MapBase {
