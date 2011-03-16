@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SpatialMap.cxx,v 1.29 2009/08/21 19:51:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SpatialMap.cxx,v 1.30 2010/09/24 18:15:19 jchiang Exp $
  *
  */
 
@@ -21,7 +21,6 @@
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/SpatialMap.h"
-#include "Likelihood/WcsMap.h"
 
 namespace Likelihood {
 

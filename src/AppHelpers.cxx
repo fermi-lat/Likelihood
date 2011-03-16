@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.88 2011/03/02 04:43:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.89 2011/03/07 06:15:21 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,7 +36,8 @@
 #include "Likelihood/LogGaussian.h"
 #include "Likelihood/LogNormal.h"
 #include "Likelihood/LogParabola.h"
-#include "Likelihood/MapCubeFunction.h"
+//#include "Likelihood/MapCubeFunction.h"
+#include "Likelihood/MapCubeFunction2.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/PowerLaw2.h"
@@ -127,7 +128,7 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
    funcFactory->addFunc("LogGaussian", new LogGaussian(), makeClone);
    funcFactory->addFunc("LogNormal", new LogNormal(), makeClone);
-   funcFactory->addFunc("MapCubeFunction", new MapCubeFunction(), makeClone);
+   funcFactory->addFunc("MapCubeFunction", new MapCubeFunction2(), makeClone);
    funcFactory->addFunc("RadialProfile", new RadialProfile(), makeClone);
    funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
    funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);

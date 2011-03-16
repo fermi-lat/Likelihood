@@ -4,7 +4,7 @@
  * files for the Likelihood package source models.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.12 2006/06/10 23:35:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModelBuilder.cxx,v 1.13 2009/04/08 16:24:45 jchiang Exp $
  */
 
 #include <fstream>
@@ -19,7 +19,7 @@
 #include "Likelihood/DMFitFunction.h"
 #include "Likelihood/DMFitFunction2.h"
 #include "Likelihood/FileFunction.h"
-#include "Likelihood/MapCubeFunction.h"
+#include "Likelihood/MapCubeFunction2.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceModelBuilder.h"
@@ -110,7 +110,7 @@ void SourceModelBuilder::addSpatialPart(DOMElement * srcElt, Source & src) {
          xmlBase::Dom::addAttribute(spatialElt, "file", file);
       } else if (type == "MapCubeFunction") {
          std::string file = 
-           dynamic_cast<MapCubeFunction*>(srcFuncs["SpatialDist"])->fitsFile();
+           dynamic_cast<MapCubeFunction2*>(srcFuncs["SpatialDist"])->fitsFile();
          xmlBase::Dom::addAttribute(spatialElt, "file", file);
       }
       srcFuncs["SpatialDist"]->appendParamDomElements(m_doc, spatialElt);

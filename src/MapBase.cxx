@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.7 2010/07/07 01:05:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.8 2011/03/15 05:37:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,7 +39,7 @@ MapBase::MapBase(const MapBase & other)
    : m_wcsmap(0), m_fitsFile(other.m_fitsFile),
      m_extension(other.m_extension) {
    if (other.m_wcsmap) {
-      m_wcsmap = new WcsMap(*(other.m_wcsmap));
+      m_wcsmap = new WcsMap2(*(other.m_wcsmap));
    }
 }
 
@@ -48,7 +48,7 @@ MapBase & MapBase::operator=(const MapBase & rhs) {
       delete m_wcsmap;
       m_wcsmap = 0;
       if (rhs.m_wcsmap) {
-         m_wcsmap = new WcsMap(*(rhs.m_wcsmap));
+         m_wcsmap = new WcsMap2(*(rhs.m_wcsmap));
       }
       m_fitsFile = rhs.m_fitsFile;
       m_extension = rhs.m_extension;
@@ -81,10 +81,10 @@ void MapBase::readFitsFile() {
    }
 
    delete m_wcsmap;
-   m_wcsmap = new WcsMap(expandedFileName, m_extension, true);
+   m_wcsmap = new WcsMap2(expandedFileName, m_extension, true);
 }
 
-WcsMap & MapBase::wcsmap() {
+WcsMap2 & MapBase::wcsmap() {
    if (m_wcsmap == 0) {
       readFitsFile();
    }
@@ -149,7 +149,7 @@ void MapBase::rebin(unsigned int factor, bool average) {
       // MapCubeFunctions.
       return;
    }
-   WcsMap * tmp = m_wcsmap->rebin(factor, average);
+   WcsMap2 * tmp = m_wcsmap->rebin(factor, average);
    deleteMap();
    m_wcsmap = tmp;
 }

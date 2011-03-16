@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.91 2011/03/06 20:21:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.92 2011/03/15 05:37:33 jchiang Exp $
  */
 
 #include <algorithm>
@@ -36,7 +36,7 @@
 #undef ST_DLL_EXPORTS
 #include "Likelihood/TrapQuad.h"
 
-#include "Likelihood/WcsMap.h"
+#include "Likelihood/WcsMap2.h"
 
 namespace {
    double my_acos(double mu) {
@@ -192,12 +192,12 @@ void SourceMap::makeDiffuseMap(Source * src,
       /// it is missing.
       int xtest = static_cast<int>((naxis1 - nx_offset - nx_offset_upper) 
                                    - dataMap->naxis1()*resamp_factor);
-      if (xtest != 0) {
+      if (resample && xtest != 0) {
          nx_offset += 1;
       }
       int ytest = static_cast<int>((naxis2 - ny_offset - ny_offset_upper) 
                                    - dataMap->naxis2()*resamp_factor);
-      if (ytest != 0) {
+      if (resample && ytest != 0) {
          ny_offset += 1;
       }
       if (!resample) { 
@@ -236,14 +236,14 @@ void SourceMap::makeDiffuseMap(Source * src,
    std::vector<double>::const_iterator energy = energies.begin();
    for (int k(0); energy != energies.end(); ++energy, k++) {
       bool interpolate;
-      WcsMap diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
-                        crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
-                        *energy, dataMap->proj_name(), 
-                        dataMap->projection().isGalactic(), 
-                        interpolate=true);
-      WcsMap convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
-                                              *s_binnedExposure,
-                                              performConvolution));
+      WcsMap2 diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
+                         crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
+                         *energy, dataMap->proj_name(), 
+                         dataMap->projection().isGalactic(), 
+                         interpolate=true);
+      WcsMap2 convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
+                                               *s_binnedExposure,
+                                               performConvolution));
       size_t rfac(static_cast<size_t>(resamp_factor));
       double solid_angle;
       for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
@@ -258,12 +258,12 @@ void SourceMap::makeDiffuseMap(Source * src,
                + ((i-nx_offset)/rfac);
             solid_angle = pixels.at(pix_index).solidAngle();
             size_t indx = k*dataMap->naxis1()*dataMap->naxis2() + pix_index;
-            m_model[indx] += (convolvedMap.image()[j][i]
+            m_model[indx] += (convolvedMap.image()[0][j][i]
                               /resamp_factor/resamp_factor
                               *solid_angle);
          }
       }
-      }
+   }
 // Delete model map for map-based diffuse sources to save memory.  The
 // map will be reloaded dynamically if it is needed again.
    try {
@@ -274,6 +274,7 @@ void SourceMap::makeDiffuseMap(Source * src,
       // Not a map-based source, so do nothing.
    }
 }
+
 void SourceMap::makePointSourceMap(Source * src,
                                    const CountsMap * dataMap,
                                    const Observation & observation,
