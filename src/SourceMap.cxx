@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.92 2011/03/15 05:37:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.93 2011/03/16 22:22:52 jchiang Exp $
  */
 
 #include <algorithm>
@@ -125,10 +125,9 @@ void SourceMap::makeDiffuseMap(Source * src,
 // rebin according to the minimum bin size.
    try {
       MapBase & tmp(*diffuseSrc->mapBaseObject());
-      if (tmp.wcsmap().cdelt1() < minbinsz || 
-          tmp.wcsmap().cdelt2() < minbinsz) {
-         double cdelt1 = std::fabs(tmp.wcsmap().cdelt1());
-         double cdelt2 = std::fabs(tmp.wcsmap().cdelt2());
+      double cdelt1 = std::fabs(tmp.wcsmap().cdelt1());
+      double cdelt2 = std::fabs(tmp.wcsmap().cdelt2());
+      if (cdelt1 < minbinsz || cdelt2 < minbinsz) {
          unsigned int factor = 
             std::max(static_cast<unsigned int>(minbinsz/cdelt1),
                      static_cast<unsigned int>(minbinsz/cdelt2));
