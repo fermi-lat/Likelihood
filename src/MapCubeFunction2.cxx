@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.1 2011/03/16 00:19:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.2 2011/03/16 22:22:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -63,13 +63,16 @@ void MapCubeFunction2::init() {
 
    m_funcType = Addend;
    m_argType = "";
-   m_genericName = "MapCubeFunction2";
+   m_genericName = "MapCubeFunction";
    m_normParName = "Normalization";
 }
 
-
 double MapCubeFunction2::mapIntegral() const {
-   return m_wcsmap->mapIntegral();
+   return wcsmap().mapIntegral();
+}
+
+double MapCubeFunction2::mapIntegral(double energy) const {
+   return wcsmap().mapIntegral(energy);
 }
 
 }

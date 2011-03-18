@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.1 2011/03/16 00:19:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.2 2011/03/16 22:22:50 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -27,7 +27,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.1 2011/03/16 00:19:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.2 2011/03/16 22:22:50 jchiang Exp $
  */
 
 class WcsMap2 {
@@ -100,6 +100,8 @@ public:
 
    double mapIntegral() const;
 
+   double mapIntegral(double energy) const;
+
    double cdelt1() const {
       return m_cdelt1;
    }
@@ -151,9 +153,11 @@ private:
 
    double m_mapIntegral;
 
+   std::vector<double> m_mapIntegrals;
+
    WcsMap2();
 
-   void computeMapIntegral();
+   void computeMapIntegrals();
 
    void check_energy_index(int k) const;
 
