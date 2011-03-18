@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.409 2011/03/18 06:43:43 jchiang Exp $
+    $Id: release.notes,v 1.410 2011/03/18 18:41:28 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-07-04 18-Mar-2011 jchiang bug-fix for diffuse response integral for events with reconstructed phi-values at phi=pi
  Likelihood-17-07-03 18-Mar-2011 jchiang bug-fix for diffuse response integral for events with reconstructed phi-values at phi=pi
  Likelihood-17-07-02 17-Mar-2011 jchiang bug-fix for MapCubeFunction2 energy interpolations; implement WcsMap2::computeMapIntegrals for error calculation using covariance matrix
  Likelihood-17-07-01 17-Mar-2011 jchiang bug-fix for computing rebinning factor in SourceMaps.cxx
