@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.1 2011/03/16 00:19:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.2 2011/03/16 22:22:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -156,7 +156,7 @@ WcsMap2::WcsMap2(const std::string & filename,
       m_image.push_back(image_plane);
    }
 
-   computeMapIntegral();
+   computeMapIntegrals();
 }
 
 WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
@@ -215,7 +215,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    m_naxis3 = 1;
    m_energies.push_back(energy);
 
-   computeMapIntegral();
+   computeMapIntegrals();
 }
 
 WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
@@ -277,7 +277,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    m_image.clear();
    m_image.push_back(image_plane);
    m_energies.push_back(energy);
-   computeMapIntegral();
+   computeMapIntegrals();
 }
 
 WcsMap2::~WcsMap2() {
@@ -291,6 +291,7 @@ WcsMap2::WcsMap2(const WcsMap2 & rhs)
    : m_refDir(rhs.m_refDir),
      m_image(rhs.m_image), 
      m_solidAngles(rhs.m_solidAngles),
+     m_naxes(rhs.m_naxes),
      m_naxis1(rhs.m_naxis1),
      m_naxis2(rhs.m_naxis2),
      m_naxis3(rhs.m_naxis3),
@@ -325,6 +326,7 @@ WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
       m_refDir = rhs.m_refDir;
       m_image = rhs.m_image;
       m_solidAngles = rhs.m_solidAngles;
+      m_naxes = rhs.m_naxes;
       m_naxis1 = rhs.m_naxis1;
       m_naxis2 = rhs.m_naxis2;
       m_naxis3 = rhs.m_naxis3;
@@ -419,7 +421,7 @@ double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
    }
 
    int k(0);
-   if (m_naxis3 == 3) {
+   if (m_naxes == 3) {
       k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
          - m_energies.begin() - 1;
    }
@@ -655,13 +657,38 @@ double WcsMap2::mapIntegral() const {
    return m_mapIntegral;
 }
 
-void WcsMap2::computeMapIntegral() {
+double WcsMap2::mapIntegral(double energy) const {
+   if (energy < m_energies.front() || energy > m_energies.back()) {
+      throw std::runtime_error("WcsMap2: Requested energy is out-of-range.");
+   }
+
+   int k(0);
+   if (m_naxes == 3) {
+      k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
+         - m_energies.begin() - 1;
+   }
+
+   if (energy == m_energies.at(k)) {
+      return m_mapIntegrals.at(k);
+   }
+
+   double value = (m_mapIntegrals[k-1]*
+                   std::exp((std::log(energy/m_energies[k-1]))
+                            /(std::log(m_energies[k]/m_energies[k-1]))
+                            *std::log(m_mapIntegrals[k]/m_mapIntegrals[k-1])));
+   return value;
+}
+
+void WcsMap2::computeMapIntegrals() {
    m_mapIntegral = 0;
-   for (int i(0); i < m_naxis1; i++) {
+   m_mapIntegrals.clear();
+   for (int k(0); k < m_naxis3; k++) {
+      m_mapIntegrals.push_back(0);
       for (int j(0); j < m_naxis2; j++) {
-         for (int k(0); k < m_naxis3; k++) {
+         for (int i(0); i < m_naxis1; i++) {
             // NB: Indexing for solidAngles() is reversed from usual convention.
             m_mapIntegral += solidAngles()[i][j]*m_image[k][j][i];
+            m_mapIntegrals.back() += solidAngles()[i][j]*m_image[k][j][i];
          }
       }
    }
@@ -757,7 +784,7 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
    }
    my_map->m_solidAngles.clear();
 
-   computeMapIntegral();
+   computeMapIntegrals();
 
    return my_map;
 }

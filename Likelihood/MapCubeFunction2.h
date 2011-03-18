@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction2.h,v 1.1 2011/03/16 00:19:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction2.h,v 1.2 2011/03/16 22:22:50 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction2_h
@@ -61,9 +61,7 @@ public:
    /// @return The angular integral of the differential flux as a
    /// function of energy (implementation for
    /// MapBase::mapIntegral(double) const)
-   virtual double mapIntegral(double energy) const {
-      return 0;
-   }
+   virtual double mapIntegral(double energy) const;
 
 private:
 
