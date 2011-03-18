@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.407 2011/03/16 22:43:01 jchiang Exp $
+    $Id: release.notes,v 1.408 2011/03/17 17:48:57 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-07-02 17-Mar-2011 jchiang bug-fix for MapCubeFunction2 energy interpolations; implement WcsMap2::computeMapIntegrals for error calculation using covariance matrix
  Likelihood-17-07-01 17-Mar-2011 jchiang bug-fix for computing rebinning factor in SourceMaps.cxx
  Likelihood-17-07-00 16-Mar-2011 jchiang refactor WcsMap, MapCubeFunction (adding temporary versions); implement rebinning for finely binned model maps, controllable via minbinsz parameter in gtsrcmaps
  Likelihood-17-06-00 06-Mar-2011 jchiang check exposure map coverage for counts map in gtsrcmaps and gtlike; add access to TiedParameter objects in Composite2; fill m_parameter in composite likelihood classes
