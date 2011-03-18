@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.408 2011/03/17 17:48:57 jchiang Exp $
+    $Id: release.notes,v 1.409 2011/03/18 06:43:43 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-07-03 18-Mar-2011 jchiang bug-fix for diffuse response integral for events with reconstructed phi-values at phi=pi
  Likelihood-17-07-02 17-Mar-2011 jchiang bug-fix for MapCubeFunction2 energy interpolations; implement WcsMap2::computeMapIntegrals for error calculation using covariance matrix
  Likelihood-17-07-01 17-Mar-2011 jchiang bug-fix for computing rebinning factor in SourceMaps.cxx
  Likelihood-17-07-00 16-Mar-2011 jchiang refactor WcsMap, MapCubeFunction (adding temporary versions); implement rebinning for finely binned model maps, controllable via minbinsz parameter in gtsrcmaps
