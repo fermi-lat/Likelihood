@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.2 2011/03/16 22:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.3 2011/03/18 06:42:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -512,7 +512,7 @@ WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
 }
 
 double WcsMap2::solidAngle(const astro::SkyProj & proj, 
-                          double ilon, double ilat) {
+                           double ilon, double ilat) {
    std::pair<double, double> center(proj.pix2sph(ilon, ilat));
    std::pair<double, double> left(proj.pix2sph(ilon - 0.5, ilat));
    std::pair<double, double> right(proj.pix2sph(ilon + 0.5, ilat));
@@ -762,6 +762,7 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
    }
 
    for (int k(0); k < m_naxis3; k++) {
+      my_map->m_image[k].clear();
       my_map->m_image[k].resize(my_map->m_naxis2);
       for (size_t j(0); j < my_map->m_naxis2; j++) {
          my_map->m_image[k][j].resize(my_map->m_naxis1, 0);
@@ -771,7 +772,12 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
          unsigned int ii = i/factor;
          for (size_t j(0); j < m_naxis2; j++) {
             unsigned int jj = j/factor;
-            my_map->m_image[k][jj][ii] += m_image[k][j][i]*solidAngles()[i][j];
+            if (average) {
+               my_map->m_image[k][jj][ii] += 
+                  m_image[k][j][i]*solidAngles()[i][j];
+            } else {
+               my_map->m_image[k][jj][ii] += m_image[k][j][i];
+            }
          }
       }
       if (average) {
@@ -784,7 +790,7 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
    }
    my_map->m_solidAngles.clear();
 
-   computeMapIntegrals();
+   my_map->computeMapIntegrals();
 
    return my_map;
 }
