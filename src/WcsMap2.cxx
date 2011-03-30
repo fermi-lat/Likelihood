@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.3 2011/03/18 06:42:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.4 2011/03/19 00:26:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -80,13 +80,17 @@ namespace {
 namespace Likelihood {
 
 WcsMap2::WcsMap2() : m_refDir(0, 0), m_proj(0), m_interpolate(false),
-                     m_mapIntegral(0) {}
+                     m_mapIntegral(0), m_enforceEnergyRange(true),
+                     m_extrapolated(0) {}
 
 WcsMap2::WcsMap2(const std::string & filename,
                  const std::string & extension,
-                 bool interpolate) 
+                 bool interpolate,
+                 bool enforceEnergyRange) 
    : m_proj(0), m_naxis3(1), m_interpolate(interpolate),
-     m_isPeriodic(false), m_mapIntegral(0) {
+     m_isPeriodic(false), m_mapIntegral(0),
+     m_enforceEnergyRange(enforceEnergyRange),
+     m_extrapolated(0), m_filename(filename) {
    
    m_proj = new astro::SkyProj(filename, extension);
 
@@ -162,8 +166,10 @@ WcsMap2::WcsMap2(const std::string & filename,
 WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
                  double ra, double dec, double pix_size, int npts,
                  double energy, const std::string & proj_name, bool use_lb,
-                 bool interpolate) 
-   : m_refDir(ra, dec), m_interpolate(interpolate), m_mapIntegral(0) {
+                 bool interpolate, bool enforceEnergyRange) 
+   : m_refDir(ra, dec), m_interpolate(interpolate), m_mapIntegral(0),
+     m_enforceEnergyRange(enforceEnergyRange),
+     m_extrapolated(0), m_filename("") {
    if (use_lb) { // convert to l, b
       ra = m_refDir.l();
       dec = m_refDir.b();
@@ -224,7 +230,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
                  double cdelt1, double cdelt2,
                  int naxis1, int naxis2,
                  double energy, const std::string & proj_name, bool use_lb,
-                 bool interpolate) 
+                 bool interpolate, bool enforceEnergyRange) 
    : m_refDir(ra, dec), 
      m_naxis1(naxis1), 
      m_naxis2(naxis2), 
@@ -235,7 +241,10 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
      m_cdelt2(cdelt2), 
      m_crota2(0),
      m_interpolate(interpolate), 
-     m_mapIntegral(0) {
+     m_mapIntegral(0),
+     m_enforceEnergyRange(enforceEnergyRange),
+     m_extrapolated(0),
+     m_filename("") {
    if (::my_round(m_naxis1*m_cdelt1) == 360.) {
       m_isPeriodic = true;
    }
@@ -285,6 +294,10 @@ WcsMap2::~WcsMap2() {
 // // must ensure this pointer is not deleted here and live with the
 // // resulting memory leak when this object is deleted.
 //   delete m_proj;
+   st_stream::StreamFormatter formatter("WcsMap2", "", 2);
+   formatter.info(3) << "WcsMap2: extrapolated beyond the maximum "
+                     << "energy for map cube file " << m_filename << " "
+                     << m_extrapolated << " times.";
 }
 
 WcsMap2::WcsMap2(const WcsMap2 & rhs) 
@@ -306,7 +319,10 @@ WcsMap2::WcsMap2(const WcsMap2 & rhs)
      m_interpolate(rhs.m_interpolate),
      m_isPeriodic(rhs.m_isPeriodic),
      m_coordSys(rhs.m_coordSys),
-     m_mapIntegral(rhs.m_mapIntegral) {
+     m_mapIntegral(rhs.m_mapIntegral),
+     m_enforceEnergyRange(rhs.m_enforceEnergyRange),
+     m_extrapolated(rhs.m_extrapolated),
+     m_filename(rhs.m_filename) {
 // astro::SkyProj copy constructor is not implemented properly so we
 // must share this pointer, ensure it is not deleted in the
 // destructor, and live with the resulting memory leak when this
@@ -342,6 +358,9 @@ WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
       m_isPeriodic = rhs.m_isPeriodic;
       m_coordSys = rhs.m_coordSys;
       m_mapIntegral = rhs.m_mapIntegral;
+      m_enforceEnergyRange = rhs.m_enforceEnergyRange;
+      m_extrapolated = rhs.m_extrapolated;
+      m_filename = rhs.m_filename;
    }
    return *this;
 }
@@ -415,15 +434,18 @@ double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
    if (energy < 0) {
       energy = m_energies.front();
    }
-
-   if (energy < m_energies.front() || energy > m_energies.back()) {
-      throw std::runtime_error("WcsMap2: Requested energy is out-of-range.");
-   }
+   check_energy(energy);
 
    int k(0);
    if (m_naxes == 3) {
       k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
          - m_energies.begin() - 1;
+      /// Extrapolate beyond highest energy.  This will only occur if
+      /// m_enforceEnergyRange == true.
+      if (k > m_energies.size() - 2) {
+         k = m_energies.size() - 2;
+         m_extrapolated += 1;
+      }
    }
    double y1 = operator()(dir, k);
    if (energy == m_energies[k]) { 
@@ -658,9 +680,7 @@ double WcsMap2::mapIntegral() const {
 }
 
 double WcsMap2::mapIntegral(double energy) const {
-   if (energy < m_energies.front() || energy > m_energies.back()) {
-      throw std::runtime_error("WcsMap2: Requested energy is out-of-range.");
-   }
+   check_energy(energy);
 
    int k(0);
    if (m_naxes == 3) {
@@ -800,6 +820,21 @@ void WcsMap2::check_energy_index(int k) const {
       throw std::runtime_error("WcsMap2: Requested energy index is "
                                "out-of-range.");
    }
+}
+
+void WcsMap2::check_energy(double energy) const {
+   if (m_enforceEnergyRange && 
+       (energy < m_energies.front() || energy > m_energies.back())) {
+      throw std::runtime_error("WcsMap2: Requested energy is out-of-range.");
+   }
+}
+
+void WcsMap2::setExtrapolation(bool enforceEnergyRange) {
+   m_enforceEnergyRange = enforceEnergyRange;
+}
+
+bool WcsMap2::enforceEnergyRange() const {
+   return m_enforceEnergyRange;
 }
 
 } // namespace Likelihood
