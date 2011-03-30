@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.414 2011/03/30 21:37:59 jchiang Exp $
+    $Id: release.notes,v 1.415 2011/03/30 22:01:33 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-08-03 30-Mar-2011 jchiang disable f2c workaround for DARWIN
  Likelihood-17-08-02 30-Mar-2011 jchiang improve high chatter output for extrapolations beyond nominal map cube range in WcsMap2 (and therefore MapCubeFunction).
  Likelihood-17-08-01 30-Mar-2011 jchiang re-enable extrapolations for WcsMap2
  Likelihood-17-08-00 29-Mar-2011 jchiang implement Jurgen and Jean's quadrature suggestion in gtmodel
