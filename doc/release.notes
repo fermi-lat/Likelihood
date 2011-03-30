@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.412 2011/03/19 02:41:56 jchiang Exp $
+    $Id: release.notes,v 1.413 2011/03/30 05:05:06 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-08-01 30-Mar-2011 jchiang re-enable extrapolations for WcsMap2
  Likelihood-17-08-00 29-Mar-2011 jchiang implement Jurgen and Jean's quadrature suggestion in gtmodel
  Likelihood-17-07-05 18-Mar-2011 jchiang bug-fix: reset m_image of cloned map for rebinning
  Likelihood-17-07-04 18-Mar-2011 jchiang bug-fix for diffuse response integral for events with reconstructed phi-values at phi=pi
