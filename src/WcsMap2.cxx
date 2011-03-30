@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.4 2011/03/19 00:26:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.5 2011/03/30 21:37:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -295,9 +295,11 @@ WcsMap2::~WcsMap2() {
 // // resulting memory leak when this object is deleted.
 //   delete m_proj;
    st_stream::StreamFormatter formatter("WcsMap2", "", 2);
-   formatter.info(3) << "WcsMap2: extrapolated beyond the maximum "
-                     << "energy for map cube file " << m_filename << " "
-                     << m_extrapolated << " times.";
+   if (m_extrapolated > 0) {
+      formatter.info(3) << "WcsMap2: extrapolated beyond the maximum "
+                        << "energy for map cube file " << m_filename << " "
+                        << m_extrapolated << " times.\n";
+   }
 }
 
 WcsMap2::WcsMap2(const WcsMap2 & rhs) 
