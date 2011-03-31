@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.49 2010/10/06 21:16:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.50 2011/03/15 05:37:31 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.49 2010/10/06 21:16:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.50 2011/03/15 05:37:31 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -109,6 +109,8 @@ public:
       return m_countsSpectrum;
    }
 
+   std::vector<double> countsSpectrum(const std::string & srcName) const;
+
    virtual void addSource(Source * src);
 
    virtual Source * deleteSource(const std::string & srcName);
@@ -124,6 +126,10 @@ public:
       m_kmin = kmin;
       m_kmax = kmax;
       buildFixedModelWts();
+   }
+
+   std::pair<unsigned int, unsigned int> klims() const {
+      return std::make_pair(m_kmin, m_kmax);
    }
 
 protected:
