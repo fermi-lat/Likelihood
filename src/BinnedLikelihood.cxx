@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.75 2011/02/02 19:02:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.76 2011/03/15 05:37:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -72,7 +72,7 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
          size_t j(m_filledPixels.at(i));
          size_t k(j/m_pixels.size());
          if (k >= m_kmin && k <= m_kmax) {
-            double addend = data.at(j)*std::log(m_model.at(i));
+            double addend = data.at(j)*std::log(m_model[i]);
             my_value += addend;
             m_accumulator.add(addend);
          }
@@ -402,9 +402,9 @@ void BinnedLikelihood::computeModelMap(double & npred) const {
    for (size_t i(0); i < srcNames.size(); i++) {
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
                      srcNames.at(i)) == 0) {
-         addSourceWts(modelWts, srcNames.at(i));
+         addSourceWts(modelWts, srcNames[i]);
       }
-      npred += NpredValue(srcNames.at(i));
+      npred += NpredValue(srcNames[i]);
    }
 
    m_model.clear();
@@ -414,8 +414,8 @@ void BinnedLikelihood::computeModelMap(double & npred) const {
       if (k < m_kmin || k > m_kmax-1) {
          continue;
       }
-      double emin(m_energies.at(k));
-      double emax(m_energies.at(k+1));
+      double emin(m_energies[k]);
+      double emax(m_energies[k+1]);
       m_model.at(j) = pixelCounts(emin, emax, modelWts.at(j).first,
                                   modelWts.at(j).second);
    }
@@ -694,6 +694,39 @@ void BinnedLikelihood::getNpreds(const std::string & srcName,
       npreds = srcMap->npreds();
       delete srcMap;
    }
+}
+
+std::vector<double> 
+BinnedLikelihood::countsSpectrum(const std::string & srcName) const {
+   std::vector<double> counts_spectrum(m_kmax - m_kmin, 0);
+// Compute ratios of individual source model predictions to that of
+// the total model.
+   double npred;
+   if (!m_modelIsCurrent) {
+      computeModelMap(npred);
+   }
+   std::vector<std::pair<double, double> > modelWts;
+   std::pair<double, double> zeros(0, 0);
+   modelWts.resize(m_filledPixels.size(), zeros);
+   if (std::count(m_fixedSources.begin(), m_fixedSources.end(), srcName)
+       != 0) {
+      throw std::runtime_error("Cannot compute weighted counts spectrum "
+                               "for a fixed source.");
+   }
+   addSourceWts(modelWts, srcName);
+   for (size_t j(0); j < m_filledPixels.size(); j++) {
+      size_t k(m_filledPixels[j]/m_pixels.size());
+      if (k < m_kmin || k > m_kmax-1) {
+         continue;
+      }
+      double emin(m_energies[k]);
+      double emax(m_energies[k+1]);
+      double srcProb = pixelCounts(emin, emax, modelWts[j].first,
+                                   modelWts[j].second)/m_model[j];
+      size_t indx = m_filledPixels[j];
+      counts_spectrum[k - m_kmin] += srcProb*m_dataMap.data()[indx];
+   }
+   return counts_spectrum;
 }
 
 } // namespace Likelihood
