@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.418 2011/04/01 17:01:59 jchiang Exp $
+    $Id: release.notes,v 1.419 2011/04/01 18:34:34 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-09-03 01-Apr-2011 jchiang compute and store dNpred/dE for sum of fixed components in BinnedLikelihood for plotting of summed counts spectra
  Likelihood-17-09-02 01-Apr-2011 jchiang workaround for rhel4 and std::pair
  Likelihood-17-09-01 01-Apr-2011 jchiang workaround for rhel4 and std::pair
  Likelihood-17-09-00 31-Mar-2011 jchiang add member functions to support source model-weighted counts spectra for BinnedAnalysis.py
