@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.76 2011/03/15 05:37:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.77 2011/03/31 23:43:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -339,6 +339,8 @@ void BinnedLikelihood::buildFixedModelWts() {
    m_fixedSources.clear();
    m_fixedModelWts.clear();
    m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
+   m_fixedNpreds.clear();
+   m_fixedNpreds.resize(m_energies.size(), 0);
    std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
    for ( ; srcIt != m_sources.end(); ++srcIt) {
       const std::string & srcName(srcIt->first);
@@ -354,10 +356,16 @@ void BinnedLikelihood::buildFixedModelWts() {
          }
          addSourceWts(m_fixedModelWts, srcName, srcMap);
          m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
+         for (size_t k(0); k < m_energies.size(); k++) {
+            optimizers::dArg ee(m_energies[k]);
+            m_fixedNpreds[k] += (srcIt->second->spectrum()(ee)*
+                                 srcMap->npreds()[k]);
+         }
          if (srcMapIt != m_srcMaps.end()) {
             m_srcMaps.erase(srcName);
          }
          delete srcMap;
+         srcMap = 0;
          std::vector<double> pars;
          srcIt->second->spectrum().getParamValues(pars);
          m_modelPars[srcName] = pars;
@@ -479,16 +487,6 @@ double BinnedLikelihood::pixelCounts(double emin, double emax,
       return (y1 + y2)*(emax - emin)/2.;
    }
    return (y1*emin + y2*emax)/2.*std::log(emax/emin);
-//    if (::getenv("USE_OLD_PIX_EST")) {
-//       return (y1 + y2)*(emax - emin)/2.;
-//    }
-//    double gam(std::log(y2/y1)/std::log(emax/emin));
-//    if (gam == -1) {
-//       double y0(y2/std::pow(emax, gam));
-//       return y0*std::log(emax/emin);
-//    }
-
-//    return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
 }
 
 void BinnedLikelihood::createSourceMaps() {
@@ -708,11 +706,6 @@ BinnedLikelihood::countsSpectrum(const std::string & srcName) const {
    std::vector<std::pair<double, double> > modelWts;
    std::pair<double, double> zeros(0, 0);
    modelWts.resize(m_filledPixels.size(), zeros);
-   if (std::count(m_fixedSources.begin(), m_fixedSources.end(), srcName)
-       != 0) {
-      throw std::runtime_error("Cannot compute weighted counts spectrum "
-                               "for a fixed source.");
-   }
    addSourceWts(modelWts, srcName);
    for (size_t j(0); j < m_filledPixels.size(); j++) {
       size_t k(m_filledPixels[j]/m_pixels.size());
@@ -727,6 +720,16 @@ BinnedLikelihood::countsSpectrum(const std::string & srcName) const {
       counts_spectrum[k - m_kmin] += srcProb*m_dataMap.data()[indx];
    }
    return counts_spectrum;
+}
+
+std::vector<double> BinnedLikelihood::fixedModelSpectrum() const {
+   std::vector<double> model_spectrum;
+   for (size_t k(0); k < m_energies.size()-1; k++) {
+      model_spectrum.push_back(pixelCounts(m_energies[k], m_energies[k+1],
+                                           m_fixedNpreds[k],
+                                           m_fixedNpreds[k+1]));
+   }
+   return model_spectrum;
 }
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.16 2011/01/18 15:56:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.17 2011/01/20 00:26:40 jchiang Exp $
  */
 
 #include <algorithm>
@@ -161,16 +161,6 @@ double Source::pixelCounts(double emin, double emax,
    }
 // Quadrature in log-log space, suggested by J. Ballet.   
    return (y1*emin + y2*emax)/2.*std::log(emax/emin);
-//    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
-//       return (y1 + y2)*(emax - emin)/2.;
-//    }
-
-//    double gam(std::log(y2/y1)/std::log(emax/emin));
-//    if (gam == -1) {
-//       return y2*emax*std::log(emax/emin);
-//    }
-
-//    return y2/(gam + 1.)*(emax - emin*std::pow(emin/emax, gam));
 }
 
 double Source::pixelCountsDeriv(double emin, double emax,
@@ -192,22 +182,6 @@ double Source::pixelCountsDeriv(double emin, double emax,
    }
 // Quadrature in log-log space, suggested by J. Ballet.   
    return (dy1dp*emin + dy2dp*emax)/2.*std::log(emax/emin);
-//    if (::getenv("USE_OLD_PIX_EST") || y1 == 0 || y2 == 0) {
-//       return (dy1dp + dy2dp)*(emax - emin)/2.;
-//    }
-
-//    double gam(std::log(y2/y1)/std::log(emax/emin));
-//    if (gam == -1) {
-//       return dy2dp*emax*std::log(emax/emin);
-//    }
-
-//    double dgamdp((dy2dp/y2 - dy1dp/y1)/std::log(emax/emin));
-//    double epow(std::pow(emin/emax, gam));
-
-//    double part1 = dy2dp*(emax - emin*epow);
-//    double part2 = y2*dgamdp*(emax - emin*epow)/(gam + 1.);
-//    double part3 = y2*(emin*dgamdp*epow*std::log(emin/emax));
-//    return (part1 - part2 - part3)/(gam + 1.);
 }
 
 double Source::powerlaw_integral_est(double x1, double x2, 
