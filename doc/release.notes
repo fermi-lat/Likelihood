@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.416 2011/03/30 22:25:06 jchiang Exp $
+    $Id: release.notes,v 1.417 2011/03/31 23:45:39 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-09-01 01-Apr-2011 jchiang workaround for rhel4 and std::pair
  Likelihood-17-09-00 31-Mar-2011 jchiang add member functions to support source model-weighted counts spectra for BinnedAnalysis.py
  Likelihood-17-08-03 30-Mar-2011 jchiang disable f2c workaround for DARWIN
  Likelihood-17-08-02 30-Mar-2011 jchiang improve high chatter output for extrapolations beyond nominal map cube range in WcsMap2 (and therefore MapCubeFunction).
