@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.50 2011/03/15 05:37:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.51 2011/03/31 23:43:28 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.50 2011/03/15 05:37:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.51 2011/03/31 23:43:28 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -128,8 +128,8 @@ public:
       buildFixedModelWts();
    }
 
-   std::pair<unsigned int, unsigned int> klims() const {
-      return std::make_pair(m_kmin, m_kmax);
+   std::pair<int, int> klims() const {
+      return std::make_pair(static_cast<int>(m_kmin), static_cast<int>(m_kmax));
    }
 
 protected:
