@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.5 2011/03/30 21:37:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.6 2011/03/30 22:00:40 jchiang Exp $
  */
 
 #include <cmath>
@@ -689,15 +689,17 @@ double WcsMap2::mapIntegral(double energy) const {
       k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
          - m_energies.begin() - 1;
    }
-
    if (energy == m_energies.at(k)) {
       return m_mapIntegrals.at(k);
    }
+   if (k == m_energies.size() - 1) {
+      k = m_energies.size() - 2;
+   }
 
-   double value = (m_mapIntegrals[k-1]*
-                   std::exp((std::log(energy/m_energies[k-1]))
-                            /(std::log(m_energies[k]/m_energies[k-1]))
-                            *std::log(m_mapIntegrals[k]/m_mapIntegrals[k-1])));
+   double value = (m_mapIntegrals[k]*
+                   std::exp((std::log(energy/m_energies[k]))
+                            /(std::log(m_energies[k+1]/m_energies[k]))
+                            *std::log(m_mapIntegrals[k+1]/m_mapIntegrals[k])));
    return value;
 }
 

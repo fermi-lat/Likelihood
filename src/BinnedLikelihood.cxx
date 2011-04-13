@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.77 2011/03/31 23:43:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.78 2011/04/01 21:16:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -535,12 +535,12 @@ void BinnedLikelihood::saveSourceMaps(const std::string & filename) {
    std::vector<std::string> srcNames;
    getSrcNames(srcNames);
    for (unsigned int i = 0; i < srcNames.size(); i++) {
-   st_stream::StreamFormatter formatter("BinnedLikelihood",
-                                        "saveSourceMaps", 4);
-   formatter.info() << srcNames.at(i) << std::endl;
+      st_stream::StreamFormatter formatter("BinnedLikelihood",
+                                           "saveSourceMaps", 4);
+      formatter.info() << srcNames.at(i) << std::endl;
       if (m_srcMaps.count(srcNames.at(i))) {
          if (fileHasSourceMap(srcNames.at(i), m_srcMapsFile)) {
-//             replaceSourceMap(srcNames.at(i), m_srcMapsFile);
+//            replaceSourceMap(srcNames.at(i), m_srcMapsFile);
          } else {
             formatter.info() << "appending map for " 
                              << srcNames.at(i) << std::endl;
