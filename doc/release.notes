@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.419 2011/04/01 18:34:34 jchiang Exp $
+    $Id: release.notes,v 1.420 2011/04/01 21:18:04 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-09-04 13-Apr-2011 jchiang fencepost error in WcsMap2 for interpolation
  Likelihood-17-09-03 01-Apr-2011 jchiang compute and store dNpred/dE for sum of fixed components in BinnedLikelihood for plotting of summed counts spectra
  Likelihood-17-09-02 01-Apr-2011 jchiang workaround for rhel4 and std::pair
  Likelihood-17-09-01 01-Apr-2011 jchiang workaround for rhel4 and std::pair
