@@ -1,5 +1,5 @@
 # @file gtltcube.par
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtltcube.par,v 1.5 2009/03/16 20:44:58 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtltcube.par,v 1.6 2009/06/02 16:43:43 jchiang Exp $
 #
 evfile,s,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
@@ -9,8 +9,8 @@ outfile,f,a,"expCube.fits",,,"Output file"
 dcostheta,r,a,0.025,0.,1.,"Step size in cos(theta)"
 binsz,r,a,1,,,"Pixel size (degrees)"
 phibins,i,h,0,,,"Number of phi bins"
-tmin,r,h,0,,,"Minimum time (MET)"
-tmax,r,h,0,,,"Maximum time (MET)"
+tmin,r,h,0,,,"Minimum time (MET, applies only if evfile is a null string)"
+tmax,r,h,0,,,"Maximum time (MET, applies only if evfile is a null string)"
 file_version,s,h,1,,,Version of output file
 zmax,r,h,180,0,180,"Maximum zenith angle"
 
