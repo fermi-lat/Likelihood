@@ -3,7 +3,7 @@
  * @brief Declaration for the LogParabola class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogParabola.h,v 1.1 2005/01/26 06:53:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogParabola.h,v 1.1 2005/07/18 22:54:58 jchiang Exp $
  */
 
 #ifndef Likelihood_LogParabola_h
@@ -19,9 +19,6 @@ namespace Likelihood {
  *
  * @brief A log-parabolic function for modeling Blazar SED components.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogParabola.h,v 1.1 2005/01/26 06:53:36 jchiang Exp $
  */
     
 class LogParabola : public optimizers::Function {
