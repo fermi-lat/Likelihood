@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.110 2011/03/30 21:37:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.111 2011/03/30 22:24:30 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -75,6 +75,7 @@
 #include "Likelihood/BrokenPowerLaw2.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/EblAtten.h"
+#include "Likelihood/LogParabola.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
@@ -89,6 +90,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
 
    CPPUNIT_TEST_SUITE(LikelihoodTests);
 
+   CPPUNIT_TEST(test_LogParabola);
    CPPUNIT_TEST(test_LogNormal);
    CPPUNIT_TEST(test_BandFunction);
    CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
@@ -119,6 +121,7 @@ public:
    void setUp();
    void tearDown();
 
+   void test_LogParabola();
    void test_LogNormal();
    void test_BandFunction();
    void test_SmoothBrokenPowerLaw();
@@ -277,6 +280,30 @@ void LikelihoodTests::test_LogNormal() {
    params.push_back(optimizers::Parameter("Prefactor", 1));
    params.push_back(optimizers::Parameter("Log10_Mean", 3));
    params.push_back(optimizers::Parameter("Log10_Sigma", 2));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
+}
+
+void LikelihoodTests::test_LogParabola() {
+   Likelihood::LogParabola lp(1, 1.5, 6870., 0.01);
+   optimizers::FunctionTest tester(lp, "LogParabola");
+
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("norm", 1));
+   params.push_back(optimizers::Parameter("alpha", 1.5));
+   params.push_back(optimizers::Parameter("Eb", 6870.));
+   params.push_back(optimizers::Parameter("beta", 0.01));
 
    std::vector<optimizers::Arg *> args;
    args.push_back(new optimizers::dArg(100));
