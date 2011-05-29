@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EblAtten.cxx,v 1.3 2009/06/19 04:44:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EblAtten.cxx,v 1.4 2009/06/19 06:36:14 jchiang Exp $
  */
 
 #include <algorithm>
@@ -91,7 +91,7 @@ double EblAtten::value(optimizers::Arg & xarg) const {
 }
 
 double EblAtten::derivByParam(optimizers::Arg & xarg,
-                             const std::string & paramName) const {
+                              const std::string & paramName) const {
    double energy(dynamic_cast<optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
