@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.111 2011/03/30 22:24:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.112 2011/04/22 03:21:47 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -58,6 +58,7 @@
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
+#include "Likelihood/ScaleFactor.h"
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
@@ -113,6 +114,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_DiffRespNames);
    CPPUNIT_TEST_EXCEPTION(test_WcsMap2_exception, std::runtime_error);
    CPPUNIT_TEST(test_WcsMap2);
+   CPPUNIT_TEST(test_ScaleFactor);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -144,6 +146,7 @@ public:
    void test_DiffRespNames();
    void test_WcsMap2_exception();
    void test_WcsMap2();
+   void test_ScaleFactor();
 
 private:
 
@@ -379,6 +382,31 @@ void LikelihoodTests::test_EblAtten() {
    params.push_back(optimizers::Parameter("tau_norm", 1));
    params.push_back(optimizers::Parameter("redshift", 0.5));
    params.push_back(optimizers::Parameter("ebl_model", 0));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
+}
+
+void LikelihoodTests::test_ScaleFactor() {
+   Likelihood::ScaleFactor foo(PowerLaw2(1, -2.1, 20, 2e5), 1);
+   optimizers::FunctionTest tester(foo, "ScaleFactor::PowerLaw2");
+
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("Integral", 1));
+   params.push_back(optimizers::Parameter("Index", -2.1));
+   params.push_back(optimizers::Parameter("LowerLimit", 20.));
+   params.push_back(optimizers::Parameter("UpperLimit", 2e5));
+   params.push_back(optimizers::Parameter("ScaleFactor", 1));
 
    std::vector<optimizers::Arg *> args;
    args.push_back(new optimizers::dArg(100));
@@ -1292,6 +1320,10 @@ int main(int iargc, char * argv[]) {
 
       testObj.setUp();
       testObj.test_EblAtten();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_ScaleFactor();
       testObj.tearDown();
 
       testObj.setUp();
