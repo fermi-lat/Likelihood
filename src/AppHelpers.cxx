@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.90 2011/03/16 22:22:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.91 2011/05/29 17:53:09 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -29,6 +29,7 @@
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/EblAtten.h"
+#include "Likelihood/EnergyBand.h"
 #include "Likelihood/EventContainer.h"
 #include "Likelihood/ExpCutoff.h"
 #include "Likelihood/ExposureMap.h"
@@ -161,6 +162,24 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         new EblAtten(BrokenPowerLawExpCutoff()), makeClone);
    funcFactory->addFunc("EblAtten::PLSuperExpCutoff", 
                         new EblAtten(PowerLawSuperExpCutoff()), makeClone);
+
+   funcFactory->addFunc("EnergyBand::PowerLaw2", new EnergyBand(), makeClone);
+   funcFactory->addFunc("EnergyBand::BrokenPowerLaw2", 
+                        new EnergyBand(BrokenPowerLaw2()), makeClone);
+   funcFactory->addFunc("EnergyBand::LogParabola", 
+                        new EnergyBand(LogParabola()), makeClone);
+   funcFactory->addFunc("EnergyBand::BandFunction", 
+                        new EnergyBand(BandFunction()), makeClone);
+   funcFactory->addFunc("EnergyBand::SmoothBrokenPowerLaw", 
+                        new EnergyBand(SmoothBrokenPowerLaw()), makeClone);
+   funcFactory->addFunc("EnergyBand::FileFunction", 
+                        new EnergyBand(FileFunction()), makeClone);
+   funcFactory->addFunc("EnergyBand::ExpCutoff", 
+                        new EnergyBand(ExpCutoff()), makeClone);
+   funcFactory->addFunc("EnergyBand::BPLExpCutoff", 
+                        new EnergyBand(BrokenPowerLawExpCutoff()), makeClone);
+   funcFactory->addFunc("EnergyBand::PLSuperExpCutoff", 
+                        new EnergyBand(PowerLawSuperExpCutoff()), makeClone);
 
    funcFactory->addFunc("ScaleFactor::FileFunction", 
                         new ScaleFactor(FileFunction()), makeClone);
