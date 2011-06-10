@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.423 2011/05/29 17:58:22 jchiang Exp $
+    $Id: release.notes,v 1.424 2011/06/09 15:09:41 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-11-01 10-Jun-2011 jchiang bug-fix for handling energy bounds in EnergyBand class
  Likelihood-17-11-00 09-Jun-2011 jchiang Added EnergyBand decorator class
  Likelihood-17-10-00 29-May-2011 jchiang add ScaleFactor decorator class at DM group request
  Likelihood-17-09-05 04-May-2011 jchiang cp gammamc_dif.dat to Likelihood/data subdirectory so that it gets propagated to installer version
