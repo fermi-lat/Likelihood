@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EnergyBand.cxx,v 1.1 2011/05/29 17:53:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EnergyBand.cxx,v 1.1 2011/06/09 05:15:54 jchiang Exp $
  */
 
 #include <algorithm>
@@ -83,7 +83,7 @@ double EnergyBand::value(optimizers::Arg & xarg) const {
    int emax(m_spectrum->getNumParams() + 1);
    
    if (energy < m_parameter[emin].getTrueValue() ||
-       energy > m_parameter[emax].getTrueValue()) {
+       energy >= m_parameter[emax].getTrueValue()) {
       return 0;
    }
    return m_spectrum->operator()(xarg);
@@ -114,7 +114,7 @@ double EnergyBand::derivByParam(optimizers::Arg & xarg,
    }
    
    if (energy >= m_parameter[emin].getTrueValue() &&
-       energy <= m_parameter[emax].getTrueValue()) {
+       energy < m_parameter[emax].getTrueValue()) {
       return m_spectrum->derivByParam(xarg, paramName);
    } 
 
