@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Drm.h,v 1.1 2011/06/14 06:31:53 jchiang Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -13,6 +13,8 @@
 
 #include <deque>
 #include <vector>
+
+#include "astro/SkyDir.h"
 
 namespace Likelihood {
 
@@ -30,6 +32,7 @@ public:
        
 private:
 
+   astro::SkyDir m_dir;
    Observation & m_observation;
    std::deque<double> m_ebounds;
    size_t m_npts;

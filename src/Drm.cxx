@@ -5,15 +5,23 @@
  *
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.1 2011/06/14 06:31:53 jchiang Exp $
  */
 
 #include "Likelihood/Drm.h"
 
+namespace {
+   double integrate(const std::vector<double> & x, 
+                    const std::vector<double> & y) {
+      
+   }
+} // anonymous namespace
+
 //namespace Likelihood {
 
-Drm::Drm(Observation & observation, const std::vector<double> & ebounds,
-         size_t npts) : m_observation(observation), m_npts(npts) {
+Drm::Drm(double ra, double dec, Observation & observation, 
+         const std::vector<double> & ebounds, size_t npts) 
+   : m_dir(ra, dec), m_observation(observation), m_npts(npts) {
    // Prepare the energy bounds array to be used for both true and
    // measured counts bins.
    m_ebounds.resize(ebounds.size());
@@ -76,7 +84,41 @@ void Drm::get_emeas(size_t kp, std::vector<double> & emeas) const {
 
 void Drm::get_disp(double etrue, const std::vector<double> & emeas,
                    std::vector<double> & disp) const {
-   
+   disp.clear();
+   const ResponseFunctions & resps(m_observation.respFuncs());
+   const ExposureCube & expcube(m_observation.expCube());
+
+   // Get the event types (usually just the list of conversion_type's)
+   std::vector<int> evtTypes;
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator it;
+   for (it = resps.begin(); it != resps.end(); ++it) {
+      evtTypes.push_back(it->second->irfID());
+   }
+
+   size_t nmu(20);
+   std::vector<double> mu_vals;
+   double dmu(1./(nmu-1.));
+   for (size_t i(0); i < nmu; i++) {
+      mu_vals.push_back(1 - dmu*i);
+   }
+
+   for (size_t k(0); k < emeas.size(); k++) {
+      std::vector<double> exposr(nmu, 0);
+      std::vector<double> top(nmu, 0);
+      size_t j(0);
+      for (std::vector<double>::const_iterator mu(mu_vals.begin());
+           mu != mu_vals.end(); ++mu, j++) {
+         for (size_t i(0); i < evtTypes.size(); i++) {
+            double theta(std::acos(*mu));
+            double aeff(resps.aeff(etrue, theta, phi, evtTypes[i]));
+            double livetime(expcube.livetime(m_dir, *mu));
+            double edisp(resps.edisp(emeas, etrue, theta, phi, evtTypes[i]));
+            exposr[j] += aeff*livetime;
+            top[j] += edisp*exposr[j];
+         }
+      }
+      disp.push_back(integrate(mu_vals, top)/integrate(mu_vals, exposr));
+   }
 }
 
 } // namespace Likelihood
