@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.424 2011/06/09 15:09:41 jchiang Exp $
+    $Id: release.notes,v 1.425 2011/06/10 17:19:29 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-12-00 14-Jun-2011 jchiang added Drm class (not using it yet)
  Likelihood-17-11-01 10-Jun-2011 jchiang bug-fix for handling energy bounds in EnergyBand class
  Likelihood-17-11-00 09-Jun-2011 jchiang Added EnergyBand decorator class
  Likelihood-17-10-00 29-May-2011 jchiang add ScaleFactor decorator class at DM group request
