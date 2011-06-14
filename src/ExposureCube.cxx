@@ -3,7 +3,7 @@
  * @brief Implementation for ExposureCube wrapper class of map_tools::Exposure
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.10 2010/11/28 07:16:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.11 2011/06/14 14:06:43 jchiang Exp $
  */
 
 #include "tip/Header.h"
@@ -44,7 +44,7 @@ void ExposureCube::readExposureCube(std::string filename) {
 }
 
 double ExposureCube::livetime(const astro::SkyDir & dir,
-                              double costheta) const {
+                              double costheta, double phi) const {
    return m_exposure->data()[dir](costheta, phi);
 }
 

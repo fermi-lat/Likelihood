@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.19 2010/11/28 23:01:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.20 2011/06/14 14:06:42 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -28,7 +28,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.19 2010/11/28 23:01:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.20 2011/06/14 14:06:42 jchiang Exp $
  */
 
 class ExposureCube {
@@ -50,7 +50,8 @@ public:
 
    void readExposureCube(std::string filename);
 
-   double livetime(const astro::SkyDir & dir, double costheta) const;
+   double livetime(const astro::SkyDir & dir, double costheta,
+                   double phi=1) const;
 
    void setEfficiencyFactor(const irfInterface::IEfficiencyFactor * eff) {
       if (eff) {

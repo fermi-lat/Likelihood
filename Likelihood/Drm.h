@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Drm.h,v 1.1 2011/06/14 06:31:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Drm.h,v 1.2 2011/06/14 14:06:42 jchiang Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -24,8 +24,8 @@ class Drm {
 
 public:
    
-   Drm(Observation & observation, const std::vector<double> & ebounds,
-       size_t npts=30);
+   Drm(double ra, double dec, Observation & observation, 
+       const std::vector<double> & ebounds, size_t npts=30);
 
    void convolve(const std::vector<double> & true_counts,
                  std::vector<double> & meas_counts) const;
@@ -39,7 +39,13 @@ private:
 
    std::vector< std::vector<double> > m_drm;
 
-   void compute_drm()
+   void compute_drm();
+
+   void get_emeas(size_t kp, std::vector<double> & emeas) const;
+
+   void get_disp(double etrue, const std::vector<double> & emeas,
+                 std::vector<double> & disp) const;
+      
 
 };
 

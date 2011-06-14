@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.112 2011/04/22 03:21:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.113 2011/05/29 17:53:11 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -49,6 +49,7 @@
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffRespNames.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/Drm.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/EventContainer.h"
 #include "Likelihood/ExposureMap.h"
@@ -115,6 +116,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST_EXCEPTION(test_WcsMap2_exception, std::runtime_error);
    CPPUNIT_TEST(test_WcsMap2);
    CPPUNIT_TEST(test_ScaleFactor);
+   CPPUNIT_TEST(test_Drm);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -147,6 +149,7 @@ public:
    void test_WcsMap2_exception();
    void test_WcsMap2();
    void test_ScaleFactor();
+   void test_Drm();
 
 private:
 
@@ -851,6 +854,8 @@ CountsMap LikelihoodTests::singleSrcMap(unsigned int nee) const {
    const tip::Table * events 
       = tip::IFileSvc::instance().readTable(eventFile, "events");
    dataMap.binInput(events->begin(), events->end());
+   delete events;
+
    return dataMap;
 }
 
@@ -880,8 +885,8 @@ void LikelihoodTests::test_BinnedLikelihood() {
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
    binnedLogLike.saveSourceMaps("srcMaps.fits");
 
-/// Loop twice. In first iteration, do tests using all energy bands.  In second, 
-/// restrict bands to (5, 15) for derivative calculations
+/// Loop twice. In first iteration, do tests using all energy bands.
+/// In second, restrict bands to (5, 15) for derivative calculations
    for (size_t iter(0); iter < 2; iter++) {
 // Try to fit using binned model.
 #ifdef DARWIN_F2C_FAILURE
@@ -975,13 +980,14 @@ void LikelihoodTests::test_BinnedLikelihood() {
          // std::cout << (logLike_plus - logLike_minus)/diff << std::endl;
       
 // Another weak test.
-         double num_deriv = fabs((derivs[i] - (logLike_plus - logLike_minus)/diff)
+         double num_deriv = fabs((derivs[i] - (logLike_plus-logLike_minus)/diff)
                                  /derivs[i]);
          // std::cout << "numerical deriv: " << num_deriv << std::endl;
          CPPUNIT_ASSERT(num_deriv < 6e-2);
       }
       delete modelMap;
-   } // end of iter loop for different energy ranges (via BinnedLikelihood::set_klims(...))
+   } // end of iter loop for different energy ranges (via
+     // BinnedLikelihood::set_klims(...))
 }
 
 double fit(BinnedLikelihood & like, double tol=1e-5, int verbose=0) {
@@ -1227,6 +1233,43 @@ void LikelihoodTests::test_WcsMap2() {
    CPPUNIT_ASSERT(delta < 1e-5);
 }
 
+void LikelihoodTests::test_Drm() {
+   std::string exposureCubeFile = dataPath("expcube_1_day.fits");
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   m_expCube->readExposureCube(exposureCubeFile);
+
+   CountsMap cmap(singleSrcMap(41));
+
+   SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
+   Source * src =  srcFactory->create("Crab Pulsar");
+
+   SourceMap srcMap(src, &cmap, *m_observation);
+
+   std::vector<double> npreds(srcMap.npreds());
+   npreds.pop_back();
+
+   // Multiply by exponential to show effect of energy dispersion at 
+   // higher energies.
+   double cutoff(3e3);
+   for (size_t k(0); k < npreds.size(); k++) {
+      npreds[k] *= std::exp(-cmap.energies()[k]/cutoff);
+   }
+
+   double ra(83.57);
+   double dec(22.01);
+   Drm drm(ra, dec, *m_observation, cmap.energies());
+   
+   std::vector<double> meas_counts;
+   drm.convolve(npreds, meas_counts);
+//    for (size_t k(0); k < npreds.size(); k++) {
+//       std::cout << cmap.energies()[k] << "  "
+//                 << npreds[k] << "  "
+//                 << meas_counts[k] << std::endl;
+//    }
+}
+
 void LikelihoodTests::readEventData(const std::string &eventFile,
                                     const std::string &scDataFile,
                                     std::vector<Event> &events) {
@@ -1384,6 +1427,10 @@ int main(int iargc, char * argv[]) {
 
       testObj.setUp();
       testObj.test_rescaling();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_Drm();
       testObj.tearDown();
    } else {
       CppUnit::TextTestRunner runner;
