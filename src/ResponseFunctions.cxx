@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.30 2009/04/08 16:24:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.31 2009/05/20 19:30:47 jchiang Exp $
  */
 
 #include <algorithm>
@@ -153,6 +153,20 @@ double ResponseFunctions::edisp(double emeas, double etrue,
    return edisp->value(emeas, etrue, appDir, zAxis, xAxis);
 }
 
+double ResponseFunctions::edisp(double emeas, double etrue, 
+                                double theta, double phi, int type) const {
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   if (!irfs) {
+      std::ostringstream message;
+      message << "Could not find appropriate response functions "
+              << "for these event data."
+              << "Event class requested: " << type << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   irfInterface::IEdisp * edisp(irfs->edisp());
+   return edisp->value(emeas, etrue, theta, phi);
+}
+
 double ResponseFunctions::aeff(double etrue, 
                                const astro::SkyDir & appDir,
                                const astro::SkyDir & zAxis,
@@ -168,6 +182,20 @@ double ResponseFunctions::aeff(double etrue,
    }
    irfInterface::IAeff * aeff(irfs->aeff());
    return aeff->value(etrue, appDir, zAxis, xAxis);
+}
+
+double ResponseFunctions::aeff(double etrue, double theta, double phi,
+                               int type) const {
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   if (!irfs) {
+      std::ostringstream message;
+      message << "Could not find appropriate response functions "
+              << "for these event data."
+              << "Event class requested: " << type << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   irfInterface::IAeff * aeff(irfs->aeff());
+   return aeff->value(etrue, theta, phi);
 }
 
 } // namespace Likelihood
