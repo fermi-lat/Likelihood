@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.74 2009/06/03 19:04:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.75 2009/10/28 18:31:54 jchiang Exp $
  */
 
 #include <cctype>
@@ -52,8 +52,12 @@ std::vector<double> Event::s_mu_2;
 std::vector<double> Event::s_phi;
 bool Event::s_haveSourceRegionData(false);
 
-Event::Event() : m_classLevel(0), m_respName(""), m_modelSum(0), 
-                 m_efficiency(1) {}
+Event::Event() : m_appDir(0, 0), m_energy(0), m_arrTime(0), m_muZenith(0),
+                 m_type(0), m_classLevel(0), m_scDir(0, 0), m_scXDir(0, 0),
+                 m_useEdisp(false),
+                 m_respName(""), m_modelSum(0), m_fluxDensities(), m_estep(0),
+                 m_trueEnergies(), m_true_energies(), 
+                 m_efficiency(1), m_respDiffuseSrcs(), m_diffSrcNames() {}
 
 Event::Event(double ra, double dec, double energy, double time, 
              const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
