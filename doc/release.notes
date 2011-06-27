@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.427 2011/06/20 23:45:49 jchiang Exp $
+    $Id: release.notes,v 1.428 2011/06/23 19:50:33 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-12-03 26-Jun-2011 jchiang add XmlParser::delete_instance
  Likelihood-17-12-02 23-Jun-2011 jchiang skip st_facilities::Util::cleanLines with flag to remove winodws CRs
  Likelihood-17-12-01 20-Jun-2011 jchiang initialize all data members in Event default constructor
  Likelihood-17-12-00 14-Jun-2011 jchiang added Drm class (not using it yet)
