@@ -4,7 +4,7 @@
  * access to model counts and derivatives wrt model parameters.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Pixel.cxx,v 1.7 2009/06/03 05:43:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Pixel.cxx,v 1.8 2010/05/18 18:27:32 jchiang Exp $
  */
 
 #include "Likelihood/Pixel.h"
@@ -27,16 +27,14 @@ double Pixel::modelCounts(double emin, double emax,
       for ( ; respIt != srcModel.observation().respFuncs().end(); ++respIt) {
          int evtType = respIt->second->irfID();
          Aeff aeff1(src, m_dir, emin, evtType);
-//          double map_lower = 
-//             srcModel.observation().expCube().value(m_dir, aeff1);
          double map_lower = 
             srcModel.observation().expCube().value(m_dir, aeff1, emin);
          Aeff aeff2(src, m_dir, emax, evtType);
-//          double map_upper = 
-//             srcModel.observation().expCube().value(m_dir, aeff2);
          double map_upper = 
             srcModel.observation().expCube().value(m_dir, aeff2, emax);
-         my_counts += (map_lower + map_upper)/2.*m_solidAngle*(emax - emin);
+//         my_counts += (map_lower + map_upper)/2.*m_solidAngle*(emax - emin);
+         my_counts += ( (map_lower*emin + map_upper*emax)/2.*m_solidAngle
+                        *std::log(emax/emin) );
       }
    }
    return my_counts;

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.2 2011/06/14 14:06:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.3 2011/06/14 22:41:50 jchiang Exp $
  */
 
 #include <cmath>
@@ -36,7 +36,7 @@ namespace {
 
 namespace Likelihood {
 
-Drm::Drm(double ra, double dec, Observation & observation, 
+Drm::Drm(double ra, double dec, const Observation & observation, 
          const std::vector<double> & ebounds, size_t npts) 
    : m_dir(ra, dec), m_observation(observation), m_npts(npts) {
    // Prepare the energy bounds array to be used for both true and

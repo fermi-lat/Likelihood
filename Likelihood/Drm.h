@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Drm.h,v 1.2 2011/06/14 14:06:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Drm.h,v 1.3 2011/06/14 22:41:49 jchiang Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -24,7 +24,7 @@ class Drm {
 
 public:
    
-   Drm(double ra, double dec, Observation & observation, 
+   Drm(double ra, double dec, const Observation & observation, 
        const std::vector<double> & ebounds, size_t npts=30);
 
    void convolve(const std::vector<double> & true_counts,
@@ -33,7 +33,7 @@ public:
 private:
 
    astro::SkyDir m_dir;
-   Observation & m_observation;
+   const Observation & m_observation;
    std::deque<double> m_ebounds;
    size_t m_npts;
 
