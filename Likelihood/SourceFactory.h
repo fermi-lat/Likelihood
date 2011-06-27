@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.24 2007/12/05 19:09:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.25 2010/07/07 01:05:29 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -45,7 +45,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.24 2007/12/05 19:09:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.25 2010/07/07 01:05:29 jchiang Exp $
  *
  */
     
@@ -55,7 +55,7 @@ public:
 
    SourceFactory(const Observation & observation, bool verbose=false);
 
-   virtual ~SourceFactory();
+   ~SourceFactory();
 
    Source * create(const std::string & name);
 
