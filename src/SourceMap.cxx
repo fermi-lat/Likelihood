@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.94 2011/03/17 17:47:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.95 2011/03/18 06:42:10 jchiang Exp $
  */
 
 #include <algorithm>
@@ -133,7 +133,9 @@ void SourceMap::makeDiffuseMap(Source * src,
                      static_cast<unsigned int>(minbinsz/cdelt2));
          m_formatter->info(4) << "\nrebinning factor: " 
                               << factor << std::endl;
-         tmp.rebin(factor);
+         if (factor > 1) {
+            tmp.rebin(factor);
+         }
       }
    } catch (MapBaseException &) {
       // do nothing

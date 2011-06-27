@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.6 2011/03/30 22:00:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.7 2011/04/13 18:10:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -537,11 +537,23 @@ WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
 
 double WcsMap2::solidAngle(const astro::SkyProj & proj, 
                            double ilon, double ilat) {
+   bool atpole(false);
    std::pair<double, double> center(proj.pix2sph(ilon, ilat));
    std::pair<double, double> left(proj.pix2sph(ilon - 0.5, ilat));
    std::pair<double, double> right(proj.pix2sph(ilon + 0.5, ilat));
    std::pair<double, double> bottom(proj.pix2sph(ilon, ilat - 0.5));
    std::pair<double, double> top(proj.pix2sph(ilon, ilat + 0.5));
+   if (std::fabs(center.second) == 90.) {
+      // The center of this pixel is at the pole of the map, so need
+      // to shift center by half a pixel in latitude and compute half
+      // of the implied "bow-tie" shape for the pixel and will
+      // multiply dOmega by two on output.
+      left = proj.pix2sph(ilon - 0.5, ilat - 0.25);
+      right = proj.pix2sph(ilon + 0.5, ilat - 0.25);
+      top = proj.pix2sph(ilon, ilat);
+      left = proj.pix2sph(ilon, ilat - 0.5);
+      atpole = true;
+   }
 
    astro::SkyDir rightDir(right.first, right.second);
    astro::SkyDir leftDir(left.first, left.second);
@@ -550,6 +562,9 @@ double WcsMap2::solidAngle(const astro::SkyProj & proj,
    double delta_lat = (top.second - bottom.second)*M_PI/180.;
 
    double dOmega = std::fabs(delta_lon*delta_lat);
+   if (atpole) {
+      return dOmega*2;
+   }
 
    return dOmega;
 }
@@ -805,8 +820,8 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
          }
       }
       if (average) {
-         for (size_t ii(0); ii < my_map->m_naxis2; ii++) {
-            for (size_t jj(0); jj < my_map->m_naxis1; jj++) {
+         for (size_t ii(0); ii < my_map->m_naxis1; ii++) {
+            for (size_t jj(0); jj < my_map->m_naxis2; jj++) {
                my_map->m_image[k][jj][ii] /= my_solidAngles[jj][ii];
             }
          }
