@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.60 2010/07/21 16:38:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.61 2010/07/23 16:09:08 jchiang Exp $
  */
 
 #include <cmath>
@@ -37,6 +37,7 @@
 #include "Likelihood/Event.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
+#include "Likelihood/XmlParser.h"
 
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
@@ -58,7 +59,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.60 2010/07/21 16:38:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.61 2010/07/23 16:09:08 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -178,6 +179,7 @@ void diffuseResponses::run() {
                              << std::endl;
       }
    }
+   XmlParser::delete_instance();
 }
 
 void diffuseResponses::promptForParameters() {

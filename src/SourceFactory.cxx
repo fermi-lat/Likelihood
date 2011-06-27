@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.68 2011/02/02 01:21:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.69 2011/03/16 22:22:52 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -33,8 +33,7 @@
 #include "Likelihood/RadialProfile.h"
 //#include "Likelihood/SpatialMap.h"
 #include "Likelihood/SourceFactory.h"
-
-#include "XmlParser.h"
+#include "Likelihood/XmlParser.h"
 
 namespace Likelihood {
 
