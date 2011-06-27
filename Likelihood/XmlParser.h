@@ -3,7 +3,7 @@
  * @brief Singleton wrapper for xmlBase::XmlParser instance
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlParser.h,v 1.3 2006/03/16 00:35:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/XmlParser.h,v 1.4 2006/03/16 06:20:08 jchiang Exp $
  */
 
 #ifndef Likelihood_XmlParser_h
@@ -33,6 +33,11 @@ public:
          s_instance = new xmlBase::XmlParser();
       }
       return s_instance;
+   }
+
+   static void delete_instance() {
+      delete s_instance;
+      s_instance = 0;
    }
 
 private:
