@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.75 2009/10/28 18:31:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.76 2011/06/20 23:45:07 jchiang Exp $
  */
 
 #include <cctype>
@@ -67,7 +67,8 @@ Event::Event(double ra, double dec, double energy, double time,
      m_muZenith(muZenith), m_type(type), m_classLevel(0), 
      m_scDir(scZAxis), m_scXDir(scXAxis),
      m_useEdisp(useEdisp), m_respName(respName), m_modelSum(0),
-     m_efficiency(efficiency) {
+     m_fluxDensities(), m_estep(0), m_trueEnergies(), m_true_energies(),
+     m_efficiency(efficiency), m_respDiffuseSrcs(), m_diffSrcNames() {
    if (m_useEdisp) {
 // For <15% energy resolution, consider true energies over the range
 // (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
