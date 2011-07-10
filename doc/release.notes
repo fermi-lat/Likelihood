@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.430 2011/06/27 23:00:51 jchiang Exp $
+    $Id: release.notes,v 1.431 2011/06/28 19:29:35 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-14-00 10-Jul-2011 jchiang copy GTI extension from ltcube to expcube2 output
  Likelihood-17-13-01 28-Jun-2011 jchiang Initialize all data members in Event(...) constructor
  Likelihood-17-13-00 27-Jun-2011 jchiang bug-fix for map rebinning in WcsMap2
  Likelihood-17-12-03 26-Jun-2011 jchiang add XmlParser::delete_instance
