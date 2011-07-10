@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.11 2011/01/04 04:58:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.12 2011/02/04 05:14:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -22,6 +22,8 @@
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
 #include "tip/Header.h"
+
+#include "dataSubselector/Gti.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedExposure.h"
@@ -50,6 +52,7 @@ private:
    void promptForParameters();
    void set_phi_status();
    void generateEnergies(std::vector<double> & energies) const;
+   void copyGtis() const;
    static std::string s_cvs_id;
 };
 
@@ -113,6 +116,7 @@ void ExpCube::run() {
    }
    BinnedExposure bexpmap(energies, m_helper->observation(), &m_pars);
    bexpmap.writeOutput(m_pars["outfile"]);
+   copyGtis();
 }
 
 void ExpCube::generateEnergies(std::vector<double> & energies) const {
@@ -183,4 +187,11 @@ void ExpCube::set_phi_status() {
          respIt->second->aeff()->setPhiDependence(false);
       }
    }
+}
+
+void ExpCube::copyGtis() const {
+   std::string infile = m_pars["infile"];
+   dataSubselector::Gti gti(infile);
+   std::string outfile = m_pars["outfile"];
+   gti.writeExtension(outfile);
 }
