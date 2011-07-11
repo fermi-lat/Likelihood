@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.8 2011/03/03 06:11:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Composite2.cxx,v 1.9 2011/03/06 05:31:26 jchiang Exp $
  */
 
 #include <algorithm>
@@ -162,6 +162,7 @@ void Composite2::syncParams() {
       }
       it->first->setFreeParams(freePars);
    }
+
    // Now fill m_parameter with the tied parameters.
    for (size_t i(0); i < m_tiedPars.size(); i++) {
      m_parameter.push_back(*m_tiedPars.at(i));
@@ -284,5 +285,17 @@ TiedParameter & Composite2::getTiedParam(const LogLike & like, size_t i) {
    }
    throw std::runtime_error("Parameter not found.");
 }
+
+  void Composite2::setTiedParamValue(const LogLike & like, size_t i, double value) {
+   std::vector<TiedParameter *>::const_iterator tp(m_tiedPars.begin());
+   for (; tp != m_tiedPars.end(); ++tp) {
+      if ((*tp)->has_member(like, i)) {
+	(*tp)->setValue(value);
+	return;
+      }
+   }
+   throw std::runtime_error("Parameter not found.");
+}
+
   
 } // namespace Likleihood
