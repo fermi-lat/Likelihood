@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.95 2011/03/18 06:42:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.96 2011/06/27 22:57:50 jchiang Exp $
  */
 
 #include <algorithm>
@@ -265,6 +265,7 @@ void SourceMap::makeDiffuseMap(Source * src,
          }
       }
    }
+   computeNpredArray();
 // Delete model map for map-based diffuse sources to save memory.  The
 // map will be reloaded dynamically if it is needed again.
    try {
