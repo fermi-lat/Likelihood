@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.39 2011/03/02 04:43:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.40 2011/03/07 06:15:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -271,11 +271,13 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    header["DATE-END"].set("");
 
    header["CRVAL1"].set(m_crval[0]);
-   header["CRPIX1"].set(m_naxes[0]/2 + 0.5);
+   double crpix1 = static_cast<double>(m_naxes[0] + 1)/2.;
+   header["CRPIX1"].set(crpix1);
    header["CDELT1"].set(m_cdelt[0]);
 
    header["CRVAL2"].set(m_crval[1]);
-   header["CRPIX2"].set(m_naxes[1]/2 + 0.5);
+   double crpix2 = static_cast<double>(m_naxes[1] + 1)/2.;
+   header["CRPIX2"].set(crpix1);
    header["CDELT2"].set(m_cdelt[1]);
 
    if (m_isGalactic) {
