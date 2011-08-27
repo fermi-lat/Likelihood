@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.435 2011/08/08 17:42:53 jchiang Exp $
+    $Id: release.notes,v 1.436 2011/08/10 16:07:25 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-14-05 26-Aug-2011 jchiang Write out template filename to xml model definition for RadialProfile class
  Likelihood-17-14-04 10-Aug-2011 jchiang switch to P7SOURCE_V6 as default irfs
  Likelihood-17-14-03 08-Aug-2011 jchiang fix type for setting CRPIX2 in BinnedExposure::writeOutput
  Likelihood-17-14-02 08-Aug-2011 jchiang correct CRPIX# calculation in BinnedExposure.cxx (LK-68@JIRA)
