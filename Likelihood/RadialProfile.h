@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RadialProfile.h,v 1.2 2010/06/19 22:26:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RadialProfile.h,v 1.3 2010/06/24 21:43:39 jchiang Exp $
  */
 
 #ifndef Likelihood_RadialProfile_h
@@ -46,6 +46,8 @@ public:
 
    void readTemplateFile(const std::string & template_file);
 
+   const std::string & templateFile() const;
+
    void setCenter(double ra, double dec);
 
    virtual optimizers::Function * clone() const {
@@ -60,6 +62,8 @@ private:
    double integral(optimizers::Arg &, optimizers::Arg &) const {return 0;}
 
    mutable astro::SkyDir * m_center;
+
+   std::string m_templateFile;
 
    std::vector<double> m_theta;
 
