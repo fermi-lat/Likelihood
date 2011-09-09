@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.7 2011/04/13 18:10:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.8 2011/06/27 22:57:50 jchiang Exp $
  */
 
 #include <cmath>
@@ -283,6 +283,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
       }
       image_plane.push_back(row);
    }
+   check_negative_pixels(image_plane);
    m_image.clear();
    m_image.push_back(image_plane);
    m_energies.push_back(energy);
@@ -393,22 +394,18 @@ double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
    int ix(static_cast<int>(x));
    int iy(static_cast<int>(y));
 
-// Points within half a pixel of the edges of the map need to be
-// extrapolated in the context of the bilinear scheme, even though
-// they are formally inside the map.
+// For points within half a pixel of the edges of the map,
+// extrapolation would be required in the context of the bilinear
+// scheme.  However, this could result in unphysical negative values,
+// so just return the un-interpolated value of the pixel in which the
+// point lies.
    if (!m_isPeriodic) {
-      if (ix < 1) {
-         ix = 1;
-      }
-      if (ix >= m_naxis1) {
-         ix = m_naxis1 - 1;
+      if (ix < 1 || ix >= m_naxis1) {
+         return pixelValue(x, y, k);
       }
    }
-   if (iy < 1) {
-      iy = 1;
-   }
-   if (iy >= m_naxis2) {
-      iy = m_naxis2 - 1;
+   if (iy < 1 || iy >= m_naxis2) {
+      return pixelValue(x, y, k);
    }
    
    double tt(x - ix);
@@ -428,7 +425,7 @@ double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
    
    double value((1. - tt)*(1. - uu)*y1 + tt*(1. - uu)*y2 
                 + tt*uu*y3 + (1. - tt)*uu*y4);
-   
+
    return value;
 }
 
@@ -454,6 +451,7 @@ double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
       return y1;
    }
    double y2 = operator()(dir, k+1);
+
    double value = ::interpolatePowerLaw(energy, m_energies[k],
                                         m_energies[k+1], y1, y2);
    return value;
@@ -530,6 +528,8 @@ WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
 
    psf_image.normalize();
 
+   check_negative_pixels(counts);
+   check_negative_pixels(psf_image);
    my_image.m_image.push_back(Convolve::convolve2d(counts, psf_image));
 
    return my_image;
@@ -854,6 +854,16 @@ void WcsMap2::setExtrapolation(bool enforceEnergyRange) {
 
 bool WcsMap2::enforceEnergyRange() const {
    return m_enforceEnergyRange;
+}
+
+void WcsMap2::check_negative_pixels(const ImagePlane_t & image) const {
+   for (size_t j(0); j < image.size(); j++) {
+      for (size_t i(0); i < image[j].size(); i++) {
+         if (image[j][i] < 0) {
+            throw std::runtime_error("Image pixel value less than zero.");
+         }
+      }
+   }
 }
 
 } // namespace Likelihood

@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.3 2011/03/18 06:42:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.4 2011/03/30 21:37:15 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -27,7 +27,7 @@ class MeanPsf;
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.3 2011/03/18 06:42:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.4 2011/03/30 21:37:15 jchiang Exp $
  */
 
 class WcsMap2 {
@@ -176,6 +176,8 @@ private:
    void check_energy_index(int k) const;
 
    void check_energy(double energy) const;
+
+   void check_negative_pixels(const ImagePlane_t &) const;
 
    double operator()(const astro::SkyDir & dir, int k) const;
 
