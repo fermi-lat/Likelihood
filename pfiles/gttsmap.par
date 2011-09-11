@@ -1,20 +1,33 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gttsmap.par,v 1.24 2010/05/04 23:49:51 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gttsmap.par,v 1.25 2011/08/10 16:06:36 jchiang Exp $
 #
-evfile,f,a,"",,,"Event data file"
-evtable,s,h,"EVENTS",,,Event data extension
-scfile,f,a,"",,,"Spacecraft data file"
-sctable,s,h,"SC_DATA",,,Spacecraft file HDU
-expmap,f,a,"none",,,"Exposure map file"
-expcube,f,a,"none",,,"Exposure hypercube file"
-srcmdl,f,a,"",,,"Source model file"
-outfile,f,a,"",,,"TS map file name"
-
+# Parameters common to binned and unbinned
+#
 irfs,s,a,"P7SOURCE_V6",,,"Response functions to use"
+expcube,f,a,"none",,,"Exposure hypercube file"
+srcmdl,fr,a,"",,,"Source model file"
+statistic,s,a,"UNBINNED",BINNED|UNBINNED,,"Statistic to use"
 optimizer,s,a,"MINUIT",DRMNFB|NEWMINUIT|MINUIT|DRMNGB|LBFGS,,"Optimizer"
-ftol,r,a,1e-5,,,Fit tolerance
+ftol,r,h,1e-3,,,"Fit tolerance"
 toltype,s,h,"ABS","ABS|REL",,"Fit tolerance convergence type (absolute vs relative)"
-
+#
+# Unbinned
+#
+evfile,f,a,"none",,,"Event file"
+evtable,s,h,"EVENTS",,,"Event table extension"
+scfile,f,a,"none",,,"Spacecraft file"
+sctable,s,h,"SC_DATA",,,"Spacecraft table extension"
+expmap,f,a,"none",,,"Unbinned exposure map"
+#
+# Binned
+#
+cmap,f,a,"none",,,"Counts map file"
+bexpmap,f,a,"none",,,"Binned exposure map"
+psfcorr,b,h,yes,,,"apply psf integral corrections"
+#
+# Output file parameters
+#
+outfile,f,a,"",,,"TS map file name"
 nxpix,i,a,,,,Number of X axis pixels
 nypix,i,a,,,,Number of Y axis pixels
 binsz,r,a,,,,Image scale (in degrees/pixel)

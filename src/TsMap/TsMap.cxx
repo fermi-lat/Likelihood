@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.46 2009/07/08 15:57:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.47 2010/06/16 22:49:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -34,7 +34,9 @@
 #include "optimizers/Exception.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/LogLike.h"
+#include "Likelihood/SourceMap.h"
 
 using namespace Likelihood;
 
@@ -65,16 +67,17 @@ private:
    LogLike * m_logLike;
    optimizers::Optimizer * m_opt;
    st_stream::StreamFormatter * m_formatter;
-
-   std::vector<std::string> m_eventFiles;
+   std::string m_statistic;
+   CountsMap * m_dataMap;
    std::vector<astro::SkyDir> m_dirs;
    std::vector<float> m_tsMap;
    std::string m_coordSys;
    std::vector<double> m_crpix;
    std::vector<double> m_crval;
    std::vector<double> m_cdelt;
+   void promptForParameters();
    void readSrcModel();
-   void readEventData();
+   void readEventData(const std::vector<std::string> & evfiles);
    void selectOptimizer();
    void setGrid();
    void computeMap();
@@ -92,6 +95,15 @@ TsMap::TsMap()
      m_logLike(0), m_opt(0),
      m_formatter(new st_stream::StreamFormatter("gttsmap", "", 2)) {
    setVersion(s_cvs_id);
+   m_pars.setSwitch("statistic");
+   m_pars.setCase("statistic", "BINNED", "cmap");
+   m_pars.setCase("statistic", "BINNED", "bexpmap");
+   m_pars.setCase("statistic", "BINNED", "psfcorr");
+   m_pars.setCase("statistic", "UNBINNED", "evfile");
+   m_pars.setCase("statistic", "UNBINNED", "evtable");
+   m_pars.setCase("statistic", "UNBINNED", "scfile");
+   m_pars.setCase("statistic", "UNBINNED", "sctable");
+   m_pars.setCase("statistic", "UNBINNED", "expmap");
 }
 
 std::string TsMap::s_cvs_id("$Name:  $");
@@ -103,51 +115,101 @@ void TsMap::banner() const {
    }
 }
 
-void TsMap::run() {
-   m_pars.Prompt();
+void TsMap::promptForParameters() {
+   m_pars.Prompt("statistic");
+   std::string statistic = m_pars["statistic"];
+   m_statistic = statistic;
+   if (m_statistic == "BINNED") {
+      m_pars.Prompt("cmap");
+      m_pars.Prompt("bexpmap");
+   } else {
+      m_pars.Prompt("scfile");
+      m_pars.Prompt("evfile");
+      m_pars.Prompt("expmap");
+   }
+   m_pars.Prompt("expcube");
+   m_pars.Prompt("srcmdl");
+   m_pars.Prompt("irfs");
+   m_pars.Prompt("optimizer");
+
+   m_pars.Prompt("outfile");
+   m_pars.Prompt("nxpix");
+   m_pars.Prompt("nypix");
+   m_pars.Prompt("binsz");
+   m_pars.Prompt("coordsys");
+   m_pars.Prompt("xref");
+   m_pars.Prompt("yref");
+   m_pars.Prompt("proj");
+
    m_pars.Save();
+}
 
-   m_helper = new AppHelpers(&m_pars, "UNBINNED");
+void TsMap::run() {
+   promptForParameters();
+
+   m_helper = new AppHelpers(&m_pars, m_statistic);
+
    m_helper->checkOutputFile();
-   std::string coordSys = m_pars["coordsys"];
-   m_coordSys = coordSys;
-   std::string expCubeFile = m_pars["expcube"];
-   if (expCubeFile != "" && expCubeFile != "none") {
-      m_helper->observation().expCube().readExposureCube(expCubeFile);
+   std::string expcube = m_pars["expcube"];
+   if (expcube != "" && expcube != "none") {
+      m_helper->observation().expCube().readExposureCube(expcube);
    }
-   st_facilities::Util::resolve_fits_files(m_pars["evfile"], m_eventFiles);
-   std::string ev_table = m_pars["evtable"];
-   bool compareGtis;
-   bool relyOnStreams;
-   std::string respfunc = m_pars["irfs"];
-   bool skipEventClassCuts(respfunc != "DSS");
-   for (size_t i(1); i < m_eventFiles.size(); i++) {
-      AppHelpers::checkCuts(m_eventFiles[0], ev_table,
-                            m_eventFiles[i], ev_table,
-                            compareGtis=false, 
-                            relyOnStreams=false, 
-                            skipEventClassCuts);
+   if (m_statistic == "UNBINNED") {
+      std::vector<std::string> evfiles;
+      st_facilities::Util::resolve_fits_files(m_pars["evfile"], evfiles);
+      std::string evtable = m_pars["evtable"];
+      bool compareGtis;
+      bool relyOnStreams;
+      std::string irfs = m_pars["irfs"];
+      bool skipEventClassCuts(irfs != "DSS");
+      for (size_t i(1); i < evfiles.size(); i++) {
+         AppHelpers::checkCuts(evfiles[0], evtable,
+                               evfiles[i], evtable,
+                               compareGtis=false, 
+                               relyOnStreams=false, 
+                               skipEventClassCuts);
+      }
+      m_helper->setRoi();
+      m_helper->readScData();
+      m_helper->readExposureMap();
+      m_logLike = new LogLike(m_helper->observation());
+      readEventData(evfiles);
+   } else { // Assume we are operating in binned mode.
+      std::string cmap = m_pars["cmap"];
+      m_helper->setRoi(cmap, "", false);
+      if (!m_helper->observation().expCube().haveFile()) {
+         throw std::runtime_error
+            ("An exposure cube file is required for binned analysis. "
+             "Please specify an exposure cube file.");
+      }
+      st_facilities::Util::file_ok(cmap);
+      m_dataMap = new CountsMap(cmap);
+      bool apply_psf_corrections = m_pars["psfcorr"];
+      bool computePointSources(true);
+      m_logLike = new BinnedLikelihood(*m_dataMap, 
+                                       m_helper->observation(),
+                                       cmap, 
+                                       computePointSources,
+                                       apply_psf_corrections);
+      std::string bexpmap = m_pars["bexpmap"];
+      AppHelpers::checkExposureMap(cmap, bexpmap);
+      if (bexpmap != "none" && bexpmap != "") {
+         SourceMap::setBinnedExposure(bexpmap);
+      }
+      dynamic_cast<BinnedLikelihood *>(m_logLike)->setVerbose(false);
    }
-   m_helper->setRoi();
-   m_helper->readScData();
-   m_helper->readExposureMap();
-
-   m_logLike = new LogLike(m_helper->observation());
-   readEventData();
    readSrcModel();
-
    selectOptimizer();
    setGrid();
-
    computeMap();
    writeFitsFile();
 }
 
-void TsMap::readEventData() {
-   std::vector<std::string>::const_iterator evFile(m_eventFiles.begin());
-   for ( ; evFile != m_eventFiles.end(); ++evFile) {
-      st_facilities::Util::file_ok(*evFile);
-      m_logLike->getEvents(*evFile);
+void TsMap::readEventData(const std::vector<std::string> & evfiles) {
+   std::vector<std::string>::const_iterator evfile(evfiles.begin());
+   for ( ; evfile != evfiles.end(); ++evfile) {
+      st_facilities::Util::file_ok(*evfile);
+      m_logLike->getEvents(*evfile);
    }
 }
 
@@ -155,10 +217,17 @@ void TsMap::readSrcModel() {
    std::string srcModelFile = m_pars["srcmdl"];
    if (srcModelFile != "" && srcModelFile != "none") {
       st_facilities::Util::file_ok(srcModelFile);
-      m_logLike->readXml(srcModelFile, m_helper->funcFactory());
-      m_logLike->computeEventResponses();
+      bool requireExposure = (m_statistic != "BINNED");
+      bool loadMaps = (m_statistic != "BINNED");
+      bool addPointSources;
+      m_logLike->readXml(srcModelFile, m_helper->funcFactory(),
+                         requireExposure, addPointSources=true,
+                         loadMaps);
+      if (m_statistic == "UNBINNED") {
+         m_logLike->computeEventResponses();
+      }
    }
-}   
+}
 
 void TsMap::selectOptimizer() {
    std::string optimizer = m_pars["optimizer"];
@@ -240,6 +309,10 @@ void TsMap::computeMap() {
                            << m_dirs.at(i).dec() << "  "
                            << m_tsMap.back() << std::endl;
       m_logLike->deleteSource(testSrc.getName());
+      if (m_statistic == "BINNED") {
+         dynamic_cast<BinnedLikelihood *>(m_logLike)
+            ->eraseSourceMap(testSrc.getName());
+      }
    }
    m_formatter->warn() << "!" << std::endl;
 }

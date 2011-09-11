@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.52 2011/04/01 17:00:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.53 2011/04/01 21:16:47 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.52 2011/04/01 17:00:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.53 2011/04/01 21:16:47 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -122,6 +122,8 @@ public:
    virtual void addSource(Source * src);
 
    virtual Source * deleteSource(const std::string & srcName);
+   
+   void eraseSourceMap(const std::string & srcName);
 
    virtual void syncParams();
 
@@ -138,6 +140,10 @@ public:
 
    std::pair<int, int> klims() const {
       return std::make_pair(static_cast<int>(m_kmin), static_cast<int>(m_kmax));
+   }
+
+   void setVerbose(bool verbose) {
+      m_verbose = verbose;
    }
 
 protected:
@@ -175,6 +181,8 @@ private:
    double m_resamp_factor;
    
    double m_minbinsz;
+
+   bool m_verbose;
 
    std::vector<std::string> m_fixedSources;
 
