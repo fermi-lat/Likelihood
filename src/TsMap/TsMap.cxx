@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.47 2010/06/16 22:49:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.48 2011/09/11 06:44:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -262,10 +262,16 @@ void TsMap::setGrid() {
 }
 
 void TsMap::computeMap() {
-   Likelihood::PointSource testSrc(m_dirs.at(0).ra(), m_dirs.at(0).dec(), 
-                                   m_helper->observation());
-   setPointSourceSpectrum(testSrc);
-   testSrc.setName("testSource");
+   Likelihood::PointSource * testSrc(0);
+   if (m_statistic == "UNBINNED") {
+      testSrc = new Likelihood::PointSource(m_dirs.at(0).ra(), 
+                                            m_dirs.at(0).dec(), 
+                                            m_helper->observation());
+   } else {
+      testSrc = new Likelihood::PointSource();
+   }
+   setPointSourceSpectrum(*testSrc);
+   testSrc->setName("testSource");
 
    int verbosity = m_pars["chatter"];
    verbosity -= 2;
@@ -282,21 +288,19 @@ void TsMap::computeMap() {
    } catch (...) {
       logLike0 = 0;
    }
-   bool computeExposure(true);
-
    int step(m_dirs.size()/20);
    if (step == 0) {
       step = 2;
    }
-
+   bool computeExposure;
    for (size_t i(0); i < m_dirs.size(); i++) {
       if ((i % step) == 0) {
          m_formatter->warn() << ".";
       }
-      testSrc.setDir(m_dirs.at(i).ra(), m_dirs.at(i).dec(),
-                     computeExposure, false);
+      testSrc->setDir(m_dirs.at(i).ra(), m_dirs.at(i).dec(),
+                      computeExposure=(m_statistic=="UNBINNED"), false);
 
-      m_logLike->addSource(&testSrc);
+      m_logLike->addSource(testSrc);
       try {
          m_opt->find_min_only(verbosity, tol, tolType);
          m_tsMap.push_back(2.*(m_logLike->value() - logLike0));
@@ -308,13 +312,14 @@ void TsMap::computeMap() {
       m_formatter->info(3) << m_dirs.at(i).ra() << "  "
                            << m_dirs.at(i).dec() << "  "
                            << m_tsMap.back() << std::endl;
-      m_logLike->deleteSource(testSrc.getName());
+      m_logLike->deleteSource(testSrc->getName());
       if (m_statistic == "BINNED") {
          dynamic_cast<BinnedLikelihood *>(m_logLike)
-            ->eraseSourceMap(testSrc.getName());
+            ->eraseSourceMap(testSrc->getName());
       }
    }
    m_formatter->warn() << "!" << std::endl;
+   delete testSrc;
 }
 
 void TsMap::setPointSourceSpectrum(PointSource &src) {
