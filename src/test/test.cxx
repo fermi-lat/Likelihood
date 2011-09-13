@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.114 2011/06/14 22:41:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.115 2011/06/27 22:57:51 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -1135,7 +1135,8 @@ void LikelihoodTests::test_BinnedExposure() {
    double ra(180.);
    double dec(0.);
    for (unsigned int i = 0; i < npts; i++) {
-      ASSERT_EQUALS(binnedExposure(energies[i], ra, dec),
+      double bexpmap_value = binnedExposure(energies[i], ra, dec);
+      ASSERT_EQUALS(bexpmap_value,
                     map2(energies[i], ra, dec));
    }
 }

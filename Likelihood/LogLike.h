@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.40 2011/01/29 06:53:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.41 2011/01/30 00:30:55 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -30,10 +30,7 @@ namespace Likelihood {
  *
  * @brief Objective function for the log(likelihood) of a model comprising
  * multiple Sources.
- *
- * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.40 2011/01/29 06:53:03 jchiang Exp $
  */
 
 class LogLike : public SourceModel {
