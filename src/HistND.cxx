@@ -51,9 +51,9 @@ void HistND::fillBin(const std::vector<double> & values, double weight) {
 
 long HistND::binIndex(const std::vector<double> & values) const {
    if (values.size() != m_ndims) {
-      throw std::length_error(std::string("HistND::binIndex:\n")
-                              + "Size of values vector does match histogram "
-                              + std::string("dimension."));
+      throw std::length_error("HistND::binIndex:\n"
+                              "Size of values vector does match "
+                              "histogram dimension.");
    }
    std::vector<long> ivalues;
    for (unsigned int i = 0; i < values.size(); i++) {
@@ -69,9 +69,9 @@ long HistND::binIndex(const std::vector<double> & values) const {
 
 long HistND::binIndex(const std::vector<long> & ivalues) const {
    if (ivalues.size() != m_ndims) {
-      throw std::length_error(std::string("HistND::binIndex:\n")
-                              + "Size of ivalues vector does match histogram "
-                              + std::string("dimension."));
+      throw std::length_error("HistND::binIndex:\n"
+                              "Size of ivalues vector does match "
+                              "histogram dimension.");
    }
    long indx(0);
    for (unsigned int i = 0; i < ivalues.size(); i++) {
