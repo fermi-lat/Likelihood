@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.1 2011/06/27 05:05:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.2 2011/09/13 16:53:43 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood2_h
@@ -34,7 +34,7 @@ class BinnedLikelihood2 : public LogLike {
 
 public:
 
-   BinnedLikelihood2(const CountsMap & cmap;
+   BinnedLikelihood2(const CountsMap & cmap,
                      const Observation & observation,
                      const std::string & smaps_file="",
                      bool computePointSources=true,
@@ -49,6 +49,11 @@ public:
    virtual ~BinnedLikelihood2() throw();
 
    virtual double value(optimizers::Arg &) const;
+
+   virtual double value() const {
+      optimizers::dArg dummy(0);
+      return value(dummy);
+   }
 
    virtual void getFreeDerivs(std::vector<double> & derivs) const;
 
@@ -74,6 +79,34 @@ public:
 
    virtual double NpredValue(const std::string & srcName) const;
    
+   const std::vector<double> & energies() const {
+      return m_energies;
+   }
+
+   const std::vector<double> & countsSpectrum() const {
+      return m_countsSpectrum;
+   }
+
+   SourceMap * getSourceMap(const std::string & srcName,
+                            bool verbose=true) const;
+
+   const SourceMap & sourceMap(const std::string & name) const {
+      std::map<std::string, SourceMap *>::const_iterator srcMap
+         = m_srcMaps.find(name);
+      if (srcMap == m_srcMaps.end()) {
+         throw std::runtime_error("Cannot find source map named: " + name);
+      }
+      return *(srcMap->second);
+   }
+
+   double npred() {
+      return computeModelMap();
+   }
+
+   const CountsMap & countsMap() const {
+      return m_cmap;
+   }
+
 protected:
 
    virtual BinnedLikelihood2 * clone() const {
@@ -94,17 +127,19 @@ private:
    bool m_resample;
    double m_resamp_factor;
    double m_minbinsz;
+   bool m_verbose;
 
    /// Energy dispersion matrix
    Drm * m_drm;
 
-   bool m_modelIsCurrent;
+   mutable bool m_modelIsCurrent;
 
    std::vector<double> m_energies;
+   std::vector<double> m_countsSpectrum;
 
    size_t m_npix, m_nee;
 
-   std::vector< std::vector<double> > m_model;
+   mutable std::vector< std::vector<double> > m_model;
 
    std::map<std::string, SourceMap *> m_srcMaps;
 
@@ -113,6 +148,9 @@ private:
    typedef std::vector<std::vector<std::pair<double, double> > > ModelWeights_t;
 
    ModelWeights_t m_fixedModelWts;
+   std::vector<double> m_fixedNpreds;
+   std::map<std::string, double> m_fixedModelNpreds;
+   std::map<std::string, std::vector<double> > m_modelPars;
 
    /// Accumulators for derivatives.
    mutable std::map<long, Accumulator> m_posDerivs;
@@ -122,18 +160,29 @@ private:
 
    double computeModelMap() const;
 
-   void update_model_wts();
+   void compute_model_wts(ModelWeights_t & modelWts);
 
    void addSourceWts(ModelWeights_t & modelWts,
                      const std::string & srcName,
                      const SourceMap * srcMap=0,
                      bool subtract=false) const;
 
-   double spectrum(Sourc * src, double ee) const;
+   double spectrum(const Source * src, double ee) const;
 
    double pixelCounts(double emin, double emax, double y1, double y2) const;
+
+   bool fixedModelUpdated() const;
+
+   void buildFixedModelWts();
+
+   bool fileHasSourceMap(const std::string & srcName,
+                         const std::string & fitsFile) const;
+
+   double NpredValue(const std::string & name, const SourceMap & srcMap) const;
+
+   void computeCountsSpectrum();
 };
 
-}
+} // namespace Likelihood
 
 #endif // Likelihood_BinnedLikelihood2_h

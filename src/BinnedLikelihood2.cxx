@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood2.cxx,v 1.1 2011/06/27 05:05:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood2.cxx,v 1.2 2011/09/13 16:53:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -26,7 +26,7 @@
 #undef ST_DLL_EXPORTS
 #include "Likelihood/SourceModel.h"
 
-//namespace Likelihood {
+namespace Likelihood {
 
 BinnedLikelihood2::BinnedLikelihood2(const CountsMap & cmap,
                                      const Observation & observation,
@@ -46,6 +46,7 @@ BinnedLikelihood2::BinnedLikelihood2(const CountsMap & cmap,
      m_resample(resample), 
      m_resamp_factor(resamp_factor), 
      m_minbinsz(minbinsz),
+     m_verbose(true),
      m_drm(0), 
      m_modelIsCurrent(false),
      m_npix(cmap.imageDimension(0)*cmap.imageDimension(1)),
@@ -57,6 +58,8 @@ BinnedLikelihood2::BinnedLikelihood2(const CountsMap & cmap,
       m_model[ipix].resize(m_nee);
       m_fixedModelWts[ipix].resize(m_nee);
    }
+   create_drm();
+   computeCountsSpectrum();
 }
 
 BinnedLikelihood2::~BinnedLikelihood2() throw() {
@@ -77,6 +80,7 @@ BinnedLikelihood2::BinnedLikelihood2(const BinnedLikelihood2 & other)
      m_resample(other.m_resample),
      m_resamp_factor(other.m_resamp_factor),
      m_minbinsz(other.m_minbinsz),
+     m_verbose(other.m_verbose),
      m_drm(new Drm(*other.m_drm)),
      m_modelIsCurrent(other.m_modelIsCurrent),
      m_npix(other.m_npix),
@@ -112,9 +116,6 @@ double BinnedLikelihood2::value(optimizers::Arg & dummy) const {
    }
    m_accumulator.add(-npred);
 
-   st_stream::StreamFormatter formatter("BinnedLikelihood2", "value", 4);
-   formatter.info() << m_nevals << "  "
-                    << npred << std::endl;
    m_nevals++;
 
    double my_total(m_accumulator.total());
@@ -126,92 +127,81 @@ double BinnedLikelihood2::value(optimizers::Arg & dummy) const {
    }
 
    saveBestFit(my_total);
+
+   st_stream::StreamFormatter formatter("BinnedLikelihood2", "value", 4);
+   formatter.info() << m_nevals << "  "
+                    << my_total << "  "
+                    << npred << std::endl;
+
    return my_total;
 }
 
 void BinnedLikelihood2::getFreeDerivs(std::vector<double> & derivs) const {
    int nparams(getNumFreeParams());
    derivs.resize(nparams, 0);
-   double npred;
+   if (nparams > m_posDerivs.size()) {
+      for (size_t i(m_posDerivs.size()); i < nparams; i++) {
+         m_posDerivs[i] = Accumulator();
+         m_negDerivs[i] = Accumulator();
+      }
+   }
    if (!m_modelIsCurrent) {
-      computeModelMap(npred);
+      computeModelMap();
    }
    const std::vector<float> & data = m_cmap.data();
-   // First j value corresponding to the minimum allowed k-index.
-   size_t jentry(0);
-   for (size_t j(0); j < m_filledPixels.size(); j++) {
-      size_t k(m_filledPixels[j]/m_pixels.size());
-      if (k == m_kmin) {
-         jentry = j;
-         break;
-      }
-   }
-   for (size_t j(jentry); j < m_filledPixels.size(); j++) {
-      size_t jmin(m_filledPixels.at(j));
-      size_t jmax(jmin + m_pixels.size());
-      size_t k(jmin/m_pixels.size());
-      if (k < m_kmin || k > m_kmax-1) {
+
+   size_t iparam(0);
+   std::map<std::string, Source *>::const_iterator src;
+   for (src = sources().begin(); src != sources().end(); ++src) {
+      std::string srcName = src->second->getName();
+      // Skip fixed sources.
+      if (std::count(m_fixedSources.begin(), m_fixedSources.end(), srcName)) {
          continue;
       }
-      double emin(m_energies.at(k));
-      double emax(m_energies.at(k+1));
-      if (m_model.at(j) > 0) {
-         long iparam(0);
-         if (m_posDerivs.find(iparam) == m_posDerivs.end()) {
-            m_posDerivs[iparam] = Accumulator();
-            m_negDerivs[iparam] = Accumulator();
-         }
-         const std::map<std::string, Source *> & my_srcs = sources();
-         std::map<std::string, Source *>::const_iterator src;
-         for (src = my_srcs.begin(); src != my_srcs.end(); ++src) {
-            std::string srcName = src->second->getName();
-            if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
-                           srcName)) {
-               continue;
+      const SourceMap & srcMap(sourceMap(srcName));
+      const std::vector<float> & model(srcMap.model());
+      std::vector<std::string> paramNames;
+      src->second->spectrum().getFreeParamNames(paramNames);
+      for (size_t ipar(0); ipar < paramNames.size(); ipar++, iparam++) {
+         for (size_t ipix(0); ipix < m_npix; ipix++) {
+            // Compute unconvolved counts spectrum at each spatial position.
+            std::vector<double> my_derivs(m_nee, 0);
+            for (size_t k(0); k < m_nee; k++) {
+               double emin(m_energies.at(k));
+               double emax(m_energies.at(k+1));
+               size_t indx(k*m_npix + ipix);
+               if (m_model[ipix][k] != 0) {
+                  my_derivs[k] = 
+                     src->second->pixelCountsDeriv(emin, emax,
+                                                   model.at(indx),
+                                                   model.at(indx + m_npix),
+                                                   paramNames[ipar]);
+               } else {
+                  my_derivs[k] = 0;
+               }
             }
-            const SourceMap & srcMap = sourceMap(srcName);
-            const std::vector<float> & model = srcMap.model();
-            std::vector<std::string> paramNames;
-            src->second->spectrum().getFreeParamNames(paramNames);
-            for (size_t i(0); i < paramNames.size(); i++, iparam++) {
-               double my_deriv = 
-                  src->second->pixelCountsDeriv(emin, emax,
-                                                model.at(jmin), 
-                                                model.at(jmax),
-                                                paramNames.at(i));
-               double addend(data.at(jmin)/m_model.at(j)*my_deriv);
+            // Convolve using the DRM.
+            std::vector<double> convolved_derivs(m_nee);
+            m_drm->convolve(my_derivs, convolved_derivs);
+//            convolved_derivs = my_derivs;
+            // Add to Accumulator objects.
+            for (size_t k(0); k < m_nee; k++) {
+               size_t indx(k*m_npix + ipix);
+               double addend(convolved_derivs[k]*
+                             (data[indx]/m_model[ipix][k] - 1.));
                if (addend > 0) {
                   m_posDerivs[iparam].add(addend);
                } else {
                   m_negDerivs[iparam].add(addend);
                }
-               if (j == jentry) {
-                  const std::vector<double> & npreds = srcMap.npreds();
-                  for (size_t kk(0); kk < m_energies.size()-1; kk++) {
-                     if (kk >= m_kmin && kk <= m_kmax-1) {
-                        addend = 
-                           src->second->pixelCountsDeriv(m_energies.at(kk), 
-                                                         m_energies.at(kk+1),
-                                                         npreds.at(kk), 
-                                                         npreds.at(kk+1),
-                                                         paramNames.at(i));
-                        if (-addend > 0) {
-                           m_posDerivs[iparam].add(-addend);
-                        } else {
-                           m_negDerivs[iparam].add(-addend);
-                        }
-                     }
-                  }
-               }
             }
          }
       }
    }
-   for (size_t i(0); i < derivs.size(); i++) {
-      derivs[i] = m_posDerivs[i].total() + m_negDerivs[i].total(); 
+   for (size_t i(0); i < nparams; i++) {
+      derivs[i] = m_posDerivs[i].total() + m_negDerivs[i].total();
    }
-
-   /// Derivatives from priors.
+   // Derivatives from priors.
    size_t i(0);
    std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
    for ( ; par != m_parameter.end(); ++par) {
@@ -274,6 +264,17 @@ Source * BinnedLikelihood2::deleteSource(const std::string & srcName) {
    return src;
 }
 
+void BinnedLikelihood2::computeCountsSpectrum() {
+   m_countsSpectrum.clear();
+   size_t indx(0);
+   for (size_t k = 0; k < m_nee; k++) {
+      double ntot(0);
+      for (size_t ipix(0); ipix < m_npix; ipix++, indx++) {
+         ntot += m_cmap.data().at(indx);
+      }
+      m_countsSpectrum.push_back(ntot);
+   }
+}
 
 void BinnedLikelihood2::syncParams() {
    SourceModel::syncParams();
@@ -295,9 +296,6 @@ double BinnedLikelihood2::NpredValue(const std::string & srcName) const {
    const Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    double value(0);
    for (size_t k(0); k < energies().size()-1; k++) {
-      if (k < m_kmin || k > m_kmax-1) {
-         continue;
-      }
       value += src->pixelCounts(energies().at(k), energies().at(k+1),
                                 npreds.at(k), npreds.at(k+1));
    }
@@ -308,24 +306,25 @@ double BinnedLikelihood2::computeModelMap() const {
    double npred(0);
 
    ModelWeights_t modelWts;
-   compute_model_wts(modelWts);
+   const_cast<BinnedLikelihood2 *>(this)->compute_model_wts(modelWts);
 
    size_t ipix(0);
-   for (size_t j(0); j < m_ny; j++) {
-      for (size_t i(0); i < m_nx; i++, ipix++) {
-         std::vector<double> true_counts(nz);
-         for (size_t k(0); k < m_nz; k++) {
-            true_counts[k] = pixelCounts(m_energies[k], m_energies[k+1],
-                                         modelWts[ipix][k].first, 
-                                         modelWts[ipix][k].second);
-         }
-         m_drm->convolve(true_counts, m_model[ipix]);
-         for (size_t k(0); k < m_nz; k++) {
-            npred += m_model[ipix][k];
-         }
+   for (size_t ipix(0); ipix < m_npix; ipix++) {
+      std::vector<double> true_counts(m_nee);
+      for (size_t k(0); k < m_nee; k++) {
+         true_counts[k] = pixelCounts(m_energies[k], m_energies[k+1],
+                                      modelWts[ipix][k].first, 
+                                      modelWts[ipix][k].second);
+      }
+      m_drm->convolve(true_counts, m_model[ipix]);
+//      m_model[ipix] = true_counts;
+      for (size_t k(0); k < m_nee; k++) {
+         npred += m_model[ipix][k];
       }
    }
    m_modelIsCurrent = true;
+
+   return npred;
 }
 
 void BinnedLikelihood2::compute_model_wts(ModelWeights_t & modelWts) {
@@ -336,38 +335,40 @@ void BinnedLikelihood2::compute_model_wts(ModelWeights_t & modelWts) {
    std::vector<std::string> srcNames;
    getSrcNames(srcNames);
    for (size_t i(0); i < srcNames.size(); i++) {
-      if (std::count(m_fixedSources.begin(), m_fixedSource.end(),
+      if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
                      srcNames[i]) == 0) {
          addSourceWts(modelWts, srcNames[i]);
       }
    }
 }
 
-bool BinnedLikelihood::fixedModelUpdated() const {
+bool BinnedLikelihood2::fixedModelUpdated() const {
 // Check if the fixed list has changed.
    std::map<std::string, Source *>::const_iterator it(m_sources.begin());
    std::vector<std::string> fixedSources;
    for ( ; it != m_sources.end(); ++it) {
       if (it->second->fixedSpectrum()) {
          fixedSources.push_back(it->first);
+         // Check for additions.
          if (std::count(m_fixedSources.begin(), m_fixedSources.end(), 
                         fixedSources.back()) != 1) {
             return true;
          }
       }
    }
+   // Check for deletions.
    if (fixedSources.size() != m_fixedSources.size()) {
       return true;
    }
    
-// Compare current parameter values for fixed sources with saved
+// Compare current parameter values for fixed sources with saved values.
    for (it = m_sources.begin(); it != m_sources.end(); ++it) {
       if (it->second->fixedSpectrum()) {
          const std::string & name(it->first);
          std::map<std::string, std::vector<double> >::const_iterator
             savedPars = m_modelPars.find(name);
          if (savedPars == m_modelPars.end()) {
-            throw std::runtime_error("BinnedLikelihood::fixedModelUpdated: "
+            throw std::runtime_error("BinnedLikelihood2::fixedModelUpdated: "
                                      "inconsistent m_modelPars.");
          }
          std::vector<double> parValues;
@@ -382,16 +383,20 @@ bool BinnedLikelihood::fixedModelUpdated() const {
    return false;
 }
 
-void BinnedLikelihood::buildFixedModelWts() {
+void BinnedLikelihood2::buildFixedModelWts() {
    m_fixedSources.clear();
+
    m_fixedModelWts.clear();
-   m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
+   std::vector<std::pair<double, double> > zeros(m_nee, std::make_pair(0, 0));
+   m_fixedModelWts.resize(m_npix, zeros);
+
    m_fixedNpreds.clear();
    m_fixedNpreds.resize(m_energies.size(), 0);
-   std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
-   for ( ; srcIt != m_sources.end(); ++srcIt) {
-      const std::string & srcName(srcIt->first);
-      if (srcIt->second->fixedSpectrum()) {
+
+   std::map<std::string, Source *>::const_iterator it(m_sources.begin());
+   for ( ; it != m_sources.end(); ++it) {
+      const std::string & srcName(it->first);
+      if (it->second->fixedSpectrum()) {
          m_fixedSources.push_back(srcName);
          SourceMap * srcMap(0);
          std::map<std::string, SourceMap *>::const_iterator srcMapIt
@@ -405,21 +410,24 @@ void BinnedLikelihood::buildFixedModelWts() {
          m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
          for (size_t k(0); k < m_energies.size(); k++) {
             optimizers::dArg ee(m_energies[k]);
-            m_fixedNpreds[k] += (srcIt->second->spectrum()(ee)*
+            m_fixedNpreds[k] += (it->second->spectrum()(ee)*
                                  srcMap->npreds()[k]);
          }
+         // Recover memory by deleting the fixed SourceMap.
          if (srcMapIt != m_srcMaps.end()) {
             m_srcMaps.erase(srcName);
          }
          delete srcMap;
          srcMap = 0;
+         // Save the parameter values for later comparison to see if
+         // values have been changed by the user by hand.
          std::vector<double> pars;
-         srcIt->second->spectrum().getParamValues(pars);
+         it->second->spectrum().getParamValues(pars);
          m_modelPars[srcName] = pars;
       } else { 
-// Process non-fixed sources.
-//
-// Ensure model map is available.
+         // Process non-fixed sources.
+         //
+         // Ensure model map is available.
          std::map<std::string, SourceMap *>::const_iterator srcMapIt
             = m_srcMaps.find(srcName);
          if (srcMapIt == m_srcMaps.end()) {
@@ -428,8 +436,8 @@ void BinnedLikelihood::buildFixedModelWts() {
                m_srcMaps[srcName] = srcMap;
             }
          }
-// Delete any lingering Npred values from fixed map since they must be
-// computed on-the-fly for non-fixed sources.
+         // Delete any lingering Npred values from fixed map since
+         // they must be computed on-the-fly for non-fixed sources.
          if (m_fixedModelNpreds.find(srcName) != m_fixedModelNpreds.end()) {
             m_fixedModelNpreds.erase(srcName);
          }
@@ -438,11 +446,9 @@ void BinnedLikelihood::buildFixedModelWts() {
 }
 
 void BinnedLikelihood2::
-addSourceWts(ModelWeights_t & modelWts,
-             const std::string & srcName,
-             const SourceMap * srcMap,
-             bool subtract) const {
-   const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
+addSourceWts(ModelWeights_t & modelWts, const std::string & srcName,
+             const SourceMap * srcMap, bool subtract) const {
+   const Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    if (src == 0) {
       return;
    }
@@ -465,10 +471,10 @@ addSourceWts(ModelWeights_t & modelWts,
       double emin(m_energies[k]);
       double emax(m_energies[k+1]);
       for (size_t ipix(0); ipix < m_npix; ipix++, indx++) {
-         m_modelWts[ipix][k].first += (my_sign*model[indx]*
-                                       spectrum(src, emin));
-         m_modelWts[ipix][k].second += (my_sign*model[indx+npix]*
-                                        spectrum(src, emax));
+         modelWts[ipix][k].first += (my_sign*model[indx]*
+                                     spectrum(src, emin));
+         modelWts[ipix][k].second += (my_sign*model[indx + m_npix]*
+                                      spectrum(src, emax));
       }
    }
 }
@@ -487,6 +493,46 @@ void BinnedLikelihood2::create_drm() {
    const astro::SkyDir & ref_dir(m_cmap.refDir());
    m_drm = new Drm(ref_dir.ra(), ref_dir.dec(), observation(), 
                    m_cmap.energies());
+}
+
+double BinnedLikelihood2::NpredValue(const std::string & srcName,
+                                     const SourceMap & sourceMap) const {
+   const std::vector<double> & npreds(sourceMap.npreds());
+   const Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
+   double value(0);
+   for (size_t k(0); k < energies().size()-1; k++) {
+      value += src->pixelCounts(energies().at(k), energies().at(k+1),
+                                npreds.at(k), npreds.at(k+1));
+   }
+   return value;
+}
+
+SourceMap * BinnedLikelihood2::getSourceMap(const std::string & srcName, 
+                                            bool verbose) const {
+   if (fileHasSourceMap(srcName, m_smaps_file)) {
+      return new SourceMap(m_smaps_file, srcName);
+   }
+// Generate the map if it is not in the file.   
+   Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
+   if (src->getType() == "Diffuse" || m_computePointSources) {
+      return new SourceMap(src, &m_cmap, m_observation,
+                           m_applyPsfCorrections,
+                           m_performConvolution,
+                           m_resample, m_resamp_factor,
+                           m_minbinsz, verbose && m_verbose);
+   }
+   return 0;
+}
+
+bool BinnedLikelihood2::fileHasSourceMap(const std::string & srcName,
+                                        const std::string & fitsFile) const {
+   try {
+      std::auto_ptr<const tip::Image> 
+         image(tip::IFileSvc::instance().readImage(fitsFile, srcName));
+   } catch (tip::TipException &) {
+      return false;
+   }
+   return true;
 }
 
 } // namespace Likelihood

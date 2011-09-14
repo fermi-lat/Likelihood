@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.157 2011/03/07 06:15:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.158 2011/08/02 23:57:47 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -41,6 +41,7 @@
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
+#include "Likelihood/BinnedLikelihood2.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/CountsSpectra.h"
 #include "Likelihood/ExposureCube.h"
@@ -89,7 +90,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.157 2011/03/07 06:15:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.158 2011/08/02 23:57:47 jchiang Exp $
  */
 
 class likelihood : public st_app::StApp {
@@ -362,10 +363,17 @@ void likelihood::createStatistic() {
       } catch (...) {
          // assume parameter does not exist, so use default value.
       }
-      m_logLike = new BinnedLikelihood(*m_dataMap, m_helper->observation(),
-                                       countsMapFile, 
-                                       computePointSources,
-                                       apply_psf_corrections);
+      if (::getenv("USE_BINNED_LIKELIHOOD2")) {
+         m_logLike = new BinnedLikelihood2(*m_dataMap, m_helper->observation(),
+                                           countsMapFile, 
+                                           computePointSources,
+                                           apply_psf_corrections);
+      } else {
+         m_logLike = new BinnedLikelihood(*m_dataMap, m_helper->observation(),
+                                          countsMapFile, 
+                                          computePointSources,
+                                          apply_psf_corrections);
+      }
       std::string binnedMap = m_pars["bexpmap"];
       AppHelpers::checkExposureMap(m_pars["cmap"], m_pars["bexpmap"]);
       if (binnedMap != "none" && binnedMap != "") {
@@ -405,8 +413,6 @@ void likelihood::readSourceModel() {
                          loadMaps=(m_statistic!="BINNED"));
       if (m_statistic != "BINNED") {
          m_logLike->computeEventResponses();
-      } else {
-//         dynamic_cast<BinnedLikelihood *>(m_logLike)->saveSourceMaps();
       }
    } else {
 // Re-read the Source model from the xml file, allowing only for 
@@ -753,8 +759,13 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                        << observedCounts() << "\n"
                        << "Total number of model events: ";
    if (m_statistic == "BINNED") {
-      m_formatter->info() 
-         << dynamic_cast<BinnedLikelihood *>(m_logLike)->npred();
+      if (::getenv("USE_BINNED_LIKELIHOOD2")) {
+         m_formatter->info() 
+            << dynamic_cast<BinnedLikelihood2 *>(m_logLike)->npred();
+      } else {
+         m_formatter->info() 
+            << dynamic_cast<BinnedLikelihood *>(m_logLike)->npred();
+      }
    } else {
       m_formatter->info() << totalNpred;
    }
@@ -923,11 +934,19 @@ void likelihood::renormModel() {
 
 double likelihood::observedCounts() {
    if (m_statistic == "BINNED") {
-      BinnedLikelihood * logLike = dynamic_cast<BinnedLikelihood *>(m_logLike);
-      const std::vector<double> & counts(logLike->countsSpectrum());
       double totalCounts(0);
-      for (size_t i = 0; i < counts.size(); i++) {
-         totalCounts += counts.at(i);
+      if (::getenv("USE_BINNED_LIKELIHOOD2")) {
+         BinnedLikelihood2 * logLike = dynamic_cast<BinnedLikelihood2 *>(m_logLike);
+         const std::vector<double> & counts(logLike->countsSpectrum());
+         for (size_t i = 0; i < counts.size(); i++) {
+            totalCounts += counts.at(i);
+         }
+      } else {
+         BinnedLikelihood * logLike = dynamic_cast<BinnedLikelihood *>(m_logLike);
+         const std::vector<double> & counts(logLike->countsSpectrum());
+         for (size_t i = 0; i < counts.size(); i++) {
+            totalCounts += counts.at(i);
+         }
       }
       return totalCounts;
    }

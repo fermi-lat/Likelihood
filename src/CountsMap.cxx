@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsMap.cxx,v 1.49 2011/06/14 22:41:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsMap.cxx,v 1.50 2011/09/13 16:55:28 jchiang Exp $
  */
 
 #include <algorithm>
@@ -452,7 +452,7 @@ long CountsMap::imageDimension(int i) const {
    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
    if (i < 0 || i > 2) {
       throw std::invalid_argument("CountsMap::imageDimension:\n"
-                                  "Invalid image dimension value.";
+                                  "Invalid image dimension value.");
    }
    return binners[i]->getNumBins();
 }
