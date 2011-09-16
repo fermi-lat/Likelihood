@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.69 2011/03/16 22:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.70 2011/06/27 00:16:19 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -61,6 +61,17 @@ Source * SourceFactory::create(const std::string &name) {
       throw Exception(errorMessage);
    }
    return m_prototypes[name]->clone();
+}
+
+Source * SourceFactory::releaseSource(const std::string &name) {
+   if (!m_prototypes.count(name)) {
+      std::string errorMessage 
+         = "SourceFactory::releaseSource:\nNo Source named " + name + ".";
+      throw Exception(errorMessage);
+   }
+   Source * src = m_prototypes[name];
+   m_prototypes.erase(name);
+   return src;
 }
 
 void SourceFactory::addSource(const std::string &name, Source* src, 

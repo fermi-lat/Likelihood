@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.2 2011/09/13 16:53:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.3 2011/09/14 00:17:46 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood2_h
@@ -69,7 +69,7 @@ public:
    virtual std::vector<double>::const_iterator setFreeParamValues_(
       std::vector<double>::const_iterator);
 
-   virtual void addSource(Source * src);
+   virtual void addSource(Source * src, bool fromClone=true);
 
    virtual Source * deleteSource(const std::string & srcName);
 

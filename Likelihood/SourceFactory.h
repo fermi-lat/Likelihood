@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.25 2010/07/07 01:05:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.26 2011/06/27 04:32:34 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -45,7 +45,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.25 2010/07/07 01:05:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.26 2011/06/27 04:32:34 jchiang Exp $
  *
  */
     
@@ -58,6 +58,7 @@ public:
    ~SourceFactory();
 
    Source * create(const std::string & name);
+   Source * releaseSource(const std::string & name);
 
    /// Clients should almost always have fromClone = true; otherwise,
    /// the destructor will delete their Source, rather than a clone.
