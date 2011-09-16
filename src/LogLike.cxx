@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.77 2011/01/30 00:30:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.78 2011/02/02 19:02:50 jchiang Exp $
  */
 
 #include <cmath>
@@ -230,8 +230,8 @@ void LogLike::getFreeDerivs(optimizers::Arg&,
    }
 }
 
-void LogLike::addSource(Source * src) {
-   SourceModel::addSource(src);
+void LogLike::addSource(Source * src, bool fromClone) {
+   SourceModel::addSource(src, fromClone);
    const std::vector<Event> & events = m_observation.eventCont().events();
    std::string srcName = src->getName();
 

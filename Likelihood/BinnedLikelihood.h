@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.53 2011/04/01 21:16:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.54 2011/09/11 06:44:20 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.53 2011/04/01 21:16:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.54 2011/09/11 06:44:20 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -119,7 +119,7 @@ public:
    /// summed together.
    std::vector<double> fixedModelSpectrum() const;
 
-   virtual void addSource(Source * src);
+   virtual void addSource(Source * src, bool fromClone=true);
 
    virtual Source * deleteSource(const std::string & srcName);
    

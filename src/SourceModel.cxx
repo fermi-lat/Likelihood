@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.91 2011/02/02 01:21:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.92 2011/06/27 00:16:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -221,9 +221,9 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
    syncParams();
 }
 
-void SourceModel::addSource(Source *src) {
+void SourceModel::addSource(Source *src, bool fromClone) {
    if (!m_sources.count(src->getName())) {
-      m_sources[src->getName()] = src->clone();
+      m_sources[src->getName()] = fromClone ? src->clone() : src;
       m_sources[src->getName()]->setObservation(&m_observation);
       syncParams();
    } else {
@@ -374,18 +374,18 @@ void SourceModel::readXml(std::string xmlFile,
    }
 
 // Loop over the sources that are now contained in srcFactory and add
-// each one to the source model.
+// each one to the source model (removing it from the srcFactory to avoid
+// making a copy).
    std::vector<std::string> srcNames;
    srcFactory.fetchSrcNames(srcNames);
 
    std::vector<std::string>::iterator nameIt = srcNames.begin();
    for ( ; nameIt != srcNames.end(); nameIt++) {
-      Source * src = srcFactory.create(*nameIt);
+      Source * src = srcFactory.releaseSource(*nameIt);
       if (m_verbose) {
          m_formatter->info() << "adding source " << *nameIt << std::endl;
       }
-      addSource(src);
-      delete src;
+      addSource(src, false);
    }
    syncParams();
 }
