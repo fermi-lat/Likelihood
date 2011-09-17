@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.17 2011/01/20 00:26:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.18 2011/04/01 21:16:47 jchiang Exp $
  */
 
 #include <algorithm>
@@ -58,8 +58,12 @@ double Source::Npred(double emin, double emax) const {
 //    if (fabs((emax - energies.back())/emax) < 1e-2) {
 //       emax = energies.back();
 //    }
-   if (emin < energies.front() || emax > energies.back()) {
-      throw std::out_of_range("Source::Npred(emin, emax)");
+   double tol(1e-7);
+   if (emin < energies.front()) {
+      emin = energies.front();
+   }
+   if (emax > energies.back()) {
+      emax = energies.back();
    }
    std::vector<double>::const_iterator first 
       = std::upper_bound(energies.begin(), energies.end(), emin);
@@ -169,8 +173,8 @@ double Source::pixelCountsDeriv(double emin, double emax,
    optimizers::Function & spectrum = *m_spectrum;
    optimizers::dArg eminArg(emin);
    optimizers::dArg emaxArg(emax);
-   double y1(spectrum(eminArg)*wtMin);
-   double y2(spectrum(emaxArg)*wtMax);
+   // double y1(spectrum(eminArg)*wtMin);
+   // double y2(spectrum(emaxArg)*wtMax);
 
    double f1(spectrum.derivByParam(eminArg, paramName));
    double f2(spectrum.derivByParam(emaxArg, paramName));

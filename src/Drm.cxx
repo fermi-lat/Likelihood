@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.3 2011/06/14 22:41:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.4 2011/06/27 04:32:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -62,18 +62,30 @@ void Drm::convolve(const std::vector<double> & true_counts,
    }
    std::deque<double> counts(true_counts.size());
    std::copy(true_counts.begin(), true_counts.end(), counts.begin());
-   double value = 
-      counts.at(0)*std::exp(std::log(m_ebounds.at(0)/m_ebounds.at(2))/
-                            std::log(m_ebounds.at(1)/m_ebounds.at(2))*
-                            std::log(counts.at(0)/counts.at(1)));
+   double value(0);
+   if (counts.at(0) > 0 && counts.at(1) > 0){
+      value = counts.at(0)*std::exp(std::log(m_ebounds.at(0)/m_ebounds.at(2))/
+                                    std::log(m_ebounds.at(1)/m_ebounds.at(2))*
+                                    std::log(counts.at(0)/counts.at(1)));
+   } else {
+      value = ((m_ebounds.at(0) - m_ebounds.at(2))/
+               (m_ebounds.at(1) - m_ebounds.at(2))*
+               (counts.at(0) - counts.at(1)) + counts.at(0));
+   }
    counts.push_front(value);
 
    size_t nee(m_ebounds.size() - 1);
    size_t ncc(counts.size() - 1);
-   value = counts.at(ncc-1)
-      *std::exp(std::log(m_ebounds.at(nee)/m_ebounds.at(nee-2))/
-                std::log(m_ebounds.at(nee-1)/m_ebounds.at(nee-2))*
-                std::log(counts.at(ncc)/counts.at(ncc-1)));
+   if (counts.at(ncc) > 0 && counts.at(ncc-1) > 0) {
+      value = counts.at(ncc-1)
+         *std::exp(std::log(m_ebounds.at(nee)/m_ebounds.at(nee-2))/
+                   std::log(m_ebounds.at(nee-1)/m_ebounds.at(nee-2))*
+                   std::log(counts.at(ncc)/counts.at(ncc-1)));
+   } else {
+      value = ((m_ebounds.at(nee) - m_ebounds.at(nee-2))/
+               (m_ebounds.at(nee-1) - m_ebounds.at(nee-2))*
+               (counts.at(ncc) - counts.at(ncc-1)) + counts.at(ncc-1));
+   }
    counts.push_back(value);
 
    meas_counts.resize(m_ebounds.size() - 3);
