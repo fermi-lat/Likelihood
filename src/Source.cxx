@@ -3,10 +3,11 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.18 2011/04/01 21:16:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.19 2011/09/17 16:36:33 jchiang Exp $
  */
 
 #include <algorithm>
+#include <sstream>
 #include <stdexcept>
 
 #include "optimizers/dArg.h"
@@ -52,12 +53,14 @@ double Source::Npred() {
 
 double Source::Npred(double emin, double emax) const {
    const std::vector<double> & energies = m_observation->roiCuts().energies();
-//    if (fabs((emin - energies.front())/emin) < 1e-2) {
-//       emin = energies.front();
-//    }
-//    if (fabs((emax - energies.back())/emax) < 1e-2) {
-//       emax = energies.back();
-//    }
+   // if (emin < energies.front() || emax > energies.back()) {
+   //    std::ostringstream message;
+   //    message << "Source::Npred(emin, emax):\n"
+   //            << "emin = " << emin << "\n"
+   //            << "emax = " << emax << "\n";
+   //    throw std::out_of_range(message.str());
+   // }
+
    double tol(1e-7);
    if (emin < energies.front()) {
       emin = energies.front();
@@ -65,6 +68,7 @@ double Source::Npred(double emin, double emax) const {
    if (emax > energies.back()) {
       emax = energies.back();
    }
+
    std::vector<double>::const_iterator first 
       = std::upper_bound(energies.begin(), energies.end(), emin);
    std::vector<double>::const_iterator last 

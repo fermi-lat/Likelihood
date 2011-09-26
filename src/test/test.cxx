@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.115 2011/06/27 22:57:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.116 2011/09/13 16:56:12 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -117,6 +117,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_WcsMap2);
    CPPUNIT_TEST(test_ScaleFactor);
    CPPUNIT_TEST(test_Drm);
+   CPPUNIT_TEST(test_Source_Npred);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -150,6 +151,7 @@ public:
    void test_WcsMap2();
    void test_ScaleFactor();
    void test_Drm();
+   void test_Source_Npred();
 
 private:
 
@@ -224,7 +226,6 @@ void LikelihoodTests::setUp() {
                                    m_expCube,
                                    m_expMap,
                                    m_eventCont);
-
 
 // Get root path to test data.
    const char * root = 
@@ -1289,6 +1290,32 @@ void LikelihoodTests::test_Drm() {
 //                 << npreds[k] << "  "
 //                 << meas_counts[k] << std::endl;
 //    }
+}
+
+void LikelihoodTests::test_Source_Npred() {
+   std::string eventFile = dataPath("single_src_events_0000.fits");
+
+   tearDown();
+   setUp();
+
+   std::vector<Event> events;
+   readEventData(eventFile, m_scFile, events);
+
+   double ra(193.98);
+   double dec(-5.82);
+   double emin[] = {67., 1e2, 1e3, 5e3, 1e4};
+   double emax[] = {1e5, 1e5, 1e5, 1e5, 1e5};
+   int nee = sizeof(emin)/sizeof(double*);
+   for (int i(0); i < nee; i++) {
+      m_roiCuts->setCuts(193.98, -5.82, 20, emin[i], 
+                         emax[i], 0, 1e12, -1, true);
+      SourceFactory * srcFactory = srcFactoryInstance();
+      Source * src = srcFactory->create("Crab Pulsar");
+      // std::cout << emin[i] << "  "
+      //           << emax[i] << "  " 
+      //           << src->Npred(emin[i], emax[i]) << std::endl;
+      delete src;
+   }
 }
 
 void LikelihoodTests::readEventData(const std::string &eventFile,
