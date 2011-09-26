@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.116 2011/09/13 16:56:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.117 2011/09/26 01:35:50 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -1305,9 +1305,9 @@ void LikelihoodTests::test_Source_Npred() {
    double dec(-5.82);
    double emin[] = {67., 1e2, 1e3, 5e3, 1e4};
    double emax[] = {1e5, 1e5, 1e5, 1e5, 1e5};
-   int nee = sizeof(emin)/sizeof(double*);
+   int nee = 5;
    for (int i(0); i < nee; i++) {
-      m_roiCuts->setCuts(193.98, -5.82, 20, emin[i], 
+      m_roiCuts->setCuts(ra, dec, 20, emin[i], 
                          emax[i], 0, 1e12, -1, true);
       SourceFactory * srcFactory = srcFactoryInstance();
       Source * src = srcFactory->create("Crab Pulsar");
