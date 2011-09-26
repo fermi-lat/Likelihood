@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.438 2011/09/10 00:02:52 jchiang Exp $
+    $Id: release.notes,v 1.439 2011/09/12 02:19:58 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-17-00 25-Sep-2011 jchiang tagging Steve Fegan's memory handling optimizations for map cube diffuse sources
  Likelihood-17-16-00 11-Sep-2011 jchiang enable binned analysis in gttsmap
  Likelihood-17-15-00 09-Sep-2011 jchiang bug-fix for LK-69@JIRA (negative pixel values in convolved map for discrete, map-based diffuse sources
  Likelihood-17-14-05 26-Aug-2011 jchiang Write out template filename to xml model definition for RadialProfile class
