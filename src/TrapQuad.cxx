@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TrapQuad.cxx,v 1.13 2005/03/25 05:16:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TrapQuad.cxx,v 1.14 2009/03/27 19:24:32 jchiang Exp $
  */
 
 #include "Likelihood/TrapQuad.h"
@@ -95,20 +95,26 @@ double TrapQuad::compute_integral() {
 }
 
 double TrapQuad::compute_log_integral() {
-   double sum(0);
-   for (unsigned int i = 0; i < m_x.size()-1; i++) {
-      if (m_y[i+1] > 0 && m_y[i] > 0) {
-         double b = log(m_y[i+1]/m_y[i])/log(m_x[i+1]/m_x[i]);
-         if (b != -1.) {
-            sum += m_y[i]/(b + 1.)*(m_x[i+1]*pow(m_x[i+1]/m_x[i], b) - m_x[i]);
-         } else {
-            double a = m_y[i]/pow(m_x[i], b);
-            sum += a*log(m_x[i+1]/m_x[i]);
-         }
-      } else {
-         sum += (m_y[i+1] + m_y[i])/2.*(m_x[i+1] - m_x[i]);
-      }
-   }
+//    double sum(0);
+//    for (unsigned int i = 0; i < m_x.size()-1; i++) {
+//       if (m_y[i+1] > 0 && m_y[i] > 0) {
+//          double b = log(m_y[i+1]/m_y[i])/log(m_x[i+1]/m_x[i]);
+//          if (b != -1.) {
+//             sum += m_y[i]/(b + 1.)*(m_x[i+1]*pow(m_x[i+1]/m_x[i], b) - m_x[i]);
+//          } else {
+//             double a = m_y[i]/pow(m_x[i], b);
+//             sum += a*log(m_x[i+1]/m_x[i]);
+//          }
+//       } else {
+//          sum += (m_y[i+1] + m_y[i])/2.*(m_x[i+1] - m_x[i]);
+//       }
+//    }
+//    return sum;
+   int n = m_y.size();
+   double sum = m_y[0]*m_x[0]*std::log(m_x[1]/m_x[0])/2. 
+      + m_y[n-1]*m_x[n-1]*std::log(m_x[n-1]/m_x[n-2])/2.;
+   n--;
+   while (--n > 0) sum += m_y[n]*m_x[n]*std::log(m_x[n+1]/m_x[n-1])/2.;
    return sum;
 }
 
