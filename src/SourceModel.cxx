@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.92 2011/06/27 00:16:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.93 2011/09/16 23:20:29 sfegan Exp $
  */
 
 #include <cmath>
@@ -31,7 +31,6 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SourceFactory.h"
-#include "Likelihood/TrapQuad.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/SourceModelBuilder.h"

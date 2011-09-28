@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.53 2010/07/08 23:10:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.54 2011/03/16 22:22:51 jchiang Exp $
  */
 
 #include <algorithm>
@@ -80,7 +80,8 @@ double DiffuseSource::fluxDensity(const Event &evt,
          optimizers::dArg energy_arg(trueEnergies[k]);
          my_integrand[k] = (*m_spectrum)(energy_arg)*diffuseResponses[k];
       }
-      TrapQuad trapQuad(trueEnergies, my_integrand);
+      bool useLog;
+      TrapQuad trapQuad(trueEnergies, my_integrand, useLog=true);
       my_fluxDensity = trapQuad.integral();
    } else {
       double trueEnergy = evt.getEnergy(); 
@@ -117,7 +118,8 @@ double DiffuseSource::fluxDensityDeriv(const Event &evt,
             my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
                *diffuseResponses[k];
          }
-         TrapQuad trapQuad(trueEnergies, my_integrand);
+         bool useLog;
+         TrapQuad trapQuad(trueEnergies, my_integrand, useLog=true);
          my_fluxDensityDeriv = trapQuad.integral();
       } else {
          double trueEnergy = evt.getEnergy(); 

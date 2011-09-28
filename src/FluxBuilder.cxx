@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FluxBuilder.cxx,v 1.12 2005/03/01 01:06:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FluxBuilder.cxx,v 1.13 2011/03/16 22:22:52 jchiang Exp $
  */
 
 #include <algorithm>
@@ -83,7 +83,8 @@ DOMElement * FluxBuilder::fluxSource(Source & src) {
    getSourceType(src, sourceType);
 
    Source::FuncMap & srcFuncs = src.getSrcFuncs();
-   TrapQuad fluxIntegral(srcFuncs["Spectrum"]);
+   bool useLog;
+   TrapQuad fluxIntegral(srcFuncs["Spectrum"], useLog=true);
    if (sourceType == "PointSource" || sourceType == "Isotropic") {
       xmlBase::Dom::addAttribute(srcElt, std::string("flux"),
                                  fluxIntegral.integral(m_energies)/1e-4);

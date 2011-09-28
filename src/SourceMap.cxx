@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.96 2011/06/27 22:57:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.97 2011/08/02 23:57:47 jchiang Exp $
  */
 
 #include <algorithm>
@@ -34,7 +34,6 @@
 #define ST_DLL_EXPORTS
 #include "Likelihood/SourceMap.h"
 #undef ST_DLL_EXPORTS
-#include "Likelihood/TrapQuad.h"
 
 #include "Likelihood/WcsMap2.h"
 
