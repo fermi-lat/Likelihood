@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.440 2011/09/26 01:36:35 jchiang Exp $
+    $Id: release.notes,v 1.441 2011/09/26 19:43:51 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-17-02 10-Oct-2011 jchiang some minor speed ups in BinnedLikelihood calculation; reference tag for energy dispersion calcs in BinnedLikelihood
  Likelihood-17-17-01 26-Sep-2011 jchiang bug-fix for test program on 32-bit machines
  Likelihood-17-17-00 25-Sep-2011 jchiang tagging Steve Fegan's memory handling optimizations for map cube diffuse sources
  Likelihood-17-16-00 11-Sep-2011 jchiang enable binned analysis in gttsmap
