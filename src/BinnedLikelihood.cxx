@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.81 2011/09/14 00:17:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.82 2011/09/16 23:20:29 sfegan Exp $
  */
 
 #include <cmath>
@@ -466,16 +466,19 @@ addSourceWts(std::vector<std::pair<double, double> > & modelWts,
    if (subtract) {
       my_sign = -1.;
    }
+
+   std::vector<double> spec;
+   for (size_t k(0); k < m_energies.size(); k++) {
+      spec.push_back(spectrum(src, m_energies[k]));
+   }
       
+   const std::vector<float> & model(srcMap->model());
    for (size_t j(0); j < m_filledPixels.size(); j++) {
       size_t jmin(m_filledPixels.at(j));
       size_t jmax(jmin + m_pixels.size());
       size_t k(jmin/m_pixels.size());
-      double emin(m_energies.at(k));
-      double emax(m_energies.at(k+1));
-      const std::vector<float> & model(srcMap->model());
-      modelWts.at(j).first += my_sign*model.at(jmin)*spectrum(src, emin);
-      modelWts.at(j).second += my_sign*model.at(jmax)*spectrum(src, emax);
+      modelWts[j].first += my_sign*model[jmin]*spec[k];
+      modelWts[j].second += my_sign*model[jmax]*spec[k+1];
    }
 }
 

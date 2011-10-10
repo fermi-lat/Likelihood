@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.4 2011/06/27 04:32:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.5 2011/09/17 16:36:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -47,8 +47,8 @@ Drm::Drm(double ra, double dec, const Observation & observation,
    // Pad m_ebounds with extra energy bins at the beginning and at the
    // end for the convolution.  These intervals are used only by the
    // true energy bins.
-   double de(std::log(m_ebounds.at(1)/m_ebounds.at(0)));
-   m_ebounds.push_front(std::exp(std::log(m_ebounds.at(0)) - de));
+   double de(std::log(m_ebounds[1]/m_ebounds[0]));
+   m_ebounds.push_front(std::exp(std::log(m_ebounds[0]) - de));
    m_ebounds.push_back(std::exp(std::log(m_ebounds.back()) + de));
 
    compute_drm();
@@ -63,28 +63,28 @@ void Drm::convolve(const std::vector<double> & true_counts,
    std::deque<double> counts(true_counts.size());
    std::copy(true_counts.begin(), true_counts.end(), counts.begin());
    double value(0);
-   if (counts.at(0) > 0 && counts.at(1) > 0){
-      value = counts.at(0)*std::exp(std::log(m_ebounds.at(0)/m_ebounds.at(2))/
-                                    std::log(m_ebounds.at(1)/m_ebounds.at(2))*
-                                    std::log(counts.at(0)/counts.at(1)));
+   if (counts[0] > 0 && counts[1] > 0){
+      value = counts[0]*std::exp(std::log(m_ebounds[0]/m_ebounds[2])/
+                                 std::log(m_ebounds[1]/m_ebounds[2])*
+                                 std::log(counts[0]/counts[1]));
    } else {
-      value = ((m_ebounds.at(0) - m_ebounds.at(2))/
-               (m_ebounds.at(1) - m_ebounds.at(2))*
-               (counts.at(0) - counts.at(1)) + counts.at(0));
+      value = ((m_ebounds[0] - m_ebounds[2])/
+               (m_ebounds[1] - m_ebounds[2])*
+               (counts[0] - counts[1]) + counts[0]);
    }
    counts.push_front(value);
 
    size_t nee(m_ebounds.size() - 1);
    size_t ncc(counts.size() - 1);
-   if (counts.at(ncc) > 0 && counts.at(ncc-1) > 0) {
-      value = counts.at(ncc-1)
-         *std::exp(std::log(m_ebounds.at(nee)/m_ebounds.at(nee-2))/
-                   std::log(m_ebounds.at(nee-1)/m_ebounds.at(nee-2))*
-                   std::log(counts.at(ncc)/counts.at(ncc-1)));
+   if (counts[ncc] > 0 && counts[ncc-1] > 0) {
+      value = counts[ncc-1]
+         *std::exp(std::log(m_ebounds[nee]/m_ebounds[nee-2])/
+                   std::log(m_ebounds[nee-1]/m_ebounds[nee-2])*
+                   std::log(counts[ncc]/counts[ncc-1]));
    } else {
-      value = ((m_ebounds.at(nee) - m_ebounds.at(nee-2))/
-               (m_ebounds.at(nee-1) - m_ebounds.at(nee-2))*
-               (counts.at(ncc) - counts.at(ncc-1)) + counts.at(ncc-1));
+      value = ((m_ebounds[nee] - m_ebounds[nee-2])/
+               (m_ebounds[nee-1] - m_ebounds[nee-2])*
+               (counts[ncc] - counts[ncc-1]) + counts[ncc-1]);
    }
    counts.push_back(value);
 
@@ -92,7 +92,7 @@ void Drm::convolve(const std::vector<double> & true_counts,
    for (size_t kp(0); kp < meas_counts.size(); kp++) {
       meas_counts[kp] = 0;
       for (size_t k(0); k < counts.size(); k++) {
-         meas_counts[kp] += counts.at(k)*m_drm.at(k).at(kp);
+         meas_counts[kp] += counts[k]*m_drm[k][kp];
       }
    }
 }
@@ -105,7 +105,7 @@ void Drm::compute_drm() {
          std::vector<double> emeas;
          get_emeas(kp, emeas);
          std::vector<double> disp(m_npts);
-         get_disp(std::sqrt(m_ebounds.at(k)*m_ebounds.at(k+1)), emeas, disp);
+         get_disp(std::sqrt(m_ebounds[k]*m_ebounds[k+1]), emeas, disp);
          row.push_back(::integrate(emeas, disp));
       }
       m_drm.push_back(row);
@@ -114,7 +114,7 @@ void Drm::compute_drm() {
 
 void Drm::get_emeas(size_t kp, std::vector<double> & emeas) const {
    emeas.clear();
-   double estep((m_ebounds.at(kp+2) - m_ebounds.at(kp+1))/(m_npts-1));
+   double estep((m_ebounds[kp+2] - m_ebounds[kp+1])/(m_npts-1));
    emeas.push_back(m_ebounds[kp+1]);
    for (size_t k(1); k < m_npts; k++) {
       emeas.push_back(emeas.back() + estep);
