@@ -3,11 +3,13 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slacs.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.20 2011/06/14 14:06:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.21 2011/06/14 22:41:49 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
 #define Likelihood_ExposureCube_h
+
+#include <stdexcept>
 
 #include "facilities/Util.h"
 
@@ -28,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.20 2011/06/14 14:06:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.21 2011/06/14 22:41:49 jchiang Exp $
  */
 
 class ExposureCube {
@@ -85,9 +87,15 @@ public:
       if (m_efficiencyFactor) {
          m_efficiencyFactor->getLivetimeFactors(energy, factor1, factor2);
       }
-      double exposure(factor1*value(dir, aeff));
+      double value1(value(dir, aeff));
+      double value2(0);
+      double exposure(factor1*value1);
       if (factor2 != 0) {
-         exposure += factor2*value(dir, aeff, true);
+         value2 = value(dir, aeff, true);
+         exposure += factor2*value2;
+      }
+      if (exposure < 0) {
+         throw std::runtime_error("ExposureCube::value: exposure < 0");
       }
       return exposure;
    }

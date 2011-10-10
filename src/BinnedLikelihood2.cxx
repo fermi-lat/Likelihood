@@ -3,9 +3,10 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood2.cxx,v 1.4 2011/09/16 23:20:29 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood2.cxx,v 1.5 2011/09/17 16:36:32 jchiang Exp $
  */
 
+#include <cassert>
 #include <cmath>
 
 #include <memory>
@@ -163,18 +164,19 @@ void BinnedLikelihood2::getFreeDerivs(std::vector<double> & derivs) const {
       std::vector<std::string> paramNames;
       src->second->spectrum().getFreeParamNames(paramNames);
       for (size_t ipar(0); ipar < paramNames.size(); ipar++, iparam++) {
+
          for (size_t ipix(0); ipix < m_npix; ipix++) {
             // Compute unconvolved counts spectrum at each spatial position.
             std::vector<double> my_derivs(m_nee, 0);
             for (size_t k(0); k < m_nee; k++) {
-               double emin(m_energies.at(k));
-               double emax(m_energies.at(k+1));
+               double emin(m_energies[k]);
+               double emax(m_energies[k+1]);
                size_t indx(k*m_npix + ipix);
                if (m_model[ipix][k] != 0) {
                   my_derivs[k] = 
                      src->second->pixelCountsDeriv(emin, emax,
-                                                   model.at(indx),
-                                                   model.at(indx + m_npix),
+                                                   model[indx],
+                                                   model[indx + m_npix],
                                                    paramNames[ipar]);
                } else {
                   my_derivs[k] = 0;
@@ -182,8 +184,8 @@ void BinnedLikelihood2::getFreeDerivs(std::vector<double> & derivs) const {
             }
             // Convolve using the DRM.
             std::vector<double> convolved_derivs(m_nee);
-            m_drm->convolve(my_derivs, convolved_derivs);
-//            convolved_derivs = my_derivs;
+//            m_drm->convolve(my_derivs, convolved_derivs);
+            convolved_derivs = my_derivs;
             // Add to Accumulator objects.
             for (size_t k(0); k < m_nee; k++) {
                size_t indx(k*m_npix + ipix);
@@ -194,10 +196,10 @@ void BinnedLikelihood2::getFreeDerivs(std::vector<double> & derivs) const {
                } else {
                   m_negDerivs[iparam].add(addend);
                }
-            }
-         }
-      }
-   }
+            } // k
+         } // ipix
+      } // ipar
+   } // src
    for (size_t i(0); i < nparams; i++) {
       derivs[i] = m_posDerivs[i].total() + m_negDerivs[i].total();
    }
@@ -270,7 +272,7 @@ void BinnedLikelihood2::computeCountsSpectrum() {
    for (size_t k = 0; k < m_nee; k++) {
       double ntot(0);
       for (size_t ipix(0); ipix < m_npix; ipix++, indx++) {
-         ntot += m_cmap.data().at(indx);
+         ntot += m_cmap.data()[indx];
       }
       m_countsSpectrum.push_back(ntot);
    }
@@ -296,8 +298,8 @@ double BinnedLikelihood2::NpredValue(const std::string & srcName) const {
    const Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    double value(0);
    for (size_t k(0); k < energies().size()-1; k++) {
-      value += src->pixelCounts(energies().at(k), energies().at(k+1),
-                                npreds.at(k), npreds.at(k+1));
+      value += src->pixelCounts(energies()[k], energies()[k+1],
+                                npreds[k], npreds[k+1]);
    }
    return value;
 }
@@ -316,8 +318,8 @@ double BinnedLikelihood2::computeModelMap() const {
                                       modelWts[ipix][k].first, 
                                       modelWts[ipix][k].second);
       }
-      m_drm->convolve(true_counts, m_model[ipix]);
-//      m_model[ipix] = true_counts;
+//      m_drm->convolve(true_counts, m_model[ipix]);
+      m_model[ipix] = true_counts;
       for (size_t k(0); k < m_nee; k++) {
          npred += m_model[ipix][k];
       }
@@ -374,7 +376,7 @@ bool BinnedLikelihood2::fixedModelUpdated() const {
          std::vector<double> parValues;
          it->second->spectrum().getParamValues(parValues);
          for (size_t j(0); j < parValues.size(); j++) {
-            if (parValues.at(j) != savedPars->second.at(j)) {
+            if (parValues[j] != savedPars->second[j]) {
                return true;
             }
          }
@@ -467,14 +469,15 @@ addSourceWts(ModelWeights_t & modelWts, const std::string & srcName,
    }
    const std::vector<float> & model(srcMap->model());
    size_t indx(0);
+
+   std::vector<double> spec;
+   for (size_t k(0); k < m_nee+1; k++) {
+      spec.push_back(spectrum(src, m_energies[k]));
+   }
    for (size_t k(0); k < m_nee; k++) {
-      double emin(m_energies[k]);
-      double emax(m_energies[k+1]);
       for (size_t ipix(0); ipix < m_npix; ipix++, indx++) {
-         modelWts[ipix][k].first += (my_sign*model[indx]*
-                                     spectrum(src, emin));
-         modelWts[ipix][k].second += (my_sign*model[indx + m_npix]*
-                                      spectrum(src, emax));
+         modelWts[ipix][k].first += my_sign*model[indx]*spec[k];
+         modelWts[ipix][k].second += my_sign*model[indx + m_npix]*spec[k+1];
       }
    }
 }
@@ -501,8 +504,8 @@ double BinnedLikelihood2::NpredValue(const std::string & srcName,
    const Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    double value(0);
    for (size_t k(0); k < energies().size()-1; k++) {
-      value += src->pixelCounts(energies().at(k), energies().at(k+1),
-                                npreds.at(k), npreds.at(k+1));
+      value += src->pixelCounts(energies()[k], energies()[k+1],
+                                npreds[k], npreds[k+1]);
    }
    return value;
 }
