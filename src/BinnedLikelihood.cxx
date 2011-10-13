@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.83 2011/10/10 21:53:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.84 2011/10/11 02:02:21 jchiang Exp $
  */
 
 #include <cmath>
@@ -689,19 +689,27 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
       true_counts_spec.push_back(my_value);
    }
    std::vector<double> meas_counts_spec;
-   const_cast<BinnedLikelihood *>(this)->edisp_correction_factors(srcName,
-                                                                  true_counts_spec,
-                                                                  meas_counts_spec);
+   if (::getenv("USE_BL_EDISP")) {
+      const_cast<BinnedLikelihood *>(this)
+         ->edisp_correction_factors(srcName, true_counts_spec,
+                                    meas_counts_spec);
+   }
    double value(0);
    for (size_t k(0); k < energies().size()-1; k++) {
       if (k < m_kmin || k > m_kmax-1) {
          continue;
       }
-      value += meas_counts_spec[k];
+      if (::getenv("USE_BL_EDISP")) {
+         value += meas_counts_spec[k];
+      } else {
+         value += true_counts_spec[k];
+      }
    }
    return value;
 }
 
+// Compute measured count spectrum scaling wrt total true counts
+// summed over energy bins.
 void BinnedLikelihood::
 edisp_correction_factors(const std::string & srcName,
                          const std::vector<double> & true_counts_spec,
