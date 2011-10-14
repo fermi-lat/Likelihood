@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.84 2011/10/11 02:02:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.85 2011/10/13 16:49:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -477,16 +477,32 @@ addSourceWts(std::vector<std::pair<double, double> > & modelWts,
       spec.push_back(spectrum(src, m_energies[k]));
    }
 
+   size_t npix(m_pixels.size());
    const std::vector<float> & model(srcMap->model());
    for (size_t j(0); j < m_filledPixels.size(); j++) {
       size_t jmin(m_filledPixels.at(j));
-      size_t jmax(jmin + m_pixels.size());
-      size_t k(jmin/m_pixels.size());
+      size_t jmax(jmin + npix);
+      size_t k(jmin/npix);
       if (::getenv("USE_BL_EDISP")) {
-         modelWts[j].first += (my_sign*model[jmin]*spec[k]*
-                               m_edisp_factor[srcName][k]);
-         modelWts[j].second += (my_sign*model[jmax]*spec[k+1]*
-                                m_edisp_factor[srcName][k]);
+         if (m_true_counts[srcName][k] != 0) {
+            double xi(m_meas_counts[srcName][k]/m_true_counts[srcName][k]);
+            modelWts[j].first += my_sign*model[jmin]*spec[k]*xi;
+            modelWts[j].second += my_sign*model[jmax]*spec[k+1]*xi;
+         } else {
+            size_t ipix(jmin % npix);
+            std::map<size_t, size_t>::const_iterator it =
+               m_krefs[srcName].find(ipix);
+            if (it != m_krefs[srcName].end()) {
+               size_t kref = it->second;
+               size_t jref = kref*npix + ipix;
+               modelWts[j].first += (my_sign*model[jref]*spec[kref]
+                                     /m_true_counts[srcName][kref]
+                                     *m_meas_counts[srcName][k]);
+               modelWts[j].first += (my_sign*model[jref+npix]*spec[kref+1]
+                                     /m_true_counts[srcName][kref]
+                                     *m_meas_counts[srcName][k]);
+            }
+         }
       } else {
          modelWts[j].first += my_sign*model[jmin]*spec[k];
          modelWts[j].second += my_sign*model[jmax]*spec[k+1];
@@ -694,6 +710,9 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
          ->edisp_correction_factors(srcName, true_counts_spec,
                                     meas_counts_spec);
    }
+   m_true_counts[srcName] = true_counts_spec;
+   m_meas_counts[srcName] = meas_counts_spec;
+
    double value(0);
    for (size_t k(0); k < energies().size()-1; k++) {
       if (k < m_kmin || k > m_kmax-1) {
@@ -717,10 +736,18 @@ edisp_correction_factors(const std::string & srcName,
    meas_counts_spec.resize(m_energies.size()-1);
    std::vector<double> xi;
    m_drm->convolve(true_counts_spec, meas_counts_spec);
-   for (size_t k(0); k < true_counts_spec.size(); k++) {
-      xi.push_back(meas_counts_spec[k]/true_counts_spec[k]);
+   // Find the reference pixel in the energy dimension (k) for each
+   // sky location (ipix) that contains at least 1 count and for which
+   // the true model counts is positive.
+   std::map<size_t, size_t> krefs;
+   for (size_t j(0); j < m_filledPixels.size(); j++) {
+      size_t ipix = m_filledPixels[j] % m_pixels.size();
+      size_t k = m_filledPixels[j]/m_pixels.size();
+      if (true_counts_spec[k] > 0) {
+         krefs[ipix] = k;
+      }
    }
-   m_edisp_factor[srcName] = xi;
+   m_krefs[srcName] = krefs;
 }
 
 void BinnedLikelihood::getNpreds(const std::string & srcName,

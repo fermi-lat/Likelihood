@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.55 2011/09/16 23:20:28 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.56 2011/10/11 02:02:21 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.55 2011/09/16 23:20:28 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.56 2011/10/11 02:02:21 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -207,7 +207,10 @@ private:
 
    Drm * m_drm;
 
-   mutable std::map<std::string, std::vector<double> > m_edisp_factor;
+   mutable std::map<std::string, std::vector<double> > m_true_counts;
+   mutable std::map<std::string, std::vector<double> > m_meas_counts;
+
+   std::map<std::string, std::map<size_t, size_t> > m_krefs;
 
    void createSourceMaps();
 
