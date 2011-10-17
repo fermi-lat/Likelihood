@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.31 2009/05/20 19:30:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.32 2011/06/14 06:31:53 jchiang Exp $
  */
 
 #include <algorithm>
@@ -16,6 +16,8 @@
 
 #undef ST_API_EXPORTS
 #include "irfLoader/Loader.h"
+
+#include "latResponse/IrfLoader.h"
 
 #include "Likelihood/ResponseFunctions.h"
 
@@ -100,6 +102,10 @@ irfInterface::Irfs * ResponseFunctions::respPtr(unsigned int i) const {
 void ResponseFunctions::load(const std::string & respFuncs,
                              const std::string & respBase,
                              const std::vector<size_t> & evtTypes) {
+   // Turn of energy dispersion interpolation in
+   // irfs/latResponse/Edisp2 for greater efficiency.
+   latResponse::IrfLoader::set_edisp_interpolation(false);
+
    irfLoader::Loader_go();
 
    irfInterface::IrfsFactory * myFactory(irfInterface::IrfsFactory::instance());
