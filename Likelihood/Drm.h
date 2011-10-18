@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Drm.h,v 1.4 2011/06/27 04:32:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Drm.h,v 1.5 2011/10/18 04:56:55 jchiang Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -44,11 +44,6 @@ private:
    std::vector< std::vector<double> > m_drm;
 
    void compute_drm();
-
-   void get_emeas(size_t kp, std::vector<double> & emeas) const;
-
-   void get_disp(double etrue, const std::vector<double> & emeas,
-                 std::vector<double> & disp) const;
       
    double matrix_element(double etrue, double emeas_min, 
                          double emeas_max) const;
