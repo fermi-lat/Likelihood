@@ -3,7 +3,7 @@
  * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.23 2011/06/14 06:31:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.24 2011/06/14 22:41:49 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -29,7 +29,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.23 2011/06/14 06:31:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.24 2011/06/14 22:41:49 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -114,6 +114,8 @@ public:
 
    void load(const std::string & respFuncs, const std::string & respBase="",
              const std::vector<size_t> &selectedEvtTypes=std::vector<size_t>());
+
+   irfInterface::IEdisp & edisp(int type) const;
 
    double edisp(double emeas, double etrue, 
                 const astro::SkyDir & srcDir,

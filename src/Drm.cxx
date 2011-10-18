@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.5 2011/09/17 16:36:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.6 2011/10/10 21:53:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -101,12 +101,18 @@ void Drm::compute_drm() {
    m_drm.clear();
    for (size_t k(0); k < m_ebounds.size()-1; k++) {
       std::vector<double> row;
+//       for (size_t kp(0); kp < m_ebounds.size() - 3; kp++) {
+//          std::vector<double> emeas;
+//          get_emeas(kp, emeas);
+//          std::vector<double> disp(m_npts);
+//          get_disp(std::sqrt(m_ebounds[k]*m_ebounds[k+1]), emeas, disp);
+//          row.push_back(::integrate(emeas, disp));
+//       }
       for (size_t kp(0); kp < m_ebounds.size() - 3; kp++) {
-         std::vector<double> emeas;
-         get_emeas(kp, emeas);
-         std::vector<double> disp(m_npts);
-         get_disp(std::sqrt(m_ebounds[k]*m_ebounds[k+1]), emeas, disp);
-         row.push_back(::integrate(emeas, disp));
+         double emeas_min(m_ebounds[kp+1]);
+         double emeas_max(m_ebounds[kp+2]);
+         row.push_back(matrix_element(std::sqrt(m_ebounds[k]*m_ebounds[k+1]),
+                                      emeas_min, emeas_max));
       }
       m_drm.push_back(row);
    }
@@ -119,6 +125,63 @@ void Drm::get_emeas(size_t kp, std::vector<double> & emeas) const {
    for (size_t k(1); k < m_npts; k++) {
       emeas.push_back(emeas.back() + estep);
    }
+}
+
+double Drm::
+matrix_element(double etrue, double emeas_min, double emeas_max) const {
+   const ResponseFunctions & resps(m_observation.respFuncs());
+   const ExposureCube & expcube(m_observation.expCube());
+
+   // Use phi-averged exposure
+   double phi(-1);
+
+   // Get the event types (usually just the list of conversion_type's)
+   // and turn off phi-dependence temporarily.
+   std::vector<bool> phideps;
+   std::vector<int> evtTypes;
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator it;
+   for (it = resps.begin(); it != resps.end(); ++it) {
+      phideps.push_back(it->second->aeff()->usePhiDependence());
+      it->second->aeff()->setPhiDependence(false);
+      evtTypes.push_back(it->second->irfID());
+   }
+
+   size_t nmu(20);
+   std::vector<double> mu_vals;
+   double dmu(0.99/(nmu-1.));
+   for (size_t i(0); i < nmu; i++) {
+      mu_vals.push_back(1 - dmu*i);
+   }
+
+   std::vector<double> exposr(nmu, 0);
+   std::vector<double> top(nmu, 0);
+   size_t j(0);
+   for (std::vector<double>::const_iterator mu(mu_vals.begin());
+        mu != mu_vals.end(); ++mu, j++) {
+      double theta(std::acos(*mu)*180./M_PI);
+      double livetime(expcube.livetime(m_dir, *mu, phi));
+      for (size_t i(0); i < evtTypes.size(); i++) {
+         double aeff(resps.aeff(etrue, theta, phi, evtTypes[i]));
+         double edisp(resps.edisp(evtTypes[i]).integral(emeas_min, emeas_max, 
+                                                        etrue, theta, phi));
+         exposr[j] += aeff*livetime;
+         top[j] += edisp*aeff*livetime;
+      }
+   }
+   double numerator(::integrate(mu_vals, top));
+   double denominator(::integrate(mu_vals, exposr));
+   double my_disp(0);
+   if (numerator != 0) {
+      my_disp = numerator/denominator;
+   }
+
+   // Restore status of phi-dependence.
+   size_t i(0);
+   for (it = resps.begin(); it != resps.end(); ++it, i++) {
+      it->second->aeff()->setPhiDependence(phideps[i]);
+   }
+
+   return my_disp;
 }
 
 void Drm::get_disp(double etrue, const std::vector<double> & emeas,
