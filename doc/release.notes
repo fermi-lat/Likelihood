@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.442 2011/10/10 21:56:27 jchiang Exp $
+    $Id: release.notes,v 1.443 2011/10/18 04:57:29 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-18-01 18-Oct-2011 jchiang remove older (and less efficient) DRM code
  Likelihood-17-18-00 17-Oct-2011 jchiang alpha implementation of energy dispersion in BinnedLikelihood
  Likelihood-17-17-02 10-Oct-2011 jchiang some minor speed ups in BinnedLikelihood calculation; reference tag for energy dispersion calcs in BinnedLikelihood
  Likelihood-17-17-01 26-Sep-2011 jchiang bug-fix for test program on 32-bit machines
