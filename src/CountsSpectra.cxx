@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsSpectra.cxx,v 1.10 2011/09/15 05:45:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsSpectra.cxx,v 1.11 2011/09/17 16:36:32 jchiang Exp $
  */
 
 #include <cmath>
@@ -29,9 +29,10 @@ void CountsSpectra::setEbounds(double emin, double emax, size_t nbounds) {
    double estep(std::log(emax/emin)/(nbounds - 1.));
    m_ebounds.clear();
    m_ebounds.reserve(nbounds);
-   for (size_t k = 0; k < nbounds; k++) {
+   for (size_t k = 0; k < nbounds-1; k++) {
       m_ebounds.push_back(emin*std::exp(k*estep));
    }
+   m_ebounds.push_back(emax);
 }
 
 void CountsSpectra::getSrcCounts(const std::string & srcName,
