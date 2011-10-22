@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.444 2011/10/18 22:46:36 jchiang Exp $
+    $Id: release.notes,v 1.445 2011/10/20 18:27:24 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-18-03 21-Oct-2011 jchiang strip ::FRONT, ::BACK qualifiers from irfs parameter value before building DIFRSP# keyword value. front/back info is in CONVERSION_TYPE column already for each event. 
  Likelihood-17-18-02 20-Oct-2011 jchiang bug-fix for CountsSpectra::setEbounds
  Likelihood-17-18-01 18-Oct-2011 jchiang remove older (and less efficient) DRM code
  Likelihood-17-18-00 17-Oct-2011 jchiang alpha implementation of energy dispersion in BinnedLikelihood
