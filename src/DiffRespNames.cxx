@@ -3,7 +3,7 @@
  * @brief Class to keep track of diffuse response column names.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffRespNames.cxx,v 1.1 2008/11/29 15:53:49 jchiang Exp $
  */
 
 #include <algorithm>
@@ -20,7 +20,7 @@
 namespace Likelihood {
 
 DiffRespNames::DiffRespNames(const std::string & rootName) 
-      : m_rootName(rootName) {}
+   : m_rootName(rootName) {}
 
 size_t DiffRespNames::size() const {
    return m_colnames.size();
