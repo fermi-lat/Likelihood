@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.91 2011/05/29 17:53:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.92 2011/06/09 05:15:54 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -36,6 +36,7 @@
 #include "Likelihood/FileFunction.h"
 #include "Likelihood/LogGaussian.h"
 #include "Likelihood/LogNormal.h"
+#include "Likelihood/LogNormalLog.h"
 #include "Likelihood/LogParabola.h"
 //#include "Likelihood/MapCubeFunction.h"
 #include "Likelihood/MapCubeFunction2.h"
@@ -130,6 +131,7 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
    funcFactory->addFunc("LogGaussian", new LogGaussian(), makeClone);
    funcFactory->addFunc("LogNormal", new LogNormal(), makeClone);
+   funcFactory->addFunc("LogNormalLog", new LogNormalLog(), makeClone);
    funcFactory->addFunc("MapCubeFunction", new MapCubeFunction2(), makeClone);
    funcFactory->addFunc("RadialProfile", new RadialProfile(), makeClone);
    funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
