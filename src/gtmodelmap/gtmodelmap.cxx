@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.28 2011/03/30 00:19:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.29 2011/11/01 05:54:29 jchiang Exp $
  */
 
 #include <iostream>
@@ -30,21 +30,12 @@
 
 #include "st_facilities/FitsUtil.h"
 
-#include "optimizers/dArg.h"
-#include "optimizers/FunctionFactory.h"
-
 #include "dataSubselector/Cuts.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
-#include "Likelihood/DMFitFunction.h"
-#include "Likelihood/DMFitFunction2.h"
-#include "Likelihood/FileFunction.h"
-#include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
-
-#include "SourceMapRegistry.h"
 
 #include "fitsio.h"
 
@@ -117,16 +108,13 @@ private:
    Likelihood::CountsMap * m_dataMap;
    Likelihood::BinnedLikelihood * m_logLike;
 
-   std::vector<double> m_emins;
-   std::vector<double> m_emaxs;
    std::vector<float> m_outmap;
 
-   void readEnergyBounds();
+   void computeModelMap();
    void writeOutputMap();
    void trimExtensions();
 
    static std::string s_cvs_id;
-                
 };
 
 st_app::StAppFactory<ModelMap> myAppFactory("gtmodel");
@@ -143,9 +131,12 @@ void ModelMap::banner() const {
 void ModelMap::run() {
    m_pars.Prompt();
    m_pars.Save();
+   computeModelMap();
+   writeOutputMap();
+   trimExtensions();
+}
 
-   readEnergyBounds();
-
+void ModelMap::computeModelMap() {
    m_helper = new Likelihood::AppHelpers(&m_pars, "BINNED");
    m_helper->observation().expCube().readExposureCube(m_pars["expcube"]);
    m_helper->setRoi(m_pars["srcmaps"], "", false);
@@ -166,41 +157,21 @@ void ModelMap::run() {
    m_logLike->readXml(m_pars["srcmdl"], m_helper->funcFactory(),
                       requireExposure=false, addPointSources=true,
                       loadMaps=false);
-   double npred;
    m_logLike->computeModelMap(m_outmap);
 
    std::string outtype = m_pars["outtype"];
    if (outtype == "CMAP") {
+      // Sum up the image planes over the different energy bands.
       size_t image_size(m_dataMap->imageDimension(0)*
                         m_dataMap->imageDimension(1));
-      for (size_t k(1); k < m_emins.size(); k++) {
+      size_t nee(m_dataMap->imageDimension(2));
+      for (size_t k(1); k < nee; k++) {
          for (size_t j(0); j < image_size; j++) {
             size_t indx(k*image_size + j);
             m_outmap[j] += m_outmap[indx];
          }
       }
    }
-
-   writeOutputMap();
-   trimExtensions();
-}
-
-void ModelMap::readEnergyBounds() {
-   std::string srcMaps_file = m_pars["srcmaps"];
-   const tip::Table * ebounds = 
-      tip::IFileSvc::instance().readTable(srcMaps_file, "EBOUNDS");
-   tip::Table::ConstIterator it = ebounds->begin();
-   tip::ConstTableRecord & ebound = *it;
-   m_emins.clear();
-   m_emaxs.clear();
-   double emin, emax;
-   for ( ; it != ebounds->end(); ++it) {
-      ebound["E_MIN"].get(emin);
-      ebound["E_MAX"].get(emax);
-      m_emins.push_back(emin/1e3);
-      m_emaxs.push_back(emax/1e3);
-   }
-   delete ebounds;
 }
 
 void ModelMap::writeOutputMap() {
@@ -251,7 +222,7 @@ void ModelMap::trimExtensions() {
       }
    }
    if (outtype == "CMAP") {
-// delete axis 3 keywords in PRIMARY HDU
+// Delete axis 3 keywords in PRIMARY HDU.
       fits_movabs_hdu(fptr, 1, &hdutype, &status);
       ::fitsReportError(stderr, status);
 
@@ -267,7 +238,7 @@ void ModelMap::trimExtensions() {
       ::fitsReportError(stderr, status);
    }
 
-// update creator keyword
+// Update creator keyword.
    char * creator = "gtmodel";
    fits_update_key(fptr, TSTRING, "CREATOR", creator,
                    "Software creating file", &status);
