@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.86 2011/10/14 03:48:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.87 2011/11/01 05:54:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -285,15 +285,10 @@ computeModelMap(std::vector<float> & modelMap) const {
       = m_srcMaps.begin();
    for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
       const std::string & name(srcIt->first);
-      // This computes the convolved spectrum.
-      NpredValue(name);
+      NpredValue(name); // This computes the convolved spectrum.
       const SourceMap * srcMap(srcIt->second);
       const Source * src 
          = const_cast<BinnedLikelihood *>(this)->getSource(name);
-      std::vector<double> spec;
-      for (size_t k(0); k < m_energies.size(); k++) {
-         spec.push_back(spectrum(src, m_energies[k]));
-      }
       const std::vector<float> & model(srcMap->model());
       for (size_t j(0); j < npix; j++) {
          for (size_t k(0); k < m_energies.size()-1; k++) {
@@ -307,8 +302,8 @@ computeModelMap(std::vector<float> & modelMap) const {
                if (m_true_counts[name][k] != 0) {
                   double xi(m_meas_counts[name][k]
                             /m_true_counts[name][k]);
-                  wt1 = model[jmin]*spec[k]*xi;
-                  wt2 = model[jmax]*spec[k+1]*xi;
+                  wt1 = model[jmin]*xi;
+                  wt2 = model[jmax]*xi;
                } else {
                   size_t ipix(jmin % npix);
                   std::map<size_t, size_t>::const_iterator it =
@@ -316,11 +311,9 @@ computeModelMap(std::vector<float> & modelMap) const {
                   if (it != m_krefs[name].end()) {
                      size_t kref = it->second;
                      size_t jref = kref*npix + ipix;
-                     wt1 = (model[jref]*spec[kref]
-                            /m_true_counts[name][kref]
+                     wt1 = (model[jref]/m_true_counts[name][kref]
                             *m_meas_counts[name][k]);
-                     wt2 = (model[jref+npix]*spec[kref+1]
-                            /m_true_counts[name][kref]
+                     wt2 = (model[jref+npix]/m_true_counts[name][kref]
                             *m_meas_counts[name][k]);
                   }
                }
