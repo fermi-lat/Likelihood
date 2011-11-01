@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.29 2011/11/01 05:54:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.30 2011/11/01 15:37:57 jchiang Exp $
  */
 
 #include <iostream>
@@ -38,9 +38,6 @@
 #include "Likelihood/SourceMap.h"
 
 #include "fitsio.h"
-
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 namespace {
    void fitsReportError(FILE * stream, int status) {
