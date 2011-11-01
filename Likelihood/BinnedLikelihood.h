@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.56 2011/10/11 02:02:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.57 2011/10/14 03:48:54 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.56 2011/10/11 02:02:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.57 2011/10/14 03:48:54 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -147,6 +147,8 @@ public:
       m_verbose = verbose;
    }
 
+   void computeModelMap(std::vector<float> & modelMap) const;
+
 protected:
 
    virtual BinnedLikelihood * clone() const {
@@ -214,9 +216,7 @@ private:
 
    void createSourceMaps();
 
-   void computeModelMap(double & npred) const;
-
-   void computeModelMap(std::vector<float> & modelMap) const;
+   double computeModelMap() const;
 
    void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
                      const std::string & srcName,
