@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.92 2011/06/09 05:15:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.93 2011/10/24 07:49:20 cohen Exp $
  */
 
 #include <cstdlib>
@@ -273,8 +273,13 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       std::string myfile = pars["evfile"];
       evfile = myfile;
    } else if (analysisType == "BINNED") {
-      std::string myfile = pars["cmap"];
-      evfile = myfile;
+      try {
+         std::string myfile = pars["cmap"];
+         evfile = myfile;
+      } catch (hoops::Hexception &) {
+         std::string myfile = pars["srcmaps"];
+         evfile = myfile;
+      }
    } else {
       m_respFuncs->load(respBase);
       return;

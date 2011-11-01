@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.85 2011/10/13 16:49:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.86 2011/10/14 03:48:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -67,8 +67,7 @@ BinnedLikelihood::~BinnedLikelihood() throw() {
 double BinnedLikelihood::value(optimizers::Arg & dummy) const {
    (void)(dummy);
 
-   double npred;
-   computeModelMap(npred);
+   double npred(computeModelMap());
 
    const std::vector<float> & data(m_dataMap.data());
    double my_value(0);
@@ -106,9 +105,7 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
 }
 
 double BinnedLikelihood::npred() {
-   double npred;
-   computeModelMap(npred);
-   return npred;
+   return computeModelMap();
 }
 
 std::vector<double>::const_iterator 
@@ -128,11 +125,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    derivs.resize(nparams, 0);
    double npred;
    if (!m_modelIsCurrent) {
-      computeModelMap(npred);
+      npred = computeModelMap();
    }
-//    std::cout << "npred = " << npred << std::endl;
-//    computeModelMap(npred);
-//    std::cout << "npred = " << npred << std::endl;
    const std::vector<float> & data = m_dataMap.data();
 /// First j value corresponding to the minimum allowed k-index.
    size_t jentry(0);
@@ -280,26 +274,61 @@ void BinnedLikelihood::eraseSourceMap(const std::string & srcName) {
    m_srcMaps.erase(srcName);
 }
 
-void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap) const {
+void BinnedLikelihood::
+computeModelMap(std::vector<float> & modelMap) const {
+   size_t npix(m_pixels.size());
+
    modelMap.clear();
-   modelMap.resize(m_pixels.size()*(m_energies.size()-1), 0);
-   for (size_t k(0); k < m_energies.size()-1; k++) {
-      double emin(m_energies.at(k));
-      double emax(m_energies.at(k+1));
-      for (size_t j(0); j < m_pixels.size(); j++) {
-         size_t imin(k*m_pixels.size() + j);
-         size_t imax(imin + m_pixels.size());
-         std::map<std::string, SourceMap *>::const_iterator srcIt
-            = m_srcMaps.begin();
-         for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
-            const std::string & name(srcIt->first);
-            const SourceMap * srcMap(srcIt->second);
-            const Source * src 
-               = const_cast<BinnedLikelihood *>(this)->getSource(name);
-            const std::vector<float> & model(srcMap->model());
-            modelMap.at(imin) += src->pixelCounts(emin, emax,
-                                                  model.at(imin), 
-                                                  model.at(imax));
+   modelMap.resize(npix*(m_energies.size()-1), 0);
+
+   std::map<std::string, SourceMap *>::const_iterator srcIt
+      = m_srcMaps.begin();
+   for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
+      const std::string & name(srcIt->first);
+      // This computes the convolved spectrum.
+      NpredValue(name);
+      const SourceMap * srcMap(srcIt->second);
+      const Source * src 
+         = const_cast<BinnedLikelihood *>(this)->getSource(name);
+      std::vector<double> spec;
+      for (size_t k(0); k < m_energies.size(); k++) {
+         spec.push_back(spectrum(src, m_energies[k]));
+      }
+      const std::vector<float> & model(srcMap->model());
+      for (size_t j(0); j < npix; j++) {
+         for (size_t k(0); k < m_energies.size()-1; k++) {
+            double emin(m_energies.at(k));
+            double emax(m_energies.at(k+1));
+            size_t jmin(k*npix + j);
+            size_t jmax(jmin + npix);
+            double wt1(0);
+            double wt2(0);
+            if (::getenv("USE_BL_EDISP")) {
+               if (m_true_counts[name][k] != 0) {
+                  double xi(m_meas_counts[name][k]
+                            /m_true_counts[name][k]);
+                  wt1 = model[jmin]*spec[k]*xi;
+                  wt2 = model[jmax]*spec[k+1]*xi;
+               } else {
+                  size_t ipix(jmin % npix);
+                  std::map<size_t, size_t>::const_iterator it =
+                     m_krefs[name].find(ipix);
+                  if (it != m_krefs[name].end()) {
+                     size_t kref = it->second;
+                     size_t jref = kref*npix + ipix;
+                     wt1 = (model[jref]*spec[kref]
+                            /m_true_counts[name][kref]
+                            *m_meas_counts[name][k]);
+                     wt2 = (model[jref+npix]*spec[kref+1]
+                            /m_true_counts[name][kref]
+                            *m_meas_counts[name][k]);
+                  }
+               }
+            } else {
+               wt1 = model[jmin];
+               wt2 = model[jmax];
+            }
+            modelMap[jmin] += src->pixelCounts(emin, emax, wt1, wt2);
          }
       }
    }
@@ -399,8 +428,8 @@ void BinnedLikelihood::buildFixedModelWts() {
    }
 }
 
-void BinnedLikelihood::computeModelMap(double & npred) const {
-   npred = 0;
+double BinnedLikelihood::computeModelMap() const {
+   double npred(0);
 
    std::vector<std::pair<double, double> > modelWts;
    modelWts.resize(m_filledPixels.size());
@@ -438,6 +467,8 @@ void BinnedLikelihood::computeModelMap(double & npred) const {
    }
 
    m_modelIsCurrent = true;
+
+   return npred;
 }
 
 void BinnedLikelihood::
@@ -769,7 +800,7 @@ BinnedLikelihood::countsSpectrum(const std::string & srcName) const {
 // the total model.
    double npred;
    if (!m_modelIsCurrent) {
-      computeModelMap(npred);
+      npred = computeModelMap();
    }
    std::vector<std::pair<double, double> > modelWts;
    std::pair<double, double> zeros(0, 0);
