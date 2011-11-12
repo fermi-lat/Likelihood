@@ -1,12 +1,9 @@
 /**
- * @file DiffRespIntegrand.cxx
+ * @file DiffRespIntegrand2.cxx
+ * @brief Implementation for functor classes that are integrands for
+ * the diffuse response calculation.
  *
- * @brief Functor classes that are integrands for the diffuse response
- * calculation. In this implementation the outer integral is over "phi"
- * and the inner is over "mu" for fixed "phi".
- *
- * @author S. Fegan <sfegan@llr.in2p3.fr>, 
- *         J. Chiang <jchiang@slac.stanford.edu>
+ * @author J. Chiang <jchiang@slac.stanford.edu>
  *
  * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffRespIntegrand.cxx,v 1.5 2011/03/18 18:39:11 jchiang Exp $
  */
@@ -20,7 +17,7 @@
 #include "Likelihood/Event.h"
 #include "Likelihood/ResponseFunctions.h"
 
-#include "Likelihood/DiffRespIntegrand.h"
+#include "Likelihood/DiffRespIntegrand2.h"
 
 namespace {
    double my_acos(double mu) {
@@ -36,7 +33,7 @@ namespace {
 
 namespace Likelihood {
 
-double DiffRespIntegrand::
+double DiffRespIntegrand2::
 do2DIntegration(const Event & event,
 		const ResponseFunctions & respFuncs,
 		const DiffuseSource & src,
@@ -44,37 +41,33 @@ do2DIntegration(const Event & event,
 		double mumin, double mumax, double phimin, double phimax,
 		double muerr, double phierr)
 {
-  DiffRespIntegrand muIntegrand(event, respFuncs, src, eqRot,
-				phimin, phimax, phierr);
+  DiffRespIntegrand2 phiIntegrand(event, respFuncs, src, eqRot,
+				  mumin, mumax, muerr);
   int ierr;
-  return st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin, mumax,
-						   muerr, ierr);
+  return st_facilities::GaussianQuadrature::dgaus8(phiIntegrand, phimin, phimax,
+						   phierr, ierr);
 }
 
-DiffRespIntegrand::
-DiffRespIntegrand(const Event & event,
+DiffRespIntegrand2::
+DiffRespIntegrand2(const Event & event,
                   const ResponseFunctions & respFuncs,
                   const DiffuseSource & src,
                   const EquinoxRotation & eqRot, 
-                  double phimin, double phimax, double err)
+                  double mumin, double mumax, double err)
    : m_event(event), m_respFuncs(respFuncs), m_src(src), m_eqRot(eqRot),
-     m_phimin(phimin), m_phimax(phimax), m_err(err) {}
+     m_mumin(mumin), m_mumax(mumax), m_err(err) {}
 
-double DiffRespIntegrand::operator()(double mu) const {
-   DiffRespPhiIntegrand phiIntegrand(mu, *this);
+double DiffRespIntegrand2::operator()(double phi) const {
+   DiffRespMuIntegrand muIntegrand(phi, *this);
 
    double err(m_err);
    int ierr;
 
-//    std::cout << mu << "  "
-//              << ::my_acos(mu) << "  "
-//              << m_event.getEnergy() << std::endl;
-
-   return st_facilities::GaussianQuadrature::dgaus8(phiIntegrand, m_phimin,
-                                                    m_phimax, err, ierr);
+   return st_facilities::GaussianQuadrature::dgaus8(muIntegrand, m_mumin,
+						    m_mumax, err, ierr);
 }
 
-void DiffRespIntegrand::
+void DiffRespIntegrand2::
 getSrcDir(double mu, double phi, const EquinoxRotation & eqRot,
           astro::SkyDir & srcDir) {
    double sp(std::sin(phi));
@@ -90,7 +83,7 @@ getSrcDir(double mu, double phi, const EquinoxRotation & eqRot,
    eqRot.do_rotation(indir, srcDir);
 }
 
-double DiffRespIntegrand::
+double DiffRespIntegrand2::
 phiValue(double mu, const astro::SkyDir & srcDir,
          const EquinoxRotation & eqRot) {
    astro::SkyDir refDir;
@@ -117,18 +110,18 @@ phiValue(double mu, const astro::SkyDir & srcDir,
    return phi1;
 }
 
-DiffRespIntegrand::DiffRespPhiIntegrand::
-DiffRespPhiIntegrand(double mu, const DiffRespIntegrand & muIntegrand) 
-   : m_mu(mu), m_muIntegrand(muIntegrand) {}
+DiffRespIntegrand2::DiffRespMuIntegrand::
+DiffRespMuIntegrand(double phi, const DiffRespIntegrand2 & phiIntegrand) 
+   : m_phi(phi), m_phiIntegrand(phiIntegrand) {}
 
-double DiffRespIntegrand::DiffRespPhiIntegrand::
-operator()(double phi) const {
+double DiffRespIntegrand2::DiffRespMuIntegrand::
+operator()(double mu) const {
    astro::SkyDir srcDir;
-   DiffRespIntegrand::DiffRespPhiIntegrand::getSrcDir(phi, srcDir);
+   DiffRespIntegrand2::DiffRespMuIntegrand::getSrcDir(mu, srcDir);
 
-   const Event & event(m_muIntegrand.m_event);
-   const ResponseFunctions & respFuncs(m_muIntegrand.m_respFuncs);
-   const DiffuseSource & src(m_muIntegrand.m_src);
+   const Event & event(m_phiIntegrand.m_event);
+   const ResponseFunctions & respFuncs(m_phiIntegrand.m_respFuncs);
+   const DiffuseSource & src(m_phiIntegrand.m_src);
 
    double inc(event.getScDir().difference(srcDir)*180./M_PI);
    if (inc > 90) {
@@ -146,9 +139,9 @@ operator()(double phi) const {
    return totalResp*srcDist_val;
 }
 
-void DiffRespIntegrand::DiffRespPhiIntegrand::
-getSrcDir(double phi, astro::SkyDir & srcDir) const {
-   DiffRespIntegrand::getSrcDir(m_mu, phi, m_muIntegrand.m_eqRot, srcDir);
+void DiffRespIntegrand2::DiffRespMuIntegrand::
+getSrcDir(double mu, astro::SkyDir & srcDir) const {
+   DiffRespIntegrand2::getSrcDir(mu, m_phi, m_phiIntegrand.m_eqRot, srcDir);
 }
 
 } // namespace Likelihood 
