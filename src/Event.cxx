@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.76 2011/06/20 23:45:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.77 2011/06/28 19:28:32 jchiang Exp $
  */
 
 #include <cctype>
@@ -19,6 +19,7 @@
 #include "st_facilities/GaussianQuadrature.h"
 
 #include "Likelihood/DiffRespIntegrand.h"
+#include "Likelihood/DiffRespIntegrand2.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/EquinoxRotation.h"
@@ -149,8 +150,6 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
    double one(1);
    double mumin(minusone);
    double mumax(one);
-   double err(1e-2);
-   int ierr;
 
    EquinoxRotation eqRot(getDir().ra(), getDir().dec());
    for (size_t i(0); i < srcs.size(); i++) {
@@ -170,15 +169,19 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
          } catch (MapBaseException &) {
             // do nothing
          }
-         if (::getenv("USE_MAP_EST") && (mumin != minusone || mumax != one)) {
-            respValue = srcs.at(i)->diffuseResponse(*this);
-         } else {
-            DiffRespIntegrand muIntegrand(*this, respFuncs, *srcs.at(i), eqRot,
-                                          phimin, phimax);
-            respValue = 
-               st_facilities::GaussianQuadrature::dgaus8(muIntegrand, mumin,
-                                                         mumax, err, ierr);
-         }
+	 if (::getenv("USE_MAP_EST") && (mumin != minusone || mumax != one)) {
+	   respValue = srcs.at(i)->diffuseResponse(*this);
+	 } else {
+#if 0 // SET TO 1 TO USE OLD NESTED INTEGRATION METHOD
+	    respValue = DiffRespIntegrand::
+	      do2DIntegration(*this, respFuncs, *srcs.at(i), eqRot,
+			      mumin, mumax, phimin, phimax, 0.01, 0.1);
+#else
+	    respValue = DiffRespIntegrand2::
+	      do2DIntegration(*this, respFuncs, *srcs.at(i), eqRot,
+			      mumin, mumax, phimin, phimax, 0.001, 0.001);
+#endif
+	 }
          m_respDiffuseSrcs[name].push_back(respValue);
       }
    }

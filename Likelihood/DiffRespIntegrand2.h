@@ -1,15 +1,17 @@
 /**
- * @file DiffRespIntegrand.h
+ * @file DiffRespIntegrand2.h
  * @brief Functor classes that are integrands for the diffuse response
- * calculation.
+ * calculation. In this implementation the outer integral is over "phi"
+ * and the inner is over "mu" for fixed "phi".
  *
- * @author J. Chiang <jchiang@slac.stanford.edu>
+ * @author S. Fegan <sfegan@llr.in2p3.fr>, 
+ *         J. Chiang <jchiang@slac.stanford.edu>
  *
  * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffRespIntegrand.h,v 1.3 2009/02/18 02:01:37 jchiang Exp $
  */
 
-#ifndef Likelihood_DiffRespIntegrand_h
-#define Likelihood_DiffRespIntegrand_h
+#ifndef Likelihood_DiffRespIntegrand2_h
+#define Likelihood_DiffRespIntegrand2_h
 
 namespace astro {
    class SkyDir;
@@ -23,10 +25,10 @@ class Event;
 class ResponseFunctions;
 
 /**
- * @class DiffRespIntegrand
+ * @class DiffRespIntegrand2
  */
 
-class DiffRespIntegrand {
+class DiffRespIntegrand2 {
 
 public:
 
@@ -41,14 +43,13 @@ public:
 				 double muerr = 0.01,
 				 double phierr = 0.1);
 
-   DiffRespIntegrand(const Event & event,
-                     const ResponseFunctions & respFuncs,
-                     const DiffuseSource & src,
-                     const EquinoxRotation & eqRot,
-                     double phimin=0,
-                     double phimax=2*M_PI,
-		     double err = 0.1);
-
+   DiffRespIntegrand2(const Event & event,
+		      const ResponseFunctions & respFuncs,
+		      const DiffuseSource & src,
+		      const EquinoxRotation & eqRot,
+		      double mumin=-1.0,
+		      double mumax=1.0,
+		      double err = 0.1);
 
    double operator()(double mu) const;
 
@@ -65,21 +66,21 @@ public:
     * @brief Nested class for phi-integrand
     *
     */
-   class DiffRespPhiIntegrand {
+   class DiffRespMuIntegrand {
       
    public:
 
-      DiffRespPhiIntegrand(double mu, const DiffRespIntegrand & muIntegrand);
+      DiffRespMuIntegrand(double phi, const DiffRespIntegrand2 & muIntegrand);
 
-      double operator()(double phi) const;
+      double operator()(double mu) const;
 
    private:
 
-      double m_mu;
+      double m_phi;
 
-      const DiffRespIntegrand & m_muIntegrand;
+      const DiffRespIntegrand2 & m_phiIntegrand;
 
-      void getSrcDir(double phi, astro::SkyDir & srcDir) const;
+      void getSrcDir(double mu, astro::SkyDir & srcDir) const;
 
    };
 #endif
@@ -91,12 +92,12 @@ private:
    const DiffuseSource & m_src;
    const EquinoxRotation & m_eqRot;
 
-   double m_phimin;
-   double m_phimax;
+   double m_mumin;
+   double m_mumax;
    double m_err;
 
 };
 
 } // namespace Likelihood
 
-#endif // Likelihood_DiffRespIntegrand_h
+#endif // Likelihood_DiffRespIntegrand2_h
