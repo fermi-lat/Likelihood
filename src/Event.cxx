@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.77 2011/06/28 19:28:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.78 2011/11/12 19:01:33 sfegan Exp $
  */
 
 #include <cctype>
@@ -179,7 +179,7 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
 #else
 	    respValue = DiffRespIntegrand2::
 	      do2DIntegration(*this, respFuncs, *srcs.at(i), eqRot,
-			      mumin, mumax, phimin, phimax, 0.001, 0.001);
+			      mumin, mumax, phimin, phimax, 0.001, 0.01);
 #endif
 	 }
          m_respDiffuseSrcs[name].push_back(respValue);
