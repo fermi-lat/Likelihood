@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.62 2011/06/27 00:16:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.63 2011/10/22 06:01:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -68,7 +68,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.62 2011/06/27 00:16:20 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.63 2011/10/22 06:01:30 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -174,6 +174,11 @@ void diffuseResponses::run() {
    buildSourceModel();
    m_formatter->warn() << "Working on...\n";
    for (evtfile = eventFiles.begin(); evtfile != eventFiles.end(); ++evtfile) {
+      if (evtfile->find(".gz") == evtfile->length() - 3 ||
+          evtfile->find(".Z") == evtfile->length() - 2) {
+         throw std::runtime_error("Cannot process a compressed file: "
+                                  + *evtfile);
+      }
       testPassVersion(*evtfile);
       checkColumnVersion(*evtfile);
       if (clobber || !haveDiffuseColumns(*evtfile)) {
