@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.2 2011/03/16 22:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.3 2011/03/18 06:42:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -51,7 +51,7 @@ MapCubeFunction2::~MapCubeFunction2() {
 double MapCubeFunction2::value(optimizers::Arg & xarg) const {
    SkyDirArg & dir = dynamic_cast<SkyDirArg &>(xarg);
    double energy = dir.energy();
-   double value = m_wcsmap->operator()(dir(), energy);
+   double value = wcsmap().operator()(dir(), energy);
    return value*getParam("Normalization").getTrueValue();
 }
 

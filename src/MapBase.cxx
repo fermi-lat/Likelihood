@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.8 2011/03/15 05:37:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.9 2011/03/16 22:22:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -21,10 +21,12 @@
 #include "Likelihood/DiffRespIntegrand.h"
 #include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/MapBase.h"
+#include "Likelihood/WcsMapLibrary.h"
 
 namespace Likelihood {
 
-MapBase::MapBase() : m_wcsmap(0), m_fitsFile(""), m_extension("") {}
+MapBase::MapBase() : m_wcsmap(0), m_fitsFile(""), 
+                     m_expandedFileName(""), m_extension("") {}
 
 MapBase::MapBase(const std::string & fitsFile, const std::string & extension) 
    : m_wcsmap(0), m_fitsFile(fitsFile), m_extension(extension) {
@@ -32,25 +34,20 @@ MapBase::MapBase(const std::string & fitsFile, const std::string & extension)
 }
 
 MapBase::~MapBase() {
-   delete m_wcsmap;
 }
 
 MapBase::MapBase(const MapBase & other) 
-   : m_wcsmap(0), m_fitsFile(other.m_fitsFile),
+   : m_wcsmap(other.m_wcsmap), 
+     m_fitsFile(other.m_fitsFile),
+     m_expandedFileName(other.m_expandedFileName),
      m_extension(other.m_extension) {
-   if (other.m_wcsmap) {
-      m_wcsmap = new WcsMap2(*(other.m_wcsmap));
-   }
 }
 
 MapBase & MapBase::operator=(const MapBase & rhs) {
    if (this != &rhs) {
-      delete m_wcsmap;
-      m_wcsmap = 0;
-      if (rhs.m_wcsmap) {
-         m_wcsmap = new WcsMap2(*(rhs.m_wcsmap));
-      }
+      m_wcsmap = rhs.m_wcsmap;
       m_fitsFile = rhs.m_fitsFile;
+      m_expandedFileName = rhs.m_expandedFileName;
       m_extension = rhs.m_extension;
    }
    return *this;
@@ -67,21 +64,21 @@ void MapBase::readFitsFile(const std::string & fitsFile,
 }
 
 void MapBase::readFitsFile() {
-   std::string expandedFileName(m_fitsFile);
+   m_expandedFileName = m_fitsFile;
 
-   facilities::Util::expandEnvVar(&expandedFileName);
+   facilities::Util::expandEnvVar(&m_expandedFileName);
 
-   if (!st_facilities::Util::fileExists(expandedFileName)) {
+   if (!st_facilities::Util::fileExists(m_expandedFileName)) {
 // The following to StreamFormatter is necessary since Xerces seems to
 // corrupt the exception handling when this method is called from
 // SourceFactory::readXml and the program simply aborts.
       st_stream::StreamFormatter formatter("MapBase", "readFitsFile", 2);
-      formatter.err() << "File not found: " << expandedFileName << std::endl;
-      throw std::runtime_error("File not found: " + expandedFileName);
+      formatter.err() << "File not found: " << m_expandedFileName << std::endl;
+      throw std::runtime_error("File not found: " + m_expandedFileName);
    }
 
-   delete m_wcsmap;
-   m_wcsmap = new WcsMap2(expandedFileName, m_extension, true);
+   m_wcsmap = WcsMapLibrary::instance()->wcsmap(m_expandedFileName,
+                                                m_extension);
 }
 
 WcsMap2 & MapBase::wcsmap() {
@@ -89,6 +86,17 @@ WcsMap2 & MapBase::wcsmap() {
       readFitsFile();
    }
    return *m_wcsmap;
+}
+
+void MapBase::deleteMap() {
+   WcsMapLibrary::instance()->delete_map(m_expandedFileName, m_extension);
+   m_wcsmap = 0;
+}
+
+void MapBase::update() {
+   if (!WcsMapLibrary::instance()->has_map(m_expandedFileName, m_extension)) {
+      m_wcsmap = 0;
+   }
 }
 
 bool MapBase::insideMap(const astro::SkyDir & dir) const {
