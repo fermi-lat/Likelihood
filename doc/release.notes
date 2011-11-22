@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.449 2011/11/18 17:11:44 jchiang Exp $
+    $Id: release.notes,v 1.450 2011/11/22 06:35:27 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-20-03 22-Nov-2011 jchiang expose BinnedLikelihood::buildFixedModelWts for LK-72@JIRA
  Likelihood-17-20-02 21-Nov-2011 jchiang WcsMapLibrary class to manage memory for MapCube hierarchy using Singleton and Observer patterns to ensure consistent access to single instances of WcsMap2 objects
  Likelihood-17-20-01 18-Nov-2011 jchiang throw exception from gtdiffrsp if evfile has a .gz or .Z extension, see LK-71@JIRA
  Likelihood-17-20-00 17-Nov-2011 jchiang improved diffuse response integration from Steve F.
