@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.9 2011/03/16 22:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.10 2011/11/22 01:50:01 jchiang Exp $
  */
 
 #include <cmath>
@@ -34,6 +34,7 @@ MapBase::MapBase(const std::string & fitsFile, const std::string & extension)
 }
 
 MapBase::~MapBase() {
+   WcsMapLibrary::instance()->remove_observer(this);
 }
 
 MapBase::MapBase(const MapBase & other) 
@@ -79,6 +80,7 @@ void MapBase::readFitsFile() {
 
    m_wcsmap = WcsMapLibrary::instance()->wcsmap(m_expandedFileName,
                                                 m_extension);
+   WcsMapLibrary::instance()->add_observer(this);
 }
 
 WcsMap2 & MapBase::wcsmap() {
