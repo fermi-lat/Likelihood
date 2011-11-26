@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.87 2011/11/01 05:54:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.88 2011/11/01 17:15:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -366,6 +366,22 @@ bool BinnedLikelihood::fixedModelUpdated() const {
    return false;
 }
 
+const std::vector<double> & BinnedLikelihood::
+modelCountsSpectrum(const std::string & srcname) const {
+   std::map<std::string, std::vector<double> >::const_iterator it;
+   it = m_meas_counts.find(srcname);
+   if (it == m_meas_counts.end()) {
+      try {
+         NpredValue(srcname);
+         it = m_meas_counts.find(srcname);
+      } catch(...) {
+         throw std::runtime_error("Cannot find model counts spectrum for "
+                                  + srcname);
+      }
+   }
+   return it->second;
+}
+
 void BinnedLikelihood::buildFixedModelWts() {
    m_fixedSources.clear();
    m_fixedModelWts.clear();
@@ -419,6 +435,8 @@ void BinnedLikelihood::buildFixedModelWts() {
          }
       }
    }
+
+   computeFixedCountsSpectrum();
 }
 
 double BinnedLikelihood::computeModelMap() const {
@@ -733,9 +751,11 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
       const_cast<BinnedLikelihood *>(this)
          ->edisp_correction_factors(srcName, true_counts_spec,
                                     meas_counts_spec);
+      m_meas_counts[srcName] = meas_counts_spec;
+   } else {
+      m_meas_counts[srcName] = true_counts_spec;
    }
    m_true_counts[srcName] = true_counts_spec;
-   m_meas_counts[srcName] = meas_counts_spec;
 
    double value(0);
    for (size_t k(0); k < energies().size()-1; k++) {
@@ -814,14 +834,23 @@ BinnedLikelihood::countsSpectrum(const std::string & srcName) const {
    return counts_spectrum;
 }
 
-std::vector<double> BinnedLikelihood::fixedModelSpectrum() const {
-   std::vector<double> model_spectrum;
+const std::vector<double> & BinnedLikelihood::fixedModelSpectrum() const {
+   return m_fixed_counts_spec;
+}
+
+void BinnedLikelihood::computeFixedCountsSpectrum() {
+   std::vector<double> true_spectrum;
    for (size_t k(0); k < m_energies.size()-1; k++) {
-      model_spectrum.push_back(pixelCounts(m_energies[k], m_energies[k+1],
+      true_spectrum.push_back(pixelCounts(m_energies[k], m_energies[k+1],
                                            m_fixedNpreds[k],
                                            m_fixedNpreds[k+1]));
    }
-   return model_spectrum;
+   if (::getenv("USE_BL_EDISP")) {
+      m_fixed_counts_spec.resize(m_energies.size()-1);
+      m_drm->convolve(true_spectrum, m_fixed_counts_spec);
+   } else {
+      m_fixed_counts_spec = true_spectrum;
+   }
 }
 
 } // namespace Likelihood
