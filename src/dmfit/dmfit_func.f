@@ -150,6 +150,12 @@ c-----for the e+e- channel, go ahead and compute it!
          dmfit_de=llg(EE/MX,MX,0.511d-3)
          return
 
+c-----for muon channel at low mass, the MonteCarlo statistics 
+c-----resulting in the DMFIT table is too low, so we switch to
+c-----the same equation as the electron channel instead.
+      elseif(CH.eq.2.and.MX.lt.10.d0) then
+         dmfit_de=llg(EE/MX,MX,0.1057d0)
+         return
       elseif(CH.eq.2) then
          chref=7
       elseif(CH.eq.3) then

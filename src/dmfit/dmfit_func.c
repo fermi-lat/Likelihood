@@ -26,6 +26,7 @@ struct {
 static integer c__9 = 9;
 static integer c__1 = 1;
 static doublereal c_b20 = 5.11e-4;
+static doublereal c_b21 = .1057;
 static integer c_n1 = -1;
 static integer c__17 = 17;
 
@@ -183,6 +184,13 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 /* -----for the e+e- channel, go ahead and compute it! */
 	d__1 = *ee / *mx;
 	ret_val = llg_(&d__1, mx, &c_b20);
+	return ret_val;
+/* -----for muon channel at low mass, the MonteCarlo statistics */
+/* -----resulting in the DMFIT table is too low, so we switch to */
+/* -----the same equation as the electron channel instead. */
+    } else if (*ch == 2 && *mx < 10.) {
+	d__1 = *ee / *mx;
+	ret_val = llg_(&d__1, mx, &c_b21);
 	return ret_val;
     } else if (*ch == 2) {
 	chref = 7;
