@@ -2,7 +2,7 @@
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.10 2010/12/17 00:55:37 kadrlica Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.11 2011/02/01 22:03:37 cohen Exp $
  */
 
 #include <cmath>
@@ -59,7 +59,7 @@ static  enum  {norm,sigmav,mass,bratio,channel0,channel1} ParamType;
 
    m_genericName = "DMFitFunction";
    m_normParName = "sigmav";
-
+   m_8pi = 8.*M_PI;
 }
 
 double DMFitFunction::value(optimizers::Arg &xarg) const {
@@ -76,7 +76,7 @@ double DMFitFunction::value(optimizers::Arg &xarg) const {
 
    double my_value=n*sv/m/m*(b*dmfit_de__(&m,&ch0,&x)
                       +(1.-b)*dmfit_de__(&m,&ch1,&x))/1000.;
-   return my_value;
+   return my_value/m_8pi;
 }
 
 double DMFitFunction::derivByParam(optimizers::Arg & xarg,
@@ -106,26 +106,25 @@ double DMFitFunction::derivByParam(optimizers::Arg & xarg,
    double value(0);
    switch(iparam) {
    case norm:
-     return m_parameter[norm].getScale()*sv/m2*
+     value = m_parameter[norm].getScale()*sv/m2*
        (b*dmfit_de__(&m,&ch0,&x)+(1.-b)*dmfit_de__(&m,&ch1,&x))/1000.;
      break;
    case sigmav:
-     return n*m_parameter[sigmav].getScale()/m2*
+     value = n*m_parameter[sigmav].getScale()/m2*
        (b*dmfit_de__(&m,&ch0,&x)+(1.-b)*dmfit_de__(&m,&ch1,&x))/1000.;
      break;
    case mass:
-     value= m_parameter[1].getScale()* n*sv/m2 
+     value = m_parameter[1].getScale()* n*sv/m2 
        * ( b*dmfit_dm__(&m,&ch0,&x)+(1.-b)*dmfit_dm__(&m,&ch1,&x)
           -2./m*(b*dmfit_de__(&m,&ch0,&x)+(1.-b)*dmfit_de__(&m,&ch1,&x)) 
            )/1000.;
-     return value;
      break;
    case bratio:
-     return m_parameter[2].getScale() * n*sv/m2 *
+     value = m_parameter[2].getScale() * n*sv/m2 *
        (dmfit_de__(&m,&ch0,&x) - dmfit_de__(&m,&ch1,&x))/1000.;
      break;
    }
-   return 0;
+   return value/m_8pi;
 }
 
   void DMFitFunction::readFunction(const std::string & filename) {
