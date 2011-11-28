@@ -4,7 +4,7 @@
  * files for the Likelihood package source models.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModelBuilder.cxx,v 1.14 2011/03/16 22:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.15 2011/08/27 03:48:10 jchiang Exp $
  */
 
 #include <fstream>
@@ -17,7 +17,6 @@
 #include "optimizers/Dom.h"
 
 #include "Likelihood/DMFitFunction.h"
-#include "Likelihood/DMFitFunction2.h"
 #include "Likelihood/FileFunction.h"
 #include "Likelihood/MapCubeFunction2.h"
 #include "Likelihood/RadialProfile.h"
@@ -80,13 +79,6 @@ DOMElement * SourceModelBuilder::spectralPart(Source & src) {
       xmlBase::Dom::addAttribute(specElt, "file", dmFitFunc->filename());
    }
    
-   DMFitFunction2 * dmFitFunc2
-      = dynamic_cast<DMFitFunction2 *>(srcFuncs["Spectrum"]);
-   if (dmFitFunc2 != 0) {
-      xmlBase::Dom::addAttribute(specElt, "file", dmFitFunc->filename());
-   }
-   
-
    srcFuncs["Spectrum"]->appendParamDomElements(m_doc, specElt);
    return specElt;
 }

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.93 2011/10/24 07:49:20 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.94 2011/11/01 05:54:29 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -52,7 +52,6 @@
 #include "Likelihood/SmoothBrokenPowerLaw.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/DMFitFunction.h"
-#include "Likelihood/DMFitFunction2.h"
 
 namespace {
    void getRangeBounds(const std::vector<dataSubselector::RangeCut *> & cuts,
@@ -145,7 +144,6 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("PLSuperExpCutoff", 
                         new PowerLawSuperExpCutoff(), makeClone);
    funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
-   funcFactory->addFunc("DMFitFunction2", new DMFitFunction2(), makeClone);
 
    funcFactory->addFunc("EblAtten::PowerLaw2", new EblAtten(), makeClone);
    funcFactory->addFunc("EblAtten::BrokenPowerLaw2", 
