@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.451 2011/11/22 21:44:34 jchiang Exp $
+    $Id: release.notes,v 1.452 2011/11/26 22:30:58 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-21-00 29-Nov-2011 jchiang use DSS keyword info on CONVERSION_TYPE selection to select for front or back restrictions on exposure calculations automatically
  Likelihood-17-20-04 26-Nov-2011 jchiang mods for plotting requests from Jean
  Likelihood-17-20-03 22-Nov-2011 jchiang expose BinnedLikelihood::buildFixedModelWts for LK-72@JIRA
  Likelihood-17-20-02 21-Nov-2011 jchiang WcsMapLibrary class to manage memory for MapCube hierarchy using Singleton and Observer patterns to ensure consistent access to single instances of WcsMap2 objects
