@@ -3,7 +3,7 @@
  * @brief Declaration for the DMFit Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.2 2008/10/12 21:25:05 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DMFitFunction.h,v 1.3 2009/08/07 16:29:16 cohen Exp $
  */
 
 #ifndef Likelihood_DMFitFunction_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Cohen-Tanugi, based on the DMFit package by S. Profumo and T. Jeltema
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.2 2008/10/12 21:25:05 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DMFitFunction.h,v 1.3 2009/08/07 16:29:16 cohen Exp $
  */
     
 class DMFitFunction : public optimizers::Function {
@@ -70,6 +70,7 @@ private:
                  int channel0, int channel1);
 
    std::string m_filename;
+   double m_8pi;
 };
 
 } // namespace Likelihood
