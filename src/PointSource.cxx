@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.113 2009/10/06 00:31:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.114 2011/09/28 20:33:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -402,6 +402,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
       double stop(scData.stop(it));
       double livetime(scData.livetime(it));
       double fraction(0);
+      double ltfrac(livetime/(stop - start));
 
       std::vector< std::pair<double, double> > timeRanges;
       std::vector< std::pair<double, double> > gtis;
@@ -427,7 +428,13 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
             if (effArea < 0 || fraction < 0 || (stop-start) < 0) {
                formatter.warn() << effArea << std::endl;
             }
-            exposure[k] += effArea*livetime*fraction;
+            irfInterface::IEfficiencyFactor * efficiency_factor
+               = respFuncs.efficiencyFactor();
+            double efficiency(1);
+            if (efficiency_factor) {
+               efficiency = efficiency_factor->value(energies[k], ltfrac);
+            }
+            exposure[k] += effArea*livetime*fraction*efficiency;
          }
       }
    }
