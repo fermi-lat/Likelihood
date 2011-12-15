@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.30 2011/11/01 15:37:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.31 2011/11/01 17:31:08 jchiang Exp $
  */
 
 #include <iostream>
@@ -150,10 +150,10 @@ void ModelMap::computeModelMap() {
    if (bexpmap != "none" && bexpmap != "") {
       Likelihood::SourceMap::setBinnedExposure(bexpmap);
    }
-   bool requireExposure, addPointSources, loadMaps;
+   bool requireExposure, addPointSources, loadMaps, createAllMaps;
    m_logLike->readXml(m_pars["srcmdl"], m_helper->funcFactory(),
                       requireExposure=false, addPointSources=true,
-                      loadMaps=false);
+                      loadMaps=false, createAllMaps=true);
    m_logLike->computeModelMap(m_outmap);
 
    std::string outtype = m_pars["outtype"];

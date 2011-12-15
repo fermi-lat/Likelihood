@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.59 2011/11/22 21:43:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.60 2011/11/26 22:09:43 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  * @brief Binned version of the log-Likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.59 2011/11/22 21:43:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.60 2011/11/26 22:09:43 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -149,7 +149,7 @@ public:
 
    void computeModelMap(std::vector<float> & modelMap) const;
 
-   void buildFixedModelWts();
+   void buildFixedModelWts(bool process_all=false);
 
    const std::vector<double> & 
    modelCountsSpectrum(const std::string &srcname) const;
