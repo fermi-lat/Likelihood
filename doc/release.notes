@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.454 2011/11/30 06:37:55 jchiang Exp $
+    $Id: release.notes,v 1.455 2011/12/02 21:11:34 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-21-03 15-Dec-2011 jchiang bug-fix for gtmodel: fixed sources were being omitted from the calculation
  Likelihood-17-21-02 02-Dec-2011 jchiang include efficiency correction in unbinned point source exposure calculation when using the FT2 file directly instead of a livetime cube
  Likelihood-17-21-01 29-Nov-2011 jchiang one more place to remove ::FRONT/::BACK qualifiers when building diffuse response column name
  Likelihood-17-21-00 29-Nov-2011 jchiang use DSS keyword info on CONVERSION_TYPE selection to select for front or back restrictions on exposure calculations automatically
