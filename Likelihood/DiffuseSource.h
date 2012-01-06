@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.46 2010/07/08 23:10:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.47 2011/03/15 05:37:31 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -50,7 +50,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.46 2010/07/08 23:10:36 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.47 2011/03/15 05:37:31 jchiang Exp $ 
  *  
  */
 
@@ -206,6 +206,11 @@ private:
       TrapQuad fluxIntegral(energies, integrand, useLog=true);
       return fluxIntegral.integral();
    }
+
+   // This function fills the Source::m_exposure array which contains
+   // the integral over the source region of the spatial distribution
+   // of the source times the unbinned exposure map.
+   void integrateSpatialDist();
 
 };
 

@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction2.h,v 1.2 2011/03/16 22:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapCubeFunction2.h,v 1.3 2011/03/18 06:42:09 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction2_h
@@ -62,6 +62,10 @@ public:
    /// function of energy (implementation for
    /// MapBase::mapIntegral(double) const)
    virtual double mapIntegral(double energy) const;
+
+   virtual void integrateSpatialDist(const std::vector<double> & energies,
+                                     const ExposureMap & expmap,
+                                     std::vector<double> & exposure) const;
 
 private:
 

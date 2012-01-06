@@ -5,12 +5,13 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.10 2011/11/22 01:50:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.11 2011/11/22 03:18:14 jchiang Exp $
  */
 
 #include <cmath>
 
 #include <stdexcept>
+#include <sstream>
 
 #include "facilities/Util.h"
 
@@ -175,6 +176,23 @@ void MapBase::getMinMaxDistPixels(const astro::SkyDir & dir,
 
 void MapBase::getCorners(std::vector<astro::SkyDir> & corners) const {
    wcsmap().getCorners(corners);
+}
+
+double MapBase::interpolatePowerLaw(double x, double x1, double x2,
+                                    double y1, double y2) {
+   if (x1 <= 0 || x2 <= 0 || y1 <= 0 || y2 <= 0) {
+      std::ostringstream message;
+      message << "MapBase::interpolatePowerLaw:\n"
+              << "abscissa or ordinate values found that are <= 0: "
+              << "x1 = " << x1 << ", "
+              << "x2 = " << x2 << ", "
+              << "y1 = " << y1 << ", "
+              << "y2 = " << y2 << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   double gamma = std::log(y2/y1)/std::log(x2/x1);
+   double n0 = y1/std::pow(x1, gamma);
+   return n0*std::pow(x, gamma);
 }
 
 } // namespace Likelihood

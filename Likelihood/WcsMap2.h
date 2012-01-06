@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.4 2011/03/30 21:37:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.5 2011/09/09 23:39:59 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -23,11 +23,7 @@ class MeanPsf;
 
 /**
  * @class WcsMap2
- * @brief A map with reference point centered on the image and that
- * uses WCS projections for indexing its internal representation.
- * @author J. Chiang
- * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.4 2011/03/30 21:37:15 jchiang Exp $
+ *
  */
 
 class WcsMap2 {
@@ -55,6 +51,8 @@ public:
    WcsMap2 & operator=(const WcsMap2 &);
 
    double operator()(const astro::SkyDir & dir, double energy=-1) const;
+
+   double operator()(const astro::SkyDir & dir, int k) const;
 
    WcsMap2 convolve(double energy, const MeanPsf & psf,
                     const BinnedExposure & exposure,
@@ -91,7 +89,13 @@ public:
       return m_naxis3;
    }
 
+   const std::vector<double> & energies() const {
+      return m_energies;
+   }
+
    bool insideMap(const astro::SkyDir & dir) const;
+
+   bool withinMapRadius(const astro::SkyDir & dir) const;
 
    std::pair<astro::SkyDir, astro::SkyDir> 
    minMaxDistPixels(const astro::SkyDir & dir) const;
@@ -169,6 +173,9 @@ private:
 
    std::string m_filename;
 
+   // enclosing cone half angle for map
+   double m_mapRadius;
+
    WcsMap2();
 
    void computeMapIntegrals();
@@ -178,8 +185,6 @@ private:
    void check_energy(double energy) const;
 
    void check_negative_pixels(const ImagePlane_t &) const;
-
-   double operator()(const astro::SkyDir & dir, int k) const;
 
 };
 
