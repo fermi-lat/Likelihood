@@ -4,7 +4,7 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureMap.cxx,v 1.44 2010/06/16 22:49:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureMap.cxx,v 1.45 2012/01/06 07:11:59 jchiang Exp $
  */
 
 #include <cstdio>
@@ -44,7 +44,7 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
 
    std::string extension;
    bool interpolate, enforceEnergyRange;
-   m_wcsmap = new WcsMap2(exposureFile, extension="", interpolate=false,
+   m_wcsmap = new WcsMap2(exposureFile, extension="", interpolate=true,
                           enforceEnergyRange=true);
 
    st_facilities::FitsImage mapData(exposureFile);

@@ -1,7 +1,6 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE source_library SYSTEM "$(LIKELIHOODXMLPATH)/A1_Sources.dtd" >
 <source_library title="source library">
-<!--
 <source name="Extragalactic Diffuse" type="DiffuseSource">
     <spectrum type="PowerLaw">
       <parameter free="1" max="100" min="1e-05" name="Prefactor" scale="1e-07" value="1.32"/>
@@ -12,7 +11,6 @@
        <parameter free="0" max="10" min="0" name="Value" scale="1" value="1"/>
     </spatialModel>
   </source>
--->
 <source name="Galactic Diffuse" type="DiffuseSource">
     <spectrum type="PowerLaw">
       <parameter free="1" max="1000" min="0.001" name="Prefactor" scale="0.001" value="11"/>
