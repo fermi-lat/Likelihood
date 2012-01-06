@@ -4,12 +4,13 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureMap.cxx,v 1.43 2010/06/02 22:04:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureMap.cxx,v 1.44 2010/06/16 22:49:51 jchiang Exp $
  */
 
 #include <cstdio>
 
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <utility>
@@ -29,12 +30,22 @@
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SkyDirArg.h"
+#include "Likelihood/WcsMap2.h"
 
 namespace Likelihood {
+
+ExposureMap::~ExposureMap() {
+   delete m_wcsmap;
+}
 
 void ExposureMap::readExposureFile(std::string exposureFile) {
 
    facilities::Util::expandEnvVar(&exposureFile);
+
+   std::string extension;
+   bool interpolate, enforceEnergyRange;
+   m_wcsmap = new WcsMap2(exposureFile, extension="", interpolate=false,
+                          enforceEnergyRange=true);
 
    st_facilities::FitsImage mapData(exposureFile);
 
@@ -42,8 +53,7 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
 
    readEnergyExtension(exposureFile, m_energies);
 
-   std::vector<double> solidAngles;
-   mapData.getSolidAngles(solidAngles);
+   mapData.getSolidAngles(m_solidAngles);
 
 // Fill the vector of the planes of m_exposure for each true photon
 // energy.
@@ -52,11 +62,11 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
    mapData.getImageData(exposure);
 
    int indx = 0;
-   int npixels = solidAngles.size();
+   int npixels = m_solidAngles.size();
    for (unsigned int k = 0; k < m_energies.size(); k++) {
       std::vector<double> expArray(npixels);
       for (int sa_indx = 0; sa_indx < npixels; sa_indx++) {
-         expArray.at(sa_indx) = solidAngles.at(sa_indx)*exposure.at(indx);
+         expArray.at(sa_indx) = exposure.at(indx);
          indx++;
       }
       m_exposure.push_back(expArray);
@@ -90,7 +100,7 @@ void ExposureMap::integrateSpatialDist(const std::vector<double> & energies,
             + m_exposure[kk-1][j];
          astro::SkyDir skyDir(m_ra[j], m_dec[j]);
          SkyDirArg dir(skyDir, energies[k]);
-         srcExposure += expsr*(*spatialDist)(dir);
+         srcExposure += expsr*(*spatialDist)(dir)*m_solidAngles[j];
       }
       exposure.push_back(srcExposure);
    }
@@ -272,6 +282,20 @@ void ExposureMap::readEnergyExtension(const std::string & filename,
    for ( ; energy != energies.end(); ++energy, ++row) {
       record["Energy"].get(*energy);
    }
+}
+
+double ExposureMap::operator()(const astro::SkyDir & dir,
+                               double energy) const {
+   return m_wcsmap->operator()(dir, energy);
+}
+
+double ExposureMap::operator()(const astro::SkyDir & dir,
+                               int k) const {
+   return m_wcsmap->operator()(dir, k);
+}
+
+bool ExposureMap::withinMapRadius(const astro::SkyDir & dir) const {
+   return m_wcsmap->withinMapRadius(dir);
 }
 
 } // namespace Likelihood

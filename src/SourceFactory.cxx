@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.72 2011/11/22 01:50:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.73 2011/11/28 09:58:02 cohen Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -301,21 +301,25 @@ makeDiffuseSource(const DOMElement * spectrum,
       dynamic_cast<RadialProfile *>(spatialDist)->readTemplateFile(tpl_file);
    }
    Source * src;
-   try {
-      src = new DiffuseSource(spatialDist, m_observation, m_requireExposure);
-      setSpectrum(src, spectrum, funcFactory);
-      delete spatialDist;
-      return src;
-   } catch (std::exception &eObj) {
-      m_formatter->err() << eObj.what() << std::endl;
-      throw;
-   } catch (...) {
-      m_formatter->err() << "Unexpected exception from "
-                         << "SourceFactory::setSpectrum" 
-                         << std::endl;
-      throw;
-   }
-   return 0;
+   // try {
+   //    src = new DiffuseSource(spatialDist, m_observation, m_requireExposure);
+   //    setSpectrum(src, spectrum, funcFactory);
+   //    delete spatialDist;
+   //    return src;
+   // } catch (std::exception &eObj) {
+   //    m_formatter->err() << eObj.what() << std::endl;
+   //    throw;
+   // } catch (...) {
+   //    m_formatter->err() << "Unexpected exception from "
+   //                       << "SourceFactory::setSpectrum" 
+   //                       << std::endl;
+   //    throw;
+   // }
+   src = new DiffuseSource(spatialDist, m_observation, m_requireExposure);
+   setSpectrum(src, spectrum, funcFactory);
+   delete spatialDist;
+   return src;
+//   return 0;
 }
 
 void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum, 

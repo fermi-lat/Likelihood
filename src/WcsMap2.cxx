@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.8 2011/06/27 22:57:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.9 2011/09/09 23:40:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -141,6 +141,16 @@ WcsMap2::WcsMap2(const std::string & filename,
 
    std::pair<double, double> coord = m_proj->pix2sph(m_crpix1, m_crpix2);
    m_refDir = astro::SkyDir(coord.first, coord.second, m_coordSys);
+
+   std::vector<astro::SkyDir> corners;
+   getCorners(corners);
+   m_mapRadius = corners[0].difference(m_refDir);
+   for (size_t i(1); i < corners.size(); i++) {
+      double sep(corners[i].difference(m_refDir));
+      if (sep > m_mapRadius) {
+         m_mapRadius = sep;
+      }
+   }
 
    delete image;
 
@@ -371,7 +381,17 @@ WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
 double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
    check_energy_index(k);
 // NB: wcslib starts indexing pixels with 1, not 0.
-   std::pair<double, double> pixel = dir.project(*m_proj);
+   std::pair<double, double> pixel;
+   try {
+      pixel = dir.project(*m_proj);
+   } catch (...) {
+      // The annoying astro::SkyProj class throws a SkyProjException
+      // but does not expose it! (It lives in the .cxx file in the
+      // anonymous namespace.) So we have no choice but to catch
+      // everything and assume the exception occurs because the
+      // direction is outside the map.
+      return 0;
+   }
 
    double x(pixel.first);
    double y(pixel.second);
@@ -606,6 +626,13 @@ double WcsMap2::pixelValue(double ilon, double ilat, int k) const {
 astro::SkyDir WcsMap2::skyDir(double ilon, double ilat) const {
    std::pair<double, double> coords(m_proj->pix2sph(ilon, ilat));
    return astro::SkyDir(coords.first, coords.second, m_coordSys);
+}
+
+bool WcsMap2::withinMapRadius(const astro::SkyDir & dir) const {
+   if (dir.difference(m_refDir) <= m_mapRadius) {
+      return true;
+   }
+   return false;
 }
 
 bool WcsMap2::insideMap(const astro::SkyDir & dir) const {

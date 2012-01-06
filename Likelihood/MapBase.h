@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapBase.h,v 1.9 2011/03/16 22:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MapBase.h,v 1.10 2011/11/22 01:50:00 jchiang Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -19,6 +19,8 @@
 #include "Likelihood/WcsMap2.h"
 
 namespace Likelihood {
+
+class ExposureMap;
 
 /**
  * @class MapBase
@@ -74,11 +76,18 @@ public:
 
    virtual void rebin(unsigned int factor, bool average=true);
 
+   virtual void integrateSpatialDist(const std::vector<double> & energies,
+                                     const ExposureMap & expmap,
+                                     std::vector<double> & exposure) const = 0;
+
 protected:
 
    std::string m_fitsFile;
    std::string m_expandedFileName;
    std::string m_extension;
+
+   static double interpolatePowerLaw(double x, double x1, double x2,
+                                     double y1, double y2);
 
 private:
 

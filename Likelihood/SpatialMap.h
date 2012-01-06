@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.22 2010/09/24 18:15:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.23 2011/03/16 22:22:50 jchiang Exp $
  *
  */
 
@@ -33,7 +33,7 @@ class ResponseFunctions;
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.22 2010/09/24 18:15:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.23 2011/03/16 22:22:50 jchiang Exp $
  *
  */
     
@@ -71,6 +71,10 @@ public:
       (void)(energy);
       return wcsmap().mapIntegral();
    }
+
+   virtual void integrateSpatialDist(const std::vector<double> & energies,
+                                     const ExposureMap & expmap,
+                                     std::vector<double> & exposure) const;
 
 private:
 
