@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.4 2011/11/22 01:50:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.5 2012/01/06 07:11:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -110,8 +110,8 @@ integrateSpatialDist(const std::vector<double> & energies,
       size_t indx;
       if (energies[k] <= map_energies.front()) {
          indx = 0;
-      } else if (energies[k] > map_energies.back()) {
-         indx = energies.size() - 2;
+      } else if (energies[k] >= map_energies.back()) {
+         indx = map_energies.size() - 2;
       } else {
          indx = std::upper_bound(map_energies.begin(), map_energies.end(),
                                  energies[k]) - map_energies.begin() - 1;
