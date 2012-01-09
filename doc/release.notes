@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.456 2011/12/15 20:05:19 jchiang Exp $
+    $Id: release.notes,v 1.457 2012/01/06 22:25:56 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-21-05 09-Jan-2012 jchiang include \<algorithm\> in SpatialMap.cxx for gcc4.4 build
  Likelihood-17-21-04 06-Jan-2012 jchiang map-based integration for Npred in unbinned analysis
  Likelihood-17-21-03 15-Dec-2011 jchiang bug-fix for gtmodel: fixed sources were being omitted from the calculation
  Likelihood-17-21-02 02-Dec-2011 jchiang include efficiency correction in unbinned point source exposure calculation when using the FT2 file directly instead of a livetime cube
