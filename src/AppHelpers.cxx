@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.95 2011/11/28 09:58:02 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.96 2011/11/29 16:52:38 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -50,6 +50,7 @@
 #include "Likelihood/ScaleFactor.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
+#include "Likelihood/SmoothDoubleBrokenPowerLaw.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/DMFitFunction.h"
 
@@ -137,6 +138,8 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
    funcFactory->addFunc("SmoothBrokenPowerLaw", new SmoothBrokenPowerLaw(), 
                         makeClone);
+   funcFactory->addFunc("SmoothDoubleBrokenPowerLaw", 
+                        new SmoothDoubleBrokenPowerLaw(), makeClone);
    funcFactory->addFunc("FileFunction", new FileFunction(), makeClone);
    funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
    funcFactory->addFunc("BPLExpCutoff", new BrokenPowerLawExpCutoff(),

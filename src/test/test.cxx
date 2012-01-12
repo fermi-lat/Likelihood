@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.119 2012/01/06 07:12:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.120 2012/01/06 22:21:09 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -81,6 +81,7 @@
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
+#include "Likelihood/SmoothDoubleBrokenPowerLaw.h"
 
 #include "SourceData.h"
 #include "XmlDiff.h"
@@ -96,6 +97,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_LogNormal);
    CPPUNIT_TEST(test_BandFunction);
    CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
+   CPPUNIT_TEST(test_SmoothDoubleBrokenPowerLaw);
    CPPUNIT_TEST(test_EblAtten);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
@@ -130,6 +132,7 @@ public:
    void test_LogNormal();
    void test_BandFunction();
    void test_SmoothBrokenPowerLaw();
+   void test_SmoothDoubleBrokenPowerLaw();
    void test_EblAtten();
    void test_RoiCuts();
    void test_SourceFactory();
@@ -360,6 +363,35 @@ void LikelihoodTests::test_SmoothBrokenPowerLaw() {
    params.push_back(optimizers::Parameter("Index2", -2.1));
    params.push_back(optimizers::Parameter("BreakValue", 1e3));
    params.push_back(optimizers::Parameter("Beta", 0.2));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
+}
+
+void LikelihoodTests::test_SmoothDoubleBrokenPowerLaw() {
+   Likelihood::SmoothDoubleBrokenPowerLaw foo(10, -1.5, 100, -2.0, 1000, 
+                                              0.1, -2.5, 1e4, 0.1);
+   optimizers::FunctionTest tester(foo, "SmoothDoubleBrokenPowerLaw");
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("Prefactor", 10));
+   params.push_back(optimizers::Parameter("Index1", -1.5));
+   params.push_back(optimizers::Parameter("Scale", 100.));
+   params.push_back(optimizers::Parameter("Index2", -2.0));
+   params.push_back(optimizers::Parameter("BreakValue12", 1e3));
+   params.push_back(optimizers::Parameter("Beta12", 0.1));
+   params.push_back(optimizers::Parameter("Index3", -2.5));
+   params.push_back(optimizers::Parameter("BreakValue23", 1e4));
+   params.push_back(optimizers::Parameter("Beta13", 0.1));
 
    std::vector<optimizers::Arg *> args;
    args.push_back(new optimizers::dArg(100));
@@ -1418,6 +1450,10 @@ int main(int iargc, char * argv[]) {
 
       testObj.setUp();
       testObj.test_SmoothBrokenPowerLaw();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_SmoothDoubleBrokenPowerLaw();
       testObj.tearDown();
 
       testObj.setUp();
