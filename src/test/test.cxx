@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.120 2012/01/06 22:21:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.121 2012/01/12 16:46:57 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -72,8 +72,8 @@
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/TrapQuad.h"
 #include "Likelihood/WcsMap2.h"
-
 #include "Likelihood/BandFunction.h"
+#include "Likelihood/ExpCutoffSEDPeak.h"
 #include "Likelihood/BrokenPowerLaw2.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/EblAtten.h"
@@ -96,8 +96,9 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_LogParabola);
    CPPUNIT_TEST(test_LogNormal);
    CPPUNIT_TEST(test_BandFunction);
+   CPPUNIT_TEST(test_ExpCutoffSEDPeak);
    CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
-   CPPUNIT_TEST(test_SmoothDoubleBrokenPowerLaw);
+//   CPPUNIT_TEST(test_SmoothDoubleBrokenPowerLaw);
    CPPUNIT_TEST(test_EblAtten);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
@@ -131,6 +132,7 @@ public:
    void test_LogParabola();
    void test_LogNormal();
    void test_BandFunction();
+   void test_ExpCutoffSEDPeak();
    void test_SmoothBrokenPowerLaw();
    void test_SmoothDoubleBrokenPowerLaw();
    void test_EblAtten();
@@ -347,6 +349,28 @@ void LikelihoodTests::test_BandFunction() {
    args.push_back(new optimizers::dArg(1e4));
    args.push_back(new optimizers::dArg(3e4));
    args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
+}
+
+void LikelihoodTests::test_ExpCutoffSEDPeak() {
+   Likelihood::ExpCutoffSEDPeak foo(1, 2.1, 4000.);
+   optimizers::FunctionTest tester(foo, "ExpCutoffSEDPeak");
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("Fpeak", 1));
+   params.push_back(optimizers::Parameter("Index", 2.1));
+   params.push_back(optimizers::Parameter("Epeak", 4000.));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   // args.push_back(new optimizers::dArg(3e4));
+   // args.push_back(new optimizers::dArg(1e5));
 
    tester.parameters(params);
    tester.freeParameters(params);
@@ -1446,6 +1470,10 @@ int main(int iargc, char * argv[]) {
 
       testObj.setUp();
       testObj.test_BandFunction();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_ExpCutoffSEDPeak();
       testObj.tearDown();
 
       testObj.setUp();
