@@ -1,8 +1,10 @@
 /**
  * @file ExpCutoffSEDPeak.cxx
- * @brief Implementation for the ExpCutoff with SED peak energy and flux as variables
+ * @brief Implementation for the ExpCutoff with SED peak energy and 
+ * flux as variables
  * @author Rolf Buehler
  *
+ * $Header$
  */
 
 #include <cmath>
