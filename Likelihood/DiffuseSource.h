@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.47 2011/03/15 05:37:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.48 2012/01/06 07:11:58 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -50,7 +50,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.47 2011/03/15 05:37:31 jchiang Exp $ 
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.48 2012/01/06 07:11:58 jchiang Exp $ 
  *  
  */
 
@@ -66,7 +66,8 @@ public:
    ///        integrated.
    DiffuseSource(optimizers::Function * spatialDist,
                  const Observation & observation,
-                 bool requireExposure = true);
+                 bool requireExposure=true,
+                 bool mapBasedIntegral=false);
 
    DiffuseSource(const DiffuseSource &rhs);
 
@@ -176,10 +177,16 @@ public:
 
    double diffuseResponse(const Event & evt) const;
 
+   bool mapBasedIntegral() const {
+      return m_mapBasedIntegral;
+   }
+
 private:
 
    /// spatial model
    optimizers::Function * m_spatialDist;
+
+   bool m_mapBasedIntegral;
 
    template<typename Functor>
    double computeEnergyIntegral(const Functor & func, 

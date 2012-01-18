@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.73 2011/11/28 09:58:02 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.74 2012/01/06 07:11:59 jchiang Exp $
  */
 
 #include <xercesc/util/XercesDefs.hpp>
@@ -292,34 +292,35 @@ makeDiffuseSource(const DOMElement * spectrum,
       std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
       spatialDist->parameter(name).extractDomData(*paramIt);
    }
+   bool mapBasedIntegral(false);
    if (type == "SpatialMap" || type == "MapCubeFunction") {
       std::string fitsFile 
          = xmlBase::Dom::getAttribute(spatialModel, "file");
-      dynamic_cast<MapBase *>(spatialDist)->readFitsFile(fitsFile, "", loadMap);
+      dynamic_cast<MapBase *>(spatialDist)->readFitsFile(fitsFile,"",loadMap);
+      std::string map_based_integral 
+         = xmlBase::Dom::getAttribute(spatialModel, "map_based_integral");
+      mapBasedIntegral = (map_based_integral == "true");
    } else if (type == "RadialProfile") {
       std::string tpl_file(xmlBase::Dom::getAttribute(spatialModel, "file"));
       dynamic_cast<RadialProfile *>(spatialDist)->readTemplateFile(tpl_file);
    }
    Source * src;
-   // try {
-   //    src = new DiffuseSource(spatialDist, m_observation, m_requireExposure);
-   //    setSpectrum(src, spectrum, funcFactory);
-   //    delete spatialDist;
-   //    return src;
-   // } catch (std::exception &eObj) {
-   //    m_formatter->err() << eObj.what() << std::endl;
-   //    throw;
-   // } catch (...) {
-   //    m_formatter->err() << "Unexpected exception from "
-   //                       << "SourceFactory::setSpectrum" 
-   //                       << std::endl;
-   //    throw;
-   // }
-   src = new DiffuseSource(spatialDist, m_observation, m_requireExposure);
-   setSpectrum(src, spectrum, funcFactory);
-   delete spatialDist;
-   return src;
-//   return 0;
+   try {
+      src = new DiffuseSource(spatialDist, m_observation, m_requireExposure,
+                              mapBasedIntegral);
+      setSpectrum(src, spectrum, funcFactory);
+      delete spatialDist;
+      return src;
+   } catch (std::exception &eObj) {
+      m_formatter->err() << eObj.what() << std::endl;
+      throw;
+   } catch (...) {
+      m_formatter->err() << "Unexpected exception from "
+                         << "SourceFactory::setSpectrum" 
+                         << std::endl;
+      throw;
+   }
+   return 0;
 }
 
 void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum, 
