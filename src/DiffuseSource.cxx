@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.56 2012/01/06 07:11:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.57 2012/01/06 22:21:08 jchiang Exp $
  */
 
 #include <algorithm>
@@ -24,9 +24,11 @@ namespace Likelihood {
 
 DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
                              const Observation & observation,
-                             bool requireExposure) 
-   : Source(&observation) {
-   m_spatialDist = spatialDist->clone();
+                             bool requireExposure,
+                             bool mapBasedIntegral)
+   : Source(&observation), 
+     m_spatialDist(spatialDist->clone()),
+     m_mapBasedIntegral(mapBasedIntegral) {
    m_functions["SpatialDist"] = m_spatialDist;
    m_useEdisp = observation.respFuncs().useEdisp();
 
@@ -43,7 +45,7 @@ void DiffuseSource::integrateSpatialDist() {
    const Observation & obs(*observation());
    const std::vector<double> & energies(obs.roiCuts().energies());
    if (obs.expMap().haveMap()) {
-      if (::getenv("MAP_BASED_NPRED")) {
+      if (m_mapBasedIntegral || ::getenv("MAP_BASED_NPRED")) {
          try {
             // Integrate using the map pixels for the quadrature
             mapBaseObject()->integrateSpatialDist(energies, obs.expMap(),

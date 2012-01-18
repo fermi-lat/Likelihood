@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.81 2011/11/30 06:05:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.82 2012/01/06 22:21:08 jchiang Exp $
  */
 
 #include <cctype>
@@ -177,9 +177,10 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
          } catch (MapBaseException &) {
             // do nothing
          }
-	 if (::getenv("MAP_BASED_DIFFRSP") 
-             && (mumin != minusone || mumax != one)) {
-	   respValue = srcs.at(i)->diffuseResponse(*this);
+	 if (srcs.at(i)->mapBasedIntegral() || 
+             (::getenv("MAP_BASED_DIFFRSP") 
+              && (mumin != minusone || mumax != one))) {
+            respValue = srcs.at(i)->diffuseResponse(*this);
 	 } else {
             if (::getenv("USE_OLD_DIFFRSP")) {
                /// Old integration scheme with the phi integral
