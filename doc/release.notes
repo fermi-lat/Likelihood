@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.457 2012/01/06 22:25:56 jchiang Exp $
+    $Id: release.notes,v 1.458 2012/01/09 21:37:33 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-21-06 17-Jan-2012 jchiang add ExpCutoffSEDPeak (from Rolf), turn on psf corrections in gtmodel and use parfile values of resample and rfactor, enable map-based integrals for Npred and diffuse responses via xml model definitions
  Likelihood-17-21-05 09-Jan-2012 jchiang include \<algorithm\> in SpatialMap.cxx for gcc4.4 build
  Likelihood-17-21-04 06-Jan-2012 jchiang map-based integration for Npred in unbinned analysis
  Likelihood-17-21-03 15-Dec-2011 jchiang bug-fix for gtmodel: fixed sources were being omitted from the calculation
