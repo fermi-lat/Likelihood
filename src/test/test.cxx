@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.121 2012/01/12 16:46:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.122 2012/01/14 16:47:14 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -98,7 +98,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_BandFunction);
    CPPUNIT_TEST(test_ExpCutoffSEDPeak);
    CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
-//   CPPUNIT_TEST(test_SmoothDoubleBrokenPowerLaw);
+   CPPUNIT_TEST(test_SmoothDoubleBrokenPowerLaw);
    CPPUNIT_TEST(test_EblAtten);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
@@ -423,8 +423,8 @@ void LikelihoodTests::test_SmoothDoubleBrokenPowerLaw() {
    args.push_back(new optimizers::dArg(1e3));
    args.push_back(new optimizers::dArg(3e3));
    args.push_back(new optimizers::dArg(1e4));
-   args.push_back(new optimizers::dArg(3e4));
-   args.push_back(new optimizers::dArg(1e5));
+//    args.push_back(new optimizers::dArg(3e4));
+//    args.push_back(new optimizers::dArg(1e5));
 
    tester.parameters(params);
    tester.freeParameters(params);
