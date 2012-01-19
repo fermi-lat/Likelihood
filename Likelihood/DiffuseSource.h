@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.48 2012/01/06 07:11:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.49 2012/01/18 00:08:58 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -48,10 +48,6 @@ namespace Likelihood {
  * returns the spatial distribution of the emission as a function of
  * direction.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.48 2012/01/06 07:11:58 jchiang Exp $ 
- *  
  */
 
 class DiffuseSource : public Source {
@@ -68,7 +64,7 @@ public:
                  const Observation & observation,
                  bool requireExposure=true,
                  bool mapBasedIntegral=false);
-
+   
    DiffuseSource(const DiffuseSource &rhs);
 
    virtual ~DiffuseSource() {
@@ -177,9 +173,7 @@ public:
 
    double diffuseResponse(const Event & evt) const;
 
-   bool mapBasedIntegral() const {
-      return m_mapBasedIntegral;
-   }
+   bool mapBasedIntegral() const;
 
 private:
 

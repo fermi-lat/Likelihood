@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.57 2012/01/06 22:21:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.58 2012/01/18 00:08:59 jchiang Exp $
  */
 
 #include <algorithm>
@@ -76,8 +76,10 @@ void DiffuseSource::integrateSpatialDist() {
    }
 }
 
-DiffuseSource::DiffuseSource(const DiffuseSource &rhs) : Source(rhs) {
-   m_spatialDist = rhs.m_spatialDist->clone();
+DiffuseSource::DiffuseSource(const DiffuseSource &rhs) 
+   : Source(rhs),
+     m_spatialDist(rhs.m_spatialDist->clone()),
+     m_mapBasedIntegral(rhs.m_mapBasedIntegral) {
    m_functions["SpatialDist"] = m_spatialDist;
 
    m_spectrum = rhs.m_spectrum->clone();
@@ -252,6 +254,10 @@ double DiffuseSource::diffuseResponse(const Event & evt) const {
       }
    }
    return my_value;
+}
+
+bool DiffuseSource::mapBasedIntegral() const {
+   return m_mapBasedIntegral;
 }
 
 } // namespace Likelihood
