@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.460 2012/01/19 20:26:31 jchiang Exp $
+    $Id: release.notes,v 1.461 2012/01/19 22:55:40 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-21-09 20-Jan-2012 jchiang minor bug-fixes for SmoothDoubleBrokenPowerLaw and unit test
  Likelihood-17-21-08 19-Jan-2012 jchiang enabled unit test for SmoothDoubleBrokenPowerLaw
  Likelihood-17-21-07 19-Jan-2012 jchiang fix DiffuseSource copy constructor
  Likelihood-17-21-06 17-Jan-2012 jchiang add ExpCutoffSEDPeak (from Rolf), turn on psf corrections in gtmodel and use parfile values of resample and rfactor, enable map-based integrals for Npred and diffuse responses via xml model definitions
