@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.122 2012/01/14 16:47:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.123 2012/01/19 22:55:09 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -404,7 +404,7 @@ void LikelihoodTests::test_SmoothBrokenPowerLaw() {
 
 void LikelihoodTests::test_SmoothDoubleBrokenPowerLaw() {
    Likelihood::SmoothDoubleBrokenPowerLaw foo(10, -1.5, 100, -2.0, 1000, 
-                                              0.1, -2.5, 1e4, 0.1);
+                                              0.2, -2.5, 1e4, 0.1);
    optimizers::FunctionTest tester(foo, "SmoothDoubleBrokenPowerLaw");
    std::vector<optimizers::Parameter> params;
    params.push_back(optimizers::Parameter("Prefactor", 10));
@@ -412,23 +412,23 @@ void LikelihoodTests::test_SmoothDoubleBrokenPowerLaw() {
    params.push_back(optimizers::Parameter("Scale", 100.));
    params.push_back(optimizers::Parameter("Index2", -2.0));
    params.push_back(optimizers::Parameter("BreakValue12", 1e3));
-   params.push_back(optimizers::Parameter("Beta12", 0.1));
+   params.push_back(optimizers::Parameter("Beta12", 0.2));
    params.push_back(optimizers::Parameter("Index3", -2.5));
    params.push_back(optimizers::Parameter("BreakValue23", 1e4));
    params.push_back(optimizers::Parameter("Beta13", 0.1));
 
    std::vector<optimizers::Arg *> args;
-   args.push_back(new optimizers::dArg(100));
+//   args.push_back(new optimizers::dArg(100));
    args.push_back(new optimizers::dArg(300));
    args.push_back(new optimizers::dArg(1e3));
    args.push_back(new optimizers::dArg(3e3));
    args.push_back(new optimizers::dArg(1e4));
-//    args.push_back(new optimizers::dArg(3e4));
-//    args.push_back(new optimizers::dArg(1e5));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
 
    tester.parameters(params);
    tester.freeParameters(params);
-   tester.derivatives(args, 1e-5);
+   tester.derivatives(args, 1e-4);
 }
 
 void LikelihoodTests::test_EblAtten() {
