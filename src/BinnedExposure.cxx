@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.41 2011/08/08 15:38:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.42 2011/08/08 17:42:15 jchiang Exp $
  */
 
 #include <cmath>
@@ -297,6 +297,11 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
       header["CDELT3"].set(log(m_energies.at(nee-1)/m_energies.at(0))/(nee-1));
    }
    header["CTYPE3"].set("log_Energy");
+
+   if (!m_isGalactic) {
+      header["EQUINOX"].set(2000.0);
+      header["RADECSYS"].set("FK5");
+   }
 
    delete image;
 
