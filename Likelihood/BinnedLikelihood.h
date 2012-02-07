@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.61 2011/12/15 19:54:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.62 2012/02/07 00:24:27 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -150,6 +150,8 @@ public:
 
    void computeModelMap(std::vector<float> & modelMap) const;
 
+   bool fixedModelUpdated() const;
+
    void buildFixedModelWts(bool process_all=false);
 
    const std::vector<double> & 
@@ -255,8 +257,6 @@ private:
    double pixelCounts(double emin, double emax, double y1, double y2) const;
 
    double NpredValue(const std::string & name, const SourceMap & srcMap) const;
-
-   bool fixedModelUpdated() const;
 
    void computeFixedCountsSpectrum();
 
