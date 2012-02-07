@@ -4,19 +4,20 @@
  * bins before summing.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Accumulator.cxx,v 1.1 2007/02/19 18:05:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Accumulator.cxx,v 1.2 2007/02/22 22:08:24 jchiang Exp $
  */
 
 #include <cmath>
 
 #include <algorithm>
+#include <stdexcept>
 
 #include "Likelihood/Accumulator.h"
 
 namespace Likelihood {
 
 Accumulator::Accumulator() : m_setOuterBounds(true), m_first(true), 
-                             m_total(0), m_npts(10) {}
+                             m_total(0), m_npts(10), m_max_xrange(1e-30) {}
 
 void Accumulator::add(double value) {
    double absvalue(std::abs(value));
@@ -26,7 +27,9 @@ void Accumulator::add(double value) {
       m_setOuterBounds = false;
       m_total = 0;
    } else {
-      if (absvalue < m_xmin && absvalue !=0) {
+      if (absvalue < m_xmin && absvalue !=0 
+          && absvalue/m_xmax > m_max_xrange) {
+//      if (absvalue < m_xmin && absvalue !=0) {
          m_xmin = absvalue;
       }
       if (absvalue > m_xmax) {
@@ -36,7 +39,7 @@ void Accumulator::add(double value) {
    if (m_first) {
       m_total += value;
    } else {
-      m_partialSums.at(indx(absvalue)).add(value);
+      m_partialSums[indx(absvalue)].add(value);
    }
 }
 
@@ -66,8 +69,11 @@ size_t Accumulator::indx(double xx) {
    } else if (xx >= m_xmax) {
       return m_partialSums.size() - 1;
    }
-   double xstep(std::log(m_xmax/m_xmin)/(m_npts - 1));
-   return static_cast<size_t>(std::log(xx/m_xmin)/xstep);
+   double xstep((std::log(m_xmax) - std::log(m_xmin))/(m_npts - 1));
+   size_t my_indx = 
+      static_cast<size_t>((std::log(xx) - std::log(m_xmin))/xstep);
+   m_partialSums.at(my_indx);
+   return my_indx;
 }
 
 } // namespace Likelihood

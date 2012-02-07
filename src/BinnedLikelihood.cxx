@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.89 2011/11/26 22:09:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.90 2011/12/15 19:55:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,6 +54,44 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
    computeCountsSpectrum();
    m_drm = new Drm(m_dataMap.refDir().ra(), m_dataMap.refDir().dec(), 
                    observation, m_dataMap.energies());
+}
+
+BinnedLikelihood::
+BinnedLikelihood(const BinnedLikelihood & other) 
+   : LogLike(other),
+     m_dataMap(other.m_dataMap),
+     m_pixels(other.m_pixels),
+     m_energies(other.m_energies),
+     m_countsSpectrum(other.m_countsSpectrum),
+     m_filledPixels(other.m_filledPixels),
+     m_model(other.m_model),
+     m_modelIsCurrent(other.m_modelIsCurrent),
+     m_srcMapsFile(other.m_srcMapsFile),
+     m_computePointSources(other.m_computePointSources),
+     m_applyPsfCorrections(other.m_applyPsfCorrections),
+     m_performConvolution(other.m_performConvolution),
+     m_resample(other.m_resample),
+     m_resamp_factor(other.m_resamp_factor),
+     m_minbinsz(other.m_minbinsz),
+     m_verbose(other.m_verbose),
+     m_fixedSources(other.m_fixedSources),
+     m_fixedModelWts(other.m_fixedModelWts),
+     m_fixedModelNpreds(other.m_fixedModelNpreds),
+     m_modelPars(other.m_modelPars),
+     m_posDerivs(other.m_posDerivs),
+     m_negDerivs(other.m_negDerivs),
+     m_kmin(other.m_kmin), m_kmax(other.m_kmax),
+     m_fixedNpreds(other.m_fixedNpreds),
+     m_drm(new Drm(*other.m_drm)),
+     m_true_counts(other.m_true_counts),
+     m_meas_counts(other.m_meas_counts),
+     m_fixed_counts_spec(other.m_fixed_counts_spec),
+     m_krefs(other.m_krefs) {
+   std::map<std::string, SourceMap *>::const_iterator 
+      it(other.m_srcMaps.begin());
+   for ( ; it != other.m_srcMaps.end(); ++it) {
+      m_srcMaps[it->first] = new SourceMap(*(it->second));
+   }
 }
 
 BinnedLikelihood::~BinnedLikelihood() throw() {
@@ -305,9 +343,11 @@ computeModelMap(std::vector<float> & modelMap) const {
                   wt2 = model[jmax]*xi;
                } else {
                   size_t ipix(jmin % npix);
+                  std::map<std::string, std::map<size_t, size_t> >::
+                     const_iterator kref_it(m_krefs.find(name));
                   std::map<size_t, size_t>::const_iterator it =
-                     m_krefs[name].find(ipix);
-                  if (it != m_krefs[name].end()) {
+                     kref_it->second.find(ipix);
+                  if (it != kref_it->second.end()) {
                      size_t kref = it->second;
                      size_t jref = kref*npix + ipix;
                      wt1 = (model[jref]/m_true_counts[name][kref]

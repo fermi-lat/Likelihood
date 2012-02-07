@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.93 2011/09/16 23:20:29 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.94 2011/09/28 20:33:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -35,12 +35,10 @@
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/SourceModelBuilder.h"
 #include "Likelihood/SourceModel.h"
-
 #include "Likelihood/XmlParser.h"
 
 namespace Likelihood {
 
-//XERCES_CPP_NAMESPACE_USE
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
