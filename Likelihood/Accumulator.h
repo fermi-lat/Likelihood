@@ -4,7 +4,7 @@
  * bins before summing.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Accumulator.h,v 1.2 2007/02/22 22:08:21 jchiang Exp $
  */
 
 #ifndef Likelihood_Accumulator_h
@@ -34,6 +34,8 @@ private:
    double m_total;
 
    size_t m_npts;
+
+   double m_max_xrange;
    
    /**
     * @class SumByNumber

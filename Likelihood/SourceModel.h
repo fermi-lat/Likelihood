@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.67 2010/07/08 23:10:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.68 2011/09/16 23:20:28 sfegan Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -39,9 +39,6 @@ namespace Likelihood {
  * allow for Sources to be added and deleted and for the Parameters
  * and derivatives describing those Sources to be accessed.
  *
- * @authors J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.67 2010/07/08 23:10:36 jchiang Exp $ 
  */
 
  class SourceModel : public optimizers::Statistic {

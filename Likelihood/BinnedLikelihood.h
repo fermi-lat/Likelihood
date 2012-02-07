@@ -3,13 +3,14 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.60 2011/11/26 22:09:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.61 2011/12/15 19:54:59 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
 #define Likelihood_BinnedLikelihood_h
 
 #include <map>
+#include <stdexcept>
 
 #include "tip/Image.h"
 
@@ -28,9 +29,7 @@ namespace Likelihood {
 /*
  * @class BinnedLikelihood
  * @brief Binned version of the log-Likelihood function.
- * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.60 2011/11/26 22:09:43 jchiang Exp $
  */
 
 class BinnedLikelihood : public LogLike {
@@ -46,6 +45,8 @@ public:
                     bool resample=true,
                     double resamp_factor=2,
                     double minbinsz=0.1);
+
+   BinnedLikelihood(const BinnedLikelihood & other);
 
    virtual ~BinnedLikelihood() throw();
 
@@ -155,6 +156,10 @@ public:
    modelCountsSpectrum(const std::string &srcname) const;
 
 protected:
+
+   BinnedLikelihood & operator=(const BinnedLikelihood & rhs) {
+      throw std::runtime_error("Copy-assignment operator not implemented");
+   }
 
    virtual BinnedLikelihood * clone() const {
       return new BinnedLikelihood(*this);
