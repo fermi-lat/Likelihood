@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.20 2011/09/26 01:35:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.21 2011/09/28 20:33:12 jchiang Exp $
  */
 
 #include <algorithm>
@@ -53,62 +53,22 @@ double Source::Npred() {
 }
 
 double Source::Npred(double emin, double emax) const {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
-   // if (emin < energies.front() || emax > energies.back()) {
-   //    std::ostringstream message;
-   //    message << "Source::Npred(emin, emax):\n"
-   //            << "emin = " << emin << "\n"
-   //            << "emax = " << emax << "\n";
-   //    throw std::out_of_range(message.str());
-   // }
+   std::vector<double> energies;
+   std::vector<double> exposure;
 
-   double tol(1e-7);
-   if (emin < energies.front()) {
-      emin = energies.front();
-   }
-   if (emax > energies.back()) {
-      emax = energies.back();
-   }
-
-   std::vector<double>::const_iterator first 
-      = std::upper_bound(energies.begin(), energies.end(), emin);
-   std::vector<double>::const_iterator last 
-      = std::upper_bound(energies.begin(), energies.end(), emax);
-   std::vector<double> my_energies(last - first);
-   std::copy(first, last, my_energies.begin());
-   size_t begin_offset = first - energies.begin();
-   size_t end_offset = last - energies.begin();
-   my_energies.insert(my_energies.begin(), emin);
-   my_energies.push_back(emax);
-   std::vector<double> exposure(last - first);
-   std::copy(m_exposure.begin() + begin_offset,
-             m_exposure.begin() + end_offset,
-             exposure.begin());
-   if (end_offset == energies.size()) {
-      end_offset = energies.size() - 1;
-   }
-   double begin_exposure = (emin - energies.at(begin_offset - 1))
-      /(energies.at(begin_offset) - energies.at(begin_offset - 1))
-      *(m_exposure.at(begin_offset) - m_exposure.at(begin_offset - 1))
-      + m_exposure.at(begin_offset - 1);
-   double end_exposure = (emax - energies.at(end_offset - 1))
-      /(energies.at(end_offset) - energies.at(end_offset - 1))
-      *(m_exposure.at(end_offset) - m_exposure.at(end_offset - 1))
-      + m_exposure.at(end_offset - 1);
-   exposure.insert(exposure.begin(), begin_exposure);
-   exposure.push_back(end_exposure);
+   getExposureSubArrays(emin, emax, energies, exposure);
 
    FuncMap::const_iterator my_func = m_functions.find("Spectrum");
    const optimizers::Function & specFunc = 
       const_cast<optimizers::Function &>(*my_func->second);
 
-   std::vector<double> integrand(my_energies.size());
-   for (unsigned int k = 0; k < my_energies.size(); k++) {
-      optimizers::dArg eArg(my_energies.at(k));
+   std::vector<double> integrand(energies.size());
+   for (unsigned int k = 0; k < energies.size(); k++) {
+      optimizers::dArg eArg(energies.at(k));
       integrand.at(k) = specFunc(eArg)*exposure.at(k);
    }
    bool useLog;
-   TrapQuad trapQuad(my_energies, integrand, useLog=true);
+   TrapQuad trapQuad(energies, integrand, useLog=true);
    return trapQuad.integral();
 }
 
@@ -126,6 +86,32 @@ double Source::NpredDeriv(const std::string &paramName) {
          optimizers::dArg eArg(energies[k]);
          myIntegrand[k] = specFunc->derivByParam(eArg, paramName)
             *m_exposure[k];
+      }
+      bool useLog;
+      TrapQuad trapQuad(energies, myIntegrand, useLog=true);
+      return trapQuad.integral();
+   }
+}
+
+double Source::
+NpredDeriv(const std::string & paramName, double emin, double emax) const {
+   std::vector<double> energies;
+   std::vector<double> exposures;
+   getExposureSubArrays(emin, emax, energies, exposures);
+
+   const optimizers::Function * specFunc 
+      = m_functions.find("Spectrum")->second;
+
+   double prefactor;
+   if (paramName == std::string("Prefactor") && 
+       (prefactor = specFunc->getParamValue("Prefactor")) != 0) {
+      return Npred(emin, emax)/prefactor;
+   } else {  // loop over energies and fill integrand vector
+      std::vector<double> myIntegrand(energies.size());
+      for (unsigned int k = 0; k < energies.size(); k++) {
+         optimizers::dArg eArg(energies[k]);
+         myIntegrand[k] = specFunc->derivByParam(eArg, paramName)
+            *exposures[k];
       }
       bool useLog;
       TrapQuad trapQuad(energies, myIntegrand, useLog=true);
@@ -193,6 +179,49 @@ double Source::pixelCountsDeriv(double emin, double emax,
    }
 // Quadrature in log-log space, suggested by J. Ballet.   
    return (dy1dp*emin + dy2dp*emax)/2.*std::log(emax/emin);
+}
+
+void Source::getExposureSubArrays(double emin, double emax,
+                                  std::vector<double> & energies,
+                                  std::vector<double> & exposures) const {
+   const std::vector<double> & roi_energies = 
+      m_observation->roiCuts().energies();
+
+   if (emin < roi_energies.front()) {
+      emin = roi_energies.front();
+   }
+   if (emax > roi_energies.back()) {
+      emax = roi_energies.back();
+   }
+
+   std::vector<double>::const_iterator first 
+      = std::upper_bound(roi_energies.begin(), roi_energies.end(), emin);
+   std::vector<double>::const_iterator last 
+      = std::upper_bound(roi_energies.begin(), roi_energies.end(), emax);
+   energies.resize(last - first);
+   std::copy(first, last, energies.begin());
+   size_t begin_offset = first - roi_energies.begin();
+   size_t end_offset = last - roi_energies.begin();
+   energies.insert(energies.begin(), emin);
+   energies.push_back(emax);
+
+   exposures.resize(last - first);
+   std::copy(m_exposure.begin() + begin_offset,
+             m_exposure.begin() + end_offset,
+             exposures.begin());
+   if (end_offset == roi_energies.size()) {
+      end_offset = roi_energies.size() - 1;
+   }
+   double begin_exposure = (emin - roi_energies.at(begin_offset - 1))
+      /(roi_energies.at(begin_offset) - roi_energies.at(begin_offset - 1))
+      *(m_exposure.at(begin_offset) - m_exposure.at(begin_offset - 1))
+      + m_exposure.at(begin_offset - 1);
+   double end_exposure = (emax - roi_energies.at(end_offset - 1))
+      /(roi_energies.at(end_offset) - roi_energies.at(end_offset - 1))
+      *(m_exposure.at(end_offset) - m_exposure.at(end_offset - 1))
+      + m_exposure.at(end_offset - 1);
+   exposures.insert(exposures.begin(), begin_exposure);
+   exposures.push_back(end_exposure);
 }
 
 double Source::powerlaw_integral_est(double x1, double x2, 

@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.11 2009/06/02 19:19:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/backfile/backfile.cxx,v 1.12 2009/12/16 19:05:46 elwinter Exp $
  */
 
 #include <cstdlib>
@@ -37,9 +37,6 @@
  * @brief Derived class of st_app::StApp used to compute a background 
  * pha file.
  * 
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.11 2009/06/02 19:19:51 jchiang Exp $
  */
 
 class BackFile : public st_app::StApp {
@@ -59,7 +56,12 @@ private:
    void setup();
    void getEbounds(std::vector<double> & emin,
                    std::vector<double> & emax) const;
-   void writeBackFile(const std::vector<double> & bg_counts) const;
+   void updateKeywords() const;
+   double NpredError(const Likelihood::LogLike & logLike,
+                     const std::vector<std::string> & source_names,
+                     double emin, double emax) const;
+   void writeBackFile(const std::vector<double> & bg_rate,
+                      const std::vector<double> & bg_rate_err) const;
    void setHeaderKeyword(const std::string & phafile, 
                          const std::string & extension,
                          const std::string & keyname,
@@ -69,7 +71,7 @@ private:
 
 st_app::StAppFactory<BackFile> myAppFactory("gtbkg");
 
-std::string BackFile::s_cvs_id("$Name: v15r7p0 $");
+std::string BackFile::s_cvs_id("$Name:  $");
 
 void BackFile::banner() const {
    int verbosity = m_pars["chatter"];
@@ -98,6 +100,14 @@ void BackFile::setup() {
 
 void BackFile::run() {
    setup();
+
+   std::string infile = m_pars["phafile"];
+   std::string outfile = m_pars["outfile"];
+
+   tip::TipFile inputfile = tip::IFileSvc::instance().openFile(infile);
+
+   inputfile.copyFile(outfile);
+
    Likelihood::LogLike logLike(m_helper->observation());
    std::string srcModel = m_pars["srcmdl"];
    logLike.readXml(srcModel, m_helper->funcFactory());
@@ -126,31 +136,56 @@ void BackFile::run() {
    const std::vector<double> & energies = 
       m_helper->observation().roiCuts().energies();
 
-   std::vector<double> bg_counts;
+   // Read the exposure time to convert counts to rate.
+   const tip::Table * table = tip::IFileSvc::instance().readTable(infile,
+                                                                  "SPECTRUM");
+   double exposure;
+   table->getHeader()["EXPOSURE"].get(exposure);
+   delete table;
+
+   std::vector<double> bg_rate;
+   std::vector<double> bg_rate_err;
    for (unsigned int i = 0; i < emin.size(); i++) {
+      double emin_val = std::max(emin.at(i), energies.front());
+      double emax_val = std::min(emax.at(i), energies.back());
       double counts(0);
       for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
            srcName != srcNames.end(); ++srcName) {
          if (*srcName != target) {
-            double emin_val = std::max(emin.at(i), energies.front());
-            double emax_val = std::min(emax.at(i), energies.back());
             counts += logLike.getSource(*srcName)->Npred(emin_val, emax_val);
          }
       }
-      bg_counts.push_back(counts);
+      bg_rate.push_back(counts/exposure);
+      bg_rate_err.push_back(NpredError(logLike, srcNames, emin_val, emax_val)/
+                            exposure);
    }
-   
-   std::string infile = m_pars["phafile"];
-   std::string outfile = m_pars["outfile"];
 
-   tip::TipFile inputfile = tip::IFileSvc::instance().openFile(infile);
-
-   inputfile.copyFile(outfile);
-
-   writeBackFile(bg_counts);
+   updateKeywords();
+   writeBackFile(bg_rate, bg_rate_err);
    setHeaderKeyword(infile, "SPECTRUM", "BACKFILE", outfile);
 
    st_facilities::FitsUtil::writeChecksums(outfile);
+}
+
+double BackFile::NpredError(const Likelihood::LogLike & logLike,
+                            const std::vector<std::string> & source_names,
+                            double emin, double emax) const {
+   std::string target = m_pars["target"];
+   double variance(0);
+   for (size_t i(0); i < source_names.size(); i++) {
+      if (source_names[i] == target) {
+         continue;
+      }
+      std::vector<std::string> parnames;
+      const Likelihood::Source & src(logLike.source(source_names[i]));
+      src.spectrum().getFreeParamNames(parnames);
+      for (size_t j(0); j < parnames.size(); j++) {
+         double dNpred_dpar(src.NpredDeriv(parnames[j], emin, emax));
+         double par_error(src.spectrum().parameter(parnames[j]).error());
+         variance += dNpred_dpar*dNpred_dpar*par_error*par_error;
+      }
+   }
+   return std::sqrt(variance);
 }
 
 void BackFile::getEbounds(std::vector<double> & emin,
@@ -174,14 +209,26 @@ void BackFile::getEbounds(std::vector<double> & emin,
    }
 }
 
-void BackFile::writeBackFile(const std::vector<double> & bg_counts) const {
+// Convert COUNTS to RATE so that floating point values may be used
+void BackFile::updateKeywords() const {
+   tip::Table * my_spectrum = 
+      tip::IFileSvc::instance().editTable(m_pars["outfile"], "SPECTRUM");
+   tip::Header & header(my_spectrum->getHeader());
+   header["TTYPE2"].set("RATE");
+   header["TFORM2"].set("E");
+   delete my_spectrum;
+}
+
+void BackFile::writeBackFile(const std::vector<double> & bg_rate,
+                             const std::vector<double> & bg_rate_err) const {
    std::string outfile = m_pars["outfile"];
    tip::Table * my_spectrum = 
       tip::IFileSvc::instance().editTable(outfile, "SPECTRUM");
    tip::Table::Iterator it = my_spectrum->begin();
    tip::Table::Record & row = *it;
    for (unsigned int i = 0; it != my_spectrum->end(); ++it, i++) {
-      row["COUNTS"].set(bg_counts.at(i));
+      row["RATE"].set(bg_rate.at(i));
+      row["STAT_ERR"].set(bg_rate_err.at(i));
    }
    delete my_spectrum;
 }

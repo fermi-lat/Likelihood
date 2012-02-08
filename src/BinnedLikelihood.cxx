@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.90 2011/12/15 19:55:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.91 2012/02/07 00:24:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -571,9 +571,11 @@ addSourceWts(std::vector<std::pair<double, double> > & modelWts,
             modelWts[j].second += my_sign*model[jmax]*spec[k+1]*xi;
          } else {
             size_t ipix(jmin % npix);
+            std::map<std::string, std::map<size_t, size_t> >::
+               const_iterator kref_it(m_krefs.find(srcName));
             std::map<size_t, size_t>::const_iterator it =
-               m_krefs[srcName].find(ipix);
-            if (it != m_krefs[srcName].end()) {
+               kref_it->second.find(ipix);
+            if (it != kref_it->second.end()) {
                size_t kref = it->second;
                size_t jref = kref*npix + ipix;
                modelWts[j].first += (my_sign*model[jref]*spec[kref]
