@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.463 2012/01/30 05:52:45 jchiang Exp $
+    $Id: release.notes,v 1.464 2012/02/08 00:26:27 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-22-01 08-Feb-2012 jchiang const correctness fixes
  Likelihood-17-22-00 07-Feb-2012 jchiang use RATE in gtbkg output instead of COUNTS; fill STAT_ERR column with model error estimate
  Likelihood-17-21-10 29-Jan-2012 jchiang add RADECSYS and EQUINOX keywords to gtexpcube2 output when specifying celestial coordinates
  Likelihood-17-21-09 20-Jan-2012 jchiang minor bug-fixes for SmoothDoubleBrokenPowerLaw and unit test
