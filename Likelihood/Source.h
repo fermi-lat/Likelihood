@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.46 2010/04/30 22:18:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.47 2010/05/18 16:01:25 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -34,7 +34,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.46 2010/04/30 22:18:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.47 2010/05/18 16:01:25 jchiang Exp $
  */
 
 class Source {
@@ -87,6 +87,9 @@ public:
 
    /// Predicted number of counts within a specified energy range.
    virtual double Npred(double emin, double emax) const;
+
+   virtual double NpredDeriv(const std::string & paramName,
+                             double emin, double emax) const;
 
    /// Set the spectral model (should also check that the Parameter
    /// names do not conflict with "longitude" and "latitude" of m_dir)
@@ -209,6 +212,10 @@ protected:
    /// Angle integrated diffuse exposure as a function of
    /// RoiCuts::energies()
    std::vector<double> m_exposure;
+
+   void getExposureSubArrays(double emin, double emax,
+                             std::vector<double> & energies,
+                             std::vector<double> & exposures) const;
 
    static double powerlaw_integral_est(double x1, double x2, 
                                        double y1, double y2, 
