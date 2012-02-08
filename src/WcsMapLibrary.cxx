@@ -6,7 +6,7 @@
  * a string comprising the name of the FITS file and the extension.
  * @author J. Chiang 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMapLibrary.cxx,v 1.1 2011/11/22 01:50:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMapLibrary.cxx,v 1.2 2011/11/22 03:18:14 jchiang Exp $
  */
 
 #include <utility>
@@ -59,16 +59,16 @@ bool WcsMapLibrary::has_map(const std::string & filename,
    return m_library.find(key) != m_library.end();
 }
 
-void WcsMapLibrary::add_observer(const MapBase * observer) {
+void WcsMapLibrary::add_observer(MapBase * observer) {
    m_observers.insert(std::make_pair(observer, 1));
 }
 
-void WcsMapLibrary::remove_observer(const MapBase * observer) {
+void WcsMapLibrary::remove_observer(MapBase * observer) {
    m_observers.erase(observer);
 }
 
 void WcsMapLibrary::notify() {
-   std::map<const MapBase *, int>::iterator it(m_observers.begin());
+   std::map<MapBase *, int>::iterator it(m_observers.begin());
    for ( ; it != m_observers.end(); ++it) {
       it->first->update();
    }

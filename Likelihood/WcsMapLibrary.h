@@ -6,7 +6,7 @@
  * the full path to the FITS file.
  * @author J. Chiang 
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMapLibrary.h,v 1.1 2011/11/22 01:50:00 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMapLibrary_h
@@ -33,9 +33,9 @@ public:
    bool has_map(const std::string & filename,
                 const std::string & extname) const;
 
-   void add_observer(const MapBase * observer);
+   void add_observer(MapBase * observer);
 
-   void remove_observer(const MapBase * observer);
+   void remove_observer(MapBase * observer);
 
    void notify();
 
@@ -62,7 +62,7 @@ private:
    typedef std::map<std::string, WcsMap2 *> MapLibrary_t;
    MapLibrary_t m_library;
 
-   std::map<const MapBase *, int> m_observers;
+   std::map<MapBase *, int> m_observers;
 
    static WcsMapLibrary * s_instance;
 };
