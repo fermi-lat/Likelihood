@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.42 2011/08/08 17:42:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.43 2012/01/30 05:51:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -14,6 +14,7 @@
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 #include "st_stream/StreamFormatter.h"
 
@@ -218,6 +219,19 @@ void BinnedExposure::computeMap() {
    st_stream::StreamFormatter formatter("BinnedExposure", "computeMap", 2);
    formatter.warn() << "Computing binned exposure map";
 
+   // Storing Aeff objects for use within loops over sky pixels.
+   std::map<std::pair<unsigned int, int>, Aeff *> aeffs;
+   for (unsigned int k(0); k < m_energies.size(); k++) {
+      std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+         resp = m_observation->respFuncs().begin();
+      for (; resp != m_observation->respFuncs().end(); ++resp) {
+         int evtType = resp->second->irfID();
+         aeffs[std::make_pair(k, evtType)] =  
+            new Aeff(m_energies[k], evtType, *m_observation, m_costhmin,
+                     m_costhmax);
+      }
+   }
+
    for (int j = 0; j < m_naxes.at(1); j++) {
       for (int i = 0; i < m_naxes.at(0); i++, iter++) {
          if ((iter % ((m_naxes.at(1)*m_naxes.at(0))/20)) == 0) {
@@ -243,14 +257,26 @@ void BinnedExposure::computeMap() {
                resp = m_observation->respFuncs().begin();
             for (; resp != m_observation->respFuncs().end(); ++resp) {
                int evtType = resp->second->irfID();
-               Aeff aeff(m_energies[k], evtType, *m_observation, m_costhmin,
-                         m_costhmax);
+               // Aeff aeff(m_energies[k], evtType, *m_observation, m_costhmin,
+               //           m_costhmax);
+               Aeff & aeff = *aeffs[std::make_pair(k, evtType)];
                m_exposureMap.at(indx)
                   +=m_observation->expCube().value(dir, aeff, m_energies.at(k));
             }
          }
       }
    }
+
+   // Release memory of Aeff map.
+   for (unsigned int k(0); k < m_energies.size(); k++) {
+      std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
+         resp = m_observation->respFuncs().begin();
+      for (; resp != m_observation->respFuncs().end(); ++resp) {
+         int evtType = resp->second->irfID();
+         delete aeffs[std::make_pair(k, evtType)];
+      }
+   }
+
    formatter.warn() << "!" << std::endl;
 }
 
@@ -337,7 +363,15 @@ double BinnedExposure::Aeff::operator()(double cosTheta, double phi) const {
    if (cosTheta < m_costhmin || cosTheta > m_costhmax) {
       return 0;
    }
-   return ExposureCube::Aeff::operator()(cosTheta, phi);
+   std::pair<double, double> key(cosTheta, phi);
+   std::map<std::pair<double, double>, double>::const_iterator it =
+      m_cached_values.find(key);
+   if (it == m_cached_values.end()) {
+      double value(ExposureCube::Aeff::operator()(cosTheta, phi));
+      m_cached_values.insert(std::make_pair(key, value));
+      return value;
+   }
+   return it->second;
 }
 
 } // namespace Likelihood

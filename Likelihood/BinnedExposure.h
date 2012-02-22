@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.19 2011/02/04 17:06:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.20 2011/03/02 04:43:52 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -132,6 +132,8 @@ private:
    private:
       double m_costhmin;
       double m_costhmax;
+
+      mutable std::map<std::pair<double, double>, double> m_cached_values;
    };
    
 };

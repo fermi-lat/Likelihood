@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.24 2010/11/27 07:17:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.25 2010/11/28 23:01:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -204,9 +204,9 @@ double MeanPsf::Psf::operator()(double cosTheta, double phi) const {
 
 double MeanPsf::Aeff::operator()(double cosTheta, double phi) const {
    double inclination = acos(cosTheta)*180./M_PI;
-   if (inclination > 70.) {
-      return 0;
-   }
+//    if (inclination > 70.) {
+//       return 0;
+//    }
    return ExposureCube::Aeff::operator()(cosTheta, phi);
 }
 
