@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/backfile/backfile.cxx,v 1.12 2009/12/16 19:05:46 elwinter Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/backfile/backfile.cxx,v 1.13 2012/02/08 00:23:56 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -181,7 +181,9 @@ double BackFile::NpredError(const Likelihood::LogLike & logLike,
       src.spectrum().getFreeParamNames(parnames);
       for (size_t j(0); j < parnames.size(); j++) {
          double dNpred_dpar(src.NpredDeriv(parnames[j], emin, emax));
-         double par_error(src.spectrum().parameter(parnames[j]).error());
+         const optimizers::Parameter & par(src.spectrum()
+                                           .getParam(parnames[j]));
+         double par_error(par.error());
          variance += dNpred_dpar*dNpred_dpar*par_error*par_error;
       }
    }

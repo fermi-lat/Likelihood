@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.32 2011/12/15 19:55:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.33 2012/01/17 22:05:25 jchiang Exp $
  */
 
 #include <iostream>
@@ -242,9 +242,10 @@ void ModelMap::trimExtensions() {
    }
 
 // Update creator keyword.
+   const char * keyname = "CREATOR";
    char * creator = "gtmodel";
-   fits_update_key(fptr, TSTRING, "CREATOR", creator,
-                   "Software creating file", &status);
+   char * description = "Software creating file";
+   fits_update_key(fptr, TSTRING, keyname, creator, description, &status);
    ::fitsReportError(stderr, status);
 
    fits_close_file(fptr, &status);

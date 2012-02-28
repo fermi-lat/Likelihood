@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.114 2011/09/28 20:33:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.115 2011/12/02 06:38:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -428,7 +428,7 @@ void PointSource::computeExposure(const astro::SkyDir & srcDir,
             if (effArea < 0 || fraction < 0 || (stop-start) < 0) {
                formatter.warn() << effArea << std::endl;
             }
-            irfInterface::IEfficiencyFactor * efficiency_factor
+            const irfInterface::IEfficiencyFactor * efficiency_factor
                = respFuncs.efficiencyFactor();
             double efficiency(1);
             if (efficiency_factor) {
