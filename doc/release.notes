@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.467 2012/02/22 18:13:11 jchiang Exp $
+    $Id: release.notes,v 1.468 2012/02/23 00:36:30 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-22-05 28-Feb-2012 jchiang various const fixes
  Likelihood-17-22-04 22-Feb-2012 jchiang include MeanPsf exposure at theta > 70
  Likelihood-17-22-03 22-Feb-2012 jchiang implement effective area caching suggestion from Guilli in LK-74
  Likelihood-17-22-02 08-Feb-2012 jchiang disable m_drm object construction if USE_BL_EDISP is not set
