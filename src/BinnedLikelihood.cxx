@@ -3,12 +3,13 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.92 2012/02/08 00:23:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.93 2012/02/08 23:08:27 jchiang Exp $
  */
 
 #include <cmath>
 
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 
 #include "st_stream/StreamFormatter.h"
@@ -423,6 +424,80 @@ modelCountsSpectrum(const std::string & srcname) const {
    return it->second;
 }
 
+void BinnedLikelihood::addFixedSource(const std::string & srcName) {
+// Add a source to the fixed source data, under the assumption that it
+// is not already there.
+   std::map<std::string, Source *>::const_iterator 
+      srcIt(m_sources.find(srcName));
+   if (srcIt == m_sources.end()) {
+      std::ostringstream message;
+      message << "BinnedLikelihood::addFixedSource: "
+              << "source " << srcName << " not found.";
+      throw std::runtime_error(message.str());
+   }
+   m_fixedSources.push_back(srcName);
+   SourceMap * srcMap(0);
+   std::map<std::string, SourceMap *>::const_iterator srcMapIt
+      = m_srcMaps.find(srcName);
+   if (srcMapIt == m_srcMaps.end()) {
+      srcMap = getSourceMap(srcName, false);
+   } else {
+      srcMap = srcMapIt->second;
+   }
+   m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
+   addSourceWts(m_fixedModelWts, srcName, srcMap);
+   for (size_t k(0); k < m_energies.size(); k++) {
+      optimizers::dArg ee(m_energies[k]);
+      m_fixedNpreds[k] += (srcIt->second->spectrum()(ee)*
+                           srcMap->npreds()[k]);
+   }
+   // Remove this source from the stored source maps to save memory
+   if (srcMapIt != m_srcMaps.end()) {
+      m_srcMaps.erase(srcName);
+   }
+   delete srcMap;
+   srcMap = 0;
+   std::vector<double> pars;
+   srcIt->second->spectrum().getParamValues(pars);
+   m_modelPars[srcName] = pars;
+}
+
+void BinnedLikelihood::deleteFixedSource(const std::string & srcName) {
+// Delete a source from the fixed source data, under the assumption 
+// that it is included.
+   std::map<std::string, Source *>::const_iterator 
+      srcIt(m_sources.find(srcName));
+   if (srcIt == m_sources.end()) {
+      std::ostringstream message;
+      message << "BinnedLikelihood::addFixedSource: "
+              << "source " << srcName << " not found.";
+      throw std::runtime_error(message.str());
+   }
+
+   // Generate the SourceMap and include it in the stored maps.
+   SourceMap * srcMap(getSourceMap(srcName, false));
+   if (srcMap == 0) {
+      throw std::runtime_error("SourceMap cannot be created for " + srcName);
+   }
+   m_srcMaps[srcName] = srcMap;
+
+   // Subtract the contribution to the summed Npred spectrum.
+   for (size_t k(0); k < m_energies.size(); k++) {
+      optimizers::dArg ee(m_energies[k]);
+      m_fixedNpreds[k] -= srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
+                           
+   }
+
+   // Subtract the source weights from the summed fixed model weights.
+   bool subtract;
+   addSourceWts(m_fixedModelWts, srcName, srcMap, subtract=true);
+
+   // Remove from the list of fixed sources
+   std::vector<std::string>::iterator it 
+      = std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
+   m_fixedSources.erase(it);
+}
+
 void BinnedLikelihood::buildFixedModelWts(bool process_all) {
    m_fixedSources.clear();
    m_fixedModelWts.clear();
@@ -433,30 +508,7 @@ void BinnedLikelihood::buildFixedModelWts(bool process_all) {
    for ( ; srcIt != m_sources.end(); ++srcIt) {
       const std::string & srcName(srcIt->first);
       if (srcIt->second->fixedSpectrum() && !process_all) {
-         m_fixedSources.push_back(srcName);
-         SourceMap * srcMap(0);
-         std::map<std::string, SourceMap *>::const_iterator srcMapIt
-            = m_srcMaps.find(srcName);
-         if (srcMapIt == m_srcMaps.end()) {
-            srcMap = getSourceMap(srcName, false);
-         } else {
-            srcMap = srcMapIt->second;
-         }
-         m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
-         addSourceWts(m_fixedModelWts, srcName, srcMap);
-         for (size_t k(0); k < m_energies.size(); k++) {
-            optimizers::dArg ee(m_energies[k]);
-            m_fixedNpreds[k] += (srcIt->second->spectrum()(ee)*
-                                 srcMap->npreds()[k]);
-         }
-         if (srcMapIt != m_srcMaps.end()) {
-            m_srcMaps.erase(srcName);
-         }
-         delete srcMap;
-         srcMap = 0;
-         std::vector<double> pars;
-         srcIt->second->spectrum().getParamValues(pars);
-         m_modelPars[srcName] = pars;
+         addFixedSource(srcName);
       } else { 
 // Process non-fixed sources.
 //
