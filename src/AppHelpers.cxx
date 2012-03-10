@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.97 2012/01/12 16:46:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.98 2012/01/14 16:47:14 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -189,6 +189,8 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         new ScaleFactor(FileFunction()), makeClone);
    funcFactory->addFunc("ScaleFactor::PowerLaw2", 
                         new ScaleFactor(PowerLaw2()), makeClone);
+   funcFactory->addFunc("ScaleFactor::PLSuperExpCutoff", 
+                        new ScaleFactor(PowerLawSuperExpCutoff()), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,

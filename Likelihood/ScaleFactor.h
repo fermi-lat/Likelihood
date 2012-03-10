@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ScaleFactor.h,v 1.5 2009/06/19 06:36:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ScaleFactor.h,v 1.1 2011/05/29 17:53:06 jchiang Exp $
  */
 
 #include "optimizers/Function.h"
@@ -19,7 +19,7 @@ public:
    ScaleFactor();
 
    ScaleFactor(const optimizers::Function & spectrum,
-               double scale_factor=1);
+               double scale_factor=1, bool use_complement=false);
 
    ScaleFactor(const ScaleFactor & other);
 
@@ -38,11 +38,26 @@ public:
    /// preserves the references to the m_spectrum parameters.
    virtual void setParam(const optimizers::Parameter & param);
 
+   void set_complement_flag(bool use_complement) {
+      m_use_complement = use_complement;
+      check_complement_usage();
+   }
+
+   bool use_complement() const {
+      return m_use_complement;
+   }
+
 private:
    
    optimizers::Function * m_spectrum;
 
+   bool m_use_complement;
+
    void init(double scale_factor=1);
+
+   double prefactor() const;
+
+   void check_complement_usage() const;
 
    void setParRefs();
 

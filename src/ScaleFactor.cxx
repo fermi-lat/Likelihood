@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ScaleFactor.cxx,v 1.4 2009/06/19 06:36:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ScaleFactor.cxx,v 1.1 2011/05/29 17:53:09 jchiang Exp $
  */
 
 #include <algorithm>
@@ -19,14 +19,17 @@
 
 namespace Likelihood {
 
-ScaleFactor::ScaleFactor() : m_spectrum(new PowerLaw2()) {
+ScaleFactor::ScaleFactor() 
+  : m_spectrum(new PowerLaw2()),  m_use_complement(false) {
    init();
+   check_complement_usage();
 }
 
 ScaleFactor::ScaleFactor(const optimizers::Function & spectrum, 
-                         double scale_factor)
-   : m_spectrum(spectrum.clone()) {
+                         double scale_factor, bool use_complement)
+   : m_spectrum(spectrum.clone()), m_use_complement(use_complement) {
    init(scale_factor);
+   check_complement_usage();
 }
    
 void ScaleFactor::init(double scale_factor) {
@@ -48,6 +51,36 @@ void ScaleFactor::init(double scale_factor) {
    m_normParName = m_spectrum->normPar().getName();
 }
 
+void ScaleFactor::check_complement_usage() const {
+   if (!m_use_complement) {
+      return;
+   }
+// Ensure that the bounds on the ScaleFactor are (0, 1) and the Scale
+// attribute is 1.
+   int scale_factor(m_spectrum->getNumParams());
+
+   std::pair<double, double> bounds(m_parameter[scale_factor].getBounds());
+   if (bounds.first != 0 && bounds.second != 1.) {
+      throw std::runtime_error("ScaleFactor: Parameter bounds must be (0, 1) "
+                               "when using complement form.");
+   }
+
+   double Scale(m_parameter[scale_factor].getScale());
+   if (Scale != 1) {
+      throw std::runtime_error("ScaleFactor: Parameter scale must be unity "
+                               "when using complement form.");
+   }
+}
+
+double ScaleFactor::prefactor() const {
+   int scale_factor(m_spectrum->getNumParams());
+   if (m_use_complement) {
+      return 1. - m_parameter[scale_factor].getTrueValue();
+   } else {
+      return m_parameter[scale_factor].getTrueValue();
+   }
+}
+
 void ScaleFactor::setParRefs() {
    for (size_t i(0); i < m_spectrum->getNumParams(); i++) {
       std::string name(m_parameter[i].getName());
@@ -57,13 +90,15 @@ void ScaleFactor::setParRefs() {
 
 ScaleFactor::ScaleFactor(const ScaleFactor & other) 
    : optimizers::Function(other),
-     m_spectrum(other.m_spectrum->clone()) {
+     m_spectrum(other.m_spectrum->clone()),
+     m_use_complement(other.m_use_complement) {
    setParRefs();
 }
 
 ScaleFactor & ScaleFactor::operator=(const ScaleFactor & rhs) {
    if (this != &rhs) {
       m_spectrum = rhs.m_spectrum->clone();
+      m_use_complement = rhs.m_use_complement;
       setParRefs();
    }
    return *this;
@@ -78,8 +113,7 @@ ScaleFactor::~ScaleFactor() throw() {
    
 double ScaleFactor::value(optimizers::Arg & xarg) const {
    double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue();
-   int scale_factor(m_spectrum->getNumParams());
-   return m_spectrum->operator()(xarg)*m_parameter[scale_factor].getTrueValue();
+   return prefactor()*m_spectrum->operator()(xarg);
 }
    
 double ScaleFactor::derivByParam(optimizers::Arg & xarg,
@@ -100,10 +134,12 @@ double ScaleFactor::derivByParam(optimizers::Arg & xarg,
    
    int scale_factor(m_spectrum->getNumParams());
    if (iparam < scale_factor) {
-      return (m_parameter[scale_factor].getTrueValue()*
-              m_spectrum->derivByParam(xarg, paramName));
+      return prefactor()*m_spectrum->derivByParam(xarg, paramName);
    }
 
+   if (m_use_complement) {
+      return -m_spectrum->operator()(xarg)*m_parameter[scale_factor].getScale();
+   }
    return m_spectrum->operator()(xarg)*m_parameter[scale_factor].getScale();
 }
 
