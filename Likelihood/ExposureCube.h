@@ -1,9 +1,9 @@
 /**
  * @file ExposureCube.h
  * @brief Exposure time hypercube.
- * @author J. Chiang <jchiang@slacs.stanford.edu>
+ * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.21 2011/06/14 22:41:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.22 2011/10/10 21:53:46 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -30,7 +30,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.21 2011/06/14 22:41:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.22 2011/10/10 21:53:46 jchiang Exp $
  */
 
 class ExposureCube {
