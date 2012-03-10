@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.123 2012/01/19 22:55:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.124 2012/01/20 23:39:41 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -480,6 +480,25 @@ void LikelihoodTests::test_ScaleFactor() {
    tester.parameters(params);
    tester.freeParameters(params);
    tester.derivatives(args, 1e-5);
+
+// Test complement functionality
+// Save value before taking complement of ScaleFactor.
+   double saved_value(foo(*args.at(0)));
+// This should throw an exception.
+   try {
+      foo.set_complement_flag(true);
+   } catch (std::runtime_error &) {
+   }
+// Set the value, bounds and scale for the ScaleFactor param to have
+// values valid for the complement functionality, then set the flag.
+   foo.parameter("ScaleFactor").setValue(1);
+   foo.parameter("ScaleFactor").setBounds(0, 1);
+   foo.parameter("ScaleFactor").setScale(1);
+   foo.set_complement_flag(true);
+// Check complement functionality
+   CPPUNIT_ASSERT(foo(*args.at(0)) == 0);
+   foo.parameter("ScaleFactor").setValue(0);
+   ASSERT_EQUALS(foo(*args.at(0)), saved_value);
 }
 
 void LikelihoodTests::test_RoiCuts() {
