@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.469 2012/02/28 17:36:54 jchiang Exp $
+    $Id: release.notes,v 1.470 2012/03/10 17:13:16 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-22-07 18-Mar-2012 jchiang create m_drm on-demand
  Likelihood-17-22-06 10-Mar-2012 jchiang add complement functionality to ScaleFactor class
  Likelihood-17-22-05 28-Feb-2012 jchiang various const fixes
  Likelihood-17-22-04 22-Feb-2012 jchiang include MeanPsf exposure at theta > 70
