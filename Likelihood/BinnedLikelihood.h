@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.63 2012/02/07 06:19:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.64 2012/02/29 23:00:24 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -266,6 +266,8 @@ private:
    void edisp_correction_factors(const std::string & srcName,
                                  const std::vector<double> & true_counts_spec,
                                  std::vector<double> &);
+
+   Drm & drm();
 };
 
 }

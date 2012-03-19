@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.93 2012/02/08 23:08:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.94 2012/02/29 23:00:24 jchiang Exp $
  */
 
 #include <cmath>
@@ -53,10 +53,6 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
    m_kmax = m_energies.size() - 1;
    identifyFilledPixels();
    computeCountsSpectrum();
-   if (::getenv("USE_BL_EDISP")) {
-      m_drm = new Drm(m_dataMap.refDir().ra(), m_dataMap.refDir().dec(), 
-                      observation, m_dataMap.energies());
-   }
 }
 
 BinnedLikelihood::
@@ -874,7 +870,7 @@ edisp_correction_factors(const std::string & srcName,
                          std::vector<double> & meas_counts_spec) {
    meas_counts_spec.resize(m_energies.size()-1);
    std::vector<double> xi;
-   m_drm->convolve(true_counts_spec, meas_counts_spec);
+   drm().convolve(true_counts_spec, meas_counts_spec);
    // Find the reference pixel in the energy dimension (k) for each
    // sky location (ipix) that contains at least 1 count and for which
    // the true model counts is positive.
@@ -942,10 +938,18 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
    }
    if (::getenv("USE_BL_EDISP")) {
       m_fixed_counts_spec.resize(m_energies.size()-1);
-      m_drm->convolve(true_spectrum, m_fixed_counts_spec);
+      drm().convolve(true_spectrum, m_fixed_counts_spec);
    } else {
       m_fixed_counts_spec = true_spectrum;
    }
+}
+
+Drm & BinnedLikelihood::drm() {
+   if (m_drm == 0) {
+      m_drm = new Drm(m_dataMap.refDir().ra(), m_dataMap.refDir().dec(), 
+                      observation(), m_dataMap.energies());
+   }
+   return *m_drm;
 }
 
 } // namespace Likelihood
