@@ -3,10 +3,11 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.94 2012/02/29 23:00:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.95 2012/03/19 06:40:03 jchiang Exp $
  */
 
 #include <cmath>
+#include <cstdlib>
 
 #include <memory>
 #include <sstream>
@@ -48,6 +49,7 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
      m_minbinsz(minbinsz),
      m_verbose(true),
      m_kmin(0),
+     m_use_edisp(false),
      m_drm(0) {
    dataMap.getAxisVector(2, m_energies);
    m_kmax = m_energies.size() - 1;
@@ -81,6 +83,7 @@ BinnedLikelihood(const BinnedLikelihood & other)
      m_negDerivs(other.m_negDerivs),
      m_kmin(other.m_kmin), m_kmax(other.m_kmax),
      m_fixedNpreds(other.m_fixedNpreds),
+     m_use_edisp(other.m_use_edisp),
      m_drm(new Drm(*other.m_drm)),
      m_true_counts(other.m_true_counts),
      m_meas_counts(other.m_meas_counts),
@@ -334,7 +337,7 @@ computeModelMap(std::vector<float> & modelMap) const {
             size_t jmax(jmin + npix);
             double wt1(0);
             double wt2(0);
-            if (::getenv("USE_BL_EDISP")) {
+            if (use_edisp()) {
                if (m_true_counts[name][k] != 0) {
                   double xi(m_meas_counts[name][k]
                             /m_true_counts[name][k]);
@@ -614,7 +617,7 @@ addSourceWts(std::vector<std::pair<double, double> > & modelWts,
       size_t jmin(m_filledPixels.at(j));
       size_t jmax(jmin + npix);
       size_t k(jmin/npix);
-      if (::getenv("USE_BL_EDISP")) {
+      if (use_edisp()) {
          if (m_true_counts[srcName][k] != 0) {
             double xi(m_meas_counts[srcName][k]/m_true_counts[srcName][k]);
             modelWts[j].first += my_sign*model[jmin]*spec[k]*xi;
@@ -838,7 +841,7 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
       true_counts_spec.push_back(my_value);
    }
    std::vector<double> meas_counts_spec;
-   if (::getenv("USE_BL_EDISP")) {
+   if (use_edisp()) {
       const_cast<BinnedLikelihood *>(this)
          ->edisp_correction_factors(srcName, true_counts_spec,
                                     meas_counts_spec);
@@ -853,7 +856,7 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
       if (k < m_kmin || k > m_kmax-1) {
          continue;
       }
-      if (::getenv("USE_BL_EDISP")) {
+      if (use_edisp()) {
          value += meas_counts_spec[k];
       } else {
          value += true_counts_spec[k];
@@ -936,7 +939,7 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
                                            m_fixedNpreds[k],
                                            m_fixedNpreds[k+1]));
    }
-   if (::getenv("USE_BL_EDISP")) {
+   if (use_edisp()) {
       m_fixed_counts_spec.resize(m_energies.size()-1);
       drm().convolve(true_spectrum, m_fixed_counts_spec);
    } else {
@@ -950,6 +953,14 @@ Drm & BinnedLikelihood::drm() {
                       observation(), m_dataMap.energies());
    }
    return *m_drm;
+}
+
+void BinnedLikelihood::set_edisp_flag(bool use_edisp) {
+   m_use_edisp = use_edisp;
+}
+
+bool BinnedLikelihood::use_edisp() const {
+   return (m_use_edisp || ::getenv("USE_BL_EDISP"));
 }
 
 } // namespace Likelihood

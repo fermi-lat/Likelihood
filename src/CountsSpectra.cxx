@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsSpectra.cxx,v 1.11 2011/09/17 16:36:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsSpectra.cxx,v 1.12 2011/10/20 18:22:08 jchiang Exp $
  */
 
 #include <cmath>
@@ -45,14 +45,15 @@ void CountsSpectra::getSrcCounts(const std::string & srcName,
    srcCounts.clear();
    srcCounts.reserve(m_ebounds.size() - 1);
    if (m_binnedLike) {
-      std::vector<double> npreds;
-      m_binnedLike->getNpreds(srcName, npreds);
-      for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
-         srcCounts.push_back(src->pixelCounts(m_ebounds.at(k),
-                                              m_ebounds.at(k+1),
-                                              npreds.at(k), 
-                                              npreds.at(k+1)));
-      }
+      srcCounts = m_binnedLike->modelCountsSpectrum(srcName);
+//       std::vector<double> npreds;
+//       m_binnedLike->getNpreds(srcName, npreds);
+//       for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
+//          srcCounts.push_back(src->pixelCounts(m_ebounds.at(k),
+//                                               m_ebounds.at(k+1),
+//                                               npreds.at(k), 
+//                                               npreds.at(k+1)));
+//       }
    } else if (m_binnedLike2) {
       std::vector<double> npreds;
       m_binnedLike2->getNpreds(srcName, npreds);
