@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.64 2012/02/29 23:00:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.65 2012/03/19 06:40:03 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -160,6 +160,10 @@ public:
    const std::vector<double> & 
    modelCountsSpectrum(const std::string &srcname) const;
 
+   void set_edisp_flag(bool use_edisp);
+
+   bool use_edisp() const;
+
 protected:
 
    BinnedLikelihood & operator=(const BinnedLikelihood & rhs) {
@@ -222,6 +226,7 @@ private:
    /// Summed npred values at each energy boundary value for fixed sources.
    std::vector<double> m_fixedNpreds;
 
+   bool m_use_edisp;
    Drm * m_drm;
 
    mutable std::map<std::string, std::vector<double> > m_true_counts;
