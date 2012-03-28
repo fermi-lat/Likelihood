@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MeanPsf.h,v 1.14 2010/11/27 07:17:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MeanPsf.h,v 1.15 2010/11/28 23:01:51 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -102,29 +102,18 @@ private:
    void createLogArray(double xmin, double xmax, unsigned int npts,
                        std::vector<double> & xx) const;
 
-   class Psf {
+   void computeExposure();
+
+   class Psf : public ExposureCube::Aeff {
    public:
       Psf(double separation, double energy, int evtType,
           const Observation & observation) 
-         : m_separation(separation), m_energy(energy), m_evtType(evtType),
-           m_observation(observation) {}
+         : ExposureCube::Aeff(energy, evtType, observation),
+           m_separation(separation) {}
       virtual ~Psf() {}
-      virtual double operator()(double cosTheta, double phi=0) const;
-      virtual double integral(double cosTheta, double phi=0) const {
-         return operator()(cosTheta, phi);
-      }
+      virtual double value(double cosTheta, double phi=0) const;
    private:
       double m_separation;
-      double m_energy;
-      int m_evtType;
-      const Observation & m_observation;
-   };
-
-   class Aeff : public ExposureCube::Aeff {
-   public:
-      Aeff(double energy, int evtType, const Observation & observation) 
-         : ExposureCube::Aeff(energy, evtType, observation) {}
-      virtual double operator()(double cosTheta, double phi=0) const;
    };
 
 };

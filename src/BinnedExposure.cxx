@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.43 2012/01/30 05:51:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.44 2012/02/22 18:12:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -359,19 +359,11 @@ void BinnedExposure::setCosThetaBounds(const st_app::AppParGroup & pars) {
    }
 }
 
-double BinnedExposure::Aeff::operator()(double cosTheta, double phi) const {
+double BinnedExposure::Aeff::value(double cosTheta, double phi) const {
    if (cosTheta < m_costhmin || cosTheta > m_costhmax) {
       return 0;
    }
-   std::pair<double, double> key(cosTheta, phi);
-   std::map<std::pair<double, double>, double>::const_iterator it =
-      m_cached_values.find(key);
-   if (it == m_cached_values.end()) {
-      double value(ExposureCube::Aeff::operator()(cosTheta, phi));
-      m_cached_values.insert(std::make_pair(key, value));
-      return value;
-   }
-   return it->second;
+   return ExposureCube::Aeff::value(cosTheta, phi);
 }
 
 } // namespace Likelihood

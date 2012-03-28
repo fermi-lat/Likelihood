@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.124 2012/01/20 23:39:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.125 2012/03/10 17:12:04 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -22,6 +22,8 @@
 
 #include <cppunit/ui/text/TextTestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "CLHEP/Random/RandFlat.h"
 
 #include "facilities/Util.h"
 #include "facilities/commonUtilities.h"
@@ -42,7 +44,7 @@
 
 #include "irfInterface/IrfsFactory.h"
 #include "irfInterface/AcceptanceCone.h"
-#include "dc1aResponse/loadIrfs.h"
+#include "irfLoader/Loader.h"
 
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedLikelihood.h"
@@ -121,6 +123,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_ScaleFactor);
    CPPUNIT_TEST(test_Drm);
    CPPUNIT_TEST(test_Source_Npred);
+   CPPUNIT_TEST(test_ExposureCube);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -157,6 +160,7 @@ public:
    void test_ScaleFactor();
    void test_Drm();
    void test_Source_Npred();
+   void test_ExposureCube();
 
 private:
 
@@ -242,11 +246,13 @@ void LikelihoodTests::setUp() {
    }
 
 // Prepare the ResponseFunctions object.
-   dc1aResponse::load_irfs();
+   irfLoader::Loader::go();
    irfInterface::IrfsFactory * myFactory 
       = irfInterface::IrfsFactory::instance();
    m_respFuncs->addRespPtr(0, myFactory->create("DC1A::Front"));
    m_respFuncs->addRespPtr(1, myFactory->create("DC1A::Back"));
+//    m_respFuncs->addRespPtr(0, myFactory->create("P7SOURCE_V6::FRONT"));
+//    m_respFuncs->addRespPtr(1, myFactory->create("P7SOURCE_V6::BACK"));
 
 // Fractional tolerance for double comparisons.
    m_fracTol = 1e-4;
@@ -1155,10 +1161,29 @@ void LikelihoodTests::test_MeanPsf() {
    SourceFactory * srcFactory = srcFactoryInstance();
    (void)(srcFactory);
 
-   double ee[] = {1e2, 1e3, 1e4, 1e5};
-   std::vector<double> energies(ee, ee+4);
+   std::vector<double> energies;
+   double emin = 1e2;
+   double emax = 1e5;
+   size_t nee(24);
+   double logestep = std::log(emax/emin)/(nee - 1);
+   for (size_t k(0); k < nee; k++) {
+      energies.push_back(emin*std::exp(logestep*k));
+   }
 
-   MeanPsf Crab_psf(83.57, 22.01, energies, *m_observation);
+   std::vector<double> ra_values, dec_values;
+   size_t ndirs(20);
+   for (size_t i(0); i < ndirs; i++) {
+      double phi = 360.*CLHEP::RandFlat::shoot();
+      double theta = std::acos(2.*CLHEP::RandFlat::shoot() - 1.)*180./M_PI;
+      ra_values.push_back(phi);
+      dec_values.push_back(theta + 90.);
+   }
+   ra_values.push_back(176.313367922);
+   dec_values.push_back(44.2799887031);
+
+   ra_values.push_back(-176.313367922);
+   dec_values.push_back(-44.2799887031);
+
    int npts(200);
    double thmin(1e-4);
    double thmax(180);
@@ -1169,19 +1194,22 @@ void LikelihoodTests::test_MeanPsf() {
       thetas.push_back(thmin*exp(i*tstep)*M_PI/180.);
    }
 
-   for (unsigned int k = 0; k < energies.size(); k++) {
-      std::vector<double> integrand;
-      for (int i = 0; i < thetas.size(); i++) {
-         double psf = Crab_psf(energies[k], thetas[i]*180./M_PI);
-         integrand.push_back(psf*sin(thetas[i])*2.*M_PI);
-      }
-      TrapQuad my_trap(thetas, integrand);
-      double integral(my_trap.integral());
-      // std::cout << energies[k] << "  " 
-      //           << integral << "  "
-      //           << 1. - integral << std::endl;
+   for (size_t i(0); i < ra_values.size(); i++) {
+      MeanPsf Crab_psf(ra_values[i], dec_values[i], energies, *m_observation);
+      for (unsigned int k = 0; k < energies.size(); k++) {
+         std::vector<double> integrand;
+         for (int i = 0; i < thetas.size(); i++) {
+            double psf = Crab_psf(energies[k], thetas[i]*180./M_PI);
+            integrand.push_back(psf*sin(thetas[i])*2.*M_PI);
+         }
+         TrapQuad my_trap(thetas, integrand);
+         double integral(my_trap.integral());
+//          std::cout << energies[k] << "  " 
+//                    << integral << "  "
+//                    << 1. - integral << std::endl;
 // Yes, this test is pretty weak.
-      CPPUNIT_ASSERT(fabs(my_trap.integral() - 1.) < 0.032);
+         CPPUNIT_ASSERT(fabs(my_trap.integral() - 1.) < 0.032);
+      }
    }
 }
 
@@ -1396,6 +1424,51 @@ void LikelihoodTests::test_Source_Npred() {
    }
 }
 
+void LikelihoodTests::test_ExposureCube() {
+// Seemingly trivial test to ensure caching in ExposureCube::Aeff 
+// is operating consistently.
+   tearDown();
+   setUp();
+
+   std::vector<double> energies;
+   energies.push_back(1e2);
+   energies.push_back(1e3);
+   energies.push_back(1e4);
+   energies.push_back(1e5);
+
+   std::vector<double> costh;
+   size_t nct(10);
+   double dcosth(0.9/(nct - 1));
+   for (size_t i(0); i < nct; i++) {
+      costh.push_back(1. - dcosth*i);
+   }
+
+   std::vector<double> phi;
+   size_t nphi(10);
+   double dphi(360/(nphi-1));
+   for (size_t j(0); j < nphi; j++) {
+      phi.push_back(dphi*j);
+   }
+
+   int evtType(0);
+   for (size_t k(0); k < energies.size(); k++) {
+      Likelihood::ExposureCube::Aeff aeff(energies[k], evtType,
+                                          *m_observation);
+      std::vector<double> test_values;
+      for (size_t i(0); i < costh.size(); i++) {
+         for (size_t j(0); j < phi.size(); j++) {
+            test_values.push_back(aeff(costh[i], phi[j]));
+         }
+      }
+      size_t indx(0);
+      for (size_t i(0); i < costh.size(); i++) {
+         for (size_t j(0); j < phi.size(); j++, indx++) {
+            CPPUNIT_ASSERT(test_values[indx] == aeff(costh[i], phi[j]));
+         }
+      }
+   }
+}
+
 void LikelihoodTests::readEventData(const std::string &eventFile,
                                     const std::string &scDataFile,
                                     std::vector<Event> &events) {
@@ -1581,6 +1654,10 @@ int main(int iargc, char * argv[]) {
 
       testObj.setUp();
       testObj.test_Drm();
+      testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_ExposureCube();
       testObj.tearDown();
    } else {
       CppUnit::TextTestRunner runner;

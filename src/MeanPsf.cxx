@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.26 2012/02/22 18:12:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.27 2012/02/23 00:35:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -26,37 +26,45 @@ namespace Likelihood {
 std::vector<double> MeanPsf::s_separations;
 
 void MeanPsf::init() {
+   computeExposure();
    if (s_separations.size() == 0) {
       createLogArray(1e-4, 70., 200, s_separations);
    }
-
    m_psfValues.reserve(m_energies.size()*s_separations.size());
-   m_exposure.reserve(m_energies.size());
    for (unsigned int k = 0; k < m_energies.size(); k++) {
       for (unsigned int j = 0; j < s_separations.size(); j++) {
-         double expsr_val(0);
-         double psf_val(0);
+         double value(0);
          std::map<unsigned int, irfInterface::Irfs *>::const_iterator 
             resp = m_observation.respFuncs().begin();
          for (; resp != m_observation.respFuncs().end(); ++resp) {
             int evtType = resp->second->irfID();
-            Aeff aeff(m_energies[k], evtType, m_observation);
-            expsr_val += m_observation.expCube().value(m_srcDir, aeff,
-                                                       m_energies[k]);
             Psf psf(s_separations[j], m_energies[k], evtType, m_observation);
-            psf_val += m_observation.expCube().value(m_srcDir, psf,
-                                                     m_energies[k]);
+            value += m_observation.expCube().value(m_srcDir, psf,
+                                                   m_energies[k]);
          }
-         if (j == 0) {
-            m_exposure.push_back(expsr_val);
-         }
-         if (expsr_val > 0) {
-            psf_val /= expsr_val;
+         if (m_exposure[k] > 0) {
+            value /= m_exposure[k];
          } else {
-            psf_val = 0;
+            value = 0;
          }
-         m_psfValues.push_back(psf_val);
+         m_psfValues.push_back(value);
        }
+   }
+}
+
+void MeanPsf::computeExposure() {
+   m_exposure.reserve(m_energies.size());
+   for (size_t k(0); k < m_energies.size(); k++) {
+      double value(0);
+      std::map<unsigned int, irfInterface::Irfs *>::const_iterator
+         resp = m_observation.respFuncs().begin();
+      for (; resp != m_observation.respFuncs().end(); ++resp) {
+         int evtType = resp->second->irfID();
+         ExposureCube::Aeff aeff(m_energies[k], evtType, m_observation);
+         value += m_observation.expCube().value(m_srcDir, aeff,
+                                                    m_energies[k]);
+      }
+      m_exposure.push_back(value);
    }
 }
 
@@ -171,11 +179,8 @@ void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
    }
 }
 
-double MeanPsf::Psf::operator()(double cosTheta, double phi) const {
+double MeanPsf::Psf::value(double cosTheta, double phi) const {
    double inclination = acos(cosTheta)*180./M_PI;
-//    if (inclination > 70.) {
-//       return 0;
-//    }
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = m_observation.respFuncs().begin();
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
@@ -186,9 +191,6 @@ double MeanPsf::Psf::operator()(double cosTheta, double phi) const {
          double psfValue = psf->value(m_separation, m_energy, inclination, phi);
          double psf_val = aeffValue*psfValue;
          if (psf_val < 0) {
-//             if (inclination > 69.) {  // ugly kluge
-//                return 0;
-//             }
             st_stream::StreamFormatter formatter("MeanPsf", "operator()", 4);
             formatter.info() << "separation: " << m_separation << "  "
                              << "energy: " << m_energy << "  "
@@ -200,14 +202,6 @@ double MeanPsf::Psf::operator()(double cosTheta, double phi) const {
       }
    }
    return 0;
-}
-
-double MeanPsf::Aeff::operator()(double cosTheta, double phi) const {
-   double inclination = acos(cosTheta)*180./M_PI;
-//    if (inclination > 70.) {
-//       return 0;
-//    }
-   return ExposureCube::Aeff::operator()(cosTheta, phi);
 }
 
 } // namespace Likelihood

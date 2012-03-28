@@ -4,7 +4,7 @@
  * access to model counts and derivatives wrt model parameters.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Pixel.cxx,v 1.8 2010/05/18 18:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Pixel.cxx,v 1.9 2011/06/27 04:32:35 jchiang Exp $
  */
 
 #include "Likelihood/Pixel.h"
@@ -97,7 +97,8 @@ void Pixel::getFreeDerivs(double emin, double emax, SourceModel & srcModel,
 
 Pixel::Aeff::Aeff(Source * src, const astro::SkyDir & appDir, 
                   double energy, int type)
-   : m_src(src), m_appDir(appDir), m_energy(energy), m_type(type) {
+   : ExposureCube::AeffBase(), m_src(src), m_appDir(appDir), 
+     m_energy(energy), m_type(type) {
    PointSource * ptsrc = dynamic_cast<PointSource *>(src);
    if (ptsrc == 0) {
       m_separation = 90.;
@@ -106,7 +107,7 @@ Pixel::Aeff::Aeff(Source * src, const astro::SkyDir & appDir,
    }
 }
 
-double Pixel::Aeff::operator()(double costheta, double phi) const {
+double Pixel::Aeff::value(double costheta, double phi) const {
    if (m_separation < 90.) {
       double inclination = acos(costheta)*180./M_PI;
       return m_src->fluxDensity(inclination, phi, m_energy, m_appDir,
@@ -118,8 +119,8 @@ double Pixel::Aeff::operator()(double costheta, double phi) const {
 Pixel::AeffDeriv::AeffDeriv(Source * src, const std::string & paramName,
                             const astro::SkyDir & appDir, 
                             double energy, int type)
-   : m_src(src), m_paramName(paramName), m_appDir(appDir), 
-     m_energy(energy), m_type(type) {
+   : ExposureCube::AeffBase(), m_src(src), m_paramName(paramName), 
+     m_appDir(appDir), m_energy(energy), m_type(type) {
    PointSource * ptsrc = dynamic_cast<PointSource *>(src);
    if (ptsrc == 0) {
       m_separation = 90.;
@@ -128,7 +129,7 @@ Pixel::AeffDeriv::AeffDeriv(Source * src, const std::string & paramName,
    }
 }
 
-double Pixel::AeffDeriv::operator()(double costheta, double phi) const {
+double Pixel::AeffDeriv::value(double costheta, double phi) const {
    if (m_separation < 90.) {
       double inclination = acos(costheta)*180./M_PI;
       return m_src->fluxDensityDeriv(inclination, phi, m_energy, m_appDir,
