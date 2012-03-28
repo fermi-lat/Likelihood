@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.69 2009/06/03 19:04:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.70 2010/05/18 16:01:25 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -15,6 +15,7 @@
 #include "optimizers/dArg.h"
 
 #include "Likelihood/Event.h"
+#include "Likelihood/ExposureCube.h"
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Source.h"
@@ -29,7 +30,6 @@ namespace irfInterface {
 
 namespace Likelihood {
 
-   class ExposureCube;
    class Observation;
    class ResponseFunctions;
    class RoiCuts;
@@ -40,9 +40,6 @@ namespace Likelihood {
  *
  * @brief A gamma-ray point source, e.g., pulsars, AGNs, X-ray binaries.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PointSource.h,v 1.69 2009/06/03 19:04:54 jchiang Exp $
  */
 
 class PointSource : public Source {
@@ -239,20 +236,14 @@ private:
     * map_tools exposure time hypercube.
     *
     */
-   class Aeff {
+   class Aeff : public ExposureCube::AeffBase {
 
    public:
 
       Aeff(double energy, const astro::SkyDir &srcDir,
            const RoiCuts & roiCuts, const ResponseFunctions & respFuncs,
            double time=0, bool usePhiDependence=true);
-
       virtual ~Aeff() {}
-
-      virtual double operator()(double cos_theta, double phi=0) const;
-      virtual double integral(double cosTheta, double phi=0) const {
-         return operator()(cosTheta, phi);
-      }
 
    private:
 
@@ -267,6 +258,8 @@ private:
 
       std::vector<irfInterface::AcceptanceCone *> m_cones;
       double m_emin, m_emax;
+
+      virtual double value(double cos_theta, double phi=0) const;
    };
 #endif
 

@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.20 2011/03/02 04:43:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.21 2012/02/22 18:12:07 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -128,12 +128,10 @@ private:
            double costhmin, double costhmax) 
          : ExposureCube::Aeff(energy, evtType, observation),
            m_costhmin(costhmin), m_costhmax(costhmax) {}
-      virtual double operator()(double cosTheta, double phi=0) const;
+      virtual double value(double cosTheta, double phi=0) const;
    private:
       double m_costhmin;
       double m_costhmax;
-
-      mutable std::map<std::pair<double, double>, double> m_cached_values;
    };
    
 };

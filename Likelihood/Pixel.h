@@ -4,7 +4,7 @@
  * derivatives wrt model parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.10 2009/01/26 01:24:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Pixel.h,v 1.11 2009/03/16 20:44:57 jchiang Exp $
  */
 
 #ifndef Likelihood_Pixel_h
@@ -14,6 +14,8 @@
 #include <vector>
 
 #include "astro/SkyDir.h"
+
+#include "Likelihood/ExposureCube.h"
 
 namespace Likelihood {
 
@@ -29,9 +31,6 @@ namespace Likelihood {
  * to the public methods are the bounds of the energy band of interest
  * and the SourceModel object (GOF, p. 195).
  *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.10 2009/01/26 01:24:25 jchiang Exp $
  */
 
 class Pixel {
@@ -77,31 +76,25 @@ public:
    }
 
 #ifndef SWIG
-   class Aeff {
+   class Aeff : public ExposureCube::AeffBase {
    public:
       Aeff(Source * src, const astro::SkyDir & appDir, 
            double energy, int type);
-      virtual double operator()(double costheta, double phi=0) const;
-      virtual double integral(double cosTheta, double phi=0) const {
-         return operator()(cosTheta, phi);
-      }
    protected:
       Source * m_src;
       const astro::SkyDir & m_appDir;
       double m_energy;
       int m_type;
       double m_separation;
+
+      virtual double value(double costheta, double phi=0) const;
    };
 
-   class AeffDeriv {
+   class AeffDeriv : public ExposureCube::AeffBase {
    public:
       AeffDeriv(Source * src, const std::string & paramName, 
                 const astro::SkyDir & appDir, double energy, int type);
       virtual ~AeffDeriv() {}
-      virtual double operator()(double costheta, double phi=0) const;
-      virtual double integral(double cosTheta, double phi=0) const {
-         return operator()(cosTheta, phi);
-      }
    protected:
       Source * m_src;
       std::string m_paramName;
@@ -109,6 +102,8 @@ public:
       double m_energy;
       int m_type;
       double m_separation;
+
+      virtual double value(double costheta, double phi=0) const;
    };
 #endif // SWIG
 

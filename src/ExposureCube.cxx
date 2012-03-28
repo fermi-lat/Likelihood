@@ -3,7 +3,7 @@
  * @brief Implementation for ExposureCube wrapper class of map_tools::Exposure
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.11 2011/06/14 14:06:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.12 2011/06/14 22:41:50 jchiang Exp $
  */
 
 #include "tip/Header.h"
@@ -75,13 +75,19 @@ ExposureCube::Aeff::Aeff(double energy, int evtType,
    }
 }
 
-double ExposureCube::Aeff::operator()(double cosTheta, double phi) const {
+double ExposureCube::AeffBase::operator()(double cosTheta, double phi) const {
+   std::pair<double, double> key(cosTheta, phi);
+   AeffCacheMap_t::const_iterator it(m_cache.find(key));
+   if (it != m_cache.end()) {
+      return it->second;
+   }
+   double my_value(value(cosTheta, phi));
+   m_cache.insert(std::make_pair(key, my_value));
+   return my_value;
+}
+
+double ExposureCube::Aeff::value(double cosTheta, double phi) const {
    double inclination = acos(cosTheta)*180./M_PI;
-// Check if we need to truncate the inclination past 70 deg as in 
-// MeanPsf::Aeff::operator()(...)
-   // if (inclination > 70.) {
-   //    return 0;
-   // }
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = m_observation.respFuncs().begin();
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {

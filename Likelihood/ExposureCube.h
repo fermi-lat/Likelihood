@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.22 2011/10/10 21:53:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.23 2012/03/10 03:15:18 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -27,10 +27,6 @@ namespace Likelihood {
  * @class ExposureCube
  * @brief Exposure time as a function of sky position and inclination
  *        wrt the instrument z-axis
- *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.22 2011/10/10 21:53:46 jchiang Exp $
  */
 
 class ExposureCube {
@@ -113,19 +109,35 @@ public:
       return m_hasPhiDependence;
    }
 
-   class Aeff {
+#ifndef SWIG
+   class AeffBase {
    public:
-      Aeff(double energy, int evtType, const Observation & observation); 
-      virtual ~Aeff() {}
+      AeffBase() {}
+      virtual ~AeffBase() {}
       virtual double operator()(double cosTheta, double phi=0) const;
       virtual double integral(double cosTheta, double phi=0) const {
          return operator()(cosTheta, phi);
       }
    protected:
+      typedef std::map<std::pair<double, double>, double> AeffCacheMap_t;
+      mutable AeffCacheMap_t m_cache;
+
+      virtual double value(double cosTheta, double phi=0) const = 0;
+   };
+
+   class Aeff : public AeffBase {
+   public:
+      Aeff(double energy, int evtType, const Observation & observation); 
+      virtual ~Aeff() {}
+
+   protected:
       double m_energy;
       int m_evtType;
       const Observation & m_observation;
+
+      virtual double value(double cosTheta, double phi=0) const;
    };
+#endif // SWIG
 
 private:
 
