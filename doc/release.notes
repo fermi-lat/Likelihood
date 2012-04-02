@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.472 2012/03/21 20:54:46 jchiang Exp $
+    $Id: release.notes,v 1.473 2012/03/28 22:01:06 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-22-10 02-Apr-2012 jchiang perform integration of 3D map in WcsMap2, workarounds for all-sky AIT projections in WcspMap2
  Likelihood-17-22-09 28-Mar-2012 jchiang add ExposureCube::AeffBase so that all Aeff classes can use the same caching code to speed up exposure calculations
  Likelihood-17-22-08 21-Mar-2012 jchiang enable writeCountsSpectra function in python interface to use energy dispersion in outputting model spectra, enable better switching of edisp useage in python interface
  Likelihood-17-22-07 18-Mar-2012 jchiang create m_drm on-demand
