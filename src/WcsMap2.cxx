@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.11 2012/03/28 23:48:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.12 2012/03/30 17:31:08 jchiang Exp $
  */
 
 #include <cmath>
@@ -769,10 +769,14 @@ void WcsMap2::computeMapIntegrals() {
          }
       }
    }
+
+// For a 2D map, the map integral is just the angle-integrated map.
    if (m_naxis3 == 1) {
       m_mapIntegral = m_mapIntegrals.at(0);
       return;
    }
+
+// 3D maps: integrate the angle-integrate maps over energy.
    m_mapIntegral = 0;
    for (size_t k(0); k < m_naxis3-1; k++) {
       m_mapIntegral += ( (m_mapIntegrals[k+1]*m_energies[k+1] +
