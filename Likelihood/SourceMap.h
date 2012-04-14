@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.50 2011/03/06 20:21:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.51 2011/03/15 05:37:31 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -30,7 +30,6 @@ namespace Likelihood {
 /*
  * @class SourceMap
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.50 2011/03/06 20:21:07 jchiang Exp $
  */
 
 #ifdef SWIG
@@ -50,30 +49,26 @@ public:
              double minbinsz=0.1,
              bool verbose=true);
 
-   SourceMap(const std::string & sourceMapsFile, const std::string & srcName);
+   SourceMap(const std::string & sourceMapsFile,
+             const std::string & srcName,
+             const Observation & observation);
 
    ~SourceMap();
 
-   const std::vector<float> & model() const {return m_model;}
+   const std::vector<float> & model() const {
+      return m_model;
+   }
 
-   const std::vector<double> & npreds() const {return m_npreds;}
+   const std::vector<double> & npreds() const {
+      return m_npreds;
+   }
 
-   void addMap(const std::vector<float> & other_model);
+//   void addMap(const std::vector<float> & other_model);
    
-   static void setBinnedExposure(const std::string & filename);
-
    double maxPsfRadius(PointSource * src) const;
 
    const std::string & srcType() const {
       return m_srcType;
-   }
-
-   static void setBinnedExpMapName(const std::string & filename);
-
-   static const std::string & binnedExpMap();
-
-   static BinnedExposure & binnedExposure() {
-      return *s_binnedExposure;
    }
 
 private:
@@ -84,6 +79,8 @@ private:
    std::string m_srcType;
 
    const CountsMap * m_dataMap;
+   
+   const Observation & m_observation;
 
    st_stream::StreamFormatter * m_formatter;
 
@@ -98,19 +95,6 @@ private:
    /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;
 
-/// @bug The binned exposure and mean psf handling is not thread safe.
-   static std::string s_expMapFileName;
-
-   static MeanPsf * s_meanPsf;
-   static BinnedExposure * s_binnedExposure;
-   static unsigned int s_refCount;
-
-   static std::vector<double> s_phi;
-   static std::vector<double> s_mu;
-   static std::vector<double> s_theta;
-
-   void prepareAngleArrays(int nmu=100, int nphi=50);
-
    bool haveMapCubeFunction(DiffuseSource * src) const;
 
    void getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
@@ -118,7 +102,6 @@ private:
                           const std::vector<double> & energies,
                           std::vector<double> & mapCorrections) const;
 
-   void computeExposureAndPsf(const Observation & observation);
 
    void computeNpredArray();
 
@@ -127,7 +110,6 @@ private:
    
    void makeDiffuseMap(Source * src, 
                        const CountsMap * dataMap,
-                       const Observation & observation,
                        bool applyPsfCorrections,
                        bool performConvolution,
                        bool resample,
@@ -135,10 +117,13 @@ private:
                        double minbinsiz,
                        bool verbose);
 
-   void makePointSourceMap(Source * src, const CountsMap * dataMap,
-                           const Observation & observation,
-                           bool applyPsfCorrections, bool performConvolution,
+   void makePointSourceMap(Source * src,
+                           const CountsMap * dataMap,
+                           bool applyPsfCorrections,
+                           bool performConvolution,
                            bool verbose);
+
+   void applyPhasedExposureMap();
 
 };
 

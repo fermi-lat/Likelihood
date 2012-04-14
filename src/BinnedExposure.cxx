@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.45 2012/03/28 22:00:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.46 2012/04/05 23:31:58 jchiang Exp $
  */
 
 #include <cmath>
@@ -125,7 +125,7 @@ BinnedExposure::BinnedExposure(const std::string & filename)
 }
 
 BinnedExposure::~BinnedExposure() {
-   delete m_proj;
+//   delete m_proj;
 }
 
 double BinnedExposure::operator()(double energy, double ra, double dec) const {

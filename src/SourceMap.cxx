@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.97 2011/08/02 23:57:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.98 2011/09/28 20:33:12 jchiang Exp $
  */
 
 #include <algorithm>
@@ -63,15 +63,6 @@ namespace {
 
 namespace Likelihood {
 
-std::string SourceMap::s_expMapFileName;
-MeanPsf * SourceMap::s_meanPsf(0);
-BinnedExposure * SourceMap::s_binnedExposure(0);
-unsigned int SourceMap::s_refCount(0);
-
-std::vector<double> SourceMap::s_phi;
-std::vector<double> SourceMap::s_mu;
-std::vector<double> SourceMap::s_theta;
-
 SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                      const Observation & observation, 
                      bool applyPsfCorrections,
@@ -80,15 +71,12 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
                      double resamp_factor,
                      double minbinsz,
                      bool verbose)
-   : m_name(src->getName()), m_srcType(src->getType()),
-     m_dataMap(dataMap), 
+   : m_name(src->getName()),
+     m_srcType(src->getType()),
+     m_dataMap(dataMap),
+     m_observation(observation),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
      m_deleteDataMap(false) {
-   s_refCount++;
-   if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
-      prepareAngleArrays();
-   }
-
    if (verbose) {
       m_formatter->warn() << "Generating SourceMap for " << m_name;
    }
@@ -97,21 +85,38 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
    bool haveDiffuseSource = dynamic_cast<DiffuseSource *>(src) != 0;
 
    if (haveDiffuseSource) {
-      makeDiffuseMap(src, dataMap, observation, applyPsfCorrections,
+      makeDiffuseMap(src, dataMap, applyPsfCorrections,
                      performConvolution, resample, resamp_factor,
                      minbinsz, verbose);
    } else if (havePointSource) {
-      makePointSourceMap(src, dataMap, observation, applyPsfCorrections,
+      makePointSourceMap(src, dataMap, applyPsfCorrections,
                          performConvolution, verbose);
    }
    if (verbose) {
       m_formatter->warn() << "!" << std::endl;
    }
+   applyPhasedExposureMap();
+   computeNpredArray();
+}
+
+SourceMap::SourceMap(const std::string & sourceMapsFile,
+                     const std::string & srcName,
+                     const Observation & observation) 
+   : m_name(srcName),
+     m_dataMap(new CountsMap(sourceMapsFile)),
+     m_observation(observation),
+     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
+     m_deleteDataMap(true) {
+   std::auto_ptr<const tip::Image> 
+      image(tip::IFileSvc::instance().readImage(sourceMapsFile, srcName));
+   m_model.clear();
+   image->get(m_model);
+   applyPhasedExposureMap();
+   computeNpredArray();
 }
 
 void SourceMap::makeDiffuseMap(Source * src, 
                                const CountsMap * dataMap,
-                               const Observation & observation,
                                bool applyPsfCorrections,
                                bool performConvolution,
                                bool resample,
@@ -119,7 +124,7 @@ void SourceMap::makeDiffuseMap(Source * src,
                                double minbinsz,
                                bool verbose) {
    DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
-
+   
 // If the diffuse source is represented by an underlying map, then
 // rebin according to the minimum bin size.
    try {
@@ -147,11 +152,10 @@ void SourceMap::makeDiffuseMap(Source * src,
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
 
-   m_npreds.resize(energies.size(), 0);
+//   m_npreds.resize(energies.size(), 0);
 
    std::vector<Pixel>::const_iterator pixel = pixels.begin();
 
-   computeExposureAndPsf(observation);
    const astro::SkyDir & mapRefDir = dataMap->refDir();
    if (!resample) {
       resamp_factor = 1;
@@ -241,9 +245,10 @@ void SourceMap::makeDiffuseMap(Source * src,
                          *energy, dataMap->proj_name(), 
                          dataMap->projection().isGalactic(), 
                          interpolate=true);
-      WcsMap2 convolvedMap(diffuseMap.convolve(*energy, *s_meanPsf, 
-                                               *s_binnedExposure,
-                                               performConvolution));
+      const MeanPsf & meanpsf(m_observation.meanpsf());
+      const BinnedExposure & bexpmap(m_observation.bexpmap());
+      WcsMap2 convolvedMap(diffuseMap.convolve(*energy, meanpsf, 
+                                               bexpmap, performConvolution));
       size_t rfac(static_cast<size_t>(resamp_factor));
       double solid_angle;
       for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
@@ -264,7 +269,7 @@ void SourceMap::makeDiffuseMap(Source * src,
          }
       }
    }
-   computeNpredArray();
+//   computeNpredArray();
 // Delete model map for map-based diffuse sources to save memory.  The
 // map will be reloaded dynamically if it is needed again.
    try {
@@ -278,7 +283,6 @@ void SourceMap::makeDiffuseMap(Source * src,
 
 void SourceMap::makePointSourceMap(Source * src,
                                    const CountsMap * dataMap,
-                                   const Observation & observation,
                                    bool applyPsfCorrections,
                                    bool performConvolution,
                                    bool verbose) {
@@ -290,12 +294,12 @@ void SourceMap::makePointSourceMap(Source * src,
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
 
-   m_npreds.resize(energies.size(), 0);
+//   m_npreds.resize(energies.size(), 0);
 
    std::vector<Pixel>::const_iterator pixel = pixels.begin();
 
    const astro::SkyDir & dir(pointSrc->getDir());
-   MeanPsf meanPsf(dir.ra(), dir.dec(), energies, observation);
+   MeanPsf meanPsf(dir.ra(), dir.dec(), energies, m_observation);
    
    const std::vector<double> & exposure = meanPsf.exposure();
    
@@ -321,7 +325,7 @@ void SourceMap::makePointSourceMap(Source * src,
                             *exposure.at(k));
             value *= pixel->solidAngle()*mapCorrections.at(k);
             m_model.at(indx) += value;
-            m_npreds.at(k) += value;
+//            m_npreds.at(k) += value;
             icount++;
          }
       }
@@ -335,45 +339,29 @@ void SourceMap::makePointSourceMap(Source * src,
          for (int k = 0; energy != energies.end(); ++energy, k++) {
             size_t indx = k*pixels.size() + ipix;
             m_model.at(indx) = exposure.at(k);
-            m_npreds.at(k) = m_model.at(indx);
+//            m_npreds.at(k) = m_model.at(indx);
          }
       }
    }
 }
 
 SourceMap::~SourceMap() {
-   s_refCount--;
-   if (s_refCount == 0) {
-      delete s_meanPsf;
-      s_meanPsf = 0;
-      delete s_binnedExposure;
-      s_binnedExposure = 0;
-   }
    if (m_deleteDataMap) {
       delete m_dataMap;
    }
    delete m_formatter;
 }
 
-void SourceMap::addMap(const std::vector<float> & other_model) {
-   if (other_model.size() != m_model.size()) {
-      throw std::runtime_error("SourceMap::addMap: "
-                               "model map sizes don't match");
-   }
-   for (size_t j(0); j < m_model.size(); j++) {
-      m_model.at(j) += other_model.at(j);
-   }
-   computeNpredArray();
-}
-
-void SourceMap::setBinnedExposure(const std::string & filename) {
-   if (s_binnedExposure != 0) {
-      delete s_binnedExposure;
-      s_binnedExposure = 0;
-   }
-   s_binnedExposure = new BinnedExposure(filename);
-   s_expMapFileName = filename;
-}
+// void SourceMap::addMap(const std::vector<float> & other_model) {
+//    if (other_model.size() != m_model.size()) {
+//       throw std::runtime_error("SourceMap::addMap: "
+//                                "model map sizes don't match");
+//    }
+//    for (size_t j(0); j < m_model.size(); j++) {
+//       m_model.at(j) += other_model.at(j);
+//    }
+//    computeNpredArray();
+// }
 
 void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
                                   const std::vector<Pixel> & pixels,
@@ -424,24 +412,6 @@ double SourceMap::maxPsfRadius(PointSource * src) const {
    return radius*180./M_PI;
 }
 
-SourceMap::SourceMap(const std::string & sourceMapsFile,
-                     const std::string & srcName) 
-   : m_name(srcName), m_dataMap(new CountsMap(sourceMapsFile)),
-     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
-     m_deleteDataMap(true) {
-   s_refCount++;
-   std::auto_ptr<const tip::Image> 
-      image(tip::IFileSvc::instance().readImage(sourceMapsFile, srcName));
-   m_model.clear();
-   image->get(m_model);
-
-   computeNpredArray();
-
-   if (s_mu.size() == 0 || s_phi.size() == 0 || s_theta.size() == 0) {
-      prepareAngleArrays();
-   }
-}
-
 void SourceMap::computeNpredArray() {
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
    
@@ -463,63 +433,6 @@ bool SourceMap::haveMapCubeFunction(DiffuseSource * src) const {
    return srcFuncs["SpatialDist"]->genericName() == "MapCubeFunction";
 }
 
-void SourceMap::computeExposureAndPsf(const Observation & observation) {
-   std::vector<double> energies;
-   m_dataMap->getAxisVector(2, energies);
-   if (s_meanPsf == 0) {
-      double ra = m_dataMap->refDir().ra();
-      double dec = m_dataMap->refDir().dec();
-      s_meanPsf = new MeanPsf(ra, dec, energies, observation);
-   }
-   if (s_binnedExposure == 0) {
-      st_stream::StreamFormatter formatter("SourceMap", "computeMap", 2);
-      if (s_expMapFileName == "" || s_expMapFileName == "none") {
-         formatter.info() << "\nBinned exposure map not specified. "
-                          << "\nEnter filename of existing map or "
-                          << "the name to be used for a new map: ";
-         std::cin >> s_expMapFileName;
-      }
-      try {
-         s_binnedExposure = new BinnedExposure(s_expMapFileName);
-      } catch (tip::TipException &) {
-         s_binnedExposure = new BinnedExposure(energies, observation);
-         s_binnedExposure->writeOutput(s_expMapFileName);
-      }
-   }
-}
-
-void SourceMap::prepareAngleArrays(int nmu, int nphi) {
-   double radius = 30.;
-   double mumin = cos(radius*M_PI/180);
-
-// Sample more densely near theta = 0:
-   std::deque<double> my_mu;
-   double nscale = static_cast<double>((nmu-1)*(nmu-1));
-   for (int i = 0; i < nmu; i++) {
-      my_mu.push_front(1. - i*i/nscale*(1. - mumin));
-   }
-   s_mu.resize(my_mu.size());
-   std::copy(my_mu.begin(), my_mu.end(), s_mu.begin());
-
-   s_theta.resize(s_mu.size());
-   for (unsigned int i = 0; i < s_mu.size(); i++) {
-      s_theta.at(i) = acos(s_mu.at(i))*180./M_PI;
-   }
-
-   s_phi.clear();
-   double phistep = 2.*M_PI/(nphi - 1.);
-   for (int i = 0; i < nphi; i++) {
-      s_phi.push_back(phistep*i);
-   }
-}
-void SourceMap::setBinnedExpMapName(const std::string & filename) {
-   s_expMapFileName = filename;
-}
-
-const std::string & SourceMap::binnedExpMap() {
-   return s_expMapFileName;
-}
-
 double SourceMap::computeResampFactor(const DiffuseSource & src,
                                       const CountsMap & dataMap) const {
    double data_pixel_size = std::min(std::fabs(dataMap.cdelt1()), 
@@ -535,6 +448,24 @@ double SourceMap::computeResampFactor(const DiffuseSource & src,
    double resamp_factor = 
       std::max(2, static_cast<int>(data_pixel_size/model_pixel_size));
    return resamp_factor;
+}
+
+void SourceMap::applyPhasedExposureMap() {
+   const WcsMap2 * phased_expmap(&(m_observation.phased_expmap()));
+   if (phased_expmap == 0) {
+      return;
+   }
+   const std::vector<Pixel> & pixels(m_dataMap->pixels());
+   std::vector<double> energies;
+   m_dataMap->getAxisVector(2, energies);
+   for (size_t k(0); k < energies.size(); k++) {
+      std::vector<Pixel>::const_iterator pixel(pixels.begin());
+      for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
+         size_t indx(k*pixels.size() + j);
+         m_model.at(indx) *= phased_expmap->operator()(pixel->dir(),
+                                                       energies[k]);
+      }
+   }
 }
 
 } // namespace Likelihood

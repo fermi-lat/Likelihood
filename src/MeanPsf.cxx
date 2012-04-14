@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.27 2012/02/23 00:35:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.28 2012/03/28 22:00:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -62,7 +62,7 @@ void MeanPsf::computeExposure() {
          int evtType = resp->second->irfID();
          ExposureCube::Aeff aeff(m_energies[k], evtType, m_observation);
          value += m_observation.expCube().value(m_srcDir, aeff,
-                                                    m_energies[k]);
+                                                m_energies[k]);
       }
       m_exposure.push_back(value);
    }

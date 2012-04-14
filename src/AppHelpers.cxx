@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.98 2012/01/14 16:47:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.99 2012/03/10 03:15:19 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -28,6 +28,7 @@
 #include "Likelihood/BrokenPowerLaw2.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/DMFitFunction.h"
 #include "Likelihood/EblAtten.h"
 #include "Likelihood/EnergyBand.h"
 #include "Likelihood/EventContainer.h"
@@ -40,6 +41,7 @@
 #include "Likelihood/LogNormalLog.h"
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MapCubeFunction2.h"
+#include "Likelihood/MeanPsf.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/PowerLaw2.h"
@@ -52,7 +54,7 @@
 #include "Likelihood/SmoothBrokenPowerLaw.h"
 #include "Likelihood/SmoothDoubleBrokenPowerLaw.h"
 #include "Likelihood/SpatialMap.h"
-#include "Likelihood/DMFitFunction.h"
+#include "Likelihood/WcsMap2.h"
 
 namespace {
    void getRangeBounds(const std::vector<dataSubselector::RangeCut *> & cuts,
@@ -84,7 +86,10 @@ namespace Likelihood {
 
 AppHelpers::AppHelpers(st_app::AppParGroup * pars,
                        const std::string & analysisType) 
-   : m_pars(pars), m_funcFactory(0), m_respFuncs(0) {
+   : m_pars(pars), m_funcFactory(0), m_scData(0), m_expCube(0),
+     m_expMap(0), m_respFuncs(0), m_roiCuts(0), m_eventCont(0),
+     m_bexpmap(0), m_phased_expmap(0), m_meanpsf(0) {
+   st_app::AppParGroup & my_pars(*m_pars);
    prepareFunctionFactory();
    createResponseFuncs(analysisType);
 
@@ -92,14 +97,47 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
    m_scData = new ScData();
    m_expCube = new ExposureCube();
    m_expCube->setEfficiencyFactor(m_respFuncs->efficiencyFactor());
+   try {
+      std::string expcube = my_pars["expcube"];
+      if (expcube != "" && expcube != "none") {
+         m_expCube->readExposureCube(expcube);
+      }
+   } catch (hoops::Hexception &) {
+   }
    m_expMap = new ExposureMap();
    m_eventCont = new EventContainer(*m_respFuncs, *m_roiCuts, *m_scData);
+   if (analysisType == "BINNED") {
+      try {
+         std::string bexpmap = my_pars["bexpmap"];
+         m_bexpmap = new BinnedExposure(bexpmap);
+      } catch (hoops::Hexception &) {
+       }
+      try {
+         std::string phased_expmap = my_pars["phased_expmap"];
+         m_phased_expmap = new WcsMap2(phased_expmap);
+      } catch (hoops::Hexception &) {
+       }
+   }
    m_observation = new Observation(m_respFuncs,
                                    m_scData,
                                    m_roiCuts,
                                    m_expCube,
                                    m_expMap,
-                                   m_eventCont);
+                                   m_eventCont,
+                                   m_bexpmap,
+                                   m_phased_expmap);
+   if (analysisType == "BINNED") {
+      try {
+         my_pars["expcube"];
+         std::string cmapfile = my_pars["cmap"];
+         CountsMap cmap(cmapfile);
+         std::vector<double> energies;
+         cmap.getAxisVector(2, energies);
+         m_meanpsf = new MeanPsf(cmap.refDir(), energies, *m_observation);
+         m_observation->setMeanPsf(m_meanpsf);
+      } catch (hoops::Hexception &) {
+      }
+   }
 }
 
 AppHelpers::~AppHelpers() {
@@ -110,6 +148,9 @@ AppHelpers::~AppHelpers() {
    delete m_expMap;
    delete m_eventCont;
    delete m_respFuncs;
+   delete m_bexpmap;
+   delete m_phased_expmap;
+   delete m_meanpsf;
    delete m_observation;
 }
 
