@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.48 2011/09/11 06:44:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.49 2011/09/12 00:29:18 jchiang Exp $
  */
 
 #include <cmath>
@@ -193,9 +193,6 @@ void TsMap::run() {
                                        apply_psf_corrections);
       std::string bexpmap = m_pars["bexpmap"];
       AppHelpers::checkExposureMap(cmap, bexpmap);
-      if (bexpmap != "none" && bexpmap != "") {
-         SourceMap::setBinnedExposure(bexpmap);
-      }
       dynamic_cast<BinnedLikelihood *>(m_logLike)->setVerbose(false);
    }
    readSrcModel();

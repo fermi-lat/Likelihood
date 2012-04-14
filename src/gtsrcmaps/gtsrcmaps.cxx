@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.38 2011/03/15 05:37:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.39 2011/03/16 22:22:52 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -127,10 +127,8 @@ void gtsrcmaps::run() {
               << binnedMap << " does not exist.";
       throw std::runtime_error(message.str());
    } else {
-      SourceMap::setBinnedExpMapName(binnedMap);
-      SourceMap::setBinnedExposure(binnedMap);
       bool enforce_boundaries = m_pars["emapbnds"];
-      SourceMap::binnedExposure().setBoundaryFlag(enforce_boundaries);
+      m_helper->observation().bexpmap().setBoundaryFlag(enforce_boundaries);
    }
    bool computePointSources = AppHelpers::param(m_pars, "ptsrc", true);
    bool psf_corrections = AppHelpers::param(m_pars, "psfcorr", true);

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.35 2011/01/29 19:27:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.36 2011/03/02 04:43:52 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -24,13 +24,16 @@ namespace dataSubselector {
 
 namespace Likelihood {
 
+   class BinnedExposure;
    class EventContainer;
    class ExposureCube;
    class ExposureMap;
+   class MeanPsf;
    class Observation;
    class ResponseFunctions;
    class RoiCuts;
    class ScData;
+   class WcsMap2;
 
 /**
  * @class AppHelpers
@@ -39,9 +42,6 @@ namespace Likelihood {
  * preparing the response functions --- all standard tasks which must
  * be performed as part of any Likelihood analysis.
  *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.35 2011/01/29 19:27:43 jchiang Exp $
  */
 
 class AppHelpers {
@@ -50,7 +50,8 @@ public:
 
    AppHelpers() : m_pars(0), m_funcFactory(0), m_observation(0),
                   m_scData(0), m_expCube(0), m_expMap(0), m_respFuncs(0),
-                  m_roiCuts(0), m_eventCont(0) {
+                  m_roiCuts(0), m_eventCont(0), m_bexpmap(0), 
+                  m_phased_expmap(0), m_meanpsf(0) {
       prepareFunctionFactory();
    }
 #ifndef SWIG
@@ -156,6 +157,10 @@ protected:
    ResponseFunctions * m_respFuncs;
    RoiCuts * m_roiCuts;
    EventContainer * m_eventCont;
+
+   BinnedExposure * m_bexpmap;
+   WcsMap2 * m_phased_expmap;
+   MeanPsf * m_meanpsf;
 
    void prepareFunctionFactory();
    void createResponseFuncs(const std::string & analysisType);
