@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.49 2011/09/12 00:29:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.50 2012/04/14 20:59:06 jchiang Exp $
  */
 
 #include <cmath>
@@ -215,11 +215,12 @@ void TsMap::readSrcModel() {
    if (srcModelFile != "" && srcModelFile != "none") {
       st_facilities::Util::file_ok(srcModelFile);
       bool requireExposure = (m_statistic != "BINNED");
-      bool loadMaps = (m_statistic != "BINNED");
+//      bool loadMaps = (m_statistic != "BINNED");
+      bool loadMaps;
       bool addPointSources;
       m_logLike->readXml(srcModelFile, m_helper->funcFactory(),
                          requireExposure, addPointSources=true,
-                         loadMaps);
+                         loadMaps=false);
       if (m_statistic == "UNBINNED") {
          m_logLike->computeEventResponses();
       }

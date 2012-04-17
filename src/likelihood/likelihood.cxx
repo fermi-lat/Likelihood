@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.159 2011/09/14 00:17:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.160 2012/04/14 20:59:08 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -405,7 +405,8 @@ void likelihood::readSourceModel() {
       st_facilities::Util::file_ok(sourceModel);
       m_logLike->readXml(sourceModel, m_helper->funcFactory(), 
                          requireExposure, addPointSources=true,
-                         loadMaps=(m_statistic!="BINNED"));
+                         loadMaps=false);
+//                         loadMaps=(m_statistic!="BINNED"));
       if (m_statistic != "BINNED") {
          m_logLike->computeEventResponses();
       }

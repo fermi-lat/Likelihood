@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.11 2011/11/22 03:18:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.12 2012/01/06 07:11:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -31,7 +31,10 @@ MapBase::MapBase() : m_wcsmap(0), m_fitsFile(""),
 
 MapBase::MapBase(const std::string & fitsFile, const std::string & extension) 
    : m_wcsmap(0), m_fitsFile(fitsFile), m_extension(extension) {
-   readFitsFile();
+/// Comment out so that fits file is not read in by default.  Intention is
+/// to have fits file read in only when it is first needed, i.e., when
+/// wcsmap() is called from subclasses.
+//   readFitsFile();
 }
 
 MapBase::~MapBase() {
@@ -70,15 +73,17 @@ void MapBase::readFitsFile() {
 
    facilities::Util::expandEnvVar(&m_expandedFileName);
 
-   if (!st_facilities::Util::fileExists(m_expandedFileName)) {
 // The following to StreamFormatter is necessary since Xerces seems to
 // corrupt the exception handling when this method is called from
 // SourceFactory::readXml and the program simply aborts.
-      st_stream::StreamFormatter formatter("MapBase", "readFitsFile", 2);
+   st_stream::StreamFormatter formatter("MapBase", "readFitsFile", 2);
+   if (!st_facilities::Util::fileExists(m_expandedFileName)) {
       formatter.err() << "File not found: " << m_expandedFileName << std::endl;
       throw std::runtime_error("File not found: " + m_expandedFileName);
    }
 
+   formatter.info(4) << "MapBase::readFitsFile: creating WcsMap2 object" 
+                     << std::endl;
    m_wcsmap = WcsMapLibrary::instance()->wcsmap(m_expandedFileName,
                                                 m_extension);
    WcsMapLibrary::instance()->add_observer(this);
@@ -92,6 +97,9 @@ WcsMap2 & MapBase::wcsmap() {
 }
 
 void MapBase::deleteMap() {
+   st_stream::StreamFormatter formatter("MapBase", "deleteMap", 2);
+   formatter.info(4) << "MapBased::deleteMap: " << m_expandedFileName
+                     << std::endl;
    WcsMapLibrary::instance()->delete_map(m_expandedFileName, m_extension);
    m_wcsmap = 0;
 }
