@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.474 2012/04/02 16:34:35 jchiang Exp $
+    $Id: release.notes,v 1.475 2012/04/05 23:54:24 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-22-12 16-Apr-2012 jchiang phased_expmap option added for binned analysis
  Likelihood-17-22-11 05-Apr-2012 jchiang small bug fix for BinnedExposure when number of pixels in desired binned exposure map is less than 20
  Likelihood-17-22-10 02-Apr-2012 jchiang perform integration of 3D map in WcsMap2, workarounds for all-sky AIT projections in WcspMap2
  Likelihood-17-22-09 28-Mar-2012 jchiang add ExposureCube::AeffBase so that all Aeff classes can use the same caching code to speed up exposure calculations
