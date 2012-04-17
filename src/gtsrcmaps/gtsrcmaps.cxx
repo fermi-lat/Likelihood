@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.39 2011/03/16 22:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.40 2012/04/14 20:59:07 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -147,8 +147,10 @@ void gtsrcmaps::run() {
    std::string srcModelFile = m_pars["srcmdl"];
    bool loadMaps, createAllMaps;
    try {
+/// Turn off loading of maps when xml file is read in.  Instead, read maps
+/// when they are first accessed by MapBase objects.
       m_binnedLikelihood->readXml(srcModelFile, m_helper->funcFactory(), false,
-                                  computePointSources, loadMaps=true,
+                                  computePointSources, loadMaps=false,
                                   createAllMaps=true);
    } catch(std::runtime_error & eObj) {
       std::string message("Request for exposure at a sky position "

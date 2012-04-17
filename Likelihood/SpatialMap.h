@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.23 2011/03/16 22:22:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.24 2012/01/06 07:11:58 jchiang Exp $
  *
  */
 
@@ -30,10 +30,6 @@ class ResponseFunctions;
  *
  * @brief A Function object that returns the value of a FITS image
  * at a SkyDir location.
- *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.23 2011/03/16 22:22:50 jchiang Exp $
  *
  */
     
