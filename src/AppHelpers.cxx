@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.99 2012/03/10 03:15:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.100 2012/04/14 20:59:05 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -131,9 +131,8 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
          my_pars["expcube"];
          std::string cmapfile = my_pars["cmap"];
          CountsMap cmap(cmapfile);
-         std::vector<double> energies;
-         cmap.getAxisVector(2, energies);
-         m_meanpsf = new MeanPsf(cmap.refDir(), energies, *m_observation);
+         m_meanpsf = new MeanPsf(cmap.refDir(), cmap.energies(),
+                                 *m_observation);
          m_observation->setMeanPsf(m_meanpsf);
       } catch (hoops::Hexception &) {
       }
