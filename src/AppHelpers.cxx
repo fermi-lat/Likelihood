@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.100 2012/04/14 20:59:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.101 2012/04/17 00:17:00 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -111,12 +111,14 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
          std::string bexpmap = my_pars["bexpmap"];
          m_bexpmap = new BinnedExposure(bexpmap);
       } catch (hoops::Hexception &) {
-       }
+      }
       try {
          std::string phased_expmap = my_pars["phased_expmap"];
-         m_phased_expmap = new WcsMap2(phased_expmap);
+         if (phased_expmap != "none" && phased_expmap != "") {
+            m_phased_expmap = new WcsMap2(phased_expmap);
+         }
       } catch (hoops::Hexception &) {
-       }
+      }
    }
    m_observation = new Observation(m_respFuncs,
                                    m_scData,
