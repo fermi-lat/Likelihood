@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.99 2012/04/14 20:59:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.100 2012/04/17 20:28:12 jchiang Exp $
  */
 
 #include <algorithm>
@@ -78,8 +78,7 @@ SourceMap::SourceMap(Source * src, const CountsMap * dataMap,
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
      m_deleteDataMap(false) {
    if (verbose) {
-      m_formatter->warn() << "Generating SourceMap for " 
-                          << m_name << std::endl;
+      m_formatter->warn() << "Generating SourceMap for " << m_name;
    }
 
    bool havePointSource = dynamic_cast<PointSource *>(src) != 0;
