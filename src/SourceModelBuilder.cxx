@@ -4,7 +4,7 @@
  * files for the Likelihood package source models.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.15 2011/08/27 03:48:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModelBuilder.cxx,v 1.16 2011/11/28 09:58:02 cohen Exp $
  */
 
 #include <fstream>
@@ -16,6 +16,7 @@
 
 #include "optimizers/Dom.h"
 
+#include "Likelihood/DiffuseSource.h"
 #include "Likelihood/DMFitFunction.h"
 #include "Likelihood/FileFunction.h"
 #include "Likelihood/MapCubeFunction2.h"
@@ -78,7 +79,7 @@ DOMElement * SourceModelBuilder::spectralPart(Source & src) {
    if (dmFitFunc != 0) {
       xmlBase::Dom::addAttribute(specElt, "file", dmFitFunc->filename());
    }
-   
+
    srcFuncs["Spectrum"]->appendParamDomElements(m_doc, specElt);
    return specElt;
 }
@@ -109,6 +110,11 @@ void SourceModelBuilder::addSpatialPart(DOMElement * srcElt, Source & src) {
          std::string file = 
             dynamic_cast<RadialProfile *>(srcFuncs["SpatialDist"])->templateFile();
          xmlBase::Dom::addAttribute(spatialElt, "file", file);
+      }
+      DiffuseSource * diffuseSource
+         = dynamic_cast<DiffuseSource *>(srcFuncs["SpatialDist"]);
+      if (diffuseSource !=0 && diffuseSource->mapBasedIntegral()) {
+         xmlBase::Dom::addAttribute(spatialElt, "map_based_integral", "true");
       }
       srcFuncs["SpatialDist"]->appendParamDomElements(m_doc, spatialElt);
       optimizers::Dom::appendChild(srcElt, spatialElt);
