@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ScaleFactor.h,v 1.1 2011/05/29 17:53:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ScaleFactor.h,v 1.2 2012/03/10 03:15:18 jchiang Exp $
  */
 
 #include "optimizers/Function.h"
@@ -45,6 +45,10 @@ public:
 
    bool use_complement() const {
       return m_use_complement;
+   }
+
+   optimizers::Function * spectrum() {
+      return m_spectrum;
    }
 
 private:
