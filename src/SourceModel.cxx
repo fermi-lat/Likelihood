@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.94 2011/09/28 20:33:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.95 2012/02/07 00:24:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -469,8 +469,8 @@ void SourceModel::reReadXml(std::string xmlFile) {
 }
 
 void SourceModel::writeXml(std::string xmlFile,
-                           const std::string &functionLibrary,
-                           const std::string &srcLibTitle) {
+                           const std::string & functionLibrary,
+                           const std::string & srcLibTitle) {
 
    SourceModelBuilder builder(functionLibrary, srcLibTitle);
 
