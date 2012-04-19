@@ -4,7 +4,7 @@
  * files for the Likelihood package source models.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModelBuilder.cxx,v 1.16 2011/11/28 09:58:02 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModelBuilder.cxx,v 1.17 2012/04/19 15:21:09 jchiang Exp $
  */
 
 #include <fstream>
@@ -111,9 +111,8 @@ void SourceModelBuilder::addSpatialPart(DOMElement * srcElt, Source & src) {
             dynamic_cast<RadialProfile *>(srcFuncs["SpatialDist"])->templateFile();
          xmlBase::Dom::addAttribute(spatialElt, "file", file);
       }
-      DiffuseSource * diffuseSource
-         = dynamic_cast<DiffuseSource *>(srcFuncs["SpatialDist"]);
-      if (diffuseSource !=0 && diffuseSource->mapBasedIntegral()) {
+      DiffuseSource * diffuseSource(dynamic_cast<DiffuseSource *>(&src));
+      if (diffuseSource->mapBasedIntegral()) {
          xmlBase::Dom::addAttribute(spatialElt, "map_based_integral", "true");
       }
       srcFuncs["SpatialDist"]->appendParamDomElements(m_doc, spatialElt);
