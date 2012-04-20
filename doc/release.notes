@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.479 2012/04/19 16:38:16 jchiang Exp $
+    $Id: release.notes,v 1.480 2012/04/19 23:39:53 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-22-17 20-Apr-2012 jchiang ensure that ScaleFactor::FileFunction model components have the file attribute written to the output xml model file
  Likelihood-17-22-16 19-Apr-2012 jchiang check for ScaleFactor::FileFunction in SourceFactory::setSpectrum
  Likelihood-17-22-15 19-Apr-2012 jchiang ensure that an exisiting map_based_integral attribute is written when calling SourceModel::writeXml
  Likelihood-17-22-14 17-Apr-2012 jchiang retagging because of annoying stag failure
