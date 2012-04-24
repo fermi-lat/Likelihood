@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.101 2012/04/17 00:17:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.102 2012/04/17 05:41:42 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -21,6 +21,8 @@
 
 #include "dataSubselector/CutBase.h"
 #include "dataSubselector/Cuts.h"
+
+#include "optimizers/Gaussian.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BandFunction.h"
@@ -233,6 +235,9 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         new ScaleFactor(PowerLaw2()), makeClone);
    funcFactory->addFunc("ScaleFactor::PLSuperExpCutoff", 
                         new ScaleFactor(PowerLawSuperExpCutoff()), makeClone);
+   
+   funcFactory->addFunc("ScaleFactor::Gaussian",
+                        new ScaleFactor(optimizers::Gaussian()), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,
