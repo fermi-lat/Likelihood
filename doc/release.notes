@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.481 2012/04/20 18:38:13 jchiang Exp $
+    $Id: release.notes,v 1.482 2012/04/24 18:32:45 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-23-00 26-Apr-2012 jchiang ensure gtltsum fails if any of the input files do not have the expected extensions and verify that the CTHETABOUNDS extensions among all input files match
  Likelihood-17-22-18 24-Apr-2012 jchiang add ScaleFactor::Gaussian
  Likelihood-17-22-17 20-Apr-2012 jchiang ensure that ScaleFactor::FileFunction model components have the file attribute written to the output xml model file
  Likelihood-17-22-16 19-Apr-2012 jchiang check for ScaleFactor::FileFunction in SourceFactory::setSpectrum
