@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.13 2009/06/02 16:43:44 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.14 2009/06/03 21:28:46 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -32,9 +32,6 @@
  * @brief For two exposure hypercube files, add the livetimes and merge the
  * GTIs.
  *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.13 2009/06/02 16:43:44 jchiang Exp $
  */
 
 class AddLivetime : public st_app::StApp {
@@ -57,6 +54,9 @@ private:
    std::vector<std::string> m_fileList;
 
    void promptForParameters();
+   void check_costheta_bounds() const;
+   void get_costheta_bounds(const std::string & filename,
+                            std::vector<double> & ctheta_bounds) const;
    void addTables(const std::string & tableName, bool writeGtis=true);
    void writeDateKeywords(const std::string & outfile,
                           double tstart, double tstop) const;
@@ -77,14 +77,11 @@ void AddLivetime::banner() const {
 
 void AddLivetime::run() {
    promptForParameters();
+   check_costheta_bounds();
    st_facilities::FitsUtil::fcopy(m_fileList.front(), m_pars["outfile"],
                                   m_pars["table"], "", m_pars["clobber"]);
    addTables(m_pars["table"]);
-   try {
-      addTables(m_pars["table2"], false);
-   } catch(tip::TipException & eObj) {
-      std::cout << eObj.what() << std::endl;
-   }
+   addTables(m_pars["table2"], false);
 }
 
 void AddLivetime::promptForParameters() {
@@ -98,6 +95,40 @@ void AddLivetime::promptForParameters() {
    }
    m_pars.Prompt("outfile");
    m_pars.Save();
+}
+
+void AddLivetime::
+get_costheta_bounds(const std::string & filename,
+                    std::vector<double> & ctheta_bounds) const {
+   tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
+   const tip::Table * table(fileSvc.readTable(filename, "CTHETABOUNDS"));
+   tip::Table::ConstIterator it(table->begin());
+   tip::ConstTableRecord & row(*it);
+   for ( ;it != table->end(); ++it) {
+      double value;
+      row["CTHETA_MIN"].get(value);
+      ctheta_bounds.push_back(value);
+      row["CTHETA_MAX"].get(value);
+      ctheta_bounds.push_back(value);
+   }
+   delete table;
+}
+
+void AddLivetime::check_costheta_bounds() const {
+   std::vector<double> ctheta_bounds_master;
+   get_costheta_bounds(m_fileList.front(), ctheta_bounds_master);
+   for (size_t i(1); i < m_fileList.size(); i++) {
+      std::vector<double> ctheta_bounds;
+      get_costheta_bounds(m_fileList[i], ctheta_bounds);
+      if (ctheta_bounds.size() != ctheta_bounds_master.size()) {
+         throw std::runtime_error("CTHETABOUNDS extensions mismatch");
+      }
+      for (size_t j(0); j < ctheta_bounds_master.size(); j++) {
+         if (ctheta_bounds[j] != ctheta_bounds_master[j]) {
+            throw std::runtime_error("CTHETABOUNDS extensions mismatch");
+         }
+      }
+   }
 }
 
 void AddLivetime::addTables(const std::string & tableName,
@@ -196,15 +227,11 @@ void AddLivetime::writeDateKeywords(const std::string & outfile,
    extnames.push_back("GTI");
    for (std::vector<std::string>::const_iterator name(extnames.begin());
         name != extnames.end(); ++name) {
-      try {
-         tip::Extension * hdu(fileSvc.editExtension(outfile, *name));
-         st_facilities::Util::writeDateKeywords(hdu, tstart, tstop, *name!="");
-         if (*name == "") {
-            hdu->getHeader()["CREATOR"].set("gtltsum " + getVersion());
-         }
-         delete hdu;
-      } catch (tip::TipException & eObj) {
-         std::cout << eObj.what() << std::endl;
+      tip::Extension * hdu(fileSvc.editExtension(outfile, *name));
+      st_facilities::Util::writeDateKeywords(hdu, tstart, tstop, *name!="");
+      if (*name == "") {
+         hdu->getHeader()["CREATOR"].set("gtltsum " + getVersion());
       }
+      delete hdu;
    }
 }
