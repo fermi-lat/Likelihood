@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.57 2010/05/06 17:58:23 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.58 2010/06/16 22:49:53 jchiang Exp $
  */
 
 #include <cstdio>
@@ -69,7 +69,7 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.57 2010/05/06 17:58:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/makeExposureCube/makeExposureCube.cxx,v 1.58 2010/06/16 22:49:53 jchiang Exp $
  */
 class ExposureCube : public st_app::StApp {
 public:
@@ -153,6 +153,10 @@ void ExposureCube::writeTableKeywords(const std::string & outfile,
    tip::Header & header(table->getHeader());
    header["TSTART"].set(tstart);
    header["TSTOP"].set(tstop);
+   double zmax = m_pars["zmax"];
+   if (zmax < 180.) {
+      header["ZENMAX"].set(zmax);
+   }
 }
 
 void ExposureCube::writeDateKeywords(const std::string & outfile, 

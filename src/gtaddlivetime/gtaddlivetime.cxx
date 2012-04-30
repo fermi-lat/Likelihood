@@ -3,7 +3,7 @@
  * @brief Create an Exposure hypercube.
  * @author J. Chiang
  *
- *  $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.14 2009/06/03 21:28:46 jchiang Exp $
+ *  $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtaddlivetime/gtaddlivetime.cxx,v 1.15 2012/04/26 22:18:10 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -57,6 +57,7 @@ private:
    void check_costheta_bounds() const;
    void get_costheta_bounds(const std::string & filename,
                             std::vector<double> & ctheta_bounds) const;
+   double zenmax(const tip::Table * table) const;
    void addTables(const std::string & tableName, bool writeGtis=true);
    void writeDateKeywords(const std::string & outfile,
                           double tstart, double tstop) const;
@@ -131,12 +132,24 @@ void AddLivetime::check_costheta_bounds() const {
    }
 }
 
+double AddLivetime::zenmax(const tip::Table * table) const {
+   double value;
+   const tip::Header & header(table->getHeader());
+   try {
+      header["ZENMAX"].get(value);
+   } catch (tip::TipException & eObj) {
+//      std::cout << eObj.what() << std::endl;
+      value = 180.;
+   }
+   return value;
+}
+
 void AddLivetime::addTables(const std::string & tableName,
                             bool writeGtis) {
    tip::IFileSvc & fileSvc(tip::IFileSvc::instance());
 
    const tip::Table * table(fileSvc.readTable(m_fileList.front(), tableName));
-      
+   
    std::vector< std::vector<double> > rows(table->getNumRecords());
    tip::Table::ConstIterator it = table->begin();
    tip::ConstTableRecord & row = *it;
@@ -147,6 +160,7 @@ void AddLivetime::addTables(const std::string & tableName,
    double tstart, tstop;
    header["TSTART"].get(tstart);
    header["TSTOP"].get(tstop);
+   double zenmax0(zenmax(table));
    delete table;
 
    std::vector<dataSubselector::Cuts> my_cuts;
@@ -155,6 +169,14 @@ void AddLivetime::addTables(const std::string & tableName,
 
    for (size_t k=1; k < m_fileList.size(); k++) {
       const tip::Table * table(fileSvc.readTable(m_fileList.at(k), tableName));
+      double my_zenmax(zenmax(table));
+      if (my_zenmax != zenmax0) {
+         std::ostringstream message;
+         message << "Inconsistent ZENMAX keyword values (default=180):\n"
+                 << "   " << m_fileList[0] << ": " << zenmax0 << "\n"
+                 << "   " << m_fileList.at(k) << ": " << my_zenmax << "\n";
+         throw std::runtime_error(message.str());
+      }
       if (rows.size() != static_cast<size_t>(table->getNumRecords())) {
          std::ostringstream message;
          message << "The size of the Exposure extension in " 
