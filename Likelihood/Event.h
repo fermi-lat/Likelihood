@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.45 2009/05/20 19:30:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Event.h,v 1.46 2009/06/03 19:04:54 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -29,9 +29,6 @@ namespace Likelihood {
  *
  * @brief A gamma-ray event --- apparent direction, energy, arrival time, etc.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.45 2009/05/20 19:30:45 jchiang Exp $
  */
 
 class Event {

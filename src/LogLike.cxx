@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.78 2011/02/02 19:02:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.79 2011/09/16 23:20:29 sfegan Exp $
  */
 
 #include <cmath>
@@ -27,7 +27,7 @@ namespace Likelihood {
 LogLike::LogLike(const Observation & observation) 
   : SourceModel(observation), m_nevals(0), m_bestValueSoFar(-1e38),
     m_Npred(), m_accumulator(), m_npredValues(),    
-    m_respCache() {
+    m_respCache(), m_use_ebounds(false), m_emin(0), m_emax(0) {
    const std::vector<Event> & events = m_observation.eventCont().events();
    m_respCache.clearAndResize(events.size());
    deleteAllSources();
@@ -40,6 +40,10 @@ double LogLike::value(optimizers::Arg&) const {
    
 // The "data sum"
    for (size_t j = 0; j < events.size(); j++) {
+      if (m_use_ebounds && 
+          (events[j].getEnergy() < m_emin || events[j].getEnergy() > m_emax)) {
+         continue;
+      }
       ResponseCache::EventRef rc_ref = m_respCache.getEventRef(j);
       double addend(logSourceModel(events.at(j), &rc_ref));
       my_value += addend;
@@ -324,7 +328,22 @@ void LogLike::syncSrcParams(const std::string & srcName) {
    }
 }
 
+void LogLike::set_ebounds(double emin, double emax) {
+   m_Npred.set_ebounds(emin, emax);
+   m_use_ebounds = true;
+   m_emin = emin;
+   m_emax = emax;
+}
+
+void LogLike::unset_ebounds() {
+   m_Npred.unset_ebounds();
+   m_use_ebounds = false;
+}
+
 double LogLike::NpredValue(const std::string & srcName) const {
+   if (m_use_ebounds) {
+      return const_cast<Source &>(source(srcName)).Npred(m_emin, m_emax);
+   }
    return const_cast<Source &>(source(srcName)).Npred();
 }
 

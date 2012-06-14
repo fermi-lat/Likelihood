@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.42 2011/09/13 16:55:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.43 2011/09/16 23:20:28 sfegan Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -78,6 +78,10 @@ public:
 
    virtual void addPrior(size_t index, optimizers::Function & log_prior);
 
+   virtual void set_ebounds(double emin, double emax);
+
+   virtual void unset_ebounds();
+
 protected:
 
    virtual LogLike * clone() const {
@@ -87,6 +91,10 @@ protected:
    mutable unsigned long m_nevals;
 
    mutable double m_bestValueSoFar;
+
+   bool m_use_ebounds;
+   double m_emin;
+   double m_emax;
 
    void saveBestFit(double logLikeValue) const;
 

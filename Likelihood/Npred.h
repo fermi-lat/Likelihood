@@ -3,7 +3,7 @@
  * @brief Declaration of Npred class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.9 2004/12/22 06:06:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Npred.h,v 1.10 2005/02/15 00:34:42 jchiang Exp $
  */
 
 #ifndef Likelihood_Npred_h
@@ -21,20 +21,25 @@ namespace Likelihood {
  * @brief This class encapsulates the Npred methods of Sources in a
  * Function context.
  *  
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.9 2004/12/22 06:06:47 jchiang Exp $
  */
 
 class Npred : public optimizers::Function {
     
 public:
 
-   Npred() {m_genericName = "Npred";}
+   Npred() : m_use_ebounds(false), m_emin(0), m_emax(0) {
+      m_genericName = "Npred";
+   }
+
    virtual ~Npred() {}
 
    double value(optimizers::Arg &) const;
+
    double derivByParam(optimizers::Arg &, const std::string &) const;
+
+   void set_ebounds(double emin, double emax);
+
+   void unset_ebounds();
 
 protected:
 
@@ -43,6 +48,10 @@ protected:
    }
 
 private:
+
+   bool m_use_ebounds;
+   double m_emin;
+   double m_emax;
 
    void fetchDerivs(optimizers::Arg &, std::vector<double> &derivs, 
                     bool getFree) const;
