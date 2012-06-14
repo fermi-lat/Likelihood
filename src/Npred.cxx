@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Npred.cxx,v 1.12 2012/01/06 07:11:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Npred.cxx,v 1.13 2012/06/14 02:01:25 jchiang Exp $
  */
 
 #include <string>
@@ -19,21 +19,19 @@ double Npred::value(optimizers::Arg &x) const {
    Source * src = dynamic_cast<SrcArg &>(x).getValue();
 
    if (m_use_ebounds) {
-      return src->Npred();
-   } else {
       return src->Npred(m_emin, m_emax);
    }
+   return src->Npred();
 }
 
-double Npred::derivByParam(optimizers::Arg &x, 
-                           const std::string &paramName) const {
-   Source *src = dynamic_cast<SrcArg &>(x).getValue();
-
+double Npred::derivByParam(optimizers::Arg & x, 
+                           const std::string & paramName) const {
+   Source * src = dynamic_cast<SrcArg &>(x).getValue();
    double value(0);
    if (m_use_ebounds) {
-      value = src->NpredDeriv(paramName);
-   } else {
       value = src->NpredDeriv(paramName, m_emin, m_emax);
+   } else {
+      value = src->NpredDeriv(paramName);
    }
    return value;
 }
