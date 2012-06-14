@@ -5,32 +5,54 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Npred.cxx,v 1.11 2010/05/18 18:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Npred.cxx,v 1.12 2012/01/06 07:11:59 jchiang Exp $
  */
 
-#include <vector>
 #include <string>
+#include <vector>
+
 #include "Likelihood/Npred.h"
 
 namespace Likelihood {
 
 double Npred::value(optimizers::Arg &x) const {
-   Source *src = dynamic_cast<SrcArg &>(x).getValue();
+   Source * src = dynamic_cast<SrcArg &>(x).getValue();
 
-   return src->Npred();
+   if (m_use_ebounds) {
+      return src->Npred();
+   } else {
+      return src->Npred(m_emin, m_emax);
+   }
 }
 
 double Npred::derivByParam(optimizers::Arg &x, 
                            const std::string &paramName) const {
    Source *src = dynamic_cast<SrcArg &>(x).getValue();
 
-   double value = src->NpredDeriv(paramName);
+   double value(0);
+   if (m_use_ebounds) {
+      value = src->NpredDeriv(paramName);
+   } else {
+      value = src->NpredDeriv(paramName, m_emin, m_emax);
+   }
    return value;
 }
 
-void Npred::fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
+void Npred::set_ebounds(double emin, double emax) {
+   m_use_ebounds = true;
+   m_emin = emin;
+   m_emax = emax;
+}
+
+void Npred::unset_ebounds() {
+   m_use_ebounds = false;
+}
+
+void Npred::fetchDerivs(optimizers::Arg & x, std::vector<double> & derivs, 
                         bool getFree) const {
-   if (!derivs.empty()) derivs.clear();
+   if (!derivs.empty()) {
+      derivs.clear();
+   }
 
    const_cast<Npred *>(this)->buildParameterVector(x);
 

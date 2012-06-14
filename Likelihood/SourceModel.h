@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.68 2011/09/16 23:20:28 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.69 2012/02/07 00:24:27 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -41,7 +41,7 @@ namespace Likelihood {
  *
  */
 
- class SourceModel : public optimizers::Statistic {
+class SourceModel : public optimizers::Statistic {
 
 public:
    
@@ -165,6 +165,16 @@ public:
 
    std::vector<optimizers::Parameter> & parameters() {
       return m_parameter;
+   }
+
+   /// Default methods to set energy bounds of the analysis.
+   /// These should be re-implement in derived classes 
+   virtual void set_ebounds(double emin, double emax) {
+      throw std::runtime_error("SourceModel::set_ebounds not implemented.");
+   }
+
+   virtual void unset_ebounds() {
+      throw std::runtime_error("SourceModel::unset_ebounds not implemented.");
    }
 
 protected:

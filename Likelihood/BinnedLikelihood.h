@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.65 2012/03/19 06:40:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.66 2012/03/21 19:20:08 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -163,6 +163,19 @@ public:
    void set_edisp_flag(bool use_edisp);
 
    bool use_edisp() const;
+
+   /// These are required since this inherits from LogLike rather than
+   /// for SourceModel.  The inheritance hierarchy for this class and
+   /// LogLike should be refactored.
+   virtual void set_ebounds(double emin, double emax) {
+      throw std::runtime_error("BinnedLikelihood::set_ebounds "
+                               "not implemented.");
+   }
+
+   virtual void unset_ebounds() {
+      throw std::runtime_error("BinnedLikelihood::unset_ebounds "
+                               "not implemented.");
+   }
 
 protected:
 
