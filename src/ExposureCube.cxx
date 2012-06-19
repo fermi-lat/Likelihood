@@ -3,12 +3,14 @@
  * @brief Implementation for ExposureCube wrapper class of map_tools::Exposure
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.12 2011/06/14 22:41:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.13 2012/03/28 22:00:43 jchiang Exp $
  */
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+
+#include "healpix/CosineBinner.h"
 
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/Observation.h"
@@ -45,7 +47,14 @@ void ExposureCube::readExposureCube(std::string filename) {
 
 double ExposureCube::livetime(const astro::SkyDir & dir,
                               double costheta, double phi) const {
-   return m_exposure->data()[dir](costheta, phi);
+   size_t ci;
+   size_t index(healpix::CosineBinner::costh_phi_index(costheta, 
+                                                       phi*M_PI/180., ci));
+   const healpix::CosineBinner & binner(m_exposure->data()[dir]);
+   if (phi < 0) {
+      return binner.at(ci);
+   }
+   return binner.at(index);
 }
 
 bool ExposureCube::phiDependence(const std::string & filename) const {
