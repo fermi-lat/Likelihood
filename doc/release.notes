@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.484 2012/04/30 18:10:41 jchiang Exp $
+    $Id: release.notes,v 1.485 2012/06/14 04:34:22 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-24-01 18-Jun-2012 jchiang remove old MapCubeFunction; address LK-79; avoid incorrect healpix::CosineBinner::operator()(double, double) in ExposureCube::livetime
  Likelihood-17-24-00 13-Jun-2012 jchiang enable setting of energy range for unbinned analyis
  Likelihood-17-23-01 30-Apr-2012 jchiang add ZENMAX keyword to livetime cube files produced by gtltcube if zmax < 180, have gtltsum check for consistency of this keyword value
  Likelihood-17-23-00 26-Apr-2012 jchiang ensure gtltsum fails if any of the input files do not have the expected extensions and verify that the CTHETABOUNDS extensions among all input files match
