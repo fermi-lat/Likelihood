@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.12 2012/01/06 07:11:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.13 2012/04/17 20:28:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -199,8 +199,9 @@ double MapBase::interpolatePowerLaw(double x, double x1, double x2,
       throw std::runtime_error(message.str());
    }
    double gamma = std::log(y2/y1)/std::log(x2/x1);
-   double n0 = y1/std::pow(x1, gamma);
-   return n0*std::pow(x, gamma);
+   // double n0 = y1/std::pow(x1, gamma);
+   // return n0*std::pow(x, gamma);
+   return y1*std::pow(x/x1, gamma);
 }
 
 } // namespace Likelihood

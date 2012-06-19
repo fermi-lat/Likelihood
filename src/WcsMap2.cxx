@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.12 2012/03/30 17:31:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.13 2012/04/02 16:33:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -64,8 +64,9 @@ namespace {
          throw std::runtime_error(message.str());
       }
       double gamma = std::log(y2/y1)/std::log(x2/x1);
-      double n0 = y1/std::pow(x1, gamma);
-      return n0*std::pow(x, gamma);
+      // double n0 = y1/std::pow(x1, gamma);
+      // return n0*std::pow(x, gamma);
+      return y1*std::pow(x/x1, gamma);
    }
 
    double my_round(double x) {
