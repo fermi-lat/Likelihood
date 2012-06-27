@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Npred.cxx,v 1.13 2012/06/14 02:01:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Npred.cxx,v 1.14 2012/06/14 04:18:39 jchiang Exp $
  */
 
 #include <string>
@@ -17,33 +17,13 @@ namespace Likelihood {
 
 double Npred::value(optimizers::Arg &x) const {
    Source * src = dynamic_cast<SrcArg &>(x).getValue();
-
-   if (m_use_ebounds) {
-      return src->Npred(m_emin, m_emax);
-   }
    return src->Npred();
 }
 
 double Npred::derivByParam(optimizers::Arg & x, 
                            const std::string & paramName) const {
    Source * src = dynamic_cast<SrcArg &>(x).getValue();
-   double value(0);
-   if (m_use_ebounds) {
-      value = src->NpredDeriv(paramName, m_emin, m_emax);
-   } else {
-      value = src->NpredDeriv(paramName);
-   }
-   return value;
-}
-
-void Npred::set_ebounds(double emin, double emax) {
-   m_use_ebounds = true;
-   m_emin = emin;
-   m_emax = emax;
-}
-
-void Npred::unset_ebounds() {
-   m_use_ebounds = false;
+   return src->NpredDeriv(paramName);
 }
 
 void Npred::fetchDerivs(optimizers::Arg & x, std::vector<double> & derivs, 

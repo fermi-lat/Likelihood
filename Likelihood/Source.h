@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.47 2010/05/18 16:01:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.48 2012/02/08 00:23:54 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -32,9 +32,6 @@ namespace Likelihood {
  *
  * @brief Base class for gamma-ray sources.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.47 2010/05/18 16:01:25 jchiang Exp $
  */
 
 class Source {
@@ -142,6 +139,9 @@ public:
                                    double wtMin, double wtMax,
                                    const std::string & paramName) const;
 
+   virtual void computeExposure(const std::vector<double> & energies,
+                                bool verbose=false) = 0;
+   
    virtual const std::vector<double> & exposure() const = 0;
 
    virtual const optimizers::Function & spectrum() const {
@@ -213,13 +213,16 @@ protected:
    /// RoiCuts::energies()
    std::vector<double> m_exposure;
 
+   std::vector<double> m_energies;
+
+   void getExposureArrays(double emin, double emax,
+                          std::vector<double> & energies,
+                          std::vector<double> & exposures,
+                          size_t nee = 0) const;
+
    void getExposureSubArrays(double emin, double emax,
                              std::vector<double> & energies,
                              std::vector<double> & exposures) const;
-
-   static double powerlaw_integral_est(double x1, double x2, 
-                                       double y1, double y2, 
-                                       double wt1, double wt2);
 
 /// Nested classes for computing photon flux derivatives and energy
 /// fluxes and flux derivatives.

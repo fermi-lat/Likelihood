@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.79 2011/09/16 23:20:29 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.80 2012/06/14 02:01:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -49,6 +49,7 @@ double LogLike::value(optimizers::Arg&) const {
       my_value += addend;
       m_accumulator.add(addend);
    }
+//   std::cout << "data sum: " << my_value << std::endl;
 
 // The "model integral", a sum over Npred for each source
    if (m_useNewImp) {
@@ -67,6 +68,8 @@ double LogLike::value(optimizers::Arg&) const {
          m_accumulator.add(-addend);
       }
    }
+//   std::cout << "log-likelihood: " << my_value << std::endl;
+
    double my_total(m_accumulator.total());
    st_stream::StreamFormatter formatter("LogLike", "value", 4);
    formatter.info() << m_nevals << "  "
@@ -329,21 +332,38 @@ void LogLike::syncSrcParams(const std::string & srcName) {
 }
 
 void LogLike::set_ebounds(double emin, double emax) {
-   m_Npred.set_ebounds(emin, emax);
-   m_use_ebounds = true;
    m_emin = emin;
    m_emax = emax;
+   m_use_ebounds = true;
+   size_t nee(observation().roiCuts().energies().size());
+   double estep(std::log(emax/emin)/(nee-1));
+   std::vector<double> energies;
+   for (size_t k(0); k < nee-1; k++) {
+      energies.push_back(emin*std::exp(k*estep));
+   }
+   energies.push_back(emax);
+
+   std::map<std::string, Source *>::const_iterator it(m_sources.begin());
+   for ( ; it != m_sources.end(); ++it) {
+      it->second->computeExposure(energies);
+   }
+   update_npreds();
 }
 
 void LogLike::unset_ebounds() {
-   m_Npred.unset_ebounds();
    m_use_ebounds = false;
+   update_npreds();
+}
+
+void LogLike::update_npreds() {
+   std::map<std::string, Source *>::const_iterator it(m_sources.begin());
+   for ( ; it != m_sources.end(); ++it) {
+      SrcArg sArg(it->second);
+      m_npredValues[it->second->getName()] = m_Npred(sArg);
+   }
 }
 
 double LogLike::NpredValue(const std::string & srcName) const {
-   if (m_use_ebounds) {
-      return const_cast<Source &>(source(srcName)).Npred(m_emin, m_emax);
-   }
    return const_cast<Source &>(source(srcName)).Npred();
 }
 
