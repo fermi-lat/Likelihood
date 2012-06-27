@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.58 2012/01/18 00:08:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.59 2012/01/19 20:26:05 jchiang Exp $
  */
 
 #include <algorithm>
@@ -43,7 +43,14 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
 
 void DiffuseSource::integrateSpatialDist() {
    const Observation & obs(*observation());
-   const std::vector<double> & energies(obs.roiCuts().energies());
+   m_energies = obs.roiCuts().energies();
+   computeExposure(m_energies);
+}
+
+void DiffuseSource::computeExposure(const std::vector<double> & energies,
+                                    bool verbose) {
+   m_energies = energies;
+   const Observation & obs(*observation());
    if (obs.expMap().haveMap()) {
       if (m_mapBasedIntegral || ::getenv("MAP_BASED_NPRED")) {
          try {
@@ -76,18 +83,12 @@ void DiffuseSource::integrateSpatialDist() {
    }
 }
 
-DiffuseSource::DiffuseSource(const DiffuseSource &rhs) 
+DiffuseSource::DiffuseSource(const DiffuseSource & rhs) 
    : Source(rhs),
      m_spatialDist(rhs.m_spatialDist->clone()),
      m_mapBasedIntegral(rhs.m_mapBasedIntegral) {
    m_functions["SpatialDist"] = m_spatialDist;
-
-   m_spectrum = rhs.m_spectrum->clone();
    m_functions["Spectrum"] = m_spectrum;
-
-   m_exposure = rhs.m_exposure;
-
-   m_observation = rhs.m_observation;
 }
 
 double DiffuseSource::fluxDensity(const Event &evt,
@@ -191,14 +192,12 @@ double DiffuseSource::angularIntegral(double energy) const {
 }
 
 double DiffuseSource::flux() const {
-   return computeEnergyIntegral(*m_spectrum, 
-                                m_observation->roiCuts().energies());
+   return computeEnergyIntegral(*m_spectrum, m_energies);
 }
 
 double DiffuseSource::fluxDeriv(const std::string & parName) const {
    FluxDeriv my_functor(*m_spectrum, parName);
-   return computeEnergyIntegral(my_functor,
-                                m_observation->roiCuts().energies());
+   return computeEnergyIntegral(my_functor, m_energies);
 }
 
 double DiffuseSource::flux(double emin, double emax, size_t npts) const {
@@ -213,14 +212,12 @@ double DiffuseSource::fluxDeriv(const std::string & parName,
 
 double DiffuseSource::energyFlux() const {
    EnergyFlux my_functor(*m_spectrum);
-   return computeEnergyIntegral(my_functor, 
-                                m_observation->roiCuts().energies());
+   return computeEnergyIntegral(my_functor, m_energies);
 }
 
 double DiffuseSource::energyFluxDeriv(const std::string & parName) const {
    EnergyFluxDeriv my_functor(*m_spectrum, parName);
-   return computeEnergyIntegral(my_functor, 
-                                m_observation->roiCuts().energies());
+   return computeEnergyIntegral(my_functor, m_energies);
 }
 
 double DiffuseSource::energyFlux(double emin, double emax, size_t npts) const {

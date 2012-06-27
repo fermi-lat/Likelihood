@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.116 2012/02/28 17:36:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.117 2012/03/28 22:00:43 jchiang Exp $
  */
 
 #include <cmath>
@@ -54,15 +54,10 @@ PointSource::PointSource(double ra, double dec,
    }
 }
 
-PointSource::PointSource(const PointSource &rhs) : Source(rhs) {
-   m_dir = rhs.m_dir;
+PointSource::PointSource(const PointSource & rhs) 
+   : Source(rhs), m_dir(rhs.m_dir) {
    m_functions["Position"] = &m_dir;
-
-   m_spectrum = rhs.m_spectrum->clone();
    m_functions["Spectrum"] = m_spectrum;
-
-   m_exposure = rhs.m_exposure;
-   m_observation = rhs.m_observation;
 }
 
 PointSource::~PointSource() {
@@ -230,8 +225,15 @@ fluxDensityDeriv(double inclination, double phi, double energy,
    }
 }
 
+
 void PointSource::computeExposure(bool verbose) {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   m_energies = m_observation->roiCuts().energies();
+   computeExposure(m_energies, verbose);
+}
+
+void PointSource::computeExposure(const std::vector<double> & energies,
+                                  bool verbose) {
+   m_energies = energies;
    astro::SkyDir srcDir = getDir();
    if (m_observation->expCube().haveFile()) {
       computeExposureWithHyperCube(srcDir, energies, *m_observation,
@@ -253,14 +255,14 @@ void PointSource::computeExposure(bool verbose) {
 }
 
 double PointSource::flux() const {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies(m_energies);
    bool useLog;
    TrapQuad fluxIntegral(m_spectrum, useLog=true);
    return fluxIntegral.integral(energies);
 }
 
 double PointSource::fluxDeriv(const std::string & parName) const {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies(m_energies);
    FluxDeriv my_functor(*m_spectrum, parName);
    bool useLog;
    TrapQuad fluxIntegral(&my_functor, useLog=true);
@@ -294,7 +296,7 @@ double PointSource::fluxDeriv(const std::string & parName,
 }
 
 double PointSource::energyFlux() const {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies(m_energies);
    EnergyFlux my_functor(*m_spectrum);
    bool useLog;
    TrapQuad fluxIntegral(&my_functor, useLog=true);
@@ -302,7 +304,7 @@ double PointSource::energyFlux() const {
 }
 
 double PointSource::energyFluxDeriv(const std::string & parName) const {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies(m_energies);
    EnergyFluxDeriv my_functor(*m_spectrum, parName);
    bool useLog;
    TrapQuad fluxIntegral(&my_functor, useLog=true);
@@ -484,8 +486,8 @@ PointSource::Aeff::Aeff(double energy, const astro::SkyDir &srcDir,
      m_usePhiDependence(usePhiDependence) {
    m_cones.push_back(const_cast<irfInterface::AcceptanceCone *>
                      (&(roiCuts.extractionRegion())));
-   m_emin = roiCuts.getEnergyCuts().first;
-   m_emax = roiCuts.getEnergyCuts().second;
+//    m_emin = roiCuts.getEnergyCuts().first;
+//    m_emax = roiCuts.getEnergyCuts().second;
 }
 
 double PointSource::Aeff::value(double cos_theta, double phi) const {
@@ -528,10 +530,11 @@ double PointSource::Aeff::value(double cos_theta, double phi) const {
       }
 
       if (m_respFuncs.useEdisp()) {
-         irfInterface::IEdisp *edisp = respIt->second->edisp();
-         double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 
-                                            theta, phi, m_time);
-         myEffArea += psf_val*aeff_val*edisp_val;
+//          irfInterface::IEdisp *edisp = respIt->second->edisp();
+//          double edisp_val = edisp->integral(m_emin, m_emax, m_energy, 
+//                                             theta, phi, m_time);
+//          myEffArea += psf_val*aeff_val*edisp_val;
+         throw std::runtime_error("energy dispersion handling disabled");
       } else {
          myEffArea += psf_val*aeff_val;
       }

@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.43 2011/09/16 23:20:28 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.44 2012/06/14 02:01:24 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -119,6 +119,8 @@ private:
                                 ResponseCache::EventRef* srcRespCache=0) const;
 
    mutable std::vector<double> m_bestFitParsSoFar;
+
+   void update_npreds();
 
 };
 

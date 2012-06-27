@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.49 2012/01/18 00:08:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.50 2012/01/19 20:26:04 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -152,6 +152,9 @@ public:
    /// @return Energy flux integrated over the ROI energy bounds. 
    /// Units are MeV/cm^2/s
    virtual double energyFlux() const;
+
+   virtual void computeExposure(const std::vector<double> & energies,
+                                bool verbose=false);
 
    /// @return Derivative of integrated energy flux wrt the named parameter
    double energyFluxDeriv(const std::string & parName) const;

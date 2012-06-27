@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RoiCuts.cxx,v 1.53 2008/11/29 05:52:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RoiCuts.cxx,v 1.54 2010/06/17 17:36:25 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -138,6 +138,8 @@ void RoiCuts::makeEnergyVector(int nee) {
    for (int i = 0; i < nee; i++) {
       m_energies.push_back(m_eMin*std::exp(estep*i));
    }
+   // Ensure that last entry matches the value of m_eMax.
+   m_energies.back() = m_eMax;
 }
 
 void RoiCuts::setRoiData() {

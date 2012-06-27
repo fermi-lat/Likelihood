@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.70 2010/05/18 16:01:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.71 2012/03/28 22:00:42 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -124,6 +124,9 @@ public:
    virtual Source *clone() const {
       return new PointSource(*this);
    }
+
+   virtual void computeExposure(const std::vector<double> & energies,
+                                bool verbose=false);
 
    /// Compute the integrated exposure using the provided 
    /// vector of energy values

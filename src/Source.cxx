@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.21 2011/09/28 20:33:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.22 2012/02/08 00:23:55 jchiang Exp $
  */
 
 #include <algorithm>
@@ -25,21 +25,24 @@ Source::Source(const Observation * observation)
    : m_name(""), m_srcType(""), m_useEdisp(false), m_spectrum(0), 
      m_observation(observation) {}
 
-Source::Source(const Source &rhs) {
+Source::Source(const Source & rhs)
+   : m_name(rhs.m_name),
+     m_srcType(rhs.m_srcType),
+     m_useEdisp(rhs.m_useEdisp),
+     m_spectrum(rhs.m_spectrum->clone()),
+     m_observation(rhs.m_observation),
+     m_exposure(rhs.m_exposure),
+     m_energies(rhs.m_energies) {
 // The deep copy of m_functions must be handled by the subclasses.
-// Need to refactor this.
-   m_name = rhs.m_name;
-   m_srcType = rhs.m_srcType;
-   m_useEdisp = rhs.m_useEdisp;
 }
 
 double Source::Npred() {
    optimizers::Function * specFunc = m_functions["Spectrum"];
-
-// Evaluate the Npred integrand at the abscissa points contained in
-// RoiCuts::energies().
-   const RoiCuts & roiCuts = m_observation->roiCuts();
-   const std::vector<double> & energies = roiCuts.energies();
+   const std::vector<double> & energies(m_energies);
+//    std::cout << m_name << ", Npred(): " 
+//              << energies.size() << "  "
+//              << energies.front() << "  "
+//              << energies.back() << std::endl;
 
    std::vector<double> NpredIntegrand(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
@@ -56,7 +59,12 @@ double Source::Npred(double emin, double emax) const {
    std::vector<double> energies;
    std::vector<double> exposure;
 
-   getExposureSubArrays(emin, emax, energies, exposure);
+//   getExposureSubArrays(emin, emax, energies, exposure);
+   getExposureArrays(emin, emax, energies, exposure);
+//    std::cout << m_name << ", Npred(emin, emax): "
+//              << energies.size() << "  "
+//              << energies.front() << "  "
+//              << energies.back() << std::endl;
 
    FuncMap::const_iterator my_func = m_functions.find("Spectrum");
    const optimizers::Function & specFunc = 
@@ -73,7 +81,7 @@ double Source::Npred(double emin, double emax) const {
 }
 
 double Source::NpredDeriv(const std::string &paramName) {
-   const std::vector<double> & energies = m_observation->roiCuts().energies();
+   const std::vector<double> & energies(m_energies);
    optimizers::Function *specFunc = m_functions["Spectrum"];
 
    double prefactor;
@@ -97,7 +105,8 @@ double Source::
 NpredDeriv(const std::string & paramName, double emin, double emax) const {
    std::vector<double> energies;
    std::vector<double> exposures;
-   getExposureSubArrays(emin, emax, energies, exposures);
+//   getExposureSubArrays(emin, emax, energies, exposures);
+   getExposureArrays(emin, emax, energies, exposures);
 
    const optimizers::Function * specFunc 
       = m_functions.find("Spectrum")->second;
@@ -181,11 +190,52 @@ double Source::pixelCountsDeriv(double emin, double emax,
    return (dy1dp*emin + dy2dp*emax)/2.*std::log(emax/emin);
 }
 
+void Source::getExposureArrays(double emin, double emax, 
+                               std::vector<double> & energies,
+                               std::vector<double> & exposures,
+                               size_t nee) const {
+   const std::vector<double> & roi_energies(m_energies);
+   if (emin < roi_energies.front()) {
+      emin = roi_energies.front();
+   }
+   if (emax > roi_energies.back()) {
+      emax = roi_energies.back();
+   }
+   if (emin == roi_energies.front() && emax == roi_energies.back()) {
+      energies = roi_energies;
+      exposures = m_exposure;
+      return;
+   }
+   if (nee == 0) {
+      nee = roi_energies.size();
+   }
+   double roi_estep(std::log(roi_energies.back()/roi_energies.front())
+                    /(roi_energies.size() - 1));
+   double logestep(std::log(emax/emin)/(nee - 1));
+   energies.clear();
+   exposures.clear();
+   for (size_t k(0); k < nee; k++) {
+      double logE(k*logestep + std::log(emin));
+      energies.push_back(std::exp(logE));
+      size_t kk = static_cast<size_t>((logE - std::log(roi_energies.front()))
+                                      /roi_estep);
+      double exposure(0);
+      if (kk == roi_energies.size()-1) { 
+         exposure = m_exposure.back();
+      } else {
+         // log-linear interpolation
+         exposure = m_exposure.at(kk) +
+            (logE - std::log(roi_energies.at(kk)))/roi_estep
+            *(m_exposure.at(kk+1) - m_exposure.at(kk));
+      }
+      exposures.push_back(exposure);
+   }
+}
+
 void Source::getExposureSubArrays(double emin, double emax,
                                   std::vector<double> & energies,
                                   std::vector<double> & exposures) const {
-   const std::vector<double> & roi_energies = 
-      m_observation->roiCuts().energies();
+   const std::vector<double> & roi_energies(m_energies);
 
    if (emin < roi_energies.front()) {
       emin = roi_energies.front();
@@ -222,30 +272,6 @@ void Source::getExposureSubArrays(double emin, double emax,
       + m_exposure.at(end_offset - 1);
    exposures.insert(exposures.begin(), begin_exposure);
    exposures.push_back(end_exposure);
-}
-
-double Source::powerlaw_integral_est(double x1, double x2, 
-                                     double y1, double y2, 
-                                     double wt1, double wt2) {
-   double gam(std::log(y2/y1)/std::log(x2/x1));
-   double y0(y2/std::pow(x2, gam));
-
-   double xbar;
-   if (gam == -1) {
-      xbar = (x2 - x1)/std::log(x2/x1);
-   } else if (gam == -2) {
-      xbar = std::log(x2/x1)/(1./x1 - 1./x2);
-   } else {
-      xbar = (gam + 1.)/(gam + 2.)*(std::pow(x2, gam+2.) - std::pow(x1, gam+2.))
-         /(std::pow(x2, gam+1.) - std::pow(x1, gam+1.));
-   }
-
-   double wtbar((xbar - x1)/(x2 - x1)*(wt2 - wt1) + wt1);
-
-   if (gam == -1) {
-      return wtbar*y0*std::log(x2/x1);
-   }
-   return wtbar*y0/(gam+1.)*(std::pow(x2, gam+1.) - std::pow(x1, gam+1.));
 }
 
 } // namespace Likelihood

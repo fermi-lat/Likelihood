@@ -3,7 +3,7 @@
  * @brief Declaration of Npred class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Npred.h,v 1.10 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Npred.h,v 1.11 2012/06/14 02:01:24 jchiang Exp $
  */
 
 #ifndef Likelihood_Npred_h
@@ -37,10 +37,6 @@ public:
 
    double derivByParam(optimizers::Arg &, const std::string &) const;
 
-   void set_ebounds(double emin, double emax);
-
-   void unset_ebounds();
-
 protected:
 
    Npred * clone() const {
@@ -48,10 +44,6 @@ protected:
    }
 
 private:
-
-   bool m_use_ebounds;
-   double m_emin;
-   double m_emax;
 
    void fetchDerivs(optimizers::Arg &, std::vector<double> &derivs, 
                     bool getFree) const;
