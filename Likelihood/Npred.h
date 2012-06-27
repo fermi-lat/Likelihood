@@ -3,7 +3,7 @@
  * @brief Declaration of Npred class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Npred.h,v 1.11 2012/06/14 02:01:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Npred.h,v 1.12 2012/06/27 20:31:50 jchiang Exp $
  */
 
 #ifndef Likelihood_Npred_h
@@ -27,7 +27,7 @@ class Npred : public optimizers::Function {
     
 public:
 
-   Npred() : m_use_ebounds(false), m_emin(0), m_emax(0) {
+   Npred() {
       m_genericName = "Npred";
    }
 
