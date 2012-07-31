@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.125 2012/03/10 17:12:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.126 2012/03/28 22:00:44 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -77,6 +77,7 @@
 #include "Likelihood/BandFunction.h"
 #include "Likelihood/ExpCutoffSEDPeak.h"
 #include "Likelihood/BrokenPowerLaw2.h"
+#include "Likelihood/BrokenPowerLaw3.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/EblAtten.h"
 #include "Likelihood/LogParabola.h"
@@ -101,6 +102,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_ExpCutoffSEDPeak);
    CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
    CPPUNIT_TEST(test_SmoothDoubleBrokenPowerLaw);
+   CPPUNIT_TEST(test_BrokenPowerLaw3);
    CPPUNIT_TEST(test_EblAtten);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
@@ -138,6 +140,7 @@ public:
    void test_ExpCutoffSEDPeak();
    void test_SmoothBrokenPowerLaw();
    void test_SmoothDoubleBrokenPowerLaw();
+   void test_BrokenPowerLaw3();
    void test_EblAtten();
    void test_RoiCuts();
    void test_SourceFactory();
@@ -434,6 +437,34 @@ void LikelihoodTests::test_SmoothDoubleBrokenPowerLaw() {
 
    tester.parameters(params);
    tester.freeParameters(params);
+   tester.derivatives(args, 1e-4);
+}
+
+void LikelihoodTests::test_BrokenPowerLaw3() {
+   Likelihood::BrokenPowerLaw3 foo(0.686, -1.7, 2.87e-3, -3.5, 
+                                   100, 1e4, 2e4, 1e5);
+   optimizers::FunctionTest tester(foo, "BrokenPowerLaw3");
+   std::vector<optimizers::Parameter> pars;
+   pars.push_back(optimizers::Parameter("Integral1", 0.686));
+   pars.push_back(optimizers::Parameter("Index1", -1.7));
+   pars.push_back(optimizers::Parameter("Integral2", 2.87e-3));
+   pars.push_back(optimizers::Parameter("Index2", -3.5));
+   pars.push_back(optimizers::Parameter("LowerLimit1", 100.));
+   pars.push_back(optimizers::Parameter("UpperLimit1", 1e4));
+   pars.push_back(optimizers::Parameter("LowerLimit2", 2e4));
+   pars.push_back(optimizers::Parameter("UpperLimit2", 1e5));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(pars);
+   tester.freeParameters(pars);
    tester.derivatives(args, 1e-4);
 }
 
