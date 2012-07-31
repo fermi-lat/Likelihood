@@ -3,7 +3,7 @@
  * @brief Declaration for the BrokenPowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BrokenPowerLaw2.h,v 1.1 2005/06/08 06:32:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BrokenPowerLaw2.h,v 1.1 2005/09/19 00:19:16 jchiang Exp $
  */
 
 #ifndef Likelihood_BrokenPowerLaw2_h
@@ -21,9 +21,6 @@ namespace Likelihood {
  * indices, and break value as free parameters and upper and lower
  * bounds of integration as fixed parameters.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BrokenPowerLaw2.h,v 1.1 2005/06/08 06:32:42 jchiang Exp $
  */
     
 class BrokenPowerLaw2 : public optimizers::Function {
