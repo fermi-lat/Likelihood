@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.102 2012/04/17 05:41:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.103 2012/04/24 18:23:55 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -28,6 +28,7 @@
 #include "Likelihood/BandFunction.h"
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BrokenPowerLaw2.h"
+#include "Likelihood/BrokenPowerLaw3.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DMFitFunction.h"
@@ -131,15 +132,19 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
                                    m_bexpmap,
                                    m_phased_expmap);
    if (analysisType == "BINNED") {
+      my_pars["expcube"];
+      std::string cmapfile;
       try {
-         my_pars["expcube"];
-         std::string cmapfile = my_pars["cmap"];
-         CountsMap cmap(cmapfile);
-         m_meanpsf = new MeanPsf(cmap.refDir(), cmap.energies(),
-                                 *m_observation);
-         m_observation->setMeanPsf(m_meanpsf);
-      } catch (hoops::Hexception &) {
+         std::string tmp = my_pars["cmap"];
+         cmapfile = tmp;
+      } catch (hoops::Hexception & ee) {
+         std::string tmp = my_pars["srcmaps"];
+         cmapfile = tmp;
       }
+      CountsMap cmap(cmapfile);
+      m_meanpsf = new MeanPsf(cmap.refDir(), cmap.energies(),
+                              *m_observation);
+      m_observation->setMeanPsf(m_meanpsf);
    }
 }
 
@@ -180,6 +185,7 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("RadialProfile", new RadialProfile(), makeClone);
    funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
    funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
+   funcFactory->addFunc("BrokenPowerLaw3", new BrokenPowerLaw3(), makeClone);
    funcFactory->addFunc("SmoothBrokenPowerLaw", new SmoothBrokenPowerLaw(), 
                         makeClone);
    funcFactory->addFunc("SmoothDoubleBrokenPowerLaw", 
