@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.103 2012/04/24 18:23:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.104 2012/08/09 23:04:06 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -132,19 +132,27 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
                                    m_bexpmap,
                                    m_phased_expmap);
    if (analysisType == "BINNED") {
-      my_pars["expcube"];
-      std::string cmapfile;
       try {
-         std::string tmp = my_pars["cmap"];
-         cmapfile = tmp;
-      } catch (hoops::Hexception & ee) {
-         std::string tmp = my_pars["srcmaps"];
-         cmapfile = tmp;
+         // If there is no livetime cube, skip the setting of the mean psf.
+         my_pars["expcube"];
+         std::string cmapfile;
+         // gtmodel still uses "srcmaps" as the parameter name of the
+         // counts cube that is used to determine the map geometry,
+         // so need to specialize here.
+         try {
+            std::string tmp = my_pars["cmap"];
+            cmapfile = tmp;
+         } catch (hoops::Hexception & ee) {
+            std::string tmp = my_pars["srcmaps"];
+            cmapfile = tmp;
+         }
+         CountsMap cmap(cmapfile);
+         m_meanpsf = new MeanPsf(cmap.refDir(), cmap.energies(),
+                                 *m_observation);
+         m_observation->setMeanPsf(m_meanpsf);
+      } catch (hoops::Hexception &) {
+         // Do nothing.
       }
-      CountsMap cmap(cmapfile);
-      m_meanpsf = new MeanPsf(cmap.refDir(), cmap.energies(),
-                              *m_observation);
-      m_observation->setMeanPsf(m_meanpsf);
    }
 }
 
