@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.97 2012/04/14 20:59:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.98 2012/07/31 19:38:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -903,8 +903,15 @@ void BinnedLikelihood::getNpreds(const std::string & srcName,
 }
 
 std::vector<double> 
-BinnedLikelihood::countsSpectrum(const std::string & srcName) const {
-   std::vector<double> counts_spectrum(m_kmax - m_kmin, 0);
+BinnedLikelihood::countsSpectrum(const std::string & srcName,
+                                 bool use_klims) const {
+   size_t kmin(0);
+   size_t kmax(m_energies.size() - 1);
+   if (use_klims) {
+      kmin = m_kmin;
+      kmax = m_kmax;
+   }
+   std::vector<double> counts_spectrum(kmax - kmin, 0);
 // Compute ratios of individual source model predictions to that of
 // the total model.
    double npred;
@@ -917,7 +924,7 @@ BinnedLikelihood::countsSpectrum(const std::string & srcName) const {
    addSourceWts(modelWts, srcName);
    for (size_t j(0); j < m_filledPixels.size(); j++) {
       size_t k(m_filledPixels[j]/m_pixels.size());
-      if (k < m_kmin || k > m_kmax-1) {
+      if (k < kmin || k > kmax-1) {
          continue;
       }
       double emin(m_energies[k]);
@@ -925,7 +932,7 @@ BinnedLikelihood::countsSpectrum(const std::string & srcName) const {
       double srcProb = pixelCounts(emin, emax, modelWts[j].first,
                                    modelWts[j].second)/m_model[j];
       size_t indx = m_filledPixels[j];
-      counts_spectrum[k - m_kmin] += srcProb*m_dataMap.data()[indx];
+      counts_spectrum[k - kmin] += srcProb*m_dataMap.data()[indx];
    }
    return counts_spectrum;
 }
