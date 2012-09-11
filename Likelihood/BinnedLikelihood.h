@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.66 2012/03/21 19:20:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.67 2012/06/14 02:01:24 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -115,7 +115,8 @@ public:
    /// based on the source model weights per pixel, this is the counts
    /// spectrum weighted by the probability of attributing counts in
    /// each pixel to this source.
-   std::vector<double> countsSpectrum(const std::string & srcName) const;
+   std::vector<double> countsSpectrum(const std::string & srcName, 
+                                      bool use_klims=true) const;
 
    /// Predicted counts spectrum for the fixed model components
    /// summed together.
