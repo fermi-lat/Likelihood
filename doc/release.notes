@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.492 2012/09/12 20:30:32 jchiang Exp $
+    $Id: release.notes,v 1.493 2012/09/13 20:13:47 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-24-08 13-Sep-2012 jchiang all users to specify energy band for unbinned analysis that excludes all data (J. Ballet request)
  Likelihood-17-25-00 13-Sep-2012 jchiang add ModelMap class for use in gtmodel and pyLikelihood.BinnedAnalysis
  Likelihood-17-24-07 12-Sep-2012 jchiang all users to specify energy band for unbinned analysis that excludes all data (J. Ballet request)
  Likelihood-17-24-06 13-Aug-2012 jchiang fix par file handling for gtexpcube2 (broken when trying to fix gtmodel
