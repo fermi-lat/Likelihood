@@ -3,24 +3,13 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.34 2012/02/28 17:36:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.35 2012/04/14 20:59:07 jchiang Exp $
  */
 
 #include <iostream>
-#include <map>
-#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#include <xercesc/util/XercesDefs.hpp>
-
-#include "xmlBase/Dom.h"
-#include "xmlBase/XmlParser.h"
-
-#include "tip/IFileSvc.h"
-#include "tip/Image.h"
-#include "tip/Table.h"
 
 #include "st_stream/StreamFormatter.h"
 
@@ -28,41 +17,10 @@
 #include "st_app/StApp.h"
 #include "st_app/StAppFactory.h"
 
-#include "st_facilities/FitsUtil.h"
-
-#include "dataSubselector/Cuts.h"
-
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
-#include "Likelihood/SourceMap.h"
-
-#include "fitsio.h"
-
-namespace {
-   void fitsReportError(FILE * stream, int status) {
-      if (status != 0) {
-         fits_report_error(stream, status);
-         throw std::runtime_error("gtmodel::trimExtensions(): "
-                                  "cfitsio error.");
-      }
-   }
-
-   void fitsResizeImage(const std::string & filename,
-                        int bitpix, int naxis, 
-                        std::vector<long> naxes) {
-      fitsfile * fptr;
-      int status(0);
-      fits_open_file(&fptr, filename.c_str(), READWRITE, &status);
-      fitsReportError(stderr, status);
-
-      fits_resize_img(fptr, bitpix, naxis, &naxes[0], &status);
-      fitsReportError(stderr, status);
-      
-      fits_close_file(fptr, &status);
-      fitsReportError(stderr, status);
-   }
-}
+#include "Likelihood/ModelMap.h"
 
 /**
  * @class ModelMap
@@ -70,8 +28,6 @@ namespace {
  * @brief Derived class of st_app::StApp for summing up source maps
  * with the spectal fit parameters from a binned likelihood analysis
  * applied.
- *
- * @author J. Chiang
  *
  */
 
@@ -105,11 +61,7 @@ private:
    Likelihood::CountsMap * m_dataMap;
    Likelihood::BinnedLikelihood * m_logLike;
 
-   std::vector<float> m_outmap;
-
    void computeModelMap();
-   void writeOutputMap();
-   void trimExtensions();
 
    static std::string s_cvs_id;
 };
@@ -129,8 +81,6 @@ void ModelMap::run() {
    m_pars.Prompt();
    m_pars.Save();
    computeModelMap();
-   writeOutputMap();
-   trimExtensions();
 }
 
 void ModelMap::computeModelMap() {
@@ -157,96 +107,11 @@ void ModelMap::computeModelMap() {
    m_logLike->readXml(m_pars["srcmdl"], m_helper->funcFactory(),
                       requireExposure=false, addPointSources=true,
                       loadMaps=false, createAllMaps=true);
-   m_logLike->computeModelMap(m_outmap);
 
-   std::string outtype = m_pars["outtype"];
-   if (outtype == "CMAP") {
-      // Sum up the image planes over the different energy bands.
-      size_t image_size(m_dataMap->imageDimension(0)*
-                        m_dataMap->imageDimension(1));
-      size_t nee(m_dataMap->imageDimension(2));
-      for (size_t k(1); k < nee; k++) {
-         for (size_t j(0); j < image_size; j++) {
-            size_t indx(k*image_size + j);
-            m_outmap[j] += m_outmap[indx];
-         }
-      }
-   }
-}
-
-void ModelMap::writeOutputMap() {
-   std::string infile = m_pars["srcmaps"];
-   std::string outfile = m_pars["outfile"];
-   bool clobber = m_pars["clobber"];
-   std::string outtype = m_pars["outtype"];
-   st_facilities::FitsUtil::fcopy(infile, outfile, "", "", clobber);
+   Likelihood::ModelMap modelMap(*m_logLike);
    
-   std::vector<long> new_dims;
-   const tip::Image * my_image = 
-      tip::IFileSvc::instance().readImage(outfile, "");
-   typedef std::vector<tip::PixOrd_t> DimCont_t;
-   DimCont_t dims = my_image->getImageDimensions();
-   new_dims.push_back(dims.at(0));
-   new_dims.push_back(dims.at(1));
-   if (outtype == "CCUBE") {
-      new_dims.push_back(dims.at(2));
-   }
-   delete my_image;
-   fitsResizeImage(outfile, -32, new_dims.size(), new_dims);
-
-   std::auto_ptr<tip::Image>
-      output_image(tip::IFileSvc::instance().editImage(outfile, ""));
-   output_image->set(m_outmap);
-   dataSubselector::Cuts my_cuts(infile, "", false);
-   my_cuts.writeGtiExtension(outfile);
-}
-
-void ModelMap::trimExtensions() {
    std::string outfile = m_pars["outfile"];
    std::string outtype = m_pars["outtype"];
-   tip::FileSummary hdus;
-   tip::IFileSvc::instance().getFileSummary(outfile, hdus);
-   size_t nhdus = hdus.size();
-   fitsfile * fptr;
-   int status(0), hdutype;
-   fits_open_file(&fptr, outfile.c_str(), READWRITE, &status);
-   ::fitsReportError(stderr, status);
-   for (size_t i = 1; i < nhdus; i++) {
-      std::string hduname = hdus.at(i).getExtId();
-      if (hduname != "GTI" && (hduname != "EBOUNDS" || outtype == "CMAP")) {
-         fits_movnam_hdu(fptr, ANY_HDU, const_cast<char *>(hduname.c_str()), 
-                         0, &status);
-         ::fitsReportError(stderr, status);
-         fits_delete_hdu(fptr, &hdutype, &status);
-         ::fitsReportError(stderr, status);
-      }
-   }
-   if (outtype == "CMAP") {
-// Delete axis 3 keywords in PRIMARY HDU.
-      fits_movabs_hdu(fptr, 1, &hdutype, &status);
-      ::fitsReportError(stderr, status);
 
-      fits_delete_key(fptr, "CTYPE3", &status);
-      ::fitsReportError(stderr, status);
-      fits_delete_key(fptr, "CRPIX3", &status);
-      ::fitsReportError(stderr, status);
-      fits_delete_key(fptr, "CRVAL3", &status);
-      ::fitsReportError(stderr, status);
-      fits_delete_key(fptr, "CDELT3", &status);
-      ::fitsReportError(stderr, status);
-      fits_delete_key(fptr, "CUNIT3", &status);
-      ::fitsReportError(stderr, status);
-   }
-
-// Update creator keyword.
-   const char * keyname = "CREATOR";
-   char * creator = "gtmodel";
-   char * description = "Software creating file";
-   fits_update_key(fptr, TSTRING, keyname, creator, description, &status);
-   ::fitsReportError(stderr, status);
-
-   fits_close_file(fptr, &status);
-   ::fitsReportError(stderr, status);
-
-   st_facilities::FitsUtil::writeChecksums(outfile);
+   modelMap.writeOutputMap(outfile, outtype);
 }

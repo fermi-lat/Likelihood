@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CountsMap.h,v 1.28 2010/11/24 05:11:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CountsMap.h,v 1.29 2010/11/27 07:17:19 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -126,6 +126,10 @@ public:
 
    const std::vector<double> & energies() const {
       return m_energies;
+   }
+
+   const std::string & filename() const {
+      return m_event_file;
    }
 
 protected:
