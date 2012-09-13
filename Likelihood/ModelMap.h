@@ -4,7 +4,7 @@
  * BinnedLikelihood object.
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ModelMap.h,v 1.1 2012/09/13 19:24:29 jchiang Exp $
  */
 
 #ifndef Likelihood_ModelMap_h
@@ -30,7 +30,7 @@ public:
    ModelMap(BinnedLikelihood & logLike);
 
    void writeOutputMap(const std::string & outfile,
-                       const std::string & outtype="CMAP");
+                       std::string outtype="CMAP");
 
 private:
 

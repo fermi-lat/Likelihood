@@ -4,6 +4,7 @@
  * BinnedLikelihood object.
  */
 
+#include <sstream>
 #include <stdexcept>
 
 #include "fitsio.h"
@@ -43,7 +44,13 @@ namespace {
       fits_close_file(fptr, &status);
       fitsReportError(stderr, status);
    }
-}
+
+   void toUpper(std::string & name) {
+      for (std::string::iterator it = name.begin(); it != name.end(); ++it) {
+         *it = std::toupper(*it);
+      }
+   }
+} // anonymous namespace
 
 namespace Likelihood {
 
@@ -53,7 +60,15 @@ ModelMap::ModelMap(BinnedLikelihood & logLike)
 }
 
 void ModelMap::writeOutputMap(const std::string & outfile,
-                              const std::string & outtype) {
+                              std::string outtype) {
+   ::toUpper(outtype);
+   if (outtype != "CMAP" && outtype != "CCUBE") {
+      std::ostringstream message;
+      message << "Invalid output file type for model map, '" 
+              << outtype << "'.\n"
+              << "Only 'CMAP' and 'CCUBE' are allowed.";
+      throw std::runtime_error(message.str());
+   }
    if (outtype == "CMAP") {
       // Sum up the image planes over the different energy bands.
       size_t image_size(m_logLike.countsMap().imageDimension(0)*
