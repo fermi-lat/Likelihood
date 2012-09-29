@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.160 2012/04/14 20:59:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.161 2012/04/17 20:28:14 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -35,6 +35,8 @@
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+
+#include "dataSubselector/Cuts.h"
 
 #include "optimizers/Optimizer.h"
 #include "optimizers/OptimizerFactory.h"
@@ -214,8 +216,11 @@ void likelihood::run() {
    ResponseFunctions & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(useEdisp);
+   std::string irfs = m_pars["irfs"];
    if (m_statistic == "BINNED") {
-      m_helper->setRoi(m_pars["cmap"], "", false);
+      std::string cmap = m_pars["cmap"];
+      dataSubselector::Cuts::checkIrfs(cmap, "PRIMARY", irfs);
+      m_helper->setRoi(cmap, "", false);
    } else {
       std::string exposureFile = m_pars["expmap"];
       std::string eventFile = m_pars["evfile"];
@@ -225,8 +230,8 @@ void likelihood::run() {
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
       bool compareGtis(false);
       bool relyOnStreams(false);
-      std::string respfunc = m_pars["irfs"];
-      bool skipEventClassCuts(respfunc != "DSS");
+      dataSubselector::Cuts::checkIrfs(m_eventFiles.at(0), "EVENTS", irfs);
+      bool skipEventClassCuts(irfs != "DSS");
       for (size_t i = 1; i < m_eventFiles.size(); i++) {
          AppHelpers::checkCuts(m_eventFiles[0], evtable, m_eventFiles[i],
                                evtable, compareGtis, relyOnStreams,

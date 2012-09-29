@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.100 2012/04/17 20:28:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.101 2012/04/17 20:34:31 jchiang Exp $
  */
 
 #include <algorithm>
@@ -280,7 +280,6 @@ void SourceMap::makeDiffuseMap(Source * src,
                            << "called mapBaseObj->deleteMap()"
                            << std::endl;
    } catch (MapBaseException & eObj) {
-      std::cout << eObj.what() << std::endl;
       // Not a map-based source, so do nothing.
    }
 }
