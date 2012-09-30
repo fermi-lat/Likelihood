@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.63 2011/10/22 06:01:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.64 2011/11/18 17:10:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -30,6 +30,8 @@
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+
+#include "dataSubselector/Cuts.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/DiffRespNames.h"
@@ -68,7 +70,6 @@ namespace {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.63 2011/10/22 06:01:30 jchiang Exp $
  */
 
 class diffuseResponses : public st_app::StApp {
@@ -170,6 +171,10 @@ void diffuseResponses::run() {
    respFuncs.setEdispFlag(m_useEdisp);
    std::vector<std::string> eventFiles;
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
+
+   std::string irfs = m_pars["irfs"];
+   dataSubselector::Cuts::checkIrfs(eventFiles.at(0), "EVENTS", irfs);
+
    std::vector<std::string>::const_iterator evtfile;
    buildSourceModel();
    m_formatter->warn() << "Working on...\n";

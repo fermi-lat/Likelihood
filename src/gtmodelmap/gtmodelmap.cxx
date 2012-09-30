@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.35 2012/04/14 20:59:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.36 2012/09/13 19:24:31 jchiang Exp $
  */
 
 #include <iostream>
@@ -16,6 +16,8 @@
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
 #include "st_app/StAppFactory.h"
+
+#include "dataSubselector/Cuts.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
@@ -80,6 +82,11 @@ void ModelMap::banner() const {
 void ModelMap::run() {
    m_pars.Prompt();
    m_pars.Save();
+
+   std::string smaps = m_pars["srcmaps"];
+   std::string irfs = m_pars["irfs"];
+   dataSubselector::Cuts::checkIrfs(smaps, "", irfs);
+
    computeModelMap();
 }
 

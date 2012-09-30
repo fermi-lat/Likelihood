@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.161 2012/04/17 20:28:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.162 2012/09/29 00:23:47 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -219,7 +219,7 @@ void likelihood::run() {
    std::string irfs = m_pars["irfs"];
    if (m_statistic == "BINNED") {
       std::string cmap = m_pars["cmap"];
-      dataSubselector::Cuts::checkIrfs(cmap, "PRIMARY", irfs);
+      dataSubselector::Cuts::checkIrfs(cmap, "", irfs);
       m_helper->setRoi(cmap, "", false);
    } else {
       std::string exposureFile = m_pars["expmap"];
