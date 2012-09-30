@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.50 2012/04/14 20:59:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.51 2012/04/17 20:28:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -27,6 +27,8 @@
 #include "st_app/StAppFactory.h"
 
 #include "st_facilities/Util.h"
+
+#include "dataSubselector/Cuts.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/Optimizer.h"
@@ -151,7 +153,10 @@ void TsMap::run() {
 
    m_helper->checkOutputFile();
    std::string expcube = m_pars["expcube"];
+   std::string irfs = m_pars["irfs"];
    if (expcube != "" && expcube != "none") {
+      std::string cmap = m_pars["cmap"];
+      dataSubselector::Cuts::checkIrfs(cmap, "", irfs);
       m_helper->observation().expCube().readExposureCube(expcube);
    }
    if (m_statistic == "UNBINNED") {
@@ -160,8 +165,8 @@ void TsMap::run() {
       std::string evtable = m_pars["evtable"];
       bool compareGtis;
       bool relyOnStreams;
-      std::string irfs = m_pars["irfs"];
       bool skipEventClassCuts(irfs != "DSS");
+      dataSubselector::Cuts::checkIrfs(evfiles.at(0), "EVENTS", irfs);
       for (size_t i(1); i < evfiles.size(); i++) {
          AppHelpers::checkCuts(evfiles[0], evtable,
                                evfiles[i], evtable,

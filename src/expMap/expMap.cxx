@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.44 2009/10/28 18:33:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.45 2010/06/02 22:04:16 jchiang Exp $
  */
 
 #include <cmath>
@@ -25,6 +25,8 @@
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
 
+#include "dataSubselector/Cuts.h"
+
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/Observation.h"
@@ -40,7 +42,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.44 2009/10/28 18:33:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.45 2010/06/02 22:04:16 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -67,7 +69,7 @@ private:
 
 st_app::StAppFactory<ExpMap> myAppFactory("gtexpmap");
 
-std::string ExpMap::s_cvs_id("$Name:  $");
+std::string ExpMap::s_cvs_id("$Name: ScienceTools-LATEST-1-3163 $");
 
 ExpMap::ExpMap() : st_app::StApp(), m_helper(0), 
                    m_pars(st_app::StApp::getParGroup("gtexpmap")) {
@@ -109,9 +111,11 @@ void ExpMap::promptForParameters() {
    m_pars.Prompt("expcube");
    std::string expCubeFile = m_pars["expcube"];
    std::string evtable = m_pars["evtable"];
+   std::vector<std::string> eventFiles;
+   st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
+   std::string irfs = m_pars["irfs"];
+   dataSubselector::Cuts::checkIrfs(eventFiles.at(0), evtable, irfs);
    if (expCubeFile != "none") {
-      std::vector<std::string> eventFiles;
-      st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
       AppHelpers::checkTimeCuts(eventFiles, evtable,
                                 m_pars["expcube"], "Exposure");
    }

@@ -6,7 +6,7 @@
  * computed in Source::fluxDensity(...).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcprob/gtsrcprob.cxx,v 1.3 2010/04/05 19:13:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcprob/gtsrcprob.cxx,v 1.4 2010/08/02 19:47:45 jchiang Exp $
  */
 
 #include <cmath>
@@ -36,6 +36,8 @@
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+
+#include "dataSubselector/Cuts.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/DiffRespNames.h"
@@ -129,6 +131,9 @@ void SourceProbs::promptForParameters() {
 
    std::string evfile = m_pars["evfile"];
    std::string outfile = m_pars["outfile"];
+
+   std::string irfs = m_pars["irfs"];
+   dataSubselector::Cuts::checkIrfs(evfile, "EVENTS", irfs);
 
    if (outfile == evfile) {
       m_formatter->info() << "The output file cannot be the same as the "
