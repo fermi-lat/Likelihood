@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.13 2012/04/02 16:33:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.14 2012/06/19 04:02:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -47,27 +47,6 @@ namespace {
          }
       }
    };
-
-   double interpolatePowerLaw(double x, double x1, double x2,
-                              double y1, double y2) {
-      if (y1 == 0 && y2 == 0) {
-         return 0;
-      }
-      if (x1 <= 0 || x2 <= 0 || y1 <= 0 || y2 <= 0) {
-         std::ostringstream message;
-         message << "WcsMap2::interpolatePowerLaw:\n"
-                 << "abscissa or ordinate values found that are <= 0: "
-                 << "x1 = " << x1 << ", "
-                 << "x2 = " << x2 << ", "
-                 << "y1 = " << y1 << ", "
-                 << "y2 = " << y2 << std::endl;
-         throw std::runtime_error(message.str());
-      }
-      double gamma = std::log(y2/y1)/std::log(x2/x1);
-      // double n0 = y1/std::pow(x1, gamma);
-      // return n0*std::pow(x, gamma);
-      return y1*std::pow(x/x1, gamma);
-   }
 
    double my_round(double x) {
       int xint = static_cast<int>(x);
@@ -477,8 +456,8 @@ double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
    }
    double y2 = operator()(dir, k+1);
 
-   double value = ::interpolatePowerLaw(energy, m_energies[k],
-                                        m_energies[k+1], y1, y2);
+   double value = interpolatePowerLaw(energy, m_energies[k],
+                                      m_energies[k+1], y1, y2);
    return value;
 }
 
@@ -917,6 +896,46 @@ void WcsMap2::check_negative_pixels(const ImagePlane_t & image) const {
          }
       }
    }
+}
+
+double WcsMap2::interpolatePowerLaw(double x, double x1, double x2,
+                                    double y1, double y2) {
+   if (y1 == 0 && y2 == 0) {
+      return 0;
+   }
+   if (y1 == 0 || y2 == 0) {
+      if ( (x < x1 && y1 == 0) || (x > x2 && y2 == 0) ) {
+         // Linear extrapolation in these cases would produce
+         // negative values.
+         std::ostringstream message;
+         message << "WcsMap2::interpolatePowerLaw: "
+                 << "linear extrapolation selected for "
+                 << "zero-valued ordinates.\n"
+                 << "x = " << x << ", "
+                 << "x1 = " << x1 << ", "
+                 << "x2 = " << x2 << ", "
+                 << "y1 = " << y1 << ", "
+                 << "y2 = " << y2 << std::endl;
+         throw std::runtime_error(message.str());
+      }
+      // Use linear interpolation
+      double value((x - x1)/(x2 - x1)*(y2 - y1) + y1);
+      return value;
+   }
+   if (x1 <= 0 || x2 <= 0 || y1 <= 0 || y2 <= 0) {
+      std::ostringstream message;
+      message << "WcsMap2::interpolatePowerLaw:\n"
+              << "abscissa or ordinate values found that are <= 0: "
+              << "x1 = " << x1 << ", "
+              << "x2 = " << x2 << ", "
+              << "y1 = " << y1 << ", "
+              << "y2 = " << y2 << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   double gamma = std::log(y2/y1)/std::log(x2/x1);
+   // double n0 = y1/std::pow(x1, gamma);
+   // return n0*std::pow(x, gamma);
+   return y1*std::pow(x/x1, gamma);
 }
 
 } // namespace Likelihood

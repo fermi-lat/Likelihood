@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.126 2012/03/28 22:00:44 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.127 2012/07/31 19:38:36 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -1390,6 +1390,25 @@ void LikelihoodTests::test_WcsMap2() {
       delete rebinned_mapcube;
    }
 
+   // Test interpolatePowerLaw.
+   double x, x1, x2;
+
+   // Test switch to linear interpolation
+   double value = Likelihood::WcsMap2::interpolatePowerLaw(x=1, x1=1, x2=2,
+                                                           y1=0, y2=1);
+   CPPUNIT_ASSERT(value == 0);
+   
+   // Test for extrapolation exception if linear interpolation is
+   // selected
+   try {
+      Likelihood::WcsMap2::interpolatePowerLaw(x=-1, x1=1, x2=2,
+                                               y1=0, y2=1);
+   } catch (std::runtime_error & eObj) {
+      if (!st_facilities::Util::expectedException(eObj,
+                                                  "linear extrapolation selected")) {
+         throw;
+      }
+   }
 }
 
 void LikelihoodTests::test_Drm() {
