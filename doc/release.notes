@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.495 2012/09/14 16:15:51 jchiang Exp $
+    $Id: release.notes,v 1.496 2012/10/02 16:53:26 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-25-01 02-Oct-2012 jchiang address LK-82@JIRA
  Likelihood-17-25-00 02-Oct-2012 jchiang compare DSS keyword-inferred irfs against user-specified irfs in all applications with irfs parameter
  Likelihood-17-24-09 14-Sep-2012 jchiang bug-fix for rhel6-64 build: #include <memory>
  Likelihood-17-24-08 13-Sep-2012 jchiang all users to specify energy band for unbinned analysis that excludes all data (J. Ballet request)
