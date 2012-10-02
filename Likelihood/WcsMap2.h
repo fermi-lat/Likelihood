@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.5 2011/09/09 23:39:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.6 2012/01/06 07:11:58 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -130,6 +130,9 @@ public:
    unsigned long extrapolated() const {
       return m_extrapolated;
    }
+
+   static double interpolatePowerLaw(double x, double x1, double x2,
+                                     double y1, double y2);
 
 private:
 
