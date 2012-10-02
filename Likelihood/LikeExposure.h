@@ -3,7 +3,7 @@
  * @brief Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LikeExposure.h,v 1.17 2009/06/01 06:50:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LikeExposure.h,v 1.18 2009/06/01 23:34:29 jchiang Exp $
  */
 
 #ifndef Likelihood_LikeExposure_h
@@ -37,7 +37,7 @@ public:
    LikeExposure(double skybin, double costhetabin,
                 const std::vector< std::pair<double, double> > & timeCuts,
                 const std::vector< std::pair<double, double> > & gtis,
-                double zenmax=180.);
+                double zenmax=180., double zenmin=0);
 
    ~LikeExposure() {
       delete m_weightedExposure;

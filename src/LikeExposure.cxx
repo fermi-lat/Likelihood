@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LikeExposure.cxx,v 1.37 2009/06/01 23:34:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LikeExposure.cxx,v 1.38 2009/07/25 01:14:07 jchiang Exp $
  */
 
 #include <algorithm>
@@ -45,12 +45,15 @@ LikeExposure::
 LikeExposure(double skybin, double costhetabin, 
              const std::vector< std::pair<double, double> > & timeCuts,
              const std::vector< std::pair<double, double> > & gtis,
-             double zenmax)
-   : map_tools::Exposure(skybin, costhetabin, std::cos(zenmax*M_PI/180.)), 
+             double zenmax, double zenmin)
+   : map_tools::Exposure(skybin, costhetabin, std::cos(zenmax*M_PI/180.),
+                         false, std::cos(zenmin*M_PI/180.)), 
      m_costhetabin(costhetabin), m_timeCuts(timeCuts), m_gtis(gtis),
      m_numIntervals(0), 
      m_weightedExposure(new map_tools::Exposure(skybin, costhetabin, 
-                                                std::cos(zenmax*M_PI/180.))) {
+                                                std::cos(zenmax*M_PI/180.),
+                                                false,
+                                                std::cos(zenmin*M_PI/180.))) {
    if (!gtis.empty()) {
       for (size_t i = 0; i < gtis.size(); i++) {
          if (i == 0 || gtis.at(i).first < m_tmin) {
