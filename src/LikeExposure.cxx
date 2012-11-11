@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LikeExposure.cxx,v 1.38 2009/07/25 01:14:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LikeExposure.cxx,v 1.39 2012/10/02 22:09:17 jchiang Exp $
  */
 
 #include <algorithm>
@@ -14,6 +14,8 @@
 
 #include "facilities/commonUtilities.h"
 #include "facilities/Util.h"
+
+#include "st_facilities/Environment.h"
 
 #include "st_stream/StreamFormatter.h"
 
@@ -162,8 +164,7 @@ void LikeExposure::load(const tip::Table * scData, bool verbose) {
 }
 
 void LikeExposure::writeFile(const std::string & outfile) const {
-   std::string dataPath = 
-      facilities::commonUtilities::getDataPath("Likelihood");
+   std::string dataPath(st_facilities::Environment::dataPath("Likelihood"));
    std::string templateFile = 
       facilities::commonUtilities::joinPath(dataPath, "LivetimeCubeTemplate");
    tip::IFileSvc & fileSvc(tip::IFileSvc::instance());

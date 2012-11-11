@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsMap.cxx,v 1.50 2011/09/13 16:55:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsMap.cxx,v 1.51 2011/09/14 00:17:47 jchiang Exp $
  */
 
 #include <algorithm>
@@ -22,7 +22,7 @@
 #include "astro/SkyDir.h"
 #include "astro/SkyProj.h"
 
-#include "st_facilities/Env.h"
+#include "st_facilities/Environment.h"
 #include "st_facilities/FitsImage.h"
 #include "st_facilities/Util.h"
 
@@ -626,7 +626,7 @@ void CountsMap::setRefDir() {
 }
 
 void CountsMap::setDataDir() {
-   m_data_dir = facilities::commonUtilities::getDataPath("Likelihood");
+   m_data_dir = st_facilities::Environment::dataPath("Likelihood");
 }
 
 void CountsMap::deleteBinners(std::vector<evtbin::Binner *> & binners) const {

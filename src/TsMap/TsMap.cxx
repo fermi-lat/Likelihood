@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.51 2012/04/17 20:28:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.52 2012/09/30 23:03:05 jchiang Exp $
  */
 
 #include <cmath>
@@ -26,6 +26,7 @@
 #include "st_app/StApp.h"
 #include "st_app/StAppFactory.h"
 
+#include "st_facilities/Environment.h"
 #include "st_facilities/Util.h"
 
 #include "dataSubselector/Cuts.h"
@@ -345,8 +346,7 @@ void TsMap::writeFitsFile() {
    if (st_facilities::Util::fileExists(outfile)) {
       std::remove(outfile.c_str());
    }
-   std::string dataPath = 
-      facilities::commonUtilities::getDataPath("Likelihood");
+   std::string dataPath(st_facilities::Environment::dataPath("Likelihood"));
    std::string templateFile = 
       facilities::commonUtilities::joinPath(dataPath, "TsMapTemplate");
 

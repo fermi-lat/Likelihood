@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.127 2012/07/31 19:38:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.128 2012/10/02 17:50:19 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -28,6 +28,7 @@
 #include "facilities/Util.h"
 #include "facilities/commonUtilities.h"
 
+#include "st_facilities/Environment.h"
 #include "st_facilities/Util.h"
 
 #include "tip/IFileSvc.h"
@@ -223,7 +224,6 @@ ResponseFunctions * LikelihoodTests::m_respFuncs(0);
 EventContainer * LikelihoodTests::m_eventCont(0);
 
 void LikelihoodTests::setUp() {
-   facilities::commonUtilities::setupEnvironment();
    if (m_respFuncs == 0) m_respFuncs = new ResponseFunctions();
    if (m_scData == 0) m_scData = new ScData();
    if (m_roiCuts == 0) m_roiCuts = new RoiCuts();
@@ -241,11 +241,11 @@ void LikelihoodTests::setUp() {
 
 // Get root path to test data.
    const char * root = 
-      facilities::commonUtilities::getPackagePath("Likelihood").c_str();
+      st_facilities::Environment::packagePath("Likelihood").c_str();
    if (!root) {  //use relative path from cmt directory
       m_rootPath = "..";
    } else {
-      m_rootPath = facilities::commonUtilities::getDataPath("Likelihood");
+      m_rootPath = st_facilities::Environment::dataPath("Likelihood");
    }
 
 // Prepare the ResponseFunctions object.
