@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.498 2012/10/02 22:09:59 jchiang Exp $
+    $Id: release.notes,v 1.499 2012/11/11 03:55:07 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-26-02 16-Nov-2012 jchiang performance improvements in BinnedLikelihood::getFreeDerivs
  Likelihood-17-26-01 10-Nov-2012 jchiang ensure setupEnvironment() is called exactly once via st_facilities::Environment
  Likelihood-17-26-00 02-Oct-2012 jchiang add zmin parameter to gtlcube, STGEN-133@JIRA
  Likelihood-17-25-01 02-Oct-2012 jchiang address LK-82@JIRA
