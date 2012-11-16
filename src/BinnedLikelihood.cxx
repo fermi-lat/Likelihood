@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.98 2012/07/31 19:38:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.99 2012/09/11 22:56:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -12,6 +12,7 @@
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 #include "st_stream/StreamFormatter.h"
 
@@ -19,6 +20,7 @@
 #include "tip/IFileSvc.h"
 
 #include "st_facilities/Util.h"
+#include "st_facilities/Timer.h"
 
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
@@ -161,6 +163,8 @@ BinnedLikelihood::setFreeParamValues_(std::vector<double>::const_iterator it) {
 }
 
 void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
+   st_stream::StreamFormatter formatter("BinnedLikelihood", "getFreeDerivs",4);
+
    int nparams(getNumFreeParams());
    derivs.resize(nparams, 0);
    double npred;
@@ -168,6 +172,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       npred = computeModelMap();
    }
    const std::vector<float> & data = m_dataMap.data();
+
 /// First j value corresponding to the minimum allowed k-index.
    size_t jentry(0);
    for (size_t j(0); j < m_filledPixels.size(); j++) {
@@ -177,6 +182,32 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
          break;
       }
    }
+
+/// Get handles of sources with free parameters and names of those
+/// free parameters. The vectors free_srcs and free_params will be
+/// traversed in tandem inside the main loop.  Extracting this
+/// information ahead of time will save substantially on execution
+/// time for analyses with a large number of sources.
+   std::vector<Source *> free_srcs;
+   std::vector< std::vector<std::string> > free_params;
+   std::map<std::string, Source *>::const_iterator src;
+   for (src=sources().begin(); src != sources().end(); ++src) {
+      if (!std::count(m_fixedSources.begin(), m_fixedSources.end(),
+                      src->second->getName())) {
+         free_srcs.push_back(src->second);
+         std::vector<std::string> parnames;
+         src->second->spectrum().getFreeParamNames(parnames);
+         free_params.push_back(parnames);
+      }
+   }
+
+// /// For debugging/development, keep track of time spent in main loop.
+//    st_facilities::Timer timer;
+
+   /// Not clear why these should be data members.
+   m_posDerivs.clear();
+   m_negDerivs.clear();
+//   timer.start();
    for (size_t j(jentry); j < m_filledPixels.size(); j++) {
       size_t jmin(m_filledPixels.at(j));
       size_t jmax(jmin + m_pixels.size());
@@ -192,24 +223,24 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
             m_posDerivs[iparam] = Accumulator();
             m_negDerivs[iparam] = Accumulator();
          }
-         const std::map<std::string, Source *> & my_srcs = sources();
-         std::map<std::string, Source *>::const_iterator src;
-         for (src = my_srcs.begin(); src != my_srcs.end(); ++src) {
-            std::string srcName = src->second->getName();
-            if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
-                           srcName)) {
-               continue;
-            }
+
+         size_t ipar(0);
+         for (std::vector<Source *>::const_iterator it(free_srcs.begin());
+              it != free_srcs.end(); ++it, ipar++) {
+            Source * src(*it);
+
+            std::string srcName = src->getName();
             const SourceMap & srcMap = sourceMap(srcName);
+
             const std::vector<float> & model = srcMap.model();
-            std::vector<std::string> paramNames;
-            src->second->spectrum().getFreeParamNames(paramNames);
+            const std::vector<std::string> & paramNames(free_params[ipar]);
+
             for (size_t i(0); i < paramNames.size(); i++, iparam++) {
                double my_deriv = 
-                  src->second->pixelCountsDeriv(emin, emax,
-                                                model.at(jmin), 
-                                                model.at(jmax),
-                                                paramNames.at(i));
+                  src->pixelCountsDeriv(emin, emax,
+                                        model.at(jmin), 
+                                        model.at(jmax),
+                                        paramNames.at(i));
                double addend(data.at(jmin)/m_model.at(j)*my_deriv);
                if (addend > 0) {
                   m_posDerivs[iparam].add(addend);
@@ -221,11 +252,11 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
                   for (size_t kk(0); kk < m_energies.size()-1; kk++) {
                      if (kk >= m_kmin && kk <= m_kmax-1) {
                         addend = 
-                           src->second->pixelCountsDeriv(m_energies.at(kk), 
-                                                         m_energies.at(kk+1),
-                                                         npreds.at(kk), 
-                                                         npreds.at(kk+1),
-                                                         paramNames.at(i));
+                           src->pixelCountsDeriv(m_energies.at(kk), 
+                                                 m_energies.at(kk+1),
+                                                 npreds.at(kk), 
+                                                 npreds.at(kk+1),
+                                                 paramNames.at(i));
                         if (-addend > 0) {
                            m_posDerivs[iparam].add(-addend);
                         } else {
@@ -238,6 +269,9 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
          }
       }
    }
+//    timer.stop();
+//    timer.report("main loop time");
+
    for (size_t i(0); i < derivs.size(); i++) {
       derivs[i] = m_posDerivs[i].total() + m_negDerivs[i].total(); 
    }
