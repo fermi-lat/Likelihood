@@ -1,4 +1,4 @@
-      INTEGER FUNCTION dmfit_load(filename)
+      SUBROUTINE dmfit_load(filename)
 
       IMPLICIT NONE
 
@@ -7,9 +7,9 @@
 
 c-----data tables     
       real phidif
-      common/hasim/phidif(-1:250,18,8),hasmooth
+      common/hasim/phidif(-1:250,24,12),hasmooth
 c-----lowest mass index
-      real*8 milow(8)
+      real*8 milow(12)
 
       character*(*) filename
 
@@ -17,16 +17,20 @@ c-----lowest mass index
 c...lowest mass index for channel j
         milow(1)=1   ! c c-bar
         milow(2)=1   ! b b-bar
-        milow(3)=8   ! t t-bar
+        milow(3)=1   ! t t-bar
         milow(4)=1   ! tau+ tau-
-        milow(5)=4   ! w+ w-
-        milow(6)=5   ! z z
+        milow(5)=1   ! w+ w-
+        milow(6)=1   ! z z
         milow(7)=1   ! mu+ mu-
         milow(8)=1   ! gluons
+        milow(9)=1   ! gluons
+        milow(10)=1   ! gluons
+        milow(11)=1   ! gluons
+        milow(12)=1   ! gluons
 
 c-----clear the tables
-        do j=1,8
-          do k=1,18
+        do j=1,12
+          do k=1,24
             do l=0,250
               phidif(l,k,j)=0.0d0
             enddo
@@ -38,20 +42,20 @@ c        open(unit=13,file='gammamc_dif.dat',status='old',
         open(unit=13,file=filename,status='old',
      & form='formatted')
 
-        do j=1,8
-          do k=1,18
+        do j=1,12
+          do k=1,24
             if (k.ge.milow(j)) then
-                read(13,2000) (phidif(l,k,j),l=0,zn-1)
+                read(13,*) (phidif(l,k,j),l=0,zn-1)
             endif
           enddo
         enddo
       close(13)
 
-        do j=1,8
-          do k=1,18
+        do j=1,12
+          do k=1,24
               do l=0,zn-1 ! correct units of dyield / dz
-                phidif(l,k,j)=phidif(l,k,j)/
-     &            (1.0d0/dble(zn))
+                phidif(l,k,j)=phidif(l,k,j)!/
+c     &            (1.0d0/dble(zn))
               enddo
 
              phidif(-1,k,j)=phidif(0,k,j)
@@ -61,9 +65,9 @@ c        open(unit=13,file='gammamc_dif.dat',status='old',
 
          enddo
 
-         dmfit_load=1
+c         dmfit_load=1
 
- 2000 format(1000(1x,e12.6))
+c 2000 format(1000(1x,e12.6))
 
       return 
       end

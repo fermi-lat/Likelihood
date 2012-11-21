@@ -15,7 +15,7 @@
 /* Common Block Declarations */
 
 struct {
-    real phidif[45360]	/* was [252][18][10] */;
+    real phidif[72576]	/* was [252][24][12] */;
     integer hasmooth;
 } hasim_;
 
@@ -25,10 +25,8 @@ struct {
 
 static integer c__9 = 9;
 static integer c__1 = 1;
-static doublereal c_b20 = 5.11e-4;
-static doublereal c_b21 = .1057;
 static integer c_n1 = -1;
-static integer c__17 = 17;
+static integer c__23 = 23;
 
 /* -----DMFIT dN/dE routine */
 doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
@@ -45,12 +43,11 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
     /* Local variables */
     extern doublereal yieldget_(integer *, integer *, integer *);
     static integer i__;
-    static doublereal z__, mi[18], mt;
+    static doublereal z__, mi[24], mt;
     static integer zi;
     static doublereal mw, mz;
     static integer zn, m1i, m2i;
     static doublereal mp1, mp2;
-    extern doublereal llg_(doublereal *, doublereal *, doublereal *);
     static integer hsm;
     static doublereal tmp, zpl, phi1, phi2, flux;
     static integer chref;
@@ -114,14 +111,14 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
     eeold = *ee;
     mxold = *mx;
 /* -----mass cut: lower limit, all channels but not e+e- */
-    if (*mx < 10. && *ch != 1) {
-/*         write(*,*) 'WARNING: MASS IS TOO LOW!' */
-/*         write(*,*) 'USING EXTRAPOLATION OF MC DATA!' */
-/* -----here we do the barbaric extrapolation to lower masses */
-	*ee = *ee / *mx * 10.;
-	*mx = 10.;
-/*         stop */
-    }
+/* $$$      if(MX.lt.10.d0.and.CH.ne.1) then */
+/* $$$c         write(*,*) 'WARNING: MASS IS TOO LOW!' */
+/* $$$c         write(*,*) 'USING EXTRAPOLATION OF MC DATA!' */
+/* $$$c-----here we do the barbaric extrapolation to lower masses */
+/* $$$         EE=EE/MX*10.d0 */
+/* $$$         MX=10.d0 */
+/* $$$c         stop */
+/* $$$      endif */
     hsm = 0;
 /* -----imposes the smoothing to use in the interpolation */
     if (hsm == 0) {
@@ -180,62 +177,124 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 /* -----translate the channels */
 /* -----this is the default channel, b \bar b */
     chref = 4;
+/* $$$      if(CH.eq.1) then */
+/* $$$c-----for the e+e- channel, go ahead and compute it! */
+/* $$$         dmfit_de=llg(EE/MX,MX,0.511d-3) */
+/* $$$         return */
+/* $$$ */
+/* $$$c-----for muon channel at low mass, the MonteCarlo statistics */
+/* $$$c-----resulting in the DMFIT table is too low, so we switch to */
+/* $$$c-----the same equation as the electron channel instead. */
+/* $$$      elseif(CH.eq.2.and.MX.lt.10.d0) then */
+/* $$$         dmfit_de=llg(EE/MX,MX,0.1057d0) */
+/* $$$         return */
+/* $$$      elseif(CH.eq.2) then */
+/* $$$         chref=7 */
+/* $$$      elseif(CH.eq.3) then */
+/* $$$         chref=4 */
+/* $$$      elseif(CH.eq.4) then */
+/* $$$         chref=2 */
+/* $$$      elseif(CH.eq.5) then */
+/* $$$         chref=3 */
+/* $$$      elseif(CH.eq.6) then */
+/* $$$         chref=8 */
+/* $$$      elseif(CH.eq.7) then */
+/* $$$         chref=5 */
+/* $$$      elseif(CH.eq.8) then */
+/* $$$         chref=6 */
+/* $$$      elseif(CH.eq.9) then */
+/* $$$         chref=1 */
+/* $$$      elseif(CH.eq.10) then */
+/* $$$         chref=9 */
+/* $$$      elseif(CH.eq.11) then */
+/* $$$         chref=10 */
+/* $$$      else */
+/* $$$         chref=4 */
+/* $$$      endif */
     if (*ch == 1) {
-/* -----for the e+e- channel, go ahead and compute it! */
-	d__1 = *ee / *mx;
-	ret_val = llg_(&d__1, mx, &c_b20);
-	return ret_val;
-/* -----for muon channel at low mass, the MonteCarlo statistics */
-/* -----resulting in the DMFIT table is too low, so we switch to */
-/* -----the same equation as the electron channel instead. */
-    } else if (*ch == 2 && *mx < 10.) {
-	d__1 = *ee / *mx;
-	ret_val = llg_(&d__1, mx, &c_b21);
-	return ret_val;
+/* -----e+e- */
+	chref = 9;
     } else if (*ch == 2) {
+/* -----mu+mu- */
 	chref = 7;
     } else if (*ch == 3) {
+/* -----tau+tau- */
 	chref = 4;
     } else if (*ch == 4) {
+/* -----b bbar */
 	chref = 2;
     } else if (*ch == 5) {
+/* ------t tbar */
 	chref = 3;
     } else if (*ch == 6) {
+/* -----g g */
 	chref = 8;
     } else if (*ch == 7) {
+/* -----W+W- */
 	chref = 5;
     } else if (*ch == 8) {
+/* -----ZZ */
 	chref = 6;
     } else if (*ch == 9) {
+/* -----mu+mu- */
 	chref = 1;
     } else if (*ch == 10) {
-	chref = 9;
-    } else if (*ch == 11) {
+/* -----s sbar */
 	chref = 10;
+    } else if (*ch == 11) {
+/* -----u ubar */
+	chref = 11;
+    } else if (*ch == 12) {
+/* -----d dbar */
+	chref = 12;
     } else {
 	chref = 4;
     }
 /* ******************************************************************** */
 /* -----this initializes and loads the MC simulation data for gammas */
 /* -----masses for simulation corresponding to mass index i */
-    mi[0] = 10.f;
-    mi[1] = 25.f;
-    mi[2] = 50.f;
-    mi[3] = 80.3f;
-    mi[4] = 91.2f;
-    mi[5] = 100.f;
-    mi[6] = 150.f;
-    mi[7] = 176.f;
-    mi[8] = 200.f;
-    mi[9] = 250.f;
-    mi[10] = 350.f;
-    mi[11] = 500.f;
-    mi[12] = 750.f;
-    mi[13] = 1e3f;
-    mi[14] = 1500.f;
-    mi[15] = 2e3f;
-    mi[16] = 3e3f;
-    mi[17] = 5e3f;
+/* $$$        mi(1)=10.0 */
+/* $$$        mi(2)=25.0 */
+/* $$$        mi(3)=50.0 */
+/* $$$        mi(4)=80.3 */
+/* $$$        mi(5)=91.2 */
+/* $$$        mi(6)=100.0 */
+/* $$$        mi(7)=150.0 */
+/* $$$        mi(8)=176.0 */
+/* $$$        mi(9)=200.0 */
+/* $$$        mi(10)=250.0 */
+/* $$$        mi(11)=350.0 */
+/* $$$        mi(12)=500.0 */
+/* $$$        mi(13)=750.0 */
+/* $$$        mi(14)=1000.0 */
+/* $$$        mi(15)=1500.0 */
+/* $$$        mi(16)=2000.0 */
+/* $$$        mi(17)=3000.0 */
+/* $$$        mi(18)=5000.0 */
+    mi[0] = 2.;
+    mi[1] = 4.;
+    mi[2] = 6.;
+    mi[3] = 8.;
+    mi[4] = 10.;
+    mi[5] = 25.;
+    mi[6] = 50.;
+    mi[7] = 80.3;
+    mi[8] = 91.2;
+    mi[9] = 100.;
+    mi[10] = 150.;
+    mi[11] = 176.;
+    mi[12] = 200.;
+    mi[13] = 250.;
+    mi[14] = 350.;
+    mi[15] = 500.;
+    mi[16] = 750.;
+    mi[17] = 1e3;
+    mi[18] = 1500.;
+    mi[19] = 2e3;
+    mi[20] = 3e3;
+    mi[21] = 5e3;
+    mi[22] = 7e3;
+    mi[23] = 1e4;
 /* -----initialize eindex array where the energies for the bins are stored */
 /* -----integrated yields (lower end of each bin) */
     zn = 250;
@@ -262,19 +321,20 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 	ret_val = 0.;
 	return ret_val;
     }
-    ifind_(mx, mi, &tmp, &m1i, &c__1, &c__17);
+    ifind_(mx, mi, &tmp, &m1i, &c__1, &c__23);
     mp1 = mi[m1i - 1];
     m2i = m1i + 1;
     mp2 = mi[m2i - 1];
-    if (*mx >= mi[17]) {
-	m1i = 18;
-	m2i = 18;
-	mp1 = mi[17];
+    if (*mx >= mi[23]) {
+	m1i = 24;
+	m2i = 24;
+	mp1 = mi[23];
 	mp2 = mp1;
 	i__1 = zi + 1;
 	flux = (1.f - zpl) * yieldget_(&zi, &m1i, &chref) + zpl * yieldget_(&
 		i__1, &m1i, &chref);
-	flux = flux * .434294481903 / (*ee * 10.);
+/* $$$          FLUX=FLUX*lge/(ndec*EE) */
+	flux /= *ee;
     } else {
 /*           write(*,*) CH,zi,m1i,EE,yieldget(zi,m1i,chref) */
 	i__1 = zi + 1;
@@ -285,12 +345,13 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 		i__1, &m2i, &chref);
 	flux = phi1 + (phi2 - phi1) * (*mx - mp1) * (*mx + mp1) / ((mp2 - mp1)
 		 * (mp2 + mp1));
-	flux = flux * .434294481903 / (*ee * 10.);
+/* $$$          FLUX=FLUX*lge/(ndec*EE) */
+	flux /= *ee;
     }
 /* L105: */
-    if (mxold < 10. && *ch != 1) {
-	flux /= mxold / 10.;
-    }
+/* $$$        if(MXOLD.lt.10.d0.and.CH.ne.1) then */
+/* $$$           FLUX=FLUX/(MXOLD/10.d0) */
+/* $$$        endif */
     ret_val = flux;
 /* -----here we restore the input values if they were altered */
     *ee = eeold;

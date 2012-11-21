@@ -14,7 +14,7 @@ c********************************************************************
       integer zn
       integer hasmooth
       real phidif
-      common/hasim/phidif(-1:250,18,10),hasmooth
+      common/hasim/phidif(-1:250,24,12),hasmooth
 
       zn=250
 

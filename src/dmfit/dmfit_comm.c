@@ -1,4 +1,4 @@
-/* dmfit_comm.f -- translated by f2c (version 20031025).
+/* dmfit_comm.f -- translated by f2c (version 20090411).
    You must link the resulting object file with libf2c:
 	on Microsoft Windows system, link with libf2c.lib;
 	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
@@ -14,8 +14,8 @@
 
 /* Common Block Declarations */
 
-extern struct {
-    real phidif[45360]	/* was [252][18][10] */;
+struct {
+    real phidif[72576]	/* was [252][24][12] */;
     integer hasmooth;
 } hasim_;
 
@@ -41,46 +41,46 @@ doublereal yieldget_(integer *zi, integer *mxi, integer *ch)
 /* -----only differential flux */
     if (hasim_1.hasmooth == 1) {
 	if (*zi >= 1 && *zi <= zn - 1) {
-	    ret_val = (doublereal) hasim_1.phidif[*zi - 1 + (*mxi + *ch * 18) 
-		    * 252 - 4787] * .25 + (doublereal) hasim_1.phidif[*zi + (*
-		    mxi + *ch * 18) * 252 - 4787] * .5 + (doublereal) 
-		    hasim_1.phidif[*zi + 1 + (*mxi + *ch * 18) * 252 - 4787] *
+	    ret_val = (doublereal) hasim_1.phidif[*zi - 1 + (*mxi + *ch * 24) 
+		    * 252 - 6299] * .25 + (doublereal) hasim_1.phidif[*zi + (*
+		    mxi + *ch * 24) * 252 - 6299] * .5 + (doublereal) 
+		    hasim_1.phidif[*zi + 1 + (*mxi + *ch * 24) * 252 - 6299] *
 		     .25;
 	} else if (*zi == 0) {
-	    ret_val = (doublereal) hasim_1.phidif[*zi + (*mxi + *ch * 18) * 
-		    252 - 4787] * .75 + (doublereal) hasim_1.phidif[*zi + 1 + 
-		    (*mxi + *ch * 18) * 252 - 4787] * .25;
+	    ret_val = (doublereal) hasim_1.phidif[*zi + (*mxi + *ch * 24) * 
+		    252 - 6299] * .75 + (doublereal) hasim_1.phidif[*zi + 1 + 
+		    (*mxi + *ch * 24) * 252 - 6299] * .25;
 	} else if (*zi == zn) {
-	    ret_val = (doublereal) hasim_1.phidif[*zi + (*mxi + *ch * 18) * 
-		    252 - 4787] * .75 + (doublereal) hasim_1.phidif[*zi - 1 + 
-		    (*mxi + *ch * 18) * 252 - 4787] * .25;
+	    ret_val = (doublereal) hasim_1.phidif[*zi + (*mxi + *ch * 24) * 
+		    252 - 6299] * .75 + (doublereal) hasim_1.phidif[*zi - 1 + 
+		    (*mxi + *ch * 24) * 252 - 6299] * .25;
 	}
     } else if (hasim_1.hasmooth == 2) {
 	if (*zi <= zn - 2) {
-	    ret_val = (doublereal) hasim_1.phidif[*zi - 2 + (*mxi + *ch * 18) 
-		    * 252 - 4787] * .1 + (doublereal) hasim_1.phidif[*zi - 1 
-		    + (*mxi + *ch * 18) * 252 - 4787] * .225 + (doublereal) 
-		    hasim_1.phidif[*zi + (*mxi + *ch * 18) * 252 - 4787] * 
+	    ret_val = (doublereal) hasim_1.phidif[*zi - 2 + (*mxi + *ch * 24) 
+		    * 252 - 6299] * .1 + (doublereal) hasim_1.phidif[*zi - 1 
+		    + (*mxi + *ch * 24) * 252 - 6299] * .225 + (doublereal) 
+		    hasim_1.phidif[*zi + (*mxi + *ch * 24) * 252 - 6299] * 
 		    .35 + (doublereal) hasim_1.phidif[*zi + 1 + (*mxi + *ch * 
-		    18) * 252 - 4787] * .225 + (doublereal) hasim_1.phidif[*
-		    zi + 2 + (*mxi + *ch * 18) * 252 - 4787] * .1;
+		    24) * 252 - 6299] * .225 + (doublereal) hasim_1.phidif[*
+		    zi + 2 + (*mxi + *ch * 24) * 252 - 6299] * .1;
 	} else if (*zi == zn - 1) {
-	    ret_val = (doublereal) hasim_1.phidif[*zi - 2 + (*mxi + *ch * 18) 
-		    * 252 - 4787] * .1 + (doublereal) hasim_1.phidif[*zi - 1 
-		    + (*mxi + *ch * 18) * 252 - 4787] * .225 + (doublereal) 
-		    hasim_1.phidif[*zi + (*mxi + *ch * 18) * 252 - 4787] * 
+	    ret_val = (doublereal) hasim_1.phidif[*zi - 2 + (*mxi + *ch * 24) 
+		    * 252 - 6299] * .1 + (doublereal) hasim_1.phidif[*zi - 1 
+		    + (*mxi + *ch * 24) * 252 - 6299] * .225 + (doublereal) 
+		    hasim_1.phidif[*zi + (*mxi + *ch * 24) * 252 - 6299] * 
 		    .45 + (doublereal) hasim_1.phidif[*zi + 1 + (*mxi + *ch * 
-		    18) * 252 - 4787] * .225;
+		    24) * 252 - 6299] * .225;
 	} else {
-	    ret_val = (doublereal) hasim_1.phidif[*zi - 2 + (*mxi + *ch * 18) 
-		    * 252 - 4787] * .1 + (doublereal) hasim_1.phidif[*zi - 1 
-		    + (*mxi + *ch * 18) * 252 - 4787] * .225 + (doublereal) 
-		    hasim_1.phidif[*zi + (*mxi + *ch * 18) * 252 - 4787] * 
+	    ret_val = (doublereal) hasim_1.phidif[*zi - 2 + (*mxi + *ch * 24) 
+		    * 252 - 6299] * .1 + (doublereal) hasim_1.phidif[*zi - 1 
+		    + (*mxi + *ch * 24) * 252 - 6299] * .225 + (doublereal) 
+		    hasim_1.phidif[*zi + (*mxi + *ch * 24) * 252 - 6299] * 
 		    .675;
 	}
     } else {
-	ret_val = (doublereal) hasim_1.phidif[*zi + (*mxi + *ch * 18) * 252 - 
-		4787];
+	ret_val = (doublereal) hasim_1.phidif[*zi + (*mxi + *ch * 24) * 252 - 
+		6299];
     }
     return ret_val;
 } /* yieldget_ */

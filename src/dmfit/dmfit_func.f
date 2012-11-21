@@ -61,7 +61,7 @@ c,ntype
 c      integer j,k,l
       integer zi,m1i,m2i,zn
       real*8 z,ndec,zpl,tmp
-      real*8 mi(18),mp1,mp2
+      real*8 mi(24),mp1,mp2
       real*8 phi1,phi2
       real*8 yieldget
       real*8 lge
@@ -79,7 +79,7 @@ c-----function that computes the differential \gamma flux from e+e-
 
 c-----data tables     
       real phidif
-      common/hasim/phidif(-1:250,18,10),hasmooth
+      common/hasim/phidif(-1:250,24,12),hasmooth
 
 
 ********************************************************************
@@ -88,14 +88,14 @@ c     backup the input energy and mass values
          MXold=MX
 
 c-----mass cut: lower limit, all channels but not e+e-
-      if(MX.lt.10.d0.and.CH.ne.1) then
-c         write(*,*) 'WARNING: MASS IS TOO LOW!'
-c         write(*,*) 'USING EXTRAPOLATION OF MC DATA!'
-c-----here we do the barbaric extrapolation to lower masses
-         EE=EE/MX*10.d0
-         MX=10.d0
-c         stop
-      endif
+c$$$      if(MX.lt.10.d0.and.CH.ne.1) then
+c$$$c         write(*,*) 'WARNING: MASS IS TOO LOW!'
+c$$$c         write(*,*) 'USING EXTRAPOLATION OF MC DATA!'
+c$$$c-----here we do the barbaric extrapolation to lower masses
+c$$$         EE=EE/MX*10.d0
+c$$$         MX=10.d0
+c$$$c         stop
+c$$$      endif
 
       HSM=0
 
@@ -145,37 +145,76 @@ c-----translate the channels
 c-----this is the default channel, b \bar b
       chref=4
 
+c$$$      if(CH.eq.1) then
+c$$$c-----for the e+e- channel, go ahead and compute it!
+c$$$         dmfit_de=llg(EE/MX,MX,0.511d-3)
+c$$$         return
+c$$$
+c$$$c-----for muon channel at low mass, the MonteCarlo statistics 
+c$$$c-----resulting in the DMFIT table is too low, so we switch to
+c$$$c-----the same equation as the electron channel instead.
+c$$$      elseif(CH.eq.2.and.MX.lt.10.d0) then
+c$$$         dmfit_de=llg(EE/MX,MX,0.1057d0)
+c$$$         return
+c$$$      elseif(CH.eq.2) then
+c$$$         chref=7
+c$$$      elseif(CH.eq.3) then
+c$$$         chref=4
+c$$$      elseif(CH.eq.4) then
+c$$$         chref=2
+c$$$      elseif(CH.eq.5) then
+c$$$         chref=3
+c$$$      elseif(CH.eq.6) then
+c$$$         chref=8
+c$$$      elseif(CH.eq.7) then
+c$$$         chref=5
+c$$$      elseif(CH.eq.8) then
+c$$$         chref=6
+c$$$      elseif(CH.eq.9) then
+c$$$         chref=1
+c$$$      elseif(CH.eq.10) then
+c$$$         chref=9
+c$$$      elseif(CH.eq.11) then
+c$$$         chref=10
+c$$$      else
+c$$$         chref=4
+c$$$      endif
       if(CH.eq.1) then
-c-----for the e+e- channel, go ahead and compute it!
-         dmfit_de=llg(EE/MX,MX,0.511d-3)
-         return
-
-c-----for muon channel at low mass, the MonteCarlo statistics 
-c-----resulting in the DMFIT table is too low, so we switch to
-c-----the same equation as the electron channel instead.
-      elseif(CH.eq.2.and.MX.lt.10.d0) then
-         dmfit_de=llg(EE/MX,MX,0.1057d0)
-         return
+c-----e+e-
+         chref=9
       elseif(CH.eq.2) then
+c-----mu+mu-
          chref=7
       elseif(CH.eq.3) then
+c-----tau+tau-
          chref=4
       elseif(CH.eq.4) then
+c-----b bbar
          chref=2
       elseif(CH.eq.5) then
+c------t tbar
          chref=3
       elseif(CH.eq.6) then
+c-----g g
          chref=8
       elseif(CH.eq.7) then
+c-----W+W-
          chref=5
       elseif(CH.eq.8) then
+c-----ZZ
          chref=6
       elseif(CH.eq.9) then
+c-----mu+mu-
          chref=1
       elseif(CH.eq.10) then
-         chref=9
-      elseif(CH.eq.11) then
+c-----s sbar
          chref=10
+      elseif(CH.eq.11) then
+c-----u ubar
+         chref=11
+      elseif(CH.eq.12) then
+c-----d dbar
+         chref=12
       else
          chref=4
       endif
@@ -184,24 +223,48 @@ c********************************************************************
 c-----this initializes and loads the MC simulation data for gammas
 
 c-----masses for simulation corresponding to mass index i
-        mi(1)=10.0
-        mi(2)=25.0
-        mi(3)=50.0
-        mi(4)=80.3
-        mi(5)=91.2
-        mi(6)=100.0
-        mi(7)=150.0
-        mi(8)=176.0
-        mi(9)=200.0
-        mi(10)=250.0
-        mi(11)=350.0
-        mi(12)=500.0
-        mi(13)=750.0
-        mi(14)=1000.0
-        mi(15)=1500.0
-        mi(16)=2000.0
-        mi(17)=3000.0
-        mi(18)=5000.0
+c$$$        mi(1)=10.0
+c$$$        mi(2)=25.0
+c$$$        mi(3)=50.0
+c$$$        mi(4)=80.3
+c$$$        mi(5)=91.2
+c$$$        mi(6)=100.0
+c$$$        mi(7)=150.0
+c$$$        mi(8)=176.0
+c$$$        mi(9)=200.0
+c$$$        mi(10)=250.0
+c$$$        mi(11)=350.0
+c$$$        mi(12)=500.0
+c$$$        mi(13)=750.0
+c$$$        mi(14)=1000.0
+c$$$        mi(15)=1500.0
+c$$$        mi(16)=2000.0
+c$$$        mi(17)=3000.0
+c$$$        mi(18)=5000.0
+        mi(1)=2.d0
+        mi(2)=4.d0
+        mi(3)=6.d0
+        mi(4)=8.d0
+        mi(5)=10.d0
+        mi(6)=25.d0
+        mi(7)=50.d0
+        mi(8)=80.3d0
+        mi(9)=91.2d0
+        mi(10)=100.d0
+        mi(11)=150.d0
+        mi(12)=176.d0
+        mi(13)=200.d0
+        mi(14)=250.d0
+        mi(15)=350.d0
+        mi(16)=500.d0
+        mi(17)=750.d0
+        mi(18)=1000.d0
+        mi(19)=1500.d0
+        mi(20)=2000.d0
+        mi(21)=3000.d0
+        mi(22)=5000.d0
+        mi(23)=7000.d0
+        mi(24)=10000.d0
 
 c-----initialize eindex array where the energies for the bins are stored
 c-----integrated yields (lower end of each bin)
@@ -231,23 +294,23 @@ c-----interpolation: lower energy
           return
         endif
 
-        call ifind(MX,mi(1),tmp,m1i,1,17)
+        call ifind(MX,mi(1),tmp,m1i,1,23)
         mp1=mi(m1i)
         m2i=m1i+1
         mp2=mi(m2i)
 
-        if (MX.ge.mi(18)) then
-          m1i=18
-          m2i=18
-          mp1=mi(18)
+        if (MX.ge.mi(24)) then
+          m1i=24
+          m2i=24
+          mp1=mi(24)
           mp2=mp1
 
           FLUX =
      &      (1.0-zpl)*yieldget(zi,m1i,chref)+
      &      zpl*yieldget(zi+1,m1i,chref)
 
-          FLUX=FLUX*lge/(ndec*EE)
-
+c$$$          FLUX=FLUX*lge/(ndec*EE)
+          FLUX=FLUX/EE
         else
 c           write(*,*) CH,zi,m1i,EE,yieldget(zi,m1i,chref)
           phi1 =
@@ -259,15 +322,15 @@ c           write(*,*) CH,zi,m1i,EE,yieldget(zi,m1i,chref)
           FLUX = phi1 + (phi2-phi1)*(MX-mp1)*(MX+mp1)/
      &      ((mp2-mp1)*(mp2+mp1))
 
-          FLUX=FLUX*lge/(ndec*EE)
-
+c$$$          FLUX=FLUX*lge/(ndec*EE)
+          FLUX=FLUX/EE
         endif
 
  105    continue
 
-        if(MXOLD.lt.10.d0.and.CH.ne.1) then
-           FLUX=FLUX/(MXOLD/10.d0)
-        endif
+c$$$        if(MXOLD.lt.10.d0.and.CH.ne.1) then
+c$$$           FLUX=FLUX/(MXOLD/10.d0)
+c$$$        endif
 
 
         dmfit_de=FLUX
