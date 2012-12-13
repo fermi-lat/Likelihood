@@ -280,7 +280,7 @@ c********************************************************************
 
 c-----interpolation: lower energy
 
-      if(EE.ge.MX) then
+      if(EE.ge.MX.or.MX.gt.mi(24)) then
          dmfit_de=0.d0
          return
       endif
@@ -299,7 +299,7 @@ c-----interpolation: lower energy
         m2i=m1i+1
         mp2=mi(m2i)
 
-        if (MX.ge.mi(24)) then
+        if (MX.eq.mi(24)) then
           m1i=24
           m2i=24
           mp1=mi(24)
