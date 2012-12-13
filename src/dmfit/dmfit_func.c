@@ -23,9 +23,8 @@ struct {
 
 /* Table of constant values */
 
-static integer c__9 = 9;
-static integer c__1 = 1;
 static integer c_n1 = -1;
+static integer c__1 = 1;
 static integer c__23 = 23;
 
 /* -----DMFIT dN/dE routine */
@@ -36,17 +35,13 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
     doublereal ret_val, d__1;
 
     /* Builtin functions */
-    integer s_wsle(cilist *), do_lio(integer *, integer *, char *, ftnlen), 
-	    e_wsle(void);
     double d_lg10(doublereal *);
 
     /* Local variables */
     extern doublereal yieldget_(integer *, integer *, integer *);
     static integer i__;
-    static doublereal z__, mi[24], mt;
-    static integer zi;
-    static doublereal mw, mz;
-    static integer zn, m1i, m2i;
+    static doublereal z__, mi[24];
+    static integer zi, zn, m1i, m2i;
     static doublereal mp1, mp2;
     static integer hsm;
     static doublereal tmp, zpl, phi1, phi2, flux;
@@ -55,15 +50,6 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
     extern /* Subroutine */ int ifind_(doublereal *, doublereal *, doublereal 
 	    *, integer *, integer *, integer *);
     static doublereal mxold, zindex[504]	/* was [252][2] */;
-
-    /* Fortran I/O blocks */
-    static cilist io___7 = { 0, 6, 0, 0, 0 };
-    static cilist io___8 = { 0, 6, 0, 0, 0 };
-    static cilist io___9 = { 0, 6, 0, 0, 0 };
-    static cilist io___10 = { 0, 6, 0, 0, 0 };
-    static cilist io___11 = { 0, 6, 0, 0, 0 };
-    static cilist io___12 = { 0, 6, 0, 0, 0 };
-
 
 /* -----ARGUMENTS: */
 /* -----WIMP mass */
@@ -96,6 +82,7 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 /* -----Photon flux (differential) */
 /* -----whether or not to smooth the interpolation */
 /* -----masses of top, W, Z */
+/*      real*8 mt,mw,mz */
 /* -----lowest mass index */
 /*      real*8 milow(10) */
 /* -----this is the reference channel */
@@ -105,6 +92,7 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 /* -----number of decades tabulated */
 /* -----backup masses and energies for low energy extrapolation */
 /* -----function that computes the differential \gamma flux from e+e- */
+/*      real*8 llg */
 /* -----data tables */
 /* ******************************************************************* */
 /*     backup the input energy and mass values */
@@ -131,52 +119,36 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 	hasim_1.hasmooth = 0;
     }
 /* -----set the masses for top, W, Z */
-    mt = 174.3;
-    mw = 80.33;
-    mz = 91.187;
+/* $$$      mt=174.3d0 */
+/* $$$      mw=80.33d0 */
+/* $$$      mz=91.187d0 */
 /* -----switches to CH 4 if mass limit inconsistent */
-    if (*ch == 5) {
-	if (*mx < mt) {
-	    *ch = 4;
-	    s_wsle(&io___7);
-	    do_lio(&c__9, &c__1, "ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!", 
-		    (ftnlen)41);
-	    e_wsle();
-	    s_wsle(&io___8);
-	    do_lio(&c__9, &c__1, "       SWITHCING TO DEFAULT, B\bar B!", (
-		    ftnlen)36);
-	    e_wsle();
-	}
-    }
-    if (*ch == 7) {
-	if (*mx < mw) {
-	    *ch = 4;
-	    s_wsle(&io___9);
-	    do_lio(&c__9, &c__1, "ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!", 
-		    (ftnlen)41);
-	    e_wsle();
-	    s_wsle(&io___10);
-	    do_lio(&c__9, &c__1, "       SWITHCING TO DEFAULT, B\bar B!", (
-		    ftnlen)36);
-	    e_wsle();
-	}
-    }
-    if (*ch == 8) {
-	if (*mx < mz) {
-	    *ch = 4;
-	    s_wsle(&io___11);
-	    do_lio(&c__9, &c__1, "ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!", 
-		    (ftnlen)41);
-	    e_wsle();
-	    s_wsle(&io___12);
-	    do_lio(&c__9, &c__1, "       SWITHCING TO DEFAULT, B\bar B!", (
-		    ftnlen)36);
-	    e_wsle();
-	}
-    }
+/* $$$      if(CH.eq.5) then */
+/* $$$         if(MX.lt.mt) then */
+/* $$$            CH=4 */
+/* $$$            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!' */
+/* $$$            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!' */
+/* $$$         endif */
+/* $$$      endif */
+/* $$$ */
+/* $$$      if(CH.eq.7) then */
+/* $$$         if(MX.lt.mw) then */
+/* $$$            CH=4 */
+/* $$$            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!' */
+/* $$$            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!' */
+/* $$$         endif */
+/* $$$      endif */
+/* $$$ */
+/* $$$      if(CH.eq.8) then */
+/* $$$         if(MX.lt.mz) then */
+/* $$$            CH=4 */
+/* $$$            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!' */
+/* $$$            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!' */
+/* $$$         endif */
+/* $$$      endif */
 /* -----translate the channels */
 /* -----this is the default channel, b \bar b */
-    chref = 4;
+/* $$$      chref=4 */
 /* $$$      if(CH.eq.1) then */
 /* $$$c-----for the e+e- channel, go ahead and compute it! */
 /* $$$         dmfit_de=llg(EE/MX,MX,0.511d-3) */
@@ -236,7 +208,7 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
 /* -----ZZ */
 	chref = 6;
     } else if (*ch == 9) {
-/* -----mu+mu- */
+/* -----c cbar */
 	chref = 1;
     } else if (*ch == 10) {
 /* -----s sbar */

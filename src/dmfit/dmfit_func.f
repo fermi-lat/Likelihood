@@ -48,7 +48,7 @@ c-----Photon flux (differential)
 c-----whether or not to smooth the interpolation
       integer hasmooth
 c-----masses of top, W, Z
-      real*8 mt,mw,mz
+c      real*8 mt,mw,mz
 c-----lowest mass index
 c      real*8 milow(10)
 
@@ -75,7 +75,7 @@ c-----number of decades tabulated
 c-----backup masses and energies for low energy extrapolation
       real*8 EEold,MXold
 c-----function that computes the differential \gamma flux from e+e-
-      real*8 llg
+c      real*8 llg
 
 c-----data tables     
       real phidif
@@ -111,39 +111,39 @@ c-----imposes the smoothing to use in the interpolation
       endif
 
 c-----set the masses for top, W, Z    
-      mt=174.3d0
-      mw=80.33d0
-      mz=91.187d0
+c$$$      mt=174.3d0
+c$$$      mw=80.33d0
+c$$$      mz=91.187d0
 
 c-----switches to CH 4 if mass limit inconsistent
-      if(CH.eq.5) then
-         if(MX.lt.mt) then
-            CH=4
-            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!'
-            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!'
-         endif
-      endif
-
-      if(CH.eq.7) then
-         if(MX.lt.mw) then
-            CH=4
-            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!'
-            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!'
-         endif
-      endif
-
-      if(CH.eq.8) then
-         if(MX.lt.mz) then
-            CH=4
-            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!'
-            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!'
-         endif
-      endif
+c$$$      if(CH.eq.5) then
+c$$$         if(MX.lt.mt) then
+c$$$            CH=4
+c$$$            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!'
+c$$$            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!'
+c$$$         endif
+c$$$      endif
+c$$$
+c$$$      if(CH.eq.7) then
+c$$$         if(MX.lt.mw) then
+c$$$            CH=4
+c$$$            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!'
+c$$$            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!'
+c$$$         endif
+c$$$      endif
+c$$$
+c$$$      if(CH.eq.8) then
+c$$$         if(MX.lt.mz) then
+c$$$            CH=4
+c$$$            write(*,*) 'ERROR: CHANNEL NOT KINEMATICALLY ALLOWED!'
+c$$$            write(*,*) '       SWITHCING TO DEFAULT, B\bar B!'
+c$$$         endif
+c$$$      endif
 
 c-----translate the channels
 
 c-----this is the default channel, b \bar b
-      chref=4
+c$$$      chref=4
 
 c$$$      if(CH.eq.1) then
 c$$$c-----for the e+e- channel, go ahead and compute it!
@@ -204,7 +204,7 @@ c-----W+W-
 c-----ZZ
          chref=6
       elseif(CH.eq.9) then
-c-----mu+mu-
+c-----c cbar
          chref=1
       elseif(CH.eq.10) then
 c-----s sbar
