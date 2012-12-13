@@ -281,7 +281,7 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
     }
 /* ******************************************************************** */
 /* -----interpolation: lower energy */
-    if (*ee >= *mx) {
+    if (*ee >= *mx || *mx > mi[23]) {
 	ret_val = 0.;
 	return ret_val;
     }
@@ -297,7 +297,7 @@ doublereal dmfit_de__(doublereal *mx, integer *ch, doublereal *ee)
     mp1 = mi[m1i - 1];
     m2i = m1i + 1;
     mp2 = mi[m2i - 1];
-    if (*mx >= mi[23]) {
+    if (*mx == mi[23]) {
 	m1i = 24;
 	m2i = 24;
 	mp1 = mi[23];
