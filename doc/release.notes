@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.500 2012/11/16 20:42:37 jchiang Exp $
+    $Id: release.notes,v 1.501 2012/12/14 09:57:51 cohen Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-17-27-01 02-Jan-2013 jchiang Alex's commenting out of debug statement in DMFitFunction.cxx
  Likelihood-17-27-00 14-Dec-2012  cohen Committing the new DMFIT
  Likelihood-17-26-02 16-Nov-2012 jchiang performance improvements in BinnedLikelihood::getFreeDerivs
  Likelihood-17-26-01 10-Nov-2012 jchiang ensure setupEnvironment() is called exactly once via st_facilities::Environment
