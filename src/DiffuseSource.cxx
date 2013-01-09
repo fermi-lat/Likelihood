@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.59 2012/01/19 20:26:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.60 2012/06/27 20:31:51 jchiang Exp $
  */
 
 #include <algorithm>
@@ -91,7 +91,7 @@ DiffuseSource::DiffuseSource(const DiffuseSource & rhs)
    m_functions["Spectrum"] = m_spectrum;
 }
 
-double DiffuseSource::fluxDensity(const Event &evt,
+double DiffuseSource::fluxDensity(const Event & evt,
 				  CachedResponse* cResp) const {
    (void)(cResp);
    double my_fluxDensity;
@@ -246,7 +246,7 @@ double DiffuseSource::diffuseResponse(const Event & evt) const {
          my_value += (respFuncs.totalResponse(trueEnergy, evt.getEnergy(), 
                                               evt.zAxis(), evt.xAxis(),
                                               srcDir, evt.getDir(),
-                                              evt.getType())
+                                              evt.getType(), evt.getArrTime())
                       *mapValue*solidAngles.at(i).at(j));
       }
    }

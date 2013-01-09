@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.34 2011/10/18 04:56:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.35 2011/10/18 22:45:46 jchiang Exp $
  */
 
 #include <algorithm>
@@ -34,7 +34,7 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
                                         const astro::SkyDir & xAxis,
                                         const astro::SkyDir & srcDir,
                                         const astro::SkyDir & appDir, 
-                                        int type) const {
+                                        int type, double time) const {
    double myResponse;
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
@@ -46,12 +46,12 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
    } else {
       irfInterface::IPsf * psf(irfs->psf());
       irfInterface::IAeff * aeff(irfs->aeff());
-      double psf_val(psf->value(appDir, energy, srcDir, zAxis, xAxis));
-      double aeff_val(aeff->value(energy, srcDir, zAxis, xAxis));
+      double psf_val(psf->value(appDir, energy, srcDir, zAxis, xAxis, time));
+      double aeff_val(aeff->value(energy, srcDir, zAxis, xAxis, time));
       if (m_useEdisp) {
          irfInterface::IEdisp * edisp(irfs->edisp());
          double edisp_val(edisp->value(appEnergy, energy, srcDir, 
-                                       zAxis, xAxis));
+                                       zAxis, xAxis, time));
          myResponse = psf_val*aeff_val*edisp_val;
       } else {
          myResponse = psf_val*aeff_val;
@@ -62,7 +62,8 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
 
 double ResponseFunctions::totalResponse(double inclination, double phi,
                                         double energy, double appEnergy,
-                                        double separation, int type) const {
+                                        double separation, int type,
+                                        double time) const {
    double myResponse;
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
@@ -74,11 +75,12 @@ double ResponseFunctions::totalResponse(double inclination, double phi,
    } else {
       irfInterface::IPsf * psf(irfs->psf());
       irfInterface::IAeff * aeff(irfs->aeff());
-      double psf_val(psf->value(separation, energy, inclination, phi));
-      double aeff_val(aeff->value(energy, inclination, phi));
+      double psf_val(psf->value(separation, energy, inclination, phi, time));
+      double aeff_val(aeff->value(energy, inclination, phi, time));
       if (m_useEdisp) {
          irfInterface::IEdisp * edisp(irfs->edisp());
-         double edisp_val(edisp->value(appEnergy, energy, inclination, phi));
+         double edisp_val(edisp->value(appEnergy, energy, inclination, phi,
+                                       time));
          myResponse = psf_val*aeff_val*edisp_val;
       } else {
          myResponse = psf_val*aeff_val;
@@ -152,7 +154,7 @@ double ResponseFunctions::edisp(double emeas, double etrue,
                                 const astro::SkyDir & appDir,
                                 const astro::SkyDir & zAxis,
                                 const astro::SkyDir & xAxis,
-                                int type) const {
+                                int type, double time) const {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -162,11 +164,12 @@ double ResponseFunctions::edisp(double emeas, double etrue,
       throw std::runtime_error(message.str());
    }
    irfInterface::IEdisp * edisp(irfs->edisp());
-   return edisp->value(emeas, etrue, appDir, zAxis, xAxis);
+   return edisp->value(emeas, etrue, appDir, zAxis, xAxis, time);
 }
 
 double ResponseFunctions::edisp(double emeas, double etrue, 
-                                double theta, double phi, int type) const {
+                                double theta, double phi, 
+                                int type, double time) const {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -176,14 +179,14 @@ double ResponseFunctions::edisp(double emeas, double etrue,
       throw std::runtime_error(message.str());
    }
    irfInterface::IEdisp * edisp(irfs->edisp());
-   return edisp->value(emeas, etrue, theta, phi);
+   return edisp->value(emeas, etrue, theta, phi, time);
 }
 
 double ResponseFunctions::aeff(double etrue, 
                                const astro::SkyDir & appDir,
                                const astro::SkyDir & zAxis,
                                const astro::SkyDir & xAxis,
-                               int type) const {
+                               int type, double time) const {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -193,11 +196,11 @@ double ResponseFunctions::aeff(double etrue,
       throw std::runtime_error(message.str());
    }
    irfInterface::IAeff * aeff(irfs->aeff());
-   return aeff->value(etrue, appDir, zAxis, xAxis);
+   return aeff->value(etrue, appDir, zAxis, xAxis, time);
 }
 
 double ResponseFunctions::aeff(double etrue, double theta, double phi,
-                               int type) const {
+                               int type, double time) const {
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
       std::ostringstream message;
@@ -207,7 +210,7 @@ double ResponseFunctions::aeff(double etrue, double theta, double phi,
       throw std::runtime_error(message.str());
    }
    irfInterface::IAeff * aeff(irfs->aeff());
-   return aeff->value(etrue, theta, phi);
+   return aeff->value(etrue, theta, phi, time);
 }
 
 } // namespace Likelihood

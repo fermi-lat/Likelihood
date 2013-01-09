@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.22 2012/02/08 00:23:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.23 2012/06/27 20:31:51 jchiang Exp $
  */
 
 #include <algorithm>
@@ -38,12 +38,22 @@ Source::Source(const Source & rhs)
 
 double Source::Npred() {
    optimizers::Function * specFunc = m_functions["Spectrum"];
-   const std::vector<double> & energies(m_energies);
-//    std::cout << m_name << ", Npred(): " 
-//              << energies.size() << "  "
-//              << energies.front() << "  "
-//              << energies.back() << std::endl;
+   if (specFunc->xvalues().size() == 0) {
+      const std::vector<double> & energies(m_energies);
 
+      std::vector<double> NpredIntegrand(energies.size());
+      for (unsigned int k = 0; k < energies.size(); k++) {
+         optimizers::dArg eArg(energies[k]);
+         NpredIntegrand[k] = (*specFunc)(eArg)*m_exposure[k];
+      }
+      bool useLog;
+      TrapQuad trapQuad(energies, NpredIntegrand, useLog=true);
+      double value(trapQuad.integral());
+      return value;
+   }
+   const std::vector<double> & energies(specFunc->xvalues());
+   std::vector<double> exposure;
+   getExposureValues(energies, exposure);
    std::vector<double> NpredIntegrand(energies.size());
    for (unsigned int k = 0; k < energies.size(); k++) {
       optimizers::dArg eArg(energies[k]);
@@ -53,6 +63,23 @@ double Source::Npred() {
    TrapQuad trapQuad(energies, NpredIntegrand, useLog=true);
    double value(trapQuad.integral());
    return value;
+}
+
+void Source::getExposureValues(const std::vector<double> & energies,
+                               std::vector<double> & exposures) const {
+   exposures.resize(energies.size(), 0);
+   double estep(std::log(m_energies[1]/m_energies[0]));
+   for (size_t k(0); k < energies.size(); k++) {
+      if (energies[k] < m_energies[0] || energies[k] > m_energies.back()) {
+         exposures[k] = 0;
+      } else {
+         size_t indx = static_cast<size_t>(std::log(energies[k]/m_energies[0])
+                                           /estep);
+         exposures[k] = (m_exposure[indx]
+                         *std::exp(std::log(energies[k]/m_energies[indx])/estep
+                                   *std::log(m_exposure[indx+1]/m_exposure[indx])));
+      }
+   }
 }
 
 double Source::Npred(double emin, double emax) const {

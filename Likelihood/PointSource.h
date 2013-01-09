@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.71 2012/03/28 22:00:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.72 2012/06/27 20:31:50 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -68,24 +68,27 @@ public:
    virtual double fluxDensity(const Event & evt,
                               CachedResponse* cResp = 0) const {
       return fluxDensity(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
-                         evt.getDir(), evt.getType(), cResp);
+                         evt.getDir(), evt.getType(), evt.getArrTime(),
+                         cResp);
    }
 
    virtual double fluxDensity(double inclination, double phi, double energy, 
                               const astro::SkyDir & appDir, int evtType,
-			      CachedResponse* cResp = 0) const;
+                              double time, CachedResponse* cResp = 0) const;
 
    /// Returns the derivative wrt to the named Parameter
-   virtual double fluxDensityDeriv(const Event &evt, 
-                                   const std::string &paramName,
+   virtual double fluxDensityDeriv(const Event & evt, 
+                                   const std::string & paramName,
 				   CachedResponse* cResp = 0) const {
       return fluxDensityDeriv(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
-                              evt.getDir(),evt.getType(), paramName, cResp);
+                              evt.getDir(),evt.getType(), evt.getArrTime(),
+                              paramName, cResp);
    }
 
    virtual double fluxDensityDeriv(double inclination, double phi, 
                                    double energy, const astro::SkyDir & appDir,
-                                   int evtType, const std::string & paramName,
+                                   int evtType, double time,
+                                   const std::string & paramName,
 				   CachedResponse* cResp = 0) const;
 
    /// Set source location using J2000 coordinates
@@ -202,7 +205,9 @@ private:
 
    double fluxDensity(double energy, const astro::SkyDir & zAxis,
                       const astro::SkyDir & xAxis,
-                      const astro::SkyDir & dir, int eventType=2,
+                      const astro::SkyDir & dir, 
+                      int eventType=2,
+                      double time=0,
 		      CachedResponse* cResp = 0) const;
 
    double fluxDensity(double energy, double time,
@@ -212,6 +217,7 @@ private:
    double fluxDensityDeriv(double energy, const astro::SkyDir & zAxis,
                            const astro::SkyDir & xAxis,
                            const astro::SkyDir &dir, int eventType,
+                           double time,
                            const std::string &paramName,
 			   CachedResponse* cResp = 0) const;
 

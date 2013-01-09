@@ -3,7 +3,7 @@
  * @brief Implementation for ExposureCube wrapper class of map_tools::Exposure
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.14 2012/06/19 04:03:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureCube.cxx,v 1.15 2012/06/19 15:00:04 jchiang Exp $
  */
 
 #include "tip/Header.h"
@@ -22,7 +22,9 @@ ExposureCube::ExposureCube(const ExposureCube & other)
      m_weightedExposure(0), m_efficiencyFactor(0),
      m_haveFile(other.m_haveFile),
      m_fileName(other.m_fileName), 
-     m_hasPhiDependence(other.m_hasPhiDependence) {
+     m_hasPhiDependence(other.m_hasPhiDependence),
+     m_tstart(other.m_tstart),
+     m_tstop(other.m_tstop) {
    if (other.m_weightedExposure) {
       m_weightedExposure = new map_tools::Exposure(*(other.m_weightedExposure));
    }
@@ -43,6 +45,12 @@ void ExposureCube::readExposureCube(std::string filename) {
    }
    m_haveFile = true;
    m_hasPhiDependence = phiDependence(filename);
+   const tip::Table * exposure = 
+      tip::IFileSvc::instance().readTable(m_fileName, "EXPOSURE");
+   const tip::Header & header(exposure->getHeader());
+   header["TSTART"].get(m_tstart);
+   header["TSTOP"].get(m_tstop);
+   delete exposure;
 }
 
 double ExposureCube::livetime(const astro::SkyDir & dir,
@@ -97,12 +105,14 @@ double ExposureCube::AeffBase::operator()(double cosTheta, double phi) const {
 
 double ExposureCube::Aeff::value(double cosTheta, double phi) const {
    double inclination = acos(cosTheta)*180./M_PI;
+   double epoch((m_observation.expCube().tstart() 
+                 + m_observation.expCube().tstop())/2.);
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = m_observation.respFuncs().begin();
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {
          irfInterface::IAeff * aeff = respIt->second->aeff();
-         double aeff_val = aeff->value(m_energy, inclination, phi);
+         double aeff_val = aeff->value(m_energy, inclination, phi, epoch);
          return aeff_val;
       }
    }

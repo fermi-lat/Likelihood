@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.82 2012/01/06 22:21:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.83 2012/01/18 00:08:59 jchiang Exp $
  */
 
 #include <cctype>
@@ -250,7 +250,7 @@ void Event::computeResponse(std::vector<DiffuseSource *> &srcList,
                double totalResp = 
                   respFuncs.totalResponse(*trueEnergy, m_energy,
                                           m_scDir, m_scXDir, srcDir, m_appDir,
-                                          m_type);
+                                          m_type, m_arrTime);
                for (unsigned int k = 0; k < srcs.size(); k++) {
                   double srcDist_val 
                      = srcs[k]->spatialDist(SkyDirArg(srcDir, *trueEnergy));

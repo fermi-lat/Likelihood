@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.117 2012/03/28 22:00:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.118 2012/06/27 20:31:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -64,19 +64,19 @@ PointSource::~PointSource() {
 }
 
 double PointSource::fluxDensity(double energy, double time,
-                                const astro::SkyDir &dir,
-                                int eventType,
+                                const astro::SkyDir & dir,
+                                int eventType, 
 				CachedResponse* cResp) const {
    const ScData & scData = m_observation->scData();
    astro::SkyDir zAxis = scData.zAxis(time);
    astro::SkyDir xAxis = scData.xAxis(time);
-   return fluxDensity(energy, zAxis, xAxis, dir, eventType, cResp);
+   return fluxDensity(energy, zAxis, xAxis, dir, eventType, time, cResp);
 }
 
-double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
-                                const astro::SkyDir &xAxis,
-                                const astro::SkyDir &dir,
-                                int eventType,
+double PointSource::fluxDensity(double energy, const astro::SkyDir & zAxis,
+                                const astro::SkyDir & xAxis,
+                                const astro::SkyDir & dir,
+                                int eventType, double time,
 				CachedResponse* cResp) const {
 // Scale the energy spectrum by the psf value and the effective area
 // and convolve with the energy dispersion, if appropriate, all of
@@ -92,7 +92,7 @@ double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
          my_integrand[k] = spectrum
             *respFuncs.totalResponse(s_trueEnergies[k], energy,
                                      zAxis, xAxis, m_dir.getDir(), 
-                                     dir, eventType);
+                                     dir, eventType, time);
       }
       bool useLog;
       TrapQuad trapQuad(s_trueEnergies, my_integrand, useLog=true);
@@ -105,7 +105,7 @@ double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
 	 resp = cResp->second;
       } else {
 	 resp = respFuncs.totalResponse(energy, energy, zAxis, xAxis,
-					m_dir.getDir(), dir, eventType);
+					m_dir.getDir(), dir, eventType, time);
 	 if (cResp) {
             cResp->first = true;
             cResp->second = resp;
@@ -117,7 +117,7 @@ double PointSource::fluxDensity(double energy, const astro::SkyDir &zAxis,
 
 double PointSource::fluxDensity(double inclination, double phi, double energy, 
                                 const astro::SkyDir & appDir, 
-                                int evtType,
+                                int evtType, double time,
 				CachedResponse* cResp) const {
    optimizers::dArg energy_arg(energy);
    double spectrum = (*m_spectrum)(energy_arg);
@@ -128,7 +128,7 @@ double PointSource::fluxDensity(double inclination, double phi, double energy,
       resp = cResp->second;
    } else {
       resp = respFuncs.totalResponse(inclination, phi, energy, energy, 
-				     separation, evtType);
+				     separation, evtType, time);
       if (cResp) {
          cResp->first = true;
          cResp->second = resp;
@@ -145,15 +145,15 @@ double PointSource::fluxDensityDeriv(double energy, double time,
    const ScData & scData = m_observation->scData();
    astro::SkyDir zAxis = scData.zAxis(time);
    astro::SkyDir xAxis = scData.xAxis(time);
-   return fluxDensityDeriv(energy, zAxis, xAxis, dir, eventType, paramName,
-			   cResp);
+   return fluxDensityDeriv(energy, zAxis, xAxis, dir, eventType, 
+			   time, paramName, cResp);
 }
 
 double PointSource::fluxDensityDeriv(double energy, 
                                      const astro::SkyDir & zAxis,
                                      const astro::SkyDir & xAxis,
                                      const astro::SkyDir & dir,
-                                     int eventType,
+                                     int eventType, double time,
                                      const std::string &paramName,
 				     CachedResponse* cResp) const {
    const ResponseFunctions & respFuncs = m_observation->respFuncs();
@@ -162,7 +162,8 @@ double PointSource::fluxDensityDeriv(double energy,
    double prefactor;
    if (paramName == "Prefactor" && 
        (prefactor = m_spectrum->getParamValue("Prefactor")) !=0) {
-     return fluxDensity(energy, zAxis, xAxis, dir, eventType, cResp)/prefactor;
+      return fluxDensity(energy, zAxis, xAxis, dir, 
+                         eventType, time, cResp)/prefactor;
    } else {
       if (respFuncs.useEdisp()) {
          unsigned int npts(s_trueEnergies.size());
@@ -172,7 +173,7 @@ double PointSource::fluxDensityDeriv(double energy,
             my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
                *respFuncs.totalResponse(s_trueEnergies[k], energy,
                                         zAxis, xAxis, m_dir.getDir(), 
-                                        dir, eventType);
+                                        dir, eventType, time);
          }
          bool useLog;
          TrapQuad trapQuad(s_trueEnergies, my_integrand, useLog=true);
@@ -181,12 +182,16 @@ double PointSource::fluxDensityDeriv(double energy,
          optimizers::dArg energy_arg(energy);
 
 	 double resp(0);
-	 if(cResp && cResp->first) {
-	   resp = cResp->second;
+	 if (cResp && cResp->first) {
+            resp = cResp->second;
 	 } else {
 	    resp = respFuncs.totalResponse(energy, energy, zAxis, xAxis,
-					   m_dir.getDir(), dir, eventType);
-	    if(cResp)cResp->first=true, cResp->second=resp;
+					   m_dir.getDir(), dir, eventType, 
+                                           time);
+	    if (cResp) {
+               cResp->first=true;
+               cResp->second=resp;
+            }
 	 }
 
          return resp*m_spectrum->derivByParam(energy_arg, paramName);
@@ -197,6 +202,7 @@ double PointSource::fluxDensityDeriv(double energy,
 double PointSource::
 fluxDensityDeriv(double inclination, double phi, double energy,
                  const astro::SkyDir & appDir, int evtType, 
+                 double time, 
                  const std::string & paramName,
 		 CachedResponse* cResp) const {
    const ResponseFunctions & respFuncs = m_observation->respFuncs();
@@ -206,25 +212,27 @@ fluxDensityDeriv(double inclination, double phi, double energy,
    double prefactor;
    if (paramName == "Prefactor" && 
        (prefactor = m_spectrum->getParamValue("Prefactor")) != 0) {
-     return fluxDensity(inclination, phi, energy, separation, evtType, cResp)
-         /prefactor;
+      return fluxDensity(inclination, phi, energy, separation, evtType, time,
+                         cResp)/prefactor;
    } else {
 /// @todo Implement for finite energy resolution case.
       optimizers::dArg energy_arg(energy);
 
       double resp(0);
-      if(cResp && cResp->first)
+      if (cResp && cResp->first) {
 	 resp = cResp->second;
-      else {
+      } else {
 	 resp = respFuncs.totalResponse(inclination, phi, energy, 
-					energy, separation, evtType);
-	 if(cResp)cResp->first=true, cResp->second=resp;
+					energy, separation, evtType, time);
+	 if (cResp) {
+            cResp->first=true;
+            cResp->second=resp;
+         }
       }
 
       return resp*m_spectrum->derivByParam(energy_arg, paramName);
    }
 }
-
 
 void PointSource::computeExposure(bool verbose) {
    m_energies = m_observation->roiCuts().energies();
@@ -358,8 +366,10 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
       if (verbose) {
          formatter.warn() << ".";
       }
+      double time((observation.expCube().tstart() 
+                   + observation.expCube().tstop())/2.);
       PointSource::Aeff aeff(*it, srcDir, observation.roiCuts(),
-                             observation.respFuncs(), 0,
+                             observation.respFuncs(), time,
                              observation.expCube().hasPhiDependence());
       double exposure_value = observation.expCube().value(srcDir, aeff, *it);
       exposure.push_back(exposure_value);

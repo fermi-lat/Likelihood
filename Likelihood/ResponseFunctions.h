@@ -3,7 +3,7 @@
  * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.24 2011/06/14 22:41:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.25 2011/10/18 04:56:55 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -26,10 +26,7 @@ namespace Likelihood {
  * irfInterface::Irfs objects.  These pointers are indexed by event
  * type, given as an integer; a map is used since the indices need not
  * be contiguous.
- *
- * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.24 2011/06/14 22:41:49 jchiang Exp $
  */
 
 class ResponseFunctions {
@@ -53,16 +50,19 @@ public:
    ///        2 = Combined (GLAST25 only). 
    ///        (@todo These IDs need to be rationalized and coordinated 
    ///        with the irfInterface package.)
+   /// @param time MET at which the response is desired.
    double totalResponse(double energy, double appEnergy,
                         const astro::SkyDir & zAxis,
                         const astro::SkyDir & xAxis,
                         const astro::SkyDir & srcDir,
                         const astro::SkyDir & appDir,
-                        int type) const;
+                        int type, 
+                        double time) const;
 
    double totalResponse(double inclination, double phi, 
                         double energy, double appEnergy, 
-                        double separation, int evtType) const;
+                        double separation, int evtType,
+                        double time) const;
    
    void setRespPtrs(std::map<unsigned int, irfInterface::Irfs *> 
                     &respPtrs) {
@@ -121,18 +121,21 @@ public:
                 const astro::SkyDir & srcDir,
                 const astro::SkyDir & zAxis,
                 const astro::SkyDir & xAxis,
-                int type) const;
+                int type,
+                double time) const;
 
    double edisp(double emeas, double etrue,
-                double theta, double phi, int type) const;
+                double theta, double phi, int type,
+                double time) const;
 
    double aeff(double etrue, 
                const astro::SkyDir & srcDir,
                const astro::SkyDir & zAxis,
                const astro::SkyDir & xAxis,
-               int type) const;
+               int type, double time) const;
 
-   double aeff(double etrue, double theta, double phi, int type) const;
+   double aeff(double etrue, double theta, double phi, int type,
+               double time) const;
 
 private:
 

@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.4 2011/09/16 23:20:28 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.5 2011/09/17 16:36:31 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood2_h
@@ -18,7 +18,6 @@
 #include "Likelihood/Accumulator.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/LogLike.h"
-#include "Likelihood/Pixel.h"
 
 namespace Likelihood {
 

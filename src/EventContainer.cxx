@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EventContainer.cxx,v 1.24 2010/05/11 15:51:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EventContainer.cxx,v 1.25 2012/06/14 04:18:39 jchiang Exp $
  */
 
 #include <cmath>
@@ -109,7 +109,8 @@ void EventContainer::getEvents(std::string event_file) {
 
       double efficiency(1);
       if (eff_factor) {
-         efficiency = eff_factor->value(energy, m_scData.livetimefrac(time));
+         efficiency = eff_factor->value(energy, m_scData.livetimefrac(time),
+                                        time);
       }
       Event thisEvent(ra, dec, energy, time, m_scData.zAxis(time),
                       m_scData.xAxis(time), cos(zenAngle*M_PI/180.), 
