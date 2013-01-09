@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.24 2012/03/28 22:00:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.25 2012/06/19 04:03:49 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -36,7 +36,8 @@ public:
    ExposureCube() : m_exposure(0), m_weightedExposure(0), 
                     m_efficiencyFactor(0),
                     m_haveFile(false), m_fileName(""),
-                    m_hasPhiDependence(false) {}
+                    m_hasPhiDependence(false),
+                    m_tstart(0), m_tstop(0) {}
 
    ExposureCube(const ExposureCube & other);
 
@@ -55,6 +56,14 @@ public:
       if (eff) {
          m_efficiencyFactor = eff->clone();
       }
+   }
+
+   double tstart() const {
+      return m_tstart;
+   }
+
+   double tstop() const {
+      return m_tstop;
    }
 
 #ifndef SWIG
@@ -81,7 +90,8 @@ public:
                 double energy) const {
       double factor1(1), factor2(0);
       if (m_efficiencyFactor) {
-         m_efficiencyFactor->getLivetimeFactors(energy, factor1, factor2);
+         double met((m_tstart + m_tstop)/2.);
+         m_efficiencyFactor->getLivetimeFactors(energy, factor1, factor2, met);
       }
       double value1(value(dir, aeff));
       double value2(0);
@@ -168,6 +178,9 @@ private:
    std::string m_fileName;
 
    bool m_hasPhiDependence;
+
+   double m_tstart;
+   double m_tstop;
 
    bool phiDependence(const std::string & filename) const;
 

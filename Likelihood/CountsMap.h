@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CountsMap.h,v 1.29 2010/11/27 07:17:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CountsMap.h,v 1.30 2012/09/13 19:24:29 jchiang Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -132,6 +132,14 @@ public:
       return m_event_file;
    }
 
+   double tstart() const {
+      return m_tstart;
+   }
+
+   double tstop() const {
+      return m_tstop;
+   }
+
 protected:
 
    HistND * m_hist;
@@ -156,6 +164,9 @@ private:
    // gtbin, i.e., with the reference pixel in the center and 
    // with cdelt1==cdelt2.
    bool m_conforms;
+
+   double m_tstart;
+   double m_tstop;
 
    CountsMap & operator=(const CountsMap &) {return *this;}
 

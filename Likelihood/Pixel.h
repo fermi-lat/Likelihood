@@ -4,7 +4,7 @@
  * derivatives wrt model parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Pixel.h,v 1.11 2009/03/16 20:44:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Pixel.h,v 1.12 2012/03/28 22:00:42 jchiang Exp $
  */
 
 #ifndef Likelihood_Pixel_h
@@ -79,13 +79,14 @@ public:
    class Aeff : public ExposureCube::AeffBase {
    public:
       Aeff(Source * src, const astro::SkyDir & appDir, 
-           double energy, int type);
+           double energy, int type, double time);
    protected:
       Source * m_src;
       const astro::SkyDir & m_appDir;
       double m_energy;
       int m_type;
       double m_separation;
+      double m_time;
 
       virtual double value(double costheta, double phi=0) const;
    };
@@ -93,7 +94,8 @@ public:
    class AeffDeriv : public ExposureCube::AeffBase {
    public:
       AeffDeriv(Source * src, const std::string & paramName, 
-                const astro::SkyDir & appDir, double energy, int type);
+                const astro::SkyDir & appDir, double energy, int type,
+                double time);
       virtual ~AeffDeriv() {}
    protected:
       Source * m_src;
@@ -102,6 +104,7 @@ public:
       double m_energy;
       int m_type;
       double m_separation;
+      double m_time;
 
       virtual double value(double costheta, double phi=0) const;
    };

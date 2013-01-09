@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.50 2012/01/19 20:26:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.51 2012/06/27 20:31:50 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -73,22 +73,23 @@ public:
 
    /// Returns photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
-   virtual double fluxDensity(const Event &evt,
-			      CachedResponse* cResp = 0) const;
+   virtual double fluxDensity(const Event & evt,
+			      CachedResponse * cResp = 0) const;
 
    /// Returns the derivative wrt to the named Parameter
-   virtual double fluxDensityDeriv(const Event &evt, 
-                                   const std::string &paramName,
-				   CachedResponse* cResp = 0) const;
+   virtual double fluxDensityDeriv(const Event & evt, 
+                                   const std::string & paramName,
+				   CachedResponse * cResp = 0) const;
 
    virtual double fluxDensity(double inclination, double phi, double energy,
                               const astro::SkyDir &appDir, int evtType,
-			      CachedResponse* cResp = 0) const {
+                              double time, CachedResponse* cResp = 0) const {
       (void)(inclination);
       (void)(phi);
       (void)(energy);
       (void)(appDir);
       (void)(evtType);
+      (void)(time);
       (void)(cResp);
       return 0;
    }
@@ -97,6 +98,7 @@ public:
                                    double energy,
                                    const astro::SkyDir &appDir,
                                    int evtType,
+                                   double time,
                                    const std::string & paramName,
 				   CachedResponse* cResp = 0) const {
       (void)(inclination);
@@ -104,6 +106,7 @@ public:
       (void)(energy);
       (void)(appDir);
       (void)(evtType);
+      (void)(time);
       (void)(paramName);
       (void)(cResp);
       return 0;

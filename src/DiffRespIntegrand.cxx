@@ -8,7 +8,7 @@
  * @author S. Fegan <sfegan@llr.in2p3.fr>, 
  *         J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffRespIntegrand.cxx,v 1.5 2011/03/18 18:39:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffRespIntegrand.cxx,v 1.6 2011/11/12 19:01:33 sfegan Exp $
  */
 
 #include <cmath>
@@ -140,7 +140,8 @@ operator()(double phi) const {
    double totalResp = 
       respFuncs.totalResponse(trueEnergy, event.getEnergy(), 
                               event.zAxis(), event.xAxis(), 
-                              srcDir, event.getDir(), event.getType());
+                              srcDir, event.getDir(), event.getType(),
+                              event.getArrTime());
    double srcDist_val(src.spatialDist(SkyDirArg(srcDir, trueEnergy)));
    
    return totalResp*srcDist_val;

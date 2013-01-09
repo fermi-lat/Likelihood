@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.28 2012/03/28 22:00:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.29 2012/04/14 20:59:05 jchiang Exp $
  */
 
 #include <cmath>
@@ -61,8 +61,7 @@ void MeanPsf::computeExposure() {
       for (; resp != m_observation.respFuncs().end(); ++resp) {
          int evtType = resp->second->irfID();
          ExposureCube::Aeff aeff(m_energies[k], evtType, m_observation);
-         value += m_observation.expCube().value(m_srcDir, aeff,
-                                                m_energies[k]);
+         value += m_observation.expCube().value(m_srcDir, aeff, m_energies[k]);
       }
       m_exposure.push_back(value);
    }
@@ -181,14 +180,17 @@ void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
 
 double MeanPsf::Psf::value(double cosTheta, double phi) const {
    double inclination = acos(cosTheta)*180./M_PI;
+   double epoch((m_observation.expCube().tstart() 
+                 + m_observation.expCube().tstop())/2.);
    std::map<unsigned int, irfInterface::Irfs *>::const_iterator respIt 
       = m_observation.respFuncs().begin();
    for ( ; respIt != m_observation.respFuncs().end(); ++respIt) {
       if (respIt->second->irfID() == m_evtType) {  
          irfInterface::IAeff * aeff = respIt->second->aeff();
          irfInterface::IPsf * psf = respIt->second->psf();
-         double aeffValue = aeff->value(m_energy, inclination, phi);
-         double psfValue = psf->value(m_separation, m_energy, inclination, phi);
+         double aeffValue = aeff->value(m_energy, inclination, phi, epoch);
+         double psfValue = psf->value(m_separation, m_energy, inclination, 
+                                      phi, epoch);
          double psf_val = aeffValue*psfValue;
          if (psf_val < 0) {
             st_stream::StreamFormatter formatter("MeanPsf", "operator()", 4);
