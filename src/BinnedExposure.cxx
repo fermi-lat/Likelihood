@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.46 2012/04/05 23:31:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedExposure.cxx,v 1.47 2012/04/14 20:59:05 jchiang Exp $
  */
 
 #include <cmath>
@@ -294,6 +294,8 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
 
    header["TELESCOP"].set("GLAST");
    header["INSTRUME"].set("LAT");
+   astro::JulianDate current_time = st_facilities::Util::currentTime();
+   header["DATE"].set(current_time.getGregorianDate());
    header["DATE-OBS"].set("");
    header["DATE-END"].set("");
 
