@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.13 2011/07/10 18:58:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.14 2012/09/30 23:03:08 jchiang Exp $
  */
 
 #include <cmath>
@@ -53,6 +53,7 @@ private:
    void set_phi_status();
    void generateEnergies(std::vector<double> & energies) const;
    void copyGtis() const;
+   void copyHeaderKeywords() const;
    static std::string s_cvs_id;
 };
 
@@ -106,6 +107,7 @@ void ExpCube::run() {
       BinnedExposure bexpmap(cmap, m_helper->observation(), useEbounds, 
                              &m_pars);
       bexpmap.writeOutput(m_pars["outfile"]);
+      copyHeaderKeywords();
       return;
    }
 
@@ -120,6 +122,7 @@ void ExpCube::run() {
    }
    BinnedExposure bexpmap(energies, m_helper->observation(), &m_pars);
    bexpmap.writeOutput(m_pars["outfile"]);
+   copyHeaderKeywords();
    copyGtis();
 }
 
@@ -199,3 +202,57 @@ void ExpCube::copyGtis() const {
    std::string outfile = m_pars["outfile"];
    gti.writeExtension(outfile);
 }
+
+void ExpCube::copyHeaderKeywords() const {
+   std::string infile = m_pars["infile"];
+   std::string inext("EXPOSURE");
+   const tip::Table * intab = 
+     tip::IFileSvc::instance().readTable(infile, inext);
+   const tip::Header & inheader(intab->getHeader());
+   
+   std::string outfile = m_pars["outfile"];
+   std::string outext("PRIMARY");
+   tip::Image * outimg = tip::IFileSvc::instance().editImage(outfile, outext);
+   tip::Header & outheader(outimg->getHeader());
+
+   // Unfortunately TIP does not provide access to header comments, so
+   // we cannot copy them using it. Could use cfitsio directly but
+   // prefer TIP as it is standard here.
+
+#define COPYKEYWORD(type, name)			\
+   try {					\
+     type x;					\
+     inheader[name].get(x);			\
+     outheader[name].set(x);			\
+   } catch(...) {				\
+   }
+   
+   COPYKEYWORD(std::string, "DATE-OBS");
+   COPYKEYWORD(std::string, "DATE-END");
+   COPYKEYWORD(double,      "TSTART");
+   COPYKEYWORD(double,      "TSTOP");
+   COPYKEYWORD(double,      "MJDREFI");
+   COPYKEYWORD(double,      "MJDREFF");
+   COPYKEYWORD(std::string, "TIMEUNIT");
+   COPYKEYWORD(double,      "TIMEZERO");
+   COPYKEYWORD(std::string, "TIMESYS");
+   COPYKEYWORD(std::string, "TIMEREF");
+   COPYKEYWORD(bool,        "CLOCKAPP");
+   COPYKEYWORD(bool,        "GPS_OUT");
+
+#undef COPYKEYWORD
+
+#if 0
+   // HOLD OFF ON WRITING IRF KEYWORD PENDING JIM'S WORK ON DSS IRF KEYS
+   try {
+     std::string irfs = m_pars["irfs"];
+     outheader["RESPBASE"].set(irfs);
+   } catch(...) {
+   }
+#endif
+
+   delete outimg;
+   delete intab;
+}
+
+
