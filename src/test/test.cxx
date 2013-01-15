@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.128 2012/10/02 17:50:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.129 2012/11/11 03:26:03 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -954,7 +954,7 @@ void LikelihoodTests::generate_exposureHyperCube() {
                                                                    "SC_DATA");
    exposure.load(scData, false);
    std::string output_file = dataPath("/expcube_1_day.fits");
-   exposure.write(output_file);
+   exposure.writeFile(output_file);
 }
 
 CountsMap LikelihoodTests::singleSrcMap(unsigned int nee) const {

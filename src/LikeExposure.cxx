@@ -3,7 +3,7 @@
  * @brief Implementation of Exposure class for use by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LikeExposure.cxx,v 1.39 2012/10/02 22:09:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LikeExposure.cxx,v 1.40 2012/11/11 03:26:01 jchiang Exp $
  */
 
 #include <algorithm>
@@ -222,6 +222,9 @@ void LikeExposure::writeLivetimes(const std::string & outfile,
    header["NBRBINS"].set(healpix::CosineBinner::nbins());
    header["COSMIN"].set(healpix::CosineBinner::cosmin());
    header["PHIBINS"].set(healpix::CosineBinner::nphibins());
+
+   header["TSTART"].set(m_tmin);
+   header["TSTOP"].set(m_tmax);
 
    delete table;
 }
