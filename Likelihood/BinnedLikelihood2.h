@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.5 2011/09/17 16:36:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.6 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood2_h
@@ -60,8 +60,7 @@ public:
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true, 
                         bool addPointSources=true,
-                        bool loadMaps=true,
-                        bool createAllMaps=false);
+                        bool loadMaps=true);
 
    virtual std::vector<double>::const_iterator setParamValues_(
       std::vector<double>::const_iterator);

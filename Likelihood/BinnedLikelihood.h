@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.67 2012/06/14 02:01:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.68 2012/09/11 22:56:47 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -68,8 +68,7 @@ public:
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true, 
                         bool addPointSources=true,
-                        bool loadMaps=true,
-                        bool createAllMaps=false);
+                        bool loadMaps=true);
 
    virtual CountsMap * createCountsMap() const;
 
@@ -165,6 +164,9 @@ public:
 
    bool use_edisp() const;
 
+   void set_use_single_fixed_map(bool use_sfm);
+   bool use_single_fixed_map() const;
+
    /// These are required since this inherits from LogLike rather than
    /// for SourceModel.  The inheritance hierarchy for this class and
    /// LogLike should be refactored.
@@ -242,6 +244,8 @@ private:
 
    bool m_use_edisp;
    Drm * m_drm;
+
+   bool m_use_single_fixed_map;
 
    mutable std::map<std::string, std::vector<double> > m_true_counts;
    mutable std::map<std::string, std::vector<double> > m_meas_counts;
