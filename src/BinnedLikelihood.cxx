@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.99 2012/09/11 22:56:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.100 2012/11/16 20:40:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,8 +41,15 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
                                    bool resample,
                                    double resamp_factor,
                                    double minbinsz)
-   : LogLike(observation), m_dataMap(dataMap), m_pixels(dataMap.pixels()),
-     m_modelIsCurrent(false), m_srcMapsFile(srcMapsFile),
+   : LogLike(observation), 
+     m_dataMap(dataMap), 
+     m_pixels(dataMap.pixels()),
+     m_energies(),
+     m_countsSpectrum(),
+     m_filledPixels(),
+     m_model(),
+     m_modelIsCurrent(false),
+     m_srcMapsFile(srcMapsFile),
      m_computePointSources(computePointSources),
      m_applyPsfCorrections(applyPsfCorrections),
      m_performConvolution(performConvolution), 
@@ -50,13 +57,26 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
      m_resamp_factor(resamp_factor), 
      m_minbinsz(minbinsz),
      m_verbose(true),
-     m_kmin(0),
+     m_fixedSources(),
+     m_fixedModelWts(),
+     m_fixedModelNpreds(),
+     m_modelPars(),
+     m_posDerivs(),
+     m_negDerivs(),
+     m_kmin(0), m_kmax(0), 
      m_use_edisp(false),
-     m_drm(0) {
-   dataMap.getAxisVector(2, m_energies);
-   m_kmax = m_energies.size() - 1;
-   identifyFilledPixels();
-   computeCountsSpectrum();
+     m_drm(0),
+     m_use_single_fixed_map(true),
+     m_true_counts(),
+     m_meas_counts(),
+     m_fixed_counts_spec(),
+     m_krefs() {
+  dataMap.getAxisVector(2, m_energies);
+  m_kmax = m_energies.size() - 1;
+  identifyFilledPixels();
+  m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
+  m_fixedNpreds.resize(m_energies.size(), 0);
+  computeCountsSpectrum();
 }
 
 BinnedLikelihood::
@@ -87,6 +107,7 @@ BinnedLikelihood(const BinnedLikelihood & other)
      m_fixedNpreds(other.m_fixedNpreds),
      m_use_edisp(other.m_use_edisp),
      m_drm(new Drm(*other.m_drm)),
+     m_use_single_fixed_map(other.m_use_single_fixed_map),
      m_true_counts(other.m_true_counts),
      m_meas_counts(other.m_meas_counts),
      m_fixed_counts_spec(other.m_fixed_counts_spec),
@@ -95,7 +116,7 @@ BinnedLikelihood(const BinnedLikelihood & other)
       it(other.m_srcMaps.begin());
    for ( ; it != other.m_srcMaps.end(); ++it) {
       m_srcMaps[it->first] = new SourceMap(*(it->second));
-   }
+  }
 }
 
 BinnedLikelihood::~BinnedLikelihood() throw() {
@@ -301,29 +322,26 @@ void BinnedLikelihood::readXml(std::string xmlFile,
                                optimizers::FunctionFactory & funcFactory,
                                bool requireExposure, 
                                bool addPointSources, 
-                               bool loadMaps,
-                               bool createAllMaps) {
+                               bool loadMaps) {
    SourceModel::readXml(xmlFile, funcFactory, requireExposure=false,
                         addPointSources, loadMaps);
-   if (m_srcMapsFile == "" || createAllMaps) {
-      buildFixedModelWts(createAllMaps);
-   } else {
-      buildFixedModelWts();
-   }
 }
 
 void BinnedLikelihood::addSource(Source * src, bool fromClone) {
    m_bestValueSoFar = -1e38;
    SourceModel::addSource(src, fromClone);
-   if (m_srcMaps.find(src->getName()) == m_srcMaps.end()) {
+   assert(m_srcMaps.find(src->getName()) == m_srcMaps.end());
+   if(use_single_fixed_map() && src->fixedSpectrum()) {
+       addFixedSource(src->getName());
+   } else {
       SourceMap * srcMap(getSourceMap(src->getName(), true));
       if (srcMap) {
          m_srcMaps[src->getName()] = srcMap;
       }
+      std::vector<double> pars;
+      src->spectrum().getParamValues(pars);
+      m_modelPars[src->getName()] = pars;
    }
-   std::vector<double> pars;
-   src->spectrum().getParamValues(pars);
-   m_modelPars[src->getName()] = pars;
 }
 
 Source * BinnedLikelihood::deleteSource(const std::string & srcName) {
@@ -473,7 +491,7 @@ void BinnedLikelihood::addFixedSource(const std::string & srcName) {
    std::map<std::string, SourceMap *>::const_iterator srcMapIt
       = m_srcMaps.find(srcName);
    if (srcMapIt == m_srcMaps.end()) {
-      srcMap = getSourceMap(srcName, false);
+      srcMap = getSourceMap(srcName, true);
    } else {
       srcMap = srcMapIt->second;
    }
@@ -1004,6 +1022,14 @@ void BinnedLikelihood::set_edisp_flag(bool use_edisp) {
 
 bool BinnedLikelihood::use_edisp() const {
    return (m_use_edisp || ::getenv("USE_BL_EDISP"));
+}
+
+void BinnedLikelihood::set_use_single_fixed_map(bool use_sfm) {
+   m_use_single_fixed_map = use_sfm;
+}
+
+bool BinnedLikelihood::use_single_fixed_map() const {
+   return m_use_single_fixed_map;
 }
 
 } // namespace Likelihood

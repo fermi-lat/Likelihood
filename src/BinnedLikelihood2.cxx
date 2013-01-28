@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood2.cxx,v 1.7 2011/10/11 02:02:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood2.cxx,v 1.8 2012/04/14 20:59:05 jchiang Exp $
  */
 
 #include <cassert>
@@ -218,8 +218,7 @@ void BinnedLikelihood2::readXml(std::string xmlFile,
                                optimizers::FunctionFactory & funcFactory,
                                bool requireExposure, 
                                bool addPointSources, 
-                               bool loadMaps,
-                               bool createAllMaps) {
+                               bool loadMaps) {
    SourceModel::readXml(xmlFile, funcFactory, requireExposure=false,
                         addPointSources, loadMaps);
 }
