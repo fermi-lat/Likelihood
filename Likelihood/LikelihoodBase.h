@@ -3,21 +3,21 @@
  * @brief Base class for likelihood functions.
  * @author J. Chiang <jchiang@slac.stanford.edu>
  * 
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Attic/LikelihoodBase.h,v 1.1.2.1 2013/01/29 12:27:13 jchiang Exp $
  */
 
 #ifndef Likelihood_LikelihoodBase_h
 #define Likelihood_LikelihoodBase_h
 
+#include <map>
 #include <string>
 #include <vector>
 
 #include "optimizers/Statistic.h"
 
-
-
 namespace Likelihood {
 
+   class Observation;
    class Source;
 
 /**
@@ -26,9 +26,11 @@ namespace Likelihood {
 
 class LikelihoodBase : public optimizers::Statistic {
 
+   LikelihoodBase(const Observation & observation);
+
    virtual ~LikelihoodBase();
    
-   virtual double value() const = 0;
+   double value() const;
    
    virtual void getFreeDerivs(std::vector<double> & derivs) const = 0;
 
@@ -36,33 +38,59 @@ class LikelihoodBase : public optimizers::Statistic {
 
    /// Used by AnalysisBase
    virtual void syncParams();
-   virtual void addSource(Source * src, bool fromClone);
-   virtual void setFreeParamValues(const std::vector<double> & params);
+
+   virtual void setFreeParamValues(const std::vector<double> & pars);
+   virtual void setParamValues(const std::vector<double> & pars);
+
+   virtual void addSource(Source * src);
    virtual Source * getSource(const std::string & srcName);
-   virtual void getFreeParamValues(std::vector<double> & params) const;
    virtual Source * deleteSource(const std::string & srcName);
-   virtual void saveCurrentFit();
-   virtual void restoreBestFit();
-   virtual void syncSrcParams(const std::string & srcName);
+
+   /// @todo This member function should really be removed, but it is
+   /// called by AnalysisBase.py.  AnalysisBase.py should simply call
+   /// syncParams().
+   virtual void syncSrcParams(const std::string & srcName) {
+      (void)(srcName);
+      syncParams();
+   }
+
    virtual void getSrcNames(std::vector<std::string> & names) const;
-   void readXml(const std::string & xmlModel);
+
+   /// @todo This member function should be removed, but it is
+   /// called by AnalysisBase.py.   Its purpose was to ensure that the
+   /// log-likelihood for the initial set of parameters was saved.
+   virtual void saveCurrentFit() {
+      // do nothing.
+   }
+
+   virtual void restoreBestFit();
+
    virtual void writeXml(const std::string & xmlfile) const;
    
    virtual double NpredValue(const std::string & srcName) const = 0;
 
 protected:
 
+   const Observation & m_observation;
+
+   std::map<std::string, Source *> m_sources;
+
+   /// Best-fitting parameter values so far, as set by saveBestFit.
+   mutable std::vector<double> m_bestPars;
+   /// Maximum log-likelihood value so far, as set by saveBestFit.
+   mutable double m_maxValue;
+
    LikelihoodBase();
 
    LikelihoodBase(const LikelihoodBase & other) 
       : optimizers::Statistic(other) {}
 
+   // This is called by LikelihoodBase::value().  Subclasses must
+   // implement it to return the log-likelihood.
+   double value(optimizers::Arg & ) const = 0;
+
    // These are pure virtual in optimizers::Function, so we
    // provide inaccessible concrete implementations.
-   double value(optimizers::Arg & ) const {
-      return value();
-   }
-
    double derivByParam(optimizers::Arg &, const std::string &) const {
       return 0;
    }
@@ -70,6 +98,10 @@ protected:
    Function * clone() const {
       return 0;
    }
+
+private:
+
+
 
 };
 
