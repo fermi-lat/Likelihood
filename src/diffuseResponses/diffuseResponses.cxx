@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.64 2011/11/18 17:10:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.65 2012/09/30 23:03:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -37,6 +37,7 @@
 #include "Likelihood/DiffRespNames.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
+#include "Likelihood/EventContainer.h"
 #include "Likelihood/ScData.h"
 #include "Likelihood/SourceModel.h"
 #include "Likelihood/XmlParser.h"
@@ -83,6 +84,7 @@ public:
          delete m_helper;
          delete m_srcModel;
          delete m_formatter;
+         delete m_eventCont;
       } catch (std::exception & eObj) {
          std::cerr << eObj.what() << std::endl;
       } catch (...) {
@@ -104,7 +106,7 @@ private:
    double m_srRadius;
    st_app::AppParGroup & m_pars;
 
-   std::vector<Event> m_events;
+   EventContainer * m_eventCont;
    std::vector<DiffuseSource *> m_srcs;
    std::vector<std::string> m_srcNames;
 
@@ -138,13 +140,14 @@ private:
 
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffrsp");
 
-std::string diffuseResponses::s_cvs_id("$Name:  $");
+std::string diffuseResponses::s_cvs_id("$Name: ScienceTools-09-31-01-br01 $");
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), 
      m_formatter(new st_stream::StreamFormatter("gtdiffrsp", "", 2)),
      m_srRadius(30.),
      m_pars(st_app::StApp::getParGroup("gtdiffrsp")),
+     m_eventCont(0),
      m_ndifrsp(0),
      m_passVer("") {
    setVersion(s_cvs_id);
@@ -357,62 +360,18 @@ void diffuseResponses::buildSourceModel() {
 }
 
 void diffuseResponses::readEventData(std::string eventFile) {
-   m_events.clear();
-   facilities::Util::expandEnvVar(&eventFile);
-   st_facilities::Util::file_ok(eventFile);
-   const tip::Table * events 
-      = tip::IFileSvc::instance().readTable(eventFile, m_pars["evtable"]);
-
-   int evclsver(0); // version of event class definition
-
-   const tip::Header & header(events->getHeader());
-   try {
-      header["EVCLSVER"].get(evclsver);
-   } catch(tip::TipException) {
-      // keyword missing so use default value
-   }
-
-   double ra;
-   double dec;
-   double energy;
-   double time;
-   double zenAngle;
-   int event_class;
-   int conversion_type;
-   int eventType;
-
-   ScData & scData = const_cast<ScData &>(m_helper->observation().scData());
-
-   tip::Table::ConstIterator it = events->begin();
-   tip::ConstTableRecord & event = *it;
-   for ( ; it != events->end(); ++it) {
-      event["ra"].get(ra);
-      event["dec"].get(dec);
-      event["energy"].get(energy);
-      event["time"].get(time);
-      event["zenith_angle"].get(zenAngle);
-      event["event_class"].get(event_class);
-      event["conversion_type"].get(conversion_type);
-      if (evclsver == 0) {
-         eventType = conversion_type;
-      } else {
-         eventType = conversion_type + 2*event_class;
-      }
-      Event thisEvent(ra, dec, energy, time, scData.zAxis(time), 
-                      scData.xAxis(time), cos(zenAngle*M_PI/180.), 
-                      m_helper->observation().respFuncs().useEdisp(),
-                      m_helper->observation().respFuncs().respName(),
-                      eventType);
-      thisEvent.set_classLevel(event_class);
-      m_events.push_back(thisEvent);
-   }
-   delete events;
+   m_eventCont = new EventContainer(m_helper->observation().respFuncs(),
+                                    m_helper->observation().roiCuts(),
+                                    m_helper->observation().scData());
+   m_eventCont->getEvents(eventFile);
 }
 
 void diffuseResponses::computeEventResponses() {
+   std::vector<Event> & events(m_eventCont->events());
+
    bool applyClassFilter(true);
    getDiffuseSources();
-   std::vector<Event>::iterator it = m_events.begin();
+   std::vector<Event>::iterator it = events.begin();
    unsigned int classLevel_targ;
    if (m_passVer == "NONE") {
       classLevel_targ = m_pars["evclsmin"];
@@ -431,8 +390,8 @@ void diffuseResponses::computeEventResponses() {
          applyClassFilter = false;
       }
    }
-   for (int i = 0; it != m_events.end(); ++it, i++) {
-      int factor(m_events.size()/20);
+   for (int i = 0; it != events.end(); ++it, i++) {
+      int factor(events.size()/20);
       if (factor == 0) {
          factor = 1;
       }
@@ -460,6 +419,7 @@ void diffuseResponses::computeEventResponses() {
 }
 
 void diffuseResponses::writeEventResponses(std::string eventFile) {
+   std::vector<Event> & my_events(m_eventCont->events());
    if (m_srcNames.size() == 0) {
       return;
    }
@@ -467,7 +427,7 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
    st_facilities::Util::file_ok(eventFile);
    tip::Table * events 
       = tip::IFileSvc::instance().editTable(eventFile, m_pars["evtable"]);
-   if (static_cast<size_t>(events->getNumRecords()) != m_events.size()) {
+   if (static_cast<size_t>(events->getNumRecords()) != my_events.size()) {
       throw std::runtime_error("diffuseResponses::writeEventResponses:" + 
                                ("\nNumber of records in " 
                                 + eventFile 
@@ -510,10 +470,10 @@ void diffuseResponses::writeEventResponses(std::string eventFile) {
          std::string fieldName = m_columnNames.key(diffuseSrcName(*name));
          if (m_useEdisp) {
             tip::Table::Vector<double> respParams = row[fieldName];
-            setGaussianParams(m_events[j], *name, respParams);
+            setGaussianParams(my_events[j], *name, respParams);
          } else {
 // Assume infinite energy resolution.
-            row[fieldName].set(m_events[j].diffuseResponse(1., *name));
+            row[fieldName].set(my_events[j].diffuseResponse(1., *name));
          }
       }
    }

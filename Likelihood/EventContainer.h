@@ -3,7 +3,7 @@
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.8 2008/11/26 23:35:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/EventContainer.h,v 1.9 2010/05/11 15:51:43 jchiang Exp $
  */
 
 #ifndef Likelihood_EventContainer_h
@@ -36,7 +36,7 @@ namespace Likelihood {
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EventContainer.h,v 1.8 2008/11/26 23:35:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/EventContainer.h,v 1.9 2010/05/11 15:51:43 jchiang Exp $
  */
 
 class EventContainer {
@@ -63,6 +63,10 @@ public:
    }
 
    const std::vector<Event> & events() const {
+      return m_events;
+   }
+
+   std::vector<Event> & events() {
       return m_events;
    }
 
