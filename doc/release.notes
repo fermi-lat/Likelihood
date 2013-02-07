@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.503 2013/01/15 00:42:20 jchiang Exp $
+    $Id: release.notes,v 1.504 2013/01/29 11:56:13 sfegan Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-00-02 07-Feb-2013  cohen fix a bug in assignment to filename in DMFitFunction.cxx
  Likelihood-18-00-01 29-Jan-2013  fegan Fixed memory inefficiency while loading fixed sources in BinnedLikelihood
  Likelihood-18-00-00 14-Jan-2013 jchiang Steve's changes for STGEN-135@JIRA; enforce consistent usage of time-dependence in IRF interface for epoch-dependent IRFs
  Likelihood-17-27-01 02-Jan-2013 jchiang Alex's commenting out of debug statement in DMFitFunction.cxx
