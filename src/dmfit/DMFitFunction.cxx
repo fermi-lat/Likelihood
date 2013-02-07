@@ -2,7 +2,7 @@
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.13 2012/12/14 09:02:06 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.14 2012/12/31 22:52:57 kadrlica Exp $
  */
 
 #include <cmath>
@@ -131,10 +131,10 @@ double DMFitFunction::derivByParam(optimizers::Arg & xarg,
     // Save data member version, preserving any environment variables.
     m_filename = filename; 
     if(m_filename.empty()){
-      filename="$(LIKELIHOODDATAPATH)/gammamc_dif.dat";
+      m_filename="$(LIKELIHOODDATAPATH)/gammamc_dif.dat";
     }
     // Use expanded local copy for reading the data.
-    std::string expanded_filename = filename;
+    std::string expanded_filename = m_filename;
     facilities::Util::expandEnvVar(&expanded_filename);
     //std::cout<<filename<<" "<<expanded_filename<<std::endl;
     st_facilities::Util::file_ok(expanded_filename);
