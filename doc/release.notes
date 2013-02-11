@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.505 2013/02/07 19:05:59 cohen Exp $
+    $Id: release.notes,v 1.506 2013/02/07 20:10:23 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-00-04 11-Feb-2013 jchiang ensure that the model map is up-to-date before computing model counts spectra
  Likelihood-18-00-03 07-Feb-2013 jchiang use EventContainer to read events in gtdiffrsp so that exisiting diffuse columns are recorded in each Event object
  Likelihood-18-00-02 07-Feb-2013  cohen fix a bug in assignment to filename in DMFitFunction.cxx
  Likelihood-18-00-01 29-Jan-2013  fegan Fixed memory inefficiency while loading fixed sources in BinnedLikelihood
