@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.101 2013/01/28 12:40:39 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.102 2013/01/29 11:31:09 sfegan Exp $
  */
 
 #include <cmath>
@@ -460,6 +460,9 @@ bool BinnedLikelihood::fixedModelUpdated() const {
 
 const std::vector<double> & BinnedLikelihood::
 modelCountsSpectrum(const std::string & srcname) const {
+   if (!m_modelIsCurrent) {
+      computeModelMap();
+   }
    std::map<std::string, std::vector<double> >::const_iterator it;
    it = m_meas_counts.find(srcname);
    if (it == m_meas_counts.end()) {
