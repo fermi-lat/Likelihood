@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.51 2012/06/27 20:31:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.52 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -71,46 +71,9 @@ public:
       delete m_spatialDist;
    }
 
-   /// Returns photons/cm^2-s-sr-MeV having been convolved through
-   /// the LAT instrument response
-   virtual double fluxDensity(const Event & evt,
-			      CachedResponse * cResp = 0) const;
-
-   /// Returns the derivative wrt to the named Parameter
-   virtual double fluxDensityDeriv(const Event & evt, 
-                                   const std::string & paramName,
-				   CachedResponse * cResp = 0) const;
-
-   virtual double fluxDensity(double inclination, double phi, double energy,
-                              const astro::SkyDir &appDir, int evtType,
-                              double time, CachedResponse* cResp = 0) const {
-      (void)(inclination);
-      (void)(phi);
-      (void)(energy);
-      (void)(appDir);
-      (void)(evtType);
-      (void)(time);
-      (void)(cResp);
-      return 0;
-   }
-
-   virtual double fluxDensityDeriv(double inclination, double phi, 
-                                   double energy,
-                                   const astro::SkyDir &appDir,
-                                   int evtType,
-                                   double time,
-                                   const std::string & paramName,
-				   CachedResponse* cResp = 0) const {
-      (void)(inclination);
-      (void)(phi);
-      (void)(energy);
-      (void)(appDir);
-      (void)(evtType);
-      (void)(time);
-      (void)(paramName);
-      (void)(cResp);
-      return 0;
-   }
+   /// @return response of LAT to source at position and energy of event
+   typedef std::vector<double> Response;
+   virtual void computeResponse(Response& resp, const Event & evt) const;
 
    /// Return the spatial distribution of the gamma-ray emission
    double spatialDist(const astro::SkyDir & dir) const {
@@ -177,8 +140,6 @@ public:
 
    double angularIntegral(double energy) const;
 
-   double diffuseResponse(const Event & evt) const;
-
    bool mapBasedIntegral() const;
 
 private:
@@ -187,6 +148,15 @@ private:
    optimizers::Function * m_spatialDist;
 
    bool m_mapBasedIntegral;
+
+   double calculateRespValue(const Event& event, 
+			     double trueEnergy, bool useEdisp,
+			     const EquinoxRotation& eqRot,
+			     double mumin, double mumax,
+			     double phimin, double phimax) const;
+   
+   double calculateMapBasedRespValue(const Event & evt,
+				     double trueEnergy, bool useEdisp) const;
 
    template<typename Functor>
    double computeEnergyIntegral(const Functor & func, 

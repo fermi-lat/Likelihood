@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.60 2012/06/27 20:31:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.61 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -30,7 +30,6 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
      m_spatialDist(spatialDist->clone()),
      m_mapBasedIntegral(mapBasedIntegral) {
    m_functions["SpatialDist"] = m_spatialDist;
-   m_useEdisp = observation.respFuncs().useEdisp();
 
 // In order to compute exposure, RoiCuts and spacecraft data must be
 // available; furthermore, the ExposureMap object must have been
@@ -91,69 +90,97 @@ DiffuseSource::DiffuseSource(const DiffuseSource & rhs)
    m_functions["Spectrum"] = m_spectrum;
 }
 
-double DiffuseSource::fluxDensity(const Event & evt,
-				  CachedResponse* cResp) const {
-   (void)(cResp);
-   double my_fluxDensity;
-   if (m_useEdisp) {
-      const std::vector<double> & trueEnergies = evt.trueEnergies();
-      const std::vector<double> & diffuseResponses 
-         = evt.diffuseResponse(getName());
-      unsigned int npts(trueEnergies.size());
-      std::vector<double> my_integrand(npts);
-      for (unsigned int k = 0; k < npts; k++) {
-         optimizers::dArg energy_arg(trueEnergies[k]);
-         my_integrand[k] = (*m_spectrum)(energy_arg)*diffuseResponses[k];
-      }
-      bool useLog;
-      TrapQuad trapQuad(trueEnergies, my_integrand, useLog=true);
-      my_fluxDensity = trapQuad.integral();
-   } else {
-      double trueEnergy = evt.getEnergy(); 
-      optimizers::dArg energy_arg(trueEnergy);
-      my_fluxDensity = (*m_spectrum)(energy_arg)
-         *evt.diffuseResponse(trueEnergy, getName());
+void PointSource::computeResponse(Response& resp, const Event & evt) const {
+   const double& energy         = evt.getEnergy();
+
+   double minusone(-1);
+   double one(1);
+   double mumin(minusone);
+   double mumax(one);
+
+   EquinoxRotation eqRot(dir.ra(), dir.dec());
+   try {
+      srcs.at(i)->mapBaseObject()->getDiffRespLimits(getDir(), 
+						     mumin, mumax,
+						     phimin, phimax);
+   } catch (MapBaseException &) {
+      // do nothing
    }
-   return my_fluxDensity;
+
+   if(m_edisp() == ED_NONE) {
+      resp.resize(1);
+      resp[0] = calculateRespValue(event, energy, /* useEdisp = */ false,
+				   eqRot, mumin, mumax, phimin, phimax);
+   } else {
+      const std::vector<double> & true_energies = evt.trueEnergies();
+      resp.resize(true_energies.size());
+      for(unsigned ienergy = 0; ienergy<resp.size(); ienergy++) {
+	resp[ienergy] = 
+	  calculateRespValue(event, energy, /* useEdisp = */ false,
+			     eqRot, mumin, mumax, phimin, phimax);
+      }
+      if(m_edisp() == ED_GAUSSIAN) {
+	 computeGaussianParams(resp, resp, true_energies);
+      }
+   }
 }
 
-double DiffuseSource::fluxDensityDeriv(const Event &evt, 
-                                       const std::string &paramName,
-				       CachedResponse* cResp) const {
-   (void)(cResp);
-// For now, just implement for spectral Parameters and neglect
-// the spatial ones, "longitude" and "latitude".
-//
-// This method needs to be generalized for spectra that are
-// CompositeFunctions.
-   double my_fluxDensityDeriv;
-   double prefactor;
-   if (paramName == "Prefactor" && 
-       (prefactor = m_spectrum->getParamValue("Prefactor")) != 0) {
-      my_fluxDensityDeriv = fluxDensity(evt)/prefactor;
+double DiffuseSource::
+calculateRespValue(const Event& event, double trueEnergy, bool useEdisp,
+		   const EquinoxRotation& eqRot, double mumin, double mumax,
+		   double phimin, double phimax) const
+{
+   const ResponseFunctions & respFuncs = m_observation->respFuncs();
+   double respValue(0);
+   if (mapBasedIntegral() || 
+       (::getenv("MAP_BASED_DIFFRSP") 
+	&& (mumin != minusone || mumax != one))) {
+      respValue = calculateMapBasedRespValue(event, trueEnergy, useEdisp);
+   } else if (::getenv("USE_OLD_DIFFRSP")) {
+      /// Old integration scheme with the phi integral
+      /// evaluated inside the theta integral.
+      respValue = DiffRespIntegrand::
+	do2DIntegration(*this, respFuncs, *srcs.at(i), eqRot, 
+			trueEnergy, useEdisp,
+			mumin, mumax, phimin, phimax, 0.01, 0.1);
    } else {
-      if (m_useEdisp) {
-         const std::vector<double> & trueEnergies = evt.trueEnergies();
-         const std::vector<double> & diffuseResponses 
-            = evt.diffuseResponse(getName());
-         unsigned int npts(trueEnergies.size());
-         std::vector<double> my_integrand(npts);
-         for (unsigned int k = 0; k < npts; k++) {
-            optimizers::dArg energy_arg(trueEnergies[k]);
-            my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
-               *diffuseResponses[k];
-         }
-         bool useLog;
-         TrapQuad trapQuad(trueEnergies, my_integrand, useLog=true);
-         my_fluxDensityDeriv = trapQuad.integral();
-      } else {
-         double trueEnergy = evt.getEnergy(); 
-         optimizers::dArg energy_arg(trueEnergy);
-         my_fluxDensityDeriv = m_spectrum->derivByParam(energy_arg, paramName)
-            *evt.diffuseResponse(trueEnergy, getName());
+      /// Steve's integration scheme with the theta integral
+      /// evaluated inside the phi integral.  The produces
+      /// much more accurate results.
+      respValue = DiffRespIntegrand2::
+	do2DIntegration(*this, respFuncs, *srcs.at(i), eqRot,
+			trueEnergy, useEdisp,
+			mumin, mumax, phimin, phimax, 0.001, 0.01);
+   }
+   return respValue;
+}
+
+double DiffuseSource::
+calculateMapBasedRespValue(const Event & evt,
+			   double trueEnergy, bool useEdisp) const {
+   const ResponseFunctions & respFuncs(m_observation->respFuncs());
+   const WcsMap2 & wcsmap(mapBaseObject()->wcsmap());
+   const std::vector< std::vector<double> > & solidAngles(wcsmap.solidAngles());
+   double my_value(0);
+   for (size_t i(0); i < solidAngles.size(); i++) {
+      for (size_t j(0); j < solidAngles.at(i).size(); j++) {
+         // WcsMap::skyDir uses wcslib pixel numbering, i.e., starting with 1
+         astro::SkyDir srcDir(wcsmap.skyDir(i+1, j+1));
+         double mapValue(spatialDist(SkyDirArg(srcDir, trueEnergy)));
+	 if(mapValue != 0) {
+	    // This test potentially saves multiple calls to calculate
+	    // the response functions
+	    my_value += 
+	      respFuncs.totalResponse(trueEnergy, evt.getEnergy(), 
+				      evt.zAxis(), evt.xAxis(), 
+				      srcDir, evt.getDir(),
+				      evt.getType(), evt.getArrTime(),
+				      useEdisp)
+	      *mapValue*solidAngles.at(i).at(j));
+	 }
       }
    }
-   return my_fluxDensityDeriv;
+   return my_value;
 }
 
 const MapBase * DiffuseSource::mapBaseObject() const {
@@ -230,27 +257,6 @@ double DiffuseSource::energyFluxDeriv(const std::string & parName,
                                       size_t npts) const {
    EnergyFluxDeriv my_functor(*m_spectrum, parName);
    return computeEnergyIntegral(my_functor, emin, emax, npts);
-}
-
-double DiffuseSource::diffuseResponse(const Event & evt) const {
-   double trueEnergy(evt.getEnergy());
-   const ResponseFunctions & respFuncs(m_observation->respFuncs());
-   const WcsMap2 & wcsmap(mapBaseObject()->wcsmap());
-   const std::vector< std::vector<double> > & solidAngles(wcsmap.solidAngles());
-   double my_value(0);
-   for (size_t i(0); i < solidAngles.size(); i++) {
-      for (size_t j(0); j < solidAngles.at(i).size(); j++) {
-         // WcsMap::skyDir uses wcslib pixel numbering, i.e., starting with 1
-         astro::SkyDir srcDir(wcsmap.skyDir(i+1, j+1));
-         double mapValue(spatialDist(SkyDirArg(srcDir, trueEnergy)));
-         my_value += (respFuncs.totalResponse(trueEnergy, evt.getEnergy(), 
-                                              evt.zAxis(), evt.xAxis(),
-                                              srcDir, evt.getDir(),
-                                              evt.getType(), evt.getArrTime())
-                      *mapValue*solidAngles.at(i).at(j));
-      }
-   }
-   return my_value;
 }
 
 bool DiffuseSource::mapBasedIntegral() const {

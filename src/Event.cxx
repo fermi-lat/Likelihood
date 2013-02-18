@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.83 2012/01/18 00:08:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.84 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <cctype>
@@ -65,7 +65,7 @@ Event::Event() : m_appDir(0, 0), m_energy(0), m_arrTime(0), m_muZenith(0),
                  m_type(0), m_classLevel(0), m_scDir(0, 0), m_scXDir(0, 0),
                  m_useEdisp(false),
                  m_respName(""), m_modelSum(0), m_fluxDensities(), m_estep(0),
-                 m_trueEnergies(), m_true_energies(), 
+                 m_trueEnergies(),
                  m_efficiency(1), m_respDiffuseSrcs(), m_diffSrcNames() {}
 
 Event::Event(double ra, double dec, double energy, double time, 
@@ -76,26 +76,19 @@ Event::Event(double ra, double dec, double energy, double time,
      m_muZenith(muZenith), m_type(type), m_classLevel(0), 
      m_scDir(scZAxis), m_scXDir(scXAxis),
      m_useEdisp(useEdisp), m_respName(respName), m_modelSum(0),
-     m_fluxDensities(), m_estep(0), m_trueEnergies(), m_true_energies(),
+     m_fluxDensities(), m_estep(0), m_trueEnergies(),
      m_efficiency(efficiency), m_respDiffuseSrcs(), m_diffSrcNames() {
-   if (m_useEdisp) {
 // For <15% energy resolution, consider true energies over the range
 // (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
 // apparent energy.
 //       int npts(100);
-      int npts(30);
-      double emin = 0.55*m_energy;
-      double emax = 1.45*m_energy;
-      m_estep = (emax - emin)/(npts-1.);
-      m_trueEnergies.reserve(npts);
-      for (int i = 0; i < npts; i++) {
-         m_trueEnergies.push_back(m_estep*i + emin);
-      }
-   } else {
-// To mimic infinite energy resolution, we create a single element
-// vector containing the apparent energy.
-      m_trueEnergies.push_back(m_energy);
-   }
+   int npts(30);
+   double emin = 0.55*m_energy;
+   double emax = 1.45*m_energy;
+   m_estep = (emax - emin)/(npts-1.);
+   m_trueEnergies.reserve(npts);
+   for (int i = 0; i < npts; i++) {
+     m_trueEnergies.push_back(m_estep*i + emin);
 }
 
 double Event::diffuseResponse(double trueEnergy, 
@@ -202,96 +195,6 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
    }
 }
 
-void Event::computeResponse(std::vector<DiffuseSource *> &srcList, 
-                            const ResponseFunctions & respFuncs,
-                            double sr_radius, double sr_radius2) {
-   std::vector<DiffuseSource *> srcs;
-   getNewDiffuseSrcs(srcList, srcs);
-   if (srcs.size() == 0) {
-      return;
-   }
-   double ra0(m_appDir.ra());
-   double dec0(m_appDir.dec());
-   EquinoxRotation eqRot(ra0, dec0);
-   if (!s_haveSourceRegionData) {
-      prepareSrData(sr_radius, sr_radius2);
-   }
-
-   const std::vector<double> & muArray =
-      LogNormalMuDist::instance()->muPoints(m_energy);
-
-// Create a vector of srcDirs looping over the source region locations.
-   std::vector<astro::SkyDir> srcDirs;
-   for (unsigned int i = 0; i < muArray.size(); i++) {
-      for (unsigned int j = 0; j < s_phi.size(); j++) {
-         astro::SkyDir srcDir;
-         getCelestialDir(s_phi[j], muArray[i], eqRot, srcDir);
-         srcDirs.push_back(srcDir);
-      }
-   }
-   
-   std::vector<double>::iterator trueEnergy = m_trueEnergies.begin();
-   for ( ; trueEnergy != m_trueEnergies.end(); ++trueEnergy) {
-
-// Prepare the array of integrals over phi for passing to the 
-// trapezoidal integrator for integration over mu.
-      std::vector< std::vector<double> > mu_integrands;
-      mu_integrands.resize(srcs.size());
-      for (unsigned int i = 0; i < muArray.size(); i++) {
-
-// Prepare phi-integrand arrays.
-         std::vector< std::vector<double> > phi_integrands;
-         phi_integrands.resize(srcs.size());
-         for (unsigned int j = 0; j < s_phi.size(); j++) {
-            int indx = i*s_phi.size() + j;
-            astro::SkyDir & srcDir = srcDirs[indx];
-            double inc = m_scDir.SkyDir::difference(srcDir)*180./M_PI;
-            if (inc < 90.) {
-               double totalResp = 
-                  respFuncs.totalResponse(*trueEnergy, m_energy,
-                                          m_scDir, m_scXDir, srcDir, m_appDir,
-                                          m_type, m_arrTime);
-               for (unsigned int k = 0; k < srcs.size(); k++) {
-                  double srcDist_val 
-                     = srcs[k]->spatialDist(SkyDirArg(srcDir, *trueEnergy));
-                  if (srcDist_val < 0) {
-                     throw std::runtime_error("srcDist_val < 0");
-                  }
-                  phi_integrands[k].push_back(totalResp*srcDist_val);
-               }
-            } else {
-               for (unsigned int k = 0; k < srcs.size(); k++)
-                  phi_integrands[k].push_back(0);
-            }
-         }
-         
-// Perform the phi-integrals
-         for (unsigned int k = 0; k < srcs.size(); k++) {
-            TrapQuad phiQuad(s_phi, phi_integrands[k]);
-            mu_integrands[k].push_back(phiQuad.integral());
-         }
-      }
-
-// Perform the mu-integrals
-      for (unsigned int k = 0; k < srcs.size(); k++) {
-         TrapQuad muQuad(muArray, mu_integrands[k]);
-	 const std::string & name(diffuseSrcName(srcs[k]->getName()));
-         double respValue = muQuad.integral();
-         if (respValue < 0) {
-            throw std::runtime_error("Negative diffuse response value computed"
-                                     " in Likelihood::Event::computeResponse");
-         }
-         m_respDiffuseSrcs[name].push_back(muQuad.integral());
-      }
-   } // loop over trueEnergy
-// // Compute the Gaussian params to check validity of response.
-//    for (unsigned int k = 0; k < srcs.size(); k++) {
-//       std::string name = srcs[k]->getName();
-//       double norm, mean, sigma;
-//       computeGaussianParams(name, norm, mean, sigma);
-//    }
-}
-
 void Event::computeGaussianParams(const std::string & name,
                                   double &norm, double &mean, 
                                   double &sigma) const {
@@ -328,64 +231,6 @@ void Event::writeDiffuseResponses(const std::string & filename) {
       }
    }
    outfile.close();
-}
-
-void Event::prepareSrData(double sr_radius, double sr_radius2) {
-   fillMuArray(sr_radius, 100, s_mu);
-   fillMuArray(sr_radius2, 200, s_mu_2);
-   int nphi(50);
-   double phistep = 2.*M_PI/(nphi - 1.);
-   for (int i = 0; i < nphi; i++) {
-      s_phi.push_back(phistep*i);
-   }
-   s_haveSourceRegionData = true;
-}
-
-void Event::fillMuArray(double sr_radius, int nmu, 
-                        std::vector<double> & mu) const {
-   (void)(sr_radius);
-   (void)(nmu);
-//    double mumin = cos(sr_radius*M_PI/180);
-// // Sample more densely near theta = 0:
-//    std::deque<double> my_mu;
-//    double nscale = static_cast<double>((nmu-1)*(nmu-1));
-//    for (int i = 0; i < nmu; i++) {
-//       my_mu.push_front(1. - i*i/nscale*(1. - mumin));
-//    }
-//    mu.resize(my_mu.size());
-//    std::copy(my_mu.begin(), my_mu.end(), mu.begin());
-
-   double one_m_mu[] = {5.22906e-06, 1.13481e-05, 1.85455e-05, 2.68409e-05,
-                        3.62683e-05, 4.68339e-05, 5.86167e-05, 7.16618e-05,
-                        8.60305e-05, 1.01793e-04, 1.19020e-04, 1.37776e-04,
-                        1.58140e-04, 1.80313e-04, 2.04256e-04, 2.30022e-04,
-                        2.58057e-04, 2.88043e-04, 3.20447e-04, 3.55255e-04,
-                        3.92521e-04, 4.32754e-04, 4.75544e-04, 5.21851e-04,
-                        5.70961e-04, 6.24026e-04, 6.80406e-04, 7.40933e-04,
-                        8.05721e-04, 8.74407e-04, 9.48961e-04, 1.02656e-03,
-                        1.11241e-03, 1.20181e-03, 1.29860e-03, 1.40184e-03,
-                        1.51031e-03, 1.62982e-03, 1.75387e-03, 1.88928e-03,
-                        2.03329e-03, 2.18415e-03, 2.35182e-03, 2.52568e-03,
-                        2.71457e-03, 2.91773e-03, 3.12821e-03, 3.36548e-03,
-                        3.61242e-03, 3.87667e-03, 4.16746e-03, 4.46873e-03,
-                        4.80398e-03, 5.16041e-03, 5.53458e-03, 5.95799e-03,
-                        6.39695e-03, 6.87942e-03, 7.40369e-03, 7.94715e-03,
-                        8.57575e-03, 9.22864e-03, 9.94570e-03, 1.07339e-02,
-                        1.15550e-02, 1.25117e-02, 1.35061e-02, 1.46251e-02,
-                        1.58408e-02, 1.71580e-02, 1.86531e-02, 2.02231e-02,
-                        2.20740e-02, 2.40050e-02, 2.62824e-02, 2.86946e-02,
-                        3.15273e-02, 3.45642e-02, 3.81605e-02, 4.20163e-02,
-                        4.66868e-02, 5.17741e-02, 5.78414e-02, 6.47894e-02,
-                        7.27099e-02, 8.24593e-02, 9.37943e-02, 1.07163e-01,
-                        1.23816e-01, 1.44448e-01, 1.70216e-01, 2.03157e-01,
-                        2.46342e-01, 3.04421e-01, 3.87505e-01, 5.10091e-01,
-                        7.07397e-01, 1.05980e+00, 1.73826e+00};
-   std::deque<double> my_mu;
-   for (size_t i(0); i < 99; i++) {
-      my_mu.push_front(1. - one_m_mu[i]);
-   }
-   mu.resize(my_mu.size());
-   std::copy(my_mu.begin(), my_mu.end(), mu.begin());
 }
 
 void Event::getCelestialDir(double phi, double mu, 

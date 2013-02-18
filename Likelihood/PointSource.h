@@ -3,7 +3,7 @@
  * @brief PointSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.72 2012/06/27 20:31:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PointSource.h,v 1.73 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_PointSource_h
@@ -65,32 +65,14 @@ public:
 
    /// Returns photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
-   virtual double fluxDensity(const Event & evt,
-                              CachedResponse* cResp = 0) const {
-      return fluxDensity(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
-                         evt.getDir(), evt.getType(), evt.getArrTime(),
-                         cResp);
-   }
+   virtual double fluxDensity(const Event & evt, 
+			      const Response& resp = Response());
 
-   virtual double fluxDensity(double inclination, double phi, double energy, 
-                              const astro::SkyDir & appDir, int evtType,
-                              double time, CachedResponse* cResp = 0) const;
-
-   /// Returns the derivative wrt to the named Parameter
+   /// Returns the flux density derivative wrt to the named Parameter
    virtual double fluxDensityDeriv(const Event & evt, 
                                    const std::string & paramName,
-				   CachedResponse* cResp = 0) const {
-      return fluxDensityDeriv(evt.getEnergy(), evt.zAxis(), evt.xAxis(), 
-                              evt.getDir(),evt.getType(), evt.getArrTime(),
-                              paramName, cResp);
-   }
-
-   virtual double fluxDensityDeriv(double inclination, double phi, 
-                                   double energy, const astro::SkyDir & appDir,
-                                   int evtType, double time,
-                                   const std::string & paramName,
-				   CachedResponse* cResp = 0) const;
-
+				   const Response & resp = Response()) const;
+   
    /// Set source location using J2000 coordinates
    void setDir(double ra, double dec, bool updateExposure=true, 
                bool verbose=true) {
@@ -196,35 +178,8 @@ private:
    /// location on the Celestial sphere 
    SkyDirFunction m_dir;
 
-   /// True photon energies for convolving the spectrum with
-   /// the energy dispersion.
-   static std::vector<double> s_trueEnergies;
-
    /// Computes the integrated exposure at the PointSource sky location.
    void computeExposure(bool verbose);
-
-   double fluxDensity(double energy, const astro::SkyDir & zAxis,
-                      const astro::SkyDir & xAxis,
-                      const astro::SkyDir & dir, 
-                      int eventType=2,
-                      double time=0,
-		      CachedResponse* cResp = 0) const;
-
-   double fluxDensity(double energy, double time,
-                      const astro::SkyDir &dir, int eventType=2,
-		      CachedResponse* cResp = 0) const;
-
-   double fluxDensityDeriv(double energy, const astro::SkyDir & zAxis,
-                           const astro::SkyDir & xAxis,
-                           const astro::SkyDir &dir, int eventType,
-                           double time,
-                           const std::string &paramName,
-			   CachedResponse* cResp = 0) const;
-
-   double fluxDensityDeriv(double energy, double time,
-                           const astro::SkyDir &dir, int eventType,
-                           const std::string &paramName,
-			   CachedResponse* cResp = 0) const;
 
    /// method to create a logrithmically spaced grid given RoiCuts
    static void makeEnergyVector(int nee = 100);

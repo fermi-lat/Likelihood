@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.35 2011/10/18 22:45:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.36 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -34,7 +34,8 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
                                         const astro::SkyDir & xAxis,
                                         const astro::SkyDir & srcDir,
                                         const astro::SkyDir & appDir, 
-                                        int type, double time) const {
+                                        int type, double time,
+					bool use_edisp) const {
    double myResponse;
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
@@ -48,7 +49,7 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
       irfInterface::IAeff * aeff(irfs->aeff());
       double psf_val(psf->value(appDir, energy, srcDir, zAxis, xAxis, time));
       double aeff_val(aeff->value(energy, srcDir, zAxis, xAxis, time));
-      if (m_useEdisp) {
+      if (use_edisp) {
          irfInterface::IEdisp * edisp(irfs->edisp());
          double edisp_val(edisp->value(appEnergy, energy, srcDir, 
                                        zAxis, xAxis, time));
@@ -63,7 +64,7 @@ double ResponseFunctions::totalResponse(double energy, double appEnergy,
 double ResponseFunctions::totalResponse(double inclination, double phi,
                                         double energy, double appEnergy,
                                         double separation, int type,
-                                        double time) const {
+                                        double time, bool use_edisp) const {
    double myResponse;
    irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
    if (!irfs) {
@@ -77,7 +78,7 @@ double ResponseFunctions::totalResponse(double inclination, double phi,
       irfInterface::IAeff * aeff(irfs->aeff());
       double psf_val(psf->value(separation, energy, inclination, phi, time));
       double aeff_val(aeff->value(energy, inclination, phi, time));
-      if (m_useEdisp) {
+      if (use_edisp) {
          irfInterface::IEdisp * edisp(irfs->edisp());
          double edisp_val(edisp->value(appEnergy, energy, inclination, phi,
                                        time));

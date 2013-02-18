@@ -3,7 +3,7 @@
  * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.25 2011/10/18 04:56:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.26 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -33,7 +33,7 @@ class ResponseFunctions {
     
 public:
     
-   ResponseFunctions() : m_useEdisp(false), m_respName("") {}
+   ResponseFunctions() : m_respName("") {}
 
    ~ResponseFunctions();
 
@@ -57,12 +57,13 @@ public:
                         const astro::SkyDir & srcDir,
                         const astro::SkyDir & appDir,
                         int type, 
-                        double time) const;
+                        double time,
+			bool use_edisp = false) const;
 
    double totalResponse(double inclination, double phi, 
                         double energy, double appEnergy, 
                         double separation, int evtType,
-                        double time) const;
+                        double time, bool use_edisp = false) const;
    
    void setRespPtrs(std::map<unsigned int, irfInterface::Irfs *> 
                     &respPtrs) {
@@ -93,15 +94,6 @@ public:
 
    const irfInterface::IEfficiencyFactor * efficiencyFactor() const {
       return begin()->second->efficiencyFactor();
-   }
-
-   /// Whether or not energy dispersion is to be considered.
-   const bool & useEdisp() const {
-      return m_useEdisp;
-   }
-
-   void setEdispFlag(bool useEdisp) {
-      m_useEdisp = useEdisp;
    }
 
    const std::string & respName() const {
@@ -140,8 +132,6 @@ public:
 private:
 
    std::map<unsigned int, irfInterface::Irfs *> m_respPtrs;
-
-   bool m_useEdisp;
 
    std::string m_respName;
 
