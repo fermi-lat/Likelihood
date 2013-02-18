@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.49 2012/06/27 20:31:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.50 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -37,8 +37,6 @@ namespace Likelihood {
 class Source {
 
 public:
-   typedef std::pair<bool, double> CachedResponse;
-    
    Source(const Observation * observation=0);
 
    Source(const Source &rhs);
@@ -47,10 +45,14 @@ public:
       delete m_spectrum;
    }
 
+   /// @return response of LAT to source at position and energy of event
+   typedef std::vector<double> Response;
+   virtual void computeResponse(Response& resp, const Event & evt) const = 0;
+
    /// @return photons/cm^2-s-sr-MeV having been convolved through
    /// the LAT instrument response
    virtual double fluxDensity(const Event & evt, 
-                              CachedResponse* cResp = 0) const = 0;
+			      const Response& resp = Response()) const;
 
    /// @return fluxDensity in instrument coordinates (photons/cm^2-s-sr-MeV)
    /// @param inclination angle of source direction wrt the instrument
@@ -62,21 +64,9 @@ public:
    /// @param evtType Event type, i.e., front- vs back-converting event, 
    ///        0 vs 1
    /// @param time Event arrival time
-   virtual double fluxDensity(double inclination, double phi, double energy, 
-                              const astro::SkyDir & appDir, 
-                              int evtType, double time, 
-                              CachedResponse* cResp = 0) const = 0;
-
-   /// Derivatives of fluxDensity wrt model Parameters
    virtual double fluxDensityDeriv(const Event & evt, 
                                    const std::string & paramName,
-				   CachedResponse* cResp = 0) const = 0;
-
-   virtual double fluxDensityDeriv(double inclination, double phi, 
-                                   double energy, const astro::SkyDir & appDir,
-                                   int evtType, double time, 
-                                   const std::string & paramName,
-				   CachedResponse* cResp = 0) const = 0;
+				   const Response & resp = Response()) const;
 
    /// Predicted number of photons.
    virtual double Npred();
@@ -141,6 +131,8 @@ public:
                                    double wtMin, double wtMax,
                                    const std::string & paramName) const;
 
+   void computeExposure(bool verbose=false);
+
    virtual void computeExposure(const std::vector<double> & energies,
                                 bool verbose=false) = 0;
    
@@ -192,6 +184,15 @@ public:
       m_observation = observation;
    }
 
+   typedef EDispMode { ED_NONE, ED_GAUSSIAN, ED_FULL };
+   void EDispMode edisp() const {
+      return m_edisp;
+   }
+
+   void setEDisp(EDispMode edisp) {
+      m_edisp = edisp;
+   }
+
 protected:
 
    /// A unique source name.
@@ -201,7 +202,7 @@ protected:
    std::string m_srcType;
 
    /// Flag to indicate if energy dispersion is to be used.
-   bool m_useEdisp;
+   EDispMode m_edisp;
 
    /// Map of Functions describing this source.
    std::map<std::string, optimizers::Function *> m_functions;
@@ -309,6 +310,13 @@ protected:
       std::string m_parName;
    };
 
+   void computeGaussianParams(Response& gaussian_params, const Response& resp,
+			      const std::vector<double>& trueEnergies,
+			      bool trueEnergiesUseLog) const;
+
+   void fillGaussianResp(Response& resp, const Response& gaussian_params,
+			 const std::vector<double>& trueEnergies,
+			 bool trueEnergiesUseLog) const;
 };
 
 } // namespace Likelihood

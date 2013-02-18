@@ -7,7 +7,7 @@
  * @author S. Fegan <sfegan@llr.in2p3.fr>, 
  *         J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffRespIntegrand.h,v 1.3 2009/02/18 02:01:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffRespIntegrand2.h,v 1.1 2011/11/12 19:02:04 sfegan Exp $
  */
 
 #ifndef Likelihood_DiffRespIntegrand2_h
@@ -36,6 +36,7 @@ public:
 				 const ResponseFunctions & respFuncs,
 				 const DiffuseSource & src,
 				 const EquinoxRotation & eqRot,
+				 double trueEnergy, bool useEdisp,
 				 double mumin=-1.0,
 				 double mumax=1.0,
 				 double phimin=0,
@@ -47,6 +48,7 @@ public:
 		      const ResponseFunctions & respFuncs,
 		      const DiffuseSource & src,
 		      const EquinoxRotation & eqRot,
+		      double trueEnergy, bool useEdisp,
 		      double mumin=-1.0,
 		      double mumax=1.0,
 		      double err = 0.1);
@@ -92,6 +94,8 @@ private:
    const DiffuseSource & m_src;
    const EquinoxRotation & m_eqRot;
 
+   double m_trueEnergy;
+   bool   m_useEdisp;
    double m_mumin;
    double m_mumax;
    double m_err;

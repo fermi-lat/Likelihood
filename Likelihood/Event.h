@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Event.h,v 1.46 2009/06/03 19:04:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Event.h,v 1.47 2012/06/14 02:01:24 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -39,7 +39,7 @@ public:
 
    Event(double ra, double dec, double energy, double time, 
          const astro::SkyDir & scZAxis, const astro::SkyDir & scXAxis, 
-         double muZenith, bool useEdisp, const std::string & respName,
+         double muZenith, const std::string & respName,
          int type=2, double efficiency=1);
 
    ~Event() {}
@@ -128,6 +128,7 @@ public:
    const std::vector<double> & trueEnergies() const {
       return m_trueEnergies;
    }
+   bool trueEnergiesUseLog() const { return true; }
 
    /// Direct access to diffuse responses.
    const std::vector<double> & diffuseResponse(const std::string& srcName) const;
@@ -176,7 +177,6 @@ private:
    astro::SkyDir m_scDir;
    astro::SkyDir m_scXDir;
 
-   bool m_useEdisp;
    std::string m_respName;
 
    double m_modelSum;
@@ -186,8 +186,6 @@ private:
    /// Vector of true energies.
    double m_estep;
    std::vector<double> m_trueEnergies;
-
-   std::vector<double> m_true_energies;
 
    /// Efficiency correction at the time and energy of this event.
    double m_efficiency;

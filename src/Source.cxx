@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.23 2012/06/27 20:31:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.24 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -34,6 +34,106 @@ Source::Source(const Source & rhs)
      m_exposure(rhs.m_exposure),
      m_energies(rhs.m_energies) {
 // The deep copy of m_functions must be handled by the subclasses.
+}
+
+double PointSource::fluxDensity(const Event & evt, const Response& resp) {
+// Scale the energy spectrum by the psf value and the effective area
+// and convolve with the energy dispersion, if appropriate, all of
+// which are functions of time and spacecraft attitude and orbital
+// position.
+
+   const double& energy         = evt.getEnergy();
+
+   Response my_resp;
+   const Response* the_resp = &resp;
+   if(resp.empty()) {
+      computeResponse(my_resp, evt);
+      the_resp = &my_resp;
+   }
+
+   if(m_edisp() == ED_NONE) {
+      DEBUG_ASSERT(the_resp->size() == 1);
+      optimizers::dArg energy_arg(energy);
+      double spectrum = (*m_spectrum)(energy_arg);
+      return spectrum * (*the_resp)[0];
+   } else {
+      const std::vector<double> & true_energies = evt.trueEnergies();
+      unsigned int nenergy(true_energies.size());
+      if(m_edisp() == ED_GAUSSIAN) {
+	 DEBUG_ASSERT(the_resp->size() == 3);
+	 fillGaussianResponse(my_resp, *the_resp, true_energies);
+	 the_resp = &my_resp;
+      } else {
+ 	 DEBUG_ASSERT(the_resp->size() == nenergy);
+      }
+ 
+      std::vector<double> my_integrand(nenergy);
+      for(unsigned ienergy=0;ienergy<nenergy;ienergy++)
+	{
+	   optimizers::dArg energy_arg(true_energies[ienergy]);
+	   double spectrum = (*m_spectrum)(energy_arg);
+ 	   my_integrand[ienergy]+= spectrum * (*the_resp)[ienergy];
+	}
+      TrapQuad trapQuad(true_energies, my_integrand, evt.trueEnergiesUseLog());
+      return trapQuad.integral();
+   }
+}
+      
+double PointSource::fluxDensityDeriv(const Event & evt, 
+				     const std::string & paramName,
+				     const Response & resp) const
+{
+// For now, just implement for spectral Parameters and neglect
+// the spatial ones, "longitude" and "latitude"
+
+   // Special shortcut for "prefactor"
+   double prefactor;
+   if (paramName == "Prefactor" && 
+       (prefactor = m_spectrum->getParamValue("Prefactor")) !=0) {
+      return fluxDensity(evt, resp)/prefactor;
+   }
+
+   const double& energy         = evt.getEnergy();
+
+   Response my_resp;
+   const Response* the_resp = &resp;
+   if(resp.empty()) {
+      computeResponse(my_resp, evt);
+      the_resp = &my_resp;
+   }
+
+   if(m_edisp() == ED_NONE) {
+      DEBUG_ASSERT(the_resp->size() == 1);
+      optimizers::dArg energy_arg(energy);
+      double spectrum_deriv = m_spectrum->derivByParam(energy_arg, paramName);
+      return spectrum_deriv * (*the_resp)[0];
+   } else {
+      const std::vector<double> & true_energies = evt.trueEnergies();
+      unsigned int nenergy(true_energies.size());
+      if(m_edisp() == ED_GAUSSIAN) {
+	 DEBUG_ASSERT(the_resp->size() == 3);
+	 fillGaussianResponse(my_resp, *the_resp, true_energies);
+	 the_resp = &my_resp;
+      } else {
+ 	 DEBUG_ASSERT(the_resp->size() == nenergy);
+      }
+ 
+      std::vector<double> my_integrand(nenergy);
+      for(unsigned ienergy=0;ienergy<nenergy;ienergy++)
+	{
+	   optimizers::dArg energy_arg(true_energies[ienergy]);
+	   double spectrum_deriv =
+	     m_spectrum->derivByParam(energy_arg, paramName);
+ 	   my_integrand[ienergy]+= spectrum_derive * (*the_resp)[ienergy];
+	}
+      TrapQuad trapQuad(true_energies, my_integrand, evt.trueEnergiesUseLog());
+      return trapQuad.integral();
+   }   
+}
+
+void Source::computeExposure(bool verbose) {
+   m_energies = m_observation->roiCuts().energies();
+   computeExposure(m_energies, verbose);
 }
 
 double Source::Npred() {
@@ -300,5 +400,41 @@ void Source::getExposureSubArrays(double emin, double emax,
    exposures.insert(exposures.begin(), begin_exposure);
    exposures.push_back(end_exposure);
 }
+
+void Source::computeGaussianParams(Response& gaussian_params,
+				   const Response& resp,
+				   const std::vector<double>& trueEnergies,
+				   bool trueEnergiesUseLog) const {
+   std::vector<double> y = resp;
+   unsigned ne = trueEnergies.size();   
+   double norm = TrapQuad(trueEnergies, y, trueEnergiesUseLog).integral();
+   for(unsigned ie=0;ie<ne;ie++)y[ie] *= trueEnergies[ie];
+   double int1 = TrapQuad(trueEnergies, y, trueEnergiesUseLog).integral();
+   for(unsigned ie=0;ie<ne;ie++)y[ie] *= trueEnergies[ie];
+   double int2 = TrapQuad(trueEnergies, y, trueEnergiesUseLog).integral();
+   params.resize(3);
+   params[0] = norm;
+   params[1] = int1/norm;
+   params[2] = std::sqrt(int2/norm - params[1]*params[1]);
+} 
+
+void Source::fillGaussianResp(Response& resp, const Response& gaussian_params,
+			      const std::vector<double>& trueEnergies,
+			      bool trueEnergiesUseLog) const {
+   double norm = gaussian_params[0];
+   double mean = gaussian_params[1];
+   double sdev = gaussian_params[2];
+   unsigned ne = trueEnergies.size();
+   resp.resize(ne);
+   norm /= sdev*std::sqrt(2.0*M_PI);
+   for(unsigned ie=0;ie<ne;ie++) {
+      double x = (trueEnergies[ie] - mean)/sdev;
+      resp[ie] = norm*std::exp(-0.5*x*x);
+   }
+}
+
+double value(trapQuad.integral());
+  return value;
+ }
 
 } // namespace Likelihood

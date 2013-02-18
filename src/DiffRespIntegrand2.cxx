@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffRespIntegrand2.cxx,v 1.1 2011/11/12 19:01:33 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffRespIntegrand2.cxx,v 1.2 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -38,23 +38,26 @@ do2DIntegration(const Event & event,
 		const ResponseFunctions & respFuncs,
 		const DiffuseSource & src,
 		const EquinoxRotation & eqRot,
+		double trueEnergy, bool use_edisp,
 		double mumin, double mumax, double phimin, double phimax,
 		double muerr, double phierr)
 {
   DiffRespIntegrand2 phiIntegrand(event, respFuncs, src, eqRot,
 				  mumin, mumax, muerr);
   int ierr;
-  return st_facilities::GaussianQuadrature::dgaus8(phiIntegrand, phimin, phimax,
-						   phierr, ierr);
+  return st_facilities::GaussianQuadrature::
+    dgaus8(phiIntegrand, phimin, phimax, phierr, ierr);
 }
 
 DiffRespIntegrand2::
 DiffRespIntegrand2(const Event & event,
-                  const ResponseFunctions & respFuncs,
-                  const DiffuseSource & src,
-                  const EquinoxRotation & eqRot, 
-                  double mumin, double mumax, double err)
+		   const ResponseFunctions & respFuncs,
+		   const DiffuseSource & src,
+		   const EquinoxRotation & eqRot,
+		   double trueEnergy, bool useEdisp,
+		   double mumin, double mumax, double err)
    : m_event(event), m_respFuncs(respFuncs), m_src(src), m_eqRot(eqRot),
+     m_trueEnergy(trueEnergy), m_useEdisp(useEdisp),
      m_mumin(mumin), m_mumax(mumax), m_err(err) {}
 
 double DiffRespIntegrand2::operator()(double phi) const {
@@ -63,8 +66,8 @@ double DiffRespIntegrand2::operator()(double phi) const {
    double err(m_err);
    int ierr;
 
-   return st_facilities::GaussianQuadrature::dgaus8(muIntegrand, m_mumin,
-						    m_mumax, err, ierr);
+   return st_facilities::GaussianQuadrature::
+     dgaus8(muIntegrand, m_mumin, m_mumax, err, ierr);
 }
 
 void DiffRespIntegrand2::
@@ -128,13 +131,14 @@ operator()(double mu) const {
       return 0;
    }
 
-   // Neglect energy dispersion.
-   double trueEnergy(event.getEnergy());
+   double trueEnergy = m_phiIntegrand.m_useEdisp ? 
+       m_phiIntegrand.m_trueEnergy : event.getEnergy();
    double totalResp = 
       respFuncs.totalResponse(trueEnergy, event.getEnergy(), 
                               event.zAxis(), event.xAxis(), 
                               srcDir, event.getDir(), event.getType(),
-                              event.getArrTime());
+                              event.getArrTime(),
+			      m_phiIntegrand.m_useEdisp);
    double srcDist_val(src.spatialDist(SkyDirArg(srcDir, trueEnergy)));
    
    return totalResp*srcDist_val;

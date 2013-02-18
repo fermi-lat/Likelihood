@@ -8,7 +8,7 @@
  * @author S. Fegan <sfegan@llr.in2p3.fr>, 
  *         J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffRespIntegrand.cxx,v 1.6 2011/11/12 19:01:33 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffRespIntegrand.cxx,v 1.7 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,6 +41,7 @@ do2DIntegration(const Event & event,
 		const ResponseFunctions & respFuncs,
 		const DiffuseSource & src,
 		const EquinoxRotation & eqRot,
+		double trueEnergy, bool use_edisp,
 		double mumin, double mumax, double phimin, double phimax,
 		double muerr, double phierr)
 {
@@ -56,8 +57,10 @@ DiffRespIntegrand(const Event & event,
                   const ResponseFunctions & respFuncs,
                   const DiffuseSource & src,
                   const EquinoxRotation & eqRot, 
+		  double trueEnergy, bool use_edisp,
                   double phimin, double phimax, double err)
    : m_event(event), m_respFuncs(respFuncs), m_src(src), m_eqRot(eqRot),
+     m_trueEnergy(trueEnergy), m_useEdisp(useEdisp),
      m_phimin(phimin), m_phimax(phimax), m_err(err) {}
 
 double DiffRespIntegrand::operator()(double mu) const {
@@ -136,12 +139,14 @@ operator()(double phi) const {
    }
 
    // Neglect energy dispersion.
-   double trueEnergy(event.getEnergy());
+   double trueEnergy = m_muIntegrand.m_useEdisp ? 
+      m_muIntegrand.m_trueEnergy : event.getEnergy();
    double totalResp = 
       respFuncs.totalResponse(trueEnergy, event.getEnergy(), 
                               event.zAxis(), event.xAxis(), 
                               srcDir, event.getDir(), event.getType(),
-                              event.getArrTime());
+                              event.getArrTime(),
+			      m_phiIntegrand.m_useEdisp);
    double srcDist_val(src.spatialDist(SkyDirArg(srcDir, trueEnergy)));
    
    return totalResp*srcDist_val;
