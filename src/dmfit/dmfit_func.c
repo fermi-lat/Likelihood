@@ -14,7 +14,7 @@
 
 /* Common Block Declarations */
 
-extern struct {
+struct {
     real phidif[72576]	/* was [252][24][12] */;
     integer hasmooth;
 } hasim_;
