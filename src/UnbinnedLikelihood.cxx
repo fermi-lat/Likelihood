@@ -4,14 +4,18 @@
  * @author J. Chiang <jchiang@slac.stanford.edu>
  * @author S. Fegan <sfegan@llr.in2p3.fr>
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Attic/LikelihoodBase.h,v 1.1.2.2 2013/01/30 16:09:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Attic/UnbinnedLikelihood.cxx,v 1.1.2.1 2013/02/18 13:48:23 sfegan Exp $
  */
 
 #include "UnbinnedLikelihood.h"
 
 UnbinnedLikelihood::UnbinnedLikelihood(const Observation & observation):
    LikelihoodBase(observation) {
-
+#ifndef ST_LIKELIHOOD_NOTHREADS
+   if (::getenv("ST_NTHREADS")) {
+      m_nthread = atoi(::getenv("ST_NTHREADS"));
+   }
+#endif
 }
 
 UnbinnedLikelihood::~UnbinnedLikelihood() {
@@ -34,36 +38,45 @@ double UnbinnedLikelihood::value() const {
       }
    }
 
-   KahanAccumulator acc;
    const std::vector<Event> & events = m_observation.eventCont().events();
+   unsigned nevent = events.size();
+   KahanAccumulator acc;
 
    // Data Sum - can be threaded
-#ifndef ST_LIKELIHOOD_NOTHREADS
-   if(m_threads) {
-      unsigned nevent_per_thread = (events.size()+m_threads-1) / m_threads;
-      std::vector<PartialDataSumThreadArgs> args(nthread);
-      for(unsigned ithread=0;ithread<nthread;ithread++) {
-	 args[ithread].thread_id     = 0;
-	 args[ithread].like          = this;
-	 args[ithread].acc.reset();
-	 args[ithread].ievent_begin  = 
-	   std::min(ithread*nevent_per_thread, events.size());
-	 args[ithread].ievent_end    = 
-	   std::min((ithread+1)*nevent_per_thread, events.size());
-	 pthread_create(&args[ithread].thread_id, NULL,
-			&startPartialDataSumThread, &args[ithread]);
+
+   // A quick note on the threading: the events are divided amongst
+   // set of thereads with each thread accumulating the log densities
+   // to a private per-thread accumulator (acc_p), which are then
+   // added into the global accumulator in the critical section at the
+   // end of the parallel task. The simplest scheme possible here
+   // would be to fill an vector of event densities from the threads
+   // and add them all up after. This would not require the use of
+   // "acc_p" or the critical section (i.e. there would be only one
+   // OMP directive) but it would require allocating a vector for the
+   // event densities. Here that may not be a problem, but in
+   // "getFreeDerivs" it might be, if there are a lot of free
+   // parameters and a lot of events. So we use the slightly more
+   // complex pattern outlined above to avoid having to allocate a
+   // large array.
+
+#pragma omp parallel num_threads(m_nthread)
+   {
+      KahanAccumulator acc_p;
+      unsigned ievent;
+#pragma omp for // schedule(dynamic,std::max(1,nevent/(50*m_nthread)))
+      for(ievent=0; ievent<nevent; ievent++) {
+	 const Event & event = events[ievent];	
+	 if (!m_use_ebounds ||
+	     (event.getEnergy() >= m_emin && event.getEnergy() <= m_emax)) {
+	    KahanAccumulator density;
+	    modelDensity(density, ievent);
+	    acc_p.addLog(density);
+	 }
       }
-      for(unsigned ithread=0;ithread<nthread;ithread++) {
-	 pthread_join(args[ithread].thread_id, NULL);
-	 acc.add(args[ithread].acc);
-      }
-   } else {
-#endif
-      partialDataSum(acc, 0, events.size());
-#ifndef ST_LIKELIHOOD_NOTHREADS
+#pragma omp critical
+      acc.add(acc_p);
    }
-#endif
-				
+
    // Model integral
    KahanAccumulator npred_acc(m_fixed_source_npred);
    for(std::vector<Source *>::iterator ifreesrc = m_free_sources.begin();
@@ -85,37 +98,6 @@ double UnbinnedLikelihood::value() const {
    return value;
 }
 
-void UnbinnedLikelihood::partialDataSum(KahanAccumulator & acc,
-					unsigned ievent_begin, 
-					unsigned ievent_end)
-{
-   const std::vector<Event> & events = m_observation.eventCont().events();
-   KahanAccumulator density;
-   for (size_t ievent = ievent_begin; ievent < ievent_end; ievent++) {
-      if (m_use_ebounds && 
-          (events[ievent].getEnergy() < m_emin 
-	   || events[ievent].getEnergy() > m_emax)) {
-         continue;
-      }
-      modelDensity(density, ievent);
-      acc.addLog(density); 
-   }
-}
-
-void UnbinnedLikelihood::modelDensity(KahanAccumulator & flux_acc,
-				      unsigned ievent) const {
-   const Event & event = m_observation.eventCont().events()[ievent];
-   flux_acc = m_fixed_source_flux_in_bin[ievent];
-   unisgned nfree = m_free_sources.size();
-   for(unsigned ifree = 0; ifree<nfree; ifree++) {
-      Source * src = m_free_sources[ifree];
-      double flux = 
-	 src->fluxDensity(event, (*m_free_source_resp[ifree])[ievent]);
-       ev_acc.add(flux)
-   }
-   return ev_acc;
-}
-
 void UnbinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    std::clock_t start = std::clock();
    if (m_use_ebounds) {
@@ -128,38 +110,32 @@ void UnbinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       }
    }
 
+   const std::vector<Event> & events = m_observation.eventCont().events();
+   unsigned nevent = events.size();
    unsigned nfree_param = getNumFreeParams();
    std::vector<KahanAccumulator> acc(nfree_param);
-   const std::vector<Event> & events = m_observation.eventCont().events();
 
    // Data Sum - can be threaded
-#ifndef ST_LIKELIHOOD_NOTHREADS
-   if(m_threads) {
-      unsigned nevent_per_thread = (events.size()+m_threads-1) / m_threads;
-      std::vector<PartialDataDerivsThreadArgs> args(nthread);
-      for(unsigned ithread=0;ithread<nthread;ithread++) {
-	 args[ithread].thread_id     = 0;
-	 args[ithread].like          = this;
-	 args[ithread].acc.resice(acc.size());
-	 args[ithread].ievent_begin  = 
-	   std::min(ithread*nevent_per_thread, events.size());
-	 args[ithread].ievent_end    = 
-	   std::min((ithread+1)*nevent_per_thread, events.size());
-	 pthread_create(&args[ithread].thread_id, NULL,
-			&startPartialDataDerivsThread, &args[ithread]);
-      }
-      for(unsigned ithread=0;ithread<nthread;ithread++) {
-	 pthread_join(args[ithread].thread_id, NULL);
-	 for(unsigned iacc=0;iacc<axx.size();iacc++) {
-	    acc[iacc].add(args[ithread].acc[iacc]);
+#pragma omp parallel num_threads(m_nthread)
+   {
+      std::vector<KahanAccumulator> acc_p(nfree_param);
+      std::vector<double> log_density_derivs(nfree_param);
+      unsigned ievent;
+#pragma omp for // schedule(dynamic,std::max(1,nevent/(50*m_nthread)))
+      for(ievent=0; ievent<nevent; ievent++) {
+	 const Event & event = events[ievent];	
+	 if (!m_use_ebounds ||
+	     (event.getEnergy() >= m_emin && event.getEnergy() <= m_emax)) {
+	    modelLogDensityDerivs(log_density_derivs, ievent);
+	    for(unsigned iparam=0;iparam<nfree_param;iparam++) {
+	       acc_p[iparam].add(log_density_derivs[iparam]);
+	    }
 	 }
       }
-   } else {
-#endif
-      partialDataDerivs(acc, 0, events.size());
-#ifndef ST_LIKELIHOOD_NOTHREADS
+#pragma omp critical
+      for(unsigned ifree_param=0;ifree_param<nfree_param;ifree_param++)
+	acc[ifree_param].add(acc_p[ifree_param]);
    }
-#endif
 
    // Model integral
    std::vector<double> derivs;
@@ -185,35 +161,57 @@ void UnbinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    }
 }
 
-void UnbinnedLikelihood::partialDataDerivs(std::vector<KahanAccumulator> & acc,
-					   unsigned ievent_begin, 
-					   unsigned ievent_end)
-{
-   const std::vector<Event> & events = m_observation.eventCont().events();
-   for (size_t ievent = ievent_begin; ievent < ievent_end; ievent++) {
-      if (m_use_ebounds && 
-          (events[ievent].getEnergy() < m_emin 
-	   || events[ievent].getEnergy() > m_emax)) {
-         continue;
+void UnbinnedLikelihood::modelDensity(KahanAccumulator & flux_acc,
+				      unsigned ievent) const {
+   const Event & event = m_observation.eventCont().events()[ievent];
+   flux_acc = m_fixed_source_flux_in_bin[ievent];
+   unisgned nfree = m_free_sources.size();
+   for(unsigned ifree = 0; ifree<nfree; ifree++) {
+      Source * src = m_free_sources[ifree];
+      EventResponseCache * resp_cache = m_free_source_resp[ifree];
+      EventResponse resp;
+      if(resp_cache == 0) {
+	 resp_cache->getResponse(resp, ievent);
+      } else {
+	 src->computeResponse(resp, event);
       }
-      KahanAccumulator flux_acc;
-      modelDensity(flux_acc, ievent);
-      double flux = flux_acc.sum();
-
-      unsigned iacc = 0;
-      for(std::vector<Source *>::const_iterator isrc = m_free_sources.begin();
-	  isrc != m_free_sources.end(); isrc++) {
-	 std::vector<std::string> params;
-	 isrc->getFreeParamNames(params);
-	 for(std::vector<std::string>::const_iterator iparam = params.begin();
-	     iparam != params.end(); iparam++, iacc++) {
-	    double deriv = fluxDensity(event, *iparam, 
-				       (*m_free_source_resp[ifree])[ievent]);
-	    acc[iacc].add(deriv/flux);
-	 }
-      }
-      assert(iacc == acc.size());
+      double flux = src->fluxDensity(event, resp);
+      flux_acc.add(flux);
    }
+}
+
+void UnbinnedLikelihood::
+modelLogDensityDerivs(std::vector<double> & log_flux_derivs,
+		      unsigned ievent) const {
+   const Event & event = m_observation.eventCont().events()[ievent];
+   KahanAccumulator flux_acc = m_fixed_source_flux_in_bin[ievent];
+   unisgned nfreesrc = m_free_sources.size();
+   unsigned ifreeparam = 0;
+   for(unsigned ifreesrc = 0; ifreesrc<nfreesrc; ifreesrc++) {
+      Source * src = m_free_sources[ifreesrc];
+      EventResponseCache * resp_cache = m_free_source_resp[ifreesrc];
+      EventResponse resp;
+      if(resp_cache == 0) {
+	 resp_cache->getResponse(resp, ievent);
+      } else {
+	 src->computeResponse(resp, event);
+      }
+      double flux = src->fluxDensity(event, resp);
+      flux_acc.add(flux);
+     
+      std::vector<std::string> params;
+      src->getFreeParamNames(params);
+      for(std::vector<std::string>::const_iterator iparam = 
+	    params.begin(); iparam != params.end(); iparam++, ifreeparam++) {
+	 double deriv = fluxDensity(event, *iparam, resp);
+	 log_flux_derivs[ifreeparam] = deriv;
+      }
+   }
+   assert(ifreeparam == log_flux_dervs.size());
+   double flux = flux_acc.sum();
+   for(std::vector<double>::iterator ilog_flux_deriv = log_flux_derivs.begin();
+       ilog_flux_deriv != log_flux_derivs.begin(); ilog_flux_deriv++)
+     *ilog_flux_deriv /= flux;
 }
 
 void UnbinnedLikelihood::computeEventResponses(double sr_radius=30.0) {
@@ -271,41 +269,24 @@ void UnbinnedLikelihood::unset_ebounds() {
 void UnbinnedLikelihood::
 partialSourceEventResponses(Source* src, EventResponses& resp,
 			    unsigned ievent_begin, unsigned ievent_end) {
-   const std::vector<Event> & events = m_observation.eventCont().events();
-   for (size_t ievent = ievent_begin; ievent < ievent_end; ievent++) {
-      src->computeResponse(resp[ievent], event[ievent]);
-   }
 }
 
 void UnbinnedLikelihood::
-computeSourceEventResponses(Source* src, EventResponses& resp) {
+computeSourceEventResponses(Source* src, 
+			    EventResponseCache* resp_cache) const {
    const std::vector<Event> & events = m_observation.eventCont().events();
-   resp.resize(events.size());
+   unsigned nevent = events.size();
+   assert(resp_cache.nevent() == nevent);
    
-#ifndef ST_LIKELIHOOD_NOTHREADS
-   if(m_threads) {
-      unsigned nevent_per_thread = (events.size()+m_threads-1) / m_threads;
-      std::vector<PartialSourceEventResponseThreadArgs> args(nthread);
-      for(unsigned ithread=0;ithread<nthread;ithread++) {
-	 args[ithread].thread_id = 0;
-	 args[ithread].like = this;
-	 args[ithread].src = src;
-	 args[ithread].resp = &resp;
-	 args[ithread].ievent_begin = ithread*nevent_per_thread;
-	 args[ithread].ievent_end = 
-	   std::min((ithread+1)*nevent_per_thread, events.size());
-	 pthread_create(&args[ithread].thread_id, NULL,
-			&startPartialSourceEventResponseThread, &args[ithread]);
-      }
-      for(unsigned ithread=0;ithread<nthread;ithread++) {
-	 pthread_join(args[ithread].thread_id, NULL);
-      }
-   } else {
-#endif
-      partialSourceEventResponses(src, resp, 0, events.size());
-#ifndef ST_LIKELIHOOD_NOTHREADS
+   unsigned ievent;
+#pragma omp parallel for private(ievent) num_threads(m_nthread)
+   for(ievent=0; ievent<nevent; ievent++) {
+      const Event & event = events[ievent];	
+      EventResponse resp;
+      src->computeResponse(resp, event);
+#pragma omp critical
+      resp_cache->setResponse(resp, ievent);
    }
-#endif
 }
 
 void UnbinnedLikelihood::addFreeSource(Source* src, const Source* callers_src) {
@@ -366,24 +347,73 @@ addFixedSource(Source* src, const Source* callers_src) {
    m_fixed_source_npred.add(sec->Npred());
 }
 
-#ifndef ST_LIKELIHOOD_NOTHREADS
-void UnbinnedLikelihood::startPartialDataSumThread(void * pds_args) {
-   PartialDataSumTheadArgs * args(pds_args);
-   args->like->partialDataSum(args->acc, args->ievent_begin, args->ievent_end);
+UnbinnedLikelihood::EventResponseCache::
+EventResponses(Source::EDispMode edisp, unsigned nevent):
+  m_resp(), m_resp_offset(), m_resp_count(), m_edisp(edisp) {
+   switch(m_edisp) {
+   case Source::ED_NONE:
+      m_resp.resize(nevent);
+      break;
+   case Source::ED_GAUSSIAN:
+      m_resp.resize(nevent*3);
+      break;
+   case Source::ED_FULL:
+      m_resp_offset.resize(nevent);
+      m_resp_count.resize(nevent);
+      break;
+   }
 }
 
-void UnbinnedLikelihood::startPartialDataDerivsThread(void * pds_args) {
-   PartialDataDerivsTheadArgs * args(pds_args);
-   args->like->partialDataDerivs(args->acc, 
-				 args->ievent_begin, args->ievent_end);
+unsigned UnbinnedLikelihood::EventResponseCache::nevent() const {
+   switch(m_edisp) {
+   case Source::ED_NONE:
+      return m_resp.size();
+   case Source::ED_GAUSSIAN:
+      return m_resp.size()/3;
+   case Source::ED_FULL:
+      return m_resp_offset.size();
+   }
+   assert(0);
 }
 
-void UnbinnedLikelihood::
-startPartialSourceEventResponseThread(void * pesr_args) {
-   PartialSourceEventResponseThreadArgs * args(pesr_args);
-   args->like->partialSourceEventResponses(args->src, *args->resp,
-					   args->ievent_begin, 
-					   args->ievent_end);
+void UnbinnedLikelihood::EventResponseCache::
+getResponse(Source::Response& resp, unsigned ievent) const{
+   switch(m_edisp) {
+   case Source::ED_NONE:
+      resp.resize(1);
+      resp[0] = m_resp[ievent];
+      break;
+   case Source::ED_GAUSSIAN:
+      resp.resize(3);
+      std::copy(m_resp.begin() + ievent*3, m_resp.begin() + (ievent+1)*3,
+		resp.begin());
+      break;
+   case Source::ED_FULL:
+      resp.resize(m_resp_count[ievent]);
+      std::copy(m_resp.begin() + m_resp_offset[ievent],
+		m_resp.begin() + m_resp_offset[ievent] + m_resp_count[ievent],
+		resp.begin());
+      break;
+   }
 }
-#endif
 
+void UnbinnedLikelihood::EventResponseCache::
+setResponse(const Source::Response& resp, unsigned ievent) {
+   switch(m_edisp) {
+   case Source::ED_NONE:
+      ST_DEBUG_ASSERT(resp.size() == 1);
+      m_resp[ievent] = resp[0];
+      break;
+   case Source::ED_GAUSSIAN:
+      ST_DEBUG_ASSERT(resp.size() == 3);
+      m_resp[ievent*3+0] = resp[0];
+      m_resp[ievent*3+1] = resp[1];
+      m_resp[ievent*3+2] = resp[2];
+      break;
+   case Source::ED_FULL:
+      m_resp_offset[ievent] = m_resp.size();
+      m_resp_count[ievent]  = resp.size();
+      m_resp.insert(m_resp.end(), resp.begin(), resp.end());
+      break;
+   }
+}
