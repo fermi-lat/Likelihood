@@ -3,7 +3,7 @@
  * @brief Base class for Likelihood classes.
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Attic/LikelihoodBase.cxx,v 1.1.2.1 2013/01/30 16:09:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Attic/LikelihoodBase.cxx,v 1.1.2.2 2013/02/18 13:48:22 sfegan Exp $
  */
 
 #include <utility>
@@ -15,6 +15,13 @@
 
 LikelihoodBase::LikelihoodBase(const Observation & observation) 
    : m_observation(observation), m_maxValue(-1e38) {
+}
+
+LikelihoodBase::~LikelihoodBase() {
+   for(std::map<std::string, Source *>::iterator it = m_sources.begin();
+       it != m_sources.end(); ++it) {
+      delete it->second;
+   }
 }
 
 double LikelihoodBase::value() const {
@@ -37,6 +44,9 @@ void LikelihoodBase::syncParams() {
       for (size_t i(0); i < params.size(); i++) {
          m_parameter.push_back(params[i]);
       }
+   }
+   if(hasFixedSourceModelChanged()) {
+      rebuildFixedSourceCache();
    }
 }
 
