@@ -4,7 +4,7 @@
  * @author J. Chiang <jchiang@slac.stanford.edu>
  * @author S. Fegan <sfegan@llr.in2p3.fr>
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Attic/UnbinnedLikelihood.cxx,v 1.1.2.1 2013/02/18 13:48:23 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Attic/UnbinnedLikelihood.cxx,v 1.1.2.2 2013/03/06 14:36:52 sfegan Exp $
  */
 
 #include "UnbinnedLikelihood.h"
@@ -170,7 +170,7 @@ void UnbinnedLikelihood::modelDensity(KahanAccumulator & flux_acc,
       Source * src = m_free_sources[ifree];
       EventResponseCache * resp_cache = m_free_source_resp[ifree];
       EventResponse resp;
-      if(resp_cache == 0) {
+      if(resp_cache != 0) {
 	 resp_cache->getResponse(resp, ievent);
       } else {
 	 src->computeResponse(resp, event);
@@ -191,7 +191,7 @@ modelLogDensityDerivs(std::vector<double> & log_flux_derivs,
       Source * src = m_free_sources[ifreesrc];
       EventResponseCache * resp_cache = m_free_source_resp[ifreesrc];
       EventResponse resp;
-      if(resp_cache == 0) {
+      if(resp_cache != 0) {
 	 resp_cache->getResponse(resp, ievent);
       } else {
 	 src->computeResponse(resp, event);
@@ -271,15 +271,15 @@ partialSourceEventResponses(Source* src, EventResponses& resp,
 			    unsigned ievent_begin, unsigned ievent_end) {
 }
 
-void UnbinnedLikelihood::
-computeSourceEventResponses(Source* src, 
-			    EventResponseCache* resp_cache) const {
+EventResponseCache * UnbinnedLikelihood::
+computeSourceEventResponses(Source* src) const {
    const std::vector<Event> & events = m_observation.eventCont().events();
    unsigned nevent = events.size();
-   assert(resp_cache.nevent() == nevent);
+   EventResponseCache * resp_cache = 
+     new EventResponseCache(src->edisp(), nevent);
    
    unsigned ievent;
-#pragma omp parallel for private(ievent) num_threads(m_nthread)
+#pragma omp parallel for private(ievent) num_threads(m_nthread) // schedule(dynamic,std::max(1,nevent/(50*m_nthread)))
    for(ievent=0; ievent<nevent; ievent++) {
       const Event & event = events[ievent];	
       EventResponse resp;
@@ -287,10 +287,11 @@ computeSourceEventResponses(Source* src,
 #pragma omp critical
       resp_cache->setResponse(resp, ievent);
    }
+   return resp_cache;
 }
 
 void UnbinnedLikelihood::addFreeSource(Source* src, const Source* callers_src) {
-   std::map<Source *, EventResponses *> resps;
+   std::map<Source *, EventResponseCache *> resps;
    for(unsigned ifree = 0; ifree<m_free_sources.size(); ifree++) {
       resps[m_free_sources[ifree]] = m_free_source_resp[ifree];
    }
@@ -303,9 +304,7 @@ void UnbinnedLikelihood::addFreeSource(Source* src, const Source* callers_src) {
 	    m_last_removed_source = 0;
 	    m_last_removed_source_resp = 0;
 	 } else {
-	    EventResponses * resp = new EventResponses;
-	    computeSourceEventResponses(src, *resp);
-	    m_free_source_resp[ifree] = resp;
+	    m_free_source_resp[ifree] = computeSourceEventResponses(src);
 	 }
       } else {
 	 m_free_source_resp[ifree] = resps.at(m_free_sources[ifree]);
@@ -332,88 +331,19 @@ void UnbinnedLikelihood::
 addFixedSource(Source* src, const Source* callers_src) {
    (void)(callers_src);
    const std::vector<Event> & events = m_observation.eventCont().events();
-   EventResponses resp;
-   computeSourceEventResponses(src, resp);
+   unsigned nevent = events.size();
 
-   m_fixed_source_flux_in_bin.resize(events.size());
-   
    // Data sum
-   for(unsigned ievent = 0; ievent<events.size(); ievent++) {
-      double fluxDensity = src->fluxDensity(event[ievent], resp[ievent]);
+   unsigned ievent;
+#pragma omp parallel for private(ievent) num_threads(m_nthread) // schedule(dynamic,std::max(1,nevent/(50*m_nthread)))
+   for(ievent=0; ievent<nevent; ievent++) {
+      const Event & event = events[ievent];	
+      EventResponse resp;
+      src->computeResponse(resp, event);
+      double fluxDensity = src->fluxDensity(event, resp);
       m_fixed_source_flux_in_bin[ievent].add(fluxDensity);
    }
 
    // Model integral - Npred
-   m_fixed_source_npred.add(sec->Npred());
-}
-
-UnbinnedLikelihood::EventResponseCache::
-EventResponses(Source::EDispMode edisp, unsigned nevent):
-  m_resp(), m_resp_offset(), m_resp_count(), m_edisp(edisp) {
-   switch(m_edisp) {
-   case Source::ED_NONE:
-      m_resp.resize(nevent);
-      break;
-   case Source::ED_GAUSSIAN:
-      m_resp.resize(nevent*3);
-      break;
-   case Source::ED_FULL:
-      m_resp_offset.resize(nevent);
-      m_resp_count.resize(nevent);
-      break;
-   }
-}
-
-unsigned UnbinnedLikelihood::EventResponseCache::nevent() const {
-   switch(m_edisp) {
-   case Source::ED_NONE:
-      return m_resp.size();
-   case Source::ED_GAUSSIAN:
-      return m_resp.size()/3;
-   case Source::ED_FULL:
-      return m_resp_offset.size();
-   }
-   assert(0);
-}
-
-void UnbinnedLikelihood::EventResponseCache::
-getResponse(Source::Response& resp, unsigned ievent) const{
-   switch(m_edisp) {
-   case Source::ED_NONE:
-      resp.resize(1);
-      resp[0] = m_resp[ievent];
-      break;
-   case Source::ED_GAUSSIAN:
-      resp.resize(3);
-      std::copy(m_resp.begin() + ievent*3, m_resp.begin() + (ievent+1)*3,
-		resp.begin());
-      break;
-   case Source::ED_FULL:
-      resp.resize(m_resp_count[ievent]);
-      std::copy(m_resp.begin() + m_resp_offset[ievent],
-		m_resp.begin() + m_resp_offset[ievent] + m_resp_count[ievent],
-		resp.begin());
-      break;
-   }
-}
-
-void UnbinnedLikelihood::EventResponseCache::
-setResponse(const Source::Response& resp, unsigned ievent) {
-   switch(m_edisp) {
-   case Source::ED_NONE:
-      ST_DEBUG_ASSERT(resp.size() == 1);
-      m_resp[ievent] = resp[0];
-      break;
-   case Source::ED_GAUSSIAN:
-      ST_DEBUG_ASSERT(resp.size() == 3);
-      m_resp[ievent*3+0] = resp[0];
-      m_resp[ievent*3+1] = resp[1];
-      m_resp[ievent*3+2] = resp[2];
-      break;
-   case Source::ED_FULL:
-      m_resp_offset[ievent] = m_resp.size();
-      m_resp_count[ievent]  = resp.size();
-      m_resp.insert(m_resp.end(), resp.begin(), resp.end());
-      break;
-   }
+   m_fixed_source_npred.add(src->Npred());
 }

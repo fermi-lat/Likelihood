@@ -4,15 +4,11 @@
  * @author J. Chiang <jchiang@slac.stanford.edu>
  * @author S. Fegan <sfegan@llr.in2p3.fr>
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Attic/UnbinnedLikelihood.h,v 1.1.2.2 2013/02/18 13:48:21 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Attic/UnbinnedLikelihood.h,v 1.1.2.3 2013/03/06 14:36:50 sfegan Exp $
  */
 
 #ifndef Likelihood_UnbinnedLikelihood_h
 #define Likelihood_UnbinnedLikelihood_h
-
-#ifndef ST_LIKELIHOOD_NOTHREADS
-#include <pthread.h>
-#endif
 
 #include "Likelihood/LikelihoodBase.h"
 #include "Likelihood/Observation.h"
@@ -39,21 +35,7 @@ public:
 
 protected:   
 
-   class EventResponseCache {
-   public:
-      EventResponses(Source::EDispMode edisp, unsigned nevent);
-      unsigned nevent() const;
-      void getResponse(Source::Response& resp, unsigned ievent) const;
-      void setResponse(const Source::Response& resp, unsigned ievent);
-   private:
-      std::vector<double>   m_resp;
-      std::vector<unsigned> m_resp_offset;
-      std::vector<unsigned> m_resp_count;
-      Source::EDispMode     m_edisp;
-   };
-
-   void computeSourceEventResponses(Source* src, 
-				    EventResponseCache* resp_cache) const;
+   EventResponseCache * computeSourceEventResponses(Source* src) const;
 
    virtual void addFreeSource(Source* src, const Source* callers_src);
    virtual void removeFreeSource(Source* src);
@@ -72,9 +54,7 @@ protected:
    Source *                                m_last_removed_source;
    EventResponses *                        m_last_removed_source_resp;
 
-#ifndef ST_LIKELIHOOD_NOTHREADS
    unsigned                                m_nthread;
-#endif
 };
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.84 2013/01/09 00:44:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.84.2.1 2013/02/18 13:48:22 sfegan Exp $
  */
 
 #include <cctype>
@@ -88,7 +88,8 @@ Event::Event(double ra, double dec, double energy, double time,
    m_estep = (emax - emin)/(npts-1.);
    m_trueEnergies.reserve(npts);
    for (int i = 0; i < npts; i++) {
-     m_trueEnergies.push_back(m_estep*i + emin);
+      m_trueEnergies.push_back(m_estep*i + emin);
+   }
 }
 
 double Event::diffuseResponse(double trueEnergy, 
