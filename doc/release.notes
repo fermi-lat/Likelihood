@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.507 2013/02/11 21:08:59 jchiang Exp $
+    $Id: release.notes,v 1.508 2013/02/24 01:20:11 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-00-06 02-Apr-2013 jchiang add copyall hidden parameter to gtsrcmaps; enable copying of all source map hdus in input counts map file to output source maps file
  Likelihood-18-00-05 23-Feb-2013 jchiang added externs for hasim_ structs for mac builds at FSSC
  Likelihood-18-00-04 11-Feb-2013 jchiang ensure that the model map is up-to-date before computing model counts spectra
  Likelihood-18-00-03 07-Feb-2013 jchiang use EventContainer to read events in gtdiffrsp so that exisiting diffuse columns are recorded in each Event object
