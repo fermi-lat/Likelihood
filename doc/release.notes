@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.508 2013/02/24 01:20:11 jchiang Exp $
+    $Id: release.notes,v 1.509 2013/04/02 22:45:56 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-00-07 09-Apr-2013 jchiang bug-fix in MapBase::interpolatePowerLaw: handle special case where both ordinate values are zero
  Likelihood-18-00-06 02-Apr-2013 jchiang add copyall hidden parameter to gtsrcmaps; enable copying of all source map hdus in input counts map file to output source maps file
  Likelihood-18-00-05 23-Feb-2013 jchiang added externs for hasim_ structs for mac builds at FSSC
  Likelihood-18-00-04 11-Feb-2013 jchiang ensure that the model map is up-to-date before computing model counts spectra
