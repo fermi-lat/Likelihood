@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.13 2012/04/17 20:28:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.14 2012/06/19 04:02:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -188,6 +188,9 @@ void MapBase::getCorners(std::vector<astro::SkyDir> & corners) const {
 
 double MapBase::interpolatePowerLaw(double x, double x1, double x2,
                                     double y1, double y2) {
+   if (y1 == 0 && y2 == 0) {
+      return 0;
+   }
    if (x1 <= 0 || x2 <= 0 || y1 <= 0 || y2 <= 0) {
       std::ostringstream message;
       message << "MapBase::interpolatePowerLaw:\n"
