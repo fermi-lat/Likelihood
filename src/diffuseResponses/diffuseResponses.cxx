@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.65 2012/09/30 23:03:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.66 2013/02/07 20:10:00 jchiang Exp $
  */
 
 #include <cmath>
@@ -140,7 +140,7 @@ private:
 
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffrsp");
 
-std::string diffuseResponses::s_cvs_id("$Name: ScienceTools-09-31-01-br01 $");
+std::string diffuseResponses::s_cvs_id("$Name: Likelihood-18-00-04 $");
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), 
@@ -165,6 +165,7 @@ void diffuseResponses::run() {
    bool clobber = m_pars["clobber"];
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
    m_helper->setRoi("", "EVENTS", false);
+   m_helper->observation().roiCuts().setCuts(0, 0, 180, 1e-9, 1e9);
    m_helper->readScData();
    m_srcModel = new SourceModel(m_helper->observation(), true);
 //   m_useEdisp = m_pars["edisp"];
