@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.509 2013/04/02 22:45:56 jchiang Exp $
+    $Id: release.notes,v 1.510 2013/04/09 17:18:11 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-00-08 04-Jun-2013 jchiang bug-fix for gtdiffrsp: disable default energy selection in m_helpers->observation().roiCuts()
  Likelihood-18-00-07 09-Apr-2013 jchiang bug-fix in MapBase::interpolatePowerLaw: handle special case where both ordinate values are zero
  Likelihood-18-00-06 02-Apr-2013 jchiang add copyall hidden parameter to gtsrcmaps; enable copying of all source map hdus in input counts map file to output source maps file
  Likelihood-18-00-05 23-Feb-2013 jchiang added externs for hasim_ structs for mac builds at FSSC
