@@ -3,7 +3,7 @@
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/EventContainer.h,v 1.9 2010/05/11 15:51:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/EventContainer.h,v 1.10 2013/02/07 20:09:59 jchiang Exp $
  */
 
 #ifndef Likelihood_EventContainer_h
@@ -36,7 +36,7 @@ namespace Likelihood {
  * @brief Container class for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/EventContainer.h,v 1.9 2010/05/11 15:51:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/EventContainer.h,v 1.10 2013/02/07 20:09:59 jchiang Exp $
  */
 
 class EventContainer {
@@ -48,7 +48,7 @@ public:
 
    ~EventContainer();
 
-   void getEvents(std::string event_file);
+   void getEvents(std::string event_file, bool apply_roi_cut=true);
                   
    void computeEventResponses(Source & src, double sr_radius=30.);
 
