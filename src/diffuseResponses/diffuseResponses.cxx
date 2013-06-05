@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.66 2013/02/07 20:10:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.67 2013/06/05 05:18:08 jchiang Exp $
  */
 
 #include <cmath>
@@ -140,7 +140,7 @@ private:
 
 st_app::StAppFactory<diffuseResponses> myAppFactory("gtdiffrsp");
 
-std::string diffuseResponses::s_cvs_id("$Name: Likelihood-18-00-04 $");
+std::string diffuseResponses::s_cvs_id("$Name:  $");
 
 diffuseResponses::diffuseResponses() 
    : st_app::StApp(), m_helper(0), m_srcModel(0), 
@@ -165,7 +165,6 @@ void diffuseResponses::run() {
    bool clobber = m_pars["clobber"];
    m_helper = new AppHelpers(&m_pars, "UNBINNED");
    m_helper->setRoi("", "EVENTS", false);
-   m_helper->observation().roiCuts().setCuts(0, 0, 180, 1e-9, 1e9);
    m_helper->readScData();
    m_srcModel = new SourceModel(m_helper->observation(), true);
 //   m_useEdisp = m_pars["edisp"];
@@ -364,7 +363,8 @@ void diffuseResponses::readEventData(std::string eventFile) {
    m_eventCont = new EventContainer(m_helper->observation().respFuncs(),
                                     m_helper->observation().roiCuts(),
                                     m_helper->observation().scData());
-   m_eventCont->getEvents(eventFile);
+   bool apply_roi_cut;
+   m_eventCont->getEvents(eventFile, apply_roi_cut=false);
 }
 
 void diffuseResponses::computeEventResponses() {
