@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EventContainer.cxx,v 1.26 2013/01/09 00:44:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EventContainer.cxx,v 1.27 2013/06/05 06:07:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -117,6 +117,7 @@ void EventContainer::getEvents(std::string event_file,
                       m_scData.xAxis(time), cos(zenAngle*M_PI/180.), 
                       m_respFuncs.useEdisp(), m_respFuncs.respName(),
                       eventType, efficiency);
+      thisEvent.set_classLevel(eventClass);
       if (!apply_roi_cut || m_roiCuts.accept(thisEvent)) {
          m_events.push_back(thisEvent);
          for (std::vector<std::string>::iterator name = diffuseNames.begin();
