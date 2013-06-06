@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.511 2013/06/05 05:24:55 jchiang Exp $
+    $Id: release.notes,v 1.512 2013/06/05 06:07:54 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-00-10 05-Jun-2013 jchiang set class level in EventContainer::getEvents
  Likelihood-18-00-09 04-Jun-2013 jchiang disable roi cuts entirely for gtdiffrsp
  Likelihood-18-00-08 04-Jun-2013 jchiang bug-fix for gtdiffrsp: disable default energy selection in m_helpers->observation().roiCuts()
  Likelihood-18-00-07 09-Apr-2013 jchiang bug-fix in MapBase::interpolatePowerLaw: handle special case where both ordinate values are zero
