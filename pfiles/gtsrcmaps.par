@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtsrcmaps.par,v 1.33 2011/08/10 16:06:36 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtsrcmaps.par,v 1.34 2013/04/02 22:44:35 jchiang Exp $
 #
 scfile,f,h,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
@@ -16,7 +16,7 @@ minbinsz,r,h,0.1,,,"Minimum pixel size for rebinning fine maps"
 ptsrc,b,h,yes,,,"Compute point source maps"
 psfcorr,b,h,yes,,,"Apply psf integral corrections"
 emapbnds,b,h,yes,,,"Enforce boundaries of exposure map"
-copyall,b,h,yes,,,"Copy all source maps from input counts map file to output"
+copyall,b,h,no,,,"Copy all source maps from input counts map file to output"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
