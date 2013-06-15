@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.513 2013/06/06 02:48:29 jchiang Exp $
+    $Id: release.notes,v 1.514 2013/06/10 19:34:53 cohen Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-00-12 15-Jun-2013 jchiang set gtsrcmaps copyall=no as default to restore previous default behavior
  Likelihood-18-00-11 10-Jun-2013  cohen fix a dmfit bug at low energy
  Likelihood-18-00-10 05-Jun-2013 jchiang set class level in EventContainer::getEvents
  Likelihood-18-00-09 04-Jun-2013 jchiang disable roi cuts entirely for gtdiffrsp
