@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.515 2013/06/15 18:15:04 jchiang Exp $
+    $Id: release.notes,v 1.516 2013/08/06 22:51:09 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-01-01 10-Aug-2013 jchiang move irf checking and handling code to single location in AppHelpers
  Likelihood-18-01-00 06-Aug-2013 jchiang fix gtltcube bug for FT1 files with explicit time range selections in DSS keywords
  Likelihood-18-00-12 15-Jun-2013 jchiang set gtsrcmaps copyall=no as default to restore previous default behavior
  Likelihood-18-00-11 10-Jun-2013  cohen fix a dmfit bug at low energy
