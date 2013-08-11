@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.14 2012/09/30 23:03:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.15 2013/01/10 08:56:13 sfegan Exp $
  */
 
 #include <cmath>
@@ -59,7 +59,7 @@ private:
 
 st_app::StAppFactory<ExpCube> myAppFactory("gtexpcube2");
 
-std::string ExpCube::s_cvs_id("$Name:  $");
+std::string ExpCube::s_cvs_id("$Name: Likelihood-18-00-04 $");
 
 ExpCube::ExpCube() : st_app::StApp(), m_helper(0), 
                      m_pars(st_app::StApp::getParGroup("gtexpcube2")) {
@@ -77,11 +77,6 @@ void ExpCube::run() {
    promptForParameters();
    std::string cmap_file = m_pars["cmap"];
    std::string ltcube_file = m_pars["infile"];
-
-   if (cmap_file != "none") {
-      std::string irfs = m_pars["irfs"];
-      dataSubselector::Cuts::checkIrfs(cmap_file, "", irfs);
-   }
 
    bool useEbounds(true);
    std::string bincalc = m_pars["bincalc"];

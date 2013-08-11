@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.52 2012/09/30 23:03:05 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.53 2012/11/11 03:26:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -28,8 +28,6 @@
 
 #include "st_facilities/Environment.h"
 #include "st_facilities/Util.h"
-
-#include "dataSubselector/Cuts.h"
 
 #include "optimizers/dArg.h"
 #include "optimizers/Optimizer.h"
@@ -109,7 +107,7 @@ TsMap::TsMap()
    m_pars.setCase("statistic", "UNBINNED", "expmap");
 }
 
-std::string TsMap::s_cvs_id("$Name:  $");
+std::string TsMap::s_cvs_id("$Name: Likelihood-18-00-04 $");
 
 void TsMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -156,8 +154,6 @@ void TsMap::run() {
    std::string expcube = m_pars["expcube"];
    std::string irfs = m_pars["irfs"];
    if (expcube != "" && expcube != "none") {
-      std::string cmap = m_pars["cmap"];
-      dataSubselector::Cuts::checkIrfs(cmap, "", irfs);
       m_helper->observation().expCube().readExposureCube(expcube);
    }
    if (m_statistic == "UNBINNED") {
@@ -167,7 +163,6 @@ void TsMap::run() {
       bool compareGtis;
       bool relyOnStreams;
       bool skipEventClassCuts(irfs != "DSS");
-      dataSubselector::Cuts::checkIrfs(evfiles.at(0), "EVENTS", irfs);
       for (size_t i(1); i < evfiles.size(); i++) {
          AppHelpers::checkCuts(evfiles[0], evtable,
                                evfiles[i], evtable,

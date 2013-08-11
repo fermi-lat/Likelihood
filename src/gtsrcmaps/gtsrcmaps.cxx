@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.43 2013/01/28 12:40:41 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.44 2013/04/02 22:44:35 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -85,7 +85,7 @@ gtsrcmaps::gtsrcmaps()
    setVersion(s_cvs_id);
 }
 
-std::string gtsrcmaps::s_cvs_id("$Name: Likelihood-18-00-04 $");
+std::string gtsrcmaps::s_cvs_id("$Name:  $");
 
 void gtsrcmaps::banner() const {
    int verbosity = m_pars["chatter"];
@@ -108,8 +108,6 @@ void gtsrcmaps::run() {
    expCube.readExposureCube(expCubeFile);
 
    std::string cntsMapFile = m_pars["cmap"];
-   std::string irfs = m_pars["irfs"];
-   dataSubselector::Cuts::checkIrfs(cntsMapFile, "", irfs);
    dataSubselector::Cuts my_cuts(cntsMapFile, "", false);
    CountsMap dataMap(cntsMapFile);
    std::vector<double> energies;

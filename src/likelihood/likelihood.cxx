@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.162 2012/09/29 00:23:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.163 2012/09/30 23:03:11 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -35,8 +35,6 @@
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
-
-#include "dataSubselector/Cuts.h"
 
 #include "optimizers/Optimizer.h"
 #include "optimizers/OptimizerFactory.h"
@@ -166,7 +164,7 @@ private:
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlike");
 
-std::string likelihood::s_cvs_id("$Name:  $");
+std::string likelihood::s_cvs_id("$Name: Likelihood-18-00-04 $");
 
 void likelihood::banner() const {
    int verbosity = m_pars["chatter"];
@@ -219,7 +217,6 @@ void likelihood::run() {
    std::string irfs = m_pars["irfs"];
    if (m_statistic == "BINNED") {
       std::string cmap = m_pars["cmap"];
-      dataSubselector::Cuts::checkIrfs(cmap, "", irfs);
       m_helper->setRoi(cmap, "", false);
    } else {
       std::string exposureFile = m_pars["expmap"];
@@ -230,7 +227,6 @@ void likelihood::run() {
       st_facilities::Util::resolve_fits_files(eventFile, m_eventFiles);
       bool compareGtis(false);
       bool relyOnStreams(false);
-      dataSubselector::Cuts::checkIrfs(m_eventFiles.at(0), "EVENTS", irfs);
       bool skipEventClassCuts(irfs != "DSS");
       for (size_t i = 1; i < m_eventFiles.size(); i++) {
          AppHelpers::checkCuts(m_eventFiles[0], evtable, m_eventFiles[i],

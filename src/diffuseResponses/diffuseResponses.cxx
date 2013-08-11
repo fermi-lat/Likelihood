@@ -3,7 +3,7 @@
  * @brief Adds diffuse response information for desired components.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.67 2013/06/05 05:18:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/diffuseResponses/diffuseResponses.cxx,v 1.68 2013/06/05 06:07:23 jchiang Exp $
  */
 
 #include <cmath>
@@ -30,8 +30,6 @@
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
-
-#include "dataSubselector/Cuts.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/DiffRespNames.h"
@@ -174,9 +172,6 @@ void diffuseResponses::run() {
    respFuncs.setEdispFlag(m_useEdisp);
    std::vector<std::string> eventFiles;
    st_facilities::Util::resolve_fits_files(m_pars["evfile"], eventFiles);
-
-   std::string irfs = m_pars["irfs"];
-   dataSubselector::Cuts::checkIrfs(eventFiles.at(0), "EVENTS", irfs);
 
    std::vector<std::string>::const_iterator evtfile;
    buildSourceModel();

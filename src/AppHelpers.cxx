@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.104 2012/08/09 23:04:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.105 2012/08/13 22:00:26 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -330,13 +330,17 @@ void AppHelpers::readExposureMap() {
 }
 
 void AppHelpers::createResponseFuncs(const std::string & analysisType) {
+   st_stream::StreamFormatter formatter("AppHelpers", 
+                                        "createResponseFuncs", 2);
    m_respFuncs = new ResponseFunctions();
    st_app::AppParGroup & pars(*m_pars);
    std::string respBase = pars["irfs"];
    std::string evfile;
+   std::string extname;
    if (analysisType == "UNBINNED") {
       std::string myfile = pars["evfile"];
       evfile = myfile;
+      extname = "EVENTS";
    } else if (analysisType == "BINNED") {
       try {
          std::string myfile = pars["cmap"];
@@ -345,12 +349,27 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
          std::string myfile = pars["srcmaps"];
          evfile = myfile;
       }
+      extname = "";
    } else {
+      if (respBase == "INDEF") {
+         throw std::runtime_error("A valid set of irfs must be specified "
+                                  "when running this tool in this mode.");
+      }
       m_respFuncs->load(respBase);
       return;
    }
    std::vector<std::string> files;
    st_facilities::Util::resolve_fits_files(evfile, files);
+   if (respBase == "INDEF") {
+      // Determine irfs to use from DSS keywords in event file.
+      dataSubselector::Cuts::Cuts my_cuts(files.at(0), extname,
+                                          false, true, true);
+      respBase = my_cuts.irfName();
+      formatter.warn() << "Using irfs: " << respBase << std::endl;
+   } else {
+      // Check that requested irfs match those in the upstream files.
+      dataSubselector::Cuts::checkIrfs(files.at(0), extname, respBase);
+   }
    if (respBase == "DSS") {
       std::string respFuncs = responseFuncs(files.front(), "DC2");
       m_respFuncs->load(respFuncs, "DC2");

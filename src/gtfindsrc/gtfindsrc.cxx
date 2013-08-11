@@ -3,7 +3,7 @@
  * @brief Use Nelder-Mead algorithm to fit for a point source location.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.22 2009/09/02 04:51:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtfindsrc/gtfindsrc.cxx,v 1.23 2012/09/30 23:03:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,8 +23,6 @@
 #include "st_app/StAppFactory.h"
 
 #include "st_facilities/Util.h"
-
-#include "dataSubselector/Cuts.h"
 
 #include "optimizers/Amoeba.h"
 #include "optimizers/dArg.h"
@@ -117,9 +115,6 @@ void findSrc::run() {
    bool compareGtis(false);
    bool relyOnStreams(false);
    std::string irfs = m_pars["irfs"];
-
-   dataSubselector::Cuts::checkIrfs(m_eventFiles.at(0), "EVENTS", irfs);
-
    bool skipEventClassCuts(irfs != "DSS");
    for (unsigned int i = 1; i < m_eventFiles.size(); i++) {
       AppHelpers::checkCuts(m_eventFiles[0], evtable, m_eventFiles[i],
@@ -129,9 +124,6 @@ void findSrc::run() {
    compareGtis = true;
    if (exposureFile != "none" && exposureFile != "") {
          AppHelpers::checkExpMapCuts(m_eventFiles, exposureFile, evtable, "");
-//       AppHelpers::checkCuts(m_eventFiles, evtable, exposureFile, "",
-//                             compareGtis, relyOnStreams,
-//                             skipEventClassCuts);
    }
    if (expcube_file != "none" && expcube_file != "") {
       AppHelpers::checkTimeCuts(m_eventFiles, evtable, expcube_file, 
