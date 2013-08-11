@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.118 2012/06/27 20:31:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.119 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -356,16 +356,16 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
    (void)(verbose);
    exposure.clear();
 
-   st_stream::StreamFormatter formatter("PointSource",
-                                        "computeExposureWithHyperCube", 4);
-   formatter.warn() << "Computing exposure at (" 
-                    << srcDir.ra() << ", " 
-                    << srcDir.dec() << ")";
+//    st_stream::StreamFormatter formatter("PointSource",
+//                                         "computeExposureWithHyperCube", 4);
+//    formatter.warn() << "Computing exposure at (" 
+//                     << srcDir.ra() << ", " 
+//                     << srcDir.dec() << ")";
    for (std::vector<double>::const_iterator it = energies.begin();
         it != energies.end(); it++) {
-      if (verbose) {
-         formatter.warn() << ".";
-      }
+//       if (verbose) {
+//          formatter.warn() << ".";
+//       }
       double time((observation.expCube().tstart() 
                    + observation.expCube().tstop())/2.);
       PointSource::Aeff aeff(*it, srcDir, observation.roiCuts(),
@@ -374,7 +374,7 @@ computeExposureWithHyperCube(const astro::SkyDir & srcDir,
       double exposure_value = observation.expCube().value(srcDir, aeff, *it);
       exposure.push_back(exposure_value);
    }
-   formatter.warn() << "!" << std::endl;
+//    formatter.warn() << "!" << std::endl;
 }
 
 void PointSource::computeExposure(const astro::SkyDir & srcDir,
