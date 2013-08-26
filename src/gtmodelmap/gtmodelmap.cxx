@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.38 2013/01/28 12:40:40 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.39 2013/08/11 04:25:31 jchiang Exp $
  */
 
 #include <iostream>
@@ -16,6 +16,9 @@
 #include "st_app/AppParGroup.h"
 #include "st_app/StApp.h"
 #include "st_app/StAppFactory.h"
+
+#include "tip/IFileSvc.h"
+#include "tip/Image.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
@@ -62,13 +65,14 @@ private:
    Likelihood::BinnedLikelihood * m_logLike;
 
    void computeModelMap();
+   void updateDssKeywords();
 
    static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<ModelMap> myAppFactory("gtmodel");
 
-std::string ModelMap::s_cvs_id("$Name: Likelihood-18-00-04 $");
+std::string ModelMap::s_cvs_id("$Name:  $");
 
 void ModelMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -81,6 +85,7 @@ void ModelMap::run() {
    m_pars.Prompt();
    m_pars.Save();
    computeModelMap();
+   updateDssKeywords();
 }
 
 void ModelMap::computeModelMap() {
@@ -116,4 +121,16 @@ void ModelMap::computeModelMap() {
    std::string outtype = m_pars["outtype"];
 
    modelMap.writeOutputMap(outfile, outtype);
+}
+
+void ModelMap::updateDssKeywords() {
+   std::string smaps = m_pars["srcmaps"];
+   dataSubselector::Cuts my_cuts(smaps, "PRIMARY", false, false, false);
+   // Ensure that the irfs used are written to the DSS keywords.
+   my_cuts.addVersionCut("IRF_VERSION", m_helper->irfsName());
+
+   std::string outfile = m_pars["outfile"];
+   tip::Image * my_image = tip::IFileSvc::instance().editImage(outfile, "");
+   my_cuts.writeDssKeywords(my_image->getHeader());
+   delete my_image;
 }

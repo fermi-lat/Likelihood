@@ -1,11 +1,11 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtmodel.par,v 1.8 2010/12/12 23:52:21 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtmodel.par,v 1.9 2011/08/10 16:06:36 jchiang Exp $
 #
 srcmaps,fr,a,"",,,"Source maps (or counts map) file"
 srcmdl,fr,a,"",,,"Source model file"
 outfile,f,a,"",,,"Output file"
 
-irfs,s,a,"P7SOURCE_V6",,,"Response functions"
+irfs,s,a,"CALDB",,,"Response functions"
 expcube,f,a,"",,,"Exposure cube"
 bexpmap,f,a,none,,,"Binned exposure map"
 convol,b,h,yes,,,"Perform convolution with psf"

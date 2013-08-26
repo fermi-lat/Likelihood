@@ -4,7 +4,7 @@
  * an observaition.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/meanPsf/meanPsf.cxx,v 1.14 2007/07/03 22:48:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/meanPsf/meanPsf.cxx,v 1.15 2010/06/16 22:49:54 jchiang Exp $
  */
 
 #include <cstdio>
@@ -24,6 +24,8 @@
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+
+#include "dataSubselector/Cuts.h"
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/MeanPsf.h"
@@ -54,7 +56,7 @@ private:
 
 st_app::StAppFactory<meanPsf> myAppFactory("gtpsf");
 
-std::string meanPsf::s_cvs_id("$Name:  $");
+std::string meanPsf::s_cvs_id("$Name: Likelihood-18-00-04 $");
 
 meanPsf::meanPsf() 
    : st_app::StApp(), m_helper(0),
@@ -148,6 +150,12 @@ void meanPsf::writeFitsFile() {
          Psf[i] = (*m_meanPsf)(*energy, *theta, 0);
       }
    }
+
+   // Write irfs version using DSS keywords.
+   dataSubselector::Cuts my_cuts;
+   my_cuts.addVersionCut("IRF_VERSION", m_helper->irfsName());
+   my_cuts.writeDssKeywords(psf_table->getHeader());
+
    extension = "THETA";
    tip::IFileSvc::instance().appendTable(output_file, extension);
    std::auto_ptr<tip::Table> 

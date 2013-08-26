@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.15 2013/01/10 08:56:13 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.16 2013/08/11 04:25:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,6 +23,7 @@
 #include "tip/Image.h"
 #include "tip/Header.h"
 
+#include "dataSubselector/Cuts.h"
 #include "dataSubselector/Gti.h"
 
 #include "Likelihood/AppHelpers.h"
@@ -54,12 +55,13 @@ private:
    void generateEnergies(std::vector<double> & energies) const;
    void copyGtis() const;
    void copyHeaderKeywords() const;
+   void copyDssKeywords(tip::Header & header) const;
    static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<ExpCube> myAppFactory("gtexpcube2");
 
-std::string ExpCube::s_cvs_id("$Name: Likelihood-18-00-04 $");
+std::string ExpCube::s_cvs_id("$Name:  $");
 
 ExpCube::ExpCube() : st_app::StApp(), m_helper(0), 
                      m_pars(st_app::StApp::getParGroup("gtexpcube2")) {
@@ -102,21 +104,19 @@ void ExpCube::run() {
       BinnedExposure bexpmap(cmap, m_helper->observation(), useEbounds, 
                              &m_pars);
       bexpmap.writeOutput(m_pars["outfile"]);
-      copyHeaderKeywords();
-      return;
-   }
-
+   } else {
 // Create map for user-defined geometry.
-   std::vector<double> energies;
-   generateEnergies(energies);
-   if (!useEbounds) {
-      for (size_t k(0); k < energies.size() - 1; k++) {
-         energies[k] = std::sqrt(energies[k]*energies[k+1]);
+      std::vector<double> energies;
+      generateEnergies(energies);
+      if (!useEbounds) {
+         for (size_t k(0); k < energies.size() - 1; k++) {
+            energies[k] = std::sqrt(energies[k]*energies[k+1]);
+         }
+         energies.pop_back();
       }
-      energies.pop_back();
+      BinnedExposure bexpmap(energies, m_helper->observation(), &m_pars);
+      bexpmap.writeOutput(m_pars["outfile"]);
    }
-   BinnedExposure bexpmap(energies, m_helper->observation(), &m_pars);
-   bexpmap.writeOutput(m_pars["outfile"]);
    copyHeaderKeywords();
    copyGtis();
 }
@@ -237,17 +237,26 @@ void ExpCube::copyHeaderKeywords() const {
 
 #undef COPYKEYWORD
 
-#if 0
-   // HOLD OFF ON WRITING IRF KEYWORD PENDING JIM'S WORK ON DSS IRF KEYS
-   try {
-     std::string irfs = m_pars["irfs"];
-     outheader["RESPBASE"].set(irfs);
-   } catch(...) {
-   }
-#endif
+   copyDssKeywords(outheader);
 
    delete outimg;
    delete intab;
 }
 
-
+void ExpCube::copyDssKeywords(tip::Header & header) const {
+   std::string cmap_file = m_pars["cmap"];
+   dataSubselector::Cuts * irfs_cuts(0);
+   if (cmap_file == "none") {
+      // No DSS keywords to copy from input files, so just write
+      // selected irfs.
+      irfs_cuts = new dataSubselector::Cuts();
+   } else {
+      // Copy DSS keywords from input cmap file, ensuring that the
+      // irfs version is set.
+      irfs_cuts = new dataSubselector::Cuts(cmap_file, "PRIMARY", false,
+                                            false, false);
+   }
+   irfs_cuts->addVersionCut("IRF_VERSION", m_helper->irfsName());
+   irfs_cuts->writeDssKeywords(header);
+   delete irfs_cuts;
+}
