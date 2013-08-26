@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.36 2006/09/19 23:07:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RoiCuts.h,v 1.37 2006/09/20 23:43:37 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -39,7 +39,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.36 2006/09/19 23:07:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RoiCuts.h,v 1.37 2006/09/20 23:43:37 jchiang Exp $
  */
 
 class RoiCuts {
@@ -133,6 +133,8 @@ public:
    double maxTime() const {
       return m_maxTime;
    }
+
+   void setIrfsVersion(const std::string & irfsName);
 
 private:
 

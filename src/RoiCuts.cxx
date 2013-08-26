@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RoiCuts.cxx,v 1.54 2010/06/17 17:36:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RoiCuts.cxx,v 1.55 2012/06/27 20:31:51 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -258,6 +258,12 @@ bool RoiCuts::accept(const Event &event) const {
    }
 
    return acceptEvent;
+}
+
+void RoiCuts::setIrfsVersion(const std::string & irfsName) {
+   if (m_cuts) {
+      m_cuts->addVersionCut("IRF_VERSION", irfsName);
+   }
 }
 
 } // namespace Likelihood

@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtbkg.par,v 1.4 2009/12/16 18:28:13 elwinter Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtbkg.par,v 1.5 2011/08/10 16:06:36 jchiang Exp $
 #
 phafile,fr,a,"",,,"pha file"
 outfile,f,a,"",,,"output file"
@@ -7,7 +7,7 @@ scfile,f,a,"",,,"Spacecraft file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 expcube,fr,a,"",,,"Exposure hypercube file"
 expmap,fr,a,"none",,,"Exposure file"
-irfs,s,a,"P7SOURCE_V6",,,"Response functions to use"
+irfs,s,a,"CALDB",,,"Response functions to use"
 srcmdl,fr,a,"",,,"Source model file"
 target,s,a,"none",,,"Target source name (excluded from background estimate)"
 

@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.46 2012/09/30 23:03:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.47 2013/08/11 04:25:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.46 2012/09/30 23:03:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.47 2013/08/11 04:25:28 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -67,7 +67,7 @@ private:
 
 st_app::StAppFactory<ExpMap> myAppFactory("gtexpmap");
 
-std::string ExpMap::s_cvs_id("$Name: Likelihood-18-00-04 $");
+std::string ExpMap::s_cvs_id("$Name:  $");
 
 ExpMap::ExpMap() : st_app::StApp(), m_helper(0), 
                    m_pars(st_app::StApp::getParGroup("gtexpmap")) {
@@ -185,6 +185,8 @@ void ExpMap::createExposureMap() {
                                                nlatmin, nlatmax); 
    tip::Image * image = 
       tip::IFileSvc::instance().editImage(exposureFile, "");
+   // Ensure that irfs version name is written to DSS keywords.
+   roiCuts.setIrfsVersion(m_helper->irfsName());
    roiCuts.writeDssKeywords(image->getHeader());
    roiCuts.writeGtiExtension(exposureFile);
 

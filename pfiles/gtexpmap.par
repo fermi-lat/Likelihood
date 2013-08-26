@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpmap.par,v 1.17 2009/12/16 18:42:58 elwinter Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpmap.par,v 1.18 2011/08/10 16:06:36 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
@@ -7,7 +7,7 @@ scfile,f,a,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,"Spacecraft data extension"
 expcube,f,a,"",,,"Exposure hypercube file"
 outfile,f,a,"",,,"output file name"
-irfs,s,a,"P7SOURCE_V6",,,"Response functions"
+irfs,s,a,"CALDB",,,"Response functions"
 srcrad,r,a,30,,,Radius of the source region (in degrees)
 nlong,i,a,120,2,1000,Number of longitude points
 nlat,i,a,120,2,1000,Number of latitude points

@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.105 2012/08/13 22:00:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.106 2013/08/11 04:25:26 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -91,7 +91,7 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
                        const std::string & analysisType) 
    : m_pars(pars), m_funcFactory(0), m_scData(0), m_expCube(0),
      m_expMap(0), m_respFuncs(0), m_roiCuts(0), m_eventCont(0),
-     m_bexpmap(0), m_phased_expmap(0), m_meanpsf(0) {
+     m_bexpmap(0), m_phased_expmap(0), m_meanpsf(0), m_irfsName("") {
    st_app::AppParGroup & my_pars(*m_pars);
    prepareFunctionFactory();
    createResponseFuncs(analysisType);
@@ -338,9 +338,19 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
    std::string evfile;
    std::string extname;
    if (analysisType == "UNBINNED") {
-      std::string myfile = pars["evfile"];
-      evfile = myfile;
-      extname = "EVENTS";
+      try {
+         std::string myfile = pars["expmap"];
+         evfile = myfile;
+         extname = "PRIMARY";
+      } catch (hoops::Hexception & eObj) {
+         evfile = "none";
+      }
+
+      if (evfile == "none") {
+         std::string alt_file = pars["evfile"];
+         evfile = alt_file;
+         extname = "EVENTS";
+      }
    } else if (analysisType == "BINNED") {
       try {
          std::string myfile = pars["cmap"];
@@ -351,47 +361,43 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       }
       extname = "";
    } else {
-      if (respBase == "INDEF") {
-         throw std::runtime_error("A valid set of irfs must be specified "
-                                  "when running this tool in this mode.");
+      if (respBase == "CALDB") {
+         throw std::runtime_error("A valid set of irfs must be explicitly "
+                                  "specified when running this tool in "
+                                  "this mode.");
       }
       m_respFuncs->load(respBase);
+      m_irfsName = respBase;
       return;
    }
    std::vector<std::string> files;
    st_facilities::Util::resolve_fits_files(evfile, files);
-   if (respBase == "INDEF") {
-      // Determine irfs to use from DSS keywords in event file.
+   if (respBase == "CALDB") {
+      // Determine irfs from $CALDB/bcf/irf_index.fits file, using
+      // most recent version.
       dataSubselector::Cuts::Cuts my_cuts(files.at(0), extname,
                                           false, true, true);
-      respBase = my_cuts.irfName();
-      formatter.warn() << "Using irfs: " << respBase << std::endl;
-   } else {
-      // Check that requested irfs match those in the upstream files.
-      dataSubselector::Cuts::checkIrfs(files.at(0), extname, respBase);
+      respBase = my_cuts.CALDB_implied_irfs();
    }
+   // Check that requested irfs match those in the upstream files.
+   dataSubselector::Cuts::checkIrfs(files.at(0), extname, respBase);
+
    if (respBase == "DSS") {
       std::string respFuncs = responseFuncs(files.front(), "DC2");
       m_respFuncs->load(respFuncs, "DC2");
    } else {
       std::vector<size_t> selectedEvtTypes;
-      getSelectedEvtTypes(files.front(), analysisType, selectedEvtTypes);
+      getSelectedEvtTypes(files.front(), extname, selectedEvtTypes);
       m_respFuncs->load(respBase, "", selectedEvtTypes);
    }
+   m_irfsName = respBase;
 }
 
 void AppHelpers::
 getSelectedEvtTypes(const std::string & evfile,
-                    const std::string & analysisType,
+                    const std::string & extname,
                     std::vector<size_t> & selectedEvtTypes) {
-   (void)(evfile);
-   (void)(analysisType);
-
    selectedEvtTypes.clear();
-   std::string extname("EVENTS");
-   if (analysisType == "BINNED") {
-      extname = "";
-   }
    dataSubselector::Cuts my_cuts(evfile, extname, false);
 
    std::vector<size_t> convtypes;
@@ -682,6 +688,9 @@ checkExpMapCuts(const std::vector<std::string> & evFiles,
 
    evCuts.removeRangeCuts("ENERGY", evEnergyCuts);
    expMapCuts.removeRangeCuts("ENERGY", expMapEnergyCuts);
+
+   evCuts.removeVersionCut("IRF_VERSION");
+   expMapCuts.removeVersionCut("IRF_VERSION");
 
    if (evCuts != expMapCuts) {
       std::ostringstream message;

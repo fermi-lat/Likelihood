@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.36 2011/03/02 04:43:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.37 2012/04/14 20:59:04 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -51,7 +51,7 @@ public:
    AppHelpers() : m_pars(0), m_funcFactory(0), m_observation(0),
                   m_scData(0), m_expCube(0), m_expMap(0), m_respFuncs(0),
                   m_roiCuts(0), m_eventCont(0), m_bexpmap(0), 
-                  m_phased_expmap(0), m_meanpsf(0) {
+                  m_phased_expmap(0), m_meanpsf(0), m_irfsName("") {
       prepareFunctionFactory();
    }
 #ifndef SWIG
@@ -81,6 +81,10 @@ public:
 
    Observation & observation() {
       return *m_observation;
+   }
+
+   const std::string & irfsName() const {
+      return m_irfsName;
    }
                   
 #endif // SWIG
@@ -132,7 +136,7 @@ public:
                                     const std::string & respBase);
 
    static void getSelectedEvtTypes(const std::string & evfile,
-                                   const std::string & analysisType,
+                                   const std::string & extname,
                                    std::vector<size_t> & selectedEvtTypes);
 
    static void addFunctionPrototypes(optimizers::FunctionFactory * funcFactory);
@@ -161,6 +165,8 @@ protected:
    BinnedExposure * m_bexpmap;
    WcsMap2 * m_phased_expmap;
    MeanPsf * m_meanpsf;
+
+   std::string m_irfsName;
 
    void prepareFunctionFactory();
    void createResponseFuncs(const std::string & analysisType);
