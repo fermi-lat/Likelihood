@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.47 2013/08/11 04:25:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.48 2013/08/26 22:55:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,7 +40,7 @@ using namespace Likelihood;
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.47 2013/08/11 04:25:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/expMap/expMap.cxx,v 1.48 2013/08/26 22:55:34 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
@@ -186,7 +186,7 @@ void ExpMap::createExposureMap() {
    tip::Image * image = 
       tip::IFileSvc::instance().editImage(exposureFile, "");
    // Ensure that irfs version name is written to DSS keywords.
-   roiCuts.setIrfsVersion(m_helper->irfsName());
+   const_cast<RoiCuts &>(roiCuts).setIrfsVersion(m_helper->irfsName());
    roiCuts.writeDssKeywords(image->getHeader());
    roiCuts.writeGtiExtension(exposureFile);
 
