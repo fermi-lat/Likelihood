@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ScData.cxx,v 1.60 2009/11/19 18:38:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ScData.cxx,v 1.61 2010/06/03 04:13:14 jchiang Exp $
  */
 
 #include <cmath>
@@ -46,6 +46,14 @@ void ScData::readData(std::string scfile, double tstart, double tstop,
    if (clear) {
       clear_arrays();
    }
+   // Reserve the needed number of rows to avoid over-allocation of
+   // memory when growing vector data members with push_back(...).
+   size_t nrows(scData->getNumRecords());
+   m_start.reserve(nrows);
+   m_stop.reserve(nrows);
+   m_livetime.reserve(nrows);
+   m_xAxis.reserve(nrows);
+   m_zAxis.reserve(nrows);
 
    double start, stop, livetime;
    double raSCX, decSCX;
@@ -142,12 +150,23 @@ astro::SkyDir ScData::zAxis(double time) const {
    return astro::SkyDir(zDir.unit());
 }
 
-void ScData::clear_arrays() {
+void ScData::clear_arrays(bool realloc) {
    m_start.clear();
    m_stop.clear();
    m_livetime.clear();
+
    m_xAxis.clear();
    m_zAxis.clear();
+   if (realloc) {
+       // Force reallocation of memory by swapping with empty vectors.
+      std::vector<double> x, y, z;
+      std::vector<astro::SkyDir> xdirs, zdirs;
+      m_start.swap(x);
+      m_stop.swap(y);
+      m_livetime.swap(z);
+      m_xAxis.swap(xdirs);
+      m_zAxis.swap(zdirs);
+   }
 }
 
 } // namespace Likelihood

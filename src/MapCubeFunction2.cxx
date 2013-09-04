@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.5 2012/01/06 07:11:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.6 2012/01/06 22:21:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -81,9 +81,13 @@ integrateSpatialDist(const std::vector<double> & energies,
                      const ExposureMap & expmap,
                      std::vector<double> & exposure) const {
    exposure.clear();
-   const std::vector< std::vector<double> > & 
+//    const std::vector< std::vector<double> > & 
+//       solid_angles(wcsmap().solidAngles());
+//    const std::vector< std::vector< std::vector<double> > > & 
+//       image(wcsmap().image());
+   const std::vector< std::vector<float> > & 
       solid_angles(wcsmap().solidAngles());
-   const std::vector< std::vector< std::vector<double> > > & 
+   const std::vector< std::vector< std::vector<float> > > & 
       image(wcsmap().image());
 
    // Compute exposures using exposure map energy grid

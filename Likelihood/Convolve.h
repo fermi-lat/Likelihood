@@ -4,7 +4,7 @@
  *        FFTW library
  * @author J. Chiang
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Convolve.h,v 1.1 2005/05/23 05:51:25 jchiang Exp $
  */
 
 #ifndef Likelihood_Convolve_h
@@ -25,6 +25,14 @@ public:
    static std::vector< std::vector<double> > 
    convolve2d(const std::vector< std::vector<double> > & signal,
               const std::vector< std::vector<double> > & psf);
+
+   static std::vector<float> 
+   convolve(const std::vector<float> & signal,
+            const std::vector<float> & psf);
+
+   static std::vector< std::vector<float> > 
+   convolve2d(const std::vector< std::vector<float> > & signal,
+              const std::vector< std::vector<float> > & psf);
 
 };
 

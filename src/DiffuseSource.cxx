@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.60 2012/06/27 20:31:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.61 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -236,7 +236,8 @@ double DiffuseSource::diffuseResponse(const Event & evt) const {
    double trueEnergy(evt.getEnergy());
    const ResponseFunctions & respFuncs(m_observation->respFuncs());
    const WcsMap2 & wcsmap(mapBaseObject()->wcsmap());
-   const std::vector< std::vector<double> > & solidAngles(wcsmap.solidAngles());
+//   const std::vector< std::vector<double> > & solidAngles(wcsmap.solidAngles());
+   const std::vector< std::vector<float> > & solidAngles(wcsmap.solidAngles());
    double my_value(0);
    for (size_t i(0); i < solidAngles.size(); i++) {
       for (size_t j(0); j < solidAngles.at(i).size(); j++) {
