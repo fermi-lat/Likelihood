@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SpatialMap.cxx,v 1.33 2012/01/06 22:21:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SpatialMap.cxx,v 1.34 2012/01/09 21:36:14 jchiang Exp $
  *
  */
 
@@ -78,11 +78,14 @@ void SpatialMap::integrateSpatialDist(const std::vector<double> & energies,
                                       const ExposureMap & expmap,
                                       std::vector<double> & exposure) const {
    exposure.clear();
-   const std::vector< std::vector<double> > & 
+//    const std::vector< std::vector<double> > & 
+//       solid_angles(wcsmap().solidAngles());
+//    const std::vector< std::vector< std::vector<double> > > & 
+//       image(wcsmap().image());
+   const std::vector< std::vector<float> > & 
       solid_angles(wcsmap().solidAngles());
-   const std::vector< std::vector< std::vector<double> > > & 
+   const std::vector< std::vector< std::vector<float> > > & 
       image(wcsmap().image());
-
    // Compute exposures using exposure map energy grid
    std::vector<double> map_energies;
    expmap.getEnergies(map_energies);

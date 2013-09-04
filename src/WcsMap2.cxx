@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.14 2012/06/19 04:02:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.15 2012/10/02 17:50:18 jchiang Exp $
  */
 
 #include <cmath>
@@ -30,7 +30,8 @@
 #include "Likelihood/WcsMap2.h"
 
 namespace {
-   class Image : public std::vector< std::vector<double> > {
+//   class Image : public std::vector< std::vector<double> > {
+   class Image : public std::vector< std::vector<float> > {
    public:
       Image() {}
       void normalize() {
@@ -144,7 +145,8 @@ WcsMap2::WcsMap2(const std::string & filename,
       ImagePlane_t image_plane;
       image_plane.reserve(m_naxis2);
       for (int j = 0; j < m_naxis2; j++) {
-         std::vector<double> row(m_naxis1);
+//          std::vector<double> row(m_naxis1);
+         std::vector<float> row(m_naxis1);
          for (int i = 0; i < m_naxis1 && pixelValue != my_image.end();
               i++, ++pixelValue) {
             row[i] = *pixelValue;
@@ -194,7 +196,8 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    double ix, iy;
    for (int j = 0; j < npts; j++) {
       iy = j + 1.;
-      std::vector<double> row(npts, 0);
+//      std::vector<double> row(npts, 0);
+      std::vector<float> row(npts, 0);
       for (int i = 0; i < npts; i++) {
          ix = i + 1.;
          if (m_proj->testpix2sph(ix, iy) == 0) {
@@ -263,7 +266,8 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    double ix, iy;
    for (int j = 0; j < naxis2; j++) {
       iy = j + 1.;
-      std::vector<double> row(naxis1, 0);
+//      std::vector<double> row(naxis1, 0);
+      std::vector<float> row(naxis1, 0);
       for (int i = 0; i < naxis1; i++) {
          ix = i + 1.;
          if (m_proj->testpix2sph(ix, iy) == 0) {
@@ -585,14 +589,15 @@ double WcsMap2::solidAngle(double ilon, double ilat) const {
    return 0;
 }
 
-const std::vector< std::vector<double> > & WcsMap2::solidAngles() const {
+//const std::vector< std::vector<double> > & WcsMap2::solidAngles() const {
+const std::vector< std::vector<float> > & WcsMap2::solidAngles() const {
    if (m_solidAngles.empty()) {
+//      m_solidAngles.resize(m_naxis1, std::vector<double>(m_naxis2, 0));
+      m_solidAngles.resize(m_naxis1, std::vector<float>(m_naxis2, 0));
       for (int i(0); i < m_naxis1; i++) {
-         std::vector<double> row;
          for (int j(0); j < m_naxis2; j++) {
-            row.push_back(solidAngle(i, j));
+            m_solidAngles[i][j] = solidAngle(i, j);
          }
-         m_solidAngles.push_back(row);
       }
    }
    return m_solidAngles;
@@ -817,10 +822,12 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
                      << "crval2: " << crval[1] << "\n";
 
    /// Fill array with solid angle sums used for averaging.
-   std::vector< std::vector<double> > my_solidAngles;
+//   std::vector< std::vector<double> > my_solidAngles;
+   std::vector< std::vector<float> > my_solidAngles;
    if (average) {
       for (int j(0); j < my_map->m_naxis2; j++) {
-         my_solidAngles.push_back(std::vector<double>(my_map->m_naxis1, 0));
+//         my_solidAngles.push_back(std::vector<double>(my_map->m_naxis1, 0));
+         my_solidAngles.push_back(std::vector<float>(my_map->m_naxis1, 0));
       }
       for (size_t i(0); i < m_naxis1; i++) {
          unsigned int ii = i/factor;
