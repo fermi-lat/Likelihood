@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.517 2013/08/11 04:39:00 jchiang Exp $
+    $Id: release.notes,v 1.518 2013/08/27 16:08:47 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-02-01 03-Sep-2013 jchiang make image arrays float instead of double; enable clearing of spacecraft data via ScData::clear_arrays(...)
  Likelihood-18-02-00 27-Aug-2013 jchiang changes for FSSC-requested irfs handling
  Likelihood-18-01-01 10-Aug-2013 jchiang move irf checking and handling code to single location in AppHelpers
  Likelihood-18-01-00 06-Aug-2013 jchiang fix gtltcube bug for FT1 files with explicit time range selections in DSS keywords
