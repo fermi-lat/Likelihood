@@ -3,7 +3,7 @@
  * @brief Implementation for the LAT spacecraft data class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ScData.cxx,v 1.61 2010/06/03 04:13:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ScData.cxx,v 1.62 2013/09/04 05:30:45 jchiang Exp $
  */
 
 #include <cmath>
@@ -35,34 +35,28 @@ void ScData::readData(std::string scfile, double tstart, double tstop,
    tstop += 2*maxIntervalSize;
    facilities::Util::expandEnvVar(&scfile);
 
+   const tip::Table * scData(0);
    std::ostringstream filter;
    filter << std::setprecision(10);
-   filter << "(START >= " << tstart
+   filter << "col START;STOP;LIVETIME;RA_SCZ;DEC_SCZ;RA_SCX;DEC_SCX]"
+          << "[(START >= " << tstart
           << ") && (STOP <= " << tstop << ")";
-
-   const tip::Table * scData = 
-      tip::IFileSvc::instance().readTable(scfile, sctable, filter.str());
-
+   scData = tip::IFileSvc::instance().readTable(scfile, sctable, filter.str());
    if (clear) {
       clear_arrays();
    }
-   // Reserve the needed number of rows to avoid over-allocation of
-   // memory when growing vector data members with push_back(...).
-   size_t nrows(scData->getNumRecords());
-   m_start.reserve(nrows);
-   m_stop.reserve(nrows);
-   m_livetime.reserve(nrows);
-   m_xAxis.reserve(nrows);
-   m_zAxis.reserve(nrows);
 
    double start, stop, livetime;
    double raSCX, decSCX;
    double raSCZ, decSCZ;
    tip::Table::ConstIterator it = scData->begin();
    tip::ConstTableRecord & scInterval = *it;
-   for ( ; it != scData->end(); ++it) {
+   for (size_t i(0); it != scData->end(); ++it, ++i) {
       scInterval["start"].get(start);
       scInterval["stop"].get(stop);
+      if (stop < tstart || start > tstop) {
+         continue;
+      }
       scInterval["livetime"].get(livetime);
       scInterval["ra_scx"].get(raSCX);
       scInterval["dec_scx"].get(decSCX);
