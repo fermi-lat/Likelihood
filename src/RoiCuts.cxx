@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RoiCuts.cxx,v 1.55 2012/06/27 20:31:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RoiCuts.cxx,v 1.56 2013/08/26 22:55:34 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -159,6 +159,9 @@ void RoiCuts::setRoiData() {
    }
    std::vector<const dataSubselector::GtiCut *> gtiCuts;
    m_cuts->getGtiCuts(gtiCuts);
+   if (gtiCuts.empty()) {
+      throw std::runtime_error("No GTIs found in input event file(s).");
+   }
    double tmin(gtiCuts.front()->gti().minValue());
    double tmax(gtiCuts.front()->gti().maxValue());
    for (size_t i(1); i < gtiCuts.size(); i++) {
