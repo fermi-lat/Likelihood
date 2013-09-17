@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.519 2013/09/04 05:31:33 jchiang Exp $
+    $Id: release.notes,v 1.520 2013/09/17 00:12:09 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-02-03 17-Sep-2013 jchiang address LK-89@JIRA
  Likelihood-18-02-02 16-Sep-2013 jchiang use column filtering to reduce memory usage when reading in FT2 file; enable checking of user-specified irfs for gtsrcmaps and gttsmap
  Likelihood-18-02-01 03-Sep-2013 jchiang make image arrays float instead of double; enable clearing of spacecraft data via ScData::clear_arrays(...)
  Likelihood-18-02-00 27-Aug-2013 jchiang changes for FSSC-requested irfs handling
