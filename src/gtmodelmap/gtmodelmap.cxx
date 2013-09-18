@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.39 2013/08/11 04:25:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.40 2013/08/26 22:55:36 jchiang Exp $
  */
 
 #include <iostream>
@@ -108,6 +108,9 @@ void ModelMap::computeModelMap() {
                                                 resample, rfactor);
    m_logLike->set_use_single_fixed_map(false);
 
+   std::vector<float> ext_model_map;
+   m_logLike->set_external_model_map(&ext_model_map);
+
    std::string bexpmap = m_pars["bexpmap"];
    Likelihood::AppHelpers::checkExposureMap(cmapfile, bexpmap);
    bool requireExposure, addPointSources, loadMaps, createAllMaps;
@@ -115,7 +118,7 @@ void ModelMap::computeModelMap() {
                       requireExposure=false, addPointSources=true,
                       loadMaps=false);
 
-   Likelihood::ModelMap modelMap(*m_logLike);
+   Likelihood::ModelMap modelMap(*m_logLike, &ext_model_map);
    
    std::string outfile = m_pars["outfile"];
    std::string outtype = m_pars["outtype"];

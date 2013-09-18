@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.68 2012/09/11 22:56:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.69 2013/01/28 12:40:38 sfegan Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -149,6 +149,12 @@ public:
    }
 
    void computeModelMap(std::vector<float> & modelMap) const;
+   void updateModelMap(std::vector<float> & modeMap, 
+                       const SourceMap * srcMap) const;
+   void set_external_model_map(std::vector<float> * external_map) {
+      m_external_model_map = external_map;
+      external_map->resize(m_pixels.size()*(m_energies.size()-1));
+   }
 
    bool fixedModelUpdated() const;
 
@@ -246,6 +252,8 @@ private:
    Drm * m_drm;
 
    bool m_use_single_fixed_map;
+
+   std::vector<float> * m_external_model_map;
 
    mutable std::map<std::string, std::vector<double> > m_true_counts;
    mutable std::map<std::string, std::vector<double> > m_meas_counts;
