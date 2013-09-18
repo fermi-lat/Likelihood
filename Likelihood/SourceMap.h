@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.51 2011/03/15 05:37:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.52 2012/04/14 20:59:04 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -69,6 +69,10 @@ public:
 
    const std::string & srcType() const {
       return m_srcType;
+   }
+
+   const std::string & name() const {
+      return m_name;
    }
 
 private:

@@ -55,9 +55,14 @@ namespace {
 
 namespace Likelihood {
 
-ModelMap::ModelMap(BinnedLikelihood & logLike) 
+ModelMap::ModelMap(BinnedLikelihood & logLike,
+                   const std::vector<float> * model_map) 
    : m_logLike(logLike) {
-   m_logLike.computeModelMap(m_outmap);
+   if (model_map == 0) {
+      m_logLike.computeModelMap(m_outmap);
+   } else {
+      m_outmap = *model_map;
+   }
 }
 
 void ModelMap::writeOutputMap(const std::string & outfile,

@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.102 2013/01/29 11:31:09 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.103 2013/02/11 21:08:24 jchiang Exp $
  */
 
 #include <cmath>
@@ -67,6 +67,7 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
      m_use_edisp(false),
      m_drm(0),
      m_use_single_fixed_map(true),
+     m_external_model_map(0),
      m_true_counts(),
      m_meas_counts(),
      m_fixed_counts_spec(),
@@ -108,6 +109,7 @@ BinnedLikelihood(const BinnedLikelihood & other)
      m_use_edisp(other.m_use_edisp),
      m_drm(new Drm(*other.m_drm)),
      m_use_single_fixed_map(other.m_use_single_fixed_map),
+     m_external_model_map(other.m_external_model_map),
      m_true_counts(other.m_true_counts),
      m_meas_counts(other.m_meas_counts),
      m_fixed_counts_spec(other.m_fixed_counts_spec),
@@ -330,12 +332,21 @@ void BinnedLikelihood::readXml(std::string xmlFile,
 void BinnedLikelihood::addSource(Source * src, bool fromClone) {
    m_bestValueSoFar = -1e38;
    SourceModel::addSource(src, fromClone);
-   if(use_single_fixed_map() && src->fixedSpectrum()) {
+   if (use_single_fixed_map() && src->fixedSpectrum()) {
        addFixedSource(src->getName());
    } else {
       SourceMap * srcMap(getSourceMap(src->getName(), true));
       if (srcMap) {
          m_srcMaps[src->getName()] = srcMap;
+         if (m_external_model_map) {
+            // This should only execute from within gtmodel, in 
+            // which case the SourceMap is no longer needed and thus
+            // be deleted.
+            updateModelMap(*m_external_model_map, srcMap);
+            delete srcMap;
+            srcMap = 0;
+            m_srcMaps.erase(src->getName());
+         }
       }
       std::vector<double> pars;
       src->spectrum().getParamValues(pars);
@@ -365,6 +376,52 @@ void BinnedLikelihood::eraseSourceMap(const std::string & srcName) {
 }
 
 void BinnedLikelihood::
+updateModelMap(std::vector<float> & modelMap,
+               const SourceMap * srcMap) const {
+   size_t npix(m_pixels.size());
+   std::string name(srcMap->name());
+   NpredValue(name); // This computes the convolved spectrum.
+   const Source * src = const_cast<BinnedLikelihood *>(this)->getSource(name);
+   const std::vector<float> & model(srcMap->model());
+   for (size_t j(0); j < npix; j++) {
+      for (size_t k(0); k < m_energies.size()-1; k++) {
+         double emin(m_energies.at(k));
+         double emax(m_energies.at(k+1));
+         size_t jmin(k*npix + j);
+         size_t jmax(jmin + npix);
+         double wt1(0);
+         double wt2(0);
+         if (use_edisp()) {
+            if (m_true_counts[name][k] != 0) {
+               double xi(m_meas_counts[name][k]
+                         /m_true_counts[name][k]);
+               wt1 = model[jmin]*xi;
+               wt2 = model[jmax]*xi;
+            } else {
+               size_t ipix(jmin % npix);
+               std::map<std::string, std::map<size_t, size_t> >::
+                  const_iterator kref_it(m_krefs.find(name));
+               std::map<size_t, size_t>::const_iterator it =
+                  kref_it->second.find(ipix);
+               if (it != kref_it->second.end()) {
+                  size_t kref = it->second;
+                  size_t jref = kref*npix + ipix;
+                  wt1 = (model[jref]/m_true_counts[name][kref]
+                         *m_meas_counts[name][k]);
+                  wt2 = (model[jref+npix]/m_true_counts[name][kref]
+                         *m_meas_counts[name][k]);
+               }
+            }
+         } else {
+            wt1 = model[jmin];
+            wt2 = model[jmax];
+         }
+         modelMap[jmin] += src->pixelCounts(emin, emax, wt1, wt2);
+      }
+   }
+}
+
+void BinnedLikelihood::
 computeModelMap(std::vector<float> & modelMap) const {
    size_t npix(m_pixels.size());
 
@@ -374,48 +431,7 @@ computeModelMap(std::vector<float> & modelMap) const {
    std::map<std::string, SourceMap *>::const_iterator srcIt
       = m_srcMaps.begin();
    for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
-      const std::string & name(srcIt->first);
-      NpredValue(name); // This computes the convolved spectrum.
-      const SourceMap * srcMap(srcIt->second);
-      const Source * src 
-         = const_cast<BinnedLikelihood *>(this)->getSource(name);
-      const std::vector<float> & model(srcMap->model());
-      for (size_t j(0); j < npix; j++) {
-         for (size_t k(0); k < m_energies.size()-1; k++) {
-            double emin(m_energies.at(k));
-            double emax(m_energies.at(k+1));
-            size_t jmin(k*npix + j);
-            size_t jmax(jmin + npix);
-            double wt1(0);
-            double wt2(0);
-            if (use_edisp()) {
-               if (m_true_counts[name][k] != 0) {
-                  double xi(m_meas_counts[name][k]
-                            /m_true_counts[name][k]);
-                  wt1 = model[jmin]*xi;
-                  wt2 = model[jmax]*xi;
-               } else {
-                  size_t ipix(jmin % npix);
-                  std::map<std::string, std::map<size_t, size_t> >::
-                     const_iterator kref_it(m_krefs.find(name));
-                  std::map<size_t, size_t>::const_iterator it =
-                     kref_it->second.find(ipix);
-                  if (it != kref_it->second.end()) {
-                     size_t kref = it->second;
-                     size_t jref = kref*npix + ipix;
-                     wt1 = (model[jref]/m_true_counts[name][kref]
-                            *m_meas_counts[name][k]);
-                     wt2 = (model[jref+npix]/m_true_counts[name][kref]
-                            *m_meas_counts[name][k]);
-                  }
-               }
-            } else {
-               wt1 = model[jmin];
-               wt2 = model[jmax];
-            }
-            modelMap[jmin] += src->pixelCounts(emin, emax, wt1, wt2);
-         }
-      }
+      updateModelMap(modelMap, srcIt->second);
    }
 }
 
@@ -489,7 +505,7 @@ void BinnedLikelihood::addFixedSource(const std::string & srcName) {
       throw std::runtime_error(message.str());
    }
 
-   if(std::count(m_fixedSources.begin(), m_fixedSources.end(), srcName) != 0) {
+   if (std::count(m_fixedSources.begin(), m_fixedSources.end(), srcName) != 0) {
       std::ostringstream message;
       message << "BinnedLikelihood::addFixedSource: "
               << "source " << srcName << " already in fixed model.";
