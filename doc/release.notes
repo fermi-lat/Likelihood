@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.522 2013/09/18 06:38:54 jchiang Exp $
+    $Id: release.notes,v 1.523 2013/09/18 17:34:54 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-03-02 12-Nov-2013 jchiang add diagnostic info to warning message if there is a GTI mis-match
  Likelihood-18-03-01 18-Sep-2013 jchiang fixes to automatic irfs handling to preserve backwards compatibility with older bexpmap files which lack DSS keywords
  Likelihood-18-03-00 17-Sep-2013 jchiang reduce memory usage in gtmodel
  Likelihood-18-02-03 17-Sep-2013 jchiang address LK-89@JIRA
