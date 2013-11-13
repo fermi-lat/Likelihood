@@ -3,11 +3,14 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.108 2013/09/16 23:50:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.109 2013/09/18 17:33:13 jchiang Exp $
  */
 
+#include <cmath>
 #include <cstdlib>
 
+#include <iomanip>
+#include <iostream>
 #include <map>
 #include <sstream>
 #include <stdexcept>
@@ -18,6 +21,8 @@
 #include "astro/SkyDir.h"
 
 #include "st_facilities/Util.h"
+
+#include "evtbin/Gti.h"
 
 #include "dataSubselector/CutBase.h"
 #include "dataSubselector/Cuts.h"
@@ -641,7 +646,9 @@ void AppHelpers::checkTimeCuts(const std::string & file1,
                                bool gtiWarningOnly) {
    dataSubselector::Cuts cuts1(file1, ext1, false, false, true);
    dataSubselector::Cuts cuts2(file2, ext2, false, false, true);
-   if (!checkTimeCuts(cuts1, cuts2, compareGtis)) {
+   double gti_start_diffs, gti_stop_diffs;
+   if (!checkTimeCuts(cuts1, cuts2, compareGtis, gti_start_diffs,
+                      gti_stop_diffs)) {
       std::ostringstream message;
       message << "AppHelpers::checkTimeCuts:\n" 
               << "Time range cuts ";
@@ -650,13 +657,17 @@ void AppHelpers::checkTimeCuts(const std::string & file1,
       }
       message << "in files " << file1;
       if (ext1 != "") {
-         message << "[" << ext1 << "]";
+         message << "[" << ext1 << "] ";
       }
       message << "and " << file2;
       if (ext2 != "") {
-         message << "[" << ext2 << "]";
+         message << "[" << ext2 << "] ";
       }
-      message << "do not agree.";
+      message << "do not agree." << std::endl;
+      message << "Aggregate absolute differences in GTI start times (s): "
+              << gti_start_diffs << std::endl;
+      message << "Aggregate absolute differences in GTI stop times (s): "
+              << gti_stop_diffs << std::endl;
       if (gtiWarningOnly) {
          st_stream::StreamFormatter formatter("AppHelpers", 
                                               "checkTimeCuts", 2);
@@ -675,7 +686,9 @@ void AppHelpers::checkTimeCuts(const std::vector<std::string> & files1,
                                bool gtiWarningOnly) {
    dataSubselector::Cuts cuts1(files1, ext1, false, false, true);
    dataSubselector::Cuts cuts2(file2, ext2, false, false, true);
-   if (!checkTimeCuts(cuts1, cuts2, compareGtis)) {
+   double gti_start_diffs, gti_stop_diffs;
+   if (!checkTimeCuts(cuts1, cuts2, compareGtis, gti_start_diffs,
+                      gti_stop_diffs)) {
       std::ostringstream message;
       message << "AppHelpers::checkTimeCuts:\n" 
               << "Time range cuts ";
@@ -694,7 +707,11 @@ void AppHelpers::checkTimeCuts(const std::vector<std::string> & files1,
       if (ext2 != "") {
          message << "[" << ext2 << "]\n";
       }
-      message << "do not agree.";
+      message << "do not agree.\n";
+      message << "Aggregate absolute differences in GTI start times (s): "
+              << gti_start_diffs << std::endl;
+      message << "Aggregate absolute differences in GTI stop times (s): "
+              << gti_stop_diffs << std::endl;
       if (gtiWarningOnly) {
          st_stream::StreamFormatter formatter("AppHelpers", 
                                               "checkTimeCuts", 2);
@@ -708,7 +725,9 @@ void AppHelpers::checkTimeCuts(const std::vector<std::string> & files1,
 
 bool AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
                                const dataSubselector::Cuts & cuts2,
-                               bool compareGtis) {
+                               bool compareGtis,
+                               double & gti_start_diffs,
+                               double & gti_stop_diffs) {
 // Assume GTIs encapsulate all of the time range information, so that
 // individual time range cuts need not be checked.
 
@@ -719,8 +738,24 @@ bool AppHelpers::checkTimeCuts(const dataSubselector::Cuts & cuts1,
    gatherGtiCuts(cuts2, time_cuts2);
    bool ok(true);
    if (time_cuts1.size() == time_cuts2.size()) {
+      gti_start_diffs = 0;
+      gti_stop_diffs = 0;
       for (unsigned int i = 0; i < time_cuts1.size(); i++) {
          ok = ok && *(time_cuts1[i]) == *(time_cuts2[i]);
+         if (!(*(time_cuts1[i]) == *(time_cuts2[i]))) {
+            std::cout << "difference in gti interval found" << std::endl;
+            const dataSubselector::GtiCut * gticut1 
+               = dynamic_cast<const dataSubselector::GtiCut *>(time_cuts1[i]);
+            const dataSubselector::GtiCut * gticut2
+               = dynamic_cast<const dataSubselector::GtiCut *>(time_cuts2[i]);
+            evtbin::Gti::ConstIterator it1(gticut1->gti().begin());
+            evtbin::Gti::ConstIterator it2(gticut2->gti().begin());
+            for ( ; it1 != gticut1->gti().end() && it2 != gticut2->gti().end();
+                  ++it1, ++it2) {
+               gti_start_diffs += std::fabs(it1->first - it2->first);
+               gti_stop_diffs += std::fabs(it1->second - it2->second);
+            }
+         }
       }
    } else {
       ok = false;

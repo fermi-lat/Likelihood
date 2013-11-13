@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.37 2012/04/14 20:59:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.38 2013/08/26 22:55:31 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -177,7 +177,9 @@ protected:
 
    static bool checkTimeCuts(const dataSubselector::Cuts & cuts1,
                              const dataSubselector::Cuts & cuts2,
-                             bool compareGtis);
+                             bool compareGtis,
+                             double & gti_start_diffs,
+                             double & gti_stop_diffs);
 
    static dataSubselector::Cuts gtiCuts(const dataSubselector::Cuts &);
 
