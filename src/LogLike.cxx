@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.81 2012/06/27 20:31:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.82 2012/09/11 22:56:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -46,7 +46,8 @@ double LogLike::value(optimizers::Arg&) const {
    }
    const std::vector<Event> & events = m_observation.eventCont().events();
    double my_value(0);
-   
+   double logSourceModelSum(0);
+   double NpredSum(0);
 // The "data sum"
    for (size_t j = 0; j < events.size(); j++) {
       if (m_use_ebounds && 
@@ -57,6 +58,7 @@ double LogLike::value(optimizers::Arg&) const {
       double addend(logSourceModel(events.at(j), &rc_ref));
       my_value += addend;
       m_accumulator.add(addend);
+      logSourceModelSum += addend;
    }
 //   std::cout << "data sum: " << my_value << std::endl;
 
@@ -67,6 +69,7 @@ double LogLike::value(optimizers::Arg&) const {
       for ( ; npred != m_npredValues.end(); ++npred) {
          my_value -= npred->second;
          m_accumulator.add(-npred->second);
+         NpredSum += npred->second;
       }
    } else {
       std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
@@ -75,6 +78,7 @@ double LogLike::value(optimizers::Arg&) const {
 	 double addend = m_Npred(sArg);
          my_value -= addend;
          m_accumulator.add(-addend);
+         NpredSum += addend;
       }
    }
 //   std::cout << "log-likelihood: " << my_value << std::endl;
@@ -84,6 +88,8 @@ double LogLike::value(optimizers::Arg&) const {
    formatter.info() << m_nevals << "  "
                     << my_value << "  "
                     << my_total << "  "
+                    << logSourceModelSum << "  "
+                    << NpredSum << "  "
                     << std::clock() - start << std::endl;
    m_nevals++;
 //    if (::getenv("BYPASS_ACCUMULATOR")) {
@@ -142,8 +148,10 @@ double LogLike::logSourceModel(const Event & event,
    if (my_value > 0) {
       return std::log(my_value);
    }
-//    throw std::runtime_error("negative probability density for this event.");
-   return 0;
+   if (::getenv("LOGLIKE_CATCH_NEG_PROB")) {
+      throw std::runtime_error("negative probability density for this event.");
+   }
+   return -1e30;
 }
 
 void LogLike::getLogSourceModelDerivs(const Event & event,
