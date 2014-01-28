@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.35 2011/10/18 22:45:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.36 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -135,6 +135,10 @@ void ResponseFunctions::load(const std::string & respFuncs,
          message << resp->first << "\n";
       }
       throw std::invalid_argument(message.str());
+   }
+   if (m_respPtrs.size() == 0) {
+      throw std::runtime_error("No valid irfs loaded for the "
+                               "specified event selection.");
    }
 }
 
