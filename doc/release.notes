@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.524 2013/11/13 07:13:10 jchiang Exp $
+    $Id: release.notes,v 1.525 2013/11/21 02:08:29 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-03-04 27-Jan-2014 jchiang add test in ResponseFunctions to see if event selection from DSS keywords is compatible with user-selected IRFs
  Likelihood-18-03-03 20-Nov-2013 jchiang use more sensible return value (-1e30) for LogLike::logSourceModel if negative probability denisty is computed
  Likelihood-18-03-02 12-Nov-2013 jchiang add diagnostic info to warning message if there is a GTI mis-match
  Likelihood-18-03-01 18-Sep-2013 jchiang fixes to automatic irfs handling to preserve backwards compatibility with older bexpmap files which lack DSS keywords
