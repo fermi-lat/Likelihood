@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SummedLikelihood.cxx,v 1.3 2010/06/07 18:01:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SummedLikelihood.cxx,v 1.4 2014/02/07 06:37:11 jchiang Exp $
  */
 
 #include <iostream>
@@ -48,8 +48,8 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
       throw std::runtime_error("SummedLikelihood::getFreeParams: "
                                "empty component list");
    }
-   // All components have the same free parameters, so just need to
-   // get the ones from the master component.
+   // All components have the same parameters, so we just need to get
+   // the ones from the master component.
    const std::vector<optimizers::Parameter> 
       & pars(m_masterComponent->parameters());
    /// Gather free, untied parameters first.
@@ -59,7 +59,7 @@ getFreeParams(std::vector<optimizers::Parameter> & params) const {
          params.push_back(pars[par_index]);
       }
    }
-   // Add the free TiedParameters.
+   // Now get the free TiedParameters.
    for (size_t i(0); i < m_tiedPars.size(); i++) {
       if (m_tiedPars[i]->isFree()) {
          params.push_back(*m_tiedPars[i]);
@@ -73,7 +73,7 @@ setFreeParamValues(const std::vector<double> & values) {
       throw std::runtime_error("SummedLikelihood::setFreeParamValues: "
                                "empty component list");
    }
-   size_t j(0);
+   size_t j(0);  // This is the index over values.
    std::vector<optimizers::Parameter> & pars(m_masterComponent->parameters());
    for (size_t par_index(0); par_index < pars.size(); par_index++) {
       if (pars[par_index].isFree() &&
@@ -86,8 +86,13 @@ setFreeParamValues(const std::vector<double> & values) {
          m_tiedPars[i]->setValue(values.at(j++));
       }
    }
+   // Set the parameters for all of the components to be the same.
    for (ComponentIterator_t it(m_components.begin());
         it != m_components.end(); ++it) {
+      // if (*it == m_masterComponent) { 
+      //    // The parameters for the master should already have been set.
+      //    continue;
+      // }
       (*it)->setParams(pars);
    }
    syncParams();
@@ -128,20 +133,42 @@ void SummedLikelihood::fetchParamValues(std::vector<double> & values,
          values.push_back(pars[i].getValue());
       }
    } else {
-      m_components.front()->getParamValues(values);
+      m_masterComponent->getParamValues(values);
    }
 }
 
 void SummedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
-// Build vector of component parameter names.  This list should have
-// the same ordering as the derivatives wrt the free parameters.
-   m_components.front()->getFreeDerivs(derivs);
-   for (ComponentConstIterator_t it(m_components.begin() + 1);
-        it != m_components.end(); ++it) {
-      std::vector<double> freeDerivs;
-      (*it)->getFreeDerivs(freeDerivs);
+   // The free derivatives are the same for all components, so the
+   // composite values are just the free derivatives from any single
+   // component multiplied by the total number of components.
+   //
+   // However, we need to extract these in an order that accounts for
+   // the handling of the tied parameters.
+   size_t numComponents(m_components.size());
+
+   // Get the all of the free derivatives as viewed from the master
+   // component.
+   m_masterComponent->getFreeDerivs(derivs);
+
+   // Just multiply by number of components if no tied parameter
+   // handling is required.
+   if (m_tiedIndices.size() == 0) {
       for (size_t i(0); i < derivs.size(); i++) {
-         derivs.at(i) += freeDerivs.at(i);
+         derivs[i] *= numComponents;
+      }
+      return;
+   }
+   // Loop over all parameters and use findIndex(par_index) to
+   // determine the Minos indices and their order, accounting for the
+   // tied parameters.
+   std::vector<double> master_derivs(derivs);
+   const std::vector<optimizers::Parameter> & 
+      pars(m_masterComponent->parameters());
+   size_t master_index(0);
+   for (size_t par_index(0); par_index < pars.size(); par_index++) {
+      int minos_index(findIndex(par_index));
+      if (minos_index > -1) {
+         derivs.at(minos_index) = numComponents*master_derivs[master_index++];
       }
    }
 }
@@ -156,9 +183,9 @@ tieParameters(const std::vector<size_t> & par_indices) {
          throw std::runtime_error("A parameter can belong to one "
                                   "group of tied parameters at most.");
       }
-      m_tiedPars.push_back(tiedPar);
       m_tiedIndices.insert(*it);
    }
+   m_tiedPars.push_back(tiedPar);
 }
 
 void SummedLikelihood::
@@ -196,7 +223,7 @@ findIndex(size_t par_index) const {
       if (!pars[i].isFree() || m_tiedIndices.find(i) != m_tiedIndices.end()) {
          continue;
       }
-      if (par_index == j) {
+      if (par_index == i) {
          return j;
       }
       j++;
