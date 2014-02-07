@@ -6,19 +6,21 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SummedLikelihood.h,v 1.1 2009/06/05 23:41:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SummedLikelihood.h,v 1.2 2010/06/07 18:01:07 jchiang Exp $
  */
 
 #ifndef Likelihood_SummedLikelihood_h
 #define Likelihood_SummedLikelihood_h
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 #include "optimizers/Statistic.h"
 
 #include "Likelihood/LogLike.h"
+#include "Likelihood/TiedParameter.h"
 
 namespace Likelihood {
 
@@ -30,9 +32,9 @@ class SummedLikelihood : public optimizers::Statistic {
 
 public:
 
-   SummedLikelihood() : optimizers::Statistic() {}
+   SummedLikelihood() : optimizers::Statistic(), m_masterComponent(0) {}
 
-   virtual ~SummedLikelihood() throw() {}
+   virtual ~SummedLikelihood() throw();
 
    void addComponent(LogLike & component);
 
@@ -46,11 +48,26 @@ public:
 
    double NpredValue(const std::string &) const {return 0;}
 
+   /// Member functions to support tying of parameters.
+
+   void tieParameters(const std::vector<size_t> & par_indices);
+   void setErrors(const std::vector<double> & errors);
+
+   /// @return The index used by Minos for free parameters.
+   int findIndex(size_t par_index) const;
+
+   /// @return The TiedParameter object containing par_index.
+   /// @param par_index The index used by SourceModel for both free
+   ///        and fixed parameters.
+   TiedParameter & getTiedParam(size_t par_index);
+   
+   void setTiedParamValue(size_t par_index, double value);
+
 protected:
 
-   double value(optimizers::Arg&) const {return value();}
+   double value(optimizers::Arg &) const {return value();}
 
-   double derivByParam(optimizers::Arg&, const std::string&) const {return 0;}
+   double derivByParam(optimizers::Arg &, const std::string &) const {return 0;}
 
    optimizers::Function * clone() const {return 0;}
 
@@ -62,13 +79,14 @@ private:
    typedef std::vector<LogLike *> ComponentVector_t;
    typedef ComponentVector_t::iterator ComponentIterator_t;
    typedef ComponentVector_t::const_iterator ComponentConstIterator_t;
-
    ComponentVector_t m_components;
 
-   std::string m_normParName;
-   std::string m_commonFuncName;
+   std::vector<TiedParameter *> m_tiedPars;
 
-   
+   /// Set of all parameter indices that are associated with tied parameters.
+   std::set<size_t> m_tiedIndices;
+
+   LogLike * m_masterComponent;
 
 };
 
