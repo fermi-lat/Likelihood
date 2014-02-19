@@ -4,7 +4,7 @@
  * redshift and EBL model.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtebl/gtebl.cxx,v 1.1 2009/08/30 00:21:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtebl/gtebl.cxx,v 1.2 2010/06/17 00:08:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -60,7 +60,7 @@ private:
 
 };
 
-std::string Ebl::s_cvs_id("$Name:  $");
+std::string Ebl::s_cvs_id("$Name: ScienceTools-LATEST-1-4005 $");
 
 st_app::StAppFactory<Ebl> myAppFactory("gtebl");
 
@@ -88,7 +88,7 @@ void Ebl::run() {
    double redshift = m_pars["redshift"];
    double emin = m_pars["emin"];
    double emax = m_pars["emax"];
-   size_t nee = m_pars["nenergies"];
+   int nee = m_pars["nenergies"];
 
    double estep(std::log(emax/emin)/(nee - 1));
 
@@ -97,7 +97,7 @@ void Ebl::run() {
 
    IRB::EblAtten tau(modelId);
 
-   for (size_t k(0); k < nee; k++) {
+   for (int k(0); k < nee; k++) {
       double energy(emin*std::exp(estep*k));
       output << energy << "  "
              << tau(energy, redshift) << std::endl;
