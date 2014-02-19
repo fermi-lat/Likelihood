@@ -1,8 +1,8 @@
 # @file gtebl.par
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/irfs/irfLoader/pfiles/gtirfs.par,v 1.1 2008/02/22 07:25:09 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtebl.par,v 1.1 2009/08/30 00:21:22 jchiang Exp $
 #
-model_id,i,a,6,0,6,"ID number of EBL model (0=Kneiske, 1=Primack05, 2=Kneiske_HighUV, 3=Stecker05, 4=Franceschini, 5=Finke, 6=Gilmore)"
+model_id,i,a,6,,,"ID number of EBL model"
 redshift,r,a,0,,,"Source redshift"
 emin,r,h,100.,,,"Minimum energy (MeV)"
 emax,r,h,5e6,,,"Maximum energy (MeV)"
