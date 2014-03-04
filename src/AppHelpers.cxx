@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.109 2013/09/18 17:33:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.110 2013/11/13 07:12:22 jchiang Exp $
  */
 
 #include <cmath>
@@ -367,7 +367,6 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
          std::string myfile = pars["cmap"];
          evfile = myfile;
       }
-      extname = "";
    } else {
       // Running gtexpcube2.
       if (respBase == "CALDB") {
