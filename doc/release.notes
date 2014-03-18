@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.527 2014/02/07 22:46:11 jchiang Exp $
+    $Id: release.notes,v 1.528 2014/02/21 02:21:21 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-04-02 17-Mar-2014 jchiang Johann's renaming of SKYMAPS->SKYMAP extension for gtexpcube2 in healpix mode
  Likelihood-18-04-01 20-Feb-2014 jchiang gtebl bug-fix; enable BinnedExposure to be subclassed
  Likelihood-18-04-00 07-Feb-2014 jchiang enable tying of parameters in SummedLikelihood
  Likelihood-18-03-04 27-Jan-2014 jchiang add test in ResponseFunctions to see if event selection from DSS keywords is compatible with user-selected IRFs
