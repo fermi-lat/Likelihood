@@ -4,13 +4,15 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.101 2012/04/17 20:34:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.102 2012/09/29 00:23:46 jchiang Exp $
  */
 
 #include <algorithm>
 #include <deque>
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 
 #include "st_stream/StreamFormatter.h"
 
@@ -355,48 +357,63 @@ SourceMap::~SourceMap() {
    delete m_formatter;
 }
 
-// void SourceMap::addMap(const std::vector<float> & other_model) {
-//    if (other_model.size() != m_model.size()) {
-//       throw std::runtime_error("SourceMap::addMap: "
-//                                "model map sizes don't match");
-//    }
-//    for (size_t j(0); j < m_model.size(); j++) {
-//       m_model.at(j) += other_model.at(j);
-//    }
-//    computeNpredArray();
-// }
-
 void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
                                   const std::vector<Pixel> & pixels,
                                   const std::vector<double> & energies,
                                   std::vector<double> & mapCorrections) const {
    const astro::SkyDir & srcDir = src->getDir();
    double psfRadius(maxPsfRadius(src));
-   
+
+   double pixel_size(std::min(std::fabs(m_dataMap->cdelt1()), 
+                              std::fabs(m_dataMap->cdelt2())));
+   double psf_solid_angle(2.*M_PI*(1. - std::cos(psfRadius*M_PI/180.)));
+   double pixel_solid_angle(0);
    std::vector<unsigned int> containedPixels;
    for (unsigned int j = 0; j < pixels.size(); j++) {
       if (srcDir.difference(pixels.at(j).dir())*180./M_PI <= psfRadius) {
          containedPixels.push_back(j);
+         pixel_solid_angle += pixels.at(j).solidAngle();
       }
    }
    mapCorrections.clear();
    mapCorrections.reserve(energies.size());
+//   std::ofstream output("psf_map_correction_integrands.txt");
    for (unsigned int k = 0; k < energies.size()-1; k++) {
       double map_integral(0);
       std::vector<unsigned int>::const_iterator j = containedPixels.begin();
+      double outer_psf_value(meanPsf(energies[k], psfRadius));
       for ( ; j != containedPixels.end(); ++j) {
          const Pixel & pix = pixels.at(*j);
-         map_integral += pix.solidAngle()*
-            meanPsf(energies.at(k), srcDir.difference(pix.dir())*180./M_PI);
+         double solid_angle(pix.solidAngle());
+         double offset(srcDir.difference(pix.dir())*180./M_PI);
+         double psf_value(meanPsf(energies.at(k), offset));
+         map_integral += solid_angle*psf_value;
+         // try {
+         //    output << energies[k] << "  "
+         //           << offset << "  "
+         //           << solid_angle << "  "
+         //           << psf_value << "  "
+         //           << meanPsf.integral(offset, energies[k]) << std::endl;
+         // } catch (std::out_of_range &) {
+         // }
       }
       if (map_integral == 0) {
 // source effectively lies on map boundary, so apply no correction
          mapCorrections.push_back(1);
       } else {
-         mapCorrections.push_back(meanPsf.integral(psfRadius, energies.at(k))
-                                  /map_integral);
+         if (pixel_size < meanPsf.containmentRadius(energies[k])/10.) {
+            /// Apply no correction at low energies.  Still need to
+            /// sort out why, but empirically this performs better
+            /// than applying the correction.
+            mapCorrections.push_back(1.);
+         } else {
+            /// Correct for undersampling of the PSF at high eneriges.
+            double value(meanPsf.integral(psfRadius, energies.at(k))/map_integral);
+            mapCorrections.push_back(value);
+         }
       }
    }
+//   output.close();
    mapCorrections.push_back(mapCorrections.back());
 }
 
