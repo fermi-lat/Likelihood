@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MeanPsf.h,v 1.15 2010/11/28 23:01:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MeanPsf.h,v 1.16 2012/03/28 22:00:42 jchiang Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -69,6 +69,17 @@ public:
    /// @param angle Acceptance cone angle (degrees).
    /// @param energy Energy at which to evaluate the integral (MeV).
    double integral(double angle, double energy) const;
+   
+   /// @return The acceptance cone radius for the specified containment fraction (degrees)
+   /// @param energy Photon energy (MeV)
+   /// @param frac Desired containment fraction (0.68 default)
+   double containmentRadius(double energy, double frac=0.68) const;
+
+   /// @return Estimate of the derivative of the psf wrt acceptance
+   ///         cone angle (1/sr/degree)
+   /// @param angle Acceptance cone angle (degrees)
+   /// @param energy Photon energy (MeV)
+   double derivative(double angle, double energy) const;
 
    /// @brief Compute the an image of the psf on a longitude-latitude
    ///        grid, assuming the psf center is at (lon0, lat0)
@@ -94,6 +105,7 @@ private:
    const Observation & m_observation;
 
    std::vector<double> m_psfValues;
+   std::vector< std::vector<double> > m_partialIntegrals;
 
    std::vector<double> m_exposure;
 
@@ -103,6 +115,8 @@ private:
                        std::vector<double> & xx) const;
 
    void computeExposure();
+
+   void computePartialIntegrals();
 
    class Psf : public ExposureCube::Aeff {
    public:
