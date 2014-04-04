@@ -1,6 +1,6 @@
 # -*- python -*-
-# $Id: SConscript,v 1.290 2014/03/24 21:45:52 jchiang Exp $
-# Authors: James Chiang <jchiang@slac.stanford.edu>, Pat Nolan <pln@razzle.stanford.edu>
+# $Id: SConscript,v 1.291 2014/04/03 21:31:29 glastrm Exp $
+# Authors: James Chiang <jchiang@slac.stanford.edu>
 # Version: Likelihood-18-00-10
 
 import sys
