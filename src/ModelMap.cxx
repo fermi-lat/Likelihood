@@ -149,9 +149,9 @@ void ModelMap::trimExtensions(const std::string & outfile,
    }
 
 // Update creator keyword.
-   char * keyname = "CREATOR";
-   char * creator = "gtmodel";
-   char * description = "Software creating file";
+   char * keyname = const_cast<char *>("CREATOR");
+   char * creator = const_cast<char *>("gtmodel");
+   char * description = const_cast<char *>("Software creating file");
    fits_update_key(fptr, TSTRING, keyname, creator, description, &status);
    ::fitsReportError(stderr, status);
 
