@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.70 2013/09/18 06:33:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.71 2013/09/18 17:33:12 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -60,7 +60,7 @@ public:
    virtual void getFreeDerivs(std::vector<double> & derivs) const;
 
    /// Create a counts map based on the current model.
-   virtual CountsMap * createCountsMap(const CountsMap & dataMap) const {
+   virtual CountsMap * createCountsMap(CountsMap & dataMap) const {
       std::vector<float> map;
       computeModelMap(map);
       dataMap.setImage(map);
