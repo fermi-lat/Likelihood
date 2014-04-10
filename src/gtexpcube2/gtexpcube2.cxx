@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.17 2013/08/26 22:55:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.18 2014/03/04 21:34:48 cohen Exp $
  */
 
 #include <cmath>
@@ -109,9 +109,9 @@ void ExpCube::run() {
      int image_size=image->getImageDimensions().size();
      delete image;
      if(image_size==0) {
-       tip::Table * table = tip::IFileSvc::instance().readTable(cmap_file, "SKYMAP");
+       const tip::Table * table = tip::IFileSvc::instance().readTable(cmap_file, "SKYMAP");
        std::string hpx("");
-       tip::Header & header(table->getHeader());
+       const tip::Header & header(table->getHeader());
        header["PIXTYPE"].get(hpx);
        delete table;
        if(hpx=="HEALPIX"){
