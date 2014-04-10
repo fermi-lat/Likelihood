@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.531 2014/04/04 20:37:14 jchiang Exp $
+    $Id: release.notes,v 1.532 2014/04/08 16:48:48 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-04-06 10-Apr-2014 jchiang another const correctness fix
  Likelihood-18-04-05 08-Apr-2014 jchiang const fixes
  Likelihood-18-04-04 04-Apr-2014 jchiang trivial mod to SConscript file
  Likelihood-18-04-03 24-Mar-2014 jchiang fix for excess low energy residuals in binned analysis
