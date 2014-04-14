@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EventContainer.cxx,v 1.27 2013/06/05 06:07:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.28 2013/06/06 02:48:01 jchiang Exp $
  */
 
 #include <cmath>
@@ -63,13 +63,24 @@ void EventContainer::getEvents(std::string event_file,
    } catch(tip::TipException) {
       // keyword missing so use default value
    }
+   std::string pass_ver;
+   try {
+      header["PASS_VER"].get(pass_ver);
+   } catch(tip::TipException) {
+      // keyword missing so use default value
+      pass_ver = "NONE";
+   }
+   bool evclass_bitarray(true);
+   if (pass_ver == "NONE" || pass_ver.substr(0, 2) == "P7") {
+      evclass_bitarray = false;
+   }
 
    double ra;
    double dec;
    double energy;
    double time;
    double zenAngle;
-   int eventClass;
+   unsigned long eventClass;
    int conversionType;
    int eventType;
 
@@ -99,7 +110,13 @@ void EventContainer::getEvents(std::string event_file,
       event["time"].get(time);
       event["zenith_angle"].get(zenAngle);
       event["conversion_type"].get(conversionType);
-      event["event_class"].get(eventClass);
+      if (evclass_bitarray) {
+         tip::BitStruct event_class;
+         event["event_class"].get(event_class);
+         eventClass = event_class;
+      } else {
+         event["event_class"].get(eventClass);
+      }
       if (evclsver == 0) {
          eventType = conversionType;
       } else {
