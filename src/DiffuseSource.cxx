@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.61 2013/01/09 00:44:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.62 2013/09/04 05:30:45 jchiang Exp $
  */
 
 #include <algorithm>
@@ -236,19 +236,22 @@ double DiffuseSource::diffuseResponse(const Event & evt) const {
    double trueEnergy(evt.getEnergy());
    const ResponseFunctions & respFuncs(m_observation->respFuncs());
    const WcsMap2 & wcsmap(mapBaseObject()->wcsmap());
-//   const std::vector< std::vector<double> > & solidAngles(wcsmap.solidAngles());
    const std::vector< std::vector<float> > & solidAngles(wcsmap.solidAngles());
    double my_value(0);
    for (size_t i(0); i < solidAngles.size(); i++) {
       for (size_t j(0); j < solidAngles.at(i).size(); j++) {
-         // WcsMap::skyDir uses wcslib pixel numbering, i.e., starting with 1
-         astro::SkyDir srcDir(wcsmap.skyDir(i+1, j+1));
-         double mapValue(spatialDist(SkyDirArg(srcDir, trueEnergy)));
-         my_value += (respFuncs.totalResponse(trueEnergy, evt.getEnergy(), 
-                                              evt.zAxis(), evt.xAxis(),
-                                              srcDir, evt.getDir(),
-                                              evt.getType(), evt.getArrTime())
-                      *mapValue*solidAngles.at(i).at(j));
+         double psf_range(psfRange(evt.getEnergy()));
+         if (evt.getDir().difference(wcsmap.skyDir(i+1, j+1)) < psf_range) {
+            // WcsMap::skyDir uses wcslib pixel numbering, i.e., starting with 1
+            astro::SkyDir srcDir(wcsmap.skyDir(i+1, j+1));
+            double mapValue(spatialDist(SkyDirArg(srcDir, trueEnergy)));
+            my_value += (respFuncs.totalResponse(trueEnergy, evt.getEnergy(), 
+                                                 evt.zAxis(), evt.xAxis(),
+                                                 srcDir, evt.getDir(),
+                                                 evt.getType(),
+                                                 evt.getArrTime())
+                         *mapValue*solidAngles.at(i).at(j));
+         }
       }
    }
    return my_value;
@@ -256,6 +259,17 @@ double DiffuseSource::diffuseResponse(const Event & evt) const {
 
 bool DiffuseSource::mapBasedIntegral() const {
    return m_mapBasedIntegral;
+}
+
+double DiffuseSource::psfRange(double energy) const {
+   static double min_angle(5.*M_PI/180.);
+   static double ebreak(1e4);
+   if (energy > ebreak) {
+      /// PSF containment flattens above ebreak.
+      return min_angle;
+   }
+   /// Empirical power-law scaling.
+   return min_angle*std::pow(energy/ebreak, -0.8);
 }
 
 } // namespace Likelihood

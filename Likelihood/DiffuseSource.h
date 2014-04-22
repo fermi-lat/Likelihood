@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.51 2012/06/27 20:31:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.52 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -219,6 +219,9 @@ private:
    // of the source times the unbinned exposure map.
    void integrateSpatialDist();
 
+   /// @return Approximate energy-dependent outer angle (in radians) 
+   ///         for diffuse response calculation.
+   double psfRange(double energy) const;
 };
 
 } //namespace Likelihood
