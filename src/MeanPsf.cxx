@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.30 2013/01/09 00:44:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.31 2014/03/24 21:26:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -155,22 +155,31 @@ double MeanPsf::integral(double angle, double energy) const {
 
    double theta1(s_separations[j]*M_PI/180.);
    double theta2(angle*M_PI/180.);
-   double integral1(m_partialIntegrals.at(k).at(j));
-   double integral2(m_partialIntegrals.at(k+1).at(j));
 
+   double value(0);
+
+   double integral1(m_partialIntegrals.at(k).at(j));
    size_t index1(k*s_separations.size() + j);
    integral1 += 2.*M_PI*((operator()(m_energies.at(k), angle)*std::sin(theta2) +
                           m_psfValues.at(index1)*std::sin(theta1))/2.
                          *(theta2 - theta1));
 
-   size_t index2((k+1)*s_separations.size() + j);
-   integral2 += 2.*M_PI*((operator()(m_energies.at(k+1), angle)*std::sin(theta2) +
-                          m_psfValues.at(index2)*std::sin(theta1))/2.
-                         *(theta2 - theta1));
-
-   double value = ((energy - m_energies.at(k))
-                   /(m_energies.at(k+1) - m_energies.at(k))
-                   *(integral2 - integral1) + integral1);
+   if (k != m_partialIntegrals.size()-1) {
+      // k is within range so ok to interpolate.
+      double integral2(m_partialIntegrals.at(k+1).at(j));
+      size_t index2((k+1)*s_separations.size() + j);
+      integral2 += 2.*M_PI*((operator()(m_energies.at(k+1), angle)
+                             *std::sin(theta2) +
+                             m_psfValues.at(index2)*std::sin(theta1))/2.
+                            *(theta2 - theta1));
+      value = ((energy - m_energies.at(k))
+               /(m_energies.at(k+1) - m_energies.at(k))
+               *(integral2 - integral1) + integral1);
+   } else {
+      // energy is at upper boundary of m_energies vector so just
+      // use the psf integral evaluated at that bound.
+      value = integral1;
+   }
    return value;
 }
 
