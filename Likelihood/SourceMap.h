@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.52 2012/04/14 20:59:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.53 2013/09/18 06:33:59 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -24,6 +24,7 @@ namespace Likelihood {
 
    class CountsMap;
    class DiffuseSource;
+   class MeanPsf;
    class PointSource;
    class Source;
 
@@ -128,6 +129,9 @@ private:
                            bool verbose);
 
    void applyPhasedExposureMap();
+
+   double psfValueEstimate(const MeanPsf & meanPsf, double energy,
+                           double offset, double pixelSolidAngle) const;
 
 };
 
