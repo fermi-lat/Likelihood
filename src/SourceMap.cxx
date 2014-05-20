@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.102 2012/09/29 00:23:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.103 2014/03/24 21:26:12 jchiang Exp $
  */
 
 #include <algorithm>
@@ -154,8 +154,6 @@ void SourceMap::makeDiffuseMap(Source * src,
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
 
-//   m_npreds.resize(energies.size(), 0);
-
    std::vector<Pixel>::const_iterator pixel = pixels.begin();
 
    const astro::SkyDir & mapRefDir = dataMap->refDir();
@@ -299,14 +297,14 @@ void SourceMap::makePointSourceMap(Source * src,
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
 
-//   m_npreds.resize(energies.size(), 0);
-
    std::vector<Pixel>::const_iterator pixel = pixels.begin();
 
    const astro::SkyDir & dir(pointSrc->getDir());
    MeanPsf meanPsf(dir.ra(), dir.dec(), energies, m_observation);
    
    const std::vector<double> & exposure = meanPsf.exposure();
+   double pixel_size(std::min(std::fabs(m_dataMap->cdelt1()), 
+                              std::fabs(m_dataMap->cdelt2())));
    
    if (performConvolution) {
       long icount(0);
@@ -325,12 +323,12 @@ void SourceMap::makePointSourceMap(Source * src,
             if (verbose && (icount % (npts/20)) == 0) {
                m_formatter->warn() << ".";
             }
-            double value = (meanPsf(energies.at(k), 
-                                    dir.difference(pixel->dir())*180./M_PI)
-                            *exposure.at(k));
+            double offset(dir.difference(pixel->dir())*180./M_PI);
+            double psf_value(psfValueEstimate(meanPsf, energies.at(k),
+                                              offset, pixel->solidAngle()));
+            double value(psf_value*exposure.at(k));
             value *= pixel->solidAngle()*mapCorrections.at(k);
             m_model.at(indx) += value;
-//            m_npreds.at(k) += value;
             icount++;
          }
       }
@@ -344,7 +342,6 @@ void SourceMap::makePointSourceMap(Source * src,
          for (int k = 0; energy != energies.end(); ++energy, k++) {
             size_t indx = k*pixels.size() + ipix;
             m_model.at(indx) = exposure.at(k);
-//            m_npreds.at(k) = m_model.at(indx);
          }
       }
    }
@@ -361,59 +358,56 @@ void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
                                   const std::vector<Pixel> & pixels,
                                   const std::vector<double> & energies,
                                   std::vector<double> & mapCorrections) const {
+   std::ofstream * output(0);
+   char * log_file(::getenv("PSF_INTEGRANDS_LOG"));
+   if (log_file) {
+      std::cout << "log_file: " << log_file << std::endl;
+      output = new std::ofstream(log_file);
+   }
    const astro::SkyDir & srcDir = src->getDir();
    double psfRadius(maxPsfRadius(src));
-
-   double pixel_size(std::min(std::fabs(m_dataMap->cdelt1()), 
-                              std::fabs(m_dataMap->cdelt2())));
-   double psf_solid_angle(2.*M_PI*(1. - std::cos(psfRadius*M_PI/180.)));
-   double pixel_solid_angle(0);
    std::vector<unsigned int> containedPixels;
    for (unsigned int j = 0; j < pixels.size(); j++) {
       if (srcDir.difference(pixels.at(j).dir())*180./M_PI <= psfRadius) {
          containedPixels.push_back(j);
-         pixel_solid_angle += pixels.at(j).solidAngle();
       }
    }
    mapCorrections.clear();
    mapCorrections.reserve(energies.size());
-//   std::ofstream output("psf_map_correction_integrands.txt");
    for (unsigned int k = 0; k < energies.size()-1; k++) {
       double map_integral(0);
       std::vector<unsigned int>::const_iterator j = containedPixels.begin();
-      double outer_psf_value(meanPsf(energies[k], psfRadius));
       for ( ; j != containedPixels.end(); ++j) {
          const Pixel & pix = pixels.at(*j);
          double solid_angle(pix.solidAngle());
          double offset(srcDir.difference(pix.dir())*180./M_PI);
-         double psf_value(meanPsf(energies.at(k), offset));
+         double psf_value(psfValueEstimate(meanPsf, energies.at(k), offset,
+                                           pix.solidAngle()));
          map_integral += solid_angle*psf_value;
-         // try {
-         //    output << energies[k] << "  "
-         //           << offset << "  "
-         //           << solid_angle << "  "
-         //           << psf_value << "  "
-         //           << meanPsf.integral(offset, energies[k]) << std::endl;
-         // } catch (std::out_of_range &) {
-         // }
-      }
-      if (map_integral == 0) {
-// source effectively lies on map boundary, so apply no correction
-         mapCorrections.push_back(1);
-      } else {
-         if (pixel_size < meanPsf.containmentRadius(energies[k])/10.) {
-            /// Apply no correction at low energies.  Still need to
-            /// sort out why, but empirically this performs better
-            /// than applying the correction.
-            mapCorrections.push_back(1.);
-         } else {
-            /// Correct for undersampling of the PSF at high eneriges.
-            double value(meanPsf.integral(psfRadius, energies.at(k))/map_integral);
-            mapCorrections.push_back(value);
+         if (output) {
+            try {
+               *output << energies[k] << "  "
+                       << offset << "  "
+                       << solid_angle << "  "
+                       << psf_value << "  "
+                       << meanPsf.integral(offset, energies[k]) << std::endl;
+            } catch (std::out_of_range &) {
+            }
          }
       }
+      if (map_integral == 0) {
+         /// source effectively lies on map boundary, so apply no
+         /// correction
+         mapCorrections.push_back(1);
+      } else {
+         /// Correct for undersampling of the PSF at high eneriges.
+         double value(meanPsf.integral(psfRadius, energies.at(k))/map_integral);
+         mapCorrections.push_back(value);
+      }
    }
-//   output.close();
+   if (output) {
+      output->close();
+   }
    mapCorrections.push_back(mapCorrections.back());
 }
 
@@ -486,6 +480,40 @@ void SourceMap::applyPhasedExposureMap() {
                                                        energies[k]);
       }
    }
+}
+
+double SourceMap::
+psfValueEstimate(const MeanPsf & meanPsf, double energy,
+                 double offset, double pixelSolidAngle) const {
+/// To estimate the psf value averaged over a pixel, average the psf
+/// over an annulus centered on the source position with approximately
+/// the same extent in theta as the pixel in question.
+   if (!::getenv("USE_NEW_PSF_ESTIMATOR")) {
+      // Use the central pixel value as in the previous implementation 
+      // (ST 09-33-00)
+      return meanPsf(energy, offset);
+   }
+// Use new implementation (which produces larger low energy (<100 MeV) 
+// residuals).
+   double pixel_value(0);
+   double pixel_size(std::sqrt(pixelSolidAngle)*180./M_PI);
+   if (pixel_size/2. >= offset) {
+      /// Average over an acceptance cone with the same solid angle
+      /// as the central pixel.
+      double radius(std::acos(1. - pixelSolidAngle/2./M_PI)*180./M_PI);
+      pixel_value = meanPsf.integral(radius, energy)/pixelSolidAngle;
+   } else {
+      // Use integral over annulus with pixel_size width centered on
+      // the offset angle to estimate average psf value within a pixel
+      // at the offset.
+      double theta1(offset - pixel_size/2.);
+      double theta2(offset + pixel_size/2.);
+      pixel_value = ( (meanPsf.integral(theta2, energy)
+                       - meanPsf.integral(theta1, energy))
+                      /(2.*M_PI*(std::cos(theta1*M_PI/180.)
+                                 - std::cos(theta2*M_PI/180.))) );
+   }
+   return pixel_value;
 }
 
 } // namespace Likelihood
