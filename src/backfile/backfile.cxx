@@ -5,7 +5,7 @@
  * the source in question).
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/backfile/backfile.cxx,v 1.14 2012/02/28 17:36:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/backfile/backfile.cxx,v 1.15 2012/09/30 23:03:06 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -73,7 +73,7 @@ private:
 
 st_app::StAppFactory<BackFile> myAppFactory("gtbkg");
 
-std::string BackFile::s_cvs_id("$Name:  $");
+std::string BackFile::s_cvs_id("$Name: HEAD $");
 
 void BackFile::banner() const {
    int verbosity = m_pars["chatter"];
@@ -98,7 +98,10 @@ void BackFile::setup() {
    std::string expCube = m_pars["expcube"];
    m_helper->observation().expCube().readExposureCube(expCube);
 
-   m_helper->checkCuts(phafile, "SPECTRUM", expMap, "");
+//   m_helper->checkCuts(phafile, "SPECTRUM", expMap, "");
+   std::vector<std::string> phafiles;
+   phafiles.push_back(phafile);
+   m_helper->checkExpMapCuts(phafiles, expMap, "SPECTRUM", "");
 }
 
 void BackFile::run() {
