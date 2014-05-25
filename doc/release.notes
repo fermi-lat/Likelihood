@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.536 2014/05/13 17:48:43 jchiang Exp $
+    $Id: release.notes,v 1.537 2014/05/20 21:54:11 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-05-04 25-May-2014 jchiang corrections to MeanPsf::integral to correct point source map excess residuals
  Likelihood-18-05-03 20-May-2014 jchiang attempt to improve point source map calculation
  Likelihood-18-05-02 13-May-2014 jchiang cache psf partial integrals
  Likelihood-18-05-01 21-Apr-2014 jchiang use energy-dependent cutoff angle in map-based diffuse response integral
