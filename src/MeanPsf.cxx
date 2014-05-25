@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.31 2014/03/24 21:26:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.32 2014/05/13 17:47:17 jchiang Exp $
  */
 
 #include <cmath>
@@ -108,26 +108,21 @@ void MeanPsf::computePartialIntegrals() {
    m_partialIntegrals.clear();
    for (size_t k(0); k < m_energies.size(); k++) {
       std::vector<double> partialIntegral;
+      partialIntegral.push_back(0);
       for (size_t j(0); j < s_separations.size()-1; j++) {
          size_t index(k*s_separations.size() + j);
          double theta1(s_separations.at(j)*M_PI/180.);
          double theta2(s_separations.at(j+1)*M_PI/180.);
-         double value(2.*M_PI*(m_psfValues.at(index)*std::sin(theta1)
-                               + m_psfValues.at(index+1)*std::sin(theta2))/2.
-                      *(theta2 - theta1));
-         if (j == 0) {
-            partialIntegral.push_back(value);
-         } else {
-            partialIntegral.push_back(partialIntegral.back() + value);
-         }
+         double y1(2.*M_PI*m_psfValues.at(index)*std::sin(theta1));
+         double y2(2.*M_PI*m_psfValues.at(index+1)*std::sin(theta2));
+         double slope((y2 - y1)/(theta2 - theta1));
+         double intercept(y1 - theta1*slope);
+         double value(slope*(theta2*theta2 - theta1*theta1)/2.
+                      + intercept*(theta2 - theta1));
+         partialIntegral.push_back(partialIntegral.back() + value);
       }
       // Ensure normalizations of differential and integral arrays.
-      // Start with the last element of m_psfValues for a given energy since the
-      // integral array has one less element.
-      size_t index((k+1)*s_separations.size() - 1);
-      m_psfValues.at(index) /= partialIntegral.back();
-      // Loop through differential and integral arrays.
-      for (size_t j(0); j < partialIntegral.size(); j++) {
+      for (size_t j(0); j < s_separations.size(); j++) {
          size_t index(k*s_separations.size() + j);
          m_psfValues.at(index) /= partialIntegral.back();
          partialIntegral[j] /= partialIntegral.back();
@@ -153,68 +148,68 @@ double MeanPsf::integral(double angle, double energy) const {
    size_t j(std::upper_bound(s_separations.begin(), s_separations.end(),
                              angle) - s_separations.begin() - 1);
 
+   size_t index(k*s_separations.size() + j);
    double theta1(s_separations[j]*M_PI/180.);
-   double theta2(angle*M_PI/180.);
+   double theta2(s_separations[j+1]*M_PI/180.);
+   double y1(2.*M_PI*m_psfValues.at(index)*std::sin(theta1));
+   double y2(2.*M_PI*m_psfValues.at(index+1)*std::sin(theta2));
+   double slope((y2 - y1)/(theta2 - theta1));
+   double intercept(y1 - theta1*slope);
+   double theta(angle*M_PI/180.);
+   double value(slope*(theta*theta - theta1*theta1)/2. 
+                + intercept*(theta - theta1));
+   double integral1(m_partialIntegrals.at(k).at(j) + value);
 
-   double value(0);
-
-   double integral1(m_partialIntegrals.at(k).at(j));
-   size_t index1(k*s_separations.size() + j);
-   integral1 += 2.*M_PI*((operator()(m_energies.at(k), angle)*std::sin(theta2) +
-                          m_psfValues.at(index1)*std::sin(theta1))/2.
-                         *(theta2 - theta1));
-
-   if (k != m_partialIntegrals.size()-1) {
-      // k is within range so ok to interpolate.
-      double integral2(m_partialIntegrals.at(k+1).at(j));
-      size_t index2((k+1)*s_separations.size() + j);
-      integral2 += 2.*M_PI*((operator()(m_energies.at(k+1), angle)
-                             *std::sin(theta2) +
-                             m_psfValues.at(index2)*std::sin(theta1))/2.
-                            *(theta2 - theta1));
-      value = ((energy - m_energies.at(k))
-               /(m_energies.at(k+1) - m_energies.at(k))
-               *(integral2 - integral1) + integral1);
-   } else {
+   if (k == m_energies.size()-1) {
       // energy is at upper boundary of m_energies vector so just
       // use the psf integral evaluated at that bound.
-      value = integral1;
+      return integral1;
    }
-   return value;
+   index += s_separations.size();
+   y1 = 2.*M_PI*m_psfValues.at(index)*std::sin(theta1);
+   y2 = 2.*M_PI*m_psfValues.at(index+1)*std::sin(theta2);
+   slope = (y2 - y1)/(theta2 - theta1);
+   intercept = y1 - theta1*slope;
+   value = slope*(theta*theta - theta1*theta1)/2. + intercept*(theta - theta1);
+   double integral2(m_partialIntegrals.at(k+1).at(j) + value);
+   double final_value((energy - m_energies.at(k))
+                      /(m_energies.at(k+1) - m_energies.at(k))
+                      *(integral2 - integral1) + integral1);
+   return final_value;
 }
 
-double MeanPsf::containmentRadius(double energy, double frac) const {
-   if (energy < m_energies.front() || energy > m_energies.back()) {
-      std::ostringstream message;
-      message << "MeanPsf::containmentRadius: selected energy, "
-              << energy << " is out-of-range.";
-      throw std::out_of_range(message.str());
-   }
-   size_t k(std::upper_bound(m_energies.begin(), m_energies.end(), energy)
-            - m_energies.begin() - 1);
-   if (frac <= 0) {
-      return 0;
-   } else if (frac >= 1) {
-      return 1;
-   }
-   size_t j1(std::upper_bound(m_partialIntegrals[k].begin(),
-                              m_partialIntegrals[k].end(), frac)
-             - m_partialIntegrals[k].begin() - 1);
-   size_t j2(std::upper_bound(m_partialIntegrals[k+1].begin(),
-                              m_partialIntegrals[k+1].end(), frac)
-             - m_partialIntegrals[k+1].begin() - 1);
-   double angle1( (frac - m_partialIntegrals[k][j1])
-                  /(m_partialIntegrals[k][j1+1] - m_partialIntegrals[k][j1])
-                  *(s_separations[j1+1] - s_separations[j1])
-                  + s_separations[j1] );
-   double angle2( (frac - m_partialIntegrals[k+1][j2])
-                  /(m_partialIntegrals[k+1][j2+1] - m_partialIntegrals[k+1][j2])
-                  *(s_separations[j2+1] - s_separations[j2])
-                  + s_separations[j2] );
-   double value( (energy - m_energies[k])/(m_energies[k+1] - m_energies[k])
-                 *(angle2 - angle1) + angle1);
-   return value;
-}
+// double MeanPsf::containmentRadius(double energy, double frac) const {
+//    if (energy < m_energies.front() || energy > m_energies.back()) {
+//       std::ostringstream message;
+//       message << "MeanPsf::containmentRadius: selected energy, "
+//               << energy << " is out-of-range.";
+//       throw std::out_of_range(message.str());
+//    }
+//    size_t k(std::upper_bound(m_energies.begin(), m_energies.end(), energy)
+//             - m_energies.begin() - 1);
+//    if (frac <= 0) {
+//       return 0;
+//    } else if (frac >= 1) {
+//       return 1;
+//    }
+//    size_t j1(std::upper_bound(m_partialIntegrals[k].begin(),
+//                               m_partialIntegrals[k].end(), frac)
+//              - m_partialIntegrals[k].begin() - 1);
+//    size_t j2(std::upper_bound(m_partialIntegrals[k+1].begin(),
+//                               m_partialIntegrals[k+1].end(), frac)
+//              - m_partialIntegrals[k+1].begin() - 1);
+//    double angle1( (frac - m_partialIntegrals[k][j1])
+//                   /(m_partialIntegrals[k][j1+1] - m_partialIntegrals[k][j1])
+//                   *(s_separations[j1+1] - s_separations[j1])
+//                   + s_separations[j1] );
+//    double angle2( (frac - m_partialIntegrals[k+1][j2])
+//                   /(m_partialIntegrals[k+1][j2+1] - m_partialIntegrals[k+1][j2])
+//                   *(s_separations[j2+1] - s_separations[j2])
+//                   + s_separations[j2] );
+//    double value( (energy - m_energies[k])/(m_energies[k+1] - m_energies[k])
+//                  *(angle2 - angle1) + angle1);
+//    return value;
+// }
 
 double MeanPsf::derivative(double angle, double energy) const {
    int j = std::upper_bound(s_separations.begin(), s_separations.end(),
@@ -257,7 +252,8 @@ void MeanPsf::getImage(double energy, double lon0, double lat0,
 void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
                              std::vector<double> &xx) const {
    xx.clear();
-   xx.reserve(npts);
+   xx.reserve(npts+1);
+   xx.push_back(0);
    double xstep = log(xmax/xmin)/(npts - 1.);
    for (unsigned int i = 0; i < npts; i++) {
       xx.push_back(xmin*exp(i*xstep));
