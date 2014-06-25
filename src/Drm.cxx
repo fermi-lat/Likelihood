@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Drm.cxx,v 1.8 2011/10/18 22:45:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.9 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -64,13 +64,13 @@ void Drm::convolve(const std::vector<double> & true_counts,
    std::copy(true_counts.begin(), true_counts.end(), counts.begin());
    double value(0);
    if (counts[0] > 0 && counts[1] > 0){
-      value = counts[0]*std::exp(std::log(m_ebounds[0]/m_ebounds[2])/
+      value = counts[1]*std::exp(std::log(m_ebounds[0]/m_ebounds[2])/
                                  std::log(m_ebounds[1]/m_ebounds[2])*
                                  std::log(counts[0]/counts[1]));
    } else {
       value = ((m_ebounds[0] - m_ebounds[2])/
                (m_ebounds[1] - m_ebounds[2])*
-               (counts[0] - counts[1]) + counts[0]);
+               (counts[0] - counts[1]) + counts[1]);
    }
    counts.push_front(value);
 
