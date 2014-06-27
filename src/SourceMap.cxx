@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.103 2014/03/24 21:26:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.104 2014/05/20 21:53:28 jchiang Exp $
  */
 
 #include <algorithm>
@@ -488,13 +488,11 @@ psfValueEstimate(const MeanPsf & meanPsf, double energy,
 /// To estimate the psf value averaged over a pixel, average the psf
 /// over an annulus centered on the source position with approximately
 /// the same extent in theta as the pixel in question.
-   if (!::getenv("USE_NEW_PSF_ESTIMATOR")) {
+   if (::getenv("USE_OLD_PSF_ESTIMATOR")) {
       // Use the central pixel value as in the previous implementation 
       // (ST 09-33-00)
       return meanPsf(energy, offset);
    }
-// Use new implementation (which produces larger low energy (<100 MeV) 
-// residuals).
    double pixel_value(0);
    double pixel_size(std::sqrt(pixelSolidAngle)*180./M_PI);
    if (pixel_size/2. >= offset) {
