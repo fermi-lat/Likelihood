@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.538 2014/05/25 17:01:38 jchiang Exp $
+    $Id: release.notes,v 1.539 2014/05/25 21:56:02 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-05-06 27-Jun-2014 jchiang make new psf estimation scheme the default in SourceMap.cxx
  Likelihood-18-05-05 25-May-2014 jchiang skip irf version DSS keyword checks against pha file
  Likelihood-18-05-04 25-May-2014 jchiang corrections to MeanPsf::integral to correct point source map excess residuals
  Likelihood-18-05-03 20-May-2014 jchiang attempt to improve point source map calculation
