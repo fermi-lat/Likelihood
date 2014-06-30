@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SummedLikelihood.cxx,v 1.4 2014/02/07 06:37:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SummedLikelihood.cxx,v 1.5 2014/02/07 22:39:17 jchiang Exp $
  */
 
 #include <iostream>
@@ -138,37 +138,40 @@ void SummedLikelihood::fetchParamValues(std::vector<double> & values,
 }
 
 void SummedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
-   // The free derivatives are the same for all components, so the
-   // composite values are just the free derivatives from any single
-   // component multiplied by the total number of components.
-   //
-   // However, we need to extract these in an order that accounts for
-   // the handling of the tied parameters.
-   size_t numComponents(m_components.size());
-
-   // Get the all of the free derivatives as viewed from the master
-   // component.
-   m_masterComponent->getFreeDerivs(derivs);
-
-   // Just multiply by number of components if no tied parameter
-   // handling is required.
-   if (m_tiedIndices.size() == 0) {
-      for (size_t i(0); i < derivs.size(); i++) {
-         derivs[i] *= numComponents;
-      }
-      return;
-   }
    // Loop over all parameters and use findIndex(par_index) to
-   // determine the Minos indices and their order, accounting for the
-   // tied parameters.
-   std::vector<double> master_derivs(derivs);
+   // determine the minos_index values and their order, accounting for
+   // the tied parameters.
    const std::vector<optimizers::Parameter> & 
       pars(m_masterComponent->parameters());
-   size_t master_index(0);
+
+   // The keys in the free_index map are the minos_index values of the
+   // free parameters (i.e., excluding tied).  For the map values, the
+   // free_index_value is the index of the corresponding slot in the
+   // derivs vector returned by LogLike::getFreeDerivs.
+   std::map<int, size_t> free_index;
+                                      
+   size_t free_index_value(0);
    for (size_t par_index(0); par_index < pars.size(); par_index++) {
       int minos_index(findIndex(par_index));
       if (minos_index > -1) {
-         derivs.at(minos_index) = numComponents*master_derivs[master_index++];
+         free_index[minos_index] = free_index_value;
+      }
+      if (pars.at(par_index).isFree()) {
+         free_index_value++;
+      }
+   }
+
+   // Intialize derivs vector with zeros for each free Minos parameter.
+   derivs.resize(free_index.size(), 0);
+
+   // Loop over log-likeihood components, adding derivative contributions.
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
+      std::vector<double> freeDerivs;
+      (*it)->getFreeDerivs(freeDerivs);
+      for (std::map<int, size_t>::const_iterator index_it(free_index.begin());
+           index_it != free_index.end(); ++index_it) {
+         derivs.at(index_it->first) += freeDerivs.at(index_it->second);
       }
    }
 }
