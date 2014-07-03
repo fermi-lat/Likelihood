@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.53 2013/09/18 06:33:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.54 2014/05/20 21:53:26 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -131,8 +131,10 @@ private:
    void applyPhasedExposureMap();
 
    double psfValueEstimate(const MeanPsf & meanPsf, double energy,
-                           double offset, double pixelSolidAngle) const;
+                           const astro::SkyDir & srcDir, const Pixel & pixel) const;
 
+   double integrate_psf(const MeanPsf & meanPsf, double energy,
+                        const astro::SkyDir & srcDir, const Pixel & pixel) const;
 };
 
 } // namespace Likelihood
