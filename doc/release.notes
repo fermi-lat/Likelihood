@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.540 2014/06/27 21:59:17 jchiang Exp $
+    $Id: release.notes,v 1.541 2014/06/30 20:45:14 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-05-08 03-Jul-2014 jchiang possible fix for SourceMap psf sampling corner case
  Likelihood-18-05-07 30-Jun-2014 jchiang bug-fix for SummedLikelihood::getFreeDerivs
  Likelihood-18-05-06 27-Jun-2014 jchiang make new psf estimation scheme the default in SourceMap.cxx
  Likelihood-18-05-05 25-May-2014 jchiang skip irf version DSS keyword checks against pha file
