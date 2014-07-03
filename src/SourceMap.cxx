@@ -4,8 +4,10 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.104 2014/05/20 21:53:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.105 2014/06/27 21:57:55 jchiang Exp $
  */
+
+#include <cmath>
 
 #include <algorithm>
 #include <deque>
@@ -324,8 +326,9 @@ void SourceMap::makePointSourceMap(Source * src,
                m_formatter->warn() << ".";
             }
             double offset(dir.difference(pixel->dir())*180./M_PI);
-            double psf_value(psfValueEstimate(meanPsf, energies.at(k),
-                                              offset, pixel->solidAngle()));
+            // double psf_value(psfValueEstimate(meanPsf, energies.at(k),
+            //                                   offset, pixel->solidAngle()));
+            double psf_value(psfValueEstimate(meanPsf, energies.at(k), dir, *pixel));
             double value(psf_value*exposure.at(k));
             value *= pixel->solidAngle()*mapCorrections.at(k);
             m_model.at(indx) += value;
@@ -381,8 +384,9 @@ void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
          const Pixel & pix = pixels.at(*j);
          double solid_angle(pix.solidAngle());
          double offset(srcDir.difference(pix.dir())*180./M_PI);
-         double psf_value(psfValueEstimate(meanPsf, energies.at(k), offset,
-                                           pix.solidAngle()));
+         // double psf_value(psfValueEstimate(meanPsf, energies.at(k), offset,
+         //                                   pix.solidAngle()));
+         double psf_value(psfValueEstimate(meanPsf, energies.at(k), srcDir, pix));
          map_integral += solid_angle*psf_value;
          if (output) {
             try {
@@ -482,9 +486,15 @@ void SourceMap::applyPhasedExposureMap() {
    }
 }
 
+// double SourceMap::
+// psfValueEstimate(const MeanPsf & meanPsf, double energy,
+//                  double offset, double pixelSolidAngle) const {
 double SourceMap::
 psfValueEstimate(const MeanPsf & meanPsf, double energy,
-                 double offset, double pixelSolidAngle) const {
+                 const astro::SkyDir & srcDir, 
+                 const Pixel & pixel) const {
+   double offset(srcDir.difference(pixel.dir())*180./M_PI);
+   double pixelSolidAngle(pixel.solidAngle());
 /// To estimate the psf value averaged over a pixel, average the psf
 /// over an annulus centered on the source position with approximately
 /// the same extent in theta as the pixel in question.
@@ -493,13 +503,16 @@ psfValueEstimate(const MeanPsf & meanPsf, double energy,
       // (ST 09-33-00)
       return meanPsf(energy, offset);
    }
+   static double sqrt2(std::sqrt(2.));
    double pixel_value(0);
    double pixel_size(std::sqrt(pixelSolidAngle)*180./M_PI);
-   if (pixel_size/2. >= offset) {
-      /// Average over an acceptance cone with the same solid angle
-      /// as the central pixel.
-      double radius(std::acos(1. - pixelSolidAngle/2./M_PI)*180./M_PI);
-      pixel_value = meanPsf.integral(radius, energy)/pixelSolidAngle;
+   // if (pixel_size/2. >= offset) {
+   //    /// Average over an acceptance cone with the same solid angle
+   //    /// as the central pixel.
+   //    double radius(std::acos(1. - pixelSolidAngle/2./M_PI)*180./M_PI);
+   //    pixel_value = meanPsf.integral(radius, energy)/pixelSolidAngle;
+   if (offset < pixel_size/sqrt2) {
+      pixel_value = integrate_psf(meanPsf, energy, srcDir, pixel);
    } else {
       // Use integral over annulus with pixel_size width centered on
       // the offset angle to estimate average psf value within a pixel
@@ -512,6 +525,40 @@ psfValueEstimate(const MeanPsf & meanPsf, double energy,
                                  - std::cos(theta2*M_PI/180.))) );
    }
    return pixel_value;
+}
+
+double SourceMap::
+integrate_psf(const MeanPsf & meanPsf, double energy,
+              const astro::SkyDir & srcDir, const Pixel & pixel) const {
+   bool galactic(pixel.proj().isGalactic());
+
+   size_t npts(11);
+
+   /// Get the pixel center in pixel coordinates
+   double lon, lat;
+   if (galactic) {
+      lon = pixel.dir().l();
+      lat = pixel.dir().b();
+   } else {
+      lon = pixel.dir().ra();
+      lat = pixel.dir().dec();
+   }
+   std::pair<double, double> pix_coords(pixel.proj().sph2pix(lon, lat));
+   
+   // loop over subpixels in longitudinal and latitudinal directions
+   double psf_value(0);
+   double dstep(1./static_cast<double>(npts-1));
+   for (size_t i(0); i < npts; i++) {
+      double x(pix_coords.first + i*dstep - 0.5);
+      for (size_t j(0); j < npts; j++) {
+         double y(pix_coords.second + j*dstep - 0.5);
+         std::pair<double, double> pix_dir(pixel.proj().pix2sph(x, y));
+         astro::SkyDir my_dir(pix_dir.first, pix_dir.second, pixel.proj());
+         double offset(my_dir.difference(srcDir)*180./M_PI);
+         psf_value += meanPsf(energy, offset);
+      }
+   }
+   return psf_value/static_cast<double>(npts*npts);
 }
 
 } // namespace Likelihood

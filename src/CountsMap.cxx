@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsMap.cxx,v 1.52 2012/11/11 03:26:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.53 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -510,7 +510,7 @@ const std::vector<Pixel> & CountsMap::pixels() const {
       getPixels(pixelDirs, solidAngles);
       m_pixels.reserve(pixelDirs.size());
       for (unsigned int i = 0; i < pixelDirs.size(); i++) {
-         m_pixels.push_back(Pixel(pixelDirs[i], solidAngles[i]));
+         m_pixels.push_back(Pixel(pixelDirs[i], solidAngles[i], m_proj));
       }
    }
    return m_pixels;
