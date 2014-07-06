@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.105 2014/06/27 21:57:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.106 2014/07/03 20:29:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -326,9 +326,8 @@ void SourceMap::makePointSourceMap(Source * src,
                m_formatter->warn() << ".";
             }
             double offset(dir.difference(pixel->dir())*180./M_PI);
-            // double psf_value(psfValueEstimate(meanPsf, energies.at(k),
-            //                                   offset, pixel->solidAngle()));
-            double psf_value(psfValueEstimate(meanPsf, energies.at(k), dir, *pixel));
+            double psf_value(psfValueEstimate(meanPsf, energies.at(k), 
+                                              dir, *pixel));
             double value(psf_value*exposure.at(k));
             value *= pixel->solidAngle()*mapCorrections.at(k);
             m_model.at(indx) += value;
@@ -383,12 +382,10 @@ void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
       for ( ; j != containedPixels.end(); ++j) {
          const Pixel & pix = pixels.at(*j);
          double solid_angle(pix.solidAngle());
-         double offset(srcDir.difference(pix.dir())*180./M_PI);
-         // double psf_value(psfValueEstimate(meanPsf, energies.at(k), offset,
-         //                                   pix.solidAngle()));
          double psf_value(psfValueEstimate(meanPsf, energies.at(k), srcDir, pix));
          map_integral += solid_angle*psf_value;
          if (output) {
+            double offset(srcDir.difference(pix.dir())*180./M_PI);
             try {
                *output << energies[k] << "  "
                        << offset << "  "
@@ -486,9 +483,6 @@ void SourceMap::applyPhasedExposureMap() {
    }
 }
 
-// double SourceMap::
-// psfValueEstimate(const MeanPsf & meanPsf, double energy,
-//                  double offset, double pixelSolidAngle) const {
 double SourceMap::
 psfValueEstimate(const MeanPsf & meanPsf, double energy,
                  const astro::SkyDir & srcDir, 
@@ -553,8 +547,16 @@ integrate_psf(const MeanPsf & meanPsf, double energy,
       for (size_t j(0); j < npts; j++) {
          double y(pix_coords.second + j*dstep - 0.5);
          std::pair<double, double> pix_dir(pixel.proj().pix2sph(x, y));
-         astro::SkyDir my_dir(pix_dir.first, pix_dir.second, pixel.proj());
-         double offset(my_dir.difference(srcDir)*180./M_PI);
+         double offset(0);
+         if (galactic) {
+            astro::SkyDir my_dir(pix_dir.first, pix_dir.second,
+                                 astro::SkyDir::GALACTIC);
+            offset = my_dir.difference(srcDir)*180./M_PI;
+         } else {
+            astro::SkyDir my_dir(pix_dir.first, pix_dir.second,
+                                 astro::SkyDir::EQUATORIAL);
+            offset = my_dir.difference(srcDir)*180./M_PI;
+         }
          psf_value += meanPsf(energy, offset);
       }
    }
