@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.40 2013/08/26 22:55:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.41 2013/09/18 06:34:00 jchiang Exp $
  */
 
 #include <iostream>
@@ -72,7 +72,7 @@ private:
 
 st_app::StAppFactory<ModelMap> myAppFactory("gtmodel");
 
-std::string ModelMap::s_cvs_id("$Name:  $");
+std::string ModelMap::s_cvs_id("$Name: HEAD $");
 
 void ModelMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -94,7 +94,9 @@ void ModelMap::computeModelMap() {
    m_helper->setRoi(m_pars["srcmaps"], "", false);
    std::string cmapfile = m_pars["srcmaps"];
    m_dataMap = new Likelihood::CountsMap(cmapfile);
-   bool computePointSources, apply_psf_corrections;
+   bool computePointSources;
+   bool apply_psf_corrections = Likelihood::AppHelpers::param(m_pars, 
+                                                              "psfcorr", true);
    bool performConvolution = m_pars["convol"];
    bool resample = m_pars["resample"];
    int resamp_factor = m_pars["rfactor"];
@@ -103,7 +105,7 @@ void ModelMap::computeModelMap() {
                                                 m_helper->observation(),
                                                 cmapfile, 
                                                 computePointSources=true, 
-                                                apply_psf_corrections=true,
+                                                apply_psf_corrections,
                                                 performConvolution,
                                                 resample, rfactor);
    m_logLike->set_use_single_fixed_map(false);
