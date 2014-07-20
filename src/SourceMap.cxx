@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.106 2014/07/03 20:29:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.107 2014/07/06 00:11:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -312,7 +312,7 @@ void SourceMap::makePointSourceMap(Source * src,
       long icount(0);
       std::vector<double> mapCorrections(energies.size(), 1.);
       if (applyPsfCorrections &&
-          dataMap->withinBounds(dir, energies.at(energies.size()/2))) {
+          dataMap->withinBounds(dir, energies.at(energies.size()/2), 4)) {
             getMapCorrections(pointSrc, meanPsf, pixels, energies,
                               mapCorrections);
       }
@@ -500,13 +500,13 @@ psfValueEstimate(const MeanPsf & meanPsf, double energy,
    static double sqrt2(std::sqrt(2.));
    double pixel_value(0);
    double pixel_size(std::sqrt(pixelSolidAngle)*180./M_PI);
-   // if (pixel_size/2. >= offset) {
-   //    /// Average over an acceptance cone with the same solid angle
-   //    /// as the central pixel.
-   //    double radius(std::acos(1. - pixelSolidAngle/2./M_PI)*180./M_PI);
-   //    pixel_value = meanPsf.integral(radius, energy)/pixelSolidAngle;
-   if (offset < pixel_size/sqrt2) {
-      pixel_value = integrate_psf(meanPsf, energy, srcDir, pixel);
+   if (pixel_size/2. >= offset) {
+      /// Average over an acceptance cone with the same solid angle
+      /// as the central pixel.
+      double radius(std::acos(1. - pixelSolidAngle/2./M_PI)*180./M_PI);
+      pixel_value = meanPsf.integral(radius, energy)/pixelSolidAngle;
+   // if (offset < pixel_size/sqrt2) {
+   //    pixel_value = integrate_psf(meanPsf, energy, srcDir, pixel);
    } else {
       // Use integral over annulus with pixel_size width centered on
       // the offset angle to estimate average psf value within a pixel

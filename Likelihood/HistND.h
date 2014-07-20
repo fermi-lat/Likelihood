@@ -3,7 +3,7 @@
  * @brief N-dimensional histogram.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/HistND.h,v 1.4 2006/01/18 02:40:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/HistND.h,v 1.5 2010/04/26 17:11:00 jchiang Exp $
  */
 
 #ifndef Likelihood_HistND_h
@@ -46,7 +46,13 @@ public:
    virtual void fillBin(const std::vector<double> & values, 
                         double weight = 1.);
 
-   long binIndex(const std::vector<double> & values) const;
+   /// @return The unrolled index of the point in N-dimensional space
+   /// corresponding to the specified coordinates.  If the point is
+   /// outside the bounded volume (minus an border region in pixels),
+   /// return -1.
+   /// @param values N-dimensional coordinates (x, y, z,...)
+   /// @param border_size Border region to exclude in units of pixels.
+   long binIndex(const std::vector<double> & values, long border_size=0) const;
 
    long binIndex(const std::vector<long> & ivalues) const;
    

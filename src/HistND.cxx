@@ -49,7 +49,8 @@ void HistND::fillBin(const std::vector<double> & values, double weight) {
    }
 }
 
-long HistND::binIndex(const std::vector<double> & values) const {
+long HistND::binIndex(const std::vector<double> & values,
+                      long border_size) const {
    if (values.size() != m_ndims) {
       throw std::length_error("HistND::binIndex:\n"
                               "Size of values vector does match "
@@ -58,7 +59,8 @@ long HistND::binIndex(const std::vector<double> & values) const {
    std::vector<long> ivalues;
    for (unsigned int i = 0; i < values.size(); i++) {
       long bin_index = m_binners[i]->computeIndex(values[i]);
-      if (bin_index < 0) {
+      if (bin_index < border_size || 
+          bin_index >= m_binners[i]->getNumBins() - border_size) {
          return -1;
       } else {
          ivalues.push_back(bin_index);
