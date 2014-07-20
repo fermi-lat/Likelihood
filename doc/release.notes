@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.543 2014/07/06 00:12:43 jchiang Exp $
+    $Id: release.notes,v 1.544 2014/07/14 22:47:38 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-05-11 19-Jul-2014 jchiang roll-back central pixel subsampling for point source maps; add 4 pixel boundary for psf normalization correction
  Likelihood-18-05-10 14-Jul-2014 jchiang enable psfcorr option for gtmodel
  Likelihood-18-05-09 05-Jul-2014 jchiang work around for obscure bug in astro::SkyDir constructor using SkyProj object
  Likelihood-18-05-08 03-Jul-2014 jchiang possible fix for SourceMap psf sampling corner case
