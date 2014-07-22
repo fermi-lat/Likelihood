@@ -4,7 +4,7 @@
  *        FFTW library
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Convolve.cxx,v 1.3 2006/03/25 00:00:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Convolve.cxx,v 1.4 2013/09/04 05:30:45 jchiang Exp $
  */
 
 #include <iostream>
@@ -96,6 +96,8 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
    } else if (ny < nx) {
       ny = nx;
    }
+   nx*=2;
+   ny*=2;
    size_t npts = nx*ny;
 
    fftw_complex * in = ::complexArray(signal, true, nx, ny);
@@ -123,6 +125,7 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
    size_t indx;
    std::vector< std::vector<double> > output;
    output.reserve(ny);
+   
    for (size_t i = ny/2 - 1; i < ny; i++) {
       std::vector<double> local;
       for (size_t j = nx/2 - 1; j < nx; j++) {
