@@ -3,7 +3,7 @@
  * @brief Declaration for the FileFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.1 2005/10/21 20:22:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.2 2009/06/12 04:47:43 jchiang Exp $
  */
 
 #ifndef Likelihood_FileFunction_h
@@ -25,7 +25,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.1 2005/10/21 20:22:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.2 2009/06/12 04:47:43 jchiang Exp $
  */
     
 class FileFunction : public optimizers::Function {
@@ -48,6 +48,12 @@ public:
    const std::string & filename() const {
       return m_filename;
    }
+
+   void setSpectrum(const std::vector<double> & energy,
+                    const std::vector<double> & dnde);
+
+   const std::vector<double> & log_energy() const;
+   const std::vector<double> & log_dnde() const;
 
 protected:
 
