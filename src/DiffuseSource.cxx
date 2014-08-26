@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.62 2013/09/04 05:30:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.63 2014/04/22 04:56:38 jchiang Exp $
  */
 
 #include <algorithm>
@@ -30,7 +30,7 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
      m_spatialDist(spatialDist->clone()),
      m_mapBasedIntegral(mapBasedIntegral) {
    m_functions["SpatialDist"] = m_spatialDist;
-   m_useEdisp = observation.respFuncs().useEdisp();
+//   m_useEdisp = observation.respFuncs().useEdisp();
 
 // In order to compute exposure, RoiCuts and spacecraft data must be
 // available; furthermore, the ExposureMap object must have been
@@ -95,25 +95,25 @@ double DiffuseSource::fluxDensity(const Event & evt,
 				  CachedResponse* cResp) const {
    (void)(cResp);
    double my_fluxDensity;
-   if (m_useEdisp) {
-      const std::vector<double> & trueEnergies = evt.trueEnergies();
-      const std::vector<double> & diffuseResponses 
-         = evt.diffuseResponse(getName());
-      unsigned int npts(trueEnergies.size());
-      std::vector<double> my_integrand(npts);
-      for (unsigned int k = 0; k < npts; k++) {
-         optimizers::dArg energy_arg(trueEnergies[k]);
-         my_integrand[k] = (*m_spectrum)(energy_arg)*diffuseResponses[k];
-      }
-      bool useLog;
-      TrapQuad trapQuad(trueEnergies, my_integrand, useLog=true);
-      my_fluxDensity = trapQuad.integral();
-   } else {
+   // if (m_useEdisp) {
+   //    const std::vector<double> & trueEnergies = evt.trueEnergies();
+   //    const std::vector<double> & diffuseResponses 
+   //       = evt.diffuseResponse(getName());
+   //    unsigned int npts(trueEnergies.size());
+   //    std::vector<double> my_integrand(npts);
+   //    for (unsigned int k = 0; k < npts; k++) {
+   //       optimizers::dArg energy_arg(trueEnergies[k]);
+   //       my_integrand[k] = (*m_spectrum)(energy_arg)*diffuseResponses[k];
+   //    }
+   //    bool useLog;
+   //    TrapQuad trapQuad(trueEnergies, my_integrand, useLog=true);
+   //    my_fluxDensity = trapQuad.integral();
+   // } else {
       double trueEnergy = evt.getEnergy(); 
       optimizers::dArg energy_arg(trueEnergy);
       my_fluxDensity = (*m_spectrum)(energy_arg)
          *evt.diffuseResponse(trueEnergy, getName());
-   }
+   // }
    return my_fluxDensity;
 }
 
@@ -132,26 +132,26 @@ double DiffuseSource::fluxDensityDeriv(const Event &evt,
        (prefactor = m_spectrum->getParamValue("Prefactor")) != 0) {
       my_fluxDensityDeriv = fluxDensity(evt)/prefactor;
    } else {
-      if (m_useEdisp) {
-         const std::vector<double> & trueEnergies = evt.trueEnergies();
-         const std::vector<double> & diffuseResponses 
-            = evt.diffuseResponse(getName());
-         unsigned int npts(trueEnergies.size());
-         std::vector<double> my_integrand(npts);
-         for (unsigned int k = 0; k < npts; k++) {
-            optimizers::dArg energy_arg(trueEnergies[k]);
-            my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
-               *diffuseResponses[k];
-         }
-         bool useLog;
-         TrapQuad trapQuad(trueEnergies, my_integrand, useLog=true);
-         my_fluxDensityDeriv = trapQuad.integral();
-      } else {
+      // if (m_useEdisp) {
+      //    const std::vector<double> & trueEnergies = evt.trueEnergies();
+      //    const std::vector<double> & diffuseResponses 
+      //       = evt.diffuseResponse(getName());
+      //    unsigned int npts(trueEnergies.size());
+      //    std::vector<double> my_integrand(npts);
+      //    for (unsigned int k = 0; k < npts; k++) {
+      //       optimizers::dArg energy_arg(trueEnergies[k]);
+      //       my_integrand[k] = m_spectrum->derivByParam(energy_arg, paramName)
+      //          *diffuseResponses[k];
+      //    }
+      //    bool useLog;
+      //    TrapQuad trapQuad(trueEnergies, my_integrand, useLog=true);
+      //    my_fluxDensityDeriv = trapQuad.integral();
+      // } else {
          double trueEnergy = evt.getEnergy(); 
          optimizers::dArg energy_arg(trueEnergy);
          my_fluxDensityDeriv = m_spectrum->derivByParam(energy_arg, paramName)
             *evt.diffuseResponse(trueEnergy, getName());
-      }
+      // }
    }
    return my_fluxDensityDeriv;
 }
