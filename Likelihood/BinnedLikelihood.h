@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.71 2013/09/18 17:33:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.72 2014/04/08 16:43:00 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -172,7 +172,7 @@ public:
 
    void set_edisp_flag(bool use_edisp);
 
-   bool use_edisp() const;
+   bool use_edisp(const std::string & srcname="") const;
 
    void set_use_single_fixed_map(bool use_sfm);
    bool use_single_fixed_map() const;

@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.103 2013/02/11 21:08:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.104 2013/09/18 06:33:59 jchiang Exp $
  */
 
 #include <cmath>
@@ -391,7 +391,7 @@ updateModelMap(std::vector<float> & modelMap,
          size_t jmax(jmin + npix);
          double wt1(0);
          double wt2(0);
-         if (use_edisp()) {
+         if (use_edisp(name)) {
             if (m_true_counts[name][k] != 0) {
                double xi(m_meas_counts[name][k]
                          /m_true_counts[name][k]);
@@ -696,7 +696,7 @@ addSourceWts(std::vector<std::pair<double, double> > & modelWts,
       size_t jmin(m_filledPixels.at(j));
       size_t jmax(jmin + npix);
       size_t k(jmin/npix);
-      if (use_edisp()) {
+      if (use_edisp(srcName)) {
          if (m_true_counts[srcName][k] != 0) {
             double xi(m_meas_counts[srcName][k]/m_true_counts[srcName][k]);
             modelWts[j].first += my_sign*model[jmin]*spec[k]*xi;
@@ -920,7 +920,7 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
       true_counts_spec.push_back(my_value);
    }
    std::vector<double> meas_counts_spec;
-   if (use_edisp()) {
+   if (use_edisp(srcName)) {
       std::vector<optimizers::Parameter> pars;
       src->spectrum().getFreeParams(pars);
       const_cast<BinnedLikelihood *>(this)
@@ -937,7 +937,7 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
       if (k < m_kmin || k > m_kmax-1) {
          continue;
       }
-      if (use_edisp()) {
+      if (use_edisp(srcName)) {
          value += meas_counts_spec[k];
       } else {
          value += true_counts_spec[k];
@@ -1047,8 +1047,19 @@ void BinnedLikelihood::set_edisp_flag(bool use_edisp) {
    m_use_edisp = use_edisp;
 }
 
-bool BinnedLikelihood::use_edisp() const {
-   return (m_use_edisp || ::getenv("USE_BL_EDISP"));
+bool BinnedLikelihood::use_edisp(const std::string & srcname) const {
+   bool use_src_edisp(m_use_edisp);
+   if (srcname != "") {
+      /// Determine from Source if it already accounts for convolution
+      /// with the energy dispersion, e.g., for Galactic diffuse
+      /// background models.
+      const std::map<std::string, Source *>::const_iterator 
+         & it(m_sources.find(srcname));
+      if (it != m_sources.end()) {
+         use_src_edisp = it->second->use_edisp();
+      }
+   }
+   return ( (m_use_edisp || ::getenv("USE_BL_EDISP")) && use_src_edisp );
 }
 
 void BinnedLikelihood::set_use_single_fixed_map(bool use_sfm) {

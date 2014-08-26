@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Source.h,v 1.49 2012/06/27 20:31:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.50 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -190,6 +190,14 @@ public:
 
    void setObservation(const Observation * observation) {
       m_observation = observation;
+   }
+
+   bool use_edisp() const {
+      return m_useEdisp;
+   }
+
+   void set_edisp_flag(bool useEdisp) {
+      m_useEdisp = useEdisp;
    }
 
 protected:
