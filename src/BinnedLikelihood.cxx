@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.104 2013/09/18 06:33:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.105 2014/08/26 04:35:53 jchiang Exp $
  */
 
 #include <cmath>
@@ -524,11 +524,24 @@ void BinnedLikelihood::addFixedSource(const std::string & srcName) {
    }
    m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
    addSourceWts(m_fixedModelWts, srcName, srcMap);
-   for (size_t k(0); k < m_energies.size(); k++) {
+   double xi(1);
+   for (size_t k(0); k < m_energies.size()-1; k++) {
       optimizers::dArg ee(m_energies[k]);
-      m_fixedNpreds[k] += (srcIt->second->spectrum()(ee)*
-                           srcMap->npreds()[k]);
+      if (use_edisp(srcName)) {
+         if (m_true_counts[srcName][k] != 0) {
+            xi = m_meas_counts[srcName][k]/m_true_counts[srcName][k];
+         } else {
+            xi = 1;
+         }
+      }
+      m_fixedNpreds[k] += xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
    }
+   // For last bin edge, use xi value from penultimate edge
+   size_t kk(m_energies.size()-1);
+   optimizers::dArg ee(m_energies[kk]);
+   m_fixedNpreds[kk] += xi*(srcIt->second->spectrum()(ee)*
+                            srcMap->npreds()[kk]);
+
    // Remove this source from the stored source maps to save memory
    if (srcMapIt != m_srcMaps.end()) {
       m_srcMaps.erase(srcName);
@@ -560,11 +573,23 @@ void BinnedLikelihood::deleteFixedSource(const std::string & srcName) {
    m_srcMaps[srcName] = srcMap;
 
    // Subtract the contribution to the summed Npred spectrum.
+   double xi(1);
    for (size_t k(0); k < m_energies.size(); k++) {
       optimizers::dArg ee(m_energies[k]);
-      m_fixedNpreds[k] -= srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
-                           
+      if (use_edisp(srcName)) {
+         if (m_true_counts[srcName][k] != 0) {
+            xi = m_meas_counts[srcName][k]/m_true_counts[srcName][k];
+         } else {
+            xi = 1;
+         }
+      }
+      m_fixedNpreds[k] -= xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
    }
+   // For last bin edge, use xi value from penultimate edge
+   size_t kk(m_energies.size()-1);
+   optimizers::dArg ee(m_energies[kk]);
+   m_fixedNpreds[kk] -= xi*(srcIt->second->spectrum()(ee)*
+                            srcMap->npreds()[kk]);
 
    // Subtract the source weights from the summed fixed model weights.
    bool subtract;
@@ -713,9 +738,9 @@ addSourceWts(std::vector<std::pair<double, double> > & modelWts,
                modelWts[j].first += (my_sign*model[jref]*spec[kref]
                                      /m_true_counts[srcName][kref]
                                      *m_meas_counts[srcName][k]);
-               modelWts[j].first += (my_sign*model[jref+npix]*spec[kref+1]
-                                     /m_true_counts[srcName][kref]
-                                     *m_meas_counts[srcName][k]);
+               modelWts[j].second += (my_sign*model[jref+npix]*spec[kref+1]
+                                      /m_true_counts[srcName][kref]
+                                      *m_meas_counts[srcName][k]);
             }
          }
       } else {
@@ -1021,17 +1046,11 @@ const std::vector<double> & BinnedLikelihood::fixedModelSpectrum() const {
 }
 
 void BinnedLikelihood::computeFixedCountsSpectrum() {
-   std::vector<double> true_spectrum;
+   m_fixed_counts_spec.clear();
    for (size_t k(0); k < m_energies.size()-1; k++) {
-      true_spectrum.push_back(pixelCounts(m_energies[k], m_energies[k+1],
-                                           m_fixedNpreds[k],
-                                           m_fixedNpreds[k+1]));
-   }
-   if (use_edisp()) {
-      m_fixed_counts_spec.resize(m_energies.size()-1);
-      drm().convolve(true_spectrum, m_fixed_counts_spec);
-   } else {
-      m_fixed_counts_spec = true_spectrum;
+      m_fixed_counts_spec.push_back(pixelCounts(m_energies[k], m_energies[k+1],
+                                                m_fixedNpreds[k],
+                                                m_fixedNpreds[k+1]));
    }
 }
 
