@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.546 2014/08/08 16:26:26 jchiang Exp $
+    $Id: release.notes,v 1.547 2014/08/26 04:37:07 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-06-01 27-Aug-2014 jchiang update fixed counts spectrum calculation in BinnedLikelihood.cxx
  Likelihood-18-06-00 25-Aug-2014 jchiang allow users to disable application of energy dispersion for specified sources via xml definition
  Likelihood-18-05-12 08-Aug-2014 jchiang add programmatic access to FileFunction arrays
  Likelihood-18-05-11 19-Jul-2014 jchiang roll-back central pixel subsampling for point source maps; add 4 pixel boundary for psf normalization correction
