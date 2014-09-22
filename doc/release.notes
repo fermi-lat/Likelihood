@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.547 2014/08/26 04:37:07 jchiang Exp $
+    $Id: release.notes,v 1.548 2014/08/27 22:31:05 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-06-02 22-Sep-2014 jchiang handle extremely small values of true model counts that cause floating point error in Drm calculation
  Likelihood-18-06-01 27-Aug-2014 jchiang update fixed counts spectrum calculation in BinnedLikelihood.cxx
  Likelihood-18-06-00 25-Aug-2014 jchiang allow users to disable application of energy dispersion for specified sources via xml definition
  Likelihood-18-05-12 08-Aug-2014 jchiang add programmatic access to FileFunction arrays
