@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.41 2013/09/18 06:34:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.42 2014/07/14 22:46:18 jchiang Exp $
  */
 
 #include <iostream>
@@ -72,7 +72,7 @@ private:
 
 st_app::StAppFactory<ModelMap> myAppFactory("gtmodel");
 
-std::string ModelMap::s_cvs_id("$Name: HEAD $");
+std::string ModelMap::s_cvs_id("$Name:  $");
 
 void ModelMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -108,6 +108,8 @@ void ModelMap::computeModelMap() {
                                                 apply_psf_corrections,
                                                 performConvolution,
                                                 resample, rfactor);
+   bool edisp = m_pars["edisp"];
+   m_logLike->set_edisp_flag(edisp);
    m_logLike->set_use_single_fixed_map(false);
 
    std::vector<float> ext_model_map;
