@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.548 2014/08/27 22:31:05 jchiang Exp $
+    $Id: release.notes,v 1.549 2014/09/22 21:13:36 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-18-07-00 01-Oct-2014 jchiang add energy dispersion handling to gtmodel
  Likelihood-18-06-02 22-Sep-2014 jchiang handle extremely small values of true model counts that cause floating point error in Drm calculation
  Likelihood-18-06-01 27-Aug-2014 jchiang update fixed counts spectrum calculation in BinnedLikelihood.cxx
  Likelihood-18-06-00 25-Aug-2014 jchiang allow users to disable application of energy dispersion for specified sources via xml definition
