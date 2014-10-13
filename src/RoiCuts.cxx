@@ -4,7 +4,7 @@
  * the Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RoiCuts.cxx,v 1.56 2013/08/26 22:55:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.57 2013/09/17 18:39:30 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -21,7 +21,6 @@
 #include "dataSubselector/Gti.h"
 #include "dataSubselector/RangeCut.h"
 
-#include "Likelihood/Exception.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/RoiCuts.h"
 

@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.15 2012/10/02 17:50:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.16 2013/09/04 05:30:45 jchiang Exp $
  */
 
 #include <cmath>
@@ -448,8 +448,8 @@ double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
       k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
          - m_energies.begin() - 1;
       /// Extrapolate beyond highest energy.  This will only occur if
-      /// m_enforceEnergyRange == true.
-      if (k > m_energies.size() - 2) {
+      /// m_enforceEnergyRange == false.
+      if (k > static_cast<int>(m_energies.size() - 2)) {
          k = m_energies.size() - 2;
          m_extrapolated += 1;
       }
