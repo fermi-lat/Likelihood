@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.110 2013/11/13 07:12:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.112 2014/03/04 21:52:19 cohen Exp $
  */
 
 #include <cmath>
@@ -24,6 +24,7 @@
 
 #include "evtbin/Gti.h"
 
+#include "dataSubselector/BitMaskCut.h"
 #include "dataSubselector/CutBase.h"
 #include "dataSubselector/Cuts.h"
 
@@ -428,7 +429,7 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       std::string respFuncs = responseFuncs(files.front(), "DC2");
       m_respFuncs->load(respFuncs, "DC2");
    } else {
-      std::vector<size_t> selectedEvtTypes;
+      std::vector<unsigned int> selectedEvtTypes;
       try {
          getSelectedEvtTypes(files.front(), extname, selectedEvtTypes);
       } catch (tip::TipException & eObj) {
@@ -454,43 +455,28 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
 void AppHelpers::
 getSelectedEvtTypes(const std::string & evfile,
                     const std::string & extname,
-                    std::vector<size_t> & selectedEvtTypes) {
+                    std::vector<unsigned int> & selectedEvtTypes) {
    selectedEvtTypes.clear();
    dataSubselector::Cuts my_cuts(evfile, extname, false);
 
-   std::vector<size_t> convtypes;
-   std::vector<size_t> eventclasses;
+   // Set the default event_type mask corresponding to FRONT/BACK
+   // selections.
+   unsigned long evtype_bit_mask(3);
+   // Find the event_type BitMaskCut, if it exists, and get mask.
    for (size_t i(0); i < my_cuts.size(); i++) {
-      if (my_cuts[i].type() == "range") {
-         dataSubselector::RangeCut & rangeCut
-            = dynamic_cast<dataSubselector::RangeCut &>
-            (const_cast<dataSubselector::CutBase &>(my_cuts[i]));
-         // if (rangeCut.colname() == "EVENT_CLASS") {
-         //    for (size_t j(static_cast<size_t>(rangeCut.minVal())); 
-         //         j < static_cast<size_t>(rangeCut.maxVal()+1); j++) {
-         //       eventclasses.push_back(j);
-         //    }
-         // }
-         if (rangeCut.colname() == "CONVERSION_TYPE") {
-            convtypes.push_back(static_cast<size_t>(rangeCut.minVal()));
+      if (my_cuts[i].type() == "bit_mask") {
+         const dataSubselector::BitMaskCut & event_type_cut
+            = dynamic_cast<const dataSubselector::BitMaskCut &>(my_cuts[i]);
+         if (event_type_cut.colname() == "EVENT_TYPE") {
+            evtype_bit_mask = event_type_cut.bitPosition();
          }
       }
    }
-// No DSS selections on EVENT_CLASS or CONVERSION_TYPE, so get everything.
-   if (eventclasses.empty()) {
-      for (size_t i(0); i < 11; i++) {
-         eventclasses.push_back(i);
-      }
-   }
-   if (convtypes.empty()) {
-      convtypes.push_back(0);
-      convtypes.push_back(1);
-   }
-   std::vector<size_t>::const_iterator ec(eventclasses.begin());
-   for ( ; ec != eventclasses.end(); ++ec) {
-      std::vector<size_t>::const_iterator ct(convtypes.begin());
-      for ( ; ct != convtypes.end(); ++ct) {
-         selectedEvtTypes.push_back((*ec)*2 + *ct);
+   // Test each bit in the mask and save non-zero positions, which
+   // correspond to the selected event_types.
+   for (size_t j(0); j < 32; j++) {
+      if ((evtype_bit_mask & (1 << j)) != 0) {
+         selectedEvtTypes.push_back(j);
       }
    }
 }

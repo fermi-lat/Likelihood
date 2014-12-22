@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ResponseFunctions.cxx,v 1.36 2013/01/09 00:44:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.37 2014/01/28 00:08:47 jchiang Exp $
  */
 
 #include <algorithm>
@@ -101,7 +101,7 @@ irfInterface::Irfs * ResponseFunctions::respPtr(unsigned int i) const {
 
 void ResponseFunctions::load(const std::string & respFuncs,
                              const std::string & respBase,
-                             const std::vector<size_t> & evtTypes) {
+                             const std::vector<unsigned int> & evtTypes) {
    irfLoader::Loader_go();
 
    irfInterface::IrfsFactory * myFactory(irfInterface::IrfsFactory::instance());
@@ -116,7 +116,7 @@ void ResponseFunctions::load(const std::string & respFuncs,
          size_t irfId(irfs->irfID());
          if (evtTypes.empty() ||
              std::count(evtTypes.begin(), evtTypes.end(), irfId) > 0) {
-            addRespPtr(irfs->irfID(), irfs);
+            addRespPtr(irfId, irfs);
          } else {
             delete irfs;
          }

@@ -3,7 +3,7 @@
  * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ResponseFunctions.h,v 1.25 2011/10/18 04:56:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.26 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -113,7 +113,7 @@ public:
    }
 
    void load(const std::string & respFuncs, const std::string & respBase="",
-             const std::vector<size_t> &selectedEvtTypes=std::vector<size_t>());
+             const std::vector<unsigned int> & evtTypes=std::vector<unsigned int>());
 
    irfInterface::IEdisp & edisp(int type) const;
 

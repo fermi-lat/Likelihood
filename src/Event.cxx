@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.83 2012/01/18 00:08:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.84 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <cctype>
@@ -35,7 +35,7 @@
 #include "LogNormalMuDist.h"
 
 namespace {
-   std::string strip_front_back(std::string respName) {
+   std::string strip_evtype_qualifier(std::string respName) {
 // Strip off ::FRONT or ::BACK qualifiers.
       size_t pos(respName.find("::"));
       if (pos != std::string::npos) {
@@ -430,7 +430,7 @@ const std::string & Event::diffuseSrcName(const std::string & srcName) const {
    std::map<std::string, std::string>::iterator it =
       m_diffSrcNames.find(srcName);
    if (it == m_diffSrcNames.end()) {
-      std::string name(::strip_front_back(m_respName) + "__" + srcName);
+      std::string name(::strip_evtype_qualifier(m_respName) + "__" + srcName);
       toLower(name);
       m_diffSrcNames[srcName] = name;
       return m_diffSrcNames[srcName];
