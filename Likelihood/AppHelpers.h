@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/AppHelpers.h,v 1.38 2013/08/26 22:55:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.39 2013/11/13 07:12:21 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -137,7 +137,7 @@ public:
 
    static void getSelectedEvtTypes(const std::string & evfile,
                                    const std::string & extname,
-                                   std::vector<size_t> & selectedEvtTypes);
+                                   std::vector<unsigned int> &selectedEvtTypes);
 
    static void addFunctionPrototypes(optimizers::FunctionFactory * funcFactory);
 
