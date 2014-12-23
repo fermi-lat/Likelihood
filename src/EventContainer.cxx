@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.30 2014/08/26 04:35:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.31 2014/12/22 06:29:13 jchiang Exp $
  */
 
 #include <cmath>
@@ -63,19 +63,12 @@ void EventContainer::getEvents(std::string event_file,
    unsigned int event_type_mask(3);  // Default mask of FRONT/BACK bits.
    for (size_t i(0); i < bit_mask_cuts.size(); i++) {
       if (bit_mask_cuts[i]->colname() == "EVENT_TYPE") {
-         event_type_mask = bit_mask_cuts[i]->bitPosition();
+         event_type_mask = bit_mask_cuts[i]->mask();
       }
       delete bit_mask_cuts[i];
    }
 
-   int evclsver(0); // version of event class definition
-
    tip::Header & header(events->getHeader());
-   try {
-      header["EVCLSVER"].get(evclsver);
-   } catch(tip::TipException) {
-      // keyword missing so use default value
-   }
    std::string pass_ver;
    try {
       header["PASS_VER"].get(pass_ver);
@@ -130,15 +123,14 @@ void EventContainer::getEvents(std::string event_file,
       } else {
          event["event_class"].get(eventClass);
       }
-      if (evclsver == 0) {
-         eventType = conversionType;
-      } else {
-         //eventType = conversionType + 2*eventClass;
+      try {
          tip::BitStruct event_type;
          event["event_type"].get(event_type);
          eventType = event_type;
          eventType = static_cast<int>(std::log(eventType & event_type_mask)
                                       /std::log(2));
+      } catch(tip::TipException &) {
+         eventType = conversionType;
       }
       const irfInterface::IEfficiencyFactor * eff_factor =
          m_respFuncs.respPtr(eventType)->efficiencyFactor();
