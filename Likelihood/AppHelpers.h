@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.39 2013/11/13 07:12:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.40 2014/12/22 06:29:12 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -135,9 +135,14 @@ public:
    static std::string responseFuncs(const std::string & file,
                                     const std::string & respBase);
 
+   /// @param evtype_bit_mask The default value of three indicates
+   ///        that Front/Back selections should be used.  This will be
+   ///        over-ridden if the EVENT_TYPE bit mask cut exists in the
+   ///        DSS keywords of evfile[extname].
    static void getSelectedEvtTypes(const std::string & evfile,
                                    const std::string & extname,
-                                   std::vector<unsigned int> &selectedEvtTypes);
+                                   std::vector<unsigned int> & selectedEvtTypes,
+                                   unsigned int evtype_bit_mask=3);
 
    static void addFunctionPrototypes(optimizers::FunctionFactory * funcFactory);
 
@@ -170,6 +175,10 @@ protected:
 
    void prepareFunctionFactory();
    void createResponseFuncs(const std::string & analysisType);
+
+   static void getSelectedEvtTypes(const dataSubselector::Cuts & cuts,
+                                   std::vector<unsigned int> & selectedEvtTypes,
+                                   unsigned int evtype_bit_mask=3);
 
    static bool checkCuts(const dataSubselector::Cuts & cuts1,
                          const dataSubselector::Cuts & cuts2,

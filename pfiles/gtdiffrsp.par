@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtdiffrsp.par,v 1.12 2011/08/10 16:06:36 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtdiffrsp.par,v 1.13 2013/08/26 22:55:32 jchiang Exp $
 #
 evfile,f,a,"",,,"Event data file"
 evtable,s,h,"EVENTS",,,"Event data extension"
@@ -9,6 +9,7 @@ srcmdl,fr,a,"",,,"Source model file"
 irfs,s,a,"CALDB",,,"Response functions to use"
 evclsmin,i,h,0,,,"Minimum event class level"
 evclass,i,h,INDEF,,,"Target class level"
+evtype,i,h,INDEF,,,"Event type selections"
 convert,b,h,no,,,"convert header to new diffrsp format?"
 
 chatter,i,h,2,0,4,Output verbosity
