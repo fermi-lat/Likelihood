@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.113 2014/12/22 06:29:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.114 2014/12/23 05:42:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -382,14 +382,13 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
    }
    std::vector<std::string> files;
    st_facilities::Util::resolve_fits_files(evfile, files);
+   dataSubselector::Cuts * my_cuts(0);
    if (respBase == "CALDB") {
       // Determine irfs from $CALDB/bcf/irf_index.fits file, using
       // most recent version.
-      dataSubselector::Cuts * my_cuts(0);
       try {
          my_cuts = new dataSubselector::Cuts::Cuts(files.at(0), extname,
                                                    false, true, true);
-         respBase = my_cuts->CALDB_implied_irfs();
       } catch (std::runtime_error & eObj) {
          if (st_facilities::Util::expectedException(eObj, 
                                                     "No bitmask cut in")) {
@@ -407,9 +406,22 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
          }
          my_cuts = new dataSubselector::Cuts::Cuts(evfile, "",
                                                    false, true, true);
-         respBase = my_cuts->CALDB_implied_irfs();
       }
-      delete my_cuts;
+      // If the pars["evtype"] option is available and specified (i.e., not
+      // INDEF) and if my_cuts does not already have one, add an EVENT_TYPE
+      // bit-mask cut with the provided value.
+      dataSubselector::BitMaskCut * evtype_cut(0);
+      if (!(evtype_cut = my_cuts->bitMaskCut("EVENT_TYPE"))) {
+         try {
+            unsigned int evtype = pars["evtype"];
+            my_cuts->addBitMaskCut("EVENT_TYPE", evtype, my_cuts->pass_ver());
+         } catch (hoops::Hexception &) {
+            /// Do nothing.
+         }
+      } else {
+         delete evtype_cut;
+      }
+      respBase = my_cuts->CALDB_implied_irfs();
    }
    // Check that requested irfs match those in the upstream files.
    try {
@@ -430,43 +442,33 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       m_respFuncs->load(respFuncs, "DC2");
    } else {
       std::vector<unsigned int> selectedEvtTypes;
-      try {
-         getSelectedEvtTypes(files.front(), extname, selectedEvtTypes);
-      } catch (tip::TipException & eObj) {
-         if (st_facilities::Util::expectedException(eObj, 
-                                                    "Cannot read keyword")) {
-            // This will occur for legacy bexpmap files.
-            try {
-               // Use counts or source maps file since they will have the bit
-               // mask cut that will be used to infer the event types.
-               getSelectedEvtTypes(pars["cmap"], "", selectedEvtTypes);
-            } catch (hoops::Hexception &) {
-               getSelectedEvtTypes(pars["srcmaps"], "", selectedEvtTypes);
-            }
-         } else {
-            throw;
-         }
-      }
+      getSelectedEvtTypes(*my_cuts, selectedEvtTypes);
       m_respFuncs->load(respBase, "", selectedEvtTypes);
    }
    m_irfsName = respBase;
+   delete my_cuts;
 }
 
 void AppHelpers::
 getSelectedEvtTypes(const std::string & evfile,
                     const std::string & extname,
-                    std::vector<unsigned int> & selectedEvtTypes) {
-   selectedEvtTypes.clear();
+                    std::vector<unsigned int> & selectedEvtTypes,
+                    unsigned int evtype_bit_mask) {
    dataSubselector::Cuts my_cuts(evfile, extname, false);
+   getSelectedEvtTypes(my_cuts, selectedEvtTypes, evtype_bit_mask);
+}
 
-   // Set the default event_type mask corresponding to FRONT/BACK
-   // selections.
-   unsigned int evtype_bit_mask(3);
+void AppHelpers::
+getSelectedEvtTypes(const dataSubselector::Cuts & cuts,
+                    std::vector<unsigned int> & selectedEvtTypes,
+                    unsigned int evtype_bit_mask) {
+   selectedEvtTypes.clear();
+
    // Find the event_type BitMaskCut, if it exists, and get mask.
-   for (size_t i(0); i < my_cuts.size(); i++) {
-      if (my_cuts[i].type() == "bit_mask") {
+   for (size_t i(0); i < cuts.size(); i++) {
+      if (cuts[i].type() == "bit_mask") {
          const dataSubselector::BitMaskCut & event_type_cut
-            = dynamic_cast<const dataSubselector::BitMaskCut &>(my_cuts[i]);
+            = dynamic_cast<const dataSubselector::BitMaskCut &>(cuts[i]);
          if (event_type_cut.colname() == "EVENT_TYPE") {
             evtype_bit_mask = event_type_cut.mask();
          }

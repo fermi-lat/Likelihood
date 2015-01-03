@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.31 2014/12/22 06:29:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.32 2014/12/23 05:42:29 jchiang Exp $
  */
 
 #include <cmath>
@@ -47,7 +47,8 @@ EventContainer::~EventContainer() {
 }
 
 void EventContainer::getEvents(std::string event_file, 
-                               bool apply_roi_cut) {
+                               bool apply_roi_cut,
+                               unsigned int event_type_mask) {
 
    facilities::Util::expandEnvVar(&event_file);
 
@@ -60,7 +61,6 @@ void EventContainer::getEvents(std::string event_file,
 
    dataSubselector::Cuts cuts(event_file, "EVENTS");
    std::vector<dataSubselector::BitMaskCut *> bit_mask_cuts(cuts.bitMaskCuts());
-   unsigned int event_type_mask(3);  // Default mask of FRONT/BACK bits.
    for (size_t i(0); i < bit_mask_cuts.size(); i++) {
       if (bit_mask_cuts[i]->colname() == "EVENT_TYPE") {
          event_type_mask = bit_mask_cuts[i]->mask();
