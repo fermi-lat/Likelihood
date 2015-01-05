@@ -1,10 +1,11 @@
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtexpcube2.par,v 1.9 2011/08/10 16:06:36 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtexpcube2.par,v 1.10 2013/08/26 22:55:32 jchiang Exp $
 #
 # General parameters.
 infile,f,a,"",,,"Livetime cube file"
 cmap,f,a,"",,,"Counts map file"
 outfile,f,a,"",,,"Output file name"
 irfs,s,a,"CALDB",,,"Response functions to use"
+evtype,i,h,INDEF,,,"Event type selection"
 
 # Parameters for user-defined map.
 nxpix,i,a,360,,,"Size of the X axis in pixels"

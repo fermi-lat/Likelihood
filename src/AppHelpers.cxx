@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.114 2014/12/23 05:42:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.115 2015/01/03 18:30:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -336,6 +336,11 @@ void AppHelpers::readExposureMap() {
 }
 
 void AppHelpers::createResponseFuncs(const std::string & analysisType) {
+   // Infer the response functions to use as specified by event_class
+   // and event_type selections in the input ft1, cmap, srcmaps, or
+   // bexpmap files or from the gt-tool pars.  Do this via a
+   // dataSubselector::Cuts object and its CALDB_implied_irfs() member
+   // function.
    st_stream::StreamFormatter formatter("AppHelpers", 
                                         "createResponseFuncs", 2);
    m_respFuncs = new ResponseFunctions();
@@ -343,6 +348,7 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
    std::string respBase = pars["irfs"];
    std::string evfile;
    std::string extname;
+   dataSubselector::Cuts * my_cuts(0);
    if (analysisType == "UNBINNED") {
       try {
          std::string myfile = pars["expmap"];
@@ -370,42 +376,34 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       }
       extname = "";
    } else {
-      // Running gtexpcube2.
+      // Running gtexpcube2 without a cmap file.
       if (respBase == "CALDB") {
          throw std::runtime_error("A valid set of irfs must be explicitly "
                                   "specified when running this tool in "
                                   "this mode.");
       }
+      // my_cuts = new dataSubselector::Cuts();
+      // my_cuts.addBitMaskCut();
       m_respFuncs->load(respBase);
       m_irfsName = respBase;
       return;
    }
    std::vector<std::string> files;
    st_facilities::Util::resolve_fits_files(evfile, files);
-   dataSubselector::Cuts * my_cuts(0);
    if (respBase == "CALDB") {
-      // Determine irfs from $CALDB/bcf/irf_index.fits file, using
-      // most recent version.
-      try {
-         my_cuts = new dataSubselector::Cuts::Cuts(files.at(0), extname,
-                                                   false, true, true);
-      } catch (std::runtime_error & eObj) {
-         if (st_facilities::Util::expectedException(eObj, 
-                                                    "No bitmask cut in")) {
-            try {
-               // Use counts or source maps file since they will have the bit
-               // mask cut that will be used to infer the irfs.
-               std::string myfile = pars["cmap"];
-               evfile = myfile;
-            } catch (hoops::Hexception &) {
-               std::string myfile = pars["srcmaps"];
-               evfile = myfile;
-            }
-         } else {
-            throw;
+      my_cuts = new dataSubselector::Cuts(files.at(0), extname,
+                                          false, true, true);
+      dataSubselector::BitMaskCut * evclass_cut(0);
+      if (!(evclass_cut = my_cuts->bitMaskCut("EVENT_CLASS"))) {
+         delete my_cuts;
+         try {
+            std::string myfile = pars["cmap"];
+            evfile = myfile;
+         } catch (hoops::Hexception &) {
+            std::string myfile = pars["srcmaps"];
+            evfile = myfile;
          }
-         my_cuts = new dataSubselector::Cuts::Cuts(evfile, "",
-                                                   false, true, true);
+         my_cuts = new dataSubselector::Cuts(evfile, "", false, true, true);
       }
       // If the pars["evtype"] option is available and specified (i.e., not
       // INDEF) and if my_cuts does not already have one, add an EVENT_TYPE
@@ -442,7 +440,9 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       m_respFuncs->load(respFuncs, "DC2");
    } else {
       std::vector<unsigned int> selectedEvtTypes;
-      getSelectedEvtTypes(*my_cuts, selectedEvtTypes);
+      if (my_cuts) {
+         getSelectedEvtTypes(*my_cuts, selectedEvtTypes);
+      }
       m_respFuncs->load(respBase, "", selectedEvtTypes);
    }
    m_irfsName = respBase;
