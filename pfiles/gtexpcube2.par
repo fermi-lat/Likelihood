@@ -1,26 +1,25 @@
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtexpcube2.par,v 1.10 2013/08/26 22:55:32 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtexpcube2.par,v 1.11 2015/01/05 22:02:29 jchiang Exp $
 #
 # General parameters.
 infile,f,a,"",,,"Livetime cube file"
 cmap,f,a,"",,,"Counts map file"
 outfile,f,a,"",,,"Output file name"
 irfs,s,a,"CALDB",,,"Response functions to use"
-evtype,i,h,INDEF,,,"Event type selection"
 
 # Parameters for user-defined map.
-nxpix,i,a,360,,,"Size of the X axis in pixels"
-nypix,i,a,180,,,"Size of the Y axis in pixels"
-binsz,r,a,1,,,"Image scale (in degrees/pixel)"
-coordsys,s,a,GAL,CEL|GAL,,"Coordinate system (CEL - celestial, GAL -galactic)"
-xref,r,a,0,,,"First coordinate of image center in degrees (RA or galactic l)"
-yref,r,a,0,,,"Second coordinate of image center in degrees (DEC or galactic b)"
-axisrot,r,a,0.,,,"Rotation angle of image axis, in degrees"
-proj,s,a,"CAR",,,"Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN"
+nxpix,i,h,INDEF,,,"Size of the X axis in pixels"
+nypix,i,h,INDEF,,,"Size of the Y axis in pixels"
+binsz,r,h,INDEF,,,"Image scale (in degrees/pixel)"
+coordsys,s,h,GAL,CEL|GAL,,"Coordinate system (CEL - celestial, GAL -galactic)"
+xref,r,h,INDEF,,,"First coordinate of image center in degrees (RA or galactic l)"
+yref,r,h,INDEF,,,"Second coordinate of image center in degrees (DEC or galactic b)"
+axisrot,r,h,0.,,,"Rotation angle of image axis, in degrees"
+proj,s,h,"CAR",,,"Projection method e.g. AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN"
 ebinalg,s,h,LOG,LOG|FILE,,"Algorithm for defining energy bins"
-emin,r,a,100,,,"Start energy (MeV) of first bin"
-emax,r,a,3e5,,,"Stop energy (MeV) of last bin"
-enumbins,i,a,10,,,"Number of logarithmically-spaced energy bins"
-ebinfile,s,a,NONE,,,"Name of FITS file containing the energy bin definition"
+emin,r,h,INDEF,,,"Start energy (MeV) of first bin"
+emax,r,h,INDEF,,,"Stop energy (MeV) of last bin"
+enumbins,i,h,INDEF,,,"Number of logarithmically-spaced energy bins"
+ebinfile,s,h,NONE,,,"Name of FITS file containing the energy bin definition"
 
 # Hidden parameters.
 bincalc,s,h,"EDGE",EDGE|CENTER,,"Energy values as bounds or logrithmic centers of energy bins"

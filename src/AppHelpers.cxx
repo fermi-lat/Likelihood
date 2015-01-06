@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.115 2015/01/03 18:30:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.116 2015/01/05 22:02:30 jchiang Exp $
  */
 
 #include <cmath>
@@ -351,8 +351,8 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
    dataSubselector::Cuts * my_cuts(0);
    if (analysisType == "UNBINNED") {
       try {
-         std::string myfile = pars["expmap"];
-         evfile = myfile;
+         std::string my_file = pars["expmap"];
+         evfile = my_file;
          extname = "PRIMARY";
       } catch (hoops::Hexception & eObj) {
          evfile = "none";
@@ -361,32 +361,20 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       // Need to explicitly test for evfile=="none", since
       // that is a possible value for expmap.
       if (evfile == "none") {
-         std::string alt_file = pars["evfile"];
-         evfile = alt_file;
+         std::string my_file = pars["evfile"];
+         evfile = my_file;
          extname = "EVENTS";
       }
    } else if (analysisType == "BINNED") {
       try {
-         std::string myfile = pars["bexpmap"];
-         evfile = myfile;
+         std::string my_file = pars["bexpmap"];
+         evfile = my_file;
       } catch (hoops::Hexception &) {
          // Must be running gtexpcube2.
-         std::string myfile = pars["cmap"];
-         evfile = myfile;
+         std::string my_file = pars["cmap"];
+         evfile = my_file;
       }
       extname = "";
-   } else {
-      // Running gtexpcube2 without a cmap file.
-      if (respBase == "CALDB") {
-         throw std::runtime_error("A valid set of irfs must be explicitly "
-                                  "specified when running this tool in "
-                                  "this mode.");
-      }
-      // my_cuts = new dataSubselector::Cuts();
-      // my_cuts.addBitMaskCut();
-      m_respFuncs->load(respBase);
-      m_irfsName = respBase;
-      return;
    }
    std::vector<std::string> files;
    st_facilities::Util::resolve_fits_files(evfile, files);
@@ -395,13 +383,17 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
                                           false, true, true);
       dataSubselector::BitMaskCut * evclass_cut(0);
       if (!(evclass_cut = my_cuts->bitMaskCut("EVENT_CLASS"))) {
+         // The binned expposure map may not have DSS keywords
+         // specifying an event class cut. If so, look in the cmap
+         // file or the srcmaps file.
          delete my_cuts;
          try {
-            std::string myfile = pars["cmap"];
-            evfile = myfile;
+            std::string my_file = pars["cmap"];
+            evfile = my_file;
          } catch (hoops::Hexception &) {
-            std::string myfile = pars["srcmaps"];
-            evfile = myfile;
+            // Running gtmodel
+            std::string my_file = pars["srcmaps"];
+            evfile = my_file;
          }
          my_cuts = new dataSubselector::Cuts(evfile, "", false, true, true);
       }
@@ -435,17 +427,15 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       }
    }
 
-   if (respBase == "DSS") {
-      std::string respFuncs = responseFuncs(files.front(), "DC2");
-      m_respFuncs->load(respFuncs, "DC2");
-   } else {
-      std::vector<unsigned int> selectedEvtTypes;
-      if (my_cuts) {
-         getSelectedEvtTypes(*my_cuts, selectedEvtTypes);
-      }
-      m_respFuncs->load(respBase, "", selectedEvtTypes);
+   std::vector<unsigned int> selectedEvtTypes;
+   if (my_cuts) {
+      getSelectedEvtTypes(*my_cuts, selectedEvtTypes);
    }
+
+   m_respFuncs->load(respBase, "", selectedEvtTypes);
+
    m_irfsName = respBase;
+
    delete my_cuts;
 }
 
