@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.18 2014/03/04 21:34:48 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.19 2014/04/10 15:19:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -59,12 +59,14 @@ private:
    void copyGtis() const;
    void copyHeaderKeywords() const;
    void copyDssKeywords(tip::Header & header) const;
+   bool have_user_sky_geom() const;
+   bool have_user_energies() const;
    static std::string s_cvs_id;
 };
 
 st_app::StAppFactory<ExpCube> myAppFactory("gtexpcube2");
 
-std::string ExpCube::s_cvs_id("$Name: HEAD $");
+std::string ExpCube::s_cvs_id("$Name:  $");
 
 ExpCube::ExpCube() : st_app::StApp(), m_helper(0), 
                      m_pars(st_app::StApp::getParGroup("gtexpcube2")) {
@@ -89,60 +91,136 @@ void ExpCube::run() {
       useEbounds = false;
    }
 
-   if (cmap_file != "none") {
-      m_helper = new AppHelpers(&m_pars, "BINNED");
-   } else {
-      m_helper = new AppHelpers(&m_pars, "NONE");
-   }
+   m_helper = new AppHelpers(&m_pars, "BINNED");
+
    set_phi_status();
    m_helper->checkOutputFile();
    ExposureCube & ltcube = 
       const_cast<ExposureCube &>(m_helper->observation().expCube());
    ltcube.readExposureCube(ltcube_file);
+   m_helper->checkTimeCuts(cmap_file, "", ltcube_file, "Exposure");
 
-   if (cmap_file != "none") {
-     // Create map to match counts map.
-     m_helper->checkTimeCuts(cmap_file, "", ltcube_file, "Exposure");
-
-     //Start with the HEALPIX case, where primary HDU is empty
-     const tip::Image * image = tip::IFileSvc::instance().readImage(cmap_file, "");
-     int image_size=image->getImageDimensions().size();
-     delete image;
-     if(image_size==0) {
-       const tip::Table * table = tip::IFileSvc::instance().readTable(cmap_file, "SKYMAP");
-       std::string hpx("");
-       const tip::Header & header(table->getHeader());
-       header["PIXTYPE"].get(hpx);
-       delete table;
-       if(hpx=="HEALPIX"){
-	 evtbin::HealpixMap cmap(cmap_file);
-	 BinnedHealpixExposure bexpmap(cmap, m_helper->observation(), 
-				       useEbounds, &m_pars);
-	 bexpmap.writeOutput(m_pars["outfile"]);
-       } else {
-	 std::cout<<"Unrecognized extension for the input count map"<<std::endl;
-	 throw;}
-     } else {
-       CountsMap cmap(cmap_file);
-       BinnedExposure bexpmap(cmap, m_helper->observation(), 
-			      useEbounds, &m_pars);
-       bexpmap.writeOutput(m_pars["outfile"]);
-     }
-   } else {
-     // Create map for user-defined geometry.
-      std::vector<double> energies;
-      generateEnergies(energies);
-      if (!useEbounds) {
-         for (size_t k(0); k < energies.size() - 1; k++) {
-            energies[k] = std::sqrt(energies[k]*energies[k+1]);
-         }
-         energies.pop_back();
+   // Handle HEALPIX case.
+   const tip::Image * image(tip::IFileSvc::instance().readImage(cmap_file, ""));
+   int image_size(image->getImageDimensions().size());
+   delete image;
+   if (image_size == 0) {
+      const tip::Table * table = 
+         tip::IFileSvc::instance().readTable(cmap_file, "SKYMAP");
+      std::string hpx("");
+      const tip::Header & header(table->getHeader());
+      header["PIXTYPE"].get(hpx);
+      delete table;
+      if (hpx == "HEALPIX") {
+         evtbin::HealpixMap cmap(cmap_file);
+         BinnedHealpixExposure bexpmap(cmap, m_helper->observation(), 
+                                       useEbounds, &m_pars);
+         bexpmap.writeOutput(m_pars["outfile"]);
+      } else {
+         throw std::runtime_error("Unrecognized extension for the "
+                                  "input count map");
       }
-      BinnedExposure bexpmap(energies, m_helper->observation(), &m_pars);
+      copyHeaderKeywords();
+      copyGtis();
+      return;
+   }
+      
+   // Conventional map geometries, with possible overrides by user.
+   bool user_energies(have_user_energies());
+   bool user_sky_geom(have_user_sky_geom());
+   if (user_energies || user_sky_geom) {
+      // Create a local copy of the m_pars object.
+      st_app::AppParGroup & pars(m_pars);
+      // Create map for user-defined geometry.
+      std::vector<double> energies;
+      if (user_energies) {
+         generateEnergies(energies);
+         if (!useEbounds) {
+            for (size_t k(0); k < energies.size() - 1; k++) {
+               energies[k] = std::sqrt(energies[k]*energies[k+1]);
+            }
+            energies.pop_back();
+         }
+      } else {
+         // Harvest energies from the counts map.
+         const tip::Table * 
+            ebounds(tip::IFileSvc::instance().readTable(cmap_file, "EBOUNDS"));
+         tip::Table::ConstIterator it(ebounds->begin());
+         tip::ConstTableRecord & row(*it);
+         double emin, emax;
+         for ( ; it != ebounds->end(); ++it) {
+            row["E_MIN"].get(emin);
+            row["E_MAX"].get(emax);
+            energies.push_back(emin/1e3);
+         }
+         energies.push_back(emax/1e3);
+         delete ebounds;
+      }
+      if (!user_sky_geom) {
+         // Harvest sky geometry from counts map.
+         CountsMap cmap(cmap_file);
+         pars["nxpix"] = cmap.naxis1();
+         pars["nypix"] = cmap.naxis2();
+         pars["binsz"] = std::fabs(cmap.cdelt1());
+         pars["xref"] = cmap.crval1();
+         pars["yref"] = cmap.crval2();
+         pars["axisrot"] = cmap.crota2();
+         pars["proj"] = cmap.proj_name();
+         if (cmap.isGalactic()) {
+            pars["coordsys"] = "GAL";
+         } else {
+            pars["coordsys"] = "CEL";
+         }
+      }
+      BinnedExposure bexpmap(energies, m_helper->observation(), &pars);
+      bexpmap.writeOutput(m_pars["outfile"]);
+   } else {
+      CountsMap cmap(cmap_file);
+      BinnedExposure bexpmap(cmap, m_helper->observation(), 
+                             useEbounds, &m_pars);
       bexpmap.writeOutput(m_pars["outfile"]);
    }
    copyHeaderKeywords();
    copyGtis();
+}
+
+bool ExpCube::have_user_sky_geom() const {
+   // Check for INDEFs in m_pars.
+   try {
+      unsigned int nxpix = m_pars["nxpix"];
+      unsigned int nypix = m_pars["nypix"];
+      double binsz = m_pars["binsz"];
+      double xref = m_pars["xref"];
+      double yref = m_pars["yref"];
+   } catch (hoops::Hexception &) {
+      // At least one of the parameters needed to specify the map
+      // geometry on the sky has an INDEF value, so use input cmap sky
+      // geometry.
+      return false;
+   }
+   return true;
+}
+
+bool ExpCube::have_user_energies() const {
+   // Check for INDEFs in m_pars.
+   std::string ebinalg = m_pars["ebinalg"];
+   if (ebinalg == "FILE") {
+      std::string ebinfile = m_pars["ebinfile"];
+      if (ebinfile != "NONE") {
+         return true;
+      }
+      return false;
+   }
+   try {
+      double emin = m_pars["emin"];
+      double emax = m_pars["emax"];
+      unsigned int enumbins = m_pars["enumbins"];
+   } catch (hoops::Hexception &) {
+      // At least one of the energy bounds parameters has a value of
+      // INDEF, so use cmap energy bounds.
+      return false;
+   }
+   return true;
 }
 
 void ExpCube::generateEnergies(std::vector<double> & energies) const {
@@ -176,29 +254,7 @@ void ExpCube::generateEnergies(std::vector<double> & energies) const {
 }
 
 void ExpCube::promptForParameters() {
-   m_pars.Prompt("infile");
-   m_pars.Prompt("cmap");
-   m_pars.Prompt("outfile");
-   m_pars.Prompt("irfs");
-   std::string cmap = m_pars["cmap"];
-   if (cmap == "none") {
-      m_pars.Prompt("nxpix");
-      m_pars.Prompt("nypix");
-      m_pars.Prompt("binsz");
-      m_pars.Prompt("coordsys");
-      m_pars.Prompt("xref");
-      m_pars.Prompt("yref");
-      m_pars.Prompt("axisrot");
-      m_pars.Prompt("proj");
-      std::string ebinalg = m_pars["ebinalg"];
-      if (ebinalg == "FILE") {
-         m_pars.Prompt("ebinfile");
-      } else {
-         m_pars.Prompt("emin");
-         m_pars.Prompt("emax");
-         m_pars.Prompt("enumbins");
-      }
-   }
+   m_pars.Prompt();
    m_pars.Save();
 }
 
