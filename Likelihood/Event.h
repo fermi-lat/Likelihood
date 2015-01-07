@@ -3,7 +3,7 @@
  * @brief Event class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Event.h,v 1.46 2009/06/03 19:04:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Event.h,v 1.47 2012/06/14 02:01:24 jchiang Exp $
  */
 
 #ifndef Likelihood_Event_h
@@ -166,7 +166,7 @@ private:
    double m_arrTime;
    double m_muZenith;
 
-   /// Event type (front vs back for now)
+   /// Event type
    int m_type;
 
    /// Classification tree class level (EVENT_CLASS in FT1).
