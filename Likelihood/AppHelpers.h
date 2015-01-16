@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.41 2015/01/03 18:30:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.42 2015/01/16 05:36:25 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -52,7 +52,8 @@ public:
    AppHelpers() : m_pars(0), m_funcFactory(0), m_observation(0),
                   m_scData(0), m_expCube(0), m_expMap(0), m_respFuncs(0),
                   m_roiCuts(0), m_eventCont(0), m_bexpmap(0), 
-                  m_phased_expmap(0), m_meanpsf(0), m_irfsName("") {
+                  m_phased_expmap(0), m_meanpsf(0), m_irfsName(""),
+                  m_respFuncCuts(0) {
       prepareFunctionFactory();
    }
 #ifndef SWIG
