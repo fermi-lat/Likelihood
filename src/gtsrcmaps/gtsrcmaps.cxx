@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.45 2013/08/11 04:25:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.46 2013/08/26 22:55:37 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -194,6 +194,10 @@ void gtsrcmaps::run() {
    std::auto_ptr<tip::Image>
       image(tip::IFileSvc::instance().editImage(srcMapsFile, ""));
    my_cuts.addVersionCut("IRF_VERSION", m_helper->irfsName());
+   std::string irfs = m_pars["irfs"];
+   if (irfs != "CALDB") {
+      m_helper->setBitMaskCuts(my_cuts);
+   }
    my_cuts.writeDssKeywords(image->getHeader());
    my_cuts.writeGtiExtension(srcMapsFile);
 }

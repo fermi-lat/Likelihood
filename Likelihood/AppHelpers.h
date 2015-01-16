@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.40 2014/12/22 06:29:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.41 2015/01/03 18:30:09 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -20,6 +20,7 @@
 
 namespace dataSubselector {
    class CutBase;
+   class Cuts;
 }
 
 namespace Likelihood {
@@ -86,6 +87,12 @@ public:
    const std::string & irfsName() const {
       return m_irfsName;
    }
+
+   const dataSubselector::Cuts & respFuncCuts() const {
+      return *m_respFuncCuts;
+   }
+
+   void setBitMaskCuts(dataSubselector::Cuts & other_cuts) const;
                   
 #endif // SWIG
 
@@ -172,6 +179,8 @@ protected:
    MeanPsf * m_meanpsf;
 
    std::string m_irfsName;
+
+   dataSubselector::Cuts * m_respFuncCuts;
 
    void prepareFunctionFactory();
    void createResponseFuncs(const std::string & analysisType);

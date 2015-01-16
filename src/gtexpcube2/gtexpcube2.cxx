@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.19 2014/04/10 15:19:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.20 2015/01/06 02:02:02 jchiang Exp $
  */
 
 #include <cmath>
@@ -91,38 +91,45 @@ void ExpCube::run() {
       useEbounds = false;
    }
 
-   m_helper = new AppHelpers(&m_pars, "BINNED");
-
+   if (cmap_file != "none") {
+      m_helper = new AppHelpers(&m_pars, "BINNED");
+   } else {
+      m_helper = new AppHelpers(&m_pars, "NONE");
+   }
    set_phi_status();
    m_helper->checkOutputFile();
    ExposureCube & ltcube = 
       const_cast<ExposureCube &>(m_helper->observation().expCube());
    ltcube.readExposureCube(ltcube_file);
-   m_helper->checkTimeCuts(cmap_file, "", ltcube_file, "Exposure");
 
-   // Handle HEALPIX case.
-   const tip::Image * image(tip::IFileSvc::instance().readImage(cmap_file, ""));
-   int image_size(image->getImageDimensions().size());
-   delete image;
-   if (image_size == 0) {
-      const tip::Table * table = 
-         tip::IFileSvc::instance().readTable(cmap_file, "SKYMAP");
-      std::string hpx("");
-      const tip::Header & header(table->getHeader());
-      header["PIXTYPE"].get(hpx);
-      delete table;
-      if (hpx == "HEALPIX") {
-         evtbin::HealpixMap cmap(cmap_file);
-         BinnedHealpixExposure bexpmap(cmap, m_helper->observation(), 
-                                       useEbounds, &m_pars);
-         bexpmap.writeOutput(m_pars["outfile"]);
-      } else {
-         throw std::runtime_error("Unrecognized extension for the "
-                                  "input count map");
+   if (cmap_file != "none") {
+      m_helper->checkTimeCuts(cmap_file, "", ltcube_file, "Exposure");
+
+      // Handle HEALPIX case.
+      const tip::Image * image(tip::IFileSvc::instance().readImage(cmap_file,
+                                                                   ""));
+      int image_size(image->getImageDimensions().size());
+      delete image;
+      if (image_size == 0) {
+         const tip::Table * table = 
+            tip::IFileSvc::instance().readTable(cmap_file, "SKYMAP");
+         std::string hpx("");
+         const tip::Header & header(table->getHeader());
+         header["PIXTYPE"].get(hpx);
+         delete table;
+         if (hpx == "HEALPIX") {
+            evtbin::HealpixMap cmap(cmap_file);
+            BinnedHealpixExposure bexpmap(cmap, m_helper->observation(), 
+                                          useEbounds, &m_pars);
+            bexpmap.writeOutput(m_pars["outfile"]);
+         } else {
+            throw std::runtime_error("Unrecognized extension for the "
+                                     "input count map");
+         }
+         copyHeaderKeywords();
+         copyGtis();
+         return;
       }
-      copyHeaderKeywords();
-      copyGtis();
-      return;
    }
       
    // Conventional map geometries, with possible overrides by user.
@@ -254,7 +261,29 @@ void ExpCube::generateEnergies(std::vector<double> & energies) const {
 }
 
 void ExpCube::promptForParameters() {
-   m_pars.Prompt();
+   m_pars.Prompt("infile");
+   m_pars.Prompt("cmap");
+   m_pars.Prompt("outfile");
+   m_pars.Prompt("irfs");
+   std::string cmap = m_pars["cmap"];
+   if (cmap == "none") {
+      m_pars.Prompt("nxpix");
+      m_pars.Prompt("nypix");
+      m_pars.Prompt("binsz");
+      m_pars.Prompt("coordsys");
+      m_pars.Prompt("xref");
+      m_pars.Prompt("yref");
+      m_pars.Prompt("axisrot");
+      m_pars.Prompt("proj");
+      std::string ebinalg = m_pars["ebinalg"];
+      if (ebinalg == "FILE") {
+         m_pars.Prompt("ebinfile");
+      } else {
+         m_pars.Prompt("emin");
+         m_pars.Prompt("emax");
+         m_pars.Prompt("enumbins");
+      }
+   }  
    m_pars.Save();
 }
 
@@ -335,6 +364,12 @@ void ExpCube::copyDssKeywords(tip::Header & header) const {
       // irfs version is set.
       irfs_cuts = new dataSubselector::Cuts(cmap_file, "PRIMARY", false,
                                             false, false);
+   }
+   std::string irfs = m_pars["irfs"];
+   if (irfs != "CALDB") {
+      // Update the BitMaskCuts to the user's selection via the irfs
+      // and evtype options.
+      m_helper->setBitMaskCuts(*irfs_cuts);
    }
    irfs_cuts->addVersionCut("IRF_VERSION", m_helper->irfsName());
    irfs_cuts->writeDssKeywords(header);

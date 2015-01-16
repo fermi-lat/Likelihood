@@ -3,7 +3,7 @@
  * @brief Declaration for RoiCuts class
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RoiCuts.h,v 1.37 2006/09/20 23:43:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.38 2013/08/26 22:55:31 jchiang Exp $
  */
 
 #ifndef Likelihood_RoiCuts_h
@@ -19,6 +19,7 @@
 
 #include "irfInterface/AcceptanceCone.h"
 
+#include "dataSubselector/BitMaskCut.h"
 #include "dataSubselector/Cuts.h"
 #include "dataSubselector/GtiCut.h"
 #include "dataSubselector/RangeCut.h"
@@ -39,7 +40,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RoiCuts.h,v 1.37 2006/09/20 23:43:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RoiCuts.h,v 1.38 2013/08/26 22:55:31 jchiang Exp $
  */
 
 class RoiCuts {
@@ -135,6 +136,10 @@ public:
    }
 
    void setIrfsVersion(const std::string & irfsName);
+
+   void setBitMaskCut(dataSubselector::BitMaskCut * candidateCut) {
+      m_cuts->setBitMaskCut(candidateCut);
+   }
 
 private:
 

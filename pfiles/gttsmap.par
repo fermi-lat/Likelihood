@@ -1,9 +1,10 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gttsmap.par,v 1.27 2012/02/21 23:21:41 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttsmap.par,v 1.28 2013/08/26 22:55:33 jchiang Exp $
 #
 # Parameters common to binned and unbinned
 #
 irfs,s,a,"CALDB",,,"Response functions to use"
+evtype,i,h,INDEF,,,"Event type selections"
 expcube,f,a,"none",,,"Exposure hypercube file"
 srcmdl,f,a,"",,,"Source model file"
 statistic,s,a,"UNBINNED",BINNED|UNBINNED,,"Statistic to use"
