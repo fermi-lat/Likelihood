@@ -4,7 +4,7 @@
  * files for the Likelihood package source models.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModelBuilder.cxx,v 1.18 2012/04/19 16:34:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModelBuilder.cxx,v 1.19 2012/04/20 15:21:55 jchiang Exp $
  */
 
 #include <fstream>
@@ -69,6 +69,11 @@ DOMElement * SourceModelBuilder::spectralPart(Source & src) {
    DOMElement * specElt = optimizers::Dom::createElement(m_doc, "spectrum");
    xmlBase::Dom::addAttribute(specElt, "type",
                               srcFuncs["Spectrum"]->genericName());
+
+   if (!src.use_edisp()) {
+      // Explicitly set the apply_edisp attribute to "false".
+      xmlBase::Dom::addAttribute(specElt, "apply_edisp", "false");
+   }
 
    FileFunction * fileFunc(0);
    ScaleFactor * scaleFactor(dynamic_cast<ScaleFactor *>(srcFuncs["Spectrum"]));

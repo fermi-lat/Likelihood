@@ -3,7 +3,7 @@
  * @brief Container for FT1 event data.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.32 2014/12/23 05:42:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EventContainer.cxx,v 1.33 2015/01/03 18:30:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -156,16 +156,18 @@ void EventContainer::getEvents(std::string event_file,
             std::string srcName = sourceName(*name);
             std::vector<double> gaussianParams;
             if (m_respFuncs.useEdisp()) {
-               try {
-                  event[*name].get(gaussianParams);
-                  m_events.back().setDiffuseResponse(srcName, gaussianParams);
-               } catch (tip::TipException & eObj) {
-                  std::string message(eObj.what());
-                  if (message.find("FitsColumn::getVector") ==
-                      std::string::npos) {
-                     throw;
-                  }
-               }
+               throw std::runtime_error("Attempt to use energy dispersion "
+                                        "handling in unbinned analysis.");
+               // try {
+               //    event[*name].get(gaussianParams);
+               //    m_events.back().setDiffuseResponse(srcName, gaussianParams);
+               // } catch (tip::TipException & eObj) {
+               //    std::string message(eObj.what());
+               //    if (message.find("FitsColumn::getVector") ==
+               //        std::string::npos) {
+               //       throw;
+               //    }
+               // }
             } else {
                std::string colname;
                if (haveOldDiffRespCols) {

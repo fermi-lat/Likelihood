@@ -1,10 +1,10 @@
 /** 
  * @file RoiCuts.cxx
- * @brief Implementation for RoiCuts, a Singleton class that contains
- * the Region-of-Interest cuts.
+ * @brief Implementation for RoiCuts, a class that contains the
+ * Region-of-Interest cuts.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.57 2013/09/17 18:39:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RoiCuts.cxx,v 1.58 2014/10/13 22:45:32 jchiang Exp $
  */
 
 #include <cstdlib>
