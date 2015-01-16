@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.84 2013/01/09 00:44:41 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.85 2014/12/22 06:29:13 jchiang Exp $
  */
 
 #include <cctype>
@@ -79,18 +79,20 @@ Event::Event(double ra, double dec, double energy, double time,
      m_fluxDensities(), m_estep(0), m_trueEnergies(), m_true_energies(),
      m_efficiency(efficiency), m_respDiffuseSrcs(), m_diffSrcNames() {
    if (m_useEdisp) {
-// For <15% energy resolution, consider true energies over the range
-// (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
-// apparent energy.
-//       int npts(100);
-      int npts(30);
-      double emin = 0.55*m_energy;
-      double emax = 1.45*m_energy;
-      m_estep = (emax - emin)/(npts-1.);
-      m_trueEnergies.reserve(npts);
-      for (int i = 0; i < npts; i++) {
-         m_trueEnergies.push_back(m_estep*i + emin);
-      }
+      throw std::runtime_error("Attempt to use energy dispersion "
+                               "handling in unbinned analysis.");
+// // For <15% energy resolution, consider true energies over the range
+// // (0.55, 1.45)*m_energy, i.e., nominally a >3-sigma range about the
+// // apparent energy.
+// //       int npts(100);
+//       int npts(30);
+//       double emin = 0.55*m_energy;
+//       double emax = 1.45*m_energy;
+//       m_estep = (emax - emin)/(npts-1.);
+//       m_trueEnergies.reserve(npts);
+//       for (int i = 0; i < npts; i++) {
+//          m_trueEnergies.push_back(m_estep*i + emin);
+//       }
    } else {
 // To mimic infinite energy resolution, we create a single element
 // vector containing the apparent energy.
@@ -103,20 +105,24 @@ double Event::diffuseResponse(double trueEnergy,
    const std::string & diffuseComponent(diffuseSrcName(srcName));
    int indx(0);
    if (m_useEdisp) {
-      indx = static_cast<int>((trueEnergy - m_trueEnergies[0])/m_estep);
-      if (indx < 0 || indx >= static_cast<int>(m_trueEnergies.size())) {
-         return 0;
-      }
+      throw std::runtime_error("Attempt to use energy dispersion "
+                               "handling in unbinned analysis.");
+      // indx = static_cast<int>((trueEnergy - m_trueEnergies[0])/m_estep);
+      // if (indx < 0 || indx >= static_cast<int>(m_trueEnergies.size())) {
+      //    return 0;
+      // }
    }
    std::map<std::string, diffuse_response>::const_iterator it;
    if ((it = m_respDiffuseSrcs.find(diffuseComponent))
        != m_respDiffuseSrcs.end()) {
       if (m_useEdisp) {
-         const diffuse_response & resp = it->second;
-         double my_value = (trueEnergy - m_trueEnergies[indx])
-            /(m_trueEnergies[indx+1] - m_trueEnergies[indx])
-            *(resp[indx+1] - resp[indx]) + resp[indx];
-         return my_value;
+         throw std::runtime_error("Attempt to use energy dispersion "
+                                  "handling in unbinned analysis.");
+         // const diffuse_response & resp = it->second;
+         // double my_value = (trueEnergy - m_trueEnergies[indx])
+         //    /(m_trueEnergies[indx+1] - m_trueEnergies[indx])
+         //    *(resp[indx+1] - resp[indx]) + resp[indx];
+         // return my_value;
       } else {
 // The response is just the single value in the diffuse_response vector.
          return it->second[0];

@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.49 2013/08/27 16:05:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.50 2015/01/16 05:36:27 jchiang Exp $
  */
 
 #include <cmath>
@@ -38,9 +38,6 @@ using namespace Likelihood;
  * @brief Class encapsulating methods for creating a Likelihood-specific
  * exposure map.
  *
- * @author J. Chiang
- *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.49 2013/08/27 16:05:56 jchiang Exp $
  */
 class ExpMap : public st_app::StApp {
 public:
