@@ -3,7 +3,7 @@
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.20 2015/01/06 02:02:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtexpcube2/gtexpcube2.cxx,v 1.21 2015/01/16 05:36:28 jchiang Exp $
  */
 
 #include <cmath>
@@ -356,9 +356,11 @@ void ExpCube::copyDssKeywords(tip::Header & header) const {
    std::string cmap_file = m_pars["cmap"];
    dataSubselector::Cuts * irfs_cuts(0);
    if (cmap_file == "none") {
-      // No DSS keywords to copy from input files, so just write
-      // selected irfs.
-      irfs_cuts = new dataSubselector::Cuts();
+      // No DSS keywords to copy from counts map file, so
+      // use livetime cube, in order to get GTIs.
+      std::string ltcube = m_pars["infile"];
+      irfs_cuts = new dataSubselector::Cuts(ltcube, "EXPOSURE", false,
+                                            false, false);
    } else {
       // Copy DSS keywords from input cmap file, ensuring that the
       // irfs version is set.
