@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.553 2015/01/08 16:48:51 jchiang Exp $
+    $Id: release.notes,v 1.554 2015/01/16 05:40:40 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-19-00-02 16-Jan-2015 jchiang address [LK-94@JIRA]; explicitly disable old edisp code for unbinned analysis
  Likelihood-19-00-01 15-Jan-2015 jchiang support for irfs=<not CALDB>
  Likelihood-19-00-00 08-Jan-2015 jchiang Pass 8-related development
  Likelihood-18-07-02 11-Nov-2014 jchiang bug-fix for 2D map handling re: energy range check
