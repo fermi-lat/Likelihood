@@ -1,10 +1,11 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtpsf.par,v 1.15 2011/08/10 16:06:36 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtpsf.par,v 1.16 2013/08/26 22:55:33 jchiang Exp $
 #
 expcube,fr,a,"",,,"Livetime cube file"
 outfile,f,a,"",,,"output file name"
 outtable,s,h,"PSF",,,"output file extension"
 irfs,s,a,"CALDB",,,"Response functions"
+evtype,i,h,INDEF,,,"Event type selections"
 ra,r,a,,0,360,Source Right Ascension (J2000 degrees)
 dec,r,a,,-90,90,Source Declination (J2000 degrees)
 emin,r,a,20.,,,"minimum energy (MeV)"

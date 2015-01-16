@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.116 2015/01/05 22:02:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.117 2015/01/06 02:02:01 jchiang Exp $
  */
 
 #include <cmath>
@@ -97,7 +97,8 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
                        const std::string & analysisType) 
    : m_pars(pars), m_funcFactory(0), m_scData(0), m_expCube(0),
      m_expMap(0), m_respFuncs(0), m_roiCuts(0), m_eventCont(0),
-     m_bexpmap(0), m_phased_expmap(0), m_meanpsf(0), m_irfsName("") {
+     m_bexpmap(0), m_phased_expmap(0), m_meanpsf(0), m_irfsName(""),
+     m_respFuncCuts(0) {
    st_app::AppParGroup & my_pars(*m_pars);
    prepareFunctionFactory();
    createResponseFuncs(analysisType);
@@ -174,6 +175,7 @@ AppHelpers::~AppHelpers() {
    delete m_phased_expmap;
    delete m_meanpsf;
    delete m_observation;
+   delete m_respFuncCuts;
 }
 
 optimizers::FunctionFactory & AppHelpers::funcFactory() {
@@ -376,9 +378,9 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       }
       extname = "";
    }
-   std::vector<std::string> files;
-   st_facilities::Util::resolve_fits_files(evfile, files);
    if (respBase == "CALDB") {
+      std::vector<std::string> files;
+      st_facilities::Util::resolve_fits_files(evfile, files);
       my_cuts = new dataSubselector::Cuts(files.at(0), extname,
                                           false, true, true);
       dataSubselector::BitMaskCut * evclass_cut(0);
@@ -411,24 +413,43 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       } else {
          delete evtype_cut;
       }
-      respBase = my_cuts->CALDB_implied_irfs();
-   }
-   // Check that requested irfs match those in the upstream files.
-   try {
-      dataSubselector::Cuts::checkIrfs(files.at(0), extname, respBase);
-   } catch(tip::TipException & eObj) {
-      if (st_facilities::Util::expectedException(eObj,
-                                                 "Cannot read keyword")) {
-         // This will occur if legacy bexpmap file does not have DSS
-         // keywords.  For backwards compatibility, do nothing.
-      } else {
-         // rethrow the exception.
-         throw;
+   } else {
+      // User has specified a value for irfs other than the default of
+      // "CALDB".  In this case, generate a my_cuts object and add
+      // event_class and event_type BitMaskCuts based on the values in
+      // the "evtype" parameter.
+      //
+      // Strip off any event_type qualifiers that naive users may add.
+      std::string::size_type pos(respBase.find_first_of(":"));
+      if (pos != std::string::npos) {
+         respBase = respBase.substr(0, pos);
+         formatter.info() << "Ignoring event_type qualifier, "
+                          << respBase.substr(pos)
+                          << ", in irfs specification.";
+      }
+      my_cuts = new dataSubselector::Cuts();
+
+      // The member function dataSubselector::Cuts::setIrfs adds the
+      // event_class BitMaskCut and sets the pass version based on the
+      // irf name.
+      my_cuts->setIrfs(respBase);
+      
+      // Add event_type BitMaskCut.
+      try {
+         unsigned int evtype = pars["evtype"];
+         if (evtype == 3) {
+            formatter.info() << "Using evtype=3 (i.e., FRONT/BACK irfs)\n";
+         }
+         my_cuts->addBitMaskCut("EVENT_TYPE", evtype, my_cuts->pass_ver());
+      } catch (hoops::Hexception &) {
+         // evtype not a command line option, so do not add this cut.
       }
    }
-
    std::vector<unsigned int> selectedEvtTypes;
-   if (my_cuts) {
+   if (my_cuts->pass_ver() != "NONE") {
+      // We have Pass 7 or later, so reset the response function name,
+      // identifying the event_type partition to use.
+      respBase = my_cuts->CALDB_implied_irfs();
       getSelectedEvtTypes(*my_cuts, selectedEvtTypes);
    }
 
@@ -436,7 +457,8 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
 
    m_irfsName = respBase;
 
-   delete my_cuts;
+//   delete my_cuts;
+   m_respFuncCuts = my_cuts;
 }
 
 void AppHelpers::
@@ -853,6 +875,11 @@ checkExposureMap(const std::string & cmapfile,
          }
       }
    }
+}
+
+void AppHelpers::setBitMaskCuts(dataSubselector::Cuts & other_cuts) const {
+   other_cuts.setBitMaskCut(m_respFuncCuts->bitMaskCut("EVENT_CLASS"));
+   other_cuts.setBitMaskCut(m_respFuncCuts->bitMaskCut("EVENT_TYPE"));
 }
 
 } // namespace Likelihood
