@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.117 2015/01/06 02:02:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.118 2015/01/16 05:36:27 jchiang Exp $
  */
 
 #include <cmath>
@@ -419,13 +419,14 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       // event_class and event_type BitMaskCuts based on the values in
       // the "evtype" parameter.
       //
-      // Strip off any event_type qualifiers that naive users may add.
+      // Disallow event_type qualifiers on irfs name.
       std::string::size_type pos(respBase.find_first_of(":"));
       if (pos != std::string::npos) {
-         respBase = respBase.substr(0, pos);
-         formatter.info() << "Ignoring event_type qualifier, "
-                          << respBase.substr(pos)
-                          << ", in irfs specification.";
+         throw std::runtime_error("event_type qualifiers should not be "
+                                  "included in the irfs specification.\n"
+                                  "event_type information should be provided "
+                                  "via DSS keywords or an evtype command line "
+                                  "option, if available.");
       }
       my_cuts = new dataSubselector::Cuts();
 
