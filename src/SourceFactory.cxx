@@ -5,8 +5,10 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.76 2012/04/19 23:39:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.77 2014/08/26 04:35:53 jchiang Exp $
  */
+
+#include <cstdlib>
 
 #include <xercesc/util/XercesDefs.hpp>
 
@@ -26,6 +28,7 @@
 #include "Likelihood/FileFunction.h"
 #include "Likelihood/DMFitFunction.h"
 #include "Likelihood/MapBase.h"
+#include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/RadialProfile.h"
@@ -332,6 +335,59 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
 // Fetch the parameter elements (if any).
    std::vector<DOMElement *> params;
    xmlBase::Dom::getChildrenByTagName(spectrum, "parameter", params);
+   if (type == "MultipleBPL") {
+      // Extract the Normalization, Index#, and Break# parameters
+      // since they must be added to the Function before they can be
+      // set via the DOMElement.
+      double normalization(1);
+      std::vector<double> photonIndexes;
+      std::vector<double> breakEnergies;
+      // Read in the parameter values and ensure that the parameter
+      // names are in numerical order.
+      std::vector<DOMElement *>::const_iterator paramIt = params.begin();
+      for ( ; paramIt != params.end(); paramIt++) {
+         std::string name(xmlBase::Dom::getAttribute(*paramIt, "name"));
+         if (name == "Normalization") {
+            normalization = 
+               std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+                                                    
+         }
+         if (name.find("Index") == 0) {
+            size_t my_index_id = std::atoi(name.substr(5).c_str());
+            if (my_index_id != photonIndexes.size()) {
+               std::ostringstream what;
+               what << "MultpleBPL: Index#s are out of order for source "
+                    << src->getName() 
+                    << ". They must appear in the sequence Index0, Index1, "
+                    << "Index2, ... in the xml model definition.";
+               throw std::runtime_error(what.str());
+            }
+            double value = 
+               std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+                                                              
+            photonIndexes.push_back(value);
+         }
+         if (name.find("Break") == 0) {
+            size_t my_index_id = std::atoi(name.substr(5).c_str());
+            if (my_index_id != breakEnergies.size()) {
+               std::ostringstream what;
+               what << "MultpleBPL: Index#s are out of order for source "
+                    << src->getName() 
+                    << ". They must appear in the sequence Break0, Break1, "
+                    << "Break2, ... in the xml model definition.";
+               throw std::runtime_error(what.str());
+            }
+            double value = 
+               std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+                                                    
+            breakEnergies.push_back(value);
+         }
+      } // paramIt
+      dynamic_cast<MultipleBrokenPowerLaw *>(spec)->addParams(normalization,
+                                                              photonIndexes,
+                                                              breakEnergies);
+   }
+
    if (params.size() > 0) {
       std::vector<DOMElement *>::const_iterator paramIt = params.begin();
       for ( ; paramIt != params.end(); paramIt++) {

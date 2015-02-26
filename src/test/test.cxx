@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.129 2012/11/11 03:26:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.130 2013/01/15 00:17:35 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -82,6 +82,7 @@
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/EblAtten.h"
 #include "Likelihood/LogParabola.h"
+#include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
@@ -104,6 +105,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_SmoothBrokenPowerLaw);
    CPPUNIT_TEST(test_SmoothDoubleBrokenPowerLaw);
    CPPUNIT_TEST(test_BrokenPowerLaw3);
+   CPPUNIT_TEST(test_MultipleBrokenPowerLaw);
    CPPUNIT_TEST(test_EblAtten);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
@@ -142,6 +144,7 @@ public:
    void test_SmoothBrokenPowerLaw();
    void test_SmoothDoubleBrokenPowerLaw();
    void test_BrokenPowerLaw3();
+   void test_MultipleBrokenPowerLaw();
    void test_EblAtten();
    void test_RoiCuts();
    void test_SourceFactory();
@@ -464,6 +467,36 @@ void LikelihoodTests::test_BrokenPowerLaw3() {
    args.push_back(new optimizers::dArg(1e5));
 
    tester.parameters(pars);
+   tester.freeParameters(pars);
+   tester.derivatives(args, 1e-4);
+}
+
+void LikelihoodTests::test_MultipleBrokenPowerLaw() {
+   Likelihood::MultipleBrokenPowerLaw foo;
+   double norm(1);
+   double photon_indexes[] = {-2, -3, -3.5, -4};
+   double break_energies[] = {5.5e2, 1.73e3, 5.5e3};
+   std::vector<double> photonIndexes(photon_indexes, photon_indexes+4);
+   std::vector<double> breakEnergies(break_energies, break_energies+3);
+   foo.addParams(norm, photonIndexes, breakEnergies);
+   optimizers::FunctionTest tester(foo, "MultipleBrokenPowerLaw");
+   std::vector<optimizers::Parameter> pars;
+   pars.push_back(optimizers::Parameter("Normalization", 1));
+   for (size_t i(1); i < photonIndexes.size()+1; i++) {
+      std::ostringstream name;
+      name << "Index" << i;
+      pars.push_back(optimizers::Parameter(name.str(), photonIndexes[i-1]));
+   }
+   
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
    tester.freeParameters(pars);
    tester.derivatives(args, 1e-4);
 }
@@ -1602,112 +1635,116 @@ int main(int iargc, char * argv[]) {
 
    if (iargc > 1 && std::string(argv[1]) == "-d") { // debug mode
       LikelihoodTests testObj;
-      testObj.setUp();
-      testObj.test_LogParabola();
-      testObj.tearDown();
+      // testObj.setUp();
+      // testObj.test_LogParabola();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_LogNormal();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BandFunction();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_ExpCutoffSEDPeak();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_SmoothBrokenPowerLaw();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_SmoothDoubleBrokenPowerLaw();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_EblAtten();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_RoiCuts();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_SourceFactory();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_XmlBuilders();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_LikeExposure();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_SourceModel();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_SourceDerivs();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_PointSource();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_DiffuseSource();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_CountsMap();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedLikelihood();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedLikelihood_2();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_MeanPsf();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedExposure();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_SourceMap();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_rescaling();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_DiffRespNames();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_WcsMap2();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_ScaleFactor();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_Drm();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_ExposureCube();
+      // testObj.tearDown();
 
       testObj.setUp();
-      testObj.test_LogNormal();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_BandFunction();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_ExpCutoffSEDPeak();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_SmoothBrokenPowerLaw();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_SmoothDoubleBrokenPowerLaw();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_EblAtten();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_RoiCuts();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_SourceFactory();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_XmlBuilders();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_LikeExposure();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_SourceModel();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_SourceDerivs();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_PointSource();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_DiffuseSource();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_CountsMap();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_BinnedLikelihood();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_BinnedLikelihood_2();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_MeanPsf();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_BinnedExposure();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_SourceMap();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_rescaling();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_DiffRespNames();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_WcsMap2();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_ScaleFactor();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_Drm();
-      testObj.tearDown();
-
-      testObj.setUp();
-      testObj.test_ExposureCube();
+      testObj.test_MultipleBrokenPowerLaw();
       testObj.tearDown();
    } else {
       CppUnit::TextTestRunner runner;
