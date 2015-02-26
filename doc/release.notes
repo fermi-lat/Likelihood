@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.555 2015/01/16 21:15:50 jchiang Exp $
+    $Id: release.notes,v 1.556 2015/02/11 22:54:51 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-19-00-04 25-Feb-2015 jchiang add MultipleBrokenPowerLaw model
  Likelihood-19-00-03 11-Feb-2015 jchiang disallow event_type qualifiers on irfs command line option
  Likelihood-19-00-02 16-Jan-2015 jchiang address [LK-94@JIRA]; explicitly disable old edisp code for unbinned analysis
  Likelihood-19-00-01 15-Jan-2015 jchiang support for irfs=<not CALDB>
