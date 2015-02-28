@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.26 2011/06/27 04:32:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.27 2011/09/16 23:20:28 sfegan Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -25,6 +25,7 @@ namespace st_stream {
 }
 
 namespace optimizers {
+   class Function;
    class FunctionFactory;
 }
 
@@ -42,10 +43,6 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  *
  * The design of this class is based on the Factory template class
  * of Hippodraw.
- *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceFactory.h,v 1.26 2011/06/27 04:32:34 jchiang Exp $
  *
  */
     
@@ -104,6 +101,14 @@ private:
    void checkRoiDist(double ra, double dec) const;
 
    std::string m_currentSrcName;
+
+   void addParamsToMultipleBPL(optimizers::Function * spec, 
+                               const std::vector<DOMElement *> & params,
+                               const Source * src) const;
+
+   void addParamsToPiecewisePL(optimizers::Function * spec, 
+                               const std::vector<DOMElement *> & params,
+                               const Source * src) const;
 
 };
 

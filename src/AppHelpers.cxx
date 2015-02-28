@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.119 2015/02/11 22:54:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.120 2015/02/26 00:29:07 jchiang Exp $
  */
 
 #include <cmath>
@@ -53,6 +53,7 @@
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/PiecewisePowerLaw.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/RadialProfile.h"
@@ -204,6 +205,8 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
    funcFactory->addFunc("BrokenPowerLaw3", new BrokenPowerLaw3(), makeClone);
    funcFactory->addFunc("MultipleBPL", new MultipleBrokenPowerLaw(), makeClone);
+   funcFactory->addFunc("PiecewisePowerLaw", new PiecewisePowerLaw(),
+                        makeClone);
    funcFactory->addFunc("SmoothBrokenPowerLaw", new SmoothBrokenPowerLaw(), 
                         makeClone);
    funcFactory->addFunc("SmoothDoubleBrokenPowerLaw", 

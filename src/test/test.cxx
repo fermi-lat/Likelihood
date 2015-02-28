@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.130 2013/01/15 00:17:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.131 2015/02/26 00:29:08 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -83,6 +83,7 @@
 #include "Likelihood/EblAtten.h"
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MultipleBrokenPowerLaw.h"
+#include "Likelihood/PiecewisePowerLaw.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
@@ -106,6 +107,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_SmoothDoubleBrokenPowerLaw);
    CPPUNIT_TEST(test_BrokenPowerLaw3);
    CPPUNIT_TEST(test_MultipleBrokenPowerLaw);
+   CPPUNIT_TEST(test_PiecewisePowerLaw);
    CPPUNIT_TEST(test_EblAtten);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
@@ -145,6 +147,7 @@ public:
    void test_SmoothDoubleBrokenPowerLaw();
    void test_BrokenPowerLaw3();
    void test_MultipleBrokenPowerLaw();
+   void test_PiecewisePowerLaw();
    void test_EblAtten();
    void test_RoiCuts();
    void test_SourceFactory();
@@ -486,6 +489,38 @@ void LikelihoodTests::test_MultipleBrokenPowerLaw() {
       std::ostringstream name;
       name << "Index" << i;
       pars.push_back(optimizers::Parameter(name.str(), photonIndexes[i-1]));
+   }
+   
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.freeParameters(pars);
+   tester.derivatives(args, 1e-4);
+}
+
+void LikelihoodTests::test_PiecewisePowerLaw() {
+   Likelihood::PiecewisePowerLaw foo;
+   double indexL(-2);
+   double indexH(-3);
+   double dnde_values[] = {10, 3, 2, 0.1};
+   double energy_values[] = {1e2, 5.5e2, 1.73e3, 5.5e3};
+   std::vector<double> dNdEs(dnde_values, dnde_values+4);
+   std::vector<double> energies(energy_values, energy_values+4);
+   foo.addParams(indexL, indexH, dNdEs, energies);
+   optimizers::FunctionTest tester(foo, "PiecewisePowerLaw");
+   std::vector<optimizers::Parameter> pars;
+   pars.push_back(optimizers::Parameter("IndexL", indexL));
+   pars.push_back(optimizers::Parameter("IndexH", indexH));
+   for (size_t k(0); k < dNdEs.size(); k++) {
+      std::ostringstream name;
+      name << "dNdE" << k;
+      pars.push_back(optimizers::Parameter(name.str(), dNdEs[k]));
    }
    
    std::vector<optimizers::Arg *> args;
@@ -1743,8 +1778,12 @@ int main(int iargc, char * argv[]) {
       // testObj.test_ExposureCube();
       // testObj.tearDown();
 
+      // testObj.setUp();
+      // testObj.test_MultipleBrokenPowerLaw();
+      // testObj.tearDown();
+
       testObj.setUp();
-      testObj.test_MultipleBrokenPowerLaw();
+      testObj.test_PiecewisePowerLaw();
       testObj.tearDown();
    } else {
       CppUnit::TextTestRunner runner;
