@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.3 2015/02/26 17:32:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.1 2015/02/28 03:27:31 jchiang Exp $
  */
 
 #include <algorithm>
@@ -20,7 +20,7 @@ PiecewisePowerLaw::PiecewisePowerLaw() {
    m_funcType = Addend;
    m_argType = "dArg";
    m_genericName = "PiecewisePowerLaw";
-   m_normParName = "";
+   m_normParName = "dNdE0";
 }
 
 void PiecewisePowerLaw::
@@ -58,10 +58,10 @@ double PiecewisePowerLaw::value(optimizers::Arg & xarg) const {
    double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
 
    // Handle low and high end cases first.
-   if (x < m_energies.front()) { // IndexL
+   if (x <= m_energies.front()) { // IndexL
       return norm(0)*std::pow(x/m_energies.front(),
                               m_parameter.front().getTrueValue());
-   } else if (x > m_energies.back()) { // IndexH
+   } else if (x >= m_energies.back()) { // IndexH
       return norm(m_dNdENames.size()-1)*std::pow(x/m_energies.back(),
                                                  m_parameter[1].getTrueValue());
    }
@@ -110,29 +110,31 @@ derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
                                + paramName);
    }
    size_t k(std::atoi(paramName.substr(4).c_str()));
-
-   // End points where target energy is outside m_energies.
-   if ((k == 0 && x < m_energies.front()) ||
-       (k == m_dNdENames.size()-1 && x > m_energies.back())) {
+   if (k == 0) {
       return value(xarg)/norm(k);
    }
-   // End points where target energy is inside m_energies.
-   if (k == 0 && x <= m_energies[1]) {
-      return value(xarg)/norm(k)*(1. - std::log(x/m_energies[k])
-                                  /std::log(m_energies[k+1]/m_energies[k]));
+
+   double dNdE0(norm(0));
+   // End point where target energy is outside m_energies.
+   if (k == m_dNdENames.size()-1 && x > m_energies.back()) {
+      return value(xarg)/norm(k)*dNdE0;
    }
+   // End point where target energy is inside m_energies.
    if (k == m_dNdENames.size()-1 && x > m_energies[k-1]) {
-      return value(xarg)/norm(k)*(std::log(x/m_energies[k-1])
-                                  /std::log(m_energies[k]/m_energies[k-1]));
+      return value(xarg)/norm(k)*dNdE0
+         *(std::log(x/m_energies[k-1])
+           /std::log(m_energies[k]/m_energies[k-1]));
    }
 
    // All other non-zero cases
    if (m_energies[k] <= x && (k < m_energies.size()-1 && x < m_energies[k+1])) {
-      return value(xarg)/norm(k)*(1. - std::log(x/m_energies[k])
-                                  /std::log(m_energies[k+1]/m_energies[k]));
+      return value(xarg)/norm(k)*dNdE0
+         *(1. - std::log(x/m_energies[k])
+           /std::log(m_energies[k+1]/m_energies[k]));
    } else if ((k > 0 && x > m_energies[k-1]) && x < m_energies[k]) {
-      return value(xarg)/norm(k)*(std::log(x/m_energies[k-1])
-                                  /std::log(m_energies[k]/m_energies[k-1]));
+      return value(xarg)/norm(k)*dNdE0
+         *(std::log(x/m_energies[k-1])
+           /std::log(m_energies[k]/m_energies[k-1]));
    }
    return 0;
 }
@@ -141,7 +143,11 @@ double PiecewisePowerLaw::norm(size_t k) const {
    if (k < 0 || k >= m_dNdENames.size()) {
       throw std::out_of_range("PiecewisePowerLaw::norm");
    }
-   return m_parameter[2 + k].getTrueValue();
+   double dNdE0(m_parameter[2].getTrueValue());
+   if (k == 0) {
+      return dNdE0;
+   }
+   return dNdE0*m_parameter[2 + k].getTrueValue();
 }
 
 double PiecewisePowerLaw::plIndex(size_t k) const {
@@ -150,6 +156,9 @@ double PiecewisePowerLaw::plIndex(size_t k) const {
                               "out-of-range energy index.");
    }
    double dNdE0(m_parameter[k+2].getTrueValue());
+   if (k == 0) {
+      dNdE0 = 1;
+   }
    double dNdE1(m_parameter[k+3].getTrueValue());
    double gamma(std::log(dNdE1/dNdE0)/std::log(m_energies[k+1]/m_energies[k]));
    return gamma;
