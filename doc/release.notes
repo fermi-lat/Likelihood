@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.559 2015/03/02 22:15:04 jchiang Exp $
+    $Id: release.notes,v 1.560 2015/03/03 18:07:15 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-19-01-01 03-Mar-2015 jchiang write scaling function filename to xml model def if it is set
  Likelihood-19-01-00 03-Mar-2015 jchiang optimizers::Function refactoring
  Likelihood-19-00-06 02-Mar-2015 jchiang add PiecewisePowerLaw model
  Likelihood-19-00-05 26-Feb-2015 jchiang set base class data members in MultipleBrokenPowerLaw so that xml model def is written correctly
