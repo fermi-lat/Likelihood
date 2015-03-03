@@ -3,7 +3,7 @@
  * @brief Declaration for the DMFit Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DMFitFunction.h,v 1.3 2009/08/07 16:29:16 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.4 2011/11/29 16:41:17 cohen Exp $
  */
 
 #ifndef Likelihood_DMFitFunction_h
@@ -23,30 +23,20 @@ namespace Likelihood {
  *
  * @author J. Cohen-Tanugi, based on the DMFit package by S. Profumo and T. Jeltema
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DMFitFunction.h,v 1.3 2009/08/07 16:29:16 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.4 2011/11/29 16:41:17 cohen Exp $
  */
     
 class DMFitFunction : public optimizers::Function {
 
 public:
 
-  DMFitFunction() : m_filename(""){
-      init(1., 1., 100., 1.0, 1, 1);
-   }
-
    /// @param norm Normalization of the function
    /// @param mass The mass of the Dark Matter particle
    /// @param bratio The branching ratio between the 2 allowed final states
    /// @param channel0 : index of the first final state
    /// @param channel1 : index of the second final state   
-  DMFitFunction(double norm, double sigmav, double mass, double bratio, 
-                 int channel0, int channel1) : m_filename(""){
-      init(norm, sigmav, mass, bratio, channel0, channel1);
-   }
-
-   double value(optimizers::Arg&) const;
-
-   double derivByParam(optimizers::Arg &x, const std::string &paramName) const;
+   DMFitFunction(double norm=1., double sigmav=1., double mass=100., 
+                 double bratio=1., int channel0=1, int channel1=1);
 
    virtual Function *clone() const {
       return new DMFitFunction(*this);
@@ -60,17 +50,21 @@ public:
 
 protected:
 
-   double integral(optimizers::Arg &, optimizers::Arg &) const {
+   virtual double value(optimizers::Arg&) const;
+
+   virtual double derivByParamImp(optimizers::Arg & x, 
+                                  const std::string & paramName) const;
+
+   virtual double integral(optimizers::Arg &, optimizers::Arg &) const {
       return 0;
    }
 
 private:
 
-   void init(double norm, double sigmav, double mass, double bratio, 
-                 int channel0, int channel1);
-
    std::string m_filename;
+
    double m_8pi;
+
 };
 
 } // namespace Likelihood

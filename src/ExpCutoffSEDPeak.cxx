@@ -4,7 +4,7 @@
  * flux as variables
  * @author Rolf Buehler
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExpCutoffSEDPeak.cxx,v 1.2 2012/01/17 22:05:25 jchiang Exp $
  */
 
 #include <cmath>
@@ -20,22 +20,12 @@
 
 namespace Likelihood {
 
-// initialization function used by constructors
-void ExpCutoffSEDPeak::init(double Fpeak, double Index, double Epeak) {
-
-   int nParams = 3;
-   setMaxNumParams(nParams);
-
+ExpCutoffSEDPeak::
+ExpCutoffSEDPeak(double Fpeak, double Index, double Epeak) 
+   : optimizers::Function("ExpCutoffSEDPeak", 3, "Fpeak") {
    addParam(std::string("Fpeak"), Fpeak, true);
    addParam(std::string("Index"), Index, true);
    addParam(std::string("Epeak"), Epeak, true);
-
-// Set FuncType and ArgType for use with CompositeFunction hierarchy.
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "ExpCutoffSEDPeak";
-   m_normParName = "Fpeak";
 }
 
 double ExpCutoffSEDPeak::value(optimizers::Arg &xarg) const {
@@ -59,8 +49,8 @@ double ExpCutoffSEDPeak::value(optimizers::Arg &xarg) const {
    return value;
 }
 
-double ExpCutoffSEDPeak::derivByParam(optimizers::Arg &xarg,
-                               const std::string &paramName) const {
+double ExpCutoffSEDPeak::derivByParamImp(optimizers::Arg & xarg,
+                                         const std::string & paramName) const {
    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Fpeak, Index, Epeak};

@@ -3,7 +3,7 @@
  * @brief Implementation for the BrokenPowerLawExpCutoff Function class
  * @author Jennifer Carson
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLawExpCutoff.cxx,v 1.3 2006/06/26 22:47:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLawExpCutoff.cxx,v 1.4 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,33 +19,19 @@
 
 namespace Likelihood {
 
-// initialization function used by constructors
-void BrokenPowerLawExpCutoff::init(double Prefactor, double Index1,
-                                   double Index2, 
-                                   double BreakValue,
-                                   double Eabs, double P1) {
-// Implement PowerLaw class with six named parameters,
-// "Prefactor", "Index1", "Index2", "BreakValue", "Eabs", "P1"
-
-   int nParams = 6;
-   setMaxNumParams(nParams);
-
+BrokenPowerLawExpCutoff::
+BrokenPowerLawExpCutoff(double Prefactor, double Index1, double Index2, 
+                        double BreakValue, double Eabs, double P1) 
+   : optimizers::Function("BPLExpCutoff", 6, "Prefactor", "dArg", Addend) {
    addParam(std::string("Prefactor"), Prefactor, true);
    addParam(std::string("Index1"), Index1, true);
    addParam(std::string("Index2"), Index2, true);
    addParam(std::string("BreakValue"), BreakValue, false);
    addParam(std::string("Eabs"), Eabs, true);
    addParam(std::string("P1"), P1, true);
-
-// Set FuncType and ArgType for use with CompositeFunction hierarchy.
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "BPLExpCutoff";
-   m_normParName = "Prefactor";
 }
 
-double BrokenPowerLawExpCutoff::value(optimizers::Arg &xarg) const {
+double BrokenPowerLawExpCutoff::value(optimizers::Arg & xarg) const {
    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
 // assume a standard ordering for the parameters
@@ -73,8 +59,9 @@ double BrokenPowerLawExpCutoff::value(optimizers::Arg &xarg) const {
    return 0;
 }
 
-double BrokenPowerLawExpCutoff::derivByParam(optimizers::Arg &xarg,
-                               const std::string &paramName) const {
+double BrokenPowerLawExpCutoff::
+derivByParamImp(optimizers::Arg & xarg,
+                const std::string & paramName) const {
    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Prefactor, Index1, Index2, BreakValue, Eabs, P1};

@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialMap.h,v 1.24 2012/01/06 07:11:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.25 2012/04/17 20:28:11 jchiang Exp $
  *
  */
 
@@ -47,13 +47,8 @@ public:
 
    virtual ~SpatialMap();
 
-   double value(optimizers::Arg &) const;
 
    double value(const astro::SkyDir &) const;
-
-   double derivByParam(optimizers::Arg &, const std::string &) const {
-      return 0;
-   }
 
    virtual optimizers::Function * clone() const {
       return new SpatialMap(*this);
@@ -72,12 +67,13 @@ public:
                                      const ExposureMap & expmap,
                                      std::vector<double> & exposure) const;
 
-private:
+protected:
 
-   void init();
+   double value(optimizers::Arg &) const;
 
-   // disable this
-   double integral(optimizers::Arg &, optimizers::Arg &) const {return 0;}
+   double derivByParamImp(optimizers::Arg &, const std::string &) const {
+      return 0;
+   }
 
 };
 

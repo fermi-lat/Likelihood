@@ -3,7 +3,7 @@
  * @brief Implementation for the BandFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.4 2009/05/13 04:17:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.5 2009/05/13 23:47:19 jchiang Exp $
  */
 
 #include <cmath>
@@ -43,21 +43,14 @@ namespace {
 
 namespace Likelihood {
 
-void BandFunction::init(double norm, double alpha, double beta, double Ep,
-                        double scale) {
-   setMaxNumParams(5);
-
+BandFunction::
+BandFunction(double norm, double alpha, double beta, double Ep, double scale)
+   : optimizers::Function("BandFunction", 5, "norm", "dArg", Addend) {
    addParam("norm", norm, true);
    addParam("alpha", alpha, true);
    addParam("beta", beta, true);
    addParam("Ep", Ep, true);
    addParam("Scale", scale, false);
-
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "BandFunction";
-   m_normParName = "norm";
 }
 
 double BandFunction::value(optimizers::Arg &xarg) const {
@@ -85,8 +78,8 @@ double BandFunction::value(optimizers::Arg &xarg) const {
    return my_value;
 }
 
-double BandFunction::derivByParam(optimizers::Arg & xarg,
-                                  const std::string & paramName) const {
+double BandFunction::derivByParamImp(optimizers::Arg & xarg,
+                                     const std::string & paramName) const {
    ::Pars pars(m_parameter);
 
    double N0(pars[0]);

@@ -3,7 +3,7 @@
  * @brief Implementation for the LogParabola class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogParabola.cxx,v 1.3 2005/09/23 18:15:15 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogParabola.cxx,v 1.4 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -41,19 +41,13 @@ namespace {
 
 namespace Likelihood {
 
-void LogParabola::init(double norm, double alpha, double beta, double Eb) {
-   setMaxNumParams(4);
-
+LogParabola::
+LogParabola(double norm, double alpha, double beta, double Eb)
+   : optimizers::Function("LogParabola", 4, "norm") {
    addParam("norm", norm, true);
    addParam("alpha", alpha, true);
    addParam("beta", beta, true);
    addParam("Eb", Eb, true);
-
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "LogParabola";
-   m_normParName = "norm";
 }
 
 double LogParabola::value(optimizers::Arg & xarg) const {
@@ -65,8 +59,8 @@ double LogParabola::value(optimizers::Arg & xarg) const {
    return my_value;
 }
 
-double LogParabola::derivByParam(optimizers::Arg & xarg,
-                                 const std::string & paramName) const {
+double LogParabola::derivByParamImp(optimizers::Arg & xarg,
+                                    const std::string & paramName) const {
    ::Pars pars(m_parameter);
 
    double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue();

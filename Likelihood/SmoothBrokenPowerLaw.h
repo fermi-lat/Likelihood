@@ -3,7 +3,7 @@
  * @brief Declaration for the SmoothBrokenPowerLaw Function class
  * @author Benoit Lott
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SmoothBrokenPowerLaw.h,v 1.2 2007/03/20 23:46:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SmoothBrokenPowerLaw.h,v 1.1 2009/06/08 06:05:48 jchiang Exp $
  */
 
 #ifndef Likelihood_SmoothBrokenPowerLaw_h
@@ -27,32 +27,24 @@ namespace Likelihood {
     
   public:
     
-    SmoothBrokenPowerLaw(){ init( 10., -2.1,100, -2.1, 1000., 0.2 );}
-    SmoothBrokenPowerLaw(
-			   double Prefactor,
-			   double Index1, 
-			   double Scale,
-			   double Index2,
-			   double BreakValue,
-			   double Beta)
-    {init(Prefactor, Index1, Scale, Index2, BreakValue, Beta);}
+    SmoothBrokenPowerLaw(double Prefactor=10.,
+                         double Index1=-2.1, 
+                         double Scale=100.,
+                         double Index2=-2.1,
+                         double BreakValue=1000.,
+                         double Beta=0.2);
     
-    double value(optimizers::Arg&) const;
-    
-    double derivByParam(optimizers::Arg &x, const std::string &paramName) const;
-    
-    virtual optimizers::Function *clone() const {
+    virtual optimizers::Function * clone() const {
       return new SmoothBrokenPowerLaw(*this);
     }
     
-  private:
+  protected:
+
+     virtual double value(optimizers::Arg&) const;
     
-    void init(double Prefactor,  
-	      double Index1, 
-	      double Scale,
-	      double Index2,
-	      double BreakValue,
-	      double Beta);
+     virtual double derivByParamImp(optimizers::Arg & x,
+                                    const std::string & paramName) const;
+
   };
   
 } // namespace Likelihood

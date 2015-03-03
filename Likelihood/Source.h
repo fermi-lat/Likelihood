@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.50 2013/01/09 00:44:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.51 2014/08/26 04:35:52 jchiang Exp $
  */
 
 #ifndef Likelihood_Source_h
@@ -248,15 +248,17 @@ protected:
    class FluxDeriv : public optimizers::Function {
    public:
       FluxDeriv(const optimizers::Function & func, const std::string & parName) 
-         : m_func(func), m_parName(parName) {}
+         : optimizers::Function("FuncDeriv", func.getNumParams(), ""),
+           m_func(func), m_parName(parName) {}
+   protected:
       virtual double value(optimizers::Arg & x) const {
          return m_func.derivByParam(x, m_parName);
       }
-      virtual double derivByParam(optimizers::Arg &,
-                                  const std::string &) const {
+      virtual double derivByParamImp(optimizers::Arg &,
+                                     const std::string &) const {
          throw std::runtime_error("FluxDeriv::deriveByParam not implemented");
       }
-   protected:
+
       virtual Function * clone() const {
          return 0;
       }
@@ -271,17 +273,19 @@ protected:
  */
    class EnergyFlux : public optimizers::Function {
    public:
-      EnergyFlux(const optimizers::Function & func) : m_func(func) {}
+      EnergyFlux(const optimizers::Function & func)  
+         : optimizers::Function("EnergyFlux", func.getNumParams(), ""),
+           m_func(func) {}
+   protected:
       virtual double value(optimizers::Arg & x) const {
          double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
          return energy*m_func(x);
       }
-      virtual double derivByParam(optimizers::Arg & x,
-                                  const std::string & parname) const {
+      virtual double derivByParamImp(optimizers::Arg & x,
+                                     const std::string & parname) const {
          double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
          return energy*m_func.derivByParam(x, parname);
       }
-   protected:
       virtual Function * clone() const {
          return 0;
       }
@@ -298,17 +302,18 @@ protected:
    public:
       EnergyFluxDeriv(const optimizers::Function & func,
                       const std::string & parName) 
-         : m_func(func), m_parName(parName) {}
+         : optimizers::Function("EnergyFluxDeriv", func.getNumParams(), ""),
+           m_func(func), m_parName(parName) {}
+   protected:
       virtual double value(optimizers::Arg & x) const {
          double energy(dynamic_cast<optimizers::dArg &>(x).getValue());
          return energy*m_func.derivByParam(x, m_parName);
       }
-      virtual double derivByParam(optimizers::Arg &,
-                                  const std::string &) const {
+      virtual double derivByParamImp(optimizers::Arg &,
+                                     const std::string &) const {
          throw std::runtime_error("EnergyFluxDeriv::derivByParam: "
                                   "not implemented");
       }
-   protected:
       virtual Function * clone() const {
          return 0;
       }

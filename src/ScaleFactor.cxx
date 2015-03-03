@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ScaleFactor.cxx,v 1.1 2011/05/29 17:53:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScaleFactor.cxx,v 1.2 2012/03/10 03:15:19 jchiang Exp $
  */
 
 #include <algorithm>
@@ -20,21 +20,23 @@
 namespace Likelihood {
 
 ScaleFactor::ScaleFactor() 
-  : m_spectrum(new PowerLaw2()),  m_use_complement(false) {
+   : optimizers::Function("ScaleFactor::PowerLaw2", 5, "Integral"),
+     m_spectrum(new PowerLaw2()),  m_use_complement(false) {
    init();
    check_complement_usage();
 }
 
 ScaleFactor::ScaleFactor(const optimizers::Function & spectrum, 
                          double scale_factor, bool use_complement)
-   : m_spectrum(spectrum.clone()), m_use_complement(use_complement) {
+   : optimizers::Function("ScaleFactor::" + spectrum.genericName(),
+                          spectrum.getNumParams() + 1, 
+                          spectrum.normPar().getName()),
+     m_spectrum(spectrum.clone()), m_use_complement(use_complement) {
    init(scale_factor);
    check_complement_usage();
 }
    
 void ScaleFactor::init(double scale_factor) {
-   setMaxNumParams(m_spectrum->getNumParams() + 1);
-   
    std::vector<optimizers::Parameter> params;
    m_spectrum->getParams(params);
    for (size_t i(0); i < params.size(); i++) {
@@ -43,12 +45,6 @@ void ScaleFactor::init(double scale_factor) {
    setParRefs();
 
    addParam("ScaleFactor", scale_factor, true);
-
-   m_funcType = Addend;
-   m_argType = "dArg";
-   
-   m_genericName = "ScaleFactor::" + m_spectrum->genericName();
-   m_normParName = m_spectrum->normPar().getName();
 }
 
 void ScaleFactor::check_complement_usage() const {
@@ -116,8 +112,8 @@ double ScaleFactor::value(optimizers::Arg & xarg) const {
    return prefactor()*m_spectrum->operator()(xarg);
 }
    
-double ScaleFactor::derivByParam(optimizers::Arg & xarg,
-                                 const std::string & paramName) const {
+double ScaleFactor::derivByParamImp(optimizers::Arg & xarg,
+                                    const std::string & paramName) const {
    double energy(dynamic_cast<optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -129,7 +125,7 @@ double ScaleFactor::derivByParam(optimizers::Arg & xarg,
    
    if (iparam == -1) {
       throw optimizers::ParameterNotFound(paramName, getName(),
-                                          m_genericName + "::derivByParam");
+                                          genericName() + "::derivByParam");
    }
    
    int scale_factor(m_spectrum->getNumParams());

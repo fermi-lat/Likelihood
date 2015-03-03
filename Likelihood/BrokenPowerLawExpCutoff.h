@@ -3,7 +3,7 @@
  * @brief Declaration for the BrokenPowerLawExpCutoff Function class
  * @author Jennifer Carson
  *
- * $Header$
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BrokenPowerLawExpCutoff.h,v 1.1 2006/03/23 00:21:25 jchiang Exp $
  */
 
 #ifndef Likelihood_BrokenPowerLawExpCutoff_h
@@ -19,35 +19,26 @@ namespace Likelihood {
  *
  * @brief Broken Power Law with Exponential Cutoff function
  *
- * @author Jennifer Carson
- *
  */
 
 class BrokenPowerLawExpCutoff : public optimizers::Function {
 
 public:
 
-   BrokenPowerLawExpCutoff(){init(10., -2.1, -2.1, 1000., 10., 150.);}
-   BrokenPowerLawExpCutoff(double Prefactor, double Index1, 
-			   double Index2, double BreakValue,
-            double Eabs, double P1)
-      {init(Prefactor, Index1, Index2, BreakValue, Eabs, P1);}
+   BrokenPowerLawExpCutoff(double Prefactor=10 , double Index1=-2.1, 
+			   double Index2=-2.1, double BreakValue=1000.,
+                           double Eabs=10., double P1=150.);
 
-   double value(optimizers::Arg&) const;
-
-   double derivByParam(optimizers::Arg &x, const std::string &paramName) const;
-
-   //double integral(Arg &xmin, Arg &xmax) const;
-
-   virtual optimizers::Function *clone() const {
+   virtual optimizers::Function * clone() const {
       return new BrokenPowerLawExpCutoff(*this);
    }
 
-private:
+protected:
 
-   void init(double Prefactor, double Index1, double Index2, 
-	     double BreakValue, double Eabs, double P1);
+   double value(optimizers::Arg&) const;
 
+   double derivByParamImp(optimizers::Arg & x,
+                          const std::string & paramName) const;
 };
 
 } // namespace Likelihood

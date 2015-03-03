@@ -3,7 +3,7 @@
  * @brief Declaration for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.2 2009/01/19 15:18:17 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.3 2009/10/19 19:15:04 jchiang Exp $
  */
 
 #ifndef Likelihood_PowerLaw2_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.2 2009/01/19 15:18:17 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.3 2009/10/19 19:15:04 jchiang Exp $
  */
     
 class PowerLaw2 : public optimizers::Function {
@@ -33,16 +33,17 @@ public:
    PowerLaw2(double Integral=1., double Index=-2., 
              double LowerLimit=100., double UpperLimit=2e5);
 
-   double value(optimizers::Arg & x) const;
-
-   double derivByParam(optimizers::Arg & x, 
-                       const std::string & paramName) const;
-
    double integral(optimizers::Arg & xmin, optimizers::Arg & xmax) const;
 
    virtual Function * clone() const {
       return new PowerLaw2(*this);
    }
+
+protected:
+   double value(optimizers::Arg & x) const;
+
+   double derivByParamImp(optimizers::Arg & x, 
+                          const std::string & paramName) const;
 
 private:
 

@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceModel.cxx,v 1.95 2012/02/07 00:24:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.96 2012/04/19 15:21:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -43,10 +43,9 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
 using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 SourceModel::SourceModel(const Observation & observation, bool verbose) 
-   : m_observation(observation), m_useNewImp(true), m_verbose(verbose), 
+   : optimizers::Statistic("SourceModel", 0),
+     m_observation(observation), m_useNewImp(true), m_verbose(verbose), 
      m_formatter(new st_stream::StreamFormatter("SourceModel", "", 2)) {
-   setMaxNumParams(0); 
-   m_genericName = "SourceModel";
    char * useOldImp(::getenv("USE_OLD_LOGLIKE"));
    if (useOldImp) {
       m_useNewImp = false;
@@ -286,7 +285,7 @@ double SourceModel::value(optimizers::Arg &x) const {
       // for (; func_it != srcFuncs.end(); func_it++) {
       //    my_val += (*func_it).second->value(x);
       // }
-      my_val += srcIt->second->spectrum().value(x);
+      my_val += srcIt->second->spectrum()(x);
    }
    return my_val;
 }

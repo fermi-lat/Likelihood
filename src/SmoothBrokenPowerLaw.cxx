@@ -3,7 +3,7 @@
  * @brief Implementation for the SmoothBrokenPowerLaw Function class
  * @author Benoit Lott
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SmoothBrokenPowerLaw.cxx,v 1.1 2009/06/08 06:05:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SmoothBrokenPowerLaw.cxx,v 1.3 2009/06/09 15:00:54 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,37 +19,21 @@
 
 namespace Likelihood {
   
-  // initialization function used by constructors
-  void SmoothBrokenPowerLaw::init( 
-				    double Prefactor,  
-				    double Index1,
-				    double Scale,
-				    double Index2,
-				    double BreakValue,
-				    double Beta
-				    ) {
-    
-    // Implement PowerLaw class with five named parameters,
-    // "Prefactor", "Index1", "Scale", "Index2", "BreakValue(Energy)" , "Beta"
-    
-    int nParams = 6;
-    setMaxNumParams(nParams);
-    
+  SmoothBrokenPowerLaw::   
+  SmoothBrokenPowerLaw(double Prefactor,  
+                       double Index1,
+                       double Scale,
+                       double Index2,
+                       double BreakValue,
+                       double Beta)
+     : optimizers::Function("SmoothBrokenPowerLaw", 6, "Prefactor") {
     addParam(std::string("Prefactor"), Prefactor, true);
     addParam(std::string("Index1"), Index1, true); 
     addParam(std::string("Scale"), Scale, false);
     addParam(std::string("Index2"), Index2, true);
     addParam(std::string("BreakValue"), BreakValue, true);
     addParam(std::string("Beta"), Beta, true);
-    
-    // Set FuncType and ArgType for use with CompositeFunction hierarchy.
-    m_funcType = Addend;
-    m_argType = "dArg";
-    m_genericName = "SmoothBrokenPowerLaw";
-    m_normParName = "Prefactor";
   } 
-  // end of initialization
-  
   
   double SmoothBrokenPowerLaw::value(optimizers::Arg &xarg) const {
     double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
@@ -72,8 +56,8 @@ namespace Likelihood {
   }
   
   
-  double SmoothBrokenPowerLaw::derivByParam(optimizers::Arg &xarg,
-					      const std::string &paramName) const {
+  double SmoothBrokenPowerLaw::derivByParamImp(optimizers::Arg &xarg,
+                                               const std::string &paramName) const {
     double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
     
     enum ParamTypes {Prefactor, Index1, Scale, Index2, BreakValue, Beta};

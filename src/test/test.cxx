@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.131 2015/02/26 00:29:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.132 2015/02/28 03:27:32 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -81,6 +81,7 @@
 #include "Likelihood/BrokenPowerLaw3.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
 #include "Likelihood/EblAtten.h"
+#include "Likelihood/EnergyBand.h"
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/PiecewisePowerLaw.h"
@@ -109,6 +110,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_MultipleBrokenPowerLaw);
    CPPUNIT_TEST(test_PiecewisePowerLaw);
    CPPUNIT_TEST(test_EblAtten);
+   CPPUNIT_TEST(test_EnergyBand);
    CPPUNIT_TEST(test_RoiCuts);
    CPPUNIT_TEST(test_SourceFactory);
    CPPUNIT_TEST(test_XmlBuilders);
@@ -149,6 +151,7 @@ public:
    void test_MultipleBrokenPowerLaw();
    void test_PiecewisePowerLaw();
    void test_EblAtten();
+   void test_EnergyBand();
    void test_RoiCuts();
    void test_SourceFactory();
    void test_XmlBuilders();
@@ -547,6 +550,48 @@ void LikelihoodTests::test_EblAtten() {
    params.push_back(optimizers::Parameter("tau_norm", 1));
    params.push_back(optimizers::Parameter("redshift", 0.5));
    params.push_back(optimizers::Parameter("ebl_model", 0));
+
+   std::vector<optimizers::Arg *> args;
+   args.push_back(new optimizers::dArg(100));
+   args.push_back(new optimizers::dArg(300));
+   args.push_back(new optimizers::dArg(1e3));
+   args.push_back(new optimizers::dArg(3e3));
+   args.push_back(new optimizers::dArg(1e4));
+   args.push_back(new optimizers::dArg(3e4));
+   args.push_back(new optimizers::dArg(1e5));
+
+   tester.parameters(params);
+   tester.freeParameters(params);
+   tester.derivatives(args, 1e-5);
+}
+
+void LikelihoodTests::test_EnergyBand() {
+   double emin(100);
+   double emax(1e3);
+   Likelihood::PowerLaw2 pl2(1, -2.1, 20, 2e5);
+   Likelihood::EnergyBand eband_pl(pl2, emin, emax);
+
+   // Test that the emin, emax range is respected and that the
+   // function values agree within that range.
+   optimizers::dArg elo(emin - 1.);
+   optimizers::dArg ehi(emax + 1.);
+   CPPUNIT_ASSERT(eband_pl(elo) == 0);
+   CPPUNIT_ASSERT(eband_pl(ehi) == 0);
+   double estep(emin);
+   for (double ee(emin+1.); ee < emax; ) {
+      optimizers::dArg eArg(ee);
+      ASSERT_EQUALS(eband_pl(eArg), pl2(eArg));
+      ee += estep;
+   }
+
+   optimizers::FunctionTest tester(eband_pl, "EnergyBand::PowerLaw2");
+   std::vector<optimizers::Parameter> params;
+   params.push_back(optimizers::Parameter("Integral", 1));
+   params.push_back(optimizers::Parameter("Index", -2.1));
+   params.push_back(optimizers::Parameter("LowerLimit", 20.));
+   params.push_back(optimizers::Parameter("UpperLimit", 2e5));
+   params.push_back(optimizers::Parameter("Emin", emin));
+   params.push_back(optimizers::Parameter("Emax", emax));
 
    std::vector<optimizers::Arg *> args;
    args.push_back(new optimizers::dArg(100));
@@ -1782,8 +1827,12 @@ int main(int iargc, char * argv[]) {
       // testObj.test_MultipleBrokenPowerLaw();
       // testObj.tearDown();
 
+      // testObj.setUp();
+      // testObj.test_PiecewisePowerLaw();
+      // testObj.tearDown();
+
       testObj.setUp();
-      testObj.test_PiecewisePowerLaw();
+      testObj.test_EnergyBand();
       testObj.tearDown();
    } else {
       CppUnit::TextTestRunner runner;

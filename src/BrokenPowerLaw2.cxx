@@ -3,7 +3,7 @@
  * @brief Implementation for the BrokenPowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw2.cxx,v 1.1 2005/09/19 00:19:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw2.cxx,v 1.2 2007/07/13 15:35:11 jchiang Exp $
  */
 
 #include <cmath>
@@ -22,12 +22,8 @@ namespace Likelihood {
 
 BrokenPowerLaw2::BrokenPowerLaw2(double Integral, double Index1,
                                  double Index2, double BreakValue, 
-                                 double LowerLimit, double UpperLimit) {
-// Implement BrokenPowerLaw2 class with six named parameters, 
-// "Integral", "Index1", "Index2", "BreakValue", "LowerLimit", "UpperLimit"
-
-   setMaxNumParams(6);
-
+                                 double LowerLimit, double UpperLimit) 
+   : optimizers::Function("BrokenPowerLaw2", 6, "Integral") {
    addParam("Integral", Integral, true);
    addParam("Index1", Index1, true);
    addParam("Index2", Index2, true);
@@ -37,13 +33,6 @@ BrokenPowerLaw2::BrokenPowerLaw2(double Integral, double Index1,
 
    setParamAlwaysFixed("LowerLimit");
    setParamAlwaysFixed("UpperLimit");
-
-// Set FuncType and ArgType for use with CompositeFunction hierarchy.
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "BrokenPowerLaw2";
-   m_normParName = "Integral";
 }
 
 double BrokenPowerLaw2::value(optimizers::Arg & xarg) const {
@@ -67,7 +56,7 @@ double BrokenPowerLaw2::value(optimizers::Arg & xarg) const {
 }
 
 double BrokenPowerLaw2::
-derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
+derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);

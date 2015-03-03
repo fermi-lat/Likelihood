@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Npred.cxx,v 1.14 2012/06/14 04:18:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Npred.cxx,v 1.15 2012/06/27 20:31:51 jchiang Exp $
  */
 
 #include <string>
@@ -15,13 +15,16 @@
 
 namespace Likelihood {
 
+Npred::Npred() : optimizers::Function("Npred", 0, "") {
+}
+
 double Npred::value(optimizers::Arg &x) const {
    Source * src = dynamic_cast<SrcArg &>(x).getValue();
    return src->Npred();
 }
 
-double Npred::derivByParam(optimizers::Arg & x, 
-                           const std::string & paramName) const {
+double Npred::derivByParamImp(optimizers::Arg & x, 
+                              const std::string & paramName) const {
    Source * src = dynamic_cast<SrcArg &>(x).getValue();
    return src->NpredDeriv(paramName);
 }

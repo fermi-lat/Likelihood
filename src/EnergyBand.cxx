@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EnergyBand.cxx,v 1.1 2011/06/09 05:15:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EnergyBand.cxx,v 1.2 2011/06/10 17:18:54 jchiang Exp $
  */
 
 #include <algorithm>
@@ -18,19 +18,22 @@
 
 namespace Likelihood {
 
-EnergyBand::EnergyBand() : m_spectrum(new PowerLaw2()) {
+EnergyBand::EnergyBand() 
+   : optimizers::Function("EnergyBand::PowerLaw2", 6, "Integral"),
+     m_spectrum(new PowerLaw2()) {
    init(100, 3e5);
 }
 
 EnergyBand::EnergyBand(const optimizers::Function & spectrum, 
                        double emin, double emax)
-   : m_spectrum(spectrum.clone()) {
+   : optimizers::Function("EnergyBand::" + spectrum.genericName(),
+                          spectrum.getNumParams() + 2,
+                          spectrum.normPar().getName()),
+     m_spectrum(spectrum.clone()) {
    init(emin, emax);
 }
    
 void EnergyBand::init(double emin, double emax) {
-   setMaxNumParams(m_spectrum->getNumParams() + 2);
-   
    std::vector<optimizers::Parameter> params;
    m_spectrum->getParams(params);
    for (size_t i(0); i < params.size(); i++) {
@@ -41,12 +44,6 @@ void EnergyBand::init(double emin, double emax) {
    bool allowed_free;
    addParam("Emin", emin, allowed_free=false);
    addParam("Emax", emax, allowed_free=false);
-
-   m_funcType = Addend;
-   m_argType = "dArg";
-   
-   m_genericName = "EnergyBand::" + m_spectrum->genericName();
-   m_normParName = m_spectrum->normPar().getName();
 }
 
 void EnergyBand::setParRefs() {
@@ -89,8 +86,8 @@ double EnergyBand::value(optimizers::Arg & xarg) const {
    return m_spectrum->operator()(xarg);
 }
    
-double EnergyBand::derivByParam(optimizers::Arg & xarg,
-                                 const std::string & paramName) const {
+double EnergyBand::derivByParamImp(optimizers::Arg & xarg,
+                                   const std::string & paramName) const {
    double energy(dynamic_cast<optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -102,7 +99,7 @@ double EnergyBand::derivByParam(optimizers::Arg & xarg,
    
    if (iparam == -1) {
       throw optimizers::ParameterNotFound(paramName, getName(),
-                                          m_genericName + "::derivByParam");
+                                          genericName() + "::derivByParam");
    }
    
    int emin(m_spectrum->getNumParams());

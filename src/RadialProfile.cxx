@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/RadialProfile.cxx,v 1.4 2010/06/24 21:43:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RadialProfile.cxx,v 1.5 2011/08/27 03:48:10 jchiang Exp $
  */
 
 #include <cmath>
@@ -22,12 +22,15 @@
 
 namespace Likelihood {
 
-RadialProfile::RadialProfile() : m_center(0) {
+RadialProfile::RadialProfile() 
+   : optimizers::Function("RadialProfile", 3, "Normalization"),
+     m_center(0) {
    init();
 }
 
 RadialProfile::RadialProfile(const std::string & template_file) 
-   : m_center(0), m_templateFile(template_file) {
+   : optimizers::Function("RadialProfile", 3, "Normalization"),
+     m_center(0), m_templateFile(template_file) {
    init();
    readTemplateFile(template_file);
 }
@@ -78,8 +81,8 @@ double RadialProfile::value(optimizers::Arg & x) const {
       *(m_profile.at(indx+1) - m_profile.at(indx)) + m_profile.at(indx);
 }
 
-double RadialProfile::derivByParam(optimizers::Arg & x, 
-                                   const std::string & parName) const {
+double RadialProfile::derivByParamImp(optimizers::Arg & x, 
+                                      const std::string & parName) const {
    if (parName == "Normalization") {
       return value(x)/getParam(parName).getValue();
    }
@@ -105,8 +108,6 @@ double RadialProfile::angularIntegral() const {
 }
 
 void RadialProfile::init() {
-   setMaxNumParams(3);
-
    addParam("Normalization", 1, false);
    parameter("Normalization").setBounds(0, 10);
    setParamAlwaysFixed("Normalization");
@@ -118,11 +119,6 @@ void RadialProfile::init() {
    addParam("DEC", 0, false);
    parameter("DEC").setBounds(-90, 90);
    setParamAlwaysFixed("DEC");
-
-   m_genericName = "RadialProfile";
-   m_normParName = "Normalization";
-   m_funcType = Addend;
-   m_argType = "";
 }
 
 void RadialProfile::readTemplateFile(const std::string & template_file) {

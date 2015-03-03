@@ -18,14 +18,10 @@
 
 namespace Likelihood {
 
-// initialization function used by constructors
-void ExpCutoff::init(double Prefactor, double Index, double Scale,
-                     double Ebreak, double P1, double P2, double P3) {
-// Implement PowerLaw class with six named parameters,
-
-   int nParams = 7;
-   setMaxNumParams(nParams);
-
+ExpCutoff::
+ExpCutoff(double Prefactor, double Index, double Scale,
+          double Ebreak, double P1, double P2, double P3)
+   : optimizers::Function("ExpCutoff", 7, "Prefactor") {
    addParam(std::string("Prefactor"), Prefactor, true);
    addParam(std::string("Index"), Index, true);
    addParam(std::string("Scale"), Scale, false);
@@ -33,13 +29,6 @@ void ExpCutoff::init(double Prefactor, double Index, double Scale,
    addParam(std::string("P1"), P1, true);
    addParam(std::string("P2"), P2, true);
    addParam(std::string("P3"), P3, true);
-
-// Set FuncType and ArgType for use with CompositeFunction hierarchy.
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "ExpCutoff";
-   m_normParName = "Prefactor";
 }
 
 double ExpCutoff::value(optimizers::Arg &xarg) const {
@@ -68,8 +57,8 @@ double ExpCutoff::value(optimizers::Arg &xarg) const {
    }
 }
 
-double ExpCutoff::derivByParam(optimizers::Arg &xarg,
-                               const std::string &paramName) const {
+double ExpCutoff::derivByParamImp(optimizers::Arg & xarg,
+                                  const std::string & paramName) const {
    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Prefactor, Index, Scale, Ebreak, P1, P2, P3};

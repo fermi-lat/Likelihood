@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MultipleBrokenPowerLaw.h,v 1.1 2015/02/26 00:29:06 jchiang Exp $
  */
 
 #ifndef Likelihood_MultpleBrokenPowerLaw_h
@@ -24,22 +24,19 @@ public:
 
    MultipleBrokenPowerLaw();
 
-   double value(optimizers::Arg & x) const;
-   
-   double derivByParam(optimizers::Arg & x,
-                       const std::string & paramName) const;
-
-   double integral(optimizers::Arg & xmin, optimizers::Arg & xmax) const {
-      // Temporary
-      return 0;
-   }
-
    virtual Function * clone() const {
       return new MultipleBrokenPowerLaw(*this);
    }
 
    void addParams(double norm, const std::vector<double> & photonIndexes,
                   const std::vector<double> & breakEnergies);
+
+protected:
+
+   double value(optimizers::Arg & x) const;
+   
+   double derivByParamImp(optimizers::Arg & x,
+                          const std::string & paramName) const;
 
 private:
 

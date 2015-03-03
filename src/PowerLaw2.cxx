@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PowerLaw2.cxx,v 1.6 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.7 2009/01/19 15:18:18 sfegan Exp $
  */
 
 #include <cmath>
@@ -24,12 +24,8 @@ double PowerLaw2::s_cX = 0;
 double PowerLaw2::s_cLogX = 0;
 
 PowerLaw2::PowerLaw2(double Integral, double Index, 
-                     double LowerLimit, double UpperLimit) {
-// Implement PowerLaw2 class with four named parameters, 
-// "Integral", "Index", "LowerLimit", "UpperLimit"
-
-   setMaxNumParams(4);
-
+                     double LowerLimit, double UpperLimit) 
+   : optimizers::Function("PowerLaw2", 4, "Integral") {
    addParam("Integral", Integral, true);
    addParam("Index", Index, true);
    addParam("LowerLimit", LowerLimit, false);
@@ -37,13 +33,6 @@ PowerLaw2::PowerLaw2(double Integral, double Index,
 
    setParamAlwaysFixed("LowerLimit");
    setParamAlwaysFixed("UpperLimit");
-
-// Set FuncType and ArgType for use with CompositeFunction hierarchy.
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "PowerLaw2";
-   m_normParName = "Integral";
 
    m_cGamma = Index+1;
    m_cX = 0;
@@ -70,7 +59,7 @@ double PowerLaw2::value(optimizers::Arg & xarg) const {
 }
 
 double PowerLaw2::
-derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
+derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);

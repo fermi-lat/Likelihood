@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.1 2015/02/28 03:27:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.2 2015/03/02 19:02:45 jchiang Exp $
  */
 
 #include <algorithm>
@@ -15,12 +15,8 @@
 
 namespace Likelihood {
 
-PiecewisePowerLaw::PiecewisePowerLaw() {
-   setMaxNumParams(100);
-   m_funcType = Addend;
-   m_argType = "dArg";
-   m_genericName = "PiecewisePowerLaw";
-   m_normParName = "dNdE0";
+PiecewisePowerLaw::PiecewisePowerLaw() 
+   : optimizers::Function("PiecewisePowerLaw", 100, "dNdE0") {
 }
 
 void PiecewisePowerLaw::
@@ -75,7 +71,7 @@ double PiecewisePowerLaw::value(optimizers::Arg & xarg) const {
 }
 
 double PiecewisePowerLaw::
-derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
+derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
    if (paramName.substr(0, 6) == "Energy") {
       throw std::runtime_error("MultipleBPL: Parameter " + paramName 
                                + " must be fixed in the xml model definition.");

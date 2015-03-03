@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MultipleBrokenPowerLaw.cxx,v 1.2 2015/02/26 16:38:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MultipleBrokenPowerLaw.cxx,v 1.3 2015/02/26 17:32:31 jchiang Exp $
  */
 
 #include <algorithm>
@@ -15,12 +15,8 @@
 
 namespace Likelihood {
 
-MultipleBrokenPowerLaw::MultipleBrokenPowerLaw() {
-   setMaxNumParams(100);
-   m_funcType = Addend;
-   m_argType = "dArg";
-   m_genericName = "MultipleBPL";
-   m_normParName = "Normalization";
+MultipleBrokenPowerLaw::MultipleBrokenPowerLaw() 
+   : optimizers::Function("MultipleBrokenPowerLaw", 100, "Normalization") {
 }
 
 void MultipleBrokenPowerLaw::
@@ -70,7 +66,7 @@ double MultipleBrokenPowerLaw::value(optimizers::Arg & xarg) const {
 }
 
 double MultipleBrokenPowerLaw::
-derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
+derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
    if (paramName.substr(0, 5) == "Break") {
       throw std::runtime_error("MultipleBPL: Parameter " + paramName 
                                + " must be fixed in the xml model definition.");

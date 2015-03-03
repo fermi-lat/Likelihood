@@ -3,7 +3,7 @@
  * @brief Declaration for the LogParabola class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogParabola.h,v 1.1 2005/07/18 22:54:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogParabola.h,v 1.2 2011/04/22 03:21:46 jchiang Exp $
  */
 
 #ifndef Likelihood_LogParabola_h
@@ -25,37 +25,24 @@ class LogParabola : public optimizers::Function {
 
 public:
 
-   LogParabola() {
-      init(1., 1., 2., 100);
-   }
-
    /// @brief The log-parabolic form is given by
    /// \f$K (E/E_1)^{-(\alpha + \beta*\log(E/E_1))}\f$
    /// @param norm \f$k\f$ in the formula
    /// @param alpha 
    /// @param beta 
    /// @param Eb \f$E_1\f$ in the formula
-   LogParabola(double norm, double alpha, double beta, double Eb) {
-      init(norm, alpha, beta, Eb);
-   }
+   LogParabola(double norm=1., double alpha=1., double beta=2., double Eb=100.);
 
-   double value(optimizers::Arg&) const;
-
-   double derivByParam(optimizers::Arg &x, const std::string &paramName) const;
-
-   virtual Function *clone() const {
+   virtual Function * clone() const {
       return new LogParabola(*this);
    }
 
 protected:
 
-   double integral(optimizers::Arg &, optimizers::Arg &) const {
-      return 0;
-   }
+   double value(optimizers::Arg &) const;
 
-private:
-
-   void init(double norm, double alpha, double beta, double Eb);
+   double derivByParamImp(optimizers::Arg & x,
+                          const std::string & paramName) const;
 
 };
 

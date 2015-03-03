@@ -3,7 +3,7 @@
  * @brief Declaration for the SmoothDoubleBrokenPowerLaw Function class
  * @author Keith Bechtol
  *
- * $Header: /usr/local/CVS/SLAC/Likelihood/Likelihood/SmoothDoubleBrokenPowerLaw.h,v 1.1 2009/06/08 06:05:48 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SmoothDoubleBrokenPowerLaw.h,v 1.1 2012/01/12 16:46:56 jchiang Exp $
  */
 
 #ifndef Likelihood_SmoothDoubleBrokenPowerLaw_h
@@ -26,29 +26,28 @@ namespace Likelihood {
   class SmoothDoubleBrokenPowerLaw : public optimizers::Function {
     
   public:
-    
-    SmoothDoubleBrokenPowerLaw(){ init( 10., -1.5, 100, -2.0, 1000., 0.1, -2.5, 10000., 0.1 );}
-    SmoothDoubleBrokenPowerLaw(
-			   double Prefactor,
-			   double Index1, 
-			   double Scale,
-			   double Index2,
-			   double BreakValue12,
-			   double Beta12,
-			   double Index3,
-			   double BreakValue23,
-			   double Beta23
-			   )
-    {init(Prefactor, Index1, Scale, Index2, BreakValue12, Beta12, Index3, BreakValue23, Beta23);}
-    
-    double value(optimizers::Arg&) const;
-    
-    double derivByParam(optimizers::Arg &x, const std::string &paramName) const;
-    
-    virtual optimizers::Function *clone() const {
+
+    SmoothDoubleBrokenPowerLaw(double Prefactor=10.,
+                               double Index1=-1.5, 
+                               double Scale=100.,
+                               double Index2=-2.0,
+                               double BreakValue12=1000.,
+                               double Beta12=0.1,
+                               double Index3=-2.5,
+                               double BreakValue23=10000.,
+                               double Beta23=0.1);
+
+    virtual optimizers::Function * clone() const {
       return new SmoothDoubleBrokenPowerLaw(*this);
     }
     
+  protected:
+
+    double value(optimizers::Arg &) const;
+    
+    double derivByParamImp(optimizers::Arg & x,
+                           const std::string & paramName) const;
+
   private:
     
     void init(double Prefactor,  

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ScaleFactor.h,v 1.2 2012/03/10 03:15:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScaleFactor.h,v 1.3 2012/04/19 23:39:03 jchiang Exp $
  */
 
 #include "optimizers/Function.h"
@@ -27,9 +27,6 @@ public:
 
    ~ScaleFactor() throw();
 
-   virtual double value(optimizers::Arg & x) const;
-   virtual double derivByParam(optimizers::Arg & x,
-                               const std::string & paramName) const;
    virtual Function * clone() const {
       return new ScaleFactor(*this);
    }
@@ -50,6 +47,12 @@ public:
    optimizers::Function * spectrum() {
       return m_spectrum;
    }
+
+protected:
+   virtual double value(optimizers::Arg & x) const;
+
+   virtual double derivByParamImp(optimizers::Arg & x,
+                                  const std::string & paramName) const;
 
 private:
    
