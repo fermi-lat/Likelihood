@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.78 2015/02/26 00:29:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.79 2015/02/28 03:27:31 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -351,7 +351,7 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
       }
    }
 
-// If FileFunction, read in the data:
+   // If FileFunction, read in the data:
    if (type == "FileFunction") {
       std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
       dynamic_cast<FileFunction *>(spec)->readFunction(filename);
@@ -363,6 +363,16 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
    if (type == "DMFitFunction") {
       std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
       dynamic_cast<DMFitFunction *>(spec)->readFunction(filename);
+   }
+
+   // Check if spectral scaling, i.e., for effective area systematics
+   // studies, is desired.
+   std::string scaling_file = 
+      xmlBase::Dom::getAttribute(spectrum, "scaling_file");
+   if (scaling_file != "") {
+      FileFunction scalingFunction;
+      scalingFunction.readFunction(scaling_file);
+      spec->setScalingFunction(scalingFunction);
    }
 
    src->setSpectrum(spec);
