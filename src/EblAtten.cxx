@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/EblAtten.cxx,v 1.4 2009/06/19 06:36:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EblAtten.cxx,v 1.5 2011/05/29 17:53:09 jchiang Exp $
  */
 
 #include <algorithm>
@@ -18,20 +18,23 @@
 
 namespace Likelihood {
 
-EblAtten::EblAtten() : m_spectrum(new PowerLaw2()), m_tau(0) {
+EblAtten::EblAtten() 
+   : optimizers::Function("EblAtten::PowerLaw2", 7, "Integral"),
+     m_spectrum(new PowerLaw2()), m_tau(0) {
    init();
 }
 
 EblAtten::EblAtten(const optimizers::Function & spectrum, 
                    double tau_norm, double redshift,
                    size_t ebl_model) 
-   : m_spectrum(spectrum.clone()), m_tau(0) {
+   : optimizers::Function("EblAtten::" + spectrum.genericName(),
+                          spectrum.getNumParams() + 3, 
+                          spectrum.normPar().getName()),
+     m_spectrum(spectrum.clone()), m_tau(0) {
    init(tau_norm, redshift, ebl_model);
 }
 
 void EblAtten::init(double tau_norm, double redshift, size_t ebl_model) {
-   setMaxNumParams(m_spectrum->getNumParams() + 3);
-   
    std::vector<optimizers::Parameter> params;
    m_spectrum->getParams(params);
    for (size_t i(0); i < params.size(); i++) {
@@ -44,12 +47,6 @@ void EblAtten::init(double tau_norm, double redshift, size_t ebl_model) {
    addParam("ebl_model", ebl_model, false);
 
    m_tau = new IRB::EblAtten(static_cast<IRB::EblModel>(ebl_model));
-
-   m_funcType = Addend;
-   m_argType = "dArg";
-   
-   m_genericName = "EblAtten::" + m_spectrum->genericName();
-   m_normParName = m_spectrum->normPar().getName();
 }
 
 void EblAtten::setParRefs() {
@@ -90,8 +87,8 @@ double EblAtten::value(optimizers::Arg & xarg) const {
    return m_spectrum->operator()(xarg)*attenuation(energy);
 }
 
-double EblAtten::derivByParam(optimizers::Arg & xarg,
-                              const std::string & paramName) const {
+double EblAtten::derivByParamImp(optimizers::Arg & xarg,
+                                 const std::string & paramName) const {
    double energy(dynamic_cast<optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -103,7 +100,7 @@ double EblAtten::derivByParam(optimizers::Arg & xarg,
 
    if (iparam == -1) {
       throw optimizers::ParameterNotFound(paramName, getName(),
-                                          m_genericName + "::derivByParam");
+                                          genericName() + "::derivByParam");
    }
 
    if (iparam < static_cast<int>(m_spectrum->getNumParams())) {

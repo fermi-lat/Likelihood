@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Source.cxx,v 1.23 2012/06/27 20:31:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.24 2013/01/09 00:44:41 jchiang Exp $
  */
 
 #include <algorithm>
@@ -38,7 +38,8 @@ Source::Source(const Source & rhs)
 
 double Source::Npred() {
    optimizers::Function * specFunc = m_functions["Spectrum"];
-   if (specFunc->xvalues().size() == 0) {
+//   if (specFunc->xvalues().size() == 0) {
+   if (true) {
       const std::vector<double> & energies(m_energies);
 
       std::vector<double> NpredIntegrand(energies.size());
@@ -51,18 +52,18 @@ double Source::Npred() {
       double value(trapQuad.integral());
       return value;
    }
-   const std::vector<double> & energies(specFunc->xvalues());
-   std::vector<double> exposure;
-   getExposureValues(energies, exposure);
-   std::vector<double> NpredIntegrand(energies.size());
-   for (unsigned int k = 0; k < energies.size(); k++) {
-      optimizers::dArg eArg(energies[k]);
-      NpredIntegrand[k] = (*specFunc)(eArg)*m_exposure[k];
-   }
-   bool useLog;
-   TrapQuad trapQuad(energies, NpredIntegrand, useLog=true);
-   double value(trapQuad.integral());
-   return value;
+   // const std::vector<double> & energies(specFunc->xvalues());
+   // std::vector<double> exposure;
+   // getExposureValues(energies, exposure);
+   // std::vector<double> NpredIntegrand(energies.size());
+   // for (unsigned int k = 0; k < energies.size(); k++) {
+   //    optimizers::dArg eArg(energies[k]);
+   //    NpredIntegrand[k] = (*specFunc)(eArg)*m_exposure[k];
+   // }
+   // bool useLog;
+   // TrapQuad trapQuad(energies, NpredIntegrand, useLog=true);
+   // double value(trapQuad.integral());
+   // return value;
 }
 
 void Source::getExposureValues(const std::vector<double> & energies,

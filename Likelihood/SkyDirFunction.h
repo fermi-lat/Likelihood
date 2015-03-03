@@ -3,7 +3,7 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.18 2005/02/15 00:34:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.19 2009/09/02 04:51:46 jchiang Exp $
  */
 #ifndef Likelihood_SkyDirFunction_h
 #define Likelihood_SkyDirFunction_h
@@ -23,47 +23,50 @@ namespace Likelihood {
  * dec), to be treated by the Likelihood::SourceModel class as
  * Function Parameters.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.18 2005/02/15 00:34:42 jchiang Exp $
  */
     
 class SkyDirFunction : public optimizers::Function {
 
 public:
 
-   SkyDirFunction() {m_init(0., 0.);}
-   SkyDirFunction(double ra, double dec) {m_init(ra, dec);}
-   SkyDirFunction(const astro::SkyDir &dir);
+   SkyDirFunction(double ra=0, double dec=0);
 
-   const astro::SkyDir & getDir() const {return m_dir;}
+   SkyDirFunction(const astro::SkyDir & dir);
 
-   double value(optimizers::Arg &) const {return 0;}
+   const astro::SkyDir & getDir() const {
+      return m_dir;
+   }
 
    void setParam(const std::string &paramName, double paramValue) {
       optimizers::Function::setParam(paramName, paramValue);
       update_m_dir(paramName, paramValue);
    }
 
-   double derivByParam(optimizers::Arg &, const std::string &) const
-      {return 0;}
-
-   virtual SkyDirFunction * clone() const {
+   virtual Function * clone() const {
       return new SkyDirFunction(*this);
+   }
+
+protected:
+
+   virtual double value(optimizers::Arg &) const {
+      return 0;
+   }
+
+   virtual double derivByParamImp(optimizers::Arg &,
+                                  const std::string &) const {
+      return 0;
    }
 
 private:
 
-   void m_init(double ra, double dec);
-   
-   void update_m_dir(std::string paramName, double paramValue);
-
-   astro::SkyDir::CoordSystem m_coord_type;
    double m_ra;
    double m_dec;
 
    astro::SkyDir m_dir;
 
+   void init();
+   
+   void update_m_dir(std::string paramName, double paramValue);
 };
 
 } // namespace Likelihood

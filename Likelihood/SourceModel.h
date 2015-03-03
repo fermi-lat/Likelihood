@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceModel.h,v 1.69 2012/02/07 00:24:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.70 2012/06/14 02:01:24 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -187,10 +187,6 @@ protected:
 
    std::map<std::string, Source *> m_sources;
 
-   /// disable this since parameters may no longer have unique names
-   double derivByParam(optimizers::Arg &, const std::string &) 
-      const {return 0;}
-
    void fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
                     bool getFree) const;
 
@@ -215,6 +211,10 @@ protected:
       derivs.clear();
    }
 
+   /// disable this since parameters may no longer have unique names
+   double derivByParamImp(optimizers::Arg &, const std::string &) const {
+      return 0;
+   }
 
 private:
 

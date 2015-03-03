@@ -2,7 +2,7 @@
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.14 2012/12/31 22:52:57 kadrlica Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.15 2013/02/07 19:04:24 cohen Exp $
  */
 
 #include <cmath>
@@ -38,11 +38,12 @@ namespace Likelihood {
 
 static  enum  {norm,sigmav,mass,bratio,channel0,channel1} ParamType;
 
-  void DMFitFunction::init(double norm, double sigmav, double mass, double bratio,  
-                         int channel0, int channel1) {
-   setMaxNumParams(6);
+DMFitFunction::
+DMFitFunction(double norm, double sigmav, double mass, double bratio,  
+              int channel0, int channel1) 
+   : optimizers::Function("DMFitFunction", 6, "sigmav", "dArg", Addend),
+     m_filename(""), m_8pi(8.*M_PI) {
    //should add a check that ch0/1 are integer between 1 and 9
-
    addParam("norm", norm, false);
    addParam("sigmav", sigmav, true);
    addParam("mass", mass, true);
@@ -53,13 +54,6 @@ static  enum  {norm,sigmav,mass,bratio,channel0,channel1} ParamType;
    //setParamAlwaysFixed("norm");
    setParamAlwaysFixed("channel0");
    setParamAlwaysFixed("channel1");
-
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "DMFitFunction";
-   m_normParName = "sigmav";
-   m_8pi = 8.*M_PI;
 }
 
 double DMFitFunction::value(optimizers::Arg &xarg) const {
@@ -79,8 +73,8 @@ double DMFitFunction::value(optimizers::Arg &xarg) const {
    return my_value/m_8pi;
 }
 
-double DMFitFunction::derivByParam(optimizers::Arg & xarg,
-                          const std::string & paramName) const {
+double DMFitFunction::derivByParamImp(optimizers::Arg & xarg,
+                                      const std::string & paramName) const {
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {

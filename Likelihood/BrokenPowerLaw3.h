@@ -3,7 +3,7 @@
  * @brief Declaration for the BrokenPowerLaw3 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BrokenPowerLaw3.h,v 1.1 2005/09/19 00:19:16 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BrokenPowerLaw3.h,v 1.1 2012/07/31 19:38:34 jchiang Exp $
  */
 
 #ifndef Likelihood_BrokenPowerLaw3_h
@@ -32,16 +32,18 @@ public:
                    double LowerLimit1=100., double UpperLimit1=1e4,
                    double LowerLimit2=2e4, double UpperLimit2=1e5);
 
-   double value(optimizers::Arg & x) const;
-
-   double derivByParam(optimizers::Arg & x, 
-                       const std::string & paramName) const;
-
    double integral(optimizers::Arg & xmin, optimizers::Arg & xmax) const;
 
    virtual Function * clone() const {
       return new BrokenPowerLaw3(*this);
    }
+
+protected:
+
+   double value(optimizers::Arg & x) const;
+
+   double derivByParamImp(optimizers::Arg & x, 
+                          const std::string & paramName) const;
 
 private:
 

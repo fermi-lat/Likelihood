@@ -4,7 +4,7 @@
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OneSourceFunc.cxx,v 1.4 2004/02/23 17:52:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OneSourceFunc.cxx,v 1.5 2005/03/04 22:08:27 jchiang Exp $
  */
 
 #include "Likelihood/OneSourceFunc.h"
@@ -19,13 +19,14 @@ namespace Likelihood {
   OneSourceFunc::OneSourceFunc(Source * src,
 			       const std::vector<Event>& evt,
 			       std::vector<double> * weights):
+    Statistic("OneSourceFunc", 0),
     m_src(src),
     m_events(evt),
     m_weights(weights),
     m_epsw(1.e-3),
     m_epsf(1.e-20)
   {
-    m_functionName = "OneSourceFunc";
+     setName("OneSourceFunc");
     syncParams();
   }
 
@@ -61,8 +62,8 @@ namespace Likelihood {
     return foo;
   }
 
-  double OneSourceFunc::derivByParam(optimizers::Arg& , 
-				     const std::string& paramName) const {
+  double OneSourceFunc::derivByParamImp(optimizers::Arg &, 
+                                        const std::string & paramName) const {
 
     double deriv = 0;
     //    double wtot = 0.;

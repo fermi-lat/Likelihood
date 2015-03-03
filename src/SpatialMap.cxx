@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SpatialMap.cxx,v 1.34 2012/01/09 21:36:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.35 2013/09/04 05:30:45 jchiang Exp $
  *
  */
 
@@ -27,14 +27,18 @@
 
 namespace Likelihood {
 
-SpatialMap::SpatialMap() : optimizers::Function(), MapBase() {
-   init();      
+SpatialMap::SpatialMap() 
+   : optimizers::Function("SpatialMap", 1, "Prefactor"), MapBase() {
+   addParam("Prefactor", 1, false);
+   setParamAlwaysFixed("Prefactor");
 }
 
 SpatialMap::SpatialMap(const std::string & fitsFile,
                        const std::string & extension) 
-   : optimizers::Function(), MapBase(fitsFile, extension) {
-   init();
+   : optimizers::Function("SpatialMap", 1, "Prefactor"), 
+     MapBase(fitsFile, extension) {
+   addParam("Prefactor", 1, false);
+   setParamAlwaysFixed("Prefactor");
 }
 
 SpatialMap::SpatialMap(const SpatialMap & rhs) 
@@ -50,17 +54,6 @@ SpatialMap & SpatialMap::operator=(const SpatialMap & rhs) {
 }
 
 SpatialMap::~SpatialMap() {
-}
-
-void SpatialMap::init() {
-// This Function has one Parameter, an overall normalization, 
-// but set it to be unit constant.
-   int nParams = 1;
-   setMaxNumParams(nParams);
-   m_genericName = "SpatialMap";
-   addParam("Prefactor", 1, false);
-   setParamAlwaysFixed("Prefactor");
-   m_normParName = "Prefactor";
 }
 
 double SpatialMap::value(optimizers::Arg & arg) const {

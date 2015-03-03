@@ -7,7 +7,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CompositeLikelihood.h,v 1.7 2011/03/02 11:02:08 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.8 2011/03/02 23:49:16 jchiang Exp $
  */
 
 #ifndef Likelihood_CompositeLikelihood_h
@@ -50,9 +50,13 @@ public:
 
 protected:
 
-   double value(optimizers::Arg&) const {return value();}
+   double value(optimizers::Arg&) const {
+      return value();
+   }
 
-   double derivByParam(optimizers::Arg&, const std::string&) const {return 0;}
+   double derivByParamImp(optimizers::Arg&, const std::string&) const {
+      return 0;
+   }
 
    optimizers::Function * clone() const {return 0;}
 

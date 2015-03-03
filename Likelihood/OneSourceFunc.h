@@ -4,7 +4,7 @@
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.5 2004/08/11 17:23:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.6 2005/03/04 22:08:22 jchiang Exp $
  */
 
 #ifndef Likelihood_OneSourceFunc_h
@@ -27,7 +27,6 @@ namespace Likelihood {
     * @brief Extended likelihood function for one source.
     * @author P. Nolan
     *
-    * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.5 2004/08/11 17:23:58 jchiang Exp $
     */
   
 //   class OneSourceFunc: public optimizers::Function {
@@ -39,9 +38,6 @@ namespace Likelihood {
 		  const std::vector<Event>& events, 
 		  std::vector<double> * weights = NULL);
 
-    virtual double value(optimizers::Arg& arg) const;
-    virtual double derivByParam(optimizers::Arg& x, 
-				const std::string& paramName) const;
     virtual std::vector<double>::const_iterator 
       setFreeParamValues_(std::vector<double>::const_iterator it);
     virtual std::vector<double>::const_iterator
@@ -70,6 +66,11 @@ namespace Likelihood {
      }
 
   protected:
+
+    virtual double value(optimizers::Arg& arg) const;
+
+    virtual double derivByParamImp(optimizers::Arg& x, 
+                                   const std::string& paramName) const;
 
     void syncParams(void);
     

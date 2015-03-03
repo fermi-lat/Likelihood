@@ -3,7 +3,7 @@
  * @brief Declaration of Npred class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Npred.h,v 1.12 2012/06/27 20:31:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Npred.h,v 1.13 2012/06/27 23:09:10 jchiang Exp $
  */
 
 #ifndef Likelihood_Npred_h
@@ -27,19 +27,17 @@ class Npred : public optimizers::Function {
     
 public:
 
-   Npred() {
-      m_genericName = "Npred";
-   }
+   Npred();
 
    virtual ~Npred() {}
 
-   double value(optimizers::Arg &) const;
-
-   double derivByParam(optimizers::Arg &, const std::string &) const;
-
 protected:
 
-   Npred * clone() const {
+   double value(optimizers::Arg &) const;
+
+   double derivByParamImp(optimizers::Arg &, const std::string &) const;
+
+   optimizers::Function * clone() const {
       return new Npred(*this);
    }
 

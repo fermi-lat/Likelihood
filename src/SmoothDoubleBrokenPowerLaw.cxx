@@ -3,7 +3,7 @@
  * @brief Implementation for the SmoothDoubleBrokenPowerLaw Function class
  * @author Keith Bechtol
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SmoothDoubleBrokenPowerLaw.cxx,v 1.1 2012/01/12 16:46:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SmoothDoubleBrokenPowerLaw.cxx,v 1.2 2012/01/20 23:39:40 jchiang Exp $
  */
 
 #include <cmath>
@@ -18,24 +18,18 @@
 #include "Likelihood/SmoothDoubleBrokenPowerLaw.h"
 
 namespace Likelihood {
-  
-void SmoothDoubleBrokenPowerLaw::init(double Prefactor,
-                                      double Index1,
-                                      double Scale,
-                                      double Index2,
-                                      double BreakValue12,
-                                      double Beta12,
-                                      double Index3,
-                                      double BreakValue23,
-                                      double Beta23) {
-    
-   // Implement PowerLaw class with nine named parameters,
-   // "Prefactor", "Index1", "Scale", "Index2", "BreakValue12(Energy)",
-   // "Beta12", "Index3", "BreakValue23(Energy)", "Beta23"
-    
-   int nParams = 9;
-   setMaxNumParams(nParams);
-    
+
+SmoothDoubleBrokenPowerLaw::  
+SmoothDoubleBrokenPowerLaw(double Prefactor,
+                           double Index1,
+                           double Scale,
+                           double Index2,
+                           double BreakValue12,
+                           double Beta12,
+                           double Index3,
+                           double BreakValue23,
+                           double Beta23) 
+   : optimizers::Function("SmoothDoubleBrokenPowerLaw", 9, "Prefactor") {
    addParam(std::string("Prefactor"), Prefactor, true);
    addParam(std::string("Index1"), Index1, true); 
    addParam(std::string("Scale"), Scale, false);
@@ -47,12 +41,6 @@ void SmoothDoubleBrokenPowerLaw::init(double Prefactor,
    addParam(std::string("Index3"), Index3, true);
    addParam(std::string("BreakValue23"), BreakValue23, true);
    addParam(std::string("Beta23"), Beta23, true);
-    
-   // Set FuncType and ArgType for use with CompositeFunction hierarchy.
-   m_funcType = Addend;
-   m_argType = "dArg";
-   m_genericName = "SmoothDoubleBrokenPowerLaw";
-   m_normParName = "Prefactor";
 } 
   
 double SmoothDoubleBrokenPowerLaw::value(optimizers::Arg &xarg) const {
@@ -81,8 +69,8 @@ double SmoothDoubleBrokenPowerLaw::value(optimizers::Arg &xarg) const {
 }
   
 double SmoothDoubleBrokenPowerLaw::
-derivByParam(optimizers::Arg &xarg,
-             const std::string &paramName) const {
+derivByParamImp(optimizers::Arg &xarg,
+                const std::string &paramName) const {
    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
    
    enum ParamTypes {Prefactor, Index1, Scale, Index2, BreakValue12,

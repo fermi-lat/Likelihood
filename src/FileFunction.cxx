@@ -3,7 +3,7 @@
  * @brief Implementation for the FileFunction Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.8 2011/06/23 19:49:30 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.9 2014/08/08 16:25:41 jchiang Exp $
  */
 
 #include <cmath>
@@ -25,17 +25,10 @@
 
 namespace Likelihood {
 
-FileFunction::FileFunction(double Normalization) : m_filename("") {
-   setMaxNumParams(1);
-
+FileFunction::FileFunction(double Normalization) 
+   : optimizers::Function("FileFunction", 1, "Normalization"),
+     m_filename("") {
    addParam("Normalization", Normalization, true);
-
-// Set FuncType and ArgType for use with CompositeFunction hierarchy.
-   m_funcType = Addend;
-   m_argType = "dArg";
-
-   m_genericName = "FileFunction";
-   m_normParName = "Normalization";
 }
 
 double FileFunction::value(optimizers::Arg & xarg) const {
@@ -45,7 +38,7 @@ double FileFunction::value(optimizers::Arg & xarg) const {
 }
 
 double FileFunction::
-derivByParam(optimizers::Arg & xarg, const std::string & paramName) const {
+derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
    if (paramName != "Normalization") {
       throw optimizers::ParameterNotFound(paramName, getName(),
                                           "FileFunction::derivByParam");

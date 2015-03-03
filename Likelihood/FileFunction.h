@@ -3,7 +3,7 @@
  * @brief Declaration for the FileFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.2 2009/06/12 04:47:43 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.3 2014/08/08 16:25:40 jchiang Exp $
  */
 
 #ifndef Likelihood_FileFunction_h
@@ -23,9 +23,6 @@ namespace Likelihood {
  * @brief This reads in a tabulated function from an ascii file containing
  * two columns of data.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.2 2009/06/12 04:47:43 jchiang Exp $
  */
     
 class FileFunction : public optimizers::Function {
@@ -34,11 +31,6 @@ public:
 
    FileFunction(double Normalization=1);
    
-   double value(optimizers::Arg & x) const;
-
-   double derivByParam(optimizers::Arg & x, 
-                       const std::string & paramName) const;
-
    virtual Function * clone() const {
       return new FileFunction(*this);
    }
@@ -56,6 +48,11 @@ public:
    const std::vector<double> & log_dnde() const;
 
 protected:
+
+   double value(optimizers::Arg & x) const;
+
+   double derivByParamImp(optimizers::Arg & x, 
+                          const std::string & paramName) const;
 
 // This is disabled.
    double integral(optimizers::Arg & xmin, optimizers::Arg & xmax) const;

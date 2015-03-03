@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SummedLikelihood.h,v 1.2 2010/06/07 18:01:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SummedLikelihood.h,v 1.3 2014/02/07 06:37:10 jchiang Exp $
  */
 
 #ifndef Likelihood_SummedLikelihood_h
@@ -65,9 +65,13 @@ public:
 
 protected:
 
-   double value(optimizers::Arg &) const {return value();}
+   double value(optimizers::Arg &) const {
+      return value();
+   }
 
-   double derivByParam(optimizers::Arg &, const std::string &) const {return 0;}
+   double derivByParamImp(optimizers::Arg &, const std::string &) const {
+      return 0;
+   }
 
    optimizers::Function * clone() const {return 0;}
 

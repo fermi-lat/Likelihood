@@ -3,7 +3,7 @@
  * @brief Implementation for Expectation Maximization class.
  * @author P. L. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.9 2005/03/04 22:08:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/OptEM.cxx,v 1.10 2006/04/18 05:43:43 jchiang Exp $
  */
 
 #include "st_stream/StreamFormatter.h"
@@ -79,7 +79,7 @@ namespace Likelihood {
                             << " source " << i+1 << std::endl;
 	}
 
-	logL += f.value(arg);
+	logL += f(arg);
 //         formatter.info() << "Function value " << f.value(arg) << std::endl;
       }
       iteration++;

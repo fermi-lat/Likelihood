@@ -3,7 +3,7 @@
  * @brief Declaration for the LogGaussian Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogGaussian.h,v 1.1 2011/01/29 06:53:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogGaussian.h,v 1.2 2011/01/30 00:30:55 jchiang Exp $
  */
 
 #ifndef Likelihood_LogGaussian_h
@@ -21,9 +21,6 @@ namespace Likelihood {
  * as free parameters and upper and lower bounds of integration as 
  * fixed parameters.
  *
- * @author J. Chiang
- *    
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogGaussian.h,v 1.1 2011/01/29 06:53:03 jchiang Exp $
  */
     
 class LogGaussian : public optimizers::Function {
@@ -32,16 +29,18 @@ public:
 
    LogGaussian(double norm=1, double mean=0, double sigma=1);
 
-   double value(optimizers::Arg & arg) const;
-
-   double derivByParam(optimizers::Arg & x, 
-                       const std::string & paramName) const;
-
    double derivative(optimizers::Arg & x) const;
    
    virtual Function * clone() const {
       return new LogGaussian(*this);
    }
+
+protected:
+
+   double value(optimizers::Arg & arg) const;
+
+   double derivByParamImp(optimizers::Arg & x, 
+                          const std::string & paramName) const;
 
 private:
 

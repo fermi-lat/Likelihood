@@ -4,7 +4,7 @@
  * position-dependent spectral variation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapCubeFunction2.cxx,v 1.6 2012/01/06 22:21:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapCubeFunction2.cxx,v 1.7 2013/09/04 05:30:45 jchiang Exp $
  */
 
 #include <cmath>
@@ -26,13 +26,14 @@
 namespace Likelihood {
 
 MapCubeFunction2::MapCubeFunction2() 
-   : optimizers::Function(), MapBase() {
-   init();
+   : optimizers::Function("MapCubeFunction", 1, "Normalization"), MapBase() {
+   addParam("Normalization", 1, false);
 }
 
 MapCubeFunction2::MapCubeFunction2(const std::string & fitsFile) 
-   : optimizers::Function(), MapBase(fitsFile) {
-   init();
+   : optimizers::Function("MapCubeFunction", 1, "Normalization"), 
+     MapBase(fitsFile) {
+   addParam("Normalization", 1, false);
 }
 
 MapCubeFunction2::MapCubeFunction2(const MapCubeFunction2 & rhs)
@@ -54,18 +55,6 @@ double MapCubeFunction2::value(optimizers::Arg & xarg) const {
    double energy = dir.energy();
    double value = wcsmap().operator()(dir(), energy);
    return value*getParam("Normalization").getTrueValue();
-}
-
-void MapCubeFunction2::init() {
-   setMaxNumParams(1);
-// Leave this parameter fixed, modifying the overall normalization
-// via a ConstantValue function as the spectral component.
-   addParam("Normalization", 1, false);
-
-   m_funcType = Addend;
-   m_argType = "";
-   m_genericName = "MapCubeFunction";
-   m_normParName = "Normalization";
 }
 
 double MapCubeFunction2::mapIntegral() const {

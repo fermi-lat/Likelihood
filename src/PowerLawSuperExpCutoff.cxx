@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLawSuperExpCutoff Function class
  * @author Damien Parent
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff.cxx,v 1.3 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff.cxx,v 1.4 2008/02/15 16:13:40 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,35 +19,19 @@
 
 namespace Likelihood {
   
-  // initialization function used by constructors
-  void PowerLawSuperExpCutoff::init( 
-				    double Prefactor,  
-				    double Index1,
-				    double Scale,
-				    double Cutoff,
-				    double Index2
-				    ) {
-    
-    // Implement PowerLaw class with five named parameters,
-    // "Prefactor", "Index1", "Scale(Energy)", "Cutoff(Energy)" , "Index2"
-    
-    int nParams = 5;
-    setMaxNumParams(nParams);
-    
+  PowerLawSuperExpCutoff::
+  PowerLawSuperExpCutoff(double Prefactor,  
+                         double Index1,
+                         double Scale,
+                         double Cutoff,
+                         double Index2)
+     : optimizers::Function("PLSuperExpCutoff", 5, "Prefactor") {
     addParam(std::string("Prefactor"), Prefactor, true);
     addParam(std::string("Index1"), Index1, true);
     addParam(std::string("Scale"), Scale, false);
     addParam(std::string("Cutoff"), Cutoff, true);
     addParam(std::string("Index2"), Index2, true);
-    
-    // Set FuncType and ArgType for use with CompositeFunction hierarchy.
-    m_funcType = Addend;
-    m_argType = "dArg";
-    m_genericName = "PLSuperExpCutoff";
-    m_normParName = "Prefactor";
   } 
-  // end of initialization
-  
   
   double PowerLawSuperExpCutoff::value(optimizers::Arg &xarg) const {
     double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
@@ -69,8 +53,8 @@ namespace Likelihood {
   }
   
   
-  double PowerLawSuperExpCutoff::derivByParam(optimizers::Arg &xarg,
-					      const std::string &paramName) const {
+  double PowerLawSuperExpCutoff::derivByParamImp(optimizers::Arg &xarg,
+                                                 const std::string &paramName) const {
     double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
     
     enum ParamTypes {Prefactor, Index1, Scale, Cutoff, Index2};

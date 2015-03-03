@@ -3,6 +3,7 @@
  * @brief Declaration for the ExpCutoff Function class
  * @author Luis C. Reyes
  *
+ * $Header: $
  */
 
 #ifndef Likelihood_ExpCutoff_h
@@ -18,33 +19,25 @@ namespace Likelihood {
  *
  * @brief Power Law with Exponential Cutoff function
  *
- * @author Luis C. Reyes
- *
  */
 
 class ExpCutoff : public optimizers::Function {
 
 public:
 
-   ExpCutoff(){init(10., -2.1, 100., 10., 150., 0., 0.);}
-   ExpCutoff(double Prefactor, double Index, double Scale,
-            double Ebreak, double P1, double P2, double P3)
-      {init(Prefactor, Index, Scale, Ebreak, P1, P2, P3);}
+   ExpCutoff(double Prefactor=10., double Index=-2.1, double Scale=100.,
+             double Ebreak=10., double P1=150., double P2=0, double P3=0);
 
-   double value(optimizers::Arg&) const;
-
-   double derivByParam(optimizers::Arg &x, const std::string &paramName) const;
-
-   //double integral(Arg &xmin, Arg &xmax) const;
-
-   virtual optimizers::Function *clone() const {
+   virtual optimizers::Function * clone() const {
       return new ExpCutoff(*this);
    }
 
-private:
+protected:
 
-   void init(double Prefactor, double Index, double Scale,
-             double Ebreak, double P1, double P2, double P3);
+   double value(optimizers::Arg &) const;
+
+   double derivByParamImp(optimizers::Arg & x, 
+                          const std::string & paramName) const;
 
 };
 
