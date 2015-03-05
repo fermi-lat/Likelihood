@@ -4,7 +4,7 @@
  * by the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.50 2015/01/16 05:36:27 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/expMap/expMap.cxx,v 1.51 2015/01/16 21:14:52 jchiang Exp $
  */
 
 #include <cmath>
@@ -155,11 +155,18 @@ void ExpMap::createExposureMap() {
    long nenergies = m_pars["nenergies"];
 // Exposure hypercube file.
    std::string expCubeFile = m_pars["expcube"];
+   // RoiCuts object for the GTI extension since Catalog group wants
+   // to use hand-crafted livetime cubes instead of lt cubes made for
+   // specific FT1 files.
+   RoiCuts * gti_roicuts(0);
    if (expCubeFile != "none") {
       st_facilities::Util::file_ok(expCubeFile);
       ExposureCube & expCube = 
          const_cast<ExposureCube &>(m_helper->observation().expCube());
       expCube.readExposureCube(expCubeFile);
+      // Read the GTIs from the livetime cube.
+      gti_roicuts = new RoiCuts();
+      gti_roicuts->readCuts(expCubeFile, "EXPOSURE", false);
    }
    std::string exposureFile = m_pars["outfile"];
    const Observation & observation = m_helper->observation();
@@ -193,10 +200,16 @@ void ExpMap::createExposureMap() {
    }
 
    roiCuts.writeDssKeywords(image->getHeader());
-   roiCuts.writeGtiExtension(exposureFile);
-
+   
    std::vector< std::pair<double, double> > timeCuts;
-   roiCuts.getGtis(timeCuts);
+   if (gti_roicuts) {
+      gti_roicuts->writeGtiExtension(exposureFile);
+      gti_roicuts->getGtis(timeCuts);
+      delete gti_roicuts;
+   } else {
+      roiCuts.writeGtiExtension(exposureFile);
+      roiCuts.getGtis(timeCuts);
+   }
 
    double tstart(timeCuts.front().first);
    double tstop(timeCuts.back().second);
