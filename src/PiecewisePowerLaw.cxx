@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.2 2015/03/02 19:02:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.3 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -16,7 +16,12 @@
 namespace Likelihood {
 
 PiecewisePowerLaw::PiecewisePowerLaw() 
-   : optimizers::Function("PiecewisePowerLaw", 100, "dNdE0") {
+   : optimizers::Function("PiecewisePowerLaw", 100, "dNdE0"),
+     m_decoupledNormPar(false) {
+   if (::getenv("PIECEWISEPOWERLAW_DECOUPLED")) {
+      m_decoupledNormPar = true;
+      setNormParName("");
+   }
 }
 
 void PiecewisePowerLaw::
@@ -76,6 +81,10 @@ derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
       throw std::runtime_error("MultipleBPL: Parameter " + paramName 
                                + " must be fixed in the xml model definition.");
    }
+   if (m_decoupledNormPar) {
+      return derivByParam_decoupledNormPar(xarg, paramName);
+   }
+
    double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
 
    if (paramName == "IndexL") {
@@ -139,6 +148,9 @@ double PiecewisePowerLaw::norm(size_t k) const {
    if (k < 0 || k >= m_dNdENames.size()) {
       throw std::out_of_range("PiecewisePowerLaw::norm");
    }
+   if (m_decoupledNormPar) {
+      return m_parameter[2 + k].getTrueValue();
+   }
    double dNdE0(m_parameter[2].getTrueValue());
    if (k == 0) {
       return dNdE0;
@@ -152,12 +164,72 @@ double PiecewisePowerLaw::plIndex(size_t k) const {
                               "out-of-range energy index.");
    }
    double dNdE0(m_parameter[k+2].getTrueValue());
-   if (k == 0) {
+   if (k == 0 && !m_decoupledNormPar) {
       dNdE0 = 1;
    }
    double dNdE1(m_parameter[k+3].getTrueValue());
    double gamma(std::log(dNdE1/dNdE0)/std::log(m_energies[k+1]/m_energies[k]));
    return gamma;
+}
+
+double PiecewisePowerLaw::
+derivByParam_decoupledNormPar(optimizers::Arg & xarg,
+                              const std::string & paramName) const {
+   double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+
+   if (paramName == "IndexL") {
+      if (x < m_energies.front()) {
+         return value(xarg)*std::log(x/m_energies.front());
+      } else {
+         return 0;
+      }
+   }
+   if (paramName == "IndexH") {
+      if (x > m_energies.back()) {
+         return value(xarg)*std::log(x/m_energies.back());
+      } else {
+         return 0;
+      }
+   }
+   std::vector<std::string>::const_iterator it
+      = std::find(m_dNdENames.begin(), m_dNdENames.end(), paramName);
+   if (it == m_dNdENames.end()) {
+      std::ostringstream what;
+      what << "Likelihood::PiecewisePowerLaw: "
+           << "parameter name not found: " << paramName;
+      throw std::runtime_error(what.str());
+   }
+   // Extract the index of dNdE parameter from the name.
+   if (paramName.substr(0, 4) != "dNdE") {
+      throw std::runtime_error("PiecewisePowerLaw: Parameter not recognized: " 
+                               + paramName);
+   }
+   size_t k(std::atoi(paramName.substr(4).c_str()));
+
+   // End points where target energy is outside m_energies.
+   if ((k == 0 && x < m_energies.front()) ||
+       (k == m_dNdENames.size()-1 && x > m_energies.back())) {
+      return value(xarg)/norm(k);
+   }
+   // End points where target energy is inside m_energies.
+   if (k == 0 && x <= m_energies[1]) {
+      return value(xarg)/norm(k)*(1. - std::log(x/m_energies[k])
+                                  /std::log(m_energies[k+1]/m_energies[k]));
+   }
+   if (k == m_dNdENames.size()-1 && x > m_energies[k-1]) {
+      return value(xarg)/norm(k)*(std::log(x/m_energies[k-1])
+                                  /std::log(m_energies[k]/m_energies[k-1]));
+   }
+
+   // All other non-zero cases
+   if (m_energies[k] <= x && (k < m_energies.size()-1 && x < m_energies[k+1])) {
+      return value(xarg)/norm(k)*(1. - std::log(x/m_energies[k])
+                                  /std::log(m_energies[k+1]/m_energies[k]));
+   } else if ((k > 0 && x > m_energies[k-1]) && x < m_energies[k]) {
+      return value(xarg)/norm(k)*(std::log(x/m_energies[k-1])
+                                  /std::log(m_energies[k]/m_energies[k-1]));
+   }
+   return 0;
 }
 
 } // namespace Likelihood
