@@ -4,23 +4,23 @@ NAXIS    =                    2 / Dimensionality of image
 NAXIS1   =                    1 / Length of data axis 1
 NAXIS2   =                    1 / Length of data axis 2
 EXTEND   =                    T / Extensions may be present
-CTYPE1   =                      / RA---%%%, %%% is the projection, e.g., AIT
-CRPIX1   =                      / Reference pixel
-CRVAL1   =                      / RA or GLON at the reference pixel
-CDELT1   =                      / X-axis incr per pixel at ref pixel (deg)
+CTYPE1   = ''                   / RA---%%%, %%% is the projection, e.g., AIT
+CRPIX1   = ''                   / Reference pixel
+CRVAL1   = ''                   / RA or GLON at the reference pixel
+CDELT1   = ''                   / X-axis incr per pixel at ref pixel (deg)
 CUNIT1   =                  deg / Physical unit of X-axis
-CTYPE2   =                      / DEC---%%%, %%% is the projection, e.g., AIT
-CRPIX2   =                      / Reference pixel
-CRVAL2   =                      / DEC or GLAT at the reference pixel
-CDELT2   =                      / Y-axis incr per pixel at ref pixel (deg)
+CTYPE2   = ''                   / DEC---%%%, %%% is the projection, e.g., AIT
+CRPIX2   = ''                   / Reference pixel
+CRVAL2   = ''                   / DEC or GLAT at the reference pixel
+CDELT2   = ''                   / Y-axis incr per pixel at ref pixel (deg)
 CUNIT2   =                  deg / Physical unit of Y-axis
-CROTA2   =                      / Image rotation (deg)
-DATE     =                      / Date file was made
+CROTA2   = ''                   / Image rotation (deg)
+DATE     = ''                   / Date file was made
 TELESCOP =                GLAST / Name of telescope generating data
 INSTRUME =                  LAT / Name of instrument generating data
-DATE-OBS =                      / Start Date and Time of the observation (UTC)
-DATE-END =                      / End Date and Time of the observation (UTC)
+DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
+DATE-END = ''                   / End Date and Time of the observation (UTC)
 EQUINOX  =               2000.0 / Equinox of RA & DEC specifications
-CREATOR  =                      / Software and version creating file
-HISTORY                   $Id: LatCountsMapTemplate,v 1.2 2004/09/24 03:54:20 jchiang Exp $ 
+CREATOR  = ''                   / Software and version creating file
+HISTORY                   $Id: TsMapTemplate,v 1.1 2008/04/02 14:52:55 jchiang Exp $ 
 END
