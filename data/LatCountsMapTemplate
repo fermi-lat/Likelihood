@@ -5,30 +5,30 @@ NAXIS1   =                    1 / Length of data axis 1
 NAXIS2   =                    1 / Length of data axis 2
 NAXIS3   =                    1 / Length of data axis 3
 EXTEND   =                    T / Extensions may be present
-CTYPE1   =                      / RA---%%%, %%% is the projection, e.g., AIT
-CRPIX1   =                      / Reference pixel
-CRVAL1   =                      / RA at the reference pixel
-CDELT1   =                      / X-axis incr per pixel at ref pixel (deg)
+CTYPE1   = ''                   / RA---%%%, %%% is the projection, e.g., AIT
+CRPIX1   = ''                   / Reference pixel
+CRVAL1   = ''                   / RA at the reference pixel
+CDELT1   = ''                   / X-axis incr per pixel at ref pixel (deg)
 CUNIT1   =                  deg / Physical unit of X-axis
-CTYPE2   =                      / DEC---%%%, %%% is the projection, e.g., AIT
-CRPIX2   =                      / Reference pixel
-CRVAL2   =                      / DEC at the reference pixel
-CDELT2   =                      / Y-axis incr per pixel at ref pixel (deg)
+CTYPE2   = ''                   / DEC---%%%, %%% is the projection, e.g., AIT
+CRPIX2   = ''                   / Reference pixel
+CRVAL2   = ''                   / DEC at the reference pixel
+CDELT2   = ''                   / Y-axis incr per pixel at ref pixel (deg)
 CUNIT2   =                  deg / Physical unit of Y-axis
-CTYPE3   =                      / log_MeV
-CRPIX3   =                      / Reference pixel
-CRVAL3   =                      / energy at the reference pixel
-CDELT3   =                      / z-axis logrithmic incr per pixel
+CTYPE3   = ''                   / log_MeV
+CRPIX3   = ''                   / Reference pixel
+CRVAL3   = ''                   / energy at the reference pixel
+CDELT3   = ''                   / z-axis logrithmic incr per pixel
 CUNIT3   =              log_MeV / Physical unit of Y-axis
-CROTA2   =                      / Image rotation (deg)
-DATE     =                      / Date file was made
+CROTA2   = ''                   / Image rotation (deg)
+DATE     = ''                   / Date file was made
 TELESCOP =                GLAST / Name of telescope generating data
 INSTRUME =                  LAT / Name of instrument generating data
-DATE-OBS =                      / Start Date and Time of the observation (UTC)
-DATE-END =                      / End Date and Time of the observation (UTC)
+DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
+DATE-END = ''                   / End Date and Time of the observation (UTC)
 EQUINOX  =               2000.0 / Equinox of RA & DEC specifications
-CREATOR  =                      / Software and version creating file
-HISTORY                   $Id: LatCountsMapTemplate,v 1.1 2004/09/03 17:49:59 jchiang Exp $ 
+CREATOR  = ''                   / Software and version creating file
+HISTORY                   $Id: LatCountsMapTemplate,v 1.2 2004/09/24 03:54:20 jchiang Exp $ 
 END
 
 XTENSION =             BINTABLE / Binary table extension
@@ -45,17 +45,17 @@ INSTRUME =                  LAT / Instrument name
 HDUCLASS =                 OGIP / File format is OGIP standard
 HDUCLAS1 =                  GTI / Contains Good Time Intervals
 HDUVERS  =                1.2.0 / Version of file format
-ONTIME   =                      / Sum of all Good Time Intervals
-MJDREF   =                      / MJD for reference time
-TSTART   =                      / Lower bound of first GTI
-TSTOP    =                      / Upper bound of last GTI
-EXPOSURE =                      / Total Livetime in seconds
+ONTIME   = ''                   / Sum of all Good Time Intervals
+MJDREF   = ''                   / MJD for reference time
+TSTART   = ''                   / Lower bound of first GTI
+TSTOP    = ''                   / Upper bound of last GTI
+EXPOSURE = ''                   / Total Livetime in seconds
 TIMESYS  =                  MJD / Time system used to define time
 TIMEUNIT =                    s / All times are in seconds unless specified otherwise
-DATE-OBS                        / Start Date and Time of the observation (UTC)
-DATE-END                        / End Date and Time of the observation (UTC)
+DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
+DATE-END = ''                   / End Date and Time of the observation (UTC)
 CREATOR  =                      / Software and version creating file
-HISTORY                   $Id: LatCountsMapTemplate,v 1.1 2004/09/03 17:49:59 jchiang Exp $ 
+HISTORY                   $Id: LatCountsMapTemplate,v 1.2 2004/09/24 03:54:20 jchiang Exp $ 
 
 TTYPE#  START          / Start time of an interval
 TFORM#  D              / Data format of this field
@@ -74,17 +74,17 @@ TFIELDS  =                    0 / Number of columns in table
 EXTNAME  =              EBOUNDS / Extension name
 TELESCOP =                GLAST / Telescope or mission name
 INSTRUME =                  LAT / Instrument name
-FILTER   =                      / Instrument filter in use (if any)
+FILTER   = ''                   / Instrument filter in use (if any)
 CHANTYPE =                   PI / Energy channel type
-DETCHANS =                      / Total number of detector channels available. 
+DETCHANS = ''                   / Total number of detector channels available. 
 HDUCLASS =                 OGIP / Format confirms to OGIP standard
 HDUCLAS1 =             RESPONSE / Extension contains response data
 HDUCLAS2 =              EBOUNDS / Extension contains response matrix
 HDUVERS  =                1.2.0 / Version number of the format
-DATE-OBS                        / Start Date and Time of the observation (UTC)
-DATE-END                        / End Date and Time of the observation (UTC)
-CREATOR  =                      / Software and version creating file
-HISTORY                   $Id: LatBinnedTemplate,v 1.2 2004/06/30 15:33:38 peachey Exp $ 
+DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
+DATE-END = ''                   / End Date and Time of the observation (UTC)
+CREATOR  = ''                   / Software and version creating file
+HISTORY                   $Id: LatCountsMapTemplate,v 1.2 2004/09/24 03:54:20 jchiang Exp $ 
 
 
 TTYPE#  CHANNEL        / Raw channel number
