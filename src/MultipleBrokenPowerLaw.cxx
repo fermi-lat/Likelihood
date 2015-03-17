@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MultipleBrokenPowerLaw.cxx,v 1.3 2015/02/26 17:32:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MultipleBrokenPowerLaw.cxx,v 1.4 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -16,7 +16,7 @@
 namespace Likelihood {
 
 MultipleBrokenPowerLaw::MultipleBrokenPowerLaw() 
-   : optimizers::Function("MultipleBrokenPowerLaw", 100, "Normalization") {
+   : optimizers::Function("MultipleBPL", 100, "Normalization") {
 }
 
 void MultipleBrokenPowerLaw::
