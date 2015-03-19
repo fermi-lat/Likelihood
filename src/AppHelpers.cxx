@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.120 2015/02/26 00:29:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.121 2015/02/28 03:27:31 jchiang Exp $
  */
 
 #include <cmath>
@@ -192,79 +192,53 @@ void AppHelpers::prepareFunctionFactory() {
 void AppHelpers::
 addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    bool makeClone(false);
-   funcFactory->addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
-   funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
-   funcFactory->addFunc("BandFunction", new BandFunction(), makeClone);
-   funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
-   funcFactory->addFunc("LogGaussian", new LogGaussian(), makeClone);
-   funcFactory->addFunc("LogNormal", new LogNormal(), makeClone);
-   funcFactory->addFunc("LogNormalLog", new LogNormalLog(), makeClone);
-   funcFactory->addFunc("MapCubeFunction", new MapCubeFunction2(), makeClone);
-   funcFactory->addFunc("RadialProfile", new RadialProfile(), makeClone);
-   funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
-   funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
-   funcFactory->addFunc("BrokenPowerLaw3", new BrokenPowerLaw3(), makeClone);
-   funcFactory->addFunc("MultipleBPL", new MultipleBrokenPowerLaw(), makeClone);
-   funcFactory->addFunc("PiecewisePowerLaw", new PiecewisePowerLaw(),
-                        makeClone);
-   funcFactory->addFunc("SmoothBrokenPowerLaw", new SmoothBrokenPowerLaw(), 
-                        makeClone);
-   funcFactory->addFunc("SmoothDoubleBrokenPowerLaw", 
-                        new SmoothDoubleBrokenPowerLaw(), makeClone);
-   funcFactory->addFunc("FileFunction", new FileFunction(), makeClone);
-   funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
-   funcFactory->addFunc("ExpCutoffSEDPeak", new ExpCutoffSEDPeak(), makeClone);
-   funcFactory->addFunc("BPLExpCutoff", new BrokenPowerLawExpCutoff(),
-                        makeClone);
-   funcFactory->addFunc("PLSuperExpCutoff", 
-                        new PowerLawSuperExpCutoff(), makeClone);
-   funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
+   funcFactory->addFunc(new SkyDirFunction(), makeClone);
+   funcFactory->addFunc(new SpatialMap(), makeClone);
+   funcFactory->addFunc(new BandFunction(), makeClone);
+   funcFactory->addFunc(new LogParabola(), makeClone);
+   funcFactory->addFunc(new LogGaussian(), makeClone);
+   funcFactory->addFunc(new LogNormal(), makeClone);
+   funcFactory->addFunc(new LogNormalLog(), makeClone);
+   funcFactory->addFunc(new MapCubeFunction2(), makeClone);
+   funcFactory->addFunc(new RadialProfile(), makeClone);
+   funcFactory->addFunc(new PowerLaw2(), makeClone);
+   funcFactory->addFunc(new BrokenPowerLaw2(), makeClone);
+   funcFactory->addFunc(new BrokenPowerLaw3(), makeClone);
+   funcFactory->addFunc(new MultipleBrokenPowerLaw(), makeClone);
+   funcFactory->addFunc(new PiecewisePowerLaw(), makeClone);
+   funcFactory->addFunc(new SmoothBrokenPowerLaw(), makeClone);
+   funcFactory->addFunc(new SmoothDoubleBrokenPowerLaw(), makeClone);
+   funcFactory->addFunc(new FileFunction(), makeClone);
+   funcFactory->addFunc(new ExpCutoff(), makeClone);
+   funcFactory->addFunc(new ExpCutoffSEDPeak(), makeClone);
+   funcFactory->addFunc(new BrokenPowerLawExpCutoff(), makeClone);
+   funcFactory->addFunc(new PowerLawSuperExpCutoff(), makeClone);
+   funcFactory->addFunc(new DMFitFunction(), makeClone);
 
-   funcFactory->addFunc("EblAtten::PowerLaw2", new EblAtten(), makeClone);
-   funcFactory->addFunc("EblAtten::BrokenPowerLaw2", 
-                        new EblAtten(BrokenPowerLaw2()), makeClone);
-   funcFactory->addFunc("EblAtten::LogParabola", 
-                        new EblAtten(LogParabola()), makeClone);
-   funcFactory->addFunc("EblAtten::BandFunction", 
-                        new EblAtten(BandFunction()), makeClone);
-   funcFactory->addFunc("EblAtten::SmoothBrokenPowerLaw", 
-                        new EblAtten(SmoothBrokenPowerLaw()), makeClone);
-   funcFactory->addFunc("EblAtten::FileFunction", 
-                        new EblAtten(FileFunction()), makeClone);
-   funcFactory->addFunc("EblAtten::ExpCutoff", 
-                        new EblAtten(ExpCutoff()), makeClone);
-   funcFactory->addFunc("EblAtten::BPLExpCutoff", 
-                        new EblAtten(BrokenPowerLawExpCutoff()), makeClone);
-   funcFactory->addFunc("EblAtten::PLSuperExpCutoff", 
-                        new EblAtten(PowerLawSuperExpCutoff()), makeClone);
+   funcFactory->addFunc(new EblAtten(), makeClone);
+   funcFactory->addFunc(new EblAtten(BrokenPowerLaw2()), makeClone);
+   funcFactory->addFunc(new EblAtten(LogParabola()), makeClone);
+   funcFactory->addFunc(new EblAtten(BandFunction()), makeClone);
+   funcFactory->addFunc(new EblAtten(SmoothBrokenPowerLaw()), makeClone);
+   funcFactory->addFunc(new EblAtten(FileFunction()), makeClone);
+   funcFactory->addFunc(new EblAtten(ExpCutoff()), makeClone);
+   funcFactory->addFunc(new EblAtten(BrokenPowerLawExpCutoff()), makeClone);
+   funcFactory->addFunc(new EblAtten(PowerLawSuperExpCutoff()), makeClone);
 
-   funcFactory->addFunc("EnergyBand::PowerLaw2", new EnergyBand(), makeClone);
-   funcFactory->addFunc("EnergyBand::BrokenPowerLaw2", 
-                        new EnergyBand(BrokenPowerLaw2()), makeClone);
-   funcFactory->addFunc("EnergyBand::LogParabola", 
-                        new EnergyBand(LogParabola()), makeClone);
-   funcFactory->addFunc("EnergyBand::BandFunction", 
-                        new EnergyBand(BandFunction()), makeClone);
-   funcFactory->addFunc("EnergyBand::SmoothBrokenPowerLaw", 
-                        new EnergyBand(SmoothBrokenPowerLaw()), makeClone);
-   funcFactory->addFunc("EnergyBand::FileFunction", 
-                        new EnergyBand(FileFunction()), makeClone);
-   funcFactory->addFunc("EnergyBand::ExpCutoff", 
-                        new EnergyBand(ExpCutoff()), makeClone);
-   funcFactory->addFunc("EnergyBand::BPLExpCutoff", 
-                        new EnergyBand(BrokenPowerLawExpCutoff()), makeClone);
-   funcFactory->addFunc("EnergyBand::PLSuperExpCutoff", 
-                        new EnergyBand(PowerLawSuperExpCutoff()), makeClone);
+   funcFactory->addFunc(new EnergyBand(), makeClone);
+   funcFactory->addFunc(new EnergyBand(BrokenPowerLaw2()), makeClone);
+   funcFactory->addFunc(new EnergyBand(LogParabola()), makeClone);
+   funcFactory->addFunc(new EnergyBand(BandFunction()), makeClone);
+   funcFactory->addFunc(new EnergyBand(SmoothBrokenPowerLaw()), makeClone);
+   funcFactory->addFunc(new EnergyBand(FileFunction()), makeClone);
+   funcFactory->addFunc(new EnergyBand(ExpCutoff()), makeClone);
+   funcFactory->addFunc(new EnergyBand(BrokenPowerLawExpCutoff()), makeClone);
+   funcFactory->addFunc(new EnergyBand(PowerLawSuperExpCutoff()), makeClone);
 
-   funcFactory->addFunc("ScaleFactor::FileFunction", 
-                        new ScaleFactor(FileFunction()), makeClone);
-   funcFactory->addFunc("ScaleFactor::PowerLaw2", 
-                        new ScaleFactor(PowerLaw2()), makeClone);
-   funcFactory->addFunc("ScaleFactor::PLSuperExpCutoff", 
-                        new ScaleFactor(PowerLawSuperExpCutoff()), makeClone);
-   
-   funcFactory->addFunc("ScaleFactor::Gaussian",
-                        new ScaleFactor(optimizers::Gaussian()), makeClone);
+   funcFactory->addFunc(new ScaleFactor(FileFunction()), makeClone);
+   funcFactory->addFunc(new ScaleFactor(PowerLaw2()), makeClone);
+   funcFactory->addFunc(new ScaleFactor(PowerLawSuperExpCutoff()), makeClone);
+   funcFactory->addFunc(new ScaleFactor(optimizers::Gaussian()), makeClone);
 }
 
 void AppHelpers::setRoi(const std::string & filename,

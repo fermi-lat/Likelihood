@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.132 2015/02/28 03:27:32 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.133 2015/03/03 18:05:39 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -1827,13 +1827,13 @@ int main(int iargc, char * argv[]) {
       // testObj.test_MultipleBrokenPowerLaw();
       // testObj.tearDown();
 
-      // testObj.setUp();
-      // testObj.test_PiecewisePowerLaw();
-      // testObj.tearDown();
-
       testObj.setUp();
-      testObj.test_EnergyBand();
+      testObj.test_PiecewisePowerLaw();
       testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_EnergyBand();
+      // testObj.tearDown();
    } else {
       CppUnit::TextTestRunner runner;
       runner.addTest(LikelihoodTests::suite());
