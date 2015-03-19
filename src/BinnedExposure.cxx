@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.48 2013/01/10 08:56:12 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.49 2015/03/19 16:41:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -243,18 +243,14 @@ void BinnedExposure::computeMap() {
          astro::SkyDir dir;
          try {
             st_facilities::Util::pixel2SkyDir(*m_proj, i + 1, j + 1, dir);
-         } catch (std::out_of_range & eObj) {
-            // Pixel index is outside of map range so skip.
+         } catch (...) {
+            // The astro::SkyProj class throws a SkyProjException
+            // here, but SkyProjException is annoyingly defined in
+            // SkyProj.cxx
+            // http://www-glast.stanford.edu/cgi-bin/viewcvs/astro/src/SkyProj.cxx?revision=1.27&view=markup
+            // so that client code cannot catch it directly. Amazing.
             continue;
-         } 
-         // catch (...) {
-         //    // The astro::SkyProj class throws a SkyProjException
-         //    // here, but SkyProjException is annoyingly defined in
-         //    // SkyProj.cxx
-         //    // http://www-glast.stanford.edu/cgi-bin/viewcvs/astro/src/SkyProj.cxx?revision=1.27&view=markup
-         //    // so that client code cannot catch it directly. Amazing.
-         //    continue;
-         // }
+         }
                                            
          for (unsigned int k = 0; k < m_energies.size(); k++) {
             unsigned int indx = (k*m_naxes.at(1) + j)*m_naxes.at(0) + i;
