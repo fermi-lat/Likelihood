@@ -3,7 +3,7 @@
  * @brief class for returning the log of a LogNormal function
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogNormalLog.h,v 1.1 2011/10/24 07:49:21 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogNormalLog.h,v 1.2 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_LogNormalLog_h
@@ -30,7 +30,7 @@ public:
    LogNormalLog(double prefactor=1, double log10_mean=3,
 		double log10_sigma=2) {
      LogNormal(prefactor, log10_mean,log10_sigma);
-//     m_genericName = "LogNormalLog";
+     setGenericName("LogNormalLog");
      //Note: I am not redefining the prefactor here....so it is now additive
      // instead of multiplicative
    }
