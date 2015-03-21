@@ -3,7 +3,7 @@
  * @brief Declaration of the SkyDirFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.19 2009/09/02 04:51:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SkyDirFunction.h,v 1.20 2015/03/03 18:05:36 jchiang Exp $
  */
 #ifndef Likelihood_SkyDirFunction_h
 #define Likelihood_SkyDirFunction_h
@@ -48,11 +48,11 @@ public:
 
 protected:
 
-   virtual double value(optimizers::Arg &) const {
+   virtual double value(const optimizers::Arg &) const {
       return 0;
    }
 
-   virtual double derivByParamImp(optimizers::Arg &,
+   virtual double derivByParamImp(const optimizers::Arg &,
                                   const std::string &) const {
       return 0;
    }

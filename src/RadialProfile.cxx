@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RadialProfile.cxx,v 1.5 2011/08/27 03:48:10 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RadialProfile.cxx,v 1.6 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -63,8 +63,8 @@ RadialProfile & RadialProfile::operator=(const RadialProfile & rhs) {
    return *this;
 }
 
-double RadialProfile::value(optimizers::Arg & x) const {
-   SkyDirArg & dir = dynamic_cast<SkyDirArg &>(x);
+double RadialProfile::value(const optimizers::Arg & x) const {
+   const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(x);
    if (m_center == 0) {
       m_center = new astro::SkyDir(getParam("RA").getValue(),
                                    getParam("DEC").getValue());
@@ -81,7 +81,7 @@ double RadialProfile::value(optimizers::Arg & x) const {
       *(m_profile.at(indx+1) - m_profile.at(indx)) + m_profile.at(indx);
 }
 
-double RadialProfile::derivByParamImp(optimizers::Arg & x, 
+double RadialProfile::derivByParamImp(const optimizers::Arg & x, 
                                       const std::string & parName) const {
    if (parName == "Normalization") {
       return value(x)/getParam(parName).getValue();

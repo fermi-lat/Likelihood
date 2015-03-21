@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.96 2012/04/19 15:21:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.97 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -276,7 +276,7 @@ void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    }
 }
 
-double SourceModel::value(optimizers::Arg &x) const {
+double SourceModel::value(const optimizers::Arg &x) const {
    double my_val = 0.;
    std::map<std::string, Source *>::const_iterator srcIt = m_sources.begin();
    for ( ; srcIt != m_sources.end(); ++srcIt) {
@@ -315,8 +315,8 @@ void SourceModel::syncParams() { // remake parameter vector from scratch
    }
 }
 
-void SourceModel::fetchDerivs(optimizers::Arg &x,
-                              std::vector<double> &derivs, 
+void SourceModel::fetchDerivs(const optimizers::Arg & x,
+                              std::vector<double> & derivs, 
                               bool getFree) const {
    derivs.clear();
 

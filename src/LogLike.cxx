@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.83 2013/11/21 02:07:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.84 2014/03/24 21:26:12 jchiang Exp $
  */
 
 #include <cmath>
@@ -33,7 +33,7 @@ LogLike::LogLike(const Observation & observation)
    deleteAllSources();
 }
 
-double LogLike::value(optimizers::Arg&) const {
+double LogLike::value(const optimizers::Arg&) const {
    std::clock_t start = std::clock();
    if (m_use_ebounds) {
       std::pair<double, double> ebounds
@@ -199,7 +199,7 @@ void LogLike::getLogSourceModelDerivs(const Event & event,
    }
 }
 
-void LogLike::getFreeDerivs(optimizers::Arg&,
+void LogLike::getFreeDerivs(const optimizers::Arg &,
                             std::vector<double> &freeDerivs) const {
 // Retrieve the free derivatives for the log(SourceModel) part
    const std::vector<Event> & events = m_observation.eventCont().events();

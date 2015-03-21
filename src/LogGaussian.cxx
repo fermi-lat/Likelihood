@@ -3,7 +3,7 @@
  * @brief Implementation for the LogGaussian Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogGaussian.cxx,v 1.2 2011/01/30 00:30:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogGaussian.cxx,v 1.3 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -28,8 +28,8 @@ LogGaussian::LogGaussian(double norm, double mean, double sigma)
    addParam("Sigma", sigma, true);
 }
 
-double LogGaussian::value(optimizers::Arg & xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double LogGaussian::value(const optimizers::Arg & xarg) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    enum ParamTypes {Norm, Mean, Sigma};
    double norm = m_parameter[Norm].getTrueValue();
    double mean = m_parameter[Mean].getTrueValue();
@@ -38,8 +38,9 @@ double LogGaussian::value(optimizers::Arg & xarg) const {
 }
 
 double LogGaussian::
-derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+derivByParamImp(const optimizers::Arg & xarg,
+                const std::string & paramName) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -77,8 +78,8 @@ derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
    return 0;
 }
 
-double LogGaussian::derivative(optimizers::Arg & xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double LogGaussian::derivative(const optimizers::Arg & xarg) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    enum ParamTypes {Norm, Mean, Sigma};
    double norm = m_parameter[Norm].getTrueValue();
    double mean = m_parameter[Mean].getTrueValue();

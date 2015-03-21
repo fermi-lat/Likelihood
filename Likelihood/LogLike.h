@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.44 2012/06/14 02:01:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.45 2012/06/27 20:31:50 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -41,7 +41,7 @@ public:
 
    virtual ~LogLike() {}
 
-   virtual double value(optimizers::Arg&) const;
+   virtual double value(const optimizers::Arg&) const;
 
    virtual double value() const {
       optimizers::Arg dummy;
@@ -50,10 +50,10 @@ public:
 
    /// Return the derivatives wrt the free parameters, overloading
    /// the Function method
-   virtual void getFreeDerivs(optimizers::Arg&, 
-                              std::vector<double> &freeDerivs) const;
+   virtual void getFreeDerivs(const optimizers::Arg &,
+                              std::vector<double> & freeDerivs) const;
 
-   virtual void getFreeDerivs(std::vector<double> &freeDerivs) const {
+   virtual void getFreeDerivs(std::vector<double> & freeDerivs) const {
       optimizers::Arg dummy;
       getFreeDerivs(dummy, freeDerivs);
    }

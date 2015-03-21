@@ -3,7 +3,7 @@
  * @brief Declaration for the DMFit Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.4 2011/11/29 16:41:17 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.5 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_DMFitFunction_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Cohen-Tanugi, based on the DMFit package by S. Profumo and T. Jeltema
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.4 2011/11/29 16:41:17 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DMFitFunction.h,v 1.5 2015/03/03 18:05:36 jchiang Exp $
  */
     
 class DMFitFunction : public optimizers::Function {
@@ -50,12 +50,13 @@ public:
 
 protected:
 
-   virtual double value(optimizers::Arg&) const;
+   virtual double value(const optimizers::Arg&) const;
 
-   virtual double derivByParamImp(optimizers::Arg & x, 
+   virtual double derivByParamImp(const optimizers::Arg & x, 
                                   const std::string & paramName) const;
 
-   virtual double integral(optimizers::Arg &, optimizers::Arg &) const {
+   virtual double integral(const optimizers::Arg &,
+                           const optimizers::Arg &) const {
       return 0;
    }
 

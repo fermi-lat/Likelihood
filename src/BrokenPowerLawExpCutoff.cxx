@@ -3,7 +3,7 @@
  * @brief Implementation for the BrokenPowerLawExpCutoff Function class
  * @author Jennifer Carson
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLawExpCutoff.cxx,v 1.4 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLawExpCutoff.cxx,v 1.5 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,16 +23,16 @@ BrokenPowerLawExpCutoff::
 BrokenPowerLawExpCutoff(double Prefactor, double Index1, double Index2, 
                         double BreakValue, double Eabs, double P1) 
    : optimizers::Function("BPLExpCutoff", 6, "Prefactor", "dArg", Addend) {
-   addParam(std::string("Prefactor"), Prefactor, true);
-   addParam(std::string("Index1"), Index1, true);
-   addParam(std::string("Index2"), Index2, true);
-   addParam(std::string("BreakValue"), BreakValue, false);
-   addParam(std::string("Eabs"), Eabs, true);
-   addParam(std::string("P1"), P1, true);
+   addParam("Prefactor", Prefactor, true);
+   addParam("Index1", Index1, true);
+   addParam("Index2", Index2, true);
+   addParam("BreakValue", BreakValue, false);
+   addParam("Eabs", Eabs, true);
+   addParam("P1", P1, true);
 }
 
-double BrokenPowerLawExpCutoff::value(optimizers::Arg & xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double BrokenPowerLawExpCutoff::value(const optimizers::Arg & xarg) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
 // assume a standard ordering for the parameters
    enum ParamTypes {Prefactor, Index1, Index2, BreakValue, Eabs, P1};
@@ -60,9 +60,9 @@ double BrokenPowerLawExpCutoff::value(optimizers::Arg & xarg) const {
 }
 
 double BrokenPowerLawExpCutoff::
-derivByParamImp(optimizers::Arg & xarg,
+derivByParamImp(const optimizers::Arg & xarg,
                 const std::string & paramName) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Prefactor, Index1, Index2, BreakValue, Eabs, P1};
 

@@ -3,7 +3,7 @@
  * @brief Implementation for the LogParabola class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogParabola.cxx,v 1.4 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogParabola.cxx,v 1.5 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -50,20 +50,20 @@ LogParabola(double norm, double alpha, double beta, double Eb)
    addParam("Eb", Eb, true);
 }
 
-double LogParabola::value(optimizers::Arg & xarg) const {
+double LogParabola::value(const optimizers::Arg & xarg) const {
    ::Pars pars(m_parameter);
 
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+   double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    double x = energy/pars[3];
    double my_value = pars[0]*std::pow(x, -(pars[1] + pars[2]*std::log(x)));
    return my_value;
 }
 
-double LogParabola::derivByParamImp(optimizers::Arg & xarg,
+double LogParabola::derivByParamImp(const optimizers::Arg & xarg,
                                     const std::string & paramName) const {
    ::Pars pars(m_parameter);
 
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+   double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    double x = energy/pars[3];
    double logx = std::log(x);
    double dfdnorm = std::pow(x, -(pars[1] + pars[2]*logx));

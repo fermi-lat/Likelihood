@@ -3,7 +3,7 @@
  * @brief Declaration for the BrokenPowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BrokenPowerLaw2.h,v 1.2 2012/07/31 19:38:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BrokenPowerLaw2.h,v 1.3 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_BrokenPowerLaw2_h
@@ -31,7 +31,8 @@ public:
                    double Index2=-3., double BreakValue=1000.,
                    double LowerLimit=20., double UpperLimit=2e5);
 
-   double integral(optimizers::Arg & xmin, optimizers::Arg & xmax) const;
+   double integral(const optimizers::Arg & xmin,
+                   const optimizers::Arg & xmax) const;
 
    virtual Function * clone() const {
       return new BrokenPowerLaw2(*this);
@@ -39,9 +40,9 @@ public:
 
 protected:
 
-   double value(optimizers::Arg & x) const;
+   double value(const optimizers::Arg & x) const;
 
-   double derivByParamImp(optimizers::Arg & x, 
+   double derivByParamImp(const optimizers::Arg & x, 
                           const std::string & paramName) const;
 
 private:

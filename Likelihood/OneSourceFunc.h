@@ -4,7 +4,7 @@
  *
  * @author P. Nolan
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.6 2005/03/04 22:08:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/OneSourceFunc.h,v 1.7 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_OneSourceFunc_h
@@ -55,7 +55,7 @@ namespace Likelihood {
         return value(dummy);
      }
 
-     virtual void getFreeDerivs(optimizers::Arg &x, 
+     virtual void getFreeDerivs(const optimizers::Arg &x, 
                                 std::vector<double> &derivs) const {
         Function::getFreeDerivs(x, derivs);
      }
@@ -67,9 +67,9 @@ namespace Likelihood {
 
   protected:
 
-    virtual double value(optimizers::Arg& arg) const;
+    virtual double value(const optimizers::Arg& arg) const;
 
-    virtual double derivByParamImp(optimizers::Arg& x, 
+    virtual double derivByParamImp(const optimizers::Arg& x, 
                                    const std::string& paramName) const;
 
     void syncParams(void);

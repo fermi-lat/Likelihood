@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.106 2014/08/27 22:30:18 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.107 2014/10/01 15:32:35 jchiang Exp $
  */
 
 #include <cmath>
@@ -129,7 +129,7 @@ BinnedLikelihood::~BinnedLikelihood() throw() {
    delete m_drm;
 }
 
-double BinnedLikelihood::value(optimizers::Arg & dummy) const {
+double BinnedLikelihood::value(const optimizers::Arg & dummy) const {
    (void)(dummy);
 
    double npred(computeModelMap());

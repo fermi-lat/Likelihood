@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.70 2012/06/14 02:01:24 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.71 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -89,8 +89,8 @@ public:
    /// This needs to be re-implemented, delegating to the base class
    /// method, since all member functions with the same name get
    /// hidden by a local declaration, even if the signatures differ.
-   virtual void getFreeDerivs(optimizers::Arg &x, 
-                              std::vector<double> &derivs) const {
+   virtual void getFreeDerivs(const optimizers::Arg & x, 
+                              std::vector<double> & derivs) const {
       Function::getFreeDerivs(x, derivs);
    }
 
@@ -122,7 +122,7 @@ public:
 
    bool hasSrcNamed(const std::string & srcName) const;
 
-   virtual double value(optimizers::Arg &x) const;
+   virtual double value(const optimizers::Arg &x) const;
 
    /// Create the source model by reading an XML file.
    virtual void readXml(std::string xmlFile,
@@ -187,7 +187,7 @@ protected:
 
    std::map<std::string, Source *> m_sources;
 
-   void fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
+   void fetchDerivs(const optimizers::Arg & x, std::vector<double> & derivs, 
                     bool getFree) const;
 
    void setParams_(std::vector<optimizers::Parameter> &, bool);
@@ -212,7 +212,7 @@ protected:
    }
 
    /// disable this since parameters may no longer have unique names
-   double derivByParamImp(optimizers::Arg &, const std::string &) const {
+   double derivByParamImp(const optimizers::Arg &, const std::string &) const {
       return 0;
    }
 

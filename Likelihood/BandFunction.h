@@ -3,7 +3,7 @@
  * @brief Declaration for the Band Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BandFunction.h,v 1.2 2009/05/13 04:18:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BandFunction.h,v 1.3 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_BandFunction_h
@@ -39,9 +39,9 @@ public:
 
 protected:
 
-   double value(optimizers::Arg &) const;
+   double value(const optimizers::Arg &) const;
 
-   double derivByParamImp(optimizers::Arg & x,
+   double derivByParamImp(const optimizers::Arg & x,
                           const std::string & paramName) const;
 
 };

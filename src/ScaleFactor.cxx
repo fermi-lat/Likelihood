@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScaleFactor.cxx,v 1.2 2012/03/10 03:15:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScaleFactor.cxx,v 1.3 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -107,14 +107,14 @@ ScaleFactor::~ScaleFactor() throw() {
    }
 }
    
-double ScaleFactor::value(optimizers::Arg & xarg) const {
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double ScaleFactor::value(const optimizers::Arg & xarg) const {
+   double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    return prefactor()*m_spectrum->operator()(xarg);
 }
    
-double ScaleFactor::derivByParamImp(optimizers::Arg & xarg,
+double ScaleFactor::derivByParamImp(const optimizers::Arg & xarg,
                                     const std::string & paramName) const {
-   double energy(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+   double energy(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {

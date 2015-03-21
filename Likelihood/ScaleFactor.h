@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScaleFactor.h,v 1.3 2012/04/19 23:39:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScaleFactor.h,v 1.4 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #include "optimizers/Function.h"
@@ -49,9 +49,9 @@ public:
    }
 
 protected:
-   virtual double value(optimizers::Arg & x) const;
+   virtual double value(const optimizers::Arg & x) const;
 
-   virtual double derivByParamImp(optimizers::Arg & x,
+   virtual double derivByParamImp(const optimizers::Arg & x,
                                   const std::string & paramName) const;
 
 private:

@@ -3,7 +3,7 @@
  * @brief Declaration for the LogParabola class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogParabola.h,v 1.2 2011/04/22 03:21:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogParabola.h,v 1.3 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_LogParabola_h
@@ -39,9 +39,9 @@ public:
 
 protected:
 
-   double value(optimizers::Arg &) const;
+   double value(const optimizers::Arg &) const;
 
-   double derivByParamImp(optimizers::Arg & x,
+   double derivByParamImp(const optimizers::Arg & x,
                           const std::string & paramName) const;
 
 };

@@ -3,7 +3,7 @@
  * @brief Implementation for the BandFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.5 2009/05/13 23:47:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BandFunction.cxx,v 1.6 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -53,14 +53,14 @@ BandFunction(double norm, double alpha, double beta, double Ep, double scale)
    addParam("Scale", scale, false);
 }
 
-double BandFunction::value(optimizers::Arg &xarg) const {
+double BandFunction::value(const optimizers::Arg &xarg) const {
    ::Pars pars(m_parameter);
 
    double N0(pars[0]);
    double alpha(pars[1]);
    double beta(pars[2]);
    double scale(pars[4]);
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue()/scale;
+   double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue()/scale;
    double epeak(pars[3]/scale);
    double ebreak = epeak*(alpha - beta);
 
@@ -78,7 +78,7 @@ double BandFunction::value(optimizers::Arg &xarg) const {
    return my_value;
 }
 
-double BandFunction::derivByParamImp(optimizers::Arg & xarg,
+double BandFunction::derivByParamImp(const optimizers::Arg & xarg,
                                      const std::string & paramName) const {
    ::Pars pars(m_parameter);
 
@@ -86,7 +86,7 @@ double BandFunction::derivByParamImp(optimizers::Arg & xarg,
    double alpha(pars[1]);
    double beta(pars[2]);
    double scale(pars[4]);
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue()/scale;
+   double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue()/scale;
    double epeak(pars[3]/scale);
    double ebreak = epeak*(alpha - beta);
 

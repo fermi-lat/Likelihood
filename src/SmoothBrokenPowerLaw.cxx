@@ -3,7 +3,7 @@
  * @brief Implementation for the SmoothBrokenPowerLaw Function class
  * @author Benoit Lott
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SmoothBrokenPowerLaw.cxx,v 1.3 2009/06/09 15:00:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SmoothBrokenPowerLaw.cxx,v 1.4 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -35,8 +35,8 @@ namespace Likelihood {
     addParam(std::string("Beta"), Beta, true);
   } 
   
-  double SmoothBrokenPowerLaw::value(optimizers::Arg &xarg) const {
-    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+  double SmoothBrokenPowerLaw::value(const optimizers::Arg &xarg) const {
+    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     
     // assume a standard ordering for the parameters
     enum ParamTypes {Prefactor, Index1, Scale, Index2, BreakValue, Beta};
@@ -56,9 +56,9 @@ namespace Likelihood {
   }
   
   
-  double SmoothBrokenPowerLaw::derivByParamImp(optimizers::Arg &xarg,
+  double SmoothBrokenPowerLaw::derivByParamImp(const optimizers::Arg &xarg,
                                                const std::string &paramName) const {
-    double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+    double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     
     enum ParamTypes {Prefactor, Index1, Scale, Index2, BreakValue, Beta};
     

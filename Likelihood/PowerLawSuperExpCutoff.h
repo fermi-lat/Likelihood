@@ -3,7 +3,7 @@
  * @brief Declaration for the PowerLawSuperExpCutoff Function class
  * @author Damien Parent
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLawSuperExpCutoff.h,v 1.2 2007/03/20 23:46:22 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLawSuperExpCutoff.h,v 1.3 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_PowerLawSuperExpCutoff_h
@@ -39,9 +39,9 @@ namespace Likelihood {
     
   protected:
 
-    double value(optimizers::Arg &) const;
+    double value(const optimizers::Arg &) const;
     
-    double derivByParamImp(optimizers::Arg & x,
+    double derivByParamImp(const optimizers::Arg & x,
                            const std::string &paramName) const;
     
   };

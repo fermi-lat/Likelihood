@@ -3,7 +3,7 @@
  * @brief Implementation for the BrokenPowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw2.cxx,v 1.2 2007/07/13 15:35:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw2.cxx,v 1.3 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -35,8 +35,8 @@ BrokenPowerLaw2::BrokenPowerLaw2(double Integral, double Index1,
    setParamAlwaysFixed("UpperLimit");
 }
 
-double BrokenPowerLaw2::value(optimizers::Arg & xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double BrokenPowerLaw2::value(const optimizers::Arg & xarg) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
 // Assume a standard ordering for the parameters.
    enum ParamTypes {Integral, Index1, Index2, BreakValue, 
@@ -56,8 +56,9 @@ double BrokenPowerLaw2::value(optimizers::Arg & xarg) const {
 }
 
 double BrokenPowerLaw2::
-derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+derivByParamImp(const optimizers::Arg & xarg,
+                const std::string & paramName) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -176,10 +177,10 @@ derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
    return 0;
 }
 
-double BrokenPowerLaw2::integral(optimizers::Arg & x_min, 
-                                 optimizers::Arg & x_max) const {
-   double xmin = dynamic_cast<optimizers::dArg &>(x_min).getValue();
-   double xmax = dynamic_cast<optimizers::dArg &>(x_max).getValue();
+double BrokenPowerLaw2::integral(const optimizers::Arg & x_min, 
+                                 const optimizers::Arg & x_max) const {
+   double xmin = dynamic_cast<const optimizers::dArg &>(x_min).getValue();
+   double xmax = dynamic_cast<const optimizers::dArg &>(x_max).getValue();
    double prefactor(1.);
    if (xmin > xmax) {
       double tmp = xmin;

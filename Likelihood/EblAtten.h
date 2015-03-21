@@ -4,7 +4,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EblAtten.h,v 1.5 2009/06/19 06:36:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/EblAtten.h,v 1.6 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #include "optimizers/Function.h"
@@ -39,9 +39,9 @@ public:
 
 protected:
 
-   virtual double value(optimizers::Arg & x) const;
+   virtual double value(const optimizers::Arg & x) const;
 
-   virtual double derivByParamImp(optimizers::Arg & x,
+   virtual double derivByParamImp(const optimizers::Arg & x,
                                   const std::string & paramName) const;
 
 private:

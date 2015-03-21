@@ -2,7 +2,7 @@
  * @file DMFitFunction.cxx
  * @brief Implementation for the DMFitFunction class
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.15 2013/02/07 19:04:24 cohen Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/dmfit/DMFitFunction.cxx,v 1.16 2015/03/03 18:05:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -56,10 +56,10 @@ DMFitFunction(double norm, double sigmav, double mass, double bratio,
    setParamAlwaysFixed("channel1");
 }
 
-double DMFitFunction::value(optimizers::Arg &xarg) const {
+double DMFitFunction::value(const optimizers::Arg &xarg) const {
 
   double escale=1.e-3;//GeV
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue()*escale;
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue()*escale;
    double n=m_parameter[norm].getTrueValue();
    double sv=m_parameter[sigmav].getTrueValue();
    double m=m_parameter[mass].getTrueValue();
@@ -73,7 +73,7 @@ double DMFitFunction::value(optimizers::Arg &xarg) const {
    return my_value/m_8pi;
 }
 
-double DMFitFunction::derivByParamImp(optimizers::Arg & xarg,
+double DMFitFunction::derivByParamImp(const optimizers::Arg & xarg,
                                       const std::string & paramName) const {
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -88,7 +88,7 @@ double DMFitFunction::derivByParamImp(optimizers::Arg & xarg,
    }
 
    double escale=1.e-3;//GeV
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue()*escale;
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue()*escale;
    double n=m_parameter[norm].getTrueValue();
    double sv=m_parameter[sigmav].getTrueValue();
    double m=m_parameter[mass].getTrueValue();
