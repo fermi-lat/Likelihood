@@ -4,7 +4,7 @@
  * flux as variables
  * @author Rolf Buehler
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExpCutoffSEDPeak.cxx,v 1.2 2012/01/17 22:05:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ExpCutoffSEDPeak.cxx,v 1.3 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,13 +23,13 @@ namespace Likelihood {
 ExpCutoffSEDPeak::
 ExpCutoffSEDPeak(double Fpeak, double Index, double Epeak) 
    : optimizers::Function("ExpCutoffSEDPeak", 3, "Fpeak") {
-   addParam(std::string("Fpeak"), Fpeak, true);
-   addParam(std::string("Index"), Index, true);
-   addParam(std::string("Epeak"), Epeak, true);
+   addParam("Fpeak", Fpeak, true);
+   addParam("Index", Index, true);
+   addParam("Epeak", Epeak, true);
 }
 
-double ExpCutoffSEDPeak::value(optimizers::Arg &xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double ExpCutoffSEDPeak::value(const optimizers::Arg &xarg) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    //std::cout<<"In ::value"<<std::endl;
 
 // assume a standard ordering for the parameters
@@ -49,9 +49,9 @@ double ExpCutoffSEDPeak::value(optimizers::Arg &xarg) const {
    return value;
 }
 
-double ExpCutoffSEDPeak::derivByParamImp(optimizers::Arg & xarg,
+double ExpCutoffSEDPeak::derivByParamImp(const optimizers::Arg & xarg,
                                          const std::string & paramName) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Fpeak, Index, Epeak};
 

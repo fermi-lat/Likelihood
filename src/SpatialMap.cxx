@@ -5,7 +5,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.35 2013/09/04 05:30:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialMap.cxx,v 1.36 2015/03/03 18:05:37 jchiang Exp $
  *
  */
 
@@ -56,9 +56,9 @@ SpatialMap & SpatialMap::operator=(const SpatialMap & rhs) {
 SpatialMap::~SpatialMap() {
 }
 
-double SpatialMap::value(optimizers::Arg & arg) const {
+double SpatialMap::value(const optimizers::Arg & arg) const {
    astro::SkyDir dir;
-   dynamic_cast<SkyDirArg &>(arg).fetchValue(dir);
+   dynamic_cast<const SkyDirArg &>(arg).fetchValue(dir);
    return value(dir);
 }
 

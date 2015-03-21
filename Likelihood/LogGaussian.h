@@ -3,7 +3,7 @@
  * @brief Declaration for the LogGaussian Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogGaussian.h,v 1.2 2011/01/30 00:30:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogGaussian.h,v 1.3 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_LogGaussian_h
@@ -29,7 +29,7 @@ public:
 
    LogGaussian(double norm=1, double mean=0, double sigma=1);
 
-   double derivative(optimizers::Arg & x) const;
+   double derivative(const optimizers::Arg & x) const;
    
    virtual Function * clone() const {
       return new LogGaussian(*this);
@@ -37,9 +37,9 @@ public:
 
 protected:
 
-   double value(optimizers::Arg & arg) const;
+   double value(const optimizers::Arg & arg) const;
 
-   double derivByParamImp(optimizers::Arg & x, 
+   double derivByParamImp(const optimizers::Arg & x, 
                           const std::string & paramName) const;
 
 private:

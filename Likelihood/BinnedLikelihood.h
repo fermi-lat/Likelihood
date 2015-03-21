@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.72 2014/04/08 16:43:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.73 2014/08/26 04:35:52 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -50,7 +50,7 @@ public:
 
    virtual ~BinnedLikelihood() throw();
 
-   virtual double value(optimizers::Arg &) const;
+   virtual double value(const optimizers::Arg &) const;
 
    virtual double value() const {
       optimizers::dArg dummy(0);

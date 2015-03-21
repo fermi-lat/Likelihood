@@ -3,7 +3,7 @@
  * @brief Implementation for the ExpCutoff with SED peak energy and flux as variables
  * @author Rolf Buehler
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExpCutoffSEDPeak.h,v 1.1 2012/01/14 16:47:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExpCutoffSEDPeak.h,v 1.2 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_ExpCutoffSEDPeak_h
@@ -35,9 +35,9 @@ namespace Likelihood {
     
   protected:
 
-    double value(optimizers::Arg &) const;
+    double value(const optimizers::Arg &) const;
     
-    double derivByParamImp(optimizers::Arg & x,
+    double derivByParamImp(const optimizers::Arg & x,
                            const std::string & paramName) const;
     
   };

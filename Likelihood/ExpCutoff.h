@@ -3,7 +3,7 @@
  * @brief Declaration for the ExpCutoff Function class
  * @author Luis C. Reyes
  *
- * $Header: $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExpCutoff.h,v 1.2 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_ExpCutoff_h
@@ -34,9 +34,9 @@ public:
 
 protected:
 
-   double value(optimizers::Arg &) const;
+   double value(const optimizers::Arg &) const;
 
-   double derivByParamImp(optimizers::Arg & x, 
+   double derivByParamImp(const optimizers::Arg & x, 
                           const std::string & paramName) const;
 
 };

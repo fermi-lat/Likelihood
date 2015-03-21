@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EnergyBand.cxx,v 1.2 2011/06/10 17:18:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EnergyBand.cxx,v 1.3 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -74,8 +74,8 @@ EnergyBand::~EnergyBand() throw() {
    }
 }
    
-double EnergyBand::value(optimizers::Arg & xarg) const {
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double EnergyBand::value(const optimizers::Arg & xarg) const {
+   double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    int emin(m_spectrum->getNumParams());
    int emax(m_spectrum->getNumParams() + 1);
    
@@ -86,9 +86,9 @@ double EnergyBand::value(optimizers::Arg & xarg) const {
    return m_spectrum->operator()(xarg);
 }
    
-double EnergyBand::derivByParamImp(optimizers::Arg & xarg,
+double EnergyBand::derivByParamImp(const optimizers::Arg & xarg,
                                    const std::string & paramName) const {
-   double energy(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+   double energy(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {

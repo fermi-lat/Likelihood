@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.7 2009/01/19 15:18:18 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLaw2.cxx,v 1.8 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -39,8 +39,8 @@ PowerLaw2::PowerLaw2(double Integral, double Index,
    updateCache(1.0, Index, LowerLimit, UpperLimit);
 }
 
-double PowerLaw2::value(optimizers::Arg & xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double PowerLaw2::value(const optimizers::Arg & xarg) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
 // Assume a standard ordering for the parameters.
    enum ParamTypes {Integral, Index, LowerLimit, UpperLimit};
@@ -59,8 +59,8 @@ double PowerLaw2::value(optimizers::Arg & xarg) const {
 }
 
 double PowerLaw2::
-derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
@@ -119,8 +119,8 @@ derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
 
 double PowerLaw2::integral(optimizers::Arg & x_min, 
                            optimizers::Arg & x_max) const {
-   double xmin = dynamic_cast<optimizers::dArg &>(x_min).getValue();
-   double xmax = dynamic_cast<optimizers::dArg &>(x_max).getValue();
+   double xmin = dynamic_cast<const optimizers::dArg &>(x_min).getValue();
+   double xmax = dynamic_cast<const optimizers::dArg &>(x_max).getValue();
 
    enum ParamTypes {Integral, Index, LowerLimit, UpperLimit};
 

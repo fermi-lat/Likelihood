@@ -3,7 +3,7 @@
  * @brief Declaration for the FileFunction class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.3 2014/08/08 16:25:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileFunction.h,v 1.4 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_FileFunction_h
@@ -49,13 +49,10 @@ public:
 
 protected:
 
-   double value(optimizers::Arg & x) const;
+   double value(const optimizers::Arg & x) const;
 
-   double derivByParamImp(optimizers::Arg & x, 
+   double derivByParamImp(const optimizers::Arg & x, 
                           const std::string & paramName) const;
-
-// This is disabled.
-   double integral(optimizers::Arg & xmin, optimizers::Arg & xmax) const;
 
 private:
 

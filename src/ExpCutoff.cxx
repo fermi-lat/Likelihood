@@ -22,17 +22,17 @@ ExpCutoff::
 ExpCutoff(double Prefactor, double Index, double Scale,
           double Ebreak, double P1, double P2, double P3)
    : optimizers::Function("ExpCutoff", 7, "Prefactor") {
-   addParam(std::string("Prefactor"), Prefactor, true);
-   addParam(std::string("Index"), Index, true);
-   addParam(std::string("Scale"), Scale, false);
-   addParam(std::string("Ebreak"), Ebreak, true);
-   addParam(std::string("P1"), P1, true);
-   addParam(std::string("P2"), P2, true);
-   addParam(std::string("P3"), P3, true);
+   addParam("Prefactor", Prefactor, true);
+   addParam("Index", Index, true);
+   addParam("Scale", Scale, false);
+   addParam("Ebreak", Ebreak, true);
+   addParam("P1", P1, true);
+   addParam("P2", P2, true);
+   addParam("P3", P3, true);
 }
 
-double ExpCutoff::value(optimizers::Arg &xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double ExpCutoff::value(const optimizers::Arg &xarg) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
 // assume a standard ordering for the parameters
    enum ParamTypes {Prefactor, Index, Scale, Ebreak, P1, P2, P3};
@@ -57,9 +57,9 @@ double ExpCutoff::value(optimizers::Arg &xarg) const {
    }
 }
 
-double ExpCutoff::derivByParamImp(optimizers::Arg & xarg,
+double ExpCutoff::derivByParamImp(const optimizers::Arg & xarg,
                                   const std::string & paramName) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Prefactor, Index, Scale, Ebreak, P1, P2, P3};
 

@@ -3,7 +3,7 @@
  * @brief Log-Normal distribution for spectral modeling.  log10 is applied
  * to the energy value.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogNormal.cxx,v 1.3 2010/02/08 18:53:19 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogNormal.cxx,v 1.4 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -23,8 +23,8 @@ LogNormal::LogNormal(double prefactor, double log10_mean,
    addParam("Log10_Sigma", log10_sigma, true);
 }
 
-double LogNormal::value(optimizers::Arg & xarg) const {
-   double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+double LogNormal::value(const optimizers::Arg & xarg) const {
+   double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    double log10x(std::log10(x));
 
    enum ParamTypes {Prefactor, Log10_Mean, Log10_Sigma};
@@ -39,9 +39,9 @@ double LogNormal::value(optimizers::Arg & xarg) const {
       /pars[Log10_Sigma].getTrueValue()*std::exp(-foo*foo/2.);
 }
 
-double LogNormal::derivByParamImp(optimizers::Arg & xarg,
+double LogNormal::derivByParamImp(const optimizers::Arg & xarg,
                                   const std::string & parName) const {
-   double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+   double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    double log10x(std::log10(x));
 
    enum ParamTypes {Prefactor, Log10_Mean, Log10_Sigma};

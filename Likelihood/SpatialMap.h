@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialMap Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.25 2012/04/17 20:28:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialMap.h,v 1.26 2015/03/03 18:05:36 jchiang Exp $
  *
  */
 
@@ -69,9 +69,9 @@ public:
 
 protected:
 
-   double value(optimizers::Arg &) const;
+   double value(const optimizers::Arg &) const;
 
-   double derivByParamImp(optimizers::Arg &, const std::string &) const {
+   double derivByParamImp(const optimizers::Arg &, const std::string &) const {
       return 0;
    }
 

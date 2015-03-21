@@ -3,7 +3,7 @@
  * @brief Implementation for the BrokenPowerLaw3 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw3.cxx,v 1.1 2012/07/31 19:38:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BrokenPowerLaw3.cxx,v 1.2 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <cmath>
@@ -40,8 +40,8 @@ BrokenPowerLaw3::BrokenPowerLaw3(double Integral1, double Index1,
    setParamAlwaysFixed("UpperLimit2");
 }
 
-double BrokenPowerLaw3::value(optimizers::Arg & xarg) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double BrokenPowerLaw3::value(const optimizers::Arg & xarg) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    enum ParamTypes {Integral1, Index1, Integral2, Index2, 
                     LowerLimit1, UpperLimit1, LowerLimit2, UpperLimit2};
@@ -59,8 +59,9 @@ double BrokenPowerLaw3::value(optimizers::Arg & xarg) const {
 }
 
 double BrokenPowerLaw3::
-derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
-   double x = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+derivByParamImp(const optimizers::Arg & xarg, 
+                const std::string & paramName) const {
+   double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
 
    int iparam(-1);
    for (size_t i(0); i < m_parameter.size(); i++) {
@@ -148,10 +149,10 @@ derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
    return 0;
 }
 
-double BrokenPowerLaw3::integral(optimizers::Arg & x_min, 
-                                 optimizers::Arg & x_max) const {
-   double xmin = dynamic_cast<optimizers::dArg &>(x_min).getValue();
-   double xmax = dynamic_cast<optimizers::dArg &>(x_max).getValue();
+double BrokenPowerLaw3::integral(const optimizers::Arg & x_min, 
+                                 const optimizers::Arg & x_max) const {
+   double xmin = dynamic_cast<const optimizers::dArg &>(x_min).getValue();
+   double xmax = dynamic_cast<const optimizers::dArg &>(x_max).getValue();
 
    double prefactor(1.);
    if (xmin > xmax) {

@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.133 2015/03/03 18:05:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.134 2015/03/19 16:41:56 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -843,13 +843,22 @@ void LikelihoodTests::test_SourceModel() {
 
    for (unsigned int i = 0; i < sm_derivs.size(); i++) {
 // Compute the numerical derivative wrt this parameter.
-      double delta_param = fabs(params_save[i]/1e7);
+      volatile double delta_param = fabs(params_save[i]/1e7);
       double num_deriv = srcModel(x);
       params[i] += delta_param;
+      delta_param = params[i] - params_save[i];
+      params[i] = params_save[i] + delta_param;
       srcModel.setFreeParamValues(params);
       num_deriv -= srcModel(x);
       num_deriv /= delta_param;
-      ASSERT_EQUALS(sm_derivs[i], -num_deriv);
+      // std::cout << i << "  "
+      //           << sm_derivs[i] << "  "
+      //           << -num_deriv << std::endl;
+      if (sm_derivs[i] == 0) {
+         CPPUNIT_ASSERT(fabs(num_deriv) < 1e-7);
+      } else {
+         ASSERT_EQUALS(sm_derivs[i], -num_deriv);
+      }
 
 // Reset the parameters for next time around.
       srcModel.setFreeParamValues(params_save);
@@ -1759,9 +1768,9 @@ int main(int iargc, char * argv[]) {
       // testObj.test_LikeExposure();
       // testObj.tearDown();
 
-      // testObj.setUp();
-      // testObj.test_SourceModel();
-      // testObj.tearDown();
+      testObj.setUp();
+      testObj.test_SourceModel();
+      testObj.tearDown();
 
       // testObj.setUp();
       // testObj.test_SourceDerivs();
@@ -1827,9 +1836,9 @@ int main(int iargc, char * argv[]) {
       // testObj.test_MultipleBrokenPowerLaw();
       // testObj.tearDown();
 
-      testObj.setUp();
-      testObj.test_PiecewisePowerLaw();
-      testObj.tearDown();
+      // testObj.setUp();
+      // testObj.test_PiecewisePowerLaw();
+      // testObj.tearDown();
 
       // testObj.setUp();
       // testObj.test_EnergyBand();

@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RadialProfile.h,v 1.4 2011/08/27 03:48:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RadialProfile.h,v 1.5 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_RadialProfile_h
@@ -53,9 +53,9 @@ public:
    
 protected:
 
-   virtual double value(optimizers::Arg & dir) const;
+   virtual double value(const optimizers::Arg & dir) const;
 
-   virtual double derivByParamImp(optimizers::Arg & dir,
+   virtual double derivByParamImp(const optimizers::Arg & dir,
                                   const std::string & parName) const;
 
 private:

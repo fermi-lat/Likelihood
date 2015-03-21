@@ -3,7 +3,7 @@
  * @brief Encapsulation of a 3D FITS image.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction2.h,v 1.4 2012/01/06 07:11:58 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapCubeFunction2.h,v 1.5 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_MapCubeFunction2_h
@@ -60,9 +60,9 @@ public:
                                      std::vector<double> & exposure) const;
 protected:
 
-   virtual double value(optimizers::Arg &) const;
+   virtual double value(const optimizers::Arg &) const;
 
-   virtual double derivByParamImp(optimizers::Arg & dir,
+   virtual double derivByParamImp(const optimizers::Arg & dir,
                                   const std::string & paramName) const {
       // There is only the normalization, so the derivative is easy:
       return value(dir)/getParamValue(paramName);

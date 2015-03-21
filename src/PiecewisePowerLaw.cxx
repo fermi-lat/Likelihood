@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.3 2015/03/03 18:05:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.4 2015/03/15 22:08:07 jchiang Exp $
  */
 
 #include <algorithm>
@@ -55,8 +55,8 @@ addParams(double indexL, double indexH,
    }
 }
 
-double PiecewisePowerLaw::value(optimizers::Arg & xarg) const {
-   double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+double PiecewisePowerLaw::value(const optimizers::Arg & xarg) const {
+   double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
 
    // Handle low and high end cases first.
    if (x <= m_energies.front()) { // IndexL
@@ -76,7 +76,7 @@ double PiecewisePowerLaw::value(optimizers::Arg & xarg) const {
 }
 
 double PiecewisePowerLaw::
-derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
+derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) const {
    if (paramName.substr(0, 6) == "Energy") {
       throw std::runtime_error("MultipleBPL: Parameter " + paramName 
                                + " must be fixed in the xml model definition.");
@@ -85,7 +85,7 @@ derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
       return derivByParam_decoupledNormPar(xarg, paramName);
    }
 
-   double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+   double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
 
    if (paramName == "IndexL") {
       if (x < m_energies.front()) {
@@ -173,9 +173,9 @@ double PiecewisePowerLaw::plIndex(size_t k) const {
 }
 
 double PiecewisePowerLaw::
-derivByParam_decoupledNormPar(optimizers::Arg & xarg,
+derivByParam_decoupledNormPar(const optimizers::Arg & xarg,
                               const std::string & paramName) const {
-   double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+   double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
 
    if (paramName == "IndexL") {
       if (x < m_energies.front()) {

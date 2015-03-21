@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MultipleBrokenPowerLaw.cxx,v 1.4 2015/03/03 18:05:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MultipleBrokenPowerLaw.cxx,v 1.5 2015/03/17 03:16:21 jchiang Exp $
  */
 
 #include <algorithm>
@@ -48,8 +48,8 @@ addParams(double normalization, const std::vector<double> & photonIndexes,
    }
 }
 
-double MultipleBrokenPowerLaw::value(optimizers::Arg & xarg) const {
-   double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+double MultipleBrokenPowerLaw::value(const optimizers::Arg & xarg) const {
+   double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
 
    // Set the scale to be the first break energy.
    double x0(m_breakEnergies[0]);
@@ -66,12 +66,13 @@ double MultipleBrokenPowerLaw::value(optimizers::Arg & xarg) const {
 }
 
 double MultipleBrokenPowerLaw::
-derivByParamImp(optimizers::Arg & xarg, const std::string & paramName) const {
+derivByParamImp(const optimizers::Arg & xarg,
+                const std::string & paramName) const {
    if (paramName.substr(0, 5) == "Break") {
       throw std::runtime_error("MultipleBPL: Parameter " + paramName 
                                + " must be fixed in the xml model definition.");
    }
-   double x(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+   double x(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    double x0(m_breakEnergies[0]);
    if (paramName == "Normalization") {
       double normalization(m_parameter[0].getValue());

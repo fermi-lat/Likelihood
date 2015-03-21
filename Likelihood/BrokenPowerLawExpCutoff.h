@@ -3,7 +3,7 @@
  * @brief Declaration for the BrokenPowerLawExpCutoff Function class
  * @author Jennifer Carson
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BrokenPowerLawExpCutoff.h,v 1.1 2006/03/23 00:21:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BrokenPowerLawExpCutoff.h,v 1.2 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_BrokenPowerLawExpCutoff_h
@@ -35,9 +35,9 @@ public:
 
 protected:
 
-   double value(optimizers::Arg&) const;
+   double value(const optimizers::Arg&) const;
 
-   double derivByParamImp(optimizers::Arg & x,
+   double derivByParamImp(const optimizers::Arg & x,
                           const std::string & paramName) const;
 };
 

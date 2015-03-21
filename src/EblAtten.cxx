@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EblAtten.cxx,v 1.5 2011/05/29 17:53:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EblAtten.cxx,v 1.6 2015/03/03 18:05:37 jchiang Exp $
  */
 
 #include <algorithm>
@@ -82,14 +82,14 @@ EblAtten::~EblAtten() throw() {
    }
 }
 
-double EblAtten::value(optimizers::Arg & xarg) const {
-   double energy = dynamic_cast<optimizers::dArg &>(xarg).getValue();
+double EblAtten::value(const optimizers::Arg & xarg) const {
+   double energy = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
    return m_spectrum->operator()(xarg)*attenuation(energy);
 }
 
-double EblAtten::derivByParamImp(optimizers::Arg & xarg,
+double EblAtten::derivByParamImp(const optimizers::Arg & xarg,
                                  const std::string & paramName) const {
-   double energy(dynamic_cast<optimizers::dArg &>(xarg).getValue());
+   double energy(dynamic_cast<const optimizers::dArg &>(xarg).getValue());
    int iparam(-1);
    for (unsigned int i = 0; i < m_parameter.size(); i++) {
       if (paramName == m_parameter[i].getName()) {

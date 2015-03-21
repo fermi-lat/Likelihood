@@ -3,7 +3,7 @@
  * @brief Declaration for the SmoothDoubleBrokenPowerLaw Function class
  * @author Keith Bechtol
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SmoothDoubleBrokenPowerLaw.h,v 1.1 2012/01/12 16:46:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SmoothDoubleBrokenPowerLaw.h,v 1.2 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_SmoothDoubleBrokenPowerLaw_h
@@ -43,9 +43,9 @@ namespace Likelihood {
     
   protected:
 
-    double value(optimizers::Arg &) const;
+    double value(const optimizers::Arg &) const;
     
-    double derivByParamImp(optimizers::Arg & x,
+    double derivByParamImp(const optimizers::Arg & x,
                            const std::string & paramName) const;
 
   private:

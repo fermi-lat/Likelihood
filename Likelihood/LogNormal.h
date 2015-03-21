@@ -3,7 +3,7 @@
  * @brief LogNormal class for spectral modeling
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogNormal.h,v 1.1 2010/02/08 18:47:39 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogNormal.h,v 1.2 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_LogNormal_h
@@ -32,14 +32,11 @@ public:
 
 protected:
 
-   double value(optimizers::Arg &) const;
+   double value(const optimizers::Arg &) const;
 
-   double derivByParamImp(optimizers::Arg & x, 
+   double derivByParamImp(const optimizers::Arg & x, 
                           const std::string & paramName) const;
 
-   double integral(optimizers::Arg &, optimizers::Arg &) const {
-      return 0;
-   }
 };
 
 } // namespace Likelihood

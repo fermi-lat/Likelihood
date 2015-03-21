@@ -3,7 +3,7 @@
  * @brief Declaration for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.3 2009/10/19 19:15:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.4 2015/03/03 18:05:36 jchiang Exp $
  */
 
 #ifndef Likelihood_PowerLaw2_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.3 2009/10/19 19:15:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.4 2015/03/03 18:05:36 jchiang Exp $
  */
     
 class PowerLaw2 : public optimizers::Function {
@@ -40,9 +40,9 @@ public:
    }
 
 protected:
-   double value(optimizers::Arg & x) const;
+   double value(const optimizers::Arg & x) const;
 
-   double derivByParamImp(optimizers::Arg & x, 
+   double derivByParamImp(const optimizers::Arg & x, 
                           const std::string & paramName) const;
 
 private:
