@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.565 2015/03/17 03:17:06 jchiang Exp $
+    $Id: release.notes,v 1.566 2015/03/20 15:29:15 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-19-01-07 20-Mar-2015 jchiang pass optimizers::Arg as const references in value and derivByParamImp member functions
  Likelihood-19-01-06 20-Mar-2015 jchiang use new optimizers::FunctionFactory::addFunc member function
  Likelihood-19-01-05 16-Mar-2015 jchiang set the function name of the MultipleBrokenPowerLaw class to be consistent with the name registered in AppHelpers.cxx
  Likelihood-19-01-04 15-Mar-2015 jchiang add header file declaration for deriveByParam_decoupledNormPar member function
