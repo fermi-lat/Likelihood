@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.49 2015/03/19 16:41:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.50 2015/03/19 16:50:34 jchiang Exp $
  */
 
 #include <cmath>
@@ -238,17 +238,10 @@ void BinnedExposure::computeMap() {
          if (npix > 20 && (iter % (npix/20)) == 0) {
             formatter.warn() << ".";
          }
-         // std::pair<double, double> coord = m_proj->pix2sph(i + 1, j + 1);
-         // astro::SkyDir dir(coord.first, coord.second, coordsys);
          astro::SkyDir dir;
          try {
             st_facilities::Util::pixel2SkyDir(*m_proj, i + 1, j + 1, dir);
-         } catch (...) {
-            // The astro::SkyProj class throws a SkyProjException
-            // here, but SkyProjException is annoyingly defined in
-            // SkyProj.cxx
-            // http://www-glast.stanford.edu/cgi-bin/viewcvs/astro/src/SkyProj.cxx?revision=1.27&view=markup
-            // so that client code cannot catch it directly. Amazing.
+         } catch (std::out_of_range &) {
             continue;
          }
                                            
