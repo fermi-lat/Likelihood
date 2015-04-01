@@ -4,7 +4,7 @@
  * an observaition.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/meanPsf/meanPsf.cxx,v 1.15 2010/06/16 22:49:54 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/meanPsf/meanPsf.cxx,v 1.16 2013/08/26 22:55:38 jchiang Exp $
  */
 
 #include <cstdio>
@@ -56,7 +56,7 @@ private:
 
 st_app::StAppFactory<meanPsf> myAppFactory("gtpsf");
 
-std::string meanPsf::s_cvs_id("$Name: Likelihood-18-00-04 $");
+std::string meanPsf::s_cvs_id("$Name:  $");
 
 meanPsf::meanPsf() 
    : st_app::StApp(), m_helper(0),
@@ -75,11 +75,17 @@ void meanPsf::banner() const {
 void meanPsf::run() {
    m_pars.Prompt();
    m_pars.Save();
-   m_helper = new AppHelpers(&m_pars, "none");
    std::string expcube_file = m_pars["expcube"];
    if (expcube_file == "none") {
       throw std::runtime_error("Please specify an exposure cube file.");
    }
+   std::string irfs = m_pars["irfs"];
+   if (irfs == "CALDB") {
+      throw std::runtime_error("\nThe IRFs and event type selection cannot be "
+                               "inferred from the expcube file.\nPlease "
+                               "select the irfs and evtype explicitly.");
+   }
+   m_helper = new AppHelpers(&m_pars, "none");
    ExposureCube & expCube = 
       const_cast<ExposureCube &>(m_helper->observation().expCube());
    expCube.readExposureCube(expcube_file);
