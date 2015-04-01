@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.568 2015/03/30 21:10:54 jchiang Exp $
+    $Id: release.notes,v 1.569 2015/03/31 21:43:00 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-19-01-10 01-Apr-2015 jchiang add code gtpsf to note that it cannot infer the irfs and evtype info from the input expcube file since that file only contains GTIs in the DSS info
  Likelihood-19-01-09 31-Mar-2015 jchiang fix for LK-96
  Likelihood-19-01-08 30-Mar-2015 jchiang catch out_of_range exception that could be thrown by st_facilities::Util::pixel2SkyDir
  Likelihood-19-01-07 20-Mar-2015 jchiang pass optimizers::Arg as const references in value and derivByParamImp member functions
