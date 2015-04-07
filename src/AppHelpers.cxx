@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.121 2015/02/28 03:27:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.122 2015/03/19 16:41:55 jchiang Exp $
  */
 
 #include <cmath>
@@ -417,12 +417,21 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       // Add event_type BitMaskCut.
       try {
          unsigned int evtype = pars["evtype"];
-         if (evtype == 3) {
-            formatter.info() << "Using evtype=3 (i.e., FRONT/BACK irfs)\n";
-         }
+         formatter.info(3) << "Using evtype=" << evtype << std::endl;
          my_cuts->addBitMaskCut("EVENT_TYPE", evtype, my_cuts->pass_ver());
       } catch (hoops::Hexception &) {
-         // evtype not a command line option, so do not add this cut.
+         // evtype not a command line option, so try to infer this cut from 
+         // the evfile (which may in fact be an expmap or bexpmap file).
+         std::vector<std::string> files;
+         st_facilities::Util::resolve_fits_files(evfile, files);
+         dataSubselector::Cuts temp_cuts(files.at(0), extname,
+                                         false, true, true);
+         dataSubselector::BitMaskCut * my_evtype_cut 
+            = temp_cuts.bitMaskCut("EVENT_TYPE");
+         if (my_evtype_cut) {
+            my_cuts->addCut(*my_evtype_cut);
+         }
+         delete my_evtype_cut;
       }
    }
    std::vector<unsigned int> selectedEvtTypes;
