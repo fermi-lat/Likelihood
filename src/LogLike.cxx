@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.84 2014/03/24 21:26:12 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/LogLike.cxx,v 1.85 2015/03/21 05:38:03 jchiang Exp $
  */
 
 #include <cmath>
@@ -92,9 +92,6 @@ double LogLike::value(const optimizers::Arg&) const {
                     << NpredSum << "  "
                     << std::clock() - start << std::endl;
    m_nevals++;
-//    if (::getenv("BYPASS_ACCUMULATOR")) {
-//       return my_value;
-//    }
 
 /// Add in contribution from priors.
    std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
@@ -103,6 +100,9 @@ double LogLike::value(const optimizers::Arg&) const {
    }
 
    saveBestFit(my_total);
+   if (my_total != my_total) {
+      throw std::runtime_error("LogLike::value: Nan encountered.");
+   }
    return my_total;
 }
 
