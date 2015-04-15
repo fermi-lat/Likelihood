@@ -3,12 +3,11 @@
  * @brief Implementation for the FileFunction Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.10 2015/03/03 18:05:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileFunction.cxx,v 1.11 2015/03/21 05:38:03 jchiang Exp $
  */
 
 #include <cmath>
 
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -34,6 +33,11 @@ FileFunction::FileFunction(double Normalization)
 double FileFunction::value(const optimizers::Arg & xarg) const {
    double x(std::log(dynamic_cast<const optimizers::dArg &>(xarg).getValue()));
    double norm(m_parameter[0].getTrueValue());
+   if (x == m_x.front()) {
+      return norm*std::exp(m_y.front());
+   } else if (x == m_x.back()) {
+      return norm*std::exp(m_y.back());
+   }
    return norm*interpolateFlux(x);
 }
 
@@ -59,6 +63,9 @@ double FileFunction::interpolateFlux(double logEnergy) const {
               << ", lies outside the range of the input file, "
               << std::exp(m_x.front()) << ", " << std::exp(m_x.back());
       throw std::range_error(message.str());
+   }
+   if (flux != flux) {
+      std::runtime_error("FileFunction::interpolateFlux: Nan encountered");
    }
    return flux;
 }
