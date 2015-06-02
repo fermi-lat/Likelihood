@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SummedLikelihood.cxx,v 1.5 2014/02/07 22:39:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SummedLikelihood.cxx,v 1.6 2014/06/30 20:44:11 jchiang Exp $
  */
 
 #include <iostream>
@@ -103,6 +103,15 @@ void SummedLikelihood::syncParams() {
         it != m_components.end(); ++it) {
       (*it)->syncParams();
    }
+}
+
+double SummedLikelihood::NpredValue(const std::string & srcname) const {
+   double Npred(0);
+   for (ComponentConstIterator_t it(m_components.begin());
+        it != m_components.end(); ++it) {
+      Npred += (*it)->NpredValue(srcname);
+   }
+   return Npred;
 }
 
 unsigned int SummedLikelihood::getNumFreeParams() const {
