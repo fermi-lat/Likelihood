@@ -1,0 +1,43 @@
+#
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gttsmap.par,v 1.29 2015/01/16 05:36:26 jchiang Exp $
+#
+# Input data set parameters
+#
+cmap,f,a,"none",,,"Counts map file"
+bexpmap,f,a,"none",,,"Binned exposure map"
+expcube,f,a,"none",,,"Exposure hypercube file"
+evtype,i,h,INDEF,,,"Event type selections"
+irfs,s,a,"CALDB",,,"Response functions to use"
+
+# Input model parameters
+srcmdl,f,a,"",,,"Source model file"
+psfcorr,b,h,yes,,,"apply psf integral corrections"
+remakesrc,b,h,no,,,"Remake the test source to each grid point, rather than shifting it?"
+target,s,h,"",,,"Target source name, leave blank for powerlaw source with index=2"
+
+# Fitter parameters
+optimizer,s,a,"MINUIT",DRMNFB|NEWMINUIT|MINUIT|DRMNGB|LBFGS,,"Optimizer"
+ftol,r,h,1e-3,,,"Fit tolerance"
+toltype,s,h,"ABS","ABS|REL",,"Fit tolerance convergence type (absolute vs relative)"
+maxiter,i,h,30,,,"Maximum number of iterations for Newton's method fitting"
+stlevel,i,h,1,0,4,"Science tools fitting up to what scan loop"
+
+# Output file parameters
+outfile,f,a,"",,,"TS cube file name"
+nxpix,i,a,1,1,,Number of X axis pixels
+nypix,i,a,1,1,,Number of Y axis pixels
+binsz,r,a,,,,Image scale (in degrees/pixel)
+coordsys,s,a,CEL,CEL|GAL,,"Coordinate system"
+xref,r,a,0,0,360,"X-coordinate of image center in degrees (RA or l)"
+yref,r,a,0,-90,90,"Y-coordinate of image center in degrees (Dec or b)"
+proj,s,a,"STG",AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN,,Projection method
+nnorm,i,h,10,2,100,"Number of normalization points"
+nsigma,r,h,5.0,,,"Width of normalization scan, in sigma"
+covscale,r,h,-1.,,,"Scale factor to apply to broadband errors in bin-by-bin fits ( < 0 -> fixed )"
+
+# Common parameters
+chatter,i,h,2,0,4,Output verbosity
+debug,b,h,no,,,"Debug mode"
+clobber,        b, h, yes, , , "Overwrite existing output files"
+gui,            b, h, no, , , "GUI mode activated"
+mode,           s, h, "ql", , , "Mode of automatic parameters"
