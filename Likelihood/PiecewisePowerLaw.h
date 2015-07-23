@@ -4,7 +4,7 @@
  * power-law segments.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PiecewisePowerLaw.h,v 1.3 2015/03/16 03:26:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PiecewisePowerLaw.h,v 1.4 2015/03/21 05:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_PiecewisePowerLaw_h
@@ -53,6 +53,7 @@ private:
 
    double plIndex(size_t k) const;
    double norm(size_t k) const;
+   double norm_scaled(size_t k) const;
 
    double derivByParam_decoupledNormPar(const optimizers::Arg & xarg,
                                         const std::string & paramName) const;

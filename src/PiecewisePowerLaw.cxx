@@ -3,7 +3,7 @@
  * @brief User configurable multiply broken power-law.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.4 2015/03/15 22:08:07 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PiecewisePowerLaw.cxx,v 1.5 2015/03/21 05:38:03 jchiang Exp $
  */
 
 #include <algorithm>
@@ -116,32 +116,46 @@ derivByParamImp(const optimizers::Arg & xarg, const std::string & paramName) con
    }
    size_t k(std::atoi(paramName.substr(4).c_str()));
    if (k == 0) {
-      return value(xarg)/norm(k);
+      return value(xarg)/norm_scaled(k);
    }
 
-   double dNdE0(norm(0));
+   double dNdE0(norm_scaled(0));
    // End point where target energy is outside m_energies.
    if (k == m_dNdENames.size()-1 && x > m_energies.back()) {
-      return value(xarg)/norm(k)*dNdE0;
+      return value(xarg)/norm_scaled(k)*dNdE0;
    }
    // End point where target energy is inside m_energies.
    if (k == m_dNdENames.size()-1 && x > m_energies[k-1]) {
-      return value(xarg)/norm(k)*dNdE0
+      return value(xarg)/norm_scaled(k)*dNdE0
          *(std::log(x/m_energies[k-1])
            /std::log(m_energies[k]/m_energies[k-1]));
    }
 
    // All other non-zero cases
    if (m_energies[k] <= x && (k < m_energies.size()-1 && x < m_energies[k+1])) {
-      return value(xarg)/norm(k)*dNdE0
+      return value(xarg)/norm_scaled(k)*dNdE0
          *(1. - std::log(x/m_energies[k])
            /std::log(m_energies[k+1]/m_energies[k]));
    } else if ((k > 0 && x > m_energies[k-1]) && x < m_energies[k]) {
-      return value(xarg)/norm(k)*dNdE0
+      return value(xarg)/norm_scaled(k)*dNdE0
          *(std::log(x/m_energies[k-1])
            /std::log(m_energies[k]/m_energies[k-1]));
    }
    return 0;
+}
+
+double PiecewisePowerLaw::norm_scaled(size_t k) const {
+   if (k < 0 || k >= m_dNdENames.size()) {
+      throw std::out_of_range("PiecewisePowerLaw::norm_scaled");
+   }
+   if (m_decoupledNormPar) {
+      return m_parameter[2 + k].getValue();
+   }
+   double dNdE0(m_parameter[2].getValue());
+   if (k == 0) {
+      return dNdE0;
+   }
+   return dNdE0*m_parameter[2 + k].getValue();
 }
 
 double PiecewisePowerLaw::norm(size_t k) const {
@@ -209,24 +223,24 @@ derivByParam_decoupledNormPar(const optimizers::Arg & xarg,
    // End points where target energy is outside m_energies.
    if ((k == 0 && x < m_energies.front()) ||
        (k == m_dNdENames.size()-1 && x > m_energies.back())) {
-      return value(xarg)/norm(k);
+      return value(xarg)/norm_scaled(k);
    }
    // End points where target energy is inside m_energies.
    if (k == 0 && x <= m_energies[1]) {
-      return value(xarg)/norm(k)*(1. - std::log(x/m_energies[k])
+      return value(xarg)/norm_scaled(k)*(1. - std::log(x/m_energies[k])
                                   /std::log(m_energies[k+1]/m_energies[k]));
    }
    if (k == m_dNdENames.size()-1 && x > m_energies[k-1]) {
-      return value(xarg)/norm(k)*(std::log(x/m_energies[k-1])
+      return value(xarg)/norm_scaled(k)*(std::log(x/m_energies[k-1])
                                   /std::log(m_energies[k]/m_energies[k-1]));
    }
 
    // All other non-zero cases
    if (m_energies[k] <= x && (k < m_energies.size()-1 && x < m_energies[k+1])) {
-      return value(xarg)/norm(k)*(1. - std::log(x/m_energies[k])
+      return value(xarg)/norm_scaled(k)*(1. - std::log(x/m_energies[k])
                                   /std::log(m_energies[k+1]/m_energies[k]));
    } else if ((k > 0 && x > m_energies[k-1]) && x < m_energies[k]) {
-      return value(xarg)/norm(k)*(std::log(x/m_energies[k-1])
+      return value(xarg)/norm_scaled(k)*(std::log(x/m_energies[k-1])
                                   /std::log(m_energies[k]/m_energies[k-1]));
    }
    return 0;

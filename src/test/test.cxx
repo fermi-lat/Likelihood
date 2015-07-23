@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.134 2015/03/19 16:41:56 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.135 2015/03/21 05:38:05 jchiang Exp $
  */
 
 #ifdef TRAP_FPE
@@ -524,6 +524,7 @@ void LikelihoodTests::test_PiecewisePowerLaw() {
       std::ostringstream name;
       name << "dNdE" << k;
       pars.push_back(optimizers::Parameter(name.str(), dNdEs[k]));
+      pars.back().setScale(1e-12);
    }
    
    std::vector<optimizers::Arg *> args;
