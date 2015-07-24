@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/TsCube/TsCube.cxx,v 1.3 2015/03/03 06:00:02 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsCube/TsCube.cxx,v 1.1 2015/07/17 18:41:57 echarles Exp $
  */
 
 #include <cmath>
@@ -213,7 +213,7 @@ void TsCube::setGrid() {
   m_proj = skyProj;
 
   int status = testSourceName.empty() ? 
-    m_scanner->setPowerlawPointTestSource(*m_helper) : 
+    m_scanner->setPowerlawPointTestSource(m_helper->funcFactory()) : 
     m_scanner->setTestSourceByName(testSourceName);
   if ( status ) {
     throw std::runtime_error("Failed to make a powerlaw point test source");
