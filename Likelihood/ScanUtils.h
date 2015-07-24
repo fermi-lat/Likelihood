@@ -7,10 +7,10 @@
  *  This file contains a number of functions useful for likelihood scans.
  *
  *  These are basically utility function to do very specific things with the
- *  BinnedLikelihood interface.
+ *  BinnedLikelihood and SummedLikelihood interfaces
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/ConvolveHealpix.h,v 1.2 2015/03/03 05:59:55 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ScanUtils.h,v 1.1 2015/07/17 18:41:54 echarles Exp $
  */
 
 #ifndef Likelihood_ScanUtils_h
@@ -28,8 +28,7 @@ namespace Likelihood {
 
   class Source;
   class SourceModel;
-  class LogLike;
-  class BinnedLikelihood;
+  class FitScanModelWrapper;
   
   namespace ScanUtils {
     
@@ -70,7 +69,7 @@ namespace Likelihood {
 
     /* Scan the likelihood as a function of the normalization of the test source
      */
-    void scan_norm_binned(BinnedLikelihood& logLike,
+    void scan_norm_binned(FitScanModelWrapper& modelWrapper,
 			  const std::string& signal_name,			  
 			  optimizers::Optimizer& optimizer,
 			  double tol, int tolType,
@@ -83,7 +82,7 @@ namespace Likelihood {
   
     /* Scan the likelihood as a function of the normalization of the test source
      */
-    void sed_binned(BinnedLikelihood& logLike,
+    void sed_binned(FitScanModelWrapper& modelWrapper,
 		    const std::string& signal_name,			  		    
 		    optimizers::Optimizer& optimizer,
 		    double tol,int tolType,

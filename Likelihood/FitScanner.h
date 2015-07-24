@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.1 2015/07/17 18:41:54 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -73,6 +73,7 @@ namespace tip {
 
 namespace optimizers{
   class Optimizer;
+  class FunctionFactory;
 }
 
 
@@ -85,6 +86,7 @@ namespace Likelihood {
    */
    
   class BinnedLikelihood;
+  class SummedLikelihood;
   class LogLike;
   class HistND;
   class Source;
@@ -242,6 +244,320 @@ namespace Likelihood {
   };
 
 
+   /* A utility class to wrap either a BinnedLikelihood or a SummedLikelihood
+      and provide a common interface to the two classes
+   */
+  
+  class FitScanModelWrapper {
+
+  public:
+    
+    /* C'tor, trivial */
+    FitScanModelWrapper()
+      :m_npix(0),m_nebins(0),m_size(0){;}
+
+    /* D'tor, trivial */
+    ~FitScanModelWrapper() {;}
+
+    
+
+    /* return a reference to the counts data   
+       for the BinnedLikelihood this point to the CountMap in the BinnedLikelihood object
+       for the SummedLikelihood this points to a local vector where we have merged the countsdata
+    */
+    virtual const std::vector<float>& data() const = 0;
+
+    // Is this a SummedLikelihood or a BinnedLikelihood
+    virtual bool isSummed() const = 0;
+
+    /* Extract the predicted counts model from a Source object
+       for the BinnedLikelihood this just calls FitUtils::extractModelFromSource
+       for the SummedLikelihood this merged together the models for the various components
+    */       
+    virtual void extractModelFromSource(Source& aSrc,
+					std::vector<float>& model,
+					bool rescaleToNormOne = false) const = 0;
+
+    /* Extract the fitting templates 
+       for the BinnedLikelihood this just calls FitUtils::extractModels
+       for the SummedLikelihood this merged together the models for the various components
+     */
+    virtual void extractModels(const std::string& test_name,
+			       std::vector<std::vector<float> >& templates,		       
+			       std::vector<float>& fixed,
+			       std::vector<float>& test_source_model,
+			       std::vector<float>& refPars) const = 0;
+
+    /* Get the likelihood value */
+    virtual double value() const = 0;
+
+    /* Add a source to the model */
+    virtual void addSource(Source* aSrc) = 0;
+
+     /* Call syncParams on the model */
+    virtual void syncParams() = 0;
+  
+    /* Remove a source from the model */
+    virtual void removeSource(const std::string& sourceName) = 0;    
+
+    /* Write the energy bins to a fits file */
+    virtual int writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const = 0;
+
+    /* write the Good time intervals */
+    virtual int writeFits_GTIs(const std::string& fitsFile) const = 0;   
+
+    /* get the "master" component
+       for the BinnedLikelihood this is just the object itself
+       for the SummedLikelihood this is just the first component 
+    */
+    virtual BinnedLikelihood& getMasterComponent() = 0;       
+
+    /* get a component by index */
+    virtual const size_t numComponents() const = 0;
+
+    /* get a component by index */
+    virtual const BinnedLikelihood* getComponent(size_t idx) const = 0;   
+
+    /* get the energy bins */
+    virtual const std::vector<double>& energies() const = 0;
+
+    /* shift the test source */
+    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+				const astro::SkyDir& newDir,
+				std::vector<float>& targetModel) const = 0;
+
+    /* set the energy bins to use in the analysis */
+    virtual void set_klims(size_t kmin, size_t kmax) = 0;
+
+    /* return the number of pixels,        
+       for the SummedLikelihood this is summed over the components */
+    inline size_t nPix() const { return m_npix; }
+
+    /* return the number of energy bins, 
+       for the SummedLikelihoods this is the union of the components  */    
+    inline size_t nEBins() const { return m_nebins; }
+    
+    /* return the number of pixels*the number of energy bins */       
+    inline size_t size() const { return m_size; }   
+
+  protected:
+    
+    inline void setDims(size_t nPix, size_t nEBins) {
+      m_npix = nPix; m_nebins = nEBins;
+      m_size = m_npix*nEBins;
+    }
+
+  private:
+    
+    size_t m_npix;
+    size_t m_nebins;
+    size_t m_size; 
+  
+  };
+
+  
+  class FitScanModelWrapper_Binned : public FitScanModelWrapper {
+
+  public:
+
+    /* C'tor from a BinnedLikelihood object */
+    FitScanModelWrapper_Binned(BinnedLikelihood& binnedLike);
+
+    /* D'tor, trivial */
+    ~FitScanModelWrapper_Binned() {;}
+
+    inline BinnedLikelihood& binnedLike() { return m_binnedLike; }
+
+    /* return a reference to the counts data   
+       for the BinnedLikelihood this point to the CountMap in the BinnedLikelihood object
+    */
+    virtual const std::vector<float>& data() const; 
+
+    // Is this a SummedLikelihood or a BinnedLikelihood
+    virtual bool isSummed() const { return false; }
+
+    /* Extract the predicted counts model from a Source object
+       for the BinnedLikelihood this just calls FitUtils::extractModelFromSource
+    */       
+    virtual void extractModelFromSource(Source& aSrc,
+					std::vector<float>& model,
+					bool rescaleToNormOne = false) const;
+
+    /* Extract the fitting templates 
+       for the BinnedLikelihood this just calls FitUtils::extractModels
+     */
+    virtual void extractModels(const std::string& test_name,
+			       std::vector<std::vector<float> >& templates,		       
+			       std::vector<float>& fixed,
+			       std::vector<float>& test_source_model,
+			       std::vector<float>& refPars) const;
+
+
+    /* Get the likelihood value */
+    virtual double value() const;
+
+    /* Add a source to the model */
+    virtual void addSource(Source* aSrc);
+
+    /* Call syncParams on the model */
+    virtual void syncParams();
+    
+    /* Remove a source from the model */
+    virtual void removeSource(const std::string& sourceName);    
+
+    /* Write the energy bins to a fits file */
+    virtual int writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const;
+
+    /* write the Good time intervals */
+    virtual int writeFits_GTIs(const std::string& fitsFile) const;   
+
+    /* get the "master" component
+       for the BinnedLikelihood this is just the object itself
+    */
+    virtual BinnedLikelihood& getMasterComponent() { return m_binnedLike; }
+
+    /* get a component by index */
+    virtual const size_t numComponents() const { return 1; }
+
+    /* get a component by index */
+    virtual const BinnedLikelihood* getComponent(size_t idx) const { return idx == 0 ? &m_binnedLike : 0; }
+   
+    /* get the energy bins */
+    virtual const std::vector<double>& energies() const;
+
+    /* shift the test source */
+    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+				const astro::SkyDir& newDir,
+				std::vector<float>& targetModel) const;
+
+    /* set the energy bins to use in the analysis */
+    virtual void set_klims(size_t kmin, size_t kmax);
+
+  private:
+
+    BinnedLikelihood& m_binnedLike;
+
+  };
+
+  
+  class FitScanModelWrapper_Summed : public FitScanModelWrapper {
+     
+  public:
+    
+    static double findMinAndMatches(const std::vector< const std::vector<double>* >& energyBins,
+				    std::vector<size_t>& localIdx,
+				    std::vector<int>& matches,
+				    float tol = 1e-5);
+    
+    static void mergeVectors(const std::vector< const std::vector<float>* >& toMerge,
+			     const std::vector<size_t>& npixelsByComp,
+			     const std::vector< std::vector<int> >& energyBinLocal,
+			     std::vector<float>& mergedData);
+    
+  public:
+    
+    /* C'tor from a SummedLikelihood object */
+    FitScanModelWrapper_Summed(SummedLikelihood& summedLike);
+    
+    /* D'tor, trivial */
+    ~FitScanModelWrapper_Summed() {;}
+    
+    inline SummedLikelihood& summedLike() { return m_summedLike; }    
+     
+    /* return a reference to the data,        
+       for the BinnedLikelihood this point to the CountMap in the BinnedLikelihood object
+       for the SummedLikelihood this points to a local vector where we have merged the countsdata
+    */
+    inline const std::vector<float>& data() const { return m_localData; }
+    
+    // Is this a SummedLikelihood or a BinnedLikelihood
+    inline bool isSummed() const { return true; }
+    
+    /* Extract the predicted counts model from a Source object
+       for the SummedLikelihood this merged together the models for the various components
+    */       
+    virtual void extractModelFromSource(Source& aSrc,
+					std::vector<float>& model,
+					bool rescaleToNormOne = false) const;
+    
+    /* Extract the fitting templates 
+       for the SummedLikelihood this merged together the models for the various components
+    */
+    virtual void extractModels(const std::string& test_name,
+			       std::vector<std::vector<float> >& templates,		       
+			       std::vector<float>& fixed,
+			       std::vector<float>& test_source_model,
+			       std::vector<float>& refPars) const;
+    
+    /* Get the likelihood value */
+    virtual double value() const;
+    
+    /* Add a source to the model */
+    virtual void addSource(Source* aSrc);
+    
+    /* Call syncParams on the model */
+    virtual void syncParams();
+    
+    /* Remove a source from the model */
+    virtual void removeSource(const std::string& sourceName);    
+    
+    /* Write the energy bins to a fits file */
+    virtual int writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const;
+    
+    /* write the Good time intervals */
+    virtual int writeFits_GTIs(const std::string& fitsFile) const;   
+    
+    /* get the "master" component
+       for the SummedLikelihood this is just the first component 
+    */
+    virtual BinnedLikelihood& getMasterComponent() { return *m_master; }    
+    
+    /* get a component by index */
+    virtual const size_t numComponents() const;
+    
+    /* get a component by index */
+    virtual const BinnedLikelihood* getComponent(size_t idx) const;   
+
+    /* get the energy bins */
+    virtual const std::vector<double>& energies() const { return m_energiesMerged; }
+
+    /* shift the test source */
+    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+				const astro::SkyDir& newDir,
+				std::vector<float>& targetModel) const;
+  
+    /* set the energy bins to use in the analysis */
+    virtual void set_klims(size_t kmin, size_t kmax);
+
+
+  protected:
+    
+  private:
+    
+    SummedLikelihood& m_summedLike;
+    
+    BinnedLikelihood* m_master;
+    
+    // Merged version of the counts maps
+    std::vector<float> m_localData;
+    
+    // Index of first pixels for each component
+    std::vector<size_t> m_nPixelsByComp;
+
+    // Number of enerby bins for each component
+    std::vector<size_t> m_nEBinsByComp;
+
+    // Size of each component
+    std::vector<size_t> m_sizeByComp;    
+    
+    // Merged set of energy bins
+    std::vector<double> m_energiesMerged;
+    
+     // True if a component has data for a particular energy bin
+    std::vector< std::vector<int> > m_energyBinLocal;     
+  };
+  
+  
   /* A utility class to extract the data need for fitting from a BinnedLikelihood object     
      and perform scans using that data, model and a test source.
 
@@ -274,16 +590,15 @@ namespace Likelihood {
   class FitScanCache {
   public:
 
-    /* Build from a BinnedLikelihood object
+    /* Build from a ModelWrapper object
        
-       This copies over all the needed data from the BinnedLikelihood object,
-       but retains a reference to the object for access to the Observation and 
-       CountsMap objects.
+       This copies over all the needed data from the ModelWrapper object,
+       which wraps either a BinnedLikelihood or a SummedLikelihood
      */
-    FitScanCache(BinnedLikelihood& binnedLike,
+    FitScanCache(FitScanModelWrapper& modelWrapper,
 		 const std::string& testSourceName,
 		 double tol, int maxIter,
-		 bool useReduced = false);
+		 bool useReduced);    
 
     /* D'tor */
     ~FitScanCache();
@@ -314,7 +629,7 @@ namespace Likelihood {
        This version shift the SourceMap with respect to a precomputed version
        and in much less expensive, but not quite as accurate 
      */
-    int shiftTestSource(const TestSourceModelCache& modelCache,
+    int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCache,
 			const astro::SkyDir& newDir);
 
     /* Set the cache to add in the test source with a specify normalization value */
@@ -369,7 +684,6 @@ namespace Likelihood {
     // access --------------------------------------------------------
 
     // Information about the baseline model
-    inline const BinnedLikelihood& binnedLikelihood() const { return m_binnedLike; }
     inline const std::string& testSourceName() const { return m_testSourceName; }
     inline size_t npix() const { return m_npix; }
     inline size_t nebins() const { return m_nebins; }
@@ -390,6 +704,12 @@ namespace Likelihood {
     inline const double& currentEDM() const { return m_currentEDM; }    
     inline int currentEnergyBin() const { return m_currentEnergyBin; }
     	
+    // parts of the models
+    inline const std::vector<float>& refValues() const { return m_refValues; }
+    
+    inline const std::vector<std::vector<float> >& allModels() const { return m_allModels; }
+    inline const std::vector<float>& allFixed() const { return m_allFixed; }   
+    inline const std::vector<float>& targetModel() const { return m_targetModel; }
 
   protected:
 
@@ -397,8 +717,8 @@ namespace Likelihood {
 
   private:
 
-    // A reference to the BinnedLikelihood object we extracted everything from
-    BinnedLikelihood& m_binnedLike;
+    // The wrapper around the model object
+    FitScanModelWrapper& m_modelWrapper;
 
     // The name of the test source
     const std::string m_testSourceName;
@@ -464,7 +784,7 @@ namespace Likelihood {
     CLHEP::HepSymMatrix m_currentCov;
     // this is the current gradient for the current fit
     CLHEP::HepVector m_currentGrad;
-    // these are the prior to use for the current fit (
+    // these are the prior to use for the current fit 
     FitScanMVPrior* m_prior_test;
     FitScanMVPrior* m_prior_bkg;
 
@@ -486,7 +806,6 @@ namespace Likelihood {
   };
 
 
-
   /* A class to perform a series of related fits in a single ROI with a test source 
 
      This class can scan over:
@@ -504,13 +823,28 @@ namespace Likelihood {
     /* Utility function to build an evtbin::Binner object with the energy bins */
     static evtbin::Binner* buildEnergyBinner(const std::vector<double>& energies);
 
+
+    static astro::SkyProj* buildSkyProj(const std::string &projName,
+					const astro::SkyDir& dir,
+					double pixSize,
+					int nPix, bool galactic=false);
+    
+
   public:
     
     // C'tor from WCS grid of directions
-    FitScanner(LogLike& logLike,
+    FitScanner(BinnedLikelihood& binnedLike,
 	       optimizers::Optimizer& optimizer,
 	       const astro::SkyProj& proj,
 	       int nx, int ny);
+
+    // C'tor from WCS grid of directions
+    FitScanner(SummedLikelihood& summedLike,
+	       optimizers::Optimizer& optimizer,
+	       const astro::SkyProj& proj,
+	       int nx, int ny);
+
+  
 
     // C'tor from HEALPix region set of directions
     /*
@@ -569,7 +903,7 @@ namespace Likelihood {
     // Access Functions -----------
 
     // Likelihood object
-    inline const LogLike* logLike() const { return m_logLike; }
+    inline const FitScanModelWrapper* modelWrapper() const { return m_modelWrapper; }
 
     /* Optimizer used to do full fitting 
 
@@ -610,10 +944,24 @@ namespace Likelihood {
     // Modifiers (use with extreme caution) -----------
 
     /* Use a powerlaw point source */ 
-    int setPowerlawPointTestSource(AppHelpers& helper, double index=2.0);    
+    int setPowerlawPointTestSource(optimizers::FunctionFactory& factory, double index=2.0);    
 
     /* Use a source from the model */
     int setTestSourceByName(const std::string& sourceName);
+
+
+    // Debbugging stuff
+    inline int verbose_null() const { return m_verbose_null; }
+    inline int verbose_bb() const { return m_verbose_bb; }
+    inline int verbose_scan() const { return m_verbose_scan; }
+    inline bool writeTestImages() const { return m_writeTestImages; }
+    inline bool useReduced() const { return m_useReduced; }
+
+    inline void set_verbose_null(int val) { m_verbose_null = val; }
+    inline void set_verbose_bb(int val) { m_verbose_bb = val; }
+    inline void set_verbose_scan(int val) { m_verbose_scan = val; }
+    inline void set_writeTestImages(bool val) { m_writeTestImages = val; }
+    inline void set_useReduced(bool val) { m_useReduced = val; }
 
   protected:
 
@@ -686,10 +1034,14 @@ namespace Likelihood {
 		       int icol,
 		       const std::string& dimString) const;
 
+    /* delete the test model caches */
+    void deleteTestModelCaches();
+
   private:
 
     // The log-likelihood object (also the source model)
-    LogLike* m_logLike;
+    FitScanModelWrapper* m_modelWrapper;
+
     // The optimizer
     optimizers::Optimizer* m_opt;    
 
@@ -718,8 +1070,15 @@ namespace Likelihood {
     // This is where we cache all the info about the model and the fits
     FitScanCache* m_cache;
 
-    // This is what we used to move around the image of the test source
-    TestSourceModelCache* m_testSourceCache;    
+    // This is what we use to move around the image of the test source
+    std::vector<TestSourceModelCache*> m_testSourceCaches;    
+
+    // For debugging
+    int m_verbose_null;
+    int m_verbose_bb;
+    int m_verbose_scan;
+    bool m_writeTestImages;
+    bool m_useReduced;
 
   };
 
