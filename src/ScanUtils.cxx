@@ -3,14 +3,19 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/ConvolveHealpix.cxx,v 1.2 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ScanUtils.cxx,v 1.1 2015/07/17 18:41:57 echarles Exp $
  */
 
 
 #include "Likelihood/ScanUtils.h"
 
-#include "Likelihood/BinnedLikelihood.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/Source.h"
+#include "Likelihood/SourceModel.h"
+#include "Likelihood/FitScanner.h"
+#include "Likelihood/BinnedLikelihood.h"
+#include "Likelihood/SummedLikelihood.h"
+
 #include "optimizers/OptimizerFactory.h"
 #include "optimizers/Optimizer.h"
 #include "optimizers/Parameter.h"
@@ -63,7 +68,7 @@ namespace Likelihood {
       return;
     }
 
-    void scan_norm_binned(BinnedLikelihood& logLike,
+    void scan_norm_binned(FitScanModelWrapper& modelWrapper,
 			  const std::string& signal_name,
 			  optimizers::Optimizer& optimizer,
 			  double tol, int tolType,
@@ -75,20 +80,16 @@ namespace Likelihood {
 			  std::vector<double>& logLikes) {
 
       // Set the energy bounds
-      std::pair<int, int> klims = logLike.klims();
-      if ( klims.first != kmin ||
-	   klims.second != kmax ) {
-	logLike.set_klims(kmin,kmax);
-      }
+      modelWrapper.set_klims(kmin,kmax);
 
-      double emin = logLike.energies()[kmin];
-      double emax = logLike.energies()[kmax];
+      //double emin = logLike.energies()[kmin];
+      //double emax = logLike.energies()[kmax];
 
       // get the source and the normalization parameter
-      Source* signal_source = logLike.getSource(signal_name);
+      Source* signal_source = modelWrapper.getMasterComponent().getSource(signal_name);
       optimizers::Parameter& normPar = signal_source->spectrum().normPar();
       normPar.setFree(true);
-      logLike.syncParams();
+      modelWrapper.syncParams();
 
       // find the global min
       int status = optimizer.find_min(false,tol,tolType);
@@ -97,7 +98,7 @@ namespace Likelihood {
       // FIXME, i'm not sure this is done correctly
       const std::vector<double>& uncertainies = optimizer.getUncertainty(false);
       const std::vector<std::vector<double> > cov = optimizer.covarianceMatrix();
-      std::vector<optimizers::Parameter>& pars = logLike.parameters();
+      std::vector<optimizers::Parameter>& pars = modelWrapper.getMasterComponent().parameters();
       size_t npar = pars.size();
       // count the number of free parameters
       size_t nfree(0);
@@ -105,7 +106,6 @@ namespace Likelihood {
 	optimizers::Parameter& par = pars[ipar];
 	if ( par.isFree() ) {
 	  par.setError(uncertainies[nfree]);
-	  double check_1 = std::sqrt(cov[nfree][nfree]);
 	  nfree++;
 	}
       }
@@ -115,7 +115,7 @@ namespace Likelihood {
       
       // grab the log-likelihood, and various normalization factors
       // FIXME
-      logLike_mle = logLike.value();
+      logLike_mle = modelWrapper.value();
       norm_mle = normPar.getValue();
       double norm_err = uncertainies[0];
 
@@ -141,7 +141,7 @@ namespace Likelihood {
 	
 	// Set the normalization parameter
 	normPar.setValue(*itrNorm);
-	logLike.syncParams();
+	modelWrapper.syncParams();
 
 	// if there are any other free parameters re-minimize 
 	if ( nfree > 1 ) {
@@ -149,15 +149,15 @@ namespace Likelihood {
 	}
 	
 	// grap the delta log-likelihood value
-	double logLike_val = logLike.value();
+	double logLike_val = modelWrapper.value();
 	logLikes.push_back(logLike_val);
       }
       // Clean up
       normPar.setFree(true);
-      logLike.syncParams();
+      modelWrapper.syncParams();
     }
     
-    void sed_binned(BinnedLikelihood& logLike,
+    void sed_binned(FitScanModelWrapper& modelWrapper,
 		    const std::string& signal_name,			  
 		    optimizers::Optimizer& optimizer,
 		    double tol, int tolType,
@@ -167,7 +167,7 @@ namespace Likelihood {
 		    std::vector<double>& logLike_mles,
 		    std::vector<std::vector<double> >& logLikes) {
       // get the number of energy bins
-      int nebins = logLike.energies().size() - 1;
+      int nebins = modelWrapper.energies().size() - 1;
 
       norms.resize(nebins);
       norm_mles.resize(nebins);
@@ -175,7 +175,7 @@ namespace Likelihood {
       logLikes.resize(nebins);
 
       for ( int ie(0); ie < nebins; ie++ ) {
-	scan_norm_binned(logLike,signal_name,
+	scan_norm_binned(modelWrapper,signal_name,
 			 optimizer,tol,tolType,
 			 ie,ie+1,nnorms,
 			 norms[ie],
@@ -184,7 +184,7 @@ namespace Likelihood {
       }
 
       // Reset the klims
-      logLike.set_klims(0,nebins+1);
+      modelWrapper.set_klims(0,nebins+1);
 
     }
 
