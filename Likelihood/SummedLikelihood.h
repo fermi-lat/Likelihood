@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SummedLikelihood.h,v 1.5 2015/03/21 05:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SummedLikelihood.h,v 1.6 2015/06/02 19:53:23 jchiang Exp $
  */
 
 #ifndef Likelihood_SummedLikelihood_h
@@ -37,6 +37,18 @@ public:
    virtual ~SummedLikelihood() throw();
 
    void addComponent(LogLike & component);
+
+   inline size_t numComponents() const {
+     return m_components.size();
+   }
+
+   inline LogLike* getComponent(size_t comp_index) {
+     return m_components[comp_index];
+   }
+
+   inline const LogLike* getComponent(size_t comp_index) const {
+     return m_components[comp_index];
+   }
 
    virtual double value() const;
    virtual void getFreeParams(std::vector<optimizers::Parameter> &params) const;
