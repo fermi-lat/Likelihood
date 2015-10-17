@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.7 2012/10/02 17:50:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap2.h,v 1.8 2013/09/04 05:30:44 jchiang Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -20,6 +20,7 @@ namespace Likelihood {
 class BinnedExposure;
 class DiffuseSource;
 class MeanPsf;
+class SpatialFunction;
 
 /**
  * @class WcsMap2
@@ -58,6 +59,11 @@ public:
                     const BinnedExposure & exposure,
                     bool performConvolution=true,
                     int k=0) const;
+
+   WcsMap2 convolve(double energy, const MeanPsf & psf,
+		    const BinnedExposure & exposure,
+		    const SpatialFunction& fn,
+		    int k=0) const;
 
 //    const std::vector< std::vector< std::vector<double> > > & image() const {
 //       return m_image;

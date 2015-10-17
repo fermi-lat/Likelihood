@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.18 2014/11/11 18:57:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.19 2015/03/31 20:47:48 jchiang Exp $
  */
 
 #include <cmath>
@@ -27,6 +27,7 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/SkyDirArg.h"
+#include "Likelihood/SpatialFunction.h"
 #include "Likelihood/WcsMap2.h"
 
 namespace {
@@ -463,6 +464,61 @@ double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
    double value = interpolatePowerLaw(energy, m_energies[k],
                                       m_energies[k+1], y1, y2);
    return value;
+}
+
+WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
+                          const BinnedExposure & exposure,
+			  const SpatialFunction& fn,
+                          int k) const {
+
+  // Convolve for a single image plane.
+   check_energy_index(k);
+
+   // Build a vector for fast interpolation
+   std::vector<double> theta(401);
+   std::vector<double> value(401);
+
+   const int log10_theta_nstep = 400;
+   const double log10_theta_min = std::log10(0.001);
+   const double log10_theta_max = std::log10(45.00);
+   const double log10_theta_step = (log10_theta_max-log10_theta_min)/double(log10_theta_nstep-1);
+
+   theta[0] = 0.0;
+   value[0] = fn.value(0.0,energy,psf);
+   for(int i = 0; i < log10_theta_nstep; i++)
+     {
+       theta[i+1] = std::pow(10,log10_theta_min+i*log10_theta_step);
+       value[i+1] = fn.value(theta[i+1],energy,psf);
+     }       
+
+   // Compute unconvolved counts map by multiplying intensity image by exposure.
+   ::Image counts;
+   counts.resize(m_naxis2);
+
+   astro::SkyDir fndir =  fn.dir();
+
+   for (int j = 0; j < m_naxis2; j++) {
+      counts.at(j).resize(m_naxis1, 0);
+      for (int i = 0; i < m_naxis1; i++) {
+         if (m_proj->testpix2sph(i+1, j+1) == 0) {
+            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
+            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
+
+	    double dtheta = fndir.difference(dir)*180./M_PI;
+	    double v = st_facilities::Util::interpolate(theta, value, 
+							dtheta);
+	    double exp = exposure(energy, fndir.ra(), fndir.dec());
+            counts[j][i] = v*exp;
+         }
+      }
+   }
+
+   WcsMap2 my_image(*this);
+   my_image.m_image.clear();
+   my_image.m_naxis3 = 1;
+
+   my_image.m_image.push_back(counts);
+   return my_image;
 }
 
 WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
