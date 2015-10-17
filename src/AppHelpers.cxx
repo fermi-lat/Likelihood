@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.122 2015/03/19 16:41:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.123 2015/04/07 16:07:36 jchiang Exp $
  */
 
 #include <cmath>
@@ -64,6 +64,8 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
 #include "Likelihood/SmoothDoubleBrokenPowerLaw.h"
+#include "Likelihood/SpatialDisk.h"
+#include "Likelihood/SpatialGaussian.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/WcsMap2.h"
 
@@ -193,7 +195,9 @@ void AppHelpers::
 addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    bool makeClone(false);
    funcFactory->addFunc(new SkyDirFunction(), makeClone);
+   funcFactory->addFunc(new SpatialDisk(), makeClone);
    funcFactory->addFunc(new SpatialMap(), makeClone);
+   funcFactory->addFunc(new SpatialGaussian(), makeClone);
    funcFactory->addFunc(new BandFunction(), makeClone);
    funcFactory->addFunc(new LogParabola(), makeClone);
    funcFactory->addFunc(new LogGaussian(), makeClone);
@@ -870,5 +874,13 @@ void AppHelpers::setBitMaskCuts(dataSubselector::Cuts & other_cuts) const {
    other_cuts.setBitMaskCut(m_respFuncCuts->bitMaskCut("EVENT_CLASS"));
    other_cuts.setBitMaskCut(m_respFuncCuts->bitMaskCut("EVENT_TYPE"));
 }
+
+
+// EAC -> Open a fits file and read in the correct type of CountsMap                          
+CountsMap* AppHelpers::readCountsMap(const std::string& filename){
+  CountsMap* retMap = new CountsMap(filename);
+  return retMap;
+}
+
 
 } // namespace Likelihood

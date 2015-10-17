@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.42 2015/01/16 05:36:25 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.43 2015/01/16 16:59:53 jchiang Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -35,6 +35,7 @@ namespace Likelihood {
    class RoiCuts;
    class ScData;
    class WcsMap2;
+   class CountsMap;
 
 /**
  * @class AppHelpers
@@ -159,6 +160,9 @@ public:
    /// if the exposure map does not cover the counts map.
    static void checkExposureMap(const std::string & cmapfile,
                                 const std::string & emapfile);
+
+   // EAC -> Open a fits file and read in the correct type of CountsMap
+   static CountsMap* readCountsMap(const std::string& filename);
 
 protected:
 

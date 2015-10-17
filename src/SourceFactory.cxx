@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.79 2015/02/28 03:27:31 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.80 2015/03/03 21:20:01 jchiang Exp $
  */
 
 #include <cstdlib>
@@ -308,6 +308,8 @@ makeDiffuseSource(const DOMElement * spectrum,
    } else if (type == "RadialProfile") {
       std::string tpl_file(xmlBase::Dom::getAttribute(spatialModel, "file"));
       dynamic_cast<RadialProfile *>(spatialDist)->readTemplateFile(tpl_file);
+   } else if (type == "SpatialGaussian" || type == "SpatialDisk") {
+     spatialDist->setParams(spatialModel);
    }
    Source * src;
    try {

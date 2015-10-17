@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.107 2014/07/06 00:11:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.108 2014/07/20 05:44:38 jchiang Exp $
  */
 
 #include <cmath>
@@ -28,6 +28,7 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/SpatialFunction.h"
 #include "Likelihood/MapBase.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
@@ -42,6 +43,7 @@
 #include "Likelihood/WcsMap2.h"
 
 namespace {
+
    double my_acos(double mu) {
       if (mu > 1) {
          return 0;
@@ -129,6 +131,8 @@ void SourceMap::makeDiffuseMap(Source * src,
                                bool verbose) {
    DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
    
+   bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc->spatialDist()) != 0;
+
 // If the diffuse source is represented by an underlying map, then
 // rebin according to the minimum bin size.
    try {
@@ -159,6 +163,7 @@ void SourceMap::makeDiffuseMap(Source * src,
    std::vector<Pixel>::const_iterator pixel = pixels.begin();
 
    const astro::SkyDir & mapRefDir = dataMap->refDir();
+
    if (!resample) {
       resamp_factor = 1;
    } else {
@@ -173,7 +178,12 @@ void SourceMap::makeDiffuseMap(Source * src,
    double cdelt2 = dataMap->cdelt2()/resamp_factor;
    size_t nx_offset(0), ny_offset(0);
    size_t nx_offset_upper(0), ny_offset_upper(0);
-   if (dataMap->conformingMap()) {
+   if (haveSpatialFunction) {
+     naxis1 = static_cast<int>(dataMap->naxis1()*resamp_factor);
+     naxis2 = static_cast<int>(dataMap->naxis2()*resamp_factor);      
+     crpix1 = resamp_factor*(dataMap->crpix1() - 0.5)+0.5;
+     crpix2 = resamp_factor*(dataMap->crpix1() - 0.5)+0.5;  
+   } else if (dataMap->conformingMap()) {
       double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
       // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
       // expression for the mapsize ensures that the number of
@@ -238,19 +248,35 @@ void SourceMap::makeDiffuseMap(Source * src,
       nx_offset_upper += 1;
       ny_offset_upper += 1;
    }
+
+   const MeanPsf & meanpsf(m_observation.meanpsf());   
+   const BinnedExposure & bexpmap(m_observation.bexpmap());
+
    size_t counter(0);
    std::vector<double>::const_iterator energy = energies.begin();
    for (int k(0); energy != energies.end(); ++energy, k++) {
       bool interpolate;
+
+      WcsMap2 * convolvedMap(0);
       WcsMap2 diffuseMap(*diffuseSrc, mapRefDir.ra(), mapRefDir.dec(),
-                         crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
-                         *energy, dataMap->proj_name(), 
-                         dataMap->projection().isGalactic(), 
-                         interpolate=true);
-      const MeanPsf & meanpsf(m_observation.meanpsf());
-      const BinnedExposure & bexpmap(m_observation.bexpmap());
-      WcsMap2 convolvedMap(diffuseMap.convolve(*energy, meanpsf, 
-                                               bexpmap, performConvolution));
+			 crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
+			 *energy, dataMap->proj_name(), 
+			 dataMap->projection().isGalactic(), 
+			 interpolate=true);
+
+      if(haveSpatialFunction)
+	{
+	  const SpatialFunction* m = 
+	    dynamic_cast<const SpatialFunction *>(diffuseSrc->spatialDist());
+	  convolvedMap = new WcsMap2(diffuseMap.convolve(*energy, meanpsf, 
+							 bexpmap, *m));
+	}
+      else
+	{
+	  convolvedMap = new WcsMap2(diffuseMap.convolve(*energy, meanpsf, 
+							 bexpmap, performConvolution));
+	}
+
       size_t rfac(static_cast<size_t>(resamp_factor));
       double solid_angle;
       for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
@@ -265,11 +291,12 @@ void SourceMap::makeDiffuseMap(Source * src,
                + ((i-nx_offset)/rfac);
             solid_angle = pixels.at(pix_index).solidAngle();
             size_t indx = k*dataMap->naxis1()*dataMap->naxis2() + pix_index;
-            m_model[indx] += (convolvedMap.image()[0][j][i]
+            m_model[indx] += (convolvedMap->image()[0][j][i]
                               /resamp_factor/resamp_factor
                               *solid_angle);
          }
       }
+      delete convolvedMap;
    }
 //   computeNpredArray();
 // Delete model map for map-based diffuse sources to save memory.  The
