@@ -3,7 +3,7 @@
  * @brief Implementation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.39 2014/12/23 05:42:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ResponseFunctions.cxx,v 1.40 2015/01/16 21:14:51 jchiang Exp $
  */
 
 #include <algorithm>
@@ -167,6 +167,30 @@ irfInterface::IEdisp & ResponseFunctions::edisp(int type) const {
       throw std::runtime_error(message.str());
    }
    return *irfs->edisp();
+}
+
+irfInterface::IPsf & ResponseFunctions::psf(int type) const {
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   if (!irfs) {
+      std::ostringstream message;
+      message << "Could not find appropriate response functions "
+              << "for these event data."
+              << "Event class requested: " << type << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   return *irfs->psf();
+}
+
+irfInterface::IAeff & ResponseFunctions::aeff(int type) const {
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respPtr(type)));
+   if (!irfs) {
+      std::ostringstream message;
+      message << "Could not find appropriate response functions "
+              << "for these event data."
+              << "Event class requested: " << type << std::endl;
+      throw std::runtime_error(message.str());
+   }
+   return *irfs->aeff();
 }
 
 double ResponseFunctions::edisp(double emeas, double etrue, 

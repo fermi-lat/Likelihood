@@ -6,7 +6,7 @@
  * 
  * @author M. Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialFunction.cxx,v 1.37 2015/03/21 05:38:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialFunction.cxx,v 1.1 2015/10/17 17:19:17 mdwood Exp $
  *
  */
 
@@ -75,6 +75,21 @@ SpatialFunction::operator=(const SpatialFunction & rhs) {
 }
 
 SpatialFunction::~SpatialFunction() {
+}
+
+double SpatialFunction::diffuseResponse(const Event & evt,
+					const ResponseFunctions & respFuncs) const {
+
+  astro::SkyDir yhat(evt.zAxis().cross(evt.xAxis()));
+  double phi = 180./M_PI*std::atan2(yhat.dot(this->dir()), 
+				    evt.xAxis().dot(this->dir()));
+  
+  // Incidence angle
+  double theta = evt.zAxis().difference(this->dir())*180./M_PI;
+  double dtheta = evt.getDir().difference(this->dir())*180./M_PI;
+  UnbinnedResponseFunctor fn(respFuncs,theta,phi,evt.getType());
+
+  return diffuseResponse(fn,evt.getEnergy(),dtheta);
 }
 
 const astro::SkyDir& SpatialFunction::dir() const {

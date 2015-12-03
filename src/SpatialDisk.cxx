@@ -4,7 +4,7 @@
  * 
  * @author M. Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialDisk.cxx,v 1.37 2015/03/21 05:38:04 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SpatialDisk.cxx,v 1.1 2015/10/17 17:19:17 mdwood Exp $
  *
  */
 
@@ -16,6 +16,7 @@
 
 #include "st_stream/StreamFormatter.h"
 
+#include "st_facilities/GaussianQuadrature.h"
 #include "st_facilities/Util.h"
 
 #include "astro/SkyDir.h"
@@ -42,27 +43,29 @@ namespace {
 
 namespace Likelihood {
 
-double SpatialDisk::convolve(const Likelihood::MeanPsf& psf, 
-			     double energy, double x, 
-			     double sigma, int n) {
+double SpatialDisk::RadialIntegrand::operator()(double xp) const {
 
-  const double xpmin = std::max(x - sigma,0.0);
-  const double xpmax = x + sigma;
-  const double dxp = (xpmax-xpmin)/double(n+1);
-  const double s2 = sigma*sigma;
+  const double s2 = std::pow(m_sigma,2);
+  double dphi = 2.0*M_PI;
+  if((xp+m_x)/m_sigma>1.0)
+    dphi = 2.0*std::acos((std::pow(m_x,2)+std::pow(xp,2)-s2)/(2*m_x*xp));
 
-  double s = 0;
-  for(int i = 0; i < n; i++)
-    {
-      double xp = xpmin + (double(i)+0.5)*dxp;
-      double dphi = 2.0*M_PI;
-      if((xp+x)/sigma>1.0 && x > 0.0)
-	dphi = 2.0*std::acos((std::pow(x,2)+std::pow(xp,2)-s2)/(2*x*xp));
-      s += xp*psf(energy,xp)*dphi;
-    }
-  
-  return s/(M_PI*s2)*dxp;
+  return xp*m_fn(m_energy,xp)*dphi/(M_PI*s2);
 }
+
+double SpatialDisk::convolve(const ResponseFunctor& fn, 
+			     double energy, double x, 
+			     double sigma, double err) {
+  
+  const double xmin = std::max(x - sigma,0.0);
+  const double xmax = x + sigma;
+  RadialIntegrand rIntegrand(fn,energy,x,sigma);
+
+  int ierr;
+  return st_facilities::GaussianQuadrature::dgaus8(rIntegrand, xmin,
+						   xmax, err, ierr);
+}
+
 
 SpatialDisk::SpatialDisk() : SpatialFunction("SpatialDisk",3) {
   m_width = 1.0;
@@ -94,20 +97,34 @@ SpatialDisk::~SpatialDisk() {
 
 double SpatialDisk::value(const astro::SkyDir & dir) const {
    double delta = this->dir().difference(dir)*180./M_PI;
-   return disk(delta,m_width)*std::pow(M_PI/180.,2);
+   return disk(delta,m_width)*std::pow(M_PI/180.,-2);
 }
 
 double SpatialDisk::value(double delta, double width) const {
-   return disk(delta,width)*std::pow(M_PI/180.,2);
+   return disk(delta,width)*std::pow(M_PI/180.,-2);
 }
 
-double SpatialDisk::value(const astro::SkyDir & dir, double energy, const MeanPsf& psf) const {
+double SpatialDisk::spatialResponse(const astro::SkyDir & dir, double energy, const MeanPsf& psf) const {
   double delta = dir.difference(this->dir())*180./M_PI;
-  return SpatialDisk::convolve(psf,energy,delta,m_width);
+  return SpatialDisk::convolve(BinnedResponseFunctor(psf),energy,delta,m_width);
 }
 
-double SpatialDisk::value(double delta, double energy, const MeanPsf& psf) const {
-  return SpatialDisk::convolve(psf,energy,delta,m_width);
+double SpatialDisk::spatialResponse(double delta, double energy, const MeanPsf& psf) const {
+  return SpatialDisk::convolve(BinnedResponseFunctor(psf),energy,delta,m_width);
+}
+
+double SpatialDisk::diffuseResponse(const ResponseFunctor& fn, double energy,
+				    double separation) const {
+  return convolve(fn,energy,separation,m_width);
+}
+
+double SpatialDisk::getDiffRespLimits(const astro::SkyDir & dir, 
+				      double & mumin, double & mumax,
+				      double & phimin, double & phimax) const {
+   mumin = std::cos(dir.difference(this->dir()) + 3.*m_width*M_PI/180.);
+   mumax = 1;
+   phimin = 0;
+   phimax = 2.*M_PI;
 }
 
 void SpatialDisk::update() {
