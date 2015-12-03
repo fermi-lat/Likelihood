@@ -3,7 +3,7 @@
  * @brief A class to contain the instrument response functions.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.26 2013/01/09 00:44:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ResponseFunctions.h,v 1.27 2014/12/22 06:29:12 jchiang Exp $
  */
 
 #ifndef Likelihood_ResponseFunctions_h
@@ -116,6 +116,10 @@ public:
              const std::vector<unsigned int> & evtTypes=std::vector<unsigned int>());
 
    irfInterface::IEdisp & edisp(int type) const;
+
+   irfInterface::IPsf & psf(int type) const;
+
+   irfInterface::IAeff & aeff(int type) const;
 
    double edisp(double emeas, double etrue, 
                 const astro::SkyDir & srcDir,

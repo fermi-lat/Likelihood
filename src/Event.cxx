@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.85 2014/12/22 06:29:13 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.86 2015/01/16 21:14:51 jchiang Exp $
  */
 
 #include <cctype>
@@ -28,6 +28,7 @@
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/ScData.h"
+#include "Likelihood/SpatialFunction.h"
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/TrapQuad.h"
@@ -166,8 +167,9 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
    double mumax(one);
 
    EquinoxRotation eqRot(getDir().ra(), getDir().dec());
-   for (size_t i(0); i < srcs.size(); i++) {
+   for (size_t i(0); i < srcs.size(); i++) {     
       const std::string& name(diffuseSrcName(srcs.at(i)->getName()));
+      bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(srcs.at(i)->spatialDist()) != 0;
       if (useDummyValue) {
          m_respDiffuseSrcs[name].push_back(0);
       } else {
@@ -183,7 +185,11 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
          } catch (MapBaseException &) {
             // do nothing
          }
-	 if (srcs.at(i)->mapBasedIntegral() || 
+
+	 if (haveSpatialFunction) {
+	    const SpatialFunction* fn = dynamic_cast<const SpatialFunction *>(srcs.at(i)->spatialDist());
+	    respValue = fn->diffuseResponse(*this,respFuncs);	
+	 } else if (srcs.at(i)->mapBasedIntegral() || 
              (::getenv("MAP_BASED_DIFFRSP") 
               && (mumin != minusone || mumax != one))) {
             respValue = srcs.at(i)->diffuseResponse(*this);
