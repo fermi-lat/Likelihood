@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.54 2014/05/20 21:53:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/SourceMap.h,v 1.6 2015/12/02 00:53:05 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -16,17 +16,27 @@
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/Pixel.h"
 
+#include "healpix_map.h"
+
+namespace astro {
+   class HealpixProj;
+}
+
 namespace st_stream {
    class StreamFormatter;
 }
 
 namespace Likelihood {
-
+  
+   // EAC, switch to using CountsMapBase and projection specific sub-classes
+   class CountsMapBase;
    class CountsMap;
+   class CountsMapHealpix;
    class DiffuseSource;
    class MeanPsf;
    class PointSource;
    class Source;
+   class WcsMap2;
 
 /*
  * @class SourceMap
@@ -41,7 +51,16 @@ class  SCIENCETOOLS_API SourceMap {
 
 public:
 
-   SourceMap(Source * src, const CountsMap * dataMap,
+   static void fillHealpixFromWcsMap(const WcsMap2& inputMap,
+				     const astro::HealpixProj& proj,
+				     Healpix_Map<float>& hpm);
+
+   static void fillHealpixFromWcsMap(const WcsMap2& inputMap,
+                                     const astro::HealpixProj& proj,
+				     const std::vector<int>& pixList,
+                                     Healpix_Map<float>& hpm);
+
+   SourceMap(Source * src, const CountsMapBase * dataMap,
              const Observation & observation,
              bool applyPsfCorrections=false,
              bool performConvolution=true,
@@ -76,6 +95,12 @@ public:
       return m_name;
    }
 
+protected:
+
+   void readImage(const std::string& sourceMapFile);
+
+   void readTable_healpix(const std::string& sourceMapFile);
+
 private:
 
    std::string m_name;
@@ -83,7 +108,7 @@ private:
    /// @brief "Diffuse" or "Point"
    std::string m_srcType;
 
-   const CountsMap * m_dataMap;
+   const CountsMapBase * m_dataMap;
    
    const Observation & m_observation;
 
@@ -111,10 +136,10 @@ private:
    void computeNpredArray();
 
    double computeResampFactor(const DiffuseSource & src,
-                              const CountsMap & dataMap) const;
+                              const CountsMapBase & dataMap) const;
    
    void makeDiffuseMap(Source * src, 
-                       const CountsMap * dataMap,
+                       const CountsMapBase * dataMap,
                        bool applyPsfCorrections,
                        bool performConvolution,
                        bool resample,
@@ -122,11 +147,50 @@ private:
                        double minbinsiz,
                        bool verbose);
 
+   void makeDiffuseMap_wcs(Source * src,
+			   const CountsMap * dataMap,
+			   bool applyPsfCorrections,
+			   bool performConvolution,
+			   bool resample,
+			   double resamp_factor,
+			   double minbinsiz,
+			   bool verbose);
+
+   void makeDiffuseMap_healpix(Source * src,
+			       const CountsMapHealpix * dataMap,
+			       bool applyPsfCorrections,
+			       bool performConvolution,
+			       bool resample,
+			       double resamp_factor,
+			       double minbinsiz,
+			       bool verbose);
+
+   void makeDiffuseMap_native(Source * src,
+                              const CountsMapHealpix * dataMap,
+			      bool applyPsfCorrections,
+			      bool performConvolution,
+			      bool resample,
+			      double resamp_factor,
+			      double minbinsiz,
+			      bool verbose);
+
    void makePointSourceMap(Source * src,
-                           const CountsMap * dataMap,
+                           const CountsMapBase * dataMap,
                            bool applyPsfCorrections,
                            bool performConvolution,
                            bool verbose);
+
+   void makePointSourceMap_wcs(Source * src,
+			       const CountsMap * dataMap,
+			       bool applyPsfCorrections,
+			       bool performConvolution,
+			       bool verbose);
+   
+   void makePointSourceMap_healpix(Source * src,
+				   const CountsMapHealpix * dataMap,
+				   bool applyPsfCorrections,
+				   bool performConvolution,
+				   bool verbose);
 
    void applyPhasedExposureMap();
 

@@ -1,19 +1,21 @@
 /**
  * @brief WcsMapLibrary.cxx
  * @brief Singleton class that contains the only copies of FITS
- * images.  It stores the FITS data in WcsMap2 objects and provides
+ * images.  It stores the FITS data in ProjMap objects and provides
  * access to these objects via pointers in an internal map keyed by
  * a string comprising the name of the FITS file and the extension.
  * @author J. Chiang 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMapLibrary.cxx,v 1.2 2011/11/22 03:18:14 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/WcsMapLibrary.cxx,v 1.3 2015/03/03 06:00:01 echarles Exp $
  */
 
 #include <utility>
 
 #include "Likelihood/MapBase.h"
 #include "Likelihood/WcsMap2.h"
+#include "Likelihood/HealpixProjMap.h"
 #include "Likelihood/WcsMapLibrary.h"
+#include "Likelihood/AppHelpers.h"
 
 namespace Likelihood {
 
@@ -31,15 +33,35 @@ WcsMapLibrary::~WcsMapLibrary() throw() {
    }
 }
 
-WcsMap2 * WcsMapLibrary::wcsmap(const std::string & filename,
+ProjMap * WcsMapLibrary::wcsmap(const std::string & filename,
                                 const std::string & extname) {
    std::string key(filename + "::" + extname);
    MapLibrary_t::const_iterator it(m_library.find(key));
    if (it != m_library.end()) {
       return it->second;
    }
-   m_library[key] = new WcsMap2(filename, extname);
-   return m_library[key];
+   astro::ProjBase::Method method = AppHelpers::checkProjectionMethod(filename,extname);
+   ProjMap* theMap(0);
+   switch ( method ) {
+   case astro::ProjBase::WCS:
+     theMap = new WcsMap2(filename, extname);
+     break;
+   case astro::ProjBase::HEALPIX:
+     theMap = new HealpixProjMap(filename, extname);     
+     break;
+   default:
+     break;
+   }
+   if ( theMap == 0 ) {
+     std::string errMsg("Did not recognize ProjMap type at: ");
+     errMsg += filename;
+     if ( extname.size() > 0 ) {
+       errMsg += "[" + extname + "]";
+     }
+     throw std::runtime_error(errMsg);
+   }
+   m_library[key] = theMap;
+   return theMap;
 }
 
 void WcsMapLibrary::delete_map(const std::string & filename,

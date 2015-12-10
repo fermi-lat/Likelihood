@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.163 2012/09/30 23:03:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/likelihood/likelihood.cxx,v 1.3 2015/03/03 06:00:04 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -118,7 +118,7 @@ private:
    LogLike * m_logLike;
    optimizers::Optimizer * m_opt;
    std::vector<std::string> m_eventFiles;
-   CountsMap * m_dataMap;
+   CountsMapBase * m_dataMap;
 
    st_stream::StreamFormatter * m_formatter;
 
@@ -164,7 +164,7 @@ private:
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlike");
 
-std::string likelihood::s_cvs_id("$Name: Likelihood-18-00-04 $");
+std::string likelihood::s_cvs_id("$Name:  $");
 
 void likelihood::banner() const {
    int verbosity = m_pars["chatter"];
@@ -263,6 +263,7 @@ void likelihood::run() {
    bool queryLoop = m_pars["refit"];
    do {
       readSourceModel();
+
 // Do the fit.
 /// @todo Allow the optimizer to be re-selected here by the user.    
       selectOptimizer();
@@ -354,7 +355,8 @@ void likelihood::createStatistic() {
       }
       std::string countsMapFile = m_pars["cmap"];
       st_facilities::Util::file_ok(countsMapFile);
-      m_dataMap = new CountsMap(countsMapFile);
+      m_dataMap = AppHelpers::readCountsMap(countsMapFile);
+
       bool apply_psf_corrections(false);
       bool computePointSources(true);
       try {
@@ -363,7 +365,11 @@ void likelihood::createStatistic() {
          // assume parameter does not exist, so use default value.
       }
       if (::getenv("USE_BINNED_LIKELIHOOD2")) {
-         m_logLike = new BinnedLikelihood2(*m_dataMap, m_helper->observation(),
+         CountsMap* countsMap = dynamic_cast<CountsMap*>(m_dataMap);
+	 if ( countsMap == 0 ) { 
+            throw std::runtime_error("BinnedLikelihood2 only works with a WCS-based counts map file, but this file is HEALPIX-based " + countsMapFile); 
+	 }
+         m_logLike = new BinnedLikelihood2(*countsMap, m_helper->observation(),
                                            countsMapFile, 
                                            computePointSources,
                                            apply_psf_corrections);

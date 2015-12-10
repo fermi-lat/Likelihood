@@ -1,11 +1,14 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CountsMap.h,v 1.31 2013/01/09 00:44:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/CountsMap.h,v 1.4 2015/03/05 19:58:24 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
 #define Likelihood_CountsMap_h
+
+// EAC, make a base class for CountsMap
+#include "Likelihood/CountsMapBase.h"
 
 #include <string>
 
@@ -35,7 +38,7 @@ namespace Likelihood {
  * 
  */
    
-class CountsMap : public evtbin::DataProduct {
+class CountsMap : public CountsMapBase {
 
 public:
 
@@ -78,38 +81,27 @@ public:
 
    CountsMap(const CountsMap & counts_map);
 
+   CountsMap(const CountsMap & counts_map, unsigned int firstBin, unsigned int lastBin);
+
    virtual ~CountsMap() throw();
+
+   virtual CountsMapBase* clone() const { 
+     return new CountsMap(*this);
+   }
 
    virtual void binInput(tip::Table::ConstIterator begin, 
                          tip::Table::ConstIterator end);
 
    virtual void writeOutput(const std::string & creator, 
                             const std::string & out_file) const;
-
-   void setImage(const std::vector<float> & image);
-   void setImage(const std::vector<double> & image);
    
-   long imageDimension(int idim) const;
+   virtual void setKeywords(tip::Header & header) const;
 
-   void getAxisVector(int idim, std::vector<double> & axisVector) const;
+   virtual void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const;
 
-   const astro::SkyProj & projection() const {return *m_proj;}
+   virtual bool withinBounds(const astro::SkyDir & dir, double energy, long border_size=0) const;
 
-   const std::vector<float> & data() const {
-      return m_hist->data();
-   }
-
-   void setKeywords(tip::Header & header) const;
-
-   const std::vector<Pixel> & pixels() const;
-
-   void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const;
-
-   const astro::SkyDir & refDir() const {return m_refDir;}
-
-   bool withinBounds(const astro::SkyDir & dir, double energy, long border_size=0) const;
-
-   const std::string & proj_name() const {return m_proj_name;}
+   virtual double pixelSize() const;
 
    double cdelt1() const {return m_cdelt[0];}
    double cdelt2() const {return m_cdelt[1];}
@@ -122,51 +114,21 @@ public:
    long naxis2() const {return m_naxes[1];}
 
    bool conformingMap() const {return m_conforms;}
-   bool isGalactic() const {return m_use_lb;}
-
-   const std::vector<double> & energies() const {
-      return m_energies;
-   }
-
-   const std::string & filename() const {
-      return m_event_file;
-   }
-
-   double tstart() const {
-      return m_tstart;
-   }
-
-   double tstop() const {
-      return m_tstop;
-   }
 
 protected:
 
-   HistND * m_hist;
-   std::string m_proj_name;
    long m_naxes[3];
    double m_crpix[3];
    double m_crval[3];
    double m_cdelt[3];
    double m_axis_rot;
-   bool m_use_lb;
-   astro::SkyProj * m_proj;
-
-   std::vector<double> m_energies;
 
 private:
-
-   astro::SkyDir m_refDir;
-
-   mutable std::vector<Pixel> m_pixels;
 
    // Flag to indicate that this counts map conforms to those created by
    // gtbin, i.e., with the reference pixel in the center and 
    // with cdelt1==cdelt2.
    bool m_conforms;
-
-   double m_tstart;
-   double m_tstop;
 
    CountsMap & operator=(const CountsMap &) {return *this;}
 
@@ -179,24 +141,17 @@ private:
              double emax, unsigned long nenergies, bool use_lb, 
              const std::string & proj);
 
-   double computeSolidAngle(std::vector<double>::const_iterator lon,
-                            std::vector<double>::const_iterator lat,
-                            const astro::SkyProj & proj) const;
+   virtual double computeSolidAngle(std::vector<double>::const_iterator lon,
+				    std::vector<double>::const_iterator lat,
+				    const astro::ProjBase & proj) const;
 
-   void getPixels(std::vector<astro::SkyDir> & pixelDirs,
-                  std::vector<double> & pixelSolidAngles) const;
+   virtual void getPixels(std::vector<astro::SkyDir> & pixelDirs,
+			  std::vector<double> & pixelSolidAngles) const;
+   
+   virtual void readKeywords(const std::string & countsMapFile);
 
-   void readKeywords(const std::string & countsMapFile);
-   void readEbounds(const std::string & countsMapfile,
-                    std::vector<evtbin::Binner *> & binners);
-   void readImageData(const std::string & countsMapfile,
-                      std::vector<evtbin::Binner *> & binners);
-
-   void setRefDir();
-
-   void setDataDir();
-
-   void deleteBinners(std::vector<evtbin::Binner *> & binners) const;
+   virtual void readImageData(const std::string & countsMapfile,
+			      std::vector<evtbin::Binner *> & binners);
 
    void checkMapConforms();
 };

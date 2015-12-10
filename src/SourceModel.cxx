@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.97 2015/03/03 18:05:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/SourceModel.cxx,v 1.5 2015/11/25 18:52:42 echarles Exp $
  */
 
 #include <cmath>
@@ -315,8 +315,8 @@ void SourceModel::syncParams() { // remake parameter vector from scratch
    }
 }
 
-void SourceModel::fetchDerivs(const optimizers::Arg & x,
-                              std::vector<double> & derivs, 
+void SourceModel::fetchDerivs(optimizers::Arg &x,
+                              std::vector<double> &derivs, 
                               bool getFree) const {
    derivs.clear();
 
@@ -505,16 +505,16 @@ bool SourceModel::hasSrcNamed(const std::string & srcName) const {
    return true;
 }
 
-CountsMap * SourceModel::createCountsMap(const CountsMap & dataMap) const {
+CountsMapBase * SourceModel::createCountsMap(const CountsMapBase & dataMap) const {
    const std::vector<Pixel> & pixels(dataMap.pixels());
 
    std::vector<double> energies;
-   dataMap.getAxisVector(2, energies);
+   dataMap.getEnergies(energies);
 
    std::vector<float> map;
    computeModelMap(pixels, energies, map);
 
-   CountsMap * modelMap = new CountsMap(dataMap);
+   CountsMapBase * modelMap = dataMap.clone();
    modelMap->setImage(map);
    return modelMap;
 }

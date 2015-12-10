@@ -123,40 +123,6 @@ void HistND::setSlice(unsigned int idim,
 
 }
 
-void HistND::setSlice(unsigned int idim,
-		      const std::vector<unsigned int>& ivalues,
-		      const std::vector<double>& data) {       
-  if ( idim >= m_ndims ) {
-    throw std::length_error("HistND::setSlice:\n"
-			    "idim >= histogram dimension.");
-  }
-  if ( ivalues.size() != m_ndims ) {
-    throw std::length_error("HistND::setSlice:\n"
-                            "length of ivalues != histogram dimension ");
-  }
-  unsigned int dimSize(0);
-  if ( idim == m_ndims -1 ) {
-    dimSize = m_data.size() / m_strides[idim];
-  } else {
-    dimSize = m_strides[idim+1] / m_strides[idim];
-  }
-  if ( data.size() != dimSize ) {
-    throw std::length_error("HistND::setSlice:\n"
-                            "length of input data != histogram slice size.");
-  }
-  // ivalues_start is a vector of all the indices for the first element in the slice
-  std::vector<long> ivalues_start(ivalues.size(),0);
-  std::copy(ivalues.begin(), ivalues.end(), ivalues_start.begin());
-  ivalues_start[idim] = 0;
-
-  // Get the starting bin and the strides, then just move along the strides and fill m_data
-  long idx = binIndex(ivalues_start);
-  long stride = m_strides[idim];
-  for ( unsigned int i(0); i < data.size(); i++, idx+= stride ) {
-    m_data[idx] = data[i];
-  }
-
-}
 
 void HistND::getSlice(unsigned int idim,
 		      const std::vector<unsigned int>& ivalues,
@@ -192,39 +158,6 @@ void HistND::getSlice(unsigned int idim,
 
 }
 
-void HistND::getSlice(unsigned int idim,
-		      const std::vector<unsigned int>& ivalues,
-		      std::vector<double>& data) {
-  if ( idim >= m_ndims ) {
-    throw std::length_error("HistND::getSlice:\n"
-                            "idim >= histogram dimension.");
-  }
-  if ( ivalues.size() != m_ndims ) {
-    throw std::length_error("HistND::getSlice:\n"
-                            "length of ivalues != histogram dimension");
-  }
-  unsigned int dimSize(0);
-  if ( idim == m_ndims -1 ) {
-    dimSize = m_data.size() / m_strides[idim];
-  } else {
-    dimSize = m_strides[idim+1] / m_strides[idim];
-  }
-  data.clear();
-  data.reserve(dimSize);
-
-  // ivalues_start is a vector of all the indices for the first element in the slice 
-  std::vector<long> ivalues_start(ivalues.size(),0);
-  std::copy(ivalues.begin(), ivalues.end(), ivalues_start.begin());
-  ivalues_start[idim] = 0;
-
-  // Get the starting bin and the strides, then just move along the strides and fill the data vector
-  long idx = binIndex(ivalues_start);
-  long stride = m_strides[idim];
-  for ( unsigned int i(0); i < dimSize; i++, idx+= stride ) {
-    data.push_back(m_data[idx]);
-  }
-
-}
 
 HistND* HistND::sumRange(unsigned int idim, unsigned int firstBin, unsigned int lastBin) const {
   if ( idim >= m_ndims ) {
@@ -273,6 +206,5 @@ HistND* HistND::sumRange(unsigned int idim, unsigned int firstBin, unsigned int 
   retHist->setData(outData);
   return retHist;
 }
-
 
 }

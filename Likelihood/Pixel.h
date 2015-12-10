@@ -4,7 +4,7 @@
  * derivatives wrt model parameters.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Pixel.h,v 1.13 2013/01/09 00:44:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/Pixel.h,v 1.4 2015/03/05 19:58:25 echarles Exp $
  */
 
 #ifndef Likelihood_Pixel_h
@@ -18,7 +18,8 @@
 #include "Likelihood/ExposureCube.h"
 
 namespace astro {
-   class SkyProj;
+   // EAC, switch to using base class
+   class ProjBase;
 }
 
 namespace Likelihood {
@@ -42,12 +43,12 @@ class Pixel {
 public:
 
    Pixel(double ra=0, double dec=0, double solidAngle=0,
-         const astro::SkyProj * proj=0) 
+         const astro::ProjBase * proj=0) 
       : m_dir(astro::SkyDir(ra, dec)), m_solidAngle(solidAngle), m_proj(proj) {
    }
 
    Pixel(const astro::SkyDir & dir, double solidAngle, 
-         const astro::SkyProj * proj=0) 
+         const astro::ProjBase * proj=0) 
       : m_dir(dir), m_solidAngle(solidAngle), m_proj(proj) {}
 
    double modelCounts(double emin, double emax, SourceModel & srcModel) const;
@@ -59,7 +60,8 @@ public:
 
    double solidAngle() const {return m_solidAngle;}
 
-   const astro::SkyProj & proj() const {
+   // EAC, switch to using base class
+   const astro::ProjBase & proj() const {
       return *m_proj;
    }
 
@@ -124,8 +126,10 @@ public:
 private:
 
    astro::SkyDir m_dir;
-   double m_solidAngle;
-   const astro::SkyProj * m_proj;
+   double m_solidAngle;   
+
+   // EAC, switch to using base class
+   const astro::ProjBase * m_proj;
 
 };
 

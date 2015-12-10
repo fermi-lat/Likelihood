@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MeanPsf.cxx,v 1.32 2014/05/13 17:47:17 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/MeanPsf.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
  */
 
 #include <cmath>
@@ -248,6 +248,22 @@ void MeanPsf::getImage(double energy, double lon0, double lat0,
       image.push_back(row);
    }
 }
+
+void MeanPsf::getImage(double energy, double lon0, double lat0,
+		       const std::vector<std::pair<double,double> >& dirs,
+		       std::vector<double> & image) const {
+    astro::SkyDir center(lon0, lat0);
+    image.clear();
+    image.reserve(dirs.size());
+    for (unsigned int i = 0; i < dirs.size(); i++) {
+        const std::pair<double,double>& thePair = dirs[i];
+        astro::SkyDir my_dir(thePair.first,thePair.second);
+	double dist = my_dir.difference(center)*180./M_PI;
+	image.push_back(this->operator()(energy, dist, 0));
+    }
+}
+
+
 
 void MeanPsf::createLogArray(double xmin, double xmax, unsigned int npts,
                              std::vector<double> &xx) const {

@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.50 2015/03/19 16:50:34 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/BinnedExposure.cxx,v 1.5 2015/12/02 00:53:06 echarles Exp $
  */
 
 #include <cmath>
@@ -32,44 +32,15 @@
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/Observation.h"
 
-namespace {
-   double fracDiff(double target, double result) {
-      return std::fabs((target - result)/target);
-   }
-   std::vector<double>::const_iterator 
-   findNearest(const std::vector<double> & xx, double x, double tol=1e-5) {
-      std::vector<double>::const_iterator ix = std::find(xx.begin(),
-                                                         xx.end(), x);
-      if (ix == xx.end()) { // no exact match, so look for nearest
-         for (ix = xx.begin(); ix != xx.end(); ++ix) {
-            if (fracDiff(x, *ix) < tol) {
-               return ix;
-            }
-         }
-         std::ostringstream what;
-         what << "BinnedExposure::operator(): The energy " << x
-              << " is not available.\nHere are the relevant energies:\n";
-         for (size_t i(0); i < xx.size(); i++) {
-            what << xx.at(i) << "\n";
-         }
-         throw std::runtime_error(what.str());
-      }
-      return ix;  // return the exact match
-   }
-}
-
 namespace Likelihood {
 
-BinnedExposure::BinnedExposure() : m_observation(0), m_proj(0), 
-                                   m_costhmin(-1), m_costhmax(1),
-                                   m_enforce_boundaries(false) {}
+BinnedExposure::BinnedExposure() : BinnedExposureBase() {}
 
 BinnedExposure::BinnedExposure(const CountsMap & cmap,
                                const Observation & observation,
                                bool useEbounds,
                                const st_app::AppParGroup * pars)
-   : m_observation(&observation), m_proj(0), m_costhmin(-1), m_costhmax(1),
-     m_enforce_boundaries(false) {
+  :  BinnedExposureBase(observation,useEbounds,pars){
    setMapGeometry(cmap);
    if (!useEbounds) {
       for (size_t k(0); k < m_energies.size()-1; k++) {
@@ -78,20 +49,15 @@ BinnedExposure::BinnedExposure(const CountsMap & cmap,
       m_energies.pop_back();
       m_naxes[2] -= 1;
    }
-   if (pars) {
-      setCosThetaBounds(*pars);
-   }
    computeMap();
 }
 
 BinnedExposure::BinnedExposure(const std::vector<double> & energies,
                                const Observation & observation,
                                const st_app::AppParGroup * pars) 
-   : m_energies(energies), m_observation(&observation), m_proj(0),
-     m_costhmin(-1), m_costhmax(1),m_enforce_boundaries(false)  {
+  :  BinnedExposureBase(energies,observation,pars){
    if (pars) {
       setMapGeometry(*pars);
-      setCosThetaBounds(*pars);
    } else {
       setMapGeometry();
    }
@@ -99,8 +65,8 @@ BinnedExposure::BinnedExposure(const std::vector<double> & energies,
 }
 
 BinnedExposure::BinnedExposure(const std::string & filename) 
-   : m_observation(0), m_proj(0), m_costhmin(-1), m_costhmax(1),
-     m_enforce_boundaries(false) {
+  :  BinnedExposureBase(filename){
+
    m_proj = new astro::SkyProj(filename);
 
    std::auto_ptr<const tip::Image> 
@@ -109,27 +75,35 @@ BinnedExposure::BinnedExposure(const std::string & filename)
    m_exposureMap.clear();
    image->get(m_exposureMap);
 
+   image->getHeader().getKeyword("CDELT1",m_cdelt[0]);
+   image->getHeader().getKeyword("CDELT2",m_cdelt[1]);
+   image->getHeader().getKeyword("CRVAL1",m_crval[0]);
+   image->getHeader().getKeyword("CRVAL2",m_crval[1]);
+   image->getHeader().getKeyword("CRPIX1",m_crpix[0]);
+   image->getHeader().getKeyword("CRPIX2",m_crpix[1]);
    m_naxes = image->getImageDimensions();
 
-   std::auto_ptr<const tip::Table>
-      energies(tip::IFileSvc::instance().readTable(filename, "Energies"));
-
-   m_energies.clear();
-   tip::Table::ConstIterator it = energies->begin();
-   tip::ConstTableRecord & row = *it;
-   for ( ; it != energies->end(); ++it) {
-      double value;
-      row["Energy"].get(value);
-      m_energies.push_back(value);
+   // EAC, if we have an all-sky projection it saves
+   // us the trouble of figuring out if stuff is actually 
+   // in the map or not
+   if ( std::fabs( m_cdelt[0]*m_naxes[0] ) >= 360. &&
+	std::fabs( m_cdelt[1]*m_naxes[1] ) >= 180. ) {
+     m_allSky = true;
    }
+
 }
 
 BinnedExposure::~BinnedExposure() {
-//   delete m_proj;
 }
 
 double BinnedExposure::operator()(double energy, double ra, double dec) const {
-   std::vector<double>::const_iterator ie = ::findNearest(m_energies, energy);
+
+   if ( m_proj == 0 ) {
+     throw std::runtime_error("BinnedExposure::operator() "
+			      "No projection loaded");
+   }
+  
+   std::vector<double>::const_iterator ie = findNearest(m_energies, energy);
    unsigned int k = ie - m_energies.begin();
 
    std::pair<double, double> pixel;
@@ -173,6 +147,10 @@ void BinnedExposure::setMapGeometry(const CountsMap & cmap) {
    m_naxes[2] = cmap.energies().size();
    m_energies = cmap.energies();
    m_isGalactic = cmap.isGalactic();
+   if ( std::fabs( m_cdelt[0]*m_naxes[0] ) >= 360. &&
+	std::fabs( m_cdelt[1]*m_naxes[1] ) >= 180. ) {
+     m_allSky = true;
+   }
 }
 
 void BinnedExposure::setMapGeometry(const st_app::AppParGroup & pars) {
@@ -192,6 +170,10 @@ void BinnedExposure::setMapGeometry(const st_app::AppParGroup & pars) {
    m_crpix[1] = m_naxes[1]/2. + 0.5;
    std::string coordsys = pars["coordsys"];
    m_isGalactic = (coordsys == "GAL");
+   if ( std::fabs( m_cdelt[0]*m_naxes[0] ) >= 360. &&
+	std::fabs( m_cdelt[1]*m_naxes[1] ) >= 180. ) {
+     m_allSky = true;
+   }
 }
 
 void BinnedExposure::setMapGeometry() {
@@ -208,6 +190,7 @@ void BinnedExposure::setMapGeometry() {
    m_cdelt[0] = -1;
    m_cdelt[1] = 1;
    m_crota2 = 0;
+   m_allSky = true;
 }
 
 void BinnedExposure::computeMap() {
@@ -238,10 +221,17 @@ void BinnedExposure::computeMap() {
          if (npix > 20 && (iter % (npix/20)) == 0) {
             formatter.warn() << ".";
          }
+         // std::pair<double, double> coord = m_proj->pix2sph(i + 1, j + 1);
+         // astro::SkyDir dir(coord.first, coord.second, coordsys);
          astro::SkyDir dir;
          try {
             st_facilities::Util::pixel2SkyDir(*m_proj, i + 1, j + 1, dir);
-         } catch (std::out_of_range &) {
+         } catch (...) {
+            // The astro::SkyProj class throws a SkyProjException
+            // here, but SkyProjException is annoyingly defined in
+            // SkyProj.cxx
+            // http://www-glast.stanford.edu/cgi-bin/viewcvs/astro/src/SkyProj.cxx?revision=1.27&view=markup
+            // so that client code cannot catch it directly. Amazing.
             continue;
          }
                                            
@@ -342,24 +332,6 @@ void BinnedExposure::writeOutput(const std::string & filename) const {
    }
 
    delete table;
-}
-
-void BinnedExposure::setCosThetaBounds(const st_app::AppParGroup & pars) {
-   double thmin = pars["thmin"];
-   if (thmin > 0) {
-      m_costhmax = std::cos(thmin*M_PI/180.);
-   }
-   double thmax = pars["thmax"];
-   if (thmax < 180.) {
-      m_costhmin = std::cos(thmax*M_PI/180.);
-   }
-}
-
-double BinnedExposure::Aeff::value(double cosTheta, double phi) const {
-   if (cosTheta < m_costhmin || cosTheta > m_costhmax) {
-      return 0;
-   }
-   return ExposureCube::Aeff::value(cosTheta, phi);
 }
 
 } // namespace Likelihood

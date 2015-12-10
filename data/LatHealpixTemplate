@@ -1,0 +1,132 @@
+SIMPLE   =                    T / File conforms to NOST standard
+BITPIX   =                  -32 / Bits per pixel
+NAXIS    =                    0 / No data is associated with this header
+EXTEND   =                    T / Extensions may be present
+DATE     =                      / Date file was made
+TELESCOP =                GLAST / Name of telescope generating data
+INSTRUME =                  LAT / Name of instrument generating data
+DATE-OBS =                      / Start Date and Time of the observation (UTC)
+DATE-END =                      / End Date and Time of the observation (UTC)
+TIMEUNIT =                   s  / units for the time related keywords
+TIMEZERO =                   0. / clock correction
+TIMESYS  =                  MJD / Time system used to define time
+TIMEREF  =                LOCAL / reference frame used for times
+CLOCKAPP=                    F  / was a clock drift correction applied
+GPS_OUT =                    F / whether GPS time was unavailable at any time
+NDSKEYS =                     0 / Number of data subspace keywords in header
+EQUINOX  =               2000.0 / Equinox of RA & DEC specifications
+OBSERVER = 'Michelson'          / PI name
+CREATOR  =                      / Software and version creating file
+HISTORY                   $Id: LatHealpixTemplate,v 1.1 2015/03/03 05:59:58 echarles Exp $ 
+END
+
+##################################################################################
+XTENSION =             BINTABLE / Binary table extension
+BITPIX   =                    8 / Bits per pixel
+NAXIS    =                    2 / Required value
+NAXIS1   =                    0 / Number of bytes per row
+NAXIS2   =                    0 / Number of rows
+PCOUNT   =                    0 / Normally 0 (no varying arrays)
+GCOUNT   =                    1 / Required value
+TFIELDS  =                    0 / Number of columns in table
+EXTNAME  =               SKYMAP / Extension name
+TELESCOP =                GLAST / Telescope or mission name
+INSTRUME =                  LAT / Instrument name
+FILTER   =                 NONE / Instrument filter in use (if any)
+CHANTYPE =                   PI / Energy channel type
+HDUCLASS =                 OGIP / Format confirms to OGIP standard
+HDUCLAS1 =             RESPONSE / Extension contains response data
+HDUCLAS2 =               SKYMAP / Extension contains response matrix
+PIXTYPE =               HEALPIX / HEALPIX scheme
+HDUVERS  =                1.2.0 / Version number of the format
+DATE-OBS                        / Start Date and Time of the observation (UTC)
+DATE-END                        / End Date and Time of the observation (UTC)
+TIMEUNIT =                   s  / units for the time related keywords
+TIMEZERO =                   0. / clock correction
+TIMESYS  =                  MJD / Time system used to define time
+TIMEREF  =                LOCAL / reference frame used for times
+CLOCKAPP=                    F  / was a clock drift correction applied
+GPS_OUT =                    F / whether GPS time was unavailable at any time
+CREATOR  =                      / Software and version creating file
+HISTORY                   LatHealpixTemplate,v 1.0 2012/05/10 cohen Exp 
+
+##################################################################################
+XTENSION =             BINTABLE / Binary table extension
+BITPIX   =                    8 / Bits per pixel
+NAXIS    =                    2 / Required value
+NAXIS1   =                    0 / Number of bytes per row
+NAXIS2   =                    0 / Number of rows
+PCOUNT   =                    0 / Normally 0 (no varying arrays)
+GCOUNT   =                    1 / Required value
+TFIELDS  =                    0 / Number of columns in table
+EXTNAME  =              EBOUNDS / Extension name
+TELESCOP =                GLAST / Telescope or mission name
+INSTRUME =                  LAT / Instrument name
+FILTER   =                 NONE / Instrument filter in use (if any)
+CHANTYPE =                   PI / Energy channel type
+HDUCLASS =                 OGIP / Format confirms to OGIP standard
+HDUCLAS1 =             RESPONSE / Extension contains response data
+HDUCLAS2 =              EBOUNDS / Extension contains response matrix
+HDUVERS  =                1.2.0 / Version number of the format
+DATE-OBS                        / Start Date and Time of the observation (UTC)
+DATE-END                        / End Date and Time of the observation (UTC)
+TIMEUNIT =                   s  / units for the time related keywords
+TIMEZERO =                   0. / clock correction
+TIMESYS  =                  MJD / Time system used to define time
+TIMEREF  =                LOCAL / reference frame used for times
+CLOCKAPP=                    F  / was a clock drift correction applied
+GPS_OUT =                    F / whether GPS time was unavailable at any time
+CREATOR  =                      / Software and version creating file
+HISTORY                   LatHealpixTemplate,v 1.0 2012/05/10 cohen Exp 
+
+TTYPE#  CHANNEL        / Raw channel number
+TFORM#  I              / Data format of this field
+
+TTYPE#  E_MIN          / Lower boundary of the detector channel
+TFORM#  1E             / Data format of this field
+TUNIT#  keV            / Unit of this field
+
+TTYPE#  E_MAX          / Upper boundary of the detector channel
+TFORM#  1E             / Data format of this field
+TUNIT#  keV            / Unit of this field
+
+
+
+##################################################################################
+XTENSION =             BINTABLE / Binary table extension
+BITPIX   =                    8 / Bits per pixel
+NAXIS    =                    2 / Required value
+NAXIS1   =                    0 / Number of bytes per row
+NAXIS2   =                    0 / Number of rows
+PCOUNT   =                    0 / Normally 0 (no varying arrays)
+GCOUNT   =                    1 / Required value
+TFIELDS  =                    0 / Number of columns in table
+EXTNAME  =                  GTI / Extension name
+TELESCOP =                GLAST / Telescope or mission name
+INSTRUME =                  LAT / Instrument name
+HDUCLASS =                 OGIP / File format is OGIP standard
+HDUCLAS1 =                  GTI / Contains Good Time Intervals
+HDUVERS  =                1.2.0 / Version of file format
+ONTIME   =                      / Sum of all Good Time Intervals
+MJDREF   =                      / MJD for reference time
+TSTART   =                      / Lower bound of first GTI
+TSTOP    =                      / Upper bound of last GTI
+EXPOSURE =                      / Total Livetime in seconds
+TIMESYS  =                  MJD / Time system used to define time
+TIMEUNIT =                    s / All times are in seconds unless specified otherwise
+DATE-OBS                        / Start Date and Time of the observation (UTC)
+DATE-END                        / End Date and Time of the observation (UTC)
+CREATOR  =                      / Software and version creating file
+HISTORY                   $Id: LatHealpixTemplate,v 1.1 2015/03/03 05:59:58 echarles Exp $ 
+
+TTYPE#  START          / Start time of an interval
+TFORM#  D              / Data format of this field
+TUNIT#  s                       / Unit of this field
+
+
+TTYPE#  STOP           / Stop time of an interval
+TFORM#  D              / Data format of this field
+TUNIT#  s                       / Unit of this field
+
+
+

@@ -19,6 +19,8 @@
 #include "dataSubselector/Cuts.h"
 
 #include "Likelihood/BinnedLikelihood.h"
+#include "Likelihood/CountsMap.h"
+#include "Likelihood/CountsMapHealpix.h"
 
 #include "Likelihood/ModelMap.h"
 
@@ -66,7 +68,60 @@ ModelMap::ModelMap(BinnedLikelihood & logLike,
 }
 
 void ModelMap::writeOutputMap(const std::string & outfile,
-                              std::string outtype) {
+			      std::string outtype){
+  ::toUpper(outtype);
+
+  switch ( m_logLike.countsMap().projection().method() ){
+  case astro::ProjBase::WCS:
+    writeOutputMap_wcs(outfile,static_cast<const CountsMap&>(m_logLike.countsMap()),outtype);
+    return;
+  case astro::ProjBase::HEALPIX:
+    writeOutputMap_healpix(outfile,static_cast<const CountsMapHealpix&>(m_logLike.countsMap()),outtype);
+    return;
+  default:
+    break;
+  } 
+  std::ostringstream message;
+  message << "Could not recognize projection method for CountsMap." ;
+  throw std::runtime_error(message.str());
+  return;
+}
+
+void ModelMap::writeOutputMap_healpix(const std::string & outfile,
+				      const CountsMapHealpix& cmap,
+				      std::string outtype) {
+  
+  ::toUpper(outtype);
+   if (outtype != "CMAP" && outtype != "CCUBE") {
+     std::ostringstream message;
+      message << "Invalid output file type for model map, '" 
+              << outtype << "'.\n"
+              << "Only 'CMAP' and 'CCUBE' are allowed.";
+      throw std::runtime_error(message.str());
+   }
+   std::string infile(cmap.filename());
+   if (outtype == "CCUBE") {
+     CountsMapHealpix outmap(cmap);
+     outmap.setImage(m_outmap);
+     outmap.writeOutput("gtmodel",outfile);
+     return;
+   } else {
+     // use the c'tor to automatically do the sum over energies
+     int nEBins = std::max( cmap.energies().size() -1, size_t(1));
+     CountsMapHealpix outmap(cmap,0,nEBins);
+     outmap.setImage(m_outmap);
+     outmap.writeOutput("gtmodel",outfile);
+   } 
+   // Add the GTIs to the file
+   dataSubselector::Cuts my_cuts(infile, "", false);
+   my_cuts.writeGtiExtension(outfile);
+   return;
+}
+
+
+void ModelMap::writeOutputMap_wcs(const std::string & outfile,
+				  const CountsMap& cmap,
+				  std::string outtype) {
    ::toUpper(outtype);
    if (outtype != "CMAP" && outtype != "CCUBE") {
       std::ostringstream message;
@@ -77,9 +132,9 @@ void ModelMap::writeOutputMap(const std::string & outfile,
    }
    if (outtype == "CMAP") {
       // Sum up the image planes over the different energy bands.
-      size_t image_size(m_logLike.countsMap().imageDimension(0)*
-                        m_logLike.countsMap().imageDimension(1));
-      size_t nee(m_logLike.countsMap().imageDimension(2));
+      size_t image_size(cmap.imageDimension(0)*
+                        cmap.imageDimension(1));
+      size_t nee(cmap.imageDimension(2));
       for (size_t k(1); k < nee; k++) {
          for (size_t j(0); j < image_size; j++) {
             size_t indx(k*image_size + j);
@@ -87,7 +142,7 @@ void ModelMap::writeOutputMap(const std::string & outfile,
          }
       }
    }
-   std::string infile(m_logLike.countsMap().filename());
+   std::string infile(cmap.filename());
    bool clobber;
    st_facilities::FitsUtil::fcopy(infile, outfile, "", "", clobber=true);
    
@@ -109,11 +164,13 @@ void ModelMap::writeOutputMap(const std::string & outfile,
    output_image->set(m_outmap);
    dataSubselector::Cuts my_cuts(infile, "", false);
    my_cuts.writeGtiExtension(outfile);
-   trimExtensions(outfile, outtype);
+   trimExtensions_wcs(outfile, outtype);
 }
 
-void ModelMap::trimExtensions(const std::string & outfile,
-                                 const std::string & outtype) {
+
+
+void ModelMap::trimExtensions_wcs(const std::string & outfile,
+				  const std::string & outtype) {
    tip::FileSummary hdus;
    tip::IFileSvc::instance().getFileSummary(outfile, hdus);
    size_t nhdus = hdus.size();

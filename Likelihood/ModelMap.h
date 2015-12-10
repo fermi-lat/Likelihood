@@ -4,7 +4,7 @@
  * BinnedLikelihood object.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ModelMap.h,v 1.2 2012/09/13 20:12:01 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/ModelMap.h,v 1.4 2015/03/05 19:58:25 echarles Exp $
  */
 
 #ifndef Likelihood_ModelMap_h
@@ -16,6 +16,9 @@
 namespace Likelihood {
 
 class BinnedLikelihood;
+// EAC, add projection specific methods
+class CountsMap;
+class CountsMapHealpix;
 
 /**
  * @class ModelMap
@@ -33,14 +36,30 @@ public:
    void writeOutputMap(const std::string & outfile,
                        std::string outtype="CMAP");
 
+protected:
+
+   void writeOutputMap_wcs(const std::string & outfile,
+			   const CountsMap& cmap,
+			   std::string outtype="CMAP");
+
+   void writeOutputMap_healpix(const std::string & outfile,
+			       const CountsMapHealpix& cmap,
+			       std::string outtype="CMAP");
+  
+   void trimExtensions_wcs(const std::string & outfile,
+			   const std::string & outtype="CMAP");
+
+   void trimExtensions_healpix(const std::string & outfile,
+			       const std::string & outtype="CMAP");
+
+
+
 private:
 
    BinnedLikelihood & m_logLike;
 
    std::vector<float> m_outmap;
 
-   void trimExtensions(const std::string & outfile,
-                       const std::string & outtype);
 };
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.71 2015/03/03 18:05:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/SourceModel.h,v 1.6 2015/11/25 18:52:41 echarles Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -30,7 +30,8 @@ namespace optimizers {
 
 namespace Likelihood {
 
-   class CountsMap;
+   // EAC, switch to using base class 
+   class CountsMapBase;
 
 /** 
  * @class SourceModel
@@ -89,8 +90,8 @@ public:
    /// This needs to be re-implemented, delegating to the base class
    /// method, since all member functions with the same name get
    /// hidden by a local declaration, even if the signatures differ.
-   virtual void getFreeDerivs(const optimizers::Arg & x, 
-                              std::vector<double> & derivs) const {
+   virtual void getFreeDerivs(optimizers::Arg &x, 
+                              std::vector<double> &derivs) const {
       Function::getFreeDerivs(x, derivs);
    }
 
@@ -144,9 +145,9 @@ public:
    virtual void write_fluxXml(std::string xmlFile);
 
    /// Create a counts map based on the current model.
-   virtual CountsMap * createCountsMap(const CountsMap & dataMap) const;
+   virtual CountsMapBase * createCountsMap(const CountsMapBase & dataMap) const;
 
-   virtual CountsMap * createCountsMap() const {
+   virtual CountsMapBase * createCountsMap() const {
       throw std::runtime_error("SourceModel::createCountsMap needs to be "
                              + std::string("reimplemented in this subclass."));
    }
@@ -187,7 +188,11 @@ protected:
 
    std::map<std::string, Source *> m_sources;
 
-   void fetchDerivs(const optimizers::Arg & x, std::vector<double> & derivs, 
+   /// disable this since parameters may no longer have unique names
+   double derivByParamImp(const optimizers::Arg &, const std::string &) 
+      const {return 0;}
+
+   void fetchDerivs(optimizers::Arg &x, std::vector<double> &derivs, 
                     bool getFree) const;
 
    void setParams_(std::vector<optimizers::Parameter> &, bool);
@@ -211,10 +216,6 @@ protected:
       derivs.clear();
    }
 
-   /// disable this since parameters may no longer have unique names
-   double derivByParamImp(const optimizers::Arg &, const std::string &) const {
-      return 0;
-   }
 
 private:
 

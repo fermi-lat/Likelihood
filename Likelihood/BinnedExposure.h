@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedExposure.h,v 1.22 2012/03/28 22:00:42 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/BinnedExposure.h,v 1.4 2015/03/05 19:58:24 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -15,6 +15,9 @@
 #include <vector>
 
 #include "Likelihood/ExposureCube.h"
+
+// EAC, make a base class for BinnedExposure
+#include "Likelihood/BinnedExposureBase.h"
 
 namespace st_app {
    class AppParGroup;
@@ -37,7 +40,7 @@ namespace Likelihood {
  * @author J. Chiang
  */
 
-class BinnedExposure {
+class BinnedExposure : public BinnedExposureBase {
 
 public:
 
@@ -64,26 +67,8 @@ public:
 
    virtual void writeOutput(const std::string & filename) const;
 
-   const std::vector<double> & energies() const {
-      return m_energies;
-   }
-
-   void setBoundaryFlag(bool enforce_boundaries) {
-      m_enforce_boundaries = enforce_boundaries;
-   }
 
 protected:
-
-// Disable copy constructor and copy assignment operator
-   BinnedExposure(const BinnedExposure &) {
-      throw std::runtime_error("BinnedExposure copy constructor is disabled");
-   }
-
-   BinnedExposure & operator=(const BinnedExposure &) {
-      throw std::runtime_error("BinnedExposure copy assignment operator "
-                               "is disabled");
-      return *this;
-   }
 
    void setMapGeometry(const CountsMap & cmap);
 
@@ -93,47 +78,20 @@ protected:
 
 //private:
 
-   const Observation * m_observation;
-
    std::vector<float> m_exposureMap;
-
-   std::vector<double> m_energies;
 
    // Coordinate system parameters to be fed to SkyProj.  These are
    // either set to all-sky values (CAR, CEL) or to match the geometry
    // of the input counts map.
-   std::string m_proj_name;
    double m_crpix[2];
    double m_crval[2];
    double m_cdelt[2];
    double m_crota2;
-   bool m_isGalactic;
-
-   astro::SkyProj * m_proj;
 
    std::vector<long> m_naxes;
 
-   double m_costhmin;
-   double m_costhmax;
-
-   bool m_enforce_boundaries;
-
-   void setCosThetaBounds(const st_app::AppParGroup & pars);
-
    void computeMap();
 
-   class Aeff : public ExposureCube::Aeff {
-   public:
-      Aeff(double energy, int evtType, const Observation & observation,
-           double costhmin, double costhmax) 
-         : ExposureCube::Aeff(energy, evtType, observation),
-           m_costhmin(costhmin), m_costhmax(costhmax) {}
-      virtual double value(double cosTheta, double phi=0) const;
-   private:
-      double m_costhmin;
-      double m_costhmax;
-   };
-   
 };
 
 } // namespace Likelihood

@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.1 2015/07/17 18:41:56 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/FitScanner.cxx,v 1.2 2015/12/02 00:53:06 echarles Exp $
  */
 
 
@@ -86,8 +86,7 @@ namespace Likelihood {
     image->setImageDimensions(naxes);
     tip::Header & header(image->getHeader());
     // FIXME, astro::ProjBase::setKeywords() should be a const function
-    // astro::ProjBase& nc_proj = const_cast<astro::ProjBase&>(m_proj);
-    astro::SkyProj& nc_proj = const_cast<astro::SkyProj&>(m_proj);
+    astro::ProjBase& nc_proj = const_cast<astro::ProjBase&>(m_proj);
     nc_proj.setKeywords(header);
     // These are just placeholders, since this is just a test, that is ok
     header.setKeyword("CRPIX3",1);
@@ -101,9 +100,6 @@ namespace Likelihood {
   
   int TestSourceModelCache::translateMap_Wcs(double dx, double dy, std::vector<float>& out_model) const {
 
-    // Tolerate for the preservation of the normalization
-    static const double normTol(0.10);
-    
     // First fill the output map with 1e-9 everywhere
     // We don't use 0 to avoid failed matrix inversions 
     // when the number of observed counts is very small
@@ -166,10 +162,6 @@ namespace Likelihood {
       float total_out(0.);
       FitUtils::sumVector(m_refModel.begin(),m_refModel.end(),total_in);
       FitUtils::sumVector(out_model.begin(),out_model.end(),total_out);
-      float frac_diff = (total_out - total_in) / total_in;
-      if ( std::fabs(frac_diff) > normTol ) {
-	std::cout << "Normalization not preserved in model shifting: " << frac_diff << std::endl;
-      }
       if ( false ) {
 	std::cout << "Translate " << dx << ' ' << delta_x << ' '
 		  << dy << ' ' << delta_y << ' '
@@ -1154,7 +1146,9 @@ namespace Likelihood {
 
   // D'tor, does cleanup
   FitScanner::~FitScanner() throw() {
-    removeTestSourceFromModel();
+    //if ( m_testSource != 0 ) {
+    //  removeTestSourceFromModel();
+    //}
     delete m_testSource;
     delete m_dir1_binner;
     delete m_dir2_binner;
@@ -1215,7 +1209,10 @@ namespace Likelihood {
     if ( baseline_st ) {
       std::cout << "Doing baseline fit with standard fitter." << std::endl;
       status = baselineFit(tol,tolType);
-      if ( status != 0 ) return status;	
+      if ( status != 0 ) {
+	std::cout << "Baseline fit failed with status " << status << std::endl;
+	// return status;	
+      }
       loglike_null_st = m_modelWrapper->value();
       std::cout << "Did baseline fit.  Likelihood before: " << loglike_null << ", after: " << loglike_null_st << std::endl;
     }
@@ -1950,8 +1947,7 @@ namespace Likelihood {
     image->setImageDimensions(naxes);
     tip::Header & header(image->getHeader());
     // FIXME, astro::ProjBase::setKeywords() should be a const function
-    // astro::ProjBase* nc_proj = const_cast<astro::ProjBase*>(m_proj);
-    astro::SkyProj* nc_proj = const_cast<astro::SkyProj*>(m_proj);
+    astro::ProjBase* nc_proj = const_cast<astro::ProjBase*>(m_proj);
     if ( nc_proj ) {
       nc_proj->setKeywords(header);
     }
@@ -1989,8 +1985,7 @@ namespace Likelihood {
 
     tip::Header & header(table->getHeader());
     // FIXME, astro::ProjBase::setKeywords() should be a const function
-    // astro::ProjBase* nc_proj = const_cast<astro::ProjBase*>(m_proj);
-    astro::SkyProj* nc_proj = const_cast<astro::SkyProj*>(m_proj);
+    astro::ProjBase* nc_proj = const_cast<astro::ProjBase*>(m_proj);
     if ( nc_proj ) {
       nc_proj->setKeywords(header);
     }      

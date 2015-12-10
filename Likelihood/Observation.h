@@ -4,7 +4,7 @@
  * observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Observation.h,v 1.5 2005/10/10 21:42:00 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/Observation.h,v 1.4 2015/03/05 19:58:25 echarles Exp $
  */
 
 #ifndef Likelihood_Observation_h
@@ -19,8 +19,9 @@
 
 namespace Likelihood {
 
-   class BinnedExposure;
-   class WcsMap2;
+   // EAC, switch to using base classes 
+   class BinnedExposureBase;
+   class ProjMap;
    class MeanPsf;
 
 /**
@@ -46,8 +47,8 @@ public:
                ExposureCube * expCube=0,
                ExposureMap * expMap=0,
                EventContainer * eventCont=0,
-               BinnedExposure * bexpmap=0,
-               WcsMap2 * phased_expmap=0) :
+               BinnedExposureBase * bexpmap=0,
+               ProjMap* phased_expmap=0) :
       m_respFuncs(respFuncs), m_scData(scData), m_roiCuts(roiCuts),
       m_expCube(expCube), m_expMap(expMap), m_eventCont(eventCont),
       m_bexpmap(bexpmap), m_phased_expmap(phased_expmap),
@@ -102,19 +103,23 @@ public:
       return *m_eventCont;
    }
 
-   const BinnedExposure & bexpmap() const {
+   // EAC, switch to using base classes 
+   const BinnedExposureBase & bexpmap() const {
       return *m_bexpmap;
    }
 
-   BinnedExposure & bexpmap() {
+   // EAC, switch to using base classes 
+   BinnedExposureBase & bexpmap() {
       return *m_bexpmap;
    }
-   
-   const WcsMap2 & phased_expmap() const {
+
+   // EAC, switch to using base classes 
+   const ProjMap & phased_expmap() const {
       return *m_phased_expmap;
    }
 
-   WcsMap2 & phased_expmap() {
+   // EAC, switch to using base classes 
+   ProjMap & phased_expmap() {
       return *m_phased_expmap;
    }
 
@@ -132,14 +137,15 @@ public:
 
 private:
 
+   // EAC, switch to using base classes 
    ResponseFunctions * m_respFuncs;
    ScData * m_scData;
    RoiCuts * m_roiCuts;
    ExposureCube * m_expCube;
    ExposureMap * m_expMap;
    EventContainer * m_eventCont;
-   BinnedExposure * m_bexpmap;
-   WcsMap2 * m_phased_expmap;
+   BinnedExposureBase * m_bexpmap;
+   ProjMap * m_phased_expmap;
    MeanPsf * m_meanpsf;
 
 };

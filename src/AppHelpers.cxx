@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.123 2015/04/07 16:07:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/AppHelpers.cxx,v 1.5 2015/11/25 18:52:42 echarles Exp $
  */
 
 #include <cmath>
@@ -15,11 +15,15 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector>
+// EAC, added for std::auto_ptr
+#include <memory> 
 
 #include "st_stream/StreamFormatter.h"
 
 #include "astro/SkyDir.h"
 
+// EAC, added for IO operations
+#include "tip/IFileSvc.h"
 #include "st_facilities/Util.h"
 
 #include "evtbin/Gti.h"
@@ -32,11 +36,15 @@
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BandFunction.h"
+// EAC, add BinnedExposure sub-classes
+#include "Likelihood/BinnedHealpixExposure.h"
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BrokenPowerLaw2.h"
 #include "Likelihood/BrokenPowerLaw3.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"
+// EAC, add CountsMapBase sub-classes
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/CountsMapHealpix.h"
 #include "Likelihood/DMFitFunction.h"
 #include "Likelihood/EblAtten.h"
 #include "Likelihood/EnergyBand.h"
@@ -51,9 +59,7 @@
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MapCubeFunction2.h"
 #include "Likelihood/MeanPsf.h"
-#include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/Observation.h"
-#include "Likelihood/PiecewisePowerLaw.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/RadialProfile.h"
@@ -67,7 +73,8 @@
 #include "Likelihood/SpatialDisk.h"
 #include "Likelihood/SpatialGaussian.h"
 #include "Likelihood/SpatialMap.h"
-#include "Likelihood/WcsMap2.h"
+// EAC, use WcsLibrary to open the right type of ProjMap
+#include "Likelihood/WcsMapLibrary.h"
 
 namespace {
    void getRangeBounds(const std::vector<dataSubselector::RangeCut *> & cuts,
@@ -101,8 +108,7 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
                        const std::string & analysisType) 
    : m_pars(pars), m_funcFactory(0), m_scData(0), m_expCube(0),
      m_expMap(0), m_respFuncs(0), m_roiCuts(0), m_eventCont(0),
-     m_bexpmap(0), m_phased_expmap(0), m_meanpsf(0), m_irfsName(""),
-     m_respFuncCuts(0) {
+     m_bexpmap(0), m_phased_expmap(0), m_meanpsf(0), m_irfsName("") {
    st_app::AppParGroup & my_pars(*m_pars);
    prepareFunctionFactory();
    createResponseFuncs(analysisType);
@@ -123,13 +129,15 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
    if (analysisType == "BINNED") {
       try {
          std::string bexpmap = my_pars["bexpmap"];
-         m_bexpmap = new BinnedExposure(bexpmap);
+	 // EAC, read the right type of BinnedExposure
+	 m_bexpmap = readBinnedExposure(bexpmap);
       } catch (hoops::Hexception &) {
       }
       try {
          std::string phased_expmap = my_pars["phased_expmap"];
          if (phased_expmap != "none" && phased_expmap != "") {
-            m_phased_expmap = new WcsMap2(phased_expmap);
+	    // EAC, use WcsMapLibrary to read the right type of ProjMap
+            m_phased_expmap = WcsMapLibrary::instance()->wcsmap(phased_expmap,std::string(""));
          }
       } catch (hoops::Hexception &) {
       }
@@ -157,10 +165,13 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
             std::string tmp = my_pars["srcmaps"];
             cmapfile = tmp;
          }
-         CountsMap cmap(cmapfile);
-         m_meanpsf = new MeanPsf(cmap.refDir(), cmap.energies(),
+	 // EAC, build a map to get the ref-dir and energies
+	 // EAC, it might be better to write a function just to pull those out 
+	 CountsMapBase* cmap = readCountsMap(cmapfile);
+         m_meanpsf = new MeanPsf(cmap->refDir(), cmap->energies(),
                                  *m_observation);
          m_observation->setMeanPsf(m_meanpsf);
+	 delete cmap; // EAC, we built the map on the heap...
       } catch (hoops::Hexception &) {
          // Do nothing.
       }
@@ -194,55 +205,77 @@ void AppHelpers::prepareFunctionFactory() {
 void AppHelpers::
 addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    bool makeClone(false);
-   funcFactory->addFunc(new SkyDirFunction(), makeClone);
-   funcFactory->addFunc(new SpatialDisk(), makeClone);
-   funcFactory->addFunc(new SpatialMap(), makeClone);
-   funcFactory->addFunc(new SpatialGaussian(), makeClone);
-   funcFactory->addFunc(new BandFunction(), makeClone);
-   funcFactory->addFunc(new LogParabola(), makeClone);
-   funcFactory->addFunc(new LogGaussian(), makeClone);
-   funcFactory->addFunc(new LogNormal(), makeClone);
-   funcFactory->addFunc(new LogNormalLog(), makeClone);
-   funcFactory->addFunc(new MapCubeFunction2(), makeClone);
-   funcFactory->addFunc(new RadialProfile(), makeClone);
-   funcFactory->addFunc(new PowerLaw2(), makeClone);
-   funcFactory->addFunc(new BrokenPowerLaw2(), makeClone);
-   funcFactory->addFunc(new BrokenPowerLaw3(), makeClone);
-   funcFactory->addFunc(new MultipleBrokenPowerLaw(), makeClone);
-   funcFactory->addFunc(new PiecewisePowerLaw(), makeClone);
-   funcFactory->addFunc(new SmoothBrokenPowerLaw(), makeClone);
-   funcFactory->addFunc(new SmoothDoubleBrokenPowerLaw(), makeClone);
-   funcFactory->addFunc(new FileFunction(), makeClone);
-   funcFactory->addFunc(new ExpCutoff(), makeClone);
-   funcFactory->addFunc(new ExpCutoffSEDPeak(), makeClone);
-   funcFactory->addFunc(new BrokenPowerLawExpCutoff(), makeClone);
-   funcFactory->addFunc(new PowerLawSuperExpCutoff(), makeClone);
-   funcFactory->addFunc(new DMFitFunction(), makeClone);
+   funcFactory->addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
+   funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
+   funcFactory->addFunc("BandFunction", new BandFunction(), makeClone);
+   funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
+   funcFactory->addFunc("LogGaussian", new LogGaussian(), makeClone);
+   funcFactory->addFunc("LogNormal", new LogNormal(), makeClone);
+   funcFactory->addFunc("LogNormalLog", new LogNormalLog(), makeClone);
+   funcFactory->addFunc("MapCubeFunction", new MapCubeFunction2(), makeClone);
+   funcFactory->addFunc("RadialProfile", new RadialProfile(), makeClone);
+   funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
+   funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
+   funcFactory->addFunc("BrokenPowerLaw3", new BrokenPowerLaw3(), makeClone);
+   funcFactory->addFunc("SmoothBrokenPowerLaw", new SmoothBrokenPowerLaw(), 
+                        makeClone);
+   funcFactory->addFunc("SmoothDoubleBrokenPowerLaw", 
+                        new SmoothDoubleBrokenPowerLaw(), makeClone);
+   funcFactory->addFunc("FileFunction", new FileFunction(), makeClone);
+   funcFactory->addFunc("ExpCutoff", new ExpCutoff(), makeClone);
+   funcFactory->addFunc("ExpCutoffSEDPeak", new ExpCutoffSEDPeak(), makeClone);
+   funcFactory->addFunc("BPLExpCutoff", new BrokenPowerLawExpCutoff(),
+                        makeClone);
+   funcFactory->addFunc("PLSuperExpCutoff", 
+                        new PowerLawSuperExpCutoff(), makeClone);
+   funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
 
-   funcFactory->addFunc(new EblAtten(), makeClone);
-   funcFactory->addFunc(new EblAtten(BrokenPowerLaw2()), makeClone);
-   funcFactory->addFunc(new EblAtten(LogParabola()), makeClone);
-   funcFactory->addFunc(new EblAtten(BandFunction()), makeClone);
-   funcFactory->addFunc(new EblAtten(SmoothBrokenPowerLaw()), makeClone);
-   funcFactory->addFunc(new EblAtten(FileFunction()), makeClone);
-   funcFactory->addFunc(new EblAtten(ExpCutoff()), makeClone);
-   funcFactory->addFunc(new EblAtten(BrokenPowerLawExpCutoff()), makeClone);
-   funcFactory->addFunc(new EblAtten(PowerLawSuperExpCutoff()), makeClone);
+   funcFactory->addFunc("EblAtten::PowerLaw2", new EblAtten(), makeClone);
+   funcFactory->addFunc("EblAtten::BrokenPowerLaw2", 
+                        new EblAtten(BrokenPowerLaw2()), makeClone);
+   funcFactory->addFunc("EblAtten::LogParabola", 
+                        new EblAtten(LogParabola()), makeClone);
+   funcFactory->addFunc("EblAtten::BandFunction", 
+                        new EblAtten(BandFunction()), makeClone);
+   funcFactory->addFunc("EblAtten::SmoothBrokenPowerLaw", 
+                        new EblAtten(SmoothBrokenPowerLaw()), makeClone);
+   funcFactory->addFunc("EblAtten::FileFunction", 
+                        new EblAtten(FileFunction()), makeClone);
+   funcFactory->addFunc("EblAtten::ExpCutoff", 
+                        new EblAtten(ExpCutoff()), makeClone);
+   funcFactory->addFunc("EblAtten::BPLExpCutoff", 
+                        new EblAtten(BrokenPowerLawExpCutoff()), makeClone);
+   funcFactory->addFunc("EblAtten::PLSuperExpCutoff", 
+                        new EblAtten(PowerLawSuperExpCutoff()), makeClone);
 
-   funcFactory->addFunc(new EnergyBand(), makeClone);
-   funcFactory->addFunc(new EnergyBand(BrokenPowerLaw2()), makeClone);
-   funcFactory->addFunc(new EnergyBand(LogParabola()), makeClone);
-   funcFactory->addFunc(new EnergyBand(BandFunction()), makeClone);
-   funcFactory->addFunc(new EnergyBand(SmoothBrokenPowerLaw()), makeClone);
-   funcFactory->addFunc(new EnergyBand(FileFunction()), makeClone);
-   funcFactory->addFunc(new EnergyBand(ExpCutoff()), makeClone);
-   funcFactory->addFunc(new EnergyBand(BrokenPowerLawExpCutoff()), makeClone);
-   funcFactory->addFunc(new EnergyBand(PowerLawSuperExpCutoff()), makeClone);
+   funcFactory->addFunc("EnergyBand::PowerLaw2", new EnergyBand(), makeClone);
+   funcFactory->addFunc("EnergyBand::BrokenPowerLaw2", 
+                        new EnergyBand(BrokenPowerLaw2()), makeClone);
+   funcFactory->addFunc("EnergyBand::LogParabola", 
+                        new EnergyBand(LogParabola()), makeClone);
+   funcFactory->addFunc("EnergyBand::BandFunction", 
+                        new EnergyBand(BandFunction()), makeClone);
+   funcFactory->addFunc("EnergyBand::SmoothBrokenPowerLaw", 
+                        new EnergyBand(SmoothBrokenPowerLaw()), makeClone);
+   funcFactory->addFunc("EnergyBand::FileFunction", 
+                        new EnergyBand(FileFunction()), makeClone);
+   funcFactory->addFunc("EnergyBand::ExpCutoff", 
+                        new EnergyBand(ExpCutoff()), makeClone);
+   funcFactory->addFunc("EnergyBand::BPLExpCutoff", 
+                        new EnergyBand(BrokenPowerLawExpCutoff()), makeClone);
+   funcFactory->addFunc("EnergyBand::PLSuperExpCutoff", 
+                        new EnergyBand(PowerLawSuperExpCutoff()), makeClone);
 
-   funcFactory->addFunc(new ScaleFactor(FileFunction()), makeClone);
-   funcFactory->addFunc(new ScaleFactor(PowerLaw2()), makeClone);
-   funcFactory->addFunc(new ScaleFactor(PowerLawSuperExpCutoff()), makeClone);
-   funcFactory->addFunc(new ScaleFactor(optimizers::Gaussian()), makeClone);
+   funcFactory->addFunc("ScaleFactor::FileFunction", 
+                        new ScaleFactor(FileFunction()), makeClone);
+   funcFactory->addFunc("ScaleFactor::PowerLaw2", 
+                        new ScaleFactor(PowerLaw2()), makeClone);
+   funcFactory->addFunc("ScaleFactor::PLSuperExpCutoff", 
+                        new ScaleFactor(PowerLawSuperExpCutoff()), makeClone);
+   
+   funcFactory->addFunc("ScaleFactor::Gaussian",
+                        new ScaleFactor(optimizers::Gaussian()), makeClone);
+
 }
 
 void AppHelpers::setRoi(const std::string & filename,
@@ -421,21 +454,12 @@ void AppHelpers::createResponseFuncs(const std::string & analysisType) {
       // Add event_type BitMaskCut.
       try {
          unsigned int evtype = pars["evtype"];
-         formatter.info(3) << "Using evtype=" << evtype << std::endl;
+         if (evtype == 3) {
+            formatter.info() << "Using evtype=3 (i.e., FRONT/BACK irfs)\n";
+         }
          my_cuts->addBitMaskCut("EVENT_TYPE", evtype, my_cuts->pass_ver());
       } catch (hoops::Hexception &) {
-         // evtype not a command line option, so try to infer this cut from 
-         // the evfile (which may in fact be an expmap or bexpmap file).
-         std::vector<std::string> files;
-         st_facilities::Util::resolve_fits_files(evfile, files);
-         dataSubselector::Cuts temp_cuts(files.at(0), extname,
-                                         false, true, true);
-         dataSubselector::BitMaskCut * my_evtype_cut 
-            = temp_cuts.bitMaskCut("EVENT_TYPE");
-         if (my_evtype_cut) {
-            my_cuts->addCut(*my_evtype_cut);
-         }
-         delete my_evtype_cut;
+         // evtype not a command line option, so do not add this cut.
       }
    }
    std::vector<unsigned int> selectedEvtTypes;
@@ -818,11 +842,51 @@ AppHelpers::gtiCuts(const dataSubselector::Cuts & cuts) {
    return my_gtiCuts;
 }
 
+
 void AppHelpers::
 checkExposureMap(const std::string & cmapfile,
-                 const std::string & emapfile) {
-   CountsMap cmap(cmapfile);
-   BinnedExposure emap(emapfile);
+		 const std::string & emapfile) {  
+   // EAC, switch based on the projection type of the counts map 
+   CountsMapBase* cmap = readCountsMap(cmapfile);
+   BinnedExposureBase* emap = readBinnedExposure(emapfile);
+   bool ok(false);
+   switch ( cmap->projection().method() ) {
+   case astro::ProjBase::WCS:
+     checkExposureMap_wcs(static_cast<const CountsMap&>(*cmap),*emap);
+     ok = true;
+     break;
+   case astro::ProjBase::HEALPIX:
+     checkExposureMap_healpix(static_cast<const CountsMapHealpix&>(*cmap),*emap);
+     ok = true;
+     break;
+   default:
+     break;
+   }
+   if ( !ok ) {
+     std::string errMsg("Did not recognize CountsMapBase type at: ");
+     errMsg += emapfile;
+     throw std::runtime_error(errMsg);
+   }
+   // EAC: this seems wasteful
+   delete cmap;
+   delete emap;
+   return;
+}
+ 
+void AppHelpers::
+checkExposureMap_healpix(const CountsMapHealpix& cmap,
+			 BinnedExposureBase& emap) {
+   // EAC: rather than worry about the details, let's just require that the exposure map be all-sky
+   if (!emap.allSky()) {
+     throw std::runtime_error("Counts map is in HEALPix but exposure map does not cover the whole sky.");
+   }
+   return;
+}
+
+void AppHelpers::
+checkExposureMap_wcs(const CountsMap& cmap,
+		     BinnedExposureBase& emap) {
+   // EAC: this is the original checkExposureMap function
    emap.setBoundaryFlag(true);
    
    double energy(emap.energies()[0]);
@@ -875,10 +939,84 @@ void AppHelpers::setBitMaskCuts(dataSubselector::Cuts & other_cuts) const {
    other_cuts.setBitMaskCut(m_respFuncCuts->bitMaskCut("EVENT_TYPE"));
 }
 
+// EAC -> Check to see if a CountsMap or exposure map is WCS or HEALPix based                 
+astro::ProjBase::Method 
+AppHelpers::checkProjectionMethod(const std::string& filename,
+                                  const std::string& hpx_ext) {  
+  // Try the primary header first
+  std::auto_ptr<const tip::Image> primary(tip::IFileSvc::instance().readImage(filename,std::string("")));
+  const tip::Header& header = primary->getHeader();
+  int naxis(0);
+  try {
+    header["NAXIS"].get(naxis);    
+  } catch (...) {
+    ;
+  } 
+  if ( naxis >= 2 ) {
+    // This is some kind of image
+    return astro::ProjBase::WCS;
+  }
+  // Try the extension header
+  std::auto_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(filename,hpx_ext));
+  const tip::Header& header_ext = ext->getHeader();
+  if ( ext->isTable() ) {
+    std::string pixtype;
+    try {
+      header_ext["PIXTYPE"].get(pixtype);
+    } catch (...) {
+      ;
+    }
+    if ( pixtype.find("HEALPIX") == 0 ) {    
+      return astro::ProjBase::HEALPIX;
+    } 
+    // It is a table, but doesn't have PIXTYPE == HEALPIX, something is wrong
+    return astro::ProjBase::UNKNOWN;
+  } 
+  // It isn't a table, something is wrong
+  return astro::ProjBase::UNKNOWN;
+}
 
 // EAC -> Open a fits file and read in the correct type of CountsMap                          
-CountsMap* AppHelpers::readCountsMap(const std::string& filename){
-  CountsMap* retMap = new CountsMap(filename);
+CountsMapBase* AppHelpers::readCountsMap(const std::string& filename){
+  astro::ProjBase::Method method = checkProjectionMethod(filename,std::string("SKYMAP"));
+  CountsMapBase* retMap(0);
+  switch ( method ) {
+  case astro::ProjBase::WCS:
+    retMap = new CountsMap(filename);
+    break;
+  case astro::ProjBase::HEALPIX:
+    retMap = new CountsMapHealpix(filename);
+    break;
+  default:
+    break;
+  }
+  if ( retMap == 0 ) {
+    std::string errMsg("Did not recognize CountsMapBase type at: ");
+    errMsg += filename;
+    throw std::runtime_error(errMsg);
+  }
+  return retMap;
+}
+
+// EAC -> Open a fits file and read in the correct type of BinnedExposureBase                 
+BinnedExposureBase* AppHelpers::readBinnedExposure(const std::string& filename){
+  astro::ProjBase::Method method = checkProjectionMethod(filename,std::string("HPXEXPOSURES"));
+  BinnedExposureBase* retMap(0);
+  switch ( method ) {
+  case astro::ProjBase::WCS:
+    retMap = new BinnedExposure(filename);
+    break;
+  case astro::ProjBase::HEALPIX:
+    retMap = new BinnedHealpixExposure(filename);
+    break;
+  default:
+    break;
+  }
+  if ( retMap == 0 ) {
+    std::string errMsg("Did not recognize BinnedExposureBase type at: ");
+    errMsg += filename;
+    throw std::runtime_error(errMsg);
+  }  
   return retMap;
 }
 

@@ -3,7 +3,7 @@
  * @brief ExposureMap class declaration.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureMap.h,v 1.22 2006/10/03 20:52:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/ExposureMap.h,v 1.4 2015/03/05 19:58:24 echarles Exp $
  */
 
 #ifndef Likelihood_ExposureMap_h
@@ -21,7 +21,8 @@ namespace astro {
 namespace Likelihood {
 
    class Observation;
-   class WcsMap2;
+   // EAC, switch to using ProjMap base class
+   class ProjMap;
 
 /**
  * @class ExposureMap 
@@ -36,7 +37,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureMap.h,v 1.22 2006/10/03 20:52:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/ExposureMap.h,v 1.4 2015/03/05 19:58:24 echarles Exp $
  *
  */
 
@@ -44,7 +45,7 @@ class ExposureMap {
 
 public:
 
-   ExposureMap() : m_wcsmap(0), m_haveExposureMap(false) {}
+   ExposureMap() : m_projmap(0), m_haveExposureMap(false) {}
 
    ~ExposureMap();
 
@@ -132,7 +133,7 @@ public:
 
 private:
 
-   WcsMap2 * m_wcsmap;
+   ProjMap * m_projmap;
 
    bool m_haveExposureMap;
 

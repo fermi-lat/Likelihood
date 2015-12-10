@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MapBase.cxx,v 1.14 2012/06/19 04:02:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/MapBase.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
  */
 
 #include <cmath>
@@ -23,14 +23,17 @@
 #include "Likelihood/EquinoxRotation.h"
 #include "Likelihood/MapBase.h"
 #include "Likelihood/WcsMapLibrary.h"
+#include "Likelihood/WcsMap2.h"
+#include "Likelihood/HealpixProjMap.h"
+
 
 namespace Likelihood {
 
-MapBase::MapBase() : m_wcsmap(0), m_fitsFile(""), 
+MapBase::MapBase() : m_projmap(0), m_fitsFile(""), 
                      m_expandedFileName(""), m_extension("") {}
 
 MapBase::MapBase(const std::string & fitsFile, const std::string & extension) 
-   : m_wcsmap(0), m_fitsFile(fitsFile), m_extension(extension) {
+   : m_projmap(0), m_fitsFile(fitsFile), m_extension(extension) {
 /// Comment out so that fits file is not read in by default.  Intention is
 /// to have fits file read in only when it is first needed, i.e., when
 /// wcsmap() is called from subclasses.
@@ -42,7 +45,7 @@ MapBase::~MapBase() {
 }
 
 MapBase::MapBase(const MapBase & other) 
-   : m_wcsmap(other.m_wcsmap), 
+   : m_projmap(other.m_projmap), 
      m_fitsFile(other.m_fitsFile),
      m_expandedFileName(other.m_expandedFileName),
      m_extension(other.m_extension) {
@@ -50,7 +53,7 @@ MapBase::MapBase(const MapBase & other)
 
 MapBase & MapBase::operator=(const MapBase & rhs) {
    if (this != &rhs) {
-      m_wcsmap = rhs.m_wcsmap;
+      m_projmap = rhs.m_projmap;
       m_fitsFile = rhs.m_fitsFile;
       m_expandedFileName = rhs.m_expandedFileName;
       m_extension = rhs.m_extension;
@@ -84,16 +87,16 @@ void MapBase::readFitsFile() {
 
    formatter.info(4) << "MapBase::readFitsFile: creating WcsMap2 object" 
                      << std::endl;
-   m_wcsmap = WcsMapLibrary::instance()->wcsmap(m_expandedFileName,
-                                                m_extension);
+   m_projmap = WcsMapLibrary::instance()->wcsmap(m_expandedFileName,
+						 m_extension);
    WcsMapLibrary::instance()->add_observer(this);
 }
 
-WcsMap2 & MapBase::wcsmap() {
-   if (m_wcsmap == 0) {
+ProjMap & MapBase::projmap() {
+   if (m_projmap == 0) {
       readFitsFile();
    }
-   return *m_wcsmap;
+   return *m_projmap;
 }
 
 void MapBase::deleteMap() {
@@ -101,22 +104,53 @@ void MapBase::deleteMap() {
    formatter.info(4) << "MapBased::deleteMap: " << m_expandedFileName
                      << std::endl;
    WcsMapLibrary::instance()->delete_map(m_expandedFileName, m_extension);
-   m_wcsmap = 0;
+   m_projmap = 0;
 }
 
 void MapBase::update() {
    if (!WcsMapLibrary::instance()->has_map(m_expandedFileName, m_extension)) {
-      m_wcsmap = 0;
+      m_projmap = 0;
    }
 }
 
 bool MapBase::insideMap(const astro::SkyDir & dir) const {
-   return wcsmap().insideMap(dir);
+   return projmap().insideMap(dir);
 }
 
-void MapBase::getDiffRespLimits(const astro::SkyDir & dir, 
-                                double & mumin, double & mumax,
-                                double & phimin, double & phimax) const {
+void MapBase::getDiffRespLimits(const astro::SkyDir & dir,
+				double & mumin, double & mumax,
+				double & phimin, double & phimax) const {
+    // EAC, switch based on projection type
+    const ProjMap& projMap = projmap();
+    switch ( projMap.getProj()->method() ) {
+    case astro::ProjBase::WCS:
+      return getDiffRespLimits_wcs(dir,static_cast<const WcsMap2&>(projMap),mumin,mumax,phimin,phimax);
+    case astro::ProjBase::HEALPIX:
+      return getDiffRespLimits_healpix(dir,static_cast<const HealpixProjMap&>(projMap),mumin,mumax,phimin,phimax);
+    default:
+      break;
+    }
+    std::string errMsg("Unrecognized projection type for MapBase::getDiffRespLimits ");
+    errMsg += fitsFile();
+    throw std::runtime_error(errMsg);
+    return;
+}
+
+
+void MapBase::getDiffRespLimits_healpix(const astro::SkyDir & dir,
+					const HealpixProjMap& healmap,
+					double & mumin, double & mumax,
+					double & phimin, double & phimax) const {
+  // EAC_FIX, HEALPIX impl of getDiffRespLimits_healpix missing throws std::runtime_error
+  throw std::runtime_error("MapBase::getDiffRespLimits_healpix doesn't work for HEALPix projections"
+                           "Use WCS-based projection instead");
+}
+
+void MapBase::getDiffRespLimits_wcs(const astro::SkyDir & dir,
+				    const WcsMap2& wcsmap,
+				    double & mumin, double & mumax,
+				    double & phimin, double & phimax) const {
+
    EquinoxRotation eqRot(dir.ra(), dir.dec());
    mumin = -1;
    mumax = 1;
@@ -125,10 +159,10 @@ void MapBase::getDiffRespLimits(const astro::SkyDir & dir,
    astro::SkyDir closest, farthest;
    getMinMaxDistPixels(dir, closest, farthest);
    mumin = farthest().dot(dir());
-   if (!insideMap(dir)) {
+   if (!wcsmap.insideMap(dir)) {
       mumax = closest().dot(dir());
       std::vector<astro::SkyDir> corners;
-      getCorners(corners);
+      wcsmap.getCorners(corners);
       double mu(corners.front()().dot(dir()));
 // Search for minimum and maximum phi-values, initializing both to the value
 // associated with the first corner
@@ -163,27 +197,23 @@ void MapBase::getDiffRespLimits(const astro::SkyDir & dir,
 }
 
 void MapBase::rebin(unsigned int factor, bool average) {
-   if (!m_wcsmap) {
+   if (!m_projmap) {
       // Do nothing for now, though will need an implementation for 
       // MapCubeFunctions.
       return;
    }
-   WcsMap2 * tmp = m_wcsmap->rebin(factor, average);
+   ProjMap * tmp = static_cast<ProjMap*>(m_projmap->rebin(factor, average));
    deleteMap();
-   m_wcsmap = tmp;
+   m_projmap = tmp;
 }
 
 void MapBase::getMinMaxDistPixels(const astro::SkyDir & dir,
                                   astro::SkyDir & closestPixel, 
                                   astro::SkyDir & farthestPixel) const {
    std::pair<astro::SkyDir, astro::SkyDir> pixels =
-      wcsmap().minMaxDistPixels(dir);
+      projmap().minMaxDistPixels(dir);
    closestPixel = pixels.first;
    farthestPixel = pixels.second;
-}
-
-void MapBase::getCorners(std::vector<astro::SkyDir> & corners) const {
-   wcsmap().getCorners(corners);
 }
 
 double MapBase::interpolatePowerLaw(double x, double x1, double x2,

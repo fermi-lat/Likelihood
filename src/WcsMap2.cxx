@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.20 2015/10/17 17:19:17 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.21 2015/12/03 23:47:46 mdwood Exp $
  */
 
 #include <cmath>
@@ -21,7 +21,9 @@
 
 #include "st_facilities/Util.h"
 
-#include "Likelihood/BinnedExposure.h"
+#include "astro/SkyProj.h"
+
+#include "Likelihood/BinnedExposureBase.h"
 #include "Likelihood/Convolve.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/ExposureMap.h"
@@ -61,20 +63,14 @@ namespace {
 
 namespace Likelihood {
 
-WcsMap2::WcsMap2() : m_refDir(0, 0), m_proj(0), m_interpolate(false),
-                     m_mapIntegral(0), m_enforceEnergyRange(true),
-                     m_extrapolated(0) {}
-
 WcsMap2::WcsMap2(const std::string & filename,
                  const std::string & extension,
                  bool interpolate,
                  bool enforceEnergyRange) 
-   : m_proj(0), m_naxis3(1), m_interpolate(interpolate),
-     m_isPeriodic(false), m_mapIntegral(0),
-     m_enforceEnergyRange(enforceEnergyRange),
-     m_extrapolated(0), m_filename(filename) {
+  : ProjMap(filename,interpolate,enforceEnergyRange),
+    m_isPeriodic(false) {
    
-   m_proj = new astro::SkyProj(filename, extension);
+   astro::SkyProj* theProj = new astro::SkyProj(filename, extension);
 
    const tip::Image * image = 
       tip::IFileSvc::instance().readImage(filename, extension);
@@ -88,17 +84,18 @@ WcsMap2::WcsMap2(const std::string & filename,
    header["NAXIS1"].get(m_naxis1);
    header["NAXIS2"].get(m_naxis2);
 
+   int naxis3(1);
    if (m_naxes == 3) {
-      header["NAXIS3"].get(m_naxis3);
+      header["NAXIS3"].get(naxis3);
    }
-   if (m_naxis3 > 1) {
-      ExposureMap::readEnergyExtension(filename, m_energies);
-      if (m_naxis3 != m_energies.size()) {
+   if (naxis3 > 1) {
+      ExposureMap::readEnergyExtension(filename, energies_access());
+      if (naxis3 != energies().size()) {
          throw std::runtime_error("NAXIS3 does not match the number of rows "
                                   "in the ENERGIES extension.");
       }
    } else {
-      m_energies.push_back(100.);
+     energies_access().push_back(100.);
    }
 
    header["CDELT1"].get(m_cdelt1);
@@ -115,34 +112,31 @@ WcsMap2::WcsMap2(const std::string & filename,
 
    m_crota2 = 0;
 
-   if (m_proj->isGalactic()) {
-      m_coordSys = astro::SkyDir::GALACTIC;
-   } else {
-      m_coordSys = astro::SkyDir::EQUATORIAL;
-   }
+   std::pair<double, double> coord = theProj->pix2sph(m_crpix1, m_crpix2);
+   astro::SkyDir refDir(coord.first, coord.second, 
+			theProj->isGalactic() ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
 
-   std::pair<double, double> coord = m_proj->pix2sph(m_crpix1, m_crpix2);
-   m_refDir = astro::SkyDir(coord.first, coord.second, m_coordSys);
+   setProjInfo(refDir,*theProj);
 
    try {
       std::vector<astro::SkyDir> corners;
       getCorners(corners);
-      m_mapRadius = corners[0].difference(m_refDir);
+      setMapRadius(corners[0].difference(refDir));
       for (size_t i(1); i < corners.size(); i++) {
-         double sep(corners[i].difference(m_refDir));
-         if (sep > m_mapRadius) {
-            m_mapRadius = sep;
+         double sep(corners[i].difference(refDir));
+         if (sep > mapRadius() ) {
+  	     setMapRadius(sep);
          }
       }
    } catch(std::exception & eObj) {
-      m_mapRadius = 180.;
+       setMapRadius(180.);
    }
 
    delete image;
 
-   m_image.reserve(m_naxis3);
+   m_image.reserve(naxis3);
    std::vector<float>::const_iterator pixelValue = my_image.begin();
-   for (int k = 0; k < m_naxis3; k++) {
+   for (int k = 0; k < naxis3; k++) {
       ImagePlane_t image_plane;
       image_plane.reserve(m_naxis2);
       for (int j = 0; j < m_naxis2; j++) {
@@ -164,13 +158,9 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
                  double ra, double dec, double pix_size, int npts,
                  double energy, const std::string & proj_name, bool use_lb,
                  bool interpolate, bool enforceEnergyRange) 
-   : m_refDir(ra, dec), m_interpolate(interpolate), m_mapIntegral(0),
-     m_enforceEnergyRange(enforceEnergyRange),
-     m_extrapolated(0), m_filename("") {
-   if (use_lb) { // convert to l, b
-      ra = m_refDir.l();
-      dec = m_refDir.b();
-   }
+  : ProjMap("",interpolate, enforceEnergyRange),
+    m_isPeriodic(false){
+  
    double refpix = static_cast<double>(npts + 1)/2.;
    double crpix[] = {refpix, refpix};
    m_crpix1 = crpix[0];
@@ -183,13 +173,11 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    m_cdelt2 = pix_size;
    m_crota2 = 0;
 
-   m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
+   astro::SkyProj* theProj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
+   astro::SkyDir refDir(ra, dec, use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
 
-   if (use_lb) {
-      m_coordSys = astro::SkyDir::GALACTIC;
-   } else {
-      m_coordSys = astro::SkyDir::EQUATORIAL;
-   }
+   setProjInfo(refDir,*theProj);
+
 
    // Create a single image plane (at the specified energy).
    ImagePlane_t image_plane;
@@ -201,9 +189,10 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
       std::vector<float> row(npts, 0);
       for (int i = 0; i < npts; i++) {
          ix = i + 1.;
-         if (m_proj->testpix2sph(ix, iy) == 0) {
-            std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
-            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
+         if (theProj->testpix2sph(ix, iy) == 0) {
+  	    std::pair<double, double> coord = theProj->pix2sph(ix, iy);
+            astro::SkyDir dir(coord.first, coord.second,
+			      use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
             SkyDirArg my_dir(dir, energy);
             row[i] = diffuseSource.spatialDist(my_dir);
          } else {
@@ -214,11 +203,10 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    }
    m_image.clear();
    m_image.push_back(image_plane);
+   m_naxes = 2;
    m_naxis1 = npts;
    m_naxis2 = npts;
-   m_naxis3 = 1;
-   m_energies.push_back(energy);
-
+   energies_access().push_back(energy);
    computeMapIntegrals();
 }
 
@@ -229,39 +217,28 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
                  int naxis1, int naxis2,
                  double energy, const std::string & proj_name, bool use_lb,
                  bool interpolate, bool enforceEnergyRange) 
-   : m_refDir(ra, dec), 
-     m_naxis1(naxis1), 
-     m_naxis2(naxis2), 
-     m_naxis3(1),
-     m_crpix1(crpix1),
-     m_crpix2(crpix2),
-     m_cdelt1(cdelt1),
-     m_cdelt2(cdelt2), 
-     m_crota2(0),
-     m_interpolate(interpolate), 
-     m_mapIntegral(0),
-     m_enforceEnergyRange(enforceEnergyRange),
-     m_extrapolated(0),
-     m_filename("") {
+   :  ProjMap("",interpolate, enforceEnergyRange),
+      m_isPeriodic(false),
+      m_crpix1(crpix1),
+      m_crpix2(crpix2),
+      m_cdelt1(cdelt1),
+      m_cdelt2(cdelt2), 
+      m_crota2(0) {
+
    if (::my_round(m_naxis1*m_cdelt1) == 360.) {
       m_isPeriodic = true;
    }
-   if (use_lb) { // convert to l, b
-      ra = m_refDir.l();
-      dec = m_refDir.b();
-   }
+   astro::SkyDir refDir(ra, dec, use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
    double crpix[] = {crpix1, crpix2};
    double crval[] = {ra, dec};
    double cdelt[] = {cdelt1, cdelt2};
+   m_naxes = 2;
+   m_naxis1 = naxis1;
+   m_naxis2 = naxis2;
 
-   m_proj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
-
-   if (use_lb) {
-      m_coordSys = astro::SkyDir::GALACTIC;
-   } else {
-      m_coordSys = astro::SkyDir::EQUATORIAL;
-   }
-
+   astro::SkyProj* theProj = new astro::SkyProj(proj_name, crpix, crval, cdelt, 0, use_lb);
+   setProjInfo(refDir,*theProj);
+   
    ImagePlane_t image_plane;
    image_plane.reserve(naxis2);
    double ix, iy;
@@ -271,9 +248,10 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
       std::vector<float> row(naxis1, 0);
       for (int i = 0; i < naxis1; i++) {
          ix = i + 1.;
-         if (m_proj->testpix2sph(ix, iy) == 0) {
-            std::pair<double, double> coord = m_proj->pix2sph(ix, iy);
-            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
+         if (theProj->testpix2sph(ix, iy) == 0) {
+            std::pair<double, double> coord = theProj->pix2sph(ix, iy);
+            astro::SkyDir dir(coord.first, coord.second, 
+			      use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
             SkyDirArg my_dir(dir, energy);
             row.at(i) = diffuseSource.spatialDist(my_dir);
          } else {
@@ -285,31 +263,19 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    check_negative_pixels(image_plane);
    m_image.clear();
    m_image.push_back(image_plane);
-   m_energies.push_back(energy);
+   energies_access().push_back(energy);
    computeMapIntegrals();
 }
 
-WcsMap2::~WcsMap2() {
-// // astro::SkyProj copy constructor is not implemented properly so we
-// // must ensure this pointer is not deleted here and live with the
-// // resulting memory leak when this object is deleted.
-//   delete m_proj;
-   st_stream::StreamFormatter formatter("WcsMap2", "", 2);
-   if (m_extrapolated > 0) {
-      formatter.info(3) << "WcsMap2: extrapolated beyond the maximum "
-                        << "energy for map cube file " << m_filename << " "
-                        << m_extrapolated << " times.\n";
-   }
-}
+WcsMap2::~WcsMap2(){}
 
 WcsMap2::WcsMap2(const WcsMap2 & rhs) 
-   : m_refDir(rhs.m_refDir),
+  :  ProjMap(rhs),
      m_image(rhs.m_image), 
      m_solidAngles(rhs.m_solidAngles),
      m_naxes(rhs.m_naxes),
      m_naxis1(rhs.m_naxis1),
      m_naxis2(rhs.m_naxis2),
-     m_naxis3(rhs.m_naxis3),
      m_crpix1(rhs.m_crpix1),
      m_crpix2(rhs.m_crpix2),
      m_crval1(rhs.m_crval1),
@@ -317,37 +283,35 @@ WcsMap2::WcsMap2(const WcsMap2 & rhs)
      m_cdelt1(rhs.m_cdelt1),
      m_cdelt2(rhs.m_cdelt2),
      m_crota2(rhs.m_crota2),
-     m_energies(rhs.m_energies),
-     m_interpolate(rhs.m_interpolate),
-     m_isPeriodic(rhs.m_isPeriodic),
-     m_coordSys(rhs.m_coordSys),
-     m_mapIntegral(rhs.m_mapIntegral),
-     m_enforceEnergyRange(rhs.m_enforceEnergyRange),
-     m_extrapolated(rhs.m_extrapolated),
-     m_filename(rhs.m_filename) {
-// astro::SkyProj copy constructor is not implemented properly so we
-// must share this pointer, ensure it is not deleted in the
-// destructor, and live with the resulting memory leak when this
-// object is deleted.
-//   m_proj = new astro::SkyProj(*(rhs.m_proj));
-   m_proj = rhs.m_proj;
+     m_isPeriodic(rhs.m_isPeriodic){
+}
+
+WcsMap2::WcsMap2(const WcsMap2 & rhs,const double&energy,
+		 const std::vector< std::vector<float> >& image) 
+  :  ProjMap(rhs,energy),
+     m_solidAngles(rhs.m_solidAngles),
+     m_naxes(rhs.m_naxes),
+     m_naxis1(rhs.m_naxis1),
+     m_naxis2(rhs.m_naxis2),
+     m_crpix1(rhs.m_crpix1),
+     m_crpix2(rhs.m_crpix2),
+     m_crval1(rhs.m_crval1),
+     m_crval2(rhs.m_crval2),
+     m_cdelt1(rhs.m_cdelt1),
+     m_cdelt2(rhs.m_cdelt2),
+     m_crota2(rhs.m_crota2),
+     m_isPeriodic(rhs.m_isPeriodic){
+  m_image.push_back(image);
 }
 
 WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
    if (this != &rhs) {
-// astro::SkyProj copy constructor is not implemented properly so we
-// must share this pointer, ensure it is not deleted in the destructor,
-// and live with the resulting memory leak when this object is deleted.
-//      delete m_proj;
-//      m_proj = new astro::SkyProj(*(rhs.m_proj));
-      m_proj = rhs.m_proj;
-      m_refDir = rhs.m_refDir;
+      ProjMap::operator=(rhs);
       m_image = rhs.m_image;
       m_solidAngles = rhs.m_solidAngles;
       m_naxes = rhs.m_naxes;
       m_naxis1 = rhs.m_naxis1;
       m_naxis2 = rhs.m_naxis2;
-      m_naxis3 = rhs.m_naxis3;
       m_crpix1 = rhs.m_crpix1;
       m_crpix2 = rhs.m_crpix2;
       m_crval1 = rhs.m_crval1;
@@ -355,14 +319,7 @@ WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
       m_cdelt1 = rhs.m_cdelt1;
       m_cdelt2 = rhs.m_cdelt2;
       m_crota2 = rhs.m_crota2;
-      m_energies = rhs.m_energies;
-      m_interpolate = rhs.m_interpolate;
       m_isPeriodic = rhs.m_isPeriodic;
-      m_coordSys = rhs.m_coordSys;
-      m_mapIntegral = rhs.m_mapIntegral;
-      m_enforceEnergyRange = rhs.m_enforceEnergyRange;
-      m_extrapolated = rhs.m_extrapolated;
-      m_filename = rhs.m_filename;
    }
    return *this;
 }
@@ -372,13 +329,14 @@ double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
 // NB: wcslib starts indexing pixels with 1, not 0.
    std::pair<double, double> pixel;
    try {
-      pixel = dir.project(*m_proj);
+     pixel = dir.project(*getProj());
    } catch (...) {
       // The annoying astro::SkyProj class throws a SkyProjException
       // but does not expose it! (It lives in the .cxx file in the
       // anonymous namespace.) So we have no choice but to catch
       // everything and assume the exception occurs because the
       // direction is outside the map.
+      std::cerr << "WcsMap2::operator() " << dir.ra() << ' ' << dir.dec() << std::endl;
       return 0;
    }
 
@@ -395,7 +353,7 @@ double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
       return 0;
    }
 
-   if (!m_interpolate) {
+   if (!getInterpolate() ) {
       return pixelValue(x, y, k);
    }
 
@@ -440,94 +398,37 @@ double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
 
 double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
    if (energy < 0) {
-      energy = m_energies.front();
+       energy = energies().front();
    }
    check_energy(energy);
 
    int k(0);
-   if (m_naxes == 3 && m_energies.size() > 1) {
-      k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
-         - m_energies.begin() - 1;
+   if (m_naxes == 3 && energies().size() > 1) {
+       k = std::upper_bound(energies().begin(), energies().end(), energy)
+         - energies().begin() - 1;
       /// Extrapolate beyond highest energy.  This will only occur if
       /// m_enforceEnergyRange == false.
-      if (k > static_cast<int>(m_energies.size() - 2)) {
-         k = m_energies.size() - 2;
-         m_extrapolated += 1;
+       if (k > static_cast<int>(energies().size() - 2)) {
+  	 k = energies().size() - 2;
+         extrapolated_access() += 1;
       }
    }
    double y1 = operator()(dir, k);
-   if (energy == m_energies[k]) { 
+   if (energy == energies()[k]) { 
       return y1;
    }
    double y2 = operator()(dir, k+1);
 
-   double value = interpolatePowerLaw(energy, m_energies[k],
-                                      m_energies[k+1], y1, y2);
+   double value = interpolatePowerLaw(energy, energies()[k],
+                                      energies()[k+1], y1, y2);
    return value;
 }
 
-WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
-                          const BinnedExposure & exposure,
-			  const SpatialFunction& fn,
-                          int k) const {
+ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
+			   const BinnedExposureBase & exposure,
+			   bool performConvolution,
+			   int k) const {
 
-   // Convolve for a single image plane.
-   check_energy_index(k);
-
-   std::pair<astro::SkyDir, astro::SkyDir> minMaxDir;
-   minMaxDir = minMaxDistPixels(fn.dir());
-
-   const double cdelt_max = std::max(std::abs(cdelt1()),std::abs(cdelt2()));
-   const double cdelt_min = std::min(std::abs(cdelt1()),std::abs(cdelt2()));
-   const double theta_max = minMaxDir.second.difference(fn.dir())*180./M_PI + 2.0*cdelt_max;
-   const double theta_min = cdelt_min*0.5;
-   const int theta_nstep = ::round(theta_max/cdelt_min)*2;
-   const double theta_step = (theta_max-theta_min)/double(theta_nstep-1);
-
-   // Build a vector for fast interpolation
-   std::vector<double> theta(theta_nstep+1);
-   std::vector<double> value(theta_nstep+1);
-
-   theta[0] = 0.0;
-   value[0] = fn.spatialResponse(0.0,energy,psf);
-   for(int i = 1; i < theta.size(); i++) {
-       theta[i] = theta_min+(i-1)*theta_step;
-       value[i] = fn.spatialResponse(theta[i],energy,psf);
-   }       
-
-   ::Image counts;
-   counts.resize(m_naxis2);
-
-   astro::SkyDir fndir =  fn.dir();
-   double exp = exposure(energy, fndir.ra(), fndir.dec());
-
-   for (int j = 0; j < m_naxis2; j++) {
-      counts.at(j).resize(m_naxis1, 0);
-      for (int i = 0; i < m_naxis1; i++) {
-         if (m_proj->testpix2sph(i+1, j+1) == 0) {
-            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
-
-	    double dtheta = fndir.difference(dir)*180./M_PI;
-	    double v = st_facilities::Util::interpolate(theta, value, 
-							dtheta);
-            counts[j][i] = v*exp;
-         }
-      }
-   }
-
-   WcsMap2 my_image(*this);
-   my_image.m_image.clear();
-   my_image.m_naxis3 = 1;
-
-   my_image.m_image.push_back(counts);
-   return my_image;
-}
-
-WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
-                          const BinnedExposure & exposure,
-                          bool performConvolution,
-                          int k) const {
 // Convolve for a single image plane.
    check_energy_index(k);
 
@@ -538,21 +439,23 @@ WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
    for (int j = 0; j < m_naxis2; j++) {
       counts.at(j).resize(m_naxis1, 0);
       for (int i = 0; i < m_naxis1; i++) {
-         if (m_proj->testpix2sph(i+1, j+1) == 0) {
-            std::pair<double, double> coord = m_proj->pix2sph(i+1, j+1);
-            astro::SkyDir dir(coord.first, coord.second, m_coordSys);
+	  if (getProj()->testpix2sph(i+1, j+1) == 0) {
+ 	    std::pair<double, double> coord = getProj()->pix2sph(i+1, j+1);
+            astro::SkyDir dir(coord.first, coord.second, 
+			      getProj()->isGalactic() ? 
+			      astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
+
             counts.at(j).at(i) = 
                m_image[k].at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
          }
       }
    }
-
-   WcsMap2 my_image(*this);
-   my_image.m_image.clear();
-   my_image.m_naxis3 = 1;
+   // EAC_FIX, should we be working about the energies and map integrals also?
+   WcsMap2* my_image = new WcsMap2(*this);
+   my_image->m_image.clear();
 
    if (!performConvolution) {
-      my_image.m_image.push_back(counts);
+      my_image->m_image.push_back(counts);
       return my_image;
    }
       
@@ -575,19 +478,19 @@ WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
    }
    double refpix = static_cast<double>(npix + 1)/2.;  // refpix at center
    double crpix[] = {refpix, refpix};
-   double crval[] = {m_refDir.ra(), m_refDir.dec()}; // actually arbitrary
+   double crval[] = {getRefDir().ra(), getRefDir().dec()}; // actually arbitrary
    double cdelt[] = {m_cdelt1, m_cdelt2}; // ensure same resolution as input map
-   astro::SkyProj my_proj(m_proj->projType(), crpix, crval, cdelt);
-      
+   astro::SkyProj my_proj(getProj()->projType(), crpix, crval, cdelt);
+
    psf_image.resize(npix);
    for (int j(0); j < npix; j++) {
       psf_image.at(j).resize(npix, 0);
       for (int i(0); i < npix; i++) {
          if (my_proj.testpix2sph(i+1, j+1) == 0) {
-            std::pair<double, double> coord = my_proj.pix2sph(i+1, j+1);
+            std::pair<double, double> coord = getProj()->pix2sph(i+1, j+1);
             astro::SkyDir dir(coord.first, coord.second, 
                               astro::SkyDir::EQUATORIAL);
-            double theta = m_refDir.difference(dir)*180./M_PI;
+            double theta = getRefDir().difference(dir)*180./M_PI;
             psf_image.at(j).at(i) = psf(energy, theta, 0);
          }
       }
@@ -597,12 +500,67 @@ WcsMap2 WcsMap2::convolve(double energy, const MeanPsf & psf,
 
    check_negative_pixels(counts);
    check_negative_pixels(psf_image);
-   my_image.m_image.push_back(Convolve::convolve2d(counts, psf_image));
-
+   my_image->m_image.push_back(Convolve::convolve2d(counts, psf_image));
+  
    return my_image;
 }
 
-double WcsMap2::solidAngle(const astro::SkyProj & proj, 
+
+ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
+			   const BinnedExposureBase & exposure,
+			   const SpatialFunction& fn,
+			   int k) const {
+
+  // Convolve for a single image plane.
+   check_energy_index(k);
+
+   // Build a vector for fast interpolation
+   std::vector<double> theta(401);
+   std::vector<double> value(401);
+
+   const int log10_theta_nstep = 400;
+   const double log10_theta_min = std::log10(0.001);
+   const double log10_theta_max = std::log10(45.00);
+   const double log10_theta_step = (log10_theta_max-log10_theta_min)/double(log10_theta_nstep-1);
+
+   theta[0] = 0.0;
+   value[0] = fn.value(0.0,energy,psf);
+   for(int i = 0; i < log10_theta_nstep; i++)
+     {
+       theta[i+1] = std::pow(10,log10_theta_min+i*log10_theta_step);
+       value[i+1] = fn.value(theta[i+1],energy,psf);
+     }       
+
+   // Compute unconvolved counts map by multiplying intensity image by exposure.
+   ::Image counts;
+   counts.resize(m_naxis2);
+
+   astro::SkyDir fndir =  fn.dir();
+
+   for (int j = 0; j < m_naxis2; j++) {
+      counts.at(j).resize(m_naxis1, 0);
+      for (int i = 0; i < m_naxis1; i++) {
+         if (getProj()->testpix2sph(i+1, j+1) == 0) {
+	    std::pair<double, double> coord = getProj()->pix2sph(i+1, j+1);
+            astro::SkyDir dir(coord.first, coord.second, astro::SkyDir::EQUATORIAL);
+	    double dtheta = fndir.difference(dir)*180./M_PI;
+	    double v = st_facilities::Util::interpolate(theta, value, 
+							dtheta);
+	    double exp = exposure(energy, fndir.ra(), fndir.dec());
+            counts[j][i] = v*exp;
+         }
+      }
+   }
+
+   WcsMap2* my_image = new WcsMap2(*this);
+   my_image->m_image.clear();
+   my_image->m_image.push_back(counts);
+   return my_image;
+}
+
+
+
+double WcsMap2::solidAngle(const astro::ProjBase & proj, 
                            double ilon, double ilat) {
    bool atpole(false);
    std::pair<double, double> center(proj.pix2sph(ilon, ilat));
@@ -638,7 +596,8 @@ double WcsMap2::solidAngle(const astro::SkyProj & proj,
 
 double WcsMap2::solidAngle(double ilon, double ilat) const {
    try {
-      return solidAngle(*m_proj, ilon, ilat);
+      // EAC, watch out for WCS convention of starting at 1
+      return solidAngle(*getProj(), ilon, ilat);
    } catch (std::exception & eObj) {
       if (!st_facilities::Util::
           expectedException(eObj, "SkyProj wcslib error")) {
@@ -655,7 +614,8 @@ const std::vector< std::vector<float> > & WcsMap2::solidAngles() const {
       m_solidAngles.resize(m_naxis1, std::vector<float>(m_naxis2, 0));
       for (int i(0); i < m_naxis1; i++) {
          for (int j(0); j < m_naxis2; j++) {
-            m_solidAngles[i][j] = solidAngle(i, j);
+	    // EAC watch out for WCS convention of starting at 1
+            m_solidAngles[i][j] = solidAngle(i+1, j+1);
          }
       }
    }
@@ -679,20 +639,9 @@ double WcsMap2::pixelValue(double ilon, double ilat, int k) const {
    return m_image[k].at(iy).at(ix);
 }
 
-astro::SkyDir WcsMap2::skyDir(double ilon, double ilat) const {
-   std::pair<double, double> coords(m_proj->pix2sph(ilon, ilat));
-   return astro::SkyDir(coords.first, coords.second, m_coordSys);
-}
-
-bool WcsMap2::withinMapRadius(const astro::SkyDir & dir) const {
-   if (dir.difference(m_refDir) <= m_mapRadius) {
-      return true;
-   }
-   return false;
-}
 
 bool WcsMap2::insideMap(const astro::SkyDir & dir) const {
-   std::pair<double, double> pixel = dir.project(*m_proj);
+   std::pair<double, double> pixel = dir.project(*getProj());
 
    double x(pixel.first);
    double y(pixel.second);
@@ -705,6 +654,10 @@ bool WcsMap2::insideMap(const astro::SkyDir & dir) const {
       return false;
    }
    return true;
+}
+
+double WcsMap2::pixelSize() const {
+  return std::fabs(m_cdelt1) <= std::fabs(m_cdelt2) ? std::fabs(m_cdelt1) : std::fabs(m_cdelt2);
 }
 
 std::pair<astro::SkyDir, astro::SkyDir> 
@@ -727,6 +680,7 @@ WcsMap2::minMaxDistPixels(const astro::SkyDir & dir) const {
          farthest = current;
       }
    }
+   // EAC (otherwise the value will be m_naxis1+1)
    i = m_naxis1;
    for (j = 2 ; j < m_naxis2 + 1; j++) { // i = m_naxis1; j = 2, m_naxis2
       astro::SkyDir current(skyDir(i, j));
@@ -740,6 +694,7 @@ WcsMap2::minMaxDistPixels(const astro::SkyDir & dir) const {
          farthest = current;
       }
    }
+   // EAC (otherwise the value will be m_naxis2+1)
    j = m_naxis2;
    for (i = 1; i < m_naxis1; i++) { // i = 1, m_naxis1-1; j = m_naxis2
       astro::SkyDir current(skyDir(i, j));
@@ -777,61 +732,38 @@ void WcsMap2::getCorners(std::vector<astro::SkyDir> & corners) const {
    corners.push_back(skyDir(m_naxis1, 1));
 }
 
-double WcsMap2::mapIntegral() const {
-   return m_mapIntegral;
-}
-
-double WcsMap2::mapIntegral(double energy) const {
-   check_energy(energy);
-
-   int k(0);
-   if (m_naxes == 3) {
-      k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
-         - m_energies.begin() - 1;
-   }
-   if (energy == m_energies.at(k)) {
-      return m_mapIntegrals.at(k);
-   }
-   if (k == m_energies.size() - 1) {
-      k = m_energies.size() - 2;
-   }
-
-   double value = (m_mapIntegrals[k]*
-                   std::exp((std::log(energy/m_energies[k]))
-                            /(std::log(m_energies[k+1]/m_energies[k]))
-                            *std::log(m_mapIntegrals[k+1]/m_mapIntegrals[k])));
-   return value;
-}
 
 void WcsMap2::computeMapIntegrals() {
-   m_mapIntegrals.clear();
-   for (int k(0); k < m_naxis3; k++) {
-      m_mapIntegrals.push_back(0);
+   std::vector<float>& values = mapIntegrals_access();
+   double& totalValue = mapIntegral_access();
+   values.clear();
+   for (int k(0); k < nenergies(); k++) {
+      values.push_back(0);
       for (int j(0); j < m_naxis2; j++) {
          for (int i(0); i < m_naxis1; i++) {
             // NB: Indexing for solidAngles() is reversed from usual
             // convention.
-            m_mapIntegrals.back() += solidAngles()[i][j]*m_image[k][j][i];
+            values.back() += solidAngles()[i][j]*m_image[k][j][i];
          }
       }
    }
 
 // For a 2D map, the map integral is just the angle-integrated map.
-   if (m_naxis3 == 1) {
-      m_mapIntegral = m_mapIntegrals.at(0);
+   if (nenergies() == 1) {
+      totalValue = values.at(0);
       return;
    }
 
 // 3D maps: integrate the angle-integrate maps over energy.
-   m_mapIntegral = 0;
-   for (size_t k(0); k < m_naxis3-1; k++) {
-      m_mapIntegral += ( (m_mapIntegrals[k+1]*m_energies[k+1] +
-                          m_mapIntegrals[k]*m_energies[k])/2.
-                         *std::log(m_energies[k+1]/m_energies[k]) );
+   totalValue = 0;
+   for (size_t k(0); k < nenergies()-1; k++) {
+       totalValue += ( (values[k+1]*energies()[k+1] +
+			values[k]*energies()[k])/2.
+		        *std::log(energies()[k+1]/energies()[k]) );
    }
 }
 
-WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
+ProjMap* WcsMap2::rebin(unsigned int factor, bool average) {
    WcsMap2 * my_map = new WcsMap2(*this);
    int dnxp = factor - (m_naxis1 % factor);
    if (dnxp == factor) {
@@ -858,15 +790,17 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
    double crpix[2] = {my_map->m_crpix1, my_map->m_crpix2};
    double cdelt[2] = {my_map->m_cdelt1, my_map->m_cdelt2};
    double crval[2];
-   if (m_proj->isGalactic()) {
-      crval[0] = m_refDir.l();
-      crval[1] = m_refDir.b();
+   if (getProj()->isGalactic()) {
+      crval[0] = getRefDir().l();
+      crval[1] = getRefDir().b();
    } else {
-      crval[0] = m_refDir.ra();
-      crval[1] = m_refDir.dec();
+      crval[0] = getRefDir().ra();
+      crval[1] = getRefDir().dec();
    }
-   my_map->m_proj = new astro::SkyProj(m_proj->projType(), crpix, crval, cdelt,
-                                       m_crota2, m_proj->isGalactic());
+   
+   astro::SkyProj* newProj =  new astro::SkyProj(getProj()->projType(), crpix, crval, cdelt,
+						 m_crota2, getProj()->isGalactic());
+   my_map->setProjInfo(getRefDir(),*newProj);
 
    st_stream::StreamFormatter formatter("WcsMap2", "", 2);
 
@@ -900,7 +834,7 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
       }
    }
 
-   for (int k(0); k < m_naxis3; k++) {
+   for (int k(0); k < nenergies(); k++) {
       my_map->m_image[k].clear();
       my_map->m_image[k].resize(my_map->m_naxis2);
       for (size_t j(0); j < my_map->m_naxis2; j++) {
@@ -934,76 +868,17 @@ WcsMap2 * WcsMap2::rebin(unsigned int factor, bool average) {
    return my_map;
 }
 
-void WcsMap2::check_energy_index(int k) const {
-   if (m_naxes == 3 && (k < 0 || k > m_naxis3)) {
-      throw std::runtime_error("WcsMap2: Requested energy index is "
-                               "out-of-range.");
-   }
-}
 
-void WcsMap2::check_energy(double energy) const {
-   if (m_enforceEnergyRange && 
-       (energy < m_energies.front() || energy > m_energies.back())) {
-      throw std::runtime_error("WcsMap2: Requested energy is out-of-range.");
-   }
-}
-
-void WcsMap2::setExtrapolation(bool enforceEnergyRange) {
-   m_enforceEnergyRange = enforceEnergyRange;
-}
-
-bool WcsMap2::enforceEnergyRange() const {
-   return m_enforceEnergyRange;
-}
 
 void WcsMap2::check_negative_pixels(const ImagePlane_t & image) const {
    for (size_t j(0); j < image.size(); j++) {
       for (size_t i(0); i < image[j].size(); i++) {
          if (image[j][i] < 0) {
-            throw std::runtime_error("Image pixel value less than zero.");
+	    throw std::runtime_error("Image pixel value less than zero.");
          }
       }
    }
 }
 
-double WcsMap2::interpolatePowerLaw(double x, double x1, double x2,
-                                    double y1, double y2) {
-   if (y1 == 0 && y2 == 0) {
-      return 0;
-   }
-   if (y1 == 0 || y2 == 0) {
-      if ( (x < x1 && y1 == 0) || (x > x2 && y2 == 0) ) {
-         // Linear extrapolation in these cases would produce
-         // negative values.
-         std::ostringstream message;
-         message << "WcsMap2::interpolatePowerLaw: "
-                 << "linear extrapolation selected for "
-                 << "zero-valued ordinates.\n"
-                 << "x = " << x << ", "
-                 << "x1 = " << x1 << ", "
-                 << "x2 = " << x2 << ", "
-                 << "y1 = " << y1 << ", "
-                 << "y2 = " << y2 << std::endl;
-         throw std::runtime_error(message.str());
-      }
-      // Use linear interpolation
-      double value((x - x1)/(x2 - x1)*(y2 - y1) + y1);
-      return value;
-   }
-   if (x1 <= 0 || x2 <= 0 || y1 <= 0 || y2 <= 0) {
-      std::ostringstream message;
-      message << "WcsMap2::interpolatePowerLaw:\n"
-              << "abscissa or ordinate values found that are <= 0: "
-              << "x1 = " << x1 << ", "
-              << "x2 = " << x2 << ", "
-              << "y1 = " << y1 << ", "
-              << "y2 = " << y2 << std::endl;
-      throw std::runtime_error(message.str());
-   }
-   double gamma = std::log(y2/y1)/std::log(x2/x1);
-   // double n0 = y1/std::pow(x1, gamma);
-   // return n0*std::pow(x, gamma);
-   return y1*std::pow(x/x1, gamma);
 }
 
-} // namespace Likelihood
