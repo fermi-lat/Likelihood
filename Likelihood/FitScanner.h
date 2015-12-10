@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.1 2015/07/17 18:41:54 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/FitScanner.h,v 1.2 2015/12/02 00:53:05 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -156,8 +156,7 @@ namespace Likelihood {
     /* The reference image */
     std::vector<float> m_refModel;
     /* The projection used for both the reference and scanned images*/
-    // const astro::ProjBase& m_proj;
-    const astro::SkyProj& m_proj;
+    const astro::ProjBase& m_proj;
     /* The reference direction */
     const astro::SkyDir& m_refDir;
 
@@ -912,8 +911,7 @@ namespace Likelihood {
     inline const optimizers::Optimizer* optimizer() const { return m_opt; }
 
     // The projection used to bin the data
-    // inline const astro::ProjBase* proj() const { return m_proj; }
-    inline const astro::SkyProj* proj() const { return m_proj; }
+    inline const astro::ProjBase* proj() const { return m_proj; }
 
     // The currect direction for the test source
     inline const astro::SkyDir& testSourceDir() const { return m_testSourceDir; }
@@ -1046,8 +1044,7 @@ namespace Likelihood {
     optimizers::Optimizer* m_opt;    
 
     // The projection (only needed if we are looping over directions)
-    //const astro::ProjBase* m_proj;
-    const astro::SkyProj* m_proj;
+    const astro::ProjBase* m_proj;
 
     // The direction of the test source (changes if we are looping over directions)
     mutable astro::SkyDir m_testSourceDir;  

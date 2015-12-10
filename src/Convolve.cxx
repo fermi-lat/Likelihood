@@ -4,7 +4,7 @@
  *        FFTW library
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Convolve.cxx,v 1.4 2013/09/04 05:30:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/Convolve.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
  */
 
 #include <iostream>
@@ -264,5 +264,6 @@ Convolve::convolve2d(const std::vector< std::vector<float> > & signal,
    }
    return my_result;
 }
+
 
 } // namespace Likelihood

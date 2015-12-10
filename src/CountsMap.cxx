@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsMap.cxx,v 1.54 2014/07/03 20:29:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/CountsMap.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
  */
 
 #include <algorithm>
@@ -48,10 +48,8 @@ CountsMap::CountsMap(const std::string & event_file,
                      const std::string & ra_field, 
                      const std::string & dec_field, 
                      double emin, double emax, unsigned long nenergies) 
-   : DataProduct(event_file, ev_table, evtbin::Gti(event_file)), m_hist(0), 
-     m_proj_name(proj), 
-     m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
-     m_use_lb(use_lb), m_proj(0) {
+  : CountsMapBase(event_file, ev_table, proj,use_lb,emin,emax,nenergies),
+    m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot){
 
    std::vector<evtbin::Binner *> binners;
 
@@ -75,18 +73,16 @@ CountsMap::CountsMap(const std::string & event_file,
 
 CountsMap::CountsMap(const std::string & event_file, 
                      const std::string & ev_table, 
-                     const std::string & sc_file, 
-                     const std::string & sc_table, 
+		     const std::string & sc_file, 
+		     const std::string & sc_table,
                      double ref_ra, double ref_dec, const std::string & proj, 
                      unsigned long num_x_pix, unsigned long num_y_pix, 
                      double pix_scale, double axis_rot, bool use_lb,
                      const std::string & ra_field, 
                      const std::string & dec_field, 
                      const std::vector<double> & energies)
-   : DataProduct(event_file, ev_table, evtbin::Gti(event_file)), 
-     m_hist(0), m_proj_name(proj), 
-     m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
-     m_use_lb(use_lb), m_proj(0) {
+  : CountsMapBase(event_file, ev_table, proj,use_lb,energies),
+     m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot) {
 
    std::vector<evtbin::Binner *> binners;
 
@@ -124,10 +120,8 @@ CountsMap::CountsMap(const std::string & event_file,
                      const std::string & ra_field, 
                      const std::string & dec_field, 
                      const std::vector<double> & energies)
-   : DataProduct(event_file, ev_table, evtbin::Gti(event_file)), 
-     m_hist(0), m_proj_name(proj), 
-     m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
-     m_use_lb(use_lb), m_proj(0) {
+  : CountsMapBase(event_file, ev_table, proj,use_lb,energies),
+    m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot) {
 
    std::vector<evtbin::Binner *> binners;
 
@@ -166,10 +160,8 @@ CountsMap::CountsMap(const std::string & event_file,
                      const std::string & dec_field, 
                      const std::vector<double> & emins,
                      const std::vector<double> & emaxs) 
-   : DataProduct(event_file, ev_table, evtbin::Gti(event_file)), 
-     m_hist(0), m_proj_name(proj), 
-     m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot), 
-     m_use_lb(use_lb), m_proj(0) {
+   : CountsMapBase(event_file, ev_table, proj,use_lb,emins,emaxs),
+     m_crpix(), m_crval(), m_cdelt(), m_axis_rot(axis_rot) {
 
    std::vector<evtbin::Binner *> binners;
 
@@ -197,15 +189,14 @@ CountsMap::CountsMap(const std::string & event_file,
 }
 
 CountsMap::CountsMap(const std::string & countsMapFile) 
-   : DataProduct(countsMapFile, "", evtbin::Gti(countsMapFile)),
-     m_use_lb(false) {
+   : CountsMapBase(countsMapFile) {
    readKeywords(countsMapFile);
    std::vector<evtbin::Binner *> binners;
    binners.push_back(new evtbin::LinearBinner(0.5, m_naxes[0]+0.5, 1., "RA"));
    binners.push_back(new evtbin::LinearBinner(0.5, m_naxes[1]+0.5, 1., "DEC"));
    readEbounds(countsMapFile, binners);
    readImageData(countsMapFile, binners);
-   setRefDir();
+   setRefDir(m_crval[0],m_crval[1]);
    setDataDir();
    deleteBinners(binners);
    checkMapConforms();
@@ -259,34 +250,6 @@ void CountsMap::readKeywords(const std::string & countsMapFile) {
                                m_axis_rot, m_use_lb);
 }
 
-void CountsMap::readEbounds(const std::string & countsMapFile, 
-                            std::vector<evtbin::Binner *> & binners) {
-   std::auto_ptr<const tip::Table> 
-      ebounds(tip::IFileSvc::instance().readTable(countsMapFile, "EBOUNDS"));
-   tip::Table::ConstIterator it = ebounds->begin();
-   tip::Table::ConstRecord & row = *it;
-   std::vector<double> energies(ebounds->getNumRecords() + 1);
-   double emax;
-   for (int i = 0 ; it != ebounds->end(); ++it, i++) {
-      row["E_MIN"].get(energies.at(i));
-      row["E_MAX"].get(emax);
-   }
-   energies.back() = emax;
-
-   m_energies.clear();
-   for (size_t k(0); k < energies.size(); k++) {
-      m_energies.push_back(energies[k]/1e3);
-   }
-
-   std::vector<evtbin::Binner::Interval> energy_intervals;
-// Convert to MeV
-   for (unsigned int i = 0; i < energies.size()-1; i++) {
-      energy_intervals.push_back(evtbin::Binner::Interval(energies[i]/1e3, 
-                                                          energies[i+1]/1e3));
-   }
-   binners.push_back(new evtbin::OrderedBinner(energy_intervals,
-                                               "photon energy"));
-}
 
 void CountsMap::init(std::vector<evtbin::Binner *> & binners, 
                      const std::string & event_file, 
@@ -318,7 +281,7 @@ void CountsMap::init(std::vector<evtbin::Binner *> & binners,
    m_proj = new astro::SkyProj(proj, m_crpix, m_crval, m_cdelt, 
                                m_axis_rot, use_lb);
 
-   setRefDir();
+   setRefDir(m_crval[0],m_crval[1]);
 
    harvestKeywords(event_file, ev_table);
 
@@ -338,18 +301,10 @@ void CountsMap::init(std::vector<evtbin::Binner *> & binners,
    }
    m_energies.push_back(interval.end());
 
-   // Read TSTART and TSTOP keywords from event file header.
-   const tip::Table * events = 
-      tip::IFileSvc::instance().readTable(event_file, "EVENTS");
-   const tip::Header & header(events->getHeader());
-   header["TSTART"].get(m_tstart);
-   header["TSTOP"].get(m_tstop);
-   delete events;
+ 
 }
 
-CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
-   m_hist = rhs.m_hist->clone();
-   m_proj_name = rhs.m_proj_name;
+CountsMap::CountsMap(const CountsMap & rhs) : CountsMapBase(rhs) {
    for (int i = 0; i < 3; i++) {
       m_naxes[i] = rhs.m_naxes[i];
       m_crpix[i] = rhs.m_crpix[i];
@@ -357,25 +312,23 @@ CountsMap::CountsMap(const CountsMap & rhs) : DataProduct(rhs) {
       m_cdelt[i] = rhs.m_cdelt[i];
    }
    m_axis_rot = rhs.m_axis_rot;
-   m_use_lb = rhs.m_use_lb;
-//   m_proj = new astro::SkyProj(*(rhs.m_proj));
-   m_proj = new astro::SkyProj(m_proj_name, m_crpix, m_crval, m_cdelt, 
-                               m_axis_rot, m_use_lb);
-   m_refDir = rhs.m_refDir;
    m_conforms = rhs.m_conforms;
-   m_tstart = rhs.m_tstart;
-   m_tstop = rhs.m_tstop;
 }
 
-CountsMap::~CountsMap() throw() { 
-   try {
-      delete m_proj;
-      delete m_hist;
-   } catch (std::exception & eObj) {
-      std::cerr << eObj.what() << std::endl;
-   } catch (...) {
+
+CountsMap::CountsMap(const CountsMap & rhs, 
+		     unsigned int firstBin, unsigned int lastBin) : CountsMapBase(rhs,2,firstBin,lastBin) {
+   for (int i = 0; i < 3; i++) {
+      m_naxes[i] = rhs.m_naxes[i];
+      m_crpix[i] = rhs.m_crpix[i];
+      m_crval[i] = rhs.m_crval[i];
+      m_cdelt[i] = rhs.m_cdelt[i];
    }
+   m_axis_rot = rhs.m_axis_rot;
+   m_conforms = rhs.m_conforms;
 }
+
+CountsMap::~CountsMap() throw() {;}
 
 bool CountsMap::withinBounds(const astro::SkyDir & dir, double energy,
                              long border_size) const {
@@ -384,6 +337,11 @@ bool CountsMap::withinBounds(const astro::SkyDir & dir, double energy,
    std::vector<double> values(my_values, my_values + 3);
    long indx = m_hist->binIndex(values, border_size);
    return indx >= 0;
+}
+
+double CountsMap::pixelSize() const {
+  return std::fabs(m_cdelt[0]) <= std::fabs(m_cdelt[1]) ? 
+    std::fabs(m_cdelt[0]) : std::fabs(m_cdelt[1]);
 }
 
 void CountsMap::binInput(tip::Table::ConstIterator begin, 
@@ -452,35 +410,6 @@ void CountsMap::writeOutput(const std::string & creator,
    writeGti(out_file);
 }
 
-void CountsMap::setImage(const std::vector<float> & image) {
-   m_hist->setData(image);
-}
-void CountsMap::setImage(const std::vector<double> & image) {
-   m_hist->setData(image);
-}
-
-long CountsMap::imageDimension(int i) const {
-   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
-   if (i < 0 || i > 2) {
-      throw std::invalid_argument("CountsMap::imageDimension:\n"
-                                  "Invalid image dimension value.");
-   }
-   return binners[i]->getNumBins();
-}
-
-void CountsMap::getAxisVector(int i, std::vector<double> & axisVector) const {
-   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
-   if (i < 0 || i > 2) {
-      throw std::invalid_argument("CountsMap::getAxisVector:\n"
-                                  "Invalid image dimension value.");
-   }
-   axisVector.clear();
-   for (long j = 0; j < binners[i]->getNumBins(); j++) {
-      axisVector.push_back(binners[i]->getInterval(j).begin());
-   }
-   long jj = binners[i]->getNumBins() - 1;
-   axisVector.push_back(binners[i]->getInterval(jj).end());
-}
 
 void CountsMap::setKeywords(tip::Header & header) const {
    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
@@ -504,18 +433,6 @@ void CountsMap::setKeywords(tip::Header & header) const {
    header["CTYPE3"].set(binners[2]->getName());
 }
 
-const std::vector<Pixel> & CountsMap::pixels() const {
-   if (m_pixels.empty()) {
-      std::vector<astro::SkyDir> pixelDirs;
-      std::vector<double> solidAngles;
-      getPixels(pixelDirs, solidAngles);
-      m_pixels.reserve(pixelDirs.size());
-      for (unsigned int i = 0; i < pixelDirs.size(); i++) {
-         m_pixels.push_back(Pixel(pixelDirs[i], solidAngles[i], m_proj));
-      }
-   }
-   return m_pixels;
-}
 
 void CountsMap::
 getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const {
@@ -610,7 +527,7 @@ void CountsMap::getPixels(std::vector<astro::SkyDir> & pixelDirs,
 
 double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
                                     std::vector<double>::const_iterator lat,
-                                    const astro::SkyProj & proj) const {
+                                    const astro::ProjBase & proj) const {
 
    astro::SkyDir A(*lon, *lat, proj);
    astro::SkyDir B(*lon, *(lat+1), proj);
@@ -626,26 +543,6 @@ double CountsMap::computeSolidAngle(std::vector<double>::const_iterator lon,
    return solidAngle;
 }
 
-void CountsMap::setRefDir() {
-   if (m_use_lb) {
-      m_refDir = astro::SkyDir(m_crval[0], m_crval[1], 
-                               astro::SkyDir::GALACTIC);
-   } else {
-      m_refDir = astro::SkyDir(m_crval[0], m_crval[1],
-                               astro::SkyDir::EQUATORIAL);
-   }
-}
-
-void CountsMap::setDataDir() {
-   m_data_dir = st_facilities::Environment::dataPath("Likelihood");
-}
-
-void CountsMap::deleteBinners(std::vector<evtbin::Binner *> & binners) const {
-   for (std::vector<evtbin::Binner *>::reverse_iterator it = binners.rbegin();
-        it != binners.rend(); ++it) {
-      delete *it;
-   }
-}
 
 void CountsMap::checkMapConforms() {
    m_conforms = false;

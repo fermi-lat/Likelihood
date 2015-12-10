@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.73 2014/08/26 04:35:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/BinnedLikelihood.h,v 1.3 2015/03/03 05:59:55 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -17,7 +17,7 @@
 #include "optimizers/dArg.h"
 
 #include "Likelihood/Accumulator.h"
-#include "Likelihood/CountsMap.h"
+#include "Likelihood/CountsMapBase.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Pixel.h"
 
@@ -36,7 +36,7 @@ class BinnedLikelihood : public LogLike {
 
 public:
 
-   BinnedLikelihood(const CountsMap & dataMap, 
+   BinnedLikelihood(const CountsMapBase & dataMap, 
                     const Observation & observation,
                     const std::string & srcMapsFile="",
                     bool computePointSources=true,
@@ -50,7 +50,7 @@ public:
 
    virtual ~BinnedLikelihood() throw();
 
-   virtual double value(const optimizers::Arg &) const;
+   virtual double value(optimizers::Arg &) const;
 
    virtual double value() const {
       optimizers::dArg dummy(0);
@@ -60,10 +60,11 @@ public:
    virtual void getFreeDerivs(std::vector<double> & derivs) const;
 
    /// Create a counts map based on the current model.
-   virtual CountsMap * createCountsMap(CountsMap & dataMap) const {
+   virtual CountsMapBase * createCountsMap(CountsMapBase & dataMap) const {
       std::vector<float> map;
       computeModelMap(map);
       dataMap.setImage(map);
+      return &dataMap;
    }
 
    virtual void readXml(std::string xmlFile, 
@@ -72,7 +73,7 @@ public:
                         bool addPointSources=true,
                         bool loadMaps=true);
 
-   virtual CountsMap * createCountsMap() const;
+   virtual CountsMapBase * createCountsMap() const;
 
    double npred();
 
@@ -88,7 +89,7 @@ public:
    SourceMap * getSourceMap(const std::string & srcName,
                             bool verbose=true) const;
 
-   const CountsMap & countsMap() const {
+   const CountsMapBase & countsMap() const {
       return m_dataMap;
    }
 
@@ -202,7 +203,7 @@ protected:
 
 private:
 
-   const CountsMap & m_dataMap;
+   const CountsMapBase & m_dataMap;
 
    const std::vector<Pixel> & m_pixels;
    std::vector<double> m_energies;
@@ -280,15 +281,31 @@ private:
    void identifyFilledPixels();
    
    bool fileHasSourceMap(const std::string & srcName, 
-                         const std::string & fitsFile) const;
+			 const std::string & fitsFile) const;
 
    void replaceSourceMap(const std::string & srcName, 
-                         const std::string & fitsFile) const;
+			 const std::string & fitsFile) const;
+   
+   void replaceSourceMap_wcs(const SourceMap& srcMap, 
+			     const std::string & fitsFile) const;
+
+   void replaceSourceMap_healpix(const SourceMap& srcMap, 
+				 const std::string & fitsFile) const;
 
    void appendSourceMap(const std::string & srcName, 
-                        const std::string & fitsFile) const;
+			const std::string & fitsFile) const;
+
+   void appendSourceMap_wcs(const SourceMap& srcMap,
+			    const std::string & fitsFile) const;
+
+   void appendSourceMap_healpix(const SourceMap& srcMap, 
+				const std::string & fitsFile) const;
 
    void computeCountsSpectrum();
+
+   void computeCountsSpectrum_wcs();
+
+   void computeCountsSpectrum_healpix();
 
    double spectrum(const Source * src, double energy) const;
 

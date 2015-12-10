@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.52 2013/01/09 00:44:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/DiffuseSource.h,v 1.4 2015/03/05 19:58:24 echarles Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -29,6 +29,9 @@ namespace Likelihood {
    class Event;
    class MapBase;
    class Observation;
+   // EAC, add projection specific methods 
+   class WcsMap2;
+   class HealpixProjMap;
 
 /** 
  * @class DiffuseSource
@@ -178,6 +181,10 @@ public:
    double angularIntegral(double energy) const;
 
    double diffuseResponse(const Event & evt) const;
+
+   double diffuseResponse_wcs(const Event & evt, const WcsMap2& wcsmap) const;
+   
+   double diffuseResponse_healpix(const Event & evt, const HealpixProjMap& healmap) const;
 
    bool mapBasedIntegral() const;
 

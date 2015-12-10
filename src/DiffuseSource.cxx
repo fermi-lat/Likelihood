@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.63 2014/04/22 04:56:38 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/DiffuseSource.cxx,v 1.4 2015/03/05 19:58:26 echarles Exp $
  */
 
 #include <algorithm>
@@ -19,6 +19,9 @@
 #include "Likelihood/MapBase.h"
 #include "Likelihood/RadialProfile.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/ProjMap.h"
+#include "Likelihood/WcsMap2.h"
+#include "Likelihood/HealpixProjMap.h"
 
 namespace Likelihood {
 
@@ -232,10 +235,49 @@ double DiffuseSource::energyFluxDeriv(const std::string & parName,
    return computeEnergyIntegral(my_functor, emin, emax, npts);
 }
 
-double DiffuseSource::diffuseResponse(const Event & evt) const {
+
+double DiffuseSource::diffuseResponse(const Event& evt) const {
+   // EAC, switch based on projection type
+   const ProjMap* projMap = &(mapBaseObject()->projmap());
+   switch ( projMap->getProj()->method() ) {
+   case astro::ProjBase::WCS:
+     return diffuseResponse_wcs(evt,static_cast<const WcsMap2&>(*projMap));
+   case astro::ProjBase::HEALPIX:
+     return diffuseResponse_healpix(evt,static_cast<const HealpixProjMap&>(*projMap));
+   default:
+     break;
+   }
+   std::string errMsg("Unrecognized projection type for map object for source: ");
+   errMsg += getName();
+   throw std::runtime_error(errMsg);
+   return 0.;
+}
+
+double DiffuseSource::diffuseResponse_healpix(const Event& evt, const HealpixProjMap& healmap) const {
    double trueEnergy(evt.getEnergy());
    const ResponseFunctions & respFuncs(m_observation->respFuncs());
-   const WcsMap2 & wcsmap(mapBaseObject()->wcsmap());
+   const double& solidAngle = healmap.solidAngleHealpix();
+   double my_value(0);
+   double psf_range(psfRange(evt.getEnergy()));
+   // EAC, we could do this much more efficiently than by looping over all the pixels\
+   // using the healpix query_disk function
+   for (size_t i(0); i < healmap.nPixels(); i++) {
+     astro::SkyDir srcDir(healmap.skyDir(i,0));
+     if (evt.getDir().difference(srcDir) < psf_range) {
+       double mapValue(spatialDist(SkyDirArg(srcDir, trueEnergy)));
+       my_value += (respFuncs.totalResponse(trueEnergy, evt.getEnergy(), 
+					    evt.zAxis(), evt.xAxis(),
+					    srcDir, evt.getDir(),
+					    evt.getType(),
+					    evt.getArrTime())*mapValue*solidAngle);
+     }
+   }
+   return my_value;
+}
+
+double DiffuseSource::diffuseResponse_wcs(const Event & evt, const WcsMap2& wcsmap) const {
+   double trueEnergy(evt.getEnergy());
+   const ResponseFunctions & respFuncs(m_observation->respFuncs());
    const std::vector< std::vector<float> > & solidAngles(wcsmap.solidAngles());
    double my_value(0);
    for (size_t i(0); i < solidAngles.size(); i++) {
@@ -256,6 +298,8 @@ double DiffuseSource::diffuseResponse(const Event & evt) const {
    }
    return my_value;
 }
+
+
 
 bool DiffuseSource::mapBasedIntegral() const {
    return m_mapBasedIntegral;

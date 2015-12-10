@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.107 2014/10/01 15:32:35 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/BinnedLikelihood.cxx,v 1.4 2015/11/30 19:38:31 echarles Exp $
  */
 
 #include <cmath>
@@ -24,6 +24,8 @@
 
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/CountsMapHealpix.h"
+
 #include "Likelihood/Drm.h"
 #define ST_DLL_EXPORTS
 #include "Likelihood/SourceMap.h"
@@ -32,7 +34,7 @@
 
 namespace Likelihood {
 
-BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
+BinnedLikelihood::BinnedLikelihood(const CountsMapBase & dataMap,
                                    const Observation & observation,
                                    const std::string & srcMapsFile,
                                    bool computePointSources,
@@ -72,7 +74,7 @@ BinnedLikelihood::BinnedLikelihood(const CountsMap & dataMap,
      m_meas_counts(),
      m_fixed_counts_spec(),
      m_krefs() {
-   dataMap.getAxisVector(2, m_energies);
+   dataMap.getEnergies(m_energies);
    m_kmax = m_energies.size() - 1;
    identifyFilledPixels();
    m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
@@ -129,7 +131,7 @@ BinnedLikelihood::~BinnedLikelihood() throw() {
    delete m_drm;
 }
 
-double BinnedLikelihood::value(const optimizers::Arg & dummy) const {
+double BinnedLikelihood::value(optimizers::Arg & dummy) const {
    (void)(dummy);
 
    double npred(computeModelMap());
@@ -310,12 +312,11 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    }
 }
 
-CountsMap * BinnedLikelihood::createCountsMap() const {
+CountsMapBase * BinnedLikelihood::createCountsMap() const {
    std::vector<float> map;
    computeModelMap(map);
 
-   CountsMap * modelMap = new CountsMap(m_dataMap);
-         
+   CountsMapBase * modelMap = m_dataMap.clone();         
    modelMap->setImage(map);
    return modelMap;
 }
@@ -333,7 +334,7 @@ void BinnedLikelihood::addSource(Source * src, bool fromClone) {
    m_bestValueSoFar = -1e38;
    SourceModel::addSource(src, fromClone);
    if (use_single_fixed_map() && src->fixedSpectrum()) {
-       addFixedSource(src->getName());
+      addFixedSource(src->getName());
    } else {
       SourceMap * srcMap(getSourceMap(src->getName(), true));
       if (srcMap) {
@@ -790,6 +791,7 @@ SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName,
    }
 // Generate the map if it is not in the file.   
    Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
+  
    if (src->getType() == "Diffuse" || m_computePointSources) {
       return new SourceMap(src, &m_dataMap, m_observation,
                            m_applyPsfCorrections,
@@ -828,8 +830,7 @@ void BinnedLikelihood::saveSourceMaps(const std::string & filename) {
 bool BinnedLikelihood::fileHasSourceMap(const std::string & srcName,
                                         const std::string & fitsFile) const {
    try {
-      std::auto_ptr<const tip::Image> 
-         image(tip::IFileSvc::instance().readImage(fitsFile, srcName));
+      std::auto_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(fitsFile,srcName));
    } catch (tip::TipException &) {
       return false;
    }
@@ -839,34 +840,143 @@ bool BinnedLikelihood::fileHasSourceMap(const std::string & srcName,
 void BinnedLikelihood::replaceSourceMap(const std::string & srcName,
                                         const std::string & fitsFile) const {
    const SourceMap & srcMap = sourceMap(srcName);
+   switch ( m_dataMap.projection().method() ) {
+   case astro::ProjBase::WCS:
+     replaceSourceMap_wcs(srcMap,fitsFile);
+     return;
+   case astro::ProjBase::HEALPIX:
+     replaceSourceMap_healpix(srcMap,fitsFile);
+     return;
+   default:
+     break;
+   }
+   std::string errMsg("BinnedLikelihood did not recognize projection method used for CountsMap: ");
+   errMsg += m_dataMap.filename();
+   throw std::runtime_error(errMsg);
+}
 
+void BinnedLikelihood::replaceSourceMap_wcs(const SourceMap& srcMap, 
+					    const std::string & fitsFile) const {
    std::auto_ptr<tip::Image> 
-      image(tip::IFileSvc::instance().editImage(fitsFile, srcName));
-
+       image(tip::IFileSvc::instance().editImage(fitsFile, srcMap.name()));  
    image->set(srcMap.model());
+}
+
+void BinnedLikelihood::replaceSourceMap_healpix(const SourceMap& srcMap, 
+						const std::string & fitsFile) const {
+   std::auto_ptr<tip::Table> 
+       table(tip::IFileSvc::instance().editTable(fitsFile, srcMap.name()));  
+   m_dataMap.setKeywords(table->getHeader());
+   
+   const CountsMapHealpix& dataMap_healpix = static_cast<const CountsMapHealpix&>(m_dataMap);
+   if ( !dataMap_healpix.allSky() ) {
+     tip::Header & header(table->getHeader());     
+     header["INDXSCHM"].set("EXPLICIT");
+     header["REFDIR1"].set(dataMap_healpix.isGalactic() ? dataMap_healpix.refDir().l() :  dataMap_healpix.refDir().ra() );
+     header["REFDIR2"].set(dataMap_healpix.isGalactic() ? dataMap_healpix.refDir().b() :  dataMap_healpix.refDir().dec() );
+     header["MAPSIZE"].set(dataMap_healpix.mapRadius());     
+     std::string pixname("PIX");
+     table->appendField(pixname, std::string("J"));
+     tip::IColumn* col = table->getColumn(table->getFieldIndex(pixname));
+     int writeValue(-1);
+     for(int iloc(0); iloc < dataMap_healpix.nPixels(); iloc++ ) {
+       writeValue = dataMap_healpix.localToGlobalIndex(iloc);
+       col->set(iloc,writeValue);
+     }
+   }
+
+   long nPix = m_dataMap.imageDimension(0);
+   long nEBins = m_dataMap.energies().size();
+   long idx(0);
+   double writeValue(0);
+   for (long e_index = 0; e_index != nEBins; e_index++ ) {
+      std::ostringstream e_channel;
+      e_channel<<"CHANNEL"<<e_index+1;
+      // Check to see if the column already exist
+      tip::FieldIndex_t col_idx = table->getFieldIndex(e_channel.str());
+      if ( col_idx < 0 ) {
+	table->appendField(e_channel.str(), std::string("D"));
+	col_idx = table->getFieldIndex(e_channel.str());
+      }
+      tip::IColumn* col = table->getColumn(col_idx);
+      for(long hpx_index = 0; hpx_index != nPix; ++hpx_index, idx++) {
+	writeValue = double(srcMap.model()[idx]);
+	col->set(hpx_index,writeValue);
+      }
+   }
 }
 
 void BinnedLikelihood::appendSourceMap(const std::string & srcName,
                                        const std::string & fitsFile) const {
-   if (!m_srcMaps.count(srcName)) {
-      throw std::runtime_error("BinnedLikelihood::appendSourceMap: " +
-                               std::string("Source ") + srcName 
-                               + " is not available.");
+   const SourceMap & srcMap = sourceMap(srcName);
+   switch ( m_dataMap.projection().method() ) {
+   case astro::ProjBase::WCS:
+     appendSourceMap_wcs(srcMap,fitsFile);
+     return;
+   case astro::ProjBase::HEALPIX:
+     appendSourceMap_healpix(srcMap,fitsFile);
+     return;
+   default:
+     break;
    }
+   std::string errMsg("BinnedLikelihood did not recognize projection method used for CountsMap: ");
+   errMsg += m_dataMap.filename();
+   throw std::runtime_error(errMsg);
+   return;
+}
 
+void BinnedLikelihood::appendSourceMap_wcs(const SourceMap& srcMap,	
+					   const std::string & fitsFile) const {
    std::vector<long> naxes;
    naxes.push_back(m_dataMap.imageDimension(0));
    naxes.push_back(m_dataMap.imageDimension(1));
-   naxes.push_back(m_energies.size());
+   naxes.push_back(m_dataMap.energies().size());
 
-   tip::IFileSvc::instance().appendImage(fitsFile, srcName, naxes);
-   tip::Image * image = tip::IFileSvc::instance().editImage(fitsFile, srcName);
+   tip::IFileSvc::instance().appendImage(fitsFile, srcMap.name(), naxes);
+   tip::Image * image = tip::IFileSvc::instance().editImage(fitsFile,srcMap.name());
       
-   image->set(m_srcMaps.find(srcName)->second->model());
-
+   image->set(srcMap.model());
    m_dataMap.setKeywords(image->getHeader());
-
    delete image;
+}
+
+void BinnedLikelihood::appendSourceMap_healpix(const SourceMap& srcMap, 
+					       const std::string & fitsFile) const {
+   tip::IFileSvc::instance().appendTable(fitsFile, srcMap.name());
+   std::auto_ptr<tip::Table> 
+       table(tip::IFileSvc::instance().editTable(fitsFile, srcMap.name()));  
+   m_dataMap.setKeywords(table->getHeader());
+   const CountsMapHealpix& dataMap_healpix = static_cast<const CountsMapHealpix&>(m_dataMap);
+   if ( !dataMap_healpix.allSky() ) {
+     tip::Header & header(table->getHeader());     
+     header["INDXSCHM"].set("EXPLICIT");
+     header["REFDIR1"].set(dataMap_healpix.isGalactic() ? dataMap_healpix.refDir().l() :  dataMap_healpix.refDir().ra() );
+     header["REFDIR2"].set(dataMap_healpix.isGalactic() ? dataMap_healpix.refDir().b() :  dataMap_healpix.refDir().dec() );
+     header["MAPSIZE"].set(dataMap_healpix.mapRadius());     
+     std::string pixname("PIX");
+     table->appendField(pixname, std::string("J"));
+     tip::IColumn* col = table->getColumn(table->getFieldIndex(pixname));
+     int writeValue(-1);
+     for(int iloc(0); iloc < dataMap_healpix.nPixels(); iloc++ ) {
+       writeValue = dataMap_healpix.localToGlobalIndex(iloc);
+       col->set(iloc,writeValue);
+     }
+   }
+   long nPix = m_dataMap.imageDimension(0);
+   long nEBins = m_dataMap.energies().size();
+   long idx(0);
+   double writeValue(0.);
+   for (long e_index = 0; e_index != nEBins; e_index++ ) {
+      std::ostringstream e_channel;
+      e_channel<<"CHANNEL"<<e_index+1;
+      table->appendField(e_channel.str(), std::string("D"));
+      tip::FieldIndex_t col_idx = table->getFieldIndex(e_channel.str());
+      tip::IColumn* col = table->getColumn(col_idx);
+      for(long hpx_index = 0; hpx_index != nPix; ++hpx_index, idx++) {
+	 writeValue = double(srcMap.model()[idx]);
+	 col->set(hpx_index,writeValue);
+      }
+   }
 }
 
 void BinnedLikelihood::setImageDimensions(tip::Image * image, 
@@ -896,6 +1006,24 @@ void BinnedLikelihood::identifyFilledPixels() {
 }
 
 void BinnedLikelihood::computeCountsSpectrum() {
+   // EAC_FIX, CountsMap should be able to do this 
+   switch ( m_dataMap.projection().method() ) {
+   case astro::ProjBase::WCS:
+     computeCountsSpectrum_wcs();
+     return;
+   case astro::ProjBase::HEALPIX:
+     computeCountsSpectrum_healpix();
+     return;
+   default:
+     break;
+   }
+   std::string errMsg("BinnedLikelihood did not recognize projection method used for CountsMap: ");
+   errMsg += m_dataMap.filename();
+   throw std::runtime_error(errMsg);
+
+}
+
+void BinnedLikelihood::computeCountsSpectrum_wcs() {
    m_countsSpectrum.clear();
    size_t nx(m_dataMap.imageDimension(0));
    size_t ny(m_dataMap.imageDimension(1));
@@ -908,6 +1036,21 @@ void BinnedLikelihood::computeCountsSpectrum() {
             ntot += m_dataMap.data().at(indx);
             indx++;
          }
+      }
+      m_countsSpectrum.push_back(ntot);
+   }
+}
+
+void BinnedLikelihood::computeCountsSpectrum_healpix() {
+   m_countsSpectrum.clear();
+   size_t nx(m_dataMap.imageDimension(0));
+   size_t ny(m_dataMap.imageDimension(1));
+   size_t indx(0);
+   for (size_t k = 0; k < ny; k++) {
+      double ntot(0);
+      for (size_t i = 0; i < nx; i++) {
+	ntot += m_dataMap.data().at(indx);
+	indx++;
       }
       m_countsSpectrum.push_back(ntot);
    }

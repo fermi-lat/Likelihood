@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.46 2013/08/26 22:55:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.4 2015/03/05 19:58:28 echarles Exp $
  */
 
 #include <cstdlib>
@@ -109,12 +109,18 @@ void gtsrcmaps::run() {
 
    std::string cntsMapFile = m_pars["cmap"];
    dataSubselector::Cuts my_cuts(cntsMapFile, "", false);
-   CountsMap dataMap(cntsMapFile);
+   // EAC, use AppHelper to read the right type of counts map
+   CountsMapBase* dataMap = AppHelpers::readCountsMap(cntsMapFile);
    std::vector<double> energies;
-   dataMap.getAxisVector(2, energies);
+   // EAC, use the new getEnergies function 
+   dataMap->getEnergies(energies);
 
-   double ra, dec;
-   getRefCoord(cntsMapFile, ra, dec);
+   // EAC, HEALPix maps might not have reference coordinates
+   double ra(0.);
+   double dec(0.);
+   if ( dataMap->projection().method() == astro::ProjBase::WCS ) {
+     getRefCoord(cntsMapFile, ra, dec);
+   }
 
    RoiCuts &roiCuts = const_cast<RoiCuts &>(m_helper->observation().roiCuts());
    roiCuts.setCuts(ra, dec, 20., energies.front(), energies.back());
@@ -139,8 +145,9 @@ void gtsrcmaps::run() {
    int resamp_factor = m_pars["rfactor"];
    double minbinsz = m_pars["minbinsz"];
 
+   // EAC, pass in pointer to CountsMapBase
    m_binnedLikelihood = 
-      new BinnedLikelihood(dataMap, m_helper->observation(),
+      new BinnedLikelihood(*dataMap, m_helper->observation(),
                            cntsMapFile, computePointSources, psf_corrections,
                            perform_convolution, resample, resamp_factor,
                            minbinsz);
@@ -181,7 +188,8 @@ void gtsrcmaps::run() {
                                      "", "", clobber);
    } else {
       if (clobber || !st_facilities::Util::fileExists(srcMapsFile)) {
-         dataMap.writeOutput("gtsrcmaps", srcMapsFile);
+	 // EAC: call to base class writeOutput method
+         dataMap->writeOutput("gtsrcmaps", srcMapsFile);
       } else {
          std::string message(srcMapsFile + 
                              " already exists, and clobber set to no.");

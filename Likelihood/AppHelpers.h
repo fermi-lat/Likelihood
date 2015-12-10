@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for the Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/AppHelpers.h,v 1.43 2015/01/16 16:59:53 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/AppHelpers.h,v 1.6 2015/11/30 19:38:29 echarles Exp $
  */
 
 #ifndef Likelihood_AppHelpers
@@ -17,15 +17,20 @@
 #include "optimizers/FunctionFactory.h"
 
 #include "dataSubselector/Cuts.h"
+#include "astro/ProjBase.h"
 
 namespace dataSubselector {
    class CutBase;
-   class Cuts;
 }
 
 namespace Likelihood {
 
-   class BinnedExposure;
+   // EAC, switch to using BinnedExposureBase and CountsMapBase base clases
+   class BinnedExposureBase;
+   class Cuts;
+   class CountsMapBase;
+   class CountsMap;
+   class CountsMapHealpix;
    class EventContainer;
    class ExposureCube;
    class ExposureMap;
@@ -34,8 +39,7 @@ namespace Likelihood {
    class ResponseFunctions;
    class RoiCuts;
    class ScData;
-   class WcsMap2;
-   class CountsMap;
+   class ProjMap;
 
 /**
  * @class AppHelpers
@@ -89,7 +93,7 @@ public:
    const std::string & irfsName() const {
       return m_irfsName;
    }
-
+   
    const dataSubselector::Cuts & respFuncCuts() const {
       return *m_respFuncCuts;
    }
@@ -151,7 +155,7 @@ public:
    static void getSelectedEvtTypes(const std::string & evfile,
                                    const std::string & extname,
                                    std::vector<unsigned int> & selectedEvtTypes,
-                                   unsigned int evtype_bit_mask=3);
+				   unsigned int evtype_bit_mask=3);
 
    static void addFunctionPrototypes(optimizers::FunctionFactory * funcFactory);
 
@@ -161,8 +165,24 @@ public:
    static void checkExposureMap(const std::string & cmapfile,
                                 const std::string & emapfile);
 
+   /// WCS-specific implementation 
+   static void checkExposureMap_wcs(const CountsMap& cmap,
+				    BinnedExposureBase& emap);
+
+   /// HEALPix-specific implementation 
+   static void checkExposureMap_healpix(const CountsMapHealpix& cmap,
+					BinnedExposureBase& emap);
+
+   // EAC -> Check to see if a CountsMap or exposure map is WCS or HEALPix based
+   static astro::ProjBase::Method checkProjectionMethod(const std::string& filename,
+							const std::string& hpx_ext);
+
    // EAC -> Open a fits file and read in the correct type of CountsMap
-   static CountsMap* readCountsMap(const std::string& filename);
+   static CountsMapBase* readCountsMap(const std::string& filename);
+
+   // EAC -> Open a fits file and read in the correct type of BinnedExposureMap
+   static BinnedExposureBase* readBinnedExposure(const std::string& filename);
+
 
 protected:
 
@@ -179,20 +199,20 @@ protected:
    RoiCuts * m_roiCuts;
    EventContainer * m_eventCont;
 
-   BinnedExposure * m_bexpmap;
-   WcsMap2 * m_phased_expmap;
+   // EAC, switch to using BinnedExposureBase and ProjMap base classes
+   BinnedExposureBase * m_bexpmap;
+   ProjMap * m_phased_expmap;
    MeanPsf * m_meanpsf;
+   dataSubselector::Cuts * m_respFuncCuts;
 
    std::string m_irfsName;
-
-   dataSubselector::Cuts * m_respFuncCuts;
 
    void prepareFunctionFactory();
    void createResponseFuncs(const std::string & analysisType);
 
    static void getSelectedEvtTypes(const dataSubselector::Cuts & cuts,
-                                   std::vector<unsigned int> & selectedEvtTypes,
-                                   unsigned int evtype_bit_mask=3);
+				   std::vector<unsigned int> & selectedEvtTypes,
+				   unsigned int evtype_bit_mask=3);
 
    static bool checkCuts(const dataSubselector::Cuts & cuts1,
                          const dataSubselector::Cuts & cuts2,

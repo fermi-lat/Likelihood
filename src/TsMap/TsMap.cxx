@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsMap/TsMap.cxx,v 1.53 2012/11/11 03:26:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/TsMap/TsMap.cxx,v 1.3 2015/03/03 06:00:02 echarles Exp $
  */
 
 #include <cmath>
@@ -15,6 +15,8 @@
 #include <sstream>
 
 #include "facilities/commonUtilities.h"
+
+#include "astro/SkyProj.h"
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
@@ -38,6 +40,7 @@
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/SourceMap.h"
+#include "Likelihood/CountsMap.h"
 
 using namespace Likelihood;
 
@@ -69,7 +72,7 @@ private:
    optimizers::Optimizer * m_opt;
    st_stream::StreamFormatter * m_formatter;
    std::string m_statistic;
-   CountsMap * m_dataMap;
+   CountsMapBase * m_dataMap;
    std::vector<astro::SkyDir> m_dirs;
    std::vector<float> m_tsMap;
    std::string m_coordSys;
@@ -107,7 +110,7 @@ TsMap::TsMap()
    m_pars.setCase("statistic", "UNBINNED", "expmap");
 }
 
-std::string TsMap::s_cvs_id("$Name: Likelihood-18-00-04 $");
+std::string TsMap::s_cvs_id("$Name:  $");
 
 void TsMap::banner() const {
    int verbosity = m_pars["chatter"];
@@ -184,7 +187,8 @@ void TsMap::run() {
              "Please specify an exposure cube file.");
       }
       st_facilities::Util::file_ok(cmap);
-      m_dataMap = new CountsMap(cmap);
+      // EAC, use AppHelpers to read the right type of counts map
+      m_dataMap = AppHelpers::readCountsMap(cmap);
       bool apply_psf_corrections = m_pars["psfcorr"];
       bool computePointSources(true);
       m_logLike = new BinnedLikelihood(*m_dataMap, 

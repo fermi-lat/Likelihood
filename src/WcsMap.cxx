@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap.cxx,v 1.44 2011/03/15 06:35:46 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/WcsMap.cxx,v 1.3 2015/03/03 06:00:01 echarles Exp $
  */
 
 #include <cmath>
@@ -14,6 +14,8 @@
 #include <stdexcept>
 
 #include "st_stream/StreamFormatter.h"
+
+#include "astro/SkyProj.h"
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"

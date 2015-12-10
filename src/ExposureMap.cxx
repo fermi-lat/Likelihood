@@ -4,7 +4,7 @@
  * it available for use (primarily) by the DiffuseSource class.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/ExposureMap.cxx,v 1.45 2012/01/06 07:11:59 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/ExposureMap.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
  */
 
 #include <cstdio>
@@ -16,6 +16,8 @@
 #include <utility>
 
 #include "st_stream/StreamFormatter.h"
+
+#include "astro/SkyProj.h"
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
@@ -30,12 +32,14 @@
 #include "Likelihood/Observation.h"
 #include "Likelihood/PointSource.h"
 #include "Likelihood/SkyDirArg.h"
-#include "Likelihood/WcsMap2.h"
+#include "Likelihood/ProjMap.h"
+#include "Likelihood/WcsMapLibrary.h"
 
 namespace Likelihood {
 
 ExposureMap::~ExposureMap() {
-   delete m_wcsmap;
+   //EAC, we got the map from WcsMapLibrary, which owns it
+   //delete m_projmap;
 }
 
 void ExposureMap::readExposureFile(std::string exposureFile) {
@@ -44,8 +48,11 @@ void ExposureMap::readExposureFile(std::string exposureFile) {
 
    std::string extension;
    bool interpolate, enforceEnergyRange;
-   m_wcsmap = new WcsMap2(exposureFile, extension="", interpolate=true,
-                          enforceEnergyRange=true);
+   // EAC, get the map for WcsMapLibrary, to let that take care of making
+   // the right type of map (Wcs-based vs. HEALPix-based)
+   m_projmap = WcsMapLibrary::instance()->wcsmap(exposureFile, std::string(""));
+   m_projmap->setInterpolation(true);
+   m_projmap->setExtrapolation(true);
 
    st_facilities::FitsImage mapData(exposureFile);
 
@@ -286,16 +293,16 @@ void ExposureMap::readEnergyExtension(const std::string & filename,
 
 double ExposureMap::operator()(const astro::SkyDir & dir,
                                double energy) const {
-   return m_wcsmap->operator()(dir, energy);
+   return m_projmap->operator()(dir, energy);
 }
 
 double ExposureMap::operator()(const astro::SkyDir & dir,
                                int k) const {
-   return m_wcsmap->operator()(dir, k);
+   return m_projmap->operator()(dir, k);
 }
 
 bool ExposureMap::withinMapRadius(const astro::SkyDir & dir) const {
-   return m_wcsmap->withinMapRadius(dir);
+   return m_projmap->withinMapRadius(dir);
 }
 
 } // namespace Likelihood

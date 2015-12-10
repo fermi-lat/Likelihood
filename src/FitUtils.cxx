@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/ConvolveHealpix.cxx,v 1.2 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/FitUtils.cxx,v 1.2 2015/12/02 00:53:06 echarles Exp $
  */
 
 
@@ -650,7 +650,7 @@ namespace Likelihood {
 
 	// Get the spectral values at the energy bin edges
 	std::vector<double> specVals;
-	Source* aSrc = logLike.getSource(*itr);
+	const Source* aSrc = logLike.getSource(*itr);
 	extractSpectralVals(*aSrc,energies,specVals);
 
 	// We are actually fitting a scale factor w.r.t. the baseline fit
@@ -844,13 +844,16 @@ namespace Likelihood {
       double nPred(0.);
       double logTerm(0.);
       for ( ; itr_data != data_stop; itr_data++, itr_model++ ) {
-	if ( *itr_model <= 0. ) {
+	if ( *itr_model < 0. ) {
 	  throw std::runtime_error("Negative model counts in FitUtils::negativeLogLikePoisson.");
 	  return 0.;
 	}
 	nPred += *itr_model;
 	// logs are expensive, don't do this unless the number of data counts is > 0.
 	if ( *itr_data > 1e-9 ) {
+	  if (  *itr_model <= 0. ) { 
+	    throw std::runtime_error("Negative or zero model counts for pixel with data counts in  FitUtils::negativeLogLikePoisson.");
+	  }
 	  logTerm += ( *itr_data * std::log(*itr_model) );
 	}
       }
