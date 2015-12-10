@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.21 2015/12/03 23:47:46 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.22 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -514,22 +514,26 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
   // Convolve for a single image plane.
    check_energy_index(k);
 
+   std::pair<astro::SkyDir, astro::SkyDir> minMaxDir;
+   minMaxDir = minMaxDistPixels(fn.dir());
+ 
+   const double cdelt_max = std::max(std::abs(cdelt1()),std::abs(cdelt2()));
+   const double cdelt_min = std::min(std::abs(cdelt1()),std::abs(cdelt2()));
+   const double theta_max = minMaxDir.second.difference(fn.dir())*180./M_PI + 2.0*cdelt_max;
+   const double theta_min = cdelt_min*0.5;
+   const int theta_nstep = ::round(theta_max/cdelt_min)*2;
+   const double theta_step = (theta_max-theta_min)/double(theta_nstep-1);
+   
    // Build a vector for fast interpolation
-   std::vector<double> theta(401);
-   std::vector<double> value(401);
-
-   const int log10_theta_nstep = 400;
-   const double log10_theta_min = std::log10(0.001);
-   const double log10_theta_max = std::log10(45.00);
-   const double log10_theta_step = (log10_theta_max-log10_theta_min)/double(log10_theta_nstep-1);
+   std::vector<double> theta(theta_nstep+1);
+   std::vector<double> value(theta_nstep+1);
 
    theta[0] = 0.0;
-   value[0] = fn.value(0.0,energy,psf);
-   for(int i = 0; i < log10_theta_nstep; i++)
-     {
-       theta[i+1] = std::pow(10,log10_theta_min+i*log10_theta_step);
-       value[i+1] = fn.value(theta[i+1],energy,psf);
-     }       
+   value[0] = fn.spatialResponse(0.0,energy,psf);
+   for(int i = 1; i < theta.size(); i++) {
+     theta[i] = theta_min+(i-1)*theta_step;
+     value[i] = fn.spatialResponse(theta[i],energy,psf);
+   }       
 
    // Compute unconvolved counts map by multiplying intensity image by exposure.
    ::Image counts;
