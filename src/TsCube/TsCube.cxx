@@ -4,7 +4,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsCube/TsCube.cxx,v 1.1 2015/07/17 18:41:57 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsCube/TsCube.cxx,v 1.2 2015/07/24 16:00:14 echarles Exp $
  */
 
 #include <cmath>
@@ -244,6 +244,10 @@ void TsCube::computeMap() {
   bool remakeTestSource = m_pars["remakesrc"];
   double normSigma = m_pars["nsigma"];
   double covScale = m_pars["covscale"]; 
+
+  //m_scanner->set_verbose_null(3);
+  //m_scanner->set_verbose_bb(3);
+  //m_scanner->set_verbose_scan(3);
 
   int status = m_scanner->run_tscube(doSED,nnorm,normSigma,covScale,
 				     tol,maxiter,tolType,remakeTestSource,ST_scan_level);
