@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.574 2015/07/17 20:24:19 jchiang Exp $
+    $Id: release.notes,v 1.575 2015/07/23 21:40:41 jchiang Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-00-00 09-Dec-2015 echarles Implement healpix-based fitting in ScienceTools
  Likelihood-19-02-01 23-Jul-2015 jchiang fix fluxDeriv problem for sources using PiecewisePowerLaw spectrum function
  Likelihood-19-02-00 17-Jul-2015 jchiang Eric's gttscube application added
  Likelihood-19-01-13 02-Jun-2015 jchiang LK-102: request to implement SummedLikelihood::NpredValue
