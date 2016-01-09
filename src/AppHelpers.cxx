@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/AppHelpers.cxx,v 1.5 2015/11/25 18:52:42 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.125 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -206,7 +206,9 @@ void AppHelpers::
 addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    bool makeClone(false);
    funcFactory->addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
+   funcFactory->addFunc("SpatialDisk", new SpatialDisk(), makeClone);
    funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
+   funcFactory->addFunc("SpatialGaussian", new SpatialGaussian(), makeClone);
    funcFactory->addFunc("BandFunction", new BandFunction(), makeClone);
    funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
    funcFactory->addFunc("LogGaussian", new LogGaussian(), makeClone);

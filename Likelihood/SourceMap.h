@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/SourceMap.h,v 1.6 2015/12/02 00:53:05 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.56 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -85,6 +85,8 @@ public:
 
 //   void addMap(const std::vector<float> & other_model);
    
+   void setImage(const std::vector<float>& model);
+
    double maxPsfRadius(PointSource * src) const;
 
    const std::string & srcType() const {

@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/SourceMap.cxx,v 1.5 2015/12/02 00:53:06 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.110 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -44,6 +44,7 @@
 #define ST_DLL_EXPORTS
 #include "Likelihood/SourceMap.h"
 #undef ST_DLL_EXPORTS
+#include "Likelihood/SpatialFunction.h"
 
 #include "Likelihood/WcsMap2.h"
 #include "Likelihood/HealpixProjMap.h"
@@ -497,6 +498,8 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
 				   bool verbose) {
    DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
    
+   bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc->spatialDist()) != 0;
+
 // If the diffuse source is represented by an underlying map, then
 // rebin according to the minimum bin size.
    try {
@@ -547,7 +550,12 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
    double cdelt2 = dataMap->cdelt2()/resamp_factor;
    size_t nx_offset(0), ny_offset(0);
    size_t nx_offset_upper(0), ny_offset_upper(0);
-   if (dataMap->conformingMap()) {
+   if (haveSpatialFunction) {
+     naxis1 = static_cast<int>(dataMap->naxis1()*resamp_factor);
+     naxis2 = static_cast<int>(dataMap->naxis2()*resamp_factor);      
+     crpix1 = resamp_factor*(dataMap->crpix1() - 0.5)+0.5;
+     crpix2 = resamp_factor*(dataMap->crpix1() - 0.5)+0.5;  
+   } else if (dataMap->conformingMap()) {
       double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
       // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
       // expression for the mapsize ensures that the number of
@@ -612,10 +620,16 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
       nx_offset_upper += 1;
       ny_offset_upper += 1;
    }
+
+   const MeanPsf & meanpsf(m_observation.meanpsf());   
+   const BinnedExposureBase & bexpmap(m_observation.bexpmap());
+
    size_t counter(0);
    std::vector<double>::const_iterator energy = energies.begin();
    for (int k(0); energy != energies.end(); ++energy, k++) {
       bool interpolate;
+
+      WcsMap2 * convolvedMap(0);      
       WcsMap2 diffuseMap(*diffuseSrc,  
 			 (dataMap->projection().isGalactic() ? mapRefDir.l() : mapRefDir.ra()), 
 			 (dataMap->projection().isGalactic() ? mapRefDir.b() : mapRefDir.dec()),
@@ -623,10 +637,17 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
                          *energy, dataMap->proj_name(), 
                          dataMap->projection().isGalactic(), 
                          interpolate=true);
-      const MeanPsf & meanpsf(m_observation.meanpsf());
-      const BinnedExposureBase & bexpmap = m_observation.bexpmap();
-      WcsMap2* convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
-									bexpmap, performConvolution));
+
+      if(haveSpatialFunction) {
+	const SpatialFunction* m = 
+	  dynamic_cast<const SpatialFunction *>(diffuseSrc->spatialDist());
+	convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
+								 bexpmap, *m));
+      } else {
+	convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
+								 bexpmap, performConvolution));
+      }
+
       size_t rfac(static_cast<size_t>(resamp_factor));
       double solid_angle;
       double added(0.0);
@@ -648,6 +669,7 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
 	    added += m_model[indx];
          }
       }
+      delete convolvedMap;
    }
 //   computeNpredArray();
 // Delete model map for map-based diffuse sources to save memory.  The
@@ -1036,6 +1058,9 @@ integrate_psf(const MeanPsf & meanPsf, double energy,
    return psf_value/static_cast<double>(npts*npts);
 }
 
+void SourceMap::setImage(const std::vector<float>& model) {
+  m_model = model;
+}
 
 void SourceMap::readImage(const std::string& sourceMapsFile) {
   std::auto_ptr<const tip::Image>
@@ -1043,7 +1068,6 @@ void SourceMap::readImage(const std::string& sourceMapsFile) {
   m_model.clear();
   image->get(m_model);
 }
-
 
 void SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
   std::auto_ptr<const tip::Table> 
