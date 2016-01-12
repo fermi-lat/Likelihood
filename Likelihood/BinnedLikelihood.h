@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/BinnedLikelihood.h,v 1.3 2015/03/03 05:59:55 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.75 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -36,7 +36,7 @@ class BinnedLikelihood : public LogLike {
 
 public:
 
-   BinnedLikelihood(const CountsMapBase & dataMap, 
+   BinnedLikelihood(CountsMapBase & dataMap, 
                     const Observation & observation,
                     const std::string & srcMapsFile="",
                     bool computePointSources=true,
@@ -77,14 +77,9 @@ public:
 
    double npred();
 
-   const SourceMap & sourceMap(const std::string & name) const {
-      std::map<std::string, SourceMap *>::const_iterator srcMap
-         = m_srcMaps.find(name);
-      if (srcMap == m_srcMaps.end()) {
-         throw std::runtime_error("Cannot find source map named: " + name);
-      }
-      return *(srcMap->second);
-   }
+   const SourceMap & sourceMap(const std::string & name) const;
+
+   SourceMap & sourceMap(const std::string & name);
 
    SourceMap * getSourceMap(const std::string & srcName,
                             bool verbose=true) const;
@@ -97,6 +92,10 @@ public:
                   std::vector<double> & npreds) const;
 
    SourceMap * createSourceMap(const std::string & srcName);
+
+   /// Instantiate or retrieve a SourceMap object for all sources and
+   /// populate the internal source map hash with those objects.
+   void createSourceMaps();
 
    void saveSourceMaps(const std::string & filename="");
 
@@ -160,6 +159,8 @@ public:
          external_map->resize(m_pixels.size()*(m_energies.size()-1));
       }
    }
+   
+   void setCountsMap(const std::vector<float> & counts);
 
    bool fixedModelUpdated() const;
 
@@ -203,7 +204,7 @@ protected:
 
 private:
 
-   const CountsMapBase & m_dataMap;
+   CountsMapBase& m_dataMap;
 
    const std::vector<Pixel> & m_pixels;
    std::vector<double> m_energies;
@@ -266,8 +267,6 @@ private:
    mutable std::vector<double> m_fixed_counts_spec;
 
    std::map<std::string, std::map<size_t, size_t> > m_krefs;
-
-   void createSourceMaps();
 
    double computeModelMap() const;
 

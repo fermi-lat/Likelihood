@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/BinnedLikelihood.cxx,v 1.4 2015/11/30 19:38:31 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.109 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -34,7 +34,7 @@
 
 namespace Likelihood {
 
-BinnedLikelihood::BinnedLikelihood(const CountsMapBase & dataMap,
+BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
                                    const Observation & observation,
                                    const std::string & srcMapsFile,
                                    bool computePointSources,
@@ -173,6 +173,32 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
 
 double BinnedLikelihood::npred() {
    return computeModelMap();
+}
+
+SourceMap & BinnedLikelihood::sourceMap(const std::string & name) {
+
+  std::vector<std::string> srcNames;
+  getSrcNames(srcNames);
+
+  std::vector<std::string>::iterator nameIt = 
+    std::find(srcNames.begin(),srcNames.end(),name);
+  if(nameIt == srcNames.end())
+    throw std::runtime_error("Cannot find source named: " + name);
+
+  if (m_srcMaps.find(name) == m_srcMaps.end()) {
+    m_srcMaps[name] = getSourceMap(name);
+  }
+
+  return *m_srcMaps[name];
+}
+
+const SourceMap & BinnedLikelihood::sourceMap(const std::string & name) const {
+  std::map<std::string, SourceMap *>::const_iterator srcMap
+    = m_srcMaps.find(name);
+  if (srcMap == m_srcMaps.end()) {
+    throw std::runtime_error("Cannot find source map named: " + name);
+  }
+  return *(srcMap->second);
 }
 
 std::vector<double>::const_iterator 
@@ -434,6 +460,15 @@ computeModelMap(std::vector<float> & modelMap) const {
    for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
       updateModelMap(modelMap, srcIt->second);
    }
+}
+
+void BinnedLikelihood::setCountsMap(const std::vector<float> & counts) {
+
+  if(counts.size() != m_dataMap.data().size())
+    throw std::runtime_error("Wrong size for input counts map.");
+  m_dataMap.setImage(counts);
+  identifyFilledPixels();
+  buildFixedModelWts();
 }
 
 bool BinnedLikelihood::fixedModelUpdated() const {
@@ -769,11 +804,12 @@ void BinnedLikelihood::createSourceMaps() {
    std::vector<std::string> srcNames;
    getSrcNames(srcNames);
    std::vector<std::string>::const_iterator name = srcNames.begin();
-   for ( ; name != srcNames.end(); ++name) {
-      Source * src = getSource(*name);
-      if (src->getType() == "Diffuse" || m_computePointSources) {
-         m_srcMaps[*name] = createSourceMap(*name);
-      }
+   for ( ; name != srcNames.end(); ++name) {     
+     if (m_srcMaps.find(*name) != m_srcMaps.end()) continue;
+     Source * src = getSource(*name);
+     if (src->getType() == "Diffuse" || m_computePointSources) {
+       m_srcMaps[*name] = getSourceMap(*name);//createSourceMap(*name);
+     }
    }
 }
 
