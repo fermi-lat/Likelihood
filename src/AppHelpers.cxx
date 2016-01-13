@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.125 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.126 2016/01/09 02:04:15 mdwood Exp $
  */
 
 #include <cmath>
@@ -59,7 +59,9 @@
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MapCubeFunction2.h"
 #include "Likelihood/MeanPsf.h"
+#include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/PiecewisePowerLaw.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/RadialProfile.h"
@@ -219,6 +221,8 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    funcFactory->addFunc("PowerLaw2", new PowerLaw2(), makeClone);
    funcFactory->addFunc("BrokenPowerLaw2", new BrokenPowerLaw2(), makeClone);
    funcFactory->addFunc("BrokenPowerLaw3", new BrokenPowerLaw3(), makeClone);
+   funcFactory->addFunc("MultipleBrokenPowerLaw", new MultipleBrokenPowerLaw(), makeClone);
+   funcFactory->addFunc("PiecewisePowerLaw", new PiecewisePowerLaw(), makeClone);
    funcFactory->addFunc("SmoothBrokenPowerLaw", new SmoothBrokenPowerLaw(), 
                         makeClone);
    funcFactory->addFunc("SmoothDoubleBrokenPowerLaw", 
