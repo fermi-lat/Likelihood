@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/FitUtils.cxx,v 1.2 2015/12/02 00:53:06 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.2 2015/12/10 00:58:00 echarles Exp $
  */
 
 
@@ -444,7 +444,26 @@ namespace Likelihood {
 
       if ( npar == 0 ) {
 	std::cout << "warning, no free parameters " << std::endl;
-	return -1;
+	sumModel(norms,templates,fixed,model,firstBin,lastBin);
+      
+	std::vector<float>::const_iterator data_start = data.begin() + firstBin;
+	std::vector<float>::const_iterator data_end = lastBin == 0 ? data.end() : data.begin() + lastBin;
+	std::vector<float>::const_iterator model_start = model.begin() + firstBin;
+	std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
+	
+	logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
+
+	if ( prior ) {
+	  double logLikePrior(0.);
+	  prior->negativeLogLikelihood(norms,logLikePrior);
+	  logLikeVal += logLikePrior;
+	}
+	
+	if ( verbose > 0 ) {
+	  std::cout << "Log-likelihood " << logLikeVal << std::endl << std::endl;
+	}
+
+	return 0;
       }
 
       if ( verbose > 0 ) {
