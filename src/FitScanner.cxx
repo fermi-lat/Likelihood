@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/FitScanner.cxx,v 1.2 2015/12/02 00:53:06 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.3 2015/12/10 00:58:00 echarles Exp $
  */
 
 
@@ -20,6 +20,8 @@
 #include "astro/SkyDir.h"
 #include "astro/SkyProj.h"
 //#include "astro/HealpixProj.h"
+
+#include "facilities/commonUtilities.h"
 
 #include "optimizers/Optimizer.h"
 
@@ -1066,6 +1068,7 @@ namespace Likelihood {
      m_energy_binner(0),
      m_norm_binner(0),
      m_testSource(0),
+     m_testSourceOwned(false),
      m_testSourceName("TestSource"),
      m_cache(0),
      m_testSourceCaches(1,0),
@@ -1093,6 +1096,7 @@ namespace Likelihood {
      m_energy_binner(0),
      m_norm_binner(0),
      m_testSource(0),
+     m_testSourceOwned(false),
      m_testSourceName("TestSource"),
      m_cache(0),
      m_testSourceCaches(summedLike.numComponents(),0),
@@ -1146,10 +1150,12 @@ namespace Likelihood {
 
   // D'tor, does cleanup
   FitScanner::~FitScanner() throw() {
-    //if ( m_testSource != 0 ) {
-    //  removeTestSourceFromModel();
-    //}
-    delete m_testSource;
+    if ( m_testSource != 0 ) {
+      removeTestSourceFromModel();
+    }
+    if ( m_testSourceOwned ) {
+      delete m_testSource;
+    }
     delete m_dir1_binner;
     delete m_dir2_binner;
     delete m_energy_binner;
@@ -1307,7 +1313,10 @@ namespace Likelihood {
     // We store the output by pixel, so these are useful
     long ipix(0);
     int npix = nPixels();
-    
+    int ipix_print = npix / 20;
+
+    std::cout << "Performing TS Grid Scan: " << std::endl;
+ 
     // Note the loop order, outer loop is on Y, this matches HistND structure
     for ( long iy(0); iy < nybins; iy++ ) {      
       for ( long ix(0); ix < nxbins; ix++, ipix++ ) {
@@ -1423,15 +1432,8 @@ namespace Likelihood {
 	
 	if ( status != 0 ) {
 	  nfailed_scan_newton++;
-	  if ( status < 0 ) { 
-	    std::cout << 'z' << std::flush;
-	    continue;
-	  } else if ( status < 10 ) {
-	    std::cout << status << std::flush;
-	  } else {
-	    std::cout << 'x' << std::flush;
-	  }
-	} else {
+	}
+	if ( ipix % ipix_print == 0 ) {
 	  std::cout << '.' << std::flush;
 	}
 
@@ -1476,8 +1478,9 @@ namespace Likelihood {
 	}
 	m_cache->removeTestSourceFromCurrent();
       }
-      std::cout << std::endl;      
     }
+
+    std::cout << "!" << std::endl;
 
     // Warn about failed fits
     if ( nfailed_bb > 0 ) {
@@ -1499,10 +1502,15 @@ namespace Likelihood {
   /* Write the stored data to a FITS file */
   int FitScanner::writeFitsFile(const std::string& fitsFile,
 				const std::string& creator,
-				const std::string& fits_template,
+				std::string fits_template,
 				bool copyGTIs) const {
 
     int status(0);
+
+    if ( fits_template.empty() ) {
+      std::string dataDir = facilities::commonUtilities::getDataPath("Likelihood");
+      fits_template = facilities::commonUtilities::joinPath(dataDir, "TsCubeTemplate");
+    } 
 
     // Make the fits file
     // FIXME, should we check to see if it already exists?
@@ -1596,10 +1604,13 @@ namespace Likelihood {
       removeTestSourceFromModel();      
     }
     // delete the old test source
-    delete m_testSource;
+    if ( m_testSourceOwned ) {
+      delete m_testSource;
+    }
     m_testSource = 0;
     m_testSource = new Likelihood::PointSource();
     m_testSource->setName(m_testSourceName);
+    m_testSourceOwned = true;
     optimizers::Function * pl = factory.create("PowerLaw");
     double parValues[] = {1., -1.*index, 100.};
     std::vector<double> pars(parValues, parValues + 3);
@@ -1632,9 +1643,12 @@ namespace Likelihood {
       if ( itrFind != m_modelWrapper->getMasterComponent().sources().end() ) {
 	removeTestSourceFromModel();      
       }
-      // Delete the old test soruce
-      delete m_testSource;
-
+      // Delete the old test source
+      if ( m_testSourceOwned ) {
+	delete m_testSource;
+      }
+      m_testSourceOwned = false;
+      
       // Check to see if the new source in is the model 
       m_testSourceName = sourceName;
     }

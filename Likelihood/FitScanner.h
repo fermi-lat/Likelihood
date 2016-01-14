@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/FitScanner.h,v 1.2 2015/12/02 00:53:05 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.3 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -895,7 +895,7 @@ namespace Likelihood {
     /* Write the stored data to a FITS file */
     int writeFitsFile(const std::string& fitsFile,
 		      const std::string& creator,
-		      const std::string& fits_template,
+		      std::string fits_template = "",
 		      bool copyGTIs=false) const;
       
 
@@ -1057,6 +1057,9 @@ namespace Likelihood {
 
     // The test source 
     Source* m_testSource;
+
+    // Do we own the test source
+    bool m_testSourceOwned;
 
     // The name of the test source (useful for bookkeeping)
     std::string m_testSourceName;
