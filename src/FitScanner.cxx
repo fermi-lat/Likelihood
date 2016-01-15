@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.3 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.4 2016/01/14 20:21:35 echarles Exp $
  */
 
 
@@ -22,6 +22,7 @@
 //#include "astro/HealpixProj.h"
 
 #include "facilities/commonUtilities.h"
+#include "st_facilities/Util.h"
 
 #include "optimizers/Optimizer.h"
 
@@ -45,10 +46,10 @@
 namespace Likelihood {
 
   TestSourceModelCache::TestSourceModelCache(const BinnedLikelihood& logLike,
-					     const Source& source)
+					     const PointSource& source)
     :m_refModel(logLike.countsMap().data().size(),0),
      m_proj(logLike.countsMap().projection()),
-     m_refDir(logLike.countsMap().refDir()) {    
+     m_refDir(source.getDir()) {    
     // latch the reference direction and the size of the model axes
     m_refPixel = m_refDir.project( m_proj );
     m_nx = logLike.countsMap().imageDimension(0);
@@ -115,7 +116,7 @@ namespace Likelihood {
     
     int delta_y = dy >= 0 ? ( std::fmod(dy,1.0) > 0.5 ? std::ceil(dy) : std::floor(dy) ) :
       ( std::fmod(dy,1.0) < -0.5 ? std::floor(dy) : std::ceil(dy) );
-    
+
     if ( false ) {
       std::cout << "Translate WCS: " << delta_x << ' ' << delta_y << std::endl;
     }
@@ -1315,7 +1316,7 @@ namespace Likelihood {
     int npix = nPixels();
     int ipix_print = npix / 20;
 
-    std::cout << "Performing TS Grid Scan: " << std::endl;
+    std::cout << "Performing TS Grid Scan" << std::flush;
  
     // Note the loop order, outer loop is on Y, this matches HistND structure
     for ( long iy(0); iy < nybins; iy++ ) {      
@@ -1598,8 +1599,11 @@ namespace Likelihood {
   }  
   
   /* Use a powerlaw point source */ 
-  int FitScanner::setPowerlawPointTestSource(optimizers::FunctionFactory& factory, double index) {
-    std::map<std::string, Source *>::const_iterator itrFind = m_modelWrapper->getMasterComponent().sources().find(m_testSourceName);
+  int FitScanner::setPowerlawPointTestSource(optimizers::FunctionFactory& factory, 					     
+					     double index) {
+
+    std::map<std::string, Source *>::const_iterator itrFind = 
+      m_modelWrapper->getMasterComponent().sources().find(m_testSourceName);
     if ( itrFind != m_modelWrapper->getMasterComponent().sources().end() ) {
       removeTestSourceFromModel();      
     }
@@ -1608,13 +1612,26 @@ namespace Likelihood {
       delete m_testSource;
     }
     m_testSource = 0;
-    m_testSource = new Likelihood::PointSource();
+    
+    double pix_x(0.); 
+    double pix_y(0.);
+    st_facilities::Util::skyDir2pixel(*m_proj,m_modelWrapper->getMasterComponent().countsMap().refDir(),
+				      pix_x,pix_y);
+
+    // move to the center of the pixel (FITS defines pixel centers as integer values)
+    pix_x = std::floor(pix_x);
+    pix_y = std::floor(pix_y);    
+    m_testSourceDir() = astro::SkyDir(pix_x,pix_y,*m_proj)();
+
+    // Build the PointSource object and set the spectrum
+    PointSource* ptSrc = new Likelihood::PointSource();
+    ptSrc->setDir(m_testSourceDir.ra(),m_testSourceDir.dec(),false);
+    m_testSource = ptSrc;
     m_testSource->setName(m_testSourceName);
     m_testSourceOwned = true;
     optimizers::Function * pl = factory.create("PowerLaw");
-    double parValues[] = {1., -1.*index, 100.};
+    double parValues[] = {1., -1.*index, 1000.};
     std::vector<double> pars(parValues, parValues + 3);
-    pl->setParamValues(pars);
     optimizers::Parameter indexParam = pl->getParam("Index");
     indexParam.setBounds(-3.5, -1.);
     pl->setParam(indexParam);
@@ -1622,7 +1639,8 @@ namespace Likelihood {
     prefactorParam.setBounds(1e-10, 1e3);
     prefactorParam.setScale(1e-9);
     pl->setParam(prefactorParam);
-    m_testSource->setSpectrum(pl);   
+    pl->setParamValues(pars);
+    m_testSource->setSpectrum(pl);     
     int status = buildTestModelCache();
     if ( status ) {
       throw std::runtime_error("Failed FitScanner::buildTestModelCache().");
@@ -1633,7 +1651,8 @@ namespace Likelihood {
 
 
   /* Use a source from the model */
-  int FitScanner::setTestSourceByName(const std::string& sourceName) {
+  int FitScanner::setTestSourceByName(const std::string& sourceName,
+				      bool shiftToPixelCenter) {
     
     // Protect against the case that the sourceName is the same as the m_testSourceName
     std::map<std::string, Source *>::const_iterator itrFind;
@@ -1653,12 +1672,34 @@ namespace Likelihood {
       m_testSourceName = sourceName;
     }
 
+
     itrFind = m_modelWrapper->getMasterComponent().sources().find(m_testSourceName);
     if ( itrFind == m_modelWrapper->getMasterComponent().sources().end() ) {
       throw std::runtime_error("FitScanner::setTestSourceByName could not find test source in model");
       return -1;
     }
     m_testSource = itrFind->second;
+
+    if ( shiftToPixelCenter ) {
+      PointSource* ptSrc = dynamic_cast<PointSource*>(m_testSource);
+      if ( ptSrc == 0 ) {
+	throw std::runtime_error("FitScanner::setTestSourceByName can only shift PointSource objects");
+	return -1;
+
+      }
+      
+      double pix_x(0.); 
+      double pix_y(0.);
+      st_facilities::Util::skyDir2pixel(*m_proj,m_modelWrapper->getMasterComponent().countsMap().refDir(),
+					pix_x,pix_y);
+      
+      // move to the center of the pixel (FITS defines pixel centers as integer values)
+      pix_x = std::floor(pix_x);
+      pix_y = std::floor(pix_y);    
+      m_testSourceDir() = astro::SkyDir(pix_x,pix_y,*m_proj)();
+      ptSrc->setDir(m_testSourceDir.ra(),m_testSourceDir.dec(),false);     
+    }  
+
     int status = buildTestModelCache();
     if ( status ) {
       throw std::runtime_error("Failed FitScanner::buildTestModelCache().");
@@ -1667,6 +1708,36 @@ namespace Likelihood {
     return 0;        
   }
 
+
+  /* Use a generic source */
+  int FitScanner::setTestSource(Source& source) {
+
+    // Protect against the case that the sourceName is the same as the m_testSourceName
+    std::map<std::string, Source *>::const_iterator itrFind;
+    if ( m_testSourceName != source.getName() ) {
+      // Remove the old source, if it exists
+      itrFind = m_modelWrapper->getMasterComponent().sources().find(m_testSourceName);
+      if ( itrFind != m_modelWrapper->getMasterComponent().sources().end() ) {
+	removeTestSourceFromModel();      
+      }
+      // Delete the old test source
+      if ( m_testSourceOwned ) {
+	delete m_testSource;
+      }
+    }
+
+    m_testSourceName = source.getName();
+    m_testSource = &source;
+    m_testSourceOwned = true;
+
+    int status = buildTestModelCache();
+    if ( status ) {
+      throw std::runtime_error("Failed FitScanner::buildTestModelCache().");
+      return -1;
+    }
+    return 0;    
+  }
+ 
 
   /* This adds the test source to the source model */
   int FitScanner::addTestSourceToModel() {
@@ -1703,11 +1774,20 @@ namespace Likelihood {
       }            
       return 0;
     }
+
+    /*
     // Get the currect pixel indices
     double xpix = m_dir1_binner->getInterval(ix).midpoint();
     double ypix = m_dir2_binner ? m_dir2_binner->getInterval(iy).midpoint() : 0.;
     // astro::SkyDir doesn't have assignment operator, so we do this
+    if ( ix > 35 && ix < 45 &&
+	 iy > 35 && iy < 45 ) {
+      std::cout << ' ' << ix << ' ' << iy << ' ' << xpix << ' ' << ypix << std::endl;
+    }
     m_testSourceDir() = astro::SkyDir(xpix,ypix,*m_proj,false)();   
+    */
+    m_testSourceDir() = astro::SkyDir(ix+1,iy+1,*m_proj,false)();   
+    
     return 0;
   }
 
@@ -1856,8 +1936,11 @@ namespace Likelihood {
 	return -1;
       }
       // astro::SkyDir doesn't have assignment operator, so we do this
-      m_testSourceDir() = binnedLike->countsMap().refDir()();
       
+      // TESTING, get the direction from the current point source
+      // m_testSourceDir() = binnedLike->countsMap().refDir()();
+      m_testSourceDir() = ptrSrc->getDir()();
+
       // Now set the direction in the source.   
       ptrSrc->setDir(m_testSourceDir.ra(), m_testSourceDir.dec(),
 		     false, false);
