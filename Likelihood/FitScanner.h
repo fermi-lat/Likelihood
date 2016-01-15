@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.3 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.4 2016/01/14 20:21:34 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -90,6 +90,7 @@ namespace Likelihood {
   class LogLike;
   class HistND;
   class Source;
+  class PointSource;
   class AppHelpers;
   class CountsMapBase;  
 
@@ -110,7 +111,7 @@ namespace Likelihood {
 
     /* Build from a BinnedLikelihood and a Source */
     TestSourceModelCache(const BinnedLikelihood& logLike,
-			 const Source& source);
+			 const PointSource& source);
 
     /* D'tor, does nothing */
     ~TestSourceModelCache(){};
@@ -941,11 +942,56 @@ namespace Likelihood {
 
     // Modifiers (use with extreme caution) -----------
 
-    /* Use a powerlaw point source */ 
-    int setPowerlawPointTestSource(optimizers::FunctionFactory& factory, double index=2.0);    
+    /* Use a powerlaw point source 
+       
+       Note: this builds the initial image of the test source in the center of the pixel rounding down from the
+       center of the counts map.  For maps with even numbers of pixels the ScienceTools convention is to put
+       the reference direction on a pixel edge.  In that case this would build the test source offset
+       by 1/2 pixel down.  For maps with odd numbers of pixels this would just build the test source 
+       in the center of the central pixel.
 
-    /* Use a source from the model */
-    int setTestSourceByName(const std::string& sourceName);
+       This doesn't matter if the remakesrc option is true, in that case the test source will be remade in the center of 
+       each pixel in the output scan.  
+       
+       On the other hand, if the remakesrc option is false, the initial image will be simply be shifted, and then it does matter
+       where it was built.
+    */ 
+    int setPowerlawPointTestSource(optimizers::FunctionFactory& factory, 
+				   double index=2.0);
+				   
+    /* Use a source from the model 
+
+       Note: this take the image of the test source as is.  To get the same results as
+       with setPowerlawPointTestSource you either need to place the test source at the center of a pixel or
+       set shiftToPixelCenter to true.
+
+       For maps with even numbers of pixels the ScienceTools convention is to put
+       the reference direction on a pixel edge.  In that case this would build the test source offset
+       by 1/2 pixel down. 
+
+       This doesn't matter if the remakesrc option is true, in that case the test source will be remade in the center of 
+       each pixel in the output scan.  
+       
+       On the other hand, if the remakesrc option is false, the initial image will be simply be shifted, and then it does matter
+       where it was built. 
+    */
+    int setTestSourceByName(const std::string& sourceName, bool shiftToPixelCenter=true);
+
+    /* Use a generic source 
+
+       Note: this take the image of the test source as is.  To get the same results as
+       with setPowerlawPointTestSource you need to place the test source at the center of a pixel.
+       For maps with even numbers of pixels the ScienceTools convention is to put
+       the reference direction on a pixel edge.  In that case this would build the test source offset
+       by 1/2 pixel down. 
+
+       This doesn't matter if the remakesrc option is true, in that case the test source will be remade in the center of 
+       each pixel in the output scan.  
+       
+       On the other hand, if the remakesrc option is false, the initial image will be simply be shifted, and then it does matter
+       where it was built. 
+    */
+    int setTestSource(Source& source);
 
 
     // Debbugging stuff
