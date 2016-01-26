@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.4 2016/01/14 20:21:35 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.5 2016/01/15 17:33:22 echarles Exp $
  */
 
 
@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <vector>
+#include <memory>
 
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
@@ -241,6 +242,36 @@ namespace Likelihood {
     return 0;
   }
 
+
+  void FitScanModelWrapper::cacheFluxValues(const Source& aSrc) {
+    FitUtils::extractSpectralVals(aSrc,energies(),m_fluxValues);
+  }
+  
+
+  int FitScanModelWrapper::writeFits_FluxTable(const std::string& fitsFile) const {
+
+    std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
+
+    static const std::string fl_min_name("E_MIN_FL");
+    static const std::string fl_max_name("E_MAX_FL");
+
+    output_table->appendField(fl_min_name,"D");
+    output_table->appendField(fl_max_name,"D");
+    
+    tip::FieldIndex_t idx_f_min = output_table->getFieldIndex(fl_min_name);
+    tip::FieldIndex_t idx_f_max = output_table->getFieldIndex(fl_max_name);
+    
+    tip::IColumn* cl_f_min = output_table->getColumn(idx_f_min);
+    tip::IColumn* cl_f_max = output_table->getColumn(idx_f_max);
+
+    for (long index = 0; index < m_nebins; ++index) {
+      cl_f_min->set(index,m_fluxValues[index]);
+      cl_f_max->set(index,m_fluxValues[index+1]);
+    }
+    return 0;
+  }
+
+
   FitScanModelWrapper_Binned::FitScanModelWrapper_Binned(BinnedLikelihood& binnedLike)
     :FitScanModelWrapper(),
      m_binnedLike(binnedLike){
@@ -288,6 +319,7 @@ namespace Likelihood {
 
   int FitScanModelWrapper_Binned::writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const {
     m_binnedLike.countsMap().writeEbounds(fitsFile,binner);
+    writeFits_FluxTable(fitsFile);
     return 0;
   }
   
@@ -536,7 +568,26 @@ namespace Likelihood {
   }
 
   int FitScanModelWrapper_Summed::writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const {
-    m_master->countsMap().writeEbounds(fitsFile,binner);    
+    // Open EBOUNDS extension of output PHA1 file. Use an auto_ptr so that the table object
+    // will for sure be deleted, even if an exception is thrown.
+    std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
+
+    // Resize table: number of records in output file must == the number of bins in the binner.
+    output_table->setNumRecords(nEBins());
+
+    // Need output table iterator.
+    tip::Table::Iterator table_itor = output_table->begin();
+
+    // Iterate over bin number and output table iterator, writing fields in order.
+    for (long index = 0; index < nEBins(); ++index, ++table_itor) {
+       // Write channel number.
+      (*table_itor)["CHANNEL"].set(index + 1);
+
+      // Write beginning/ending value of interval into E_MIN/E_MAX, converting from MeV to keV.
+      (*table_itor)["E_MIN"].set(1000. * energies()[index]);
+      (*table_itor)["E_MAX"].set(1000. * energies()[index+1]);      
+    }
+    writeFits_FluxTable(fitsFile);
     return 0;
   }
   
@@ -897,7 +948,7 @@ namespace Likelihood {
     // Get the scan range and the scan step
     double norm_mle = m_currentPars[m_currentTestSourceIndex];
     double scan_val = std::max(1.0e-10,norm_mle - (normSigma*negErr));
-    double scan_max = std::max(2.5e-01,norm_mle + (normSigma*posErr));
+    double scan_max = std::max(2.5e-04,norm_mle + (normSigma*posErr));
     double lin_step = (scan_max - scan_val) / float(nnorm-1);
 
     // Resize the output vectors
@@ -923,17 +974,28 @@ namespace Likelihood {
     
     // if we are doing profile fitting, copy over the initial pars
     if ( do_profile ) {
+      // make sure to remove test_model
       init_pars = m_currentPars.sub(1,models_temp.size());
     }
     
     // Loop on the normalizations
     for ( int is(0); is < nnorm; is++ ) {
       norms[is] = scan_val;
+      float nPred(0.);
+      float nCF(0.);
+      float nTM(0.);
       // Add the test model to the fixed models (with the correct normalization factor)
-      FitUtils::vectorAdd(m_currentFixed.begin()+m_firstBin,m_currentFixed.begin()+m_lastBin,
-			  m_targetModel.begin()+m_firstBin,m_targetModel.begin()+m_lastBin,
-			  fixed_temp.begin()+m_firstBin,fixed_temp.begin()+m_lastBin,
-			  1.,scan_val);
+      if ( m_useReduced ) {
+	FitUtils::vectorAdd(m_currentFixed.begin()+m_firstBin,m_currentFixed.begin()+m_lastBin,
+			    m_targetRedModel.begin()+m_firstBin,m_targetRedModel.begin()+m_lastBin,
+			    fixed_temp.begin()+m_firstBin,fixed_temp.begin()+m_lastBin,
+			    1.,scan_val);
+      } else {
+	FitUtils::vectorAdd(m_currentFixed.begin()+m_firstBin,m_currentFixed.begin()+m_lastBin,
+			    m_targetModel.begin()+m_firstBin,m_targetModel.begin()+m_lastBin,
+			    fixed_temp.begin()+m_firstBin,fixed_temp.begin()+m_lastBin,
+			    1.,scan_val);	
+      }
       if ( do_profile ) {
 	// Fit the other sources
 	int status = FitUtils::fitNorms_newton((m_useReduced ? m_dataRed : m_data),
@@ -951,6 +1013,10 @@ namespace Likelihood {
       } else {
 	// No need to do the fit, just build the total model and get the log-likelihood
 	FitUtils::sumModel(init_pars,models_temp,fixed_temp,model_temp,m_firstBin,m_lastBin);
+	FitUtils::sumVector(m_currentFixed.begin()+m_firstBin,m_currentFixed.begin()+m_lastBin,nCF);
+	FitUtils::sumVector(m_targetRedModel.begin()+m_firstBin,m_targetRedModel.begin()+m_lastBin,nTM);
+	FitUtils::sumVector(model_temp.begin(),model_temp.end(),nPred);
+
 	std::vector<float>::const_iterator itrDataBeg = m_useReduced ? m_dataRed.begin()+m_firstBin : m_data.begin()+m_firstBin;
 	std::vector<float>::const_iterator itrDataEnd = m_useReduced ? m_dataRed.begin()+m_lastBin : m_data.begin()+m_lastBin;
 	logLikes[is] = FitUtils::negativeLogLikePoisson(itrDataBeg,itrDataEnd,
@@ -1314,7 +1380,7 @@ namespace Likelihood {
     // We store the output by pixel, so these are useful
     long ipix(0);
     int npix = nPixels();
-    int ipix_print = npix / 20;
+    int ipix_print = std::max(npix / 20,1);
 
     std::cout << "Performing TS Grid Scan" << std::flush;
  
@@ -1649,6 +1715,34 @@ namespace Likelihood {
     return 0;    
   }
 
+  /* Use a source with a premade spectrum */ 
+  int FitScanner::setPointTestSource(optimizers::Function& spectrum) {
+    
+    double pix_x(0.); 
+    double pix_y(0.);
+    st_facilities::Util::skyDir2pixel(*m_proj,m_modelWrapper->getMasterComponent().countsMap().refDir(),
+				      pix_x,pix_y);
+
+    // move to the center of the pixel (FITS defines pixel centers as integer values)
+    pix_x = std::floor(pix_x);
+    pix_y = std::floor(pix_y);    
+    m_testSourceDir() = astro::SkyDir(pix_x,pix_y,*m_proj)();
+
+    // Build the PointSource object and set the spectrum
+    PointSource* ptSrc = new Likelihood::PointSource();
+    ptSrc->setDir(m_testSourceDir.ra(),m_testSourceDir.dec(),false);
+    m_testSource = ptSrc;
+    m_testSource->setName(m_testSourceName);
+    m_testSourceOwned = true;
+    m_testSource->setSpectrum(&spectrum);     
+    int status = buildTestModelCache();
+    if ( status ) {
+      throw std::runtime_error("Failed FitScanner::buildTestModelCache().");
+      return -1;
+    }
+    return 0;    
+  }
+
 
   /* Use a source from the model */
   int FitScanner::setTestSourceByName(const std::string& sourceName,
@@ -1710,7 +1804,7 @@ namespace Likelihood {
 
 
   /* Use a generic source */
-  int FitScanner::setTestSource(Source& source) {
+  int FitScanner::setTestSource(Source& source, bool owned) {
 
     // Protect against the case that the sourceName is the same as the m_testSourceName
     std::map<std::string, Source *>::const_iterator itrFind;
@@ -1728,7 +1822,7 @@ namespace Likelihood {
 
     m_testSourceName = source.getName();
     m_testSource = &source;
-    m_testSourceOwned = true;
+    m_testSourceOwned = owned;
 
     int status = buildTestModelCache();
     if ( status ) {
@@ -1947,6 +2041,10 @@ namespace Likelihood {
       // Build the cache with the new test source
       m_testSourceCaches[iComp] = new TestSourceModelCache(*binnedLike,*ptrSrc);
     }
+
+    // latch the specturm in the model wrapper
+    m_modelWrapper->cacheFluxValues(*m_testSource);
+
     return 0;
   }
 
