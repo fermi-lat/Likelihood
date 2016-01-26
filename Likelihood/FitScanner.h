@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.4 2016/01/14 20:21:34 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.5 2016/01/15 17:33:21 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -74,6 +74,7 @@ namespace tip {
 namespace optimizers{
   class Optimizer;
   class FunctionFactory;
+  class Function;
 }
 
 
@@ -160,6 +161,7 @@ namespace Likelihood {
     const astro::ProjBase& m_proj;
     /* The reference direction */
     const astro::SkyDir& m_refDir;
+    
 
     /* The location of the reference pixel in image coordinates */
     std::pair<double,double> m_refPixel;
@@ -254,12 +256,10 @@ namespace Likelihood {
     
     /* C'tor, trivial */
     FitScanModelWrapper()
-      :m_npix(0),m_nebins(0),m_size(0){;}
+      :m_npix(0),m_nebins(0),m_size(0),m_fluxValues(){;}
 
     /* D'tor, trivial */
-    ~FitScanModelWrapper() {;}
-
-    
+    ~FitScanModelWrapper() {;}    
 
     /* return a reference to the counts data   
        for the BinnedLikelihood this point to the CountMap in the BinnedLikelihood object
@@ -329,6 +329,9 @@ namespace Likelihood {
     /* set the energy bins to use in the analysis */
     virtual void set_klims(size_t kmin, size_t kmax) = 0;
 
+    /* cache the flux values at the energy bin edges */
+    void cacheFluxValues(const Source& aSrc);
+
     /* return the number of pixels,        
        for the SummedLikelihood this is summed over the components */
     inline size_t nPix() const { return m_npix; }
@@ -340,6 +343,9 @@ namespace Likelihood {
     /* return the number of pixels*the number of energy bins */       
     inline size_t size() const { return m_size; }   
 
+    /* return the flux values at the energy bin edges */
+    inline const std::vector<double>& fluxValues() const { return m_fluxValues; }
+
   protected:
     
     inline void setDims(size_t nPix, size_t nEBins) {
@@ -347,11 +353,15 @@ namespace Likelihood {
       m_size = m_npix*nEBins;
     }
 
+    int writeFits_FluxTable(const std::string& fitsFile) const;
+
   private:
     
     size_t m_npix;
     size_t m_nebins;
     size_t m_size; 
+
+    std::vector<double> m_fluxValues;
   
   };
 
@@ -434,6 +444,9 @@ namespace Likelihood {
     virtual void set_klims(size_t kmin, size_t kmax);
 
   private:
+
+    // Merged set of fluxes 
+    std::vector<double> m_testFluxes;
 
     BinnedLikelihood& m_binnedLike;
 
@@ -553,7 +566,7 @@ namespace Likelihood {
     // Merged set of energy bins
     std::vector<double> m_energiesMerged;
     
-     // True if a component has data for a particular energy bin
+    // True if a component has data for a particular energy bin
     std::vector< std::vector<int> > m_energyBinLocal;     
   };
   
@@ -710,6 +723,14 @@ namespace Likelihood {
     inline const std::vector<std::vector<float> >& allModels() const { return m_allModels; }
     inline const std::vector<float>& allFixed() const { return m_allFixed; }   
     inline const std::vector<float>& targetModel() const { return m_targetModel; }
+
+    // info about the iteration
+    inline size_t firstBin() const { return m_firstBin; }
+    inline size_t lastBin() const { return m_lastBin; }
+    
+    inline const std::vector<float>& currentFixed() const { return m_currentFixed; }
+    inline const std::vector<float>& targetRedModel() const { return m_targetRedModel; }    
+
 
   protected:
 
@@ -955,9 +976,26 @@ namespace Likelihood {
        
        On the other hand, if the remakesrc option is false, the initial image will be simply be shifted, and then it does matter
        where it was built.
-    */ 
+    */    
     int setPowerlawPointTestSource(optimizers::FunctionFactory& factory, 
 				   double index=2.0);
+
+
+    /* Use a source with a premade spectrum 
+       
+       Note: this builds the initial image of the test source in the center of the pixel rounding down from the
+       center of the counts map.  For maps with even numbers of pixels the ScienceTools convention is to put
+       the reference direction on a pixel edge.  In that case this would build the test source offset
+       by 1/2 pixel down.  For maps with odd numbers of pixels this would just build the test source 
+       in the center of the central pixel.
+
+       This doesn't matter if the remakesrc option is true, in that case the test source will be remade in the center of 
+       each pixel in the output scan.  
+       
+       On the other hand, if the remakesrc option is false, the initial image will be simply be shifted, and then it does matter
+       where it was built.
+    */ 
+    int setPointTestSource(optimizers::Function& spectrum);
 				   
     /* Use a source from the model 
 
@@ -991,7 +1029,7 @@ namespace Likelihood {
        On the other hand, if the remakesrc option is false, the initial image will be simply be shifted, and then it does matter
        where it was built. 
     */
-    int setTestSource(Source& source);
+    int setTestSource(Source& source, bool owned=true);
 
 
     // Debbugging stuff
