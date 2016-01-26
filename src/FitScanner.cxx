@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.5 2016/01/15 17:33:22 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.6 2016/01/26 03:19:28 echarles Exp $
  */
 
 
@@ -1218,10 +1218,12 @@ namespace Likelihood {
   // D'tor, does cleanup
   FitScanner::~FitScanner() throw() {
     if ( m_testSource != 0 ) {
-      removeTestSourceFromModel();
+      // FIXME, remove this for now
+      // removeTestSourceFromModel();
     }
     if ( m_testSourceOwned ) {
-      delete m_testSource;
+      // FIXME, remove this for now
+      // delete m_testSource;
     }
     delete m_dir1_binner;
     delete m_dir2_binner;
