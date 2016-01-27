@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialGaussian Function class
  * @author M. Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialGaussian.h,v 1.1 2015/10/17 17:19:14 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialGaussian.h,v 1.2 2015/12/03 23:47:44 mdwood Exp $
  *
  */
 
@@ -32,7 +32,11 @@ class ResponseFunctions;
  * @class SpatialGaussian
  *
  * @brief A Function object that is an analytic representation of a 2D
- * spatial gaussian at a SkyDir location.
+ * spatial gaussian at a SkyDir location with functional form:
+ *
+ * f(r, sigma) = 1/(2 * pi * sigma^2) * exp(-r^2/(2 * sigma^2))
+ *
+ * where r is the angular distance from the SkyDir location.
  *
  */
     
@@ -42,7 +46,7 @@ public:
 
    SpatialGaussian();
 
-   SpatialGaussian(double ra, double dec, double width);
+   SpatialGaussian(double ra, double dec, double sigma);
                          
    SpatialGaussian(const SpatialGaussian &);
 
@@ -51,7 +55,7 @@ public:
    virtual ~SpatialGaussian();
 
    double value(const astro::SkyDir &) const;
-   double value(double delta, double width) const;
+   double value(double delta, double sigma) const;
 
    double spatialResponse(const astro::SkyDir &, double energy, const MeanPsf& psf) const;
    double spatialResponse(double delta, double energy, const MeanPsf& psf) const;
@@ -105,7 +109,7 @@ protected:
 
 private:
 
-   double         m_width;
+   double         m_sigma;
 };
 
 } // namespace Likelihood
