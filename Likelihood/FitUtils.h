@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/FitUtils.h,v 1.2 2015/12/02 00:53:05 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.2 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -339,6 +339,17 @@ namespace Likelihood {
 			     std::vector<double>& specVals);
 
     
+    /* Extract a vector of spectral normalization values from a Source object
+
+       source:    The source object
+       energies:  The energies at which to evalute the spectrum
+       nPreds:  Filled with the normalization values at the input energies
+     */
+    void extractNPreds(const Source& source,
+		       const std::vector<double>& energies,
+		       std::vector<double>& nPreds);
+
+
     /* Extract the predicted counts model from a Source object
 
        source:    The source object

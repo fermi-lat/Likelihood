@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.5 2016/01/15 17:33:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.6 2016/01/26 03:19:27 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -135,6 +135,7 @@ namespace Likelihood {
     void writeTestSourceToFitsImage(const std::string& fits_file,
 				    const std::string& ext_name) const; 
     
+
   protected:
 
     /* Translate the map using WCS projection by dx and dy pixels 
@@ -301,7 +302,7 @@ namespace Likelihood {
     virtual void removeSource(const std::string& sourceName) = 0;    
 
     /* Write the energy bins to a fits file */
-    virtual int writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const = 0;
+    virtual int writeFits_EnergyBins(const std::string& fitsFile) const;
 
     /* write the Good time intervals */
     virtual int writeFits_GTIs(const std::string& fitsFile) const = 0;   
@@ -346,6 +347,9 @@ namespace Likelihood {
     /* return the flux values at the energy bin edges */
     inline const std::vector<double>& fluxValues() const { return m_fluxValues; }
 
+    /* return the flux values at the energy bin edges */
+    inline const std::vector<double>& nPreds() const { return m_nPreds; }
+
   protected:
     
     inline void setDims(size_t nPix, size_t nEBins) {
@@ -361,8 +365,13 @@ namespace Likelihood {
     size_t m_nebins;
     size_t m_size; 
 
+    // fluxes for the test source model spectrum
     std::vector<double> m_fluxValues;
-  
+
+    // nPreds for the test source model spectrum
+    std::vector<double> m_nPreds;
+
+
   };
 
   
@@ -415,9 +424,6 @@ namespace Likelihood {
     /* Remove a source from the model */
     virtual void removeSource(const std::string& sourceName);    
 
-    /* Write the energy bins to a fits file */
-    virtual int writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const;
-
     /* write the Good time intervals */
     virtual int writeFits_GTIs(const std::string& fitsFile) const;   
 
@@ -444,9 +450,6 @@ namespace Likelihood {
     virtual void set_klims(size_t kmin, size_t kmax);
 
   private:
-
-    // Merged set of fluxes 
-    std::vector<double> m_testFluxes;
 
     BinnedLikelihood& m_binnedLike;
 
@@ -513,9 +516,6 @@ namespace Likelihood {
     
     /* Remove a source from the model */
     virtual void removeSource(const std::string& sourceName);    
-    
-    /* Write the energy bins to a fits file */
-    virtual int writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const;
     
     /* write the Good time intervals */
     virtual int writeFits_GTIs(const std::string& fitsFile) const;   
@@ -694,6 +694,7 @@ namespace Likelihood {
 			       double& posErr,
 			       double& negErr);
 
+    
     // access --------------------------------------------------------
 
     // Information about the baseline model
@@ -716,7 +717,7 @@ namespace Likelihood {
     inline const double& currentLogLike() const { return m_currentLogLike; }
     inline const double& currentEDM() const { return m_currentEDM; }    
     inline int currentEnergyBin() const { return m_currentEnergyBin; }
-    	
+
     // parts of the models
     inline const std::vector<float>& refValues() const { return m_refValues; }
     
@@ -891,10 +892,34 @@ namespace Likelihood {
 		  int maxIter = 30, 
 		  bool remakeTestSource = false);
 
+     /* Build an SED.
+	This calculates the spectrum as a function of energy
+       and can also scan over the normalization.
+
+       This actually just calls run_tscube with doTSMap set to false.
+
+       nNorm         : Number of points in the likelihood v. normalization scan
+       covScale      : Scale factor to apply to broadband fitting cov. matrix in bin-by-bin fits ( < 0 -> fixed )
+       normSigma     : Number of sigma to use for the scan range 
+       tol           : Critetia for fit convergence (estimated vertical distance to min < tol )
+       maxIter       : Maximum number of iterations for the Newton's method fitter
+       tolType       : Absoulte (0) or relative (1) criteria for convergence
+       remakeTestSource : If true, recomputes the test source image (otherwise just shifts it)
+       ST_scan_level : Level to which to do ST-based fitting (for testing)
+     
+       returns 0 for success, or a error code
+     */
+    int run_SED(int nNorm = 10, double normSigma = 5.0, 
+		double covScale = -1.0, double tol = 1e-3, int maxIter = 30, int tolType = 0, 
+		bool remakeTestSource = false,
+		int ST_scan_level = 0);
+
+
     /* Build a TS cube.
        For each point in a TS Map this also calculate the spectrum as a function of energy
        and can also scan over the normalization
 
+       doTSMap       : Scan over the grid of test directions
        doSED         : Compute the energy bin-by-bin fits
        nNorm         : Number of points in the likelihood v. normalization scan
        covScale      : Scale factor to apply to broadband fitting cov. matrix in bin-by-bin fits ( < 0 -> fixed )
@@ -909,7 +934,7 @@ namespace Likelihood {
 
        throws exceptions if some inconsistency in the models or data is detected.
      */
-    int run_tscube(bool doSED=true, int nNorm = 10, double normSigma = 5.0, 
+    int run_tscube(bool doTSMap=true, bool doSED=true, int nNorm = 10, double normSigma = 5.0, 
 		   double covScale = -1.0, double tol = 1e-3, int maxIter = 30, int tolType = 0, 
 		   bool remakeTestSource = false,
 		   int ST_scan_level = 0);
@@ -1150,6 +1175,7 @@ namespace Likelihood {
 
     // These are the output data from the scanning
     std::vector< std::pair< std::string,std::pair<HistND*,std::string> > > m_scanData;
+    bool m_scanHasTSMap;
 
     // This is where we cache all the info about the model and the fits
     FitScanCache* m_cache;
