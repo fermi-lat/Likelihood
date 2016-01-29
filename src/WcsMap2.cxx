@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.23 2015/12/10 01:42:17 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.24 2016/01/15 17:30:18 echarles Exp $
  */
 
 #include <cmath>
@@ -66,7 +66,8 @@ namespace Likelihood {
 WcsMap2::WcsMap2(const std::string & filename,
                  const std::string & extension,
                  bool interpolate,
-                 bool enforceEnergyRange) 
+                 bool enforceEnergyRange,
+		 bool computeIntegrals) 
   : ProjMap(filename,interpolate,enforceEnergyRange),
     m_isPeriodic(false) {
    
@@ -151,13 +152,16 @@ WcsMap2::WcsMap2(const std::string & filename,
       m_image.push_back(image_plane);
    }
 
-   computeMapIntegrals();
+   if(computeIntegrals) {
+     computeMapIntegrals();
+   }
 }
 
 WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
                  double ra, double dec, double pix_size, int npts,
                  double energy, const std::string & proj_name, bool use_lb,
-                 bool interpolate, bool enforceEnergyRange) 
+                 bool interpolate, bool enforceEnergyRange, 
+		 bool computeIntegrals) 
   : ProjMap("",interpolate, enforceEnergyRange),
     m_isPeriodic(false){
   
@@ -195,9 +199,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
 			      use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
             SkyDirArg my_dir(dir, energy);
             row[i] = diffuseSource.spatialDist(my_dir);
-         } else {
-            row[i] = 0;
-         }
+         } 
       }
       image_plane.push_back(row);
    }
@@ -207,7 +209,10 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    m_naxis1 = npts;
    m_naxis2 = npts;
    energies_access().push_back(energy);
-   computeMapIntegrals();
+
+   if(computeIntegrals) {
+     computeMapIntegrals();
+   }
 }
 
 WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
@@ -216,7 +221,8 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
                  double cdelt1, double cdelt2,
                  int naxis1, int naxis2,
                  double energy, const std::string & proj_name, bool use_lb,
-                 bool interpolate, bool enforceEnergyRange) 
+                 bool interpolate, bool enforceEnergyRange,
+		 bool computeIntegrals) 
    :  ProjMap("",interpolate, enforceEnergyRange),
       m_isPeriodic(false),
       m_crpix1(crpix1),
@@ -253,10 +259,8 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
             astro::SkyDir dir(coord.first, coord.second, 
 			      use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
             SkyDirArg my_dir(dir, energy);
-            row.at(i) = diffuseSource.spatialDist(my_dir);
-         } else {
-            row.at(i) = 0;
-         }
+	    row[i] = diffuseSource.spatialDist(my_dir);
+         } 
       }
       image_plane.push_back(row);
    }
@@ -264,7 +268,10 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    m_image.clear();
    m_image.push_back(image_plane);
    energies_access().push_back(energy);
-   computeMapIntegrals();
+
+   if(computeIntegrals) {
+     computeMapIntegrals();
+   }
 }
 
 WcsMap2::~WcsMap2(){}
@@ -516,7 +523,7 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 
    std::pair<astro::SkyDir, astro::SkyDir> minMaxDir;
    minMaxDir = minMaxDistPixels(fn.dir());
- 
+
    const double cdelt_max = std::max(std::abs(cdelt1()),std::abs(cdelt2()));
    const double cdelt_min = std::min(std::abs(cdelt1()),std::abs(cdelt2()));
    const double theta_max = minMaxDir.second.difference(fn.dir())*180./M_PI + 2.0*cdelt_max;
@@ -546,7 +553,10 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
       for (int i = 0; i < m_naxis1; i++) {
          if (getProj()->testpix2sph(i+1, j+1) == 0) {
 	    std::pair<double, double> coord = getProj()->pix2sph(i+1, j+1);
-            astro::SkyDir dir(coord.first, coord.second, astro::SkyDir::EQUATORIAL);
+            astro::SkyDir dir(coord.first, coord.second,
+			      getProj()->isGalactic() ? 
+			      astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL);
+
 	    double dtheta = fndir.difference(dir)*180./M_PI;
 	    double v = st_facilities::Util::interpolate(theta, value, 
 							dtheta);

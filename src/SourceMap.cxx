@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.110 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.111 2016/01/09 02:04:15 mdwood Exp $
  */
 
 #include <cmath>
@@ -246,6 +246,8 @@ void SourceMap::makeDiffuseMap_native(Source * src,
 				      double minbinsz,
 				      bool verbose) {
   DiffuseSource * diffuseSrc = dynamic_cast<DiffuseSource *>(src);
+
+  bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc->spatialDist()) != 0;
   // If the diffuse source is represented by an underlying map, then
   // rebin according to the minimum bin size.
   std::string nativeProj("STG");
@@ -292,8 +294,9 @@ void SourceMap::makeDiffuseMap_native(Source * src,
   }
   m_formatter->info(4) << "\nresampling factor: " 
 		       << resamp_factor << std::endl;
-  
+
   double crpix1, crpix2;
+  int naxis1(0), naxis2(0);
   double cdelt1 = -1.*dataMap->pixelSize()/resamp_factor;
   double cdelt2 = dataMap->pixelSize()/resamp_factor;
   size_t nx_offset(0), ny_offset(0);
@@ -301,52 +304,67 @@ void SourceMap::makeDiffuseMap_native(Source * src,
   double ref1 = dataMap->isGalactic() ? mapRefDir.l() : mapRefDir.ra();
   double ref2 = dataMap->isGalactic() ? mapRefDir.b() : mapRefDir.dec();
 
-  double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
- // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
-  // expression for the mapsize ensures that the number of
-  // pixels in each dimension is even.
-  int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
-  m_formatter->info(4) << "mapsize: " << mapsize << std::endl;
-  int naxis1 = mapsize;
-  int naxis2 = mapsize;
-  crpix1 = (naxis1 + 1.)/2.;
-  crpix2 = (naxis2 + 1.)/2.;
-  
-  int naxis_data = int( dataMap->mapRadius() / dataMap->pixelSize() );
 
-  nx_offset = 
-    static_cast<size_t>((mapsize - naxis_data*resamp_factor)/2);
-  ny_offset = 
-    static_cast<size_t>((mapsize - naxis_data*resamp_factor)/2);
-  nx_offset_upper = 
-    static_cast<size_t>((mapsize - naxis_data*resamp_factor)/2);
-  ny_offset_upper = 
-    static_cast<size_t>((mapsize - naxis_data*resamp_factor)/2);
-  /// For cases where the resampling factor is an odd number, 
-  /// there may be a row or column of pixels not accounted for
-  /// by n[xy]_offset.  Here we add that row or column back in if
-  /// it is missing.
-  int xtest = static_cast<int>((naxis1 - nx_offset - nx_offset_upper) 
-			       - naxis_data*resamp_factor);
-  if (resample && xtest != 0) {
-    nx_offset += 1;
-  }
-  int ytest = static_cast<int>((naxis2 - ny_offset - ny_offset_upper) 
-			       - naxis_data*resamp_factor);
-  if (resample && ytest != 0) {
-    ny_offset += 1;
-  }
-  if (!resample) { 
-    // Use integer or half-integer reference pixel based on
-    // input counts map, even though naxis1 and naxis2 both
-    // must be even.
-    if (naxis_data % 2 == 1) {
-      crpix1 += 0.5;
-      crpix2 += 0.5;
+  // For spatial functions the map only needs to be big enough to
+  // encompass the ROI
+  if (haveSpatialFunction) {
+    double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + std::fabs(cdelt1) );
+    int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
+    naxis1 = mapsize;
+    naxis2 = mapsize;
+    crpix1 = (mapsize+1.0)*0.5;
+    crpix2 = (mapsize+1.0)*0.5;
+  } else {
+
+    double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
+    // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
+    // expression for the mapsize ensures that the number of
+    // pixels in each dimension is even.
+    int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
+
+    m_formatter->info(4) << "mapsize: " << mapsize << std::endl;
+    naxis1 = mapsize;
+    naxis2 = mapsize;
+    crpix1 = (naxis1 + 1.)/2.;
+    crpix2 = (naxis2 + 1.)/2.;
+  
+    int naxis_data = int( dataMap->mapRadius() / dataMap->pixelSize() );
+
+    nx_offset = 
+      static_cast<size_t>((mapsize - naxis_data*resamp_factor)/2);
+    ny_offset = 
+      static_cast<size_t>((mapsize - naxis_data*resamp_factor)/2);
+    nx_offset_upper = 
+      static_cast<size_t>((mapsize - naxis_data*resamp_factor)/2);
+    ny_offset_upper = 
+      static_cast<size_t>((mapsize - naxis_data*resamp_factor)/2);
+    /// For cases where the resampling factor is an odd number, 
+    /// there may be a row or column of pixels not accounted for
+    /// by n[xy]_offset.  Here we add that row or column back in if
+    /// it is missing.
+    int xtest = static_cast<int>((naxis1 - nx_offset - nx_offset_upper) 
+				 - naxis_data*resamp_factor);
+    if (resample && xtest != 0) {
       nx_offset += 1;
+    }
+    int ytest = static_cast<int>((naxis2 - ny_offset - ny_offset_upper) 
+				 - naxis_data*resamp_factor);
+    if (resample && ytest != 0) {
       ny_offset += 1;
     }
+    if (!resample) { 
+      // Use integer or half-integer reference pixel based on
+      // input counts map, even though naxis1 and naxis2 both
+      // must be even.
+      if (naxis_data % 2 == 1) {
+	crpix1 += 0.5;
+	crpix2 += 0.5;
+	nx_offset += 1;
+	ny_offset += 1;
+      }
+    }
   }
+  
 
   size_t counter(0);
   std::vector<double>::const_iterator energy = energies.begin();
@@ -360,17 +378,30 @@ void SourceMap::makeDiffuseMap_native(Source * src,
 
   for (int k(0); energy != energies.end(); ++energy, k++) {
     bool interpolate(true);
+    bool enforceEnergyRange(false);
+    bool computeIntegrals(false);
     m_formatter->warn() << ".";
+
+    WcsMap2 * convolvedMap(0);
     WcsMap2 diffuseMap(*diffuseSrc, ref1, ref2,
 		       crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
 		       *energy, nativeProj, 
 		       dataMap->projection().isGalactic(), 
-		       interpolate);
+		       interpolate,enforceEnergyRange,computeIntegrals);
 
     const MeanPsf & meanpsf(m_observation.meanpsf());
     const BinnedExposureBase & bexpmap = m_observation.bexpmap();
-    WcsMap2* convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
-								      bexpmap, performConvolution));
+
+    if(haveSpatialFunction) {
+      const SpatialFunction* m = 
+	dynamic_cast<const SpatialFunction *>(diffuseSrc->spatialDist());
+      convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
+								 bexpmap, *m));
+    } else {
+      convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
+							       bexpmap, performConvolution));
+    }
+
     // This function assumes that the convolved map is at 
     // a higher resolution than the output map
     // In this case that should be true b/c of the resampling done above
@@ -554,7 +585,7 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
      naxis1 = static_cast<int>(dataMap->naxis1()*resamp_factor);
      naxis2 = static_cast<int>(dataMap->naxis2()*resamp_factor);      
      crpix1 = resamp_factor*(dataMap->crpix1() - 0.5)+0.5;
-     crpix2 = resamp_factor*(dataMap->crpix1() - 0.5)+0.5;  
+     crpix2 = resamp_factor*(dataMap->crpix2() - 0.5)+0.5;  
    } else if (dataMap->conformingMap()) {
       double radius = std::min(180., ::maxRadius(pixels, mapRefDir) + 10.);
       // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
@@ -627,7 +658,7 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
    size_t counter(0);
    std::vector<double>::const_iterator energy = energies.begin();
    for (int k(0); energy != energies.end(); ++energy, k++) {
-      bool interpolate;
+      bool interpolate(true);
 
       WcsMap2 * convolvedMap(0);      
       WcsMap2 diffuseMap(*diffuseSrc,  
@@ -636,7 +667,7 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
                          crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
                          *energy, dataMap->proj_name(), 
                          dataMap->projection().isGalactic(), 
-                         interpolate=true);
+                         interpolate);
 
       if(haveSpatialFunction) {
 	const SpatialFunction* m = 

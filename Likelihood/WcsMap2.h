@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/WcsMap2.h,v 1.6 2015/11/30 19:38:30 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.10 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -34,18 +34,21 @@ class WcsMap2 : public ProjMap {
 public:
 
    WcsMap2(const std::string & filename, const std::string & extension="",
-           bool interpolate=true, bool enforceEnergyRange=false);
+           bool interpolate=true, bool enforceEnergyRange=false,
+	   bool computeIntegrals=true);
 
    WcsMap2(const DiffuseSource & diffuseSource, double ra, double dec,
            double pix_size, int npts, double energy=100.,
            const std::string & proj_name="STG", bool use_lb=false,
-           bool interpolate=false, bool enforceEnergyRange=false);
+           bool interpolate=false, bool enforceEnergyRange=false,
+	   bool computeIntegrals=true);
 
    WcsMap2(const DiffuseSource & diffuseSource, double ra, double dec,
            double crpix1, double crpix2, double cdelt1, double cdelt2,
            int naxis1, int naxis2, double energy=100.,
            const std::string & proj_name="STG", bool use_lb=false,
-           bool interpolate=false, bool enforceEnergyRange=false);
+           bool interpolate=false, bool enforceEnergyRange=false,
+	   bool computeIntegrals=true);
 
    virtual ~WcsMap2();
 
