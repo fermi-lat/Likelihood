@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.6 2016/01/26 03:19:28 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.7 2016/01/26 03:22:20 echarles Exp $
  */
 
 
@@ -244,29 +244,63 @@ namespace Likelihood {
 
 
   void FitScanModelWrapper::cacheFluxValues(const Source& aSrc) {
-    FitUtils::extractSpectralVals(aSrc,energies(),m_fluxValues);
+    m_nPreds.clear();
+    FitUtils::extractSpectralVals(aSrc,energies(),m_fluxValues);    
+    aSrc.computeExposure(energies());
+    for ( size_t i(0); i < m_nebins; i++ ) {
+      double np = aSrc.Npred(energies()[i],energies()[i+1]);
+      m_nPreds.push_back(np);
+    }
   }
   
+  int FitScanModelWrapper::writeFits_EnergyBins(const std::string& fitsFile) const {
+    // Open EBOUNDS extension of output PHA1 file. Use an auto_ptr so that the table object
+    // will for sure be deleted, even if an exception is thrown.
+    std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
 
+    // Resize table: number of records in output file must == the number of bins in the binner.
+    output_table->setNumRecords(nEBins());
+
+    // Need output table iterator.
+    tip::Table::Iterator table_itor = output_table->begin();
+
+    // Iterate over bin number and output table iterator, writing fields in order.
+    for (long index = 0; index < nEBins(); ++index, ++table_itor) {
+       // Write channel number.
+      (*table_itor)["CHANNEL"].set(index + 1);
+
+      // Write beginning/ending value of interval into E_MIN/E_MAX, converting from MeV to keV.
+      (*table_itor)["E_MIN"].set(1000. * energies()[index]);
+      (*table_itor)["E_MAX"].set(1000. * energies()[index+1]);      
+    }
+    writeFits_FluxTable(fitsFile);
+    return 0;
+  }
+  
   int FitScanModelWrapper::writeFits_FluxTable(const std::string& fitsFile) const {
 
     std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
 
     static const std::string fl_min_name("E_MIN_FL");
     static const std::string fl_max_name("E_MAX_FL");
+    static const std::string npred_name("NPRED");
 
     output_table->appendField(fl_min_name,"D");
     output_table->appendField(fl_max_name,"D");
+    output_table->appendField(npred_name,"D");
     
     tip::FieldIndex_t idx_f_min = output_table->getFieldIndex(fl_min_name);
     tip::FieldIndex_t idx_f_max = output_table->getFieldIndex(fl_max_name);
+    tip::FieldIndex_t idx_npred = output_table->getFieldIndex(npred_name);
     
     tip::IColumn* cl_f_min = output_table->getColumn(idx_f_min);
     tip::IColumn* cl_f_max = output_table->getColumn(idx_f_max);
+    tip::IColumn* cl_npred = output_table->getColumn(idx_npred);
 
     for (long index = 0; index < m_nebins; ++index) {
       cl_f_min->set(index,m_fluxValues[index]);
       cl_f_max->set(index,m_fluxValues[index+1]);
+      cl_npred->set(index,m_nPreds[index]);
     }
     return 0;
   }
@@ -316,12 +350,6 @@ namespace Likelihood {
      }
      delete delSrc;
   } 
-
-  int FitScanModelWrapper_Binned::writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const {
-    m_binnedLike.countsMap().writeEbounds(fitsFile,binner);
-    writeFits_FluxTable(fitsFile);
-    return 0;
-  }
   
   int FitScanModelWrapper_Binned::writeFits_GTIs(const std::string& fitsFile) const {
     m_binnedLike.countsMap().writeGti(fitsFile);
@@ -510,6 +538,7 @@ namespace Likelihood {
       FitScanModelWrapper_Binned* nbw = new FitScanModelWrapper_Binned(*binnedLike);
       wrappers.push_back(nbw);
       FitScanCache* cache = new FitScanCache(*nbw,test_name,tol,maxIter,false);
+      caches.push_back(cache);
       fixedToMerge.push_back( &(cache->allFixed()) );
       testToMerge.push_back( &(cache->targetModel()) );
       refPars.resize(cache->refValues().size());
@@ -537,7 +566,11 @@ namespace Likelihood {
       FitScanModelWrapper_Binned* toDel = *itrd;
       delete toDel;
     }
-  
+    
+    for (  std::vector<FitScanCache*>::iterator itrd2 = caches.begin(); itrd2 != caches.end(); itrd2++ ) {
+      FitScanCache* toDel2 = *itrd2;
+      delete toDel2;
+    }
   }
 
   double FitScanModelWrapper_Summed::value() const {
@@ -567,30 +600,6 @@ namespace Likelihood {
     }
   }
 
-  int FitScanModelWrapper_Summed::writeFits_EnergyBins(const std::string& fitsFile, const evtbin::Binner* binner) const {
-    // Open EBOUNDS extension of output PHA1 file. Use an auto_ptr so that the table object
-    // will for sure be deleted, even if an exception is thrown.
-    std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
-
-    // Resize table: number of records in output file must == the number of bins in the binner.
-    output_table->setNumRecords(nEBins());
-
-    // Need output table iterator.
-    tip::Table::Iterator table_itor = output_table->begin();
-
-    // Iterate over bin number and output table iterator, writing fields in order.
-    for (long index = 0; index < nEBins(); ++index, ++table_itor) {
-       // Write channel number.
-      (*table_itor)["CHANNEL"].set(index + 1);
-
-      // Write beginning/ending value of interval into E_MIN/E_MAX, converting from MeV to keV.
-      (*table_itor)["E_MIN"].set(1000. * energies()[index]);
-      (*table_itor)["E_MAX"].set(1000. * energies()[index+1]);      
-    }
-    writeFits_FluxTable(fitsFile);
-    return 0;
-  }
-  
   int FitScanModelWrapper_Summed::writeFits_GTIs(const std::string& fitsFile) const {
     m_master->countsMap().writeGti(fitsFile);
     return 0;
@@ -1057,7 +1066,7 @@ namespace Likelihood {
     negErr = std::min((+b_val + sqrt_det)/(2.*a_val),m_currentPars[m_currentTestSourceIndex]);
     return 0;
   }
-  
+
 
   void FitScanCache::reduceModels() {					
     if ( ! m_useReduced ) {
@@ -1137,6 +1146,7 @@ namespace Likelihood {
      m_testSource(0),
      m_testSourceOwned(false),
      m_testSourceName("TestSource"),
+     m_scanHasTSMap(false),
      m_cache(0),
      m_testSourceCaches(1,0),
      m_verbose_null(0),
@@ -1165,6 +1175,7 @@ namespace Likelihood {
      m_testSource(0),
      m_testSourceOwned(false),
      m_testSourceName("TestSource"),
+     m_scanHasTSMap(false),
      m_cache(0),
      m_testSourceCaches(summedLike.numComponents(),0),
      m_verbose_null(0),
@@ -1201,6 +1212,7 @@ namespace Likelihood {
      m_norm_binner(0),
      m_testSource(0),
      m_testSourceName("TestSource"),
+     m_scanHasTSMap(false),
      m_cache(0),
      m_testSourceCache(0){
     
@@ -1246,12 +1258,26 @@ namespace Likelihood {
   int FitScanner::run_tsmap(double tol, int tolType, int maxIter, bool remakeTestSource) {
     return run_tscube(false,0,0.0,tol,tolType,maxIter,remakeTestSource);
   }
+
+  /* Build an SED.
+     This calculates the spectrum as a function of energy
+     and can also scan over the normalization. */
+  int FitScanner::run_SED(int nNorm, double normSigma, 
+			  double covScale,
+			  double tol, int maxIter, int tolType, 
+			  bool remakeTestSource,
+			  int ST_scan_level) {
+    return run_tscube(false,nNorm,normSigma,covScale,tol,
+		      maxIter,tolType,remakeTestSource,
+		      ST_scan_level);
+  }
+
   
   /* Build a TS cube.
      For each point in a TS Map this also calculate the spectrum as a function of energy
      and can also scan over the normalization
   */  
-  int FitScanner::run_tscube(bool doSED, int nNorm, double normSigma, 
+  int FitScanner::run_tscube(bool doTSMap, bool doSED, int nNorm, double normSigma, 
 			     double covScale,
 			     double tol, int maxIter, int tolType, 
 			     bool remakeTestSource,
@@ -1307,10 +1333,11 @@ namespace Likelihood {
     
     // Get the number of bins in the grid of the region
     // This allows for:
-    //   1) standard WCS-grid: m_dir1_binner and m_dir2_binner both exist
-    //   2) HEALpix pixelization: m_dir1_binner exists, dir2_binner does not
-    long nxbins = m_dir1_binner->getNumBins();
-    long nybins = m_dir2_binner ? m_dir2_binner->getNumBins() : 1;    
+    //   1) if doTSMap is false we don't actually loop over positions
+    //   2) standard WCS-grid: m_dir1_binner and m_dir2_binner both exist
+    //   3) HEALpix pixelization: m_dir1_binner exists, dir2_binner does not    
+    long nxbins = doTSMap ? m_dir1_binner->getNumBins() : 1;
+    long nybins = doTSMap ? ( m_dir2_binner ? m_dir2_binner->getNumBins() : 1 ) : 1;
     
     // Make the binner for the normalization scan, if requested
     if ( nNorm > 0 ) {
@@ -1343,28 +1370,31 @@ namespace Likelihood {
 
     // Build the varius histograms
     // Note that buildHist can return a null pointer
+    m_scanHasTSMap = doTSMap;
     
     // Histograms for Newton's Method fitting
+    // HistND* ts_map = doTSMap ? buildHist(tsmap_name,true,false,false) : 0;
     HistND* ts_map = buildHist(tsmap_name,true,false,false);
-    HistND* norm_map = buildHist(norm_map_name,true,false,false);
-    HistND* posErr_map = buildHist(posErr_map_name,true,false,false);
-    HistND* negErr_map = buildHist(negErr_map_name,true,false,false);
 
-    HistND* ts_cube = doSED ? buildHist(tscube_name,true,true,false) : 0;
-    HistND* norm_cube = doSED ? buildHist(norm_cube_name,true,true,false) : 0;
-    HistND* posErr_cube = doSED ? buildHist(posErr_cube_name,true,true,false) : 0;
-    HistND* negErr_cube = doSED ? buildHist(negErr_cube_name,true,true,false) : 0;
-    HistND* nll_cube = doSED ? buildHist(nll_cube_name,true,true,false) : 0;
-    HistND* norm_vals = nNorm > 0 ? buildHist(norm_name,true,true,true) : 0;
-    HistND* delta_ll_vals = nNorm > 0 ? buildHist(delta_ll_name,true,true,true) : 0;
+    HistND* norm_map = doTSMap ? buildHist(norm_map_name,true,false,false) : 0;
+    HistND* posErr_map = doTSMap ? buildHist(posErr_map_name,true,false,false) : 0;
+    HistND* negErr_map = doTSMap ? buildHist(negErr_map_name,true,false,false) : 0;
+
+    HistND* ts_cube = doSED ? buildHist(tscube_name,doTSMap,true,false) : 0;
+    HistND* norm_cube = doSED ? buildHist(norm_cube_name,doTSMap,true,false) : 0;
+    HistND* posErr_cube = doSED ? buildHist(posErr_cube_name,doTSMap,true,false) : 0;
+    HistND* negErr_cube = doSED ? buildHist(negErr_cube_name,doTSMap,true,false) : 0;
+    HistND* nll_cube = doSED ? buildHist(nll_cube_name,doTSMap,true,false) : 0;
+    HistND* norm_vals = nNorm > 0 ? buildHist(norm_name,doTSMap,true,true) : 0;
+    HistND* delta_ll_vals = nNorm > 0 ? buildHist(delta_ll_name,doTSMap,true,true) : 0;
     
     // Histograms for ScienceTools fitting
-    HistND* ts_map_st = broadband_st ? buildHist(tsmap_name+"_ST",true,false,false) : 0;
-    HistND* ts_cube_st = ( sed_st && doSED ) ? buildHist(tscube_name+"_ST",true,true,false) : 0;
-    HistND* norm_cube_st = ( sed_st && doSED ) ? buildHist(norm_cube_name+"_ST",true,true,false) : 0;
-    HistND* nll_cube_st = ( sed_st && doSED ) ? buildHist(nll_cube_name+"_ST",true,true,false) : 0;
-    HistND* norm_vals_st =  nNorm_st > 0 ? buildHist(norm_name+"_ST",true,true,true) : 0;
-    HistND* delta_ll_vals_st = nNorm_st > 0 ? buildHist(delta_ll_name+"_ST",true,true,true) : 0;
+    HistND* ts_map_st = ( broadband_st && doTSMap ) ? buildHist(tsmap_name+"_ST",true,false,false) : 0;
+    HistND* ts_cube_st = ( sed_st && doSED ) ? buildHist(tscube_name+"_ST",doTSMap,true,false) : 0;
+    HistND* norm_cube_st = ( sed_st && doSED ) ? buildHist(norm_cube_name+"_ST",doTSMap,true,false) : 0;
+    HistND* nll_cube_st = ( sed_st && doSED ) ? buildHist(nll_cube_name+"_ST",doTSMap,true,false) : 0;
+    HistND* norm_vals_st =  nNorm_st > 0 ? buildHist(norm_name+"_ST",doTSMap,true,true) : 0;
+    HistND* delta_ll_vals_st = nNorm_st > 0 ? buildHist(delta_ll_name+"_ST",doTSMap,true,true) : 0;
     
     
     // We want all the free sources to be refit at each grid point (for the broadband fits)
@@ -1381,20 +1411,26 @@ namespace Likelihood {
     
     // We store the output by pixel, so these are useful
     long ipix(0);
-    int npix = nPixels();
+    int npix = doTSMap ? nPixels() : 1;
     int ipix_print = std::max(npix / 20,1);
 
-    std::cout << "Performing TS Grid Scan" << std::flush;
+    if ( doTSMap ) {
+      std::cout << "Performing TS Grid Scan" << std::flush;
+    } else {
+      std::cout << "Performing SED Scan" << std::flush;
+    }
  
     // Note the loop order, outer loop is on Y, this matches HistND structure
     for ( long iy(0); iy < nybins; iy++ ) {      
       for ( long ix(0); ix < nxbins; ix++, ipix++ ) {
 	
 	// Set the test source direction from the grid
-	status = setTestSourceDir(ix,iy);
-	if ( status != 0 ) {
-	  throw std::runtime_error("Failed to set test source direction.");
-	  return -1;
+	if ( doTSMap ) {
+	  status = setTestSourceDir(ix,iy);
+	  if ( status != 0 ) {
+	    throw std::runtime_error("Failed to set test source direction.");
+	    return -1;
+	  }
 	}
 
 	// Add the test source to the SourceModel if needed.
@@ -1418,7 +1454,7 @@ namespace Likelihood {
 	  
 	  // get the TS value and copy to the output histogram
 	  double loglike_bb_st = m_modelWrapper->value();
-	  double tsval_st = 2*(loglike_bb_st - loglike_null_st);	
+	  double tsval_st = 2*(loglike_bb_st - loglike_null_st);
 	  if ( ts_map_st ) {
 	    ts_map_st->setBinDirect(ipix,tsval_st);
 	  }
@@ -1459,7 +1495,7 @@ namespace Likelihood {
 	double negErr(0.);
 
 	m_cache->signalUncertainty_quad(0.5,posErr,negErr);
-	
+
 	if ( ts_map ) ts_map->setBinDirect(ipix,tsval_newton);
 	if ( norm_map ) norm_map->setBinDirect(ipix,normVal);
 	if ( posErr_map ) posErr_map->setBinDirect(ipix,posErr);
@@ -1511,9 +1547,9 @@ namespace Likelihood {
 	// This is the pixel index
 	int idx_sed = ipix;
 	// This is the stride from one normalization set to the next
-	int step_norm = nPixels() * nEBins();
+	int step_norm = npix * nEBins();
 	// Loop on energy bins
-	for ( int iE(0); iE < nEBins(); iE++, idx_sed += nPixels() ) {
+	for ( int iE(0); iE < nEBins(); iE++, idx_sed += npix ) {
 	  // Fill the histograms that use pixel and energy bin
 	  double ts_val_bin = 2.*(logLike_mles[iE] - logLikes[iE][0]);
 	  if ( ts_cube ) ts_cube->setBinDirect(idx_sed,ts_val_bin);
@@ -1586,7 +1622,7 @@ namespace Likelihood {
     tip::IFileSvc::instance().createFile(fitsFile, fits_template);
     
     // Is this a WCS-based or HEALPix based scan
-    bool image_based = m_dir2_binner != 0;    
+    bool image_based = m_dir2_binner != 0;
 
     // Names of the columns we will write to the results table
     std::vector<std::pair<std::string,std::pair<HistND*,std::string> > > colData;
@@ -1600,22 +1636,24 @@ namespace Likelihood {
     // to save in the results table
     for ( std::vector< std::pair< std::string,std::pair<HistND*,std::string> > >::const_iterator itrHists = m_scanData.begin();
 	  itrHists != m_scanData.end(); itrHists++ ) {
-      if ( image_based && 
-	   itrHists->second.second.find("NORM") == std::string::npos ) {
+      if ( image_based ) {
 	if ( itrHists->first == TSMAP_NAME ) {
 	  // Write the TSMAP to the primary
 	  status = writeFitsImage(fitsFile,"",*(itrHists->second.first));
 	} else {
-	  status = writeFitsImage(fitsFile,itrHists->first,*(itrHists->second.first));
+	  if ( itrHists->second.second.find("NORM") == std::string::npos &&
+	       m_scanHasTSMap ) {
+	    status = writeFitsImage(fitsFile,itrHists->first,*(itrHists->second.first));
+	  } else {
+	    colData.push_back(*itrHists);
+	  }
 	}
 	if ( status ) {
 	  throw std::runtime_error("Failed to write fits image");
 	  return status;
 	}
       } else {
-	if ( itrHists->first != TSMAP_NAME ) {
-	  colData.push_back(*itrHists);
-	}
+	colData.push_back(*itrHists);
       }
     }
 	      
@@ -1643,7 +1681,7 @@ namespace Likelihood {
     }
     
     return 0;
-    }
+  }
   
   // The number of pixels we are scanning over
   int FitScanner::nPixels() const {
@@ -1692,7 +1730,8 @@ namespace Likelihood {
     m_testSourceDir() = astro::SkyDir(pix_x,pix_y,*m_proj)();
 
     // Build the PointSource object and set the spectrum
-    PointSource* ptSrc = new Likelihood::PointSource();
+    const Observation& obs = m_modelWrapper->getMasterComponent().observation();
+    PointSource* ptSrc = new Likelihood::PointSource(&obs);
     ptSrc->setDir(m_testSourceDir.ra(),m_testSourceDir.dec(),false);
     m_testSource = ptSrc;
     m_testSource->setName(m_testSourceName);
@@ -1731,7 +1770,8 @@ namespace Likelihood {
     m_testSourceDir() = astro::SkyDir(pix_x,pix_y,*m_proj)();
 
     // Build the PointSource object and set the spectrum
-    PointSource* ptSrc = new Likelihood::PointSource();
+    const Observation& obs = m_modelWrapper->getMasterComponent().observation();
+    PointSource* ptSrc = new Likelihood::PointSource(&obs);
     ptSrc->setDir(m_testSourceDir.ra(),m_testSourceDir.dec(),false);
     m_testSource = ptSrc;
     m_testSource->setName(m_testSourceName);
@@ -1783,7 +1823,9 @@ namespace Likelihood {
 	return -1;
 
       }
-      
+      const Observation& obs = m_modelWrapper->getMasterComponent().observation();
+      ptSrc->setObservation(&obs);
+
       double pix_x(0.); 
       double pix_y(0.);
       st_facilities::Util::skyDir2pixel(*m_proj,m_modelWrapper->getMasterComponent().countsMap().refDir(),
@@ -1822,6 +1864,9 @@ namespace Likelihood {
       }
     }
 
+    const Observation& obs = m_modelWrapper->getMasterComponent().observation();
+    source.setObservation(&obs);
+
     m_testSourceName = source.getName();
     m_testSource = &source;
     m_testSourceOwned = owned;
@@ -1841,7 +1886,7 @@ namespace Likelihood {
     if ( ptrSrc == 0 ) {
       throw std::runtime_error("Test source must be a point source, for now...");
       return -1;
-    }
+    }    
     ptrSrc->setDir(m_testSourceDir.ra(), m_testSourceDir.dec(),
 		   false, false);
     Likelihood::ScanUtils::freezeSourceParams(*m_testSource);         
@@ -1876,10 +1921,6 @@ namespace Likelihood {
     double xpix = m_dir1_binner->getInterval(ix).midpoint();
     double ypix = m_dir2_binner ? m_dir2_binner->getInterval(iy).midpoint() : 0.;
     // astro::SkyDir doesn't have assignment operator, so we do this
-    if ( ix > 35 && ix < 45 &&
-	 iy > 35 && iy < 45 ) {
-      std::cout << ' ' << ix << ' ' << iy << ' ' << xpix << ' ' << ypix << std::endl;
-    }
     m_testSourceDir() = astro::SkyDir(xpix,ypix,*m_proj,false)();   
     */
     m_testSourceDir() = astro::SkyDir(ix+1,iy+1,*m_proj,false)();   
@@ -2173,7 +2214,7 @@ namespace Likelihood {
 
     // We need to know the size of the table
     int ncol = colData.size();
-    int npix = nPixels();
+    int npix = m_scanHasTSMap ? nPixels() : 1;
 
     // The table is already defined in the template, so we can just edit it
     tip::Table *table = tip::IFileSvc::instance().editTable(fitsFile, extName);  
@@ -2226,7 +2267,7 @@ namespace Likelihood {
     if ( m_energy_binner == 0 ) {
       return 0;
     }
-    return m_modelWrapper->writeFits_EnergyBins(fitsFile,m_energy_binner);
+    return m_modelWrapper->writeFits_EnergyBins(fitsFile);
   }
   
   /* write the Good time intervals */

@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.2 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.3 2016/01/13 00:49:51 mdwood Exp $
  */
 
 
@@ -572,6 +572,17 @@ namespace Likelihood {
       }
       return;
     }
+
+    void extractNPreds(const Source& source,
+		       const std::vector<double>& energies,
+		       std::vector<double>& nPreds) {
+      size_t nE = energies.size();
+      for ( size_t iE(0); iE < nE-1; iE++ ) {
+	nPreds.push_back(  source.Npred(energies[iE],energies[iE+1]) );
+      }
+      return;
+    }
+
 
     void extractModelFromSource(const Source& source,
 				const BinnedLikelihood& logLike,
