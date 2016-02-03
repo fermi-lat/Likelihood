@@ -1,10 +1,10 @@
 /**
- * @file TsMap.cxx
- * @brief Application for producing "test-statistic" maps.
+ * @file TsCube.cxx
+ * @brief Application for producing "test-statistic" cubes.
  *
- * @author J. Chiang
+ * @author E. Charles, from TsMap by J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsCube/TsCube.cxx,v 1.2 2015/07/24 16:00:14 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsCube/TsCube.cxx,v 1.3 2015/12/10 00:59:24 echarles Exp $
  */
 
 #include <cmath>
@@ -234,7 +234,8 @@ void TsCube::computeMap() {
       tolType = optimizers::RELATIVE;
   }
 
-  // This is always true for this application
+  // These is always true for this application
+  static const bool doTsMap(true);
   static const bool doSED(true);
 
   // Hidden parameters for the loop
@@ -249,7 +250,7 @@ void TsCube::computeMap() {
   //m_scanner->set_verbose_bb(3);
   //m_scanner->set_verbose_scan(3);
 
-  int status = m_scanner->run_tscube(doSED,nnorm,normSigma,covScale,
+  int status = m_scanner->run_tscube(doTsMap,doSED,nnorm,normSigma,covScale,
 				     tol,maxiter,tolType,remakeTestSource,ST_scan_level);
   
   if ( status != 0 ) {
