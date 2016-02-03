@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.7 2016/01/26 03:22:20 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.8 2016/01/29 19:34:49 echarles Exp $
  */
 
 
@@ -1147,6 +1147,8 @@ namespace Likelihood {
      m_testSourceOwned(false),
      m_testSourceName("TestSource"),
      m_scanHasTSMap(false),
+     m_baselinePars(0),
+     m_baselineCovs(0),
      m_cache(0),
      m_testSourceCaches(1,0),
      m_verbose_null(0),
@@ -1176,6 +1178,8 @@ namespace Likelihood {
      m_testSourceOwned(false),
      m_testSourceName("TestSource"),
      m_scanHasTSMap(false),
+     m_baselinePars(0),
+     m_baselineCovs(0),
      m_cache(0),
      m_testSourceCaches(summedLike.numComponents(),0),
      m_verbose_null(0),
@@ -1213,6 +1217,8 @@ namespace Likelihood {
      m_testSource(0),
      m_testSourceName("TestSource"),
      m_scanHasTSMap(false),
+     m_baselinePars(0),
+     m_baselineCovs(0),
      m_cache(0),
      m_testSourceCache(0){
     
@@ -1255,8 +1261,10 @@ namespace Likelihood {
   /* Build a TS map.
      This scans over the directions and calculates the Test Statistics w.r.t. the null 
      hypothesis for each */  
-  int FitScanner::run_tsmap(double tol, int tolType, int maxIter, bool remakeTestSource) {
-    return run_tscube(false,0,0.0,tol,tolType,maxIter,remakeTestSource);
+  int FitScanner::run_tsmap(double tol, int tolType, 
+			    int maxIter, bool remakeTestSource,
+			    int ST_scan_level, std::string src_model_out) {
+    return run_tscube(true,false,0,0.0,-1.0,tol,tolType,maxIter,remakeTestSource,ST_scan_level,src_model_out);
   }
 
   /* Build an SED.
@@ -1266,10 +1274,10 @@ namespace Likelihood {
 			  double covScale,
 			  double tol, int maxIter, int tolType, 
 			  bool remakeTestSource,
-			  int ST_scan_level) {
-    return run_tscube(false,nNorm,normSigma,covScale,tol,
+			  int ST_scan_level,std::string src_model_out) {
+    return run_tscube(false,true,nNorm,normSigma,covScale,tol,
 		      maxIter,tolType,remakeTestSource,
-		      ST_scan_level);
+		      ST_scan_level,src_model_out);
   }
 
   
@@ -1281,7 +1289,8 @@ namespace Likelihood {
 			     double covScale,
 			     double tol, int maxIter, int tolType, 
 			     bool remakeTestSource,
-			     int ST_scan_level) {
+			     int ST_scan_level,
+			     std::string src_model_out ) {
 
     if ( true ) {
       std::cout << "nNorm =     " << nNorm << std::endl;
@@ -1311,11 +1320,14 @@ namespace Likelihood {
       std::cout << "Doing baseline fit with standard fitter." << std::endl;
       status = baselineFit(tol,tolType);
       if ( status != 0 ) {
-	std::cout << "Baseline fit failed with status " << status << std::endl;
+	std::cout << "Warning: baseline fit with standard fitter returned status code: " << status << std::endl;
 	// return status;	
       }
       loglike_null_st = m_modelWrapper->value();
       std::cout << "Did baseline fit.  Likelihood before: " << loglike_null << ", after: " << loglike_null_st << std::endl;
+      if ( src_model_out.size() > 0 ) {
+	m_modelWrapper->getMasterComponent().writeXml(src_model_out);
+      }
     }
     
     // Build the cache object, deleting the old version if needed
@@ -1326,8 +1338,15 @@ namespace Likelihood {
 
     // Do the baseline fit and latch the results.   
     status = m_cache->fitCurrent(false,verbose_null());
-    if ( status != 0 ) return status;	
+    if ( status != 0 ) { 
+      std::cout << "Baseline fit of ROI with linear fitter failed with error code " << status << std::endl
+		<< "  Try using standard fitter to pre-fit region with stlevel=1 parateter."  << std::endl
+		<< "  If that doesn't work try refining the input model of the region." << std::endl;
+      return status;	
+    }
     
+    m_baselinePars = m_cache->currentPars();
+    m_baselineCovs = m_cache->currentCov();    
     loglike_null = m_cache->currentLogLike();
     std::cout << "Redid baseline fit with linear fitter.  Likelihood: " << loglike_null << std::endl;
     
@@ -1665,12 +1684,20 @@ namespace Likelihood {
     }
 
     // Save the energy bin edges
-    // FIXME we could write flux conversion parameters here
     status = writeFits_EnergyBins(fitsFile);
     if ( status ) {
       throw std::runtime_error("Failed to write energy bins");
       return status;
     }
+
+     
+    // Save the baseline fit data
+    status = writeFits_Baseline(fitsFile);
+    if ( status ) {
+      throw std::runtime_error("Failed to write baseline fit parameters");
+      return status;
+    }
+   
 
     // Write the GTIs, if requested
     if ( ! copyGTIs) return 0;
@@ -2274,6 +2301,50 @@ namespace Likelihood {
   int FitScanner::writeFits_GTIs(const std::string& fitsFile) const {  
     return m_modelWrapper->writeFits_GTIs(fitsFile);
   }
+
+  /* write the baseline fit info */
+  int FitScanner::writeFits_Baseline(const std::string& fitsFile) const {
+    // Open BASELINE extension of output file. Use an auto_ptr so that the table object
+    // will for sure be deleted, even if an exception is thrown.
+    static const std::string baseline("BASELINE");
+    std::auto_ptr<tip::Table> table(tip::IFileSvc::instance().editTable(fitsFile,baseline));
+
+    // Resize table: number of records in output file must == the number of bins in the binner.
+    table->setNumRecords(1);
+
+    tip::Header& header(table->getHeader());
+
+    static const std::string params_name("PARAMS");
+    static const std::string covs_name("COVS");
+
+    char buffer_params[255];
+    sprintf(buffer_params,"%iE",m_baselinePars.num_row());
+    char buffer_covs[255];
+    sprintf(buffer_covs,"%iE",m_baselineCovs.num_row()*m_baselineCovs.num_col());
+    char buffer_dim[255];
+    sprintf(buffer_dim,"(%i,%i)",m_baselineCovs.num_row(),m_baselineCovs.num_col());
+
+    table->appendField(params_name,buffer_params);
+    table->appendField(covs_name,buffer_covs);
+    tip::FieldIndex_t idx_params = table->getFieldIndex(params_name);
+    tip::FieldIndex_t idx_covs = table->getFieldIndex(covs_name);
+    setDimKeyword(header,idx_covs,buffer_dim);
+    
+    tip::IColumn* cl_params = table->getColumn(idx_params);
+    tip::IColumn* cl_covs = table->getColumn(idx_covs);
+    
+    std::vector<float> vec_params;
+    std::vector<float> vec_covs;
+
+    FitUtils::Vector_Hep_to_Stl(m_baselinePars,vec_params);
+    FitUtils::Matrix_Hep_to_Stl(m_baselineCovs,vec_covs);
+
+    cl_params->set(0,vec_params);
+    cl_covs->set(0,vec_covs);
+    
+    return 0;
+  }    
+
 
   /* Convert the dimension string to the format expected by FITS */
   bool FitScanner::convertDimString(const std::string& inString,

@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.6 2016/01/26 03:19:27 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.7 2016/01/29 19:34:48 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -884,13 +884,22 @@ namespace Likelihood {
        hypothesis for each direction 
 
        This actually just calls run_tscube with doSED and doNorm set to false.
+ 
+       tol           : Critetia for fit convergence (estimated vertical distance to min < tol )
+       maxIter       : Maximum number of iterations for the Newton's method fitter
+       tolType       : Absoulte (0) or relative (1) criteria for convergence
+       remakeTestSource : If true, recomputes the test source image (otherwise just shifts it)
+       ST_scan_level : Level to which to do ST-based fitting (for testing)
+       src_model_out : Name of XML file to write re-fit source model
 
        returns 0 for success, or a error code
      */
     int run_tsmap(double tol=1e-3, 
 		  int tolType = 0, 
 		  int maxIter = 30, 
-		  bool remakeTestSource = false);
+		  bool remakeTestSource = false,
+		  int ST_scan_level = 0,
+		  std::string src_model_out = "");
 
      /* Build an SED.
 	This calculates the spectrum as a function of energy
@@ -906,13 +915,15 @@ namespace Likelihood {
        tolType       : Absoulte (0) or relative (1) criteria for convergence
        remakeTestSource : If true, recomputes the test source image (otherwise just shifts it)
        ST_scan_level : Level to which to do ST-based fitting (for testing)
-     
+       src_model_out : Name of XML file to write re-fit source model
+
        returns 0 for success, or a error code
      */
     int run_SED(int nNorm = 10, double normSigma = 5.0, 
 		double covScale = -1.0, double tol = 1e-3, int maxIter = 30, int tolType = 0, 
 		bool remakeTestSource = false,
-		int ST_scan_level = 0);
+		int ST_scan_level = 0,
+		std::string src_model_out = "");
 
 
     /* Build a TS cube.
@@ -929,6 +940,7 @@ namespace Likelihood {
        tolType       : Absoulte (0) or relative (1) criteria for convergence
        remakeTestSource : If true, recomputes the test source image (otherwise just shifts it)
        ST_scan_level : Level to which to do ST-based fitting (for testing)
+       src_model_out : Name of XML file to write re-fit source model
 
        returns 0 for success, or a error code
 
@@ -937,7 +949,8 @@ namespace Likelihood {
     int run_tscube(bool doTSMap=true, bool doSED=true, int nNorm = 10, double normSigma = 5.0, 
 		   double covScale = -1.0, double tol = 1e-3, int maxIter = 30, int tolType = 0, 
 		   bool remakeTestSource = false,
-		   int ST_scan_level = 0);
+		   int ST_scan_level = 0,
+		   std::string src_model_out = "");
 
     /* Write the stored data to a FITS file */
     int writeFitsFile(const std::string& fitsFile,
@@ -1128,6 +1141,10 @@ namespace Likelihood {
 
     /* write the Good time intervals */
     int writeFits_GTIs(const std::string& fitsFile) const;    
+    
+    /* write the baseline fit info */
+    int writeFits_Baseline(const std::string& fitsFile) const;    
+
 
     /* Convert the dimension string to the format expected by FITS */
     bool convertDimString(const std::string& inString,
@@ -1176,6 +1193,10 @@ namespace Likelihood {
     // These are the output data from the scanning
     std::vector< std::pair< std::string,std::pair<HistND*,std::string> > > m_scanData;
     bool m_scanHasTSMap;
+    // these are the parameters from the baseline fit
+    CLHEP::HepVector m_baselinePars;
+    // this is the covarience martix from the baseline fit
+    CLHEP::HepSymMatrix m_baselineCovs;
 
     // This is where we cache all the info about the model and the fits
     FitScanCache* m_cache;
