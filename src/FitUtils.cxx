@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.3 2016/01/13 00:49:51 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.4 2016/01/29 19:34:49 echarles Exp $
  */
 
 
@@ -33,6 +33,18 @@ namespace Likelihood {
       stl.resize(hep.num_row());
       for ( size_t i(0); i < stl.size(); i++ ) {
 	stl[i] = hep[i];
+      }
+    }
+
+    void Matrix_Hep_to_Stl(const CLHEP::HepSymMatrix& hep,
+			   std::vector<float>& stl) {
+      stl.resize(hep.num_row()*hep.num_col());
+      size_t idx(0);
+      for ( size_t i(0); i < hep.num_row(); i++ ) {
+	for ( size_t j(0); j < hep.num_col(); j++ ) {
+	  stl[idx] = hep[i][j];
+	  idx += 1;
+	}
       }
     }
     
@@ -528,7 +540,9 @@ namespace Likelihood {
       }
       // check to see if we reach the max iterations
       if ( iter >= maxIter ) {
-	std::cout << "Reached max iterations." << std::endl;
+	if ( verbose > 0 ) {
+	  std::cout << "Reached max iterations." << std::endl;
+	}
 	return -2;
       }
       

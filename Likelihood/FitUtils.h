@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.2 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.3 2016/01/29 19:34:48 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -45,6 +45,10 @@ namespace Likelihood {
     
     /* Fill an STL vector with values from a CLHEP vector */
     void Vector_Hep_to_Stl(const CLHEP::HepVector& hep,
+			   std::vector<float>& stl);
+
+    /* Fill an STL vector with values from a CLHEP Matrix */
+    void Matrix_Hep_to_Stl(const CLHEP::HepSymMatrix& hep,
 			   std::vector<float>& stl);
     
     /* Fill a CLHEP vector with values from an STL vector */
