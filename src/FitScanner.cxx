@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.8 2016/01/29 19:34:49 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.9 2016/02/03 02:21:21 echarles Exp $
  */
 
 
@@ -20,7 +20,7 @@
 
 #include "astro/SkyDir.h"
 #include "astro/SkyProj.h"
-//#include "astro/HealpixProj.h"
+#include "astro/HealpixProj.h"
 
 #include "facilities/commonUtilities.h"
 #include "st_facilities/Util.h"
@@ -243,7 +243,7 @@ namespace Likelihood {
   }
 
 
-  void FitScanModelWrapper::cacheFluxValues(const Source& aSrc) {
+  void FitScanModelWrapper::cacheFluxValues(Source& aSrc) {
     m_nPreds.clear();
     FitUtils::extractSpectralVals(aSrc,energies(),m_fluxValues);    
     aSrc.computeExposure(energies());
@@ -1196,12 +1196,11 @@ namespace Likelihood {
 
   
   // C'tor from HEALPix region set of directions
-  /* 
-  FitScanner::FitScanner(LogLike& logLike,
+  FitScanner::FitScanner(BinnedLikelihood& binnedLike,
 			 optimizers::Optimizer& optimizer,
 			 const astro::HealpixProj& proj,
 			 const std::string& region)
-    :m_logLike(&logLike),
+    :m_modelWrapper(new FitScanModelWrapper_Binned(binnedLike)),
      m_opt(&optimizer),
      m_proj(&proj),
      m_testSourceDir(),
@@ -1215,23 +1214,61 @@ namespace Likelihood {
      m_energy_binner(0),
      m_norm_binner(0),
      m_testSource(0),
+     m_testSourceOwned(false),
      m_testSourceName("TestSource"),
      m_scanHasTSMap(false),
      m_baselinePars(0),
      m_baselineCovs(0),
      m_cache(0),
-     m_testSourceCache(0){
-    
-    // Make sure we are doing a binned fit
-    BinnedLikelihood* binnedLike = dynamic_cast<BinnedLikelihood*>(m_logLike);
-    if ( binnedLike == 0 ) {
-      throw std::runtime_error("FitScanner requires using Binned likelihood fitting.");
-    }
+     m_testSourceCaches(1,0),
+     m_verbose_null(0),
+     m_verbose_bb(0),
+     m_verbose_scan(0),
+     m_writeTestImages(false),
+     m_useReduced(true){
+   
     
     // Build the energy binned from the energies in the BinnedLikelihood
-    m_energy_binner = buildEnergyBinner(binnedLike->energies());
+    m_energy_binner = buildEnergyBinner(binnedLike.energies());
   }
-  */
+
+
+  // C'tor from HEALPix region set of directions
+  FitScanner::FitScanner(SummedLikelihood& summedLike,
+			 optimizers::Optimizer& optimizer,
+			 const astro::HealpixProj& proj,
+			 const std::string& region)
+    :m_modelWrapper(new FitScanModelWrapper_Summed(summedLike)),
+     m_opt(&optimizer),
+     m_proj(&proj),
+     m_testSourceDir(),
+     m_dir1_binner(new evtbin::HealpixBinner(proj.healpix().Nside(), 
+					     proj.healpix().Scheme(),
+					     SET_NSIDE,
+					     proj.isGalactic(),
+					     region,
+					     "HEALPIX")),
+     m_dir2_binner(0),
+     m_energy_binner(0),
+     m_norm_binner(0),
+     m_testSource(0),
+     m_testSourceOwned(false),
+     m_testSourceName("TestSource"),
+     m_scanHasTSMap(false),
+     m_baselinePars(0),
+     m_baselineCovs(0),
+     m_cache(0),
+     m_testSourceCaches(1,0),
+     m_verbose_null(0),
+     m_verbose_bb(0),
+     m_verbose_scan(0),
+     m_writeTestImages(false),
+     m_useReduced(true){
+   
+    // Build the energy binned from the energies in the BinnedLikelihood
+    m_energy_binner = buildEnergyBinner(m_modelWrapper->energies());
+  }
+
 
   // D'tor, does cleanup
   FitScanner::~FitScanner() throw() {
@@ -1553,7 +1590,6 @@ namespace Likelihood {
 				   norm_mles,pos_errs,neg_errs,
 				   logLike_mles,
 				   norms,logLikes);
-	
 	if ( status != 0 ) {
 	  nfailed_scan_newton++;
 	}
@@ -1617,7 +1653,7 @@ namespace Likelihood {
       std::cout << "There were " << nfailed_scan << " failed normalization scans with the standard fitter." << std::endl;
     }
     if ( nfailed_scan_newton > 0 ) {
-      std::cout << "There were " << nfailed_bb_newton << " failed normalization scans with the Newton's method fitter." << std::endl;
+      std::cout << "There were " << nfailed_scan_newton << " failed normalization scans with the Newton's method fitter." << std::endl;
     }
     return 0;
   }
@@ -1950,8 +1986,14 @@ namespace Likelihood {
     // astro::SkyDir doesn't have assignment operator, so we do this
     m_testSourceDir() = astro::SkyDir(xpix,ypix,*m_proj,false)();   
     */
-    m_testSourceDir() = astro::SkyDir(ix+1,iy+1,*m_proj,false)();   
-    
+
+    if ( m_dir2_binner != 0 ) {
+      m_testSourceDir() = astro::SkyDir(ix+1,iy+1,*m_proj,false)();   
+    } else {
+      const evtbin::HealpixBinner* hxp_binner = static_cast<const evtbin::HealpixBinner*>(m_dir1_binner);
+      int pixNum  = hxp_binner->pixelIndices()[ix];
+      m_testSourceDir() = astro::SkyDir(pixNum,0,*m_proj,false)();   
+    }
     return 0;
   }
 
@@ -2265,7 +2307,7 @@ namespace Likelihood {
       int nDataTotal = histData.size();
       int nData = nDataTotal / npix;      
       char buffer[255];
-      sprintf(buffer,"%iE",nData);
+      sprintf(buffer,"%iE",nData);      
       std::string formatString(buffer);
       table->appendField(colName,formatString); 
       std::string pixelDimString;
@@ -2281,7 +2323,11 @@ namespace Likelihood {
 	for ( int idata(0); idata < nData; idata++, idx+=npix ) {
 	  writeValue[idata] = histData[idx];
 	}
-	col->set(ipix,writeValue);
+	if ( nData == 1 ) {
+	  col->set(ipix,writeValue[0]);
+	} else {
+	  col->set(ipix,writeValue);
+	}
       } 
     }
 
