@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.9 2016/02/03 02:21:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.10 2016/02/04 00:55:30 echarles Exp $
  */
 
 
@@ -2350,8 +2350,13 @@ namespace Likelihood {
 
   /* write the baseline fit info */
   int FitScanner::writeFits_Baseline(const std::string& fitsFile) const {
+    // Protect against Matt Wood being clever.
+    if ( m_baselinePars.num_row() == 0 ) {
+      return 0;
+    }
     // Open BASELINE extension of output file. Use an auto_ptr so that the table object
     // will for sure be deleted, even if an exception is thrown.
+
     static const std::string baseline("BASELINE");
     std::auto_ptr<tip::Table> table(tip::IFileSvc::instance().editTable(fitsFile,baseline));
 
@@ -2385,9 +2390,13 @@ namespace Likelihood {
     FitUtils::Vector_Hep_to_Stl(m_baselinePars,vec_params);
     FitUtils::Matrix_Hep_to_Stl(m_baselineCovs,vec_covs);
 
-    cl_params->set(0,vec_params);
-    cl_covs->set(0,vec_covs);
-    
+    if ( m_baselineCovs.num_row() == 1 ) {
+      cl_params->set(0,vec_params[0]);
+      cl_covs->set(0,vec_covs[0]); 
+    } else {
+      cl_params->set(0,vec_params);
+      cl_covs->set(0,vec_covs);
+    }
     return 0;
   }    
 
