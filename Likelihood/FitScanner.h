@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.7 2016/01/29 19:34:48 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.8 2016/02/03 02:21:19 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -54,13 +54,12 @@
 #include "astro/SkyDir.h"
 
 
-
 // forward declarations
 namespace astro {
   class SkyDir;
   //  class ProjBase;
   class SkyProj;
-  // class HealpixProj;
+  class HealpixProj;
 }
 
 namespace evtbin {
@@ -331,7 +330,7 @@ namespace Likelihood {
     virtual void set_klims(size_t kmin, size_t kmax) = 0;
 
     /* cache the flux values at the energy bin edges */
-    void cacheFluxValues(const Source& aSrc);
+    void cacheFluxValues(Source& aSrc);
 
     /* return the number of pixels,        
        for the SummedLikelihood this is summed over the components */
@@ -866,15 +865,19 @@ namespace Likelihood {
 	       const astro::SkyProj& proj,
 	       int nx, int ny);
 
-  
-
     // C'tor from HEALPix region set of directions
-    /*
-    FitScanner(LogLike& logLike,
+    FitScanner(BinnedLikelihood& binnedLike,
 	       optimizers::Optimizer& optimizer,
 	       const astro::HealpixProj& proj,
 	       const std::string& region);
-    */
+
+    // C'tor from HEALPix region set of directions
+    FitScanner(SummedLikelihood& summedLike,
+	       optimizers::Optimizer& optimizer,
+	       const astro::HealpixProj& proj,
+	       const std::string& region);
+
+    
 
     // D'tor, does cleanup
     virtual ~FitScanner() throw();
