@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.5 2016/02/03 02:21:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.6 2016/02/03 20:25:57 echarles Exp $
  */
 
 
@@ -329,7 +329,8 @@ namespace Likelihood {
 			       CLHEP::HepVector& gradient,
 			       CLHEP::HepSymMatrix& hessian,
 			       size_t firstBin,
-			       size_t lastBin) {      
+			       size_t lastBin,
+			       int verbose) {      
 
       size_t start = firstBin;
       size_t stop = lastBin == 0 ? data.size() : lastBin;
@@ -429,7 +430,6 @@ namespace Likelihood {
         }
       }
 
-
       return 0;
     }
 
@@ -449,58 +449,67 @@ namespace Likelihood {
 			size_t lastBin,
 			int verbose) {
 
-      logLikeVal = 0.;
 
+      // copy over the initial parameters
+      norms = initNorms;
+      
       // local stuff
       size_t npar = initNorms.num_row();
+      double logLikePrior(0.);
+      double logLikeInit(0.);
 
-      if ( npar == 0 ) {
-	std::cout << "warning, no free parameters " << std::endl;
-	sumModel(norms,templates,fixed,model,firstBin,lastBin);
-      
-	std::vector<float>::const_iterator data_start = data.begin() + firstBin;
-	std::vector<float>::const_iterator data_end = lastBin == 0 ? data.end() : data.begin() + lastBin;
-	std::vector<float>::const_iterator model_start = model.begin() + firstBin;
-	std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
-	
-	logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
-
-	if ( prior ) {
-	  double logLikePrior(0.);
-	  prior->negativeLogLikelihood(norms,logLikePrior);
-	  logLikeVal += logLikePrior;
-	}
-	
-	if ( verbose > 0 ) {
-	  std::cout << "Log-likelihood " << logLikeVal << std::endl << std::endl;
-	}
-
-	return 0;
-      }
-
+      std::vector<float>::const_iterator data_start = data.begin() + firstBin;
+      std::vector<float>::const_iterator data_end = lastBin == 0 ? data.end() : data.begin() + lastBin;
+      std::vector<float>::const_iterator model_start = model.begin() + firstBin;
+      std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
+ 
       if ( verbose > 0 ) {
 	std::cout << "Init Newton's method fit.  NPar = " <<  npar << std::endl;
 	printVector("Init Pars: ",initNorms);
       }
-
-      // copy over the initial parameters
-      norms = initNorms;
+      
+      sumModel(norms,templates,fixed,model,firstBin,lastBin);      
+      logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
+      if ( prior ) {	
+	prior->negativeLogLikelihood(norms,logLikePrior);
+	logLikeVal += logLikePrior;
+      }
+      logLikeInit = logLikeVal;
+      
+      if ( npar == 0 ) {
+	std::cout << "warning, no free parameters " << std::endl;
+	return 0;
+      }
       
       gradient = CLHEP::HepVector(npar);
       CLHEP::HepVector delta(npar);
       CLHEP::HepSymMatrix hessian(npar);      
 
-
       // Set the EDM larger than the tolerance
       edm = 100*tol;
       int iter(0);
+
+      // Check to see if there are any counts.  
+      float data_total(0.);
+      sumVector(data_start,data_end,data_total);
+      if ( data_total < 1e-9 ) {
+	// no counts, set some defaults and bail out
+	norms[npar-1] = 0.;
+	// the gradient can be useful
+	getGradientAndHessian(data,norms,templates,fixed,prior,model,gradient,hessian,firstBin,lastBin,verbose);
+	covar = CLHEP::HepSymMatrix(npar);
+	// this will skip the loop below
+	edm = 0.;
+	// make sure we don't fail the sanity check below
+	logLikeInit = -1.0e99;
+      }
       
       // loop until convergence or max iterations
       while ( std::fabs(edm) > tol &&
 	      iter < maxIter ) {
 	
 	// do the derivative stuff
-	getGradientAndHessian(data,norms,templates,fixed,prior,model,gradient,hessian,firstBin,lastBin);
+	getGradientAndHessian(data,norms,templates,fixed,prior,model,gradient,hessian,firstBin,lastBin,verbose);
 	if ( verbose > 2 ) {
 	  printSymMatrix("Hesse: ",hessian);
 	  printVector("Grad: ",gradient);
@@ -547,6 +556,191 @@ namespace Likelihood {
 	  std::cout << "EDM " << edm << std::endl;
 	}
 
+	iter++;
+      }
+      // check to see if we reach the max iterations
+      if ( iter >= maxIter ) {
+	if ( verbose > 0 ) {
+	  std::cout << "Reached max iterations." << std::endl;
+	}
+	return -2;
+      }
+      
+      if ( verbose > 0 ) {
+	std::cout << "Converged, niter = " << iter << std::endl;	
+	printVector("Init:",initNorms);
+	printVector("Norms:",norms);
+      }
+
+      // get the final log-likelihood
+      sumModel(norms,templates,fixed,model,firstBin,lastBin);
+      logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
+      
+      if ( prior ) {
+	double logLikePrior(0.);
+	prior->negativeLogLikelihood(norms,logLikePrior);
+	logLikeVal += logLikePrior;
+      }
+
+      // Sanity check
+      if (  logLikeVal - logLikeInit < -1. ) {
+	// The fit got worse, reset things
+	if ( verbose > 0 ) {
+	  std::cout << "Fit seems to have made things worse " << logLikeVal << ' ' << logLikeInit << std::endl
+		    << "  This is usually caused by degenercy between the test source and a poorly constrained source." << std::endl;
+	}
+	logLikeVal = logLikeInit;
+	norms = CLHEP::HepVector(npar);
+	sumModel(norms,templates,fixed,model,firstBin,lastBin);
+	edm = 0.;
+	return -8;
+      }
+
+      if ( verbose > 0 ) {
+	std::cout << "Log-likelihood " << logLikeVal << std::endl << std::endl;
+      }
+      return 0;
+    }
+
+    
+    int fitLogNorms_newton(const std::vector<float>& data,
+			   const CLHEP::HepVector& initNorms,
+			   const std::vector<const std::vector<float>* >& templates,
+			   const std::vector<float>& fixed,
+			   const FitScanMVPrior* prior,
+			   double tol, int maxIter,
+			   CLHEP::HepVector& norms,
+			   CLHEP::HepSymMatrix& covar,
+			   CLHEP::HepVector& gradient,
+			   std::vector<float>& model,
+			   double& edm,
+			   double& logLikeVal,
+			   size_t firstBin, 
+			   size_t lastBin,
+			   int verbose) {
+
+      logLikeVal = 0.;
+
+      // local stuff
+      size_t npar = initNorms.num_row();
+
+      if ( npar == 0 ) {
+	std::cout << "warning, no free parameters " << std::endl;
+	norms = initNorms;
+	sumModel(norms,templates,fixed,model,firstBin,lastBin);
+      
+	std::vector<float>::const_iterator data_start = data.begin() + firstBin;
+	std::vector<float>::const_iterator data_end = lastBin == 0 ? data.end() : data.begin() + lastBin;
+	std::vector<float>::const_iterator model_start = model.begin() + firstBin;
+	std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
+	
+	logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
+
+	if ( prior ) {
+	  double logLikePrior(0.);
+	  prior->negativeLogLikelihood(norms,logLikePrior);
+	  logLikeVal += logLikePrior;
+	}
+	
+	if ( verbose > 0 ) {
+	  std::cout << "Log-likelihood " << logLikeVal << std::endl << std::endl;
+	}
+
+	return 0;
+      }
+
+      if ( verbose > 0 ) {
+	std::cout << "Init Newton's method fit.  NPar = " <<  npar << std::endl;
+	printVector("Init Pars: ",initNorms);
+      }
+
+      // copy over the initial parameters      
+      norms = initNorms;
+      // fix the last parameter ( we don't want zeros)
+      if ( norms[npar-1] < 1e-6 ) {
+	norms[npar-1] = 1e-6;
+      }
+
+      CLHEP::HepVector logNorms(npar);
+      
+      gradient = CLHEP::HepVector(npar);
+      CLHEP::HepVector delta(npar);
+      CLHEP::HepSymMatrix hessian(npar);      
+
+
+      // Set the EDM larger than the tolerance
+      edm = 100*tol;
+      int iter(0);
+      
+      // loop until convergence or max iterations
+      while ( std::fabs(edm) > tol &&
+	      iter < maxIter ) {
+	
+	// do the derivative stuff
+	getGradientAndHessian(data,norms,templates,fixed,prior,model,gradient,hessian,firstBin,lastBin,verbose);
+	
+	// add in the extra factors from the chain rule
+	for ( size_t iChain(0); iChain < npar; iChain++ ) {
+	  gradient[iChain] *= norms[iChain];
+	  logNorms[iChain] = log(norms[iChain]);
+	  for ( size_t jChain(iChain); jChain < npar; jChain++ ) {
+	    hessian[iChain][jChain] *= (norms[iChain]*norms[jChain]);
+	  }	  
+	}
+	
+	if ( verbose > 2 ) {
+	  printVector("Log Norms: ",logNorms);
+	  printSymMatrix("Hesse: ",hessian);
+	  printVector("Grad: ",gradient);
+	  if ( prior ) {
+	    CLHEP::HepVector gPrior;
+	    prior->gradient(norms,gPrior);
+	    printVector("Prior Grad: ",gPrior);
+	    printSymMatrix("Prior Hesse: ",prior->hessian());
+	  }
+	}
+
+	// invert the hessian and get the delta for the next iteration
+	// this also compute the estimated distance to the minimum
+	int covOk = getDeltaAndCovarAndEDM(hessian,gradient,norms,covar,delta,edm);
+	if ( verbose > 2 ) {
+	  printSymMatrix("Cov: ",covar);
+	}
+		
+	if ( covOk !=0 ) {
+	  // non-zero value means it failed to invert the cov. matrix
+	  if ( verbose > 0 ) {
+	    std::cout << "Matrix inversion failed." << std::endl;
+	  }
+	  return covOk;
+	}
+	
+	// update the parameter values
+	logNorms -= delta;
+
+	if ( verbose > 1 ) {
+	  std::cout << iter << ' ' << std::endl;
+	  printVector("Delta:",delta);
+	  printVector("LogNorms:",logNorms);
+	  std::cout << "EDM " << edm << std::endl;
+	}
+
+	// catch fits that are diverging
+	for ( size_t iCheck(0); iCheck < norms.num_row(); iCheck++ ) {
+	  if ( std::fabs(logNorms[iCheck]) > 20 ) {
+	    if ( verbose > 0 ) {
+	      std::cout << "A fit using Newton's method seems to have diverged." << std::endl;
+	      printVector("LogNorms:",logNorms);
+	    }
+	    return -4;
+	  }
+	  norms[iCheck] = exp(logNorms[iCheck]);
+	  // here we only loop up to iCheck, this makes sure we are using 
+	  // the up-to-date values of iNorms
+	  for ( size_t jCheck(0); jCheck < iCheck; jCheck ++ ) {
+	    covar[iCheck][jCheck] /= ( norms[iCheck] * norms[jCheck] );
+	  }
+	}
 	iter++;
       }
       // check to see if we reach the max iterations

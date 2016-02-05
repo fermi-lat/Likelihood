@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.8 2016/02/03 02:21:19 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.9 2016/02/04 00:55:31 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -1117,6 +1117,7 @@ namespace Likelihood {
 			  std::vector<double>& pos_errs,
 			  std::vector<double>& neg_errs,
 			  std::vector<double>& logLike_mles,
+			  std::vector<int>& sed_fit_status,
 			  std::vector<std::vector<double> >& norms,
 			  std::vector<std::vector<double> >& logLikes);
 

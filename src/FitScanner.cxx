@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.10 2016/02/04 00:55:30 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.11 2016/02/04 04:20:14 echarles Exp $
  */
 
 
@@ -908,6 +908,7 @@ namespace Likelihood {
     if ( usePrior ) {
       prior = m_currentTestSourceIndex >= 0 ? m_prior_test : m_prior_bkg;
     }
+
     int status = FitUtils::fitNorms_newton(m_useReduced ? m_dataRed : m_data,
 					   m_initPars,
 					   m_currentModels,
@@ -1408,12 +1409,14 @@ namespace Likelihood {
     
     // 2D (or HEALPix) histograms (MAPS)
     static const std::string tsmap_name("TSMAP");
+    static const std::string tsmap_ok_name("TSMAP_OK");    
     static const std::string norm_map_name("N_MAP");
     static const std::string posErr_map_name("ERRP_MAP");
     static const std::string negErr_map_name("ERRN_MAP");
 
     // 3D (or HEALPix,energy) histograms (CUBES)    
     static const std::string tscube_name("TSCUBE");
+    static const std::string tscube_ok_name("TSCUBE_OK");
     static const std::string norm_cube_name("N_CUBE");
     static const std::string posErr_cube_name("ERRPCUBE");
     static const std::string negErr_cube_name("ERRNCUBE");
@@ -1431,12 +1434,14 @@ namespace Likelihood {
     // Histograms for Newton's Method fitting
     // HistND* ts_map = doTSMap ? buildHist(tsmap_name,true,false,false) : 0;
     HistND* ts_map = buildHist(tsmap_name,true,false,false);
+    HistND* ts_map_ok = buildHist(tsmap_ok_name,true,false,false);
 
     HistND* norm_map = doTSMap ? buildHist(norm_map_name,true,false,false) : 0;
     HistND* posErr_map = doTSMap ? buildHist(posErr_map_name,true,false,false) : 0;
     HistND* negErr_map = doTSMap ? buildHist(negErr_map_name,true,false,false) : 0;
 
     HistND* ts_cube = doSED ? buildHist(tscube_name,doTSMap,true,false) : 0;
+    HistND* ts_cube_ok = doSED ? buildHist(tscube_ok_name,doTSMap,true,false) : 0;
     HistND* norm_cube = doSED ? buildHist(norm_cube_name,doTSMap,true,false) : 0;
     HistND* posErr_cube = doSED ? buildHist(posErr_cube_name,doTSMap,true,false) : 0;
     HistND* negErr_cube = doSED ? buildHist(negErr_cube_name,doTSMap,true,false) : 0;
@@ -1464,7 +1469,8 @@ namespace Likelihood {
     int nfailed_bb_newton(0);
     int nfailed_scan(0);
     int nfailed_scan_newton(0);
-    
+    int nfailed_scan_newton_bins(0);
+
     // We store the output by pixel, so these are useful
     long ipix(0);
     int npix = doTSMap ? nPixels() : 1;
@@ -1505,7 +1511,6 @@ namespace Likelihood {
 	  if ( status != 0 ) {
 	    // count the number of failed fits
 	    nfailed_bb++;
-	    continue;
 	  }
 	  
 	  // get the TS value and copy to the output histogram
@@ -1540,6 +1545,11 @@ namespace Likelihood {
 	m_cache->setEnergyBin(-1);	
 	status = m_cache->fitCurrent(false,verbose_bb());
 	if ( status != 0 ) {
+	  ts_map_ok->setBinDirect(ipix,status);
+	  int idx_sed_err = ipix;
+	  for ( int iE_err(0); iE_err < nEBins(); iE_err++, idx_sed_err += npix ) {
+	    ts_cube_ok->setBinDirect(iE_err,status);
+	  }
 	  nfailed_bb_newton++;
 	  continue;
 	}
@@ -1565,6 +1575,7 @@ namespace Likelihood {
 	std::vector<double> pos_errs;
 	std::vector<double> neg_errs;
 	std::vector<double> logLike_mles; 
+	std::vector<int> sed_fit_status;
 	std::vector<std::vector<double> > logLikes;
 	std::vector<std::vector<double> > norms;
 
@@ -1589,9 +1600,13 @@ namespace Likelihood {
 	status = sed_binned_newton(nNorm,normSigma,covScale,
 				   norm_mles,pos_errs,neg_errs,
 				   logLike_mles,
+				   sed_fit_status,
 				   norms,logLikes);
 	if ( status != 0 ) {
 	  nfailed_scan_newton++;
+	  if ( status > 0 ) {
+	    nfailed_scan_newton_bins += status;
+	  }
 	}
 	if ( ipix % ipix_print == 0 ) {
 	  std::cout << '.' << std::flush;
@@ -1608,6 +1623,7 @@ namespace Likelihood {
 	  // Fill the histograms that use pixel and energy bin
 	  double ts_val_bin = 2.*(logLike_mles[iE] - logLikes[iE][0]);
 	  if ( ts_cube ) ts_cube->setBinDirect(idx_sed,ts_val_bin);
+	  if ( ts_cube_ok ) ts_cube_ok->setBinDirect(idx_sed,sed_fit_status[iE]);
 	  if ( norm_cube ) norm_cube->setBinDirect(idx_sed,norm_mles[iE]);
 	  if ( posErr_cube ) posErr_cube->setBinDirect(idx_sed,pos_errs[iE]);
 	  if ( negErr_cube ) negErr_cube->setBinDirect(idx_sed,neg_errs[iE]);
@@ -1650,10 +1666,13 @@ namespace Likelihood {
       std::cout << "There were " << nfailed_bb_newton << " failed broadband fits with the Newton's method fitter." << std::endl;
     }
     if ( nfailed_scan > 0 ) {
-      std::cout << "There were " << nfailed_scan << " failed normalization scans with the standard fitter." << std::endl;
+      std::cout << "There were " << nfailed_scan << " failed SED scans with the standard fitter." << std::endl;
     }
     if ( nfailed_scan_newton > 0 ) {
-      std::cout << "There were " << nfailed_scan_newton << " failed normalization scans with the Newton's method fitter." << std::endl;
+      std::cout << "There were " << nfailed_scan_newton << " failed SED scans with the Newton's method fitter." << std::endl;
+    }
+    if ( nfailed_scan_newton_bins > 0 ) {
+      std::cout << "There were " << nfailed_scan_newton_bins << " failed bins in the SED scans with the Newton's method fitter." << std::endl;
     }
     return 0;
   }
@@ -2042,6 +2061,7 @@ namespace Likelihood {
 				    std::vector<double>& pos_errs,
 				    std::vector<double>& neg_errs,
 				    std::vector<double>& logLike_mles,
+				    std::vector<int>& sed_fit_status,
 				    std::vector<std::vector<double> >& norms,
 				    std::vector<std::vector<double> >& logLikes) {
 
@@ -2051,7 +2071,10 @@ namespace Likelihood {
     const double errorLevel = 0.5*normSigma*normSigma;
 
     // We can't do the fitting without a FitScanCache
-    if ( m_cache == 0 ) return -1;
+    if ( m_cache == 0 ) {
+      std::cerr << "FitScanner::sed_binned_newton no Cache" << std::endl;
+      return -1;
+    }
 
     // first we fix everything except the signal component to their current values 
     std::vector<float> par_scales;
@@ -2077,7 +2100,8 @@ namespace Likelihood {
     neg_errs.resize(m_cache->nebins());
     norms.resize(m_cache->nebins());    
     logLikes.resize(m_cache->nebins());
-        
+    sed_fit_status.resize(m_cache->nebins());
+
     // This is to keep track of failed fits.
     // Usually they just have to do with problem
     // with the matrix inversion, so we might not want to crash
@@ -2087,11 +2111,12 @@ namespace Likelihood {
     for ( size_t i(0); i < m_cache->nebins(); i++ ) {
       m_cache->setEnergyBin(i);
       int status = m_cache->fitCurrent(usePrior);
+      sed_fit_status[i] = status;
       if ( status ) {
 	// if the fit failed, fill the output vectors, and move on.
 	// for debugging, redo failed fits with verbose on
 	if ( redoFailedVerbose ) {
-	  m_cache->fitCurrent(4);
+	  m_cache->fitCurrent(usePrior,4);
 	}
 	nfailed++;
 	logLike_mles[i] = 0.;

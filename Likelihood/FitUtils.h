@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.3 2016/01/29 19:34:48 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.4 2016/02/03 02:21:19 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -232,7 +232,8 @@ namespace Likelihood {
 			       CLHEP::HepVector& gradient,
 			       CLHEP::HepSymMatrix& hessian,
 			       size_t firstBin = 0,
-			       size_t lastBin = 0);
+			       size_t lastBin = 0,
+			       int verbose = 0);
 
 
     /* Invert the Hessian to get the covariance matrix.
@@ -332,6 +333,43 @@ namespace Likelihood {
 			size_t lastBin = 0,
 			int verbose = 0);
     
+
+    /* Fit the log of the normalization using Newton's method
+       
+       data:          The observed data
+       initNorms:     Initial values of the normalizations
+       templates:     Templates of the free sources
+       fixed:         Template with the sum of all the fixed sources
+       prior:         If provided, a multivariate prior on the fit
+       tol:           Tolerance for estimating covergence.  Done when edm < tol
+       maxIter:       Maximum number of iterations before failing the fit
+       norms:         Filled with the fit results for the normalizations
+       covar:         Filled with the covariance matrix from the fit
+       gradient:      Filled with the gradient at the best fit point
+       model:         Filled with the best-fit model
+       edm:           Filled with the estimated (veritcal) distance to minimum
+       logLikeVal:    Filled with the log likelihood at the best-fit point
+       firstBin:      First bin to use
+       lastBin:       Last bin to use ( 0 -> end )
+       verbose:       0 : none; 1 : start & converged; 2 : params;  3 : matrices
+    */
+    int fitLogNorms_newton(const std::vector<float>& data,
+			   const CLHEP::HepVector& initNorms,
+			   const std::vector<const std::vector<float>* >& templates,
+			   const std::vector<float>& fixed,
+			   const FitScanMVPrior* prior,
+			   double tol, int maxIter,
+			   CLHEP::HepVector& norms,
+			   CLHEP::HepSymMatrix& covar,
+			   CLHEP::HepVector& gradient,
+			   std::vector<float>& model,
+			   double& edm,
+			   double& logLikeVal,
+			   size_t firstBin = 0, 
+			   size_t lastBin = 0,
+			   int verbose = 0);
+    
+
     /* Extract a vector of spectral normalization values from a Source object
 
        source:    The source object
