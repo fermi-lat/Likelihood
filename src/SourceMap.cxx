@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.111 2016/01/09 02:04:15 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.112 2016/01/29 22:31:33 mdwood Exp $
  */
 
 #include <cmath>
@@ -161,8 +161,6 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const std::string & srcName,
                      const Observation & observation) 
    : m_name(srcName),
-     // EAC, use AppHelpers to make the right type of CountsMap
-     // EAC_FIX, it seems very inefficient to make our own counts map
      m_dataMap(AppHelpers::readCountsMap(sourceMapsFile)),
      m_observation(observation),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
@@ -202,7 +200,6 @@ void SourceMap::makeDiffuseMap(Source * src,
 			       double resamp_factor,
 			       double minbinsz,
 			       bool verbose) {
-  // EAC, switch based on projection type
   const CountsMapHealpix* hpxmap(0);
   switch ( dataMap->projection().method() ) {
   case astro::ProjBase::WCS:
@@ -253,15 +250,6 @@ void SourceMap::makeDiffuseMap_native(Source * src,
   std::string nativeProj("STG");
   try {
     MapBase & tmp(*diffuseSrc->mapBaseObject());
-    // EAC - switch to using pixelSize() function
-    // double cdelt1(0.0); 
-    // double cdelt2(0.0);
-    //double cdelt1 = std::fabs(tmp.wcsmap().cdelt1());
-    //double cdelt2 = std::fabs(tmp.wcsmap().cdelt2());
-    //if (cdelt1 < minbinsz || cdelt2 < minbinsz) {
-    //   unsigned int factor = 
-    //      std::max(static_cast<unsigned int>(minbinsz/cdelt1),
-    //               static_cast<unsigned int>(minbinsz/cdelt2));
     nativeProj = tmp.projmap().getProj()->projType();
     double pixSize = tmp.projmap().pixelSize();
     if ( pixSize < minbinsz ) {
@@ -535,15 +523,6 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
 // rebin according to the minimum bin size.
    try {
       MapBase & tmp(*diffuseSrc->mapBaseObject());
-      // EAC - switch to using pixelSize() function
-      // double cdelt1(0.0); 
-      // double cdelt2(0.0);
-      //double cdelt1 = std::fabs(tmp.wcsmap().cdelt1());
-      //double cdelt2 = std::fabs(tmp.wcsmap().cdelt2());
-      //if (cdelt1 < minbinsz || cdelt2 < minbinsz) {
-      //   unsigned int factor = 
-      //      std::max(static_cast<unsigned int>(minbinsz/cdelt1),
-      //               static_cast<unsigned int>(minbinsz/cdelt2));
       double pixSize = tmp.projmap().pixelSize();
       if ( pixSize < minbinsz ) {
 	 unsigned int factor = static_cast<unsigned int>(minbinsz/pixSize);
@@ -766,10 +745,7 @@ void SourceMap::makePointSourceMap_wcs(Source * src,
    MeanPsf meanPsf(dir.ra(), dir.dec(), energies, m_observation);
    
    const std::vector<double> & exposure = meanPsf.exposure();
-   // EAC, switch to using ProjMap::pixelSize()
    double pixel_size = m_dataMap->pixelSize();
-   //double pixel_size(std::min(std::fabs(m_dataMap->cdelt1()), 
-   //                           std::fabs(m_dataMap->cdelt2())));
    
    if (performConvolution) {
       long icount(0);
@@ -838,9 +814,7 @@ void SourceMap::makePointSourceMap_healpix(Source * src,
     for (int k(0); k < energies.size(); k++ ) {
       m_formatter->warn() << ".";
       hpmap.fill(0.);
-      // EAC, not that 
       ConvolveHealpix::fillMapWithPSF_refDir(meanPsf,energies[k],dir,dataMap->isGalactic(),hpmap);
-      // EAC, here we have to loop over the reduced map and remap the indices
       for (int i(0); i < nPix; i++, indx++ ) {
 	m_model.at(indx) = exposure.at(k) * hpmap[ dataMap->localToGlobalIndex(i) ];
       }
@@ -850,7 +824,6 @@ void SourceMap::makePointSourceMap_healpix(Source * src,
     double ipix(0);
     double jpix(0);
     st_facilities::Util::skyDir2pixel(dataMap->projection(),dir,ipix,jpix);
-    // EAC, here we have to remap the pixel index                                         
     int iglo = dataMap->globalToLocalIndex(ipix);
     if ( iglo < 0 ) return;
     if ( ipix >= 0 ) {
@@ -972,16 +945,9 @@ bool SourceMap::haveMapCubeFunction(DiffuseSource * src) const {
 
 double SourceMap::computeResampFactor(const DiffuseSource & src,
                                       const CountsMapBase & dataMap) const {
-   // EAC, switch to using ProjMap::pixelSize() 
    double data_pixel_size = dataMap.pixelSize();
-   //double data_pixel_size = std::min(std::fabs(dataMap.cdelt1()), 
-   //                                   std::fabs(dataMap.cdelt2()));
    double model_pixel_size = data_pixel_size;
    try {
-     // EAC, switch to using ProjMap::pixelSize()
-     //model_pixel_size = 
-     //    std::min(std::fabs(src.mapBaseObject()->wcsmap().cdelt1()),
-     //             std::fabs(src.mapBaseObject()->wcsmap().cdelt2()));
      model_pixel_size = src.mapBaseObject()->projmap().pixelSize();
    } catch (MapBaseException &) {
       // do nothing
@@ -992,10 +958,10 @@ double SourceMap::computeResampFactor(const DiffuseSource & src,
 }
 
 void SourceMap::applyPhasedExposureMap() {
-   const ProjMap * phased_expmap = &(m_observation.phased_expmap());
-   if (phased_expmap == 0) {
+   if (!m_observation.have_phased_expmap()) {
       return;
    }
+   const ProjMap * phased_expmap = &(m_observation.phased_expmap());
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
    std::vector<double> energies;
    m_dataMap->getEnergies(energies);
