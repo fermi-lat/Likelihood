@@ -4,7 +4,7 @@
  * observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/Observation.h,v 1.4 2015/03/05 19:58:25 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Observation.h,v 1.7 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_Observation_h
@@ -19,7 +19,6 @@
 
 namespace Likelihood {
 
-   // EAC, switch to using base classes 
    class BinnedExposureBase;
    class ProjMap;
    class MeanPsf;
@@ -103,24 +102,24 @@ public:
       return *m_eventCont;
    }
 
-   // EAC, switch to using base classes 
    const BinnedExposureBase & bexpmap() const {
       return *m_bexpmap;
    }
 
-   // EAC, switch to using base classes 
    BinnedExposureBase & bexpmap() {
       return *m_bexpmap;
    }
 
-   // EAC, switch to using base classes 
    const ProjMap & phased_expmap() const {
       return *m_phased_expmap;
    }
 
-   // EAC, switch to using base classes 
    ProjMap & phased_expmap() {
       return *m_phased_expmap;
+   }
+
+   bool have_phased_expmap() const {
+      return m_phased_expmap != 0;
    }
 
    void setMeanPsf(MeanPsf * meanpsf) {
@@ -137,7 +136,6 @@ public:
 
 private:
 
-   // EAC, switch to using base classes 
    ResponseFunctions * m_respFuncs;
    ScData * m_scData;
    RoiCuts * m_roiCuts;
