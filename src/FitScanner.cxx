@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.12 2016/02/05 22:31:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.13 2016/02/06 00:40:51 echarles Exp $
  */
 
 
@@ -669,6 +669,8 @@ namespace Likelihood {
      m_currentFixed(m_modelWrapper.size()),
      m_prior_test(0),
      m_prior_bkg(0),
+     m_global_prior_test(0),
+     m_global_prior_bkg(0),
      m_currentBestModel(m_modelWrapper.size()),
      m_currentTestSourceIndex(-1),
      m_currentLogLike(0.),
@@ -696,6 +698,8 @@ namespace Likelihood {
   
  
   FitScanCache::~FitScanCache() {
+    delete m_prior_test;
+    delete m_prior_bkg;
     delete m_prior_test;
     delete m_prior_bkg;
   }
@@ -873,40 +877,57 @@ namespace Likelihood {
   /* Set the prior */
   void FitScanCache::buildPriorsFromExternal(const CLHEP::HepVector& centralVals,
 					     const CLHEP::HepSymMatrix& covariance,
-					     const std::vector<bool>& constrainPars) {
-    if ( m_prior_test ) {
-      m_prior_test->update(centralVals,covariance,constrainPars,true);
-    } else {
-      m_prior_test = new FitScanMVPrior(centralVals,covariance,constrainPars,true);
-    }
-    if ( m_prior_bkg ) {
-      m_prior_bkg->update(centralVals,covariance,constrainPars,false);
-    } else {
-      m_prior_bkg = new FitScanMVPrior(centralVals,covariance,constrainPars,false);
-    }
+					     const std::vector<bool>& constrainPars,
+					     bool globalPrior) {
 
+    if ( globalPrior ) {
+      if ( m_global_prior_test ) {
+	m_global_prior_test->update(centralVals,covariance,constrainPars,true);
+      } else {
+	m_global_prior_test = new FitScanMVPrior(centralVals,covariance,constrainPars,true);
+      }
+      if ( m_prior_bkg ) {
+	m_global_prior_bkg->update(centralVals,covariance,constrainPars,false);
+      } else {
+	m_global_prior_bkg = new FitScanMVPrior(centralVals,covariance,constrainPars,false);
+      }      
+    } else {
+      if ( m_prior_test ) {
+	m_prior_test->update(centralVals,covariance,constrainPars,true);
+      } else {
+	m_prior_test = new FitScanMVPrior(centralVals,covariance,constrainPars,true);
+      }
+      if ( m_prior_bkg ) {
+	m_prior_bkg->update(centralVals,covariance,constrainPars,false);
+      } else {
+	m_prior_bkg = new FitScanMVPrior(centralVals,covariance,constrainPars,false);
+      }
+    }
   }
   
   /* Set the prior from the current fit*/
   void FitScanCache::buildPriorsFromCurrent(const std::vector<bool>& constrainPars,
-					    double covScaleFactor) {
+					    double covScaleFactor,
+					    bool globalPrior) {
     if ( m_currentTestSourceIndex < 0 ) {
       CLHEP::HepSymMatrix scaledCov = covScaleFactor*m_currentCov;
-      buildPriorsFromExternal(m_currentPars,scaledCov,constrainPars);    
+      buildPriorsFromExternal(m_currentPars,scaledCov,constrainPars,globalPrior);    
       return;
     }
     CLHEP::HepVector redPars = m_currentPars.sub(1,nBkgModel());
     CLHEP::HepSymMatrix scaledCov = covScaleFactor*m_currentCov.sub(1,nBkgModel());
-    buildPriorsFromExternal(redPars,scaledCov,constrainPars); 
+    buildPriorsFromExternal(redPars,scaledCov,constrainPars,globalPrior); 
   }
   
 
-  int FitScanCache::fitCurrent(bool usePrior, int verbose) {
+  int FitScanCache::fitCurrent(bool usePrior, bool useGlobalPrior, int verbose) {
     // This just passes the cached data along to the FitUtils function
     // and latches the output into the internal cache
     FitScanMVPrior* prior(0);
     if ( usePrior ) {
       prior = m_currentTestSourceIndex >= 0 ? m_prior_test : m_prior_bkg;
+    } else if ( useGlobalPrior ) {
+      prior = m_currentTestSourceIndex >= 0 ? m_global_prior_test : m_global_prior_bkg;
     }
 
     int status = FitUtils::fitNorms_newton(m_useReduced ? m_dataRed : m_data,
@@ -1050,8 +1071,13 @@ namespace Likelihood {
     
     // This is just solving the quadratic equation
     double inv_curve = m_currentCov[m_currentTestSourceIndex][m_currentTestSourceIndex];
-    double a_val = 1./inv_curve;
     double b_val = m_currentGrad[m_currentTestSourceIndex];
+
+    if ( std::fabs( inv_curve ) < 1e-10 ) {
+      // No curvature, just return the linear solution
+      return deltaLogLike / b_val;
+    }
+    double a_val = 1./inv_curve;
     double det = b_val*b_val;
     det += 4.*a_val*deltaLogLike;
     
@@ -1299,22 +1325,26 @@ namespace Likelihood {
   /* Build a TS map.
      This scans over the directions and calculates the Test Statistics w.r.t. the null 
      hypothesis for each */  
-  int FitScanner::run_tsmap(double tol, int tolType, 
+  int FitScanner::run_tsmap(double covScale_bb,
+			    double tol, int tolType, 
 			    int maxIter, bool remakeTestSource,
 			    int ST_scan_level, std::string src_model_out) {
-    return run_tscube(true,false,0,0.0,-1.0,tol,tolType,maxIter,remakeTestSource,ST_scan_level,src_model_out);
+    return run_tscube(true,false,0,0.0,
+		      covScale_bb,-1.0,
+		      tol,tolType,maxIter,remakeTestSource,ST_scan_level,src_model_out);
   }
 
   /* Build an SED.
      This calculates the spectrum as a function of energy
      and can also scan over the normalization. */
   int FitScanner::run_SED(int nNorm, double normSigma, 
-			  double covScale,
+			  double covScale_bb, double covScale,
 			  double tol, int maxIter, int tolType, 
 			  bool remakeTestSource,
 			  int ST_scan_level,std::string src_model_out) {
-    return run_tscube(false,true,nNorm,normSigma,covScale,tol,
-		      maxIter,tolType,remakeTestSource,
+    return run_tscube(false,true,nNorm,normSigma,
+		      covScale_bb,covScale,
+		      tol,maxIter,tolType,remakeTestSource,
 		      ST_scan_level,src_model_out);
   }
 
@@ -1324,7 +1354,7 @@ namespace Likelihood {
      and can also scan over the normalization
   */  
   int FitScanner::run_tscube(bool doTSMap, bool doSED, int nNorm, double normSigma, 
-			     double covScale,
+			     double covScale_bb, double covScale,
 			     double tol, int maxIter, int tolType, 
 			     bool remakeTestSource,
 			     int ST_scan_level,
@@ -1333,7 +1363,7 @@ namespace Likelihood {
     if ( true ) {
       std::cout << "nNorm =     " << nNorm << std::endl;
       std::cout << "normSigma = " << normSigma << std::endl;
-      std::cout << "covScale  = " << covScale << std::endl;
+      std::cout << "covScales = " << covScale_bb << ' ' << covScale << std::endl;
       std::cout << "tol       = " << tol << std::endl;
       std::cout << "maxIter   = " << maxIter << std::endl;
       std::cout << "tolType   = " << tolType << std::endl;
@@ -1341,12 +1371,17 @@ namespace Likelihood {
       std::cout << "st_scan   = " << ST_scan_level << std::endl;
     }
 
+    static const bool redoFailedVerbose(false);
+
     // How much fitting do we do with ScienceTools fitter
     const bool baseline_st( ST_scan_level > 0 );
     const bool broadband_st( ST_scan_level > 1 );
     const bool sed_st( ST_scan_level > 2 );
     const bool normscan_st( ST_scan_level > 3 );
         
+    // Do we use the global fit as a prior 
+    const bool useGlobalPrior = covScale_bb > 0;
+
     int status(0);
     double loglike_null_st = m_modelWrapper->value();
     double loglike_null = m_modelWrapper->value();
@@ -1375,7 +1410,7 @@ namespace Likelihood {
     std::cout << "Got null likelihood " << loglike_null << std::endl;    
 
     // Do the baseline fit and latch the results.   
-    status = m_cache->fitCurrent(false,verbose_null());
+    status = m_cache->fitCurrent(false,false,verbose_null());
     if ( status != 0 ) { 
       std::cout << "Baseline fit of ROI with linear fitter failed with error code " << status << std::endl
 		<< "  Try using standard fitter to pre-fit region with stlevel=1 parateter."  << std::endl
@@ -1386,6 +1421,13 @@ namespace Likelihood {
     m_baselinePars = m_cache->currentPars();
     m_baselineCovs = m_cache->currentCov();    
     loglike_null = m_cache->currentLogLike();
+
+    // Build the global prior, if requested
+    if ( covScale_bb > 0 ) {      
+      std::vector<bool> constrainPars(m_cache->nBkgModel(),true);
+      m_cache->buildPriorsFromCurrent(constrainPars,covScale_bb,true);
+    }
+
     std::cout << "Redid baseline fit with linear fitter.  Likelihood: " << loglike_null << std::endl;
     
     // Get the number of bins in the grid of the region
@@ -1543,8 +1585,13 @@ namespace Likelihood {
 	
 	// Set the cache to do a broadband fit
 	m_cache->setEnergyBin(-1);	
-	status = m_cache->fitCurrent(false,verbose_bb());
+	status = m_cache->fitCurrent(false,useGlobalPrior,verbose_bb());
 	if ( status != 0 ) {
+	  // Refit with verbose
+	  if ( redoFailedVerbose ) {
+	    status = m_cache->fitCurrent(false,useGlobalPrior,4);
+	  }
+
 	  ts_map_ok->setBinDirect(ipix,status);
 	  int idx_sed_err = ipix;
 	  for ( int iE_err(0); iE_err < nEBins(); iE_err++, idx_sed_err += npix ) {
@@ -2039,7 +2086,7 @@ namespace Likelihood {
       std::vector<float> pars_scales(m_cache->nBkgModel(),1.0);
       m_cache->refactorModel(freePars,pars_scales,false);
     }
-    int ok = m_cache->fitCurrent(false);
+    int ok = m_cache->fitCurrent(false,false,verbose_null());
     return ok;
   }
 
@@ -2110,13 +2157,13 @@ namespace Likelihood {
     // Loop on the energy bins
     for ( size_t i(0); i < m_cache->nebins(); i++ ) {
       m_cache->setEnergyBin(i);
-      int status = m_cache->fitCurrent(usePrior);
+      int status = m_cache->fitCurrent(usePrior,false,verbose_scan());
       sed_fit_status[i] = status;
       if ( status ) {
 	// if the fit failed, fill the output vectors, and move on.
 	// for debugging, redo failed fits with verbose on
 	if ( redoFailedVerbose ) {
-	  m_cache->fitCurrent(usePrior,4);
+	  m_cache->fitCurrent(usePrior,false,4);
 	}
 	nfailed++;
 	logLike_mles[i] = 0.;

@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gttsmap.par,v 1.29 2015/01/16 05:36:26 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttscube.par,v 1.1 2015/07/17 18:41:56 echarles Exp $
 #
 # Input data set parameters
 #
@@ -33,6 +33,7 @@ yref,r,a,0,-90,90,"Y-coordinate of image center in degrees (Dec or b)"
 proj,s,a,"STG",AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN,,Projection method
 nnorm,i,h,10,2,100,"Number of normalization points"
 nsigma,r,h,5.0,,,"Width of normalization scan, in sigma"
+covscale_bb,r,h,-1.,,,"Scale factor to apply to global errors in broadband fits ( < 0 -> no prior )"
 covscale,r,h,-1.,,,"Scale factor to apply to broadband errors in bin-by-bin fits ( < 0 -> fixed )"
 
 # Common parameters
