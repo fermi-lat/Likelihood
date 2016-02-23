@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.6 2016/02/03 20:25:57 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.7 2016/02/05 22:31:12 echarles Exp $
  */
 
 
@@ -392,7 +392,7 @@ namespace Likelihood {
       covar.assign(hessian);
       int ifail(0);
       covar.invert(ifail);
-      if ( ifail ) {	
+      if ( ifail ) {
 	return ifail;
       }
       
@@ -530,7 +530,7 @@ namespace Likelihood {
 	if ( covOk !=0 ) {
 	  // non-zero value means it failed to invert the cov. matrix
 	  if ( verbose > 0 ) {
-	    std::cout << "Matrix inversion failed." << std::endl;
+	    std::cout << "Matrix inversion failed with code " << covOk << std::endl;
 	  }
 	  return covOk;
 	}
@@ -540,7 +540,7 @@ namespace Likelihood {
 
 	// catch fits that are diverging
 	for ( size_t iCheck(0); iCheck < norms.num_row(); iCheck++ ) {
-	  if ( norms[iCheck] > 1e6 ) {
+	  if ( norms[iCheck] > 1e9 ) {
 	    if ( verbose > 0 ) {
 	      std::cout << "A fit using Newton's method seems to have diverged." << std::endl;
 	      printVector("Norms:",norms);
@@ -587,7 +587,7 @@ namespace Likelihood {
 	// The fit got worse, reset things
 	if ( verbose > 0 ) {
 	  std::cout << "Fit seems to have made things worse " << logLikeVal << ' ' << logLikeInit << std::endl
-		    << "  This is usually caused by degenercy between the test source and a poorly constrained source." << std::endl;
+		    << "  This is usually caused by degeneracy between the test source and a poorly constrained source." << std::endl;
 	}
 	logLikeVal = logLikeInit;
 	norms = CLHEP::HepVector(npar);

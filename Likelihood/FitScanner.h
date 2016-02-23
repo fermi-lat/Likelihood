@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.9 2016/02/04 00:55:31 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.10 2016/02/05 22:31:12 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -200,7 +200,14 @@ namespace Likelihood {
     /* D'tor, does nothing */
     ~FitScanMVPrior() {;}
 
-    // Update the cached values
+    /* Update the cached values in this prior
+
+       centralVals       : Central values from fit we are using to build this prior
+       covariance        : Covariance matrix from fit we are using to build this prior
+       constrainPars     : Flags showing which parameters to include in this prior     
+       includeTestSource : If true, expand the dimension by one to allow for the test source
+
+     */
     void update(const CLHEP::HepVector& centralVals,
 		const CLHEP::HepSymMatrix& covariance,
 		const std::vector<bool>& constrainPars,
@@ -653,14 +660,16 @@ namespace Likelihood {
     /* Set the prior */
     void buildPriorsFromExternal(const CLHEP::HepVector& centralVals,
 				 const CLHEP::HepSymMatrix& covariance,
-				 const std::vector<bool>& constrainPars);
+				 const std::vector<bool>& constrainPars,
+				 bool globalPrior=false);
 
     /* Set the prior from the current fit*/
     void buildPriorsFromCurrent(const std::vector<bool>& constrainPars,
-				double covScaleFactor);
+				double covScaleFactor,
+				bool globalPrior=false);
  
     /* Fit the currently cached values using Newton's method */
-    int fitCurrent(bool usePrior = false, int verbose=0);
+    int fitCurrent(bool usePrior = false, bool useGlobalPrior = false, int verbose=0);
 
     /* Calculate the log-likelihood for the currently cached values */
     int calculateLoglikeCurrent(double& logLike);
@@ -809,6 +818,10 @@ namespace Likelihood {
     FitScanMVPrior* m_prior_test;
     FitScanMVPrior* m_prior_bkg;
 
+    // these are the global priors to use for all the broad band fits
+    FitScanMVPrior* m_global_prior_test;
+    FitScanMVPrior* m_global_prior_bkg;    
+
     // this is the best-fit model for the current fit
     std::vector<float> m_currentBestModel;
     // this is the log-likelihood for the current fit
@@ -888,6 +901,7 @@ namespace Likelihood {
 
        This actually just calls run_tscube with doSED and doNorm set to false.
  
+       covScale_bb   : Scale factor to apply to global fitting cov. matrix in broadband fits ( < 0 -> fixed )
        tol           : Critetia for fit convergence (estimated vertical distance to min < tol )
        maxIter       : Maximum number of iterations for the Newton's method fitter
        tolType       : Absoulte (0) or relative (1) criteria for convergence
@@ -897,7 +911,8 @@ namespace Likelihood {
 
        returns 0 for success, or a error code
      */
-    int run_tsmap(double tol=1e-3, 
+    int run_tsmap(double covScale_bb = -1.0, 
+		  double tol=1e-3, 
 		  int tolType = 0, 
 		  int maxIter = 30, 
 		  bool remakeTestSource = false,
@@ -911,6 +926,7 @@ namespace Likelihood {
        This actually just calls run_tscube with doTSMap set to false.
 
        nNorm         : Number of points in the likelihood v. normalization scan
+       covScale_bb   : Scale factor to apply to global fitting cov. matrix in broadband fits ( < 0 -> fixed )
        covScale      : Scale factor to apply to broadband fitting cov. matrix in bin-by-bin fits ( < 0 -> fixed )
        normSigma     : Number of sigma to use for the scan range 
        tol           : Critetia for fit convergence (estimated vertical distance to min < tol )
@@ -923,7 +939,8 @@ namespace Likelihood {
        returns 0 for success, or a error code
      */
     int run_SED(int nNorm = 10, double normSigma = 5.0, 
-		double covScale = -1.0, double tol = 1e-3, int maxIter = 30, int tolType = 0, 
+		double covScale_bb = -1.0, double covScale = -1.0, 
+		double tol = 1e-3, int maxIter = 30, int tolType = 0, 
 		bool remakeTestSource = false,
 		int ST_scan_level = 0,
 		std::string src_model_out = "");
@@ -936,6 +953,7 @@ namespace Likelihood {
        doTSMap       : Scan over the grid of test directions
        doSED         : Compute the energy bin-by-bin fits
        nNorm         : Number of points in the likelihood v. normalization scan
+       covScale_bb   : Scale factor to apply to global fitting cov. matrix in broadband fits ( < 0 -> fixed )
        covScale      : Scale factor to apply to broadband fitting cov. matrix in bin-by-bin fits ( < 0 -> fixed )
        normSigma     : Number of sigma to use for the scan range 
        tol           : Critetia for fit convergence (estimated vertical distance to min < tol )
@@ -950,7 +968,8 @@ namespace Likelihood {
        throws exceptions if some inconsistency in the models or data is detected.
      */
     int run_tscube(bool doTSMap=true, bool doSED=true, int nNorm = 10, double normSigma = 5.0, 
-		   double covScale = -1.0, double tol = 1e-3, int maxIter = 30, int tolType = 0, 
+		   double covScale_bb = -1.0, double covScale = -1.0, 
+		   double tol = 1e-3, int maxIter = 30, int tolType = 0, 
 		   bool remakeTestSource = false,
 		   int ST_scan_level = 0,
 		   std::string src_model_out = "");
