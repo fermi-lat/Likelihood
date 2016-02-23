@@ -1,5 +1,5 @@
 # -*- python -*-
-# $Id: SConscript,v 1.339 2015/12/10 06:56:13 echarles Exp $
+# $Id: SConscript,v 1.340 2016/01/18 23:08:27 jchiang Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>
 # Version: Likelihood-20-00-01
 
@@ -30,7 +30,9 @@ gtexpmapBin = progEnv.Program('gtexpmap', listFiles(['src/expMap/*.cxx']))
 
 gttsmapBin = progEnv.Program('gttsmap', listFiles(['src/TsMap/*.cxx']))
 
-gttscubeBin = progEnv.Program('gttscube', listFiles(['src/TsCube/*.cxx']))
+gttscubeBin = progEnv.Program('gttscube', listFiles(['src/TsCube/TsCube.cxx']))
+
+gthealcubeBin = progEnv.Program('gthealcube', listFiles(['src/TsCube/HealCube.cxx']))
 
 gtltcubeBin = progEnv.Program('gtltcube', listFiles(['src/makeExposureCube/*.cxx']))
 
@@ -60,6 +62,7 @@ progEnv.Tool('registerTargets', package = 'Likelihood',
                            [gtexpmapBin, progEnv],
                            [gttsmapBin, progEnv],
                            [gttscubeBin, progEnv],
+                           [gthealcubeBin, progEnv],
                            [gtltcubeBin, progEnv],
                            [gtexpcube2Bin, progEnv],
                            [gtdiffrspBin, progEnv],
