@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/DiffuseSource.cxx,v 1.4 2015/03/05 19:58:26 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.65 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <algorithm>
@@ -185,6 +185,9 @@ double DiffuseSource::angularIntegral(double energy) const {
    if (spatialDist()->genericName() == "ConstantValue") { 
 // Here we have an isotropic source
       return 4*M_PI;
+   } else if (spatialDist()->genericName() == "SpatialGaussian" ||
+	      spatialDist()->genericName() == "SpatialDisk") { 
+     return 1.0;
    } else if (spatialDist()->genericName() == "RadialProfile") {
       optimizers::Function * foo = 
          const_cast<optimizers::Function *>(this->spatialDist());
