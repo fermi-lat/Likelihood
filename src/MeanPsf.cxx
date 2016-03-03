@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/MeanPsf.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.34 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -28,7 +28,7 @@ std::vector<double> MeanPsf::s_separations;
 void MeanPsf::init() {
    computeExposure();
    if (s_separations.size() == 0) {
-      createLogArray(1e-4, 70., 200, s_separations);
+      createLogArray(1e-4, 70., 400, s_separations);
    }
    m_psfValues.reserve(m_energies.size()*s_separations.size());
    for (unsigned int k = 0; k < m_energies.size(); k++) {
@@ -52,6 +52,10 @@ void MeanPsf::init() {
    }
    // Ensure normalization and compute partial integrals.
    computePartialIntegrals();
+
+   for (unsigned int k = 0; k < m_energies.size(); k++) {
+     m_psfPeakValues.push_back((*this)(m_energies[k],0.0));
+   }
 }
 
 void MeanPsf::computeExposure() {
@@ -84,6 +88,10 @@ double MeanPsf::operator()(double energy, double theta, double phi) const {
    return st_facilities::Util::bilinear(m_energies, energy, 
                                         s_separations, theta, 
                                         m_psfValues);
+}
+
+double MeanPsf::peakValue(double energy) const {
+   return st_facilities::Util::interpolate(m_energies, m_psfPeakValues, energy);
 }
 
 void MeanPsf::write(const std::string & filename) const {

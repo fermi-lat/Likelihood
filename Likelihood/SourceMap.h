@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.56 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.57 2016/01/09 02:04:17 mdwood Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -127,10 +127,22 @@ private:
    /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;
 
+   /// @brief Scaling factor between the true and projected angular separation
+   std::vector< std::vector< double > > m_pixelOffset;
+   std::vector< double > m_pixelCoordX;
+   std::vector< double > m_pixelCoordY;   
+
+   std::string m_psfEstimatorMethod;
+
+   double m_psfEstimatorFtol;
+   double m_psfEstimatorPeakTh;
+
    bool haveMapCubeFunction(DiffuseSource * src) const;
 
    void getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
                           const std::vector<Pixel> & pixels,
+			  const std::pair<double,double>& srcCoord,
+			  const std::vector< std::pair<double,double> > & pixCoords,
                           const std::vector<double> & energies,
                           std::vector<double> & mapCorrections) const;
 
@@ -196,11 +208,31 @@ private:
 
    void applyPhasedExposureMap();
 
-   double psfValueEstimate(const MeanPsf & meanPsf, double energy,
-                           const astro::SkyDir & srcDir, const Pixel & pixel) const;
+   void createOffsetMap(Source * src,
+			const CountsMap * dataMap);
+
+   double psfValueEstimate(const MeanPsf & meanPsf, double energy, 
+                           const astro::SkyDir & srcDir, 
+			   const Pixel & pixel,
+			   const std::pair<double, double>& srcCoord,
+			   const std::pair<double, double>& pixCoord) const;
+
+   double integrate_psf_adaptive(const MeanPsf & meanPsf, double energy, 
+				 const astro::SkyDir & srcDir, 
+				 const Pixel & pixel,
+				 const std::pair<double, double>& srcCoord,
+				 const std::pair<double, double>& pixCoord) const;
 
    double integrate_psf(const MeanPsf & meanPsf, double energy,
-                        const astro::SkyDir & srcDir, const Pixel & pixel) const;
+                        const astro::SkyDir & srcDir, 
+			const Pixel & pixel, size_t npts = 11) const;
+
+   double integrate_psf_fast(const MeanPsf & meanPsf, double energy, 
+			     const astro::SkyDir & srcDir, 
+			     const Pixel & pixel, 
+			     const std::pair<double, double>& srcCoord,
+			     const std::pair<double, double>& pixCoord,
+			     size_t npts) const;
 };
 
 } // namespace Likelihood
