@@ -3,7 +3,7 @@
  * @brief Position-dependent Psf averaged over an observation period.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/MeanPsf.h,v 1.3 2015/03/03 05:59:56 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/MeanPsf.h,v 1.20 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_MeanPsf_h
@@ -58,6 +58,10 @@ public:
    const std::vector<double> & exposure() const {
       return m_exposure;
    }
+   
+   /// @return The value of the psf at the peak (offset = 0 deg).
+   /// @param energy True photon energy (MeV)
+   double peakValue(double energy) const;
 
    /// @return Exposure at the selected sky location as a function of 
    ///         energy in units of cm^2-s.
@@ -118,6 +122,7 @@ private:
    const Observation & m_observation;
 
    std::vector<double> m_psfValues;
+   std::vector<double> m_psfPeakValues;
    std::vector< std::vector<double> > m_partialIntegrals;
 
    std::vector<double> m_exposure;

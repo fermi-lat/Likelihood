@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.112 2016/01/29 22:31:33 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.113 2016/02/16 20:48:33 jchiang Exp $
  */
 
 #include <cmath>
@@ -134,7 +134,13 @@ SourceMap::SourceMap(Source * src, const CountsMapBase * dataMap,
      m_dataMap(dataMap),
      m_observation(observation),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
-     m_deleteDataMap(false) {
+     m_deleteDataMap(false),
+     m_pixelOffset(),
+     m_pixelCoordX(),
+     m_pixelCoordY(),
+     m_psfEstimatorMethod("adaptive"),
+     m_psfEstimatorFtol(1E-3),
+     m_psfEstimatorPeakTh(1E-6) {
    if (verbose) {
       m_formatter->warn() << "Generating SourceMap for " << m_name;
    }
@@ -164,7 +170,13 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
      m_dataMap(AppHelpers::readCountsMap(sourceMapsFile)),
      m_observation(observation),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
-     m_deleteDataMap(true) {
+     m_deleteDataMap(true),
+     m_pixelOffset(),
+     m_pixelCoordX(),
+     m_pixelCoordY(),
+     m_psfEstimatorMethod("adaptive"),
+     m_psfEstimatorFtol(1E-3),
+     m_psfEstimatorPeakTh(1E-6) {
 
    m_model.clear();
    bool ok(false);
@@ -696,7 +708,6 @@ void SourceMap::makeDiffuseMap_wcs(Source * src,
    }
 }
 
-
 void SourceMap::makePointSourceMap(Source * src,
 				   const CountsMapBase * dataMap,
 				   bool applyPsfCorrections,
@@ -739,23 +750,72 @@ void SourceMap::makePointSourceMap_wcs(Source * src,
    long npts = energies.size()*pixels.size();
    m_model.resize(npts, 0);
 
-   std::vector<Pixel>::const_iterator pixel = pixels.begin();
-
    const astro::SkyDir & dir(pointSrc->getDir());
    MeanPsf meanPsf(dir.ra(), dir.dec(), energies, m_observation);
    
    const std::vector<double> & exposure = meanPsf.exposure();
    double pixel_size = m_dataMap->pixelSize();
    
+   bool galactic(dataMap->isGalactic());
+   /// Get the pixel center in pixel coordinates
+   double src_lon, src_lat;
+   if (galactic) {
+      src_lon = dir.l();
+      src_lat = dir.b();
+   } else {
+      src_lon = dir.ra();
+      src_lat = dir.dec();
+   }
+
+   std::pair<double, double> srcCoord = 
+     std::pair<double, double>(dataMap->projection().sph2pix(src_lon, 
+							     src_lat));
+
+   std::vector< std::pair<double, double> > pixCoords(pixels.size());
+   std::vector<Pixel>::const_iterator pixel(pixels.begin());
+   for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
+
+     double lon, lat;
+     if (galactic) {
+       lon = pixel->dir().l();
+       lat = pixel->dir().b();
+     } else {
+       lon = pixel->dir().ra();
+       lat = pixel->dir().dec();
+     }
+     pixCoords[j] = std::pair<double, double>(pixel->proj().sph2pix(lon, lat));
+   }
+
+   createOffsetMap(src,dataMap);
+
+   if(::getenv("USE_ADAPTIVE_PSF_ESTIMATOR")) {
+     m_psfEstimatorMethod = "adaptive";
+   } else if(::getenv("USE_ANNULAR_PSF_ESTIMATOR")) {
+     m_psfEstimatorMethod = "annular";
+   } else if(::getenv("USE_OLD_PSF_ESTIMATOR")) {
+     m_psfEstimatorMethod = "pixel_center";
+   } else {
+     m_psfEstimatorMethod = "adaptive";
+   }
+
+   if (::getenv("PSF_ADAPTIVE_ESTIMATOR_FTOL"))
+     m_psfEstimatorFtol = atof(::getenv("PSF_ADAPTIVE_ESTIMATOR_FTOL"));
+
+   if (::getenv("PSF_ADAPTIVE_ESTIMATOR_PEAK_TH"))
+     m_psfEstimatorPeakTh = atof(::getenv("PSF_ADAPTIVE_ESTIMATOR_PEAK_TH"));
+
    if (performConvolution) {
       long icount(0);
       std::vector<double> mapCorrections(energies.size(), 1.);
       if (applyPsfCorrections &&
           dataMap->withinBounds(dir, energies.at(energies.size()/2), 4)) {
-            getMapCorrections(pointSrc, meanPsf, pixels, energies,
-                              mapCorrections);
+	getMapCorrections(pointSrc, meanPsf, pixels, srcCoord, 
+			  pixCoords, energies,
+			  mapCorrections);
       }
-      std::vector<Pixel>::const_iterator pixel(pixels.begin());
+
+      //std::vector<Pixel>::const_iterator pixel(pixels.begin());
+      pixel = pixels.begin();
       for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
          std::vector<double>::const_iterator energy = energies.begin();
          for (int k = 0; energy != energies.end(); ++energy, k++) {
@@ -765,7 +825,8 @@ void SourceMap::makePointSourceMap_wcs(Source * src,
             }
             double offset(dir.difference(pixel->dir())*180./M_PI);
             double psf_value(psfValueEstimate(meanPsf, energies.at(k), 
-                                              dir, *pixel));
+                                              dir, *pixel, srcCoord,
+					      pixCoords[j]));
             double value(psf_value*exposure.at(k));
             value *= pixel->solidAngle()*mapCorrections.at(k);
             m_model.at(indx) += value;
@@ -844,8 +905,57 @@ SourceMap::~SourceMap() {
    delete m_formatter;
 }
 
+void SourceMap::createOffsetMap(Source * src, const CountsMap * dataMap) {
+
+  PointSource * pointSrc = dynamic_cast<PointSource *>(src);
+  const astro::SkyDir & dir(pointSrc->getDir());
+  const std::vector<Pixel> & pixels(dataMap->pixels());
+  const double pixel_size = m_dataMap->pixelSize();
+
+  m_pixelOffset.resize(dataMap->naxis2(),
+		      std::vector<double>(dataMap->naxis1()));
+  m_pixelCoordX.resize(dataMap->naxis1());
+  m_pixelCoordY.resize(dataMap->naxis2());
+
+  for( int j = 0; j < dataMap->naxis1(); j++)
+    m_pixelCoordX[j] = double(j+1);
+
+  for( int j = 0; j < dataMap->naxis2(); j++)
+    m_pixelCoordY[j] = double(j+1);
+
+   bool galactic(dataMap->isGalactic());
+   /// Get the pixel center in pixel coordinates
+   double src_lon, src_lat;
+   if (galactic) {
+      src_lon = dir.l();
+      src_lat = dir.b();
+   } else {
+      src_lon = dir.ra();
+      src_lat = dir.dec();
+   }
+
+  std::pair<double, double> src_coords(dataMap->projection().sph2pix(src_lon, 
+								     src_lat));
+
+  std::vector<Pixel>::const_iterator pixel(pixels.begin());
+  for (int j = 0; pixel != pixels.end(); ++pixel, j++) {
+	
+    int ix = j/dataMap->naxis1();
+    int iy = j%dataMap->naxis1();
+	
+    double pix_sep = 
+      pixel_size*std::sqrt(std::pow(src_coords.first-(iy+1),2) +  
+			   std::pow(src_coords.second-(ix+1),2));
+    double ang_sep = dir.difference(pixel->dir())*180./M_PI;
+    m_pixelOffset[ix][iy] = ang_sep/pix_sep-1.0;
+
+  }
+}
+
 void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
                                   const std::vector<Pixel> & pixels,
+				  const std::pair<double,double>& srcCoord,
+				  const std::vector< std::pair<double,double> > & pixCoords,
                                   const std::vector<double> & energies,
                                   std::vector<double> & mapCorrections) const {
    std::ofstream * output(0);
@@ -870,7 +980,8 @@ void SourceMap::getMapCorrections(PointSource * src, const MeanPsf & meanPsf,
       for ( ; j != containedPixels.end(); ++j) {
          const Pixel & pix = pixels.at(*j);
          double solid_angle(pix.solidAngle());
-         double psf_value(psfValueEstimate(meanPsf, energies.at(k), srcDir, pix));
+         double psf_value(psfValueEstimate(meanPsf, energies.at(k), srcDir, 
+					   pix, srcCoord, pixCoords[*j]));
          map_integral += solid_angle*psf_value;
          if (output) {
             double offset(srcDir.difference(pix.dir())*180./M_PI);
@@ -928,6 +1039,7 @@ void SourceMap::computeNpredArray() {
      break;
    }
    
+   m_npreds.clear();
    m_npreds.resize(energies.size(), 0);
    for (size_t k(0); k < energies.size(); k++) {
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
@@ -976,49 +1088,133 @@ void SourceMap::applyPhasedExposureMap() {
 }
 
 double SourceMap::
-psfValueEstimate(const MeanPsf & meanPsf, double energy,
+psfValueEstimate(const MeanPsf & meanPsf, double energy, 
                  const astro::SkyDir & srcDir, 
-                 const Pixel & pixel) const {
-   double offset(srcDir.difference(pixel.dir())*180./M_PI);
-   double pixelSolidAngle(pixel.solidAngle());
-/// To estimate the psf value averaged over a pixel, average the psf
-/// over an annulus centered on the source position with approximately
-/// the same extent in theta as the pixel in question.
-   if (::getenv("USE_OLD_PSF_ESTIMATOR")) {
-      // Use the central pixel value as in the previous implementation 
-      // (ST 09-33-00)
-      return meanPsf(energy, offset);
-   }
-   static double sqrt2(std::sqrt(2.));
-   double pixel_value(0);
-   double pixel_size(std::sqrt(pixelSolidAngle)*180./M_PI);
-   if (pixel_size/2. >= offset) {
-      /// Average over an acceptance cone with the same solid angle
-      /// as the central pixel.
-      double radius(std::acos(1. - pixelSolidAngle/2./M_PI)*180./M_PI);
-      pixel_value = meanPsf.integral(radius, energy)/pixelSolidAngle;
-   // if (offset < pixel_size/sqrt2) {
-   //    pixel_value = integrate_psf(meanPsf, energy, srcDir, pixel);
+                 const Pixel & pixel,
+		 const std::pair<double, double>& srcCoord,
+		 const std::pair<double, double>& pixCoord) const {
+   
+   if (m_psfEstimatorMethod == "adaptive") {
+     // Use the adaptive pixel integrator
+     return integrate_psf_adaptive(meanPsf, energy, srcDir, pixel,
+				   srcCoord, pixCoord);
+   } else if(m_psfEstimatorMethod == "pixel_center") {
+
+     double offset(srcDir.difference(pixel.dir())*180./M_PI);
+     double pixelSolidAngle(pixel.solidAngle());
+   
+     // Use the central pixel value as in the previous implementation 
+     // (ST 09-33-00)
+     return meanPsf(energy, offset);
+   } else if(m_psfEstimatorMethod == "annular") {
+
+     double offset(srcDir.difference(pixel.dir())*180./M_PI);
+     double pixelSolidAngle(pixel.solidAngle());
+
+     /// To estimate the psf value averaged over a pixel, average the psf
+     /// over an annulus centered on the source position with approximately
+     /// the same extent in theta as the pixel in question.
+     static double sqrt2(std::sqrt(2.));
+     double pixel_value(0);
+     double pixel_size(std::sqrt(pixelSolidAngle)*180./M_PI);
+     if (pixel_size/2. >= offset) {
+       /// Average over an acceptance cone with the same solid angle
+       /// as the central pixel.
+       double radius(std::acos(1. - pixelSolidAngle/2./M_PI)*180./M_PI);
+       pixel_value = meanPsf.integral(radius, energy)/pixelSolidAngle;
+       // if (offset < pixel_size/sqrt2) {
+       //    pixel_value = integrate_psf(meanPsf, energy, srcDir, pixel);
+     } else {
+       // Use integral over annulus with pixel_size width centered on
+       // the offset angle to estimate average psf value within a pixel
+       // at the offset.
+       double theta1(offset - pixel_size/2.);
+       double theta2(offset + pixel_size/2.);
+       pixel_value = ( (meanPsf.integral(theta2, energy)
+			- meanPsf.integral(theta1, energy))
+		       /(2.*M_PI*(std::cos(theta1*M_PI/180.)
+				  - std::cos(theta2*M_PI/180.))) );
+     }
+     return pixel_value;
    } else {
-      // Use integral over annulus with pixel_size width centered on
-      // the offset angle to estimate average psf value within a pixel
-      // at the offset.
-      double theta1(offset - pixel_size/2.);
-      double theta2(offset + pixel_size/2.);
-      pixel_value = ( (meanPsf.integral(theta2, energy)
-                       - meanPsf.integral(theta1, energy))
-                      /(2.*M_PI*(std::cos(theta1*M_PI/180.)
-                                 - std::cos(theta2*M_PI/180.))) );
+     std::string errMsg(" SourceMap::psfValueEstimate: Unknown PSF estimator: ");
+     errMsg += m_psfEstimatorMethod;
+     throw std::runtime_error(errMsg);
    }
-   return pixel_value;
+}
+
+double SourceMap::integrate_psf_adaptive(const MeanPsf & meanPsf, 
+					 double energy, 
+					 const astro::SkyDir & srcDir, 
+					 const Pixel & pixel, 
+					 const std::pair<double, double>& srcCoord,
+					 const std::pair<double, double>& pixCoord) const {
+    
+  double offset(srcDir.difference(pixel.dir())*180./M_PI);
+  double pixel_size = m_dataMap->pixelSize();
+  const int max_npts = 64;
+  double ftol_threshold = m_psfEstimatorFtol;
+  double peak_threshold = m_psfEstimatorPeakTh;
+
+  double peak_val = meanPsf.peakValue(energy);
+  double v0 = meanPsf(energy, offset);
+  double v1 = 0;
+  double ferr = 0;
+  double peak_ratio = v0/peak_val;
+
+  if(peak_ratio < peak_threshold)
+    return v0;
+
+  int npts = 1;
+
+  while(1) {
+      npts *= 2;
+      v1 = integrate_psf_fast(meanPsf, energy, srcDir, pixel, srcCoord, pixCoord, npts);
+
+      if(v1-v0 == 0 || v1 == 0)
+	break;
+
+      ferr = std::fabs((v1-v0)/v1);
+      if(ferr < ftol_threshold || npts >= max_npts)
+	break;
+
+      v0=v1;
+  }
+
+  return v1;
+}
+
+double SourceMap::integrate_psf_fast(const MeanPsf & meanPsf, double energy, 
+				     const astro::SkyDir & srcDir, 
+				     const Pixel & pixel, 
+				     const std::pair<double, double>& srcCoord,
+				     const std::pair<double, double>& pixCoord, 
+				     size_t npts) const {
+
+   double pixel_size = m_dataMap->pixelSize();
+   double psf_value(0);
+   double dstep(1./static_cast<double>(npts));
+   for (size_t i(0); i < npts; i++) {
+      double x(pixCoord.first + i*dstep - 0.5 + 0.5*dstep);
+      for (size_t j(0); j < npts; j++) {
+         double y(pixCoord.second + j*dstep - 0.5 + 0.5*dstep);
+	 double pix_offset = 
+	   pixel_size*std::sqrt(std::pow(srcCoord.first-x,2) +  
+				std::pow(srcCoord.second-y,2));
+	 double scale = st_facilities::Util::bilinear(m_pixelCoordY, y, 
+						      m_pixelCoordX, x, 
+						      m_pixelOffset);
+
+	 psf_value += meanPsf(energy, pix_offset*(1+scale));
+      }
+   }
+   return psf_value/static_cast<double>(npts*npts);
 }
 
 double SourceMap::
 integrate_psf(const MeanPsf & meanPsf, double energy,
-              const astro::SkyDir & srcDir, const Pixel & pixel) const {
+              const astro::SkyDir & srcDir, const Pixel & pixel, size_t npts) const {
    bool galactic(pixel.proj().isGalactic());
-
-   size_t npts(11);
 
    /// Get the pixel center in pixel coordinates
    double lon, lat;
@@ -1033,11 +1229,11 @@ integrate_psf(const MeanPsf & meanPsf, double energy,
    
    // loop over subpixels in longitudinal and latitudinal directions
    double psf_value(0);
-   double dstep(1./static_cast<double>(npts-1));
+   double dstep(1./static_cast<double>(npts));
    for (size_t i(0); i < npts; i++) {
-      double x(pix_coords.first + i*dstep - 0.5);
+      double x(pix_coords.first + i*dstep - 0.5 + 0.5*dstep);
       for (size_t j(0); j < npts; j++) {
-         double y(pix_coords.second + j*dstep - 0.5);
+         double y(pix_coords.second + j*dstep - 0.5 + 0.5*dstep);
          std::pair<double, double> pix_dir(pixel.proj().pix2sph(x, y));
          double offset(0);
          if (galactic) {
@@ -1056,7 +1252,12 @@ integrate_psf(const MeanPsf & meanPsf, double energy,
 }
 
 void SourceMap::setImage(const std::vector<float>& model) {
+  if(model.size() != m_model.size())
+    throw std::runtime_error("Wrong size for input model map.");
+
   m_model = model;
+  applyPhasedExposureMap();
+  computeNpredArray();
 }
 
 void SourceMap::readImage(const std::string& sourceMapsFile) {

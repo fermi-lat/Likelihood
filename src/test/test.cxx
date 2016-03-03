@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/test/test.cxx,v 1.4 2015/11/25 18:52:44 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.137 2015/12/10 00:58:03 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -125,6 +125,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_SourceMap);
+   CPPUNIT_TEST(test_PointSourceMap);
    CPPUNIT_TEST(test_rescaling);
    CPPUNIT_TEST(test_DiffRespNames);
    CPPUNIT_TEST_EXCEPTION(test_WcsMap2_exception, std::runtime_error);
@@ -166,6 +167,7 @@ public:
    void test_MeanPsf();
    void test_BinnedExposure();
    void test_SourceMap();
+   void test_PointSourceMap();
    void test_rescaling();
    void test_DiffRespNames();
    void test_WcsMap2_exception();
@@ -216,7 +218,10 @@ private:
 
    void generate_exposureHyperCube();
 
-   CountsMap singleSrcMap(unsigned int nee) const;
+   CountsMap singleSrcMap(unsigned int nee,
+			  unsigned long num_x_pix = 40, 
+			  unsigned long num_y_pix = 40,
+			  double pix_scale = 0.25) const;
 
    void deleteExpMap();
 
@@ -1080,7 +1085,10 @@ void LikelihoodTests::generate_exposureHyperCube() {
    exposure.writeFile(output_file);
 }
 
-CountsMap LikelihoodTests::singleSrcMap(unsigned int nee) const {
+CountsMap LikelihoodTests::singleSrcMap(unsigned int nee, 
+					unsigned long num_x_pix, 
+					unsigned long num_y_pix,
+					double pix_scale) const {
    std::string eventFile = dataPath("single_src_events_0000.fits");
    double ra(83.57);
    double dec(22.01);
@@ -1088,8 +1096,8 @@ CountsMap LikelihoodTests::singleSrcMap(unsigned int nee) const {
    double emin(30.);
    double emax(2e5);
    CountsMap dataMap(eventFile, "EVENTS", m_scFile, "SC_DATA", 
-                     ra, dec, "CAR", npts, npts,
-                     0.25, 0, false, "RA", "DEC", emin, emax, nee);
+                     ra, dec, "CAR",  num_x_pix,  num_y_pix, 
+                     pix_scale, 0, false, "RA", "DEC", emin, emax, nee);
    const tip::Table * events 
       = tip::IFileSvc::instance().readTable(eventFile, "events");
    dataMap.binInput(events->begin(), events->end());
@@ -1417,6 +1425,70 @@ void LikelihoodTests::test_SourceMap() {
    Source * src =  srcFactory->create("Crab Pulsar");
 
    SourceMap srcMap(src, &dataMap, *m_observation);
+}
+
+void LikelihoodTests::test_PointSourceMap() {
+   std::string exposureCubeFile = dataPath("expcube_1_day.fits");
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   m_expCube->readExposureCube(exposureCubeFile);
+   
+   // Coarse counts map
+   CountsMap dataMap0(singleSrcMap(5,40,40,0.2));
+   dataMap0.writeOutput("test.cxx", "cntsMap0.fits");
+
+   // Fine counts map
+   CountsMap dataMap1(singleSrcMap(5,80,80,0.1));
+   dataMap1.writeOutput("test.cxx", "cntsMap1.fits");
+   
+   SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
+   Source * src =  srcFactory->create("Crab Pulsar");
+
+   PointSource * pointSrc = dynamic_cast<PointSource *>(src);
+   const astro::SkyDir & srcDir(pointSrc->getDir());
+
+   SourceMap srcMap0(src, &dataMap0, *m_observation);
+   SourceMap srcMap1(src, &dataMap1, *m_observation);
+
+   const std::vector<Pixel> & pixels0(dataMap0.pixels());
+   const std::vector<Pixel> & pixels1(dataMap1.pixels());
+   std::vector<double>  energies;
+   dataMap0.getEnergies(energies);
+
+   // Loop over pixels of coarse map
+   std::vector<double>::const_iterator energy = energies.begin();
+   
+   for(int i = 0; energy != energies.end(); ++energy, ++i) {
+
+     std::vector<Pixel>::const_iterator pixel0(pixels0.begin());  
+     for(int j = 0; pixel0 != pixels0.end(); ++pixel0, ++j) {
+     
+       astro::SkyDir dir0 = pixel0->dir();
+
+       double srcSep = dir0.difference(srcDir)*180./M_PI;
+       double v0 = srcMap0.model()[ i*pixels0.size() + j ];
+       double v1 = 0;
+
+       // Only check pixels in the vicinity of the peak
+       if(srcSep > 1.0)
+	 continue;
+
+       std::vector<Pixel>::const_iterator pixel1(pixels1.begin());
+       for(int k = 0 ; pixel1 != pixels1.end(); ++pixel1, ++k) {
+       
+	 astro::SkyDir dir1 = pixel1->dir();
+	 double diff = dir0.difference(dir1)*180./M_PI;
+
+	 if(diff < 0.1) {
+	   v1 += srcMap1.model()[ i*pixels1.size() + k ];
+	 }
+       }
+
+       double fdelta = fabs((v0-v1)/v1);
+       CPPUNIT_ASSERT(fdelta < 1E-2);
+     }
+   }
 }
 
 void LikelihoodTests::test_rescaling() {
@@ -1769,8 +1841,12 @@ int main(int iargc, char * argv[]) {
       // testObj.test_LikeExposure();
       // testObj.tearDown();
 
+      // testObj.setUp();
+      // testObj.test_SourceModel();
+      // testObj.tearDown();
+
       testObj.setUp();
-      testObj.test_SourceModel();
+      testObj.test_PointSourceMap();
       testObj.tearDown();
 
       // testObj.setUp();
