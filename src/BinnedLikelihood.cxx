@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.109 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.110 2016/01/12 03:12:23 mdwood Exp $
  */
 
 #include <cmath>
@@ -175,8 +175,16 @@ double BinnedLikelihood::npred() {
    return computeModelMap();
 }
 
-SourceMap & BinnedLikelihood::sourceMap(const std::string & name) {
+void BinnedLikelihood::setSourceMapImage(const std::string & name,
+					 const std::vector<float>& image) {
+  // Create the source map if it doesn't exist
+  if (m_srcMaps.find(name) == m_srcMaps.end()) {
+    m_srcMaps[name] = getSourceMap(name);
+  }
+  m_srcMaps[name]->setImage(image);
+}
 
+SourceMap & BinnedLikelihood::sourceMap(const std::string & name) {
   std::vector<std::string> srcNames;
   getSrcNames(srcNames);
 
@@ -410,6 +418,7 @@ updateModelMap(std::vector<float> & modelMap,
    NpredValue(name); // This computes the convolved spectrum.
    const Source * src = const_cast<BinnedLikelihood *>(this)->getSource(name);
    const std::vector<float> & model(srcMap->model());
+
    for (size_t j(0); j < npix; j++) {
       for (size_t k(0); k < m_energies.size()-1; k++) {
          double emin(m_energies.at(k));
@@ -460,6 +469,16 @@ computeModelMap(std::vector<float> & modelMap) const {
    for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
       updateModelMap(modelMap, srcIt->second);
    }
+}
+
+void BinnedLikelihood::
+computeModelMap(const std::string & srcName, std::vector<float> & modelMap) {
+   size_t npix(m_pixels.size());
+
+   modelMap.clear();
+   modelMap.resize(npix*(m_energies.size()-1), 0);
+   SourceMap& srcMap = sourceMap(srcName);
+   updateModelMap(modelMap, &srcMap);
 }
 
 void BinnedLikelihood::setCountsMap(const std::vector<float> & counts) {
@@ -800,15 +819,61 @@ double BinnedLikelihood::pixelCounts(double emin, double emax,
    return (y1*emin + y2*emax)/2.*std::log(emax/emin);
 }
 
-void BinnedLikelihood::createSourceMaps() {
+void BinnedLikelihood::loadSourceMaps(bool recreate) {
    std::vector<std::string> srcNames;
    getSrcNames(srcNames);
+
    std::vector<std::string>::const_iterator name = srcNames.begin();
    for ( ; name != srcNames.end(); ++name) {     
-     if (m_srcMaps.find(*name) != m_srcMaps.end()) continue;
-     Source * src = getSource(*name);
-     if (src->getType() == "Diffuse" || m_computePointSources) {
-       m_srcMaps[*name] = getSourceMap(*name);//createSourceMap(*name);
+
+     if (m_srcMaps.find(*name) != m_srcMaps.end() && !recreate) 
+       continue;
+
+     loadSourceMap(*name,recreate,false);
+   }
+
+   if(recreate) {
+     buildFixedModelWts();
+   }
+}
+
+void BinnedLikelihood::loadSourceMap(const std::string & srcName, bool recreate,
+				     bool buildFixedWeights) {
+   std::vector<std::string> srcNames;
+   getSrcNames(srcNames);
+
+   std::vector<std::string>::iterator nameIt = 
+     std::find(srcNames.begin(),srcNames.end(),srcName);
+   if(nameIt == srcNames.end())
+     throw std::runtime_error("Cannot find source named: " + srcName);
+     
+   Source * src = getSource(srcName);
+ 
+   if(!(src->getType() == "Diffuse" || m_computePointSources))
+     return;
+
+   std::map<std::string, SourceMap *>::iterator mapIt = m_srcMaps.find(srcName);
+
+   if( mapIt != m_srcMaps.end() ) {
+     delete m_srcMaps[srcName];
+     m_srcMaps.erase(srcName);
+   }
+
+   SourceMap * srcMap = 0;
+
+   if(recreate) {
+     srcMap = createSourceMap(srcName);
+   } else {
+     srcMap = getSourceMap(srcName);
+   }
+
+   if(srcMap) {
+     m_srcMaps[srcName] = srcMap;
+
+     std::vector<std::string>::iterator srcIt = 
+       std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
+     if (srcIt != m_fixedSources.end() && buildFixedWeights) {
+       buildFixedModelWts();
      }
    }
 }
@@ -838,7 +903,8 @@ SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName,
    return 0;
 }
 
-void BinnedLikelihood::saveSourceMaps(const std::string & filename) {
+void BinnedLikelihood::saveSourceMaps(const std::string & filename,
+				      bool replace) {
    if (filename != "") {
       m_srcMapsFile = filename;
    }
@@ -852,8 +918,8 @@ void BinnedLikelihood::saveSourceMaps(const std::string & filename) {
                                            "saveSourceMaps", 4);
       formatter.info() << srcNames.at(i) << std::endl;
       if (m_srcMaps.count(srcNames.at(i))) {
-         if (fileHasSourceMap(srcNames.at(i), m_srcMapsFile)) {
-//            replaceSourceMap(srcNames.at(i), m_srcMapsFile);
+         if (fileHasSourceMap(srcNames.at(i), m_srcMapsFile) && replace) {
+	   replaceSourceMap(srcNames.at(i), m_srcMapsFile);
          } else {
             formatter.info() << "appending map for " 
                              << srcNames.at(i) << std::endl;

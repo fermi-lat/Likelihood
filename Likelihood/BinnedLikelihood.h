@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.75 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.76 2016/01/12 03:12:21 mdwood Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -81,6 +81,9 @@ public:
 
    SourceMap & sourceMap(const std::string & name);
 
+   void setSourceMapImage(const std::string & name,
+			  const std::vector<float>& image);
+
    SourceMap * getSourceMap(const std::string & srcName,
                             bool verbose=true) const;
 
@@ -93,11 +96,19 @@ public:
 
    SourceMap * createSourceMap(const std::string & srcName);
 
-   /// Instantiate or retrieve a SourceMap object for all sources and
-   /// populate the internal source map hash with those objects.
-   void createSourceMaps();
+   /// Instantiate or retrieve a SourceMap for all sources and
+   /// populate the internal map of SourceMap objects.  If
+   /// recreate=True then new source maps will be generated for all
+   /// components.
+   void loadSourceMaps(bool recreate=false);
 
-   void saveSourceMaps(const std::string & filename="");
+   /// Instantiate or retrieve a SourceMap for a single source.
+   void loadSourceMap(const std::string & srcName, 
+		      bool recreate=false,
+		      bool buildFixedWeights=true);
+
+   void saveSourceMaps(const std::string & filename="",
+		       bool replace=false);
 
    virtual std::vector<double>::const_iterator setParamValues_(
       std::vector<double>::const_iterator);
@@ -151,6 +162,7 @@ public:
    }
 
    void computeModelMap(std::vector<float> & modelMap) const;
+   void computeModelMap(const std::string& srcName, std::vector<float> & modelMap);
    void updateModelMap(std::vector<float> & modeMap, 
                        const SourceMap * srcMap) const;
    void set_external_model_map(std::vector<float> * external_map) {
