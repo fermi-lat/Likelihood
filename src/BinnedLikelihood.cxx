@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.111 2016/03/07 23:20:01 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.112 2016/03/08 01:57:03 mdwood Exp $
  */
 
 #include <cmath>
@@ -59,6 +59,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
      m_resamp_factor(resamp_factor), 
      m_minbinsz(minbinsz),
      m_verbose(true),
+     m_updateFixedWeights(true),
      m_fixedSources(),
      m_fixedModelWts(),
      m_fixedModelNpreds(),
@@ -100,6 +101,7 @@ BinnedLikelihood(const BinnedLikelihood & other)
      m_resamp_factor(other.m_resamp_factor),
      m_minbinsz(other.m_minbinsz),
      m_verbose(other.m_verbose),
+     m_updateFixedWeights(other.m_updateFixedWeights),
      m_fixedSources(other.m_fixedSources),
      m_fixedModelWts(other.m_fixedModelWts),
      m_fixedModelNpreds(other.m_fixedModelNpreds),
@@ -656,6 +658,10 @@ void BinnedLikelihood::deleteFixedSource(const std::string & srcName) {
    m_fixedSources.erase(it);
 }
 
+void BinnedLikelihood::setUpdateFixedWeights(bool update) {
+  m_updateFixedWeights = update;
+}
+
 void BinnedLikelihood::buildFixedModelWts(bool process_all) {
    m_fixedSources.clear();
    m_fixedModelWts.clear();
@@ -696,7 +702,7 @@ double BinnedLikelihood::computeModelMap() const {
    std::vector<std::pair<double, double> > modelWts;
    modelWts.resize(m_filledPixels.size());
 
-   if (fixedModelUpdated()) {
+   if (fixedModelUpdated() && m_updateFixedWeights) {
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
    }
 
