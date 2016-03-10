@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.76 2016/01/12 03:12:21 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.77 2016/03/07 23:19:57 mdwood Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -180,6 +180,7 @@ public:
 
    void addFixedSource(const std::string & srcName);
    void deleteFixedSource(const std::string & srcName);
+   void setUpdateFixedWeights(bool update);
 
    const std::vector<double> & 
    modelCountsSpectrum(const std::string &srcname) const;
@@ -245,6 +246,8 @@ private:
    double m_minbinsz;
 
    bool m_verbose;
+
+   bool m_updateFixedWeights;
 
    std::vector<std::string> m_fixedSources;
 
