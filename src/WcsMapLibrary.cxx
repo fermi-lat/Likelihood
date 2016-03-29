@@ -6,7 +6,7 @@
  * a string comprising the name of the FITS file and the extension.
  * @author J. Chiang 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/WcsMapLibrary.cxx,v 1.3 2015/03/03 06:00:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMapLibrary.cxx,v 1.4 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <utility>
@@ -47,7 +47,7 @@ ProjMap * WcsMapLibrary::wcsmap(const std::string & filename,
      theMap = new WcsMap2(filename, extname);
      break;
    case astro::ProjBase::HEALPIX:
-     theMap = new HealpixProjMap(filename, extname);     
+     theMap = new HealpixProjMap(filename, extname.empty() ? "SKYMAP" : extname); 
      break;
    default:
      break;
