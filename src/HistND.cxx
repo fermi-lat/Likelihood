@@ -199,8 +199,9 @@ HistND* HistND::sumRange(unsigned int idim, unsigned int firstBin, unsigned int 
   unsigned int stride = m_strides[idim];
   for ( unsigned int iout(0); iout < outData.size(); iout++ ) {
     unsigned int idx = iout;
+    outData[iout] = 0.;
     for ( unsigned int j(firstBin); j < lastBin; j++, idx+= stride) {
-      outData[iout] = m_data[idx];
+      outData[iout] += m_data[idx];
     }
   }
   retHist->setData(outData);
