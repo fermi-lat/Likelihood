@@ -4,7 +4,7 @@
  * bins before summing.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Accumulator.h,v 1.2 2007/02/22 22:08:21 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Accumulator.h,v 1.3 2012/02/07 00:24:27 jchiang Exp $
  */
 
 #ifndef Likelihood_Accumulator_h
@@ -13,6 +13,47 @@
 #include <vector>
 
 namespace Likelihood {
+
+class Kahan_Accumulator {
+
+public:
+  Kahan_Accumulator()
+    :m_sum(0.),
+     m_c(0.){
+  }
+
+  ~Kahan_Accumulator(){;}
+
+  // Add a value to the running sum
+  void add(double value) {
+    // The next line pick up the rounding error 
+    double y = value - m_c;
+    // This adds the value and the rounding error to a temp variable
+    double t = m_sum + y; 
+    // This next line caluclates the rounding error
+    // Note that the parentheses are there to force the evalutation order
+    m_c = (t - m_sum) - y;
+    // This line moves the temp to the running sum
+    m_sum = t;
+  }
+  
+  // Get the total and reset the running sum
+  double total() {
+    double t = m_sum;
+    m_sum = 0.;
+    m_c = 0.;
+    return t;
+  }
+
+private:
+
+  double m_sum; // This is the running sum
+  double m_c;   // This tracks the rounding error
+
+};
+
+
+
 
 class Accumulator {
 
