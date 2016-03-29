@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.45 2012/06/27 20:31:50 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.46 2015/03/21 05:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -100,7 +100,7 @@ protected:
 
 protected:   
 
-   mutable Accumulator m_accumulator;
+   mutable Kahan_Accumulator m_accumulator;
 
 private:
 
