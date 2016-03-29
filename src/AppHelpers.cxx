@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.126 2016/01/09 02:04:15 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.127 2016/01/13 16:47:30 echarles Exp $
  */
 
 #include <cmath>
@@ -962,6 +962,10 @@ AppHelpers::checkProjectionMethod(const std::string& filename,
     // This is some kind of image
     return astro::ProjBase::WCS;
   }
+
+  // Default behavior for HEALPix projections is to put map in the SKYMAP HDU
+  const std::string ext_name = hpx_ext.empty() ? "SKYMAP" : hpx_ext;
+
   // Try the extension header
   std::auto_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(filename,hpx_ext));
   const tip::Header& header_ext = ext->getHeader();
