@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/likelihood/likelihood.cxx,v 1.3 2015/03/03 06:00:04 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.165 2015/12/10 00:58:03 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -48,9 +48,11 @@
 #include "Likelihood/LogLike.h"
 #include "Likelihood/OptEM.h"
 #include "Likelihood/PointSource.h"
+#include "Likelihood/ProjMap.h"
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
+#include "Likelihood/WcsMapLibrary.h"
 
 #include "EasyPlot.h"
 #include "MathUtil.h"
@@ -119,6 +121,7 @@ private:
    optimizers::Optimizer * m_opt;
    std::vector<std::string> m_eventFiles;
    CountsMapBase * m_dataMap;
+   ProjMap* m_wmap;
 
    st_stream::StreamFormatter * m_formatter;
 
@@ -164,7 +167,7 @@ private:
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlike");
 
-std::string likelihood::s_cvs_id("$Name:  $");
+std::string likelihood::s_cvs_id("$Name: ScienceTools-11-00-00 $");
 
 void likelihood::banner() const {
    int verbosity = m_pars["chatter"];
@@ -176,7 +179,7 @@ void likelihood::banner() const {
 likelihood::likelihood() 
    : st_app::StApp(), m_helper(0), 
      m_pars(st_app::StApp::getParGroup("gtlike")),
-     m_logLike(0), m_opt(0), m_dataMap(0), 
+     m_logLike(0), m_opt(0), m_dataMap(0), m_wmap(0),
      m_formatter(new st_stream::StreamFormatter("gtlike", "", 2)),
      m_cpuStart(std::clock()), m_tolType(optimizers::RELATIVE),
      m_tsSrc(0), m_maxdist(20.) {
@@ -184,6 +187,7 @@ likelihood::likelihood()
    m_pars.setSwitch("statistic");
    m_pars.setCase("statistic", "BINNED", "cmap");
    m_pars.setCase("statistic", "BINNED", "bexpmap");
+   m_pars.setCase("statistic", "BINNED", "wmap");
    m_pars.setCase("statistic", "BINNED", "psfcorr");
    m_pars.setCase("statistic", "UNBINNED", "evfile");
    m_pars.setCase("statistic", "UNBINNED", "evtable");
@@ -215,9 +219,16 @@ void likelihood::run() {
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());
    respFuncs.setEdispFlag(useEdisp);
    std::string irfs = m_pars["irfs"];
+   m_wmap = 0;
    if (m_statistic == "BINNED") {
       std::string cmap = m_pars["cmap"];
       m_helper->setRoi(cmap, "", false);
+      std::string wmap_file = m_pars["wmap"];
+      if ( wmap_file != "none" ) {
+	 m_wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,"");
+	 m_wmap->setInterpolation(false);
+	 m_wmap->setExtrapolation(true);
+      }
    } else {
       std::string exposureFile = m_pars["expmap"];
       std::string eventFile = m_pars["evfile"];
@@ -374,10 +385,15 @@ void likelihood::createStatistic() {
                                            computePointSources,
                                            apply_psf_corrections);
       } else {
-         m_logLike = new BinnedLikelihood(*m_dataMap, m_helper->observation(),
-                                          countsMapFile, 
-                                          computePointSources,
-                                          apply_psf_corrections);
+         m_logLike = m_wmap == 0 ? 
+	   new BinnedLikelihood(*m_dataMap, m_helper->observation(),
+				countsMapFile, 
+				computePointSources,
+				apply_psf_corrections) :
+	   new BinnedLikelihood(*m_dataMap,*m_wmap,m_helper->observation(),
+				countsMapFile, 
+				computePointSources,
+				apply_psf_corrections);	   
       }
       std::string binnedMap = m_pars["bexpmap"];
       AppHelpers::checkExposureMap(m_pars["cmap"], m_pars["bexpmap"]);
@@ -963,6 +979,7 @@ void likelihood::npredValues(double & freeNpred, double & totalNpred) const {
    totalNpred = 0;
    for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
         srcName != srcNames.end(); ++srcName) {
+      std::cout << *srcName << "::npredValue" << std::endl;
       Source * src = m_logLike->getSource(*srcName);
       double npred(m_logLike->NpredValue(*srcName));
       totalNpred += npred;

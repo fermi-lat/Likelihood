@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.4 2015/03/05 19:58:28 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.48 2015/12/10 00:58:02 echarles Exp $
  */
 
 #include <cstdlib>
@@ -42,7 +42,9 @@
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/SourceMap.h"
+#include "Likelihood/ProjMap.h"
 #include "Likelihood/RoiCuts.h"
+#include "Likelihood/WcsMapLibrary.h"
 
 using namespace Likelihood;
 
@@ -85,7 +87,7 @@ gtsrcmaps::gtsrcmaps()
    setVersion(s_cvs_id);
 }
 
-std::string gtsrcmaps::s_cvs_id("$Name:  $");
+std::string gtsrcmaps::s_cvs_id("$Name: ScienceTools-11-00-00 $");
 
 void gtsrcmaps::banner() const {
    int verbosity = m_pars["chatter"];
@@ -145,12 +147,25 @@ void gtsrcmaps::run() {
    int resamp_factor = m_pars["rfactor"];
    double minbinsz = m_pars["minbinsz"];
 
+   // EAC, get the weights map, if requested
+   ProjMap* wmap(0);
+   std::string wmap_file = m_pars["wmap"];
+   if ( wmap_file != "none" ) {
+     wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,"");
+     wmap->setInterpolation(false);
+     wmap->setExtrapolation(true);
+   }
+
    // EAC, pass in pointer to CountsMapBase
-   m_binnedLikelihood = 
+   m_binnedLikelihood = wmap == 0 ? 
       new BinnedLikelihood(*dataMap, m_helper->observation(),
                            cntsMapFile, computePointSources, psf_corrections,
                            perform_convolution, resample, resamp_factor,
-                           minbinsz);
+                           minbinsz) :
+      new BinnedLikelihood(*dataMap, *wmap, m_helper->observation(),
+			   cntsMapFile, computePointSources, psf_corrections,
+			   perform_convolution, resample, resamp_factor,
+			   minbinsz) ;
    m_binnedLikelihood->set_use_single_fixed_map(false);
 
    std::string srcModelFile = m_pars["srcmdl"];
