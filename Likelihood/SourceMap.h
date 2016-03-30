@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.58 2016/03/03 21:51:39 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.59 2016/03/30 00:07:50 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -226,7 +226,7 @@ private:
 				   bool performConvolution,
 				   bool verbose);
 
-   void makeProjectedMap(const ProjMap& weight_map);
+   void makeProjectedMap(const ProjMap& weight_map, bool& extrapolated);
 
    void applyPhasedExposureMap();
 
