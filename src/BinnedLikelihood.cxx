@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.112 2016/03/08 01:57:03 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.113 2016/03/10 18:44:09 mdwood Exp $
  */
 
 #include <cmath>
@@ -45,6 +45,8 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
                                    double minbinsz)
    : LogLike(observation), 
      m_dataMap(dataMap), 
+     m_weightMap(0),
+     m_weightSrcMap(0),
      m_pixels(dataMap.pixels()),
      m_energies(),
      m_countsSpectrum(),
@@ -63,6 +65,60 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
      m_fixedSources(),
      m_fixedModelWts(),
      m_fixedModelNpreds(),
+     m_fixedModelWeightedNpreds(),
+     m_modelPars(),
+     m_posDerivs(),
+     m_negDerivs(),
+     m_kmin(0), m_kmax(0), 
+     m_use_edisp(false),
+     m_drm(0),
+     m_use_single_fixed_map(true),
+     m_external_model_map(0),
+     m_true_counts(),
+     m_meas_counts(),
+     m_fixed_counts_spec(),
+     m_krefs() {
+   dataMap.getEnergies(m_energies);
+   m_kmax = m_energies.size() - 1;
+   identifyFilledPixels();
+   m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
+   m_fixedNpreds.resize(m_energies.size(), 0);
+   computeCountsSpectrum();
+}
+
+BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
+				   const ProjMap& weightMap,
+                                   const Observation & observation,
+                                   const std::string & srcMapsFile,
+                                   bool computePointSources,
+                                   bool applyPsfCorrections,
+                                   bool performConvolution, 
+                                   bool resample,
+                                   double resamp_factor,
+                                   double minbinsz)
+   : LogLike(observation), 
+     m_dataMap(dataMap),
+     m_weightMap(&weightMap),
+     m_weightSrcMap(new SourceMap(weightMap,&dataMap,observation,true)),
+     m_pixels(dataMap.pixels()),
+     m_energies(),
+     m_countsSpectrum(),
+     m_filledPixels(),
+     m_model(),
+     m_modelIsCurrent(false),
+     m_srcMapsFile(srcMapsFile),
+     m_computePointSources(computePointSources),
+     m_applyPsfCorrections(applyPsfCorrections),
+     m_performConvolution(performConvolution), 
+     m_resample(resample), 
+     m_resamp_factor(resamp_factor), 
+     m_minbinsz(minbinsz),
+     m_verbose(true),
+     m_updateFixedWeights(true),
+     m_fixedSources(),
+     m_fixedModelWts(),
+     m_fixedModelNpreds(),
+     m_fixedModelWeightedNpreds(),
      m_modelPars(),
      m_posDerivs(),
      m_negDerivs(),
@@ -87,6 +143,8 @@ BinnedLikelihood::
 BinnedLikelihood(const BinnedLikelihood & other) 
    : LogLike(other),
      m_dataMap(other.m_dataMap),
+     m_weightMap(other.m_weightMap),
+     m_weightSrcMap(other.m_weightSrcMap ? new SourceMap(*m_weightMap,&m_dataMap,observation(),true) : 0),
      m_pixels(other.m_pixels),
      m_energies(other.m_energies),
      m_countsSpectrum(other.m_countsSpectrum),
@@ -105,6 +163,7 @@ BinnedLikelihood(const BinnedLikelihood & other)
      m_fixedSources(other.m_fixedSources),
      m_fixedModelWts(other.m_fixedModelWts),
      m_fixedModelNpreds(other.m_fixedModelNpreds),
+     m_fixedModelWeightedNpreds(other.m_fixedModelWeightedNpreds),
      m_modelPars(other.m_modelPars),
      m_posDerivs(other.m_posDerivs),
      m_negDerivs(other.m_negDerivs),
@@ -130,15 +189,17 @@ BinnedLikelihood::~BinnedLikelihood() throw() {
    for ( ; srcMap != m_srcMaps.end(); ++srcMap) {
       delete srcMap->second;
    }
+   delete m_weightSrcMap;
    delete m_drm;
 }
 
 double BinnedLikelihood::value(optimizers::Arg & dummy) const {
    (void)(dummy);
 
-   double npred(computeModelMap());
+   // Here we want the weighted verison of the nPred
+   double npred(computeModelMap(true));
 
-   const std::vector<float> & data(m_dataMap.data());
+   const std::vector<float> & data = m_weightSrcMap == 0 ? m_dataMap.data() : m_weightedCounts;
    double my_value(0);
 
    for (size_t i(0); i < m_filledPixels.size(); i++) {
@@ -230,9 +291,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    derivs.resize(nparams, 0);
    double npred;
    if (!m_modelIsCurrent) {
-      npred = computeModelMap();
+     // here we want the weighted version of npred
+      npred = computeModelMap(true);
    }
-   const std::vector<float> & data = m_dataMap.data();
+   const std::vector<float> & data = m_weightSrcMap == 0 ? m_dataMap.data() : m_weightedCounts;
 
 /// First j value corresponding to the minimum allowed k-index.
    size_t jentry(0);
@@ -281,8 +343,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       if (m_model.at(j) > 0) {
          long iparam(0);
          if (m_posDerivs.find(iparam) == m_posDerivs.end()) {
-            m_posDerivs[iparam] = Accumulator();
-            m_negDerivs[iparam] = Accumulator();
+	    m_posDerivs[iparam] = Kahan_Accumulator();
+	    m_negDerivs[iparam] = Kahan_Accumulator();
          }
 
          size_t ipar(0);
@@ -309,7 +371,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
                   m_negDerivs[iparam].add(addend);
                }
                if (j == jentry) {
-                  const std::vector<double> & npreds = srcMap.npreds();
+                  const std::vector<double> & npreds =  srcMap.weighted_npreds();
                   for (size_t kk(0); kk < m_energies.size()-1; kk++) {
                      if (kk >= m_kmin && kk <= m_kmax-1) {
                         addend = 
@@ -401,6 +463,7 @@ Source * BinnedLikelihood::deleteSource(const std::string & srcName) {
       bool subtract;
       addSourceWts(m_fixedModelWts, srcName, srcMap, subtract=true);
       m_fixedModelNpreds.erase(srcName);
+      m_fixedModelWeightedNpreds.erase(srcName);
       m_fixedSources.erase(srcIt);
    }
    Source * src(SourceModel::deleteSource(srcName));
@@ -421,12 +484,18 @@ updateModelMap(std::vector<float> & modelMap,
    const Source * src = const_cast<BinnedLikelihood *>(this)->getSource(name);
    const std::vector<float> & model(srcMap->model());
 
+   const SourceMap* mask = srcMap->weights();
+
    for (size_t j(0); j < npix; j++) {
       for (size_t k(0); k < m_energies.size()-1; k++) {
          double emin(m_energies.at(k));
          double emax(m_energies.at(k+1));
          size_t jmin(k*npix + j);
          size_t jmax(jmin + npix);
+	 // EAC, skip masked pixels
+	 if ( mask && 
+	      ( mask->model().at(jmin) <= 0. || 
+		mask->model().at(jmax) <= 0. ) ) continue;
          double wt1(0);
          double wt2(0);
          if (use_edisp(name)) {
@@ -457,6 +526,61 @@ updateModelMap(std::vector<float> & modelMap,
          modelMap[jmin] += src->pixelCounts(emin, emax, wt1, wt2);
       }
    }
+}
+
+void BinnedLikelihood::
+saveWeightsMap(bool replace) const {
+  if ( m_weightSrcMap == 0 ) return;
+  bool has_weights = fileHasSourceMap(m_weightSrcMap->name(), m_srcMapsFile);
+  if ( has_weights ) {
+    if ( replace ) {
+      switch ( m_dataMap.projection().method() ) {
+      case astro::ProjBase::WCS:
+	replaceSourceMap_wcs(*m_weightSrcMap,m_srcMapsFile);
+	return;
+      case astro::ProjBase::HEALPIX:
+	replaceSourceMap_healpix(*m_weightSrcMap,m_srcMapsFile);
+	return;
+      default:
+	break;
+      }
+    } else {
+      // just leave it be;
+      ;
+    }
+  } else {
+    switch ( m_dataMap.projection().method() ) {
+    case astro::ProjBase::WCS:
+      appendSourceMap_wcs(*m_weightSrcMap,m_srcMapsFile);
+      return;
+    case astro::ProjBase::HEALPIX:
+      appendSourceMap_healpix(*m_weightSrcMap,m_srcMapsFile);
+      return;
+    default:
+      break;
+    }
+  }
+}
+
+
+
+void BinnedLikelihood::
+fillWeightedCounts() {
+  m_weightedCounts.clear();
+  size_t ne = m_energies.size();
+  size_t npix = m_pixels.size();
+  m_weightedCounts.resize(ne*npix);
+  for ( size_t j(0); j < npix; j++ ) {
+    for (size_t k(0); k < ne-1; k++) {
+      size_t idx_0 = k*npix +j;
+      size_t idx_1 = idx_0 + npix;
+      double w0 = m_weightSrcMap->model()[idx_0];
+      double w1 = m_weightSrcMap->model()[idx_1];
+      bool is_null =  w0 <= 0 || w1 <= 0 || m_dataMap.data()[idx_0] <= 0;
+      double w = is_null ? 0 : (w0 + w1) / 2. ;
+      m_weightedCounts[idx_0] = m_dataMap.data()[idx_0] * w;
+    }
+  }
 }
 
 void BinnedLikelihood::
@@ -579,7 +703,10 @@ void BinnedLikelihood::addFixedSource(const std::string & srcName) {
    } else {
       srcMap = srcMapIt->second;
    }
+   // Store the _weighted_ npreds
    m_fixedModelNpreds[srcName] = NpredValue(srcName, *srcMap);
+   m_fixedModelWeightedNpreds[srcName] = NpredValue(srcName, *srcMap, true);
+
    addSourceWts(m_fixedModelWts, srcName, srcMap);
    double xi(1);
    for (size_t k(0); k < m_energies.size()-1; k++) {
@@ -591,13 +718,13 @@ void BinnedLikelihood::addFixedSource(const std::string & srcName) {
             xi = 1;
          }
       }
-      m_fixedNpreds[k] += xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
+      m_fixedNpreds[k] += xi*srcIt->second->spectrum()(ee)*srcMap->weighted_npreds()[k];
    }
    // For last bin edge, use xi value from penultimate edge
    size_t kk(m_energies.size()-1);
    optimizers::dArg ee(m_energies[kk]);
    m_fixedNpreds[kk] += xi*(srcIt->second->spectrum()(ee)*
-                            srcMap->npreds()[kk]);
+                            srcMap->weighted_npreds()[kk]);
 
    // Remove this source from the stored source maps to save memory
    if (srcMapIt != m_srcMaps.end()) {
@@ -640,13 +767,13 @@ void BinnedLikelihood::deleteFixedSource(const std::string & srcName) {
             xi = 1;
          }
       }
-      m_fixedNpreds[k] -= xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
+      m_fixedNpreds[k] -= xi*srcIt->second->spectrum()(ee)*srcMap->weighted_npreds()[k];
    }
    // For last bin edge, use xi value from penultimate edge
    size_t kk(m_energies.size()-1);
    optimizers::dArg ee(m_energies[kk]);
    m_fixedNpreds[kk] -= xi*(srcIt->second->spectrum()(ee)*
-                            srcMap->npreds()[kk]);
+                            srcMap->weighted_npreds()[kk]);
 
    // Subtract the source weights from the summed fixed model weights.
    bool subtract;
@@ -690,13 +817,16 @@ void BinnedLikelihood::buildFixedModelWts(bool process_all) {
          if (m_fixedModelNpreds.find(srcName) != m_fixedModelNpreds.end()) {
             m_fixedModelNpreds.erase(srcName);
          }
+         if (m_fixedModelWeightedNpreds.find(srcName) != m_fixedModelWeightedNpreds.end()) {
+            m_fixedModelWeightedNpreds.erase(srcName);
+         }	 
       }
    }
 
    computeFixedCountsSpectrum();
 }
 
-double BinnedLikelihood::computeModelMap() const {
+double BinnedLikelihood::computeModelMap(bool weighted) const {
    double npred(0);
 
    std::vector<std::pair<double, double> > modelWts;
@@ -714,7 +844,7 @@ double BinnedLikelihood::computeModelMap() const {
    std::vector<std::string> srcNames;
    getSrcNames(srcNames);
    for (size_t i(0); i < srcNames.size(); i++) {
-      npred += NpredValue(srcNames[i]);
+      npred += NpredValue(srcNames[i],weighted);
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
                      srcNames.at(i)) == 0) {
          addSourceWts(modelWts, srcNames[i]);
@@ -888,13 +1018,13 @@ SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
    Source * src = getSource(srcName);
    return new SourceMap(src, &m_dataMap, m_observation, m_applyPsfCorrections,
                         m_performConvolution, m_resample, m_resamp_factor,
-                        m_minbinsz, m_verbose);
+                        m_minbinsz, m_verbose, m_weightSrcMap);
 }
 
 SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName, 
                                            bool verbose) const {
    if (fileHasSourceMap(srcName, m_srcMapsFile)) {
-      return new SourceMap(m_srcMapsFile, srcName, m_observation);
+      return new SourceMap(m_srcMapsFile, srcName, m_observation, m_weightSrcMap);
    }
 // Generate the map if it is not in the file.   
    Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
@@ -904,7 +1034,8 @@ SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName,
                            m_applyPsfCorrections,
                            m_performConvolution,
                            m_resample, m_resamp_factor,
-                           m_minbinsz, verbose && m_verbose);
+                           m_minbinsz, verbose && m_verbose,
+			   m_weightSrcMap);
    }
    return 0;
 }
@@ -933,6 +1064,7 @@ void BinnedLikelihood::saveSourceMaps(const std::string & filename,
          }
       }
    }
+   saveWeightsMap(replace);
 }
 
 bool BinnedLikelihood::fileHasSourceMap(const std::string & srcName,
@@ -1104,7 +1236,10 @@ void BinnedLikelihood::setImageDimensions(tip::Image * image,
 }
 
 void BinnedLikelihood::identifyFilledPixels() {
-   const std::vector<float> & data = m_dataMap.data();
+   if ( m_weightSrcMap ) {
+      fillWeightedCounts();
+   }
+   const std::vector<float> & data = m_weightSrcMap == 0 ? m_dataMap.data() : m_weightedCounts;
    m_filledPixels.clear();
    for (unsigned int i = 0; i < data.size(); i++) {
       if (data.at(i) > 0) {
@@ -1174,20 +1309,29 @@ void BinnedLikelihood::syncSrcParams(const std::string & srcName) {
    m_modelIsCurrent = false;
 }
 
-double BinnedLikelihood::NpredValue(const std::string & srcName) const {
-   std::map<std::string, double>::const_iterator npredIt 
-      = m_fixedModelNpreds.find(srcName);
-   if (npredIt != m_fixedModelNpreds.end()) {
-      return npredIt->second;
+double BinnedLikelihood::NpredValue(const std::string & srcName, bool weighted) const {
+   if ( weighted ) { 
+     std::map<std::string, double>::const_iterator npredIt 
+       = m_fixedModelWeightedNpreds.find(srcName);
+     if (npredIt != m_fixedModelWeightedNpreds.end()) {
+       return npredIt->second;
+     }
+   } else {
+     std::map<std::string, double>::const_iterator npredIt 
+       = m_fixedModelNpreds.find(srcName);
+     if (npredIt != m_fixedModelNpreds.end()) {
+       return npredIt->second;
+     }
    }
-   return NpredValue(srcName, sourceMap(srcName));
+   return NpredValue(srcName, sourceMap(srcName), weighted);
 }
 
 // This version forces the recalculation of Npred, whether the source is
 // fixed or not. It is also called from buildFixedModelWts.
 double BinnedLikelihood::NpredValue(const std::string & srcName,
-                                    const SourceMap & sourceMap) const {
-   const std::vector<double> & npreds(sourceMap.npreds());
+                                    const SourceMap & sourceMap, 
+				    bool weighted) const {
+   const std::vector<double> & npreds = weighted ? sourceMap.weighted_npreds() : sourceMap.npreds();
    const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
    std::vector<double> true_counts_spec;
    for (size_t k(0); k < energies().size()-1; k++) {

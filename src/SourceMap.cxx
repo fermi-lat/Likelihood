@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.113 2016/02/16 20:48:33 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.114 2016/03/03 21:51:38 mdwood Exp $
  */
 
 #include <cmath>
@@ -82,7 +82,8 @@ void SourceMap::fillHealpixFromWcsMap(const WcsMap2& inputMap,
 				      Healpix_Map<float>& hpm) {
   // EAC, here we loop over the pixel in the partial-sky HEALPix map
   // and look up the value from the interpolated map
-  inputMap.setInterpolation(true);
+  WcsMap2 nc_map = const_cast<WcsMap2&>(inputMap);
+  nc_map.setInterpolation(true);
   int index(0);
   int energyLayer(0);
   hpm.fill(0.);
@@ -105,14 +106,12 @@ void SourceMap::fillHealpixFromWcsMap(const WcsMap2& inputMap,
   hpm.fill(0.);
   const std::vector< std::vector<float> >& solidAngles_in = inputMap.solidAngles();
   const double solidAngle_out = astro::radToDeg( astro::radToDeg( ASTRO_4PI / float(hpm.Npix() ) ) );
-  double xval(1.5);   
+  double xval(1.0);   
   for ( int i(0); i < inputMap.nxpix(); i++, xval += 1. ) {
-    double yval(1.5); 
+    double yval(1.0); 
     for ( int j(0); j < inputMap.nypix(); j++, yval += 1. ) {
       std::pair<double,double> crds = inputMap.getProj()->pix2sph(xval,yval);
       std::pair<double,double> converted = proj.sph2pix(crds.first,crds.second);
-      std::pair<double,double> crds_check = proj.pix2sph(converted.first,converted.second);
-      std::pair<double,double> pix_check = inputMap.getProj()->sph2pix(crds.first,crds.second);
       int fillPixel = int(converted.first);
       double solidAngleRatio = solidAngles_in[i][j] / solidAngle_out;
       hpm[fillPixel] += (inputMap.pixelValue(xval,yval));
@@ -128,12 +127,14 @@ SourceMap::SourceMap(Source * src, const CountsMapBase * dataMap,
                      bool resample,
                      double resamp_factor,
                      double minbinsz,
-                     bool verbose)
+                     bool verbose,
+		     const SourceMap* weights)
    : m_name(src->getName()),
      m_srcType(src->getType()),
      m_dataMap(dataMap),
      m_observation(observation),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
+     m_weights(weights),
      m_deleteDataMap(false),
      m_pixelOffset(),
      m_pixelCoordX(),
@@ -163,13 +164,46 @@ SourceMap::SourceMap(Source * src, const CountsMapBase * dataMap,
    computeNpredArray();
 }
 
+SourceMap::SourceMap(const ProjMap& weight_map,
+		     const CountsMapBase * dataMap,
+		     const Observation & observation,
+		     bool verbose)
+   : m_name("__weights__"),
+     m_srcType("Diffuse"),
+     m_dataMap(dataMap),
+     m_observation(observation),
+     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
+     m_weights(0),
+     m_deleteDataMap(false),
+     m_pixelOffset(),
+     m_pixelCoordX(),
+     m_pixelCoordY(),
+     m_psfEstimatorMethod("adaptive"),
+     m_psfEstimatorFtol(1E-3),
+     m_psfEstimatorPeakTh(1E-6) {
+   if (verbose) {
+      m_formatter->warn() << "Generating SourceMap for " << m_name;
+   }
+
+   makeProjectedMap(weight_map);
+   // This is just to make sure that they are there.  
+   // For this type of map they shouldn't be used for anything
+   computeNpredArray();
+   if (verbose) {
+      m_formatter->warn() << "!" << std::endl;
+   }
+ }
+
+
 SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const std::string & srcName,
-                     const Observation & observation) 
+                     const Observation & observation,
+		     const SourceMap* weights) 
    : m_name(srcName),
      m_dataMap(AppHelpers::readCountsMap(sourceMapsFile)),
      m_observation(observation),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
+     m_weights(weights),
      m_deleteDataMap(true),
      m_pixelOffset(),
      m_pixelCoordX(),
@@ -484,7 +518,7 @@ void SourceMap::makeDiffuseMap_healpix(Source * src,
   int resamp_nside = resamp_factor*nside_orig;
   size_t counter(0);
   static const double ALLSKY_RADIUS(180.);
-  bool interpolate(true);
+  bool interpolate(false);
   std::vector<double>::const_iterator energy = energies.begin();
   double scaleFactor = solidAngle/(resamp_factor*resamp_factor);
   // This is the index in the output vector, it does _not_ get reset between energy layers
@@ -502,21 +536,26 @@ void SourceMap::makeDiffuseMap_healpix(Source * src,
     HealpixProjMap* convolvedMap = static_cast<HealpixProjMap*>(cmap);
     Healpix_Map<float> outmap(nside_orig,scheme,SET_NSIDE);
     outmap.Import_degrade(convolvedMap->image()[0]);
+    if ( nside_orig == resamp_nside ) {
+      outmap = convolvedMap->image()[0];
+    } else {
+      outmap.Import_degrade(convolvedMap->image()[0]);
+    }
     for (size_t i(0); i < dataMap->nPixels(); i++,outidx++) {
       int glo = dataMap->localToGlobalIndex(i);
       m_model[outidx] = outmap[glo];
     }
-    try {
-      MapBase * mapBaseObj = 
-	const_cast<MapBase *>(diffuseSrc->mapBaseObject());
-      mapBaseObj->deleteMap();
-      m_formatter->info(4) << "SourceMap::makeDiffuseSource: "
-                           << "called mapBaseObj->deleteMap()"
-                           << std::endl;
-    } catch (MapBaseException & eObj) {
-      // Not a map-based source, so do nothing.
-    }
-  }  
+  }
+  try {
+    MapBase * mapBaseObj = 
+      const_cast<MapBase *>(diffuseSrc->mapBaseObject());
+    mapBaseObj->deleteMap();
+    m_formatter->info(4) << "SourceMap::makeDiffuseSource: "
+			 << "called mapBaseObj->deleteMap()"
+			 << std::endl;
+  } catch (MapBaseException & eObj) {
+    // Not a map-based source, so do nothing.
+  }
 }
 
 void SourceMap::makeDiffuseMap_wcs(Source * src, 
@@ -1041,11 +1080,16 @@ void SourceMap::computeNpredArray() {
    
    m_npreds.clear();
    m_npreds.resize(energies.size(), 0);
+   m_weightedNpreds.clear();
+   m_weightedNpreds.resize(energies.size(), 0);
    for (size_t k(0); k < energies.size(); k++) {
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
       for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
          size_t indx(k*pixels.size() + j);
-         m_npreds.at(k) += m_model.at(indx);
+	 double addend = m_model.at(indx);
+         m_npreds[k] += addend;
+	 addend *= m_weights != 0 ? m_weights->model()[indx] : 1.0;
+	 m_weightedNpreds[k] += addend;
       }
    }
 }
@@ -1068,6 +1112,25 @@ double SourceMap::computeResampFactor(const DiffuseSource & src,
       std::max(2, static_cast<int>(data_pixel_size/model_pixel_size));
    return resamp_factor;
 }
+
+void SourceMap::makeProjectedMap(const ProjMap& weight_map) {
+   const std::vector<Pixel> & pixels(m_dataMap->pixels());
+   std::vector<double> energies;
+   m_dataMap->getEnergies(energies);
+   m_model.resize(energies.size()*pixels.size());
+   for (size_t k(0); k < energies.size(); k++) {
+      std::vector<Pixel>::const_iterator pixel(pixels.begin());
+      for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
+         size_t indx(k*pixels.size() + j);
+	 try {
+	   m_model.at(indx) = weight_map.operator()(pixel->dir(),
+						    energies[k]);
+	 } catch (...) {
+	   m_model.at(indx) = 1.0;
+	 }	 
+      }
+   }
+}    
 
 void SourceMap::applyPhasedExposureMap() {
    if (!m_observation.have_phased_expmap()) {
@@ -1257,6 +1320,11 @@ void SourceMap::setImage(const std::vector<float>& model) {
 
   m_model = model;
   applyPhasedExposureMap();
+  computeNpredArray();
+}
+
+void SourceMap::setWeights(const SourceMap* weights) {
+  m_weights = weights;
   computeNpredArray();
 }
 
