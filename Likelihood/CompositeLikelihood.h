@@ -7,7 +7,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeLikelihood.h,v 1.9 2015/03/03 18:05:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/CompositeLikelihood.h,v 1.10 2015/03/21 05:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_CompositeLikelihood_h
@@ -46,7 +46,7 @@ public:
                                  bool getFree) const;
    void syncParams();
 
-   double NpredValue(const std::string &) const {return 0;}
+   double NpredValue(const std::string &, bool /* weighted */) const {return 0;}
 
 protected:
 

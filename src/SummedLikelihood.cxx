@@ -5,7 +5,7 @@
  *
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SummedLikelihood.cxx,v 1.6 2014/06/30 20:44:11 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SummedLikelihood.cxx,v 1.7 2015/06/02 19:53:24 jchiang Exp $
  */
 
 #include <iostream>
@@ -105,11 +105,11 @@ void SummedLikelihood::syncParams() {
    }
 }
 
-double SummedLikelihood::NpredValue(const std::string & srcname) const {
+double SummedLikelihood::NpredValue(const std::string & srcname, bool weighted) const {
    double Npred(0);
    for (ComponentConstIterator_t it(m_components.begin());
         it != m_components.end(); ++it) {
-      Npred += (*it)->NpredValue(srcname);
+      Npred += (*it)->NpredValue(srcname,weighted);
    }
    return Npred;
 }
