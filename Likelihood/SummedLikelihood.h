@@ -6,7 +6,7 @@
  * 
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SummedLikelihood.h,v 1.6 2015/06/02 19:53:23 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SummedLikelihood.h,v 1.7 2015/07/24 16:01:31 echarles Exp $
  */
 
 #ifndef Likelihood_SummedLikelihood_h
@@ -58,7 +58,7 @@ public:
 
    void syncParams();
 
-   double NpredValue(const std::string & srcname) const;
+   double NpredValue(const std::string & srcname, bool weighted = false) const;
 
    /// Member functions to support tying of parameters.
 

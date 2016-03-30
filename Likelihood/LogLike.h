@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.46 2015/03/21 05:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.47 2016/03/29 23:53:49 echarles Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -70,7 +70,7 @@ public:
 
    virtual void syncSrcParams(const std::string & srcName);
 
-   virtual double NpredValue(const std::string & srcName) const;
+   virtual double NpredValue(const std::string & srcName, bool weighted=false) const;
 
    void restoreBestFit();
 

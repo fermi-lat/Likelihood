@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.7 2013/01/28 12:40:38 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.8 2015/03/21 05:38:02 jchiang Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood2_h
@@ -75,7 +75,7 @@ public:
 
    virtual void syncSrcParams(const std::string & srcName);
 
-   virtual double NpredValue(const std::string & srcName) const;
+   virtual double NpredValue(const std::string & srcName, bool weighted = false) const;
    
    const std::vector<double> & energies() const {
       return m_energies;
