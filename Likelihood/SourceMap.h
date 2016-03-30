@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.57 2016/01/09 02:04:17 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.58 2016/03/03 21:51:39 mdwood Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -67,11 +67,18 @@ public:
              bool resample=true,
              double resamp_factor=2,
              double minbinsz=0.1,
-             bool verbose=true);
+             bool verbose=true,
+	     const SourceMap* weights = 0);
+
+   SourceMap(const ProjMap& weight_map,
+	     const CountsMapBase * dataMap,
+             const Observation & observation,
+	     bool verbose=true);
 
    SourceMap(const std::string & sourceMapsFile,
              const std::string & srcName,
-             const Observation & observation);
+             const Observation & observation,
+	     const SourceMap* weights = 0);
 
    ~SourceMap();
 
@@ -81,6 +88,10 @@ public:
 
    const std::vector<double> & npreds() const {
       return m_npreds;
+   }
+
+   const std::vector<double> & weighted_npreds() const {
+      return m_weightedNpreds;
    }
 
 //   void addMap(const std::vector<float> & other_model);
@@ -96,6 +107,10 @@ public:
    const std::string & name() const {
       return m_name;
    }
+
+   const SourceMap* weights() const { return m_weights; }
+
+   void setWeights(const SourceMap* weights);
 
 protected:
 
@@ -116,6 +131,8 @@ private:
 
    st_stream::StreamFormatter * m_formatter;
 
+   const SourceMap* m_weights;
+
    bool m_deleteDataMap;
 
    /// @brief m_models has the same size as the data in the dataMap plus
@@ -126,6 +143,9 @@ private:
 
    /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;
+
+   /// @brief Weighted version of NPreds.
+   std::vector<double> m_weightedNpreds;
 
    /// @brief Scaling factor between the true and projected angular separation
    std::vector< std::vector< double > > m_pixelOffset;
@@ -205,6 +225,8 @@ private:
 				   bool applyPsfCorrections,
 				   bool performConvolution,
 				   bool verbose);
+
+   void makeProjectedMap(const ProjMap& weight_map);
 
    void applyPhasedExposureMap();
 

@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.77 2016/03/07 23:19:57 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.78 2016/03/10 18:44:07 mdwood Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -46,6 +46,17 @@ public:
                     double resamp_factor=2,
                     double minbinsz=0.1);
 
+   BinnedLikelihood(CountsMapBase & dataMap, 
+		    const ProjMap& weightMap,
+		    const Observation & observation,
+		    const std::string & srcMapsFile="",
+		    bool computePointSources=true,
+		    bool applyPsfCorrections=true,
+		    bool performConvolution=true,
+		    bool resample=true,
+		    double resamp_factor=2,
+                     double minbinsz=0.1);
+   
    BinnedLikelihood(const BinnedLikelihood & other);
 
    virtual ~BinnedLikelihood() throw();
@@ -144,7 +155,7 @@ public:
 
    virtual void syncSrcParams(const std::string & srcName);
 
-   virtual double NpredValue(const std::string & srcName) const;
+   virtual double NpredValue(const std::string & srcName, bool weighted=false) const;
 
    void set_klims(size_t kmin, size_t kmax) {
       m_modelIsCurrent = false;
@@ -205,6 +216,10 @@ public:
                                "not implemented.");
    }
 
+   // access to the weights and the weight map
+   const ProjMap* weightMap() const { return m_weightMap; }
+   const SourceMap* weightSrcMap() const { return m_weightSrcMap; }
+
 protected:
 
    BinnedLikelihood & operator=(const BinnedLikelihood & rhs) {
@@ -214,10 +229,19 @@ protected:
    virtual BinnedLikelihood * clone() const {
       return new BinnedLikelihood(*this);
    }
+  
+   void saveWeightsMap(bool replace=false) const;
+
+   void fillWeightedCounts();
 
 private:
 
    CountsMapBase& m_dataMap;
+  
+   const ProjMap* m_weightMap;
+   SourceMap* m_weightSrcMap;
+
+   std::vector<float> m_weightedCounts;
 
    const std::vector<Pixel> & m_pixels;
    std::vector<double> m_energies;
@@ -253,14 +277,15 @@ private:
 
    std::vector<std::pair<double, double> > m_fixedModelWts;
    std::map<std::string, double> m_fixedModelNpreds;
+   std::map<std::string, double> m_fixedModelWeightedNpreds;
 
    /// Map of model parameters, to be used to determine if fixed
    /// sources have changed parameter values.
    std::map<std::string, std::vector<double> > m_modelPars;
 
    /// Accumulators for derivatives.
-   mutable std::map<long, Accumulator> m_posDerivs;
-   mutable std::map<long, Accumulator> m_negDerivs;
+   mutable std::map<long, Kahan_Accumulator> m_posDerivs;
+   mutable std::map<long, Kahan_Accumulator> m_negDerivs;
 
    /// Minimum and maximum energy plane indexes to use in likelihood 
    /// calculations.
@@ -283,7 +308,7 @@ private:
 
    std::map<std::string, std::map<size_t, size_t> > m_krefs;
 
-   double computeModelMap() const;
+   double computeModelMap(bool weighted=false) const;
 
    void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
                      const std::string & srcName,
@@ -325,7 +350,7 @@ private:
 
    double pixelCounts(double emin, double emax, double y1, double y2) const;
 
-   double NpredValue(const std::string & name, const SourceMap & srcMap) const;
+   double NpredValue(const std::string & name, const SourceMap & srcMap, bool weighted=false) const;
 
    void computeFixedCountsSpectrum();
 
