@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.114 2016/03/03 21:51:38 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.115 2016/03/30 00:07:51 echarles Exp $
  */
 
 #include <cmath>
@@ -185,12 +185,19 @@ SourceMap::SourceMap(const ProjMap& weight_map,
       m_formatter->warn() << "Generating SourceMap for " << m_name;
    }
 
-   makeProjectedMap(weight_map);
+   bool extrapolated_weights(false);
+   makeProjectedMap(weight_map,extrapolated_weights);
    // This is just to make sure that they are there.  
    // For this type of map they shouldn't be used for anything
    computeNpredArray();
    if (verbose) {
       m_formatter->warn() << "!" << std::endl;
+   }
+   if ( extrapolated_weights ) {
+     m_formatter->warn() << "SourceMap::SourceMap(): "
+			 << "CountsMap boundries are larger than input weights map.  "
+			 << "Using weight 1 for all pixel and energies outside the input map. "
+			 << std::endl;
    }
  }
 
@@ -1113,24 +1120,34 @@ double SourceMap::computeResampFactor(const DiffuseSource & src,
    return resamp_factor;
 }
 
-void SourceMap::makeProjectedMap(const ProjMap& weight_map) {
+void SourceMap::makeProjectedMap(const ProjMap& weight_map, bool& extrapolated) {
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
    std::vector<double> energies;
    m_dataMap->getEnergies(energies);
    m_model.resize(energies.size()*pixels.size());
-   for (size_t k(0); k < energies.size(); k++) {
-      std::vector<Pixel>::const_iterator pixel(pixels.begin());
-      for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
-         size_t indx(k*pixels.size() + j);
-	 try {
+   std::vector<Pixel>::const_iterator pixel(pixels.begin());
+   extrapolated = false;
+   for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
+     bool in_map = weight_map.insideMap(pixel->dir());
+     for (size_t k(0); k < energies.size(); k++) {      
+       size_t indx(k*pixels.size() + j);
+       if ( in_map ){
+	 try {	   
 	   m_model.at(indx) = weight_map.operator()(pixel->dir(),
 						    energies[k]);
 	 } catch (...) {
+	   // Outside of energy bounds, set weight to 1.0 (FIXME, agree on convention)
 	   m_model.at(indx) = 1.0;
+	   extrapolated = true;
 	 }	 
-      }
+       } else {
+	 // Outsdie of map, set weight to 1.0 (FIXME, agree on convention)
+	 m_model.at(indx) = 1.0;
+	 extrapolated = true;
+       }
+     }
    }
-}    
+ }    
 
 void SourceMap::applyPhasedExposureMap() {
    if (!m_observation.have_phased_expmap()) {
