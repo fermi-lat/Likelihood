@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtlike.par,v 1.16 2013/08/26 22:55:32 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtlike.par,v 1.17 2016/03/30 23:06:53 echarles Exp $
 #
 # parameters common to binned and unbinned
 #
@@ -34,7 +34,7 @@ plot,b,h,no,,,"Plot unbinned counts spectra?"
 #
 cmap,f,a,"none",,,"Counts map file"
 bexpmap,f,a,"none",,,"Binned exposure map"
-wmap,fr,h,"none",,,"Likelihood weights map"
+wmap,f,h,"none",,,"Likelihood weights map"
 psfcorr,b,h,yes,,,"apply psf integral corrections"
 phased_expmap,f,h,"none",,,"Exposure map with phase-dependent corrections"
 

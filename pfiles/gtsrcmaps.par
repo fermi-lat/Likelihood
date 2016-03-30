@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtsrcmaps.par,v 1.37 2015/01/16 05:36:26 jchiang Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/pfiles/gtsrcmaps.par,v 1.38 2016/03/30 23:06:53 echarles Exp $
 #
 scfile,f,h,"",,,"Spacecraft data file"
 sctable,s,h,"SC_DATA",,,Spacecraft data extension
@@ -7,7 +7,7 @@ expcube,fr,a,"",,,"Exposure hypercube file"
 cmap,fr,a,"",,,"Counts map file"
 srcmdl,fr,a,"",,,"Source model file"
 bexpmap,f,a,"none",,,"Binned exposure map"
-wmap,fr,h,"none",,,"Likelihood weights map"
+wmap,f,h,"none",,,"Likelihood weights map"
 outfile,f,a,"",,,"Source maps output file"
 irfs,s,a,"CALDB",,,"Response functions"
 evtype,i,h,INDEF,,,"Event type selections"
