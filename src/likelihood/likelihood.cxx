@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.165 2015/12/10 00:58:03 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.166 2016/03/30 23:06:55 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -167,7 +167,7 @@ private:
 
 st_app::StAppFactory<likelihood> myAppFactory("gtlike");
 
-std::string likelihood::s_cvs_id("$Name: ScienceTools-11-00-00 $");
+std::string likelihood::s_cvs_id("$Name:  $");
 
 void likelihood::banner() const {
    int verbosity = m_pars["chatter"];
@@ -979,7 +979,6 @@ void likelihood::npredValues(double & freeNpred, double & totalNpred) const {
    totalNpred = 0;
    for (std::vector<std::string>::const_iterator srcName = srcNames.begin();
         srcName != srcNames.end(); ++srcName) {
-      std::cout << *srcName << "::npredValue" << std::endl;
       Source * src = m_logLike->getSource(*srcName);
       double npred(m_logLike->NpredValue(*srcName));
       totalNpred += npred;
