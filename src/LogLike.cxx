@@ -3,7 +3,7 @@
  * @brief LogLike class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.86 2015/04/15 15:18:57 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/LogLike.cxx,v 1.87 2016/03/30 23:04:57 echarles Exp $
  */
 
 #include <cmath>
@@ -385,7 +385,7 @@ void LogLike::update_npreds() {
    }
 }
 
-  double LogLike::NpredValue(const std::string & srcName, bool /* weighted */) const {
+double LogLike::NpredValue(const std::string & srcName, bool /* weighted */) const {
    return const_cast<Source &>(source(srcName)).Npred();
 }
 
