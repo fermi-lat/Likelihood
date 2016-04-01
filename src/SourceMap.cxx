@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.115 2016/03/30 00:07:51 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.116 2016/03/30 22:05:13 echarles Exp $
  */
 
 #include <cmath>
@@ -1087,17 +1087,19 @@ void SourceMap::computeNpredArray() {
    
    m_npreds.clear();
    m_npreds.resize(energies.size(), 0);
-   m_weightedNpreds.clear();
-   m_weightedNpreds.resize(energies.size(), 0);
+   m_npred_weights.clear();
+   m_npred_weights.resize(energies.size(), 0);
    for (size_t k(0); k < energies.size(); k++) {
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
+      double w_tot(0.);
       for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
          size_t indx(k*pixels.size() + j);
 	 double addend = m_model.at(indx);
          m_npreds[k] += addend;
 	 addend *= m_weights != 0 ? m_weights->model()[indx] : 1.0;
-	 m_weightedNpreds[k] += addend;
+	 w_tot += addend;
       }
+      m_npred_weights[k] = m_weights != 0 ? (w_tot > 0 ? w_tot / m_npreds[k] : 0.) : 1.0;
    }
 }
 

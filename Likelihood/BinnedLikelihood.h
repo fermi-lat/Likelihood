@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.78 2016/03/10 18:44:07 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.79 2016/03/30 00:07:50 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -86,7 +86,7 @@ public:
 
    virtual CountsMapBase * createCountsMap() const;
 
-   double npred();
+   double npred(bool weighted=false);
 
    const SourceMap & sourceMap(const std::string & name) const;
 
