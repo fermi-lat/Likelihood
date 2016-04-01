@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.59 2016/03/30 00:07:50 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.60 2016/03/30 22:05:12 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -90,8 +90,8 @@ public:
       return m_npreds;
    }
 
-   const std::vector<double> & weighted_npreds() const {
-      return m_weightedNpreds;
+   const std::vector<double> & npred_weights() const {
+      return m_npred_weights;
    }
 
 //   void addMap(const std::vector<float> & other_model);
@@ -145,7 +145,7 @@ private:
    std::vector<double> m_npreds;
 
    /// @brief Weighted version of NPreds.
-   std::vector<double> m_weightedNpreds;
+   std::vector<double> m_npred_weights;
 
    /// @brief Scaling factor between the true and projected angular separation
    std::vector< std::vector< double > > m_pixelOffset;

@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.113 2016/03/10 18:44:09 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.114 2016/03/30 00:07:50 echarles Exp $
  */
 
 #include <cmath>
@@ -234,8 +234,8 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
    return my_total;
 }
 
-double BinnedLikelihood::npred() {
-   return computeModelMap();
+double BinnedLikelihood::npred(bool weighted) {
+   return computeModelMap(weighted);
 }
 
 void BinnedLikelihood::setSourceMapImage(const std::string & name,
@@ -371,7 +371,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
                   m_negDerivs[iparam].add(addend);
                }
                if (j == jentry) {
-                  const std::vector<double> & npreds =  srcMap.weighted_npreds();
+                  const std::vector<double> & npreds =  srcMap.npreds();
+                  const std::vector<double> & npred_weights =  srcMap.npred_weights();
                   for (size_t kk(0); kk < m_energies.size()-1; kk++) {
                      if (kk >= m_kmin && kk <= m_kmax-1) {
                         addend = 
@@ -380,7 +381,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
                                                  npreds.at(kk), 
                                                  npreds.at(kk+1),
                                                  paramNames.at(i));
-                        if (-addend > 0) {
+			addend *= (srcMap.npred_weights()[kk] + srcMap.npred_weights()[kk+1])/2.;
+		        if (-addend > 0) {
                            m_posDerivs[iparam].add(-addend);
                         } else {
                            m_negDerivs[iparam].add(-addend);
@@ -718,13 +720,13 @@ void BinnedLikelihood::addFixedSource(const std::string & srcName) {
             xi = 1;
          }
       }
-      m_fixedNpreds[k] += xi*srcIt->second->spectrum()(ee)*srcMap->weighted_npreds()[k];
+      m_fixedNpreds[k] += xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
    }
    // For last bin edge, use xi value from penultimate edge
    size_t kk(m_energies.size()-1);
    optimizers::dArg ee(m_energies[kk]);
    m_fixedNpreds[kk] += xi*(srcIt->second->spectrum()(ee)*
-                            srcMap->weighted_npreds()[kk]);
+                            srcMap->npreds()[kk]);
 
    // Remove this source from the stored source maps to save memory
    if (srcMapIt != m_srcMaps.end()) {
@@ -767,13 +769,13 @@ void BinnedLikelihood::deleteFixedSource(const std::string & srcName) {
             xi = 1;
          }
       }
-      m_fixedNpreds[k] -= xi*srcIt->second->spectrum()(ee)*srcMap->weighted_npreds()[k];
+      m_fixedNpreds[k] -= xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
    }
    // For last bin edge, use xi value from penultimate edge
    size_t kk(m_energies.size()-1);
    optimizers::dArg ee(m_energies[kk]);
    m_fixedNpreds[kk] -= xi*(srcIt->second->spectrum()(ee)*
-                            srcMap->weighted_npreds()[kk]);
+                            srcMap->npreds()[kk]);
 
    // Subtract the source weights from the summed fixed model weights.
    bool subtract;
@@ -1331,12 +1333,15 @@ double BinnedLikelihood::NpredValue(const std::string & srcName, bool weighted) 
 double BinnedLikelihood::NpredValue(const std::string & srcName,
                                     const SourceMap & sourceMap, 
 				    bool weighted) const {
-   const std::vector<double> & npreds = weighted ? sourceMap.weighted_npreds() : sourceMap.npreds();
+   const std::vector<double> & npreds = sourceMap.npreds();
    const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
    std::vector<double> true_counts_spec;
    for (size_t k(0); k < energies().size()-1; k++) {
       double my_value(src->pixelCounts(energies().at(k), energies().at(k+1),
                                        npreds.at(k), npreds.at(k+1)));
+      if ( weighted ) {
+	my_value *= (sourceMap.npred_weights()[k] + sourceMap.npred_weights()[k+1])/2.;
+      }
       true_counts_spec.push_back(my_value);
    }
    std::vector<double> meas_counts_spec;
