@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.577 2016/01/18 23:08:28 jchiang Exp $
+    $Id: release.notes,v 1.578 2016/03/14 16:31:25 mdwood Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-02-00 15-Apr-2016 echarles Added implementation of weighted binned likelihood fitting
  Likelihood-20-01-00 14-Mar-2016 mdwood Updates to FitScanner and PS map integration.
  Likelihood-20-00-01 18-Jan-2016 jchiang restore changes clobbered by healpix changes
  Likelihood-20-00-00 09-Dec-2015 echarles Implement healpix-based fitting in ScienceTools
