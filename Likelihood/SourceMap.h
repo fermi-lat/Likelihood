@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.60 2016/03/30 22:05:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SourceMap.h,v 1.61 2016/04/01 01:35:07 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -78,7 +78,8 @@ public:
    SourceMap(const std::string & sourceMapsFile,
              const std::string & srcName,
              const Observation & observation,
-	     const SourceMap* weights = 0);
+	     const SourceMap* weights = 0,
+	     bool isWeights = false);
 
    ~SourceMap();
 
@@ -90,7 +91,7 @@ public:
       return m_npreds;
    }
 
-   const std::vector<double> & npred_weights() const {
+   const std::vector<std::pair<double,double> > & npred_weights() const {
       return m_npred_weights;
    }
 
@@ -144,8 +145,8 @@ private:
    /// @brief Each entry is the angular integral over the energy plane.
    std::vector<double> m_npreds;
 
-   /// @brief Weighted version of NPreds.
-   std::vector<double> m_npred_weights;
+   /// @brief Weights for npreds.
+   std::vector< std::pair<double,double> > m_npred_weights;
 
    /// @brief Scaling factor between the true and projected angular separation
    std::vector< std::vector< double > > m_pixelOffset;
@@ -167,7 +168,7 @@ private:
                           std::vector<double> & mapCorrections) const;
 
 
-   void computeNpredArray();
+   void computeNpredArray(bool isWeights=false);
 
    double computeResampFactor(const DiffuseSource & src,
                               const CountsMapBase & dataMap) const;

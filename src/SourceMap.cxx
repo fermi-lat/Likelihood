@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.116 2016/03/30 22:05:13 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.117 2016/04/01 01:35:08 echarles Exp $
  */
 
 #include <cmath>
@@ -189,7 +189,7 @@ SourceMap::SourceMap(const ProjMap& weight_map,
    makeProjectedMap(weight_map,extrapolated_weights);
    // This is just to make sure that they are there.  
    // For this type of map they shouldn't be used for anything
-   computeNpredArray();
+   computeNpredArray(true);
    if (verbose) {
       m_formatter->warn() << "!" << std::endl;
    }
@@ -205,7 +205,8 @@ SourceMap::SourceMap(const ProjMap& weight_map,
 SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const std::string & srcName,
                      const Observation & observation,
-		     const SourceMap* weights) 
+		     const SourceMap* weights,
+		     bool isWeights = false) 
    : m_name(srcName),
      m_dataMap(AppHelpers::readCountsMap(sourceMapsFile)),
      m_observation(observation),
@@ -241,7 +242,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
 
    }
    applyPhasedExposureMap();
-   computeNpredArray();
+   computeNpredArray(isWeights);
 }
 
 
@@ -1072,7 +1073,7 @@ double SourceMap::maxPsfRadius(PointSource * src) const {
    return radius*180./M_PI;
 }
 
-void SourceMap::computeNpredArray() {
+void SourceMap::computeNpredArray(bool isWeight) {
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
    
    std::vector<double> energies;
@@ -1085,21 +1086,38 @@ void SourceMap::computeNpredArray() {
      break;
    }
    
+
+   size_t ne = isWeight ? energies.size() -1 : energies.size(); 
    m_npreds.clear();
-   m_npreds.resize(energies.size(), 0);
+   m_npreds.resize(ne);
    m_npred_weights.clear();
-   m_npred_weights.resize(energies.size(), 0);
-   for (size_t k(0); k < energies.size(); k++) {
+   m_npred_weights.resize(ne-1, std::make_pair<double,double>(0.,0.));
+
+   for (size_t k(0); k < ne; k++) {
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
-      double w_tot(0.);
+      double w_0_sum(0.);
+      double w_1_sum(0.);
+
       for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
-         size_t indx(k*pixels.size() + j);
+	 size_t indx(k*pixels.size() + j);
+         size_t indx_0 = k > 0 ? indx  - pixels.size() : indx;
+	 size_t indx_1 = k < energies.size()-1 ? indx : indx - pixels.size();
 	 double addend = m_model.at(indx);
          m_npreds[k] += addend;
-	 addend *= m_weights != 0 ? m_weights->model()[indx] : 1.0;
-	 w_tot += addend;
+	 double w_0_addend = m_weights != 0 ? ( m_weights->model()[indx_0]*addend ) : addend;
+	 double w_1_addend = m_weights != 0 ? ( m_weights->model()[indx_1]*addend ) : addend;
+	 w_0_sum += w_0_addend;
+	 w_1_sum += w_1_addend;
       }
-      m_npred_weights[k] = m_weights != 0 ? (w_tot > 0 ? w_tot / m_npreds[k] : 0.) : 1.0;
+      double w_0 = m_weights != 0 ? (m_npreds[k] > 0 ? w_0_sum / m_npreds[k] : 0.) : 1.0;
+      double w_1 = m_weights != 0 ? (m_npreds[k] > 0 ? w_1_sum / m_npreds[k] : 0.) : 1.0;
+
+      if ( k < energies.size()-1 ) {
+	m_npred_weights[k].first = w_0;
+      }
+      if ( k > 0 ) {
+	m_npred_weights[k-1].second = w_1;
+      }
    }
 }
 
@@ -1124,8 +1142,14 @@ double SourceMap::computeResampFactor(const DiffuseSource & src,
 
 void SourceMap::makeProjectedMap(const ProjMap& weight_map, bool& extrapolated) {
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
-   std::vector<double> energies;
-   m_dataMap->getEnergies(energies);
+   std::vector<double> energy_edges;
+   m_dataMap->getEnergies(energy_edges);
+
+   std::vector<double> energies(energy_edges.size()-1,0.);
+   for ( size_t ie(0); ie < energies.size(); ie++ ) {
+     energies[ie] = sqrt(energy_edges[ie]*energy_edges[ie+1]);
+   }
+
    m_model.resize(energies.size()*pixels.size());
    std::vector<Pixel>::const_iterator pixel(pixels.begin());
    extrapolated = false;
