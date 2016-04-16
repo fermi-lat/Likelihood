@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.114 2016/03/30 00:07:50 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.115 2016/04/01 01:35:08 echarles Exp $
  */
 
 #include <cmath>
@@ -83,6 +83,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
    identifyFilledPixels();
    m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
    m_fixedNpreds.resize(m_energies.size(), 0);
+
    computeCountsSpectrum();
 }
 
@@ -99,7 +100,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
    : LogLike(observation), 
      m_dataMap(dataMap),
      m_weightMap(&weightMap),
-     m_weightSrcMap(new SourceMap(weightMap,&dataMap,observation,true)),
+     m_weightSrcMap(0),
      m_pixels(dataMap.pixels()),
      m_energies(),
      m_countsSpectrum(),
@@ -133,6 +134,14 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
      m_krefs() {
    dataMap.getEnergies(m_energies);
    m_kmax = m_energies.size() - 1;
+
+   if ( fileHasSourceMap("__weights__",m_srcMapsFile) ) {
+     st_stream::StreamFormatter formatter("BinnedLikelihood","", 2);
+     formatter.warn() << "Reading existing weights map from file " << m_srcMapsFile << std::endl;
+     m_weightSrcMap = new SourceMap(m_srcMapsFile, "__weights__", m_observation,0,true);
+   } else {
+     m_weightSrcMap = new SourceMap(weightMap,&dataMap,observation,true);
+   }
    identifyFilledPixels();
    m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
    m_fixedNpreds.resize(m_energies.size(), 0);
@@ -372,16 +381,15 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
                }
                if (j == jentry) {
                   const std::vector<double> & npreds =  srcMap.npreds();
-                  const std::vector<double> & npred_weights =  srcMap.npred_weights();
+                  const std::vector<std::pair<double,double> > & npred_weights =  srcMap.npred_weights();
                   for (size_t kk(0); kk < m_energies.size()-1; kk++) {
                      if (kk >= m_kmin && kk <= m_kmax-1) {
                         addend = 
                            src->pixelCountsDeriv(m_energies.at(kk), 
                                                  m_energies.at(kk+1),
-                                                 npreds.at(kk), 
-                                                 npreds.at(kk+1),
+                                                 npreds.at(kk)*npred_weights[kk].first,
+                                                 npreds.at(kk+1)*npred_weights[kk].second,
                                                  paramNames.at(i));
-			addend *= (srcMap.npred_weights()[kk] + srcMap.npred_weights()[kk+1])/2.;
 		        if (-addend > 0) {
                            m_posDerivs[iparam].add(-addend);
                         } else {
@@ -553,10 +561,10 @@ saveWeightsMap(bool replace) const {
   } else {
     switch ( m_dataMap.projection().method() ) {
     case astro::ProjBase::WCS:
-      appendSourceMap_wcs(*m_weightSrcMap,m_srcMapsFile);
+      appendSourceMap_wcs(*m_weightSrcMap,m_srcMapsFile,true);
       return;
     case astro::ProjBase::HEALPIX:
-      appendSourceMap_healpix(*m_weightSrcMap,m_srcMapsFile);
+      appendSourceMap_healpix(*m_weightSrcMap,m_srcMapsFile,true);
       return;
     default:
       break;
@@ -574,13 +582,11 @@ fillWeightedCounts() {
   m_weightedCounts.resize(ne*npix);
   for ( size_t j(0); j < npix; j++ ) {
     for (size_t k(0); k < ne-1; k++) {
-      size_t idx_0 = k*npix +j;
-      size_t idx_1 = idx_0 + npix;
-      double w0 = m_weightSrcMap->model()[idx_0];
-      double w1 = m_weightSrcMap->model()[idx_1];
-      bool is_null =  w0 <= 0 || w1 <= 0 || m_dataMap.data()[idx_0] <= 0;
-      double w = is_null ? 0 : (w0 + w1) / 2. ;
-      m_weightedCounts[idx_0] = m_dataMap.data()[idx_0] * w;
+      size_t idx = k*npix +j;
+      double w = m_weightSrcMap->model()[idx];
+      bool is_null = w <= 0 || m_dataMap.data()[idx] <= 0;
+      w = is_null ? 0 : w;
+      m_weightedCounts[idx] = m_dataMap.data()[idx] * w;
     }
   }
 }
@@ -1149,14 +1155,15 @@ void BinnedLikelihood::replaceSourceMap_healpix(const SourceMap& srcMap,
 }
 
 void BinnedLikelihood::appendSourceMap(const std::string & srcName,
-                                       const std::string & fitsFile) const {
+                                       const std::string & fitsFile,
+				       bool isWeights ) const {
    const SourceMap & srcMap = sourceMap(srcName);
    switch ( m_dataMap.projection().method() ) {
    case astro::ProjBase::WCS:
-     appendSourceMap_wcs(srcMap,fitsFile);
+     appendSourceMap_wcs(srcMap,fitsFile,isWeights);
      return;
    case astro::ProjBase::HEALPIX:
-     appendSourceMap_healpix(srcMap,fitsFile);
+     appendSourceMap_healpix(srcMap,fitsFile,isWeights);
      return;
    default:
      break;
@@ -1168,11 +1175,13 @@ void BinnedLikelihood::appendSourceMap(const std::string & srcName,
 }
 
 void BinnedLikelihood::appendSourceMap_wcs(const SourceMap& srcMap,	
-					   const std::string & fitsFile) const {
+					   const std::string & fitsFile,
+					   bool isWeights) const {
    std::vector<long> naxes;
    naxes.push_back(m_dataMap.imageDimension(0));
    naxes.push_back(m_dataMap.imageDimension(1));
-   naxes.push_back(m_dataMap.energies().size());
+   long nEBins = isWeights ? m_dataMap.energies().size()-1 : m_dataMap.energies().size();
+   naxes.push_back(nEBins);
 
    tip::IFileSvc::instance().appendImage(fitsFile, srcMap.name(), naxes);
    tip::Image * image = tip::IFileSvc::instance().editImage(fitsFile,srcMap.name());
@@ -1183,7 +1192,8 @@ void BinnedLikelihood::appendSourceMap_wcs(const SourceMap& srcMap,
 }
 
 void BinnedLikelihood::appendSourceMap_healpix(const SourceMap& srcMap, 
-					       const std::string & fitsFile) const {
+					       const std::string & fitsFile,
+					       bool isWeights) const {
    tip::IFileSvc::instance().appendTable(fitsFile, srcMap.name());
    std::auto_ptr<tip::Table> 
        table(tip::IFileSvc::instance().editTable(fitsFile, srcMap.name()));  
@@ -1205,7 +1215,7 @@ void BinnedLikelihood::appendSourceMap_healpix(const SourceMap& srcMap,
      }
    }
    long nPix = m_dataMap.imageDimension(0);
-   long nEBins = m_dataMap.energies().size();
+   long nEBins = isWeights ? m_dataMap.energies().size() : m_dataMap.energies().size() -1;
    long idx(0);
    double writeValue(0.);
    for (long e_index = 0; e_index != nEBins; e_index++ ) {
@@ -1336,12 +1346,10 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
    const std::vector<double> & npreds = sourceMap.npreds();
    const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
    std::vector<double> true_counts_spec;
+   const std::vector<std::pair<double,double> >& npred_weights = sourceMap.npred_weights();
    for (size_t k(0); k < energies().size()-1; k++) {
       double my_value(src->pixelCounts(energies().at(k), energies().at(k+1),
-                                       npreds.at(k), npreds.at(k+1)));
-      if ( weighted ) {
-	my_value *= (sourceMap.npred_weights()[k] + sourceMap.npred_weights()[k+1])/2.;
-      }
+				       npreds.at(k)*npred_weights[k].first, npreds.at(k+1)*npred_weights[k].second));
       true_counts_spec.push_back(my_value);
    }
    std::vector<double> meas_counts_spec;

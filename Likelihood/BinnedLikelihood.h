@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.79 2016/03/30 00:07:50 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.80 2016/04/01 01:35:07 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -332,13 +332,16 @@ private:
 				 const std::string & fitsFile) const;
 
    void appendSourceMap(const std::string & srcName, 
-			const std::string & fitsFile) const;
+			const std::string & fitsFile,
+			bool isWeights = false) const;
 
    void appendSourceMap_wcs(const SourceMap& srcMap,
-			    const std::string & fitsFile) const;
+			    const std::string & fitsFile,
+			    bool isWeights = false) const;
 
    void appendSourceMap_healpix(const SourceMap& srcMap, 
-				const std::string & fitsFile) const;
+				const std::string & fitsFile,
+				bool isWeights = false) const;
 
    void computeCountsSpectrum();
 
