@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.578 2016/03/14 16:31:25 mdwood Exp $
+    $Id: release.notes,v 1.579 2016/04/16 00:52:52 echarles Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-03-00 29-Apr-2016 mdwood Rename spatial model classes to RadialDisk/RadialGaussian.
  Likelihood-20-02-00 15-Apr-2016 echarles Added implementation of weighted binned likelihood fitting
  Likelihood-20-01-00 14-Mar-2016 mdwood Updates to FitScanner and PS map integration.
  Likelihood-20-00-01 18-Jan-2016 jchiang restore changes clobbered by healpix changes
