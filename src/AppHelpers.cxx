@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.127 2016/01/13 16:47:30 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/AppHelpers.cxx,v 1.128 2016/03/29 23:44:37 echarles Exp $
  */
 
 #include <cmath>
@@ -72,8 +72,8 @@
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
 #include "Likelihood/SmoothDoubleBrokenPowerLaw.h"
-#include "Likelihood/SpatialDisk.h"
-#include "Likelihood/SpatialGaussian.h"
+#include "Likelihood/RadialDisk.h"
+#include "Likelihood/RadialGaussian.h"
 #include "Likelihood/SpatialMap.h"
 // EAC, use WcsLibrary to open the right type of ProjMap
 #include "Likelihood/WcsMapLibrary.h"
@@ -208,9 +208,9 @@ void AppHelpers::
 addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
    bool makeClone(false);
    funcFactory->addFunc("SkyDirFunction", new SkyDirFunction(), makeClone);
-   funcFactory->addFunc("SpatialDisk", new SpatialDisk(), makeClone);
+   funcFactory->addFunc("RadialDisk", new RadialDisk(), makeClone);
    funcFactory->addFunc("SpatialMap", new SpatialMap(), makeClone);
-   funcFactory->addFunc("SpatialGaussian", new SpatialGaussian(), makeClone);
+   funcFactory->addFunc("RadialGaussian", new RadialGaussian(), makeClone);
    funcFactory->addFunc("BandFunction", new BandFunction(), makeClone);
    funcFactory->addFunc("LogParabola", new LogParabola(), makeClone);
    funcFactory->addFunc("LogGaussian", new LogGaussian(), makeClone);

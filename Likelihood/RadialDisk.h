@@ -1,19 +1,18 @@
 /** 
- * @file SpatialGaussian.h
- * @brief Declaration for the SpatialGaussian Function class
+ * @file RadialDisk.h
+ * @brief Declaration for the RadialDisk Function class
  * @author M. Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/SpatialGaussian.h,v 1.2 2015/12/03 23:47:44 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RadialDisk.h,v 1.3 2016/01/27 02:48:07 mdwood Exp $
  *
  */
 
-#ifndef Likelihood_SpatialGaussian_h
-#define Likelihood_SpatialGaussian_h
+#ifndef Likelihood_RadialDisk_h
+#define Likelihood_RadialDisk_h
 
 #include <utility>
 
 #include "optimizers/Function.h"
-#include "optimizers/Parameter.h"
 
 #include "Likelihood/MapBase.h"
 #include "Likelihood/MeanPsf.h"
@@ -29,46 +28,47 @@ class Event;
 class ResponseFunctions;
 
 /** 
- * @class SpatialGaussian
+ * @class RadialDisk
  *
  * @brief A Function object that is an analytic representation of a 2D
- * spatial gaussian at a SkyDir location with functional form:
+ * spatial disk at a SkyDir location with functional form:
  *
- * f(r, sigma) = 1/(2 * pi * sigma^2) * exp(-r^2/(2 * sigma^2))
+ * f(r,R) = 1/(pi * R^2) * H(1-r/R)
  *
- * where r is the angular distance from the SkyDir location.
+ * where r is the angular distance from the SkyDir location and H(x)
+ * is the Heaviside step function.
  *
  */
     
-class SpatialGaussian : public SpatialFunction {
+class RadialDisk : public SpatialFunction {
 
 public:
 
-   SpatialGaussian();
+   RadialDisk();
 
-   SpatialGaussian(double ra, double dec, double sigma);
+   RadialDisk(double ra, double dec, double radius);
                          
-   SpatialGaussian(const SpatialGaussian &);
+   RadialDisk(const RadialDisk &);
 
-   SpatialGaussian & operator=(const SpatialGaussian &);
+   RadialDisk & operator=(const RadialDisk &);
 
-   virtual ~SpatialGaussian();
+   virtual ~RadialDisk();
 
    double value(const astro::SkyDir &) const;
-   double value(double delta, double sigma) const;
+   double value(double delta, double radius) const;
 
    double spatialResponse(const astro::SkyDir &, double energy, const MeanPsf& psf) const;
    double spatialResponse(double delta, double energy, const MeanPsf& psf) const;
 
    virtual double diffuseResponse(const ResponseFunctor& fn, double energy,
-				  double dtheta) const;
+				  double separation) const;
 
    virtual double getDiffRespLimits(const astro::SkyDir &, 
 				    double & mumin, double & mumax,
 				    double & phimin, double & phimax) const;
 
-   virtual SpatialGaussian * clone() const {
-      return new SpatialGaussian(*this);
+   virtual RadialDisk * clone() const {
+      return new RadialDisk(*this);
    }
 
    virtual void update();
@@ -92,7 +92,6 @@ public:
 
      double operator()(double x) const;
 
-     static int s_ncall;
    private:
      const Likelihood::ResponseFunctor& m_fn;
      double m_energy;
@@ -109,9 +108,9 @@ protected:
 
 private:
 
-   double         m_sigma;
+   double         m_radius;
 };
 
 } // namespace Likelihood
 
-#endif // Likelihood_SpatialGaussian_h
+#endif // Likelihood_RadialDisk_h
