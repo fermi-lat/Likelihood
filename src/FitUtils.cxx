@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.7 2016/02/05 22:31:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.8 2016/02/23 21:11:50 echarles Exp $
  */
 
 
@@ -283,6 +283,10 @@ namespace Likelihood {
 	  outvect[i][j] = invect[idx];
 	}
       }
+    }
+
+    double symmetricError(double pos_err, double neg_err) {
+      return neg_err < 0 ? pos_err : (pos_err + neg_err) / 2.;
     }
 
     void sumModel(const CLHEP::HepVector& norms,

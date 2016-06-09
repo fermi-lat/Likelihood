@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.10 2016/02/05 22:31:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.11 2016/02/23 21:11:48 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -252,6 +252,7 @@ namespace Likelihood {
     CLHEP::HepSymMatrix m_hessian;
   };
 
+  
 
    /* A utility class to wrap either a BinnedLikelihood or a SummedLikelihood
       and provide a common interface to the two classes
@@ -263,10 +264,38 @@ namespace Likelihood {
     
     /* C'tor, trivial */
     FitScanModelWrapper()
-      :m_npix(0),m_nebins(0),m_size(0),m_fluxValues(){;}
+      :m_npix(0),m_nebins(0),m_size(0){;}
 
     /* D'tor, trivial */
     ~FitScanModelWrapper() {;}    
+
+    /* Fit the normalization using Newton's method
+
+       initNorms:     Initial values of the normalizations
+       prior:         If provided, a multivariate prior on the fit
+       tol:           Tolerance for estimating covergence.  Done when edm < tol
+       maxIter:       Maximum number of iterations before failing the fit
+       norms:         Filled with the fit results for the normalizations
+       covar:         Filled with the covariance matrix from the fit
+       gradient:      Filled with the gradient at the best fit point
+       model:         Filled with the best-fit model (must be allocated)
+       edm:           Filled with the estimated (veritcal) distance to minimum
+       logLikeVal:    Filled with the log likelihood at the best-fit point
+       firstBin:      First bin to use
+       lastBin:       Last bin to use ( 0 -> end )
+       verbose:       0 : none; 1 : start & converged; 2 : params;  3 : matrices
+    */
+    int fitNorms_newton(const std::string& test_name,
+			const FitScanMVPrior* prior,
+			double tol, int maxIter,
+			CLHEP::HepVector& norms,
+			CLHEP::HepSymMatrix& covar,
+			CLHEP::HepVector& gradient,
+			std::vector<float>& model,
+			double& edm,
+			double& logLikeVal,
+			size_t firstBin = 0, 
+			size_t lastBin = 0);
 
     /* return a reference to the counts data   
        for the BinnedLikelihood this point to the CountMap in the BinnedLikelihood object
@@ -294,6 +323,8 @@ namespace Likelihood {
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
 			       std::vector<float>& refPars) const = 0;
+
+   
 
     /* Get the likelihood value */
     virtual double value() const = 0;
@@ -350,9 +381,18 @@ namespace Likelihood {
     /* return the number of pixels*the number of energy bins */       
     inline size_t size() const { return m_size; }   
 
-    /* return the flux values at the energy bin edges */
-    inline const std::vector<double>& fluxValues() const { return m_fluxValues; }
+    /* return the reference energies (geometric mean of energy bins  */
+    inline const std::vector<double>& ref_energies() const { return m_ref_energies; }
 
+    /* return the differential fluxes for the test source model spectrum */
+    inline const std::vector<double>& ref_dfdes() const { return m_ref_dfdes; }
+
+    /* return the integral photon fluxes for the test source model spectrum */
+    inline const std::vector<double>& ref_fluxes() const { return  m_ref_fluxes; }
+
+    /* return the integral energy fluxes for the test source model spectrum */
+    inline const std::vector<double> ref_energy_fluxes() const { return m_ref_energy_fluxes; }
+  
     /* return the flux values at the energy bin edges */
     inline const std::vector<double>& nPreds() const { return m_nPreds; }
 
@@ -365,14 +405,29 @@ namespace Likelihood {
 
     int writeFits_FluxTable(const std::string& fitsFile) const;
 
+    /* set the TUNIT keyword */
+    void setUnitKeyword(tip::Header& header,
+			int icol,
+			const std::string& unitString) const;
+
   private:
     
     size_t m_npix;
     size_t m_nebins;
     size_t m_size; 
 
-    // fluxes for the test source model spectrum
-    std::vector<double> m_fluxValues;
+
+    // Reference energies (geometric mean of energy bins)
+    std::vector<double> m_ref_energies;    
+
+    // differential fluxes for the test source model spectrum
+    std::vector<double> m_ref_dfdes;
+
+    // integral photon fluxes for the test source model spectrum
+    std::vector<double> m_ref_fluxes;
+
+    // integral energy fluxes for the test source model spectrum
+    std::vector<double> m_ref_energy_fluxes;
 
     // nPreds for the test source model spectrum
     std::vector<double> m_nPreds;
@@ -864,6 +919,13 @@ namespace Likelihood {
 					int nPix, bool galactic=false);
     
 
+    typedef enum  { 
+      PRIMARY_HDU = 0x1,
+      FITS_IMAGE = 0x2,
+      FITDATA_TABLE = 0x4,
+      SCANDATA_TABLE = 0x8
+    } Out_Location;
+
   public:
     
     // C'tor from WCS grid of directions
@@ -1136,6 +1198,7 @@ namespace Likelihood {
 			  std::vector<double>& pos_errs,
 			  std::vector<double>& neg_errs,
 			  std::vector<double>& logLike_mles,
+			  std::vector<double>& uls,
 			  std::vector<int>& sed_fit_status,
 			  std::vector<std::vector<double> >& norms,
 			  std::vector<std::vector<double> >& logLikes);
@@ -1215,6 +1278,10 @@ namespace Likelihood {
 
     // These are the output data from the scanning
     std::vector< std::pair< std::string,std::pair<HistND*,std::string> > > m_scanData;
+
+    // These tell us where to write the outputs
+    std::map< std::string, unsigned int > m_outLocs;
+
     bool m_scanHasTSMap;
     // these are the parameters from the baseline fit
     CLHEP::HepVector m_baselinePars;

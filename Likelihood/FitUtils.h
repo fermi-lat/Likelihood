@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.4 2016/02/03 02:21:19 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitUtils.h,v 1.5 2016/02/05 22:31:12 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -197,6 +197,9 @@ namespace Likelihood {
 		       size_t n_i, size_t n_j,
 		       std::vector<std::vector<float> >& outvect);
 
+
+    /* Get the symetric error from the positive and negative errors */
+    double symmetricError(double pos_err, double neg_err);
     
     /* Sum the model components * normalization to get the total model counts per bin
        
