@@ -22,7 +22,7 @@ DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
 DATE-END = ''                   / End Date and Time of the observation (UTC)
 EQUINOX  =               2000.0 / Equinox of RA & DEC specifications
 CREATOR  = ''                   / Software and version creating file
-HISTORY                   $Id: TsCubeTemplate,v 1.1 2015/07/17 18:41:55 echarles Exp $ 
+HISTORY                   $Id: TsCubeTemplate,v 1.2 2016/02/03 02:21:20 echarles Exp $ 
 END
 
 ##################################################################################
@@ -50,13 +50,28 @@ NAXIS2   =                    0 / Number of rows
 PCOUNT   =                    0 / Normally 0 (no varying arrays)
 GCOUNT   =                    1 / Required value
 TFIELDS  =                    0 / Number of columns in table
-EXTNAME  =             BASELINE / Extension name
+EXTNAME  =              FITDATA / Extension name
 TELESCOP =                GLAST / Telescope or mission name
 INSTRUME =                  LAT / Instrument name
 FILTER   =                 NONE / Instrument filter in use (if any)
 HDUVERS  =                1.2.0 / Version number of the format
 HISTORY                   TsCubeTemplate,v 1.0 2012/05/10 cohen Exp 
 
+##################################################################################
+XTENSION =             BINTABLE / Binary table extension
+BITPIX   =                    8 / Bits per pixel
+NAXIS    =                    2 / Required value
+NAXIS1   =                    0 / Number of bytes per row
+NAXIS2   =                    0 / Number of rows
+PCOUNT   =                    0 / Normally 0 (no varying arrays)
+GCOUNT   =                    1 / Required value
+TFIELDS  =                    0 / Number of columns in table
+EXTNAME  =             BASELINE / Extension name
+TELESCOP =                GLAST / Telescope or mission name
+INSTRUME =                  LAT / Instrument name
+FILTER   =                 NONE / Instrument filter in use (if any)
+HDUVERS  =                1.2.0 / Version number of the format
+HISTORY                   TsCubeTemplate,v 1.0 2012/05/10 cohen Exp 
 
 
 ##################################################################################

@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.13 2016/02/06 00:40:51 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.14 2016/02/23 21:11:50 echarles Exp $
  */
 
 
@@ -242,15 +242,70 @@ namespace Likelihood {
     return 0;
   }
 
+  int FitScanModelWrapper::fitNorms_newton(const std::string& test_name,
+					   const FitScanMVPrior* prior,
+					   double tol, int maxIter,
+					   CLHEP::HepVector& norms,
+					   CLHEP::HepSymMatrix& covar,
+					   CLHEP::HepVector& gradient,
+					   std::vector<float>& model,
+					   double& edm,
+					   double& logLikeVal,
+					   size_t firstBin,
+					   size_t lastBin) {
+
+    std::vector<std::vector<float> > template_master;
+    std::vector<float> fixed_master;
+    std::vector<float> test_source_master;
+    std::vector<float> refPars_master;      
+    
+    extractModels(test_name,
+		  template_master,fixed_master,
+		  test_source_master,refPars_master);
+   
+    size_t nPar = template_master.size();
+    
+    std::vector<float> scales_in(nPar,1.);
+    std::vector<bool> freePars(nPar,true);
+    std::vector<const std::vector<float>* > templates;
+    std::vector<float> fixed;
+    std::vector<float> scales;
+    
+    FitUtils::refactorModels(template_master,fixed_master,scales_in,freePars,
+			     &test_source_master,templates,fixed,scales);
+  
+    CLHEP::HepVector initNorms;
+    covar = CLHEP::HepSymMatrix(scales.size());      
+    FitUtils::Vector_Stl_to_Hep(scales,initNorms);
+    FitUtils::Vector_Stl_to_Hep(scales,norms);
+    model.resize(fixed.size());
+
+    int retVal = FitUtils::fitNorms_newton(data(),
+					   initNorms,templates,fixed,prior,
+					   tol,maxIter,norms,covar,gradient,
+					   model,edm,logLikeVal,
+					   firstBin,lastBin);
+    return retVal;
+  }
 
   void FitScanModelWrapper::cacheFluxValues(Source& aSrc) {
-    m_nPreds.clear();
-    FitUtils::extractSpectralVals(aSrc,energies(),m_fluxValues);    
+    
+    m_ref_energies.resize(m_nebins);
+    m_ref_dfdes.resize(m_nebins);
+    m_ref_fluxes.resize(m_nebins);
+    m_ref_energy_fluxes.resize(m_nebins);
+    m_nPreds.resize(m_nebins);
+
     aSrc.computeExposure(energies());
-    for ( size_t i(0); i < m_nebins; i++ ) {
-      double np = aSrc.Npred(energies()[i],energies()[i+1]);
-      m_nPreds.push_back(np);
+    for ( size_t iE(0); iE < m_nebins; iE++ ) {
+      double emin = energies()[iE];
+      double emax = energies()[iE+1];
+      m_ref_energies[iE] = sqrt(emin*emax);
+      m_ref_fluxes[iE] = aSrc.flux(emin,emax);
+      m_ref_energy_fluxes[iE] = aSrc.energyFlux(emin,emax);
+      m_nPreds[iE] = aSrc.Npred(emin,emax);
     }
+    FitUtils::extractSpectralVals(aSrc,m_ref_energies,m_ref_dfdes);    
   }
   
   int FitScanModelWrapper::writeFits_EnergyBins(const std::string& fitsFile) const {
@@ -281,30 +336,54 @@ namespace Likelihood {
 
     std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
 
-    static const std::string fl_min_name("E_MIN_FL");
-    static const std::string fl_max_name("E_MAX_FL");
-    static const std::string npred_name("NPRED");
+    static const std::string ref_energy_name("E_REF");
+    static const std::string ref_dfde_name("REF_DFDE");
+    static const std::string ref_flux_name("REF_FLUX");
+    static const std::string ref_eflux_name("REF_EFLUX");
+    static const std::string ref_npred_name("REF_NPRED");
 
-    output_table->appendField(fl_min_name,"D");
-    output_table->appendField(fl_max_name,"D");
-    output_table->appendField(npred_name,"D");
+    output_table->appendField(ref_energy_name,"D");
+    output_table->appendField(ref_dfde_name,"D");
+    output_table->appendField(ref_flux_name,"D");
+    output_table->appendField(ref_eflux_name,"D");
+    output_table->appendField(ref_npred_name,"D");
     
-    tip::FieldIndex_t idx_f_min = output_table->getFieldIndex(fl_min_name);
-    tip::FieldIndex_t idx_f_max = output_table->getFieldIndex(fl_max_name);
-    tip::FieldIndex_t idx_npred = output_table->getFieldIndex(npred_name);
+    tip::FieldIndex_t idx_ref_energy = output_table->getFieldIndex(ref_energy_name);
+    tip::FieldIndex_t idx_ref_dfde  = output_table->getFieldIndex(ref_dfde_name);
+    tip::FieldIndex_t idx_ref_flux = output_table->getFieldIndex(ref_flux_name);
+    tip::FieldIndex_t idx_ref_eflux  = output_table->getFieldIndex(ref_eflux_name);
+    tip::FieldIndex_t idx_ref_npred = output_table->getFieldIndex(ref_npred_name);
     
-    tip::IColumn* cl_f_min = output_table->getColumn(idx_f_min);
-    tip::IColumn* cl_f_max = output_table->getColumn(idx_f_max);
-    tip::IColumn* cl_npred = output_table->getColumn(idx_npred);
+    setUnitKeyword(output_table->getHeader(),idx_ref_energy,"keV");
+    setUnitKeyword(output_table->getHeader(),idx_ref_dfde,"ph / (MeV cm2 s)");
+    setUnitKeyword(output_table->getHeader(),idx_ref_flux,"ph / (cm2 s)");
+    setUnitKeyword(output_table->getHeader(),idx_ref_eflux,"MeV / (cm2 s)");
+    setUnitKeyword(output_table->getHeader(),idx_ref_npred,"ph");    
+
+    tip::IColumn* cl_ref_energy = output_table->getColumn(idx_ref_energy);
+    tip::IColumn* cl_ref_dfde = output_table->getColumn(idx_ref_dfde);
+    tip::IColumn* cl_ref_flux = output_table->getColumn(idx_ref_flux);
+    tip::IColumn* cl_ref_eflux = output_table->getColumn(idx_ref_eflux);
+    tip::IColumn* cl_ref_npred = output_table->getColumn(idx_ref_npred);
 
     for (long index = 0; index < m_nebins; ++index) {
-      cl_f_min->set(index,m_fluxValues[index]);
-      cl_f_max->set(index,m_fluxValues[index+1]);
-      cl_npred->set(index,m_nPreds[index]);
+      cl_ref_energy->set(index,m_ref_energies[index]);
+      cl_ref_dfde->set(index,m_ref_dfdes[index]);
+      cl_ref_flux->set(index,m_ref_fluxes[index]);
+      cl_ref_eflux->set(index,m_ref_energy_fluxes[index]);
+      cl_ref_npred->set(index,m_nPreds[index]);
     }
     return 0;
   }
 
+  /* set the TUNIT keyword */
+  void FitScanModelWrapper::setUnitKeyword(tip::Header& header,
+					   int icol,
+					   const std::string& unitString) const {    
+    char buf[255];
+    sprintf(buf,"TDIM%i",icol+1);
+    header.setKeyword(buf,unitString);
+  }
 
   FitScanModelWrapper_Binned::FitScanModelWrapper_Binned(BinnedLikelihood& binnedLike)
     :FitScanModelWrapper(),
@@ -977,9 +1056,12 @@ namespace Likelihood {
     } 
     
     // Get the scan range and the scan step
+    static const double scan_min_def(1.0e-10);
+    static const double scan_max_def(2.5e-04);
+
     double norm_mle = m_currentPars[m_currentTestSourceIndex];
-    double scan_val = std::max(1.0e-10,norm_mle - (normSigma*negErr));
-    double scan_max = std::max(2.5e-04,norm_mle + (normSigma*posErr));
+    double scan_val = negErr < 0 ? scan_min_def : std::max(scan_min_def,norm_mle - (normSigma*negErr));
+    double scan_max = posErr < 0 ? scan_max_def : std::max(scan_max_def,norm_mle + (normSigma*posErr));
     double lin_step = (scan_max - scan_val) / float(nnorm-1);
 
     // Resize the output vectors
@@ -1064,8 +1146,8 @@ namespace Likelihood {
 					   double& negErr) {
     // If there is no current test source we can't return its errors
     if ( m_currentTestSourceIndex < 0 ) {
-      posErr = 0.;
-      negErr = 0.;
+      posErr = -1.;
+      negErr = -1.;
       return -1;
     } 
     
@@ -1082,15 +1164,16 @@ namespace Likelihood {
     det += 4.*a_val*deltaLogLike;
     
     if ( det < 0 ) {
-      posErr = 0.;
-      negErr = 0.;      
+      posErr = -1.;
+      negErr = -1.;      
       return -2;
     }
     
     double sqrt_det = std::sqrt(det);    
     posErr = (-b_val + sqrt_det)/(2.*a_val);
     // Don't let the negative error be greater than the current value....
-    negErr = std::min((+b_val + sqrt_det)/(2.*a_val),m_currentPars[m_currentTestSourceIndex]);
+    negErr = (+b_val + sqrt_det)/(2.*a_val);
+    negErr = negErr > m_currentPars[m_currentTestSourceIndex] ? -1: negErr;
     return 0;
   }
 
@@ -1447,27 +1530,49 @@ namespace Likelihood {
     // ScienceTools minimizer
     int nNorm_st = normscan_st ? nNorm : 0;
 
-    // These are the names of the various histograms we store
-    
+    // These are the names and locations of the various histograms we store
+    m_outLocs.clear();
+
     // 2D (or HEALPix) histograms (MAPS)
-    static const std::string tsmap_name("TSMAP");
-    static const std::string tsmap_ok_name("TSMAP_OK");    
-    static const std::string norm_map_name("N_MAP");
-    static const std::string posErr_map_name("ERRP_MAP");
-    static const std::string negErr_map_name("ERRN_MAP");
+    static const std::string tsmap_name("FIT_TS");
+    static const std::string tsmap_ok_name("FIT_STATUS");    
+    static const std::string norm_map_name("FIT_NORM");
+    static const std::string symErr_map_name("FIT_NORM_ERR");
+    static const std::string posErr_map_name("FIT_NORM_ERRP");
+    static const std::string negErr_map_name("FIT_NORM_ERRN");
+
+    m_outLocs[tsmap_name] = PRIMARY_HDU | FITDATA_TABLE;
+    m_outLocs[tsmap_ok_name] = FITDATA_TABLE;
+    m_outLocs[norm_map_name] = FITDATA_TABLE;
+    m_outLocs[symErr_map_name] = FITDATA_TABLE;
+    m_outLocs[posErr_map_name] = FITDATA_TABLE;
+    m_outLocs[negErr_map_name] = FITDATA_TABLE;
 
     // 3D (or HEALPix,energy) histograms (CUBES)    
-    static const std::string tscube_name("TSCUBE");
-    static const std::string tscube_ok_name("TSCUBE_OK");
-    static const std::string norm_cube_name("N_CUBE");
-    static const std::string posErr_cube_name("ERRPCUBE");
-    static const std::string negErr_cube_name("ERRNCUBE");
-    static const std::string nll_cube_name("NLL_CUBE");
+    static const std::string tscube_name("TS");
+    static const std::string tscube_ok_name("BIN_STATUS");
+    static const std::string norm_cube_name("NORM");
+    static const std::string norm_ul_cube_name("NORM_UL");
+    static const std::string symErr_cube_name("NORM_ERR");
+    static const std::string posErr_cube_name("NORM_ERRP");
+    static const std::string negErr_cube_name("NORM_ERRN");
+    static const std::string nll_cube_name("LOGLIKE");
+
+    m_outLocs[tscube_name] = SCANDATA_TABLE;
+    m_outLocs[tscube_ok_name] = SCANDATA_TABLE;
+    m_outLocs[norm_cube_name] = SCANDATA_TABLE;
+    m_outLocs[norm_ul_cube_name] = SCANDATA_TABLE;
+    m_outLocs[symErr_cube_name] = SCANDATA_TABLE;
+    m_outLocs[posErr_cube_name] = SCANDATA_TABLE;
+    m_outLocs[negErr_cube_name] = SCANDATA_TABLE;  
+    m_outLocs[nll_cube_name] = SCANDATA_TABLE;  
 
     // 4D (or HEALPIX,energy,normalization) histograms (SCANS)
-    static const std::string norm_name("NORMSCAN");
-    static const std::string delta_ll_name("NLL_SCAN");
-    
+    static const std::string norm_name("NORM_SCAN");
+    static const std::string delta_ll_name("DLOGLIKE_SCAN");
+        
+    m_outLocs[norm_name] = SCANDATA_TABLE;
+    m_outLocs[delta_ll_name] = SCANDATA_TABLE;  
 
     // Build the varius histograms
     // Note that buildHist can return a null pointer
@@ -1481,10 +1586,14 @@ namespace Likelihood {
     HistND* norm_map = doTSMap ? buildHist(norm_map_name,true,false,false) : 0;
     HistND* posErr_map = doTSMap ? buildHist(posErr_map_name,true,false,false) : 0;
     HistND* negErr_map = doTSMap ? buildHist(negErr_map_name,true,false,false) : 0;
+    HistND* symErr_map = doTSMap ? buildHist(symErr_map_name,true,false,false) : 0;
 
     HistND* ts_cube = doSED ? buildHist(tscube_name,doTSMap,true,false) : 0;
     HistND* ts_cube_ok = doSED ? buildHist(tscube_ok_name,doTSMap,true,false) : 0;
     HistND* norm_cube = doSED ? buildHist(norm_cube_name,doTSMap,true,false) : 0;
+    HistND* norm_ul_cube = doSED ? buildHist(norm_ul_cube_name,doTSMap,true,false) : 0;
+
+    HistND* symErr_cube = doSED ? buildHist(symErr_cube_name,doTSMap,true,false) : 0;
     HistND* posErr_cube = doSED ? buildHist(posErr_cube_name,doTSMap,true,false) : 0;
     HistND* negErr_cube = doSED ? buildHist(negErr_cube_name,doTSMap,true,false) : 0;
     HistND* nll_cube = doSED ? buildHist(nll_cube_name,doTSMap,true,false) : 0;
@@ -1606,13 +1715,15 @@ namespace Likelihood {
 	double normVal = m_cache->currentPars()[m_cache->testSourceIndex()];
 	double posErr(0.);
 	double negErr(0.);
-
+	
 	m_cache->signalUncertainty_quad(0.5,posErr,negErr);
+	double symErr = FitUtils::symmetricError(posErr,negErr);
 
 	if ( ts_map ) ts_map->setBinDirect(ipix,tsval_newton);
 	if ( norm_map ) norm_map->setBinDirect(ipix,normVal);
 	if ( posErr_map ) posErr_map->setBinDirect(ipix,posErr);
 	if ( negErr_map ) negErr_map->setBinDirect(ipix,negErr);
+	if ( symErr_map ) symErr_map->setBinDirect(ipix,symErr);
 
 	// if we are not doing the SED, we can move the next grid location
 	if ( ! doSED ) continue;
@@ -1622,6 +1733,7 @@ namespace Likelihood {
 	std::vector<double> pos_errs;
 	std::vector<double> neg_errs;
 	std::vector<double> logLike_mles; 
+	std::vector<double> uls;
 	std::vector<int> sed_fit_status;
 	std::vector<std::vector<double> > logLikes;
 	std::vector<std::vector<double> > norms;
@@ -1646,7 +1758,7 @@ namespace Likelihood {
 
 	status = sed_binned_newton(nNorm,normSigma,covScale,
 				   norm_mles,pos_errs,neg_errs,
-				   logLike_mles,
+				   logLike_mles,uls,
 				   sed_fit_status,
 				   norms,logLikes);
 	if ( status != 0 ) {
@@ -1664,16 +1776,20 @@ namespace Likelihood {
 	// This is the pixel index
 	int idx_sed = ipix;
 	// This is the stride from one normalization set to the next
-	int step_norm = npix * nEBins();
+	int step_norm = npix;
+	// int step_norm = npix * nEBins();
 	// Loop on energy bins
 	for ( int iE(0); iE < nEBins(); iE++, idx_sed += npix ) {
 	  // Fill the histograms that use pixel and energy bin
 	  double ts_val_bin = 2.*(logLike_mles[iE] - logLikes[iE][0]);
+	  double sym_err = FitUtils::symmetricError(pos_errs[iE],neg_errs[iE]);
 	  if ( ts_cube ) ts_cube->setBinDirect(idx_sed,ts_val_bin);
 	  if ( ts_cube_ok ) ts_cube_ok->setBinDirect(idx_sed,sed_fit_status[iE]);
 	  if ( norm_cube ) norm_cube->setBinDirect(idx_sed,norm_mles[iE]);
+	  if ( symErr_cube ) symErr_cube->setBinDirect(idx_sed,sym_err);
 	  if ( posErr_cube ) posErr_cube->setBinDirect(idx_sed,pos_errs[iE]);
 	  if ( negErr_cube ) negErr_cube->setBinDirect(idx_sed,neg_errs[iE]);
+	  if ( norm_ul_cube ) norm_ul_cube->setBinDirect(idx_sed,uls[iE]);
 	  if ( nll_cube ) nll_cube->setBinDirect(idx_sed,logLike_mles[iE]);
 	  if ( sed_st ) {
 	    double ts_val_bin_st = 2.*(logLike_mles_st[iE] - logLikes_st[iE][0]);
@@ -1682,7 +1798,8 @@ namespace Likelihood {
 	    if ( nll_cube_st ) nll_cube_st->setBinDirect(idx_sed,logLike_mles_st[iE]);
 	  }
 	  // This is the index for the pixel,energy bin
-	  int idx_norm = idx_sed;
+	  int idx_norm = iE*(npix*nNorm) + ipix;
+	  // int idx_norm = idx_sed;
 	  // Loop on normalization scan points
   	  for ( int iN(0); iN < nNorm; iN++, idx_norm += step_norm ) {
 	    // Fill the histograms that use pixel, energy bin and normalization
@@ -1745,11 +1862,10 @@ namespace Likelihood {
     // Is this a WCS-based or HEALPix based scan
     bool image_based = m_dir2_binner != 0;
 
-    // Names of the columns we will write to the results table
-    std::vector<std::pair<std::string,std::pair<HistND*,std::string> > > colData;
-
-    static const std::string TSMAP_NAME("TSMAP");
-
+    // Names & data of the columns we will write to the SCANDATA and FITDATA tables
+    std::vector<std::pair<std::string,std::pair<HistND*,std::string> > > scanColData;
+    std::vector<std::pair<std::string,std::pair<HistND*,std::string> > > fitColData;
+    
     // Loop over the histogams and pull out the ones that 
     // can be represented as images
     // I.e., WCS-based maps or cubes
@@ -1757,29 +1873,41 @@ namespace Likelihood {
     // to save in the results table
     for ( std::vector< std::pair< std::string,std::pair<HistND*,std::string> > >::const_iterator itrHists = m_scanData.begin();
 	  itrHists != m_scanData.end(); itrHists++ ) {
-      if ( image_based ) {
-	if ( itrHists->first == TSMAP_NAME ) {
-	  // Write the TSMAP to the primary
-	  status = writeFitsImage(fitsFile,"",*(itrHists->second.first));
-	} else {
-	  if ( itrHists->second.second.find("NORM") == std::string::npos &&
-	       m_scanHasTSMap ) {
-	    status = writeFitsImage(fitsFile,itrHists->first,*(itrHists->second.first));
-	  } else {
-	    colData.push_back(*itrHists);
-	  }
-	}
-	if ( status ) {
-	  throw std::runtime_error("Failed to write fits image");
-	  return status;
-	}
-      } else {
-	colData.push_back(*itrHists);
+      std::map< std::string, unsigned int >::const_iterator find_loc = m_outLocs.find(itrHists->first);
+      if ( find_loc == m_outLocs.end() ) {
+	throw std::runtime_error("No location specificed for histogram");	
       }
+      if ( (find_loc->second & PRIMARY_HDU) != 0 ) {
+	if ( image_based ) { 
+	  status |= writeFitsImage(fitsFile,"",*(itrHists->second.first));
+	} 	  
+      }
+      if ( (find_loc->second & FITS_IMAGE) != 0 ) {
+	if ( image_based ) { 
+	  status |= writeFitsImage(fitsFile,itrHists->first,*(itrHists->second.first));
+	} 	  
+      }
+      if ( (find_loc->second & FITDATA_TABLE) != 0 ) {
+	fitColData.push_back(*itrHists);
+      }
+      if ( (find_loc->second & SCANDATA_TABLE) != 0 ) {
+	scanColData.push_back(*itrHists);
+      }
+      if ( status ) {
+	throw std::runtime_error("Failed to write fits image");
+	return status;
+      }
+    }
+
+    // Ok, now save the remaining histograms to a single table
+    status = writeFitsTable_byPixel(fitsFile,"FITDATA",fitColData);
+    if ( status ) {
+      throw std::runtime_error("Failed to write fits table for fit data");
+      return status;
     }
 	      
     // Ok, now save the remaining histograms to a single table
-    status = writeFitsTable_byPixel(fitsFile,"SCANDATA",colData);
+    status = writeFitsTable_byPixel(fitsFile,"SCANDATA",scanColData);
     if ( status ) {
       throw std::runtime_error("Failed to write fits table for scan data");
       return status;
@@ -2108,6 +2236,7 @@ namespace Likelihood {
 				    std::vector<double>& pos_errs,
 				    std::vector<double>& neg_errs,
 				    std::vector<double>& logLike_mles,
+				    std::vector<double>& uls,
 				    std::vector<int>& sed_fit_status,
 				    std::vector<std::vector<double> >& norms,
 				    std::vector<std::vector<double> >& logLikes) {
@@ -2147,6 +2276,7 @@ namespace Likelihood {
     neg_errs.resize(m_cache->nebins());
     norms.resize(m_cache->nebins());    
     logLikes.resize(m_cache->nebins());
+    uls.resize(m_cache->nebins());
     sed_fit_status.resize(m_cache->nebins());
 
     // This is to keep track of failed fits.
@@ -2168,8 +2298,9 @@ namespace Likelihood {
 	nfailed++;
 	logLike_mles[i] = 0.;
 	norm_mles[i] = -1.;
-	pos_errs[i] = 0.;
-	neg_errs[i] = 0.;
+	pos_errs[i] = -1;
+	neg_errs[i] = -1;
+	uls[i] = -1;
 	norms[i].resize(nnorm,0.);
 	logLikes[i].resize(nnorm,0.);
 	continue;
@@ -2180,8 +2311,10 @@ namespace Likelihood {
       m_cache->signalUncertainty_quad(0.5,pos_errs[i],neg_errs[i]);
       double negLim(0.);
       double posLim(0.);
-      
-      m_cache->signalUncertainty_quad(errorLevel,posLim,negLim);
+      // estimate the upper limit
+      m_cache->signalUncertainty_quad(1.36,uls[i],negLim);
+      // now estimate the scan range
+      m_cache->signalUncertainty_quad(errorLevel,posLim,negLim); 
       m_cache->scanNormalization(nnorm,1.0,posLim,negLim,norms[i],logLikes[i]);
       if ( false ) {
 	std::cout << "Done scan " << i << ' ' << norm_mles[i] 
@@ -2485,22 +2618,25 @@ namespace Likelihood {
     facilities::Util::stringTokenize(inString,delims,tokens);
     outString = "(";
     int nd(0);
-    for ( std::vector<std::string>::const_iterator itr = tokens.begin();
-	  itr != tokens.end(); itr++ ) {
+     for ( std::vector<std::string>::const_reverse_iterator itr = tokens.rbegin();
+	  itr != tokens.rend(); itr++ ) {
       char buffer[255];
       if ( do_pix && *itr == "PIX" ) {
-	sprintf(buffer,"%i,",nPixels());
+	if ( nd > 0 ) outString += ',';
+	sprintf(buffer,"%i",nPixels());
 	outString += buffer;
 	nd++;
       } else if ( do_energy && *itr == "ENERGY" ) {
-	sprintf(buffer,"%i,",nEBins());
+	if ( nd > 0 ) outString += ',';
+	sprintf(buffer,"%i",nEBins());
 	outString += buffer;
 	nd++;
       } else if ( do_norm && *itr == "NORM" ) {
-	sprintf(buffer,"%i,",nNorms());
+	if ( nd > 0 ) outString += ',';
+	sprintf(buffer,"%i",nNorms());
 	outString += buffer;
 	nd++;
-      }
+      }      
     }
     outString += ")";
     return nd > 1;
@@ -2514,7 +2650,7 @@ namespace Likelihood {
     sprintf(buf,"TDIM%i",icol+1);
     header.setKeyword(buf,dimString);
   }
-
+  
   
   void FitScanner::deleteTestModelCaches() {
     for ( std::vector<TestSourceModelCache*>::iterator itrDel = m_testSourceCaches.begin();
