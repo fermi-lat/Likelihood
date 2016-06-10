@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.8 2016/02/23 21:11:50 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.9 2016/06/09 01:56:53 echarles Exp $
  */
 
 
@@ -901,14 +901,10 @@ namespace Likelihood {
 	// To make it faster to turn it on and off
 	bool isTest = (*itr) == test_name;
 
-	// Get the spectral values at the energy bin edges
-	std::vector<double> specVals;
-	Source* aSrc = logLike.getSource(*itr);
-	extractSpectralVals(*aSrc,energies,specVals);
-
 	// We are actually fitting a scale factor w.r.t. the baseline fit
 	// so we want to latch the normalization parameter values
 	// from the baseline fit
+	Source* aSrc = logLike.getSource(*itr);
 	double refValue = aSrc->spectrum().normPar().getValue();
 
 	// Here we extract the model counts
@@ -917,12 +913,10 @@ namespace Likelihood {
 	// source maps for all the fixed sources
 	std::vector<float> modelCounts(nbins, 0.);
 	if ( ! aSrc->spectrum().normPar().isFree() ) {
-	  const SourceMap* srcMap_ptr = logLike.getSourceMap(*itr);
-	  extractModelCounts(*srcMap_ptr,energies,specVals,modelCounts);
-	  delete srcMap_ptr;
+	  logLike.computeModelMap(*itr,modelCounts);
+	  logLike.eraseSourceMap(*itr);
 	} else {
-	  const SourceMap& srcMap = logLike.sourceMap(*itr);
-	  extractModelCounts(srcMap,energies,specVals,modelCounts);
+	  logLike.computeModelMap(*itr,modelCounts);
 	}
 
 	// Here we cache the model
