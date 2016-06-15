@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.117 2016/04/01 01:35:08 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.118 2016/04/16 00:50:25 echarles Exp $
  */
 
 #include <cmath>
@@ -994,8 +994,12 @@ void SourceMap::createOffsetMap(Source * src, const CountsMap * dataMap) {
       pixel_size*std::sqrt(std::pow(src_coords.first-(iy+1),2) +  
 			   std::pow(src_coords.second-(ix+1),2));
     double ang_sep = dir.difference(pixel->dir())*180./M_PI;
-    m_pixelOffset[ix][iy] = ang_sep/pix_sep-1.0;
 
+    if(pix_sep > 1E-6) {
+      m_pixelOffset[ix][iy] = ang_sep/pix_sep-1.0;
+    } else {
+      m_pixelOffset[ix][iy] = 0.0;
+    }
   }
 }
 
