@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.118 2016/04/16 00:50:25 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.119 2016/06/15 17:23:48 mdwood Exp $
  */
 
 #include <cmath>
@@ -1091,13 +1091,20 @@ void SourceMap::computeNpredArray(bool isWeight) {
    }
    
 
-   size_t ne = isWeight ? energies.size() -1 : energies.size(); 
+   // If we are making the __weights__ source map,
+   // the output npreds is one less than the input map size
+   // since we have the energies at the bin edges, but we need the
+   // weights integrated over the bins
+   size_t ne = isWeight ? energies.size() -1 : energies.size();
+   // The number of weights is always number of energy bins
+   size_t nw = energies.size() -1 ;
    m_npreds.clear();
    m_npreds.resize(ne);
    m_npred_weights.clear();
-   m_npred_weights.resize(ne-1, std::make_pair<double,double>(0.,0.));
+   m_npred_weights.resize(nw, std::make_pair<double,double>(0.,0.));
 
    for (size_t k(0); k < ne; k++) {
+
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
       double w_0_sum(0.);
       double w_1_sum(0.);
@@ -1116,7 +1123,7 @@ void SourceMap::computeNpredArray(bool isWeight) {
       double w_0 = m_weights != 0 ? (m_npreds[k] > 0 ? w_0_sum / m_npreds[k] : 0.) : 1.0;
       double w_1 = m_weights != 0 ? (m_npreds[k] > 0 ? w_1_sum / m_npreds[k] : 0.) : 1.0;
 
-      if ( k < energies.size()-1 ) {
+      if ( k < nw ) {
 	m_npred_weights[k].first = w_0;
       }
       if ( k > 0 ) {
