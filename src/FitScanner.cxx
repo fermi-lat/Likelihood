@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.14 2016/02/23 21:11:50 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.15 2016/06/09 01:56:53 echarles Exp $
  */
 
 
@@ -242,51 +242,6 @@ namespace Likelihood {
     return 0;
   }
 
-  int FitScanModelWrapper::fitNorms_newton(const std::string& test_name,
-					   const FitScanMVPrior* prior,
-					   double tol, int maxIter,
-					   CLHEP::HepVector& norms,
-					   CLHEP::HepSymMatrix& covar,
-					   CLHEP::HepVector& gradient,
-					   std::vector<float>& model,
-					   double& edm,
-					   double& logLikeVal,
-					   size_t firstBin,
-					   size_t lastBin) {
-
-    std::vector<std::vector<float> > template_master;
-    std::vector<float> fixed_master;
-    std::vector<float> test_source_master;
-    std::vector<float> refPars_master;      
-    
-    extractModels(test_name,
-		  template_master,fixed_master,
-		  test_source_master,refPars_master);
-   
-    size_t nPar = template_master.size();
-    
-    std::vector<float> scales_in(nPar,1.);
-    std::vector<bool> freePars(nPar,true);
-    std::vector<const std::vector<float>* > templates;
-    std::vector<float> fixed;
-    std::vector<float> scales;
-    
-    FitUtils::refactorModels(template_master,fixed_master,scales_in,freePars,
-			     &test_source_master,templates,fixed,scales);
-  
-    CLHEP::HepVector initNorms;
-    covar = CLHEP::HepSymMatrix(scales.size());      
-    FitUtils::Vector_Stl_to_Hep(scales,initNorms);
-    FitUtils::Vector_Stl_to_Hep(scales,norms);
-    model.resize(fixed.size());
-
-    int retVal = FitUtils::fitNorms_newton(data(),
-					   initNorms,templates,fixed,prior,
-					   tol,maxIter,norms,covar,gradient,
-					   model,edm,logLikeVal,
-					   firstBin,lastBin);
-    return retVal;
-  }
 
   void FitScanModelWrapper::cacheFluxValues(Source& aSrc) {
     
@@ -754,7 +709,8 @@ namespace Likelihood {
      m_currentTestSourceIndex(-1),
      m_currentLogLike(0.),
      m_currentEDM(0.),
-     m_currentEnergyBin(-1),
+     m_firstEnergyBin(0.),
+     m_lastEnergyBin(m_nebins),
      m_firstBin(0),
      m_lastBin(0){
     // Extract the reference values for everything
@@ -849,24 +805,28 @@ namespace Likelihood {
   }
   
   void FitScanCache::setEnergyBin(int energyBin) {
+    if ( energyBin < 0 ) { setEnergyBins(0,nebins()) ; }
+    else { setEnergyBins(energyBin,energyBin+1); }
+  }
+
+  void FitScanCache::setEnergyBins(size_t firstEnergyBin, size_t lastEnergyBin) {
     // set the start and stop indices for the current energy bin
-    m_currentEnergyBin = energyBin;
-    if ( energyBin < 0 ) {
-      // Do all bins.  Setting m_lastBin = 0 will do this
-      m_firstBin = 0;
-      m_lastBin = 0;
+    m_firstEnergyBin = firstEnergyBin;
+    m_lastEnergyBin = lastEnergyBin;
+    // Loop from m_npix*energyBin to m_npix*(energyBin+1)
+    if ( m_useReduced ) {
+      m_firstBin = firstEnergyBin == 0 ? 0 : m_energyBinStopIdxs[m_firstEnergyBin-1];
+      m_lastBin = m_energyBinStopIdxs[m_lastEnergyBin-1];
     } else {
-      // Loop from m_npix*energyBin to m_npix*(energyBin+1)
-      if ( m_useReduced ) {
-	m_firstBin = energyBin == 0 ? 0 : m_energyBinStopIdxs[energyBin-1];
-	m_lastBin = m_energyBinStopIdxs[energyBin];
-      } else {
-	m_firstBin = m_npix*energyBin;
-	m_lastBin = m_firstBin+m_npix;
-      }
+      m_firstBin = m_npix*m_firstEnergyBin;
+      m_lastBin = m_npix*m_lastEnergyBin;
     }
   }
   
+
+
+
+
   void FitScanCache::setTestSource(Source& aSrc) {
     // First remove the current version of the source
     removeTestSourceFromCurrent();

@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.11 2016/02/23 21:11:48 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.12 2016/06/09 01:56:52 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -268,34 +268,6 @@ namespace Likelihood {
 
     /* D'tor, trivial */
     ~FitScanModelWrapper() {;}    
-
-    /* Fit the normalization using Newton's method
-
-       initNorms:     Initial values of the normalizations
-       prior:         If provided, a multivariate prior on the fit
-       tol:           Tolerance for estimating covergence.  Done when edm < tol
-       maxIter:       Maximum number of iterations before failing the fit
-       norms:         Filled with the fit results for the normalizations
-       covar:         Filled with the covariance matrix from the fit
-       gradient:      Filled with the gradient at the best fit point
-       model:         Filled with the best-fit model (must be allocated)
-       edm:           Filled with the estimated (veritcal) distance to minimum
-       logLikeVal:    Filled with the log likelihood at the best-fit point
-       firstBin:      First bin to use
-       lastBin:       Last bin to use ( 0 -> end )
-       verbose:       0 : none; 1 : start & converged; 2 : params;  3 : matrices
-    */
-    int fitNorms_newton(const std::string& test_name,
-			const FitScanMVPrior* prior,
-			double tol, int maxIter,
-			CLHEP::HepVector& norms,
-			CLHEP::HepSymMatrix& covar,
-			CLHEP::HepVector& gradient,
-			std::vector<float>& model,
-			double& edm,
-			double& logLikeVal,
-			size_t firstBin = 0, 
-			size_t lastBin = 0);
 
     /* return a reference to the counts data   
        for the BinnedLikelihood this point to the CountMap in the BinnedLikelihood object
@@ -692,6 +664,9 @@ namespace Likelihood {
     
     /* Set the cache to only do the fit over a single energy bin */ 
     void setEnergyBin(int energyBin);
+
+    /* Set the cache to only do the fit over a range of energy bins */ 
+    void setEnergyBins(size_t firstEnergyBin, size_t lastEnergyBin);
     
     /* Update the model of the test source.
        This version recomputes the SourceMap and somewhat more expensive (and accurate)
@@ -779,7 +754,8 @@ namespace Likelihood {
     inline const std::vector<float>& currentModel() const { return m_currentBestModel; }
     inline const double& currentLogLike() const { return m_currentLogLike; }
     inline const double& currentEDM() const { return m_currentEDM; }    
-    inline int currentEnergyBin() const { return m_currentEnergyBin; }
+    inline int firstEnergyBin() const { return m_firstEnergyBin; }
+    inline int lastEnergyBin() const { return m_lastEnergyBin; }
 
     // parts of the models
     inline const std::vector<float>& refValues() const { return m_refValues; }
@@ -886,7 +862,8 @@ namespace Likelihood {
 
     // this is the energy bin for the current fit
     // -1 means fit all ranges
-    int m_currentEnergyBin;
+    size_t m_firstEnergyBin;
+    size_t m_lastEnergyBin;
 
     // this are the overall bin ranges for the current fit
     size_t m_firstBin;
