@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.9 2016/06/09 01:56:53 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.10 2016/06/10 19:41:53 mdwood Exp $
  */
 
 
@@ -1016,7 +1016,7 @@ namespace Likelihood {
 	// and latch the index in the reduced vector
         if ( (i+1) % npix == 0 ) {
 	  dataRed.push_back(0.);
-	  nonZeroBins.push_back(-1*i);
+	  nonZeroBins.push_back(-1*(i+1));
 	  energyBinStopIdxs.push_back( dataRed.size() );
 	}
       }     
@@ -1058,8 +1058,8 @@ namespace Likelihood {
 	} else {
 	  // This is the next non-zero bin, push it back on the model
 	  modelRed.push_back(model[i]);
+	  i++;
 	}
-	i++;	
       }
       // This is just for debugging
       if ( false ) {
