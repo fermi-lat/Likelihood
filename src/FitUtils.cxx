@@ -3,11 +3,13 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.10 2016/06/10 19:41:53 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.11 2016/06/21 20:32:24 echarles Exp $
  */
 
 
 #include "Likelihood/FitUtils.h"
+
+#include <cmath>
 
 #include <stdexcept>
 
@@ -54,6 +56,20 @@ namespace Likelihood {
       for ( size_t i(0); i < stl.size(); i++ ) {
 	hep[i] = stl[i];
       }
+    }
+
+    void Matrix_Stl_to_Hep(const std::vector<float>& stl,
+			   CLHEP::HepSymMatrix& hep) {
+      size_t nrow = ::round(std::sqrt(double(stl.size())));
+      if(nrow*nrow < stl.size()) nrow += 1;
+      hep = CLHEP::HepSymMatrix(nrow);
+      size_t idx(0);
+      for ( size_t i(0); i < hep.num_row(); i++ ) {
+	for ( size_t j(0); j < hep.num_col(); j++ ) {
+	  hep[i][j] = stl[idx];
+	  idx += 1;
+	}
+      } 
     }
 
     void sumVector(std::vector<float>::const_iterator start,
@@ -324,6 +340,31 @@ namespace Likelihood {
       }
     }
     
+    double getLogLikelihood(const std::vector<float>& data,
+			    const CLHEP::HepVector& norms,
+			    const std::vector<const std::vector<float>* >& templates,
+			    const std::vector<float>& fixed,
+			    const FitScanMVPrior* prior,			       
+			    std::vector<float>& model,
+			    size_t firstBin,
+			    size_t lastBin,
+			    int verbose) {
+
+      std::vector<float>::const_iterator data_start = data.begin() + firstBin;
+      std::vector<float>::const_iterator data_end = lastBin == 0 ? data.end() : data.begin() + lastBin;
+      std::vector<float>::const_iterator model_start = model.begin() + firstBin;
+      std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
+
+      sumModel(norms,templates,fixed,model,firstBin,lastBin);
+      double logLikeVal = logLikePoisson(data_start,data_end,model_start,model_end);      
+      if ( prior ) {
+	double logLikePrior(0.);
+	prior->logLikelihood(norms,logLikePrior);
+	logLikeVal += logLikePrior;
+      }
+      return logLikeVal;
+    }
+
     void getGradientAndHessian(const std::vector<float>& data,
 			       const CLHEP::HepVector& norms,
 			       const std::vector<const std::vector<float>* >& templates,
@@ -392,7 +433,10 @@ namespace Likelihood {
 			       const CLHEP::HepVector& norms,
 			       CLHEP::HepSymMatrix& covar,
 			       CLHEP::HepVector& delta,
-			       double& edm) {      
+			       double& edm,
+			       double lambda) {      
+
+      int npar = gradient.num_row();
       covar.assign(hessian);
       int ifail(0);
       covar.invert(ifail);
@@ -400,8 +444,33 @@ namespace Likelihood {
 	return ifail;
       }
       
-      delta = covar * gradient;   
-      int npar = gradient.num_row();
+      if(lambda > 0) {
+
+	CLHEP::HepSymMatrix alpha = hessian;
+	for( int i(0); i < npar; i++)
+	  alpha[i][i] *= (1+lambda);
+
+	alpha.invert(ifail);
+	if ( ifail ) {
+	  return ifail;
+	}
+
+	delta = alpha * gradient; 
+	CLHEP::HepVector delta_covar = covar * gradient;
+
+	edm = 0.;
+
+	for ( int i(0); i < npar; i++ ) {
+	  if ( delta[i] > norms[i] ) {
+	    delta[i] = 0.9999*norms[i];
+	  }
+	  edm += std::fabs(delta_covar[i] * gradient[i]);
+	} 
+	return 0;
+
+      } 
+      
+      delta = covar * gradient;
       edm = 0.;
 
       // Protect against components going negative.
@@ -428,7 +497,7 @@ namespace Likelihood {
           if ( delta[i] > norms[i] ) {
             delta[i] = 0.9999*norms[i];
             g2[i] = 0.;
-            delta[i] = 0.;
+	    delta[i] = 0.;
             retry += 1;
           }
         }
@@ -442,7 +511,7 @@ namespace Likelihood {
 			const std::vector<const std::vector<float>* >& templates,
 			const std::vector<float>& fixed,
 			const FitScanMVPrior* prior,
-			double tol, int maxIter,
+			double tol, int maxIter, double initLambda,
 			CLHEP::HepVector& norms,
 			CLHEP::HepSymMatrix& covar,
 			CLHEP::HepVector& gradient,
@@ -459,8 +528,9 @@ namespace Likelihood {
       
       // local stuff
       size_t npar = initNorms.num_row();
-      double logLikePrior(0.);
       double logLikeInit(0.);
+      double logLikeIter(0.);
+      double deltaLogLike(0.);
 
       std::vector<float>::const_iterator data_start = data.begin() + firstBin;
       std::vector<float>::const_iterator data_end = lastBin == 0 ? data.end() : data.begin() + lastBin;
@@ -471,15 +541,11 @@ namespace Likelihood {
 	std::cout << "Init Newton's method fit.  NPar = " <<  npar << std::endl;
 	printVector("Init Pars: ",initNorms);
       }
-      
-      sumModel(norms,templates,fixed,model,firstBin,lastBin);      
-      logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
-      if ( prior ) {	
-	prior->negativeLogLikelihood(norms,logLikePrior);
-	logLikeVal += logLikePrior;
-      }
+            
+      logLikeVal = getLogLikelihood(data,norms,templates,fixed,prior,model,
+				    firstBin,lastBin,verbose);
       logLikeInit = logLikeVal;
-      
+
       if ( npar == 0 ) {
 	std::cout << "warning, no free parameters " << std::endl;
 	return 0;
@@ -492,6 +558,7 @@ namespace Likelihood {
       // Set the EDM larger than the tolerance
       edm = 100*tol;
       int iter(0);
+      double lambda = initLambda;
 
       // Check to see if there are any counts.  
       float data_total(0.);
@@ -500,7 +567,8 @@ namespace Likelihood {
 	// no counts, set some defaults and bail out
 	norms[npar-1] = 0.;
 	// the gradient can be useful
-	getGradientAndHessian(data,norms,templates,fixed,prior,model,gradient,hessian,firstBin,lastBin,verbose);
+	getGradientAndHessian(data,norms,templates,fixed,prior,model,
+			      gradient,hessian,firstBin,lastBin,verbose);
 	covar = CLHEP::HepSymMatrix(npar);
 	// this will skip the loop below
 	edm = 0.;
@@ -509,11 +577,11 @@ namespace Likelihood {
       }
       
       // loop until convergence or max iterations
-      while ( std::fabs(edm) > tol &&
-	      iter < maxIter ) {
+      while ( iter < maxIter ) {
 	
 	// do the derivative stuff
-	getGradientAndHessian(data,norms,templates,fixed,prior,model,gradient,hessian,firstBin,lastBin,verbose);
+	getGradientAndHessian(data,norms,templates,fixed,prior,model,
+			      gradient,hessian,firstBin,lastBin,verbose);
 	if ( verbose > 2 ) {
 	  printSymMatrix("Hesse: ",hessian);
 	  printVector("Grad: ",gradient);
@@ -526,11 +594,12 @@ namespace Likelihood {
 	}
 	// invert the hessian and get the delta for the next iteration
 	// this also compute the estimated distance to the minimum
-	int covOk = getDeltaAndCovarAndEDM(hessian,gradient,norms,covar,delta,edm);
+	int covOk = getDeltaAndCovarAndEDM(hessian,gradient,norms,
+					   covar,delta,edm,lambda);
 	if ( verbose > 2 ) {
 	  printSymMatrix("Cov: ",covar);
 	}
-		
+
 	if ( covOk !=0 ) {
 	  // non-zero value means it failed to invert the cov. matrix
 	  if ( verbose > 0 ) {
@@ -538,9 +607,29 @@ namespace Likelihood {
 	  }
 	  return covOk;
 	}
-	
-	// update the parameter values
-	norms -= delta;
+
+	if(lambda > 0) {
+
+	  CLHEP::HepVector norms_tmp = norms;
+	  norms_tmp -= delta;
+
+	  // Check whether the fit has improved
+	  logLikeIter = getLogLikelihood(data,norms_tmp,templates,fixed,prior,model,
+					 firstBin,lastBin,verbose);
+	  deltaLogLike = logLikeIter-logLikeVal;
+
+	  if (logLikeIter > logLikeVal) {
+	    norms -= delta;
+	    lambda = std::max(1E-8,lambda*0.1);
+	    logLikeVal = logLikeIter;
+	  } else {
+	    lambda *= 10;
+	  }
+
+	} else {
+	  // update the parameter values
+	  norms -= delta;
+	}
 
 	// catch fits that are diverging
 	for ( size_t iCheck(0); iCheck < norms.num_row(); iCheck++ ) {
@@ -558,6 +647,14 @@ namespace Likelihood {
 	  printVector("Delta:",delta);
 	  printVector("Norms:",norms);
 	  std::cout << "EDM " << edm << std::endl;
+	  std::cout << "lambda " << lambda << std::endl;
+	  std::cout << "logLike " << logLikeIter << " " << deltaLogLike
+		    << std::endl;
+	}
+
+	// Break if tolerance criteria are met
+	if(std::fabs(edm) < tol) {
+	  break;
 	}
 
 	iter++;
@@ -577,13 +674,9 @@ namespace Likelihood {
       }
 
       // get the final log-likelihood
-      sumModel(norms,templates,fixed,model,firstBin,lastBin);
-      logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
-      
-      if ( prior ) {
-	double logLikePrior(0.);
-	prior->negativeLogLikelihood(norms,logLikePrior);
-	logLikeVal += logLikePrior;
+      if(lambda == 0) {
+	logLikeVal = getLogLikelihood(data,norms,templates,fixed,prior,model,
+				      firstBin,lastBin,verbose);
       }
 
       // Sanity check
@@ -601,7 +694,9 @@ namespace Likelihood {
       }
 
       if ( verbose > 0 ) {
-	std::cout << "Log-likelihood " << logLikeVal << std::endl << std::endl;
+	std::cout << "Log-likelihood Init " << logLikeInit << std::endl;
+	std::cout << "Log-likelihood      " << logLikeVal << std::endl 
+		  << std::endl;
       }
       return 0;
     }
@@ -612,7 +707,7 @@ namespace Likelihood {
 			   const std::vector<const std::vector<float>* >& templates,
 			   const std::vector<float>& fixed,
 			   const FitScanMVPrior* prior,
-			   double tol, int maxIter,
+			   double tol, int maxIter, double initLambda,
 			   CLHEP::HepVector& norms,
 			   CLHEP::HepSymMatrix& covar,
 			   CLHEP::HepVector& gradient,
@@ -638,11 +733,11 @@ namespace Likelihood {
 	std::vector<float>::const_iterator model_start = model.begin() + firstBin;
 	std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
 	
-	logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
+	logLikeVal = logLikePoisson(data_start,data_end,model_start,model_end);
 
 	if ( prior ) {
 	  double logLikePrior(0.);
-	  prior->negativeLogLikelihood(norms,logLikePrior);
+	  prior->logLikelihood(norms,logLikePrior);
 	  logLikeVal += logLikePrior;
 	}
 	
@@ -769,11 +864,11 @@ namespace Likelihood {
       std::vector<float>::const_iterator model_start = model.begin() + firstBin;
       std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
 
-      logLikeVal = negativeLogLikePoisson(data_start,data_end,model_start,model_end);
+      logLikeVal = logLikePoisson(data_start,data_end,model_start,model_end);
       
       if ( prior ) {
 	double logLikePrior(0.);
-	prior->negativeLogLikelihood(norms,logLikePrior);
+	prior->logLikelihood(norms,logLikePrior);
 	logLikeVal += logLikePrior;
       }
 
@@ -906,18 +1001,18 @@ namespace Likelihood {
 	// from the baseline fit
 	Source* aSrc = logLike.getSource(*itr);
 	double refValue = aSrc->spectrum().normPar().getValue();
+	bool hasSourceMap = logLike.hasSourceMap(*itr);
 
 	// Here we extract the model counts
 	// Note that we have to it differently for fixed
 	// Sources b/c we don't want to have to keep
 	// source maps for all the fixed sources
 	std::vector<float> modelCounts(nbins, 0.);
-	if ( ! aSrc->spectrum().normPar().isFree() ) {
-	  logLike.computeModelMap(*itr,modelCounts);
+	logLike.computeModelMap(*itr,modelCounts);
+
+	if ( ! aSrc->spectrum().normPar().isFree() && !hasSourceMap ) {
 	  logLike.eraseSourceMap(*itr);
-	} else {
-	  logLike.computeModelMap(*itr,modelCounts);
-	}
+	} 
 
 	// Here we cache the model
 	if ( isTest ) {
@@ -1073,14 +1168,14 @@ namespace Likelihood {
 
     }
 
-    double negativeLogLikePoisson(std::vector<float>::const_iterator data_start, 
-				  std::vector<float>::const_iterator data_stop,
-				  std::vector<float>::const_iterator model_start,
-				  std::vector<float>::const_iterator model_stop) {
+    double logLikePoisson(std::vector<float>::const_iterator data_start, 
+			  std::vector<float>::const_iterator data_stop,
+			  std::vector<float>::const_iterator model_start,
+			  std::vector<float>::const_iterator model_stop) {
       size_t s1 = data_stop - data_start;
       size_t s2 = model_stop - model_start;
       if ( s1 != s2 ) {      
-	throw std::runtime_error("Size of model does not match size of data in FitUtils::negativeLogLikePoisson.");
+	throw std::runtime_error("Size of model does not match size of data in FitUtils::logLikePoisson.");
 	return 0.;
       }
       std::vector<float>::const_iterator itr_data = data_start;
@@ -1092,14 +1187,14 @@ namespace Likelihood {
       double logTerm(0.);
       for ( ; itr_data != data_stop; itr_data++, itr_model++ ) {
 	if ( *itr_model < 0. ) {
-	  throw std::runtime_error("Negative model counts in FitUtils::negativeLogLikePoisson.");
+	  throw std::runtime_error("Negative model counts in FitUtils::logLikePoisson.");
 	  return 0.;
 	}
 	nPred += *itr_model;
 	// logs are expensive, don't do this unless the number of data counts is > 0.
 	if ( *itr_data > 1e-9 ) {
 	  if (  *itr_model <= 0. ) { 
-	    throw std::runtime_error("Negative or zero model counts for pixel with data counts in  FitUtils::negativeLogLikePoisson.");
+	    throw std::runtime_error("Negative or zero model counts for pixel with data counts in  FitUtils::logLikePoisson.");
 	  }
 	  logTerm += ( *itr_data * std::log(*itr_model) );
 	}
@@ -1109,7 +1204,7 @@ namespace Likelihood {
 
     int fitModelNorms_newton(const BinnedLikelihood& logLike,
 			     const std::string& test_name,
-			     double tol, int maxIter,
+			     double tol, int maxIter, double initLambda,
 			     CLHEP::HepVector& norms,
 			     CLHEP::HepSymMatrix& covar,
 			     CLHEP::HepVector& gradient,
@@ -1147,7 +1242,7 @@ namespace Likelihood {
       model.resize(fixed.size());
       int retVal = fitNorms_newton(logLike.countsMap().data(),
 				   initNorms,templates,fixed,prior,
-				   tol,maxIter,norms,covar,gradient,
+				   tol,maxIter,initLambda,norms,covar,gradient,
 				   model,edm,logLikeVal,
 				   firstBin,lastBin);
       return retVal;

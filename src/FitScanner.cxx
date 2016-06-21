@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.15 2016/06/09 01:56:53 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.16 2016/06/21 20:31:37 echarles Exp $
  */
 
 
@@ -176,10 +176,10 @@ namespace Likelihood {
   }
   
 
-  void FitScanMVPrior::negativeLogLikelihood(const CLHEP::HepVector& params, double& logLike) const {
+  void FitScanMVPrior::logLikelihood(const CLHEP::HepVector& params, double& logLike) const {
     CLHEP::HepVector delta = params - m_centralVals;
     // This returns delta.T * ( m_hessian * delta ), which is exactly what we want
-    logLike = m_hessian.similarity(delta);
+    logLike = -0.5*m_hessian.similarity(delta);
   }
 
   void FitScanMVPrior::gradient(const CLHEP::HepVector& params,  CLHEP::HepVector& grad) const {
@@ -241,7 +241,6 @@ namespace Likelihood {
 
     return 0;
   }
-
 
   void FitScanModelWrapper::cacheFluxValues(Source& aSrc) {
     
@@ -555,6 +554,7 @@ namespace Likelihood {
 
     static double tol = 1e-3;
     static int maxIter = 30;
+    static double lambda = 0.0;
     std::vector<FitScanCache*> caches;
     std::vector< std::vector< const std::vector<float>* > > templatesToMerge;
     std::vector< const std::vector<float>* > fixedToMerge;
@@ -571,7 +571,7 @@ namespace Likelihood {
       }       
       FitScanModelWrapper_Binned* nbw = new FitScanModelWrapper_Binned(*binnedLike);
       wrappers.push_back(nbw);
-      FitScanCache* cache = new FitScanCache(*nbw,test_name,tol,maxIter,false);
+      FitScanCache* cache = new FitScanCache(*nbw,test_name,tol,maxIter,lambda,false);
       caches.push_back(cache);
       fixedToMerge.push_back( &(cache->allFixed()) );
       testToMerge.push_back( &(cache->targetModel()) );
@@ -687,12 +687,13 @@ namespace Likelihood {
   
   FitScanCache::FitScanCache(FitScanModelWrapper& modelWrapper,
 			     const std::string& testSourceName,
-			     double tol, int maxIter,
+			     double tol, int maxIter, double initLambda,
 			     bool useReduced) 
     :m_modelWrapper(modelWrapper),
      m_testSourceName(testSourceName),
      m_tol(tol),
      m_maxIter(maxIter),
+     m_initLambda(initLambda),
      m_nebins(m_modelWrapper.nEBins()),
      m_npix(m_modelWrapper.nPix()),
      m_data(modelWrapper.data()),
@@ -700,6 +701,7 @@ namespace Likelihood {
      m_targetModel(m_modelWrapper.size()),
      m_useReduced(useReduced),
      m_loglike_ref(m_modelWrapper.value()),
+     m_currentFreeSources(m_modelWrapper.size()),
      m_currentFixed(m_modelWrapper.size()),
      m_prior_test(0),
      m_prior_bkg(0),
@@ -722,21 +724,23 @@ namespace Likelihood {
     // Set up the baseline fit.   
     std::vector<bool> freeSources(m_allModels.size(),true);
     std::vector<float> parScales(m_allModels.size(),1.);
-    setEnergyBin(-1);
-
+    
     if ( m_useReduced ) {
       reduceModels();
     }
 
+    setEnergyBin(-1);
+
     refactorModel(freeSources,parScales,false);  
+    m_currentFreeSources = freeSources;
   }
-  
  
   FitScanCache::~FitScanCache() {
+
     delete m_prior_test;
     delete m_prior_bkg;
-    delete m_prior_test;
-    delete m_prior_bkg;
+    delete m_global_prior_test;
+    delete m_global_prior_bkg;
   }
 
   void FitScanCache::refactorModel(const std::vector<bool>& freeSources, 
@@ -774,6 +778,7 @@ namespace Likelihood {
     m_currentLogLike = 0.;
     m_currentEDM = 0.;
     
+    m_currentFreeSources = freeSources;
     m_currentCov = CLHEP::HepSymMatrix(nfree);
     m_currentGrad = CLHEP::HepVector(nfree);
     m_currentSourceIndices.clear();
@@ -822,10 +827,6 @@ namespace Likelihood {
       m_lastBin = m_npix*m_lastEnergyBin;
     }
   }
-  
-
-
-
 
   void FitScanCache::setTestSource(Source& aSrc) {
     // First remove the current version of the source
@@ -944,6 +945,23 @@ namespace Likelihood {
     }
   }
   
+  void FitScanCache::buildPriorsFromExternal(const std::vector<float>& centralVals,
+					     const std::vector<float>& covariance,
+					     const std::vector<bool>& constrainPars,
+					     bool globalPrior) {
+
+    if(covariance.size() != std::pow(centralVals.size(),2))
+      throw std::runtime_error("Mistmatch in size between value and covariance arrays.");
+
+    CLHEP::HepVector hep_centralVals;
+    CLHEP::HepSymMatrix hep_covariance;
+
+    FitUtils::Vector_Stl_to_Hep(centralVals,hep_centralVals);
+    FitUtils::Matrix_Stl_to_Hep(covariance,hep_covariance);
+
+    buildPriorsFromExternal(hep_centralVals,hep_covariance,constrainPars,globalPrior);
+  }
+
   /* Set the prior from the current fit*/
   void FitScanCache::buildPriorsFromCurrent(const std::vector<bool>& constrainPars,
 					    double covScaleFactor,
@@ -975,6 +993,7 @@ namespace Likelihood {
 					   m_currentFixed,
 					   prior,
 					   m_tol,m_maxIter,
+					   m_initLambda,
 					   m_currentPars,
 					   m_currentCov,
 					   m_currentGrad,
@@ -1001,7 +1020,7 @@ namespace Likelihood {
     std::vector<float>::const_iterator model_start = m_currentBestModel.begin() + m_firstBin;
     std::vector<float>::const_iterator model_end = m_lastBin == 0 ? m_currentBestModel.end() : m_currentBestModel.begin() + m_lastBin;
     
-    logLike = FitUtils::negativeLogLikePoisson(data_start,data_end,model_start,model_end);
+    logLike = FitUtils::logLikePoisson(data_start,data_end,model_start,model_end);
     return 0;
   }
   
@@ -1074,7 +1093,7 @@ namespace Likelihood {
 	int status = FitUtils::fitNorms_newton((m_useReduced ? m_dataRed : m_data),
 					       init_pars,models_temp,fixed_temp,
 					       m_prior_bkg,
-					       m_tol,m_maxIter,
+					       m_tol,m_maxIter,m_initLambda,
 					       pars_temp,covs_temp,grad_temp,
 					       model_temp,
 					       edm_temp,logLikes[is],
@@ -1092,8 +1111,8 @@ namespace Likelihood {
 
 	std::vector<float>::const_iterator itrDataBeg = m_useReduced ? m_dataRed.begin()+m_firstBin : m_data.begin()+m_firstBin;
 	std::vector<float>::const_iterator itrDataEnd = m_useReduced ? m_dataRed.begin()+m_lastBin : m_data.begin()+m_lastBin;
-	logLikes[is] = FitUtils::negativeLogLikePoisson(itrDataBeg,itrDataEnd,
-							model_temp.begin()+m_firstBin,model_temp.begin()+m_lastBin);   
+	logLikes[is] = FitUtils::logLikePoisson(itrDataBeg,itrDataEnd,
+						model_temp.begin()+m_firstBin,model_temp.begin()+m_lastBin);   
       }
       // step the scan value
       scan_val += lin_step;
@@ -1371,10 +1390,12 @@ namespace Likelihood {
   int FitScanner::run_tsmap(double covScale_bb,
 			    double tol, int tolType, 
 			    int maxIter, bool remakeTestSource,
-			    int ST_scan_level, std::string src_model_out) {
+			    int ST_scan_level, std::string src_model_out,
+			    double initLambda) {
     return run_tscube(true,false,0,0.0,
 		      covScale_bb,-1.0,
-		      tol,tolType,maxIter,remakeTestSource,ST_scan_level,src_model_out);
+		      tol,tolType,maxIter,remakeTestSource,ST_scan_level,src_model_out,
+		      initLambda);
   }
 
   /* Build an SED.
@@ -1384,11 +1405,12 @@ namespace Likelihood {
 			  double covScale_bb, double covScale,
 			  double tol, int maxIter, int tolType, 
 			  bool remakeTestSource,
-			  int ST_scan_level,std::string src_model_out) {
+			  int ST_scan_level,std::string src_model_out,
+			  double initLambda) {
     return run_tscube(false,true,nNorm,normSigma,
 		      covScale_bb,covScale,
 		      tol,maxIter,tolType,remakeTestSource,
-		      ST_scan_level,src_model_out);
+		      ST_scan_level,src_model_out,initLambda);
   }
 
   
@@ -1401,14 +1423,16 @@ namespace Likelihood {
 			     double tol, int maxIter, int tolType, 
 			     bool remakeTestSource,
 			     int ST_scan_level,
-			     std::string src_model_out ) {
+			     std::string src_model_out,
+			     double initLambda) {
 
     if ( true ) {
-      std::cout << "nNorm =     " << nNorm << std::endl;
+      std::cout << "nNorm     = " << nNorm << std::endl;
       std::cout << "normSigma = " << normSigma << std::endl;
       std::cout << "covScales = " << covScale_bb << ' ' << covScale << std::endl;
       std::cout << "tol       = " << tol << std::endl;
       std::cout << "maxIter   = " << maxIter << std::endl;
+      std::cout << "initLambda= " << initLambda << std::endl;
       std::cout << "tolType   = " << tolType << std::endl;
       std::cout << "remakeSrc = " << (remakeTestSource ? 'T' : 'F') << std::endl;
       std::cout << "st_scan   = " << ST_scan_level << std::endl;
@@ -1448,7 +1472,7 @@ namespace Likelihood {
     
     // Build the cache object, deleting the old version if needed
     delete m_cache;
-    m_cache = new FitScanCache(*m_modelWrapper,m_testSourceName,tol,maxIter,useReduced());        
+    m_cache = new FitScanCache(*m_modelWrapper,m_testSourceName,tol,maxIter,initLambda,useReduced());        
     m_cache->calculateLoglikeCurrent(loglike_null);
     std::cout << "Got null likelihood " << loglike_null << std::endl;    
 
@@ -2163,11 +2187,11 @@ namespace Likelihood {
 
   /* This does the baseline fit with Newton's Method,
      for the normalization parameters only */
-  int FitScanner::baselineFit_Newton(double tol,int maxIter) {
+  int FitScanner::baselineFit_Newton(double tol,int maxIter,double initLambda) {
     static const bool useReduced(true);
     if ( m_cache == 0 ) {
       // Build the cache
-      m_cache = new FitScanCache(*m_modelWrapper,m_testSourceName,tol,maxIter,useReduced); 
+      m_cache = new FitScanCache(*m_modelWrapper,m_testSourceName,tol,maxIter,initLambda,useReduced); 
     } else {
       // Reset the cache (all sources free, no test source)
       std::vector<bool> freePars(m_cache->nBkgModel(),true);
