@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.12 2016/06/09 01:56:52 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.13 2016/06/21 20:31:38 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -213,9 +213,9 @@ namespace Likelihood {
 		const std::vector<bool>& constrainPars,
 		bool includeTestSource);
 
-    // Calculate the contribution to the negative log-likelihood
-    void negativeLogLikelihood(const CLHEP::HepVector& params, 
-			       double& logLike) const;
+    // Calculate the contribution to the log-likelihood
+    void logLikelihood(const CLHEP::HepVector& params, 
+		       double& logLike) const;
 
     // Calculate the contribution to the gradient of the log-likelihood
     void gradient(const CLHEP::HepVector& params, 
@@ -643,7 +643,7 @@ namespace Likelihood {
      */
     FitScanCache(FitScanModelWrapper& modelWrapper,
 		 const std::string& testSourceName,
-		 double tol, int maxIter,
+		 double tol, int maxIter, double initLambda,
 		 bool useReduced);    
 
     /* D'tor */
@@ -690,6 +690,11 @@ namespace Likelihood {
     /* Set the prior */
     void buildPriorsFromExternal(const CLHEP::HepVector& centralVals,
 				 const CLHEP::HepSymMatrix& covariance,
+				 const std::vector<bool>& constrainPars,
+				 bool globalPrior=false);
+
+    void buildPriorsFromExternal(const std::vector<float>& centralVals,
+				 const std::vector<float>& covariance,
 				 const std::vector<bool>& constrainPars,
 				 bool globalPrior=false);
 
@@ -741,19 +746,23 @@ namespace Likelihood {
     inline size_t nebins() const { return m_nebins; }
     inline size_t nBkgModel() const { return m_allModels.size(); }
     inline bool useReduced() const { return m_useReduced; }
+    inline double tol() const { return m_tol; }
+    inline int maxIter() const { return m_maxIter; }
+    inline double initLambda() const { return m_initLambda; }
 
     inline const double& loglike_ref() const { return m_loglike_ref; }    
 
     // Information about the currently cached model
     inline size_t nFreeCurrent() const { return m_currentModels.size(); }
     inline int testSourceIndex() const { return m_currentTestSourceIndex; }
+    inline const std::vector<bool>& currentFree() const { return m_currentFreeSources; }
 
     // Information about the current fit
     inline const CLHEP::HepVector& currentPars() const { return m_currentPars; }
     inline const CLHEP::HepSymMatrix& currentCov() const { return m_currentCov; }
     inline const std::vector<float>& currentModel() const { return m_currentBestModel; }
-    inline const double& currentLogLike() const { return m_currentLogLike; }
-    inline const double& currentEDM() const { return m_currentEDM; }    
+    inline double currentLogLike() const { return m_currentLogLike; }
+    inline double currentEDM() const { return m_currentEDM; }    
     inline int firstEnergyBin() const { return m_firstEnergyBin; }
     inline int lastEnergyBin() const { return m_lastEnergyBin; }
 
@@ -788,6 +797,8 @@ namespace Likelihood {
     double m_tol;    
     // maximum number of interactions
     int m_maxIter;
+    // Initial damping parameter for step calculation
+    double m_initLambda;
 
     // number of energy bins in the counts map
     size_t m_nebins;
@@ -829,6 +840,8 @@ namespace Likelihood {
     // this is the list of models for the current fit
     // it may or may not include the test source model
     std::vector<const std::vector<float>* > m_currentModels;
+    // Vector of sources that are currently free
+    std::vector<bool> m_currentFreeSources;
     // this is the fixed component for the current fit
     std::vector<float> m_currentFixed;
     // this is the set of refrence values for the paremeters in the current fit
@@ -947,6 +960,7 @@ namespace Likelihood {
        remakeTestSource : If true, recomputes the test source image (otherwise just shifts it)
        ST_scan_level : Level to which to do ST-based fitting (for testing)
        src_model_out : Name of XML file to write re-fit source model
+       initLambda    : Initial damping parameter for step size calculation. (0 disables damping)
 
        returns 0 for success, or a error code
      */
@@ -956,7 +970,8 @@ namespace Likelihood {
 		  int maxIter = 30, 
 		  bool remakeTestSource = false,
 		  int ST_scan_level = 0,
-		  std::string src_model_out = "");
+		  std::string src_model_out = "",
+		  double initLambda = 0.0);
 
      /* Build an SED.
 	This calculates the spectrum as a function of energy
@@ -969,20 +984,22 @@ namespace Likelihood {
        covScale      : Scale factor to apply to broadband fitting cov. matrix in bin-by-bin fits ( < 0 -> fixed )
        normSigma     : Number of sigma to use for the scan range 
        tol           : Critetia for fit convergence (estimated vertical distance to min < tol )
-       maxIter       : Maximum number of iterations for the Newton's method fitter
+       maxIter       : Maximum number of iterations for the Newton's method fitter       
        tolType       : Absoulte (0) or relative (1) criteria for convergence
        remakeTestSource : If true, recomputes the test source image (otherwise just shifts it)
        ST_scan_level : Level to which to do ST-based fitting (for testing)
        src_model_out : Name of XML file to write re-fit source model
+       initLambda    : Initial damping parameter for step size calculation. (0 disables damping)
 
        returns 0 for success, or a error code
      */
     int run_SED(int nNorm = 10, double normSigma = 5.0, 
 		double covScale_bb = -1.0, double covScale = -1.0, 
-		double tol = 1e-3, int maxIter = 30, int tolType = 0, 
+		double tol = 1e-3, int maxIter = 30, 
+		int tolType = 0, 
 		bool remakeTestSource = false,
 		int ST_scan_level = 0,
-		std::string src_model_out = "");
+		std::string src_model_out = "", double initLambda = 0.0);
 
 
     /* Build a TS cube.
@@ -1001,6 +1018,7 @@ namespace Likelihood {
        remakeTestSource : If true, recomputes the test source image (otherwise just shifts it)
        ST_scan_level : Level to which to do ST-based fitting (for testing)
        src_model_out : Name of XML file to write re-fit source model
+       initLambda    : Initial damping parameter for step size calculation. (0 disables damping)
 
        returns 0 for success, or a error code
 
@@ -1011,7 +1029,8 @@ namespace Likelihood {
 		   double tol = 1e-3, int maxIter = 30, int tolType = 0, 
 		   bool remakeTestSource = false,
 		   int ST_scan_level = 0,
-		   std::string src_model_out = "");
+		   std::string src_model_out = "",
+		   double initLambda = 0.0);
 
     /* Write the stored data to a FITS file */
     int writeFitsFile(const std::string& fitsFile,
@@ -1161,7 +1180,7 @@ namespace Likelihood {
 
     /* This does the baseline fit with Newton's Method,
        for the normalization parameters only */
-    int baselineFit_Newton(double tol = 1e-3, int maxIter = 30);
+    int baselineFit_Newton(double tol = 1e-3, int maxIter = 30, double initLambda = 0.0);
 
     /* This does the broadband fit
        i.e., the fit with the source across the entire energy range */

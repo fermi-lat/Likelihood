@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitUtils.h,v 1.5 2016/02/05 22:31:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitUtils.h,v 1.6 2016/06/09 01:56:52 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -55,6 +55,10 @@ namespace Likelihood {
     void Vector_Stl_to_Hep(const std::vector<float>& stl,
 			   CLHEP::HepVector& hep);
     
+    /* Fill an STL vector with values from a CLHEP Matrix */
+    void Matrix_Stl_to_Hep(const std::vector<float>& stl,
+			   CLHEP::HepSymMatrix& hep);
+
     /* Sum from start to stop and put them into value */
     void sumVector(std::vector<float>::const_iterator start,
 		   std::vector<float>::const_iterator stop,
@@ -215,6 +219,17 @@ namespace Likelihood {
 		  size_t firstBin = 0,
 		  size_t lastBin = 0);
     
+    /* Evaluate the total log-likelihood for the sum of data and prior terms. */
+    double getLogLikelihood(const std::vector<float>& data,
+			    const CLHEP::HepVector& norms,
+			    const std::vector<const std::vector<float>* >& templates,
+			    const std::vector<float>& fixed,
+			    const FitScanMVPrior* prior,			       
+			    std::vector<float>& model,
+			    size_t firstBin = 0,
+			    size_t lastBin = 0,
+			    int verbose = 0);
+
     /* Cacluate the gradiant and Hessian for a fit in which only the normalization of the
        components are allowed to vary.
 
@@ -252,7 +267,8 @@ namespace Likelihood {
 			       const CLHEP::HepVector& norms,
 			       CLHEP::HepSymMatrix& covar,
 			       CLHEP::HepVector& delta,
-			       double& edm);
+			       double& edm,
+			       double lambda = 0);
     
     /* Extract the set of bins that are non-zero into parallel vectors of indices
        this is done to make it faster to iterate over sparse data
@@ -295,10 +311,10 @@ namespace Likelihood {
 
        For speed, the log is not executed for bins where data == 0
      */
-    double negativeLogLikePoisson(std::vector<float>::const_iterator data_start, 
-				  std::vector<float>::const_iterator data_stop,
-				  std::vector<float>::const_iterator model_start,
-				  std::vector<float>::const_iterator model_stop);
+    double logLikePoisson(std::vector<float>::const_iterator data_start, 
+			  std::vector<float>::const_iterator data_stop,
+			  std::vector<float>::const_iterator model_start,
+			  std::vector<float>::const_iterator model_stop);
     
 
     /* Fit the normalization using Newton's method
@@ -310,6 +326,7 @@ namespace Likelihood {
        prior:         If provided, a multivariate prior on the fit
        tol:           Tolerance for estimating covergence.  Done when edm < tol
        maxIter:       Maximum number of iterations before failing the fit
+       lambda:        Initial damping parameter for step size calculation. (0 disables damping)
        norms:         Filled with the fit results for the normalizations
        covar:         Filled with the covariance matrix from the fit
        gradient:      Filled with the gradient at the best fit point
@@ -325,7 +342,7 @@ namespace Likelihood {
 			const std::vector<const std::vector<float>* >& templates,
 			const std::vector<float>& fixed,
 			const FitScanMVPrior* prior,
-			double tol, int maxIter,
+			double tol, int maxIter, double lambda,
 			CLHEP::HepVector& norms,
 			CLHEP::HepSymMatrix& covar,
 			CLHEP::HepVector& gradient,
@@ -346,6 +363,7 @@ namespace Likelihood {
        prior:         If provided, a multivariate prior on the fit
        tol:           Tolerance for estimating covergence.  Done when edm < tol
        maxIter:       Maximum number of iterations before failing the fit
+       lambda:        Initial damping parameter for step size calculation. (0 disables damping)
        norms:         Filled with the fit results for the normalizations
        covar:         Filled with the covariance matrix from the fit
        gradient:      Filled with the gradient at the best fit point
@@ -361,7 +379,7 @@ namespace Likelihood {
 			   const std::vector<const std::vector<float>* >& templates,
 			   const std::vector<float>& fixed,
 			   const FitScanMVPrior* prior,
-			   double tol, int maxIter,
+			   double tol, int maxIter, double lambda,
 			   CLHEP::HepVector& norms,
 			   CLHEP::HepSymMatrix& covar,
 			   CLHEP::HepVector& gradient,
@@ -467,6 +485,7 @@ namespace Likelihood {
        prior:         If provided, a multivariate prior on the fit
        tol:           Tolerance for estimating covergence.  Done when edm < tol
        maxIter:       Maximum number of iterations before failing the fit
+       lambda:        Initial damping parameter for step size calculation. (0 disables damping)
        norms:         Filled with the fit results for the normalizations
        covar:         Filled with the covariance matrix from the fit
        gradient:      Filled with the gradient at the best fit point
@@ -478,7 +497,7 @@ namespace Likelihood {
     */
     int fitModelNorms_newton(const BinnedLikelihood& logLike,
 			     const std::string& test_name,
-			     double tol, int maxIter,
+			     double tol, int maxIter, double lambda,
 			     CLHEP::HepVector& norms,
 			     CLHEP::HepSymMatrix& covar,
 			     CLHEP::HepVector& gradient,
