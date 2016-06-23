@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitUtils.h,v 1.6 2016/06/09 01:56:52 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.7 2016/06/21 22:36:36 mdwood Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -143,6 +143,28 @@ namespace Likelihood {
 		      std::vector<float>::const_iterator stop2, 
 		      float& value);
  
+
+    /* Calculate the inner product of four vectors and put them into value.
+
+       value = Sum_i v1_i v2_i v3_i v4_i
+
+       This checks that the distances: 
+       ( stop1 - start1 ),  
+       ( stop2 - start2 ),
+       ( stop3 - start3 )
+       ( stop4 - start4 )
+       are the same and throws an exception if they are not.
+    */  
+    void innerProduct(std::vector<float>::const_iterator start1, 
+		      std::vector<float>::const_iterator stop1, 
+		      std::vector<float>::const_iterator start2, 
+		      std::vector<float>::const_iterator stop2, 
+		      std::vector<float>::const_iterator start3, 
+		      std::vector<float>::const_iterator stop3, 
+		      std::vector<float>::const_iterator start4, 
+		      std::vector<float>::const_iterator stop4, 
+		      float& value);
+
     /* Calculate the inner product of three vectors and put them into value.
 
        value = Sum_i v1_i v2_i v3_i 
@@ -205,6 +227,20 @@ namespace Likelihood {
     /* Get the symetric error from the positive and negative errors */
     double symmetricError(double pos_err, double neg_err);
     
+    
+    /* Sum a set of vectorn
+       
+       total_i = fixed_i + Sum_j templates_ij 
+
+       Note that this gives you the option of only summing over part of the vector, using
+       firstBin and lastBin.
+    */    
+    void sumModel_Init(const std::vector<std::vector<float> >& templates,
+		       const std::vector<float>& fixed,
+		       std::vector<float>& total);
+    
+    
+
     /* Sum the model components * normalization to get the total model counts per bin
        
        total_i = fixed_i + templates_ij * norms_j
@@ -246,6 +282,7 @@ namespace Likelihood {
 			       const std::vector<const std::vector<float>* >& templates,
 			       const std::vector<float>& fixed,
 			       const FitScanMVPrior* prior,
+			       const std::vector<float>* weights,
 			       std::vector<float>& model,
 			       CLHEP::HepVector& gradient,
 			       CLHEP::HepSymMatrix& hessian,
@@ -304,6 +341,23 @@ namespace Likelihood {
 		       const std::vector<float>& model,
 		       std::vector<float>& modelRed);
 
+    /* Extract the bins that have non-zero counts, and reduce the correspond model maps
+
+       dataVect:      Input data map
+       weights:       Input weights
+       model:         Input summed model
+       weightsRed:    Reduced weights
+       
+       Note that modelRed vectors has a several bins, 
+       corresponding to the sum of all of the zero counts bins in each energy layer.
+
+       This allows use to re-use the other fitting functions in this file
+     */
+    void sparsifyWeights(const std::vector<int>& nonZeroBins,
+			 const std::vector<float>& weights,
+			 const std::vector<float>& model,
+			 std::vector<float>& weightsRed);
+
 
     /* Calculate and return the Poission negative log likelihood
        
@@ -316,6 +370,19 @@ namespace Likelihood {
 			  std::vector<float>::const_iterator model_start,
 			  std::vector<float>::const_iterator model_stop);
     
+    /* Calculate and return the Poission negative log likelihood
+       
+       retVal = Sum  w_i * (data_i - data_i * log(model_i) )
+
+       For speed, the log is not executed for bins where data == 0
+     */
+    double logLikePoisson(std::vector<float>::const_iterator data_start, 
+			  std::vector<float>::const_iterator data_stop,
+			  std::vector<float>::const_iterator model_start,
+			  std::vector<float>::const_iterator model_stop,			 
+			  std::vector<float>::const_iterator w_start,
+			  std::vector<float>::const_iterator w_stop);
+
 
     /* Fit the normalization using Newton's method
        
@@ -342,6 +409,7 @@ namespace Likelihood {
 			const std::vector<const std::vector<float>* >& templates,
 			const std::vector<float>& fixed,
 			const FitScanMVPrior* prior,
+			const std::vector<float>* weights,
 			double tol, int maxIter, double lambda,
 			CLHEP::HepVector& norms,
 			CLHEP::HepSymMatrix& covar,
@@ -450,13 +518,15 @@ namespace Likelihood {
        fixed:       Summed model for all of the fixed sources
        test_source_model: Model for all the test source
        refPars:     Values of the normalizations of the free sources.       
+       weights:     Likelihood weights (optional)
      */ 
     void extractModels(const BinnedLikelihood& logLike,
 		       const std::string& test_name,
 		       std::vector<std::vector<float> >& templates,		       
 		       std::vector<float>& fixed,
 		       std::vector<float>& test_source_model,
-		       std::vector<float>& refPars);
+		       std::vector<float>& refPars,
+		       std::vector<float>* weights = 0);
 
     /* Refactors the free and fixed model components
 

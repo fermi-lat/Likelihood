@@ -4,7 +4,7 @@
  *
  * @author E. Charles, from TsMap by J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/TsCube/TsCube.cxx,v 1.4 2016/02/03 18:28:28 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/TsCube/TsCube.cxx,v 1.5 2016/02/23 21:11:51 echarles Exp $
  */
 
 #include <cmath>
@@ -45,6 +45,9 @@
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/ScanUtils.h"
 #include "Likelihood/FitScanner.h"
+#include "Likelihood/SourceMap.h"
+#include "Likelihood/WcsMapLibrary.h"
+#include "Likelihood/ProjMap.h"
 
 using namespace Likelihood;
 
@@ -73,6 +76,7 @@ private:
 
   AppHelpers * m_helper;
   st_app::AppParGroup & m_pars;
+  ProjMap* m_wmap;
   Likelihood::BinnedLikelihood * m_logLike;
   optimizers::Optimizer* m_opt;
   st_stream::StreamFormatter * m_formatter;
@@ -97,6 +101,7 @@ st_app::StAppFactory<TsCube> myAppFactory("gttscube");
 TsCube::TsCube() 
   : st_app::StApp(), m_helper(0), 
     m_pars(st_app::StApp::getParGroup("gttscube")),
+    m_wmap(0),
     m_logLike(0), m_opt(0),
     m_formatter(new st_stream::StreamFormatter("gttscube", "", 2)),
     m_scanner(0),
@@ -120,6 +125,7 @@ void TsCube::promptForParameters() {
   m_pars.Prompt("expcube");
   m_pars.Prompt("irfs");
   m_pars.Prompt("srcmdl");
+  m_pars.Prompt("wmap");
   m_pars.Prompt("outfile");
   m_pars.Prompt("nxpix");
   m_pars.Prompt("nypix");
@@ -154,11 +160,26 @@ void TsCube::run() {
   CountsMap* dataMap = new CountsMap(cmap);
   bool apply_psf_corrections = m_pars["psfcorr"];
   bool computePointSources(true);
-  m_logLike = new BinnedLikelihood(*dataMap, 
-				   m_helper->observation(),
-				   cmap, 
-				   computePointSources,
-				   apply_psf_corrections);
+
+  std::string wmap_file = m_pars["wmap"];
+  if ( wmap_file != "none" ) {
+    m_wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,"");
+    m_wmap->setInterpolation(false);
+    m_wmap->setExtrapolation(true);
+  }
+
+  m_logLike = m_wmap != 0 ? 
+    new BinnedLikelihood(*dataMap, 
+			 *m_wmap,
+			 m_helper->observation(),
+			 cmap, 
+			 computePointSources,
+			 apply_psf_corrections) : 
+    new BinnedLikelihood(*dataMap, 
+			 m_helper->observation(),
+			 cmap, 
+			 computePointSources,
+			 apply_psf_corrections);
   std::string bexpmap = m_pars["bexpmap"];
   AppHelpers::checkExposureMap(cmap, bexpmap);
   dynamic_cast<BinnedLikelihood *>(m_logLike)->setVerbose(false);
@@ -246,13 +267,15 @@ void TsCube::computeMap() {
   double normSigma = m_pars["nsigma"];
   double covScale_bb = m_pars["covscale_bb"]; 
   double covScale = m_pars["covscale"]; 
+  double initLambda = m_pars["lambda"]; 
 
   //m_scanner->set_verbose_null(3);
   //m_scanner->set_verbose_bb(3);
   //m_scanner->set_verbose_scan(3);
 
   int status = m_scanner->run_tscube(doTsMap,doSED,nnorm,normSigma,covScale_bb,covScale,
-				     tol,maxiter,tolType,remakeTestSource,ST_scan_level);
+				     tol,maxiter,tolType,remakeTestSource,ST_scan_level,
+				     "",initLambda,m_wmap != 0);
   
   if ( status != 0 ) {
     // Go ahead and let it try to write the output, for now

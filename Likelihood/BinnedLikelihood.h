@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.81 2016/04/16 00:50:25 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.82 2016/06/21 20:54:36 mdwood Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -55,7 +55,7 @@ public:
 		    bool performConvolution=true,
 		    bool resample=true,
 		    double resamp_factor=2,
-                     double minbinsz=0.1);
+		    double minbinsz=0.1);
    
    BinnedLikelihood(const BinnedLikelihood & other);
 

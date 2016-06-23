@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.11 2016/06/21 20:32:24 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.12 2016/06/21 22:36:37 mdwood Exp $
  */
 
 
@@ -221,7 +221,39 @@ namespace Likelihood {
 	sum += ((*itr1) * (*itr2) * (*itr3));
       }
       value = sum;
-   }
+    }
+
+    void innerProduct(std::vector<float>::const_iterator start1, 
+		      std::vector<float>::const_iterator stop1, 
+		      std::vector<float>::const_iterator start2, 
+		      std::vector<float>::const_iterator stop2, 
+		      std::vector<float>::const_iterator start3, 
+		      std::vector<float>::const_iterator stop3, 
+		      std::vector<float>::const_iterator start4, 
+		      std::vector<float>::const_iterator stop4, 
+		      float& value) {
+      size_t s1 = stop1 - start1;
+      size_t s2 = stop2 - start2;
+      size_t s3 = stop3 - start3;
+      size_t s4 = stop4 - start4;
+      
+      if ( s1 != s2 ||
+	   s1 != s3 || 
+	   s1 != s4 ) {
+	throw std::runtime_error("Size of vectors in FitUtils::innerProduct does not match.");
+	return;
+      }   
+      // use a double to store the sum, snice we might be adding a lot of things
+      double sum(0);
+      std::vector<float>::const_iterator itr1 = start1;
+      std::vector<float>::const_iterator itr2 = start2;
+      std::vector<float>::const_iterator itr3 = start3;
+      std::vector<float>::const_iterator itr4 = start4;
+      for ( ; itr1 != stop1; itr1++, itr2++, itr3++, itr4++ ) {
+	sum += ((*itr1) * (*itr2) * (*itr3) * (*itr4));
+      }
+      value = sum;
+    }
 
     void fracDiff(std::vector<float>::const_iterator data_start, 
 		  std::vector<float>::const_iterator data_stop,
@@ -305,6 +337,21 @@ namespace Likelihood {
       return neg_err < 0 ? pos_err : (pos_err + neg_err) / 2.;
     }
 
+    void sumModel_Init(const std::vector<std::vector<float> >& templates,
+		       const std::vector<float>& fixed,
+		       std::vector<float>& total) {
+ 
+      std::copy( fixed.begin(), fixed.end(), total.begin() );
+      for ( size_t i(0); i < templates.size(); i++ ) {
+	const std::vector<float>& tmpl = templates[i];
+	std::vector<float>::const_iterator tmpl_itr = tmpl.begin();
+	std::vector<float>::iterator outItr = total.begin();
+	for ( std::vector<float>::iterator outItr = total.begin(); outItr != total.end(); outItr++, tmpl_itr++ ) {
+	  *outItr += *tmpl_itr;
+	}
+      } 
+    }    
+    
     void sumModel(const CLHEP::HepVector& norms,
 		  const std::vector<const std::vector<float>* >& templates,
 		  const std::vector<float>& fixed,
@@ -344,7 +391,8 @@ namespace Likelihood {
 			    const CLHEP::HepVector& norms,
 			    const std::vector<const std::vector<float>* >& templates,
 			    const std::vector<float>& fixed,
-			    const FitScanMVPrior* prior,			       
+			    const FitScanMVPrior* prior,
+			    const std::vector<float>* weights,   
 			    std::vector<float>& model,
 			    size_t firstBin,
 			    size_t lastBin,
@@ -356,7 +404,11 @@ namespace Likelihood {
       std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
 
       sumModel(norms,templates,fixed,model,firstBin,lastBin);
-      double logLikeVal = logLikePoisson(data_start,data_end,model_start,model_end);      
+      double logLikeVal = weights == 0 ? 
+	logLikePoisson(data_start,data_end,model_start,model_end) :
+	logLikePoisson(data_start,data_end,model_start,model_end, 
+		       weights->begin() + firstBin,
+		       lastBin == 0 ? weights->end() :  weights->begin() + lastBin);
       if ( prior ) {
 	double logLikePrior(0.);
 	prior->logLikelihood(norms,logLikePrior);
@@ -370,6 +422,7 @@ namespace Likelihood {
 			       const std::vector<const std::vector<float>* >& templates,
 			       const std::vector<float>& fixed,
 			       const FitScanMVPrior* prior,			       
+			       const std::vector<float>* weights,
 			       std::vector<float>& model,
 			       CLHEP::HepVector& gradient,
 			       CLHEP::HepSymMatrix& hessian,
@@ -399,9 +452,16 @@ namespace Likelihood {
 	const std::vector<float>& tmpl_i = *(templates[i]);
 	float gval(0.);
 	// this is g_i = Sum fdiff * templates[i]
-	innerProduct( fdiff.begin(), fdiff.end(),
-		      tmpl_i.begin() + start, tmpl_i.begin() + stop, 
-		      gval );
+	if ( weights != 0 ) {
+	  innerProduct( weights->begin() + start, weights->begin() + stop,
+		        fdiff.begin(), fdiff.end(),
+			tmpl_i.begin() + start, tmpl_i.begin() + stop, 
+			gval );
+	} else {
+	  innerProduct( fdiff.begin(), fdiff.end(),
+			tmpl_i.begin() + start, tmpl_i.begin() + stop, 
+			gval );
+	}
 	gradient[i] = gval;
 	// note that the inner loop starts at i.
 	// we only need elements at or above the diagonal
@@ -409,10 +469,18 @@ namespace Likelihood {
 	  const std::vector<float>& tmpl_j = *(templates[j]);
 	  float hval(0.);
 	  // this is h_ij = Sum w2 * templates[i] * templates[j] 
-	  innerProduct( w2.begin(), w2.end(),
-			tmpl_i.begin() + start, tmpl_i.begin() + stop, 
-			tmpl_j.begin() + start, tmpl_j.begin() + stop, 
-			hval );
+	  if ( weights != 0 ) {
+	    innerProduct( weights->begin() + start, weights->begin() + stop,
+			  w2.begin(), w2.end(),
+			  tmpl_i.begin() + start, tmpl_i.begin() + stop, 
+			  tmpl_j.begin() + start, tmpl_j.begin() + stop, 
+			  hval );
+	  } else {
+	    innerProduct( w2.begin(), w2.end(),
+			  tmpl_i.begin() + start, tmpl_i.begin() + stop, 
+			  tmpl_j.begin() + start, tmpl_j.begin() + stop, 
+			  hval );
+	  }
 	  hessian[i][j] = hval;
 	}
       }
@@ -511,6 +579,7 @@ namespace Likelihood {
 			const std::vector<const std::vector<float>* >& templates,
 			const std::vector<float>& fixed,
 			const FitScanMVPrior* prior,
+			const std::vector<float>* weights,
 			double tol, int maxIter, double initLambda,
 			CLHEP::HepVector& norms,
 			CLHEP::HepSymMatrix& covar,
@@ -542,8 +611,8 @@ namespace Likelihood {
 	printVector("Init Pars: ",initNorms);
       }
             
-      logLikeVal = getLogLikelihood(data,norms,templates,fixed,prior,model,
-				    firstBin,lastBin,verbose);
+      logLikeVal = getLogLikelihood(data,norms,templates,fixed,prior,weights,
+				    model,firstBin,lastBin,verbose);
       logLikeInit = logLikeVal;
 
       if ( npar == 0 ) {
@@ -567,7 +636,7 @@ namespace Likelihood {
 	// no counts, set some defaults and bail out
 	norms[npar-1] = 0.;
 	// the gradient can be useful
-	getGradientAndHessian(data,norms,templates,fixed,prior,model,
+	getGradientAndHessian(data,norms,templates,fixed,prior,weights,model,
 			      gradient,hessian,firstBin,lastBin,verbose);
 	covar = CLHEP::HepSymMatrix(npar);
 	// this will skip the loop below
@@ -580,7 +649,7 @@ namespace Likelihood {
       while ( iter < maxIter ) {
 	
 	// do the derivative stuff
-	getGradientAndHessian(data,norms,templates,fixed,prior,model,
+	getGradientAndHessian(data,norms,templates,fixed,prior,weights,model,
 			      gradient,hessian,firstBin,lastBin,verbose);
 	if ( verbose > 2 ) {
 	  printSymMatrix("Hesse: ",hessian);
@@ -614,8 +683,8 @@ namespace Likelihood {
 	  norms_tmp -= delta;
 
 	  // Check whether the fit has improved
-	  logLikeIter = getLogLikelihood(data,norms_tmp,templates,fixed,prior,model,
-					 firstBin,lastBin,verbose);
+	  logLikeIter = getLogLikelihood(data,norms_tmp,templates,fixed,prior,weights,
+					 model,firstBin,lastBin,verbose);
 	  deltaLogLike = logLikeIter-logLikeVal;
 
 	  if (logLikeIter > logLikeVal) {
@@ -675,8 +744,8 @@ namespace Likelihood {
 
       // get the final log-likelihood
       if(lambda == 0) {
-	logLikeVal = getLogLikelihood(data,norms,templates,fixed,prior,model,
-				      firstBin,lastBin,verbose);
+	logLikeVal = getLogLikelihood(data,norms,templates,fixed,prior,weights,
+				      model,firstBin,lastBin,verbose);
       }
 
       // Sanity check
@@ -707,6 +776,7 @@ namespace Likelihood {
 			   const std::vector<const std::vector<float>* >& templates,
 			   const std::vector<float>& fixed,
 			   const FitScanMVPrior* prior,
+			   const std::vector<float>* weights,
 			   double tol, int maxIter, double initLambda,
 			   CLHEP::HepVector& norms,
 			   CLHEP::HepSymMatrix& covar,
@@ -733,7 +803,12 @@ namespace Likelihood {
 	std::vector<float>::const_iterator model_start = model.begin() + firstBin;
 	std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
 	
-	logLikeVal = logLikePoisson(data_start,data_end,model_start,model_end);
+	logLikeVal = weights == 0 ? 
+	  logLikePoisson(data_start,data_end,model_start,model_end) :
+	  logLikePoisson(data_start,data_end,model_start,model_end,
+			 weights->begin() + firstBin,
+			 lastBin == 0 ? weights->end() :  weights->begin() + lastBin);
+	
 
 	if ( prior ) {
 	  double logLikePrior(0.);
@@ -776,7 +851,7 @@ namespace Likelihood {
 	      iter < maxIter ) {
 	
 	// do the derivative stuff
-	getGradientAndHessian(data,norms,templates,fixed,prior,model,gradient,hessian,firstBin,lastBin,verbose);
+	getGradientAndHessian(data,norms,templates,fixed,prior,weights,model,gradient,hessian,firstBin,lastBin,verbose);
 	
 	// add in the extra factors from the chain rule
 	for ( size_t iChain(0); iChain < npar; iChain++ ) {
@@ -864,7 +939,11 @@ namespace Likelihood {
       std::vector<float>::const_iterator model_start = model.begin() + firstBin;
       std::vector<float>::const_iterator model_end = lastBin == 0 ? model.end() : model.begin() + lastBin;
 
-      logLikeVal = logLikePoisson(data_start,data_end,model_start,model_end);
+      logLikeVal = weights == 0 ? 
+	logLikePoisson(data_start,data_end,model_start,model_end) :
+	logLikePoisson(data_start,data_end,model_start,model_end,
+		       weights->begin() + firstBin,
+		       lastBin == 0 ? weights->end() : weights->begin() + lastBin);
       
       if ( prior ) {
 	double logLikePrior(0.);
@@ -969,7 +1048,10 @@ namespace Likelihood {
 		       std::vector<std::vector<float> >& templates,		       
 		       std::vector<float>& fixed,
 		       std::vector<float>& test_source_model,
-		       std::vector<float>& refPars) {
+		       std::vector<float>& refPars,
+		       std::vector<float>* weights) {
+
+      BinnedLikelihood& nc_logLike = const_cast<BinnedLikelihood&>(logLike);
 
       // These are the energy bin edges
       const std::vector<double>& energies = logLike.energies();
@@ -988,6 +1070,19 @@ namespace Likelihood {
       std::vector<std::string> srcNames;
       logLike.getSrcNames(srcNames);
 
+      // Get the weights, if requested
+      if ( weights != 0 ) {
+	const SourceMap* wts_map = logLike.weightSrcMap();
+	if ( wts_map == 0 ) {
+	  throw std::runtime_error("Requested to use likelihood weights, but no weights are present in BinnedLikelihood");
+	}
+	weights->resize( wts_map->model().size() );
+	std::copy(wts_map->model().begin(),wts_map->model().end(),weights->begin());
+	float sumW(0.);
+	sumVector(weights->begin(),weights->end(),sumW);
+	std::cout << "Sum of weights " << sumW << " for " << weights->size() << std::endl;
+      }
+
       // Loop over sources
       for ( std::vector<std::string>::const_iterator itr = srcNames.begin();
 	    itr != srcNames.end(); itr++ ) {
@@ -999,7 +1094,7 @@ namespace Likelihood {
 	// We are actually fitting a scale factor w.r.t. the baseline fit
 	// so we want to latch the normalization parameter values
 	// from the baseline fit
-	Source* aSrc = logLike.getSource(*itr);
+	Source* aSrc = nc_logLike.getSource(*itr);
 	double refValue = aSrc->spectrum().normPar().getValue();
 	bool hasSourceMap = logLike.hasSourceMap(*itr);
 
@@ -1008,10 +1103,10 @@ namespace Likelihood {
 	// Sources b/c we don't want to have to keep
 	// source maps for all the fixed sources
 	std::vector<float> modelCounts(nbins, 0.);
-	logLike.computeModelMap(*itr,modelCounts);
+	nc_logLike.computeModelMap(*itr,modelCounts);
 
 	if ( ! aSrc->spectrum().normPar().isFree() && !hasSourceMap ) {
-	  logLike.eraseSourceMap(*itr);
+	  nc_logLike.eraseSourceMap(*itr);
 	} 
 
 	// Here we cache the model
@@ -1037,12 +1132,10 @@ namespace Likelihood {
 	}
 	if ( false ) {
 	  sumVector(modelCounts.begin(),modelCounts.end(),modelTotal);
-	  std::cout << *itr << ' ' << modelTotal << std::endl;
 	}
       }      
       if ( false ) {
 	sumVector(fixed.begin(),fixed.end(),modelTotal);
-	std::cout << "Fixed " << modelTotal << std::endl;
       }
       return;
     }        
@@ -1168,6 +1261,77 @@ namespace Likelihood {
 
     }
 
+    void sparsifyWeights(const std::vector<int>& nonZeroBins,
+			 const std::vector<float>& weights,
+			 const std::vector<float>& model,
+			 std::vector<float>& weightsRed){
+      weightsRed.clear();
+      int nBins(0);
+      int i(0);
+      int nZero(0);
+      float zeroCountSum_weight(0.);
+      float zeroCountSum_model(0.);
+     
+      // This is a bit tricky.
+      // The real loop is over the bin index in the full model (i)
+      // This loop here is just telling us where the next non-zero bin is
+      // Then we loop up to that bin.
+      // We do things this way to keep track of the contribution
+      // from the zero bins in each energy layer
+      for ( std::vector<int>::const_iterator itr = nonZeroBins.begin();
+	    itr != nonZeroBins.end(); itr++ ) {
+	int nextNonZero = *itr;
+	if ( *itr < 0 ) {
+	  // This is a placeholder between energy layers
+	  nextNonZero *= -1;
+	} 
+	// Loop to the next bin
+	for ( ; i < nextNonZero; i++ ) {	    
+	  zeroCountSum_weight += (weights[i] * model[i]);
+	  zeroCountSum_model += model[i];	  
+	  nZero++;
+	} 
+	if ( *itr < 0 ) {
+	  // This is a placeholder between energy layers
+	  // push back and reset the sum of the model counts in the zero count bins
+	  float zeroCountSum = zeroCountSum_model > 0 ? zeroCountSum_weight / zeroCountSum_model : 1.;
+	  weightsRed.push_back(zeroCountSum);
+	  zeroCountSum_weight = 0;	  
+	  zeroCountSum_model = 0;
+	  nBins++;	  
+	} else {
+	  // This is the next non-zero bin, push it back on the model
+	  weightsRed.push_back(weights[i]);
+	  i++;
+	}
+      }
+      // This is just for debugging
+      if ( true ) {
+	float fullSum(0.);
+	float redSum(0.);
+	sumVector(weights.begin(),weights.end(),fullSum);
+	sumVector(weightsRed.begin(),weightsRed.end(),redSum);
+	std::vector<float> modelRed;
+	sparsifyModel(nonZeroBins,model,modelRed);
+
+	float ip_0(0.); 
+	innerProduct(model.begin(),model.end(),weights.begin(),weights.end(),ip_0);
+	float ip_1(0.); 
+	innerProduct(modelRed.begin(),modelRed.end(),weightsRed.begin(),weightsRed.end(),ip_1);
+	  
+
+	std::cout << "Compare:  " << fullSum << ' ' << redSum << std::endl;
+	std::cout << "Compare2: " << ip_0 << ' ' << ip_1 << std::endl;
+	std::cout << "NBins:    " << nBins << ' ' << i << ' ' << nZero << std::endl;
+	
+      }
+
+    }
+
+
+    
+
+
     double logLikePoisson(std::vector<float>::const_iterator data_start, 
 			  std::vector<float>::const_iterator data_stop,
 			  std::vector<float>::const_iterator model_start,
@@ -1202,6 +1366,49 @@ namespace Likelihood {
       return (logTerm-nPred);
     }
 
+    double logLikePoisson(std::vector<float>::const_iterator data_start, 
+			  std::vector<float>::const_iterator data_stop,
+			  std::vector<float>::const_iterator model_start,
+			  std::vector<float>::const_iterator model_stop,
+			  std::vector<float>::const_iterator w_start,
+			  std::vector<float>::const_iterator w_stop) {
+      size_t s1 = data_stop - data_start;
+      size_t s2 = model_stop - model_start;
+      size_t s3 = w_stop - w_start;
+      if ( s1 != s2 ) {      
+	throw std::runtime_error("Size of model does not match size of data in FitUtils::logLikePoisson.");
+	return 0.;
+      }
+      if ( s1 != s3 ) {      
+	throw std::runtime_error("Size of weights does not match size of data in FitUtils::logLikePoisson.");
+	return 0.;
+      }
+      std::vector<float>::const_iterator itr_data = data_start;
+      std::vector<float>::const_iterator itr_model = model_start;
+      std::vector<float>::const_iterator itr_w = w_start;
+      // We do the running sum in two parts, to avoid numerical issues
+      // with adding something very small to something very large 
+      // Note also that we are using doubles for the running sums
+      double nPred(0.);
+      double logTerm(0.);
+      for ( ; itr_data != data_stop; itr_data++, itr_model++, itr_w++ ) {
+	if ( *itr_model < 0. ) {
+	  throw std::runtime_error("Negative model counts in FitUtils::logLikePoisson.");
+	  return 0.;
+	}
+	nPred += (*itr_model) * (*itr_w);
+	double dw = (*itr_data) * (*itr_w);
+	// logs are expensive, don't do this unless the weighted number of data counts is > 0.
+	if ( dw > 1e-9 ) {
+	  if (  *itr_model <= 0. ) { 
+	    throw std::runtime_error("Negative or zero model counts for pixel with weighted data counts in FitUtils::logLikePoisson.");
+	  }
+	  logTerm += ( dw * std::log(*itr_model) );
+	}
+      }
+      return (logTerm-nPred);
+    }
+
     int fitModelNorms_newton(const BinnedLikelihood& logLike,
 			     const std::string& test_name,
 			     double tol, int maxIter, double initLambda,
@@ -1229,6 +1436,9 @@ namespace Likelihood {
       std::vector<const std::vector<float>* > templates;
       std::vector<float> fixed;
       std::vector<float> scales;
+      // EAC FIXME
+      std::vector<float>* weights(0);
+
 
       refactorModels(template_master,fixed_master,scales_in,freePars,
 		     &test_source_master,templates,fixed,scales);
@@ -1241,7 +1451,7 @@ namespace Likelihood {
 
       model.resize(fixed.size());
       int retVal = fitNorms_newton(logLike.countsMap().data(),
-				   initNorms,templates,fixed,prior,
+				   initNorms,templates,fixed,prior,weights,
 				   tol,maxIter,initLambda,norms,covar,gradient,
 				   model,edm,logLikeVal,
 				   firstBin,lastBin);
