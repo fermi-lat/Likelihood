@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.16 2016/06/21 20:31:37 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.17 2016/06/21 22:36:37 mdwood Exp $
  */
 
 
@@ -360,8 +360,9 @@ namespace Likelihood {
 						 std::vector<std::vector<float> >& templates,		       
 						 std::vector<float>& fixed,
 						 std::vector<float>& test_source_model,
-						 std::vector<float>& refPars) const {
-    FitUtils::extractModels(m_binnedLike,test_name,templates,fixed,test_source_model,refPars);
+						 std::vector<float>& refPars,
+						 std::vector<float>* weights) const {
+    FitUtils::extractModels(m_binnedLike,test_name,templates,fixed,test_source_model,refPars,weights);
   }
   
   double FitScanModelWrapper_Binned::value() const {
@@ -550,7 +551,8 @@ namespace Likelihood {
 						 std::vector<std::vector<float> >& templates,		       
 						 std::vector<float>& fixed,
 						 std::vector<float>& test_source_model,
-						 std::vector<float>& refPars) const {
+						 std::vector<float>& refPars,
+						 std::vector<float>* weights) const {
 
     static double tol = 1e-3;
     static int maxIter = 30;
@@ -559,8 +561,10 @@ namespace Likelihood {
     std::vector< std::vector< const std::vector<float>* > > templatesToMerge;
     std::vector< const std::vector<float>* > fixedToMerge;
     std::vector< const std::vector<float>* > testToMerge;
+    std::vector< const std::vector<float>* > weightsToMerge;
 
     std::vector< FitScanModelWrapper_Binned* > wrappers;
+    bool useWeights = weights != 0;
 
     for ( size_t i(0); i < m_summedLike.numComponents(); i++ ) {
       LogLike* comp = m_summedLike.getComponent(i);
@@ -571,11 +575,14 @@ namespace Likelihood {
       }       
       FitScanModelWrapper_Binned* nbw = new FitScanModelWrapper_Binned(*binnedLike);
       wrappers.push_back(nbw);
-      FitScanCache* cache = new FitScanCache(*nbw,test_name,tol,maxIter,lambda,false);
+      FitScanCache* cache = new FitScanCache(*nbw,test_name,tol,maxIter,lambda,false,useWeights);
       caches.push_back(cache);
       fixedToMerge.push_back( &(cache->allFixed()) );
       testToMerge.push_back( &(cache->targetModel()) );
       refPars.resize(cache->refValues().size());
+      if ( useWeights ) {
+	weightsToMerge.push_back( &(cache->weights()) );
+      }
       if ( i == 0 ) {
 	std::copy(cache->refValues().begin(),cache->refValues().end(),refPars.begin());
 	templatesToMerge.resize( cache->allModels().size() );	 
@@ -589,6 +596,9 @@ namespace Likelihood {
 
     mergeVectors(fixedToMerge,m_nPixelsByComp,m_energyBinLocal,fixed);
     mergeVectors(testToMerge,m_nPixelsByComp,m_energyBinLocal,test_source_model);
+    if ( useWeights ) {
+      mergeVectors(weightsToMerge,m_nPixelsByComp,m_energyBinLocal,*weights);
+    }
 
     templates.resize(templatesToMerge.size());
     for ( size_t itmp(0); itmp < templatesToMerge.size(); itmp++ ) {
@@ -688,7 +698,7 @@ namespace Likelihood {
   FitScanCache::FitScanCache(FitScanModelWrapper& modelWrapper,
 			     const std::string& testSourceName,
 			     double tol, int maxIter, double initLambda,
-			     bool useReduced) 
+			     bool useReduced, bool useWeights)
     :m_modelWrapper(modelWrapper),
      m_testSourceName(testSourceName),
      m_tol(tol),
@@ -698,8 +708,10 @@ namespace Likelihood {
      m_npix(m_modelWrapper.nPix()),
      m_data(modelWrapper.data()),
      m_allFixed(m_modelWrapper.size()),
+     m_initModel(m_modelWrapper.size()),
      m_targetModel(m_modelWrapper.size()),
      m_useReduced(useReduced),
+     m_useWeights(useWeights),
      m_loglike_ref(m_modelWrapper.value()),
      m_currentFreeSources(m_modelWrapper.size()),
      m_currentFixed(m_modelWrapper.size()),
@@ -720,11 +732,17 @@ namespace Likelihood {
 				 m_allModels,
 				 m_allFixed,
 				 m_targetModel,
-				 m_refValues);
+				 m_refValues,
+				 m_useWeights ? &m_weights : 0);
+
+    FitUtils::sumModel_Init(m_allModels,m_allFixed,m_initModel);
+
     // Set up the baseline fit.   
     std::vector<bool> freeSources(m_allModels.size(),true);
     std::vector<float> parScales(m_allModels.size(),1.);
-    
+    CLHEP::HepVector parScales_HEP;
+    FitUtils::Vector_Stl_to_Hep(parScales,parScales_HEP);
+
     if ( m_useReduced ) {
       reduceModels();
     }
@@ -987,11 +1005,14 @@ namespace Likelihood {
       prior = m_currentTestSourceIndex >= 0 ? m_global_prior_test : m_global_prior_bkg;
     }
 
+    std::vector<float>* wts_ptr = m_useWeights ?  ( m_useReduced ? &m_weightsRed : &m_weights ) : 0;
+
     int status = FitUtils::fitNorms_newton(m_useReduced ? m_dataRed : m_data,
 					   m_initPars,
 					   m_currentModels,
 					   m_currentFixed,
 					   prior,
+					   wts_ptr,
 					   m_tol,m_maxIter,
 					   m_initLambda,
 					   m_currentPars,
@@ -1019,8 +1040,16 @@ namespace Likelihood {
       ( m_lastBin == 0 ? m_data.end() : m_data.begin() + m_lastBin );
     std::vector<float>::const_iterator model_start = m_currentBestModel.begin() + m_firstBin;
     std::vector<float>::const_iterator model_end = m_lastBin == 0 ? m_currentBestModel.end() : m_currentBestModel.begin() + m_lastBin;
-    
-    logLike = FitUtils::logLikePoisson(data_start,data_end,model_start,model_end);
+
+    if ( m_useWeights ) {
+      std::vector<float>::const_iterator w_start = m_useReduced ? m_weightsRed.begin() + m_firstBin : m_weights.begin() + m_firstBin;
+      std::vector<float>::const_iterator w_end =  m_useReduced ? 
+	( m_lastBin == 0 ? m_weightsRed.end() : m_weightsRed.begin() + m_lastBin ) :
+	( m_lastBin == 0 ? m_weights.end() : m_weights.begin() + m_lastBin );
+      logLike  = FitUtils::logLikePoisson(data_start,data_end,model_start,model_end,w_start,w_end);
+    } else {
+      logLike = FitUtils::logLikePoisson(data_start,data_end,model_start,model_end);
+    }
     return 0;
   }
   
@@ -1088,11 +1117,12 @@ namespace Likelihood {
 			    fixed_temp.begin()+m_firstBin,fixed_temp.begin()+m_lastBin,
 			    1.,scan_val);	
       }
+      std::vector<float>* wts_ptr = m_useWeights ? ( m_useReduced ? &m_weightsRed : &m_weights ) : 0;
       if ( do_profile ) {
 	// Fit the other sources
 	int status = FitUtils::fitNorms_newton((m_useReduced ? m_dataRed : m_data),
 					       init_pars,models_temp,fixed_temp,
-					       m_prior_bkg,
+					       m_prior_bkg,wts_ptr,
 					       m_tol,m_maxIter,m_initLambda,
 					       pars_temp,covs_temp,grad_temp,
 					       model_temp,
@@ -1111,8 +1141,15 @@ namespace Likelihood {
 
 	std::vector<float>::const_iterator itrDataBeg = m_useReduced ? m_dataRed.begin()+m_firstBin : m_data.begin()+m_firstBin;
 	std::vector<float>::const_iterator itrDataEnd = m_useReduced ? m_dataRed.begin()+m_lastBin : m_data.begin()+m_lastBin;
-	logLikes[is] = FitUtils::logLikePoisson(itrDataBeg,itrDataEnd,
-						model_temp.begin()+m_firstBin,model_temp.begin()+m_lastBin);   
+	
+	if ( m_useWeights ) {
+	  logLikes[is] = FitUtils::logLikePoisson(itrDataBeg,itrDataEnd,
+						  model_temp.begin()+m_firstBin,model_temp.begin()+m_lastBin,
+						  wts_ptr->begin()+m_firstBin,wts_ptr->begin()+m_lastBin);
+	} else {
+	  logLikes[is] = FitUtils::logLikePoisson(itrDataBeg,itrDataEnd,
+						  model_temp.begin()+m_firstBin,model_temp.begin()+m_lastBin);   
+	}
       }
       // step the scan value
       scan_val += lin_step;
@@ -1185,6 +1222,13 @@ namespace Likelihood {
     }
     FitUtils::sparsifyModel(m_nonZeroBins,m_allFixed,m_allRedFixed);
     FitUtils::sparsifyModel(m_nonZeroBins,m_targetModel,m_targetRedModel);
+
+    if ( m_useWeights ) {
+      FitUtils::sparsifyWeights(m_nonZeroBins,m_weights,m_initModel,m_weightsRed);
+      if ( m_weightsRed.size() != nred ) {
+	throw std::runtime_error("Mistmatch between reduced weights vector size and reduced model vector size.");
+      }
+    }
     if ( m_allRedFixed.size() != nred ) {
       throw std::runtime_error("Mistmatch between reduced data vector size and fixed component vector size.");
     }
@@ -1391,11 +1435,11 @@ namespace Likelihood {
 			    double tol, int tolType, 
 			    int maxIter, bool remakeTestSource,
 			    int ST_scan_level, std::string src_model_out,
-			    double initLambda) {
+			    double initLambda, bool useWeights) {
     return run_tscube(true,false,0,0.0,
 		      covScale_bb,-1.0,
 		      tol,tolType,maxIter,remakeTestSource,ST_scan_level,src_model_out,
-		      initLambda);
+		      initLambda,useWeights);
   }
 
   /* Build an SED.
@@ -1406,11 +1450,11 @@ namespace Likelihood {
 			  double tol, int maxIter, int tolType, 
 			  bool remakeTestSource,
 			  int ST_scan_level,std::string src_model_out,
-			  double initLambda) {
+			  double initLambda, bool useWeights) {
     return run_tscube(false,true,nNorm,normSigma,
 		      covScale_bb,covScale,
 		      tol,maxIter,tolType,remakeTestSource,
-		      ST_scan_level,src_model_out,initLambda);
+		      ST_scan_level,src_model_out,initLambda,useWeights);
   }
 
   
@@ -1424,7 +1468,8 @@ namespace Likelihood {
 			     bool remakeTestSource,
 			     int ST_scan_level,
 			     std::string src_model_out,
-			     double initLambda) {
+			     double initLambda, 
+			     bool useWeights) {
 
     if ( true ) {
       std::cout << "nNorm     = " << nNorm << std::endl;
@@ -1433,6 +1478,7 @@ namespace Likelihood {
       std::cout << "tol       = " << tol << std::endl;
       std::cout << "maxIter   = " << maxIter << std::endl;
       std::cout << "initLambda= " << initLambda << std::endl;
+      std::cout << "useWeights= " << (useWeights ? 'T' : 'F') << std::endl;
       std::cout << "tolType   = " << tolType << std::endl;
       std::cout << "remakeSrc = " << (remakeTestSource ? 'T' : 'F') << std::endl;
       std::cout << "st_scan   = " << ST_scan_level << std::endl;
@@ -1472,7 +1518,7 @@ namespace Likelihood {
     
     // Build the cache object, deleting the old version if needed
     delete m_cache;
-    m_cache = new FitScanCache(*m_modelWrapper,m_testSourceName,tol,maxIter,initLambda,useReduced());        
+    m_cache = new FitScanCache(*m_modelWrapper,m_testSourceName,tol,maxIter,initLambda,useReduced(),useWeights);        
     m_cache->calculateLoglikeCurrent(loglike_null);
     std::cout << "Got null likelihood " << loglike_null << std::endl;    
 

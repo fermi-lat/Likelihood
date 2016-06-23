@@ -1,5 +1,5 @@
 #
-# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttscube.par,v 1.1 2015/07/17 18:41:56 echarles Exp $
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gttscube.par,v 1.2 2016/02/23 21:11:49 echarles Exp $
 #
 # Input data set parameters
 #
@@ -11,6 +11,7 @@ irfs,s,a,"CALDB",,,"Response functions to use"
 
 # Input model parameters
 srcmdl,f,a,"",,,"Source model file"
+wmap,f,h,"none",,,"Likelihood weights map"
 psfcorr,b,h,yes,,,"apply psf integral corrections"
 remakesrc,b,h,no,,,"Remake the test source to each grid point, rather than shifting it?"
 target,s,h,"",,,"Target source name, leave blank for powerlaw source with index=2"
@@ -21,6 +22,8 @@ ftol,r,h,1e-3,,,"Fit tolerance"
 toltype,s,h,"ABS","ABS|REL",,"Fit tolerance convergence type (absolute vs relative)"
 maxiter,i,h,30,,,"Maximum number of iterations for Newton's method fitting"
 stlevel,i,h,1,0,4,"Science tools fitting up to what scan loop"
+lambda,r,h,0,,,"Initial damping parameter for step size calculation. (<=0 disables damping)"
+
 
 # Output file parameters
 outfile,f,a,"",,,"TS cube file name"

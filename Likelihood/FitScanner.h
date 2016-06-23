@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.13 2016/06/21 20:31:38 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.14 2016/06/21 22:36:36 mdwood Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -294,7 +294,8 @@ namespace Likelihood {
 			       std::vector<std::vector<float> >& templates,		       
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
-			       std::vector<float>& refPars) const = 0;
+			       std::vector<float>& refPars,
+			       std::vector<float>* weights = 0) const = 0;
 
    
 
@@ -442,7 +443,8 @@ namespace Likelihood {
 			       std::vector<std::vector<float> >& templates,		       
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
-			       std::vector<float>& refPars) const;
+			       std::vector<float>& refPars,
+			       std::vector<float>* weights = 0) const;
 
 
     /* Get the likelihood value */
@@ -536,7 +538,8 @@ namespace Likelihood {
 			       std::vector<std::vector<float> >& templates,		       
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
-			       std::vector<float>& refPars) const;
+			       std::vector<float>& refPars,
+			       std::vector<float>* weights = 0) const;
     
     /* Get the likelihood value */
     virtual double value() const;
@@ -644,7 +647,7 @@ namespace Likelihood {
     FitScanCache(FitScanModelWrapper& modelWrapper,
 		 const std::string& testSourceName,
 		 double tol, int maxIter, double initLambda,
-		 bool useReduced);    
+		 bool useReduced, bool useWeights=false);
 
     /* D'tor */
     ~FitScanCache();
@@ -746,6 +749,7 @@ namespace Likelihood {
     inline size_t nebins() const { return m_nebins; }
     inline size_t nBkgModel() const { return m_allModels.size(); }
     inline bool useReduced() const { return m_useReduced; }
+    inline bool useWeights() const { return m_useWeights; }
     inline double tol() const { return m_tol; }
     inline int maxIter() const { return m_maxIter; }
     inline double initLambda() const { return m_initLambda; }
@@ -771,6 +775,7 @@ namespace Likelihood {
     
     inline const std::vector<std::vector<float> >& allModels() const { return m_allModels; }
     inline const std::vector<float>& allFixed() const { return m_allFixed; }   
+    inline const std::vector<float>& weights() const { return m_weights; }   
     inline const std::vector<float>& targetModel() const { return m_targetModel; }
 
     // info about the iteration
@@ -779,7 +784,7 @@ namespace Likelihood {
     
     inline const std::vector<float>& currentFixed() const { return m_currentFixed; }
     inline const std::vector<float>& targetRedModel() const { return m_targetRedModel; }    
-
+    inline const std::vector<float>& weightsRed() const { return m_weightsRed; }   
 
   protected:
 
@@ -799,6 +804,8 @@ namespace Likelihood {
     int m_maxIter;
     // Initial damping parameter for step calculation
     double m_initLambda;
+    
+    
 
     // number of energy bins in the counts map
     size_t m_nebins;
@@ -811,15 +818,22 @@ namespace Likelihood {
     std::vector<std::vector<float> > m_allModels;
     // master version of the sum of the fixed model components
     std::vector<float> m_allFixed;
+    // master version of the initial model
+    std::vector<float> m_initModel;
+    // master version of the weights
+    std::vector<float> m_weights;
     // set of refrence values of all the paramters
     std::vector<float> m_refValues;
     // current test source model map
-    std::vector<float> m_targetModel;
+    std::vector<float> m_targetModel;    
 
     // specific for sparse model fitting
 					       
     // Use the reduced vectors?
     bool m_useReduced;
+    // Use the weights
+    bool m_useWeights;
+
     // Reduced data vector
     std::vector<float> m_dataRed;
     // Indices of non-zero bins
@@ -830,6 +844,8 @@ namespace Likelihood {
     std::vector<std::vector<float> > m_allRedModels;
     // master version of the reduced models sum of the fixed model components
     std::vector<float> m_allRedFixed;
+    // master version of the reduced weights
+    std::vector<float> m_weightsRed;     
     // current test source reduced model map
     std::vector<float> m_targetRedModel;
 
@@ -961,6 +977,7 @@ namespace Likelihood {
        ST_scan_level : Level to which to do ST-based fitting (for testing)
        src_model_out : Name of XML file to write re-fit source model
        initLambda    : Initial damping parameter for step size calculation. (0 disables damping)
+       useWeights    : Use the likelihood weights 
 
        returns 0 for success, or a error code
      */
@@ -971,7 +988,8 @@ namespace Likelihood {
 		  bool remakeTestSource = false,
 		  int ST_scan_level = 0,
 		  std::string src_model_out = "",
-		  double initLambda = 0.0);
+		  double initLambda = 0.0,
+		  bool useWeights = false);
 
      /* Build an SED.
 	This calculates the spectrum as a function of energy
@@ -990,6 +1008,7 @@ namespace Likelihood {
        ST_scan_level : Level to which to do ST-based fitting (for testing)
        src_model_out : Name of XML file to write re-fit source model
        initLambda    : Initial damping parameter for step size calculation. (0 disables damping)
+       useWeights    : Use the likelihood weights 
 
        returns 0 for success, or a error code
      */
@@ -999,7 +1018,9 @@ namespace Likelihood {
 		int tolType = 0, 
 		bool remakeTestSource = false,
 		int ST_scan_level = 0,
-		std::string src_model_out = "", double initLambda = 0.0);
+		std::string src_model_out = "", 
+		double initLambda = 0.0,
+		bool useWeights = false);
 
 
     /* Build a TS cube.
@@ -1019,6 +1040,7 @@ namespace Likelihood {
        ST_scan_level : Level to which to do ST-based fitting (for testing)
        src_model_out : Name of XML file to write re-fit source model
        initLambda    : Initial damping parameter for step size calculation. (0 disables damping)
+       useWeights    : Use the likelihood weights 
 
        returns 0 for success, or a error code
 
@@ -1030,7 +1052,8 @@ namespace Likelihood {
 		   bool remakeTestSource = false,
 		   int ST_scan_level = 0,
 		   std::string src_model_out = "",
-		   double initLambda = 0.0);
+		   double initLambda = 0.0,
+		   bool useWeights = false);
 
     /* Write the stored data to a FITS file */
     int writeFitsFile(const std::string& fitsFile,
