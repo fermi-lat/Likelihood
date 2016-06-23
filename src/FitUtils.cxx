@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.12 2016/06/21 22:36:37 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.13 2016/06/23 02:18:35 echarles Exp $
  */
 
 
@@ -1306,7 +1306,7 @@ namespace Likelihood {
 	}
       }
       // This is just for debugging
-      if ( true ) {
+      if ( false ) {
 	float fullSum(0.);
 	float redSum(0.);
 	sumVector(weights.begin(),weights.end(),fullSum);
