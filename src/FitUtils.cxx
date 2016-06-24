@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.13 2016/06/23 02:18:35 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.14 2016/06/23 02:20:17 echarles Exp $
  */
 
 
@@ -12,6 +12,10 @@
 #include <cmath>
 
 #include <stdexcept>
+
+#include "gsl/gsl_matrix.h"
+#include "gsl/gsl_vector.h"
+#include "gsl/gsl_linalg.h"
 
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
@@ -23,6 +27,7 @@
 #include <vector>
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/SymMatrix.h"
+#include "CLHEP/Matrix/Matrix.h"
 #include "optimizers/Function.h"
 #include "optimizers/dArg.h"
 
@@ -30,6 +35,120 @@ namespace Likelihood {
 
   namespace FitUtils {
     
+    void svd_inverse(const CLHEP::HepMatrix& u,
+		     const CLHEP::HepMatrix& v,
+		     const CLHEP::HepVector& s,
+		     CLHEP::HepMatrix& inverse) {
+
+      CLHEP::HepMatrix w(s.num_row(),s.num_row());
+
+      for ( size_t i(0); i < s.num_row(); i++ ) {
+	if(s[i] <= 0) {
+	  w[i][i] = 0;
+	} else {
+	  w[i][i] = 1./s[i];
+	}
+      }
+      inverse = v*w*u.T();
+    }
+
+    int svd_solve(const CLHEP::HepSymMatrix& hessian,
+		  const CLHEP::HepVector& gradient,
+		  CLHEP::HepMatrix& u,
+		  CLHEP::HepMatrix& v,
+		  CLHEP::HepVector& s,
+		  CLHEP::HepVector& delta,
+		  double eps) {
+
+      CLHEP::HepMatrix h(hessian);
+      const int nrow = hessian.num_row();
+      const int ncol = hessian.num_col();
+
+      delta = CLHEP::HepVector(nrow);
+      
+      gsl_matrix * U = Matrix_Hep_to_Gsl(h);
+      gsl_vector * G = Vector_Hep_to_Gsl(gradient);
+      gsl_matrix * V = gsl_matrix_alloc(nrow, ncol);
+      gsl_vector * S = gsl_vector_alloc(nrow);
+      gsl_vector * work = gsl_vector_alloc(nrow);
+      gsl_vector * x = gsl_vector_alloc(nrow);
+      
+      int ierr = gsl_linalg_SV_decomp(U,V,S,work);
+      if(ierr) {
+	return ierr;
+      }
+
+      double threshold = 0.5*sqrt(double(nrow+ncol)+1.0)*gsl_vector_get(S,0)*eps;
+      for ( size_t i(0); i < nrow; i++ ) {
+	if( fabs(gsl_vector_get(S,i)) < threshold ) {
+	  gsl_vector_set(S,i,0);
+	}
+      }
+
+      gsl_linalg_SV_solve(U,V,S,G,x);
+
+      Vector_Gsl_to_Hep(x,delta);
+
+      Matrix_Gsl_to_Hep(U,u);
+      Matrix_Gsl_to_Hep(V,v);
+      Vector_Gsl_to_Hep(S,s);
+
+      gsl_matrix_free(U);
+      gsl_vector_free(G);
+      gsl_matrix_free(V);
+      gsl_vector_free(S);
+      gsl_vector_free(work);
+      gsl_vector_free(x);
+
+      return 0;
+    }
+    
+    gsl_vector * Vector_Hep_to_Gsl(const CLHEP::HepVector& hep) {
+
+      const int nrow = hep.num_row();
+      gsl_vector * v = gsl_vector_alloc(nrow);
+      for ( size_t i(0); i < nrow; i++ ) {
+	gsl_vector_set(v,i,hep[i]);
+      }
+      return v;
+    }
+
+    gsl_matrix * Matrix_Hep_to_Gsl(const CLHEP::HepMatrix& hep) {
+
+      const int nrow = hep.num_row();
+      const int ncol = hep.num_col();
+      gsl_matrix * m = gsl_matrix_alloc(nrow,ncol);
+      for ( size_t i(0); i < nrow; i++ ) {
+	for ( size_t j(0); j < ncol; j++ ) {
+	  gsl_matrix_set(m,i,j,hep[i][j]);
+	}
+      }
+      return m;
+    }
+
+    void Vector_Gsl_to_Hep(const gsl_vector * gsl,
+			   CLHEP::HepVector& hep) {
+
+      const int nrow = gsl->size;
+      hep = CLHEP::HepVector(nrow);
+      for ( size_t i(0); i < nrow; i++ ) {
+	hep[i] = gsl_vector_get(gsl,i);
+      }
+    }
+
+    void Matrix_Gsl_to_Hep(const gsl_matrix * gsl,
+			   CLHEP::HepMatrix& hep) {
+
+      const int nrow = gsl->size1;
+      const int ncol = gsl->size2;
+      hep = CLHEP::HepMatrix(nrow,ncol);
+      for ( size_t i(0); i < nrow; i++ ) {
+	for ( size_t j(0); j < ncol; j++ ) {
+	  hep[i][j] = gsl_matrix_get(gsl,i,j);
+	}
+      }
+    }
+
     void Vector_Hep_to_Stl(const CLHEP::HepVector& hep,
 			   std::vector<float>& stl) {
       stl.resize(hep.num_row());
@@ -501,10 +620,7 @@ namespace Likelihood {
 			       const CLHEP::HepVector& norms,
 			       CLHEP::HepSymMatrix& covar,
 			       CLHEP::HepVector& delta,
-			       double& edm,
-			       double lambda) {      
-
-      int npar = gradient.num_row();
+			       double& edm) {      
       covar.assign(hessian);
       int ifail(0);
       covar.invert(ifail);
@@ -512,33 +628,8 @@ namespace Likelihood {
 	return ifail;
       }
       
-      if(lambda > 0) {
-
-	CLHEP::HepSymMatrix alpha = hessian;
-	for( int i(0); i < npar; i++)
-	  alpha[i][i] *= (1+lambda);
-
-	alpha.invert(ifail);
-	if ( ifail ) {
-	  return ifail;
-	}
-
-	delta = alpha * gradient; 
-	CLHEP::HepVector delta_covar = covar * gradient;
-
-	edm = 0.;
-
-	for ( int i(0); i < npar; i++ ) {
-	  if ( delta[i] > norms[i] ) {
-	    delta[i] = 0.9999*norms[i];
-	  }
-	  edm += std::fabs(delta_covar[i] * gradient[i]);
-	} 
-	return 0;
-
-      } 
-      
-      delta = covar * gradient;
+      delta = covar * gradient;   
+      int npar = gradient.num_row();
       edm = 0.;
 
       // Protect against components going negative.
@@ -569,6 +660,75 @@ namespace Likelihood {
             retry += 1;
           }
         }
+      }
+
+      return 0;
+    }
+
+    int getDeltaAndCovarAndEDM(const CLHEP::HepSymMatrix& hessian,
+			       const CLHEP::HepVector& gradient,
+			       const CLHEP::HepVector& norms,
+			       CLHEP::HepSymMatrix& covar,
+			       CLHEP::HepVector& delta,
+			       double& edm,
+			       double lambda) {      
+
+      const int npar = gradient.num_row();
+      CLHEP::HepSymMatrix alpha = hessian;
+      for( int i(0); i < npar; i++)
+	alpha[i][i] *= (1+lambda);
+
+      CLHEP::HepMatrix u, v;
+      CLHEP::HepVector s;
+      int ifail = svd_solve(alpha, gradient, u, v, s, delta);
+      if(ifail) {
+	return ifail;
+      }
+
+      covar.assign(hessian);
+      covar.invert(ifail);
+      for ( int i(0); i < npar; i++ ) {
+	if(covar[i][i] < 0)
+	  ifail = 1;
+      }
+
+      if ( ifail ) {
+	CLHEP::HepMatrix inverse;
+	svd_inverse(u,v,s,inverse);
+	covar.assign(inverse);
+      }
+
+      const double lo_bound = 0;
+      int retry(0);
+      CLHEP::HepVector g2(gradient);
+      for ( int i(0); i < npar; i++ ) {
+
+	if ( norms[i] - delta[i] < lo_bound ) {
+	  delta[i] = std::min(0.9999*norms[i], norms[i]-lo_bound);
+	  g2[i] = 0.;
+	  retry += 1;
+	}
+      }
+      
+      edm = 0.;
+      for ( int i(0); i < npar; i++ ) {
+	edm += std::fabs(delta[i] * gradient[i]);
+      }
+
+      if ( retry > 0 ) {
+
+	int ifail = svd_solve(alpha, g2, u, v, s, delta);
+	if(ifail) {
+	  return ifail;
+	}
+
+	for ( int i(0); i < npar; i++ ) {
+	  if ( norms[i] - delta[i] < lo_bound ) {
+	    delta[i] = std::min(0.9999*norms[i], norms[i]-lo_bound);
+	    g2[i] = 0.;
+	    retry += 1;
+	  }
+	}
       }
 
       return 0;
@@ -628,6 +788,7 @@ namespace Likelihood {
       edm = 100*tol;
       int iter(0);
       double lambda = initLambda;
+      bool stepOk = true;
 
       // Check to see if there are any counts.  
       float data_total(0.);
@@ -646,27 +807,34 @@ namespace Likelihood {
       }
       
       // loop until convergence or max iterations
-      while ( iter < maxIter ) {
+      while ( iter < maxIter && std::fabs(edm) > tol ) {
 	
 	// do the derivative stuff
 	getGradientAndHessian(data,norms,templates,fixed,prior,weights,model,
 			      gradient,hessian,firstBin,lastBin,verbose);
 	if ( verbose > 2 ) {
-	  printSymMatrix("Hesse: ",hessian);
+	  printMatrix("Hesse: ",hessian);
 	  printVector("Grad: ",gradient);
 	  if ( prior ) {
 	    CLHEP::HepVector gPrior;
 	    prior->gradient(norms,gPrior);
 	    printVector("Prior Grad: ",gPrior);
-	    printSymMatrix("Prior Hesse: ",prior->hessian());
+	    printMatrix("Prior Hesse: ",prior->hessian());
 	  }
 	}
 	// invert the hessian and get the delta for the next iteration
 	// this also compute the estimated distance to the minimum
-	int covOk = getDeltaAndCovarAndEDM(hessian,gradient,norms,
-					   covar,delta,edm,lambda);
+	int covOk = 0;
+
+	if(lambda > 0)
+	  covOk = getDeltaAndCovarAndEDM(hessian,gradient,norms,
+					 covar,delta,edm,lambda);
+	else
+	  covOk = getDeltaAndCovarAndEDM(hessian,gradient,norms,
+					 covar,delta,edm);
+
 	if ( verbose > 2 ) {
-	  printSymMatrix("Cov: ",covar);
+	  printMatrix("Cov: ",covar);
 	}
 
 	if ( covOk !=0 ) {
@@ -689,10 +857,12 @@ namespace Likelihood {
 
 	  if (logLikeIter > logLikeVal) {
 	    norms -= delta;
-	    lambda = std::max(1E-8,lambda*0.1);
+	    lambda = std::max(1E-8,lambda/5.);
 	    logLikeVal = logLikeIter;
+	    stepOk = true;
 	  } else {
-	    lambda *= 10;
+	    lambda *= 3;
+	    stepOk = false;
 	  }
 
 	} else {
@@ -722,30 +892,44 @@ namespace Likelihood {
 	}
 
 	// Break if tolerance criteria are met
-	if(std::fabs(edm) < tol) {
+	if(std::fabs(edm) < tol || (lambda > 0 && deltaLogLike < tol && stepOk)) {
 	  break;
 	}
 
 	iter++;
       }
+      
+      // get the final log-likelihood
+      if(lambda == 0) {
+	logLikeVal = getLogLikelihood(data,norms,templates,fixed,prior,weights,model,
+				      firstBin,lastBin,verbose);
+      } else {
+	getGradientAndHessian(data,norms,templates,fixed,prior,weights,model,
+			      gradient,hessian,firstBin,lastBin,verbose);
+	getDeltaAndCovarAndEDM(hessian,gradient,norms,
+			       covar,delta,edm,0.0);
+      }
+
       // check to see if we reach the max iterations
       if ( iter >= maxIter ) {
 	if ( verbose > 0 ) {
 	  std::cout << "Reached max iterations." << std::endl;
+	  printVector("Init:",initNorms);
+	  printVector("Norms:",norms);
+	  std::cout << "Log-likelihood Init " << logLikeInit << std::endl;
+	  std::cout << "Log-likelihood      " << logLikeVal << std::endl 
+		    << std::endl;	  
 	}
 	return -2;
       }
-      
+
       if ( verbose > 0 ) {
 	std::cout << "Converged, niter = " << iter << std::endl;	
 	printVector("Init:",initNorms);
 	printVector("Norms:",norms);
-      }
-
-      // get the final log-likelihood
-      if(lambda == 0) {
-	logLikeVal = getLogLikelihood(data,norms,templates,fixed,prior,weights,
-				      model,firstBin,lastBin,verbose);
+	std::cout << "Log-likelihood Init " << logLikeInit << std::endl;
+	std::cout << "Log-likelihood      " << logLikeVal << std::endl 
+		  << std::endl;
       }
 
       // Sanity check
@@ -762,11 +946,6 @@ namespace Likelihood {
 	return -8;
       }
 
-      if ( verbose > 0 ) {
-	std::cout << "Log-likelihood Init " << logLikeInit << std::endl;
-	std::cout << "Log-likelihood      " << logLikeVal << std::endl 
-		  << std::endl;
-      }
       return 0;
     }
 
@@ -864,13 +1043,13 @@ namespace Likelihood {
 	
 	if ( verbose > 2 ) {
 	  printVector("Log Norms: ",logNorms);
-	  printSymMatrix("Hesse: ",hessian);
+	  printMatrix("Hesse: ",hessian);
 	  printVector("Grad: ",gradient);
 	  if ( prior ) {
 	    CLHEP::HepVector gPrior;
 	    prior->gradient(norms,gPrior);
 	    printVector("Prior Grad: ",gPrior);
-	    printSymMatrix("Prior Hesse: ",prior->hessian());
+	    printMatrix("Prior Hesse: ",prior->hessian());
 	  }
 	}
 
@@ -878,7 +1057,7 @@ namespace Likelihood {
 	// this also compute the estimated distance to the minimum
 	int covOk = getDeltaAndCovarAndEDM(hessian,gradient,norms,covar,delta,edm);
 	if ( verbose > 2 ) {
-	  printSymMatrix("Cov: ",covar);
+	  printMatrix("Cov: ",covar);
 	}
 		
 	if ( covOk !=0 ) {
@@ -1468,8 +1647,19 @@ namespace Likelihood {
       std::cout << std::endl;
     }
 
-    void printSymMatrix(const std::string& name,
-			const CLHEP::HepSymMatrix& mat) {
+    void printMatrix(const std::string& name,
+		     const CLHEP::HepSymMatrix& mat) {
+      std::cout << name << std::endl;
+      for ( int i(0); i < mat.num_row(); i++ ) {
+	for ( int j(0); j < mat.num_col(); j++ ) {	  
+	  std::cout << mat[i][j] << ' '; 
+	}
+	std::cout << std::endl;
+      }
+    }
+
+    void printMatrix(const std::string& name,
+		     const CLHEP::HepMatrix& mat) {
       std::cout << name << std::endl;
       for ( int i(0); i < mat.num_row(); i++ ) {
 	for ( int j(0); j < mat.num_col(); j++ ) {	  
