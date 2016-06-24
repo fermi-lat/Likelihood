@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.7 2016/06/21 22:36:36 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitUtils.h,v 1.8 2016/06/23 02:18:34 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -28,8 +28,12 @@
 #include <string>
 #include <list>
 
+#include "gsl/gsl_matrix.h"
+#include "gsl/gsl_vector.h"
+
 namespace CLHEP {
   class HepVector;
+  class HepMatrix;
   class HepSymMatrix;
 }
 
@@ -43,6 +47,53 @@ namespace Likelihood {
 
   namespace FitUtils {
     
+    /* Compute the pseudo-inverse of a matrix from its singular value
+       decomposition.  For a matrix A with SVD,
+
+       A = U * S * V^t
+
+       its psuedo-inverse is given by
+
+       A^-1 = V * S^-1 * U^t
+
+       where singular values in S^-1 are set to zero.
+
+     */
+    void svd_inverse(const CLHEP::HepMatrix& u,
+		     const CLHEP::HepMatrix& v,
+		     const CLHEP::HepVector& s,
+		     CLHEP::HepMatrix& inverse);
+    
+    /* Solve a system of equations using singular value decomposition.  
+
+       h * d = g
+
+       where h is the hessian matrix and g is the gradient vector.
+       Returns a solution vector delta and the SVD decomposition of
+       the hessian.  The parameter eps sets the fractional threshold
+       for setting singular values to zero.
+
+     */
+    int svd_solve(const CLHEP::HepSymMatrix& hessian,
+		  const CLHEP::HepVector& gradient,
+		  CLHEP::HepMatrix& u,
+		  CLHEP::HepMatrix& v,
+		  CLHEP::HepVector& s,
+		  CLHEP::HepVector& delta,
+		  double eps = 1E-16);
+    
+    gsl_vector * Vector_Hep_to_Gsl(const CLHEP::HepVector& hep);
+
+    gsl_matrix * Matrix_Hep_to_Gsl(const CLHEP::HepMatrix& hep);
+
+    /* Fill a CLHEP vector with values from a GSL vector */
+    void Vector_Gsl_to_Hep(const gsl_vector * gsl,
+			   CLHEP::HepVector& hep);
+
+    /* Fill a CLHEP matrix with values from a GSL matrix */
+    void Matrix_Gsl_to_Hep(const gsl_matrix * gsl,
+			   CLHEP::HepMatrix& hep);
+
     /* Fill an STL vector with values from a CLHEP vector */
     void Vector_Hep_to_Stl(const CLHEP::HepVector& hep,
 			   std::vector<float>& stl);
@@ -55,7 +106,7 @@ namespace Likelihood {
     void Vector_Stl_to_Hep(const std::vector<float>& stl,
 			   CLHEP::HepVector& hep);
     
-    /* Fill an STL vector with values from a CLHEP Matrix */
+    /* Fill a CLHEP matrix with values from an STL vector */
     void Matrix_Stl_to_Hep(const std::vector<float>& stl,
 			   CLHEP::HepSymMatrix& hep);
 
@@ -260,7 +311,8 @@ namespace Likelihood {
 			    const CLHEP::HepVector& norms,
 			    const std::vector<const std::vector<float>* >& templates,
 			    const std::vector<float>& fixed,
-			    const FitScanMVPrior* prior,			       
+			    const FitScanMVPrior* prior,
+			    const std::vector<float>* weights,		       
 			    std::vector<float>& model,
 			    size_t firstBin = 0,
 			    size_t lastBin = 0,
@@ -304,8 +356,15 @@ namespace Likelihood {
 			       const CLHEP::HepVector& norms,
 			       CLHEP::HepSymMatrix& covar,
 			       CLHEP::HepVector& delta,
+			       double& edm);
+
+    int getDeltaAndCovarAndEDM(const CLHEP::HepSymMatrix& hessian,
+			       const CLHEP::HepVector& gradient,
+			       const CLHEP::HepVector& norms,
+			       CLHEP::HepSymMatrix& covar,
+			       CLHEP::HepVector& delta,
 			       double& edm,
-			       double lambda = 0);
+			       double lambda);
     
     /* Extract the set of bins that are non-zero into parallel vectors of indices
        this is done to make it faster to iterate over sparse data
@@ -447,6 +506,7 @@ namespace Likelihood {
 			   const std::vector<const std::vector<float>* >& templates,
 			   const std::vector<float>& fixed,
 			   const FitScanMVPrior* prior,
+			   const std::vector<float>* weights,
 			   double tol, int maxIter, double lambda,
 			   CLHEP::HepVector& norms,
 			   CLHEP::HepSymMatrix& covar,
@@ -581,8 +641,11 @@ namespace Likelihood {
 		     const CLHEP::HepVector& vect);
 
     /* Print a CLHEP SymMatrix to std::cout */
-    void printSymMatrix(const std::string& name,
-			const CLHEP::HepSymMatrix& mat);
+    void printMatrix(const std::string& name,
+		     const CLHEP::HepSymMatrix& mat);
+
+    void printMatrix(const std::string& name,
+		     const CLHEP::HepMatrix& mat);
 
   };
 

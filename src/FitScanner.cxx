@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.17 2016/06/21 22:36:37 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.18 2016/06/23 02:18:35 echarles Exp $
  */
 
 
@@ -236,7 +236,7 @@ namespace Likelihood {
     }
 
     if ( false ) {
-      FitUtils::printSymMatrix("Prior: ",m_hessian);
+      FitUtils::printMatrix("Prior: ",m_hessian);
     }
 
     return 0;
