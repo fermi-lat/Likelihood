@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitUtils.h,v 1.8 2016/06/23 02:18:34 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.9 2016/06/24 00:26:37 mdwood Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -311,8 +311,8 @@ namespace Likelihood {
 			    const CLHEP::HepVector& norms,
 			    const std::vector<const std::vector<float>* >& templates,
 			    const std::vector<float>& fixed,
-			    const FitScanMVPrior* prior,
-			    const std::vector<float>* weights,		       
+			    const FitScanMVPrior* prior,			       
+			    const std::vector<float>* weights,    
 			    std::vector<float>& model,
 			    size_t firstBin = 0,
 			    size_t lastBin = 0,
@@ -582,6 +582,7 @@ namespace Likelihood {
      */ 
     void extractModels(const BinnedLikelihood& logLike,
 		       const std::string& test_name,
+		       std::vector<std::string>& freeSrcNames,
 		       std::vector<std::vector<float> >& templates,		       
 		       std::vector<float>& fixed,
 		       std::vector<float>& test_source_model,
