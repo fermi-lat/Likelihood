@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.14 2016/06/21 22:36:36 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.15 2016/06/23 02:18:34 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -278,6 +278,15 @@ namespace Likelihood {
     // Is this a SummedLikelihood or a BinnedLikelihood
     virtual bool isSummed() const = 0;
 
+    /* Extract the predicted counts model given the name of a source
+       for the BinnedLikelihood this just calls FitUtils::extractModelFromSource
+       for the SummedLikelihood this merged together the models for the various components
+    */       
+    virtual void extractModelFromSource(const std::string& srcName,
+					std::vector<float>& model,
+					bool rescaleToNormOne = false) const;
+    
+
     /* Extract the predicted counts model from a Source object
        for the BinnedLikelihood this just calls FitUtils::extractModelFromSource
        for the SummedLikelihood this merged together the models for the various components
@@ -291,6 +300,7 @@ namespace Likelihood {
        for the SummedLikelihood this merged together the models for the various components
      */
     virtual void extractModels(const std::string& test_name,
+			       std::vector<std::string>& freeSrcNames,
 			       std::vector<std::vector<float> >& templates,		       
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
@@ -321,7 +331,7 @@ namespace Likelihood {
        for the BinnedLikelihood this is just the object itself
        for the SummedLikelihood this is just the first component 
     */
-    virtual BinnedLikelihood& getMasterComponent() = 0;       
+    virtual BinnedLikelihood& getMasterComponent() = 0;     
 
     /* get a component by index */
     virtual const size_t numComponents() const = 0;
@@ -440,6 +450,7 @@ namespace Likelihood {
        for the BinnedLikelihood this just calls FitUtils::extractModels
      */
     virtual void extractModels(const std::string& test_name,
+			       std::vector<std::string>& freeSrcNames,
 			       std::vector<std::vector<float> >& templates,		       
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
@@ -535,6 +546,7 @@ namespace Likelihood {
        for the SummedLikelihood this merged together the models for the various components
     */
     virtual void extractModels(const std::string& test_name,
+			       std::vector<std::string>& freeSrcNames,
 			       std::vector<std::vector<float> >& templates,		       
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
@@ -652,6 +664,9 @@ namespace Likelihood {
     /* D'tor */
     ~FitScanCache();
 
+    /* Reset everything to the initial master state */
+    void setCache();
+
     /* Refactor the current model, fixing or freeing sources, and changing normalizations 
        
        freeSource     : Marks which source are free
@@ -741,6 +756,13 @@ namespace Likelihood {
 			       double& negErr);
 
     
+    /* get the index (int the master list) corresponding to a source by name */
+    int getTemplateIndex(const std::string& srcName) const;
+
+    /* update the model template for a single source by name */
+    int updateTemplateForSource(const std::string& srcName);
+
+
     // access --------------------------------------------------------
 
     // Information about the baseline model
@@ -772,7 +794,7 @@ namespace Likelihood {
 
     // parts of the models
     inline const std::vector<float>& refValues() const { return m_refValues; }
-    
+    inline const std::vector<std::string>& templateSourceNames() const { return m_templateSourceNames; }
     inline const std::vector<std::vector<float> >& allModels() const { return m_allModels; }
     inline const std::vector<float>& allFixed() const { return m_allFixed; }   
     inline const std::vector<float>& weights() const { return m_weights; }   
@@ -816,6 +838,8 @@ namespace Likelihood {
     const std::vector<float>& m_data;
     // master list of all the models, except for the test source
     std::vector<std::vector<float> > m_allModels;
+    // master list of the names of the sources
+    std::vector<std::string> m_templateSourceNames;
     // master version of the sum of the fixed model components
     std::vector<float> m_allFixed;
     // master version of the initial model

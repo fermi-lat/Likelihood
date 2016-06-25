@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.18 2016/06/23 02:18:35 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.19 2016/06/24 00:26:39 mdwood Exp $
  */
 
 
@@ -242,6 +242,19 @@ namespace Likelihood {
     return 0;
   }
 
+  
+  void FitScanModelWrapper::extractModelFromSource(const std::string& srcName,
+						   std::vector<float>& model,
+						   bool rescaleToNormOne) const{
+    FitScanModelWrapper* nc_this = const_cast<FitScanModelWrapper*>(this);
+    Source* aSrc = nc_this->getMasterComponent().getSource(srcName);
+    if ( aSrc == 0 ) {
+      throw std::runtime_error("FitScanModelWrapper could not get Source from SourceModel");
+    }
+    extractModelFromSource(*aSrc,model,rescaleToNormOne);
+  }
+  
+
   void FitScanModelWrapper::cacheFluxValues(Source& aSrc) {
     
     m_ref_energies.resize(m_nebins);
@@ -357,12 +370,13 @@ namespace Likelihood {
   }
 
   void FitScanModelWrapper_Binned::extractModels(const std::string& test_name,
+						 std::vector<std::string>& freeSrcNames,
 						 std::vector<std::vector<float> >& templates,		       
 						 std::vector<float>& fixed,
 						 std::vector<float>& test_source_model,
 						 std::vector<float>& refPars,
 						 std::vector<float>* weights) const {
-    FitUtils::extractModels(m_binnedLike,test_name,templates,fixed,test_source_model,refPars,weights);
+    FitUtils::extractModels(m_binnedLike,test_name,freeSrcNames,templates,fixed,test_source_model,refPars,weights);
   }
   
   double FitScanModelWrapper_Binned::value() const {
@@ -548,6 +562,7 @@ namespace Likelihood {
   }
   
   void FitScanModelWrapper_Summed::extractModels(const std::string& test_name,
+						 std::vector<std::string>& freeSrcNames,
 						 std::vector<std::vector<float> >& templates,		       
 						 std::vector<float>& fixed,
 						 std::vector<float>& test_source_model,
@@ -584,6 +599,9 @@ namespace Likelihood {
 	weightsToMerge.push_back( &(cache->weights()) );
       }
       if ( i == 0 ) {
+	freeSrcNames.clear();
+	freeSrcNames.resize(cache->templateSourceNames().size());
+	std::copy(cache->templateSourceNames().begin(),cache->templateSourceNames().end(),freeSrcNames.begin());
 	std::copy(cache->refValues().begin(),cache->refValues().end(),refPars.begin());
 	templatesToMerge.resize( cache->allModels().size() );	 
       }
@@ -729,13 +747,26 @@ namespace Likelihood {
      m_lastBin(0){
     // Extract the reference values for everything
     m_modelWrapper.extractModels(m_testSourceName,
+				 m_templateSourceNames,
 				 m_allModels,
 				 m_allFixed,
 				 m_targetModel,
 				 m_refValues,
 				 m_useWeights ? &m_weights : 0);
 
-    FitUtils::sumModel_Init(m_allModels,m_allFixed,m_initModel);
+    setCache();
+  }
+ 
+  FitScanCache::~FitScanCache() {
+
+    delete m_prior_test;
+    delete m_prior_bkg;
+    delete m_global_prior_test;
+    delete m_global_prior_bkg;
+  }
+
+  void FitScanCache::setCache() {
+     FitUtils::sumModel_Init(m_allModels,m_allFixed,m_initModel);
 
     // Set up the baseline fit.   
     std::vector<bool> freeSources(m_allModels.size(),true);
@@ -751,14 +782,6 @@ namespace Likelihood {
 
     refactorModel(freeSources,parScales,false);  
     m_currentFreeSources = freeSources;
-  }
- 
-  FitScanCache::~FitScanCache() {
-
-    delete m_prior_test;
-    delete m_prior_bkg;
-    delete m_global_prior_test;
-    delete m_global_prior_bkg;
   }
 
   void FitScanCache::refactorModel(const std::vector<bool>& freeSources, 
@@ -1191,6 +1214,27 @@ namespace Likelihood {
     negErr = (+b_val + sqrt_det)/(2.*a_val);
     negErr = negErr > m_currentPars[m_currentTestSourceIndex] ? -1: negErr;
     return 0;
+  }
+
+
+  int FitScanCache::getTemplateIndex(const std::string& srcName) const {
+    int retVal(0);
+    for ( std::vector<std::string>::const_iterator itrFind = m_templateSourceNames.begin();
+	  itrFind != m_templateSourceNames.end(); itrFind++, retVal++ ) {
+      if ( *itrFind == srcName ) return retVal;
+    }
+    return -1;
+  }
+ 
+
+  int FitScanCache::updateTemplateForSource(const std::string& srcName) {
+    int srcIdx = getTemplateIndex(srcName);
+    if ( srcIdx < 0 ) {
+      throw std::runtime_error("FitScanCache::updateTemplateForSource called for source that does not have a template.");
+      return srcIdx;
+    }
+    m_modelWrapper.extractModelFromSource(srcName,m_allModels[srcIdx],false);
+    setCache();
   }
 
 
