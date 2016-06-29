@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.19 2016/06/24 00:26:39 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.20 2016/06/25 00:10:33 echarles Exp $
  */
 
 
@@ -1235,10 +1235,16 @@ namespace Likelihood {
     }
     m_modelWrapper.extractModelFromSource(srcName,m_allModels[srcIdx],false);
     setCache();
+
+    Source* aSrc = m_modelWrapper.getMasterComponent().getSource(srcName);
+    double refValue = aSrc->spectrum().normPar().getValue();
+    m_refValues[srcIdx] = refValue;
+
+    return srcIdx;
   }
 
 
-  void FitScanCache::reduceModels() {					
+  void FitScanCache::reduceModels() {		
     if ( ! m_useReduced ) {
       return;
     }
@@ -1255,6 +1261,7 @@ namespace Likelihood {
       std::cout << std::endl;
     }
 
+    m_allRedModels.clear();
     for ( std::vector<std::vector<float> >::const_iterator itr = m_allModels.begin();
 	  itr != m_allModels.end(); itr++ ) {
       std::vector<float> redModel;
