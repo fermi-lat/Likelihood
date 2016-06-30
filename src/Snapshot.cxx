@@ -1,7 +1,7 @@
 /**
  * @file Snapshot.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.1 2016/06/30 00:27:07 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.2 2016/06/30 00:59:25 echarles Exp $
  */
 
 
@@ -31,12 +31,9 @@ namespace Likelihood {
     double v1 = p1.getTrueValue();
     double v2 = p2.getTrueValue();
     double abs_diff = std::abs(v1-v2);
-    double sum = v1+v2;
-    double tol = sum * 1e-5;
-    bool changed = ( abs_diff > tol );
-    if ( changed ) { 
-      std::cout << p1.getName() << ' ' << v1 << ' ' << v2 << std::endl;
-    }
+    double abs_sum = std::abs(v1) + std::abs(v2);
+    double tol = abs_sum * 1e-5;
+    bool changed = ( abs_diff > tol );   
     return !changed;
 
   }
@@ -172,21 +169,15 @@ namespace Likelihood {
 
   void Snapshot_Source::latch_source(const Source& src, bool owned) {
     if ( m_owned ) {
-      std::cout << "deleting old " << std::endl;
       delete m_norm_param;			
       m_norm_param = 0;
       delete_map(m_spatial_params);
       delete_map(m_spectral_params);
     }
-    std::cout << "norms " << std::endl;
     extract_norm(src,m_norm_param,owned);
-    std::cout << "spectral " << std::endl;
     extract_spectral(src,m_spectral_model,m_spectral_params,owned);
-    std::cout << "spatial " << std::endl;
     extract_spatial(src,m_spatial_model,m_spatial_params,owned);
-    std::cout << "ancillary " << std::endl;
     extract_ancillary(src,m_ancillary);
-    std::cout << "done " << std::endl;
     m_owned = owned;
   }
 
@@ -205,10 +196,8 @@ namespace Likelihood {
   void Snapshot::latch_model(const SourceModel& model) {
     const std::map<std::string, Source *>& sources = model.sources();
     for ( std::map<std::string, Source *>::const_iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
-      std::cout << "Loading " << itr->first << ' ' << itr->second << std::endl;
       m_sources[itr->first] = Snapshot_Source();
       m_sources[itr->first].latch_source(*(itr->second),true);
-      std::cout << "Done " << itr->first << std::endl;
     }
   }
   
