@@ -4,7 +4,7 @@
  *
  * A class to provide a Snapshot of a SourceModel and allow for comparisons
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.16 2016/06/25 00:10:32 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.1 2016/06/30 00:27:06 echarles Exp $
  */
 
 #ifndef Likelihood_Scanshot_h
@@ -166,6 +166,11 @@ namespace Likelihood {
 
   public:
 
+    Snapshot_Source():
+      m_owned(false),
+      m_norm_param(0){
+    }
+
     Snapshot_Source(const Source& src, bool owned=false):
       m_owned(false),
       m_norm_param(0){      
@@ -193,11 +198,6 @@ namespace Likelihood {
 
 
   class Snapshot {
-
-  public:
-    
-    static const Source* getSource(const SourceModel& model,
-				   std::string srcName);				  
 
   public:
 
