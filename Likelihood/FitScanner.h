@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.15 2016/06/23 02:18:34 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.16 2016/06/25 00:10:32 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -93,7 +93,8 @@ namespace Likelihood {
   class PointSource;
   class AppHelpers;
   class CountsMapBase;  
-
+  struct Snapshot_Status;
+  class Snapshot;
 
   /* A utility class to cache the image the predicted counts map for the
      test source.  
@@ -189,14 +190,31 @@ namespace Likelihood {
 
   public:
 
+    /* Construct from a vector of central values and a covariance matrix 
+       
+       This version reduces the matrix by cutting out all of the 
+       unconstrainted paramters.
+     */
     FitScanMVPrior(const CLHEP::HepVector& centralVals,
 		   const CLHEP::HepSymMatrix& covariance,
 		   const std::vector<bool>& constrainPars,
 		   bool includeTestSource){
       update(centralVals,covariance,constrainPars,includeTestSource);
-      latchReducedMatrix();
     }
     
+    /* Construct from a vector of central values and a vector of errors 
+       
+       This version does not reduce the matrix, but rather sets 
+       the non-constrained terms row & columns to zero in the hessian
+
+    */
+    FitScanMVPrior(const CLHEP::HepVector& centralVals,
+		   const CLHEP::HepVector& uncertainties,
+		   const std::vector<bool>& constrainPars,
+		   bool includeTestSource){
+      update(centralVals,uncertainties,constrainPars,includeTestSource);
+    }
+   
     /* D'tor, does nothing */
     ~FitScanMVPrior() {;}
 
@@ -206,12 +224,31 @@ namespace Likelihood {
        covariance        : Covariance matrix from fit we are using to build this prior
        constrainPars     : Flags showing which parameters to include in this prior     
        includeTestSource : If true, expand the dimension by one to allow for the test source
-
+       
+       This version reduces the matrix by cutting out all of the 
+       unconstrainted paramters.
      */
     void update(const CLHEP::HepVector& centralVals,
 		const CLHEP::HepSymMatrix& covariance,
 		const std::vector<bool>& constrainPars,
 		bool includeTestSource);
+
+    
+    /* Update the cached values in this prior
+
+       centralVals       : Central values we are using to build this prior
+       uncertainties     : Uncertainties we are we are using to build this prior
+       constrainPars     : Flags showing which parameters to include in this prior     
+       includeTestSource : If true, expand the dimension by one to allow for the test source
+
+       This version does not reduce the matrix, but rather sets 
+       the non-constrained terms row & columns to zero in the hessian
+    */
+    void update(const CLHEP::HepVector& centralVals,
+		const CLHEP::HepVector& uncertainties,
+		const std::vector<bool>& constrainPars,
+		bool includeTestSource);
+
 
     // Calculate the contribution to the log-likelihood
     void logLikelihood(const CLHEP::HepVector& params, 
@@ -307,7 +344,20 @@ namespace Likelihood {
 			       std::vector<float>& refPars,
 			       std::vector<float>* weights = 0) const = 0;
 
-   
+    /* Extract the priors on the free source normalizations from the 
+       underlying BinnedLikelihood object
+
+       freeSrcNames      : Names of the sources 
+       centralVals       : Filled with the central values from the priors
+       uncertainties     : Filled with the untertainty values from the priors
+       constrainPars     : Filled with the flags showing which parameters have priors
+
+       return true if any priors were extract, false otherwise
+    */ 
+    virtual bool extractPriors(const std::vector<std::string>& freeSrcNames,
+			       CLHEP::HepVector& centralVals,
+			       CLHEP::HepVector& uncertainties,
+			       std::vector<bool>& constrainPars) const;   
 
     /* Get the likelihood value */
     virtual double value() const = 0;
@@ -332,6 +382,12 @@ namespace Likelihood {
        for the SummedLikelihood this is just the first component 
     */
     virtual BinnedLikelihood& getMasterComponent() = 0;     
+
+    /* get the "master" component
+       for the BinnedLikelihood this is just the object itself
+       for the SummedLikelihood this is just the first component 
+    */
+    virtual const BinnedLikelihood& getMasterComponent() const = 0;     
 
     /* get a component by index */
     virtual const size_t numComponents() const = 0;
@@ -477,6 +533,7 @@ namespace Likelihood {
        for the BinnedLikelihood this is just the object itself
     */
     virtual BinnedLikelihood& getMasterComponent() { return m_binnedLike; }
+    virtual const BinnedLikelihood& getMasterComponent() const { return m_binnedLike; }
 
     /* get a component by index */
     virtual const size_t numComponents() const { return 1; }
@@ -572,10 +629,11 @@ namespace Likelihood {
        for the SummedLikelihood this is just the first component 
     */
     virtual BinnedLikelihood& getMasterComponent() { return *m_master; }    
+    virtual const BinnedLikelihood& getMasterComponent() const { return *m_master; }    
     
     /* get a component by index */
     virtual const size_t numComponents() const;
-    
+      
     /* get a component by index */
     virtual const BinnedLikelihood* getComponent(size_t idx) const;   
 
@@ -649,6 +707,19 @@ namespace Likelihood {
      
   */  
   class FitScanCache {
+
+  public:
+
+    typedef enum { No_Prior, Local_Prior, Global_Prior, Init_Prior } Prior_Version; 
+    typedef enum { No_Action=0,      // Model unchanged
+		   Refactor=0x1,     // Model changed, but templates already latched
+		   Update_Free=0x2,  // Free source changed, must relatch template
+		   Update_Fixed=0x4, // Fixed source changed, must relatch fixed template
+		   Rebuild=0x8       // Lots of stuff changed, rebuild the cache
+    } Update_Action;
+
+    static unsigned action_needed(Snapshot_Status stat);
+
   public:
 
     /* Build from a ModelWrapper object
@@ -663,6 +734,28 @@ namespace Likelihood {
 
     /* D'tor */
     ~FitScanCache();
+
+    /* Update stuff w.r.t. the wrapped BinnedLikelihood or SummedLikelihood 
+
+       This first figures out the action needed, then calls update_with_action()
+     */
+    void update() {
+      std::vector<std::string> changed_sources;
+      unsigned action = find_action_needed(changed_sources);
+      update_with_action(action,changed_sources);
+    }
+
+    /* Update stuff w.r.t. the wrapped BinnedLikelihood or SummedLikelihood 
+       by taking a specific action.
+
+       Don't use this unless you know what you are doing.
+    */
+    void update_with_action(unsigned action, const std::vector<std::string>& changed_sources);
+
+    /* Decide the correct action needed to update this cache 
+       w.r.t. the wrapped BinnedLikelihood or SummedLikelihood 
+    */
+    unsigned find_action_needed(std::vector<std::string>& changed_sources) const;    
 
     /* Reset everything to the initial master state */
     void setCache();
@@ -711,6 +804,7 @@ namespace Likelihood {
 				 const std::vector<bool>& constrainPars,
 				 bool globalPrior=false);
 
+    /* Set the prior */
     void buildPriorsFromExternal(const std::vector<float>& centralVals,
 				 const std::vector<float>& covariance,
 				 const std::vector<bool>& constrainPars,
@@ -722,10 +816,10 @@ namespace Likelihood {
 				bool globalPrior=false);
  
     /* Fit the currently cached values using Newton's method */
-    int fitCurrent(bool usePrior = false, bool useGlobalPrior = false, int verbose=0);
+    int fitCurrent(Prior_Version whichPrior=No_Prior, int verbose=0);
 
     /* Calculate the log-likelihood for the currently cached values */
-    int calculateLoglikeCurrent(double& logLike);
+    int calculateLoglikeCurrent(double& logLike, Prior_Version whichPrior=No_Prior);
 
     /* Scan the log likelihood versus the normalizaton of the test source 
        
@@ -808,14 +902,42 @@ namespace Likelihood {
     inline const std::vector<float>& targetRedModel() const { return m_targetRedModel; }    
     inline const std::vector<float>& weightsRed() const { return m_weightsRed; }   
 
+    // access to the priors
+    const FitScanMVPrior* getPrior(Prior_Version whichPrior=No_Prior, 
+				   bool include_test_source=false) const;
+
+    // access to the snapshot of the baseline model when it was built
+    inline const Snapshot* snapshot() const { return m_snapshot; }
+
+    // access to the SourceModel
+    inline const BinnedLikelihood& sourceModel() const { return m_modelWrapper.getMasterComponent(); }
+
   protected:
 
     void reduceModels();
+
+    void build_from_model();
+    
+    void update_fixed_from_model();
+
+    void update_free_from_model(const std::vector<std::string>& changed_sources);
+
+    void refactor_from_model();
+
+    void get_status_and_scales(std::vector<bool>& freeSources,
+			       std::vector<float>& pars_scales);
+
+
+    void cleanup();
+
 
   private:
 
     // The wrapper around the model object
     FitScanModelWrapper& m_modelWrapper;
+
+    // A snapshot of the reference model
+    Snapshot* m_snapshot;
 
     // The name of the test source
     const std::string m_testSourceName;
@@ -826,9 +948,7 @@ namespace Likelihood {
     int m_maxIter;
     // Initial damping parameter for step calculation
     double m_initLambda;
-    
-    
-
+       
     // number of energy bins in the counts map
     size_t m_nebins;
     // number of pixels in the counts map
@@ -864,7 +984,7 @@ namespace Likelihood {
     std::vector<int> m_nonZeroBins;
     // Indices of last bin in each energy bin
     std::vector<int> m_energyBinStopIdxs;
-    // master list of all the reduced models, except for the test source
+    // master list of all the reduced models, except for the test source  
     std::vector<std::vector<float> > m_allRedModels;
     // master version of the reduced models sum of the fixed model components
     std::vector<float> m_allRedFixed;
@@ -905,6 +1025,10 @@ namespace Likelihood {
     // these are the global priors to use for all the broad band fits
     FitScanMVPrior* m_global_prior_test;
     FitScanMVPrior* m_global_prior_bkg;    
+
+    // these are the initital priors, inherited from the input model
+    FitScanMVPrior* m_init_prior_test;
+    FitScanMVPrior* m_init_prior_bkg;        
 
     // this is the best-fit model for the current fit
     std::vector<float> m_currentBestModel;

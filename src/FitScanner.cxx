@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.20 2016/06/25 00:10:33 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.21 2016/06/29 01:04:21 mdwood Exp $
  */
 
 
@@ -40,6 +40,7 @@
 #include "Likelihood/SummedLikelihood.h"
 #include "Likelihood/FitUtils.h"
 #include "Likelihood/SourceMap.h"
+#include "Likelihood/Snapshot.h"
 
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -64,12 +65,12 @@ namespace Likelihood {
 					 std::vector<float>& out_model) const {
     
     /*
-    if ( m_proj.method() == astro::ProjBase::HEALPIX ) {
+      if ( m_proj.method() == astro::ProjBase::HEALPIX ) {
       // FIXME, get these values
       double d_theta(0.);
       double d_phi(0.);
       return translateMap_Healpix(d_theta,d_phi,out_model); 
-    }
+      }
     */
     std::pair<double,double> newPix = newRef.project( m_proj );
     double dx = newPix.first - m_refPixel.first;
@@ -204,6 +205,32 @@ namespace Likelihood {
     latchReducedMatrix();
   }
 
+
+  void FitScanMVPrior::update(const CLHEP::HepVector& centralVals,
+			      const CLHEP::HepVector& uncertainties,
+			      const std::vector<bool>& constrainPars,
+			      bool includeTestSource) {
+    m_constrainPars = constrainPars;
+    m_includeTestSource = includeTestSource;
+    size_t nr = centralVals.num_row();
+    if ( includeTestSource ) {
+      m_centralVals = CLHEP::HepVector(nr + 1,0);
+      m_centralVals.sub(1,centralVals);
+      m_covariance = CLHEP::HepSymMatrix(nr + 1,0);
+      m_hessian = CLHEP::HepSymMatrix(nr+1,0);
+    } else {
+      m_centralVals = centralVals;      
+      m_covariance = CLHEP::HepSymMatrix(nr);
+      m_hessian = CLHEP::HepSymMatrix(nr,0);
+    }     
+    for ( size_t i(0); i < nr; i++ ) {
+      if ( constrainPars[i] ) {
+	m_covariance[i][i] = uncertainties[i]*uncertainties[i];
+	m_hessian[i][i] = 1./uncertainties[i]*uncertainties[i];
+      }
+    }
+  }
+
   int FitScanMVPrior::latchReducedMatrix() {
     // FIXME, invert then reduce, or reduce then invert?
     std::vector<int> idx_red;
@@ -255,6 +282,14 @@ namespace Likelihood {
   }
   
 
+  bool FitScanModelWrapper::extractPriors(const std::vector<std::string>& freeSrcNames,
+					  CLHEP::HepVector& centralVals,
+					  CLHEP::HepVector& uncertainties,
+					  std::vector<bool>& constrainPars) const {
+    return FitUtils::extractPriors(getMasterComponent(),freeSrcNames,centralVals,uncertainties,constrainPars);    
+  }
+
+
   void FitScanModelWrapper::cacheFluxValues(Source& aSrc) {
     
     m_ref_energies.resize(m_nebins);
@@ -288,7 +323,7 @@ namespace Likelihood {
 
     // Iterate over bin number and output table iterator, writing fields in order.
     for (long index = 0; index < nEBins(); ++index, ++table_itor) {
-       // Write channel number.
+      // Write channel number.
       (*table_itor)["CHANNEL"].set(index + 1);
 
       // Write beginning/ending value of interval into E_MIN/E_MAX, converting from MeV to keV.
@@ -392,11 +427,11 @@ namespace Likelihood {
   }
     
   void FitScanModelWrapper_Binned::removeSource(const std::string& sourceName) {
-     Source* delSrc = m_binnedLike.deleteSource(sourceName);
-     if ( ! delSrc->fixedSpectrum() ) {
-       m_binnedLike.eraseSourceMap(sourceName);
-     }
-     delete delSrc;
+    Source* delSrc = m_binnedLike.deleteSource(sourceName);
+    if ( ! delSrc->fixedSpectrum() ) {
+      m_binnedLike.eraseSourceMap(sourceName);
+    }
+    delete delSrc;
   } 
   
   int FitScanModelWrapper_Binned::writeFits_GTIs(const std::string& fitsFile) const {
@@ -712,12 +747,45 @@ namespace Likelihood {
       }
     }
   }
+
+  
+  unsigned FitScanCache::action_needed(Snapshot_Status stat) {
+    unsigned retVal(0);
+    if ( stat.unchanged() ) {
+      // This simple case, this is a no-op
+      return retVal;
+    }    
+    if ( stat.norm_free_changed() ) { 
+      // A free normalization has changed.  
+      // We have already latched this source.
+      // We need to refactor the model.
+      // This includes the case that free source was fixed.
+      retVal |= Refactor;
+    }    
+    if ( stat.model_free_changed() ) {
+      // The model for a free source has changed.
+      // We need to relatch that model.
+      retVal |= Update_Free;
+    }
+    if ( stat.fixed_changed() )  {
+      // The model for a free source has changed.
+      // We need to relatch the fixed model
+      retVal |= Update_Fixed;
+    }
+    if ( stat.source_freed() || stat.free_source_added() ) {
+      // Some source has been freed or a new free source has been added.
+      // It is easiest just to rebuild the cache.
+      retVal |= Rebuild;
+    }
+    return retVal;
+  }
   
   FitScanCache::FitScanCache(FitScanModelWrapper& modelWrapper,
 			     const std::string& testSourceName,
 			     double tol, int maxIter, double initLambda,
 			     bool useReduced, bool useWeights)
     :m_modelWrapper(modelWrapper),
+     m_snapshot(0),
      m_testSourceName(testSourceName),
      m_tol(tol),
      m_maxIter(maxIter),
@@ -737,6 +805,8 @@ namespace Likelihood {
      m_prior_bkg(0),
      m_global_prior_test(0),
      m_global_prior_bkg(0),
+     m_init_prior_test(0),
+     m_init_prior_bkg(0),
      m_currentBestModel(m_modelWrapper.size()),
      m_currentTestSourceIndex(-1),
      m_currentLogLike(0.),
@@ -745,24 +815,35 @@ namespace Likelihood {
      m_lastEnergyBin(m_nebins),
      m_firstBin(0),
      m_lastBin(0){
-    // Extract the reference values for everything
-    m_modelWrapper.extractModels(m_testSourceName,
-				 m_templateSourceNames,
-				 m_allModels,
-				 m_allFixed,
-				 m_targetModel,
-				 m_refValues,
-				 m_useWeights ? &m_weights : 0);
 
-    setCache();
+    build_from_model();
+
   }
+
  
   FitScanCache::~FitScanCache() {
+    cleanup();
+  }
 
-    delete m_prior_test;
-    delete m_prior_bkg;
-    delete m_global_prior_test;
-    delete m_global_prior_bkg;
+
+  void FitScanCache::update_with_action(unsigned action,
+					const std::vector<std::string>& changed_sources) {
+    if ( action == No_Action ) return;
+    if ( (action & Rebuild) != 0 ) {
+      build_from_model();
+      return;
+    }
+    if ( (action & Update_Fixed ) != 0 ) update_fixed_from_model();
+    if ( (action & Update_Free ) != 0 ) update_free_from_model(changed_sources);
+    if ( (action & Refactor ) != 0 ) refactor_from_model();
+    if ( (action & (Update_Fixed | Update_Free) != 0 ) ) {
+      m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true);
+    }
+  }
+
+  unsigned FitScanCache::find_action_needed(std::vector<std::string>& changed_sources) const {
+    Snapshot_Status status = m_snapshot->compare_model(m_modelWrapper.getMasterComponent(),changed_sources);
+    return action_needed(status);
   }
 
   void FitScanCache::setCache() {
@@ -1018,15 +1099,10 @@ namespace Likelihood {
   }
   
 
-  int FitScanCache::fitCurrent(bool usePrior, bool useGlobalPrior, int verbose) {
+  int FitScanCache::fitCurrent(Prior_Version whichPrior, int verbose) {
     // This just passes the cached data along to the FitUtils function
     // and latches the output into the internal cache
-    FitScanMVPrior* prior(0);
-    if ( usePrior ) {
-      prior = m_currentTestSourceIndex >= 0 ? m_prior_test : m_prior_bkg;
-    } else if ( useGlobalPrior ) {
-      prior = m_currentTestSourceIndex >= 0 ? m_global_prior_test : m_global_prior_bkg;
-    }
+    const FitScanMVPrior* prior = getPrior(whichPrior,m_currentTestSourceIndex >= 0);
 
     std::vector<float>* wts_ptr = m_useWeights ?  ( m_useReduced ? &m_weightsRed : &m_weights ) : 0;
 
@@ -1052,7 +1128,8 @@ namespace Likelihood {
   
   
   /* Calculate the log-likelihood for the currently cached values */
-  int FitScanCache::calculateLoglikeCurrent(double& logLike) {
+  int FitScanCache::calculateLoglikeCurrent(double& logLike,
+					    Prior_Version whichPrior) {
     
     FitUtils::sumModel(m_currentPars,m_currentModels,m_currentFixed,m_currentBestModel,
 		       m_firstBin,m_lastBin);
@@ -1073,6 +1150,14 @@ namespace Likelihood {
     } else {
       logLike = FitUtils::logLikePoisson(data_start,data_end,model_start,model_end);
     }
+
+    const FitScanMVPrior* prior = getPrior(whichPrior,m_currentTestSourceIndex >= 0);
+    if ( prior != 0 ) {
+      double prior_loglike(0.);
+      prior->logLikelihood(m_currentPars,prior_loglike);
+      logLike += prior_loglike;
+    }
+
     return 0;
   }
   
@@ -1243,7 +1328,27 @@ namespace Likelihood {
     return srcIdx;
   }
 
+  const FitScanMVPrior* FitScanCache::getPrior(Prior_Version whichPrior, 
+					       bool include_test_source) const {    
+    const FitScanMVPrior* prior(0);
+    switch ( whichPrior ) {
+    case Init_Prior:
+      prior = include_test_source ? m_init_prior_test : m_init_prior_bkg;
+      break;
+    case Global_Prior:
+      prior = include_test_source ? m_global_prior_test : m_global_prior_bkg;
+      break;
+    case Local_Prior:
+      prior = include_test_source ? m_prior_test : m_prior_bkg;
+      break;
+    case No_Prior:
+    default:
+      break;
+    }
+    return prior;
+  }
 
+ 
   void FitScanCache::reduceModels() {		
     if ( ! m_useReduced ) {
       return;
@@ -1288,8 +1393,91 @@ namespace Likelihood {
     }
   }
 
+  void FitScanCache::build_from_model() {
+    
+    cleanup();
+    m_snapshot = new Snapshot(m_modelWrapper.getMasterComponent(),true);
 
+    // Extract the reference values for everything
+    m_modelWrapper.extractModels(m_testSourceName,
+				 m_templateSourceNames,
+				 m_allModels,
+				 m_allFixed,
+				 m_targetModel,
+				 m_refValues,
+				 m_useWeights ? &m_weights : 0);
+    
 
+    CLHEP::HepVector prior_centralVals;
+    CLHEP::HepVector prior_uncertainties;
+    std::vector<bool> prior_constraints;
+    bool has_prior = m_modelWrapper.extractPriors(m_templateSourceNames,
+						  prior_centralVals,
+						  prior_uncertainties,
+						  prior_constraints);
+    if ( has_prior ) {
+      m_init_prior_test = new FitScanMVPrior(prior_centralVals,
+					     prior_uncertainties,
+					     prior_constraints,
+					     true);
+      m_init_prior_bkg = new FitScanMVPrior(prior_centralVals,
+					    prior_uncertainties,
+					    prior_constraints,
+					    false);      
+    }
+    setCache();
+  }
+  
+  void FitScanCache::update_fixed_from_model() {
+    FitUtils::extractFixedModel(m_modelWrapper.getMasterComponent(),m_testSourceName,m_allFixed);    
+  }
+  
+  void FitScanCache::update_free_from_model(const std::vector<std::string>& changed_sources) {
+    for ( std::vector<std::string>::const_iterator itr = changed_sources.begin();
+	  itr != changed_sources.end(); itr++ ){
+      updateTemplateForSource(*itr);
+    }
+  }
+  
+  void FitScanCache::refactor_from_model() {
+    std::vector<bool> freeSources;
+    std::vector<float> pars_scales;
+    get_status_and_scales(freeSources,pars_scales);
+    refactorModel(freeSources,pars_scales,m_currentTestSourceIndex>=0);
+  }
+
+  void FitScanCache::get_status_and_scales(std::vector<bool>& freeSources,
+					   std::vector<float>& pars_scales) {
+    freeSources.clear();
+    pars_scales.clear();
+    BinnedLikelihood& bl = m_modelWrapper.getMasterComponent();   
+    
+    for ( size_t i(0); i < m_templateSourceNames.size(); i++ ) {
+      const std::string& srcName = m_templateSourceNames[i];
+      const optimizers::Parameter& par = bl.source(srcName).spectrum().normPar();
+      freeSources.push_back(par.isFree());
+      float parScale = par.getValue() / m_refValues[i];
+      pars_scales.push_back(parScale);
+    }
+  }
+
+  void FitScanCache::cleanup() {
+    delete m_prior_test;
+    delete m_prior_bkg;
+    delete m_global_prior_test;
+    delete m_global_prior_bkg;
+    delete m_init_prior_test;
+    delete m_init_prior_bkg;    
+    delete m_snapshot;
+    m_prior_test = 0;
+    m_prior_bkg = 0;
+    m_global_prior_test = 0;
+    m_global_prior_bkg = 0;
+    m_init_prior_test = 0;
+    m_init_prior_bkg = 0;    
+    m_snapshot = 0;
+  }
+   
   evtbin::Binner* FitScanner::buildEnergyBinner(const std::vector<double>& energies) {
     std::vector<evtbin::Binner::Interval> energy_intervals;
     for (unsigned int i = 0; i < energies.size()-1; i++) {
@@ -1574,7 +1762,7 @@ namespace Likelihood {
     std::cout << "Got null likelihood " << loglike_null << std::endl;    
 
     // Do the baseline fit and latch the results.   
-    status = m_cache->fitCurrent(false,false,verbose_null());
+    status = m_cache->fitCurrent(FitScanCache::Init_Prior,verbose_null());
     if ( status != 0 ) { 
       std::cout << "Baseline fit of ROI with linear fitter failed with error code " << status << std::endl
 		<< "  Try using standard fitter to pre-fit region with stlevel=1 parateter."  << std::endl
@@ -1775,11 +1963,11 @@ namespace Likelihood {
 	
 	// Set the cache to do a broadband fit
 	m_cache->setEnergyBin(-1);	
-	status = m_cache->fitCurrent(false,useGlobalPrior,verbose_bb());
+	status = m_cache->fitCurrent(FitScanCache::Global_Prior,verbose_bb());
 	if ( status != 0 ) {
 	  // Refit with verbose
 	  if ( redoFailedVerbose ) {
-	    status = m_cache->fitCurrent(false,useGlobalPrior,4);
+	    status = m_cache->fitCurrent(FitScanCache::Global_Prior,4);
 	  }
 
 	  ts_map_ok->setBinDirect(ipix,status);
@@ -2295,7 +2483,7 @@ namespace Likelihood {
       std::vector<float> pars_scales(m_cache->nBkgModel(),1.0);
       m_cache->refactorModel(freePars,pars_scales,false);
     }
-    int ok = m_cache->fitCurrent(false,false,verbose_null());
+    int ok = m_cache->fitCurrent(FitScanCache::Init_Prior,verbose_null());
     return ok;
   }
 
@@ -2368,13 +2556,14 @@ namespace Likelihood {
     // Loop on the energy bins
     for ( size_t i(0); i < m_cache->nebins(); i++ ) {
       m_cache->setEnergyBin(i);
-      int status = m_cache->fitCurrent(usePrior,false,verbose_scan());
+      int status = m_cache->fitCurrent(usePrior ? FitScanCache::Local_Prior : FitScanCache::No_Prior,
+				       verbose_scan());
       sed_fit_status[i] = status;
       if ( status ) {
 	// if the fit failed, fill the output vectors, and move on.
 	// for debugging, redo failed fits with verbose on
 	if ( redoFailedVerbose ) {
-	  m_cache->fitCurrent(usePrior,false,4);
+	  m_cache->fitCurrent(usePrior ? FitScanCache::Local_Prior : FitScanCache::No_Prior, 4);
 	}
 	nfailed++;
 	logLike_mles[i] = 0.;
