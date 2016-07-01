@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.9 2016/06/24 00:26:37 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.10 2016/06/25 00:10:32 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -35,6 +35,10 @@ namespace CLHEP {
   class HepVector;
   class HepMatrix;
   class HepSymMatrix;
+}
+
+namespace optimizers {
+  class Parameter;
 }
 
 namespace Likelihood {
@@ -588,6 +592,46 @@ namespace Likelihood {
 		       std::vector<float>& test_source_model,
 		       std::vector<float>& refPars,
 		       std::vector<float>* weights = 0);
+
+    
+    /* Extract all of the predicted counts for all of the fixed sources
+       BinnedLikelihood object
+
+       logLike:     The BinnedLikelihood object
+       fixed:       Summed model for all of the fixed sources
+     */ 
+    void extractFixedModel(const BinnedLikelihood& logLike,
+			   const std::string& test_name,
+			   std::vector<float>& fixed);
+    
+    
+
+    /* Extract the prior on a parameter
+       par               : The parameter in question
+       centralVal        : Filled with the central value
+       uncertainty       : Filled with the uncertainty 
+       returns trun if Parameter has a prior
+    */ 
+    bool extractPrior(const optimizers::Parameter& par,
+		      double& centralVal,
+		      double& uncertainty);
+
+    /* Extract the priors on the free source normalizations from the 
+       BinnedLikelihood object
+
+       logLike           : The BinnedLikelihood object
+       freeSrcNames      : Names of all the free sources except the test source
+       centralVals       : Filled with the central values from the priors
+       uncertainties     : Filled with the untertainty values from the priors
+       constrainPars     : Filled with the flags showing which parameters have priors
+
+       return true if any priors were extract, false otherwise
+    */ 
+    bool extractPriors(const BinnedLikelihood& logLike,
+		       const std::vector<std::string>& freeSrcNames,
+		       CLHEP::HepVector& centralVals,
+		       CLHEP::HepVector& uncertainties,
+		       std::vector<bool>& constrainPars);
 
     /* Refactors the free and fixed model components
 

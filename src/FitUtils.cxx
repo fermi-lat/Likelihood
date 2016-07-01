@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.16 2016/06/25 00:10:33 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.17 2016/06/29 01:04:21 mdwood Exp $
  */
 
 
@@ -28,6 +28,7 @@
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
+#include "optimizers/Parameter.h"
 #include "optimizers/Function.h"
 #include "optimizers/dArg.h"
 
@@ -1166,11 +1167,11 @@ namespace Likelihood {
 				bool rescaleToNormOne) {
 
       if(logLike.hasSrcNamed(source.getName())) {
-
 	bool hasSourceMap = logLike.hasSourceMap(source.getName());
-	logLike.computeModelMap(source.getName(),model);
+	BinnedLikelihood& nclike = const_cast<BinnedLikelihood&>(logLike);
+	nclike.computeModelMap(source.getName(),model);
 	if ( !hasSourceMap ) {
-	  logLike.eraseSourceMap(source.getName());
+	  nclike.eraseSourceMap(source.getName());
 	}
 
       } else {	
@@ -1328,6 +1329,99 @@ namespace Likelihood {
       }
       return;
     }        
+
+
+    void extractFixedModel(const BinnedLikelihood& logLike,
+			   const std::string& test_name,
+			   std::vector<float>& fixed){
+
+      BinnedLikelihood& nc_logLike = const_cast<BinnedLikelihood&>(logLike);
+
+      // Get the size of the models, and allocate the space 
+      // in the output vectors
+      size_t nbins = logLike.countsMap().data().size();      
+      fixed.resize( nbins, 0. );
+     
+      // This is just for debugging
+      float modelTotal(0.);
+
+      // Use names of all the sources to loop over the sources
+      std::vector<std::string> srcNames;
+      logLike.getSrcNames(srcNames);
+
+      // Loop over sources
+      for ( std::vector<std::string>::const_iterator itr = srcNames.begin();
+	    itr != srcNames.end(); itr++ ) {
+
+	// We treat the test source specially
+	// To make it faster to turn it on and off
+	bool isTest = (*itr) == test_name;
+	if ( isTest ) continue;
+
+	// We are actually fitting a scale factor w.r.t. the baseline fit
+	// so we want to latch the normalization parameter values
+	// from the baseline fit
+	Source* aSrc = nc_logLike.getSource(*itr);
+	if ( aSrc->spectrum().normPar().isFree() ) continue;
+\
+	bool hasSourceMap = logLike.hasSourceMap(*itr);
+
+	// Here we extract the model counts
+	// Note that we have to it differently for fixed
+	// Sources b/c we don't want to have to keep
+	// source maps for all the fixed sources
+	std::vector<float> modelCounts(nbins, 0.);
+	nc_logLike.computeModelMap(*itr,modelCounts);
+
+	if ( ! aSrc->spectrum().normPar().isFree() && !hasSourceMap ) {
+	  nc_logLike.eraseSourceMap(*itr);
+	} 
+
+	// The source is fixed, add it to the total fixed model
+	vectorAdd(fixed.begin(),fixed.end(),
+		  modelCounts.begin(),modelCounts.end(),
+		  fixed.begin(),fixed.end());
+      }      
+      return;
+     
+    }
+
+
+    bool extractPrior(const optimizers::Parameter& par,
+		      double& centralVal,
+		      double& uncertainty) {
+      if ( ! par.has_prior() ) return false;
+      optimizers::Parameter& ncpar = const_cast<optimizers::Parameter&>(par);
+      const optimizers::Function& prior = ncpar.log_prior();
+      if ( prior.genericName() != "LogGaussian" ) {
+	throw std::runtime_error("Prior is not a LogGaussian");	
+      }
+      centralVal = prior.getParam("Mean").getTrueValue();
+      uncertainty = prior.getParam("Sigma").getTrueValue();
+      return true;
+    }
+
+    bool extractPriors(const BinnedLikelihood& logLike,
+		       const std::vector<std::string>& freeSrcNames,
+		       CLHEP::HepVector& centralVals,
+		       CLHEP::HepVector& uncertainties,
+		       std::vector<bool>& constrainPars) {
+      size_t npar = freeSrcNames.size();
+      centralVals = CLHEP::HepVector(npar,0);
+      uncertainties = CLHEP::HepVector(npar,0);
+      constrainPars.resize(npar);
+      bool retVal(false);
+      for ( size_t i(0); i < freeSrcNames.size(); i++ ) {
+	const std::string& srcName = freeSrcNames[i];
+	const Source& aSrc = logLike.source(srcName);
+	const optimizers::Parameter& np = aSrc.spectrum().normPar();
+	constrainPars[i] = extractPrior(np,centralVals[i],uncertainties[i]);
+	retVal |= constrainPars[i];
+      }      
+      return retVal;
+    }
+
+    
 
 
     void refactorModels(const std::vector<std::vector<float> >& templates_in,
