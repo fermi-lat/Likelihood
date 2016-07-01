@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.580 2016/04/30 00:44:38 mdwood Exp $
+    $Id: release.notes,v 1.581 2016/06/21 22:55:40 mdwood Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-05-00 01-Jul-2016 mdwood New features and bug fixes for newton fitter including support for weighted likedlihood and SVD-based step-size calculation.
  Likelihood-20-04-00 21-Jun-2016 mdwood Bug fixes in point-source map calculation and weighted likelihood.  Various bug fixes and improvements for Newton fitter.  Updates to format of TSCube output file.
  Likelihood-20-03-00 29-Apr-2016 mdwood Rename spatial model classes to RadialDisk/RadialGaussian.
  Likelihood-20-02-00 15-Apr-2016 echarles Added implementation of weighted binned likelihood fitting
