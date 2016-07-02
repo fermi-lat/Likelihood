@@ -1,7 +1,7 @@
 /**
  * @file Snapshot.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.3 2016/06/30 01:06:32 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.4 2016/07/01 23:37:01 echarles Exp $
  */
 
 
@@ -37,7 +37,23 @@ namespace Likelihood {
 
   bool Snapshot_Source::compare_priors(const optimizers::Parameter& p1, 
 				       const optimizers::Parameter& p2){
-    // FIXME
+
+    if ( p1.has_prior() != p2.has_prior() ) return true;
+    if ( p1.log_prior().getNumParams() != p1.log_prior().getNumParams() ) return true;
+    std::vector<std::string> n1;
+    std::vector<std::string> n2;
+    std::vector<double> v1;
+    std::vector<double> v2;
+    p1.log_prior().getParamNames(n1);
+    p2.log_prior().getParamNames(n2);
+    p1.log_prior().getParamValues(v1);
+    p2.log_prior().getParamValues(v2);
+
+    for ( size_t i(0); i < n1.size(); i++ ) {
+      if ( n1[i] != n2[i] ) return true;
+      if ( parameter_status(p1,p2) != 0 ) return true;
+    }
+    
     return false;
   }
   
