@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.21 2016/06/29 01:04:21 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.22 2016/07/01 23:37:01 echarles Exp $
  */
 
 
@@ -835,10 +835,12 @@ namespace Likelihood {
     }
     if ( (action & Update_Fixed ) != 0 ) update_fixed_from_model();
     if ( (action & Update_Free ) != 0 ) update_free_from_model(changed_sources);
-    if ( (action & Refactor ) != 0 ) refactor_from_model();
     if ( (action & (Update_Fixed | Update_Free) != 0 ) ) {
+      setCache();
       m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true);
+      return;
     }
+    if ( (action & Refactor ) != 0 ) refactor_from_model();
   }
 
   unsigned FitScanCache::find_action_needed(std::vector<std::string>& changed_sources) const {
