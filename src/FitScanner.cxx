@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.24 2016/07/02 00:37:08 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.25 2016/07/02 01:07:08 echarles Exp $
  */
 
 
@@ -1476,6 +1476,16 @@ namespace Likelihood {
 						  prior_uncertainties,
 						  prior_constraints);
     if ( has_prior ) {
+      // Rescale the central values & uncertainties to the reference values 
+      for ( size_t i(0); i < m_refValues.size(); i++ ) {
+	if ( m_refValues[i] < 1e-15 ) {
+	  std::cout << "Reference value is very small, not building prior on parameter " << i << std::endl;
+	  prior_constraints[i] = false;
+	} else {
+	  prior_centralVals[i] /= m_refValues[i];
+	  prior_uncertainties[i] /= m_refValues[i];
+      }
+
       m_init_prior_test = new FitScanMVPrior(prior_centralVals,
 					     prior_uncertainties,
 					     prior_constraints,
