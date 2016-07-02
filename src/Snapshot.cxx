@@ -1,7 +1,7 @@
 /**
  * @file Snapshot.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.5 2016/07/02 01:07:08 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.6 2016/07/02 01:16:19 echarles Exp $
  */
 
 
@@ -40,7 +40,7 @@ namespace Likelihood {
 
     if ( p1.has_prior() != p2.has_prior() ) return true;
     if ( ! ( p1.has_prior() || p1.has_prior() ) ) return false;
-    if ( p1.log_prior().getNumParams() != p1.log_prior().getNumParams() ) return true;
+    if ( p1.log_prior().getNumParams() != p2.log_prior().getNumParams() ) return true;
     std::vector<std::string> n1;
     std::vector<std::string> n2;
     std::vector<double> v1;
@@ -52,7 +52,11 @@ namespace Likelihood {
 
     for ( size_t i(0); i < n1.size(); i++ ) {
       if ( n1[i] != n2[i] ) return true;
-      if ( parameter_status(p1,p2) != 0 ) return true;
+      double abs_diff = std::abs(v1-v2);
+      double abs_sum = std::abs(v1) + std::abs(v2);
+      double tol = abs_sum * 1e-5;
+      bool value_changed = ( abs_diff > tol );   
+      if ( value_changed ) return true;
     }
     
     return false;
