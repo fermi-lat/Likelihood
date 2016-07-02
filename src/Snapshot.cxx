@@ -1,7 +1,7 @@
 /**
  * @file Snapshot.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.6 2016/07/02 01:16:19 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.7 2016/07/02 01:23:08 echarles Exp $
  */
 
 
@@ -52,8 +52,8 @@ namespace Likelihood {
 
     for ( size_t i(0); i < n1.size(); i++ ) {
       if ( n1[i] != n2[i] ) return true;
-      double abs_diff = std::abs(v1-v2);
-      double abs_sum = std::abs(v1) + std::abs(v2);
+      double abs_diff = std::abs(v1[i]-v2[i]);
+      double abs_sum = std::abs(v1[i]) + std::abs(v2[i]);
       double tol = abs_sum * 1e-5;
       bool value_changed = ( abs_diff > tol );   
       if ( value_changed ) return true;
