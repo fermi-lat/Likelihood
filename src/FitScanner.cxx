@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.22 2016/07/01 23:37:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.23 2016/07/02 00:04:57 echarles Exp $
  */
 
 
@@ -828,19 +828,27 @@ namespace Likelihood {
 
   void FitScanCache::update_with_action(unsigned action,
 					const std::vector<std::string>& changed_sources) {
-    if ( action == No_Action ) return;
+    if ( action == No_Action ) {
+      return;
+    }
     if ( (action & Rebuild) != 0 ) {
       build_from_model();
       return;
     }
-    if ( (action & Update_Fixed ) != 0 ) update_fixed_from_model();
-    if ( (action & Update_Free ) != 0 ) update_free_from_model(changed_sources);
-    if ( (action & (Update_Fixed | Update_Free) != 0 ) ) {
+    if ( (action & Update_Fixed ) != 0 ) {
+      update_fixed_from_model();
+    }
+    if ( (action & Update_Free ) != 0 ) {
+      update_free_from_model(changed_sources);
+    }
+    if ( (action & (Update_Fixed | Update_Free)) != 0 ) {
       setCache();
       m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true);
       return;
     }
-    if ( (action & Refactor ) != 0 ) refactor_from_model();
+    if ( (action & Refactor ) != 0 ) {
+      refactor_from_model();
+    }
   }
 
   unsigned FitScanCache::find_action_needed(std::vector<std::string>& changed_sources) const {
@@ -1460,7 +1468,7 @@ namespace Likelihood {
       freeSources.push_back(par.isFree());
       float parScale = par.getValue() / m_refValues[i];
       pars_scales.push_back(parScale);
-    }
+    }    
   }
 
   void FitScanCache::cleanup() {
