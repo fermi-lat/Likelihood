@@ -1,7 +1,7 @@
 /**
  * @file Snapshot.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.4 2016/07/01 23:37:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.5 2016/07/02 01:07:08 echarles Exp $
  */
 
 
@@ -39,6 +39,7 @@ namespace Likelihood {
 				       const optimizers::Parameter& p2){
 
     if ( p1.has_prior() != p2.has_prior() ) return true;
+    if ( ! ( p1.has_prior() || p1.has_prior() ) ) return false;
     if ( p1.log_prior().getNumParams() != p1.log_prior().getNumParams() ) return true;
     std::vector<std::string> n1;
     std::vector<std::string> n2;
