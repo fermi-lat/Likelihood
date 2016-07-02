@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.26 2016/07/02 01:53:50 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.27 2016/07/02 01:54:33 echarles Exp $
  */
 
 
@@ -1483,7 +1483,7 @@ namespace Likelihood {
 	  prior_constraints[i] = false;
 	} else {
 	  prior_centralVals[i] /= m_refValues[i];
-	  prior_uncertainties[i] /= m_refValues[i];\
+	  prior_uncertainties[i] /= m_refValues[i];
 	}
       }
 
