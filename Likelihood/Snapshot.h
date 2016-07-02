@@ -4,7 +4,7 @@
  *
  * A class to provide a Snapshot of a SourceModel and allow for comparisons
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.2 2016/06/30 00:59:25 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.3 2016/07/01 23:37:00 echarles Exp $
  */
 
 #ifndef Likelihood_Scanshot_h
@@ -144,6 +144,7 @@ namespace Likelihood {
     inline bool norm_changed() const { return (m_val & Norm_Mask) != 0; }
     inline bool norm_value_changed() const { return (m_val & Norm_Value_Changed) != 0; }
     inline bool norm_status_changed() const { return (m_val & Norm_Status_Changed) != 0; }
+    inline bool norm_prior_changed() const { return (m_val & Norm_Prior_Changed) != 0; }
     inline bool norm_fixed_changed() const { return (m_val & Norm_Fixed_Changed) != 0; }
     inline bool norm_free_changed() const { return (m_val & Norm_Free_Changed) != 0; }
 

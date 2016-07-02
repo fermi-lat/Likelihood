@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.23 2016/07/02 00:04:57 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.24 2016/07/02 00:37:08 echarles Exp $
  */
 
 
@@ -755,6 +755,11 @@ namespace Likelihood {
       // This simple case, this is a no-op
       return retVal;
     }    
+    if ( stat.norm_prior_changed() ) {
+      // A prior on normalization has changed.  
+      // remake the prior
+      retVal |= Remake_Prior;
+    }
     if ( stat.norm_free_changed() ) { 
       // A free normalization has changed.  
       // We have already latched this source.
@@ -848,6 +853,9 @@ namespace Likelihood {
     }
     if ( (action & Refactor ) != 0 ) {
       refactor_from_model();
+    }
+    if ( (action & Remake_Prior ) != 0 ) {
+      extract_init_priors_from_model();
     }
   }
 
@@ -1417,24 +1425,7 @@ namespace Likelihood {
 				 m_refValues,
 				 m_useWeights ? &m_weights : 0);
     
-
-    CLHEP::HepVector prior_centralVals;
-    CLHEP::HepVector prior_uncertainties;
-    std::vector<bool> prior_constraints;
-    bool has_prior = m_modelWrapper.extractPriors(m_templateSourceNames,
-						  prior_centralVals,
-						  prior_uncertainties,
-						  prior_constraints);
-    if ( has_prior ) {
-      m_init_prior_test = new FitScanMVPrior(prior_centralVals,
-					     prior_uncertainties,
-					     prior_constraints,
-					     true);
-      m_init_prior_bkg = new FitScanMVPrior(prior_centralVals,
-					    prior_uncertainties,
-					    prior_constraints,
-					    false);      
-    }
+    extract_init_priors_from_model();
     setCache();
   }
   
@@ -1469,6 +1460,32 @@ namespace Likelihood {
       float parScale = par.getValue() / m_refValues[i];
       pars_scales.push_back(parScale);
     }    
+  }
+
+
+  void FitScanCache::extract_init_priors_from_model() {
+    delete m_init_prior_test;
+    delete m_init_prior_bkg;    
+    m_init_prior_test = 0;
+    m_init_prior_bkg = 0;    
+    CLHEP::HepVector prior_centralVals;
+    CLHEP::HepVector prior_uncertainties;
+    std::vector<bool> prior_constraints;
+    bool has_prior = m_modelWrapper.extractPriors(m_templateSourceNames,
+						  prior_centralVals,
+						  prior_uncertainties,
+						  prior_constraints);
+    if ( has_prior ) {
+      m_init_prior_test = new FitScanMVPrior(prior_centralVals,
+					     prior_uncertainties,
+					     prior_constraints,
+					     true);
+      m_init_prior_bkg = new FitScanMVPrior(prior_centralVals,
+					    prior_uncertainties,
+					    prior_constraints,
+					    false);      
+    }
+ 
   }
 
   void FitScanCache::cleanup() {

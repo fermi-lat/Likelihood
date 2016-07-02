@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.16 2016/06/25 00:10:32 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.17 2016/07/01 23:37:00 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -712,10 +712,11 @@ namespace Likelihood {
 
     typedef enum { No_Prior, Local_Prior, Global_Prior, Init_Prior } Prior_Version; 
     typedef enum { No_Action=0,      // Model unchanged
-		   Refactor=0x1,     // Model changed, but templates already latched
-		   Update_Free=0x2,  // Free source changed, must relatch template
-		   Update_Fixed=0x4, // Fixed source changed, must relatch fixed template
-		   Rebuild=0x8       // Lots of stuff changed, rebuild the cache
+		   Remake_Prior=0x1, // Need to remake the prior
+		   Refactor=0x2,     // Model changed, but templates already latched
+		   Update_Free=0x4,  // Free source changed, must relatch template
+		   Update_Fixed=0x8, // Fixed source changed, must relatch fixed template
+		   Rebuild=0x10       // Lots of stuff changed, rebuild the cache
     } Update_Action;
 
     static unsigned action_needed(Snapshot_Status stat);
@@ -927,6 +928,7 @@ namespace Likelihood {
     void get_status_and_scales(std::vector<bool>& freeSources,
 			       std::vector<float>& pars_scales);
 
+    void extract_init_priors_from_model();
 
     void cleanup();
 
