@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.17 2016/07/01 23:37:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.18 2016/07/02 01:07:07 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -358,6 +358,14 @@ namespace Likelihood {
 			       CLHEP::HepVector& centralVals,
 			       CLHEP::HepVector& uncertainties,
 			       std::vector<bool>& constrainPars) const;   
+
+    
+    
+    /* Check to see if the fixed / free status of sources has changed
+       w.r.t. the wrapped BinnedLikelihood or SummedLikelihood 
+    */    
+    bool fixed_changed(const std::vector<std::string>& srcNames,
+		       const std::vector<bool>& currentFreeSources) const;
 
     /* Get the likelihood value */
     virtual double value() const = 0;
@@ -757,7 +765,7 @@ namespace Likelihood {
        w.r.t. the wrapped BinnedLikelihood or SummedLikelihood 
     */
     unsigned find_action_needed(std::vector<std::string>& changed_sources) const;    
-
+    
     /* Reset everything to the initial master state */
     void setCache();
 

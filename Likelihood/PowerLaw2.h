@@ -3,7 +3,7 @@
  * @brief Declaration for the PowerLaw2 Function class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.4 2015/03/03 18:05:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.5 2015/03/21 05:38:03 jchiang Exp $
  */
 
 #ifndef Likelihood_PowerLaw2_h
@@ -23,7 +23,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *    
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.4 2015/03/03 18:05:36 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLaw2.h,v 1.5 2015/03/21 05:38:03 jchiang Exp $
  */
     
 class PowerLaw2 : public optimizers::Function {
@@ -64,7 +64,7 @@ private:
             m_cGXFact = one_p_gamma/(m_cPowXHi - m_cPowXLo);
          }
 	 m_cX      = x + 1.0; // force recalculation of m_cPowX below
-       }
+       } 
 
      if(s_cX != x)
        {

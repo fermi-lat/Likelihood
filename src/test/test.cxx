@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/test/test.cxx,v 1.137 2015/12/10 00:58:03 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.138 2016/03/03 21:51:37 mdwood Exp $
  */
 
 #ifdef TRAP_FPE
@@ -555,7 +555,7 @@ void LikelihoodTests::test_EblAtten() {
    params.push_back(optimizers::Parameter("UpperLimit", 2e5));
    params.push_back(optimizers::Parameter("tau_norm", 1));
    params.push_back(optimizers::Parameter("redshift", 0.5));
-   params.push_back(optimizers::Parameter("ebl_model", 0));
+   params.push_back(optimizers::Parameter("ebl_model", 4));
 
    std::vector<optimizers::Arg *> args;
    args.push_back(new optimizers::dArg(100));

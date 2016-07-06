@@ -1,7 +1,7 @@
 /**
  * @file Snapshot.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.7 2016/07/02 01:23:08 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.8 2016/07/02 01:23:45 echarles Exp $
  */
 
 
@@ -268,7 +268,7 @@ namespace Likelihood {
     }
   }
 
-  void Snapshot_Source::latch_source(const Source& src, bool owned) {
+  void Snapshot_Source::latch_source(const Source& src, bool owned, bool update_status) {
     if ( m_owned ) {
       delete m_norm_param;			
       m_norm_param = 0;
@@ -279,7 +279,9 @@ namespace Likelihood {
     extract_spectral(src,m_spectral_model,m_spectral_params,owned);
     extract_spatial(src,m_spatial_model,m_spatial_params,owned);
     extract_ancillary(src,m_ancillary);
-    m_fixed = ! (m_norm_param->isFree());
+    if ( update_status ) { 
+      m_fixed = ! (m_norm_param->isFree()); 
+    }
     m_owned = owned;
   }
 
@@ -325,12 +327,16 @@ namespace Likelihood {
     return src.spectrum().normPar().isFree();
   }
 
-  void Snapshot::latch_model(const SourceModel& model, bool owned) {
+  void Snapshot::latch_model(const SourceModel& model, bool owned, bool update_status) {
     m_sources.clear();
     const std::map<std::string, Source *>& sources = model.sources();
     for ( std::map<std::string, Source *>::const_iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
-      m_sources[itr->first] = Snapshot_Source();
-      m_sources[itr->first].latch_source(*(itr->second),owned);
+      if ( m_sources.count(itr->first) > 0 ) {
+	m_sources[itr->first].latch_source(*(itr->second),owned,update_status);
+      } else {
+	m_sources[itr->first] = Snapshot_Source();
+	m_sources[itr->first].latch_source(*(itr->second),owned);
+      }
     }
   }
 

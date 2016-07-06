@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EblAtten.cxx,v 1.6 2015/03/03 18:05:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/EblAtten.cxx,v 1.7 2015/03/21 05:38:03 jchiang Exp $
  */
 
 #include <algorithm>
@@ -136,7 +136,8 @@ double EblAtten::attenuation(double energy) const {
    int ebl_model(redshift + 1);
    
    IRB::EblModel new_model = static_cast<IRB::EblModel>(static_cast<int>(m_parameter[ebl_model].getTrueValue()));
-   if (new_model != m_tau->model()) {
+   if (new_model !=  m_tau->model()) {
+      std::cout << "Building new attenuation model " <<  m_parameter[ebl_model].getTrueValue() << std::endl;
       delete m_tau;
       m_tau = new IRB::EblAtten(new_model);
    }
@@ -144,6 +145,7 @@ double EblAtten::attenuation(double energy) const {
    double zz(m_parameter[redshift].getTrueValue());
    double atten(std::exp(-m_parameter[tau_norm].getTrueValue()
                          *m_tau->operator()(energy, zz)));
+
    return atten;
 }
 
