@@ -4,7 +4,7 @@
  *
  * A class to provide a Snapshot of a SourceModel and allow for comparisons
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.4 2016/07/02 01:07:07 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.5 2016/07/06 01:17:44 echarles Exp $
  */
 
 #ifndef Likelihood_Scanshot_h
@@ -128,7 +128,8 @@ namespace Likelihood {
       Free_Spec_Model_Type_Changed | Free_Spatial_Model_Type_Changed | Free_Ancillary_Changed,
       Fixed_Model_Type_Mask =                             //! Mask for any fixed model changed type
       Fixed_Spec_Model_Type_Changed | Fixed_Spatial_Model_Type_Changed | Fixed_Ancillary_Changed,
-
+      Model_Changed_Mask =                                //! Mask of any aspect of the model changing
+      Model_Free_Mask | Model_Fixed_Mask | Spec_Mask | Spatial_Mask | Ancillary_Changed,
       Free_Changed_Mask  =                                //! Any free source changed
       Free_Par_Changed | Free_Model_Type_Changed | Free_Source_Changed, 
       Fixed_Changed_Mask  =                               //! Any fixed source changed
@@ -162,7 +163,10 @@ namespace Likelihood {
     inline bool model_type_changed() const { return (m_val & Model_Type_Mask) != 0; }
     inline bool ancillary_changed() const { return (m_val & Ancillary_Changed) != 0; }
     inline bool model_free_changed() const { return (m_val & Model_Free_Mask) != 0; }    
-    inline bool model_fixed_changed() const { return (m_val & Model_Fixed_Mask) != 0; }    
+    inline bool model_fixed_changed() const { return (m_val & Model_Fixed_Mask) != 0; }  
+    
+    inline bool model_changed() const { return (m_val & Model_Changed_Mask) != 0; }
+
     inline bool free_source_changed() const { return (m_val & Free_Source_Changed) != 0; }
     inline bool free_source_added() const { return (m_val & Free_Source_Removed) != 0; }
     inline bool free_source_removed() const { return (m_val & Free_Source_Added) != 0; }
@@ -333,7 +337,7 @@ namespace Likelihood {
        
        if owned is true this will clone the Parameters out of the source
     */
-    void latch_source(const Source& src, bool owned=false, bool update_status=true);
+    void latch_source(const Source& src, bool owned=false);
 
     /* Deep copy all of the Parameters */
     void deep_copy();
@@ -343,6 +347,9 @@ namespace Likelihood {
 
     /* print this Snapshot_Source */
     void print() const;
+
+    /* is this source fixed */
+    inline bool fixed() const { return m_fixed; }
 
   private:
     
@@ -392,7 +399,7 @@ namespace Likelihood {
        
        If owned is true this will clone the Parameters
     */
-    void latch_model(const SourceModel& model, bool owned = false, bool update_status = true);
+    void latch_model(const SourceModel& model, bool owned = false);
 
     /* Print the entire model */
     void print() const;
@@ -401,10 +408,18 @@ namespace Likelihood {
     void print_source(const std::string& srcName) const;
 
     /* Compare a single source with this Snapshot */
-    Snapshot_Status compare_source(const std::string& srcName, const Source& src) const;
+    Snapshot_Status compare_source(const std::string& srcName, const Source* src) const;
 
     /* Compare an entire model with this Snapshot */    
     Snapshot_Status compare_model(const SourceModel& model, std::vector<std::string>& changed_sources) const;
+
+    /* Compare an entire model with this Snapshot, 
+       taking into account latched and non-latched sources */
+    void compare_latched(const SourceModel& model, const std::vector<std::string>& latched_sources,
+			 Snapshot_Status& latched_status, std::vector<std::string>& changed_latched,
+			 Snapshot_Status& unlatched_status, std::vector<std::string>& changed_unlatched,
+			 std::vector<std::string>& new_free, std::vector<std::string>& new_fixed) const;
+    
 
   private:
 

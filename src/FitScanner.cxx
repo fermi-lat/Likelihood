@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.28 2016/07/02 01:54:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.29 2016/07/06 01:17:45 echarles Exp $
  */
 
 
@@ -761,42 +761,6 @@ namespace Likelihood {
   }
 
   
-  unsigned FitScanCache::action_needed(Snapshot_Status stat) {
-    unsigned retVal(0);
-    if ( stat.unchanged() ) {
-      // This simple case, this is a no-op
-      return retVal;
-    }    
-    if ( stat.norm_prior_changed() ) {
-      // A prior on normalization has changed.  
-      // remake the prior
-      retVal |= Remake_Prior;
-    }
-    if ( stat.norm_free_changed() ) { 
-      // A free normalization has changed.  
-      // We have already latched this source.
-      // We need to refactor the model.
-      // This includes the case that free source was fixed.
-      retVal |= Refactor;
-    }    
-    if ( stat.model_free_changed() ) {
-      // The model for a free source has changed.
-      // We need to relatch that model.
-      retVal |= Update_Free;
-    }
-    if ( stat.fixed_changed() )  {
-      // The model for a free source has changed.
-      // We need to relatch the fixed model
-      retVal |= Update_Fixed;
-    }
-    if ( stat.source_freed() || stat.free_source_added() ) {
-      // Some source has been freed or a new free source has been added.
-      // It is easiest just to rebuild the cache.
-      retVal |= Rebuild;
-    }
-    return retVal;
-  }
-  
   FitScanCache::FitScanCache(FitScanModelWrapper& modelWrapper,
 			     const std::string& testSourceName,
 			     double tol, int maxIter, double initLambda,
@@ -844,34 +808,71 @@ namespace Likelihood {
 
 
   void FitScanCache::update_with_action(unsigned action,
-					const std::vector<std::string>& changed_sources) {
+					std::vector<std::string>& changed_latched, 
+					std::vector<std::string>& /* changed_unlatched */,
+					std::vector<std::string>& /* new_free */, 
+					std::vector<std::string>& /* new_fixed */) {
 
     if ( (action & Rebuild) != 0 ) {
       build_from_model();
       return;
     }
+    if ( action == No_Action ) return;    
     if ( (action & Update_Fixed ) != 0 ) {
       update_fixed_from_model();
     }
     if ( (action & Update_Free ) != 0 ) {
-      update_free_from_model(changed_sources);
+      update_free_from_model(changed_latched);
     }
     if ( (action & (Update_Fixed | Update_Free)) != 0 ) {
       setCache();
-      m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true,false);
     }
-    bool must_refactor = m_modelWrapper.fixed_changed(m_templateSourceNames,m_currentFreeSources);    
-    if ( ((action & Refactor ) != 0 ) || must_refactor ) {
+    if ( (action & Refactor ) != 0 ) {
       refactor_from_model();
     }
     if ( (action & Remake_Prior ) != 0 ) {
       extract_init_priors_from_model();
     }
+    m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true);
   }
 
-  unsigned FitScanCache::find_action_needed(std::vector<std::string>& changed_sources) const {
-    Snapshot_Status status = m_snapshot->compare_model(m_modelWrapper.getMasterComponent(),changed_sources);
-    return action_needed(status);
+  unsigned FitScanCache::find_action_needed(std::vector<std::string>& changed_latched, 
+					    std::vector<std::string>& changed_unlatched,
+					    std::vector<std::string>& new_free, 
+					    std::vector<std::string>& new_fixed) const {
+    Snapshot_Status latched_status;
+    Snapshot_Status unlatched_status;
+    m_snapshot->compare_latched(m_modelWrapper.getMasterComponent(),m_templateSourceNames,
+				latched_status,changed_latched,unlatched_status,changed_unlatched,new_free,new_fixed);
+
+    unsigned action(0);
+    if ( new_free.size() > 0 ) {
+      // There are new free sources, just rebuild
+      action |= Rebuild;
+    }
+    if ( (new_fixed.size() > 0) || unlatched_status.changed() ) {
+      // Either there is a new fixed source, 
+      // Or one of the unlatched sources has changed.
+      // In either case we update the fixed source cache.
+      action |= ( Update_Fixed | Refactor );
+    } 
+    if ( latched_status.model_changed() ) {
+      // The model for one of the free sources has chagned.
+      // We need to update that model
+      action |= ( Update_Free | Refactor );
+    } 
+    if ( latched_status.norm_status_changed() || latched_status.norm_value_changed() ) {
+      // Either the normalization or 
+      // the fix/free status of a latched source has changed.
+      // In either case we refactor the model.
+      action |= Refactor;
+    } 
+    if ( latched_status.norm_prior_changed() ) {
+      // The prior on the latched source has chagned. 
+      // We need to remake the prior.
+      action |= Remake_Prior;
+    }
+    return action;
   }
 
   void FitScanCache::setCache() {

@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.18 2016/07/02 01:07:07 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.19 2016/07/06 01:17:44 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -727,7 +727,6 @@ namespace Likelihood {
 		   Rebuild=0x10       // Lots of stuff changed, rebuild the cache
     } Update_Action;
 
-    static unsigned action_needed(Snapshot_Status stat);
 
   public:
 
@@ -749,9 +748,12 @@ namespace Likelihood {
        This first figures out the action needed, then calls update_with_action()
      */
     void update() {
-      std::vector<std::string> changed_sources;
-      unsigned action = find_action_needed(changed_sources);
-      update_with_action(action,changed_sources);
+      std::vector<std::string> changed_latched; 
+      std::vector<std::string> changed_unlatched;
+      std::vector<std::string> new_free; 
+      std::vector<std::string> new_fixed;
+      unsigned action = find_action_needed(changed_latched, changed_unlatched, new_free, new_fixed);
+      update_with_action(action,changed_latched, changed_unlatched, new_free, new_fixed);
     }
 
     /* Update stuff w.r.t. the wrapped BinnedLikelihood or SummedLikelihood 
@@ -759,12 +761,15 @@ namespace Likelihood {
 
        Don't use this unless you know what you are doing.
     */
-    void update_with_action(unsigned action, const std::vector<std::string>& changed_sources);
+    void update_with_action(unsigned action, 
+			    std::vector<std::string>& changed_latched, std::vector<std::string>& changed_unlatched,
+			    std::vector<std::string>& new_free, std::vector<std::string>& new_fixed);
 
     /* Decide the correct action needed to update this cache 
        w.r.t. the wrapped BinnedLikelihood or SummedLikelihood 
     */
-    unsigned find_action_needed(std::vector<std::string>& changed_sources) const;    
+    unsigned find_action_needed(std::vector<std::string>& changed_latched, std::vector<std::string>& changed_unlatched,
+				std::vector<std::string>& new_free, std::vector<std::string>& new_fixed) const;    
     
     /* Reset everything to the initial master state */
     void setCache();
