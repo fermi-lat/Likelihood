@@ -1,7 +1,7 @@
 /**
  * @file Snapshot.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.8 2016/07/02 01:23:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Snapshot.cxx,v 1.9 2016/07/06 01:17:45 echarles Exp $
  */
 
 
@@ -9,6 +9,7 @@
 
 #include <cstdio>
 #include <stdexcept>
+#include <set>
 
 #include "optimizers/Parameter.h"
 #include "optimizers/Function.h"
@@ -268,7 +269,7 @@ namespace Likelihood {
     }
   }
 
-  void Snapshot_Source::latch_source(const Source& src, bool owned, bool update_status) {
+  void Snapshot_Source::latch_source(const Source& src, bool owned) {
     if ( m_owned ) {
       delete m_norm_param;			
       m_norm_param = 0;
@@ -279,9 +280,7 @@ namespace Likelihood {
     extract_spectral(src,m_spectral_model,m_spectral_params,owned);
     extract_spatial(src,m_spatial_model,m_spatial_params,owned);
     extract_ancillary(src,m_ancillary);
-    if ( update_status ) { 
-      m_fixed = ! (m_norm_param->isFree()); 
-    }
+    m_fixed = ! (m_norm_param->isFree()); 
     m_owned = owned;
   }
 
@@ -327,16 +326,14 @@ namespace Likelihood {
     return src.spectrum().normPar().isFree();
   }
 
-  void Snapshot::latch_model(const SourceModel& model, bool owned, bool update_status) {
+  void Snapshot::latch_model(const SourceModel& model, bool owned) {
     m_sources.clear();
     const std::map<std::string, Source *>& sources = model.sources();
     for ( std::map<std::string, Source *>::const_iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
-      if ( m_sources.count(itr->first) > 0 ) {
-	m_sources[itr->first].latch_source(*(itr->second),owned,update_status);
-      } else {
+      if ( m_sources.count(itr->first) == 0 ) {
 	m_sources[itr->first] = Snapshot_Source();
-	m_sources[itr->first].latch_source(*(itr->second),owned);
       }
+      m_sources[itr->first].latch_source(*(itr->second),owned);
     }
   }
 
@@ -357,15 +354,20 @@ namespace Likelihood {
   }
 
   
-  Snapshot_Status Snapshot::compare_source(const std::string& srcName, const Source& src) const {
+  Snapshot_Status Snapshot::compare_source(const std::string& srcName, const Source* src) const {
     std::map<std::string,Snapshot_Source>::const_iterator itrFind = m_sources.find(srcName);
+    if ( src == 0 ) {
+      return itrFind->second.fixed() ? 
+	Snapshot_Status(Snapshot_Status::Free_Source_Removed) :
+	Snapshot_Status(Snapshot_Status::Fixed_Source_Removed);
+    }
     if ( itrFind == m_sources.end() ) {
-      bool src_is_free = Snapshot::source_free(src);
+      bool src_is_free = Snapshot::source_free(*src);
       return src_is_free ? 
 	Snapshot_Status(Snapshot_Status::Free_Source_Added) :
-	Snapshot_Status(Snapshot_Status::Free_Source_Added);
-    }
-    return itrFind->second.compare(src);
+	Snapshot_Status(Snapshot_Status::Fixed_Source_Added);
+    } 
+    return itrFind->second.compare(*src);
   }
 
   Snapshot_Status Snapshot::compare_model(const SourceModel& model, std::vector<std::string>& changed_sources) const {
@@ -373,12 +375,65 @@ namespace Likelihood {
     const std::map<std::string, Source *>& sources = model.sources();
     Snapshot_Status status;
     for ( std::map<std::string, Source *>::const_iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
-      Snapshot_Status src_comp = compare_source(itr->first,*(itr->second));
+      Snapshot_Status src_comp = compare_source(itr->first,itr->second);
       if ( src_comp.changed() ) changed_sources.push_back(itr->first);
       status |= src_comp;
     }
     return status;
   }
  
+  void Snapshot::compare_latched(const SourceModel& model, const std::vector<std::string>& latched_sources,
+				 Snapshot_Status& latched_status, std::vector<std::string>& changed_latched,
+				 Snapshot_Status& unlatched_status, std::vector<std::string>& changed_unlatched,
+				 std::vector<std::string>& new_free, std::vector<std::string>& new_fixed) const {
+      changed_latched.clear();
+      changed_unlatched.clear();
+      new_free.clear();
+      new_fixed.clear();
+      latched_status = 0;
+      unlatched_status = 0;
+      std::vector<std::string> model_sources;
+      model.getSrcNames(model_sources);
+      std::set<std::string> model_set;
+      for ( std::vector<std::string>::const_iterator itr_copy_1 = model_sources.begin();
+	    itr_copy_1 != model_sources.end(); itr_copy_1++ ) { model_set.insert(*itr_copy_1); }
+      std::set<std::string> latched_set;
+      for ( std::vector<std::string>::const_iterator itr_copy_2 = latched_sources.begin();
+	    itr_copy_2 != latched_sources.end(); itr_copy_2++ ) { latched_set.insert(*itr_copy_2); }
+      for ( std::map<std::string,Snapshot_Source>::const_iterator itr = m_sources.begin();
+	    itr != m_sources.end(); itr++ ) {
+	bool is_latched = latched_set.count(itr->first) > 0;
+	const Source* src = model.getSource(itr->first);
+	if ( src != 0 ) {
+	  model_set.erase(itr->first);
+	}
+	Snapshot_Status src_comp = compare_source(itr->first,src);
+	if ( is_latched ) {
+	  latched_status |= src_comp;
+	  if ( src_comp.changed() ) {
+	    changed_latched.push_back(itr->first);
+	  }
+	} else {
+	  unlatched_status |= src_comp;
+	  if ( src_comp.changed() ) {
+	    changed_unlatched.push_back(itr->first);
+	  }
+	}
+      }
+      
+      // Now check if there are any sources left
+      for ( std::set<std::string>::const_iterator itr_added = model_set.begin();
+	    itr_added != model_set.end(); itr_added++ ) {
+	bool added_is_free = Snapshot::source_free(model.source(*itr_added));
+	if ( added_is_free ) {
+	  new_free.push_back(*itr_added);
+	} else {
+	  new_fixed.push_back(*itr_added);
+	}	
+      }
+    }
+
+ 
+
 
 } // namespace Likelihood
