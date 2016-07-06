@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.10 2016/06/25 00:10:32 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.11 2016/07/01 23:37:00 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -598,12 +598,14 @@ namespace Likelihood {
        BinnedLikelihood object
 
        logLike:     The BinnedLikelihood object
+       test_name:   The name of the test source ( not added to model)
        fixed:       Summed model for all of the fixed sources
+       latched:     An option vector of latched source ( not added to model )
      */ 
     void extractFixedModel(const BinnedLikelihood& logLike,
 			   const std::string& test_name,
-			   std::vector<float>& fixed);
-    
+			   std::vector<float>& fixed,
+			   const std::vector<std::string>* latched=0);
     
 
     /* Extract the prior on a parameter

@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.27 2016/07/02 01:54:33 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.28 2016/07/02 01:54:45 echarles Exp $
  */
 
 
@@ -287,6 +287,18 @@ namespace Likelihood {
 					  CLHEP::HepVector& uncertainties,
 					  std::vector<bool>& constrainPars) const {
     return FitUtils::extractPriors(getMasterComponent(),freeSrcNames,centralVals,uncertainties,constrainPars);    
+  }
+
+
+  bool FitScanModelWrapper::fixed_changed(const std::vector<std::string>& freeSrcNames,
+					  const std::vector<bool>& currentFree) const {
+    const BinnedLikelihood& bl = getMasterComponent();
+    size_t idx(0);
+    for ( std::vector<std::string>::const_iterator itr = freeSrcNames.begin();
+	  itr != freeSrcNames.end(); itr++, idx++ ) {
+      if ( Snapshot::source_free(bl.source(*itr)) != currentFree[idx] ) return true;
+    }
+    return false;
   }
 
 
@@ -833,9 +845,7 @@ namespace Likelihood {
 
   void FitScanCache::update_with_action(unsigned action,
 					const std::vector<std::string>& changed_sources) {
-    if ( action == No_Action ) {
-      return;
-    }
+
     if ( (action & Rebuild) != 0 ) {
       build_from_model();
       return;
@@ -848,10 +858,10 @@ namespace Likelihood {
     }
     if ( (action & (Update_Fixed | Update_Free)) != 0 ) {
       setCache();
-      m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true);
-      return;
+      m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true,false);
     }
-    if ( (action & Refactor ) != 0 ) {
+    bool must_refactor = m_modelWrapper.fixed_changed(m_templateSourceNames,m_currentFreeSources);    
+    if ( ((action & Refactor ) != 0 ) || must_refactor ) {
       refactor_from_model();
     }
     if ( (action & Remake_Prior ) != 0 ) {
@@ -1430,7 +1440,7 @@ namespace Likelihood {
   }
   
   void FitScanCache::update_fixed_from_model() {
-    FitUtils::extractFixedModel(m_modelWrapper.getMasterComponent(),m_testSourceName,m_allFixed);    
+    FitUtils::extractFixedModel(m_modelWrapper.getMasterComponent(),m_testSourceName,m_allFixed,&m_templateSourceNames);    
   }
   
   void FitScanCache::update_free_from_model(const std::vector<std::string>& changed_sources) {

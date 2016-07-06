@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.17 2016/06/29 01:04:21 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.18 2016/07/01 23:37:01 echarles Exp $
  */
 
 
@@ -1333,7 +1333,8 @@ namespace Likelihood {
 
     void extractFixedModel(const BinnedLikelihood& logLike,
 			   const std::string& test_name,
-			   std::vector<float>& fixed){
+			   std::vector<float>& fixed,
+			   const std::vector<std::string>* latched){
 
       BinnedLikelihood& nc_logLike = const_cast<BinnedLikelihood&>(logLike);
 
@@ -1357,6 +1358,17 @@ namespace Likelihood {
 	// To make it faster to turn it on and off
 	bool isTest = (*itr) == test_name;
 	if ( isTest ) continue;
+
+	bool is_latched = false;
+	if ( latched ) {
+	  for ( std::vector<std::string>::const_iterator itrfind = latched->begin();
+		itrfind != latched->end(); itrfind++ ) {
+	    if ( (*itrfind) == (*itr) ) {
+	      is_latched = true;
+	      break;
+	    }
+	  }
+	}
 
 	// We are actually fitting a scale factor w.r.t. the baseline fit
 	// so we want to latch the normalization parameter values

@@ -4,7 +4,7 @@
  *
  * A class to provide a Snapshot of a SourceModel and allow for comparisons
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.3 2016/07/01 23:37:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.4 2016/07/02 01:07:07 echarles Exp $
  */
 
 #ifndef Likelihood_Scanshot_h
@@ -333,7 +333,7 @@ namespace Likelihood {
        
        if owned is true this will clone the Parameters out of the source
     */
-    void latch_source(const Source& src, bool owned=false);
+    void latch_source(const Source& src, bool owned=false, bool update_status=true);
 
     /* Deep copy all of the Parameters */
     void deep_copy();
@@ -392,7 +392,7 @@ namespace Likelihood {
        
        If owned is true this will clone the Parameters
     */
-    void latch_model(const SourceModel& model, bool owned = false);
+    void latch_model(const SourceModel& model, bool owned = false, bool update_status = true);
 
     /* Print the entire model */
     void print() const;
