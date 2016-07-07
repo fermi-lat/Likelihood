@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.29 2016/07/06 01:17:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.30 2016/07/06 22:07:01 echarles Exp $
  */
 
 
@@ -849,6 +849,14 @@ namespace Likelihood {
     if ( new_free.size() > 0 ) {
       // There are new free sources, just rebuild
       action |= Rebuild;
+    }
+    if ( unlatched_status.source_freed() ) {
+      // An unlatched source has been freed, just rebuild
+      action |= Rebuild;      
+    }
+    if ( (action & Rebuild ) != 0 ) {
+      // If we need to rebuild the model, don't worry about the other flags
+      return action;
     }
     if ( (new_fixed.size() > 0) || unlatched_status.changed() ) {
       // Either there is a new fixed source, 
