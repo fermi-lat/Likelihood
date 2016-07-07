@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.18 2016/07/01 23:37:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.19 2016/07/06 01:17:45 echarles Exp $
  */
 
 
@@ -1369,13 +1369,14 @@ namespace Likelihood {
 	    }
 	  }
 	}
+	if ( is_latched ) break;
 
 	// We are actually fitting a scale factor w.r.t. the baseline fit
 	// so we want to latch the normalization parameter values
 	// from the baseline fit
 	Source* aSrc = nc_logLike.getSource(*itr);
 	if ( aSrc->spectrum().normPar().isFree() ) continue;
-\
+
 	bool hasSourceMap = logLike.hasSourceMap(*itr);
 
 	// Here we extract the model counts
