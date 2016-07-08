@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.19 2016/07/06 01:17:44 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.20 2016/07/06 22:07:01 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -210,14 +210,16 @@ namespace Likelihood {
     */
     FitScanMVPrior(const CLHEP::HepVector& centralVals,
 		   const CLHEP::HepVector& uncertainties,
+		   const std::vector<bool>& hasPrior,
 		   const std::vector<bool>& constrainPars,
 		   bool includeTestSource){
-      update(centralVals,uncertainties,constrainPars,includeTestSource);
+      update(centralVals,uncertainties,hasPrior,constrainPars,includeTestSource);
     }
    
     /* D'tor, does nothing */
     ~FitScanMVPrior() {;}
 
+    
     /* Update the cached values in this prior
 
        centralVals       : Central values from fit we are using to build this prior
@@ -238,6 +240,7 @@ namespace Likelihood {
 
        centralVals       : Central values we are using to build this prior
        uncertainties     : Uncertainties we are we are using to build this prior
+       parHasPrior       : Flags showing which parameters have priors
        constrainPars     : Flags showing which parameters to include in this prior     
        includeTestSource : If true, expand the dimension by one to allow for the test source
 
@@ -246,6 +249,7 @@ namespace Likelihood {
     */
     void update(const CLHEP::HepVector& centralVals,
 		const CLHEP::HepVector& uncertainties,
+		const std::vector<bool>& parHasPrior,
 		const std::vector<bool>& constrainPars,
 		bool includeTestSource);
 
@@ -269,15 +273,20 @@ namespace Likelihood {
     // This covariance matrix that gives the strength of the constraints
     inline const CLHEP::HepSymMatrix& covariance() const { return m_covariance; }
     /* This vector is the size of _all_ of the cached parameters,
-       it tells use which should be constrained (all the other are FIXED).
+       it tells us which should be constrained (all the other are FIXED).
        To have a free parameter just put in a very weak constraint */
     inline const std::vector<bool> constrainPars() const { return m_constrainPars; }
     /* Is the test source include in this constraint */
     inline bool includeTestSource() const { return m_includeTestSource; }
 
+    /* Get the uncertainties */
+    void get_uncertainties(CLHEP::HepVector& uncertainties) const;
+
   protected:
     
     int latchReducedMatrix();
+
+    int latchReducedDiagonal();
     
   private:
     
@@ -350,14 +359,14 @@ namespace Likelihood {
        freeSrcNames      : Names of the sources 
        centralVals       : Filled with the central values from the priors
        uncertainties     : Filled with the untertainty values from the priors
-       constrainPars     : Filled with the flags showing which parameters have priors
+       parHasPrior       : Filled with the flags showing which parameters have priors
 
        return true if any priors were extract, false otherwise
     */ 
     virtual bool extractPriors(const std::vector<std::string>& freeSrcNames,
 			       CLHEP::HepVector& centralVals,
 			       CLHEP::HepVector& uncertainties,
-			       std::vector<bool>& constrainPars) const;   
+			       std::vector<bool>& parHasPrior) const;   
 
     
     
@@ -718,13 +727,13 @@ namespace Likelihood {
 
   public:
 
-    typedef enum { No_Prior, Local_Prior, Global_Prior, Init_Prior } Prior_Version; 
+    typedef enum { No_Prior, Local_Prior, Global_Prior, Init_Prior, Full_Prior } Prior_Version; 
     typedef enum { No_Action=0,      // Model unchanged
 		   Remake_Prior=0x1, // Need to remake the prior
 		   Refactor=0x2,     // Model changed, but templates already latched
 		   Update_Free=0x4,  // Free source changed, must relatch template
 		   Update_Fixed=0x8, // Fixed source changed, must relatch fixed template
-		   Rebuild=0x10       // Lots of stuff changed, rebuild the cache
+		   Rebuild=0x10      // Lots of stuff changed, rebuild the cache
     } Update_Action;
 
 
@@ -783,6 +792,12 @@ namespace Likelihood {
     void refactorModel(const std::vector<bool>& freeSources, 
 		       const std::vector<float>& pars_scales,
 		       bool include_test);
+
+    /* Refactor the full prior
+       
+       freeSource     : Marks which source are free
+    */
+    void refactorPrior(const std::vector<bool>& freeSources);
 
     /* Extract the scaling values for the normalization parameters for the current fit */
     void getParScales(std::vector<float>& pars_scales);
@@ -1040,10 +1055,14 @@ namespace Likelihood {
     // these are the global priors to use for all the broad band fits
     FitScanMVPrior* m_global_prior_test;
     FitScanMVPrior* m_global_prior_bkg;    
-
+    
     // these are the initital priors, inherited from the input model
     FitScanMVPrior* m_init_prior_test;
     FitScanMVPrior* m_init_prior_bkg;        
+
+    // these are the full initital priors, inherited from the input model
+    FitScanMVPrior* m_full_prior_test;
+    FitScanMVPrior* m_full_prior_bkg;        
 
     // this is the best-fit model for the current fit
     std::vector<float> m_currentBestModel;
