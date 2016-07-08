@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.30 2016/07/06 22:07:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.31 2016/07/07 19:03:09 echarles Exp $
  */
 
 
@@ -176,7 +176,7 @@ namespace Likelihood {
     return 0;
   }
   
-
+ 
   void FitScanMVPrior::logLikelihood(const CLHEP::HepVector& params, double& logLike) const {
     CLHEP::HepVector delta = params - m_centralVals;
     // This returns delta.T * ( m_hessian * delta ), which is exactly what we want
@@ -208,6 +208,7 @@ namespace Likelihood {
 
   void FitScanMVPrior::update(const CLHEP::HepVector& centralVals,
 			      const CLHEP::HepVector& uncertainties,
+			      const std::vector<bool>& parHasPrior,
 			      const std::vector<bool>& constrainPars,
 			      bool includeTestSource) {
     m_constrainPars = constrainPars;
@@ -224,10 +225,19 @@ namespace Likelihood {
       m_hessian = CLHEP::HepSymMatrix(nr,0);
     }     
     for ( size_t i(0); i < nr; i++ ) {
-      if ( constrainPars[i] ) {
+      if ( parHasPrior[i] ) {
 	m_covariance[i][i] = uncertainties[i]*uncertainties[i];
 	m_hessian[i][i] = 1./uncertainties[i]*uncertainties[i];
       }
+    }
+    latchReducedDiagonal();
+  }
+
+  void FitScanMVPrior::get_uncertainties(CLHEP::HepVector& uncertainties) const {
+    size_t nr = m_centralVals.num_row();
+    uncertainties = CLHEP::HepVector(nr,0);
+    for ( size_t i(0); i < nr; i++ ) {
+      uncertainties[i] = sqrt(m_covariance[i][i]);
     }
   }
 
@@ -269,6 +279,40 @@ namespace Likelihood {
     return 0;
   }
 
+
+  int FitScanMVPrior::latchReducedDiagonal() {
+    std::vector<int> idx_red;
+    
+    int idx(0);
+    for ( std::vector<bool>::const_iterator itr = m_constrainPars.begin(); 
+	  itr != m_constrainPars.end(); itr++, idx++ ) {
+      idx_red.push_back(idx);
+    }
+    CLHEP::HepSymMatrix tempCov(idx_red.size(),0);
+    CLHEP::HepSymMatrix tempHess(idx_red.size(),0);
+    int idx1(0);
+    for ( std::vector<int>::const_iterator itr1 = idx_red.begin(); itr1 != idx_red.end(); itr1++, idx1++ ) {
+      tempCov[idx1][idx1] = m_covariance[*itr1][*itr1];      
+      tempHess[idx1][idx1] = m_hessian[*itr1][*itr1]; 
+    }
+  
+    if ( m_includeTestSource ) {
+      m_hessian = CLHEP::HepSymMatrix(idx_red.size()+1,0);
+      m_hessian.sub(1,tempHess);
+      m_covariance = CLHEP::HepSymMatrix(idx_red.size()+1,0);
+      m_covariance.sub(1,tempCov);
+    } else {
+      m_hessian = tempHess;    
+      m_covariance = tempCov;
+    }
+
+    if ( false ) {
+      FitUtils::printMatrix("Prior: ",m_hessian);
+    }
+
+    return 0;
+  }
+
   
   void FitScanModelWrapper::extractModelFromSource(const std::string& srcName,
 						   std::vector<float>& model,
@@ -285,8 +329,8 @@ namespace Likelihood {
   bool FitScanModelWrapper::extractPriors(const std::vector<std::string>& freeSrcNames,
 					  CLHEP::HepVector& centralVals,
 					  CLHEP::HepVector& uncertainties,
-					  std::vector<bool>& constrainPars) const {
-    return FitUtils::extractPriors(getMasterComponent(),freeSrcNames,centralVals,uncertainties,constrainPars);    
+					  std::vector<bool>& parHasPrior) const {
+    return FitUtils::extractPriors(getMasterComponent(),freeSrcNames,centralVals,uncertainties,parHasPrior);    
   }
 
 
@@ -788,6 +832,8 @@ namespace Likelihood {
      m_global_prior_bkg(0),
      m_init_prior_test(0),
      m_init_prior_bkg(0),
+     m_full_prior_test(0),
+     m_full_prior_bkg(0),
      m_currentBestModel(m_modelWrapper.size()),
      m_currentTestSourceIndex(-1),
      m_currentLogLike(0.),
@@ -949,12 +995,46 @@ namespace Likelihood {
       }
     }  
 
+    refactorPrior(freeSources);
     delete m_prior_test;
     delete m_prior_bkg;
     m_prior_test = 0;
     m_prior_bkg = 0;
   }
   
+
+  void FitScanCache::refactorPrior(const std::vector<bool>& freeSources) {
+    CLHEP::HepVector uncertainties;
+    if ( m_full_prior_bkg == 0 ) {
+      delete m_init_prior_test;
+      delete m_init_prior_bkg;
+      m_init_prior_test = 0;
+      m_init_prior_bkg = 0;
+    } else {
+      m_full_prior_bkg->get_uncertainties(uncertainties);
+      std::vector<bool> par_has_prior(uncertainties.num_row(),true);
+      if ( m_init_prior_bkg == 0 ) {
+	m_init_prior_bkg = new FitScanMVPrior(m_full_prior_bkg->centralVals(),
+					      uncertainties,par_has_prior,
+					      freeSources,false);
+      } else {
+	m_init_prior_bkg->update(m_full_prior_bkg->centralVals(),
+				 uncertainties,par_has_prior,
+				 freeSources,false);
+      }
+      if ( m_init_prior_test == 0 ) {
+	m_init_prior_test = new FitScanMVPrior(m_full_prior_bkg->centralVals(),
+					       uncertainties,par_has_prior,
+					       freeSources,true);
+      } else {
+	m_init_prior_test->update(m_full_prior_bkg->centralVals(),
+				  uncertainties,par_has_prior,
+				  freeSources,true);
+      }
+      
+    }    
+  }
+
   void FitScanCache::getParScales(std::vector<float>& pars_scales) {
     // resize the vector and fill it with ones
     pars_scales.resize(nBkgModel());
@@ -1369,6 +1449,9 @@ namespace Likelihood {
 					       bool include_test_source) const {    
     const FitScanMVPrior* prior(0);
     switch ( whichPrior ) {
+    case Full_Prior:
+      prior = include_test_source ? m_full_prior_test : m_full_prior_bkg;
+      break;
     case Init_Prior:
       prior = include_test_source ? m_init_prior_test : m_init_prior_bkg;
       break;
@@ -1483,36 +1566,46 @@ namespace Likelihood {
 
 
   void FitScanCache::extract_init_priors_from_model() {
+    delete m_full_prior_test;
+    delete m_full_prior_bkg;    
     delete m_init_prior_test;
     delete m_init_prior_bkg;    
+    m_full_prior_test = 0;
+    m_full_prior_bkg = 0;    
     m_init_prior_test = 0;
     m_init_prior_bkg = 0;    
     CLHEP::HepVector prior_centralVals;
     CLHEP::HepVector prior_uncertainties;
-    std::vector<bool> prior_constraints;
+    std::vector<bool> par_has_prior;
+    
     bool has_prior = m_modelWrapper.extractPriors(m_templateSourceNames,
 						  prior_centralVals,
 						  prior_uncertainties,
-						  prior_constraints);
+						  par_has_prior);
+
+    std::vector<bool> all_free(par_has_prior.size(),true);
+
     if ( has_prior ) {
       // Rescale the central values & uncertainties to the reference values 
       for ( size_t i(0); i < m_refValues.size(); i++ ) {
 	if ( m_refValues[i] < 1e-15 ) {
 	  std::cout << "Reference value is very small, not building prior on parameter " << i << std::endl;
-	  prior_constraints[i] = false;
+	  par_has_prior[i] = false;
 	} else {
 	  prior_centralVals[i] /= m_refValues[i];
 	  prior_uncertainties[i] /= m_refValues[i];
 	}
       }
 
-      m_init_prior_test = new FitScanMVPrior(prior_centralVals,
+      m_full_prior_test = new FitScanMVPrior(prior_centralVals,
 					     prior_uncertainties,
-					     prior_constraints,
+					     par_has_prior,
+					     all_free,
 					     true);
-      m_init_prior_bkg = new FitScanMVPrior(prior_centralVals,
+      m_full_prior_bkg = new FitScanMVPrior(prior_centralVals,
 					    prior_uncertainties,
-					    prior_constraints,
+					    par_has_prior,
+					    all_free,
 					    false);      
     }
  
@@ -1525,6 +1618,8 @@ namespace Likelihood {
     delete m_global_prior_bkg;
     delete m_init_prior_test;
     delete m_init_prior_bkg;    
+    delete m_full_prior_test;
+    delete m_full_prior_bkg;    
     delete m_snapshot;
     m_prior_test = 0;
     m_prior_bkg = 0;
@@ -1532,6 +1627,8 @@ namespace Likelihood {
     m_global_prior_bkg = 0;
     m_init_prior_test = 0;
     m_init_prior_bkg = 0;    
+    m_full_prior_test = 0;
+    m_full_prior_bkg = 0;    
     m_snapshot = 0;
   }
    

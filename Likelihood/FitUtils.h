@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.11 2016/07/01 23:37:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.12 2016/07/06 01:17:44 echarles Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -625,7 +625,7 @@ namespace Likelihood {
        freeSrcNames      : Names of all the free sources except the test source
        centralVals       : Filled with the central values from the priors
        uncertainties     : Filled with the untertainty values from the priors
-       constrainPars     : Filled with the flags showing which parameters have priors
+       parHasPrior       : Filled with the flags showing which parameters have priors
 
        return true if any priors were extract, false otherwise
     */ 
@@ -633,7 +633,7 @@ namespace Likelihood {
 		       const std::vector<std::string>& freeSrcNames,
 		       CLHEP::HepVector& centralVals,
 		       CLHEP::HepVector& uncertainties,
-		       std::vector<bool>& constrainPars);
+		       std::vector<bool>& parHasPrior);
 
     /* Refactors the free and fixed model components
 

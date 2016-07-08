@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.19 2016/07/06 01:17:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.20 2016/07/07 19:03:20 echarles Exp $
  */
 
 
@@ -1418,18 +1418,18 @@ namespace Likelihood {
 		       const std::vector<std::string>& freeSrcNames,
 		       CLHEP::HepVector& centralVals,
 		       CLHEP::HepVector& uncertainties,
-		       std::vector<bool>& constrainPars) {
+		       std::vector<bool>& parHasPrior) {
       size_t npar = freeSrcNames.size();
       centralVals = CLHEP::HepVector(npar,0);
       uncertainties = CLHEP::HepVector(npar,0);
-      constrainPars.resize(npar);
+      parHasPrior.resize(npar);
       bool retVal(false);
       for ( size_t i(0); i < freeSrcNames.size(); i++ ) {
 	const std::string& srcName = freeSrcNames[i];
 	const Source& aSrc = logLike.source(srcName);
 	const optimizers::Parameter& np = aSrc.spectrum().normPar();
-	constrainPars[i] = extractPrior(np,centralVals[i],uncertainties[i]);
-	retVal |= constrainPars[i];
+	parHasPrior[i] = extractPrior(np,centralVals[i],uncertainties[i]);
+	retVal |= parHasPrior[i];
       }      
       return retVal;
     }
