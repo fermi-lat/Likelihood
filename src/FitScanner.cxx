@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.31 2016/07/07 19:03:09 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.32 2016/07/08 01:22:00 echarles Exp $
  */
 
 
@@ -225,7 +225,7 @@ namespace Likelihood {
       m_hessian = CLHEP::HepSymMatrix(nr,0);
     }     
     for ( size_t i(0); i < nr; i++ ) {
-      if ( parHasPrior[i] ) {
+      if ( parHasPrior[i] && (std::fabs(uncertainties[i]) > 0 ) ) {
 	m_covariance[i][i] = uncertainties[i]*uncertainties[i];
 	m_hessian[i][i] = 1./uncertainties[i]*uncertainties[i];
       }
@@ -248,6 +248,7 @@ namespace Likelihood {
     int idx(0);
     for ( std::vector<bool>::const_iterator itr = m_constrainPars.begin(); 
 	  itr != m_constrainPars.end(); itr++, idx++ ) {
+      if ( ! *itr ) continue;
       idx_red.push_back(idx);
     }
     CLHEP::HepSymMatrix tempCov(idx_red.size(),0);
@@ -286,14 +287,17 @@ namespace Likelihood {
     int idx(0);
     for ( std::vector<bool>::const_iterator itr = m_constrainPars.begin(); 
 	  itr != m_constrainPars.end(); itr++, idx++ ) {
+      if ( ! *itr ) continue;
       idx_red.push_back(idx);
     }
     CLHEP::HepSymMatrix tempCov(idx_red.size(),0);
     CLHEP::HepSymMatrix tempHess(idx_red.size(),0);
+    CLHEP::HepVector tempCent(idx_red.size(),0);
     int idx1(0);
     for ( std::vector<int>::const_iterator itr1 = idx_red.begin(); itr1 != idx_red.end(); itr1++, idx1++ ) {
       tempCov[idx1][idx1] = m_covariance[*itr1][*itr1];      
-      tempHess[idx1][idx1] = m_hessian[*itr1][*itr1]; 
+      tempHess[idx1][idx1] = m_hessian[*itr1][*itr1];
+      tempCent[idx1] = m_centralVals[*itr1];
     }
   
     if ( m_includeTestSource ) {
@@ -301,10 +305,13 @@ namespace Likelihood {
       m_hessian.sub(1,tempHess);
       m_covariance = CLHEP::HepSymMatrix(idx_red.size()+1,0);
       m_covariance.sub(1,tempCov);
+      m_centralVals = CLHEP::HepVector(idx_red.size()+1,0);
+      m_centralVals.sub(1,tempCent);
     } else {
       m_hessian = tempHess;    
       m_covariance = tempCov;
-    }
+      m_centralVals = tempCent;
+  }
 
     if ( false ) {
       FitUtils::printMatrix("Prior: ",m_hessian);
@@ -873,12 +880,12 @@ namespace Likelihood {
     if ( (action & (Update_Fixed | Update_Free)) != 0 ) {
       setCache();
     }
-    if ( (action & Refactor ) != 0 ) {
-      refactor_from_model();
-    }
     if ( (action & Remake_Prior ) != 0 ) {
       extract_init_priors_from_model();
     }
+    if ( (action & ( Refactor | Remake_Prior ) ) != 0 ) {
+      refactor_from_model();
+    } 
     m_snapshot->latch_model(m_modelWrapper.getMasterComponent(),true);
   }
 
