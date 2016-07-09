@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.32 2016/07/08 01:22:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.33 2016/07/09 01:57:23 echarles Exp $
  */
 
 
@@ -251,21 +251,28 @@ namespace Likelihood {
       if ( ! *itr ) continue;
       idx_red.push_back(idx);
     }
+
     CLHEP::HepSymMatrix tempCov(idx_red.size(),0);
-    int idx1(0);
-    for ( std::vector<int>::const_iterator itr1 = idx_red.begin(); itr1 != idx_red.end(); itr1++, idx1++ ) {
-      int idx2(idx1);
-      for ( std::vector<int>::const_iterator itr2 = itr1; itr2 != idx_red.end(); itr2++, idx2++ ) {
-	tempCov[idx1][idx2] = m_covariance[*itr1][*itr2];      
+    if ( idx_red.size() < m_covariance.num_row() ) {
+      int idx1(0);
+      for ( std::vector<int>::const_iterator itr1 = idx_red.begin(); itr1 != idx_red.end(); itr1++, idx1++ ) {
+	int idx2(idx1);
+	for ( std::vector<int>::const_iterator itr2 = itr1; itr2 != idx_red.end(); itr2++, idx2++ ) {
+	  tempCov[idx1][idx2] = m_covariance[*itr1][*itr2];      
+	}
       }
+    } else {
+      tempCov = m_covariance;
     }
+
     int status(0);
     tempCov.invert(status);
     if ( status ) {
+      FitUtils::printMatrix("Prior Cov",tempCov);
       throw std::runtime_error("Could not invert covarience matrix given for FitScanMVPrior");
       return status;
-    }
-    
+    } 
+
     if ( m_includeTestSource ) {
       m_hessian = CLHEP::HepSymMatrix(idx_red.size()+1,0);
       m_hessian.sub(1,tempCov);
