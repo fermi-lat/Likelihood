@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.20 2016/07/07 19:03:20 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.21 2016/07/08 01:22:00 echarles Exp $
  */
 
 
@@ -288,7 +288,7 @@ namespace Likelihood {
       }
     }
    
-    void multipyByScalar(std::vector<float>::iterator vstart,
+    void multiplyByScalar(std::vector<float>::iterator vstart,
 			 std::vector<float>::iterator vstop,
 			 double scalar) {
       for ( std::vector<float>::iterator itr = vstart ; itr != vstop; itr++ ) {
@@ -893,7 +893,9 @@ namespace Likelihood {
 	}
 
 	// Break if tolerance criteria are met
-	if(std::fabs(edm) < tol || (lambda > 0 && deltaLogLike < tol && stepOk)) {
+	if((lambda <= 0 && std::fabs(edm) < tol) || 
+	   (lambda > 0 && std::fabs(edm) < tol && 
+	    deltaLogLike < tol && stepOk)) {
 	  break;
 	}
 
@@ -1193,7 +1195,7 @@ namespace Likelihood {
       if ( rescaleToNormOne ) {
 	double refValue = source.spectrum().normPar().getValue();
 	double scaleFactor = 1. / refValue;
-	FitUtils::multipyByScalar(model.begin(),model.end(),scaleFactor);
+	FitUtils::multiplyByScalar(model.begin(),model.end(),scaleFactor);
       }
     }
   
@@ -1238,7 +1240,8 @@ namespace Likelihood {
 		       std::vector<float>& fixed,
 		       std::vector<float>& test_source_model,
 		       std::vector<float>& refPars,
-		       std::vector<float>* weights) {
+		       std::vector<float>* weights,
+		       bool useUnitRefVals) {
 
       BinnedLikelihood& nc_logLike = const_cast<BinnedLikelihood&>(logLike);
 
@@ -1294,7 +1297,7 @@ namespace Likelihood {
 	std::vector<float> modelCounts(nbins, 0.);
 	nc_logLike.computeModelMap(*itr,modelCounts);
 
-	if ( ! aSrc->spectrum().normPar().isFree() && !hasSourceMap ) {
+	if ( !hasSourceMap ) {
 	  nc_logLike.eraseSourceMap(*itr);
 	} 
 
@@ -1311,6 +1314,11 @@ namespace Likelihood {
 	} else if ( aSrc->spectrum().normPar().isFree() ) {
 	  // The source is free, put it on the vector of templates
 	  // and latch the reference value
+
+	  if(useUnitRefVals && refValue > 0) {
+	    multiplyByScalar(modelCounts.begin(),modelCounts.end(),1./refValue);
+	    refValue = 1.0;
+	  }
 	  freeSrcNames.push_back(aSrc->getName());
 	  templates.push_back(modelCounts);
 	  refPars.push_back(refValue);
@@ -1342,7 +1350,8 @@ namespace Likelihood {
       // in the output vectors
       size_t nbins = logLike.countsMap().data().size();      
       fixed.resize( nbins, 0. );
-     
+      std::fill(fixed.begin(),fixed.end(),0);
+
       // This is just for debugging
       float modelTotal(0.);
 
@@ -1361,15 +1370,13 @@ namespace Likelihood {
 
 	bool is_latched = false;
 	if ( latched ) {
-	  for ( std::vector<std::string>::const_iterator itrfind = latched->begin();
-		itrfind != latched->end(); itrfind++ ) {
-	    if ( (*itrfind) == (*itr) ) {
-	      is_latched = true;
-	      break;
-	    }
+	  std::vector<std::string>::const_iterator itrfind = 
+	    std::find(latched->begin(),latched->end(),*itr);
+	  if(itrfind != latched->end()) {
+	    is_latched = true;
 	  }
 	}
-	if ( is_latched ) break;
+	if( is_latched ) continue;
 
 	// We are actually fitting a scale factor w.r.t. the baseline fit
 	// so we want to latch the normalization parameter values
@@ -1386,7 +1393,7 @@ namespace Likelihood {
 	std::vector<float> modelCounts(nbins, 0.);
 	nc_logLike.computeModelMap(*itr,modelCounts);
 
-	if ( ! aSrc->spectrum().normPar().isFree() && !hasSourceMap ) {
+	if( !hasSourceMap ) {
 	  nc_logLike.eraseSourceMap(*itr);
 	} 
 

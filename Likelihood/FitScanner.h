@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitScanner.h,v 1.20 2016/07/06 22:07:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.21 2016/07/08 01:21:59 echarles Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -351,7 +351,8 @@ namespace Likelihood {
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
 			       std::vector<float>& refPars,
-			       std::vector<float>* weights = 0) const = 0;
+			       std::vector<float>* weights = 0,
+			       bool useUnitRefVals = false) const = 0;
 
     /* Extract the priors on the free source normalizations from the 
        underlying BinnedLikelihood object
@@ -528,7 +529,8 @@ namespace Likelihood {
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
 			       std::vector<float>& refPars,
-			       std::vector<float>* weights = 0) const;
+			       std::vector<float>* weights = 0,
+			       bool useUnitRefVals = false) const;
 
 
     /* Get the likelihood value */
@@ -625,7 +627,8 @@ namespace Likelihood {
 			       std::vector<float>& fixed,
 			       std::vector<float>& test_source_model,
 			       std::vector<float>& refPars,
-			       std::vector<float>* weights = 0) const;
+			       std::vector<float>* weights = 0,
+			       bool useUnitRefVals = false) const;
     
     /* Get the likelihood value */
     virtual double value() const;
@@ -747,7 +750,7 @@ namespace Likelihood {
     FitScanCache(FitScanModelWrapper& modelWrapper,
 		 const std::string& testSourceName,
 		 double tol, int maxIter, double initLambda,
-		 bool useReduced, bool useWeights=false);
+		 bool useReduced, bool useWeights=false, bool useUnitRefVals=false);
 
     /* D'tor */
     ~FitScanCache();
@@ -885,6 +888,14 @@ namespace Likelihood {
     /* update the model template for a single source by name */
     int updateTemplateForSource(const std::string& srcName);
 
+    /* Set the fit tolerance */
+    void setTolerance(double tol) { m_tol = tol; }
+
+    /* Set the max no of fit iterations */
+    void setMaxIter(int maxIter) { m_maxIter = maxIter; }
+
+    /* Set the initial value of the damping parameter */
+    void setInitLambda(double initLambda) { m_initLambda = initLambda; }
 
     // access --------------------------------------------------------
 
@@ -1007,6 +1018,8 @@ namespace Likelihood {
     bool m_useReduced;
     // Use the weights
     bool m_useWeights;
+    // Set reference values to one
+    bool m_useUnitRefVals;
 
     // Reduced data vector
     std::vector<float> m_dataRed;
