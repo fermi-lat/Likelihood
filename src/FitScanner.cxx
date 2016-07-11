@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitScanner.cxx,v 1.33 2016/07/09 01:57:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.34 2016/07/09 02:18:41 echarles Exp $
  */
 
 
@@ -227,7 +227,7 @@ namespace Likelihood {
     for ( size_t i(0); i < nr; i++ ) {
       if ( parHasPrior[i] && (std::fabs(uncertainties[i]) > 0 ) ) {
 	m_covariance[i][i] = uncertainties[i]*uncertainties[i];
-	m_hessian[i][i] = 1./uncertainties[i]*uncertainties[i];
+	m_hessian[i][i] = 1./m_covariance[i][i];
       }
     }
     latchReducedDiagonal();
@@ -480,8 +480,9 @@ namespace Likelihood {
 						 std::vector<float>& fixed,
 						 std::vector<float>& test_source_model,
 						 std::vector<float>& refPars,
-						 std::vector<float>* weights) const {
-    FitUtils::extractModels(m_binnedLike,test_name,freeSrcNames,templates,fixed,test_source_model,refPars,weights);
+						 std::vector<float>* weights,
+						 bool useUnitRefVals) const {
+    FitUtils::extractModels(m_binnedLike,test_name,freeSrcNames,templates,fixed,test_source_model,refPars,weights,useUnitRefVals);
   }
   
   double FitScanModelWrapper_Binned::value() const {
@@ -672,7 +673,8 @@ namespace Likelihood {
 						 std::vector<float>& fixed,
 						 std::vector<float>& test_source_model,
 						 std::vector<float>& refPars,
-						 std::vector<float>* weights) const {
+						 std::vector<float>* weights,
+						 bool useUnitRefVals) const {
 
     static double tol = 1e-3;
     static int maxIter = 30;
@@ -695,7 +697,7 @@ namespace Likelihood {
       }       
       FitScanModelWrapper_Binned* nbw = new FitScanModelWrapper_Binned(*binnedLike);
       wrappers.push_back(nbw);
-      FitScanCache* cache = new FitScanCache(*nbw,test_name,tol,maxIter,lambda,false,useWeights);
+      FitScanCache* cache = new FitScanCache(*nbw,test_name,tol,maxIter,lambda,false,useWeights,useUnitRefVals);
       caches.push_back(cache);
       fixedToMerge.push_back( &(cache->allFixed()) );
       testToMerge.push_back( &(cache->targetModel()) );
@@ -822,7 +824,7 @@ namespace Likelihood {
   FitScanCache::FitScanCache(FitScanModelWrapper& modelWrapper,
 			     const std::string& testSourceName,
 			     double tol, int maxIter, double initLambda,
-			     bool useReduced, bool useWeights)
+			     bool useReduced, bool useWeights, bool useUnitRefVals)
     :m_modelWrapper(modelWrapper),
      m_snapshot(0),
      m_testSourceName(testSourceName),
@@ -837,6 +839,7 @@ namespace Likelihood {
      m_targetModel(m_modelWrapper.size()),
      m_useReduced(useReduced),
      m_useWeights(useWeights),
+     m_useUnitRefVals(useUnitRefVals),
      m_loglike_ref(m_modelWrapper.value()),
      m_currentFreeSources(m_modelWrapper.size()),
      m_currentFixed(m_modelWrapper.size()),
@@ -903,7 +906,8 @@ namespace Likelihood {
     Snapshot_Status latched_status;
     Snapshot_Status unlatched_status;
     m_snapshot->compare_latched(m_modelWrapper.getMasterComponent(),m_templateSourceNames,
-				latched_status,changed_latched,unlatched_status,changed_unlatched,new_free,new_fixed);
+				latched_status,changed_latched,unlatched_status,
+				changed_unlatched,new_free,new_fixed);
 
     unsigned action(0);
     if ( new_free.size() > 0 ) {
@@ -1046,7 +1050,7 @@ namespace Likelihood {
 				  freeSources,true);
       }
       
-    }    
+    } 
   }
 
   void FitScanCache::getParScales(std::vector<float>& pars_scales) {
@@ -1233,8 +1237,8 @@ namespace Likelihood {
   int FitScanCache::fitCurrent(Prior_Version whichPrior, int verbose) {
     // This just passes the cached data along to the FitUtils function
     // and latches the output into the internal cache
-    const FitScanMVPrior* prior = getPrior(whichPrior,m_currentTestSourceIndex >= 0);
 
+    const FitScanMVPrior* prior = getPrior(whichPrior,m_currentTestSourceIndex >= 0);
     std::vector<float>* wts_ptr = m_useWeights ?  ( m_useReduced ? &m_weightsRed : &m_weights ) : 0;
 
     int status = FitUtils::fitNorms_newton(m_useReduced ? m_dataRed : m_data,
@@ -1450,17 +1454,21 @@ namespace Likelihood {
       return srcIdx;
     }
     m_modelWrapper.extractModelFromSource(srcName,m_allModels[srcIdx],false);
-    setCache();
 
+    std::vector<float>& model = m_allModels[srcIdx];
     Source* aSrc = m_modelWrapper.getMasterComponent().getSource(srcName);
-    double refValue = aSrc->spectrum().normPar().getValue();
-    m_refValues[srcIdx] = refValue;
+    double value = aSrc->spectrum().normPar().getValue();
+    if(value > 0) {
+      FitUtils::multiplyByScalar(model.begin(),model.end(),m_refValues[srcIdx]/value);
+    }
+
+    setCache();
 
     return srcIdx;
   }
 
   const FitScanMVPrior* FitScanCache::getPrior(Prior_Version whichPrior, 
-					       bool include_test_source) const {    
+					       bool include_test_source) const {
     const FitScanMVPrior* prior(0);
     switch ( whichPrior ) {
     case Full_Prior:
@@ -1539,14 +1547,16 @@ namespace Likelihood {
 				 m_allFixed,
 				 m_targetModel,
 				 m_refValues,
-				 m_useWeights ? &m_weights : 0);
+				 m_useWeights ? &m_weights : 0,
+				 m_useUnitRefVals);
     
     extract_init_priors_from_model();
     setCache();
   }
   
   void FitScanCache::update_fixed_from_model() {
-    FitUtils::extractFixedModel(m_modelWrapper.getMasterComponent(),m_testSourceName,m_allFixed,&m_templateSourceNames);    
+    FitUtils::extractFixedModel(m_modelWrapper.getMasterComponent(),m_testSourceName,
+				m_allFixed,&m_templateSourceNames);    
   }
   
   void FitScanCache::update_free_from_model(const std::vector<std::string>& changed_sources) {
