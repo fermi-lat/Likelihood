@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.117 2016/06/21 20:54:38 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood.cxx,v 1.118 2016/06/23 02:18:35 echarles Exp $
  */
 
 #include <cmath>
@@ -263,7 +263,7 @@ bool BinnedLikelihood::hasSourceMap(const std::string & name) const {
     return true;
 }
 
-SourceMap & BinnedLikelihood::sourceMap(const std::string & name) {
+const SourceMap & BinnedLikelihood::sourceMap(const std::string & name) const {
   std::vector<std::string> srcNames;
   getSrcNames(srcNames);
 
@@ -277,15 +277,6 @@ SourceMap & BinnedLikelihood::sourceMap(const std::string & name) {
   }
 
   return *m_srcMaps[name];
-}
-
-const SourceMap & BinnedLikelihood::sourceMap(const std::string & name) const {
-  std::map<std::string, SourceMap *>::const_iterator srcMap
-    = m_srcMaps.find(name);
-  if (srcMap == m_srcMaps.end()) {
-    throw std::runtime_error("Cannot find source map named: " + name);
-  }
-  return *(srcMap->second);
 }
 
 std::vector<double>::const_iterator 
@@ -599,26 +590,33 @@ fillWeightedCounts() {
 
 void BinnedLikelihood::
 computeModelMap(std::vector<float> & modelMap) const {
-   size_t npix(m_pixels.size());
-
-   modelMap.clear();
-   modelMap.resize(npix*(m_energies.size()-1), 0);
-
-   std::map<std::string, SourceMap *>::const_iterator srcIt
-      = m_srcMaps.begin();
-   for ( ; srcIt != m_srcMaps.end(); ++srcIt) {
-      updateModelMap(modelMap, srcIt->second);
-   }
+   std::vector<std::string> srcNames;
+   getSrcNames(srcNames);
+   computeModelMap(srcNames,modelMap);
 }
 
 void BinnedLikelihood::
-computeModelMap(const std::string & srcName, std::vector<float> & modelMap) {
+computeModelMap(const std::string & srcName, std::vector<float> & modelMap) const {
    size_t npix(m_pixels.size());
-
    modelMap.clear();
    modelMap.resize(npix*(m_energies.size()-1), 0);
-   SourceMap& srcMap = sourceMap(srcName);
+   const SourceMap& srcMap = sourceMap(srcName);
+   updateCorrectionFactors(srcName,srcMap);
    updateModelMap(modelMap, &srcMap);
+}
+
+void BinnedLikelihood::
+computeModelMap(const std::vector<std::string>& srcNames, std::vector<float> & modelMap) const {
+   size_t npix(m_pixels.size());
+   modelMap.clear();
+   modelMap.resize(npix*(m_energies.size()-1), 0);
+
+   std::vector<std::string>::const_iterator name = srcNames.begin();
+   for ( ; name != srcNames.end(); ++name) {  
+     const SourceMap& srcMap = sourceMap(*name);
+     updateCorrectionFactors(*name,srcMap);
+     updateModelMap(modelMap, &srcMap);
+   }
 }
 
 void BinnedLikelihood::setCountsMap(const std::vector<float> & counts) {
@@ -969,17 +967,28 @@ double BinnedLikelihood::pixelCounts(double emin, double emax,
    return (y1*emin + y2*emax)/2.*std::log(emax/emin);
 }
 
-void BinnedLikelihood::loadSourceMaps(bool recreate) {
-   std::vector<std::string> srcNames;
-   getSrcNames(srcNames);
+void BinnedLikelihood::loadSourceMaps(bool recreate, bool saveMaps) {
+  std::vector<std::string> srcNames;
+  getSrcNames(srcNames);
+  loadSourceMaps(srcNames,recreate,saveMaps);
+}
+
+void BinnedLikelihood::loadSourceMaps(const  std::vector<std::string>& srcNames,
+				      bool recreate, bool saveMaps) {
 
    std::vector<std::string>::const_iterator name = srcNames.begin();
    for ( ; name != srcNames.end(); ++name) {     
 
-     if (m_srcMaps.find(*name) != m_srcMaps.end() && !recreate) 
-       continue;
+     if (m_srcMaps.find(*name) == m_srcMaps.end() || recreate) 
+       loadSourceMap(*name,recreate,false);
 
-     loadSourceMap(*name,recreate,false);
+     if(saveMaps) {
+       if(fileHasSourceMap(*name, m_srcMapsFile)) {
+	 replaceSourceMap(*name, m_srcMapsFile);
+       } else if(!fileHasSourceMap(*name, m_srcMapsFile)) {
+	 appendSourceMap(*name, m_srcMapsFile);
+       }
+     }
    }
 
    if(recreate) {
@@ -1349,6 +1358,27 @@ double BinnedLikelihood::NpredValue(const std::string & srcName, bool weighted) 
 double BinnedLikelihood::NpredValue(const std::string & srcName,
                                     const SourceMap & sourceMap, 
 				    bool weighted) const {
+  updateCorrectionFactors(srcName,sourceMap);
+
+  const std::vector<double>& true_counts_spec = m_true_counts[srcName];
+  const std::vector<double>& meas_counts_spec = m_meas_counts[srcName];
+
+   double value(0);
+   for (size_t k(0); k < energies().size()-1; k++) {
+      if (k < m_kmin || k > m_kmax-1) {
+         continue;
+      }
+      if (use_edisp(srcName)) {
+         value += meas_counts_spec[k];
+      } else {
+         value += true_counts_spec[k];
+      }
+   }
+   return value;
+}
+
+void BinnedLikelihood::updateCorrectionFactors(const std::string & srcName, 
+					       const SourceMap & sourceMap) const {
    const std::vector<double> & npreds = sourceMap.npreds();
    const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
    std::vector<double> true_counts_spec;
@@ -1370,19 +1400,6 @@ double BinnedLikelihood::NpredValue(const std::string & srcName,
       m_meas_counts[srcName] = true_counts_spec;
    }
    m_true_counts[srcName] = true_counts_spec;
-
-   double value(0);
-   for (size_t k(0); k < energies().size()-1; k++) {
-      if (k < m_kmin || k > m_kmax-1) {
-         continue;
-      }
-      if (use_edisp(srcName)) {
-         value += meas_counts_spec[k];
-      } else {
-         value += true_counts_spec[k];
-      }
-   }
-   return value;
 }
 
 // Compute measured count spectrum scaling wrt total true counts
