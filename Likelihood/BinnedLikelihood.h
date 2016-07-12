@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.82 2016/06/21 20:54:36 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood.h,v 1.83 2016/06/23 02:19:11 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -92,8 +92,6 @@ public:
 
    const SourceMap & sourceMap(const std::string & name) const;
 
-   SourceMap & sourceMap(const std::string & name);
-
    void setSourceMapImage(const std::string & name,
 			  const std::vector<float>& image);
 
@@ -112,8 +110,13 @@ public:
    /// Instantiate or retrieve a SourceMap for all sources and
    /// populate the internal map of SourceMap objects.  If
    /// recreate=True then new source maps will be generated for all
-   /// components.
-   void loadSourceMaps(bool recreate=false);
+   /// components.  If saveMaps=True the current maps will be written
+   /// to the source map file.
+   void loadSourceMaps(bool recreate=false, bool saveMaps=false);
+
+   /// Instantiate or retrieve a SourceMap for a list of sources.
+   void loadSourceMaps(const std::vector<std::string>& srcNames,
+		       bool recreate=false, bool saveMaps=false);
 
    /// Instantiate or retrieve a SourceMap for a single source.
    void loadSourceMap(const std::string & srcName, 
@@ -174,8 +177,19 @@ public:
       m_verbose = verbose;
    }
 
+   /// Compute a model map for the all sources that currently have
+   /// source maps
    void computeModelMap(std::vector<float> & modelMap) const;
-   void computeModelMap(const std::string& srcName, std::vector<float> & modelMap);
+
+   /// Compute a model map for an individual source
+   void computeModelMap(const std::string& srcName, 
+			std::vector<float> & modelMap) const;
+
+   /// Compute a model map for a list of sources
+   void computeModelMap(const std::vector<std::string>& srcNames, 
+			std::vector<float> & modelMap) const;
+
+
    void updateModelMap(std::vector<float> & modeMap, 
                        const SourceMap * srcMap) const;
    void set_external_model_map(std::vector<float> * external_map) {
@@ -252,7 +266,7 @@ private:
 
    std::vector<unsigned int> m_filledPixels;
 
-   std::map<std::string, SourceMap *> m_srcMaps;
+   mutable std::map<std::string, SourceMap *> m_srcMaps;
 
    mutable std::vector<double> m_model;
    mutable bool m_modelIsCurrent;
@@ -358,6 +372,8 @@ private:
    double NpredValue(const std::string & name, const SourceMap & srcMap, bool weighted=false) const;
 
    void computeFixedCountsSpectrum();
+
+   void updateCorrectionFactors(const std::string & srcName, const SourceMap & sourceMap) const;
 
    void edisp_correction_factors(const std::string & srcName,
                                  const std::vector<double> & true_counts_spec,
