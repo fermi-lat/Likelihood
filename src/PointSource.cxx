@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.120 2013/08/11 04:25:26 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.121 2015/01/16 21:14:51 jchiang Exp $
  */
 
 #include <cmath>
@@ -531,7 +531,7 @@ double PointSource::Aeff::value(double cos_theta, double phi) const {
       // compatible with Pass 5 style IRFs where there is only one
       // event class.
       //
-      int id(respIt->second->irfID() % 2);
+      int id(respIt->second->irfID());
 
       double psf_val(0);
       std::map<int, double>::const_iterator psf_it(psf_vals.find(id));
