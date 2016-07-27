@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.48 2015/12/10 00:58:02 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.49 2016/03/30 23:06:54 echarles Exp $
  */
 
 #include <cstdlib>
@@ -87,7 +87,7 @@ gtsrcmaps::gtsrcmaps()
    setVersion(s_cvs_id);
 }
 
-std::string gtsrcmaps::s_cvs_id("$Name: ScienceTools-11-00-00 $");
+std::string gtsrcmaps::s_cvs_id("$Name:  $");
 
 void gtsrcmaps::banner() const {
    int verbosity = m_pars["chatter"];
@@ -151,7 +151,7 @@ void gtsrcmaps::run() {
    ProjMap* wmap(0);
    std::string wmap_file = m_pars["wmap"];
    if ( wmap_file != "none" ) {
-     wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,"");
+     wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,"SKYMAP");
      wmap->setInterpolation(false);
      wmap->setExtrapolation(true);
    }
