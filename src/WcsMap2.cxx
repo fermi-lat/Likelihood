@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.24 2016/01/15 17:30:18 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.25 2016/01/29 22:31:33 mdwood Exp $
  */
 
 #include <cmath>
@@ -100,7 +100,7 @@ WcsMap2::WcsMap2(const std::string & filename,
    }
 
    header["CDELT1"].get(m_cdelt1);
-   if (::my_round(m_naxis1*m_cdelt1) == 360.) {
+   if (std::fabs(::my_round(m_naxis1*m_cdelt1)) == 360.) {
       m_isPeriodic = true;
    }
    header["CDELT2"].get(m_cdelt2);
@@ -231,7 +231,7 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
       m_cdelt2(cdelt2), 
       m_crota2(0) {
 
-   if (::my_round(m_naxis1*m_cdelt1) == 360.) {
+  if (std::fabs(::my_round(m_naxis1*m_cdelt1)) == 360.) {
       m_isPeriodic = true;
    }
    astro::SkyDir refDir(ra, dec, use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
@@ -659,12 +659,10 @@ bool WcsMap2::insideMap(const astro::SkyDir & dir) const {
 
    double x(pixel.first);
    double y(pixel.second);
-
-   int ix(static_cast<int>(x));
-   int iy(static_cast<int>(y));
-
-   if ((!m_isPeriodic && (ix < 1 || ix >= m_naxis1))
-       || iy < 1 || iy >= m_naxis2) {
+   // Bin centers are at 1,2....m_naxis.   
+   // We have to include 1/2 bin on either side 
+   if ((!m_isPeriodic && (x < 0.5 || x > (m_naxis1 + 0.5)))
+       || y < 0.5 || y > (m_naxis2 + 0.5)) {
       return false;
    }
    return true;
