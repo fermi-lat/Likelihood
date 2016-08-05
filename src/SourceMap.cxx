@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.119 2016/06/15 17:23:48 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.120 2016/06/20 18:51:02 echarles Exp $
  */
 
 #include <cmath>
@@ -1178,7 +1178,7 @@ void SourceMap::makeProjectedMap(const ProjMap& weight_map, bool& extrapolated) 
 	   extrapolated = true;
 	 }	 
        } else {
-	 // Outsdie of map, set weight to 1.0 (FIXME, agree on convention)
+	 // Outside of map, set weight to 1.0 (FIXME, agree on convention)
 	 m_model.at(indx) = 1.0;
 	 extrapolated = true;
        }
