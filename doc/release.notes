@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.583 2016/07/27 19:41:41 echarles Exp $
+    $Id: release.notes,v 1.584 2016/07/27 21:42:30 mdwood Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-06-02 05-Aug-2016 echarles Cleaned up and reformatted BinnedLikelihood. Removed external_model_map, as that was reduntant with functions that Matt had added, modified gtmodelmap.cxx accordingly. Functionally, despite the huge number of diffs this tag is very similar to previous tag.
  Likelihood-20-06-01 27-Jul-2016 mdwood Small fixes to support HEALPix and minimize memory overhead in BinnedLikelihood.
  Likelihood-20-06-00 27-Jul-2016 echarles Additional functionality to allow using FitScanCache outside of gttscube.  Matt's fixes to NPred calculation.  Allow gtsrcmaps to use HEALPix input maps
  Likelihood-20-05-00 01-Jul-2016 mdwood New features and bug fixes for newton fitter including support for weighted likedlihood and SVD-based step-size calculation.
