@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.21 2016/07/08 01:21:59 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.22 2016/07/11 23:44:04 mdwood Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -955,6 +955,8 @@ namespace Likelihood {
   protected:
 
     void reduceModels();
+
+    int update_template_for_source(const std::string& srcName);
 
     void build_from_model();
     
