@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/BinnedLikelihood2.cxx,v 1.11 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood2.cxx,v 1.12 2016/03/30 23:04:57 echarles Exp $
  */
 
 #include <cassert>
@@ -20,6 +20,7 @@
 #include "st_facilities/Util.h"
 
 #include "Likelihood/BinnedLikelihood2.h"
+#include "Likelihood/BinnedConfig.h"
 #include "Likelihood/Drm.h"
 #include "Likelihood/CountsMap.h"
 #define ST_DLL_EXPORTS
@@ -518,10 +519,12 @@ SourceMap * BinnedLikelihood2::getSourceMap(const std::string & srcName,
    Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    if (src->getType() == "Diffuse" || m_computePointSources) {
       return new SourceMap(src, &m_cmap, m_observation,
-                           m_applyPsfCorrections,
-                           m_performConvolution,
-                           m_resample, m_resamp_factor,
-                           m_minbinsz, verbose && m_verbose);
+                           PsfIntegConfig(m_applyPsfCorrections,
+					  m_performConvolution,
+					  m_resample, m_resamp_factor,
+					  m_minbinsz, 
+					  PsfIntegConfig::adaptive,1e-3,1e-6,
+					  verbose && m_verbose));
    }
    return 0;
 }
