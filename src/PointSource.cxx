@@ -2,7 +2,7 @@
  * @file PointSource.cxx
  * @brief PointSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PointSource.cxx,v 1.121 2015/01/16 21:14:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PointSource.cxx,v 1.122 2016/07/27 02:43:10 mdwood Exp $
  */
 
 #include <cmath>
@@ -38,7 +38,7 @@ std::vector<double> PointSource::s_trueEnergies(0);
 PointSource::PointSource(const Observation * observation) 
    : Source(observation) {
    setDir(0., 0., false);
-   m_srcType = "Point";
+   m_srcType = Source::Point;
    if (s_trueEnergies.empty()) {
       makeEnergyVector();
    }
@@ -48,7 +48,7 @@ PointSource::PointSource(double ra, double dec,
                          const Observation & observation, bool verbose) 
    : Source(&observation) {
    setDir(ra, dec, true, verbose);
-   m_srcType = "Point";
+   m_srcType = Source::Point;
    if (s_trueEnergies.empty()) {
       makeEnergyVector();
    }

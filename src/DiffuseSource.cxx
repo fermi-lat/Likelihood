@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/DiffuseSource.cxx,v 1.66 2016/03/02 18:34:21 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.67 2016/04/30 00:41:43 mdwood Exp $
  */
 
 #include <algorithm>
@@ -41,7 +41,7 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
    if (requireExposure) {
       integrateSpatialDist();
    }
-   m_srcType = "Diffuse";
+   m_srcType = Source::Diffuse;
 }
 
 void DiffuseSource::integrateSpatialDist() {
