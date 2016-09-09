@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.10 2014/06/25 23:08:45 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.11 2014/09/22 21:12:47 jchiang Exp $
  */
 
 #include <cmath>
@@ -19,6 +19,9 @@
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/ResponseFunctions.h"
+#include "Likelihood/SourceMap.h"
+#include "Likelihood/Source.h"
+
 
 namespace {
    double integrate(const std::vector<double> & x, 
@@ -169,6 +172,62 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
    }
 
    return my_disp;
+}
+
+
+Drm_Cache::Drm_Cache(const Drm& drm,
+		     const SourceMap & sourceMap,
+		     const Source& src,
+		     const std::vector<double>& energies,
+		     bool use_edisp)
+  :m_true_counts(energies.size()-1),
+   m_meas_counts(energies.size()-1),
+   m_xi(energies.size()-1),
+   m_kref(energies.size()-1),
+   m_use_edisp(use_edisp){
+  update(drm,sourceMap,src,energies,use_edisp);
+}
+
+Drm_Cache::Drm_Cache(const Drm_Cache& other) 
+  : m_true_counts(other.m_true_counts),
+    m_meas_counts(other.m_meas_counts),
+    m_xi(other.m_xi),
+    m_kref(other.m_kref),
+    m_use_edisp(other.m_use_edisp){
+}
+
+void Drm_Cache::update(const Drm& drm,
+		       const SourceMap & sourceMap,
+		       const Source& src,
+		       const std::vector<double>& energies,
+		       bool use_edisp) {
+  const std::vector<double> & npreds = sourceMap.npreds();
+  const std::vector<std::pair<double,double> >& npred_weights = sourceMap.npred_weights();
+  size_t k(0);
+  for (k = 0; k < energies.size()-1; k++) {
+    m_true_counts[k] = src.pixelCounts(energies.at(k), energies.at(k+1),
+				       npreds.at(k)*npred_weights[k].first, npreds.at(k+1)*npred_weights[k].second);
+  }
+  if ( use_edisp ) {
+    drm.convolve(m_true_counts, m_meas_counts);
+  } else {
+    m_meas_counts.resize(m_true_counts.size());
+    std::copy(m_true_counts.begin(),m_true_counts.end(),m_meas_counts.begin());
+  }
+  int kref(-1);
+  for (k = 0; k < energies.size()-1; k++) {
+    if ( m_true_counts[k] > 0 ) {
+      // Still have counts in this true energy bin, so it can 
+      // be used as a reference
+      m_xi[k] = m_meas_counts[k] / m_true_counts[k];
+      kref = k;
+      m_kref[k] = -1;
+    } else {
+      // Don't have counts in this true energy bin.  
+      m_xi[k] = m_meas_counts[k] / m_true_counts[kref];
+      m_kref[k] = kref;
+    }
+  }
 }
 
 } // namespace Likelihood

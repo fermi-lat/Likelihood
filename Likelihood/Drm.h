@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/Drm.h,v 1.5 2011/10/18 04:56:55 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.6 2011/10/18 22:45:06 jchiang Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -19,6 +19,8 @@
 namespace Likelihood {
 
 class Observation;
+class SourceMap;
+class Source;
 
 class Drm {
 
@@ -49,6 +51,50 @@ private:
                          double emeas_max) const;
                          
 };
+
+
+class Drm_Cache {
+public:
+
+  Drm_Cache(const Drm& drm,
+	    const SourceMap & sourceMap,
+	    const Source& src,
+	    const std::vector<double>& energies,
+	    bool use_edisp);
+  
+  Drm_Cache(const Drm_Cache& other);
+
+  virtual ~Drm_Cache(){;}
+
+
+  void update(const Drm& drm,
+	      const SourceMap & sourceMap,
+	      const Source& src,
+	      const std::vector<double>& energies,
+	      bool use_edisp);
+
+  inline double get_correction(size_t k, int& kref) const {
+    kref = m_kref[k];
+    return m_xi[k];   
+  }
+
+  inline const std::vector<double>& true_counts() const { return m_true_counts; }  
+  inline const std::vector<double>& meas_counts() const { return m_meas_counts; }  
+  inline const std::vector<double>& xi() const { return m_xi; }  
+  inline const std::vector<int> kref() const { return m_kref; }
+  inline bool use_edisp() const { return m_use_edisp; }
+
+private:
+  
+  std::vector<double> m_true_counts;
+  std::vector<double> m_meas_counts;  
+  std::vector<double> m_xi;  
+  std::vector<int> m_kref;
+  bool m_use_edisp;
+
+};
+
+
 
 } // namespace Likelihood
 
