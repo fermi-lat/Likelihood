@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/CountsMap.h,v 1.4 2015/03/05 19:58:24 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.33 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -102,6 +102,8 @@ public:
    virtual bool withinBounds(const astro::SkyDir & dir, double energy, long border_size=0) const;
 
    virtual double pixelSize() const;
+
+   virtual double mapRadius() const { return 0.7071067811865476 * std::max( -1. * m_naxes[0] * m_cdelt[0],  m_naxes[1] * m_cdelt[1] ); }
 
    double cdelt1() const {return m_cdelt[0];}
    double cdelt2() const {return m_cdelt[1];}
