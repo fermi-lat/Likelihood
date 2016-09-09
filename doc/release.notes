@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.585 2016/08/05 21:06:39 echarles Exp $
+    $Id: release.notes,v 1.586 2016/09/09 21:25:16 echarles Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-07-01 09-Sep-2016 echarles Fixed complitation issues with enum in BinnedConfig
  Likelihood-20-07-00 09-Sep-2016 echarles Refactoring caching of information in BinnedLikelihood, especially in SourceMap, Drm
  Likelihood-20-06-02 05-Aug-2016 echarles Cleaned up and reformatted BinnedLikelihood. Removed external_model_map, as that was reduntant with functions that Matt had added, modified gtmodelmap.cxx accordingly. Functionally, despite the huge number of diffs this tag is very similar to previous tag.
  Likelihood-20-06-01 27-Jul-2016 mdwood Small fixes to support HEALPix and minimize memory overhead in BinnedLikelihood.
