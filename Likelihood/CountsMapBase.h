@@ -1,7 +1,7 @@
 /**
  * @file CountsMapBase.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/CountsMapBase.h,v 1.2 2015/03/03 05:59:55 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapBase.h,v 1.1 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMapBase_h
@@ -78,6 +78,7 @@ public:
    virtual void setKeywords(tip::Header & header) const = 0;
    virtual void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const = 0;
    virtual double pixelSize() const = 0;
+   virtual double mapRadius() const = 0;
 
    void setImage(const std::vector<float> & image);
    void setImage(const std::vector<double> & image);
