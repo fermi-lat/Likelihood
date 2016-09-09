@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.139 2016/07/06 01:17:46 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.140 2016/07/06 01:20:12 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -47,6 +47,7 @@
 #include "irfInterface/AcceptanceCone.h"
 #include "irfLoader/Loader.h"
 
+#include "Likelihood/BinnedConfig.h"
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
@@ -1424,7 +1425,8 @@ void LikelihoodTests::test_SourceMap() {
  //   Source * src = srcFactory->create("Galactic Diffuse");
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   SourceMap srcMap(src, &dataMap, *m_observation);
+   PsfIntegConfig psf_config;
+   SourceMap srcMap(src, &dataMap, *m_observation, psf_config);
 }
 
 void LikelihoodTests::test_PointSourceMap() {
@@ -1448,8 +1450,11 @@ void LikelihoodTests::test_PointSourceMap() {
    PointSource * pointSrc = dynamic_cast<PointSource *>(src);
    const astro::SkyDir & srcDir(pointSrc->getDir());
 
-   SourceMap srcMap0(src, &dataMap0, *m_observation);
-   SourceMap srcMap1(src, &dataMap1, *m_observation);
+   
+   PsfIntegConfig psf_config;
+
+   SourceMap srcMap0(src, &dataMap0, *m_observation, psf_config);
+   SourceMap srcMap1(src, &dataMap1, *m_observation, psf_config);
 
    const std::vector<Pixel> & pixels0(dataMap0.pixels());
    const std::vector<Pixel> & pixels1(dataMap1.pixels());
@@ -1618,7 +1623,8 @@ void LikelihoodTests::test_Drm() {
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   SourceMap srcMap(src, &cmap, *m_observation);
+   PsfIntegConfig psf_config;
+   SourceMap srcMap(src, &cmap, *m_observation, psf_config);
 
    std::vector<double> npreds(srcMap.npreds());
    npreds.pop_back();

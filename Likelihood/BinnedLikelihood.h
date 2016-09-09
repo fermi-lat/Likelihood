@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.84 2016/07/12 02:20:43 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.85 2016/08/05 21:04:43 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -20,11 +20,14 @@
 #include "Likelihood/CountsMapBase.h"
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Pixel.h"
+#include "Likelihood/BinnedConfig.h"
 
 namespace Likelihood {
 
    class Drm;
+   class Drm_Cache;
    class SourceMap;
+
 
    /*
     * @class BinnedLikelihood
@@ -34,6 +37,20 @@ namespace Likelihood {
 
    class BinnedLikelihood : public LogLike {
      
+   public:
+
+     static bool fileHasSourceMap(const std::string& srcName, 
+				  const std::string& filePath);
+
+     static void addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
+				     const SourceMap& srcMap,
+				     size_t npix,
+				     const std::vector<double>& spec,
+				     const std::vector<unsigned int>& filledPixels,
+				     const Drm_Cache* drm_cache,
+				     bool use_edisp_val,
+				     bool subtract);
+
    public:
      
      /* Regular c'tor 
@@ -84,8 +101,6 @@ namespace Likelihood {
 		      double resamp_factor=2,
 		      double minbinsz=0.1);
      
-     ///
-     BinnedLikelihood(const BinnedLikelihood & other);
      
      ///
      virtual ~BinnedLikelihood() throw();
@@ -95,30 +110,63 @@ namespace Likelihood {
      /// Return the binned observed data
      const CountsMapBase & countsMap() const { return m_dataMap; }
 
-     /// Return the weights in their original projection
-     const ProjMap* weightMap() const { return m_weightMap; }
-
-     /// Return the weights reprojected into counts map binning
-     const SourceMap* weightSrcMap() const { return m_weightSrcMap; }
-
      /// Return the energy bin edges
      const std::vector<double> & energies() const { return m_energies; }
+  
+     /// Return the configuration
+     const BinnedLikeConfig& config() const { return m_config; }
 
-     /// Return the observed counts spectrum
-     const std::vector<double> & countsSpectrum() const { return m_countsSpectrum; }
+     /// Return the number of energy bins
+     size_t num_ebins() const { return m_energies.size() - 1; }
 
-     /// Return the value of the flag to combined the maps for all fixed sources
-     bool use_single_fixed_map() const { return m_use_single_fixed_map; }
+     /// Return the number of pixels
+     size_t num_pixels() const { return m_dataMap.data().size() / num_ebins(); }
 
      /// Return the min and max energy bins to use
      std::pair<int, int> klims() const {
        return std::make_pair(static_cast<int>(m_kmin), static_cast<int>(m_kmax));
      }
 
+     /// Return the observed counts spectrum
+     inline const std::vector<double> & countsSpectrum() const { return m_countsSpectrum; }
+
+     /// Return the weights in their original projection
+     inline const ProjMap* weightMap() const { return m_weightMap; }
+
+     /// Return the weights reprojected into counts map binning
+     inline const SourceMap* weightSrcMap() const { return m_weightSrcMap; }
+
+     /// Return the weighted counts map
+     inline const CountsMapBase* weightedCounts() const { return m_weightedCounts; }
+ 
+     /// Return the name of the file with the source maps
+     inline const std::string& srcMapsFile() const { return m_srcMapsFile; }
+
+     /// Return the list of fixed sources
+     inline const std::vector<std::string> & fixedSources() const { return m_fixedSources; }
+
+     /// Return the NPreds for the fixed sources
+     inline const std::vector<double> & fixedNpreds() const { return  m_fixedNpreds; }
+
      /// Return the predicted counts for all the fixed sources, summed together
-     const std::vector<double> & fixedModelSpectrum() const { return m_fixed_counts_spec; }
+     inline const std::vector<double> & fixedModelSpectrum() const { return m_fixed_counts_spec; }
       
-     /// Set flag to force updating of the fixed model 
+     /// Return the Summed weights
+     inline const std::vector<std::pair<double,double> > & fixedModelWts() const { return  m_fixedModelWts; }
+     
+     /// Return the NPred for a particular fixed source
+     double fixedModelNpreds(const std::string& srcName) const { 
+       std::map<std::string, double>::const_iterator itr = m_fixedModelNpreds.find(srcName);
+       return itr != m_fixedModelNpreds.end() ? itr->second: 0.;
+     }
+	 
+     /// Return the Weighted NPred for a particular fixed source
+     double fixedModelWeightedNpreds(const std::string& srcName) const { 
+       std::map<std::string, double>::const_iterator itr = m_fixedModelWeightedNpreds.find(srcName);
+       return itr != m_fixedModelWeightedNpreds.end() ? itr->second: 0.;
+     }
+
+     /// Set flag to enable or disable updating the fixed model 
      void setUpdateFixedWeights(bool update) {
        m_updateFixedWeights = update;
      }
@@ -136,17 +184,17 @@ namespace Likelihood {
      
      /// Turn on verbose mode
      void setVerbose(bool verbose) {
-       m_verbose = verbose;
+       m_config.psf_integ_config().verbose() = verbose;
      }
 
      /// Turn on energy dispersion
      void set_edisp_flag(bool use_edisp) { 
-       m_use_edisp = use_edisp;
+       m_config.use_edisp() = use_edisp;
      }
 
      /// Set flag to use a single map for all the fixed sources
      void set_use_single_fixed_map(bool use_sfm) {
-       m_use_single_fixed_map = use_sfm;
+       m_config.use_single_fixed_map() = use_sfm;
      }
 
      /// Directly set the data in the counts map
@@ -324,16 +372,15 @@ namespace Likelihood {
      
      /* --------------- Functions for dealing with model maps -------------- */
 
-     /* FIXME: sort out the version of computeModelMap */
-
      /* Compute a model map summing over all the sources it the model.
 	Return the total number of model counts.
 	
-	This version uses the cached information about the fixed sources
+	This version uses the cached information about the fixed sources,
+	and will update the m_model data member and set m_modelIsCurrent.
 
 	weighted  : If true return the weighted counts
      */     
-     double computeModelMap(bool weighted=false) const;
+     double computeModelMap_internal(bool weighted=false) const;
 
      
      /* Compute a model map summing over all the sources it the model 
@@ -375,7 +422,7 @@ namespace Likelihood {
 	weighted  : If true return the weighted npred
      */
      double npred(bool weighted=false) { 
-       return computeModelMap(weighted);
+       return computeModelMap_internal(weighted);
      }
      
      /* Get or compute the npreds() vector from a particular source map.  
@@ -445,18 +492,21 @@ namespace Likelihood {
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();
 
+     /* Return the Drm_Cache object for a particular source */
+     const Drm_Cache* drm_cache(const std::string & srcname) const;
+
+
    protected:
      
      /// Disable assignement operator
      BinnedLikelihood & operator=(const BinnedLikelihood & rhs) {
-       throw std::runtime_error("Copy-assignment operator not implemented");
+       throw std::runtime_error("Copy-assignment operator of BinnedLikelihood not implemented");
      }
 
      /// Disable clone function
      virtual BinnedLikelihood * clone() const {
        return new BinnedLikelihood(*this);
      }
-     
 
      /* Save the weights SourceMap to the SourceMap file
 	
@@ -481,12 +531,23 @@ namespace Likelihood {
      /// Set the dimensions on a tip image
      static void setImageDimensions(tip::Image * image, long * dims);
  
+     /* Add (or subtract) the weights for a source onto a vector 	
+	This is used by several functions.
+
+	modelWts   : The vector being added to.
+	src        : The source in question
+	srcMap     : The SourceMap for the source in question
+	subtract   : If true, subtract from the vector.  	
+     */     
+     static void addSourceWts_toVect(std::vector<std::pair<double, double> > & modelWts,
+				     const Source& src,
+				     const SourceMap& srcMap,
+				     bool subtract=false);
+
 
      /* ------------- Dealing with SourceMaps -------------------- */
 
-     bool fileHasSourceMap(const std::string & srcName, 
-			   const std::string & fitsFile) const;
-     
+    
      void replaceSourceMap(const std::string & srcName, 
 			   const std::string & fitsFile) const;
      
@@ -538,12 +599,8 @@ namespace Likelihood {
       
      
      /* --------------- Dealing with Energy Dispersion ------------------- */
-
      void updateCorrectionFactors(const std::string & srcName, const SourceMap & sourceMap) const;
      
-     void edisp_correction_factors(const std::string & srcName,
-				   const std::vector<double> & true_counts_spec,
-				   std::vector<double> &);
      
     
 
@@ -577,7 +634,8 @@ namespace Likelihood {
      /// The set of source maps, keyed by source name
      mutable std::map<std::string, SourceMap *> m_srcMaps;
 
-     /// The total model of the ROI, summed over sources. 
+     /// The total model of the ROI, summed over sources, but only 
+     /// for the filled pixels.
      mutable std::vector<double> m_model;
    
      /// Flag that the model is up to data
@@ -592,10 +650,8 @@ namespace Likelihood {
      /// Weights map reprojected into counts map binning
      SourceMap* m_weightSrcMap;
      
-     /// Vector of the weighted counts (FIXME, replace with CountsMapBase*)
-     std::vector<float> m_weightedCounts;
-
-
+     /// Map of the weighted counts
+     CountsMapBase* m_weightedCounts;
 
 
      /* ---------For keeping track of fixed source -------------- */
@@ -607,19 +663,26 @@ namespace Likelihood {
      /// sources have changed parameter values.
      std::map<std::string, std::vector<double> > m_modelPars;
      
-     /// FIXME, what are the differences between the next three
      /// Summed npred values at each energy boundary value for fixed sources.
+     /// The npreds are model evaluated at the energy bin edges summed over all pixels
+     /// without the spectrum.  This vector has the size of m_energies.size()
      std::vector<double> m_fixedNpreds;
-     /// Summed weights for all fixed sources
+     /// Summed weights for all fixed sources.
+     /// The weights are the model evaluated at the energy bin edges without the 
+     /// spectrum for each pixel.  This vector has the size of m_filledPixels.size()
      std::vector<std::pair<double, double> > m_fixedModelWts;  
      /// Summed counts spectra for fixed sources
+     /// This is the summed counts for all pixels for each energy bin.
+     /// This vector has the size of m_energies.size() - 1
      mutable std::vector<double> m_fixed_counts_spec;
   
      /// Maps of Npreds for fixed sources, keyed by source name
+     /// In this case the Npred is the total count for that source
+     /// summed over all energy bins and pixels
      std::map<std::string, double> m_fixedModelNpreds;         //! Npreds 
      std::map<std::string, double> m_fixedModelWeightedNpreds; //! Weights NPreds 
 
-     /// Flag to force updating of Fixed model weights
+     /// Flag to allow updating of Fixed model weights
      bool m_updateFixedWeights;
 
      /* ---------For keeping track of energy dispersion ----------- */
@@ -627,36 +690,17 @@ namespace Likelihood {
      /// Detector response matrix for energy dispersion.  Null pointer -> no energy dispersion
      Drm * m_drm;
 
-     /// Maps of true and measured energy spectra for sources 
-     mutable std::map<std::string, std::vector<double> > m_true_counts;
-     mutable std::map<std::string, std::vector<double> > m_meas_counts;
-
-     /// Maps of references pixels to use when computing energy dispersion
-     std::map<std::string, std::map<size_t, size_t> > m_krefs;
-
+     /// Caches of the true and measured energy spectra for sources 
+     mutable std::map<std::string, Drm_Cache*> m_drm_cache;
 
      /* ------------- configuration parameters -------------------- */
      std::string m_srcMapsFile;   //! Where the SourceMaps are stored
-     bool m_computePointSources;  //! Pre-compute and store SourceMaps for point sources
-     bool m_applyPsfCorrections;  //! Apply PSF integral corrections
-     bool m_performConvolution;   //! Do PSF convolution when making SourceMaps
-     bool m_resample;             //! turn on Resample when projecting Diffuse source maps
-     double m_resamp_factor;      //! Resample factor for projecting Diffuse source maps
-     double m_minbinsz;           //! Minimum pixel size for rebinning fine maps 
-     bool m_verbose;              //! Turn on verbose output
-     bool m_use_edisp;            //! Use energy dispersion
-     bool m_use_single_fixed_map; //! Use a single model for all fixed components
-
+     BinnedLikeConfig m_config;   //! All of the options
 
      /// Accumulators for derivatives, FIXME not sure why these are data members.
      mutable std::map<long, Kahan_Accumulator> m_posDerivs;
      mutable std::map<long, Kahan_Accumulator> m_negDerivs;
-     
-
-
-
-
-
+   
 };
 
 }

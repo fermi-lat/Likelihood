@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitUtils.cxx,v 1.21 2016/07/08 01:22:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.22 2016/07/11 23:44:01 mdwood Exp $
  */
 
 
@@ -1184,7 +1184,8 @@ namespace Likelihood {
 	Source* nc_source = const_cast<Source*>(&source);
 	theMap = new SourceMap(nc_source,
 			       &logLike.countsMap(),
-			       logLike.observation());			       
+			       logLike.observation(),
+			       logLike.config().psf_integ_config());
 
 	std::vector<double> specVals;
 	FitUtils::extractSpectralVals(source,logLike.energies(),specVals);
