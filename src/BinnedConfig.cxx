@@ -3,7 +3,7 @@
  * @brief Classes to store configuration for BinnedLikelihood fitting
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.22 2016/07/11 23:44:01 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedConfig.cxx,v 1.1 2016/09/09 21:20:04 echarles Exp $
  */
 
 #include "Likelihood/BinnedConfig.h"
@@ -16,13 +16,13 @@ namespace Likelihood {
 				  double& estimatorPeakTh) {
          
     if(::getenv("USE_ADAPTIVE_PSF_ESTIMATOR")) {
-      estimatorMethod = adaptive;
+      estimatorMethod = PsfIntegConfig::adaptive;
     } else if(::getenv("USE_ANNULAR_PSF_ESTIMATOR")) {
-      estimatorMethod = annular;
+      estimatorMethod = PsfIntegConfig::annular;
     } else if(::getenv("USE_OLD_PSF_ESTIMATOR")) {
-      estimatorMethod = pixel_center;
+      estimatorMethod = PsfIntegConfig::pixel_center;
     } else {
-      estimatorMethod = adaptive;
+      estimatorMethod = PsfIntegConfig::adaptive;
     }
     
     if (::getenv("PSF_ADAPTIVE_ESTIMATOR_FTOL"))
