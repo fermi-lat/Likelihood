@@ -3,7 +3,7 @@
  * @brief Small helper classes to deal with BinnedLikelihood configuration
  * @author E. Charles
 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.14 2016/07/11 23:44:04 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedConfig.h,v 1.1 2016/09/09 21:20:03 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedConfig_h
@@ -39,7 +39,7 @@ namespace Likelihood {
 		   bool resample = true,
 		   double resamp_factor = 2,
 		   double minbinsz = 0.1,
-		   PSFIntegType integ_type = adaptive,
+		   PSFIntegType integ_type = PsfIntegConfig::adaptive,
 		   double psfEstimatorFtol = 1e-3,
 		   double psfEstimatorPeakTh = 1e-6,
 		   bool verbose = true)
@@ -126,7 +126,7 @@ namespace Likelihood {
 		     bool resample = true,
 		     double resamp_factor = 2,
 		     double minbinsz = 0.1,
-		     PsfIntegConfig::PSFIntegType integ_type = adaptive,
+		     PsfIntegConfig::PSFIntegType integ_type = PsfIntegConfig::adaptive,
 		     double psfEstimatorFtol = 1e-3,
 		     double psfEstimatorPeakTh = 1e-6,
 		     bool verbose = true,
