@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood2.cxx,v 1.12 2016/03/30 23:04:57 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood2.cxx,v 1.13 2016/09/09 21:21:48 echarles Exp $
  */
 
 #include <cassert>
@@ -160,7 +160,7 @@ void BinnedLikelihood2::getFreeDerivs(std::vector<double> & derivs) const {
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(), srcName)) {
          continue;
       }
-      const SourceMap & srcMap(sourceMap(srcName));
+      SourceMap & srcMap(sourceMap(srcName));
       const std::vector<float> & model(srcMap.model());
       std::vector<std::string> paramNames;
       src->second->spectrum().getFreeParamNames(paramNames);
@@ -449,7 +449,7 @@ void BinnedLikelihood2::buildFixedModelWts() {
 
 void BinnedLikelihood2::
 addSourceWts(ModelWeights_t & modelWts, const std::string & srcName,
-             const SourceMap * srcMap, bool subtract) const {
+	     SourceMap * srcMap, bool subtract) const {
    const Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    if (src == 0) {
       return;
@@ -499,7 +499,7 @@ void BinnedLikelihood2::create_drm() {
 }
 
 double BinnedLikelihood2::NpredValue(const std::string & srcName,
-                                     const SourceMap & sourceMap) const {
+				     SourceMap & sourceMap) const {
    const std::vector<double> & npreds(sourceMap.npreds());
    const Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    double value(0);
@@ -512,13 +512,13 @@ double BinnedLikelihood2::NpredValue(const std::string & srcName,
 
 SourceMap * BinnedLikelihood2::getSourceMap(const std::string & srcName, 
                                             bool verbose) const {
+   Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    if (fileHasSourceMap(srcName, m_smaps_file)) {
-      return new SourceMap(m_smaps_file, srcName, m_observation);
+     return new SourceMap(m_smaps_file, src, &m_cmap, m_observation);
    }
 // Generate the map if it is not in the file.   
-   Source * src(const_cast<BinnedLikelihood2 *>(this)->getSource(srcName));
    if (src->getType() == "Diffuse" || m_computePointSources) {
-      return new SourceMap(src, &m_cmap, m_observation,
+      return new SourceMap(*src, &m_cmap, m_observation,
                            PsfIntegConfig(m_applyPsfCorrections,
 					  m_performConvolution,
 					  m_resample, m_resamp_factor,

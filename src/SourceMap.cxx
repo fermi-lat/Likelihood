@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.121 2016/08/05 21:04:44 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.122 2016/09/09 21:21:03 echarles Exp $
  */
 
 #include <cmath>
@@ -34,6 +34,8 @@
 #include "Likelihood/ConvolveHealpix.h"
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/DiffuseSource.h"
+#include "Likelihood/Drm.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/MapBase.h"
 #include "Likelihood/MeanPsf.h"
 #include "Likelihood/PointSource.h"
@@ -67,33 +69,36 @@ namespace Likelihood {
 
  
 
-SourceMap::SourceMap(Source * src, const CountsMapBase * dataMap,
+SourceMap::SourceMap(const Source& src, 
+		     const CountsMapBase * dataMap,
                      const Observation & observation, 
                      const PsfIntegConfig & psf_config,
+		     const Drm* drm,
 		     const SourceMap* weights)
-   : m_name(src->getName()),
-     m_srcType(src->getType()),
+   : m_src(&src), 
+     m_name(src.getName()),
+     m_srcType(src.getType()),
      m_dataMap(dataMap),
      m_observation(observation),
      m_meanPsf(0),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
      m_weights(weights),
-     m_deleteDataMap(false),
      m_psf_config(psf_config),
+     m_drm_cache(0),
      m_pixelOffset() {
    if (m_psf_config.verbose()) {
       m_formatter->warn() << "Generating SourceMap for " << m_name;
    }
 
    int status(0);
-   switch ( src->srcType() ) {
+   switch ( src.srcType() ) {
    case Source::Diffuse:
-      status = PSFUtils::makeDiffuseMap(*src, *dataMap, m_observation.meanpsf(), m_observation.bexpmap(),
+      status = PSFUtils::makeDiffuseMap(src, *dataMap, m_observation.meanpsf(), m_observation.bexpmap(),
 					m_psf_config, *m_formatter, m_model);
       break;
    case Source::Point:
-      m_meanPsf = PSFUtils::build_psf(*src,*dataMap,m_observation);
-      status =  PSFUtils::makePointSourceMap(*src, *dataMap, m_psf_config, *m_meanPsf, *m_formatter, m_model);
+      m_meanPsf = PSFUtils::build_psf(src,*dataMap,m_observation);
+      status =  PSFUtils::makePointSourceMap(src, *dataMap, m_psf_config, *m_meanPsf, *m_formatter, m_model);
       break;
    default:
       throw std::runtime_error("Unrecognized source type");
@@ -106,20 +111,23 @@ SourceMap::SourceMap(Source * src, const CountsMapBase * dataMap,
    }
    applyPhasedExposureMap();
    computeNpredArray();
+   setSpectralValues(m_dataMap->energies());
+   m_drm_cache = new Drm_Cache(drm,*this,dataMap->energies());
 }
 
 SourceMap::SourceMap(const ProjMap& weight_map,
 		     const CountsMapBase * dataMap,
 		     const Observation & observation,
 		     bool verbose)
-   : m_name("__weights__"),
+   : m_src(0),
+     m_name("__weights__"),
      m_dataMap(dataMap),
      m_observation(observation),
      m_meanPsf(0),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
      m_weights(0),
-     m_deleteDataMap(false),
      m_psf_config(),
+     m_drm_cache(0),
      m_pixelOffset() {
    if (verbose) {
       m_formatter->warn() << "Generating SourceMap for " << m_name;
@@ -130,6 +138,7 @@ SourceMap::SourceMap(const ProjMap& weight_map,
    // This is just to make sure that they are there.  
    // For this type of map they shouldn't be used for anything
    computeNpredArray(true);
+   setSpectralValues(m_dataMap->energies());
    if (verbose) {
       m_formatter->warn() << "!" << std::endl;
    }
@@ -143,18 +152,20 @@ SourceMap::SourceMap(const ProjMap& weight_map,
 
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
-                     const std::string & srcName,
-                     const Observation & observation,
+                     const Source* src, 
+		     const CountsMapBase * dataMap,
+		     const Observation & observation,
 		     const SourceMap* weights,
-		     bool isWeights) 
-   : m_name(srcName),
-     m_dataMap(AppHelpers::readCountsMap(sourceMapsFile)),
+		     const Drm* drm) 
+   : m_src(src),
+     m_name(src != 0 ? src->getName() : "__weights__"),
+     m_dataMap(dataMap),
      m_observation(observation),
      m_meanPsf(0),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
      m_weights(weights),
-     m_deleteDataMap(true),
      m_psf_config(),
+     m_drm_cache(0),
      m_pixelOffset() {
 
    m_model.clear();
@@ -172,6 +183,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
      break;
    }
 
+   bool isWeights = src == 0;
    if ( !ok ) {
      std::string errMsg("SourceMap did not recognize CountsMapBase type at: ");
      errMsg += sourceMapsFile;
@@ -180,15 +192,17 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
    }
    applyPhasedExposureMap();
    computeNpredArray(isWeights);
+   setSpectralValues(m_dataMap->energies());
+   if ( src != 0 ) {
+     m_drm_cache = new Drm_Cache(drm,*this,m_dataMap->energies());
+   }
 }
 
 
 SourceMap::~SourceMap() {
-   if (m_deleteDataMap) {
-      delete m_dataMap;
-   }
    delete m_formatter;
    delete m_meanPsf; 
+   delete m_drm_cache;
 }
 
 
@@ -230,8 +244,8 @@ void SourceMap::computeNpredArray(bool isWeight) {
 	 size_t indx_1 = k < energies.size()-1 ? indx : indx - pixels.size();
 	 double addend = m_model.at(indx);
          m_npreds[k] += addend;
-	 double w_0_addend = m_weights != 0 ? ( m_weights->model()[indx_0]*addend ) : addend;
-	 double w_1_addend = m_weights != 0 ? ( m_weights->model()[indx_1]*addend ) : addend;
+	 double w_0_addend = m_weights != 0 ? ( m_weights->cached_model()[indx_0]*addend ) : addend;
+	 double w_1_addend = m_weights != 0 ? ( m_weights->cached_model()[indx_1]*addend ) : addend;
 	 w_0_sum += w_0_addend;
 	 w_1_sum += w_1_addend;
       }
@@ -301,17 +315,46 @@ void SourceMap::applyPhasedExposureMap() {
 }
 
 
-const std::vector<float> & SourceMap::model() const {
+void SourceMap::setSpectralValues(const std::vector<double>& energies) {
+  if ( m_src == 0 ) return;
+  FitUtils::extractSpectralVals(*m_src,energies,m_specVals);
+}
+
+
+void SourceMap::setSpectralDerivs(const std::vector<double>& energies,
+				  const std::vector<std::string>& paramNames) {
+  if ( m_src == 0 ) return;
+  FitUtils::extractSpectralDerivs(*m_src,energies,paramNames,m_derivs);
+}
+
+
+const std::vector<float> & SourceMap::model() {
   return m_model;
 }
   
-const std::vector<double> & SourceMap::npreds() const {
+const std::vector<double> & SourceMap::npreds() {
   return m_npreds;
 }
   
-const std::vector<std::pair<double,double> > & SourceMap::npred_weights() const {
+const std::vector<std::pair<double,double> > & SourceMap::npred_weights() {
   return m_npred_weights;
 }  
+
+const std::vector<float> & SourceMap::modelCounts() { 
+  return m_modelCounts; 
+}
+  
+const double& SourceMap::totalModelCounts() { 
+  return m_totalModelCounts; 
+}
+  
+const double& SourceMap::totalModelCounts_weighted() { 
+  return m_totalModelCounts_weighted; 
+}
+
+const Drm_Cache* SourceMap::drm_cache() {
+  return m_drm_cache;
+}
 
 void SourceMap::setImage(const std::vector<float>& model) {
   if(model.size() != m_model.size())

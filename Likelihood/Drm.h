@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.6 2011/10/18 22:45:06 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.7 2016/09/09 21:10:20 echarles Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -56,22 +56,17 @@ private:
 class Drm_Cache {
 public:
 
-  Drm_Cache(const Drm& drm,
-	    const SourceMap & sourceMap,
-	    const Source& src,
-	    const std::vector<double>& energies,
-	    bool use_edisp);
+  Drm_Cache(const Drm* drm,
+	    SourceMap & sourceMap,
+	    const std::vector<double>& energies);
   
   Drm_Cache(const Drm_Cache& other);
 
   virtual ~Drm_Cache(){;}
 
-
-  void update(const Drm& drm,
-	      const SourceMap & sourceMap,
-	      const Source& src,
-	      const std::vector<double>& energies,
-	      bool use_edisp);
+  void update(const Drm* drm,
+	      SourceMap & sourceMap,
+	      const std::vector<double>& energies);
 
   inline double get_correction(size_t k, int& kref) const {
     kref = m_kref[k];

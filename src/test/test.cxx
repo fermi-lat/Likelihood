@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.140 2016/07/06 01:20:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.141 2016/09/09 21:21:48 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -1426,7 +1426,7 @@ void LikelihoodTests::test_SourceMap() {
    Source * src =  srcFactory->create("Crab Pulsar");
 
    PsfIntegConfig psf_config;
-   SourceMap srcMap(src, &dataMap, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataMap, *m_observation, psf_config);
 }
 
 void LikelihoodTests::test_PointSourceMap() {
@@ -1453,8 +1453,8 @@ void LikelihoodTests::test_PointSourceMap() {
    
    PsfIntegConfig psf_config;
 
-   SourceMap srcMap0(src, &dataMap0, *m_observation, psf_config);
-   SourceMap srcMap1(src, &dataMap1, *m_observation, psf_config);
+   SourceMap srcMap0(*src, &dataMap0, *m_observation, psf_config);
+   SourceMap srcMap1(*src, &dataMap1, *m_observation, psf_config);
 
    const std::vector<Pixel> & pixels0(dataMap0.pixels());
    const std::vector<Pixel> & pixels1(dataMap1.pixels());
@@ -1624,7 +1624,7 @@ void LikelihoodTests::test_Drm() {
    Source * src =  srcFactory->create("Crab Pulsar");
 
    PsfIntegConfig psf_config;
-   SourceMap srcMap(src, &cmap, *m_observation, psf_config);
+   SourceMap srcMap(*src, &cmap, *m_observation, psf_config);
 
    std::vector<double> npreds(srcMap.npreds());
    npreds.pop_back();

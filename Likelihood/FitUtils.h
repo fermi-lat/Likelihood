@@ -17,7 +17,7 @@
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitUtils.h,v 1.13 2016/07/08 01:21:59 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.14 2016/07/11 23:44:04 mdwood Exp $
  */
 
 #ifndef Likelihood_FitUtils_h
@@ -51,6 +51,14 @@ namespace Likelihood {
 
   namespace FitUtils {
     
+
+    /// Integrates weights over a pixel to get the counts
+    double pixelCounts_linearQuad(double emin, double emax, double y1, double y2);
+
+    /// Integrates weights over a pixel to get the counts
+    double pixelCounts_loglogQuad(double emin, double emax, double y1, double y2, double log_ratio);
+  
+
     /* Compute the pseudo-inverse of a matrix from its singular value
        decomposition.  For a matrix A with SVD,
 
@@ -533,7 +541,19 @@ namespace Likelihood {
 			     const std::vector<double>& energies,
 			     std::vector<double>& specVals);
 
-    
+    /* Extract an array of derivatives of the spectram from a Source object
+
+       source:     The source object
+       energies:   The energies at which to evalute the spectrum
+       paramNames: The names of the params w.r.t. which to evaluate the derivaties
+       deriveVals: Filled with the normalization values at the input energies
+     */
+    void extractSpectralDerivs(const Source& source,
+			       const std::vector<double>& energies,
+			       const std::vector<std::string>& paramNames,
+			       std::vector<std::vector<double> >& derivVals);
+
+
     /* Extract a vector of spectral normalization values from a Source object
 
        source:    The source object
@@ -568,7 +588,7 @@ namespace Likelihood {
        energies and specVals vectors.   This is because we have integrated 
        over the energy bins in making the modelCounts vector.
      */ 
-    void extractModelCounts(const SourceMap& sourceMap,
+    void extractModelCounts(SourceMap& sourceMap,
 			    const std::vector<double>& energies,
 			    const std::vector<double>& specVals,
 			    std::vector<float>& modelCounts);
