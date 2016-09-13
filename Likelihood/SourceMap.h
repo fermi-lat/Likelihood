@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.62 2016/04/16 00:50:25 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.63 2016/09/09 21:21:03 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -34,6 +34,8 @@ namespace Likelihood {
    class CountsMap;
    class CountsMapHealpix;
    class PsfIntegConfig;
+   class Drm;
+   class Drm_Cache;
    class DiffuseSource;
    class MeanPsf;
    class PointSource;
@@ -59,11 +61,14 @@ public:
       dataMap       : The counts map used as a template for the binning
       observation   : Object with data about the observation
       psf_config    : Object with PSF integration parameters
+      drm           : The detector response matrix, NULL if energy dispersion is off for this source.
       weights       : A weights map, for weighted likelihood analysis.  Null -> no weighting.
     */
-   SourceMap(Source * src, const CountsMapBase * dataMap,
+   SourceMap(const Source& src, 
+	     const CountsMapBase * dataMap,
              const Observation & observation,
 	     const PsfIntegConfig & psf_config, 
+	     const Drm* drm = 0,
 	     const SourceMap* weights = 0);
 
    /* C'tor used to build a weights map
@@ -84,21 +89,26 @@ public:
    /* C'tor to re-read this from a file
       
       sourceMapsFile : The path to the file we are reading from
-      srcName       : Name of the source, also name of the HDU in the file
+      src           : The source in question, NULL if this is the weights map
+      dataMap       : The counts map used as a template for the binning
       observation   : Object with data about the observation
       weights       : A weights map, for weighted likelihood analysis.  Null -> no weighting.
-      isWeights     : If true this is a weights source map
+      drm           : The detector response matrix, NULL if energy dispersion is off for this source.
     */
    SourceMap(const std::string & sourceMapsFile,
-             const std::string & srcName,
-             const Observation & observation,
+             const Source * src,
+	     const CountsMapBase * dataMap,
+	     const Observation & observation,
 	     const SourceMap* weights = 0,
-	     bool isWeights = false);
+	     const Drm* drm = 0);
 
    /* d'tor, does clean up */
    ~SourceMap();
 
    /* --------------- Simple Access functions ----------------------*/
+
+   /* The source in question */
+   inline const Source* src() const { return m_src; }
 
    /* The name of the source */
    inline const std::string & name() const { return m_name; }
@@ -115,25 +125,61 @@ public:
 
    /* --------------- Class Methods ----------------------*/
 
+   /* Extract a vector of spectral normalization values from a Source object
+      
+      energies:  The energies at which to evalute the spectrum
+   */   
+   void setSpectralValues(const std::vector<double>& energies);
+
+   /* Get the spectral derivatives 
+      
+      energies:  The energies at which to evalute the derivatives
+      paraNames: The names of the params w.r.t. which to evaluate the derivaties
+    */
+   void setSpectralDerivs(const std::vector<double>& energies,
+			  const std::vector<std::string>& paramNames);
+
    /// These functions return cached data.  
    /// This might not be calculated yet, or might be out of date.
    /// Use with caution.
    /// The version of the functions without cached_ will always return 
    /// up-to-date information.
    inline const std::vector<float> & cached_model() const { return m_model; }
+   
+   inline const std::vector<double> & cached_specVals() const { return m_specVals; }
+
+   inline const std::vector< std::vector<double> > & cached_specDerivs() const { return m_derivs; }
 
    inline const std::vector<double> & cached_npreds() const { return m_npreds; }
 
    inline const std::vector<std::pair<double,double> > & cached_npred_weights() const { return m_npred_weights; }
    
+   inline const std::vector<float> & cached_modelCounts() const { return m_modelCounts; }
+
+   inline const double& cached_totalModelCounts() const { return m_totalModelCounts; }
+
+   inline const double& cached_totalModelCounts_weighted() const { return m_totalModelCounts_weighted; }
+
+   inline const Drm_Cache* cached_drm_Cache() const { return m_drm_cache; }
+
+
    /// These functions force the calculation of the quanitities they return;  
    /// FIXME, implement this
-   const std::vector<float> & model() const;
+   const std::vector<float> & model();
 
-   const std::vector<double> & npreds() const;
+   const std::vector<double> & npreds();
 
-   const std::vector<std::pair<double,double> > & npred_weights() const;
+   const std::vector<std::pair<double,double> > & npred_weights();
    
+   const std::vector<float> & modelCounts();
+
+   const double& totalModelCounts();
+
+   const double& totalModelCounts_weighted();
+  
+   const Drm_Cache* drm_cache();
+
+
    /// Explicitly set the image data
    void setImage(const std::vector<float>& model);
 
@@ -171,6 +217,9 @@ private:
 
    /* ---------------- Data Members --------------------- */
 
+   /// The source in question. This will by NULL if the SourceMap is the weights map
+   const Source* m_src;   
+
    /// Source name.
    const std::string m_name;
 
@@ -195,24 +244,41 @@ private:
    /// A weights map, for weighted likelihood analysis.  Null -> no weighting.   
    const SourceMap* m_weights;
 
-   /// Flag to indicate that the data map is owned and should be deleted in d'tor
-   bool m_deleteDataMap;
-
    /// This is the 'source map' data. 
    /// It is not the counts map, but rather the coefficients
    /// That must be multiplied by the spectrum for each pixel 
    /// and integrated over the energy bin to obtain the predicted counts
-   mutable std::vector<float> m_model;
+   std::vector<float> m_model;
+
+   /// These are the 'spectrum' values
+   /// I.e., the spectrum evaluated at the energy points
+   std::vector<double> m_specVals;
+
+    /// These are the derivatives of the 'spectrum' values
+   /// I.e., the derivatives evaluated at the energy points
+   std::vector<std::vector<double> > m_derivs;
 
    /// These are the npreds, i.e., the model summed over each energy plane.
-   mutable std::vector<double> m_npreds;
+   std::vector<double> m_npreds;
 
-   /// These are the npred weights, FIXME (what are those?)
-   mutable std::vector<std::pair<double,double> > m_npred_weights;
+   /// These are the npred weights, i.e., the weights to apply to the npreds
+   /// to correctly reproduce the weighted counts
+   std::vector<std::pair<double,double> > m_npred_weights;
 
-   /// These are for the fast PSF integration
+   /// These are the model counts, i.e., the m_model times the spectrum
+   std::vector<float> m_modelCounts;
+
+   /// This are the total model counts
+   double m_totalModelCounts;
+   
+   /// This is the weighted total model counts
+   double m_totalModelCounts_weighted;
+
+   /// Caches of the true and measured energy spectra for sources
+   Drm_Cache* m_drm_cache;
 
    /// @brief Scaling factor between the true and projected angular separation
+   //  for the fast PSF integration
    std::vector< std::vector< double > > m_pixelOffset;
 
 };

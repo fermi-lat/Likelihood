@@ -3,7 +3,7 @@
  * @brief Small helper classes to deal with BinnedLikelihood configuration
  * @author E. Charles
 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedConfig.h,v 1.1 2016/09/09 21:20:03 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedConfig.h,v 1.2 2016/09/09 23:34:10 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedConfig_h
@@ -26,10 +26,6 @@ namespace Likelihood {
       //! Simple integration using pixel centers
       pixel_center = 2 } PSFIntegType;
 
-    /* Get value of configuration paramters from the enviroment */
-    static void get_envars(PSFIntegType& integ_type,
-			   double& estimatorFtol,
-			   double& estimatorPeakTh);
 
   public:
 
@@ -119,6 +115,19 @@ namespace Likelihood {
 
   public:
 
+    /* Get value of configuration paramters from the enviroment 
+
+       Note that if the ENV vars are not set, this will _NOT_ overwrite
+       the input values.
+     */
+    static void get_envars(PsfIntegConfig::PSFIntegType& integ_type,
+			   double& estimatorFtol,
+			   double& estimatorPeakTh,
+			   bool& use_edisp,
+			   bool& use_linear_quadrature);
+
+  public:
+
     /* Standard c'tor, all arguments can take default value */
     BinnedLikeConfig(bool computePointSources = true,		     
 		     bool applyPsfCorrections = true,
@@ -131,19 +140,27 @@ namespace Likelihood {
 		     double psfEstimatorPeakTh = 1e-6,
 		     bool verbose = true,
 		     bool use_edisp = false, 
-		     bool use_single_fixed_map = true) 
+		     bool use_single_fixed_map = true,
+		     bool use_linear_quadrature = false) 
       :m_computePointSources(computePointSources),       
        m_psf_integ_config(applyPsfCorrections,performConvolution,resample,resamp_factor,minbinsz,
 			  integ_type,psfEstimatorFtol,psfEstimatorPeakTh,verbose),
        m_use_edisp(use_edisp),
-       m_use_single_fixed_map(use_single_fixed_map) { 
+       m_use_single_fixed_map(use_single_fixed_map),
+       m_use_linear_quadrature(use_linear_quadrature){ 
+	 get_envars(m_psf_integ_config.integ_type(),
+		    m_psf_integ_config.psfEstimatorFtol(),
+		    m_psf_integ_config.psfEstimatorPeakTh(),
+		    m_use_edisp,
+		    m_use_linear_quadrature);
     }
     
     BinnedLikeConfig(const BinnedLikeConfig& other)
       :m_computePointSources(other.m_computePointSources),
        m_psf_integ_config(other.m_psf_integ_config),
        m_use_edisp(other.m_use_edisp),
-       m_use_single_fixed_map(other.m_use_single_fixed_map) { 
+       m_use_single_fixed_map(other.m_use_single_fixed_map),
+       m_use_linear_quadrature(other.m_use_linear_quadrature){
     }
     
     inline PsfIntegConfig& psf_integ_config() { return m_psf_integ_config; }
@@ -152,18 +169,21 @@ namespace Likelihood {
     inline bool& computePointSources() { return m_computePointSources; } 
     inline bool& use_edisp() { return m_use_edisp; }
     inline bool& use_single_fixed_map() { return m_use_single_fixed_map; }
-    
+    inline bool& use_linear_quadrature() { return m_use_linear_quadrature; }
+
     inline const bool& computePointSources() const { return m_computePointSources; } 
     inline const bool& use_edisp() const { return m_use_edisp; }
     inline const bool& use_single_fixed_map() const { return m_use_single_fixed_map; }
+    inline const bool& use_linear_quadrature() const { return m_use_linear_quadrature; }
     
   private:
     
-    bool m_computePointSources;  //! Pre-compute and store SourceMaps for point sources
+    bool m_computePointSources;    //! Pre-compute and store SourceMaps for point sources
     PsfIntegConfig m_psf_integ_config; //! Parameters for PSF integration
-    bool m_use_edisp;            //! Use energy dispersion
-    bool m_use_single_fixed_map; //! Use a single model for all fixed components
-
+    bool m_use_edisp;              //! Use energy dispersion
+    bool m_use_single_fixed_map;   //! Use a single model for all fixed components
+    bool m_use_linear_quadrature;  //! Use linear quadrature for counts integration
+    
   };
 
 } // namespace Likelihood

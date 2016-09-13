@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.85 2016/08/05 21:04:43 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.86 2016/09/09 21:21:47 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -43,9 +43,8 @@ namespace Likelihood {
 				  const std::string& filePath);
 
      static void addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
-				     const SourceMap& srcMap,
+				     SourceMap& srcMap,
 				     size_t npix,
-				     const std::vector<double>& spec,
 				     const std::vector<unsigned int>& filledPixels,
 				     const Drm_Cache* drm_cache,
 				     bool use_edisp_val,
@@ -295,7 +294,7 @@ namespace Likelihood {
 
 	It is not inherited from LogLike.
      */
-     double NpredValue(const std::string & name, const SourceMap & srcMap, bool weighted=false) const;
+     double NpredValue(const std::string & name, SourceMap & srcMap, bool weighted=false) const;
 
      
      /* --------------- Functions for dealing with source maps -------------- */
@@ -308,7 +307,7 @@ namespace Likelihood {
 	If the source does not exist this will throw an exception
 	If the sources exits, but the SourceMap does not, 
 	this will create and return the SourceMap for that source */
-     const SourceMap & sourceMap(const std::string & name) const;
+     SourceMap & sourceMap(const std::string & name) const;
    
      /* Returns a pointer to the SourceMap corresponding to a particular source
 	
@@ -411,7 +410,7 @@ namespace Likelihood {
 	to a vector.  it is used by the various computeModelMap 
 	functions */
      void updateModelMap(std::vector<float> & modeMap, 
-			 const SourceMap * srcMap) const;
+			 SourceMap * srcMap) const;
 
 
      /* --------------- Functions for dealing the NPreds -------------- */
@@ -492,10 +491,6 @@ namespace Likelihood {
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();
 
-     /* Return the Drm_Cache object for a particular source */
-     const Drm_Cache* drm_cache(const std::string & srcname) const;
-
-
    protected:
      
      /// Disable assignement operator
@@ -525,8 +520,9 @@ namespace Likelihood {
      /// Calls the specturm function of a source at a given energy
      static double spectrum(const Source * src, double energy);
      
-     /// Integrates weights over a pixel to get the counts
-     static double pixelCounts(double emin, double emax, double y1, double y2);
+     /// Compute the log of rations between energy bin edges
+     static void log_energy_ratios(const std::vector<double>& energies,
+				   std::vector<double>& log_ratios);
 
      /// Set the dimensions on a tip image
      static void setImageDimensions(tip::Image * image, long * dims);
@@ -551,27 +547,31 @@ namespace Likelihood {
      void replaceSourceMap(const std::string & srcName, 
 			   const std::string & fitsFile) const;
      
-     void replaceSourceMap_wcs(const SourceMap& srcMap, 
+     void replaceSourceMap_wcs(SourceMap& srcMap, 
 			       const std::string & fitsFile) const;
      
-     void replaceSourceMap_healpix(const SourceMap& srcMap, 
+     void replaceSourceMap_healpix(SourceMap& srcMap, 
 				   const std::string & fitsFile) const;
      
      void appendSourceMap(const std::string & srcName, 
 			  const std::string & fitsFile,
 			  bool isWeights = false) const;
      
-     void appendSourceMap_wcs(const SourceMap& srcMap,
+     void appendSourceMap_wcs(SourceMap& srcMap,
 			      const std::string & fitsFile,
 			      bool isWeights = false) const;
      
-     void appendSourceMap_healpix(const SourceMap& srcMap, 
+     void appendSourceMap_healpix(SourceMap& srcMap, 
 				  const std::string & fitsFile,
 				  bool isWeights = false) const;
      
 
      /* --------------- Computing Counts Spectra ------------------- */
+ 
 
+     /// Integrates weights over a pixel to get the counts
+     double pixelCounts(double emin, double emax, double y1, double y2, double log_ratio) const;
+ 
      void computeCountsSpectrum();
      
      void computeCountsSpectrum_wcs();
@@ -591,7 +591,7 @@ namespace Likelihood {
      */     
      void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
 		       const std::string & srcName,
-		       const SourceMap * srcMap=0, 
+		       SourceMap * srcMap=0, 
 		       bool subtract=false) const;
      
      /* Fills the m_filledPixels data member with only the pixels with data counts */
@@ -599,7 +599,7 @@ namespace Likelihood {
       
      
      /* --------------- Dealing with Energy Dispersion ------------------- */
-     void updateCorrectionFactors(const std::string & srcName, const SourceMap & sourceMap) const;
+     void updateCorrectionFactors(const std::string & srcName, SourceMap & sourceMap) const;
      
      
     
@@ -616,6 +616,9 @@ namespace Likelihood {
 
      /// Energy bin edges
      std::vector<double> m_energies;
+
+     /// Log of ratios between energy bin edges
+     std::vector<double> m_log_energy_ratios;
 
      /// Minimum and maximum energy plane indexes to use in likelihood 
      /// calculations.
@@ -690,17 +693,10 @@ namespace Likelihood {
      /// Detector response matrix for energy dispersion.  Null pointer -> no energy dispersion
      Drm * m_drm;
 
-     /// Caches of the true and measured energy spectra for sources 
-     mutable std::map<std::string, Drm_Cache*> m_drm_cache;
-
      /* ------------- configuration parameters -------------------- */
      std::string m_srcMapsFile;   //! Where the SourceMaps are stored
      BinnedLikeConfig m_config;   //! All of the options
 
-     /// Accumulators for derivatives, FIXME not sure why these are data members.
-     mutable std::map<long, Kahan_Accumulator> m_posDerivs;
-     mutable std::map<long, Kahan_Accumulator> m_negDerivs;
-   
 };
 
 }

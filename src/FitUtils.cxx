@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.22 2016/07/11 23:44:01 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.23 2016/09/09 21:21:48 echarles Exp $
  */
 
 
@@ -35,7 +35,18 @@
 namespace Likelihood {
 
   namespace FitUtils {
-    
+
+    /// Integrates weights over a pixel to get the counts
+    double pixelCounts_linearQuad(double emin, double emax, double y1, double y2) {
+      return (y1 + y2)*(emax - emin)/2.;
+    }
+
+    /// Integrates weights over a pixel to get the counts
+    double pixelCounts_loglogQuad(double emin, double emax, double y1, double y2, double log_ratio) {
+      return (y1*emin + y2*emax)/2.*log_ratio;
+    }
+  
+
     void svd_inverse(const CLHEP::HepMatrix& u,
 		     const CLHEP::HepMatrix& v,
 		     const CLHEP::HepVector& s,
@@ -1152,6 +1163,27 @@ namespace Likelihood {
       return;
     }
 
+    void extractSpectralDerivs(const Source& source,
+			       const std::vector<double>& energies,
+			       const std::vector<std::string>& paramNames,
+			       std::vector<std::vector<double> >& derivVals) {
+
+      const optimizers::Function& spec = source.spectrum();
+      derivVals.resize(paramNames.size());
+      size_t idx(0);
+      for ( std::vector<std::string>::const_iterator itr = paramNames.begin();
+	    itr != paramNames.end(); itr++, idx++ ) {
+	derivVals[idx].resize(energies.size());
+	size_t idx2(0);
+	for ( std::vector<double>::const_iterator itr2 = energies.begin();
+	      itr2 != energies.end(); itr2++, idx2++ ) {
+	  optimizers::dArg eArg(*itr2);
+	  derivVals[idx][idx2] = spec.derivByParam(eArg, *itr);
+	}
+      }
+    }
+
+
     void extractNPreds(const Source& source,
 		       const std::vector<double>& energies,
 		       std::vector<double>& nPreds) {
@@ -1182,7 +1214,7 @@ namespace Likelihood {
 	
 	// Otherwise, build a map ourselves
 	Source* nc_source = const_cast<Source*>(&source);
-	theMap = new SourceMap(nc_source,
+	theMap = new SourceMap(*nc_source,
 			       &logLike.countsMap(),
 			       logLike.observation(),
 			       logLike.config().psf_integ_config());
@@ -1201,7 +1233,7 @@ namespace Likelihood {
     }
   
 
-    void extractModelCounts(const SourceMap& sourceMap,
+    void extractModelCounts(SourceMap& sourceMap,
 			    const std::vector<double>& energies,
 			    const std::vector<double>& specVals,			    
 			    std::vector<float>& modelCounts) {
@@ -1269,8 +1301,8 @@ namespace Likelihood {
 	if ( wts_map == 0 ) {
 	  throw std::runtime_error("Requested to use likelihood weights, but no weights are present in BinnedLikelihood");
 	}
-	weights->resize( wts_map->model().size() );
-	std::copy(wts_map->model().begin(),wts_map->model().end(),weights->begin());
+	weights->resize( wts_map->cached_model().size() );
+	std::copy(wts_map->cached_model().begin(),wts_map->cached_model().end(),weights->begin());
 	float sumW(0.);
 	sumVector(weights->begin(),weights->end(),sumW);
 	std::cout << "Sum of weights " << sumW << " for " << weights->size() << std::endl;

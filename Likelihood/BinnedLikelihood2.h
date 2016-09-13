@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.8 2015/03/21 05:38:02 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood2.h,v 1.9 2016/03/30 23:04:56 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood2_h
@@ -88,7 +88,7 @@ public:
    SourceMap * getSourceMap(const std::string & srcName,
                             bool verbose=true) const;
 
-   const SourceMap & sourceMap(const std::string & name) const {
+   SourceMap & sourceMap(const std::string & name) const {
       std::map<std::string, SourceMap *>::const_iterator srcMap
          = m_srcMaps.find(name);
       if (srcMap == m_srcMaps.end()) {
@@ -165,7 +165,7 @@ private:
 
    void addSourceWts(ModelWeights_t & modelWts,
                      const std::string & srcName,
-                     const SourceMap * srcMap=0,
+		     SourceMap * srcMap=0,
                      bool subtract=false) const;
 
    double spectrum(const Source * src, double ee) const;
@@ -179,7 +179,7 @@ private:
    bool fileHasSourceMap(const std::string & srcName,
                          const std::string & fitsFile) const;
 
-   double NpredValue(const std::string & name, const SourceMap & srcMap) const;
+   double NpredValue(const std::string & name, SourceMap & srcMap) const;
 
    void computeCountsSpectrum();
 };

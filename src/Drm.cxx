@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.11 2014/09/22 21:12:47 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.12 2016/09/09 21:10:21 echarles Exp $
  */
 
 #include <cmath>
@@ -16,6 +16,7 @@
 #include "irfInterface/Irfs.h"
 
 #include "Likelihood/Drm.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -175,17 +176,15 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
 }
 
 
-Drm_Cache::Drm_Cache(const Drm& drm,
-		     const SourceMap & sourceMap,
-		     const Source& src,
-		     const std::vector<double>& energies,
-		     bool use_edisp)
+Drm_Cache::Drm_Cache(const Drm* drm,
+		     SourceMap & sourceMap,
+		     const std::vector<double>& energies)
   :m_true_counts(energies.size()-1),
    m_meas_counts(energies.size()-1),
    m_xi(energies.size()-1),
    m_kref(energies.size()-1),
-   m_use_edisp(use_edisp){
-  update(drm,sourceMap,src,energies,use_edisp);
+   m_use_edisp(drm!=0){
+  update(drm,sourceMap,energies);
 }
 
 Drm_Cache::Drm_Cache(const Drm_Cache& other) 
@@ -196,21 +195,28 @@ Drm_Cache::Drm_Cache(const Drm_Cache& other)
     m_use_edisp(other.m_use_edisp){
 }
 
-void Drm_Cache::update(const Drm& drm,
-		       const SourceMap & sourceMap,
-		       const Source& src,
-		       const std::vector<double>& energies,
-		       bool use_edisp) {
-  const std::vector<double> & npreds = sourceMap.npreds();
+void Drm_Cache::update(const Drm* drm,
+		       SourceMap & sourceMap,
+		       const std::vector<double>& energies) {
+  sourceMap.setSpectralValues(energies);  
+  const std::vector<double>& npreds = sourceMap.npreds();
   const std::vector<std::pair<double,double> >& npred_weights = sourceMap.npred_weights();
+  const std::vector<double>& specVals = sourceMap.cached_specVals();
+
   size_t k(0);
   for (k = 0; k < energies.size()-1; k++) {
-    m_true_counts[k] = src.pixelCounts(energies.at(k), energies.at(k+1),
-				       npreds.at(k)*npred_weights[k].first, npreds.at(k+1)*npred_weights[k].second);
+    double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
+    m_true_counts[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
+							energies.at(k+1),
+							specVals.at(k)*npreds.at(k)*npred_weights[k].first, 
+							specVals.at(k+1)*npreds.at(k+1)*npred_weights[k].second,
+							log_energy_ratio);
   }
-  if ( use_edisp ) {
-    drm.convolve(m_true_counts, m_meas_counts);
+  if ( drm != 0 ) {
+    m_use_edisp = true;
+    drm->convolve(m_true_counts, m_meas_counts);
   } else {
+    m_use_edisp = false;
     m_meas_counts.resize(m_true_counts.size());
     std::copy(m_true_counts.begin(),m_true_counts.end(),m_meas_counts.begin());
   }
