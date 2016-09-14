@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.86 2016/09/09 21:21:47 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.87 2016/09/13 19:26:21 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -27,7 +27,7 @@ namespace Likelihood {
    class Drm;
    class Drm_Cache;
    class SourceMap;
-
+   class WeightMap;
 
    /*
     * @class BinnedLikelihood
@@ -130,10 +130,10 @@ namespace Likelihood {
      inline const std::vector<double> & countsSpectrum() const { return m_countsSpectrum; }
 
      /// Return the weights in their original projection
-     inline const ProjMap* weightMap() const { return m_weightMap; }
+     inline const ProjMap* weightMap_orig() const { return m_weightMap_orig; }
 
      /// Return the weights reprojected into counts map binning
-     inline const SourceMap* weightSrcMap() const { return m_weightSrcMap; }
+     inline const WeightMap* weightMap() const { return m_weightMap; }
 
      /// Return the weighted counts map
      inline const CountsMapBase* weightedCounts() const { return m_weightedCounts; }
@@ -153,18 +153,6 @@ namespace Likelihood {
      /// Return the Summed weights
      inline const std::vector<std::pair<double,double> > & fixedModelWts() const { return  m_fixedModelWts; }
      
-     /// Return the NPred for a particular fixed source
-     double fixedModelNpreds(const std::string& srcName) const { 
-       std::map<std::string, double>::const_iterator itr = m_fixedModelNpreds.find(srcName);
-       return itr != m_fixedModelNpreds.end() ? itr->second: 0.;
-     }
-	 
-     /// Return the Weighted NPred for a particular fixed source
-     double fixedModelWeightedNpreds(const std::string& srcName) const { 
-       std::map<std::string, double>::const_iterator itr = m_fixedModelWeightedNpreds.find(srcName);
-       return itr != m_fixedModelWeightedNpreds.end() ? itr->second: 0.;
-     }
-
      /// Set flag to enable or disable updating the fixed model 
      void setUpdateFixedWeights(bool update) {
        m_updateFixedWeights = update;
@@ -459,17 +447,13 @@ namespace Likelihood {
 
      /* Add a source to the set of fixed sources
 
-	This will add an entry in the map of m_fixedModelNpreds,
-	subtract the source contribution to m_fixedNpreds,
-	and call addSourceWts to add the source contribution to m_fixedModelWts
+	This will call addSourceWts to add the source contribution to m_fixedModelWts
      */
      void addFixedSource(const std::string & srcName);
    
      /* Remove a source to the set of fixed sources
 
-	This will remove an entry in the map of m_fixedModelNpreds,
-	subtract the source contribution to m_fixedNpreds,
-	and call addSourceWts (with subtract=true) to subtract 
+	This will call addSourceWts (with subtract=true) to subtract 
 	the source contribution from m_fixedModelWts
      */     
      void deleteFixedSource(const std::string & srcName);
@@ -547,24 +531,11 @@ namespace Likelihood {
      void replaceSourceMap(const std::string & srcName, 
 			   const std::string & fitsFile) const;
      
-     void replaceSourceMap_wcs(SourceMap& srcMap, 
-			       const std::string & fitsFile) const;
-     
-     void replaceSourceMap_healpix(SourceMap& srcMap, 
-				   const std::string & fitsFile) const;
-     
+  
      void appendSourceMap(const std::string & srcName, 
-			  const std::string & fitsFile,
-			  bool isWeights = false) const;
+			  const std::string & fitsFile) const;
      
-     void appendSourceMap_wcs(SourceMap& srcMap,
-			      const std::string & fitsFile,
-			      bool isWeights = false) const;
-     
-     void appendSourceMap_healpix(SourceMap& srcMap, 
-				  const std::string & fitsFile,
-				  bool isWeights = false) const;
-     
+    
 
      /* --------------- Computing Counts Spectra ------------------- */
  
@@ -647,11 +618,11 @@ namespace Likelihood {
 
      /* ---------------- Stuff for weighted likelihood --------------- */
      
-     /// Weights map.  Null ptr -> don't use weights 
-     const ProjMap* m_weightMap;
+     /// Weights map.  Null ptr -> don't use weights.
+     const ProjMap* m_weightMap_orig;
      
-     /// Weights map reprojected into counts map binning
-     SourceMap* m_weightSrcMap;
+     /// Weights map reprojected into counts map binning.  Null ptr -> don't use weights 
+     WeightMap* m_weightMap;
      
      /// Map of the weighted counts
      CountsMapBase* m_weightedCounts;
@@ -661,11 +632,7 @@ namespace Likelihood {
 
      /// List of fixed sources
      std::vector<std::string> m_fixedSources;   
-
-     /// Map of model parameters, to be used to determine if fixed
-     /// sources have changed parameter values.
-     std::map<std::string, std::vector<double> > m_modelPars;
-     
+    
      /// Summed npred values at each energy boundary value for fixed sources.
      /// The npreds are model evaluated at the energy bin edges summed over all pixels
      /// without the spectrum.  This vector has the size of m_energies.size()
@@ -679,12 +646,6 @@ namespace Likelihood {
      /// This vector has the size of m_energies.size() - 1
      mutable std::vector<double> m_fixed_counts_spec;
   
-     /// Maps of Npreds for fixed sources, keyed by source name
-     /// In this case the Npred is the total count for that source
-     /// summed over all energy bins and pixels
-     std::map<std::string, double> m_fixedModelNpreds;         //! Npreds 
-     std::map<std::string, double> m_fixedModelWeightedNpreds; //! Weights NPreds 
-
      /// Flag to allow updating of Fixed model weights
      bool m_updateFixedWeights;
 
