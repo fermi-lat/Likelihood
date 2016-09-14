@@ -4,7 +4,7 @@
  *        FFTW library
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/Convolve.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Convolve.cxx,v 1.6 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <iostream>
@@ -46,6 +46,7 @@ namespace {
       }
       fftw_complex * output;
       output = (fftw_complex *) fftw_malloc(sizeof(fftw_complex)*nx*ny);
+
       if (fill) {
          for (size_t i = 0; i < nx*ny; i++) {
             output[i][0] = 0;
@@ -90,6 +91,7 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
 
    size_t nx = signal.at(0).size();
    size_t ny = signal.size();
+
 // pad out the signal array so that it is n x n
    if (nx < ny) {
       nx = ny;
@@ -105,22 +107,31 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
    fftw_plan splan = fftw_plan_dft_2d(nx, ny, in, out,
                                       FFTW_FORWARD, FFTW_ESTIMATE);
    fftw_execute(splan);
+   fftw_destroy_plan(splan);
+   fftw_free(in);
 
    fftw_complex * ipsf = ::complexArray(psf, true, nx, ny);
    fftw_complex * opsf = ::complexArray(psf, false, nx, ny);
    fftw_plan pplan = fftw_plan_dft_2d(nx, ny, ipsf, opsf,
                                       FFTW_FORWARD, FFTW_ESTIMATE);
    fftw_execute(pplan);
+   fftw_destroy_plan(pplan);
+   fftw_free(ipsf);
 
    fftw_complex * iconv = ::complexArray(signal, false, nx, ny);
-   fftw_complex * oconv = ::complexArray(signal, false, nx, ny);
    for (size_t i = 0; i < npts; i++) {
       iconv[i][0] = out[i][0]*opsf[i][0] - out[i][1]*opsf[i][1];
       iconv[i][1] = out[i][0]*opsf[i][1] + out[i][1]*opsf[i][0];
    }
+   fftw_free(out);
+   fftw_free(opsf);
+
+   fftw_complex * oconv = ::complexArray(signal, false, nx, ny);
    fftw_plan cplan = fftw_plan_dft_2d(nx, ny, iconv, oconv,
                                       FFTW_BACKWARD, FFTW_ESTIMATE);
    fftw_execute(cplan);
+   fftw_destroy_plan(cplan);
+   fftw_free(iconv);
 
    size_t indx;
    std::vector< std::vector<double> > output;
@@ -151,15 +162,6 @@ Convolve::convolve2d(const std::vector< std::vector<double> > & signal,
       output.push_back(local);
    }
 
-   fftw_destroy_plan(splan);
-   fftw_destroy_plan(pplan);
-   fftw_destroy_plan(cplan);
-
-   fftw_free(in);
-   fftw_free(out);
-   fftw_free(ipsf);
-   fftw_free(opsf);
-   fftw_free(iconv);
    fftw_free(oconv);
 
    return ::subArray(output, signal);
