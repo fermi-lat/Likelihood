@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/WcsMap2.h,v 1.10 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap2.h,v 1.11 2016/01/29 22:31:32 mdwood Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -52,7 +52,7 @@ public:
 
    virtual ~WcsMap2();
 
-   WcsMap2(const WcsMap2 &);
+   WcsMap2(const WcsMap2 &, bool copy_image = true);
 
    WcsMap2(const WcsMap2 &, const double & energy,
 	   const std::vector< std::vector<float> >& image);

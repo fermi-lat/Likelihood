@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.25 2016/01/29 22:31:33 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.26 2016/08/02 22:31:39 echarles Exp $
  */
 
 #include <cmath>
@@ -276,9 +276,9 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
 
 WcsMap2::~WcsMap2(){}
 
-WcsMap2::WcsMap2(const WcsMap2 & rhs) 
+WcsMap2::WcsMap2(const WcsMap2 & rhs, bool copy_image) 
   :  ProjMap(rhs),
-     m_image(rhs.m_image), 
+     m_image(copy_image ? rhs.m_image : std::vector<ImagePlane_t>()), 
      m_solidAngles(rhs.m_solidAngles),
      m_naxes(rhs.m_naxes),
      m_naxis1(rhs.m_naxis1),
@@ -458,8 +458,7 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
       }
    }
    // EAC_FIX, should we be working about the energies and map integrals also?
-   WcsMap2* my_image = new WcsMap2(*this);
-   my_image->m_image.clear();
+   WcsMap2* my_image = new WcsMap2(*this,false);
 
    if (!performConvolution) {
       my_image->m_image.push_back(counts);
