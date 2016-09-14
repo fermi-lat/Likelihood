@@ -6,11 +6,11 @@
  *  This file contains a number of functions useful for PSF Integration and convolution.
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FitUtils.h,v 1.14 2016/07/11 23:44:04 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PSFUtils.h,v 1.1 2016/09/09 21:21:02 echarles Exp $
  */
 
 #ifndef Likelihood_PSFUtils_h
-#define Likelihood_PSFutils_h
+#define Likelihood_PSFUtils_h
 
 #include <vector>
 #include "healpix_map.h"
