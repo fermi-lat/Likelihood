@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.588 2016/09/09 23:41:37 echarles Exp $
+    $Id: release.notes,v 1.589 2016/09/14 20:12:16 echarles Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-08-01 14-Sep-2016 echarles Improve memory manangment in Convolve::convolve2d
  Likelihood-20-08-00 14-Sep-2016 echarles Finish refactoring BinnedLikelihood.
  Likelihood-20-07-02 09-Sep-2016 echarles Added Matt and I as authors to SConscript
  Likelihood-20-07-01 09-Sep-2016 echarles Fixed complitation issues with enum in BinnedConfig
