@@ -3,7 +3,7 @@
  * @brief Functions to  deal with PSF Integration and convolution
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.22 2016/07/11 23:44:01 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.1 2016/09/09 21:21:03 echarles Exp $
  */
 
 #include "Likelihood/PSFUtils.h"
@@ -284,7 +284,7 @@ namespace Likelihood {
       // If the diffuse source is represented by an underlying map, then
       // rebin according to the minimum bin size.
       try {
-	const MapBase & tmp = *diffuseSrc.mapBaseObject();
+	MapBase & tmp = const_cast<MapBase &>(*diffuseSrc.mapBaseObject());
 	double pixSize = tmp.projmap().pixelSize();
 	if ( pixSize < config.minbinsz() ) {
 	  unsigned int factor = static_cast<unsigned int>( config.minbinsz()/pixSize);
@@ -466,7 +466,7 @@ namespace Likelihood {
       // If the diffuse source is represented by an underlying map, then
       // rebin according to the minimum bin size.
       try {
-	const MapBase & tmp = *diffuseSrc.mapBaseObject();
+	MapBase & tmp = const_cast<MapBase&>(*diffuseSrc.mapBaseObject());
 	double pixSize = tmp.projmap().pixelSize();
 	if ( pixSize < config.minbinsz() ) {   
 	  unsigned int factor = static_cast<unsigned int>(config.minbinsz()/pixSize);
@@ -559,7 +559,7 @@ namespace Likelihood {
       // rebin according to the minimum bin size.
       std::string nativeProj("STG");
       try {
-	const MapBase & tmp = *diffuseSrc.mapBaseObject();
+	MapBase & tmp = const_cast<MapBase&>(*diffuseSrc.mapBaseObject());
 	nativeProj = tmp.projmap().getProj()->projType();
 	double pixSize = tmp.projmap().pixelSize();
 	if ( pixSize < config.minbinsz() ) {
@@ -756,7 +756,19 @@ namespace Likelihood {
       const std::vector<Pixel> & pixels(dataMap.pixels());
       std::vector<double> energies;
       dataMap.getEnergies(energies);
-      
+
+      bool compute_null_count(false);
+      size_t null_count(0);
+      std::vector<double> max_sep;
+      if ( compute_null_count ) {
+	max_sep.resize(energies.size(),0);
+	std::vector<double>::iterator itr_sep = max_sep.begin();
+	for ( std::vector<double>::const_iterator itr_eng = energies.begin(); 
+	      itr_eng != energies.end(); itr_eng++, itr_sep++ ) {
+	  (*itr_sep) = solve_for_containment(meanpsf,*itr_eng);
+	}
+      }
+
       long npts = energies.size()*pixels.size();
       modelmap.resize(npts, 0);
       
@@ -814,7 +826,12 @@ namespace Likelihood {
             if (config.verbose() && (icount % (npts/20)) == 0) {
 	      formatter.warn() << ".";
             }
-            double offset(dir.difference(pixel->dir())*180./M_PI);
+	    if ( compute_null_count ) {
+	      double offset(dir.difference(pixel->dir())*180./M_PI);
+	      if ( offset > max_sep[k] ) {
+		null_count++;
+	      }
+	    }
             double psf_value(psfValueEstimate(meanpsf, energies.at(k), 
                                               dir, *pixel, srcCoord,
 					      pixCoords[j],pixelOffsets,ref_pixel_size,config));
@@ -854,6 +871,11 @@ namespace Likelihood {
             modelmap.at(indx) = exposure.at(k);
 	  }
 	}
+      }
+
+      if ( compute_null_count ) {
+	float null_frac = (float)null_count/(float)npts;
+	std::cout << "Null fraction " << null_frac << std::endl;
       }
       return 0;
     }
@@ -1086,6 +1108,42 @@ namespace Likelihood {
       }
       return psf_value/static_cast<double>(npts*npts);
     }
+
+
+    double solve_for_containment(const MeanPsf & meanPsf, 
+				 double energy, 
+				 double init_val,
+				 double remain,
+				 double tol) {
+      double ang = init_val;
+      double yval = 1. - meanPsf.integral(ang,energy);
+ 
+      double delta = std::max(0.1*init_val,1.);
+      
+      static const size_t max_iter(100);
+      size_t i(0);
+      while (i<max_iter) {
+	
+        double ang_next = std::max(ang + delta,ang/2.);
+        double y_next = 1. - meanPsf.integral(ang_next,energy);
+
+	double ang_step = ang_next - ang;
+	double slope = (y_next - yval) / ang_step;
+        double del_y =  remain - y_next;
+	delta = del_y / slope;
+
+	if ( std::fabs(del_y) < tol ) { 
+	  return ang_next;
+	}
+        
+	ang = ang_next;;
+	yval = y_next;
+	i++;
+      }
+
+      return -1;
+    }
+
 
   } // namespace PSFUtils
  

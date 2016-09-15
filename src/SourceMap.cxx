@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.123 2016/09/13 19:26:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.124 2016/09/14 20:11:02 echarles Exp $
  */
 
 #include <cmath>
@@ -62,7 +62,8 @@ SourceMap::SourceMap(const Source& src,
                      const Observation & observation, 
                      const PsfIntegConfig & psf_config,
 		     const Drm* drm,
-		     const WeightMap* weights)
+		     const WeightMap* weights,
+		     bool save_model)
    : m_src(&src), 
      m_name(src.getName()),
      m_srcType(src.getType()),
@@ -73,6 +74,7 @@ SourceMap::SourceMap(const Source& src,
      m_psf_config(psf_config),
      m_drm(drm),
      m_weights(weights),
+     m_save_model(save_model),
      m_drm_cache(0) {
    
    int status = make_model();
@@ -87,7 +89,8 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
 		     const CountsMapBase * dataMap,
 		     const Observation & observation,
 		     const WeightMap* weights,
-		     const Drm* drm) 
+		     const Drm* drm,
+		     bool save_model) 
   : m_src(&src),
     m_name(src.getName()),
     m_dataMap(dataMap),
@@ -95,6 +98,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_meanPsf(0),
     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
     m_weights(weights),
+    m_save_model(save_model),
     m_drm(drm),
     m_psf_config(),
     m_drm_cache(0) {
@@ -170,40 +174,6 @@ void SourceMap::computeNpredArray() {
    }
 }
 
-void SourceMap::makeProjectedMap(const ProjMap& weight_map, bool& extrapolated) {
-   const std::vector<Pixel> & pixels(m_dataMap->pixels());
-   std::vector<double> energy_edges;
-   m_dataMap->getEnergies(energy_edges);
-
-   std::vector<double> energies(energy_edges.size()-1,0.);
-   for ( size_t ie(0); ie < energies.size(); ie++ ) {
-     energies[ie] = sqrt(energy_edges[ie]*energy_edges[ie+1]);
-   }
-
-   m_model.resize(energies.size()*pixels.size());
-   std::vector<Pixel>::const_iterator pixel(pixels.begin());
-   extrapolated = false;
-   for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
-     bool in_map = weight_map.insideMap(pixel->dir());
-     for (size_t k(0); k < energies.size(); k++) {      
-       size_t indx(k*pixels.size() + j);
-       if ( in_map ){
-	 try {	   
-	   m_model.at(indx) = weight_map.operator()(pixel->dir(),
-						    energies[k]);
-	 } catch (...) {
-	   // Outside of energy bounds, set weight to 1.0 (FIXME, agree on convention)
-	   m_model.at(indx) = 1.0;
-	   extrapolated = true;
-	 }	 
-       } else {
-	 // Outside of map, set weight to 1.0 (FIXME, agree on convention)
-	 m_model.at(indx) = 1.0;
-	 extrapolated = true;
-       }
-     }
-   }
- }    
 
 void SourceMap::applyPhasedExposureMap() {
    if (!m_observation.have_phased_expmap()) {

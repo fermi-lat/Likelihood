@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.64 2016/09/13 19:26:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.65 2016/09/14 20:11:01 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -64,13 +64,16 @@ public:
       psf_config    : Object with PSF integration parameters
       drm           : The detector response matrix, NULL if energy dispersion is off for this source.
       weights       : A weights map, for weighted likelihood analysis.  Null -> no weighting.
+      save_model    : Flag to indicate that we should save the model (e.g., when the source is fixed)
+                      This avoid reload the model map if the source is subsequently freed.
     */
    SourceMap(const Source& src, 
 	     const CountsMapBase * dataMap,
              const Observation & observation,
 	     const PsfIntegConfig & psf_config, 
 	     const Drm* drm = 0,
-	     const WeightMap* weights = 0);
+	     const WeightMap* weights = 0,
+	     bool save_model = false);
 
 
    /* C'tor to re-read this from a file
@@ -81,13 +84,16 @@ public:
       observation   : Object with data about the observation
       weights       : A weights map, for weighted likelihood analysis.  Null -> no weighting.
       drm           : The detector response matrix, NULL if energy dispersion is off for this source.
-    */
+      save_model    : Flag to indicate that we should save the model (e.g., when the source is fixed)
+                      This avoid reload the model map if the source is subsequently freed.
+   */
    SourceMap(const std::string & sourceMapsFile,
              const Source & src,
 	     const CountsMapBase * dataMap,
 	     const Observation & observation,
 	     const WeightMap* weights = 0,
-	     const Drm* drm = 0);
+	     const Drm* drm = 0,
+	     bool save_model = false);
 
    /* d'tor, does clean up */
    ~SourceMap();
@@ -112,6 +118,8 @@ public:
    /* The weights for the weighted log-likelihood.  Null-> no weights */
    inline const WeightMap* weights() const { return m_weights; } 
 
+   /* Flag to indicat that we should save the model */
+   inline bool save_model() const { return m_save_model; }
 
    /* --------------- Class Methods ----------------------*/
 
@@ -119,8 +127,10 @@ public:
       This is useful for dealing with fixed sources, as it frees
       up a lot of memory.       
    */
-   void clear_model() {
-     m_model.clear();
+   void clear_model(bool force=false) {
+     if ( force || !m_save_model ) {
+       m_model.clear();
+     }
    }      
 
    /* Extract a vector of spectral normalization values from a Source object
@@ -206,6 +216,9 @@ public:
    /// Explicitly set the weights data
    void setWeights(const WeightMap* weights);
 
+   /// Explicity set the flag to save the model
+   inline void setSaveModel(bool val) { m_save_model = val; }
+
    /// Set the filename (e.g., b/c we are writing the source map)
    inline void setFilename(const std::string& filename) { m_filename = filename; }
 
@@ -227,13 +240,6 @@ private:
 
    /* Compute the NPreds */
    void computeNpredArray();
-
-   /* Fill this by projecting a weight map into the counts map frame 
-      
-      If any of the counts map pixels or energies are outside the weight_map
-      they will be set to one and extrapolated will be set to true.
-    */
-   void makeProjectedMap(const ProjMap& weight_map, bool& extrapolated);
 
    /* Adjust the source map for a phased exposure correction       
       This is just multiplying the source map by the phased exposure map projected into the counts map frame
@@ -276,6 +282,9 @@ private:
 
    /// A weights map, for weighted likelihood analysis.  Null -> no weighting.   
    const WeightMap* m_weights;
+
+   /// Flag to indicate that we should save the model
+   bool m_save_model;
 
    /// This is the 'source map' data. 
    /// It is not the counts map, but rather the coefficients
