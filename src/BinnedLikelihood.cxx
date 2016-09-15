@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.123 2016/09/13 19:26:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.124 2016/09/14 20:11:02 echarles Exp $
  */
 
 #include <cmath>
@@ -448,24 +448,27 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     // Check to see if we already have the map
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
     if ( itrFind != m_srcMaps.end() ) return itrFind->second;
+
+    Drm* the_drm (0);
+    if ( use_edisp(srcName) ) {
+      BinnedLikelihood* nct = const_cast<BinnedLikelihood*>(this);
+      the_drm = &(nct->drm());
+    }
  
     // Check to see if the source map is in the file  
     Source * src = (const_cast<BinnedLikelihood *>(this))->getSource(srcName);
 
     if (fileHasSourceMap(srcName, m_srcMapsFile)) {
-      return new SourceMap(m_srcMapsFile, *src, &m_dataMap, m_observation, m_weightMap);
+      return new SourceMap(m_srcMapsFile, *src, &m_dataMap, 
+			   m_observation, m_weightMap, the_drm, m_config.save_all_srcmaps());
     }
   
     // Generate the source map    
     if (src->getType() == "Diffuse" || m_config.computePointSources() ) {
-      Drm* the_drm (0);
-      if ( use_edisp(srcName) ) {
-	BinnedLikelihood* nct = const_cast<BinnedLikelihood*>(this);
-	the_drm = &(nct->drm());
-      }
       return new SourceMap(*src, &m_dataMap, m_observation,
 			   m_config.psf_integ_config(),
-			   the_drm,m_weightMap);
+			   the_drm,m_weightMap,
+			   m_config.save_all_srcmaps());
     }
     return 0;
   }
@@ -473,7 +476,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
   SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
     Source * src = getSource(srcName);
-    return new SourceMap(*src, &m_dataMap, m_observation, m_config.psf_integ_config(), m_drm, m_weightMap);
+    return new SourceMap(*src, &m_dataMap, m_observation, m_config.psf_integ_config(), 
+			 m_drm, m_weightMap, m_config.save_all_srcmaps() );
   }
 
   void BinnedLikelihood::eraseSourceMap(const std::string & srcName) {
@@ -612,7 +616,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
-    for (size_t i(0); i < srcNames.size(); i++) {
+     for (size_t i(0); i < srcNames.size(); i++) {
       npred += NpredValue(srcNames[i],weighted);
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
 		     srcNames.at(i)) == 0) {
@@ -1146,34 +1150,44 @@ void BinnedLikelihood::computeCountsSpectrum() {
 
 void BinnedLikelihood::computeCountsSpectrum_wcs() {
   m_countsSpectrum.clear();
+  m_countsSpectrum_wt.clear();
   size_t nx(m_dataMap.imageDimension(0));
   size_t ny(m_dataMap.imageDimension(1));
   size_t nz(m_dataMap.imageDimension(2));
   size_t indx(0);
   for (size_t k = 0; k < nz; k++) {
     double ntot(0);
+    double ntot_wt(0);
     for (size_t j = 0; j < ny; j++) {
       for (size_t i = 0; i < nx; i++) {
-	ntot += m_dataMap.data().at(indx);
+	float addend = m_dataMap.data().at(indx);
+	ntot += addend;
+	ntot_wt += m_weightedCounts != 0 ? m_weightedCounts->data().at(indx) : addend;
 	indx++;
       }
     }
     m_countsSpectrum.push_back(ntot);
+    m_countsSpectrum_wt.push_back(ntot_wt);
   }
 }
 
 void BinnedLikelihood::computeCountsSpectrum_healpix() {
   m_countsSpectrum.clear();
+  m_countsSpectrum_wt.clear();
   size_t nx(m_dataMap.imageDimension(0));
   size_t ny(m_dataMap.imageDimension(1));
   size_t indx(0);
   for (size_t k = 0; k < ny; k++) {
     double ntot(0);
+    double ntot_wt(0);
     for (size_t i = 0; i < nx; i++) {
-      ntot += m_dataMap.data().at(indx);
+      float addend = m_dataMap.data().at(indx);
+      ntot += addend;
+      ntot_wt += m_weightedCounts != 0 ? m_weightedCounts->data().at(indx) : addend;
       indx++;
     }
     m_countsSpectrum.push_back(ntot);
+    m_countsSpectrum_wt.push_back(ntot_wt);
   }
 }
 

@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.87 2016/09/13 19:26:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.88 2016/09/14 20:11:01 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -127,7 +127,9 @@ namespace Likelihood {
      }
 
      /// Return the observed counts spectrum
-     inline const std::vector<double> & countsSpectrum() const { return m_countsSpectrum; }
+     inline const std::vector<double> & countsSpectrum(bool weighted=false) const { 
+       return weighted ? m_countsSpectrum_wt : m_countsSpectrum; }
+     
 
      /// Return the weights in their original projection
      inline const ProjMap* weightMap_orig() const { return m_weightMap_orig; }
@@ -166,7 +168,7 @@ namespace Likelihood {
        m_modelIsCurrent = false;
        m_kmin = kmin;
        m_kmax = kmax;
-       buildFixedModelWts();
+       // buildFixedModelWts();
      }
      
      /// Turn on verbose mode
@@ -598,6 +600,10 @@ namespace Likelihood {
      /// The observed counts spectrum.  
      /// I.e., the data summed of the ROI for each energy bin
      std::vector<double> m_countsSpectrum;
+
+     /// The weighted observed counts spectrum.  
+     /// I.e., the data summed of the ROI for each energy bin
+     std::vector<double> m_countsSpectrum_wt;
 
      /// These are the indices of the pixels with counts     
      /// This is used to speed up the evaluation of the log-likelihood
