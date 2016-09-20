@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.124 2016/09/14 20:11:02 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.125 2016/09/15 21:25:52 echarles Exp $
  */
 
 #include <cmath>
@@ -193,6 +193,17 @@ void SourceMap::applyPhasedExposureMap() {
    }
 }
 
+void SourceMap::setSource(const Source& src) {
+  if ( m_src == &src ) {
+    return;
+  }
+  m_src = &src;
+  m_specVals.clear();
+  m_modelPars.clear();
+  m_derivs.clear();
+  m_npreds.clear();
+  m_npred_weights.clear();  
+}
 
 void SourceMap::setSpectralValues(const std::vector<double>& energies) {
   if ( m_src == 0 ) return;
