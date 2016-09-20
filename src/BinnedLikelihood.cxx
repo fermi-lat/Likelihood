@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.124 2016/09/14 20:11:02 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.125 2016/09/15 21:25:52 echarles Exp $
  */
 
 #include <cmath>
@@ -445,9 +445,15 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName, 
 					     bool verbose) const {
   
+    // Check to see if the source map is in the file  
+    Source * src = (const_cast<BinnedLikelihood *>(this))->getSource(srcName);
+
     // Check to see if we already have the map
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
-    if ( itrFind != m_srcMaps.end() ) return itrFind->second;
+    if ( itrFind != m_srcMaps.end() ) {
+      itrFind->second->setSource(*src);
+      return itrFind->second;
+    }
 
     Drm* the_drm (0);
     if ( use_edisp(srcName) ) {
@@ -455,9 +461,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       the_drm = &(nct->drm());
     }
  
-    // Check to see if the source map is in the file  
-    Source * src = (const_cast<BinnedLikelihood *>(this))->getSource(srcName);
-
     if (fileHasSourceMap(srcName, m_srcMapsFile)) {
       return new SourceMap(m_srcMapsFile, *src, &m_dataMap, 
 			   m_observation, m_weightMap, the_drm, m_config.save_all_srcmaps());
