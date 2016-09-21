@@ -3,7 +3,7 @@
  * @brief Declaration for the SpatialFunction Function class
  * @author M. Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialFunction.h,v 1.1 2015/10/17 17:19:14 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SpatialFunction.h,v 1.2 2015/12/03 23:47:44 mdwood Exp $
  *
  */
 
@@ -152,6 +152,10 @@ public:
    /// Set the Parameters from a Function DOM_Element.
    virtual void setParams(const DOMElement * elt);
 #endif // SWIG
+
+
+   virtual double mapRadius() const = 0;
+
 
 protected:
 

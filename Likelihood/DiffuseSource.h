@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/DiffuseSource.h,v 1.4 2015/03/05 19:58:24 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.54 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -188,12 +188,24 @@ public:
 
    bool mapBasedIntegral() const;
 
+   double mapRadius() const;
+
+
+
+protected:
+
+   double computeMapRadius() const;
+ 
+
 private:
 
    /// spatial model
    optimizers::Function * m_spatialDist;
 
    bool m_mapBasedIntegral;
+
+   /// Cache the value of the map radius, as it is kinda a pain to compute
+   mutable double m_mapRadius;
 
    template<typename Functor>
    double computeEnergyIntegral(const Functor & func, 

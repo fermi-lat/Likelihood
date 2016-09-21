@@ -3,7 +3,7 @@
  * @brief Declaration for the RadialDisk Function class
  * @author M. Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/RadialDisk.h,v 1.3 2016/01/27 02:48:07 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RadialDisk.h,v 1.1 2016/04/30 00:41:38 mdwood Exp $
  *
  */
 
@@ -75,6 +75,12 @@ public:
 
    static double convolve(const ResponseFunctor& fn, double energy, double separation,
 			  double sigma, double tol = 0.0001);
+
+
+   virtual double mapRadius() const {
+     return m_radius;
+   }
+
 
 #ifndef SWIG
    /**
