@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.67 2016/04/30 00:41:43 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.68 2016/09/09 21:11:53 echarles Exp $
  */
 
 #include <algorithm>
@@ -18,6 +18,7 @@
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/MapBase.h"
 #include "Likelihood/RadialProfile.h"
+#include "Likelihood/SpatialFunction.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/ProjMap.h"
 #include "Likelihood/WcsMap2.h"
@@ -31,7 +32,8 @@ DiffuseSource::DiffuseSource(optimizers::Function * spatialDist,
                              bool mapBasedIntegral)
    : Source(&observation), 
      m_spatialDist(spatialDist->clone()),
-     m_mapBasedIntegral(mapBasedIntegral) {
+     m_mapBasedIntegral(mapBasedIntegral),
+     m_mapRadius(-1.){
    m_functions["SpatialDist"] = m_spatialDist;
 //   m_useEdisp = observation.respFuncs().useEdisp();
 
@@ -89,7 +91,8 @@ void DiffuseSource::computeExposure(const std::vector<double> & energies,
 DiffuseSource::DiffuseSource(const DiffuseSource & rhs) 
    : Source(rhs),
      m_spatialDist(rhs.m_spatialDist->clone()),
-     m_mapBasedIntegral(rhs.m_mapBasedIntegral) {
+     m_mapBasedIntegral(rhs.m_mapBasedIntegral),
+     m_mapRadius(rhs.m_mapRadius){
    m_functions["SpatialDist"] = m_spatialDist;
    m_functions["Spectrum"] = m_spectrum;
 }
@@ -307,6 +310,37 @@ double DiffuseSource::diffuseResponse_wcs(const Event & evt, const WcsMap2& wcsm
 bool DiffuseSource::mapBasedIntegral() const {
    return m_mapBasedIntegral;
 }
+
+
+double DiffuseSource::mapRadius() const {
+  if ( m_mapRadius < 0. ) {
+    m_mapRadius = computeMapRadius();
+  }
+  return m_mapRadius;
+}
+
+
+double DiffuseSource::computeMapRadius() const {
+  if (spatialDist()->genericName() == "ConstantValue") { 
+    return 180.;
+  } else if ( spatialDist()->genericName() == "RadialGaussian" ||
+	      spatialDist()->genericName() == "RadialDisk" ) {    
+    const SpatialFunction* sf = dynamic_cast<const SpatialFunction*>(m_spatialDist);
+    if ( sf == 0 ) {
+      throw std::runtime_error("DiffuseSource::computeMapRadius: could not cast SpatialFunction");
+    } 
+    return sf->mapRadius();
+  } else if (  spatialDist()->genericName() == "RadialProfile" ) {
+    const RadialProfile* rp = dynamic_cast<const RadialProfile*>(m_spatialDist);
+    if ( rp == 0 ) {
+      throw std::runtime_error("DiffuseSource::computeMapRadius: could not cast RadialProfile");
+    } 
+    return rp->mapRadius();
+  }
+  const MapBase* mb = mapBaseObject();
+  return mb->projmap().mapRadius()*180./M_PI;
+}
+
 
 double DiffuseSource::psfRange(double energy) const {
    static double min_angle(5.*M_PI/180.);
