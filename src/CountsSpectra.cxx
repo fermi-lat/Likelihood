@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/CountsSpectra.cxx,v 1.12 2011/10/20 18:22:08 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.13 2012/03/21 19:20:09 jchiang Exp $
  */
 
 #include <cmath>
@@ -17,7 +17,6 @@
 #include "Likelihood/CountsSpectra.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/Source.h"
-#include "Likelihood/SourceMap.h"
 
 namespace Likelihood {
 
