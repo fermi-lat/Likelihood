@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.49 2016/03/30 23:06:54 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.50 2016/07/27 19:27:27 echarles Exp $
  */
 
 #include <cstdlib>
@@ -40,6 +40,7 @@
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
+#include "Likelihood/BinnedExposureBase.h"
 #include "Likelihood/ExposureCube.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/ProjMap.h"
