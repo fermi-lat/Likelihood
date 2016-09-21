@@ -3,7 +3,7 @@
  * @brief Functions to getting data to and from FITS files
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.1 2016/09/09 21:21:03 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.1 2016/09/14 20:10:08 echarles Exp $
  */
 
 #include <memory>
@@ -12,6 +12,7 @@
 
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
+#include "tip/IColumn.h"
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/CountsMapHealpix.h"
@@ -67,6 +68,83 @@ namespace Likelihood {
       return 0;
     }
 
+    int read_healpix_table_to_float_map(const std::string& filename, 
+					const std::string& extension,
+					std::map<size_t,float>& theMap) {
+      theMap.clear();
+      std::auto_ptr<const tip::Table> 
+	table(tip::IFileSvc::instance().readTable(filename,extension));
+      
+      // There are two columns: key and value
+      tip::FieldIndex_t key_field = table->getFieldIndex("KEY");
+      tip::FieldIndex_t val_field = table->getFieldIndex("VALUE");
+      const tip::IColumn* key_col = table->getColumn(key_field);
+      const tip::IColumn* val_col = table->getColumn(val_field);
+
+      tip::Index_t nrow = table->getNumRecords();
+      size_t key_val(0);
+      double val_val(0.);
+      for ( tip::Index_t irow(0); irow < nrow; irow++) {
+	key_col->get(irow,key_val);
+	val_col->get(irow,val_val);
+	theMap[key_val] = val_val;
+      }
+
+      return 0;
+    }
+
+
+    SrcMapType get_src_map_type(const std::string& filename, 
+				const std::string& extension) {
+
+      try {
+	std::auto_ptr<const tip::Image>
+	image(tip::IFileSvc::instance().readImage(filename,extension));
+	// It's a WCS Image
+	return FileUtils::WCS;
+      } catch (tip::TipException &) {
+	;
+      }
+
+      std::auto_ptr<const tip::Table> 
+	table(tip::IFileSvc::instance().readTable(filename,extension));
+
+      const tip::Header& header = table->getHeader();     
+      std::string indxschm;
+      std::string pixtype; 
+      try {
+	header["INDXSCHM"].get(indxschm);
+	header["PIXTYPE"].get(pixtype);
+      } catch (tip::TipException &) {
+	// NOT a HEALPIX map
+	return FileUtils::Unknown;
+      }	 
+      if ( pixtype != "HEALPIX" ) {
+	// NOT a HEALPIX map
+	return FileUtils::Unknown;
+      }
+      if ( indxschm == "IMPLICIT" ) {
+	// All-sky HEALPIX map	
+	return FileUtils::HPX_AllSky;
+      }
+      try {
+	tip::FieldIndex_t col_idx = table->getFieldIndex("KEY");
+	// Sparse HEALPIX map
+	return FileUtils::HPX_Sparse;
+      } catch (tip::TipException &) {
+	;
+      }	 
+      try {
+	tip::FieldIndex_t col_idx = table->getFieldIndex("PIX");
+	// Partial-sky HEALPIX map
+	return FileUtils::HPX_Partial;
+      } catch (tip::TipException &) {
+	;
+      }	 
+      return FileUtils::Unknown;
+    }
+
+  
 
     int replace_image_from_float_vector(const std::string& filename, 
 					const std::string& extension,
@@ -118,7 +196,6 @@ namespace Likelihood {
       long nEBins = dataMap.energies().size();
       if ( ! is_src_map ) { 
 	nEBins -= 1;
-	header["NAXIS2"].set(nEBins);
       }
    
       if ( !dataMap.allSky() ) {
@@ -128,8 +205,14 @@ namespace Likelihood {
 	header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
 	header["MAPSIZE"].set(dataMap.mapRadius());     
 	std::string pixname("PIX");
-	table->appendField(pixname, std::string("J"));
-	tip::IColumn* col = table->getColumn(table->getFieldIndex(pixname));
+	tip::FieldIndex_t col_idx(-1);
+	try {
+	  col_idx = table->getFieldIndex(pixname);
+	} catch (tip::TipException &) {
+	  table->appendField(pixname, std::string("J"));
+	  col_idx = table->getFieldIndex(pixname);
+	}	  
+	tip::IColumn* col = table->getColumn(col_idx);
 	int writeValue(-1);
 	for(int iloc(0); iloc < dataMap.nPixels(); iloc++ ) {
 	  writeValue = dataMap.localToGlobalIndex(iloc);
@@ -143,11 +226,13 @@ namespace Likelihood {
 	std::ostringstream e_channel;
 	e_channel<<"CHANNEL"<<e_index+1;
 	// Check to see if the column already exist
-	tip::FieldIndex_t col_idx = table->getFieldIndex(e_channel.str());
-	if ( col_idx < 0 ) {
+	tip::FieldIndex_t col_idx(-1);
+	try {
+	  col_idx = table->getFieldIndex(e_channel.str());
+	} catch (tip::TipException &) {
 	  table->appendField(e_channel.str(), std::string("D"));
 	  col_idx = table->getFieldIndex(e_channel.str());
-	}
+	}	
 	tip::IColumn* col = table->getColumn(col_idx);
 	for(long hpx_index = 0; hpx_index != nPix; ++hpx_index, idx++) {
 	  writeValue = double(imageData[idx]);
@@ -156,7 +241,53 @@ namespace Likelihood {
       }
       return 0;
     }
-    
+
+
+    int replace_image_from_float_map_healpix(const std::string& filename, 
+					     const std::string& extension,
+					     const CountsMapHealpix& dataMap,
+					     const std::map<size_t,float>& imageData,
+					     bool is_src_map) {
+      std::auto_ptr<tip::Table> 
+	table(tip::IFileSvc::instance().editTable(filename, extension));
+      tip::Header& header = table->getHeader();
+      dataMap.setKeywords(header);
+      long nPix = dataMap.imageDimension(0);
+      long nEBins = dataMap.energies().size();
+      if ( ! is_src_map ) { 
+	nEBins -= 1;
+      }
+   
+      header["INDXSCHM"].set("EXPLICIT");
+      header["REFDIR1"].set(dataMap.isGalactic() ? dataMap.refDir().l() :  dataMap.refDir().ra() );
+      header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
+
+      tip::FieldIndex_t key_idx(-1);
+      try {
+	key_idx = table->getFieldIndex("KEY");
+      } catch (tip::TipException &) {
+	table->appendField("KEY", std::string("J"));
+	key_idx = table->getFieldIndex("KEY");
+      }	   
+      tip::IColumn* key_col = table->getColumn(key_idx);
+      tip::FieldIndex_t val_idx(-1);
+      try {
+	val_idx = table->getFieldIndex("VALUE");
+      } catch (tip::TipException &) {
+	table->appendField("VALUE", std::string("D"));
+	val_idx = table->getFieldIndex("VALUE");
+      }	   
+      tip::IColumn* val_col = table->getColumn(val_idx);
+
+      int idx(0);
+      for ( std::map<size_t,float>::const_iterator itr = imageData.begin(); 
+	    itr != imageData.end(); itr++, idx++ ) {
+	key_col->set(idx,itr->first);
+	val_col->set(idx,itr->second);
+      }
+      return 0;
+    }
+
     int append_image_from_float_vector(const std::string& filename, 
 				       const std::string& extension,
 				       const CountsMapBase& dataMap,
@@ -207,6 +338,17 @@ namespace Likelihood {
       tip::IFileSvc::instance().appendTable(filename,extension);
       int status = FileUtils::replace_image_from_float_vector_healpix(filename,extension,
 								      dataMap,imageData,is_src_map);
+      return status;
+    }
+
+    int append_image_from_float_map_healpix(const std::string& filename, 
+					    const std::string& extension,
+					    const CountsMapHealpix& dataMap,
+					    const std::map<size_t,float>& imageData,
+					    bool is_src_map) {
+      tip::IFileSvc::instance().appendTable(filename,extension);
+      int status = FileUtils::replace_image_from_float_map_healpix(filename,extension,
+								   dataMap,imageData,is_src_map);
       return status;
     }
 
