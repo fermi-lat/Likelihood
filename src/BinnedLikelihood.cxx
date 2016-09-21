@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.125 2016/09/15 21:25:52 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.126 2016/09/20 20:51:42 echarles Exp $
  */
 
 #include <cmath>
@@ -258,13 +258,12 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	std::string srcName = src->getName();
 	SourceMap & srcMap = sourceMap(srcName);
 	
-	const std::vector<float> & model = srcMap.model();
 	const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
 
 	for (size_t i(0); i < specDerivs.size(); i++, iparam++) {
 	  double my_deriv = pixelCounts(emin,emax,
-					model.at(jmin)*specDerivs[i][k],
-					model.at(jmax)*specDerivs[i][k+1],
+					srcMap[jmin]*specDerivs[i][k],
+					srcMap[jmax]*specDerivs[i][k+1],
 					m_log_energy_ratios[k]);
 	  double addend(data.at(jmin)/m_model.at(j)*my_deriv);
 	  if (addend > 0) {
@@ -690,9 +689,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 					SourceMap * srcMap) const {
     size_t npix(m_pixels.size());
     std::string name(srcMap->name());
-    NpredValue(name); // This computes the convolved spectrum.
+    double np = NpredValue(name); // This computes the convolved spectrum.
     const Source * src = const_cast<BinnedLikelihood*>(this)->getSource(name);
-    const std::vector<float> & model(srcMap->model());
     const std::vector<double> & specVals = srcMap->specVals();
   
     const WeightMap* mask = srcMap->weights();
@@ -711,24 +709,24 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	if ( mask && 
 	     ( mask->model().at(jmin) <= 0. ) ) continue;
 	double wt1(0);
-	double wt2(0);
+	double wt2(0);	
 	if ( use_edisp_val ) {
 
 	  double xi = drm_cache->get_correction(k,kref);
 	  if ( kref < 0 ) {
 	    // Correction factor is for this energy, use it
-	    wt1 = specVals[k]*model[jmin]*xi;
-	    wt2 = specVals[k+1]*model[jmax]*xi;
+	    wt1 = specVals[k]*(*srcMap)[jmin]*xi;
+	    wt2 = specVals[k+1]*(*srcMap)[jmax]*xi;
 	  } else {
 	    // Correction factor is for different energy bin, use kref
 	    size_t ipix(jmin % npix);
 	    size_t jref = kref*npix + ipix;
-	    wt1 = specVals[k]*model[jref]*xi;
-	    wt2 = specVals[k+1]*model[jref+npix]*xi;
+	    wt1 = specVals[k]*(*srcMap)[jref]*xi;
+	    wt2 = specVals[k+1]*(*srcMap)[jref+npix]*xi;
 	  }
 	} else {
-	  wt1 = specVals[k]*model[jmin];
-	  wt2 = specVals[k+1]*model[jmax];
+	  wt1 = specVals[k]*(*srcMap)[jmin];
+	  wt2 = specVals[k+1]*(*srcMap)[jmax];
 	}
 	modelMap[jmin] += pixelCounts(emin, emax,wt1, wt2, m_log_energy_ratios[k]);
       }
@@ -1082,7 +1080,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     }
     int kref(-1);
     const std::vector<double> & spec = srcMap.specVals();
-    const std::vector<float> & model = srcMap.model();
     for (size_t j(0); j < filledPixels.size(); j++) {
       size_t jmin(filledPixels.at(j));
       size_t jmax(jmin + npix);
@@ -1090,17 +1087,17 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       if (use_edisp_val) {
 	double xi = drm_cache->get_correction(k,kref);
 	if ( kref < 0 ) {
-	  modelWts[j].first += my_sign*model[jmin]*spec[k]*xi;
-	  modelWts[j].second += my_sign*model[jmax]*spec[k+1]*xi;
+	  modelWts[j].first += my_sign*srcMap[jmin]*spec[k]*xi;
+	  modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1]*xi;
 	} else {
 	  size_t ipix(jmin % npix);	
 	  size_t jref = kref*npix + ipix;
-	  modelWts[j].first += (my_sign*model[jref]*spec[kref]*xi);
-	  modelWts[j].second += (my_sign*model[jref+npix]*spec[kref+1]*xi);
+	  modelWts[j].first += (my_sign*srcMap[jref]*spec[kref]*xi);
+	  modelWts[j].second += (my_sign*srcMap[jref+npix]*spec[kref+1]*xi);
 	}
       } else {
-	modelWts[j].first += my_sign*model[jmin]*spec[k];
-	modelWts[j].second += my_sign*model[jmax]*spec[k+1];
+	modelWts[j].first += my_sign*srcMap[jmin]*spec[k];
+	modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1];
       }
     }  
   }
@@ -1112,8 +1109,18 @@ void BinnedLikelihood::replaceSourceMap(const std::string & srcName,
 
   SourceMap & srcMap = sourceMap(srcName);
   srcMap.setFilename(fitsFile);
-  FileUtils::replace_image_from_float_vector(fitsFile,srcName,m_dataMap,
-					     srcMap.model(),true);  
+  switch ( srcMap.mapType() ) {
+  case FileUtils::HPX_Sparse:
+    FileUtils::replace_image_from_float_map_healpix(fitsFile,srcName,static_cast<const CountsMapHealpix&>(m_dataMap),
+						    srcMap.cached_sparse_model(),true);
+    break;
+  case FileUtils::WCS:
+  case FileUtils::HPX_AllSky:
+  case FileUtils::HPX_Partial:
+  default:
+    FileUtils::replace_image_from_float_vector(fitsFile,srcName,m_dataMap,
+					       srcMap.cached_model(),true);
+  }
 }
 
 void BinnedLikelihood::appendSourceMap(const std::string & srcName,
@@ -1121,8 +1128,18 @@ void BinnedLikelihood::appendSourceMap(const std::string & srcName,
 
   SourceMap & srcMap = sourceMap(srcName);
   srcMap.setFilename(fitsFile);
-  FileUtils::append_image_from_float_vector(fitsFile,srcName,m_dataMap,
-					    srcMap.model(),true);
+  switch ( srcMap.mapType() ) {
+  case FileUtils::HPX_Sparse:
+    FileUtils::append_image_from_float_map_healpix(fitsFile,srcName,static_cast<const CountsMapHealpix&>(m_dataMap),
+						   srcMap.cached_sparse_model(),true);
+    break;
+  case FileUtils::WCS:
+  case FileUtils::HPX_AllSky:
+  case FileUtils::HPX_Partial:
+  default:
+    FileUtils::append_image_from_float_vector(fitsFile,srcName,m_dataMap,
+					      srcMap.cached_model(),true);
+  }
 }
 
 
