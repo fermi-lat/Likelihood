@@ -6,7 +6,7 @@
  *  This file contains a number of functions useful for PSF Integration and convolution.
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PSFUtils.h,v 1.2 2016/09/14 20:11:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PSFUtils.h,v 1.3 2016/09/15 21:25:51 echarles Exp $
  */
 
 #ifndef Likelihood_PSFUtils_h
@@ -15,6 +15,7 @@
 #include <vector>
 #include "healpix_map.h"
 
+#include "Likelihood/FileUtils.h"
 
 namespace st_stream {
   class StreamFormatter;
@@ -91,6 +92,17 @@ namespace Likelihood {
     */    
     double maxPsfRadius(const PointSource& src,const CountsMap& dataMap);
 
+    
+    /* Get the maximum map size needed for a diffuse map.
+
+       src     : A point source
+       dataMap : A counts map
+       
+       returns the smaller of the Source size and the data map size
+    */
+    double neededMapSize(const DiffuseSource& src,const CountsMapBase& dataMap);
+
+
 
     /* A utility function to convert from WCS to HEALPix.   
        FIXME: should this live somewhere else?
@@ -159,16 +171,18 @@ namespace Likelihood {
        config      : Parameters for PSF integration 
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
-       
+       mapType     : Enum that specifies how to store the map
+      
        return 0 for success, error code otherwise 
     */
-    int makeDiffuseMap(const Source& src, 
+    int makeDiffuseMap(const DiffuseSource& src, 
 		       const CountsMapBase& dataMap,
 		       const MeanPsf& meanpsf,
 		       const BinnedExposureBase & bexpmap,
 		       const PsfIntegConfig& config,	
 		       st_stream::StreamFormatter& formatter,
-		       std::vector<float>& modelmap);
+		       std::vector<float>& modelmap,
+		       FileUtils::SrcMapType& mapType);
 
     /* Compute the SourceMap model values for a Diffuse source.       
        This version is called for WCS-based Counts Maps
@@ -180,16 +194,18 @@ namespace Likelihood {
        config      : Parameters for PSF integration 
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
-       
+       mapType     : Enum that specifies how to store the map
+      
        return 0 for success, error code otherwise 
     */
-    int makeDiffuseMap_wcs(const Source& src, 
+    int makeDiffuseMap_wcs(const DiffuseSource& src, 
 			   const CountsMap& dataMap,
 			   const MeanPsf& meanpsf,
 			   const BinnedExposureBase & bexpmap,
 			   const PsfIntegConfig& config,
 			   st_stream::StreamFormatter& formatter,
-			   std::vector<float>& modelmap);
+			   std::vector<float>& modelmap,
+			   FileUtils::SrcMapType& mapType);
     
     /* Compute the SourceMap model values for a Diffuse source.       
        This version is called for all-sky HEALPix-based Counts Maps
@@ -201,16 +217,18 @@ namespace Likelihood {
        config      : Parameters for PSF integration 
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
-       
+       mapType     : Enum that specifies how to store the map
+      
        return 0 for success, error code otherwise 
     */
-    int makeDiffuseMap_healpix(const Source& src, 
+    int makeDiffuseMap_healpix(const DiffuseSource& src, 
 			       const CountsMapHealpix& dataMap,
 			       const MeanPsf& meanpsf,
 			       const BinnedExposureBase & bexpmap,
 			       const PsfIntegConfig& config,
 			       st_stream::StreamFormatter& formatter,
-			       std::vector<float>& modelmap);
+			       std::vector<float>& modelmap,
+			       FileUtils::SrcMapType& mapType);
     
     /* Compute the SourceMap model values for a Diffuse source.       
        This version is called partial-sky HEALPix-based Counts Maps
@@ -222,16 +240,18 @@ namespace Likelihood {
        config      : Parameters for PSF integration 
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
-       
+       mapType     : Enum that specifies how to store the map
+     
        return 0 for success, error code otherwise 
     */
-    int makeDiffuseMap_native(const Source& src, 
+    int makeDiffuseMap_native(const DiffuseSource& src, 
 			      const CountsMapHealpix& dataMap,
 			      const MeanPsf& meanpsf,
 			      const BinnedExposureBase & bexpmap,
 			      const PsfIntegConfig& config,
 			      st_stream::StreamFormatter& formatter,
-			      std::vector<float>& modelmap);
+			      std::vector<float>& modelmap,
+			      FileUtils::SrcMapType& mapType);
     
     /* Compute the SourceMap model values for a Point source.  
        This version just calls one of the versions below.
@@ -242,53 +262,59 @@ namespace Likelihood {
        meanpsf     : The average PSF across the ROI
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
+       mapType     : Enum that specifies how to store the map
        
        return 0 for success, error code otherwise 
     */
-    int makePointSourceMap(const Source& src, 
+    int makePointSourceMap(const PointSource& src, 
 			   const CountsMapBase& dataMap,
 			   const PsfIntegConfig& config,
 			   const MeanPsf& meanpsf,
 			   st_stream::StreamFormatter& formatter,
-			   std::vector<float>& modelmap);
+			   std::vector<float>& modelmap,
+			   FileUtils::SrcMapType& mapType);
     
     /* Compute the SourceMap model values for a Point source.  
        This version is called for WCS-based Counts Maps
 
-       src         : The source in question
+       pointSrc    : The source in question
        dataMap     : The counts map in question
        config      : Parameters for PSF integration 
        meanpsf     : The average PSF across the ROI
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
-       
+       mapType     : Enum that specifies how to store the map
+     
        return 0 for success, error code otherwise 
     */
-    int makePointSourceMap_wcs(const Source& src, 
+    int makePointSourceMap_wcs(const PointSource& pointSrc, 
 			       const CountsMap& dataMap,
 			       const PsfIntegConfig& config,
 			       const MeanPsf& meanpsf,
 			       st_stream::StreamFormatter& formatter,
-			       std::vector<float>& modelmap);
+			       std::vector<float>& modelmap,
+			       FileUtils::SrcMapType& mapType);
     
     /* Compute the SourceMap model values for a Point source.  
        This version is called for HEALPix-based Counts Maps
 
-       src         : The source in question
+       pointSrc    : The source in question
        dataMap     : The counts map in question
        config      : Parameters for PSF integration 
        meanpsf     : The average PSF across the ROI
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
+       mapType     : Enum that specifies how to store the map
        
        return 0 for success, error code otherwise 
     */
-    int makePointSourceMap_healpix(const Source& src, 
+    int makePointSourceMap_healpix(const PointSource& pointSrc, 
 				   const CountsMapHealpix& dataMap,
 				   const PsfIntegConfig& config,
 				   const MeanPsf& meanpsf,
 				   st_stream::StreamFormatter& formatter,
-				   std::vector<float>& modelmap);
+				   std::vector<float>& modelmap,
+				   FileUtils::SrcMapType& mapType);
 
     /* Get the PSF value for a point source at a particular pixel and energy 
 

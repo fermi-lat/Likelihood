@@ -3,7 +3,7 @@
  * @brief Functions to  deal with PSF Integration and convolution
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.1 2016/09/09 21:21:03 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.2 2016/09/15 21:25:52 echarles Exp $
  */
 
 #include "Likelihood/PSFUtils.h"
@@ -125,6 +125,12 @@ namespace Likelihood {
     }
 
 
+    double neededMapSize(const DiffuseSource& src,const CountsMapBase& dataMap) {
+      double src_size = src.mapRadius();
+      double map_size = dataMap.mapRadius();
+      return src_size < map_size ? src_size : map_size;
+    }
+
     void fillHealpixFromWcsMap(const WcsMap2& inputMap,
 			       const astro::HealpixProj& proj,
 			       const std::vector<int>& pixList,
@@ -239,46 +245,49 @@ namespace Likelihood {
       }
     }
 
-    int makeDiffuseMap(const Source& src, 
+    int makeDiffuseMap(const DiffuseSource& diffuseSrc, 
 		       const CountsMapBase& dataMap,
 		       const MeanPsf& meanpsf,
 		       const BinnedExposureBase & bexpmap,
 		       const PsfIntegConfig& config,
 		       st_stream::StreamFormatter& formatter,
-		       std::vector<float>& modelmap) {
+		       std::vector<float>& modelmap,
+		       FileUtils::SrcMapType& mapType) {
 
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
-	return makeDiffuseMap_wcs(src,static_cast<const CountsMap&>(dataMap),meanpsf,bexpmap,config,formatter,modelmap);
+	return makeDiffuseMap_wcs(diffuseSrc,static_cast<const CountsMap&>(dataMap),meanpsf,
+				  bexpmap,config,formatter,modelmap,mapType);
       case astro::ProjBase::HEALPIX:
-	if ( dataMap.mapRadius() > 45 ) {
-	  // The ROI takes up a large fraction of the sky, 
+	if ( PSFUtils::neededMapSize(diffuseSrc,dataMap) > 45. ) {
+	  // The map takes up a large fraction of the sky, 
 	  // let's do the convolution using HEALPix
-	  return makeDiffuseMap_healpix(src,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,bexpmap,config,formatter,modelmap);
+	  return makeDiffuseMap_healpix(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,
+					bexpmap,config,formatter,modelmap,mapType);
 	} else {
 	  // The ROI only take up a relatively small fraction of the sky (< 15%)
 	  // we will do the convlution in the native projection, then convert to healpix
-	  return makeDiffuseMap_native(src,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,bexpmap,config,formatter,modelmap);
+	  return makeDiffuseMap_native(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,
+				       bexpmap,config,formatter,modelmap,mapType);
 	}
       default:
 	break;
       }
       std::string errMsg("Unrecognized projection type for map object for source: ");
-      errMsg += src.getName();
+      errMsg += diffuseSrc.getName();
       throw std::runtime_error(errMsg);
       return 1; 
     }
     
-    int makeDiffuseMap_wcs(const Source& src, 
+    int makeDiffuseMap_wcs(const DiffuseSource& diffuseSrc, 
 			   const CountsMap& dataMap,
 			   const MeanPsf& meanpsf,
 			   const BinnedExposureBase & bexpmap,
 			   const PsfIntegConfig& config,
 			   st_stream::StreamFormatter& formatter,
-			   std::vector<float>& modelmap) {
+			   std::vector<float>& modelmap,
+			   FileUtils::SrcMapType& mapType) {
 
-      const DiffuseSource& diffuseSrc = dynamic_cast<const DiffuseSource&>(src);
-   
       bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != 0;
 
       // If the diffuse source is represented by an underlying map, then
@@ -297,11 +306,12 @@ namespace Likelihood {
       } catch (MapBaseException &) {
 	// do nothing
       }
+
       
       const std::vector<Pixel>& pixels = dataMap.pixels();
       std::vector<double> energies;
       dataMap.getEnergies(energies);
-      
+
       long npts = energies.size()*pixels.size();
       modelmap.resize(npts, 0);
       
@@ -416,7 +426,6 @@ namespace Likelihood {
 	}
 	
 	size_t rfac(static_cast<size_t>(resamp_fact));
-	double solid_angle;
 	double added(0.0);
 	for (size_t j(ny_offset); j < naxis2 - ny_offset_upper; j++) {
 	  for (size_t i(nx_offset); i < naxis1 - nx_offset_upper; i++) {
@@ -428,7 +437,7 @@ namespace Likelihood {
             }
             size_t pix_index = ((j-ny_offset)/rfac)*dataMap.naxis1() 
 	      + ((i-nx_offset)/rfac);
-            solid_angle = pixels.at(pix_index).solidAngle();
+            double solid_angle = pixels.at(pix_index).solidAngle();
             size_t indx = k*dataMap.naxis1()*dataMap.naxis2() + pix_index;
             modelmap[indx] += (convolvedMap->image()[0][j][i]
 			       /resamp_fact/resamp_fact
@@ -445,24 +454,26 @@ namespace Likelihood {
 	MapBase * mapBaseObj = 
 	  const_cast<MapBase *>(diffuseSrc.mapBaseObject());
 	mapBaseObj->deleteMap();
-	formatter.info(4) << "SourceMap::makeDiffuseSource: "
+	formatter.info(4) << "PSFUtils::makeDiffuseMap_wcs: "
 			  << "called mapBaseObj->deleteMap()"
 			  << std::endl;
       } catch (MapBaseException & eObj) {
 	// Not a map-based source, so do nothing.
       }
+
+      mapType = FileUtils::WCS;
       return 0;
     }
     
-    int makeDiffuseMap_healpix(const Source& src, 
+    int makeDiffuseMap_healpix(const DiffuseSource& diffuseSrc, 
 			       const CountsMapHealpix& dataMap,
 			       const MeanPsf& meanpsf,
 			       const BinnedExposureBase & bexpmap,
 			       const PsfIntegConfig& config,
 			       st_stream::StreamFormatter& formatter,			       
-			       std::vector<float>& modelmap) {
+			       std::vector<float>& modelmap,
+			       FileUtils::SrcMapType& mapType) {
 
-      const DiffuseSource& diffuseSrc = dynamic_cast<const DiffuseSource&>(src);
       // If the diffuse source is represented by an underlying map, then
       // rebin according to the minimum bin size.
       try {
@@ -481,6 +492,7 @@ namespace Likelihood {
       }
       
       double solidAngle = dataMap.solidAngle();
+
       std::vector<double> energies;
       dataMap.getEnergies(energies);
   
@@ -506,7 +518,6 @@ namespace Likelihood {
       static const double ALLSKY_RADIUS(180.);
       bool interpolate(false);
       std::vector<double>::const_iterator energy = energies.begin();
-      double scaleFactor = solidAngle/(resamp_fact*resamp_fact);
       // This is the index in the output vector, it does _not_ get reset between energy layers
       int outidx(0);
       for (int k(0); energy != energies.end(); ++energy, k++) {
@@ -525,34 +536,36 @@ namespace Likelihood {
 	} else {
 	  outmap.Import_degrade(convolvedMap->image()[0]);
 	}
+	double e_sum(0.);
 	for (size_t i(0); i < dataMap.nPixels(); i++,outidx++) {
 	  int glo = dataMap.localToGlobalIndex(i);
-	  modelmap[outidx] = outmap[glo];
+	  modelmap[outidx] = outmap[glo]*solidAngle;
+	  e_sum += outmap[glo]*solidAngle;
 	}
       }
       try {
 	MapBase * mapBaseObj = 
 	  const_cast<MapBase *>(diffuseSrc.mapBaseObject());
 	mapBaseObj->deleteMap();
-	formatter.info(4) << "SourceMap::makeDiffuseSource: "
+	formatter.info(4) << "PSFUtils::makeDiffuseMap_healpix: "
 			  << "called mapBaseObj->deleteMap()"
 			  << std::endl;
       } catch (MapBaseException & eObj) {
 	// Not a map-based source, so do nothing.
       }
+      mapType = FileUtils::HPX_AllSky;
       return 0;
     }
     
    
-    int makeDiffuseMap_native(const Source& src, 
+    int makeDiffuseMap_native(const DiffuseSource& diffuseSrc, 
 			      const CountsMapHealpix& dataMap,
 			      const MeanPsf& meanpsf,
 			      const BinnedExposureBase & bexpmap,
 			      const PsfIntegConfig& config,
 			      st_stream::StreamFormatter& formatter,
-			      std::vector<float>& modelmap) {
-
-      const DiffuseSource& diffuseSrc = dynamic_cast<const DiffuseSource&>(src);
+			      std::vector<float>& modelmap,
+			      FileUtils::SrcMapType& mapType) {
 
       bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != 0;
       // If the diffuse source is represented by an underlying map, then
@@ -715,44 +728,50 @@ namespace Likelihood {
 	MapBase * mapBaseObj = 
 	  const_cast<MapBase *>(diffuseSrc.mapBaseObject());
 	mapBaseObj->deleteMap();
-	formatter.info(4) << "SourceMap::makeDiffuseSource: "
+	formatter.info(4) << "PSFUtils::makeDiffuseMap_native: "
 			  << "called mapBaseObj->deleteMap()"
 			  << std::endl;
       } catch (MapBaseException & eObj) {
 	// Not a map-based source, so do nothing.
       }
+
+      mapType = FileUtils::HPX_Partial;
       return 0;
     }
       
     
-    int makePointSourceMap(const Source& src, 
+    int makePointSourceMap(const PointSource& pointSrc, 
 			   const CountsMapBase& dataMap,
 			   const PsfIntegConfig& config,
 			   const MeanPsf& meanpsf,
 			   st_stream::StreamFormatter& formatter,
-			   std::vector<float>& modelmap) {
+			   std::vector<float>& modelmap,
+			   FileUtils::SrcMapType& mapType) {
+
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
-	return makePointSourceMap_wcs(src,static_cast<const CountsMap&>(dataMap),config,meanpsf,formatter,modelmap);	 
+	return makePointSourceMap_wcs(pointSrc,static_cast<const CountsMap&>(dataMap),
+				      config,meanpsf,formatter,modelmap,mapType);	 
       case astro::ProjBase::HEALPIX:
-	return makePointSourceMap_healpix(src,static_cast<const CountsMapHealpix&>(dataMap),config,meanpsf,formatter,modelmap);
+	return makePointSourceMap_healpix(pointSrc,static_cast<const CountsMapHealpix&>(dataMap),
+					  config,meanpsf,formatter,modelmap,mapType);
       default:
 	break;
       }
-      std::string errMsg("SourceMap::makePointSourceMap, did not recognize CountsMapBase type at: ");
+      std::string errMsg("PSFUtils::makePointSourceMap, did not recognize CountsMapBase type at: ");
       errMsg += dataMap.filename();
       throw std::runtime_error(errMsg);
       return -1;
     }
     
-    int makePointSourceMap_wcs(const Source& src, 
+    int makePointSourceMap_wcs(const PointSource& pointSrc, 
 			       const CountsMap& dataMap,
 			       const PsfIntegConfig& config,
 			       const MeanPsf& meanpsf,
 			       st_stream::StreamFormatter& formatter,
-			       std::vector<float>& modelmap) {
+			       std::vector<float>& modelmap,
+			       FileUtils::SrcMapType& mapType) {
       
-      const PointSource& pointSrc = dynamic_cast<const PointSource&>(src);
       const std::vector<Pixel> & pixels(dataMap.pixels());
       std::vector<double> energies;
       dataMap.getEnergies(energies);
@@ -778,7 +797,7 @@ namespace Likelihood {
       double ref_pixel_size = dataMap.pixelSize();
       
       std::vector< std::vector< double > > pixelOffsets;
-      createOffsetMap(src,dataMap,pixelOffsets);
+      createOffsetMap(pointSrc,dataMap,pixelOffsets);
       
       bool galactic(dataMap.isGalactic());
       /// Get the pixel center in pixel coordinates
@@ -877,17 +896,20 @@ namespace Likelihood {
 	float null_frac = (float)null_count/(float)npts;
 	std::cout << "Null fraction " << null_frac << std::endl;
       }
+
+      mapType = FileUtils::WCS;
       return 0;
+
     }
     
-    int makePointSourceMap_healpix(const Source& src, 
+    int makePointSourceMap_healpix(const PointSource& pointSrc,
 				   const CountsMapHealpix& dataMap,
 				   const PsfIntegConfig& config,
 				   const MeanPsf& meanpsf,
 				   st_stream::StreamFormatter& formatter,
-				   std::vector<float>& modelmap) {
+				   std::vector<float>& modelmap,
+				   FileUtils::SrcMapType& mapType) {
 
-      const PointSource& pointSrc = dynamic_cast<const PointSource &>(src);
       const std::vector<Pixel> & pixels(dataMap.pixels());
       std::vector<double> energies;
       dataMap.getEnergies(energies);
@@ -900,6 +922,10 @@ namespace Likelihood {
       
       int nPix = dataMap.nPixels();
       
+      // Determine what type of map to use.
+      // For all-sky data map we want to use the sparse mapping
+      mapType =  dataMap.allSky() ? FileUtils::HPX_Sparse : FileUtils::HPX_Partial; 
+
       if (config.performConvolution()) {    
 	size_t indx(0);
 	const Healpix_Base& hp = dataMap.healpixProj()->healpix();
