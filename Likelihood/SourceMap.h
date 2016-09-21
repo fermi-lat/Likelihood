@@ -4,20 +4,19 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.66 2016/09/15 21:25:51 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.67 2016/09/20 20:51:42 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
 #define Likelihood_SourceMap_h
 
+#include <vector>
+#include <map>
+
 #include "st_facilities/libStApiExports.h"
 
 #include "Likelihood/BinnedConfig.h"
-#include "Likelihood/BinnedExposure.h"
-#include "Likelihood/MeanPsf.h"
-#include "Likelihood/Pixel.h"
-
-#include "healpix_map.h"
+#include "Likelihood/FileUtils.h"
 
 namespace astro {
    class HealpixProj;
@@ -54,6 +53,16 @@ class SourceMap {
 class  SCIENCETOOLS_API SourceMap {
 #endif
 
+public:
+
+  static void fill_sparse_model(const std::vector<float>& vect,
+				std::map<size_t,float>& theMap,
+				float threshold = 1e-9);
+  
+  static void fill_full_model(const std::map<size_t,float>& theMap,
+			      std::vector<float>& vect,
+			      size_t vect_size);
+  
 public:
 
    /* Standar c'tor 
@@ -98,6 +107,11 @@ public:
    /* d'tor, does clean up */
    ~SourceMap();
 
+   /* --------------- Operators ----------------------------------- */
+
+   /* Get access to the model value for a particular pixel */
+   float operator[](size_t idx) const;
+
    /* --------------- Simple Access functions ----------------------*/
 
    /* The source in question */
@@ -118,6 +132,9 @@ public:
    /* The weights for the weighted log-likelihood.  Null-> no weights */
    inline const WeightMap* weights() const { return m_weights; } 
 
+   /* How the source map is stored */
+   inline FileUtils::SrcMapType mapType() const { return m_mapType; }
+
    /* Flag to indicat that we should save the model */
    inline bool save_model() const { return m_save_model; }
 
@@ -130,6 +147,7 @@ public:
    void clear_model(bool force=false) {
      if ( force || !m_save_model ) {
        m_model.clear();
+       m_sparseModel.clear();
      }
    }      
 
@@ -180,6 +198,12 @@ public:
    /* The source map model.  This must be multiplied by the spectrum for each pixel 
       and integrated over the energy bin to obtain the predicted counts */
    inline const std::vector<float> & cached_model() const { return m_model; }
+ 
+
+   /* The sparse version of source map model.  This must be multiplied by the spectrum for each pixel 
+      and integrated over the energy bin to obtain the predicted counts */
+   inline const std::map<size_t,float> & cached_sparse_model() const { return m_sparseModel; }
+   
 
    /* These are the derivatives of the 'spectrum' values.  I.e., the derivatives evaluated 
       at the energy pointsThese are the spectral derivatives.  */
@@ -229,16 +253,23 @@ public:
 protected:
 
    /* Read the model from a file */
-   void readModel(const std::string& sourceMapFile);
+   int readModel(const std::string& sourceMapFile);
 
    /* Read an image from a FITS file */
-   void readImage(const std::string& sourceMapFile);
+   int readImage(const std::string& sourceMapFile);
 
    /* Read HEALPix data from a table in a FITS file */
-   void readTable_healpix(const std::string& sourceMapFile);
+   int readTable_healpix(const std::string& sourceMapFile);
 
    /* Make the model */
    int make_model();
+
+   /* Sparsify the full model */
+   void sparsify_model(bool clearFull = true);
+
+   /* Fill the full model */
+   void expand_model(bool clearSparse = true);
+
 
 private:
 
@@ -251,10 +282,16 @@ private:
    void applyPhasedExposureMap();
 
 
+   /* Get the value from the sparse model */
+   float find_value(size_t idx) const {
+     std::map<size_t,float>::const_iterator itrFind = m_sparseModel.find(idx);
+     return itrFind != m_sparseModel.end() ? itrFind->second : 0.;
+   }
+
 
    /* ---------------- Data Members --------------------- */
 
-   /// The source in question. This will by NULL if the SourceMap is the weights map
+   /// The source in question.
    const Source* m_src;   
 
    /// Source name.
@@ -295,6 +332,12 @@ private:
    /// That must be multiplied by the spectrum for each pixel 
    /// and integrated over the energy bin to obtain the predicted counts
    std::vector<float> m_model;
+
+   /// This is the "sparse" version of the source map data.
+   std::map<size_t,float> m_sparseModel;
+
+   /// What type of source map data do we have
+   FileUtils::SrcMapType m_mapType;
 
    /// These are the 'spectrum' values
    /// I.e., the spectrum evaluated at the energy points

@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.125 2016/09/15 21:25:52 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.126 2016/09/20 20:51:43 echarles Exp $
  */
 
 #include <cmath>
@@ -57,6 +57,28 @@
 
 namespace Likelihood { 
 
+
+void SourceMap::fill_sparse_model(const std::vector<float>& vect,
+				  std::map<size_t,float>& theMap,
+				  float threshold) {
+  size_t idx(0);  
+  theMap.clear();
+  for ( std::vector<float>::const_iterator itr = vect.begin(); itr != vect.end(); itr++, idx++ ) {
+    if ( *itr < threshold ) continue;
+    theMap[idx] = *itr;
+  }
+}
+
+void SourceMap::fill_full_model(const std::map<size_t,float>& theMap,
+				std::vector<float>& vect,
+				size_t vect_size) {
+  vect.resize(vect_size,0.);  
+  for ( std::map<size_t,float>::const_iterator itr = theMap.begin(); itr != theMap.end(); itr++ ){
+    vect[itr->first] = itr->second;
+  }
+}
+
+
 SourceMap::SourceMap(const Source& src, 
 		     const CountsMapBase * dataMap,
                      const Observation & observation, 
@@ -74,6 +96,7 @@ SourceMap::SourceMap(const Source& src,
      m_psf_config(psf_config),
      m_drm(drm),
      m_weights(weights),
+     m_mapType(FileUtils::Unknown),
      m_save_model(save_model),
      m_drm_cache(0) {
    
@@ -98,14 +121,17 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_meanPsf(0),
     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
     m_weights(weights),
+    m_mapType(FileUtils::Unknown),
     m_save_model(save_model),
     m_drm(drm),
     m_psf_config(),
     m_drm_cache(0) {
-  readModel(sourceMapsFile);
-  applyPhasedExposureMap();
-  computeNpredArray();
-  setSpectralValues(m_dataMap->energies());
+
+
+  int status = readModel(sourceMapsFile);
+  if ( status != 0 ) {
+    throw std::runtime_error("SourceMap construction failed to read model");
+  }
   m_drm_cache = new Drm_Cache(m_drm,*this,m_dataMap->energies());
 }
 
@@ -117,7 +143,29 @@ SourceMap::~SourceMap() {
 }
 
 
-void SourceMap::computeNpredArray() {
+float SourceMap::operator[](size_t idx) const {
+  return m_mapType == FileUtils::HPX_Sparse ? find_value(idx) : m_model[idx];
+}
+
+
+void SourceMap::sparsify_model(bool clearFull) {
+  fill_sparse_model(m_model,m_sparseModel);
+  if ( clearFull ) {
+    m_model.clear();
+  }
+}
+  
+
+void SourceMap::expand_model(bool clearSparse) {
+  size_t full_size = m_dataMap->pixels().size() * m_dataMap->energies().size();
+  fill_full_model(m_sparseModel,m_model,full_size);
+  if ( clearSparse ) {
+    m_sparseModel.clear();
+  }
+}
+
+
+  void SourceMap::computeNpredArray() {
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
    
    std::vector<double> energies;
@@ -143,8 +191,6 @@ void SourceMap::computeNpredArray() {
    m_npred_weights.clear();
    m_npred_weights.resize(nw, std::make_pair<double,double>(0.,0.));
 
-   const std::vector<float> & mm = model();
-
    for (size_t k(0); k < ne; k++) {
 
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
@@ -155,7 +201,7 @@ void SourceMap::computeNpredArray() {
 	 size_t indx(k*pixels.size() + j);
          size_t indx_0 = k > 0 ? indx  - pixels.size() : indx;
 	 size_t indx_1 = k < energies.size()-1 ? indx : indx - pixels.size();
-	 double addend = mm.at(indx);
+	 double addend = m_model.at(indx);
          m_npreds[k] += addend;
 	 double w_0_addend = m_weights != 0 ? ( m_weights->model()[indx_0]*addend ) : addend;
 	 double w_1_addend = m_weights != 0 ? ( m_weights->model()[indx_1]*addend ) : addend;
@@ -192,6 +238,7 @@ void SourceMap::applyPhasedExposureMap() {
       }
    }
 }
+
 
 void SourceMap::setSource(const Source& src) {
   if ( m_src == &src ) {
@@ -280,7 +327,7 @@ const std::vector<std::pair<double,double> > & SourceMap::npred_weights(bool for
 
 const Drm_Cache* SourceMap::drm_cache(bool force) {
   if ( m_drm_cache == 0) {
-    m_drm_cache == new Drm_Cache(m_drm,*this,m_dataMap->energies());  
+    m_drm_cache = new Drm_Cache(m_drm,*this,m_dataMap->energies());  
   } else if ( force ) {
     m_drm_cache->update(m_drm,*this,m_dataMap->energies());  
   }
@@ -321,35 +368,83 @@ void SourceMap::setWeights(const WeightMap* weights) {
   computeNpredArray();
 }
 
-void SourceMap::readModel(const std::string& filename) {
+int SourceMap::readModel(const std::string& filename) {
   m_model.clear();
   m_filename = filename;
-  bool ok(false);
+  
+  m_specVals.clear();
+  m_modelPars.clear();
+  m_derivs.clear();
+  m_npreds.clear();
+  m_npred_weights.clear();
+
+  int status(0);
   switch ( m_dataMap->projection().method()  ) {
   case astro::ProjBase::WCS:
-    readImage(m_filename);
-    ok = true;
+    status = readImage(m_filename);
     break;
   case astro::ProjBase::HEALPIX:
-    readTable_healpix(m_filename);
-    ok = true;
+    status = readTable_healpix(m_filename);
     break;
   default:
     break;
   }
-  if ( !ok ) {
-    std::string errMsg("SourceMap did not recognize CountsMapBase type at: ");
+  if ( status != 0 ) {
+    std::string errMsg("SourceMap failed to read source map: ");
+    errMsg += m_filename;
+    errMsg += ".  To match data file: ";
     errMsg += m_dataMap->filename();
     throw std::runtime_error(errMsg);
   }
+
+  // FIXME, we could be more efficient about this
+  if ( m_mapType == FileUtils::HPX_Sparse ) {
+    expand_model(false);
+  }
+
+  applyPhasedExposureMap();
+  computeNpredArray();
+  setSpectralValues(m_dataMap->energies());
+
+  // FIXME, we could be more efficient about this
+  if ( m_mapType == FileUtils::HPX_Sparse ) {
+    m_model.clear();
+  }
+
+  return status;
 }
 
-void SourceMap::readImage(const std::string& sourceMapsFile) {
+int SourceMap::readImage(const std::string& sourceMapsFile) {
+  m_mapType = FileUtils::get_src_map_type(sourceMapsFile,m_name);
   FileUtils::read_fits_image_to_float_vector(sourceMapsFile,m_name,m_model);
+  return 0;
 }
 
-void SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
-  FileUtils::read_healpix_table_to_float_vector(sourceMapsFile,m_name,m_model);
+int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
+  m_mapType = FileUtils::get_src_map_type(sourceMapsFile,m_name);
+  int status(0);
+  switch (m_mapType) {
+  case FileUtils::HPX_AllSky:
+  case FileUtils::HPX_Partial:
+    // In either of these two cases we simple read the vector.  
+    // If this is a partial-sky mapping, the projection will 
+    // take care of doing the remapping
+    status = FileUtils::read_healpix_table_to_float_vector(sourceMapsFile,m_name,m_model);
+    break;
+  case FileUtils::HPX_Sparse:
+    // In this case we read the map.
+    status = FileUtils::read_healpix_table_to_float_map(sourceMapsFile,m_name,m_sparseModel);
+    break;
+  default:
+    // Either unknown or WCS based.  This is an error in either case.
+    return -1;
+  }
+  
+  if ( status != 0 ) return status;
+
+
+  return 0;
+
 }
 
 
@@ -366,17 +461,18 @@ int SourceMap::make_model() {
 
   int status(0);
   if (m_psf_config.verbose()) {
-      m_formatter->warn() << "Generating SourceMap for " << m_name;
-   }
+    m_formatter->warn() << "Generating SourceMap for " << m_name;
+  }
   switch ( m_src->srcType() ) {
   case Source::Diffuse:
-    
-    status = PSFUtils::makeDiffuseMap(*m_src, *m_dataMap, m_observation.meanpsf(), m_observation.bexpmap(),
-				      m_psf_config, *m_formatter, m_model);
+    status = PSFUtils::makeDiffuseMap(static_cast<const DiffuseSource&>(*m_src), *m_dataMap, 
+				      m_observation.meanpsf(), m_observation.bexpmap(),
+				      m_psf_config, *m_formatter, m_model, m_mapType);
     break;
   case Source::Point:
     m_meanPsf = PSFUtils::build_psf(*m_src,*m_dataMap,m_observation);
-    status =  PSFUtils::makePointSourceMap(*m_src, *m_dataMap, m_psf_config, *m_meanPsf, *m_formatter, m_model);
+    status =  PSFUtils::makePointSourceMap(static_cast<const PointSource&>(*m_src), *m_dataMap, 
+					   m_psf_config, *m_meanPsf, *m_formatter, m_model, m_mapType);
     break;
   default:
     throw std::runtime_error("Unrecognized source type");
@@ -393,6 +489,11 @@ int SourceMap::make_model() {
   applyPhasedExposureMap();
   computeNpredArray();
   setSpectralValues(m_dataMap->energies());
+
+  // FIXME, we could be more efficient about this
+  if ( m_mapType == FileUtils::HPX_Sparse ) {
+    sparsify_model();
+  }
 
   return status;
 }
