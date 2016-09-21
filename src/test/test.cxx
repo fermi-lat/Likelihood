@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.141 2016/09/09 21:21:48 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.142 2016/09/13 19:26:26 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -34,6 +34,8 @@
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
 
+#include "evtbin/HealpixMap.h"
+
 #include "optimizers/dArg.h"
 #include "optimizers/FunctionFactory.h"
 #include "optimizers/FunctionTest.h"
@@ -49,14 +51,17 @@
 
 #include "Likelihood/BinnedConfig.h"
 #include "Likelihood/BinnedExposure.h"
+#include "Likelihood/BinnedHealpixExposure.h"
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
+#include "Likelihood/CountsMapHealpix.h"
 #include "Likelihood/DiffRespNames.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Drm.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/EventContainer.h"
 #include "Likelihood/ExposureMap.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/FluxBuilder.h"
 #include "Likelihood/LikeExposure.h"
 #include "Likelihood/LogNormal.h"
@@ -121,12 +126,17 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_PointSource);
    CPPUNIT_TEST(test_DiffuseSource);
    CPPUNIT_TEST(test_CountsMap);
+   CPPUNIT_TEST(test_CountsMapHealpix_allsky);
+   CPPUNIT_TEST(test_CountsMapHealpix_region);
    CPPUNIT_TEST(test_BinnedLikelihood);
    CPPUNIT_TEST(test_BinnedLikelihood_2);
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
+   CPPUNIT_TEST(test_BinnedExposureHealpix);
    CPPUNIT_TEST(test_SourceMap);
    CPPUNIT_TEST(test_PointSourceMap);
+   CPPUNIT_TEST(test_PointSourceMap_hpx_allsky);
+   CPPUNIT_TEST(test_PointSourceMap_hpx_region);
    CPPUNIT_TEST(test_rescaling);
    CPPUNIT_TEST(test_DiffRespNames);
    CPPUNIT_TEST_EXCEPTION(test_WcsMap2_exception, std::runtime_error);
@@ -163,12 +173,17 @@ public:
    void test_PointSource();
    void test_DiffuseSource();
    void test_CountsMap();
+   void test_CountsMapHealpix_allsky();
+   void test_CountsMapHealpix_region();
    void test_BinnedLikelihood();
    void test_BinnedLikelihood_2();
    void test_MeanPsf();
    void test_BinnedExposure();
+   void test_BinnedExposureHealpix();
    void test_SourceMap();
    void test_PointSourceMap();
+   void test_PointSourceMap_hpx_allsky();
+   void test_PointSourceMap_hpx_region();
    void test_rescaling();
    void test_DiffRespNames();
    void test_WcsMap2_exception();
@@ -223,6 +238,10 @@ private:
 			  unsigned long num_x_pix = 40, 
 			  unsigned long num_y_pix = 40,
 			  double pix_scale = 0.25) const;
+
+   CountsMapHealpix healpixmap_allsky() const;
+
+   CountsMapHealpix healpixmap_region() const;
 
    void deleteExpMap();
 
@@ -1107,6 +1126,17 @@ CountsMap LikelihoodTests::singleSrcMap(unsigned int nee,
    return dataMap;
 }
 
+
+CountsMapHealpix LikelihoodTests::healpixmap_allsky() const {
+  std::string datafile = dataPath("ccube_galdiffuse_hpx.fits");
+  return CountsMapHealpix(datafile);
+}
+
+CountsMapHealpix LikelihoodTests::healpixmap_region() const {
+  std::string datafile = dataPath("ccube_single_src_events_hpx.fits");
+  return CountsMapHealpix(datafile);
+}
+
 void LikelihoodTests::test_CountsMap() {
    CountsMap dataMap(singleSrcMap(21));
    dataMap.writeOutput("test_CountsMap", "countsMap.fits");
@@ -1115,6 +1145,46 @@ void LikelihoodTests::test_CountsMap() {
       CPPUNIT_ASSERT(dataMap.data()[i] == dataMap2.data()[i]);
    }
 }
+
+void LikelihoodTests::test_CountsMapHealpix_allsky() {
+   CountsMapHealpix dataMap(healpixmap_allsky());
+   dataMap.writeOutput("test_CountsMapHealpix_allsky", "countsMap_hpx_allsky.fits");
+   CountsMapHealpix dataMap2("countsMap_hpx_allsky.fits");
+   double sum(0.);
+   for (unsigned int i = 0; i < dataMap.data().size(); i++) {
+      CPPUNIT_ASSERT(dataMap.data()[i] == dataMap2.data()[i]);
+      sum += dataMap.data()[i];
+   }
+   // EAC, these values are for the reference file "Likelihood/data/countsMap_hpx_allsky.fits"
+   ASSERT_EQUALS(sum,2885);
+   ASSERT_EQUALS(dataMap.pixelSize(),1.83226);
+   ASSERT_EQUALS(dataMap.solidAngle(),0.00102265);
+   CPPUNIT_ASSERT(dataMap.allSky());
+   ASSERT_EQUALS(dataMap.mapRadius(),180.);
+   CPPUNIT_ASSERT(dataMap.nPixels()==12288);
+}
+
+void LikelihoodTests::test_CountsMapHealpix_region() {
+   CountsMapHealpix dataMap(healpixmap_region());
+   dataMap.writeOutput("test_CountsMapHealpix_region", "countsMap_hpx_region.fits");
+   CountsMapHealpix dataMap2("countsMap_hpx_region.fits");
+   double sum(0.);
+   for (unsigned int i = 0; i < dataMap.data().size(); i++) {
+      CPPUNIT_ASSERT(dataMap.data()[i] == dataMap2.data()[i]);
+      sum += dataMap.data()[i];
+   }
+   // EAC, these values are for the reference file "Likelihood/data/countsMap_hpx_region.fits"
+   ASSERT_EQUALS(sum,233);
+   ASSERT_EQUALS(dataMap.pixelSize(),0.229032);
+   ASSERT_EQUALS(dataMap.solidAngle(),1.5979e-05);
+   CPPUNIT_ASSERT(!dataMap.allSky());
+   ASSERT_EQUALS(dataMap.mapRadius(),6.0);
+   CPPUNIT_ASSERT(dataMap.nPixels()==2162);   
+}
+
+
+
+
 
 void LikelihoodTests::test_BinnedLikelihood() {
    std::string exposureCubeFile = dataPath("expcube_1_day.fits");
@@ -1376,6 +1446,38 @@ void LikelihoodTests::test_MeanPsf() {
    }
 }
 
+void LikelihoodTests::test_BinnedExposureHealpix() {
+   std::string exposureCubeFile = dataPath("expcube_1_day.fits");
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   m_expCube->readExposureCube(exposureCubeFile);
+
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
+
+   const std::string datafile = dataPath("ccube_galdiffuse_hpx.fits");
+   evtbin::HealpixMap cmap(datafile);
+
+   BinnedHealpixExposure binnedExposure(cmap, *m_observation);
+
+   std::string filename("binnedExposure.fits");
+   binnedExposure.writeOutput(filename);
+
+   BinnedHealpixExposure map2(filename);
+
+   const std::vector<double>& energies =  cmap.energies();
+   size_t npts = energies.size();
+
+   double ra(180.);
+   double dec(0.);
+   for (unsigned int i = 0; i < npts; i++) {
+      double bexpmap_value = binnedExposure(energies[i], ra, dec);
+      ASSERT_EQUALS(bexpmap_value,
+                    map2(energies[i], ra, dec));
+   }
+}
+
 void LikelihoodTests::test_BinnedExposure() {
    std::string exposureCubeFile = dataPath("expcube_1_day.fits");
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
@@ -1494,6 +1596,81 @@ void LikelihoodTests::test_PointSourceMap() {
        CPPUNIT_ASSERT(fdelta < 1E-2);
      }
    }
+}
+
+
+void LikelihoodTests::test_PointSourceMap_hpx_allsky() {
+   std::string exposureCubeFile = dataPath("expcube_1_day.fits");
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   m_expCube->readExposureCube(exposureCubeFile);
+   
+   CountsMapHealpix cmap = healpixmap_allsky();
+   SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
+   Source * src =  srcFactory->create("Crab Pulsar");
+
+   PsfIntegConfig psf_config;
+
+   SourceMap srcMap(*src, &cmap, *m_observation, psf_config);
+
+   // Values as of ST-11-03-01
+   CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Sparse);
+   CPPUNIT_ASSERT(srcMap.cached_model().size()==0);
+   CPPUNIT_ASSERT(srcMap.cached_sparse_model().size()==678);
+   
+   const std::vector<double>& energies = cmap.energies();
+   const std::vector<double>& npreds = srcMap.npreds();
+   const std::vector<double>& specVals = srcMap.specVals();
+   const Drm_Cache* drm_cache = srcMap.drm_cache();
+
+   double sum(0.);
+   for ( size_t i(0); i < specVals.size()-1; i++ ) {
+     double log_ratio = std::log(energies[i+1]/energies[i]);
+     double m_counts = FitUtils::pixelCounts_loglogQuad(energies[i],energies[i+1],
+							npreds[i]*specVals[i],npreds[i+1]*specVals[i+1],
+							log_ratio);
+     ASSERT_EQUALS(m_counts,drm_cache->true_counts()[i]);
+     sum += m_counts;
+   }
+   ASSERT_EQUALS(sum,248.9);
+}
+
+void LikelihoodTests::test_PointSourceMap_hpx_region() {
+   std::string exposureCubeFile = dataPath("expcube_1_day.fits");
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   m_expCube->readExposureCube(exposureCubeFile);
+   
+   CountsMapHealpix cmap = healpixmap_region();
+   SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
+   Source * src =  srcFactory->create("Crab Pulsar");
+
+   PsfIntegConfig psf_config;
+
+   SourceMap srcMap(*src, &cmap, *m_observation, psf_config);
+
+   // Values as of ST-11-03-01
+   CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Partial);
+   CPPUNIT_ASSERT(srcMap.cached_model().size()==28106);
+   CPPUNIT_ASSERT(srcMap.cached_sparse_model().size()==0);
+   
+   const std::vector<double>& energies = cmap.energies();
+   const std::vector<double>& npreds = srcMap.npreds();
+   const std::vector<double>& specVals = srcMap.specVals();
+   const Drm_Cache* drm_cache = srcMap.drm_cache();
+
+   double sum(0.);
+   for ( size_t i(0); i < specVals.size()-1; i++ ) {
+     double log_ratio = std::log(energies[i+1]/energies[i]);
+     double m_counts = FitUtils::pixelCounts_loglogQuad(energies[i],energies[i+1],
+							npreds[i]*specVals[i],npreds[i+1]*specVals[i+1],
+							log_ratio);
+     ASSERT_EQUALS(m_counts,drm_cache->true_counts()[i]);
+     sum += m_counts;
+   }
+   ASSERT_EQUALS(sum,224.917);
 }
 
 void LikelihoodTests::test_rescaling() {
