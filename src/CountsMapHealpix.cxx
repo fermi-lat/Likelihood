@@ -1,7 +1,7 @@
 /**
  * @file CountsMapHealpix.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/CountsMapHealpix.cxx,v 1.4 2015/11/30 23:47:32 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapHealpix.cxx,v 1.1 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <algorithm>
@@ -305,10 +305,9 @@ void CountsMapHealpix::latchCacheData() {
   // Total number of pixels
   int nPix = m_healpixProj->healpix().Npix();
   // Solid angle in SR = 4pi/npix
-  double solidAngle_sr = ASTRO_4PI / float(nPix);
-  // Do we want it in deg^2 or sr?
-  m_solidAngle = astro::radToDeg( astro::radToDeg( solidAngle_sr ) );
-  m_pixelSize = sqrt(m_solidAngle);
+  // B/c of inconsisent interfaces,  we want the solid angle in SR, but the pixel size in deg.    
+  m_solidAngle = ASTRO_4PI / float(nPix);
+  m_pixelSize = astro::radToDeg(sqrt(m_solidAngle));
 
   double c1(0.);
   double c2(0.);  
