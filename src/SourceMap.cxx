@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.126 2016/09/20 20:51:43 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.127 2016/09/21 22:49:32 echarles Exp $
  */
 
 #include <cmath>
@@ -165,7 +165,7 @@ void SourceMap::expand_model(bool clearSparse) {
 }
 
 
-  void SourceMap::computeNpredArray() {
+void SourceMap::computeNpredArray() {
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
    
    std::vector<double> energies;
@@ -190,6 +190,12 @@ void SourceMap::expand_model(bool clearSparse) {
    m_npreds.resize(ne);
    m_npred_weights.clear();
    m_npred_weights.resize(nw, std::make_pair<double,double>(0.,0.));
+
+   bool expanded = false;
+   if ( m_mapType == FileUtils::HPX_Sparse && m_model.size() == 0 ) {
+     expanded = true;
+     expand_model(false);
+   }
 
    for (size_t k(0); k < ne; k++) {
 
@@ -218,6 +224,11 @@ void SourceMap::expand_model(bool clearSparse) {
 	m_npred_weights[k-1].second = w_1;
       }
    }
+
+   if ( expanded ) {
+     m_model.clear();
+   }
+
 }
 
 
