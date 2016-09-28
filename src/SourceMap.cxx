@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.127 2016/09/21 22:49:32 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.128 2016/09/22 01:38:09 echarles Exp $
  */
 
 #include <cmath>
@@ -59,23 +59,14 @@ namespace Likelihood {
 
 
 void SourceMap::fill_sparse_model(const std::vector<float>& vect,
-				  std::map<size_t,float>& theMap,
-				  float threshold) {
-  size_t idx(0);  
-  theMap.clear();
-  for ( std::vector<float>::const_iterator itr = vect.begin(); itr != vect.end(); itr++, idx++ ) {
-    if ( *itr < threshold ) continue;
-    theMap[idx] = *itr;
-  }
+				  SparseVector<float>& sparse) {
+  sparse.resize(vect.size());
+  sparse.fill_from_vect(vect);
 }
 
-void SourceMap::fill_full_model(const std::map<size_t,float>& theMap,
-				std::vector<float>& vect,
-				size_t vect_size) {
-  vect.resize(vect_size,0.);  
-  for ( std::map<size_t,float>::const_iterator itr = theMap.begin(); itr != theMap.end(); itr++ ){
-    vect[itr->first] = itr->second;
-  }
+void SourceMap::fill_full_model(const SparseVector<float>& sparse,
+				std::vector<float>& vect) {
+  sparse.fill_vect(vect);
 }
 
 
@@ -151,14 +142,16 @@ float SourceMap::operator[](size_t idx) const {
 void SourceMap::sparsify_model(bool clearFull) {
   fill_sparse_model(m_model,m_sparseModel);
   if ( clearFull ) {
-    m_model.clear();
+    // This deallocates the memory used by the model
+    // in C++-11 there is a function shrink_to_fit that we could use.
+    std::vector<float> nullVect;
+    m_model.swap(nullVect);
   }
 }
   
 
 void SourceMap::expand_model(bool clearSparse) {
-  size_t full_size = m_dataMap->pixels().size() * m_dataMap->energies().size();
-  fill_full_model(m_sparseModel,m_model,full_size);
+  fill_full_model(m_sparseModel,m_model);
   if ( clearSparse ) {
     m_sparseModel.clear();
   }
@@ -263,11 +256,16 @@ void SourceMap::setSource(const Source& src) {
   m_npred_weights.clear();  
 }
 
-void SourceMap::setSpectralValues(const std::vector<double>& energies) {
+void SourceMap::setSpectralValues(const std::vector<double>& energies,
+				    bool latch_params ) {
   if ( m_src == 0 ) return;
   FitUtils::extractSpectralVals(*m_src,energies,m_specVals);
   m_modelPars.clear();
   m_src->spectrum().getParamValues(m_modelPars);
+  if ( latch_params ) {
+    m_latchedModelPars.resize(m_modelPars.size());
+    std::copy(m_modelPars.begin(),m_modelPars.end(),m_latchedModelPars.begin());
+  }
 }
 
 
@@ -282,8 +280,11 @@ bool SourceMap::spectrum_changed() const {
   if ( m_src == 0 ) return true;
   std::vector<double> parValues;
   m_src->spectrum().getParamValues(parValues);
+  if ( parValues.size() != m_latchedModelPars.size() ) {
+    return true;
+  }
   for (size_t j(0); j < parValues.size(); j++) {
-    if (parValues.at(j) != m_modelPars.at(j) ) {
+    if (parValues.at(j) != m_latchedModelPars.at(j) ) {
       return true;
     }
   }
@@ -379,6 +380,26 @@ void SourceMap::setWeights(const WeightMap* weights) {
   computeNpredArray();
 }
 
+
+size_t SourceMap::memory_size() const {
+  size_t retVal(0);
+  retVal += sizeof(*this);
+  retVal += m_name.capacity();
+  retVal += m_filename.capacity();
+  retVal += m_srcType.capacity();
+  retVal += sizeof(*m_formatter);
+  retVal += sizeof(float)*m_model.capacity();
+  retVal += sizeof(std::pair<size_t,float>)*m_sparseModel.capacity();
+  retVal += sizeof(double)*m_modelPars.capacity();
+  retVal += sizeof(double)*m_npreds.capacity();
+  retVal += sizeof(std::pair<double,double>)*m_npred_weights.capacity();
+  if ( m_drm_cache != 0 ) {
+    retVal += m_drm_cache->memory_size();
+  }
+  return retVal;
+}
+
+
 int SourceMap::readModel(const std::string& filename) {
   m_model.clear();
   m_filename = filename;
@@ -444,7 +465,9 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
     break;
   case FileUtils::HPX_Sparse:
     // In this case we read the map.
-    status = FileUtils::read_healpix_table_to_float_map(sourceMapsFile,m_name,m_sparseModel);
+    /// FIXME, we should have a better way of getting this...
+    m_sparseModel.resize( ( m_dataMap->data().size() / (m_dataMap->energies().size() -1) ) * m_dataMap->energies().size() );
+    status = FileUtils::read_healpix_table_to_sparse_vector(sourceMapsFile,m_name,m_sparseModel);
     break;
   default:
     // Either unknown or WCS based.  This is an error in either case.
@@ -481,9 +504,10 @@ int SourceMap::make_model() {
 				      m_psf_config, *m_formatter, m_model, m_mapType);
     break;
   case Source::Point:
-    m_meanPsf = PSFUtils::build_psf(*m_src,*m_dataMap,m_observation);
+    m_meanPsf = m_psf_config.use_single_psf() ? 0 : PSFUtils::build_psf(*m_src,*m_dataMap,m_observation);
     status =  PSFUtils::makePointSourceMap(static_cast<const PointSource&>(*m_src), *m_dataMap, 
-					   m_psf_config, *m_meanPsf, *m_formatter, m_model, m_mapType);
+					   m_psf_config, m_meanPsf==0 ? m_observation.meanpsf() : *m_meanPsf, 
+					   *m_formatter, m_model, m_mapType);
     break;
   default:
     throw std::runtime_error("Unrecognized source type");
