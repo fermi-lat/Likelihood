@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceFactory.cxx,v 1.83 2016/01/13 16:47:30 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.84 2016/04/30 00:41:46 mdwood Exp $
  */
 
 #include <cstdlib>
@@ -398,7 +398,7 @@ void SourceFactory::checkRoiDist(double ra, double dec) const {
       m_formatter->warn() << "WARNING: Point source " << m_currentSrcName
                           << " lies " << sep 
                           << " degrees from the ROI center at RA, Dec = " 
-                          << roiPars.at(0) << ", " << roiPars.at(1)
+                          << roiPars.at(0) << ", " << roiPars.at(1) << ' ' << radius
                           << std::endl;
    }
 }

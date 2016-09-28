@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.88 2016/09/14 20:11:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.89 2016/09/15 21:25:51 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -21,6 +21,12 @@
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Pixel.h"
 #include "Likelihood/BinnedConfig.h"
+
+
+namespace tip {
+   class Extension;
+}
+
 
 namespace Likelihood {
 
@@ -493,7 +499,7 @@ namespace Likelihood {
 	
 	replace : if true, replace the current version 
      */
-     void saveWeightsMap(bool replace=false) const;
+     tip::Extension* saveWeightsMap(bool replace=false) const;
      
      /// Fill the map of weighted counts
      void fillWeightedCounts();
@@ -530,12 +536,12 @@ namespace Likelihood {
      /* ------------- Dealing with SourceMaps -------------------- */
 
     
-     void replaceSourceMap(const std::string & srcName, 
-			   const std::string & fitsFile) const;
+     tip::Extension* replaceSourceMap(const std::string & srcName, 
+				      const std::string & fitsFile) const;
      
   
-     void appendSourceMap(const std::string & srcName, 
-			  const std::string & fitsFile) const;
+     tip::Extension* appendSourceMap(const std::string & srcName, 
+				     const std::string & fitsFile) const;
      
     
 
@@ -561,11 +567,13 @@ namespace Likelihood {
 	srcName    : The name of the source in question
 	srcMap     : The SourceMap for the source in question
 	subtract   : If true, subtract from the vector.  	
+	latchParams : If true, the parameters are latched in the SourceMap
      */     
      void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
 		       const std::string & srcName,
 		       SourceMap * srcMap=0, 
-		       bool subtract=false) const;
+		       bool subtract=false,
+		       bool latchParams=false) const;
      
      /* Fills the m_filledPixels data member with only the pixels with data counts */
      void identifyFilledPixels();
