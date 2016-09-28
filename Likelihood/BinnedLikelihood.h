@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.89 2016/09/15 21:25:51 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.90 2016/09/28 01:37:38 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -446,6 +446,10 @@ namespace Likelihood {
 	This will also return true if the list of fixed sources has chagned. */
      bool fixedModelUpdated() const;
 
+     /* Compute the full model for all the fixed source.
+	
+     */
+     void addFullFixedModel(std::vector<float>& model);
    
      /* Compute the model for all the fixed source.
 
