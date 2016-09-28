@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.8 2016/09/13 19:26:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.9 2016/09/14 20:11:01 echarles Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -89,6 +89,9 @@ public:
   inline const std::vector<int> kref() const { return m_kref; }
 
   inline bool use_edisp() const { return m_use_edisp; }
+
+  /* --------------------- Debugging -------------------- */
+  size_t memory_size() const;
 
 private:
   

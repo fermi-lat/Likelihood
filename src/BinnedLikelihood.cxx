@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.126 2016/09/20 20:51:42 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.127 2016/09/21 22:49:32 echarles Exp $
  */
 
 #include <cmath>
@@ -17,6 +17,7 @@
 #include "st_stream/StreamFormatter.h"
 
 #include "tip/IFileSvc.h"
+#include "tip/Extension.h"
 
 #include "st_facilities/Util.h"
 #include "st_facilities/Timer.h"
@@ -499,20 +500,32 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 					bool recreate, bool saveMaps) {
   
     std::vector<std::string>::const_iterator name = srcNames.begin();
+
+    std::vector<tip::Extension*> hdus;
+    
     for ( ; name != srcNames.end(); ++name) {     
     
       if (m_srcMaps.find(*name) == m_srcMaps.end() || recreate) 
 	loadSourceMap(*name,recreate,false);
     
       if(saveMaps) {
+	tip::Extension* ptr(0);
+	std::cout << *name << std::endl;
 	if(fileHasSourceMap(*name, m_srcMapsFile)) {
-	  replaceSourceMap(*name, m_srcMapsFile);
+	  ptr = replaceSourceMap(*name, m_srcMapsFile);
+	  hdus.push_back(ptr);
 	} else if(!fileHasSourceMap(*name, m_srcMapsFile)) {
-	  appendSourceMap(*name, m_srcMapsFile);
+	  ptr = appendSourceMap(*name, m_srcMapsFile);
+	  hdus.push_back(ptr);
 	}
       }
     }
-  
+
+    for ( std::vector<tip::Extension*>::iterator itrDel = hdus.begin();
+	  itrDel != hdus.end(); itrDel++ ) {
+      delete *itrDel;
+    }
+    
     if(recreate) {
       buildFixedModelWts();
     }
@@ -580,23 +593,38 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     if (!st_facilities::Util::fileExists(filename)) {
       m_dataMap.writeOutput("BinnedLikelihood", m_srcMapsFile);
     }
+
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
-    for (unsigned int i = 0; i < srcNames.size(); i++) {
-      st_stream::StreamFormatter formatter("BinnedLikelihood",
-					   "saveSourceMaps", 4);
-      formatter.info() << srcNames.at(i) << std::endl;
+
+    std::vector<tip::Extension*> hdus;
+    st_stream::StreamFormatter formatter("BinnedLikelihood",
+					 "saveSourceMaps", 4);
+
+    unsigned int i(0);
+    for (i = 0; i < srcNames.size(); i++) {
+      tip::Extension* ptr(0);      
       if (m_srcMaps.count(srcNames.at(i))) {
 	if (fileHasSourceMap(srcNames.at(i), m_srcMapsFile) && replace) {
-	  replaceSourceMap(srcNames.at(i), m_srcMapsFile);
-	} else if(!fileHasSourceMap(srcNames.at(i), m_srcMapsFile)) {
+	  ptr = replaceSourceMap(srcNames.at(i), m_srcMapsFile);
+	  hdus.push_back(ptr);
+	} else if ( !fileHasSourceMap(srcNames.at(i), m_srcMapsFile) ) {
 	  formatter.info() << "appending map for " 
 			   << srcNames.at(i) << std::endl;
-	  appendSourceMap(srcNames.at(i), m_srcMapsFile);
+	  ptr = appendSourceMap(srcNames.at(i), m_srcMapsFile);
+	  hdus.push_back(ptr);
 	}
       }
     }
-    saveWeightsMap(replace);
+      
+    tip::Extension* whdu = saveWeightsMap(replace);
+    if ( whdu != 0 ) {
+      hdus.push_back(whdu);
+    }
+    for ( std::vector<tip::Extension*>::iterator itrDel = hdus.begin();
+	  itrDel != hdus.end(); itrDel++ ) {
+      delete *itrDel;
+    }    
   }
   
 
@@ -785,7 +813,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	  throw std::runtime_error("BinnedLikelihood::fixedModelUpdated: "
 				   "inconsistent m_srcMaps.");
 	}
-	if ( itrFind->second->spectrum_changed() ) {
+	if ( itrFind->second->spectrum_changed() ) {	  
 	  return true;
 	}	
       }
@@ -856,7 +884,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     } else {
       srcMap = srcMapIt->second;
     }
-    addSourceWts(m_fixedModelWts, srcName, srcMap);
+    
+    addSourceWts(m_fixedModelWts, srcName, srcMap, false, true);
     double xi(1);
 
     bool use_edisp_val = use_edisp(srcName);
@@ -998,21 +1027,22 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     return *m_drm;
   }
 
-  void BinnedLikelihood::saveWeightsMap(bool replace) const {
-    if ( m_weightMap == 0 ) return;
+  tip::Extension* BinnedLikelihood::saveWeightsMap(bool replace) const {
+    if ( m_weightMap == 0 ) return 0;
     bool has_weights = fileHasSourceMap("__weights__", m_srcMapsFile);    
     if ( has_weights ) {
       if ( replace ) {
-	FileUtils::replace_image_from_float_vector(m_srcMapsFile,"__weights__",
-						   m_dataMap,m_weightMap->model(),false);
+	return FileUtils::replace_image_from_float_vector(m_srcMapsFile,"__weights__",
+							  m_dataMap,m_weightMap->model(),false);
       } else {
 	// just leave it be;
 	;
       }
     } else {
-      	FileUtils::append_image_from_float_vector(m_srcMapsFile,"__weights__",
-						  m_dataMap,m_weightMap->model(),false);	
+      return FileUtils::append_image_from_float_vector(m_srcMapsFile,"__weights__",
+						       m_dataMap,m_weightMap->model(),false);	
     }
+    return 0;
   }
 
 
@@ -1104,41 +1134,40 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
 
 
-void BinnedLikelihood::replaceSourceMap(const std::string & srcName,
-                                        const std::string & fitsFile) const {
+tip::Extension* BinnedLikelihood::replaceSourceMap(const std::string & srcName,
+						   const std::string & fitsFile) const {
 
   SourceMap & srcMap = sourceMap(srcName);
   srcMap.setFilename(fitsFile);
   switch ( srcMap.mapType() ) {
   case FileUtils::HPX_Sparse:
-    FileUtils::replace_image_from_float_map_healpix(fitsFile,srcName,static_cast<const CountsMapHealpix&>(m_dataMap),
-						    srcMap.cached_sparse_model(),true);
+    return FileUtils::replace_image_from_sparse_vector_healpix(fitsFile,srcName,static_cast<const CountsMapHealpix&>(m_dataMap),
+							       srcMap.cached_sparse_model(),true);
     break;
   case FileUtils::WCS:
   case FileUtils::HPX_AllSky:
   case FileUtils::HPX_Partial:
   default:
-    FileUtils::replace_image_from_float_vector(fitsFile,srcName,m_dataMap,
-					       srcMap.cached_model(),true);
+    return FileUtils::replace_image_from_float_vector(fitsFile,srcName,m_dataMap,
+						      srcMap.cached_model(),true);
   }
 }
 
-void BinnedLikelihood::appendSourceMap(const std::string & srcName,
-                                       const std::string & fitsFile) const {
+tip::Extension* BinnedLikelihood::appendSourceMap(const std::string & srcName,
+						  const std::string & fitsFile) const {
 
   SourceMap & srcMap = sourceMap(srcName);
   srcMap.setFilename(fitsFile);
   switch ( srcMap.mapType() ) {
   case FileUtils::HPX_Sparse:
-    FileUtils::append_image_from_float_map_healpix(fitsFile,srcName,static_cast<const CountsMapHealpix&>(m_dataMap),
-						   srcMap.cached_sparse_model(),true);
-    break;
+    return FileUtils::append_image_from_sparse_vector_healpix(fitsFile,srcName,static_cast<const CountsMapHealpix&>(m_dataMap),
+							      srcMap.cached_sparse_model(),true);
   case FileUtils::WCS:
   case FileUtils::HPX_AllSky:
   case FileUtils::HPX_Partial:
   default:
-    FileUtils::append_image_from_float_vector(fitsFile,srcName,m_dataMap,
-					      srcMap.cached_model(),true);
+    return FileUtils::append_image_from_float_vector(fitsFile,srcName,m_dataMap,
+						     srcMap.cached_model(),true);
   }
 }
 
@@ -1227,7 +1256,8 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
 void BinnedLikelihood::addSourceWts(std::vector<std::pair<double, double> > & modelWts,
 				    const std::string & srcName,
 				    SourceMap * srcMap,
-				    bool subtract) const {
+				    bool subtract,
+				    bool latchParams) const {
   const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
   if (src == 0) {
     return;
@@ -1248,7 +1278,7 @@ void BinnedLikelihood::addSourceWts(std::vector<std::pair<double, double> > & mo
     sourceMap = srcIt->second;
   } 
   
-  sourceMap->setSpectralValues(m_energies);
+  sourceMap->setSpectralValues(m_energies,latchParams);
 
   bool use_edisp_val = use_edisp(srcName);
   const Drm_Cache* drm_cache = sourceMap->drm_cache();

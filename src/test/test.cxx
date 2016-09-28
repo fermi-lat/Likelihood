@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.142 2016/09/13 19:26:26 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.143 2016/09/21 22:49:51 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -1617,7 +1617,7 @@ void LikelihoodTests::test_PointSourceMap_hpx_allsky() {
    // Values as of ST-11-03-01
    CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Sparse);
    CPPUNIT_ASSERT(srcMap.cached_model().size()==0);
-   CPPUNIT_ASSERT(srcMap.cached_sparse_model().size()==678);
+   CPPUNIT_ASSERT(srcMap.cached_sparse_model().non_null().size()==678);
    
    const std::vector<double>& energies = cmap.energies();
    const std::vector<double>& npreds = srcMap.npreds();
