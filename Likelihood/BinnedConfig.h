@@ -3,7 +3,7 @@
  * @brief Small helper classes to deal with BinnedLikelihood configuration
  * @author E. Charles
 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedConfig.h,v 1.3 2016/09/13 19:26:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedConfig.h,v 1.4 2016/09/14 20:10:45 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedConfig_h
@@ -38,7 +38,8 @@ namespace Likelihood {
 		   PSFIntegType integ_type = PsfIntegConfig::adaptive,
 		   double psfEstimatorFtol = 1e-3,
 		   double psfEstimatorPeakTh = 1e-6,
-		   bool verbose = true)
+		   bool verbose = true,
+		   bool use_single_psf = false)
       :m_applyPsfCorrections(applyPsfCorrections),
        m_performConvolution(performConvolution),
        m_resample(resample),
@@ -47,7 +48,8 @@ namespace Likelihood {
        m_integ_type(integ_type),
        m_psfEstimatorFtol(psfEstimatorFtol),
        m_psfEstimatorPeakTh(psfEstimatorPeakTh),
-       m_verbose(verbose){
+       m_verbose(verbose),
+       m_use_single_psf(use_single_psf){
     }
 
     /* Copy c'tor */
@@ -60,7 +62,8 @@ namespace Likelihood {
        m_integ_type(other.m_integ_type),
        m_psfEstimatorFtol(other.m_psfEstimatorFtol),
        m_psfEstimatorPeakTh(other.m_psfEstimatorPeakTh),
-       m_verbose(other.m_verbose){
+       m_verbose(other.m_verbose),
+       m_use_single_psf(other.m_use_single_psf){
     }
 
     /* D'tor, trivial */
@@ -94,6 +97,9 @@ namespace Likelihood {
     inline bool& verbose() { return m_verbose; }
     inline const bool& verbose() const { return m_verbose; }
 
+    inline bool& use_single_psf() { return m_use_single_psf; }
+    inline const bool& use_single_psf() const { return m_use_single_psf; }
+
   private:
     
     bool m_applyPsfCorrections;  //! Apply PSF integral corrections
@@ -105,6 +111,7 @@ namespace Likelihood {
     double m_psfEstimatorFtol;   //! Fractional tolerance on adaptive PSF Integration
     double m_psfEstimatorPeakTh; //! Peak threshold on adaptive PSF Integration
     bool m_verbose;              //! Turn on verbose output
+    bool m_use_single_psf;       //! Use a single PSF for all sources
 
   };
     
@@ -125,7 +132,8 @@ namespace Likelihood {
 			   double& estimatorPeakTh,
 			   bool& use_edisp,
 			   bool& use_linear_quadrature,
-			   bool& save_all_srcmaps);
+			   bool& save_all_srcmaps,
+			   bool& use_single_psf);
 
   public:
 
@@ -143,10 +151,11 @@ namespace Likelihood {
 		     bool use_edisp = false, 
 		     bool use_single_fixed_map = true,
 		     bool use_linear_quadrature = false,
-		     bool save_all_srcmaps = false) 
+		     bool save_all_srcmaps = false,
+		     bool use_single_psf = false)
       :m_computePointSources(computePointSources),       
        m_psf_integ_config(applyPsfCorrections,performConvolution,resample,resamp_factor,minbinsz,
-			  integ_type,psfEstimatorFtol,psfEstimatorPeakTh,verbose),
+			  integ_type,psfEstimatorFtol,psfEstimatorPeakTh,verbose,use_single_psf),
        m_use_edisp(use_edisp),
        m_use_single_fixed_map(use_single_fixed_map),
        m_use_linear_quadrature(use_linear_quadrature),
@@ -156,7 +165,8 @@ namespace Likelihood {
 		    m_psf_integ_config.psfEstimatorPeakTh(),
 		    m_use_edisp,
 		    m_use_linear_quadrature,
-		    m_save_all_srcmaps);
+		    m_save_all_srcmaps,
+		    m_psf_integ_config.use_single_psf());
     }
     
     BinnedLikeConfig(const BinnedLikeConfig& other)
@@ -176,7 +186,7 @@ namespace Likelihood {
     inline bool& use_single_fixed_map() { return m_use_single_fixed_map; }
     inline bool& use_linear_quadrature() { return m_use_linear_quadrature; }
     inline bool& save_all_srcmaps() { return m_save_all_srcmaps; }
-
+   
     inline const bool& computePointSources() const { return m_computePointSources; } 
     inline const bool& use_edisp() const { return m_use_edisp; }
     inline const bool& use_single_fixed_map() const { return m_use_single_fixed_map; }
@@ -191,7 +201,7 @@ namespace Likelihood {
     bool m_use_single_fixed_map;   //! Use a single model for all fixed components
     bool m_use_linear_quadrature;  //! Use linear quadrature for counts integration
     bool m_save_all_srcmaps;       //! Save the source maps for all sources
-    
+     
   };
 
 } // namespace Likelihood

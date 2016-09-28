@@ -3,7 +3,7 @@
  * @brief Classes to store configuration for BinnedLikelihood fitting
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedConfig.cxx,v 1.3 2016/09/13 19:26:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedConfig.cxx,v 1.4 2016/09/14 20:10:44 echarles Exp $
  */
 
 #include "Likelihood/BinnedConfig.h"
@@ -16,7 +16,8 @@ namespace Likelihood {
 				    double& estimatorPeakTh,
 				    bool& use_edisp,
 				    bool& use_linear_quadrature,
-				    bool& save_all_srcmaps) {
+				    bool& save_all_srcmaps,
+				    bool& use_single_psf) {
          
     if(::getenv("USE_ADAPTIVE_PSF_ESTIMATOR")) {
       estimatorMethod = PsfIntegConfig::adaptive;
@@ -42,6 +43,10 @@ namespace Likelihood {
 
     if (::getenv("SAVE_ALL_SRCMAPS") ) {
       save_all_srcmaps = true;
+    }
+
+    if (::getenv("USE_SINGLE_PSF") ) {
+      use_single_psf = true;
     }
 
   }
