@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.67 2016/09/20 20:51:42 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.68 2016/09/21 22:49:31 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -17,6 +17,7 @@
 
 #include "Likelihood/BinnedConfig.h"
 #include "Likelihood/FileUtils.h"
+#include "Likelihood/SparseVector.h"
 
 namespace astro {
    class HealpixProj;
@@ -56,12 +57,10 @@ class  SCIENCETOOLS_API SourceMap {
 public:
 
   static void fill_sparse_model(const std::vector<float>& vect,
-				std::map<size_t,float>& theMap,
-				float threshold = 1e-9);
+				SparseVector<float>& sparse);
   
-  static void fill_full_model(const std::map<size_t,float>& theMap,
-			      std::vector<float>& vect,
-			      size_t vect_size);
+  static void fill_full_model(const SparseVector<float>& sparse,
+			      std::vector<float>& vect);
   
 public:
 
@@ -159,8 +158,10 @@ public:
       and latch it in this class.
       
       energies:  The energies at which to evalute the spectrum
+      latch_params : If true, the model parameters are latched
    */   
-   void setSpectralValues(const std::vector<double>& energies);
+   void setSpectralValues(const std::vector<double>& energies,
+			  bool latch_params = false);
 
    /* Extract the spectral derivatives from the Source object and 
       latch them in this class.
@@ -202,7 +203,7 @@ public:
 
    /* The sparse version of source map model.  This must be multiplied by the spectrum for each pixel 
       and integrated over the energy bin to obtain the predicted counts */
-   inline const std::map<size_t,float> & cached_sparse_model() const { return m_sparseModel; }
+   inline const SparseVector<float> & cached_sparse_model() const { return m_sparseModel; }
    
 
    /* These are the derivatives of the 'spectrum' values.  I.e., the derivatives evaluated 
@@ -250,6 +251,11 @@ public:
    /// Set the filename (e.g., b/c we are writing the source map)
    inline void setFilename(const std::string& filename) { m_filename = filename; }
 
+
+   /* --------------------- Debugging -------------------- */
+   size_t memory_size() const;
+   
+
 protected:
 
    /* Read the model from a file */
@@ -284,8 +290,7 @@ private:
 
    /* Get the value from the sparse model */
    float find_value(size_t idx) const {
-     std::map<size_t,float>::const_iterator itrFind = m_sparseModel.find(idx);
-     return itrFind != m_sparseModel.end() ? itrFind->second : 0.;
+     return m_sparseModel[idx];
    }
 
 
@@ -334,7 +339,7 @@ private:
    std::vector<float> m_model;
 
    /// This is the "sparse" version of the source map data.
-   std::map<size_t,float> m_sparseModel;
+   SparseVector<float> m_sparseModel;
 
    /// What type of source map data do we have
    FileUtils::SrcMapType m_mapType;
@@ -346,6 +351,11 @@ private:
    /// These are the spectral parameters for this source.
    /// They are used to determine if the spectrum has changed
    std::vector<double> m_modelPars;
+
+   /// These are the 'latched' spectral parameters for this source.
+   /// I.e., the version that the binned likelihood 
+   /// Thinks the source has
+   std::vector<double> m_latchedModelPars;
 
    /// These are the derivatives of the 'spectrum' values
    /// I.e., the derivatives evaluated at the energy points
@@ -361,9 +371,6 @@ private:
    /// Caches of the true and measured energy spectra for sources
    Drm_Cache* m_drm_cache;
 
-   /// @brief Scaling factor between the true and projected angular separation
-   //  for the fast PSF integration
-   std::vector< std::vector< double > > m_pixelOffset;
 
 };
 
