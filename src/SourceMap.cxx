@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.128 2016/09/22 01:38:09 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.129 2016/09/28 01:36:44 echarles Exp $
  */
 
 #include <cmath>
@@ -345,6 +345,32 @@ const Drm_Cache* SourceMap::drm_cache(bool force) {
   }
   return m_drm_cache;
 }
+ 
+void SourceMap::addToVector(std::vector<float>& vect, bool includeSpec) {
+  switch ( m_mapType ) {
+  case FileUtils::HPX_Sparse:
+    return addToVector_sparse(vect,includeSpec);
+    break;
+  case FileUtils::WCS:
+  case FileUtils::HPX_AllSky:
+  case FileUtils::HPX_Partial:
+  default:
+    return addToVector_full(vect,includeSpec);
+  }
+}
+   
+void SourceMap::subtractFromVector(std::vector<float>& vect, bool includeSpec){
+  switch ( m_mapType ) {
+  case FileUtils::HPX_Sparse:
+    return subtractFromVector_sparse(vect,includeSpec);
+    break;
+  case FileUtils::WCS:
+  case FileUtils::HPX_AllSky:
+  case FileUtils::HPX_Partial:
+  default:
+    return subtractFromVector_full(vect,includeSpec);
+  }
+}
 
 double SourceMap::summed_counts(size_t kmin, size_t kmax,
 				bool use_edisp,
@@ -532,5 +558,68 @@ int SourceMap::make_model() {
 
   return status;
 }
+
+void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec) const {
+  if ( vect.size() != m_model.size() ) {
+    throw std::runtime_error("SourceMap::addToVector_full model size != vector size");
+  }
+  std::vector<float>::const_iterator itr_in = m_model.begin();
+  std::vector<float>::iterator itr_out = vect.begin();
+  size_t ne =  m_dataMap->energies().size();
+  size_t npix = m_model.size() / ne;
+  for ( size_t ie(0); ie < ne; ie++ ) {
+    double factor = includeSpec ? m_specVals[ie] : 1.;
+    for ( size_t ipix(0); ipix < npix; ipix++, itr_in++, itr_out++ ) {
+      *itr_out += *itr_in * factor;
+    }
+  }
+}
+  
+void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec) const {
+  if ( vect.size() != m_sparseModel.size() ) {
+    throw std::runtime_error("SourceMap::addToVector_sparse model size != vector size");
+  }
+  size_t ne =  m_dataMap->energies().size();
+  size_t npix = m_model.size() / ne;
+  std::vector<float>::iterator itr_out = vect.begin();
+  for ( SparseVector<float>::const_iterator itr = m_sparseModel.begin(); 
+	itr != m_sparseModel.end(); itr++, itr_out++ ) {
+    int ie = includeSpec ? ( itr->first / npix ) : -1;
+    double factor = ie >= 0 ? m_specVals[ie] : 1.;
+    *itr_out += itr->second * factor;
+  }
+}
+
+void SourceMap::subtractFromVector_full(std::vector<float>& vect, bool includeSpec) const {
+   if ( vect.size() != m_model.size() ) {
+    throw std::runtime_error("SourceMap::addToVector_full model size != vector size");
+  }
+  std::vector<float>::const_iterator itr_in = m_model.begin();
+  std::vector<float>::iterator itr_out = vect.begin();
+  size_t ne =  m_dataMap->energies().size();
+  size_t npix = m_model.size() / ne;
+  for ( size_t ie(0); ie < ne; ie++ ) {
+    double factor = includeSpec ? m_specVals[ie] : 1.;
+    for ( size_t ipix(0); ipix < npix; ipix++, itr_in++, itr_out++ ) {
+      *itr_out -= *itr_in * factor;
+    }
+  }
+}
+ 
+
+void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool includeSpec) const {
+ if ( vect.size() != m_sparseModel.size() ) {
+    throw std::runtime_error("SourceMap::addToVector_sparse model size != vector size");
+  }
+  size_t ne =  m_dataMap->energies().size();
+  size_t npix = m_model.size() / ne;
+  std::vector<float>::iterator itr_out = vect.begin();
+  for ( SparseVector<float>::const_iterator itr = m_sparseModel.begin(); 
+	itr != m_sparseModel.end(); itr++, itr_out++ ) {
+    int ie = includeSpec ? ( itr->first / npix ) : -1;
+    double factor = ie >= 0 ? m_specVals[ie] : 1.;
+    *itr_out -= itr->second * factor;
+  }
+} 
 
 } // Likelihood

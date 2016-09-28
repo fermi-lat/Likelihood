@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.68 2016/09/21 22:49:31 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.69 2016/09/28 01:36:43 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -239,6 +239,12 @@ public:
    /* This contains both the convolved and un-convolved counts spectra */
    const Drm_Cache* drm_cache(bool force=false);
 
+   /* Add the model to an extermal vector */
+   void addToVector(std::vector<float>& vect, bool includeSpec = false);
+   
+   /* Subtract the model from an extermal vector */
+   void subtractFromVector(std::vector<float>& vect, bool includeSpec = false);
+
    /// Explicitly set the image data
    void setImage(const std::vector<float>& model);
 
@@ -279,6 +285,18 @@ protected:
 
 private:
 
+   /* Implementation of addToVector for full-model storage */
+   void addToVector_full(std::vector<float>& vect, bool includeSpec=false) const;
+ 
+   /* Implementation of addToVector for sparse-model storage */
+   void addToVector_sparse(std::vector<float>& vect, bool includeSpec=false) const;
+
+   /* Implementation of subtractFromVector for full-model storage */
+   void subtractFromVector_full(std::vector<float>& vect, bool includeSpec=false) const;
+ 
+   /* Implementation of subtractFromVector for sparse-model storage */
+   void subtractFromVector_sparse(std::vector<float>& vect, bool includeSpec=false) const;
+ 
    /* Compute the NPreds */
    void computeNpredArray();
 
