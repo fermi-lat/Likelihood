@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.128 2016/09/28 01:37:38 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.129 2016/09/28 17:44:45 echarles Exp $
  */
 
 #include <cmath>
@@ -451,8 +451,9 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     // Check to see if we already have the map
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
     if ( itrFind != m_srcMaps.end() ) {
-      itrFind->second->setSource(*src);
-      return itrFind->second;
+      const SourceMap* srcMap = itrFind->second;
+      srcMap->setSource(*src);
+      return srcMap;
     }
 
     Drm* the_drm (0);
@@ -510,13 +511,14 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     
       if(saveMaps) {
 	tip::Extension* ptr(0);
-	std::cout << *name << std::endl;
 	if(fileHasSourceMap(*name, m_srcMapsFile)) {
 	  ptr = replaceSourceMap(*name, m_srcMapsFile);
-	  hdus.push_back(ptr);
+	  delete ptr;
+	  // hdus.push_back(ptr);
 	} else if(!fileHasSourceMap(*name, m_srcMapsFile)) {
 	  ptr = appendSourceMap(*name, m_srcMapsFile);
-	  hdus.push_back(ptr);
+	  delete ptr;
+	  // hdus.push_back(ptr);
 	}
       }
     }
@@ -607,26 +609,64 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       if (m_srcMaps.count(srcNames.at(i))) {
 	if (fileHasSourceMap(srcNames.at(i), m_srcMapsFile) && replace) {
 	  ptr = replaceSourceMap(srcNames.at(i), m_srcMapsFile);
-	  hdus.push_back(ptr);
+	  delete ptr;
+	  //hdus.push_back(ptr);
 	} else if ( !fileHasSourceMap(srcNames.at(i), m_srcMapsFile) ) {
 	  formatter.info() << "appending map for " 
 			   << srcNames.at(i) << std::endl;
 	  ptr = appendSourceMap(srcNames.at(i), m_srcMapsFile);
-	  hdus.push_back(ptr);
+	  delete ptr;
+	  // hdus.push_back(ptr);
 	}
       }
     }
       
     tip::Extension* whdu = saveWeightsMap(replace);
     if ( whdu != 0 ) {
-      hdus.push_back(whdu);
+      delete whdu;
+      // hdus.push_back(whdu);
     }
+
     for ( std::vector<tip::Extension*>::iterator itrDel = hdus.begin();
 	  itrDel != hdus.end(); itrDel++ ) {
       delete *itrDel;
     }    
   }
   
+
+  tip::Extension* BinnedLikelihood::saveTotalFixedSourceMap(bool replace) {
+
+    std::vector<float> srcMap(source_map_size(),0.);
+    std::vector<std::string> fixedSrcNames;
+    std::vector<const Source*> fixedSrcs;
+    for ( std::map<std::string, Source*>::const_iterator itr = m_sources.begin();
+	  itr != m_sources.end(); itr++ ) {
+      if (itr->second->fixedSpectrum()) {
+	fixedSrcNames.push_back(itr->first);
+	fixedSrcs.push_back(itr->second);
+      }
+    }
+    addFullModel(fixedSrcNames,srcMap);
+    bool has_fixed = fileHasSourceMap("__FIXED__", m_srcMapsFile);    
+    tip::Extension* ext(0);
+    if ( has_fixed ) {
+      if ( replace ) {
+	ext = FileUtils::replace_image_from_float_vector(m_srcMapsFile,"__weights__",
+							 m_dataMap,m_weightMap->model(),true);
+      } else {
+	// just leave it be;
+	;
+      }
+    } else {
+      ext = FileUtils::append_image_from_float_vector(m_srcMapsFile,"__FIXED__",
+						      m_dataMap,srcMap,true);
+    }
+    
+    tip::Extension* pext = FileUtils::write_model_parameters_to_table(m_srcMapsFile,"__FIXED_PAR__",
+								      fixedSrcs);
+    delete pext;
+    return ext;
+  }
 
 
   double BinnedLikelihood::computeModelMap_internal(bool weighted) const {
@@ -854,14 +894,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
 
-  void BinnedLikelihood::addFullFixedModel(std::vector<float>& model) {
-    std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
-    for ( ; srcIt != m_sources.end(); ++srcIt) {
-      const std::string & srcName(srcIt->first);
-      if ( ! srcIt->second->fixedSpectrum() ) {
-	continue;
-      }
-      SourceMap* srcMap = getSourceMap(srcName, false);
+  void BinnedLikelihood::addFullModel(const std::vector<std::string>& sources, std::vector<float>& model) {
+    for ( std::vector<std::string>::const_iterator srcIt = sources.begin();  
+	  srcIt != sources.end(); ++srcIt) {
+      SourceMap* srcMap = getSourceMap(*srcIt, false);
       srcMap->addToVector(model,true);
     }
   }
