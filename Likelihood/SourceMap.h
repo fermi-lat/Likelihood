@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.69 2016/09/28 01:36:43 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.70 2016/09/28 17:44:44 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -261,6 +261,8 @@ public:
    /* --------------------- Debugging -------------------- */
    size_t memory_size() const;
    
+   void test_sparse(const std::string& prefix) const;
+
 
 protected:
 
