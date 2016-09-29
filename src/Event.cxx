@@ -3,7 +3,7 @@
  * @brief Event class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Event.cxx,v 1.86 2015/01/16 21:14:51 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/Event.cxx,v 1.87 2015/12/03 23:47:46 mdwood Exp $
  */
 
 #include <cctype>
@@ -164,7 +164,17 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
    double minusone(-1);
    double one(1);
    double mumin(minusone);
+   double mumid(0.0);
    double mumax(one);
+   double theta(getDir().difference(zAxis())*180./M_PI);
+
+   irfInterface::Irfs * irfs(const_cast<irfInterface::Irfs *>(respFuncs.respPtr(getType())));
+
+   /// Compute the 2- and 4-sigma PSF containment radii
+   double psf2s = irfs->psf()->angularContainment(getEnergy(),theta,0.0,0.954499);
+   double psf4s = irfs->psf()->angularContainment(getEnergy(),theta,0.0,0.999936);
+   double mu_psf2s = std::cos(psf2s*M_PI/180.);
+   double mu_psf4s = std::cos(psf4s*M_PI/180.);
 
    EquinoxRotation eqRot(getDir().ra(), getDir().dec());
    for (size_t i(0); i < srcs.size(); i++) {     
@@ -186,6 +196,14 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
             // do nothing
          }
 
+	 if(mumin < mu_psf4s) {
+	   mumin = mu_psf4s;
+	   mumid = mu_psf2s;
+	 } else {
+	   mumin = mumin;
+	   mumid = mumin + 0.5*(mumax-mumin);
+	 }
+
 	 if (haveSpatialFunction) {
 	    const SpatialFunction* fn = dynamic_cast<const SpatialFunction *>(srcs.at(i)->spatialDist());
 	    respValue = fn->diffuseResponse(*this,respFuncs);	
@@ -204,11 +222,16 @@ void Event::computeResponseGQ(std::vector<DiffuseSource *> & srcList,
                /// Steve's integration scheme with the theta integral
                /// evaluated inside the phi integral.  The produces
                /// much more accurate results.
-               respValue = DiffRespIntegrand2::
-                  do2DIntegration(*this, respFuncs, *srcs.at(i), eqRot,
-                                  mumin, mumax, phimin, phimax, 0.001, 0.01);
-            }
+	      respValue = 
+		DiffRespIntegrand2::
+		do2DIntegration(*this, respFuncs, *srcs.at(i), eqRot,
+				mumid, mumax, phimin, phimax, 0.001, 0.01) +
+		DiffRespIntegrand2::
+		do2DIntegration(*this, respFuncs, *srcs.at(i), eqRot,
+				mumin, mumid, phimin, phimax, 0.001, 0.01);
+	    }
 	 }
+
          m_respDiffuseSrcs[name].push_back(respValue);
       }
    }
