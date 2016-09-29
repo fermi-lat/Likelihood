@@ -3,7 +3,7 @@
  * @brief Functions to  deal with PSF Integration and convolution
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.2 2016/09/15 21:25:52 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PSFUtils.cxx,v 1.3 2016/09/21 22:48:06 echarles Exp $
  */
 
 #include "Likelihood/PSFUtils.h"
@@ -784,7 +784,7 @@ namespace Likelihood {
 	std::vector<double>::iterator itr_sep = max_sep.begin();
 	for ( std::vector<double>::const_iterator itr_eng = energies.begin(); 
 	      itr_eng != energies.end(); itr_eng++, itr_sep++ ) {
-	  (*itr_sep) = solve_for_containment(meanpsf,*itr_eng);
+	  (*itr_sep) = meanpsf.containmentRadius(*itr_eng,0.999,0.01);
 	}
       }
 
@@ -1134,42 +1134,6 @@ namespace Likelihood {
       }
       return psf_value/static_cast<double>(npts*npts);
     }
-
-
-    double solve_for_containment(const MeanPsf & meanPsf, 
-				 double energy, 
-				 double init_val,
-				 double remain,
-				 double tol) {
-      double ang = init_val;
-      double yval = 1. - meanPsf.integral(ang,energy);
- 
-      double delta = std::max(0.1*init_val,1.);
-      
-      static const size_t max_iter(100);
-      size_t i(0);
-      while (i<max_iter) {
-	
-        double ang_next = std::max(ang + delta,ang/2.);
-        double y_next = 1. - meanPsf.integral(ang_next,energy);
-
-	double ang_step = ang_next - ang;
-	double slope = (y_next - yval) / ang_step;
-        double del_y =  remain - y_next;
-	delta = del_y / slope;
-
-	if ( std::fabs(del_y) < tol ) { 
-	  return ang_next;
-	}
-        
-	ang = ang_next;;
-	yval = y_next;
-	i++;
-      }
-
-      return -1;
-    }
-
 
   } // namespace PSFUtils
  
