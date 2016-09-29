@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.129 2016/09/28 01:36:44 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.130 2016/09/28 17:44:45 echarles Exp $
  */
 
 #include <cmath>
@@ -67,7 +67,7 @@ void SourceMap::fill_sparse_model(const std::vector<float>& vect,
 void SourceMap::fill_full_model(const SparseVector<float>& sparse,
 				std::vector<float>& vect) {
   sparse.fill_vect(vect);
-}
+ }
 
 
 SourceMap::SourceMap(const Source& src, 
@@ -426,6 +426,16 @@ size_t SourceMap::memory_size() const {
 }
 
 
+void SourceMap::test_sparse(const std::string& prefix) const {
+  for ( SparseVector<float>::const_iterator itr = m_sparseModel.begin();
+	itr != m_sparseModel.end(); itr++ ) {
+    if ( itr->first >= m_sparseModel.size() ) {
+      std::cout << prefix << " " << itr->first << ' ' << m_sparseModel.size() << ' ' << itr->second << std::endl;
+    }
+  }
+}
+
+
 int SourceMap::readModel(const std::string& filename) {
   m_model.clear();
   m_filename = filename;
@@ -563,10 +573,13 @@ void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec) con
   if ( vect.size() != m_model.size() ) {
     throw std::runtime_error("SourceMap::addToVector_full model size != vector size");
   }
-  std::vector<float>::const_iterator itr_in = m_model.begin();
-  std::vector<float>::iterator itr_out = vect.begin();
   size_t ne =  m_dataMap->energies().size();
   size_t npix = m_model.size() / ne;
+  if ( includeSpec && m_specVals.size() != ne ) {
+    throw std::runtime_error("SourceMap::addToVector_full spectrum size != number of energy layers");
+  }
+  std::vector<float>::const_iterator itr_in = m_model.begin();
+  std::vector<float>::iterator itr_out = vect.begin();
   for ( size_t ie(0); ie < ne; ie++ ) {
     double factor = includeSpec ? m_specVals[ie] : 1.;
     for ( size_t ipix(0); ipix < npix; ipix++, itr_in++, itr_out++ ) {
@@ -580,24 +593,30 @@ void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec) c
     throw std::runtime_error("SourceMap::addToVector_sparse model size != vector size");
   }
   size_t ne =  m_dataMap->energies().size();
-  size_t npix = m_model.size() / ne;
-  std::vector<float>::iterator itr_out = vect.begin();
+  size_t npix = m_sparseModel.size() / ne;
+  if ( includeSpec && m_specVals.size() != ne ) {
+    throw std::runtime_error("SourceMap::addToVector_sparse spectrum size != number of energy layers");
+  }
+  size_t idx(0);
   for ( SparseVector<float>::const_iterator itr = m_sparseModel.begin(); 
-	itr != m_sparseModel.end(); itr++, itr_out++ ) {
-    int ie = includeSpec ? ( itr->first / npix ) : -1;
+	itr != m_sparseModel.end(); itr++, idx++) {
+    int ie = includeSpec ? ( itr->first / npix ) : -1;    
     double factor = ie >= 0 ? m_specVals[ie] : 1.;
-    *itr_out += itr->second * factor;
+    vect[itr->first] += itr->second * factor;
   }
 }
 
 void SourceMap::subtractFromVector_full(std::vector<float>& vect, bool includeSpec) const {
    if ( vect.size() != m_model.size() ) {
-    throw std::runtime_error("SourceMap::addToVector_full model size != vector size");
+    throw std::runtime_error("SourceMap::subtractFromVector_full model size != vector size");
+  }
+  size_t ne =  m_dataMap->energies().size();
+  size_t npix = m_model.size() / ne;
+  if ( includeSpec && m_specVals.size() != ne ) {
+    throw std::runtime_error("SourceMap::subtractFromVector_full spectrum size != number of energy layers");
   }
   std::vector<float>::const_iterator itr_in = m_model.begin();
   std::vector<float>::iterator itr_out = vect.begin();
-  size_t ne =  m_dataMap->energies().size();
-  size_t npix = m_model.size() / ne;
   for ( size_t ie(0); ie < ne; ie++ ) {
     double factor = includeSpec ? m_specVals[ie] : 1.;
     for ( size_t ipix(0); ipix < npix; ipix++, itr_in++, itr_out++ ) {
@@ -609,16 +628,18 @@ void SourceMap::subtractFromVector_full(std::vector<float>& vect, bool includeSp
 
 void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool includeSpec) const {
  if ( vect.size() != m_sparseModel.size() ) {
-    throw std::runtime_error("SourceMap::addToVector_sparse model size != vector size");
+    throw std::runtime_error("SourceMap::subtractFromVector_sparse model size != vector size");
   }
   size_t ne =  m_dataMap->energies().size();
-  size_t npix = m_model.size() / ne;
-  std::vector<float>::iterator itr_out = vect.begin();
+  size_t npix = m_sparseModel.size() / ne;
+  if ( includeSpec && m_specVals.size() != ne ) {
+    throw std::runtime_error("SourceMap::subtractFromVector_sparse spectrum size != number of energy layers");
+  }
   for ( SparseVector<float>::const_iterator itr = m_sparseModel.begin(); 
-	itr != m_sparseModel.end(); itr++, itr_out++ ) {
+	itr != m_sparseModel.end(); itr++ ) {
     int ie = includeSpec ? ( itr->first / npix ) : -1;
     double factor = ie >= 0 ? m_specVals[ie] : 1.;
-    *itr_out -= itr->second * factor;
+    vect[itr->first] -= itr->second * factor;
   }
 } 
 
