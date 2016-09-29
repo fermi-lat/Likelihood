@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.90 2016/09/28 01:37:38 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.91 2016/09/28 17:44:44 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -126,6 +126,13 @@ namespace Likelihood {
 
      /// Return the number of pixels
      size_t num_pixels() const { return m_dataMap.data().size() / num_ebins(); }
+
+     /// Return the size of the data map
+     size_t data_map_size() const { return m_dataMap.data().size(); }
+
+     /// Return the size of the scours maps
+     size_t source_map_size() const { return m_energies.size() * num_pixels(); }
+    
 
      /// Return the min and max energy bins to use
      std::pair<int, int> klims() const {
@@ -364,6 +371,14 @@ namespace Likelihood {
      */
      void saveSourceMaps(const std::string & filename="",
 			 bool replace=false);
+
+
+     /* Write a single combinded source map for all the fixed sources
+	
+	filename : The name of the file.  If empty use the current source maps file
+     */
+     tip::Extension* saveTotalFixedSourceMap(bool replace = false);
+
      
      /* --------------- Functions for dealing with model maps -------------- */
 
@@ -449,7 +464,7 @@ namespace Likelihood {
      /* Compute the full model for all the fixed source.
 	
      */
-     void addFullFixedModel(std::vector<float>& model);
+     void addFullModel(const std::vector<std::string>& sources, std::vector<float>& model);
    
      /* Compute the model for all the fixed source.
 
