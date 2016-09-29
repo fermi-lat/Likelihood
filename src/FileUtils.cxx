@@ -3,7 +3,7 @@
  * @brief Functions to getting data to and from FITS files
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.2 2016/09/21 22:42:40 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.3 2016/09/28 01:35:38 echarles Exp $
  */
 
 #include <memory>
@@ -263,11 +263,11 @@ namespace Likelihood {
 
 
     tip::Extension* replace_image_from_sparse_vector_healpix(const std::string& filename, 
-							 const std::string& extension,
-							 const CountsMapHealpix& dataMap,
-							 const SparseVector<float>& imageData,
-							 bool is_src_map) {
-
+							     const std::string& extension,
+							     const CountsMapHealpix& dataMap,
+							     const SparseVector<float>& imageData,
+							     bool is_src_map) {
+      
       tip::Table* table = tip::IFileSvc::instance().editTable(filename, extension);
       tip::Header& header = table->getHeader();
       dataMap.setKeywords(header);
@@ -282,16 +282,16 @@ namespace Likelihood {
       header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
  
       int idx(0);
-      size_t nfilled = imageData.size();
+      size_t nfilled = imageData.non_null().size();
       std::vector<size_t> key_vect;
       std::vector<float> val_vect;
       
       imageData.fill_key_and_value(key_vect,val_vect);
 
       char key_type[20];
-      sprintf(key_type,"%i%s",nfilled,"J");
+      sprintf(key_type,"%i%s\n",nfilled,"J");
       char val_type[20];
-      sprintf(val_type,"%i%s",nfilled,"F");
+      sprintf(val_type,"%i%s\n",nfilled,"E");
 
       tip::FieldIndex_t key_idx(-1);
       try {
@@ -311,7 +311,7 @@ namespace Likelihood {
       }	   
       tip::IColumn* val_col = table->getColumn(val_idx);
       val_col->set(0,val_vect);
-
+      
       return table;
     }
 
@@ -372,20 +372,11 @@ namespace Likelihood {
 							    const SparseVector<float>& imageData,
 							    bool is_src_map) {
       /* Add the table by hand to avoid lots of overhead from tip */
-      fitsfile * fp = 0;
-      int status = 0;
-      fits_open_file(&fp, const_cast<char *>(filename.c_str()), READWRITE, &status);
-      if (0 != status) {
-	throw tip::TipException(status, "File does not exist \"" + filename + "\"");
-      }
-      fits_create_tbl(fp, BINARY_TBL, 0, 0, 0, 0, 0, const_cast<char *>(extension.c_str()), &status);
-      if (0 != status) {
-	throw tip::TipException(status, "Unable to create table named \"" + extension + "\" in file \"" + filename + "\"");
-      }
-
-      tip::Extension* ptr = FileUtils::replace_image_from_sparse_vector_healpix(filename,extension,
-										dataMap,imageData,is_src_map);
-      return ptr;
+      // This causes memory corruption, so lets' not use it
+      // append_table_only(filename,extension);
+      tip::IFileSvc::instance().appendTable(filename,extension);
+      return FileUtils::replace_image_from_sparse_vector_healpix(filename,extension,
+								 dataMap,imageData,is_src_map);
     }
 
 
@@ -410,16 +401,16 @@ namespace Likelihood {
 						    const std::string& extension,
 						    const std::vector<const Source*>& sources) {
 
-      append_table_only(filename,extension);
+      tip::IFileSvc::instance().appendTable(filename,extension);
       tip::Table* table = tip::IFileSvc::instance().editTable(filename, extension);
       
-      tip::IColumn& src_name_col = append_column(*table,"SourceName","A32");
-      tip::IColumn& func_name_col = append_column(*table,"FunctionName","A32");
-      tip::IColumn& par_name_col = append_column(*table,"ParamName","A32");
-      tip::IColumn& par_value_col = append_column(*table,"ParamName","D");
+      tip::IColumn& src_name_col = append_column(*table,"SourceName","32A");
+      tip::IColumn& func_name_col = append_column(*table,"FunctionName","32A");
+      tip::IColumn& par_name_col = append_column(*table,"ParamName","32A");
+      tip::IColumn& par_value_col = append_column(*table,"ParamValue","D");
       tip::IColumn& par_scale_col = append_column(*table,"ParamScale","D");
       tip::IColumn& par_error_col = append_column(*table,"ParamError","D");
-      tip::IColumn& par_free_col = append_column(*table,"ParamFree","B");
+      tip::IColumn& par_free_col = append_column(*table,"ParamFree","L");
 
       size_t irec(0);
       for ( std::vector<const Source*>::const_iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
@@ -442,7 +433,7 @@ namespace Likelihood {
 					  tip::IColumn& par_error_col,
 					  tip::IColumn& par_free_col ) {
       const std::string srcName = source.getName();
-      const Source::FuncMap& funcMap =  source.getSrcFuncs();
+      const Source::FuncMap& funcMap =  source.getSrcFuncs();      
       for ( Source::FuncMap::const_iterator itr = funcMap.begin(); itr != funcMap.end(); itr++ ) {
 	const optimizers::Function& func = *(itr->second);
 	write_function_parameters_to_table(srcName,func,
@@ -523,7 +514,7 @@ namespace Likelihood {
       const tip::IColumn& src_name_col = get_column(*table,"SourceName");
       const tip::IColumn& func_name_col = get_column(*table,"FunctionName");
       const tip::IColumn& par_name_col = get_column(*table,"ParamName");
-      const tip::IColumn& par_value_col = get_column(*table,"ParamName");
+      const tip::IColumn& par_value_col = get_column(*table,"ParamValue");
       const tip::IColumn& par_scale_col = get_column(*table,"ParamScale");
       const tip::IColumn& par_error_col = get_column(*table,"ParamError");
       const tip::IColumn& par_free_col = get_column(*table,"ParamFree");
