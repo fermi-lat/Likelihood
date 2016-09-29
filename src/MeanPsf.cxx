@@ -3,7 +3,7 @@
  * @brief Psf at a specific sky location averaged over an observation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.34 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/MeanPsf.cxx,v 1.35 2016/03/03 21:51:38 mdwood Exp $
  */
 
 #include <cmath>
@@ -17,6 +17,7 @@
 
 #include "st_stream/StreamFormatter.h"
 
+#include "st_facilities/RootFinder.h"
 #include "st_facilities/Util.h"
 
 #include "Likelihood/MeanPsf.h"
@@ -186,6 +187,12 @@ double MeanPsf::integral(double angle, double energy) const {
    return final_value;
 }
 
+double MeanPsf::containmentRadius(double energy, double frac, 
+				  double rtol) const {
+  IntegralFunctor fn = IntegralFunctor(*this,energy);
+  return st_facilities::RootFinder::find_root(fn, 0.0, 180.0, frac, rtol);
+}
+
 // double MeanPsf::containmentRadius(double energy, double frac) const {
 //    if (energy < m_energies.front() || energy > m_energies.back()) {
 //       std::ostringstream message;
@@ -310,6 +317,10 @@ double MeanPsf::Psf::value(double cosTheta, double phi) const {
       }
    }
    return 0;
+}
+
+double MeanPsf::IntegralFunctor::operator()(double angle) const {
+  return m_mean_psf.integral(angle,m_energy);
 }
 
 } // namespace Likelihood
