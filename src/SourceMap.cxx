@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.130 2016/09/28 17:44:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/SourceMap.cxx,v 1.131 2016/09/29 00:25:56 echarles Exp $
  */
 
 #include <cmath>
@@ -159,6 +159,21 @@ void SourceMap::expand_model(bool clearSparse) {
 
 
 void SourceMap::computeNpredArray() {
+
+   bool expanded = false;
+   if ( m_mapType == FileUtils::HPX_Sparse && m_model.size() == 0 ) {
+     expanded = true;
+     expand_model(false);
+   } 
+   
+   if ( m_model.size() == 0 ) {
+     // The model was clear, re-make it
+     // Note that this call will also call compute NpredArray,
+     // so we can return now
+     const std::vector<float>& dummy = model(true);
+     return;
+   }
+
    const std::vector<Pixel> & pixels(m_dataMap->pixels());
    
    std::vector<double> energies;
@@ -184,11 +199,6 @@ void SourceMap::computeNpredArray() {
    m_npred_weights.clear();
    m_npred_weights.resize(nw, std::make_pair<double,double>(0.,0.));
 
-   bool expanded = false;
-   if ( m_mapType == FileUtils::HPX_Sparse && m_model.size() == 0 ) {
-     expanded = true;
-     expand_model(false);
-   }
 
    for (size_t k(0); k < ne; k++) {
 
@@ -206,7 +216,7 @@ void SourceMap::computeNpredArray() {
 	 double w_1_addend = m_weights != 0 ? ( m_weights->model()[indx_1]*addend ) : addend;
 	 w_0_sum += w_0_addend;
 	 w_1_sum += w_1_addend;
-      }
+      }      
       double w_0 = m_weights != 0 ? (m_npreds[k] > 0 ? w_0_sum / m_npreds[k] : 0.) : 1.0;
       double w_1 = m_weights != 0 ? (m_npreds[k] > 0 ? w_1_sum / m_npreds[k] : 0.) : 1.0;
 
