@@ -1,7 +1,7 @@
 # -*- python -*-
-# $Id: SConscript,v 1.358 2016/09/28 01:39:33 echarles Exp $
+# $Id: SConscript,v 1.359 2016/09/29 22:35:28 mdwood Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Eric Charles <echarles@slac.stanford.edu>, Matthew Wood <mdwood@slac.stanford.edu> 
-# Version: Likelihood-20-08-05
+# Version: Likelihood-20-08-06
 
 import sys
 Import('baseEnv', 'listFiles')
