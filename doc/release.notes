@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.595 2016/09/30 22:19:03 mdwood Exp $
+    $Id: release.notes,v 1.596 2016/10/01 00:16:30 echarles Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-08-08 06-Oct-2016 mdwood Increase integration bounds in diffuse response calculation for large incidence angle events.
  Likelihood-20-08-07 30-Sep-2016 echarles Fix SourceMap::computeNpredArray for case where model has been cleared
  Likelihood-20-08-06 30-Sep-2016 mdwood Small tweak to logic for integration bounds in diffuse response calculation.
  Likelihood-20-08-05 29-Sep-2016 mdwood Tweak implementation of diffuse response calculation to improve accuracy when PSF is small.
