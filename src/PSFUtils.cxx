@@ -3,7 +3,7 @@
  * @brief Functions to  deal with PSF Integration and convolution
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PSFUtils.cxx,v 1.3 2016/09/21 22:48:06 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.4 2016/09/29 22:02:06 mdwood Exp $
  */
 
 #include "Likelihood/PSFUtils.h"
@@ -17,7 +17,9 @@
 #include "st_facilities/Util.h"
 
 #include "Likelihood/BinnedConfig.h"
+#include "Likelihood/BinnedCountsCache.h"
 #include "Likelihood/BinnedExposureBase.h"
+#include "Likelihood/CompositeSource.h"
 #include "Likelihood/CountsMapBase.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/CountsMapHealpix.h"
@@ -254,29 +256,38 @@ namespace Likelihood {
 		       std::vector<float>& modelmap,
 		       FileUtils::SrcMapType& mapType) {
 
+      if ( config.verbose() ) {
+	formatter.warn() << "Generating SourceMap for " << diffuseSrc.getName();
+      }
+
+      int status(0);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
-	return makeDiffuseMap_wcs(diffuseSrc,static_cast<const CountsMap&>(dataMap),meanpsf,
-				  bexpmap,config,formatter,modelmap,mapType);
+	status = makeDiffuseMap_wcs(diffuseSrc,static_cast<const CountsMap&>(dataMap),meanpsf,
+				    bexpmap,config,formatter,modelmap,mapType);
+	break;
       case astro::ProjBase::HEALPIX:
 	if ( PSFUtils::neededMapSize(diffuseSrc,dataMap) > 45. ) {
 	  // The map takes up a large fraction of the sky, 
 	  // let's do the convolution using HEALPix
-	  return makeDiffuseMap_healpix(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,
-					bexpmap,config,formatter,modelmap,mapType);
+	  status = makeDiffuseMap_healpix(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,
+					  bexpmap,config,formatter,modelmap,mapType);
 	} else {
 	  // The ROI only take up a relatively small fraction of the sky (< 15%)
 	  // we will do the convlution in the native projection, then convert to healpix
-	  return makeDiffuseMap_native(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,
-				       bexpmap,config,formatter,modelmap,mapType);
+	  status = makeDiffuseMap_native(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,
+					 bexpmap,config,formatter,modelmap,mapType);
 	}
-      default:
 	break;
+      default:
+	throw std::runtime_error("Unrecognized projection type for map object for source: " +
+				 diffuseSrc.getName());
+	return -1;
       }
-      std::string errMsg("Unrecognized projection type for map object for source: ");
-      errMsg += diffuseSrc.getName();
-      throw std::runtime_error(errMsg);
-      return 1; 
+      if (config.verbose()) {
+	formatter.warn() << "!" << std::endl;
+      }
+      return status;
     }
     
     int makeDiffuseMap_wcs(const DiffuseSource& diffuseSrc, 
@@ -748,20 +759,31 @@ namespace Likelihood {
 			   std::vector<float>& modelmap,
 			   FileUtils::SrcMapType& mapType) {
 
+      if ( config.verbose() ) {
+	formatter.warn() << "Generating SourceMap for " << pointSrc.getName();
+      }
+
+      int status(0);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
-	return makePointSourceMap_wcs(pointSrc,static_cast<const CountsMap&>(dataMap),
-				      config,meanpsf,formatter,modelmap,mapType);	 
-      case astro::ProjBase::HEALPIX:
-	return makePointSourceMap_healpix(pointSrc,static_cast<const CountsMapHealpix&>(dataMap),
-					  config,meanpsf,formatter,modelmap,mapType);
-      default:
+	status = makePointSourceMap_wcs(pointSrc,static_cast<const CountsMap&>(dataMap),
+					config,meanpsf,formatter,modelmap,mapType);
 	break;
+      case astro::ProjBase::HEALPIX:
+	status = makePointSourceMap_healpix(pointSrc,static_cast<const CountsMapHealpix&>(dataMap),
+					    config,meanpsf,formatter,modelmap,mapType);
+	break;
+      default:
+	throw std::runtime_error("PSFUtils::makePointSourceMap, did not recognize CountsMapBase type at: " +
+				 dataMap.filename());
+	return -1;
       }
-      std::string errMsg("PSFUtils::makePointSourceMap, did not recognize CountsMapBase type at: ");
-      errMsg += dataMap.filename();
-      throw std::runtime_error(errMsg);
-      return -1;
+
+      if (config.verbose()) {
+	formatter.warn() << "!" << std::endl;
+      }
+
+      return status;
     }
     
     int makePointSourceMap_wcs(const PointSource& pointSrc, 
@@ -958,7 +980,38 @@ namespace Likelihood {
       return 0;
     }
 
-    
+    int makeCompositeMap(const CompositeSource& compSrc, 
+			 const BinnedCountsCache& dataCache,
+			 const std::string & srcMapsFile,
+			 const Drm* drm,
+			 st_stream::StreamFormatter& formatter,
+			 std::vector<float>& modelmap,
+			 FileUtils::SrcMapType& mapType) {
+
+      if ( compSrc.config().psf_integ_config().verbose() ) {
+	formatter.warn() << "Generating SourceMap for " << compSrc.getName() << "{ " << std::endl;
+      }
+
+      switch ( dataCache.countsMap().projection().method() ) {
+      case astro::ProjBase::WCS:
+	mapType = FileUtils::WCS;
+	break;
+      case astro::ProjBase::HEALPIX:
+	mapType = dataCache.countsMap().mapRadius() >= 180 ? FileUtils::HPX_AllSky : FileUtils::HPX_Partial;
+	break;
+      default:
+	mapType = FileUtils::Unknown;
+	return -1;
+      }      
+      if ( compSrc.sourceMapCache() == 0 ) {
+	compSrc.buildSourceMapCache(dataCache,srcMapsFile,drm);
+      }
+      compSrc.fillSummedSourceMap(modelmap);
+      if ( compSrc.config().psf_integ_config().verbose() ) {
+	formatter.warn() << "}" << std::endl;
+      }
+      return 0;
+    }
 
     double psfValueEstimate(const MeanPsf & meanPsf, double energy, 
 			    const astro::SkyDir & srcDir, 
