@@ -4,7 +4,7 @@
  * the flux and Likelihood packages.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.2 2004/11/11 00:03:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.3 2005/01/03 23:01:16 jchiang Exp $
  */
 
 #ifndef Likelihood_XmlBuilder_h
@@ -21,6 +21,7 @@ namespace xmlBase {
 namespace Likelihood {
 
    class Source;
+   class SourceModel;
 
 /**
  * @class XmlBuilder
@@ -32,8 +33,13 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.2 2004/11/11 00:03:28 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.3 2005/01/03 23:01:16 jchiang Exp $
  */
+
+#ifndef SWIG
+typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DOMElement;
+typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument DOMDocument;
+#endif // SWIG
 
 class XmlBuilder {
 
@@ -41,9 +47,12 @@ public:
 
    virtual ~XmlBuilder();
 
-   virtual void addSource(Source &) {}
+   virtual void addSourceModel(const SourceModel& srcModel) {}
+
+   virtual void addSource(const Source &) {}
 
    virtual void write(std::string) {}
+
 
 protected:
 
@@ -51,7 +60,7 @@ protected:
 
    xmlBase::XmlParser * m_parser;
 
-   XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * m_doc;
+   DOMDocument * m_doc;
 
 };
 
