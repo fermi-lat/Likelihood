@@ -3,7 +3,7 @@
  * @brief Prototype standalone application for the Likelihood tool.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/likelihood/likelihood.cxx,v 1.166 2016/03/30 23:06:55 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/likelihood.cxx,v 1.167 2016/03/31 01:56:31 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -41,7 +41,6 @@
 
 #include "Likelihood/AppHelpers.h"
 #include "Likelihood/BinnedLikelihood.h"
-#include "Likelihood/BinnedLikelihood2.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/CountsSpectra.h"
 #include "Likelihood/ExposureCube.h"
@@ -376,14 +375,7 @@ void likelihood::createStatistic() {
          // assume parameter does not exist, so use default value.
       }
       if (::getenv("USE_BINNED_LIKELIHOOD2")) {
-         CountsMap* countsMap = dynamic_cast<CountsMap*>(m_dataMap);
-	 if ( countsMap == 0 ) { 
-            throw std::runtime_error("BinnedLikelihood2 only works with a WCS-based counts map file, but this file is HEALPIX-based " + countsMapFile); 
-	 }
-         m_logLike = new BinnedLikelihood2(*countsMap, m_helper->observation(),
-                                           countsMapFile, 
-                                           computePointSources,
-                                           apply_psf_corrections);
+	throw std::runtime_error("BinnedLikelihood2 has be removed, you should unset the USE_BINNED_LIKELIHOOD2 envvar");
       } else {
          m_logLike = m_wmap == 0 ? 
 	   new BinnedLikelihood(*m_dataMap, m_helper->observation(),
@@ -779,8 +771,7 @@ void likelihood::printFitResults(const std::vector<double> &errors) {
                        << "Total number of model events: ";
    if (m_statistic == "BINNED") {
       if (::getenv("USE_BINNED_LIKELIHOOD2")) {
-         m_formatter->info() 
-            << dynamic_cast<BinnedLikelihood2 *>(m_logLike)->npred();
+	 throw std::runtime_error("BinnedLikelihood2 has be removed, you should unset the USE_BINNED_LIKELIHOOD2 envvar");
       } else {
          m_formatter->info() 
             << dynamic_cast<BinnedLikelihood *>(m_logLike)->npred();
@@ -955,11 +946,7 @@ double likelihood::observedCounts() {
    if (m_statistic == "BINNED") {
       double totalCounts(0);
       if (::getenv("USE_BINNED_LIKELIHOOD2")) {
-         BinnedLikelihood2 * logLike = dynamic_cast<BinnedLikelihood2 *>(m_logLike);
-         const std::vector<double> & counts(logLike->countsSpectrum());
-         for (size_t i = 0; i < counts.size(); i++) {
-            totalCounts += counts.at(i);
-         }
+	 throw std::runtime_error("BinnedLikelihood2 has be removed, you should unset the USE_BINNED_LIKELIHOOD2 envvar");
       } else {
          BinnedLikelihood * logLike = dynamic_cast<BinnedLikelihood *>(m_logLike);
          const std::vector<double> & counts(logLike->countsSpectrum());
