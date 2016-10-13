@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.129 2016/09/28 17:44:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.130 2016/09/29 00:30:25 echarles Exp $
  */
 
 #include <cmath>
@@ -25,6 +25,7 @@
 #include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/CountsMapHealpix.h"
+#include "Likelihood/CompositeSource.h"
 #include "Likelihood/FitUtils.h"
 #include "Likelihood/FileUtils.h"
 #include "Likelihood/WeightMap.h"
@@ -38,16 +39,6 @@
 namespace Likelihood {
 
 
-bool BinnedLikelihood::fileHasSourceMap(const std::string& srcName, 
-					const std::string& fitsFile) {
-  try {
-    std::auto_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(fitsFile,srcName));
-  } catch (tip::TipException &) {
-    return false;
-  }
-  return true;
-}
-
 BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
                                    const Observation & observation,
                                    const std::string & srcMapsFile,
@@ -58,15 +49,8 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
                                    double resamp_factor,
                                    double minbinsz)
   : LogLike(observation), 
-    m_dataMap(dataMap), 
-    m_pixels(dataMap.pixels()),
-    m_kmin(0), m_kmax(0), 
-    m_modelIsCurrent(false),
-    m_weightMap_orig(0),
-    m_weightMap(0),
-    m_weightedCounts(0),
-    m_updateFixedWeights(true),
-    m_drm(0),
+    m_dataCache(dataMap,observation,0,srcMapsFile),
+    m_kmin(0), m_kmax(m_dataCache.num_ebins()),
     m_srcMapsFile(srcMapsFile),
     m_config(computePointSources,
 	     applyPsfCorrections,
@@ -75,14 +59,15 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     resamp_factor,
 	     minbinsz,
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
-	     true,false,true,false) {
-  dataMap.getEnergies(m_energies);
-  log_energy_ratios(m_energies,m_log_energy_ratios);
-  m_kmax = m_energies.size() - 1;
-  identifyFilledPixels();
-  m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
-  m_fixedNpreds.resize(m_energies.size(), 0); 
-  computeCountsSpectrum();
+	     true,false,true,false),
+    m_drm(m_config.use_edisp() ?
+	  new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
+		  observation, m_dataCache.countsMap().energies()) : 0),
+    m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
+    m_modelIsCurrent(false),
+    m_updateFixedWeights(true){
+  m_fixedModelWts.resize(m_dataCache.nFilled(), std::make_pair(0, 0));
+  m_fixedNpreds.resize(m_dataCache.num_energies(), 0); 
 }
 
 BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
@@ -96,15 +81,8 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
                                    double resamp_factor,
                                    double minbinsz)
   : LogLike(observation), 
-    m_dataMap(dataMap), 
-    m_pixels(dataMap.pixels()),
-    m_kmin(0), m_kmax(0), 
-    m_modelIsCurrent(false),
-    m_weightMap_orig(&weightMap),
-    m_weightMap(0),
-    m_weightedCounts(0),
-    m_updateFixedWeights(true),
-    m_drm(0),
+    m_dataCache(dataMap,observation,&weightMap,srcMapsFile),
+    m_kmin(0),m_kmax(m_dataCache.num_ebins()),
     m_srcMapsFile(srcMapsFile),
     m_config(computePointSources,
 	     applyPsfCorrections,
@@ -113,40 +91,24 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     resamp_factor,
 	     minbinsz,	     
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
-	     true,false,true,false){  
-  
-  dataMap.getEnergies(m_energies);
-  log_energy_ratios(m_energies,m_log_energy_ratios);
-  m_kmax = m_energies.size() - 1;
-  
-  if ( fileHasSourceMap("__weights__",m_srcMapsFile) ) {
-    st_stream::StreamFormatter formatter("BinnedLikelihood","", 2);
-    formatter.warn() << "Reading existing weights map from file " << m_srcMapsFile << std::endl;
-    m_weightMap = new WeightMap(m_srcMapsFile, &dataMap, m_observation);
-  } else {
-    m_weightMap = new WeightMap(weightMap,&dataMap,observation,true);
-  }
-  identifyFilledPixels();
-  m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
-  m_fixedNpreds.resize(m_energies.size(), 0);
-  computeCountsSpectrum();
+	     true,false,true,false),
+     m_drm(m_config.use_edisp() ?
+	  new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
+		  observation, m_dataCache.countsMap().energies()) : 0),
+    m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
+    m_modelIsCurrent(false),
+    m_updateFixedWeights(true){    
+  m_fixedModelWts.resize(m_dataCache.nFilled(), std::make_pair(0, 0));
+  m_fixedNpreds.resize(m_dataCache.num_energies(), 0);
 }
 
 BinnedLikelihood::~BinnedLikelihood() throw() {
-  std::map<std::string, SourceMap *>::iterator srcMap(m_srcMaps.begin());
-  for ( ; srcMap != m_srcMaps.end(); ++srcMap) {
-    delete srcMap->second;
-  }
-  delete m_weightMap;
   delete m_drm;
 }
 
 
 void BinnedLikelihood::setCountsMap(const std::vector<float> & counts) {
-  if(counts.size() != m_dataMap.data().size())
-    throw std::runtime_error("Wrong size for input counts map.");
-  m_dataMap.setImage(counts);
-  identifyFilledPixels();
+  m_dataCache.setCountsMap(counts);
   buildFixedModelWts();
 }
 
@@ -157,28 +119,20 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   // Here we want the weighted verison of the nPred
   double npred = computeModelMap_internal(true);
   
-  const std::vector<float> & data = m_weightMap == 0 ? m_dataMap.data() : m_weightedCounts->data();
-  double my_value(0);
+  const std::vector<float> & data = m_dataCache.data( m_dataCache.has_weights() );
   
-  for (size_t i(0); i < m_filledPixels.size(); i++) {
+  for (size_t i(0); i < m_dataCache.nFilled(); i++) {
     if (m_model.at(i) > 0) {
-      size_t j(m_filledPixels.at(i));
-      size_t k(j/m_pixels.size());
+      size_t j(m_dataCache.filledPixels()[i]);
+      size_t k(j/num_pixels());
       if (k >= m_kmin && k <= m_kmax) {
 	double addend = data.at(j)*std::log(m_model[i]);
-	my_value += addend;
 	m_accumulator.add(addend);
       }
     }
   }
-  my_value -= npred;
   m_accumulator.add(-npred);
   
-  st_stream::StreamFormatter formatter("BinnedLikelihood", "value", 4);
-  formatter.info() << m_nevals << "  "
-		   << my_value << "  "
-		   << npred << std::endl;
-  m_nevals++;
   
   double my_total(m_accumulator.total());
   
@@ -189,6 +143,12 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   }
   
   saveBestFit(my_total);
+  st_stream::StreamFormatter formatter("BinnedLikelihood", "value", 4);
+  formatter.info() << m_nevals << "  "
+		   << my_total << "  "
+		   << npred << std::endl;
+  m_nevals++;
+
   return my_total;
 }
 
@@ -204,12 +164,12 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     // here we want the weighted version of npred
     npred = computeModelMap_internal(true);
   }
-  const std::vector<float> & data = m_weightMap == 0 ? m_dataMap.data() : m_weightedCounts->data();
+  const std::vector<float> & data = m_dataCache.data( m_dataCache.has_weights() );
   
   /// First j value corresponding to the minimum allowed k-index.
   size_t jentry(0);
-  for (size_t j(0); j < m_filledPixels.size(); j++) {
-    size_t k(m_filledPixels[j]/m_pixels.size());
+  for (size_t j(0); j < m_dataCache.nFilled(); j++) {
+    size_t k(m_dataCache.filledPixels()[j]/num_pixels());
     if (k == m_kmin) {
       jentry = j;
       break;
@@ -227,8 +187,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       std::vector<std::string> parnames;
       src->second->spectrum().getFreeParamNames(parnames);
       SourceMap & srcMap = sourceMap(src->first);
-      srcMap.setSpectralValues(m_energies);
-      srcMap.setSpectralDerivs(m_energies,parnames);
+      srcMap.setSpectralValues(m_dataCache.energies());
+      srcMap.setSpectralDerivs(m_dataCache.energies(),parnames);
     }
   }
   
@@ -240,15 +200,15 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
 
   //   timer.start();
-  for (size_t j(jentry); j < m_filledPixels.size(); j++) {
-    size_t jmin(m_filledPixels.at(j));
-    size_t jmax(jmin + m_pixels.size());
-    size_t k(jmin/m_pixels.size());
+  for (size_t j(jentry); j < m_dataCache.nFilled(); j++) {
+    size_t jmin(m_dataCache.filledPixels()[j]);
+    size_t jmax(jmin + num_pixels());
+    size_t k(jmin/num_pixels());
     if (k < m_kmin || k > m_kmax-1) {
       continue;
     }
-    double emin(m_energies.at(k));
-    double emax(m_energies.at(k+1));
+    double emin(m_dataCache.energies().at(k));
+    double emax(m_dataCache.energies().at(k+1));
     if (m_model.at(j) > 0) {
       long iparam(0);
      
@@ -265,7 +225,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	  double my_deriv = pixelCounts(emin,emax,
 					srcMap[jmin]*specDerivs[i][k],
 					srcMap[jmax]*specDerivs[i][k+1],
-					m_log_energy_ratios[k]);
+					m_dataCache.log_energy_ratios()[k]);
 	  double addend(data.at(jmin)/m_model.at(j)*my_deriv);
 	  if (addend > 0) {
 	    posDerivs[iparam].add(addend);
@@ -289,14 +249,14 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
    
     for (size_t i(0); i < specDerivs.size(); i++, iparam2++) {
-      for (size_t kk(0); kk < m_energies.size()-1; kk++) {
+      for (size_t kk(0); kk < m_dataCache.num_ebins(); kk++) {
 	if (kk < m_kmin || kk > m_kmax-1) {
 	  continue;
 	}
-	double addend = pixelCounts(m_energies.at(kk),m_energies.at(kk+1),
+	double addend = pixelCounts(m_dataCache.energies().at(kk),m_dataCache.energies().at(kk+1),
 				    npreds.at(kk)*npred_weights[kk].first*specDerivs[i][kk],
 				    npreds.at(kk+1)*npred_weights[kk].second*specDerivs[i][kk+1],
-				    m_log_energy_ratios[kk]);
+				    m_dataCache.log_energy_ratios()[kk]);
 	if (-addend > 0) {
 	  posDerivs[iparam2].add(-addend);
 	} else {
@@ -340,8 +300,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   CountsMapBase * BinnedLikelihood::createCountsMap() const {
     std::vector<float> map;
     computeModelMap(map);
-
-    CountsMapBase * modelMap = m_dataMap.clone();         
+    CountsMapBase * modelMap = m_dataCache.countsMap().clone();         
     modelMap->setImage(map);
     return modelMap;
   }
@@ -357,15 +316,16 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
 
-  void BinnedLikelihood::addSource(Source * src, bool fromClone) {
+  void BinnedLikelihood::addSource(Source * src, bool fromClone, SourceMap* srcMap) {
     m_bestValueSoFar = -1e38;
     SourceModel::addSource(src, fromClone);
     if ( m_config.use_single_fixed_map() && src->fixedSpectrum()) {
       addFixedSource(src->getName());
     } else {
-      SourceMap * srcMap(getSourceMap(src->getName(), true));
-      if (srcMap) {
-	m_srcMaps[src->getName()] = srcMap;
+      if ( srcMap == 0 ) {	
+	m_srcMapCache.loadSourceMap(*src,false);
+      } else {
+	m_srcMapCache.insertSourceMap(src->getName(),*srcMap);
       }
     }
   }
@@ -377,16 +337,16 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     // Check if this is a fixed source, and if so, remove it from the fixed model.
     std::vector<std::string>::iterator srcIt = 
       std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
+    bool subtract(true);
     if (source(srcName).fixedSpectrum() && srcIt != m_fixedSources.end()) {
       SourceMap * srcMap(getSourceMap(srcName, false));
-      bool subtract;
-      addSourceWts(m_fixedModelWts, srcName, srcMap, subtract=true);
+      addSourceWts(m_fixedModelWts, srcName, srcMap, subtract);
       m_fixedSources.erase(srcIt);
     }
     Source * src(SourceModel::deleteSource(srcName));
     return src;
   }
-  
+ 
 
   void BinnedLikelihood::syncParams() {
     SourceModel::syncParams();
@@ -411,82 +371,34 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   double BinnedLikelihood::NpredValue(const std::string & srcName,
 				      SourceMap & sourceMap, 
 				      bool weighted) const {
-
-    sourceMap.setSpectralValues(m_energies);
-    updateCorrectionFactors(srcName,sourceMap);
-    double value = sourceMap.summed_counts(m_kmin,m_kmax,
-					   use_edisp(srcName),weighted);
-    return value;
+    const Source& src = source(srcName);
+    return m_srcMapCache.NpredValue(src,sourceMap,m_kmin,m_kmax,weighted);
   }
 
   bool BinnedLikelihood::hasSourceMap(const std::string & name) const {
-    if (m_srcMaps.find(name) == m_srcMaps.end())
-      return false;
-    else
-      return true;
+    return m_srcMapCache.hasSourceMap(name);
   }
 
   SourceMap & BinnedLikelihood::sourceMap(const std::string & name) const {
-    std::vector<std::string> srcNames;
-    getSrcNames(srcNames);
-
-    std::vector<std::string>::iterator nameIt = 
-      std::find(srcNames.begin(),srcNames.end(),name);
-    if(nameIt == srcNames.end())
-      throw std::runtime_error("Cannot find source named: " + name);
-
-    if (m_srcMaps.find(name) == m_srcMaps.end()) {
-      m_srcMaps[name] = getSourceMap(name);
-    }
-
-    return *m_srcMaps[name];
+    const Source& src = source(name);
+    SourceMap* srcMap =  m_srcMapCache.getSourceMap(src);
+    return *srcMap;
   }
 
   SourceMap * BinnedLikelihood::getSourceMap(const std::string & srcName, 
 					     bool verbose) const {
-  
-    // Check to see if the source map is in the file  
-    Source * src = (const_cast<BinnedLikelihood *>(this))->getSource(srcName);
-
-    // Check to see if we already have the map
-    std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
-    if ( itrFind != m_srcMaps.end() ) {
-      const SourceMap* srcMap = itrFind->second;
-      srcMap->setSource(*src);
-      return srcMap;
-    }
-
-    Drm* the_drm (0);
-    if ( use_edisp(srcName) ) {
-      BinnedLikelihood* nct = const_cast<BinnedLikelihood*>(this);
-      the_drm = &(nct->drm());
-    }
- 
-    if (fileHasSourceMap(srcName, m_srcMapsFile)) {
-      return new SourceMap(m_srcMapsFile, *src, &m_dataMap, 
-			   m_observation, m_weightMap, the_drm, m_config.save_all_srcmaps());
-    }
-  
-    // Generate the source map    
-    if (src->getType() == "Diffuse" || m_config.computePointSources() ) {
-      return new SourceMap(*src, &m_dataMap, m_observation,
-			   m_config.psf_integ_config(),
-			   the_drm,m_weightMap,
-			   m_config.save_all_srcmaps());
-    }
-    return 0;
+    const Source& src = source(srcName);
+    return m_srcMapCache.getSourceMap(src,verbose);
   }
 
 
   SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
     Source * src = getSource(srcName);
-    return new SourceMap(*src, &m_dataMap, m_observation, m_config.psf_integ_config(), 
-			 m_drm, m_weightMap, m_config.save_all_srcmaps() );
+    return m_srcMapCache.createSourceMap(*src);
   }
 
   void BinnedLikelihood::eraseSourceMap(const std::string & srcName) {
-    delete m_srcMaps[srcName];
-    m_srcMaps.erase(srcName);
+    m_srcMapCache.eraseSourceMap(srcName);
   }
 
 
@@ -498,94 +410,31 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
 
   void BinnedLikelihood::loadSourceMaps(const  std::vector<std::string>& srcNames,
-					bool recreate, bool saveMaps) {
-  
-    std::vector<std::string>::const_iterator name = srcNames.begin();
-
-    std::vector<tip::Extension*> hdus;
-    
-    for ( ; name != srcNames.end(); ++name) {     
-    
-      if (m_srcMaps.find(*name) == m_srcMaps.end() || recreate) 
-	loadSourceMap(*name,recreate,false);
-    
-      if(saveMaps) {
-	tip::Extension* ptr(0);
-	if(fileHasSourceMap(*name, m_srcMapsFile)) {
-	  ptr = replaceSourceMap(*name, m_srcMapsFile);
-	  delete ptr;
-	  // hdus.push_back(ptr);
-	} else if(!fileHasSourceMap(*name, m_srcMapsFile)) {
-	  ptr = appendSourceMap(*name, m_srcMapsFile);
-	  delete ptr;
-	  // hdus.push_back(ptr);
-	}
-      }
-    }
-
-    for ( std::vector<tip::Extension*>::iterator itrDel = hdus.begin();
-	  itrDel != hdus.end(); itrDel++ ) {
-      delete *itrDel;
-    }
-    
-    if(recreate) {
-      buildFixedModelWts();
-    }
+					bool recreate, bool saveMaps) {  
+    std::vector<const Source*> srcs;
+    getSources(srcNames,srcs);
+    m_srcMapCache.loadSourceMaps(srcs,recreate,saveMaps);
   }
-
 
   void BinnedLikelihood::loadSourceMap(const std::string & srcName, bool recreate,
 				       bool buildFixedWeights) {
-    std::vector<std::string> srcNames;
-    getSrcNames(srcNames);
-  
-    std::vector<std::string>::iterator nameIt = 
-      std::find(srcNames.begin(),srcNames.end(),srcName);
-    if(nameIt == srcNames.end())
-      throw std::runtime_error("Cannot find source named: " + srcName);
-  
-    Source * src = getSource(srcName);
-  
-    if(!(src->getType() == "Diffuse" || m_config.computePointSources() ))
-      return;
-  
-    std::map<std::string, SourceMap *>::iterator mapIt = m_srcMaps.find(srcName);
-  
-    if( mapIt != m_srcMaps.end() ) {
-      delete m_srcMaps[srcName];
-      m_srcMaps.erase(srcName);
-    }
-  
-    SourceMap * srcMap = 0;
-  
-    if(recreate) {
-      srcMap = createSourceMap(srcName);
-    } else {
-      srcMap = getSourceMap(srcName);
-    }
-  
-    if(srcMap) {
-      m_srcMaps[srcName] = srcMap;
-    
-      std::vector<std::string>::iterator srcIt = 
-	std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
-      if (srcIt != m_fixedSources.end() && buildFixedWeights) {
-	buildFixedModelWts();
-      }
+
+    const Source& src = source(srcName);
+    m_srcMapCache.loadSourceMap(src,recreate);
+ 
+    std::vector<std::string>::iterator srcIt = 
+      std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
+    if (srcIt != m_fixedSources.end() && buildFixedWeights) {
+      buildFixedModelWts();
     }
   }
   
 
   void BinnedLikelihood::setSourceMapImage(const std::string & name,
 					   const std::vector<float>& image) {
-    // Create the source map if it doesn't exist
-    if (m_srcMaps.find(name) == m_srcMaps.end()) {
-      m_srcMaps[name] = getSourceMap(name);
-    }
-    m_srcMaps[name]->setImage(image);
+    const Source& src = source(name);
+    m_srcMapCache.setSourceMapImage(src,image);
   }
-
-
 
   void BinnedLikelihood::saveSourceMaps(const std::string & filename,
 					bool replace) {
@@ -593,48 +442,25 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       m_srcMapsFile = filename;
     }
     if (!st_facilities::Util::fileExists(filename)) {
-      m_dataMap.writeOutput("BinnedLikelihood", m_srcMapsFile);
+      m_dataCache.countsMap().writeOutput("BinnedLikelihood", m_srcMapsFile);
     }
 
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
+    std::vector<const Source*> srcs;
+    getSources(srcNames,srcs);
+    m_srcMapCache.saveSourceMaps(m_srcMapsFile,srcs,replace);
 
-    std::vector<tip::Extension*> hdus;
-    st_stream::StreamFormatter formatter("BinnedLikelihood",
-					 "saveSourceMaps", 4);
-
-    unsigned int i(0);
-    for (i = 0; i < srcNames.size(); i++) {
-      tip::Extension* ptr(0);      
-      if (m_srcMaps.count(srcNames.at(i))) {
-	if (fileHasSourceMap(srcNames.at(i), m_srcMapsFile) && replace) {
-	  ptr = replaceSourceMap(srcNames.at(i), m_srcMapsFile);
-	  delete ptr;
-	  //hdus.push_back(ptr);
-	} else if ( !fileHasSourceMap(srcNames.at(i), m_srcMapsFile) ) {
-	  formatter.info() << "appending map for " 
-			   << srcNames.at(i) << std::endl;
-	  ptr = appendSourceMap(srcNames.at(i), m_srcMapsFile);
-	  delete ptr;
-	  // hdus.push_back(ptr);
-	}
-      }
-    }
-      
     tip::Extension* whdu = saveWeightsMap(replace);
     if ( whdu != 0 ) {
       delete whdu;
-      // hdus.push_back(whdu);
     }
 
-    for ( std::vector<tip::Extension*>::iterator itrDel = hdus.begin();
-	  itrDel != hdus.end(); itrDel++ ) {
-      delete *itrDel;
-    }    
   }
   
 
   tip::Extension* BinnedLikelihood::saveTotalFixedSourceMap(bool replace) {
+    // FIXME
 
     std::vector<float> srcMap(source_map_size(),0.);
     std::vector<std::string> fixedSrcNames;
@@ -646,20 +472,20 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	fixedSrcs.push_back(itr->second);
       }
     }
-    addFullModel(fixedSrcNames,srcMap);
-    bool has_fixed = fileHasSourceMap("__FIXED__", m_srcMapsFile);    
+    fillSummedSourceMap(fixedSrcNames,srcMap);
+    bool has_fixed = FileUtils::fileHasExtension(m_srcMapsFile, "__FIXED__");    
     tip::Extension* ext(0);
     if ( has_fixed ) {
       if ( replace ) {
-	ext = FileUtils::replace_image_from_float_vector(m_srcMapsFile,"__weights__",
-							 m_dataMap,m_weightMap->model(),true);
+	ext = FileUtils::replace_image_from_float_vector(m_srcMapsFile,"__FIXED__",
+							 m_dataCache.countsMap(),srcMap,true);
       } else {
 	// just leave it be;
 	;
       }
     } else {
       ext = FileUtils::append_image_from_float_vector(m_srcMapsFile,"__FIXED__",
-						      m_dataMap,srcMap,true);
+						      m_dataCache.countsMap(),srcMap,true);
     }
     
     tip::Extension* pext = FileUtils::write_model_parameters_to_table(m_srcMapsFile,"__FIXED_PAR__",
@@ -673,7 +499,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     double npred(0);
   
     std::vector<std::pair<double, double> > modelWts;
-    modelWts.resize(m_filledPixels.size());
+    modelWts.resize(m_dataCache.nFilled());
   
     if (fixedModelUpdated() && m_updateFixedWeights) {
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
@@ -686,7 +512,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
-     for (size_t i(0); i < srcNames.size(); i++) {
+    for (size_t i(0); i < srcNames.size(); i++) {
       npred += NpredValue(srcNames[i],weighted);
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
 		     srcNames.at(i)) == 0) {
@@ -695,16 +521,16 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     }
   
     m_model.clear();
-    m_model.resize(m_filledPixels.size(), 0);
-    for (size_t j(0); j < m_filledPixels.size(); j++) {
-      size_t k(m_filledPixels.at(j)/m_pixels.size());
+    m_model.resize(m_dataCache.nFilled(), 0);
+    for (size_t j(0); j < m_dataCache.nFilled(); j++) {
+      size_t k(m_dataCache.filledPixels()[j]/num_pixels());
       if (k < m_kmin || k > m_kmax-1) {
 	continue;
       }
-      double emin(m_energies[k]);
-      double emax(m_energies[k+1]);
+      double emin(m_dataCache.energies()[k]);
+      double emax(m_dataCache.energies()[k+1]);
       m_model.at(j) = pixelCounts(emin, emax, modelWts.at(j).first,
-				  modelWts.at(j).second, m_log_energy_ratios[k]);
+				  modelWts.at(j).second, m_dataCache.log_energy_ratios()[k]);
     }
   
     m_modelIsCurrent = true;
@@ -720,110 +546,36 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
   void BinnedLikelihood::computeModelMap(const std::string & srcName, 
 					 std::vector<float> & modelMap) const {
-    size_t npix(m_pixels.size());
-    modelMap.clear();
-    modelMap.resize(npix*(m_energies.size()-1), 0);
-    bool hasMap = hasSourceMap(srcName);
-    SourceMap& srcMap = sourceMap(srcName);
-    updateCorrectionFactors(srcName,srcMap);
-    updateModelMap(modelMap, &srcMap);
-    if( !hasMap ) {
-      BinnedLikelihood* nct = const_cast<BinnedLikelihood*>(this);
-      nct->eraseSourceMap(srcName);
-    }
+    const Source& src = source(srcName);
+    m_srcMapCache.computeModelMap(src,modelMap);			  
   }
 
   void BinnedLikelihood::computeModelMap(const std::vector<std::string>& srcNames, 
 					 std::vector<float> & modelMap) const {
-    size_t npix(m_pixels.size());
-    modelMap.clear();
-    modelMap.resize(npix*(m_energies.size()-1), 0);
-  
-    std::vector<std::string>::const_iterator name = srcNames.begin();
-    for ( ; name != srcNames.end(); ++name) {  
-      bool hasMap = hasSourceMap(*name);
-      SourceMap& srcMap = sourceMap(*name);
-      updateCorrectionFactors(*name,srcMap);
-      updateModelMap(modelMap, &srcMap);
-      if( !hasMap ) {
-	BinnedLikelihood* nct = const_cast<BinnedLikelihood*>(this);
-	nct->eraseSourceMap(*name);
-      }
-    }
+    std::vector<const Source*> srcs;
+    getSources(srcNames,srcs);
+    m_srcMapCache.computeModelMap(srcs,modelMap);
   }
 
 
   void BinnedLikelihood::updateModelMap(std::vector<float> & modelMap,
 					SourceMap * srcMap) const {
-    size_t npix(m_pixels.size());
-    std::string name(srcMap->name());
-    double np = NpredValue(name); // This computes the convolved spectrum.
-    const Source * src = const_cast<BinnedLikelihood*>(this)->getSource(name);
-    const std::vector<double> & specVals = srcMap->specVals();
-  
-    const WeightMap* mask = srcMap->weights();
-  
-    bool use_edisp_val = use_edisp(name);
-    const Drm_Cache* drm_cache = srcMap->drm_cache();
-
-    int kref(-1);
-    for (size_t j(0); j < npix; j++) {
-      for (size_t k(0); k < m_energies.size()-1; k++) {
-	double emin(m_energies.at(k));
-	double emax(m_energies.at(k+1));
-	size_t jmin(k*npix + j);
-	size_t jmax(jmin + npix);
-	// EAC, skip masked pixels
-	if ( mask && 
-	     ( mask->model().at(jmin) <= 0. ) ) continue;
-	double wt1(0);
-	double wt2(0);	
-	if ( use_edisp_val ) {
-
-	  double xi = drm_cache->get_correction(k,kref);
-	  if ( kref < 0 ) {
-	    // Correction factor is for this energy, use it
-	    wt1 = specVals[k]*(*srcMap)[jmin]*xi;
-	    wt2 = specVals[k+1]*(*srcMap)[jmax]*xi;
-	  } else {
-	    // Correction factor is for different energy bin, use kref
-	    size_t ipix(jmin % npix);
-	    size_t jref = kref*npix + ipix;
-	    wt1 = specVals[k]*(*srcMap)[jref]*xi;
-	    wt2 = specVals[k+1]*(*srcMap)[jref+npix]*xi;
-	  }
-	} else {
-	  wt1 = specVals[k]*(*srcMap)[jmin];
-	  wt2 = specVals[k+1]*(*srcMap)[jmax];
-	}
-	modelMap[jmin] += pixelCounts(emin, emax,wt1, wt2, m_log_energy_ratios[k]);
-      }
-    }
+    const Source& src = source(srcMap->name());
+    m_srcMapCache.updateModelMap(modelMap,src,srcMap);
   }
 
 
   void BinnedLikelihood::getNpreds(const std::string & srcName,
 				   std::vector<double> & npreds) const {
-    try {
-      npreds = sourceMap(srcName).npreds();
-      return;
-    } catch (std::runtime_error & eObj) {
-      SourceMap * srcMap(getSourceMap(srcName, false));
-      npreds = srcMap->npreds();
-      delete srcMap;
-    }
+    const Source& src = source(srcName);
+    m_srcMapCache.getNpreds(src,npreds);
   }
 
 
   const std::vector<double>& 
-  BinnedLikelihood::modelCountsSpectrum(const std::string & srcname) const {
-    if (!m_modelIsCurrent) {
-      computeModelMap_internal();
-    }
-
-    NpredValue(srcname);
-    SourceMap * srcMap = getSourceMap(srcname, false);
-    return srcMap->drm_cache()->meas_counts();
+  BinnedLikelihood::modelCountsSpectrum(const std::string & srcName) const {
+    const Source& src = source(srcName);
+    return m_srcMapCache.modelCountsSpectrum(src);
   }
 
 
@@ -846,14 +598,14 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
     // Compare current parameter values for fixed sources with saved
     for (srcIt = m_sources.begin(); srcIt != m_sources.end(); ++srcIt) {
-      if (srcIt->second->fixedSpectrum()) {
-	
-	std::map<std::string, SourceMap *>::const_iterator itrFind = m_srcMaps.find(srcIt->first);
-	if ( itrFind == m_srcMaps.end() ) {
+      const Source* src = srcIt->second;
+      if (src->fixedSpectrum()) {
+	const SourceMap* srcMap = m_srcMapCache.getSourceMap(*src);
+	if ( srcMap == 0 ) {
 	  throw std::runtime_error("BinnedLikelihood::fixedModelUpdated: "
 				   "inconsistent m_srcMaps.");
 	}
-	if ( itrFind->second->spectrum_changed() ) {	  
+	if ( srcMap->spectrum_changed() ) {	  
 	  return true;
 	}	
       }
@@ -867,26 +619,20 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   void BinnedLikelihood::buildFixedModelWts(bool process_all) {
     m_fixedSources.clear();
     m_fixedModelWts.clear();
-    m_fixedModelWts.resize(m_filledPixels.size(), std::make_pair(0, 0));
+    m_fixedModelWts.resize(m_dataCache.nFilled(), std::make_pair(0, 0));
     m_fixedNpreds.clear();
-    m_fixedNpreds.resize(m_energies.size(), 0);
+    m_fixedNpreds.resize(m_dataCache.energies().size(), 0);
     std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
     for ( ; srcIt != m_sources.end(); ++srcIt) {
       const std::string & srcName(srcIt->first);
-      if (srcIt->second->fixedSpectrum() && !process_all) {
+      const Source* src = srcIt->second;      
+      if (src->fixedSpectrum() && !process_all) {
 	addFixedSource(srcName);
       } else { 
 	// Process non-fixed sources.
 	//
 	// Ensure model map is available.
-	std::map<std::string, SourceMap *>::const_iterator srcMapIt
-	  = m_srcMaps.find(srcName);
-	if (srcMapIt == m_srcMaps.end()) {
-	  SourceMap * srcMap(getSourceMap(srcName, false));
-	  if (srcMap) {
-	    m_srcMaps[srcName] = srcMap;
-	  }
-	}
+	SourceMap * srcMap = m_srcMapCache.getSourceMap(*src, false);
       }
     }
   
@@ -894,18 +640,17 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
 
-  void BinnedLikelihood::addFullModel(const std::vector<std::string>& sources, std::vector<float>& model) {
-    for ( std::vector<std::string>::const_iterator srcIt = sources.begin();  
-	  srcIt != sources.end(); ++srcIt) {
-      SourceMap* srcMap = getSourceMap(*srcIt, false);
-      srcMap->addToVector(model,true);
-    }
+  void BinnedLikelihood::fillSummedSourceMap(const std::vector<std::string>& sources, std::vector<float>& model) {
+    std::vector<const Source*> srcs;
+    getSources(sources,srcs);
+    m_srcMapCache.fillSummedSourceMap(srcs,model);
   }
 
 
   void BinnedLikelihood::addFixedSource(const std::string & srcName) {
     // Add a source to the fixed source data, under the assumption that it
     // is not already there.
+
     std::map<std::string, Source *>::const_iterator 
       srcIt(m_sources.find(srcName));
     if (srcIt == m_sources.end()) {
@@ -923,16 +668,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     }
   
     m_fixedSources.push_back(srcName);
-  
-    SourceMap * srcMap(0);
-    std::map<std::string, SourceMap *>::const_iterator srcMapIt
-      = m_srcMaps.find(srcName);
-    if (srcMapIt == m_srcMaps.end()) {
-      srcMap = getSourceMap(srcName, true);
-      m_srcMaps[srcName] = srcMap;
-    } else {
-      srcMap = srcMapIt->second;
-    }
+    const Source& src = *(srcIt->second);
+    SourceMap * srcMap = m_srcMapCache.getSourceMap(src);
     
     addSourceWts(m_fixedModelWts, srcName, srcMap, false, true);
     double xi(1);
@@ -941,22 +678,22 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     const Drm_Cache* drm_cache = srcMap->drm_cache();
   
     int kref(-1);
-    for (size_t k(0); k < m_energies.size()-1; k++) {
-      optimizers::dArg ee(m_energies[k]);
+    for (size_t k(0); k < m_dataCache.num_ebins(); k++) {
+      optimizers::dArg ee(m_dataCache.energies()[k]);
       if (use_edisp_val) {
 	xi = drm_cache->get_correction(k,kref);
 	if ( kref >= 0 ) {
 	  xi = 1;
 	}
-      }
-      m_fixedNpreds[k] += xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
+      }      
+      m_fixedNpreds[k] += xi* srcIt->second->spectrum()(ee) * srcMap->npreds()[k];
     }
     // For last bin edge, use xi value from penultimate edge
-    size_t kk(m_energies.size()-1);
-    optimizers::dArg ee(m_energies[kk]);
+    size_t kk(m_dataCache.num_ebins());
+    optimizers::dArg ee(m_dataCache.energies()[kk]);
     m_fixedNpreds[kk] += xi*(srcIt->second->spectrum()(ee)*
-			     srcMap->npreds()[kk]);
-  
+			       srcMap->npreds()[kk]);
+
     // Remove this source from the stored source maps to save memory
     srcMap->clear_model();
   }
@@ -964,6 +701,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   void BinnedLikelihood::deleteFixedSource(const std::string & srcName) {
     // Delete a source from the fixed source data, under the assumption 
     // that it is included.
+
     std::map<std::string, Source *>::const_iterator 
       srcIt(m_sources.find(srcName));
     if (srcIt == m_sources.end()) {
@@ -978,7 +716,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     if (srcMap == 0) {
       throw std::runtime_error("SourceMap cannot be created for " + srcName);
     }
-    m_srcMaps[srcName] = srcMap;
 
     bool use_edisp_val = use_edisp(srcName);
     const Drm_Cache* drm_cache = srcMap->drm_cache();
@@ -986,8 +723,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     // Subtract the contribution to the summed Npred spectrum.
     double xi(1);
     int kref(-1);
-    for (size_t k(0); k < m_energies.size(); k++) {
-      optimizers::dArg ee(m_energies[k]);
+    for (size_t k(0); k < m_dataCache.num_energies(); k++) {
+      optimizers::dArg ee(m_dataCache.energies()[k]);
       if (use_edisp_val) {
 	xi = drm_cache->get_correction(k,kref);
 	if ( kref >= 0 ) {
@@ -997,8 +734,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       m_fixedNpreds[k] -= xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
     }
     // For last bin edge, use xi value from penultimate edge
-    size_t kk(m_energies.size()-1);
-    optimizers::dArg ee(m_energies[kk]);
+    size_t kk(m_dataCache.num_ebins());
+    optimizers::dArg ee(m_dataCache.energies()[kk]);
     m_fixedNpreds[kk] -= xi*(srcIt->second->spectrum()(ee)*
 			     srcMap->npreds()[kk]);
   
@@ -1017,8 +754,9 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   std::vector<double> 
   BinnedLikelihood::countsSpectrum(const std::string & srcName,
 				   bool use_klims) const {
+
     size_t kmin(0);
-    size_t kmax(m_energies.size() - 1);
+    size_t kmax(m_dataCache.num_ebins());
     if (use_klims) {
       kmin = m_kmin;
       kmax = m_kmax;
@@ -1032,21 +770,21 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     }
     std::vector<std::pair<double, double> > modelWts;
     std::pair<double, double> zeros(0, 0);
-    modelWts.resize(m_filledPixels.size(), zeros);
+    modelWts.resize(m_dataCache.nFilled(), zeros);
     addSourceWts(modelWts, srcName);
-    for (size_t j(0); j < m_filledPixels.size(); j++) {
-      size_t k(m_filledPixels[j]/m_pixels.size());
+    for (size_t j(0); j < m_dataCache.nFilled(); j++) {
+      size_t k(m_dataCache.filledPixels()[j]/num_pixels());
       if (k < kmin || k > kmax-1) {
 	continue;
       }
-      double emin(m_energies[k]);
-      double emax(m_energies[k+1]);
+      double emin(m_dataCache.energies()[k]);
+      double emax(m_dataCache.energies()[k+1]);
       double srcProb = pixelCounts(emin, emax, 
 				   modelWts[j].first,
 				   modelWts[j].second,
-				   m_log_energy_ratios[k])/m_model[j];
-      size_t indx = m_filledPixels[j];
-      counts_spectrum[k - kmin] += srcProb*m_dataMap.data()[indx];
+				   m_dataCache.log_energy_ratios()[k])/m_model[j];
+      size_t indx = m_dataCache.filledPixels()[j];
+      counts_spectrum[k - kmin] += srcProb*m_dataCache.data()[indx];
     }
     return counts_spectrum;
   }
@@ -1070,49 +808,22 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
   Drm & BinnedLikelihood::drm() {
     if (m_drm == 0) {
-      m_drm = new Drm(m_dataMap.refDir().ra(), m_dataMap.refDir().dec(), 
-		      observation(), m_dataMap.energies());
+      m_drm = new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
+		      observation(), m_dataCache.countsMap().energies());
     }
     return *m_drm;
   }
 
+
+  void BinnedLikelihood::initialize_composite(CompositeSource& comp) const {
+    comp.buildSourceMapCache(m_dataCache,m_srcMapsFile,m_drm);
+  }
+
+
   tip::Extension* BinnedLikelihood::saveWeightsMap(bool replace) const {
-    if ( m_weightMap == 0 ) return 0;
-    bool has_weights = fileHasSourceMap("__weights__", m_srcMapsFile);    
-    if ( has_weights ) {
-      if ( replace ) {
-	return FileUtils::replace_image_from_float_vector(m_srcMapsFile,"__weights__",
-							  m_dataMap,m_weightMap->model(),false);
-      } else {
-	// just leave it be;
-	;
-      }
-    } else {
-      return FileUtils::append_image_from_float_vector(m_srcMapsFile,"__weights__",
-						       m_dataMap,m_weightMap->model(),false);	
-    }
-    return 0;
+    return m_dataCache.saveWeightsMap(m_srcMapsFile,replace);
   }
 
-
-  void BinnedLikelihood::fillWeightedCounts() {
-    delete m_weightedCounts;
-    m_weightedCounts = m_dataMap.clone();
-    // FIXME, this would be more efficient if CountsMapBase had a multiply by function
-    size_t ne = m_energies.size();
-    size_t npix = m_pixels.size();
-    std::vector<float> wts(ne*npix);
-    for ( size_t j(0); j < npix; j++ ) {
-      for (size_t k(0); k < ne-1; k++) {
-	size_t idx = k*npix +j;
-	double w = m_weightMap->model()[idx];
-	bool is_null = w <= 0 || m_dataMap.data()[idx] <= 0;
-	w = is_null ? 0 : w;
-	wts[idx] = m_dataMap.data()[idx] * w;
-      }
-    }
-    m_weightedCounts->setImage(wts);
-  }
 
   double BinnedLikelihood::spectrum(const Source * src, double energy)  {
     const optimizers::Function & spectrum(src->spectrum());
@@ -1120,14 +831,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     return spectrum(eArg);
   }
 
-
-  void BinnedLikelihood::log_energy_ratios(const std::vector<double>& energies,
-					   std::vector<double>& log_ratios) {
-    log_ratios.resize(energies.size() -1);
-    for ( size_t i(0); i < log_ratios.size(); i++ ) {
-      log_ratios[i] = std::log(energies[i+1] / energies[i]);
-    }
-  }
 
   void BinnedLikelihood::setImageDimensions(tip::Image * image, 
 					    long * dimensions) {
@@ -1146,79 +849,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
 
-  void BinnedLikelihood::addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
-					     SourceMap& srcMap,
-					     size_t npix,
-					     const std::vector<unsigned int>& filledPixels,
-					     const Drm_Cache* drm_cache,
-					     bool use_edisp_val,
-					     bool subtract) {
-    double my_sign(1.);
-    if (subtract) {
-      my_sign = -1.;
-    }
-    int kref(-1);
-    const std::vector<double> & spec = srcMap.specVals();
-    for (size_t j(0); j < filledPixels.size(); j++) {
-      size_t jmin(filledPixels.at(j));
-      size_t jmax(jmin + npix);
-      size_t k(jmin/npix);
-      if (use_edisp_val) {
-	double xi = drm_cache->get_correction(k,kref);
-	if ( kref < 0 ) {
-	  modelWts[j].first += my_sign*srcMap[jmin]*spec[k]*xi;
-	  modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1]*xi;
-	} else {
-	  size_t ipix(jmin % npix);	
-	  size_t jref = kref*npix + ipix;
-	  modelWts[j].first += (my_sign*srcMap[jref]*spec[kref]*xi);
-	  modelWts[j].second += (my_sign*srcMap[jref+npix]*spec[kref+1]*xi);
-	}
-      } else {
-	modelWts[j].first += my_sign*srcMap[jmin]*spec[k];
-	modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1];
-      }
-    }  
-  }
+ 
 
-
-
-tip::Extension* BinnedLikelihood::replaceSourceMap(const std::string & srcName,
-						   const std::string & fitsFile) const {
-
-  SourceMap & srcMap = sourceMap(srcName);
-  srcMap.setFilename(fitsFile);
-  switch ( srcMap.mapType() ) {
-  case FileUtils::HPX_Sparse:
-    return FileUtils::replace_image_from_sparse_vector_healpix(fitsFile,srcName,static_cast<const CountsMapHealpix&>(m_dataMap),
-							       srcMap.cached_sparse_model(),true);
-    break;
-  case FileUtils::WCS:
-  case FileUtils::HPX_AllSky:
-  case FileUtils::HPX_Partial:
-  default:
-    return FileUtils::replace_image_from_float_vector(fitsFile,srcName,m_dataMap,
-						      srcMap.cached_model(),true);
-  }
-}
-
-tip::Extension* BinnedLikelihood::appendSourceMap(const std::string & srcName,
-						  const std::string & fitsFile) const {
-
-  SourceMap & srcMap = sourceMap(srcName);
-  srcMap.setFilename(fitsFile);
-  switch ( srcMap.mapType() ) {
-  case FileUtils::HPX_Sparse:
-    return FileUtils::append_image_from_sparse_vector_healpix(fitsFile,srcName,static_cast<const CountsMapHealpix&>(m_dataMap),
-							      srcMap.cached_sparse_model(),true);
-  case FileUtils::WCS:
-  case FileUtils::HPX_AllSky:
-  case FileUtils::HPX_Partial:
-  default:
-    return FileUtils::append_image_from_float_vector(fitsFile,srcName,m_dataMap,
-						     srcMap.cached_model(),true);
-  }
-}
 
 
 double BinnedLikelihood::pixelCounts(double emin, double emax, double y1, double y2, double log_ratio) const {
@@ -1228,76 +860,14 @@ double BinnedLikelihood::pixelCounts(double emin, double emax, double y1, double
 }
 
 
-void BinnedLikelihood::computeCountsSpectrum() {
-  // EAC_FIX, CountsMap should be able to do this 
-  switch ( m_dataMap.projection().method() ) {
-  case astro::ProjBase::WCS:
-    computeCountsSpectrum_wcs();
-    return;
-  case astro::ProjBase::HEALPIX:
-    computeCountsSpectrum_healpix();
-    return;
-  default:
-    break;
-  }
-  std::string errMsg("BinnedLikelihood did not recognize projection method used for CountsMap: ");
-  errMsg += m_dataMap.filename();
-  throw std::runtime_error(errMsg);
-  
-}
-
-void BinnedLikelihood::computeCountsSpectrum_wcs() {
-  m_countsSpectrum.clear();
-  m_countsSpectrum_wt.clear();
-  size_t nx(m_dataMap.imageDimension(0));
-  size_t ny(m_dataMap.imageDimension(1));
-  size_t nz(m_dataMap.imageDimension(2));
-  size_t indx(0);
-  for (size_t k = 0; k < nz; k++) {
-    double ntot(0);
-    double ntot_wt(0);
-    for (size_t j = 0; j < ny; j++) {
-      for (size_t i = 0; i < nx; i++) {
-	float addend = m_dataMap.data().at(indx);
-	ntot += addend;
-	ntot_wt += m_weightedCounts != 0 ? m_weightedCounts->data().at(indx) : addend;
-	indx++;
-      }
-    }
-    m_countsSpectrum.push_back(ntot);
-    m_countsSpectrum_wt.push_back(ntot_wt);
-  }
-}
-
-void BinnedLikelihood::computeCountsSpectrum_healpix() {
-  m_countsSpectrum.clear();
-  m_countsSpectrum_wt.clear();
-  size_t nx(m_dataMap.imageDimension(0));
-  size_t ny(m_dataMap.imageDimension(1));
-  size_t indx(0);
-  for (size_t k = 0; k < ny; k++) {
-    double ntot(0);
-    double ntot_wt(0);
-    for (size_t i = 0; i < nx; i++) {
-      float addend = m_dataMap.data().at(indx);
-      ntot += addend;
-      ntot_wt += m_weightedCounts != 0 ? m_weightedCounts->data().at(indx) : addend;
-      indx++;
-    }
-    m_countsSpectrum.push_back(ntot);
-    m_countsSpectrum_wt.push_back(ntot_wt);
-  }
-}
-
-
 void BinnedLikelihood::computeFixedCountsSpectrum() {
   m_fixed_counts_spec.clear();
-  for (size_t k(0); k < m_energies.size()-1; k++) {
-    m_fixed_counts_spec.push_back(pixelCounts(m_energies[k], 
-					      m_energies[k+1],
+  for (size_t k(0); k < m_dataCache.num_ebins(); k++) {
+    m_fixed_counts_spec.push_back(pixelCounts(m_dataCache.energies()[k], 
+					      m_dataCache.energies()[k+1],
 					      m_fixedNpreds[k],
 					      m_fixedNpreds[k+1],
-					      m_log_energy_ratios[k]));
+					      m_dataCache.log_energy_ratios()[k]));
   }
 }
   
@@ -1311,60 +881,25 @@ void BinnedLikelihood::addSourceWts(std::vector<std::pair<double, double> > & mo
   if (src == 0) {
     return;
   }
-  if (modelWts.size() != m_filledPixels.size()) {
+  if (modelWts.size() != m_dataCache.nFilled()) {
     throw std::runtime_error("BinnedLikelihood::addSourceWts: "
 			     "modelWts size does not match "
 			     "number of filled pixels.");
   }
-  SourceMap * sourceMap(srcMap);
+  SourceMap * sourceMap = srcMap;
   if ( sourceMap == 0 ) {
-    std::map<std::string, SourceMap *>::iterator srcIt 
-      = m_srcMaps.find(srcName);
-    if (srcIt == m_srcMaps.end()) {
-      throw std::runtime_error("BinnedLikelihood::addSourceWts: "
-			       "source not found in m_srcMaps.");
-    }
-    sourceMap = srcIt->second;
+    sourceMap = getSourceMap(srcName);
   } 
   
-  sourceMap->setSpectralValues(m_energies,latchParams);
+  sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);
 
   bool use_edisp_val = use_edisp(srcName);
   const Drm_Cache* drm_cache = sourceMap->drm_cache();
   
-  addSourceWts_static(modelWts,*sourceMap,m_pixels.size(),
-		      m_filledPixels,drm_cache,use_edisp_val,subtract);
+  SourceMapCache::addSourceWts_static(modelWts,*sourceMap,num_pixels(),
+				      m_dataCache.filledPixels(),drm_cache,use_edisp_val,subtract);
 }
   
   
-void BinnedLikelihood::identifyFilledPixels() {
-  if ( m_weightMap ) {
-    fillWeightedCounts();
-  }
-  const std::vector<float> & data = m_weightMap == 0 ? m_dataMap.data() : m_weightedCounts->data();
-  m_filledPixels.clear();
-  for (unsigned int i = 0; i < data.size(); i++) {
-    if (data.at(i) > 0) {
-      m_filledPixels.push_back(i);
-    }
-  }
-}
-  
-
-void BinnedLikelihood::updateCorrectionFactors(const std::string & srcName, 
-					       SourceMap & sourceMap) const {
-
-  const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
-
-  Drm_Cache* drm_cache = const_cast<Drm_Cache*>(sourceMap.drm_cache());
-  if ( drm_cache != 0 ) {
-    Drm* the_drm(0);
-    if ( use_edisp(srcName) ) {
-      BinnedLikelihood* nct = const_cast<BinnedLikelihood*>(this);
-      the_drm = &(nct->drm());
-    }
-    drm_cache->update(the_drm,sourceMap,energies());
-  }
-}
 
 } // namespace Likelihood
