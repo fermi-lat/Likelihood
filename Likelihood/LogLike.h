@@ -3,7 +3,7 @@
  * @brief Declaration of LogLike class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/LogLike.h,v 1.47 2016/03/29 23:53:49 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/LogLike.h,v 1.48 2016/03/30 23:04:56 echarles Exp $
  */
 
 #ifndef Likelihood_LogLike_h
@@ -58,7 +58,7 @@ public:
       getFreeDerivs(dummy, freeDerivs);
    }
 
-   virtual void addSource(Source * src, bool fromClone=true);
+   virtual void addSource(Source * src, bool fromClone=true, SourceMap* srcMap = 0);
 
    virtual Source * deleteSource(const std::string & srcName);
 

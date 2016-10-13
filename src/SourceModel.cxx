@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/SourceModel.cxx,v 1.5 2015/11/25 18:52:42 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.99 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -26,9 +26,11 @@
 #include "optimizers/FunctionFactory.h"
 #include "optimizers/ParameterNotFound.h"
 
-#include "Likelihood/CountsMap.h"
+#include "Likelihood/CountsMapBase.h"
+#include "Likelihood/CompositeSource.h"
 #include "Likelihood/Exception.h"
 #include "Likelihood/SpatialMap.h"
+#include "Likelihood/SourceMap.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/SourceFactory.h"
 #include "Likelihood/PointSource.h"
@@ -54,8 +56,12 @@ SourceModel::SourceModel(const Observation & observation, bool verbose)
 
 SourceModel::SourceModel(const SourceModel &rhs) : optimizers::Statistic(rhs),
    m_observation(rhs.m_observation), m_verbose(rhs.m_verbose) {
-   delete m_formatter;
    m_formatter = new st_stream::StreamFormatter("SourceModel", "", 2);
+   for ( std::map<std::string, Source *>::const_iterator itr = rhs.m_sources.begin();
+	 itr != rhs.m_sources.end(); itr++ ) {
+     m_sources[itr->first] = itr->second->clone();
+   }
+   findFreeSrcs();   
 }
 
 SourceModel::~SourceModel() {
@@ -217,7 +223,7 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
    syncParams();
 }
 
-void SourceModel::addSource(Source *src, bool fromClone) {
+void SourceModel::addSource(Source *src, bool fromClone, SourceMap* /* srcMap */ ) {
    if (!m_sources.count(src->getName())) {
       m_sources[src->getName()] = fromClone ? src->clone() : src;
       m_sources[src->getName()]->setObservation(&m_observation);
@@ -268,12 +274,87 @@ const Source & SourceModel::source(const std::string & srcName) const {
    return *(my_src->second);
 }
 
+void SourceModel::getSources(const std::vector<std::string>& srcNames, 
+			     std::vector<const Source*>& srcs) const {
+  srcs.clear();
+  for ( std::vector<std::string>::const_iterator itr = srcNames.begin();
+	itr != srcNames.end(); itr++ ) {
+    const Source& src = source(*itr);
+    srcs.push_back(&src);
+  }
+}
+
+
 void SourceModel::getSrcNames(std::vector<std::string> &names) const {
    names.clear();
    std::map<std::string, Source *>::const_iterator it = m_sources.begin();
    for ( ; it != m_sources.end(); ++it) {
       names.push_back(it->first);
    }
+}
+
+
+CompositeSource* SourceModel::mergeSources(const std::string& compName,
+					   const std::vector<std::string>& srcNames,
+					   const std::string& specFuncName){
+  CompositeSource* cmp = new CompositeSource(m_observation,
+					     compName,
+					     specFuncName);
+  initialize_composite(*cmp);
+  size_t idx(0);
+  for ( std::vector<std::string>::const_iterator itr = srcNames.begin();
+	itr != srcNames.end(); itr++ ){
+    cmp->steal_source(*this,*itr);
+  }
+  // FIXME, when do we add the source to the model?
+  addSource(cmp,false);
+  return cmp;
+}
+  
+
+optimizers::Function* SourceModel::splitCompositeSource(const std::string& compName,
+							std::vector<std::string>& srcNames) {
+  Source* src = deleteSource(compName);
+  if ( src == 0 ) {
+    throw std::runtime_error("SourceModel::splitCompositeSource did not find source: " + compName);
+  }
+  CompositeSource* cmp = dynamic_cast<CompositeSource*>(src);
+  if ( cmp == 0 ) {
+    throw std::runtime_error("SourceModel::splitCompositeSource source is not composite: " + compName);
+  }
+  srcNames.clear();
+  cmp->getSrcNames(srcNames);
+  for ( std::vector<std::string>::const_iterator itr = srcNames.begin();
+	itr != srcNames.end(); itr++ ) {
+    cmp->give_source(*this,*itr);
+  }
+  optimizers::Function* specFunc = cmp->spectrum().clone();
+  delete cmp;
+  return specFunc;
+}
+  
+/// Steal a source from another SourceModel
+Source* SourceModel::steal_source(SourceModel& other,
+				  const std::string& srcName,
+				  SourceMap* srcMap) {
+  Source* src = other.deleteSource(srcName);
+  if ( src == 0 ) {
+    throw std::runtime_error("SourceModel::steal_source could not find source: " + srcName);
+  }
+  addSource(src,false,srcMap);
+  return src;
+}
+
+/// Give a source to another SourceModel
+Source* SourceModel::give_source(SourceModel& other,
+				 const std::string& srcName,
+				 SourceMap* srcMap) {
+  Source* src = deleteSource(srcName);
+  if ( src == 0 ) {
+    throw std::runtime_error("SourceModel::give_source could not find source: " + srcName);
+  }
+  other.addSource(src,false,srcMap);
+  return src;
 }
 
 double SourceModel::value(const optimizers::Arg &x) const {
@@ -386,6 +467,45 @@ void SourceModel::readXml(std::string xmlFile,
    syncParams();
 }
 
+
+void SourceModel::readXml(DOMElement* srcLibray,
+			  const std::string& xmlFile,
+			  optimizers::FunctionFactory & funcFactory,
+			  bool requireExposure,
+			  bool addPointSources,
+			  bool loadMaps) {
+   // Create a SourceFactory to read in the xml file.
+   SourceFactory srcFactory(m_observation);
+   try {
+      srcFactory.readXml(srcLibray, xmlFile, funcFactory, requireExposure,
+                         addPointSources, loadMaps);
+   } catch (xmlBase::DomException & eObj) {
+      m_formatter->err() << eObj.what() << std::endl;
+      std::ostringstream message;
+      message << "\nError reading in the xml model file.\n"
+              << "Please check that you are using the correct xml "
+              << "format for this tool." << std::endl;
+      throw Exception(message.str());
+   }
+
+// Loop over the sources that are now contained in srcFactory and add
+// each one to the source model (removing it from the srcFactory to avoid
+// making a copy).
+   std::vector<std::string> srcNames;
+   srcFactory.fetchSrcNames(srcNames);
+
+   std::vector<std::string>::iterator nameIt = srcNames.begin();
+   for ( ; nameIt != srcNames.end(); nameIt++) {
+      Source * src = srcFactory.releaseSource(*nameIt);
+      if (m_verbose) {
+         m_formatter->info() << "adding source " << *nameIt << std::endl;
+      }
+      addSource(src, false);
+   }
+   syncParams();
+}
+
+
 void SourceModel::reReadXml(std::string xmlFile) {
 
    facilities::Util::expandEnvVar(&xmlFile);
@@ -399,11 +519,16 @@ void SourceModel::reReadXml(std::string xmlFile) {
          + xmlFile + ", not parsed successfully.";
       throw Exception(errorMessage);
    }
-
    DOMElement * source_library = doc->getDocumentElement();
    if (!xmlBase::Dom::checkTagName(source_library, "source_library")) {
       throw Exception("SourceModel::reReadXml:\nsource_library not found");
    }
+   reReadXml(source_library);
+   delete doc;
+}
+
+
+void SourceModel::reReadXml(DOMElement* source_library) {
 
 // Loop through source DOMElements and Source objects in parallel.
    std::vector<DOMElement *> srcs;
@@ -464,7 +589,6 @@ void SourceModel::reReadXml(std::string xmlFile) {
       }
    }
    syncParams();
-   delete doc;
 }
 
 void SourceModel::writeXml(std::string xmlFile,
@@ -472,12 +596,7 @@ void SourceModel::writeXml(std::string xmlFile,
                            const std::string & srcLibTitle) {
 
    SourceModelBuilder builder(functionLibrary, srcLibTitle);
-
-   std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
-   for ( ; srcIt != m_sources.end(); srcIt++) {
-      builder.addSource(*(srcIt->second));
-   }
-
+   writeXml(builder);
    builder.write(xmlFile);
 }
 
@@ -485,14 +604,18 @@ void SourceModel::write_fluxXml(std::string xmlFile) {
 
    std::pair<double, double> ebounds = m_observation.roiCuts().getEnergyCuts();
    FluxBuilder builder(ebounds.first, ebounds.second);
-
-   std::map<std::string, Source *>::iterator srcIt = m_sources.begin();
-   for ( ; srcIt != m_sources.end(); srcIt++) {
-      builder.addSource(*(srcIt->second));
-   }
-
+   write_fluxXml(builder);
    builder.write(xmlFile);
 }
+
+void SourceModel::writeXml(SourceModelBuilder& builder) {
+  builder.addSourceModel(*this);
+}
+
+void SourceModel::write_fluxXml(FluxBuilder& builder) {
+  builder.addSourceModel(*this);   
+}
+
 
 bool SourceModel::hasSrcNamed(const std::string & srcName) const {
    std::vector<std::string> names;

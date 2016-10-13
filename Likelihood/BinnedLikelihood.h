@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.91 2016/09/28 17:44:44 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.92 2016/09/29 00:30:23 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -21,6 +21,8 @@
 #include "Likelihood/LogLike.h"
 #include "Likelihood/Pixel.h"
 #include "Likelihood/BinnedConfig.h"
+#include "Likelihood/BinnedCountsCache.h"
+#include "Likelihood/SourceMapCache.h"
 
 
 namespace tip {
@@ -43,19 +45,6 @@ namespace Likelihood {
 
    class BinnedLikelihood : public LogLike {
      
-   public:
-
-     static bool fileHasSourceMap(const std::string& srcName, 
-				  const std::string& filePath);
-
-     static void addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
-				     SourceMap& srcMap,
-				     size_t npix,
-				     const std::vector<unsigned int>& filledPixels,
-				     const Drm_Cache* drm_cache,
-				     bool use_edisp_val,
-				     bool subtract);
-
    public:
      
      /* Regular c'tor 
@@ -112,26 +101,29 @@ namespace Likelihood {
 
      /* --------------- Simple Access functions ----------------------*/
 
+     /// Return the binned data cache
+     inline const BinnedCountsCache& dataCache() const { return m_dataCache; }
+
      /// Return the binned observed data
-     const CountsMapBase & countsMap() const { return m_dataMap; }
+     inline const CountsMapBase & countsMap() const { return m_dataCache.countsMap(); }
 
      /// Return the energy bin edges
-     const std::vector<double> & energies() const { return m_energies; }
+     inline const std::vector<double> & energies() const { return m_dataCache.energies(); }
   
      /// Return the configuration
-     const BinnedLikeConfig& config() const { return m_config; }
+     inline const BinnedLikeConfig& config() const { return m_config; }
 
      /// Return the number of energy bins
-     size_t num_ebins() const { return m_energies.size() - 1; }
+     inline size_t num_ebins() const { return m_dataCache.num_ebins(); }
 
      /// Return the number of pixels
-     size_t num_pixels() const { return m_dataMap.data().size() / num_ebins(); }
+     inline size_t num_pixels() const { return m_dataCache.num_pixels(); }
 
      /// Return the size of the data map
-     size_t data_map_size() const { return m_dataMap.data().size(); }
+     inline size_t data_map_size() const { return m_dataCache.data_map_size(); }
 
      /// Return the size of the scours maps
-     size_t source_map_size() const { return m_energies.size() * num_pixels(); }
+     inline size_t source_map_size() const { return m_dataCache.source_map_size(); }
     
 
      /// Return the min and max energy bins to use
@@ -141,17 +133,18 @@ namespace Likelihood {
 
      /// Return the observed counts spectrum
      inline const std::vector<double> & countsSpectrum(bool weighted=false) const { 
-       return weighted ? m_countsSpectrum_wt : m_countsSpectrum; }
+       return m_dataCache.countsSpectrum(weighted);
+     }
      
 
      /// Return the weights in their original projection
-     inline const ProjMap* weightMap_orig() const { return m_weightMap_orig; }
+     inline const ProjMap* weightMap_orig() const { return m_dataCache.weightMap_orig(); }
 
      /// Return the weights reprojected into counts map binning
-     inline const WeightMap* weightMap() const { return m_weightMap; }
+     inline const WeightMap* weightMap() const { return m_dataCache.weightMap(); }
 
      /// Return the weighted counts map
-     inline const CountsMapBase* weightedCounts() const { return m_weightedCounts; }
+     inline const CountsMapBase* weightedCounts() const { return m_dataCache.weightedCounts(); }
  
      /// Return the name of the file with the source maps
      inline const std::string& srcMapsFile() const { return m_srcMapsFile; }
@@ -248,11 +241,12 @@ namespace Likelihood {
 			  bool loadMaps=true);
   
      /// Add a source to the source model
-     virtual void addSource(Source * src, bool fromClone=true);
+     virtual void addSource(Source * src, bool fromClone=true, SourceMap* srcMap = 0);
 
      /// Remove a source from the source model and return it
      virtual Source * deleteSource(const std::string & srcName);
 
+     
      /// These are required since this inherits from LogLike rather than
      /// for SourceModel.  The inheritance hierarchy for this class and
      /// LogLike should be refactored.
@@ -269,7 +263,6 @@ namespace Likelihood {
      /* Synchronize parameter vector owned by this class with 
 	parameters owned by the sources */
      virtual void syncParams();
-
 
 
      /* ---------------- Methods inherited from LogLike ---------- */
@@ -328,6 +321,17 @@ namespace Likelihood {
      
      /* Remove the SourceMap corresponding to a particular source */
      void eraseSourceMap(const std::string & srcName);
+     
+     /* Insert a SourceMap into this cache */
+     void insertSourceMap(const std::string & srcName,
+			  SourceMap& srcMap) {
+       m_srcMapCache.insertSourceMap(srcName,srcMap);
+     }
+
+     /* Remove SourceMap into from cache */
+     SourceMap* removeSourceMap(const std::string & srcName) {
+       return m_srcMapCache.removeSourceMap(srcName);
+     }
 
      /* Instantiate or retrieve a SourceMap for all sources and
 	populate the internal map of SourceMap objects.  
@@ -461,10 +465,10 @@ namespace Likelihood {
 	This will also return true if the list of fixed sources has chagned. */
      bool fixedModelUpdated() const;
 
-     /* Compute the full model for all the fixed source.
+     /* Compute the full source map, summed over all the sources, and including the spectra.
 	
      */
-     void addFullModel(const std::vector<std::string>& sources, std::vector<float>& model);
+     void fillSummedSourceMap(const std::vector<std::string>& sources, std::vector<float>& model);
    
      /* Compute the model for all the fixed source.
 
@@ -514,15 +518,15 @@ namespace Likelihood {
        return new BinnedLikelihood(*this);
      }
 
+     /// Hook to transfer information to a composite source
+     virtual void initialize_composite(CompositeSource& comp) const;
+
      /* Save the weights SourceMap to the SourceMap file
 	
 	replace : if true, replace the current version 
      */
      tip::Extension* saveWeightsMap(bool replace=false) const;
      
-     /// Fill the map of weighted counts
-     void fillWeightedCounts();
-
 
    private:
 
@@ -531,51 +535,18 @@ namespace Likelihood {
      /// Calls the specturm function of a source at a given energy
      static double spectrum(const Source * src, double energy);
      
-     /// Compute the log of rations between energy bin edges
-     static void log_energy_ratios(const std::vector<double>& energies,
-				   std::vector<double>& log_ratios);
-
      /// Set the dimensions on a tip image
      static void setImageDimensions(tip::Image * image, long * dims);
  
-     /* Add (or subtract) the weights for a source onto a vector 	
-	This is used by several functions.
 
-	modelWts   : The vector being added to.
-	src        : The source in question
-	srcMap     : The SourceMap for the source in question
-	subtract   : If true, subtract from the vector.  	
-     */     
-     static void addSourceWts_toVect(std::vector<std::pair<double, double> > & modelWts,
-				     const Source& src,
-				     const SourceMap& srcMap,
-				     bool subtract=false);
-
-
-     /* ------------- Dealing with SourceMaps -------------------- */
-
-    
-     tip::Extension* replaceSourceMap(const std::string & srcName, 
-				      const std::string & fitsFile) const;
-     
-  
-     tip::Extension* appendSourceMap(const std::string & srcName, 
-				     const std::string & fitsFile) const;
-     
-    
+   
 
      /* --------------- Computing Counts Spectra ------------------- */
  
 
      /// Integrates weights over a pixel to get the counts
      double pixelCounts(double emin, double emax, double y1, double y2, double log_ratio) const;
- 
-     void computeCountsSpectrum();
-     
-     void computeCountsSpectrum_wcs();
-     
-     void computeCountsSpectrum_healpix();
-   
+    
      void computeFixedCountsSpectrum();
    
      
@@ -594,52 +565,32 @@ namespace Likelihood {
 		       bool subtract=false,
 		       bool latchParams=false) const;
      
-     /* Fills the m_filledPixels data member with only the pixels with data counts */
-     void identifyFilledPixels();
-      
      
-     /* --------------- Dealing with Energy Dispersion ------------------- */
-     void updateCorrectionFactors(const std::string & srcName, SourceMap & sourceMap) const;
-     
-     
-    
-
      /* ---------------- Data Members --------------------- */
 
      /* ---------------- Data and binning --------------------- */
 
-     /// The observed data.  Used to provide the binning.
-     CountsMapBase& m_dataMap;
-
-     /// Set of the pixels in the ROI
-     const std::vector<Pixel> & m_pixels;
-
-     /// Energy bin edges
-     std::vector<double> m_energies;
-
-     /// Log of ratios between energy bin edges
-     std::vector<double> m_log_energy_ratios;
-
+     /// This keeps track of the counts map and associated stuff
+     BinnedCountsCache m_dataCache;
+ 
      /// Minimum and maximum energy plane indexes to use in likelihood 
      /// calculations.
      size_t m_kmin, m_kmax;     
 
-     /// The observed counts spectrum.  
-     /// I.e., the data summed of the ROI for each energy bin
-     std::vector<double> m_countsSpectrum;
+     
+     /* ------------- configuration parameters -------------------- */
+     std::string m_srcMapsFile;   //! Where the SourceMaps are stored
+     BinnedLikeConfig m_config;   //! All of the options
 
-     /// The weighted observed counts spectrum.  
-     /// I.e., the data summed of the ROI for each energy bin
-     std::vector<double> m_countsSpectrum_wt;
+      /* ---------For keeping track of energy dispersion ----------- */
 
-     /// These are the indices of the pixels with counts     
-     /// This is used to speed up the evaluation of the log-likelihood
-     std::vector<unsigned int> m_filledPixels;
+     /// Detector response matrix for energy dispersion.  Null pointer -> no energy dispersion
+     Drm * m_drm;
 
      /* ---------------- The current model ------------------------ */
 
      /// The set of source maps, keyed by source name
-     mutable std::map<std::string, SourceMap *> m_srcMaps;
+     mutable SourceMapCache m_srcMapCache;
 
      /// The total model of the ROI, summed over sources, but only 
      /// for the filled pixels.
@@ -647,18 +598,6 @@ namespace Likelihood {
    
      /// Flag that the model is up to data
      mutable bool m_modelIsCurrent;
-
-
-     /* ---------------- Stuff for weighted likelihood --------------- */
-     
-     /// Weights map.  Null ptr -> don't use weights.
-     const ProjMap* m_weightMap_orig;
-     
-     /// Weights map reprojected into counts map binning.  Null ptr -> don't use weights 
-     WeightMap* m_weightMap;
-     
-     /// Map of the weighted counts
-     CountsMapBase* m_weightedCounts;
 
 
      /* ---------For keeping track of fixed source -------------- */
@@ -682,14 +621,7 @@ namespace Likelihood {
      /// Flag to allow updating of Fixed model weights
      bool m_updateFixedWeights;
 
-     /* ---------For keeping track of energy dispersion ----------- */
-
-     /// Detector response matrix for energy dispersion.  Null pointer -> no energy dispersion
-     Drm * m_drm;
-
-     /* ------------- configuration parameters -------------------- */
-     std::string m_srcMapsFile;   //! Where the SourceMaps are stored
-     BinnedLikeConfig m_config;   //! All of the options
+ 
 
 };
 
