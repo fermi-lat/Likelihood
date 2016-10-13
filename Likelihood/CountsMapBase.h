@@ -1,7 +1,7 @@
 /**
  * @file CountsMapBase.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapBase.h,v 1.1 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapBase.h,v 1.2 2016/09/09 21:08:51 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMapBase_h
@@ -109,6 +109,10 @@ public:
 
    const std::vector<Pixel> & pixels() const;
 
+   inline size_t num_energies() const { return m_energies.size(); }
+
+   inline size_t num_ebins() const { return m_energies.size() -1; }
+   
 protected:
 
    HistND * m_hist;
