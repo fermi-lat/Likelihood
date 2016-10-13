@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.24 2016/09/13 19:26:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FitUtils.cxx,v 1.25 2016/09/14 20:11:02 echarles Exp $
  */
 
 
@@ -1216,7 +1216,7 @@ namespace Likelihood {
 	// Otherwise, build a map ourselves
 	Source* nc_source = const_cast<Source*>(&source);
 	theMap = new SourceMap(*nc_source,
-			       &logLike.countsMap(),
+			       &logLike.dataCache(),
 			       logLike.observation(),
 			       logLike.config().psf_integ_config());
 
