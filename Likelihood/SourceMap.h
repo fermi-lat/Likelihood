@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.70 2016/09/28 17:44:44 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.71 2016/09/29 00:25:55 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -29,10 +29,7 @@ namespace st_stream {
 
 namespace Likelihood {
   
-   // EAC, switch to using CountsMapBase and projection specific sub-classes
-   class CountsMapBase;
-   class CountsMap;
-   class CountsMapHealpix;
+   class BinnedCountsCache;
    class PsfIntegConfig;
    class Drm;
    class Drm_Cache;
@@ -67,7 +64,7 @@ public:
    /* Standar c'tor 
       
       src           : The source making this source map for
-      dataMap       : The counts map used as a template for the binning
+      dataCache     : The counts map used as a template for the binning
       observation   : Object with data about the observation
       psf_config    : Object with PSF integration parameters
       drm           : The detector response matrix, NULL if energy dispersion is off for this source.
@@ -75,8 +72,8 @@ public:
       save_model    : Flag to indicate that we should save the model (e.g., when the source is fixed)
                       This avoid reload the model map if the source is subsequently freed.
     */
-   SourceMap(const Source& src, 
-	     const CountsMapBase * dataMap,
+   SourceMap(const Source & src, 
+	     const BinnedCountsCache * dataCache,
              const Observation & observation,
 	     const PsfIntegConfig & psf_config, 
 	     const Drm* drm = 0,
@@ -97,11 +94,14 @@ public:
    */
    SourceMap(const std::string & sourceMapsFile,
              const Source & src,
-	     const CountsMapBase * dataMap,
+	     const BinnedCountsCache * dataCache,
 	     const Observation & observation,
 	     const WeightMap* weights = 0,
 	     const Drm* drm = 0,
 	     bool save_model = false);
+
+   /* Copy c'tor */
+   SourceMap(const SourceMap& other);
 
    /* d'tor, does clean up */
    ~SourceMap();
@@ -329,7 +329,7 @@ private:
    const std::string m_srcType;
 
    /// Pointer to the data map that is the template for the binning
-   const CountsMapBase * m_dataMap;
+   const BinnedCountsCache * m_dataCache;
    
    /// Object holding data about the observation
    const Observation & m_observation;
