@@ -3,7 +3,7 @@
  * @brief Encapsulation of counts spectra for a Likelihood fit.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.13 2012/03/21 19:20:09 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsSpectra.cxx,v 1.14 2016/09/21 22:45:33 echarles Exp $
  */
 
 #include <cmath>
@@ -21,7 +21,7 @@
 namespace Likelihood {
 
 void CountsSpectra::setEbounds(double emin, double emax, size_t nbounds) {
-   if (m_binnedLike || m_binnedLike2) {
+   if (m_binnedLike) {
       throw std::runtime_error("CountsSpectra: cannot set ebounds for "
                                "binned likelihood.");
    }
@@ -53,15 +53,6 @@ void CountsSpectra::getSrcCounts(const std::string & srcName,
 //                                               npreds.at(k), 
 //                                               npreds.at(k+1)));
 //       }
-   } else if (m_binnedLike2) {
-      std::vector<double> npreds;
-      m_binnedLike2->getNpreds(srcName, npreds);
-      for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
-         srcCounts.push_back(src->pixelCounts(m_ebounds.at(k),
-                                              m_ebounds.at(k+1),
-                                              npreds.at(k), 
-                                              npreds.at(k+1)));
-      }
    } else {
       check_ebounds();
       for (size_t k = 0; k < m_ebounds.size() - 1; k++) {
@@ -217,8 +208,6 @@ writeEbounds(const std::string & outfile) const {
 void CountsSpectra::getObsCounts(std::vector<double> & counts) const {
    if (m_binnedLike) {
       counts = m_binnedLike->countsSpectrum();
-   } else if (m_binnedLike2) {
-      counts = m_binnedLike2->countsSpectrum();
    } else {
       check_ebounds();
       counts = m_observation.eventCont().nobs(m_ebounds);
