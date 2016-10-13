@@ -6,7 +6,7 @@
  *  This file contains a number of functions useful for PSF Integration and convolution.
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileUtils.h,v 1.2 2016/09/21 22:42:39 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileUtils.h,v 1.3 2016/09/28 01:35:39 echarles Exp $
  */
 
 #ifndef Likelihood_FileUtils_h
@@ -52,7 +52,15 @@ namespace Likelihood {
       //! HEALPix, partial sky
       HPX_Partial = 3 } SrcMapType;
 
-   
+
+    /* Test if a FITS file as an extension
+
+       filename  : The FITS file
+       extension : The FITS HDU extension name
+    */
+    bool fileHasExtension(const std::string& filename, 
+			  const std::string& extension);
+
     /* Read a FITS image from a file to a vector 
 
        filename  : The FITS file

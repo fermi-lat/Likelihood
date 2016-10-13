@@ -3,7 +3,7 @@
  * @brief Functions to getting data to and from FITS files
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.3 2016/09/28 01:35:38 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.4 2016/09/29 00:28:09 echarles Exp $
  */
 
 #include <memory>
@@ -33,6 +33,16 @@
 namespace Likelihood {
 
   namespace FileUtils {
+
+    bool fileHasExtension(const std::string& filename, 
+			  const std::string& extension) {
+      try {
+	std::auto_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(filename,extension));
+      } catch (tip::TipException &) {
+	return false;
+      }
+      return true;
+    }
 
     int read_fits_image_to_float_vector(const std::string& filename, 
 					const std::string& extension ,
