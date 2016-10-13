@@ -5,7 +5,7 @@
  * the flux package.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.3 2005/02/15 17:01:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.4 2005/02/27 06:42:24 jchiang Exp $
  */
 
 #ifndef Likelihood_FluxBuilder_h
@@ -27,7 +27,7 @@ namespace Likelihood {
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.3 2005/02/15 17:01:29 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FluxBuilder.h,v 1.4 2005/02/27 06:42:24 jchiang Exp $
  */
 
 class FluxBuilder : public XmlBuilder {
@@ -37,6 +37,8 @@ public:
    FluxBuilder(double emin, double emax);
 
    virtual ~FluxBuilder();
+
+   virtual void addSourceModel(SourceModel& srcModel);
 
    virtual void addSource(Source &src);
    

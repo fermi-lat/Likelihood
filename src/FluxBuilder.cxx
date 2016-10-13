@@ -4,7 +4,7 @@
  * style xml files.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FluxBuilder.cxx,v 1.13 2011/03/16 22:22:52 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FluxBuilder.cxx,v 1.14 2011/09/28 20:33:12 jchiang Exp $
  */
 
 #include <algorithm>
@@ -25,6 +25,7 @@
 #include "Likelihood/RoiCuts.h"
 #include "Likelihood/SkyDirFunction.h"
 #include "Likelihood/Source.h"
+#include "Likelihood/SourceModel.h"
 #include "Likelihood/SpatialMap.h"
 #include "Likelihood/TrapQuad.h"
 
@@ -44,6 +45,14 @@ FluxBuilder::FluxBuilder(double emin, double emax) : XmlBuilder() {
 }
 
 FluxBuilder::~FluxBuilder() {}
+
+
+void FluxBuilder::addSourceModel(SourceModel& srcModel) {
+   std::map<std::string, Source *>::const_iterator srcIt = srcModel.sources().begin();
+   for ( ; srcIt != srcModel.sources().end(); srcIt++) {
+      addSource(*(srcIt->second));
+   }
+}
 
 void FluxBuilder::addSource(Source & src) {
    DOMElement * srcElt = fluxSource(src);
