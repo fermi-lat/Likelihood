@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.84 2016/04/30 00:41:46 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.85 2016/09/28 01:37:39 echarles Exp $
  */
 
 #include <cstdlib>
@@ -22,6 +22,7 @@
 #include "optimizers/Exception.h"
 #include "optimizers/FunctionFactory.h"
 
+#include "Likelihood/CompositeSource.h"
 #include "Likelihood/DiffuseSource.h"
 #include "Likelihood/Event.h"
 #include "Likelihood/Exception.h"
@@ -112,7 +113,6 @@ void SourceFactory::readXml(const std::string & xmlFile,
                             bool requireExposure,
                             bool addPointSources, 
                             bool loadMaps) {
-   m_requireExposure = requireExposure;
 
    xmlBase::XmlParser * parser = XmlParser_instance();
 
@@ -131,8 +131,27 @@ void SourceFactory::readXml(const std::string & xmlFile,
          + xmlFile);
    }
 
+   readXml(source_library,xmlFile,funcFactory,requireExposure,addPointSources,loadMaps);
+   delete doc;
+}
+
+void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
+   if (!srcNames.empty()) srcNames.clear();
+   std::map<std::string, Source *>::const_iterator it = m_prototypes.begin();
+   for (; it != m_prototypes.end(); it++)
+      srcNames.push_back(it->first);
+}
+
+void SourceFactory::readXml(DOMElement* source_library,
+			    const std::string & xmlFile,
+                            optimizers::FunctionFactory & funcFactory,
+                            bool requireExposure,
+                            bool addPointSources, 
+                            bool loadMaps) {
+
 // Prepare the FunctionFactory object using the xml file specified in
 // the source_library tag.
+   m_requireExposure = requireExposure;
    std::string function_library 
       = xmlBase::Dom::getAttribute(source_library, "function_library");
    if (function_library.find("xml") != std::string::npos) {
@@ -144,12 +163,36 @@ void SourceFactory::readXml(const std::string & xmlFile,
          throw;
       }
    }
+   
+
+   std::vector<Source*> sources;
+   makeSources(xmlFile,source_library,sources,funcFactory,loadMaps);
+
+   for ( std::vector<Source*>::iterator itr = sources.begin();
+	 itr != sources.end(); itr++ ) {
+     
+     // Add the source to the vector of prototypes.
+     Source* src = *itr;
+     addSource(src->getName(), src);
+     delete src;
+   }
+}
+
+void SourceFactory::makeSources(const std::string& xmlFile,
+				const DOMElement * source_library,
+				std::vector<Source*>& sources,
+				optimizers::FunctionFactory & funcFactory,
+				bool requireExposure,
+				bool addPointSources,
+				bool loadMaps)  {
 
 // Loop through source elements, adding each as a Source object prototype.
    std::vector<DOMElement *> srcs;
    xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
    std::vector<DOMElement *>::const_iterator srcIt = srcs.begin();
    for ( ; srcIt != srcs.end(); srcIt++) {
+
+      Source * src = 0;
 
 // Get the type of this source which is either PointSource or
 // DiffuseSource (CompositeSource pending)...
@@ -182,46 +225,54 @@ void SourceFactory::readXml(const std::string & xmlFile,
          m_formatter->err() << eObj.what() << std::endl;
          throw;
       }
-      
-      xmlBase::Dom::getChildrenByTagName(*srcIt, "spatialModel", child);
-      if (child.size() != 1) {
-         std::ostringstream message;
-         message << "Error parsing xml model file: \n"
-                 << xmlFile << "\n"
-                 << "for source " << srcName << ".\n"
-                 << "Missing spatial model component.\n"
-                 << "Please check that you are using the correct xml format.";
-         throw Exception(message.str());
-      }
-      DOMElement * spatialModel = child[0];
 
-// The processing logic for the spatialModel depends on the source
-// type, so we must consider each case individually:
-      Source * src = 0;
-      if (addPointSources && srcType == "PointSource") {
-         src = makePointSource(spectrum, spatialModel, funcFactory);
-      } else if (srcType == "DiffuseSource") {
-         src = makeDiffuseSource(spectrum, spatialModel, funcFactory,
-                                 loadMaps);
+      // The processing logic for the spatialModel depends on the source
+      // type, so we must consider each case individually:
+      if ( srcType == "CompositeSource" ) {
+	 xmlBase::Dom::getChildrenByTagName(*srcIt, "source_library", child);
+	 if (child.size() != 1) {
+	    std::ostringstream message;
+            message << "Error parsing xml model file: \n"
+                    << xmlFile << "\n"
+		    << "for source " << srcName << ".\n"
+		    << "Missing source_library component.\n"
+		    << "Please check that you are using the correct xml format.";
+	    throw Exception(message.str());
+	 }
+	 DOMElement * source_library = child[0];
+	 src = makeCompositeSource(xmlFile,
+				   spectrum, source_library, funcFactory,
+				   requireExposure,addPointSources,
+				   loadMaps);
+      } else {      
+	 xmlBase::Dom::getChildrenByTagName(*srcIt, "spatialModel", child);
+	 if (child.size() != 1) {
+	    std::ostringstream message;
+            message << "Error parsing xml model file: \n"
+                    << xmlFile << "\n"
+		    << "for source " << srcName << ".\n"
+		    << "Missing spatial model component.\n"
+		    << "Please check that you are using the correct xml format.";
+	    throw Exception(message.str());
+	 }
+	 DOMElement * spatialModel = child[0];
+	 if (addPointSources && srcType == "PointSource") {
+	   src = makePointSource(spectrum, spatialModel, funcFactory);
+	 } else if (srcType == "DiffuseSource") {
+	   src = makeDiffuseSource(spectrum, spatialModel, funcFactory,
+				   loadMaps);
+	 }
       }
 
-// Add the source to the vector of prototypes.
       if (src != 0) {
          src->setName(srcName);
-         addSource(srcName, src);
-         delete src;
+	 sources.push_back(src);
       }
+      
    }
 
-   delete doc;
 }
 
-void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
-   if (!srcNames.empty()) srcNames.clear();
-   std::map<std::string, Source *>::const_iterator it = m_prototypes.begin();
-   for (; it != m_prototypes.end(); it++)
-      srcNames.push_back(it->first);
-}
 
 Source * SourceFactory::
 makePointSource(const DOMElement * spectrum, 
@@ -330,9 +381,34 @@ makeDiffuseSource(const DOMElement * spectrum,
    return 0;
 }
 
+
+Source *SourceFactory::makeCompositeSource(const std::string& xmlFile,
+					   const DOMElement * spectrum,
+					   const DOMElement * source_library,
+					   optimizers::FunctionFactory & funcFactory,
+					   bool requireExposure,
+					   bool addPointSources,
+					   bool loadMap) {
+   std::vector<Source*> sources;
+   makeSources(xmlFile,source_library,sources,funcFactory,requireExposure,addPointSources,loadMap);
+   CompositeSource* comp_src = new CompositeSource(m_observation);   
+   SourceMap* srcMap(0);
+   for ( std::vector<Source*>::iterator itr = sources.begin(); itr != sources.end(); itr++ ) {
+      Source* src = *itr;
+      addSource(src->getName(),src);
+      comp_src->addSource(*itr,srcMap,true);
+      releaseSource(src->getName());
+      delete src;
+   }
+   setSpectrum(comp_src,spectrum,funcFactory);
+   return comp_src;   
+}
+
+ 
 void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum, 
                                 optimizers::FunctionFactory & funcFactory) {
    std::string type = xmlBase::Dom::getAttribute(spectrum, "type");
+
    optimizers::Function * spec = funcFactory.create(type);
 
 // Fetch the parameter elements (if any).
@@ -378,6 +454,7 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
    }
 
    src->setSpectrum(spec);
+
    /// Determine if energy dispersion can be applied.
    std::string apply_edisp(xmlBase::Dom::getAttribute(spectrum, "apply_edisp"));
    if (apply_edisp != "true" && apply_edisp != "false" && apply_edisp != "") {

@@ -3,7 +3,7 @@
  * @brief Declaration of SourceFactory class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.27 2011/09/16 23:20:28 sfegan Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceFactory.h,v 1.28 2015/02/28 03:27:30 jchiang Exp $
  */
 
 #ifndef Likelihood_SourceFactory_h
@@ -70,6 +70,17 @@ public:
                 bool addPointSources=true,
                 bool loadMaps=true);
 
+#ifndef SWIG
+   void readXml(DOMElement* source_library,
+		const std::string & xmlFile,
+                optimizers::FunctionFactory &,
+                bool requireExposure=true,
+                bool addPointSources=true,
+                bool loadMaps=true);
+#endif // SWIG
+
+   
+
    void fetchSrcNames(std::vector<std::string> & srcNames);
 
 private:
@@ -85,6 +96,14 @@ private:
    st_stream::StreamFormatter * m_formatter;
 
 #ifndef SWIG
+   void makeSources(const std::string& xmlFile,
+		    const DOMElement * source_library,
+		    std::vector<Source*>& sources,
+		    optimizers::FunctionFactory & funcFactory,
+		    bool requireExposure=true,
+		    bool addPointSources=true,
+		    bool loadMaps=true);		    
+
    Source *makePointSource(const DOMElement * spectrum,
                            const DOMElement * spatialModel,
                            optimizers::FunctionFactory & funcFactory);
@@ -93,6 +112,14 @@ private:
                              const DOMElement * spatialModel,
                              optimizers::FunctionFactory & funcFactory,
                              bool loadMap=true);
+
+   Source *makeCompositeSource(const std::string& xmlFile,
+			       const DOMElement * spectrum,
+			       const DOMElement * source_library,
+			       optimizers::FunctionFactory & funcFactory,
+			       bool requireExposure=true,
+			       bool addPointSources=true,
+			       bool loadMap=true);
 
    void setSpectrum(Source *src, const DOMElement *spectrum,
                     optimizers::FunctionFactory & funcFactory);
