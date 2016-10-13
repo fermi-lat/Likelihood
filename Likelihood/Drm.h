@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.9 2016/09/14 20:11:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.10 2016/09/28 01:37:38 echarles Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -61,6 +61,10 @@ public:
 	    const std::vector<double>& energies);
   
   Drm_Cache(const Drm_Cache& other);
+
+  Drm_Cache* clone() const {
+    return new Drm_Cache(*this);
+  }
 
   virtual ~Drm_Cache(){;}
 
