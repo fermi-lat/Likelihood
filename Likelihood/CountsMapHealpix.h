@@ -1,7 +1,7 @@
 /**
  * @file CountsMapHealpix.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/CountsMapHealpix.h,v 1.4 2015/11/30 23:47:31 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapHealpix.h,v 1.1 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMapHealpix_h
@@ -76,7 +76,7 @@ public:
 
    inline bool allSky() const { return m_mapRadius >= 180.; }
 
-   inline double mapRadius() const { return m_mapRadius; }
+   virtual double mapRadius() const { return m_mapRadius; }
 
    inline const astro::HealpixProj* healpixProj() const { return m_healpixProj; }
 
