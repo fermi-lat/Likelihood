@@ -3,7 +3,7 @@
  * @brief Source class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.25 2015/03/03 18:05:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.26 2016/09/09 21:11:53 echarles Exp $
  */
 
 #include <algorithm>
@@ -26,12 +26,15 @@ const std::string&
 Source::sourceTypeName(SourceType t) {
   static const std::string point_name("Point");
   static const std::string diffuse_name("Diffuse");
+  static const std::string composite_name("Composite");
   static const std::string unk_name("");
   switch ( t ) { 
   case Point: 
     return point_name;
   case Diffuse:
     return diffuse_name;
+  case Composite:
+    return composite_name;
   default:
     break;
   }
