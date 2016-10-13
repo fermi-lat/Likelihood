@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.143 2016/09/21 22:49:51 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.144 2016/09/28 01:37:39 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -1339,9 +1339,7 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
 
    BinnedLikelihood like1(dataMap, *m_observation);
    like1.readXml(anticenter_model, *m_funcFactory);
-
    double fit_value0 = fit(like0);
-
    Source * src = like1.deleteSource("PKS 0528+134");
    like1.addSource(src);
    double fit_value1 = fit(like1);
@@ -1523,12 +1521,14 @@ void LikelihoodTests::test_SourceMap() {
    CountsMap dataMap(singleSrcMap(3));
    dataMap.writeOutput("test.cxx", "cntsMap.fits");
    
+   BinnedCountsCache dataCache(dataMap, *m_observation, 0, "dummy.fits");
+   
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
  //   Source * src = srcFactory->create("Galactic Diffuse");
    Source * src =  srcFactory->create("Crab Pulsar");
 
    PsfIntegConfig psf_config;
-   SourceMap srcMap(*src, &dataMap, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
 }
 
 void LikelihoodTests::test_PointSourceMap() {
@@ -1541,11 +1541,13 @@ void LikelihoodTests::test_PointSourceMap() {
    // Coarse counts map
    CountsMap dataMap0(singleSrcMap(5,40,40,0.2));
    dataMap0.writeOutput("test.cxx", "cntsMap0.fits");
+   BinnedCountsCache dataCache0(dataMap0, *m_observation, 0, "dummy.fits");
 
    // Fine counts map
    CountsMap dataMap1(singleSrcMap(5,80,80,0.1));
    dataMap1.writeOutput("test.cxx", "cntsMap1.fits");
-   
+   BinnedCountsCache dataCache1(dataMap1, *m_observation, 0, "dummy.fits");
+
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
@@ -1555,8 +1557,8 @@ void LikelihoodTests::test_PointSourceMap() {
    
    PsfIntegConfig psf_config;
 
-   SourceMap srcMap0(*src, &dataMap0, *m_observation, psf_config);
-   SourceMap srcMap1(*src, &dataMap1, *m_observation, psf_config);
+   SourceMap srcMap0(*src, &dataCache0, *m_observation, psf_config);
+   SourceMap srcMap1(*src, &dataCache1, *m_observation, psf_config);
 
    const std::vector<Pixel> & pixels0(dataMap0.pixels());
    const std::vector<Pixel> & pixels1(dataMap1.pixels());
@@ -1607,12 +1609,14 @@ void LikelihoodTests::test_PointSourceMap_hpx_allsky() {
    m_expCube->readExposureCube(exposureCubeFile);
    
    CountsMapHealpix cmap = healpixmap_allsky();
+   BinnedCountsCache dataCache(cmap, *m_observation, 0, "dummy.fits");
+
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
    PsfIntegConfig psf_config;
 
-   SourceMap srcMap(*src, &cmap, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
 
    // Values as of ST-11-03-01
    CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Sparse);
@@ -1644,12 +1648,13 @@ void LikelihoodTests::test_PointSourceMap_hpx_region() {
    m_expCube->readExposureCube(exposureCubeFile);
    
    CountsMapHealpix cmap = healpixmap_region();
+   BinnedCountsCache dataCache(cmap, *m_observation, 0, "dummy.fits");
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
    PsfIntegConfig psf_config;
 
-   SourceMap srcMap(*src, &cmap, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
 
    // Values as of ST-11-03-01
    CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Partial);
@@ -1796,12 +1801,13 @@ void LikelihoodTests::test_Drm() {
    m_expCube->readExposureCube(exposureCubeFile);
 
    CountsMap cmap(singleSrcMap(41));
+   BinnedCountsCache dataCache(cmap, *m_observation, 0, "dummy.fits");
 
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
    PsfIntegConfig psf_config;
-   SourceMap srcMap(*src, &cmap, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
 
    std::vector<double> npreds(srcMap.npreds());
    npreds.pop_back();
