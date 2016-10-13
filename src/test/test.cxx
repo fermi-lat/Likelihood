@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.144 2016/09/28 01:37:39 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.145 2016/10/13 02:07:10 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -53,6 +53,7 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedHealpixExposure.h"
 #include "Likelihood/BinnedLikelihood.h"
+#include "Likelihood/CompositeSource.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/CountsMapHealpix.h"
 #include "Likelihood/DiffRespNames.h"
@@ -130,6 +131,7 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_CountsMapHealpix_region);
    CPPUNIT_TEST(test_BinnedLikelihood);
    CPPUNIT_TEST(test_BinnedLikelihood_2);
+   CPPUNIT_TEST(test_CompositeSource);
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
    CPPUNIT_TEST(test_BinnedExposureHealpix);
@@ -177,6 +179,7 @@ public:
    void test_CountsMapHealpix_region();
    void test_BinnedLikelihood();
    void test_BinnedLikelihood_2();
+   void test_CompositeSource();
    void test_MeanPsf();
    void test_BinnedExposure();
    void test_BinnedExposureHealpix();
@@ -246,6 +249,11 @@ private:
    void deleteExpMap();
 
    std::string dataPath(const std::string & filename) const;
+
+   static void compare_float_vector(const std::vector<float>& v1, const std::vector<float>& v2, float relTol = 1e-6); 
+ 
+   static void compare_string_vector(const std::vector<std::string>& v1, const std::vector<std::string>& v2);
+ 
 };
 
 #define ASSERT_EQUALS(X, Y) CPPUNIT_ASSERT(fabs( (X - Y)/Y ) < m_fracTol)
@@ -1090,6 +1098,78 @@ void LikelihoodTests::test_DiffuseSource() {
 /// @todo fix this temporary kluge so that we can tag
    CPPUNIT_ASSERT(chi2 < 10.);
 }
+
+
+void LikelihoodTests::test_CompositeSource() {
+   std::string exposureCubeFile = dataPath("expcube_1_day.fits");
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   m_expCube->readExposureCube(exposureCubeFile);
+
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
+ 
+   CountsMap dataMap(singleSrcMap(21));
+
+   BinnedLikelihood binnedLogLike(dataMap, *m_observation);
+   std::string src_model = dataPath("anticenter_model_2.xml");
+   binnedLogLike.readXml(src_model, *m_funcFactory);
+
+   std::vector<float> modelmap_v1(binnedLogLike.data_map_size(),0.);
+   binnedLogLike.computeModelMap(modelmap_v1);
+
+   const std::string comp_name("Comp");
+   std::vector<std::string> nested;
+   nested.push_back("Crab Pulsar");
+   nested.push_back("Geminga");
+   
+   const std::string specFuncName("ConstantValue");
+   CompositeSource* comp = binnedLogLike.mergeSources(comp_name,nested,specFuncName);
+   CPPUNIT_ASSERT(comp!=0);
+   int nsrc = comp->getNumSrcs();
+   CPPUNIT_ASSERT(nsrc==2);
+
+   std::vector<std::string> nested_check;
+   comp->getSrcNames(nested_check);
+
+   compare_string_vector(nested,nested_check);
+ 
+   std::vector<float> modelwts_v1(binnedLogLike.source_map_size(),0.);
+   comp->fillSummedSourceMap(modelwts_v1);
+
+   std::vector<float> modelmap_v2(binnedLogLike.data_map_size(),0.);
+   binnedLogLike.computeModelMap(modelmap_v2);
+
+   std::string srcModel_out = dataPath("/comp_test.xml");
+   binnedLogLike.writeXml(srcModel_out);
+
+   BinnedLikelihood binnedLogLike2(dataMap, *m_observation);
+   binnedLogLike2.readXml(srcModel_out, *m_funcFactory);
+
+   CompositeSource* comp2 = dynamic_cast<CompositeSource*>(binnedLogLike2.getSource("Comp"));
+   CPPUNIT_ASSERT(comp2 != 0);
+
+   std::vector<float> modelwts_v2(binnedLogLike2.source_map_size(),0.);   
+   comp2->fillSummedSourceMap(modelwts_v2);
+
+   std::vector<float> modelmap_v3(binnedLogLike2.data_map_size(),0.);
+   binnedLogLike2.computeModelMap(modelmap_v3);
+
+   std::vector<std::string> nested_check2;   
+   optimizers::Function* func = binnedLogLike2.splitCompositeSource("Comp",nested_check2);
+
+   compare_string_vector(nested,nested_check2);
+   
+   std::vector<float> modelmap_v4(binnedLogLike.data_map_size(),0.);
+   binnedLogLike2.computeModelMap(modelmap_v4);
+
+   compare_float_vector(modelwts_v1,modelwts_v2);
+   compare_float_vector(modelmap_v1,modelmap_v2);
+   compare_float_vector(modelmap_v1,modelmap_v3);
+   compare_float_vector(modelmap_v1,modelmap_v4);
+}
+
 
 void LikelihoodTests::generate_exposureHyperCube() {
    srcFactoryInstance();
@@ -1977,6 +2057,24 @@ srcFactoryInstance(const std::string & scFile,
    }
    return m_srcFactory;
 }
+
+
+
+void LikelihoodTests::compare_float_vector(const std::vector<float>& v1, const std::vector<float>& v2, float relTol){
+  CPPUNIT_ASSERT(v1.size() == v2.size());
+  for ( size_t i(0); i < v1.size(); i++ ) {
+    float abs_diff = fabs( ( v1[i] - v2[i]) / (v1[i] + v2[i] ) );
+    CPPUNIT_ASSERT(abs_diff < relTol);
+  }
+}
+
+void LikelihoodTests::compare_string_vector(const std::vector<std::string>& v1, const std::vector<std::string>& v2) {
+  CPPUNIT_ASSERT(v1.size() == v2.size());
+  for ( size_t i(0); i < v1.size(); i++ ) {
+    CPPUNIT_ASSERT(v1[i] == v2[i]);
+  }
+}
+
 
 int main(int iargc, char * argv[]) {
 
