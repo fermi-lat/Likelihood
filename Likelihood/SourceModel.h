@@ -3,7 +3,7 @@
  * @brief Declaration of SourceModel class
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/SourceModel.h,v 1.6 2015/11/25 18:52:41 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceModel.h,v 1.73 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_SourceModel_h
@@ -30,8 +30,16 @@ namespace optimizers {
 
 namespace Likelihood {
 
-   // EAC, switch to using base class 
+#ifndef SWIG
+   using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+#endif //SWIG
+
+
    class CountsMapBase;
+   class CompositeSource;
+   class SourceModelBuilder;
+   class FluxBuilder;
+   class SourceMap;
 
 /** 
  * @class SourceModel
@@ -96,10 +104,11 @@ public:
    }
 
    /// Add a source.
-   virtual void addSource(Source *src, bool fromClone=true);
+   virtual void addSource(Source *src, bool fromClone=true, SourceMap* srcMap = 0);
 
    /// Delete a source by name and return a copy.
    virtual Source * deleteSource(const std::string &srcName);
+
 
    /// delete all the sources
    void deleteAllSources();
@@ -109,6 +118,10 @@ public:
 
    /// @return reference to the desired source
    const Source & source(const std::string & srcName) const;
+
+   /// Fill a vector with pointers to sources
+   void getSources(const std::vector<std::string>& srcNames, 
+		   std::vector<const Source*>& srcs) const;
 
    /// @return reference to the Source map.
    const std::map<std::string, Source *> & sources() const {
@@ -123,6 +136,25 @@ public:
 
    bool hasSrcNamed(const std::string & srcName) const;
 
+   /// Merge several sources into a composite source
+   virtual CompositeSource* mergeSources(const std::string& compName,
+					 const std::vector<std::string>& srcNames,
+					 const std::string& specFuncName);
+   
+   /// Split a composite source into its components
+   virtual optimizers::Function* splitCompositeSource(const std::string& compName,
+						      std::vector<std::string>& srcNames);
+
+   /// Steal a source from another SourceModel
+   Source* steal_source(SourceModel& other,
+			const std::string& srcName,
+			SourceMap* srcMap);
+
+   /// Give a source to another SourceModel
+   Source* give_source(SourceModel& other,
+		       const std::string& srcName,
+		       SourceMap* srcMap);   
+
    virtual double value(const optimizers::Arg &x) const;
 
    /// Create the source model by reading an XML file.
@@ -136,6 +168,18 @@ public:
    /// source model.
    virtual void reReadXml(std::string xmlFile);
 
+#ifndef SWIG
+   /// Create the source model from a DOMElement
+   virtual void readXml(DOMElement* srcLibray,
+			const std::string& xmlFile,
+                        optimizers::FunctionFactory & funcFactory,
+                        bool requireExposure=true,
+                        bool addPointSources=true,
+                        bool loadMaps=true);
+
+   virtual void reReadXml(DOMElement* srcLibray);
+#endif // SWIG
+
    /// Write an XML file for the current source model.
    virtual void writeXml(std::string xmlFile,
                          const std::string &functionLibrary="",
@@ -143,6 +187,12 @@ public:
 
    /// Write a flux-style xml file for the current source model.
    virtual void write_fluxXml(std::string xmlFile);
+
+   /// Write an XML file for the current source model.
+   virtual void writeXml(SourceModelBuilder& builder);
+
+   /// Write a flux-style xml file for the current source model.
+   virtual void write_fluxXml(FluxBuilder& builder);
 
    /// Create a counts map based on the current model.
    virtual CountsMapBase * createCountsMap(const CountsMapBase & dataMap) const;
@@ -179,6 +229,9 @@ public:
    }
 
 protected:
+
+   /// Hook to transfer information to a composite source
+   virtual void initialize_composite(CompositeSource& comp) const {;}
 
    const Observation & m_observation;
 
