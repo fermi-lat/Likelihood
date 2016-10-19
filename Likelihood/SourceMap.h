@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.71 2016/09/29 00:25:55 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.72 2016/10/13 02:05:45 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -90,7 +90,7 @@ public:
       weights       : A weights map, for weighted likelihood analysis.  Null -> no weighting.
       drm           : The detector response matrix, NULL if energy dispersion is off for this source.
       save_model    : Flag to indicate that we should save the model (e.g., when the source is fixed)
-                      This avoid reload the model map if the source is subsequently freed.
+                      This avoids reload the model map if the source is subsequently freed.
    */
    SourceMap(const std::string & sourceMapsFile,
              const Source & src,
