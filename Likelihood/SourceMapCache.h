@@ -3,7 +3,7 @@
  * @brief Functionality to deal with source maps extracted from BinnedLikelihood
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.92 2016/09/29 00:30:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.1 2016/10/13 01:56:24 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMapCache_h
@@ -160,12 +160,13 @@ namespace Likelihood {
 	If the sources exits, but the SourceMap does not, 
 	this will create and return the SourceMap for that source */
      SourceMap * getSourceMap(const Source& src,			      
-			      bool verbose=true) const;
+			      bool verbose=true,
+			      const BinnedLikeConfig* config = 0) const;
 
      /* Create a new SourceMap corresponding to a particular source
 	
 	If the source does not exist this will throw an exception */
-     SourceMap * createSourceMap(const Source& src) const;
+     SourceMap * createSourceMap(const Source& src, const BinnedLikeConfig* config = 0) const;
 
      
      /* Remove the SourceMap corresponding to a particular source */
@@ -196,7 +197,8 @@ namespace Likelihood {
 	buildFixedWeights : If true the fixed component weights will be recomputed
      */
      void loadSourceMap(const Source& src,
-			bool recreate=false);
+			bool recreate=false,
+			const BinnedLikeConfig* config=0);
 
      /* Directly set the image for a particular SourceMap
 	
