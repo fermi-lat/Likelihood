@@ -3,7 +3,7 @@
  * @brief SourceModel class implementation
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.99 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceModel.cxx,v 1.100 2016/10/13 02:03:06 echarles Exp $
  */
 
 #include <cmath>
@@ -223,7 +223,7 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
    syncParams();
 }
 
-void SourceModel::addSource(Source *src, bool fromClone, SourceMap* /* srcMap */ ) {
+void SourceModel::addSource(Source *src, bool fromClone, SourceMap* /* srcMap */) {
    if (!m_sources.count(src->getName())) {
       m_sources[src->getName()] = fromClone ? src->clone() : src;
       m_sources[src->getName()]->setObservation(&m_observation);
@@ -306,7 +306,6 @@ CompositeSource* SourceModel::mergeSources(const std::string& compName,
 	itr != srcNames.end(); itr++ ){
     cmp->steal_source(*this,*itr);
   }
-  // FIXME, when do we add the source to the model?
   addSource(cmp,false);
   return cmp;
 }
