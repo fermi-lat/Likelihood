@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.130 2016/09/29 00:30:25 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.1 2016/10/13 01:56:24 echarles Exp $
  */
 
 
@@ -104,8 +104,11 @@ namespace Likelihood {
   }
 
   SourceMap * SourceMapCache::getSourceMap(const Source& src,
-					   bool verbose) const {
+					   bool verbose,
+					   const BinnedLikeConfig* config = 0) const {
     
+    
+
     const std::string& srcName = src.getName();
     SourceMap* srcMap(0);
 
@@ -126,12 +129,12 @@ namespace Likelihood {
 	switch ( src.srcType() ) {
 	case Source::Point:
 	  if  ( m_config.computePointSources() ) {
-	    srcMap = createSourceMap(src);
+	    srcMap = createSourceMap(src, config);
 	  }
 	  break;
 	case Source::Diffuse:
 	case Source::Composite:
-	  srcMap = createSourceMap(src);
+	  srcMap = createSourceMap(src, config);
 	  break;
 	default:
 	  throw std::runtime_error("SourceMapCache::getSourceMap unknown source type for " + srcName);
@@ -143,9 +146,10 @@ namespace Likelihood {
   }
 
 
-  SourceMap * SourceMapCache::createSourceMap(const Source& src) const {
-    return new SourceMap(src, &m_dataCache, m_observation, m_config.psf_integ_config(), 
-			 m_drm, m_dataCache.weightMap(), m_config.save_all_srcmaps() );
+  SourceMap * SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const {
+    const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
+    return new SourceMap(src, &m_dataCache, m_observation, the_config.psf_integ_config(), 
+			 m_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
   }
   
   void SourceMapCache::eraseSourceMap(const std::string & srcName) {
@@ -213,7 +217,7 @@ namespace Likelihood {
   }
 
 
-  void SourceMapCache::loadSourceMap(const Source& src, bool recreate) {
+  void SourceMapCache::loadSourceMap(const Source& src, bool recreate, const BinnedLikeConfig* config) {
     
     const std::string& srcName = src.getName();  
     if(!(src.getType() == "Diffuse" || m_config.computePointSources() ))
@@ -229,10 +233,10 @@ namespace Likelihood {
     SourceMap * srcMap = 0;
   
     if(recreate) {
-      srcMap = createSourceMap(src);
+      srcMap = createSourceMap(src, config);
       m_srcMaps[srcName] = srcMap;    
     } else {
-      srcMap = getSourceMap(src);
+      srcMap = getSourceMap(src, true, config);
     }
       
   }
