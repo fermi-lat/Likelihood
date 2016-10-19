@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.130 2016/09/29 00:30:25 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.131 2016/10/13 01:54:23 echarles Exp $
  */
 
 #include <cmath>
@@ -93,6 +93,26 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
 	     true,false,true,false),
      m_drm(m_config.use_edisp() ?
+	  new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
+		  observation, m_dataCache.countsMap().energies()) : 0),
+    m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
+    m_modelIsCurrent(false),
+    m_updateFixedWeights(true){    
+  m_fixedModelWts.resize(m_dataCache.nFilled(), std::make_pair(0, 0));
+  m_fixedNpreds.resize(m_dataCache.num_energies(), 0);
+}
+
+BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
+				   const Observation & observation,	
+				   const BinnedLikeConfig& config,
+				   const std::string & srcMapsFile,
+				   const ProjMap* weightMap)
+  : LogLike(observation), 
+    m_dataCache(dataMap,observation,weightMap,srcMapsFile),
+    m_kmin(0),m_kmax(m_dataCache.num_ebins()),
+    m_srcMapsFile(srcMapsFile),
+    m_config(config),
+    m_drm(m_config.use_edisp() ?
 	  new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
 		  observation, m_dataCache.countsMap().energies()) : 0),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
@@ -330,6 +350,18 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     }
   }
 
+  void BinnedLikelihood::addSource(Source * src, BinnedLikeConfig* config, bool fromClone) {
+    m_bestValueSoFar = -1e38;
+    SourceModel::addSource(src, fromClone);
+    if ( m_config.use_single_fixed_map() && src->fixedSpectrum()) {
+      addFixedSource(src->getName());
+    } else {
+      m_srcMapCache.loadSourceMap(*src,false,config);
+    }
+  }
+
+
+  
 
 
   Source * BinnedLikelihood::deleteSource(const std::string & srcName) {
