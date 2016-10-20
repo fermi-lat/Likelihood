@@ -3,7 +3,7 @@
  * @brief Small helper classes to deal with BinnedLikelihood configuration
  * @author E. Charles
 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedConfig.h,v 1.4 2016/09/14 20:10:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedConfig.h,v 1.5 2016/09/28 01:34:12 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedConfig_h
@@ -11,6 +11,8 @@
 
 
 namespace Likelihood {
+
+  class BinnedLikeConfig;
 
   /* This is a small helper class to encapsulate information about
      how to treat the PSF Integration */
@@ -70,37 +72,39 @@ namespace Likelihood {
     ~PsfIntegConfig(){;}
 
     /* Simple access to all members */
-    inline bool& applyPsfCorrections() { return m_applyPsfCorrections; }
-    inline const bool& applyPsfCorrections() const { return m_applyPsfCorrections; }
+    inline void set_applyPsfCorrections(bool val) { m_applyPsfCorrections = val; }
+    inline bool applyPsfCorrections() const { return m_applyPsfCorrections; }
 
-    inline bool& performConvolution() { return m_performConvolution; }
-    inline const bool& performConvolution() const { return m_performConvolution; }
+    inline void set_performConvolution(bool val) { m_performConvolution = val; }
+    inline bool performConvolution() const { return m_performConvolution; }
 
-    inline bool& resample() { return m_resample; }  
-    inline const bool& resample() const { return m_resample; }  
+    inline void set_resample(bool val) { m_resample = val; }  
+    inline bool resample() const { return m_resample; }  
 
-    inline double& resamp_factor() { return m_resamp_factor; } 
-    inline const double& resamp_factor() const { return m_resamp_factor; } 
+    inline void set_resamp_factor(double val) { m_resamp_factor = val; } 
+    inline double resamp_factor() const { return m_resamp_factor; } 
 
-    inline double& minbinsz() { return m_minbinsz; }
-    inline const double& minbinsz() const { return m_minbinsz; }
+    inline void minbinsz(double val) { m_minbinsz = val; }
+    inline double minbinsz() const { return m_minbinsz; }
  
-    inline PSFIntegType& integ_type() { return m_integ_type; }
-    inline const PSFIntegType& integ_type() const { return m_integ_type; }
+    inline void set_integ_type(PSFIntegType val) { m_integ_type = val; }
+    inline PSFIntegType integ_type() const { return m_integ_type; }
     
-    inline double& psfEstimatorFtol() { return m_psfEstimatorFtol; }
-    inline const double& psfEstimatorFtol() const { return m_psfEstimatorFtol; }
+    inline void set_psfEstimatorFtol(double val) { m_psfEstimatorFtol = val; }
+    inline double psfEstimatorFtol() const { return m_psfEstimatorFtol; }
     
-    inline double& psfEstimatorPeakTh() { return m_psfEstimatorPeakTh; }
-    inline const double& psfEstimatorPeakTh() const { return m_psfEstimatorPeakTh; }
+    inline void set_psfEstimatorPeakTh(double val) { m_psfEstimatorPeakTh = val; }
+    inline double psfEstimatorPeakTh() const { return m_psfEstimatorPeakTh; }
 
-    inline bool& verbose() { return m_verbose; }
-    inline const bool& verbose() const { return m_verbose; }
+    inline void set_verbose(bool val) { m_verbose = val; }
+    inline bool verbose() const { return m_verbose; }
 
-    inline bool& use_single_psf() { return m_use_single_psf; }
-    inline const bool& use_single_psf() const { return m_use_single_psf; }
+    inline void set_use_single_psf(bool val) { m_use_single_psf = val; }
+    inline bool use_single_psf() const { return m_use_single_psf; }
 
   private:
+    
+    friend class BinnedLikeConfig;
     
     bool m_applyPsfCorrections;  //! Apply PSF integral corrections
     bool m_performConvolution;   //! Do PSF convolution when making SourceMaps
@@ -160,13 +164,13 @@ namespace Likelihood {
        m_use_single_fixed_map(use_single_fixed_map),
        m_use_linear_quadrature(use_linear_quadrature),
        m_save_all_srcmaps(save_all_srcmaps){
-	 get_envars(m_psf_integ_config.integ_type(),
-		    m_psf_integ_config.psfEstimatorFtol(),
-		    m_psf_integ_config.psfEstimatorPeakTh(),
+      get_envars(m_psf_integ_config.m_integ_type,
+		    m_psf_integ_config.m_psfEstimatorFtol,
+		    m_psf_integ_config.m_psfEstimatorPeakTh,
 		    m_use_edisp,
 		    m_use_linear_quadrature,
 		    m_save_all_srcmaps,
-		    m_psf_integ_config.use_single_psf());
+		    m_psf_integ_config.m_use_single_psf);
     }
     
     BinnedLikeConfig(const BinnedLikeConfig& other)
@@ -181,17 +185,17 @@ namespace Likelihood {
     inline PsfIntegConfig& psf_integ_config() { return m_psf_integ_config; }
     inline const PsfIntegConfig& psf_integ_config() const { return m_psf_integ_config; }
 
-    inline bool& computePointSources() { return m_computePointSources; } 
-    inline bool& use_edisp() { return m_use_edisp; }
-    inline bool& use_single_fixed_map() { return m_use_single_fixed_map; }
-    inline bool& use_linear_quadrature() { return m_use_linear_quadrature; }
-    inline bool& save_all_srcmaps() { return m_save_all_srcmaps; }
+    inline void set_computePointSources(bool val) {  m_computePointSources = val; } 
+    inline void set_use_edisp(bool val) {  m_use_edisp = val; }
+    inline void set_use_single_fixed_map(bool val) {  m_use_single_fixed_map = val; }
+    inline void set_use_linear_quadrature(bool val) {  m_use_linear_quadrature = val; }
+    inline void set_save_all_srcmaps(bool val) {  m_save_all_srcmaps = val; }
    
-    inline const bool& computePointSources() const { return m_computePointSources; } 
-    inline const bool& use_edisp() const { return m_use_edisp; }
-    inline const bool& use_single_fixed_map() const { return m_use_single_fixed_map; }
-    inline const bool& use_linear_quadrature() const { return m_use_linear_quadrature; }
-    inline const bool& save_all_srcmaps() const { return m_save_all_srcmaps; }
+    inline bool computePointSources() const { return m_computePointSources; } 
+    inline bool use_edisp() const { return m_use_edisp; }
+    inline bool use_single_fixed_map() const { return m_use_single_fixed_map; }
+    inline bool use_linear_quadrature() const { return m_use_linear_quadrature; }
+    inline bool save_all_srcmaps() const { return m_save_all_srcmaps; }
 
   private:
     
