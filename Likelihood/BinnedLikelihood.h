@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.93 2016/10/13 02:03:06 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.94 2016/10/19 22:21:58 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -192,17 +192,19 @@ namespace Likelihood {
      
      /// Turn on verbose mode
      void setVerbose(bool verbose) {
-       m_config.psf_integ_config().verbose() = verbose;
+       m_config.psf_integ_config().set_verbose(verbose);
+       m_srcMapCache.setVerbose(verbose);
      }
 
      /// Turn on energy dispersion
-     void set_edisp_flag(bool use_edisp) { 
-       m_config.use_edisp() = use_edisp;
+     void set_edisp_flag(bool use_edisp) {
+       m_config.set_use_edisp(use_edisp);
+       m_srcMapCache.set_edisp_flag(use_edisp);
      }
 
      /// Set flag to use a single map for all the fixed sources
      void set_use_single_fixed_map(bool use_sfm) {
-       m_config.use_single_fixed_map() = use_sfm;
+       m_config.set_use_single_fixed_map(use_sfm);
      }
 
      /// Directly set the data in the counts map
