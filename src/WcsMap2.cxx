@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.26 2016/08/02 22:31:39 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.27 2016/09/14 21:47:01 echarles Exp $
  */
 
 #include <cmath>
@@ -452,8 +452,8 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 			      getProj()->isGalactic() ? 
 			      astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
 
-            counts.at(j).at(i) = 
-               m_image[k].at(j).at(i)*exposure(energy, dir.ra(), dir.dec());
+            counts[j][i] = 
+               m_image[k][j][i]*exposure(energy, dir.ra(), dir.dec());
          }
       }
    }
@@ -474,6 +474,10 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
    } else {
       npix = m_naxis2;
    }
+
+   double cdelt_min = std::min(std::abs(m_cdelt1),std::abs(m_cdelt2));
+
+   npix = std::min(npix,int(std::max(1.0,2.0*psf.containmentRadius(energy,0.995))/cdelt_min));
 
    ::Image psf_image;
 
@@ -497,7 +501,7 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
             astro::SkyDir dir(coord.first, coord.second, 
                               astro::SkyDir::EQUATORIAL);
             double theta = getRefDir().difference(dir)*180./M_PI;
-            psf_image.at(j).at(i) = psf(energy, theta, 0);
+            psf_image[j][i] = psf(energy, theta, 0);
          }
       }
    }
@@ -507,7 +511,6 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
    check_negative_pixels(counts);
    check_negative_pixels(psf_image);
    my_image->m_image.push_back(Convolve::convolve2d(counts, psf_image));
-
    return my_image;
 }
 
