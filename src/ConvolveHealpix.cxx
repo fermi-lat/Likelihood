@@ -3,7 +3,7 @@
  * @brief Functions to perform convolutions of HEALPix maps
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/ConvolveHealpix.cxx,v 1.2 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ConvolveHealpix.cxx,v 1.1 2015/12/10 00:58:00 echarles Exp $
  */
 
 
@@ -36,8 +36,10 @@ namespace Likelihood {
 	return;
       }
 
-      // This is the limit we fill out to
-      double th  = astro::degToRad(1000.*psfMinPixSize(energy));
+      // This is the limit we fill out to, FIXME, set this...
+      static double integration_limit(0.995);
+      double r99p5_deg = std::min(psf.containmentRadius(energy,integration_limit),180.);
+      double th  = astro::degToRad(r99p5_deg);
       // This is the fraction of the PSF in that limit
       double fraction = psf.integral( astro::radToDeg(th),energy );
       while ( theta < th ){
@@ -96,7 +98,10 @@ namespace Likelihood {
       double refPhi = astro::degToRad( use_lb ? refDir.l() : refDir.ra() );
       const pointing center(refTheta,refPhi);
       // This is the limit we fill out to
-      double th = astro::degToRad(500*psfMinPixSize(energy));
+      static double integration_limit(0.995);
+      // FIXME, truncate this at 15 degrees 
+      double r99p5_deg = std::min(psf.containmentRadius(energy,integration_limit),15.);
+      double th  = astro::degToRad(r99p5_deg);
       // This is the fraction of the PSF in that limit
       double fraction = psf.integral( astro::radToDeg(th),energy );
 
