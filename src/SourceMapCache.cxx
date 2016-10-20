@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.1 2016/10/13 01:56:24 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.2 2016/10/19 22:20:00 echarles Exp $
  */
 
 
@@ -296,7 +296,7 @@ namespace Likelihood {
   
   void SourceMapCache::computeModelMap(const Source & src, 
 				       std::vector<float> & modelMap) const {
-    modelMap.clear();
+    modelMap.resize(m_dataCache.data_map_size(), 0);      
     bool hasMap = hasSourceMap(src.getName());
     SourceMap* srcMap = getSourceMap(src);
     updateCorrectionFactors(src,*srcMap);
