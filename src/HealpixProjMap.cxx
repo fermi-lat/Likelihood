@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/HealpixProjMap.cxx,v 1.1 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/HealpixProjMap.cxx,v 1.2 2016/03/29 23:44:37 echarles Exp $
  */
 
 #include <cmath>
@@ -325,8 +325,8 @@ ProjMap* HealpixProjMap::convolve(double energy, const MeanPsf & psf,
 
    double pixelSize_image = pixelSize();
    int nside_used = m_healpixProj->healpix().Nside();   
-   double pixelSize_psfMin = ConvolveHealpix::psfMinPixSize(energy);
-   double psfSize = 100*pixelSize_psfMin;
+   // Don't really need to have move than 3x3 pixels under the PSF
+   double pixelSize_psfMin = astro::degToRad( psf.containmentRadius(energy,0.68) / 3. );
    bool upgrade(false);
 
    if ( pixelSize_image > 2*pixelSize_psfMin ) {
