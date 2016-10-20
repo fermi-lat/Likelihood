@@ -3,7 +3,7 @@
  * @brief Functionality to deal with source maps extracted from BinnedLikelihood
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.1 2016/10/13 01:56:24 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.2 2016/10/19 22:19:59 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMapCache_h
@@ -108,12 +108,12 @@ namespace Likelihood {
       
      /// Turn on verbose mode
      void setVerbose(bool verbose) {
-       m_config.psf_integ_config().verbose() = verbose;
+       m_config.psf_integ_config().set_verbose(verbose);
      }
      
      /// Turn on energy dispersion
      void set_edisp_flag(bool use_edisp) { 
-       m_config.use_edisp() = use_edisp;
+       m_config.set_use_edisp(use_edisp);
      }
 
 

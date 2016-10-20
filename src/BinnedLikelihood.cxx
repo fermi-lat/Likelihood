@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.131 2016/10/13 01:54:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.132 2016/10/19 22:22:00 echarles Exp $
  */
 
 #include <cmath>
@@ -60,9 +60,8 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     minbinsz,
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
 	     true,false,true,false),
-    m_drm(m_config.use_edisp() ?
-	  new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
-		  observation, m_dataCache.countsMap().energies()) : 0),
+    m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
+		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
     m_modelIsCurrent(false),
     m_updateFixedWeights(true){
@@ -92,9 +91,8 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     minbinsz,	     
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
 	     true,false,true,false),
-     m_drm(m_config.use_edisp() ?
-	  new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
-		  observation, m_dataCache.countsMap().energies()) : 0),
+    m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
+		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
     m_modelIsCurrent(false),
     m_updateFixedWeights(true){    
@@ -112,9 +110,8 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_kmin(0),m_kmax(m_dataCache.num_ebins()),
     m_srcMapsFile(srcMapsFile),
     m_config(config),
-    m_drm(m_config.use_edisp() ?
-	  new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
-		  observation, m_dataCache.countsMap().energies()) : 0),
+    m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
+		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
     m_modelIsCurrent(false),
     m_updateFixedWeights(true){    
