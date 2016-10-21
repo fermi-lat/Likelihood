@@ -34,7 +34,7 @@
  *    TestSourceModelCache -> Used to cache the model image of the test source
  *    FitScanCache -> Used to cache the actual counts data and models for efficient fitting
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.22 2016/07/11 23:44:04 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/FitScanner.h,v 1.23 2016/08/24 00:10:47 mdwood Exp $
  */
 
 #ifndef Likelihood_FitScanner_h
@@ -442,7 +442,7 @@ namespace Likelihood {
     inline const std::vector<double>& ref_energies() const { return m_ref_energies; }
 
     /* return the differential fluxes for the test source model spectrum */
-    inline const std::vector<double>& ref_dfdes() const { return m_ref_dfdes; }
+    inline const std::vector<double>& ref_dndes() const { return m_ref_dndes; }
 
     /* return the integral photon fluxes for the test source model spectrum */
     inline const std::vector<double>& ref_fluxes() const { return  m_ref_fluxes; }
@@ -478,7 +478,7 @@ namespace Likelihood {
     std::vector<double> m_ref_energies;    
 
     // differential fluxes for the test source model spectrum
-    std::vector<double> m_ref_dfdes;
+    std::vector<double> m_ref_dndes;
 
     // integral photon fluxes for the test source model spectrum
     std::vector<double> m_ref_fluxes;

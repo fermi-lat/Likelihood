@@ -1,7 +1,7 @@
 /**
  * @file FitScanner.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.35 2016/07/11 23:44:01 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/FitScanner.cxx,v 1.36 2016/08/24 00:10:49 mdwood Exp $
  */
 
 
@@ -363,7 +363,7 @@ namespace Likelihood {
   void FitScanModelWrapper::cacheFluxValues(Source& aSrc) {
     
     m_ref_energies.resize(m_nebins);
-    m_ref_dfdes.resize(m_nebins);
+    m_ref_dndes.resize(m_nebins);
     m_ref_fluxes.resize(m_nebins);
     m_ref_energy_fluxes.resize(m_nebins);
     m_nPreds.resize(m_nebins);
@@ -377,7 +377,7 @@ namespace Likelihood {
       m_ref_energy_fluxes[iE] = aSrc.energyFlux(emin,emax);
       m_nPreds[iE] = aSrc.Npred(emin,emax);
     }
-    FitUtils::extractSpectralVals(aSrc,m_ref_energies,m_ref_dfdes);    
+    FitUtils::extractSpectralVals(aSrc,m_ref_energies,m_ref_dndes);    
   }
   
   int FitScanModelWrapper::writeFits_EnergyBins(const std::string& fitsFile) const {
@@ -409,38 +409,38 @@ namespace Likelihood {
     std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
 
     static const std::string ref_energy_name("E_REF");
-    static const std::string ref_dfde_name("REF_DFDE");
+    static const std::string ref_dnde_name("REF_DNDE");
     static const std::string ref_flux_name("REF_FLUX");
     static const std::string ref_eflux_name("REF_EFLUX");
     static const std::string ref_npred_name("REF_NPRED");
 
     output_table->appendField(ref_energy_name,"D");
-    output_table->appendField(ref_dfde_name,"D");
+    output_table->appendField(ref_dnde_name,"D");
     output_table->appendField(ref_flux_name,"D");
     output_table->appendField(ref_eflux_name,"D");
     output_table->appendField(ref_npred_name,"D");
     
     tip::FieldIndex_t idx_ref_energy = output_table->getFieldIndex(ref_energy_name);
-    tip::FieldIndex_t idx_ref_dfde  = output_table->getFieldIndex(ref_dfde_name);
+    tip::FieldIndex_t idx_ref_dnde  = output_table->getFieldIndex(ref_dnde_name);
     tip::FieldIndex_t idx_ref_flux = output_table->getFieldIndex(ref_flux_name);
     tip::FieldIndex_t idx_ref_eflux  = output_table->getFieldIndex(ref_eflux_name);
     tip::FieldIndex_t idx_ref_npred = output_table->getFieldIndex(ref_npred_name);
     
     setUnitKeyword(output_table->getHeader(),idx_ref_energy,"keV");
-    setUnitKeyword(output_table->getHeader(),idx_ref_dfde,"ph / (MeV cm2 s)");
+    setUnitKeyword(output_table->getHeader(),idx_ref_dnde,"ph / (MeV cm2 s)");
     setUnitKeyword(output_table->getHeader(),idx_ref_flux,"ph / (cm2 s)");
     setUnitKeyword(output_table->getHeader(),idx_ref_eflux,"MeV / (cm2 s)");
     setUnitKeyword(output_table->getHeader(),idx_ref_npred,"ph");    
 
     tip::IColumn* cl_ref_energy = output_table->getColumn(idx_ref_energy);
-    tip::IColumn* cl_ref_dfde = output_table->getColumn(idx_ref_dfde);
+    tip::IColumn* cl_ref_dnde = output_table->getColumn(idx_ref_dnde);
     tip::IColumn* cl_ref_flux = output_table->getColumn(idx_ref_flux);
     tip::IColumn* cl_ref_eflux = output_table->getColumn(idx_ref_eflux);
     tip::IColumn* cl_ref_npred = output_table->getColumn(idx_ref_npred);
 
     for (long index = 0; index < m_nebins; ++index) {
       cl_ref_energy->set(index,m_ref_energies[index]);
-      cl_ref_dfde->set(index,m_ref_dfdes[index]);
+      cl_ref_dnde->set(index,m_ref_dndes[index]);
       cl_ref_flux->set(index,m_ref_fluxes[index]);
       cl_ref_eflux->set(index,m_ref_energy_fluxes[index]);
       cl_ref_npred->set(index,m_nPreds[index]);
@@ -1988,12 +1988,12 @@ namespace Likelihood {
     m_outLocs.clear();
 
     // 2D (or HEALPix) histograms (MAPS)
-    static const std::string tsmap_name("FIT_TS");
-    static const std::string tsmap_ok_name("FIT_STATUS");    
-    static const std::string norm_map_name("FIT_NORM");
-    static const std::string symErr_map_name("FIT_NORM_ERR");
-    static const std::string posErr_map_name("FIT_NORM_ERRP");
-    static const std::string negErr_map_name("FIT_NORM_ERRN");
+    static const std::string tsmap_name("fit_ts");
+    static const std::string tsmap_ok_name("fit_status");    
+    static const std::string norm_map_name("fit_norm");
+    static const std::string symErr_map_name("fit_norm_err");
+    static const std::string posErr_map_name("fit_norm_errp");
+    static const std::string negErr_map_name("fit_norm_errn");
 
     m_outLocs[tsmap_name] = PRIMARY_HDU | FITDATA_TABLE;
     m_outLocs[tsmap_ok_name] = FITDATA_TABLE;
@@ -2003,14 +2003,14 @@ namespace Likelihood {
     m_outLocs[negErr_map_name] = FITDATA_TABLE;
 
     // 3D (or HEALPix,energy) histograms (CUBES)    
-    static const std::string tscube_name("TS");
-    static const std::string tscube_ok_name("BIN_STATUS");
-    static const std::string norm_cube_name("NORM");
-    static const std::string norm_ul_cube_name("NORM_UL");
-    static const std::string symErr_cube_name("NORM_ERR");
-    static const std::string posErr_cube_name("NORM_ERRP");
-    static const std::string negErr_cube_name("NORM_ERRN");
-    static const std::string nll_cube_name("LOGLIKE");
+    static const std::string tscube_name("ts");
+    static const std::string tscube_ok_name("bin_status");
+    static const std::string norm_cube_name("norm");
+    static const std::string norm_ul_cube_name("norm_ul");
+    static const std::string symErr_cube_name("norm_err");
+    static const std::string posErr_cube_name("norm_errp");
+    static const std::string negErr_cube_name("norm_errn");
+    static const std::string nll_cube_name("loglike");
 
     m_outLocs[tscube_name] = SCANDATA_TABLE;
     m_outLocs[tscube_ok_name] = SCANDATA_TABLE;
@@ -2022,8 +2022,8 @@ namespace Likelihood {
     m_outLocs[nll_cube_name] = SCANDATA_TABLE;  
 
     // 4D (or HEALPIX,energy,normalization) histograms (SCANS)
-    static const std::string norm_name("NORM_SCAN");
-    static const std::string delta_ll_name("DLOGLIKE_SCAN");
+    static const std::string norm_name("norm_scan");
+    static const std::string delta_ll_name("dloglike_scan");
         
     m_outLocs[norm_name] = SCANDATA_TABLE;
     m_outLocs[delta_ll_name] = SCANDATA_TABLE;  
