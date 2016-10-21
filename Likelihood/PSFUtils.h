@@ -6,7 +6,7 @@
  *  This file contains a number of functions useful for PSF Integration and convolution.
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PSFUtils.h,v 1.5 2016/09/29 22:02:07 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PSFUtils.h,v 1.6 2016/10/13 01:58:46 echarles Exp $
  */
 
 #ifndef Likelihood_PSFUtils_h
@@ -146,12 +146,19 @@ namespace Likelihood {
     /* Test to see if a diffuse source has a MapCubeFuction */
     bool haveMapCubeFunction(DiffuseSource& src);
     
+    /* Rebins the map associated with a diffuse source.
+     */
+    void rebinDiffuseMap(const DiffuseSource & src,
+			 const CountsMapBase & dataMap,
+			 const PsfIntegConfig& config);
+
     /* Compute the resampling factor for a diffuse source 
 
        This compares the diffuse source map pixel size with the counts map pixel size.
      */
     double computeResampFactor(const DiffuseSource & src,
-			       const CountsMapBase & dataMap);
+			       const CountsMapBase & dataMap,
+			       const PsfIntegConfig& config);
     
     /* Compute the non-cartesian corrections angular separation between the pixels in a 
        counts map and a point source and put them on a vector
