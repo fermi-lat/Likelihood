@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.132 2016/09/30 23:38:17 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.133 2016/10/13 02:05:45 echarles Exp $
  */
 
 #include <cmath>
@@ -280,6 +280,12 @@ void SourceMap::setSource(const Source& src) {
   m_derivs.clear();
   m_npreds.clear();
   m_npred_weights.clear();  
+}
+
+const Drm_Cache* SourceMap::update_drm_cache(const Drm* drm, bool force) {
+  bool changed = m_drm != drm;
+  m_drm = drm;
+  return drm_cache(force || changed);
 }
 
 void SourceMap::setSpectralValues(const std::vector<double>& energies,
