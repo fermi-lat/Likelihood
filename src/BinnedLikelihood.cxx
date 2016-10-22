@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.132 2016/10/19 22:22:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.133 2016/10/20 23:08:32 echarles Exp $
  */
 
 #include <cmath>
@@ -610,6 +610,12 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
   bool BinnedLikelihood::fixedModelUpdated() const {
     // Check if the fixed list has changed.
+
+    // Check to see if we have build the m_fixed_counts_spec yet
+    if ( m_fixed_counts_spec.size() == 0 && m_fixedSources.size() != 0 ) {
+      return true;
+    }
+
     std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
     std::vector<std::string> fixedSources;
     for ( ; srcIt != m_sources.end(); ++srcIt) {

@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.2 2016/10/19 22:20:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.3 2016/10/20 01:31:12 echarles Exp $
  */
 
 
@@ -111,16 +111,16 @@ namespace Likelihood {
 
     const std::string& srcName = src.getName();
     SourceMap* srcMap(0);
+    const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
 
     // Check to see if we already have the map
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
     if ( itrFind != m_srcMaps.end() ) {
       srcMap = itrFind->second;
       srcMap->setSource(src);
+      srcMap->update_drm_cache(the_drm);
     } else {
 
-      const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
- 
       // Check to see if the map is in the file
       if (FileUtils::fileHasExtension(m_srcMapsFile, srcName)) {
 	srcMap = new SourceMap(m_srcMapsFile, src, &m_dataCache, 
@@ -505,15 +505,15 @@ namespace Likelihood {
   
   void SourceMapCache::updateCorrectionFactors(const Source & src,
 					       SourceMap & sourceMap) const {
-    
-    Drm_Cache* drm_cache = const_cast<Drm_Cache*>(sourceMap.drm_cache());
-    if ( drm_cache != 0 ) {
-      const Drm* the_drm(0);
-      if ( use_edisp(&src) ) {
-	the_drm = m_drm;
-      }
-      drm_cache->update(the_drm,sourceMap,m_dataCache.energies());
+    if ( m_drm == 0 ) {
+      throw std::runtime_error("No DRM object");
     }
+    const Drm* the_drm(0);
+    if ( use_edisp(&src) ) {
+      the_drm = m_drm;
+    }
+    // drm_cache->update(the_drm,sourceMap,m_dataCache.energies());
+    sourceMap.update_drm_cache(the_drm, true);
   }
   
 } // namespace Likelihood

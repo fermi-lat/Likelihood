@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.72 2016/10/13 02:05:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.73 2016/10/19 22:17:58 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -153,6 +153,9 @@ public:
    /* Set the source associated with this source map, this is useful for
       functions that add & remove source from the source model */
    void setSource(const Source& src);
+
+   /* Update the DRM cache in this SourceMap */
+   const Drm_Cache* update_drm_cache(const Drm* drm, bool force = false);
 
    /* Extract a vector of spectral normalization values from a Source object
       and latch it in this class.
