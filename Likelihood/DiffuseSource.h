@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.55 2016/09/21 22:44:47 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.56 2016/10/13 02:00:57 echarles Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -109,7 +109,7 @@ namespace Likelihood {
      MapBase * mapBaseObject();
 
      /// Return the flag that flux must be intergrated over a map
-     inline bool mapBasedIntegral() const { m_mapBasedIntegral; }
+     inline bool mapBasedIntegral() const { return m_mapBasedIntegral; }
 
      /// Return the size of the source, computing it if needed
      double mapRadius() const {
