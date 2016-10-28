@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.85 2016/09/28 01:37:39 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceFactory.cxx,v 1.86 2016/10/13 01:57:52 echarles Exp $
  */
 
 #include <cstdlib>
@@ -166,7 +166,7 @@ void SourceFactory::readXml(DOMElement* source_library,
    
 
    std::vector<Source*> sources;
-   makeSources(xmlFile,source_library,sources,funcFactory,loadMaps);
+   makeSources(xmlFile,source_library,sources,funcFactory,requireExposure,addPointSources,loadMaps);
 
    for ( std::vector<Source*>::iterator itr = sources.begin();
 	 itr != sources.end(); itr++ ) {
