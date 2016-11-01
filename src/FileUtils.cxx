@@ -3,7 +3,7 @@
  * @brief Functions to getting data to and from FITS files
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.4 2016/09/29 00:28:09 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.5 2016/10/13 01:54:58 echarles Exp $
  */
 
 #include <memory>
@@ -94,7 +94,7 @@ namespace Likelihood {
     int read_healpix_table_to_sparse_vector(const std::string& filename, 
 					    const std::string& extension,
 					    SparseVector<float>& vect) {
-      vect.clear();
+      vect.clear_data();
       std::auto_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
 
