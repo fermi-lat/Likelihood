@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.27 2016/09/14 21:47:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.28 2016/10/20 22:56:39 mdwood Exp $
  */
 
 #include <cmath>
@@ -475,9 +475,8 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
       npix = m_naxis2;
    }
 
-   double cdelt_min = std::min(std::abs(m_cdelt1),std::abs(m_cdelt2));
-
-   npix = std::min(npix,int(std::max(1.0,2.0*psf.containmentRadius(energy,0.995))/cdelt_min));
+   // double cdelt_min = std::min(std::abs(m_cdelt1),std::abs(m_cdelt2));
+   // npix = std::min(npix,int(std::max(1.0,2.0*psf.containmentRadius(energy,0.995))/cdelt_min));
 
    ::Image psf_image;
 
