@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.598 2016/10/25 21:09:01 echarles Exp $
+    $Id: release.notes,v 1.599 2016/10/28 22:46:37 mdwood Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-09-02 01-Nov-2016 echarles Rollback using 99.5% PSF containment radius for diffuse map convolution.  Fix bug on sparse healpix SourceMap readback
  Likelihood-20-09-01 28-Oct-2016 mdwood Bug fixes in SourceFactory and DiffuseSource.
  Likelihood-20-09-00 25-Oct-2016 echarles Added CompositeSource and associated functionality to Likelihood
  Likelihood-20-08-08 06-Oct-2016 mdwood Increase integration bounds in diffuse response calculation for large incidence angle events.
