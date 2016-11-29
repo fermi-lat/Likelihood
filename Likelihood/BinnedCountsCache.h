@@ -3,7 +3,7 @@
  * @brief Small class to encapsulate stuff that needed for BinnedLikelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedCountsCache.h,v 1.92 2016/09/29 00:30:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedCountsCache.h,v 1.1 2016/10/13 01:52:51 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedCountsCache_h
@@ -103,7 +103,7 @@ namespace Likelihood {
     }
     
     /// Get the filled pixel indices
-    inline const std::vector<unsigned int> filledPixels() const { return m_filledPixels; }
+    inline const std::vector<unsigned int>& filledPixels() const { return m_filledPixels; }
 
     /// Set the counts map by hand
     void setCountsMap(const std::vector<float> & counts);
