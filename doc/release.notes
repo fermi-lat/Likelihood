@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.600 2016/11/02 00:55:54 echarles Exp $
+    $Id: release.notes,v 1.601 2016/11/16 19:13:47 echarles Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-09-04 29-Nov-2016 echarles Fix typo causing a large vector to be passed by value and slowing Likelihood evaluation down dramatically
  Likelihood-20-09-03 16-Nov-2016 echarles Fix bug in BinnedCountsCache that was prevent construction of weighted counts cube
  Likelihood-20-09-02 01-Nov-2016 echarles Rollback using 99.5% PSF containment radius for diffuse map convolution.  Fix bug on sparse healpix SourceMap readback
  Likelihood-20-09-01 28-Oct-2016 mdwood Bug fixes in SourceFactory and DiffuseSource.
