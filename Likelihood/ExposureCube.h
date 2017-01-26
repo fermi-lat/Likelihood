@@ -3,7 +3,7 @@
  * @brief Exposure time hypercube.
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/ExposureCube.h,v 1.25 2012/06/19 04:03:49 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ExposureCube.h,v 1.26 2013/01/09 00:44:40 jchiang Exp $
  */
 
 #ifndef Likelihood_ExposureCube_h
@@ -51,6 +51,10 @@ public:
 
    double livetime(const astro::SkyDir & dir, double costheta,
                    double phi=-1) const;
+
+   const healpix::CosineBinner& get_cosine_binner(const astro::SkyDir & dir) const {
+      return m_exposure->data()[dir];
+   }
 
    void setEfficiencyFactor(const irfInterface::IEfficiencyFactor * eff) {
       if (eff) {
