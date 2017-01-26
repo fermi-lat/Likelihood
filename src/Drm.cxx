@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.15 2016/09/28 01:37:39 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.16 2017/01/26 00:57:37 echarles Exp $
  */
 
 #include <cmath>
@@ -42,7 +42,7 @@ namespace Likelihood {
 
 Drm::Drm(double ra, double dec, const Observation & observation, 
          const std::vector<double> & ebounds, size_t npts) 
-   : m_dir(ra, dec), m_observation(observation), m_npts(npts) {
+  : m_dir(ra, dec), m_observation(observation), m_npts(npts){
    // Prepare the energy bounds array to be used for both true and
    // measured counts bins.
    m_ebounds.resize(ebounds.size());
@@ -105,6 +105,11 @@ void Drm::convolve(const std::vector<double> & true_counts,
 void Drm::compute_drm() {
    m_drm.clear();
    
+   // EAC, Fix this code to use the binning from the livetime cube instead of sampling in cos theta.
+   // Sampling in cos theta can fail for pointed observations where all of the livetime comes 
+   // in a particular cos theta bin.
+   compute_livetime();
+
    for (size_t k(0); k < m_ebounds.size()-1; k++) {
       std::vector<double> row;
       for (size_t kp(0); kp < m_ebounds.size() - 3; kp++) {
@@ -117,31 +122,46 @@ void Drm::compute_drm() {
    }
 }
 
+
+void Drm::compute_livetime() {
+  // This it can be done once for the entire matrix
+  const healpix::CosineBinner& cos_binner = expcube.get_cosine_binner(m_dir);
+  size_t nmu = cos_binner.size();
+  
+  m_costheta_vals.resize(nmu, 0);
+  m_theta_vals.resize(nmu, 0);
+  m_livetime.resize(nmu, 0);
+
+  size_t j(0);
+  for ( std::vector<float>::const_iterator itrcos = cos_binner.begin(); 
+	itrcos != cos_binner.end_costh(); itrcos++, j++) {
+    double cos_theta = cos_binner.costheta(itrcos);
+    m_costheta_vals[j] = cos_theta;
+    m_theta_vals[j] = std::acos(cos_theta)*180./M_PI;
+    m_livetime[j] = *itrcos;
+  }
+
+}
+
+
 double Drm::
 matrix_element(double etrue, double emeas_min, double emeas_max) const {
    const ResponseFunctions & resps(m_observation.respFuncs());
    const ExposureCube & expcube(m_observation.expCube());
    double met((expcube.tstart() + expcube.tstop())/2.);
 
+   if ( m_livetime.size() == 0 ) {
+     throw std::runtime_error("Drm::matrix_element() called before Drm::compute_livetime()");
+   }
+
    // Use phi-averged exposure
    double phi(-1);
 
-   // Get the event types (usually just the list of conversion_type's)
-   // and turn off phi-dependence temporarily.
-   std::vector<bool> phideps;
-   std::vector<int> evtTypes;
-   std::map<unsigned int, irfInterface::Irfs *>::const_iterator it;
    for (it = resps.begin(); it != resps.end(); ++it) {
-      phideps.push_back(it->second->aeff()->usePhiDependence());
-      it->second->aeff()->setPhiDependence(false);
-      evtTypes.push_back(it->second->irfID());
+       phideps.push_back(it->second->aeff()->usePhiDependence());
+       it->second->aeff()->setPhiDependence(false);
+       evtTypes.push_back(it->second->irfID());
    }
-
-   // EAC, Fix this code to use the binning from the livetime cube instead of sampling in cos theta.
-   // Sampling in cos theta can fail for pointed observations where all of the livetime comes 
-   // in a particular cos theta bin.
-   const healpix::CosineBinner& cos_binner = expcube.get_cosine_binner(m_dir);
-   size_t nmu = cos_binner.size();
 
    std::vector<double> exposr(nmu, 0);
    std::vector<double> top(nmu, 0);

@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.10 2016/09/28 01:37:38 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.11 2016/10/13 02:05:00 echarles Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -36,6 +36,16 @@ public:
       return m_drm.at(k);
    }
        
+  inline const Observation& observation() const { return m_observation; }
+
+  double matrix_element(double etrue, double emeas_min, 
+			double emeas_max) const;
+
+
+protected: 
+
+  void compute_livetime();
+
 private:
 
    astro::SkyDir m_dir;
@@ -43,12 +53,15 @@ private:
    std::deque<double> m_ebounds;
    size_t m_npts;
 
+   std::vector< double > m_costheta_vals;
+   std::vector< double > m_theta_vals;
+   std::vector< double > m_livetime;
+
    std::vector< std::vector<double> > m_drm;
 
    void compute_drm();
-      
-   double matrix_element(double etrue, double emeas_min, 
-                         double emeas_max) const;
+  
+    
                          
 };
 
