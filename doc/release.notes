@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.602 2016/11/29 23:52:09 echarles Exp $
+    $Id: release.notes,v 1.603 2016/12/01 18:50:51 mdwood Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-09-06 26-Jan-2017 echarles Minor fixes for LK-120 and LK-121, dealing the const-ness and livetime computation in Drm
  Likelihood-20-09-05 01-Dec-2016 mdwood Fix bug in calculation of PSF corrections for point-source maps.
  Likelihood-20-09-04 29-Nov-2016 echarles Fix typo causing a large vector to be passed by value and slowing Likelihood evaluation down dramatically
  Likelihood-20-09-03 16-Nov-2016 echarles Fix bug in BinnedCountsCache that was prevent construction of weighted counts cube
