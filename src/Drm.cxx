@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.16 2017/01/26 00:57:37 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.17 2017/01/26 19:29:21 echarles Exp $
  */
 
 #include <cmath>
@@ -125,6 +125,7 @@ void Drm::compute_drm() {
 
 void Drm::compute_livetime() {
   // This it can be done once for the entire matrix
+  const ExposureCube & expcube = m_observation.expCube();
   const healpix::CosineBinner& cos_binner = expcube.get_cosine_binner(m_dir);
   size_t nmu = cos_binner.size();
   
@@ -150,12 +151,19 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
    const ExposureCube & expcube(m_observation.expCube());
    double met((expcube.tstart() + expcube.tstop())/2.);
 
-   if ( m_livetime.size() == 0 ) {
+   size_t nmu = m_livetime.size();
+   if ( nmu == 0 ) {
      throw std::runtime_error("Drm::matrix_element() called before Drm::compute_livetime()");
    }
 
    // Use phi-averged exposure
    double phi(-1);
+
+   // Get the event types (usually just the list of conversion_type's)
+   // and turn off phi-dependence temporarily.
+   std::vector<bool> phideps;
+   std::vector<int> evtTypes;
+   std::map<unsigned int, irfInterface::Irfs *>::const_iterator it;
 
    for (it = resps.begin(); it != resps.end(); ++it) {
        phideps.push_back(it->second->aeff()->usePhiDependence());
@@ -165,14 +173,10 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
 
    std::vector<double> exposr(nmu, 0);
    std::vector<double> top(nmu, 0);
-   std::vector<double> mu_vals(nmu, 0);
-   size_t j(0);
 
-   for ( std::vector<float>::const_iterator itrcos = cos_binner.begin(); itrcos != cos_binner.end_costh(); itrcos++, j++) {
-      double cos_theta = cos_binner.costheta(itrcos);
-      mu_vals[j] = cos_theta;
-      double theta(std::acos(cos_theta)*180./M_PI);
-      double livetime = *itrcos;
+   for ( size_t j(0); j < nmu; j++ ) {
+      double theta = m_theta_vals[j];
+      double livetime = m_livetime[j];
       for (size_t i(0); i < evtTypes.size(); i++) {
          double aeff(resps.aeff(etrue, theta, phi, evtTypes[i], met));
          double edisp(resps.edisp(evtTypes[i]).integral(emeas_min, emeas_max, 
@@ -182,8 +186,8 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
          top[j] += edisp*aeff*livetime;
       }
    }
-   double numerator(::integrate(mu_vals, top));
-   double denominator(::integrate(mu_vals, exposr));
+   double numerator(::integrate(m_costheta_vals, top));
+   double denominator(::integrate(m_costheta_vals, exposr));
    double my_disp(0);
    if (numerator != 0) {
       my_disp = numerator/denominator;
