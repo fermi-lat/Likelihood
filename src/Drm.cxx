@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.14 2016/09/14 20:11:02 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.15 2016/09/28 01:37:39 echarles Exp $
  */
 
 #include <cmath>
@@ -104,6 +104,7 @@ void Drm::convolve(const std::vector<double> & true_counts,
 
 void Drm::compute_drm() {
    m_drm.clear();
+   
    for (size_t k(0); k < m_ebounds.size()-1; k++) {
       std::vector<double> row;
       for (size_t kp(0); kp < m_ebounds.size() - 3; kp++) {
@@ -136,26 +137,28 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
       evtTypes.push_back(it->second->irfID());
    }
 
-   size_t nmu(20);
-   std::vector<double> mu_vals;
-   double dmu(0.99/(nmu-1.));
-   for (size_t i(0); i < nmu; i++) {
-      mu_vals.push_back(1 - dmu*i);
-   }
+   // EAC, Fix this code to use the binning from the livetime cube instead of sampling in cos theta.
+   // Sampling in cos theta can fail for pointed observations where all of the livetime comes 
+   // in a particular cos theta bin.
+   const healpix::CosineBinner& cos_binner = expcube.get_cosine_binner(m_dir);
+   size_t nmu = cos_binner.size();
 
    std::vector<double> exposr(nmu, 0);
    std::vector<double> top(nmu, 0);
+   std::vector<double> mu_vals(nmu, 0);
    size_t j(0);
-   for (std::vector<double>::const_iterator mu(mu_vals.begin());
-        mu != mu_vals.end(); ++mu, j++) {
-      double theta(std::acos(*mu)*180./M_PI);
-      double livetime(expcube.livetime(m_dir, *mu, phi));
+
+   for ( std::vector<float>::const_iterator itrcos = cos_binner.begin(); itrcos != cos_binner.end_costh(); itrcos++, j++) {
+      double cos_theta = cos_binner.costheta(itrcos);
+      mu_vals[j] = cos_theta;
+      double theta(std::acos(cos_theta)*180./M_PI);
+      double livetime = *itrcos;
       for (size_t i(0); i < evtTypes.size(); i++) {
          double aeff(resps.aeff(etrue, theta, phi, evtTypes[i], met));
          double edisp(resps.edisp(evtTypes[i]).integral(emeas_min, emeas_max, 
                                                         etrue, theta, phi,
                                                         met));
-         exposr[j] += aeff*livetime;
+	 exposr[j] += aeff*livetime;
          top[j] += edisp*aeff*livetime;
       }
    }
