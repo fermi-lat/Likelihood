@@ -3,7 +3,7 @@
  * @brief Functions to  deal with PSF Integration and convolution
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/PSFUtils.cxx,v 1.6 2016/10/21 02:14:39 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.7 2016/12/01 18:47:51 mdwood Exp $
  */
 
 #include "Likelihood/PSFUtils.h"
@@ -991,7 +991,8 @@ namespace Likelihood {
 	return -1;
       }      
       if ( compSrc.sourceMapCache() == 0 ) {
-	compSrc.buildSourceMapCache(dataCache,srcMapsFile,drm);
+	CompositeSource& nc_compSrc = const_cast<CompositeSource&>(compSrc);
+	nc_compSrc.buildSourceMapCache(dataCache,srcMapsFile,drm);
       }
       compSrc.fillSummedSourceMap(modelmap);
       if ( compSrc.config().psf_integ_config().verbose() ) {
