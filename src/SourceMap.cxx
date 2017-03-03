@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.133 2016/10/13 02:05:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.134 2016/10/22 04:12:31 echarles Exp $
  */
 
 #include <cmath>
@@ -91,6 +91,7 @@ SourceMap::SourceMap(const Source& src,
      m_weights(weights),
      m_mapType(FileUtils::Unknown),
      m_save_model(save_model),
+     m_model_is_local(true),
      m_drm_cache(0) {
    
    int status = make_model();
@@ -116,6 +117,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_weights(weights),
     m_mapType(FileUtils::Unknown),
     m_save_model(save_model),
+    m_model_is_local(true),
     m_drm(drm),
     m_psf_config(),
     m_drm_cache(0) {
@@ -142,6 +144,7 @@ SourceMap::SourceMap(const SourceMap& other)
    m_drm(other.m_drm),
    m_weights(other.m_weights),
    m_save_model(other.m_save_model),
+   m_model_is_local(other.m_model_is_local),
    m_model(other.m_model),
    m_sparseModel(other.m_sparseModel),
    m_mapType(other.m_mapType),
@@ -280,6 +283,7 @@ void SourceMap::setSource(const Source& src) {
   m_derivs.clear();
   m_npreds.clear();
   m_npred_weights.clear();  
+  m_model_is_local = false;
 }
 
 const Drm_Cache* SourceMap::update_drm_cache(const Drm* drm, bool force) {
@@ -424,11 +428,11 @@ double SourceMap::summed_counts(size_t kmin, size_t kmax,
 }
 
 void SourceMap::setImage(const std::vector<float>& model) {
-  if(model.size() != m_model.size())
+  if(model.size() != m_model.size() && m_model.size() != 0) {
     throw std::runtime_error("Wrong size for input model map.");
-
+  }
   m_model = model;
-  m_filename.clear();
+  m_model_is_local = true;
   applyPhasedExposureMap();
   computeNpredArray();
 }
@@ -471,7 +475,8 @@ void SourceMap::test_sparse(const std::string& prefix) const {
 int SourceMap::readModel(const std::string& filename) {
   m_model.clear();
   m_filename = filename;
-  
+  m_model_is_local = false;
+
   m_specVals.clear();
   m_modelPars.clear();
   m_derivs.clear();
@@ -553,7 +558,7 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
 int SourceMap::make_model() {
   if ( m_src == 0 ) return -1;
   
-  m_filename.clear();
+  m_model_is_local = true;
   m_model.clear();
   m_specVals.clear();
   m_modelPars.clear();
