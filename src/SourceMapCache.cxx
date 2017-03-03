@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.3 2016/10/20 01:31:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.4 2016/10/22 04:12:31 echarles Exp $
  */
 
 
@@ -444,7 +444,9 @@ namespace Likelihood {
 						   const std::string & fitsFile) const {
     
     SourceMap* srcMap = getSourceMap(src,false);
-    srcMap->setFilename(fitsFile);
+    srcMap->model();
+    srcMap->setFilename(fitsFile);    
+    srcMap->setModelIsLocal(false);
     switch ( srcMap->mapType() ) {
     case FileUtils::HPX_Sparse:
       return FileUtils::replace_image_from_sparse_vector_healpix(fitsFile,src.getName(),
@@ -464,7 +466,9 @@ namespace Likelihood {
 						  const std::string & fitsFile) const {
     
     SourceMap* srcMap = getSourceMap(src,false);
+    srcMap->model();
     srcMap->setFilename(fitsFile);
+    srcMap->setModelIsLocal(false);
     switch ( srcMap->mapType() ) {
     case FileUtils::HPX_Sparse:
       return FileUtils::append_image_from_sparse_vector_healpix(fitsFile,src.getName(),
