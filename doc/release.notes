@@ -1,7 +1,7 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
-    @brief Package coordinators: J. Chiang
-    $Id: release.notes,v 1.604 2017/01/26 20:23:46 echarles Exp $
+    @brief Package coordinators: J. Chiang, M. Wood, E. Charles
+    $Id: release.notes,v 1.605 2017/03/15 18:10:14 mdwood Exp $
 
     @verbatim
     * EOH *
