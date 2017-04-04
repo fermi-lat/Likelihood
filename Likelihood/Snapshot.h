@@ -4,7 +4,7 @@
  *
  * A class to provide a Snapshot of a SourceModel and allow for comparisons
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.5 2016/07/06 01:17:44 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Snapshot.h,v 1.6 2016/07/06 22:07:01 echarles Exp $
  */
 
 #ifndef Likelihood_Scanshot_h
@@ -415,7 +415,7 @@ namespace Likelihood {
 
     /* Compare an entire model with this Snapshot, 
        taking into account latched and non-latched sources */
-    void compare_latched(const SourceModel& model, const std::vector<std::string>& latched_sources,
+    void compare_latched(SourceModel& model, const std::vector<std::string>& latched_sources,
 			 Snapshot_Status& latched_status, std::vector<std::string>& changed_latched,
 			 Snapshot_Status& unlatched_status, std::vector<std::string>& changed_unlatched,
 			 std::vector<std::string>& new_free, std::vector<std::string>& new_fixed) const;

@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.4 2016/10/22 04:12:31 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.5 2017/03/03 00:26:18 echarles Exp $
  */
 
 
@@ -105,7 +105,7 @@ namespace Likelihood {
 
   SourceMap * SourceMapCache::getSourceMap(const Source& src,
 					   bool verbose,
-					   const BinnedLikeConfig* config = 0) const {
+					   const BinnedLikeConfig* config) const {
     
     
 
