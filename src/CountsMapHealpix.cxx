@@ -1,7 +1,7 @@
 /**
  * @file CountsMapHealpix.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapHealpix.cxx,v 1.1 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapHealpix.cxx,v 1.2 2016/09/21 22:47:07 echarles Exp $
  */
 
 #include <algorithm>
@@ -65,7 +65,7 @@ namespace Likelihood {
       m_pixelSize(rhs.m_pixelSize),
       m_nPixels(rhs.m_nPixels){
     m_healpixProj = static_cast<astro::HealpixProj*>(m_proj);
-    m_hpx_binner = static_cast<const evtbin::HealpixBinner*>(m_hist->getBinners()[0]);    
+    m_hpx_binner = const_cast<evtbin:HealpixBinner*>(static_cast<const evtbin::HealpixBinner*>(m_hist->getBinners()[0]));    
   }
 
   CountsMapHealpix::CountsMapHealpix(const CountsMapHealpix & rhs,
@@ -75,7 +75,7 @@ namespace Likelihood {
     m_pixelSize(rhs.m_pixelSize),
     m_nPixels(rhs.m_nPixels){    
     m_healpixProj = static_cast<astro::HealpixProj*>(m_proj);
-    m_hpx_binner = static_cast<const evtbin::HealpixBinner*>(m_hist-> getBinners()[0]);
+    m_hpx_binner = const_cast<evtbin::HealpixBinner*>(static_cast<const evtbin::HealpixBinner*>(m_hist-> getBinners()[0]));
   }
 
   CountsMapHealpix::~CountsMapHealpix() throw() {;}
