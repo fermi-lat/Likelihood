@@ -1,7 +1,7 @@
 /**
  * @file CountsMapHealpix.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapHealpix.h,v 1.1 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapHealpix.h,v 1.2 2016/10/13 01:49:18 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMapHealpix_h
@@ -99,7 +99,7 @@ private:
 
    // it is actually the same as binners[0]
    // it is just here for convinience
-   const evtbin::HealpixBinner* m_hpx_binner;
+   evtbin::HealpixBinner* m_hpx_binner;
 
    double m_solidAngle;
 

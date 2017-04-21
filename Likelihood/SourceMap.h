@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.74 2016/10/22 04:12:31 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.75 2017/03/03 00:26:17 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -228,7 +228,7 @@ public:
 
    /* The source map model.  This must be multiplied by the spectrum for each pixel 
       and integrated over the energy bin to obtain the predicted counts */
-   const std::vector<float> & model(bool force=false);
+   std::vector<float> & model(bool force=false);
 
    /* These are the 'spectrum' values, I.e., the spectrum evaluated at the energy points */
    const std::vector<double> & specVals(bool force=false);
@@ -299,7 +299,7 @@ protected:
 private:
 
    /* Implementation of addToVector for full-model storage */
-   void addToVector_full(std::vector<float>& vect, bool includeSpec=false) const;
+   void addToVector_full(std::vector<float>& vect, bool includeSpec=false);
  
    /* Implementation of addToVector for sparse-model storage */
    void addToVector_sparse(std::vector<float>& vect, bool includeSpec=false) const;
