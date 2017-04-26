@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang, M. Wood, E. Charles
-    $Id: release.notes,v 1.605 2017/03/15 18:10:14 mdwood Exp $
+    $Id: release.notes,v 1.606 2017/03/29 17:46:33 heather Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-09-08 25-Apr-2017 mdwood Changes to address const-correctness issues in FSSC builds.
  Likelihood-20-09-07 15-Mar-2017 mdwood Bug fixes for behavior of source map cacheing when dealing with fixed sources or source maps set with setSourceMapImage.
  Likelihood-20-09-06 26-Jan-2017 echarles Minor fixes for LK-120 and LK-121, dealing the const-ness and livetime computation in Drm
  Likelihood-20-09-05 01-Dec-2016 mdwood Fix bug in calculation of PSF corrections for point-source maps.
