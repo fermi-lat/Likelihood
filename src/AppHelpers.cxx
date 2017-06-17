@@ -3,7 +3,7 @@
  * @brief Class of "helper" methods for Likelihood applications.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.129 2016/04/30 00:41:41 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/AppHelpers.cxx,v 1.130 2016/07/27 21:15:26 echarles Exp $
  */
 
 #include <cmath>
@@ -63,6 +63,7 @@
 #include "Likelihood/Observation.h"
 #include "Likelihood/PiecewisePowerLaw.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
+#include "Likelihood/PowerLawSuperExpCutoff2.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/RadialProfile.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -234,6 +235,8 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         makeClone);
    funcFactory->addFunc("PLSuperExpCutoff", 
                         new PowerLawSuperExpCutoff(), makeClone);
+   funcFactory->addFunc("PLSuperExpCutoff2", 
+                        new PowerLawSuperExpCutoff2(), makeClone);
    funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
 
    funcFactory->addFunc("EblAtten::PowerLaw2", new EblAtten(), makeClone);
