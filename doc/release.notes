@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang, M. Wood, E. Charles
-    $Id: release.notes,v 1.606 2017/03/29 17:46:33 heather Exp $
+    $Id: release.notes,v 1.607 2017/04/26 00:20:22 mdwood Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-10-00 16-Jun-2017 mdwood Add new PLSuperExpCutoff2 spectral model.
  Likelihood-20-09-08 25-Apr-2017 mdwood Changes to address const-correctness issues in FSSC builds.
  Likelihood-20-09-07 15-Mar-2017 mdwood Bug fixes for behavior of source map cacheing when dealing with fixed sources or source maps set with setSourceMapImage.
  Likelihood-20-09-06 26-Jan-2017 echarles Minor fixes for LK-120 and LK-121, dealing the const-ness and livetime computation in Drm
