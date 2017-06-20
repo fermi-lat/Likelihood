@@ -3,7 +3,7 @@
  * @brief Declaration for the PowerLawSuperExpCutoff2 Function class
  * @author Matthew Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLawSuperExpCutoff2.h,v 1.4 2015/03/21 05:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PowerLawSuperExpCutoff2.h,v 1.1 2017/06/17 00:02:39 mdwood Exp $
  */
 
 #ifndef Likelihood_PowerLawSuperExpCutoff2_h
@@ -30,7 +30,7 @@ namespace Likelihood {
     PowerLawSuperExpCutoff2(double Prefactor=10.,
 			    double Index1=-2.1, 
 			    double Scale=1000.,
-			    double InvCutoff=1E-4,
+			    double Expfactor=0,
 			    double Index2=2.);
     
     virtual optimizers::Function * clone() const {

@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLawSuperExpCutoff2 Function class
  * @author Matthew Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff2.cxx,v 1.6 2015/03/21 05:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff2.cxx,v 1.1 2017/06/17 00:02:42 mdwood Exp $
  */
 
 #include <cmath>
@@ -23,13 +23,13 @@ namespace Likelihood {
   PowerLawSuperExpCutoff2(double Prefactor,  
                          double Index1,
                          double Scale,
-                         double InvCutoff,
+                         double Expfactor,
                          double Index2)
      : optimizers::Function("PLSuperExpCutoff2", 5, "Prefactor") {
     addParam(std::string("Prefactor"), Prefactor, true);
     addParam(std::string("Index1"), Index1, true);
     addParam(std::string("Scale"), Scale, false);
-    addParam(std::string("InvCutoff"), InvCutoff, true);
+    addParam(std::string("Expfactor"), Expfactor, true);
     addParam(std::string("Index2"), Index2, true);
   } 
   
@@ -37,7 +37,7 @@ namespace Likelihood {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     
     // assume a standard ordering for the parameters
-    enum ParamTypes {Prefactor, Index1, Scale, InvCutoff, Index2};
+    enum ParamTypes {Prefactor, Index1, Scale, Expfactor, Index2};
     
     std::vector<optimizers::Parameter> my_params;
     getParams(my_params);
@@ -45,11 +45,11 @@ namespace Likelihood {
     double prefactor = my_params[Prefactor].getTrueValue();
     double index1 = my_params[Index1].getTrueValue();
     double scale = my_params[Scale].getTrueValue();
-    double invcutoff = my_params[InvCutoff].getTrueValue();
+    double expfactor = my_params[Expfactor].getTrueValue();
     double index2 = my_params[Index2].getTrueValue();
     
     // De Jager
-    return prefactor * pow(x/scale,index1) * exp(-pow(x*invcutoff,index2));
+    return prefactor * pow(x/scale,index1) * exp(- expfactor * pow(x,index2) );
   }
   
   
@@ -57,7 +57,7 @@ namespace Likelihood {
                                                  const std::string &paramName) const {
     double x = dynamic_cast<const optimizers::dArg &>(xarg).getValue();
     
-    enum ParamTypes {Prefactor, Index1, Scale, InvCutoff, Index2};
+    enum ParamTypes {Prefactor, Index1, Scale, Expfactor, Index2};
     
     std::vector<optimizers::Parameter> my_params;
     getParams(my_params);
@@ -65,7 +65,7 @@ namespace Likelihood {
     double prefactor = my_params[Prefactor].getTrueValue();
     double index1 = my_params[Index1].getTrueValue();
     double scale = my_params[Scale].getTrueValue();
-    double invcutoff = my_params[InvCutoff].getTrueValue();
+    double expfactor = my_params[Expfactor].getTrueValue();
     double index2 = my_params[Index2].getTrueValue();
     
     int iparam = -1;
@@ -89,12 +89,11 @@ namespace Likelihood {
       case Scale:
 	return -value(xarg) * index1 / scale * my_params[Scale].getScale();
 	break;
-      case InvCutoff:
-	invcutoff = std::max(invcutoff,1E-16);
-	return value(xarg) * ( - pow(x*invcutoff,index2) * index2 / invcutoff ) * my_params[InvCutoff].getScale();
+      case Expfactor:
+	return value(xarg) * ( - pow(x,index2) ) * my_params[Expfactor].getScale();
 	break;
       case Index2:
-	return -value(xarg) * pow(x*invcutoff,index2) * log(x*invcutoff) * my_params[Index2].getScale();
+	return -value(xarg) * expfactor * pow(x,index2) * log(x) * my_params[Index2].getScale();
 	break;
       default:
 	break;
