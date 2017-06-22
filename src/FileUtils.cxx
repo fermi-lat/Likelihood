@@ -3,7 +3,7 @@
  * @brief Functions to getting data to and from FITS files
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.5 2016/10/13 01:54:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.6 2016/11/01 23:49:21 echarles Exp $
  */
 
 #include <memory>
@@ -93,32 +93,50 @@ namespace Likelihood {
 
     int read_healpix_table_to_sparse_vector(const std::string& filename, 
 					    const std::string& extension,
+					    size_t npix, 
 					    SparseVector<float>& vect) {
       vect.clear_data();
       std::auto_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
 
       // There are two columns: key and value
-      tip::FieldIndex_t key_field = table->getFieldIndex("KEY");
+      tip::FieldIndex_t pix_field = table->getFieldIndex("PIX");
+      tip::FieldIndex_t chan_field = table->getFieldIndex("CHANNEL");
       tip::FieldIndex_t val_field = table->getFieldIndex("VALUE");
-      const tip::IColumn* key_col = table->getColumn(key_field);
+      const tip::IColumn* pix_col = table->getColumn(pix_field);
+      const tip::IColumn* chan_col = table->getColumn(chan_field);
       const tip::IColumn* val_col = table->getColumn(val_field);
 
-      std::vector<size_t> key_vect;
+      std::vector<size_t> pix_vect;
+      std::vector<size_t> chan_vect;
       std::vector<float> val_vect;
       
       try {
-	key_col->get(0,key_vect);
+	pix_col->get(0,pix_vect);
       } catch (...) {
-	std::cout << "Read keys failed at for " << filename << ' ' << extension << std::endl;
+	std::cout << "Read pixels failed at for " << filename << ' ' << extension << std::endl;
 	return -1;
       }
+      
+      try {
+	chan_col->get(0,chan_vect);
+      } catch (...) {
+	std::cout << "Read channels failed at for " << filename << ' ' << extension << std::endl;
+	return -1;
+      }
+      
       try {
 	val_col->get(0,val_vect);
       }	catch (...) {
 	std::cout << "Read values failed for " << filename << ' ' << extension << std::endl;
 	return -1;
       }
+
+      std::vector<size_t> key_vect(val_vect.size());
+      for ( size_t i(0); i < pix_vect.size(); i++) {
+	key_vect[i] = chan_vect[i] * npix + pix_vect[i];
+      }
+	    
 
       vect.fill_from_key_and_value(key_vect,val_vect);
       return 0;
@@ -293,25 +311,49 @@ namespace Likelihood {
  
       int idx(0);
       size_t nfilled = imageData.non_null().size();
-      std::vector<size_t> key_vect;
-      std::vector<float> val_vect;
+      std::vector<size_t> keys;
+      std::vector<float> values;
       
-      imageData.fill_key_and_value(key_vect,val_vect);
+      std::vector<size_t> pix_vect(nfilled);
+      std::vector<size_t> chan_vect(nfilled);
 
-      char key_type[20];
-      sprintf(key_type,"%i%s\n",nfilled,"J");
+      char pix_type[20];
+      sprintf(pix_type,"%i%s\n",nfilled,"K");
+      char chan_type[20];
+      sprintf(chan_type,"%i%s\n",nfilled,"I");
       char val_type[20];
       sprintf(val_type,"%i%s\n",nfilled,"E");
+      
+      imageData.fill_key_and_value(keys, values);
+      for ( size_t ikey(0); ikey < keys.size(); ikey++ ) {
+	size_t key = keys[ikey];
+	size_t ipix = key % nPix;
+	size_t ie = key / nPix;
+	pix_vect[ikey] = ipix;
+	chan_vect[ikey] = ie;
+      }
 
-      tip::FieldIndex_t key_idx(-1);
+      tip::FieldIndex_t pix_idx(-1);
       try {
-	key_idx = table->getFieldIndex("KEY");
+	pix_idx = table->getFieldIndex("PIX");
       } catch (tip::TipException &) {
-	table->appendField("KEY", key_type);
-	key_idx = table->getFieldIndex("KEY");
+	table->appendField("PIX", pix_type);
+	pix_idx = table->getFieldIndex("PIX");
       }	   
-      tip::IColumn* key_col = table->getColumn(key_idx);
-      key_col->set(0,key_vect);
+      tip::IColumn* pix_col = table->getColumn(pix_idx);
+      pix_col->set(0,pix_vect);
+
+      tip::FieldIndex_t chan_idx(-1);
+      try {
+	chan_idx = table->getFieldIndex("CHANNEL");
+      } catch (tip::TipException &) {
+	table->appendField("CHANNEL", chan_type);
+	chan_idx = table->getFieldIndex("CHANNEL");
+      }	   
+      tip::IColumn* chan_col = table->getColumn(chan_idx);
+      chan_col->set(0,chan_vect);
+
+  
       tip::FieldIndex_t val_idx(-1);
       try {
 	val_idx = table->getFieldIndex("VALUE");
@@ -320,7 +362,7 @@ namespace Likelihood {
 	val_idx = table->getFieldIndex("VALUE");
       }	   
       tip::IColumn* val_col = table->getColumn(val_idx);
-      val_col->set(0,val_vect);
+      val_col->set(0,values);
       
       return table;
     }
