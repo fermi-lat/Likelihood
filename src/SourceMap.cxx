@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.135 2017/03/03 00:26:18 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.136 2017/04/21 19:57:29 asercion Exp $
  */
 
 #include <cmath>
@@ -540,7 +540,9 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
     // In this case we read the map.
     /// FIXME, we should have a better way of getting this...
     m_sparseModel.resize( m_dataCache->source_map_size() );
-    status = FileUtils::read_healpix_table_to_sparse_vector(sourceMapsFile,m_name,m_sparseModel);
+    status = FileUtils::read_healpix_table_to_sparse_vector(sourceMapsFile,m_name,
+							    m_dataCache->num_pixels(),
+							    m_sparseModel);
     break;
   default:
     // Either unknown or WCS based.  This is an error in either case.
