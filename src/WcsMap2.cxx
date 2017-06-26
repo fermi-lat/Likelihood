@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/src/WcsMap2.cxx,v 1.28 2016/10/20 22:56:39 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.29 2016/11/02 00:21:31 mdwood Exp $
  */
 
 #include <cmath>
@@ -343,7 +343,6 @@ double WcsMap2::operator()(const astro::SkyDir & dir, int k) const {
       // anonymous namespace.) So we have no choice but to catch
       // everything and assume the exception occurs because the
       // direction is outside the map.
-      std::cerr << "WcsMap2::operator() " << dir.ra() << ' ' << dir.dec() << std::endl;
       return 0;
    }
 
