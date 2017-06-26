@@ -3,7 +3,7 @@
  * @brief Functions to getting data to and from FITS files
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.7 2017/06/22 23:52:17 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.8 2017/06/26 18:49:30 echarles Exp $
  */
 
 #include <memory>
@@ -107,36 +107,26 @@ namespace Likelihood {
       const tip::IColumn* chan_col = table->getColumn(chan_field);
       const tip::IColumn* val_col = table->getColumn(val_field);
 
-      std::vector<size_t> pix_vect;
-      std::vector<size_t> chan_vect;
-      std::vector<float> val_vect;
       
-      try {
-	pix_col->get(0,pix_vect);
-      } catch (...) {
-	std::cout << "Read pixels failed at for " << filename << ' ' << extension << std::endl;
-	return -1;
-      }
-      
-      try {
-	chan_col->get(0,chan_vect);
-      } catch (...) {
-	std::cout << "Read channels failed at for " << filename << ' ' << extension << std::endl;
-	return -1;
-      }
-      
-      try {
-	val_col->get(0,val_vect);
-      }	catch (...) {
-	std::cout << "Read values failed for " << filename << ' ' << extension << std::endl;
-	return -1;
-      }
+      tip::Index_t nrow = table->getNumRecords();
 
-      std::vector<size_t> key_vect(val_vect.size());
-      for ( size_t i(0); i < pix_vect.size(); i++) {
-	key_vect[i] = chan_vect[i] * npix + pix_vect[i];
+      std::vector<size_t> pix_vect(nrow, 0);
+      std::vector<short> chan_vect(nrow, 0);
+      std::vector<float> val_vect(nrow, 0.);
+      std::vector<size_t> key_vect(nrow, 0.);
+
+      for ( tip::Index_t irow(0); irow < nrow; irow++ ) {
+	try {
+	  pix_col->get(irow,pix_vect[irow]);
+	  chan_col->get(irow,chan_vect[irow]);
+	  val_col->get(irow,val_vect[irow]);
+	} catch (...) {
+	  std::cout << "Read failed at " << filename << ' ' << extension << ' ' << irow << std::endl;
+	  return -1;
+	}
+      
+	key_vect[irow] = chan_vect[irow] * npix + pix_vect[irow];
       }
-	    
 
       vect.fill_from_key_and_value(key_vect,val_vect);
       return 0;
@@ -168,6 +158,7 @@ namespace Likelihood {
 	// NOT a HEALPIX map
 	return FileUtils::Unknown;
       }	 
+
       if ( pixtype != "HEALPIX" ) {
 	// NOT a HEALPIX map
 	return FileUtils::Unknown;
@@ -298,62 +289,48 @@ namespace Likelihood {
       header["INDXSCHM"].set("SPARSE");
       header["REFDIR1"].set(dataMap.isGalactic() ? dataMap.refDir().l() :  dataMap.refDir().ra() );
       header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
- 
-      int idx(0);
-      size_t nfilled = imageData.non_null().size();
-      std::vector<size_t> keys;
-      std::vector<float> values;
-      
-      std::vector<size_t> pix_vect(nfilled);
-      std::vector<size_t> chan_vect(nfilled);
-
-      char pix_type[20];
-      sprintf(pix_type,"%i%s\n",nfilled,"J");
-      char chan_type[20];
-      sprintf(chan_type,"%i%s\n",nfilled,"I");
-      char val_type[20];
-      sprintf(val_type,"%i%s\n",nfilled,"E");
-      
-      imageData.fill_key_and_value(keys, values);
-      for ( size_t ikey(0); ikey < keys.size(); ikey++ ) {
-	size_t key = keys[ikey];
-	size_t ipix = key % nPix;
-	size_t ie = key / nPix;
-	pix_vect[ikey] = ipix;
-	chan_vect[ikey] = ie;
-      }
 
       tip::FieldIndex_t pix_idx(-1);
       try {
 	pix_idx = table->getFieldIndex("PIX");
       } catch (tip::TipException &) {
-	table->appendField("PIX", pix_type);
+	table->appendField("PIX", "J");
 	pix_idx = table->getFieldIndex("PIX");
       }	   
       tip::IColumn* pix_col = table->getColumn(pix_idx);
-      pix_col->set(0,pix_vect);
 
       tip::FieldIndex_t chan_idx(-1);
       try {
 	chan_idx = table->getFieldIndex("CHANNEL");
       } catch (tip::TipException &) {
-	table->appendField("CHANNEL", chan_type);
+	table->appendField("CHANNEL", "I");
 	chan_idx = table->getFieldIndex("CHANNEL");
       }	   
       tip::IColumn* chan_col = table->getColumn(chan_idx);
-      chan_col->set(0,chan_vect);
-
   
       tip::FieldIndex_t val_idx(-1);
       try {
 	val_idx = table->getFieldIndex("VALUE");
       } catch (tip::TipException &) {
-	table->appendField("VALUE", val_type);
+	table->appendField("VALUE", "E");
 	val_idx = table->getFieldIndex("VALUE");
       }	   
       tip::IColumn* val_col = table->getColumn(val_idx);
-      val_col->set(0,values);
-      
+       
+      int idx(0);
+      size_t nfilled = imageData.non_null().size();
+      std::vector<size_t> keys;
+      std::vector<float> values;
+          
+      imageData.fill_key_and_value(keys, values);
+      for ( size_t ikey(0); ikey < keys.size(); ikey++ ) {
+	size_t key = keys[ikey];
+	size_t ipix = key % nPix;
+	short ie = key / nPix;
+	pix_col->set(ikey, ipix);
+	chan_col->set(ikey, ie);
+	val_col->set(ikey, values[ikey]);
+      }
       return table;
     }
 
