@@ -3,7 +3,7 @@
  * @brief Functions to getting data to and from FITS files
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.6 2016/11/01 23:49:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.7 2017/06/22 23:52:17 echarles Exp $
  */
 
 #include <memory>
@@ -175,21 +175,11 @@ namespace Likelihood {
       if ( indxschm == "IMPLICIT" ) {
 	// All-sky HEALPIX map	
 	return FileUtils::HPX_AllSky;
-      }
-      try {
-	tip::FieldIndex_t col_idx = table->getFieldIndex("KEY");
-	// Sparse HEALPIX map
+      } else if ( indxschm == "SPARSE" ) {
 	return FileUtils::HPX_Sparse;
-      } catch (tip::TipException &) {
-	;
-      }	 
-      try {
-	tip::FieldIndex_t col_idx = table->getFieldIndex("PIX");
-	// Partial-sky HEALPIX map
+      }	else if ( indxschm == "EXPLICIT" ) {
 	return FileUtils::HPX_Partial;
-      } catch (tip::TipException &) {
-	;
-      }	 
+      }     
       return FileUtils::Unknown;
     }
 
@@ -305,7 +295,7 @@ namespace Likelihood {
 	nEBins -= 1;
       }
    
-      header["INDXSCHM"].set("EXPLICIT");
+      header["INDXSCHM"].set("SPARSE");
       header["REFDIR1"].set(dataMap.isGalactic() ? dataMap.refDir().l() :  dataMap.refDir().ra() );
       header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
  
@@ -318,7 +308,7 @@ namespace Likelihood {
       std::vector<size_t> chan_vect(nfilled);
 
       char pix_type[20];
-      sprintf(pix_type,"%i%s\n",nfilled,"K");
+      sprintf(pix_type,"%i%s\n",nfilled,"J");
       char chan_type[20];
       sprintf(chan_type,"%i%s\n",nfilled,"I");
       char val_type[20];
