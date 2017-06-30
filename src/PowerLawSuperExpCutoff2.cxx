@@ -3,7 +3,7 @@
  * @brief Implementation for the PowerLawSuperExpCutoff2 Function class
  * @author Matthew Wood
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff2.cxx,v 1.1 2017/06/17 00:02:42 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PowerLawSuperExpCutoff2.cxx,v 1.2 2017/06/20 01:50:43 mdwood Exp $
  */
 
 #include <cmath>
@@ -47,9 +47,11 @@ namespace Likelihood {
     double scale = my_params[Scale].getTrueValue();
     double expfactor = my_params[Expfactor].getTrueValue();
     double index2 = my_params[Index2].getTrueValue();
-    
-    // De Jager
-    return prefactor * pow(x/scale,index1) * exp(- expfactor * pow(x,index2) );
+
+    // max value for exp argument to avoid overflow
+    const double max_expfactor = std::log(1E100);
+    return prefactor * pow(x/scale,index1) * 
+      exp( std::min(- expfactor * pow(x,index2), max_expfactor) );
   }
   
   
