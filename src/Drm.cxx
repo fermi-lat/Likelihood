@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.17 2017/01/26 19:29:21 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.18 2017/01/26 20:18:20 echarles Exp $
  */
 
 #include <cmath>
@@ -212,8 +212,6 @@ Drm_Cache::Drm_Cache(const Drm* drm,
    m_kref(energies.size()-1),
    m_true_counts_wt(energies.size()-1),
    m_meas_counts_wt(energies.size()-1),
-   m_xi_wt(energies.size()-1),
-   m_kref_wt(energies.size()-1),
    m_use_edisp(drm!=0){
   update(drm,sourceMap,energies);
 }
@@ -225,8 +223,6 @@ Drm_Cache::Drm_Cache(const Drm_Cache& other)
     m_kref(other.m_kref),
     m_true_counts_wt(other.m_true_counts_wt),
     m_meas_counts_wt(other.m_meas_counts_wt),
-    m_xi_wt(other.m_xi_wt),
-    m_kref_wt(other.m_kref_wt),
     m_use_edisp(other.m_use_edisp){
 }
 
@@ -238,7 +234,6 @@ void Drm_Cache::update(const Drm* drm,
   const std::vector<double>& npreds = sourceMap.npreds();
   const std::vector<std::pair<double,double> >& npred_weights = sourceMap.npred_weights();
   const std::vector<double>& specVals = sourceMap.specVals();
-
   size_t k(0);
   for (k = 0; k < energies.size()-1; k++) {
     double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
@@ -256,13 +251,16 @@ void Drm_Cache::update(const Drm* drm,
   if ( drm != 0 ) {
     m_use_edisp = true;
     drm->convolve(m_true_counts, m_meas_counts);
-    drm->convolve(m_true_counts_wt, m_meas_counts_wt);
-	
+    // Important: apply weights to convolved spectrum, rather than convolving weighted specturm
+    for (k = 0; k < energies.size()-1; k++) {
+      m_meas_counts_wt[k] = m_meas_counts[k] * (npred_weights[k].first + npred_weights[k].second) / 2.;
+    }
   } else {
     m_use_edisp = false;
     std::copy(m_true_counts.begin(),m_true_counts.end(),m_meas_counts.begin());
     std::copy(m_true_counts_wt.begin(),m_true_counts_wt.end(),m_meas_counts_wt.begin());
   }
+
   int kref(-1);
   int kref_wt(-1);
   for (k = 0; k < energies.size()-1; k++) {
@@ -277,17 +275,6 @@ void Drm_Cache::update(const Drm* drm,
       m_xi[k] = m_meas_counts[k] / m_true_counts[kref];
       m_kref[k] = kref;
     }
-    if ( m_true_counts_wt[k] > 0 ) {
-      // Still have counts in this true energy bin, so it can 
-      // be used as a reference
-      m_xi_wt[k] = m_meas_counts_wt[k] / m_true_counts_wt[k];
-      kref_wt = k;
-      m_kref_wt[k] = -1;
-    } else {
-      // Don't have counts in this true energy bin.  
-      m_xi_wt[k] = m_meas_counts_wt[k] / m_true_counts_wt[kref];
-      m_kref_wt[k] = kref_wt;
-    }
   }
 }
 
@@ -301,8 +288,6 @@ size_t Drm_Cache::memory_size() const {
   retVal += sizeof(int)*m_kref.capacity();
   retVal += sizeof(double)*m_true_counts_wt.capacity();
   retVal += sizeof(double)*m_meas_counts_wt.capacity();
-  retVal += sizeof(double)*m_xi_wt.capacity();
-  retVal += sizeof(int)*m_kref_wt.capacity();
 
 }
 
