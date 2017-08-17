@@ -3,7 +3,7 @@
  * @brief Functionality to deal with source maps extracted from BinnedLikelihood
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.2 2016/10/19 22:19:59 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.3 2016/10/20 23:08:30 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMapCache_h
@@ -102,6 +102,9 @@ namespace Likelihood {
     
      /// Return the name of the file with the source maps
      inline const std::string& srcMapsFile() const { return m_srcMapsFile; }
+
+     /// Return the number of cached sources
+     inline size_t n_srcs() const { return m_srcMaps.size(); }
 
 
      /* ----------------- Simple setter functions ------------------------ */
@@ -285,6 +288,9 @@ namespace Likelihood {
      /* Return true if we use energy dispersion for a particular source */
      bool use_edisp(const Source* src = 0) const;
 
+
+     /* --------------------- Debugging -------------------- */
+     size_t memory_size() const;
 
    protected:
      
