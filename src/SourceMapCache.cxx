@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.5 2017/03/03 00:26:18 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.6 2017/04/04 21:08:16 asercion Exp $
  */
 
 
@@ -148,8 +148,9 @@ namespace Likelihood {
 
   SourceMap * SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const {
     const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
+    const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
     return new SourceMap(src, &m_dataCache, m_observation, the_config.psf_integ_config(), 
-			 m_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
+			 the_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
   }
   
   void SourceMapCache::eraseSourceMap(const std::string & srcName) {
@@ -405,6 +406,16 @@ namespace Likelihood {
     return retVal;
   }
 
+  size_t SourceMapCache::memory_size() const {
+    size_t sum(0);
+    for ( std::map<std::string, SourceMap *>::const_iterator itr = m_srcMaps.begin();
+	  itr != m_srcMaps.end(); itr++ ) {
+      sum += itr->second->memory_size();
+    }
+    return sum;
+  }
+  
+
   void SourceMapCache::addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
 					   SourceMap& srcMap,
 					   size_t npix,
@@ -444,7 +455,10 @@ namespace Likelihood {
 						   const std::string & fitsFile) const {
     
     SourceMap* srcMap = getSourceMap(src,false);
-    srcMap->model();
+    if ( srcMap->cached_model().size() == 0 &&
+	 srcMap->cached_sparse_model().size() == 0 ) {
+      srcMap->model();
+    }
     srcMap->setFilename(fitsFile);    
     srcMap->setModelIsLocal(false);
     switch ( srcMap->mapType() ) {
@@ -466,7 +480,10 @@ namespace Likelihood {
 						  const std::string & fitsFile) const {
     
     SourceMap* srcMap = getSourceMap(src,false);
-    srcMap->model();
+    if ( srcMap->cached_model().size() == 0 &&
+	 srcMap->cached_sparse_model().size() == 0 ) {
+      srcMap->model();
+    }
     srcMap->setFilename(fitsFile);
     srcMap->setModelIsLocal(false);
     switch ( srcMap->mapType() ) {
