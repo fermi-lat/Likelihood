@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.75 2017/03/03 00:26:17 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.76 2017/04/21 19:57:26 asercion Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -149,7 +149,10 @@ public:
    */
    void clear_model(bool force=false) {
      if ( force || ( !m_save_model && !m_model_is_local ) ) {
-       m_model.clear();
+       // This deallocates the memory used by the model
+       // in C++-11 there is a function shrink_to_fit that we could use.
+       std::vector<float> nullVect;
+       m_model.swap(nullVect);
        m_sparseModel.clear();
        m_model_is_local = false;
      }
@@ -213,10 +216,19 @@ public:
       and integrated over the energy bin to obtain the predicted counts */
    inline const SparseVector<float> & cached_sparse_model() const { return m_sparseModel; }
    
+   /* These are the  of the 'spectrum' values.  I.e., the spectrum evaluated at the energy points */
+   inline const std::vector<double> & cached_specValues() const { return m_specVals; }
 
    /* These are the derivatives of the 'spectrum' values.  I.e., the derivatives evaluated 
       at the energy pointsThese are the spectral derivatives.  */
    inline const std::vector<std::vector<double> >& cached_specDerivs() const { return m_derivs; }
+
+   /* These are the npreds, i.e., the model summed over each energy plane. */
+   inline const std::vector<double>& cached_npreds() const { return  m_npreds; }
+
+   /// These are the npred weights, i.e., the weights to apply to the npreds
+   /// to correctly reproduce the weighted counts
+   inline const std::vector<std::pair<double,double> >& cached_npred_weights() const { return m_npred_weights; }
 
    /* This contains both the convolved and un-convolved counts spectra */
    inline const Drm_Cache* cached_drm_Cache() const { return m_drm_cache; }
