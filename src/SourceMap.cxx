@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.136 2017/04/21 19:57:29 asercion Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.137 2017/06/22 23:52:17 echarles Exp $
  */
 
 #include <cmath>
@@ -221,32 +221,32 @@ void SourceMap::computeNpredArray() {
 
    size_t npix = m_dataCache->num_pixels();
 
-   for (size_t k(0); k < ne; k++) {
+   for (size_t k(0); k < nw; k++) {
 
       double w_0_sum(0.);
       double w_1_sum(0.);
 
       for (size_t j(0); j < npix; j++) {
-	 size_t indx(k*npix + j);
-         size_t indx_0 = k > 0 ? indx  - npix : indx;
-	 size_t indx_1 = k < energies.size()-1 ? indx : indx - npix;
-	 double addend = m_model.at(indx);
-         m_npreds[k] += addend;
-	 double w_0_addend = m_weights != 0 ? ( m_weights->model()[indx_0]*addend ) : addend;
-	 double w_1_addend = m_weights != 0 ? ( m_weights->model()[indx_1]*addend ) : addend;
-	 w_0_sum += w_0_addend;
-	 w_1_sum += w_1_addend;
+	 size_t indx_0(k*npix + j);
+         size_t indx_1 = indx_0 + npix;
+	 double weight_val = m_weights != 0 ? ( m_weights->model()[indx_0]) : 1.0;
+	 double model_0 = m_model.at(indx_0);
+	 double model_1 = m_model.at(indx_1);
+         m_npreds[k] += model_0;
+	 if ( k+1 == nw ) {
+	   m_npreds[k+1] += model_1;
+	 }
+	 model_0 *= weight_val;
+	 model_1 *= weight_val;
+	 w_0_sum += model_0;
+	 w_1_sum += model_1;
       }      
       double w_0 = m_weights != 0 ? (m_npreds[k] > 0 ? w_0_sum / m_npreds[k] : 0.) : 1.0;
       double w_1 = m_weights != 0 ? (m_npreds[k] > 0 ? w_1_sum / m_npreds[k] : 0.) : 1.0;
-
-      if ( k < nw ) {
-	m_npred_weights[k].first = w_0;
-      }
-      if ( k > 0 ) {
-	m_npred_weights[k-1].second = w_1;
-      }
+      m_npred_weights[k].first = w_0;
+      m_npred_weights[k].second = w_1;
    }
+   
 
    if ( expanded ) {
      m_model.clear();
@@ -275,7 +275,16 @@ void SourceMap::applyPhasedExposureMap() {
 
 void SourceMap::setSource(const Source& src) {
   if ( m_src == &src ) {
-    return;
+    if ( m_model.size() == 0 &&
+	 m_sparseModel.size() == 0 ) {
+      if ( m_filename.size() > 0 ) {
+	readModel(m_filename);
+      } else {
+	std::cout << "No model and no filename for source " << src.getName() << std::endl;
+      }
+    } else {
+      return;
+    }
   }
   m_src = &src;
   m_specVals.clear();
@@ -298,7 +307,7 @@ void SourceMap::setSpectralValues(const std::vector<double>& energies,
   FitUtils::extractSpectralVals(*m_src,energies,m_specVals);
   m_modelPars.clear();
   m_src->spectrum().getParamValues(m_modelPars);
-  if ( latch_params ) {
+ if ( latch_params ) {
     m_latchedModelPars.resize(m_modelPars.size());
     std::copy(m_modelPars.begin(),m_modelPars.end(),m_latchedModelPars.begin());
   }
@@ -610,7 +619,6 @@ int SourceMap::make_model() {
 void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec) {
   const std::vector<float>& m = model();
   if ( vect.size() != m.size() ) {
-    std::cout << "SourceMap::addToVector_full " << vect.size() << ' ' << m.size() << std::endl;
     throw std::runtime_error("SourceMap::addToVector_full model size != vector size");
   }
   size_t ne =  m_dataCache->num_energies();
