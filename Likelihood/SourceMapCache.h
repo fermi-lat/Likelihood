@@ -3,7 +3,7 @@
  * @brief Functionality to deal with source maps extracted from BinnedLikelihood
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.3 2016/10/20 23:08:30 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.4 2017/08/17 23:46:04 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMapCache_h
@@ -272,7 +272,8 @@ namespace Likelihood {
 	The counts spectra for the various source in the model are
 	cached.   This will update the cache if needed. 
      */
-     const std::vector<double>& modelCountsSpectrum(const Source& src) const;
+     const std::vector<double>& modelCountsSpectrum(const Source& src,
+						    bool weighted=false) const;
  
  
      /* Compute the full model for all the fixed source.
