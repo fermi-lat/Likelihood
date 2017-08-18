@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.133 2016/10/20 23:08:32 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.134 2016/10/22 04:12:31 echarles Exp $
  */
 
 #include <cmath>
@@ -67,6 +67,9 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_updateFixedWeights(true){
   m_fixedModelWts.resize(m_dataCache.nFilled(), std::make_pair(0, 0));
   m_fixedNpreds.resize(m_dataCache.num_energies(), 0); 
+  m_fixedNpred_xis.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+  m_fixedNpred_wts.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+  m_fixedNpred_xiwts.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
 }
 
 BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
@@ -98,6 +101,9 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_updateFixedWeights(true){    
   m_fixedModelWts.resize(m_dataCache.nFilled(), std::make_pair(0, 0));
   m_fixedNpreds.resize(m_dataCache.num_energies(), 0);
+  m_fixedNpred_xis.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+  m_fixedNpred_wts.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+  m_fixedNpred_xiwts.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
 }
 
 BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
@@ -117,6 +123,9 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_updateFixedWeights(true){    
   m_fixedModelWts.resize(m_dataCache.nFilled(), std::make_pair(0, 0));
   m_fixedNpreds.resize(m_dataCache.num_energies(), 0);
+  m_fixedNpred_xis.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+  m_fixedNpred_wts.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+  m_fixedNpred_xiwts.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
 }
 
 BinnedLikelihood::~BinnedLikelihood() throw() {
@@ -150,9 +159,8 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   }
   m_accumulator.add(-npred);
   
-  
   double my_total(m_accumulator.total());
-  
+
   /// Add in contribution from priors.
   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
   for ( ; par != m_parameter.end(); ++par) {
@@ -176,27 +184,18 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
   int nparams(getNumFreeParams());
   derivs.resize(nparams, 0);
-  double npred;
+  double npred(0.);
   if (!m_modelIsCurrent) {
     // here we want the weighted version of npred
     npred = computeModelMap_internal(true);
   }
-  const std::vector<float> & data = m_dataCache.data( m_dataCache.has_weights() );
-  
-  /// First j value corresponding to the minimum allowed k-index.
-  size_t jentry(0);
-  for (size_t j(0); j < m_dataCache.nFilled(); j++) {
-    size_t k(m_dataCache.filledPixels()[j]/num_pixels());
-    if (k == m_kmin) {
-      jentry = j;
-      break;
-    }
-  }
-  
+  const std::vector<float> & data = m_dataCache.data( m_dataCache.has_weights() );  
+
   /// Update the cached vectors of spectral derivatives inside the
   /// various source maps
   std::vector<Source *> free_srcs;
   std::map<std::string, Source *>::const_iterator src;
+
   for (src=sources().begin(); src != sources().end(); ++src) {
     if (!std::count(m_fixedSources.begin(), m_fixedSources.end(),
 		    src->second->getName())) {
@@ -208,87 +207,134 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       srcMap.setSpectralDerivs(m_dataCache.energies(),parnames);
     }
   }
-  
+
   // /// For debugging/development, keep track of time spent in main loop.
   //    st_facilities::Timer timer;
   
   std::vector<Kahan_Accumulator> posDerivs(nparams);
   std::vector<Kahan_Accumulator> negDerivs(nparams);
 
+  long freeIndex(0);
 
-  //   timer.start();
-  for (size_t j(jentry); j < m_dataCache.nFilled(); j++) {
-    size_t jmin(m_dataCache.filledPixels()[j]);
-    size_t jmax(jmin + num_pixels());
-    size_t k(jmin/num_pixels());
-    if (k < m_kmin || k > m_kmax-1) {
-      continue;
-    }
-    double emin(m_dataCache.energies().at(k));
-    double emax(m_dataCache.energies().at(k+1));
-    if (m_model.at(j) > 0) {
-      long iparam(0);
-     
-      for (std::vector<Source *>::const_iterator it(free_srcs.begin());
-	   it != free_srcs.end(); ++it ) {
-	Source * src(*it);
-	
-	std::string srcName = src->getName();
-	SourceMap & srcMap = sourceMap(srcName);
-	
-	const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
+  // We only need to loop on the free sources
+  for (std::vector<Source *>::const_iterator it(free_srcs.begin());
+       it != free_srcs.end(); ++it ) {
 
-	for (size_t i(0); i < specDerivs.size(); i++, iparam++) {
-	  double my_deriv = pixelCounts(emin,emax,
-					srcMap[jmin]*specDerivs[i][k],
-					srcMap[jmax]*specDerivs[i][k+1],
-					m_dataCache.log_energy_ratios()[k]);
-	  double addend(data.at(jmin)/m_model.at(j)*my_deriv);
+    std::vector<double> src_contrib(nparams, 0.);
+    std::vector<double> src_contrib_nlogm(nparams, 0.);
+    std::vector<double> src_contrib_m(nparams, 0.);
+    
+    Source * src(*it);
+    bool use_edisp_val = m_srcMapCache.use_edisp(src);
+    
+    std::string srcName = src->getName();
+    SourceMap & srcMap = sourceMap(srcName);
+    const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
+
+    // We need this stuff for the second term...
+    const Drm_Cache* drm_cache = srcMap.drm_cache();
+    const std::vector<double> & npreds = srcMap.npreds();
+    const std::vector<std::pair<double,double> > & npred_weights =  srcMap.npred_weights();
+
+    // First term, derivate of n_obs log n_model = ( n_obs / n_model ) * ( d model / d param ) 
+    // loop over all the filled pixels
+    for (size_t j(0); j < m_dataCache.nFilled(); j++) {
+      size_t jmin(m_dataCache.filledPixels()[j]);
+      size_t k(jmin/num_pixels());
+      size_t ipix(jmin % num_pixels());
+      if (k < m_kmin || k > m_kmax-1) {
+	continue;
+      }
+      double emin(m_dataCache.energies()[k]);
+      double emax(m_dataCache.energies()[k+1]);
+      double log_e_ratio(m_dataCache.log_energy_ratios()[k]);
+ 
+      // EAC, deal with energy dispersion 
+      // FIXME, do we really have to deal with kref here?
+      int kref(-1);	
+      double xi(1.);
+      if (use_edisp_val) {
+	xi = drm_cache->get_correction(k,kref);
+	if ( kref < 0 ) {
+	  // Still have true counts in this energy bin, just use kk as kref
+	  kref = k;
+	}
+      } else {
+	kref = k;
+      }
+
+      size_t jref(kref*num_pixels() + ipix);
+      size_t jmax(jref + num_pixels());
+
+      if (m_model.at(j) > 0) {
+	long iparam(freeIndex);
+     	for (size_t i(0); i < specDerivs.size(); i++, iparam++) {	  
+	  double my_deriv = xi* pixelCounts(emin,emax,
+					    srcMap[jref]*specDerivs[i][k],
+					    srcMap[jmax]*specDerivs[i][k+1],
+					    log_e_ratio);
+	  double addend = (data.at(jmin)/m_model.at(j))*my_deriv;
+	  src_contrib[iparam] += addend;
+	  src_contrib_nlogm[iparam] += addend;
 	  if (addend > 0) {
 	    posDerivs[iparam].add(addend);
 	  } else {
 	    negDerivs[iparam].add(addend);
 	  }
-	}
+	} 	
       }
     }
-  }
+    
+    // Second term, the derivatives of the nPreds. 
+    // Loop over the energy layers
+    for (size_t kk(0); kk < m_dataCache.num_ebins(); kk++) {
+      
+      if (kk < m_kmin || kk > m_kmax-1) {
+	continue;
+      }
+      double emin(m_dataCache.energies()[kk]);
+      double emax(m_dataCache.energies()[kk+1]);
+      double log_e_ratio(m_dataCache.log_energy_ratios()[kk]);
 
-  size_t iparam2(0);
-  for (std::vector<Source *>::const_iterator it2(free_srcs.begin());
-       it2 != free_srcs.end(); ++it2 ) {
-    Source * src(*it2);
-    std::string srcName = src->getName();
-    SourceMap & srcMap = sourceMap(srcName);
-
-    const std::vector<double> & npreds =  srcMap.npreds();
-    const std::vector<std::pair<double,double> > & npred_weights =  srcMap.npred_weights();
-    const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
-   
-    for (size_t i(0); i < specDerivs.size(); i++, iparam2++) {
-      for (size_t kk(0); kk < m_dataCache.num_ebins(); kk++) {
-	if (kk < m_kmin || kk > m_kmax-1) {
-	  continue;
+      // EAC, deal with energy dispersion
+      int kref(-1);	
+      double xi(1.);
+      if (use_edisp_val) {
+	xi = drm_cache->get_correction(kk,kref);
+	if ( kref < 0 ) {
+	  // Still have true counts in this energy bin, just use kk as kref
+	  kref = kk;
 	}
-	double addend = pixelCounts(m_dataCache.energies().at(kk),m_dataCache.energies().at(kk+1),
-				    npreds.at(kk)*npred_weights[kk].first*specDerivs[i][kk],
-				    npreds.at(kk+1)*npred_weights[kk].second*specDerivs[i][kk+1],
-				    m_dataCache.log_energy_ratios()[kk]);
+      } else {
+	kref = kk;
+      }
+
+      long iparam2(freeIndex);
+      for (size_t i(0); i < specDerivs.size(); i++, iparam2++) {
+
+	double addend = xi*pixelCounts(emin,emax,
+				       npreds[kref]*npred_weights[kref].first*specDerivs[i][kk],
+				       npreds[kref+1]*npred_weights[kref].second*specDerivs[i][kk+1],
+				       log_e_ratio);
+	src_contrib[iparam2] -= addend;
+	src_contrib_m[iparam2] -= addend;
 	if (-addend > 0) {
 	  posDerivs[iparam2].add(-addend);
 	} else {
 	  negDerivs[iparam2].add(-addend);
 	}
       }
-    }
-  }
-  //    timer.stop();
-  //    timer.report("main loop time");
-  
+    } // Loop on energy bins
+
+    // Update index of the next free parameter, based on the number of free parameters of this source
+    freeIndex += src->spectrum().getNumFreeParams();
+
+  } // Loop on free sources
+ 
   for (size_t i(0); i < derivs.size(); i++) {
     derivs[i] = posDerivs[i].total() + negDerivs[i].total(); 
   }
-  
+ 
   /// Derivatives from priors.
   size_t i(0);
   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
@@ -298,7 +344,9 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       i++;
     }
   }
+
 }
+
 
 
   std::vector<double>::const_iterator 
@@ -470,14 +518,17 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     if (filename != "") {
       m_srcMapsFile = filename;
     }
+
     if (!st_facilities::Util::fileExists(filename)) {
       m_dataCache.countsMap().writeOutput("BinnedLikelihood", m_srcMapsFile);
     }
-
+    
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
+    
     std::vector<const Source*> srcs;
     getSources(srcNames,srcs);
+
     m_srcMapCache.saveSourceMaps(m_srcMapsFile,srcs,replace);
 
     tip::Extension* whdu = saveWeightsMap(replace);
@@ -526,14 +577,14 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
   double BinnedLikelihood::computeModelMap_internal(bool weighted) const {
     double npred(0);
-  
+
     std::vector<std::pair<double, double> > modelWts;
     modelWts.resize(m_dataCache.nFilled());
   
     if (fixedModelUpdated() && m_updateFixedWeights) {
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
     }
-  
+    
     for (size_t j(0); j < m_fixedModelWts.size(); j++) {
       modelWts.at(j).first = m_fixedModelWts.at(j).first;
       modelWts.at(j).second = m_fixedModelWts.at(j).second;
@@ -541,6 +592,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
+
     for (size_t i(0); i < srcNames.size(); i++) {
       npred += NpredValue(srcNames[i],weighted);
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
@@ -548,7 +600,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	addSourceWts(modelWts, srcNames[i]);
       }
     }
-  
+
     m_model.clear();
     m_model.resize(m_dataCache.nFilled(), 0);
     for (size_t j(0); j < m_dataCache.nFilled(); j++) {
@@ -657,6 +709,13 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     m_fixedModelWts.resize(m_dataCache.nFilled(), std::make_pair(0, 0));
     m_fixedNpreds.clear();
     m_fixedNpreds.resize(m_dataCache.energies().size(), 0);
+    m_fixedNpred_xis.clear();
+    m_fixedNpred_xis.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+    m_fixedNpred_wts.clear();
+    m_fixedNpred_wts.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+    m_fixedNpred_xiwts.clear();
+    m_fixedNpred_xiwts.resize(m_dataCache.num_ebins(), std::make_pair(0, 0));
+
     std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
     for ( ; srcIt != m_sources.end(); ++srcIt) {
       const std::string & srcName(srcIt->first);
@@ -704,30 +763,52 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
     m_fixedSources.push_back(srcName);
     const Source& src = *(srcIt->second);
+
     SourceMap * srcMap = m_srcMapCache.getSourceMap(src);
+    if ( m_config.save_all_srcmaps() ) {
+      srcMap->setSaveModel(true);
+    }
     
     addSourceWts(m_fixedModelWts, srcName, srcMap, false, true);
-    double xi(1);
 
     bool use_edisp_val = use_edisp(srcName);
     const Drm_Cache* drm_cache = srcMap->drm_cache();
-  
+    const std::vector<double>& spec = srcMap->specVals();
+    const std::vector<double>& npred_vals = srcMap->npreds();
+    const std::vector<std::pair<double,double> >& npred_weights = srcMap->npred_weights();
+
+    double xi(1);
     int kref(-1);
-    for (size_t k(0); k < m_dataCache.num_ebins(); k++) {
-      optimizers::dArg ee(m_dataCache.energies()[k]);
+    size_t ne(m_dataCache.num_ebins());
+
+    for (size_t k(0); k < ne; k++) {
+      double npred_0 = npred_vals[k] * spec[k];
+      double npred_1 = npred_vals[k+1] * spec[k+1];
+      m_fixedNpreds[k] += npred_0;
+      m_fixedNpred_wts[k].first += (npred_0 * npred_weights[k].first);
+      m_fixedNpred_wts[k].second += (npred_1 * npred_weights[k].second);
+      
       if (use_edisp_val) {
 	xi = drm_cache->get_correction(k,kref);
-	if ( kref >= 0 ) {
-	  xi = 1;
-	}
-      }      
-      m_fixedNpreds[k] += xi* srcIt->second->spectrum()(ee) * srcMap->npreds()[k];
+	if ( kref < 0 ) { 
+	  // Still have true counts in this energy bin, just use k as kref
+	  kref = k;
+	} 
+      } else {
+	kref = k;
+      }
+      if ( kref != 0 ) {
+	npred_0 = npred_vals[kref] * spec[kref];
+	npred_1 = npred_vals[kref+1] * spec[kref+1];
+      }
+      m_fixedNpred_xis[k].first += (npred_0*xi);
+      m_fixedNpred_xis[k].second += (npred_1*xi);
+      m_fixedNpred_xiwts[k].first += (npred_0*xi*npred_weights[kref].first);
+      m_fixedNpred_xiwts[k].second += (npred_1*xi*npred_weights[kref].first);
     }
-    // For last bin edge, use xi value from penultimate edge
-    size_t kk(m_dataCache.num_ebins());
-    optimizers::dArg ee(m_dataCache.energies()[kk]);
-    m_fixedNpreds[kk] += xi*(srcIt->second->spectrum()(ee)*
-			       srcMap->npreds()[kk]);
+
+    // Add the last bin edge
+    m_fixedNpreds[ne] += (npred_vals[ne] * spec[ne]);
 
     // Remove this source from the stored source maps to save memory
     srcMap->clear_model();
@@ -754,25 +835,41 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
     bool use_edisp_val = use_edisp(srcName);
     const Drm_Cache* drm_cache = srcMap->drm_cache();
-  
+    const std::vector<double>& spec = srcMap->specVals();
+    const std::vector<double>& npred_vals = srcMap->npreds();
+    const std::vector<std::pair<double,double> >& npred_weights = srcMap->npred_weights();
+
     // Subtract the contribution to the summed Npred spectrum.
     double xi(1);
     int kref(-1);
-    for (size_t k(0); k < m_dataCache.num_energies(); k++) {
-      optimizers::dArg ee(m_dataCache.energies()[k]);
+    size_t ne(m_dataCache.num_ebins());
+
+    for (size_t k(0); k < ne; k++) {
+      double npred_0 = npred_vals[k] * spec[k];
+      double npred_1 = npred_vals[k+1] * spec[k+1];
+      m_fixedNpreds[k] -= npred_0;
+      m_fixedNpred_wts[k].first -= (npred_0 * npred_weights[k].first);
+      m_fixedNpred_wts[k].second -= (npred_1 * npred_weights[k].second);
+
       if (use_edisp_val) {
 	xi = drm_cache->get_correction(k,kref);
-	if ( kref >= 0 ) {
-	  xi = 1;
+	if ( kref < 0 ) { 
+	  // Still have true counts in this energy bin, just use k as kref
+	  kref = k;
 	}      
+      } else {
+	kref = k;
       }
-      m_fixedNpreds[k] -= xi*srcIt->second->spectrum()(ee)*srcMap->npreds()[k];
+      if ( kref != 0 ) {
+	npred_0 = npred_vals[kref] * spec[kref];
+	npred_1 = npred_vals[kref+1] * spec[kref+1];
+      }
+      m_fixedNpred_xis[k].first -= (npred_0*xi);
+      m_fixedNpred_xis[k].second -= (npred_1*xi);
+      m_fixedNpred_xiwts[k].first -= (npred_0*xi*npred_weights[kref].first);
+      m_fixedNpred_xiwts[k].second -= (npred_1*xi*npred_weights[kref].first);
     }
-    // For last bin edge, use xi value from penultimate edge
-    size_t kk(m_dataCache.num_ebins());
-    optimizers::dArg ee(m_dataCache.energies()[kk]);
-    m_fixedNpreds[kk] -= xi*(srcIt->second->spectrum()(ee)*
-			     srcMap->npreds()[kk]);
+    m_fixedNpreds[ne] -= (npred_vals[ne] * spec[ne]);
   
     // Subtract the source weights from the summed fixed model weights.
     bool subtract;
@@ -900,8 +997,8 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
   for (size_t k(0); k < m_dataCache.num_ebins(); k++) {
     m_fixed_counts_spec.push_back(pixelCounts(m_dataCache.energies()[k], 
 					      m_dataCache.energies()[k+1],
-					      m_fixedNpreds[k],
-					      m_fixedNpreds[k+1],
+					      m_fixedNpred_xis[k].first,
+					      m_fixedNpred_xis[k].second,
 					      m_dataCache.log_energy_ratios()[k]));
   }
 }
@@ -930,7 +1027,7 @@ void BinnedLikelihood::addSourceWts(std::vector<std::pair<double, double> > & mo
 
   bool use_edisp_val = use_edisp(srcName);
   const Drm_Cache* drm_cache = sourceMap->drm_cache();
-  
+
   SourceMapCache::addSourceWts_static(modelWts,*sourceMap,num_pixels(),
 				      m_dataCache.filledPixels(),drm_cache,use_edisp_val,subtract);
 }
