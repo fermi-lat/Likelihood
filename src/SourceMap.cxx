@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.137 2017/06/22 23:52:17 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.138 2017/08/18 00:02:36 echarles Exp $
  */
 
 #include <cmath>
@@ -280,7 +280,9 @@ void SourceMap::setSource(const Source& src) {
       if ( m_filename.size() > 0 ) {
 	readModel(m_filename);
       } else {
-	std::cout << "No model and no filename for source " << src.getName() << std::endl;
+	m_src = &src;
+	make_model();
+	return;
       }
     } else {
       return;
@@ -603,7 +605,6 @@ int SourceMap::make_model() {
     return status;
   }
 
-  
   applyPhasedExposureMap();
   computeNpredArray();
   setSpectralValues(m_dataCache->energies());
