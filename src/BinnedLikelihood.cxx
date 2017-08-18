@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.134 2016/10/22 04:12:31 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.135 2017/08/18 00:05:45 echarles Exp $
  */
 
 #include <cmath>
@@ -59,7 +59,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     resamp_factor,
 	     minbinsz,
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
-	     true,false,true,false),
+	     true,false,true,false,false,false),
     m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
 		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
@@ -654,9 +654,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
 
   const std::vector<double>& 
-  BinnedLikelihood::modelCountsSpectrum(const std::string & srcName) const {
+  BinnedLikelihood::modelCountsSpectrum(const std::string & srcName,
+					bool weighted) const {
     const Source& src = source(srcName);
-    return m_srcMapCache.modelCountsSpectrum(src);
+    return m_srcMapCache.modelCountsSpectrum(src, weighted);
   }
 
 

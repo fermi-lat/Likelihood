@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.95 2016/10/20 23:08:30 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.96 2017/08/17 23:42:56 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -487,7 +487,8 @@ namespace Likelihood {
 	The counts spectra for the various source in the model are
 	cached.   This will update the cache if needed. 
      */
-     const std::vector<double>& modelCountsSpectrum(const std::string &srcname) const;
+     const std::vector<double>& modelCountsSpectrum(const std::string &srcname,
+						    bool weighted=false) const;
 
   
      /* Return true if any fixed source has changed. 

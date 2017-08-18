@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.6 2017/04/04 21:08:16 asercion Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.7 2017/08/17 23:50:07 echarles Exp $
  */
 
 
@@ -382,10 +382,12 @@ namespace Likelihood {
   }
 
 
-  const std::vector<double>& SourceMapCache::modelCountsSpectrum(const Source& src) const {
+  const std::vector<double>& SourceMapCache::modelCountsSpectrum(const Source& src,
+								 bool weighted) const {
     SourceMap * srcMap = getSourceMap(src, false);
     // This forces updating the source map if needed
-    return srcMap->drm_cache(true)->meas_counts();
+    const Drm_Cache* drm_cache = srcMap->drm_cache(true);
+    return weighted ? drm_cache->meas_counts_wt() : drm_cache->meas_counts();
   }
 
 
