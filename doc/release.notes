@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang, M. Wood, E. Charles
-    $Id: release.notes,v 1.610 2017/07/01 00:10:23 mdwood Exp $
+    $Id: release.notes,v 1.611 2017/07/01 02:19:28 echarles Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-12-00 18-Aug-2017 echarles Fixes for LK-126 and LK-127
  Likelihood-20-11-01 30-Jun-2017 echarles Fix template data file for healpix_region tests
  Likelihood-20-11-00 30-Jun-2017 mdwood Switch to new FITS format for serializing sparse healpix maps.
  Likelihood-20-10-01 19-Jun-2017 mdwood Small change to parameterization of PLSuperExpCutoff2 model.
