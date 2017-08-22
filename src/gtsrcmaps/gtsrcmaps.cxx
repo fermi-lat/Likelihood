@@ -4,7 +4,7 @@
  * a counts map and a source model xml file.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.52 2016/09/28 17:44:46 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtsrcmaps/gtsrcmaps.cxx,v 1.53 2017/08/17 23:59:23 echarles Exp $
  */
 
 #include <cstdlib>
@@ -155,7 +155,7 @@ void gtsrcmaps::run() {
    std::string wmap_file = m_pars["wmap"];
    if ( wmap_file != "none" ) {
      wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,std::string());
-     wmap->setInterpolation(false);
+     //wmap->setInterpolation(false);
      wmap->setExtrapolation(true);
    }
 
