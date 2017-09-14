@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.138 2017/08/18 00:02:36 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.139 2017/08/18 22:45:30 echarles Exp $
  */
 
 #include <cmath>
@@ -27,6 +27,7 @@
 
 #include "st_facilities/Util.h"
 
+#include "Likelihood/Accumulator.h"
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedCountsCache.h"
 #include "Likelihood/CompositeSource.h"
@@ -122,7 +123,6 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_psf_config(),
     m_drm_cache(0) {
 
-
   int status = readModel(sourceMapsFile);
   if ( status != 0 ) {
     throw std::runtime_error("SourceMap construction failed to read model");
@@ -138,7 +138,7 @@ SourceMap::SourceMap(const SourceMap& other)
    m_srcType(other.m_srcType),
    m_dataCache(other.m_dataCache),
    m_observation(other.m_observation),
-   m_meanPsf(0), // FIXME
+   m_meanPsf( other.m_meanPsf != 0 ? new MeanPsf(*other.m_meanPsf) : 0),
    m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
    m_psf_config(other.m_psf_config),
    m_drm(other.m_drm),
@@ -221,32 +221,31 @@ void SourceMap::computeNpredArray() {
 
    size_t npix = m_dataCache->num_pixels();
 
-   for (size_t k(0); k < nw; k++) {
-
-      double w_0_sum(0.);
-      double w_1_sum(0.);
-
-      for (size_t j(0); j < npix; j++) {
-	 size_t indx_0(k*npix + j);
-         size_t indx_1 = indx_0 + npix;
-	 double weight_val = m_weights != 0 ? ( m_weights->model()[indx_0]) : 1.0;
-	 double model_0 = m_model.at(indx_0);
-	 double model_1 = m_model.at(indx_1);
-         m_npreds[k] += model_0;
-	 if ( k+1 == nw ) {
-	   m_npreds[k+1] += model_1;
-	 }
-	 model_0 *= weight_val;
-	 model_1 *= weight_val;
-	 w_0_sum += model_0;
-	 w_1_sum += model_1;
-      }      
-      double w_0 = m_weights != 0 ? (m_npreds[k] > 0 ? w_0_sum / m_npreds[k] : 0.) : 1.0;
-      double w_1 = m_weights != 0 ? (m_npreds[k] > 0 ? w_1_sum / m_npreds[k] : 0.) : 1.0;
-      m_npred_weights[k].first = w_0;
-      m_npred_weights[k].second = w_1;
+   size_t k(0);
+   for (k=0; k < nw; k++) {     
+     double w_0_sum(0.);
+     double w_1_sum(0.);
+     for (size_t j(0); j < npix; j++) {
+       size_t indx_0(k*npix + j);
+       size_t indx_1 = indx_0 + npix;
+       double weight_val = m_weights != 0 ? ( m_weights->model()[indx_0]) : 1.0;
+       double model_0 = m_model.at(indx_0);
+       double model_1 = m_model.at(indx_1);
+       m_npreds[k] += model_0;
+       if ( k+1 == nw ) {
+	 m_npreds[k+1] += model_1;
+       }
+       model_0 *= weight_val;
+       model_1 *= weight_val;
+       w_0_sum += model_0;
+       w_1_sum += model_1;
+     }
    }
-   
+
+   for (k=0; k < nw; k++) {
+     m_npred_weights[k].first /= m_npreds[k] > 0 ? m_npreds[k] : m_npred_weights[k].first;
+     m_npred_weights[k].second /=  m_npreds[k+1] > 0 ? m_npreds[k+1] : m_npred_weights[k].second;
+   }  
 
    if ( expanded ) {
      m_model.clear();
@@ -341,7 +340,7 @@ bool SourceMap::spectrum_changed() const {
 
 std::vector<float> & SourceMap::model(bool force) {
   if ( m_model.size() == 0 || force ) {
-    if ( m_filename.size() > 0 ) {        
+    if ( m_filename.size() > 0 ) {
       readModel(m_filename);
     } else {
       int status = make_model();
@@ -519,8 +518,8 @@ int SourceMap::readModel(const std::string& filename) {
   }
 
   applyPhasedExposureMap();
-  computeNpredArray();
   setSpectralValues(m_dataCache->energies());
+  computeNpredArray();
 
   // FIXME, we could be more efficient about this
   if ( m_mapType == FileUtils::HPX_Sparse ) {
@@ -580,6 +579,13 @@ int SourceMap::make_model() {
   m_npred_weights.clear();
 
   int status(0);
+
+  if ( m_src->srcType() == Source::Point && 
+       !m_psf_config.use_single_psf() &&
+       m_meanPsf == 0 ) {
+    m_meanPsf = PSFUtils::build_psf(*m_src, m_dataCache->countsMap(), m_observation);
+  }
+
   switch ( m_src->srcType() ) {
   case Source::Diffuse:
     status = PSFUtils::makeDiffuseMap(static_cast<const DiffuseSource&>(*m_src), m_dataCache->countsMap(), 
@@ -587,7 +593,6 @@ int SourceMap::make_model() {
 				      m_psf_config, *m_formatter, m_model, m_mapType);
     break;
   case Source::Point:
-    m_meanPsf = m_psf_config.use_single_psf() ? 0 : PSFUtils::build_psf(*m_src, m_dataCache->countsMap(),m_observation);
     status =  PSFUtils::makePointSourceMap(static_cast<const PointSource&>(*m_src), m_dataCache->countsMap(), 
 					   m_psf_config, m_meanPsf==0 ? m_observation.meanpsf() : *m_meanPsf, 
 					   *m_formatter, m_model, m_mapType);
