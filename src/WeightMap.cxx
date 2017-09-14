@@ -3,7 +3,7 @@
  * @brief Pixel-by-pixel weights for binned likelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WeightMap.cxx,v 1.123 2016/09/13 19:26:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WeightMap.cxx,v 1.1 2016/09/14 20:09:05 echarles Exp $
  */
 
 #include "st_stream/StreamFormatter.h"
@@ -107,32 +107,31 @@ namespace Likelihood {
     std::vector<double> energy_edges;
     m_dataMap->getEnergies(energy_edges);
     
-    std::vector<double> energies(energy_edges.size()-1,0.);
-    for ( size_t ie(0); ie < energies.size(); ie++ ) {
-      energies[ie] = sqrt(energy_edges[ie]*energy_edges[ie+1]);
-    }
+    size_t nebins = energy_edges.size() -1;
     
-    m_model.resize(energies.size()*pixels.size());
+    m_model.resize(nebins*pixels.size());
     std::vector<Pixel>::const_iterator pixel(pixels.begin());
     extrapolated = false;
     for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
       bool in_map = weight_map.insideMap(pixel->dir());
-      for (size_t k(0); k < energies.size(); k++) {      
+      for (size_t k(0); k < nebins; k++) {      
+	double weight(1.0);
 	size_t indx(k*pixels.size() + j);
 	if ( in_map ){
 	  try {	   
-	    m_model.at(indx) = weight_map.operator()(pixel->dir(),
-						     energies[k]);
+	    weight = sqrt(weight_map.operator()(pixel->dir(),energy_edges[k])*
+			  weight_map.operator()(pixel->dir(),energy_edges[k+1]));
 	  } catch (...) {
 	    // Outside of energy bounds, set weight to 1.0 (FIXME, agree on convention)
-	    m_model.at(indx) = 1.0;
+	    weight = 1.0;
 	    extrapolated = true;
 	  }	 
 	} else {
 	  // Outside of map, set weight to 1.0 (FIXME, agree on convention)
-	  m_model.at(indx) = 1.0;
+	  weight = 1.0;
 	  extrapolated = true;
 	}
+	m_model.at(indx) = weight;
       }
     }
   }    
