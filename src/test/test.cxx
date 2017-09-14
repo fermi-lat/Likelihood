@@ -3,7 +3,7 @@
  * @brief Test program for Likelihood.
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.146 2016/10/13 18:46:50 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.147 2016/10/20 23:13:04 echarles Exp $
  */
 
 #ifdef TRAP_FPE
@@ -92,10 +92,12 @@
 #include "Likelihood/LogParabola.h"
 #include "Likelihood/MultipleBrokenPowerLaw.h"
 #include "Likelihood/PiecewisePowerLaw.h"
+#include "Likelihood/ProjMap.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/SmoothBrokenPowerLaw.h"
 #include "Likelihood/SmoothDoubleBrokenPowerLaw.h"
+#include "Likelihood/WcsMapLibrary.h"
 
 #include "SourceData.h"
 #include "XmlDiff.h"
@@ -131,6 +133,8 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_CountsMapHealpix_region);
    CPPUNIT_TEST(test_BinnedLikelihood);
    CPPUNIT_TEST(test_BinnedLikelihood_2);
+   CPPUNIT_TEST(test_BinnedLikelihood_wts);
+   CPPUNIT_TEST(test_BinnedLikelihood_edisp);
    CPPUNIT_TEST(test_CompositeSource);
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
@@ -179,6 +183,13 @@ public:
    void test_CountsMapHealpix_region();
    void test_BinnedLikelihood();
    void test_BinnedLikelihood_2();
+   void test_BinnedLikelihood_base(bool use_edisp);
+   void test_BinnedLikelihood_wts() {
+     test_BinnedLikelihood_base(false);
+   }
+   void test_BinnedLikelihood_edisp() {
+     test_BinnedLikelihood_base(true);
+   }
    void test_CompositeSource();
    void test_MeanPsf();
    void test_BinnedExposure();
@@ -1249,8 +1260,9 @@ void LikelihoodTests::test_CountsMapHealpix_region() {
    dataMap.writeOutput("test_CountsMapHealpix_region", "countsMap_hpx_region.fits");
    CountsMapHealpix dataMap2("countsMap_hpx_region.fits");
    double sum(0.);
+   
    for (unsigned int i = 0; i < dataMap.data().size(); i++) {
-      CPPUNIT_ASSERT(dataMap.data()[i] == dataMap2.data()[i]);
+      CPPUNIT_ASSERT(dataMap.data()[i] == dataMap2.data()[i]);      
       sum += dataMap.data()[i];
    }
    // EAC, these values are for the reference file "Likelihood/data/countsMap_hpx_region.fits"
@@ -1279,12 +1291,15 @@ void LikelihoodTests::test_BinnedLikelihood() {
    CountsMap dataMap(singleSrcMap(21));
 
    BinnedLikelihood binnedLogLike(dataMap, *m_observation);
+
    std::string Crab_model = dataPath("Crab_model.xml");
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
+
    binnedLogLike.saveSourceMaps("srcMaps.fits");
 
 /// Loop twice. In first iteration, do tests using all energy bands.
 /// In second, restrict bands to (5, 15) for derivative calculations
+   
    for (size_t iter(0); iter < 2; iter++) {
 // Try to fit using binned model.
 #ifdef DARWIN_F2C_FAILURE
@@ -1292,6 +1307,7 @@ void LikelihoodTests::test_BinnedLikelihood() {
 #else
       optimizers::Minuit my_optimizer(binnedLogLike);
 #endif
+      
       int verbose(0);
       double tol(1e-5);
       my_optimizer.find_min(verbose, tol, optimizers::RELATIVE);
@@ -1313,14 +1329,14 @@ void LikelihoodTests::test_BinnedLikelihood() {
       for (unsigned int i = 0; i < data.size(); i++) {
          dataSum += data[i];
       }
-//   std::cout << "Total counts in data map: " << dataSum << std::endl;
+//      std::cout << "Total counts in data map: " << dataSum << std::endl;
 
       const std::vector<float> & model = modelMap->data();
       double modelSum(0);
       for (unsigned int i = 0; i < model.size(); i++) {
          modelSum += model[i];
       }
-//   std::cout << "Total model counts: " << modelSum << std::endl;
+//      std::cout << "Total model counts: " << modelSum << std::endl;
 
       CPPUNIT_ASSERT(fabs(modelSum - dataSum)/dataSum < 1e-2);
 
@@ -1348,7 +1364,8 @@ void LikelihoodTests::test_BinnedLikelihood() {
       binnedLogLike.getFreeDerivs(derivs);
       binnedLogLike.getFreeParamValues(params);
 
-      // std::cout << "Testing derivatives" << std::endl;
+
+//      std::cout << "Testing derivatives" << std::endl;
       double logLike0 = binnedLogLike.value();
       double eps(1e-8);
       volatile double temp;
@@ -1372,15 +1389,15 @@ void LikelihoodTests::test_BinnedLikelihood() {
          double logLike_minus = binnedLogLike.value();
          diff -= delta;
 
-         // std::cout << i << "  ";
-         // std::cout << derivs[i] << "  ";
-         // std::cout << logLike_plus << "  " << logLike_minus << "  ";
-         // std::cout << (logLike_plus - logLike_minus)/diff << std::endl;
+//  	 std::cout << i << "  ";
+//	 std::cout << derivs[i] << "  ";
+//	 std::cout << logLike_plus << "  " << logLike_minus << "  ";
+//       std::cout << (logLike_plus - logLike_minus)/diff << std::endl;
       
 // Another weak test.
          double num_deriv = fabs((derivs[i] - (logLike_plus-logLike_minus)/diff)
                                  /derivs[i]);
-         // std::cout << "numerical deriv: " << num_deriv << std::endl;
+//	 std::cout << "numerical deriv: " << num_deriv << std::endl;
          CPPUNIT_ASSERT(num_deriv < 6e-2);
       }
       delete modelMap;
@@ -1459,6 +1476,48 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
    double fit_value5 = fit(like5);
    
    ASSERT_EQUALS(fit_value4, fit_value5);
+}
+
+void LikelihoodTests::test_BinnedLikelihood_base(bool use_edisp) {
+   std::string exposureCubeFile = dataPath("expcube_1_day.fits");
+   if (!st_facilities::Util::fileExists(exposureCubeFile)) {
+      generate_exposureHyperCube();
+   }
+   m_expCube->readExposureCube(exposureCubeFile);
+
+   SourceFactory * srcFactory = srcFactoryInstance();
+   (void)(srcFactory);
+
+   CountsMap dataMap(singleSrcMap(21));
+
+   std::string wts_file = dataPath("weights_test.fits");   
+   ProjMap* wmap = WcsMapLibrary::instance()->wcsmap(wts_file, "");
+
+   BinnedLikelihood binnedLogLike(dataMap, *wmap, *m_observation);
+   binnedLogLike.set_edisp_flag(use_edisp);
+   
+   std::string Crab_model = dataPath("Crab_model.xml");
+   binnedLogLike.readXml(Crab_model, *m_funcFactory);
+
+   binnedLogLike.saveSourceMaps("srcMaps_wts.fits");
+   double fit_val = fit(binnedLogLike);
+   
+   double npred_check = binnedLogLike.npred() - BinnedLikelihood::npred_explicit(binnedLogLike);
+   CPPUNIT_ASSERT(fabs(npred_check) < 0.01);
+
+   double npred_check_wt = binnedLogLike.npred(true) - BinnedLikelihood::npred_explicit(binnedLogLike, true);
+   CPPUNIT_ASSERT(fabs(npred_check_wt) < 0.01);
+   
+   const std::string srcName("Crab Pulsar");
+
+   double npred_check_src = binnedLogLike.NpredValue(srcName) -
+     BinnedLikelihood::npred_explicit_src(binnedLogLike, srcName);
+   CPPUNIT_ASSERT(fabs(npred_check_src) < 0.01);
+
+   double npred_check_src_wt = binnedLogLike.NpredValue(srcName, true) -
+     BinnedLikelihood::npred_explicit_src(binnedLogLike, srcName, true);
+   CPPUNIT_ASSERT(fabs(npred_check_src_wt) < 0.01);
+
 }
 
 void LikelihoodTests::test_MeanPsf() {
@@ -2132,9 +2191,9 @@ int main(int iargc, char * argv[]) {
       // testObj.test_SourceModel();
       // testObj.tearDown();
 
-      testObj.setUp();
-      testObj.test_PointSourceMap();
-      testObj.tearDown();
+      // testObj.setUp();
+      // testObj.test_PointSourceMap();
+      // testObj.tearDown();
 
       // testObj.setUp();
       // testObj.test_SourceDerivs();
@@ -2153,11 +2212,27 @@ int main(int iargc, char * argv[]) {
       // testObj.tearDown();
 
       // testObj.setUp();
+      // testObj.test_CountsMapHealpix_allsky();
+      // testObj.tearDown();
+
+      testObj.setUp();
+      testObj.test_CountsMapHealpix_region();
+      testObj.tearDown();
+
+      // testObj.setUp();
       // testObj.test_BinnedLikelihood();
       // testObj.tearDown();
 
       // testObj.setUp();
       // testObj.test_BinnedLikelihood_2();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedLikelihood_wts();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedLikelihood_edisp();
       // testObj.tearDown();
 
       // testObj.setUp();
