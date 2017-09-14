@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.135 2017/08/18 00:05:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.136 2017/08/18 22:46:52 echarles Exp $
  */
 
 #include <cmath>
@@ -226,9 +226,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     
     Source * src(*it);
     bool use_edisp_val = m_srcMapCache.use_edisp(src);
-    
+
     std::string srcName = src->getName();
     SourceMap & srcMap = sourceMap(srcName);
+    bool has_wts = srcMap.weights() != 0;
     const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
 
     // We need this stuff for the second term...
@@ -254,7 +255,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       int kref(-1);	
       double xi(1.);
       if (use_edisp_val) {
-	xi = drm_cache->get_correction(k,kref);
+	xi = drm_cache->get_correction(k,kref,has_wts);
 	if ( kref < 0 ) {
 	  // Still have true counts in this energy bin, just use kk as kref
 	  kref = k;
@@ -300,7 +301,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       int kref(-1);	
       double xi(1.);
       if (use_edisp_val) {
-	xi = drm_cache->get_correction(kk,kref);
+	xi = drm_cache->get_correction(kk,kref,has_wts);
 	if ( kref < 0 ) {
 	  // Still have true counts in this energy bin, just use kk as kref
 	  kref = kk;
@@ -576,7 +577,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
 
   double BinnedLikelihood::computeModelMap_internal(bool weighted) const {
-    double npred(0);
 
     std::vector<std::pair<double, double> > modelWts;
     modelWts.resize(m_dataCache.nFilled());
@@ -592,6 +592,8 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
+    
+    double npred(0.);
 
     for (size_t i(0); i < srcNames.size(); i++) {
       npred += NpredValue(srcNames[i],weighted);
@@ -766,6 +768,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     const Source& src = *(srcIt->second);
 
     SourceMap * srcMap = m_srcMapCache.getSourceMap(src);
+    bool has_wts = srcMap->weights() != 0;
     if ( m_config.save_all_srcmaps() ) {
       srcMap->setSaveModel(true);
     }
@@ -790,7 +793,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       m_fixedNpred_wts[k].second += (npred_1 * npred_weights[k].second);
       
       if (use_edisp_val) {
-	xi = drm_cache->get_correction(k,kref);
+	xi = drm_cache->get_correction(k,kref,has_wts);
 	if ( kref < 0 ) { 
 	  // Still have true counts in this energy bin, just use k as kref
 	  kref = k;
@@ -830,6 +833,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   
     // Generate the SourceMap and include it in the stored maps.
     SourceMap * srcMap = getSourceMap(srcName, false);
+    bool has_wts = srcMap->weights() != 0;
     if (srcMap == 0) {
       throw std::runtime_error("SourceMap cannot be created for " + srcName);
     }
@@ -853,7 +857,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       m_fixedNpred_wts[k].second -= (npred_1 * npred_weights[k].second);
 
       if (use_edisp_val) {
-	xi = drm_cache->get_correction(k,kref);
+	xi = drm_cache->get_correction(k,kref,has_wts);
 	if ( kref < 0 ) { 
 	  // Still have true counts in this energy bin, just use k as kref
 	  kref = k;
@@ -1005,34 +1009,93 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
 }
   
 
-void BinnedLikelihood::addSourceWts(std::vector<std::pair<double, double> > & modelWts,
-				    const std::string & srcName,
-				    SourceMap * srcMap,
-				    bool subtract,
-				    bool latchParams) const {
-  const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
-  if (src == 0) {
-    return;
+  void BinnedLikelihood::addSourceWts(std::vector<std::pair<double, double> > & modelWts,
+				      const std::string & srcName,
+				      SourceMap * srcMap,
+				      bool subtract,
+				      bool latchParams) const {
+    const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
+    if (src == 0) {
+      return;
+    }
+    if (modelWts.size() != m_dataCache.nFilled()) {
+      throw std::runtime_error("BinnedLikelihood::addSourceWts: "
+			       "modelWts size does not match "
+			       "number of filled pixels.");
+    }
+    SourceMap * sourceMap = srcMap;
+    if ( sourceMap == 0 ) {
+      sourceMap = getSourceMap(srcName);
+    } 
+    
+    sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);
+    
+    bool use_edisp_val = use_edisp(srcName);
+    const Drm_Cache* drm_cache = sourceMap->drm_cache();
+    
+    SourceMapCache::addSourceWts_static(modelWts,*sourceMap,num_pixels(),
+					m_dataCache.filledPixels(),drm_cache,use_edisp_val,subtract);
   }
-  if (modelWts.size() != m_dataCache.nFilled()) {
-    throw std::runtime_error("BinnedLikelihood::addSourceWts: "
-			     "modelWts size does not match "
-			     "number of filled pixels.");
+
+
+  float BinnedLikelihood::npred_explicit(const BinnedLikelihood& like,
+					 bool weighted) {
+    std::vector<float> model(like.dataCache().data_map_size());
+    like.computeModelMap(model);
+    float retVal(0.);
+    if ( weighted ) {
+      const WeightMap* wts = like.weightMap();
+      if ( wts == 0 ) {
+	throw std::runtime_error("BinnedLikelihood::npred_explicit called with weighted option, but no weights are present");
+	return 0;
+      }
+      const std::vector<float>& wt_vals = wts->model();
+      FitUtils::innerProduct(model.begin(), model.end(), wt_vals.begin(), wt_vals.end(), retVal);
+    } else {
+      FitUtils::sumVector(model.begin(), model.end(), retVal);
+    }
+    return retVal;
   }
-  SourceMap * sourceMap = srcMap;
-  if ( sourceMap == 0 ) {
-    sourceMap = getSourceMap(srcName);
-  } 
+     
+  float BinnedLikelihood::npred_explicit_src(const BinnedLikelihood& like, 
+					     const std::string& srcName, 
+					     bool weighted){
+    std::vector<float> model(like.dataCache().data_map_size());
+    like.computeModelMap(srcName, model);
+    float retVal(0.);
+    if ( weighted ) {
+      const WeightMap* wts = like.weightMap();
+      if ( wts == 0 ) {
+	throw std::runtime_error("BinnedLikelihood::npred_explicit called with weighted option, but no weights are present");
+	return 0;
+      }
+      const std::vector<float>& wt_vals = wts->model();
+      FitUtils::innerProduct(model.begin(), model.end(), wt_vals.begin(), wt_vals.end(), retVal);
+    } else {
+      FitUtils::sumVector(model.begin(), model.end(), retVal);
+    }
+    return retVal;
+  }
   
-  sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);
-
-  bool use_edisp_val = use_edisp(srcName);
-  const Drm_Cache* drm_cache = sourceMap->drm_cache();
-
-  SourceMapCache::addSourceWts_static(modelWts,*sourceMap,num_pixels(),
-				      m_dataCache.filledPixels(),drm_cache,use_edisp_val,subtract);
-}
-  
-  
+  double BinnedLikelihood::nll_explict(const BinnedLikelihood& like, 
+				       bool weighted){
+    std::vector<float> model(like.dataCache().data_map_size());
+    like.computeModelMap(model);
+    const std::vector<float>& data = like.countsMap().data();
+    double retVal(0.);
+    if ( weighted ) {
+      const WeightMap* wts = like.weightMap();
+      if ( wts == 0 ) {
+	throw std::runtime_error("BinnedLikelihood::npred_explicit called with weighted option, but no weights are present");
+	return 0;
+      }
+      const std::vector<float>& wt_vals = wts->model();
+      retVal = FitUtils::logLikePoisson(data.begin(), data.end(), model.begin(), model.end(), 
+					wt_vals.begin(), wt_vals.end());
+    } else {
+      retVal = FitUtils::logLikePoisson(data.begin(), data.end(), model.begin(), model.end());
+    }
+    return retVal;
+  }
 
 } // namespace Likelihood

@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.96 2017/08/17 23:42:56 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.97 2017/08/18 22:46:52 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -535,6 +535,27 @@ namespace Likelihood {
 
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();
+
+
+     /* ---------------------- Debugging functions ---------------------- */
+
+     /* Return the sum of the model (possibly weighted) , by actually summing the model.
+      This is used to test the optimized implimentation using the npreds */
+     static float npred_explicit(const BinnedLikelihood& like, 
+				 bool weighted=false);
+     
+     /* Return the sum of the model (possibly weighted) for a single source, 
+	by actually summing the model.
+	This is used to test the optimized implimentation using the npreds */
+     static float npred_explicit_src(const BinnedLikelihood& like, 
+				     const std::string& srcName, 
+				     bool weighted=false);
+     
+     /* Return the negative log-likelihood value (possibly weighted) by doing the full summation
+	This is used to test the optimized implimentation using the npreds and 
+	the filled pixels */
+     static double nll_explict(const BinnedLikelihood& like, 
+			       bool weighted=false);
 
    protected:
      
