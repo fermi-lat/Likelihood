@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang, M. Wood, E. Charles
-    $Id: release.notes,v 1.612 2017/08/19 00:01:49 echarles Exp $
+    $Id: release.notes,v 1.613 2017/08/22 20:51:24 echarles Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-12-02 14-Sep-2017 echarles Bug fix for weigthed likelihood calculate the BinnedLikelihood.  Added some debugging functionality
  Likelihood-20-12-01 22-Aug-2017 echarles Turn on intropolation for weights map in gtsrcmaps
  Likelihood-20-12-00 18-Aug-2017 echarles Fixes for LK-126 and LK-127
  Likelihood-20-11-01 30-Jun-2017 echarles Fix template data file for healpix_region tests
