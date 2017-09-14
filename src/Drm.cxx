@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.18 2017/01/26 20:18:20 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.19 2017/08/17 23:47:46 echarles Exp $
  */
 
 #include <cmath>
@@ -22,6 +22,7 @@
 #include "Likelihood/ResponseFunctions.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/Source.h"
+#include "Likelihood/WeightMap.h"
 
 
 namespace {
@@ -209,6 +210,7 @@ Drm_Cache::Drm_Cache(const Drm* drm,
   :m_true_counts(energies.size()-1),
    m_meas_counts(energies.size()-1),
    m_xi(energies.size()-1),
+   m_xi_wt(energies.size()-1),
    m_kref(energies.size()-1),
    m_true_counts_wt(energies.size()-1),
    m_meas_counts_wt(energies.size()-1),
@@ -220,6 +222,7 @@ Drm_Cache::Drm_Cache(const Drm_Cache& other)
   : m_true_counts(other.m_true_counts),
     m_meas_counts(other.m_meas_counts),
     m_xi(other.m_xi),
+    m_xi_wt(other.m_xi_wt),
     m_kref(other.m_kref),
     m_true_counts_wt(other.m_true_counts_wt),
     m_meas_counts_wt(other.m_meas_counts_wt),
@@ -234,7 +237,9 @@ void Drm_Cache::update(const Drm* drm,
   const std::vector<double>& npreds = sourceMap.npreds();
   const std::vector<std::pair<double,double> >& npred_weights = sourceMap.npred_weights();
   const std::vector<double>& specVals = sourceMap.specVals();
+  // These are the weights to be applied to the measured counts.
   size_t k(0);
+  std::vector<double> mean_wts(energies.size()-1);
   for (k = 0; k < energies.size()-1; k++) {
     double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
     m_true_counts[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
@@ -246,23 +251,20 @@ void Drm_Cache::update(const Drm* drm,
 							   energies.at(k+1),
 							   specVals.at(k)*npreds.at(k)*npred_weights[k].first, 
 							   specVals.at(k+1)*npreds.at(k+1)*npred_weights[k].second,
-							   log_energy_ratio);     
+							   log_energy_ratio);
   }
   if ( drm != 0 ) {
     m_use_edisp = true;
     drm->convolve(m_true_counts, m_meas_counts);
-    // Important: apply weights to convolved spectrum, rather than convolving weighted specturm
-    for (k = 0; k < energies.size()-1; k++) {
-      m_meas_counts_wt[k] = m_meas_counts[k] * (npred_weights[k].first + npred_weights[k].second) / 2.;
-    }
   } else {
     m_use_edisp = false;
     std::copy(m_true_counts.begin(),m_true_counts.end(),m_meas_counts.begin());
-    std::copy(m_true_counts_wt.begin(),m_true_counts_wt.end(),m_meas_counts_wt.begin());
   }
 
   int kref(-1);
   int kref_wt(-1);
+  int idx(0);
+
   for (k = 0; k < energies.size()-1; k++) {
     if ( m_true_counts[k] > 0 ) {
       // Still have counts in this true energy bin, so it can 
@@ -275,7 +277,38 @@ void Drm_Cache::update(const Drm* drm,
       m_xi[k] = m_meas_counts[k] / m_true_counts[kref];
       m_kref[k] = kref;
     }
+    
+    const std::vector<float>& model = sourceMap.cached_model();
+    const WeightMap* weights = sourceMap.weights();
+
+    size_t npix = model.size() / sourceMap.cached_specValues().size();
+    double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
+    double sum_npred(0.);
+    double sum_wnpred(0.);
+    // Loop on pixels and get weighted for convolved
+    for (size_t i(0); i < npix; i++, idx++ ) {
+      double addend =  m_xi[k] * FitUtils::pixelCounts_loglogQuad(energies.at(k),   
+								  energies.at(k+1),
+								  specVals.at(k)*model[idx],
+								  specVals.at(k+1)*model[idx+npix],
+								  log_energy_ratio);
+      sum_npred += addend;
+      if ( weights != 0 ) {
+	addend *= weights->model()[idx];
+      }
+      sum_wnpred += addend;
+    }
+
+    m_meas_counts_wt[k] = sum_wnpred;
+    m_xi_wt[k] = m_meas_counts_wt[k] /  m_true_counts_wt[kref];
+
+    /*
+    std::cout << "Meas " << k << ' ' << sum_npred << ' ' << sum_wnpred << ' ' 
+	      << m_meas_counts_wt[k] << ' ' << m_true_counts_wt[kref] << ' '
+	      << m_xi_wt[k] << ' ' << check_val << std::endl;
+    */
   }
+
 }
 
 
