@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.76 2017/04/21 19:57:26 asercion Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.77 2017/08/17 23:45:14 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -232,6 +232,9 @@ public:
 
    /* This contains both the convolved and un-convolved counts spectra */
    inline const Drm_Cache* cached_drm_Cache() const { return m_drm_cache; }
+
+   /* This is the cached MeanPSF object */
+   inline const MeanPsf* cached_meanPsf() const { return m_meanPsf; }
 
 
    /* --------------- Cached Data ----------------------*/
