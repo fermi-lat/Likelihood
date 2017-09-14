@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.12 2017/01/26 19:29:22 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Drm.h,v 1.13 2017/08/17 23:43:54 echarles Exp $
  */
 
 #ifndef Likelihood_Drm_h
@@ -85,14 +85,15 @@ public:
 	      SourceMap & sourceMap,
 	      const std::vector<double>& energies);
 
-  inline double get_correction(size_t k, int& kref) const {
+  inline double get_correction(size_t k, int& kref, bool weight=false) const {
     kref = m_kref[k];
-    return m_xi[k];   
+    return weight ? m_xi_wt[k] : m_xi[k];
   }
 
   inline const std::vector<double>& true_counts() const { return m_true_counts; }  
   inline const std::vector<double>& meas_counts() const { return m_meas_counts; }  
   inline const std::vector<double>& xi() const { return m_xi; }  
+  inline const std::vector<double>& xi_wt() const { return m_xi_wt; }  
 
   inline const std::vector<double>& true_counts_wt() const { return m_true_counts_wt; }  
   inline const std::vector<double>& meas_counts_wt() const { return m_meas_counts_wt; }  
@@ -109,6 +110,7 @@ private:
   std::vector<double> m_true_counts;
   std::vector<double> m_meas_counts;  
   std::vector<double> m_xi;  
+  std::vector<double> m_xi_wt;  
   std::vector<int> m_kref;
 
   std::vector<double> m_true_counts_wt;
