@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.139 2017/08/18 22:45:30 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.140 2017/09/14 21:56:26 echarles Exp $
  */
 
 #include <cmath>
@@ -240,6 +240,8 @@ void SourceMap::computeNpredArray() {
        w_0_sum += model_0;
        w_1_sum += model_1;
      }
+     m_npred_weights[k].first = w_0_sum;
+     m_npred_weights[k].second = w_1_sum;
    }
 
    for (k=0; k < nw; k++) {
