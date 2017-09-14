@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.7 2017/08/17 23:50:07 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.8 2017/08/18 22:45:00 echarles Exp $
  */
 
 
@@ -351,24 +351,25 @@ namespace Likelihood {
 	     ( mask->model().at(jmin) <= 0. ) ) continue;
 	double wt1(0);
 	double wt2(0);	
+	double xi(1.);
 	if ( use_edisp_val ) {
-	  double xi = drm_cache->get_correction(k,kref);
+	  xi = drm_cache->get_correction(k,kref);
 	  if ( kref < 0 ) {
 	    // Correction factor is for this energy, use it
-	    wt1 = specVals[k]*(*srcMap)[jmin]*xi;
-	    wt2 = specVals[k+1]*(*srcMap)[jmax]*xi;
+	    wt1 = specVals[k]*(*srcMap)[jmin];
+	    wt2 = specVals[k+1]*(*srcMap)[jmax];
 	  } else {
 	    // Correction factor is for different energy bin, use kref
 	    size_t ipix(jmin % npix);
 	    size_t jref = kref*npix + ipix;
-	    wt1 = specVals[k]*(*srcMap)[jref]*xi;
-	    wt2 = specVals[k+1]*(*srcMap)[jref+npix]*xi;
+	    wt1 = specVals[k]*(*srcMap)[jref];
+	    wt2 = specVals[k+1]*(*srcMap)[jref+npix];
 	  }
 	} else {
 	  wt1 = specVals[k]*(*srcMap)[jmin];
 	  wt2 = specVals[k+1]*(*srcMap)[jmax];
 	}
-	modelMap[jmin] += FitUtils::pixelCounts_loglogQuad(emin, emax,wt1, wt2, m_dataCache.log_energy_ratios()[k]);
+	modelMap[jmin] += xi*FitUtils::pixelCounts_loglogQuad(emin, emax, wt1, wt2, m_dataCache.log_energy_ratios()[k]);
       }
     }
   }
