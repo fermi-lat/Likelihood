@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.140 2017/09/14 21:56:26 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.141 2017/09/14 22:16:15 echarles Exp $
  */
 
 #include <cmath>
@@ -245,8 +245,16 @@ void SourceMap::computeNpredArray() {
    }
 
    for (k=0; k < nw; k++) {
-     m_npred_weights[k].first /= m_npreds[k] > 0 ? m_npreds[k] : m_npred_weights[k].first;
-     m_npred_weights[k].second /=  m_npreds[k+1] > 0 ? m_npreds[k+1] : m_npred_weights[k].second;
+     if ( m_npreds[k] > 0 ) {
+       m_npred_weights[k].first /=  m_npreds[k];
+     } else {
+       m_npred_weights[k].first = 1.;
+     }
+     if ( m_npreds[k+1] > 0 ) {
+       m_npred_weights[k].second /=  m_npreds[k+1];
+     } else {
+       m_npred_weights[k].second = 1.;
+     }
    }  
 
    if ( expanded ) {
