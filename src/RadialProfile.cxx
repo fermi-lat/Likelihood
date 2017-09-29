@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RadialProfile.cxx,v 1.6 2015/03/03 18:05:37 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/RadialProfile.cxx,v 1.7 2015/03/21 05:38:04 jchiang Exp $
  */
 
 #include <cmath>
@@ -94,6 +94,10 @@ double RadialProfile::derivByParamImp(const optimizers::Arg & x,
 
 void RadialProfile::setCenter(double ra, double dec) {
    m_center = new astro::SkyDir(ra, dec);
+}
+
+const astro::SkyDir& RadialProfile::getCenter() const {
+  return *m_center;
 }
 
 double RadialProfile::angularIntegral() const {
