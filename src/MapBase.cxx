@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  * 
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/MapBase.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/MapBase.cxx,v 1.16 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -85,8 +85,9 @@ void MapBase::readFitsFile() {
       throw std::runtime_error("File not found: " + m_expandedFileName);
    }
 
+   // FIXME
    formatter.info(4) << "MapBase::readFitsFile: creating WcsMap2 object" 
-                     << std::endl;
+		     << std::endl;
    m_projmap = WcsMapLibrary::instance()->wcsmap(m_expandedFileName,
 						 m_extension);
    WcsMapLibrary::instance()->add_observer(this);

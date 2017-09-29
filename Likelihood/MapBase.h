@@ -4,7 +4,7 @@
  * 
  * @author J. Chiang <jchiang@slac.stanford.edu>
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/MapBase.h,v 1.4 2015/03/05 19:58:25 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/MapBase.h,v 1.12 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_MapBase_h
@@ -83,6 +83,9 @@ public:
 
    // EAC, switch to using ProjMap base class
    virtual ProjMap & projmap();
+  
+   // Get the ref dir from the underlying proj map
+   inline const astro::SkyDir& getRefDir() const { return projmap().getRefDir(); }
 
    virtual void deleteMap();
 

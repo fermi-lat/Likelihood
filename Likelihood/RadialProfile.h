@@ -3,7 +3,7 @@
  * @brief Radial profile for extended sources using ascii file template.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RadialProfile.h,v 1.6 2015/03/21 05:38:03 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/RadialProfile.h,v 1.7 2016/09/21 22:44:47 echarles Exp $
  */
 
 #ifndef Likelihood_RadialProfile_h
@@ -54,7 +54,9 @@ public:
    virtual double mapRadius() const {
      return m_theta.back();
    }
-   
+  
+  const astro::SkyDir& getCenter() const;
+
 protected:
 
    virtual double value(const optimizers::Arg & dir) const;
