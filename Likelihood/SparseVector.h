@@ -4,7 +4,7 @@
  * @author E. Charles
  *
 
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SparseVector.h,v 1.2 2016/09/29 00:24:20 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SparseVector.h,v 1.3 2016/11/01 23:49:20 echarles Exp $
  */
 
 #ifndef Likelihood_SparseVector_h
@@ -172,13 +172,19 @@ namespace Likelihood {
 
     /* Fill a vector */
     void fill_vect(std::vector<T>& vect) const;
+    void fill_vect(std::vector<T>& vect, size_t first, size_t last) const;
 
-    /* Fill this from a map */
+    /* Fill a map */
     void fill_map(std::map<size_t,T>& vect) const;
+    void fill_map(std::map<size_t,T>& vect, size_t first, size_t last) const;
 
-    /* Fill this from key and value vectors */
+    /* Fill key and value vectors */
     void fill_key_and_value(std::vector<size_t>& keys,
 			    std::vector<T>& values) const;
+    void fill_key_and_value(std::vector<size_t>& keys,
+			    std::vector<T>& values, 
+			    size_t first, size_t last) const;
+    
 
     /* Add to a vector.  This does not add the non-null elements. */
     void add_to_vect(std::vector<T>& vect) const;
@@ -345,9 +351,17 @@ namespace Likelihood {
   
   template <typename T>
   void SparseVector<T>::fill_vect(std::vector<T>& vect) const {
-    vect.resize(m_size,m_null);
+    vect.resize(size());
     for ( const_iterator itr = begin(); itr != end(); itr++ ) {
       vect[itr->first] = itr->second;
+    }
+  }
+
+  template <typename T>
+  void SparseVector<T>::fill_vect(std::vector<T>& vect, size_t first, size_t last) const {
+    vect.resize(last-first);
+    for ( const_iterator itr = lower_bound(first); itr < upper_bound(last) ; itr++ ) {
+      vect[itr->first - first] = itr->second;
     }
   }
 
@@ -356,8 +370,16 @@ namespace Likelihood {
     map.clear();
     for ( const_iterator itr = begin(); itr != end(); itr++ ) {
       map[itr->first] = itr->second;
-    }
-    
+    }    
+
+  }
+  
+  template <typename T>
+  void SparseVector<T>::fill_map(std::map<size_t,T>& map, size_t first, size_t last) const {
+    map.clear();
+    for ( const_iterator itr = lower_bound(first); itr < upper_bound(last) ; itr++ ) {
+      map[itr->first - first] = itr->second;
+    }    
   }
   
   template <typename T>
@@ -369,6 +391,22 @@ namespace Likelihood {
     for ( const_iterator itr = begin(); itr != end(); itr++, idx++ ) {
       keys[idx] = itr->first;
       values[idx] = itr->second;
+    }
+ 
+  }
+
+  template <typename T>
+  void SparseVector<T>::fill_key_and_value(std::vector<size_t>& keys,
+					   std::vector<T>& values, 
+					   size_t first, size_t last) const {
+    const_iterator itr_begin = lower_bound(first);
+    const_iterator itr_end = upper_bound(last);
+    keys.resize(itr_end-itr_begin);
+    values.resize(itr_end-itr_begin,m_null);
+    size_t idx(0);   
+    for ( const_iterator itr = itr_begin; itr != itr_end; itr++, idx++ ) {
+      keys[idx-first] = itr->first;
+      values[idx-first] = itr->second;
     }
   }
   
