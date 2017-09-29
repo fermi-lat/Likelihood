@@ -2,7 +2,7 @@
  * @file DiffuseSource.cxx
  * @brief DiffuseSource class implementation
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.69 2016/09/21 22:44:48 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/DiffuseSource.cxx,v 1.70 2016/10/13 02:00:58 echarles Exp $
  */
 
 #include <algorithm>
@@ -204,6 +204,22 @@ MapBase * DiffuseSource::mapBaseObject() {
    return mapBaseObject;
 }
 
+
+const astro::SkyDir& DiffuseSource::mapRefDir() const {
+   static const astro::SkyDir dummy(0., 0., astro::SkyDir::GALACTIC);
+   if (spatialDist()->genericName() == "ConstantValue") { 
+      return dummy;
+   } else if (spatialDist()->genericName() == "RadialGaussian" ||
+	      spatialDist()->genericName() == "RadialDisk") { 
+      const SpatialFunction * spatial_func = dynamic_cast<const SpatialFunction *>(m_spatialDist);
+      return spatial_func->dir();
+   } else if (spatialDist()->genericName() == "RadialProfile") {
+      const RadialProfile * profile = dynamic_cast<RadialProfile *>(m_spatialDist);
+      return profile->getCenter();
+   }
+   return mapBaseObject()->getRefDir();
+}
+
 double DiffuseSource::angularIntegral(double energy) const {
    if (spatialDist()->genericName() == "ConstantValue") { 
 // Here we have an isotropic source
@@ -230,7 +246,7 @@ double DiffuseSource::fluxDeriv(const std::string & parName) const {
 }
 
 double DiffuseSource::flux(double emin, double emax, size_t npts) const {
-   return computeEnergyIntegral(*m_spectrum, emin, emax, npts);
+  return computeEnergyIntegral(*m_spectrum, emin, emax, npts);
 }
 
 double DiffuseSource::fluxDeriv(const std::string & parName,
