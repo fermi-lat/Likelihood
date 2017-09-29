@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.97 2017/08/18 22:46:52 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.98 2017/09/14 21:50:49 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -23,6 +23,7 @@
 #include "Likelihood/BinnedConfig.h"
 #include "Likelihood/BinnedCountsCache.h"
 #include "Likelihood/SourceMapCache.h"
+#include "Likelihood/FileUtils.h"
 
 
 namespace tip {
@@ -182,12 +183,14 @@ namespace Likelihood {
       
      /// Return the Summed weights
      inline const std::vector<std::pair<double,double> > & fixedModelWts() const { return  m_fixedModelWts; }
-     
+
+     /// Check if updating the fixed model is allowed
+     inline bool updateFixedWeights() const { return m_updateFixedWeights; }
+
      /// Set flag to enable or disable updating the fixed model 
      void setUpdateFixedWeights(bool update) {
        m_updateFixedWeights = update;
      }
-
 
      /* ----------------- Simple setter functions ------------------------ */
 
@@ -207,8 +210,12 @@ namespace Likelihood {
 
      /// Turn on energy dispersion
      void set_edisp_flag(bool use_edisp) {
+       if ( use_edisp == m_config.use_edisp() ) return;
        m_config.set_use_edisp(use_edisp);
        m_srcMapCache.set_edisp_flag(use_edisp);
+       m_fixedNpreds.clear();
+       m_fixedModelWts.clear();
+       m_fixed_counts_spec.clear();       
      }
 
      /// Set flag to use a single map for all the fixed sources
@@ -403,7 +410,18 @@ namespace Likelihood {
 	replace  : If true replace the SourceMaps for already in that file
      */
      void saveSourceMaps(const std::string & filename="",
-			 bool replace=false);
+			 bool replace=false,
+			 bool includecountsmap=true);
+
+     /* Write some of the source maps to a fie 
+	
+	filename : The name of the file.  If empty use the current source maps file
+	replace  : If true replace the SourceMaps for already in that file
+     */
+     void saveSourceMap_partial(const std::string & filename,
+				const Source& source,
+				int kmin=0, int kmax=-1,
+				bool replace=false);
 
 
      /* Write a single combinded source map for all the fixed sources
@@ -495,10 +513,22 @@ namespace Likelihood {
 	This will also return true if the list of fixed sources has chagned. */
      bool fixedModelUpdated() const;
 
-     /* Compute the full source map, summed over all the sources, and including the spectra.
+     /* Compute the full source map, summed over a list of sources, and including the spectra.
 	
      */
      void fillSummedSourceMap(const std::vector<std::string>& sources, std::vector<float>& model);
+
+     /* Compute a single source map, optionally including the spectrum
+	
+	sourceName :  The source in question
+	model   :  The vector begin filled
+	mapType :  Indicates type of map begin filled
+	kmin    :  Minimum energy layer
+	kmax    :  Maximum energy layer	     */
+     void fillSingleSourceMap(const std::string& sourceName, 
+			      std::vector<float>& model,
+			      FileUtils::SrcMapType& mapType,
+			      int kmin=0, int kmax=-1);
    
      /* Compute the model for all the fixed source.
 

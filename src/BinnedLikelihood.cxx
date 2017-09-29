@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.136 2017/08/18 22:46:52 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.137 2017/09/14 21:50:51 echarles Exp $
  */
 
 #include <cmath>
@@ -169,7 +169,7 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   
   saveBestFit(my_total);
   st_stream::StreamFormatter formatter("BinnedLikelihood", "value", 4);
-  formatter.info() << m_nevals << "  "
+  formatter.warn() << m_nevals << "  "
 		   << my_total << "  "
 		   << npred << std::endl;
   m_nevals++;
@@ -388,7 +388,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     if ( m_config.use_single_fixed_map() && src->fixedSpectrum()) {
       addFixedSource(src->getName());
     } else {
-      if ( srcMap == 0 ) {	
+      if ( srcMap == 0 ) {
 	m_srcMapCache.loadSourceMap(*src,false);
       } else {
 	m_srcMapCache.insertSourceMap(src->getName(),*srcMap);
@@ -515,13 +515,18 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
   void BinnedLikelihood::saveSourceMaps(const std::string & filename,
-					bool replace) {
+					bool replace,
+					bool includecountsmap) {
     if (filename != "") {
       m_srcMapsFile = filename;
     }
 
     if (!st_facilities::Util::fileExists(filename)) {
-      m_dataCache.countsMap().writeOutput("BinnedLikelihood", m_srcMapsFile);
+      if ( includecountsmap ) {
+	m_dataCache.countsMap().writeOutput("BinnedLikelihood", m_srcMapsFile);
+      } else { 
+	m_dataCache.countsMap().writeEmptyOutput("BinnedLikelihood", m_srcMapsFile);	
+      }
     }
     
     std::vector<std::string> srcNames;
@@ -538,6 +543,19 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     }
 
   }
+  
+
+  void BinnedLikelihood::saveSourceMap_partial(const std::string & filename,
+						const Source& source,
+						int kmin, int kmax,
+						bool replace) {
+    if (!st_facilities::Util::fileExists(filename)) {
+      m_dataCache.countsMap().writeEnergies("BinnedLikelihood", filename, kmin, kmax);
+    }
+
+    m_srcMapCache.saveSourceMap_partial(filename,source,kmin,kmax,replace);
+  }
+
   
 
   tip::Extension* BinnedLikelihood::saveTotalFixedSourceMap(bool replace) {
@@ -584,12 +602,11 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     if (fixedModelUpdated() && m_updateFixedWeights) {
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
     }
-    
     for (size_t j(0); j < m_fixedModelWts.size(); j++) {
       modelWts.at(j).first = m_fixedModelWts.at(j).first;
       modelWts.at(j).second = m_fixedModelWts.at(j).second;
-    }
-  
+    }	    
+
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
     
@@ -611,7 +628,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	continue;
       }
       double emin(m_dataCache.energies()[k]);
-      double emax(m_dataCache.energies()[k+1]);
+      double emax(m_dataCache.energies()[k+1]);      
       m_model.at(j) = pixelCounts(emin, emax, modelWts.at(j).first,
 				  modelWts.at(j).second, m_dataCache.log_energy_ratios()[k]);
     }
@@ -742,6 +759,16 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     getSources(sources,srcs);
     m_srcMapCache.fillSummedSourceMap(srcs,model);
   }
+
+   void BinnedLikelihood::fillSingleSourceMap(const std::string& sourceName, 
+					      std::vector<float>& model,
+					      FileUtils::SrcMapType& mapType,
+					      int kmin, int kmax) {
+     const Source& src = source(sourceName);
+     m_srcMapCache.fillSingleSourceMap(src, model, mapType, kmin, kmax);
+  }
+
+ 
 
 
   void BinnedLikelihood::addFixedSource(const std::string & srcName) {

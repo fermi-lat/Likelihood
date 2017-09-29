@@ -3,7 +3,7 @@
  * @brief Functionality to deal with source maps extracted from BinnedLikelihood
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.4 2017/08/17 23:46:04 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.5 2017/08/18 22:45:01 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMapCache_h
@@ -15,6 +15,7 @@
 
 #include "Likelihood/CountsMapBase.h"
 #include "Likelihood/BinnedConfig.h"
+#include "Likelihood/FileUtils.h"
 
 namespace tip {
    class Extension;
@@ -211,14 +212,28 @@ namespace Likelihood {
      void setSourceMapImage(const Source& src,
 			    const std::vector<float>& image);
   
-     /* Write all of the source maps to a file 
+     /* Write source maps to a file 
 	
 	filename : The name of the file.  If empty use the current source maps file
+	srcs     : The sources to write
 	replace  : If true replace the SourceMaps for already in that file
      */
      void saveSourceMaps(const std::string & filename,
 			 const std::vector<const Source*>& srcs,
 			 bool replace=false);
+
+     
+      /* Write partial source maps to a file 
+	
+	filename : The name of the file.  If empty use the current source maps file
+	source   : The source to write
+	replace  : If true replace the SourceMaps for already in that file
+	
+     */
+     void saveSourceMap_partial(const std::string & filename,
+				const Source& source,
+				int kmin = 0, int kmax = -1,
+				bool replace=false);
 
      
      /* --------------- Functions for dealing with model maps -------------- */
@@ -278,9 +293,27 @@ namespace Likelihood {
  
      /* Compute the full model for all the fixed source.
 
-	Note that 
+	sources :  All the source to add to the summed map
+	model   :  The vector begin filled
+	kmin    :  Minimum energy layer
+	kmax    :  Maximum energy layer	
      */
-     void fillSummedSourceMap(const std::vector<const Source*>& sources, std::vector<float>& model);
+     void fillSummedSourceMap(const std::vector<const Source*>& sources, 
+			      std::vector<float>& model, 
+			      int kmin=0, int kmax=-1);
+   
+
+     /* Compute the source map for a single source.
+
+	sourceName :  The source in question
+	model   :  The vector begin filled
+	kmin    :  Minimum energy layer
+	kmax    :  Maximum energy layer	
+     */
+     void fillSingleSourceMap(const Source& src,
+			      std::vector<float>& model, 
+			      FileUtils::SrcMapType& mapType,
+			      int kmin=0, int kmax=-1) const;
    
 
      /* ---------------------- other functions ------------------------ */
@@ -314,6 +347,13 @@ namespace Likelihood {
      tip::Extension* appendSourceMap(const Source & src, 
 				     const std::string & fitsFile) const;
      
+     tip::Extension* replaceSourceMap_partial(const Source & src, 
+					      const std::string & fitsFile,
+					      int kmin=0, int kmax=-1) const;
+       
+     tip::Extension* appendSourceMap_partial(const Source & src, 
+					     const std::string & fitsFile,
+					     int kmin=0, int kmax=-1) const;
     
 
      /* --------------- Computing Counts Spectra ------------------- */
