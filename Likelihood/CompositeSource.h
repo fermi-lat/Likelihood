@@ -4,7 +4,7 @@
  *
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/Source.h,v 1.54 2016/09/09 21:11:52 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CompositeSource.h,v 1.1 2016/10/13 01:56:49 echarles Exp $
  */
 
 #ifndef Likelihood_CompositeSource_h
@@ -260,8 +260,10 @@ namespace Likelihood {
     /* Compute the full source map, summed over all the sources, and including the spectra.
        
        model :  The vector begin filled.
+       kmin  :  Minimum energy layer
+       kmax  :  Maximum energy layer
      */
-    void fillSummedSourceMap(std::vector<float>& model) const;
+    void fillSummedSourceMap(std::vector<float>& model, int kmin=0, int kmax=-1) const;
 
   protected:
 
