@@ -4,7 +4,7 @@
  * uses astro::ProjBase for indexing its internal representation.
  * @author E. Charles, from J. Chiang WcsMap2
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/ProjMap.h,v 1.2 2015/03/03 05:59:56 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProjMap.h,v 1.1 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_ProjMap_h
@@ -102,12 +102,14 @@ public:
    static double interpolatePowerLaw(double x, double x1, double x2,
                                      double y1, double y2);
 
+   // Query private data
+   inline const astro::SkyDir& getRefDir() const { return m_refDir; }
+
+
 protected:
 
    ProjMap();
 
-   // Query private data
-   inline const astro::SkyDir& getRefDir() const { return m_refDir; }
    
    inline bool getInterpolate() const { return m_interpolate; }
 
