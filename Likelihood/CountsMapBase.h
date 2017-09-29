@@ -1,7 +1,7 @@
 /**
  * @file CountsMapBase.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapBase.h,v 1.2 2016/09/09 21:08:51 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapBase.h,v 1.3 2016/10/13 01:48:37 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMapBase_h
@@ -73,12 +73,18 @@ public:
 
    //virtual void writeOutput(const std::string & creator, 
    //                         const std::string & out_file) const = 0;
+  
+   virtual void writeEmptyOutput(const std::string & creator, const std::string & out_file) const;
 
    virtual bool withinBounds(const astro::SkyDir & dir, double energy, long border_size=0) const = 0;
    virtual void setKeywords(tip::Header & header) const = 0;
    virtual void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const = 0;
    virtual double pixelSize() const = 0;
    virtual double mapRadius() const = 0;
+
+   void writeEnergies(const std::string & creator, 
+		      const std::string & out_file,
+		      int kmin = 0, int kmax=-1) const;
 
    void setImage(const std::vector<float> & image);
    void setImage(const std::vector<double> & image);

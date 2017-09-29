@@ -6,7 +6,7 @@
  *  This file contains a number of functions useful for PSF Integration and convolution.
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/PSFUtils.h,v 1.6 2016/10/13 01:58:46 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PSFUtils.h,v 1.6 2016/10/13 01:58:46 echarles Exp $
  */
 
 #ifndef Likelihood_PSFUtils_h
@@ -146,19 +146,12 @@ namespace Likelihood {
     /* Test to see if a diffuse source has a MapCubeFuction */
     bool haveMapCubeFunction(DiffuseSource& src);
     
-    /* Rebins the map associated with a diffuse source.
-     */
-    void rebinDiffuseMap(const DiffuseSource & src,
-			 const CountsMapBase & dataMap,
-			 const PsfIntegConfig& config);
-
     /* Compute the resampling factor for a diffuse source 
 
        This compares the diffuse source map pixel size with the counts map pixel size.
      */
     double computeResampFactor(const DiffuseSource & src,
-			       const CountsMapBase & dataMap,
-			       const PsfIntegConfig& config);
+			       const CountsMapBase & dataMap);
     
     /* Compute the non-cartesian corrections angular separation between the pixels in a 
        counts map and a point source and put them on a vector
@@ -172,6 +165,34 @@ namespace Likelihood {
 			 const CountsMap& dataMap,
 			 std::vector< std::vector< double > >& pixelOffsets);
 
+
+    /* Generic function to make a SourceMap model 
+
+       src         : The source in question
+       dataMap     : The counts map in question
+       meanpsf     : The average PSF across the ROI
+       bexpmap     : The Binned Exposure map (actually a cube )
+       config      : Parameters for PSF integration 
+       srcMapsFile : The file with the source maps for the Composite source
+       drm         : For energy dispersion, NULL -> no energy dispersion       
+       formatter   : Stream for writting progress messages
+       modelmap    : Filled with the model values
+       mapType     : Enum that specifies how to store the map
+       kmin        : Minimum energy layer
+       kmax        : Maximum energy layer
+     */
+    int makeModelMap(const Source& src, 
+		     const BinnedCountsCache& dataCache,
+		     const MeanPsf& meanpsf,
+		     const BinnedExposureBase & bexpmap,
+		     const PsfIntegConfig& config,	
+		     const std::string & srcMapsFile,
+		     const Drm* drm,
+		     st_stream::StreamFormatter& formatter,
+		     std::vector<float>& modelmap,
+		     FileUtils::SrcMapType& mapType,
+		     int kmin=0, int kmax=-1);
+		      
     /* Compute the SourceMap model values for a Diffuse source.  
        This version just calls one of the versions below.
 
@@ -183,6 +204,8 @@ namespace Likelihood {
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
        mapType     : Enum that specifies how to store the map
+       kmin        : Minimum energy layer
+       kmax        : Maximum energy layer
       
        return 0 for success, error code otherwise 
     */
@@ -193,7 +216,9 @@ namespace Likelihood {
 		       const PsfIntegConfig& config,	
 		       st_stream::StreamFormatter& formatter,
 		       std::vector<float>& modelmap,
-		       FileUtils::SrcMapType& mapType);
+		       FileUtils::SrcMapType& mapType,
+		       int kmin=0, int kmax=-1);
+		      
 
     /* Compute the SourceMap model values for a Diffuse source.       
        This version is called for WCS-based Counts Maps
@@ -206,6 +231,8 @@ namespace Likelihood {
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
        mapType     : Enum that specifies how to store the map
+       kmin        : Minimum energy layer
+       kmax        : Maximum energy layer
       
        return 0 for success, error code otherwise 
     */
@@ -216,7 +243,8 @@ namespace Likelihood {
 			   const PsfIntegConfig& config,
 			   st_stream::StreamFormatter& formatter,
 			   std::vector<float>& modelmap,
-			   FileUtils::SrcMapType& mapType);
+			   FileUtils::SrcMapType& mapType,
+			   int kmin=0, int kmax=-1);
     
     /* Compute the SourceMap model values for a Diffuse source.       
        This version is called for all-sky HEALPix-based Counts Maps
@@ -229,7 +257,9 @@ namespace Likelihood {
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
        mapType     : Enum that specifies how to store the map
-      
+       kmin        : Minimum energy layer
+       kmax        : Maximum energy layer
+     
        return 0 for success, error code otherwise 
     */
     int makeDiffuseMap_healpix(const DiffuseSource& src, 
@@ -239,7 +269,8 @@ namespace Likelihood {
 			       const PsfIntegConfig& config,
 			       st_stream::StreamFormatter& formatter,
 			       std::vector<float>& modelmap,
-			       FileUtils::SrcMapType& mapType);
+			       FileUtils::SrcMapType& mapType,
+			       int kmin=0, int kmax=-1);
     
     /* Compute the SourceMap model values for a Diffuse source.       
        This version is called partial-sky HEALPix-based Counts Maps
@@ -252,6 +283,8 @@ namespace Likelihood {
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
        mapType     : Enum that specifies how to store the map
+       kmin        : Minimum energy layer
+       kmax        : Maximum energy layer
      
        return 0 for success, error code otherwise 
     */
@@ -262,8 +295,9 @@ namespace Likelihood {
 			      const PsfIntegConfig& config,
 			      st_stream::StreamFormatter& formatter,
 			      std::vector<float>& modelmap,
-			      FileUtils::SrcMapType& mapType);
-    
+			      FileUtils::SrcMapType& mapType,
+			      int kmin=0, int kmax=-1);
+   
     /* Compute the SourceMap model values for a Point source.  
        This version just calls one of the versions below.
 
@@ -271,9 +305,12 @@ namespace Likelihood {
        dataMap     : The counts map in question
        config      : Parameters for PSF integration 
        meanpsf     : The average PSF across the ROI
+       bexpmap     : The Binned Exposure map (actually a cube )
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
        mapType     : Enum that specifies how to store the map
+       kmin        : Minimum energy layer
+       kmax        : Maximum energy layer
        
        return 0 for success, error code otherwise 
     */
@@ -281,9 +318,11 @@ namespace Likelihood {
 			   const CountsMapBase& dataMap,
 			   const PsfIntegConfig& config,
 			   const MeanPsf& meanpsf,
+			   const BinnedExposureBase & bexpmap,
 			   st_stream::StreamFormatter& formatter,
 			   std::vector<float>& modelmap,
-			   FileUtils::SrcMapType& mapType);
+			   FileUtils::SrcMapType& mapType,
+			   int kmin=0, int kmax=-1);
     
     /* Compute the SourceMap model values for a Point source.  
        This version is called for WCS-based Counts Maps
@@ -295,16 +334,20 @@ namespace Likelihood {
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
        mapType     : Enum that specifies how to store the map
-     
+       kmin        : Minimum energy layer
+       kmax        : Maximum energy layer
+    
        return 0 for success, error code otherwise 
     */
     int makePointSourceMap_wcs(const PointSource& pointSrc, 
 			       const CountsMap& dataMap,
 			       const PsfIntegConfig& config,
 			       const MeanPsf& meanpsf,
+			       const BinnedExposureBase & bexpmap,
 			       st_stream::StreamFormatter& formatter,
 			       std::vector<float>& modelmap,
-			       FileUtils::SrcMapType& mapType);
+			       FileUtils::SrcMapType& mapType,
+			       int kmin=0, int kmax=-1);
     
     /* Compute the SourceMap model values for a Point source.  
        This version is called for HEALPix-based Counts Maps
@@ -316,16 +359,20 @@ namespace Likelihood {
        formatter   : Stream for writting progress messages
        modelmap    : Filled with the model values
        mapType     : Enum that specifies how to store the map
-       
+       kmin        : Minimum energy layer
+       kmax        : Maximum energy layer
+      
        return 0 for success, error code otherwise 
     */
     int makePointSourceMap_healpix(const PointSource& pointSrc, 
 				   const CountsMapHealpix& dataMap,
 				   const PsfIntegConfig& config,
 				   const MeanPsf& meanpsf,
+				   const BinnedExposureBase & bexpmap,
 				   st_stream::StreamFormatter& formatter,
 				   std::vector<float>& modelmap,
-				   FileUtils::SrcMapType& mapType);
+				   FileUtils::SrcMapType& mapType,
+				   int kmin=0, int kmax=-1);
 
 
     /* Compute the SourceMap model values for a Composite source.  
@@ -346,7 +393,8 @@ namespace Likelihood {
 			 const Drm* drm,
 			 st_stream::StreamFormatter& formatter,
 			 std::vector<float>& modelmap,
-			 FileUtils::SrcMapType& mapType);
+			 FileUtils::SrcMapType& mapType,
+			 int kmin=0, int kmax=-1);
 
     /* Get the PSF value for a point source at a particular pixel and energy 
 
