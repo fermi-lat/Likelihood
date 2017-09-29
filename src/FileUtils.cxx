@@ -3,7 +3,7 @@
  * @brief Functions to getting data to and from FITS files
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.8 2017/06/26 18:49:30 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/FileUtils.cxx,v 1.9 2017/06/26 22:02:29 echarles Exp $
  */
 
 #include <memory>
@@ -42,6 +42,24 @@ namespace Likelihood {
 	return false;
       }
       return true;
+    }
+
+
+    void read_ebounds_to_vector(const std::string& filename,
+				std::vector<double>& energies) {
+      
+      std::auto_ptr<const tip::Table> ebounds(tip::IFileSvc::instance().readTable(filename, "EBOUNDS"));
+      tip::Table::ConstIterator it = ebounds->begin();
+      tip::Table::ConstRecord & row = *it;
+      energies.clear();
+      energies.resize(ebounds->getNumRecords() + 1, 0.);
+      double emax;
+      for (int i = 0 ; it != ebounds->end(); ++it, i++) {
+	row["E_MIN"].get(energies[i]);
+	row["E_MAX"].get(emax);
+	energies[i] /= 1000.;
+      }
+      energies.back() = emax / 1000.;
     }
 
     int read_fits_image_to_float_vector(const std::string& filename, 
@@ -108,6 +126,7 @@ namespace Likelihood {
       const tip::IColumn* val_col = table->getColumn(val_field);
 
       
+
       tip::Index_t nrow = table->getNumRecords();
 
       std::vector<size_t> pix_vect(nrow, 0);
@@ -129,6 +148,7 @@ namespace Likelihood {
       }
 
       vect.fill_from_key_and_value(key_vect,val_vect);
+
       return 0;
     }
 
@@ -151,8 +171,8 @@ namespace Likelihood {
       const tip::Header& header = table->getHeader();     
       std::string indxschm;
       std::string pixtype; 
+
       try {
-	header["INDXSCHM"].get(indxschm);
 	header["PIXTYPE"].get(pixtype);
       } catch (tip::TipException &) {
 	// NOT a HEALPIX map
@@ -163,6 +183,14 @@ namespace Likelihood {
 	// NOT a HEALPIX map
 	return FileUtils::Unknown;
       }
+
+      try {
+	header["INDXSCHM"].get(indxschm);
+      } catch (tip::TipException &) {
+	// NOT a HEALPIX map
+	return FileUtils::Unknown;
+      }	 
+
       if ( indxschm == "IMPLICIT" ) {
 	// All-sky HEALPIX map	
 	return FileUtils::HPX_AllSky;
@@ -170,7 +198,7 @@ namespace Likelihood {
 	return FileUtils::HPX_Sparse;
       }	else if ( indxschm == "EXPLICIT" ) {
 	return FileUtils::HPX_Partial;
-      }     
+     }     
       return FileUtils::Unknown;
     }
 
@@ -180,18 +208,19 @@ namespace Likelihood {
 						    const std::string& extension,
 						    const CountsMapBase& dataMap,
 						    const std::vector<float>& imageData,
-						    bool is_src_map) {
+						    bool is_src_map, 
+						    int kmin, int kmax) {
       tip::Extension* ptr(0);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
 	ptr = FileUtils::replace_image_from_float_vector_wcs(filename,extension,
 							     static_cast<const CountsMap&>(dataMap),
-							     imageData,is_src_map);
+							     imageData,is_src_map,kmin,kmax);
 	return ptr;
       case astro::ProjBase::HEALPIX:
 	ptr = FileUtils::replace_image_from_float_vector_healpix(filename,extension,
 								 static_cast<const CountsMapHealpix&>(dataMap),
-								 imageData,is_src_map);
+								 imageData,is_src_map,kmin,kmax);
 	return ptr;
       default:
 	break;
@@ -203,12 +232,28 @@ namespace Likelihood {
     }
     
     tip::Extension* replace_image_from_float_vector_wcs(const std::string& filename, 
-							 const std::string& extension,
-							 const CountsMap& /* dataMap */,
-							 const std::vector<float>& imageData,
-							 bool /* is_src_map */) {
+							const std::string& extension,
+							const CountsMap& dataMap,
+							const std::vector<float>& imageData,
+							bool is_src_map, 
+							int kmin, int kmax) {
       tip::Image* image = tip::IFileSvc::instance().editImage(filename, extension);  
-      image->set(imageData);
+      long nEBins_data = is_src_map ? dataMap.num_energies() : dataMap.num_ebins();
+      kmax = kmax < 0 ? nEBins_data : kmax;
+      long nEBins = kmax - kmin;
+      
+      if ( nEBins == nEBins_data ) {
+	// Include the whole map
+	image->set(imageData);
+      } else {
+	// Only include some energy bins
+	tip::ImageBase::PixelCoordinate imageDims(image->getImageDimensions());
+	imageDims[2] = nEBins;
+	image->setImageDimensions(imageDims);
+	size_t npix = dataMap.pixels().size();
+	std::vector<float> partial(nEBins*npix);
+	std::copy(imageData.begin()+(kmin*npix),imageData.begin()+(kmax*npix),partial.begin());
+      }
       return image;
     }
 
@@ -216,15 +261,16 @@ namespace Likelihood {
 							    const std::string& extension,
 							    const CountsMapHealpix& dataMap,
 							    const std::vector<float>& imageData,
-							    bool is_src_map) {
+							    bool is_src_map, 
+							    int kmin, int kmax) {
       tip::Table* table =tip::IFileSvc::instance().editTable(filename, extension);
       tip::Header& header = table->getHeader();
       dataMap.setKeywords(header);
       long nPix = dataMap.imageDimension(0);
-      long nEBins = dataMap.energies().size();
-      if ( ! is_src_map ) { 
-	nEBins -= 1;
-      }
+      long nEBins_data = is_src_map ? dataMap.num_energies() : dataMap.num_ebins();
+      kmax = kmax < 0 ? nEBins_data : kmax;
+      long nEBins = kmax - kmin;
+      
    
       if ( !dataMap.allSky() ) {
 	tip::Header & header(table->getHeader());     
@@ -250,9 +296,9 @@ namespace Likelihood {
   
       long idx(0);
       double writeValue(0);
-      for (long e_index = 0; e_index != nEBins; e_index++ ) {
+      for (long e_index = kmin; e_index != kmax; e_index++ ) {
 	std::ostringstream e_channel;
-	e_channel<<"CHANNEL"<<e_index+1;
+	e_channel<<"CHANNEL"<< (e_index-kmin)+1;
 	// Check to see if the column already exist
 	tip::FieldIndex_t col_idx(-1);
 	try {
@@ -275,20 +321,33 @@ namespace Likelihood {
 							     const std::string& extension,
 							     const CountsMapHealpix& dataMap,
 							     const SparseVector<float>& imageData,
-							     bool is_src_map) {
+							     bool is_src_map, 
+							     int kmin, int kmax) {
       
       tip::Table* table = tip::IFileSvc::instance().editTable(filename, extension);
       tip::Header& header = table->getHeader();
       dataMap.setKeywords(header);
       long nPix = dataMap.imageDimension(0);      
-      long nEBins = dataMap.energies().size();
-      if ( ! is_src_map ) { 
-	nEBins -= 1;
-      }
+      long nEBins_data = is_src_map ? dataMap.num_energies() : dataMap.num_ebins();
+      kmax = kmax < 0 ? nEBins_data : kmax;
+      long nEBins = kmax - kmin;
    
       header["INDXSCHM"].set("SPARSE");
       header["REFDIR1"].set(dataMap.isGalactic() ? dataMap.refDir().l() :  dataMap.refDir().ra() );
       header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
+ 
+      int idx(0);
+      std::vector<size_t> key_vect;
+      std::vector<float> val_vect;
+
+      
+      if ( nEBins_data == nEBins ) {
+	imageData.fill_key_and_value(key_vect,val_vect);
+      } else {
+	imageData.fill_key_and_value(key_vect,val_vect,kmin*nPix,kmax*nPix);
+      }
+
+      size_t nfilled = key_vect.size();
 
       tip::FieldIndex_t pix_idx(-1);
       try {
@@ -317,8 +376,6 @@ namespace Likelihood {
       }	   
       tip::IColumn* val_col = table->getColumn(val_idx);
        
-      int idx(0);
-      size_t nfilled = imageData.non_null().size();
       std::vector<size_t> keys;
       std::vector<float> values;
           
@@ -338,18 +395,19 @@ namespace Likelihood {
 						   const std::string& extension,
 						   const CountsMapBase& dataMap,
 						   const std::vector<float>& imageData,
-						   bool is_src_map) {
+						   bool is_src_map, 
+						   int kmin, int kmax) {
       tip::Extension* ptr(0);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
 	ptr = FileUtils::append_image_from_float_vector_wcs(filename,extension,
 							    static_cast<const CountsMap&>(dataMap),
-							    imageData,is_src_map);
+							    imageData,is_src_map,kmin,kmax);
 	return ptr;
       case astro::ProjBase::HEALPIX:
 	ptr = FileUtils::append_image_from_float_vector_healpix(filename,extension,
 								static_cast<const CountsMapHealpix&>(dataMap),
-								imageData,is_src_map);	
+								imageData,is_src_map,kmin,kmax);	
 	return ptr;
       default:
 	break;
@@ -364,7 +422,8 @@ namespace Likelihood {
 						       const std::string& extension,
 						       const CountsMap& dataMap,
 						       const std::vector<float>& imageData,
-						       bool is_src_map) {
+						       bool is_src_map, 
+						       int kmin, int kmax) {
       std::vector<long> naxes;
       naxes.push_back(dataMap.imageDimension(0));
       naxes.push_back(dataMap.imageDimension(1));
@@ -372,30 +431,32 @@ namespace Likelihood {
       naxes.push_back(nEBins);
       
       tip::IFileSvc::instance().appendImage(filename, extension, naxes);
-      return FileUtils::replace_image_from_float_vector_wcs(filename, extension,dataMap,imageData,is_src_map);
+      return FileUtils::replace_image_from_float_vector_wcs(filename, extension,dataMap,imageData,is_src_map,kmin,kmax);
     }
 
     tip::Extension* append_image_from_float_vector_healpix(const std::string& filename, 
 							   const std::string& extension,
 							   const CountsMapHealpix& dataMap,
 							   const std::vector<float>& imageData,
-							   bool is_src_map) {
+							   bool is_src_map, 
+							   int kmin, int kmax) {
       tip::IFileSvc::instance().appendTable(filename,extension);
       return FileUtils::replace_image_from_float_vector_healpix(filename,extension,
-								dataMap,imageData,is_src_map);
+								dataMap,imageData,is_src_map,kmin,kmax);
     }
 
     tip::Extension* append_image_from_sparse_vector_healpix(const std::string& filename, 
 							    const std::string& extension,
 							    const CountsMapHealpix& dataMap,
 							    const SparseVector<float>& imageData,
-							    bool is_src_map) {
+							    bool is_src_map, 
+							    int kmin, int kmax) {
       /* Add the table by hand to avoid lots of overhead from tip */
       // This causes memory corruption, so lets' not use it
       // append_table_only(filename,extension);
       tip::IFileSvc::instance().appendTable(filename,extension);
       return FileUtils::replace_image_from_sparse_vector_healpix(filename,extension,
-								 dataMap,imageData,is_src_map);
+								 dataMap,imageData,is_src_map,kmin,kmax);
     }
 
 
