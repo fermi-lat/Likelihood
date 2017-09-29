@@ -6,7 +6,7 @@
  *  This file contains a number of functions useful for PSF Integration and convolution.
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileUtils.h,v 1.4 2016/10/13 01:54:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/FileUtils.h,v 1.5 2017/06/22 23:52:16 echarles Exp $
  */
 
 #ifndef Likelihood_FileUtils_h
@@ -62,6 +62,16 @@ namespace Likelihood {
     */
     bool fileHasExtension(const std::string& filename, 
 			  const std::string& extension);
+
+
+    /* Read the energy bounds
+
+       filename  : The FITS file
+       energies  : The vector being filled
+    */
+    void read_ebounds_to_vector(const std::string& filename,
+				std::vector<double>& energies);
+
 
     /* Read a FITS image from a file to a vector 
 
@@ -120,6 +130,8 @@ namespace Likelihood {
        dataMap    : The CountsMap used to define the binning 
        imageData  : The data for the image we are writing
        is_src_map : If true, the image has one more energy plane than the CountsMap
+       kmin       : Minimum energy layer to include
+       kmax       : Maximum energy layer to include (-1 for all)
 
        return ptr for success, NULL for failure
     */
@@ -127,7 +139,8 @@ namespace Likelihood {
 						    const std::string& extension,
 						    const CountsMapBase& dataMap,
 						    const std::vector<float>& imageData,
-						    bool is_src_map);
+						    bool is_src_map,
+						    int kmin = 0, int kmax = -1);
 
 
     /* Replace an image in a FITS file.  
@@ -138,6 +151,8 @@ namespace Likelihood {
        dataMap    : The CountsMap used to define the binning 
        imageData  : The data for the image we are writing
        is_src_map : If true, the image has one more energy plane than the CountsMap
+       kmin       : Minimum energy layer to include
+       kmax       : Maximum energy layer to include (-1 for all)
 
        return ptr for success, NULL for failure
      */   
@@ -145,7 +160,8 @@ namespace Likelihood {
 							const std::string& extension,
 							const CountsMap& dataMap,
 							const std::vector<float>& imageData,
-							bool is_src_map);
+							bool is_src_map,
+							int kmin = 0, int kmax = -1);
 
     /* Replace an image in a FITS file.  
        This version is for HEALPix images.
@@ -155,6 +171,8 @@ namespace Likelihood {
        dataMap    : The CountsMap used to define the binning 
        imageData  : The data for the image we are writing
        is_src_map : If true, the image has one more energy plane than the CountsMap
+       kmin       : Minimum energy layer to include
+       kmax       : Maximum energy layer to include (-1 for all)
 
        return ptr for success, NULL for failure
      */   
@@ -162,7 +180,8 @@ namespace Likelihood {
 							    const std::string& extension,
 							    const CountsMapHealpix& dataMap,
 							    const std::vector<float>& imageData,
-							    bool is_src_map);
+							    bool is_src_map,
+							    int kmin = 0, int kmax = -1);
     
     /* Replace an image in a FITS file.  
        This version is for HEALPix images stored as sparse vector
@@ -171,6 +190,8 @@ namespace Likelihood {
        extension  : The FITS HDU extension name
        dataMap    : The CountsMap used to define the binning 
        imageData  : The data for the image we are writing
+       kmin       : Minimum energy layer to include
+       kmax       : Maximum energy layer to include (-1 for all)
 
        return ptr for success, NULL for failure
      */   
@@ -178,7 +199,8 @@ namespace Likelihood {
 							     const std::string& extension,
 							     const CountsMapHealpix& dataMap,
 							     const SparseVector<float>& imageData,
-							     bool is_src_map);
+							     bool is_src_map,
+							     int kmin = 0, int kmax = -1);
     
 
     /* Append an image to a FITS file 
@@ -188,6 +210,8 @@ namespace Likelihood {
        dataMap    : The CountsMap used to define the binning 
        imageData  : The data for the image we are writing
        is_src_map : If true, the image has one more energy plane than the CountsMap
+       kmin       : Minimum energy layer to include
+       kmax       : Maximum energy layer to include (-1 for all)
 
        return ptr for success, NULL for failure
     */
@@ -195,7 +219,8 @@ namespace Likelihood {
 						   const std::string& extension,
 						   const CountsMapBase& dataMap,
 						   const std::vector<float>& imageData,
-						   bool is_src_map);
+						   bool is_src_map,
+						   int kmin = 0, int kmax = -1);
     
     /* Append an image to a FITS file 
        This version is for WCS-based images.
@@ -205,6 +230,8 @@ namespace Likelihood {
        dataMap    : The CountsMap used to define the binning 
        imageData  : The data for the image we are writing
        is_src_map : If true, the image has one more energy plane than the CountsMap
+       kmin       : Minimum energy layer to include
+       kmax       : Maximum energy layer to include (-1 for all)
 
        return ptr for success, NULL for failure
     */
@@ -212,7 +239,8 @@ namespace Likelihood {
 						       const std::string& extension,
 						       const CountsMap& dataMap,
 						       const std::vector<float>& imageData,
-						       bool is_src_map);
+						       bool is_src_map,
+						       int kmin = 0, int kmax = -1);
 
     /* Append an image to a FITS file 
        This version is for HEALPix images.
@@ -222,6 +250,8 @@ namespace Likelihood {
        dataMap    : The CountsMap used to define the binning 
        imageData  : The data for the image we are writing
        is_src_map : If true, the image has one more energy plane than the CountsMap
+       kmin       : Minimum energy layer to include
+       kmax       : Maximum energy layer to include (-1 for all)
 
        return ptr for success, NULL for failure
     */
@@ -229,7 +259,8 @@ namespace Likelihood {
 							   const std::string& extension,
 							   const CountsMapHealpix& dataMap,
 							   const std::vector<float>& imageData,
-							   bool is_src_map);
+							   bool is_src_map,
+							   int kmin = 0, int kmax = -1);
 
     /* Append an image to a FITS file 
        This version is for HEALPix images.
@@ -239,6 +270,8 @@ namespace Likelihood {
        dataMap    : The CountsMap used to define the binning 
        imageData  : The data for the image we are writing
        is_src_map : If true, the image has one more energy plane than the CountsMap
+       kmin       : Minimum energy layer to include
+       kmax       : Maximum energy layer to include (-1 for all)
 
        return 0 for success, error code otherwise
     */
@@ -246,7 +279,8 @@ namespace Likelihood {
 							    const std::string& extension,
 							    const CountsMapHealpix& dataMap,
 							    const SparseVector<float>& imageData,
-							    bool is_src_map);
+							    bool is_src_map,
+							    int kmin = 0, int kmax = -1);
    
 
 
