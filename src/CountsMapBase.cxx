@@ -1,7 +1,7 @@
 /**
  * @file CountsMapBase.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/CountsMapBase.cxx,v 1.2 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapBase.cxx,v 1.1 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <algorithm>
@@ -11,6 +11,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <cstdio>
+#include <sstream>
 
 #include "facilities/Util.h"
 
@@ -35,6 +37,7 @@
 
 #include "Likelihood/CountsMapBase.h"
 #include "Likelihood/HistND.h"
+#include "Likelihood/FileUtils.h"
 
 namespace Likelihood {
 
@@ -77,28 +80,14 @@ CountsMapBase::CountsMapBase(const std::string & countsMapFile)
 
 void CountsMapBase::readEbounds(const std::string & countsMapFile, 
 				std::vector<evtbin::Binner *> & binners) {
-   std::auto_ptr<const tip::Table> 
-      ebounds(tip::IFileSvc::instance().readTable(countsMapFile, "EBOUNDS"));
-   tip::Table::ConstIterator it = ebounds->begin();
-   tip::Table::ConstRecord & row = *it;
-   std::vector<double> energies(ebounds->getNumRecords() + 1);
-   double emax;
-   for (int i = 0 ; it != ebounds->end(); ++it, i++) {
-      row["E_MIN"].get(energies.at(i));
-      row["E_MAX"].get(emax);
-   }
-   energies.back() = emax;
 
-   m_energies.clear();
-   for (size_t k(0); k < energies.size(); k++) {
-      m_energies.push_back(energies[k]/1e3);
-   }
-
+   FileUtils::read_ebounds_to_vector(countsMapFile, m_energies);
+  
    std::vector<evtbin::Binner::Interval> energy_intervals;
 // Convert to MeV
-   for (unsigned int i = 0; i < energies.size()-1; i++) {
-      energy_intervals.push_back(evtbin::Binner::Interval(energies[i]/1e3, 
-                                                          energies[i+1]/1e3));
+   for (unsigned int i = 0; i < m_energies.size()-1; i++) {
+      energy_intervals.push_back(evtbin::Binner::Interval(m_energies[i], 
+                                                          m_energies[i+1]));
    }
    binners.push_back(new evtbin::OrderedBinner(energy_intervals,
                                                "photon energy"));
@@ -142,7 +131,44 @@ CountsMapBase::~CountsMapBase() throw() {
    }
 }
 
+void CountsMapBase::writeEmptyOutput(const std::string & creator, const std::string & out_file) const {
 
+   createFile(creator, out_file, 
+              facilities::commonUtilities::joinPath(m_data_dir,"LatCountsMapTemplate"));
+
+   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
+   if ( binners.size() > 1 ) {
+     writeEbounds(out_file,binners[1]);
+   }
+   writeGti(out_file);
+}
+
+void CountsMapBase::writeEnergies(const std::string & creator, 
+				  const std::string & out_file,
+				  int kmin, int kmax) const {
+   std::remove(out_file.c_str());     
+   std::string ext("PRIMARY");
+   tip::ImageBase::PixelCoordinate null;
+   tip::IFileSvc::instance().appendImage(out_file, ext, null);
+
+   ext = "ENERGIES";
+   tip::IFileSvc::instance().appendTable(out_file, ext);
+   tip::Table * table = tip::IFileSvc::instance().editTable(out_file, ext);
+   table->appendField("Energy", "1D");
+
+   kmax = kmax < 0 ? m_energies.size() : kmax;
+   size_t nebins = kmax - kmin;
+
+   table->setNumRecords(nebins);
+
+   tip::Table::Iterator row = table->begin();
+   tip::Table::Record & record = *row;
+
+   for ( size_t ie(kmin); ie != kmax; ++ie, ++row ) {
+     record["Energy"].set(m_energies[ie]);
+   }
+   delete table;
+}
 
 void CountsMapBase::setImage(const std::vector<float> & image) {
    m_hist->setData(image);
