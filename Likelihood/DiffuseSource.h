@@ -3,7 +3,7 @@
  * @brief DiffuseSource class declaration
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/Likelihood/Likelihood/DiffuseSource.h,v 1.56 2016/10/13 02:00:57 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/DiffuseSource.h,v 1.57 2016/10/28 22:35:53 mdwood Exp $
  */
 
 #ifndef Likelihood_DiffuseSource_h
@@ -118,6 +118,9 @@ namespace Likelihood {
        }
        return m_mapRadius;
      }
+
+     // Get the reference direction for this diffuse source
+     const astro::SkyDir& mapRefDir() const;
 
 
      /* ------------------ Functions for unbinned likelihood --------------- */
