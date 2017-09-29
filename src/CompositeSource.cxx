@@ -3,7 +3,7 @@
  * @brief A source made of a collection of sources.
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Source.cxx,v 1.26 2016/09/09 21:11:53 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeSource.cxx,v 1.1 2016/10/13 01:56:50 echarles Exp $
  */
 
 #include "Likelihood/CompositeSource.h"
@@ -173,6 +173,7 @@ namespace Likelihood {
   /// @return Photon flux integrated over the given energy range.
   /// Units are #/cm^2/s
   double CompositeSource::flux(double emin, double emax, size_t npts) const {
+    std::cout << getName() << "::Flux " << emin << ' ' << emax << ' ' << m_spectrum << std::endl;
     return computeEnergyIntegral(*m_spectrum, emin, emax, npts);
   }
   
@@ -256,7 +257,7 @@ namespace Likelihood {
   }
 
 
-  void CompositeSource::fillSummedSourceMap(std::vector<float>& model) const {
+  void CompositeSource::fillSummedSourceMap(std::vector<float>& model, int kmin, int kmax) const {
     if ( m_srcMapCache == 0 ) {
       throw std::runtime_error("CompositeSource::buildSourceMapCache must be called before fillSummedSourceMap");
     }
@@ -266,7 +267,7 @@ namespace Likelihood {
     model.resize(m_srcMapCache->dataCache().source_map_size(),0.);
     m_sourceModel.getSrcNames(srcNames);
     m_sourceModel.getSources(srcNames,srcs);
-    m_srcMapCache->fillSummedSourceMap(srcs,model);
+    m_srcMapCache->fillSummedSourceMap(srcs,model,kmin,kmax);
   }
   
 
