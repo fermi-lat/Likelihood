@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.77 2017/08/17 23:45:14 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.78 2017/09/14 21:52:19 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -263,10 +263,10 @@ public:
    const Drm_Cache* drm_cache(bool force=false);
 
    /* Add the model to an extermal vector */
-   void addToVector(std::vector<float>& vect, bool includeSpec = false);
+   void addToVector(std::vector<float>& vect, bool includeSpec = false, int kmin=0, int kmax=-1);
    
    /* Subtract the model from an extermal vector */
-   void subtractFromVector(std::vector<float>& vect, bool includeSpec = false);
+   void subtractFromVector(std::vector<float>& vect, bool includeSpec = false, int kmin=0, int kmax=-1);
 
    /// Explicitly set the image data
    void setImage(const std::vector<float>& model);
@@ -314,24 +314,35 @@ protected:
 private:
 
    /* Implementation of addToVector for full-model storage */
-   void addToVector_full(std::vector<float>& vect, bool includeSpec=false);
+   void addToVector_full(std::vector<float>& vect, bool includeSpec=false, int kmin=0, int kmax=-1) const;
  
    /* Implementation of addToVector for sparse-model storage */
-   void addToVector_sparse(std::vector<float>& vect, bool includeSpec=false) const;
+   void addToVector_sparse(std::vector<float>& vect, bool includeSpec=false, int kmin=0, int kmax=-1) const;
 
    /* Implementation of subtractFromVector for full-model storage */
-   void subtractFromVector_full(std::vector<float>& vect, bool includeSpec=false) const;
+   void subtractFromVector_full(std::vector<float>& vect, bool includeSpec=false, int kmin=0, int kmax=-1) const;
  
    /* Implementation of subtractFromVector for sparse-model storage */
-   void subtractFromVector_sparse(std::vector<float>& vect, bool includeSpec=false) const;
+   void subtractFromVector_sparse(std::vector<float>& vect, bool includeSpec=false, int kmin=0, int kmax=-1) const;
  
    /* Compute the NPreds */
    void computeNpredArray();
+
+   /* Compute the NPreds */
+   void computeNpredArray_sparse();
+
 
    /* Adjust the source map for a phased exposure correction       
       This is just multiplying the source map by the phased exposure map projected into the counts map frame
    */
    void applyPhasedExposureMap();
+
+   /* Adjust the source map for a phased exposure correction       
+      This is just multiplying the source map by the phased exposure map projected into the counts map frame
+      
+      This version is used if we have a sparse map
+   */   
+   void applyPhasedExposureMap_sparse();
 
 
    /* Get the value from the sparse model */
