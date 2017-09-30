@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/ProjMap.cxx,v 1.3 2015/12/02 00:53:06 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/ProjMap.cxx,v 1.1 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -143,10 +143,14 @@ double ProjMap::mapIntegral(double energy) const {
    check_energy(energy);
 
    int k(0);
+
    if (m_energies.size() > 1) {
       k = std::upper_bound(m_energies.begin(), m_energies.end(), energy)
          - m_energies.begin() - 1;
    }
+
+   // catch the low && upper edges
+   if (k < 0) { k = 0; }
    if (energy == m_energies.at(k)) {
       return m_mapIntegrals.at(k);
    }
@@ -190,7 +194,7 @@ double ProjMap::interpolatePowerLaw(double x, double x1, double x2,
       if ( (x < x1 && y1 == 0) || (x > x2 && y2 == 0) ) {
          // Linear extrapolation in these cases would produce
          // negative values.
-         std::ostringstream message;
+	 std::ostringstream message;
          message << "ProjMap::interpolatePowerLaw: "
                  << "linear extrapolation selected for "
                  << "zero-valued ordinates.\n"
