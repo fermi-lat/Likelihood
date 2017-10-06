@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.19 2017/08/17 23:47:46 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.20 2017/09/14 21:51:45 echarles Exp $
  */
 
 #include <cmath>
@@ -237,9 +237,11 @@ void Drm_Cache::update(const Drm* drm,
   const std::vector<double>& npreds = sourceMap.npreds();
   const std::vector<std::pair<double,double> >& npred_weights = sourceMap.npred_weights();
   const std::vector<double>& specVals = sourceMap.specVals();
+
   // These are the weights to be applied to the measured counts.
   size_t k(0);
   std::vector<double> mean_wts(energies.size()-1);
+
   for (k = 0; k < energies.size()-1; k++) {
     double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
     m_true_counts[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
@@ -277,36 +279,10 @@ void Drm_Cache::update(const Drm* drm,
       m_xi[k] = m_meas_counts[k] / m_true_counts[kref];
       m_kref[k] = kref;
     }
-    
-    const std::vector<float>& model = sourceMap.cached_model();
-    const WeightMap* weights = sourceMap.weights();
 
-    size_t npix = model.size() / sourceMap.cached_specValues().size();
-    double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
-    double sum_npred(0.);
-    double sum_wnpred(0.);
-    // Loop on pixels and get weighted for convolved
-    for (size_t i(0); i < npix; i++, idx++ ) {
-      double addend =  m_xi[k] * FitUtils::pixelCounts_loglogQuad(energies.at(k),   
-								  energies.at(k+1),
-								  specVals.at(k)*model[idx],
-								  specVals.at(k+1)*model[idx+npix],
-								  log_energy_ratio);
-      sum_npred += addend;
-      if ( weights != 0 ) {
-	addend *= weights->model()[idx];
-      }
-      sum_wnpred += addend;
-    }
+    m_xi_wt[k] = m_xi[k];
+    m_meas_counts_wt[k] = m_xi_wt[k]*m_true_counts_wt[kref];
 
-    m_meas_counts_wt[k] = sum_wnpred;
-    m_xi_wt[k] = m_meas_counts_wt[k] /  m_true_counts_wt[kref];
-
-    /*
-    std::cout << "Meas " << k << ' ' << sum_npred << ' ' << sum_wnpred << ' ' 
-	      << m_meas_counts_wt[k] << ' ' << m_true_counts_wt[kref] << ' '
-	      << m_xi_wt[k] << ' ' << check_val << std::endl;
-    */
   }
 
 }
