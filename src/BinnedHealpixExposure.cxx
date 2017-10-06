@@ -4,7 +4,7 @@
  * various energies. Healpix version
  * @author E. Charles, J. Cohen-Tanugi
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/BinnedHealpixExposure.cxx,v 1.5 2015/12/02 00:53:06 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedHealpixExposure.cxx,v 1.2 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -51,9 +51,26 @@ BinnedHealpixExposure::BinnedHealpixExposure(const evtbin::HealpixMap & cmap,
   if (pars) {
     setCosThetaBounds(*pars);
   }
-  computeHealpixMap(cmap);
+  computeHealpixMap();
 }
   
+
+BinnedHealpixExposure::BinnedHealpixExposure(const std::vector<double> & energies,
+					     const Observation & observation,
+					     const st_app::AppParGroup * pars) 
+  :  BinnedExposureBase(energies,observation,pars){
+  if (pars) {
+    setMapGeometry(*pars);
+  } else {
+    setMapGeometry();
+  }
+  if (pars) {
+    setCosThetaBounds(*pars);
+  }
+  computeHealpixMap();
+}
+
+
 BinnedHealpixExposure::BinnedHealpixExposure(const std::string& filename)
   : BinnedExposureBase(filename),
     m_healpixProj(new astro::HealpixProj(filename,std::string("HPXEXPOSURES"))){
@@ -123,11 +140,61 @@ double BinnedHealpixExposure::operator()(double energy, double ra, double dec) c
 }
 
 
+void BinnedHealpixExposure::get_exposures_for_dir(const astro::SkyDir& dir, 
+						  const std::vector<double>& energies, 
+						  std::vector<double>& exposures) const {
+  exposures.clear();
+  exposures.resize(energies.size(), 0.);
+  if ( m_proj == 0 ) {
+    throw std::runtime_error("BinnedExposure::operator() "
+			     "No projection loaded");
+  }
+
+  std::pair<double, double> pixel;
+  st_facilities::Util::skyDir2pixel(*m_proj, dir, pixel.first, pixel.second);
+  int i = static_cast<int>(pixel.first);
+  bool within_bounds = (i >= 0 && i < m_healpixProj->healpix().Npix());
+  if (m_enforce_boundaries && !within_bounds) {
+    throw std::runtime_error("Request for exposure at a sky position that "
+			     "is outside of the map boundaries.");
+  }
+
+  std::vector<double>::const_iterator itr_eng = energies.begin();
+  std::vector<double>::iterator itr_exp = exposures.begin();
+
+  for ( ; itr_eng != energies.end(); ++itr_eng, ++itr_exp ) {
+    std::vector<double>::const_iterator ie = findNearest(m_energies, *itr_eng);
+    unsigned int k = ie - m_energies.begin();
+    bool energy_bounds = k >= 0 && k < m_energies.size();
+    if ( m_enforce_boundaries && !energy_bounds) {
+      throw std::runtime_error("Request for exposure at an energy "
+			       "is outside of the map range.");
+    }
+    if ( within_bounds && energy_bounds ) {
+      *itr_exp = m_exposureMap[k][i];
+    } else {
+      *itr_exp = 0.;
+    }
+  }   
+}
+
+
 void BinnedHealpixExposure::setMapGeometry(const evtbin::HealpixMap & cmap) {
   m_energies = cmap.energies();
   m_isGalactic = cmap.isGalactic();  
   m_healpixProj = new astro::HealpixProj(cmap.nside(),cmap.scheme(),SET_NSIDE,m_isGalactic);
   m_proj = m_healpixProj;  
+  m_allSky = true;
+}
+
+
+void BinnedHealpixExposure::setMapGeometry(const st_app::AppParGroup & pars) {
+  std::string coordsys = pars["coordsys"];
+  m_isGalactic = (coordsys == "GAL");
+  int order = pars["hpx_order"];
+  Healpix_Ordering_Scheme scheme = pars["hpx_ordering_scheme"]=="RING" ? RING : NEST;
+  m_healpixProj = new astro::HealpixProj(order,scheme,m_isGalactic);
+  m_proj = m_healpixProj;
   m_allSky = true;
 }
 
@@ -138,7 +205,7 @@ void BinnedHealpixExposure::setMapGeometry() {
 }
 
 
-void BinnedHealpixExposure::computeHealpixMap(const evtbin::HealpixMap & cmap) {
+void BinnedHealpixExposure::computeHealpixMap() {
   m_exposureMap.resize(m_energies.size());
   st_stream::StreamFormatter formatter("BinnedHealpixExposure", "computeHealpixMap", 2);
   formatter.warn() << "Computing Healpix binned exposure map";

@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/BinnedExposureBase.h,v 1.2 2015/03/03 05:59:55 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposureBase.h,v 1.1 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedExposureBase_h
@@ -73,6 +73,10 @@ public:
    const std::vector<double> & energies() const {
       return m_energies;
    }
+
+   virtual void get_exposures_for_dir(const astro::SkyDir& dir, 
+				      const std::vector<double>& energies, 
+				      std::vector<double>& exposures) const = 0;
 
    void setBoundaryFlag(bool enforce_boundaries) {
       m_enforce_boundaries = enforce_boundaries;
