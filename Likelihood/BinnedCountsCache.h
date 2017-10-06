@@ -3,7 +3,7 @@
  * @brief Small class to encapsulate stuff that needed for BinnedLikelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedCountsCache.h,v 1.1 2016/10/13 01:52:51 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedCountsCache.h,v 1.2 2016/11/29 23:50:45 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedCountsCache_h
@@ -25,6 +25,7 @@ namespace Likelihood {
 
   class WeightMap;
   class ProjMap;
+  class Observation;
 
   /*
    * @class BinnedCountsCache
@@ -107,6 +108,11 @@ namespace Likelihood {
 
     /// Set the counts map by hand
     void setCountsMap(const std::vector<float> & counts);
+
+    /// Set the weights map 
+    void setWeightsMap(const ProjMap* wmap, 
+		       const Observation & observation);
+
 
     /* Save the weights SourceMap to the SourceMap file
        

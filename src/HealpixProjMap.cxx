@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/HealpixProjMap.cxx,v 1.2 2016/03/29 23:44:37 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/HealpixProjMap.cxx,v 1.3 2016/10/20 23:12:16 echarles Exp $
  */
 
 #include <cmath>
@@ -69,7 +69,7 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
   const tip::Table* table = 
       tip::IFileSvc::instance().readTable(filename, extension.empty() ?  "SKYMAP" : extension);
   const tip::Header & header = table->getHeader();
-  
+
   double refdir1(0.);
   double refdir2(0.);
   try {
@@ -78,7 +78,7 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
   } catch (...) {
     ;
   }
-
+  
   astro::SkyDir refDir(refdir1,refdir2,
 		       m_healpixProj->isGalactic() ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
   setProjInfo(refDir,*m_healpixProj);
@@ -108,7 +108,7 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
   const tip::Table::FieldCont& colNames = table->getValidFields();
   for ( tip::Table::FieldCont::const_iterator itr = colNames.begin(); 
 	itr != colNames.end(); itr++ ) {
-    if ( itr->find("energy") == 0 ) { 
+    if ( itr->find("energy") >= 0 || itr->find('Bin') >= 0 ) { 
       dataColumns.push_back( table->getFieldIndex(*itr) );     
     } else {
       continue;
@@ -117,7 +117,7 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
 
   int ncol = dataColumns.size();
   tip::Index_t nrow = table->getNumRecords();
-
+ 
   m_image.clear();
   m_image.resize(ncol);
   int idx(0);
@@ -278,6 +278,12 @@ double HealpixProjMap::operator()(const astro::SkyDir & dir, double energy) cons
       k = energies().size() - 2;
       extrapolated_access() += 1;
     }
+    /// Extrapolate below lowest energy.  This will only occur if
+    /// m_enforceEnergyRange == false.
+    if (k < 0) {
+      k = 0;
+      extrapolated_access() += 1;
+    }
   }
   // This is a bit inefficient, it might be better to get the pixel index
   // just once for both energies.
@@ -290,10 +296,11 @@ double HealpixProjMap::operator()(const astro::SkyDir & dir, double energy) cons
   // EAC, FIXME, HEALPix can very slightly overshoot interpolation
   // this is a problem if the map has zeros in it, as you 
   // will get negative numbers and crash in interpolatePowerLaw
-  static const double almost_zero(-1e-16);
-  if ( y1 < 0 && y1 > almost_zero ) y1 = 0.;
-  if ( y2 < 0 && y2 > almost_zero ) y2 = 0.;  
-  
+  // For now catch these cases and replace with a small positive value
+  // by flipping the sign and scaling down the value
+  static const double almost_zero(-1e-10);
+  if ( y1 < 0 && y1 > almost_zero ) y1 *= -0.0001;
+  if ( y2 < 0 && y2 > almost_zero ) y2 *= -0.0001;
   double value = interpolatePowerLaw(energy, energies()[k],
 				     energies()[k+1], y1, y2);
   return value;

@@ -3,7 +3,7 @@
  * @brief  
  * @author 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedCountsCache.cxx,v 1.1 2016/10/13 01:52:53 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedCountsCache.cxx,v 1.2 2016/11/16 19:13:13 echarles Exp $
  */
 
 #include "Likelihood/BinnedCountsCache.h"
@@ -12,6 +12,7 @@
 
 #include "Likelihood/WeightMap.h"
 #include "Likelihood/FileUtils.h"
+#include "Likelihood/ProjMap.h"
 
 namespace Likelihood {
 
@@ -53,6 +54,22 @@ namespace Likelihood {
     identifyFilledPixels();
     computeCountsSpectrum();
   }
+
+  void BinnedCountsCache::setWeightsMap(const ProjMap* wmap, 
+					const Observation & observation) {
+    if ( wmap == m_weightMap_orig) return;
+    delete m_weightMap_orig;
+    delete m_weightMap;
+    m_weightMap_orig = wmap;
+    if ( wmap == 0 ) {
+      m_weightMap = 0;
+    } else {
+      m_weightMap = new WeightMap(*wmap,&m_dataMap,observation,true);
+    }
+    identifyFilledPixels();
+    computeCountsSpectrum();
+  }
+  
 
   tip::Extension* BinnedCountsCache::saveWeightsMap(const std::string& srcMapsFile, bool replace) const {
     if ( m_weightMap == 0 ) return 0;
