@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.142 2017/09/19 17:46:13 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.143 2017/09/29 01:38:03 echarles Exp $
  */
 
 #include <cmath>
@@ -645,26 +645,7 @@ int SourceMap::make_model() {
     m_meanPsf = PSFUtils::build_psf(*m_src, m_dataCache->countsMap(), m_observation);
   }
 
-  switch ( m_src->srcType() ) {
-  case Source::Diffuse:
-    status = PSFUtils::makeDiffuseMap(static_cast<const DiffuseSource&>(*m_src), m_dataCache->countsMap(), 
-				      m_observation.meanpsf(), m_observation.bexpmap(),
-				      m_psf_config, *m_formatter, m_model, m_mapType);
-    break;
-  case Source::Point:
-    status =  PSFUtils::makePointSourceMap(static_cast<const PointSource&>(*m_src), m_dataCache->countsMap(), 
-					   m_psf_config, m_meanPsf==0 ? m_observation.meanpsf() : *m_meanPsf, 
-					   *m_formatter, m_model, m_mapType);
-    break;
-  case Source::Composite:
-    status =  PSFUtils::makeCompositeMap(static_cast<const CompositeSource&>(*m_src), *m_dataCache, 
-					 m_filename, m_drm,
-					 *m_formatter, m_model, m_mapType);    
-    break;
-  default:
-    throw std::runtime_error("Unrecognized source type");
-  }
-  
+
   status = PSFUtils::makeModelMap(*m_src, *m_dataCache, 
 				  m_meanPsf==0 ? m_observation.meanpsf() : *m_meanPsf,
 				  m_observation.bexpmap(),
@@ -675,10 +656,10 @@ int SourceMap::make_model() {
     return status;
   }
 
-  // FIXME, do we need this?
-  //if ( m_mapType == FileUtils::HPX_Sparse ) {
-  //  sparsify_model();
-  //}
+  // Sparsify the model, if needed
+  if ( m_mapType == FileUtils::HPX_Sparse ) {
+    sparsify_model();
+  }
 
   applyPhasedExposureMap();
   computeNpredArray();
@@ -688,7 +669,8 @@ int SourceMap::make_model() {
 }
 
 void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) const {
-  const std::vector<float>& m = model();
+  SourceMap* nc_this = const_cast<SourceMap*>(this);
+  const std::vector<float>& m = this->model();
   size_t npix = m_dataCache->num_pixels();
   kmax = kmax < 0 ? m_dataCache->num_energies() : kmax;
   size_t ne = kmax - kmin;
