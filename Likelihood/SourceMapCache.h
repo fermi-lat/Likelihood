@@ -3,7 +3,7 @@
  * @brief Functionality to deal with source maps extracted from BinnedLikelihood
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.5 2017/08/18 22:45:01 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMapCache.h,v 1.6 2017/09/29 01:38:06 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMapCache_h
@@ -29,6 +29,7 @@ namespace Likelihood {
    class Drm;
    class Drm_Cache;
    class SourceMap;
+   class ProjMap;
    class WeightMap;
 
    /*
@@ -290,6 +291,10 @@ namespace Likelihood {
      const std::vector<double>& modelCountsSpectrum(const Source& src,
 						    bool weighted=false) const;
  
+
+     /* Set the weights map */
+     void setWeightsMap(const ProjMap* wmap);
+
  
      /* Compute the full model for all the fixed source.
 
@@ -314,7 +319,7 @@ namespace Likelihood {
 			      std::vector<float>& model, 
 			      FileUtils::SrcMapType& mapType,
 			      int kmin=0, int kmax=-1) const;
-   
+
 
      /* ---------------------- other functions ------------------------ */
 

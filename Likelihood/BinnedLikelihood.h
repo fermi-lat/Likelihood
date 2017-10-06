@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.98 2017/09/14 21:50:49 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.99 2017/09/29 01:38:05 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -225,6 +225,9 @@ namespace Likelihood {
 
      /// Directly set the data in the counts map
      void setCountsMap(const std::vector<float> & counts);
+
+     /// Set the weights map
+     void setWeightsMap(const ProjMap* wmap);
 
 
      /* ---------------- Methods inherited from optimizers package ---------- 

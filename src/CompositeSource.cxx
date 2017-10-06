@@ -3,7 +3,7 @@
  * @brief A source made of a collection of sources.
  * @author E. Charles
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeSource.cxx,v 1.1 2016/10/13 01:56:50 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CompositeSource.cxx,v 1.2 2017/09/29 01:55:18 echarles Exp $
  */
 
 #include "Likelihood/CompositeSource.h"
@@ -173,7 +173,6 @@ namespace Likelihood {
   /// @return Photon flux integrated over the given energy range.
   /// Units are #/cm^2/s
   double CompositeSource::flux(double emin, double emax, size_t npts) const {
-    std::cout << getName() << "::Flux " << emin << ' ' << emax << ' ' << m_spectrum << std::endl;
     return computeEnergyIntegral(*m_spectrum, emin, emax, npts);
   }
   
