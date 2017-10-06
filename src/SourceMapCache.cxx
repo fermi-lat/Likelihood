@@ -4,7 +4,7 @@
  * @author E. Charles, (from BinnedLikelihood by J. Chiang)
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.9 2017/09/14 21:54:23 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMapCache.cxx,v 1.10 2017/09/29 01:38:03 echarles Exp $
  */
 
 
@@ -355,7 +355,7 @@ namespace Likelihood {
       SourceMap* srcMap = getSourceMap(*src);
       updateCorrectionFactors(*src, *srcMap);
       updateModelMap(modelMap, *src, srcMap);
-      if( !hasMap ) {
+      if( !hasMap && ! m_config.save_all_srcmaps() ) {
 	delete srcMap;
       }
     }
@@ -369,6 +369,7 @@ namespace Likelihood {
     size_t kmin = 0;
     size_t kmax = m_dataCache.num_ebins();
     const std::string& name = srcMap->name();
+
     double np = NpredValue(src,kmin,kmax); // This computes the convolved spectrum
 
     const std::vector<double> & specVals = srcMap->specVals();  
@@ -427,6 +428,18 @@ namespace Likelihood {
     // This forces updating the source map if needed
     const Drm_Cache* drm_cache = srcMap->drm_cache(true);
     return weighted ? drm_cache->meas_counts_wt() : drm_cache->meas_counts();
+  }
+
+
+  void SourceMapCache::setWeightsMap(const ProjMap* wmap) {
+    BinnedCountsCache& nc_dataCache = const_cast<BinnedCountsCache&>(m_dataCache);
+    nc_dataCache.setWeightsMap(wmap, m_observation);
+    const WeightMap* wwmap = nc_dataCache.weightMap();
+    for ( std::map<std::string, SourceMap *>::iterator itr = m_srcMaps.begin();
+	  itr != m_srcMaps.end(); itr++ ) {
+      SourceMap* smap = itr->second;
+      smap->setWeights(wwmap);
+    }
   }
 
   void SourceMapCache::fillSummedSourceMap(const std::vector<const Source*>& sources, 
