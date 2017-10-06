@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/BinnedExposureBase.cxx,v 1.2 2015/03/03 05:59:59 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposureBase.cxx,v 1.1 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <cmath>
@@ -101,6 +101,7 @@ BinnedExposureBase::BinnedExposureBase(const std::string & filename)
 BinnedExposureBase::~BinnedExposureBase() {
   delete m_proj;
 }
+
 
 
 void BinnedExposureBase::setCosThetaBounds(const st_app::AppParGroup & pars) {

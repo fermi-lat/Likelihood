@@ -4,7 +4,7 @@
  * integrations
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/BinnedExposure.h,v 1.4 2015/03/05 19:58:24 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedExposure.h,v 1.24 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedExposure_h
@@ -64,6 +64,10 @@ public:
    /// @param ra Right Ascension of desired sky location (degrees)
    /// @param dec Declination of desired sky location (degrees)
    virtual double operator()(double energy, double ra, double dec) const;
+
+   virtual void get_exposures_for_dir(const astro::SkyDir& dir, 
+				      const std::vector<double>& energies, 
+				      std::vector<double>& exposures) const;
 
    virtual void writeOutput(const std::string & filename) const;
 

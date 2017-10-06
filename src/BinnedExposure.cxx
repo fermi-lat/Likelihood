@@ -4,7 +4,7 @@
  * various energies.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.52 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedExposure.cxx,v 1.53 2016/07/27 19:25:03 echarles Exp $
  */
 
 #include <cmath>
@@ -131,6 +131,51 @@ double BinnedExposure::operator()(double energy, double ra, double dec) const {
    }
    return 0;
 }
+
+
+void BinnedExposure::get_exposures_for_dir(const astro::SkyDir& dir, 
+					   const std::vector<double>& energies, 
+					   std::vector<double>& exposures) const {
+  exposures.clear();
+  exposures.resize(energies.size(), 0.);
+  if ( m_proj == 0 ) {
+    throw std::runtime_error("BinnedExposure::operator() "
+			     "No projection loaded");
+  }
+  std::pair<double, double> pixel;
+  st_facilities::Util::skyDir2pixel(*m_proj, dir, pixel.first, pixel.second);
+  int i = static_cast<int>(pixel.first - 1);
+  int j = static_cast<int>(pixel.second - 1);
+  
+  unsigned int pixel_indx = j*m_naxes.at(0) + i;
+  bool within_bounds = (i >= 0 && i < m_naxes[0] &&
+			j >= 0 && j < m_naxes[1] );
+
+  if (m_enforce_boundaries && !within_bounds) {
+    throw std::runtime_error("Request for exposure at a sky position that "
+			     "is outside of the map boundaries.");
+  }
+  
+  std::vector<double>::const_iterator itr_eng = energies.begin();
+  std::vector<double>::iterator itr_exp = exposures.begin();
+  unsigned int pixel_step = m_naxes.at(0) * m_naxes.at(1);
+  for ( ; itr_eng != energies.end(); ++itr_eng, ++itr_exp ) {
+    std::vector<double>::const_iterator ie = findNearest(m_energies, *itr_eng);
+    unsigned int k = ie - m_energies.begin();
+    bool energy_bounds = k >= 0 && k < m_energies.size();
+    if ( m_enforce_boundaries && !energy_bounds) {
+      throw std::runtime_error("Request for exposure at an energy "
+			       "is outside of the map range.");
+    }
+    if ( within_bounds && energy_bounds ) {
+      size_t idx = (pixel_step*k) + pixel_indx;
+      *itr_exp = m_exposureMap[idx];
+    } else {
+      *itr_exp = 0.;
+    }
+  }
+}
+
 
 void BinnedExposure::setMapGeometry(const CountsMap & cmap) {
    m_proj_name = cmap.proj_name();
