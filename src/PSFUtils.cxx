@@ -3,7 +3,7 @@
  * @brief Functions to  deal with PSF Integration and convolution
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.10 2017/04/21 19:57:29 asercion Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.11 2017/09/29 01:44:19 echarles Exp $
  */
 
 #include "Likelihood/PSFUtils.h"
@@ -35,7 +35,6 @@
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/WcsMap2.h"
 #include "Likelihood/HealpixProjMap.h"
-#include "Likelihood/TimerDict.h"
 
 namespace Likelihood {
 
@@ -195,9 +194,32 @@ namespace Likelihood {
       return srcFuncs["SpatialDist"]->genericName() == "MapCubeFunction";
     }
 
+    void rebinDiffuseMap(const DiffuseSource & src,
+			 const CountsMapBase & dataMap,
+			 const PsfIntegConfig& config) {
+
+      try {
+	MapBase & tmp = const_cast<MapBase &>(*src.mapBaseObject());
+	double minbinsz = std::min(config.minbinsz(),dataMap.pixelSize());
+	double pixSize = tmp.projmap().pixelSize();
+	if ( pixSize < minbinsz ) {
+	  unsigned int factor = static_cast<unsigned int>( minbinsz/pixSize);
+	  if (factor > 1) {
+            tmp.rebin(factor);
+	  }
+	}
+      } catch (MapBaseException &) {
+	// do nothing
+      }
+    }
    
     double computeResampFactor(const DiffuseSource & src,
-			       const CountsMapBase & dataMap) {
+			       const CountsMapBase & dataMap,
+			       const PsfIntegConfig& config) {
+
+      if(!config.resample()) 
+	return 1.0;
+
       double data_pixel_size = dataMap.pixelSize();
       double model_pixel_size = data_pixel_size;
       try {
@@ -205,9 +227,10 @@ namespace Likelihood {
       } catch (MapBaseException &) {
 	// do nothing
       }
-      // FIXME, check this
-      double resamp_factor = 
-	std::min(2, static_cast<int>(data_pixel_size/model_pixel_size));
+      double resamp_factor_model = 
+	std::max(1, static_cast<int>(data_pixel_size/model_pixel_size));
+      double resamp_factor = std::max(config.resamp_factor(),
+				      resamp_factor_model);
       return resamp_factor;
     }
     
@@ -348,25 +371,13 @@ namespace Likelihood {
 
       // If the diffuse source is represented by an underlying map, then
       // rebin according to the minimum bin size.
-      try {
-	MapBase & tmp = const_cast<MapBase &>(*diffuseSrc.mapBaseObject());
-	double pixSize = tmp.projmap().pixelSize();
-	if ( pixSize < config.minbinsz() ) {
-	  unsigned int factor = static_cast<unsigned int>( config.minbinsz()/pixSize);
-	  formatter.info(4) << "\nrebinning factor: " 
-			    << factor << std::endl;
-	  if (factor > 1) {
-            tmp.rebin(factor);
-	  }
-	}
-      } catch (MapBaseException &) {
-	// do nothing
-      }
-
+      rebinDiffuseMap(diffuseSrc, dataMap, config);
       
       const std::vector<Pixel>& pixels = dataMap.pixels();
+      const astro::SkyDir & mapRefDir = dataMap.refDir();
       std::vector<double> energies;
       dataMap.getEnergies(energies);
+      double data_map_radius = maxRadius(pixels, mapRefDir);
 
       kmax = kmax < 0 ? energies.size() : kmax;
       size_t num_ebins = kmax - kmin;
@@ -375,112 +386,108 @@ namespace Likelihood {
       modelmap.resize(npts, 0);
       
       std::vector<Pixel>::const_iterator pixel = pixels.begin();
-      
-      const astro::SkyDir & mapRefDir = dataMap.refDir();
-      double resamp_fact = 1;
-      if ( config.resample()) {
-	resamp_fact = std::max(config.resamp_factor(), 
-			       computeResampFactor(diffuseSrc, dataMap));
-      }
-      formatter.info(4) << "\nresampling factor: " 
-			<< resamp_fact << std::endl;
-      double crpix1, crpix2;
-      int naxis1, naxis2;
-      double cdelt1 = dataMap.cdelt1()/resamp_fact;
-      double cdelt2 = dataMap.cdelt2()/resamp_fact;
-      size_t nx_offset(0), ny_offset(0);
-      size_t nx_offset_upper(0), ny_offset_upper(0);
-      if (haveSpatialFunction) {
-	naxis1 = static_cast<int>(dataMap.naxis1()*resamp_fact);
-	naxis2 = static_cast<int>(dataMap.naxis2()*resamp_fact);      
-	crpix1 = resamp_fact*(dataMap.crpix1() - 0.5)+0.5;
-	crpix2 = resamp_fact*(dataMap.crpix2() - 0.5)+0.5;  
-      } else if (dataMap.conformingMap()) {
-	double radius = std::min(180., maxRadius(pixels, mapRefDir) + 10.);
-	// Conforming maps have abs(CDELT1) == abs(CDELT2).  This
-	// expression for the mapsize ensures that the number of
-	// pixels in each dimension is even.
-	int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
-	formatter.info(4) << "mapsize: " << mapsize << std::endl;
-	naxis1 = mapsize;
-	naxis2 = mapsize;
-	crpix1 = (naxis1 + 1.)/2.;
-	crpix2 = (naxis2 + 1.)/2.;
-	nx_offset = 
-	  static_cast<size_t>((mapsize - dataMap.naxis1()*resamp_fact)/2);
-	ny_offset = 
-	  static_cast<size_t>((mapsize - dataMap.naxis2()*resamp_fact)/2);
-	nx_offset_upper = 
-	  static_cast<size_t>((mapsize - dataMap.naxis1()*resamp_fact)/2);
-	ny_offset_upper = 
-	  static_cast<size_t>((mapsize - dataMap.naxis2()*resamp_fact)/2);
-	/// For cases where the resampling factor is an odd number, 
-	/// there may be a row or column of pixels not accounted for
-	/// by n[xy]_offset.  Here we add that row or column back in if
-	/// it is missing.
-	int xtest = static_cast<int>((naxis1 - nx_offset - nx_offset_upper) 
-				     - dataMap.naxis1()*resamp_fact);
-	if (config.resample() && xtest != 0) {
-	  nx_offset += 1;
-	}
-	int ytest = static_cast<int>((naxis2 - ny_offset - ny_offset_upper) 
-				     - dataMap.naxis2()*resamp_fact);
-	if (config.resample() && ytest != 0) {
-	  ny_offset += 1;
-	}
-	if (!config.resample()) { 
-	  // Use integer or half-integer reference pixel based on
-	  // input counts map, even though naxis1 and naxis2 both
-	  // must be even.
-	  if (dataMap.naxis1() % 2 == 1) {
-            crpix1 += 0.5;
-            nx_offset += 1;
-	  }
-	  if (dataMap.naxis2() % 2 == 1) {
-            crpix2 += 0.5;
-            ny_offset += 1;
-	  }
-	}
-      } else {
-	// The counts map was not created by gtbin, so just adopt the
-	// map geometry without adding padding for psf leakage since
-	// this cannot be done in general without redefining the
-	// reference pixel and reference direction.
-	naxis1 = static_cast<int>(dataMap.naxis1()*resamp_fact);
-	naxis2 = static_cast<int>(dataMap.naxis2()*resamp_fact);
-	// Ensure an even number of pixels in each direction.
-	if (naxis1 % 2 == 1) {
-	  naxis1 += 1;
-	}
-	if (naxis2 % 2 == 1) {
-	  naxis2 += 1;
-	}
-	crpix1 = dataMap.crpix1()*resamp_fact;
-	crpix2 = dataMap.crpix2()*resamp_fact;
-	nx_offset_upper += 1;
-	ny_offset_upper += 1;
-      }
-            
       size_t counter(0);
-      for (size_t k(kmin); k != kmax; k++ ) {
-	double energy = energies[k];
+      std::vector<double>::const_iterator energy = energies.begin();
+      for (int k(0); energy != energies.end(); ++energy, k++) {
+	double resamp_fact = computeResampFactor(diffuseSrc, dataMap, config);
+	formatter.info(4) << "\nresampling factor: " 
+			  << resamp_fact << std::endl;
+	double crpix1, crpix2;
+	int naxis1, naxis2;
+	double cdelt1 = dataMap.cdelt1()/resamp_fact;
+	double cdelt2 = dataMap.cdelt2()/resamp_fact;
+	size_t nx_offset(0), ny_offset(0);
+	size_t nx_offset_upper(0), ny_offset_upper(0);
+	if (haveSpatialFunction) {
+	  naxis1 = static_cast<int>(dataMap.naxis1()*resamp_fact);
+	  naxis2 = static_cast<int>(dataMap.naxis2()*resamp_fact);      
+	  crpix1 = resamp_fact*(dataMap.crpix1() - 0.5)+0.5;
+	  crpix2 = resamp_fact*(dataMap.crpix2() - 0.5)+0.5;  
+	} else if (dataMap.conformingMap()) {
+	  double pad_dist = 
+	    std::min(10.0,std::max(1.0,meanpsf.containmentRadius(*energy,0.99)));
+	  double radius = std::min(180., data_map_radius + pad_dist);
+	  // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
+	  // expression for the mapsize ensures that the number of
+	  // pixels in each dimension is even.
+	  int mapsize(2*static_cast<int>(radius/std::fabs(cdelt1)));
+	  formatter.info(4) << "mapsize: " << mapsize << std::endl;
+	  naxis1 = mapsize;
+	  naxis2 = mapsize;
+	  crpix1 = (naxis1 + 1.)/2.;
+	  crpix2 = (naxis2 + 1.)/2.;
+	  nx_offset = 
+	    static_cast<size_t>((mapsize - dataMap.naxis1()*resamp_fact)/2);
+	  ny_offset = 
+	    static_cast<size_t>((mapsize - dataMap.naxis2()*resamp_fact)/2);
+	  nx_offset_upper = 
+	    static_cast<size_t>((mapsize - dataMap.naxis1()*resamp_fact)/2);
+	  ny_offset_upper = 
+	    static_cast<size_t>((mapsize - dataMap.naxis2()*resamp_fact)/2);
+	  /// For cases where the resampling factor is an odd number, 
+	  /// there may be a row or column of pixels not accounted for
+	  /// by n[xy]_offset.  Here we add that row or column back in if
+	  /// it is missing.
+	  int xtest = static_cast<int>((naxis1 - nx_offset - nx_offset_upper) 
+				       - dataMap.naxis1()*resamp_fact);
+	  if (config.resample() && xtest != 0) {
+	    nx_offset += 1;
+	  }
+	  int ytest = static_cast<int>((naxis2 - ny_offset - ny_offset_upper) 
+				       - dataMap.naxis2()*resamp_fact);
+	  if (config.resample() && ytest != 0) {
+	    ny_offset += 1;
+	  }
+	  if (!config.resample()) { 
+	    // Use integer or half-integer reference pixel based on
+	    // input counts map, even though naxis1 and naxis2 both
+	    // must be even.
+	    if (dataMap.naxis1() % 2 == 1) {
+	      crpix1 += 0.5;
+	      nx_offset += 1;
+	    }
+	    if (dataMap.naxis2() % 2 == 1) {
+	      crpix2 += 0.5;
+	      ny_offset += 1;
+	    }
+	  }
+	} else {
+	  // The counts map was not created by gtbin, so just adopt the
+	  // map geometry without adding padding for psf leakage since
+	  // this cannot be done in general without redefining the
+	  // reference pixel and reference direction.
+	  naxis1 = static_cast<int>(dataMap.naxis1()*resamp_fact);
+	  naxis2 = static_cast<int>(dataMap.naxis2()*resamp_fact);
+	  // Ensure an even number of pixels in each direction.
+	  if (naxis1 % 2 == 1) {
+	    naxis1 += 1;
+	  }
+	  if (naxis2 % 2 == 1) {
+	    naxis2 += 1;
+	  }
+	  crpix1 = dataMap.crpix1()*resamp_fact;
+	  crpix2 = dataMap.crpix2()*resamp_fact;
+	  nx_offset_upper += 1;
+	  ny_offset_upper += 1;
+	}
+            
 	bool interpolate(true);	
 	WcsMap2 * convolvedMap(0);      
 	WcsMap2 diffuseMap(diffuseSrc,  
 			   (dataMap.projection().isGalactic() ? mapRefDir.l() : mapRefDir.ra()), 
 			   (dataMap.projection().isGalactic() ? mapRefDir.b() : mapRefDir.dec()),
 			   crpix1, crpix2, cdelt1, cdelt2, naxis1, naxis2,
-			   energy, dataMap.proj_name(), 
+			   *energy, dataMap.proj_name(), 
 			   dataMap.projection().isGalactic(), 
 			   interpolate);
 	
 	if(haveSpatialFunction) {
 	  const SpatialFunction* m = 
 	    dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist());
-	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(energy, meanpsf, 
+	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
 								   bexpmap, *m));
 	} else {
-	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(energy, meanpsf, 
+	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
 								   bexpmap, config.performConvolution() ) );
 	}
 	
@@ -536,21 +543,8 @@ namespace Likelihood {
 
       // If the diffuse source is represented by an underlying map, then
       // rebin according to the minimum bin size.
-      try {
-	MapBase & tmp = const_cast<MapBase&>(*diffuseSrc.mapBaseObject());
-	double pixSize = tmp.projmap().pixelSize();
-	if ( pixSize < config.minbinsz() ) {   
-	  unsigned int factor = static_cast<unsigned int>(config.minbinsz()/pixSize);
-	  formatter.info(4) << "\nrebinning factor: " 
-			    << factor << std::endl;
-	  if (factor > 1) {
-	    tmp.rebin(factor);
-	  }
-	}
-      } catch (MapBaseException &) {
-	// do nothing
-      }
-      
+      rebinDiffuseMap(diffuseSrc, dataMap, config);
+
       double solidAngle = dataMap.solidAngle();
 
       std::vector<double> energies;
@@ -562,11 +556,7 @@ namespace Likelihood {
       long npts = num_ebins*dataMap.nPixels();
       modelmap.resize(npts, 0);
       const astro::SkyDir & mapRefDir = dataMap.refDir();
-      double resamp_fact = 1.;
-      if ( config.resample() ) {
-	resamp_fact = std::max(config.resamp_factor(),
-			       computeResampFactor(diffuseSrc, dataMap));
-      }
+      double resamp_fact = computeResampFactor(diffuseSrc, dataMap, config);
       // We need to move the resampling factor to the nearest power of two.
       int resamp_test(1);
       while ( resamp_test < resamp_fact ) {
@@ -587,13 +577,11 @@ namespace Likelihood {
 	double energy = energies[k];
 	formatter.warn() << ".";
 
-	//TimerDict::start_timer("Make Diffuse Map.");
 	HealpixProjMap diffuseMap(diffuseSrc, resamp_nside,
 				  scheme,SET_NSIDE,
 				  energy,dataMap.projection().isGalactic(),
 				  ALLSKY_RADIUS,mapRefDir.ra(), mapRefDir.dec(),
 				  interpolate, false);
-	//TimerDict::stop_timer("Make Diffuse Map."); 
 	ProjMap* cmap = diffuseMap.convolve(energy,meanpsf,bexpmap,config.performConvolution());
 	HealpixProjMap* convolvedMap = static_cast<HealpixProjMap*>(cmap);
 	Healpix_Map<float> outmap(nside_orig,scheme,SET_NSIDE);
@@ -621,7 +609,6 @@ namespace Likelihood {
 	// Not a map-based source, so do nothing.
       }
       mapType = FileUtils::HPX_AllSky;
-      //TimerDict::instance()->report_all();
 
       return 0;
     }
@@ -712,7 +699,7 @@ namespace Likelihood {
       double resamp_fact = 1.;
       if ( config.resample() ) {
 	resamp_fact = std::max(config.resamp_factor(), 
-			       computeResampFactor(diffuseSrc, dataMap));
+			       computeResampFactor(diffuseSrc, dataMap, config));
       }
       //std::cout << "Resample check " << config.resamp_factor() << ' ' 
       //	  << computeResampFactor(diffuseSrc, dataMap) << ' ' << resamp_fact << std::endl;

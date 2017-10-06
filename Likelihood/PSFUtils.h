@@ -6,7 +6,7 @@
  *  This file contains a number of functions useful for PSF Integration and convolution.
  *
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PSFUtils.h,v 1.6 2016/10/13 01:58:46 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/PSFUtils.h,v 1.8 2017/09/29 01:44:14 echarles Exp $
  */
 
 #ifndef Likelihood_PSFUtils_h
@@ -151,7 +151,8 @@ namespace Likelihood {
        This compares the diffuse source map pixel size with the counts map pixel size.
      */
     double computeResampFactor(const DiffuseSource & src,
-			       const CountsMapBase & dataMap);
+			       const CountsMapBase & dataMap,
+			       const PsfIntegConfig& config);
     
     /* Compute the non-cartesian corrections angular separation between the pixels in a 
        counts map and a point source and put them on a vector
