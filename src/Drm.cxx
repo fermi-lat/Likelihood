@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.20 2017/09/14 21:51:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.21 2017/10/06 01:07:28 echarles Exp $
  */
 
 #include <cmath>
@@ -242,6 +242,8 @@ void Drm_Cache::update(const Drm* drm,
   size_t k(0);
   std::vector<double> mean_wts(energies.size()-1);
 
+  bool has_weights = sourceMap.weights() != 0;
+
   for (k = 0; k < energies.size()-1; k++) {
     double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
     m_true_counts[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
@@ -249,11 +251,15 @@ void Drm_Cache::update(const Drm* drm,
 							specVals.at(k)*npreds.at(k),
 							specVals.at(k+1)*npreds.at(k+1),
 							log_energy_ratio);
-    m_true_counts_wt[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
-							   energies.at(k+1),
-							   specVals.at(k)*npreds.at(k)*npred_weights[k].first, 
-							   specVals.at(k+1)*npreds.at(k+1)*npred_weights[k].second,
-							   log_energy_ratio);
+    if ( has_weights ) {
+      m_true_counts_wt[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
+							     energies.at(k+1),
+							     specVals.at(k)*npreds.at(k)*npred_weights[k].first, 
+							     specVals.at(k+1)*npreds.at(k+1)*npred_weights[k].second,
+							     log_energy_ratio);
+    } else {
+      m_true_counts_wt[k] = m_true_counts[k];
+    }
   }
   if ( drm != 0 ) {
     m_use_edisp = true;
@@ -268,6 +274,13 @@ void Drm_Cache::update(const Drm* drm,
   int idx(0);
 
   for (k = 0; k < energies.size()-1; k++) {
+    if ( !has_weights ) {
+      m_xi[k] = 1.;
+      m_kref[k] = -1.;
+      m_xi_wt[k] = 1.;
+      m_meas_counts_wt[k] = m_true_counts_wt[k];
+      continue;
+    }
     if ( m_true_counts[k] > 0 ) {
       // Still have counts in this true energy bin, so it can 
       // be used as a reference
@@ -276,8 +289,16 @@ void Drm_Cache::update(const Drm* drm,
       m_kref[k] = -1;
     } else {
       // Don't have counts in this true energy bin.  
-      m_xi[k] = m_meas_counts[k] / m_true_counts[kref];
-      m_kref[k] = kref;
+      // Check to see if there are any true counts (i.e., if kref > 0)
+      if ( kref >= 0 ) {
+	// If so, use the kref bin
+	m_xi[k] = m_meas_counts[k] / m_true_counts[kref];
+	m_kref[k] = kref;
+      } else {
+	// No true counts, set xi to 1 and kref to -1
+	m_xi[k] = 1.;
+	m_kref[k] = -1.;
+      }
     }
 
     m_xi_wt[k] = m_xi[k];
