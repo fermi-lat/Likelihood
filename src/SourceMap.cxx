@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.143 2017/09/29 01:38:03 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.144 2017/10/06 01:38:11 echarles Exp $
  */
 
 #include <cmath>
@@ -215,29 +215,39 @@ void SourceMap::computeNpredArray() {
    size_t npix = m_dataCache->num_pixels();
 
    size_t k(0);
-   for (k=0; k < nw; k++) {     
+   for (k=0; k < ne; k++) {     
      double w_0_sum(0.);
      double w_1_sum(0.);
      for (size_t j(0); j < npix; j++) {
        size_t indx_0(k*npix + j);
-       size_t indx_1 = indx_0 + npix;
-       double weight_val = m_weights != 0 ? ( m_weights->model()[indx_0]) : 1.0;
        double model_0 = m_model.at(indx_0);
-       double model_1 = m_model.at(indx_1);
        m_npreds[k] += model_0;
-       if ( k+1 == nw ) {
-	 m_npreds[k+1] += model_1;
+       // If there are no weights, we are done with this pixel
+       if ( m_weights == 0 ) continue;
+       if ( k < nw ) {
+	 double weight_val =  m_weights->model()[indx_0];
+	 w_0_sum += (weight_val * model_0);
+       } 
+       if ( k > 0 ) {
+	 double indx_prev = indx_0 - npix;
+	 double weight_prev = m_weights->model()[indx_prev];	 
+	 w_1_sum += (weight_prev * model_0);
        }
-       model_0 *= weight_val;
-       model_1 *= weight_val;
-       w_0_sum += model_0;
-       w_1_sum += model_1;
      }
-     m_npred_weights[k].first = w_0_sum;
-     m_npred_weights[k].second = w_1_sum;
+     if ( k < nw ) {
+       m_npred_weights[k].first = w_0_sum;
+     } 
+     if ( k > 0 ) {
+       m_npred_weights[k-1].second = w_1_sum;
+     }
    }
 
    for (k=0; k < nw; k++) {
+     if ( m_weights == 0 ) {
+       m_npred_weights[k].first = 1.;
+       m_npred_weights[k].second = 1.;
+       continue;
+     }
      if ( m_npreds[k] > 0 ) {
        m_npred_weights[k].first /=  m_npreds[k];
      } else {
@@ -249,7 +259,6 @@ void SourceMap::computeNpredArray() {
        m_npred_weights[k].second = 1.;
      }
    }  
-
 }
 
 void SourceMap::computeNpredArray_sparse() {
@@ -266,39 +275,44 @@ void SourceMap::computeNpredArray_sparse() {
 
    size_t npix = m_dataCache->num_pixels();
  
-   std::vector<double> w_0_sum(ne,0.);
-   std::vector<double> w_1_sum(ne,0.);
+   std::vector<double> w_0_sum(nw,0.);
+   std::vector<double> w_1_sum(nw,0.);
 
 
    for ( SparseVector<float>::iterator itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
-     size_t indx = itr->first;
-     size_t j = indx % npix;
-     size_t k = indx / npix;
-     size_t indx_0 = k > 0 ? indx  - npix : indx;
-     size_t indx_1 = k < energies.size()-1 ? indx : indx - npix;
-     double addend = itr->second;
-     m_npreds[k] += addend;
-     double w_0_addend = m_weights != 0 ? ( m_weights->model()[indx_0]*addend ) : addend;
-     double w_1_addend = m_weights != 0 ? ( m_weights->model()[indx_1]*addend ) : addend;
-
-     w_0_sum[k] += w_0_addend;
-     w_1_sum[k] += w_1_addend;
-   }
-   
-   for ( size_t k(0); k < ne; k++ ) {
-
-     double w_0 = m_weights != 0 ? (m_npreds[k] > 0 ? w_0_sum[k] / m_npreds[k] : 0.) : 1.0;
-     double w_1 = m_weights != 0 ? (m_npreds[k] > 0 ? w_1_sum[k] / m_npreds[k] : 0.) : 1.0;
-
+     size_t indx_0 = itr->first;
+     size_t k = indx_0 / npix;
+     double model_0 = itr->second;
+     m_npreds[k] += model_0;
+     if ( m_weights == 0 ) continue;
      if ( k < nw ) {
-       m_npred_weights[k].first = w_0;
+       double weight_val =  m_weights->model()[indx_0];
+       w_0_sum[k] += (weight_val * model_0);
      }
      if ( k > 0 ) {
-       m_npred_weights[k-1].second = w_1;
+       double indx_prev = indx_0 - npix;  
+       double weight_prev = m_weights->model()[indx_prev];	 
+       w_1_sum[k-1] += (weight_prev * model_0);
      }
-     
    }
-
+   
+   for ( size_t k(0); k < nw; k++ ) {
+     if ( m_weights == 0 ) {
+       m_npred_weights[k].first = 1.;
+       m_npred_weights[k].second = 1.;
+       continue;
+     }
+     if ( m_npreds[k] > 0 ) {
+       m_npred_weights[k].first /=  m_npreds[k];
+     } else {
+       m_npred_weights[k].first = 1.;
+     }
+     if ( m_npreds[k+1] > 0 ) {
+       m_npred_weights[k].second /=  m_npreds[k+1];
+     } else {
+       m_npred_weights[k].second = 1.;
+     }
+   }  
 }
 
 void SourceMap::applyPhasedExposureMap() {
