@@ -4,7 +4,7 @@
  *        response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.144 2017/10/06 01:38:11 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/SourceMap.cxx,v 1.145 2017/10/07 01:29:20 echarles Exp $
  */
 
 #include <cmath>
@@ -363,7 +363,6 @@ void SourceMap::setSource(const Source& src) {
       if ( m_filename.size() > 0 ) {
 	readModel(m_filename);
       } else {
-	m_src = &src;
 	make_model();
 	return;
       }
@@ -478,7 +477,7 @@ const Drm_Cache* SourceMap::drm_cache(bool force) {
   return m_drm_cache;
 }
  
-  void SourceMap::addToVector(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) {
+void SourceMap::addToVector(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) {
   switch ( m_mapType ) {
   case FileUtils::HPX_Sparse:
     return addToVector_sparse(vect,includeSpec,kmin,kmax);
