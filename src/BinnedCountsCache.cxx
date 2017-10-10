@@ -3,7 +3,7 @@
  * @brief  
  * @author 
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedCountsCache.cxx,v 1.2 2016/11/16 19:13:13 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedCountsCache.cxx,v 1.3 2017/10/06 01:31:00 echarles Exp $
  */
 
 #include "Likelihood/BinnedCountsCache.h"
@@ -19,7 +19,8 @@ namespace Likelihood {
   BinnedCountsCache::BinnedCountsCache(CountsMapBase & dataMap,
 				       const Observation & observation,
 				       const ProjMap* weightMap,
-				       const std::string& srcMapsFile)
+				       const std::string& srcMapsFile,
+				       bool overwriteWeights)
     :m_dataMap(dataMap), 
      m_numPixels(dataMap.pixels().size()),
      m_weightMap_orig(weightMap),
@@ -29,7 +30,7 @@ namespace Likelihood {
     log_energy_ratios(m_dataMap.energies(),m_log_energy_ratios);
   
     if ( weightMap != 0 ) {
-      if ( FileUtils::fileHasExtension(srcMapsFile,"__weights__") ) {
+      if ( FileUtils::fileHasExtension(srcMapsFile,"__weights__") && !overwriteWeights ) {
 	st_stream::StreamFormatter formatter("BinnedLikelihood","", 2);
 	formatter.warn() << "Reading existing weights map from file " << srcMapsFile << std::endl;
 	m_weightMap = new WeightMap(srcMapsFile, &dataMap, observation);

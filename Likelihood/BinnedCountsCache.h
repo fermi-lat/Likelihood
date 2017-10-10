@@ -3,7 +3,7 @@
  * @brief Small class to encapsulate stuff that needed for BinnedLikelihood.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedCountsCache.h,v 1.2 2016/11/29 23:50:45 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedCountsCache.h,v 1.3 2017/10/06 01:30:59 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedCountsCache_h
@@ -43,11 +43,13 @@ namespace Likelihood {
        observation  : Wrapper containing information about the observation
        weightMap    : Map with weights to use for analysis, NULL for no-weights
        srcMapsFile  : Name of file containing Source Maps (i.e., the output of gtsrcmaps)
+       overwriteWeights : Overwrite the existing weights file
     */	
     BinnedCountsCache(CountsMapBase & dataMap, 
 		      const Observation & observation,
 		      const ProjMap* weightMap,
-		      const std::string & srcMapsFile);
+		      const std::string & srcMapsFile,
+		      bool overwriteWeights = false);
     
     ///
     virtual ~BinnedCountsCache();
