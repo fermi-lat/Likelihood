@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.138 2017/09/29 01:38:03 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.139 2017/10/06 01:38:12 echarles Exp $
  */
 
 #include <cmath>
@@ -81,9 +81,10 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
                                    bool performConvolution, 
                                    bool resample,
                                    double resamp_factor,
-                                   double minbinsz)
+                                   double minbinsz,
+				   bool overwriteWeights)
   : LogLike(observation), 
-    m_dataCache(dataMap,observation,&weightMap,srcMapsFile),
+    m_dataCache(dataMap,observation,&weightMap,srcMapsFile, overwriteWeights),
     m_kmin(0),m_kmax(m_dataCache.num_ebins()),
     m_srcMapsFile(srcMapsFile),
     m_config(computePointSources,
@@ -110,9 +111,10 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 				   const Observation & observation,	
 				   const BinnedLikeConfig& config,
 				   const std::string & srcMapsFile,
-				   const ProjMap* weightMap)
+				   const ProjMap* weightMap,
+				   bool overwriteWeights)
   : LogLike(observation), 
-    m_dataCache(dataMap,observation,weightMap,srcMapsFile),
+    m_dataCache(dataMap,observation,weightMap,srcMapsFile,overwriteWeights),
     m_kmin(0),m_kmax(m_dataCache.num_ebins()),
     m_srcMapsFile(srcMapsFile),
     m_config(config),
@@ -146,7 +148,7 @@ void BinnedLikelihood::setWeightsMap(const ProjMap* wmap) {
 
 double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   (void)(dummy);
-  
+
   // Here we want the weighted verison of the nPred
   double npred = computeModelMap_internal(true);
   
@@ -165,6 +167,8 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   m_accumulator.add(-npred);
   
   double my_total(m_accumulator.total());
+
+
 
   /// Add in contribution from priors.
   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
@@ -214,21 +218,19 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
   // /// For debugging/development, keep track of time spent in main loop.
-  //    st_facilities::Timer timer;
+  //st_facilities::Timer timer;
   
   std::vector<Kahan_Accumulator> posDerivs(nparams);
   std::vector<Kahan_Accumulator> negDerivs(nparams);
 
   long freeIndex(0);
 
+  //timer.start();
+
   // We only need to loop on the free sources
   for (std::vector<Source *>::const_iterator it(free_srcs.begin());
        it != free_srcs.end(); ++it ) {
 
-    std::vector<double> src_contrib(nparams, 0.);
-    std::vector<double> src_contrib_nlogm(nparams, 0.);
-    std::vector<double> src_contrib_m(nparams, 0.);
-    
     Source * src(*it);
     bool use_edisp_val = m_srcMapCache.use_edisp(src);
 
@@ -280,8 +282,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 					    srcMap[jmax]*specDerivs[i][k+1],
 					    log_e_ratio);
 	  double addend = (data.at(jmin)/m_model.at(j))*my_deriv;
-	  src_contrib[iparam] += addend;
-	  src_contrib_nlogm[iparam] += addend;
 	  if (addend > 0) {
 	    posDerivs[iparam].add(addend);
 	  } else {
@@ -322,8 +322,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 				       npreds[kref]*npred_weights[kref].first*specDerivs[i][kk],
 				       npreds[kref+1]*npred_weights[kref].second*specDerivs[i][kk+1],
 				       log_e_ratio);
-	src_contrib[iparam2] -= addend;
-	src_contrib_m[iparam2] -= addend;
 	if (-addend > 0) {
 	  posDerivs[iparam2].add(-addend);
 	} else {
@@ -336,6 +334,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     freeIndex += src->spectrum().getNumFreeParams();
 
   } // Loop on free sources
+
+  //timer.stop();
+  //timer.report("main loop time");
+  
  
   for (size_t i(0); i < derivs.size(); i++) {
     derivs[i] = posDerivs[i].total() + negDerivs[i].total(); 
@@ -441,7 +443,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     syncParams();
     m_modelIsCurrent = false;
   }
-
 
 
   double BinnedLikelihood::NpredValue(const std::string & srcName, bool weighted) const {
@@ -607,17 +608,18 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     if (fixedModelUpdated() && m_updateFixedWeights) {
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
     }
+
     for (size_t j(0); j < m_fixedModelWts.size(); j++) {
       modelWts.at(j).first = m_fixedModelWts.at(j).first;
       modelWts.at(j).second = m_fixedModelWts.at(j).second;
-    }	    
+    }	   
 
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
     
     double npred(0.);
 
-    for (size_t i(0); i < srcNames.size(); i++) {
+    for (size_t i(0); i < srcNames.size(); i++) {      
       npred += NpredValue(srcNames[i],weighted);
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
 		     srcNames.at(i)) == 0) {
@@ -639,7 +641,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     }
   
     m_modelIsCurrent = true;
-  
+
     return npred;
   }
 
@@ -847,7 +849,9 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     m_fixedNpreds[ne] += (npred_vals[ne] * spec[ne]);
 
     // Remove this source from the stored source maps to save memory
-    srcMap->clear_model();
+    if ( !srcMap->save_model() ) {
+      srcMap->clear_model();
+    }
   }
 
   void BinnedLikelihood::deleteFixedSource(const std::string & srcName) {

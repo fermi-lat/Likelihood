@@ -3,7 +3,7 @@
  * @brief Binned version of the log-likelihood function.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.99 2017/09/29 01:38:05 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/BinnedLikelihood.h,v 1.100 2017/10/06 01:30:59 echarles Exp $
  */
 
 #ifndef Likelihood_BinnedLikelihood_h
@@ -84,6 +84,7 @@ namespace Likelihood {
 	resample      : Resample input counts map for convolution
 	resamp_factor : Factor used from resample maps for diffuse sources.
 	minbinsz      : Minimum pixel size for rebinning fine maps 
+	overwriteWeights : Overwrite the existing weights file
      */	
      BinnedLikelihood(CountsMapBase & dataMap, 
 		      const ProjMap& weightMap,
@@ -94,7 +95,8 @@ namespace Likelihood {
 		      bool performConvolution=true,
 		      bool resample=true,
 		      double resamp_factor=2,
-		      double minbinsz=0.1);
+		      double minbinsz=0.1,
+		      bool overwriteWeights=false);
      
      /*  C'tor for weighted likelihood
 	
@@ -103,12 +105,14 @@ namespace Likelihood {
 	config       : Configuration object
 	weightMap    : Map with weights to use for analysis.
 	srcMapsFile  : Name of file containing Source Maps (i.e., the output of gtsrcmaps)
+	overwriteWeights : Overwrite the existing weights file
      */	
      BinnedLikelihood(CountsMapBase & dataMap, 
 		      const Observation & observation,	
 		      const BinnedLikeConfig& config,
 		      const std::string & srcMapsFile = "",
-		      const ProjMap* weightMap = 0);
+		      const ProjMap* weightMap = 0,
+		      bool overwriteWeights=false);
      
      /* D'tor */
      virtual ~BinnedLikelihood() throw();
@@ -221,6 +225,11 @@ namespace Likelihood {
      /// Set flag to use a single map for all the fixed sources
      void set_use_single_fixed_map(bool use_sfm) {
        m_config.set_use_single_fixed_map(use_sfm);
+     }
+
+     /// Set flag to same all source maps
+     void set_save_all_srcmaps(bool val) {
+       m_config.set_save_all_srcmaps(val);
      }
 
      /// Directly set the data in the counts map
