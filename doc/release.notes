@@ -1,11 +1,12 @@
 /** @file release.notes
     @brief package Likelihood (A1) 
     @brief Package coordinators: J. Chiang, M. Wood, E. Charles
-    $Id: release.notes,v 1.616 2017/09/19 17:48:07 echarles Exp $
+    $Id: release.notes,v 1.617 2017/10/06 01:52:25 echarles Exp $
 
     @verbatim
     * EOH *
     
+ Likelihood-20-13-01 10-Oct-2017 echarles Check srcMap->save_model() before clearing models to speed up ROI optimization and Add option to overwrite weights when reading source maps
  Likelihood-20-13-00 05-Oct-2017 echarles Lots of minor changes to support user defined healpix exposure maps and parallel create of source maps
  Likelihood-20-12-04 19-Sep-2017 echarles Protect against divide by zero in SourceMap::computeNpredArray()
  Likelihood-20-12-03 15-Sep-2017 echarles Added weights_test.fits test file
