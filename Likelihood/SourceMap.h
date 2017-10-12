@@ -4,7 +4,7 @@
  *        instrument response.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.78 2017/09/14 21:52:19 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/SourceMap.h,v 1.79 2017/09/29 01:38:05 echarles Exp $
  */
 
 #ifndef Likelihood_SourceMap_h
@@ -233,6 +233,9 @@ public:
    /* This contains both the convolved and un-convolved counts spectra */
    inline const Drm_Cache* cached_drm_Cache() const { return m_drm_cache; }
 
+   /* The DRM used for the current cache, null -> no energy dispersion */
+   inline const Drm* cached_drm() const { return m_drm; }
+
    /* This is the cached MeanPSF object */
    inline const MeanPsf* cached_meanPsf() const { return m_meanPsf; }
 
@@ -261,6 +264,7 @@ public:
    
    /* This contains both the convolved and un-convolved counts spectra */
    const Drm_Cache* drm_cache(bool force=false);
+
 
    /* Add the model to an extermal vector */
    void addToVector(std::vector<float>& vect, bool includeSpec = false, int kmin=0, int kmax=-1);
