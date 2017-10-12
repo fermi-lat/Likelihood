@@ -5,7 +5,7 @@
  *
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.21 2017/10/06 01:07:28 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/Drm.cxx,v 1.22 2017/10/07 01:26:05 echarles Exp $
  */
 
 #include <cmath>
@@ -273,14 +273,7 @@ void Drm_Cache::update(const Drm* drm,
   int kref_wt(-1);
   int idx(0);
 
-  for (k = 0; k < energies.size()-1; k++) {
-    if ( !has_weights ) {
-      m_xi[k] = 1.;
-      m_kref[k] = -1.;
-      m_xi_wt[k] = 1.;
-      m_meas_counts_wt[k] = m_true_counts_wt[k];
-      continue;
-    }
+  for (k = 0; k < energies.size()-1; k++) {   
     if ( m_true_counts[k] > 0 ) {
       // Still have counts in this true energy bin, so it can 
       // be used as a reference
@@ -300,10 +293,13 @@ void Drm_Cache::update(const Drm* drm,
 	m_kref[k] = -1.;
       }
     }
-
-    m_xi_wt[k] = m_xi[k];
-    m_meas_counts_wt[k] = m_xi_wt[k]*m_true_counts_wt[kref];
-
+    if ( has_weights ) {
+      m_xi_wt[k] = m_xi[k];
+      m_meas_counts_wt[k] = m_xi_wt[k]*m_true_counts_wt[kref];
+    } else {
+      m_xi_wt[k] = 1.;
+      m_meas_counts_wt[k] = m_true_counts_wt[k];
+    }
   }
 
 }
