@@ -1,7 +1,7 @@
 /**
  * @file CountsMapBase.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapBase.cxx,v 1.1 2015/12/10 00:58:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapBase.cxx,v 1.2 2017/09/29 01:44:18 echarles Exp $
  */
 
 #include <algorithm>
@@ -38,8 +38,156 @@
 #include "Likelihood/CountsMapBase.h"
 #include "Likelihood/HistND.h"
 #include "Likelihood/FileUtils.h"
+#include "Likelihood/AppHelpers.h"
 
 namespace Likelihood {
+
+  void CountsMapBase::fillEnergyBinWidths(std::vector<double>& energyBinWidths,
+					  const std::vector<double>& energyBinEdges) {
+    size_t n_energies = energyBinEdges.size();
+    if ( n_energies == 0 ) return;
+    size_t nebins = n_energies -1;
+    energyBinWidths.resize(nebins);
+    for ( size_t k(0); k < nebins; k++) {
+      energyBinWidths[k] = energyBinEdges[k+1] - energyBinEdges[k];
+    }
+  }
+
+
+  void CountsMapBase::getBMinAndSumMinOverK2(float& bmin, float& sumk2,
+					     std::vector<std::vector<float>::const_iterator >& itrs) {
+    bmin = 1e99;
+    sumk2 = 0;
+    std::vector<std::vector<float>::const_iterator >::iterator itr2 = itrs.begin();
+    for ( ; itr2 != itrs.end(); itr2++ ) {
+      std::vector<float>::const_iterator itr = *itr2;
+      if ( bmin > *itr ) {
+	bmin = *itr;
+      }
+    }
+    if ( bmin <= 0 ) {
+      sumk2 = 0;
+      return;
+    }
+    for ( itr2 = itrs.begin(); itr2 != itrs.end(); itr2++ ) {
+      std::vector<float>::const_iterator itr = *itr2;
+      float addend = bmin / *itr;
+      addend *= addend;	
+      sumk2 += addend;
+    }
+  }
+  
+  void CountsMapBase::getAlphaWts(float& alpha, const float& epsilon2, 
+				  std::vector<std::vector<float>::const_iterator >& itrs) {
+    float bmin(0.);
+    float sumk2(0.);
+    getBMinAndSumMinOverK2(bmin, sumk2, itrs);
+    alpha = 1 + epsilon2*bmin;
+    alpha /= (1 + epsilon2*bmin*sumk2);
+  }
+  
+  void CountsMapBase::getAlphaVector(std::vector<float>& alphaVect, const float& epsilon2, 
+				     const std::vector<const std::vector<float>* >& beffVects) {
+    std::vector<std::vector<float>::const_iterator > itrs;
+    for ( std::vector<const std::vector<float>* >::const_iterator itrVect = beffVects.begin(); 
+	  itrVect != beffVects.end(); itrVect++ ) {
+      itrs.push_back((*itrVect)->begin());
+    }
+
+    int ndata = alphaVect.size();
+    int nprint = ndata/20;
+    size_t idx(0);
+    std::cout << "Computing alpha map: " << std::flush;
+    for ( std::vector<float>::iterator itr = alphaVect.begin(); itr!= alphaVect.end(); itr++, idx++ ) {
+      if ( idx % nprint == 0 ) {
+	std::cout << '.' << std::flush;
+      }
+      getAlphaWts(*itr, epsilon2, itrs);
+      // This loop steps all the iterator of the beffVects
+      for ( std::vector<std::vector<float>::const_iterator >::iterator itr2 = itrs.begin();
+	    itr2 != itrs.end(); itr2++ ) {
+	(*itr2)++;
+      }      
+    }
+    std::cout << '!' << std::endl;
+  }
+
+  void CountsMapBase::getWts(std::vector<float>& wts,
+			     const float& epsilon2, 
+			     const std::vector<float>& alphaVect,
+			     const std::vector<float>& beffVect) {
+    size_t n = beffVect.size();
+    int nprint = n/20;
+    size_t idx(0);
+    std::vector<float>::iterator itrWts = wts.begin();
+    std::vector<float>::const_iterator itrAlpha = alphaVect.begin();
+    std::vector<float>::const_iterator itrBeff = beffVect.begin();
+    std::cout << "Computing wts map: " << std::flush;
+    for ( ; itrWts != wts.end(); itrWts++, itrBeff++, idx++ ) {
+      if ( idx % nprint == 0 ) {
+	std::cout << '.' << std::flush;
+      }
+      *itrWts = 1 / ( 1 + (epsilon2 * (*itrBeff) ) );
+      if ( itrAlpha != alphaVect.end() ) {
+	*itrWts *= (*itrAlpha);
+	itrAlpha++;
+      }
+    }
+    std::cout << '!' << std::endl;
+  }
+
+  CountsMapBase* CountsMapBase::makeAlphaMap(const float& epsilon2, const std::vector<CountsMapBase*>& input_maps) {
+    if (  input_maps.size() == 0 ) { return 0; }
+    CountsMapBase* outMap = input_maps[0]->clone();
+    std::vector<const std::vector<float>* > input_vects;
+    for ( std::vector<CountsMapBase*>::const_iterator itr_in = input_maps.begin(); itr_in != input_maps.end();
+	  itr_in++ ) {
+      const CountsMapBase* in_map = *itr_in;
+      input_vects.push_back(&in_map->data());      
+    }
+    getAlphaVector(outMap->data_access(), epsilon2, input_vects);
+    return outMap;
+  }
+
+
+  CountsMapBase* CountsMapBase::makeAlphaMap(const float& epsilon2, const std::vector<std::string>& input_map_files) {
+    std::vector<Likelihood::CountsMapBase*> inputMaps;
+    for ( std::vector<std::string>::const_iterator itr = input_map_files.begin();
+	 itr != input_map_files.end(); itr++ ) {
+      CountsMapBase* cmap = Likelihood::AppHelpers::readCountsMap(*itr); 
+      inputMaps.push_back(cmap);
+    }
+    return CountsMapBase::makeAlphaMap(epsilon2, inputMaps);
+  }
+  
+  CountsMapBase* CountsMapBase::makeWtsMap(const float& epsilon2, 
+					   const CountsMapBase* alphaMap, 
+					   const CountsMapBase& beffMap) {
+    CountsMapBase* outMap = beffMap.clone();
+    static const std::vector<float> nullVector;
+    const std::vector<float>& alphaVector =  alphaMap != 0 ? alphaMap->data() : nullVector;
+    getWts(outMap->data_access(), epsilon2, alphaVector, beffMap.data());
+    return outMap;
+  }
+
+   void CountsMapBase::copyAndUpdateDssKeywords(const std::string& infile,
+						const std::string& outfile,
+						AppHelpers* helper,
+						const std::string& irfs){
+
+     dataSubselector::Cuts my_cuts(infile, "PRIMARY", false, false, false);
+     // Ensure that the irfs used are written to the DSS keywords.
+     if ( helper != 0 ) {
+       my_cuts.addVersionCut("IRF_VERSION", helper->irfsName());
+     }
+
+     tip::Image * my_image = tip::IFileSvc::instance().editImage(outfile, "");
+     if (irfs != "CALDB" && helper != 0 ) {
+       helper->setBitMaskCuts(my_cuts);
+     }
+     my_cuts.writeDssKeywords(my_image->getHeader());
+     delete my_image;
+   }
 
 CountsMapBase::CountsMapBase(const std::string & event_file,
 			     const std::string & ev_table,
@@ -82,8 +230,9 @@ void CountsMapBase::readEbounds(const std::string & countsMapFile,
 				std::vector<evtbin::Binner *> & binners) {
 
    FileUtils::read_ebounds_to_vector(countsMapFile, m_energies);
-  
+
    std::vector<evtbin::Binner::Interval> energy_intervals;
+
 // Convert to MeV
    for (unsigned int i = 0; i < m_energies.size()-1; i++) {
       energy_intervals.push_back(evtbin::Binner::Interval(m_energies[i], 

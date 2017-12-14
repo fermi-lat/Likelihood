@@ -1,7 +1,7 @@
 /**
  * @file CountsMapHealpix.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapHealpix.h,v 1.2 2016/10/13 01:49:18 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapHealpix.h,v 1.3 2017/04/21 19:57:26 asercion Exp $
  */
 
 #ifndef Likelihood_CountsMapHealpix_h
@@ -34,6 +34,8 @@ namespace tip {
 
 namespace Likelihood {
 
+  class HealpixProjMap;
+
 /**
  * @class CountsMapHealpix
  * 
@@ -50,11 +52,17 @@ public:
    CountsMapHealpix(const CountsMapHealpix & counts_map,
 		    unsigned int firstBin, unsigned int lastBin);
 
+   CountsMapHealpix(const HealpixProjMap& projMap, const CountsMapHealpix & counts_map);
+
    virtual ~CountsMapHealpix() throw();
 
    virtual CountsMapBase* clone() const {
      return new CountsMapHealpix(*this);
    }
+
+   virtual ProjMap* makeProjMap() const;
+
+   virtual CountsMapBase* makeBkgEffMap(const MeanPsf & psf) const;
 
    virtual void binInput(tip::Table::ConstIterator begin, 
                          tip::Table::ConstIterator end);

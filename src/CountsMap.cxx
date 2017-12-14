@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/CountsMap.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.56 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <algorithm>
@@ -35,6 +35,8 @@
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/HistND.h"
+#include "Likelihood/WcsMap2.h"
+#include "Likelihood/MeanPsf.h"
 
 namespace Likelihood {
 
@@ -201,6 +203,83 @@ CountsMap::CountsMap(const std::string & countsMapFile)
    deleteBinners(binners);
    checkMapConforms();
 }
+
+CountsMap::CountsMap(const WcsMap2& projMap, const CountsMap & counts_map)
+  : CountsMapBase(counts_map) {
+  for (int i = 0; i < 3; i++) {
+    m_naxes[i] = counts_map.m_naxes[i];
+    m_crpix[i] = counts_map.m_crpix[i];
+    m_crval[i] = counts_map.m_crval[i];
+    m_cdelt[i] = counts_map.m_cdelt[i];
+  }
+  m_axis_rot = counts_map.m_axis_rot;
+  m_conforms = counts_map.m_conforms;
+  
+  std::vector<double> energyBinWidths;
+  fillEnergyBinWidths(energyBinWidths, energies());
+  WcsMap2::convertToIntegral(m_hist->data_access(), projMap.image(), energyBinWidths, projMap.solidAngles());  
+}
+
+
+ProjMap* CountsMap::makeProjMap() const {
+  return new WcsMap2(*this);
+}
+
+
+CountsMapBase* CountsMap::makeBkgEffMap(const MeanPsf & psf) const {
+
+  CountsMap* outMap = new CountsMap(*this);     
+  ProjMap* projMap = makeProjMap();
+  ProjMap* convMap = projMap->convolveAll(psf);
+  delete projMap;
+  WcsMap2* convMap_wcs = convMap->cast_wcs();
+ 
+  const std::vector<double>& ebins = energies();
+  std::vector<double> energyBinWidths(num_ebins());
+  CountsMapBase::fillEnergyBinWidths(energyBinWidths, ebins);
+
+  static const double deg2toSr = astro::degToRad( astro::degToRad( 1.) );
+  std::vector<float>& outData = outMap->m_hist->data_access();
+
+  int idx_fill(0);
+  size_t kStep = naxis1()*naxis2();
+
+  for ( size_t k(0); k < num_ebins(); k++ ) {
+    double mean_energy = sqrt(ebins[k] * ebins[k+1]);
+    double psf_peak = psf.peakValue(mean_energy);
+
+    // The factor we need to convert back to counts is
+    // double factor1 = energyBinWidths[k]*solidAngle()/deg2toSr;
+    // (This is b/c the proj map used solid angle in deg2)
+    
+    // The factor we need account for the PSF in the correct units is 
+    // double factor2 = 1 / psf_peak*solidAngle()
+    // (This is b/c this class is using solidAngle() in sr)
+
+    // Combining these we get
+    // double factor = factor1*factor2 = energyBinWidths[k]/(psf_peak*deg2toSr)    
+    double factor = energyBinWidths[k]/(psf_peak*deg2toSr);
+    const std::vector< std::vector<float> >& conv_image = convMap_wcs->image()[k];
+    size_t ipix(0);
+    for ( size_t j(0); j < conv_image.size(); j++ ) {
+      const std::vector<float>& conv_row = conv_image[j];
+      for ( size_t i(0); i < conv_row.size(); i++, idx_fill++, ipix++) {
+	float addend = conv_row[i] * factor;	
+	// Zero out the output data from this pixel / energy.
+	outData[idx_fill] = 0.;
+	// Add this to each of the energy layers beyond this one
+	// Note that fillIt is counting DOWN towards zero
+	for ( int fillIt(idx_fill); fillIt >= 0; fillIt -= kStep ) {
+	  outData[fillIt] += addend;
+	}
+      }
+    }
+  }
+  // clean up
+  delete convMap_wcs;
+  return outMap;
+}
+
 
 void CountsMap::readImageData(const std::string & countsMapFile,
                               std::vector<evtbin::Binner *> & binners) {

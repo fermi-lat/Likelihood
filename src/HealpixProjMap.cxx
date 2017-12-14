@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/HealpixProjMap.cxx,v 1.3 2016/10/20 23:12:16 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/HealpixProjMap.cxx,v 1.4 2017/10/06 01:31:00 echarles Exp $
  */
 
 #include <cmath>
@@ -31,6 +31,7 @@
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/HealpixProjMap.h"
 #include "Likelihood/ConvolveHealpix.h"
+#include "Likelihood/CountsMapHealpix.h"
 
 namespace {
 //   class Image : public std::vector< std::vector<double> > {
@@ -58,6 +59,53 @@ namespace {
 } // unnamed namespace
 
 namespace Likelihood {
+
+
+  void HealpixProjMap::foldVector(const std::vector<float>& vector_in,
+				  const astro::HealpixProj& hp_proj, 
+				  int npix, int nebins,
+				  std::vector<Healpix_Map<float> >& image_out) {
+    image_out.clear();
+    image_out.reserve(nebins);
+    std::vector<float>::const_iterator pixelValue = vector_in.begin();
+    nside_dummy dummy;
+    for (int k = 0; k < nebins; k++) {
+      Healpix_Map<float> image_plane(hp_proj.healpix().Nside(), hp_proj.healpix().Scheme(), dummy);      
+      for (int i = 0; i < npix && pixelValue != vector_in.end();
+	   i++, ++pixelValue) {
+	image_plane[i] = *pixelValue;
+      }
+      image_out.push_back(image_plane);
+    }
+  }
+
+
+  void HealpixProjMap::convertToDifferential(std::vector<Healpix_Map<float> >& image,
+					     const std::vector<double>& energy_bin_widths,
+					     int npix, const double& solid_angle) {
+    for ( size_t k(0); k < energy_bin_widths.size(); k++ ) {
+      Healpix_Map<float>& image_plane = image[k];
+      float e_factor = 1./(solid_angle*energy_bin_widths[k]);
+      for ( size_t j(0); j < npix ; j++ ) {
+	image_plane[j] *= e_factor;
+      }
+    }
+  }
+
+  
+  void HealpixProjMap::convertToIntegral(std::vector<float> image_out,
+					 const std::vector<Healpix_Map<float> >& image_in,
+					 const std::vector<double>& energy_bin_widths,
+					 int npix, const double& solid_angle){
+    int idx(0);
+    for ( size_t k(0); k < energy_bin_widths.size(); k++ ) {
+      const Healpix_Map<float>& image_plane = image_in[k];
+      float e_factor = solid_angle*energy_bin_widths[k];
+      for ( size_t j(0); j < npix ; j++, idx++ ) {
+	image_out[idx] = image_plane[j] * e_factor;
+      }
+    }
+  }
 
 HealpixProjMap::HealpixProjMap(const std::string & filename,
 			       const std::string & extension,
@@ -108,7 +156,7 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
   const tip::Table::FieldCont& colNames = table->getValidFields();
   for ( tip::Table::FieldCont::const_iterator itr = colNames.begin(); 
 	itr != colNames.end(); itr++ ) {
-    if ( itr->find("energy") >= 0 || itr->find('Bin') >= 0 ) { 
+    if ( itr->find("energy") >= 0 || itr->find("Bin") >= 0 ) { 
       dataColumns.push_back( table->getFieldIndex(*itr) );     
     } else {
       continue;
@@ -213,11 +261,48 @@ HealpixProjMap::HealpixProjMap(const DiffuseSource & diffuseSource,
   computeMapIntegrals();
 }
 
-HealpixProjMap::~HealpixProjMap(){}
+HealpixProjMap::HealpixProjMap(const CountsMapHealpix& theMap)
+  : ProjMap("",false,true),
+    m_healpixProj( new astro::HealpixProj(*theMap.healpixProj() ) ),
+    m_solidAngle(theMap.solidAngle()),
+    m_pixelSize(theMap.pixelSize()){
 
-HealpixProjMap::HealpixProjMap(const HealpixProjMap & rhs) 
+  
+  // Set the projection
+  setProjInfo(theMap.refDir(),*m_healpixProj);
+  latchCacheData();
+
+  // Copy in the energies
+  // Use the geometric mean of the energy bin edges
+  std::vector<double> energy_bin_edges;
+  theMap.getEnergies(energy_bin_edges);
+  std::vector<double> energy_bin_widths(theMap.num_ebins());
+
+  size_t n_bin_edges = energy_bin_edges.size();
+  size_t n_bins = n_bin_edges > 0 ? n_bin_edges -1 : 0;
+
+  energies_access().resize(n_bins);
+
+  for (size_t i(0); i < n_bins; i++) {
+    energies_access()[i] = sqrt( energy_bin_edges[i] * energy_bin_edges[i+1] );
+    energy_bin_widths[i] = energy_bin_edges[i+1] - energy_bin_edges[i];
+  }
+  
+  // Copy in the data
+  foldVector(theMap.data(), *m_healpixProj, nPixels(), theMap.num_ebins(), m_image);
+
+  // Go from counts to differential quantites
+  convertToDifferential(m_image, energy_bin_widths, nPixels(), m_solidAngle);
+
+  // Map integrals
+  computeMapIntegrals();  
+
+}
+		    
+
+HealpixProjMap::HealpixProjMap(const HealpixProjMap & rhs, bool copy_image) 
   :  ProjMap(rhs),
-     m_image(rhs.m_image), 
+     m_image(copy_image ? rhs.m_image : std::vector<ImagePlane_t>() ), 
      m_solidAngle(rhs.m_solidAngle),
      m_pixelSize(rhs.m_pixelSize){
   m_healpixProj = (astro::HealpixProj*)getProj();
@@ -230,6 +315,8 @@ HealpixProjMap::HealpixProjMap(const HealpixProjMap & rhs, const double& energy,
   m_healpixProj = (astro::HealpixProj*)getProj();
   m_image.push_back(image);
 }
+
+HealpixProjMap::~HealpixProjMap(){}
 
 HealpixProjMap & HealpixProjMap::operator=(const HealpixProjMap & rhs) {
    if (this != &rhs) {
@@ -306,8 +393,27 @@ double HealpixProjMap::operator()(const astro::SkyDir & dir, double energy) cons
   return value;
 }
 
+ProjMap* HealpixProjMap::convolveAll(const MeanPsf & psf,
+				     const BinnedExposureBase * exposure,
+				     bool performConvolution) const {
+
+  HealpixProjMap* outMap = new HealpixProjMap(*this, false);
+  int k(0);
+  std::cout << "Convolving HEALPix map (n = " << energies().size() << "):" << std::flush;
+  for ( std::vector<double>::const_iterator itr_energy = energies().begin();
+	itr_energy != energies().end(); itr_energy++, k++ ) {
+    std::cout << '.' << std::flush;
+    HealpixProjMap* layer_map = static_cast<HealpixProjMap*>(this->convolve(*itr_energy, psf, exposure, performConvolution, k));
+    outMap->m_image.push_back(layer_map->image()[0]);
+    delete layer_map;
+  }
+  std::cout << '!' << std::endl;;
+  outMap->computeMapIntegrals();
+  return outMap;
+}
+
 ProjMap* HealpixProjMap::convolve(double energy, const MeanPsf & psf,
-				  const BinnedExposureBase & exposure,
+				  const BinnedExposureBase * exposure,
 				  bool performConvolution,
 				  int k) const {
    // Convolve for a single image plane.
@@ -321,7 +427,9 @@ ProjMap* HealpixProjMap::convolve(double energy, const MeanPsf & psf,
        astro::SkyDir dir(coord.first, coord.second, 
 			 getProj()->isGalactic() ? 
 			 astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
-       counts[i] *= exposure(energy, dir.ra(), dir.dec());
+       if ( exposure != 0 ) {
+	 counts[i] *= (*exposure)(energy, dir.ra(), dir.dec());
+       }
      }
    }
 
@@ -363,6 +471,11 @@ ProjMap* HealpixProjMap::convolve(double energy, const MeanPsf & psf,
    
    HealpixProjMap* my_image = new HealpixProjMap(*this,energy,out_image);
    return my_image;
+}
+
+CountsMapBase* HealpixProjMap::makeCountsMap(const CountsMapBase& counts_map) const {
+  const CountsMapHealpix& hp_counts_map = static_cast<const CountsMapHealpix&>(counts_map);
+  return new CountsMapHealpix(*this, hp_counts_map);
 }
 
 double HealpixProjMap::pixelValue(double ilon, double ilat, int k) const {

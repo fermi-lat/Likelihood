@@ -1,7 +1,7 @@
 /**
  * @file CountsMapHealpix.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapHealpix.cxx,v 1.4 2017/04/21 19:57:29 asercion Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapHealpix.cxx,v 1.5 2017/08/18 22:46:12 echarles Exp $
  */
 
 #include <algorithm>
@@ -38,6 +38,8 @@
 
 #include "Likelihood/CountsMapHealpix.h"
 #include "Likelihood/HistND.h"
+#include "Likelihood/HealpixProjMap.h"
+#include "Likelihood/MeanPsf.h"
 
 namespace Likelihood {
 
@@ -80,7 +82,77 @@ namespace Likelihood {
     m_hpx_binner = const_cast<evtbin::HealpixBinner*>(static_cast<const evtbin::HealpixBinner*>(m_hist-> getBinners()[0]));
   }
 
+  CountsMapHealpix::CountsMapHealpix(const HealpixProjMap& projMap, 
+				     const CountsMapHealpix& counts_map):
+    CountsMapBase(counts_map),
+    m_solidAngle(counts_map.m_solidAngle),
+    m_pixelSize(counts_map.m_pixelSize),
+    m_nPixels(counts_map.m_nPixels){    
+    m_healpixProj = static_cast<astro::HealpixProj*>(m_proj);
+    m_hpx_binner = const_cast<evtbin::HealpixBinner*>(static_cast<const evtbin::HealpixBinner*>(m_hist-> getBinners()[0]));
+    std::vector<double> energyBinWidths(energies().size() - 1);
+    for ( int k(0); k < energies().size(); k++ ) {
+      energyBinWidths[k] = energies()[k+1] - energies()[k];
+    }
+    HealpixProjMap::convertToIntegral(m_hist->data_access(), projMap.image(), energyBinWidths, 
+				      nPixels(), m_solidAngle);				      
+  }
+
   CountsMapHealpix::~CountsMapHealpix() throw() {;}
+
+  ProjMap* CountsMapHealpix::makeProjMap() const {
+    return new HealpixProjMap(*this);
+  }
+
+  CountsMapBase* CountsMapHealpix::makeBkgEffMap(const MeanPsf & psf) const {
+
+    CountsMapHealpix* outMap = new CountsMapHealpix(*this);     
+    ProjMap* projMap = makeProjMap();
+    ProjMap* convMap = projMap->convolveAll(psf);
+    delete projMap;
+    HealpixProjMap* convMap_hpx = convMap->cast_healpix();
+    
+    const std::vector<double>& ebins = energies();
+    std::vector<double> energyBinWidths(num_ebins());
+    CountsMapBase::fillEnergyBinWidths(energyBinWidths, ebins);
+
+    static const double deg2toSr = astro::degToRad( astro::degToRad( 1.) );
+    std::vector<float>& outData = outMap->m_hist->data_access();
+
+    int idx_fill(0);
+    size_t kStep = nPixels();
+
+    for ( size_t k(0); k < num_ebins(); k++ ) {
+      double mean_energy = sqrt(ebins[k] * ebins[k+1]);
+      double psf_peak = psf.peakValue(mean_energy);
+
+      // The factor we need to convert back to counts is
+      // double factor1 = energyBinWidths[k]*solidAngle()/deg2toSr;
+      // (This is b/c the proj map used solid angle in deg2)
+
+      // The factor we need account for the PSF in the correct units is 
+      // double factor2 = 1 / psf_peak*solidAngle()
+      // (This is b/c this class is using solidAngle() in sr)
+
+      // Combining these we get
+      // double factor = factor1*factor2 = energyBinWidths[k]/(psf_peak*deg2toSr)
+      double factor = energyBinWidths[k]/(psf_peak*deg2toSr);
+      const Healpix_Map<float>& conv_image = convMap_hpx->image()[k];
+      for ( size_t i(0); i < kStep; i++, idx_fill++  ) {
+	float addend = conv_image[i] * factor;
+	// Zero out the output data from this pixel / energy.
+	outData[idx_fill] = 0.;
+	// Add this quantity to each of the energy layers below this one
+	// Note that fillIt is counting DOWN towards zero	
+	for ( int fillIt(idx_fill); fillIt >= 0; fillIt -= kStep ) {
+	  outData[fillIt] += addend;
+	}
+      }
+    }
+    // clean up    
+    delete convMap_hpx;
+    return outMap;
+  }
 
 
   void CountsMapHealpix::binInput(tip::Table::ConstIterator begin, 
@@ -151,7 +223,9 @@ namespace Likelihood {
     
     std::vector<unsigned int> ivalues(binners.size(),0);
 
+    std::cout << "Writing map: " << std::flush;
     for (long e_index = 0; e_index != nEBins; e_index++ ) {
+      std::cout << '.' << std::flush;
       std::ostringstream e_channel;
       e_channel<<"CHANNEL"<<e_index+1;
       //create new column
@@ -170,7 +244,7 @@ namespace Likelihood {
       }
       if ( ivalues.size() > 1 ) ivalues[1]++;
     }
-  
+    std::cout << '!' << std::endl;
     if ( binners.size() > 1 ) {
       writeEbounds(out_file,binners[1]);
     }

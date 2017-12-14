@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.30 2017/06/26 18:49:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/WcsMap2.cxx,v 1.31 2017/10/06 01:31:00 echarles Exp $
  */
 
 #include <cmath>
@@ -31,6 +31,9 @@
 #include "Likelihood/SkyDirArg.h"
 #include "Likelihood/SpatialFunction.h"
 #include "Likelihood/WcsMap2.h"
+#include "Likelihood/Pixel.h"
+#include "Likelihood/CountsMap.h"
+
 
 namespace {
 //   class Image : public std::vector< std::vector<double> > {
@@ -63,6 +66,85 @@ namespace {
 
 namespace Likelihood {
 
+
+
+void WcsMap2::foldVector(const std::vector<float>& vector_in,
+			 int naxis1, int naxis2, int naxis3, 
+			 std::vector<std::vector<std::vector<float> > >& image_out){
+  image_out.clear();
+  image_out.reserve(naxis3);
+  std::vector<float>::const_iterator pixelValue = vector_in.begin();
+  for (int k = 0; k < naxis3; k++) {
+    std::vector<std::vector<float> > image_plane;
+    image_plane.reserve(naxis2);
+    for (int j = 0; j < naxis2; j++) {
+      std::vector<float> row(naxis1);
+      for (int i = 0; i < naxis1 && pixelValue != vector_in.end();
+	   i++, ++pixelValue) {
+	row[i] = *pixelValue;
+      }
+      image_plane.push_back(row);
+    }
+    image_out.push_back(image_plane);
+  }
+}
+
+
+void WcsMap2::fillSolidAngles(const std::vector<Pixel> & pixels,
+			      int naxis1, int naxis2, 
+			      std::vector<std::vector<float> >& image_out) {
+
+  std::vector<Pixel>::const_iterator itrPix = pixels.begin();
+  for (int j = 0; j < naxis2; j++) {
+    std::vector<float> row(naxis1);
+    for (int i = 0; i < naxis1 && itrPix != pixels.end();
+	 i++, ++itrPix) {
+      row[i] = itrPix->solidAngle();
+    }
+    image_out.push_back(row);
+  }
+}
+
+  
+void WcsMap2::convertToDifferential(std::vector<std::vector<std::vector<float> > >& image_out,
+				    const std::vector<double>& energy_bin_widths,
+				    const std::vector<std::vector<float> >& solid_angles) {
+
+  for ( size_t k(0); k < energy_bin_widths.size(); k++ ) {
+    std::vector<std::vector<float> >& image_plane = image_out[k];
+    float e_factor = 1./ energy_bin_widths[k];
+    for ( size_t j(0); j < solid_angles.size(); j++ ) {
+      const std::vector<float>& sa_row = solid_angles[j];
+      std::vector<float>& image_row = image_plane[j];
+      for ( size_t i(0); i < image_row.size(); i++ ) {
+	image_row[i] *= e_factor / sa_row[i];
+      }
+    }
+  }
+}
+
+void WcsMap2::convertToIntegral(std::vector<float>& image_out, 
+				const std::vector<std::vector<std::vector<float> > >& image_in,
+				const std::vector<double>& energy_bin_widths,
+				const std::vector<std::vector<float> >& solid_angles) {
+  
+  int idx(0);
+  for ( size_t k(0); k < energy_bin_widths.size(); k++ ) {
+    const std::vector<std::vector<float> >& image_plane = image_in[k];
+    float e_factor = energy_bin_widths[k];
+    for ( size_t j(0); j < solid_angles.size(); j++ ) {
+      const std::vector<float>& sa_row = solid_angles[j];
+      const std::vector<float>& image_row = image_plane[j];
+      for ( size_t i(0); i < image_row.size(); i++, idx++ ) {
+	image_out[idx] = image_row[i]*e_factor*sa_row[i];
+      }
+    }
+  }
+}
+
+
+
+  
 WcsMap2::WcsMap2(const std::string & filename,
                  const std::string & extension,
                  bool interpolate,
@@ -134,23 +216,7 @@ WcsMap2::WcsMap2(const std::string & filename,
    }
 
    delete image;
-
-   m_image.reserve(naxis3);
-   std::vector<float>::const_iterator pixelValue = my_image.begin();
-   for (int k = 0; k < naxis3; k++) {
-      ImagePlane_t image_plane;
-      image_plane.reserve(m_naxis2);
-      for (int j = 0; j < m_naxis2; j++) {
-//          std::vector<double> row(m_naxis1);
-         std::vector<float> row(m_naxis1);
-         for (int i = 0; i < m_naxis1 && pixelValue != my_image.end();
-              i++, ++pixelValue) {
-            row[i] = *pixelValue;
-         }
-         image_plane.push_back(row);
-      }
-      m_image.push_back(image_plane);
-   }
+   foldVector(my_image, m_naxis1, m_naxis2, naxis3, m_image);
 
    if(computeIntegrals) {
      computeMapIntegrals();
@@ -274,7 +340,70 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    }
 }
 
-WcsMap2::~WcsMap2(){}
+WcsMap2::WcsMap2(const CountsMap& theMap)
+  :  ProjMap("",false,false),
+     m_isPeriodic(false),
+     m_image(theMap.num_ebins()),
+     m_naxes(theMap.num_ebins() > 1 ? 3 : 2),
+     m_naxis1(theMap.naxis1()),
+     m_naxis2(theMap.naxis2()),
+     m_crpix1(theMap.crpix1()),
+     m_crpix2(theMap.crpix2()),
+     m_crval1(theMap.crval1()),
+     m_crval2(theMap.crval2()),
+     m_cdelt1(theMap.cdelt1()),
+     m_cdelt2(theMap.cdelt2()),
+     m_crota2(theMap.crota2()){  
+
+  // Check for periodic maps
+  if (std::fabs(::my_round(m_naxis1*m_cdelt1)) == 360.) {
+    m_isPeriodic = true;
+  } 
+
+  // Set the projection
+  setProjInfo(theMap.refDir(), theMap.projection());
+ 
+  // Set the corners and the map radius
+  try {
+    std::vector<astro::SkyDir> corners;
+    getCorners(corners);
+    setMapRadius(corners[0].difference(theMap.refDir()));
+    for (size_t i(1); i < corners.size(); i++) {
+      double sep(corners[i].difference(theMap.refDir()));
+      if (sep > mapRadius() ) {
+	setMapRadius(sep);
+      }
+    }
+  } catch(std::exception & eObj) {
+    setMapRadius(180.);
+  }
+
+  // Copy in the energies
+  // Use the geometric mean of the energy bin edges
+  std::vector<double> energy_bin_edges;
+  theMap.getEnergies(energy_bin_edges);
+  std::vector<double> energy_bin_widths(theMap.num_ebins());
+
+  energies_access().resize(theMap.num_ebins());
+
+  for (size_t i(0); i < energy_bin_edges.size() - 1; i++) {
+    energies_access()[i] = sqrt( energy_bin_edges[i] * energy_bin_edges[i+1] );
+    energy_bin_widths[i] = energy_bin_edges[i+1] - energy_bin_edges[i];
+  }
+
+  // Get the solid angles
+  fillSolidAngles(theMap.pixels(), m_naxis1, m_naxis2, m_solidAngles);
+
+  // Copy in the data
+  foldVector(theMap.data(), m_naxis1, m_naxis2, theMap.num_ebins(), m_image);
+
+  // Go from counts to differential quantites
+  convertToDifferential(m_image, energy_bin_widths, m_solidAngles);
+
+  // Map integrals
+  computeMapIntegrals();
+}
+  
 
 WcsMap2::WcsMap2(const WcsMap2 & rhs, bool copy_image) 
   :  ProjMap(rhs),
@@ -310,6 +439,8 @@ WcsMap2::WcsMap2(const WcsMap2 & rhs,const double&energy,
      m_isPeriodic(rhs.m_isPeriodic){
   m_image.push_back(image);
 }
+
+WcsMap2::~WcsMap2(){}
 
 WcsMap2 & WcsMap2::operator=(const WcsMap2 & rhs) {
    if (this != &rhs) {
@@ -436,8 +567,27 @@ double WcsMap2::operator()(const astro::SkyDir & dir, double energy) const {
    return value;
 }
 
+
+ProjMap* WcsMap2::convolveAll(const MeanPsf & psf,
+			      const BinnedExposureBase * exposure,
+			      bool performConvolution) const {
+
+  WcsMap2* outMap = new WcsMap2(*this, false);
+  outMap->m_image.clear();
+  int k(0);
+  for ( std::vector<double>::const_iterator itr_energy = energies().begin();
+	itr_energy != energies().end(); itr_energy++, k++ ) {
+    WcsMap2* layer_map = static_cast<WcsMap2*>(this->convolve(*itr_energy, psf, exposure, performConvolution, k));
+    outMap->m_image.push_back(layer_map->image()[0]);
+    delete layer_map;
+  }
+  outMap->computeMapIntegrals();
+  return outMap;
+}
+
+
 ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
-			   const BinnedExposureBase & exposure,
+			   const BinnedExposureBase * exposure,
 			   bool performConvolution,
 			   int k) const {
 
@@ -456,9 +606,10 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
             astro::SkyDir dir(coord.first, coord.second, 
 			      getProj()->isGalactic() ? 
 			      astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
-
-            counts[j][i] = 
-               m_image[k][j][i]*exposure(energy, dir.ra(), dir.dec());
+	    counts[j][i] = m_image[k][j][i];
+	    if ( exposure != 0 ) {
+	      counts[j][i] *= (*exposure)(energy, dir.ra(), dir.dec());
+	    }
          }
       }
    }
@@ -520,7 +671,7 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 
 
 ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
-			   const BinnedExposureBase & exposure,
+			   const BinnedExposureBase * exposure,
 			   const SpatialFunction& fn,
 			   int k) const {
 
@@ -566,7 +717,7 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 	    double dtheta = fndir.difference(dir)*180./M_PI;
 	    double v = st_facilities::Util::interpolate(theta, value, 
 							dtheta);
-	    double exp = exposure(energy, fndir.ra(), fndir.dec());
+	    double exp = exposure != 0 ? (*exposure)(energy, fndir.ra(), fndir.dec()) : 1.;
             counts[j][i] = v*exp;
          }
       }
@@ -578,6 +729,12 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
    return my_image;
 }
 
+
+
+CountsMapBase* WcsMap2::makeCountsMap(const CountsMapBase& counts_map) const {
+  const CountsMap& wcs_counts_map = static_cast<const CountsMap&>(counts_map);
+  return new CountsMap(*this, wcs_counts_map);
+}
 
 
 double WcsMap2::solidAngle(const astro::ProjBase & proj, 
