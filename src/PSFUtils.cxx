@@ -3,7 +3,7 @@
  * @brief Functions to  deal with PSF Integration and convolution
  * @author E. Charles, from code in SourceMap by J. Chiang and M. Wood.
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.11 2017/09/29 01:44:19 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/PSFUtils.cxx,v 1.12 2017/10/06 01:39:01 echarles Exp $
  */
 
 #include "Likelihood/PSFUtils.h"
@@ -485,10 +485,10 @@ namespace Likelihood {
 	  const SpatialFunction* m = 
 	    dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist());
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
-								   bexpmap, *m));
+								   &bexpmap, *m));
 	} else {
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
-								   bexpmap, config.performConvolution() ) );
+								   &bexpmap, config.performConvolution() ) );
 	}
 	
 	size_t rfac(static_cast<size_t>(resamp_fact));
@@ -582,7 +582,7 @@ namespace Likelihood {
 				  energy,dataMap.projection().isGalactic(),
 				  ALLSKY_RADIUS,mapRefDir.ra(), mapRefDir.dec(),
 				  interpolate, false);
-	ProjMap* cmap = diffuseMap.convolve(energy,meanpsf,bexpmap,config.performConvolution());
+	ProjMap* cmap = diffuseMap.convolve(energy,meanpsf,&bexpmap,config.performConvolution());
 	HealpixProjMap* convolvedMap = static_cast<HealpixProjMap*>(cmap);
 	Healpix_Map<float> outmap(nside_orig,scheme,SET_NSIDE);
 	if ( nside_orig == resamp_nside ) {
@@ -788,10 +788,10 @@ namespace Likelihood {
 	  const SpatialFunction* m = 
 	    dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist());
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(energy, meanpsf, 
-								   bexpmap, *m));
+								   &bexpmap, *m));
 	} else {
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(energy, meanpsf, 
-								   bexpmap, config.performConvolution()));
+								   &bexpmap, config.performConvolution()));
 	}
 	
 	
