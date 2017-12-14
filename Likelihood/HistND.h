@@ -3,7 +3,7 @@
  * @brief N-dimensional histogram.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/HistND.h,v 1.5 2015/11/25 18:52:41 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/HistND.h,v 1.8 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_HistND_h
@@ -62,6 +62,8 @@ public:
 
    const std::vector<float> & data() const {return m_data;}
    
+   std::vector<float> & data_access() { return m_data; }
+
    void setData(const std::vector<float> & data) {m_data = data;}
    void setData(const std::vector<double> & data) {
       m_data.resize(data.size(), 0);
