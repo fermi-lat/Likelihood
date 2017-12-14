@@ -3,7 +3,7 @@
  * @brief Compute a model counts map based on binned likelihood fits.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.45 2015/12/10 00:58:02 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/gtmodelmap/gtmodelmap.cxx,v 1.46 2016/08/05 21:04:44 echarles Exp $
  */
 
 #include <iostream>
@@ -131,17 +131,8 @@ void ModelMap::computeModelMap() {
 }
 
 void ModelMap::updateDssKeywords() {
-   std::string smaps = m_pars["srcmaps"];
-   dataSubselector::Cuts my_cuts(smaps, "PRIMARY", false, false, false);
-   // Ensure that the irfs used are written to the DSS keywords.
-   my_cuts.addVersionCut("IRF_VERSION", m_helper->irfsName());
-
-   std::string outfile = m_pars["outfile"];
-   tip::Image * my_image = tip::IFileSvc::instance().editImage(outfile, "");
-   std::string irfs = m_pars["irfs"];
-   if (irfs != "CALDB") {
-      m_helper->setBitMaskCuts(my_cuts);
-   }
-   my_cuts.writeDssKeywords(my_image->getHeader());
-   delete my_image;
+   Likelihood::CountsMapBase::copyAndUpdateDssKeywords(m_pars["srcmaps"], 
+						       m_pars["outfile"],
+						       m_helper, 
+						       m_pars["irfs"]);
 }
