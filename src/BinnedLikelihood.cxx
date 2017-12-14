@@ -3,7 +3,7 @@
  * @brief Photon events are binned in sky direction and energy.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.139 2017/10/06 01:38:12 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/BinnedLikelihood.cxx,v 1.140 2017/10/10 17:24:15 echarles Exp $
  */
 
 #include <cmath>
@@ -94,7 +94,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     resamp_factor,
 	     minbinsz,	     
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
-	     true,false,true,false),
+	     true,false,true,false,false,false),
     m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
 		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
@@ -893,8 +893,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       m_fixedNpred_wts[k].second -= (npred_1 * npred_weights[k].second);
 
       if (use_edisp_val) {
-	// FIXME, test this
-	// xi = drm_cache->get_correction(k,kref,has_wts);
 	xi = drm_cache->get_correction(k,kref,has_wts);
 	if ( kref < 0 ) { 
 	  // Still have true counts in this energy bin, just use k as kref
