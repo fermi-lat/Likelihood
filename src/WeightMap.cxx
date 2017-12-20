@@ -104,10 +104,10 @@ namespace Likelihood {
 
   void WeightMap::makeProjectedMap(const ProjMap& weight_map, bool& extrapolated) {
     const std::vector<Pixel> & pixels(m_dataMap->pixels());
-    std::vector<double> energy_edges;
-    m_dataMap->getEnergies(energy_edges);
+    std::vector<double> energy_centers;
+    m_dataMap->getEnergyBinGeomCenters(energy_centers);
     
-    size_t nebins = energy_edges.size() -1;
+    size_t nebins = energy_centers.size();
     
     m_model.resize(nebins*pixels.size());
     std::vector<Pixel>::const_iterator pixel(pixels.begin());
@@ -119,8 +119,7 @@ namespace Likelihood {
 	size_t indx(k*pixels.size() + j);
 	if ( in_map ){
 	  try {	   
-	    weight = sqrt(weight_map.operator()(pixel->dir(),energy_edges[k])*
-			  weight_map.operator()(pixel->dir(),energy_edges[k+1]));
+	    weight = weight_map.operator()(pixel->dir(),energy_centers[k]);
 	  } catch (...) {
 	    // Outside of energy bounds, set weight to 1.0 (FIXME, agree on convention)
 	    weight = 1.0;
