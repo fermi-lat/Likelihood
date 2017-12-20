@@ -37,6 +37,7 @@
 #include "Likelihood/HistND.h"
 #include "Likelihood/WcsMap2.h"
 #include "Likelihood/MeanPsf.h"
+#include "Likelihood/FileUtils.h"
 
 namespace Likelihood {
 
@@ -221,8 +222,8 @@ CountsMap::CountsMap(const WcsMap2& projMap, const CountsMap & counts_map)
 }
 
 
-ProjMap* CountsMap::makeProjMap() const {
-  return new WcsMap2(*this);
+ProjMap* CountsMap::makeProjMap(CountsMapBase::ConversionType cType) const {
+  return new WcsMap2(*this, cType);
 }
 
 
@@ -456,36 +457,33 @@ void CountsMap::writeOutput(const std::string & creator,
    createFile(creator, out_file, 
               facilities::commonUtilities::joinPath(m_data_dir,
 						    "LatCountsMapTemplate"));
-   
-   std::auto_ptr<tip::Image> 
-       output_image(tip::IFileSvc::instance().editImage(out_file, ""));
-
-   typedef std::vector<tip::PixOrd_t> DimCont_t;
-   DimCont_t dims = output_image->getImageDimensions();
-
-   DimCont_t::size_type num_dims = dims.size();
-   if (3 != num_dims) {
-      throw std::runtime_error("CountsMap::writeOutput "
-                               "cannot write a count map "
-                               "to an image which is not 3D");
-   }
-   
-   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
-
+   tip::Image* output_image = tip::IFileSvc::instance().editImage(out_file, "");
    tip::Header & header = output_image->getHeader();
-   setKeywords(header);
+   FileUtils::replace_image_from_hist_wcs(*output_image, *m_hist);
+   setKeywords(header);   
+   delete output_image;
 
-// Resize image dimensions to conform to the binner dimensions.
-   for (DimCont_t::size_type index = 0; index != num_dims; ++index) {
-      dims[index] = binners.at(index)->getNumBins();
-   }
-
-   output_image->setImageDimensions(dims);
-
-// Copy bins into image.
-   output_image->set(m_hist->data());
-
+   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
    writeEbounds(out_file, binners[2]);
+   writeGti(out_file);
+}
+
+
+void CountsMap::writeAsWeightsMap(const std::string & creator, 
+				  const std::string & out_file) const {
+
+   createFile(creator, out_file, 
+              facilities::commonUtilities::joinPath(m_data_dir,
+						    "LatWeightsMapTemplate"));   
+
+   tip::Image* output_image = tip::IFileSvc::instance().editImage(out_file, "");
+   tip::Header & header = output_image->getHeader();
+   FileUtils::replace_image_from_hist_wcs(*output_image, *m_hist);
+   setKeywords(header);   
+   delete output_image;
+
+   tip::Extension* energiesHdu = FileUtils::replace_energies(out_file, "ENERGIES", m_energies);
+   delete energiesHdu;
    writeGti(out_file);
 }
 

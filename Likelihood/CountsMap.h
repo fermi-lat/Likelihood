@@ -93,7 +93,7 @@ public:
      return new CountsMap(*this);
    }
 
-   virtual ProjMap* makeProjMap() const;
+   virtual ProjMap* makeProjMap(ConversionType cType = CountsMapBase::Intensity) const;
   
    virtual CountsMapBase* makeBkgEffMap(const MeanPsf & psf) const;
 
@@ -102,6 +102,9 @@ public:
 
    virtual void writeOutput(const std::string & creator, 
                             const std::string & out_file) const;
+
+   virtual void writeAsWeightsMap(const std::string & creator, 
+				  const std::string & out_file) const;
    
    virtual void setKeywords(tip::Header & header) const;
 

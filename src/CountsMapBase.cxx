@@ -20,6 +20,7 @@
 #include "tip/Image.h"
 #include "tip/Table.h"
 #include "tip/tip_types.h"
+#include "tip/Header.h"
 
 #include "astro/SkyDir.h"
 #include "astro/SkyProj.h"
@@ -53,7 +54,17 @@ namespace Likelihood {
     }
   }
 
-
+  void CountsMapBase::fillEnergyBinGeomCenters(std::vector<double>& energyBinCenters,
+					       const std::vector<double>& energyBinEdges) {
+    size_t n_energies = energyBinEdges.size();
+    if ( n_energies == 0 ) return;
+    size_t nebins = n_energies -1;
+    energyBinCenters.resize(nebins);
+    for ( size_t k(0); k < nebins; k++) {
+      energyBinCenters[k] = sqrt( energyBinEdges[k+1]*energyBinEdges[k]);
+    }
+  }
+  
   void CountsMapBase::getBMinAndSumMinOverK2(float& bmin, float& sumk2,
 					     std::vector<std::vector<float>::const_iterator >& itrs) {
     bmin = 1e99;
@@ -170,24 +181,59 @@ namespace Likelihood {
     return outMap;
   }
 
-   void CountsMapBase::copyAndUpdateDssKeywords(const std::string& infile,
-						const std::string& outfile,
-						AppHelpers* helper,
-						const std::string& irfs){
-
-     dataSubselector::Cuts my_cuts(infile, "PRIMARY", false, false, false);
-     // Ensure that the irfs used are written to the DSS keywords.
-     if ( helper != 0 ) {
-       my_cuts.addVersionCut("IRF_VERSION", helper->irfsName());
-     }
-
-     tip::Image * my_image = tip::IFileSvc::instance().editImage(outfile, "");
-     if (irfs != "CALDB" && helper != 0 ) {
-       helper->setBitMaskCuts(my_cuts);
-     }
-     my_cuts.writeDssKeywords(my_image->getHeader());
-     delete my_image;
-   }
+  void CountsMapBase::copyAndUpdateDssKeywords(const std::string& infile,
+					       const std::string& outfile,
+					       AppHelpers* helper,
+					       const std::string& irfs){
+    
+    dataSubselector::Cuts my_cuts(infile, "PRIMARY", false, false, false);
+    // Ensure that the irfs used are written to the DSS keywords.
+    if ( helper != 0 ) {
+      my_cuts.addVersionCut("IRF_VERSION", helper->irfsName());
+    }
+    
+    tip::Image * my_image = tip::IFileSvc::instance().editImage(outfile, "");
+    if (irfs != "CALDB" && helper != 0 ) {
+      helper->setBitMaskCuts(my_cuts);
+    }
+    my_cuts.writeDssKeywords(my_image->getHeader());
+    delete my_image;
+  }
+  
+  void CountsMapBase::addBkgEffKeywords(const std::string& outfile,
+					const std::string& inputmap){
+    tip::Image* my_image = tip::IFileSvc::instance().editImage(outfile, "");
+    tip::Header& my_header = my_image->getHeader();
+    my_header["INPUTMAP"].set(inputmap);
+    delete my_image;
+  }
+  
+  void CountsMapBase::addAlphaMapKeywords(const std::string& outfile,
+					  double epsilon,
+					  const std::vector<std::string>& inputFiles) {
+    tip::Image* my_image = tip::IFileSvc::instance().editImage(outfile, "");
+    tip::Header& my_header = my_image->getHeader();
+    my_header["EPSILON"].set(epsilon);
+    for ( size_t i(0); i < inputFiles.size(); i++ ) {
+      std::ostringstream cardName;
+      cardName<<"BKGMAP"<<i+1;
+      my_header[cardName.str()].set(inputFiles[i]);
+    }
+    delete my_image;    
+  }
+  
+  void CountsMapBase::addWtsMapKeywords(const std::string& outfile,
+					double epsilon,
+					const std::string& bkgmap,
+					const std::string& alphamap) {
+    tip::Image* my_image = tip::IFileSvc::instance().editImage(outfile, "");
+    tip::Header& my_header = my_image->getHeader();
+    my_header["EPSILON"].set(epsilon);
+    my_header["BKGMAP"].set(bkgmap);
+    my_header["ALPHAMAP"].set(alphamap);
+    delete my_image;    
+  }
+    
 
 CountsMapBase::CountsMapBase(const std::string & event_file,
 			     const std::string & ev_table,
@@ -358,6 +404,14 @@ void CountsMapBase::getEnergies(std::vector<double>& energies) const {
   }
   // EAC this doesn't work
   // std::copy(m_energies.begin(),m_energies.end(),energies.begin());
+}
+
+void CountsMapBase::getEnergyBinGeomCenters(std::vector<double>& energyBinCenters) const {
+  fillEnergyBinGeomCenters(energyBinCenters, m_energies);
+}
+
+void CountsMapBase::getEnergyBinWidths(std::vector<double>& energyBinWidths) const {
+  fillEnergyBinWidths(energyBinWidths, m_energies);
 }
 
 const std::vector<Pixel> & CountsMapBase::pixels() const {

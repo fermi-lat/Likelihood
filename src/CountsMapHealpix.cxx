@@ -40,6 +40,7 @@
 #include "Likelihood/HistND.h"
 #include "Likelihood/HealpixProjMap.h"
 #include "Likelihood/MeanPsf.h"
+#include "Likelihood/FileUtils.h"
 
 namespace Likelihood {
 
@@ -100,8 +101,8 @@ namespace Likelihood {
 
   CountsMapHealpix::~CountsMapHealpix() throw() {;}
 
-  ProjMap* CountsMapHealpix::makeProjMap() const {
-    return new HealpixProjMap(*this);
+  ProjMap* CountsMapHealpix::makeProjMap(CountsMapBase::ConversionType cType) const {
+    return new HealpixProjMap(*this, cType);
   }
 
   CountsMapBase* CountsMapHealpix::makeBkgEffMap(const MeanPsf & psf) const {
@@ -197,57 +198,30 @@ namespace Likelihood {
 						     "LatHealpixTemplate"));
     tip::Table *table = tip::IFileSvc::instance().editTable(out_file, ext);  
     tip::Header & header(table->getHeader());
+    FileUtils::replace_image_from_hist_hpx(*table, "CHANNEL", *m_hist, *m_hpx_binner);
     setKeywords(header);
-
+    delete table;
     const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
-    long nPix = m_hpx_binner->getNumBins();
-    long nEBins = 1;
-    if ( binners.size() > 1 ) {
-      nEBins = binners[1]->getNumBins();
-    } 
-
-    // If the map is less than all-sky we need to write the pixel indices
-    if ( ! m_hpx_binner->allSky() ) {
-      std::string pixname("PIX");
-      table->appendField(pixname, std::string("J"));
-      tip::IColumn* col = table->getColumn(table->getFieldIndex(pixname));
-      int writeValue(-1);
-      for(long hpx_index = 0; hpx_index != m_hpx_binner->getNumBins(); ++hpx_index) {
-	writeValue = m_hpx_binner->pixelIndices()[hpx_index];
-	col->set(hpx_index,writeValue);
-      }
-    }
-    
-    std::vector<float> histData(nPix);
-    double writeValue(0.);
-    
-    std::vector<unsigned int> ivalues(binners.size(),0);
-
-    std::cout << "Writing map: " << std::flush;
-    for (long e_index = 0; e_index != nEBins; e_index++ ) {
-      std::cout << '.' << std::flush;
-      std::ostringstream e_channel;
-      e_channel<<"CHANNEL"<<e_index+1;
-      //create new column
-      table->appendField(e_channel.str(), std::string("D"));
-      // get the column
-      tip::IColumn* col = table->getColumn(table->getFieldIndex(e_channel.str()));
-      // get the data slice from the underlying histogram
-      if ( binners.size() > 1 ) {
-	m_hist->getSlice(0,ivalues,histData);
-      } else {
-	histData = m_hist->data();
-      }
-      for(long hpx_index = 0; hpx_index != nPix; ++hpx_index) {
-	writeValue = double(histData[hpx_index]);
-	col->set(hpx_index,writeValue);
-      }
-      if ( ivalues.size() > 1 ) ivalues[1]++;
-    }
-    std::cout << '!' << std::endl;
     if ( binners.size() > 1 ) {
       writeEbounds(out_file,binners[1]);
     }
+    writeGti(out_file);
+    delete table;
+  }
+
+  void CountsMapHealpix::writeAsWeightsMap(const std::string & creator, 
+					   const std::string & out_file) const {
+    static const std::string ext="SKYMAP";
+    createFile(creator, out_file, 
+	       facilities::commonUtilities::joinPath(m_data_dir,
+						     "LatHealpixWeightsTemplate"));
+    tip::Table *table = tip::IFileSvc::instance().editTable(out_file, ext);  
+    tip::Header & header(table->getHeader());
+    FileUtils::replace_image_from_hist_hpx(*table, "ENERGY", *m_hist, *m_hpx_binner);
+    setKeywords(header);
+    delete table;
+    tip::Extension* energiesHdu = FileUtils::replace_energies(out_file, "ENERGIES", m_energies);
+    delete energiesHdu;
     writeGti(out_file);
     delete table;
   }
