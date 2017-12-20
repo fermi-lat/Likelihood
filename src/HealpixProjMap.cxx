@@ -261,7 +261,8 @@ HealpixProjMap::HealpixProjMap(const DiffuseSource & diffuseSource,
   computeMapIntegrals();
 }
 
-HealpixProjMap::HealpixProjMap(const CountsMapHealpix& theMap)
+HealpixProjMap::HealpixProjMap(const CountsMapHealpix& theMap,
+			       CountsMapBase::ConversionType cType)
   : ProjMap("",false,true),
     m_healpixProj( new astro::HealpixProj(*theMap.healpixProj() ) ),
     m_solidAngle(theMap.solidAngle()),
@@ -274,25 +275,29 @@ HealpixProjMap::HealpixProjMap(const CountsMapHealpix& theMap)
 
   // Copy in the energies
   // Use the geometric mean of the energy bin edges
-  std::vector<double> energy_bin_edges;
-  theMap.getEnergies(energy_bin_edges);
-  std::vector<double> energy_bin_widths(theMap.num_ebins());
-
-  size_t n_bin_edges = energy_bin_edges.size();
-  size_t n_bins = n_bin_edges > 0 ? n_bin_edges -1 : 0;
-
-  energies_access().resize(n_bins);
-
-  for (size_t i(0); i < n_bins; i++) {
-    energies_access()[i] = sqrt( energy_bin_edges[i] * energy_bin_edges[i+1] );
-    energy_bin_widths[i] = energy_bin_edges[i+1] - energy_bin_edges[i];
+  std::vector<double> energy_bin_widths;
+  theMap.getEnergyBinGeomCenters(energies_access());
+  switch ( cType ) {
+  case CountsMapBase::Intensity:
+    theMap.getEnergyBinWidths(energy_bin_widths);
+    break;
+  case CountsMapBase::Weights:
+  default:
+    break;
   }
-  
+
   // Copy in the data
   foldVector(theMap.data(), *m_healpixProj, nPixels(), theMap.num_ebins(), m_image);
 
-  // Go from counts to differential quantites
-  convertToDifferential(m_image, energy_bin_widths, nPixels(), m_solidAngle);
+  switch ( cType ) {
+  case CountsMapBase::Intensity:
+    // Go from counts to differential quantites
+    convertToDifferential(m_image, energy_bin_widths, nPixels(), m_solidAngle);
+    break;
+  case CountsMapBase::Weights:
+  default:
+    break;
+  }
 
   // Map integrals
   computeMapIntegrals();  

@@ -340,11 +340,11 @@ WcsMap2::WcsMap2(const DiffuseSource & diffuseSource,
    }
 }
 
-WcsMap2::WcsMap2(const CountsMap& theMap)
+WcsMap2::WcsMap2(const CountsMap& theMap, CountsMapBase::ConversionType cType)
   :  ProjMap("",false,false),
      m_isPeriodic(false),
-     m_image(theMap.num_ebins()),
-     m_naxes(theMap.num_ebins() > 1 ? 3 : 2),
+     m_image(0),
+     m_naxes(theMap.num_ebins() == 1 ? 2 : 3),
      m_naxis1(theMap.naxis1()),
      m_naxis2(theMap.naxis2()),
      m_crpix1(theMap.crpix1()),
@@ -354,6 +354,18 @@ WcsMap2::WcsMap2(const CountsMap& theMap)
      m_cdelt1(theMap.cdelt1()),
      m_cdelt2(theMap.cdelt2()),
      m_crota2(theMap.crota2()){  
+
+  // Get the energy bins and number of axes properly
+  std::vector<double> energy_bin_widths;
+  theMap.getEnergyBinGeomCenters(energies_access());
+  switch ( cType ) {
+  case CountsMapBase::Intensity:
+    theMap.getEnergyBinWidths(energy_bin_widths);
+    break;
+  case CountsMapBase::Weights:
+  default:
+    break;
+  }
 
   // Check for periodic maps
   if (std::fabs(::my_round(m_naxis1*m_cdelt1)) == 360.) {
@@ -378,27 +390,22 @@ WcsMap2::WcsMap2(const CountsMap& theMap)
     setMapRadius(180.);
   }
 
-  // Copy in the energies
-  // Use the geometric mean of the energy bin edges
-  std::vector<double> energy_bin_edges;
-  theMap.getEnergies(energy_bin_edges);
-  std::vector<double> energy_bin_widths(theMap.num_ebins());
-
-  energies_access().resize(theMap.num_ebins());
-
-  for (size_t i(0); i < energy_bin_edges.size() - 1; i++) {
-    energies_access()[i] = sqrt( energy_bin_edges[i] * energy_bin_edges[i+1] );
-    energy_bin_widths[i] = energy_bin_edges[i+1] - energy_bin_edges[i];
-  }
-
   // Get the solid angles
   fillSolidAngles(theMap.pixels(), m_naxis1, m_naxis2, m_solidAngles);
 
   // Copy in the data
-  foldVector(theMap.data(), m_naxis1, m_naxis2, theMap.num_ebins(), m_image);
+  foldVector(theMap.data(), m_naxis1, m_naxis2, theMap.num_ebins(), m_image);    
 
-  // Go from counts to differential quantites
-  convertToDifferential(m_image, energy_bin_widths, m_solidAngles);
+  // Fill the map according to type
+  switch ( cType ) {
+  case CountsMapBase::Intensity:
+    // Go from counts to differential quantites
+    convertToDifferential(m_image, energy_bin_widths, m_solidAngles);
+    break;
+  case CountsMapBase::Weights:
+  default:
+    break;
+  }
 
   // Map integrals
   computeMapIntegrals();

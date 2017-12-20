@@ -16,6 +16,7 @@
 // EAC, make a base class for WcsMap2
 #include "Likelihood/ProjMap.h"
 #include "astro/SkyDir.h"
+#include "Likelihood/CountsMapBase.h"
 
 namespace Likelihood {
 
@@ -72,7 +73,7 @@ public:
            bool interpolate=false, bool enforceEnergyRange=false,
 	   bool computeIntegrals=true);
 
-   WcsMap2(const CountsMap& theMap);
+   WcsMap2(const CountsMap& theMap, CountsMapBase::ConversionType cType);
  
    WcsMap2(const WcsMap2 &, bool copy_image = true);
 
@@ -159,7 +160,6 @@ public:
    inline double crval2() const { return m_crval2; }
 
    inline bool periodic() const { return m_isPeriodic; }
-
 
 protected:
 

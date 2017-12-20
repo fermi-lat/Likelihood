@@ -17,6 +17,7 @@
 #include "astro/ProjBase.h"
 #include "astro/HealpixProj.h"
 #include "Likelihood/ProjMap.h"
+#include "Likelihood/CountsMapBase.h"
 #include "healpix_map.h"
 
 namespace Likelihood {
@@ -68,9 +69,10 @@ public:
 		  double radius=180, double ra=0, double dec=0.,
 		  bool interpolate=false, bool enforceEnergyRange=false);
 
-   HealpixProjMap(const CountsMapHealpix& theMap);
+   HealpixProjMap(const CountsMapHealpix& theMap, 
+		  CountsMapBase::ConversionType cType);
 
-  HealpixProjMap(const HealpixProjMap &, bool copy_image=true);
+   HealpixProjMap(const HealpixProjMap &, bool copy_image=true);
 
    HealpixProjMap(const HealpixProjMap &, const double& energy, const Healpix_Map<float>& image);
 
