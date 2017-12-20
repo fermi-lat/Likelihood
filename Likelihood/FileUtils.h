@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "tip/Image.h"
 #include "Likelihood/SparseVector.h"
 
 namespace tip {
@@ -28,6 +29,9 @@ namespace optimizers {
   class Function;
 }
 
+namespace evtbin {
+  class HealpixBinner;
+}
 
 namespace Likelihood {
   
@@ -36,6 +40,7 @@ namespace Likelihood {
   class CountsMapHealpix;
   class Source;
   class SourceModel;
+  class HistND;
 
   namespace FileUtils {
 
@@ -53,6 +58,15 @@ namespace Likelihood {
       HPX_Sparse = 3,
       //! HEALPix, partial sky
       HPX_Partial = 4 } SrcMapType;
+
+
+    /* Construct the path to a template file
+
+       basename  : The name of the file with the directory
+       filepath  : Filled with the full path to the template file
+    */
+    void makeTemplateFilepath(const std::string& basename, 
+			      std::string& filepath);
 
 
     /* Test if a FITS file as an extension
@@ -121,6 +135,39 @@ namespace Likelihood {
      */
     SrcMapType get_src_map_type(const std::string& filename, 
 				const std::string& extension);
+
+
+    /* Write the energies HDU to a FITS file
+
+       filename   : The FITS file
+       extension  : The FITS HDU extension name
+       energies   : A vector with the energies
+
+       return ptr for success, NULL for failure
+    */
+    tip::Extension* replace_energies(const std::string& filename, 
+				     const std::string& extension,
+				     const std::vector<double>& energies);
+
+    /* Replace an image in a FITS file 
+
+       image      : The FITS image
+       hist       : The HistND object with the data
+    */
+    void replace_image_from_hist_wcs(tip::Image& image,
+				     HistND& hist);
+
+    /* Replace a table in a FITS file with a healpix image
+
+       table      : The FITS table
+       colString  : Prefix to use for energy bin columns
+       hist       : The HistND object with the data
+       hpx_binner : Object with healpix map info
+    */
+    void replace_image_from_hist_hpx(tip::Table& table,
+				     const std::string& colString,
+				     HistND& hist,
+				     evtbin::HealpixBinner& hpx_binner);
 
 
     /* Replace an image in a FITS file 
