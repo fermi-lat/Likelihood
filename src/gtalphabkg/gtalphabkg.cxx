@@ -57,7 +57,8 @@ public:
 private:
 
    st_app::AppParGroup & m_pars;
-
+ 
+   std::vector<std::string> m_inputFiles;
    std::vector<Likelihood::CountsMapBase*> m_inputMaps;
    Likelihood::CountsMapBase* m_output;
 
@@ -90,11 +91,10 @@ void AlphaBkg::computeAlphaBkg() {
    float epsilon = m_pars["epsilon"];
    float epsilon2 = epsilon*epsilon;
 
-   std::vector<std::string> inputFiles;
-   st_facilities::Util::readLines(m_pars["inputs"], inputFiles);
+   st_facilities::Util::readLines(m_pars["inputs"], m_inputFiles);
 
-   for ( std::vector<std::string>::const_iterator itr = inputFiles.begin();
-	 itr != inputFiles.end(); itr++ ) {
+   for ( std::vector<std::string>::const_iterator itr = m_inputFiles.begin();
+	 itr != m_inputFiles.end(); itr++ ) {
      Likelihood::CountsMapBase* cmap = Likelihood::AppHelpers::readCountsMap(*itr); 
      m_inputMaps.push_back(cmap);
    }
@@ -110,4 +110,8 @@ void AlphaBkg::updateDssKeywords() {
   std::string outfile = m_pars["outfile"];
   tip::Image * my_image = tip::IFileSvc::instance().editImage(outfile, "");
   my_image->getHeader().setKeyword("NDSKEYS", 0);
+
+  Likelihood::CountsMapBase::addAlphaMapKeywords(m_pars["outfile"],
+						 m_pars["epsilon"],
+						 m_inputFiles);
 }

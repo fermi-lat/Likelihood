@@ -103,4 +103,6 @@ void BkgEffMap::updateDssKeywords() {
 						      m_pars["outfile"],
 						      m_helper, 
 						      m_pars["irfs"]);
+  Likelihood::CountsMapBase::addBkgEffKeywords(m_pars["outfile"],
+					       m_pars["cmap"]);
 }

@@ -100,7 +100,7 @@ void WtsMap::computeWtsMap() {
   m_bkg_eff_map = Likelihood::AppHelpers::readCountsMap(effbkgmap_file); 
   m_output = Likelihood::CountsMapBase::makeWtsMap(epsilon2, m_alpha_map, *m_bkg_eff_map);
   std::string outfile = m_pars["outfile"];
-  m_output->writeOutput("gtalphgbkg", outfile);
+  m_output->writeAsWeightsMap("gtwtsmap", outfile);
   
 }
 
@@ -109,4 +109,8 @@ void WtsMap::updateDssKeywords() {
 						      m_pars["outfile"],
 						      0,
 						      "CALDB");
+  Likelihood::CountsMapBase::addWtsMapKeywords(m_pars["outfile"],
+					       m_pars["epsilon"],
+					       m_pars["effbkgfile"],
+					       m_pars["alphafile"]);
 }
