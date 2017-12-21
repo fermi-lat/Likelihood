@@ -50,322 +50,546 @@ Some folks
 %%%%%%%%%%%%
 
 The negative log-likelihood is:
+
 \begin{equation}
   - \ln \mathcal{L} = \sum_i^{\rm pix} \sum_k^{\rm energy}  N_{ik} \ln M_{ik} - M_{ik},
 \end{equation}
-where $N_{ik}$ and $M_{ik}$ are respectively the number of observed and model counts 
+
+\noindent where $N_{ik}$ and $M_{ik}$ are respectively the number of observed and model counts 
 for pixel $i$ and energy bin $k$.  The sum runs over all pixels and energy bins in the analysis.
 
 In the case of a weighted analysis this becomes:
-\begin{equation}
-  - W \ln \mathcal{L} = \sum_i^{\rm pix} \sum_k^{\rm energy}  W_{ik} \cdot ( N_{ik} \ln M_{ik} - M_{ik} )
-\end{equation}
-where $W_{ik}$ is the weight assigned to pixel and energy bin $ik$. 
 
-There are a number of complications in the way that this is calculated.
+\begin{equation}
+  - \ln \tilde{\mathcal{L}} = \sum_i^{\rm pix} \sum_k^{\rm energy}  w_{ik} \cdot ( N_{ik} \ln M_{ik} - M_{ik} ),
+\end{equation}
+
+\noindent where $w_{ik}$ is the weight assigned to pixel and energy bin $ik$. 
+
+We also want to calculate the derivatives of the likelihood with respect to the
+free parameters ($x_{\alpha}$):
+
+\begin{equation}
+\frac{-\partial \ln \tilde{\mathcal{L}}}{\partial x_{\alpha}} = \sum_i^{\rm pix} \sum_k^{\rm energy} \frac{w_{ik} N_{ik}}{M_{ik}} \frac{\partial M_{ik}}{\partial x_{\alpha}} - w_{ik} \frac{\partial M_{ik}}{\partial x_{\alpha}}.
+\end{equation}
+
+
+There are a number of complications in the way that these quantities
+are calculated.
 \begin{enumerate}
-\item For speed of evaluation we calculate the two terms, i.e, the $N_{ik} \ln M_{ik}$ and the $M_{ik}$ terms, 
-  seperately, as we can take certain short cuts in the two different cases.
-\item Some quantities are integral quantities, defined over the energy bins, and some
-  are differential, defined at the bin edges.  We have to take care to treat the two
-  cases properly. 
-\item We need to retain the ability to deal with energy dispersion.
+\item The spatial binning can be either WCS or HEALPix based.
+\item Some quantities are integral quantities, defined over the energy
+  bins, and some are differential, defined at the bin edges.  We have
+  to take care to treat the two cases properly.
 \item We need need to treat both the weighted and unweighted cases.
-\item We precompute and cache many parts of the calculation.
+\item We need to retain the ability to deal with energy dispersion.
+\item For speed of evaluation we calculate the summation terms
+  separately. This allows us to take certain short cuts in
+  the two different cases.
+\item For speed, we also precompute and cache many parts of the
+  calculation.
 \end{enumerate}
 
+In this note we are going to ignore the difference between WCS and
+HEALPix based maps.  For our purposes this just means that the pixel
+index $i$ runs over the flattened map in the WCS case.
 
-\section{The summation over $N \ln M$.}
-
-For this term we note that only bins with observed counts contribute to the sum.
-Therefore, in general we will indentify the ``filled'' pixels once and then
-only sum over those. 
-
-We can also merge the $W_{ik} N_{ik}$ into a ``weighted counts map'' with $\tilde{N_{ik}} = W_{ik} N_{ik}$.
-We do this because there are a number of reasons to carry around the weighed counts map, 
-e.g., for debugging and diagnostic purposes:
-\begin{equation}
-  \sum_i^{\rm pix} \sum_k^{\rm energy} \tilde{N_{ik}} \ln M_{ik},
-\end{equation}
-where in practice we will only sum over the ``filled'' pixels, where $\tilde{N_{ik}} \ne 0$.
+In principle we should be working with the energy bin edges: $E_k^-$,
+$E_k^+$.  However, we always use connected energy bins, so that the
+lower edge of one energy bin is the upper edge of the previous bin:
+$E_k \equiv E_k^- = E_{k-1}^+$.
 
 
-\section{Computing the model counts: $M_i$.}
+\section{Evaluation of the likelihood function}\label{sec:like}
 
-To compute the model counts we sum over the model counts, $M_{ijk}$ of the sources in the model, indexed by $j$:
+Most of the work in evaluation the likelihood function comes in
+computing the model counts (\S\ref{subsec:like_model_counts} and
+\S\ref{subsec:like_model_edisp}).  Then, as stated above, we calculate
+the two terms in the likelihood expression separately: the first is
+the summation over $ w_{ik} N_{ik} \ln M_{ik}$ (\S\ref{subsec:like_sum1}) and
+the second is the summation over $w_{ik} M_{ik}$ (\S\ref{subsec:like_sum2}).
+
+
+\subsection{Computing the model counts: $M_i$.}\label{subsec:like_model_counts}
+
+To compute the model counts we sum over the model counts, $M_{ijk}$ of
+the sources in the model, indexed by $j$:
+
 \begin{equation}
   M_{ik} =  \sum_j^{\rm src} M_{ijk}.
 \end{equation}
-We also precompute the ``spatial'' part of the model counts $m_{ijk}$ , i.e., the spatial model convolved with the 
-point-spread function (PSF) and the effective area $A_{\rm eff}$.  Those computations are discussed elsewhere.
 
-We then use log-log quadrature to integrate the product of the spatial and spectral parts of the model over 
-each energy bin.  This gives us:
-\begin{equation}
-  M_{ijk} = (m_{ijk} S_{jk} E_k +  m_{ijk+1} S_{jk+1} E_{k+1}) \cdot ln(E_{k+1}/E_{k}) / 2,
-\end{equation}
-where $m_{ijk}$ is the precomputed value of the ``source map'' and $S_{jk}$ is the spectral model for source $j$ at energy bin edge $k$.
+\noindent We also precompute the ``spatial'' part of the model counts
+$m_{ijk}$ , i.e., the spatial model convolved with the point-spread
+function (PSF) and the effective area $A_{\rm eff}$.  Those
+computations are discussed elsewhere.
 
-Since logarithms are expensive, the term $r_k = ln(E_{k+1}/E_{k})$ is precomputed and cached for each $k$, giving us:
+We then use log-log quadrature to integrate the product of the spatial
+and spectral parts of the model over each energy bin.  This gives us:
+
 \begin{equation}
-  M_{ijk} = (m_{ijk} S_{jk} E_k +  m_{ijk+1} S_{jk+1} E_{k+1}) r_k / 2.
+  M_{ijk} = (m_{ijk} S_{jk} E_k +  m_{ijk+1} S_{jk+1} E_{k+1}) \cdot \frac{1}{2} \ln\frac{E_{k+1}}{E_{k}},
 \end{equation}
 
-A key point is that we define $y_{ijk} = m_{ijk} S_{jk}$ actually combine them between sources.  This speeds up the evaluation 
-a bit, (and makes our live a lot more complicated).   Before we cached the $r_k$ it probably sped things up a lot.  
-These $y_{ijk}$ have gotten the name ``model weights'' which is unfourtunate because it is easily confused with the likelihood weights.
+\noindent where $m_{ijk}$ is the precomputed value of the ``source
+map'' and $S_{jk}$ is the spectral model for source $j$ at energy bin
+edge $k$.
+
+Since logarithms are expensive, the term $r_k = ln(E_{k+1}/E_{k})$ is
+precomputed and cached for each $k$, giving us:
+
 \begin{equation}
-  M_{ijk} = (y_{ijk} E_k +  y_{ijk+1} E_{k+1}) r_k / 2.
+  M_{ijk} = (m_{ijk} S_{jk} E_k +  m_{ijk+1} S_{jk+1} E_{k+1}) \frac{r_k}{2}.
 \end{equation}
 
-We can sum the model weights over the sources:
+\noindent A key point here is that the quantities $y_{ijk} = m_{ijk}
+S_{jk}$ can be combined between sources.  This speeds up the
+evaluation a bit, (and makes our lives a lot more complicated).
+Before we cached the $r_k$ it probably sped things up a lot.  These
+$y_{ijk}$ have gotten the name ``model weights'' which is unfortunate
+because it is easily confused with the likelihood weights.
+
+\begin{equation}
+  M_{ijk} = (y_{ijk} E_k +  y_{ijk+1} E_{k+1}) \frac{r_k}{2}.
+\end{equation}
+
+\noindent We can sum the model weights over the sources:
+
 \begin{equation}
   Y_{ik} = \sum_j^{\rm src} y_{ijk}.
 \end{equation}
 
-We can compute the model counts using the summed model weights:
+\noindent We can compute the model counts using the summed model
+weights:
+
 \begin{equation}
-  M_{ik} = (Y_{ik} E_k +  Y_{ik+1} E_{k+1}) r_k / 2.
+  M_{ik} = (Y_{ik} E_k +  Y_{ik+1} E_{k+1}) \frac{r_k}{2}.
 \end{equation}
 
-To speed up the calculation we seperately compute and cache the model weights for the fixed sources:
+\noindent To speed up the calculation we separately compute and cache
+the model weights for the fixed sources:
+
 \begin{equation}
   Y_{ik}^{\rm fixed} = \sum_j^{\rm fixed} y_{ijk}.
 \end{equation}
-So that the total model weights is:
+
+\noindent So that the total model weights are:
+
 \begin{equation}
-  Y_{ik} = Y_{ik}^{\rm fixed} + \sum_j^{\rm free} y_{ijk},
+  Y_{ik} = Y_{ik}^{\rm fixed} + \sum_j^{\rm free} y_{ijk}.
 \end{equation}
 
 
-\section{Applying the energy dispersion.}
+\subsection{Applying the energy dispersion.}\label{subsec:like_model_edisp}
 
-To apply the energy dispersion we first precompute the detector response matrix (DRM, $D_{kl}$) 
-that gives the chances for a photon in true energy bin $l$ to be observed in energy bin $k$.
-We then compute the unconvolved energy spectrum for a source,
-given the current model by summing the model over all the pixels for that energy layer:
+To apply the energy dispersion we first precompute the detector
+response matrix (DRM, $D_{kl}$) that gives the chances for a photon in
+true energy bin $l$ to be observed in energy bin $k$.  We then compute
+the unconvolved energy spectrum for a source, given the current model
+by summing the model over all the pixels for that energy layer:
+
 \begin{equation}
   U_{jl} = \sum_i^{\rm pix} M_{ijl}.
 \end{equation}
-And use that to compute the convolved spectrum:
+
+\noindent And use that to compute the convolved spectrum:
+
 \begin{equation}
   C_{jk} = \sum_l^{\rm energies} D_{kl} U_{jl}.
 \end{equation}
-We then take the ratio of the convolved to unconvolved spectra in each energy bin (i.e., 
-for $k$=$l$) as a correction factor for that energy for that source:
+
+\noindent We then take the ratio of the convolved to unconvolved
+spectra in each energy bin (i.e., for $k$=$l$) as a correction factor
+for that energy for that source:
+
 \begin{equation}
   \xi_{jk} = C_{jk} U_{jk},
 \end{equation}
-and use this to adjust the model energy spectrum from true energy to measure energy:
+
+\noindent and use this to adjust the model energy spectrum from true
+energy to measured energy:
+
 \begin{equation}
   M_{ijk} = \xi_{jk} M_{ijk}^{\rm true}.
 \end{equation}
-So that the equation for the model becomes:
+
+\noindent So that the equation for the model becomes:
+
 \begin{equation}
-  M_{ijk} = \xi_{jk} \cdot (m_{ijk} S_{jk} E_k +  m_{ijk+1} S_{jk+1} E_{k+1}) r_k / 2.
+  M_{ijk} = \xi_{jk} \cdot (m_{ijk} S_{jk} E_k +  m_{ijk+1} S_{jk+1} E_{k+1}) \frac{r_k}{2}.
 \end{equation}
-The mismatch between then number of energy bins and energy bin edges (i.e., the difference in index
-on $\xi$ and the other terms) makes things a bit more complicated, now we need
-two weights for each bin:
+
+The mismatch between then number of energy bins and energy bin edges
+(i.e., the difference in index on $\xi$ and the other terms) makes
+things a bit more complicated, now we need two weights for each bin:
+
 \begin{eqnarray}
-  y_{ijk}^{-} & = & \xi_{jk} m_{ijk} S_{jk} \nonumber \\
+  y_{ijk}^{-} & = & \xi_{jk} m_{ijk} S_{jk}, \nonumber \\
   y_{ijk}^{+} & = & \xi_{jk} m_{ijk+1} S_{jk+1}.
 \end{eqnarray}
-And then we can write the model as:
+
+\noindent Then we can write the model as:
+
 \begin{equation}
-  M_{ijk} = ( y_{ijk}^{-} E_k + y_{ijk}^{+} E_{k+1} ) r_k / 2.
+  M_{ijk} = ( y_{ijk}^{-} E_k + y_{ijk}^{+} E_{k+1} ) \frac{r_k}{2}.
 \end{equation}
-And then the total model weights and fixed model weights also come in two parts:
+
+\noindent The total model weights and fixed model weights
+also come in two parts:
+
 \begin{eqnarray}
-  Y_{ik}^{-} & = & Y_{ik}^{-,\rm fixed} + \sum_j^{\rm free} y_{ijk}^{-} \nonumber \\
+  Y_{ik}^{-} & = & Y_{ik}^{-,\rm fixed} + \sum_j^{\rm free} y_{ijk}^{-}, \nonumber \\
   Y_{ik}^{+} & = & Y_{ik}^{+,\rm fixed} + \sum_j^{\rm free} y_{ijk}^{+}.
 \end{eqnarray}
-So that the total model value in a given bin is then:
+
+\noindent So that the total model value in a given bin is:
+
 \begin{equation}
-  M_{ik} = ( Y_{ik}^{-} E_k + Y_{ik}^{+} E_{k+1} ) r_k / 2.
+  M_{ik} = ( Y_{ik}^{-} E_k + Y_{ik}^{+} E_{k+1} ) \frac{r_k}{2}.
 \end{equation}
 
 
-\section{The summation over $M$.}
+\subsection{The summation over $W N \ln M$.}\label{subsec:like_sum1}
 
-For this term we all the bins with observed counts contribute to the sum,
-but we not that we can use an something similar to the model weights to speed things
-up.  Specifically, the sum of the source maps over all the pixels in a energy layer
-doesn't change as we are fitting the sources.  This sum is called ``Npred'' in the
-code, which is unfortunate, as it isn't really a predicted number of counts, but rather
-something that you can used to get the predicted number of counts.  Specifically 
-we can define the sums:
+For this term we note that only bins with observed counts contribute
+to the sum.  Therefore, in general we will identify the ``filled''
+pixels once and then only sum over those.
+
+We can merge the $W_{ik} N_{ik}$ into a ``weighted counts map'' with
+$\tilde{N_{ik}} = W_{ik} N_{ik}$.  We do this because there are a
+number of reasons to carry around the weighed counts map, e.g., for
+debugging and diagnostic purposes, and because it is more efficient to
+use the weighted counts map in many computations.
+
+\begin{equation}
+  \sum_i^{\rm pix} \sum_k^{\rm energy} \tilde{N_{ik}} \ln M_{ik},
+\end{equation}
+
+\noindent where in practice we will only sum over the ``filled''
+pixels, where $\tilde{N_{ik}} \ne 0$.  This also means that 
+pixels with zero weight will be ignored in the summation over
+filled pixels. 
+
+
+\subsection{The summation over $M$.}\label{subsec:like_sum2}
+
+For this term we all the bins with observed counts contribute to the
+sum, but we note that we can use something similar to the model
+weights to speed things up.  Specifically, the sum of the source maps
+over all the pixels in a energy layer does not change as we are fitting
+the sources.  This sum is called ``Npred'' in the code, which is
+unfortunate, as it is not really a predicted number of counts, but
+rather something that you can used to get the predicted number of
+counts.  Specifically we can define the sums:
+
 \begin{equation}
   P_{jk} = \sum_i m_{ijk},
 \end{equation}
 
-Then the unconvolved and convolved specturm for a free source $j$ become:
-\begin{eqnarray}
-  U_{jk} = ( P_{jk} S_{jk} E_k + P_{jk+1} S_{jk+1} E_{k+1} ) r_k / 2  \nonumber \\
-  C_{jk} = \xi_{jk} ( P_{jk} S_{jk} E_k + P_{jk+1} S_{jk+1} E_{k+1} ) r_k / 2.
+\noindent Then the unconvolved and convolved spectra for a free
+source $j$ become:
+
+\begin{eqnarray}\label{eq:spectra_no_weights}
+  U_{jk} = ( P_{jk} S_{jk} E_k + P_{jk+1} S_{jk+1} E_{k+1} ) \frac{r_k}{2},  \nonumber \\
+  C_{jk} = \xi_{jk} ( P_{jk} S_{jk} E_k + P_{jk+1} S_{jk+1} E_{k+1} ) \frac{r_k}{2}.
 \end{eqnarray}
 
-For fixed sources we can calcule the sum of the npreds, including the spectral tern, 
-and the average values of $\xi$ for the fixed sources
+For fixed sources we can calculate the sum of the Npreds, including the
+spectral term.  Again we because of the issue with energy bin edges, 
+we have to keep track of multiple version of this:
+
 \begin{eqnarray}
-  P_{k}^{\rm fixed} & = & \sum_j^{\rm fixed} S_{jk} P_{jk} \nonumber \\
-  P_{k}^{-, \rm fixed} & = & \sum_j^{\rm fixed} \xi_{jk} S_{jk} P_{jk}  \nonumber \\
+  P_{k}^{\rm fixed} & = & \sum_j^{\rm fixed} S_{jk} P_{jk}, \nonumber \\
+  P_{k}^{-, \rm fixed} & = & \sum_j^{\rm fixed} \xi_{jk} S_{jk} P_{jk},  \nonumber \\
   P_{k}^{+, \rm fixed} & = & \sum_j^{\rm fixed} \xi_{jk} S_{jk+1} P_{jk+1}.
 \end{eqnarray}
 
-Then the unconvolved and convolved specturm for the sum of all the fixed sources are
+\noindent The unconvolved and convolved spectra for the sum of
+all the fixed sources are:
+
 \begin{eqnarray}
-  U_{k}^{\rm fixed} = ( P_{k}^{\rm fixed} E_k + P_{k+1}^{\rm fixed}  E_{k+1} )  r_k / 2  \nonumber \\
-  C_{k}^{\rm fixed} = ( P_{k}^{-, \rm fixed} E_k + P_{k}^{+, \rm fixed} E_{k+1} )  r_k / 2.
+  U_{k}^{\rm fixed} = ( P_{k}^{\rm fixed} E_k + P_{k+1}^{\rm fixed}  E_{k+1} ) \frac{r_k}{2},  \nonumber \\
+  C_{k}^{\rm fixed} = ( P_{k}^{-, \rm fixed} E_k + P_{k}^{+, \rm fixed} E_{k+1} )  \frac{r_k}{2}.
 \end{eqnarray}
 
-And the total unconvolved and convolved specturm are:
+\noindent And the total unconvolved and convolved spectra are:
+
 \begin{eqnarray}
-  U_{k} = U_{k}^{\rm fixed} + \sum_j^{\rm free} U_{jk} \nonumber \\
-  C_{k} = C_{k}^{\rm fixed} + \sum_j^{\rm free} C_{jk} 
-\end{eqnarray}
-
-
-\section{Applying Weights to the summation over $M$.}
-
-In this case we have to account for the weights when we sum over the pixels
-\begin{equation}
-  WP_{jk} = \sum_i W_{ik} m_{ijk}.
-\end{equation}
-
-We want to be able to switch between the weighted and unweighted case easily, 
-so we compute the ratio of the weighted to unweighted sums:
-\begin{eqnarray}
-  R_{jk}^{-} & = & \sum_i W_{ik} m_{ijk} / P_{jk} \nonumber \\
-  R_{jk}^{+} & = & \sum_i W_{ik} m_{ijk+1} / P_{jk+1} \nonumber \\
-\end{eqnarray}
-
-Then the weighted unconvolved and convolved specturm for a free source $j$ become:
-\begin{eqnarray}
-  WU_{jk} = ( R_{jk}^{-} P_{jk} S_{jk} E_k + R_{jk}^{+} P_{jk+1} S_{jk+1} E_{k+1} )  r_k / 2  \nonumber \\
-  WC_{jk} = ( R_{jk}^{-} \xi_{jk} P_{jk} S_{jk} E_k + R_{jk}^{+} \xi_{jk} P_{jk+1} S_{jk+1} E_{k+1} )  r_k / 2.
-\end{eqnarray}
-
-For fixed sources we want we also need the weighted npreds for the true and measured spectra:
-\begin{eqnarray}
-  WP_{k}^{-, \rm fixed} & = & \sum_j^{\rm fixed} R_{jk}^{-} P_{jk} S_{jk}  \nonumber \\
-  WP_{k}^{+, \rm fixed} & = & \sum_j^{\rm fixed} R_{jk}^{+} P_{jk+1} S_{jk+1}  \nonumber \\
-  WP_{k}^{-, \rm efixed} & = & \sum_j^{\rm fixed} \xi_{jk} R_{jk}^{-} P_{jk} S_{jk}  \nonumber \\
-  WP_{k}^{+, \rm efixed} & = & \sum_j^{\rm fixed} \xi_{jk} R_{jk}^{+} P_{jk+1} S_{jk+1}.  
-\end{eqnarray}
-
-Then the weighted unconvolved and convolved specturm for the sum of all the fixed sources are
-\begin{eqnarray}
-  WU_{k}^{\rm fixed} = ( WP_{k}^{-, \rm fixed} E_k + WP_{k}^{+, \rm fixed} E_{k+1} )  r_k / 2  \nonumber \\
-  WC_{k}^{\rm fixed} = ( WP_{k}^{-, \rm efixed} E_k + WP_{k}^{+, \rm efixed} E_{k+1} )  r_k / 2.
-\end{eqnarray}
-
-And the total unconvolved and convolved specturm are:
-\begin{eqnarray}
-  WU_{k} = WU_{k}^{\rm fixed} + \sum_j^{\rm free} WU_{jk} \nonumber \\
-  WC_{k} = WC_{k}^{\rm fixed} + \sum_j^{\rm free} WC_{jk} 
+  U_{k} = U_{k}^{\rm fixed} + \sum_j^{\rm free} U_{jk}, \nonumber \\
+  C_{k} = C_{k}^{\rm fixed} + \sum_j^{\rm free} C_{jk}.
 \end{eqnarray}
 
 
-%%%%%%%%%%%%
-\section{Analytic derivatives}
-%%%%%%%%%%%%
+\subsection{Applying Weights to the summation over $M$.}\label{subsec:like_sum2_weights}
 
-In general want the derivatives of the weighted log likelihood w.r.t., the 
-free parameters:
+In this case we have to account for the weights when we sum over the
+pixels
 
 \begin{equation}
-  \frac{-\partial W \ln \mathcal{L}}{\partial x_{\alpha}} = \sum_i^{\rm pix} \sum_k^{\rm energy} (W_{ik} N_{ik} / M_{ik}) \frac{\partial M_{ik}}{\partial x_{\alpha}} - W_{ik} \frac{\partial M_{ik}}{\partial x_{\alpha}}.
+  \tilde{P}_{jk} = \sum_i w_{ik} m_{ijk}.
 \end{equation}
-As before we can replace the observed counts with the weighed observed counts $\tilde{N_{ik}} = W_{ik} N_{ik}$ and split the 
-evaluation into two sums, one over the filled pixels, the second over the derivatives of the total models counts 
-for each of the free sources.
 
+\noindent We want to be able to switch between the weighted and
+unweighted case easily, so we compute the ratio of the weighted to
+unweighted sums:
 
-\section{The derivative $\frac{\partial M_{ik}}{\partial x_{\alpha}}$}
-
-We need to evalute the derivate $\frac{\partial M_{ik}}{\partial x_{\alpha}}$.  We can ignore the fixed sources, as they won't contribute to the partial derivative.  Also, in general we are only varying spectral parameters, so only the spectral terms (the $S_{jk}$) are relevant.  (This neglects the effect of the change in the energy disperison corrections: $\xi_{jk}$, but that is a higher order effect.)  Finally, in the first term this is multiplied by $\tilde{N_{ik}}$ so we only need to sum over the filled pixels.  
-\begin{equation}
-  \frac{\partial M_{ijk}}{\partial x_{\alpha}} = \xi_{jk} \cdot (m_{ijk} \frac{\partial S_{jk}}{\partial alpha} E_k +  m_{ijk+1} \frac{\partial S_{jk+1}}{\partial alpha} E_{k+1}) r_k / 2.
-\end{equation}
-We pre-compute and cache the various $\delta_{jk\alpha} = \frac{\partial S_{jk}}{\partial x_{\alpha}}$ so we have:
-\begin{equation}
-  \frac{\partial M_{ijk}}{\partial x_{\alpha}} = \xi_{jk} \cdot (m_{ijk} \delta_{jk\alpha} E_k +  m_{ijk+1} \delta_{jk+1\alpha} E_{k+1}) r_k / 2.
-\end{equation}
-All of these terms except for the $\delta_{jk\alpha}$ were already computed in evaluating the likelihood.  We do need to make check if any of the 
-parameter values have changed since the evaluation of the likelihood.  
-
-
-\section{The derivative of  $\frac{\partial M}{\partial x_{\alpha}}$}
-
-This is the derivative of the second term in the log likelihood.  Here we need to sum over all the pixels, but we only need to evaluate this for the 
-free sources.  
-
-The derivative of the weighted unconvolved and convolved specturm for a free source $j$:
 \begin{eqnarray}
-  WU_{jk} = ( R_{jk}^{-} P_{jk} \delta_{jk\alpha} E_k + R_{jk}^{+} P_{jk+1} \delta_{jk+1\alpha} E_{k+1} )  r_k / 2  \nonumber \\
-  WC_{jk} = ( R_{jk}^{-} \xi_{jk} P_{jk} \delta_{jk\alpha} E_k + R_{jk}^{+} \xi_{jk} P_{jk} \delta_{jk+1\alpha} E_{k+1} )  r_k / 2.
+  R_{jk}^{-} & = & \sum_i w_{ik} m_{ijk} / P_{jk} \nonumber \\
+  R_{jk}^{+} & = & \sum_i w_{ik} m_{ijk+1} / P_{jk+1}. 
 \end{eqnarray}
 
-As with the first term, all of these terms except for the $\delta_{jk\alpha}$ were already computed in evaluating the likelihood.   
+\noindent Then the weighted unconvolved and convolved spectrum for a
+free source $j$ become:
 
-%%%%%%%%%%%%%%%%%
+\begin{eqnarray}
+  \tilde{U}_{jk} = ( R_{jk}^{-} P_{jk} S_{jk} E_k + R_{jk}^{+} P_{jk+1} S_{jk+1} E_{k+1} )  \frac{r_k}{2},  \nonumber \\
+  \tilde{C}_{jk} = \xi_{jk} ( R_{jk}^{-} P_{jk} S_{jk} E_k + R_{jk}^{+} P_{jk+1} S_{jk+1} E_{k+1} ) \frac{r_k}{2}.
+\end{eqnarray}
+
+\noindent The only differences with respect to Eq.~\ref{eq:spectra_no_weights} 
+are the $R_{jk}^{\pm}$ terms.  
+
+For fixed sources we also need the weighted Npreds for the
+true and measured spectra:
+
+\begin{eqnarray}
+  \tilde{P}_{k}^{-, \rm fixed} & = & \sum_j^{\rm fixed} R_{jk}^{-} P_{jk} S_{jk},  \nonumber \\
+  \tilde{P}_{k}^{+, \rm fixed} & = & \sum_j^{\rm fixed} R_{jk}^{+} P_{jk+1} S_{jk+1},  \nonumber \\
+  \tilde{P}_{k}^{-, \rm efixed} & = & \sum_j^{\rm fixed} \xi_{jk} R_{jk}^{-} P_{jk} S_{jk},  \nonumber \\
+  \tilde{P}_{k}^{+, \rm efixed} & = & \sum_j^{\rm fixed} \xi_{jk} R_{jk}^{+} P_{jk+1} S_{jk+1}.  
+\end{eqnarray}
+
+\noindent The weighted unconvolved and convolved spectrum for the sum
+of all the fixed sources are:
+
+\begin{eqnarray}
+  \tilde{U}_{k}^{\rm fixed} = ( \tilde{P}_{k}^{-, \rm fixed} E_k + \tilde{P}_{k}^{+, \rm fixed} E_{k+1} )  \frac{r_k}{2},  \nonumber \\
+  \tilde{C}_{k}^{\rm fixed} = ( \tilde{P}_{k}^{-, \rm efixed} E_k + \tilde{P}_{k}^{+, \rm efixed} E_{k+1} )  \frac{r_k}{2}.
+\end{eqnarray}
+
+\noindent And the total unconvolved and convolved spectrum are:
+
+\begin{eqnarray}
+  \tilde{U}_{k} = \tilde{U}_{k}^{\rm fixed} + \sum_j^{\rm free} \tilde{U}_{jk} \nonumber \\
+  \tilde{C}_{k} = \tilde{C}_{k}^{\rm fixed} + \sum_j^{\rm free} \tilde{C}_{jk}.
+\end{eqnarray}
+
+
+\section{Analytic derivatives}\label{sec:derivatives}
+
+In general, we want the derivatives of the weighted log likelihood w.r.t.,
+the free parameters:
+
+\begin{equation}\label{eq:derivatives}
+  \frac{-\partial \ln \tilde{\mathcal{L}}}{\partial x_{\alpha}} = \sum_i^{\rm pix} \sum_k^{\rm energy} \frac{w_{ik} N_{ik}}{M_{ik}} \frac{\partial M_{ik}}{\partial x_{\alpha}} - w_{ik} \frac{\partial M_{ik}}{\partial x_{\alpha}}.
+\end{equation}
+
+\noindent As before, we can replace the observed counts with the
+weighed observed counts $\tilde{N_{ik}} = w_{ik} N_{ik}$ and split the
+evaluation into two sums, one over the filled pixels
+(\S\ref{subsec:derivatives_part1}), the second over the derivatives of
+the total models counts for each of the free sources
+(\S\ref{subsec:derivatives_part2}).
+
+
+\subsection{The derivatives $\frac{\partial M_{ijk}}{\partial x_{\alpha}}$}\label{subsec:derivatives_part1}
+
+The first term of Eq.~\ref{eq:derivatives} is:
+
+\begin{equation}
+  \sum_i^{\rm pix} \sum_k^{\rm energy} \frac{w_{ik} N_{ik}}{M_{ik}} \frac{\partial M_{ik}}{\partial x_{\alpha}} = 
+  \sum_i^{\rm pix} \sum_k^{\rm energy} \frac{\tilde{N}_{ik}}{M_{ik}} \sum_j^{\rm src} \frac{\partial M_{ijk}}{\partial x_{\alpha}}.
+\end{equation}
+
+We write it like this because we have already computed $M_{ij}$ so we
+do not need to re-do the sums over sources there.  However, we need to
+evaluate the derivatives $\frac{\partial M_{ijk}}{\partial x_{\alpha}}$.
+We can ignore the fixed sources, as they won't contribute to the
+partial derivative.  Also, in general we are only varying spectral
+parameters, so only the spectral terms (the $S_{jk}$) are relevant.
+(This neglects the effect of the change in the energy dispersion
+corrections: $\xi_{jk}$, but that is a higher order effect.)  Finally,
+in the first term this is multiplied by $\tilde{N_{ik}}$ so we only
+need to sum over the filled pixels.
+
+\begin{equation}
+  \frac{\partial M_{ijk}}{\partial x_{\alpha}} = \xi_{jk} \cdot (m_{ijk} \frac{\partial S_{jk}}{\partial x_{alpha}} E_k +  m_{ijk+1} \frac{\partial S_{jk+1}}{\partial x_{alpha}} E_{k+1}) \frac{r_k}{2}.
+\end{equation}
+
+\noindent We pre-compute and cache the various $\delta_{jk\alpha} = \frac{\partial S_{jk}}{\partial x_{\alpha}}$ so we have:
+
+\begin{equation}
+  \frac{\partial M_{ijk}}{\partial x_{\alpha}} = \xi_{jk} \cdot (m_{ijk} \delta_{jk\alpha} E_k +  m_{ijk+1} \delta_{jk+1\alpha} E_{k+1}) \frac{r_k}{2}.
+\end{equation}
+
+\noindent All of these terms except for the $\delta_{jk\alpha}$ were
+already computed in evaluating the likelihood.  We do need to make
+check if any of the parameter values have changed since the evaluation
+of the likelihood, and possibly updated the cached $M_{ik}$ in the 
+prefactor. 
+
+\subsection{The derivative of  $\frac{\partial M}{\partial x_{\alpha}}$}\label{subsec:derivatives_part2}
+
+The second term of Eq.~\ref{eq:derivatives} is:
+
+\begin{equation}
+  \sum_i^{\rm pix} \sum_k^{\rm energy} w_{ik}\frac{\partial M_{ik}}{\partial x_{\alpha}} = 
+  \sum_k^{\rm energy} \sum_j^{\rm src} \sum_i^{\rm pix} w_{ik} \frac{\partial M_{ijk}}{\partial x_{\alpha}}.
+\end{equation}
+
+\noindent, where we need to sum over all the pixels, but we only need
+to evaluate this for the free sources.  Since we are summing over all
+the pixels, we can express the derivatives $\frac{\partial
+  M_{ijk}}{\partial x_{\alpha}}$ in terms of $\tilde{U}_{jk}$ and
+$\tilde{C}_{jk}$ which we computed in the likelihood evaluation:
+
+\begin{eqnarray}
+  \sum_i^{\rm pix} \frac{\partial M_{ijk}^{\rm true}}{\partial x_{\alpha}} = \frac{\partial\tilde{U}_{jk}}{\partial x_{\alpha}}, \nonumber \\
+  \sum_i^{\rm pix} \frac{\partial M_{ijk}^{\rm meas}}{\partial x_{\alpha}} = \frac{\partial\tilde{C}_{jk}}{\partial x_{\alpha}}.  
+\end{eqnarray}
+
+
+The derivative of the weighted unconvolved and convolved spectrum for
+a free source $j$:
+\begin{eqnarray}
+  \frac{\partial\tilde{U}_{jk}}{\partial x_{\alpha}} & = & ( R_{jk}^{-} P_{jk} \delta_{jk\alpha} E_k + R_{jk}^{+} P_{jk+1} \delta_{jk+1\alpha} E_{k+1} )  \frac{r_k}{2}, \nonumber \\
+  \frac{\partial\tilde{C}_{jk}}{\partial x_{\alpha}} & = & \xi_{jk} ( R_{jk}^{-}  P_{jk} \delta_{jk\alpha} E_k + R_{jk}^{+} P_{jk} \delta_{jk+1\alpha} E_{k+1} ) \frac{r_k}{2}.
+\end{eqnarray}
+
+As with the first term, all of these terms except for the
+$\delta_{jk\alpha}$ were already computed in evaluating the
+likelihood.
+
+
 \begin{acknowledgements}
   Thanks.
 \end{acknowledgements}
 
 %\bibliography{paper}
 
-\appendix*
+\appendix
 
-\section{Access to various quantities.}
+\section{Access to various quantities.}\label{app:access}
 
-These are the accesss functions used to retrieve various quatities.
+These are the access functions used to retrieve various quantities.
+These all assume that the user has an object of class {\tt
+  BinnedLikelihood} stored in the variable {\tt blike}.  Some of them
+refer to quantities associated with a particular source with {\tt
+  name}.
+
 \begin{itemize}
-\item{ {\bf $N_{ik}$}: BinnedLikelihood::countsMap(). }
-\item{ {\bf $\tilde{N_{ik}}$}: BinnedLikelihood::dataCache().weightedCounts(), which returns a pointer that may be null.}
-\item{ {\bf $E_k$}: BinnedLikelihood::energies(). }
-\item{ {\bf $r_{k}$}: BinnedLikelihood::dataCache(). }
-\item{ {\bf $W_{ik}$}: BinnedLikelihood::weightMap(), which returns a pointer that may be null.}
-\item{ {\bf $M_{ik}$}: BinnedLikelihood::computeModelMap(modelMap) fills modelMap with the $M_{ik}$ values.}
-\item{ {\bf $M_{ijk}$}: BinnedLikelihood:computeModelMap(name, modelMap) fills modelMap with the $M_{ijk}$ values.}
-\item{ {\bf $S_{jk}$}: BinnedLikelihood::sourceMap(name).cached\_specVals().}
-\item{ {\bf $U_{jk}$}: BinnedLikelihood::sourceMap(name).cached\_drm\_cache()->true\_counts().}
-\item{ {\bf $C_{jk}$}: BinnedLikelihood::sourceMap(name).cached\_drm\_cache()->meas\_counts().}
-\item{ {\bf $\xi_{jk}$}: BinnedLikelihood::sourceMap(name).cached\_drm\_cache()->xi().}
-\item{ {\bf $Y_{ik}^{\pm,\rm fixed}$}: BinnedLikelihood::fixedModelWts(); this is a vector that has the values for filled pixels only.}
-\item{ {\bf $P_{jk}$}: BinnedLikelihood::sourceMap(name).cached\_npreds().}
-\item{ {\bf $R_{jk}^{\pm}$}: BinnedLikelihood::sourceMap(name).cached\_npred\_weights().}
-\item{ {\bf $P_{k}^{\rm fixed}$}: BinnedLikelihood::fixedNpreds().}
-\item{ {\bf $P_{k}^{\pm, \rm fixed}$}: BinnedLikelihood::fixedNpred\_xis().}
-\item{ {\bf $WP_{k}^{\pm, \rm fixed}$}: BinnedLikelihood::fixedNpred\_wts().}
-\item{ {\bf $WP_{k}^{\pm, \rm efixed}$}: BinnedLikelihood::fixedNpred\_xiwts().}
-\item{ {\bf $WU_{jk}$}: BinnedLikelihood::sourceMap(name).cached\_drm\_cache()->true\_counts\_wt().}
-\item{ {\bf $WC_{jk}$}: BinnedLikelihood::sourceMap(name).cached\_drm\_cache()->meas\_counts\_wt().}
-\item{ {\bf $\delta_{jk\alpha}$}: BinnedLikelihood::sourceMap(name).cached\_specDerivs(), returns the cached the spectral derivatives.}
+\item{ {\bf $N_{ik}$}: {\tt blike.countsMap()}. Returns a pointer
+    to an object of class {\tt CountsMapBase}.}
+\item{ {\bf $\tilde{N_{ik}}$}: {\tt
+      blike.dataCache().weightedCounts()}.  Returns a pointer to
+    an object of class {\tt CountsMapBase} that may be null if no
+    weights have been supplied.}
+\item{ {\bf $E_k$}: {\tt blike.energies()}. Returns a vector of
+    doubles, whose length is equal to the number of energy bin edges.}
+\item{ {\bf $r_{k}$}: {\tt blike.dataCache().log\_energy\_ratios()}.
+    Returns a vector of doubles, whose length is equal to the
+    number of energy bins.}
+\item{ {\bf $w_{ik}$}: {\tt blike.weightMap()}.  Returns a
+    pointer to an object of class {\tt WeightMap} that may be null if
+    no weights have been supplied.}
+\item{ {\bf $M_{ik}$}: {\tt blike.computeModelMap(modelMap)}.  Fills
+    {\tt modelMap} with the $M_{ik}$ values and returns void.}
+\item{ {\bf $M_{ijk}$}: {\tt blike.computeModelMap(name,
+      modelMap)}.  Fills {\tt modelMap} with the $M_{ijk}$ values
+    for the source in question and returns void.}
+\item{ {\bf $Y_{ik}^{\pm,\rm fixed}$}: {\tt blike.fixedModelWts()}.
+    Returns a vector of pairs of doubles, for only the filled pixels.}
+\item{ {\bf $P_{k}^{\rm fixed}$}: {\tt blike.fixedNpreds()}.  Returns
+    a vector of doubles, whose length is equal to the number of energy
+    bin edges.}
+\item{ {\bf $P_{k}^{\pm, \rm fixed}$}: {\tt blike.fixedNpred\_xis()}.
+    Returns a vector of pairs of doubles, whose length is equal to the
+    number of energy bins.}
+\item{ {\bf $\tilde{P}_{k}^{\pm, \rm fixed}$}: {\tt
+      blike.fixedNpred\_wts()}, which returns a vector of pairs of
+    doubles, whose length is equal to the number of energy bins.}
+\item{ {\bf $\tilde{P}_{k}^{\pm, \rm efixed}$}:
+    {\tt blike.fixedNpred\_xiwts()}.  Returns a vector of pairs of
+    doubles, whose length is equal to the number of energy bins.}
+\item{ {\bf $m_{ijk}$}: {\tt blike.sourceMap(name).cached\_model()}.
+    Returns a vector of floats, whose length is equal to the
+    number of energy bin edges times the number of pixels.}
+\item{ {\bf $S_{jk}$}: {\tt blike.sourceMap(name).cached\_specVals()}.
+    Returns a vector of doubles, whose length is equal to the
+    number of energy bin edges.}
+\item{ {\bf $P_{jk}$}: {\tt blike.sourceMap(name).cached\_npreds()}.
+    Returns a vector of doubles, whose length is equal to the
+    number of energy bin edges.}
+\item{ {\bf $R_{jk}^{\pm}$}: {\tt
+      blike.sourceMap(name).cached\_npred\_weights()}.  Returns a
+    vector of pairs of doubles, whose length is equal to the number of
+    energy bins.}
+\item{ {\bf $U_{jk}$}: {\tt
+      blike.sourceMap(name).cached\_drm\_cache()->true\_counts()}.
+    Returns a vector of doubles, whose length is equal to the
+    number of energy bins.}
+\item{ {\bf $C_{jk}$}: {\tt
+      blike.sourceMap(name).cached\_drm\_cache()->meas\_counts()}.
+    Returns a vector of doubles, whose length is equal to the
+    number of energy bins.}
+\item{ {\bf $\xi_{jk}$}: {\tt
+      blike.sourceMap(name).cached\_drm\_cache()->xi()}.  Returns
+    a vector of doubles, whose length is equal to the number of energy
+    bins.}
+\item{ {\bf $\tilde{U}_{jk}$}: {\tt
+      blike.sourceMap(name).cached\_drm\_cache()->true\_counts\_wt()}.
+    Returns a vector of doubles, whose length is equal to the number
+    of energy bins.}
+\item{ {\bf $\tilde{C}_{jk}$}:
+    {\tt blike.sourceMap(name).cached\_drm\_cache()->meas\_counts\_wt().}.
+    Returns a vector of doubles, whose length is equal to the
+    number of energy bins.}
+\item{ {\bf $\delta_{jk\alpha}$}: {\tt
+      blike.sourceMap(name).cached\_specDerivs()}.  Returns a
+    vector of vector of doubles, whose dimensions are the number of
+    free parameters and the number of energy bin edges.}
 \end{itemize}
 
 
 
-\section{Functions and caching}
+\section{Functions and caching}\label{app:functions}
 
 These are the functions used to calculate and cache various quantities.
+Some of the functions assume that the user has an object of class {\tt
+  SourceMap} stored in the variable {\tt srcMap}.
 
 \begin{itemize}
-\item{ {\bf BinnedLikelihood::value()}: returns the negative log likelihood value, $-\ln \mathcal{L}$.}
-\item{ {\bf BinnedLikelihood::getFreeDerivs(derivs)}: fills derivs with the derivatives of the 
-    negative log likelihood, $\frac{\partial \-\ln \mathcal{L}}{\partial x_{\alpha}}$.}
-\item{ {\bf BinnedLikelihood::computeModelMap\_internal()}: computes and caches the $M_{ik}$, $Y_{ik}^{\pm,\rm fixed}$, $P_{k}^{\rm fixed}$,
+\item{ {\bf {\tt blike.value()}}: returns the negative log
+    likelihood value, $-\ln \mathcal{L}$.}
+\item{ {\bf {\tt blike.getFreeDerivs(derivs)}}: fills derivs
+    with the derivatives of the negative log likelihood,
+    $\frac{\partial \-\ln \tilde{\mathcal{L}}}{\partial x_{\alpha}}$.}
+\item{ {\bf {\tt blike.computeModelMap\_internal()}}: computes
+    and caches the $M_{ik}$, $Y_{ik}^{\pm,\rm fixed}$, $P_{k}^{\rm
+      fixed}$, $\tilde{P}_{k}^{\rm fixed}$ and everything needed to compute
+    those.}
+\item{ {\bf {\tt blike.buildFixedModelWts()}}: computes and
+    caches the $Y_{ik}^{\pm,\rm fixed}$, $P_{k}^{\pm, \rm fixed}$,
     $WP_{k}^{\rm fixed}$ and everything needed to compute those.}
-\item{ {\bf BinnedLikelihood::buildFixedModelWts()}: computes and caches the $Y_{ik}^{\pm,\rm fixed}$, $P_{k}^{\pm, \rm fixed}$,
-    $WP_{k}^{\rm fixed}$ and everything needed to compute those.}
-\item{ {\bf SourceMap::setSpectralValues(energies)}: computes and caches the $S_{jk}$.}
-\item{ {\bf SourceMap::setSpectralDerivs(energies, paramNames)}: computes and caches the $\delta_{jk\alpha}$.}
-\item{ {\bf SourceMap::computeNpredArray()}: computes and caches the $U_{jk}$, $C_{jk}$, $\xi_{jk}$ $WU_{jk}$, and $WC_{jk}$.}
-\item{ {\bf SourceMap::update\_drm\_cache(drm)}: computes and caches the $U_{jk}$, $C_{jk}$, $\xi_{jk}$ $WU_{jk}$, and $WC_{jk}$.}
+\item{ {\bf {\tt srcMap.setSpectralValues(energies)}}: computes and
+    caches the $S_{jk}$.}
+\item{ {\bf {\tt srcMap.setSpectralDerivs(energies, paramNames)}}:
+    computes and caches the $\delta_{jk\alpha}$.}
+\item{ {\bf {\tt srcMap.computeNpredArray()}}: computes and caches the
+    $U_{jk}$, $C_{jk}$, $\xi_{jk}$ $\tilde{U}_{jk}$, and $\tilde{C}_{jk}$.}
+\item{ {\bf {\tt srcMap.update\_drm\_cache(drm)}}: computes and caches
+    the $U_{jk}$, $C_{jk}$, $\xi_{jk}$ $\tilde{U}_{jk}$, and $\tilde{C}_{jk}$.}
 \end{itemize}
 
 
 
 \end{document}
  
+
+% LocalWords:  WCS HEALPix unweighted precompute convolved PSF precomputed DRM
+% LocalWords:  unconvolved ijk jk ik efixed Eq weightedCounts modelMap specVals
+% LocalWords:  computeModelMap drm npreds npred wts xiwts specDerivs derivs
+% LocalWords:  paramNames BinnedLikelihood blike countsMap dataCache weightMap
+% LocalWords:  sourceMap fixedModelWts fixedNpreds fixedNpred getFreeDerivs
+% LocalWords:  buildFixedModelWts prefactor CountsMapBase WeightMap SourceMap
+% LocalWords:  srcMap setSpectralValues setSpectralDerivs computeNpredArray
