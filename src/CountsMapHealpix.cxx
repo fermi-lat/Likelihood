@@ -206,7 +206,6 @@ namespace Likelihood {
       writeEbounds(out_file,binners[1]);
     }
     writeGti(out_file);
-    delete table;
   }
 
   void CountsMapHealpix::writeAsWeightsMap(const std::string & creator, 
