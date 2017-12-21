@@ -513,8 +513,9 @@ void HealpixProjMap::computeMapIntegrals() {
   for (int k(0); k < nenergies(); k++) {
     values.push_back(0);
     for (int i(0); i < nPixels(); i++ ) {
-      values.back() += m_solidAngle*m_image[k][i];
+      values.back() += m_image[k][i];
     }
+    values.back() *= m_solidAngle;
   }
   // For a 2D map, the map integral is just the angle-integrated map.
   if (nenergies() == 1) {
@@ -570,10 +571,9 @@ void HealpixProjMap::latchCacheData() {
   // Total number of pixels
   int nPix = m_healpixProj->healpix().Npix();
   // Solid angle in SR = 4pi/npix
-  double solidAngle_sr = ASTRO_4PI / float(nPix);
-  // Do we want it in deg^2 or sr?
-  m_solidAngle = astro::radToDeg( astro::radToDeg( solidAngle_sr ) );
-  m_pixelSize = sqrt(m_solidAngle);
+  // B/c of inconsisent interfaces,  we want the solid angle in SR, but the pixel size in deg.    
+  m_solidAngle = ASTRO_4PI / float(nPix);
+  m_pixelSize = astro::radToDeg(sqrt(m_solidAngle));
 }
 
 void HealpixProjMap::check_negative_pixels(const ImagePlane_t & image) const {
