@@ -293,9 +293,9 @@ namespace Likelihood {
       
       std::vector<unsigned int> ivalues(binners.size(),0);
       
-      std::cout << "Writing map: " << std::flush;
+      // std::cout << "Writing map: " << std::flush;
       for (long e_index = 0; e_index != nEBins; e_index++ ) {
-	std::cout << '.' << std::flush;
+	//std::cout << '.' << std::flush;
 	std::ostringstream e_channel;
 	e_channel << colString << e_index+1;
 	//create new column
@@ -314,7 +314,7 @@ namespace Likelihood {
 	}
 	if ( ivalues.size() > 1 ) ivalues[1]++;
       }
-      std::cout << '!' << std::endl;    
+      //std::cout << '!' << std::endl;    
     }
 
     tip::Extension* replace_image_from_float_vector(const std::string& filename, 
