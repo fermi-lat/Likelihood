@@ -117,7 +117,6 @@ namespace Likelihood {
     std::vector<double> energyBinWidths(num_ebins());
     CountsMapBase::fillEnergyBinWidths(energyBinWidths, ebins);
 
-    static const double deg2toSr = astro::degToRad( astro::degToRad( 1.) );
     std::vector<float>& outData = outMap->m_hist->data_access();
 
     int idx_fill(0);
@@ -128,16 +127,16 @@ namespace Likelihood {
       double psf_peak = psf.peakValue(mean_energy);
 
       // The factor we need to convert back to counts is
-      // double factor1 = energyBinWidths[k]*solidAngle()/deg2toSr;
-      // (This is b/c the proj map used solid angle in deg2)
+      // double factor1 = energyBinWidths[k]*solidAngle();
+      // (This is b/c the proj map used solid angle in sr)
 
       // The factor we need account for the PSF in the correct units is 
-      // double factor2 = 1 / psf_peak*solidAngle()
+      // double factor2 = 1 / psf_peak*solidAngle();
       // (This is b/c this class is using solidAngle() in sr)
 
       // Combining these we get
-      // double factor = factor1*factor2 = energyBinWidths[k]/(psf_peak*deg2toSr)
-      double factor = energyBinWidths[k]/(psf_peak*deg2toSr);
+      // double factor = factor1*factor2 = energyBinWidths[k]/psf_peak
+      double factor = energyBinWidths[k]/psf_peak;
       const Healpix_Map<float>& conv_image = convMap_hpx->image()[k];
       for ( size_t i(0); i < kStep; i++, idx_fill++  ) {
 	float addend = conv_image[i] * factor;
@@ -219,7 +218,11 @@ namespace Likelihood {
     FileUtils::replace_image_from_hist_hpx(*table, "ENERGY", *m_hist, *m_hpx_binner);
     setKeywords(header);
     delete table;
-    tip::Extension* energiesHdu = FileUtils::replace_energies(out_file, "ENERGIES", m_energies);
+
+    std::vector<double> energyBinCenters;
+    getEnergyBinGeomCenters(energyBinCenters);
+    
+    tip::Extension* energiesHdu = FileUtils::replace_energies(out_file, "ENERGIES", energyBinCenters);
     delete energiesHdu;
     writeGti(out_file);
     delete table;
