@@ -39,7 +39,7 @@ Some folks
 
 
 \begin{abstract}
-  This is a collection of notes and equations about the likelihood weighting implmentation.
+  This is a collection of notes and equations about the likelihood weighting implementation.
 \end{abstract}
 
 %\pacs{}
@@ -49,7 +49,7 @@ Some folks
 \section{Introduction}
 %%%%%%%%%%%%
 
-This implmentation and equations are based on Jean Ballet's work.\footnote{Extensive notes can be found at: \url{https://confluence.slac.stanford.edu/x/ZphdCw}}
+This implementation and equations are based on Jean Ballet's work.\footnote{Extensive notes can be found at: \url{https://confluence.slac.stanford.edu/x/ZphdCw}}
 
 
 \section{The effective background: $B$}
@@ -62,11 +62,11 @@ particular energy bin.
 We derive the effective background staring some representation of the
 counts in the region of interest (ROI).  This can be either binned
 data, or a model of the ROI.  Following notation we used
-elsewhere\footnote{Specifically, in the writeup of the binned
-  likelihood implemenation.} let's call this $M_{ik}$, where the $i$
+elsewhere\footnote{Specifically, in the write up of the binned
+  likelihood implementation.} let's call this $M_{ik}$, where the $i$
 index runs over the pixels in the model, and the $k$ index runs over
-the energy bins.  The energy bin egdes are at $E_k^-, E_k^+$
-(typcially $E_k^+ = E_{k+1}^-$).  The geometric energy bin centers are
+the energy bins.  The energy bin edges are at $E_k^-, E_k^+$
+(typically $E_k^+ = E_{k+1}^-$).  The geometric energy bin centers are
 $E_k = (E_k^+ E_k^-)$.  The energy bin widths are $\delta E_k = E_k^+
 - E_k^-$, and the pixel sizes are $\delta \Omega_i$.
 
@@ -116,7 +116,7 @@ This quantity has units of counts, and is essentially a counts map.
 We store it as such.  It can be produced by the standalone app {\tt
   gteffbkg} or using the {\tt pyLikelihood} interface.  The resulting
 file will look almost identical to a binned counts map file, including
-the {\tt EBOUNDS} and {\tt GTI} hdus, and the DSS keywords are copied
+the {\tt EBOUNDS} and {\tt GTI} HDUs, and the DSS keywords are copied
 from the input file.  The only difference will the addition of
 keywords to the primary header of the output file:
 
@@ -131,7 +131,7 @@ file.}
 In order to properly deal with multiple analysis components we need to
 compute the weighted sum over the components.  This quantity depend on
 the level of systematic error we are aiming from ($\epsilon$), on the
-individual $B_{ikm}$ for each compoment (indexed by $m$), and on the
+individual $B_{ikm}$ for each component (indexed by $m$), and on the
 maximum $B_{ikm}$ for the various components for each pixel and energy
 bin: $\hat{B}_{ik}$.
 
@@ -141,7 +141,8 @@ We define this weighted sum as:
 \alpha_{ik} = \frac{1 + \epsilon^2 \hat{B}_{ik}}{1 + \epsilon^2 \hat{B}_{ik} \sum_{m} (\frac{\hat{B}_{ik}}{B_{ikm}})^2 }.
 \end{equation}
 
-\noindent In the case that we are using a single component, then all of the $\alpha_{ik} \equiv 1$.
+\noindent In the case that we are using a single component, then all
+of the $\alpha_{ik} \equiv 1$.
 
 This quantity is dimensionless, and has the same binning as the input
 counts map.  It can be produced by the standalone app {\tt gtalphabkg}
@@ -174,8 +175,8 @@ or using the {\tt pyLikelihood} interface.  However, for ``historical''
 reasons, the {\tt BinnedLikelihood} object expects the weights to 
 be given as an object of the class {\tt ProjMap}.  In the ScienceTools 
 {\tt ProjMap} objects usually represent intensity maps, but there is 
-nothing enforcing this.  In partical terms the only real difference 
-for a weights file is that it is now defined at specfic energies
+nothing enforcing this.  In practical terms the only real difference 
+for a weights file is that it is now defined at specific energies
 rather over energy ranges.  This means that we replace the {\tt EBOUNDS}
 HDU with an {\tt ENERGIES} HDU.
 
@@ -194,25 +195,35 @@ only differences being the additional keywords:
 
 \section{Using the likelihood weights.}
 
-The idea is that using the likelihood weights is almost transparent.  If a likelihood
-weight are specified when the {\tt BinnedLikelihood} object is being created, those weights
-will be used, otherwise no weights will be used.
+The idea is that using the likelihood weights is almost transparent.
+If a likelihood weight are specified when the {\tt BinnedLikelihood}
+object is being created, those weights will be used, otherwise no
+weights will be used.
 
-Depending on the interface used, the likelihood weights can be specified in number of ways.
+Depending on the interface used, the likelihood weights can be
+specified in number of ways.
 
 \begin{enumerate}
 \item{By passing an object of type {\tt ProjMap} (actually either a
     {\tt WcsMap2} or a {\tt HealpixProjMap} into the constructor of
-    {\tt BinnedLikelihood}.  The map will be resampled, taking the values
-    from the bin and pixel centers of the {\tt CountsMapBase} and
-    requesting the {\tt ProjMap} value for those.}    
-\item{By passing a file name into the constructor of {\tt pyLikelihood.BinnedAnalysis}.
-    This point to any file that contains a valid {\tt ProjMap}, and the
-    file will be handled according to the rules above.}
-\item{By specifying a file name for the hidder {\tt wmap} parameter of {\tt gtlike} or {\tt gtscrmaps}.
-    This point to any file that contains a valid {\tt ProjMap}, and the
-    file will be handled according to the rules above.}
+    {\tt BinnedLikelihood}.  The map will be re-sampled, taking the
+    values from the bin and pixel centers of the {\tt CountsMapBase}
+    and requesting the {\tt ProjMap} value for those.}
+\item{By passing a file name into the constructor of {\tt
+      pyLikelihood.BinnedAnalysis}.  This point to any file that
+    contains a valid {\tt ProjMap}, and the file will be handled
+    according to the rules above.}
+\item{By specifying a file name for the hidden {\tt wmap} parameter of
+    {\tt gtlike} or {\tt gtscrmaps}.  This point to any file that
+    contains a valid {\tt ProjMap}, and the file will be handled
+    according to the rules above.}
 \end{enumerate}
 
 \end{document}
  
+
+% LocalWords:  ScienceTools ROI convolving PSF ProjMap HealpixProjMap WcsMap2
+% LocalWords:  CountsMap CountsMapHealpix gteffbkg pyLikelihood EBOUNDS GTI DSS
+% LocalWords:  HDUs MAPTYPE BKG INPUTMAP gtalphabkg BKGMAPXX gtwtsmap HDU wmap
+% LocalWords:  BinnedLikelihood BKGMAP ALPHAMAP CountsMapBase BinnedAnalysis
+% LocalWords:  gtlike gtscrmaps
