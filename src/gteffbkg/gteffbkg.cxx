@@ -93,7 +93,7 @@ void BkgEffMap::computeBkgEffMap() {
    m_helper->setRoi(m_pars["cmap"], "", false);
    std::string cmapfile = m_pars["cmap"];
    m_dataMap = Likelihood::AppHelpers::readCountsMap(cmapfile);  // EAC: use AppHelpers to read the right type of map
-   m_bkg_eff_map = m_dataMap->makeBkgEffMap(mean_psf);
+   m_bkg_eff_map = m_dataMap->makeBkgEffMap(mean_psf, m_pars["efact"]);
    std::string outfile = m_pars["outfile"];
    m_bkg_eff_map->writeOutput("gteffbkg", outfile);
 }
@@ -104,5 +104,6 @@ void BkgEffMap::updateDssKeywords() {
 						      m_helper, 
 						      m_pars["irfs"]);
   Likelihood::CountsMapBase::addBkgEffKeywords(m_pars["outfile"],
-					       m_pars["cmap"]);
+					       m_pars["cmap"],
+					       m_pars["efact"]);
 }

@@ -62,7 +62,7 @@ public:
 
    virtual ProjMap* makeProjMap(ConversionType cType = CountsMapBase::Intensity) const;
 
-   virtual CountsMapBase* makeBkgEffMap(const MeanPsf & psf) const;
+   virtual CountsMapBase* makeBkgEffMap(const MeanPsf & psf, const float& efact) const;
 
    virtual void binInput(tip::Table::ConstIterator begin, 
                          tip::Table::ConstIterator end);
