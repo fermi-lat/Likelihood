@@ -144,17 +144,34 @@ namespace Likelihood {
       std::vector<float> val_vect(nrow, 0.);
       std::vector<size_t> key_vect(nrow, 0.);
 
+      size_t nfail(0);
       for ( tip::Index_t irow(0); irow < nrow; irow++ ) {
 	try {
 	  pix_col->get(irow,pix_vect[irow]);
 	  chan_col->get(irow,chan_vect[irow]);
 	  val_col->get(irow,val_vect[irow]);
 	} catch (...) {
-	  std::cout << "Read failed at " << filename << ' ' << extension << ' ' << irow << std::endl;
-	  return -1;
+	  if (nfail < 10) {
+	    // Hopefully we can safely put few messed up pixels for now.
+	    nfail++;
+	    pix_vect[irow] = 0;
+	    chan_vect[irow] = 0;
+	    val_vect[irow] = 0;
+	  } else {
+	    // otherwise, fail	    
+	    std::string errMsg("FileUtils::read_healpix_table_to_sparse_vector failed at ");
+	    errMsg += filename; 
+	    errMsg += " ";
+	    errMsg += extension;
+	    throw std::runtime_error(errMsg);
+	  }
 	}
-      
+	
 	key_vect[irow] = chan_vect[irow] * npix + pix_vect[irow];
+      }
+      // Debugging printout for now
+      if ( nfail > 0 ) {
+	std::cout << "Warning: " << nfail << " bad pixels in sprase map at " << filename << ' ' << extension << std::endl;
       }
 
       vect.fill_from_key_and_value(key_vect,val_vect);
@@ -384,10 +401,14 @@ namespace Likelihood {
       kmax = kmax < 0 ? nEBins_data : kmax;
       long nEBins = kmax - kmin;
       
+      if ( is_src_map ) {
+	header["HPX_CONV"].set("FGST_SRCMAP");
+      } else {
+	header["HPX_CONV"].set("FGST_CCUBE");
+      }
    
       if ( !dataMap.allSky() ) {
 	tip::Header & header(table->getHeader());     
-	header["INDXSCHM"].set("EXPLICIT");
 	header["REFDIR1"].set(dataMap.isGalactic() ? dataMap.refDir().l() :  dataMap.refDir().ra() );
 	header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
 	header["MAPSIZE"].set(dataMap.mapRadius());     
@@ -405,7 +426,7 @@ namespace Likelihood {
 	  writeValue = dataMap.localToGlobalIndex(iloc);
 	  col->set(iloc,writeValue);
 	}
-      }
+      } 
   
       long idx(0);
       double writeValue(0);
@@ -444,11 +465,17 @@ namespace Likelihood {
       long nEBins_data = is_src_map ? dataMap.num_energies() : dataMap.num_ebins();
       kmax = kmax < 0 ? nEBins_data : kmax;
       long nEBins = kmax - kmin;
-   
+
+      if ( is_src_map ) {
+	header["HPX_CONV"].set("FGST_SRCMAP_SPARSE");
+      } else {
+	header["HPX_CONV"].set("FGST_CCUBE_SPARSE");
+      }
+
       header["INDXSCHM"].set("SPARSE");
       header["REFDIR1"].set(dataMap.isGalactic() ? dataMap.refDir().l() :  dataMap.refDir().ra() );
       header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
- 
+
       int idx(0);
       std::vector<size_t> key_vect;
       std::vector<float> val_vect;
