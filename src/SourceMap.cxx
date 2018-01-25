@@ -264,7 +264,7 @@ void SourceMap::computeNpredArray() {
 void SourceMap::computeNpredArray_sparse() {
   
    const std::vector<double>& energies = m_dataCache->energies();
-
+   
    size_t ne = energies.size();
    // The number of weights is always number of energy bins
    size_t nw = energies.size() -1 ;
@@ -277,6 +277,7 @@ void SourceMap::computeNpredArray_sparse() {
  
    std::vector<double> w_0_sum(nw,0.);
    std::vector<double> w_1_sum(nw,0.);
+
 
    for ( SparseVector<float>::iterator itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
      size_t indx_0 = itr->first;
@@ -294,7 +295,7 @@ void SourceMap::computeNpredArray_sparse() {
        w_1_sum[k-1] += (weight_prev * model_0);
      }
    }
-
+   
    for ( size_t k(0); k < nw; k++ ) {
      if ( m_weights == 0 ) {
        m_npred_weights[k].first = 1.;
@@ -586,7 +587,6 @@ int SourceMap::readModel(const std::string& filename) {
     status = readTable_healpix(m_filename);
     break;
   default:
-    status = -1;
     break;
   }
   if ( status != 0 ) {
@@ -594,7 +594,8 @@ int SourceMap::readModel(const std::string& filename) {
     errMsg += m_filename;
     errMsg += ".  To match data file: ";
     errMsg += m_dataCache->countsMap().filename();
-    throw std::runtime_error(errMsg);
+    return status;
+    // throw std::runtime_error(errMsg);
   }
 
 
