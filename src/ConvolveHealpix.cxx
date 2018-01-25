@@ -208,6 +208,13 @@ namespace Likelihood {
 
       //Average of the map, needed for scaling the convolution
       double avgBefore = inMap.average();
+      if ( avgBefore == 0 ) {
+	// Empty map, don't bother with convolution
+	for (int j = 0; j < outMap.Npix(); ++j){
+	  outMap[j] = 0.;
+	}
+	return;
+      } 
 
       //Convert the psf to Healpix, use a higher order to get a better
       //convolution
