@@ -30,12 +30,11 @@
 \title{Notes on the implementation of likelihood weighting in the ScienceTools.}  
 
 \author{ 
-Some folks
-%E.~Charles\altaffilmark{1}, 
-%J.~Ballet\altaffilmark{2}, 
+E.~Charles\altaffilmark{1}, 
+J.~Ballet\altaffilmark{2}, 
 }
 \altaffiltext{1}{W. W. Hansen Experimental Physics Laboratory, Kavli Institute for Particle Astrophysics and Cosmology, Department of Physics and SLAC National Accelerator Laboratory, Stanford University, Stanford, CA 94305, USA}
-
+\altaffiltext{2}{Laboratoire AIM, CEA-IRFU/CNRS/Universit\'e Paris Diderot, Service d'Astrophysique, CEA Saclay, F-91191 Gif sur Yvette, France}
 
 
 \begin{abstract}
@@ -52,7 +51,7 @@ Some folks
 This implementation and equations are based on Jean Ballet's work.\footnote{Extensive notes can be found at: \url{https://confluence.slac.stanford.edu/x/ZphdCw}}
 
 
-\section{The effective background: $B$}
+\section{The effective background: \texorpdfstring{$B$}{B}}
 
 The first step in computing the weights is to derive the ``effective
 background'' for every pixel and energy bin.  This is essentially the
@@ -117,7 +116,7 @@ and $\delta E_j$ in Eq.~\ref{eq:bkg_eff_computation} cancel out, we have
 explicitly kept them in the notation, as they appear in the code because
 of the way it is structured.
 
-Th quantity $B_{ik}$ has units of counts, and is essentially a counts
+The quantity $B_{ik}$ has units of counts, and is essentially a counts
 map.  We store it as such.  It can be produced by the standalone
 application {\tt gteffbkg} or using the {\tt pyLikelihood} interface.
 The resulting file will look almost identical to a binned counts map
@@ -131,7 +130,7 @@ the addition of keywords to the primary header of the output file:
 file.}
 \end{enumerate}
 
-\section{The weighted sum over components: $\alpha$}
+\section{The weighted sum over components: \texorpdfstring{$\alpha$}{alpha}}
 
 In order to properly deal with multiple analysis components we need to
 compute the weighted sum over the components.  This quantity depends on
@@ -165,7 +164,7 @@ provenance of the map:
 
 
 
-\section{The likelihood weights: $w$}
+\section{The likelihood weights: \texorpdfstring{$w$}{w}}
 
 Given the effective background maps and the $\alpha_{ik}$, the
 likelihood weights for a particular component are defined as:
