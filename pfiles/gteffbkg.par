@@ -7,8 +7,6 @@ irfs,s,a,"CALDB",,,"Response functions"
 evtype,i,h,INDEF,,,"Event type selections"
 expcube,f,a,"",,,"Exposure cube"
 bexpmap,f,a,"",,,"Binned exposure map"
-efact,r,a,2.0,,,"Energy integration factor"
-
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

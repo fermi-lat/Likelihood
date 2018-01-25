@@ -105,7 +105,7 @@ namespace Likelihood {
     return new HealpixProjMap(*this, cType);
   }
 
-  CountsMapBase* CountsMapHealpix::makeBkgEffMap(const MeanPsf & psf, const float& efact) const {
+  CountsMapBase* CountsMapHealpix::makeBkgEffMap(const MeanPsf & psf) const {
 
     CountsMapHealpix* outMap = new CountsMapHealpix(*this);     
     ProjMap* projMap = makeProjMap();
@@ -115,9 +115,7 @@ namespace Likelihood {
     
     const std::vector<double>& ebins = energies();
     std::vector<double> energyBinWidths(num_ebins());
-    std::vector<double> energyBinMeans(num_ebins());
     CountsMapBase::fillEnergyBinWidths(energyBinWidths, ebins);
-    CountsMapBase::fillEnergyBinGeomCenters(energyBinMeans, ebins);
 
     std::vector<float>& outData = outMap->m_hist->data_access();
 
@@ -125,7 +123,7 @@ namespace Likelihood {
     size_t kStep = nPixels();
 
     for ( size_t k(0); k < num_ebins(); k++ ) {
-      double mean_energy = energyBinMeans[k];
+      double mean_energy = sqrt(ebins[k] * ebins[k+1]);
       double psf_peak = psf.peakValue(mean_energy);
 
       // The factor we need to convert back to counts is
@@ -146,10 +144,7 @@ namespace Likelihood {
 	outData[idx_fill] = 0.;
 	// Add this quantity to each of the energy layers below this one
 	// Note that fillIt is counting DOWN towards zero	
-	double emin_integ = mean_energy/efact;
-	int kinteg(k);
-	for ( int fillIt(idx_fill); fillIt >= 0; fillIt -= kStep, kinteg-=1 ) {
-	  if ( energyBinMeans[kinteg] < emin_integ) break;
+	for ( int fillIt(idx_fill); fillIt >= 0; fillIt -= kStep ) {
 	  outData[fillIt] += addend;
 	}
       }

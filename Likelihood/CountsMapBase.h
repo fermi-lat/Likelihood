@@ -89,8 +89,7 @@ public:
 				       const std::string& irfs);
   
   static void addBkgEffKeywords(const std::string& outfile,
-				const std::string& inputmap,
-				const float& efact);
+				const std::string& inputmap);
 
   static void addAlphaMapKeywords(const std::string& outfile,
 				  double epsilon,
@@ -137,7 +136,7 @@ public:
     return 0;
   }
 
-   virtual CountsMapBase* makeBkgEffMap(const MeanPsf & psf, const float& efact) const {
+   virtual CountsMapBase* makeBkgEffMap(const MeanPsf & psf) const {
      // NB, this should be a pure virtual, but that messes up swig
      return 0;
    }

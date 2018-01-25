@@ -227,7 +227,7 @@ ProjMap* CountsMap::makeProjMap(CountsMapBase::ConversionType cType) const {
 }
 
 
-CountsMapBase* CountsMap::makeBkgEffMap(const MeanPsf & psf, const float& efact) const {
+CountsMapBase* CountsMap::makeBkgEffMap(const MeanPsf & psf) const {
 
   CountsMap* outMap = new CountsMap(*this);     
   ProjMap* projMap = makeProjMap();
@@ -237,17 +237,15 @@ CountsMapBase* CountsMap::makeBkgEffMap(const MeanPsf & psf, const float& efact)
  
   const std::vector<double>& ebins = energies();
   std::vector<double> energyBinWidths(num_ebins());
-  std::vector<double> energyBinMeans(num_ebins());
   CountsMapBase::fillEnergyBinWidths(energyBinWidths, ebins);
-  CountsMapBase::fillEnergyBinGeomCenters(energyBinMeans, ebins);
 
-  std::vector<float>& outData = outMap->m_hist->data_access();
+    std::vector<float>& outData = outMap->m_hist->data_access();
 
   int idx_fill(0);
   size_t kStep = naxis1()*naxis2();
 
   for ( size_t k(0); k < num_ebins(); k++ ) {
-    double mean_energy = energyBinMeans[k];
+    double mean_energy = sqrt(ebins[k] * ebins[k+1]);
     double psf_peak = psf.peakValue(mean_energy);
 
     // The factor we need to convert back to counts is
@@ -269,12 +267,9 @@ CountsMapBase* CountsMap::makeBkgEffMap(const MeanPsf & psf, const float& efact)
 	float addend = conv_row[i] * factor;	
 	// Zero out the output data from this pixel / energy.
 	outData[idx_fill] = 0.;
-	// Add this to each of the energy layers below this one
+	// Add this to each of the energy layers beyond this one
 	// Note that fillIt is counting DOWN towards zero
-	double emin_integ = mean_energy/efact;
-	int kinteg(k);
-	for ( int fillIt(idx_fill); fillIt >= 0; fillIt -= kStep, kinteg-=1 ) {
-	  if ( energyBinMeans[kinteg] < emin_integ) break;
+	for ( int fillIt(idx_fill); fillIt >= 0; fillIt -= kStep ) {
 	  outData[fillIt] += addend;
 	}
       }

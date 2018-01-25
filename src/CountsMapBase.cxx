@@ -201,12 +201,10 @@ namespace Likelihood {
   }
   
   void CountsMapBase::addBkgEffKeywords(const std::string& outfile,
-					const std::string& inputmap,
-					const float& efact){
+					const std::string& inputmap){
     tip::Image* my_image = tip::IFileSvc::instance().editImage(outfile, "");
     tip::Header& my_header = my_image->getHeader();
     my_header["INPUTMAP"].set(inputmap);
-    my_header["EFACT"].set(efact);
     delete my_image;
   }
   
