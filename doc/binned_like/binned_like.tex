@@ -110,7 +110,7 @@ the summation over $ w_{ik} N_{ik} \ln M_{ik}$ (\S\ref{subsec:like_sum1}) and
 the second is the summation over $w_{ik} M_{ik}$ (\S\ref{subsec:like_sum2}).
 
 
-\subsection{Computing the model counts: \texorpdfstring{$M$}{M}.}\label{subsec:like_model_counts}
+\subsection{Computing the model counts: $M_i$.}\label{subsec:like_model_counts}
 
 To compute the model counts we sum over the model counts, $M_{ijk}$ of
 the sources in the model, indexed by $j$:
@@ -249,7 +249,7 @@ also come in two parts:
 \end{equation}
 
 
-\subsection{The summation over \texorpdfstring{$W N \ln M$}{WN ln M}.}\label{subsec:like_sum1}
+\subsection{The summation over $W N \ln M$.}\label{subsec:like_sum1}
 
 For this term we note that only bins with observed counts contribute
 to the sum.  Therefore, in general we will identify the ``filled''
@@ -271,7 +271,7 @@ pixels with zero weight will be ignored in the summation over
 filled pixels. 
 
 
-\subsection{The summation over \texorpdfstring{$M$}{M}.}\label{subsec:like_sum2}
+\subsection{The summation over $M$.}\label{subsec:like_sum2}
 
 For this term we all the bins with observed counts contribute to the
 sum, but we note that we can use something similar to the model
@@ -320,7 +320,7 @@ all the fixed sources are:
 \end{eqnarray}
 
 
-\subsection{Applying Weights to the summation over \texorpdfstring{$M$}{M}.}\label{subsec:like_sum2_weights}
+\subsection{Applying Weights to the summation over $M$.}\label{subsec:like_sum2_weights}
 
 In this case we have to account for the weights when we sum over the
 pixels
@@ -392,7 +392,7 @@ the total models counts for each of the free sources
 (\S\ref{subsec:derivatives_part2}).
 
 
-\subsection{The derivatives \texorpdfstring{$\frac{\partial M_{ijk}}{\partial x_{\alpha}}$}{dM/dx}}\label{subsec:derivatives_part1}
+\subsection{The derivatives $\frac{\partial M_{ijk}}{\partial x_{\alpha}}$}\label{subsec:derivatives_part1}
 
 The first term of Eq.~\ref{eq:derivatives} is:
 
@@ -428,7 +428,7 @@ check if any of the parameter values have changed since the evaluation
 of the likelihood, and possibly updated the cached $M_{ik}$ in the 
 prefactor. 
 
-\subsection{The derivative \texorpdfstring{$\frac{\partial M}{\partial x_{\alpha}}$}{dM/dx}}\label{subsec:derivatives_part2}
+\subsection{The derivative of  $\frac{\partial M}{\partial x_{\alpha}}$}\label{subsec:derivatives_part2}
 
 The second term of Eq.~\ref{eq:derivatives} is:
 
