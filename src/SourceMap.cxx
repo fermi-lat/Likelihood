@@ -302,12 +302,12 @@ void SourceMap::computeNpredArray_sparse() {
        continue;
      }
      if ( m_npreds[k] > 0 ) {
-       m_npred_weights[k].first /=  m_npreds[k];
+       m_npred_weights[k].first = w_0_sum[k] / m_npreds[k];
      } else {
        m_npred_weights[k].first = 1.;
      }
      if ( m_npreds[k+1] > 0 ) {
-       m_npred_weights[k].second /=  m_npreds[k+1];
+       m_npred_weights[k].second = w_1_sum[k] / m_npreds[k+1];
      } else {
        m_npred_weights[k].second = 1.;
      }
