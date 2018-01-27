@@ -133,7 +133,17 @@ namespace Likelihood {
     const_iterator upper_bound(size_type k) const;
 
     /* Return a particular element, or the null value if the element is not present */
-    const_reference operator[](size_type n) const;    
+    const_reference operator[](size_type n) const;  
+
+    /* Return the nth element, or the null value if the element is not present */
+    const_reference nth_element(size_type n) const;
+    
+    /* Return the nth index, or -1 if the element is not present */
+    int nth_index(size_type n) const {
+      if ( n >= m_data.size() ) return -1;
+      return m_data[n].first;
+    }
+    
     void push_back(const T& val);
     void swap(SparseVector<T>& other);
     void resize(size_type n);
@@ -159,6 +169,9 @@ namespace Likelihood {
     /* Return a const reference to the non-null elements */
     inline const std::vector<std::pair<size_t,T> >& non_null() const { return m_data; }
     
+    /* return the number of filled elements */
+    inline size_t n_filled() const { return m_data.size(); }
+
     /* Fill this from a vector */
     void fill_from_vect(const std::vector<T>& vect);
 
@@ -244,6 +257,12 @@ namespace Likelihood {
   typename SparseVector<T>::const_reference SparseVector<T>::operator[](size_type n) const {
     const_iterator it = find(n);
     return it != end() ? it->second : m_null;
+  }
+
+  template <typename T>
+  typename SparseVector<T>::const_reference SparseVector<T>::nth_element(size_type n) const {
+    if ( n >= m_data.size() ) return m_null;
+    return m_data[n].second;
   }
   
   template <typename T>
