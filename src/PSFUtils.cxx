@@ -624,7 +624,6 @@ namespace Likelihood {
 			      FileUtils::SrcMapType& mapType,
 			      int kmin, int kmax) {
 
-      std::cout << "Using native" << std::endl;
 
       bool haveSpatialFunction = dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist()) != 0;
 
@@ -652,6 +651,8 @@ namespace Likelihood {
 	  native_radius = dataMap.mapRadius();
 	}  	
       }
+
+      // std::cout << "Using native " << dataMap.mapRadius() << ' ' << diffuseSrc.mapRadius()  << ' ' << mapType << std::endl;
 
       // If the counts map is all-sky then we want to focus on the source
       // Conversely if the counts map is partial sky then we focus on the data map region
@@ -830,7 +831,6 @@ namespace Likelihood {
 	// Not a map-based source, so do nothing.
       }
 
-      mapType = FileUtils::HPX_Sparse;
       return 0;
     }
       
