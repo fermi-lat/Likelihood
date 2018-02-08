@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.33 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMap.h,v 1.34 2016/09/09 21:08:51 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMap_h
@@ -32,6 +32,8 @@ namespace tip {
 }
 
 namespace Likelihood {
+
+  class WcsMap2;
 
 /**
  * @class CountsMap
@@ -83,17 +85,26 @@ public:
 
    CountsMap(const CountsMap & counts_map, unsigned int firstBin, unsigned int lastBin);
 
+   CountsMap(const WcsMap2& projMap, const CountsMap & counts_map);
+
    virtual ~CountsMap() throw();
 
    virtual CountsMapBase* clone() const { 
      return new CountsMap(*this);
    }
 
+   virtual ProjMap* makeProjMap(ConversionType cType = CountsMapBase::Intensity) const;
+  
+   virtual CountsMapBase* makeBkgEffMap(const MeanPsf & psf, const float& efact) const;
+
    virtual void binInput(tip::Table::ConstIterator begin, 
                          tip::Table::ConstIterator end);
 
    virtual void writeOutput(const std::string & creator, 
                             const std::string & out_file) const;
+
+   virtual void writeAsWeightsMap(const std::string & creator, 
+				  const std::string & out_file) const;
    
    virtual void setKeywords(tip::Header & header) const;
 

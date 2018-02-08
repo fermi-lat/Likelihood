@@ -1,7 +1,7 @@
 /**
  * @file CountsMapBase.h
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapBase.h,v 1.3 2016/10/13 01:48:37 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/CountsMapBase.h,v 1.4 2017/09/29 01:44:15 echarles Exp $
  */
 
 #ifndef Likelihood_CountsMapBase_h
@@ -29,6 +29,10 @@ namespace tip {
 }
 
 namespace Likelihood {
+  
+  class ProjMap;
+  class MeanPsf;
+  class AppHelpers;
 
 /**
  * @class CountsMapBase
@@ -36,6 +40,66 @@ namespace Likelihood {
  */
    
 class CountsMapBase : public evtbin::DataProduct {
+
+public:
+
+  //! Typedef for conversion to ProjMap
+  typedef enum { 
+      //! Convert to an intensity map
+      Intensity = 0,
+      //! convert to a weights map
+      Weights = 1 } ConversionType;
+
+  // These need to be protected for swig
+#ifndef SWIG
+
+  static void fillEnergyBinWidths(std::vector<double>& energyBinWidths,
+				  const std::vector<double>& energyBinEdges);
+
+  static void fillEnergyBinGeomCenters(std::vector<double>& energyBinCenters,
+				       const std::vector<double>& energyBinEdges);
+
+  static void getBMinAndSumMinOverK2(float& bmin, float& sumk2,
+				     std::vector<std::vector<float>::const_iterator >& itrs);
+
+  static void getAlphaWts(float& alpha, const float& epsilon2, 
+			  std::vector<std::vector<float>::const_iterator >& itrs);
+
+  static void getAlphaVector(std::vector<float>& alphaVect, const float& epsilon2, 
+			     const std::vector<const std::vector<float>* >& beffVects);
+
+  static void getWts(std::vector<float>& wts,
+		     const float& epsilon2, 
+		     const std::vector<float>& alphaVect,
+		     const std::vector<float>& beffVect);
+
+  static CountsMapBase* makeAlphaMap(const float& epsilon2, const std::vector<CountsMapBase*>& input_maps);
+
+#endif
+
+  static CountsMapBase* makeAlphaMap(const float& epsilon2, const std::vector<std::string>& input_map_files);
+
+  static CountsMapBase* makeWtsMap(const float& epsilon2, 
+				   const CountsMapBase* alphaMap, 
+				   const CountsMapBase& beffMap);
+  
+  static void copyAndUpdateDssKeywords(const std::string& infile,
+				       const std::string& outfile,
+				       AppHelpers* helper,
+				       const std::string& irfs);
+  
+  static void addBkgEffKeywords(const std::string& outfile,
+				const std::string& inputmap,
+				const float& efact);
+
+  static void addAlphaMapKeywords(const std::string& outfile,
+				  double epsilon,
+				  const std::vector<std::string>& inputFiles);
+
+  static void addWtsMapKeywords(const std::string& outfile,
+				double epsilon,
+				const std::string& bkgmap,
+				const std::string& alphamap);
 
 public:
 
@@ -63,17 +127,34 @@ public:
 
    CountsMapBase(const CountsMapBase & counts_map, 
 		 unsigned int idim, unsigned int firstBin, unsigned int lastBin);
-
+  
    virtual ~CountsMapBase() throw();
 
    virtual CountsMapBase* clone() const = 0;
 
+  virtual ProjMap* makeProjMap(ConversionType cType = CountsMapBase::Intensity) const {
+    // NB, this should be a pure virtual, but that messes up swig
+    return 0;
+  }
+
+   virtual CountsMapBase* makeBkgEffMap(const MeanPsf & psf, const float& efact) const {
+     // NB, this should be a pure virtual, but that messes up swig
+     return 0;
+   }
+
    //virtual void binInput(tip::Table::ConstIterator begin, 
    //                      tip::Table::ConstIterator end) = 0;
 
-   //virtual void writeOutput(const std::string & creator, 
-   //                         const std::string & out_file) const = 0;
+  virtual void writeOutput(const std::string & creator, 
+			   const std::string & out_file) const {
+    // NB, this should be a pure virtual, but that messes up swig
+  }
   
+  virtual void writeAsWeightsMap(const std::string & creator, 
+				 const std::string & out_file) const {
+    // NB, this should be a pure virtual, but that messes up swig
+  }
+
    virtual void writeEmptyOutput(const std::string & creator, const std::string & out_file) const;
 
    virtual bool withinBounds(const astro::SkyDir & dir, double energy, long border_size=0) const = 0;
@@ -81,6 +162,7 @@ public:
    virtual void getBoundaryPixelDirs(std::vector<astro::SkyDir> & pixelDirs) const = 0;
    virtual double pixelSize() const = 0;
    virtual double mapRadius() const = 0;
+
 
    void writeEnergies(const std::string & creator, 
 		      const std::string & out_file,
@@ -95,9 +177,15 @@ public:
 
    void getEnergies(std::vector<double>& energies) const;
 
+   void getEnergyBinGeomCenters(std::vector<double>& eBinCenters) const;
+
+   void getEnergyBinWidths(std::vector<double>& eBinCenters) const;   
+
    inline const astro::ProjBase & projection() const {return *m_proj;}
 
    inline const std::vector<float> & data() const { return m_hist->data(); }
+
+   inline std::vector<float> & data_access() const { return m_hist->data_access(); }
 
    inline const astro::SkyDir & refDir() const {return m_refDir;}
 

@@ -4,7 +4,7 @@
  * uses astro::ProjBase for indexing its internal representation.
  * @author E. Charles, from J. Chiang WcsMap2
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProjMap.h,v 1.1 2015/12/10 00:57:58 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/ProjMap.h,v 1.2 2017/09/29 02:15:11 echarles Exp $
  */
 
 #ifndef Likelihood_ProjMap_h
@@ -21,6 +21,9 @@ namespace Likelihood {
 class BinnedExposureBase;
 class DiffuseSource;
 class MeanPsf;
+class WcsMap2;
+class HealpixProjMap;
+class CountsMapBase;
 
 /**
  * @class ProjMap
@@ -42,14 +45,25 @@ public:
 
    virtual ProjMap & operator=(const ProjMap &);
 
+   virtual WcsMap2* cast_wcs() { return 0; }
+
+   virtual HealpixProjMap* cast_healpix() { return 0; }
+
    virtual double operator()(const astro::SkyDir & dir, double energy=-1) const = 0;
 
    virtual double operator()(const astro::SkyDir & dir, int k) const = 0;
 
+
+   virtual ProjMap* convolveAll(const MeanPsf & psf,
+				const BinnedExposureBase * exposure=0,
+				bool performConvolution=true) const = 0;
+
    virtual ProjMap* convolve(double energy, const MeanPsf & psf,
-			     const BinnedExposureBase & exposure,
+			     const BinnedExposureBase * exposure=0,
 			     bool performConvolution=true,
 			     int k=0) const = 0;
+
+   virtual CountsMapBase* makeCountsMap(const CountsMapBase& counts_map) const = 0;
    
    virtual double solidAngle(double ilon, double ilat) const = 0;
 

@@ -12,6 +12,9 @@
 #include "Likelihood/FileUtils.h"
 
 #include "st_facilities/Timer.h"
+#include "st_facilities/Environment.h"
+#include "facilities/commonUtilities.h"
+
 #include "tip/Header.h"
 #include "tip/IFileSvc.h"
 #include "tip/IColumn.h"
@@ -27,12 +30,19 @@
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/CountsMapHealpix.h"
+#include "Likelihood/HistND.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceModel.h"
 
 namespace Likelihood {
 
   namespace FileUtils {
+
+    void makeTemplateFilepath(const std::string& basename, 
+			      std::string& filepath){
+      std::string data_dir = st_facilities::Environment::dataPath("Likelihood");
+      filepath = facilities::commonUtilities::joinPath(data_dir,basename);      
+    }
 
     bool fileHasExtension(const std::string& filename, 
 			  const std::string& extension) {
@@ -202,7 +212,110 @@ namespace Likelihood {
       return FileUtils::Unknown;
     }
 
+    tip::Extension* replace_energies(const std::string& filename, 
+				     const std::string& extension,
+				     const std::vector<double>& energies) {
+      
+      tip::Table* table = tip::IFileSvc::instance().editTable(filename, extension);
+      
+      // Resize table: number of records in output file must == the number of bins in the binner.
+      table->setNumRecords(energies.size());
+    
+      // Need output table iterator.
+      tip::FieldIndex_t col_idx = table->getFieldIndex("Energy");
+      tip::Header& header = table->getHeader();
+      tip::IColumn* col = table->getColumn(col_idx);
+
+      for (size_t index(0); index < energies.size(); ++index) {
+	float writeValue = energies[index];
+	col->set(index,writeValue);
+      }
+      
+      return table;
+    }
+
   
+    
+    void replace_image_from_hist_wcs(tip::Image& image,
+				     HistND& hist) {
+      typedef std::vector<tip::PixOrd_t> DimCont_t;
+      DimCont_t dims = image.getImageDimensions();
+
+      DimCont_t::size_type num_dims = dims.size();
+      if (3 != num_dims) {
+	throw std::runtime_error("CountsMap::writeOutput "
+				 "cannot write a count map "
+				 "to an image which is not 3D");
+      }
+   
+      const evtbin::Hist::BinnerCont_t & binners = hist.getBinners();
+ 
+      // Resize image dimensions to conform to the binner dimensions.
+      for (DimCont_t::size_type index = 0; index != num_dims; ++index) {
+	dims[index] = binners.at(index)->getNumBins();
+      }
+
+      image.setImageDimensions(dims);
+
+      // Copy bins into image.
+      image.set(hist.data());
+    }
+
+    
+    void replace_image_from_hist_hpx(tip::Table& table,
+				     const std::string& colString,
+				     HistND& hist,
+				     evtbin::HealpixBinner& hpx_binner){
+      
+      const evtbin::Hist::BinnerCont_t & binners = hist.getBinners();
+      long nPix = hpx_binner.getNumBins();
+      table.setNumRecords(nPix);
+      
+      long nEBins = 1;
+      if ( binners.size() > 1 ) {
+	nEBins = binners[1]->getNumBins();
+      } 
+      
+      // If the map is less than all-sky we need to write the pixel indices
+      if ( ! hpx_binner.allSky() ) {
+	std::string pixname("PIX");
+	table.appendField(pixname, std::string("J"));
+	tip::IColumn* col = table.getColumn(table.getFieldIndex(pixname));
+	int writeValue(-1);
+	for(long hpx_index = 0; hpx_index != hpx_binner.getNumBins(); ++hpx_index) {
+	  writeValue = hpx_binner.pixelIndices()[hpx_index];
+	  col->set(hpx_index,writeValue);
+	}
+      }
+      
+      std::vector<float> histData(nPix);
+      double writeValue(0.);
+      
+      std::vector<unsigned int> ivalues(binners.size(),0);
+      
+      // std::cout << "Writing map: " << std::flush;
+      for (long e_index = 0; e_index != nEBins; e_index++ ) {
+	//std::cout << '.' << std::flush;
+	std::ostringstream e_channel;
+	e_channel << colString << e_index+1;
+	//create new column
+	table.appendField(e_channel.str(), std::string("D"));
+	// get the column
+	tip::IColumn* col = table.getColumn(table.getFieldIndex(e_channel.str()));
+	// get the data slice from the underlying histogram
+	if ( binners.size() > 1 ) {
+	  hist.getSlice(0,ivalues,histData);
+	} else {
+	  histData = hist.data();
+	}
+	for(long hpx_index = 0; hpx_index != nPix; ++hpx_index) {
+	  writeValue = double(histData[hpx_index]);
+	  col->set(hpx_index,writeValue);
+	}
+	if ( ivalues.size() > 1 ) ivalues[1]++;
+      }
+      //std::cout << '!' << std::endl;    
+    }
 
     tip::Extension* replace_image_from_float_vector(const std::string& filename, 
 						    const std::string& extension,

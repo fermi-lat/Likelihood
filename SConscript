@@ -1,5 +1,5 @@
 # -*- python -*-
-# $Id: SConscript,v 1.383 2017/10/12 22:17:14 echarles Exp $
+# $Id: SConscript,v 1.384 2017/10/13 23:30:22 echarles Exp $
 # Authors: James Chiang <jchiang@slac.stanford.edu>, Eric Charles <echarles@slac.stanford.edu>, Matthew Wood <mdwood@slac.stanford.edu> 
 # Version: Likelihood-20-13-03
 
@@ -56,6 +56,12 @@ gtltsumBin = progEnv.Program('gtltsum', listFiles(['src/gtaddlivetime/*.cxx']))
 
 gtfindsrcBin = progEnv.Program('gtfindsrc', listFiles(['src/gtfindsrc/*.cxx']))
 
+gteffbkgBin = progEnv.Program('gteffbkg', listFiles(['src/gteffbkg/*.cxx']))
+
+gtalphabkgBin = progEnv.Program('gtalphabkg', listFiles(['src/gtalphabkg/*.cxx']))
+
+gtwtsmapBin = progEnv.Program('gtwtsmap', listFiles(['src/gtwtsmap/*.cxx']))
+
 progEnv.Tool('registerTargets', package = 'Likelihood', 
              libraryCxts = [[LikelihoodLib, libEnv]], 
              binaryCxts = [[gtlikeBin, progEnv], 
@@ -73,7 +79,10 @@ progEnv.Tool('registerTargets', package = 'Likelihood',
                            [gtbkgBin, progEnv],
                            [gtmodelBin, progEnv],
                            [gtltsumBin, progEnv],
-                           [gtfindsrcBin, progEnv]],
+                           [gtfindsrcBin, progEnv],
+                           [gteffbkgBin, progEnv],
+                           [gtalphabkgBin, progEnv],
+                           [gtwtsmapBin, progEnv]],
              testAppCxts = [[test_LikelihoodBin, testEnv]],
              includes = listFiles(['Likelihood/*.h']), 
              pfiles = listFiles(['pfiles/*.par']),

@@ -103,8 +103,8 @@ namespace Likelihood {
 	dataMap      : Observed data.  Defines the binning used for the analysis.
 	observation  : Wrapper containing information about the observation
 	config       : Configuration object
-	weightMap    : Map with weights to use for analysis.
 	srcMapsFile  : Name of file containing Source Maps (i.e., the output of gtsrcmaps)
+	weightMap    : Map with weights to use for analysis.
 	overwriteWeights : Overwrite the existing weights file
      */	
      BinnedLikelihood(CountsMapBase & dataMap, 

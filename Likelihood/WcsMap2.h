@@ -4,7 +4,7 @@
  * uses WCS projections for indexing its internal representation.
  * @author J. Chiang
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap2.h,v 1.11 2016/01/29 22:31:32 mdwood Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/WcsMap2.h,v 1.12 2016/09/14 21:47:00 echarles Exp $
  */
 
 #ifndef Likelihood_WcsMap2_h
@@ -16,6 +16,7 @@
 // EAC, make a base class for WcsMap2
 #include "Likelihood/ProjMap.h"
 #include "astro/SkyDir.h"
+#include "Likelihood/CountsMapBase.h"
 
 namespace Likelihood {
 
@@ -23,6 +24,9 @@ class BinnedExposureBase;
 class DiffuseSource;
 class MeanPsf;
 class SpatialFunction;
+class CountsMapBase;
+class CountsMap;
+class Pixel;
 
 /**
  * @class WcsMap2
@@ -30,6 +34,25 @@ class SpatialFunction;
  */
 
 class WcsMap2 : public ProjMap {
+
+public:
+
+   static void foldVector(const std::vector<float>& vector_in,
+			  int naxis1, int naxis2, int naxis3, 
+			  std::vector<std::vector<std::vector<float> > >& image_out);
+			  
+   static void fillSolidAngles(const std::vector<Pixel> & pixels,
+			       int naxis1, int naxis2, 
+			       std::vector<std::vector<float> >& image_out);
+
+  static void convertToDifferential(std::vector<std::vector<std::vector<float> > >& image_out,
+				    const std::vector<double>& energy_bin_widths,
+				    const std::vector<std::vector<float> >& solid_angles);
+
+  static void convertToIntegral(std::vector<float>& image_out,
+				const std::vector<std::vector<std::vector<float> > >& image_in,
+				const std::vector<double>& energy_bin_widths,
+				const std::vector<std::vector<float> >& solid_angles);
 
 public:
 
@@ -50,28 +73,38 @@ public:
            bool interpolate=false, bool enforceEnergyRange=false,
 	   bool computeIntegrals=true);
 
-   virtual ~WcsMap2();
-
+   WcsMap2(const CountsMap& theMap, CountsMapBase::ConversionType cType);
+ 
    WcsMap2(const WcsMap2 &, bool copy_image = true);
 
    WcsMap2(const WcsMap2 &, const double & energy,
 	   const std::vector< std::vector<float> >& image);
 
+   virtual ~WcsMap2();
+
    virtual WcsMap2 & operator=(const WcsMap2 &);
+
+   virtual WcsMap2* cast_wcs() { return this; }
 
    virtual double operator()(const astro::SkyDir & dir, double energy=-1) const;
 
    virtual double operator()(const astro::SkyDir & dir, int k) const;
 
+   virtual ProjMap* convolveAll(const MeanPsf & psf,
+				const BinnedExposureBase * exposure=0,
+				bool performConvolution=true) const;
+
    virtual ProjMap* convolve(double energy, const MeanPsf & psf,
-			     const BinnedExposureBase & exposure,
+			     const BinnedExposureBase * exposure=0,
 			     bool performConvolution=true,
 			     int k=0) const;
 
    virtual ProjMap* convolve(double energy, const MeanPsf & psf,
-			     const BinnedExposureBase & exposure,
+			     const BinnedExposureBase * exposure,
 			     const SpatialFunction& fn,
 			     int k=0) const;   
+
+   virtual CountsMapBase* makeCountsMap(const CountsMapBase& counts_map) const;
 
    const std::vector< std::vector< std::vector<float> > > & image() const {
       return m_image;
@@ -127,7 +160,6 @@ public:
    inline double crval2() const { return m_crval2; }
 
    inline bool periodic() const { return m_isPeriodic; }
-
 
 protected:
 

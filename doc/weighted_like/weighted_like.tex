@@ -1,0 +1,233 @@
+\documentclass[preprint]{aastex}  
+%\documentclass[iop]{emulateapj}
+%\usepackage{booktabs,caption,fixltx2e}
+\usepackage{natbib}
+\bibliographystyle{aa}
+
+\usepackage{graphicx,color,rotating}
+\usepackage{footnote,lineno}
+\usepackage{ulem} 
+\usepackage{xspace}
+%\linenumbers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{txfonts}
+\usepackage{graphicx,amssymb,amsmath,amsfonts,times,hyperref}
+%\usepackage{rotating} 
+
+%\linenumbers
+
+\def \aap  {A\&A}
+
+\newcommand{\fermipy}{\texttt{Fermipy}\xspace}
+\newcommand{\FIXME}[1]{{\color{red}{#1}}}
+
+
+%\usepackage{epsfig,epstopdf}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\begin{document}
+%
+\title{Notes on the implementation of likelihood weighting in the ScienceTools.}  
+
+\author{ 
+E.~Charles\altaffilmark{1}, 
+J.~Ballet\altaffilmark{2}, 
+}
+\altaffiltext{1}{W. W. Hansen Experimental Physics Laboratory, Kavli Institute for Particle Astrophysics and Cosmology, Department of Physics and SLAC National Accelerator Laboratory, Stanford University, Stanford, CA 94305, USA}
+\altaffiltext{2}{Laboratoire AIM, CEA-IRFU/CNRS/Universit\'e Paris Diderot, Service d'Astrophysique, CEA Saclay, F-91191 Gif sur Yvette, France}
+
+
+\begin{abstract}
+  This is a collection of notes and equations about the likelihood weighting implementation.
+\end{abstract}
+
+%\pacs{}
+\maketitle
+
+%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%
+
+This implementation and equations are based on Jean Ballet's work.\footnote{Extensive notes can be found at: \url{https://confluence.slac.stanford.edu/x/ZphdCw}}
+
+
+\section{The effective background: \texorpdfstring{$B$}{B}}
+
+The first step in computing the weights is to derive the ``effective
+background'' for every pixel and energy bin.  This is essentially the
+contribution of the background to the analysis of a point source at a
+particular energy bin.
+
+We derive the effective background starting from some representation
+of the counts in the region of interest (ROI).  This can be either
+binned data, or a model of the ROI.  Following notation we used
+elsewhere\footnote{Specifically, in the write up of the binned
+  likelihood implementation.} let's call this $M_{ik}$, where the $i$
+index runs over the pixels in the model, and the $k$ index runs over
+the energy bins.  The energy bin edges are at $E_k^-, E_k^+$
+(typically $E_k^+ = E_{k+1}^-$).  The geometric energy bin centers are
+$E_k = \sqrt{E_k^+ E_k^-}$.  The energy bin widths are $\delta E_k = E_k^+
+- E_k^-$, and the pixel sizes are $\delta \Omega_i$.
+
+In words, we want to define the effective background $B_{ik}$ by
+convolving $M_{ik}$ with the point-spread function (PSF) at each
+energy $P_k$ and then sum the result over all energies greater than or
+equal to a particular energy.
+
+\begin{equation}\label{eq:bkg_eff_defintion}
+B_{ik} = \sum_{j \ge k} \frac{M_{ij} \bigotimes P_{j}}{P_{j}^{\rm max}}, 
+\end{equation}
+
+\noindent where $P_{j}^{\rm max}$ is the maximum value of the PSF at energy $j$.
+Another way of expressing this is that it is the PSF-weighted integral over
+the background map.  
+
+The convolution routines in the ScienceTools work on objects of type
+{\tt ProjMap} (actually, the sub-classes {\tt HealpixProjMap} and {\tt
+  WcsMap2}), which are differential quantities (i.e., they are
+intensities, defined at specific energy / directions, rather than
+begin integrated across a range of energies and over a pixel.  In
+practical terms, this just means that we have to convert the model
+counts from either {\tt CountsMap} or {\tt CountsMapHealpix} to a {\tt
+  WcsMap2} or {\tt HealpixProjMap}, we do this just by dividing the
+bin contents by the energy bin widths and pixels sizes.
+
+\begin{equation}\label{eq:intensity}
+I_{ik} = \frac{M_{ik}}{\delta \Omega_i \delta E_k}.
+\end{equation}
+
+\noindent What we actually get back from the PSF convolution routine
+is the normalized convolution:
+
+\begin{equation}\label{eq:convolved_intensity}
+\tilde{I}_{ik} = I_{ik} \bigotimes P_{k}.
+\end{equation}
+
+To get the effective background, we have to convert that quantity back
+to counts and sum of all the energy bins greater than or equal to a
+particular energy.
+
+\begin{equation}\label{eq:bkg_eff_computation}
+B_{ik} = \sum_{j}^{j \ge k} \frac{\tilde{I}_{ij} \delta E_j}{P_{j}^{\rm max}}.
+\end{equation}
+
+\noindent Although the factors of $\delta E_k$ in Eq.~\ref{eq:intensity}
+and $\delta E_j$ in Eq.~\ref{eq:bkg_eff_computation} cancel out, we have 
+explicitly kept them in the notation, as they appear in the code because
+of the way it is structured.
+
+The quantity $B_{ik}$ has units of counts, and is essentially a counts
+map.  We store it as such.  It can be produced by the standalone
+application {\tt gteffbkg} or using the {\tt pyLikelihood} interface.
+The resulting file will look almost identical to a binned counts map
+file, including the {\tt EBOUNDS} and {\tt GTI} HDUs, and the DSS
+keywords are copied from the input file.  The only difference will be
+the addition of keywords to the primary header of the output file:
+
+\begin{enumerate}
+\item{{\tt MAPTYPE} will be set to ``BKG\_EFF''.}
+\item{{\tt INPUTMAP} which will give the name of the input binned counts map
+file.}
+\end{enumerate}
+
+\section{The weighted sum over components: \texorpdfstring{$\alpha$}{alpha}}
+
+In order to properly deal with multiple analysis components we need to
+compute the weighted sum over the components.  This quantity depends on
+the level of systematic error we are considering ($\epsilon$), on the
+individual $B_{ikm}$ for each component (indexed by $m$), and on the
+minimum $B_{ikm}$ for the various components for each pixel and energy
+bin: $\hat{B}_{ik}$.
+
+We define this weighted sum as:
+
+\begin{equation}
+\alpha_{ik} = \frac{1 + \epsilon^2 \hat{B}_{ik}}{1 + \epsilon^2 \hat{B}_{ik} \sum_{m} (\frac{\hat{B}_{ik}}{B_{ikm}})^2 }.
+\end{equation}
+
+\noindent In the case that we are using a single component, then all
+of the $\alpha_{ik} \equiv 1$.
+
+This quantity is dimensionless, and has the same binning as the input
+counts map.  It can be produced by the standalone app {\tt gtalphabkg}
+or using the {\tt pyLikelihood} interface.  This will store almost
+exactly the same information as a {\tt CountsMap} or {\tt
+  CountsMapHealpix}. Since we are using several components, we remove 
+the DSS keywords.  However we do add some keywords specifying the
+provenance of the map:
+
+\begin{enumerate}
+\item{{\tt MAPTYPE} will be set to ``ALPHA\_BKG'';}
+\item{{\tt EPSILON}: giving the value of $\epsilon$ used in the computation;}
+\item{{\tt BKGMAPXX}: will list the input effective background maps.}    
+\end{enumerate}
+
+
+
+\section{The likelihood weights: \texorpdfstring{$w$}{w}}
+
+Given the effective background maps and the $\alpha_{ik}$, the
+likelihood weights for a particular component are defined as:
+
+\begin{equation}
+w_{ikm} = \frac{\alpha_{ik}}{1 + \epsilon^2 B_{ikm}}.
+\end{equation}
+
+This quantity is dimensionless, but has the same binning as the input
+counts map.  It can be produced by the standalone app {\tt gtwtsmap}
+or using the {\tt pyLikelihood} interface.  However, for
+``historical'' reasons, the {\tt BinnedLikelihood} object expects the
+weights to be given as an object of the class {\tt ProjMap}.  In the
+ScienceTools {\tt ProjMap} objects usually represent intensity maps,
+but there is nothing enforcing this.  In practical terms the only real
+difference for a weights file is that it is now defined at specific
+energies rather than over energy ranges.  This means that we replace
+the {\tt EBOUNDS} HDU with an {\tt ENERGIES} HDU.
+
+Aside from that, writing the $w_{ik}$ will store almost exactly the
+same information as a {\tt CountsMap} or {\tt CountsMapHealpix},
+including the DSS keywords copied from the file with the $B_ik$; the
+only differences being the additional keywords:
+
+\begin{enumerate}
+\item{{\tt MAPTYPE} will be set to ``WEIGHT\_MAP''.}
+\item{{\tt EPSILON}: giving the value of $\epsilon$ used in the computation;}
+\item{{\tt BKGMAP}: will give the input effective background map.}    
+\item{{\tt ALPHAMAP}: the file containing the input $\alpha$ map (if used).}
+\end{enumerate}
+
+
+\section{Using the likelihood weights.}
+
+The idea is that using the likelihood weights is almost transparent.
+If a likelihood weights map is specified when the {\tt BinnedLikelihood}
+object is being created, those weights will be used, otherwise no
+weights will be used.
+
+Depending on the interface used, the likelihood weights can be
+specified in a number of ways.
+
+\begin{enumerate}
+\item{By passing an object of type {\tt ProjMap} (actually either a
+    {\tt WcsMap2} or a {\tt HealpixProjMap}) into the constructor of
+    {\tt BinnedLikelihood}.  The map will be re-sampled, taking the
+    values from the bin and pixel centers of the {\tt CountsMapBase}
+    and requesting the {\tt ProjMap} value for those.}
+\item{By passing a file name into the constructor of {\tt
+      pyLikelihood.BinnedAnalysis}.  This points to any file that
+    contains a valid {\tt ProjMap}, and the file will be handled
+    according to the rules above.}
+\item{By specifying a file name for the hidden {\tt wmap} parameter of
+    {\tt gtlike} or {\tt gtscrmaps}.  This points to any file that
+    contains a valid {\tt ProjMap}, and the file will be handled
+    according to the rules above.}
+\end{enumerate}
+
+\end{document}
+ 
+
+% LocalWords:  ScienceTools ROI convolving PSF ProjMap HealpixProjMap WcsMap2
+% LocalWords:  CountsMap CountsMapHealpix gteffbkg pyLikelihood EBOUNDS GTI DSS
+% LocalWords:  HDUs MAPTYPE BKG INPUTMAP gtalphabkg BKGMAPXX gtwtsmap HDU wmap
+% LocalWords:  BinnedLikelihood BKGMAP ALPHAMAP CountsMapBase BinnedAnalysis Eq
+% LocalWords:  gtlike gtscrmaps

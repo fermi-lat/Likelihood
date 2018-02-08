@@ -1,7 +1,7 @@
 /**
  * @file CountsMap.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/src/CountsMap.cxx,v 1.3 2015/03/03 06:00:00 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMap.cxx,v 1.56 2015/12/10 00:58:00 echarles Exp $
  */
 
 #include <algorithm>
@@ -35,6 +35,9 @@
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/HistND.h"
+#include "Likelihood/WcsMap2.h"
+#include "Likelihood/MeanPsf.h"
+#include "Likelihood/FileUtils.h"
 
 namespace Likelihood {
 
@@ -201,6 +204,87 @@ CountsMap::CountsMap(const std::string & countsMapFile)
    deleteBinners(binners);
    checkMapConforms();
 }
+
+CountsMap::CountsMap(const WcsMap2& projMap, const CountsMap & counts_map)
+  : CountsMapBase(counts_map) {
+  for (int i = 0; i < 3; i++) {
+    m_naxes[i] = counts_map.m_naxes[i];
+    m_crpix[i] = counts_map.m_crpix[i];
+    m_crval[i] = counts_map.m_crval[i];
+    m_cdelt[i] = counts_map.m_cdelt[i];
+  }
+  m_axis_rot = counts_map.m_axis_rot;
+  m_conforms = counts_map.m_conforms;
+  
+  std::vector<double> energyBinWidths;
+  fillEnergyBinWidths(energyBinWidths, energies());
+  WcsMap2::convertToIntegral(m_hist->data_access(), projMap.image(), energyBinWidths, projMap.solidAngles());  
+}
+
+
+ProjMap* CountsMap::makeProjMap(CountsMapBase::ConversionType cType) const {
+  return new WcsMap2(*this, cType);
+}
+
+
+CountsMapBase* CountsMap::makeBkgEffMap(const MeanPsf & psf, const float& efact) const {
+
+  CountsMap* outMap = new CountsMap(*this);     
+  ProjMap* projMap = makeProjMap();
+  ProjMap* convMap = projMap->convolveAll(psf);
+  delete projMap;
+  WcsMap2* convMap_wcs = convMap->cast_wcs();
+ 
+  const std::vector<double>& ebins = energies();
+  std::vector<double> energyBinWidths(num_ebins());
+  std::vector<double> energyBinMeans(num_ebins());
+  CountsMapBase::fillEnergyBinWidths(energyBinWidths, ebins);
+  CountsMapBase::fillEnergyBinGeomCenters(energyBinMeans, ebins);
+
+  std::vector<float>& outData = outMap->m_hist->data_access();
+
+  int idx_fill(0);
+  size_t kStep = naxis1()*naxis2();
+
+  for ( size_t k(0); k < num_ebins(); k++ ) {
+    double mean_energy = energyBinMeans[k];
+    double psf_peak = psf.peakValue(mean_energy);
+
+    // The factor we need to convert back to counts is
+    // double factor1 = energyBinWidths[k]*solidAngle();
+    // (This is b/c the proj map used solid angle in sr)
+    
+    // The factor we need account for the PSF in the correct units is 
+    // double factor2 = 1 / psf_peak*solidAngle();
+    // (This is b/c this class is using solidAngle() in sr)
+
+    // Combining these we get
+    // double factor = factor1*factor2 = energyBinWidths[k]/psf_peak    
+    double factor = energyBinWidths[k]/psf_peak;
+    const std::vector< std::vector<float> >& conv_image = convMap_wcs->image()[k];
+    size_t ipix(0);
+    for ( size_t j(0); j < conv_image.size(); j++ ) {
+      const std::vector<float>& conv_row = conv_image[j];
+      for ( size_t i(0); i < conv_row.size(); i++, idx_fill++, ipix++) {
+	float addend = conv_row[i] * factor;	
+	// Zero out the output data from this pixel / energy.
+	outData[idx_fill] = 0.;
+	// Add this to each of the energy layers below this one
+	// Note that fillIt is counting DOWN towards zero
+	double emin_integ = mean_energy/efact;
+	int kinteg(k);
+	for ( int fillIt(idx_fill); fillIt >= 0; fillIt -= kStep, kinteg-=1 ) {
+	  if ( energyBinMeans[kinteg] < emin_integ) break;
+	  outData[fillIt] += addend;
+	}
+      }
+    }
+  }
+  // clean up
+  delete convMap_wcs;
+  return outMap;
+}
+
 
 void CountsMap::readImageData(const std::string & countsMapFile,
                               std::vector<evtbin::Binner *> & binners) {
@@ -377,36 +461,36 @@ void CountsMap::writeOutput(const std::string & creator,
    createFile(creator, out_file, 
               facilities::commonUtilities::joinPath(m_data_dir,
 						    "LatCountsMapTemplate"));
-   
-   std::auto_ptr<tip::Image> 
-       output_image(tip::IFileSvc::instance().editImage(out_file, ""));
-
-   typedef std::vector<tip::PixOrd_t> DimCont_t;
-   DimCont_t dims = output_image->getImageDimensions();
-
-   DimCont_t::size_type num_dims = dims.size();
-   if (3 != num_dims) {
-      throw std::runtime_error("CountsMap::writeOutput "
-                               "cannot write a count map "
-                               "to an image which is not 3D");
-   }
-   
-   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
-
+   tip::Image* output_image = tip::IFileSvc::instance().editImage(out_file, "");
    tip::Header & header = output_image->getHeader();
-   setKeywords(header);
+   FileUtils::replace_image_from_hist_wcs(*output_image, *m_hist);
+   setKeywords(header);   
+   delete output_image;
 
-// Resize image dimensions to conform to the binner dimensions.
-   for (DimCont_t::size_type index = 0; index != num_dims; ++index) {
-      dims[index] = binners.at(index)->getNumBins();
-   }
-
-   output_image->setImageDimensions(dims);
-
-// Copy bins into image.
-   output_image->set(m_hist->data());
-
+   const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
    writeEbounds(out_file, binners[2]);
+   writeGti(out_file);
+}
+
+
+void CountsMap::writeAsWeightsMap(const std::string & creator, 
+				  const std::string & out_file) const {
+
+   createFile(creator, out_file, 
+              facilities::commonUtilities::joinPath(m_data_dir,
+						    "LatWeightsMapTemplate"));   
+
+   tip::Image* output_image = tip::IFileSvc::instance().editImage(out_file, "");
+   tip::Header & header = output_image->getHeader();
+   FileUtils::replace_image_from_hist_wcs(*output_image, *m_hist);
+   setKeywords(header);   
+   delete output_image;
+
+   std::vector<double> energyBinCenters;
+   getEnergyBinGeomCenters(energyBinCenters);
+
+   tip::Extension* energiesHdu = FileUtils::replace_energies(out_file, "ENERGIES", energyBinCenters);
+   delete energiesHdu;
    writeGti(out_file);
 }
 

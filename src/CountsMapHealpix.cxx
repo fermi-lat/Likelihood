@@ -1,7 +1,7 @@
 /**
  * @file CountsMapHealpix.cxx
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapHealpix.cxx,v 1.4 2017/04/21 19:57:29 asercion Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/CountsMapHealpix.cxx,v 1.5 2017/08/18 22:46:12 echarles Exp $
  */
 
 #include <algorithm>
@@ -38,6 +38,9 @@
 
 #include "Likelihood/CountsMapHealpix.h"
 #include "Likelihood/HistND.h"
+#include "Likelihood/HealpixProjMap.h"
+#include "Likelihood/MeanPsf.h"
+#include "Likelihood/FileUtils.h"
 
 namespace Likelihood {
 
@@ -80,7 +83,81 @@ namespace Likelihood {
     m_hpx_binner = const_cast<evtbin::HealpixBinner*>(static_cast<const evtbin::HealpixBinner*>(m_hist-> getBinners()[0]));
   }
 
+  CountsMapHealpix::CountsMapHealpix(const HealpixProjMap& projMap, 
+				     const CountsMapHealpix& counts_map):
+    CountsMapBase(counts_map),
+    m_solidAngle(counts_map.m_solidAngle),
+    m_pixelSize(counts_map.m_pixelSize),
+    m_nPixels(counts_map.m_nPixels){    
+    m_healpixProj = static_cast<astro::HealpixProj*>(m_proj);
+    m_hpx_binner = const_cast<evtbin::HealpixBinner*>(static_cast<const evtbin::HealpixBinner*>(m_hist-> getBinners()[0]));
+    std::vector<double> energyBinWidths(energies().size() - 1);
+    for ( int k(0); k < energies().size(); k++ ) {
+      energyBinWidths[k] = energies()[k+1] - energies()[k];
+    }
+    HealpixProjMap::convertToIntegral(m_hist->data_access(), projMap.image(), energyBinWidths, 
+				      nPixels(), m_solidAngle);				      
+  }
+
   CountsMapHealpix::~CountsMapHealpix() throw() {;}
+
+  ProjMap* CountsMapHealpix::makeProjMap(CountsMapBase::ConversionType cType) const {
+    return new HealpixProjMap(*this, cType);
+  }
+
+  CountsMapBase* CountsMapHealpix::makeBkgEffMap(const MeanPsf & psf, const float& efact) const {
+
+    CountsMapHealpix* outMap = new CountsMapHealpix(*this);     
+    ProjMap* projMap = makeProjMap();
+    ProjMap* convMap = projMap->convolveAll(psf);
+    delete projMap;
+    HealpixProjMap* convMap_hpx = convMap->cast_healpix();
+    
+    const std::vector<double>& ebins = energies();
+    std::vector<double> energyBinWidths(num_ebins());
+    std::vector<double> energyBinMeans(num_ebins());
+    CountsMapBase::fillEnergyBinWidths(energyBinWidths, ebins);
+    CountsMapBase::fillEnergyBinGeomCenters(energyBinMeans, ebins);
+
+    std::vector<float>& outData = outMap->m_hist->data_access();
+
+    int idx_fill(0);
+    size_t kStep = nPixels();
+
+    for ( size_t k(0); k < num_ebins(); k++ ) {
+      double mean_energy = energyBinMeans[k];
+      double psf_peak = psf.peakValue(mean_energy);
+
+      // The factor we need to convert back to counts is
+      // double factor1 = energyBinWidths[k]*solidAngle();
+      // (This is b/c the proj map used solid angle in sr)
+
+      // The factor we need account for the PSF in the correct units is 
+      // double factor2 = 1 / psf_peak*solidAngle();
+      // (This is b/c this class is using solidAngle() in sr)
+
+      // Combining these we get
+      // double factor = factor1*factor2 = energyBinWidths[k]/psf_peak
+      double factor = energyBinWidths[k]/psf_peak;
+      const Healpix_Map<float>& conv_image = convMap_hpx->image()[k];
+      for ( size_t i(0); i < kStep; i++, idx_fill++  ) {
+	float addend = conv_image[i] * factor;
+	// Zero out the output data from this pixel / energy.
+	outData[idx_fill] = 0.;
+	// Add this quantity to each of the energy layers below this one
+	// Note that fillIt is counting DOWN towards zero	
+	double emin_integ = mean_energy/efact;
+	int kinteg(k);
+	for ( int fillIt(idx_fill); fillIt >= 0; fillIt -= kStep, kinteg-=1 ) {
+	  if ( energyBinMeans[kinteg] < emin_integ) break;
+	  outData[fillIt] += addend;
+	}
+      }
+    }
+    // clean up    
+    delete convMap_hpx;
+    return outMap;
+  }
 
 
   void CountsMapHealpix::binInput(tip::Table::ConstIterator begin, 
@@ -125,55 +202,33 @@ namespace Likelihood {
 						     "LatHealpixTemplate"));
     tip::Table *table = tip::IFileSvc::instance().editTable(out_file, ext);  
     tip::Header & header(table->getHeader());
+    FileUtils::replace_image_from_hist_hpx(*table, "CHANNEL", *m_hist, *m_hpx_binner);
     setKeywords(header);
-
+    delete table;
     const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
-    long nPix = m_hpx_binner->getNumBins();
-    long nEBins = 1;
-    if ( binners.size() > 1 ) {
-      nEBins = binners[1]->getNumBins();
-    } 
-
-    // If the map is less than all-sky we need to write the pixel indices
-    if ( ! m_hpx_binner->allSky() ) {
-      std::string pixname("PIX");
-      table->appendField(pixname, std::string("J"));
-      tip::IColumn* col = table->getColumn(table->getFieldIndex(pixname));
-      int writeValue(-1);
-      for(long hpx_index = 0; hpx_index != m_hpx_binner->getNumBins(); ++hpx_index) {
-	writeValue = m_hpx_binner->pixelIndices()[hpx_index];
-	col->set(hpx_index,writeValue);
-      }
-    }
-    
-    std::vector<float> histData(nPix);
-    double writeValue(0.);
-    
-    std::vector<unsigned int> ivalues(binners.size(),0);
-
-    for (long e_index = 0; e_index != nEBins; e_index++ ) {
-      std::ostringstream e_channel;
-      e_channel<<"CHANNEL"<<e_index+1;
-      //create new column
-      table->appendField(e_channel.str(), std::string("D"));
-      // get the column
-      tip::IColumn* col = table->getColumn(table->getFieldIndex(e_channel.str()));
-      // get the data slice from the underlying histogram
-      if ( binners.size() > 1 ) {
-	m_hist->getSlice(0,ivalues,histData);
-      } else {
-	histData = m_hist->data();
-      }
-      for(long hpx_index = 0; hpx_index != nPix; ++hpx_index) {
-	writeValue = double(histData[hpx_index]);
-	col->set(hpx_index,writeValue);
-      }
-      if ( ivalues.size() > 1 ) ivalues[1]++;
-    }
-  
     if ( binners.size() > 1 ) {
       writeEbounds(out_file,binners[1]);
     }
+    writeGti(out_file);
+  }
+
+  void CountsMapHealpix::writeAsWeightsMap(const std::string & creator, 
+					   const std::string & out_file) const {
+    static const std::string ext="SKYMAP";
+    createFile(creator, out_file, 
+	       facilities::commonUtilities::joinPath(m_data_dir,
+						     "LatHealpixWeightsTemplate"));
+    tip::Table *table = tip::IFileSvc::instance().editTable(out_file, ext);  
+    tip::Header & header(table->getHeader());
+    FileUtils::replace_image_from_hist_hpx(*table, "ENERGY", *m_hist, *m_hpx_binner);
+    setKeywords(header);
+    delete table;
+
+    std::vector<double> energyBinCenters;
+    getEnergyBinGeomCenters(energyBinCenters);
+    
+    tip::Extension* energiesHdu = FileUtils::replace_energies(out_file, "ENERGIES", energyBinCenters);
+    delete energiesHdu;
     writeGti(out_file);
     delete table;
   }

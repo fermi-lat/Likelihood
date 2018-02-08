@@ -4,7 +4,7 @@
  * uses astro::ProjBase for indexing its internal representation.
  * @author E. Charles, from J. Chiang WcsMap2
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/users/echarles/healpix_changes/Likelihood/Likelihood/HealpixProjMap.h,v 1.3 2015/03/05 19:58:24 echarles Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/HealpixProjMap.h,v 1.1 2015/12/10 00:57:58 echarles Exp $
  */
 
 #ifndef Likelihood_HealpixProjMap_h
@@ -17,6 +17,7 @@
 #include "astro/ProjBase.h"
 #include "astro/HealpixProj.h"
 #include "Likelihood/ProjMap.h"
+#include "Likelihood/CountsMapBase.h"
 #include "healpix_map.h"
 
 namespace Likelihood {
@@ -24,6 +25,8 @@ namespace Likelihood {
 class BinnedExposureBase;
 class DiffuseSource;
 class MeanPsf;
+class CountsMapBase;
+class CountsMapHealpix;
 
 /**
  * @class HealpixProjMap
@@ -31,6 +34,22 @@ class MeanPsf;
  */
 
 class HealpixProjMap : public ProjMap {
+
+public:
+
+  static void foldVector(const std::vector<float>& vector_in,
+			 const astro::HealpixProj& hp_proj, 
+			 int npix, int nebins,
+			 std::vector<Healpix_Map<float> >& image_out);
+   
+  static void convertToDifferential(std::vector<Healpix_Map<float> >& image_out,
+				    const std::vector<double>& energy_bin_widths,
+				    int npix, const double& solid_angle);
+
+  static void convertToIntegral(std::vector<float> image_out,
+				const std::vector<Healpix_Map<float> >& image_in,
+				const std::vector<double>& energy_bin_widths,
+				int npix, const double& solid_angle);
 
 public:
 
@@ -50,24 +69,34 @@ public:
 		  double radius=180, double ra=0, double dec=0.,
 		  bool interpolate=false, bool enforceEnergyRange=false);
 
+   HealpixProjMap(const CountsMapHealpix& theMap, 
+		  CountsMapBase::ConversionType cType);
 
-   virtual ~HealpixProjMap();
-
-   HealpixProjMap(const HealpixProjMap &);
+   HealpixProjMap(const HealpixProjMap &, bool copy_image=true);
 
    HealpixProjMap(const HealpixProjMap &, const double& energy, const Healpix_Map<float>& image);
 
+   virtual ~HealpixProjMap();
+
    virtual HealpixProjMap & operator=(const HealpixProjMap &);
+
+   virtual HealpixProjMap* cast_healpix() { return this; }
 
    virtual double operator()(const astro::SkyDir & dir, double energy=-1) const;
 
    virtual double operator()(const astro::SkyDir & dir, int k) const;
 
+   virtual ProjMap* convolveAll(const MeanPsf & psf,
+				const BinnedExposureBase * exposure=0,
+				bool performConvolution=true) const;
+
    virtual ProjMap* convolve(double energy, const MeanPsf & psf,
-			     const BinnedExposureBase & exposure,
+			     const BinnedExposureBase * exposure=0,
 			     bool performConvolution=true,
 			     int k=0) const;
    
+   virtual CountsMapBase* makeCountsMap(const CountsMapBase& counts_map) const;
+
    virtual double solidAngle(double ilon, double ilat) const { return m_solidAngle; }
 
    inline double solidAngleHealpix() const { return m_solidAngle; }
