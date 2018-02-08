@@ -191,7 +191,7 @@ void SourceMap::expand_model(bool clearSparse) {
 void SourceMap::computeNpredArray() {
 
    if ( m_mapType == FileUtils::HPX_Sparse && m_model.size() == 0 ) {
-     return computeNpredArray_sparse();
+     return computeNpredArray_sparse();     
    }
 
    if ( m_model.size() == 0 ) {
@@ -592,16 +592,17 @@ int SourceMap::readModel(const std::string& filename) {
   if ( status != 0 ) {
     std::string errMsg("SourceMap failed to read source map: ");
     errMsg += m_filename;
+    errMsg += "::";
+    errMsg += m_name;
     errMsg += ".  To match data file: ";
     errMsg += m_dataCache->countsMap().filename();
     throw std::runtime_error(errMsg);
   }
 
-
   applyPhasedExposureMap();
   setSpectralValues(m_dataCache->energies());
   computeNpredArray();
-
+    
   return status;
 }
 
@@ -621,6 +622,7 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
     // If this is a partial-sky mapping, the projection will 
     // take care of doing the remapping
     status = FileUtils::read_healpix_table_to_float_vector(sourceMapsFile,m_name,m_model);
+    status = m_model.size() > 0 ? status : -1;
     break;
   case FileUtils::HPX_Sparse:
     // In this case we read the map.
@@ -629,10 +631,11 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
     status = FileUtils::read_healpix_table_to_sparse_vector(sourceMapsFile,m_name,
 							    m_dataCache->num_pixels(),
 							    m_sparseModel);
+    status = m_sparseModel.size() > 0 ? status : -1;  
     break;
   default:
     // Either unknown or WCS based.  This is an error in either case.
-    return -1;
+    return -2;
   }
   return status;
 }
@@ -724,6 +727,11 @@ void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec, i
   size_t offset = kmin*npix;
   for ( ; itr != itr_end; itr++) {
     int ie = includeSpec ? ( itr->first / npix ) : -1;    
+    if ( ie >= m_specVals.size() ) {
+      std::string errMsg("Sparse map index is outside of bounds.");
+      errMsg += "This usually indicates that one of the pixels in the map was corrupted with writing the map";    
+      throw std::runtime_error(errMsg
+    }
     double factor = ie >= 0 ? m_specVals[ie] : 1.;
     vect[itr->first-offset] += itr->second * factor;
   }
