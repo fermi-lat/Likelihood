@@ -522,6 +522,10 @@ namespace Likelihood {
 	size_t key = keys[ikey];
 	size_t ipix = key % nPix;
 	short ie = key / nPix;
+	if ( ie >= nEBins_data ) {
+	  std::string errMsg("Sparse map index outside of bounds on write.");
+	  throw std::runtime_error(errMsg);
+	}
 	pix_col->set(ikey, ipix);
 	chan_col->set(ikey, ie);
 	val_col->set(ikey, values[ikey]);
