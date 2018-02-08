@@ -730,7 +730,7 @@ void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec, i
     if ( ie >= m_specVals.size() ) {
       std::string errMsg("Sparse map index is outside of bounds.");
       errMsg += "This usually indicates that one of the pixels in the map was corrupted with writing the map";    
-      throw std::runtime_error(errMsg
+      throw std::runtime_error(errMsg);
     }
     double factor = ie >= 0 ? m_specVals[ie] : 1.;
     vect[itr->first-offset] += itr->second * factor;
