@@ -135,8 +135,6 @@ namespace Likelihood {
       const tip::IColumn* chan_col = table->getColumn(chan_field);
       const tip::IColumn* val_col = table->getColumn(val_field);
 
-      
-
       tip::Index_t nrow = table->getNumRecords();
 
       std::vector<size_t> pix_vect(nrow, 0);
