@@ -981,7 +981,8 @@ optimizers::Parameter & likelihood::normPar(Source * src) const {
 }
 
 bool likelihood::isDiffuseOrNearby(Source * src) const {
-   if (src->getType() == "Diffuse") {
+   if (src->getType() == "Diffuse" || 
+       src->getType() == "Composite" ) {
       return true;
    } else if (::ptsrcSeparation(m_tsSrc, src) < m_maxdist) {
       return true;
