@@ -164,6 +164,9 @@ namespace Likelihood {
      /// Return the weighted counts map
      inline const CountsMapBase* weightedCounts() const { return m_dataCache.weightedCounts(); }
  
+     /// Return true if the weighted counts map exists
+     inline bool has_weights() const { return m_dataCache.has_weights(); }
+
      /// Return the name of the file with the source maps
      inline const std::string& srcMapsFile() const { return m_srcMapsFile; }
 
@@ -461,7 +464,8 @@ namespace Likelihood {
 	This will temporarily create (and then delete ) SourceMaps for 
 	sources that don't have them
       */
-     void computeModelMap(std::vector<float> & modelMap) const;
+     void computeModelMap(std::vector<float> & modelMap,
+			  bool use_mask = true) const;
 
      /* Compute a model map for an individual source
 
@@ -469,7 +473,8 @@ namespace Likelihood {
 	sources that don't have them
      */
      void computeModelMap(const std::string& srcName, 
-			  std::vector<float> & modelMap) const;
+			  std::vector<float> & modelMap,
+			  bool use_mask = true) const;
 
      /* Compute a model map summing over a list of sources
 	
@@ -477,14 +482,16 @@ namespace Likelihood {
 	sources that don't have them
      */
      void computeModelMap(const std::vector<std::string>& srcNames, 
-			  std::vector<float> & modelMap) const;
+			  std::vector<float> & modelMap,
+			  bool use_mask = true) const;
 
      
      /* This function adds the Model counts for a source map
 	to a vector.  it is used by the various computeModelMap 
 	functions */
      void updateModelMap(std::vector<float> & modeMap, 
-			 SourceMap * srcMap) const;
+			 SourceMap * srcMap,
+			 bool use_mask = true) const;
 
 
      /* --------------- Functions for dealing the NPreds -------------- */

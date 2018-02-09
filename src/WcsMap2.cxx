@@ -201,19 +201,25 @@ WcsMap2::WcsMap2(const std::string & filename,
 
    setProjInfo(refDir,*theProj);
 
-   try {
-      std::vector<astro::SkyDir> corners;
-      getCorners(corners);
-      setMapRadius(corners[0].difference(refDir));
-      for (size_t i(1); i < corners.size(); i++) {
+   if ( periodic() ) {
+     setMapRadius(180.);
+   } else {
+     try {
+       std::vector<astro::SkyDir> corners;
+       getCorners(corners);
+       setMapRadius(corners[0].difference(refDir));
+       for (size_t i(1); i < corners.size(); i++) {
          double sep(corners[i].difference(refDir));
          if (sep > mapRadius() ) {
-  	     setMapRadius(sep);
+	   setMapRadius(sep);
          }
-      }
-   } catch(std::exception & eObj) {
+       }
+     } catch(std::exception & eObj) {
        setMapRadius(180.);
+     }
    }
+
+
 
    delete image;
    foldVector(my_image, m_naxis1, m_naxis2, naxis3, m_image);

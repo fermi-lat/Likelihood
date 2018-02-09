@@ -247,7 +247,8 @@ namespace Likelihood {
 	sources that don't have them
      */
      void computeModelMap(const Source& src, 
-			  std::vector<float> & modelMap) const;
+			  std::vector<float> & modelMap,
+			  bool use_mask = true) const;
 
      /* Compute a model map summing over a list of sources
 	
@@ -255,7 +256,8 @@ namespace Likelihood {
 	sources that don't have them
      */
      void computeModelMap(const std::vector<const Source*>& srcs, 
-			  std::vector<float> & modelMap) const;
+			  std::vector<float> & modelMap,
+			  bool use_mask = true) const;
 
      
      /* This function adds the Model counts for a source map
@@ -263,7 +265,8 @@ namespace Likelihood {
 	functions */
      void updateModelMap(std::vector<float> & modeMap, 
 			 const Source& src, 
-			 SourceMap* srcMap) const;
+			 SourceMap* srcMap,
+			 bool use_mask = true) const;
 
 
      /* --------------- Functions for dealing the NPreds -------------- */

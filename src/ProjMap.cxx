@@ -194,16 +194,18 @@ double ProjMap::interpolatePowerLaw(double x, double x1, double x2,
       if ( (x < x1 && y1 == 0) || (x > x2 && y2 == 0) ) {
          // Linear extrapolation in these cases would produce
          // negative values.
-	 std::ostringstream message;
-         message << "ProjMap::interpolatePowerLaw: "
-                 << "linear extrapolation selected for "
-                 << "zero-valued ordinates.\n"
-                 << "x = " << x << ", "
-                 << "x1 = " << x1 << ", "
-                 << "x2 = " << x2 << ", "
-                 << "y1 = " << y1 << ", "
-                 << "y2 = " << y2 << std::endl;
-         throw std::runtime_error(message.str());
+	 //std::ostringstream message;
+         //message << "ProjMap::interpolatePowerLaw: "
+         //        << "linear extrapolation selected for "
+         //        << "zero-valued ordinates.\n"
+         //        << "x = " << x << ", "
+         //        << "x1 = " << x1 << ", "
+         //        << "x2 = " << x2 << ", "
+         //        << "y1 = " << y1 << ", "
+         //        << "y2 = " << y2 << std::endl;
+         //throw std::runtime_error(message.str());
+	 // EAC, just return zero.  
+         return 0;
       }
       // Use linear interpolation
       double value((x - x1)/(x2 - x1)*(y2 - y1) + y1);

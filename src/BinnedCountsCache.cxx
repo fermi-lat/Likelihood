@@ -59,7 +59,9 @@ namespace Likelihood {
   void BinnedCountsCache::setWeightsMap(const ProjMap* wmap, 
 					const Observation & observation) {
     if ( wmap == m_weightMap_orig) return;
-    delete m_weightMap_orig;
+    // EAC, FIXME.  This is a memory leak. Need to reference count the maps,
+    // Or use clones.
+    // delete m_weightMap_orig;
     delete m_weightMap;
     m_weightMap_orig = wmap;
     if ( wmap == 0 ) {

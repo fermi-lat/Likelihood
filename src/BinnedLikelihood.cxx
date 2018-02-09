@@ -645,30 +645,34 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     return npred;
   }
 
-  void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap) const {
+  void BinnedLikelihood::computeModelMap(std::vector<float> & modelMap,
+					 bool use_mask) const {
     std::vector<std::string> srcNames;
     getSrcNames(srcNames);
-    computeModelMap(srcNames,modelMap);
+    computeModelMap(srcNames,modelMap,use_mask);
   }
   
   void BinnedLikelihood::computeModelMap(const std::string & srcName, 
-					 std::vector<float> & modelMap) const {
+					 std::vector<float> & modelMap,
+					 bool use_mask) const {
     const Source& src = source(srcName);
-    m_srcMapCache.computeModelMap(src,modelMap);			  
+    m_srcMapCache.computeModelMap(src,modelMap,use_mask);			  
   }
 
   void BinnedLikelihood::computeModelMap(const std::vector<std::string>& srcNames, 
-					 std::vector<float> & modelMap) const {
+					 std::vector<float> & modelMap,
+					 bool use_mask) const {
     std::vector<const Source*> srcs;
     getSources(srcNames,srcs);
-    m_srcMapCache.computeModelMap(srcs,modelMap);
+    m_srcMapCache.computeModelMap(srcs,modelMap,use_mask);
   }
 
 
   void BinnedLikelihood::updateModelMap(std::vector<float> & modelMap,
-					SourceMap * srcMap) const {
+					SourceMap * srcMap,
+					bool use_mask) const {
     const Source& src = source(srcMap->name());
-    m_srcMapCache.updateModelMap(modelMap,src,srcMap);
+    m_srcMapCache.updateModelMap(modelMap,src,srcMap,use_mask);
   }
 
 

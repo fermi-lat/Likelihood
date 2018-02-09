@@ -191,7 +191,7 @@ void SourceMap::expand_model(bool clearSparse) {
 void SourceMap::computeNpredArray() {
 
    if ( m_mapType == FileUtils::HPX_Sparse && m_model.size() == 0 ) {
-     return computeNpredArray_sparse();
+     return computeNpredArray_sparse();     
    }
 
    if ( m_model.size() == 0 ) {
@@ -264,7 +264,7 @@ void SourceMap::computeNpredArray() {
 void SourceMap::computeNpredArray_sparse() {
   
    const std::vector<double>& energies = m_dataCache->energies();
-   
+
    size_t ne = energies.size();
    // The number of weights is always number of energy bins
    size_t nw = energies.size() -1 ;
@@ -277,7 +277,6 @@ void SourceMap::computeNpredArray_sparse() {
  
    std::vector<double> w_0_sum(nw,0.);
    std::vector<double> w_1_sum(nw,0.);
-
 
    for ( SparseVector<float>::iterator itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
      size_t indx_0 = itr->first;
@@ -295,7 +294,7 @@ void SourceMap::computeNpredArray_sparse() {
        w_1_sum[k-1] += (weight_prev * model_0);
      }
    }
-   
+
    for ( size_t k(0); k < nw; k++ ) {
      if ( m_weights == 0 ) {
        m_npred_weights[k].first = 1.;
@@ -303,12 +302,12 @@ void SourceMap::computeNpredArray_sparse() {
        continue;
      }
      if ( m_npreds[k] > 0 ) {
-       m_npred_weights[k].first /=  m_npreds[k];
+       m_npred_weights[k].first = w_0_sum[k] / m_npreds[k];
      } else {
        m_npred_weights[k].first = 1.;
      }
      if ( m_npreds[k+1] > 0 ) {
-       m_npred_weights[k].second /=  m_npreds[k+1];
+       m_npred_weights[k].second = w_1_sum[k] / m_npreds[k+1];
      } else {
        m_npred_weights[k].second = 1.;
      }
@@ -587,22 +586,23 @@ int SourceMap::readModel(const std::string& filename) {
     status = readTable_healpix(m_filename);
     break;
   default:
+    status = -1;
     break;
   }
   if ( status != 0 ) {
     std::string errMsg("SourceMap failed to read source map: ");
     errMsg += m_filename;
+    errMsg += "::";
+    errMsg += m_name;
     errMsg += ".  To match data file: ";
     errMsg += m_dataCache->countsMap().filename();
-    return status;
-    // throw std::runtime_error(errMsg);
+    throw std::runtime_error(errMsg);
   }
-
 
   applyPhasedExposureMap();
   setSpectralValues(m_dataCache->energies());
   computeNpredArray();
-
+    
   return status;
 }
 
@@ -622,6 +622,7 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
     // If this is a partial-sky mapping, the projection will 
     // take care of doing the remapping
     status = FileUtils::read_healpix_table_to_float_vector(sourceMapsFile,m_name,m_model);
+    status = m_model.size() > 0 ? status : -1;
     break;
   case FileUtils::HPX_Sparse:
     // In this case we read the map.
@@ -630,10 +631,11 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
     status = FileUtils::read_healpix_table_to_sparse_vector(sourceMapsFile,m_name,
 							    m_dataCache->num_pixels(),
 							    m_sparseModel);
+    status = m_sparseModel.size() > 0 ? status : -1;  
     break;
   default:
     // Either unknown or WCS based.  This is an error in either case.
-    return -1;
+    return -2;
   }
   return status;
 }
@@ -725,6 +727,11 @@ void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec, i
   size_t offset = kmin*npix;
   for ( ; itr != itr_end; itr++) {
     int ie = includeSpec ? ( itr->first / npix ) : -1;    
+    if ( ie >= m_specVals.size() ) {
+      std::string errMsg("Sparse map index is outside of bounds.");
+      errMsg += "This usually indicates that one of the pixels in the map was corrupted with writing the map";    
+      throw std::runtime_error(errMsg);
+    }
     double factor = ie >= 0 ? m_specVals[ie] : 1.;
     vect[itr->first-offset] += itr->second * factor;
   }

@@ -334,19 +334,21 @@ namespace Likelihood {
 
   
   void SourceMapCache::computeModelMap(const Source & src, 
-				       std::vector<float> & modelMap) const {
+				       std::vector<float> & modelMap,
+				       bool use_mask) const {
     modelMap.resize(m_dataCache.data_map_size(), 0);      
     bool hasMap = hasSourceMap(src.getName());
     SourceMap* srcMap = getSourceMap(src);
     updateCorrectionFactors(src,*srcMap);
-    updateModelMap(modelMap, src, srcMap);
+    updateModelMap(modelMap, src, srcMap, use_mask);
     if( !hasMap ) {
       delete srcMap;
     }
   }
 
   void SourceMapCache::computeModelMap(const std::vector<const Source*>& srcs, 
-				       std::vector<float> & modelMap) const {
+				       std::vector<float> & modelMap,
+				       bool use_mask) const {
     modelMap.resize(m_dataCache.data_map_size(), 0);  
     for ( std::vector<const Source*>::const_iterator itr = srcs.begin();
 	  itr != srcs.end(); itr++ ) {
@@ -354,7 +356,7 @@ namespace Likelihood {
       bool hasMap = hasSourceMap(src->getName());
       SourceMap* srcMap = getSourceMap(*src);
       updateCorrectionFactors(*src, *srcMap);
-      updateModelMap(modelMap, *src, srcMap);
+      updateModelMap(modelMap, *src, srcMap, use_mask);
       if( !hasMap && ! m_config.save_all_srcmaps() ) {
 	delete srcMap;
       }
@@ -364,7 +366,8 @@ namespace Likelihood {
 
   void SourceMapCache::updateModelMap(std::vector<float> & modelMap,
 				      const Source& src, 
-				      SourceMap * srcMap) const {
+				      SourceMap * srcMap,
+				      bool use_mask) const {
     size_t npix = m_dataCache.num_pixels();
     size_t kmin = 0;
     size_t kmax = m_dataCache.num_ebins();
@@ -373,7 +376,7 @@ namespace Likelihood {
     double np = NpredValue(src,kmin,kmax); // This computes the convolved spectrum
 
     const std::vector<double> & specVals = srcMap->specVals();  
-    const WeightMap* mask = srcMap->weights();
+    const WeightMap* mask = use_mask ? srcMap->weights() : 0;
   
     bool use_edisp_val = use_edisp(&src);
     const Drm_Cache* drm_cache = srcMap->drm_cache();
