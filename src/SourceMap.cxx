@@ -210,7 +210,7 @@ void SourceMap::computeNpredArray() {
    m_npreds.clear();
    m_npreds.resize(ne);
    m_npred_weights.clear();
-   m_npred_weights.resize(nw, std::make_pair<double,double>(0.,0.));
+   m_npred_weights.resize(nw, std::make_pair(0.,0.));
 
    size_t npix = m_dataCache->num_pixels();
 
