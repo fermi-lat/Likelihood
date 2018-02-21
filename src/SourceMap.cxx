@@ -685,7 +685,7 @@ int SourceMap::make_model() {
 
 void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) const {
   SourceMap* nc_this = const_cast<SourceMap*>(this);
-  const std::vector<float>& m = this->model();
+  const std::vector<float>& m = const_cast<SourceMap*>(this)->model();
   size_t npix = m_dataCache->num_pixels();
   kmax = kmax < 0 ? m_dataCache->num_energies() : kmax;
   size_t ne = kmax - kmin;
@@ -738,7 +738,7 @@ void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec, i
 }
 
 void SourceMap::subtractFromVector_full(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) const {
-  const std::vector<float>& m = model();
+  const std::vector<float>& m = const_cast<SourceMap*>(this)->model();
   size_t npix = m_dataCache->num_pixels();
   kmax = kmax < 0 ? m_dataCache->num_energies() : kmax;
   size_t ne = kmax - kmin;
