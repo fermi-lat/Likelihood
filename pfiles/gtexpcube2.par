@@ -4,7 +4,6 @@
 infile,f,a,"",,,"Livetime cube file"
 cmap,f,a,"",,,"Counts map file"
 outfile,f,a,"",,,"Output file name"
-irfs,s,a,"CALDB",,,"Response functions to use"
 evtype,i,h,INDEF,,,"Event type selections"
 
 # Parameters for user-defined map.
@@ -32,6 +31,7 @@ ignorephi,     b, h, "no", , , "Ignore phi information in Livetime cube"
 thmax, r, h, 180,,,"Maximum off-axis angle to include in effective area integration"
 thmin, r, h, 0,,,"Minimum off-axis angle to include in effective area integration"
 table,         s, h, "EXPOSURE",,,"Exposure cube extension"
+irfs,s,a,"CALDB",,,"Response functions to use"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
