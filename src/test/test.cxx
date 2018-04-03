@@ -6,6 +6,8 @@
  * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/test/test.cxx,v 1.147 2016/10/20 23:13:04 echarles Exp $
  */
 
+#define DARWIN_F2C_FAILURE
+
 #ifdef TRAP_FPE
 #include <fenv.h>
 #endif
