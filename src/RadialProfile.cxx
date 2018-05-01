@@ -63,13 +63,7 @@ RadialProfile & RadialProfile::operator=(const RadialProfile & rhs) {
    return *this;
 }
 
-double RadialProfile::value(const optimizers::Arg & x) const {
-   const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(x);
-   if (m_center == 0) {
-      m_center = new astro::SkyDir(getParam("RA").getValue(),
-                                   getParam("DEC").getValue());
-   }
-   double offset = dir().difference(*m_center)*180./M_PI;
+double RadialProfile::valueAtOffset(double offset) const {
    size_t indx(0);
    if (offset >= m_theta.back()) { // extrapolate beyond last point
       indx = m_theta.size() - 2;
@@ -80,6 +74,17 @@ double RadialProfile::value(const optimizers::Arg & x) const {
    return (offset - m_theta.at(indx))/(m_theta.at(indx+1) - m_theta.at(indx))
       *(m_profile.at(indx+1) - m_profile.at(indx)) + m_profile.at(indx);
 }
+
+double RadialProfile::value(const optimizers::Arg & x) const {
+   const SkyDirArg & dir = dynamic_cast<const SkyDirArg &>(x);
+   if (m_center == 0) {
+      m_center = new astro::SkyDir(getParam("RA").getValue(),
+                                   getParam("DEC").getValue());
+   }
+   double offset = dir().difference(*m_center)*180./M_PI;
+   return valueAtOffset(offset);
+}
+
 
 double RadialProfile::derivByParamImp(const optimizers::Arg & x, 
                                       const std::string & parName) const {
