@@ -906,7 +906,7 @@ namespace Likelihood {
       std::vector<double> exposure;
 
       const BinnedExposureBase* bexpmap_ptr = &bexpmap;
-      if (!bexpmap_ptr) {
+      if ( bexpmap_ptr != 0 ) {
 	bexpmap.get_exposures_for_dir(dir, energies, exposure);
       } else {
 	exposure = meanpsf.exposure();
@@ -1048,7 +1048,7 @@ namespace Likelihood {
       const astro::SkyDir & dir(pointSrc.getDir());
       std::vector<double> exposure;
       const BinnedExposureBase* bexpmap_ptr = &bexpmap;
-      if (!bexpmap_ptr) {
+      if ( bexpmap_ptr != 0 ) {
 	bexpmap.get_exposures_for_dir(dir, energies, exposure);
       } else {
 	exposure = meanpsf.exposure();
