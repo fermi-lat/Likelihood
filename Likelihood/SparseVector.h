@@ -268,7 +268,7 @@ namespace Likelihood {
   template <typename T>
   void SparseVector<T>::push_back(const T& val) {
     if ( test_value(val) ) {
-      m_data.push_back(std::make_pair<size_t,T>(m_size,val));
+      m_data.push_back(std::make_pair(m_size,val));
     }
     m_size += 1;
   }
@@ -340,7 +340,7 @@ namespace Likelihood {
     size_t idx(0);
     for ( typename std::vector<T>::const_iterator itr = vect.begin(); itr!= vect.end(); itr++, idx++ ) {
       if ( test_value(*itr) ) {
-	m_data.push_back(std::make_pair<size_t,T>(idx,*itr));
+	m_data.push_back(std::make_pair(idx,*itr));
       }
     }
   }
@@ -349,7 +349,7 @@ namespace Likelihood {
   void SparseVector<T>::fill_from_map(const std::map<size_t,T>& map) {
     m_data.clear();
     for ( typename std::map<size_t,T>::const_iterator itr = map.begin(); itr!= map.end(); itr++ ) {
-      m_data.push_back(std::make_pair<size_t,T>(itr->first,itr->second));
+      m_data.push_back(std::make_pair(itr->first,itr->second));
     }    
   }
   
@@ -364,7 +364,7 @@ namespace Likelihood {
     typename std::vector<T>::const_iterator itrVal = values.begin();
     
     for ( typename std::vector<T>::const_iterator itrVal = values.begin(); itrVal != values.end(); itrKey++, itrVal++ ) {
-      m_data.push_back(std::make_pair<size_t,T>(*itrKey,*itrVal));
+      m_data.push_back(std::make_pair(*itrKey,*itrVal));
     }     
   }
   
