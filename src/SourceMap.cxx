@@ -663,7 +663,7 @@ int SourceMap::make_model() {
 
   status = PSFUtils::makeModelMap(*m_src, *m_dataCache, 
 				  m_meanPsf==0 ? m_observation.meanpsf() : *m_meanPsf,
-				  m_observation.bexpmap(),
+				  m_observation.bexpmap_ptr(),
 				  m_psf_config,
 				  m_filename, m_drm,
 				  *m_formatter, m_model, m_mapType);

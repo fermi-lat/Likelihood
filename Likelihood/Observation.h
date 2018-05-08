@@ -110,6 +110,14 @@ public:
       return *m_bexpmap;
    }
 
+   const BinnedExposureBase * bexpmap_ptr() const {
+      return m_bexpmap;
+   }
+
+   BinnedExposureBase * bexpmap_ptr() {
+      return m_bexpmap;
+   }
+
    const ProjMap & phased_expmap() const {
       return *m_phased_expmap;
    }

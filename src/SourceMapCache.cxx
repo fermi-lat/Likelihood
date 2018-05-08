@@ -314,10 +314,8 @@ namespace Likelihood {
 					      const Source& source,
 					      int kmin, int kmax,
 					      bool replace) {
-
     st_stream::StreamFormatter formatter("SourceMapCache",
 					 "saveSourceMaps_partial", 4);
-
     tip::Extension* ptr(0);            
     if (FileUtils::fileHasExtension(filename, source.getName()) ) {
       if ( replace ) {	  
@@ -468,7 +466,7 @@ namespace Likelihood {
       
     PSFUtils::makeModelMap(src, m_dataCache,
 			   meanPsf==0 ? m_observation.meanpsf() : *meanPsf,
-			   m_observation.bexpmap(),
+			   m_observation.bexpmap_ptr(),
 			   m_config.psf_integ_config(),
 			   m_srcMapsFile,m_drm,
 			   formatter,
@@ -586,7 +584,7 @@ namespace Likelihood {
     std::vector<float> model;
     FileUtils::SrcMapType mapType = FileUtils::Unknown;
     fillSingleSourceMap(src, model, mapType, kmin, kmax);
-    
+  
     float sum(0);
     FitUtils::sumVector(model.begin(),model.end(),sum);
 
