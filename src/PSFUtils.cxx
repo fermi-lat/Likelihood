@@ -277,7 +277,7 @@ namespace Likelihood {
     int makeModelMap(const Source& src, 
 		     const BinnedCountsCache& dataCache,
 		     const MeanPsf& meanpsf,
-		     const BinnedExposureBase & bexpmap,
+		     const BinnedExposureBase* bexpmap,
 		     const PsfIntegConfig& config,
 		     const std::string & srcMapsFile,
 		     const Drm* drm,
@@ -316,7 +316,7 @@ namespace Likelihood {
     int makeDiffuseMap(const DiffuseSource& diffuseSrc, 
 		       const CountsMapBase& dataMap,
 		       const MeanPsf& meanpsf,
-		       const BinnedExposureBase & bexpmap,
+		       const BinnedExposureBase* bexpmap,
 		       const PsfIntegConfig& config,
 		       st_stream::StreamFormatter& formatter,
 		       std::vector<float>& modelmap,
@@ -360,7 +360,7 @@ namespace Likelihood {
     int makeDiffuseMap_wcs(const DiffuseSource& diffuseSrc, 
 			   const CountsMap& dataMap,
 			   const MeanPsf& meanpsf,
-			   const BinnedExposureBase & bexpmap,
+			   const BinnedExposureBase* bexpmap,
 			   const PsfIntegConfig& config,
 			   st_stream::StreamFormatter& formatter,
 			   std::vector<float>& modelmap,
@@ -485,10 +485,10 @@ namespace Likelihood {
 	  const SpatialFunction* m = 
 	    dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist());
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
-								   &bexpmap, *m));
+								   bexpmap, *m));
 	} else {
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(*energy, meanpsf, 
-								   &bexpmap, config.performConvolution() ) );
+								   bexpmap, config.performConvolution() ) );
 	}
 	
 	size_t rfac(static_cast<size_t>(resamp_fact));
@@ -534,7 +534,7 @@ namespace Likelihood {
     int makeDiffuseMap_healpix(const DiffuseSource& diffuseSrc, 
 			       const CountsMapHealpix& dataMap,
 			       const MeanPsf& meanpsf,
-			       const BinnedExposureBase & bexpmap,
+			       const BinnedExposureBase* bexpmap,
 			       const PsfIntegConfig& config,
 			       st_stream::StreamFormatter& formatter,			       
 			       std::vector<float>& modelmap,
@@ -576,13 +576,12 @@ namespace Likelihood {
       for (size_t k(kmin); k != kmax; k++ ) {
 	double energy = energies[k];
 	formatter.warn() << ".";
-
 	HealpixProjMap diffuseMap(diffuseSrc, resamp_nside,
 				  scheme,SET_NSIDE,
 				  energy,dataMap.projection().isGalactic(),
 				  ALLSKY_RADIUS,mapRefDir.ra(), mapRefDir.dec(),
 				  interpolate, false);
-	ProjMap* cmap = diffuseMap.convolve(energy,meanpsf,&bexpmap,config.performConvolution());
+	ProjMap* cmap = diffuseMap.convolve(energy,meanpsf,bexpmap,config.performConvolution());
 	HealpixProjMap* convolvedMap = static_cast<HealpixProjMap*>(cmap);
 	Healpix_Map<float> outmap(nside_orig,scheme,SET_NSIDE);
 	if ( nside_orig == resamp_nside ) {
@@ -597,7 +596,7 @@ namespace Likelihood {
 	  modelmap[outidx] = outmap[glo]*solidAngle;
 	  e_sum += outmap[glo]*solidAngle;
 	}
-      }
+     }
       try {
 	MapBase * mapBaseObj = 
 	  const_cast<MapBase *>(diffuseSrc.mapBaseObject());
@@ -617,7 +616,7 @@ namespace Likelihood {
     int makeDiffuseMap_native(const DiffuseSource& diffuseSrc, 
 			      const CountsMapHealpix& dataMap,
 			      const MeanPsf& meanpsf,
-			      const BinnedExposureBase & bexpmap,
+			      const BinnedExposureBase* bexpmap,
 			      const PsfIntegConfig& config,
 			      st_stream::StreamFormatter& formatter,
 			      std::vector<float>& modelmap,
@@ -789,10 +788,10 @@ namespace Likelihood {
 	  const SpatialFunction* m = 
 	    dynamic_cast<const SpatialFunction *>(diffuseSrc.spatialDist());
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(energy, meanpsf, 
-								   &bexpmap, *m));
+								   bexpmap, *m));
 	} else {
 	  convolvedMap = static_cast<WcsMap2*>(diffuseMap.convolve(energy, meanpsf, 
-								   &bexpmap, config.performConvolution()));
+								   bexpmap, config.performConvolution()));
 	}
 	
 	
@@ -839,7 +838,7 @@ namespace Likelihood {
 			   const CountsMapBase& dataMap,
 			   const PsfIntegConfig& config,
 			   const MeanPsf& meanpsf,
-			   const BinnedExposureBase & bexpmap,
+			   const BinnedExposureBase* bexpmap,
 			   st_stream::StreamFormatter& formatter,
 			   std::vector<float>& modelmap,
 			   FileUtils::SrcMapType& mapType,
@@ -876,7 +875,7 @@ namespace Likelihood {
 			       const CountsMap& dataMap,
 			       const PsfIntegConfig& config,
 			       const MeanPsf& meanpsf,
-			       const BinnedExposureBase & bexpmap,
+			       const BinnedExposureBase* bexpmap,
 			       st_stream::StreamFormatter& formatter,
 			       std::vector<float>& modelmap,
 			       FileUtils::SrcMapType& mapType,
@@ -905,9 +904,8 @@ namespace Likelihood {
 
       std::vector<double> exposure;
 
-      const BinnedExposureBase* bexpmap_ptr = &bexpmap;
-      if ( bexpmap_ptr != 0 ) {
-	bexpmap.get_exposures_for_dir(dir, energies, exposure);
+      if ( bexpmap != 0 ) {
+	bexpmap->get_exposures_for_dir(dir, energies, exposure);
       } else {
 	exposure = meanpsf.exposure();
       }
@@ -1028,7 +1026,7 @@ namespace Likelihood {
 				   const CountsMapHealpix& dataMap,
 				   const PsfIntegConfig& config,
 				   const MeanPsf& meanpsf,
-				   const BinnedExposureBase & bexpmap,
+				   const BinnedExposureBase* bexpmap,
 				   st_stream::StreamFormatter& formatter,
 				   std::vector<float>& modelmap,
 				   FileUtils::SrcMapType& mapType,
@@ -1047,9 +1045,8 @@ namespace Likelihood {
       
       const astro::SkyDir & dir(pointSrc.getDir());
       std::vector<double> exposure;
-      const BinnedExposureBase* bexpmap_ptr = &bexpmap;
-      if ( bexpmap_ptr != 0 ) {
-	bexpmap.get_exposures_for_dir(dir, energies, exposure);
+      if ( bexpmap != 0 ) {
+	bexpmap->get_exposures_for_dir(dir, energies, exposure);
       } else {
 	exposure = meanpsf.exposure();
       }

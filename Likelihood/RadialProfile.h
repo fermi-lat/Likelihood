@@ -57,6 +57,8 @@ public:
   
   const astro::SkyDir& getCenter() const;
 
+  double valueAtOffset(double offset) const;
+
 protected:
 
    virtual double value(const optimizers::Arg & dir) const;
