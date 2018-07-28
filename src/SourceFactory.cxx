@@ -500,33 +500,36 @@ addParamsToMultipleBPL(optimizers::Function * spec,
       }
       if (name.find("Index") == 0) {
          size_t my_index_id = std::atoi(name.substr(5).c_str());
-         if (my_index_id != photonIndexes.size()) {
-            std::ostringstream what;
-            what << "MultpleBPL: Index#s are out of order for source "
-                 << src->getName() 
-                 << ". They must appear in the sequence Index0, Index1, "
-                 << "Index2, ... in the xml model definition.";
-            throw std::runtime_error(what.str());
+	 if ( my_index_id >= photonIndexes.size()) {
+ 	    photonIndexes.resize(my_index_id+1);
+            //std::ostringstream what;
+            //what << "MultpleBPL: Index#s are out of order for source "
+            //     << src->getName() 
+            //     << ". They must appear in the sequence Index0, Index1, "
+            //     << "Index2, ... in the xml model definition.";
+            //throw std::runtime_error(what.str());
          }
          double value = 
             std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
-         photonIndexes.push_back(value);
+         //photonIndexes.push_back(value);
+	 photonIndexes[my_index_id] = value;	 
       }
       if (name.find("Break") == 0) {
          size_t my_index_id = std::atoi(name.substr(5).c_str());
-         if (my_index_id != breakEnergies.size()) {
-            std::ostringstream what;
-            what << "MultpleBPL: Index#s are out of order for source "
-                 << src->getName() 
-                 << ". They must appear in the sequence Break0, Break1, "
-                 << "Break2, ... in the xml model definition.";
-            throw std::runtime_error(what.str());
+         if (my_index_id >= breakEnergies.size()) {
+ 	    breakEnergies.resize(my_index_id+1);
+            //std::ostringstream what;
+            //what << "MultpleBPL: Index#s are out of order for source "
+            //     << src->getName() 
+            //     << ". They must appear in the sequence Break0, Break1, "
+            //     << "Break2, ... in the xml model definition.";
+            //throw std::runtime_error(what.str());
          }
          double value = 
             std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
          double scale =
             std::atof(xmlBase::Dom::getAttribute(*paramIt, "scale").c_str());
-         breakEnergies.push_back(value*scale);
+         breakEnergies[my_index_id] = value*scale;
       }
    } // paramIt
    dynamic_cast<MultipleBrokenPowerLaw *>(spec)->addParams(normalization,
@@ -547,33 +550,38 @@ addParamsToPiecewisePL(optimizers::Function * spec,
       std::string name(xmlBase::Dom::getAttribute(*paramIt, "name"));
       if (name.substr(0, 4) == "dNdE") {
          size_t my_dNdE_id = std::atoi(name.substr(4).c_str());
-         if (my_dNdE_id != dNdEs.size()) {
-            std::ostringstream what;
-            what << "PiecewisePowerLaw: dNdE#s are out of order for source "
-                 << src->getName()
-                 << ". They must appear in the sequence dNdE0, dNdE1, ... "
-                 << "in the xml model definition.";
-            throw std::runtime_error(what.str());
+	 // EAC, allow these to be out of order
+         if (my_dNdE_id >= dNdEs.size()) {
+ 	    dNdEs.resize(my_dNdE_id+1);
+            //std::ostringstream what;
+            //what << "PiecewisePowerLaw: dNdE#s are out of order for source "
+            //     << src->getName()
+            //     << ". They must appear in the sequence dNdE0, dNdE1, ... "
+            //     << "in the xml model definition.";
+            //throw std::runtime_error(what.str());
          }
          // The actual value will get set by extractDomData, so insert
          // placeholder.
-         dNdEs.push_back(0); 
+         //dNdEs.push_back(0); 
+	 dNdEs[my_dNdE_id] = 0.;
       }
       if (name.substr(0, 6) == "Energy") {
          size_t my_energy_id = std::atoi(name.substr(6).c_str());
-         if (my_energy_id != energies.size()) {
-            std::ostringstream what;
-            what << "PiecewisePowerLaw: Energy#s are out of order for source "
-                 << src->getName()
-                 << ". They must appear in the sequence Energy0, Energy1, ... "
-                 << "in the xml model definition.";
-            throw std::runtime_error(what.str());
+         if (my_energy_id >= energies.size() ){
+	    energies.resize(my_energy_id+1);
+            //std::ostringstream what;
+            //what << "PiecewisePowerLaw: Energy#s are out of order for source "
+            //     << src->getName()
+            //     << ". They must appear in the sequence Energy0, Energy1, ... "
+            //    << "in the xml model definition.";
+            //throw std::runtime_error(what.str());
          }
          double value =
             std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
          double scale =
             std::atof(xmlBase::Dom::getAttribute(*paramIt, "scale").c_str());
-         energies.push_back(value*scale);
+         //energies.push_back(value*scale);
+	 energies[my_energy_id] = value*scale;
       }
    } // paramIt
    double indexL(-2);
