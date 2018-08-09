@@ -141,11 +141,14 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
     header["NAXIS2"].get(numPixels);
     // EAC_FIX. There is a bug that we are actually writing 8* the number of energy planes into the FITS keywork
     numEnergies /= 8;
-    ExposureMap::readEnergyExtension(filename, energies_access());
   } else {
     // In this case axis1 actually has the number of pixels
     numPixels = numEnergies;
     numEnergies = 1;
+  }
+  if ( numEnergies > 1 ) {
+    ExposureMap::readEnergyExtension(filename, energies_access());
+  } else {
     energies_access().push_back(100.);
   }
 
