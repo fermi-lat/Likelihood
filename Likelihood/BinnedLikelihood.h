@@ -288,7 +288,7 @@ namespace Likelihood {
   
      /// Add a source to the source model 
      /// This is the version inherited from SourceModel
-     virtual void addSource(Source * src, bool fromClone=true, SourceMap* srcMap=0);
+     virtual void addSource(Source * src, bool fromClone=true, SourceMap* srcMap=0, bool loadMap=true);
 
      /// Add a source to the soruce model
      /// This version is particular to this class

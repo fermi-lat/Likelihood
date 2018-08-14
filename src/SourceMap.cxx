@@ -94,7 +94,7 @@ SourceMap::SourceMap(const Source& src,
      m_save_model(save_model),
      m_model_is_local(true),
      m_drm_cache(0) {
-   
+
    int status = make_model();
    if ( status != 0 ) {
      throw std::runtime_error("SourceMap construction failed");
@@ -155,6 +155,7 @@ SourceMap::SourceMap(const SourceMap& other)
    m_npreds(other.m_npreds),
    m_npred_weights(other.m_npred_weights),
    m_drm_cache(other.m_drm_cache != 0 ? other.m_drm_cache->clone() : 0){
+
 }
 
 
