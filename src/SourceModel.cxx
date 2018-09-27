@@ -223,7 +223,7 @@ void SourceModel::setParams_(std::vector<optimizers::Parameter> &params,
    syncParams();
 }
 
-void SourceModel::addSource(Source *src, bool fromClone, SourceMap* /* srcMap */) {
+void SourceModel::addSource(Source *src, bool fromClone, SourceMap* /* srcMap */, bool /* loadMap*/ ) {
    if (!m_sources.count(src->getName())) {
       m_sources[src->getName()] = fromClone ? src->clone() : src;
       m_sources[src->getName()]->setObservation(&m_observation);
@@ -461,7 +461,7 @@ void SourceModel::readXml(std::string xmlFile,
       if (m_verbose) {
          m_formatter->info() << "adding source " << *nameIt << std::endl;
       }
-      addSource(src, false);
+      addSource(src, false, 0, loadMaps);
    }
    syncParams();
 }

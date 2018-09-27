@@ -259,7 +259,7 @@ void LogLike::getFreeDerivs(const optimizers::Arg &,
    }
 }
 
-void LogLike::addSource(Source * src, bool fromClone, SourceMap* /* srcMap */) {
+void LogLike::addSource(Source * src, bool fromClone, SourceMap* /* srcMap */, bool /* loadMap */) {
    SourceModel::addSource(src, fromClone);
    const std::vector<Event> & events = m_observation.eventCont().events();
    std::string srcName = src->getName();

@@ -104,7 +104,7 @@ public:
    }
 
    /// Add a source.
-   virtual void addSource(Source *src, bool fromClone=true, SourceMap* srcMap = 0);
+  virtual void addSource(Source *src, bool fromClone=true, SourceMap* srcMap = 0, bool loadMap=true);
 
    /// Delete a source by name and return a copy.
    virtual Source * deleteSource(const std::string &srcName);

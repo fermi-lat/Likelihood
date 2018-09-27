@@ -136,16 +136,18 @@ HealpixProjMap::HealpixProjMap(const std::string & filename,
   int numEnergies(1);
   int numPixels(0);  
   header["NAXIS"].get(naxes);
-  header["NAXIS1"].get(numEnergies);
+  // EAC FIX, we should find a safer way to get the number of energies...
+  header["TFIELDS"].get(numEnergies);
   if ( naxes == 2 ) {
     header["NAXIS2"].get(numPixels);
-    // EAC_FIX. There is a bug that we are actually writing 8* the number of energy planes into the FITS keywork
-    numEnergies /= 8;
-    ExposureMap::readEnergyExtension(filename, energies_access());
   } else {
     // In this case axis1 actually has the number of pixels
     numPixels = numEnergies;
     numEnergies = 1;
+  }
+  if ( numEnergies > 1 ) {
+    ExposureMap::readEnergyExtension(filename, energies_access());
+  } else {
     energies_access().push_back(100.);
   }
 
@@ -202,6 +204,13 @@ HealpixProjMap::HealpixProjMap(const DiffuseSource & diffuseSource,
   // EAC_FIX, until we implement partial sky HEALPix maps the radius is 180 degrees (all-sky)
   setMapRadius(180.);
 
+  // EAC, FIXME, HEALPix can very slightly overshoot interpolation
+  // this is a problem if the map has zeros in it, as you 
+  // will get negative numbers and crash in interpolatePowerLaw
+  // For now catch these cases and replace with a small positive value
+  // by flipping the sign and scaling down the value
+  static const double almost_zero(-1e-10);
+
   // Fill the image_plane by looping over the pixels
   for ( int iLoc(0); iLoc < nPix; iLoc++ ) {
     int iglo = localToGlobal(iLoc);
@@ -210,11 +219,17 @@ HealpixProjMap::HealpixProjMap(const DiffuseSource & diffuseSource,
       astro::SkyDir dir(coord.first, coord.second, 
 			use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
       SkyDirArg my_dir(dir, energy);
-      image_plane[iLoc] = diffuseSource.spatialDist(my_dir);
-    } else {
+      double val = diffuseSource.spatialDist(my_dir);
+      if ( val < 0 && val > almost_zero ) {
+	image_plane[iLoc] = 0.;
+      } else {
+	image_plane[iLoc] = val;
+      }
+   } else {
       continue;
     }
   }
+
   check_negative_pixels(image_plane);
   m_image.clear();
   m_image.push_back(image_plane);
@@ -241,6 +256,13 @@ HealpixProjMap::HealpixProjMap(const DiffuseSource & diffuseSource,
   // EAC_FIX. Until we implement partial sky HEALPix maps the radius is 180 degrees (all-sky)
   setMapRadius(180.);
 
+  // EAC, FIXME, HEALPix can very slightly overshoot interpolation
+  // this is a problem if the map has zeros in it, as you 
+  // will get negative numbers and crash in interpolatePowerLaw
+  // For now catch these cases and replace with a small positive value
+  // by flipping the sign and scaling down the value
+  static const double almost_zero(-1e-10);
+
   // Fill the image_plane by looping over the pixels
   for ( int iLoc(0); iLoc < nPix; iLoc++ ) {
     int iglo = localToGlobal(iLoc);
@@ -249,7 +271,12 @@ HealpixProjMap::HealpixProjMap(const DiffuseSource & diffuseSource,
       astro::SkyDir dir(coord.first, coord.second, 
 			use_lb ? astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL );
       SkyDirArg my_dir(dir, energy);
-      image_plane[iLoc] = diffuseSource.spatialDist(my_dir);
+      double val = diffuseSource.spatialDist(my_dir);
+      if ( val < 0 && val > almost_zero ) {
+	image_plane[iLoc] = 0.;
+      } else {
+	image_plane[iLoc] = val;
+      }
     } else {
       continue;
     }
@@ -342,7 +369,7 @@ double HealpixProjMap::operator()(const astro::SkyDir & dir, int k) const {
    const pointing ang(theta,phi);
    
    try {
-     if ( getInterpolate() ) {
+     if ( getInterpolate() ) {      
        return m_image[k].interpolated_value(ang);
      } 
      int loc = globalToLocal( m_image[k].ang2pix(ang) );
@@ -360,7 +387,7 @@ double HealpixProjMap::operator()(const astro::SkyDir & dir, double energy) cons
     energy = energies().front();
   }
   check_energy(energy);
-
+ 
   int k(0);
   if ( energies().size() > 1) {
     k = std::upper_bound(energies().begin(), energies().end(), energy) - energies().begin() - 1;
@@ -393,8 +420,9 @@ double HealpixProjMap::operator()(const astro::SkyDir & dir, double energy) cons
   static const double almost_zero(-1e-10);
   if ( y1 < 0 && y1 > almost_zero ) y1 *= -0.0001;
   if ( y2 < 0 && y2 > almost_zero ) y2 *= -0.0001;
+
   double value = interpolatePowerLaw(energy, energies()[k],
-				     energies()[k+1], y1, y2);
+				     energies()[k+1], y1, y2);   
   return value;
 }
 

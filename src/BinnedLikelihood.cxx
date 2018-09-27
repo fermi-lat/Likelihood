@@ -389,16 +389,18 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
 
-  void BinnedLikelihood::addSource(Source * src, bool fromClone, SourceMap* srcMap) {
+  void BinnedLikelihood::addSource(Source * src, bool fromClone, SourceMap* srcMap, bool loadMap) {
     m_bestValueSoFar = -1e38;
     SourceModel::addSource(src, fromClone);
     if ( m_config.use_single_fixed_map() && src->fixedSpectrum()) {
-      addFixedSource(src->getName());
+      addFixedSource(src->getName());      
     } else {
-      if ( srcMap == 0 ) {
-	m_srcMapCache.loadSourceMap(*src,false);
-      } else {
-	m_srcMapCache.insertSourceMap(src->getName(),*srcMap);
+      if ( loadMap ) {
+	if ( srcMap == 0 ) {
+	  m_srcMapCache.loadSourceMap(*src,false);
+	} else {
+	  m_srcMapCache.insertSourceMap(src->getName(),*srcMap);
+	}
       }
     }
   }
