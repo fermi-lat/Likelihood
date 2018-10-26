@@ -41,6 +41,10 @@ public:
   double matrix_element(double etrue, double emeas_min, 
 			double emeas_max) const;
 
+  float extrapolate_lo(const std::deque<double> & counts) const;
+  
+  float extrapolate_hi(const std::deque<double> & counts) const;
+
 
 protected: 
 
