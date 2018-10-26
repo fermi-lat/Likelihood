@@ -624,7 +624,7 @@ namespace Likelihood {
 	gradient += gPrior;
 	hessian += prior->hessian();
       }
-
+      
       return;
     }
 
@@ -746,6 +746,39 @@ namespace Likelihood {
 
       return 0;
     }
+
+
+    int getDeltaAndCovarAndEDM_STL(const std::vector<float>& hessian,
+				   const std::vector<float>& gradient,
+				   const std::vector<float>& norms,
+				   std::vector<float>& covar,
+				   std::vector<float>& delta,
+				   std::vector<double>& edm,
+				   double lambda) {
+      CLHEP::HepSymMatrix hessian_hep;
+      CLHEP::HepVector gradient_hep;
+      CLHEP::HepVector norms_hep;
+      FitUtils::Matrix_Stl_to_Hep(hessian, hessian_hep);
+      FitUtils::Vector_Stl_to_Hep(gradient, gradient_hep);
+      FitUtils::Vector_Stl_to_Hep(norms, norms_hep);
+
+      CLHEP::HepSymMatrix covar_hep;
+      CLHEP::HepVector delta_hep;
+
+      int status(0);
+      if ( lambda > 0. ) {
+	status = getDeltaAndCovarAndEDM(hessian_hep, gradient_hep, norms_hep,
+					covar_hep, delta_hep, edm[0], lambda);
+      } else {
+	status = getDeltaAndCovarAndEDM(hessian_hep, gradient_hep, norms_hep,
+					covar_hep, delta_hep, edm[0]);
+      }
+      FitUtils::Matrix_Hep_to_Stl(covar_hep, covar);
+      FitUtils::Vector_Hep_to_Stl(delta_hep, delta);
+      return status;
+    }
+    
+
 
     int fitNorms_newton(const std::vector<float>& data,
 			const CLHEP::HepVector& initNorms,
@@ -1200,6 +1233,9 @@ namespace Likelihood {
 				const BinnedLikelihood& logLike,
 				std::vector<float>& model,
 				bool rescaleToNormOne) {
+      
+      model.resize(logLike.data_map_size(), 0);
+      setVectorValue(0., model.begin(), model.end());
 
       if(logLike.hasSrcNamed(source.getName())) {
 	bool hasSourceMap = logLike.hasSourceMap(source.getName());
@@ -1219,10 +1255,13 @@ namespace Likelihood {
 			       &logLike.dataCache(),
 			       logLike.observation(),
 			       logLike.config().psf_integ_config());
-
-	std::vector<double> specVals;
-	FitUtils::extractSpectralVals(source,logLike.energies(),specVals);
-	FitUtils::extractModelCounts(*theMap,logLike.energies(),specVals,model);
+	
+	BinnedLikelihood& nclike = const_cast<BinnedLikelihood&>(logLike);
+	nclike.updateModelMap_fromSrcMap(model, source, theMap);	
+	//std::vector<double> specVals;
+	//FitUtils::extractSpectralVals(source,logLike.energies(),specVals);
+	//FitUtils::extractModelCounts(*theMap,logLike.energies(),specVals,model);
+	
 	delete theMap;
       }
 
@@ -1262,6 +1301,16 @@ namespace Likelihood {
 	  // Integrate the spectrum over the energy bin for this pixel
 	  // using the weights from the model
 	  float val = pf*(x1*model[idx] + x2*model[idx+npix]);
+	  if ( val <= 0 ) {
+	    std::cout << "Negative model component " << sourceMap.name() << ' ' << idx << ' ' << val << ' ' 
+		      << pf << ' ' << x1 << ' ' << x2 << ' ' 
+		      << model[idx] << ' ' << model[idx+npix] << std::endl;
+	  }
+	  if ( val > 1e10 ) {
+	    std::cout << "Overlarge model component " << sourceMap.name() << ' ' << idx << ' ' << val << ' ' 
+		      << pf << ' ' << x1 << ' ' << x2 << ' ' 
+		      << model[idx] << ' ' << model[idx+npix] << std::endl;
+	  }	  
 	  modelCounts[idx] = val;
 	}
       }
@@ -1354,7 +1403,10 @@ namespace Likelihood {
 	    refValue = 1.0;
 	  }
 	  freeSrcNames.push_back(aSrc->getName());
-	  templates.push_back(modelCounts);
+	  templates.resize(templates.size() + 1);
+	  std::vector<float>& mt = templates.back();
+	  mt.resize(nbins);
+	  std::copy(modelCounts.begin(), modelCounts.end(), mt.begin());
 	  refPars.push_back(refValue);
 	} else {	  
 	  // The source is fixed, add it to the total fixed model

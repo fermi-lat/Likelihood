@@ -460,7 +460,12 @@ namespace Likelihood {
       m_size = m_npix*nEBins;
     }
 
-    int writeFits_FluxTable(const std::string& fitsFile) const;
+    inline void setDims(size_t nPix, size_t nEBins, size_t nSizeTot) {
+      m_npix = nPix; m_nebins = nEBins;
+      m_size = nSizeTot;
+    }
+
+     int writeFits_FluxTable(const std::string& fitsFile) const;
 
     /* set the TUNIT keyword */
     void setUnitKeyword(tip::Header& header,
@@ -853,6 +858,27 @@ namespace Likelihood {
     /* Calculate the log-likelihood for the currently cached values */
     int calculateLoglikeCurrent(double& logLike, Prior_Version whichPrior=No_Prior);
 
+    /* Get the current gradiant and Hessian */
+    void getGradiantAndHessian(const CLHEP::HepVector& norms,			      
+			       std::vector<float>& model,
+			       CLHEP::HepVector& gradient,
+			       CLHEP::HepSymMatrix& hessian,
+			       Prior_Version whichPrior=No_Prior,
+			       size_t firstBin = 0,
+			       size_t lastBin = 0,
+			       int verbose=0);
+
+    /* Get the current gradiant and Hessian, STL version for the python interface */
+    void getGradiantAndHessian_STL(const std::vector<float>& norms,	      
+				   std::vector<float>& model,
+				   std::vector<float>& gradient,
+				   std::vector<float>& hessian,
+				   Prior_Version whichPrior=No_Prior,
+				   size_t firstBin = 0,
+				   size_t lastBin = 0,
+				   int verbose=0);
+
+
     /* Scan the log likelihood versus the normalizaton of the test source 
        
        nnorm      : Number of scan points
@@ -897,6 +923,16 @@ namespace Likelihood {
     /* Set the initial value of the damping parameter */
     void setInitLambda(double initLambda) { m_initLambda = initLambda; }
 
+    /* Fill a vector with the model counts per energy bin */
+    void fillModelCounts(const std::string& srcName, std::vector<float>& model) const;
+
+    /* Fill a vector with the reduced model counts */
+    void fillRedModel(const std::string& srcName, std::vector<float>& model) const;
+    
+    /* Fill a vector with the full model counts */
+    void fillFullModel(const std::string& srcName, std::vector<float>& model) const;
+    
+
     // access --------------------------------------------------------
 
     // Information about the baseline model
@@ -918,6 +954,7 @@ namespace Likelihood {
     inline const std::vector<bool>& currentFree() const { return m_currentFreeSources; }
 
     // Information about the current fit
+    inline const CLHEP::HepVector& initPars() const { return m_initPars; }
     inline const CLHEP::HepVector& currentPars() const { return m_currentPars; }
     inline const CLHEP::HepSymMatrix& currentCov() const { return m_currentCov; }
     inline const std::vector<float>& currentModel() const { return m_currentBestModel; }
@@ -926,6 +963,15 @@ namespace Likelihood {
     inline int firstEnergyBin() const { return m_firstEnergyBin; }
     inline int lastEnergyBin() const { return m_lastEnergyBin; }
 
+
+    // the data
+    inline const std::vector<float>& data() const { return m_data; }
+    inline const std::vector<int>& nonZeroBins() const { return m_nonZeroBins; }
+    inline size_t nFilled() const { return m_nonZeroBins.size(); }
+    inline int global_idx(size_t local) const { return local < m_nonZeroBins.size() ? m_nonZeroBins[local] : -1; }
+    inline const std::vector<int>& energyBinStopIdxs() const { return m_energyBinStopIdxs; }
+
+    
     // parts of the models
     inline const std::vector<float>& refValues() const { return m_refValues; }
     inline const std::vector<std::string>& templateSourceNames() const { return m_templateSourceNames; }
@@ -934,13 +980,23 @@ namespace Likelihood {
     inline const std::vector<float>& weights() const { return m_weights; }   
     inline const std::vector<float>& targetModel() const { return m_targetModel; }
 
+    // Reduced vectors
+    inline const std::vector<float>& dataRed() const { return m_dataRed; }
+    inline const std::vector<std::vector<float> >& allRedModels() const { return m_allRedModels; }
+    inline const std::vector<float>& allRedFixed() const { return m_allRedFixed; }
+
     // info about the iteration
     inline size_t firstBin() const { return m_firstBin; }
     inline size_t lastBin() const { return m_lastBin; }
     
-    inline const std::vector<float>& currentFixed() const { return m_currentFixed; }
+    
     inline const std::vector<float>& targetRedModel() const { return m_targetRedModel; }    
     inline const std::vector<float>& weightsRed() const { return m_weightsRed; }   
+
+    inline const std::vector<const std::vector<float>* >& currentModels() const { return m_currentModels; }
+    inline const std::vector<float>& currentFixed() const { return m_currentFixed; }
+    inline const std::vector<float>& currentRefValues() const { return m_currentRefValues; }
+    inline const std::vector<int>& currentSourceIndices() const { return m_currentSourceIndices; }
 
     // access to the priors
     const FitScanMVPrior* getPrior(Prior_Version whichPrior=No_Prior, 
