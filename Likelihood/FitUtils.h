@@ -377,6 +377,15 @@ namespace Likelihood {
 			       CLHEP::HepVector& delta,
 			       double& edm,
 			       double lambda);
+
+    int getDeltaAndCovarAndEDM_STL(const std::vector<float>& hessian,
+				   const std::vector<float>& gradient,
+				   const std::vector<float>& norms,
+				   std::vector<float>& covar,
+				   std::vector<float>& delta,
+				   std::vector<double>& edm,
+				   double lambda=-1.0);
+    
     
     /* Extract the set of bins that are non-zero into parallel vectors of indices
        this is done to make it faster to iterate over sparse data

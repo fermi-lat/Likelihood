@@ -102,6 +102,7 @@ public:
    virtual ProjMap* convolve(double energy, const MeanPsf & psf,
 			     const BinnedExposureBase * exposure,
 			     const SpatialFunction& fn,
+			     bool performConvolution=true,
 			     int k=0) const;   
 
    virtual CountsMapBase* makeCountsMap(const CountsMapBase& counts_map) const;

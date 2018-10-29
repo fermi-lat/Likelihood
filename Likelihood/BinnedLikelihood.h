@@ -489,10 +489,17 @@ namespace Likelihood {
      /* This function adds the Model counts for a source map
 	to a vector.  it is used by the various computeModelMap 
 	functions */
-     void updateModelMap(std::vector<float> & modeMap, 
+     void updateModelMap(std::vector<float> & modelMap, 
 			 SourceMap * srcMap,
 			 bool use_mask = true) const;
 
+     /* This function adds the Model counts for a source map
+	to a vector.  it is used by the various computeModelMap 
+	functions */
+     void updateModelMap_fromSrcMap(std::vector<float> & modelMap, 
+				    const Source& src,
+				    SourceMap* srcMap,
+				    bool use_mask = true) const;
 
      /* --------------- Functions for dealing the NPreds -------------- */
 

@@ -677,6 +677,13 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     m_srcMapCache.updateModelMap(modelMap,src,srcMap,use_mask);
   }
 
+  void BinnedLikelihood::updateModelMap_fromSrcMap(std::vector<float> & modelMap,
+						   const Source& src,
+						   SourceMap * srcMap,
+						   bool use_mask) const {
+    m_srcMapCache.updateModelMap_fromSrcMap(modelMap,src,srcMap,use_mask);
+  }
+
 
   void BinnedLikelihood::getNpreds(const std::string & srcName,
 				   std::vector<double> & npreds) const {

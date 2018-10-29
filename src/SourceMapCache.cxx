@@ -337,8 +337,7 @@ namespace Likelihood {
     modelMap.resize(m_dataCache.data_map_size(), 0);      
     bool hasMap = hasSourceMap(src.getName());
     SourceMap* srcMap = getSourceMap(src);
-    updateCorrectionFactors(src,*srcMap);
-    updateModelMap(modelMap, src, srcMap, use_mask);
+    updateModelMap_fromSrcMap(modelMap, src, srcMap, use_mask);
     if( !hasMap ) {
       SourceMapCache* nc_this = const_cast<SourceMapCache*>(this);
       nc_this->eraseSourceMap(src.getName());
@@ -354,8 +353,9 @@ namespace Likelihood {
       const Source* src = *itr;
       bool hasMap = hasSourceMap(src->getName());
       SourceMap* srcMap = getSourceMap(*src);
-      updateCorrectionFactors(*src, *srcMap);
-      updateModelMap(modelMap, *src, srcMap, use_mask);
+      updateModelMap_fromSrcMap(modelMap, *src, srcMap, use_mask);
+      //updateCorrectionFactors(*src, *srcMap);
+      //updateModelMap(modelMap, *src, srcMap, use_mask);
       if( !hasMap && ! m_config.save_all_srcmaps() ) {
 	SourceMapCache* nc_this = const_cast<SourceMapCache*>(this);
 	nc_this->eraseSourceMap(src->getName());
@@ -363,6 +363,13 @@ namespace Likelihood {
     }
   }
 
+  void SourceMapCache::updateModelMap_fromSrcMap(std::vector<float> & modelMap, 
+						 const Source& src, 
+						 SourceMap* srcMap,
+						 bool use_mask) const {
+    updateCorrectionFactors(src,*srcMap);
+    updateModelMap(modelMap, src, srcMap, use_mask);
+  }
 
   void SourceMapCache::updateModelMap(std::vector<float> & modelMap,
 				      const Source& src, 
@@ -411,7 +418,30 @@ namespace Likelihood {
 	  wt1 = specVals[k]*(*srcMap)[jmin];
 	  wt2 = specVals[k+1]*(*srcMap)[jmax];
 	}
-	modelMap[jmin] += xi*FitUtils::pixelCounts_loglogQuad(emin, emax, wt1, wt2, m_dataCache.log_energy_ratios()[k]);
+	float val = xi*FitUtils::pixelCounts_loglogQuad(emin, emax, wt1, wt2, m_dataCache.log_energy_ratios()[k]);
+	// EAC FIX
+	static bool first(true);
+	if ( val < 0 ) {
+	  if ( first ) {
+	    std::cout << "Negative model component " << srcMap->name() << ' ' << jmin << ' ' << val << ' ' 
+		       << xi << ' ' << specVals[k] << ' ' << specVals[k+1] << ' ' 
+		      << (*srcMap)[jmin] << ' ' << (*srcMap)[jmin+npix] << std::endl;
+	    first = false;
+	  }
+	  if ( wt1 < 0 ) {
+	    wt1 = 0.;
+	  }
+	  if ( wt2 < 0 ) {
+	    wt2 = 0.;
+	  }
+	  val = xi*FitUtils::pixelCounts_loglogQuad(emin, emax, wt1, wt2, m_dataCache.log_energy_ratios()[k]);	 
+	}
+	if ( val > 1e10 ) {
+	  std::cout << "Overlarge model component " << srcMap->name() << ' ' << jmin << ' ' << val << ' ' 
+		    << xi << ' ' << specVals[k] << ' ' << specVals[k+1] << ' ' 
+		    << (*srcMap)[jmin] << ' ' << (*srcMap)[jmin+npix] << std::endl;
+	}	  
+	modelMap[jmin] += val ;
       }
     }
   }

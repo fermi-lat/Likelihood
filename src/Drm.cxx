@@ -69,33 +69,10 @@ void Drm::convolve(const std::vector<double> & true_counts,
    std::copy(true_counts.begin(), true_counts.end(), counts.begin());
    double value(0);
 
-   // EAC, this can be wildly off for value near zero
-   // double min_counts_value(1e-10);
-   double min_counts_value(1e-2);
-
-   if (counts[0] > min_counts_value && counts[1] > min_counts_value) {
-      value = counts[1]*std::exp(std::log(m_ebounds[0]/m_ebounds[2])/
-                                 std::log(m_ebounds[1]/m_ebounds[2])*
-                                 std::log(counts[0]/counts[1]));
-   } else {
-      value = ((m_ebounds[0] - m_ebounds[2])/
-               (m_ebounds[1] - m_ebounds[2])*
-               (counts[0] - counts[1]) + counts[1]);
-   }
+   value = extrapolate_lo(counts);
    counts.push_front(value);
 
-   size_t nee(m_ebounds.size() - 1);
-   size_t ncc(counts.size() - 1);
-   if (counts[ncc] > min_counts_value && counts[ncc-1] > min_counts_value) {
-      value = counts[ncc-1]
-         *std::exp(std::log(m_ebounds[nee]/m_ebounds[nee-2])/
-                   std::log(m_ebounds[nee-1]/m_ebounds[nee-2])*
-                   std::log(counts[ncc]/counts[ncc-1]));
-   } else {
-      value = ((m_ebounds[nee] - m_ebounds[nee-2])/
-               (m_ebounds[nee-1] - m_ebounds[nee-2])*
-               (counts[ncc] - counts[ncc-1]) + counts[ncc-1]);
-   }
+   value = extrapolate_hi(counts);
    counts.push_back(value);
 
    meas_counts.resize(m_ebounds.size() - 3);
@@ -106,6 +83,7 @@ void Drm::convolve(const std::vector<double> & true_counts,
       }
    }
 }
+
 
 void Drm::compute_drm() {
    m_drm.clear();
@@ -208,6 +186,48 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
 }
 
 
+float Drm::extrapolate_lo(const std::deque<double>& counts) const{
+  // EAC, this can be wildly off for value near zero
+  // double min_counts_value(1e-10);
+  static double min_counts_value(1e-2);
+
+  double value(0.);
+  if (counts[0] > min_counts_value && counts[1] > min_counts_value) {
+    value = counts[1]*std::exp(std::log(m_ebounds[0]/m_ebounds[2])/
+			       std::log(m_ebounds[1]/m_ebounds[2])*
+			       std::log(counts[0]/counts[1]));
+  } else {
+    value = ((m_ebounds[0] - m_ebounds[2])/
+	     (m_ebounds[1] - m_ebounds[2])*
+	     (counts[0] - counts[1]) + counts[1]);
+  }
+  return value;
+}
+
+  
+float Drm::extrapolate_hi(const std::deque<double>& counts) const{
+  // EAC, this can be wildly off for value near zero
+  // double min_counts_value(1e-10);
+  static double min_counts_value(1e-2);
+
+  double value(0.);
+  size_t nee(m_ebounds.size() - 1);
+  size_t ncc(counts.size() - 1);
+  if (counts[ncc] > min_counts_value && counts[ncc-1] > min_counts_value) {
+    value = counts[ncc-1]
+      *std::exp(std::log(m_ebounds[nee]/m_ebounds[nee-2])/
+		std::log(m_ebounds[nee-1]/m_ebounds[nee-2])*
+		std::log(counts[ncc]/counts[ncc-1]));
+  } else {
+      value = ((m_ebounds[nee] - m_ebounds[nee-2])/
+               (m_ebounds[nee-1] - m_ebounds[nee-2])*
+               (counts[ncc] - counts[ncc-1]) + counts[ncc-1]);
+  }
+  return value;
+}
+
+
+
 Drm_Cache::Drm_Cache(const Drm* drm,
 		     SourceMap & sourceMap,
 		     const std::vector<double>& energies)
@@ -264,7 +284,19 @@ void Drm_Cache::update(const Drm* drm,
     } else {
       m_true_counts_wt[k] = m_true_counts[k];
     }
+    if ( m_true_counts[k] < 0 ) {
+      std::cout << "True counts < 0 " << sourceMap.name() << ' ' << k << ' '
+		<< specVals.at(k) << ' ' << specVals.at(k+1) << ' ' 
+		<< npreds.at(k) << ' ' << npreds.at(k+1) << std::endl;
+    }
+    if ( m_true_counts_wt[k] < 0 ) {
+      std::cout << "True counts wt < 0 " << sourceMap.name() << ' ' << k << ' '
+		<< specVals.at(k) << ' ' << specVals.at(k+1) << ' ' 
+		<< npreds.at(k) << ' ' << npreds.at(k+1) <<  ' ' 
+		<< npred_weights[k].first << ' ' << npred_weights[k].second << std::endl;
+    }
   }
+  
   if ( drm != 0 ) {
     m_use_edisp = true;
     drm->convolve(m_true_counts, m_meas_counts);
@@ -272,6 +304,24 @@ void Drm_Cache::update(const Drm* drm,
     m_use_edisp = false;
     std::copy(m_true_counts.begin(),m_true_counts.end(),m_meas_counts.begin());
   }
+
+  // EAC FIXME, Not sure why this can happen, but it is NOT a good thing.
+  static bool first(true);
+  for (k = 0; k < energies.size()-1; k++) {
+    if ( m_meas_counts[k] < 0 ) {
+      if (first) {
+	first = false;
+	std::cout << "Drm_Cache::update Measured counts < 0 " << sourceMap.name() << ' ' << k << ' '
+		  << m_meas_counts[k] << ' ' << m_true_counts[k] << std::endl;
+	for (size_t kk(0); kk < energies.size()-1; kk++) {
+	  std::cout << m_true_counts[kk] << ' ';
+	}
+	std::cout << std::endl;
+      }
+      m_meas_counts[k] = 0.;
+    }
+  }
+    
 
   int kref(-1);
   int kref_wt(-1);
@@ -299,6 +349,14 @@ void Drm_Cache::update(const Drm* drm,
     }
     m_xi_wt[k] = m_xi[k];
     m_meas_counts_wt[k] = m_xi_wt[k]*m_true_counts_wt[kref];
+    
+    if ( m_xi_wt[k] < 0 ||
+	 m_xi[k] < 0 ) {
+      std::cout << "Xi < 0 " << sourceMap.name() << ' ' << k << ' ' << kref << ' '
+		<< m_xi[k] << ' ' << m_xi_wt[k] << ' ' 
+		<< m_meas_counts[k] << ' ' << m_true_counts[k] << std::endl;	
+    }
+
   }
 
 }

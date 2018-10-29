@@ -550,10 +550,12 @@ namespace Likelihood {
     // Loop over the vectors and tag & increment all the ones that also have the lowest current value
     for ( int idx2(0); idx2 < localIdx.size(); idx2++ ) {
       matches[idx2] = -1;
-      if ( localIdx[idx2] >= energyBins[idx2]->size() ) continue;
+      if ( localIdx[idx2] >= energyBins[idx2]->size()) continue;
       double testVal = (*energyBins[idx2])[localIdx[idx2]];
       if ( fabs( lowestValue - testVal ) < tol ) {
-	matches[idx2] = localIdx[idx2];
+	if ( (localIdx[idx2]+1) < energyBins[idx2]->size() ) {
+	  matches[idx2] = localIdx[idx2];
+	}
 	localIdx[idx2] += 1;
       }
     }
@@ -565,6 +567,7 @@ namespace Likelihood {
 						const std::vector< std::vector<int> >& energyBinLocal,
 						std::vector<float>& mergedData) {
 
+    
     std::vector<float>::iterator writePtr = mergedData.begin();    
     // Loop over energy bins    
     for ( size_t i(0); i < energyBinLocal.size()-1; i++ ) {
@@ -573,9 +576,10 @@ namespace Likelihood {
 	int ebinLocal = energyBinLocal[i][j];
 	size_t nPixLocal = npixelsByComp[j];
 	if ( ebinLocal < 0 ) {
-	  for ( std::vector<float>::iterator zeroPtr = writePtr; zeroPtr != writePtr + nPixLocal; zeroPtr++ ) {
-	    *zeroPtr = 0;
-	  }
+	  continue;
+	  //for ( std::vector<float>::iterator zeroPtr = writePtr; zeroPtr != writePtr + nPixLocal; zeroPtr++ ) {
+	  //  *zeroPtr = 0;
+	  //}
 	} else {
 	  std::vector<float>::const_iterator readStartPtr = toMerge[j]->begin() + ebinLocal*nPixLocal;
 	  std::vector<float>::const_iterator readEndPtr = readStartPtr + nPixLocal;
@@ -601,6 +605,7 @@ namespace Likelihood {
     std::vector< const std::vector<double>* > energyBins; 
     std::vector< const std::vector<float>* > toMerge;
     size_t nPixTot(0);
+    size_t nSizeTot(0);
 
     for ( size_t i(0); i < summedLike.numComponents(); i++ ) {
       LogLike* comp = summedLike.getComponent(i);
@@ -621,6 +626,7 @@ namespace Likelihood {
       m_nEBinsByComp[i] = nEBinsComp;
       m_sizeByComp[i] = nPixComp*nEBinsComp;
       nPixTot += nPixComp;      
+      nSizeTot += m_sizeByComp[i];
     }
 
     // Second Loop, merge the energy bins
@@ -636,8 +642,9 @@ namespace Likelihood {
 	m_energiesMerged.push_back(nextEnergy);
       }
     }
-    setDims(nPixTot,m_energiesMerged.size()-1);
+    setDims(nPixTot,m_energiesMerged.size()-1, nSizeTot);
     m_localData.resize(size());
+    FitUtils::setVectorValue(0., m_localData.begin(), m_localData.end());
     // Now fill the local data
     mergeVectors(toMerge,m_nPixelsByComp,m_energyBinLocal,m_localData);
   }
@@ -659,6 +666,8 @@ namespace Likelihood {
       FitUtils::extractModelFromSource(aSrc,*binnedLike,*modelVect,rescaleToNormOne);      
       toMerge.push_back( modelVect );
     }
+    model.resize(size(), 0.);
+    FitUtils::setVectorValue(0., model.begin(), model.end());
     mergeVectors(toMerge,m_nPixelsByComp,m_energyBinLocal,model);
     for ( std::vector< const std::vector<float>* >::iterator itrDel = toMerge.begin();
 	  itrDel != toMerge.end(); itrDel++ ) {
@@ -705,6 +714,7 @@ namespace Likelihood {
       if ( useWeights ) {
 	weightsToMerge.push_back( &(cache->weights()) );
       }
+      
       if ( i == 0 ) {
 	freeSrcNames.clear();
 	freeSrcNames.resize(cache->templateSourceNames().size());
@@ -719,16 +729,26 @@ namespace Likelihood {
       }
     }
 
+    fixed.resize(size(), 0.);
+    FitUtils::setVectorValue(0., fixed.begin(), fixed.end());
+    test_source_model.resize(size(), 0.);
+    FitUtils::setVectorValue(0., test_source_model.begin(), test_source_model.end());
+
     mergeVectors(fixedToMerge,m_nPixelsByComp,m_energyBinLocal,fixed);
     mergeVectors(testToMerge,m_nPixelsByComp,m_energyBinLocal,test_source_model);
     if ( useWeights ) {
+      weights->resize(size(), 0.);
+      FitUtils::setVectorValue(0., weights->begin(), weights->end());
       mergeVectors(weightsToMerge,m_nPixelsByComp,m_energyBinLocal,*weights);
     }
 
     templates.resize(templatesToMerge.size());
     for ( size_t itmp(0); itmp < templatesToMerge.size(); itmp++ ) {
-      templates[itmp].resize(size());
-      mergeVectors(templatesToMerge[itmp],m_nPixelsByComp,m_energyBinLocal,templates[itmp]);
+      std::vector<float>& tmpl_out = templates[itmp];
+      // templates[itmp].resize(size(), 0.);
+      tmpl_out.resize(size(), 0.);
+      FitUtils::setVectorValue(0., tmpl_out.begin(), tmpl_out.end());
+      mergeVectors(templatesToMerge[itmp],m_nPixelsByComp,m_energyBinLocal,tmpl_out);
     }
 
     for ( std::vector<FitScanModelWrapper_Binned*>::iterator itrd = wrappers.begin(); itrd != wrappers.end(); itrd++ ) {
@@ -736,6 +756,7 @@ namespace Likelihood {
       delete toDel;
     }
     
+
     for (  std::vector<FitScanCache*>::iterator itrd2 = caches.begin(); itrd2 != caches.end(); itrd2++ ) {
       FitScanCache* toDel2 = *itrd2;
       delete toDel2;
@@ -801,6 +822,8 @@ namespace Likelihood {
       targetModelsPtrs.push_back(newVect);
     }
 
+    targetModel.resize(size(), 0.);
+    FitUtils::setVectorValue(0., targetModel.begin(), targetModel.end());
     mergeVectors(targetModelsPtrs,m_nPixelsByComp,m_energyBinLocal,targetModel);
 
     return 0;      
@@ -841,7 +864,6 @@ namespace Likelihood {
      m_useWeights(useWeights),
      m_useUnitRefVals(useUnitRefVals),
      m_loglike_ref(m_modelWrapper.value()),
-     m_currentFreeSources(m_modelWrapper.size()),
      m_currentFixed(m_modelWrapper.size()),
      m_prior_test(0),
      m_prior_bkg(0),
@@ -1295,7 +1317,47 @@ namespace Likelihood {
 
     return 0;
   }
+
+  void FitScanCache::getGradiantAndHessian(const CLHEP::HepVector& norms,
+					   std::vector<float>& model,
+					   CLHEP::HepVector& gradient,
+					   CLHEP::HepSymMatrix& hessian,
+					   Prior_Version whichPrior,
+					   size_t firstBin,
+					   size_t lastBin,
+					   int verbose) {
+    const FitScanMVPrior* prior = getPrior(whichPrior,m_currentTestSourceIndex >= 0);
+    std::vector<float>* wts_ptr = m_useWeights ?  ( m_useReduced ? &m_weightsRed : &m_weights ) : 0;
+    FitUtils::getGradientAndHessian(m_useReduced ? m_dataRed : m_data,
+				    norms,
+				    m_currentModels,
+				    m_currentFixed,
+				    prior,
+				    wts_ptr,
+				    model, gradient, hessian, 
+				    firstBin, lastBin, verbose);
+  }
+
   
+  void FitScanCache::getGradiantAndHessian_STL(const std::vector<float>& norms,	      
+					       std::vector<float>& model,
+					       std::vector<float>& gradient,
+					       std::vector<float>& hessian,
+					       Prior_Version whichPrior,
+					       size_t firstBin,
+					       size_t lastBin,
+					       int verbose) {
+    CLHEP::HepVector norms_hep;
+    CLHEP::HepVector gradiant_hep(nFreeCurrent());
+    CLHEP::HepSymMatrix hessian_hep(nFreeCurrent());
+    FitUtils::Vector_Stl_to_Hep(norms, norms_hep);
+    getGradiantAndHessian(norms_hep, model, gradiant_hep, hessian_hep,
+			  whichPrior, firstBin, lastBin, verbose);
+    FitUtils::Vector_Hep_to_Stl(gradiant_hep, gradient);
+    FitUtils::Matrix_Hep_to_Stl(hessian_hep, hessian);
+  }
+
+
   int FitScanCache::scanNormalization(int nnorm, double normSigma,
 				      double posErr, double negErr,
 				      std::vector<double>& norms,				      
@@ -1556,7 +1618,7 @@ namespace Likelihood {
 				 m_refValues,
 				 m_useWeights ? &m_weights : 0,
 				 m_useUnitRefVals);
-    
+
     extract_init_priors_from_model();
     setCache();
   }
@@ -1640,6 +1702,36 @@ namespace Likelihood {
 					    false);      
     }
  
+  }
+
+
+  void FitScanCache::fillModelCounts(const std::string& srcName, 
+				     std::vector<float>& model) const {
+    model.resize(m_energyBinStopIdxs.size());
+    int idx = getTemplateIndex(srcName);
+    const std::vector<float>& src_redModel = m_allRedModels[idx];
+    int start(0);
+    for ( int i(0); i < model.size(); i++ ) {
+      model[i] = 0.;
+      FitUtils::sumVector(src_redModel.begin()+start, src_redModel.begin()+m_energyBinStopIdxs[i], model[i]);
+      start = m_energyBinStopIdxs[i];
+    }
+  }
+
+  void FitScanCache::fillRedModel(const std::string& srcName, 
+				  std::vector<float>& model) const {
+    int idx = getTemplateIndex(srcName);
+    const std::vector<float>& src_redModel = m_allRedModels[idx];
+    model.resize(src_redModel.size(), 0);
+    std::copy(src_redModel.begin(), src_redModel.end(), model.begin());
+  }
+
+  void FitScanCache::fillFullModel(const std::string& srcName, 
+				   std::vector<float>& model) const {
+    int idx = getTemplateIndex(srcName);
+    const std::vector<float>& src_model = m_allModels[idx];
+    model.resize(src_model.size(), 0);
+    std::copy(src_model.begin(), src_model.end(), model.begin());
   }
 
   void FitScanCache::cleanup() {
