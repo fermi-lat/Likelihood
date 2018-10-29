@@ -42,13 +42,20 @@ Source::sourceTypeName(SourceType t) {
 }
 
 Source::Source(const Observation * observation) 
-   : m_name(""), m_srcType(Unknown), m_useEdisp(false), m_spectrum(0), 
+   : m_name(""), 
+     m_srcType(Unknown), 
+     m_useEdisp(false), 
+     m_usePSF(true), 
+     m_useExposure(true), 
+     m_spectrum(0), 
      m_observation(observation) {}
 
 Source::Source(const Source & rhs)
    : m_name(rhs.m_name),
      m_srcType(rhs.m_srcType),
      m_useEdisp(rhs.m_useEdisp),
+     m_usePSF(rhs.m_usePSF),
+     m_useExposure(rhs.m_useExposure),
      m_spectrum(rhs.m_spectrum->clone()),
      m_observation(rhs.m_observation),
      m_exposure(rhs.m_exposure),

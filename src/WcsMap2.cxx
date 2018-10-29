@@ -686,7 +686,13 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 			   const BinnedExposureBase * exposure,
 			   const SpatialFunction& fn,
+			   bool performConvolution,
 			   int k) const {
+
+   // FIXME
+   if ( ! performConvolution ) {
+     throw std::runtime_error("performConvolution = false for spatial function source.");
+   }
 
   // Convolve for a single image plane.
    check_energy_index(k);

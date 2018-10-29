@@ -104,6 +104,13 @@ namespace Likelihood {
      /// @return Flag to enable energy dispersion
      bool use_edisp() const { return m_useEdisp; }
 
+     /// @return Flag to enable PSF
+     bool use_psf() const { return m_usePSF; }
+
+     /// @return Flag to exposure
+     bool use_exposure() const { return m_useExposure; }
+  
+
      /// @return Cached vector of exposures as a function of energy
      inline const std::vector<double> & exposure() const { return m_exposure; }
  
@@ -129,6 +136,13 @@ namespace Likelihood {
 
      /// Set the energy dispersion flag
      inline void set_edisp_flag(bool useEdisp) { m_useEdisp = useEdisp; }
+
+     /// Set the point-spread function flag
+     inline void set_psf_flag(bool usePSF) { m_usePSF = usePSF; }
+
+     /// Set the exposure flag
+     inline void set_exposure_flag(bool useExposure) { m_useExposure = useExposure; }
+
 
 
      /* ------------------ Functions for unbinned likelihood --------------- */
@@ -272,6 +286,13 @@ namespace Likelihood {
      
      /// Flag to indicate if energy dispersion is to be used.
      bool m_useEdisp;
+
+     /// Flag to indicate if point-spread function is to be used.
+     bool m_usePSF;
+
+     /// Flag to indicate if exposure is to be used.
+     bool m_useExposure;
+
      
      /// Map of Functions describing this source.
      std::map<std::string, optimizers::Function *> m_functions;
