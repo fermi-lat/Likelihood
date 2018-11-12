@@ -173,23 +173,23 @@ namespace Likelihood {
      /// Return the list of fixed sources
      inline const std::vector<std::string> & fixedSources() const { return m_fixedSources; }
 
-     /// Return the NPreds for the fixed sources
-     inline const std::vector<double> & fixedNpreds() const { return  m_fixedNpreds; }
-
-     /// Return the average weighted energy dispersion correction factors for the npreds
-     inline const std::vector<std::pair<double, double> >& fixedNpred_xis() const { return m_fixedNpred_xis; }
-
-     /// Return the avergae weights for the fixed source npreds
-     inline const std::vector<std::pair<double, double> >& fixedNpred_wts() const { return m_fixedNpred_wts; }
-
-     /// Return the weighted energy dispersion correction factors for the fixed source npreds
-     inline const std::vector<std::pair<double, double> >& fixedNpred_xiwts() const { return m_fixedNpred_wts; }
-
      /// Return the predicted counts for all the fixed sources, summed together
      inline const std::vector<double> & fixedModelSpectrum() const { return m_fixed_counts_spec; }
+
+     /// Return the weighted predicted counts for all the fixed sources, summed together
+     inline const std::vector<double> & fixedModelSpectrum_wt() const { return m_fixed_counts_spec_wt; }
       
+     /// Return the predicted counts for all the fixed sources, summed together, energy dispersion applied
+     inline const std::vector<double> & fixedModelSpectrum_edisp() const { return m_fixed_counts_spec_edisp; }
+      
+     /// Return the weighted predicted counts for all the fixed sources, summed together, energy dispersion applied
+     inline const std::vector<double> & fixedModelSpectrum_edisp_wt() const { return m_fixed_counts_spec_edisp_wt; }
+        
      /// Return the Summed weights
      inline const std::vector<std::pair<double,double> > & fixedModelWts() const { return  m_fixedModelWts; }
+
+     /// Return the fixed model counts
+     inline const std::vector<double> & fixedModelCounts() const { return m_fixedModelCounts; }
 
      /// Check if updating the fixed model is allowed
      inline bool updateFixedWeights() const { return m_updateFixedWeights; }
@@ -220,9 +220,13 @@ namespace Likelihood {
        if ( use_edisp == m_config.use_edisp() ) return;
        m_config.set_use_edisp(use_edisp);
        m_srcMapCache.set_edisp_flag(use_edisp);
-       m_fixedNpreds.clear();
+       // m_fixedNpreds.clear();
        m_fixedModelWts.clear();
-       m_fixed_counts_spec.clear();       
+       m_fixedModelCounts.clear();
+       m_fixed_counts_spec.clear();   
+       m_fixed_counts_spec_wt.clear();
+       m_fixed_counts_spec_edisp.clear();
+       m_fixed_counts_spec_edisp_wt.clear();
      }
 
      /// Set flag to use a single map for all the fixed sources
@@ -673,6 +677,32 @@ namespace Likelihood {
 		       bool latchParams=false) const;
      
      
+     /* Add (or subtract) the counts for a source onto a vector 	
+	This is used by several functions.
+
+	modelCounts: The vector being added to.
+	srcName    : The name of the source in question
+	srcMap     : The SourceMap for the source in question
+	subtract   : If true, subtract from the vector.  	
+	latchParams : If true, the parameters are latched in the SourceMap
+     */     
+     void addSourceCounts(std::vector<double> & modelCounts,
+			  const std::string & srcName,
+			  SourceMap * srcMap=0, 
+			  bool subtract=false,
+			  bool latchParams=false) const;
+
+     /* Add (or subtract) the weights for a source onto the pool for fixed sources
+
+	srcName    : The name of the source in question
+	srcMap     : The SourceMap for the source in question
+	subtract   : If true, subtract from the vector.  	
+     */     
+     void addFixedNpreds(const std::string & srcName,
+			 SourceMap * srcMap=0, 
+			 bool subtract=false);
+     
+
      /* ---------------- Data Members --------------------- */
 
      /* ---------------- Data and binning --------------------- */
@@ -711,40 +741,38 @@ namespace Likelihood {
 
      /// List of fixed sources
      std::vector<std::string> m_fixedSources;   
-    
-     /// Summed npred values at each energy boundary value for fixed sources.
-     /// The npreds are model evaluated at the energy bin edges summed over all pixels
-     /// without the spectrum.  This vector has the size of m_energies.size()
-     std::vector<double> m_fixedNpreds;
 
-     /// Average energy dispersion correction factors for fixed sources 
-     /// These are evalued at the energy bin edges. 
-     /// This vector has the size of m_energies.size() -1
-     std::vector<std::pair<double, double> > m_fixedNpred_xis;
-
-     /// Average weights for the fixed source npreds
-     /// These are evalued at the energy bin edges. 
-     /// This vector has the size of m_energies.size() -1
-     std::vector<std::pair<double, double> > m_fixedNpred_wts;
-
-     /// Average weighted energy dispersion correction factors for the fixed source npreds
-     /// These are evalued at the energy bin edges. 
-     /// This vector has the size of m_energies.size() -1
-     std::vector<std::pair<double, double> > m_fixedNpred_xiwts;
-     
      /// Summed weights for all fixed sources.
      /// The weights are the model evaluated at the energy bin edges without the 
      /// spectrum for each pixel.  This vector has the size of m_filledPixels.size()
      std::vector<std::pair<double, double> > m_fixedModelWts;  
+
+     /// Summed counts for all fixed sources.
+     /// This vector has the size of m_filledPixels.size()
+     std::vector<double> m_fixedModelCounts;  
+
      /// Summed counts spectra for fixed sources
      /// This is the summed counts for all pixels for each energy bin.
      /// This vector has the size of m_energies.size() - 1
-     mutable std::vector<double> m_fixed_counts_spec;
+     std::vector<double> m_fixed_counts_spec;
+  
+     /// Summed weighted counts spectra for fixed sources
+     /// This is the summed counts for all pixels for each energy bin.
+     /// This vector has the size of m_energies.size() - 1
+     std::vector<double> m_fixed_counts_spec_wt;
+  
+     /// Summed counts spectra for fixed sources with energy dispersion
+     /// This is the summed counts for all pixels for each energy bin.
+     /// This vector has the size of m_energies.size() - 1
+     std::vector<double> m_fixed_counts_spec_edisp;
+  
+     /// Summed weighted counts spectra for fixed sources with energy dispersion
+     /// This is the summed counts for all pixels for each energy bin.
+     /// This vector has the size of m_energies.size() - 1
+     std::vector<double> m_fixed_counts_spec_edisp_wt;
   
      /// Flag to allow updating of Fixed model weights
      bool m_updateFixedWeights;
-
- 
 
 };
 
