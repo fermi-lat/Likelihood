@@ -41,9 +41,13 @@ public:
   double matrix_element(double etrue, double emeas_min, 
 			double emeas_max) const;
 
-  float extrapolate_lo(const std::deque<double> & counts) const;
+  double extrapolate_lo(const std::deque<double> & counts) const;
+
+  double extrapolate_lo(const double& c0, const double & c1) const;
   
-  float extrapolate_hi(const std::deque<double> & counts) const;
+  double extrapolate_hi(const std::deque<double> & counts) const;
+
+  double extrapolate_hi(const double& c0, const double & c1) const;
 
 
 protected: 
@@ -55,6 +59,13 @@ private:
    astro::SkyDir m_dir;
    const Observation & m_observation;
    std::deque<double> m_ebounds;
+
+   double m_log_ratio_lo;
+   double m_diff_ratio_lo;
+   
+   double m_log_ratio_hi;
+   double m_diff_ratio_hi;
+   
    size_t m_npts;
 
    std::vector< double > m_costheta_vals;

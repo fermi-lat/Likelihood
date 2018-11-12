@@ -56,6 +56,13 @@ Drm::Drm(double ra, double dec, const Observation & observation,
    m_ebounds.push_front(std::exp(std::log(m_ebounds[0]) - de));
    m_ebounds.push_back(std::exp(std::log(m_ebounds.back()) + de));
 
+   size_t nee(m_ebounds.size() - 1);
+
+   m_log_ratio_lo = std::log(m_ebounds[0]/m_ebounds[2]) / std::log(m_ebounds[1]/m_ebounds[2]);
+   m_diff_ratio_lo = (m_ebounds[0] - m_ebounds[2])/ (m_ebounds[1] - m_ebounds[2]);
+   m_log_ratio_hi = std::log(m_ebounds[nee]/m_ebounds[nee-2]) / std::log(m_ebounds[nee-1]/m_ebounds[nee-2]);
+   m_diff_ratio_hi = (m_ebounds[nee] - m_ebounds[nee-2]) / (m_ebounds[nee-1] - m_ebounds[nee-2]);
+
    compute_drm();
 }
 
@@ -186,42 +193,44 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
 }
 
 
-float Drm::extrapolate_lo(const std::deque<double>& counts) const{
+double Drm::extrapolate_lo(const std::deque<double>& counts) const{
+  // EAC, this can be wildly off for value near zero
+  // double min_counts_value(1e-10);
+  return extrapolate_lo(counts[0], counts[1]);
+}
+
+double Drm::extrapolate_lo(const double& c0, const double & c1) const{
   // EAC, this can be wildly off for value near zero
   // double min_counts_value(1e-10);
   static double min_counts_value(1e-2);
 
   double value(0.);
-  if (counts[0] > min_counts_value && counts[1] > min_counts_value) {
-    value = counts[1]*std::exp(std::log(m_ebounds[0]/m_ebounds[2])/
-			       std::log(m_ebounds[1]/m_ebounds[2])*
-			       std::log(counts[0]/counts[1]));
+  if (c0 > min_counts_value && c1 > min_counts_value) {
+    value = c1*std::exp(m_log_ratio_lo*std::log(c0/c1));
   } else {
-    value = ((m_ebounds[0] - m_ebounds[2])/
-	     (m_ebounds[1] - m_ebounds[2])*
-	     (counts[0] - counts[1]) + counts[1]);
+    value = (m_diff_ratio_lo * (c0 - c1) + c1);
   }
   return value;
 }
 
   
-float Drm::extrapolate_hi(const std::deque<double>& counts) const{
+  
+double Drm::extrapolate_hi(const std::deque<double>& counts) const{
+  size_t ncc(counts.size() - 1);
+  return extrapolate_hi(counts[ncc-1], counts[ncc]);
+}
+
+
+double Drm::extrapolate_hi(const double& c0, const double & c1) const{
   // EAC, this can be wildly off for value near zero
   // double min_counts_value(1e-10);
   static double min_counts_value(1e-2);
 
   double value(0.);
-  size_t nee(m_ebounds.size() - 1);
-  size_t ncc(counts.size() - 1);
-  if (counts[ncc] > min_counts_value && counts[ncc-1] > min_counts_value) {
-    value = counts[ncc-1]
-      *std::exp(std::log(m_ebounds[nee]/m_ebounds[nee-2])/
-		std::log(m_ebounds[nee-1]/m_ebounds[nee-2])*
-		std::log(counts[ncc]/counts[ncc-1]));
+  if (c1 > min_counts_value && c0 > min_counts_value) {
+    value = c0 * std::exp(m_log_ratio_hi * std::log(c1/c0));
   } else {
-      value = ((m_ebounds[nee] - m_ebounds[nee-2])/
-               (m_ebounds[nee-1] - m_ebounds[nee-2])*
-               (counts[ncc] - counts[ncc-1]) + counts[ncc-1]);
+    value = (m_diff_ratio_hi*(c1 - c0) + c0);
   }
   return value;
 }
