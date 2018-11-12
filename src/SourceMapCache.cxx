@@ -35,6 +35,8 @@
 
 namespace Likelihood {
 
+ 
+
   SourceMapCache::SourceMapCache(const BinnedCountsCache& dataCache,
 				 const Observation & observation,
 				 const std::string & srcMapsFile,
@@ -555,6 +557,47 @@ namespace Likelihood {
 	modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1];
       }
     }  
+  }
+
+  void SourceMapCache::addSourceCounts_static(std::vector<double> & modelCounts,
+					      SourceMap& srcMap,
+					      size_t npix,
+					      const std::vector<unsigned int>& filledPixels,
+					      const Drm_Cache* drm_cache,
+					      const BinnedCountsCache& dataCache,
+					      bool use_edisp_val,
+					      bool subtract) {
+
+    double my_sign = subtract ? -1.0 : 1.0;
+    int kref(-1);
+    double y1(0.);
+    double y2(0.);
+    double xi(1.0);
+    const std::vector<double> & spec = srcMap.specVals();
+    for (size_t j(0); j < filledPixels.size(); j++) {
+      size_t jmin(filledPixels.at(j));
+      size_t jmax(jmin + npix);
+      size_t k(jmin/npix);
+      double emin(dataCache.energies().at(k));
+      double emax(dataCache.energies().at(k+1));
+      double log_ratio(dataCache.log_energy_ratios().at(k));
+      if (use_edisp_val) {
+	xi = drm_cache->get_correction(k,kref);
+	if ( kref < 0 ) {
+	  y1 = srcMap[jmin]*spec[k];
+	  y2 = srcMap[jmax]*spec[k+1];
+	} else {
+	  size_t ipix(jmin % npix);	
+	  size_t jref = kref*npix + ipix;
+	  y1 = srcMap[jref]*spec[kref];
+	  y2 = srcMap[jref+npix]*spec[kref+1];
+	}
+      } else {
+	y1 = srcMap[jmin]*spec[k];
+	y2 = srcMap[jmax]*spec[k+1];
+      }
+      modelCounts[j] = my_sign*xi*FitUtils::pixelCounts_loglogQuad(emin, emax, y1, y2, log_ratio);
+    }
   }
 
   tip::Extension* SourceMapCache::replaceSourceMap(const Source & src,

@@ -65,6 +65,29 @@ namespace Likelihood {
 				     bool use_edisp_val,
 				     bool subtract);
 
+
+     /* Add (or subtract) the counts for a source onto a vector 	
+	This is used by several functions.
+
+	modelCounts: The vector being added to.
+	srcMap     : The SourceMap for the source in question
+	npix       : Number of pixel in the map, used for indexing
+	filledPixels : Vector with the indices of the filled pixels,
+	drm_cache  : Pointer to the object used for energy dispersion.  NULL -> no energy dispersion
+	use_edisp_val : Apply the energy dispersion
+	subtract   : If true, subtract from the vector.  	
+     */     
+
+     static void addSourceCounts_static(std::vector<double> & modelCounts,
+					SourceMap& srcMap,
+					size_t npix,
+					const std::vector<unsigned int>& filledPixels,
+					const Drm_Cache* drm_cache,
+					const BinnedCountsCache& dataCache,
+					bool use_edisp_val,
+					bool subtract);
+
+
    public:
      
      /* Regular c'tor 
