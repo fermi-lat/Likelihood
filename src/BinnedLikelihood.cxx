@@ -625,18 +625,31 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     double npred(0.);
     double npred_check(0.);
     for ( size_t kx(m_kmin); kx < m_kmax; kx++ ) {
-      npred_check += fixedModelCounts[kx];
+      npred += fixedModelCounts[kx];
     }
 
     for (size_t i(0); i < srcNames.size(); i++) {     
+      // EAC FIXME, in principle we should only need to call NpredValue
+      // (which updates and caches the computation for the Npred) for the free sources
+      // but because it is possible to free and modify the source parameters directly, 
+      // that doesn't always work. 
+      // So we have to call NpredValue on all the sources 
       double npred_src = NpredValue(srcNames[i], weighted);
-      npred += npred_src;
+      npred_check += npred_src;
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
 		     srcNames.at(i)) == 0) {
 	addSourceCounts(modelCounts, srcNames[i]);
-	npred_check += npred_src;
+	npred += npred_src;
       }
     }
+
+    /* 
+    if ( std::fabs(npred - npred_check) > 0.5 ) {
+      std::ostringstream message;
+      message << "fixedModelCounts mismatch " << npred << ' ' << npred_check;
+      throw std::runtime_error(message.str());
+    }
+    */
 
     m_model.clear();
     m_model.resize(m_dataCache.nFilled(), 0);
@@ -777,7 +790,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	SourceMap * srcMap = m_srcMapCache.getSourceMap(*src, false);
       }
     }
-  
+
     computeFixedCountsSpectrum();
   }
 
@@ -893,12 +906,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 	continue;
       }
       double srcProb = modelCounts[j] / m_model[j];
-      //double emin(m_dataCache.energies()[k]);
-      //double emax(m_dataCache.energies()[k+1]);
-      //double srcProb = pixelCounts(emin, emax, 
-      //			   modelWts[j].first,
-      //			   modelWts[j].second,
-      //			   m_dataCache.log_energy_ratios()[k])/m_model[j];
       size_t indx = m_dataCache.filledPixels()[j];
       counts_spectrum[k - kmin] += srcProb*m_dataCache.data()[indx];
     }
