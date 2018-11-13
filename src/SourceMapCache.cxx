@@ -531,32 +531,33 @@ namespace Likelihood {
 					   const Drm_Cache* drm_cache,
 					   bool use_edisp_val,
 					   bool subtract) {
-    double my_sign(1.);
-    if (subtract) {
-      my_sign = -1.;
-    }
+    double my_sign =  subtract ? -1.: 1.;
     int kref(-1);
     const std::vector<double> & spec = srcMap.specVals();
     for (size_t j(0); j < filledPixels.size(); j++) {
       size_t jmin(filledPixels.at(j));
       size_t jmax(jmin + npix);
-      size_t k(jmin/npix);
+      size_t k(jmin/npix);      
+      double y1(0.);
+      double y2(0.);     
       if (use_edisp_val) {
 	double xi = drm_cache->get_correction(k,kref);
 	if ( kref < 0 ) {
-	  modelWts[j].first += my_sign*srcMap[jmin]*spec[k]*xi;
-	  modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1]*xi;
+	  y1 = srcMap[jmin]*spec[k]*xi;
+	  y2 = srcMap[jmax]*spec[k+1]*xi;
 	} else {
 	  size_t ipix(jmin % npix);	
 	  size_t jref = kref*npix + ipix;
-	  modelWts[j].first += (my_sign*srcMap[jref]*spec[kref]*xi);
-	  modelWts[j].second += (my_sign*srcMap[jref+npix]*spec[kref+1]*xi);
+	  y1 = (srcMap[jref]*spec[kref]*xi);
+	  y2 = (srcMap[jref+npix]*spec[kref+1]*xi);
 	}
       } else {
-	modelWts[j].first += my_sign*srcMap[jmin]*spec[k];
-	modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1];
+        y1 = srcMap[jmin]*spec[k];
+	y2 = srcMap[jmax]*spec[k+1];
       }
-    }  
+      modelWts[j].first += my_sign*y1;
+      modelWts[j].second += my_sign*y2;
+    } 
   }
 
   void SourceMapCache::addSourceCounts_static(std::vector<double> & modelCounts,
@@ -567,17 +568,16 @@ namespace Likelihood {
 					      const BinnedCountsCache& dataCache,
 					      bool use_edisp_val,
 					      bool subtract) {
-
     double my_sign = subtract ? -1.0 : 1.0;
     int kref(-1);
-    double y1(0.);
-    double y2(0.);
-    double xi(1.0);
     const std::vector<double> & spec = srcMap.specVals();
     for (size_t j(0); j < filledPixels.size(); j++) {
       size_t jmin(filledPixels.at(j));
       size_t jmax(jmin + npix);
       size_t k(jmin/npix);
+      double y1(0.);
+      double y2(0.);
+      double xi(1.0);
       double emin(dataCache.energies().at(k));
       double emax(dataCache.energies().at(k+1));
       double log_ratio(dataCache.log_energy_ratios().at(k));
@@ -596,7 +596,8 @@ namespace Likelihood {
 	y1 = srcMap[jmin]*spec[k];
 	y2 = srcMap[jmax]*spec[k+1];
       }
-      modelCounts[j] = my_sign*xi*FitUtils::pixelCounts_loglogQuad(emin, emax, y1, y2, log_ratio);
+      double addend = my_sign*xi*FitUtils::pixelCounts_loglogQuad(emin, emax, y1, y2, log_ratio);
+      modelCounts[j] += addend;
     }
   }
 

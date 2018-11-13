@@ -185,9 +185,6 @@ namespace Likelihood {
      /// Return the weighted predicted counts for all the fixed sources, summed together, energy dispersion applied
      inline const std::vector<double> & fixedModelSpectrum_edisp_wt() const { return m_fixed_counts_spec_edisp_wt; }
         
-     /// Return the Summed weights
-     inline const std::vector<std::pair<double,double> > & fixedModelWts() const { return  m_fixedModelWts; }
-
      /// Return the fixed model counts
      inline const std::vector<double> & fixedModelCounts() const { return m_fixedModelCounts; }
 
@@ -220,8 +217,6 @@ namespace Likelihood {
        if ( use_edisp == m_config.use_edisp() ) return;
        m_config.set_use_edisp(use_edisp);
        m_srcMapCache.set_edisp_flag(use_edisp);
-       // m_fixedNpreds.clear();
-       m_fixedModelWts.clear();
        m_fixedModelCounts.clear();
        m_fixed_counts_spec.clear();   
        m_fixed_counts_spec_wt.clear();
@@ -568,14 +563,14 @@ namespace Likelihood {
 
      /* Add a source to the set of fixed sources
 
-	This will call addSourceWts to add the source contribution to m_fixedModelWts
+	This will call addSourceCounts to add the source contribution to m_fixedModelCounts
      */
      void addFixedSource(const std::string & srcName);
    
      /* Remove a source to the set of fixed sources
 
-	This will call addSourceWts (with subtract=true) to subtract 
-	the source contribution from m_fixedModelWts
+	This will call addSourceCounts (with subtract=true) to subtract 
+	the source contribution from m_fixedModelCounts
      */     
      void deleteFixedSource(const std::string & srcName);
 
@@ -741,11 +736,6 @@ namespace Likelihood {
 
      /// List of fixed sources
      std::vector<std::string> m_fixedSources;   
-
-     /// Summed weights for all fixed sources.
-     /// The weights are the model evaluated at the energy bin edges without the 
-     /// spectrum for each pixel.  This vector has the size of m_filledPixels.size()
-     std::vector<std::pair<double, double> > m_fixedModelWts;  
 
      /// Summed counts for all fixed sources.
      /// This vector has the size of m_filledPixels.size()
