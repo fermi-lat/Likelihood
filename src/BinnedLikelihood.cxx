@@ -623,15 +623,18 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     const std::vector<double>& fixedModelCounts = weighted ? m_fixed_counts_spec_edisp_wt : m_fixed_counts_spec_edisp;
 
     double npred(0.);
+    double npred_check(0.);
     for ( size_t kx(m_kmin); kx < m_kmax; kx++ ) {
-      npred += fixedModelCounts[kx];
+      npred_check += fixedModelCounts[kx];
     }
 
-    for (size_t i(0); i < srcNames.size(); i++) {      
+    for (size_t i(0); i < srcNames.size(); i++) {     
+      double npred_src = NpredValue(srcNames[i], weighted);
+      npred += npred_src;
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
 		     srcNames.at(i)) == 0) {
 	addSourceCounts(modelCounts, srcNames[i]);
-	npred += NpredValue(srcNames[i], weighted);    
+	npred_check += npred_src;
       }
     }
 
