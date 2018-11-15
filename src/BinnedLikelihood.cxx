@@ -237,100 +237,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
     std::string srcName = src->getName();
     SourceMap & srcMap = sourceMap(srcName);
-    bool has_wts = srcMap.weights() != 0;
-    const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
 
-    // We need this stuff for the second term...
-    const Drm_Cache* drm_cache = srcMap.drm_cache();
-    const std::vector<double> & npreds = srcMap.npreds();
-    const std::vector<std::pair<double,double> > & npred_weights =  srcMap.npred_weights();
-
-    // First term, derivate of n_obs log n_model = ( n_obs / n_model ) * ( d model / d param ) 
-    // loop over all the filled pixels
-    for (size_t j(0); j < m_dataCache.nFilled(); j++) {
-      size_t jmin(m_dataCache.filledPixels()[j]);
-      size_t k(jmin/num_pixels());
-      size_t ipix(jmin % num_pixels());
-      if (k < m_kmin || k > m_kmax-1) {
-	continue;
-      }
-      double emin(m_dataCache.energies()[k]);
-      double emax(m_dataCache.energies()[k+1]);
-      double log_e_ratio(m_dataCache.log_energy_ratios()[k]);
- 
-      // EAC, deal with energy dispersion 
-      // FIXME, do we really have to deal with kref here?
-      int kref(-1);	
-      double xi(1.);
-      if (use_edisp_val) {
-	xi = drm_cache->get_correction(k,kref,has_wts);
-	if ( kref < 0 ) {
-	  // Still have true counts in this energy bin, just use kk as kref
-	  kref = k;
-	}
-      } else {
-	kref = k;
-      }
-
-      size_t jref(kref*num_pixels() + ipix);
-      size_t jmax(jref + num_pixels());
-
-      if (m_model.at(j) > 0) {
-	long iparam(freeIndex);
-     	for (size_t i(0); i < specDerivs.size(); i++, iparam++) {	  
-	  double my_deriv = xi* pixelCounts(emin,emax,
-					    srcMap[jref]*specDerivs[i][k],
-					    srcMap[jmax]*specDerivs[i][k+1],
-					    log_e_ratio);
-	  double addend = (data.at(jmin)/m_model.at(j))*my_deriv;
-	  if (addend > 0) {
-	    posDerivs[iparam].add(addend);
-	  } else {
-	    negDerivs[iparam].add(addend);
-	  }
-	} 	
-      }
-    }
-    
-    // Second term, the derivatives of the nPreds. 
-    // Loop over the energy layers
-    for (size_t kk(0); kk < m_dataCache.num_ebins(); kk++) {
-      
-      if (kk < m_kmin || kk > m_kmax-1) {
-	continue;
-      }
-      double emin(m_dataCache.energies()[kk]);
-      double emax(m_dataCache.energies()[kk+1]);
-      double log_e_ratio(m_dataCache.log_energy_ratios()[kk]);
-
-      // EAC, deal with energy dispersion
-      int kref(-1);	
-      double xi(1.);
-      if (use_edisp_val) {
-	xi = drm_cache->get_correction(kk,kref,has_wts);
-	if ( kref < 0 ) {
-	  // Still have true counts in this energy bin, just use kk as kref
-	  kref = kk;
-	}
-      } else {
-	kref = kk;
-      }
-
-      long iparam2(freeIndex);
-      for (size_t i(0); i < specDerivs.size(); i++, iparam2++) {
-
-	double addend = xi*pixelCounts(emin,emax,
-				       npreds[kref]*npred_weights[kref].first*specDerivs[i][kk],
-				       npreds[kref+1]*npred_weights[kref].second*specDerivs[i][kk+1],
-				       log_e_ratio);
-	if (-addend > 0) {
-	  posDerivs[iparam2].add(-addend);
-	} else {
-	  negDerivs[iparam2].add(-addend);
-	}
-      }
-    } // Loop on energy bins
-
+    SourceMapCache::addFreeDerivs_static(posDerivs, negDerivs, freeIndex,
+					 srcMap, data, m_model, m_dataCache, use_edisp_val, m_kmin, m_kmax);
+        
     // Update index of the next free parameter, based on the number of free parameters of this source
     freeIndex += src->spectrum().getNumFreeParams();
 
@@ -1010,7 +920,7 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
     const Drm_Cache* drm_cache = sourceMap->drm_cache();
     
     SourceMapCache::addSourceWts_static(modelWts,*sourceMap,num_pixels(),
-					m_dataCache.filledPixels(),drm_cache,use_edisp_val,subtract);
+					m_dataCache.filledPixels(), use_edisp_val, subtract);
   }
 
 
@@ -1040,7 +950,7 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
     const Drm_Cache* drm_cache = sourceMap->drm_cache();
     
     SourceMapCache::addSourceCounts_static(modelCounts,*sourceMap,num_pixels(),
-					   m_dataCache.filledPixels(),drm_cache,m_dataCache,
+					   m_dataCache.filledPixels(), m_dataCache,
 					   use_edisp_val,subtract);
   }
 
@@ -1048,47 +958,12 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
 					SourceMap * srcMap, 
 					bool subtract) {
 
-    bool has_wts = srcMap->weights() != 0;
     bool use_edisp_val = use_edisp(srcName);
     const Drm_Cache* drm_cache = use_edisp_val ? srcMap->drm_cache() : 0;
-    const std::vector<double>& spec = srcMap->specVals();
-    const std::vector<double>& npred_vals = srcMap->npreds();
-    const std::vector<std::pair<double,double> >& npred_weights = srcMap->npred_weights();
-    const std::vector<double>& engs =  energies();
-    const std::vector<double>& log_energy_rats = m_dataCache.log_energy_ratios();
-
-    size_t ne(m_dataCache.num_ebins());
-    float factor = subtract ? -1.0 : 1.0;
-
-    double nTot(0.);
-    
-    for (size_t k(0); k < ne; k++) {
-      double xi(1);
-      int kref(-1);
-      if (use_edisp_val) {
-	xi = drm_cache->get_correction(k,kref,has_wts);
-	if ( kref < 0 ) { 
-	  // Still have true counts in this energy bin, just use k as kref
-	  kref = k;
-	} 
-      } else {
-	kref = k;
-      }      
-
-      double npred_0 = npred_vals[kref] * spec[kref];
-      double npred_1 = npred_vals[kref+1] * spec[kref+1];
-      double npred_wt_0 = npred_0 * npred_weights[kref].first;
-      double npred_wt_1 = npred_1 * npred_weights[kref].second;
-
-      double counts = factor * pixelCounts(engs[k], engs[k+1], npred_0, npred_1, log_energy_rats[k]);
-      double counts_wt = factor * pixelCounts(engs[k], engs[k+1], npred_wt_0, npred_wt_1, log_energy_rats[k]);
-      
-      m_fixed_counts_spec[k] += counts;
-      m_fixed_counts_spec_wt[k] += counts_wt;
-      m_fixed_counts_spec_edisp[k] += xi*counts;
-      m_fixed_counts_spec_edisp_wt[k] += xi*counts_wt;
-      nTot += counts;
-    }
+    SourceMapCache::addFixedNpreds_static(m_fixed_counts_spec, m_fixed_counts_spec_wt, 
+					  m_fixed_counts_spec_edisp, m_fixed_counts_spec_edisp_wt,
+					  *srcMap, m_dataCache,
+					  use_edisp_val, subtract);
 
   }
 

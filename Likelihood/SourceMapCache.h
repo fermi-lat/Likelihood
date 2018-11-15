@@ -16,6 +16,7 @@
 #include "Likelihood/CountsMapBase.h"
 #include "Likelihood/BinnedConfig.h"
 #include "Likelihood/FileUtils.h"
+#include "Likelihood/Accumulator.h"
 
 namespace tip {
    class Extension;
@@ -52,7 +53,6 @@ namespace Likelihood {
 	srcMap     : The SourceMap for the source in question
 	npix       : Number of pixel in the map, used for indexing
 	filledPixels : Vector with the indices of the filled pixels,
-	drm_cache  : Pointer to the object used for energy dispersion.  NULL -> no energy dispersion
 	use_edisp_val : Apply the energy dispersion
 	subtract   : If true, subtract from the vector.  	
      */     
@@ -61,7 +61,6 @@ namespace Likelihood {
 				     SourceMap& srcMap,
 				     size_t npix,
 				     const std::vector<unsigned int>& filledPixels,
-				     const Drm_Cache* drm_cache,
 				     bool use_edisp_val,
 				     bool subtract);
 
@@ -73,7 +72,7 @@ namespace Likelihood {
 	srcMap     : The SourceMap for the source in question
 	npix       : Number of pixel in the map, used for indexing
 	filledPixels : Vector with the indices of the filled pixels,
-	drm_cache  : Pointer to the object used for energy dispersion.  NULL -> no energy dispersion
+	dataCache  : Object with info about the binning
 	use_edisp_val : Apply the energy dispersion
 	subtract   : If true, subtract from the vector.  	
      */     
@@ -82,11 +81,70 @@ namespace Likelihood {
 					SourceMap& srcMap,
 					size_t npix,
 					const std::vector<unsigned int>& filledPixels,
-					const Drm_Cache* drm_cache,
 					const BinnedCountsCache& dataCache,
 					bool use_edisp_val,
 					bool subtract);
+ 
+     /* Add (or subtract) the counts for a fxied source onto the vectors that 
+	collect that info for fixed sources.
+	This is used by several functions.
 
+	fixed_counts_spec : The vector being added to.
+	fixed_counts_spec_wt : The vector being added to.
+	fixed_counts_spec_edisp : The vector being added to.
+	fixed_counts_spec_edisp_wt : The vector being added to.
+	srcMap     : The SourceMap for the source in question
+	dataCache  : Object with info about the binning
+	use_edisp_val : Apply the energy dispersion
+	subtract   : If true, subtract from the vector.  	
+     */     
+     static void addFixedNpreds_static(std::vector<double>& fixed_counts_spec,
+				       std::vector<double>& fixed_counts_spec_wt,
+				       std::vector<double>& fixed_counts_spec_edisp,
+				       std::vector<double>& fixed_counts_spec_edisp_wt,
+				       SourceMap& srcMap,
+				       const BinnedCountsCache& dataCache,
+				       bool use_edisp_val,
+				       bool subtract);
+
+#ifndef SWIG
+     /* Add (or subtract) the contributions to the derivatives from a single source.
+
+	posDerivs : The vector being added to.
+	negDerivs : The vector being added to.
+	freeIndex : The overall index of the first parameter for this source
+	srcMap     : The SourceMap for the source in question
+	dataCache  : Object with info about the binning
+	use_edisp_val : Apply the energy dispersion
+     */     
+     static void addFreeDerivs_static(std::vector<Kahan_Accumulator>& posDerivs,
+				      std::vector<Kahan_Accumulator>& negDerivs,
+				      long freeIndex,
+				      SourceMap& srcMap,
+				      const std::vector<float> & data,
+				      const std::vector<double>& model, 
+				      const BinnedCountsCache& dataCache,
+				      bool use_edisp_val,
+				      size_t kmin, size_t kmax);
+#endif //SWIG
+
+          
+    /* Add (or subtract) the counts for a source onto a vector.
+       This version loops over all the pixels, not just the filled ones.
+
+	modelMap   : The vector being added to.
+	srcMap     : The SourceMap for the source in question
+	dataCache  : Object with info about the binning
+	use_mask   : Use the Weights mask
+	use_edisp_val : Apply the energy dispersion
+     */     
+     static void updateModelMap_static(std::vector<float> & modelMap,
+				       SourceMap& srcMap,
+				       const BinnedCountsCache& dataCache,				       
+				       bool use_mask,
+				       bool use_edisp_val);
+
+     
 
    public:
      
