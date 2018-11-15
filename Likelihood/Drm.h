@@ -35,7 +35,11 @@ public:
    const std::vector<double> & row(size_t k) const {
       return m_drm.at(k);
    }
-       
+
+   const std::vector<double> & col(size_t k) const {
+     return m_drmT.at(k);
+   }
+      
   inline const Observation& observation() const { return m_observation; }
 
   double matrix_element(double etrue, double emeas_min, 
@@ -53,6 +57,8 @@ public:
 protected: 
 
   void compute_livetime();
+
+  void compute_transpose();
 
 private:
 
@@ -73,6 +79,7 @@ private:
    std::vector< double > m_livetime;
 
    std::vector< std::vector<double> > m_drm;
+   std::vector< std::vector<double> > m_drmT;
 
    void compute_drm();
   

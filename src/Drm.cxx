@@ -110,6 +110,20 @@ void Drm::compute_drm() {
       }
       m_drm.push_back(row);
    }
+   compute_transpose();
+}
+
+
+void Drm::compute_transpose() {
+  size_t n_true = m_ebounds.size() - 1;
+  size_t n_meas = n_true - 2;
+  m_drmT.clear();
+  m_drmT.resize(n_meas, std::vector<double>(n_true, 0));
+  for ( size_t k(0); k < n_true; k++ ) {
+    for ( size_t kp(0); kp < n_meas; kp++ ) {
+       m_drmT[kp][k] = m_drm[k][kp];
+    }
+  }
 }
 
 
