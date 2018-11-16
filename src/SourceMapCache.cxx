@@ -463,7 +463,39 @@ namespace Likelihood {
     return sum;
   }
   
+  
+  double SourceMapCache::model_counts_contribution(SourceMap& srcMap,
+						   const std::vector<double> & spec,
+						   size_t jmin,
+						   size_t jmax,
+						   size_t kref,
+						   const double& emin,
+						   const double& emax,
+						   const double& log_ratio) {    
+    double y1 = srcMap[jmin]*spec[kref];
+    double y2 = srcMap[jmax]*spec[kref+1];
+    return FitUtils::pixelCounts_loglogQuad(emin, emax, y1, y2, log_ratio);
+  }
+  
+  void SourceMapCache::npred_contribution(const std::vector<double>& npred_vals,
+					  const std::vector<std::pair<double,double> >& npred_weights,
+					  const std::vector<double>& spec,
+					  size_t kref,
+					  const double& emin,
+					  const double& emax,
+					  const double& log_ratio,
+					  double& counts,
+					  double& counts_wt) {
+    double npred_0 = npred_vals[kref] * spec[kref];
+    double npred_1 = npred_vals[kref+1] * spec[kref+1];
+    double npred_wt_0 = npred_0 * npred_weights[kref].first;
+    double npred_wt_1 = npred_1 * npred_weights[kref].second;
+    counts = FitUtils::pixelCounts_loglogQuad(emin, emax, npred_0, npred_1, log_ratio);
+    counts_wt = FitUtils::pixelCounts_loglogQuad(emin, emax, npred_wt_0, npred_wt_1, log_ratio);
+  }
+  
 
+  /*
   void SourceMapCache::addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
 					   SourceMap& srcMap,
 					   size_t npix,
@@ -500,6 +532,7 @@ namespace Likelihood {
       modelWts[j].second += my_sign*y2;
     } 
   }
+  */
 
   void SourceMapCache::addSourceCounts_static(std::vector<double> & modelCounts,
 					      SourceMap& srcMap,
@@ -523,22 +556,24 @@ namespace Likelihood {
       double emin(dataCache.energies().at(k));
       double emax(dataCache.energies().at(k+1));
       double log_ratio(dataCache.log_energy_ratios().at(k));
+      int kref(-1);
       if (use_edisp_val) {
 	xi = drm_cache->get_correction(k,kref);
-	if ( kref < 0 ) {
-	  y1 = srcMap[jmin]*spec[k];
-	  y2 = srcMap[jmax]*spec[k+1];
-	} else {
+	if ( kref < 0 ) { 
+	  // Still have true counts in this energy bin, just use k as kref
+	  kref = k;
+	} else { // Need to use reference bin
 	  size_t ipix(jmin % npix);	
-	  size_t jref = kref*npix + ipix;
-	  y1 = srcMap[jref]*spec[kref];
-	  y2 = srcMap[jref+npix]*spec[kref+1];
+	  jmin = kref*npix + ipix;
+	  jmax = jmin + npix;
 	}
-      } else {
-	y1 = srcMap[jmin]*spec[k];
-	y2 = srcMap[jmax]*spec[k+1];
-      }
-      double addend = my_sign*xi*FitUtils::pixelCounts_loglogQuad(emin, emax, y1, y2, log_ratio);
+      } else { // No energy disperion
+	xi = 1.0;
+	kref = k;
+      }      
+
+      double counts = model_counts_contribution(srcMap, spec, jmin, jmax, kref, emin, emax, log_ratio);      
+      double addend = my_sign*xi*counts;
       modelCounts[j] += addend;
     }
   }
@@ -562,6 +597,9 @@ namespace Likelihood {
     const std::vector<double>& spec = srcMap.specVals(); 
 
     size_t ne(dataCache.num_ebins());
+    
+    double counts(0.);
+    double counts_wt(0.);
 
     for (size_t k(0); k < ne; k++) {
       double xi(1);
@@ -575,14 +613,10 @@ namespace Likelihood {
       } else {
 	kref = k;
       }      
-
-      double npred_0 = npred_vals[kref] * spec[kref];
-      double npred_1 = npred_vals[kref+1] * spec[kref+1];
-      double npred_wt_0 = npred_0 * npred_weights[kref].first;
-      double npred_wt_1 = npred_1 * npred_weights[kref].second;
-
-      double counts = factor * FitUtils::pixelCounts_loglogQuad(engs[k], engs[k+1], npred_0, npred_1, log_energy_rats[k]);
-      double counts_wt = factor * FitUtils::pixelCounts_loglogQuad(engs[k], engs[k+1], npred_wt_0, npred_wt_1, log_energy_rats[k]);
+      
+      npred_contribution(npred_vals, npred_weights, spec, kref, engs[k], engs[k+1], log_energy_rats[k], counts, counts_wt);
+      counts *= factor;
+      counts_wt *= factor;
       
       fixed_counts_spec[k] += counts;
       fixed_counts_spec_wt[k] += counts_wt;
@@ -645,11 +679,9 @@ namespace Likelihood {
 
       if (model.at(j) > 0) {
 	long iparam(freeIndex);
-     	for (size_t i(0); i < specDerivs.size(); i++, iparam++) {	  
-	  double my_deriv = xi* FitUtils::pixelCounts_loglogQuad(emin,emax,
-								 srcMap[jref]*specDerivs[i][k],
-								 srcMap[jmax]*specDerivs[i][k+1],
-								 log_e_ratio);
+     	for (size_t i(0); i < specDerivs.size(); i++, iparam++) {
+	  double counts_deriv = model_counts_contribution(srcMap, specDerivs[i], jref, jmax, kref, emin, emax, log_e_ratio);
+	  double my_deriv = xi * counts_deriv;
 	  double addend = (data.at(jmin)/model.at(j))*my_deriv;
 	  if (addend > 0) {
 	    posDerivs[iparam].add(addend);
@@ -685,11 +717,11 @@ namespace Likelihood {
       }
 
       long iparam2(freeIndex);
-      for (size_t i(0); i < specDerivs.size(); i++, iparam2++) {
-	double addend = xi*FitUtils::pixelCounts_loglogQuad(emin,emax,
-							    npreds[kref]*npred_weights[kref].first*specDerivs[i][kk],
-							    npreds[kref+1]*npred_weights[kref].second*specDerivs[i][kk+1],
-							    log_e_ratio);
+      double counts_deriv(0.);
+      double counts_deriv_wt(0.);
+      for (size_t i(0); i < specDerivs.size(); i++, iparam2++) {	
+	npred_contribution(npreds, npred_weights, specDerivs[i], kref, emin, emax, log_e_ratio, counts_deriv, counts_deriv_wt);
+	double addend = xi * counts_deriv_wt;
 	if (-addend > 0) {
 	  posDerivs[iparam2].add(-addend);
 	} else {
@@ -712,10 +744,11 @@ namespace Likelihood {
     size_t npix = dataCache.num_pixels();
 
     int kref(-1);
-    for (size_t j(0); j < npix; j++) {
-      for (size_t k(0); k < dataCache.num_ebins(); k++) {
-	double emin(dataCache.energies().at(k));
-	double emax(dataCache.energies().at(k+1));
+    for (size_t k(0); k < dataCache.num_ebins(); k++) {
+      double emin(dataCache.energies().at(k));
+      double emax(dataCache.energies().at(k+1));
+      double log_e_ratio(dataCache.log_energy_ratios()[k]);
+      for (size_t j(0); j < npix; j++) {
 	size_t jmin(k*npix + j);
 	size_t jmax(jmin + npix);
 	// EAC, skip masked pixels
@@ -724,47 +757,24 @@ namespace Likelihood {
 	double wt1(0);
 	double wt2(0);	
 	double xi(1.);
-	if ( use_edisp_val ) {
+	int kref(-1);
+	if (use_edisp_val) {
 	  xi = drm_cache->get_correction(k,kref);
-	  if ( kref < 0 ) {
-	    // Correction factor is for this energy, use it
-	    wt1 = specVals[k]*srcMap[jmin];
-	    wt2 = specVals[k+1]*srcMap[jmax];
-	  } else {
-	    // Correction factor is for different energy bin, use kref
-	    size_t ipix(jmin % npix);
-	    size_t jref = kref*npix + ipix;
-	    wt1 = specVals[k]*srcMap[jref];
-	    wt2 = specVals[k+1]*srcMap[jref+npix];
+	  if ( kref < 0 ) { 
+	    // Still have true counts in this energy bin, just use k as kref
+	    kref = k;
+	  } else { // Need to use reference bin
+	    size_t ipix(jmin % npix);	
+	    jmin = kref*npix + ipix;
+	    jmax = jmin + npix;
 	  }
-	} else {
-	  wt1 = specVals[k]*srcMap[jmin];
-	  wt2 = specVals[k+1]*srcMap[jmax];
-	}
-	float val = xi*FitUtils::pixelCounts_loglogQuad(emin, emax, wt1, wt2, dataCache.log_energy_ratios()[k]);
-	// EAC FIX
-	static bool first(true);
-	if ( val < 0 ) {
-	  if ( first ) {
-	    std::cout << "Negative model component " << srcMap.name() << ' ' << jmin << ' ' << val << ' ' 
-		       << xi << ' ' << specVals[k] << ' ' << specVals[k+1] << ' ' 
-		      << srcMap[jmin] << ' ' << srcMap[jmin+npix] << std::endl;
-	    first = false;
-	  }
-	  if ( wt1 < 0 ) {
-	    wt1 = 0.;
-	  }
-	  if ( wt2 < 0 ) {
-	    wt2 = 0.;
-	  }
-	  val = xi*FitUtils::pixelCounts_loglogQuad(emin, emax, wt1, wt2, dataCache.log_energy_ratios()[k]);	 
-	}
-	if ( val > 1e10 ) {
-	  std::cout << "Overlarge model component " << srcMap.name() << ' ' << jmin << ' ' << val << ' ' 
-		    << xi << ' ' << specVals[k] << ' ' << specVals[k+1] << ' ' 
-		    << srcMap[jmin] << ' ' << srcMap[jmin+npix] << std::endl;
-	}	  
-	modelMap[jmin] += val ;
+	} else { // No energy disperion
+	  xi = 1.0;
+	  kref = k;
+	}      
+	double counts = model_counts_contribution(srcMap, specVals, jmin, jmax, kref, emin, emax, log_e_ratio);  
+	float val = xi*counts;
+	modelMap[jmin] += val;
       }
     }
   }
@@ -878,6 +888,7 @@ namespace Likelihood {
     }
   }
 
+  /*
   void SourceMapCache::addSourceWts(std::vector<std::pair<double, double> > & modelWts,
 				    const Source & src,
 				    SourceMap * srcMap,
@@ -896,7 +907,7 @@ namespace Likelihood {
     addSourceWts_static(modelWts,*sourceMap,m_dataCache.num_pixels(),
 			m_dataCache.filledPixels(), use_edisp_val, subtract);
   }
-  
+  */
   
   
   void SourceMapCache::updateCorrectionFactors(const Source & src,

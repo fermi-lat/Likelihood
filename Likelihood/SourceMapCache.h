@@ -45,6 +45,50 @@ namespace Likelihood {
 
      /* ------------- Static Utility Functions -------------------- */
 
+     /* Get the model counts contribution to a particular pixel 
+
+	srcMap     : The SourceMap for the source in question
+	spec       : The specturm (or spectral derivative) for the source in question
+	jmin       : The unrolled index for the source map at the lower edge of the energy bin
+	jmax       : The unrolled index for the source map at the upper edge of the energy bin
+	kref       : The energy bin
+	emin       : The energy at the low edge of the bin
+	emax       : The energy at the high edge of the bin
+	log_ratio  : The log of the energy ratios in the bin
+
+	returns the contribution
+     */
+     static double model_counts_contribution(SourceMap& srcMap,
+					     const std::vector<double> & spec,
+					     size_t jmin,
+					     size_t jmax,
+					     size_t kref,
+					     const double& emin,
+					     const double& emax,
+					     const double& log_ratio);
+
+    /* Get the model counts contribution to a energy layer
+
+	npred_vals     : The total npred for that energy layer
+	npred_weights  : The weight factors for that energy layer
+	spec       : The specturm (or spectral derivative) for the source in question
+	kref       : The energy bin
+	emin       : The energy at the low edge of the bin
+	emax       : The energy at the high edge of the bin
+	log_ratio  : The log of the energy ratios in the bin
+	counts     : Filled with the counts contribution
+	counts_wt  : Filled with the weighted counts contribution
+     */
+     static void npred_contribution(const std::vector<double>& npred_vals,
+				    const std::vector<std::pair<double,double> >& npred_weights,
+				    const std::vector<double>& spec,
+				    size_t kref,
+				    const double& emin,
+				    const double& emax,
+				    const double& log_ratio,
+				    double& counts,
+				    double& counts_wt);
+
 
      /* Add (or subtract) the weights for a source onto a vector 	
 	This is used by several functions.
@@ -55,14 +99,13 @@ namespace Likelihood {
 	filledPixels : Vector with the indices of the filled pixels,
 	use_edisp_val : Apply the energy dispersion
 	subtract   : If true, subtract from the vector.  	
-     */     
-
      static void addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
 				     SourceMap& srcMap,
 				     size_t npix,
 				     const std::vector<unsigned int>& filledPixels,
 				     bool use_edisp_val,
 				     bool subtract);
+     */
 
 
      /* Add (or subtract) the counts for a source onto a vector 	
@@ -468,12 +511,12 @@ namespace Likelihood {
 	srcMap     : The SourceMap for the source in question
 	subtract   : If true, subtract from the vector.  	
 	latchParams : If true, the parameters are latched in the SourceMap
-     */     
      void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
 		       const Source & src,
 		       SourceMap * srcMap=0, 
 		       bool subtract=false,
 		       bool latchParams=false) const;
+     */
      
      
      /* --------------- Dealing with Energy Dispersion ------------------- */
