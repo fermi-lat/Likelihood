@@ -120,11 +120,18 @@ namespace Likelihood {
     fillWeightedCounts();
     const std::vector<float> & the_data = data(has_weights());
     m_filledPixels.clear();
-    for (unsigned int i = 0; i < the_data.size(); i++) {
-      if (the_data.at(i) > 0) {
-	m_filledPixels.push_back(i);
+    m_firstPixels.clear();
+    m_firstPixels.resize(num_ebins() + 1, 0);
+    size_t i(0);
+    for (unsigned int k(0); k < num_ebins(); k++ ) {
+      m_firstPixels[k] = m_filledPixels.size();
+      for (unsigned int ipix(0); ipix < num_pixels(); ipix++, i++) {
+	if (the_data[i] > 0) {
+	  m_filledPixels.push_back(i);
+	}
       }
     }
+    m_firstPixels[num_ebins()] = m_filledPixels.size();
   }
 
   void BinnedCountsCache::log_energy_ratios(const std::vector<double>& energies,

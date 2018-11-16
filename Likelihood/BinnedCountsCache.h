@@ -108,6 +108,9 @@ namespace Likelihood {
     /// Get the filled pixel indices
     inline const std::vector<unsigned int>& filledPixels() const { return m_filledPixels; }
 
+    /// Get the first pixels in each energy layer
+    inline const std::vector<size_t>& firstPixels() const { return m_firstPixels; }
+
     /// Set the counts map by hand
     void setCountsMap(const std::vector<float> & counts);
 
@@ -193,6 +196,10 @@ namespace Likelihood {
     /// These are the indices of the pixels with counts     
     /// This is used to speed up the evaluation of the log-likelihood
     std::vector<unsigned int> m_filledPixels;
+
+    /// These are the indices of the first pixel in each energy layer m_filledPixels vector
+    /// This is used to speed up the evaluation of the log-likelihood
+    std::vector<size_t> m_firstPixels;
    
   };
 
