@@ -221,7 +221,7 @@ void SourceMap::computeNpredArray() {
      double w_1_sum(0.);
      for (size_t j(0); j < npix; j++) {
        size_t indx_0(k*npix + j);
-       double model_0 = m_model.at(indx_0);
+       double model_0 = m_model[indx_0];
        m_npreds[k] += model_0;
        // If there are no weights, we are done with this pixel
        if ( m_weights == 0 ) continue;
@@ -330,8 +330,8 @@ void SourceMap::applyPhasedExposureMap() {
       std::vector<Pixel>::const_iterator pixel(pixels.begin());
       for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
          size_t indx(k*pixels.size() + j);
-         m_model.at(indx) *= phased_expmap->operator()(pixel->dir(),
-                                                       energies[k]);
+         m_model[indx] *= phased_expmap->operator()(pixel->dir(),
+						    energies[k]);
       }
    }
 }
@@ -415,7 +415,7 @@ bool SourceMap::spectrum_changed() const {
     return true;
   }
   for (size_t j(0); j < parValues.size(); j++) {
-    if (parValues.at(j) != m_latchedModelPars.at(j) ) {
+    if (parValues[j] != m_latchedModelPars[j] ) {
       return true;
     }
   }
