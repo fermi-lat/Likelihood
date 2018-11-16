@@ -894,7 +894,7 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
   // But we leave it here in case someone is calling it via the python interface.
 }
 
-
+  /*
   void BinnedLikelihood::addSourceWts(std::vector<std::pair<double, double> > & modelWts,
 				      const std::string & srcName,
 				      SourceMap * srcMap,
@@ -922,7 +922,7 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
     SourceMapCache::addSourceWts_static(modelWts,*sourceMap,num_pixels(),
 					m_dataCache.filledPixels(), use_edisp_val, subtract);
   }
-
+  */
 
   void BinnedLikelihood::addSourceCounts(std::vector<double> & modelCounts,
 					 const std::string & srcName,

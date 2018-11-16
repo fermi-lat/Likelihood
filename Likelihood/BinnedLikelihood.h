@@ -664,13 +664,13 @@ namespace Likelihood {
 	srcMap     : The SourceMap for the source in question
 	subtract   : If true, subtract from the vector.  	
 	latchParams : If true, the parameters are latched in the SourceMap
-     */     
      void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
 		       const std::string & srcName,
 		       SourceMap * srcMap=0, 
 		       bool subtract=false,
 		       bool latchParams=false) const;
-     
+     */
+
      
      /* Add (or subtract) the counts for a source onto a vector 	
 	This is used by several functions.
