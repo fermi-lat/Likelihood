@@ -495,49 +495,8 @@ namespace Likelihood {
   }
   
 
-  /*
-  void SourceMapCache::addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
-					   SourceMap& srcMap,
-					   size_t npix,
-					   const std::vector<unsigned int>& filledPixels,
-					   bool use_edisp_val,
-					   bool subtract) {
-
-    const Drm_Cache* drm_cache = use_edisp_val ? srcMap.drm_cache() : 0;
-    double my_sign =  subtract ? -1.: 1.;
-    int kref(-1);
-    const std::vector<double> & spec = srcMap.specVals();
-    for (size_t j(0); j < filledPixels.size(); j++) {
-      size_t jmin(filledPixels.at(j));
-      size_t jmax(jmin + npix);
-      size_t k(jmin/npix);      
-      double y1(0.);
-      double y2(0.);     
-      if (use_edisp_val) {
-	double xi = drm_cache->get_correction(k,kref);
-	if ( kref < 0 ) {
-	  y1 = srcMap[jmin]*spec[k]*xi;
-	  y2 = srcMap[jmax]*spec[k+1]*xi;
-	} else {
-	  size_t ipix(jmin % npix);	
-	  size_t jref = kref*npix + ipix;
-	  y1 = (srcMap[jref]*spec[kref]*xi);
-	  y2 = (srcMap[jref+npix]*spec[kref+1]*xi);
-	}
-      } else {
-        y1 = srcMap[jmin]*spec[k];
-	y2 = srcMap[jmax]*spec[k+1];
-      }
-      modelWts[j].first += my_sign*y1;
-      modelWts[j].second += my_sign*y2;
-    } 
-  }
-  */
-
   void SourceMapCache::addSourceCounts_static(std::vector<double> & modelCounts,
 					      SourceMap& srcMap,
-					      size_t npix,
-					      const std::vector<unsigned int>& filledPixels,
 					      const BinnedCountsCache& dataCache,
 					      bool use_edisp_val,
 					      bool subtract) {
@@ -546,35 +505,38 @@ namespace Likelihood {
     double my_sign = subtract ? -1.0 : 1.0;
     int kref(-1);
     const std::vector<double> & spec = srcMap.specVals();
-    for (size_t j(0); j < filledPixels.size(); j++) {
-      size_t jmin(filledPixels.at(j));
-      size_t jmax(jmin + npix);
-      size_t k(jmin/npix);
-      double y1(0.);
-      double y2(0.);
-      double xi(1.0);
-      double emin(dataCache.energies().at(k));
-      double emax(dataCache.energies().at(k+1));
-      double log_ratio(dataCache.log_energy_ratios().at(k));
+    size_t nebins = dataCache.num_ebins();
+    size_t npix = dataCache.num_pixels();
+    const std::vector<size_t>& pix_ranges = dataCache.firstPixels();
+    for (size_t k(0); k < nebins; k++ ) {
+      size_t j_start = pix_ranges[k];
+      size_t j_stop = pix_ranges[k+1];      
+      double emin(dataCache.energies()[k]);
+      double emax(dataCache.energies()[k+1]);
+      double log_ratio(dataCache.log_energy_ratios()[k]);
       int kref(-1);
+      double xi(1.);
       if (use_edisp_val) {
 	xi = drm_cache->get_correction(k,kref);
 	if ( kref < 0 ) { 
 	  // Still have true counts in this energy bin, just use k as kref
 	  kref = k;
-	} else { // Need to use reference bin
-	  size_t ipix(jmin % npix);	
+	} 
+      } else { // No energy disperion
+	kref = k;
+      }      
+      for (size_t j(j_start); j < j_stop; j++) {
+	size_t jmin(dataCache.filledPixels()[j]);
+	size_t jmax(jmin + npix);
+	if ( kref != k ) {
+	  size_t ipix(jmin % npix);
 	  jmin = kref*npix + ipix;
 	  jmax = jmin + npix;
 	}
-      } else { // No energy disperion
-	xi = 1.0;
-	kref = k;
-      }      
-
-      double counts = model_counts_contribution(srcMap, spec, jmin, jmax, kref, emin, emax, log_ratio);      
-      double addend = my_sign*xi*counts;
-      modelCounts[j] += addend;
+	double counts = model_counts_contribution(srcMap, spec, jmin, jmax, kref, emin, emax, log_ratio);      
+	double addend = my_sign*xi*counts;
+	modelCounts[j] += addend;
+      }
     }
   }
 
@@ -640,29 +602,19 @@ namespace Likelihood {
     const Drm_Cache* drm_cache = use_edisp_val ? srcMap.drm_cache() : 0;
     bool has_wts = srcMap.weights() != 0;
     const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
-
+ 
     // We need this stuff for the second term...
     const std::vector<double> & npreds = srcMap.npreds();
     const std::vector<std::pair<double,double> > & npred_weights =  srcMap.npred_weights();
-
+ 
     size_t npix = dataCache.num_pixels();
+    const std::vector<size_t>& pix_ranges = dataCache.firstPixels();    
 
-    // First term, derivate of n_obs log n_model = ( n_obs / n_model ) * ( d model / d param ) 
-    // loop over all the filled pixels
-    for (size_t j(0); j < dataCache.nFilled(); j++) {
-      size_t jmin(dataCache.filledPixels()[j]);
-      size_t k(jmin/npix);
-      size_t ipix(jmin % npix);
-      if (k < kmin || k > kmax-1) {
-	continue;
-      }
+    for (size_t k(kmin); k < kmax; k++ ) {
       double emin(dataCache.energies()[k]);
       double emax(dataCache.energies()[k+1]);
-      double log_e_ratio(dataCache.log_energy_ratios()[k]);
- 
-      // EAC, deal with energy dispersion 
-      // FIXME, do we really have to deal with kref here?
-      int kref(-1);	
+      double log_ratio(dataCache.log_energy_ratios()[k]);
+      int kref(-1);
       double xi(1.);
       if (use_edisp_val) {
 	xi = drm_cache->get_correction(k,kref,has_wts);
@@ -674,15 +626,26 @@ namespace Likelihood {
 	kref = k;
       }
 
-      size_t jref(kref* npix + ipix);
-      size_t jmax(jref + npix);
-
-      if (model.at(j) > 0) {
+      // First term, derivate of n_obs log n_model = ( n_obs / n_model ) * ( d model / d param ) 
+      // loop over all the filled pixels
+      size_t j_start = pix_ranges[k];
+      size_t j_stop = pix_ranges[k+1];      
+      for (size_t j(j_start); j < j_stop; j++) {
+	if ( model[j] <= 0. ) {
+	  continue;
+	}
+	size_t jmin(dataCache.filledPixels()[j]);
+	size_t jmax(jmin + npix);
+	if ( kref != k ) {
+	  size_t ipix(jmin % npix);
+	  jmin = kref*npix + ipix;
+	  jmax = jmin + npix;
+	}
 	long iparam(freeIndex);
      	for (size_t i(0); i < specDerivs.size(); i++, iparam++) {
-	  double counts_deriv = model_counts_contribution(srcMap, specDerivs[i], jref, jmax, kref, emin, emax, log_e_ratio);
+	  double counts_deriv = model_counts_contribution(srcMap, specDerivs[i], jmin, jmax, kref, emin, emax, log_ratio);
 	  double my_deriv = xi * counts_deriv;
-	  double addend = (data.at(jmin)/model.at(j))*my_deriv;
+	  double addend = (data[jmin]/model[j])*my_deriv;
 	  if (addend > 0) {
 	    posDerivs[iparam].add(addend);
 	  } else {
@@ -690,37 +653,14 @@ namespace Likelihood {
 	  }
 	} 	
       }
-    }
-    
-    // Second term, the derivatives of the nPreds. 
-    // Loop over the energy layers
-    for (size_t kk(0); kk < dataCache.num_ebins(); kk++) {
-      
-      if (kk < kmin || kk > kmax-1) {
-	continue;
-      }
-      double emin(dataCache.energies()[kk]);
-      double emax(dataCache.energies()[kk+1]);
-      double log_e_ratio(dataCache.log_energy_ratios()[kk]);
 
-      // EAC, deal with energy dispersion
-      int kref(-1);	
-      double xi(1.);
-      if (use_edisp_val) {
-	xi = drm_cache->get_correction(kk,kref,has_wts);
-	if ( kref < 0 ) {
-	  // Still have true counts in this energy bin, just use kk as kref
-	  kref = kk;
-	}
-      } else {
-	kref = kk;
-      }
-
+      // Second term, the derivatives of the nPreds. 
+      // Loop over the energy layers
       long iparam2(freeIndex);
       double counts_deriv(0.);
       double counts_deriv_wt(0.);
-      for (size_t i(0); i < specDerivs.size(); i++, iparam2++) {	
-	npred_contribution(npreds, npred_weights, specDerivs[i], kref, emin, emax, log_e_ratio, counts_deriv, counts_deriv_wt);
+      for (size_t i2(0); i2 < specDerivs.size(); i2++, iparam2++) {	
+	npred_contribution(npreds, npred_weights, specDerivs[i2], kref, emin, emax, log_ratio, counts_deriv, counts_deriv_wt);
 	double addend = xi * counts_deriv_wt;
 	if (-addend > 0) {
 	  posDerivs[iparam2].add(-addend);
@@ -745,17 +685,15 @@ namespace Likelihood {
 
     int kref(-1);
     for (size_t k(0); k < dataCache.num_ebins(); k++) {
-      double emin(dataCache.energies().at(k));
-      double emax(dataCache.energies().at(k+1));
+      double emin(dataCache.energies()[k]);
+      double emax(dataCache.energies()[k+1]);
       double log_e_ratio(dataCache.log_energy_ratios()[k]);
       for (size_t j(0); j < npix; j++) {
 	size_t jmin(k*npix + j);
 	size_t jmax(jmin + npix);
 	// EAC, skip masked pixels
 	if ( mask && 
-	     ( mask->model().at(jmin) <= 0. ) ) continue;
-	double wt1(0);
-	double wt2(0);	
+	     ( mask->model()[jmin] <= 0. ) ) continue;
 	double xi(1.);
 	int kref(-1);
 	if (use_edisp_val) {
@@ -888,27 +826,6 @@ namespace Likelihood {
     }
   }
 
-  /*
-  void SourceMapCache::addSourceWts(std::vector<std::pair<double, double> > & modelWts,
-				    const Source & src,
-				    SourceMap * srcMap,
-				    bool subtract,
-				    bool latchParams) const {
-    if (modelWts.size() != m_dataCache.nFilled() ) {
-      throw std::runtime_error("SourceMapCache::addSourceWts: "
-			       "modelWts size does not match "
-			       "number of filled pixels.");
-    }
-    SourceMap * sourceMap = getSourceMap(src);
-    sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);
-    
-    bool use_edisp_val = use_edisp(&src);
-    
-    addSourceWts_static(modelWts,*sourceMap,m_dataCache.num_pixels(),
-			m_dataCache.filledPixels(), use_edisp_val, subtract);
-  }
-  */
-  
   
   void SourceMapCache::updateCorrectionFactors(const Source & src,
 					       SourceMap & sourceMap) const {

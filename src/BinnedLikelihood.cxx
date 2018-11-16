@@ -156,11 +156,11 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   const std::vector<float> & data = m_dataCache.data( m_dataCache.has_weights() );
   
   for (size_t i(0); i < m_dataCache.nFilled(); i++) {
-    if (m_model.at(i) > 0) {
+    if (m_model[i] > 0) {
       size_t j(m_dataCache.filledPixels()[i]);
       size_t k(j/num_pixels());
       if (k >= m_kmin && k <= m_kmax) {
-	double addend = data.at(j)*std::log(m_model[i]);
+	double addend = data[j]*std::log(m_model[i]);
 	m_accumulator.add(addend);
       }
     }
@@ -547,7 +547,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       double npred_src = NpredValue(srcNames[i], weighted);
       npred_check += npred_src;
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
-		     srcNames.at(i)) == 0) {
+		     srcNames[i]) == 0) {
 	addSourceCounts(modelCounts, srcNames[i]);
 	npred += npred_src;
       }
@@ -894,36 +894,7 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
   // But we leave it here in case someone is calling it via the python interface.
 }
 
-  /*
-  void BinnedLikelihood::addSourceWts(std::vector<std::pair<double, double> > & modelWts,
-				      const std::string & srcName,
-				      SourceMap * srcMap,
-				      bool subtract,
-				      bool latchParams) const {
-    const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
-    if (src == 0) {
-      return;
-    }
-    if (modelWts.size() != m_dataCache.nFilled()) {
-      throw std::runtime_error("BinnedLikelihood::addSourceWts: "
-			       "modelWts size does not match "
-			       "number of filled pixels.");
-    }
-    SourceMap * sourceMap = srcMap;
-    if ( sourceMap == 0 ) {
-      sourceMap = getSourceMap(srcName);
-    } 
-    
-    sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);
-    
-    bool use_edisp_val = use_edisp(srcName);
-    const Drm_Cache* drm_cache = sourceMap->drm_cache();
-    
-    SourceMapCache::addSourceWts_static(modelWts,*sourceMap,num_pixels(),
-					m_dataCache.filledPixels(), use_edisp_val, subtract);
-  }
-  */
-
+ 
   void BinnedLikelihood::addSourceCounts(std::vector<double> & modelCounts,
 					 const std::string & srcName,
 					 SourceMap * srcMap,
@@ -949,9 +920,8 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
     bool use_edisp_val = use_edisp(srcName);
     const Drm_Cache* drm_cache = sourceMap->drm_cache();
     
-    SourceMapCache::addSourceCounts_static(modelCounts,*sourceMap,num_pixels(),
-					   m_dataCache.filledPixels(), m_dataCache,
-					   use_edisp_val,subtract);
+    SourceMapCache::addSourceCounts_static(modelCounts,*sourceMap,
+					   m_dataCache, use_edisp_val, subtract);
   }
 
   void BinnedLikelihood::addFixedNpreds(const std::string & srcName,

@@ -738,27 +738,27 @@ namespace Likelihood {
      std::vector<std::string> m_fixedSources;   
 
      /// Summed counts for all fixed sources.
-     /// This vector has the size of m_filledPixels.size()
+     /// This vector has the size of number of filled pixels
      std::vector<double> m_fixedModelCounts;  
 
      /// Summed counts spectra for fixed sources
      /// This is the summed counts for all pixels for each energy bin.
-     /// This vector has the size of m_energies.size() - 1
+     /// This vector has the size of the number of energy bins
      std::vector<double> m_fixed_counts_spec;
   
      /// Summed weighted counts spectra for fixed sources
      /// This is the summed counts for all pixels for each energy bin.
-     /// This vector has the size of m_energies.size() - 1
+     /// This vector has the size of the number of energy bins
      std::vector<double> m_fixed_counts_spec_wt;
   
      /// Summed counts spectra for fixed sources with energy dispersion
      /// This is the summed counts for all pixels for each energy bin.
-     /// This vector has the size of m_energies.size() - 1
+     /// This vector has the size of the number of energy bins
      std::vector<double> m_fixed_counts_spec_edisp;
   
      /// Summed weighted counts spectra for fixed sources with energy dispersion
      /// This is the summed counts for all pixels for each energy bin.
-     /// This vector has the size of m_energies.size() - 1
+     /// This vector has the size of the number of energy bins
      std::vector<double> m_fixed_counts_spec_edisp_wt;
   
      /// Flag to allow updating of Fixed model weights
