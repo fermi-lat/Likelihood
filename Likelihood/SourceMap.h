@@ -184,6 +184,17 @@ public:
 			  const std::vector<std::string>& paramNames);
 
    
+   /* Extract the values for a particular pixel 
+
+      pixel_values :  Vector filled with the pixel values
+      ipix         :  Index of the pixel in question
+      kmin         :  Index of the first energy layer
+      kmax         :  Index of the last energy layer
+   */
+   void extractPixelValues(std::vector<double>& pixel_values, size_t ipix, 
+			   size_t kmin, size_t kmax) const;
+      
+
    /* Test to see if the spectrum has changes w.r.t. the cached values */
    bool spectrum_changed() const;
 

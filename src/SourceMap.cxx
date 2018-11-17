@@ -399,11 +399,26 @@ void SourceMap::setSpectralValues(const std::vector<double>& energies,
   }
 }
 
-
 void SourceMap::setSpectralDerivs(const std::vector<double>& energies,
 				  const std::vector<std::string>& paramNames) {
   if ( m_src == 0 ) return;
   FitUtils::extractSpectralDerivs(*m_src,energies,paramNames,m_derivs);
+}
+
+
+void SourceMap::extractPixelValues(std::vector<double>& pixel_values, size_t ipix, 
+				   size_t kmin, size_t kmax) const {
+  if ( kmin >= kmax ) {
+    pixel_values.clear();
+    return;
+  }
+  pixel_values.resize(kmax-kmin);
+  size_t npix = m_dataCache->num_pixels();
+  size_t pix_idx = kmin*npix;
+  size_t idx(0);
+  for ( size_t k(kmin); k < kmax; k++, pix_idx += npix, idx++ ) {
+    pixel_values[idx] = operator[](pix_idx);
+  }
 }
 
 
