@@ -238,9 +238,9 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     std::string srcName = src->getName();
     SourceMap & srcMap = sourceMap(srcName);
 
-    SourceMapCache::addFreeDerivs_static(posDerivs, negDerivs, freeIndex,
-					 srcMap, data, m_model, m_dataCache, use_edisp_val, m_kmin, m_kmax);
-        
+    FitUtils::addFreeDerivs(posDerivs, negDerivs, freeIndex,
+			    srcMap, data, m_model, m_dataCache, use_edisp_val, m_kmin, m_kmax);
+    
     // Update index of the next free parameter, based on the number of free parameters of this source
     freeIndex += src->spectrum().getNumFreeParams();
 
@@ -920,8 +920,8 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
     bool use_edisp_val = use_edisp(srcName);
     const Drm_Cache* drm_cache = sourceMap->drm_cache();
     
-    SourceMapCache::addSourceCounts_static(modelCounts,*sourceMap,
-					   m_dataCache, use_edisp_val, subtract);
+    FitUtils::addSourceCounts(modelCounts,*sourceMap,
+			      m_dataCache, use_edisp_val, subtract);
   }
 
   void BinnedLikelihood::addFixedNpreds(const std::string & srcName,
@@ -930,11 +930,11 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
 
     bool use_edisp_val = use_edisp(srcName);
     const Drm_Cache* drm_cache = use_edisp_val ? srcMap->drm_cache() : 0;
-    SourceMapCache::addFixedNpreds_static(m_fixed_counts_spec, m_fixed_counts_spec_wt, 
-					  m_fixed_counts_spec_edisp, m_fixed_counts_spec_edisp_wt,
-					  *srcMap, m_dataCache,
-					  use_edisp_val, subtract);
-
+    FitUtils::addFixedNpreds(m_fixed_counts_spec, m_fixed_counts_spec_wt, 
+			     m_fixed_counts_spec_edisp, m_fixed_counts_spec_edisp_wt,
+			     *srcMap, m_dataCache,
+			     use_edisp_val, subtract);
+    
   }
 
   float BinnedLikelihood::npred_explicit(const BinnedLikelihood& like,
