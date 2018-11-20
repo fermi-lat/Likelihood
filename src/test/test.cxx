@@ -1329,14 +1329,14 @@ void LikelihoodTests::test_BinnedLikelihood() {
       for (unsigned int i = 0; i < data.size(); i++) {
          dataSum += data[i];
       }
-//      std::cout << "Total counts in data map: " << dataSum << std::endl;
+      //std::cout << "Total counts in data map: " << dataSum << std::endl;
 
       const std::vector<float> & model = modelMap->data();
       double modelSum(0);
       for (unsigned int i = 0; i < model.size(); i++) {
          modelSum += model[i];
       }
-//      std::cout << "Total model counts: " << modelSum << std::endl;
+      //std::cout << "Total model counts: " << modelSum << std::endl;
 
       CPPUNIT_ASSERT(fabs(modelSum - dataSum)/dataSum < 1e-2);
 
@@ -1501,11 +1501,17 @@ void LikelihoodTests::test_BinnedLikelihood_base(int edisp_val) {
 
    binnedLogLike.saveSourceMaps("srcMaps_wts.fits");
    double fit_val = fit(binnedLogLike);
-   
-   double npred_check = binnedLogLike.npred() - BinnedLikelihood::npred_explicit(binnedLogLike);
+
+   double npred_func = binnedLogLike.npred();
+   double npred_explicit = BinnedLikelihood::npred_explicit(binnedLogLike);
+   double npred_check = npred_func - npred_explicit;
+   //std::cout << "npred_check " << npred_func << ' ' << npred_explicit << std::endl;
    CPPUNIT_ASSERT(fabs(npred_check) < 0.01);
 
-   double npred_check_wt = binnedLogLike.npred(true) - BinnedLikelihood::npred_explicit(binnedLogLike, true);
+   npred_func = binnedLogLike.npred(true);
+   npred_explicit = BinnedLikelihood::npred_explicit(binnedLogLike, true);
+   double npred_check_wt = npred_func - npred_explicit;
+   //std::cout << "npred_check_wt " << npred_func << ' ' << npred_explicit << std::endl;
    CPPUNIT_ASSERT(fabs(npred_check_wt) < 0.01);
    
    const std::string srcName("Crab Pulsar");
