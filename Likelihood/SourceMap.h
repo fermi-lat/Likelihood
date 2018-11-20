@@ -66,7 +66,7 @@ public:
       src           : The source making this source map for
       dataCache     : The counts map used as a template for the binning
       observation   : Object with data about the observation
-      psf_config    : Object with PSF integration parameters
+      config        : Object with PSF integration parameters
       drm           : The detector response matrix, NULL if energy dispersion is off for this source.
       weights       : A weights map, for weighted likelihood analysis.  Null -> no weighting.
       save_model    : Flag to indicate that we should save the model (e.g., when the source is fixed)
@@ -75,7 +75,7 @@ public:
    SourceMap(const Source & src, 
 	     const BinnedCountsCache * dataCache,
              const Observation & observation,
-	     const PsfIntegConfig & psf_config, 
+	     const BinnedLikeConfig & config, 
 	     const Drm* drm = 0,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
@@ -96,6 +96,7 @@ public:
              const Source & src,
 	     const BinnedCountsCache * dataCache,
 	     const Observation & observation,
+	     const BinnedLikeConfig& config,
 	     const WeightMap* weights = 0,
 	     const Drm* drm = 0,
 	     bool save_model = false);
@@ -123,7 +124,7 @@ public:
    inline const std::string & srcType() const { return m_srcType; }
 
    /* The parameters for the PSF Integration */
-   inline const PsfIntegConfig& psf_config() const { return m_psf_config; }
+   inline const BinnedLikeConfig& config() const { return m_config; }
 
    /* The detector response matrix */
    inline const Drm* drm() const { return m_drm; }
@@ -392,8 +393,8 @@ private:
    /// For Progress messages
    st_stream::StreamFormatter * m_formatter;
 
-   /// Options for treatment of PSF
-   PsfIntegConfig m_psf_config;
+   /// Options for treatment of PSF and energy disperson
+   const BinnedLikeConfig& m_config;
 
    /// The detector response matrix.  Null -> ignore energy disperison
    const Drm* m_drm;

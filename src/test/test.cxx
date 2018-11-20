@@ -183,12 +183,12 @@ public:
    void test_CountsMapHealpix_region();
    void test_BinnedLikelihood();
    void test_BinnedLikelihood_2();
-   void test_BinnedLikelihood_base(bool use_edisp);
+   void test_BinnedLikelihood_base(int edisp_val);
    void test_BinnedLikelihood_wts() {
-     test_BinnedLikelihood_base(false);
+     test_BinnedLikelihood_base(-1);
    }
    void test_BinnedLikelihood_edisp() {
-     test_BinnedLikelihood_base(true);
+     test_BinnedLikelihood_base(0);
    }
    void test_CompositeSource();
    void test_MeanPsf();
@@ -1478,7 +1478,7 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
    ASSERT_EQUALS(fit_value4, fit_value5);
 }
 
-void LikelihoodTests::test_BinnedLikelihood_base(bool use_edisp) {
+void LikelihoodTests::test_BinnedLikelihood_base(int edisp_val) {
    std::string exposureCubeFile = dataPath("expcube_1_day.fits");
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
@@ -1494,7 +1494,7 @@ void LikelihoodTests::test_BinnedLikelihood_base(bool use_edisp) {
    ProjMap* wmap = WcsMapLibrary::instance()->wcsmap(wts_file, "");
 
    BinnedLikelihood binnedLogLike(dataMap, *wmap, *m_observation);
-   binnedLogLike.set_edisp_flag(use_edisp);
+   binnedLogLike.set_edisp_val(edisp_val);
    
    std::string Crab_model = dataPath("Crab_model.xml");
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
@@ -1666,8 +1666,8 @@ void LikelihoodTests::test_SourceMap() {
  //   Source * src = srcFactory->create("Galactic Diffuse");
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PsfIntegConfig psf_config;
-   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
+   BinnedLikeConfig like_config;
+   SourceMap srcMap(*src, &dataCache, *m_observation, like_config);
 }
 
 void LikelihoodTests::test_PointSourceMap() {
@@ -1692,12 +1692,10 @@ void LikelihoodTests::test_PointSourceMap() {
 
    PointSource * pointSrc = dynamic_cast<PointSource *>(src);
    const astro::SkyDir & srcDir(pointSrc->getDir());
-
    
-   PsfIntegConfig psf_config;
-
-   SourceMap srcMap0(*src, &dataCache0, *m_observation, psf_config);
-   SourceMap srcMap1(*src, &dataCache1, *m_observation, psf_config);
+   BinnedLikeConfig like_config;
+   SourceMap srcMap0(*src, &dataCache0, *m_observation, like_config);
+   SourceMap srcMap1(*src, &dataCache1, *m_observation, like_config);
 
    const std::vector<Pixel> & pixels0(dataMap0.pixels());
    const std::vector<Pixel> & pixels1(dataMap1.pixels());
@@ -1753,9 +1751,9 @@ void LikelihoodTests::test_PointSourceMap_hpx_allsky() {
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PsfIntegConfig psf_config;
+   BinnedLikeConfig like_config;
 
-   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataCache, *m_observation, like_config);
 
    // Values as of ST-11-03-01
    CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Sparse);
@@ -1791,9 +1789,9 @@ void LikelihoodTests::test_PointSourceMap_hpx_region() {
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PsfIntegConfig psf_config;
+   BinnedLikeConfig like_config;
 
-   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataCache, *m_observation, like_config);
 
    // Values as of ST-11-03-01
    CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Partial);
@@ -1945,8 +1943,8 @@ void LikelihoodTests::test_Drm() {
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PsfIntegConfig psf_config;
-   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
+   BinnedLikeConfig like_config;
+   SourceMap srcMap(*src, &dataCache, *m_observation, like_config);
 
    std::vector<double> npreds(srcMap.npreds());
    npreds.pop_back();

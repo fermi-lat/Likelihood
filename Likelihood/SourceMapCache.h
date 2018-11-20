@@ -98,8 +98,8 @@ namespace Likelihood {
      }
      
      /// Turn on energy dispersion
-     void set_edisp_flag(bool use_edisp) { 
-       m_config.set_use_edisp(use_edisp);
+     void set_edisp_val(int edisp_val) { 
+       m_config.set_edisp_val(edisp_val);
      }
 
 
@@ -317,8 +317,8 @@ namespace Likelihood {
      /* ---------------------- other functions ------------------------ */
 
    
-     /* Return true if we use energy dispersion for a particular source */
-     bool use_edisp(const Source* src = 0) const;
+     /* Return flag for type of energy dispersion we want to use */
+     int edisp_val(const Source* src = 0) const;
 
 
      /* --------------------- Debugging -------------------- */

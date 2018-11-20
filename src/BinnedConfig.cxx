@@ -14,7 +14,7 @@ namespace Likelihood {
   void BinnedLikeConfig::get_envars(PsfIntegConfig::PSFIntegType& estimatorMethod,
 				    double& estimatorFtol,
 				    double& estimatorPeakTh,
-				    bool& use_edisp,
+				    int& edisp_val,
 				    bool& use_linear_quadrature,
 				    bool& save_all_srcmaps,
 				    bool& use_single_psf) {
@@ -34,7 +34,7 @@ namespace Likelihood {
       estimatorPeakTh  = atof(::getenv("PSF_ADAPTIVE_ESTIMATOR_PEAK_TH"));    
 
     if (::getenv("USE_BL_EDISP") ) {
-      use_edisp = true;
+      edisp_val = atoi(::getenv("USE_BL_EDISP"));
     } 
 
     if (::getenv("USE_LINEAR_QUADRATURE") ) {

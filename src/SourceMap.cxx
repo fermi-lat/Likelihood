@@ -76,7 +76,7 @@ void SourceMap::fill_full_model(const SparseVector<float>& sparse,
 SourceMap::SourceMap(const Source& src, 
 		     const BinnedCountsCache * dataCache,
                      const Observation & observation, 
-                     const PsfIntegConfig & psf_config,
+                     const BinnedLikeConfig& config,
 		     const Drm* drm,
 		     const WeightMap* weights,
 		     bool save_model)
@@ -87,7 +87,7 @@ SourceMap::SourceMap(const Source& src,
      m_observation(observation),
      m_meanPsf(0),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
-     m_psf_config(psf_config),
+     m_config(config),
      m_drm(drm),
      m_weights(weights),
      m_mapType(FileUtils::Unknown),
@@ -99,13 +99,14 @@ SourceMap::SourceMap(const Source& src,
    if ( status != 0 ) {
      throw std::runtime_error("SourceMap construction failed");
    }
-   m_drm_cache = new Drm_Cache(m_drm,*this,dataCache->energies());  
+   m_drm_cache = new Drm_Cache(m_drm, *this, dataCache->energies(), m_config.edisp_val()); 
 }
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const Source& src, 
 		     const BinnedCountsCache * dataCache,
 		     const Observation & observation,
+                     const BinnedLikeConfig& config,
 		     const WeightMap* weights,
 		     const Drm* drm,
 		     bool save_model) 
@@ -113,6 +114,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_name(src.getName()),
     m_dataCache(dataCache),
     m_observation(observation),
+    m_config(config),
     m_meanPsf(0),
     m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
     m_weights(weights),
@@ -120,14 +122,13 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_save_model(save_model),
     m_model_is_local(true),
     m_drm(drm),
-    m_psf_config(),
     m_drm_cache(0) {
 
   int status = readModel(sourceMapsFile);
   if ( status != 0 ) {
     // throw std::runtime_error("SourceMap construction failed to read model");
   }
-  m_drm_cache = new Drm_Cache(m_drm,*this,m_dataCache->energies());
+  m_drm_cache = new Drm_Cache(m_drm,*this,m_dataCache->energies(), m_config.edisp_val());
 }
 
 
@@ -140,7 +141,7 @@ SourceMap::SourceMap(const SourceMap& other)
    m_observation(other.m_observation),
    m_meanPsf( other.m_meanPsf != 0 ? new MeanPsf(*other.m_meanPsf) : 0),
    m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
-   m_psf_config(other.m_psf_config),
+   m_config(other.m_config),
    m_drm(other.m_drm),
    m_weights(other.m_weights),
    m_save_model(other.m_save_model),
@@ -485,9 +486,9 @@ const std::vector<std::pair<double,double> > & SourceMap::npred_weights(bool for
 
 const Drm_Cache* SourceMap::drm_cache(bool force) {
   if ( m_drm_cache == 0) {
-    m_drm_cache = new Drm_Cache(m_drm,*this,m_dataCache->energies());  
+    m_drm_cache = new Drm_Cache(m_drm,*this,m_dataCache->energies(), m_config.edisp_val());
   } else if ( force ) {
-    m_drm_cache->update(m_drm,*this,m_dataCache->energies());  
+    m_drm_cache->update(m_drm,*this,m_dataCache->energies(), m_config.edisp_val());  
   }
   return m_drm_cache;
 }
@@ -671,7 +672,7 @@ int SourceMap::make_model() {
   int status(0);
 
   if ( m_src->srcType() == Source::Point && 
-       !m_psf_config.use_single_psf() &&
+       !m_config.psf_integ_config().use_single_psf() &&
        m_meanPsf == 0 ) {
     m_meanPsf = PSFUtils::build_psf(*m_src, m_dataCache->countsMap(), m_observation);
   }
@@ -680,7 +681,7 @@ int SourceMap::make_model() {
   status = PSFUtils::makeModelMap(*m_src, *m_dataCache, 
 				  m_meanPsf==0 ? m_observation.meanpsf() : *m_meanPsf,
 				  m_observation.bexpmap_ptr(),
-				  m_psf_config,
+				  m_config.psf_integ_config(),
 				  m_filename, m_drm,
 				  *m_formatter, m_model, m_mapType);
   if ( status != 0 ) { 

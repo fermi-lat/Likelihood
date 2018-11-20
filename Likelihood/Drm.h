@@ -93,7 +93,8 @@ public:
 
   Drm_Cache(const Drm* drm,
 	    SourceMap & sourceMap,
-	    const std::vector<double>& energies);
+	    const std::vector<double>& energies,
+	    int edisp_val);
   
   Drm_Cache(const Drm_Cache& other);
 
@@ -105,7 +106,8 @@ public:
 
   void update(const Drm* drm,
 	      SourceMap & sourceMap,
-	      const std::vector<double>& energies);
+	      const std::vector<double>& energies,
+	      int edisp_flag);
 
   inline double get_correction(size_t k, int& kref, bool weight=false) const {
     kref = m_kref[k];
@@ -122,7 +124,7 @@ public:
 
   inline const std::vector<int> kref() const { return m_kref; }
 
-  inline bool use_edisp() const { return m_use_edisp; }
+  inline int edisp_val() const { return m_edisp_val; }
 
   /* --------------------- Debugging -------------------- */
   size_t memory_size() const;
@@ -138,7 +140,7 @@ private:
   std::vector<double> m_true_counts_wt;
   std::vector<double> m_meas_counts_wt;
 
-  bool m_use_edisp;
+  int m_edisp_val;
 
 };
 

@@ -134,7 +134,7 @@ namespace Likelihood {
     static void get_envars(PsfIntegConfig::PSFIntegType& integ_type,
 			   double& estimatorFtol,
 			   double& estimatorPeakTh,
-			   bool& use_edisp,
+			   int& edisp_val,
 			   bool& use_linear_quadrature,
 			   bool& save_all_srcmaps,
 			   bool& use_single_psf);
@@ -152,7 +152,7 @@ namespace Likelihood {
 		     double psfEstimatorFtol = 1e-3,
 		     double psfEstimatorPeakTh = 1e-6,
 		     bool verbose = true,
-		     bool use_edisp = false, 
+		     int edisp_val = -1, 
 		     bool use_single_fixed_map = true,
 		     bool use_linear_quadrature = false,
 		     bool save_all_srcmaps = false,
@@ -161,7 +161,7 @@ namespace Likelihood {
       :m_computePointSources(computePointSources),       
        m_psf_integ_config(applyPsfCorrections,performConvolution,resample,resamp_factor,minbinsz,
 			  integ_type,psfEstimatorFtol,psfEstimatorPeakTh,verbose,use_single_psf),
-       m_use_edisp(use_edisp),
+       m_edisp_val(edisp_val),
        m_use_single_fixed_map(use_single_fixed_map),
        m_use_linear_quadrature(use_linear_quadrature),
        m_save_all_srcmaps(save_all_srcmaps),
@@ -169,7 +169,7 @@ namespace Likelihood {
       get_envars(m_psf_integ_config.m_integ_type,
 		 m_psf_integ_config.m_psfEstimatorFtol,
 		 m_psf_integ_config.m_psfEstimatorPeakTh,
-		 m_use_edisp,
+		 m_edisp_val,
 		 m_use_linear_quadrature,
 		 m_save_all_srcmaps,
 		 m_psf_integ_config.m_use_single_psf);
@@ -178,7 +178,7 @@ namespace Likelihood {
     BinnedLikeConfig(const BinnedLikeConfig& other)
       :m_computePointSources(other.m_computePointSources),
        m_psf_integ_config(other.m_psf_integ_config),
-       m_use_edisp(other.m_use_edisp),
+       m_edisp_val(other.m_edisp_val),
        m_use_single_fixed_map(other.m_use_single_fixed_map),
        m_use_linear_quadrature(other.m_use_linear_quadrature),
        m_save_all_srcmaps(other.m_save_all_srcmaps),
@@ -189,14 +189,14 @@ namespace Likelihood {
     inline const PsfIntegConfig& psf_integ_config() const { return m_psf_integ_config; }
 
     inline void set_computePointSources(bool val) {  m_computePointSources = val; } 
-    inline void set_use_edisp(bool val) {  m_use_edisp = val; }
+    inline void set_edisp_val(int val) {  m_edisp_val = val; }
     inline void set_use_single_fixed_map(bool val) {  m_use_single_fixed_map = val; }
     inline void set_use_linear_quadrature(bool val) {  m_use_linear_quadrature = val; }
     inline void set_save_all_srcmaps(bool val) {  m_save_all_srcmaps = val; }
     inline void set_load_existing_srcmaps(bool val) {  m_load_existing_srcmaps = val; }
    
     inline bool computePointSources() const { return m_computePointSources; } 
-    inline bool use_edisp() const { return m_use_edisp; }
+    inline int edisp_val() const { return m_edisp_val; }
     inline bool use_single_fixed_map() const { return m_use_single_fixed_map; }
     inline bool use_linear_quadrature() const { return m_use_linear_quadrature; }
     inline bool save_all_srcmaps() const { return m_save_all_srcmaps; }
@@ -206,7 +206,7 @@ namespace Likelihood {
     
     bool m_computePointSources;    //! Pre-compute and store SourceMaps for point sources
     PsfIntegConfig m_psf_integ_config; //! Parameters for PSF integration
-    bool m_use_edisp;              //! Use energy dispersion
+    int m_edisp_val;               //! Use energy dispersion
     bool m_use_single_fixed_map;   //! Use a single model for all fixed components
     bool m_use_linear_quadrature;  //! Use linear quadrature for counts integration
     bool m_save_all_srcmaps;       //! Save the source maps for all sources

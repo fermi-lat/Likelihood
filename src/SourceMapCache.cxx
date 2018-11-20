@@ -95,8 +95,8 @@ namespace Likelihood {
 
     sourceMap.setSpectralValues(m_dataCache.energies());
     updateCorrectionFactors(src,sourceMap);
-    double value = sourceMap.summed_counts(kmin,kmax,
-					   use_edisp(&src),weighted);
+    bool use_edisp = edisp_val(&src) >= 0;
+    double value = sourceMap.summed_counts(kmin,kmax,use_edisp,weighted);
     return value;
   }
 
@@ -113,7 +113,7 @@ namespace Likelihood {
 
     const std::string& srcName = src.getName();
     SourceMap* srcMap(0);
-    const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
+    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
  
     // Check to see if we already have the map
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
@@ -125,7 +125,8 @@ namespace Likelihood {
       // Check to see if the map is in the file
       if ( m_config.load_existing_srcmaps() && FileUtils::fileHasExtension(m_srcMapsFile, srcName)) {
 	srcMap = new SourceMap(m_srcMapsFile, src, &m_dataCache, 
-			       m_observation, m_dataCache.weightMap(), the_drm, m_config.save_all_srcmaps());
+			       m_observation, m_config,
+			       m_dataCache.weightMap(), the_drm, m_config.save_all_srcmaps());
       } else {
 	switch ( src.srcType() ) {
 	case Source::Point:
@@ -149,8 +150,8 @@ namespace Likelihood {
 
   SourceMap * SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const {
     const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
-    const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
-    return new SourceMap(src, &m_dataCache, m_observation, the_config.psf_integ_config(), 
+    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
+    return new SourceMap(src, &m_dataCache, m_observation, the_config, 
 			 the_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
   }
   
@@ -383,9 +384,9 @@ namespace Likelihood {
     const std::string& name = srcMap->name();
 
     double np = NpredValue(src,kmin,kmax); // This computes the convolved spectrum
-    bool use_edisp_val = use_edisp(&src);
+    int edisp_flag = edisp_val(&src);
 
-    FitUtils::updateModelMap(modelMap, *srcMap, m_dataCache, use_mask, use_edisp_val);
+    FitUtils::updateModelMap(modelMap, *srcMap, m_dataCache, use_mask, edisp_flag);
   }
 
 
@@ -448,9 +449,11 @@ namespace Likelihood {
     delete meanPsf;
   }
 
-  bool SourceMapCache::use_edisp(const Source* src) const {
-    bool retVal = m_config.use_edisp();
-    retVal &=  src != 0 ? src->use_edisp() : true;
+  int SourceMapCache::edisp_val(const Source* src) const {
+    int retVal = m_config.edisp_val();
+    if ( src != 0 && ! src->use_edisp() ) {
+      retVal = -1;
+    }
     return retVal;
   }
 
@@ -524,9 +527,6 @@ namespace Likelihood {
     FileUtils::SrcMapType mapType = FileUtils::Unknown;
     fillSingleSourceMap(src, model, mapType, kmin, kmax);
   
-    float sum(0);
-    FitUtils::sumVector(model.begin(),model.end(),sum);
-
     SparseVector<float> sparse;
     switch ( mapType ) {
     case FileUtils::HPX_Sparse:
@@ -580,7 +580,7 @@ namespace Likelihood {
     if ( m_drm == 0 ) {
       throw std::runtime_error("No DRM object");
     }
-    const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
+    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
     sourceMap.update_drm_cache(the_drm, true);
   }
   

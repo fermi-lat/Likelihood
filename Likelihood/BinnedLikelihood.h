@@ -214,15 +214,22 @@ namespace Likelihood {
 
      /// Turn on energy dispersion
      void set_edisp_flag(bool use_edisp) {
-       if ( use_edisp == m_config.use_edisp() ) return;
-       m_config.set_use_edisp(use_edisp);
-       m_srcMapCache.set_edisp_flag(use_edisp);
+       int set_val = use_edisp ? 0 : -1;
+       set_edisp_val(set_val);
+     }
+     
+     /// Turn on energy dispersion
+     void set_edisp_val(int edisp_val) {
+       if ( edisp_val == m_config.edisp_val() ) return;
+       m_config.set_edisp_val(edisp_val);
+       m_srcMapCache.set_edisp_val(edisp_val);
        m_fixedModelCounts.clear();
        m_fixed_counts_spec.clear();   
        m_fixed_counts_spec_wt.clear();
        m_fixed_counts_spec_edisp.clear();
        m_fixed_counts_spec_edisp_wt.clear();
      }
+
 
      /// Set flag to use a single map for all the fixed sources
      void set_use_single_fixed_map(bool use_sfm) {
@@ -585,8 +592,8 @@ namespace Likelihood {
 					bool use_klims=true) const;
 
      
-     /* Return true if we use energy dispersion for a particular source */
-     bool use_edisp(const std::string & srcname="") const;
+     /* Return flag saying how we use energy dispersion for a particular source */
+     int edisp_val(const std::string & srcname="") const;
 
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();
@@ -650,28 +657,11 @@ namespace Likelihood {
      /* --------------- Computing Counts Spectra ------------------- */
  
 
-     /// Integrates weights over a pixel to get the counts
-     double pixelCounts(double emin, double emax, double y1, double y2, double log_ratio) const;
+     // EAC, since we are no longer using the fixed NPreds this is now a no-op.
+     // But we leave it here in case someone is calling it via the python interface.
+     void computeFixedCountsSpectrum(){;}
+     
     
-     void computeFixedCountsSpectrum();
-   
-     
-     /* Add (or subtract) the weights for a source onto a vector 	
-	This is used by several functions.
-
-	modelWts   : The vector being added to.
-	srcName    : The name of the source in question
-	srcMap     : The SourceMap for the source in question
-	subtract   : If true, subtract from the vector.  	
-	latchParams : If true, the parameters are latched in the SourceMap
-     void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
-		       const std::string & srcName,
-		       SourceMap * srcMap=0, 
-		       bool subtract=false,
-		       bool latchParams=false) const;
-     */
-
-     
      /* Add (or subtract) the counts for a source onto a vector 	
 	This is used by several functions.
 

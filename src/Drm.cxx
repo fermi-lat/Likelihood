@@ -253,7 +253,8 @@ double Drm::extrapolate_hi(const double& c0, const double & c1) const{
 
 Drm_Cache::Drm_Cache(const Drm* drm,
 		     SourceMap & sourceMap,
-		     const std::vector<double>& energies)
+		     const std::vector<double>& energies,
+		     int edisp_val)
   :m_true_counts(energies.size()-1),
    m_meas_counts(energies.size()-1),
    m_xi(energies.size()-1),
@@ -261,8 +262,8 @@ Drm_Cache::Drm_Cache(const Drm* drm,
    m_kref(energies.size()-1),
    m_true_counts_wt(energies.size()-1),
    m_meas_counts_wt(energies.size()-1),
-   m_use_edisp(drm!=0){
-  update(drm,sourceMap,energies);
+   m_edisp_val(drm!=0 ? edisp_val : -1 ){
+  update(drm,sourceMap,energies,edisp_val);
 }
 
 Drm_Cache::Drm_Cache(const Drm_Cache& other) 
@@ -273,12 +274,13 @@ Drm_Cache::Drm_Cache(const Drm_Cache& other)
     m_kref(other.m_kref),
     m_true_counts_wt(other.m_true_counts_wt),
     m_meas_counts_wt(other.m_meas_counts_wt),
-    m_use_edisp(other.m_use_edisp){
+    m_edisp_val(other.m_edisp_val){
 }
 
 void Drm_Cache::update(const Drm* drm,
 		       SourceMap & sourceMap,
-		       const std::vector<double>& energies) {
+		       const std::vector<double>& energies, 
+		       int edisp_flag){
 
   sourceMap.setSpectralValues(energies);  
   const std::vector<double>& npreds = sourceMap.npreds();
@@ -321,10 +323,10 @@ void Drm_Cache::update(const Drm* drm,
   }
   
   if ( drm != 0 ) {
-    m_use_edisp = true;
+    m_edisp_val = edisp_flag;
     drm->convolve(m_true_counts, m_meas_counts);
   } else {
-    m_use_edisp = false;
+    m_edisp_val = -1;
     std::copy(m_true_counts.begin(),m_true_counts.end(),m_meas_counts.begin());
   }
 

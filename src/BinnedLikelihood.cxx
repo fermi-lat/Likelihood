@@ -59,7 +59,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     resamp_factor,
 	     minbinsz,
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
-	     true,false,true,false,false,false),
+	     true,-1,true,false,false,false),
     m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
 		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
@@ -94,7 +94,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     resamp_factor,
 	     minbinsz,	     
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
-	     true,false,true,false,false,false),
+	     true,-1,true,false,false,false),
     m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
 		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
@@ -233,13 +233,13 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
        it != free_srcs.end(); ++it ) {
 
     Source * src(*it);
-    bool use_edisp_val = m_srcMapCache.use_edisp(src);
+    int edisp_val = m_srcMapCache.edisp_val(src);
 
     std::string srcName = src->getName();
     SourceMap & srcMap = sourceMap(srcName);
 
     FitUtils::addFreeDerivs(posDerivs, negDerivs, freeIndex,
-			    srcMap, data, m_model, m_dataCache, use_edisp_val, m_kmin, m_kmax);
+			    srcMap, data, m_model, m_dataCache, edisp_val, m_kmin, m_kmax);
     
     // Update index of the next free parameter, based on the number of free parameters of this source
     freeIndex += src->spectrum().getNumFreeParams();
@@ -823,8 +823,9 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
 
-  bool BinnedLikelihood::use_edisp(const std::string & srcname) const {
-    bool use_src_edisp = m_config.use_edisp();
+  int BinnedLikelihood::edisp_val(const std::string & srcname) const {
+    int src_edisp_val = m_config.edisp_val();
+    if ( src_edisp_val < 0 ) return src_edisp_val;    
     if (srcname != "") {
       /// Determine from Source if it already accounts for convolution
       /// with the energy dispersion, e.g., for Galactic diffuse
@@ -832,10 +833,12 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       const std::map<std::string, Source *>::const_iterator 
 	& it(m_sources.find(srcname));
       if (it != m_sources.end()) {
-	use_src_edisp = it->second->use_edisp();
+	if ( ! it->second->use_edisp() ) {
+	  src_edisp_val = -1;
+	}
       }
     }
-    return ( m_config.use_edisp() && use_src_edisp );
+    return src_edisp_val;
   }
 
 
@@ -881,19 +884,6 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     image->setImageDimensions(dims);
   }
 
-
-double BinnedLikelihood::pixelCounts(double emin, double emax, double y1, double y2, double log_ratio) const {
-  return m_config.use_linear_quadrature() ? 
-    FitUtils::pixelCounts_linearQuad(emin,emax,y1,y2) :
-    FitUtils::pixelCounts_loglogQuad(emin,emax,y1,y2,log_ratio);
-}
-
-
-void BinnedLikelihood::computeFixedCountsSpectrum() {
-  // EAC, since we are no longer using the fixed NPreds this is now a no-op.
-  // But we leave it here in case someone is calling it via the python interface.
-}
-
  
   void BinnedLikelihood::addSourceCounts(std::vector<double> & modelCounts,
 					 const std::string & srcName,
@@ -915,25 +905,22 @@ void BinnedLikelihood::computeFixedCountsSpectrum() {
       sourceMap = getSourceMap(srcName);
     } 
     
-    sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);
-    
-    bool use_edisp_val = use_edisp(srcName);
-    const Drm_Cache* drm_cache = sourceMap->drm_cache();
-    
+    sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);    
+    int edisp_flag = edisp_val(srcName);
+
     FitUtils::addSourceCounts(modelCounts,*sourceMap,
-			      m_dataCache, use_edisp_val, subtract);
+			      m_dataCache, edisp_flag, subtract);
   }
 
   void BinnedLikelihood::addFixedNpreds(const std::string & srcName,
 					SourceMap * srcMap, 
 					bool subtract) {
 
-    bool use_edisp_val = use_edisp(srcName);
-    const Drm_Cache* drm_cache = use_edisp_val ? srcMap->drm_cache() : 0;
+    int edisp_flag = edisp_val(srcName);
     FitUtils::addFixedNpreds(m_fixed_counts_spec, m_fixed_counts_spec_wt, 
 			     m_fixed_counts_spec_edisp, m_fixed_counts_spec_edisp_wt,
 			     *srcMap, m_dataCache,
-			     use_edisp_val, subtract);
+			     edisp_flag, subtract);
     
   }
 
