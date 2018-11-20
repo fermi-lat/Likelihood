@@ -229,6 +229,13 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
   //timer.start();
 
+  // The data/model is used for each of the deriavtive, so pre-compute it here
+  std::vector<double> data_over_model(m_dataCache.nFilled());
+  for ( size_t ifill(0); ifill < data_over_model.size(); ifill++ ) {
+    unsigned int ipix = m_dataCache.filledPixels()[ifill];
+    data_over_model[ifill] = m_model[ifill] > 0 ? data[ipix] / m_model[ifill] : 0.;
+  }
+
   // We only need to loop on the free sources
   for (std::vector<Source *>::const_iterator it(free_srcs.begin());
        it != free_srcs.end(); ++it ) {
@@ -236,11 +243,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     Source * src(*it);
     int edisp_val = m_srcMapCache.edisp_val(src);
 
-    std::string srcName = src->getName();
-    SourceMap & srcMap = sourceMap(srcName);
+    SourceMap & srcMap = sourceMap(src->getName());
 
     FitUtils::addFreeDerivs(posDerivs, negDerivs, freeIndex,
-			    srcMap, data, m_model, m_dataCache, edisp_val, m_kmin, m_kmax);
+			    srcMap, data_over_model, m_dataCache, edisp_val, m_kmin, m_kmax);
     
     // Update index of the next free parameter, based on the number of free parameters of this source
     freeIndex += src->spectrum().getNumFreeParams();

@@ -281,7 +281,7 @@ namespace Likelihood {
 			  std::vector<float>::const_iterator model_stop,
 			  std::vector<float>::iterator out_start,
 			  std::vector<float>::iterator out_stop);
-        
+
     /* reshape a 1D vector in to 2D vector 
 
        This will throw an exception if n_i * n_j is not equal to the size of invect
@@ -717,34 +717,39 @@ namespace Likelihood {
 			     double& edm,
 			     double& logLikeVal,
 			     size_t firstBin = 0, size_t lastBin = 0);    
-  
+
+    /* Get the model counts contribution to a particular pixel 
+
+	spec       : The specturm (or spectral derivative) for the source in question
+	dataCache  : Object with info about the binning
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
+
+    */  
+    void get_spectral_weights(const std::vector<double>& spec,
+			      const BinnedCountsCache& dataCache,
+			      std::vector<std::pair<double, double> >& spec_weights);
+
 
      /* Get the model counts contribution to a particular pixel 
 
 	srcMap     : The SourceMap for the source in question
-	spec       : The specturm (or spectral derivative) for the source in question
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
 	jmin       : The unrolled index for the source map at the lower edge of the energy bin
 	jmax       : The unrolled index for the source map at the upper edge of the energy bin
 	kref       : The energy bin
-	emin       : The energy at the low edge of the bin
-	emax       : The energy at the high edge of the bin
-	log_ratio  : The log of the energy ratios in the bin
 
 	returns the contribution
      */
     double model_counts_contribution(SourceMap& srcMap,
-				     const std::vector<double> & spec,
+				     const std::vector<std::pair<double, double> > & spec_wts,
 				     size_t jmin,
 				     size_t jmax,
-				     size_t kref,
-				     const double& emin,
-				     const double& emax,
-				     const double& log_ratio);
+				     size_t kref);
 
      /* Get the model counts contribution including the energy dispersion
 
 	srcMap     : The SourceMap for the source in question
-	spec       : The specturm (or spectral derivative) for the source in question
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
 	dataCache  : Object with info about the binning
 	ipix       : Index of the pixel in question
 	kref       : Index of the energy layer we will be filling
@@ -754,7 +759,7 @@ namespace Likelihood {
 	returns the contribution
      */
     double model_counts_edisp(SourceMap& srcMap,
-			      const std::vector<double> & spec,
+			      const std::vector<std::pair<double, double> > & spec_wts,
 			      const BinnedCountsCache& dataCache,
 			      size_t ipix,
 			      size_t kref,
@@ -765,21 +770,15 @@ namespace Likelihood {
 
 	npred_vals     : The total npred for that energy layer
 	npred_weights  : The weight factors for that energy layer
-	spec       : The specturm (or spectral derivative) for the source in question
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
 	kref       : The energy bin
-	emin       : The energy at the low edge of the bin
-	emax       : The energy at the high edge of the bin
-	log_ratio  : The log of the energy ratios in the bin
 	counts     : Filled with the counts contribution
 	counts_wt  : Filled with the weighted counts contribution
      */
     void npred_contribution(const std::vector<double>& npred_vals,
 			    const std::vector<std::pair<double,double> >& npred_weights,
-			    const std::vector<double>& spec,
+			    const std::vector<std::pair<double, double> > & spec_wts,
 			    size_t kref,
-			    const double& emin,
-			    const double& emax,
-			    const double& log_ratio,
 			    double& counts,
 			    double& counts_wt);
     
@@ -787,7 +786,7 @@ namespace Likelihood {
 
 	npred_vals     : The total npred for that energy layer
 	npred_weights  : The weight factors for that energy layer
-	spec       : The specturm (or spectral derivative) for the source in question
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
 	drm        : The energy dispersion
 	dataCache  : Object with info about the binning
 	kref       : The energy bin
@@ -796,9 +795,8 @@ namespace Likelihood {
      */
     double npred_edisp(const std::vector<double>& npred_vals,
 		       const std::vector<std::pair<double,double> >& npred_weights,
-		       const std::vector<double>& spec,
+		       const std::vector<std::pair<double, double> > & spec_wts,
 		       const Drm* drm, 
-		       const BinnedCountsCache& dataCache,
 		       size_t kref,
 		       size_t kmin,
 		       size_t kmax);
@@ -860,8 +858,7 @@ namespace Likelihood {
 		       std::vector<Kahan_Accumulator>& negDerivs,
 		       long freeIndex,
 		       SourceMap& srcMap,
-		       const std::vector<float> & data,
-		       const std::vector<double>& model, 
+		       const std::vector<double>& data_over_model, 
 		       const BinnedCountsCache& dataCache,
 		       int edisp_val,
 		       size_t kmin, size_t kmax);

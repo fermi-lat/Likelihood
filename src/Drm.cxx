@@ -259,7 +259,7 @@ Drm_Cache::Drm_Cache(const Drm* drm,
    m_meas_counts(energies.size()-1),
    m_xi(energies.size()-1),
    m_xi_wt(energies.size()-1),
-   m_kref(energies.size()-1),
+   m_kref(energies.size()-1, -1),
    m_true_counts_wt(energies.size()-1),
    m_meas_counts_wt(energies.size()-1),
    m_edisp_val(drm!=0 ? edisp_val : -1 ){
