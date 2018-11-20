@@ -153,23 +153,24 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   // Here we want the weighted verison of the nPred
   double npred = computeModelMap_internal(true);
   
-  const std::vector<float> & data = m_dataCache.data( m_dataCache.has_weights() );
-  
-  for (size_t i(0); i < m_dataCache.nFilled(); i++) {
-    if (m_model[i] > 0) {
-      size_t j(m_dataCache.filledPixels()[i]);
-      size_t k(j/num_pixels());
-      if (k >= m_kmin && k <= m_kmax) {
-	double addend = data[j]*std::log(m_model[i]);
-	m_accumulator.add(addend);
+  const std::vector<float> & data = m_dataCache.data( m_dataCache.has_weights() );  
+
+  const std::vector<size_t>& pix_ranges = m_dataCache.firstPixels();
+  for (size_t k(m_kmin); k < m_kmax; k++ ) {
+    size_t j_start = pix_ranges[k];
+    size_t j_stop = pix_ranges[k+1];      
+    for (size_t j(j_start); j < j_stop; j++) {
+      if ( m_model[j] <= 0 ) {
+	continue;
       }
+      size_t i(m_dataCache.filledPixels()[j]);
+      double addend = data[i]*std::log(m_model[j]);
+      m_accumulator.add(addend);
     }
   }
   m_accumulator.add(-npred);
   
   double my_total(m_accumulator.total());
-
-
 
   /// Add in contribution from priors.
   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
@@ -553,22 +554,17 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       }
     }
 
-    /* 
-    if ( std::fabs(npred - npred_check) > 0.5 ) {
-      std::ostringstream message;
-      message << "fixedModelCounts mismatch " << npred << ' ' << npred_check;
-      throw std::runtime_error(message.str());
-    }
-    */
-
     m_model.clear();
     m_model.resize(m_dataCache.nFilled(), 0);
-    for (size_t j(0); j < m_dataCache.nFilled(); j++) {
-      size_t k(m_dataCache.filledPixels()[j]/num_pixels());
-      if (k < m_kmin || k > m_kmax-1) {
-	continue;
+
+    const std::vector<size_t>& pix_ranges = m_dataCache.firstPixels();
+ 
+    for (size_t k(m_kmin); k < m_kmax; k++ ) {
+      size_t j_start = pix_ranges[k];
+      size_t j_stop = pix_ranges[k+1];      
+      for (size_t j(j_start); j < j_stop; j++) {
+	m_model[j] = modelCounts[j];
       }
-      m_model[j] = modelCounts[j];
     }
     m_modelIsCurrent = true;
 
@@ -810,14 +806,15 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     std::vector<double> modelCounts(m_dataCache.nFilled(), 0.);
     addSourceCounts(modelCounts, srcName);
 
-    for (size_t j(0); j < m_dataCache.nFilled(); j++) {
-      size_t k(m_dataCache.filledPixels()[j]/num_pixels());
-      if (k < kmin || k > kmax-1) {
-	continue;
+    const std::vector<size_t>& pix_ranges = m_dataCache.firstPixels(); 
+    for (size_t k(kmin); k < kmax; k++ ) {
+      size_t j_start = pix_ranges[k];
+      size_t j_stop = pix_ranges[k+1];      
+      for (size_t j(j_start); j < j_stop; j++) {
+	double srcProb = modelCounts[j] / m_model[j];
+	size_t indx = m_dataCache.filledPixels()[j];
+	counts_spectrum[k - kmin] += srcProb*m_dataCache.data()[indx];
       }
-      double srcProb = modelCounts[j] / m_model[j];
-      size_t indx = m_dataCache.filledPixels()[j];
-      counts_spectrum[k - kmin] += srcProb*m_dataCache.data()[indx];
     }
     return counts_spectrum;
   }
