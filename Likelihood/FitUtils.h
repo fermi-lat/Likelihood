@@ -753,7 +753,6 @@ namespace Likelihood {
 	srcMap     : The source map for the source in question
  	dataCache  : Object with info about the binning
         edisp_val  : Flag saying how to apply energy dispersion
-	use_wts    : Flag to indicate that weighted counts should be used
 	k          : The current energy bin
 	kmin       : Filled with the index of the lowest energy bin to loop over
 	kmax       : Filled with the index of the highest energy bin to loop over
@@ -763,7 +762,7 @@ namespace Likelihood {
 	I.e., only the factors for the bins we are looping over are extracted
     */  
     void get_edisp_constants(SourceMap& srcMap, const BinnedCountsCache& dataCache, 
-			     int edisp_val, bool use_wts, 
+			     int edisp_val, 
 			     size_t k, size_t& kmin, size_t& kmax,
 			     std::vector<double>& edisp_col);    
 
@@ -800,7 +799,7 @@ namespace Likelihood {
 			      const std::vector<std::pair<double, double> > & spec_wts,
 			      const std::vector<double> & edisp_col,
 			      size_t ipix, size_t npix, size_t kmin, size_t kmax);
-			      
+
     /* Get the total model counts contribution to a energy layer
 
 	npred_vals     : The total npred for that energy layer
@@ -830,15 +829,14 @@ namespace Likelihood {
 	counts     : Filled with the total model count contribution
 	counts_wt  : Filled with the total weighted model count contribution
     */
-    void npred_edisp(const std::vector<double>& npred_vals,
-		     const std::vector<std::pair<double,double> >& npred_weights,
-		     const std::vector<std::pair<double, double> > & spec_wts,
+    void npred_edisp(const std::vector<double> & npred_vals,
+		     const std::vector<std::pair<double,double> > & npred_weights,
+		     const std::vector<std::pair<double,double> > & spec_wts,
 		     const std::vector<double> & edisp_col,
 		     size_t kmin,
 		     size_t kmax,
 		     double& counts,
 		     double& counts_wt);
-
 
      /* Add (or subtract) the counts for a source onto a vector 	
 	This is used by several functions.

@@ -150,6 +150,7 @@ SourceMap::SourceMap(const SourceMap& other)
    m_sparseModel(other.m_sparseModel),
    m_mapType(other.m_mapType),
    m_specVals(other.m_specVals),
+   m_specWts(other.m_specWts),
    m_modelPars(other.m_modelPars),
    m_latchedModelPars(other.m_latchedModelPars),
    m_derivs(other.m_derivs),
@@ -373,6 +374,7 @@ void SourceMap::setSource(const Source& src) {
   }
   m_src = &src;
   m_specVals.clear();
+  m_specWts.clear();
   m_modelPars.clear();
   m_derivs.clear();
   m_npreds.clear();
@@ -392,6 +394,7 @@ void SourceMap::setSpectralValues(const std::vector<double>& energies,
 				    bool latch_params ) {
   if ( m_src == 0 ) return;
   FitUtils::extractSpectralVals(*m_src,energies,m_specVals);
+  FitUtils::get_spectral_weights(m_specVals, *m_dataCache, m_specWts);
   m_modelPars.clear();
   m_src->spectrum().getParamValues(m_modelPars);
  if ( latch_params ) {
@@ -461,6 +464,12 @@ const std::vector<double> & SourceMap::specVals(bool force) {
   return m_specVals;
 }
 
+const std::vector<std::pair<double,double> >&  SourceMap::specWts(bool force) {
+  if ( m_specWts.size() == 0 || force ) {
+    setSpectralValues(m_dataCache->energies());
+  }
+  return m_specWts;
+}
 
 const std::vector<std::vector<double> >& SourceMap::specDerivs(const std::vector<std::string>& paramNames, bool force) {
   if ( m_specVals.size() == 0 || force ) {
@@ -520,22 +529,22 @@ void SourceMap::subtractFromVector(std::vector<float>& vect, bool includeSpec, i
 }
 
 double SourceMap::summed_counts(size_t kmin, size_t kmax,
-				bool use_edisp,
+				int edisp_val,
 				bool use_weighted) {
-
+    
   if ( m_drm_cache == 0 ) {
-    throw std::runtime_error("SourceMap::summed_counts: no Drm_Cache");
-  }  
-
-  const std::vector<double>& counts_spec = use_edisp ? 
-    ( use_weighted ? m_drm_cache->meas_counts_wt() : m_drm_cache->meas_counts() ) :
-    ( use_weighted ? m_drm_cache->true_counts_wt() : m_drm_cache->true_counts() );
-     
-  double value(0.);
-  for (size_t k(kmin); k < kmax; k++) {    
-    value += counts_spec[k];
+    throw std::runtime_error("Called summed counts on a SourceMap that does not have a Drm_Cache ");
   }
-  return value;    
+  
+  const std::vector<double>& the_vect = use_weighted ? 
+    ( edisp_val < 0 ? m_drm_cache->true_counts_wt() : m_drm_cache->meas_counts_wt() ) :
+    ( edisp_val < 0 ? m_drm_cache->true_counts() : m_drm_cache->meas_counts() );
+  
+  double retVal(0.);
+  for ( size_t k(kmin); k < kmax; k++ ) {
+    retVal += the_vect[k];
+  }
+  return retVal;
 }
 
 void SourceMap::setImage(const std::vector<float>& model) {
@@ -589,6 +598,7 @@ int SourceMap::readModel(const std::string& filename) {
   m_model_is_local = false;
 
   m_specVals.clear();
+  m_specWts.clear();
   m_modelPars.clear();
   m_derivs.clear();
   m_npreds.clear();
@@ -664,6 +674,7 @@ int SourceMap::make_model() {
   m_model_is_local = true;
   m_model.clear();
   m_specVals.clear();
+  m_specWts.clear();
   m_modelPars.clear();
   m_derivs.clear();
   m_npreds.clear();

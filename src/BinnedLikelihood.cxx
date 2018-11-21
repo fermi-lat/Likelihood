@@ -565,7 +565,7 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 		     srcNames[i]) == 0) {
 	addSourceCounts(modelCounts, srcNames[i]);
 	npred += npred_src;
-      }
+      } 
     }
 
     m_model.clear();
@@ -701,8 +701,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     for ( ; srcIt != m_sources.end(); ++srcIt) {
       const std::string & srcName(srcIt->first);
       const Source* src = srcIt->second;      
-      if (src->fixedSpectrum() && !process_all) {
-	addFixedSource(srcName);
+      if (src->fixedSpectrum() ) {
+	if ( ! process_all ) {
+	  addFixedSource(srcName);
+	}
       } else { 
 	// Process non-fixed sources.
 	//
@@ -949,6 +951,19 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
       }
       const std::vector<float>& wt_vals = wts->model();
       FitUtils::innerProduct(model.begin(), model.end(), wt_vals.begin(), wt_vals.end(), retVal);
+      /*
+      size_t npix = like.dataCache().num_pixels();
+      size_t ne = like.dataCache().num_ebins();
+      size_t idx_start(0);
+      for ( size_t ie(0); ie < ne; ie++, idx_start+=npix) {
+	float val_k(0.);
+	float val_k_nowts(0.);
+	FitUtils::innerProduct(model.begin()+idx_start, model.begin()+idx_start+npix, 
+			       wt_vals.begin()+idx_start, wt_vals.begin()+idx_start+npix, val_k);
+	FitUtils::sumVector(model.begin()+idx_start, model.begin()+idx_start+npix, val_k_nowts);
+	std::cout << "npred_explicit:" << ' ' << ie << ' ' << val_k << ' ' << val_k_nowts << std::endl;
+      }
+      */
     } else {
       FitUtils::sumVector(model.begin(), model.end(), retVal);
     }

@@ -95,9 +95,8 @@ namespace Likelihood {
 
     sourceMap.setSpectralValues(m_dataCache.energies());
     updateCorrectionFactors(src,sourceMap);
-    bool use_edisp = edisp_val(&src) >= 0;
-    double value = sourceMap.summed_counts(kmin,kmax,use_edisp,weighted);
-    return value;
+    int edisp_flag = edisp_val(&src);
+    return sourceMap.summed_counts(kmin,kmax,edisp_flag,weighted);
   }
 
   bool SourceMapCache::hasSourceMap(const std::string & name) const {

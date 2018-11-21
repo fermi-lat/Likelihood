@@ -205,10 +205,11 @@ public:
 
       kmin         : index of lowest energy bin
       kman         : index of highest energy bin
-      use_edisp    : return model counts with energy dispersion applied
+      dataCache    :  Object with info about the binning
+      edisp_val    : how to apply the energy dispersion
       use_weighted : return weighted model counts */
    double summed_counts(size_t kmin, size_t kmax,
-			bool use_edisp = true,
+			int edisp_val = 0,
 			bool use_weighted = false);
 
    /* --------------- Cached Data ----------------------*/
@@ -228,8 +229,11 @@ public:
       and integrated over the energy bin to obtain the predicted counts */
    inline const SparseVector<float> & cached_sparse_model() const { return m_sparseModel; }
    
-   /* These are the  of the 'spectrum' values.  I.e., the spectrum evaluated at the energy points */
+   /* These are the 'spectrum' values.  I.e., the spectrum evaluated at the energy points */
    inline const std::vector<double> & cached_specValues() const { return m_specVals; }
+
+   /* These are the 'spectrum' weights.  They are the quantity that appear in the log-log quadrature formula */
+   inline const std::vector<std::pair<double,double> >& cached_specWts() const { return m_specWts; }
 
    /* These are the derivatives of the 'spectrum' values.  I.e., the derivatives evaluated 
       at the energy pointsThese are the spectral derivatives.  */
@@ -251,6 +255,10 @@ public:
    /* This is the cached MeanPSF object */
    inline const MeanPsf* cached_meanPsf() const { return m_meanPsf; }
 
+   /* This is the binning object */
+   inline const BinnedCountsCache* dataCache() const { return m_dataCache; }
+      
+
 
    /* --------------- Cached Data ----------------------*/
 
@@ -262,6 +270,9 @@ public:
 
    /* These are the 'spectrum' values, I.e., the spectrum evaluated at the energy points */
    const std::vector<double> & specVals(bool force=false);
+
+   /* These are the 'spectrum' weights.  They are the quantity that appear in the log-log quadrature formula */
+   const std::vector<std::pair<double,double> >&  specWts(bool force=false);
 
    /* These are the derivatives of the 'spectrum' values.  I.e., the derivatives evaluated 
       at the energy pointsThese are the spectral derivatives.  */
@@ -424,6 +435,10 @@ private:
    /// These are the 'spectrum' values
    /// I.e., the spectrum evaluated at the energy points
    std::vector<double> m_specVals;
+
+   /// These are the 'spectrum' weights
+   /// These are the quantities that appear in the log-log quadrature forumal
+   std::vector<std::pair<double,double> > m_specWts;
 
    /// These are the spectral parameters for this source.
    /// They are used to determine if the spectrum has changed

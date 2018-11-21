@@ -258,7 +258,6 @@ Drm_Cache::Drm_Cache(const Drm* drm,
   :m_true_counts(energies.size()-1),
    m_meas_counts(energies.size()-1),
    m_xi(energies.size()-1),
-   m_xi_wt(energies.size()-1),
    m_kref(energies.size()-1, -1),
    m_true_counts_wt(energies.size()-1),
    m_meas_counts_wt(energies.size()-1),
@@ -270,7 +269,6 @@ Drm_Cache::Drm_Cache(const Drm_Cache& other)
   : m_true_counts(other.m_true_counts),
     m_meas_counts(other.m_meas_counts),
     m_xi(other.m_xi),
-    m_xi_wt(other.m_xi_wt),
     m_kref(other.m_kref),
     m_true_counts_wt(other.m_true_counts_wt),
     m_meas_counts_wt(other.m_meas_counts_wt),
@@ -284,51 +282,39 @@ void Drm_Cache::update(const Drm* drm,
 
   sourceMap.setSpectralValues(energies);  
   const std::vector<double>& npreds = sourceMap.npreds();
-  const std::vector<std::pair<double,double> >& npred_weights = sourceMap.npred_weights();
-  const std::vector<double>& specVals = sourceMap.specVals();
+  const std::vector<std::pair<double,double> > & npred_weights = sourceMap.npred_weights();
+  const std::vector<std::pair<double,double> > & spec_wts = sourceMap.specWts();
+  const BinnedCountsCache& dataCache = *(sourceMap.dataCache());
 
   // These are the weights to be applied to the measured counts.
   size_t k(0);
-  std::vector<double> mean_wts(energies.size()-1);
-
   bool has_weights = sourceMap.weights() != 0;
 
+  m_edisp_val = drm != 0 ? edisp_flag : -1;
+
+  std::vector<double> edisp_col;
   for (k = 0; k < energies.size()-1; k++) {
-    double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
-    m_true_counts[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
-							energies.at(k+1),
-							specVals.at(k)*npreds.at(k),
-							specVals.at(k+1)*npreds.at(k+1),
-							log_energy_ratio);
-    if ( has_weights ) {
-      m_true_counts_wt[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
-							     energies.at(k+1),
-							     specVals.at(k)*npreds.at(k)*npred_weights[k].first, 
-							     specVals.at(k+1)*npreds.at(k+1)*npred_weights[k].second,
-							     log_energy_ratio);
-    } else {
-      m_true_counts_wt[k] = m_true_counts[k];
+    double counts(0.);
+    double counts_wt(0.);
+    FitUtils::npred_contribution(npreds, npred_weights, spec_wts, 1., k, counts, counts_wt);
+    m_true_counts[k] = counts;
+    m_true_counts_wt[k] = counts_wt;
+
+    if ( m_edisp_val > 0 ) {
+      size_t kmin_edisp(0.);
+      size_t kmax_edisp(0.);
+      FitUtils::get_edisp_constants(sourceMap, dataCache, m_edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
+      counts = 0.;
+      counts_wt = 0.;
+      FitUtils::npred_edisp(npreds, npred_weights, spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts, counts_wt);      
     }
-    if ( m_true_counts[k] < 0 ) {
-      std::cout << "True counts < 0 " << sourceMap.name() << ' ' << k << ' '
-		<< specVals.at(k) << ' ' << specVals.at(k+1) << ' ' 
-		<< npreds.at(k) << ' ' << npreds.at(k+1) << std::endl;
-    }
-    if ( m_true_counts_wt[k] < 0 ) {
-      std::cout << "True counts wt < 0 " << sourceMap.name() << ' ' << k << ' '
-		<< specVals.at(k) << ' ' << specVals.at(k+1) << ' ' 
-		<< npreds.at(k) << ' ' << npreds.at(k+1) <<  ' ' 
-		<< npred_weights[k].first << ' ' << npred_weights[k].second << std::endl;
-    }
+    m_meas_counts[k] = counts;
+    m_meas_counts_wt[k] = counts_wt;   
   }
-  
-  if ( drm != 0 ) {
-    m_edisp_val = edisp_flag;
+   
+  if ( m_edisp_val == 0 ) {
     drm->convolve(m_true_counts, m_meas_counts);
-  } else {
-    m_edisp_val = -1;
-    std::copy(m_true_counts.begin(),m_true_counts.end(),m_meas_counts.begin());
-  }
+  } 
 
   // EAC FIXME, Not sure why this can happen, but it is NOT a good thing.
   static bool first(true);
@@ -372,13 +358,14 @@ void Drm_Cache::update(const Drm* drm,
 	m_kref[k] = -1.;
       }
     }
-    m_xi_wt[k] = m_xi[k];
-    m_meas_counts_wt[k] = m_xi_wt[k]*m_true_counts_wt[kref];
     
-    if ( m_xi_wt[k] < 0 ||
-	 m_xi[k] < 0 ) {
+    if ( m_edisp_val == 0 ) {
+      m_meas_counts_wt[k] = m_xi[k]*m_true_counts_wt[kref];
+    }
+    
+    if ( m_xi[k] < 0 ) {
       std::cout << "Xi < 0 " << sourceMap.name() << ' ' << k << ' ' << kref << ' '
-		<< m_xi[k] << ' ' << m_xi_wt[k] << ' ' 
+		<< m_xi[k] << ' ' 
 		<< m_meas_counts[k] << ' ' << m_true_counts[k] << std::endl;	
     }
 

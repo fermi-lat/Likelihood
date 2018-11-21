@@ -109,15 +109,14 @@ public:
 	      const std::vector<double>& energies,
 	      int edisp_flag);
 
-  inline double get_correction(size_t k, int& kref, bool weight=false) const {
+  inline double get_correction(size_t k, int& kref) const {
     kref = m_kref[k];
-    return weight ? m_xi_wt[k] : m_xi[k];
+    return m_xi[k];
   }
 
   inline const std::vector<double>& true_counts() const { return m_true_counts; }  
   inline const std::vector<double>& meas_counts() const { return m_meas_counts; }  
   inline const std::vector<double>& xi() const { return m_xi; }  
-  inline const std::vector<double>& xi_wt() const { return m_xi_wt; }  
 
   inline const std::vector<double>& true_counts_wt() const { return m_true_counts_wt; }  
   inline const std::vector<double>& meas_counts_wt() const { return m_meas_counts_wt; }  
@@ -134,7 +133,6 @@ private:
   std::vector<double> m_true_counts;
   std::vector<double> m_meas_counts;  
   std::vector<double> m_xi;  
-  std::vector<double> m_xi_wt;  
   std::vector<int> m_kref;
 
   std::vector<double> m_true_counts_wt;
