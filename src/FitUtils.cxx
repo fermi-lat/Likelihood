@@ -1866,7 +1866,7 @@ namespace Likelihood {
 			 size_t k, 
 			 size_t& kmin, size_t& kmax) {
       kmin = k < edisp_val ? 0 : k - edisp_val;
-      kmax = std::min(dataCache.num_ebins(), k + edisp_val);
+      kmax = std::min(dataCache.num_ebins(), k + edisp_val + 1);
     }
 
     
@@ -1875,11 +1875,10 @@ namespace Likelihood {
 			     size_t k, size_t& kmin, size_t& kmax,
 			     std::vector<double>& edisp_col){
       
-      get_edisp_range(dataCache, edisp_val, k, kmin, kmax);
-
-      bool has_wts = use_wts ? srcMap.weights() != 0 : false;
       kmin = k;
       kmax = k+1;
+
+      bool has_wts = use_wts ? srcMap.weights() != 0 : false;
       edisp_col.clear();
 
       if ( edisp_val < 0 ) { // Don't apply energy dispersion
@@ -1895,9 +1894,11 @@ namespace Likelihood {
 	  kmax = kref+1;
 	} 
       } else if ( edisp_val > 0 ) {
+	get_edisp_range(dataCache, edisp_val, k, kmin, kmax);
 	const std::vector<double>& drm_col = srcMap.drm()->col(k);
 	edisp_col.resize(kmax-kmin);
-	std::copy(drm_col.begin() + kmin, drm_col.begin() + kmax, edisp_col.begin());
+	// Note that we want row starting at k+1, this is b/c we have added extra energy bin to the true counts at either end of the spectra
+	std::copy(drm_col.begin() + kmin + 1, drm_col.begin() + kmax + 1, edisp_col.begin());
       }
     }
 
@@ -1998,7 +1999,7 @@ namespace Likelihood {
 	size_t j_stop = pix_ranges[k+1];      
 	for (size_t j(j_start); j < j_stop; j++) {
 	  size_t ipix = dataCache.filledPixels()[j];
-	  double counts = edisp_val > 0 ? 
+	  double counts = edisp_val >= 0 ? 
 	    model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
 	    model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
 	  double addend = my_sign*counts;
@@ -2034,7 +2035,7 @@ namespace Likelihood {
 	
 	double counts(0.);
 	double counts_wt(0.);
-	if ( edisp_val> 0 ) {
+	if ( edisp_val > 0 ) {
 	  npred_edisp(npred_vals, npred_weights, spec_wts, ones, k, k+1, counts, counts_wt);
 	} else {
 	  npred_contribution(npred_vals, npred_weights, spec_wts, ones[0], k, counts, counts_wt);
@@ -2042,10 +2043,10 @@ namespace Likelihood {
 
 	double counts_edisp(0.);
 	double counts_edisp_wt(0.);
-	if ( edisp_val> 0 ) {
+	if ( edisp_val > 0 ) {
 	  npred_edisp(npred_vals, npred_weights, spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_edisp, counts_edisp_wt);
 	} else {
-	  npred_contribution(npred_vals, npred_weights, spec_wts, edisp_col[0], kmin_edisp, counts, counts_wt);
+	  npred_contribution(npred_vals, npred_weights, spec_wts, edisp_col[0], kmin_edisp, counts_edisp, counts_edisp_wt);
 	}	
 
 	fixed_counts_spec[k] += counts;
@@ -2137,6 +2138,10 @@ namespace Likelihood {
       get_spectral_weights(srcMap.specVals(), dataCache, spec_wts);
 
       std::vector<double> edisp_col;
+
+      //double sum_counts(0.);
+      //double sum_check_counts(0.);
+
       for (size_t k(0); k < dataCache.num_ebins(); k++) {	
 
 	size_t kmin_edisp(0);
