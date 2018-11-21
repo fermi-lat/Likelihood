@@ -135,6 +135,8 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_BinnedLikelihood_2);
    CPPUNIT_TEST(test_BinnedLikelihood_wts);
    CPPUNIT_TEST(test_BinnedLikelihood_edisp);
+   CPPUNIT_TEST(test_BinnedLikelihood_edisp_1);
+   CPPUNIT_TEST(test_BinnedLikelihood_edisp_2);
    CPPUNIT_TEST(test_CompositeSource);
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
