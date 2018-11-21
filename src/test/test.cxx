@@ -1441,6 +1441,7 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
    like1.addSource(src);
    double fit_value1 = fit(like1);
 
+   // std::cout << "Test " << fit_value0 << ' ' << fit_value1 << std::endl;
    ASSERT_EQUALS(fit_value0, fit_value1);
 
    BinnedLikelihood like2(dataMap, *m_observation);
