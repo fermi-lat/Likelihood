@@ -718,11 +718,15 @@ namespace Likelihood {
 			     double& logLikeVal,
 			     size_t firstBin = 0, size_t lastBin = 0);    
 
-    /* Get the model counts contribution to a particular pixel 
+    /* Get the quanities that appears in the log-log quadrature formula for the spectral term
 
-	spec       : The specturm (or spectral derivative) for the source in question
-	dataCache  : Object with info about the binning
-	spec_wts   : The specturm (or spectral derivative) weights for the source in question
+       For a given energy bin, i, these are:
+       spec_wts[i].first = spec[i] * energy[i] * log_energy_ratio[i] / 2.
+       spec_wts[i].second = spec[i+1] * energy[i+1] * log_energy_ratio[i] / 2.
+
+       spec       : The specturm (or spectral derivative) for the source in question
+       dataCache  : Object with info about the binning
+       spec_wts   : The specturm (or spectral derivative) weights for the source in question
 
     */  
     void get_spectral_weights(const std::vector<double>& spec,
@@ -730,7 +734,7 @@ namespace Likelihood {
 			      std::vector<std::pair<double, double> >& spec_weights);
 
 
-    /* Get the model counts contribution to a particular pixel 
+    /* Get the range of energy bins to consider when computing the energy dispersion
 
 	dataCache  : Object with info about the binning
         edisp_val  : Flag saying how to apply energy dispersion
@@ -751,9 +755,12 @@ namespace Likelihood {
         edisp_val  : Flag saying how to apply energy dispersion
 	use_wts    : Flag to indicate that weighted counts should be used
 	k          : The current energy bin
-	kmin       : Lowest energy bin to loop over
-	kmax       : Highest energy bin to loop over
-	edisp_col_ptr : A the energy disperson constants
+	kmin       : Filled with the index of the lowest energy bin to loop over
+	kmax       : Filled with the index of the highest energy bin to loop over
+	edisp_col  : Filled with the energy disperson factors
+
+	Note that edisp_col.size() == kmax - kmin
+	I.e., only the factors for the bins we are looping over are extracted
     */  
     void get_edisp_constants(SourceMap& srcMap, const BinnedCountsCache& dataCache, 
 			     int edisp_val, bool use_wts, 
@@ -765,6 +772,7 @@ namespace Likelihood {
 
 	srcMap     : The SourceMap for the source in question
 	spec_wts   : The specturm (or spectral derivative) weights for the source in question
+	xi         : The energy disperion correction factor
 	npix       : Number of pixes per energy layer
 	kref       : Index of the energy bin in question
 	ipix       : Pixel index (within the energy layer)
@@ -793,11 +801,12 @@ namespace Likelihood {
 			      const std::vector<double> & edisp_col,
 			      size_t ipix, size_t npix, size_t kmin, size_t kmax);
 			      
-    /* Get the model counts contribution to a energy layer
+    /* Get the total model counts contribution to a energy layer
 
 	npred_vals     : The total npred for that energy layer
 	npred_weights  : The weight factors for that energy layer
 	spec_wts   : The specturm (or spectral derivative) weights for the source in question
+	xi         : The energy dispersion correction factor
 	kref       : The energy bin
 	counts     : Filled with the counts contribution
 	counts_wt  : Filled with the weighted counts contribution
@@ -815,11 +824,11 @@ namespace Likelihood {
 	npred_vals     : The total npred for that energy layer
 	npred_weights  : The weight factors for that energy layer
 	spec_wts   : The specturm (or spectral derivative) weights for the source in question
-	drm        : The energy dispersion
-	dataCache  : Object with info about the binning
-	kref       : The energy bin
+	edisp_col  : Energy dispersion factors
 	kmin       : Index of the first energy layer to consider true counts from
 	kmax       : Index of the last energy layer to consider true counts from
+	counts     : Filled with the total model count contribution
+	counts_wt  : Filled with the total weighted model count contribution
     */
     void npred_edisp(const std::vector<double>& npred_vals,
 		     const std::vector<std::pair<double,double> >& npred_weights,
@@ -836,8 +845,6 @@ namespace Likelihood {
 
 	modelCounts: The vector being added to.
 	srcMap     : The SourceMap for the source in question
-	npix       : Number of pixel in the map, used for indexing
-	filledPixels : Vector with the indices of the filled pixels,
 	dataCache  : Object with info about the binning
 	edisp_val : How to apply the energy dispersion
 	subtract   : If true, subtract from the vector.  	
@@ -874,12 +881,13 @@ namespace Likelihood {
 #ifndef SWIG
      /* Add (or subtract) the contributions to the derivatives from a single source.
 
-	posDerivs : The vector being added to.
-	negDerivs : The vector being added to.
-	freeIndex : The overall index of the first parameter for this source
+	posDerivs  : The vector being added to.
+	negDerivs  : The vector being added to.
+	freeIndex  : The overall index of the first parameter for this source
 	srcMap     : The SourceMap for the source in question
+	data_over_model : A vector with the ratio of data to model in each filled pixel
 	dataCache  : Object with info about the binning
-	edisp_val : How to apply the energy dispersion
+	edisp_val  : How to apply the energy dispersion
 	kmin       : Index of energy bin to start summation
 	kmax       : Index of energy bin to stop summation
      */     
