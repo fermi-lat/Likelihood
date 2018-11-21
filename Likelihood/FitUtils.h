@@ -730,29 +730,59 @@ namespace Likelihood {
 			      std::vector<std::pair<double, double> >& spec_weights);
 
 
+    /* Get the model counts contribution to a particular pixel 
+
+	dataCache  : Object with info about the binning
+        edisp_val  : Flag saying how to apply energy dispersion
+	k          : The index of the current energy bin
+	kmin       : Index of the lowest energy bin to consider
+	kmax      : Index of the lowest energy bin to consider
+
+    */  
+    void get_edisp_range(const BinnedCountsCache& dataCache, int edisp_val,
+			 size_t k,  
+			 size_t& kmin, size_t& kmax);
+	
+		 
+    /* Get the constants we need for the energy dispersion
+
+	srcMap     : The source map for the source in question
+ 	dataCache  : Object with info about the binning
+        edisp_val  : Flag saying how to apply energy dispersion
+	use_wts    : Flag to indicate that weighted counts should be used
+	k          : The current energy bin
+	kmin       : Lowest energy bin to loop over
+	kmax       : Highest energy bin to loop over
+	edisp_col_ptr : A the energy disperson constants
+    */  
+    void get_edisp_constants(SourceMap& srcMap, const BinnedCountsCache& dataCache, 
+			     int edisp_val, bool use_wts, 
+			     size_t k, size_t& kmin, size_t& kmax,
+			     std::vector<double>& edisp_col);    
+
+    
      /* Get the model counts contribution to a particular pixel 
 
 	srcMap     : The SourceMap for the source in question
 	spec_wts   : The specturm (or spectral derivative) weights for the source in question
-	jmin       : The unrolled index for the source map at the lower edge of the energy bin
-	jmax       : The unrolled index for the source map at the upper edge of the energy bin
-	kref       : The energy bin
+	npix       : Number of pixes per energy layer
+	kref       : Index of the energy bin in question
+	ipix       : Pixel index (within the energy layer)
 
 	returns the contribution
      */
     double model_counts_contribution(SourceMap& srcMap,
 				     const std::vector<std::pair<double, double> > & spec_wts,
-				     size_t jmin,
-				     size_t jmax,
-				     size_t kref);
-
+				     const double& xi, 
+				     size_t npix, size_t kref, size_t ipix);
+				      
      /* Get the model counts contribution including the energy dispersion
 
 	srcMap     : The SourceMap for the source in question
 	spec_wts   : The specturm (or spectral derivative) weights for the source in question
-	dataCache  : Object with info about the binning
+	edisp_col  : Energy dispersion factors
 	ipix       : Index of the pixel in question
-	kref       : Index of the energy layer we will be filling
+	npix       : Number of pixels per energy layer
 	kmin       : Index of the first energy layer to consider true counts from
 	kmax       : Index of the last energy layer to consider true counts from
 
@@ -760,12 +790,9 @@ namespace Likelihood {
      */
     double model_counts_edisp(SourceMap& srcMap,
 			      const std::vector<std::pair<double, double> > & spec_wts,
-			      const BinnedCountsCache& dataCache,
-			      size_t ipix,
-			      size_t kref,
-			      size_t kmin,
-			      size_t kmax);
-
+			      const std::vector<double> & edisp_col,
+			      size_t ipix, size_t npix, size_t kmin, size_t kmax);
+			      
     /* Get the model counts contribution to a energy layer
 
 	npred_vals     : The total npred for that energy layer
@@ -776,12 +803,13 @@ namespace Likelihood {
 	counts_wt  : Filled with the weighted counts contribution
      */
     void npred_contribution(const std::vector<double>& npred_vals,
-			    const std::vector<std::pair<double,double> >& npred_weights,
+			    const std::vector<std::pair<double,double> > & npred_weights,
 			    const std::vector<std::pair<double, double> > & spec_wts,
+			    const double& xi, 
 			    size_t kref,
 			    double& counts,
 			    double& counts_wt);
-    
+
     /* Get the model counts contribution to a energy layer
 
 	npred_vals     : The total npred for that energy layer
@@ -792,14 +820,15 @@ namespace Likelihood {
 	kref       : The energy bin
 	kmin       : Index of the first energy layer to consider true counts from
 	kmax       : Index of the last energy layer to consider true counts from
-     */
-    double npred_edisp(const std::vector<double>& npred_vals,
-		       const std::vector<std::pair<double,double> >& npred_weights,
-		       const std::vector<std::pair<double, double> > & spec_wts,
-		       const Drm* drm, 
-		       size_t kref,
-		       size_t kmin,
-		       size_t kmax);
+    */
+    void npred_edisp(const std::vector<double>& npred_vals,
+		     const std::vector<std::pair<double,double> >& npred_weights,
+		     const std::vector<std::pair<double, double> > & spec_wts,
+		     const std::vector<double> & edisp_col,
+		     size_t kmin,
+		     size_t kmax,
+		     double& counts,
+		     double& counts_wt);
 
 
      /* Add (or subtract) the counts for a source onto a vector 	

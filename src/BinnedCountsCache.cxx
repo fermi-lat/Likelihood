@@ -125,9 +125,10 @@ namespace Likelihood {
     size_t i(0);
     for (unsigned int k(0); k < num_ebins(); k++ ) {
       m_firstPixels[k] = m_filledPixels.size();
-      for (unsigned int ipix(0); ipix < num_pixels(); ipix++, i++) {
+      for (unsigned int ipix(0); ipix < m_numPixels; ipix++, i++) {
 	if (the_data[i] > 0) {
-	  m_filledPixels.push_back(i);
+	  size_t idx = i % m_numPixels;
+	  m_filledPixels.push_back(idx);
 	}
       }
     }

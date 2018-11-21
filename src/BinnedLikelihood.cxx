@@ -158,12 +158,13 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   const std::vector<size_t>& pix_ranges = m_dataCache.firstPixels();
   for (size_t k(m_kmin); k < m_kmax; k++ ) {
     size_t j_start = pix_ranges[k];
-    size_t j_stop = pix_ranges[k+1];      
+    size_t j_stop = pix_ranges[k+1];    
+    size_t ipix_base = k * m_dataCache.num_pixels();
     for (size_t j(j_start); j < j_stop; j++) {
       if ( m_model[j] <= 0 ) {
 	continue;
       }
-      size_t i(m_dataCache.filledPixels()[j]);
+      size_t i = ipix_base + m_dataCache.filledPixels()[j];
       double addend = data[i]*std::log(m_model[j]);
       m_accumulator.add(addend);
     }
@@ -231,14 +232,22 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
 
   // The data/model is used for each of the deriavtive, so pre-compute it here
   std::vector<double> data_over_model(m_dataCache.nFilled());
-  for ( size_t ifill(0); ifill < data_over_model.size(); ifill++ ) {
-    unsigned int ipix = m_dataCache.filledPixels()[ifill];
-    data_over_model[ifill] = m_model[ifill] > 0 ? data[ipix] / m_model[ifill] : 0.;
+  const std::vector<size_t>& pix_ranges = m_dataCache.firstPixels();
+
+  for (size_t k(m_kmin); k < m_kmax; k++ ) {
+    size_t j_start = pix_ranges[k];
+    size_t j_stop = pix_ranges[k+1];      
+    size_t ipix_base = k * m_dataCache.num_pixels();
+    for (size_t j(j_start); j < j_stop; j++) {
+      size_t ipix = ipix_base + m_dataCache.filledPixels()[j];
+      data_over_model[j] = m_model[j] > 0. ? data[ipix] / m_model[j] : 0.;
+    }
   }
 
   // We only need to loop on the free sources
   for (std::vector<Source *>::const_iterator it(free_srcs.begin());
        it != free_srcs.end(); ++it ) {
+    
 
     Source * src(*it);
     int edisp_val = m_srcMapCache.edisp_val(src);
@@ -256,11 +265,10 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   //timer.stop();
   //timer.report("main loop time");
   
- 
-  for (size_t i(0); i < derivs.size(); i++) {
+   for (size_t i(0); i < derivs.size(); i++) {
     derivs[i] = posDerivs[i].total() + negDerivs[i].total(); 
   }
- 
+
   /// Derivatives from priors.
   size_t i(0);
   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
@@ -815,10 +823,11 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
     const std::vector<size_t>& pix_ranges = m_dataCache.firstPixels(); 
     for (size_t k(kmin); k < kmax; k++ ) {
       size_t j_start = pix_ranges[k];
-      size_t j_stop = pix_ranges[k+1];      
+      size_t j_stop = pix_ranges[k+1];  
+      size_t ipix_base = k * m_dataCache.num_pixels();
       for (size_t j(j_start); j < j_stop; j++) {
 	double srcProb = modelCounts[j] / m_model[j];
-	size_t indx = m_dataCache.filledPixels()[j];
+	size_t indx = ipix_base + m_dataCache.filledPixels()[j];
 	counts_spectrum[k - kmin] += srcProb*m_dataCache.data()[indx];
       }
     }
