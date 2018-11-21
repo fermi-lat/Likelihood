@@ -190,6 +190,12 @@ public:
    void test_BinnedLikelihood_edisp() {
      test_BinnedLikelihood_base(0);
    }
+   void test_BinnedLikelihood_edisp_1() {
+     test_BinnedLikelihood_base(1);
+   }
+   void test_BinnedLikelihood_edisp_2() {
+     test_BinnedLikelihood_base(2);
+   }
    void test_CompositeSource();
    void test_MeanPsf();
    void test_BinnedExposure();
@@ -2238,6 +2244,14 @@ int main(int iargc, char * argv[]) {
 
       // testObj.setUp();
       // testObj.test_BinnedLikelihood_edisp();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedLikelihood_edisp_1();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedLikelihood_edisp_2();
       // testObj.tearDown();
 
       // testObj.setUp();
