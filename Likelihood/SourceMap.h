@@ -183,21 +183,14 @@ public:
     */
    void setSpectralDerivs(const std::vector<double>& energies,
 			  const std::vector<std::string>& paramNames);
-
-   
-   /* Extract the values for a particular pixel 
-
-      pixel_values :  Vector filled with the pixel values
-      ipix         :  Index of the pixel in question
-      kmin         :  Index of the first energy layer
-      kmax         :  Index of the last energy layer
-   */
-   void extractPixelValues(std::vector<double>& pixel_values, size_t ipix, 
-			   size_t kmin, size_t kmax) const;
-      
+       
 
    /* Test to see if the spectrum has changes w.r.t. the cached values */
    bool spectrum_changed() const;
+
+
+   /* How to handle the energy dispersion */
+   int edisp_type() const;
 
 
    /* Compute the total model counts summed between two energy bins *
@@ -242,9 +235,8 @@ public:
    /* These are the npreds, i.e., the model summed over each energy plane. */
    inline const std::vector<double>& cached_npreds() const { return  m_npreds; }
 
-   /// These are the npred weights, i.e., the weights to apply to the npreds
-   /// to correctly reproduce the weighted counts
-   inline const std::vector<std::pair<double,double> >& cached_npred_weights() const { return m_npred_weights; }
+   /// These are the weighted npreds
+   inline const std::vector<std::vector<std::pair<double,double> > >& cached_weighted_npreds() const { return m_weighted_npreds; }
 
    /* This contains both the convolved and un-convolved counts spectra */
    inline const Drm_Cache* cached_drm_Cache() const { return m_drm_cache; }
@@ -281,9 +273,8 @@ public:
    /* These are the npreds, i.e., the model summed over each energy plane. */
    const std::vector<double> & npreds(bool force=false);
 
-   /* These are the npred weights, i.e., the weights to apply to the npreds
-      to correctly reproduce the weighted counts */
-   const std::vector<std::pair<double,double> > & npred_weights(bool force=false);
+   /* These are weighted npreds */
+   const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds(bool force=false);
    
    /* This contains both the convolved and un-convolved counts spectra */
    const Drm_Cache* drm_cache(bool force=false);
@@ -456,9 +447,8 @@ private:
    /// These are the npreds, i.e., the model summed over each energy plane.
    std::vector<double> m_npreds;
 
-   /// These are the npred weights, i.e., the weights to apply to the npreds
-   /// to correctly reproduce the weighted counts
-   std::vector<std::pair<double,double> > m_npred_weights;
+   /// These are the weighted npreds
+   std::vector<std::vector<std::pair<double,double> > > m_weighted_npreds;
 
    /// Caches of the true and measured energy spectra for sources
    Drm_Cache* m_drm_cache;

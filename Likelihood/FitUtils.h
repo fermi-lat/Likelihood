@@ -811,7 +811,7 @@ namespace Likelihood {
 	counts_wt  : Filled with the weighted counts contribution
      */
     void npred_contribution(const std::vector<double>& npred_vals,
-			    const std::vector<std::pair<double,double> > & npred_weights,
+			    const std::pair<double,double>& npred_weights,
 			    const std::vector<std::pair<double, double> > & spec_wts,
 			    const double& xi, 
 			    size_t kref,

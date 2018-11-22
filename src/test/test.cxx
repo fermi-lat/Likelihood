@@ -1514,13 +1514,13 @@ void LikelihoodTests::test_BinnedLikelihood_base(int edisp_val) {
    double npred_func = binnedLogLike.npred();
    double npred_explicit = BinnedLikelihood::npred_explicit(binnedLogLike);
    double npred_check = npred_func - npred_explicit;
-   //std::cout << "npred_check " << npred_func << ' ' << npred_explicit << std::endl;
+   // std::cout << "npred_check " << npred_func << ' ' << npred_explicit << std::endl;
    CPPUNIT_ASSERT(fabs(npred_check) < 0.01);
 
    npred_func = binnedLogLike.npred(true);
    npred_explicit = BinnedLikelihood::npred_explicit(binnedLogLike, true);
    double npred_check_wt = npred_func - npred_explicit;
-   //std::cout << "npred_check_wt " << npred_func << ' ' << npred_explicit << std::endl;
+   // std::cout << "npred_check_wt " << npred_func << ' ' << npred_explicit << std::endl;
    CPPUNIT_ASSERT(fabs(npred_check_wt) < 0.01);
    
    const std::string srcName("Crab Pulsar");
@@ -2228,13 +2228,13 @@ int main(int iargc, char * argv[]) {
       // testObj.test_CountsMapHealpix_allsky();
       // testObj.tearDown();
 
-      testObj.setUp();
-      testObj.test_CountsMapHealpix_region();
-      testObj.tearDown();
+      //testObj.setUp();
+      //testObj.test_CountsMapHealpix_region();
+      //testObj.tearDown();
 
-      // testObj.setUp();
-      // testObj.test_BinnedLikelihood();
-      // testObj.tearDown();
+      testObj.setUp();
+      testObj.test_BinnedLikelihood();
+      testObj.tearDown();
 
       // testObj.setUp();
       // testObj.test_BinnedLikelihood_2();

@@ -282,7 +282,7 @@ void Drm_Cache::update(const Drm* drm,
 
   sourceMap.setSpectralValues(energies);  
   const std::vector<double>& npreds = sourceMap.npreds();
-  const std::vector<std::pair<double,double> > & npred_weights = sourceMap.npred_weights();
+  const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds = sourceMap.weighted_npreds();
   const std::vector<std::pair<double,double> > & spec_wts = sourceMap.specWts();
   const BinnedCountsCache& dataCache = *(sourceMap.dataCache());
 
@@ -296,7 +296,14 @@ void Drm_Cache::update(const Drm* drm,
   for (k = 0; k < energies.size()-1; k++) {
     double counts(0.);
     double counts_wt(0.);
-    FitUtils::npred_contribution(npreds, npred_weights, spec_wts, 1., k, counts, counts_wt);
+    try {
+      FitUtils::npred_contribution(npreds, weighted_npreds.at(k).at(0), spec_wts, 1., k, counts, counts_wt);
+    } catch (...) {
+      std::cout << k << ' ' << weighted_npreds.size();
+      if ( weighted_npreds.size() > k ) {
+	std::cout << ' ' << weighted_npreds.at(k).size() << std::endl;
+      }
+    }
     m_true_counts[k] = counts;
     m_true_counts_wt[k] = counts_wt;
 
@@ -306,7 +313,7 @@ void Drm_Cache::update(const Drm* drm,
       FitUtils::get_edisp_constants(sourceMap, dataCache, m_edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
       counts = 0.;
       counts_wt = 0.;
-      FitUtils::npred_edisp(npreds, npred_weights, spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts, counts_wt);      
+      FitUtils::npred_edisp(npreds, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts, counts_wt);      
     }
     m_meas_counts[k] = counts;
     m_meas_counts_wt[k] = counts_wt;   

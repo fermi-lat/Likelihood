@@ -1865,8 +1865,13 @@ namespace Likelihood {
     void get_edisp_range(const BinnedCountsCache& dataCache, int edisp_val, 
 			 size_t k, 
 			 size_t& kmin, size_t& kmax) {
-      kmin = k < edisp_val ? 0 : k - edisp_val;
-      kmax = std::min(dataCache.num_ebins(), k + edisp_val + 1);
+      if ( edisp_val < 0 ) {
+	kmin = k;
+	kmax = k + 1;
+      } else {
+	kmin = k < edisp_val ? 0 : k - edisp_val;
+	kmax = std::min(dataCache.num_ebins(), k + edisp_val + 1);
+      }
     }
 
     
@@ -1914,7 +1919,7 @@ namespace Likelihood {
     }
   
     void npred_contribution(const std::vector<double>& npred_vals,
-			    const std::vector<std::pair<double,double> >& npred_weights,
+			    const std::pair<double,double>& weighted_npreds,
 			    const std::vector<std::pair<double, double> > & spec_wts,
 			    const double& xi, 
 			    size_t kref,
@@ -1922,8 +1927,9 @@ namespace Likelihood {
 			    double& counts_wt) {
       double npred_0 = npred_vals[kref] * spec_wts[kref].first;
       double npred_1 = npred_vals[kref+1] * spec_wts[kref].second;
-      double npred_wt_0 = npred_0 * npred_weights[kref].first;
-      double npred_wt_1 = npred_1 * npred_weights[kref].second;
+      
+      double npred_wt_0 = weighted_npreds.first * spec_wts[kref].first;
+      double npred_wt_1 = weighted_npreds.second * spec_wts[kref].second;
       counts = xi*(npred_0 + npred_1);
       counts_wt = xi*(npred_wt_0 + npred_wt_1);
     }
@@ -1952,7 +1958,7 @@ namespace Likelihood {
 
 
     void npred_edisp(const std::vector<double>& npred_vals,
-		     const std::vector<std::pair<double,double> >& npred_weights,
+		     const std::vector<std::pair<double,double> >& weighted_npreds,
 		     const std::vector<std::pair<double, double> > & spec_wts,
 		     const std::vector<double> & edisp_col,
 		     size_t kmin,
@@ -1968,27 +1974,11 @@ namespace Likelihood {
 	double y1 = npred_vals[k] * spec_wts[k].first;
 	double y2 = npred_vals[k+1] * spec_wts[k].second;
 	counts += edisp_col[idx] * (y1 + y2);
-	y1 *= npred_weights[k].first;
-	y2 *= npred_weights[k].second;
-	counts_wt += edisp_col[idx] * (y1 + y2);
+	double y1_wt = weighted_npreds[idx].first * spec_wts[k].first;
+	double y2_wt = weighted_npreds[idx].second * spec_wts[k].second;		
+	counts_wt += edisp_col[idx] * (y1_wt + y2_wt);
       }
     }    
-
-    void mean_npred_weights(const std::vector<double> & npred_vals,
-			    const std::vector<std::pair<double,double> > & npred_weights,
-			    const std::vector<std::pair<double,double> > & spec_wts,
-			    std::vector<double>& mean_wts) {
-      
-      double counts(0.);
-      double counts_wt(0.);
-      size_t ne = npred_weights.size();
-      double xi(1.0);
-      for ( size_t k(0); k < ne; k++ ) {
-	npred_contribution(npred_vals, npred_weights, spec_wts, xi, k, counts, counts_wt);
-	double mean_wt = counts > 0. ? counts_wt / counts : 0.;
-	mean_wts[k] = mean_wt;
-      }
-    }
     
     void addSourceCounts(std::vector<double> & modelCounts,
 			 SourceMap& srcMap,
@@ -2033,7 +2023,7 @@ namespace Likelihood {
 			bool subtract) {
       
       const std::vector<double>& npred_vals = srcMap.npreds();
-      const std::vector<std::pair<double,double> >& npred_weights = srcMap.npred_weights();
+      const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds = srcMap.weighted_npreds();
       const std::vector<std::pair<double, double> >& spec_wts = srcMap.specWts();
 
       size_t ne(dataCache.num_ebins());
@@ -2048,17 +2038,17 @@ namespace Likelihood {
 	double counts(0.);
 	double counts_wt(0.);
 	if ( edisp_val > 0 ) {
-	  npred_edisp(npred_vals, npred_weights, spec_wts, ones, k, k+1, counts, counts_wt);
+	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, ones, k, k+1, counts, counts_wt);
 	} else {
-	  npred_contribution(npred_vals, npred_weights, spec_wts, ones[0], k, counts, counts_wt);
+	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), spec_wts, ones[0], k, counts, counts_wt);
 	}
 
 	double counts_edisp(0.);
 	double counts_edisp_wt(0.);
 	if ( edisp_val > 0 ) {
-	  npred_edisp(npred_vals, npred_weights, spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_edisp, counts_edisp_wt);
+	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_edisp, counts_edisp_wt);
 	} else {
-	  npred_contribution(npred_vals, npred_weights, spec_wts, edisp_col[0], kmin_edisp, counts_edisp, counts_edisp_wt);
+	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), spec_wts, edisp_col[0], kmin_edisp, counts_edisp, counts_edisp_wt);
 	}	
 
 	if ( subtract ) {
@@ -2089,7 +2079,7 @@ namespace Likelihood {
       
       // We need this stuff for the second term...
       const std::vector<double> & npreds = srcMap.npreds();
-      const std::vector<std::pair<double,double> > & npred_weights =  srcMap.npred_weights();
+      const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds = srcMap.weighted_npreds();
       
       size_t npix = dataCache.num_pixels();
       const std::vector<size_t>& pix_ranges = dataCache.firstPixels();    
@@ -2131,9 +2121,9 @@ namespace Likelihood {
 	  double counts_deriv(0.);
 	  double counts_deriv_wt(0.);
 	  if ( edisp_val > 0 ) {
-	    npred_edisp(npreds, npred_weights, spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_deriv, counts_deriv_wt);
+	    npred_edisp(npreds, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_deriv, counts_deriv_wt);
 	  } else {
-	    npred_contribution(npreds, npred_weights, spec_wts, edisp_col[0], kmin_edisp, counts_deriv, counts_deriv_wt);
+	    npred_contribution(npreds, weighted_npreds.at(k).at(0), spec_wts, edisp_col[0], kmin_edisp, counts_deriv, counts_deriv_wt);
 	  }
 	  if (-counts_deriv_wt > 0) {
 	    posDerivs[iparam].add(-counts_deriv_wt);
