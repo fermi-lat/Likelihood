@@ -188,6 +188,10 @@ likelihood::likelihood()
    m_pars.setCase("statistic", "BINNED", "bexpmap");
    m_pars.setCase("statistic", "BINNED", "wmap");
    m_pars.setCase("statistic", "BINNED", "psfcorr");
+   m_pars.setCase("statistic", "BINNED", "phased_expmap");
+   m_pars.setCase("statistic", "BINNED", "edisp");
+   m_pars.setCase("statistic", "BINNED", "edisp_bins");
+
    m_pars.setCase("statistic", "UNBINNED", "evfile");
    m_pars.setCase("statistic", "UNBINNED", "evtable");
    m_pars.setCase("statistic", "UNBINNED", "scfile");
@@ -364,9 +368,11 @@ void likelihood::createStatistic() {
              "Please specify an exposure cube file.");
       }
       std::string countsMapFile = m_pars["cmap"];
+      
       st_facilities::Util::file_ok(countsMapFile);
       m_dataMap = AppHelpers::readCountsMap(countsMapFile);
-
+      bool edisp_flag = m_pars["edisp"];
+      int edisp_bins = m_pars["edisp_bins"];
       bool apply_psf_corrections(false);
       bool computePointSources(true);
       try {
@@ -387,6 +393,11 @@ void likelihood::createStatistic() {
 				computePointSources,
 				apply_psf_corrections);	   
       }
+      if ( edisp_flag ) {
+	BinnedLikelihood* binned_like = static_cast<BinnedLikelihood*>(m_logLike);
+	binned_like->set_edisp_val(edisp_bins);
+      }
+
       std::string binnedMap = m_pars["bexpmap"];
       AppHelpers::checkExposureMap(m_pars["cmap"], m_pars["bexpmap"]);
       return;
