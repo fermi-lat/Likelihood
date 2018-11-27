@@ -3,7 +3,7 @@
  * @brief Functions to perform likelihood scans
  * @author E. Charles
  *
- *  This file contains a number of functions useful for likelihood scans.
+ *  This file contains a number of functions useful for likelihood fitting and likelihood scans.
  *
  *  These also include a number of vector manipulations.  In principle these could be 
  *  replaced with builtin C++ functionality, or functions in libraries like boost or thrust.
@@ -13,7 +13,7 @@
  *  specific computations that I am doing, using doubles would be wasteful both computationally and in terms 
  *  of data volume.  
  *
- *  The third point is that in many cases I've chosen to used iterator, which makes the code somewhat less readable.
+ *  The third point is that in many cases I've chosen to use iterators, which makes the code somewhat less readable.
  *  This is purely for speed of execution.  I've tried to document what the actual function does in each case.
  *  
  *
@@ -30,6 +30,7 @@
 
 #include "gsl/gsl_matrix.h"
 #include "gsl/gsl_vector.h"
+#include "Likelihood/Accumulator.h"
 
 namespace CLHEP {
   class HepVector;
@@ -44,10 +45,13 @@ namespace optimizers {
 namespace Likelihood {
   
   class BinnedLikelihood;
+  class BinnedCountsCache;
   class FitScanMVPrior;
   class Source;
   class SourceMap;
   class SourceModel;
+  class Drm;
+  class Drm_Cache;
 
   namespace FitUtils {
     
@@ -277,7 +281,7 @@ namespace Likelihood {
 			  std::vector<float>::const_iterator model_stop,
 			  std::vector<float>::iterator out_start,
 			  std::vector<float>::iterator out_stop);
-        
+
     /* reshape a 1D vector in to 2D vector 
 
        This will throw an exception if n_i * n_j is not equal to the size of invect
@@ -713,7 +717,204 @@ namespace Likelihood {
 			     double& edm,
 			     double& logLikeVal,
 			     size_t firstBin = 0, size_t lastBin = 0);    
-  
+
+    /* Get the quanities that appears in the log-log quadrature formula for the spectral term
+
+       For a given energy bin, i, these are:
+       spec_wts[i].first = spec[i] * energy[i] * log_energy_ratio[i] / 2.
+       spec_wts[i].second = spec[i+1] * energy[i+1] * log_energy_ratio[i] / 2.
+
+       spec       : The specturm (or spectral derivative) for the source in question
+       dataCache  : Object with info about the binning
+       spec_wts   : The specturm (or spectral derivative) weights for the source in question
+
+    */  
+    void get_spectral_weights(const std::vector<double>& spec,
+			      const BinnedCountsCache& dataCache,
+			      std::vector<std::pair<double, double> >& spec_weights);
+
+
+    /* Get the range of energy bins to consider when computing the energy dispersion
+
+	dataCache  : Object with info about the binning
+        edisp_val  : Flag saying how to apply energy dispersion
+	k          : The index of the current energy bin
+	kmin       : Index of the lowest energy bin to consider
+	kmax      : Index of the lowest energy bin to consider
+
+    */  
+    void get_edisp_range(const BinnedCountsCache& dataCache, int edisp_val,
+			 size_t k,  
+			 size_t& kmin, size_t& kmax);
+	
+		 
+    /* Get the constants we need for the energy dispersion
+
+	srcMap     : The source map for the source in question
+ 	dataCache  : Object with info about the binning
+        edisp_val  : Flag saying how to apply energy dispersion
+	k          : The current energy bin
+	kmin       : Filled with the index of the lowest energy bin to loop over
+	kmax       : Filled with the index of the highest energy bin to loop over
+	edisp_col  : Filled with the energy disperson factors
+
+	Note that edisp_col.size() == kmax - kmin
+	I.e., only the factors for the bins we are looping over are extracted
+    */  
+    void get_edisp_constants(SourceMap& srcMap, const BinnedCountsCache& dataCache, 
+			     int edisp_val, 
+			     size_t k, size_t& kmin, size_t& kmax,
+			     std::vector<double>& edisp_col);    
+
+    
+     /* Get the model counts contribution to a particular pixel 
+
+	srcMap     : The SourceMap for the source in question
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
+	xi         : The energy disperion correction factor
+	npix       : Number of pixes per energy layer
+	kref       : Index of the energy bin in question
+	ipix       : Pixel index (within the energy layer)
+
+	returns the contribution
+     */
+    double model_counts_contribution(SourceMap& srcMap,
+				     const std::vector<std::pair<double, double> > & spec_wts,
+				     const double& xi, 
+				     size_t npix, size_t kref, size_t ipix);
+				      
+     /* Get the model counts contribution including the energy dispersion
+
+	srcMap     : The SourceMap for the source in question
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
+	edisp_col  : Energy dispersion factors
+	ipix       : Index of the pixel in question
+	npix       : Number of pixels per energy layer
+	kmin       : Index of the first energy layer to consider true counts from
+	kmax       : Index of the last energy layer to consider true counts from
+
+	returns the contribution
+     */
+    double model_counts_edisp(SourceMap& srcMap,
+			      const std::vector<std::pair<double, double> > & spec_wts,
+			      const std::vector<double> & edisp_col,
+			      size_t ipix, size_t npix, size_t kmin, size_t kmax);
+
+    /* Get the total model counts contribution to a energy layer
+
+	npred_vals     : The total npred for that energy layer
+	npred_weights  : The weight factors for that energy layer
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
+	xi         : The energy dispersion correction factor
+	kref       : The energy bin
+	counts     : Filled with the counts contribution
+	counts_wt  : Filled with the weighted counts contribution
+     */
+    void npred_contribution(const std::vector<double>& npred_vals,
+			    const std::pair<double,double>& npred_weights,
+			    const std::vector<std::pair<double, double> > & spec_wts,
+			    const double& xi, 
+			    size_t kref,
+			    double& counts,
+			    double& counts_wt);
+
+    /* Get the model counts contribution to a energy layer
+
+	npred_vals     : The total npred for that energy layer
+	npred_weights  : The weight factors for that energy layer
+	spec_wts   : The specturm (or spectral derivative) weights for the source in question
+	edisp_col  : Energy dispersion factors
+	kmin       : Index of the first energy layer to consider true counts from
+	kmax       : Index of the last energy layer to consider true counts from
+	counts     : Filled with the total model count contribution
+	counts_wt  : Filled with the total weighted model count contribution
+    */
+    void npred_edisp(const std::vector<double> & npred_vals,
+		     const std::vector<std::pair<double,double> > & npred_weights,
+		     const std::vector<std::pair<double,double> > & spec_wts,
+		     const std::vector<double> & edisp_col,
+		     size_t kmin,
+		     size_t kmax,
+		     double& counts,
+		     double& counts_wt);
+
+     /* Add (or subtract) the counts for a source onto a vector 	
+	This is used by several functions.
+
+	modelCounts: The vector being added to.
+	srcMap     : The SourceMap for the source in question
+	dataCache  : Object with info about the binning
+	edisp_val : How to apply the energy dispersion
+	subtract   : If true, subtract from the vector.  	
+     */     
+
+    void addSourceCounts(std::vector<double> & modelCounts,
+			 SourceMap& srcMap,
+			 const BinnedCountsCache& dataCache,
+			 int edisp_val,
+			 bool subtract);
+ 
+     /* Add (or subtract) the counts for a fxied source onto the vectors that 
+	collect that info for fixed sources.
+	This is used by several functions.
+
+	fixed_counts_spec : The vector being added to.
+	fixed_counts_spec_wt : The vector being added to.
+	fixed_counts_spec_edisp : The vector being added to.
+	fixed_counts_spec_edisp_wt : The vector being added to.
+	srcMap     : The SourceMap for the source in question
+	dataCache  : Object with info about the binning
+	edisp_val : How to apply the energy dispersion
+	subtract   : If true, subtract from the vector.  	
+     */     
+    void addFixedNpreds(std::vector<double>& fixed_counts_spec,
+			std::vector<double>& fixed_counts_spec_wt,
+			std::vector<double>& fixed_counts_spec_edisp,
+			std::vector<double>& fixed_counts_spec_edisp_wt,
+			SourceMap& srcMap,
+			const BinnedCountsCache& dataCache,
+			int edisp_val,
+			bool subtract);
+
+#ifndef SWIG
+     /* Add (or subtract) the contributions to the derivatives from a single source.
+
+	posDerivs  : The vector being added to.
+	negDerivs  : The vector being added to.
+	freeIndex  : The overall index of the first parameter for this source
+	srcMap     : The SourceMap for the source in question
+	data_over_model : A vector with the ratio of data to model in each filled pixel
+	dataCache  : Object with info about the binning
+	edisp_val  : How to apply the energy dispersion
+	kmin       : Index of energy bin to start summation
+	kmax       : Index of energy bin to stop summation
+     */     
+    void addFreeDerivs(std::vector<Kahan_Accumulator>& posDerivs,
+		       std::vector<Kahan_Accumulator>& negDerivs,
+		       long freeIndex,
+		       SourceMap& srcMap,
+		       const std::vector<double>& data_over_model, 
+		       const BinnedCountsCache& dataCache,
+		       int edisp_val,
+		       size_t kmin, size_t kmax);
+#endif //SWIG
+
+          
+    /* Add (or subtract) the counts for a source onto a vector.
+       This version loops over all the pixels, not just the filled ones.
+
+	modelMap   : The vector being added to.
+	srcMap     : The SourceMap for the source in question
+	dataCache  : Object with info about the binning
+	use_mask   : Use the Weights mask
+	edisp_val : How to apply the energy dispersion
+     */     
+    void updateModelMap(std::vector<float> & modelMap,
+			SourceMap& srcMap,
+			const BinnedCountsCache& dataCache,				       
+			bool use_mask,
+			int edisp_val);
+
     /* Print a CLHEP vector to std::cout */
     void printVector(const std::string& name,
 		     const CLHEP::HepVector& vect);
@@ -722,6 +923,7 @@ namespace Likelihood {
     void printMatrix(const std::string& name,
 		     const CLHEP::HepSymMatrix& mat);
 
+    /* Print a CLHEP Matrix to std::cout */
     void printMatrix(const std::string& name,
 		     const CLHEP::HepMatrix& mat);
 

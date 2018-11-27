@@ -56,6 +56,13 @@ Drm::Drm(double ra, double dec, const Observation & observation,
    m_ebounds.push_front(std::exp(std::log(m_ebounds[0]) - de));
    m_ebounds.push_back(std::exp(std::log(m_ebounds.back()) + de));
 
+   size_t nee(m_ebounds.size() - 1);
+
+   m_log_ratio_lo = std::log(m_ebounds[0]/m_ebounds[2]) / std::log(m_ebounds[1]/m_ebounds[2]);
+   m_diff_ratio_lo = (m_ebounds[0] - m_ebounds[2])/ (m_ebounds[1] - m_ebounds[2]);
+   m_log_ratio_hi = std::log(m_ebounds[nee]/m_ebounds[nee-2]) / std::log(m_ebounds[nee-1]/m_ebounds[nee-2]);
+   m_diff_ratio_hi = (m_ebounds[nee] - m_ebounds[nee-2]) / (m_ebounds[nee-1] - m_ebounds[nee-2]);
+
    compute_drm();
 }
 
@@ -103,6 +110,20 @@ void Drm::compute_drm() {
       }
       m_drm.push_back(row);
    }
+   compute_transpose();
+}
+
+
+void Drm::compute_transpose() {
+  size_t n_true = m_ebounds.size() - 1;
+  size_t n_meas = n_true - 2;
+  m_drmT.clear();
+  m_drmT.resize(n_meas, std::vector<double>(n_true, 0));
+  for ( size_t k(0); k < n_true; k++ ) {
+    for ( size_t kp(0); kp < n_meas; kp++ ) {
+       m_drmT[kp][k] = m_drm[k][kp];
+    }
+  }
 }
 
 
@@ -186,42 +207,44 @@ matrix_element(double etrue, double emeas_min, double emeas_max) const {
 }
 
 
-float Drm::extrapolate_lo(const std::deque<double>& counts) const{
+double Drm::extrapolate_lo(const std::deque<double>& counts) const{
+  // EAC, this can be wildly off for value near zero
+  // double min_counts_value(1e-10);
+  return extrapolate_lo(counts[0], counts[1]);
+}
+
+double Drm::extrapolate_lo(const double& c0, const double & c1) const{
   // EAC, this can be wildly off for value near zero
   // double min_counts_value(1e-10);
   static double min_counts_value(1e-2);
 
   double value(0.);
-  if (counts[0] > min_counts_value && counts[1] > min_counts_value) {
-    value = counts[1]*std::exp(std::log(m_ebounds[0]/m_ebounds[2])/
-			       std::log(m_ebounds[1]/m_ebounds[2])*
-			       std::log(counts[0]/counts[1]));
+  if (c0 > min_counts_value && c1 > min_counts_value) {
+    value = c1*std::exp(m_log_ratio_lo*std::log(c0/c1));
   } else {
-    value = ((m_ebounds[0] - m_ebounds[2])/
-	     (m_ebounds[1] - m_ebounds[2])*
-	     (counts[0] - counts[1]) + counts[1]);
+    value = (m_diff_ratio_lo * (c0 - c1) + c1);
   }
   return value;
 }
 
   
-float Drm::extrapolate_hi(const std::deque<double>& counts) const{
+  
+double Drm::extrapolate_hi(const std::deque<double>& counts) const{
+  size_t ncc(counts.size() - 1);
+  return extrapolate_hi(counts[ncc-1], counts[ncc]);
+}
+
+
+double Drm::extrapolate_hi(const double& c0, const double & c1) const{
   // EAC, this can be wildly off for value near zero
   // double min_counts_value(1e-10);
   static double min_counts_value(1e-2);
 
   double value(0.);
-  size_t nee(m_ebounds.size() - 1);
-  size_t ncc(counts.size() - 1);
-  if (counts[ncc] > min_counts_value && counts[ncc-1] > min_counts_value) {
-    value = counts[ncc-1]
-      *std::exp(std::log(m_ebounds[nee]/m_ebounds[nee-2])/
-		std::log(m_ebounds[nee-1]/m_ebounds[nee-2])*
-		std::log(counts[ncc]/counts[ncc-1]));
+  if (c1 > min_counts_value && c0 > min_counts_value) {
+    value = c0 * std::exp(m_log_ratio_hi * std::log(c1/c0));
   } else {
-      value = ((m_ebounds[nee] - m_ebounds[nee-2])/
-               (m_ebounds[nee-1] - m_ebounds[nee-2])*
-               (counts[ncc] - counts[ncc-1]) + counts[ncc-1]);
+    value = (m_diff_ratio_hi*(c1 - c0) + c0);
   }
   return value;
 }
@@ -230,80 +253,75 @@ float Drm::extrapolate_hi(const std::deque<double>& counts) const{
 
 Drm_Cache::Drm_Cache(const Drm* drm,
 		     SourceMap & sourceMap,
-		     const std::vector<double>& energies)
+		     const std::vector<double>& energies,
+		     int edisp_val)
   :m_true_counts(energies.size()-1),
    m_meas_counts(energies.size()-1),
    m_xi(energies.size()-1),
-   m_xi_wt(energies.size()-1),
-   m_kref(energies.size()-1),
+   m_kref(energies.size()-1, -1),
    m_true_counts_wt(energies.size()-1),
    m_meas_counts_wt(energies.size()-1),
-   m_use_edisp(drm!=0){
-  update(drm,sourceMap,energies);
+   m_edisp_val(drm!=0 ? edisp_val : -1 ){
+  update(drm,sourceMap,energies,edisp_val);
 }
 
 Drm_Cache::Drm_Cache(const Drm_Cache& other) 
   : m_true_counts(other.m_true_counts),
     m_meas_counts(other.m_meas_counts),
     m_xi(other.m_xi),
-    m_xi_wt(other.m_xi_wt),
     m_kref(other.m_kref),
     m_true_counts_wt(other.m_true_counts_wt),
     m_meas_counts_wt(other.m_meas_counts_wt),
-    m_use_edisp(other.m_use_edisp){
+    m_edisp_val(other.m_edisp_val){
 }
 
 void Drm_Cache::update(const Drm* drm,
 		       SourceMap & sourceMap,
-		       const std::vector<double>& energies) {
+		       const std::vector<double>& energies, 
+		       int edisp_flag){
 
   sourceMap.setSpectralValues(energies);  
   const std::vector<double>& npreds = sourceMap.npreds();
-  const std::vector<std::pair<double,double> >& npred_weights = sourceMap.npred_weights();
-  const std::vector<double>& specVals = sourceMap.specVals();
+  const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds = sourceMap.weighted_npreds();
+  const std::vector<std::pair<double,double> > & spec_wts = sourceMap.specWts();
+  const BinnedCountsCache& dataCache = *(sourceMap.dataCache());
 
   // These are the weights to be applied to the measured counts.
   size_t k(0);
-  std::vector<double> mean_wts(energies.size()-1);
-
   bool has_weights = sourceMap.weights() != 0;
 
+  m_edisp_val = drm != 0 ? edisp_flag : -1;
+
+  std::vector<double> edisp_col;
   for (k = 0; k < energies.size()-1; k++) {
-    double log_energy_ratio = std::log(energies.at(k+1)/energies.at(k));
-    m_true_counts[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
-							energies.at(k+1),
-							specVals.at(k)*npreds.at(k),
-							specVals.at(k+1)*npreds.at(k+1),
-							log_energy_ratio);
-    if ( has_weights ) {
-      m_true_counts_wt[k] = FitUtils::pixelCounts_loglogQuad(energies.at(k),   
-							     energies.at(k+1),
-							     specVals.at(k)*npreds.at(k)*npred_weights[k].first, 
-							     specVals.at(k+1)*npreds.at(k+1)*npred_weights[k].second,
-							     log_energy_ratio);
-    } else {
-      m_true_counts_wt[k] = m_true_counts[k];
+    double counts(0.);
+    double counts_wt(0.);
+    try {
+      FitUtils::npred_contribution(npreds, weighted_npreds.at(k).at(0), spec_wts, 1., k, counts, counts_wt);
+    } catch (...) {
+      std::cout << k << ' ' << weighted_npreds.size();
+      if ( weighted_npreds.size() > k ) {
+	std::cout << ' ' << weighted_npreds.at(k).size() << std::endl;
+      }
     }
-    if ( m_true_counts[k] < 0 ) {
-      std::cout << "True counts < 0 " << sourceMap.name() << ' ' << k << ' '
-		<< specVals.at(k) << ' ' << specVals.at(k+1) << ' ' 
-		<< npreds.at(k) << ' ' << npreds.at(k+1) << std::endl;
+    m_true_counts[k] = counts;
+    m_true_counts_wt[k] = counts_wt;
+
+    if ( m_edisp_val > 0 ) {
+      size_t kmin_edisp(0.);
+      size_t kmax_edisp(0.);
+      FitUtils::get_edisp_constants(sourceMap, dataCache, m_edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
+      counts = 0.;
+      counts_wt = 0.;
+      FitUtils::npred_edisp(npreds, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts, counts_wt);      
     }
-    if ( m_true_counts_wt[k] < 0 ) {
-      std::cout << "True counts wt < 0 " << sourceMap.name() << ' ' << k << ' '
-		<< specVals.at(k) << ' ' << specVals.at(k+1) << ' ' 
-		<< npreds.at(k) << ' ' << npreds.at(k+1) <<  ' ' 
-		<< npred_weights[k].first << ' ' << npred_weights[k].second << std::endl;
-    }
+    m_meas_counts[k] = counts;
+    m_meas_counts_wt[k] = counts_wt;   
   }
-  
-  if ( drm != 0 ) {
-    m_use_edisp = true;
+   
+  if ( m_edisp_val == 0 ) {
     drm->convolve(m_true_counts, m_meas_counts);
-  } else {
-    m_use_edisp = false;
-    std::copy(m_true_counts.begin(),m_true_counts.end(),m_meas_counts.begin());
-  }
+  } 
 
   // EAC FIXME, Not sure why this can happen, but it is NOT a good thing.
   static bool first(true);
@@ -347,13 +365,14 @@ void Drm_Cache::update(const Drm* drm,
 	m_kref[k] = -1.;
       }
     }
-    m_xi_wt[k] = m_xi[k];
-    m_meas_counts_wt[k] = m_xi_wt[k]*m_true_counts_wt[kref];
     
-    if ( m_xi_wt[k] < 0 ||
-	 m_xi[k] < 0 ) {
+    if ( m_edisp_val == 0 ) {
+      m_meas_counts_wt[k] = m_xi[k]*m_true_counts_wt[kref];
+    }
+    
+    if ( m_xi[k] < 0 ) {
       std::cout << "Xi < 0 " << sourceMap.name() << ' ' << k << ' ' << kref << ' '
-		<< m_xi[k] << ' ' << m_xi_wt[k] << ' ' 
+		<< m_xi[k] << ' ' 
 		<< m_meas_counts[k] << ' ' << m_true_counts[k] << std::endl;	
     }
 

@@ -37,6 +37,8 @@ bexpmap,f,a,"none",,,"Binned exposure map"
 wmap,f,h,"none",,,"Likelihood weights map"
 psfcorr,b,h,yes,,,"apply psf integral corrections"
 phased_expmap,f,h,"none",,,"Exposure map with phase-dependent corrections"
+edisp,b,h,no,,,"Apply energy dispersion?"
+edisp_bins,i,h,0,,,"Number of bins to consider energy dispersion for.  0 means use scale corrections only"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

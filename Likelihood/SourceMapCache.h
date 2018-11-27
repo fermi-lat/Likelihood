@@ -16,6 +16,7 @@
 #include "Likelihood/CountsMapBase.h"
 #include "Likelihood/BinnedConfig.h"
 #include "Likelihood/FileUtils.h"
+#include "Likelihood/Accumulator.h"
 
 namespace tip {
    class Extension;
@@ -44,26 +45,6 @@ namespace Likelihood {
 
      /* ------------- Static Utility Functions -------------------- */
 
-
-     /* Add (or subtract) the weights for a source onto a vector 	
-	This is used by several functions.
-
-	modelWts   : The vector being added to.
-	srcMap     : The SourceMap for the source in question
-	npix       : Number of pixel in the map, used for indexing
-	filledPixels : Vector with the indices of the filled pixels,
-	drm_cache  : Pointer to the object used for energy dispersion.  NULL -> no energy dispersion
-	use_edisp_val : Apply the energy dispersion
-	subtract   : If true, subtract from the vector.  	
-     */     
-
-     static void addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
-				     SourceMap& srcMap,
-				     size_t npix,
-				     const std::vector<unsigned int>& filledPixels,
-				     const Drm_Cache* drm_cache,
-				     bool use_edisp_val,
-				     bool subtract);
 
    public:
      
@@ -117,8 +98,8 @@ namespace Likelihood {
      }
      
      /// Turn on energy dispersion
-     void set_edisp_flag(bool use_edisp) { 
-       m_config.set_use_edisp(use_edisp);
+     void set_edisp_val(int edisp_val) { 
+       m_config.set_edisp_val(edisp_val);
      }
 
 
@@ -336,8 +317,8 @@ namespace Likelihood {
      /* ---------------------- other functions ------------------------ */
 
    
-     /* Return true if we use energy dispersion for a particular source */
-     bool use_edisp(const Source* src = 0) const;
+     /* Return flag for type of energy dispersion we want to use */
+     int edisp_val(const Source* src = 0) const;
 
 
      /* --------------------- Debugging -------------------- */
@@ -387,12 +368,12 @@ namespace Likelihood {
 	srcMap     : The SourceMap for the source in question
 	subtract   : If true, subtract from the vector.  	
 	latchParams : If true, the parameters are latched in the SourceMap
-     */     
      void addSourceWts(std::vector<std::pair<double, double> > & modelWts,
 		       const Source & src,
 		       SourceMap * srcMap=0, 
 		       bool subtract=false,
 		       bool latchParams=false) const;
+     */
      
      
      /* --------------- Dealing with Energy Dispersion ------------------- */

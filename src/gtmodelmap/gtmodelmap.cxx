@@ -109,8 +109,12 @@ void ModelMap::computeModelMap() {
                                                 performConvolution,
                                                 resample, rfactor);
    bool edisp = m_pars["edisp"];
-   m_logLike->set_edisp_flag(edisp);
-   m_logLike->set_use_single_fixed_map(false);
+   int edisp_bins = m_pars["edisp_bins"];
+
+   m_logLike->set_use_single_fixed_map(false);   
+   if ( edisp ) {
+     m_logLike->set_edisp_val(edisp_bins);
+   }
 
    std::string bexpmap = m_pars["bexpmap"];
    Likelihood::AppHelpers::checkExposureMap(cmapfile, bexpmap);

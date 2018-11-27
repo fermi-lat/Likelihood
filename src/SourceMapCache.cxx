@@ -35,6 +35,8 @@
 
 namespace Likelihood {
 
+ 
+
   SourceMapCache::SourceMapCache(const BinnedCountsCache& dataCache,
 				 const Observation & observation,
 				 const std::string & srcMapsFile,
@@ -93,9 +95,8 @@ namespace Likelihood {
 
     sourceMap.setSpectralValues(m_dataCache.energies());
     updateCorrectionFactors(src,sourceMap);
-    double value = sourceMap.summed_counts(kmin,kmax,
-					   use_edisp(&src),weighted);
-    return value;
+    int edisp_flag = edisp_val(&src);
+    return sourceMap.summed_counts(kmin,kmax,edisp_flag,weighted);
   }
 
   bool SourceMapCache::hasSourceMap(const std::string & name) const {
@@ -111,7 +112,7 @@ namespace Likelihood {
 
     const std::string& srcName = src.getName();
     SourceMap* srcMap(0);
-    const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
+    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
  
     // Check to see if we already have the map
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
@@ -123,7 +124,8 @@ namespace Likelihood {
       // Check to see if the map is in the file
       if ( m_config.load_existing_srcmaps() && FileUtils::fileHasExtension(m_srcMapsFile, srcName)) {
 	srcMap = new SourceMap(m_srcMapsFile, src, &m_dataCache, 
-			       m_observation, m_dataCache.weightMap(), the_drm, m_config.save_all_srcmaps());
+			       m_observation, m_config,
+			       m_dataCache.weightMap(), the_drm, m_config.save_all_srcmaps());
       } else {
 	switch ( src.srcType() ) {
 	case Source::Point:
@@ -147,8 +149,8 @@ namespace Likelihood {
 
   SourceMap * SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const {
     const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
-    const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
-    return new SourceMap(src, &m_dataCache, m_observation, the_config.psf_integ_config(), 
+    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
+    return new SourceMap(src, &m_dataCache, m_observation, the_config, 
 			 the_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
   }
   
@@ -381,69 +383,9 @@ namespace Likelihood {
     const std::string& name = srcMap->name();
 
     double np = NpredValue(src,kmin,kmax); // This computes the convolved spectrum
+    int edisp_flag = edisp_val(&src);
 
-    const std::vector<double> & specVals = srcMap->specVals();  
-    const WeightMap* mask = use_mask ? srcMap->weights() : 0;
-  
-    bool use_edisp_val = use_edisp(&src);
-    const Drm_Cache* drm_cache = srcMap->drm_cache();
-
-    int kref(-1);
-    for (size_t j(0); j < npix; j++) {
-      for (size_t k(0); k < m_dataCache.num_ebins(); k++) {
-	double emin(m_dataCache.energies().at(k));
-	double emax(m_dataCache.energies().at(k+1));
-	size_t jmin(k*npix + j);
-	size_t jmax(jmin + npix);
-	// EAC, skip masked pixels
-	if ( mask && 
-	     ( mask->model().at(jmin) <= 0. ) ) continue;
-	double wt1(0);
-	double wt2(0);	
-	double xi(1.);
-	if ( use_edisp_val ) {
-	  xi = drm_cache->get_correction(k,kref);
-	  if ( kref < 0 ) {
-	    // Correction factor is for this energy, use it
-	    wt1 = specVals[k]*(*srcMap)[jmin];
-	    wt2 = specVals[k+1]*(*srcMap)[jmax];
-	  } else {
-	    // Correction factor is for different energy bin, use kref
-	    size_t ipix(jmin % npix);
-	    size_t jref = kref*npix + ipix;
-	    wt1 = specVals[k]*(*srcMap)[jref];
-	    wt2 = specVals[k+1]*(*srcMap)[jref+npix];
-	  }
-	} else {
-	  wt1 = specVals[k]*(*srcMap)[jmin];
-	  wt2 = specVals[k+1]*(*srcMap)[jmax];
-	}
-	float val = xi*FitUtils::pixelCounts_loglogQuad(emin, emax, wt1, wt2, m_dataCache.log_energy_ratios()[k]);
-	// EAC FIX
-	static bool first(true);
-	if ( val < 0 ) {
-	  if ( first ) {
-	    std::cout << "Negative model component " << srcMap->name() << ' ' << jmin << ' ' << val << ' ' 
-		       << xi << ' ' << specVals[k] << ' ' << specVals[k+1] << ' ' 
-		      << (*srcMap)[jmin] << ' ' << (*srcMap)[jmin+npix] << std::endl;
-	    first = false;
-	  }
-	  if ( wt1 < 0 ) {
-	    wt1 = 0.;
-	  }
-	  if ( wt2 < 0 ) {
-	    wt2 = 0.;
-	  }
-	  val = xi*FitUtils::pixelCounts_loglogQuad(emin, emax, wt1, wt2, m_dataCache.log_energy_ratios()[k]);	 
-	}
-	if ( val > 1e10 ) {
-	  std::cout << "Overlarge model component " << srcMap->name() << ' ' << jmin << ' ' << val << ' ' 
-		    << xi << ' ' << specVals[k] << ' ' << specVals[k+1] << ' ' 
-		    << (*srcMap)[jmin] << ' ' << (*srcMap)[jmin+npix] << std::endl;
-	}	  
-	modelMap[jmin] += val ;
-      }
-    }
+    FitUtils::updateModelMap(modelMap, *srcMap, m_dataCache, use_mask, edisp_flag);
   }
 
 
@@ -506,9 +448,11 @@ namespace Likelihood {
     delete meanPsf;
   }
 
-  bool SourceMapCache::use_edisp(const Source* src) const {
-    bool retVal = m_config.use_edisp();
-    retVal &=  src != 0 ? src->use_edisp() : true;
+  int SourceMapCache::edisp_val(const Source* src) const {
+    int retVal = m_config.edisp_val();
+    if ( src != 0 && ! src->use_edisp() ) {
+      retVal = -1;
+    }
     return retVal;
   }
 
@@ -521,42 +465,7 @@ namespace Likelihood {
     return sum;
   }
   
-
-  void SourceMapCache::addSourceWts_static(std::vector<std::pair<double, double> > & modelWts,
-					   SourceMap& srcMap,
-					   size_t npix,
-					   const std::vector<unsigned int>& filledPixels,
-					   const Drm_Cache* drm_cache,
-					   bool use_edisp_val,
-					   bool subtract) {
-    double my_sign(1.);
-    if (subtract) {
-      my_sign = -1.;
-    }
-    int kref(-1);
-    const std::vector<double> & spec = srcMap.specVals();
-    for (size_t j(0); j < filledPixels.size(); j++) {
-      size_t jmin(filledPixels.at(j));
-      size_t jmax(jmin + npix);
-      size_t k(jmin/npix);
-      if (use_edisp_val) {
-	double xi = drm_cache->get_correction(k,kref);
-	if ( kref < 0 ) {
-	  modelWts[j].first += my_sign*srcMap[jmin]*spec[k]*xi;
-	  modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1]*xi;
-	} else {
-	  size_t ipix(jmin % npix);	
-	  size_t jref = kref*npix + ipix;
-	  modelWts[j].first += (my_sign*srcMap[jref]*spec[kref]*xi);
-	  modelWts[j].second += (my_sign*srcMap[jref+npix]*spec[kref+1]*xi);
-	}
-      } else {
-	modelWts[j].first += my_sign*srcMap[jmin]*spec[k];
-	modelWts[j].second += my_sign*srcMap[jmax]*spec[k+1];
-      }
-    }  
-  }
-
+ 
   tip::Extension* SourceMapCache::replaceSourceMap(const Source & src,
 						   const std::string & fitsFile) const {
     
@@ -617,9 +526,6 @@ namespace Likelihood {
     FileUtils::SrcMapType mapType = FileUtils::Unknown;
     fillSingleSourceMap(src, model, mapType, kmin, kmax);
   
-    float sum(0);
-    FitUtils::sumVector(model.begin(),model.end(),sum);
-
     SparseVector<float> sparse;
     switch ( mapType ) {
     case FileUtils::HPX_Sparse:
@@ -665,27 +571,6 @@ namespace Likelihood {
     }
   }
 
-  void SourceMapCache::addSourceWts(std::vector<std::pair<double, double> > & modelWts,
-				    const Source & src,
-				    SourceMap * srcMap,
-				    bool subtract,
-				    bool latchParams) const {
-    if (modelWts.size() != m_dataCache.nFilled() ) {
-      throw std::runtime_error("SourceMapCache::addSourceWts: "
-			       "modelWts size does not match "
-			       "number of filled pixels.");
-    }
-    SourceMap * sourceMap = getSourceMap(src);
-    sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);
-    
-    bool use_edisp_val = use_edisp(&src);
-    const Drm_Cache* drm_cache = sourceMap->drm_cache();
-    
-    addSourceWts_static(modelWts,*sourceMap,m_dataCache.num_pixels(),
-			m_dataCache.filledPixels(),drm_cache,use_edisp_val,subtract);
-  }
-  
-  
   
   void SourceMapCache::updateCorrectionFactors(const Source & src,
 					       SourceMap & sourceMap) const {
@@ -694,7 +579,7 @@ namespace Likelihood {
     if ( m_drm == 0 ) {
       throw std::runtime_error("No DRM object");
     }
-    const Drm* the_drm = use_edisp(&src) ? m_drm : 0;
+    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
     sourceMap.update_drm_cache(the_drm, true);
   }
   

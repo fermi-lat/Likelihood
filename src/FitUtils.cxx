@@ -17,6 +17,7 @@
 #include "gsl/gsl_vector.h"
 #include "gsl/gsl_linalg.h"
 
+#include "Likelihood/Drm.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/SourceModel.h"
@@ -1254,7 +1255,7 @@ namespace Likelihood {
 	theMap = new SourceMap(*nc_source,
 			       &logLike.dataCache(),
 			       logLike.observation(),
-			       logLike.config().psf_integ_config());
+			       logLike.config());
 	
 	BinnedLikelihood& nclike = const_cast<BinnedLikelihood&>(logLike);
 	nclike.updateModelMap_fromSrcMap(model, source, theMap);	
@@ -1718,9 +1719,6 @@ namespace Likelihood {
     }
 
 
-    
-
-
     double logLikePoisson(std::vector<float>::const_iterator data_start, 
 			  std::vector<float>::const_iterator data_stop,
 			  std::vector<float>::const_iterator model_start,
@@ -1848,6 +1846,334 @@ namespace Likelihood {
       return retVal;
     }
 
+
+    void get_spectral_weights(const std::vector<double>& spec,
+			      const BinnedCountsCache& dataCache,
+			      std::vector<std::pair<double, double> >& spec_weights) {
+      size_t ne = dataCache.num_ebins();
+      spec_weights.clear();
+      spec_weights.resize(ne);
+      const std::vector<double>& evals = dataCache.energies();
+      const std::vector<double>& log_ratios = dataCache.log_energy_ratios();
+      for ( size_t i(0); i < ne; i++ ) {
+	spec_weights[i].first = spec[i]*evals[i]*log_ratios[i] / 2.;
+	spec_weights[i].second = spec[i+1]*evals[i+1]*log_ratios[i] / 2.;
+      }
+    }
+    
+
+    void get_edisp_range(const BinnedCountsCache& dataCache, int edisp_val, 
+			 size_t k, 
+			 size_t& kmin, size_t& kmax) {
+      if ( edisp_val < 0 ) {
+	kmin = k;
+	kmax = k + 1;
+      } else {
+	kmin = k < edisp_val ? 0 : k - edisp_val;
+	kmax = std::min(dataCache.num_ebins(), k + edisp_val + 1);
+      }
+    }
+
+    
+    void get_edisp_constants(SourceMap& srcMap,  const BinnedCountsCache& dataCache, 
+			     int edisp_val, 
+			     size_t k, size_t& kmin, size_t& kmax,
+			     std::vector<double>& edisp_col){
+      
+      kmin = k;
+      kmax = k+1;
+
+      edisp_col.clear();
+
+      if ( edisp_val < 0 ) { // Don't apply energy dispersion
+	edisp_col.push_back(1.);
+      } else if ( edisp_val == 0 ) { // Apply 'old' version of energy dispersion
+	const Drm_Cache* drm_cache = srcMap.drm_cache();
+	int kref(-1);
+	double xi = drm_cache->get_correction(k, kref);
+	edisp_col.push_back(xi);
+	if ( kref >= 0 ) { 
+	  // Doesn't have counts in this bin, so use the refernce bin instead.
+	  kmin = kref;
+	  kmax = kref+1;
+	} 
+      } else if ( edisp_val > 0 ) {
+	get_edisp_range(dataCache, edisp_val, k, kmin, kmax);
+	const std::vector<double>& drm_col = srcMap.drm()->col(k);
+	edisp_col.resize(kmax-kmin);
+	// Note that we want row starting at k+1, this is b/c we have added extra energy bin to the true counts at either end of the spectra
+	std::copy(drm_col.begin() + kmin + 1, drm_col.begin() + kmax + 1, edisp_col.begin());
+      }
+    }
+
+
+    double model_counts_contribution(SourceMap& srcMap,
+				     const std::vector<std::pair<double, double> > & spec_wts,
+				     const double& xi, 
+				     size_t npix, size_t kref, size_t ipix) {    
+      size_t jmin = kref*npix + ipix;
+      size_t jmax = jmin + npix;
+      double y1 = srcMap[jmin]*spec_wts[kref].first;
+      double y2 = srcMap[jmax]*spec_wts[kref].second;
+      return xi*(y1 + y2);
+    }
+  
+    void npred_contribution(const std::vector<double>& npred_vals,
+			    const std::pair<double,double>& weighted_npreds,
+			    const std::vector<std::pair<double, double> > & spec_wts,
+			    const double& xi, 
+			    size_t kref,
+			    double& counts,
+			    double& counts_wt) {
+      double npred_0 = npred_vals[kref] * spec_wts[kref].first;
+      double npred_1 = npred_vals[kref+1] * spec_wts[kref].second;
+      
+      double npred_wt_0 = weighted_npreds.first * spec_wts[kref].first;
+      double npred_wt_1 = weighted_npreds.second * spec_wts[kref].second;
+      counts = xi*(npred_0 + npred_1);
+      counts_wt = xi*(npred_wt_0 + npred_wt_1);
+    }
+
+
+    double model_counts_edisp(SourceMap& srcMap,
+			      const std::vector<std::pair<double, double> > & spec_wts,
+			      const std::vector<double> & edisp_col,
+			      size_t ipix,
+			      size_t npix, 
+			      size_t kmin,
+			      size_t kmax) {
+       
+      size_t jmin = kmin*npix + ipix;
+      size_t jmax = jmin + npix;      
+      size_t idx(0);
+      double ret_val(0.);
+      for ( size_t k(kmin); k < kmax; k++, idx++, jmin+=npix, jmax+=npix ) {
+	double y1 = srcMap[jmin] * spec_wts[k].first;
+	double y2 = srcMap[jmax] * spec_wts[k].second;
+	ret_val += edisp_col[idx] * (y1 + y2);
+      }
+
+      return ret_val;
+    }			      
+
+
+    void npred_edisp(const std::vector<double>& npred_vals,
+		     const std::vector<std::pair<double,double> >& weighted_npreds,
+		     const std::vector<std::pair<double, double> > & spec_wts,
+		     const std::vector<double> & edisp_col,
+		     size_t kmin,
+		     size_t kmax,
+		     double& counts,
+		     double& counts_wt) {
+
+      counts = 0.;
+      counts_wt = 0.;
+      size_t idx(0);	
+    
+      for ( size_t k(kmin); k < kmax; k++, idx++) {
+	double y1 = npred_vals[k] * spec_wts[k].first;
+	double y2 = npred_vals[k+1] * spec_wts[k].second;
+	counts += edisp_col[idx] * (y1 + y2);
+	double y1_wt = weighted_npreds[idx].first * spec_wts[k].first;
+	double y2_wt = weighted_npreds[idx].second * spec_wts[k].second;		
+	counts_wt += edisp_col[idx] * (y1_wt + y2_wt);
+      }
+    }    
+    
+    void addSourceCounts(std::vector<double> & modelCounts,
+			 SourceMap& srcMap,
+			 const BinnedCountsCache& dataCache,
+			 int edisp_val,
+			 bool subtract) {
+      
+      double my_sign = subtract ? -1.0 : 1.0;
+
+      const std::vector<std::pair<double, double> >& spec_wts = srcMap.specWts();
+
+      size_t nebins = dataCache.num_ebins();
+      size_t npix = dataCache.num_pixels();
+      const std::vector<size_t>& pix_ranges = dataCache.firstPixels();
+      std::vector<double> edisp_col;
+      for (size_t k(0); k < nebins; k++ ) {
+
+	size_t kmin_edisp(0);
+	size_t kmax_edisp(0);
+	get_edisp_constants(srcMap, dataCache, edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
+	
+	size_t j_start = pix_ranges[k];
+	size_t j_stop = pix_ranges[k+1];      
+	for (size_t j(j_start); j < j_stop; j++) {
+	  size_t ipix = dataCache.filledPixels()[j];
+	  double counts = edisp_val >= 0 ? 
+	    model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
+	    model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
+	  double addend = my_sign*counts;
+	  modelCounts[j] += addend;
+	}
+      }
+    }
+
+    void addFixedNpreds(std::vector<double>& fixed_counts_spec,
+			std::vector<double>& fixed_counts_spec_wt,
+			std::vector<double>& fixed_counts_spec_edisp,
+			std::vector<double>& fixed_counts_spec_edisp_wt,
+			SourceMap& srcMap,
+			const BinnedCountsCache& dataCache,
+			int edisp_val,
+			bool subtract) {
+      
+      const std::vector<double>& npred_vals = srcMap.npreds();
+      const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds = srcMap.weighted_npreds();
+      const std::vector<std::pair<double, double> >& spec_wts = srcMap.specWts();
+
+      size_t ne(dataCache.num_ebins());
+      std::vector<double> edisp_col;
+      std::vector<double> ones(1, 1.);
+
+      for (size_t k(0); k < ne; k++) {
+	size_t kmin_edisp(0);
+	size_t kmax_edisp(0);
+	get_edisp_constants(srcMap, dataCache, edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
+	
+	double counts(0.);
+	double counts_wt(0.);
+	if ( edisp_val > 0 ) {
+	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, ones, k, k+1, counts, counts_wt);
+	} else {
+	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), spec_wts, ones[0], k, counts, counts_wt);
+	}
+
+	double counts_edisp(0.);
+	double counts_edisp_wt(0.);
+	if ( edisp_val > 0 ) {
+	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_edisp, counts_edisp_wt);
+	} else {
+	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), spec_wts, edisp_col[0], kmin_edisp, counts_edisp, counts_edisp_wt);
+	}	
+
+	if ( subtract ) {
+	  counts *= -1.;
+	  counts_wt *= -1.;
+	  counts_edisp *= -1.;
+	  counts_edisp_wt *= -1.;
+	}
+
+	fixed_counts_spec[k] += counts;
+	fixed_counts_spec_wt[k] += counts_wt;
+	fixed_counts_spec_edisp[k] += counts_edisp;
+	fixed_counts_spec_edisp_wt[k] += counts_edisp_wt;
+      }
+
+    }
+
+    void addFreeDerivs(std::vector<Kahan_Accumulator>& posDerivs,
+		       std::vector<Kahan_Accumulator>& negDerivs,
+		       long freeIndex,
+		       SourceMap& srcMap,
+		       const std::vector<double>& data_over_model,
+		       const BinnedCountsCache& dataCache,
+		       int edisp_val,
+		       size_t kmin, size_t kmax) {
+      
+      const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
+      
+      // We need this stuff for the second term...
+      const std::vector<double> & npreds = srcMap.npreds();
+      const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds = srcMap.weighted_npreds();
+      
+      size_t npix = dataCache.num_pixels();
+      const std::vector<size_t>& pix_ranges = dataCache.firstPixels();    
+
+      long iparam(freeIndex);
+      for (size_t i(0); i < specDerivs.size(); i++, iparam++) {
+
+	std::vector<std::pair<double, double> > spec_wts;
+	get_spectral_weights(specDerivs[i], dataCache, spec_wts);
+	std::vector<double> edisp_col;
+
+	for (size_t k(kmin); k < kmax; k++ ) {
+	  size_t kmin_edisp(0);
+	  size_t kmax_edisp(0);	  
+	  get_edisp_constants(srcMap, dataCache, edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
+
+	  // First term, derivate of n_obs log n_model = ( n_obs / n_model ) * ( d model / d param ) 
+	  // loop over all the filled pixels
+	  size_t j_start = pix_ranges[k];
+	  size_t j_stop = pix_ranges[k+1];      
+	  for (size_t j(j_start); j < j_stop; j++) {
+	    if ( data_over_model[j] <= 0. ) {
+	      continue;
+	    }
+	    size_t ipix = dataCache.filledPixels()[j];
+	    double counts_deriv = edisp_val > 0 ? 
+	      model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
+	      model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
+	    double addend = data_over_model[j]*counts_deriv;
+	    if (addend > 0) {
+	      posDerivs[iparam].add(addend);
+	    } else {
+	      negDerivs[iparam].add(addend);
+	    }
+	  }	
+
+	  // Second term, the derivatives of the nPreds. 
+	  // Loop over the energy layers
+	  double counts_deriv(0.);
+	  double counts_deriv_wt(0.);
+	  if ( edisp_val > 0 ) {
+	    npred_edisp(npreds, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_deriv, counts_deriv_wt);
+	  } else {
+	    npred_contribution(npreds, weighted_npreds.at(k).at(0), spec_wts, edisp_col[0], kmin_edisp, counts_deriv, counts_deriv_wt);
+	  }
+	  if (-counts_deriv_wt > 0) {
+	    posDerivs[iparam].add(-counts_deriv_wt);
+	  } else {
+	    negDerivs[iparam].add(-counts_deriv_wt);
+	  }
+	} // Loop on energy bins
+      } // Loop on parameters
+    }
+
+
+    void updateModelMap(std::vector<float> & modelMap,
+			SourceMap& srcMap,
+			const BinnedCountsCache& dataCache,				       
+			bool use_mask,
+			int edisp_val) {
+      
+      const WeightMap* mask = use_mask ? srcMap.weights() : 0;
+      size_t npix = dataCache.num_pixels();
+      
+      const std::vector<std::pair<double, double> >& spec_wts = srcMap.specWts();
+      std::vector<double> edisp_col;
+ 
+      for (size_t k(0); k < dataCache.num_ebins(); k++) {	
+
+	size_t kmin_edisp(0);
+	size_t kmax_edisp(0);
+	get_edisp_constants(srcMap, dataCache, edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
+
+	size_t jmin = k * npix;
+
+	//double val_k(0.);
+	//double val_k_noedisp(0.);
+
+	for (size_t ipix(0); ipix < npix; ipix++, jmin++) {
+	  // EAC, skip masked pixels
+	  if ( mask && 
+	       ( mask->model()[jmin] <= 0. ) ) {
+	    continue;
+	  }
+	  double counts = edisp_val > 0 ?
+	    model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
+	    model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
+	  modelMap[jmin] += counts;
+	  //val_k += counts;
+	  //val_k_noedisp += model_counts_contribution(srcMap, spec_wts, 1., npix, k, ipix);
+	}
+	//std::cout << "updateModelMap::" << srcMap.name() << ' ' << k << ' ' << val_k << ' ' << val_k_noedisp << std::endl;
+      } 
+    }  
 
     void printVector(const std::string& name,
 		     const CLHEP::HepVector& vect) {

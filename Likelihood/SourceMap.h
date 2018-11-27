@@ -66,7 +66,7 @@ public:
       src           : The source making this source map for
       dataCache     : The counts map used as a template for the binning
       observation   : Object with data about the observation
-      psf_config    : Object with PSF integration parameters
+      config        : Object with PSF integration parameters
       drm           : The detector response matrix, NULL if energy dispersion is off for this source.
       weights       : A weights map, for weighted likelihood analysis.  Null -> no weighting.
       save_model    : Flag to indicate that we should save the model (e.g., when the source is fixed)
@@ -75,7 +75,7 @@ public:
    SourceMap(const Source & src, 
 	     const BinnedCountsCache * dataCache,
              const Observation & observation,
-	     const PsfIntegConfig & psf_config, 
+	     const BinnedLikeConfig & config, 
 	     const Drm* drm = 0,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
@@ -96,6 +96,7 @@ public:
              const Source & src,
 	     const BinnedCountsCache * dataCache,
 	     const Observation & observation,
+	     const BinnedLikeConfig& config,
 	     const WeightMap* weights = 0,
 	     const Drm* drm = 0,
 	     bool save_model = false);
@@ -123,7 +124,7 @@ public:
    inline const std::string & srcType() const { return m_srcType; }
 
    /* The parameters for the PSF Integration */
-   inline const PsfIntegConfig& psf_config() const { return m_psf_config; }
+   inline const BinnedLikeConfig& config() const { return m_config; }
 
    /* The detector response matrix */
    inline const Drm* drm() const { return m_drm; }
@@ -182,10 +183,14 @@ public:
     */
    void setSpectralDerivs(const std::vector<double>& energies,
 			  const std::vector<std::string>& paramNames);
+       
 
-   
    /* Test to see if the spectrum has changes w.r.t. the cached values */
    bool spectrum_changed() const;
+
+
+   /* How to handle the energy dispersion */
+   int edisp_type() const;
 
 
    /* Compute the total model counts summed between two energy bins *
@@ -193,10 +198,11 @@ public:
 
       kmin         : index of lowest energy bin
       kman         : index of highest energy bin
-      use_edisp    : return model counts with energy dispersion applied
+      dataCache    :  Object with info about the binning
+      edisp_val    : how to apply the energy dispersion
       use_weighted : return weighted model counts */
    double summed_counts(size_t kmin, size_t kmax,
-			bool use_edisp = true,
+			int edisp_val = 0,
 			bool use_weighted = false);
 
    /* --------------- Cached Data ----------------------*/
@@ -216,8 +222,11 @@ public:
       and integrated over the energy bin to obtain the predicted counts */
    inline const SparseVector<float> & cached_sparse_model() const { return m_sparseModel; }
    
-   /* These are the  of the 'spectrum' values.  I.e., the spectrum evaluated at the energy points */
+   /* These are the 'spectrum' values.  I.e., the spectrum evaluated at the energy points */
    inline const std::vector<double> & cached_specValues() const { return m_specVals; }
+
+   /* These are the 'spectrum' weights.  They are the quantity that appear in the log-log quadrature formula */
+   inline const std::vector<std::pair<double,double> >& cached_specWts() const { return m_specWts; }
 
    /* These are the derivatives of the 'spectrum' values.  I.e., the derivatives evaluated 
       at the energy pointsThese are the spectral derivatives.  */
@@ -226,9 +235,8 @@ public:
    /* These are the npreds, i.e., the model summed over each energy plane. */
    inline const std::vector<double>& cached_npreds() const { return  m_npreds; }
 
-   /// These are the npred weights, i.e., the weights to apply to the npreds
-   /// to correctly reproduce the weighted counts
-   inline const std::vector<std::pair<double,double> >& cached_npred_weights() const { return m_npred_weights; }
+   /// These are the weighted npreds
+   inline const std::vector<std::vector<std::pair<double,double> > >& cached_weighted_npreds() const { return m_weighted_npreds; }
 
    /* This contains both the convolved and un-convolved counts spectra */
    inline const Drm_Cache* cached_drm_Cache() const { return m_drm_cache; }
@@ -238,6 +246,10 @@ public:
 
    /* This is the cached MeanPSF object */
    inline const MeanPsf* cached_meanPsf() const { return m_meanPsf; }
+
+   /* This is the binning object */
+   inline const BinnedCountsCache* dataCache() const { return m_dataCache; }
+      
 
 
    /* --------------- Cached Data ----------------------*/
@@ -251,6 +263,9 @@ public:
    /* These are the 'spectrum' values, I.e., the spectrum evaluated at the energy points */
    const std::vector<double> & specVals(bool force=false);
 
+   /* These are the 'spectrum' weights.  They are the quantity that appear in the log-log quadrature formula */
+   const std::vector<std::pair<double,double> >&  specWts(bool force=false);
+
    /* These are the derivatives of the 'spectrum' values.  I.e., the derivatives evaluated 
       at the energy pointsThese are the spectral derivatives.  */
    const std::vector<std::vector<double> >& specDerivs(const std::vector<std::string>& paramNames, bool force = false);
@@ -258,9 +273,8 @@ public:
    /* These are the npreds, i.e., the model summed over each energy plane. */
    const std::vector<double> & npreds(bool force=false);
 
-   /* These are the npred weights, i.e., the weights to apply to the npreds
-      to correctly reproduce the weighted counts */
-   const std::vector<std::pair<double,double> > & npred_weights(bool force=false);
+   /* These are weighted npreds */
+   const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds(bool force=false);
    
    /* This contains both the convolved and un-convolved counts spectra */
    const Drm_Cache* drm_cache(bool force=false);
@@ -381,8 +395,8 @@ private:
    /// For Progress messages
    st_stream::StreamFormatter * m_formatter;
 
-   /// Options for treatment of PSF
-   PsfIntegConfig m_psf_config;
+   /// Options for treatment of PSF and energy disperson
+   const BinnedLikeConfig& m_config;
 
    /// The detector response matrix.  Null -> ignore energy disperison
    const Drm* m_drm;
@@ -413,6 +427,10 @@ private:
    /// I.e., the spectrum evaluated at the energy points
    std::vector<double> m_specVals;
 
+   /// These are the 'spectrum' weights
+   /// These are the quantities that appear in the log-log quadrature forumal
+   std::vector<std::pair<double,double> > m_specWts;
+
    /// These are the spectral parameters for this source.
    /// They are used to determine if the spectrum has changed
    std::vector<double> m_modelPars;
@@ -429,9 +447,8 @@ private:
    /// These are the npreds, i.e., the model summed over each energy plane.
    std::vector<double> m_npreds;
 
-   /// These are the npred weights, i.e., the weights to apply to the npreds
-   /// to correctly reproduce the weighted counts
-   std::vector<std::pair<double,double> > m_npred_weights;
+   /// These are the weighted npreds
+   std::vector<std::vector<std::pair<double,double> > > m_weighted_npreds;
 
    /// Caches of the true and measured energy spectra for sources
    Drm_Cache* m_drm_cache;

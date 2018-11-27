@@ -135,6 +135,8 @@ class LikelihoodTests : public CppUnit::TestFixture {
    CPPUNIT_TEST(test_BinnedLikelihood_2);
    CPPUNIT_TEST(test_BinnedLikelihood_wts);
    CPPUNIT_TEST(test_BinnedLikelihood_edisp);
+   CPPUNIT_TEST(test_BinnedLikelihood_edisp_1);
+   CPPUNIT_TEST(test_BinnedLikelihood_edisp_2);
    CPPUNIT_TEST(test_CompositeSource);
    CPPUNIT_TEST(test_MeanPsf);
    CPPUNIT_TEST(test_BinnedExposure);
@@ -183,12 +185,18 @@ public:
    void test_CountsMapHealpix_region();
    void test_BinnedLikelihood();
    void test_BinnedLikelihood_2();
-   void test_BinnedLikelihood_base(bool use_edisp);
+   void test_BinnedLikelihood_base(int edisp_val);
    void test_BinnedLikelihood_wts() {
-     test_BinnedLikelihood_base(false);
+     test_BinnedLikelihood_base(-1);
    }
    void test_BinnedLikelihood_edisp() {
-     test_BinnedLikelihood_base(true);
+     test_BinnedLikelihood_base(0);
+   }
+   void test_BinnedLikelihood_edisp_1() {
+     test_BinnedLikelihood_base(1);
+   }
+   void test_BinnedLikelihood_edisp_2() {
+     test_BinnedLikelihood_base(2);
    }
    void test_CompositeSource();
    void test_MeanPsf();
@@ -1329,14 +1337,14 @@ void LikelihoodTests::test_BinnedLikelihood() {
       for (unsigned int i = 0; i < data.size(); i++) {
          dataSum += data[i];
       }
-//      std::cout << "Total counts in data map: " << dataSum << std::endl;
+      //std::cout << "Total counts in data map: " << dataSum << std::endl;
 
       const std::vector<float> & model = modelMap->data();
       double modelSum(0);
       for (unsigned int i = 0; i < model.size(); i++) {
          modelSum += model[i];
       }
-//      std::cout << "Total model counts: " << modelSum << std::endl;
+      //std::cout << "Total model counts: " << modelSum << std::endl;
 
       CPPUNIT_ASSERT(fabs(modelSum - dataSum)/dataSum < 1e-2);
 
@@ -1441,6 +1449,7 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
    like1.addSource(src);
    double fit_value1 = fit(like1);
 
+   // std::cout << "Test " << fit_value0 << ' ' << fit_value1 << std::endl;
    ASSERT_EQUALS(fit_value0, fit_value1);
 
    BinnedLikelihood like2(dataMap, *m_observation);
@@ -1478,7 +1487,7 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
    ASSERT_EQUALS(fit_value4, fit_value5);
 }
 
-void LikelihoodTests::test_BinnedLikelihood_base(bool use_edisp) {
+void LikelihoodTests::test_BinnedLikelihood_base(int edisp_val) {
    std::string exposureCubeFile = dataPath("expcube_1_day.fits");
    if (!st_facilities::Util::fileExists(exposureCubeFile)) {
       generate_exposureHyperCube();
@@ -1494,18 +1503,24 @@ void LikelihoodTests::test_BinnedLikelihood_base(bool use_edisp) {
    ProjMap* wmap = WcsMapLibrary::instance()->wcsmap(wts_file, "");
 
    BinnedLikelihood binnedLogLike(dataMap, *wmap, *m_observation);
-   binnedLogLike.set_edisp_flag(use_edisp);
+   binnedLogLike.set_edisp_val(edisp_val);
    
    std::string Crab_model = dataPath("Crab_model.xml");
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
 
    binnedLogLike.saveSourceMaps("srcMaps_wts.fits");
    double fit_val = fit(binnedLogLike);
-   
-   double npred_check = binnedLogLike.npred() - BinnedLikelihood::npred_explicit(binnedLogLike);
+
+   double npred_func = binnedLogLike.npred();
+   double npred_explicit = BinnedLikelihood::npred_explicit(binnedLogLike);
+   double npred_check = npred_func - npred_explicit;
+   // std::cout << "npred_check " << npred_func << ' ' << npred_explicit << std::endl;
    CPPUNIT_ASSERT(fabs(npred_check) < 0.01);
 
-   double npred_check_wt = binnedLogLike.npred(true) - BinnedLikelihood::npred_explicit(binnedLogLike, true);
+   npred_func = binnedLogLike.npred(true);
+   npred_explicit = BinnedLikelihood::npred_explicit(binnedLogLike, true);
+   double npred_check_wt = npred_func - npred_explicit;
+   // std::cout << "npred_check_wt " << npred_func << ' ' << npred_explicit << std::endl;
    CPPUNIT_ASSERT(fabs(npred_check_wt) < 0.01);
    
    const std::string srcName("Crab Pulsar");
@@ -1666,8 +1681,8 @@ void LikelihoodTests::test_SourceMap() {
  //   Source * src = srcFactory->create("Galactic Diffuse");
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PsfIntegConfig psf_config;
-   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
+   BinnedLikeConfig like_config;
+   SourceMap srcMap(*src, &dataCache, *m_observation, like_config);
 }
 
 void LikelihoodTests::test_PointSourceMap() {
@@ -1692,12 +1707,10 @@ void LikelihoodTests::test_PointSourceMap() {
 
    PointSource * pointSrc = dynamic_cast<PointSource *>(src);
    const astro::SkyDir & srcDir(pointSrc->getDir());
-
    
-   PsfIntegConfig psf_config;
-
-   SourceMap srcMap0(*src, &dataCache0, *m_observation, psf_config);
-   SourceMap srcMap1(*src, &dataCache1, *m_observation, psf_config);
+   BinnedLikeConfig like_config;
+   SourceMap srcMap0(*src, &dataCache0, *m_observation, like_config);
+   SourceMap srcMap1(*src, &dataCache1, *m_observation, like_config);
 
    const std::vector<Pixel> & pixels0(dataMap0.pixels());
    const std::vector<Pixel> & pixels1(dataMap1.pixels());
@@ -1753,9 +1766,9 @@ void LikelihoodTests::test_PointSourceMap_hpx_allsky() {
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PsfIntegConfig psf_config;
+   BinnedLikeConfig like_config;
 
-   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataCache, *m_observation, like_config);
 
    // Values as of ST-11-03-01
    CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Sparse);
@@ -1791,9 +1804,9 @@ void LikelihoodTests::test_PointSourceMap_hpx_region() {
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PsfIntegConfig psf_config;
+   BinnedLikeConfig like_config;
 
-   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
+   SourceMap srcMap(*src, &dataCache, *m_observation, like_config);
 
    // Values as of ST-11-03-01
    CPPUNIT_ASSERT(srcMap.mapType()==FileUtils::HPX_Partial);
@@ -1945,8 +1958,8 @@ void LikelihoodTests::test_Drm() {
    SourceFactory * srcFactory = srcFactoryInstance("", "", "", false);
    Source * src =  srcFactory->create("Crab Pulsar");
 
-   PsfIntegConfig psf_config;
-   SourceMap srcMap(*src, &dataCache, *m_observation, psf_config);
+   BinnedLikeConfig like_config;
+   SourceMap srcMap(*src, &dataCache, *m_observation, like_config);
 
    std::vector<double> npreds(srcMap.npreds());
    npreds.pop_back();
@@ -2215,13 +2228,13 @@ int main(int iargc, char * argv[]) {
       // testObj.test_CountsMapHealpix_allsky();
       // testObj.tearDown();
 
-      testObj.setUp();
-      testObj.test_CountsMapHealpix_region();
-      testObj.tearDown();
+      //testObj.setUp();
+      //testObj.test_CountsMapHealpix_region();
+      //testObj.tearDown();
 
-      // testObj.setUp();
-      // testObj.test_BinnedLikelihood();
-      // testObj.tearDown();
+      testObj.setUp();
+      testObj.test_BinnedLikelihood();
+      testObj.tearDown();
 
       // testObj.setUp();
       // testObj.test_BinnedLikelihood_2();
@@ -2233,6 +2246,14 @@ int main(int iargc, char * argv[]) {
 
       // testObj.setUp();
       // testObj.test_BinnedLikelihood_edisp();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedLikelihood_edisp_1();
+      // testObj.tearDown();
+
+      // testObj.setUp();
+      // testObj.test_BinnedLikelihood_edisp_2();
       // testObj.tearDown();
 
       // testObj.setUp();
