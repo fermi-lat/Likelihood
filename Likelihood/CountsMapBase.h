@@ -101,6 +101,9 @@ public:
 				const std::string& bkgmap,
 				const std::string& alphamap);
 
+  static void addPhasedExpMapKeywords(const std::string& outfile,
+				      const std::string& phased_expmap);
+
 public:
 
    CountsMapBase(const std::string & event_file,
