@@ -260,20 +260,23 @@ void SourceFactory::makeSources(const std::string& xmlFile,
 	 } else if (srcType == "DiffuseSource") {
 	   src = makeDiffuseSource(spectrum, spatialModel, funcFactory,
 				   loadMaps);
-	 }
-	 /// Determine if psf can be applied.
-	 std::string apply_psf(xmlBase::Dom::getAttribute(spatialModel, "apply_psf"));
-	 if (apply_psf != "true" && apply_psf != "false" && apply_psf != "") {
-	   throw std::runtime_error("Invalid value for apply_psf attribute in xml definition of " + src->getName());
-	 }
-	 src->set_psf_flag(apply_psf != "false");
+	 } 
 
-	 /// Determine if exposure can be applied.
-	 std::string apply_exposure(xmlBase::Dom::getAttribute(spatialModel, "apply_exposure"));
-	 if (apply_exposure != "true" && apply_exposure != "false" && apply_exposure != "") {
-	   throw std::runtime_error("Invalid value for apply_exposure attribute in xml definition of " + src->getName());
+	 if ( src != 0 ) {
+	   /// Determine if psf can be applied.
+	   std::string apply_psf(xmlBase::Dom::getAttribute(spatialModel, "apply_psf"));
+	   if (apply_psf != "true" && apply_psf != "false" && apply_psf != "") {
+	     throw std::runtime_error("Invalid value for apply_psf attribute in xml definition of " + src->getName());
+	   }
+	   src->set_psf_flag(apply_psf != "false");
+
+	   /// Determine if exposure can be applied.
+	   std::string apply_exposure(xmlBase::Dom::getAttribute(spatialModel, "apply_exposure"));
+	   if (apply_exposure != "true" && apply_exposure != "false" && apply_exposure != "") {
+	     throw std::runtime_error("Invalid value for apply_exposure attribute in xml definition of " + src->getName());
+	   }
+	   src->set_exposure_flag(apply_exposure != "false");
 	 }
-	 src->set_exposure_flag(apply_exposure != "false");
 
       }
 
