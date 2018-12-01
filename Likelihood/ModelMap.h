@@ -45,14 +45,6 @@ protected:
    void writeOutputMap_healpix(const std::string & outfile,
 			       const CountsMapHealpix& cmap,
 			       std::string outtype="CMAP");
-  
-   void trimExtensions_wcs(const std::string & outfile,
-			   const std::string & outtype="CMAP");
-
-   void trimExtensions_healpix(const std::string & outfile,
-			       const std::string & outtype="CMAP");
-
-
 
 private:
 
