@@ -192,7 +192,8 @@ void BinnedHealpixExposure::setMapGeometry(const st_app::AppParGroup & pars) {
   std::string coordsys = pars["coordsys"];
   m_isGalactic = (coordsys == "GAL");
   int order = pars["hpx_order"];
-  Healpix_Ordering_Scheme scheme = pars["hpx_ordering_scheme"]=="RING" ? RING : NEST;
+  std::string scheme_str = pars["hpx_ordering_scheme"];
+  Healpix_Ordering_Scheme scheme = scheme_str=="RING" ? RING : NEST;
   m_healpixProj = new astro::HealpixProj(order,scheme,m_isGalactic);
   m_proj = m_healpixProj;
   m_allSky = true;
