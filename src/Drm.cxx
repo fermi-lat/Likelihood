@@ -43,7 +43,7 @@ namespace Likelihood {
 
 Drm::Drm(double ra, double dec, const Observation & observation, 
          const std::vector<double> & ebounds, size_t npts) 
-  : m_dir(ra, dec), m_observation(observation), m_npts(npts){
+  : m_dir(ra, dec), m_observation(&observation), m_npts(npts){
    // Prepare the energy bounds array to be used for both true and
    // measured counts bins.
    m_ebounds.resize(ebounds.size());
@@ -65,6 +65,34 @@ Drm::Drm(double ra, double dec, const Observation & observation,
 
    compute_drm();
 }
+
+
+Drm::Drm(double ra, double dec, 
+         const std::vector<double> & ebounds, 
+	 const std::vector< std::vector<double> >& values)
+  : m_dir(ra, dec), m_observation(0), m_npts(0), m_drm(values) {
+   // Prepare the energy bounds array to be used for both true and
+   // measured counts bins.
+   m_ebounds.resize(ebounds.size());
+   std::copy(ebounds.begin(), ebounds.end(), m_ebounds.begin());
+
+   // Pad m_ebounds with extra energy bins at the beginning and at the
+   // end for the convolution.  These intervals are used only by the
+   // true energy bins.
+   double de(std::log(m_ebounds[1]/m_ebounds[0]));
+   m_ebounds.push_front(std::exp(std::log(m_ebounds[0]) - de));
+   m_ebounds.push_back(std::exp(std::log(m_ebounds.back()) + de));
+
+   size_t nee(m_ebounds.size() - 1);
+
+   m_log_ratio_lo = std::log(m_ebounds[0]/m_ebounds[2]) / std::log(m_ebounds[1]/m_ebounds[2]);
+   m_diff_ratio_lo = (m_ebounds[0] - m_ebounds[2])/ (m_ebounds[1] - m_ebounds[2]);
+   m_log_ratio_hi = std::log(m_ebounds[nee]/m_ebounds[nee-2]) / std::log(m_ebounds[nee-1]/m_ebounds[nee-2]);
+   m_diff_ratio_hi = (m_ebounds[nee] - m_ebounds[nee-2]) / (m_ebounds[nee-1] - m_ebounds[nee-2]);
+   compute_transpose();
+}
+
+
 
 void Drm::convolve(const std::vector<double> & true_counts,
                    std::vector<double> & meas_counts) const {
@@ -93,6 +121,9 @@ void Drm::convolve(const std::vector<double> & true_counts,
 
 
 void Drm::compute_drm() {
+   if ( m_observation == 0 ) {
+     throw std::runtime_error("Called compute_drm on a Drm that was build from a FITs table and does not have obsrvation data");
+   }
    m_drm.clear();
    
    // EAC, Fix this code to use the binning from the livetime cube instead of sampling in cos theta.
@@ -129,7 +160,7 @@ void Drm::compute_transpose() {
 
 void Drm::compute_livetime() {
   // This it can be done once for the entire matrix
-  const ExposureCube & expcube = m_observation.expCube();
+  const ExposureCube & expcube = m_observation->expCube();
   const healpix::CosineBinner& cos_binner = expcube.get_cosine_binner(m_dir);
   size_t nmu = cos_binner.size();
   
@@ -151,8 +182,8 @@ void Drm::compute_livetime() {
 
 double Drm::
 matrix_element(double etrue, double emeas_min, double emeas_max) const {
-   const ResponseFunctions & resps(m_observation.respFuncs());
-   const ExposureCube & expcube(m_observation.expCube());
+   const ResponseFunctions & resps(m_observation->respFuncs());
+   const ExposureCube & expcube(m_observation->expCube());
    double met((expcube.tstart() + expcube.tstop())/2.);
 
    size_t nmu = m_livetime.size();

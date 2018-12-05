@@ -62,6 +62,8 @@ gtalphabkgBin = progEnv.Program('gtalphabkg', listFiles(['src/gtalphabkg/*.cxx']
 
 gtwtsmapBin = progEnv.Program('gtwtsmap', listFiles(['src/gtwtsmap/*.cxx']))
 
+gtdrmBin = progEnv.Program('gtdrm', listFiles(['src/gtdrm/*.cxx']))
+
 progEnv.Tool('registerTargets', package = 'Likelihood', 
              libraryCxts = [[LikelihoodLib, libEnv]], 
              binaryCxts = [[gtlikeBin, progEnv], 
@@ -82,7 +84,8 @@ progEnv.Tool('registerTargets', package = 'Likelihood',
                            [gtfindsrcBin, progEnv],
                            [gteffbkgBin, progEnv],
                            [gtalphabkgBin, progEnv],
-                           [gtwtsmapBin, progEnv]],
+                           [gtwtsmapBin, progEnv],
+                           [gtdrmBin, progEnv]],
              testAppCxts = [[test_LikelihoodBin, testEnv]],
              includes = listFiles(['Likelihood/*.h']), 
              pfiles = listFiles(['pfiles/*.par']),

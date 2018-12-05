@@ -29,18 +29,24 @@ public:
    Drm(double ra, double dec, const Observation & observation, 
        const std::vector<double> & ebounds, size_t npts=30);
 
+   Drm(double ra, double dec, 
+       const std::vector<double> & ebounds, 
+       const std::vector< std::vector<double> >& values);
+
    void convolve(const std::vector<double> & true_counts,
                  std::vector<double> & meas_counts) const;
 
+   // These are all of the responses for a True energy bin
    const std::vector<double> & row(size_t k) const {
       return m_drm.at(k);
    }
 
+   // These are all of the responses for a Measured Energy bin
    const std::vector<double> & col(size_t k) const {
      return m_drmT.at(k);
    }
       
-  inline const Observation& observation() const { return m_observation; }
+  inline const Observation* observation() const { return m_observation; }
 
   double matrix_element(double etrue, double emeas_min, 
 			double emeas_max) const;
@@ -53,6 +59,9 @@ public:
 
   double extrapolate_hi(const double& c0, const double & c1) const;
 
+  const std::deque<double>& ebounds() const { return m_ebounds; }
+
+  const astro::SkyDir& refDir() const { return m_dir; }
 
 protected: 
 
@@ -63,7 +72,7 @@ protected:
 private:
 
    astro::SkyDir m_dir;
-   const Observation & m_observation;
+   const Observation * m_observation;
    std::deque<double> m_ebounds;
 
    double m_log_ratio_lo;
@@ -78,7 +87,10 @@ private:
    std::vector< double > m_theta_vals;
    std::vector< double > m_livetime;
 
+   // This matrix is indexed m_drm[kTrue][kMeasured]
    std::vector< std::vector<double> > m_drm;
+
+   // This matrix is indexed m_drm[kMeasured][kTrue]
    std::vector< std::vector<double> > m_drmT;
 
    void compute_drm();
