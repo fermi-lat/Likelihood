@@ -38,6 +38,7 @@ namespace Likelihood {
   class CountsMapBase;
   class CountsMap;
   class CountsMapHealpix;
+  class Drm;
   class Source;
   class SourceModel;
   class HistND;
@@ -400,6 +401,17 @@ namespace Likelihood {
     void read_parameters_from_table(const std::string& file_name,
 				    const std::string& table_name,
 				    SourceModel& srcModel);
+   
+
+    /* Write a DRM to a FITs table */
+    tip::Extension* write_drm_to_table(const std::string& file_name,
+				       const std::string& table_name,
+				       const Drm& drm);
+
+     /* Write a DRM to a FITs table */
+    Drm* read_drm_from_table(const std::string& file_name,
+			     const std::string& table_name);
+
    
 
 

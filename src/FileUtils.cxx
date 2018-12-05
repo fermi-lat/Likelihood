@@ -30,6 +30,7 @@
 
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/CountsMapHealpix.h"
+#include "Likelihood/Drm.h"
 #include "Likelihood/HistND.h"
 #include "Likelihood/Source.h"
 #include "Likelihood/SourceModel.h"
@@ -768,6 +769,106 @@ namespace Likelihood {
       }      
     }
   
+
+    tip::Extension* write_drm_to_table(const std::string& file_name,
+				       const std::string& table_name,
+				       const Drm& drm) {
+
+      const std::deque<double>& energies = drm.ebounds();
+      long true_num_elem = energies.size() - 1;
+      long app_num_elem = energies.size() - 3;
+
+      // Open ebounds table for writing.
+      std::auto_ptr<tip::Table> ebounds(tip::IFileSvc::instance().editTable(file_name, "EBOUNDS"));      
+      // Set detchans explicitly.
+      ebounds->getHeader()["DETCHANS"].set(app_num_elem);
+
+      // Open response table for writing.
+      tip::IFileSvc::instance().appendTable(file_name, table_name);
+      tip::Table* drm_table = tip::IFileSvc::instance().editTable(file_name, table_name);
+      
+      tip::IColumn& e_lo_col = append_column(*drm_table,"ENERG_LO","D");
+      tip::IColumn& e_hi_col = append_column(*drm_table,"ENERG_HI","D");
+      tip::IColumn& ngrp_col = append_column(*drm_table,"N_GRP","I");
+      tip::IColumn& fchan_col = append_column(*drm_table,"F_CHAN","PI");
+      tip::IColumn& nchan_col = append_column(*drm_table,"N_CHAN","PI");
+      tip::IColumn& matrix_col = append_column(*drm_table,"MATRIX","PE");
+
+
+      // These are to make this look like the output of gtrspgen
+      int n_grp = 1;
+      std::vector<int> f_chan(1, 1);
+      std::vector<int> n_chan(1, app_num_elem);
+
+      // Get header of response table.
+      tip::Header & header = drm_table->getHeader();
+
+      // Explicitly set DETCHANS.
+      header["DETCHANS"].set(app_num_elem);
+      header["REF_RA"].set(drm.refDir().ra());
+      header["REF_DEC"].set(drm.refDir().dec());
+
+      // Resize the table to hold number of records == the number of true energy bins.
+      drm_table->setNumRecords(true_num_elem);
+
+      // Loop over true energy bins, computing response for each and writing it to the output response table.
+      long true_idx = 0;
+      tip::Table::Iterator true_itor = drm_table->begin();
+      for (; true_itor != drm_table->end(); ++true_idx, ++true_itor) {
+	(*true_itor)["ENERG_LO"].set(energies[true_idx]);
+	(*true_itor)["ENERG_HI"].set(energies[true_idx + 1]);
+	(*true_itor)["N_GRP"].set(n_grp);
+	(*true_itor)["F_CHAN"].set(f_chan);
+	(*true_itor)["N_CHAN"].set(n_chan);	
+	(*true_itor)["MATRIX"].set(drm.row(true_idx));
+      }	
+
+      return drm_table;
+    }
+
+    Drm* read_drm_from_table(const std::string& file_name,
+			     const std::string& table_name) {
+
+      std::auto_ptr<const tip::Table> 
+	table(tip::IFileSvc::instance().readTable(file_name,table_name));
+
+      const tip::Header& header = table->getHeader();
+
+      double ra(0.);
+      double dec(0.);
+      
+      header["REF_RA"].get(ra);
+      header["REF_DEC"].get(dec);
+
+      const tip::IColumn& e_lo_col = get_column(*table,"ENERG_LO");
+      const tip::IColumn& e_hi_col = get_column(*table,"ENERG_HI");
+      //const tip::IColumn& ngrp_col = get_column(*table,"N_GRP");
+      //const tip::IColumn& fchan_col = get_column(*table,"F_CHAN");
+      //const tip::IColumn& nchan_col = get_column(*table,"N_CHAN");
+      const tip::IColumn& matrix_col = get_column(*table,"MATRIX");
+
+      tip::Index_t nrow = table->getNumRecords();
+
+      std::vector<double> energies(nrow-1);
+      std::vector<std::vector<double> > values(nrow);
+
+      double e_lo(0.);
+      double e_hi(0.);
+      std::vector<double> read_row;
+      
+      for ( tip::Index_t irow(0); irow < nrow; irow++ ) {
+	e_lo_col.get(irow, e_lo);
+	matrix_col.get(irow, read_row);
+	if ( irow > 0 ) {
+	  energies[irow-1] = e_lo;
+	}
+	values[irow] = read_row;
+      }      
+      
+      Drm* drm = new Drm(ra, dec, energies, values);
+      return drm;
+    }
+
   } // namespace FileUtils
  
 } // namespace Likelihood
