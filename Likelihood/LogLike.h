@@ -41,21 +41,39 @@ public:
 
    virtual ~LogLike() {}
 
-   virtual double value(const optimizers::Arg&) const;
+   virtual double value(const optimizers::Arg& dummy, 
+			bool include_priors) const;
+
+   virtual double value(const optimizers::Arg& dummy) const {
+     return value(dummy, true);
+   }
 
    virtual double value() const {
       optimizers::Arg dummy;
-      return value(dummy);
+      return value(dummy, true);
    }
+
+   /// Calculate the derivitives of the log-likelihood w.r.t. the free parameters
+   virtual void getFreeDerivs(const optimizers::Arg & dummy, 
+			      std::vector<double> & derivs, 
+			      bool include_priors) const;
 
    /// Return the derivatives wrt the free parameters, overloading
    /// the Function method
-   virtual void getFreeDerivs(const optimizers::Arg &,
-                              std::vector<double> & freeDerivs) const;
+   virtual void getFreeDerivs(const optimizers::Arg & dummy,
+                              std::vector<double> & freeDerivs) const {
+     getFreeDerivs(dummy, freeDerivs, true);
+   }
+
+   virtual void getFreeDerivs(std::vector<double> & freeDerivs, 
+			      bool include_priors) const {
+      optimizers::Arg dummy;
+      getFreeDerivs(dummy, freeDerivs, include_priors);
+   }
 
    virtual void getFreeDerivs(std::vector<double> & freeDerivs) const {
       optimizers::Arg dummy;
-      getFreeDerivs(dummy, freeDerivs);
+      getFreeDerivs(dummy, freeDerivs, true);
    }
 
    virtual void addSource(Source * src, bool fromClone=true, SourceMap* srcMap = 0, bool loadMap=true);

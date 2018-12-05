@@ -251,20 +251,38 @@ namespace Likelihood {
      /* ---------------- Methods inherited from optimizers package ---------- 
 	specifically optimizers::Function and optimizers::Statistic ---------------*/
      
+     
      /// Return the current value of the log-likelihood
-     /// Note that the argument is ignored.
-     virtual double value(optimizers::Arg &) const;
+     /// Note that the first argument is ignored.
+     virtual double value(const optimizers::Arg& dummy, 
+			  bool include_priors) const;
 
-     /// Return the current value of the log-likelihood
+     virtual double value(const optimizers::Arg& dummy) const {
+       return value(dummy, true);
+     }
+
      virtual double value() const {
-       optimizers::dArg dummy(0);
-       return value(dummy);
+       optimizers::Arg dummy;
+       return value(dummy, true);
      }
 
      /// Calculate the derivitives of the log-likelihood w.r.t. the free parameters
-     virtual void getFreeDerivs(std::vector<double> & derivs) const;
+     virtual void getFreeDerivs(const optimizers::Arg & dummy, 
+				std::vector<double> & derivs, 
+				bool include_priors) const;
+   
+     virtual void getFreeDerivs(std::vector<double> & freeDerivs, 
+				bool include_priors) const {
+       optimizers::Arg dummy;
+       getFreeDerivs(dummy, freeDerivs, include_priors);
+     }
+     
+     virtual void getFreeDerivs(std::vector<double> & freeDerivs) const {
+       optimizers::Arg dummy;
+       getFreeDerivs(dummy, freeDerivs, true);
+     }
 
-     /// Set the parameter values
+    /// Set the parameter values
      virtual std::vector<double>::const_iterator setParamValues_(std::vector<double>::const_iterator);
      
      /// Set the free parameter values

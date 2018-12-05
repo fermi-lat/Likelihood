@@ -147,7 +147,8 @@ void BinnedLikelihood::setWeightsMap(const ProjMap* wmap) {
   buildFixedModelWts();
 }
 
-double BinnedLikelihood::value(optimizers::Arg & dummy) const {
+double BinnedLikelihood::value(const optimizers::Arg & dummy, 
+			       bool include_priors) const {
   (void)(dummy);
 
   // Here we want the weighted verison of the nPred
@@ -173,10 +174,12 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
   
   double my_total(m_accumulator.total());
 
-  /// Add in contribution from priors.
-  std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
-  for ( ; par != m_parameter.end(); ++par) {
-    my_total += par->log_prior_value();
+  if ( include_priors ) {
+    /// Add in contribution from priors.
+    std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
+    for ( ; par != m_parameter.end(); ++par) {
+      my_total += par->log_prior_value();
+    }
   }
   
   saveBestFit(my_total);
@@ -191,7 +194,9 @@ double BinnedLikelihood::value(optimizers::Arg & dummy) const {
 
 
 
-void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
+void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy, 
+				     std::vector<double> & derivs, 
+				     bool include_priors) const {
   st_stream::StreamFormatter formatter("BinnedLikelihood", "getFreeDerivs",4);
   
   int nparams(getNumFreeParams());
@@ -270,15 +275,16 @@ void BinnedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
   }
 
   /// Derivatives from priors.
-  size_t i(0);
-  std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
-  for ( ; par != m_parameter.end(); ++par) {
-    if (par->isFree()) {
-      derivs[i] += par->log_prior_deriv();
-      i++;
+  if ( include_priors ) {
+    size_t i(0);
+    std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
+    for ( ; par != m_parameter.end(); ++par) {
+      if (par->isFree()) {
+	derivs[i] += par->log_prior_deriv();
+	i++;
+      }
     }
   }
-
 }
 
 
