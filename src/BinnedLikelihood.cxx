@@ -710,6 +710,8 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       if (src->fixedSpectrum() ) {
 	if ( ! process_all ) {
 	  addFixedSource(srcName);
+	} else {
+	  m_srcMapCache.getSourceMap(*src, false);
 	}
       } else { 
 	// Process non-fixed sources.
