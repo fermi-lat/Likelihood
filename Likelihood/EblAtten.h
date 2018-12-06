@@ -29,9 +29,7 @@ public:
 
    ~EblAtten() throw();
 
-   virtual Function * clone() const {
-      return new EblAtten(*this);
-   }
+   virtual Function * clone() const;
 
    /// Set a Parameter using a Parameter object.  This version
    /// preserves the references to the m_spectrum parameters.

@@ -34,6 +34,24 @@ EblAtten::EblAtten(const optimizers::Function & spectrum,
    init(tau_norm, redshift, ebl_model);
 }
 
+optimizers::Function * EblAtten::clone() const {
+  // First make sure the underlying spectrum has the same state as this
+  for (size_t i(0); i < m_spectrum->getNumParams(); i++) {
+    const optimizers::Parameter& param =  m_parameter.at(i);
+    std::string name(param.getName());
+    optimizers::Parameter& my_par = m_spectrum->parameter(name);
+    my_par.setName(param.getName());
+    my_par.setValue(param.getValue());
+    my_par.setScale(param.getScale());
+    my_par.setBounds(param.getBounds());
+    my_par.setFree(param.isFree());
+    my_par.setAlwaysFixed(param.alwaysFixed());
+    my_par.setError(param.error());
+   }
+  // Then clone
+  return new EblAtten(*this);
+}
+
 void EblAtten::init(double tau_norm, double redshift, size_t ebl_model) {
    std::vector<optimizers::Parameter> params;
    m_spectrum->getParams(params);
