@@ -1,0 +1,16 @@
+#
+# $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtmodel.par,v 1.12 2014/10/01 15:32:35 jchiang Exp $
+#
+cmap,fr,a,"",,,"Source maps (or counts map) file"
+outfile,f,a,"",,,"Output file"
+
+irfs,s,a,"CALDB",,,"Response functions"
+evtype,i,h,INDEF,,,"Event type selections"
+expcube,f,a,"",,,"Exposure cube"
+bexpmap,f,a,none,,,"Binned exposure map"
+
+chatter,i,h,2,0,4,Output verbosity
+clobber,        b, h, yes, , , "Overwrite existing output files"
+debug,          b, h, no, , , "Activate debugging mode"
+gui,            b, h, no, , , "GUI mode activated"
+mode,           s, h, "ql", , , "Mode of automatic parameters"
