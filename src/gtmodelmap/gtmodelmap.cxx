@@ -139,4 +139,9 @@ void ModelMap::updateDssKeywords() {
 						       m_pars["outfile"],
 						       m_helper, 
 						       m_pars["irfs"]);
+   std::string phased_expmap = m_pars["phased_expmap"];
+   if (phased_expmap != "none" && phased_expmap != "") {
+     // EAC, add the phased exposure map filename to the head keywords
+     Likelihood::CountsMapBase::addPhasedExpMapKeywords(m_pars["outfile"], m_pars["phased_expmap"]);
+   }
 }

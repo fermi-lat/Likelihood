@@ -14,6 +14,7 @@ resample,b,h,yes,,,"Resample input counts map for convolution"
 rfactor,i,h,2,,,"Resampling factor"
 outtype,s,h,"CMAP",CCUBE|CMAP,,"Output type"
 psfcorr,b,h,yes,,,"Apply psf integral corrections"
+phased_expmap,f,h,"none",,,"Exposure map with phase-dependent corrections"
 edisp,b,h,no,,,"Apply energy dispersion?"
 edisp_bins,i,h,0,,,"Number of bins to consider energy dispersion for.  0 means use scale corrections only"
 
