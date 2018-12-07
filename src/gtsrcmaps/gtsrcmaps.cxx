@@ -216,6 +216,7 @@ void gtsrcmaps::run() {
       }
    }
 
+   m_binnedLikelihood->buildFixedModelWts(true);
    m_binnedLikelihood->saveSourceMaps(srcMapsFile);
 
    std::auto_ptr<tip::Image>
