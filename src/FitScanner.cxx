@@ -2120,9 +2120,13 @@ namespace Likelihood {
 			     bool useWeights) {
 
     if ( true ) {
-      std::cout << "nNorm     = " << nNorm << std::endl;
-      std::cout << "normSigma = " << normSigma << std::endl;
-      std::cout << "covScales = " << covScale_bb << ' ' << covScale << std::endl;
+      if ( doSED ) {
+	std::cout << "nNorm     = " << nNorm << std::endl;
+	std::cout << "normSigma = " << normSigma << std::endl;
+	std::cout << "covScales = " << covScale_bb << ' ' << covScale << std::endl;
+      } else if ( doTSMap ) {
+	std::cout << "covScale = " << covScale_bb << std::endl;
+      }
       std::cout << "tol       = " << tol << std::endl;
       std::cout << "maxIter   = " << maxIter << std::endl;
       std::cout << "initLambda= " << initLambda << std::endl;
@@ -2406,8 +2410,15 @@ namespace Likelihood {
 	if ( negErr_map ) negErr_map->setBinDirect(ipix,negErr);
 	if ( symErr_map ) symErr_map->setBinDirect(ipix,symErr);
 
-	// if we are not doing the SED, we can move the next grid location
-	if ( ! doSED ) continue;
+	// if we are not doing the SED, we can move the next grid location 
+	// after removing the test soruce
+	if ( ! doSED ) {
+	  if ( broadband_st || remakeTestSource ) {
+	    removeTestSourceFromModel();
+	  }
+	  m_cache->removeTestSourceFromCurrent();
+	  continue;
+	}
 
 	// Space for the output of the SED scan	
 	std::vector<double> norm_mles;
