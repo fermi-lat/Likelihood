@@ -1,7 +1,7 @@
 # -*- python -*-
 # $Id: SConscript,v 1.384 2017/10/13 23:30:22 echarles Exp $
-# Authors: James Chiang <jchiang@slac.stanford.edu>, Eric Charles <echarles@slac.stanford.edu>, Matthew Wood <mdwood@slac.stanford.edu> 
-# Version: Likelihood-20-13-03
+# Authors: James Chiang <jchiang@slac.stanford.edu>, Eric Charles <echarles@slac.stanford.edu>, Matthew Wood <mdwood@slac.stanford.edu>
+# Version: Likelihood-20-13-03-
 
 import sys
 Import('baseEnv', 'listFiles')
@@ -9,9 +9,9 @@ progEnv = baseEnv.Clone()
 libEnv = baseEnv.Clone()
 
 libEnv.Tool('addLinkDeps', package='Likelihood', toBuild='shared')
-LikelihoodLib = libEnv.SharedLibrary('Likelihood', 
+LikelihoodLib = libEnv.SharedLibrary('Likelihood',
                                      listFiles(['src/*.c', 'src/*.cxx',
-                                                'src/dmfit/*.cxx', 
+                                                'src/dmfit/*.cxx',
                                                 'src/dmfit/*.c']))
 
 progEnv.Tool('LikelihoodLib')
@@ -64,9 +64,9 @@ gtwtsmapBin = progEnv.Program('gtwtsmap', listFiles(['src/gtwtsmap/*.cxx']))
 
 gtdrmBin = progEnv.Program('gtdrm', listFiles(['src/gtdrm/*.cxx']))
 
-progEnv.Tool('registerTargets', package = 'Likelihood', 
-             libraryCxts = [[LikelihoodLib, libEnv]], 
-             binaryCxts = [[gtlikeBin, progEnv], 
+progEnv.Tool('registerTargets', package = 'Likelihood',
+             libraryCxts = [[LikelihoodLib, libEnv]],
+             binaryCxts = [[gtlikeBin, progEnv],
                            [gtexpmapBin, progEnv],
                            [gttsmapBin, progEnv],
                            [gttscubeBin, progEnv],
@@ -87,7 +87,7 @@ progEnv.Tool('registerTargets', package = 'Likelihood',
                            [gtwtsmapBin, progEnv],
                            [gtdrmBin, progEnv]],
              testAppCxts = [[test_LikelihoodBin, testEnv]],
-             includes = listFiles(['Likelihood/*.h']), 
+             includes = listFiles(['Likelihood/*.h']),
              pfiles = listFiles(['pfiles/*.par']),
              data = listFiles(['data/*'], recursive = True),
              xml = listFiles(['xml/*'], recursive = True))
