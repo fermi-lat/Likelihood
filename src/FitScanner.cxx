@@ -176,6 +176,49 @@ namespace Likelihood {
     return 0;
   }
   
+  TestSourceModelCacheVector::TestSourceModelCacheVector(size_t n):
+    m_vector(n, 0){
+  }
+
+  TestSourceModelCacheVector::~TestSourceModelCacheVector() {
+    for ( std::vector<TestSourceModelCache*>::iterator itrDel = m_vector.begin();
+	  itrDel != m_vector.end(); itrDel++ ) {
+      TestSourceModelCache* toDel = *itrDel;
+      delete toDel;
+      *itrDel = 0;
+    }
+  }
+
+  void TestSourceModelCacheVector::buildCaches(const FitScanModelWrapper& wrapper, PointSource& ptrSrc) {          
+    for ( size_t iComp(0); iComp < wrapper.numComponents(); iComp++ ) {      
+      const BinnedLikelihood* binnedLike = wrapper.getComponent(iComp);      
+      if ( binnedLike == 0 ) {
+	throw std::runtime_error("FitScanner requires using Binned likelihood fitting.");
+      }
+      // Build the cache with the new test source
+      buildCache(iComp, *binnedLike, ptrSrc);
+    }
+  }
+  
+  const TestSourceModelCache* TestSourceModelCacheVector::buildCache(size_t icomp, 
+								     const BinnedLikelihood& binnedLike, 
+								     PointSource& ptrSrc) {
+    TestSourceModelCache* to_del = m_vector[icomp];
+    if ( to_del != 0 ) {
+      m_vector[icomp] = 0;    
+      delete to_del;
+    }
+    m_vector[icomp] = new TestSourceModelCache(binnedLike,ptrSrc);
+    return m_vector[icomp];
+  }
+
+  void TestSourceModelCacheVector::writeTestImages(const std::string& filename, size_t ix, size_t iy) {
+    char buffer[255];
+    for ( size_t iComp(0); iComp < m_vector.size(); iComp++ ) {
+      sprintf(buffer,"I_%d_%d_%d",iy,ix,iComp);
+      m_vector[iComp]->writeTestSourceToFitsImage(filename,buffer);
+    }
+  }
  
   void FitScanMVPrior::logLikelihood(const CLHEP::HepVector& params, double& logLike) const {
     CLHEP::HepVector delta = params - m_centralVals;
@@ -461,6 +504,7 @@ namespace Likelihood {
     :FitScanModelWrapper(),
      m_binnedLike(binnedLike){
     setDims(binnedLike.countsMap().pixels().size(),binnedLike.countsMap().energies().size()-1);
+    m_binnedLike.setVerbose(false);
   }
 
   const std::vector<float>& FitScanModelWrapper_Binned::data() const {
@@ -489,7 +533,7 @@ namespace Likelihood {
     return m_binnedLike.value();
   }
 
-  void FitScanModelWrapper_Binned::addSource(Source* aSrc) {
+  void FitScanModelWrapper_Binned::addSource(Source* aSrc) {    
     m_binnedLike.addSource(aSrc);
   }
 
@@ -498,6 +542,9 @@ namespace Likelihood {
   }
     
   void FitScanModelWrapper_Binned::removeSource(const std::string& sourceName) {
+    if ( ! m_binnedLike.hasSrcNamed(sourceName) ) {
+      return;
+    }
     Source* delSrc = m_binnedLike.deleteSource(sourceName);
     if ( ! delSrc->fixedSpectrum() ) {
       m_binnedLike.eraseSourceMap(sourceName);
@@ -513,7 +560,7 @@ namespace Likelihood {
     return m_binnedLike.energies();
   }
 
-  int FitScanModelWrapper_Binned::shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+  int FitScanModelWrapper_Binned::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 						  const astro::SkyDir& newDir,
 						  std::vector<float>& targetModel) const {
     if ( modelCaches.size() != 1 ) {
@@ -782,6 +829,9 @@ namespace Likelihood {
     for ( size_t i(0); i < m_summedLike.numComponents(); i++ ) {
       LogLike* comp = m_summedLike.getComponent(i);
       BinnedLikelihood* binnedLike = dynamic_cast<BinnedLikelihood*>(comp);
+      if ( ! binnedLike->hasSrcNamed(sourceName) ) {
+	continue;
+      }
       Source* delSrc = binnedLike->deleteSource(sourceName);
       if ( ! delSrc->fixedSpectrum() ) {
 	binnedLike->eraseSourceMap(sourceName);
@@ -804,7 +854,7 @@ namespace Likelihood {
   }
 
   
-  int FitScanModelWrapper_Summed::shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+  int FitScanModelWrapper_Summed::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 						  const astro::SkyDir& newDir,
 						  std::vector<float>& targetModel) const {
     if ( modelCaches.size() != m_summedLike.numComponents() ) {
@@ -813,7 +863,7 @@ namespace Likelihood {
     }
 
     std::vector< std::vector<float> > targetModels(m_summedLike.numComponents());
-    std::vector< const std::vector<float>* > targetModelsPtrs;
+    std::vector< const std::vector<float>* > targetModelsPtrs;    
     for ( size_t i(0); i < modelCaches.size(); i++ ) {
       size_t compSize = m_sizeByComp[i];
       targetModels[i].resize(compSize);
@@ -883,6 +933,8 @@ namespace Likelihood {
      m_lastBin(0){
 
     build_from_model();
+    refactor_from_model();
+    setEnergyBin(-1);
 
   }
 
@@ -1120,7 +1172,7 @@ namespace Likelihood {
     addTestSourceToCurrent(0.0);
   } 
   
-  int FitScanCache::shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+  int FitScanCache::shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 				    const astro::SkyDir& newDir) {
     // First remove the current version of the source
     removeTestSourceFromCurrent();
@@ -1287,7 +1339,9 @@ namespace Likelihood {
   /* Calculate the log-likelihood for the currently cached values */
   int FitScanCache::calculateLoglikeCurrent(double& logLike,
 					    Prior_Version whichPrior) {
-    
+
+    setEnergyBins(m_firstEnergyBin, m_lastEnergyBin);    
+
     FitUtils::sumModel(m_currentPars,m_currentModels,m_currentFixed,m_currentBestModel,
 		       m_firstBin,m_lastBin);
         
@@ -1314,6 +1368,8 @@ namespace Likelihood {
       prior->logLikelihood(m_currentPars,prior_loglike);
       logLike += prior_loglike;
     }
+
+    m_currentLogLike = logLike;
 
     return 0;
   }
@@ -1604,6 +1660,83 @@ namespace Likelihood {
     }
   }
 
+
+  void FitScanCache::printCurrent() const {
+    std::cout << "Current value: " << m_currentLogLike << std::endl;
+    FitUtils::printVector("Initial:", m_initPars);
+    FitUtils::printVector("Current:", m_currentPars);    
+  }
+
+  void FitScanCache::checkCache() const { 
+    const std::vector<float>& data_vect = m_useReduced ? m_dataRed : m_data;
+    const std::vector<float>& fixed_vect = m_useReduced ? m_allRedFixed : m_allFixed;
+    const std::vector<float>& test_vect = m_useReduced ? m_targetRedModel : m_targetModel;
+    
+    float data_sum(0.);
+    float fixed_sum(0.);
+    float test_sum(0.);
+    float model_sum(0.);
+
+    FitUtils::sumVector(data_vect.begin(), data_vect.end(), data_sum);
+    FitUtils::sumVector(fixed_vect.begin(), fixed_vect.end(), fixed_sum);
+    FitUtils::sumVector(test_vect.begin(), test_vect.end(), test_sum);
+    FitUtils::sumVector(m_currentBestModel.begin(), m_currentBestModel.end(), model_sum);
+
+    float datam_sum(0);
+    double npredm_sum(0);
+    double targetm_sum(0);    
+    double fixedm_sum(0);
+
+    for ( size_t i(0); i < m_modelWrapper.numComponents(); i++ ) {
+      BinnedLikelihood* binned = const_cast<BinnedLikelihood*>(m_modelWrapper.getComponent(i));
+      npredm_sum += binned->npred();
+      if ( binned->hasSrcNamed(m_testSourceName) ) {
+	targetm_sum += binned->NpredValue(m_testSourceName);
+      }
+      const std::vector<float> & countsData = binned->dataCache().data();
+      for ( std::vector<float>::const_iterator itrc = countsData.begin();
+	    itrc != countsData.end(); itrc++ ) {
+	datam_sum += *itrc;
+      }
+      const std::vector<double> & fixedModelSpectrum = binned->fixedModelSpectrum_edisp();
+      for ( std::vector<double>::const_iterator itr = fixedModelSpectrum.begin();
+	    itr != fixedModelSpectrum.end(); itr++ ) {
+	fixedm_sum += *itr;
+      }
+    }
+
+    printCurrent();    
+    std::cout << "FitScanCache::checkCache " << model_sum << ' ' << data_sum << ' ' << fixed_sum << ' ' << test_sum << ' ' << std::endl
+	      << "  " << npredm_sum << ' ' << datam_sum << ' ' << fixedm_sum << ' ' << targetm_sum << std::endl;
+
+    double sum_free(0);
+    double summ_free(0);
+    for ( size_t ifree(0); ifree < m_currentSourceIndices.size(); ifree++ ) {      
+      const std::string& srcName = m_templateSourceNames[ifree];
+      std::cout << "  " << srcName << std::flush;
+      const std::vector<float>* curr_model = m_currentModels[ifree];
+      float src_model_cts(0);
+      if ( curr_model != 0 ) {
+	FitUtils::sumVector(curr_model->begin(), curr_model->end(), src_model_cts);
+      }
+      src_model_cts *= m_currentPars[ifree];
+      std::cout << ' ' << src_model_cts << std::flush;
+      double srcm_model_cts(0);
+      for ( size_t icomp(0); icomp < m_modelWrapper.numComponents(); icomp++ ) {
+	BinnedLikelihood* binned = const_cast<BinnedLikelihood*>(m_modelWrapper.getComponent(icomp));
+	srcm_model_cts += binned->NpredValue(srcName);
+      }
+      std::cout <<  ' ' << srcm_model_cts << std::endl;
+      sum_free += src_model_cts;
+      summ_free += srcm_model_cts;
+    }
+
+    std::cout << "  " << sum_free << ' ' << summ_free << std::endl;
+    
+
+  }
+
+
   void FitScanCache::build_from_model() {
     
     cleanup();
@@ -1799,7 +1932,7 @@ namespace Likelihood {
      m_baselinePars(0),
      m_baselineCovs(0),
      m_cache(0),
-     m_testSourceCaches(1,0),
+     m_testSourceCaches(1),
      m_verbose_null(0),
      m_verbose_bb(0),
      m_verbose_scan(0),
@@ -1830,7 +1963,7 @@ namespace Likelihood {
      m_baselinePars(0),
      m_baselineCovs(0),
      m_cache(0),
-     m_testSourceCaches(summedLike.numComponents(),0),
+     m_testSourceCaches(summedLike.numComponents()),
      m_verbose_null(0),
      m_verbose_bb(0),
      m_verbose_scan(0),
@@ -1869,7 +2002,7 @@ namespace Likelihood {
      m_baselinePars(0),
      m_baselineCovs(0),
      m_cache(0),
-     m_testSourceCaches(1,0),
+     m_testSourceCaches(1),
      m_verbose_null(0),
      m_verbose_bb(0),
      m_verbose_scan(0),
@@ -1907,7 +2040,7 @@ namespace Likelihood {
      m_baselinePars(0),
      m_baselineCovs(0),
      m_cache(0),
-     m_testSourceCaches(1,0),
+     m_testSourceCaches(summedLike.numComponents()),
      m_verbose_null(0),
      m_verbose_bb(0),
      m_verbose_scan(0),
@@ -1939,7 +2072,6 @@ namespace Likelihood {
     }
     m_scanData.clear();
     delete m_cache;
-    deleteTestModelCaches();
     delete m_modelWrapper;
   }
   
@@ -2035,8 +2167,12 @@ namespace Likelihood {
     // Build the cache object, deleting the old version if needed
     delete m_cache;
     m_cache = new FitScanCache(*m_modelWrapper,m_testSourceName,tol,maxIter,initLambda,useReduced(),useWeights);        
+       
+    loglike_null = 0;
     m_cache->calculateLoglikeCurrent(loglike_null);
     std::cout << "Got null likelihood " << loglike_null << std::endl;    
+    
+    m_cache->checkCache();
 
     // Do the baseline fit and latch the results.   
     status = m_cache->fitCurrent(FitScanCache::Init_Prior,verbose_null());
@@ -2058,7 +2194,7 @@ namespace Likelihood {
     }
 
     std::cout << "Redid baseline fit with linear fitter.  Likelihood: " << loglike_null << std::endl;
-    
+
     // Get the number of bins in the grid of the region
     // This allows for:
     //   1) if doTSMap is false we don't actually loop over positions
@@ -2182,6 +2318,10 @@ namespace Likelihood {
     // Note the loop order, outer loop is on Y, this matches HistND structure
     for ( long iy(0); iy < nybins; iy++ ) {      
       for ( long ix(0); ix < nxbins; ix++, ipix++ ) {
+
+	if ( ipix % ipix_print == 0 ) {
+	  std::cout << '.' << std::flush;
+	}
 	
 	// Set the test source direction from the grid
 	if ( doTSMap ) {
@@ -2228,19 +2368,16 @@ namespace Likelihood {
 	} else {
 	  // This version just shifts the image by some number of pixels
 	  m_cache->shiftTestSource(m_testSourceCaches,m_testSourceDir);
-	  if ( writeTestImages() ) {
-	    char buffer[255];
-	    static const std::string testImages("TestImages.fits");
-	    for ( size_t iComp(0); iComp < m_testSourceCaches.size(); iComp++ ) {
-	      sprintf(buffer,"I_%d_%d_%d",iy,ix,iComp);
-	      m_testSourceCaches[iComp]->writeTestSourceToFitsImage(testImages,buffer);
-	    }
-	  }
+	  static const std::string testImages("TestImages.fits");
+	  if ( m_writeTestImages ) {
+	    m_testSourceCaches.writeTestImages(testImages, ix, iy);
+	  }	 
 	}
-	
+
 	// Set the cache to do a broadband fit
 	m_cache->setEnergyBin(-1);	
 	status = m_cache->fitCurrent(FitScanCache::Global_Prior,verbose_bb());
+
 	if ( status != 0 ) {
 	  // Refit with verbose
 	  if ( redoFailedVerbose ) {
@@ -2312,9 +2449,6 @@ namespace Likelihood {
 	  if ( status > 0 ) {
 	    nfailed_scan_newton_bins += status;
 	  }
-	}
-	if ( ipix % ipix_print == 0 ) {
-	  std::cout << '.' << std::flush;
 	}
 
 	// This block copies the SED scan data to the output histograms
@@ -2685,6 +2819,7 @@ namespace Likelihood {
 
   /* This adds the test source to the source model */
   int FitScanner::addTestSourceToModel() {
+    removeTestSourceFromModel();
     PointSource* ptrSrc = dynamic_cast<PointSource*>(m_testSource);
     if ( ptrSrc == 0 ) {
       throw std::runtime_error("Test source must be a point source, for now...");
@@ -2876,7 +3011,6 @@ namespace Likelihood {
 
   /* Build and cache an image of the test source */
   int FitScanner::buildTestModelCache() {
-    deleteTestModelCaches();
     if ( m_testSource == 0 ) {
       throw std::runtime_error("FitScanner needs a test source to build a test source cache.");
       return -1;
@@ -2886,25 +3020,17 @@ namespace Likelihood {
       throw std::runtime_error("Test source must be a point source, for now...");
       return -1;
     }
-    
-    for ( size_t iComp(0); iComp < m_modelWrapper->numComponents(); iComp++ ) {      
-      const BinnedLikelihood* binnedLike = m_modelWrapper->getComponent(iComp);      
-      if ( binnedLike == 0 ) {
-	throw std::runtime_error("FitScanner requires using Binned likelihood fitting.");
-	return -1;
-      }
-      // astro::SkyDir doesn't have assignment operator, so we do this
-      
-      // TESTING, get the direction from the current point source
-      // m_testSourceDir() = binnedLike->countsMap().refDir()();
-      m_testSourceDir() = ptrSrc->getDir()();
 
-      // Now set the direction in the source.   
-      ptrSrc->setDir(m_testSourceDir.ra(), m_testSourceDir.dec(),
-		     false, false);
-      // Build the cache with the new test source
-      m_testSourceCaches[iComp] = new TestSourceModelCache(*binnedLike,*ptrSrc);
-    }
+    // astro::SkyDir doesn't have assignment operator, so we do this
+    
+    // TESTING, get the direction from the current point source
+    // m_testSourceDir() = binnedLike->countsMap().refDir()();
+    m_testSourceDir() = ptrSrc->getDir()();
+    
+    // Now set the direction in the source.   
+    ptrSrc->setDir(m_testSourceDir.ra(), m_testSourceDir.dec(), false, false);
+    
+    m_testSourceCaches.buildCaches(*m_modelWrapper, *ptrSrc);
 
     // latch the specturm in the model wrapper
     m_modelWrapper->cacheFluxValues(*m_testSource);
@@ -3198,15 +3324,4 @@ namespace Likelihood {
     header.setKeyword(buf,dimString);
   }
   
-  
-  void FitScanner::deleteTestModelCaches() {
-    for ( std::vector<TestSourceModelCache*>::iterator itrDel = m_testSourceCaches.begin();
-	  itrDel != m_testSourceCaches.end(); itrDel++ ) {
-      TestSourceModelCache* toDel = *itrDel;
-      delete toDel;
-      *itrDel = 0;
-    }
-  }
-
-
 } // namespace Likelihood

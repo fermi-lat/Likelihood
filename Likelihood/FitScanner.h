@@ -95,6 +95,7 @@ namespace Likelihood {
   class CountsMapBase;  
   struct Snapshot_Status;
   class Snapshot;
+  class FitScanModelWrapper;
 
   /* A utility class to cache the image the predicted counts map for the
      test source.  
@@ -135,6 +136,11 @@ namespace Likelihood {
     void writeTestSourceToFitsImage(const std::string& fits_file,
 				    const std::string& ext_name) const; 
     
+    
+    
+    inline const std::vector<float>& refModel() const { return m_refModel; }
+
+    inline const std::vector<float>& currentModel() const { return m_currentModel; }
 
   protected:
 
@@ -176,6 +182,30 @@ namespace Likelihood {
     mutable std::vector<float> m_currentModel;
 
   };
+
+  
+  class TestSourceModelCacheVector {
+    
+  public:
+    
+    TestSourceModelCacheVector(size_t n);
+
+    ~TestSourceModelCacheVector();
+
+    inline size_t size() const { return m_vector.size(); }
+    inline const TestSourceModelCache* operator[](size_t i) const { return m_vector[i]; }    
+    inline const TestSourceModelCache* cache(size_t i) const { return m_vector[i]; } 
+
+    void buildCaches(const FitScanModelWrapper& wrapper, PointSource& src);
+    
+    const TestSourceModelCache* buildCache(size_t icomp, const BinnedLikelihood& binnedLike, PointSource& ptrSrc);
+
+    void writeTestImages(const std::string& filename, size_t ix, size_t iy);
+
+  private:
+
+    std::vector<TestSourceModelCache*> m_vector;
+  };    
 
 
   /* A utility class to store and apply a multivariate prior on fit parameters.
@@ -417,7 +447,7 @@ namespace Likelihood {
     virtual const std::vector<double>& energies() const = 0;
 
     /* shift the test source */
-    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+    virtual int shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 				const astro::SkyDir& newDir,
 				std::vector<float>& targetModel) const = 0;
 
@@ -569,7 +599,7 @@ namespace Likelihood {
     virtual const std::vector<double>& energies() const;
 
     /* shift the test source */
-    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+    virtual int shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 				const astro::SkyDir& newDir,
 				std::vector<float>& targetModel) const;
 
@@ -666,7 +696,7 @@ namespace Likelihood {
     virtual const std::vector<double>& energies() const { return m_energiesMerged; }
 
     /* shift the test source */
-    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+    virtual int shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 				const astro::SkyDir& newDir,
 				std::vector<float>& targetModel) const;
   
@@ -826,7 +856,7 @@ namespace Likelihood {
        This version shift the SourceMap with respect to a precomputed version
        and in much less expensive, but not quite as accurate 
      */
-    int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCache,
+    int shiftTestSource(const TestSourceModelCacheVector& modelCache,
 			const astro::SkyDir& newDir);
 
     /* Set the cache to add in the test source with a specify normalization value */
@@ -857,6 +887,13 @@ namespace Likelihood {
 
     /* Calculate the log-likelihood for the currently cached values */
     int calculateLoglikeCurrent(double& logLike, Prior_Version whichPrior=No_Prior);
+
+    /* This is a callable version of the former */
+    double returnLogLikeCurrent(Prior_Version whichPrior=No_Prior) {
+      double retVal(0.);
+      int status = calculateLoglikeCurrent(retVal, whichPrior);
+      return (status == 0 ? retVal : 0.);
+    }
 
     /* Get the current gradiant and Hessian */
     void getGradiantAndHessian(const CLHEP::HepVector& norms,			      
@@ -1007,6 +1044,12 @@ namespace Likelihood {
 
     // access to the SourceModel
     inline const BinnedLikelihood& sourceModel() const { return m_modelWrapper.getMasterComponent(); }
+
+    
+    void printCurrent() const;
+
+    void checkCache() const;
+
 
   protected:
 
@@ -1439,7 +1482,7 @@ namespace Likelihood {
     inline void set_writeTestImages(bool val) { m_writeTestImages = val; }
     inline void set_useReduced(bool val) { m_useReduced = val; }
 
-  protected:
+    inline TestSourceModelCacheVector& testSourceCaches() { return m_testSourceCaches; }
 
     /* This adds the test source to the source model */
     int addTestSourceToModel();
@@ -1477,6 +1520,8 @@ namespace Likelihood {
 
     /* Build and cache an image of the test source */
     int buildTestModelCache();
+
+  protected:
     
     /* Build an n-dimensional histogram based on the loop parameters */
     HistND* buildHist(const std::string& name, 
@@ -1516,8 +1561,6 @@ namespace Likelihood {
 		       int icol,
 		       const std::string& dimString) const;
 
-    /* delete the test model caches */
-    void deleteTestModelCaches();
 
   private:
 
@@ -1564,7 +1607,7 @@ namespace Likelihood {
     FitScanCache* m_cache;
 
     // This is what we use to move around the image of the test source
-    std::vector<TestSourceModelCache*> m_testSourceCaches;    
+    TestSourceModelCacheVector m_testSourceCaches;    
 
     // For debugging
     int m_verbose_null;
