@@ -2172,8 +2172,6 @@ namespace Likelihood {
     m_cache->calculateLoglikeCurrent(loglike_null);
     std::cout << "Got null likelihood " << loglike_null << std::endl;    
     
-    m_cache->checkCache();
-
     // Do the baseline fit and latch the results.   
     status = m_cache->fitCurrent(FitScanCache::Init_Prior,verbose_null());
     if ( status != 0 ) { 
