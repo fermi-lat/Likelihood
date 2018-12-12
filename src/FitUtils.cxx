@@ -1600,6 +1600,36 @@ namespace Likelihood {
       }     
     }
 
+
+    void extractNonZeroBins(const std::vector<float>& dataVect,
+                            std::vector<size_t>& firstPixByLayer,
+                            std::vector<int>& nonZeroBins,
+                            std::vector<float>& dataRed,
+                            std::vector<int>& energyBinStopIdxs) {
+
+      size_t n = dataVect.size();
+      nonZeroBins.clear();
+      dataRed.clear();
+      energyBinStopIdxs.clear();
+      
+      static const float epsilon(1e-15);
+      size_t ilayer(1);
+      for ( size_t i(0); i < n; i++ ) {
+	if ( dataVect[i] > epsilon ) { 
+	  nonZeroBins.push_back(i);
+	  dataRed.push_back(dataVect[i]);
+	}
+	// put in placeholders between the energy layers	
+	// and latch the index in the reduced vector
+        if ( (i+1) == firstPixByLayer[ilayer] ) {
+	  dataRed.push_back(0.);
+	  nonZeroBins.push_back(-1*(i+1));
+	  energyBinStopIdxs.push_back( dataRed.size() );
+	  ilayer++;
+	}
+      }     
+    }
+
     void sparsifyModel(const std::vector<int>& nonZeroBins,
 		       const std::vector<float>& model,
 		       std::vector<float>& modelRed) {

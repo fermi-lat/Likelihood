@@ -340,11 +340,12 @@ namespace Likelihood {
     
     /* C'tor, trivial */
     FitScanModelWrapper()
-      :m_npix(0),m_nebins(0),m_size(0){;}
+      :m_nebins(0),m_size(0){;}
 
     /* D'tor, trivial */
     ~FitScanModelWrapper() {;}    
 
+    
     /* return a reference to the counts data   
        for the BinnedLikelihood this point to the CountMap in the BinnedLikelihood object
        for the SummedLikelihood this points to a local vector where we have merged the countsdata
@@ -457,9 +458,11 @@ namespace Likelihood {
     /* cache the flux values at the energy bin edges */
     void cacheFluxValues(Source& aSrc);
 
-    /* return the number of pixels,        
-       for the SummedLikelihood this is summed over the components */
-    inline size_t nPix() const { return m_npix; }
+    /* return the size of a particular energy layer */
+    virtual size_t nPixels(size_t i) const = 0;
+
+    /* fill a vector with number of pixels per energy layer */
+    virtual void getNumPixels(std::vector<size_t>& pixelsByLayer) const = 0;
 
     /* return the number of energy bins, 
        for the SummedLikelihoods this is the union of the components  */    
@@ -485,13 +488,9 @@ namespace Likelihood {
 
   protected:
     
-    inline void setDims(size_t nPix, size_t nEBins) {
-      m_npix = nPix; m_nebins = nEBins;
-      m_size = m_npix*nEBins;
-    }
 
-    inline void setDims(size_t nPix, size_t nEBins, size_t nSizeTot) {
-      m_npix = nPix; m_nebins = nEBins;
+    inline void setDims(size_t nEBins, size_t nSizeTot) {
+      m_nebins = nEBins;
       m_size = nSizeTot;
     }
 
@@ -504,10 +503,8 @@ namespace Likelihood {
 
   private:
     
-    size_t m_npix;
     size_t m_nebins;
     size_t m_size; 
-
 
     // Reference energies (geometric mean of energy bins)
     std::vector<double> m_ref_energies;    
@@ -606,9 +603,21 @@ namespace Likelihood {
     /* set the energy bins to use in the analysis */
     virtual void set_klims(size_t kmin, size_t kmax);
 
+    /* return the size of a particular energy layer */
+    virtual size_t nPixels(size_t i) const { return m_npix; }
+ 
+    /* fill a vector with number of pixels per energy layer */
+    virtual void getNumPixels(std::vector<size_t>& pixelsByLayer) const {
+      pixelsByLayer.clear();
+      pixelsByLayer.resize(nEBins(), m_npix);
+    }
+
+ 
   private:
 
     BinnedLikelihood& m_binnedLike;
+
+    size_t m_npix;
 
   };
 
@@ -703,6 +712,14 @@ namespace Likelihood {
     /* set the energy bins to use in the analysis */
     virtual void set_klims(size_t kmin, size_t kmax);
 
+    /* return the size of a particular energy layer */
+    virtual size_t nPixels(size_t i) const { return m_nPixelsByLayer[i]; }
+
+    /* fill a vector with number of pixels per energy layer */
+    virtual void getNumPixels(std::vector<size_t>& pixelsByLayer) const {
+      pixelsByLayer.resize(nEBins());
+      std::copy(m_nPixelsByLayer.begin(), m_nPixelsByLayer.end(), pixelsByLayer.begin());
+    }
 
   protected:
     
@@ -717,6 +734,9 @@ namespace Likelihood {
     
     // Index of first pixels for each component
     std::vector<size_t> m_nPixelsByComp;
+
+    // Number of pixels for each energy layer
+    std::vector<size_t> m_nPixelsByLayer;
 
     // Number of enerby bins for each component
     std::vector<size_t> m_nEBinsByComp;
@@ -974,7 +994,6 @@ namespace Likelihood {
 
     // Information about the baseline model
     inline const std::string& testSourceName() const { return m_testSourceName; }
-    inline size_t npix() const { return m_npix; }
     inline size_t nebins() const { return m_nebins; }
     inline size_t nBkgModel() const { return m_allModels.size(); }
     inline bool useReduced() const { return m_useReduced; }
@@ -1055,6 +1074,8 @@ namespace Likelihood {
 
     void reduceModels();
 
+    void setEnergyBinStopIdxs();
+
     int update_template_for_source(const std::string& srcName);
 
     void build_from_model();
@@ -1091,10 +1112,8 @@ namespace Likelihood {
     // Initial damping parameter for step calculation
     double m_initLambda;
        
-    // number of energy bins in the counts map
+    // number of energy bins in the combined counts map
     size_t m_nebins;
-    // number of pixels in the counts map
-    size_t m_npix;
 
     // reference to counts data
     const std::vector<float>& m_data;
@@ -1225,7 +1244,11 @@ namespace Likelihood {
       PRIMARY_HDU = 0x1,
       FITS_IMAGE = 0x2,
       FITDATA_TABLE = 0x4,
-      SCANDATA_TABLE = 0x8
+      SCANDATA_TABLE = 0x8,
+      ENERGY_BINS = 0x10,
+      BASELINE_PARS = 0x20,
+      TSMAP_ONLY = 0x17,
+      EVERYTHING = 0x3F,
     } Out_Location;
 
   public:
@@ -1355,7 +1378,8 @@ namespace Likelihood {
     int writeFitsFile(const std::string& fitsFile,
 		      const std::string& creator,
 		      std::string fits_template = "",
-		      bool copyGTIs=false) const;
+		      bool copyGTIs=false,
+		      int writeMask=FitScanner::EVERYTHING) const;
       
 
     // Access Functions -----------

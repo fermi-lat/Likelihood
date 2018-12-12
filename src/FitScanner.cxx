@@ -503,7 +503,7 @@ namespace Likelihood {
   FitScanModelWrapper_Binned::FitScanModelWrapper_Binned(BinnedLikelihood& binnedLike)
     :FitScanModelWrapper(),
      m_binnedLike(binnedLike){
-    setDims(binnedLike.countsMap().pixels().size(),binnedLike.countsMap().energies().size()-1);
+    setDims(binnedLike.dataCache().num_ebins(), binnedLike.dataCache().data_map_size());
     m_binnedLike.setVerbose(false);
   }
 
@@ -643,6 +643,7 @@ namespace Likelihood {
      m_master(0),
      m_localData(),
      m_nPixelsByComp(summedLike.numComponents(),0),
+     m_nPixelsByLayer(),
      m_nEBinsByComp(summedLike.numComponents(),0),
      m_sizeByComp(summedLike.numComponents(),0),
      m_energiesMerged(),
@@ -689,7 +690,20 @@ namespace Likelihood {
 	m_energiesMerged.push_back(nextEnergy);
       }
     }
-    setDims(nPixTot,m_energiesMerged.size()-1, nSizeTot);
+    
+    m_nPixelsByLayer.resize(m_energyBinLocal.size()-1, 0);
+    for ( size_t ix(0); ix < m_energyBinLocal.size()-1; ix++ ) {
+      // Loop over components
+      for ( size_t jx(0); jx < m_nPixelsByComp.size(); jx++ ) {
+	int ebinLocal = m_energyBinLocal[ix][jx];
+	if ( ebinLocal < 0 ) {
+	  continue;
+	}
+	m_nPixelsByLayer[ix] += m_nPixelsByComp[jx];
+      }
+    }
+
+    setDims(m_energiesMerged.size()-1, nSizeTot);
     m_localData.resize(size());
     FitUtils::setVectorValue(0., m_localData.begin(), m_localData.end());
     // Now fill the local data
@@ -905,7 +919,6 @@ namespace Likelihood {
      m_maxIter(maxIter),
      m_initLambda(initLambda),
      m_nebins(m_modelWrapper.nEBins()),
-     m_npix(m_modelWrapper.nPix()),
      m_data(modelWrapper.data()),
      m_allFixed(m_modelWrapper.size()),
      m_initModel(m_modelWrapper.size()),
@@ -1030,10 +1043,10 @@ namespace Likelihood {
     CLHEP::HepVector parScales_HEP;
     FitUtils::Vector_Stl_to_Hep(parScales,parScales_HEP);
 
+    setEnergyBinStopIdxs();
     if ( m_useReduced ) {
       reduceModels();
-    }
-
+    } 
     setEnergyBin(-1);
 
     refactorModel(freeSources,parScales,false);  
@@ -1150,13 +1163,15 @@ namespace Likelihood {
     m_firstEnergyBin = firstEnergyBin;
     m_lastEnergyBin = lastEnergyBin;
     // Loop from m_npix*energyBin to m_npix*(energyBin+1)
-    if ( m_useReduced ) {
-      m_firstBin = firstEnergyBin == 0 ? 0 : m_energyBinStopIdxs[m_firstEnergyBin-1];
-      m_lastBin = m_energyBinStopIdxs[m_lastEnergyBin-1];
-    } else {
-      m_firstBin = m_npix*m_firstEnergyBin;
-      m_lastBin = m_npix*m_lastEnergyBin;
-    }
+    m_firstBin = firstEnergyBin == 0 ? 0 : m_energyBinStopIdxs[m_firstEnergyBin-1];
+    m_lastBin = m_energyBinStopIdxs[m_lastEnergyBin-1];
+    //if ( m_useReduced ) {
+    //  m_firstBin = firstEnergyBin == 0 ? 0 : m_energyBinStopIdxs[m_firstEnergyBin-1];
+    //  m_lastBin = m_energyBinStopIdxs[m_lastEnergyBin-1];
+    //} else {
+    //  m_firstBin = m_npix*m_firstEnergyBin;
+    //  m_lastBin = m_npix*m_lastEnergyBin;
+    //}
   }
 
   void FitScanCache::setTestSource(Source& aSrc) {
@@ -1340,11 +1355,9 @@ namespace Likelihood {
   int FitScanCache::calculateLoglikeCurrent(double& logLike,
 					    Prior_Version whichPrior) {
 
-    setEnergyBins(m_firstEnergyBin, m_lastEnergyBin);    
-
     FitUtils::sumModel(m_currentPars,m_currentModels,m_currentFixed,m_currentBestModel,
 		       m_firstBin,m_lastBin);
-        
+
     std::vector<float>::const_iterator data_start = m_useReduced ? m_dataRed.begin() + m_firstBin : m_data.begin() + m_firstBin;
     std::vector<float>::const_iterator data_end =  m_useReduced ? 
       ( m_lastBin == 0 ? m_dataRed.end() : m_dataRed.begin() + m_lastBin ) :
@@ -1620,7 +1633,12 @@ namespace Likelihood {
     if ( ! m_useReduced ) {
       return;
     }
-    FitUtils::extractNonZeroBins(m_data,m_npix,m_nonZeroBins,m_dataRed,m_energyBinStopIdxs);
+
+    // We are going to overwrite m_energyBinStopIdxs,
+    // but we need it for now, so copy it to a temp
+    std::vector<size_t> firstPixels(m_energyBinStopIdxs.size());
+    std::copy(m_energyBinStopIdxs.begin(), m_energyBinStopIdxs.end(), firstPixels.begin());
+    FitUtils::extractNonZeroBins(m_data,firstPixels,m_nonZeroBins,m_dataRed,m_energyBinStopIdxs);
     int nred = m_dataRed.size();
 
     // for debugging
@@ -1657,6 +1675,17 @@ namespace Likelihood {
     }
     if ( m_targetRedModel.size() != nred ) {
       throw std::runtime_error("Mistmatch between reduced data vector size and target component vector size.");
+    }
+  }
+
+  
+  void FitScanCache::setEnergyBinStopIdxs() {	
+    m_energyBinStopIdxs.resize(m_modelWrapper.nEBins() + 1);
+    m_energyBinStopIdxs[0] = 0;
+    size_t sum(0);
+    for ( size_t i(0); i < m_modelWrapper.nEBins(); i++ ) {
+      sum += m_modelWrapper.nPixels(i);
+      m_energyBinStopIdxs[i+1] = sum;
     }
   }
 
@@ -2171,11 +2200,12 @@ namespace Likelihood {
     // Build the cache object, deleting the old version if needed
     delete m_cache;
     m_cache = new FitScanCache(*m_modelWrapper,m_testSourceName,tol,maxIter,initLambda,useReduced(),useWeights);        
-       
+    m_cache->setEnergyBin(-1);
+
     loglike_null = 0;
     m_cache->calculateLoglikeCurrent(loglike_null);
     std::cout << "Got null likelihood " << loglike_null << std::endl;    
-    
+
     // Do the baseline fit and latch the results.   
     status = m_cache->fitCurrent(FitScanCache::Init_Prior,verbose_null());
     if ( status != 0 ) { 
@@ -2535,7 +2565,8 @@ namespace Likelihood {
   int FitScanner::writeFitsFile(const std::string& fitsFile,
 				const std::string& creator,
 				std::string fits_template,
-				bool copyGTIs) const {
+				bool copyGTIs,
+				int writeMask=FitScanner::EVERYTHING) const {
 
     int status(0);
 
@@ -2571,15 +2602,15 @@ namespace Likelihood {
 	  status |= writeFitsImage(fitsFile,"",*(itrHists->second.first));
 	} 	  
       }
-      if ( (find_loc->second & FITS_IMAGE) != 0 ) {
+      if ( (find_loc->second & FITS_IMAGE & writeMask) != 0 ) {
 	if ( image_based ) { 
 	  status |= writeFitsImage(fitsFile,itrHists->first,*(itrHists->second.first));
 	} 	  
       }
-      if ( (find_loc->second & FITDATA_TABLE) != 0 ) {
+      if ( (find_loc->second & FITDATA_TABLE & writeMask) != 0 ) {
 	fitColData.push_back(*itrHists);
       }
-      if ( (find_loc->second & SCANDATA_TABLE) != 0 ) {
+      if ( (find_loc->second & SCANDATA_TABLE & writeMask) != 0 ) {
 	scanColData.push_back(*itrHists);
       }
       if ( status ) {
@@ -2589,34 +2620,41 @@ namespace Likelihood {
     }
 
     // Ok, now save the remaining histograms to a single table
-    status = writeFitsTable_byPixel(fitsFile,"FITDATA",fitColData);
-    if ( status ) {
-      throw std::runtime_error("Failed to write fits table for fit data");
-      return status;
+    if ( ( FITDATA_TABLE & writeMask ) != 0 ) {
+      status = writeFitsTable_byPixel(fitsFile,"FITDATA",fitColData);
+      if ( status ) {
+	throw std::runtime_error("Failed to write fits table for fit data");
+	return status;
+      }
     }
 	      
     // Ok, now save the remaining histograms to a single table
-    status = writeFitsTable_byPixel(fitsFile,"SCANDATA",scanColData);
-    if ( status ) {
-      throw std::runtime_error("Failed to write fits table for scan data");
-      return status;
+    if ( ( SCANDATA_TABLE & writeMask ) != 0 ) {
+      status = writeFitsTable_byPixel(fitsFile,"SCANDATA",scanColData);
+      if ( status ) {
+	throw std::runtime_error("Failed to write fits table for scan data");
+	return status;
+      }
     }
 
     // Save the energy bin edges
-    status = writeFits_EnergyBins(fitsFile);
-    if ( status ) {
-      throw std::runtime_error("Failed to write energy bins");
-      return status;
+    if ( ( ENERGY_BINS & writeMask ) != 0 ) {
+      status = writeFits_EnergyBins(fitsFile);
+      if ( status ) {
+	throw std::runtime_error("Failed to write energy bins");
+	return status;
+      }
     }
 
      
     // Save the baseline fit data
-    status = writeFits_Baseline(fitsFile);
-    if ( status ) {
-      throw std::runtime_error("Failed to write baseline fit parameters");
-      return status;
+    if ( ( BASELINE_PARS & writeMask ) != 0 ) {
+      status = writeFits_Baseline(fitsFile);
+      if ( status ) {
+	throw std::runtime_error("Failed to write baseline fit parameters");
+	return status;
+      }
     }
-   
 
     // Write the GTIs, if requested
     if ( ! copyGTIs) return 0;

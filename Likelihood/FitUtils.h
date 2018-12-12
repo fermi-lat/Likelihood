@@ -407,6 +407,22 @@ namespace Likelihood {
 			    std::vector<float>& dataRed,
 			    std::vector<int>& energyBinStopIdxs);
       
+    /* Extract the set of bins that are non-zero into parallel vectors of indices
+       this is done to make it faster to iterate over sparse data
+
+       dataVect:      Input data map
+       firstPixByLayer: Number of pixels (used to insert seperator bins)
+       nonZeroBins:   The indices of the non-zero bins
+       dataRed:       Reduced data vector, include bins with 0 as separators between energies
+       energyBinStartIdxs:  Indicies in the reduced vector marking the start of the energy layers
+
+    */
+    void extractNonZeroBins(const std::vector<float>& dataVect,
+			    std::vector<size_t>& firstPixByLayer,
+			    std::vector<int>& nonZeroBins,
+			    std::vector<float>& dataRed,
+			    std::vector<int>& energyBinStopIdxs);
+      
 
 
 
