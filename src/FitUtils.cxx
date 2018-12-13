@@ -1500,8 +1500,9 @@ namespace Likelihood {
       if ( ! par.has_prior() ) return false;
       optimizers::Parameter& ncpar = const_cast<optimizers::Parameter&>(par);
       const optimizers::Function& prior = ncpar.log_prior();
-      if ( prior.genericName() != "LogGaussian" ) {
-	throw std::runtime_error("Prior is not a LogGaussian");	
+      if ( prior.genericName() != "LogGaussian" && 
+	   prior.genericName() != "GaussianError") {
+	throw std::runtime_error("Prior is not a LogGaussian or GaussianError");	
       }
       centralVal = prior.getParam("Mean").getTrueValue();
       uncertainty = prior.getParam("Sigma").getTrueValue();
