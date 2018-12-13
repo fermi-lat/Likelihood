@@ -75,7 +75,7 @@ namespace Likelihood {
       return norm*(x - mean)/(sigma*sigma);
       break;
     case Sigma:
-      return norm*(x - mean)*(x - mean)/(6.*s3)
+      return norm*(x - mean)*(x - mean)/(6.*s3);
       break;
     case Offset:
       return norm;
