@@ -412,7 +412,7 @@ namespace Likelihood {
     virtual double value() const = 0;
 
     /* Add a source to the model */
-    virtual void addSource(Source* aSrc) = 0;
+    virtual void addSource(Source* aSrc, bool recreateMap=false) = 0;
 
      /* Call syncParams on the model */
     virtual void syncParams() = 0;
@@ -569,7 +569,7 @@ namespace Likelihood {
     virtual double value() const;
 
     /* Add a source to the model */
-    virtual void addSource(Source* aSrc);
+    virtual void addSource(Source* aSrc, bool recreateMap=false);
 
     /* Call syncParams on the model */
     virtual void syncParams();
@@ -678,7 +678,7 @@ namespace Likelihood {
     virtual double value() const;
     
     /* Add a source to the model */
-    virtual void addSource(Source* aSrc);
+    virtual void addSource(Source* aSrc, bool recreateMap=false);
     
     /* Call syncParams on the model */
     virtual void syncParams();
