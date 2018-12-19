@@ -33,7 +33,8 @@ LogLike::LogLike(const Observation & observation)
    deleteAllSources();
 }
 
-double LogLike::value(const optimizers::Arg&) const {
+double LogLike::value(const optimizers::Arg& dummy, 
+		      bool include_prior) const {
    std::clock_t start = std::clock();
    if (m_use_ebounds) {
       std::pair<double, double> ebounds
@@ -94,9 +95,11 @@ double LogLike::value(const optimizers::Arg&) const {
    m_nevals++;
 
 /// Add in contribution from priors.
-   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
-   for ( ; par != m_parameter.end(); ++par) {
-      my_total += par->log_prior_value();
+   if ( include_prior) {
+     std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
+     for ( ; par != m_parameter.end(); ++par) {
+       my_total += par->log_prior_value();
+     }
    }
 
    saveBestFit(my_total);
@@ -199,9 +202,12 @@ void LogLike::getLogSourceModelDerivs(const Event & event,
    }
 }
 
-void LogLike::getFreeDerivs(const optimizers::Arg &,
-                            std::vector<double> &freeDerivs) const {
+void LogLike::getFreeDerivs(const optimizers::Arg & dummy,
+                            std::vector<double> &freeDerivs, 
+			    bool include_priors) const {
+   (void)(dummy);
 // Retrieve the free derivatives for the log(SourceModel) part
+
    const std::vector<Event> & events = m_observation.eventCont().events();
 
    std::vector<double> logSrcModelDerivs(getNumFreeParams(), 0);
@@ -249,13 +255,15 @@ void LogLike::getFreeDerivs(const optimizers::Arg &,
    }
 
    /// Derivatives from priors.
-   size_t i(0);
-   std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
-   for ( ; par != m_parameter.end(); ++par) {
-      if (par->isFree()) {
+   if ( include_priors ) {
+     size_t i(0);
+     std::vector<optimizers::Parameter>::const_iterator par(m_parameter.begin());
+     for ( ; par != m_parameter.end(); ++par) {
+       if (par->isFree()) {
          freeDerivs[i] += par->log_prior_deriv();
          i++;
-      }
+       }
+     }
    }
 }
 

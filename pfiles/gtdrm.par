@@ -1,22 +1,13 @@
 #
 # $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/pfiles/gtmodel.par,v 1.12 2014/10/01 15:32:35 jchiang Exp $
 #
-srcmaps,fr,a,"",,,"Source maps (or counts map) file"
-srcmdl,fr,a,"",,,"Source model file"
+cmap,fr,a,"",,,"Source maps (or counts map) file"
 outfile,f,a,"",,,"Output file"
 
 irfs,s,a,"CALDB",,,"Response functions"
 evtype,i,h,INDEF,,,"Event type selections"
 expcube,f,a,"",,,"Exposure cube"
 bexpmap,f,a,none,,,"Binned exposure map"
-convol,b,h,yes,,,"Perform convolution with psf"
-resample,b,h,yes,,,"Resample input counts map for convolution"
-rfactor,i,h,2,,,"Resampling factor"
-outtype,s,h,"CMAP",CCUBE|CMAP,,"Output type"
-psfcorr,b,h,yes,,,"Apply psf integral corrections"
-phased_expmap,f,h,"none",,,"Exposure map with phase-dependent corrections"
-edisp,b,h,no,,,"Apply energy dispersion?"
-edisp_bins,i,h,0,,,"Number of bins to consider energy dispersion for.  0 means use scale corrections only"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"

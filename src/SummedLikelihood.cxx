@@ -36,8 +36,11 @@ void SummedLikelihood::addComponent(LogLike & component) {
 double SummedLikelihood::value() const {
    double my_value(0);
    ComponentConstIterator_t it(m_components.begin());
+   bool include_prior(true);
+   optimizers::Arg dummy;   
    for ( ; it != m_components.end(); ++it) {
-      my_value += (*it)->value();
+     my_value += (*it)->value(dummy, include_prior);
+     include_prior = false;
    }
    return my_value;
 }
@@ -86,21 +89,14 @@ setFreeParamValues(const std::vector<double> & values) {
          m_tiedPars[i]->setValue(values.at(j++));
       }
    }
-   // Set the parameters for all of the components to be the same.
-   for (ComponentIterator_t it(m_components.begin());
-        it != m_components.end(); ++it) {
-      // if (*it == m_masterComponent) { 
-      //    // The parameters for the master should already have been set.
-      //    continue;
-      // }
-      (*it)->setParams(pars);
-   }
    syncParams();
 }
 
-void SummedLikelihood::syncParams() {
+void SummedLikelihood::syncParams() { 
+   std::vector<optimizers::Parameter> & pars(m_masterComponent->parameters());
    for (ComponentIterator_t it(m_components.begin()); 
         it != m_components.end(); ++it) {
+      (*it)->setParams(pars);
       (*it)->syncParams();
    }
 }
@@ -174,14 +170,17 @@ void SummedLikelihood::getFreeDerivs(std::vector<double> & derivs) const {
    derivs.resize(free_index.size(), 0);
 
    // Loop over log-likeihood components, adding derivative contributions.
+   bool include_priors(true);
+   optimizers::Arg dummy;      
    for (ComponentConstIterator_t it(m_components.begin());
         it != m_components.end(); ++it) {
       std::vector<double> freeDerivs;
-      (*it)->getFreeDerivs(freeDerivs);
+      (*it)->getFreeDerivs(dummy, freeDerivs, include_priors);
       for (std::map<int, size_t>::const_iterator index_it(free_index.begin());
            index_it != free_index.end(); ++index_it) {
          derivs.at(index_it->first) += freeDerivs.at(index_it->second);
       }
+      include_priors = false;
    }
 }
 

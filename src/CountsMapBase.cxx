@@ -235,7 +235,14 @@ namespace Likelihood {
     my_header["ALPHAMAP"].set(alphamap);
     delete my_image;    
   }
-    
+
+  void CountsMapBase::addPhasedExpMapKeywords(const std::string& outfile,
+					      const std::string& phased_expmap) {
+    tip::Image* my_image = tip::IFileSvc::instance().editImage(outfile, "");
+    tip::Header& my_header = my_image->getHeader();
+    my_header["PHEXPMAP"].set(phased_expmap);
+    delete my_image;    
+  }
 
 CountsMapBase::CountsMapBase(const std::string & event_file,
 			     const std::string & ev_table,
