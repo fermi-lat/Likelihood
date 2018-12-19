@@ -533,8 +533,9 @@ namespace Likelihood {
     return m_binnedLike.value();
   }
 
-  void FitScanModelWrapper_Binned::addSource(Source* aSrc) {    
-    m_binnedLike.addSource(aSrc);
+  void FitScanModelWrapper_Binned::addSource(Source* aSrc, bool recreateMap) {    
+    SourceMap* theMap = recreateMap ? m_binnedLike.createSourceMap(aSrc->getName()) : 0;
+    m_binnedLike.addSource(aSrc, true, theMap);
   }
 
   void FitScanModelWrapper_Binned::syncParams() {
@@ -828,10 +829,12 @@ namespace Likelihood {
     return m_summedLike.value();
   }
 
-  void FitScanModelWrapper_Summed::addSource(Source* aSrc) {
+  void FitScanModelWrapper_Summed::addSource(Source* aSrc, bool recreateMap) {
     for ( size_t i(0); i < m_summedLike.numComponents(); i++ ) {
       LogLike* comp = m_summedLike.getComponent(i);
-      comp->addSource(aSrc);
+      BinnedLikelihood* binnedComp = static_cast<BinnedLikelihood*>(comp);
+      SourceMap* theMap = recreateMap ? binnedComp->createExternalSourceMap(*aSrc) : 0;
+      binnedComp->addSource(aSrc, true, theMap);
     }
   }
 
@@ -2256,6 +2259,7 @@ namespace Likelihood {
     static const std::string negErr_map_name("fit_norm_errn");
 
     m_outLocs[tsmap_name] = PRIMARY_HDU | FITDATA_TABLE;
+    m_outLocs[tsmap_name+"_ST"] = PRIMARY_HDU | FITDATA_TABLE;
     m_outLocs[tsmap_ok_name] = FITDATA_TABLE;
     m_outLocs[norm_map_name] = FITDATA_TABLE;
     m_outLocs[symErr_map_name] = FITDATA_TABLE;
@@ -2273,13 +2277,16 @@ namespace Likelihood {
     static const std::string nll_cube_name("loglike");
 
     m_outLocs[tscube_name] = SCANDATA_TABLE;
+    m_outLocs[tscube_name+"_ST"] = SCANDATA_TABLE;
     m_outLocs[tscube_ok_name] = SCANDATA_TABLE;
     m_outLocs[norm_cube_name] = SCANDATA_TABLE;
+    m_outLocs[norm_cube_name+"_ST"] = SCANDATA_TABLE;
     m_outLocs[norm_ul_cube_name] = SCANDATA_TABLE;
     m_outLocs[symErr_cube_name] = SCANDATA_TABLE;
     m_outLocs[posErr_cube_name] = SCANDATA_TABLE;
     m_outLocs[negErr_cube_name] = SCANDATA_TABLE;  
     m_outLocs[nll_cube_name] = SCANDATA_TABLE;  
+    m_outLocs[nll_cube_name+"_ST"] = SCANDATA_TABLE;  
 
     // 4D (or HEALPIX,energy,normalization) histograms (SCANS)
     static const std::string norm_name("norm_scan");
@@ -2287,6 +2294,8 @@ namespace Likelihood {
         
     m_outLocs[norm_name] = SCANDATA_TABLE;
     m_outLocs[delta_ll_name] = SCANDATA_TABLE;  
+    m_outLocs[norm_name+"_ST"] = SCANDATA_TABLE;
+    m_outLocs[delta_ll_name+"_ST"] = SCANDATA_TABLE;  
 
     // Build the varius histograms
     // Note that buildHist can return a null pointer
@@ -2595,7 +2604,9 @@ namespace Likelihood {
 	  itrHists != m_scanData.end(); itrHists++ ) {
       std::map< std::string, unsigned int >::const_iterator find_loc = m_outLocs.find(itrHists->first);
       if ( find_loc == m_outLocs.end() ) {
-	throw std::runtime_error("No location specificed for histogram");	
+	std::ostringstream message;
+	message << "No location specificed for histogram " << itrHists->first;
+	throw std::runtime_error(message.str());
       }
       if ( (find_loc->second & PRIMARY_HDU) != 0 ) {
 	if ( image_based ) { 
@@ -2879,7 +2890,7 @@ namespace Likelihood {
     normPar.setValue( 1e-10 );
     normPar.setFree(true); 
 
-    m_modelWrapper->addSource(ptrSrc);
+    m_modelWrapper->addSource(ptrSrc, true);
     m_modelWrapper->syncParams();
     return 0;
   }
@@ -2952,6 +2963,7 @@ namespace Likelihood {
   int FitScanner::fitTestSourceBroadband(double tol, int tolType) {
     // Just pass it along to the optimizer
     int status = m_opt->find_min_only(false,tol,tolType); 
+    // m_opt->put(std::cout);
     return status;
   }
 
