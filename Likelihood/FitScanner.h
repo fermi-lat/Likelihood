@@ -90,7 +90,6 @@ namespace Likelihood {
   class LogLike;
   class HistND;
   class Source;
-  class PointSource;
   class AppHelpers;
   class CountsMapBase;  
   struct Snapshot_Status;
@@ -113,7 +112,7 @@ namespace Likelihood {
 
     /* Build from a BinnedLikelihood and a Source */
     TestSourceModelCache(const BinnedLikelihood& logLike,
-			 const PointSource& source);
+			 const Source& source);
 
     /* D'tor, does nothing */
     ~TestSourceModelCache(){};
@@ -196,9 +195,9 @@ namespace Likelihood {
     inline const TestSourceModelCache* operator[](size_t i) const { return m_vector[i]; }    
     inline const TestSourceModelCache* cache(size_t i) const { return m_vector[i]; } 
 
-    void buildCaches(const FitScanModelWrapper& wrapper, PointSource& src);
+    void buildCaches(const FitScanModelWrapper& wrapper, Source& src);
     
-    const TestSourceModelCache* buildCache(size_t icomp, const BinnedLikelihood& binnedLike, PointSource& ptrSrc);
+    const TestSourceModelCache* buildCache(size_t icomp, const BinnedLikelihood& binnedLike, Source& src);
 
     void writeTestImages(const std::string& filename, size_t ix, size_t iy);
 
@@ -1494,12 +1493,14 @@ namespace Likelihood {
 
 
     // Debbugging stuff
+    inline bool quiet() const { return m_quiet; } 
     inline int verbose_null() const { return m_verbose_null; }
     inline int verbose_bb() const { return m_verbose_bb; }
     inline int verbose_scan() const { return m_verbose_scan; }
     inline bool writeTestImages() const { return m_writeTestImages; }
     inline bool useReduced() const { return m_useReduced; }
 
+    inline void set_quiet(bool val) { m_quiet = val; }
     inline void set_verbose_null(int val) { m_verbose_null = val; }
     inline void set_verbose_bb(int val) { m_verbose_bb = val; }
     inline void set_verbose_scan(int val) { m_verbose_scan = val; }
@@ -1634,6 +1635,7 @@ namespace Likelihood {
     TestSourceModelCacheVector m_testSourceCaches;    
 
     // For debugging
+    bool m_quiet;
     int m_verbose_null;
     int m_verbose_bb;
     int m_verbose_scan;

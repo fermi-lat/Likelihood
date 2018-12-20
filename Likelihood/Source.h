@@ -276,6 +276,20 @@ namespace Likelihood {
      /// This is here to allow for different normalizations in diffuse maps.
      virtual double angularIntegral(double energy) const { return 1.0; }
 
+     /// @return if the moveSource() function will work
+     virtual bool isMoveable() const { return false; }
+
+     /// move the source to a new position, if possible
+     virtual void moveSource(const astro::SkyDir & newDir, bool updateExposure = true, bool verbose=true) {
+       throw std::runtime_error("Source::moveSource not implemented");
+     }
+
+     /// @return the reference direction for this source
+     virtual const astro::SkyDir& getRefDir() const {
+       throw std::runtime_error("Source::getRefDir not implemented");
+     }
+     
+
    protected:
      
      /// A unique source name.

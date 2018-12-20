@@ -48,10 +48,10 @@
 namespace Likelihood {
 
   TestSourceModelCache::TestSourceModelCache(const BinnedLikelihood& logLike,
-					     const PointSource& source)
+					     const Source& source)
     :m_refModel(logLike.countsMap().data().size(),0),
      m_proj(logLike.countsMap().projection()),
-     m_refDir(source.getDir()) {    
+     m_refDir(source.getRefDir()) {    
     // latch the reference direction and the size of the model axes
     m_refPixel = m_refDir.project( m_proj );
     m_nx = logLike.countsMap().imageDimension(0);
@@ -110,7 +110,7 @@ namespace Likelihood {
     // when the number of observed counts is very small
     // FIX (we should actually use the map symmetry to deal with this problem)
     FitUtils::setVectorValue(1e-9,out_model.begin(),out_model.end());    
-    
+
     // Convert the deltas to integers
     // I can't find a built-in rounding function, so do this instead (it is really ugly)
     int delta_x = dx >= 0 ? ( std::fmod(dx,1.0) > 0.5 ? std::ceil(dx) : std::floor(dx) ) :
@@ -162,7 +162,7 @@ namespace Likelihood {
     
     // This is just a check to make sure that we have preserved the 
     // normalization
-    if ( true ) {
+    if ( false ) {
       float total_in(0.);
       float total_out(0.);
       FitUtils::sumVector(m_refModel.begin(),m_refModel.end(),total_in);
@@ -189,26 +189,26 @@ namespace Likelihood {
     }
   }
 
-  void TestSourceModelCacheVector::buildCaches(const FitScanModelWrapper& wrapper, PointSource& ptrSrc) {          
+  void TestSourceModelCacheVector::buildCaches(const FitScanModelWrapper& wrapper, Source& src) {          
     for ( size_t iComp(0); iComp < wrapper.numComponents(); iComp++ ) {      
       const BinnedLikelihood* binnedLike = wrapper.getComponent(iComp);      
       if ( binnedLike == 0 ) {
 	throw std::runtime_error("FitScanner requires using Binned likelihood fitting.");
       }
       // Build the cache with the new test source
-      buildCache(iComp, *binnedLike, ptrSrc);
+      buildCache(iComp, *binnedLike, src);
     }
   }
   
   const TestSourceModelCache* TestSourceModelCacheVector::buildCache(size_t icomp, 
 								     const BinnedLikelihood& binnedLike, 
-								     PointSource& ptrSrc) {
+								     Source& src) {
     TestSourceModelCache* to_del = m_vector[icomp];
     if ( to_del != 0 ) {
       m_vector[icomp] = 0;    
       delete to_del;
     }
-    m_vector[icomp] = new TestSourceModelCache(binnedLike,ptrSrc);
+    m_vector[icomp] = new TestSourceModelCache(binnedLike, src);
     return m_vector[icomp];
   }
 
@@ -411,7 +411,11 @@ namespace Likelihood {
     m_ref_energy_fluxes.resize(m_nebins);
     m_nPreds.resize(m_nebins);
 
-    aSrc.computeExposure(energies());
+    try { 
+      aSrc.computeExposure(energies());
+    } catch (...) {
+      return;
+    }
     for ( size_t iE(0); iE < m_nebins; iE++ ) {
       double emin = energies()[iE];
       double emax = energies()[iE+1];
@@ -892,7 +896,6 @@ namespace Likelihood {
     targetModel.resize(size(), 0.);
     FitUtils::setVectorValue(0., targetModel.begin(), targetModel.end());
     mergeVectors(targetModelsPtrs,m_nPixelsByComp,m_energyBinLocal,targetModel);
-
     return 0;      
   }
   
@@ -1506,7 +1509,7 @@ namespace Likelihood {
 					       edm_temp,logLikes[is],
 					       m_firstBin,m_lastBin);
 	if ( status ) {	    
-	  std::cout << "Failed profile fit on energy bin " << is << ".  Status: " << status << std::endl;
+	  std::cerr << "Failed profile fit on energy bin " << is << ".  Status: " << status << std::endl;
 	  return status;
 	} 
       } else {
@@ -1965,6 +1968,7 @@ namespace Likelihood {
      m_baselineCovs(0),
      m_cache(0),
      m_testSourceCaches(1),
+     m_quiet(false),
      m_verbose_null(0),
      m_verbose_bb(0),
      m_verbose_scan(0),
@@ -1996,6 +2000,7 @@ namespace Likelihood {
      m_baselineCovs(0),
      m_cache(0),
      m_testSourceCaches(summedLike.numComponents()),
+     m_quiet(false),
      m_verbose_null(0),
      m_verbose_bb(0),
      m_verbose_scan(0),
@@ -2035,6 +2040,7 @@ namespace Likelihood {
      m_baselineCovs(0),
      m_cache(0),
      m_testSourceCaches(1),
+     m_quiet(false),
      m_verbose_null(0),
      m_verbose_bb(0),
      m_verbose_scan(0),
@@ -2073,6 +2079,7 @@ namespace Likelihood {
      m_baselineCovs(0),
      m_cache(0),
      m_testSourceCaches(summedLike.numComponents()),
+     m_quiet(false),
      m_verbose_null(0),
      m_verbose_bb(0),
      m_verbose_scan(0),
@@ -2151,7 +2158,7 @@ namespace Likelihood {
 			     double initLambda, 
 			     bool useWeights) {
 
-    if ( true ) {
+    if ( ! m_quiet ) {
       if ( doSED ) {
 	std::cout << "nNorm     = " << nNorm << std::endl;
 	std::cout << "normSigma = " << normSigma << std::endl;
@@ -2187,14 +2194,20 @@ namespace Likelihood {
     // Note that this will re-fit the source spectra, if so directed by 
     // the input xml file
     if ( baseline_st ) {
-      std::cout << "Doing baseline fit with standard fitter." << std::endl;
+      if ( ! m_quiet ) {
+	std::cout << "Doing baseline fit with standard fitter." << std::endl;
+      }
       status = baselineFit(tol,tolType);
       if ( status != 0 ) {
-	std::cout << "Warning: baseline fit with standard fitter returned status code: " << status << std::endl;
-	// return status;	
+	if ( ! m_quiet ) {
+	  std::cerr << "Warning: baseline fit with standard fitter returned status code: " << status << std::endl;
+	  //return status;
+	}
       }
       loglike_null_st = m_modelWrapper->value();
-      std::cout << "Did baseline fit.  Likelihood before: " << loglike_null << ", after: " << loglike_null_st << std::endl;
+      if ( ! m_quiet ) {
+	std::cout << "Did baseline fit.  Likelihood before: " << loglike_null << ", after: " << loglike_null_st << std::endl;
+      }
       if ( src_model_out.size() > 0 ) {
 	m_modelWrapper->getMasterComponent().writeXml(src_model_out);
       }
@@ -2207,12 +2220,14 @@ namespace Likelihood {
 
     loglike_null = 0;
     m_cache->calculateLoglikeCurrent(loglike_null);
-    std::cout << "Got null likelihood " << loglike_null << std::endl;    
+    if ( ! m_quiet ) {
+      std::cout << "Got null likelihood " << loglike_null << std::endl;    
+    }
 
     // Do the baseline fit and latch the results.   
     status = m_cache->fitCurrent(FitScanCache::Init_Prior,verbose_null());
     if ( status != 0 ) { 
-      std::cout << "Baseline fit of ROI with linear fitter failed with error code " << status << std::endl
+      std::cerr << "Baseline fit of ROI with linear fitter failed with error code " << status << std::endl
 		<< "  Try using standard fitter to pre-fit region with stlevel=1 parateter."  << std::endl
 		<< "  If that doesn't work try refining the input model of the region." << std::endl;
       return status;	
@@ -2228,7 +2243,9 @@ namespace Likelihood {
       m_cache->buildPriorsFromCurrent(constrainPars,covScale_bb,true);
     }
 
-    std::cout << "Redid baseline fit with linear fitter.  Likelihood: " << loglike_null << std::endl;
+    if ( ! m_quiet ) {
+      std::cout << "Redid baseline fit with linear fitter.  Likelihood: " << loglike_null << std::endl;
+    }
 
     // Get the number of bins in the grid of the region
     // This allows for:
@@ -2350,20 +2367,24 @@ namespace Likelihood {
     int npix = doTSMap ? nPixels() : 1;
     int ipix_print = std::max(npix / 20,1);
 
-    if ( doTSMap ) {
-      std::cout << "Performing TS Grid Scan" << std::flush;
-    } else {
-      std::cout << "Performing SED Scan" << std::flush;
+    if ( ! m_quiet ) {
+      if ( doTSMap ) {
+	std::cout << "Performing TS Grid Scan" << std::flush;
+      } else {
+	std::cout << "Performing SED Scan" << std::flush;
+      }
     }
  
     // Note the loop order, outer loop is on Y, this matches HistND structure
     for ( long iy(0); iy < nybins; iy++ ) {      
       for ( long ix(0); ix < nxbins; ix++, ipix++ ) {
 
-	if ( ipix % ipix_print == 0 ) {
-	  std::cout << '.' << std::flush;
+	if ( ! m_quiet ) {
+	  if ( ipix % ipix_print == 0 ) {
+	    std::cout << '.' << std::flush;
+	  }
 	}
-	
+
 	// Set the test source direction from the grid
 	if ( doTSMap ) {
 	  status = setTestSourceDir(ix,iy);
@@ -2433,7 +2454,7 @@ namespace Likelihood {
 	  nfailed_bb_newton++;
 	  continue;
 	}
-	
+
 	// get the TS value and copy to the output histogram
 	double tsval_newton = 2*(m_cache->currentLogLike() - loglike_null);
 	double normVal = m_cache->currentPars()[m_cache->testSourceIndex()];
@@ -2548,24 +2569,27 @@ namespace Likelihood {
       }
     }
 
-    std::cout << "!" << std::endl;
+    if ( ! m_quiet ) {
+      std::cout << "!" << std::endl;
+      
+      // Warn about failed fits
+      if ( nfailed_bb > 0 ) {
+	std::cout << "There were " << nfailed_bb << " failed broadband fits with the standard fitter." << std::endl;
+      }
+      if ( nfailed_bb_newton > 0 ) {
+	std::cout << "There were " << nfailed_bb_newton << " failed broadband fits with the Newton's method fitter." << std::endl;
+      }
+      if ( nfailed_scan > 0 ) {
+	std::cout << "There were " << nfailed_scan << " failed SED scans with the standard fitter." << std::endl;
+      }
+      if ( nfailed_scan_newton > 0 ) {
+	std::cout << "There were " << nfailed_scan_newton << " failed SED scans with the Newton's method fitter." << std::endl;
+      }
+      if ( nfailed_scan_newton_bins > 0 ) {
+	std::cout << "There were " << nfailed_scan_newton_bins << " failed bins in the SED scans with the Newton's method fitter." << std::endl;
+      }
+    }
 
-    // Warn about failed fits
-    if ( nfailed_bb > 0 ) {
-      std::cout << "There were " << nfailed_bb << " failed broadband fits with the standard fitter." << std::endl;
-    }
-    if ( nfailed_bb_newton > 0 ) {
-      std::cout << "There were " << nfailed_bb_newton << " failed broadband fits with the Newton's method fitter." << std::endl;
-    }
-    if ( nfailed_scan > 0 ) {
-      std::cout << "There were " << nfailed_scan << " failed SED scans with the standard fitter." << std::endl;
-    }
-    if ( nfailed_scan_newton > 0 ) {
-      std::cout << "There were " << nfailed_scan_newton << " failed SED scans with the Newton's method fitter." << std::endl;
-    }
-    if ( nfailed_scan_newton_bins > 0 ) {
-      std::cout << "There were " << nfailed_scan_newton_bins << " failed bins in the SED scans with the Newton's method fitter." << std::endl;
-    }
     return 0;
   }
 
@@ -2575,7 +2599,7 @@ namespace Likelihood {
 				const std::string& creator,
 				std::string fits_template,
 				bool copyGTIs,
-				int writeMask=FitScanner::EVERYTHING) const {
+				int writeMask) const {
 
     int status(0);
 
@@ -2812,14 +2836,12 @@ namespace Likelihood {
     m_testSource = itrFind->second;
 
     if ( shiftToPixelCenter ) {
-      PointSource* ptSrc = dynamic_cast<PointSource*>(m_testSource);
-      if ( ptSrc == 0 ) {
-	throw std::runtime_error("FitScanner::setTestSourceByName can only shift PointSource objects");
+      if ( ! m_testSource->isMoveable() ) {
+	throw std::runtime_error("FitScanner::setTestSourceByName can only shift movable source types");
 	return -1;
-
       }
       const Observation& obs = m_modelWrapper->getMasterComponent().observation();
-      ptSrc->setObservation(&obs);
+      m_testSource->setObservation(&obs);
 
       double pix_x(0.); 
       double pix_y(0.);
@@ -2830,7 +2852,7 @@ namespace Likelihood {
       pix_x = std::floor(pix_x);
       pix_y = std::floor(pix_y);    
       m_testSourceDir() = astro::SkyDir(pix_x,pix_y,*m_proj)();
-      ptSrc->setDir(m_testSourceDir.ra(),m_testSourceDir.dec(),false);     
+      m_testSource->moveSource(m_testSourceDir,false);     
     }  
 
     int status = buildTestModelCache();
@@ -2878,19 +2900,18 @@ namespace Likelihood {
   /* This adds the test source to the source model */
   int FitScanner::addTestSourceToModel() {
     removeTestSourceFromModel();
-    PointSource* ptrSrc = dynamic_cast<PointSource*>(m_testSource);
-    if ( ptrSrc == 0 ) {
-      throw std::runtime_error("Test source must be a point source, for now...");
+
+    if ( ! m_testSource->isMoveable() ) {
+      throw std::runtime_error("Test source must be a movable source type.");
       return -1;
     }    
-    ptrSrc->setDir(m_testSourceDir.ra(), m_testSourceDir.dec(),
-		   false, false);
+    m_testSource->moveSource(m_testSourceDir, false, false);
     Likelihood::ScanUtils::freezeSourceParams(*m_testSource);         
     optimizers::Parameter& normPar = m_testSource->spectrum().normPar();
     normPar.setValue( 1e-10 );
     normPar.setFree(true); 
 
-    m_modelWrapper->addSource(ptrSrc, true);
+    m_modelWrapper->addSource(m_testSource, true);
     m_modelWrapper->syncParams();
     return 0;
   }
@@ -2963,7 +2984,6 @@ namespace Likelihood {
   int FitScanner::fitTestSourceBroadband(double tol, int tolType) {
     // Just pass it along to the optimizer
     int status = m_opt->find_min_only(false,tol,tolType); 
-    // m_opt->put(std::cout);
     return status;
   }
 
@@ -3074,9 +3094,8 @@ namespace Likelihood {
       throw std::runtime_error("FitScanner needs a test source to build a test source cache.");
       return -1;
     }
-    PointSource* ptrSrc = dynamic_cast<PointSource*>(m_testSource);
-    if ( ptrSrc == 0 ) {      
-      throw std::runtime_error("Test source must be a point source, for now...");
+    if (!  m_testSource->isMoveable() ) {
+      throw std::runtime_error("Test source must be a movable source type.");
       return -1;
     }
 
@@ -3084,12 +3103,12 @@ namespace Likelihood {
     
     // TESTING, get the direction from the current point source
     // m_testSourceDir() = binnedLike->countsMap().refDir()();
-    m_testSourceDir() = ptrSrc->getDir()();
-    
+    m_testSourceDir() = m_testSource->getRefDir()();
+        
     // Now set the direction in the source.   
-    ptrSrc->setDir(m_testSourceDir.ra(), m_testSourceDir.dec(), false, false);
+    m_testSource->moveSource(m_testSourceDir, false, false);
     
-    m_testSourceCaches.buildCaches(*m_modelWrapper, *ptrSrc);
+    m_testSourceCaches.buildCaches(*m_modelWrapper, *m_testSource);
 
     // latch the specturm in the model wrapper
     m_modelWrapper->cacheFluxValues(*m_testSource);
