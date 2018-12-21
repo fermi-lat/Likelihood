@@ -774,7 +774,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
     // Remove this source from the stored source maps to save memory
     if ( !srcMap->save_model() ) {
-      srcMap->clear_model();
+      srcMap->clear_model( m_config.delete_local_fixed() );
     }
   }
 
