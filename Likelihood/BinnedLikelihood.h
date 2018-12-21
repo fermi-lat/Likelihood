@@ -153,7 +153,9 @@ namespace Likelihood {
      inline const std::vector<double> & countsSpectrum(bool weighted=false) const { 
        return m_dataCache.countsSpectrum(weighted);
      }
-     
+
+     /// Return the SourceMapCache object (const version only)
+     inline const SourceMapCache& sourceMapCache() const { return m_srcMapCache; }
 
      /// Return the weights in their original projection
      inline const ProjMap* weightMap_orig() const { return m_dataCache.weightMap_orig(); }
