@@ -326,7 +326,6 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 				 bool requireExposure, 
 				 bool addPointSources, 
 				 bool loadMaps) {
-    std::cout << "BinnedLikelihood::readXml" << std::endl;
     SourceModel::readXml(xmlFile, funcFactory, requireExposure=false,
 			 addPointSources, loadMaps);
   }
@@ -469,7 +468,6 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
   void BinnedLikelihood::saveSourceMaps(const std::string & filename,
 					bool replace,
 					bool includecountsmap) {
-    std::cout << "BinnedLikelihood::saveSourceMaps" << std::endl;
     if (filename != "") {
       m_srcMapsFile = filename;
     }
@@ -700,7 +698,6 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
 
   void BinnedLikelihood::buildFixedModelWts(bool process_all) {
-    std::cout << "BinnedLikelihood::buildFixedModelWts" << std::endl;
     m_fixedSources.clear();
 
     m_fixedModelCounts.clear();
