@@ -90,35 +90,15 @@ void GtDrm::run() {
 }
 
 void GtDrm::computeDrm() {
+
    m_helper = new Likelihood::AppHelpers(&m_pars, "BINNED");
-   m_helper->observation().expCube().readExposureCube(m_pars["expcube"]);
-   m_helper->setRoi(m_pars["cmap"], "", false);
-   std::string cmapfile = m_pars["cmap"];
-   m_dataMap = Likelihood::AppHelpers::readCountsMap(cmapfile);  // EAC: use AppHelpers to read the right type of map
-
-   std::string bexpmap = m_pars["bexpmap"];
-   Likelihood::AppHelpers::checkExposureMap(cmapfile, bexpmap);
-
-   // We don't really care about this stuff, 
-   // So set options that will effectively turn it off
-   // It shouldn't matter in any case as we aren't reading the source model
-   bool computePointSources = false;
-   bool apply_psf_corrections = false;
-   bool performConvolution = false;
-   bool resample = false;
-   int resamp_factor = 1;
-   double rfactor = static_cast<double>(resamp_factor);
-   m_logLike = new Likelihood::BinnedLikelihood(*m_dataMap,
-                                                m_helper->observation(),
-                                                cmapfile, 
-                                                computePointSources, 
-                                                apply_psf_corrections,
-                                                performConvolution,
-                                                resample, rfactor);
+   
+   m_logLike = Likelihood::AppHelpers::makeBinnedLikelihood(m_pars, *m_helper, "cmap");
+   m_dataMap = const_cast<Likelihood::CountsMapBase*>(&(m_logLike->countsMap()));
 
    const Likelihood::Drm& drm = m_logLike->drm();   
-   std::string outfile = m_pars["outfile"];
 
+   std::string outfile = m_pars["outfile"];
    m_dataMap->writeEmptyOutput("gtdrm", outfile);
    tip::Extension* table_out = Likelihood::FileUtils::write_drm_to_table(outfile, "DRM", drm);
    delete table_out;

@@ -105,15 +105,17 @@ void gtsrcmaps::run() {
    m_helper->checkTimeCuts(m_pars["cmap"], "",
                            m_pars["expcube"], "Exposure");
 
-   std::string expCubeFile = m_pars["expcube"];
-   ExposureCube & expCube = 
-      const_cast<ExposureCube &>(m_helper->observation().expCube());
-   expCube.readExposureCube(expCubeFile);
-
    std::string cntsMapFile = m_pars["cmap"];
-   dataSubselector::Cuts my_cuts(cntsMapFile, "", false);
-   // EAC, use AppHelper to read the right type of counts map
-   CountsMapBase* dataMap = AppHelpers::readCountsMap(cntsMapFile);
+   std::string srcMapsFile = m_pars["outfile"];
+   std::string srcModelFile = m_pars["srcmdl"];
+   bool clobber = m_pars["clobber"];
+   bool copyall = m_pars["copyall"];
+
+   m_binnedLikelihood = AppHelpers::makeBinnedLikelihood(m_pars, *m_helper, "cmap");
+   const CountsMapBase* dataMap = &m_binnedLikelihood->countsMap();
+
+   bool computePointSources = AppHelpers::param(m_pars, "ptsrc", true);
+    dataSubselector::Cuts my_cuts(cntsMapFile, "", false);
    std::vector<double> energies;
    // EAC, use the new getEnergies function 
    dataMap->getEnergies(energies);
@@ -131,8 +133,6 @@ void gtsrcmaps::run() {
    roiCuts.setCuts(ra, dec, roi_size_cut, energies.front(), energies.back());
   
    std::string binnedMap = m_pars["bexpmap"];
-   AppHelpers::checkExposureMap(m_pars["cmap"], m_pars["bexpmap"]);
-
    if (!st_facilities::Util::fileExists(binnedMap)) {
       std::ostringstream message;
       message << "Binned exposure map file named "
@@ -142,36 +142,9 @@ void gtsrcmaps::run() {
       bool enforce_boundaries = m_pars["emapbnds"];
       m_helper->observation().bexpmap().setBoundaryFlag(enforce_boundaries);
    }
-   bool computePointSources = AppHelpers::param(m_pars, "ptsrc", true);
-   bool psf_corrections = AppHelpers::param(m_pars, "psfcorr", true);
-   bool perform_convolution = AppHelpers::param(m_pars, "convol", true);
 
-   bool resample = m_pars["resample"];
-   int resamp_factor = m_pars["rfactor"];
-   double minbinsz = m_pars["minbinsz"];
-
-   // EAC, get the weights map, if requested
-   ProjMap* wmap(0);
-   std::string wmap_file = m_pars["wmap"];
-   if ( wmap_file != "none" ) {
-     wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,std::string());
-     //wmap->setInterpolation(false);
-     wmap->setExtrapolation(true);
-   }
-
-   // EAC, pass in pointer to CountsMapBase
-   m_binnedLikelihood = wmap == 0 ? 
-      new BinnedLikelihood(*dataMap, m_helper->observation(),
-                           cntsMapFile, computePointSources, psf_corrections,
-                           perform_convolution, resample, resamp_factor,
-                           minbinsz) :
-      new BinnedLikelihood(*dataMap, *wmap, m_helper->observation(),
-			   cntsMapFile, computePointSources, psf_corrections,
-			   perform_convolution, resample, resamp_factor,
-			   minbinsz) ;
    m_binnedLikelihood->set_use_single_fixed_map(false);
 
-   std::string srcModelFile = m_pars["srcmdl"];
    bool loadMaps, createAllMaps;
    try {
 /// Turn off loading of maps when xml file is read in.  Instead, read maps
@@ -197,10 +170,6 @@ void gtsrcmaps::run() {
       throw;
    }
 
-   std::string srcMapsFile = m_pars["outfile"];
-
-   bool clobber = m_pars["clobber"];
-   bool copyall = m_pars["copyall"];
 
    if (copyall) {
       st_facilities::FitsUtil::fcopy(cntsMapFile, srcMapsFile, 

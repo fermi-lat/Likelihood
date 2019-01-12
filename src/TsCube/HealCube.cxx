@@ -137,31 +137,10 @@ void HealCube::run() {
   m_helper = new AppHelpers(&m_pars, "BINNED");
   
   m_helper->checkOutputFile();
-  std::string expcube = m_pars["expcube"];
-  std::string irfs = m_pars["irfs"];
-  if (expcube != "" && expcube != "none") {
-    m_helper->observation().expCube().readExposureCube(expcube);
-  }
-  
-  std::string cmap = m_pars["cmap"];
-  m_helper->setRoi(cmap, "", false);
-  if (!m_helper->observation().expCube().haveFile()) {
-    throw std::runtime_error
-      ("An exposure cube file is required for binned analysis. "
-       "Please specify an exposure cube file.");
-  }
-  st_facilities::Util::file_ok(cmap);
-  CountsMap* dataMap = new CountsMap(cmap);
-  bool apply_psf_corrections = m_pars["psfcorr"];
-  bool computePointSources(true);
-  m_logLike = new BinnedLikelihood(*dataMap, 
-				   m_helper->observation(),
-				   cmap, 
-				   computePointSources,
-				   apply_psf_corrections);
-  std::string bexpmap = m_pars["bexpmap"];
-  AppHelpers::checkExposureMap(cmap, bexpmap);
-  dynamic_cast<BinnedLikelihood *>(m_logLike)->setVerbose(false);
+
+  BinnedLikelihood* binnedLike = AppHelpers::makeBinnedLikelihood(m_pars, *m_helper, "cmap");
+  m_logLike = binnedLike;
+  binnedLike->setVerbose(false);
   
   readSrcModel();
   selectOptimizer();
