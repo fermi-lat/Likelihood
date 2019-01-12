@@ -29,6 +29,7 @@
 #include "dataSubselector/Gti.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedHealpixExposure.h"
 #include "Likelihood/CountsMap.h"
@@ -73,9 +74,6 @@ private:
    void generateEnergies(std::vector<double> & energies,
 			 const std::string* cmap_file, 
 			 int edisp_bins) const;
-
-   void expand_energies(std::vector<double> & energies,
-			int edisp_bins) const;
 
    void copyGtis() const;
    void copyHeaderKeywords() const;
@@ -368,7 +366,7 @@ void ExpCube::generateEnergies(std::vector<double> & energies,
      }
    }
 
-   BinnedExposureBase::expand_energies(energies, edisp_bins);
+   FitUtils::expand_energies(energies, edisp_bins);
 }
 
 
