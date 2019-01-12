@@ -35,6 +35,7 @@
 
 namespace Likelihood {
 
+
 std::vector<double>::const_iterator
 BinnedExposureBase::findNearest(const std::vector<double> & xx, double x, double tol) {
   std::vector<double>::const_iterator ix = std::find(xx.begin(),
