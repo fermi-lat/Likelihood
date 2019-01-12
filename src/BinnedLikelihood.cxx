@@ -65,6 +65,11 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
     m_modelIsCurrent(false),
     m_updateFixedWeights(true){
+
+  std::cerr << "This version of the constructor of BinnedLikelihood is deprecated." << std::endl
+	    << "It will be removed in an upcoming release." << std::endl
+	    << "Please switch to using the version that takes a BinnedLikeConfigObject." << std::endl;
+
   m_fixedModelCounts.resize(m_dataCache.nFilled(), 0);
   m_fixed_counts_spec.resize(m_dataCache.num_ebins(), 0); 
   m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0); 
@@ -100,6 +105,11 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
     m_modelIsCurrent(false),
     m_updateFixedWeights(true){    
+
+  std::cerr << "This version of the constructor of BinnedLikelihood is deprecated." << std::endl
+	    << "It will be removed in an upcoming release." << std::endl
+	    << "Please switch to using the version that takes a BinnedLikeConfigObject." << std::endl;
+
   m_fixedModelCounts.resize(m_dataCache.nFilled(), 0);
   m_fixed_counts_spec.resize(m_dataCache.num_ebins(), 0); 
   m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0); 
@@ -316,6 +326,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 				 bool requireExposure, 
 				 bool addPointSources, 
 				 bool loadMaps) {
+    std::cout << "BinnedLikelihood::readXml" << std::endl;
     SourceModel::readXml(xmlFile, funcFactory, requireExposure=false,
 			 addPointSources, loadMaps);
   }
@@ -458,6 +469,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
   void BinnedLikelihood::saveSourceMaps(const std::string & filename,
 					bool replace,
 					bool includecountsmap) {
+    std::cout << "BinnedLikelihood::saveSourceMaps" << std::endl;
     if (filename != "") {
       m_srcMapsFile = filename;
     }
@@ -688,6 +700,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
 
   void BinnedLikelihood::buildFixedModelWts(bool process_all) {
+    std::cout << "BinnedLikelihood::buildFixedModelWts" << std::endl;
     m_fixedSources.clear();
 
     m_fixedModelCounts.clear();
