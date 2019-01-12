@@ -1131,7 +1131,8 @@ void LikelihoodTests::test_CompositeSource() {
  
    CountsMap dataMap(singleSrcMap(21));
 
-   BinnedLikelihood binnedLogLike(dataMap, *m_observation);
+   BinnedLikeConfig like_config;   
+   BinnedLikelihood binnedLogLike(dataMap, *m_observation, like_config);
    std::string src_model = dataPath("anticenter_model_2.xml");
    binnedLogLike.readXml(src_model, *m_funcFactory);
 
@@ -1163,7 +1164,7 @@ void LikelihoodTests::test_CompositeSource() {
    std::string srcModel_out = dataPath("/comp_test.xml");
    binnedLogLike.writeXml(srcModel_out);
 
-   BinnedLikelihood binnedLogLike2(dataMap, *m_observation);
+   BinnedLikelihood binnedLogLike2(dataMap, *m_observation, like_config);
    binnedLogLike2.readXml(srcModel_out, *m_funcFactory);
 
    CompositeSource* comp2 = dynamic_cast<CompositeSource*>(binnedLogLike2.getSource("Comp"));
@@ -1298,7 +1299,8 @@ void LikelihoodTests::test_BinnedLikelihood() {
 
    CountsMap dataMap(singleSrcMap(21));
 
-   BinnedLikelihood binnedLogLike(dataMap, *m_observation);
+   BinnedLikeConfig like_config;
+   BinnedLikelihood binnedLogLike(dataMap, *m_observation, like_config);
 
    std::string Crab_model = dataPath("Crab_model.xml");
    binnedLogLike.readXml(Crab_model, *m_funcFactory);
@@ -1437,12 +1439,13 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
 
    CountsMap dataMap(singleSrcMap(21));
 
-   BinnedLikelihood like0(dataMap, *m_observation);
+   BinnedLikeConfig like_config;
+   BinnedLikelihood like0(dataMap, *m_observation, like_config);
    std::string anticenter_model = 
       dataPath("anticenter_model_2.xml");
    like0.readXml(anticenter_model, *m_funcFactory);
 
-   BinnedLikelihood like1(dataMap, *m_observation);
+   BinnedLikelihood like1(dataMap, *m_observation, like_config);
    like1.readXml(anticenter_model, *m_funcFactory);
    double fit_value0 = fit(like0);
    Source * src = like1.deleteSource("PKS 0528+134");
@@ -1452,10 +1455,10 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
    // std::cout << "Test " << fit_value0 << ' ' << fit_value1 << std::endl;
    ASSERT_EQUALS(fit_value0, fit_value1);
 
-   BinnedLikelihood like2(dataMap, *m_observation);
+   BinnedLikelihood like2(dataMap, *m_observation, like_config);
    like2.readXml(anticenter_model, *m_funcFactory);
 
-   BinnedLikelihood like3(dataMap, *m_observation);
+   BinnedLikelihood like3(dataMap, *m_observation, like_config);
    anticenter_model = 
       dataPath("anticenter_model_3.xml");
    like3.readXml(anticenter_model, *m_funcFactory);
@@ -1467,7 +1470,7 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
 
    ASSERT_EQUALS(fit_value2, fit_value3);
 
-   BinnedLikelihood like4(dataMap, *m_observation);
+   BinnedLikelihood like4(dataMap, *m_observation, like_config);
    anticenter_model = 
       dataPath("anticenter_model_2.xml");
    like4.readXml(anticenter_model, *m_funcFactory);
@@ -1477,7 +1480,7 @@ void LikelihoodTests::test_BinnedLikelihood_2() {
 
    double fit_value4 = fit(like4);
 
-   BinnedLikelihood like5(dataMap, *m_observation);
+   BinnedLikelihood like5(dataMap, *m_observation, like_config);
    anticenter_model = 
       dataPath("anticenter_model_4.xml");
    like5.readXml(anticenter_model, *m_funcFactory);
@@ -1502,8 +1505,10 @@ void LikelihoodTests::test_BinnedLikelihood_base(int edisp_val) {
    std::string wts_file = dataPath("weights_test.fits");   
    ProjMap* wmap = WcsMapLibrary::instance()->wcsmap(wts_file, "");
 
-   BinnedLikelihood binnedLogLike(dataMap, *wmap, *m_observation);
-   binnedLogLike.set_edisp_val(edisp_val);
+   BinnedLikeConfig like_config;
+   like_config.set_edisp_val(edisp_val);
+   BinnedLikelihood binnedLogLike(dataMap, *m_observation, like_config, "", wmap);
+
    
    std::string Crab_model = dataPath("Crab_model.xml");
    binnedLogLike.readXml(Crab_model, *m_funcFactory);

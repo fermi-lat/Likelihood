@@ -89,35 +89,13 @@ void ModelMap::run() {
 }
 
 void ModelMap::computeModelMap() {
+
    m_helper = new Likelihood::AppHelpers(&m_pars, "BINNED");
-   m_helper->observation().expCube().readExposureCube(m_pars["expcube"]);
-   m_helper->setRoi(m_pars["srcmaps"], "", false);
-   std::string cmapfile = m_pars["srcmaps"];
-   m_dataMap = Likelihood::AppHelpers::readCountsMap(cmapfile);  // EAC: use AppHelpers to read the right type of map
-   bool computePointSources;
-   bool apply_psf_corrections = Likelihood::AppHelpers::param(m_pars, 
-                                                              "psfcorr", true);
-   bool performConvolution = m_pars["convol"];
-   bool resample = m_pars["resample"];
-   int resamp_factor = m_pars["rfactor"];
-   double rfactor = static_cast<double>(resamp_factor);
-   m_logLike = new Likelihood::BinnedLikelihood(*m_dataMap,
-                                                m_helper->observation(),
-                                                cmapfile, 
-                                                computePointSources=true, 
-                                                apply_psf_corrections,
-                                                performConvolution,
-                                                resample, rfactor);
-   bool edisp = m_pars["edisp"];
-   int edisp_bins = m_pars["edisp_bins"];
+   
+   m_logLike = Likelihood::AppHelpers::makeBinnedLikelihood(m_pars, *m_helper, "srcmaps");
+   m_dataMap = const_cast<Likelihood::CountsMapBase*>(&(m_logLike->countsMap()));
 
    m_logLike->set_use_single_fixed_map(false);   
-   if ( edisp ) {
-     m_logLike->set_edisp_val(edisp_bins);
-   }
-
-   std::string bexpmap = m_pars["bexpmap"];
-   Likelihood::AppHelpers::checkExposureMap(cmapfile, bexpmap);
    bool requireExposure, addPointSources, loadMaps, createAllMaps;
    m_logLike->readXml(m_pars["srcmdl"], m_helper->funcFactory(),
                       requireExposure=false, addPointSources=true,
