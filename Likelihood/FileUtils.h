@@ -98,7 +98,8 @@ namespace Likelihood {
      */
     int read_fits_image_to_float_vector(const std::string& filename, 
 					const std::string& extension,
-					std::vector<float>& vect);
+					std::vector<float>& vect,
+					int& nEvals);
 
     /* Read a healpix image stored as a FITS table from a file to a vector 
 
@@ -110,7 +111,8 @@ namespace Likelihood {
      */
     int read_healpix_table_to_float_vector(const std::string& filename, 
 					   const std::string& extension,
-					   std::vector<float>& vect);
+					   std::vector<float>& vect,
+					   int& nEvals);
 
 
     /* Read a sparse healpix image stored as a FITS table from a file to a sparse vector 
@@ -125,7 +127,8 @@ namespace Likelihood {
     int read_healpix_table_to_sparse_vector(const std::string& filename, 
 					    const std::string& extension,
 					    size_t npix, 
-					    SparseVector<float>& vect);
+					    SparseVector<float>& vect,
+					    int& nEvals);
 
     /* Gets the type of HEALPix table containted in a FITS file
        

@@ -76,7 +76,7 @@ public:
 	     const BinnedCountsCache * dataCache,
              const Observation & observation,
 	     const BinnedLikeConfig & config, 
-	     const Drm* drm = 0,
+	     const Drm& drm,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
 
@@ -97,8 +97,8 @@ public:
 	     const BinnedCountsCache * dataCache,
 	     const Observation & observation,
 	     const BinnedLikeConfig& config,
+	     const Drm& drm,
 	     const WeightMap* weights = 0,
-	     const Drm* drm = 0,
 	     bool save_model = false);
 
    /* Copy c'tor */
@@ -128,6 +128,15 @@ public:
 
    /* The detector response matrix */
    inline const Drm* drm() const { return m_drm; }
+
+   /* How to apply the energy dispersion */
+   inline int edisp_val() const { return m_edisp_val; }
+
+   /* The number of extra energy bins in the SourceMap, as compared to the CountsMap */
+   inline size_t edisp_bins() const { return m_edisp_bins; }
+
+   /* The offset between the extra energy bins in the DRM and in this source map */
+   inline int edisp_offset() const { return m_edisp_offset; }
 
    /* The weights for the weighted log-likelihood.  Null-> no weights */
    inline const WeightMap* weights() const { return m_weights; } 
@@ -166,14 +175,25 @@ public:
    /* Update the DRM cache in this SourceMap */
    const Drm_Cache* update_drm_cache(const Drm* drm, bool force = false);
 
+   /* The energies for this particular source map */
+   inline const std::vector<double>& energies() const { return m_energies; }
+
+   /* The log of the energy ratios for the particular source map */
+   inline const std::vector<double>& log_energy_ratios() const { return m_logEnergyRatios; }
+
+   /* The number of energies in the particular source map */
+   inline size_t n_energies() const { return m_energies.size(); }
+
+   /* The number of energy bins in this particular source map */
+   inline size_t n_energy_bins() const { return m_logEnergyRatios.size(); }
+
+   
    /* Extract a vector of spectral normalization values from a Source object
       and latch it in this class.
       
-      energies:  The energies at which to evalute the spectrum
       latch_params : If true, the model parameters are latched
    */   
-   void setSpectralValues(const std::vector<double>& energies,
-			  bool latch_params = false);
+   void setSpectralValues(bool latch_params = false);
 
    /* Extract the spectral derivatives from the Source object and 
       latch them in this class.
@@ -181,16 +201,16 @@ public:
       energies:  The energies at which to evalute the derivatives
       paraNames: The names of the params w.r.t. which to evaluate the derivaties
     */
-   void setSpectralDerivs(const std::vector<double>& energies,
-			  const std::vector<std::string>& paramNames);
+   void setSpectralDerivs(const std::vector<std::string>& paramNames);
        
 
    /* Test to see if the spectrum has changes w.r.t. the cached values */
    bool spectrum_changed() const;
 
 
-   /* How to handle the energy dispersion */
-   int edisp_type() const;
+   /* Get a particular version of the counts specturm */
+   const std::vector<double>& counts_spectra(int edisp_val,
+					     bool use_weighted) const;
 
 
    /* Compute the total model counts summed between two energy bins *
@@ -261,7 +281,7 @@ public:
    std::vector<float> & model(bool force=false);
 
    /* These are the 'spectrum' values, I.e., the spectrum evaluated at the energy points */
-   const std::vector<double> & specVals(bool force=false);
+   const std::vector<double> & specVals(bool force=false, bool latch_params=false);
 
    /* These are the 'spectrum' weights.  They are the quantity that appear in the log-log quadrature formula */
    const std::vector<std::pair<double,double> >&  specWts(bool force=false);
@@ -328,6 +348,8 @@ protected:
    /* Fill the full model */
    void expand_model(bool clearSparse = true);
 
+   /* Latch the energy vector */
+   void set_energies();
 
 private:
 
@@ -398,8 +420,20 @@ private:
    /// Options for treatment of PSF and energy disperson
    const BinnedLikeConfig& m_config;
 
-   /// The detector response matrix.  Null -> ignore energy disperison
+   /// The detector response matrix. 
    const Drm* m_drm;
+
+   /// How to apply the energy dispersion:
+   //   m_edisp_val < 0 -> use rescaling
+   //   m_edisp_val = 0 -> not applied
+   //   m_edisp_val > 0 -> use complete method
+   int m_edisp_val;
+
+   /// The number of extra energy bins in the SourceMap, as compared to the CountsMap
+   size_t m_edisp_bins;
+
+   /// The offset between this source map energy binning and the Drm
+   int m_edisp_offset;
 
    /// A weights map, for weighted likelihood analysis.  Null -> no weighting.   
    const WeightMap* m_weights;
@@ -410,6 +444,11 @@ private:
    /// Flag to indicated that model is out of sync with file
    bool m_model_is_local;
 
+   /// The energies for this particular source map
+   std::vector<double> m_energies;
+
+   /// The log of the energy ratios
+   std::vector<double> m_logEnergyRatios;   
 
    /// This is the 'source map' data. 
    /// It is not the counts map, but rather the coefficients

@@ -214,14 +214,13 @@ namespace Likelihood {
 
      /// Turn on energy dispersion
      void set_edisp_flag(bool use_edisp) {
-       int set_val = use_edisp ? 0 : -1;
+       int set_val = use_edisp ? -1: 0;
        set_edisp_val(set_val);
      }
      
      /// Turn on energy dispersion
      void set_edisp_val(int edisp_val) {
        if ( edisp_val == m_config.edisp_val() ) return;
-       m_config.set_edisp_val(edisp_val);
        m_srcMapCache.set_edisp_val(edisp_val);
        m_fixedModelCounts.clear();
        m_fixed_counts_spec.clear();   
@@ -613,6 +612,12 @@ namespace Likelihood {
      /* Return flag saying how we use energy dispersion for a particular source */
      int edisp_val(const std::string & srcname="") const;
 
+     /* Return flag saying if we are using energy dispersion of a particular source */
+     bool use_edisp(const std::string & srcname="") const {
+       int v = edisp_val(srcname);
+       return ( v != 0 );
+     }
+
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();
 
@@ -636,6 +641,18 @@ namespace Likelihood {
 	the filled pixels */
      static double nll_explict(const BinnedLikelihood& like, 
 			       bool weighted=false);
+
+
+     /* fill the spectrum explicitly from a model */
+     static void spectrum_explict(const BinnedLikelihood& like, 
+				  const std::string& srcName, 
+				  std::vector<double>& spec,
+				  bool weighted=false);
+
+     /* Check the npred for each source, using both the explict function and the computation */
+     static void check_npreds(const BinnedLikelihood& like, 
+			      bool weighted=false);
+
 
    protected:
      

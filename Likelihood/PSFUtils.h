@@ -140,6 +140,7 @@ namespace Likelihood {
     /* Build the PSF for a particular direction */
     MeanPsf* build_psf(const Source& src, 
 		       const CountsMapBase& dataMap,
+		       const std::vector<double>& energies,
 		       const Observation& obs);
 
 
@@ -171,6 +172,7 @@ namespace Likelihood {
 
        src         : The source in question
        dataMap     : The counts map in question
+       energies    : The vector of energies to consider
        meanpsf     : The average PSF across the ROI
        bexpmap     : The Binned Exposure map (actually a cube )
        config      : Parameters for PSF integration 
@@ -184,6 +186,7 @@ namespace Likelihood {
      */
     int makeModelMap(const Source& src, 
 		     const BinnedCountsCache& dataCache,
+		     const std::vector<double>& energies,
 		     const MeanPsf& meanpsf,
 		     const BinnedExposureBase* bexpmap,
 		     const PsfIntegConfig& config,	
@@ -199,6 +202,7 @@ namespace Likelihood {
 
        src         : The source in question
        dataMap     : The counts map in question
+       energies    : The vector of energies to consider
        meanpsf     : The average PSF across the ROI
        bexpmap     : The Binned Exposure map (actually a cube )
        config      : Parameters for PSF integration 
@@ -212,6 +216,7 @@ namespace Likelihood {
     */
     int makeDiffuseMap(const DiffuseSource& src, 
 		       const CountsMapBase& dataMap,
+		       const std::vector<double>& energies,
 		       const MeanPsf& meanpsf,
 		       const BinnedExposureBase* bexpmap,
 		       const PsfIntegConfig& config,	
@@ -226,6 +231,7 @@ namespace Likelihood {
 
        src         : The source in question
        dataMap     : The counts map in question
+       energies    : The vector of energies to consider
        meanpsf     : The average PSF across the ROI
        bexpmap     : The Binned Exposure map (actually a cube )
        config      : Parameters for PSF integration 
@@ -239,6 +245,7 @@ namespace Likelihood {
     */
     int makeDiffuseMap_wcs(const DiffuseSource& src, 
 			   const CountsMap& dataMap,
+			   const std::vector<double>& energies,
 			   const MeanPsf& meanpsf,
 			   const BinnedExposureBase* bexpmap,
 			   const PsfIntegConfig& config,
@@ -252,6 +259,7 @@ namespace Likelihood {
 
        src         : The source in question
        dataMap     : The counts map in question
+       energies    : The vector of energies to consider
        meanpsf     : The average PSF across the ROI
        bexpmap     : The Binned Exposure map (actually a cube )
        config      : Parameters for PSF integration 
@@ -265,6 +273,7 @@ namespace Likelihood {
     */
     int makeDiffuseMap_healpix(const DiffuseSource& src, 
 			       const CountsMapHealpix& dataMap,
+			       const std::vector<double>& energies,
 			       const MeanPsf& meanpsf,
 			       const BinnedExposureBase* bexpmap,
 			       const PsfIntegConfig& config,
@@ -278,6 +287,7 @@ namespace Likelihood {
 
        src         : The source in question
        dataMap     : The counts map in question
+       energies    : The vector of energies to consider
        meanpsf     : The average PSF across the ROI
        bexpmap     : The Binned Exposure map (actually a cube )
        config      : Parameters for PSF integration 
@@ -291,6 +301,7 @@ namespace Likelihood {
     */
     int makeDiffuseMap_native(const DiffuseSource& src, 
 			      const CountsMapHealpix& dataMap,
+			      const std::vector<double>& energies,
 			      const MeanPsf& meanpsf,
 			      const BinnedExposureBase* bexpmap,
 			      const PsfIntegConfig& config,
@@ -304,6 +315,7 @@ namespace Likelihood {
 
        src         : The source in question
        dataMap     : The counts map in question
+       energies    : The vector of energies to consider
        config      : Parameters for PSF integration 
        meanpsf     : The average PSF across the ROI
        bexpmap     : The Binned Exposure map (actually a cube )
@@ -317,6 +329,7 @@ namespace Likelihood {
     */
     int makePointSourceMap(const PointSource& src, 
 			   const CountsMapBase& dataMap,
+			   const std::vector<double>& energies,
 			   const PsfIntegConfig& config,
 			   const MeanPsf& meanpsf,
 			   const BinnedExposureBase* bexpmap,
@@ -330,6 +343,7 @@ namespace Likelihood {
 
        pointSrc    : The source in question
        dataMap     : The counts map in question
+       energies    : The vector of energies to consider
        config      : Parameters for PSF integration 
        meanpsf     : The average PSF across the ROI
        formatter   : Stream for writting progress messages
@@ -342,6 +356,7 @@ namespace Likelihood {
     */
     int makePointSourceMap_wcs(const PointSource& pointSrc, 
 			       const CountsMap& dataMap,
+			       const std::vector<double>& energies,
 			       const PsfIntegConfig& config,
 			       const MeanPsf& meanpsf,
 			       const BinnedExposureBase* bexpmap,
@@ -355,6 +370,7 @@ namespace Likelihood {
 
        pointSrc    : The source in question
        dataMap     : The counts map in question
+       energies    : The vector of energies to consider
        config      : Parameters for PSF integration 
        meanpsf     : The average PSF across the ROI
        formatter   : Stream for writting progress messages
@@ -367,6 +383,7 @@ namespace Likelihood {
     */
     int makePointSourceMap_healpix(const PointSource& pointSrc, 
 				   const CountsMapHealpix& dataMap,
+				   const std::vector<double>& energies,
 				   const PsfIntegConfig& config,
 				   const MeanPsf& meanpsf,
 				   const BinnedExposureBase* bexpmap,
@@ -380,6 +397,7 @@ namespace Likelihood {
  
        compSrc     : The source in question
        dataCache   : Cache with the CountsMap to use as template
+       energies    : The vector of energies to consider
        srcMapsFile : The file with the source maps for the Composite source
        drm         : For energy dispersion, NULL -> no energy dispersion
        formatter   : Stream for writting progress messages
@@ -390,6 +408,7 @@ namespace Likelihood {
     */
     int makeCompositeMap(const CompositeSource& compSrc, 
 			 const BinnedCountsCache& dataCache,
+			 const std::vector<double>& energies,
 			 const std::string & srcMapsFile,
 			 const Drm* drm,
 			 st_stream::StreamFormatter& formatter,

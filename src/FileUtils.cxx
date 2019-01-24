@@ -75,9 +75,12 @@ namespace Likelihood {
 
     int read_fits_image_to_float_vector(const std::string& filename, 
 					const std::string& extension ,
-					std::vector<float>& vect) {
+					std::vector<float>& vect,
+					int& nEvals) {
       std::auto_ptr<const tip::Image>
 	image(tip::IFileSvc::instance().readImage(filename,extension));
+      const tip::Header& header = image->getHeader();
+      header["NAXIS3"].get(nEvals);
       vect.clear();
       image->get(vect);     
       return 0;
@@ -85,7 +88,8 @@ namespace Likelihood {
     
     int read_healpix_table_to_float_vector(const std::string& filename, 
 					   const std::string& extension,
-					   std::vector<float>& vect) {
+					   std::vector<float>& vect,
+					   int& nEvals) {
       std::auto_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
       
@@ -103,10 +107,11 @@ namespace Likelihood {
 	}
       }
       
-      int ncol = dataColumns.size();
+      nEvals = dataColumns.size();
       tip::Index_t nrow = table->getNumRecords();
+      
       vect.clear();
-      vect.reserve(ncol*nrow);
+      vect.reserve(nEvals*nrow);
       
       double readVal(0.);
       for ( std::vector<tip::FieldIndex_t>::const_iterator itrData = dataColumns.begin();
@@ -123,10 +128,14 @@ namespace Likelihood {
     int read_healpix_table_to_sparse_vector(const std::string& filename, 
 					    const std::string& extension,
 					    size_t npix, 
-					    SparseVector<float>& vect) {
+					    SparseVector<float>& vect,
+					    int& nEvals) {
       vect.clear_data();
       std::auto_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
+
+      const tip::Header& header = table->getHeader();
+      header["N_ENERGY"].get(nEvals);
 
       // There are two columns: key and value
       tip::FieldIndex_t pix_field = table->getFieldIndex("PIX");
@@ -475,6 +484,8 @@ namespace Likelihood {
       header["REFDIR1"].set(dataMap.isGalactic() ? dataMap.refDir().l() :  dataMap.refDir().ra() );
       header["REFDIR2"].set(dataMap.isGalactic() ? dataMap.refDir().b() :  dataMap.refDir().dec() );
 
+      header["N_ENERGY"].set(nEBins);
+
       int idx(0);
       std::vector<size_t> key_vect;
       std::vector<float> val_vect;
@@ -774,9 +785,9 @@ namespace Likelihood {
 				       const std::string& table_name,
 				       const Drm& drm) {
 
-      const std::deque<double>& energies = drm.ebounds();
-      long true_num_elem = energies.size() - 1;
-      long app_num_elem = energies.size() - 3;
+      const std::vector<double>& energies = drm.full_energies();
+      long true_num_elem = drm.ntrue();
+      long app_num_elem = drm.nmeas();
 
       // Open ebounds table for writing.
       std::auto_ptr<tip::Table> ebounds(tip::IFileSvc::instance().editTable(file_name, "EBOUNDS"));      
