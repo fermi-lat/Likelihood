@@ -144,11 +144,13 @@ namespace Likelihood {
   }
 
   void WeightMap::readImage(const std::string& sourceMapsFile) {
-    FileUtils::read_fits_image_to_float_vector(sourceMapsFile,"__weights__",m_model);
+    int dummy(0);
+    FileUtils::read_fits_image_to_float_vector(sourceMapsFile,"__weights__",m_model, dummy);
   }
 
   void WeightMap::readTable_healpix(const std::string& sourceMapsFile) {
-    FileUtils::read_healpix_table_to_float_vector(sourceMapsFile,"__weights__",m_model);
+    int dummy(0);
+    FileUtils::read_healpix_table_to_float_vector(sourceMapsFile,"__weights__",m_model, dummy);
   }
 
 } // Likelihood

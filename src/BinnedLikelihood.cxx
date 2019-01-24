@@ -59,7 +59,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     resamp_factor,
 	     minbinsz,
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
-	     true,-1,true,false,false,false),
+	     true,0,true,false,false,false),
     m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
 		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
@@ -99,7 +99,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 	     resamp_factor,
 	     minbinsz,	     
 	     PsfIntegConfig::adaptive,1e-3,1e-6,
-	     true,-1,true,false,false,false),
+	     true,0,true,false,false,false),
     m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
 		  observation, m_dataCache.countsMap().energies())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
@@ -130,7 +130,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_srcMapsFile(srcMapsFile),
     m_config(config),
     m_drm(new Drm(m_dataCache.countsMap().refDir().ra(), m_dataCache.countsMap().refDir().dec(), 
-		  observation, m_dataCache.countsMap().energies())),
+		  observation, m_dataCache.countsMap().energies(), config.drm_bins())),
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
     m_modelIsCurrent(false),
     m_updateFixedWeights(true){    
@@ -230,8 +230,8 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       std::vector<std::string> parnames;
       src->second->spectrum().getFreeParamNames(parnames);
       SourceMap & srcMap = sourceMap(src->first);
-      srcMap.setSpectralValues(m_dataCache.energies());
-      srcMap.setSpectralDerivs(m_dataCache.energies(),parnames);
+      srcMap.setSpectralValues();
+      srcMap.setSpectralDerivs(parnames);
     }
   }
 
@@ -313,9 +313,9 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
 
   CountsMapBase * BinnedLikelihood::createCountsMap() const {
+    CountsMapBase * modelMap = m_dataCache.countsMap().clone();         
     std::vector<float> map;
     computeModelMap(map);
-    CountsMapBase * modelMap = m_dataCache.countsMap().clone();         
     modelMap->setImage(map);
     return modelMap;
   }
@@ -783,7 +783,6 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     if ( m_config.save_all_srcmaps() ) {
       srcMap->setSaveModel(true);
     }
-    
     addSourceCounts(m_fixedModelCounts, srcName, srcMap, false, true);
     addFixedNpreds(srcName, srcMap, false);
 
@@ -942,7 +941,8 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       sourceMap = getSourceMap(srcName);
     } 
     
-    sourceMap->setSpectralValues(m_dataCache.energies(),latchParams);    
+    
+    sourceMap->setSpectralValues(latchParams);    
     int edisp_flag = edisp_val(srcName);
 
     FitUtils::addSourceCounts(modelCounts,*sourceMap,
@@ -1033,5 +1033,72 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     }
     return retVal;
   }
+
+  void BinnedLikelihood::spectrum_explict(const BinnedLikelihood& like, 
+					  const std::string& srcName, 
+					  std::vector<double>& spec,
+					  bool weighted) {
+
+    std::vector<float> model(like.dataCache().data_map_size());
+    const WeightMap* wts(0);
+    if ( weighted ) {
+      wts = like.weightMap();
+      if ( wts == 0 ) {
+	throw std::runtime_error("BinnedLikelihood::spectrum_explicit called with weighted option, but no weights are present");
+	return;
+      }
+    }
+    like.computeModelMap(srcName, model);
+    size_t npix = like.dataCache().num_pixels();
+    size_t ne = like.dataCache().num_ebins();
+    size_t i_start(0);
+    size_t i_end(npix);
+    spec.clear();
+    spec.resize(ne, 0);
+    for ( size_t ie(0); ie < ne; ie++ ) {
+      float sum(0.);
+      for ( size_t i(i_start); i < i_end; i++ ) { 
+	if ( wts == 0 ) {
+	  sum += model[i];
+	} else { 
+	  sum += model[i] * wts->model()[i];
+	}
+      }
+      i_start += npix;
+      i_end += npix; 
+      spec[ie] = sum;
+    }   
+  }
+
+  void BinnedLikelihood::check_npreds(const BinnedLikelihood& like, 
+				      bool weighted) {
+    std::vector<std::string> srcNames;
+    like.getSrcNames(srcNames);
+    for ( std::vector<std::string>::const_iterator itr = srcNames.begin(); itr != srcNames.end();
+	  itr++ ) {
+      double npred_func = like.NpredValue(*itr, weighted);
+      float npred_explicit = BinnedLikelihood::npred_explicit_src(like, * itr, weighted);
+      double npred_check = npred_func - npred_explicit;
+      if ( std::fabs(npred_check) > 0.01 ) {
+	std::cout << "BinnedLikelihood::check_npreds " << *itr << ' ' 
+		  << npred_func << ' ' << npred_explicit << std::endl;
+	std::vector<double> spec_explicit;
+	int edisp_src = like.edisp_val(*itr);
+	SourceMap& srcMap = like.sourceMap(*itr);
+	const std::vector<double>& spec_func = srcMap.counts_spectra(edisp_src, weighted);
+	BinnedLikelihood::spectrum_explict(like, *itr, spec_explicit, weighted);
+	const std::vector<std::vector<std::pair<double,double> > >& w_npreds = srcMap.weighted_npreds();
+	for ( size_t ie(0); ie < spec_func.size(); ie++ ) {
+	  std::cout << ie << ' ' << spec_func[ie] << ' ' << spec_explicit[ie];
+	  const std::vector<std::pair<double,double> >& ww_npreds = w_npreds[ie];
+	  for ( size_t iw(0); iw < ww_npreds.size(); iw++ ) {
+	    std::cout << ' ' << ww_npreds[iw].first << ' ' << ww_npreds[iw].second;
+	  }
+	  std::cout << std::endl;
+	}
+      }
+    }
+  }
+
 
 } // namespace Likelihood

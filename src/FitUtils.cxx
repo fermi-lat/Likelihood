@@ -48,31 +48,40 @@ namespace Likelihood {
       return (y1*emin + y2*emax)/2.*log_ratio;
     }
   
-    void expand_energies(std::vector<double>& energies, int edisp_bins) {
+    /// Expands a vector of energy bin edges by taking equal size steps in log space
+    void expand_energies(std::vector<double> & energies, int edisp_bins) {      
+      size_t nee = energies.size();
+
+      if ( nee < 2 ) return;
       
-      if ( edisp_bins <= 0 ) return;
-      size_t n_evals = energies.size();
-      if ( n_evals < 2 ) return;
-      std::vector<double> outVect(energies.size() + 2*edisp_bins);
-      // copy the orignal vector to the middle of the new vector
-      std::copy(energies.begin(), energies.end(), outVect.begin() + edisp_bins);
+      // Make the output vector and copy the input vector to the middle of it
+      std::vector<double> out_vect(nee+2*edisp_bins, 0);
+      std::copy(energies.begin(), energies.end(), out_vect.begin() + edisp_bins);
       
-      // get the lowest energy, highest energy and lo_step and hi_step, in log space
-      double lo_eval = std::log10(energies[0]);
-      double hi_eval = std::log10(energies[n_evals-1]);
-      double lo_step = std::log10(energies[1]) - lo_eval;
-      double hi_step = hi_eval - std::log10(energies[n_evals-2]);
-  
-      for ( size_t i(1); i <= edisp_bins; i++ ) { 
-	lo_eval -= lo_step;
-	hi_eval += hi_step;
-	outVect[edisp_bins - i] = std::pow(10., lo_eval);
-	outVect[n_evals + edisp_bins + i - 1] = std::pow(10., hi_eval);
+      // Get the high and low ednges in low space
+      double log_val_lo = std::log10(energies[0]);
+      double log_val_hi = std::log10(energies[nee-1]);
+
+      double log_step_lo = log_val_lo - std::log10(energies[1]);  // This will be negative
+      double log_step_hi = log_val_hi - std::log10(energies[nee-2]);
+      
+      for ( size_t i(1); i <= edisp_bins; i++ ) {
+	log_val_lo += log_step_lo;
+	log_val_hi += log_step_hi;
+	out_vect[edisp_bins-i] = std::pow(10., log_val_lo);
+	out_vect[nee+edisp_bins+i-1] = std::pow(10., log_val_hi);
       }
-      
-      // swap the orignal vector with the working version of the output vector
-      energies.swap(outVect);
-      
+
+      // Swap the out_vect and the input vector
+      energies.swap(out_vect);
+    }
+
+    void log_energy_ratios(const std::vector<double>& energies,
+			   std::vector<double>& log_ratios) {
+      log_ratios.resize(energies.size() -1);
+      for ( size_t i(0); i < log_ratios.size(); i++ ) {
+	log_ratios[i] = std::log(energies[i+1] / energies[i]);
+      }
     }
 
     
@@ -1215,6 +1224,7 @@ namespace Likelihood {
     void extractSpectralVals(const Source& source,
 			     const std::vector<double>& energies,
 			     std::vector<double>& specVals) {
+
       const optimizers::Function& spec = source.spectrum();
       specVals.clear();
       for ( std::vector<double>::const_iterator itr = energies.begin();
@@ -1279,12 +1289,13 @@ namespace Likelihood {
 	
 	// Otherwise, build a map ourselves
 	Source* nc_source = const_cast<Source*>(&source);
+	BinnedLikelihood& nclike = const_cast<BinnedLikelihood&>(logLike);
 	theMap = new SourceMap(*nc_source,
 			       &logLike.dataCache(),
 			       logLike.observation(),
-			       logLike.config());
+			       logLike.config(),
+			       nclike.drm());
 	
-	BinnedLikelihood& nclike = const_cast<BinnedLikelihood&>(logLike);
 	nclike.updateModelMap_fromSrcMap(model, source, theMap);	
 	//std::vector<double> specVals;
 	//FitUtils::extractSpectralVals(source,logLike.energies(),specVals);
@@ -1906,61 +1917,64 @@ namespace Likelihood {
 
 
     void get_spectral_weights(const std::vector<double>& spec,
-			      const BinnedCountsCache& dataCache,
+			      const std::vector<double>& energies,
+			      const std::vector<double>& log_energy_ratios,
 			      std::vector<std::pair<double, double> >& spec_weights) {
-      size_t ne = dataCache.num_ebins();
+      size_t ne = log_energy_ratios.size();
       spec_weights.clear();
       spec_weights.resize(ne);
-      const std::vector<double>& evals = dataCache.energies();
-      const std::vector<double>& log_ratios = dataCache.log_energy_ratios();
       for ( size_t i(0); i < ne; i++ ) {
-	spec_weights[i].first = spec[i]*evals[i]*log_ratios[i] / 2.;
-	spec_weights[i].second = spec[i+1]*evals[i+1]*log_ratios[i] / 2.;
+	spec_weights[i].first = spec[i]*energies[i]*log_energy_ratios[i] / 2.;
+	spec_weights[i].second = spec[i+1]*energies[i+1]*log_energy_ratios[i] / 2.;
       }
     }
     
 
-    void get_edisp_range(const BinnedCountsCache& dataCache, int edisp_val, 
+    void get_edisp_range(SourceMap& srcMap,
 			 size_t k, 
 			 size_t& kmin, size_t& kmax) {
-      if ( edisp_val < 0 ) {
-	kmin = k;
-	kmax = k + 1;
-      } else {
-	kmin = k < edisp_val ? 0 : k - edisp_val;
-	kmax = std::min(dataCache.num_ebins(), k + edisp_val + 1);
+
+      kmin = k;
+      kmax = kmin + 1;
+      if ( srcMap.edisp_val() > 0 ) {
+	// We are going to scan over energy, so expand the range
+	kmin += srcMap.edisp_bins() - srcMap.edisp_val();
+	kmax += srcMap.edisp_bins() + srcMap.edisp_val();
       }
     }
 
     
-    void get_edisp_constants(SourceMap& srcMap,  const BinnedCountsCache& dataCache, 
-			     int edisp_val, 
+    void get_edisp_constants(SourceMap& srcMap, 
 			     size_t k, size_t& kmin, size_t& kmax,
 			     std::vector<double>& edisp_col){
       
-      kmin = k;
-      kmax = k+1;
-
+      get_edisp_range(srcMap, k, kmin, kmax);
       edisp_col.clear();
-
-      if ( edisp_val < 0 ) { // Don't apply energy dispersion
+      
+      if ( srcMap.edisp_val() == 0 ) { 
+	// Don't apply energy dispersion
 	edisp_col.push_back(1.);
-      } else if ( edisp_val == 0 ) { // Apply 'old' version of energy dispersion
+      } else if ( srcMap.edisp_val() < 0 ) { // Apply 'old' version of energy dispersion
 	const Drm_Cache* drm_cache = srcMap.drm_cache();
 	int kref(-1);
 	double xi = drm_cache->get_correction(k, kref);
 	edisp_col.push_back(xi);
 	if ( kref >= 0 ) { 
-	  // Doesn't have counts in this bin, so use the refernce bin instead.
-	  kmin = kref;
-	  kmax = kref+1;
-	} 
-      } else if ( edisp_val > 0 ) {
-	get_edisp_range(dataCache, edisp_val, k, kmin, kmax);
+	  // Doesn't have counts in this bin, so use the reference bin instead.
+	  kmin = kref + srcMap.edisp_bins();
+	  kmax = kmin + 1;
+	} else {
+	  kmin += srcMap.edisp_bins();
+	  kmax += srcMap.edisp_bins();
+	}
+      } else if ( srcMap.edisp_val() > 0 ) {
 	const std::vector<double>& drm_col = srcMap.drm()->col(k);
 	edisp_col.resize(kmax-kmin);
-	// Note that we want row starting at k+1, this is b/c we have added extra energy bin to the true counts at either end of the spectra
-	std::copy(drm_col.begin() + kmin + 1, drm_col.begin() + kmax + 1, edisp_col.begin());
+	// Copy out the relevant energy bins
+	std::copy(drm_col.begin() + kmin, drm_col.begin() + kmax, edisp_col.begin());
+	// Now adjust kmin and kmax so that they are in the space of the source map
+	kmin += srcMap.edisp_offset();
+	kmax += srcMap.edisp_offset();
       }
     }
 
@@ -1983,9 +1997,9 @@ namespace Likelihood {
 			    size_t kref,
 			    double& counts,
 			    double& counts_wt) {
+
       double npred_0 = npred_vals[kref] * spec_wts[kref].first;
-      double npred_1 = npred_vals[kref+1] * spec_wts[kref].second;
-      
+      double npred_1 = npred_vals[kref+1] * spec_wts[kref].second;      
       double npred_wt_0 = weighted_npreds.first * spec_wts[kref].first;
       double npred_wt_1 = weighted_npreds.second * spec_wts[kref].second;
       counts = xi*(npred_0 + npred_1);
@@ -2052,17 +2066,17 @@ namespace Likelihood {
       size_t npix = dataCache.num_pixels();
       const std::vector<size_t>& pix_ranges = dataCache.firstPixels();
       std::vector<double> edisp_col;
+
       for (size_t k(0); k < nebins; k++ ) {
 
 	size_t kmin_edisp(0);
 	size_t kmax_edisp(0);
-	get_edisp_constants(srcMap, dataCache, edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
-	
+	get_edisp_constants(srcMap, k, kmin_edisp, kmax_edisp, edisp_col);	
 	size_t j_start = pix_ranges[k];
 	size_t j_stop = pix_ranges[k+1];      
 	for (size_t j(j_start); j < j_stop; j++) {
 	  size_t ipix = dataCache.filledPixels()[j];
-	  double counts = edisp_val >= 0 ? 
+	  double counts = edisp_val > 0 ? 
 	    model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
 	    model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
 	  double addend = my_sign*counts;
@@ -2086,19 +2100,20 @@ namespace Likelihood {
 
       size_t ne(dataCache.num_ebins());
       std::vector<double> edisp_col;
-      std::vector<double> ones(1, 1.);
+
+      std::vector<double> ones(2*srcMap.edisp_bins() +1, 1.);
 
       for (size_t k(0); k < ne; k++) {
+
 	size_t kmin_edisp(0);
 	size_t kmax_edisp(0);
-	get_edisp_constants(srcMap, dataCache, edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
-	
+	get_edisp_constants(srcMap, k, kmin_edisp, kmax_edisp, edisp_col);	
 	double counts(0.);
 	double counts_wt(0.);
 	if ( edisp_val > 0 ) {
-	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, ones, k, k+1, counts, counts_wt);
+	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, ones, kmin_edisp, kmax_edisp, counts, counts_wt);
 	} else {
-	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), spec_wts, ones[0], k, counts, counts_wt);
+	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), spec_wts, ones[0], kmin_edisp, counts, counts_wt);
 	}
 
 	double counts_edisp(0.);
@@ -2134,11 +2149,15 @@ namespace Likelihood {
 		       size_t kmin, size_t kmax) {
       
       const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
-      
+      const std::vector<double>& energies = srcMap.energies();
+      const std::vector<double>& log_energy_ratios = srcMap.log_energy_ratios();
+
+
       // We need this stuff for the second term...
       const std::vector<double> & npreds = srcMap.npreds();
       const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds = srcMap.weighted_npreds();
       
+
       size_t npix = dataCache.num_pixels();
       const std::vector<size_t>& pix_ranges = dataCache.firstPixels();    
 
@@ -2146,13 +2165,13 @@ namespace Likelihood {
       for (size_t i(0); i < specDerivs.size(); i++, iparam++) {
 
 	std::vector<std::pair<double, double> > spec_wts;
-	get_spectral_weights(specDerivs[i], dataCache, spec_wts);
+	get_spectral_weights(specDerivs[i], energies, log_energy_ratios, spec_wts);
 	std::vector<double> edisp_col;
 
 	for (size_t k(kmin); k < kmax; k++ ) {
 	  size_t kmin_edisp(0);
 	  size_t kmax_edisp(0);	  
-	  get_edisp_constants(srcMap, dataCache, edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
+	  get_edisp_constants(srcMap, k, kmin_edisp, kmax_edisp, edisp_col);
 
 	  // First term, derivate of n_obs log n_model = ( n_obs / n_model ) * ( d model / d param ) 
 	  // loop over all the filled pixels
@@ -2196,8 +2215,7 @@ namespace Likelihood {
     void updateModelMap(std::vector<float> & modelMap,
 			SourceMap& srcMap,
 			const BinnedCountsCache& dataCache,				       
-			bool use_mask,
-			int edisp_val) {
+			bool use_mask) {
       
       const WeightMap* mask = use_mask ? srcMap.weights() : 0;
       size_t npix = dataCache.num_pixels();
@@ -2209,12 +2227,11 @@ namespace Likelihood {
 
 	size_t kmin_edisp(0);
 	size_t kmax_edisp(0);
-	get_edisp_constants(srcMap, dataCache, edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
+	get_edisp_constants(srcMap, k, kmin_edisp, kmax_edisp, edisp_col);
 
+	// This is the index in the output model map, which is also the 
+	// index in the mask (if there is a mask)
 	size_t jmin = k * npix;
-
-	//double val_k(0.);
-	//double val_k_noedisp(0.);
 
 	for (size_t ipix(0); ipix < npix; ipix++, jmin++) {
 	  // EAC, skip masked pixels
@@ -2222,14 +2239,11 @@ namespace Likelihood {
 	       ( mask->model()[jmin] <= 0. ) ) {
 	    continue;
 	  }
-	  double counts = edisp_val > 0 ?
+	  double counts = srcMap.edisp_val() >= 0 ?
 	    model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
 	    model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
 	  modelMap[jmin] += counts;
-	  //val_k += counts;
-	  //val_k_noedisp += model_counts_contribution(srcMap, spec_wts, 1., npix, k, ipix);
 	}
-	//std::cout << "updateModelMap::" << srcMap.name() << ' ' << k << ' ' << val_k << ' ' << val_k_noedisp << std::endl;
       } 
     }  
 

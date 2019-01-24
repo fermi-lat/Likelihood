@@ -9,6 +9,7 @@
 #ifndef Likelihood_BinnedConfig_h
 #define Likelihood_BinnedConfig_h
 
+#include <cstdlib>
 
 namespace Likelihood {
 
@@ -152,7 +153,7 @@ namespace Likelihood {
 		     double psfEstimatorFtol = 1e-3,
 		     double psfEstimatorPeakTh = 1e-6,
 		     bool verbose = true,
-		     int edisp_val = -1, 
+		     int edisp_val = 0, 
 		     bool use_single_fixed_map = true,
 		     bool use_linear_quadrature = false,
 		     bool save_all_srcmaps = false,
@@ -201,6 +202,9 @@ namespace Likelihood {
    
     inline bool computePointSources() const { return m_computePointSources; } 
     inline int edisp_val() const { return m_edisp_val; }
+    inline size_t edisp_bins() const { return m_edisp_val > 0 ? m_edisp_val : 0; }
+    inline size_t drm_bins() const { return std::abs(m_edisp_val); }
+
     inline bool use_single_fixed_map() const { return m_use_single_fixed_map; }
     inline bool use_linear_quadrature() const { return m_use_linear_quadrature; }
     inline bool save_all_srcmaps() const { return m_save_all_srcmaps; }
