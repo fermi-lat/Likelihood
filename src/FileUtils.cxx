@@ -391,6 +391,7 @@ namespace Likelihood {
 	size_t npix = dataMap.pixels().size();
 	std::vector<float> partial(nEBins*npix);
 	std::copy(imageData.begin()+(kmin*npix),imageData.begin()+(kmax*npix),partial.begin());
+	image->set(partial);
       }
       return image;
     }
@@ -581,7 +582,9 @@ namespace Likelihood {
       std::vector<long> naxes;
       naxes.push_back(dataMap.imageDimension(0));
       naxes.push_back(dataMap.imageDimension(1));
-      long nEBins = is_src_map ? dataMap.energies().size() : dataMap.energies().size() - 1;
+      long nEBins_data = is_src_map ? dataMap.num_energies() : dataMap.num_ebins();
+      kmax = kmax < 0 ? nEBins_data : kmax;
+      long nEBins = kmax - kmin;
       naxes.push_back(nEBins);
       
       tip::IFileSvc::instance().appendImage(filename, extension, naxes);

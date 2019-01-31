@@ -861,7 +861,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
   int BinnedLikelihood::edisp_val(const std::string & srcname) const {
     int src_edisp_val = m_config.edisp_val();
-    if ( src_edisp_val < 0 ) return src_edisp_val;    
+    if ( src_edisp_val == 0 ) return src_edisp_val;    
     if (srcname != "") {
       /// Determine from Source if it already accounts for convolution
       /// with the energy dispersion, e.g., for Galactic diffuse
@@ -870,7 +870,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 	& it(m_sources.find(srcname));
       if (it != m_sources.end()) {
 	if ( ! it->second->use_edisp() ) {
-	  src_edisp_val = -1;
+	  src_edisp_val = 0;
 	}
       }
     }

@@ -426,13 +426,19 @@ namespace Likelihood {
   
   void SourceMapCache::fillSingleSourceMap(const Source& src,
 					   std::vector<float>& model, 
-					   FileUtils::SrcMapType& mapType,
+					   FileUtils::SrcMapType& mapType,					   
 					   int kmin, int kmax) const {
     st_stream::StreamFormatter formatter("fillSingleSourceMap", "", 2);
 
     const MeanPsf* meanPsf(0);
     if ( src.srcType() == Source::Point && ( ! m_config.psf_integ_config().use_single_psf() ) ) {
-      meanPsf = PSFUtils::build_psf(src, m_dataCache.countsMap(),  m_dataCache.energies(), m_observation);
+      std::vector<double> psf_energies(m_dataCache.energies());
+      int edisp_bins = edisp_val(&src);
+      if ( edisp_bins < 0 ) {
+	edisp_bins = 0;
+      }
+      FitUtils::expand_energies(psf_energies, edisp_bins);
+      meanPsf = PSFUtils::build_psf(src, m_dataCache.countsMap(), psf_energies, m_observation);
     }
       
     PSFUtils::makeModelMap(src, m_dataCache,
@@ -478,14 +484,17 @@ namespace Likelihood {
     case FileUtils::HPX_Sparse:
       return FileUtils::replace_image_from_sparse_vector_healpix(fitsFile,src.getName(),
 								 static_cast<const CountsMapHealpix&>(m_dataCache.countsMap()),
-								 srcMap->cached_sparse_model(),true);
+								 srcMap->cached_sparse_model(),
+								 true,
+								 0, srcMap->n_energies());
       break;
     case FileUtils::WCS:
     case FileUtils::HPX_AllSky:
     case FileUtils::HPX_Partial:
     default:
       return FileUtils::replace_image_from_float_vector(fitsFile,src.getName(),m_dataCache.countsMap(),
-							srcMap->cached_model(),true);
+							srcMap->cached_model(),true,
+							0, srcMap->n_energies());
     }
   }
 
@@ -503,13 +512,15 @@ namespace Likelihood {
     case FileUtils::HPX_Sparse:
       return FileUtils::append_image_from_sparse_vector_healpix(fitsFile,src.getName(),
 								static_cast<const CountsMapHealpix&>(m_dataCache.countsMap()),
-								srcMap->cached_sparse_model(),true);
+								srcMap->cached_sparse_model(),true,
+								0, srcMap->n_energies());
     case FileUtils::WCS:
     case FileUtils::HPX_AllSky:
     case FileUtils::HPX_Partial:
     default:
       return FileUtils::append_image_from_float_vector(fitsFile,src.getName(),m_dataCache.countsMap(),
-						       srcMap->cached_model(),true);
+						       srcMap->cached_model(),true,
+						       0, srcMap->n_energies());
     }
   }
   
