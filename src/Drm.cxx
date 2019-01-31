@@ -342,12 +342,7 @@ void Drm_Cache::update(const Drm& drm,
 
     double counts(0.);
     double counts_wt(0.);
-    size_t k_true = k;
-    if ( sourceMap.edisp_val() <= 0 ) {
-      k_true += sourceMap.edisp_bins();
-    } else if ( sourceMap.edisp_val() > 0 ) {
-      k_true += sourceMap.edisp_bins() + sourceMap.edisp_offset();
-    }
+    size_t k_true = k + sourceMap.edisp_bins();
     FitUtils::npred_contribution(npreds, weighted_npreds.at(k).at(0), spec_wts, 1., k_true, counts, counts_wt);
     m_true_counts[k] = counts;
     m_true_counts_wt[k] = counts_wt;
