@@ -327,7 +327,7 @@ namespace Likelihood {
 		       int kmin, int kmax) {
 
       if ( config.verbose() ) {
-	formatter.warn() << "Generating SourceMap for " << diffuseSrc.getName();
+	formatter.warn() << "Generating SourceMap for " << diffuseSrc.getName() << ' ' << energies.size();
       }
 
       int status(0);
@@ -855,7 +855,7 @@ namespace Likelihood {
 			   int kmin, int kmax) {
 
       if ( config.verbose() ) {
-	formatter.warn() << "Generating SourceMap for " << pointSrc.getName();
+	formatter.warn() << "Generating SourceMap for " << pointSrc.getName() << ' ' << energies.size();
       }
 
       int status(0);

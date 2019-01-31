@@ -1923,6 +1923,9 @@ namespace Likelihood {
       if ( srcMap.edisp_val() == 0 ) { 
 	// Don't apply energy dispersion
 	edisp_col.push_back(1.);
+	// Now adjust kmin and kmax so that they are in the space of the source map
+	kmin += srcMap.edisp_bins();
+	kmax += srcMap.edisp_bins();
       } else if ( srcMap.edisp_val() < 0 ) { // Apply 'old' version of energy dispersion
 	const Drm_Cache* drm_cache = srcMap.drm_cache();
 	int kref(-1);
@@ -1936,14 +1939,13 @@ namespace Likelihood {
 	  kmin += srcMap.edisp_bins();
 	  kmax += srcMap.edisp_bins();
 	}
-      } else if ( srcMap.edisp_val() > 0 ) {
+      } else if ( srcMap.edisp_val() > 0 ) {	  
 	const std::vector<double>& drm_col = srcMap.drm()->col(k);
 	edisp_col.resize(kmax-kmin);
 	// Copy out the relevant energy bins
-	std::copy(drm_col.begin() + kmin, drm_col.begin() + kmax, edisp_col.begin());
+	std::copy(drm_col.begin() + kmin - srcMap.edisp_offset(), 
+		  drm_col.begin() + kmax - srcMap.edisp_offset(), edisp_col.begin());
 	// Now adjust kmin and kmax so that they are in the space of the source map
-	kmin += srcMap.edisp_offset();
-	kmax += srcMap.edisp_offset();
       }
     }
 
@@ -1952,6 +1954,7 @@ namespace Likelihood {
 				     const std::vector<std::pair<double, double> > & spec_wts,
 				     const double& xi, 
 				     size_t npix, size_t kref, size_t ipix) {    
+
       size_t jmin = kref*npix + ipix;
       size_t jmax = jmin + npix;
       double y1 = srcMap[jmin]*spec_wts[kref].first;
@@ -1988,6 +1991,7 @@ namespace Likelihood {
       size_t jmax = jmin + npix;      
       size_t idx(0);
       double ret_val(0.);
+
       for ( size_t k(kmin); k < kmax; k++, idx++, jmin+=npix, jmax+=npix ) {
 	double y1 = srcMap[jmin] * spec_wts[k].first;
 	double y2 = srcMap[jmax] * spec_wts[k].second;
@@ -2208,7 +2212,7 @@ namespace Likelihood {
 	       ( mask->model()[jmin] <= 0. ) ) {
 	    continue;
 	  }
-	  double counts = srcMap.edisp_val() >= 0 ?
+	  double counts = srcMap.edisp_val() > 0 ?
 	    model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
 	    model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
 	  modelMap[jmin] += counts;

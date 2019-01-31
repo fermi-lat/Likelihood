@@ -53,6 +53,7 @@
 #include "Likelihood/ExpCutoffSEDPeak.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FileFunction.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/GaussianError.h"
 #include "Likelihood/LogGaussian.h"
 #include "Likelihood/LogNormal.h"
@@ -172,8 +173,15 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
 	 // EAC, build a map to get the ref-dir and energies
 	 // EAC, it might be better to write a function just to pull those out 
 	 CountsMapBase* cmap = readCountsMap(cmapfile);
-         m_meanpsf = new MeanPsf(cmap->refDir(), cmap->energies(),
-                                 *m_observation);
+	 int edisp_bins = AppHelpers::param(my_pars, "edisp_bins", 0);
+	 if ( edisp_bins < 0 ) {
+	   edisp_bins = 0;
+	 }
+	 std::vector<double> psf_energies(cmap->energies());
+	 FitUtils::expand_energies(psf_energies, edisp_bins);
+
+         m_meanpsf = new MeanPsf(cmap->refDir(), psf_energies, 
+				 *m_observation);
          m_observation->setMeanPsf(m_meanpsf);
 	 delete cmap; // EAC, we built the map on the heap...
       } catch (hoops::Hexception &) {
@@ -1035,5 +1043,59 @@ BinnedExposureBase* AppHelpers::readBinnedExposure(const std::string& filename){
   return retMap;
 }
 
+
+BinnedLikelihood* AppHelpers::makeBinnedLikelihood(st_app::AppParGroup& pars,
+						   AppHelpers& helper,
+						   const std::string& cmap_par) {
+
+  std::string expcube = pars["expcube"];
+  std::string bexpmap = pars["bexpmap"];
+  std::string cmap = pars[cmap_par];
+
+  if (expcube != "" && expcube != "none") {
+    helper.observation().expCube().readExposureCube(expcube);
+  }
+
+  if (!helper.observation().expCube().haveFile()) {
+    throw std::runtime_error
+      ("An exposure cube file is required for binned analysis. "
+       "Please specify an exposure cube file.");
+  }
+ 
+  helper.setRoi(cmap, "", false);
+  st_facilities::Util::file_ok(cmap);
+  CountsMapBase* dataMap = AppHelpers::readCountsMap(cmap);
+  AppHelpers::checkExposureMap(cmap, bexpmap);
+
+  bool computePointSources = AppHelpers::param(pars, "ptsrc", true);
+  bool psf_corrections = AppHelpers::param(pars, "psfcorr", true);
+  bool perform_convolution = AppHelpers::param(pars, "convol", true);  
+  bool resample = AppHelpers::param(pars, "resample", true);
+  int resamp_factor = AppHelpers::param(pars, "rfactor", 2);
+  double minbinsz = AppHelpers::param(pars, "minbinsz", 0.1);
+  
+  int edisp_val = AppHelpers::param(pars, "edisp_bins", 0);
+
+  BinnedLikeConfig config(computePointSources, psf_corrections, 
+			  perform_convolution, resample, resamp_factor, 
+			  minbinsz, PsfIntegConfig::adaptive, 
+			  1e-3, 1e-6, true, edisp_val);
+
+  ProjMap* wmap(0);
+  static const std::string noneString("none");
+  std::string wmap_file = AppHelpers::param(pars, "wmap", noneString);
+    
+  if ( wmap_file != noneString ) {
+    wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,"");
+    wmap->setInterpolation(false);
+    wmap->setExtrapolation(true);
+  }
+
+  BinnedLikelihood* logLike = new BinnedLikelihood(*dataMap, helper.observation(),
+						   config, cmap, wmap);
+
+  return logLike;
+
+}
 
 } // namespace Likelihood

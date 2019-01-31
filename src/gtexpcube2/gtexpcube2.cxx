@@ -113,6 +113,11 @@ void ExpCube::run() {
    std::string cmap_file = m_pars["cmap"];
    std::string ltcube_file = m_pars["infile"];
 
+   int edisp_bins = m_pars["edisp_bins"];
+   if ( edisp_bins < 0 ) {
+     edisp_bins = 0;
+   }
+
    bool useEbounds(true);
    std::string bincalc = m_pars["bincalc"];
    if (bincalc == "CENTER") {
