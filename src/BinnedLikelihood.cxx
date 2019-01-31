@@ -255,12 +255,10 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     
 
     Source * src(*it);
-    int edisp_val = m_srcMapCache.edisp_val(src);
-
     SourceMap & srcMap = sourceMap(src->getName());
 
     FitUtils::addFreeDerivs(posDerivs, negDerivs, freeIndex,
-			    srcMap, data_over_model, m_dataCache, edisp_val, m_kmin, m_kmax);
+			    srcMap, data_over_model, m_dataCache, m_kmin, m_kmax);
     
     // Update index of the next free parameter, based on the number of free parameters of this source
     freeIndex += src->spectrum().getNumFreeParams();
@@ -544,6 +542,9 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
     }
 
+    // We don't apply the weights to the model we will be filling
+    // But we do apply the energy dispersion
+    // This was already handled in buildFixedModelWts
     std::copy(m_fixedModelCounts.begin(), m_fixedModelCounts.end(), modelCounts.begin());
 
     std::vector<std::string> srcNames;
@@ -928,21 +929,18 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     
     
     sourceMap->setSpectralValues(latchParams);    
-    int edisp_flag = edisp_val(srcName);
 
     FitUtils::addSourceCounts(modelCounts,*sourceMap,
-			      m_dataCache, edisp_flag, subtract);
+			      m_dataCache, subtract);
   }
 
   void BinnedLikelihood::addFixedNpreds(const std::string & srcName,
 					SourceMap * srcMap, 
 					bool subtract) {
 
-    int edisp_flag = edisp_val(srcName);
     FitUtils::addFixedNpreds(m_fixed_counts_spec, m_fixed_counts_spec_wt, 
 			     m_fixed_counts_spec_edisp, m_fixed_counts_spec_edisp_wt,
-			     *srcMap, m_dataCache,
-			     edisp_flag, subtract);
+			     *srcMap, m_dataCache, subtract);
     
   }
 

@@ -2028,7 +2028,6 @@ namespace Likelihood {
     void addSourceCounts(std::vector<double> & modelCounts,
 			 SourceMap& srcMap,
 			 const BinnedCountsCache& dataCache,
-			 int edisp_val,
 			 bool subtract) {
       
       double my_sign = subtract ? -1.0 : 1.0;
@@ -2049,7 +2048,7 @@ namespace Likelihood {
 	size_t j_stop = pix_ranges[k+1];      
 	for (size_t j(j_start); j < j_stop; j++) {
 	  size_t ipix = dataCache.filledPixels()[j];
-	  double counts = edisp_val > 0 ? 
+	  double counts = srcMap.edisp_val() > 0 ?
 	    model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
 	    model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
 	  double addend = my_sign*counts;
@@ -2064,7 +2063,6 @@ namespace Likelihood {
 			std::vector<double>& fixed_counts_spec_edisp_wt,
 			SourceMap& srcMap,
 			const BinnedCountsCache& dataCache,
-			int edisp_val,
 			bool subtract) {
       
       const std::vector<double>& npred_vals = srcMap.npreds();
@@ -2083,20 +2081,35 @@ namespace Likelihood {
 	get_edisp_constants(srcMap, k, kmin_edisp, kmax_edisp, edisp_col);	
 	double counts(0.);
 	double counts_wt(0.);
-	if ( edisp_val > 0 ) {
-	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, ones, kmin_edisp, kmax_edisp, counts, counts_wt);
-	} else {
-	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), spec_wts, ones[0], kmin_edisp, counts, counts_wt);
-	}
-
 	double counts_edisp(0.);
 	double counts_edisp_wt(0.);
-	if ( edisp_val > 0 ) {
-	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_edisp, counts_edisp_wt);
-	} else {
-	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), spec_wts, edisp_col[0], kmin_edisp, counts_edisp, counts_edisp_wt);
-	}	
+	
+	/*
+	std::cout << srcMap.name() << ' ' << k << ' ' << srcMap.edisp_val() << ' ' 
+		  << srcMap.n_energies() << ' ' 
+		  << npred_vals.size() << ' ' 
+		  << weighted_npreds.size() << ' ' 
+		  << weighted_npreds.at(k).size() << ' ' 
+		  << weighted_npreds.at(k).front().first << ' ' 
+		  << weighted_npreds.at(k).front().second << ' ' 
+		  << weighted_npreds.at(k).back().first << ' ' 
+		  << weighted_npreds.at(k).back().second << ' ' 
+		  << spec_wts.size() << ' ' 
+		  << kmin_edisp << ' ' 
+		  << kmax_edisp << ' ' << std::endl;
+	*/
 
+	if ( srcMap.edisp_val() > 0 ) {
+	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, 
+		      ones, kmin_edisp, kmax_edisp, counts, counts_wt);
+	  npred_edisp(npred_vals, weighted_npreds.at(k), spec_wts, 
+		      edisp_col, kmin_edisp, kmax_edisp, counts_edisp, counts_edisp_wt);
+	} else {
+	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), 
+			     spec_wts, ones[0], kmin_edisp, counts, counts_wt);
+	  npred_contribution(npred_vals, weighted_npreds.at(k).at(0), 
+			     spec_wts, edisp_col[0], kmin_edisp, counts_edisp, counts_edisp_wt);
+	}
 	if ( subtract ) {
 	  counts *= -1.;
 	  counts_wt *= -1.;
@@ -2118,7 +2131,6 @@ namespace Likelihood {
 		       SourceMap& srcMap,
 		       const std::vector<double>& data_over_model,
 		       const BinnedCountsCache& dataCache,
-		       int edisp_val,
 		       size_t kmin, size_t kmax) {
       
       const std::vector< std::vector<double> > & specDerivs = srcMap.cached_specDerivs();
@@ -2155,7 +2167,7 @@ namespace Likelihood {
 	      continue;
 	    }
 	    size_t ipix = dataCache.filledPixels()[j];
-	    double counts_deriv = edisp_val > 0 ? 
+	    double counts_deriv = srcMap.edisp_val() > 0 ? 
 	      model_counts_edisp(srcMap, spec_wts, edisp_col, ipix, npix, kmin_edisp, kmax_edisp) :
 	      model_counts_contribution(srcMap, spec_wts, edisp_col[0], npix, kmin_edisp, ipix);
 	    double addend = data_over_model[j]*counts_deriv;
@@ -2170,7 +2182,7 @@ namespace Likelihood {
 	  // Loop over the energy layers
 	  double counts_deriv(0.);
 	  double counts_deriv_wt(0.);
-	  if ( edisp_val > 0 ) {
+	  if ( srcMap.edisp_val() > 0 ) {
 	    npred_edisp(npreds, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts_deriv, counts_deriv_wt);
 	  } else {
 	    npred_contribution(npreds, weighted_npreds.at(k).at(0), spec_wts, edisp_col[0], kmin_edisp, counts_deriv, counts_deriv_wt);

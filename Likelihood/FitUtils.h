@@ -848,14 +848,12 @@ namespace Likelihood {
 	modelCounts: The vector being added to.
 	srcMap     : The SourceMap for the source in question
 	dataCache  : Object with info about the binning
-	edisp_val : How to apply the energy dispersion
 	subtract   : If true, subtract from the vector.  	
      */     
 
     void addSourceCounts(std::vector<double> & modelCounts,
 			 SourceMap& srcMap,
 			 const BinnedCountsCache& dataCache,
-			 int edisp_val,
 			 bool subtract);
  
      /* Add (or subtract) the counts for a fxied source onto the vectors that 
@@ -868,7 +866,6 @@ namespace Likelihood {
 	fixed_counts_spec_edisp_wt : The vector being added to.
 	srcMap     : The SourceMap for the source in question
 	dataCache  : Object with info about the binning
-	edisp_val : How to apply the energy dispersion
 	subtract   : If true, subtract from the vector.  	
      */     
     void addFixedNpreds(std::vector<double>& fixed_counts_spec,
@@ -877,7 +874,6 @@ namespace Likelihood {
 			std::vector<double>& fixed_counts_spec_edisp_wt,
 			SourceMap& srcMap,
 			const BinnedCountsCache& dataCache,
-			int edisp_val,
 			bool subtract);
 
 #ifndef SWIG
@@ -889,7 +885,6 @@ namespace Likelihood {
 	srcMap     : The SourceMap for the source in question
 	data_over_model : A vector with the ratio of data to model in each filled pixel
 	dataCache  : Object with info about the binning
-	edisp_val  : How to apply the energy dispersion
 	kmin       : Index of energy bin to start summation
 	kmax       : Index of energy bin to stop summation
      */     
@@ -899,7 +894,6 @@ namespace Likelihood {
 		       SourceMap& srcMap,
 		       const std::vector<double>& data_over_model, 
 		       const BinnedCountsCache& dataCache,
-		       int edisp_val,
 		       size_t kmin, size_t kmax);
 #endif //SWIG
 

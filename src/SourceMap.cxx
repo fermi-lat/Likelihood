@@ -246,12 +246,9 @@ void SourceMap::computeNpredArray() {
        is_meas_bin = true;
        kmeas = k - edisp_bins();
        FitUtils::get_edisp_range(*this, kmeas, kmin_edisp, kmax_edisp);
-       if ( edisp_val() < 0 ) {
+       if ( edisp_val() <= 0 ) {
 	 kmin_edisp += edisp_bins();
 	 kmax_edisp += edisp_bins();
-       } else if ( edisp_val() > 0 ) {
-	 kmin_edisp += edisp_offset();
-	 kmax_edisp += edisp_offset();
        }
        m_weighted_npreds[kmeas].resize(kmax_edisp-kmin_edisp, std::make_pair(0., 0.));
      }     
@@ -259,11 +256,11 @@ void SourceMap::computeNpredArray() {
      for (size_t j(0); j < npix; j++) {
        // This in the index in the model
        size_t indx_0(k*npix + j);
-       // This is the index in the weights
        double model_0 = m_model[indx_0];
        m_npreds[k] += model_0;
        // If this energy bin is not in the central range, we are done with this pixel
        if ( ! is_meas_bin ) continue;
+       // This is the index in the weights
        size_t indx_w(kmeas*npix + j);
        double weight_val = m_weights != 0 ? m_weights->model()[indx_w] : 1.;       
        size_t idx_k(0);
@@ -843,7 +840,6 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
 
   void SourceMap::set_energies() {
     m_edisp_val = m_src->use_edisp() ? m_config.edisp_val() : 0;
-    m_edisp_bins = m_src->use_edisp() ? m_config.edisp_bins() : 0;
     m_edisp_offset = m_edisp_bins - m_drm->edisp_bins(),
     m_energies.resize(m_dataCache->num_energies());
     std::copy(m_dataCache->energies().begin(),m_dataCache->energies().end(),m_energies.begin());
