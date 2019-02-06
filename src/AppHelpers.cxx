@@ -39,6 +39,8 @@
 // EAC, add BinnedExposure sub-classes
 #include "Likelihood/BinnedHealpixExposure.h"
 #include "Likelihood/BinnedExposure.h"
+#include "Likelihood/BinnedConfig.h"
+#include "Likelihood/BinnedLikelihood.h"
 #include "Likelihood/BrokenPowerLaw2.h"
 #include "Likelihood/BrokenPowerLaw3.h"
 #include "Likelihood/BrokenPowerLawExpCutoff.h"

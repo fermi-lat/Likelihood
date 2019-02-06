@@ -209,6 +209,7 @@ void likelihood::run() {
    }
 
    m_helper = new AppHelpers(&m_pars, statistic);
+
    std::string expcube_file = m_pars["expcube"];
    // if (expcube_file != "none" && expcube_file != "") {
    //    ExposureCube & expCube = 
@@ -360,45 +361,16 @@ void likelihood::promptForParameters() {
 }
 
 void likelihood::createStatistic() {
-   if (m_statistic == "BINNED") {
+   if (m_statistic == "BINNED") {      
       if (!m_helper->observation().expCube().haveFile()) {
          throw std::runtime_error
             ("An exposure cube file is required for binned analysis. "
              "Please specify an exposure cube file.");
       }
-      std::string countsMapFile = m_pars["cmap"];
-      
-      st_facilities::Util::file_ok(countsMapFile);
-      m_dataMap = AppHelpers::readCountsMap(countsMapFile);
-      bool edisp_flag = m_pars["edisp"];
-      int edisp_bins = m_pars["edisp_bins"];
-      bool apply_psf_corrections(false);
-      bool computePointSources(true);
-      try {
-         apply_psf_corrections = m_pars["psfcorr"];
-      } catch (...) {
-         // assume parameter does not exist, so use default value.
-      }
-      if (::getenv("USE_BINNED_LIKELIHOOD2")) {
-	throw std::runtime_error("BinnedLikelihood2 has be removed, you should unset the USE_BINNED_LIKELIHOOD2 envvar");
-      } else {
-         m_logLike = m_wmap == 0 ? 
-	   new BinnedLikelihood(*m_dataMap, m_helper->observation(),
-				countsMapFile, 
-				computePointSources,
-				apply_psf_corrections) :
-	   new BinnedLikelihood(*m_dataMap,*m_wmap,m_helper->observation(),
-				countsMapFile, 
-				computePointSources,
-				apply_psf_corrections);	   
-      }
-      if ( edisp_flag ) {
-	BinnedLikelihood* binned_like = static_cast<BinnedLikelihood*>(m_logLike);
-	binned_like->set_edisp_val(edisp_bins);
-      }
 
-      std::string binnedMap = m_pars["bexpmap"];
-      AppHelpers::checkExposureMap(m_pars["cmap"], m_pars["bexpmap"]);
+      BinnedLikelihood* binnedLike = AppHelpers::makeBinnedLikelihood(m_pars, *m_helper, "cmap");      
+      m_logLike = binnedLike;
+      m_dataMap = &binnedLike->countsMap();
       return;
    } else if (m_statistic == "UNBINNED") {
       m_logLike = new LogLike(m_helper->observation());

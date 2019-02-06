@@ -179,26 +179,9 @@ void TsMap::run() {
       m_logLike = new LogLike(m_helper->observation());
       readEventData(evfiles);
    } else { // Assume we are operating in binned mode.
-      std::string cmap = m_pars["cmap"];
-      m_helper->setRoi(cmap, "", false);
-      if (!m_helper->observation().expCube().haveFile()) {
-         throw std::runtime_error
-            ("An exposure cube file is required for binned analysis. "
-             "Please specify an exposure cube file.");
-      }
-      st_facilities::Util::file_ok(cmap);
-      // EAC, use AppHelpers to read the right type of counts map
-      m_dataMap = AppHelpers::readCountsMap(cmap);
-      bool apply_psf_corrections = m_pars["psfcorr"];
-      bool computePointSources(true);
-      m_logLike = new BinnedLikelihood(*m_dataMap, 
-                                       m_helper->observation(),
-                                       cmap, 
-                                       computePointSources,
-                                       apply_psf_corrections);
-      std::string bexpmap = m_pars["bexpmap"];
-      AppHelpers::checkExposureMap(cmap, bexpmap);
-      dynamic_cast<BinnedLikelihood *>(m_logLike)->setVerbose(false);
+      BinnedLikelihood* binnedLike =  AppHelpers::makeBinnedLikelihood(m_pars, *m_helper, "cmap");
+      binnedLike->setVerbose(false);
+      m_logLike = binnedLike;
    }
    readSrcModel();
    selectOptimizer();

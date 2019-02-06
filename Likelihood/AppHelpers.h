@@ -27,6 +27,7 @@ namespace Likelihood {
 
    // EAC, switch to using BinnedExposureBase and CountsMapBase base clases
    class BinnedExposureBase;
+   class BinnedLikelihood;
    class Cuts;
    class CountsMapBase;
    class CountsMap;
@@ -183,6 +184,10 @@ public:
    // EAC -> Open a fits file and read in the correct type of BinnedExposureMap
    static BinnedExposureBase* readBinnedExposure(const std::string& filename);
 
+   // EAC -> Build a binned Likelihood object
+   static BinnedLikelihood* makeBinnedLikelihood(st_app::AppParGroup& pars,
+						 AppHelpers& helper,
+						 const std::string& cmap_par);						 
 
 protected:
 

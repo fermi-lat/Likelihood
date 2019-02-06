@@ -65,6 +65,11 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
     m_modelIsCurrent(false),
     m_updateFixedWeights(true){
+
+  std::cerr << "This version of the constructor of BinnedLikelihood is deprecated." << std::endl
+	    << "It will be removed in an upcoming release." << std::endl
+	    << "Please switch to using the version that takes a BinnedLikeConfigObject." << std::endl;
+
   m_fixedModelCounts.resize(m_dataCache.nFilled(), 0);
   m_fixed_counts_spec.resize(m_dataCache.num_ebins(), 0); 
   m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0); 
@@ -100,6 +105,11 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
     m_srcMapCache(m_dataCache,observation,srcMapsFile,m_config,m_drm),
     m_modelIsCurrent(false),
     m_updateFixedWeights(true){    
+
+  std::cerr << "This version of the constructor of BinnedLikelihood is deprecated." << std::endl
+	    << "It will be removed in an upcoming release." << std::endl
+	    << "Please switch to using the version that takes a BinnedLikeConfigObject." << std::endl;
+
   m_fixedModelCounts.resize(m_dataCache.nFilled(), 0);
   m_fixed_counts_spec.resize(m_dataCache.num_ebins(), 0); 
   m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0); 
