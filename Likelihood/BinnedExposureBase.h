@@ -43,7 +43,7 @@ public:
 
    static double fracDiff(double target, double result) {
      return std::fabs((target - result)/target);
-   }
+   }  
   
    static std::vector<double>::const_iterator
      findNearest(const std::vector<double> & xx, double x, double tol=1e-5);

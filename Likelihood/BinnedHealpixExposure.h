@@ -67,7 +67,7 @@ public:
 
 protected:
 
-   void setMapGeometry(const evtbin::HealpixMap & cmap);
+   void setMapGeometry(const evtbin::HealpixMap & cmap, int edisp_bins=0);
 
    void setMapGeometry(const st_app::AppParGroup & pars);
 

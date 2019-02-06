@@ -84,6 +84,7 @@ namespace Likelihood {
       }
     }
 
+    
     void svd_inverse(const CLHEP::HepMatrix& u,
 		     const CLHEP::HepMatrix& v,
 		     const CLHEP::HepVector& s,

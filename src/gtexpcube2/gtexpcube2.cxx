@@ -1,4 +1,4 @@
-/**
+ /**
  * @file gtexpcube2.cxx
  * @brief Application for creating binned exposure maps.
  * @author J. Chiang
@@ -29,6 +29,7 @@
 #include "dataSubselector/Gti.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/BinnedHealpixExposure.h"
 #include "Likelihood/CountsMap.h"
@@ -65,13 +66,14 @@ private:
    astro::ProjBase::Method m_projMethod;
    bool m_useEbounds;
 
-   void run_wcs(const std::string* cmap_file);    
-   void run_hpx(const std::string* cmap_file);
+   void run_wcs(const std::string* cmap_file, int edisp_bins);    
+   void run_hpx(const std::string* cmap_file, int edisp_bins);
  
    void promptForParameters();
    void set_phi_status();
    void generateEnergies(std::vector<double> & energies,
-			 const std::string* cmap_file) const;
+			 const std::string* cmap_file, 
+			 int edisp_bins) const;
 
    void copyGtis() const;
    void copyHeaderKeywords() const;
@@ -150,10 +152,10 @@ void ExpCube::run() {
 
    switch ( m_projMethod ) {
    case astro::ProjBase::WCS:
-     run_wcs(cmap_is_null ? 0 : &cmap_file);
+     run_wcs(cmap_is_null ? 0 : &cmap_file, edisp_bins);
      break;
    case astro::ProjBase::HEALPIX:
-     run_hpx(cmap_is_null ? 0 : &cmap_file);
+     run_hpx(cmap_is_null ? 0 : &cmap_file, edisp_bins);
      break;
    default:
      throw std::runtime_error("Unknown projection type");
@@ -164,7 +166,7 @@ void ExpCube::run() {
 }
 
 
-void ExpCube::run_wcs(const std::string* cmap_file) {
+void ExpCube::run_wcs(const std::string* cmap_file, int edisp_bins) {
 
    // Conventional map geometries, with possible overrides by user.
    bool user_energies(have_user_energies());
@@ -175,7 +177,7 @@ void ExpCube::run_wcs(const std::string* cmap_file) {
       st_app::AppParGroup & pars(m_pars);
       // Create map for user-defined geometry.
       std::vector<double> energies;
-      generateEnergies( energies, user_energies ? 0 : cmap_file);
+      generateEnergies( energies, user_energies ? 0 : cmap_file, edisp_bins);
       if (!m_useEbounds) {
 	for (size_t k(0); k < energies.size() - 1; k++) {
 	  energies[k] = std::sqrt(energies[k]*energies[k+1]);
@@ -215,7 +217,7 @@ void ExpCube::run_wcs(const std::string* cmap_file) {
 }
 
 
-void ExpCube::run_hpx(const std::string* cmap_file) {
+void ExpCube::run_hpx(const std::string* cmap_file, int edisp_bins) {
 
    // Conventional map geometries, with possible overrides by user.
    bool user_energies(have_user_energies());
@@ -226,7 +228,7 @@ void ExpCube::run_hpx(const std::string* cmap_file) {
       st_app::AppParGroup & pars(m_pars);
       // Create map for user-defined geometry.
       std::vector<double> energies;
-      generateEnergies( energies, user_energies ? 0 : cmap_file);
+      generateEnergies( energies, user_energies ? 0 : cmap_file, edisp_bins);
       if (!m_useEbounds) {
 	for (size_t k(0); k < energies.size() - 1; k++) {
 	  energies[k] = std::sqrt(energies[k]*energies[k+1]);
@@ -320,7 +322,8 @@ bool ExpCube::have_user_energies() const {
 }
 
 void ExpCube::generateEnergies(std::vector<double> & energies,
-			       const std::string* cmap_file) const {
+			       const std::string* cmap_file,
+			       int edisp_bins) const {
    energies.clear();
 
    if ( cmap_file != 0 ){
@@ -365,7 +368,11 @@ void ExpCube::generateEnergies(std::vector<double> & energies,
        }
      }
    }
+
+   FitUtils::expand_energies(energies, edisp_bins);
 }
+
+
 
 void ExpCube::promptForParameters() {
    m_pars.Prompt("infile");
