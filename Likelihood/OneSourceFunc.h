@@ -45,7 +45,7 @@ namespace Likelihood {
 //    virtual Function *clone() const {return new OneSourceFunc(*this);}
     virtual optimizers::Statistic *clone() const 
         {return new OneSourceFunc(*this);}
-    virtual void setParams(std::vector<optimizers::Parameter>&)
+    virtual void setParams(std::vector<optimizers::Parameter>&);
 //      throw std::runtime_error(optimizers::Exception, optimizers::ParameterNotFound);
     void setEpsW(double);
     void setEpsF(double);
