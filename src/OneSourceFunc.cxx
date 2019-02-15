@@ -120,12 +120,12 @@ namespace Likelihood {
     return it;
   }
 
-  void OneSourceFunc::setParams(std::vector<optimizers::Parameter> &params)
-    throw std::runtime_error(optimizers::Exception, optimizers::ParameterNotFound) {
+  void OneSourceFunc::setParams(std::vector<optimizers::Parameter> &params) {
     unsigned int numParams = getNumParams();
-    if (params.size() != numParams) 
-      throw Exception
+    if (params.size() != numParams) {
+      throw optimizers::Exception
 	("OneSourceFunc::setParams: Inconsistent number of Parameters");
+    }
     int k = 0;
     Source::FuncMap srcFuncs = m_src->getSrcFuncs();
     Source::FuncMap::iterator func_it = srcFuncs.begin();
