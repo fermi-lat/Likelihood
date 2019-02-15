@@ -121,7 +121,7 @@ namespace Likelihood {
   }
 
   void OneSourceFunc::setParams(std::vector<optimizers::Parameter> &params)
-    throw (optimizers::Exception, optimizers::ParameterNotFound) {
+    throw std::runtime_error(optimizers::Exception, optimizers::ParameterNotFound) {
     unsigned int numParams = getNumParams();
     if (params.size() != numParams) 
       throw Exception
