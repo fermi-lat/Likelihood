@@ -189,7 +189,6 @@ likelihood::likelihood()
    m_pars.setCase("statistic", "BINNED", "wmap");
    m_pars.setCase("statistic", "BINNED", "psfcorr");
    m_pars.setCase("statistic", "BINNED", "phased_expmap");
-   m_pars.setCase("statistic", "BINNED", "edisp");
    m_pars.setCase("statistic", "BINNED", "edisp_bins");
 
    m_pars.setCase("statistic", "UNBINNED", "evfile");
@@ -217,7 +216,7 @@ void likelihood::run() {
    //       const_cast<ExposureCube &>(m_helper->observation().expCube());
    //    expCube.readExposureCube(expcube_file);
    // }
-//   bool useEdisp = m_pars["edisp"];
+   //bool useEdisp = m_pars["edisp"] != 0;;
    bool useEdisp = false;
    ResponseFunctions & respFuncs = 
       const_cast<ResponseFunctions &>(m_helper->observation().respFuncs());

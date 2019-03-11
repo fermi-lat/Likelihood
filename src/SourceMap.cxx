@@ -77,7 +77,7 @@ SourceMap::SourceMap(const Source& src,
 		     const BinnedCountsCache * dataCache,
                      const Observation & observation, 
                      const BinnedLikeConfig& config,
-		     const Drm* drm,
+		     const Drm& drm,
 		     const WeightMap* weights,
 		     bool save_model)
    : m_src(&src), 
@@ -88,18 +88,23 @@ SourceMap::SourceMap(const Source& src,
      m_meanPsf(0),
      m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
      m_config(config),
-     m_drm(drm),
+     m_drm(&drm),
+     m_edisp_val(src.use_edisp() ? config.edisp_val() : 0),
+     m_edisp_bins(src.use_edisp() ? config.edisp_bins() : 0),
+     m_edisp_offset(m_edisp_bins - drm.edisp_bins()),
      m_weights(weights),
      m_mapType(FileUtils::Unknown),
-     m_save_model(save_model),
+     m_save_model(save_model),     
      m_model_is_local(true),
      m_drm_cache(0) {
+
+   set_energies();
 
    int status = make_model();
    if ( status != 0 ) {
      throw std::runtime_error("SourceMap construction failed");
    }
-   m_drm_cache = new Drm_Cache(m_drm, *this, dataCache->energies(), m_config.edisp_val()); 
+   m_drm_cache = new Drm_Cache(*m_drm, *this);
 }
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
@@ -107,8 +112,8 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
 		     const BinnedCountsCache * dataCache,
 		     const Observation & observation,
                      const BinnedLikeConfig& config,
+		     const Drm& drm,
 		     const WeightMap* weights,
-		     const Drm* drm,
 		     bool save_model) 
   : m_src(&src),
     m_name(src.getName()),
@@ -121,14 +126,17 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_mapType(FileUtils::Unknown),
     m_save_model(save_model),
     m_model_is_local(true),
-    m_drm(drm),
+    m_drm(&drm),
+    m_edisp_val(src.use_edisp() ? config.edisp_val() : 0),
+    m_edisp_bins(0),    
+    m_edisp_offset(0),
     m_drm_cache(0) {
 
   int status = readModel(sourceMapsFile);
   if ( status != 0 ) {
     // throw std::runtime_error("SourceMap construction failed to read model");
   }
-  m_drm_cache = new Drm_Cache(m_drm,*this,m_dataCache->energies(), m_config.edisp_val());
+  m_drm_cache = new Drm_Cache(*m_drm, *this);
 }
 
 
@@ -143,9 +151,14 @@ SourceMap::SourceMap(const SourceMap& other)
    m_formatter(new st_stream::StreamFormatter("SourceMap", "", 2)),
    m_config(other.m_config),
    m_drm(other.m_drm),
+   m_edisp_val(other.m_edisp_val),
+   m_edisp_bins(other.m_edisp_bins),
+   m_edisp_offset(other.m_edisp_offset),
    m_weights(other.m_weights),
    m_save_model(other.m_save_model),
    m_model_is_local(other.m_model_is_local),
+   m_energies(other.m_energies),
+   m_logEnergyRatios(other.m_logEnergyRatios),
    m_model(other.m_model),
    m_sparseModel(other.m_sparseModel),
    m_mapType(other.m_mapType),
@@ -156,7 +169,7 @@ SourceMap::SourceMap(const SourceMap& other)
    m_derivs(other.m_derivs),
    m_npreds(other.m_npreds),
    m_weighted_npreds(other.m_weighted_npreds),
-   m_drm_cache(other.m_drm_cache != 0 ? other.m_drm_cache->clone() : 0){
+   m_drm_cache(other.m_drm_cache->clone()){
 
 }
 
@@ -205,43 +218,57 @@ void SourceMap::computeNpredArray() {
      return;
    }
 
-   const std::vector<double>& energies = m_dataCache->energies();
-   
-   size_t ne = energies.size();
-   // The number of weights is always number of energy bins
-   size_t nw = energies.size() -1 ;
+   // For the npreds we are going to loop over the number of energies in the source map
+   size_t ne = n_energies();
+   // For the weighted npreds we are going to loop over the number of measure energy bins
+   size_t nw = m_dataCache->num_ebins();
+
+   // For the weighted npreds, we loop from edisp_bins() to edisp_bins() + nw
+   size_t min_ebin = edisp_bins();
+   size_t max_ebin = min_ebin + nw;
+
    m_npreds.clear();
    m_npreds.resize(ne);
    m_weighted_npreds.clear();
    m_weighted_npreds.resize(nw);
 
-   int edisp_flag = edisp_type();
-
    size_t npix = m_dataCache->num_pixels();
-   size_t k(0);
-   for (k=0; k < ne; k++) {     
+   size_t kmin_edisp(0.);
+   size_t kmax_edisp(0.);            
+   size_t kmeas(0);
 
-     size_t kmin_edisp(0.);
-     size_t kmax_edisp(0.);            
-     if ( k < nw ) {
-       FitUtils::get_edisp_range(*m_dataCache, edisp_flag, k, kmin_edisp, kmax_edisp);
-       m_weighted_npreds[k].resize(kmax_edisp-kmin_edisp, std::make_pair(0., 0.));
+   // k is the index in the output vector
+   for (size_t k(0); k < ne; k++) {      
+
+     bool is_meas_bin(false);
+
+     if ( k >= min_ebin && k < max_ebin ) {
+       is_meas_bin = true;
+       kmeas = k - edisp_bins();
+       FitUtils::get_edisp_range(*this, kmeas, kmin_edisp, kmax_edisp);
+       if ( edisp_val() <= 0 ) {
+	 kmin_edisp += edisp_bins();
+	 kmax_edisp += edisp_bins();
+       }
+       m_weighted_npreds[kmeas].resize(kmax_edisp-kmin_edisp, std::make_pair(0., 0.));
      }     
 
      for (size_t j(0); j < npix; j++) {
+       // This in the index in the model
        size_t indx_0(k*npix + j);
        double model_0 = m_model[indx_0];
        m_npreds[k] += model_0;
-       // If there are no weights, we are done with this pixel
-       if ( k >= nw ) continue;
-       double weight_val = m_weights != 0 ? m_weights->model()[indx_0] : 1.;
-       
+       // If this energy bin is not in the central range, we are done with this pixel
+       if ( ! is_meas_bin ) continue;
+       // This is the index in the weights
+       size_t indx_w(kmeas*npix + j);
+       double weight_val = m_weights != 0 ? m_weights->model()[indx_w] : 1.;       
        size_t idx_k(0);
        size_t idx_k0(kmin_edisp*npix + j);
        for ( size_t kk(kmin_edisp); kk < kmax_edisp; kk++, idx_k++, idx_k0 += npix ) {
 	 size_t idx_k1 = idx_k0 + npix;
-	 m_weighted_npreds.at(k).at(idx_k).first += weight_val *  m_model[idx_k0];
-	 m_weighted_npreds.at(k).at(idx_k).second += weight_val *  m_model[idx_k1];
+	 m_weighted_npreds.at(kmeas).at(idx_k).first += weight_val *  m_model[idx_k0];
+	 m_weighted_npreds.at(kmeas).at(idx_k).second += weight_val *  m_model[idx_k1];
        }
      }   
    }
@@ -249,43 +276,62 @@ void SourceMap::computeNpredArray() {
 
 void SourceMap::computeNpredArray_sparse() {
   
-   const std::vector<double>& energies = m_dataCache->energies();
+   // For the npreds we are going to loop over the number of energies in the source map
+   size_t ne = n_energies();
+   // For the weighted npreds we are going to loop over the number of measure energy bins
+   size_t nw = m_dataCache->num_ebins();
 
-   size_t ne = energies.size();
-   // The number of weights is always number of energy bins
-   size_t nw = energies.size() -1 ;
+   // For the weighted npreds, we loop from edisp_bins() to edisp_bins() + 
+   size_t min_ebin = edisp_bins();
+   size_t max_ebin = min_ebin + nw;
+
    m_npreds.clear();
    m_npreds.resize(ne);
    m_weighted_npreds.clear();
    m_weighted_npreds.resize(nw);
 
-   int edisp_flag = edisp_type();
-
    size_t npix = m_dataCache->num_pixels();
-
    size_t k(0);
    size_t kmin_edisp(0.);
-   size_t kmax_edisp(0.);            
-   for (k=0; k < nw; k++) {     
-     FitUtils::get_edisp_range(*m_dataCache, edisp_flag, k, kmin_edisp, kmax_edisp);
-     m_weighted_npreds.at(k).resize(kmax_edisp-kmin_edisp, std::make_pair(0., 0.));
+   size_t kmax_edisp(0.);     
+   size_t kmeas(0);
+   bool is_meas_bin(false);
+
+   for (size_t k=0; k < ne; k++) {
+     if ( k >= min_ebin && k < max_ebin ) {
+       kmeas = k - edisp_bins();
+       FitUtils::get_edisp_range(*this, kmeas, kmin_edisp, kmax_edisp);
+       if ( edisp_val() < 0 ) {
+	 kmin_edisp += edisp_bins();
+	 kmax_edisp += edisp_bins();
+       } else if ( edisp_val() > 0 ) {
+	 kmin_edisp += edisp_offset();
+	 kmax_edisp += edisp_offset();
+       }
+       m_weighted_npreds[kmeas].resize(kmax_edisp-kmin_edisp, std::make_pair(0., 0.));
+     }     
    }
 
    for ( SparseVector<float>::iterator itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
      size_t indx_0 = itr->first;
-     k = indx_0 / npix;
+     size_t k_true = indx_0 / npix;
      size_t j = indx_0 % npix;
      double model_0 = itr->second;
-     m_npreds[k] += model_0;
-     if ( k >= nw ) continue;
-     double weight_val = m_weights != 0 ? m_weights->model()[indx_0] : 1.;
-     FitUtils::get_edisp_range(*m_dataCache, edisp_flag, k, kmin_edisp, kmax_edisp);
+     m_npreds[k_true] += model_0;
+     if ( k_true < min_ebin || k_true >= max_ebin ) {
+       continue;
+     }
+     size_t kmeas = k_true - edisp_bins();
+     size_t indx_w(kmeas*npix + j);
+
+     double weight_val = m_weights != 0 ? m_weights->model()[indx_w] : 1.;
+     FitUtils::get_edisp_range(*this, kmeas, kmin_edisp, kmax_edisp);
      size_t idx_k(0);
      size_t idx_k0(kmin_edisp*npix + j);
      for ( size_t kk(kmin_edisp); kk < kmax_edisp; kk++, idx_k++, idx_k0 += npix ) {
        size_t idx_k1 = idx_k0 + npix;
-       m_weighted_npreds.at(k).at(idx_k).first += weight_val * m_sparseModel[idx_k0];
-       m_weighted_npreds.at(k).at(idx_k).second += weight_val * m_sparseModel[idx_k1];
+       m_weighted_npreds.at(kmeas).at(idx_k).first += weight_val * m_sparseModel[idx_k0];
+       m_weighted_npreds.at(kmeas).at(idx_k).second += weight_val * m_sparseModel[idx_k1];
      }
    }
 }
@@ -300,13 +346,12 @@ void SourceMap::computeNpredArray_sparse() {
 
     const ProjMap * phased_expmap = &(m_observation.phased_expmap());
     const std::vector<Pixel> & pixels = m_dataCache->countsMap().pixels();
-    const std::vector<double>&  energies = m_dataCache->energies();
-    for (size_t k(0); k < energies.size(); k++) {
+    for (size_t k(0); k < n_energies(); k++) {
       std::vector<Pixel>::const_iterator pixel(pixels.begin());
       for (size_t j(0); pixel != pixels.end(); ++pixel, j++) {
 	size_t indx(k*pixels.size() + j);
 	m_model[indx] *= phased_expmap->operator()(pixel->dir(),
-						   energies[k]);
+						   m_energies[k]);
       }
     }
   }
@@ -317,19 +362,15 @@ void SourceMap::computeNpredArray_sparse() {
     }
     const ProjMap * phased_expmap = &(m_observation.phased_expmap());
     const std::vector<Pixel> & pixels = m_dataCache->countsMap().pixels();
-    const std::vector<double>&  energies = m_dataCache->energies();
    
     for ( SparseVector<float>::iterator itr = m_sparseModel.begin(); itr != m_sparseModel.end(); itr++ ) {
       size_t indx = itr->first;
       size_t j = indx % pixels.size();
       size_t k = indx / pixels.size();
       const Pixel& pixel = pixels[j];
-      itr->second *= phased_expmap->operator()(pixel.dir(),energies[k]);
+      itr->second *= phased_expmap->operator()(pixel.dir(), m_energies[k]);
     }
   }
-
-
-
 
   void SourceMap::setSource(const Source& src) {
     if ( m_src == &src ) {
@@ -338,6 +379,7 @@ void SourceMap::computeNpredArray_sparse() {
 	if ( m_filename.size() > 0 ) {
 	  readModel(m_filename);
 	} else {
+	  set_energies();
 	  make_model();
 	  return;
 	}
@@ -346,6 +388,7 @@ void SourceMap::computeNpredArray_sparse() {
       }
     }
     m_src = &src;
+    set_energies();
     m_specVals.clear();
     m_specWts.clear();
     m_modelPars.clear();
@@ -363,11 +406,10 @@ void SourceMap::computeNpredArray_sparse() {
   }
 
 
-  void SourceMap::setSpectralValues(const std::vector<double>& energies,
-				    bool latch_params ) {
+  void SourceMap::setSpectralValues(bool latch_params ) {
     if ( m_src == 0 ) return;
-    FitUtils::extractSpectralVals(*m_src,energies,m_specVals);
-    FitUtils::get_spectral_weights(m_specVals, *m_dataCache, m_specWts);
+    FitUtils::extractSpectralVals(*m_src,m_energies,m_specVals);
+    FitUtils::get_spectral_weights(m_specVals,m_energies,m_logEnergyRatios,m_specWts);
     m_modelPars.clear();
     m_src->spectrum().getParamValues(m_modelPars);
     if ( latch_params ) {
@@ -376,11 +418,19 @@ void SourceMap::computeNpredArray_sparse() {
     }
   }
 
-  void SourceMap::setSpectralDerivs(const std::vector<double>& energies,
-				    const std::vector<std::string>& paramNames) {
+  void SourceMap::setSpectralDerivs(const std::vector<std::string>& paramNames) {
     if ( m_src == 0 ) return;
-    FitUtils::extractSpectralDerivs(*m_src,energies,paramNames,m_derivs);
+    FitUtils::extractSpectralDerivs(*m_src,m_energies,paramNames,m_derivs);
   }
+
+
+  const std::vector<double>& SourceMap::counts_spectra(int edisp_val,
+						       bool use_weighted) const {
+     const std::vector<double>& the_vect = use_weighted ? 
+       ( edisp_val == 0 ? m_drm_cache->true_counts_wt() : m_drm_cache->meas_counts_wt() ) :
+       ( edisp_val == 0 ? m_drm_cache->true_counts() : m_drm_cache->meas_counts() );
+     return the_vect;
+   }
 
 
 bool SourceMap::spectrum_changed() const {
@@ -399,11 +449,6 @@ bool SourceMap::spectrum_changed() const {
 }
 
 
-int SourceMap::edisp_type() const {
-  return m_src->use_edisp() ? m_config.edisp_val() : -1;
-}
-
-
 std::vector<float> & SourceMap::model(bool force) {
   if ( m_model.size() == 0 || force ) {
     if ( m_filename.size() > 0 && FileUtils::fileHasExtension(m_filename, m_name) ) {
@@ -419,23 +464,24 @@ std::vector<float> & SourceMap::model(bool force) {
 }
   
 
-const std::vector<double> & SourceMap::specVals(bool force) {
+const std::vector<double> & SourceMap::specVals(bool force, bool latch_params) {
   if ( m_specVals.size() == 0 || force ) {
-    setSpectralValues(m_dataCache->energies());
+    // Decide if we need the full or truncated version of the energy vector
+    setSpectralValues(latch_params);
   }
   return m_specVals;
 }
 
 const std::vector<std::pair<double,double> >&  SourceMap::specWts(bool force) {
   if ( m_specWts.size() == 0 || force ) {
-    setSpectralValues(m_dataCache->energies());
+    setSpectralValues();
   }
   return m_specWts;
 }
 
 const std::vector<std::vector<double> >& SourceMap::specDerivs(const std::vector<std::string>& paramNames, bool force) {
   if ( m_specVals.size() == 0 || force ) {
-    setSpectralDerivs(m_dataCache->energies(),paramNames);
+    setSpectralDerivs(paramNames);
   }
   return m_derivs;
 }
@@ -457,9 +503,9 @@ const std::vector<std::vector<std::pair<double,double> > >& SourceMap::weighted_
 
 const Drm_Cache* SourceMap::drm_cache(bool force) {
   if ( m_drm_cache == 0) {
-    m_drm_cache = new Drm_Cache(m_drm,*this,m_dataCache->energies(), m_config.edisp_val());
+    m_drm_cache = new Drm_Cache(*m_drm, *this);
   } else if ( force ) {
-    m_drm_cache->update(m_drm,*this,m_dataCache->energies(), m_config.edisp_val());  
+    m_drm_cache->update(*m_drm, *this);  
   }
   return m_drm_cache;
 }
@@ -497,11 +543,9 @@ double SourceMap::summed_counts(size_t kmin, size_t kmax,
   if ( m_drm_cache == 0 ) {
     throw std::runtime_error("Called summed counts on a SourceMap that does not have a Drm_Cache ");
   }
-  
-  const std::vector<double>& the_vect = use_weighted ? 
-    ( edisp_val < 0 ? m_drm_cache->true_counts_wt() : m_drm_cache->meas_counts_wt() ) :
-    ( edisp_val < 0 ? m_drm_cache->true_counts() : m_drm_cache->meas_counts() );
-  
+ 
+  const std::vector<double>& the_vect = counts_spectra(edisp_val, use_weighted);
+ 
   double retVal(0.);
   for ( size_t k(kmin); k < kmax; k++ ) {
     retVal += the_vect[k];
@@ -589,7 +633,7 @@ int SourceMap::readModel(const std::string& filename) {
   }
 
   applyPhasedExposureMap();
-  setSpectralValues(m_dataCache->energies());
+  setSpectralValues();
   computeNpredArray();
     
   return status;
@@ -597,20 +641,38 @@ int SourceMap::readModel(const std::string& filename) {
 
 int SourceMap::readImage(const std::string& sourceMapsFile) {
   m_mapType = FileUtils::get_src_map_type(sourceMapsFile,m_name);
-  FileUtils::read_fits_image_to_float_vector(sourceMapsFile,m_name,m_model);
+  int nEvals(0.);
+  FileUtils::read_fits_image_to_float_vector(sourceMapsFile,m_name,m_model,nEvals);
+  m_edisp_bins = size_t((nEvals - m_dataCache->num_energies())/2);
+  m_edisp_offset = m_edisp_bins - m_drm->edisp_bins();
+
+  size_t n_edisp_needed = m_edisp_val > 0 ? m_edisp_val : 0;
+  if ( m_edisp_bins < n_edisp_needed ) {
+    std::ostringstream message;
+    message << "SourceMap::readImage "
+	    << "not enough energy bins to apply energy dispersion for source " 
+	    << m_src->getName() << ' ' << m_edisp_bins << " < " << n_edisp_needed;    
+    throw std::runtime_error(message.str());
+  }
+
+  m_energies.resize(m_dataCache->num_energies());
+  std::copy(m_dataCache->energies().begin(),m_dataCache->energies().end(),m_energies.begin());
+  FitUtils::expand_energies(m_energies, m_edisp_bins);
+  FitUtils::log_energy_ratios(m_energies, m_logEnergyRatios);
   return 0;
 }
 
 int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
   m_mapType = FileUtils::get_src_map_type(sourceMapsFile,m_name);
   int status(0);
+  int nEnergy(0);
   switch (m_mapType) {
   case FileUtils::HPX_AllSky:
   case FileUtils::HPX_Partial:
     // In either of these two cases we simple read the vector.  
     // If this is a partial-sky mapping, the projection will 
     // take care of doing the remapping
-    status = FileUtils::read_healpix_table_to_float_vector(sourceMapsFile,m_name,m_model);
+    status = FileUtils::read_healpix_table_to_float_vector(sourceMapsFile,m_name,m_model,nEnergy);
     status = m_model.size() > 0 ? status : -1;
     break;
   case FileUtils::HPX_Sparse:
@@ -619,13 +681,18 @@ int SourceMap::readTable_healpix(const std::string& sourceMapsFile) {
     m_sparseModel.resize( m_dataCache->source_map_size() );
     status = FileUtils::read_healpix_table_to_sparse_vector(sourceMapsFile,m_name,
 							    m_dataCache->num_pixels(),
-							    m_sparseModel);
+							    m_sparseModel,nEnergy);
     status = m_sparseModel.size() > 0 ? status : -1;  
     break;
   default:
     // Either unknown or WCS based.  This is an error in either case.
     return -2;
   }
+  m_edisp_bins = int((nEnergy -  m_dataCache->num_energies())/2);
+  m_energies.resize(m_dataCache->num_energies());
+  std::copy(m_dataCache->energies().begin(),m_dataCache->energies().end(),m_energies.begin());
+  FitUtils::expand_energies(m_energies, m_edisp_bins);
+  FitUtils::log_energy_ratios(m_energies, m_logEnergyRatios);
   return status;
 }
 
@@ -647,16 +714,17 @@ int SourceMap::make_model() {
   if ( m_src->srcType() == Source::Point && 
        !m_config.psf_integ_config().use_single_psf() &&
        m_meanPsf == 0 ) {
-    m_meanPsf = PSFUtils::build_psf(*m_src, m_dataCache->countsMap(), m_observation);
+    m_meanPsf = PSFUtils::build_psf(*m_src, m_dataCache->countsMap(), m_energies, m_observation);
   }
 
-
   status = PSFUtils::makeModelMap(*m_src, *m_dataCache, 
+				  m_energies,
 				  m_meanPsf==0 ? m_observation.meanpsf() : *m_meanPsf,
 				  m_observation.bexpmap_ptr(),
 				  m_config.psf_integ_config(),
 				  m_filename, m_drm,
 				  *m_formatter, m_model, m_mapType);
+
   if ( status != 0 ) { 
     return status;
   }
@@ -668,7 +736,7 @@ int SourceMap::make_model() {
 
   applyPhasedExposureMap();
   computeNpredArray();
-  setSpectralValues(m_dataCache->energies());
+  setSpectralValues();
 
   return status;
 }
@@ -677,13 +745,13 @@ void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec, int
   SourceMap* nc_this = const_cast<SourceMap*>(this);
   const std::vector<float>& m = const_cast<SourceMap*>(this)->model();
   size_t npix = m_dataCache->num_pixels();
-  kmax = kmax < 0 ? m_dataCache->num_energies() : kmax;
+  kmax = kmax < 0 ? n_energies() : kmax;
   size_t ne = kmax - kmin;
   size_t nval = ne*npix;
   if ( vect.size() != nval ) {
     throw std::runtime_error("SourceMap::addToVector_full model size != vector size");
   }
-  if ( includeSpec && m_specVals.size() !=  m_dataCache->num_energies() ) {
+  if ( includeSpec && m_specVals.size() != n_energies() ) {
     throw std::runtime_error("SourceMap::addToVector_full spectrum size != number of energy layers");
   }
   std::vector<float>::const_iterator itr_in = m.begin() + (npix*kmin);
@@ -698,7 +766,7 @@ void SourceMap::addToVector_full(std::vector<float>& vect, bool includeSpec, int
   
 void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) const {
   size_t npix = m_dataCache->num_pixels();
-  kmax = kmax < 0 ? m_dataCache->num_energies() : kmax;
+  kmax = kmax < 0 ? n_energies() : kmax;
   size_t ne = kmax - kmin;
   size_t nval = ne*npix;
 
@@ -707,10 +775,7 @@ void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec, i
   }
   if ( includeSpec ) {
     SourceMap* nct = const_cast<SourceMap*>(this);
-    const std::vector<double>& spec = nct->specVals();
-    if ( spec.size() != m_dataCache->num_energies() ) {
-      throw std::runtime_error("SourceMap::addToVector_sparse spectrum size != number of energy layers");
-    }
+    nct->setSpectralValues();
   }
   SparseVector<float>::const_iterator itr = m_sparseModel.lower_bound(kmin*npix);
   SparseVector<float>::const_iterator itr_end = m_sparseModel.upper_bound(kmax*npix);
@@ -730,7 +795,7 @@ void SourceMap::addToVector_sparse(std::vector<float>& vect, bool includeSpec, i
 void SourceMap::subtractFromVector_full(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) const {
   const std::vector<float>& m = const_cast<SourceMap*>(this)->model();
   size_t npix = m_dataCache->num_pixels();
-  kmax = kmax < 0 ? m_dataCache->num_energies() : kmax;
+  kmax = kmax < 0 ? n_energies() : kmax;
   size_t ne = kmax - kmin;
   size_t nval = ne*npix;
   if ( vect.size() != nval ) {
@@ -738,10 +803,7 @@ void SourceMap::subtractFromVector_full(std::vector<float>& vect, bool includeSp
   }
   if ( includeSpec ) {
     SourceMap* nct = const_cast<SourceMap*>(this);
-    const std::vector<double>& spec = nct->specVals();
-    if ( spec.size() != m_dataCache->num_energies() ) {
-      throw std::runtime_error("SourceMap::subtractFromVector_full spectrum size != number of energy layers");
-    }
+    nct->setSpectralValues();
   }
   std::vector<float>::const_iterator itr_in = m_model.begin() + (npix*kmin);
   std::vector<float>::iterator itr_out = vect.begin();
@@ -756,14 +818,14 @@ void SourceMap::subtractFromVector_full(std::vector<float>& vect, bool includeSp
 
 void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool includeSpec, int kmin, int kmax) const {
   size_t npix = m_dataCache->num_pixels();
-  kmax = kmax < 0 ? m_dataCache->num_energies() : kmax;
+  kmax = kmax < 0 ? n_energies() : kmax;
   size_t ne = kmax - kmin;
   size_t nval = ne*npix;
 
   if ( vect.size() != nval ) {
     throw std::runtime_error("SourceMap::subtractFromVector_sparse model size != vector size");
   }
-  if ( includeSpec && m_specVals.size() != m_dataCache->num_energies() ) {
+  if ( includeSpec && m_specVals.size() != n_energies() ) {
     throw std::runtime_error("SourceMap::subtractFromVector_sparse spectrum size != number of energy layers");
   }
   SparseVector<float>::const_iterator itr  = m_sparseModel.lower_bound(kmin*npix);
@@ -775,5 +837,14 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
     vect[itr->first-offset] -= itr->second * factor;
   }
 } 
+
+  void SourceMap::set_energies() {
+    m_edisp_val = m_src->use_edisp() ? m_config.edisp_val() : 0;
+    m_edisp_offset = m_edisp_bins - m_drm->edisp_bins(),
+    m_energies.resize(m_dataCache->num_energies());
+    std::copy(m_dataCache->energies().begin(),m_dataCache->energies().end(),m_energies.begin());
+    FitUtils::expand_energies(m_energies, m_edisp_bins);
+    FitUtils::log_energy_ratios(m_energies, m_logEnergyRatios);
+  }
 
 } // Likelihood

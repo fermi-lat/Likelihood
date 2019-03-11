@@ -55,6 +55,7 @@
 #include "Likelihood/ExpCutoffSEDPeak.h"
 #include "Likelihood/ExposureMap.h"
 #include "Likelihood/FileFunction.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/GaussianError.h"
 #include "Likelihood/LogGaussian.h"
 #include "Likelihood/LogNormal.h"
@@ -174,8 +175,15 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
 	 // EAC, build a map to get the ref-dir and energies
 	 // EAC, it might be better to write a function just to pull those out 
 	 CountsMapBase* cmap = readCountsMap(cmapfile);
-         m_meanpsf = new MeanPsf(cmap->refDir(), cmap->energies(),
-                                 *m_observation);
+	 int edisp_bins = AppHelpers::param(my_pars, "edisp_bins", 0);
+	 if ( edisp_bins < 0 ) {
+	   edisp_bins = 0;
+	 }
+	 std::vector<double> psf_energies(cmap->energies());
+	 FitUtils::expand_energies(psf_energies, edisp_bins);
+
+         m_meanpsf = new MeanPsf(cmap->refDir(), psf_energies, 
+				 *m_observation);
          m_observation->setMeanPsf(m_meanpsf);
 	 delete cmap; // EAC, we built the map on the heap...
       } catch (hoops::Hexception &) {
@@ -1068,8 +1076,7 @@ BinnedLikelihood* AppHelpers::makeBinnedLikelihood(st_app::AppParGroup& pars,
   int resamp_factor = AppHelpers::param(pars, "rfactor", 2);
   double minbinsz = AppHelpers::param(pars, "minbinsz", 0.1);
   
-  bool edisp =  AppHelpers::param(pars, "edisp", false);  
-  int edisp_val = edisp ? AppHelpers::param(pars, "edisp_bins", -1) : -1;
+  int edisp_val = AppHelpers::param(pars, "edisp_bins", 0);
 
   BinnedLikeConfig config(computePointSources, psf_corrections, 
 			  perform_convolution, resample, resamp_factor, 

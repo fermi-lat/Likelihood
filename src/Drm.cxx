@@ -42,53 +42,57 @@ namespace {
 namespace Likelihood {
 
 Drm::Drm(double ra, double dec, const Observation & observation, 
-         const std::vector<double> & ebounds, size_t npts) 
-  : m_dir(ra, dec), m_observation(&observation), m_npts(npts){
-   // Prepare the energy bounds array to be used for both true and
-   // measured counts bins.
-   m_ebounds.resize(ebounds.size());
-   std::copy(ebounds.begin(), ebounds.end(), m_ebounds.begin());
+         const std::vector<double> & energies, size_t edisp_bins) 
+  : m_dir(ra, dec), 
+    m_observation(&observation), 
+    m_energies(energies),
+    m_full_energies(energies),
+    m_ntrue(energies.size() + 2*edisp_bins - 1),
+    m_nmeas(energies.size() - 1),
+    m_edisp_bins(edisp_bins) {
 
-   // Pad m_ebounds with extra energy bins at the beginning and at the
-   // end for the convolution.  These intervals are used only by the
-   // true energy bins.
-   double de(std::log(m_ebounds[1]/m_ebounds[0]));
-   m_ebounds.push_front(std::exp(std::log(m_ebounds[0]) - de));
-   m_ebounds.push_back(std::exp(std::log(m_ebounds.back()) + de));
+   FitUtils::expand_energies(m_full_energies, edisp_bins);   
 
-   size_t nee(m_ebounds.size() - 1);
+   // Expand the vector of energies
+   size_t nee(m_energies.size() - 1);
 
-   m_log_ratio_lo = std::log(m_ebounds[0]/m_ebounds[2]) / std::log(m_ebounds[1]/m_ebounds[2]);
-   m_diff_ratio_lo = (m_ebounds[0] - m_ebounds[2])/ (m_ebounds[1] - m_ebounds[2]);
-   m_log_ratio_hi = std::log(m_ebounds[nee]/m_ebounds[nee-2]) / std::log(m_ebounds[nee-1]/m_ebounds[nee-2]);
-   m_diff_ratio_hi = (m_ebounds[nee] - m_ebounds[nee-2]) / (m_ebounds[nee-1] - m_ebounds[nee-2]);
+   // These are need to extrapolate the true counts
+   // This is only done if edisp_bins == 0 and the convolve method is called
+   // If edisp_bins > 0 then we should already have the extended version of the true counts
+   m_log_ratio_lo = std::log(m_energies[0]/m_energies[2]) / std::log(m_energies[1]/m_energies[2]);
+   m_diff_ratio_lo = (m_energies[0] - m_energies[2])/ (m_energies[1] - m_energies[2]);
+   m_log_ratio_hi = std::log(m_energies[nee]/m_energies[nee-2]) / std::log(m_energies[nee-1]/m_energies[nee-2]);
+   m_diff_ratio_hi = (m_energies[nee] - m_energies[nee-2]) / (m_energies[nee-1] - m_energies[nee-2]);
 
    compute_drm();
 }
 
 
 Drm::Drm(double ra, double dec, 
-         const std::vector<double> & ebounds, 
-	 const std::vector< std::vector<double> >& values)
-  : m_dir(ra, dec), m_observation(0), m_npts(0), m_drm(values) {
-   // Prepare the energy bounds array to be used for both true and
-   // measured counts bins.
-   m_ebounds.resize(ebounds.size());
-   std::copy(ebounds.begin(), ebounds.end(), m_ebounds.begin());
+         const std::vector<double> & energies, 
+	 const std::vector< std::vector<double> >& values, 
+	 size_t edisp_bins)
+  : m_dir(ra, dec), 
+    m_observation(0), 
+    m_energies(energies),
+    m_full_energies(energies),
+    m_ntrue(energies.size() + 2*edisp_bins - 1),
+    m_nmeas(energies.size() - 1),
+    m_drm(values), 
+    m_edisp_bins(edisp_bins) {
 
-   // Pad m_ebounds with extra energy bins at the beginning and at the
-   // end for the convolution.  These intervals are used only by the
-   // true energy bins.
-   double de(std::log(m_ebounds[1]/m_ebounds[0]));
-   m_ebounds.push_front(std::exp(std::log(m_ebounds[0]) - de));
-   m_ebounds.push_back(std::exp(std::log(m_ebounds.back()) + de));
+  FitUtils::expand_energies(m_full_energies, edisp_bins);   
 
-   size_t nee(m_ebounds.size() - 1);
+   // Expand the vector of energies
+   size_t nee(m_energies.size() - 1);
 
-   m_log_ratio_lo = std::log(m_ebounds[0]/m_ebounds[2]) / std::log(m_ebounds[1]/m_ebounds[2]);
-   m_diff_ratio_lo = (m_ebounds[0] - m_ebounds[2])/ (m_ebounds[1] - m_ebounds[2]);
-   m_log_ratio_hi = std::log(m_ebounds[nee]/m_ebounds[nee-2]) / std::log(m_ebounds[nee-1]/m_ebounds[nee-2]);
-   m_diff_ratio_hi = (m_ebounds[nee] - m_ebounds[nee-2]) / (m_ebounds[nee-1] - m_ebounds[nee-2]);
+   // These are need to extrapolate the true counts
+   // This is only done if edisp_bins == 0 and the convolve method is called
+   // If edisp_bins > 0 then we should already have the extended version of the true counts
+   m_log_ratio_lo = std::log(m_energies[0]/m_energies[2]) / std::log(m_energies[1]/m_energies[2]);
+   m_diff_ratio_lo = (m_energies[0] - m_energies[2])/ (m_energies[1] - m_energies[2]);
+   m_log_ratio_hi = std::log(m_energies[nee]/m_energies[nee-2]) / std::log(m_energies[nee-1]/m_energies[nee-2]);
+   m_diff_ratio_hi = (m_energies[nee] - m_energies[nee-2]) / (m_energies[nee-1] - m_energies[nee-2]);
    compute_transpose();
 }
 
@@ -96,24 +100,30 @@ Drm::Drm(double ra, double dec,
 
 void Drm::convolve(const std::vector<double> & true_counts,
                    std::vector<double> & meas_counts) const {
-   if (true_counts.size() != m_ebounds.size() - 3) {
-      throw std::runtime_error("Drm::convolve: Size of true_counts "
-                               "does not equal size of energy grid.");
+
+   if (true_counts.size() != m_nmeas) {
+     std::ostringstream message;
+     message << "Drm::convolve: Size of true_counts " << true_counts.size() 
+	     << "does not equal size of energy grid " << m_nmeas;
+     throw std::runtime_error(message.str());
    }
-   std::deque<double> counts(true_counts.size());
+   std::deque<double> counts(m_nmeas);
    std::copy(true_counts.begin(), true_counts.end(), counts.begin());
+
    double value(0);
 
-   value = extrapolate_lo(counts);
-   counts.push_front(value);
+   for ( size_t i(0); i < m_edisp_bins; i++) {
+     value = extrapolate_lo(counts);
+     counts.push_front(value);
 
-   value = extrapolate_hi(counts);
-   counts.push_back(value);
+     value = extrapolate_hi(counts);
+     counts.push_back(value);
+   }
 
-   meas_counts.resize(m_ebounds.size() - 3);
-   for (size_t kp(0); kp < meas_counts.size(); kp++) {
+   meas_counts.resize(m_nmeas);
+   for (size_t kp(0); kp < m_nmeas; kp++) {
       meas_counts[kp] = 0;
-      for (size_t k(0); k < counts.size(); k++) {
+      for (size_t k(0); k < m_ntrue; k++) {
          meas_counts[kp] += counts[k]*m_drm[k][kp];
       }
    }
@@ -131,13 +141,15 @@ void Drm::compute_drm() {
    // in a particular cos theta bin.
    compute_livetime();
 
-   for (size_t k(0); k < m_ebounds.size()-1; k++) {
+   // Loop over true energies.   
+   for (size_t k(0); k < m_ntrue; k++) {
       std::vector<double> row;
-      for (size_t kp(0); kp < m_ebounds.size() - 3; kp++) {
-         double emeas_min(m_ebounds[kp+1]);
-         double emeas_max(m_ebounds[kp+2]);
-         row.push_back(matrix_element(std::sqrt(m_ebounds[k]*m_ebounds[k+1]),
-                                      emeas_min, emeas_max));
+      double true_energy = std::sqrt(m_full_energies[k]*m_full_energies[k+1]);
+      // Loop over the measured energy bin edges.
+      for (size_t kp(0); kp < m_nmeas; kp++) {	
+         double emeas_min(m_energies[kp]);
+         double emeas_max(m_energies[kp+1]);
+         row.push_back(matrix_element(true_energy, emeas_min, emeas_max));
       }
       m_drm.push_back(row);
    }
@@ -146,12 +158,10 @@ void Drm::compute_drm() {
 
 
 void Drm::compute_transpose() {
-  size_t n_true = m_ebounds.size() - 1;
-  size_t n_meas = n_true - 2;
   m_drmT.clear();
-  m_drmT.resize(n_meas, std::vector<double>(n_true, 0));
-  for ( size_t k(0); k < n_true; k++ ) {
-    for ( size_t kp(0); kp < n_meas; kp++ ) {
+  m_drmT.resize(m_nmeas, std::vector<double>(m_ntrue, 0));
+  for ( size_t k(0); k < m_ntrue; k++ ) {
+    for ( size_t kp(0); kp < m_nmeas; kp++ ) {
        m_drmT[kp][k] = m_drm[k][kp];
     }
   }
@@ -282,18 +292,16 @@ double Drm::extrapolate_hi(const double& c0, const double & c1) const{
 
 
 
-Drm_Cache::Drm_Cache(const Drm* drm,
-		     SourceMap & sourceMap,
-		     const std::vector<double>& energies,
-		     int edisp_val)
-  :m_true_counts(energies.size()-1),
-   m_meas_counts(energies.size()-1),
-   m_xi(energies.size()-1),
-   m_kref(energies.size()-1, -1),
-   m_true_counts_wt(energies.size()-1),
-   m_meas_counts_wt(energies.size()-1),
-   m_edisp_val(drm!=0 ? edisp_val : -1 ){
-  update(drm,sourceMap,energies,edisp_val);
+Drm_Cache::Drm_Cache(const Drm& drm,
+		     SourceMap & sourceMap)
+  :m_true_counts(drm.nmeas()),
+   m_meas_counts(drm.nmeas()),
+   m_xi(drm.nmeas()),
+   m_kref(drm.nmeas()),
+   m_true_counts_wt(drm.nmeas()),
+   m_meas_counts_wt(drm.nmeas()),
+   m_edisp_val(sourceMap.edisp_val()){
+  update(drm,sourceMap);
 }
 
 Drm_Cache::Drm_Cache(const Drm_Cache& other) 
@@ -306,63 +314,65 @@ Drm_Cache::Drm_Cache(const Drm_Cache& other)
     m_edisp_val(other.m_edisp_val){
 }
 
-void Drm_Cache::update(const Drm* drm,
-		       SourceMap & sourceMap,
-		       const std::vector<double>& energies, 
-		       int edisp_flag){
+void Drm_Cache::update(const Drm& drm,
+		       SourceMap & sourceMap){
 
-  sourceMap.setSpectralValues(energies);  
+  m_edisp_val = sourceMap.edisp_val();
+
+  // This will force update of the cached spectral values
+  sourceMap.setSpectralValues();
+
+  // These all come from the sourceMap, so they use the SourceMap indexing
   const std::vector<double>& npreds = sourceMap.npreds();
   const std::vector<std::vector<std::pair<double,double> > >& weighted_npreds = sourceMap.weighted_npreds();
   const std::vector<std::pair<double,double> > & spec_wts = sourceMap.specWts();
+
   const BinnedCountsCache& dataCache = *(sourceMap.dataCache());
 
   // These are the weights to be applied to the measured counts.
   size_t k(0);
   bool has_weights = sourceMap.weights() != 0;
 
-  m_edisp_val = drm != 0 ? edisp_flag : -1;
-
   std::vector<double> edisp_col;
-  for (k = 0; k < energies.size()-1; k++) {
+
+  // Loop over the measured energy bins
+  size_t nebins = drm.nmeas();
+  for (k = 0; k < nebins; k++) {
+    // This is the energy index in the SourceMap
+
     double counts(0.);
     double counts_wt(0.);
-    try {
-      FitUtils::npred_contribution(npreds, weighted_npreds.at(k).at(0), spec_wts, 1., k, counts, counts_wt);
-    } catch (...) {
-      std::cout << k << ' ' << weighted_npreds.size();
-      if ( weighted_npreds.size() > k ) {
-	std::cout << ' ' << weighted_npreds.at(k).size() << std::endl;
-      }
-    }
+    size_t k_true = k + sourceMap.edisp_bins();
+    FitUtils::npred_contribution(npreds, weighted_npreds.at(k).at(0), spec_wts, 1., k_true, counts, counts_wt);
     m_true_counts[k] = counts;
     m_true_counts_wt[k] = counts_wt;
 
     if ( m_edisp_val > 0 ) {
-      size_t kmin_edisp(0.);
-      size_t kmax_edisp(0.);
-      FitUtils::get_edisp_constants(sourceMap, dataCache, m_edisp_val, k, kmin_edisp, kmax_edisp, edisp_col);
       counts = 0.;
       counts_wt = 0.;
-      FitUtils::npred_edisp(npreds, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp, counts, counts_wt);      
+      size_t kmin_edisp(0.);
+      size_t kmax_edisp(0.);
+      FitUtils::get_edisp_constants(sourceMap, k, kmin_edisp, kmax_edisp, edisp_col);
+      FitUtils::npred_edisp(npreds, weighted_npreds.at(k), spec_wts, edisp_col, kmin_edisp, kmax_edisp,
+			    counts, counts_wt);      
     }
     m_meas_counts[k] = counts;
     m_meas_counts_wt[k] = counts_wt;   
   }
    
-  if ( m_edisp_val == 0 ) {
-    drm->convolve(m_true_counts, m_meas_counts);
+  if ( m_edisp_val < 0 ) {
+    drm.convolve(m_true_counts, m_meas_counts);
   } 
 
   // EAC FIXME, Not sure why this can happen, but it is NOT a good thing.
   static bool first(true);
-  for (k = 0; k < energies.size()-1; k++) {
+  for (k = 0; k < nebins; k++) {
     if ( m_meas_counts[k] < 0 ) {
       if (first) {
 	first = false;
 	std::cout << "Drm_Cache::update Measured counts < 0 " << sourceMap.name() << ' ' << k << ' '
 		  << m_meas_counts[k] << ' ' << m_true_counts[k] << std::endl;
-	for (size_t kk(0); kk < energies.size()-1; kk++) {
+	for (size_t kk(0); kk < npreds.size()-1; kk++) {
 	  std::cout << m_true_counts[kk] << ' ';
 	}
 	std::cout << std::endl;
@@ -370,13 +380,12 @@ void Drm_Cache::update(const Drm* drm,
       m_meas_counts[k] = 0.;
     }
   }
-    
 
   int kref(-1);
   int kref_wt(-1);
   int idx(0);
 
-  for (k = 0; k < energies.size()-1; k++) {
+  for (k = 0; k < nebins; k++) {
     if ( m_true_counts[k] > 0 ) {
       // Still have counts in this true energy bin, so it can 
       // be used as a reference
@@ -397,7 +406,7 @@ void Drm_Cache::update(const Drm* drm,
       }
     }
     
-    if ( m_edisp_val == 0 ) {
+    if ( m_edisp_val < 0 ) {
       m_meas_counts_wt[k] = m_xi[k]*m_true_counts_wt[kref];
     }
     

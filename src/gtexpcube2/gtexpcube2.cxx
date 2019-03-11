@@ -117,6 +117,10 @@ void ExpCube::run() {
 
    int edisp_bins = m_pars["edisp_bins"];
 
+   if ( edisp_bins < 0 ) {
+     edisp_bins = 0;
+   }
+
    bool useEbounds(true);
    std::string bincalc = m_pars["bincalc"];
    if (bincalc == "CENTER") {

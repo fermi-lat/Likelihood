@@ -64,6 +64,10 @@ namespace Likelihood {
   
     /// Expands a vector of energy bin edges by taking equal size steps in log space
     void expand_energies(std::vector<double> & energies, int edisp_bins);
+    
+    // Compute the log of rations between energy bin edges
+    void log_energy_ratios(const std::vector<double>& energies,
+			   std::vector<double>& log_ratios);
 
     /* Compute the pseudo-inverse of a matrix from its singular value
        decomposition.  For a matrix A with SVD,
@@ -748,20 +752,20 @@ namespace Likelihood {
 
     */  
     void get_spectral_weights(const std::vector<double>& spec,
-			      const BinnedCountsCache& dataCache,
+			      const std::vector<double>& energies,
+			      const std::vector<double>& log_energy_ratios,
 			      std::vector<std::pair<double, double> >& spec_weights);
 
 
     /* Get the range of energy bins to consider when computing the energy dispersion
 
-	dataCache  : Object with info about the binning
-        edisp_val  : Flag saying how to apply energy dispersion
-	k          : The index of the current energy bin
-	kmin       : Index of the lowest energy bin to consider
+   	srcMap    : The source map for the source in question  
+	k         : The index of the current energy bin
+	kmin      : Index of the lowest energy bin to consider
 	kmax      : Index of the lowest energy bin to consider
 
     */  
-    void get_edisp_range(const BinnedCountsCache& dataCache, int edisp_val,
+    void get_edisp_range(SourceMap& srcMap,
 			 size_t k,  
 			 size_t& kmin, size_t& kmax);
 	
@@ -769,18 +773,16 @@ namespace Likelihood {
     /* Get the constants we need for the energy dispersion
 
 	srcMap     : The source map for the source in question
- 	dataCache  : Object with info about the binning
-        edisp_val  : Flag saying how to apply energy dispersion
 	k          : The current energy bin
-	kmin       : Filled with the index of the lowest energy bin to loop over
+	kmin       : Filled with the index of the lowest energy bin to loop over 
 	kmax       : Filled with the index of the highest energy bin to loop over
 	edisp_col  : Filled with the energy disperson factors
 
 	Note that edisp_col.size() == kmax - kmin
 	I.e., only the factors for the bins we are looping over are extracted
+
     */  
-    void get_edisp_constants(SourceMap& srcMap, const BinnedCountsCache& dataCache, 
-			     int edisp_val, 
+    void get_edisp_constants(SourceMap& srcMap, 
 			     size_t k, size_t& kmin, size_t& kmax,
 			     std::vector<double>& edisp_col);    
 
@@ -821,7 +823,7 @@ namespace Likelihood {
     /* Get the total model counts contribution to a energy layer
 
 	npred_vals     : The total npred for that energy layer
-	npred_weights  : The weight factors for that energy layer
+	weighted_npreds : The weight factors for that energy layer
 	spec_wts   : The specturm (or spectral derivative) weights for the source in question
 	xi         : The energy dispersion correction factor
 	kref       : The energy bin
@@ -829,7 +831,7 @@ namespace Likelihood {
 	counts_wt  : Filled with the weighted counts contribution
      */
     void npred_contribution(const std::vector<double>& npred_vals,
-			    const std::pair<double,double>& npred_weights,
+			    const std::pair<double,double>& weighted_npreds,
 			    const std::vector<std::pair<double, double> > & spec_wts,
 			    const double& xi, 
 			    size_t kref,
@@ -862,14 +864,12 @@ namespace Likelihood {
 	modelCounts: The vector being added to.
 	srcMap     : The SourceMap for the source in question
 	dataCache  : Object with info about the binning
-	edisp_val : How to apply the energy dispersion
 	subtract   : If true, subtract from the vector.  	
      */     
 
     void addSourceCounts(std::vector<double> & modelCounts,
 			 SourceMap& srcMap,
 			 const BinnedCountsCache& dataCache,
-			 int edisp_val,
 			 bool subtract);
  
      /* Add (or subtract) the counts for a fxied source onto the vectors that 
@@ -882,7 +882,6 @@ namespace Likelihood {
 	fixed_counts_spec_edisp_wt : The vector being added to.
 	srcMap     : The SourceMap for the source in question
 	dataCache  : Object with info about the binning
-	edisp_val : How to apply the energy dispersion
 	subtract   : If true, subtract from the vector.  	
      */     
     void addFixedNpreds(std::vector<double>& fixed_counts_spec,
@@ -891,7 +890,6 @@ namespace Likelihood {
 			std::vector<double>& fixed_counts_spec_edisp_wt,
 			SourceMap& srcMap,
 			const BinnedCountsCache& dataCache,
-			int edisp_val,
 			bool subtract);
 
 #ifndef SWIG
@@ -903,7 +901,6 @@ namespace Likelihood {
 	srcMap     : The SourceMap for the source in question
 	data_over_model : A vector with the ratio of data to model in each filled pixel
 	dataCache  : Object with info about the binning
-	edisp_val  : How to apply the energy dispersion
 	kmin       : Index of energy bin to start summation
 	kmax       : Index of energy bin to stop summation
      */     
@@ -913,7 +910,6 @@ namespace Likelihood {
 		       SourceMap& srcMap,
 		       const std::vector<double>& data_over_model, 
 		       const BinnedCountsCache& dataCache,
-		       int edisp_val,
 		       size_t kmin, size_t kmax);
 #endif //SWIG
 
@@ -930,8 +926,7 @@ namespace Likelihood {
     void updateModelMap(std::vector<float> & modelMap,
 			SourceMap& srcMap,
 			const BinnedCountsCache& dataCache,				       
-			bool use_mask,
-			int edisp_val);
+			bool use_mask);
 
     /* Print a CLHEP vector to std::cout */
     void printVector(const std::string& name,

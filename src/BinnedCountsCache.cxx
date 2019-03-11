@@ -12,6 +12,7 @@
 
 #include "Likelihood/WeightMap.h"
 #include "Likelihood/FileUtils.h"
+#include "Likelihood/FitUtils.h"
 #include "Likelihood/ProjMap.h"
 
 namespace Likelihood {
@@ -136,11 +137,8 @@ namespace Likelihood {
   }
 
   void BinnedCountsCache::log_energy_ratios(const std::vector<double>& energies,
-					   std::vector<double>& log_ratios) {
-    log_ratios.resize(energies.size() -1);
-    for ( size_t i(0); i < log_ratios.size(); i++ ) {
-      log_ratios[i] = std::log(energies[i+1] / energies[i]);
-    }
+					    std::vector<double>& log_ratios) {
+    FitUtils::log_energy_ratios(energies, log_ratios);
   }
   
   void BinnedCountsCache::computeCountsSpectrum() {

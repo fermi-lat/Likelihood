@@ -179,11 +179,9 @@ namespace Likelihood {
 
     MeanPsf* build_psf(const Source& src, 
 		       const CountsMapBase& dataMap,
+		       const std::vector<double>& energies,
 		       const Observation& obs) {
       const PointSource& pointSrc = dynamic_cast<const PointSource&>(src);
-      std::vector<double> energies;
-      dataMap.getEnergies(energies);
-
       const astro::SkyDir & dir(pointSrc.getDir());
       MeanPsf* meanPsf = new MeanPsf(dir.ra(), dir.dec(), energies, obs);
       return meanPsf; 
@@ -276,6 +274,7 @@ namespace Likelihood {
     
     int makeModelMap(const Source& src, 
 		     const BinnedCountsCache& dataCache,
+		     const std::vector<double>& energies,
 		     const MeanPsf& meanpsf,
 		     const BinnedExposureBase* bexpmap,
 		     const PsfIntegConfig& config,
@@ -290,18 +289,21 @@ namespace Likelihood {
       switch ( src.srcType() ) {
       case Source::Diffuse:
 	status = PSFUtils::makeDiffuseMap(static_cast<const DiffuseSource&>(src), dataCache.countsMap(),
+					  energies,
 					  meanpsf, bexpmap, config, 
 					  formatter, modelmap, mapType,
 					  kmin, kmax);
 	break;
       case Source::Point:
 	status =  PSFUtils::makePointSourceMap(static_cast<const PointSource&>(src), dataCache.countsMap(),
+					       energies,
 					       config, meanpsf, bexpmap,
 					       formatter, modelmap, mapType,
 					       kmin, kmax);
 	break;
       case Source::Composite:
 	status =  PSFUtils::makeCompositeMap(static_cast<const CompositeSource&>(src), dataCache,
+					     energies,
 					     srcMapsFile, drm,
 					     formatter, modelmap, mapType,
 					     kmin, kmax);
@@ -315,6 +317,7 @@ namespace Likelihood {
 
     int makeDiffuseMap(const DiffuseSource& diffuseSrc, 
 		       const CountsMapBase& dataMap,
+		       const std::vector<double>& energies,
 		       const MeanPsf& meanpsf,
 		       const BinnedExposureBase* bexpmap,
 		       const PsfIntegConfig& config,
@@ -324,25 +327,28 @@ namespace Likelihood {
 		       int kmin, int kmax) {
 
       if ( config.verbose() ) {
-	formatter.warn() << "Generating SourceMap for " << diffuseSrc.getName();
+	formatter.warn() << "Generating SourceMap for " << diffuseSrc.getName() << ' ' << energies.size();
       }
 
       int status(0);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
-	status = makeDiffuseMap_wcs(diffuseSrc,static_cast<const CountsMap&>(dataMap),meanpsf,
+	status = makeDiffuseMap_wcs(diffuseSrc,static_cast<const CountsMap&>(dataMap),
+				    energies,meanpsf,
 				    bexpmap,config,formatter,modelmap,mapType,kmin,kmax);
 	break;
       case astro::ProjBase::HEALPIX:
 	if ( PSFUtils::neededMapSize(diffuseSrc,dataMap) > 45. ) {
 	  // The map takes up a large fraction of the sky, 
 	  // let's do the convolution using HEALPix
-	  status = makeDiffuseMap_healpix(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,
+	  status = makeDiffuseMap_healpix(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),
+					  energies,meanpsf,
 					  bexpmap,config,formatter,modelmap,mapType,kmin,kmax);
 	} else {
 	  // The ROI only take up a relatively small fraction of the sky (< 15%)
 	  // we will do the convlution in the native projection, then convert to healpix
-	  status = makeDiffuseMap_native(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),meanpsf,
+	  status = makeDiffuseMap_native(diffuseSrc,static_cast<const CountsMapHealpix&>(dataMap),
+					 energies,meanpsf,
 					 bexpmap,config,formatter,modelmap,mapType,kmin,kmax);
 	}
 	break;
@@ -359,6 +365,7 @@ namespace Likelihood {
     
     int makeDiffuseMap_wcs(const DiffuseSource& diffuseSrc, 
 			   const CountsMap& dataMap,
+			   const std::vector<double>& energies,
 			   const MeanPsf& meanpsf,
 			   const BinnedExposureBase* bexpmap,
 			   const PsfIntegConfig& config,
@@ -377,8 +384,6 @@ namespace Likelihood {
       
       const std::vector<Pixel>& pixels = dataMap.pixels();
       const astro::SkyDir & mapRefDir = dataMap.refDir();
-      std::vector<double> energies;
-      dataMap.getEnergies(energies);
       double data_map_radius = maxRadius(pixels, mapRefDir);
 
       kmax = kmax < 0 ? energies.size() : kmax;
@@ -535,6 +540,7 @@ namespace Likelihood {
     
     int makeDiffuseMap_healpix(const DiffuseSource& diffuseSrc, 
 			       const CountsMapHealpix& dataMap,
+			       const std::vector<double>& energies,
 			       const MeanPsf& meanpsf,
 			       const BinnedExposureBase* bexpmap,
 			       const PsfIntegConfig& config,
@@ -552,9 +558,6 @@ namespace Likelihood {
 
       double solidAngle = dataMap.solidAngle();
 
-      std::vector<double> energies;
-      dataMap.getEnergies(energies);
-  
       kmax = kmax < 0 ? energies.size() : kmax;
       size_t num_ebins = kmax - kmin;
      
@@ -620,6 +623,7 @@ namespace Likelihood {
    
     int makeDiffuseMap_native(const DiffuseSource& diffuseSrc, 
 			      const CountsMapHealpix& dataMap,
+			      const std::vector<double>& energies,
 			      const MeanPsf& meanpsf,
 			      const BinnedExposureBase* bexpmap,
 			      const PsfIntegConfig& config,
@@ -692,8 +696,6 @@ namespace Likelihood {
       double pixel_size = std::max( source_pixel_size , dataMap.pixelSize());
 
       const std::vector<Pixel> & pixels = dataMap.pixels();
-      std::vector<double> energies;
-      dataMap.getEnergies(energies);
 
       kmax = kmax < 0 ? energies.size() : kmax;
       size_t num_ebins = kmax - kmin;
@@ -843,6 +845,7 @@ namespace Likelihood {
     
     int makePointSourceMap(const PointSource& pointSrc, 
 			   const CountsMapBase& dataMap,
+			   const std::vector<double>& energies,
 			   const PsfIntegConfig& config,
 			   const MeanPsf& meanpsf,
 			   const BinnedExposureBase* bexpmap,
@@ -852,17 +855,17 @@ namespace Likelihood {
 			   int kmin, int kmax) {
 
       if ( config.verbose() ) {
-	formatter.warn() << "Generating SourceMap for " << pointSrc.getName();
+	formatter.warn() << "Generating SourceMap for " << pointSrc.getName() << ' ' << energies.size();
       }
 
       int status(0);
       switch ( dataMap.projection().method() ) {
       case astro::ProjBase::WCS:
-	status = makePointSourceMap_wcs(pointSrc,static_cast<const CountsMap&>(dataMap),
+	status = makePointSourceMap_wcs(pointSrc,static_cast<const CountsMap&>(dataMap),energies,
 					config,meanpsf,bexpmap,formatter,modelmap,mapType,kmin,kmax);
 	break;
       case astro::ProjBase::HEALPIX:
-	status = makePointSourceMap_healpix(pointSrc,static_cast<const CountsMapHealpix&>(dataMap),
+	status = makePointSourceMap_healpix(pointSrc,static_cast<const CountsMapHealpix&>(dataMap),energies,
 					    config,meanpsf,bexpmap,formatter,modelmap,mapType,kmin,kmax);
 	break;
       default:
@@ -880,6 +883,7 @@ namespace Likelihood {
     
     int makePointSourceMap_wcs(const PointSource& pointSrc, 
 			       const CountsMap& dataMap,
+			       const std::vector<double>& energies,
 			       const PsfIntegConfig& config,
 			       const MeanPsf& meanpsf,
 			       const BinnedExposureBase* bexpmap,
@@ -892,8 +896,6 @@ namespace Likelihood {
       bool do_exposure = pointSrc.use_exposure();
 
       const std::vector<Pixel> & pixels(dataMap.pixels());
-      std::vector<double> energies;
-      dataMap.getEnergies(energies);
 
       kmax = kmax < 0 ? energies.size() : kmax;
       size_t num_ebins = kmax - kmin;
@@ -1036,6 +1038,7 @@ namespace Likelihood {
     
     int makePointSourceMap_healpix(const PointSource& pointSrc,
 				   const CountsMapHealpix& dataMap,
+				   const std::vector<double>& energies,
 				   const PsfIntegConfig& config,
 				   const MeanPsf& meanpsf,
 				   const BinnedExposureBase* bexpmap,
@@ -1049,8 +1052,6 @@ namespace Likelihood {
 
       const std::vector<Pixel> & pixels(dataMap.pixels());
       int nPix = dataMap.nPixels();
-      std::vector<double> energies;
-      dataMap.getEnergies(energies);
       
       kmax = kmax < 0 ? energies.size() : kmax;
       size_t num_ebins = kmax - kmin;
@@ -1107,6 +1108,7 @@ namespace Likelihood {
 
     int makeCompositeMap(const CompositeSource& compSrc, 
 			 const BinnedCountsCache& dataCache,
+			 const std::vector<double>& energies,
 			 const std::string & srcMapsFile,
 			 const Drm* drm,
 			 st_stream::StreamFormatter& formatter,

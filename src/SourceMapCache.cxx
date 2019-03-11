@@ -93,7 +93,7 @@ namespace Likelihood {
 				    size_t kmin, size_t kmax,
 				    bool weighted) const {
 
-    sourceMap.setSpectralValues(m_dataCache.energies());
+    sourceMap.setSpectralValues();
     updateCorrectionFactors(src,sourceMap);
     int edisp_flag = edisp_val(&src);
     return sourceMap.summed_counts(kmin,kmax,edisp_flag,weighted);
@@ -112,20 +112,19 @@ namespace Likelihood {
 
     const std::string& srcName = src.getName();
     SourceMap* srcMap(0);
-    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
  
     // Check to see if we already have the map
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
     if ( itrFind != m_srcMaps.end() ) {
       srcMap = itrFind->second;
       srcMap->setSource(src);
-      srcMap->update_drm_cache(the_drm);
+      srcMap->update_drm_cache(m_drm);
     } else {
       // Check to see if the map is in the file
       if ( m_config.load_existing_srcmaps() && FileUtils::fileHasExtension(m_srcMapsFile, srcName)) {
 	srcMap = new SourceMap(m_srcMapsFile, src, &m_dataCache, 
-			       m_observation, m_config,
-			       m_dataCache.weightMap(), the_drm, m_config.save_all_srcmaps());
+			       m_observation, m_config, *m_drm,
+			       m_dataCache.weightMap(), m_config.save_all_srcmaps());
       } else {
 	switch ( src.srcType() ) {
 	case Source::Point:
@@ -149,9 +148,8 @@ namespace Likelihood {
 
   SourceMap * SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const {
     const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
-    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
     return new SourceMap(src, &m_dataCache, m_observation, the_config, 
-			 the_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
+			 *m_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
   }
   
   void SourceMapCache::eraseSourceMap(const std::string & srcName) {
@@ -383,9 +381,8 @@ namespace Likelihood {
     const std::string& name = srcMap->name();
 
     double np = NpredValue(src,kmin,kmax); // This computes the convolved spectrum
-    int edisp_flag = edisp_val(&src);
 
-    FitUtils::updateModelMap(modelMap, *srcMap, m_dataCache, use_mask, edisp_flag);
+    FitUtils::updateModelMap(modelMap, *srcMap, m_dataCache, use_mask);
   }
 
 
@@ -429,16 +426,23 @@ namespace Likelihood {
   
   void SourceMapCache::fillSingleSourceMap(const Source& src,
 					   std::vector<float>& model, 
-					   FileUtils::SrcMapType& mapType,
+					   FileUtils::SrcMapType& mapType,					   
 					   int kmin, int kmax) const {
     st_stream::StreamFormatter formatter("fillSingleSourceMap", "", 2);
 
     const MeanPsf* meanPsf(0);
     if ( src.srcType() == Source::Point && ( ! m_config.psf_integ_config().use_single_psf() ) ) {
-      meanPsf = PSFUtils::build_psf(src, m_dataCache.countsMap(),m_observation);
+      std::vector<double> psf_energies(m_dataCache.energies());
+      int edisp_bins = edisp_val(&src);
+      if ( edisp_bins < 0 ) {
+	edisp_bins = 0;
+      }
+      FitUtils::expand_energies(psf_energies, edisp_bins);
+      meanPsf = PSFUtils::build_psf(src, m_dataCache.countsMap(), psf_energies, m_observation);
     }
       
     PSFUtils::makeModelMap(src, m_dataCache,
+			   m_dataCache.energies(),
 			   meanPsf==0 ? m_observation.meanpsf() : *meanPsf,
 			   m_observation.bexpmap_ptr(),
 			   m_config.psf_integ_config(),
@@ -480,14 +484,17 @@ namespace Likelihood {
     case FileUtils::HPX_Sparse:
       return FileUtils::replace_image_from_sparse_vector_healpix(fitsFile,src.getName(),
 								 static_cast<const CountsMapHealpix&>(m_dataCache.countsMap()),
-								 srcMap->cached_sparse_model(),true);
+								 srcMap->cached_sparse_model(),
+								 true,
+								 0, srcMap->n_energies());
       break;
     case FileUtils::WCS:
     case FileUtils::HPX_AllSky:
     case FileUtils::HPX_Partial:
     default:
       return FileUtils::replace_image_from_float_vector(fitsFile,src.getName(),m_dataCache.countsMap(),
-							srcMap->cached_model(),true);
+							srcMap->cached_model(),true,
+							0, srcMap->n_energies());
     }
   }
 
@@ -505,13 +512,15 @@ namespace Likelihood {
     case FileUtils::HPX_Sparse:
       return FileUtils::append_image_from_sparse_vector_healpix(fitsFile,src.getName(),
 								static_cast<const CountsMapHealpix&>(m_dataCache.countsMap()),
-								srcMap->cached_sparse_model(),true);
+								srcMap->cached_sparse_model(),true,
+								0, srcMap->n_energies());
     case FileUtils::WCS:
     case FileUtils::HPX_AllSky:
     case FileUtils::HPX_Partial:
     default:
       return FileUtils::append_image_from_float_vector(fitsFile,src.getName(),m_dataCache.countsMap(),
-						       srcMap->cached_model(),true);
+						       srcMap->cached_model(),true,
+						       0, srcMap->n_energies());
     }
   }
   
@@ -579,8 +588,7 @@ namespace Likelihood {
     if ( m_drm == 0 ) {
       throw std::runtime_error("No DRM object");
     }
-    const Drm* the_drm = edisp_val(&src) >= 0 ? m_drm : 0;
-    sourceMap.update_drm_cache(the_drm, true);
+    sourceMap.update_drm_cache(m_drm, true);
   }
   
 } // namespace Likelihood

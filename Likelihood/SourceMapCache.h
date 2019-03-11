@@ -102,7 +102,6 @@ namespace Likelihood {
        m_config.set_edisp_val(edisp_val);
      }
 
-
      /* ---------------- Methods Used by SourceModel ---------- */
      
      /* Create a counts map based on the current model.
@@ -310,7 +309,7 @@ namespace Likelihood {
      */
      void fillSingleSourceMap(const Source& src,
 			      std::vector<float>& model, 
-			      FileUtils::SrcMapType& mapType,
+			      FileUtils::SrcMapType& mapType,			      
 			      int kmin=0, int kmax=-1) const;
 
 
