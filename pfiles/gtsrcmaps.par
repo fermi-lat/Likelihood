@@ -18,6 +18,7 @@ minbinsz,r,h,0.1,,,"Minimum pixel size for rebinning fine maps"
 ptsrc,b,h,yes,,,"Compute point source maps"
 psfcorr,b,h,yes,,,"Apply psf integral corrections"
 emapbnds,b,h,yes,,,"Enforce boundaries of exposure map"
+edisp_bins,i,h,-1,,,"Number of extra bins to compute for energy dispersion purposes"
 copyall,b,h,no,,,"Copy all source maps from input counts map file to output"
 
 chatter,i,h,2,0,4,Output verbosity
