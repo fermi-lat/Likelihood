@@ -90,11 +90,11 @@ namespace Likelihood {
   class LogLike;
   class HistND;
   class Source;
-  class PointSource;
   class AppHelpers;
   class CountsMapBase;  
   struct Snapshot_Status;
   class Snapshot;
+  class FitScanModelWrapper;
 
   /* A utility class to cache the image the predicted counts map for the
      test source.  
@@ -112,7 +112,7 @@ namespace Likelihood {
 
     /* Build from a BinnedLikelihood and a Source */
     TestSourceModelCache(const BinnedLikelihood& logLike,
-			 const PointSource& source);
+			 const Source& source);
 
     /* D'tor, does nothing */
     ~TestSourceModelCache(){};
@@ -135,6 +135,11 @@ namespace Likelihood {
     void writeTestSourceToFitsImage(const std::string& fits_file,
 				    const std::string& ext_name) const; 
     
+    
+    
+    inline const std::vector<float>& refModel() const { return m_refModel; }
+
+    inline const std::vector<float>& currentModel() const { return m_currentModel; }
 
   protected:
 
@@ -176,6 +181,30 @@ namespace Likelihood {
     mutable std::vector<float> m_currentModel;
 
   };
+
+  
+  class TestSourceModelCacheVector {
+    
+  public:
+    
+    TestSourceModelCacheVector(size_t n);
+
+    ~TestSourceModelCacheVector();
+
+    inline size_t size() const { return m_vector.size(); }
+    inline const TestSourceModelCache* operator[](size_t i) const { return m_vector[i]; }    
+    inline const TestSourceModelCache* cache(size_t i) const { return m_vector[i]; } 
+
+    void buildCaches(const FitScanModelWrapper& wrapper, Source& src);
+    
+    const TestSourceModelCache* buildCache(size_t icomp, const BinnedLikelihood& binnedLike, Source& src);
+
+    void writeTestImages(const std::string& filename, size_t ix, size_t iy);
+
+  private:
+
+    std::vector<TestSourceModelCache*> m_vector;
+  };    
 
 
   /* A utility class to store and apply a multivariate prior on fit parameters.
@@ -310,11 +339,12 @@ namespace Likelihood {
     
     /* C'tor, trivial */
     FitScanModelWrapper()
-      :m_npix(0),m_nebins(0),m_size(0){;}
+      :m_nebins(0),m_size(0){;}
 
     /* D'tor, trivial */
     ~FitScanModelWrapper() {;}    
 
+    
     /* return a reference to the counts data   
        for the BinnedLikelihood this point to the CountMap in the BinnedLikelihood object
        for the SummedLikelihood this points to a local vector where we have merged the countsdata
@@ -381,7 +411,7 @@ namespace Likelihood {
     virtual double value() const = 0;
 
     /* Add a source to the model */
-    virtual void addSource(Source* aSrc) = 0;
+    virtual void addSource(Source* aSrc, bool recreateMap=false) = 0;
 
      /* Call syncParams on the model */
     virtual void syncParams() = 0;
@@ -417,7 +447,7 @@ namespace Likelihood {
     virtual const std::vector<double>& energies() const = 0;
 
     /* shift the test source */
-    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+    virtual int shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 				const astro::SkyDir& newDir,
 				std::vector<float>& targetModel) const = 0;
 
@@ -427,9 +457,11 @@ namespace Likelihood {
     /* cache the flux values at the energy bin edges */
     void cacheFluxValues(Source& aSrc);
 
-    /* return the number of pixels,        
-       for the SummedLikelihood this is summed over the components */
-    inline size_t nPix() const { return m_npix; }
+    /* return the size of a particular energy layer */
+    virtual size_t nPixels(size_t i) const = 0;
+
+    /* fill a vector with number of pixels per energy layer */
+    virtual void getNumPixels(std::vector<size_t>& pixelsByLayer) const = 0;
 
     /* return the number of energy bins, 
        for the SummedLikelihoods this is the union of the components  */    
@@ -455,13 +487,9 @@ namespace Likelihood {
 
   protected:
     
-    inline void setDims(size_t nPix, size_t nEBins) {
-      m_npix = nPix; m_nebins = nEBins;
-      m_size = m_npix*nEBins;
-    }
 
-    inline void setDims(size_t nPix, size_t nEBins, size_t nSizeTot) {
-      m_npix = nPix; m_nebins = nEBins;
+    inline void setDims(size_t nEBins, size_t nSizeTot) {
+      m_nebins = nEBins;
       m_size = nSizeTot;
     }
 
@@ -474,10 +502,8 @@ namespace Likelihood {
 
   private:
     
-    size_t m_npix;
     size_t m_nebins;
     size_t m_size; 
-
 
     // Reference energies (geometric mean of energy bins)
     std::vector<double> m_ref_energies;    
@@ -542,7 +568,7 @@ namespace Likelihood {
     virtual double value() const;
 
     /* Add a source to the model */
-    virtual void addSource(Source* aSrc);
+    virtual void addSource(Source* aSrc, bool recreateMap=false);
 
     /* Call syncParams on the model */
     virtual void syncParams();
@@ -569,16 +595,28 @@ namespace Likelihood {
     virtual const std::vector<double>& energies() const;
 
     /* shift the test source */
-    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+    virtual int shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 				const astro::SkyDir& newDir,
 				std::vector<float>& targetModel) const;
 
     /* set the energy bins to use in the analysis */
     virtual void set_klims(size_t kmin, size_t kmax);
 
+    /* return the size of a particular energy layer */
+    virtual size_t nPixels(size_t i) const { return m_npix; }
+ 
+    /* fill a vector with number of pixels per energy layer */
+    virtual void getNumPixels(std::vector<size_t>& pixelsByLayer) const {
+      pixelsByLayer.clear();
+      pixelsByLayer.resize(nEBins(), m_npix);
+    }
+
+ 
   private:
 
     BinnedLikelihood& m_binnedLike;
+
+    size_t m_npix;
 
   };
 
@@ -639,7 +677,7 @@ namespace Likelihood {
     virtual double value() const;
     
     /* Add a source to the model */
-    virtual void addSource(Source* aSrc);
+    virtual void addSource(Source* aSrc, bool recreateMap=false);
     
     /* Call syncParams on the model */
     virtual void syncParams();
@@ -666,13 +704,21 @@ namespace Likelihood {
     virtual const std::vector<double>& energies() const { return m_energiesMerged; }
 
     /* shift the test source */
-    virtual int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCaches,
+    virtual int shiftTestSource(const TestSourceModelCacheVector& modelCaches,
 				const astro::SkyDir& newDir,
 				std::vector<float>& targetModel) const;
   
     /* set the energy bins to use in the analysis */
     virtual void set_klims(size_t kmin, size_t kmax);
 
+    /* return the size of a particular energy layer */
+    virtual size_t nPixels(size_t i) const { return m_nPixelsByLayer[i]; }
+
+    /* fill a vector with number of pixels per energy layer */
+    virtual void getNumPixels(std::vector<size_t>& pixelsByLayer) const {
+      pixelsByLayer.resize(nEBins());
+      std::copy(m_nPixelsByLayer.begin(), m_nPixelsByLayer.end(), pixelsByLayer.begin());
+    }
 
   protected:
     
@@ -687,6 +733,9 @@ namespace Likelihood {
     
     // Index of first pixels for each component
     std::vector<size_t> m_nPixelsByComp;
+
+    // Number of pixels for each energy layer
+    std::vector<size_t> m_nPixelsByLayer;
 
     // Number of enerby bins for each component
     std::vector<size_t> m_nEBinsByComp;
@@ -826,7 +875,7 @@ namespace Likelihood {
        This version shift the SourceMap with respect to a precomputed version
        and in much less expensive, but not quite as accurate 
      */
-    int shiftTestSource(const std::vector<TestSourceModelCache*>& modelCache,
+    int shiftTestSource(const TestSourceModelCacheVector& modelCache,
 			const astro::SkyDir& newDir);
 
     /* Set the cache to add in the test source with a specify normalization value */
@@ -857,6 +906,13 @@ namespace Likelihood {
 
     /* Calculate the log-likelihood for the currently cached values */
     int calculateLoglikeCurrent(double& logLike, Prior_Version whichPrior=No_Prior);
+
+    /* This is a callable version of the former */
+    double returnLogLikeCurrent(Prior_Version whichPrior=No_Prior) {
+      double retVal(0.);
+      int status = calculateLoglikeCurrent(retVal, whichPrior);
+      return (status == 0 ? retVal : 0.);
+    }
 
     /* Get the current gradiant and Hessian */
     void getGradiantAndHessian(const CLHEP::HepVector& norms,			      
@@ -937,7 +993,6 @@ namespace Likelihood {
 
     // Information about the baseline model
     inline const std::string& testSourceName() const { return m_testSourceName; }
-    inline size_t npix() const { return m_npix; }
     inline size_t nebins() const { return m_nebins; }
     inline size_t nBkgModel() const { return m_allModels.size(); }
     inline bool useReduced() const { return m_useReduced; }
@@ -1008,9 +1063,17 @@ namespace Likelihood {
     // access to the SourceModel
     inline const BinnedLikelihood& sourceModel() const { return m_modelWrapper.getMasterComponent(); }
 
+    
+    void printCurrent() const;
+
+    void checkCache() const;
+
+
   protected:
 
     void reduceModels();
+
+    void setEnergyBinStopIdxs();
 
     int update_template_for_source(const std::string& srcName);
 
@@ -1048,10 +1111,8 @@ namespace Likelihood {
     // Initial damping parameter for step calculation
     double m_initLambda;
        
-    // number of energy bins in the counts map
+    // number of energy bins in the combined counts map
     size_t m_nebins;
-    // number of pixels in the counts map
-    size_t m_npix;
 
     // reference to counts data
     const std::vector<float>& m_data;
@@ -1182,7 +1243,11 @@ namespace Likelihood {
       PRIMARY_HDU = 0x1,
       FITS_IMAGE = 0x2,
       FITDATA_TABLE = 0x4,
-      SCANDATA_TABLE = 0x8
+      SCANDATA_TABLE = 0x8,
+      ENERGY_BINS = 0x10,
+      BASELINE_PARS = 0x20,
+      TSMAP_ONLY = 0x17,
+      EVERYTHING = 0x3F,
     } Out_Location;
 
   public:
@@ -1312,7 +1377,8 @@ namespace Likelihood {
     int writeFitsFile(const std::string& fitsFile,
 		      const std::string& creator,
 		      std::string fits_template = "",
-		      bool copyGTIs=false) const;
+		      bool copyGTIs=false,
+		      int writeMask=FitScanner::EVERYTHING) const;
       
 
     // Access Functions -----------
@@ -1427,19 +1493,21 @@ namespace Likelihood {
 
 
     // Debbugging stuff
+    inline bool quiet() const { return m_quiet; } 
     inline int verbose_null() const { return m_verbose_null; }
     inline int verbose_bb() const { return m_verbose_bb; }
     inline int verbose_scan() const { return m_verbose_scan; }
     inline bool writeTestImages() const { return m_writeTestImages; }
     inline bool useReduced() const { return m_useReduced; }
 
+    inline void set_quiet(bool val) { m_quiet = val; }
     inline void set_verbose_null(int val) { m_verbose_null = val; }
     inline void set_verbose_bb(int val) { m_verbose_bb = val; }
     inline void set_verbose_scan(int val) { m_verbose_scan = val; }
     inline void set_writeTestImages(bool val) { m_writeTestImages = val; }
     inline void set_useReduced(bool val) { m_useReduced = val; }
 
-  protected:
+    inline TestSourceModelCacheVector& testSourceCaches() { return m_testSourceCaches; }
 
     /* This adds the test source to the source model */
     int addTestSourceToModel();
@@ -1477,6 +1545,8 @@ namespace Likelihood {
 
     /* Build and cache an image of the test source */
     int buildTestModelCache();
+
+  protected:
     
     /* Build an n-dimensional histogram based on the loop parameters */
     HistND* buildHist(const std::string& name, 
@@ -1516,8 +1586,6 @@ namespace Likelihood {
 		       int icol,
 		       const std::string& dimString) const;
 
-    /* delete the test model caches */
-    void deleteTestModelCaches();
 
   private:
 
@@ -1564,9 +1632,10 @@ namespace Likelihood {
     FitScanCache* m_cache;
 
     // This is what we use to move around the image of the test source
-    std::vector<TestSourceModelCache*> m_testSourceCaches;    
+    TestSourceModelCacheVector m_testSourceCaches;    
 
     // For debugging
+    bool m_quiet;
     int m_verbose_null;
     int m_verbose_bb;
     int m_verbose_scan;

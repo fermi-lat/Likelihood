@@ -339,6 +339,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 	if ( srcMap == 0 ) {
 	  m_srcMapCache.loadSourceMap(*src,false);
 	} else {
+	  m_srcMapCache.eraseSourceMap(src->getName());
 	  m_srcMapCache.insertSourceMap(src->getName(),*srcMap);
 	}
       }
@@ -422,6 +423,10 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
   SourceMap * BinnedLikelihood::createSourceMap(const std::string & srcName) {
     Source * src = getSource(srcName);
     return m_srcMapCache.createSourceMap(*src);
+  }
+
+  SourceMap * BinnedLikelihood::createExternalSourceMap(Source& aSrc) {
+    return m_srcMapCache.createSourceMap(aSrc);
   }
 
   void BinnedLikelihood::eraseSourceMap(const std::string & srcName) {
@@ -784,7 +789,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
     // Remove this source from the stored source maps to save memory
     if ( !srcMap->save_model() ) {
-      srcMap->clear_model();
+      srcMap->clear_model( m_config.delete_local_fixed() );
     }
   }
 

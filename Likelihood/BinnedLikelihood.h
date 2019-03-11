@@ -153,7 +153,9 @@ namespace Likelihood {
      inline const std::vector<double> & countsSpectrum(bool weighted=false) const { 
        return m_dataCache.countsSpectrum(weighted);
      }
-     
+
+     /// Return the SourceMapCache object (const version only)
+     inline const SourceMapCache& sourceMapCache() const { return m_srcMapCache; }
 
      /// Return the weights in their original projection
      inline const ProjMap* weightMap_orig() const { return m_dataCache.weightMap_orig(); }
@@ -391,7 +393,9 @@ namespace Likelihood {
 	
 	If the source does not exist this will throw an exception */
      SourceMap * createSourceMap(const std::string & srcName);
-
+     
+     /* Create a new SourceMap corresponding to a source not in the model */
+     SourceMap * createExternalSourceMap(Source& aSrc);
      
      /* Remove the SourceMap corresponding to a particular source */
      void eraseSourceMap(const std::string & srcName);
@@ -615,8 +619,8 @@ namespace Likelihood {
      /* Return flag saying if we are using energy dispersion of a particular source */
      bool use_edisp(const std::string & srcname="") const {
        int v = edisp_val(srcname);
+
        return ( v != 0 );
-     }
 
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();

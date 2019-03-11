@@ -158,7 +158,8 @@ namespace Likelihood {
 		     bool use_linear_quadrature = false,
 		     bool save_all_srcmaps = false,
 		     bool use_single_psf = false,
-		     bool load_existing_srcmaps = true)
+		     bool load_existing_srcmaps = true,
+		     bool delete_local_fixed = false)
       :m_computePointSources(computePointSources),       
        m_psf_integ_config(applyPsfCorrections,performConvolution,resample,resamp_factor,minbinsz,
 			  integ_type,psfEstimatorFtol,psfEstimatorPeakTh,verbose,use_single_psf),
@@ -166,7 +167,8 @@ namespace Likelihood {
        m_use_single_fixed_map(use_single_fixed_map),
        m_use_linear_quadrature(use_linear_quadrature),
        m_save_all_srcmaps(save_all_srcmaps),
-       m_load_existing_srcmaps(load_existing_srcmaps) {
+       m_load_existing_srcmaps(load_existing_srcmaps),
+       m_delete_local_fixed(delete_local_fixed){
       get_envars(m_psf_integ_config.m_integ_type,
 		 m_psf_integ_config.m_psfEstimatorFtol,
 		 m_psf_integ_config.m_psfEstimatorPeakTh,
@@ -183,7 +185,8 @@ namespace Likelihood {
        m_use_single_fixed_map(other.m_use_single_fixed_map),
        m_use_linear_quadrature(other.m_use_linear_quadrature),
        m_save_all_srcmaps(other.m_save_all_srcmaps),
-       m_load_existing_srcmaps(other.m_load_existing_srcmaps){
+       m_load_existing_srcmaps(other.m_load_existing_srcmaps),
+       m_delete_local_fixed(other.m_delete_local_fixed){
     }
     
     inline PsfIntegConfig& psf_integ_config() { return m_psf_integ_config; }
@@ -195,6 +198,7 @@ namespace Likelihood {
     inline void set_use_linear_quadrature(bool val) {  m_use_linear_quadrature = val; }
     inline void set_save_all_srcmaps(bool val) {  m_save_all_srcmaps = val; }
     inline void set_load_existing_srcmaps(bool val) {  m_load_existing_srcmaps = val; }
+    inline void set_delete_local_fixed(bool val) {  m_delete_local_fixed = val; }
    
     inline bool computePointSources() const { return m_computePointSources; } 
     inline int edisp_val() const { return m_edisp_val; }
@@ -205,6 +209,7 @@ namespace Likelihood {
     inline bool use_linear_quadrature() const { return m_use_linear_quadrature; }
     inline bool save_all_srcmaps() const { return m_save_all_srcmaps; }
     inline bool load_existing_srcmaps() const { return m_load_existing_srcmaps; }
+    inline bool delete_local_fixed() const { return m_delete_local_fixed; }
 
   private:
     
@@ -215,6 +220,7 @@ namespace Likelihood {
     bool m_use_linear_quadrature;  //! Use linear quadrature for counts integration
     bool m_save_all_srcmaps;       //! Save the source maps for all sources
     bool m_load_existing_srcmaps;  //! Load existing source maps from the srcmaps file
+    bool m_delete_local_fixed;     //! Delete the local fixed sources
 
   };
 
