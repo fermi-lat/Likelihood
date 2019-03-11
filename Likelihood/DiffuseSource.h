@@ -158,6 +158,17 @@ namespace Likelihood {
 
      /* ------------ Functions for both binned and unbinned likelihood ------------ */
 
+     
+     /// @return if the moveSource() function will work
+     virtual bool isMoveable() const;
+
+     /// move the source to a new position, if possible
+     virtual void moveSource(const astro::SkyDir & newDir, bool updateExposure = true, bool verbose=true);
+     
+     /// @return the reference direction for this source
+     virtual const astro::SkyDir& getRefDir() const {
+       return mapRefDir();
+     }
 
      /// @return Photon flux integrated over the ROI energy bounds. 
      /// Units are #/cm^2/s

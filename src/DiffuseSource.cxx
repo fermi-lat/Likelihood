@@ -89,6 +89,36 @@ void DiffuseSource::computeExposure(const std::vector<double> & energies,
    }
 }
 
+
+  bool DiffuseSource::isMoveable() const {
+    const std::string& src_type = spatialDist()->genericName();
+    if ( src_type == "ConstantValue" || 
+	 src_type == "RadialGaussian" || 
+	 src_type == "RadialDisk" || 
+	 src_type == "RadialProfile" ) {
+      return true;
+    }
+    return false;
+  }
+
+  void DiffuseSource::moveSource(const astro::SkyDir & newDir, bool updateExposure, bool verbose) {
+    const std::string& src_type = spatialDist()->genericName();
+    if ( src_type == "ConstantValue" ) {
+      return;
+    } else if ( src_type == "RadialGaussian" || 
+		src_type == "RadialDisk" ) {
+      const SpatialFunction * spatial_func = dynamic_cast<const SpatialFunction *>(m_spatialDist);
+      spatial_func->setCenter(newDir.ra(), newDir.dec());
+      return;
+    } else if ( src_type == "RadialProfile" ) {
+      const RadialProfile * profile = dynamic_cast<RadialProfile *>(m_spatialDist);
+      profile->setCenter(newDir.ra(), newDir.dec());
+      return;
+    }
+    throw std::runtime_error("Called Source::moveSource on an unmovable source");
+  }
+
+
 DiffuseSource::DiffuseSource(const DiffuseSource & rhs) 
    : Source(rhs),
      m_spatialDist(rhs.m_spatialDist->clone()),

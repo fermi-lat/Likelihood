@@ -394,7 +394,9 @@ namespace Likelihood {
 	
 	If the source does not exist this will throw an exception */
      SourceMap * createSourceMap(const std::string & srcName);
-
+     
+     /* Create a new SourceMap corresponding to a source not in the model */
+     SourceMap * createExternalSourceMap(Source& aSrc);
      
      /* Remove the SourceMap corresponding to a particular source */
      void eraseSourceMap(const std::string & srcName);
