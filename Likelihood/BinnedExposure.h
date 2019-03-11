@@ -74,7 +74,7 @@ public:
 
 protected:
 
-   void setMapGeometry(const CountsMap & cmap);
+   void setMapGeometry(const CountsMap & cmap, int edisp_bins = 0);
 
    void setMapGeometry(const st_app::AppParGroup & pars);
 

@@ -31,6 +31,7 @@
 #include "Likelihood/BinnedExposure.h"
 #include "Likelihood/CountsMap.h"
 #include "Likelihood/Observation.h"
+#include "Likelihood/FitUtils.h"
 
 namespace Likelihood {
 
@@ -41,7 +42,11 @@ BinnedExposure::BinnedExposure(const CountsMap & cmap,
                                bool useEbounds,
                                const st_app::AppParGroup * pars)
   :  BinnedExposureBase(observation,useEbounds,pars){
-   setMapGeometry(cmap);
+   int edisp_bins(0);
+   if ( pars != 0 ) {
+     edisp_bins = (*pars)["edisp_bins"];
+   }
+   setMapGeometry(cmap, edisp_bins);
    if (!useEbounds) {
       for (size_t k(0); k < m_energies.size()-1; k++) {
          m_energies[k] = std::sqrt(m_energies[k]*m_energies[k+1]);
@@ -177,7 +182,7 @@ void BinnedExposure::get_exposures_for_dir(const astro::SkyDir& dir,
 }
 
 
-void BinnedExposure::setMapGeometry(const CountsMap & cmap) {
+void BinnedExposure::setMapGeometry(const CountsMap & cmap, int edisp_bins) {
    m_proj_name = cmap.proj_name();
    m_crpix[0] = cmap.crpix1();
    m_crpix[1] = cmap.crpix2();
@@ -196,6 +201,8 @@ void BinnedExposure::setMapGeometry(const CountsMap & cmap) {
 	std::fabs( m_cdelt[1]*m_naxes[1] ) >= 180. ) {
      m_allSky = true;
    }
+   FitUtils::expand_energies(m_energies, edisp_bins);
+
 }
 
 void BinnedExposure::setMapGeometry(const st_app::AppParGroup & pars) {

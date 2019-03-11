@@ -62,6 +62,8 @@ namespace Likelihood {
     /// Integrates weights over a pixel to get the counts
     double pixelCounts_loglogQuad(double emin, double emax, double y1, double y2, double log_ratio);
   
+    /// Expands a vector of energy bin edges by taking equal size steps in log space
+    void expand_energies(std::vector<double> & energies, int edisp_bins);
 
     /* Compute the pseudo-inverse of a matrix from its singular value
        decomposition.  For a matrix A with SVD,

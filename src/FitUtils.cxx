@@ -48,7 +48,34 @@ namespace Likelihood {
       return (y1*emin + y2*emax)/2.*log_ratio;
     }
   
+    void expand_energies(std::vector<double>& energies, int edisp_bins) {
+      
+      if ( edisp_bins <= 0 ) return;
+      size_t n_evals = energies.size();
+      if ( n_evals < 2 ) return;
+      std::vector<double> outVect(energies.size() + 2*edisp_bins);
+      // copy the orignal vector to the middle of the new vector
+      std::copy(energies.begin(), energies.end(), outVect.begin() + edisp_bins);
+      
+      // get the lowest energy, highest energy and lo_step and hi_step, in log space
+      double lo_eval = std::log10(energies[0]);
+      double hi_eval = std::log10(energies[n_evals-1]);
+      double lo_step = std::log10(energies[1]) - lo_eval;
+      double hi_step = hi_eval - std::log10(energies[n_evals-2]);
+  
+      for ( size_t i(1); i <= edisp_bins; i++ ) { 
+	lo_eval -= lo_step;
+	hi_eval += hi_step;
+	outVect[edisp_bins - i] = std::pow(10., lo_eval);
+	outVect[n_evals + edisp_bins + i - 1] = std::pow(10., hi_eval);
+      }
+      
+      // swap the orignal vector with the working version of the output vector
+      energies.swap(outVect);
+      
+    }
 
+    
     void svd_inverse(const CLHEP::HepMatrix& u,
 		     const CLHEP::HepMatrix& v,
 		     const CLHEP::HepVector& s,
