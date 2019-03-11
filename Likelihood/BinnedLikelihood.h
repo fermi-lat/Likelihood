@@ -617,6 +617,12 @@ namespace Likelihood {
      /* Return flag saying how we use energy dispersion for a particular source */
      int edisp_val(const std::string & srcname="") const;
 
+     /* Return flag saying if we are using energy dispersion of a particular source */
+     bool use_edisp(const std::string & srcname="") const {
+       int v = edisp_val(srcname);
+       return ( v >= 0 );
+     }
+
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();
 
