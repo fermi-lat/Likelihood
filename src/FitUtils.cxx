@@ -83,7 +83,6 @@ namespace Likelihood {
 	log_ratios[i] = std::log(energies[i+1] / energies[i]);
       }
     }
-
     
     void svd_inverse(const CLHEP::HepMatrix& u,
 		     const CLHEP::HepMatrix& v,
