@@ -370,7 +370,7 @@ void likelihood::createStatistic() {
 
       BinnedLikelihood* binnedLike = AppHelpers::makeBinnedLikelihood(m_pars, *m_helper, "cmap");      
       m_logLike = binnedLike;
-      m_dataMap = &binnedLike->countsMap();
+      m_dataMap = const_cast<CountsMapBase*>(&binnedLike->countsMap());
       return;
    } else if (m_statistic == "UNBINNED") {
       m_logLike = new LogLike(m_helper->observation());
