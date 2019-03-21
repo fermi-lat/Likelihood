@@ -21,7 +21,7 @@
  */
 
 #ifndef Likelihood_FitUtils_h
-#define Likelihood_Fitutils_h
+#define Likelihood_FitUtils_h
 
 #include <vector>
 #include <map>

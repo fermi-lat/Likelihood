@@ -14,7 +14,7 @@
  */
 
 #ifndef Likelihood_ScanUtils_h
-#define Likelihood_Scanutils_h
+#define Likelihood_ScanUtils_h
 
 #include <vector>
 #include <string>

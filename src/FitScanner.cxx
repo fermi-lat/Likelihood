@@ -215,7 +215,7 @@ namespace Likelihood {
   void TestSourceModelCacheVector::writeTestImages(const std::string& filename, size_t ix, size_t iy) {
     char buffer[255];
     for ( size_t iComp(0); iComp < m_vector.size(); iComp++ ) {
-      sprintf(buffer,"I_%d_%d_%d",iy,ix,iComp);
+      sprintf(buffer,"I_%d_%d_%d",(int)iy,(int)ix,(int)iComp);
       m_vector[iComp]->writeTestSourceToFitsImage(filename,buffer);
     }
   }
@@ -559,6 +559,7 @@ namespace Likelihood {
   
   int FitScanModelWrapper_Binned::writeFits_GTIs(const std::string& fitsFile) const {
     m_binnedLike.countsMap().writeGti(fitsFile);
+    return 0;
   }
 
   const std::vector<double>& FitScanModelWrapper_Binned::energies() const {
@@ -573,6 +574,7 @@ namespace Likelihood {
       return -1;
     }
     modelCaches[0]->translateMap(newDir,targetModel);
+    return 0;
   }
 
   void FitScanModelWrapper_Binned::set_klims(size_t kmin, size_t kmax) {

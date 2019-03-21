@@ -231,7 +231,7 @@ namespace Likelihood {
        m_fixed_counts_spec_edisp_wt.clear();
      }
 
-
+   
      /// Set flag to use a single map for all the fixed sources
      void set_use_single_fixed_map(bool use_sfm) {
        m_config.set_use_single_fixed_map(use_sfm);
@@ -310,7 +310,7 @@ namespace Likelihood {
 			  bool requireExposure=true, 
 			  bool addPointSources=true,
 			  bool loadMaps=true);
-  
+   
      /// Add a source to the source model 
      /// This is the version inherited from SourceModel
      virtual void addSource(Source * src, bool fromClone=true, SourceMap* srcMap=0, bool loadMap=true);
@@ -388,7 +388,7 @@ namespace Likelihood {
 	this will create and return the SourceMap for that source */
      SourceMap * getSourceMap(const std::string & srcName,
 			      bool verbose=true) const;
-
+   
      /* Create a new SourceMap corresponding to a particular source
 	
 	If the source does not exist this will throw an exception */
@@ -437,7 +437,7 @@ namespace Likelihood {
      void loadSourceMap(const std::string & srcName, 
 			bool recreate=false,
 			bool buildFixedWeights=true);
-
+   
      /* Directly set the image for a particular SourceMap
 	
 	name  : name of the source in question
@@ -511,7 +511,7 @@ namespace Likelihood {
      void computeModelMap(const std::vector<std::string>& srcNames, 
 			  std::vector<float> & modelMap,
 			  bool use_mask = true) const;
-
+   
      
      /* This function adds the Model counts for a source map
 	to a vector.  it is used by the various computeModelMap 
@@ -538,7 +538,7 @@ namespace Likelihood {
      double npred(bool weighted=false) { 
        return computeModelMap_internal(weighted);
      }
-     
+   
      /* Get or compute the npreds() vector from a particular source map.  
 	If the SourceMap doesn't exist it is temporarily created and deleted
 
@@ -602,7 +602,7 @@ namespace Likelihood {
      */     
      void deleteFixedSource(const std::string & srcName);
 
-
+   
      /* ---------------------- other functions ------------------------ */
 
      /* The source component model-weighted counts spectrum, i.e.,
@@ -619,9 +619,9 @@ namespace Likelihood {
      /* Return flag saying if we are using energy dispersion of a particular source */
      bool use_edisp(const std::string & srcname="") const {
        int v = edisp_val(srcname);
-
        return ( v != 0 );
-
+     }
+     
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();
 
@@ -793,8 +793,9 @@ namespace Likelihood {
      /// Flag to allow updating of Fixed model weights
      bool m_updateFixedWeights;
 
+   };
 };
 
-}
+     
 
 #endif // Likelihood_BinnedLikelihood_h

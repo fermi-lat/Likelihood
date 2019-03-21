@@ -108,11 +108,13 @@ void DiffuseSource::computeExposure(const std::vector<double> & energies,
     } else if ( src_type == "RadialGaussian" || 
 		src_type == "RadialDisk" ) {
       const SpatialFunction * spatial_func = dynamic_cast<const SpatialFunction *>(m_spatialDist);
-      spatial_func->setCenter(newDir.ra(), newDir.dec());
+      SpatialFunction* ncsf = const_cast<SpatialFunction*>(spatial_func);
+      ncsf->setCenter(newDir.ra(), newDir.dec());     
       return;
     } else if ( src_type == "RadialProfile" ) {
       const RadialProfile * profile = dynamic_cast<RadialProfile *>(m_spatialDist);
-      profile->setCenter(newDir.ra(), newDir.dec());
+      RadialProfile* ncrp = const_cast<RadialProfile*>(profile);
+      ncrp->setCenter(newDir.ra(), newDir.dec());
       return;
     }
     throw std::runtime_error("Called Source::moveSource on an unmovable source");
