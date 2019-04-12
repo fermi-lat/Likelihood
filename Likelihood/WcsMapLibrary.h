@@ -49,7 +49,7 @@ public:
 
    static void delete_instance() {
       delete s_instance;
-      s_instance == 0;
+      s_instance = 0;
    }
 
 protected:
