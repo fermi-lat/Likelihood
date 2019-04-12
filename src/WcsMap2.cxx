@@ -734,8 +734,7 @@ ProjMap* WcsMap2::convolve(double energy, const MeanPsf & psf,
 			      astro::SkyDir::GALACTIC : astro::SkyDir::EQUATORIAL);
 
 	    double dtheta = fndir.difference(dir)*180./M_PI;
-	    double v = st_facilities::Util::interpolate(theta, value, 
-							dtheta);
+	    double v = dtheta > theta.back() ? 0. : st_facilities::Util::interpolate(theta, value, dtheta);
 	    double exp = exposure != 0 ? (*exposure)(energy, fndir.ra(), fndir.dec()) : 1.;
             counts[j][i] = v*exp;
          }
