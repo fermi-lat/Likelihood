@@ -37,6 +37,6 @@ stages:
   displayName: 'Launch Fermitools CI Pipeline'
   condition: succeeded('linux_build_stage')
   jobs:
-  - template: azure-fermitoolsupdate-template@ci
+  - template: azure-fermitoolsupdate-template.yml@ci
     parameters:
       repo: '$(repo)'
