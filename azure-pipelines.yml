@@ -1,0 +1,42 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+- patch_branch
+
+resources:
+  repositories:
+    - repository: ci
+      type: github
+      name: fermi-lat/ci
+      endpoint: fermi-lat
+
+variables:
+- group: DevOps Access Keys
+- name: repo
+  value: likelihood
+
+stages:
+
+#####################################
+# Linux Stages - Microsoft Hosted VMs
+#####################################
+
+  ### Linux Build Stage ###
+- stage: linux_build_stage
+  displayName: 'Building package on Ubuntu-16.04'
+  jobs:
+  - template: azure-buildrepo-template.yml@ci
+    parameters:
+      repo: '$(repo)'
+
+- stage: pipeline_launch_stage
+  displayName: 'Launch Fermitools CI Pipeline'
+  condition: succeeded('linux_build_stage')
+  jobs:
+  - template: azure-fermitoolsupdate-template@ci
+    parameters:
+      repo: '$(repo)'
