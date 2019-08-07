@@ -11,7 +11,7 @@ resources:
   repositories:
     - repository: ci
       type: github
-      name: fermi-lat/ci
+      name: fermi-lat
       endpoint: fermi-lat
 
 variables:
