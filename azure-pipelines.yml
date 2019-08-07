@@ -9,7 +9,7 @@ trigger:
 
 resources:
   repositories:
-    - repository: azure_templates
+    - repository: ci
       type: github
       name: fermi-lat/ci
       endpoint: fermi-lat
@@ -29,7 +29,7 @@ stages:
 - stage: linux_build_stage
   displayName: 'Building package on Ubuntu'
   jobs:
-  - template: azure-buildrepolinux-template.yml@azure_templates
+  - template: azure-buildrepolinux-template.yml@ci
     parameters:
       repo: '$(repo)'
 #####################################
@@ -44,7 +44,7 @@ stages:
   dependsOn: []
 
   jobs:
-  - template: azure-buildrepomacos-template.yml@azure_templates
+  - template: azure-buildrepomacos-template.yml@ci
     parameters:
       repo: '$(repo)'
 #####################################
@@ -60,6 +60,6 @@ stages:
   - macos_build_stage
   condition: and(succeeded('linux_build_stage'), succeeded('macos_build_stage'))
   jobs:
-  - template: azure-fermitoolsupdate-template.yml@azure_templates
+  - template: azure-fermitoolsupdate-template.yml@ci
     parameters:
       repo: '$(repo)'
