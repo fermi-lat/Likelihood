@@ -17,7 +17,7 @@ resources:
 variables:
 - group: DevOps Access Keys
 - name: repo
-  value: likelihood
+  value: Likelihood
 
 stages:
 
