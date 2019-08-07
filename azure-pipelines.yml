@@ -1,0 +1,65 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+- patch_branch
+
+resources:
+  repositories:
+    - repository: ci
+      type: github
+      name: fermi-lat/ci
+      endpoint: fermi-lat
+
+variables:
+- group: DevOps Access Keys
+- name: repo
+  value: Likelihood
+
+stages:
+
+#####################################
+# Linux Stage - Microsoft Hosted VMs
+#####################################
+
+  ### Linux Build Stage ###
+- stage: linux_build_stage
+  displayName: 'Building package on Ubuntu'
+  jobs:
+  - template: azure_templates/azure-buildrepolinux-template.yml@ci
+    parameters:
+      repo: '$(repo)'
+#####################################
+
+#####################################
+# MacOS Stage - Microsoft Hosted VMs
+#####################################
+
+  ### MacOS Build Stage ###
+- stage: macos_build_stage
+  displayName: 'Building package on MacOS'
+  dependsOn: []
+
+  jobs:
+  - template: azure_templates/azure-buildrepomacos-template.yml@ci
+    parameters:
+      repo: '$(repo)'
+#####################################
+
+#####################################
+# Fermitools-Conda Update Stage
+#####################################
+
+- stage: pipeline_launch_stage
+  displayName: 'Launch Fermitools CI Pipeline'
+  dependsOn:
+  - linux_build_stage
+  - macos_build_stage
+  condition: and(succeeded('linux_build_stage'), succeeded('macos_build_stage'))
+  jobs:
+  - template: azure_templates/azure-fermitoolsupdate-template.yml@ci
+    parameters:
+      repo: '$(repo)'
