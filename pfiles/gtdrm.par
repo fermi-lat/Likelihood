@@ -8,6 +8,16 @@ irfs,s,a,"CALDB",,,"Response functions"
 evtype,i,h,INDEF,,,"Event type selections"
 expcube,f,a,"",,,"Exposure cube"
 bexpmap,f,a,none,,,"Binned exposure map"
+edisp_bins,i,a,0,,,"Number of bins to consider energy dispersion for"
+
+# These are needed to make a BinnedLikelihood object, but not used
+wmap,f,h,"none",,,"Likelihood weights map (Not used)"
+convol,b,h,yes,,,"Perform convolution with psf  (Not used)"
+resample,b,h,yes,,,"Resample input counts map for convolution (Not used)"
+rfactor,i,h,2,,,"Resampling factor (Not used)"
+minbinsz,r,h,0.1,,,"Minimum pixel size for rebinning fine maps (Not used)"
+ptsrc,b,h,yes,,,"Compute point source maps (Not used)"
+psfcorr,b,h,yes,,,"apply psf integral corrections (Not used)"
 
 chatter,i,h,2,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
