@@ -257,7 +257,7 @@ double Drm::extrapolate_lo(const std::deque<double>& counts) const{
 double Drm::extrapolate_lo(const double& c0, const double & c1) const{
   // EAC, this can be wildly off for value near zero
   // double min_counts_value(1e-10);
-  static double min_counts_value(1e-4);
+  static double min_counts_value(1e-2);
 
   double value(0.);
   if (c0 > min_counts_value && c1 > min_counts_value) {
@@ -277,10 +277,9 @@ double Drm::extrapolate_hi(const std::deque<double>& counts) const{
 
 
 double Drm::extrapolate_hi(const double& c0, const double & c1) const{
-
-  // On the high end, the effective area is smoother, so we 
-  // can use the log-extrapolation down to much smaller values
-  static double min_counts_value(1e-10);
+  // EAC, this can be wildly off for value near zero
+  // double min_counts_value(1e-10);
+  static double min_counts_value(1e-2);
 
   double value(0.);
   if (c1 > min_counts_value && c0 > min_counts_value) {
