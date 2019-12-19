@@ -182,7 +182,7 @@ namespace Likelihood {
     inline const std::vector<double>& xi() const { return m_xi; }  
 
     /* Reference bins for rescaling method */
-    inline const std::vector<int> kref() const { return m_kref; }
+    inline const std::vector<int>& kref() const { return m_kref; }
     
     /* Weighted true counts */
     inline const std::vector<double>& true_counts_wt() const { return m_true_counts_wt; }  
