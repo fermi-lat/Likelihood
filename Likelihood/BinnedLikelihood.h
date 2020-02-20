@@ -621,7 +621,6 @@ namespace Likelihood {
        int v = edisp_val(srcname);
        return ( v != 0 );
      }
-
      
      /* Return the DRM (detector response matrix), building it if needed */
      Drm & drm();
