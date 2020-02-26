@@ -25,6 +25,7 @@ expmap,f,a,"none",,,"Unbinned exposure map"
 cmap,f,a,"none",,,"Counts map file"
 bexpmap,f,a,"none",,,"Binned exposure map"
 psfcorr,b,h,yes,,,"apply psf integral corrections"
+edisp_bins,i,a,0,,,"Number of bins to consider energy dispersion for"
 #
 # Output file parameters
 #
