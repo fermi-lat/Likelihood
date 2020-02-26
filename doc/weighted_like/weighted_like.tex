@@ -19,7 +19,6 @@
 \def \aap  {A\&A}
 
 \newcommand{\fermipy}{\texttt{Fermipy}\xspace}
-\newcommand{\FIXME}[1]{{\color{red}{#1}}}
 
 
 %\usepackage{epsfig,epstopdf}
@@ -27,7 +26,7 @@
 %
 \begin{document}
 %
-\title{Notes on the implementation of likelihood weighting in the ScienceTools.}  
+\title{implementation of likelihood weighting in the fermitools}
 
 \author{ 
 E.~Charles\altaffilmark{1}, 
@@ -38,7 +37,12 @@ J.~Ballet\altaffilmark{2},
 
 
 \begin{abstract}
-  This is a collection of notes and equations about the likelihood weighting implementation.
+  After several years of operations, the data taken by {\it Fermi} Large Area Telescope ({\it Fermi}-LAT) is extensive
+  enough that systematic uncertainties at the few percent level from mis-modeling either the instrument response functions
+  or the $\gamma$-ray emission for foreground and background sources dominate over statistical uncertainties
+  over large parts of the sky for a significant part of the {\it Fermi}-LATs energy range.   The {\it Fermi}-LAT
+  collaboration has developed a method for de-weighting the likelihood to take into these systematic uncertainties.
+  Here we present this method, along with implementation details and a worked example.
 \end{abstract}
 
 %\pacs{}
@@ -48,7 +52,77 @@ J.~Ballet\altaffilmark{2},
 \section{Introduction}
 %%%%%%%%%%%%
 
-This implementation and equations are based on Jean Ballet's work.\footnote{Extensive notes can be found at: \url{https://confluence.slac.stanford.edu/x/ZphdCw}}
+When studying a $\gamma$-ray source with data from the {\it Fermi} Large Area Telescope, 
+it is useful to consider four different types of uncertainty.  
+
+\begin{enumerate}
+\item{Statistical uncertainties of the signal source.  In general these will scale as square root
+    of the number of $\gamma$-ray counts coming from the source.}
+\item{Statistical uncertainties of the background sources.  In general we can model these as
+    scaling as the square root number of $\gamma$-ray counts coming from the region of the source 
+    within instrument resolution.}
+\item{Systematic uncertainties of modeling the signal source.  These can come from either
+    uncertainties in modeling the emission of the signal sources, or uncertainties in 
+    characterizing the instrument response.}
+\item{Systematic uncertainties of modeling background sources.  These can come from either
+    uncertainties in modeling the emission of the background sources, or uncertainties in 
+    characterizing the instrument response.}
+\end{enumerate}
+
+Characterizing the first two types of uncertainty is done by the maximum likelihood fitting 
+procedures used in analyzing $\gamma$-ray data.  Although characterizing the systematic 
+uncertainties is very much an open ended problem,  we have found that a relatively simple 
+model in which they scale as a fixed fraction of the
+$\gamma$-ray counts (rather than as the square root of the $\gamma$-ray counts) can give
+a characterization that is good enough for many purposes.  
+
+In this note we describe a method of de-weighting the likelihood that accounts for
+systematic uncertainties.
+
+
+\section{Example analysis}
+
+To illustrate how we use the weighted likelihood we have performed 
+an analysis of the source 4FGL J0047.9+3947 using 10 years of {\it Fermi}-LAT 
+data.  Specifically we used the {\it fermipy} analysis package
+to analyze a $10^\circ \times 10^\circ$ region of interest (ROI)
+containing 4FGL J0047.9+3947 both with and without the likelihood weighting.
+The analysis configuration parameters are listed in Tab.~\ref{tab:analysis_params}.
+
+\begin{table}[!ht]
+\begin{centering}
+\begin{tabular}{cc|c}
+Parameter & \multicolumn{2}{c}{Value} \\ \hline\hline
+Data set & \multicolumn{2}{c}{10 Years} \\
+ROI Size & \multicolumn{2}{c}{$10^\circ \times 10^\circ$} \\
+ROI Center $(l,b)$ & \multicolumn{2}{c}{(FIXME, FIXME)} \\
+Pixel size & \multicolumn{2}{c}{$0.05^\circ \times 0.05^\circ$} \\
+Energy range & \multicolumn{2}{c}{100 MeV to 100 GeV} \\
+Energy binning & \multicolumn{2}{c}{8 bins / decade} \\
+Event Class & \multicolumn{2}{c}{P8R3\_SOURCEVETO} \\
+Instrument Response Functions & \multicolumn{2}{c}{P8R3\_SOURCEVETO\_V2} \\
+Energy Dispersion & \multicolumn{2}{c}{Point sources only} \\
+Galactic Diffuse Model & \multicolumn{2}{c}{{\it gll\_iem\_v07.fits}} \\
+Isotropic Model Prefix & \multicolumn{2}{c}{{\it iso\_P8R3\_SOURCEVETO\_V2\_}} \\
+Catalog Sources  & \multicolumn{2}{c}{4FGL} \\ \hline
+Event Types & Front-converting & Back-converting \\
+Zenith Angle Cut & $90^\circ$ & $80^\circ$ \\
+Isotropic Model Suffix & {\it FRONT\_v1.txt} & {\it BACK\_v1.txt} \\
+\end{tabular}
+\caption{Parameters used for example analysis.  The analysis was done as a two
+  component binned likelihood; front-converting and back-converting 
+  events were treating separately, and the log-likelihood contributions from the two
+  components were summed.}
+\label{tab:analysis_params}
+\end{centering}
+\end{table}
+
+It is very important to compute the effective background using a ROI 
+model that has been padded to account for spill-over from the PSF.  To do this
+we first analyzed the ROI without likelihood weights, then used the
+script {\it fermipy-make-wmaps} to correctly make the weights maps
+(including all the intermediate steps described below) for a ROI that 
+was padded by $5^\circ$ on all sides.
 
 
 \section{The effective background: \texorpdfstring{$B$}{B}}
@@ -59,7 +133,7 @@ contribution of the background to the analysis of a point source at a
 particular energy bin.
 
 We derive the effective background starting from some representation
-of the counts in the region of interest (ROI).  This can be either
+of the counts in the ROI.  This can be either
 binned data, or a model of the ROI.  Following notation we used
 elsewhere\footnote{Specifically, in the write up of the binned
   likelihood implementation.} let's call this $M_{ik}$, where the $i$
@@ -68,6 +142,20 @@ the energy bins.  The energy bin edges are at $E_k^-, E_k^+$
 (typically $E_k^+ = E_{k+1}^-$).  The geometric energy bin centers are
 $E_k = \sqrt{E_k^+ E_k^-}$.  The energy bin widths are $\delta E_k = E_k^+
 - E_k^-$, and the pixel sizes are $\delta \Omega_i$.
+
+Model counts maps at two different energies of our example analysis are show in 
+Fig.~\ref{fig:mcube}. 
+
+\begin{figure}[h]  
+\begin{centering}
+\includegraphics[width=0.49\columnwidth]{figures/mcube_E00_00.png}
+\includegraphics[width=0.49\columnwidth]{figures/mcube_E01_04.png}
+\vspace{-0.10in}
+\caption{\label{fig:beff}Model counts maps ($M_{i}$, in counts per $0.05^\circ\times0.05^\circ$ pixel)
+  for an example ROI for two energy bins and two different events types. Left, front-converting events 
+  from 100~MeV to 133~MeV; right, back-converting events from 316~MeV to 421~MeV.}
+\end{centering}
+\end{figure}
 
 In words, we want to define the effective background $B_{ik}$ by
 convolving $M_{ik}$ with the point-spread function (PSF) at each
@@ -130,6 +218,23 @@ the addition of keywords to the primary header of the output file:
 file.}
 \end{enumerate}
 
+Effective background maps at two different energies of our example analysis are show in 
+Fig.~\ref{fig:beff}. 
+
+\begin{figure}[h]  
+\begin{centering}
+\includegraphics[width=0.49\columnwidth]{figures/beff_E00_00.png}
+\includegraphics[width=0.49\columnwidth]{figures/beff_E01_04.png}
+\vspace{-0.10in}
+\caption{\label{fig:beff}Effective background maps ($B_{i}$, in counts per 
+  $0.05^\circ\times0.05^\circ$ pixel) for an example ROI
+  for two energy bins and two different events types.  Left, front-converting events 
+  from 100~MeV to 133~MeV; right, back-converting events from 316~MeV to 421~MeV.}
+\end{centering}
+\end{figure}
+
+
+
 \section{The weighted sum over components: \texorpdfstring{$\alpha$}{alpha}}
 
 In order to properly deal with multiple analysis components we need to
@@ -162,6 +267,29 @@ provenance of the map:
 \item{{\tt BKGMAPXX}: will list the input effective background maps.}    
 \end{enumerate}
 
+Maps of the parameter $\alpha_{ik}$ for our example analysis are shown in Fig.~\ref{fig:alpha}.
+
+\begin{figure}[h]  
+\begin{centering}
+\includegraphics[width=0.49\columnwidth]{figures/alpha_E00_00.png}
+\includegraphics[width=0.49\columnwidth]{figures/alpha_E01_04.png}
+\vspace{-0.10in}
+\caption{\label{fig:alpha}Maps of $\alpha_{i}$ for an example ROI
+  for two energy bins, obtained by combining front-converting and 
+  back-converting events and setting the systematic error level
+  to $\epsilon = 0.03$.  Left, 100~MeV to 133~MeV; right 316~MeV to 421~MeV.}
+\end{centering}
+\end{figure}
+
+
+\section{Choosing the value of the fractional systematic uncertainty}
+
+The {$\it Fermi$}-LAT collaboration arrived at a value of $\epsilon = 0.03$ by 
+picking a value so that the standard deviation of the uncertainty-scaled residuals 
+of the energy flux for individual energy bins for a large number of spectral fits 
+was close to one.  Put another way, we picked $\epsilon = 0.03$ because that value
+re-scaled the errors of SED measurements to give a $\chi^2$ per degree of freedom 
+close to one.
 
 
 \section{The likelihood weights: \texorpdfstring{$w$}{w}}
@@ -186,7 +314,7 @@ the {\tt EBOUNDS} HDU with an {\tt ENERGIES} HDU.
 
 Aside from that, writing the $w_{ik}$ will store almost exactly the
 same information as a {\tt CountsMap} or {\tt CountsMapHealpix},
-including the DSS keywords copied from the file with the $B_ik$; the
+including the DSS keywords copied from the file with the $B_{ik}$; the
 only differences being the additional keywords:
 
 \begin{enumerate}
@@ -195,6 +323,22 @@ only differences being the additional keywords:
 \item{{\tt BKGMAP}: will give the input effective background map.}    
 \item{{\tt ALPHAMAP}: the file containing the input $\alpha$ map (if used).}
 \end{enumerate}
+
+Maps of the likelihood weights $w_{ik}$ for two different
+energies from our example analysis are shown in Fig.~\ref{fig:wmap}.
+
+\begin{figure}[h]  
+\begin{centering}
+\includegraphics[width=0.49\columnwidth]{figures/wmap_E00_00.png}
+\includegraphics[width=0.49\columnwidth]{figures/wmap_E01_04.png}
+\vspace{-0.10in}
+\caption{\label{fig:wmap}Likelihood weights maps ($w_{i}$) for an example ROI
+  for two energy bins and two different events types obtained for
+  a systematic error level of $\epsilon = 0.03$.  Left, front-converting events 
+  from 100~MeV to 133~MeV; right, back-converting events from 316~MeV to 421~MeV.}
+\end{centering}
+\end{figure}
+
 
 
 \section{Using the likelihood weights.}
@@ -223,6 +367,51 @@ specified in a number of ways.
     according to the rules above.}
 \end{enumerate}
 
+
+\section{Effect of using the likelihood weights.}
+
+Since the likelihood weights are constructed to be less than one, they 
+have the effect of reducing the likelihood, and also reducing changes in 
+the likelihood.  Since uncertainty estimates and upper limits are defined
+in terms of changes in the likelihood, using the likelihood weights 
+will result in larger uncertainties and higher upper limits.  
+
+The effect on fits to the normalization of a point source
+for the lowest energy bin in our example analysis is shown in Fig.~\ref{fig:ll}.
+
+\begin{figure}[h]  
+\begin{centering}
+\includegraphics[width=\columnwidth]{figures/ll_compare.pdf}
+\vspace{-0.10in}
+\caption{\label{fig:ll}Change in profile log likelihood ($\Delta\log\mathcal{L}$ with 
+  respect to the best-fit value for a point-source as a function of the normalization in the 
+  energy range 100~MeV to 133~MeV.}
+\end{centering}
+\end{figure}
+
+The effect on fitting the spectral energy density (SED) of a point 
+source in our example analysis is shown in Fig.~\ref{fig:sed}.  Clearly 
+the effect of the likelihood weighting is largest for the lower energy bins, 
+where the effective background is larger and the
+weights are smaller.
+
+\begin{figure}[h]  
+\begin{centering}
+\includegraphics[width=0.49\columnwidth]{figures/sed_nowts.png}
+\includegraphics[width=0.49\columnwidth]{figures/sed_wts.png}
+\vspace{-0.10in}
+\caption{\label{fig:sed}SED, including the $\Delta\ln\mathcal{L}$ shown
+  with the under-laid color scale, for a point source. Results
+  for the un-weighted (weighted) likelihood are shown on the left (right).}
+\end{centering}
+\end{figure}
+
+
+\section{Acknowledgments}
+
+This implementation and equations are based on 
+Jean Ballet's work.\footnote{Extensive notes can be found at: \url{https://confluence.slac.stanford.edu/x/ZphdCw}}
+
 \end{document}
  
 
@@ -230,4 +419,6 @@ specified in a number of ways.
 % LocalWords:  CountsMap CountsMapHealpix gteffbkg pyLikelihood EBOUNDS GTI DSS
 % LocalWords:  HDUs MAPTYPE BKG INPUTMAP gtalphabkg BKGMAPXX gtwtsmap HDU wmap
 % LocalWords:  BinnedLikelihood BKGMAP ALPHAMAP CountsMapBase BinnedAnalysis Eq
-% LocalWords:  gtlike gtscrmaps
+% LocalWords:  gtlike gtscrmaps fermitools Laboratoire CEA IRFU Astrophysique
+% LocalWords:  Saclay Gif sur mis LATs de fermipy MeV GeV P8R3 SOURCEVETO J0047
+% LocalWords:  V2 gll iem v07 4FGL v1 txt iso SED un wmaps
