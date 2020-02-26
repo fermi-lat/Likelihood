@@ -8,6 +8,7 @@ evtype,i,h,INDEF,,,"Event type selections"
 expcube,f,a,"",,,"Exposure cube"
 bexpmap,f,a,"",,,"Binned exposure map"
 efact,r,a,2.0,,,"Energy integration factor"
+edisp_bins,i,a,0,,,"Number of bins to consider energy dispersion for"
 
 
 chatter,i,h,2,0,4,Output verbosity
