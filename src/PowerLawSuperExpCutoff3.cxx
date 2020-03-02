@@ -94,7 +94,7 @@ namespace Likelihood {
 	return value(xarg) * ( index2*log(x/scale) + 1 - pow(x/scale,index2) ) * my_params[Expfactor2].getScale();
 	break;
       case Index2:
-	return value(xarg) * ( expfactor2*log(x/scale) - expfactor2 * pow(x/scale,index2) * log(x/scale) ) * my_params[Index2].getScale();
+	return value(xarg) * ( expfactor2*log(x/scale) ) * (1 - pow(x/scale,index2) ) * my_params[Index2].getScale();
 	break;
       default:
 	break;
