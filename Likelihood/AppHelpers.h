@@ -243,7 +243,7 @@ T AppHelpers::param(st_app::AppParGroup & pars, const std::string & parname,
       T value = pars[parname];
       return value;
    } catch (std::exception & eObj) {
-     if (suppress_warn == False) {
+     if (suppress_warn == false) {
       std::cerr << eObj.what() << "\n"
                 << "Using default value of " << def_value
                 << " for parameter " <<  parname << std::endl;
