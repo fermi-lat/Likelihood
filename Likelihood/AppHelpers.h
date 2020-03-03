@@ -107,7 +107,7 @@ public:
 
    template<typename T>
    static T param(st_app::AppParGroup & pars, const std::string & parname,
-                  const T & def_value, const bool & suppress_warn);
+                  const T & def_value, const bool & suppress_warn = false);
 
    static void checkOutputFile(bool clobber, const std::string & filename);
 
@@ -238,7 +238,7 @@ protected:
 
 template<typename T>
 T AppHelpers::param(st_app::AppParGroup & pars, const std::string & parname,
-                    const T & def_value, const bool & suppress_warn) {
+                    const T & def_value, const bool & suppress_warn = false) {
    try {
       T value = pars[parname];
       return value;
