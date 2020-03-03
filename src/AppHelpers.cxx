@@ -176,7 +176,7 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
 	 // EAC, build a map to get the ref-dir and energies
 	 // EAC, it might be better to write a function just to pull those out 
 	 CountsMapBase* cmap = readCountsMap(cmapfile);
-	 int edisp_bins = AppHelpers::param(my_pars, "edisp_bins", 0, False);
+	 int edisp_bins = AppHelpers::param(my_pars, "edisp_bins", 0, false);
 	 if ( edisp_bins < 0 ) {
 	   edisp_bins = 0;
 	 }
