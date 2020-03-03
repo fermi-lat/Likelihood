@@ -176,7 +176,7 @@ AppHelpers::AppHelpers(st_app::AppParGroup * pars,
 	 // EAC, build a map to get the ref-dir and energies
 	 // EAC, it might be better to write a function just to pull those out 
 	 CountsMapBase* cmap = readCountsMap(cmapfile);
-	 int edisp_bins = AppHelpers::param(my_pars, "edisp_bins", 0);
+	 int edisp_bins = AppHelpers::param(my_pars, "edisp_bins", 0, False);
 	 if ( edisp_bins < 0 ) {
 	   edisp_bins = 0;
 	 }
@@ -1088,7 +1088,7 @@ BinnedLikelihood* AppHelpers::makeBinnedLikelihood(st_app::AppParGroup& pars,
 
   ProjMap* wmap(0);
   static const std::string noneString("none");
-  std::string wmap_file = AppHelpers::param(pars, "wmap", noneString);
+  std::string wmap_file = AppHelpers::param(pars, "wmap", noneString, true);
     
   if ( wmap_file != noneString ) {
     wmap = WcsMapLibrary::instance()->wcsmap(wmap_file,"");
