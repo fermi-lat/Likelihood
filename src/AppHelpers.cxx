@@ -1072,14 +1072,14 @@ BinnedLikelihood* AppHelpers::makeBinnedLikelihood(st_app::AppParGroup& pars,
   CountsMapBase* dataMap = AppHelpers::readCountsMap(cmap);
   AppHelpers::checkExposureMap(cmap, bexpmap);
 
-  bool computePointSources = AppHelpers::param(pars, "ptsrc", true);
-  bool psf_corrections = AppHelpers::param(pars, "psfcorr", true);
-  bool perform_convolution = AppHelpers::param(pars, "convol", true);  
-  bool resample = AppHelpers::param(pars, "resample", true);
-  int resamp_factor = AppHelpers::param(pars, "rfactor", 2);
-  double minbinsz = AppHelpers::param(pars, "minbinsz", 0.1);
+  bool computePointSources = AppHelpers::param(pars, "ptsrc", true, true);
+  bool psf_corrections = AppHelpers::param(pars, "psfcorr", true, true);
+  bool perform_convolution = AppHelpers::param(pars, "convol", true, true);  
+  bool resample = AppHelpers::param(pars, "resample", true, true);
+  int resamp_factor = AppHelpers::param(pars, "rfactor", 2, true);
+  double minbinsz = AppHelpers::param(pars, "minbinsz", 0.1, true);
   
-  int edisp_val = AppHelpers::param(pars, "edisp_bins", 0);
+  int edisp_val = AppHelpers::param(pars, "edisp_bins", 0, true);
 
   BinnedLikeConfig config(computePointSources, psf_corrections, 
 			  perform_convolution, resample, resamp_factor, 
