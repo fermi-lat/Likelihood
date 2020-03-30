@@ -11,7 +11,11 @@
 #include <stdexcept>
 #include <vector>
 
+#ifndef CONDA_FFTW
 #include "fftw/fftw3.h"
+#else
+#include "fftw3.h"
+#endif
 
 #include "Likelihood/Convolve.h"
 
