@@ -74,7 +74,7 @@ BinnedExposure::BinnedExposure(const std::string & filename)
 
    m_proj = new astro::SkyProj(filename);
 
-   std::auto_ptr<const tip::Image> 
+   std::unique_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(filename, ""));
 
    m_exposureMap.clear();

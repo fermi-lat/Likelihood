@@ -15,7 +15,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector>
-// EAC, added for std::auto_ptr
+// EAC, added for std::unique_ptr
 #include <memory> 
 
 #include "st_stream/StreamFormatter.h"
@@ -968,7 +968,7 @@ astro::ProjBase::Method
 AppHelpers::checkProjectionMethod(const std::string& filename,
                                   const std::string& hpx_ext) {  
   // Try the primary header first
-  std::auto_ptr<const tip::Image> primary(tip::IFileSvc::instance().readImage(filename,std::string("")));
+  std::unique_ptr<const tip::Image> primary(tip::IFileSvc::instance().readImage(filename,std::string("")));
   const tip::Header& header = primary->getHeader();
   int naxis(0);
   try {
@@ -985,7 +985,7 @@ AppHelpers::checkProjectionMethod(const std::string& filename,
   const std::string ext_name = hpx_ext.empty() ? "SKYMAP" : hpx_ext;
 
   // Try the extension header
-  std::auto_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(filename,ext_name));
+  std::unique_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(filename,ext_name));
   const tip::Header& header_ext = ext->getHeader();
   if ( ext->isTable() ) {
     std::string pixtype;

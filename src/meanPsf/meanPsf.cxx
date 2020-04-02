@@ -132,7 +132,7 @@ void meanPsf::writeFitsFile() {
    }
    std::remove(output_file.c_str());
    tip::IFileSvc::instance().appendTable(output_file, extension);
-   std::auto_ptr<tip::Table> 
+   std::unique_ptr<tip::Table> 
       psf_table(tip::IFileSvc::instance().editTable(output_file, extension));
    psf_table->appendField("Energy", "1D");
    psf_table->appendField("Exposure", "1D");
@@ -164,7 +164,7 @@ void meanPsf::writeFitsFile() {
 
    extension = "THETA";
    tip::IFileSvc::instance().appendTable(output_file, extension);
-   std::auto_ptr<tip::Table> 
+   std::unique_ptr<tip::Table> 
       theta_table(tip::IFileSvc::instance().editTable(output_file, extension));
    theta_table->appendField("Theta", "1D");
    theta_table->setNumRecords(m_thetas.size());

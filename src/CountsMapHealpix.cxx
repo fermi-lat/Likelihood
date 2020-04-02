@@ -301,7 +301,7 @@ void CountsMapHealpix::readImageData(const std::string & countsMapFile,
 				     std::vector<evtbin::Binner *> & binners) {
   m_hist = new HistND(binners);
   static const std::string extName("SKYMAP");
-  std::auto_ptr<const tip::Table> 
+  std::unique_ptr<const tip::Table> 
     table(tip::IFileSvc::instance().readTable(countsMapFile,extName));
 
   // This is a bit tricky, basically all the data we care about

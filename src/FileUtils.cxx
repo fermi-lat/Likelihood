@@ -48,7 +48,7 @@ namespace Likelihood {
     bool fileHasExtension(const std::string& filename, 
 			  const std::string& extension) {
       try {
-	std::auto_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(filename,extension));
+	std::unique_ptr<const tip::Extension> ext(tip::IFileSvc::instance().readExtension(filename,extension));
       } catch (tip::TipException &) {
 	return false;
       }
@@ -59,7 +59,7 @@ namespace Likelihood {
     void read_ebounds_to_vector(const std::string& filename,
 				std::vector<double>& energies) {
       
-      std::auto_ptr<const tip::Table> ebounds(tip::IFileSvc::instance().readTable(filename, "EBOUNDS"));
+      std::unique_ptr<const tip::Table> ebounds(tip::IFileSvc::instance().readTable(filename, "EBOUNDS"));
       tip::Table::ConstIterator it = ebounds->begin();
       tip::Table::ConstRecord & row = *it;
       energies.clear();
@@ -77,7 +77,7 @@ namespace Likelihood {
 					const std::string& extension ,
 					std::vector<float>& vect,
 					int& nEvals) {
-      std::auto_ptr<const tip::Image>
+      std::unique_ptr<const tip::Image>
 	image(tip::IFileSvc::instance().readImage(filename,extension));
       const tip::Header& header = image->getHeader();
       header["NAXIS3"].get(nEvals);
@@ -90,7 +90,7 @@ namespace Likelihood {
 					   const std::string& extension,
 					   std::vector<float>& vect,
 					   int& nEvals) {
-      std::auto_ptr<const tip::Table> 
+      std::unique_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
       
       // This is a bit tricky, basically all the data we care about
@@ -131,7 +131,7 @@ namespace Likelihood {
 					    SparseVector<float>& vect,
 					    int& nEvals) {
       vect.clear_data();
-      std::auto_ptr<const tip::Table> 
+      std::unique_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
 
       const tip::Header& header = table->getHeader();
@@ -192,7 +192,7 @@ namespace Likelihood {
 				const std::string& extension) {
 
       try {
-	std::auto_ptr<const tip::Image>
+	std::unique_ptr<const tip::Image>
 	image(tip::IFileSvc::instance().readImage(filename,extension));
 	// It's a WCS Image
 	return FileUtils::WCS;
@@ -200,7 +200,7 @@ namespace Likelihood {
 	;
       }
 
-      std::auto_ptr<const tip::Table> 
+      std::unique_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(filename,extension));
 
       const tip::Header& header = table->getHeader();     
@@ -745,7 +745,7 @@ namespace Likelihood {
     void read_parameters_from_table(const std::string& file_name,
 				    const std::string& table_name,
 				    SourceModel& srcModel) {
-      std::auto_ptr<const tip::Table> 
+      std::unique_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(file_name,table_name));
       
       const tip::IColumn& src_name_col = get_column(*table,"SourceName");
@@ -793,7 +793,7 @@ namespace Likelihood {
       long app_num_elem = drm.nmeas();
 
       // Open ebounds table for writing.
-      std::auto_ptr<tip::Table> ebounds(tip::IFileSvc::instance().editTable(file_name, "EBOUNDS"));      
+      std::unique_ptr<tip::Table> ebounds(tip::IFileSvc::instance().editTable(file_name, "EBOUNDS"));      
       // Set detchans explicitly.
       ebounds->getHeader()["DETCHANS"].set(app_num_elem);
 
@@ -843,7 +843,7 @@ namespace Likelihood {
     Drm* read_drm_from_table(const std::string& file_name,
 			     const std::string& table_name) {
 
-      std::auto_ptr<const tip::Table> 
+      std::unique_ptr<const tip::Table> 
 	table(tip::IFileSvc::instance().readTable(file_name,table_name));
 
       const tip::Header& header = table->getHeader();

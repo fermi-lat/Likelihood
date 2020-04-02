@@ -428,9 +428,9 @@ namespace Likelihood {
   }
   
   int FitScanModelWrapper::writeFits_EnergyBins(const std::string& fitsFile) const {
-    // Open EBOUNDS extension of output PHA1 file. Use an auto_ptr so that the table object
+    // Open EBOUNDS extension of output PHA1 file. Use an unique_ptr so that the table object
     // will for sure be deleted, even if an exception is thrown.
-    std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
+    std::unique_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
 
     // Resize table: number of records in output file must == the number of bins in the binner.
     output_table->setNumRecords(nEBins());
@@ -453,7 +453,7 @@ namespace Likelihood {
   
   int FitScanModelWrapper::writeFits_FluxTable(const std::string& fitsFile) const {
 
-    std::auto_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
+    std::unique_ptr<tip::Table> output_table(tip::IFileSvc::instance().editTable(fitsFile, "EBOUNDS"));
 
     static const std::string ref_energy_name("E_REF");
     static const std::string ref_dnde_name("REF_DNDE");
@@ -3312,11 +3312,11 @@ namespace Likelihood {
     if ( m_baselinePars.num_row() == 0 ) {
       return 0;
     }
-    // Open BASELINE extension of output file. Use an auto_ptr so that the table object
+    // Open BASELINE extension of output file. Use an unique_ptr so that the table object
     // will for sure be deleted, even if an exception is thrown.
 
     static const std::string baseline("BASELINE");
-    std::auto_ptr<tip::Table> table(tip::IFileSvc::instance().editTable(fitsFile,baseline));
+    std::unique_ptr<tip::Table> table(tip::IFileSvc::instance().editTable(fitsFile,baseline));
 
     // Resize table: number of records in output file must == the number of bins in the binner.
     table->setNumRecords(1);

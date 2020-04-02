@@ -165,7 +165,7 @@ void ModelMap::writeOutputMap_wcs(const std::string & outfile,
 
    ::fitsResizeImage(outfile, -32, new_dims.size(), new_dims);
 
-   std::auto_ptr<tip::Image> output_image(tip::IFileSvc::instance().editImage(outfile, ""));
+   std::unique_ptr<tip::Image> output_image(tip::IFileSvc::instance().editImage(outfile, ""));
    tip::Header & output_header = output_image->getHeader();
    output_image->set(m_outmap);
    

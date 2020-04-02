@@ -123,7 +123,7 @@ private:
    void checkColumnVersion(const std::string & evfile) const;
    void convert_header(const std::string & evfile) const;
    void readDiffuseNames(std::vector<std::string> & srcNames);
-   void readDiffRespNames(std::auto_ptr<const tip::Table> events,
+   void readDiffRespNames(std::unique_ptr<const tip::Table> events,
                           std::vector<std::string> & colnames);
    void readExistingDiffRespKeys(const tip::Table * events);
    bool haveDiffuseColumns(const std::string & eventFile);
@@ -255,7 +255,7 @@ void diffuseResponses::checkColumnVersion(const std::string & evfile) const {
 }
 
 void diffuseResponses::convert_header(const std::string & evfile) const {
-   std::auto_ptr<tip::Table> 
+   std::unique_ptr<tip::Table> 
       events(tip::IFileSvc::instance().editTable(evfile, m_pars["evtable"]));
    tip::Header & header(events->getHeader());
    const tip::Table::FieldCont & validFields(events->getValidFields());
@@ -297,7 +297,7 @@ void diffuseResponses::readDiffuseNames(std::vector<std::string> & srcNames) {
 }
 
 bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
-   std::auto_ptr<const tip::Table> 
+   std::unique_ptr<const tip::Table> 
       events(tip::IFileSvc::instance().readTable(eventFile,
                                                  m_pars["evtable"]));
    std::vector<std::string> colNames;
@@ -319,7 +319,7 @@ bool diffuseResponses::haveDiffuseColumns(const std::string & eventFile) {
 }
 
 void diffuseResponses::
-readDiffRespNames(std::auto_ptr<const tip::Table> events,
+readDiffRespNames(std::unique_ptr<const tip::Table> events,
                   std::vector<std::string> & colnames) {
 // Read in DIFRSPxx names (or column names if using old format)
    const tip::Header & header(events->getHeader());

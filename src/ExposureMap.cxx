@@ -278,7 +278,7 @@ void ExposureMap::writeFitsFile(const std::string & filename,
 
 void ExposureMap::readEnergyExtension(const std::string & filename,
                                       std::vector<double> & energies) {
-   std::auto_ptr<const tip::Table> 
+   std::unique_ptr<const tip::Table> 
       table(tip::IFileSvc::instance().readTable(filename, "ENERGIES"));
    energies.resize(table->getNumRecords());
 
