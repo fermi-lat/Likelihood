@@ -35,6 +35,11 @@ public:
    /// preserves the references to the m_spectrum parameters.
    virtual void setParam(const optimizers::Parameter &param);
 
+   virtual const optimizers::Function * nested_function() const { return m_spectrum; }
+   virtual optimizers::Function * nested_function() { return m_spectrum; }
+
+   virtual void setParRefs();
+  
 protected:
 
    virtual double value(const optimizers::Arg & x) const;
@@ -49,8 +54,6 @@ private:
    mutable IRB::EblAtten * m_tau;
 
    void init(double tau_norm=1, double redshift=0, size_t ebl_model=0);
-
-   void setParRefs();
 
    double attenuation(double energy) const;
 
