@@ -341,8 +341,9 @@ void CountsMapBase::writeEmptyOutput(const std::string & creator, const std::str
               facilities::commonUtilities::joinPath(m_data_dir,"LatCountsMapTemplate"));
 
    const evtbin::Hist::BinnerCont_t & binners = m_hist->getBinners();
-   if ( binners.size() > 1 ) {
-     writeEbounds(out_file,binners[1]);
+   std::cout << "binners " << binners.size() << std::endl;
+   if ( binners.size() > 2 ) {
+     writeEbounds(out_file,binners[2]);
    }
    writeGti(out_file);
 }
