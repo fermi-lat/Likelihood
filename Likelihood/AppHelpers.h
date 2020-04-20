@@ -107,7 +107,7 @@ public:
 
    template<typename T>
    static T param(st_app::AppParGroup & pars, const std::string & parname,
-                  const T & def_value);
+                  const T & def_value, const bool & suppress_warn = false);
 
    static void checkOutputFile(bool clobber, const std::string & filename);
 
@@ -238,14 +238,16 @@ protected:
 
 template<typename T>
 T AppHelpers::param(st_app::AppParGroup & pars, const std::string & parname,
-                    const T & def_value) {
+                    const T & def_value, const bool & suppress_warn) {
    try {
       T value = pars[parname];
       return value;
    } catch (std::exception & eObj) {
+     if (suppress_warn == false) {
       std::cerr << eObj.what() << "\n"
                 << "Using default value of " << def_value
                 << " for parameter " <<  parname << std::endl;
+     }
       return def_value;
    }
 }
