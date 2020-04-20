@@ -188,7 +188,7 @@ void gtsrcmaps::run() {
    m_binnedLikelihood->buildFixedModelWts(true);
    m_binnedLikelihood->saveSourceMaps(srcMapsFile);
 
-   std::auto_ptr<tip::Image>
+   std::unique_ptr<tip::Image>
       image(tip::IFileSvc::instance().editImage(srcMapsFile, ""));
    my_cuts.addVersionCut("IRF_VERSION", m_helper->irfsName());
    std::string irfs = m_pars["irfs"];
@@ -201,7 +201,7 @@ void gtsrcmaps::run() {
 
 void gtsrcmaps::getRefCoord(const std::string & countsMapFile, 
                             double & ra, double & dec) const {
-   std::auto_ptr<const tip::Image> 
+   std::unique_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(countsMapFile, ""));
    const tip::Header & header = image->getHeader();
    std::string ctype;

@@ -86,7 +86,7 @@ BinnedExposureBase::BinnedExposureBase(const std::string & filename)
    : m_observation(0), m_proj(0), m_costhmin(-1), m_costhmax(1),
      m_enforce_boundaries(false),m_allSky(false) {
 
-   std::auto_ptr<const tip::Table>
+   std::unique_ptr<const tip::Table>
     energies(tip::IFileSvc::instance().readTable(filename, "Energies"));
 
    m_energies.clear();

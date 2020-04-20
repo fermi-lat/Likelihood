@@ -199,7 +199,7 @@ double BackFile::NpredError(const Likelihood::LogLike & logLike,
 void BackFile::getEbounds(std::vector<double> & emin,
                           std::vector<double> & emax) const {
    std::string pha_file = m_pars["phafile"];
-   std::auto_ptr<const tip::Table>
+   std::unique_ptr<const tip::Table>
       ebounds(tip::IFileSvc::instance().readTable(pha_file, "EBOUNDS"));
 
    long nenergies = ebounds->getNumRecords();
@@ -245,7 +245,7 @@ void BackFile::setHeaderKeyword(const std::string & phafile,
                                 const std::string & extension,
                                 const std::string & keyname,
                                 const std::string & value) const {
-   std::auto_ptr<tip::Table>
+   std::unique_ptr<tip::Table>
       spectrum(tip::IFileSvc::instance().editTable(phafile, extension));
    tip::Header & header = spectrum->getHeader();
    header[keyname].set(value);

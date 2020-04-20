@@ -177,7 +177,7 @@ void gtcntsmap::promptForParameters() {
 
 void gtcntsmap::writeDssCuts() const {
    std::string output_file = m_pars["outfile"];
-   std::auto_ptr<tip::Image> 
+   std::unique_ptr<tip::Image> 
       image(tip::IFileSvc::instance().editImage(output_file, ""));
    m_cuts->writeDssKeywords(image->getHeader());
    m_cuts->writeGtiExtension(output_file);
