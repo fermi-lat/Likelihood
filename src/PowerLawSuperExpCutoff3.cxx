@@ -50,8 +50,7 @@ namespace Likelihood {
 
     // max value for exp argument to avoid overflow
     const double max_expfactor2 = std::log(1E100);
-    return prefactor * pow(x/scale,indexS+expfactor2*index2) * 
-      exp( std::min(expfactor2 * (1-pow(x/scale,index2) ), max_expfactor2) );
+    return prefactor * exp( std::min((indexS+expfactor2*index2) * log(x/scale) + expfactor2 * (1-pow(x/scale,index2) ), max_expfactor2) );
   }
   
   
@@ -95,7 +94,7 @@ namespace Likelihood {
 	return value(xarg) * ( index2*log(x/scale) + 1 - pow(x/scale,index2) ) * my_params[Expfactor2].getScale();
 	break;
       case Index2:
-	return value(xarg) * ( expfactor2*log(x/scale) - expfactor2 * pow(x/scale,index2) * log(x/scale) ) * my_params[Index2].getScale();
+	return value(xarg) * ( expfactor2*log(x/scale) ) * (1 - pow(x/scale,index2) ) * my_params[Index2].getScale();
 	break;
       default:
 	break;
