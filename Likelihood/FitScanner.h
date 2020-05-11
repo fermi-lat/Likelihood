@@ -115,7 +115,7 @@ namespace Likelihood {
 			 const Source& source);
 
     /* D'tor, does nothing */
-    ~TestSourceModelCache(){};
+    virtual ~TestSourceModelCache(){};
     
     /* Translate the cached map to a new location 
 
@@ -189,7 +189,7 @@ namespace Likelihood {
     
     TestSourceModelCacheVector(size_t n);
 
-    ~TestSourceModelCacheVector();
+    virtual ~TestSourceModelCacheVector();
 
     inline size_t size() const { return m_vector.size(); }
     inline const TestSourceModelCache* operator[](size_t i) const { return m_vector[i]; }    
@@ -246,7 +246,7 @@ namespace Likelihood {
     }
    
     /* D'tor, does nothing */
-    ~FitScanMVPrior() {;}
+    virtual ~FitScanMVPrior() {;}
 
     
     /* Update the cached values in this prior
@@ -342,7 +342,7 @@ namespace Likelihood {
       :m_nebins(0),m_size(0){;}
 
     /* D'tor, trivial */
-    ~FitScanModelWrapper() {;}    
+    virtual ~FitScanModelWrapper() {;}    
 
     
     /* return a reference to the counts data   
@@ -532,7 +532,7 @@ namespace Likelihood {
     FitScanModelWrapper_Binned(BinnedLikelihood& binnedLike);
 
     /* D'tor, trivial */
-    ~FitScanModelWrapper_Binned() {;}
+    virtual ~FitScanModelWrapper_Binned() {;}
 
     inline BinnedLikelihood& binnedLike() { return m_binnedLike; }
 
@@ -641,7 +641,7 @@ namespace Likelihood {
     FitScanModelWrapper_Summed(SummedLikelihood& summedLike);
     
     /* D'tor, trivial */
-    ~FitScanModelWrapper_Summed() {;}
+    virtual ~FitScanModelWrapper_Summed() {;}
     
     inline SummedLikelihood& summedLike() { return m_summedLike; }    
      
@@ -807,7 +807,7 @@ namespace Likelihood {
 		 bool useReduced, bool useWeights=false, bool useUnitRefVals=false);
 
     /* D'tor */
-    ~FitScanCache();
+    virtual ~FitScanCache();
 
     /* Update stuff w.r.t. the wrapped BinnedLikelihood or SummedLikelihood 
 
@@ -1279,7 +1279,7 @@ namespace Likelihood {
     
 
     // D'tor, does cleanup
-    virtual ~FitScanner() throw();
+    virtual ~FitScanner();
     
     /* Build a TS map.
        This scans over the directions and calculates the Test Statistics w.r.t. the null 

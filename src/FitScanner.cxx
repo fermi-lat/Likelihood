@@ -2092,9 +2092,8 @@ namespace Likelihood {
     m_energy_binner = buildEnergyBinner(m_modelWrapper->energies());
   }
 
-
   // D'tor, does cleanup
-  FitScanner::~FitScanner() throw() {
+  FitScanner::~FitScanner() {
     if ( m_testSource != 0 ) {
       // FIXME, remove this for now
       // removeTestSourceFromModel();
@@ -3300,7 +3299,7 @@ namespace Likelihood {
     }
     return m_modelWrapper->writeFits_EnergyBins(fitsFile);
   }
-  
+
   /* write the Good time intervals */
   int FitScanner::writeFits_GTIs(const std::string& fitsFile) const {  
     return m_modelWrapper->writeFits_GTIs(fitsFile);
