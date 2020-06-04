@@ -59,11 +59,18 @@ Drm::Drm(double ra, double dec, const Observation & observation,
    // These are need to extrapolate the true counts
    // This is only done if edisp_bins == 0 and the convolve method is called
    // If edisp_bins > 0 then we should already have the extended version of the true counts
-   m_log_ratio_lo = std::log(m_energies[0]/m_energies[2]) / std::log(m_energies[1]/m_energies[2]);
-   m_diff_ratio_lo = (m_energies[0] - m_energies[2])/ (m_energies[1] - m_energies[2]);
-   m_log_ratio_hi = std::log(m_energies[nee]/m_energies[nee-2]) / std::log(m_energies[nee-1]/m_energies[nee-2]);
-   m_diff_ratio_hi = (m_energies[nee] - m_energies[nee-2]) / (m_energies[nee-1] - m_energies[nee-2]);
+   if ( nee >= 2 ) {
+     m_log_ratio_lo = std::log(m_energies[0]/m_energies[2]) / std::log(m_energies[1]/m_energies[2]);
+     m_diff_ratio_lo = (m_energies[0] - m_energies[2])/ (m_energies[1] - m_energies[2]);
+     m_log_ratio_hi = std::log(m_energies[nee]/m_energies[nee-2]) / std::log(m_energies[nee-1]/m_energies[nee-2]);
+     m_diff_ratio_hi = (m_energies[nee] - m_energies[nee-2]) / (m_energies[nee-1] - m_energies[nee-2]);
+   } else {
+     m_log_ratio_lo = std::log(m_energies[0]/m_energies[1]);
+     m_diff_ratio_lo = m_energies[0] / m_energies[1];
+     m_log_ratio_hi = std::log(m_energies[1]/m_energies[0]);
+     m_diff_ratio_hi = m_energies[1] / m_energies[0];
 
+   }
    compute_drm();
 }
 
@@ -89,10 +96,17 @@ Drm::Drm(double ra, double dec,
    // These are need to extrapolate the true counts
    // This is only done if edisp_bins == 0 and the convolve method is called
    // If edisp_bins > 0 then we should already have the extended version of the true counts
-   m_log_ratio_lo = std::log(m_energies[0]/m_energies[2]) / std::log(m_energies[1]/m_energies[2]);
-   m_diff_ratio_lo = (m_energies[0] - m_energies[2])/ (m_energies[1] - m_energies[2]);
-   m_log_ratio_hi = std::log(m_energies[nee]/m_energies[nee-2]) / std::log(m_energies[nee-1]/m_energies[nee-2]);
-   m_diff_ratio_hi = (m_energies[nee] - m_energies[nee-2]) / (m_energies[nee-1] - m_energies[nee-2]);
+  if ( nee >= 2 ) {
+     m_log_ratio_lo = std::log(m_energies[0]/m_energies[2]) / std::log(m_energies[1]/m_energies[2]);
+     m_diff_ratio_lo = (m_energies[0] - m_energies[2])/ (m_energies[1] - m_energies[2]);
+     m_log_ratio_hi = std::log(m_energies[nee]/m_energies[nee-2]) / std::log(m_energies[nee-1]/m_energies[nee-2]);
+     m_diff_ratio_hi = (m_energies[nee] - m_energies[nee-2]) / (m_energies[nee-1] - m_energies[nee-2]);
+   } else {
+     m_log_ratio_lo = std::log(m_energies[0]/m_energies[1]);
+     m_diff_ratio_lo = m_energies[0] / m_energies[1];
+     m_log_ratio_hi = std::log(m_energies[1]/m_energies[0]);
+     m_diff_ratio_hi = m_energies[1] / m_energies[0];
+   }
    compute_transpose();
 }
 

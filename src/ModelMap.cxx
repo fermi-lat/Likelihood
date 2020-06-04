@@ -165,14 +165,17 @@ void ModelMap::writeOutputMap_wcs(const std::string & outfile,
 
    ::fitsResizeImage(outfile, -32, new_dims.size(), new_dims);
 
-   std::auto_ptr<tip::Image> output_image(tip::IFileSvc::instance().editImage(outfile, ""));
+   std::unique_ptr<tip::Image> output_image(tip::IFileSvc::instance().editImage(outfile, ""));
    tip::Header & output_header = output_image->getHeader();
    output_image->set(m_outmap);
    
    for ( tip::Header::ConstIterator itr = orig_header.begin(); itr != orig_header.end(); itr++ ) {
+     // Don't copy the NAXIS* keywords
+     if ( itr->getName().find("NAXIS") != std::string::npos ) {
+       continue;
+     }
      output_header.append(*itr);
    }
-
    if (outtype == "CMAP") {
      output_header.erase("CTYPE3");
      output_header.erase("CRPIX3");

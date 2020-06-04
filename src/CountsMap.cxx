@@ -289,7 +289,7 @@ CountsMapBase* CountsMap::makeBkgEffMap(const MeanPsf & psf, const float& efact)
 void CountsMap::readImageData(const std::string & countsMapFile,
                               std::vector<evtbin::Binner *> & binners) {
    m_hist = new HistND(binners);
-   std::auto_ptr<const tip::Image> 
+   std::unique_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(countsMapFile, ""));
    std::vector<float> image_data;
    image->get(image_data);
@@ -297,7 +297,7 @@ void CountsMap::readImageData(const std::string & countsMapFile,
 }
 
 void CountsMap::readKeywords(const std::string & countsMapFile) {
-   std::auto_ptr<const tip::Image> 
+   std::unique_ptr<const tip::Image> 
       image(tip::IFileSvc::instance().readImage(countsMapFile, ""));
    const tip::Header & header = image->getHeader();
    typedef std::vector<tip::PixOrd_t> DimCont_t;

@@ -528,7 +528,7 @@ void likelihood::plotCountsSpectra() {
    try {
 // Create the main frame to hold all plot frames.
       st_graph::Engine & engine(st_graph::Engine::instance());
-      std::auto_ptr<st_graph::IFrame> 
+      std::unique_ptr<st_graph::IFrame> 
          mainFrame(engine.createMainFrame(0, 600, 600));
 // Create the plot.
       EasyPlot plot(mainFrame.get(), "", true, true, "Energy (MeV)", 

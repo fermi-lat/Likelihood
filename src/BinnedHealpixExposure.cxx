@@ -81,7 +81,7 @@ BinnedHealpixExposure::BinnedHealpixExposure(const std::string& filename)
     m_healpixProj(new astro::HealpixProj(filename,std::string("HPXEXPOSURES"))){
   setMapGeometry();
 
-  std::auto_ptr<const tip::Table> 
+  std::unique_ptr<const tip::Table> 
     table(tip::IFileSvc::instance().readTable(filename, std::string("HPXEXPOSURES")));
   
   // This is a bit tricky, basically all the data we care about

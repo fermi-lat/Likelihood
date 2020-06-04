@@ -45,7 +45,7 @@ cflags = ' -DHAVE_OPT_PP -rdynamic -pg'
 #cflags = ' -DHAVE_OPT_PP -rdynamic '
 linkflags = '-pg'
 #linkflags = ' '
-rootlibs = ['Cint', 'Tree', 'Matrix', 'Physics', 
+rootlibs = ['Cling', 'Tree', 'Matrix', 'Physics', 
             'Hist', 'Graf', 'Graf3d', 'Gpad', 'Rint', 'Postscript', 'Gui']
 Export(['package', 'home', 'apps', 'libraries', 'cflags',
         'linkflags', 'rootlibs'])
