@@ -212,10 +212,6 @@ void LogLike::getFreeDerivs(const optimizers::Arg & dummy,
 
    std::vector<double> logSrcModelDerivs(getNumFreeParams(), 0);
    for (size_t j = 0; j < events.size(); j++) {
-      if (m_use_ebounds && 
-          (events[j].getEnergy() < m_emin || events[j].getEnergy() > m_emax)) {
-         continue;
-      }
       std::vector<double> derivs;
       ResponseCache::EventRef rc_ref = m_respCache.getEventRef(j);
       getLogSourceModelDerivs(events[j], derivs, &rc_ref);
