@@ -36,7 +36,7 @@ namespace Likelihood {
     double norm = m_parameter[Norm].getTrueValue();
     double mean = m_parameter[Mean].getTrueValue();
     double sigma = m_parameter[Sigma].getTrueValue();
-    double offset = m_parameter[Sigma].getTrueValue();
+    double offset = m_parameter[Offset].getTrueValue();
     
     double retVal = -(x - mean)*(x - mean)/(2.*sigma*sigma);
     retVal += offset;
