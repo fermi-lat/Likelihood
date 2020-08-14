@@ -15,6 +15,7 @@ wmap,f,h,"none",,,"Likelihood weights map"
 psfcorr,b,h,yes,,,"apply psf integral corrections"
 remakesrc,b,h,no,,,"Remake the test source to each grid point, rather than shifting it?"
 target,s,h,"",,,"Target source name, leave blank for powerlaw source with index=2"
+edisp_bins,i,a,0,,,"Number of bins to consider energy dispersion for"
 
 # Fitter parameters
 optimizer,s,a,"MINUIT",DRMNFB|NEWMINUIT|MINUIT|DRMNGB|LBFGS,,"Optimizer"
