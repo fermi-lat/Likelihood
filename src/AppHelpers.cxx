@@ -69,7 +69,6 @@
 #include "Likelihood/PowerLawSuperExpCutoff.h"
 #include "Likelihood/PowerLawSuperExpCutoff2.h"
 #include "Likelihood/PowerLawSuperExpCutoff3.h"
-#include "Likelihood/PowerLawSuperExpCutoff4.h"
 #include "Likelihood/PowerLaw2.h"
 #include "Likelihood/RadialProfile.h"
 #include "Likelihood/ResponseFunctions.h"
@@ -253,8 +252,6 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         new PowerLawSuperExpCutoff2(), makeClone);
    funcFactory->addFunc("PLSuperExpCutoff3", 
                         new PowerLawSuperExpCutoff3(), makeClone);
-   funcFactory->addFunc("PLSuperExpCutoff4", 
-                        new PowerLawSuperExpCutoff4(), makeClone);
    funcFactory->addFunc("DMFitFunction", new DMFitFunction(), makeClone);
 
    funcFactory->addFunc("EblAtten::PowerLaw2", new EblAtten(), makeClone);
@@ -274,18 +271,6 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         new EblAtten(BrokenPowerLawExpCutoff()), makeClone);
    funcFactory->addFunc("EblAtten::PLSuperExpCutoff", 
                         new EblAtten(PowerLawSuperExpCutoff()), makeClone);
-   funcFactory->addFunc("EblAtten::PLSuperExpCutoff2", 
-                        new EblAtten(PowerLawSuperExpCutoff2()), makeClone);
-   funcFactory->addFunc("EblAtten::PLSuperExpCutoff3", 
-                        new EblAtten(PowerLawSuperExpCutoff3()), makeClone);
-   funcFactory->addFunc("EblAtten::PLSuperExpCutoff4", 
-                        new EblAtten(PowerLawSuperExpCutoff4()), makeClone);
-   funcFactory->addFunc("EblAtten::BrokenPowerLaw3", 
-                        new EblAtten(BrokenPowerLaw3()), makeClone);
-   funcFactory->addFunc("EblAtten::ExpCutoffSEDPeak", 
-                        new EblAtten(ExpCutoffSEDPeak()), makeClone);
-   // The following functions can not be plugged in the EblAtten mechanism
-   // MultipleBrokenPowerLaw, PiecewisePowerLaw
 
    funcFactory->addFunc("EnergyBand::PowerLaw2", new EnergyBand(), makeClone);
    funcFactory->addFunc("EnergyBand::BrokenPowerLaw2", 
@@ -304,18 +289,6 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         new EnergyBand(BrokenPowerLawExpCutoff()), makeClone);
    funcFactory->addFunc("EnergyBand::PLSuperExpCutoff", 
                         new EnergyBand(PowerLawSuperExpCutoff()), makeClone);
-   funcFactory->addFunc("EnergyBand::PLSuperExpCutoff2", 
-                        new EnergyBand(PowerLawSuperExpCutoff2()), makeClone);
-   funcFactory->addFunc("EnergyBand::PLSuperExpCutoff3", 
-                        new EnergyBand(PowerLawSuperExpCutoff3()), makeClone);
-   funcFactory->addFunc("EnergyBand::PLSuperExpCutoff4", 
-                        new EnergyBand(PowerLawSuperExpCutoff4()), makeClone);
-   funcFactory->addFunc("EnergyBand::BrokenPowerLaw3", 
-                        new EnergyBand(BrokenPowerLaw3()), makeClone);
-   funcFactory->addFunc("EnergyBand::ExpCutoffSEDPeak", 
-                        new EnergyBand(ExpCutoffSEDPeak()), makeClone);
-   // The following functions can not be plugged in the EnergyBand mechanism
-   // MultipleBrokenPowerLaw, PiecewisePowerLaw
 
    funcFactory->addFunc("ScaleFactor::FileFunction", 
                         new ScaleFactor(FileFunction()), makeClone);
@@ -323,33 +296,10 @@ addFunctionPrototypes(optimizers::FunctionFactory * funcFactory) {
                         new ScaleFactor(PowerLaw2()), makeClone);
    funcFactory->addFunc("ScaleFactor::PLSuperExpCutoff", 
                         new ScaleFactor(PowerLawSuperExpCutoff()), makeClone);
-   funcFactory->addFunc("ScaleFactor::PLSuperExpCutoff2", 
-                        new ScaleFactor(PowerLawSuperExpCutoff2()), makeClone);
-   funcFactory->addFunc("ScaleFactor::PLSuperExpCutoff3", 
-                        new ScaleFactor(PowerLawSuperExpCutoff3()), makeClone);
-   funcFactory->addFunc("ScaleFactor::PLSuperExpCutoff4", 
-                        new ScaleFactor(PowerLawSuperExpCutoff4()), makeClone);
-   funcFactory->addFunc("ScaleFactor::BrokenPowerLaw2", 
-                        new ScaleFactor(BrokenPowerLaw2()), makeClone);
-   funcFactory->addFunc("ScaleFactor::BrokenPowerLaw3", 
-                        new ScaleFactor(BrokenPowerLaw3()), makeClone);
-   funcFactory->addFunc("ScaleFactor::LogParabola", 
-                        new ScaleFactor(LogParabola()), makeClone);
-   funcFactory->addFunc("ScaleFactor::BandFunction", 
-                        new ScaleFactor(BandFunction()), makeClone);
-   funcFactory->addFunc("ScaleFactor::SmoothBrokenPowerLaw", 
-                        new ScaleFactor(SmoothBrokenPowerLaw()), makeClone);
-   funcFactory->addFunc("ScaleFactor::ExpCutoff", 
-                        new ScaleFactor(ExpCutoff()), makeClone);
-   funcFactory->addFunc("ScaleFactor::ExpCutoffSEDPeak", 
-                        new ScaleFactor(ExpCutoffSEDPeak()), makeClone);
-   funcFactory->addFunc("ScaleFactor::BPLExpCutoff", 
-                        new ScaleFactor(BrokenPowerLawExpCutoff()), makeClone);
-   // The following functions can not be plugged in the ScaleFactor mechanism
-   // MultipleBrokenPowerLaw, PiecewisePowerLaw
    
    funcFactory->addFunc("ScaleFactor::Gaussian",
                         new ScaleFactor(optimizers::Gaussian()), makeClone);
+
 }
 
 void AppHelpers::setRoi(const std::string & filename,
