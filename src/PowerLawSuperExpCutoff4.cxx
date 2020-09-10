@@ -50,7 +50,12 @@ namespace Likelihood {
 
     // max value for exp argument to avoid overflow
     const double max_expfactor = std::log(1E100);
-    return prefactor * exp( std::min((indexS+expfactorS/index2) * log(x/scale) + expfactorS/index2/index2 * (1-pow(x/scale,index2) ), max_expfactor) );
+
+    double y = log(x/scale);
+    double y2 = index2*y;
+    if(fabs(y2)<1e-2)
+      return prefactor * exp( y*(indexS-expfactorS*y/2*(1+y2/3*(1+y2/4))) );
+    return prefactor * exp( std::min((indexS+expfactorS/index2) * y + expfactorS/index2/index2 * (1-exp(y2) ), max_expfactor) );
   }
   
   
@@ -79,22 +84,31 @@ namespace Likelihood {
                                           "PowerLawSuperExpCutoff4::derivByParam");
     }
 
+    double y = log(x/scale);
+    double y2 = index2*y;
+
     switch (iparam) 
       {
       case Prefactor:
 	return value(xarg) / prefactor * my_params[Prefactor].getScale();
 	break;
       case IndexS:
-	return value(xarg) * log(x/scale) * my_params[IndexS].getScale();
+	return value(xarg) * y * my_params[IndexS].getScale();
 	break;
       case Scale:
-	return value(xarg) * ( -(indexS+expfactorS/index2) / scale + expfactorS/index2*pow(x/scale,index2) / scale) * my_params[Scale].getScale();
+        if(fabs(y2)<1e-2)
+          return value(xarg) / scale * ( -indexS+expfactorS*y*(1 + y2/2 * (1 + y2/3))) * my_params[Scale].getScale();
+	return value(xarg) / scale * ( -(indexS+expfactorS/index2) + expfactorS/index2*exp(y2) ) * my_params[Scale].getScale();
 	break;
       case ExpfactorS:
-	return value(xarg) * ( log(x/scale)/index2 + (1.0-pow(x/scale,index2))/index2/index2 ) * my_params[ExpfactorS].getScale();
+        if(fabs(y2)<1e-2)
+          return value(xarg) * (-y*y/2 * (1 + y2/3 * (1 + y2/4))) * my_params[ExpfactorS].getScale();
+        return value(xarg) / index2 *( y + (1-exp(y2))/index2 ) * my_params[ExpfactorS].getScale();
 	break;
       case Index2:
-	return - value(xarg) * expfactorS/index2/index2 * ( 2.0/index2 + log(x/scale) + (log(x/scale)-2.0/index2)*pow(x/scale,index2) ) * my_params[Index2].getScale();
+        if(fabs(y2)<1e-2)
+          return - value(xarg) * expfactorS*y*y*y/6 * (1 + y2/2) * my_params[Index2].getScale();
+        return - value(xarg) * expfactorS/index2/index2 * ( 2.0/index2 + y + (y-2.0/index2)*exp(y2) ) * my_params[Index2].getScale();
 	break;
       default:
 	break;
