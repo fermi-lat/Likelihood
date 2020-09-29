@@ -374,17 +374,16 @@ void SourceMap::computeNpredArray_sparse() {
 
   void SourceMap::setSource(const Source& src) {
     if ( m_src == &src ) {
-      if ( m_model.size() == 0 &&
-	   m_sparseModel.size() == 0 ) {
-	if ( m_filename.size() > 0 ) {
-	  readModel(m_filename);
-	} else {
-	  set_energies();
-	  make_model();
-	  return;
-	}
+      if ( m_save_model && m_model.size() == 0 && m_sparseModel.size() == 0 ) {
+        if ( m_filename.size() > 0 ) {
+          readModel(m_filename);
+        } else {
+          set_energies();
+          make_model();
+          return;
+        }
       } else {
-	return;
+	    return;
       }
     }
     m_src = &src;
