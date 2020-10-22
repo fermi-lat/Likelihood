@@ -131,10 +131,16 @@ void MeanPsf::computePartialIntegrals() {
          partialIntegral.push_back(partialIntegral.back() + value);
       }
       // Ensure normalizations of differential and integral arrays.
-      for (size_t j(0); j < s_separations.size(); j++) {
-         size_t index(k*s_separations.size() + j);
-         m_psfValues.at(index) /= partialIntegral.back();
-         partialIntegral[j] /= partialIntegral.back();
+      // We only need to do the normilization if the sum in non-zero
+      if (partialIntegral.back()){
+          for (size_t j(0); j < s_separations.size(); j++) {
+             size_t index(k*s_separations.size() + j);
+             m_psfValues.at(index) /= partialIntegral.back();
+             partialIntegral[j] /= partialIntegral.back();
+          }
+      } else {
+//          std::cout << "** WARNING: PSF for this source at energy " 
+//                    << m_energies[k] << " has zero values everywhere ***" << std::endl;
       }
       m_partialIntegrals.push_back(partialIntegral);
    }

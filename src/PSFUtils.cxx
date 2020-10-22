@@ -1226,10 +1226,13 @@ namespace Likelihood {
       double v0 = meanPsf(energy, offset);      
       double v1 = 0;
       double ferr = 0;
-      double peak_ratio = v0/peak_val;
+      double peak_ratio(0);
+      if (peak_val) {
+          peak_ratio = v0/peak_val;
+      }
       
       if(peak_ratio < peak_threshold)
-	return v0;
+          return v0;
       
       int npts = 1;
       
