@@ -1003,7 +1003,14 @@ namespace Likelihood {
 	  for ( int kk = 0; energy != energies.end(); ++energy, kk++) {
 
 	    // This is the correction factor for this energy layer
-	    double correction_factor = meanpsf.integral(psfRadius, *energy ) / mapIntegrals[kk-kmin];
+        // TS - 12/2/2020  Make sure we don't divide by zero and if we do set the 
+        // correction_factor to zero.  If the integral is zero then everything must
+        // be zero so it's okay to set the correction factor to zero as well as it
+        // will just be zero times zero later on.
+	    double correction_factor(0);  
+        if (mapIntegrals[kk-kmin]){
+            correction_factor = meanpsf.integral(psfRadius, *energy ) / mapIntegrals[kk-kmin];
+        }
 	    // Loop over the pixels and apply the correction factor
 	    std::vector<float>::iterator itr_corr_b =  modelmap.begin() + (kk-kmin)*pixels.size();
 	    std::vector<float>::iterator itr_corr_e =  itr_corr_b + pixels.size();
