@@ -412,7 +412,7 @@ namespace Likelihood {
 	  crpix2 = resamp_fact*(dataMap.crpix2() - 0.5)+0.5;  
 	} else if (dataMap.conformingMap()) {
 	  double pad_dist = 
-	    std::min(10.0,std::max(1.0,meanpsf.containmentRadius(*energy,0.99)));
+	    std::min(10.0,std::max(1.0,meanpsf.containmentRadius(*energy,0.999)));
 	  double radius = std::min(180., data_map_radius + pad_dist);
 	  // Conforming maps have abs(CDELT1) == abs(CDELT2).  This
 	  // expression for the mapsize ensures that the number of
