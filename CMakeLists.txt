@@ -1,5 +1,4 @@
 ##### Library ######
-
 add_library(
   Likelihood SHARED
   src/Accumulator.cxx src/AppHelpers.cxx src/BandFunction.cxx src/BinnedConfig.cxx
@@ -134,7 +133,7 @@ install(DIRECTORY xml/ DESTINATION ${FERMI_INSTALL_XMLDIR})
 install(
   TARGETS Likelihood gtlike gtexpmap gttsmap gttscube gthealcube gtltcube gtexpcube2
   gtdiffrsp gtsrcmaps gtebl gtsrcprob gtpsf gtbkg gtmodel gtltsum gtfindsrc gteffbkg
-  gtalphabkg gtwtsmap gtdrm
+  gtalphabkg gtwtsmap gtdrm test_Likelihood
   EXPORT fermiTargets
   FILE_SET HEADERS
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
