@@ -36,23 +36,23 @@ add_library(
 
 target_link_libraries(
   Likelihood
-  PUBLIC  astro
-          xmlBase
-          tip
-          evtbin
-          optimizers
-          st_facilities
-          hoops
-          st_app
-          st_graph
-          healpix
-          eblAtten
-          map_tools
-          irfLoader
-          dataSubselector
-          PkgConfig::cfitsio
-          PkgConfig::fftw3
-          PkgConfig::gsl
+  PUBLIC astro
+  xmlBase
+  tip
+  evtbin
+  optimizers
+  st_facilities
+  hoops
+  st_app
+  st_graph
+  healpix
+  eblAtten
+  map_tools
+  irfLoader
+  dataSubselector
+  PkgConfig::cfitsio
+  PkgConfig::fftw3
+  PkgConfig::gsl
 )
 target_include_directories(
   Likelihood PUBLIC
@@ -105,6 +105,12 @@ target_link_libraries(gtalphabkg PRIVATE Likelihood)
 target_link_libraries(gtwtsmap PRIVATE Likelihood)
 target_link_libraries(gtdrm PRIVATE Likelihood)
 
+add_custom_target(Likelihood-executables)
+add_dependencies(
+  Likelihood-executables gtlike gtexpmap gttsmap gttscube gthealcube gtltcube gtexpcube2
+  gtdiffrsp gtsrcmaps gtebl gtsrcprob gtpsf gtbkg gtmodel gtltsum gtfindsrc gteffbkg
+  gtalphabkg gtwtsmap gtdrm
+)
 
 ###### Tests ######
 
@@ -116,3 +122,23 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Posix")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   target_compile_definitions(test_Likelihood PRIVATE "DARWIN")
 endif()
+
+###############################################################
+# Installation
+###############################################################
+install(DIRECTORY Likelihood DESTINATION ${FERMI_INSTALL_INCLUDEDIR})
+install(DIRECTORY data/ DESTINATION ${FERMI_INSTALL_DATADIR})
+install(DIRECTORY pfiles/ DESTINATION ${FERMI_INSTALL_PFILESDIR})
+install(DIRECTORY xml/ DESTINATION ${FERMI_INSTALL_XMLDIR})
+
+install(
+  TARGETS Likelihood gtlike gtexpmap gttsmap gttscube gthealcube gtltcube gtexpcube2
+  gtdiffrsp gtsrcmaps gtebl gtsrcprob gtpsf gtbkg gtmodel gtltsum gtfindsrc gteffbkg
+  gtalphabkg gtwtsmap gtdrm
+  EXPORT fermiTargets
+  FILE_SET HEADERS
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
