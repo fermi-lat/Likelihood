@@ -35,23 +35,28 @@ add_library(
 
 target_link_libraries(
   Likelihood
-  PUBLIC astro
-  xmlBase
-  tip
-  evtbin
+  
+  PUBLIC
+  st_app
+  astro
+  dataSubselector
   optimizers
+  evtbin
+  tip
+  healpix
+  map_tools
+  PkgConfig::gsl
+  eblAtten
+  
+  PRIVATE
+  xmlBase
   st_facilities
   hoops
-  st_app
   st_graph
-  healpix
-  eblAtten
-  map_tools
   irfLoader
-  dataSubselector
   PkgConfig::cfitsio
   PkgConfig::fftw3
-  PkgConfig::gsl
+  OpenMP::OpenMP_CXX
 )
 target_include_directories(
   Likelihood PUBLIC
@@ -62,7 +67,12 @@ target_compile_definitions(Likelihood PRIVATE CONDA_FFTW)
 
 
 ###### Executables ######
-add_executable(gtlike src/likelihood/EasyPlot.cxx src/likelihood/likelihood.cxx src/likelihood/MathUtil.cxx)
+add_executable(
+  gtlike
+  src/likelihood/EasyPlot.cxx
+  src/likelihood/likelihood.cxx
+  src/likelihood/MathUtil.cxx
+)
 add_executable(gtexpmap src/expMap/expMap.cxx)
 add_executable(gttsmap src/TsMap/TsMap.cxx)
 add_executable(gttscube src/TsCube/TsCube.cxx)
@@ -83,8 +93,8 @@ add_executable(gtalphabkg src/gtalphabkg/gtalphabkg.cxx)
 add_executable(gtwtsmap src/gtwtsmap/gtwtsmap.cxx)
 add_executable(gtdrm src/gtdrm/gtdrm.cxx)
 
-target_link_libraries(gtlike PRIVATE Likelihood)
-target_link_libraries(gtexpmap PRIVATE Likelihood)
+target_link_libraries(gtlike PRIVATE Likelihood st_graph)
+target_link_libraries(gtexpmap PRIVATE Likelihood st_stream)
 target_link_libraries(gttsmap PRIVATE Likelihood)
 target_link_libraries(gttscube PRIVATE Likelihood)
 target_link_libraries(gthealcube PRIVATE Likelihood)
@@ -106,20 +116,25 @@ target_link_libraries(gtdrm PRIVATE Likelihood)
 
 add_custom_target(Likelihood-executables)
 add_dependencies(
-  Likelihood-executables gtlike gtexpmap gttsmap gttscube gthealcube gtltcube gtexpcube2
-  gtdiffrsp gtsrcmaps gtebl gtsrcprob gtpsf gtbkg gtmodel gtltsum gtfindsrc gteffbkg
-  gtalphabkg gtwtsmap gtdrm
+  Likelihood-executables gtlike gtexpmap gttsmap gttscube gthealcube gtltcube
+  gtexpcube2 gtdiffrsp gtsrcmaps gtebl gtsrcprob gtpsf gtbkg gtmodel gtltsum gtfindsrc
+  gteffbkg gtalphabkg gtwtsmap gtdrm
 )
 
 ###### Tests ######
 
-add_executable(test_Likelihood src/test/test.cxx src/test/SourceData.cxx src/test/XmlDiff.cxx)
+add_executable(
+  test_Likelihood
+  src/test/test.cxx
+  src/test/SourceData.cxx
+  src/test/XmlDiff.cxx
+)
 target_link_libraries(test_Likelihood PRIVATE Likelihood PkgConfig::cppunit)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Posix")
-  target_compile_definitions(test_Likelihood PRIVATE "TRAP_FPE")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(APPLE)
   target_compile_definitions(test_Likelihood PRIVATE "DARWIN")
+else()
+  target_compile_definitions(test_Likelihood PRIVATE "TRAP_FPE")
 endif()
 
 ###############################################################
