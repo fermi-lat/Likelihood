@@ -143,14 +143,13 @@ endif()
 install(DIRECTORY Likelihood DESTINATION ${FERMI_INSTALL_INCLUDEDIR})
 install(DIRECTORY data/ DESTINATION ${FERMI_INSTALL_DATADIR})
 install(DIRECTORY pfiles/ DESTINATION ${FERMI_INSTALL_PFILESDIR})
-install(DIRECTORY xml/ DESTINATION ${FERMI_INSTALL_XMLDIR})
+install(DIRECTORY xml/ DESTINATION ${FERMI_INSTALL_XMLDIR}/fermi/Likelihood)
 
 install(
   TARGETS Likelihood gtlike gtexpmap gttsmap gttscube gthealcube gtltcube gtexpcube2
   gtdiffrsp gtsrcmaps gtebl gtsrcprob gtpsf gtbkg gtmodel gtltsum gtfindsrc gteffbkg
   gtalphabkg gtwtsmap gtdrm test_Likelihood
   EXPORT fermiTargets
-  FILE_SET HEADERS
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
