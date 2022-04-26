@@ -63,6 +63,7 @@ target_include_directories(
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:>
 )
+
 target_compile_definitions(Likelihood PRIVATE CONDA_FFTW)
 
 
@@ -132,16 +133,16 @@ add_executable(
 target_link_libraries(test_Likelihood PRIVATE Likelihood PkgConfig::cppunit)
 
 if(APPLE)
-  target_compile_definitions(test_Likelihood PRIVATE "DARWIN")
+  target_compile_definitions(test_Likelihood PRIVATE DARWIN DARWIN_F2C_FAILURE)
 else()
-  target_compile_definitions(test_Likelihood PRIVATE "TRAP_FPE")
+  target_compile_definitions(test_Likelihood PRIVATE TRAP_FPE)
 endif()
 
 ###############################################################
 # Installation
 ###############################################################
 install(DIRECTORY Likelihood DESTINATION ${FERMI_INSTALL_INCLUDEDIR})
-install(DIRECTORY data/ DESTINATION ${FERMI_INSTALL_DATADIR})
+install(DIRECTORY data/ DESTINATION ${FERMI_INSTALL_REFDATADIR}/Likelihood)
 install(DIRECTORY pfiles/ DESTINATION ${FERMI_INSTALL_PFILESDIR})
 install(DIRECTORY xml/ DESTINATION ${FERMI_INSTALL_XMLDIR}/fermi/Likelihood)
 
