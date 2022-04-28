@@ -144,7 +144,7 @@ endif()
 install(DIRECTORY Likelihood DESTINATION ${FERMI_INSTALL_INCLUDEDIR})
 install(DIRECTORY data/ DESTINATION ${FERMI_INSTALL_REFDATADIR}/Likelihood)
 install(DIRECTORY pfiles/ DESTINATION ${FERMI_INSTALL_PFILESDIR})
-install(DIRECTORY xml/ DESTINATION ${FERMI_INSTALL_XMLDIR}/fermi/Likelihood)
+install(DIRECTORY xml/ DESTINATION ${FERMI_INSTALL_XMLDIR}/Likelihood)
 
 install(
   TARGETS Likelihood gtlike gtexpmap gttsmap gttscube gthealcube gtltcube gtexpcube2
