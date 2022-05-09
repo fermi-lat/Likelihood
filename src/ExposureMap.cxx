@@ -173,6 +173,7 @@ void ExposureMap::computeMap(std::string filename,
       jmax = std::min(nlat, nlatmax);
    }
 
+#pragma omp parallel for
    for (int j = jmin; j < jmax; j++) {
       for (int i = imin; i < imax; i++) {
          int step(((imax-imin)*(jmax-jmin))/20);
