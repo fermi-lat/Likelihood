@@ -1,6 +1,6 @@
 ##### Library ######
 add_library(
-  Likelihood SHARED
+  Likelihood 
   src/Accumulator.cxx src/AppHelpers.cxx src/BandFunction.cxx src/BinnedConfig.cxx
   src/BinnedCountsCache.cxx src/BinnedExposure.cxx src/BinnedExposureBase.cxx
   src/BinnedHealpixExposure.cxx src/BinnedLikelihood.cxx src/BrokenPowerLaw2.cxx
