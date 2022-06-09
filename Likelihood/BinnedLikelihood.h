@@ -792,6 +792,7 @@ namespace Likelihood {
   
      /// Flag to allow updating of Fixed model weights
      bool m_updateFixedWeights;
+     bool m_fixedModelBuilt = false;
 
    };
 };

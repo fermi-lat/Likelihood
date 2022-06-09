@@ -336,12 +336,12 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       addFixedSource(src->getName());      
     } else {
       if ( loadMap ) {
-	if ( srcMap == 0 ) {
-	  m_srcMapCache.loadSourceMap(*src,false);
-	} else {
-	  m_srcMapCache.eraseSourceMap(src->getName());
-	  m_srcMapCache.insertSourceMap(src->getName(),*srcMap);
-	}
+        if ( srcMap == 0 ) {
+          m_srcMapCache.loadSourceMap(*src,false);
+        } else {
+          m_srcMapCache.eraseSourceMap(src->getName());
+          m_srcMapCache.insertSourceMap(src->getName(),*srcMap);
+        }
       }
     }
   }
@@ -549,10 +549,10 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
 
   double BinnedLikelihood::computeModelMap_internal(bool weighted) const {
-
+    using namespace std;
     std::vector<double> modelCounts;
     modelCounts.resize(m_dataCache.nFilled(), 0.);
-    
+
     if (fixedModelUpdated() && m_updateFixedWeights) {
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
     }
@@ -704,6 +704,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
 
   void BinnedLikelihood::buildFixedModelWts(bool process_all) {
+    if (m_fixedModelBuilt) return;
     m_fixedSources.clear();
 
     m_fixedModelCounts.clear();
@@ -724,16 +725,16 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       const std::string & srcName(srcIt->first);
       const Source* src = srcIt->second;      
       if (src->fixedSpectrum() ) {
-	if ( ! process_all ) {
-	  addFixedSource(srcName);
-	} else {
-	  m_srcMapCache.getSourceMap(*src, false);
-	}
+          if ( ! process_all ) {
+            addFixedSource(srcName);
+          } else {
+            m_srcMapCache.getSourceMap(*src, false);
+          }
       } else { 
-	// Process non-fixed sources.
-	//
-	// Ensure model map is available.
-	SourceMap * srcMap = m_srcMapCache.getSourceMap(*src, false);
+          // Process non-fixed sources.
+          //
+          // Ensure model map is available.
+          SourceMap * srcMap = m_srcMapCache.getSourceMap(*src, false);
       }
     }
 
@@ -759,7 +760,6 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
   void BinnedLikelihood::addFixedSource(const std::string & srcName) {
     // Add a source to the fixed source data, under the assumption that it
     // is not already there.
-
     std::map<std::string, Source *>::const_iterator 
       srcIt(m_sources.find(srcName));
     if (srcIt == m_sources.end()) {
@@ -789,7 +789,10 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
     // Remove this source from the stored source maps to save memory
     if ( !srcMap->save_model() ) {
-      srcMap->clear_model( m_config.delete_local_fixed() );
+      if(srcMap->clear_model( m_config.delete_local_fixed() )){
+        m_fixedModelBuilt = true;
+      }
+      
     }
   }
 
@@ -927,6 +930,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 					 SourceMap * srcMap,
 					 bool subtract,
 					 bool latchParams) const {
+
     
     const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
     if (src == 0) {
@@ -947,6 +951,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
     FitUtils::addSourceCounts(modelCounts,*sourceMap,
 			      m_dataCache, subtract);
+
   }
 
   void BinnedLikelihood::addFixedNpreds(const std::string & srcName,

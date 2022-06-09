@@ -157,7 +157,8 @@ public:
       This is useful for dealing with fixed sources, as it frees
       up a lot of memory.       
    */
-   void clear_model(bool force=false) {
+   bool clear_model(bool force=false) {
+     //std::cerr << "calling clear_model() with " << std::boolalpha << force << " " << m_save_model << " " << m_model_is_local << std::endl;
      if ( force || ( !m_save_model && !m_model_is_local ) ) {
        // This deallocates the memory used by the model
        // in C++-11 there is a function shrink_to_fit that we could use.
@@ -165,7 +166,9 @@ public:
        m_model.swap(nullVect);
        m_sparseModel.clear();
        m_model_is_local = false;
+       return true;
      }
+     return false;
    }      
 
    /* Set the source associated with this source map, this is useful for
