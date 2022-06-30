@@ -166,6 +166,7 @@ public:
        m_model.swap(nullVect);
        m_sparseModel.clear();
        m_model_is_local = false;
+       m_dataCleared = true;
        return true;
      }
      return false;
@@ -323,6 +324,18 @@ public:
 
    /// Set value of model_is_local (e.g., b/c we are writing the source map)
    inline void setModelIsLocal(bool val) { m_model_is_local = val; }
+
+
+   /// reload the modelfile if it has been cleared
+   void reloadIfCleared(){
+      if (m_dataCleared ){
+         if (m_filename !="") {
+            readModel(m_filename);
+         } else {
+            make_model();
+         }
+      }
+   }
 
 
    /* --------------------- Debugging -------------------- */
@@ -494,6 +507,9 @@ private:
 
    /// Caches of the true and measured energy spectra for sources
    Drm_Cache* m_drm_cache;
+
+   /// flag indicating that data model has been cleared
+   bool m_dataCleared = false;
 
 
 };
