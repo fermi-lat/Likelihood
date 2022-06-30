@@ -601,6 +601,7 @@ int SourceMap::readModel(const std::string& filename) {
   m_model.clear();
   m_filename = filename;
   m_model_is_local = false;
+  m_dataCleared = false;
 
   m_specVals.clear();
   m_specWts.clear();
