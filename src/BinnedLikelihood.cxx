@@ -786,11 +786,13 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     const Source& src = *(srcIt->second);
 
     SourceMap * srcMap = m_srcMapCache.getSourceMap(src);
+    srcMap->reloadIfCleared(); //testing fermipy error
     bool has_wts = srcMap->weights() != 0;
     if ( m_config.save_all_srcmaps() ) {
       srcMap->setSaveModel(true);
     }
     addSourceCounts(m_fixedModelCounts, srcName, srcMap, false, true);
+    srcMap->reloadIfCleared(); //testing fermipy error
     addFixedNpreds(srcName, srcMap, false);
 
     // Remove this source from the stored source maps to save memory
