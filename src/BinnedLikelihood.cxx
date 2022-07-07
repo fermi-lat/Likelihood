@@ -791,7 +791,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     if ( m_config.save_all_srcmaps() ) {
       srcMap->setSaveModel(true);
     }
-    addSourceCounts(m_fixedModelCounts, srcName, srcMap, false, true);
+    BinnedLikelihood::addSourceCounts(m_fixedModelCounts, srcName, srcMap, false, true);
     srcMap->reloadIfCleared(); //testing fermipy error
     addFixedNpreds(srcName, srcMap, false);
 
