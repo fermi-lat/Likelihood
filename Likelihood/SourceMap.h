@@ -328,13 +328,16 @@ public:
 
    /// reload the modelfile if it has been cleared
    void reloadIfCleared(){
+      std::cout << "Calling SourceMap::reloadIfCleared()";
       if (m_dataCleared ){
+         std::cout << " - reloading";
          if (m_filename !="") {
             readModel(m_filename);
          } else {
             make_model();
          }
       }
+      std::cout << std::endl;
    }
 
 
