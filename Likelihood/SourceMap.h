@@ -78,7 +78,7 @@ public:
 	     const BinnedLikeConfig & config, 
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
-	     bool save_model = false);
+	     bool save_model = true);
 
 
    /* C'tor to re-read this from a file
@@ -99,7 +99,7 @@ public:
 	     const BinnedLikeConfig& config,
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
-	     bool save_model = false);
+	     bool save_model = true);
 
    /* Copy c'tor */
    SourceMap(const SourceMap& other);
@@ -158,13 +158,17 @@ public:
       up a lot of memory.       
    */
    void clear_model(bool force=false) {
+//     m_save_model=true;
      if ( force || ( !m_save_model && !m_model_is_local ) ) {
+      // std::cout << "clear_model() called on " << m_name << " " << std::boolalpha;
+      // std::cout << force << " " << m_save_model << " " << m_model_is_local << std::endl;
        // This deallocates the memory used by the model
        // in C++-11 there is a function shrink_to_fit that we could use.
        std::vector<float> nullVect;
        m_model.swap(nullVect);
        m_sparseModel.clear();
        m_model_is_local = false;
+       m_dataCleared = true;
      }
    }      
 
@@ -313,7 +317,11 @@ public:
    void setWeights(const WeightMap* weights);
 
    /// Explicity set the flag to save the model
-   inline void setSaveModel(bool val) { m_save_model = val; }
+   inline void setSaveModel(bool val) { 
+      m_save_model = val; 
+      if (val) reloadIfCleared();
+//      std::cout << "setSaveModel(), m_save_model = " << std:: boolalpha << m_save_model << std::endl;
+   }
 
    /// Set the filename (e.g., b/c we are writing the source map)
    inline void setFilename(const std::string& filename) { m_filename = filename; }
@@ -321,6 +329,8 @@ public:
    /// Set value of model_is_local (e.g., b/c we are writing the source map)
    inline void setModelIsLocal(bool val) { m_model_is_local = val; }
 
+   /// reload the modelfile if it has been cleared
+   void reloadIfCleared();
 
    /* --------------------- Debugging -------------------- */
    size_t memory_size() const;
@@ -390,6 +400,12 @@ private:
      return m_sparseModel[idx];
    }
 
+   /* Reset data values after loading a source */
+   void resetSourceData();
+
+   /* Load or build source map data */
+   void getSourceData();
+
 
    /* ---------------- Data Members --------------------- */
 
@@ -439,7 +455,7 @@ private:
    const WeightMap* m_weights;
 
    /// Flag to indicate that we should save the model
-   bool m_save_model;
+   bool m_save_model = true;
 
    /// Flag to indicated that model is out of sync with file
    bool m_model_is_local;
@@ -492,6 +508,11 @@ private:
    /// Caches of the true and measured energy spectra for sources
    Drm_Cache* m_drm_cache;
 
+   /// flag indicating that data model has been cleared
+   bool m_dataCleared = false;
+
+   /// flag indicating that the data has been loaded at least once
+   bool m_loaded = false;
 
 };
 

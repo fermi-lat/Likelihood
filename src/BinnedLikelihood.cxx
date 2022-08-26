@@ -139,6 +139,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
   m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0); 
   m_fixed_counts_spec_edisp.resize(m_dataCache.num_ebins(), 0); 
   m_fixed_counts_spec_edisp_wt.resize(m_dataCache.num_ebins(), 0); 
+  // std::cout << "BinnedLikelihood constructor called with save_all_models set to " << std::boolalpha << m_config.save_all_srcmaps() << std::endl;
 }
 
 BinnedLikelihood::~BinnedLikelihood() throw() {
@@ -780,6 +781,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     const Source& src = *(srcIt->second);
 
     SourceMap * srcMap = m_srcMapCache.getSourceMap(src);
+    srcMap->reloadIfCleared();
     bool has_wts = srcMap->weights() != 0;
     if ( m_config.save_all_srcmaps() ) {
       srcMap->setSaveModel(true);
@@ -808,6 +810,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
   
     // Generate the SourceMap and include it in the stored maps.
     SourceMap * srcMap = getSourceMap(srcName, false);
+    srcMap->reloadIfCleared();
     //bool has_wts = srcMap->weights() != 0;
     if (srcMap == 0) {
       throw std::runtime_error("SourceMap cannot be created for " + srcName);
@@ -940,6 +943,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     SourceMap * sourceMap = srcMap;
     if ( sourceMap == 0 ) {
       sourceMap = getSourceMap(srcName);
+      sourceMap->reloadIfCleared();
     } 
     
     
@@ -947,6 +951,13 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
     FitUtils::addSourceCounts(modelCounts,*sourceMap,
 			      m_dataCache, subtract);
+
+    if ( !sourceMap->save_model() ) {
+      if (std::count(m_fixedSources.begin(), m_fixedSources.end(), srcName) != 0) {
+        sourceMap->clear_model( m_config.delete_local_fixed() );
+      }
+    }
+
   }
 
   void BinnedLikelihood::addFixedNpreds(const std::string & srcName,
@@ -1097,6 +1108,8 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       }
     }
   }
+
+  
 
 
 } // namespace Likelihood

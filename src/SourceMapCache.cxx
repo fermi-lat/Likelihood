@@ -109,7 +109,7 @@ namespace Likelihood {
   SourceMap * SourceMapCache::getSourceMap(const Source& src,
 					   bool verbose,
 					   const BinnedLikeConfig* config) const {
-
+//    std::cout << "SourceMapCache::getSourceMap() called with save_all_srcMaps() = " << std::boolalpha << m_config.save_all_srcmaps() << std::endl;
     const std::string& srcName = src.getName();
     SourceMap* srcMap(0);
  
@@ -148,6 +148,7 @@ namespace Likelihood {
 
   SourceMap * SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const {
     const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
+    std::cout << "SourceMapCache::createSourceMap() called" << std::endl;
     return new SourceMap(src, &m_dataCache, m_observation, the_config, 
 			 *m_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
   }
