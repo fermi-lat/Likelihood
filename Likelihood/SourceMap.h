@@ -78,7 +78,7 @@ public:
 	     const BinnedLikeConfig & config, 
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
-	     bool save_model = true);
+	     bool save_model = false);
 
 
    /* C'tor to re-read this from a file
@@ -99,7 +99,7 @@ public:
 	     const BinnedLikeConfig& config,
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
-	     bool save_model = true);
+	     bool save_model = false);
 
    /* Copy c'tor */
    SourceMap(const SourceMap& other);
@@ -149,6 +149,12 @@ public:
 
    /* Flag to indicated that model is out of sync with file */
    inline bool model_is_local() const { return m_model_is_local; }
+
+   /* Flag to indicate if the model has been loaded once */
+   inline bool is_loaded() const { return m_loaded;}
+
+   /* Flag to indcate if the map is currently cleared */
+   inline bool is_cleared() const { return m_dataCleared; }
 
 
    /* --------------- Class Methods ----------------------*/
@@ -323,6 +329,7 @@ public:
 //      std::cout << "setSaveModel(), m_save_model = " << std:: boolalpha << m_save_model << std::endl;
    }
 
+   /// @TODO these should be moved to the right sections of the header.
    /// Set the filename (e.g., b/c we are writing the source map)
    inline void setFilename(const std::string& filename) { m_filename = filename; }
 
@@ -360,7 +367,7 @@ protected:
    void expand_model(bool clearSparse = true);
 
    /* Latch the energy vector */
-   void set_energies();
+   void set_energies(bool reload = false);
 
 private:
 
@@ -402,10 +409,10 @@ private:
    }
 
    /* Reset data values after loading a source */
-   void resetSourceData();
+   void resetSourceData(bool reload = false);
 
    /* Load or build source map data */
-   void getSourceData();
+   void getSourceData(bool reload = false);
 
 
    /* ---------------- Data Members --------------------- */
@@ -435,7 +442,7 @@ private:
    st_stream::StreamFormatter * m_formatter;
 
    /// Options for treatment of PSF and energy disperson
-   const BinnedLikeConfig& m_config;
+   const BinnedLikeConfig& m_config; 
 
    /// The detector response matrix. 
    const Drm* m_drm;

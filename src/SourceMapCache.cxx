@@ -117,6 +117,8 @@ namespace Likelihood {
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
     if ( itrFind != m_srcMaps.end() ) {
       srcMap = itrFind->second;
+      std::cout << "SourceMapCache::getSourceMap() - found map for " << srcName << ", srcMap.config.edisp_val() = " << srcMap->config().edisp_val() << ", cache.config.edisp_val() = " << m_config.edisp_val() << std::endl;
+      std::cout << "     srcMap.config = " << &(srcMap->config()) << ", cache.config = " << &m_config << std::endl;
       srcMap->setSource(src);
       srcMap->update_drm_cache(m_drm);
     } else {

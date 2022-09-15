@@ -98,7 +98,8 @@ SourceMap::SourceMap(const Source& src,
      m_model_is_local(true),
      m_drm_cache(0) {
 
-  //  std::cout << "SourceMap constructor 1, m_save_model = " << std:: boolalpha << m_save_model << std::endl;
+    std::cout << "SourceMap constructor 1 for " << m_name << ", m_save_model = " << std:: boolalpha << m_save_model;
+    std::cout << ", m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;
 
    set_energies();
 
@@ -107,6 +108,8 @@ SourceMap::SourceMap(const Source& src,
      throw std::runtime_error("SourceMap construction failed");
    }
    m_drm_cache = new Drm_Cache(*m_drm, *this);
+   m_loaded = true;
+   std::cout << "Leaving constructor 1" << std::endl;
 }
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
@@ -134,8 +137,12 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_edisp_offset(0),
     m_drm_cache(0) {
 
-  // std::cout << "SourceMap constructor 2, m_save_model = " << std:: boolalpha << m_save_model << std::endl;
-  int status = readModel(sourceMapsFile);
+    std::cout << "SourceMap constructor 2 for " << m_name << ", m_save_model = " << std:: boolalpha << m_save_model;
+    std::cout << ", m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;  
+    
+    
+    int status = readModel(sourceMapsFile);
+
   if ( status != 0 ) {
     // throw std::runtime_error("SourceMap construction failed to read model");
   }
@@ -176,7 +183,8 @@ SourceMap::SourceMap(const SourceMap& other)
    m_dataCleared(other.m_dataCleared),
    m_loaded(other.m_loaded) {
 
-  // std::cout << "SourceMap copy constructor, m_save_model = " << std:: boolalpha << m_save_model << std::endl;
+   std::cout << "SourceMap copy constructor for " << m_name << ", m_save_model = " << std:: boolalpha << m_save_model;
+   std::cout << ", m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;
 }
 
 
@@ -835,8 +843,12 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
   }
 } 
 
-  void SourceMap::set_energies() {
-    m_edisp_val = m_src->use_edisp() ? m_config.edisp_val() : 0;
+  void SourceMap::set_energies(bool reload) {
+    std::cout << "SourceMap::set_energies() - 1, m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() <<  std::endl;
+    if (!reload){
+      m_edisp_val = m_src->use_edisp() ? m_config.edisp_val() : 0;
+    }
+    std::cout << "SourceMap::set_energies() - 1, m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() <<  std::endl;
     m_edisp_offset = m_edisp_bins - m_drm->edisp_bins(),
     m_energies.resize(m_dataCache->num_energies());
     std::copy(m_dataCache->energies().begin(),m_dataCache->energies().end(),m_energies.begin());
@@ -845,16 +857,21 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
   }
 
   void SourceMap::reloadIfCleared(){
+    std::cout << "SourceMap::reloadIfCleared() - 1, m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;
     if (m_dataCleared /*&& m_model.size() == 0 && m_sparseModel.size() == 0 */ ){
       // std::cout << "Reloading source: " << m_name << std::endl;
-      getSourceData();
+      getSourceData(false);
+          std::cout << "SourceMap::reloadIfCleared() - 2, m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;
       m_dataCleared = false;
     }
-    resetSourceData();
+    resetSourceData(false);
+        std::cout << "SourceMap::reloadIfCleared() - 3, m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;
   }
 
-  void SourceMap::resetSourceData(){
-    set_energies();
+  void SourceMap::resetSourceData(bool reload){
+    std::cout << "SourceMap::resetSourceData() - 1, m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;
+    set_energies(reload);
+    std::cout << "SourceMap::resetSourceData() - 2, m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;
     m_specVals.clear();
     m_specWts.clear();
     m_modelPars.clear();
@@ -862,14 +879,15 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
     m_npreds.clear();
     m_weighted_npreds.clear();  
     m_model_is_local = false;
+    std::cout << "SourceMap::resetSourceData() - 3, m_edisp_val = " << m_edisp_val << ", m_config.edisp_val() = " << m_config.edisp_val() << std::endl;
   }
 
-  void SourceMap::getSourceData(){
+  void SourceMap::getSourceData(bool reload){
     m_loaded = true;
     if (m_filename.size() > 0) {
       readModel(m_filename);
     } else {
-      set_energies();
+      set_energies(reload);
       make_model();
       return;
     }
