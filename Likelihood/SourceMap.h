@@ -165,8 +165,6 @@ public:
    */
    void clear_model(bool force=false) {
      if ( force || ( !m_save_model && !m_model_is_local ) ) {
-       // std::cout << "clear_model() called on " << m_name << " " << std::boolalpha;
-       // std::cout << force << " " << m_save_model << " " << m_model_is_local << std::endl;
        // This deallocates the memory used by the model
        // in C++-11 there is a function shrink_to_fit that we could use.
        std::vector<float> nullVect;
@@ -326,7 +324,6 @@ public:
    inline void setSaveModel(bool val) { 
       m_save_model = val; 
       if (val) reloadIfCleared();
-//      std::cout << "setSaveModel(), m_save_model = " << std:: boolalpha << m_save_model << std::endl;
    }
 
    /// @TODO these should be moved to the right sections of the header.
