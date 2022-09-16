@@ -109,7 +109,7 @@ namespace Likelihood {
      */	
      BinnedLikelihood(CountsMapBase & dataMap, 
 		      const Observation & observation,	
-		      const BinnedLikeConfig& config,
+		      BinnedLikeConfig config,
 		      const std::string & srcMapsFile = "",
 		      const ProjMap* weightMap = 0,
 		      bool overwriteWeights=false);

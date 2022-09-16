@@ -117,8 +117,8 @@ namespace Likelihood {
     std::map<std::string, SourceMap *>::iterator itrFind = m_srcMaps.find(srcName);
     if ( itrFind != m_srcMaps.end() ) {
       srcMap = itrFind->second;
-      std::cout << "SourceMapCache::getSourceMap() - found map for " << srcName << ", srcMap.config.edisp_val() = " << srcMap->config().edisp_val() << ", cache.config.edisp_val() = " << m_config.edisp_val() << std::endl;
-      std::cout << "     srcMap.config = " << &(srcMap->config()) << ", cache.config = " << &m_config << std::endl;
+      // std::cout << "SourceMapCache::getSourceMap() - found map for " << srcName << ", srcMap.config.edisp_val() = " << srcMap.config().edisp_val() << ", cache.config.edisp_val() = " << m_config.edisp_val() << std::endl;
+      // std::cout << "     srcMap.config = " << &(srcMap->config()) << ", cache.config = " << &m_config << std::endl;
       srcMap->setSource(src);
       srcMap->update_drm_cache(m_drm);
     } else {
@@ -150,7 +150,7 @@ namespace Likelihood {
 
   SourceMap * SourceMapCache::createSourceMap(const Source& src, const BinnedLikeConfig* config) const {
     const BinnedLikeConfig& the_config = config == 0 ? m_config : *config;
-    std::cout << "SourceMapCache::createSourceMap() called" << std::endl;
+    // std::cout << "SourceMapCache::createSourceMap() called" << std::endl;
     return new SourceMap(src, &m_dataCache, m_observation, the_config, 
 			 *m_drm, m_dataCache.weightMap(), the_config.save_all_srcmaps() );
   }

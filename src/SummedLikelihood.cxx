@@ -34,7 +34,7 @@ void SummedLikelihood::addComponent(LogLike & component) {
 }
 
 double SummedLikelihood::value() const {
-   std::cout << "Entering SummedLikelihood::value()" << std::endl;
+   // std::cout << "Entering SummedLikelihood::value()" << std::endl;
    double my_value(0);
    ComponentConstIterator_t it(m_components.begin());
    bool include_prior(true);
@@ -43,7 +43,7 @@ double SummedLikelihood::value() const {
      my_value += (*it)->value(dummy, include_prior);
      include_prior = false;
    }
-   std::cout << "Leaving SummedLikelihood::value()" << std::endl;
+   // std::cout << "Leaving SummedLikelihood::value()" << std::endl;
    return my_value;
 }
 

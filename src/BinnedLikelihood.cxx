@@ -120,7 +120,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 
 BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 				   const Observation & observation,	
-				   const BinnedLikeConfig& config,
+				   BinnedLikeConfig config,
 				   const std::string & srcMapsFile,
 				   const ProjMap* weightMap,
 				   bool overwriteWeights)
@@ -161,14 +161,14 @@ void BinnedLikelihood::setWeightsMap(const ProjMap* wmap) {
 double BinnedLikelihood::value(const optimizers::Arg & dummy, 
 			       bool include_priors) const {
   (void)(dummy);
-  std::cout << "Entering BinnedLikelihood::value()" << std::endl;
+  // std::cout << "Entering BinnedLikelihood::value()" << std::endl;
   // Here we want the weighted verison of the nPred
   double npred = computeModelMap_internal(true);
 
-  std::cout <<"BinnedLikelihood::value() - 1" << std::endl;
+  // std::cout <<"BinnedLikelihood::value() - 1" << std::endl;
   const std::vector<float> & data = m_dataCache.data( m_dataCache.has_weights() );  
 
-  std::cout <<"BinnedLikelihood::value() - 2" << std::endl;
+  // std::cout <<"BinnedLikelihood::value() - 2" << std::endl;
   const std::vector<size_t>& pix_ranges = m_dataCache.firstPixels();
   for (size_t k(m_kmin); k < m_kmax; k++ ) {
     size_t j_start = pix_ranges[k];
@@ -185,7 +185,7 @@ double BinnedLikelihood::value(const optimizers::Arg & dummy,
   }
   m_accumulator.add(-npred);
   
-  std::cout <<"BinnedLikelihood::value() - 3" << std::endl;
+  // std::cout <<"BinnedLikelihood::value() - 3" << std::endl;
   double my_total(m_accumulator.total());
 
   if ( include_priors ) {
@@ -196,7 +196,7 @@ double BinnedLikelihood::value(const optimizers::Arg & dummy,
     }
   }
   
-  std::cout <<"BinnedLikelihood::value() - 4" << std::endl;
+  // std::cout <<"BinnedLikelihood::value() - 4" << std::endl;
   saveBestFit(my_total);
   st_stream::StreamFormatter formatter("BinnedLikelihood", "value", 4);
   formatter.warn() << m_nevals << "  "
@@ -204,7 +204,7 @@ double BinnedLikelihood::value(const optimizers::Arg & dummy,
 		   << npred << std::endl;
   m_nevals++;
 
-  std::cout << "Leaving BinnedLikelihood::value().  my_total = " << my_total << std::endl;
+  // std::cout << "Leaving BinnedLikelihood::value().  my_total = " << my_total << std::endl;
   return my_total;
 }
 
@@ -555,12 +555,12 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
 
   double BinnedLikelihood::computeModelMap_internal(bool weighted) const {
-    std::cout << "Entering BinnedLikelihood::computeModelMap_internal(" << std::boolalpha << weighted << ")" << std::endl;
+    // std::cout << "Entering BinnedLikelihood::computeModelMap_internal(" << std::boolalpha << weighted << ")" << std::endl;
     using namespace std;
     std::vector<double> modelCounts;
     modelCounts.resize(m_dataCache.nFilled(), 0.);
 
-    std::cout << "BinnedLikelihood::computeModelMap_internal() - 1" << std::endl;
+    // std::cout << "BinnedLikelihood::computeModelMap_internal() - 1" << std::endl;
     if (fixedModelUpdated() && m_updateFixedWeights) {
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
     }
@@ -568,7 +568,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     // We don't apply the weights to the model we will be filling
     // But we do apply the energy dispersion
     // This was already handled in buildFixedModelWts
-    std::cout << "BinnedLikelihood::computeModelMap_internal() - 2" << std::endl;
+    // std::cout << "BinnedLikelihood::computeModelMap_internal() - 2" << std::endl;
     std::copy(m_fixedModelCounts.begin(), m_fixedModelCounts.end(), modelCounts.begin());
 
     std::vector<std::string> srcNames;
@@ -578,38 +578,38 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     // Always pick one of the two that uses energy dispersion
     const std::vector<double>& fixedModelCounts = weighted ? m_fixed_counts_spec_edisp_wt : m_fixed_counts_spec_edisp;
 
-    std::cout << "BinnedLikelihood::computeModelMap_internal() - 3" << std::endl;
+    // std::cout << "BinnedLikelihood::computeModelMap_internal() - 3" << std::endl;
     double npred(0.);
     double npred_check(0.);
     for ( size_t kx(m_kmin); kx < m_kmax; kx++ ) {
       npred += fixedModelCounts[kx];
     }
 
-    std::cout << "BinnedLikelihood::computeModelMap_internal() - 4" << std::endl;
+    // std::cout << "BinnedLikelihood::computeModelMap_internal() - 4" << std::endl;
     for (size_t i(0); i < srcNames.size(); i++) {     
       // EAC FIXME, in principle we should only need to call NpredValue
       // (which updates and caches the computation for the Npred) for the free sources
       // but because it is possible to free and modify the source parameters directly, 
       // that doesn't always work. 
       // So we have to call NpredValue on all the sources 
-      std::cout << "Processing source " << srcNames[i] << std::endl;
+      // std::cout << "Processing source " << srcNames[i] << std::endl;
       double npred_src = NpredValue(srcNames[i], weighted);
       npred_check += npred_src;
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(),
 		     srcNames[i]) == 0) {
-          std::cout << "Calling BinnedLikelihood::addSourceCounts() for " << srcNames[i] << std::endl;
+          // std::cout << "Calling BinnedLikelihood::addSourceCounts() for " << srcNames[i] << std::endl;
           addSourceCounts(modelCounts, srcNames[i]);
           npred += npred_src;
       } 
     }
 
-    std::cout << "BinnedLikelihood::computeModelMap_internal() - 5" << std::endl;
+    // std::cout << "BinnedLikelihood::computeModelMap_internal() - 5" << std::endl;
     m_model.clear();
     m_model.resize(m_dataCache.nFilled(), 0);
 
     const std::vector<size_t>& pix_ranges = m_dataCache.firstPixels();
  
-    std::cout << "BinnedLikelihood::computeModelMap_internal() - 6" << std::endl;
+    // std::cout << "BinnedLikelihood::computeModelMap_internal() - 6" << std::endl;
     for (size_t k(m_kmin); k < m_kmax; k++ ) {
       size_t j_start = pix_ranges[k];
       size_t j_stop = pix_ranges[k+1];      
@@ -619,7 +619,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     }
     m_modelIsCurrent = true;
 
-    std::cout << "Leaving BinnedLikelihood::computeModelMap_internal()" << std::endl;
+    // std::cout << "Leaving BinnedLikelihood::computeModelMap_internal()" << std::endl;
     return npred;
   }
 
@@ -952,7 +952,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 					 SourceMap * srcMap,
 					 bool subtract,
 					 bool latchParams) const {
-    std::cout << "Entering BinnedLikelihood::addSourceCounts() for " << srcName << std::endl;
+    // std::cout << "Entering BinnedLikelihood::addSourceCounts() for " << srcName << std::endl;
     
     const Source * src(const_cast<BinnedLikelihood *>(this)->getSource(srcName));
     if (src == 0) {
@@ -963,32 +963,32 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 			       "modelCounts size does not match "
 			       "number of filled pixels.");
     }
-    std::cout << "BinnedLikelihood::addSourceCounts() - 1" << std::endl;
+    // std::cout << "BinnedLikelihood::addSourceCounts() - 1" << std::endl;
     SourceMap * sourceMap = srcMap;
     if ( sourceMap == 0 ) {
       sourceMap = getSourceMap(srcName);
-      std::cout << "1) " << sourceMap->name() << " " << sourceMap->is_loaded() << " " << sourceMap->is_cleared() << " " << sourceMap->edisp_val() << " " << sourceMap->config().edisp_val() << std::endl;
+      // std::cout << "1) " << sourceMap->name() << " " << sourceMap->is_loaded() << " " << sourceMap->is_cleared() << " " << sourceMap->edisp_val() << " " << sourceMap->config().edisp_val() << std::endl;
       sourceMap->reloadIfCleared();
-      std::cout << "2) " << sourceMap->name() << " " << sourceMap->is_loaded() << " " << sourceMap->is_cleared() << " " << sourceMap->edisp_val() << " " << sourceMap->config().edisp_val() << std::endl;
+      // std::cout << "2) " << sourceMap->name() << " " << sourceMap->is_loaded() << " " << sourceMap->is_cleared() << " " << sourceMap->edisp_val() << " " << sourceMap->config().edisp_val() << std::endl;
     } 
     
-    std::cout << "BinnedLikelihood::addSourceCounts() - 2" << std::endl;
+    // std::cout << "BinnedLikelihood::addSourceCounts() - 2" << std::endl;
     sourceMap->reloadIfCleared();
-      std::cout << "3) " << sourceMap->name() << " " << sourceMap->is_loaded() << " " << sourceMap->is_cleared() << " " << sourceMap->edisp_val() << " " << sourceMap->config().edisp_val() << std::endl;
+      // std::cout << "3) " << sourceMap->name() << " " << sourceMap->is_loaded() << " " << sourceMap->is_cleared() << " " << sourceMap->edisp_val() << " " << sourceMap->config().edisp_val() << std::endl;
     sourceMap->setSpectralValues(latchParams);    
 
-    std::cout << "BinnedLikelihood::addSourceCounts() - 3, " << sourceMap->is_loaded() << " " << sourceMap->is_cleared() << " " << sourceMap->edisp_val() << " " << sourceMap->config().edisp_val() << std::endl;
+    // std::cout << "BinnedLikelihood::addSourceCounts() - 3, " << sourceMap->is_loaded() << " " << sourceMap->is_cleared() << " " << sourceMap->edisp_val() << " " << sourceMap->config().edisp_val() << std::endl;
     FitUtils::addSourceCounts(modelCounts,*sourceMap,
 			      m_dataCache, subtract);
 
-    std::cout << "BinnedLikelihood::addSourceCounts() - 4" << std::endl;
+    // std::cout << "BinnedLikelihood::addSourceCounts() - 4" << std::endl;
     if ( !sourceMap->save_model() ) {
       if (std::count(m_fixedSources.begin(), m_fixedSources.end(), srcName) != 0) {
         sourceMap->clear_model( m_config.delete_local_fixed() );
       }  
     }
 
-    std::cout << "Leaving BinnedLikelihood::addSourceCounts()" << std::endl;
+    // std::cout << "Leaving BinnedLikelihood::addSourceCounts()" << std::endl;
   }
 
   void BinnedLikelihood::addFixedNpreds(const std::string & srcName,

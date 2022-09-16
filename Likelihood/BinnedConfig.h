@@ -177,11 +177,11 @@ namespace Likelihood {
 		 m_use_linear_quadrature,
 		 m_save_all_srcmaps,
 		 m_psf_integ_config.m_use_single_psf);
-     std::cout << "BinnedLikeConfig() - address is " << this << std::endl;
+//     std::cout << "BinnedLikeConfig() - address is " << this << std::endl;
     }
 
     ~BinnedLikeConfig(){
-      std::cout << "~BinnedLikeConfig() - Destroying object at address " << this << std::endl;
+//      std::cout << "~BinnedLikeConfig() - Destroying object at address " << this << std::endl;
     }
     
     BinnedLikeConfig(const BinnedLikeConfig& other)
@@ -193,7 +193,7 @@ namespace Likelihood {
        m_save_all_srcmaps(other.m_save_all_srcmaps),
        m_load_existing_srcmaps(other.m_load_existing_srcmaps),
        m_delete_local_fixed(other.m_delete_local_fixed){
-      std::cout << "BinnedLikeConfig copy constructor - Orginal is " << *other <<", new is " << this << std::endl;
+//      std::cout << "BinnedLikeConfig copy constructor - Orginal is " << &other <<", new is " << this << std::endl;
     }
     
     inline PsfIntegConfig& psf_integ_config() { return m_psf_integ_config; }

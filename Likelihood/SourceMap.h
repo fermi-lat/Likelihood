@@ -75,7 +75,7 @@ public:
    SourceMap(const Source & src, 
 	     const BinnedCountsCache * dataCache,
              const Observation & observation,
-	     const BinnedLikeConfig & config, 
+	     const BinnedLikeConfig config, 
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
@@ -96,7 +96,7 @@ public:
              const Source & src,
 	     const BinnedCountsCache * dataCache,
 	     const Observation & observation,
-	     const BinnedLikeConfig& config,
+	     const BinnedLikeConfig config,
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
@@ -124,7 +124,7 @@ public:
    inline const std::string & srcType() const { return m_srcType; }
 
    /* The parameters for the PSF Integration */
-   inline const BinnedLikeConfig& config() const { return m_config; }
+   inline const BinnedLikeConfig & config() const { return m_config; }
 
    /* The detector response matrix */
    inline const Drm* drm() const { return m_drm; }
@@ -442,7 +442,7 @@ private:
    st_stream::StreamFormatter * m_formatter;
 
    /// Options for treatment of PSF and energy disperson
-   const BinnedLikeConfig& m_config; 
+   const BinnedLikeConfig m_config; 
 
    /// The detector response matrix. 
    const Drm* m_drm;
