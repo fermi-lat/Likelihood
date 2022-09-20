@@ -76,7 +76,7 @@ void SourceMap::fill_full_model(const SparseVector<float>& sparse,
 SourceMap::SourceMap(const Source& src, 
 		     const BinnedCountsCache * dataCache,
                      const Observation & observation, 
-                     const BinnedLikeConfig& config,
+                     const BinnedLikeConfig config,
 		     const Drm& drm,
 		     const WeightMap* weights,
 		     bool save_model)
@@ -98,6 +98,7 @@ SourceMap::SourceMap(const Source& src,
      m_model_is_local(true),
      m_drm_cache(0) {
 
+
    set_energies();
 
    int status = make_model();
@@ -105,16 +106,17 @@ SourceMap::SourceMap(const Source& src,
      throw std::runtime_error("SourceMap construction failed");
    }
    m_drm_cache = new Drm_Cache(*m_drm, *this);
+   m_loaded = true;
 }
 
 SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const Source& src, 
 		     const BinnedCountsCache * dataCache,
 		     const Observation & observation,
-                     const BinnedLikeConfig& config,
+                     const BinnedLikeConfig config,
 		     const Drm& drm,
 		     const WeightMap* weights,
-		     bool save_model) 
+		     bool save_model)
   : m_src(&src),
     m_name(src.getName()),
     m_dataCache(dataCache),
@@ -132,7 +134,8 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
     m_edisp_offset(0),
     m_drm_cache(0) {
 
-  int status = readModel(sourceMapsFile);
+    int status = readModel(sourceMapsFile);
+
   if ( status != 0 ) {
     // throw std::runtime_error("SourceMap construction failed to read model");
   }
@@ -169,7 +172,9 @@ SourceMap::SourceMap(const SourceMap& other)
    m_derivs(other.m_derivs),
    m_npreds(other.m_npreds),
    m_weighted_npreds(other.m_weighted_npreds),
-   m_drm_cache(other.m_drm_cache->clone()){
+   m_drm_cache(other.m_drm_cache->clone()),
+   m_dataCleared(other.m_dataCleared),
+   m_loaded(other.m_loaded) {
 
 }
 
@@ -374,28 +379,14 @@ void SourceMap::computeNpredArray_sparse() {
 
   void SourceMap::setSource(const Source& src) {
     if ( m_src == &src ) {
-      if ( m_model.size() == 0 &&
-	   m_sparseModel.size() == 0 ) {
-	if ( m_filename.size() > 0 ) {
-	  readModel(m_filename);
-	} else {
-	  set_energies();
-	  make_model();
-	  return;
-	}
+      if (!m_loaded || (m_save_model && m_model.size() == 0 && m_sparseModel.size() == 0) ) {
+        getSourceData();
       } else {
-	return;
+	      return;
       }
     }
     m_src = &src;
-    set_energies();
-    m_specVals.clear();
-    m_specWts.clear();
-    m_modelPars.clear();
-    m_derivs.clear();
-    m_npreds.clear();
-    m_weighted_npreds.clear();  
-    m_model_is_local = false;
+    resetSourceData();
   }
 
 
@@ -592,7 +583,6 @@ void SourceMap::test_sparse(const std::string& prefix) const {
   for ( SparseVector<float>::const_iterator itr = m_sparseModel.begin();
 	itr != m_sparseModel.end(); itr++ ) {
     if ( itr->first >= m_sparseModel.size() ) {
-      std::cout << prefix << " " << itr->first << ' ' << m_sparseModel.size() << ' ' << itr->second << std::endl;
     }
   }
 }
@@ -602,6 +592,7 @@ int SourceMap::readModel(const std::string& filename) {
   m_model.clear();
   m_filename = filename;
   m_model_is_local = false;
+  //m_dataCleared = false;
 
   m_specVals.clear();
   m_specWts.clear();
@@ -609,7 +600,6 @@ int SourceMap::readModel(const std::string& filename) {
   m_derivs.clear();
   m_npreds.clear();
   m_weighted_npreds.clear();
-
   int status(0);
   switch ( m_dataCache->countsMap().projection().method()  ) {
   case astro::ProjBase::WCS:
@@ -622,6 +612,7 @@ int SourceMap::readModel(const std::string& filename) {
     status = -1;
     break;
   }
+
   if ( status != 0 ) {
     std::string errMsg("SourceMap failed to read source map: ");
     errMsg += m_filename;
@@ -635,6 +626,7 @@ int SourceMap::readModel(const std::string& filename) {
   applyPhasedExposureMap();
   setSpectralValues();
   computeNpredArray();
+  m_loaded = true;
     
   return status;
 }
@@ -838,13 +830,45 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
   }
 } 
 
-  void SourceMap::set_energies() {
-    m_edisp_val = m_src->use_edisp() ? m_config.edisp_val() : 0;
+  void SourceMap::set_energies(bool reload) {
+    if (!reload){
+      m_edisp_val = m_src->use_edisp() ? m_config.edisp_val() : 0;
+    }
     m_edisp_offset = m_edisp_bins - m_drm->edisp_bins(),
     m_energies.resize(m_dataCache->num_energies());
     std::copy(m_dataCache->energies().begin(),m_dataCache->energies().end(),m_energies.begin());
     FitUtils::expand_energies(m_energies, m_edisp_bins);
     FitUtils::log_energy_ratios(m_energies, m_logEnergyRatios);
+  }
+
+  void SourceMap::reloadIfCleared(){
+    if (m_dataCleared){
+      getSourceData(false);
+      m_dataCleared = false;
+    }
+    resetSourceData(false);
+  }
+
+  void SourceMap::resetSourceData(bool reload){
+    set_energies(reload);
+    m_specVals.clear();
+    m_specWts.clear();
+    m_modelPars.clear();
+    m_derivs.clear();
+    m_npreds.clear();
+    m_weighted_npreds.clear();  
+    m_model_is_local = false;
+  }
+
+  void SourceMap::getSourceData(bool reload){
+    m_loaded = true;
+    if (m_filename.size() > 0) {
+      readModel(m_filename);
+    } else {
+      set_energies(reload);
+      make_model();
+      return;
+    }
   }
 
 } // Likelihood

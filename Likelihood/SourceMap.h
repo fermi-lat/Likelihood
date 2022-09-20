@@ -75,7 +75,7 @@ public:
    SourceMap(const Source & src, 
 	     const BinnedCountsCache * dataCache,
              const Observation & observation,
-	     const BinnedLikeConfig & config, 
+	     const BinnedLikeConfig config, 
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
@@ -96,7 +96,7 @@ public:
              const Source & src,
 	     const BinnedCountsCache * dataCache,
 	     const Observation & observation,
-	     const BinnedLikeConfig& config,
+	     const BinnedLikeConfig config,
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
@@ -124,7 +124,7 @@ public:
    inline const std::string & srcType() const { return m_srcType; }
 
    /* The parameters for the PSF Integration */
-   inline const BinnedLikeConfig& config() const { return m_config; }
+   inline const BinnedLikeConfig & config() const { return m_config; }
 
    /* The detector response matrix */
    inline const Drm* drm() const { return m_drm; }
@@ -150,6 +150,12 @@ public:
    /* Flag to indicated that model is out of sync with file */
    inline bool model_is_local() const { return m_model_is_local; }
 
+   /* Flag to indicate if the model has been loaded once */
+   inline bool is_loaded() const { return m_loaded;}
+
+   /* Flag to indcate if the map is currently cleared */
+   inline bool is_cleared() const { return m_dataCleared; }
+
 
    /* --------------- Class Methods ----------------------*/
 
@@ -165,7 +171,9 @@ public:
        m_model.swap(nullVect);
        m_sparseModel.clear();
        m_model_is_local = false;
+       m_dataCleared = true;
      }
+     return;
    }      
 
    /* Set the source associated with this source map, this is useful for
@@ -313,13 +321,20 @@ public:
    void setWeights(const WeightMap* weights);
 
    /// Explicity set the flag to save the model
-   inline void setSaveModel(bool val) { m_save_model = val; }
+   inline void setSaveModel(bool val) { 
+      m_save_model = val; 
+      if (val) reloadIfCleared();
+   }
 
+   /// @TODO these should be moved to the right sections of the header.
    /// Set the filename (e.g., b/c we are writing the source map)
    inline void setFilename(const std::string& filename) { m_filename = filename; }
 
    /// Set value of model_is_local (e.g., b/c we are writing the source map)
    inline void setModelIsLocal(bool val) { m_model_is_local = val; }
+
+   /// reload the modelfile if it has been cleared
+   void reloadIfCleared();
 
 
    /* --------------------- Debugging -------------------- */
@@ -349,7 +364,7 @@ protected:
    void expand_model(bool clearSparse = true);
 
    /* Latch the energy vector */
-   void set_energies();
+   void set_energies(bool reload = false);
 
 private:
 
@@ -390,6 +405,12 @@ private:
      return m_sparseModel[idx];
    }
 
+   /* Reset data values after loading a source */
+   void resetSourceData(bool reload = false);
+
+   /* Load or build source map data */
+   void getSourceData(bool reload = false);
+
 
    /* ---------------- Data Members --------------------- */
 
@@ -418,7 +439,7 @@ private:
    st_stream::StreamFormatter * m_formatter;
 
    /// Options for treatment of PSF and energy disperson
-   const BinnedLikeConfig& m_config;
+   const BinnedLikeConfig m_config; 
 
    /// The detector response matrix. 
    const Drm* m_drm;
@@ -439,7 +460,7 @@ private:
    const WeightMap* m_weights;
 
    /// Flag to indicate that we should save the model
-   bool m_save_model;
+   bool m_save_model = true;
 
    /// Flag to indicated that model is out of sync with file
    bool m_model_is_local;
@@ -492,6 +513,11 @@ private:
    /// Caches of the true and measured energy spectra for sources
    Drm_Cache* m_drm_cache;
 
+   /// flag indicating that data model has been cleared
+   bool m_dataCleared = false;
+
+   /// flag indicating that the data has been loaded at least once
+   bool m_loaded = false;
 
 };
 

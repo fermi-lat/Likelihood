@@ -10,6 +10,7 @@
 #define Likelihood_BinnedConfig_h
 
 #include <cstdlib>
+#include <iostream>
 
 namespace Likelihood {
 
@@ -176,6 +177,9 @@ namespace Likelihood {
 		 m_use_linear_quadrature,
 		 m_save_all_srcmaps,
 		 m_psf_integ_config.m_use_single_psf);
+    }
+
+    ~BinnedLikeConfig(){
     }
     
     BinnedLikeConfig(const BinnedLikeConfig& other)
