@@ -109,6 +109,7 @@ namespace Likelihood {
   SourceMap * SourceMapCache::getSourceMap(const Source& src,
 					   bool verbose,
 					   const BinnedLikeConfig* config) const {
+
     const std::string& srcName = src.getName();
     SourceMap* srcMap(0);
  
@@ -356,8 +357,8 @@ namespace Likelihood {
       //updateCorrectionFactors(*src, *srcMap);
       //updateModelMap(modelMap, *src, srcMap, use_mask);
       if( !hasMap && ! m_config.save_all_srcmaps() ) {
-        SourceMapCache* nc_this = const_cast<SourceMapCache*>(this);
-        nc_this->eraseSourceMap(src->getName());
+	SourceMapCache* nc_this = const_cast<SourceMapCache*>(this);
+	nc_this->eraseSourceMap(src->getName());
       }
     }
   }
