@@ -17,6 +17,7 @@ resources:
       type: github
       name: fermi-lat/ci
       endpoint: fermi-lat
+      branch: cmake_changes
       
 variables:
 - group: DevOps Access Keys
