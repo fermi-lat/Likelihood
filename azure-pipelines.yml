@@ -20,7 +20,7 @@ resources:
       branch: cmake_changes
       
 variables:
-- group: DevOps Access Keys
+- group: Build Parameters
 - name: repo
   value: Likelihood
 
