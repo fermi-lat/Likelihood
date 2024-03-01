@@ -20,50 +20,52 @@ namespace st_graph {
  * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/likelihood/EasyPlot.h,v 1.4 2006/06/27 15:56:05 peachey Exp $
  */
 
-class EasyPlot {
+namespace EasyPlot {
+
+class MPLPlot {
 
 public:
 
-   EasyPlot(st_graph::IFrame * mainFrame, const std::string &title,
-            bool logX = false, bool logY = false,
-            const std::string &xAxisTitle = "", const std::string &yAxisTitle = "",
-            unsigned int xsize=400, unsigned int ysize=400);
+  //EasyPlot(st_graph::IFrame * mainFrame, const std::string &title,
+  //          bool logX = false, bool logY = false,
+  //          const std::string &xAxisTitle = "", const std::string &yAxisTitle = "",
+  //          unsigned int xsize=400, unsigned int ysize=400);
 
-   ~EasyPlot() throw();
+  // ~EasyPlot() throw();
 
-   void scatter(const std::vector<double> & x, 
-                const std::vector<double> & y,
-                const std::vector<double> & xerr, 
-                const std::vector<double> & yerr,
-                int color = st_graph::Color::eBlack,
-                const std::string & line_style = "none");
+   static void scatter(const std::vector<double> & x, 
+		       const std::vector<double> & y,
+		       const std::vector<double> & xerr, 
+		       const std::vector<double> & yerr,
+		       int color = st_graph::Color::eBlack,
+		       const std::string & line_style = "none");
 
-   void scatter(const std::vector<double> & x, 
-                const std::vector<double> & y,
-                const std::vector<double> & yerr,
-                int color = st_graph::Color::eBlack,
-                const std::string & line_style = "none");
+   static void scatter(const std::vector<double> & x, 
+		       const std::vector<double> & y,
+		       const std::vector<double> & yerr,
+		       int color = st_graph::Color::eBlack,
+		       const std::string & line_style = "none");
 
-   void scatter(const std::vector<double> & x, 
-                const std::vector<double> & y,
-                int color = st_graph::Color::eBlack,
-                const std::string & line_style = "none");
+   static void scatter(const std::vector<double> & x, 
+		       const std::vector<double> & y,
+		       int color = st_graph::Color::eBlack,
+		       const std::string & line_style = "none");
 
-   void linePlot(const std::vector<double> & x,
-                 const std::vector<double> & y,
-                 int color = st_graph::Color::eBlack,
-                 const std::string & line_style = "solid");
+   static void linePlot(const std::vector<double> & x,
+			const std::vector<double> & y,
+			int color = st_graph::Color::eBlack,
+			const std::string & line_style = "solid");
 
-   void histogram(const std::vector<double> & x,
-                  const std::vector<double> & y,
-                  int color = st_graph::Color::eBlack,
-                  const std::string & line_style = "solid");
+   // void histogram(const std::vector<double> & x,
+   //                const std::vector<double> & y,
+   //                int color = st_graph::Color::eBlack,
+   //                const std::string & line_style = "solid");
 
-   void histogram(const std::vector<double> & x,
-                  const std::vector<double> & y,
-                  const std::vector<double> & xerr,
-                  int color = st_graph::Color::eBlack,
-                  const std::string & line_style = "solid");
+   static void histogram(const std::vector<long> & x,
+			 const std::vector<double> & y,
+			 const std::vector<double> & xwidth,
+			 int color = st_graph::Color::eBlack,
+			 const std::string & line_style = "solid");
 
    st_graph::IFrame * getPlotFrame();
 
@@ -71,17 +73,20 @@ public:
 
 private:
 
-   st_graph::IFrame * m_mainFrame;
-   st_graph::IFrame * m_plotFrame;
-   std::vector<st_graph::IPlot *> m_plots;
+  // st_graph::IFrame * m_mainFrame;
+  //st_graph::IFrame * m_plotFrame;
+  //std::vector<st_graph::IPlot *> m_plots;
    bool m_logX;
    bool m_logY;
    std::string m_xAxisTitle;
    std::string m_yAxisTitle;
 
-   void scatterPlotErrorBars(const std::vector<double> & x,
-                             std::vector<double> & xerr,
-                             unsigned int nbins=100) const;
+   // void scatterPlotErrorBars(const std::vector<double> & x,
+   //                           std::vector<double> & xerr,
+   //                           unsigned int nbins=100) const;
 
-   void setScale(st_graph::IPlot * plot);
+   //void setScale(st_graph::IPlot * plot);
 };
+
+} // namespace EasyPlot
+
