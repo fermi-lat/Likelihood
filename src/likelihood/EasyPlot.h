@@ -61,11 +61,11 @@ public:
    //                int color = st_graph::Color::eBlack,
    //                const std::string & line_style = "solid");
 
-   static void histogram(const std::vector<long> & x,
-			 const std::vector<double> & y,
-			 const std::vector<double> & xwidth,
-			 int color = st_graph::Color::eBlack,
-			 const std::string & line_style = "solid");
+   // static void histogram(const std::vector<long> & x,
+   // 			 const std::vector<double> & y,
+   // 			 const std::vector<double> & xwidth,
+   // 			 int color = st_graph::Color::eBlack,
+   // 			 const std::string & line_style = "solid");
 
    st_graph::IFrame * getPlotFrame();
 
