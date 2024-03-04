@@ -18,21 +18,14 @@ namespace EasyPlot {
 	       const int color,
 	       const std::string & line_style)
   {
-
-    // Not sure how to handle err at this time
-    // Not sure how to handle 'line style'
-    const double s=1.0; // Marker size in points**2
-    const std::map<std::string, std::string> & keywords = {}; // keyword map
-
-    std::vector<const int> colorvec;
-    for (int i=0; i<x.size(); i++)
-      colorvec.push_back(color);
-    
-    plt::scatter_colored(x, y, colorvec, s, keywords);
-    //plt::scatter(x, y, s, keywords); // Ignore colorvector for now
-
+    // Keyword Map
+    const std::map<std::string, std::string> & keywords = {
+      {"fmt", "o"},
+      {"color", std::to_string(color)},
+      {"linestyle", line_style}
+    };
+    plt::errorbar(x, y, yerr, xerr, keywords);
     plt::show();
-    plt::save("./output.png");
   }
 
   // Scatter Type II
@@ -42,19 +35,14 @@ namespace EasyPlot {
 	       const int color,
 	       const std::string & line_style)
   {
-    // Not sure how to handle err at this time                                                                                                     
-    // Not sure how to handle 'line style'                                                                                                         
-    const double s=1.0; // Marker size in points**2                                                                                                
-    const std::map<std::string, std::string> & keywords = {}; // keyword map
-
-    std::vector<const int> colorvec;
-    for (int i=0; i<x.size(); i++)
-      colorvec.push_back(color);
-  
-    plt::scatter_colored(x, y, colorvec, s, keywords);
-    //plt::scatter(x, y, s, keywords); // Ignore colorvector for now
+    // Keyword Map
+    const std::map<std::string, std::string> & keywords = {
+      {"fmt", "o"},
+      {"color", std::to_string(color)},
+      {"linestyle", line_style}
+    };
+    plt::errorbar(x, y, yerr, keywords);
     plt::show();
-    plt::save("./output.png");
   }
 
   // Scatter Type III
@@ -63,18 +51,15 @@ namespace EasyPlot {
 	       const int color,
 	       const std::string & line_style)
   {
-    // Not sure how to handle err at this time                                                                                                     
-    // Not sure how to handle 'line style'                                                                                                         
-    const double s=1.0; // Marker size in points**2                                                                                                
-    const std::map<std::string, std::string> & keywords = {}; // keyword map
-
-    std::vector<const int> colorvec;
-    for (int i=0; i<x.size(); i++)
-      colorvec.push_back(color);
-    
-    plt::scatter_colored(x, y, colorvec, s, keywords);
-    //plt::scatter(x, y, s, keywords); // Ignore colorvector for now
-    plt::save("./output.png");
+    // Keyword Map
+    const std::map<std::string, std::string> & keywords = {
+      {"fmt", "o"},
+      {"color", std::to_string(color)},
+      {"linestyle", line_style}
+    };
+    const double s=1.0; // The marker size in points**2                    
+    plt::scatter(x, y, s, keywords);
+    plt::show();
   }
 
   // Line Type I
@@ -83,20 +68,25 @@ namespace EasyPlot {
 		int color,
 		const std::string & line_style)
   {
-    plt::plot(x, y, line_style);
-    plt::save("./output.png");
+    // Keyword Map
+    const std::map<std::string, std::string> & keywords = {
+      {"color", std::to_string(color)},
+      {"linestyle", line_style}
+    };
+    plt::plot(x, y, keywords);
+    plt::show();
   }
 
-  // Histogram I
-  void MPLPlot::histogram(const std::vector<long> &x,
-		 const std::vector<double> &y,
-		 const std::vector<double> &xwidth,
-		 int color,
-		 const std::string & line_style)
-  {
-    plt::hist(y); // Do we need width?
-    plt::save("./output.png");
-  }
+  // // Histogram I
+  // void MPLPlot::histogram(const std::vector<long> &x,
+  // 		 const std::vector<double> &y,
+  // 		 const std::vector<double> &xwidth,
+  // 		 int color,
+  // 		 const std::string & line_style)
+  // {
+  //   plt::hist(y); // Do we need width?
+  //   plt::save("./output.png");
+  // }
 
   // Scatter + Error Bars
   //void scatterPlotErrorBars(const std::vector<double> & x,
