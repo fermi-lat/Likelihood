@@ -21,39 +21,43 @@ namespace st_graph {
  */
 
 namespace EasyPlot {
-
-class MPLPlot {
+class Color {
 
 public:
 
-  //EasyPlot(st_graph::IFrame * mainFrame, const std::string &title,
-  //          bool logX = false, bool logY = false,
-  //          const std::string &xAxisTitle = "", const std::string &yAxisTitle = "",
-  //          unsigned int xsize=400, unsigned int ysize=400);
+  enum Color_e { eWhite, eBlack, eRed, eGreen, eBlue, eYellow, eMagenta, eCyan, eNumberOfColors };
 
-  // ~EasyPlot() throw();
+  static int nextColor(int current_color);
+
+  static char getColor(int current_color);
+
+};
+ 
+class MPLPlot {
+
+public:
 
    static void scatter(const std::vector<double> & x, 
 		       const std::vector<double> & y,
 		       const std::vector<double> & xerr, 
 		       const std::vector<double> & yerr,
-		       int color = st_graph::Color::eBlack,
+		       char color = 'k',
 		       const std::string & line_style = "none");
 
    static void scatter(const std::vector<double> & x, 
 		       const std::vector<double> & y,
 		       const std::vector<double> & yerr,
-		       int color = st_graph::Color::eBlack,
+		       char color = 'k',
 		       const std::string & line_style = "none");
 
    static void scatter(const std::vector<double> & x, 
 		       const std::vector<double> & y,
-		       int color = st_graph::Color::eBlack,
+		       char color = 'k',
 		       const std::string & line_style = "none");
 
    static void linePlot(const std::vector<double> & x,
 			const std::vector<double> & y,
-			int color = st_graph::Color::eBlack,
+		        char color = 'k',
 			const std::string & line_style = "solid");
 
    // void histogram(const std::vector<double> & x,
@@ -89,4 +93,3 @@ private:
 };
 
 } // namespace EasyPlot
-
