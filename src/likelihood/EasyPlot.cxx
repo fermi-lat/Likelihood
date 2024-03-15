@@ -58,7 +58,7 @@ namespace EasyPlot {
     };
     
     plt::errorbar(x, y, yerr, xerr, keywords);
-    plt::show();  
+    //plt::show();  
   }
 
   // Scatter Type II
@@ -76,7 +76,7 @@ namespace EasyPlot {
       {"linestyle", line_style}
     };
     plt::errorbar(x, y, yerr, keywords);
-    plt::show();
+    //plt::show();
   }
 
   // Scatter Type III
@@ -94,7 +94,7 @@ namespace EasyPlot {
     };
     const double s=1.0; // The marker size in points**2
     plt::scatter(x, y, s, keywords);
-    plt::show();
+    //plt::show();
   }
 
   // Line Type I
@@ -110,9 +110,26 @@ namespace EasyPlot {
       {"linestyle", line_style}
     };
     plt::plot(x, y, keywords);
-    plt::show();
+    //plt::show();
   }
 
+  void MPLPlot::logLog(const std::vector<double> & x,
+		       const std::vector<double> & y,
+		       char color)
+  {
+    std::string name = "plotname";
+    // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))                                                                                           
+    std::string c(1, color);
+    const std::map<std::string, std::string> & keywords = {
+      {"color", c}
+    };
+    plt::named_loglog(name,x,y,keywords);
+    //plt::show();
+  }  
+  void MPLPlot::showPlot()
+  {
+    plt::show();
+  }
   // Histogram I - Don't need Histograms unless otherwise indicated
   // void MPLPlot::histogram(const std::vector<long> &x,
   // 		 const std::vector<double> &y,

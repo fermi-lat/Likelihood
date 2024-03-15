@@ -108,7 +108,7 @@ struct _interpreter {
        multiple independent embedded python interpreters without patching the python source code
        or starting a separate process for each. [1]
        Furthermore, many python objects expect that they are destructed in the same thread as they
-       were constructed. [2] So for advanced usage, a `kill()` function is provided so that library
+       wereconstructed. [2] So for advanced usage, a `kill()` function is provided so that library
        users can manually ensure that the interpreter is constructed and destroyed within the
        same thread.
 
@@ -1622,7 +1622,7 @@ bool loglog(const std::vector<NumericX>& x, const std::vector<NumericY>& y, cons
     PyObject* yarray = detail::get_array(y);
 
     PyObject* pystring = PyString_FromString(s.c_str());
-
+    
     PyObject* plot_args = PyTuple_New(3);
     PyTuple_SetItem(plot_args, 0, xarray);
     PyTuple_SetItem(plot_args, 1, yarray);
@@ -1820,22 +1820,29 @@ bool named_semilogy(const std::string& name, const std::vector<NumericX>& x, con
 }
 
 template<typename NumericX, typename NumericY>
-bool named_loglog(const std::string& name, const std::vector<NumericX>& x, const std::vector<NumericY>& y, const std::string& format = "")
+bool named_loglog(const std::string& name, const std::vector<NumericX>& x, const std::vector<NumericY> y, const std::map<std::string, std::string> &keywords = {})
 {
     detail::_interpreter::get();
 
+    
     PyObject* kwargs = PyDict_New();
+    for(std::map<std::string, std::string>::const_iterator it = keywords.begin(); it != keywords.end(); ++it)
+    {
+        PyDict_SetItemString(kwargs, it->first.c_str(), PyString_FromString(it->second.c_str()));
+    }
+
     PyDict_SetItemString(kwargs, "label", PyString_FromString(name.c_str()));
 
     PyObject* xarray = detail::get_array(x);
     PyObject* yarray = detail::get_array(y);
 
-    PyObject* pystring = PyString_FromString(format.c_str());
+    //PyObject* pystring = PyString_FromString(format.c_str());
 
-    PyObject* plot_args = PyTuple_New(3);
+    
+    PyObject* plot_args = PyTuple_New(2);
     PyTuple_SetItem(plot_args, 0, xarray);
     PyTuple_SetItem(plot_args, 1, yarray);
-    PyTuple_SetItem(plot_args, 2, pystring);
+    //PyTuple_SetItem(plot_args, 2, pystring);
     PyObject* res = PyObject_Call(detail::_interpreter::get().s_python_function_loglog, plot_args, kwargs);
 
     Py_DECREF(kwargs);

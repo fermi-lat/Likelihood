@@ -60,6 +60,11 @@ public:
 		        char color = 'k',
 			const std::string & line_style = "solid");
 
+   static void logLog(const std::vector<double> & x,
+		      const std::vector<double> & y,
+		      char color = 'k');
+  
+   static void showPlot();
    // void histogram(const std::vector<double> & x,
    //                const std::vector<double> & y,
    //                int color = st_graph::Color::eBlack,

@@ -526,7 +526,8 @@ void likelihood::plotCountsSpectra() {
    std::vector<double> zero(fine_evals.size(), 1.);
    
    try {
-      EasyPlot::MPLPlot::scatter(evals, nobs, nobs_err, 'k');
+     //EasyPlot::MPLPlot::scatter(evals, nobs, nobs_err, 'k');
+     EasyPlot::MPLPlot::logLog(evals, nobs, 'k');
       std::vector<double> npred_tot(npred.at(0).size(), 0);
       std::vector<double> fine_npred_tot(fine_npred.at(0).size(), 0);
       int color = EasyPlot::Color::eBlack;
@@ -538,7 +539,7 @@ void likelihood::plotCountsSpectra() {
             fine_npred[i][k] /= fine_ewidth[k];
          }
          color = EasyPlot::Color::nextColor(color);
-	 EasyPlot::MPLPlot::linePlot(fine_evals, fine_npred[i], EasyPlot::Color::getColor(color));
+	 EasyPlot::MPLPlot::logLog(fine_evals, fine_npred[i], EasyPlot::Color::getColor(color));
          for (size_t k = 0; k < npred_tot.size(); k++) {
             npred_tot.at(k) += npred.at(i).at(k);
          }
@@ -546,6 +547,7 @@ void likelihood::plotCountsSpectra() {
             fine_npred_tot.at(k) += fine_npred.at(i).at(k);
          }
       }
+      EasyPlot::MPLPlot::showPlot();
       EasyPlot::MPLPlot::linePlot(fine_evals, fine_npred_tot);
       
       //EasyPlot residuals_plot(mainFrame.get(), "", true, false, 
