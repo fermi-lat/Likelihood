@@ -69,13 +69,17 @@ namespace EasyPlot {
 	       const std::string & line_style)
   {
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
-    std::string c(1,color);   
+    std::string c(1,color);
+    std::string xscale = "log";
+    std::string yscale = "log";
     const std::map<std::string, std::string> & keywords = {
       {"fmt", "o"},
       {"color", c},
       {"linestyle", line_style}
     };
     plt::errorbar(x, y, yerr, keywords);
+    plt::xscale(xscale);
+    plt::yscale(yscale);
     //plt::show();
   }
 
@@ -91,6 +95,7 @@ namespace EasyPlot {
       {"fmt", "o"},
       {"color", c},
       {"linestyle", line_style}
+      //{"xscale", "log"}
     };
     const double s=1.0; // The marker size in points**2
     plt::scatter(x, y, s, keywords);
@@ -125,11 +130,28 @@ namespace EasyPlot {
     };
     plt::named_loglog(name,x,y,keywords);
     //plt::show();
-  }  
+  }
+
+  void MPLPlot::semilogx(const std::vector<double> & x,
+			 const std::vector<double> & y,
+			 char color,
+			 const std::string & line_style,
+			 const std::string & plt_title)
+  {
+    std::string c(1,color);
+    const std::map<std::string, std::string> & keywords = {
+      {"marker", "o"},
+      {"color", c},
+      {"linestyle", line_style}
+    };
+    plt::named_semilogx(plt_title, x, y, keywords);
+  }
+  
   void MPLPlot::showPlot()
   {
     plt::show();
   }
+  
   // Histogram I - Don't need Histograms unless otherwise indicated
   // void MPLPlot::histogram(const std::vector<long> &x,
   // 		 const std::vector<double> &y,
@@ -139,6 +161,25 @@ namespace EasyPlot {
   // {
   //   plt::hist(y); // Do we need width?
   // }
-  
-} // namespace EasyPlot
 
+  // Formatting/Utility function passthrough
+  void MPLPlot::ylim(const double left, const double right)
+  {
+    plt::ylim(left,right);
+  }
+
+  void MPLPlot::xlim(const double left, const double right)
+  {
+    plt::xlim(left,right);
+  }
+
+  void MPLPlot::subplot(long nrows, long ncols, long plot_number)
+  {
+    plt::subplot(nrows, ncols, plot_number);
+  }
+
+  void MPLPlot::figure(long number)
+  {
+    plt::figure(number);
+  }
+} // namespace EasyPlot

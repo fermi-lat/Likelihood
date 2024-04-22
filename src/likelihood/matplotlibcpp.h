@@ -1,4 +1,4 @@
-#pragma once
+#pragma onceOB
 
 // Python headers must be included before any system headers, since
 // they define _POSIX_C_SOURCE
@@ -103,6 +103,9 @@ struct _interpreter {
     PyObject *s_python_function_subplots_adjust;
     PyObject *s_python_function_rcparams;
     PyObject *s_python_function_spy;
+    // Custom Added PyObject Casts
+    PyObject *s_python_function_xscale;
+    PyObject *s_python_function_yscale;
 
     /* For now, _interpreter is implemented as a singleton since its currently not possible to have
        multiple independent embedded python interpreters without patching the python source code
@@ -278,6 +281,9 @@ private:
         s_python_function_subplots_adjust = safe_import(pymod,"subplots_adjust");
         s_python_function_rcparams = PyObject_GetAttrString(pymod, "rcParams");
 	s_python_function_spy = PyObject_GetAttrString(pymod, "spy");
+	// Custom added function exposure
+	s_python_function_xscale = safe_import(pymod, "xscale");
+	s_python_function_yscale = safe_import(pymod, "yscale");
 #ifndef WITHOUT_NUMPY
         s_python_function_imshow = safe_import(pymod, "imshow");
 #endif
@@ -1766,22 +1772,27 @@ bool named_plot(const std::string& name, const std::vector<NumericX>& x, const s
 }
 
 template<typename NumericX, typename NumericY>
-bool named_semilogx(const std::string& name, const std::vector<NumericX>& x, const std::vector<NumericY>& y, const std::string& format = "")
+bool named_semilogx(const std::string& name, const std::vector<NumericX>& x, const std::vector<NumericY>& y, const std::map<std::string, std::string> &keywords = {})
 {
     detail::_interpreter::get();
 
     PyObject* kwargs = PyDict_New();
+    for(std::map<std::string, std::string>::const_iterator it = keywords.begin(); it != keywords.end(); ++it)
+    {
+        PyDict_SetItemString(kwargs, it->first.c_str(), PyString_FromString(it->second.c_str()));
+    }
+    
     PyDict_SetItemString(kwargs, "label", PyString_FromString(name.c_str()));
 
     PyObject* xarray = detail::get_array(x);
     PyObject* yarray = detail::get_array(y);
 
-    PyObject* pystring = PyString_FromString(format.c_str());
+    //PyObject* pystring = PyString_FromString(format.c_str());
 
-    PyObject* plot_args = PyTuple_New(3);
+    PyObject* plot_args = PyTuple_New(2);
     PyTuple_SetItem(plot_args, 0, xarray);
     PyTuple_SetItem(plot_args, 1, yarray);
-    PyTuple_SetItem(plot_args, 2, pystring);
+    //PyTuple_SetItem(plot_args, 2, pystring);
 
     PyObject* res = PyObject_Call(detail::_interpreter::get().s_python_function_semilogx, plot_args, kwargs);
 
@@ -2301,10 +2312,10 @@ inline void subplot(long nrows, long ncols, long plot_number)
 
     // construct positional args
     PyObject* args = PyTuple_New(3);
-    PyTuple_SetItem(args, 0, PyFloat_FromDouble(nrows));
-    PyTuple_SetItem(args, 1, PyFloat_FromDouble(ncols));
-    PyTuple_SetItem(args, 2, PyFloat_FromDouble(plot_number));
-
+    PyTuple_SetItem(args, 0, PyLong_FromLong(nrows));
+    PyTuple_SetItem(args, 1, PyLong_FromLong(ncols));
+    PyTuple_SetItem(args, 2, PyLong_FromLong(plot_number));
+    
     PyObject* res = PyObject_CallObject(detail::_interpreter::get().s_python_function_subplot, args);
     if(!res) throw std::runtime_error("Call to subplot() failed.");
 
@@ -2795,6 +2806,42 @@ inline void tight_layout() {
 
     Py_DECREF(res);
 }
+
+inline void xscale(const std::string &str)
+{
+    detail::_interpreter::get();
+
+    PyObject* pystr = PyString_FromString(str.c_str());
+    PyObject* kwargs = PyDict_New();
+    
+    PyObject* args = PyTuple_New(1);
+    PyTuple_SetItem(args, 0, pystr);
+
+    PyObject* res = PyObject_Call(detail::_interpreter::get().s_python_function_xscale, args, kwargs);
+    if(!res) throw std::runtime_error("Call to xscale() failed.");
+
+    Py_DECREF(args);
+    Py_DECREF(res);
+}
+
+inline void yscale(const std::string &str)
+{
+    detail::_interpreter::get();
+
+    PyObject* pystr = PyString_FromString(str.c_str());
+    PyObject* kwargs = PyDict_New();
+    
+    PyObject* args = PyTuple_New(1);
+    PyTuple_SetItem(args, 0, pystr);
+
+    PyObject* res = PyObject_Call(detail::_interpreter::get().s_python_function_yscale, args, kwargs);
+    if(!res) throw std::runtime_error("Call to yscale() failed.");
+
+    Py_DECREF(args);
+    Py_DECREF(res);
+}
+
+
 
 // Support for variadic plot() and initializer lists:
 

@@ -526,8 +526,11 @@ void likelihood::plotCountsSpectra() {
    std::vector<double> zero(fine_evals.size(), 1.);
    
    try {
-     //EasyPlot::MPLPlot::scatter(evals, nobs, nobs_err, 'k');
-     EasyPlot::MPLPlot::logLog(evals, nobs, 'k');
+      //EasyPlot::MPLPlot::scatter(evals, nobs, nobs_err, 'k');
+      //EasyPlot::MPLPlot::subplot(2,1,2);
+      EasyPlot::MPLPlot::figure(1);
+      EasyPlot::MPLPlot::logLog(evals, nobs, 'k');
+      //EasyPlot::MPLPlot::subplot(2,1,1);
       std::vector<double> npred_tot(npred.at(0).size(), 0);
       std::vector<double> fine_npred_tot(fine_npred.at(0).size(), 0);
       int color = EasyPlot::Color::eBlack;
@@ -547,27 +550,35 @@ void likelihood::plotCountsSpectra() {
             fine_npred_tot.at(k) += fine_npred.at(i).at(k);
          }
       }
-      EasyPlot::MPLPlot::showPlot();
+      //EasyPlot::MPLPlot::showPlot();
       EasyPlot::MPLPlot::linePlot(fine_evals, fine_npred_tot);
-      
+      //EasyPlot::MPLPlot::subplot(2,1,1);
       //EasyPlot residuals_plot(mainFrame.get(), "", true, false, 
       //                        "Energy (MeV)", "(counts - model) / model",
       //                        600, 200);
-      //std::vector<double> zero(evals.size(), 0.);
+      std::vector<double> zero(evals.size(), 0.);
 
       //st_graph::TopEdge top_edge(residuals_plot.getPlotFrame());
       //top_edge.below(st_graph::BottomEdge(plot.getPlotFrame()));
 
-      //std::vector<double> residuals(npred_tot.size(), 0.);
-      //std::vector<double> residuals_err(npred_tot.size(), 0.);
-      //for (unsigned int i = 0; i < npred_tot.size(); ++i) {
-      //   residuals.at(i) = (nobs.at(i) - npred_tot.at(i))/npred_tot.at(i);
-      //   residuals_err.at(i) = nobs_err.at(i)/npred_tot.at(i);
-      //}
+      std::vector<double> residuals(npred_tot.size(), 0.);
+      std::vector<double> residuals_err(npred_tot.size(), 0.);
+      for (unsigned int i = 0; i < npred_tot.size(); ++i) {
+         residuals.at(i) = (nobs.at(i) - npred_tot.at(i))/npred_tot.at(i);
+         residuals_err.at(i) = nobs_err.at(i)/npred_tot.at(i);
+      }
 
       //residuals_plot.scatter(evals, residuals, residuals_err);
+      EasyPlot::MPLPlot::figure(2);
+      //EasyPlot::MPLPlot::linePlot(evals, residuals, 'k');
+      std::string s = "Test String";
+      //EasyPlot::MPLPlot::semilogx(evals, residuals, 'k', "dashed", "residuals");//, residuals_err);
+      EasyPlot::MPLPlot::scatter(evals, residuals, residuals_err, 'k');
       //residuals_plot.linePlot(evals, zero, st_graph::Color::eBlack, "dashed");
-      
+      EasyPlot::MPLPlot::semilogx(evals, zero, 'k', "dashed", "residuals");
+      //EasyPlot::MPLPlot::logLog(evals, zero, 'k');
+      //EasyPlot::MPLPlot::subplot(2,1,2);
+      EasyPlot::MPLPlot::showPlot();
       //EasyPlot::MPLPlot::run();
    } catch (std::exception &eObj) {
       std::string message = "RootEngine could not create";

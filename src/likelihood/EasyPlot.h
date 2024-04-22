@@ -63,6 +63,20 @@ public:
    static void logLog(const std::vector<double> & x,
 		      const std::vector<double> & y,
 		      char color = 'k');
+
+   static void semilogx(const std::vector<double> & x,
+		        const std::vector<double> & y,
+		        char color,
+			const std::string & line_style,
+			const std::string & plot_title);
+  
+   static void ylim(const double left, const double right);
+
+   static void xlim(const double left, const double right);
+
+   static void subplot(long nrows, long ncols, long plot_number);
+
+   static void figure(long number);
   
    static void showPlot();
    // void histogram(const std::vector<double> & x,
