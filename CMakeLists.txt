@@ -46,6 +46,7 @@ target_link_libraries(
   healpix
   map_tools
   PkgConfig::gsl
+  Python3::NumPy
   eblAtten
   
   PRIVATE
