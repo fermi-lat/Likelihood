@@ -526,11 +526,9 @@ void likelihood::plotCountsSpectra() {
    std::vector<double> zero(fine_evals.size(), 1.);
    
    try {
-      //EasyPlot::MPLPlot::scatter(evals, nobs, nobs_err, 'k');
-      //EasyPlot::MPLPlot::subplot(2,1,2);
       EasyPlot::MPLPlot::figure(1);
-      EasyPlot::MPLPlot::logLog(evals, nobs, 'k');
-      //EasyPlot::MPLPlot::subplot(2,1,1);
+      EasyPlot::MPLPlot::scatter(evals, nobs, nobs_err, 'k');
+      EasyPlot::MPLPlot::plotParams("Energy (MeV)", "counts/MeV", "log", "log");
       std::vector<double> npred_tot(npred.at(0).size(), 0);
       std::vector<double> fine_npred_tot(fine_npred.at(0).size(), 0);
       int color = EasyPlot::Color::eBlack;
@@ -542,24 +540,17 @@ void likelihood::plotCountsSpectra() {
             fine_npred[i][k] /= fine_ewidth[k];
          }
          color = EasyPlot::Color::nextColor(color);
-	 EasyPlot::MPLPlot::logLog(fine_evals, fine_npred[i], EasyPlot::Color::getColor(color));
-         for (size_t k = 0; k < npred_tot.size(); k++) {
+	 EasyPlot::MPLPlot::linePlot(fine_evals, fine_npred[i], EasyPlot::Color::getColor(color));
+	 for (size_t k = 0; k < npred_tot.size(); k++) {
             npred_tot.at(k) += npred.at(i).at(k);
          }
          for (size_t k = 0; k < fine_npred_tot.size(); k++) {
             fine_npred_tot.at(k) += fine_npred.at(i).at(k);
          }
       }
-      //EasyPlot::MPLPlot::showPlot();
       EasyPlot::MPLPlot::linePlot(fine_evals, fine_npred_tot);
-      //EasyPlot::MPLPlot::subplot(2,1,1);
-      //EasyPlot residuals_plot(mainFrame.get(), "", true, false, 
-      //                        "Energy (MeV)", "(counts - model) / model",
-      //                        600, 200);
       std::vector<double> zero(evals.size(), 0.);
 
-      //st_graph::TopEdge top_edge(residuals_plot.getPlotFrame());
-      //top_edge.below(st_graph::BottomEdge(plot.getPlotFrame()));
 
       std::vector<double> residuals(npred_tot.size(), 0.);
       std::vector<double> residuals_err(npred_tot.size(), 0.);
@@ -568,18 +559,13 @@ void likelihood::plotCountsSpectra() {
          residuals_err.at(i) = nobs_err.at(i)/npred_tot.at(i);
       }
 
-      //residuals_plot.scatter(evals, residuals, residuals_err);
       EasyPlot::MPLPlot::figure(2);
-      //EasyPlot::MPLPlot::linePlot(evals, residuals, 'k');
-      std::string s = "Test String";
-      //EasyPlot::MPLPlot::semilogx(evals, residuals, 'k', "dashed", "residuals");//, residuals_err);
       EasyPlot::MPLPlot::scatter(evals, residuals, residuals_err, 'k');
-      //residuals_plot.linePlot(evals, zero, st_graph::Color::eBlack, "dashed");
-      EasyPlot::MPLPlot::semilogx(evals, zero, 'k', "dashed", "residuals");
-      //EasyPlot::MPLPlot::logLog(evals, zero, 'k');
-      //EasyPlot::MPLPlot::subplot(2,1,2);
+      EasyPlot::MPLPlot::linePlot(evals, zero, 'k', "dashed");
+      EasyPlot::MPLPlot::plotParams("Energy (MeV)", "(counts - model) / model", "log");
+
       EasyPlot::MPLPlot::showPlot();
-      //EasyPlot::MPLPlot::run();
+      
    } catch (std::exception &eObj) {
       std::string message = "RootEngine could not create";
       if (!st_facilities::Util::expectedException(eObj, message)) {

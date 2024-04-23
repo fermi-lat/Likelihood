@@ -37,38 +37,48 @@ class MPLPlot {
 
 public:
 
+   static std::map<std::string, std::string>  plotKeywords(const std::string & fmt = "",
+ 							   char color = 'k',
+							   const std::string & linestyle = "");
+  
+   static void plotParams(const std::string & xlabel = "",
+			  const std::string & ylabel = "",
+			  const std::string & xscale = "linear",
+			  const std::string & yscale = "linear",
+			  const std::string & title = "");
+  
    static void scatter(const std::vector<double> & x, 
 		       const std::vector<double> & y,
 		       const std::vector<double> & xerr, 
 		       const std::vector<double> & yerr,
 		       char color = 'k',
-		       const std::string & line_style = "none");
+		       const std::string & line_style = "");
 
    static void scatter(const std::vector<double> & x, 
 		       const std::vector<double> & y,
 		       const std::vector<double> & yerr,
 		       char color = 'k',
-		       const std::string & line_style = "none");
+		       const std::string & line_style = "");
 
    static void scatter(const std::vector<double> & x, 
 		       const std::vector<double> & y,
 		       char color = 'k',
-		       const std::string & line_style = "none");
+		       const std::string & line_style = "");
 
    static void linePlot(const std::vector<double> & x,
 			const std::vector<double> & y,
 		        char color = 'k',
 			const std::string & line_style = "solid");
 
-   static void logLog(const std::vector<double> & x,
-		      const std::vector<double> & y,
-		      char color = 'k');
+   // static void logLog(const std::vector<double> & x,
+   // 		      const std::vector<double> & y,
+   // 		      char color = 'k');
 
-   static void semilogx(const std::vector<double> & x,
-		        const std::vector<double> & y,
-		        char color,
-			const std::string & line_style,
-			const std::string & plot_title);
+   // static void semilogx(const std::vector<double> & x,
+   // 		        const std::vector<double> & y,
+   // 		        char color,
+   // 			const std::string & line_style,
+   // 			const std::string & plot_title);
   
    static void ylim(const double left, const double right);
 

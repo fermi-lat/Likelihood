@@ -11,6 +11,10 @@ namespace plt = matplotlibcpp;
  */
 
 namespace EasyPlot {
+  
+  using StringMap = std::map<std::string, std::string>;
+  //using FuncMap = std::map<std::string,
+    
   // Helper function to get char value to properly handle colors
   int Color::nextColor(int current_color) {
     // Go to the next color char representation in the sequence.
@@ -36,10 +40,35 @@ namespace EasyPlot {
 		       'm' /*Magenta*/,
 		       'c' /*Cyan*/
     };
-
     return colors[current_color];
   }
-      
+
+  //only put defaults in header file
+  StringMap MPLPlot::plotKeywords(const std::string & fmt,
+				  char color,
+				  const std::string & linestyle)
+  {
+    std::string c(1,color); 
+    StringMap kwmap = {
+      {"color", c} // Default is black, represented by 'k'
+    };
+    if (!fmt.empty()) kwmap.insert({"fmt", fmt});
+    if (!linestyle.empty()) kwmap.insert({"linestyle", linestyle});
+    return kwmap;
+  }
+  
+  void MPLPlot::plotParams(const std::string & xlabel,
+			   const std::string & ylabel,
+			   const std::string & xscale,
+			   const std::string & yscale,
+			   const std::string & title)
+  {
+    if (!xlabel.empty()) plt::xlabel(xlabel); // Default is ''
+    if (!ylabel.empty()) plt::ylabel(ylabel); // Default is ''
+    if (!title.empty()) plt::title(title); // Default is ''
+    plt::xscale(xscale); // Default is linear
+    plt::yscale(yscale); // Default is linear
+  }
 
   // Scatter Type I
   void MPLPlot::scatter(const std::vector<double> & x,
@@ -50,15 +79,8 @@ namespace EasyPlot {
 	       const std::string & line_style)
   {
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
-    std::string c(1,color);
-    const std::map<std::string, std::string> & keywords = {
-      {"fmt", "o"},
-      {"color", c},
-      {"linestyle", line_style}
-    };
-    
+    const StringMap keywords = plotKeywords(".", color, line_style);
     plt::errorbar(x, y, yerr, xerr, keywords);
-    //plt::show();  
   }
 
   // Scatter Type II
@@ -69,18 +91,8 @@ namespace EasyPlot {
 	       const std::string & line_style)
   {
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
-    std::string c(1,color);
-    std::string xscale = "log";
-    std::string yscale = "log";
-    const std::map<std::string, std::string> & keywords = {
-      {"fmt", "o"},
-      {"color", c},
-      {"linestyle", line_style}
-    };
+    const StringMap keywords = plotKeywords(".",color,line_style);
     plt::errorbar(x, y, yerr, keywords);
-    plt::xscale(xscale);
-    plt::yscale(yscale);
-    //plt::show();
   }
 
   // Scatter Type III
@@ -90,62 +102,40 @@ namespace EasyPlot {
 	       const std::string & line_style)
   {
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
-    std::string c(1,color);
-    const std::map<std::string, std::string> & keywords = {
-      {"fmt", "o"},
-      {"color", c},
-      {"linestyle", line_style}
-      //{"xscale", "log"}
-    };
+    const StringMap keywords = plotKeywords(".",color,line_style);
     const double s=1.0; // The marker size in points**2
     plt::scatter(x, y, s, keywords);
-    //plt::show();
   }
 
   // Line Type I
   void MPLPlot::linePlot(const std::vector<double> & x,
 		const std::vector<double> & y,
-		char color,
+		const char color,
 		const std::string & line_style)
   {
     // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
-    std::string c(1,color);
-    const std::map<std::string, std::string> & keywords = {
-      {"color", c},
-      {"linestyle", line_style}
-    };
+    const StringMap keywords = plotKeywords("",color,line_style);
     plt::plot(x, y, keywords);
-    //plt::show();
   }
 
-  void MPLPlot::logLog(const std::vector<double> & x,
-		       const std::vector<double> & y,
-		       char color)
-  {
-    std::string name = "plotname";
-    // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))                                                                                           
-    std::string c(1, color);
-    const std::map<std::string, std::string> & keywords = {
-      {"color", c}
-    };
-    plt::named_loglog(name,x,y,keywords);
-    //plt::show();
-  }
+  // void MPLPlot::logLog(const std::vector<double> & x,
+  // 		       const std::vector<double> & y,
+  // 		       char color)
+  // {
+  //   // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))                                                                                           
+  //   const StringMap keywords = plotKeywords("",color,"");
+  //   plt::loglog(x,y,keywords);
+  // }
 
-  void MPLPlot::semilogx(const std::vector<double> & x,
-			 const std::vector<double> & y,
-			 char color,
-			 const std::string & line_style,
-			 const std::string & plt_title)
-  {
-    std::string c(1,color);
-    const std::map<std::string, std::string> & keywords = {
-      {"marker", "o"},
-      {"color", c},
-      {"linestyle", line_style}
-    };
-    plt::named_semilogx(plt_title, x, y, keywords);
-  }
+  // void MPLPlot::semilogx(const std::vector<double> & x,
+  // 			 const std::vector<double> & y,
+  // 			 char color,
+  // 			 const std::string & line_style)
+  // {
+  //   // Keyword Map - scatter format (-fmt='o') and plot color (-color=str(color))
+  //   const StringMap keywords = plotKeywords("",color,line_style);
+  //   plt::named_semilogx(plt_title, x, y, keywords);
+  // }
   
   void MPLPlot::showPlot()
   {
