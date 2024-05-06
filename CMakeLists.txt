@@ -45,7 +45,7 @@ target_link_libraries(
   tip
   healpix
   map_tools
-  PkgConfig::gsl
+  GSL::gsl
   Python3::NumPy
   eblAtten
   
@@ -55,8 +55,8 @@ target_link_libraries(
   hoops
   st_graph
   irfLoader
-  PkgConfig::cfitsio
-  PkgConfig::fftw3
+  cfitsio::cfitsio
+  FFTW::fftw3
   OpenMP::OpenMP_CXX
 )
 target_include_directories(
@@ -131,7 +131,7 @@ add_executable(
   src/test/SourceData.cxx
   src/test/XmlDiff.cxx
 )
-target_link_libraries(test_Likelihood PRIVATE Likelihood PkgConfig::cppunit)
+target_link_libraries(test_Likelihood PRIVATE Likelihood CppUnit::CppUnit)
 
 if(APPLE)
   target_compile_definitions(test_Likelihood PRIVATE DARWIN DARWIN_F2C_FAILURE)
