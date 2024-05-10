@@ -841,47 +841,50 @@ namespace Likelihood {
 
       return 0;
     }
-      
-    
-    int makePointSourceMap(const PointSource& pointSrc, 
-			   const CountsMapBase& dataMap,
-			   const std::vector<double>& energies,
-			   const PsfIntegConfig& config,
-			   const MeanPsf& meanpsf,
-			   const BinnedExposureBase* bexpmap,
-			   st_stream::StreamFormatter& formatter,
-			   std::vector<float>& modelmap,
-			   FileUtils::SrcMapType& mapType,
-			   int kmin, int kmax) {
 
-      if ( config.verbose() ) {
-	formatter.warn() << "Generating SourceMap for " << pointSrc.getName() << ' ' << energies.size();
-      }
+	int makePointSourceMap(const PointSource &pointSrc,
+						   const CountsMapBase &dataMap,
+						   const std::vector<double> &energies,
+						   const PsfIntegConfig &config,
+						   const MeanPsf &meanpsf,
+						   const BinnedExposureBase *bexpmap,
+						   st_stream::StreamFormatter &formatter,
+						   std::vector<float> &modelmap,
+						   FileUtils::SrcMapType &mapType,
+						   int kmin, int kmax)
+	{
 
-      int status(0);
-      switch ( dataMap.projection().method() ) {
-      case astro::ProjBase::WCS:
-	status = makePointSourceMap_wcs(pointSrc,static_cast<const CountsMap&>(dataMap),energies,
-					config,meanpsf,bexpmap,formatter,modelmap,mapType,kmin,kmax);
-	break;
-      case astro::ProjBase::HEALPIX:
-	status = makePointSourceMap_healpix(pointSrc,static_cast<const CountsMapHealpix&>(dataMap),energies,
-					    config,meanpsf,bexpmap,formatter,modelmap,mapType,kmin,kmax);
-	break;
-      default:
-	throw std::runtime_error("PSFUtils::makePointSourceMap, did not recognize CountsMapBase type at: " +
-				 dataMap.filename());
-	return -1;
-      }
+		if (config.verbose())
+		{
+			formatter.warn() << "Generating SourceMap for " << pointSrc.getName() << ' ' << energies.size();
+		}
 
-      if (config.verbose()) {
-	formatter.warn() << "!" << std::endl;
-      }
+		int status(0);
+		switch (dataMap.projection().method())
+		{
+		case astro::ProjBase::WCS:
+			status = makePointSourceMap_wcs(pointSrc, static_cast<const CountsMap &>(dataMap), energies,
+											config, meanpsf, bexpmap, formatter, modelmap, mapType, kmin, kmax);
+			break;
+		case astro::ProjBase::HEALPIX:
+			status = makePointSourceMap_healpix(pointSrc, static_cast<const CountsMapHealpix &>(dataMap), energies,
+												config, meanpsf, bexpmap, formatter, modelmap, mapType, kmin, kmax);
+			break;
+		default:
+			throw std::runtime_error("PSFUtils::makePointSourceMap, did not recognize CountsMapBase type at: " +
+									 dataMap.filename());
+			return -1;
+		}
 
-      return status;
-    }
-    
-    int makePointSourceMap_wcs(const PointSource& pointSrc, 
+		if (config.verbose())
+		{
+			formatter.warn() << "!" << std::endl;
+		}
+
+		return status;
+	}
+
+	int makePointSourceMap_wcs(const PointSource& pointSrc, 
 			       const CountsMap& dataMap,
 			       const std::vector<double>& energies,
 			       const PsfIntegConfig& config,

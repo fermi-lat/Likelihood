@@ -379,7 +379,11 @@ void SourceMap::computeNpredArray_sparse() {
 
   void SourceMap::setSource(const Source& src) {
     if ( m_src == &src ) {
+      if(printDebug) std::cout << "SourceMap::setSource for " << m_name << " - m_loaded=" << std::boolalpha << m_loaded << ", m_save_model = " << m_save_model
+                << ", m_model.size()=" << m_model.size() <<  ", m_sparseModel.size()=" << m_sparseModel.size() << std::endl;
       if (!m_loaded || (m_save_model && m_model.size() == 0 && m_sparseModel.size() == 0) ) {
+        if(printDebug) std::cout << "SourceMap::setSource for " << m_name << " - passed - m_loaded=" << std::boolalpha << m_loaded << ", m_save_model = " << m_save_model
+                  << ", m_model.size()=" << m_model.size() <<  ", m_sparseModel.size()=" << m_sparseModel.size() << std::endl;
         getSourceData();
       } else {
 	      return;
@@ -843,6 +847,7 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
 
   void SourceMap::reloadIfCleared(){
     if (m_dataCleared){
+      if(printDebug) std::cout << "SourceMap::reloadIfCleared() - reloading for " << m_name << std::endl;
       getSourceData(false);
       m_dataCleared = false;
     }
@@ -863,8 +868,10 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
   void SourceMap::getSourceData(bool reload){
     m_loaded = true;
     if (m_filename.size() > 0) {
+      if(printDebug) std::cout << "sourceMap::getSourceData() - reading data for " << m_name << std::endl;
       readModel(m_filename);
     } else {
+      if(printDebug) std::cout << "sourceMap::getSourceData() - building data for " << m_name << std::endl;
       set_energies(reload);
       make_model();
       return;

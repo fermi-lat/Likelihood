@@ -409,7 +409,7 @@ private:
    void resetSourceData(bool reload = false);
 
    /* Load or build source map data */
-   void getSourceData(bool reload = false);
+   void getSourceData(bool reload = true);
 
 
    /* ---------------- Data Members --------------------- */
@@ -520,6 +520,8 @@ private:
    bool m_loaded = false;
 
 };
+
+const bool printDebug = false;
 
 } // namespace Likelihood
 

@@ -148,12 +148,14 @@ BinnedLikelihood::~BinnedLikelihood() throw() {
 
 void BinnedLikelihood::setCountsMap(const std::vector<float> & counts) {
   m_dataCache.setCountsMap(counts);
+  if(printDebug) std::cout << "BinnedLikelihood::setCountsMap() calling buildFixedModelWts()" << std::endl;
   buildFixedModelWts();
 }
 
 
 void BinnedLikelihood::setWeightsMap(const ProjMap* wmap) {
   m_srcMapCache.setWeightsMap(wmap);
+  if(printDebug) std::cout << "BinnedLikelihood::setWeightsMap() calling buildFixedModelWts()" << std::endl;
   buildFixedModelWts();
 }
 
@@ -332,6 +334,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     m_bestValueSoFar = -1e38;
     SourceModel::addSource(src, fromClone);
     if ( m_config.use_single_fixed_map() && src->fixedSpectrum()) {
+      if(printDebug) std::cout << "BinnedLikelihood::addSource() - v1 calling addFixedSource()" << std::endl;
       addFixedSource(src->getName());      
     } else {
       if ( loadMap ) {
@@ -349,6 +352,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     m_bestValueSoFar = -1e38;
     SourceModel::addSource(src, fromClone);
     if ( m_config.use_single_fixed_map() && src->fixedSpectrum()) {
+      if(printDebug) std::cout << "BinnedLikelihood::addSource() - v2 calling addFixedSource()" << std::endl;
       addFixedSource(src->getName());
     } else {
       m_srcMapCache.loadSourceMap(*src,false,config);
@@ -456,6 +460,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     std::vector<std::string>::iterator srcIt = 
       std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
     if (srcIt != m_fixedSources.end() && buildFixedWeights) {
+      if(printDebug) std::cout << "BinnedLikelihood::loadSourceMap() for " << srcName << " calling buildFixedModelWts()" << std::endl;
       buildFixedModelWts();
     }
   }
@@ -553,6 +558,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     modelCounts.resize(m_dataCache.nFilled(), 0.);
 
     if (fixedModelUpdated() && m_updateFixedWeights) {
+      if(printDebug) std::cout << "BinnedLikelihood::computeModelMap_internal calling buildFixedModelWts()" << std::endl; 
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
     }
 
@@ -667,77 +673,113 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       return true;
     }
 
+    bool changed = false;
+    
+    // create a local list of all the fixed sources aborting (and returning true)
+    // if we find a source not in the current source list
     std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
     std::vector<std::string> fixedSources;
     for ( ; srcIt != m_sources.end(); ++srcIt) {
       if (srcIt->second->fixedSpectrum()) {
-	fixedSources.push_back(srcIt->first);
-	if (std::count(m_fixedSources.begin(), m_fixedSources.end(), 
-		       fixedSources.back()) != 1) {
-	  return true;
-	}
+        fixedSources.push_back(srcIt->first);
+        if (std::count(m_fixedSources.begin(), m_fixedSources.end(), 
+                fixedSources.back()) != 1) {
+          changed = true;
+          m_srcMapCache.getSourceMap(*(srcIt->second))->setSaveModel(true);  // this model might be changing a lot so let's keep it in memory even though it's now fixed
+          std::cout << "BinnedLikelihood::fixedModelUpdated() - 1 - adding " << srcIt->first << std::endl;
+          const_cast<BinnedLikelihood *>(this)->m_changingSources.insert(srcIt->first);
+        }
       }
     }
+    // if all the fixed sources were already in the list, make sure none are missing
     if (fixedSources.size() != m_fixedSources.size()) {
-      return true;
+      changed = true;
+      for (std::string src : m_fixedSources){
+        if (std::count(fixedSources.begin(), fixedSources.end(), src) != 1) { 
+          m_srcMapCache.getSourceMap(*(m_sources.at(src)))->setSaveModel(true);  // this is a newly freed source and may change again so let's keep it in memory
+          std::cout << "BinnedLikelihood::fixedModelUpdated() - 2 - adding " << src << std::endl;
+          const_cast<BinnedLikelihood *>(this)->m_changingSources.insert(src);
+        }
+      }
     }
   
     // Compare current parameter values for fixed sources with saved
     for (srcIt = m_sources.begin(); srcIt != m_sources.end(); ++srcIt) {
       const Source* src = srcIt->second;
       if (src->fixedSpectrum()) {
-	const SourceMap* srcMap = m_srcMapCache.getSourceMap(*src);
-	if ( srcMap == 0 ) {
-	  throw std::runtime_error("BinnedLikelihood::fixedModelUpdated: "
-				   "inconsistent m_srcMaps.");
-	}
-	if ( srcMap->spectrum_changed() ) {	  
-	  return true;
-	}	
+        SourceMap* srcMap = m_srcMapCache.getSourceMap(*src);
+        if ( srcMap == 0 ) {
+          throw std::runtime_error("BinnedLikelihood::fixedModelUpdated: "
+                "inconsistent m_srcMaps.");
+        }
+        if ( srcMap->spectrum_changed() ) {	  
+          changed = true;
+          srcMap->setSaveModel(true);
+          std::cout << "BinnedLikelihood::fixedModelUpdated() - 3 - adding " << srcIt->first << std::endl;
+          const_cast<BinnedLikelihood *>(this)->m_changingSources.insert(srcIt->first);
+        }	
       }
     }
-    return false;
+    return changed;
   }
 
 
 
 
   void BinnedLikelihood::buildFixedModelWts(bool process_all) {
-    m_fixedSources.clear();
+    if (m_fixed_counts_spec.size() == 0 && m_fixedSources.size() != 0 ) {
+      std::cout << "BinnedLikelihood::buildFixedModelWts() - building from scratch" << std::endl;
+      m_fixedSources.clear();
 
-    m_fixedModelCounts.clear();
-    m_fixedModelCounts.resize(m_dataCache.nFilled(), 0.);
+      m_fixedModelCounts.clear();
+      m_fixedModelCounts.resize(m_dataCache.nFilled(), 0.);
 
-    m_fixed_counts_spec.clear();
-    m_fixed_counts_spec_wt.clear();
-    m_fixed_counts_spec_edisp.clear();
-    m_fixed_counts_spec_edisp_wt.clear();
+      m_fixed_counts_spec.clear();
+      m_fixed_counts_spec_wt.clear();
+      m_fixed_counts_spec_edisp.clear();
+      m_fixed_counts_spec_edisp_wt.clear();
 
-    m_fixed_counts_spec.resize(m_dataCache.num_ebins(), 0); 
-    m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0); 
-    m_fixed_counts_spec_edisp.resize(m_dataCache.num_ebins(), 0); 
-    m_fixed_counts_spec_edisp_wt.resize(m_dataCache.num_ebins(), 0); 
+      m_fixed_counts_spec.resize(m_dataCache.num_ebins(), 0); 
+      m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0); 
+      m_fixed_counts_spec_edisp.resize(m_dataCache.num_ebins(), 0); 
+      m_fixed_counts_spec_edisp_wt.resize(m_dataCache.num_ebins(), 0); 
 
-    std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
-    for ( ; srcIt != m_sources.end(); ++srcIt) {
-      const std::string & srcName(srcIt->first);
-      const Source* src = srcIt->second;      
-      if (src->fixedSpectrum() ) {
-          //if (m_fixedModelBuilt) continue;
-          if ( ! process_all ) {
-            addFixedSource(srcName);
-          } else {
-            m_srcMapCache.getSourceMap(*src, false);
+      std::map<std::string, Source *>::const_iterator srcIt(m_sources.begin());
+      for ( ; srcIt != m_sources.end(); ++srcIt) {
+        const std::string & srcName(srcIt->first);
+        const Source* src = srcIt->second;      
+        if (src->fixedSpectrum() ) {
+
+            if ( ! process_all ) {
+              if(printDebug) std::cout << "BinnedLikelihood::buildFixedModelWts() calling addFixedSource()" << std::endl;
+              addFixedSource(srcName);
+            } else {
+              m_srcMapCache.getSourceMap(*src, false);
+            }
+        } else { 
+            // Process non-fixed sources.
+            //
+            // Ensure model map is available.
+            SourceMap * srcMap = m_srcMapCache.getSourceMap(*src, false);
+        }
+      }
+
+      computeFixedCountsSpectrum();
+      m_fixedModelBuilt = true;
+    } else {
+      std::cout << "BinnedLikelihood::buildFixedModelWts() - modifying existing model" << std::endl;
+      for (auto name : m_changingSources){
+        if (m_sources.at(name)->fixedSpectrum()){
+          if (std::find(m_fixedSources.begin(), m_fixedSources.end(), name) == m_fixedSources.end()){
+            addFixedSource(name);
           }
-      } else { 
-          // Process non-fixed sources.
-          //
-          // Ensure model map is available.
-          SourceMap * srcMap = m_srcMapCache.getSourceMap(*src, false);
+        } else {
+          if (std::find(m_fixedSources.begin(), m_fixedSources.end(), name) != m_fixedSources.end()){ 
+            deleteFixedSource(name);
+          }
+        }
       }
     }
-
-    computeFixedCountsSpectrum();
   }
 
 
@@ -779,12 +821,14 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     const Source& src = *(srcIt->second);
 
     SourceMap * srcMap = m_srcMapCache.getSourceMap(src);
+    if(printDebug) std::cout << "BinnedLikelihood::addFixedSource() for " << srcMap->name() << "- calling reloadIfCleared(), pos 1" << std::endl;
     srcMap->reloadIfCleared();
     bool has_wts = srcMap->weights() != 0;
     if ( m_config.save_all_srcmaps() ) {
       srcMap->setSaveModel(true);
     }
     BinnedLikelihood::addSourceCounts(m_fixedModelCounts, srcName, srcMap, false, true);
+    if(printDebug) std::cout << "BinnedLikelihood::addFixedSource() for " << srcMap->name() << "- calling reloadIfCleared(), pos 2" << std::endl;
     srcMap->reloadIfCleared(); //testing fermipy error
     addFixedNpreds(srcName, srcMap, false);
 
@@ -809,6 +853,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
   
     // Generate the SourceMap and include it in the stored maps.
     SourceMap * srcMap = getSourceMap(srcName, false);
+    if(printDebug) std::cout << "BinnedLikelihood::deleteFixedSource() for " << srcMap->name() << "- calling reloadIfCleared()" << std::endl;
     srcMap->reloadIfCleared();
     //bool has_wts = srcMap->weights() != 0;
     if (srcMap == 0) {
@@ -942,9 +987,11 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     SourceMap * sourceMap = srcMap;
     if ( sourceMap == 0 ) {
       sourceMap = getSourceMap(srcName);
+      if(printDebug) std::cout << "BinnedLikelihood::addSourceCounts() for " << sourceMap->name() << "- calling reloadIfCleared(), pos 1" << std::endl;
       sourceMap->reloadIfCleared();
     } 
     
+    if(printDebug) std::cout << "BinnedLikelihood::addSourceCounts() for " << sourceMap->name() << "- calling reloadIfCleared(), pos 2" << std::endl;
     sourceMap->reloadIfCleared();
     sourceMap->setSpectralValues(latchParams);    
 
