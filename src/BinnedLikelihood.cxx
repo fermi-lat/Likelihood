@@ -120,7 +120,7 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 
 BinnedLikelihood::BinnedLikelihood(CountsMapBase & dataMap,
 				   const Observation & observation,	
-				   BinnedLikeConfig config,
+				   const BinnedLikeConfig config,
 				   const std::string & srcMapsFile,
 				   const ProjMap* weightMap,
 				   bool overwriteWeights)
@@ -148,14 +148,14 @@ BinnedLikelihood::~BinnedLikelihood() throw() {
 
 void BinnedLikelihood::setCountsMap(const std::vector<float> & counts) {
   m_dataCache.setCountsMap(counts);
-  if(printDebug) std::cout << "BinnedLikelihood::setCountsMap() calling buildFixedModelWts()" << std::endl;
+  // if(printDebug) std::cout << "BinnedLikelihood::setCountsMap() calling buildFixedModelWts()" << std::endl;
   buildFixedModelWts();
 }
 
 
 void BinnedLikelihood::setWeightsMap(const ProjMap* wmap) {
   m_srcMapCache.setWeightsMap(wmap);
-  if(printDebug) std::cout << "BinnedLikelihood::setWeightsMap() calling buildFixedModelWts()" << std::endl;
+  // if(printDebug) std::cout << "BinnedLikelihood::setWeightsMap() calling buildFixedModelWts()" << std::endl;
   buildFixedModelWts();
 }
 
@@ -334,7 +334,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     m_bestValueSoFar = -1e38;
     SourceModel::addSource(src, fromClone);
     if ( m_config.use_single_fixed_map() && src->fixedSpectrum()) {
-      if(printDebug) std::cout << "BinnedLikelihood::addSource() - v1 calling addFixedSource()" << std::endl;
+      // if(printDebug) std::cout << "BinnedLikelihood::addSource() - v1 calling addFixedSource()" << std::endl;
       addFixedSource(src->getName());      
     } else {
       if ( loadMap ) {
@@ -352,7 +352,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     m_bestValueSoFar = -1e38;
     SourceModel::addSource(src, fromClone);
     if ( m_config.use_single_fixed_map() && src->fixedSpectrum()) {
-      if(printDebug) std::cout << "BinnedLikelihood::addSource() - v2 calling addFixedSource()" << std::endl;
+      // if(printDebug) std::cout << "BinnedLikelihood::addSource() - v2 calling addFixedSource()" << std::endl;
       addFixedSource(src->getName());
     } else {
       m_srcMapCache.loadSourceMap(*src,false,config);
@@ -460,7 +460,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     std::vector<std::string>::iterator srcIt = 
       std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
     if (srcIt != m_fixedSources.end() && buildFixedWeights) {
-      if(printDebug) std::cout << "BinnedLikelihood::loadSourceMap() for " << srcName << " calling buildFixedModelWts()" << std::endl;
+      // if(printDebug) std::cout << "BinnedLikelihood::loadSourceMap() for " << srcName << " calling buildFixedModelWts()" << std::endl;
       buildFixedModelWts();
     }
   }
@@ -558,7 +558,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     modelCounts.resize(m_dataCache.nFilled(), 0.);
 
     if (fixedModelUpdated() && m_updateFixedWeights) {
-      if(printDebug) std::cout << "BinnedLikelihood::computeModelMap_internal calling buildFixedModelWts()" << std::endl; 
+      // if(printDebug) std::cout << "BinnedLikelihood::computeModelMap_internal calling buildFixedModelWts()" << std::endl; 
       const_cast<BinnedLikelihood *>(this)->buildFixedModelWts();
     }
 
@@ -751,7 +751,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
         if (src->fixedSpectrum() ) {
 
             if ( ! process_all ) {
-              if(printDebug) std::cout << "BinnedLikelihood::buildFixedModelWts() calling addFixedSource()" << std::endl;
+              // if(printDebug) std::cout << "BinnedLikelihood::buildFixedModelWts() calling addFixedSource()" << std::endl;
               addFixedSource(srcName);
             } else {
               m_srcMapCache.getSourceMap(*src, false);
@@ -821,14 +821,14 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     const Source& src = *(srcIt->second);
 
     SourceMap * srcMap = m_srcMapCache.getSourceMap(src);
-    if(printDebug) std::cout << "BinnedLikelihood::addFixedSource() for " << srcMap->name() << "- calling reloadIfCleared(), pos 1" << std::endl;
+    // if(printDebug) std::cout << "BinnedLikelihood::addFixedSource() for " << srcMap->name() << "- calling reloadIfCleared(), pos 1" << std::endl;
     srcMap->reloadIfCleared();
     bool has_wts = srcMap->weights() != 0;
     if ( m_config.save_all_srcmaps() ) {
       srcMap->setSaveModel(true);
     }
     BinnedLikelihood::addSourceCounts(m_fixedModelCounts, srcName, srcMap, false, true);
-    if(printDebug) std::cout << "BinnedLikelihood::addFixedSource() for " << srcMap->name() << "- calling reloadIfCleared(), pos 2" << std::endl;
+    // if(printDebug) std::cout << "BinnedLikelihood::addFixedSource() for " << srcMap->name() << "- calling reloadIfCleared(), pos 2" << std::endl;
     srcMap->reloadIfCleared(); //testing fermipy error
     addFixedNpreds(srcName, srcMap, false);
 
@@ -853,7 +853,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
   
     // Generate the SourceMap and include it in the stored maps.
     SourceMap * srcMap = getSourceMap(srcName, false);
-    if(printDebug) std::cout << "BinnedLikelihood::deleteFixedSource() for " << srcMap->name() << "- calling reloadIfCleared()" << std::endl;
+    // if(printDebug) std::cout << "BinnedLikelihood::deleteFixedSource() for " << srcMap->name() << "- calling reloadIfCleared()" << std::endl;
     srcMap->reloadIfCleared();
     //bool has_wts = srcMap->weights() != 0;
     if (srcMap == 0) {
@@ -987,11 +987,11 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     SourceMap * sourceMap = srcMap;
     if ( sourceMap == 0 ) {
       sourceMap = getSourceMap(srcName);
-      if(printDebug) std::cout << "BinnedLikelihood::addSourceCounts() for " << sourceMap->name() << "- calling reloadIfCleared(), pos 1" << std::endl;
+      // if(printDebug) std::cout << "BinnedLikelihood::addSourceCounts() for " << sourceMap->name() << "- calling reloadIfCleared(), pos 1" << std::endl;
       sourceMap->reloadIfCleared();
     } 
     
-    if(printDebug) std::cout << "BinnedLikelihood::addSourceCounts() for " << sourceMap->name() << "- calling reloadIfCleared(), pos 2" << std::endl;
+    // if(printDebug) std::cout << "BinnedLikelihood::addSourceCounts() for " << sourceMap->name() << "- calling reloadIfCleared(), pos 2" << std::endl;
     sourceMap->reloadIfCleared();
     sourceMap->setSpectralValues(latchParams);    
 
