@@ -686,7 +686,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
                 fixedSources.back()) != 1) {
           changed = true;
           m_srcMapCache.getSourceMap(*(srcIt->second))->setSaveModel(true);  // this model might be changing a lot so let's keep it in memory even though it's now fixed
-          std::cout << "BinnedLikelihood::fixedModelUpdated() - 1 - adding " << srcIt->first << std::endl;
+          // std::cout << "BinnedLikelihood::fixedModelUpdated() - 1 - adding " << srcIt->first << std::endl;
           const_cast<BinnedLikelihood *>(this)->m_changingSources.insert(srcIt->first);
         }
       }
@@ -697,7 +697,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       for (std::string src : m_fixedSources){
         if (std::count(fixedSources.begin(), fixedSources.end(), src) != 1) { 
           m_srcMapCache.getSourceMap(*(m_sources.at(src)))->setSaveModel(true);  // this is a newly freed source and may change again so let's keep it in memory
-          std::cout << "BinnedLikelihood::fixedModelUpdated() - 2 - adding " << src << std::endl;
+          // std::cout << "BinnedLikelihood::fixedModelUpdated() - 2 - adding " << src << std::endl;
           const_cast<BinnedLikelihood *>(this)->m_changingSources.insert(src);
         }
       }
@@ -715,7 +715,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
         if ( srcMap->spectrum_changed() ) {	  
           changed = true;
           srcMap->setSaveModel(true);
-          std::cout << "BinnedLikelihood::fixedModelUpdated() - 3 - adding " << srcIt->first << std::endl;
+          // std::cout << "BinnedLikelihood::fixedModelUpdated() - 3 - adding " << srcIt->first << std::endl;
           const_cast<BinnedLikelihood *>(this)->m_changingSources.insert(srcIt->first);
         }	
       }
@@ -728,7 +728,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
 
   void BinnedLikelihood::buildFixedModelWts(bool process_all) {
     if (m_fixed_counts_spec.size() == 0 && m_fixedSources.size() != 0 ) {
-      std::cout << "BinnedLikelihood::buildFixedModelWts() - building from scratch" << std::endl;
+      // std::cout << "BinnedLikelihood::buildFixedModelWts() - building from scratch" << std::endl;
       m_fixedSources.clear();
 
       m_fixedModelCounts.clear();
@@ -767,7 +767,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
       computeFixedCountsSpectrum();
       m_fixedModelBuilt = true;
     } else {
-      std::cout << "BinnedLikelihood::buildFixedModelWts() - modifying existing model" << std::endl;
+      // std::cout << "BinnedLikelihood::buildFixedModelWts() - modifying existing model" << std::endl;
       for (auto name : m_changingSources){
         if (m_sources.at(name)->fixedSpectrum()){
           if (std::find(m_fixedSources.begin(), m_fixedSources.end(), name) == m_fixedSources.end()){

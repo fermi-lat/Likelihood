@@ -352,6 +352,7 @@ namespace Likelihood {
       const Source* src = *itr;
       bool hasMap = hasSourceMap(src->getName());
       SourceMap* srcMap = getSourceMap(*src);
+      srcMap->reloadIfCleared();
       updateModelMap_fromSrcMap(modelMap, *src, srcMap, use_mask);
       //updateCorrectionFactors(*src, *srcMap);
       //updateModelMap(modelMap, *src, srcMap, use_mask);
