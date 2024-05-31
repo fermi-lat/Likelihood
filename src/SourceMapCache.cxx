@@ -336,6 +336,7 @@ namespace Likelihood {
     modelMap.resize(m_dataCache.data_map_size(), 0);      
     bool hasMap = hasSourceMap(src.getName());
     SourceMap* srcMap = getSourceMap(src);
+    srcMap->reloadIfCleared();
     updateModelMap_fromSrcMap(modelMap, src, srcMap, use_mask);
     if( !hasMap ) {
       SourceMapCache* nc_this = const_cast<SourceMapCache*>(this);
