@@ -74,8 +74,8 @@ public:
     */
    SourceMap(const Source & src, 
 	     const BinnedCountsCache * dataCache,
-             const Observation & observation,
-	     const BinnedLikeConfig & config, 
+        const Observation & observation,
+	     BinnedLikeConfig config, 
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
@@ -96,7 +96,7 @@ public:
              const Source & src,
 	     const BinnedCountsCache * dataCache,
 	     const Observation & observation,
-	     const BinnedLikeConfig& config,
+	     BinnedLikeConfig config,
 	     const Drm& drm,
 	     const WeightMap* weights = 0,
 	     bool save_model = false);
@@ -149,6 +149,12 @@ public:
 
    /* Flag to indicated that model is out of sync with file */
    inline bool model_is_local() const { return m_model_is_local; }
+
+    /* Flag to indicate if the model has been loaded once */
+   inline bool is_loaded() const { return m_loaded;}
+
+   /* Flag to indcate if the map is currently cleared */
+   inline bool is_cleared() const { return m_dataCleared; }
 
 
    /* --------------- Class Methods ----------------------*/
@@ -317,7 +323,10 @@ public:
    void setWeights(const WeightMap* weights);
 
    /// Explicity set the flag to save the model
-   inline void setSaveModel(bool val) { m_save_model = val; }
+   inline void setSaveModel(bool val) { 
+      m_save_model = val; 
+      if (val) reloadIfCleared();
+   }
 
    /// Set the filename (e.g., b/c we are writing the source map)
    inline void setFilename(const std::string& filename) { m_filename = filename; }
@@ -368,7 +377,7 @@ protected:
    void expand_model(bool clearSparse = true);
 
    /* Latch the energy vector */
-   void set_energies();
+   void set_energies(bool reload = false);
 
 private:
 
@@ -437,7 +446,7 @@ private:
    st_stream::StreamFormatter * m_formatter;
 
    /// Options for treatment of PSF and energy disperson
-   const BinnedLikeConfig& m_config;
+   BinnedLikeConfig m_config;
 
    /// The detector response matrix. 
    const Drm* m_drm;
@@ -458,7 +467,7 @@ private:
    const WeightMap* m_weights;
 
    /// Flag to indicate that we should save the model
-   bool m_save_model;
+   bool m_save_model = true;
 
    /// Flag to indicated that model is out of sync with file
    bool m_model_is_local;
@@ -514,6 +523,8 @@ private:
    /// flag indicating that data model has been cleared
    bool m_dataCleared = false;
 
+   /// flag indicating that the data has been loaded at least once
+   bool m_loaded = false;
 
 };
 

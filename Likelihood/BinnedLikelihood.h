@@ -10,6 +10,7 @@
 #define Likelihood_BinnedLikelihood_h
 
 #include <map>
+#include <set>
 #include <stdexcept>
 
 #include "tip/Image.h"
@@ -765,6 +766,9 @@ namespace Likelihood {
 
      /// List of fixed sources
      std::vector<std::string> m_fixedSources;   
+
+     /// list of changing sources
+     std::set<std::string> m_changingSources;
 
      /// Summed counts for all fixed sources.
      /// This vector has the size of number of filled pixels

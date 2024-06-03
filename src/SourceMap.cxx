@@ -75,8 +75,8 @@ void SourceMap::fill_full_model(const SparseVector<float>& sparse,
 
 SourceMap::SourceMap(const Source& src, 
 		     const BinnedCountsCache * dataCache,
-                     const Observation & observation, 
-                     const BinnedLikeConfig& config,
+         const Observation & observation, 
+         BinnedLikeConfig config,
 		     const Drm& drm,
 		     const WeightMap* weights,
 		     bool save_model)
@@ -111,7 +111,7 @@ SourceMap::SourceMap(const std::string & sourceMapsFile,
                      const Source& src, 
 		     const BinnedCountsCache * dataCache,
 		     const Observation & observation,
-                     const BinnedLikeConfig& config,
+         BinnedLikeConfig config,
 		     const Drm& drm,
 		     const WeightMap* weights,
 		     bool save_model) 
@@ -838,7 +838,7 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
   }
 } 
 
-  void SourceMap::set_energies() {
+  void SourceMap::set_energies(bool reload) {
     m_edisp_val = m_src->use_edisp() ? m_config.edisp_val() : 0;
     m_edisp_offset = m_edisp_bins - m_drm->edisp_bins(),
     m_energies.resize(m_dataCache->num_energies());
