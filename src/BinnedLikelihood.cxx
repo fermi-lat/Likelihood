@@ -162,6 +162,7 @@ void BinnedLikelihood::setWeightsMap(const ProjMap* wmap) {
 double BinnedLikelihood::value(const optimizers::Arg & dummy, 
 			       bool include_priors) const {
   (void)(dummy);
+
   // Here we want the weighted verison of the nPred
   double npred = computeModelMap_internal(true);
 
@@ -369,12 +370,18 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
     std::vector<std::string>::iterator srcIt = 
       std::find(m_fixedSources.begin(), m_fixedSources.end(), srcName);
     bool subtract(true);
-    if (source(srcName).fixedSpectrum() && srcIt != m_fixedSources.end()) {
+    if (srcIt != m_fixedSources.end()) {
       SourceMap * srcMap(getSourceMap(srcName, false));
       addSourceCounts(m_fixedModelCounts, srcName, srcMap, subtract);
       addFixedNpreds(srcName, srcMap, subtract);
       m_fixedSources.erase(srcIt);
     }
+    // Check to see if this was in our changing source list and if so, remove it from the list
+    auto srcItr = m_changingSources.find(srcName);
+    if (srcItr != m_changingSources.end()){
+      m_changingSources.erase(srcItr);
+    }
+    // Remove the source from the full source list
     Source * src(SourceModel::deleteSource(srcName));
     return src;
   }
@@ -691,6 +698,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
         }
       }
     }
+    
     // if all the fixed sources were already in the list, make sure none are missing
     if (fixedSources.size() != m_fixedSources.size()) {
       changed = true;
@@ -702,7 +710,7 @@ void BinnedLikelihood::getFreeDerivs(const optimizers::Arg & dummy,
         }
       }
     }
-  
+
     // Compare current parameter values for fixed sources with saved
     for (srcIt = m_sources.begin(); srcIt != m_sources.end(); ++srcIt) {
       const Source* src = srcIt->second;
