@@ -847,12 +847,19 @@ void SourceMap::subtractFromVector_sparse(std::vector<float>& vect, bool include
   }
 
   void SourceMap::reloadIfCleared(){
-    if (m_dataCleared){
-      // if(printDebug) std::cout << "SourceMap::reloadIfCleared() - reloading for " << m_name << std::endl;
-      getSourceData(false);
-      m_dataCleared = false;
-    }
-    resetSourceData(false);
+    // if (m_dataCleared){
+    //   // if(printDebug) std::cout << "SourceMap::reloadIfCleared() - reloading for " << m_name << std::endl;
+    //   getSourceData(false);
+    //   m_dataCleared = false;
+    // }
+    // resetSourceData(false);
+      if (m_dataCleared ){
+         if (m_filename !="") {
+            readModel(m_filename);
+         } else {
+            make_model();
+         }
+      }
   }
 
   void SourceMap::resetSourceData(bool reload){
