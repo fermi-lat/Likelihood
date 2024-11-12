@@ -14,6 +14,7 @@
 #include "Likelihood/FitUtils.h"
 #include "Likelihood/ProjMap.h"
 #include "Likelihood/WeightMap.h"
+#include "Likelihood/WcsMapLibrary.h"
 
 namespace Likelihood {
 
@@ -70,6 +71,17 @@ void BinnedCountsCache::setWeightsMap(const ProjMap* wmap,
     }
     identifyFilledPixels();
     computeCountsSpectrum();
+}
+
+/*
+  This method will delete the original, large weight map while keeping the smaller
+  calculated one.  This allows us to save memory during execution but at the cost of
+  some additional computation time if a new caluclated map would have been generated
+  with the original map as the original map would need to be regenerated also.
+*/
+void BinnedCountsCache::deleteOriginalWeightMap(){
+  WcsMapLibrary::instance()->delete_map(m_weightMap_orig);
+  m_weightMap_orig = nullptr;
 }
 
 tip::Extension* BinnedCountsCache::saveWeightsMap(const std::string& srcMapsFile, bool replace) const {
