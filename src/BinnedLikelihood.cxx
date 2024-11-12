@@ -129,11 +129,15 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase& dataMap,
       m_srcMapCache(m_dataCache, observation, srcMapsFile, m_config, m_drm),
       m_modelIsCurrent(false),
       m_updateFixedWeights(true) {
-    m_fixedModelCounts.resize(m_dataCache.nFilled(), 0);
-    m_fixed_counts_spec.resize(m_dataCache.num_ebins(), 0);
-    m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0);
-    m_fixed_counts_spec_edisp.resize(m_dataCache.num_ebins(), 0);
-    m_fixed_counts_spec_edisp_wt.resize(m_dataCache.num_ebins(), 0);
+
+      if (m_config.delete_local_fixed()){
+        m_dataCache.deleteOriginalWeightMap();
+      }
+      m_fixedModelCounts.resize(m_dataCache.nFilled(), 0);
+      m_fixed_counts_spec.resize(m_dataCache.num_ebins(), 0);
+      m_fixed_counts_spec_wt.resize(m_dataCache.num_ebins(), 0);
+      m_fixed_counts_spec_edisp.resize(m_dataCache.num_ebins(), 0);
+      m_fixed_counts_spec_edisp_wt.resize(m_dataCache.num_ebins(), 0);
 }
 
 BinnedLikelihood::~BinnedLikelihood() throw() {
