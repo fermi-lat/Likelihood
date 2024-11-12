@@ -75,6 +75,22 @@ void WcsMapLibrary::delete_map(const std::string & filename,
    notify();
 }
 
+/* 
+   This version of the function is used when we only have the pointer to the
+   weight map and not the original filename and extension.  It searches through
+   every entry in the library (O(n)) to find the matching value since we don't
+   have the key to do the O(1) lookup.
+*/
+void WcsMapLibrary::delete_map(const ProjMap * map){
+   for (auto item : m_library) {
+      if (item.second == map) {
+         delete item.second;
+         m_library.erase(item.first);
+         return;
+      }
+   }
+}
+
 bool WcsMapLibrary::has_map(const std::string & filename,
                             const std::string & extname) const {
    std::string key(filename + "::" + extname);
