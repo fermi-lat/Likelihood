@@ -130,7 +130,8 @@ BinnedLikelihood::BinnedLikelihood(CountsMapBase& dataMap,
       m_modelIsCurrent(false),
       m_updateFixedWeights(true) {
 
-      if (m_config.delete_local_fixed()){
+      if (m_config.no_cached_weightmaps()){
+        std::cout << "Clearing Weights map" << std::endl;
         m_dataCache.deleteOriginalWeightMap();
       }
       m_fixedModelCounts.resize(m_dataCache.nFilled(), 0);
