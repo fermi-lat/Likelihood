@@ -14,6 +14,7 @@
 #include "tip/IFileSvc.h"
 #include "tip/Image.h"
 #include "tip/Table.h"
+#include "tip/Header.h"
 
 #include "st_facilities/FitsUtil.h"
 
@@ -169,13 +170,24 @@ void ModelMap::writeOutputMap_wcs(const std::string & outfile,
    tip::Header & output_header = output_image->getHeader();
    output_image->set(m_outmap);
    
+   // tip::Header::KeyValCont_t updatedKeywords;
    for ( tip::Header::ConstIterator itr = orig_header.begin(); itr != orig_header.end(); itr++ ) {
      // Don't copy the NAXIS* keywords
      if ( itr->getName().find("NAXIS") != std::string::npos ) {
        continue;
      }
-     output_header.append(*itr);
+     // append any new keywords and any new HISTORY or COMMENT keywords or update the
+     // value for any existing kewords. - TS 03/21/25  
+     auto kwItr = output_header.find(itr->getName());
+     if (kwItr == output_header.end() || "COMMENT" == kwItr->getName() || "HISTORY" == kwItr->getName()){
+       output_header.append(*itr);
+     } else {
+       kwItr->setValue(itr->getValue());
+     }
    }
+   // update the existing keywords in the generated list
+   // output_header.update(updatedKeywords);
+
    if (outtype == "CMAP") {
      output_header.erase("CTYPE3");
      output_header.erase("CRPIX3");
