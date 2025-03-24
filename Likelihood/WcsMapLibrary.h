@@ -31,6 +31,8 @@ public:
    void delete_map(const std::string & filename,
                    const std::string & extname);
 
+   void delete_map(const ProjMap * map);
+
    bool has_map(const std::string & filename,
                 const std::string & extname) const;
 

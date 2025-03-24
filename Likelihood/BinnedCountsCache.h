@@ -118,6 +118,9 @@ namespace Likelihood {
     void setWeightsMap(const ProjMap* wmap, 
 		       const Observation & observation);
 
+    // Delete the large original weight map
+    void deleteOriginalWeightMap();
+
 
     /* Save the weights SourceMap to the SourceMap file
        
