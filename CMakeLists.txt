@@ -46,9 +46,10 @@ target_link_libraries(
   healpix
   map_tools
   GSL::gsl
-  Python3::NumPy
   eblAtten
-  
+  Python3::Python
+
+
   PRIVATE
   xmlBase
   st_facilities
@@ -64,6 +65,8 @@ target_include_directories(
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:>
 )
+
+add_compile_definitions(WITHOUT_NUMPY)
 
 target_compile_definitions(Likelihood PRIVATE CONDA_FFTW)
 
