@@ -51,14 +51,16 @@ target_link_libraries(
 
 
   PRIVATE
-  xmlBase
-  st_facilities
-  hoops
-  st_graph
-  irfLoader
   cfitsio::cfitsio
+  CLHEP::RandomS
+  CLHEP::MatrixS
   FFTW::fftw3
+  irfLoader
+  hoops
   OpenMP::OpenMP_CXX
+  st_facilities
+  st_graph
+  xmlBase
 )
 target_include_directories(
   Likelihood PUBLIC
