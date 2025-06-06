@@ -48,12 +48,11 @@ target_link_libraries(
   GSL::gsl
   eblAtten
   Python3::Python
-
+  CLHEP::MatrixS
 
   PRIVATE
   cfitsio::cfitsio
   CLHEP::RandomS
-  CLHEP::MatrixS
   FFTW::fftw3
   irfLoader
   hoops
