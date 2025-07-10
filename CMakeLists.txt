@@ -81,6 +81,8 @@ target_compile_definitions(Likelihood PRIVATE CONDA_FFTW)
 
 
 ###### Executables ######
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 add_executable(
   gtlike
   src/likelihood/EasyPlot.cxx
