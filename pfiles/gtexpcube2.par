@@ -35,7 +35,8 @@ thmax, r, h, 180,,,"Maximum off-axis angle to include in effective area integrat
 thmin, r, h, 0,,,"Minimum off-axis angle to include in effective area integration"
 table,         s, h, "EXPOSURE",,,"Exposure cube extension"
 
-chatter,i,h,2,0,4,Output verbosity
+# Increased chatter from 2 to 3. Output client version.
+chatter,i,h,3,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
 debug,          b, h, no, , , "Activate debugging mode"
 mode,           s, h, "ql", , , "Mode of automatic parameters"

@@ -27,7 +27,8 @@ atol,r,a,0.01,,,Covergence tolerance for positional fit
 toltype,s,h,"ABS","ABS|REL",,"Fit tolerance convergence type (absolute vs relative)"
 posacc,r,h,0.001,,,Accuracy for best-fit position (deg)
 
-chatter,        i, h, 2, , , "Output verbosity"
+# Increased chatter from 2 to 3 to output tool version string.
+chatter,        i, h, 3, , , "Output verbosity"
 clobber,        b, h, yes, , , "Overwrite existing output files"
 debug,          b, h, no, , , "Activate debugging mode"
 gui,            b, h, no, , , "GUI mode activated"
