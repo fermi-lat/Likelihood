@@ -23,7 +23,7 @@ MJDREFF =     7.428703703703703D-4 / Frac. part of MJD of SC clock start
 OBSERVER= 'Peter Michelson'        / LAT PI
 FILENAME= 'gll_lt_rnnnnnnnnnn_vxxx.fit' / name of this file: nnnnnnnnnn = MET of beginning of run xxx = version number
 ORIGIN  = 'LISOC'                  / name of organization making file
-CREATOR = 'gtltcube'               / software and version creating file
+CREATOR  = 'gtltcube'              / software and version creating file
 VERSION = 1                        / release version of the file
 END
 

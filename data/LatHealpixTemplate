@@ -46,7 +46,7 @@ TIMEZERO =                   0. / clock correction
 TIMESYS  =                  MJD / Time system used to define time
 TIMEREF  =                LOCAL / reference frame used for times
 CLOCKAPP=                    F  / was a clock drift correction applied
-GPS_OUT =                    F / whether GPS time was unavailable at any time
+GPS_OUT =                    F  / whether GPS time was unavailable at any time
 CREATOR  =                      / Software and version creating file
 HISTORY                   LatHealpixTemplate,v 1.0 2012/05/10 cohen Exp 
 
@@ -75,7 +75,7 @@ TIMEZERO =                   0. / clock correction
 TIMESYS  =                  MJD / Time system used to define time
 TIMEREF  =                LOCAL / reference frame used for times
 CLOCKAPP=                    F  / was a clock drift correction applied
-GPS_OUT =                    F / whether GPS time was unavailable at any time
+GPS_OUT =                    F  / whether GPS time was unavailable at any time
 CREATOR  =                      / Software and version creating file
 HISTORY                   LatHealpixTemplate,v 1.0 2012/05/10 cohen Exp 
 

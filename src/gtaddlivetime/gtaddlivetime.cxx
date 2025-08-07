@@ -26,6 +26,7 @@
 #include "dataSubselector/Cuts.h"
 
 #include "Likelihood/AppHelpers.h"
+#include "general_util/generic_utils.h"
 
 /**
  * @class AddLivetime
@@ -252,7 +253,9 @@ void AddLivetime::writeDateKeywords(const std::string & outfile,
       tip::Extension * hdu(fileSvc.editExtension(outfile, *name));
       st_facilities::Util::writeDateKeywords(hdu, tstart, tstop, *name!="");
       if (*name == "") {
-         hdu->getHeader()["CREATOR"].set("gtltsum " + getVersion());
+         // Update CREATOR value with: Tool name/Group/Version
+         std::string creator_version =  GenericUtils::creator_banner("gtltsum");
+         hdu->getHeader()["CREATOR"].set(creator_version);
       }
       delete hdu;
    }

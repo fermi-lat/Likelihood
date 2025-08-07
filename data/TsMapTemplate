@@ -21,6 +21,6 @@ INSTRUME =                  LAT / Name of instrument generating data
 DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
 DATE-END = ''                   / End Date and Time of the observation (UTC)
 EQUINOX  =               2000.0 / Equinox of RA & DEC specifications
-CREATOR  = ''                   / Software and version creating file
+CREATOR  =                      / Software and version creating file
 HISTORY                   $Id: TsMapTemplate,v 1.1 2008/04/02 14:52:55 jchiang Exp $ 
 END
