@@ -16,7 +16,7 @@ GPS_OUT =                    F / whether GPS time was unavailable at any time
 NDSKEYS =                     0 / Number of data subspace keywords in header
 EQUINOX  =               2000.0 / Equinox of RA & DEC specifications
 OBSERVER = 'Michelson'          / PI name
-CREATOR  =                      / Software and version creating file
+CREATOR  = 'APP_NAME Fermitools 2.4.1' / Software and version creating file
 HISTORY                   $Id: LatHealpixTemplate,v 1.1 2015/03/03 05:59:58 echarles Exp $ 
 END
 
@@ -47,7 +47,7 @@ TIMESYS  =                  MJD / Time system used to define time
 TIMEREF  =                LOCAL / reference frame used for times
 CLOCKAPP=                    F  / was a clock drift correction applied
 GPS_OUT =                    F / whether GPS time was unavailable at any time
-CREATOR  =                      / Software and version creating file
+CREATOR  = 'APP_NAME Fermitools 2.4.1' / Software and version creating file
 HISTORY                   LatHealpixTemplate,v 1.0 2012/05/10 cohen Exp 
 
 ##################################################################################
@@ -76,7 +76,7 @@ TIMESYS  =                  MJD / Time system used to define time
 TIMEREF  =                LOCAL / reference frame used for times
 CLOCKAPP=                    F  / was a clock drift correction applied
 GPS_OUT =                    F / whether GPS time was unavailable at any time
-CREATOR  =                      / Software and version creating file
+CREATOR  = 'APP_NAME Fermitools 2.4.1' / Software and version creating file
 HISTORY                   LatHealpixTemplate,v 1.0 2012/05/10 cohen Exp 
 
 TTYPE#  Energy         / Energy plane value
@@ -108,7 +108,7 @@ TIMESYS  =                  MJD / Time system used to define time
 TIMEUNIT =                    s / All times are in seconds unless specified otherwise
 DATE-OBS                        / Start Date and Time of the observation (UTC)
 DATE-END                        / End Date and Time of the observation (UTC)
-CREATOR  =                      / Software and version creating file
+CREATOR  = 'APP_NAME Fermitools 2.4.1' / Software and version creating file
 HISTORY                   $Id: LatHealpixTemplate,v 1.1 2015/03/03 05:59:58 echarles Exp $ 
 
 TTYPE#  START          / Start time of an interval

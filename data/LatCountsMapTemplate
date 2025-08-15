@@ -27,7 +27,7 @@ INSTRUME =                  LAT / Name of instrument generating data
 DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
 DATE-END = ''                   / End Date and Time of the observation (UTC)
 EQUINOX  =               2000.0 / Equinox of RA & DEC specifications
-CREATOR  =                      / Software and version creating file
+CREATOR  = 'APP_NAME Fermitools 2.4.1' / Software and version creating file
 HISTORY                   $Id: LatCountsMapTemplate,v 1.2 2004/09/24 03:54:20 jchiang Exp $ 
 END
 
@@ -54,7 +54,7 @@ TIMESYS  =                  MJD / Time system used to define time
 TIMEUNIT =                    s / All times are in seconds unless specified otherwise
 DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
 DATE-END = ''                   / End Date and Time of the observation (UTC)
-CREATOR  =                      / Software and version creating file
+CREATOR  = 'APP_NAME Fermitools 2.4.1' / Software and version creating file
 HISTORY                   $Id: LatCountsMapTemplate,v 1.2 2004/09/24 03:54:20 jchiang Exp $ 
 
 TTYPE#  START          / Start time of an interval
@@ -83,7 +83,7 @@ HDUCLAS2 =              EBOUNDS / Extension contains response matrix
 HDUVERS  =                1.2.0 / Version number of the format
 DATE-OBS = ''                   / Start Date and Time of the observation (UTC)
 DATE-END = ''                   / End Date and Time of the observation (UTC)
-CREATOR  =                      / Software and version creating file
+CREATOR  = 'APP_NAME Fermitools 2.4.1' / Software and version creating file
 HISTORY                   $Id: LatCountsMapTemplate,v 1.2 2004/09/24 03:54:20 jchiang Exp $ 
 
 
