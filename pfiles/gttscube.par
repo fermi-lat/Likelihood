@@ -41,7 +41,8 @@ covscale_bb,r,h,-1.,,,"Scale factor to apply to global errors in broadband fits 
 covscale,r,h,-1.,,,"Scale factor to apply to broadband errors in bin-by-bin fits ( < 0 -> fixed )"
 
 # Common parameters
-chatter,i,h,2,0,4,Output verbosity
+# Increased chatter from 2 to 3 to output tool version string.
+chatter,i,h,3,0,4,Output verbosity
 debug,b,h,no,,,"Debug mode"
 clobber,        b, h, yes, , , "Overwrite existing output files"
 gui,            b, h, no, , , "GUI mode activated"

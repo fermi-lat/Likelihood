@@ -41,6 +41,7 @@
 #include "Likelihood/LogLike.h"
 #include "Likelihood/SourceMap.h"
 #include "Likelihood/CountsMap.h"
+#include "general_util/generic_utils.h"
 
 using namespace Likelihood;
 
@@ -361,7 +362,9 @@ void TsMap::writeFitsFile() {
 
    header["CROTA2"].set(0);
 
-   header["CREATOR"].set("gttsmap " + getVersion());
+   // Update CREATOR value with: Tool name/Group/Version
+   std::string creator_version =  GenericUtils::creator_banner("gttsmap");
+   header["CREATOR"].set(creator_version);
 
    std::string proj = m_pars["proj"];
    std::string coordsys = m_pars["coordsys"];

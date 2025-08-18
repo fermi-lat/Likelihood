@@ -13,7 +13,8 @@ irfs,s,a,"CALDB",,,"Response functions to use"
 evtype,i,h,INDEF,,,"Event type selections"
 srclist,fr,h,"",,,"ASCII list of sources to include"
 
-chatter,i,h,2,0,4,Output verbosity
+# Increased chatter from 2 to 3 to output tool version string.
+chatter,i,h,3,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
 debug,          b, h, no, , , "Activate debugging mode"
 gui,            b, h, no, , , "GUI mode activated"

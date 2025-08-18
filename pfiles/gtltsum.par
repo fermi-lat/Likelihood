@@ -7,7 +7,8 @@ table,s,h,"Exposure",,,"Name of extension containing livetime"
 table2,s,h,"WEIGHTED_EXPOSURE",,,"Name of extension containing livetime"
 outfile,f,a,"",,,"Output file"
 
-chatter,i,h,2,0,4,Output verbosity
+# Increased chatter from 2 to 3 to output tool version string.
+chatter,i,h,3,0,4,Output verbosity
 clobber,        b, h, yes, , , "Overwrite existing output files"
 debug,          b, h, no, , , "Activate debugging mode"
 gui,            b, h, no, , , "GUI mode activated"

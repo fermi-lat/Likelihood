@@ -38,6 +38,7 @@ target_link_libraries(
   
   PUBLIC
   st_app
+  general_util
   astro
   dataSubselector
   optimizers

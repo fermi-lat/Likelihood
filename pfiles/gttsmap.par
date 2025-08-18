@@ -39,7 +39,8 @@ xref,r,a,,,,"X-coordinate of image center in degrees (RA or l)"
 yref,r,a,,,,"Y-coordinate of image center in degrees (Dec or b)"
 proj,s,a,"STG",AIT|ARC|CAR|GLS|MER|NCP|SIN|STG|TAN,,Projection method
 
-chatter,i,h,2,0,4,Output verbosity
+# Increased chatter from 2 to 3 to output tool version string.
+chatter,i,h,3,0,4,Output verbosity
 debug,b,h,no,,,"Debug mode"
 clobber,        b, h, yes, , , "Overwrite existing output files"
 gui,            b, h, no, , , "GUI mode activated"

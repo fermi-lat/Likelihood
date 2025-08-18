@@ -12,7 +12,8 @@ evclass,i,h,INDEF,,,"Target class level"
 evtype,i,h,INDEF,,,"Event type selections"
 convert,b,h,no,,,"convert header to new diffrsp format?"
 
-chatter,i,h,2,0,4,Output verbosity
+# Increased chatter from 2 to 3 to output tool version string.
+chatter,i,h,3,0,4,Output verbosity
 clobber,        b, h, no, , , "Overwrite existing output files"
 debug,          b, h, no, , , "Activate debugging mode"
 gui,            b, h, no, , , "GUI mode activated"
