@@ -1,4 +1,13 @@
 ##### Library ######
+add_library(dmfit_obj OBJECT
+  src/dmfit/dmfit_comm.c
+  src/dmfit/dmfit_func.c
+  src/dmfit/dmfit_load.c
+)
+target_link_libraries(dmfit_obj PRIVATE f2c::f2c)
+
+
+
 add_library(
   Likelihood SHARED
   src/Accumulator.cxx src/AppHelpers.cxx src/BandFunction.cxx src/BinnedConfig.cxx
@@ -28,9 +37,8 @@ add_library(
   src/SourceModelBuilder.cxx src/SparseVector.cxx src/SpatialFunction.cxx
   src/SpatialMap.cxx src/SummedLikelihood.cxx src/TiedParameter.cxx src/TrapQuad.cxx
   src/WcsMap.cxx src/WcsMap2.cxx src/WcsMapLibrary.cxx src/WeightMap.cxx
-  src/XmlBuilder.cxx src/XmlParser.cxx
-  src/dmfit/dmfit_comm.c src/dmfit/dmfit_func.c src/dmfit/dmfit_load.c
-  src/dmfit/DMFitFunction.cxx
+  src/XmlBuilder.cxx src/XmlParser.cxx src/dmfit/DMFitFunction.cxx
+  $<TARGET_OBJECTS:dmfit_obj>
 )
 
 target_link_libraries(
@@ -48,17 +56,18 @@ target_link_libraries(
   GSL::gsl
   eblAtten
   Python3::Python
-
+  CLHEP::MatrixS
 
   PRIVATE
-  xmlBase
-  st_facilities
-  hoops
-  st_graph
-  irfLoader
   cfitsio::cfitsio
+  CLHEP::RandomS
   FFTW::fftw3
+  irfLoader
+  hoops
   OpenMP::OpenMP_CXX
+  st_facilities
+  st_graph
+  xmlBase
 )
 target_include_directories(
   Likelihood PUBLIC
@@ -72,6 +81,8 @@ target_compile_definitions(Likelihood PRIVATE CONDA_FFTW)
 
 
 ###### Executables ######
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 add_executable(
   gtlike
   src/likelihood/EasyPlot.cxx
