@@ -156,7 +156,7 @@ void RoiCuts::setRoiData() {
       emin = m_energyCut->minVal();
       emax = m_energyCut->maxVal();
    }
-   std::vector<const dataSubselector::GtiCut *> gtiCuts;
+   std::vector<const std::unique_ptr<dataSubselector::GtiCut> > gtiCuts;
    m_cuts->getGtiCuts(gtiCuts);
    if (gtiCuts.empty()) {
       throw std::runtime_error("No GTIs found in input event file(s).");
@@ -169,8 +169,7 @@ void RoiCuts::setRoiData() {
       }
       if (gtiCuts.at(i)->gti().maxValue() < tmax) {
          tmax = gtiCuts.at(i)->gti().maxValue();
-      }
-   }
+      }   }
    setCuts(ra, dec, radius, emin, emax, tmin, tmax);
 }
 
