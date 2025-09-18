@@ -34,7 +34,7 @@ void RoiCuts::addTimeInterval(double tmin, double tmax) {
    if (m_gtiCuts.size() != 0) {
       dataSubselector::Gti old_gti(m_gtiCuts.at(0)->gti());
       gti &= old_gti;
-      delete m_gtiCuts.at(0);
+      //delete m_gtiCuts.at(0); 
       dataSubselector::GtiCut * newGtiCut = new dataSubselector::GtiCut(gti);
       m_gtiCuts.at(0) = newGtiCut;
    } else {
