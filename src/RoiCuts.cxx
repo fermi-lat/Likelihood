@@ -34,9 +34,9 @@ void RoiCuts::addTimeInterval(double tmin, double tmax) {
    if (m_gtiCuts.size() != 0) {
       dataSubselector::Gti old_gti(m_gtiCuts.at(0)->gti());
       gti &= old_gti;
-      //delete m_gtiCuts.at(0); 
-      dataSubselector::GtiCut * newGtiCut = new dataSubselector::GtiCut(gti);
-      m_gtiCuts.at(0) = newGtiCut;
+      auto p = m_gtiCuts[0];
+      p->~GtiCut();
+      new (p) dataSubselector::GtiCut(gti);
    } else {
       if (m_cuts == 0) {
          m_cuts = new dataSubselector::Cuts();
@@ -157,7 +157,7 @@ void RoiCuts::setRoiData() {
       emin = m_energyCut->minVal();
       emax = m_energyCut->maxVal();
    }
-   std::vector<const dataSubselector::GtiCut * > gtiCuts;
+   std::vector<const dataSubselector::GtiCut *> gtiCuts;
    m_cuts->getGtiCuts(gtiCuts);
    if (gtiCuts.empty()) {
       throw std::runtime_error("No GTIs found in input event file(s).");
