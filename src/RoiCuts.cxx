@@ -34,8 +34,9 @@ void RoiCuts::addTimeInterval(double tmin, double tmax) {
    if (m_gtiCuts.size() != 0) {
       dataSubselector::Gti old_gti(m_gtiCuts.at(0)->gti());
       gti &= old_gti;
-      delete m_gtiCuts.at(0);
-      m_gtiCuts.at(0) = new dataSubselector::GtiCut(gti);
+      auto p = m_gtiCuts[0];
+      p->~GtiCut();
+      new (p) dataSubselector::GtiCut(gti);
    } else {
       if (m_cuts == 0) {
          m_cuts = new dataSubselector::Cuts();
@@ -169,8 +170,7 @@ void RoiCuts::setRoiData() {
       }
       if (gtiCuts.at(i)->gti().maxValue() < tmax) {
          tmax = gtiCuts.at(i)->gti().maxValue();
-      }
-   }
+      }   }
    setCuts(ra, dec, radius, emin, emax, tmin, tmax);
 }
 
