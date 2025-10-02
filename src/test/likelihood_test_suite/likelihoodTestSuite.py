@@ -71,7 +71,8 @@ stderr_fd = os.dup(sys.stderr.fileno())
 dirs = {}
 dirs["FERMI_DIR"] = os.environ['FERMI_DIR']
 dirs["GLOBAL_DATA_DIR"] = dirs['FERMI_DIR'] + "/refdata/fermi/"
-dirs["LOCAL_DATA"] = "data/"
+dirs["LOCAL_DATA"] = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts"
+key_path = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts/outref"
 
 print("\nPerforming time calibration ... ", end="")
 scale = time_calib.benchmark()/time_calib.NOMINAL
@@ -139,10 +140,10 @@ for test in sorted(tests):
         os.dup2(stderr_fd,sys.stderr.fileno())
 
     if test_ran:
-        if os.path.exists(f"key_data/{test}.key"):
+        if os.path.exists(f"{key_path}/{test}.key"):
             with open(f"output/{test}.out",'r') as file:
                 output = file.read()
-            with open(f"key_data/{test}.key",'r') as file:
+            with open(f"{key_path}/{test}.key",'r') as file:
                 key = file.read()
             diff_results = "PASS" if key == output else "FAIL"
 
