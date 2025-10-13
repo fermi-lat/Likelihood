@@ -71,8 +71,8 @@ stderr_fd = os.dup(sys.stderr.fileno())
 dirs = {}
 dirs["FERMI_DIR"] = os.environ['FERMI_DIR']
 dirs["GLOBAL_DATA_DIR"] = dirs['FERMI_DIR'] + "/refdata/fermi/"
-dirs["LOCAL_DATA"] = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts"
-key_path = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts/outref"
+dirs["LOCAL_DATA"] = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts/"
+key_path = os.environ['CONDA_PREFIX'] + "/share/fermitools/data/test-scripts/outref/"
 
 print("\nPerforming time calibration ... ", end="")
 scale = time_calib.benchmark()/time_calib.NOMINAL
