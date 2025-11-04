@@ -2180,6 +2180,7 @@ void LikelihoodTests::compare_string_vector(const std::vector<std::string>& v1, 
 int main(int iargc, char * argv[]) {
 
 #ifdef TRAP_FPE
+   std::cout << 'TRAP_FPE Defined' << std::endl;
    feenableexcept (FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 #endif
 
