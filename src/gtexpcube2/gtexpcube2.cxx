@@ -380,6 +380,7 @@ void ExpCube::promptForParameters() {
    m_pars.Prompt("cmap");
    m_pars.Prompt("outfile");
    m_pars.Prompt("irfs");
+   m_pars.Prompt("evtype");
    std::string cmap = m_pars["cmap"];
    bool cmap_is_null = check_cmap_null(cmap);
 
