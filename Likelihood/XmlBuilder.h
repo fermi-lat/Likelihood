@@ -10,12 +10,12 @@
 #ifndef Likelihood_XmlBuilder_h
 #define Likelihood_XmlBuilder_h
 
-#include <xercesc/util/XercesDefs.hpp>
+//#include <xercesc/util/XercesDefs.hpp>
 
 #include <string>
 
 namespace xmlBase {
-   class XmlParser;
+   class SafeXmlParser;
 }
 
 namespace Likelihood {
@@ -36,10 +36,10 @@ namespace Likelihood {
  * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/Likelihood/XmlBuilder.h,v 1.3 2005/01/03 23:01:16 jchiang Exp $
  */
 
-#ifndef SWIG
-typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DOMElement;
-typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument DOMDocument;
-#endif // SWIG
+//#ifndef SWIG
+//typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DOMElement;
+//typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument DOMDocument;
+//#endif // SWIG
 
 class XmlBuilder {
 
@@ -58,7 +58,7 @@ protected:
 
    XmlBuilder();
 
-   xmlBase::XmlParser * m_parser;
+   xmlBase::SafeXmlParser * m_parser;
 
    DOMDocument * m_doc;
 

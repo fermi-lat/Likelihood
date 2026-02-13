@@ -9,7 +9,7 @@
 #ifndef Likelihood_XmlParser_h
 #define Likelihood_XmlParser_h
 
-#include "xmlBase/XmlParser.h"
+#include "xmlBase/safe_xml_parser.hpp"
 
 #include "st_facilities/libStApiExports.h"
 
@@ -28,9 +28,9 @@ class SCIENCETOOLS_API XmlParser {
 public:
 
    /// @return Pointer to the single xmlBase::XmlParser instance.
-   static xmlBase::XmlParser * instance() {
+   static xmlBase::SafeXmlParser * instance() {
       if (s_instance == 0) {
-         s_instance = new xmlBase::XmlParser();
+         s_instance = new xmlBase::SafeXmlParser();
       }
       return s_instance;
    }
@@ -42,13 +42,13 @@ public:
 
 private:
 
-   static xmlBase::XmlParser * s_instance;
+static xmlBase::SafeXmlParser * s_instance;
 
 };
 
 // Opaque wrapper since linkage of exported symbols from windows dlls is
 // all fouled up.
-xmlBase::XmlParser * XmlParser_instance();
+xmlBase::SafeXmlParser * XmlParser_instance();
 
 } // namespace Likelihood
 
