@@ -12,9 +12,9 @@
 
 namespace Likelihood {
 
-xmlBase::XmlParser * XmlParser::s_instance(0);
+xmlBase::SafeXmlParser * XmlParser::s_instance(0);
 
-xmlBase::XmlParser * XmlParser_instance() {
+xmlBase::SafeXmlParser * XmlParser_instance() {
    return XmlParser::instance();
 }
 

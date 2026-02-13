@@ -6,7 +6,7 @@
  * $Header: /nfs/slac/g/glast/ground/cvs/Likelihood/src/XmlBuilder.cxx,v 1.7 2011/06/27 00:16:19 jchiang Exp $
  */
 
-#include "xmlBase/XmlParser.h"
+#include "xmlBase/safe_xml_parser.h"
 
 #include "optimizers/Dom.h"
 

@@ -10,10 +10,10 @@
 
 #include <cstdlib>
 
-#include <xercesc/util/XercesDefs.hpp>
+//#include <xercesc/util/XercesDefs.hpp>
 
-#include "xmlBase/Dom.h"
-#include "xmlBase/XmlParser.h"
+//#include "xmlBase/Dom.h"
+#include "xmlBase/safe_xml_parser.h"
 
 #include "facilities/Util.h"
 
@@ -41,8 +41,8 @@
 namespace Likelihood {
 
 //XERCES_CPP_NAMESPACE_USE
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+//using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+//using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 SourceFactory::SourceFactory(const Observation & observation, bool verbose) 
    : m_verbose(verbose), m_observation(observation), 
@@ -114,22 +114,30 @@ void SourceFactory::readXml(const std::string & xmlFile,
                             bool addPointSources, 
                             bool loadMaps) {
 
-   xmlBase::XmlParser * parser = XmlParser_instance();
+   xmlBase::SafeXmlParser * parser = XmlParser_instance();
 
-   DOMDocument * doc = parser->parse(xmlFile.c_str());
-
-   if (doc == 0) { // xml file not parsed successfully
-      std::string errorMessage = "SourceFactory::readXml:\nInput xml file, "
-         + xmlFile + " not parsed successfully.";
-      throw Exception(errorMessage);
+   std::vector<char> buffer;
+   rapidxml::xml_document<> doc;
+   
+   XmlResult<std::vector<char>> parse_result = parser->loadFile(xmlfile);
+   if (parse_result.isFailure() !=0) {
+     std::string errorMessage = "SourceFactory::readXml:\nInput xml file, " 
+       + xmlFile + " not parsed successfully.";
+     throw Exception("SourceFactory::readXml:\nsource_library not found in "
+		     + xmlFile); // TODO: add in Safe Message from XmlResult obj
    }
 
+   buffer = parse_result.value();
+   parser->parseString(doc, buffer.data()); // sets xml_document<> to parsed data
+
+   rapidxml::xml_node<>* source_library = doc.first_node();  // TODO: throw exception if failure
+   
 // Direct Xerces API call...still available in Xerces 2.6.0:
-   DOMElement * source_library = doc->getDocumentElement();
-   if (!xmlBase::Dom::checkTagName(source_library, "source_library")) {
-      throw Exception("SourceFactory::readXml:\nsource_library not found in "
-         + xmlFile);
-   }
+//   DOMElement * source_library = doc->getDocumentElement();
+//   if (!xmlBase::Dom::checkTagName(source_library, "source_library")) {
+//      throw Exception("SourceFactory::readXml:\nsource_library not found in "
+//         + xmlFile);
+//   }
 
    readXml(source_library,xmlFile,funcFactory,requireExposure,addPointSources,loadMaps);
    delete doc;
@@ -142,7 +150,9 @@ void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
       srcNames.push_back(it->first);
 }
 
-void SourceFactory::readXml(DOMElement* source_library,
+
+  // PARTIALLY UPDATED: Function needs to be rewritten to use the rapidXML interface
+  void SourceFactory::readXml(rapidxml::xml_node<>* source_library,
 			    const std::string & xmlFile,
                             optimizers::FunctionFactory & funcFactory,
                             bool requireExposure,
