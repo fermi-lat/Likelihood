@@ -13,8 +13,8 @@
 #include <string>
 #include <vector>
 
-#include "xmlBase/Dom.h"
-#include "xmlBase/XmlParser.h"
+//#include "xmlBase/Dom.h"
+#include "xmlBase/safe_xml_parser.h"
 
 #include "facilities/Util.h"
 
@@ -41,8 +41,8 @@
 
 namespace Likelihood {
 
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+  //using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+  //using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 SourceModel::SourceModel(const Observation & observation, bool verbose) 
    : optimizers::Statistic("SourceModel", 0),

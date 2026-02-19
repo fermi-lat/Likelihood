@@ -152,7 +152,7 @@ void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
 
 
   // PARTIALLY UPDATED: Function needs to be rewritten to use the rapidXML interface
-  void SourceFactory::readXml(rapidxml::xml_node<>* source_library,
+  void SourceFactory::readXml(const rapidxml::xml_node<>* source_library,
 			    const std::string & xmlFile,
                             optimizers::FunctionFactory & funcFactory,
                             bool requireExposure,
@@ -162,8 +162,7 @@ void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
 // Prepare the FunctionFactory object using the xml file specified in
 // the source_library tag.
    m_requireExposure = requireExposure;
-   std::string function_library 
-      = xmlBase::Dom::getAttribute(source_library, "function_library");
+   std::string function_library = parser->getAttributeValue<string>(source_library, "function_library").value();
    if (function_library.find("xml") != std::string::npos) {
       facilities::Util::expandEnvVar(&function_library);
       try {
@@ -188,7 +187,7 @@ void SourceFactory::fetchSrcNames(std::vector<std::string> &srcNames) {
 }
 
 void SourceFactory::makeSources(const std::string& xmlFile,
-				const DOMElement * source_library,
+				const rapidxml::xml_node<>* source_library,
 				std::vector<Source*>& sources,
 				optimizers::FunctionFactory & funcFactory,
 				bool requireExposure,
@@ -196,18 +195,19 @@ void SourceFactory::makeSources(const std::string& xmlFile,
 				bool loadMaps)  {
 
 // Loop through source elements, adding each as a Source object prototype.
-   std::vector<DOMElement *> srcs;
-   xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
-   std::vector<DOMElement *>::const_iterator srcIt = srcs.begin();
+   std::vector<rapidxml::xml_node<>*> srcs;
+   //xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
+   src = parser->collectChildren(source_library, const char* "source"); 
+   std::vector<rapidxml::xml_node<>*>::const_iterator srcIt = srcs.begin();
    for ( ; srcIt != srcs.end(); srcIt++) {
 
       Source * src = 0;
 
 // Get the type of this source which is either PointSource or
 // DiffuseSource (CompositeSource pending)...
-      std::string srcType = xmlBase::Dom::getAttribute(*srcIt, "type");
+      std::string srcType = parser->getAttributeValue<string>(*srcIt, "type").value();
 // and its name.
-      std::string srcName = xmlBase::Dom::getAttribute(*srcIt, "name");
+      std::string srcName = parser->getAttributeValue<string>(*srcIt, "name").value();
 
       m_currentSrcName = srcName;
 
@@ -216,11 +216,11 @@ void SourceFactory::makeSources(const std::string& xmlFile,
 
 // Retrieve the spectrum and spatialModel elements (there should only
 // be one of each).
-      std::vector<DOMElement *> child;
+      std::vector<rapidxml::xml_node<>*> child;
 
-      DOMElement * spectrum;
+      rapidxml::xml_node<>* spectrum;
       try {
-         xmlBase::Dom::getChildrenByTagName(*srcIt, "spectrum", child);
+         child = parser->collectChildren(*srcIt, "spectrum");
          if (child.size() != 1) {
             std::ostringstream message;
             message << "Error parsing xml model file: \n"
@@ -230,7 +230,7 @@ void SourceFactory::makeSources(const std::string& xmlFile,
             throw Exception(message.str());
          }
          spectrum = child[0];
-      } catch (optimizers::Exception &eObj) {
+      } catch (optimizers::Exception &eObj) { // Fix Exception handling
          m_formatter->err() << eObj.what() << std::endl;
          throw;
       }
@@ -238,7 +238,7 @@ void SourceFactory::makeSources(const std::string& xmlFile,
       // The processing logic for the spatialModel depends on the source
       // type, so we must consider each case individually:
       if ( srcType == "CompositeSource" ) {
-	 xmlBase::Dom::getChildrenByTagName(*srcIt, "source_library", child);
+	 child = parser->collectChildren(*srcIt, "source_library");
 	 if (child.size() != 1) {
 	    std::ostringstream message;
             message << "Error parsing xml model file: \n"
@@ -248,13 +248,13 @@ void SourceFactory::makeSources(const std::string& xmlFile,
 		    << "Please check that you are using the correct xml format.";
 	    throw Exception(message.str());
 	 }
-	 DOMElement * source_library = child[0];
+	 rapidxml::xml_node<>* source_library = child[0];
 	 src = makeCompositeSource(xmlFile,
 				   spectrum, source_library, funcFactory,
 				   requireExposure,addPointSources,
 				   loadMaps);
       } else {      
-	 xmlBase::Dom::getChildrenByTagName(*srcIt, "spatialModel", child);
+	 child = parser->collectChildren(*srcIt, "spatialModel");
 	 if (child.size() != 1) {
 	    std::ostringstream message;
             message << "Error parsing xml model file: \n"
@@ -264,7 +264,7 @@ void SourceFactory::makeSources(const std::string& xmlFile,
 		    << "Please check that you are using the correct xml format.";
 	    throw Exception(message.str());
 	 }
-	 DOMElement * spatialModel = child[0];
+	 rapidxml::xml_node<>* spatialModel = child[0];
 	 if (addPointSources && srcType == "PointSource") {
 	   src = makePointSource(spectrum, spatialModel, funcFactory);
 	 } else if (srcType == "DiffuseSource") {
@@ -274,14 +274,14 @@ void SourceFactory::makeSources(const std::string& xmlFile,
 
 	 if ( src != 0 ) {
 	   /// Determine if psf can be applied.
-	   std::string apply_psf(xmlBase::Dom::getAttribute(spatialModel, "apply_psf"));
+	   std::string apply_psf(parser->getAttributeValue<string>(spatialModel, "apply_psf").value());
 	   if (apply_psf != "true" && apply_psf != "false" && apply_psf != "") {
 	     throw std::runtime_error("Invalid value for apply_psf attribute in xml definition of " + src->getName());
 	   }
 	   src->set_psf_flag(apply_psf != "false");
 
 	   /// Determine if exposure can be applied.
-	   std::string apply_exposure(xmlBase::Dom::getAttribute(spatialModel, "apply_exposure"));
+	   std::string apply_exposure(parser->getAttributeValue<string>(spatialModel, "apply_exposure").value());
 	   if (apply_exposure != "true" && apply_exposure != "false" && apply_exposure != "") {
 	     throw std::runtime_error("Invalid value for apply_exposure attribute in xml definition of " + src->getName());
 	   }
@@ -301,10 +301,10 @@ void SourceFactory::makeSources(const std::string& xmlFile,
 
 
 Source * SourceFactory::
-makePointSource(const DOMElement * spectrum, 
-                const DOMElement * spatialModel,
+makePointSource(const rapidxml::xml_node<>* spectrum, 
+                const rapidxml::xml_node<>* spatialModel,
                 optimizers::FunctionFactory & funcFactory) {
-   std::string funcType = xmlBase::Dom::getAttribute(spatialModel, "type");
+  std::string funcType = parser->getAttributeValue<string>(spatialModel, "type").value();
    if (funcType != "SkyDirFunction") {
       std::string errorMessage = std::string("SourceFactory::readXml:\n") 
          + "Trying to create a PointSource with a spatialModel of type "
@@ -320,7 +320,7 @@ makePointSource(const DOMElement * spectrum,
 //
 // Extract the (RA, Dec) from the parameter elements.
    double ra(0), dec(0);
-   std::vector<DOMElement *> params;
+   std::vector<rapidxml::xml_node<> *> params;
    xmlBase::Dom::getChildrenByTagName(spatialModel, "parameter", params);
    std::vector<DOMElement *>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
@@ -410,7 +410,7 @@ makeDiffuseSource(const DOMElement * spectrum,
 
 Source *SourceFactory::makeCompositeSource(const std::string& xmlFile,
 					   const DOMElement * spectrum,
-					   const DOMElement * source_library,
+					   rapidxml::xml_node<>* source_library,
 					   optimizers::FunctionFactory & funcFactory,
 					   bool requireExposure,
 					   bool addPointSources,
@@ -618,3 +618,4 @@ addParamsToPiecewisePL(optimizers::Function * spec,
 }
 
 } // namespace Likelihood
+BB
