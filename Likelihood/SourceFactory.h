@@ -12,10 +12,10 @@
 #include <map>
 #include <string>
 
-#include <xercesc/dom/DOM.hpp>
+//#include <xercesc/dom/DOM.hpp>
 
-#include "xmlBase/Dom.h"
-
+//#include "xmlBase/Dom.h"
+#include "xmlbase/rapidxml.h" 
 #include "Likelihood/Exception.h"
 #include "Likelihood/Observation.h"
 #include "Likelihood/Source.h"
@@ -31,9 +31,9 @@ namespace optimizers {
 
 namespace Likelihood {
 
-#ifndef SWIG
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
-#endif //SWIG
+  //#ifndef SWIG
+  //using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+  //#endif //SWIG
 
 /** 
  * @class SourceFactory
@@ -45,7 +45,7 @@ using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
  * of Hippodraw.
  *
  */
-    
+  
 class SourceFactory {
 
 public:
@@ -71,7 +71,7 @@ public:
                 bool loadMaps=true);
 
 #ifndef SWIG
-   void readXml(DOMElement* source_library,
+  void readXml(rapidxml::xml_node<> * source_library,
 		const std::string & xmlFile,
                 optimizers::FunctionFactory &,
                 bool requireExposure=true,
@@ -104,24 +104,24 @@ private:
 		    bool addPointSources=true,
 		    bool loadMaps=true);		    
 
-   Source *makePointSource(const DOMElement * spectrum,
-                           const DOMElement * spatialModel,
+   Source *makePointSource(const rapidxml::xml_node<> * spectrum,
+                           const rapidxml::xml_node<> * spatialModel,
                            optimizers::FunctionFactory & funcFactory);
 
-   Source *makeDiffuseSource(const DOMElement * spectrum,
-                             const DOMElement * spatialModel,
+   Source *makeDiffuseSource(const rapidxml::xml_node<> * spectrum,
+                             const rapidxml::xml_node<> * spatialModel,
                              optimizers::FunctionFactory & funcFactory,
                              bool loadMap=true);
 
    Source *makeCompositeSource(const std::string& xmlFile,
-			       const DOMElement * spectrum,
-			       const DOMElement * source_library,
+			       const rapidxml::xml_node<> * spectrum,
+			       const rapidxml::xml_node<> * source_library,
 			       optimizers::FunctionFactory & funcFactory,
 			       bool requireExposure=true,
 			       bool addPointSources=true,
 			       bool loadMap=true);
 
-   void setSpectrum(Source *src, const DOMElement *spectrum,
+   void setSpectrum(Source *src, const rapidxml::xml_node<> *spectrum,
                     optimizers::FunctionFactory & funcFactory);
 #endif
 
@@ -130,11 +130,11 @@ private:
    std::string m_currentSrcName;
 
    void addParamsToMultipleBPL(optimizers::Function * spec, 
-                               const std::vector<DOMElement *> & params,
+                               const std::vector<rapidxml::xml_node<> *> & params,
                                const Source * src) const;
 
    void addParamsToPiecewisePL(optimizers::Function * spec, 
-                               const std::vector<DOMElement *> & params,
+                               const std::vector<rapidxml::xml_node<> *> & params,
                                const Source * src) const;
 
 };

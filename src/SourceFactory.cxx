@@ -1,4 +1,4 @@
-/** 
+/*
  * @file SourceFactory.cxx
  * @brief Implementation for the SourceFactory class, which applies the
  * Prototype pattern to return clones of various gamma-ray Sources.
@@ -197,7 +197,7 @@ void SourceFactory::makeSources(const std::string& xmlFile,
 // Loop through source elements, adding each as a Source object prototype.
    std::vector<rapidxml::xml_node<>*> srcs;
    //xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
-   src = parser->collectChildren(source_library, const char* "source"); 
+   srcs = parser->collectChildren(source_library, const char* "source"); 
    std::vector<rapidxml::xml_node<>*>::const_iterator srcIt = srcs.begin();
    for ( ; srcIt != srcs.end(); srcIt++) {
 
@@ -321,15 +321,15 @@ makePointSource(const rapidxml::xml_node<>* spectrum,
 // Extract the (RA, Dec) from the parameter elements.
    double ra(0), dec(0);
    std::vector<rapidxml::xml_node<> *> params;
-   xmlBase::Dom::getChildrenByTagName(spatialModel, "parameter", params);
-   std::vector<DOMElement *>::const_iterator paramIt = params.begin();
+   params = parser->collectChildren(spatialModel, "parameter");
+   std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
-      std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
+      std::string name = parser->getAttributeValue<string>(*paramIt, "name").value();
       if (name == "RA") {
-         ra = ::atof( xmlBase::Dom::getAttribute(*paramIt, "value").c_str() );
+	 ra = ::atof( parser->getAttributeValue<string>(*paramIt, "value").value().c_str() );
       }
       if (name == "DEC") {
-         dec = ::atof( xmlBase::Dom::getAttribute(*paramIt, "value").c_str() );
+	 dec = ::atof( parser->getAttributeValue<string>(*paramIt, "value").value().c_str() );
       }
    }
 
@@ -361,29 +361,29 @@ makePointSource(const rapidxml::xml_node<>* spectrum,
 }
 
 Source * SourceFactory::
-makeDiffuseSource(const DOMElement * spectrum, 
-                  const DOMElement * spatialModel,
+makeDiffuseSource(const rapidxml::xml_node<> * spectrum, 
+                  const rapidxml::xml_node<> * spatialModel,
                   optimizers::FunctionFactory & funcFactory,
                   bool loadMap) {
-   std::string type = xmlBase::Dom::getAttribute(spatialModel, "type");
+  std::string type = parser->getAttributeValue<string>(spatialModel, "type").value();
    optimizers::Function * spatialDist = funcFactory.create(type);
-   std::vector<DOMElement *> params;
-   xmlBase::Dom::getChildrenByTagName(spatialModel, "parameter", params);
-   std::vector<DOMElement *>::const_iterator paramIt = params.begin();
+   std::vector<rapidxml::xml_node<> *> params;
+   params = parser->collectChildren(spatialModel, const char *"parameter");
+   std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); paramIt++) {
-      std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
+      std::string name = parser->getAttributeValue<string>(*paramIt, "name").value();
       spatialDist->parameter(name).extractDomData(*paramIt);
    }
    bool mapBasedIntegral(false);
    if (type == "SpatialMap" || type == "MapCubeFunction") {
       std::string fitsFile 
-         = xmlBase::Dom::getAttribute(spatialModel, "file");
+	= parser->getAttributeValue<string>(spatialModel, "file").value();
       dynamic_cast<MapBase *>(spatialDist)->readFitsFile(fitsFile,"",loadMap);
       std::string map_based_integral 
-         = xmlBase::Dom::getAttribute(spatialModel, "map_based_integral");
+	= parser->getAttributeValue<string>(spatialModel, "map_based_integral").value();
       mapBasedIntegral = (map_based_integral == "true");
    } else if (type == "RadialProfile") {
-      std::string tpl_file(xmlBase::Dom::getAttribute(spatialModel, "file"));
+     std::string tpl_file(parser->getAttributeValue<string>(spatialModel, "file").value());
       dynamic_cast<RadialProfile *>(spatialDist)->readTemplateFile(tpl_file);
    } else if (type == "RadialGaussian" || type == "RadialDisk") {
      spatialDist->setParams(spatialModel);
@@ -409,7 +409,7 @@ makeDiffuseSource(const DOMElement * spectrum,
 
 
 Source *SourceFactory::makeCompositeSource(const std::string& xmlFile,
-					   const DOMElement * spectrum,
+					   const rapidxml::xml_node<>* spectrum,
 					   rapidxml::xml_node<>* source_library,
 					   optimizers::FunctionFactory & funcFactory,
 					   bool requireExposure,
@@ -431,15 +431,15 @@ Source *SourceFactory::makeCompositeSource(const std::string& xmlFile,
 }
 
  
-void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum, 
+void SourceFactory::setSpectrum(Source * src, const rapidxml::xml_node<>* spectrum, 
                                 optimizers::FunctionFactory & funcFactory) {
-   std::string type = xmlBase::Dom::getAttribute(spectrum, "type");
+  std::string type = parser->getAttributeValue<string>(spectrum, "type").value();
 
    optimizers::Function * spec = funcFactory.create(type);
 
 // Fetch the parameter elements (if any).
-   std::vector<DOMElement *> params;
-   xmlBase::Dom::getChildrenByTagName(spectrum, "parameter", params);
+   std::vector<rapidxml::xml_node<> *> params;
+   params = parser->collectChildren(spectrum, "parameter");
    if (type == "MultipleBPL") {
       addParamsToMultipleBPL(spec, params, src);
    }
@@ -448,31 +448,31 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
    }
 
    if (params.size() > 0) {
-      std::vector<DOMElement *>::const_iterator paramIt = params.begin();
+     std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
       for ( ; paramIt != params.end(); paramIt++) {
-         std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
+	std::string name = parser->getAttributeValue<string>(*paramIt, "name").value();
          spec->parameter(name).extractDomData(*paramIt);
       }
    }
 
    // If FileFunction, read in the data:
    if (type == "FileFunction") {
-      std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
+     std::string filename = parser->getAttributeValue<string>(spectrum, "file").value();
       dynamic_cast<FileFunction *>(spec)->readFunction(filename);
    }
    if (type == "ScaleFactor::FileFunction") {
-      std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
+     std::string filename = parser->getAttributeValue<string>(spectrum, "file").value();
       dynamic_cast<FileFunction *>(dynamic_cast<ScaleFactor *>(spec)->spectrum())->readFunction(filename);
    }
    if (type == "DMFitFunction") {
-      std::string filename = xmlBase::Dom::getAttribute(spectrum, "file");
+     std::string filename = parser->getAttributeValue<string>(spectrum, "file").value();
       dynamic_cast<DMFitFunction *>(spec)->readFunction(filename);
    }
 
    // Check if spectral scaling, i.e., for effective area systematics
    // studies, is desired.
    std::string scaling_file = 
-      xmlBase::Dom::getAttribute(spectrum, "scaling_file");
+     parser->getAttributeValue<string>(spectrum, "scaling_file").value();
    if (scaling_file != "") {
       FileFunction scalingFunction;
       scalingFunction.readFunction(scaling_file);
@@ -482,7 +482,7 @@ void SourceFactory::setSpectrum(Source * src, const DOMElement * spectrum,
    src->setSpectrum(spec);
 
    /// Determine if energy dispersion can be applied.
-   std::string apply_edisp(xmlBase::Dom::getAttribute(spectrum, "apply_edisp"));
+   std::string apply_edisp(parser->getAttributeValue<string>(spectrum, "apply_edisp").value());
    if (apply_edisp != "true" && apply_edisp != "false" && apply_edisp != "") {
       throw std::runtime_error("Invalid value for apply_edisp attribute in xml definition of " + src->getName());
    }
@@ -508,7 +508,7 @@ void SourceFactory::checkRoiDist(double ra, double dec) const {
 
 void SourceFactory::
 addParamsToMultipleBPL(optimizers::Function * spec,
-                       const std::vector<DOMElement *> & params,
+                       const std::vector<rapidxml::xml_node<>*> & params,
                        const Source * src) const {
    // Extract the Normalization, Index#, and Break# parameters
    // since they must be added to the Function before they can be
@@ -518,12 +518,12 @@ addParamsToMultipleBPL(optimizers::Function * spec,
    std::vector<double> breakEnergies;
    // Read in the parameter values and ensure that the parameter
    // names are in numerical order.
-   std::vector<DOMElement *>::const_iterator paramIt = params.begin();
+   std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); ++paramIt) {
-      std::string name(xmlBase::Dom::getAttribute(*paramIt, "name"));
+     std::string name(parser->getAttributeValue<string>(*paramIt, "name").value());
       if (name == "Normalization") {
          normalization = 
-            std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+	   std::atof(parser->getAttributeValue<string>(*paramIt, "value").value().c_str());
       }
       if (name.find("Index") == 0) {
          size_t my_index_id = std::atoi(name.substr(5).c_str());
@@ -537,7 +537,7 @@ addParamsToMultipleBPL(optimizers::Function * spec,
             //throw std::runtime_error(what.str());
          }
          double value = 
-            std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+	   std::atof(parser->getAttributeValue<string>(*paramIt, "value").value().c_str());
          //photonIndexes.push_back(value);
 	 photonIndexes[my_index_id] = value;	 
       }
@@ -553,9 +553,9 @@ addParamsToMultipleBPL(optimizers::Function * spec,
             //throw std::runtime_error(what.str());
          }
          double value = 
-            std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+	   std::atof(parser->getAttributeValue<string>(*paramIt, "value").value().c_str());
          double scale =
-            std::atof(xmlBase::Dom::getAttribute(*paramIt, "scale").c_str());
+	   std::atof(parser->getAttributeValue<string>(*paramIt, "scale").value().c_str());
          breakEnergies[my_index_id] = value*scale;
       }
    } // paramIt
@@ -566,15 +566,15 @@ addParamsToMultipleBPL(optimizers::Function * spec,
 
 void SourceFactory::
 addParamsToPiecewisePL(optimizers::Function * spec,
-                       const std::vector<DOMElement *> & params,
+                       const std::vector<rapidxml::xml_node<> *> & params,
                        const Source * src) const {
    // Extract dNdE# and Energy# parameters.
    std::vector<double> dNdEs;
    std::vector<double> energies;
    // Read in the parameters and ensure that they are in numerical order;
-   std::vector<DOMElement *>::const_iterator paramIt = params.begin();
+   std::vector<rapidxml::xml_node<>*>::const_iterator paramIt = params.begin();
    for ( ; paramIt != params.end(); ++paramIt) {
-      std::string name(xmlBase::Dom::getAttribute(*paramIt, "name"));
+     std::string name(parser->getAttributeValue<string>(*paramIt, "name").value());
       if (name.substr(0, 4) == "dNdE") {
          size_t my_dNdE_id = std::atoi(name.substr(4).c_str());
 	 // EAC, allow these to be out of order
@@ -604,9 +604,9 @@ addParamsToPiecewisePL(optimizers::Function * spec,
             //throw std::runtime_error(what.str());
          }
          double value =
-            std::atof(xmlBase::Dom::getAttribute(*paramIt, "value").c_str());
+	   std::atof(parser->getAttributeValue<string>(*paramIt, "value").value().c_str());
          double scale =
-            std::atof(xmlBase::Dom::getAttribute(*paramIt, "scale").c_str());
+	   std::atof(parser->getAttributeValue<string>(*paramIt, "scale").value().c_str());
          //energies.push_back(value*scale);
 	 energies[my_energy_id] = value*scale;
       }
