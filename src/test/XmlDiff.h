@@ -13,11 +13,12 @@
 #include <string>
 #include <vector>
 
-#include <xercesc/dom/DOM.hpp>
+//#include <xercesc/dom/DOM.hpp>
 
-#include "xmlBase/Dom.h"
+#include "xmlBase/safe_xml_parser.h"
+#include "xmlBase/rapidxml.h"
 
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+//using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 /**
  * @class XmlDiff
@@ -67,11 +68,11 @@ private:
    std::string m_file1;
    std::string m_file2;
 
-   typedef std::map<std::string, DOMElement *> DomMap;
+  typedef std::map<std::string, xmlbase::xml_node<> *> DomMap;
    DomMap m_domMap1;
    DomMap m_domMap2;
 
-   void createDomElementMap(const DOMElement * rootElt, DomMap & domMap);
+  void createDomElementMap(const xmlbase::xml_node<> * rootElt, DomMap & domMap);
 
    void writeReserializedFile(const std::string & filename, 
                               const DomMap & domMap);

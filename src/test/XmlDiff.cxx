@@ -11,12 +11,12 @@
 
 #include "facilities/Util.h"
 
-#include "xmlBase/XmlParser.h"
+#include "xmlBase/safe_xml_parser.h"
 
 #include "XmlDiff.h"
 
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
-using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+//using XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument;
+//using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
 
 XmlDiff::XmlDiff(std::string file1, std::string file2,
                  const std::string & tagName, const std::string & attribute) 
@@ -26,10 +26,10 @@ XmlDiff::XmlDiff(std::string file1, std::string file2,
 
    xmlBase::XmlParser * parser = new xmlBase::XmlParser();
 
-   DOMDocument * doc1 = parser->parse(file1.c_str());
+   xmlbase::xml_document<> * doc1 = parser->parse(file1.c_str());
    createDomElementMap(doc1->getDocumentElement(), m_domMap1);
 
-   DOMDocument * doc2 = parser->parse(file2.c_str());
+   xmlbase::xml_document<> * doc2 = parser->parse(file2.c_str());
    createDomElementMap(doc2->getDocumentElement(), m_domMap2);
 
    m_file1 = file1 + "_reserialized";
@@ -58,9 +58,9 @@ bool XmlDiff::compare() {
    return true;
 }
 
-void XmlDiff::createDomElementMap(const DOMElement * rootElt, 
+Void XmlDiff::createDomElementMap(const xmlbase::xml_node<> * rootElt, 
                                   DomMap & domMap) {
-   std::vector<DOMElement *> elts;
+   std::vector<xmlbase::xml_node<> *> elts;
    xmlBase::Dom::getChildrenByTagName(rootElt, m_tagName, elts);
    domMap.clear();
    for (unsigned int i = 0; i < elts.size(); i++) {
