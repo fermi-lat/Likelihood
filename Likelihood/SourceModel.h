@@ -30,9 +30,9 @@ namespace optimizers {
 
 namespace Likelihood {
 
-#ifndef SWIG
-   using XERCES_CPP_NAMESPACE_QUALIFIER xmlbase::xml_node<>;
-#endif //SWIG
+  //#ifndef SWIG
+  //   using XERCES_CPP_NAMESPACE_QUALIFIER xmlbase::xml_node<>;
+  //#endif //SWIG
 
 
    class CountsMapBase;
