@@ -31,7 +31,7 @@ namespace optimizers {
 namespace Likelihood {
 
 #ifndef SWIG
-   using XERCES_CPP_NAMESPACE_QUALIFIER DOMElement;
+   using XERCES_CPP_NAMESPACE_QUALIFIER xmlbase::xml_node<>;
 #endif //SWIG
 
 
@@ -169,15 +169,15 @@ public:
    virtual void reReadXml(std::string xmlFile);
 
 #ifndef SWIG
-   /// Create the source model from a DOMElement
-   virtual void readXml(DOMElement* srcLibray,
+   /// Create the source model from a xmlbase::xml_node<>
+   virtual void readXml(xmlbase::xml_node<>* srcLibray,
 			const std::string& xmlFile,
                         optimizers::FunctionFactory & funcFactory,
                         bool requireExposure=true,
                         bool addPointSources=true,
                         bool loadMaps=true);
 
-   virtual void reReadXml(DOMElement* srcLibray);
+   virtual void reReadXml(xmlbase::xml_node<>* srcLibray);
 #endif // SWIG
 
    /// Write an XML file for the current source model.

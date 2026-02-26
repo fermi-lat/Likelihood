@@ -440,7 +440,7 @@ void SourceModel::readXml(std::string xmlFile,
    try {
       srcFactory.readXml(xmlFile, funcFactory, requireExposure,
                          addPointSources, loadMaps);
-   } catch (xmlBase::DomException & eObj) {
+   } catch (XmlException& & eObj) {
       m_formatter->err() << eObj.what() << std::endl;
       std::ostringstream message;
       message << "\nError reading in the xml model file.\n"
@@ -467,7 +467,7 @@ void SourceModel::readXml(std::string xmlFile,
 }
 
 
-void SourceModel::readXml(DOMElement* srcLibray,
+void SourceModel::readXml(rapidxml::xml_node<>* srcLibray,
 			  const std::string& xmlFile,
 			  optimizers::FunctionFactory & funcFactory,
 			  bool requireExposure,
@@ -478,7 +478,7 @@ void SourceModel::readXml(DOMElement* srcLibray,
    try {
       srcFactory.readXml(srcLibray, xmlFile, funcFactory, requireExposure,
                          addPointSources, loadMaps);
-   } catch (xmlBase::DomException & eObj) {
+   } catch (XmlException& & eObj) {
       m_formatter->err() << eObj.what() << std::endl;
       std::ostringstream message;
       message << "\nError reading in the xml model file.\n"
@@ -511,44 +511,45 @@ void SourceModel::reReadXml(std::string xmlFile) {
 
    xmlBase::XmlParser * parser = XmlParser_instance();
 
-   DOMDocument * doc = parser->parse(xmlFile.c_str());
+   xmlBase::xml_document * doc = parser->parse(xmlFile.c_str());
 
    if (doc == 0) {
       std::string errorMessage = "SourceFactory::readXml:\nInput xml file, "
          + xmlFile + ", not parsed successfully.";
       throw Exception(errorMessage);
    }
-   DOMElement * source_library = doc->getDocumentElement();
-   if (!xmlBase::Dom::checkTagName(source_library, "source_library")) {
-      throw Exception("SourceModel::reReadXml:\nsource_library not found");
-   }
+   rapidxml::xml_node<> * source_library = doc->getDocumentElement();
+   //# TODO: Rewrite the tag name check function and implement 
+   //if (!xmlBase::Dom::checkTagName(source_library, "source_library")) { 
+   //   throw Exception("SourceModel::reReadXml:\nsource_library not found");
+   //}
    reReadXml(source_library);
    delete doc;
 }
 
 
-void SourceModel::reReadXml(DOMElement* source_library) {
+void SourceModel::reReadXml(rapidxml::xml_node<>* source_library) {
 
-// Loop through source DOMElements and Source objects in parallel.
-   std::vector<DOMElement *> srcs;
-   xmlBase::Dom::getChildrenByTagName(source_library, "source", srcs);
+// Loop through source rapidxml::xml_node<>s and Source objects in parallel.
+   std::vector<rapidxml::xml_node<> *> srcs;
+   parser->collectChildren(source_library, "source", srcs);
 
    for (unsigned int j = 0; j < srcs.size(); j++) {
-      std::string srcName = xmlBase::Dom::getAttribute(srcs[j], "name");
+     std::string srcName = parser->getAttributeValue<string>(srcs[j], "name").value();
       Source * my_source(0);
       if (m_sources.count(srcName)) {
          my_source = m_sources[srcName];
       } else {
          continue;
       }
-      std::string srcType = xmlBase::Dom::getAttribute(srcs[j], "type");
+      std::string srcType = parser->getAttributeValue<string>(srcs[j], "type").value();
 // Get spectrum and spatialModel elements
-      std::vector<DOMElement *> child;
-      xmlBase::Dom::getChildrenByTagName(srcs[j], "spectrum", child);
-      DOMElement * spectrum = child[0];
+      std::vector<rapidxml::xml_node<> *> child;
+      parser->collectChildren(srcs[j], "spectrum", child);
+      rapidxml::xml_node<> * spectrum = child[0];
 
-      xmlBase::Dom::getChildrenByTagName(srcs[j], "spatialModel", child);
-      DOMElement * spatialModel = child[0];
+      parser->collectChildren(srcs[j], "spatialModel", child);
+      rapidxml::xml_node<> * spatialModel = child[0];
 
       my_source->getSrcFuncs()["Spectrum"]->setParams(spectrum);
       if (srcType == "PointSource") {
@@ -556,19 +557,19 @@ void SourceModel::reReadXml(DOMElement* source_library) {
 // PointSource::setDir(...) method to ensure that exposure gets
 // recalculated.
          double ra(0), dec(0);
-         std::vector<DOMElement *> params;
-         xmlBase::Dom::getChildrenByTagName(spatialModel, "parameter", params);
+         std::vector<rapidxml::xml_node<> *> params;
+         params = parser->collectChildren(spatialModel, "parameter", params);
 
-         std::vector<DOMElement *>::const_iterator paramIt = params.begin();
+         std::vector<rapidxml::xml_node<> *>::const_iterator paramIt = params.begin();
          for ( ; paramIt != params.end(); paramIt++) {
-            std::string name = xmlBase::Dom::getAttribute(*paramIt, "name");
+	   std::string name = parser->getAttributeValue<string>(*paramIt, "name").value();
             if (name == "RA")
-               ra = std::atof(xmlBase::Dom::getAttribute(*paramIt,
-                                                         "value").c_str());
+               ra = std::atof(parser->getAttributeValue<string>(*paramIt,
+								"value").value().c_str());
                   
             if (name == "DEC")
-               dec = std::atof(xmlBase::Dom::getAttribute(*paramIt,
-                                                          "value").c_str());
+               dec = std::atof(parser->getAttributeValue<string>(*paramIt,
+								 "value").value().c_str());
                   
          }
          astro::SkyDir newDir(ra, dec);
