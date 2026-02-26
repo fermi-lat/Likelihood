@@ -12,6 +12,7 @@
 #define Likelihood_FluxBuilder_h
 
 #include "Likelihood/XmlBuilder.h"
+#include "xmlbase/rapidxml.h"
 
 namespace optimizers {
    class Function;
@@ -46,16 +47,16 @@ public:
       
 private:
 
-   typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement DomElement;
-   DomElement * m_srcLib;
-   DomElement * m_allSrcsElt;
+  //typedef XERCES_CPP_NAMESPACE_QUALIFIER DOMElement rapidxml::xml_node<>;
+   rapidxml::xml_node<> * m_srcLib;
+   rapidxml::xml_node<> * m_allSrcsElt;
    void getSourceType(Source &src, std::string &srcType);
-   DomElement * fluxSource(Source & src);
-   DomElement * gammaSpectrum(optimizers::Function &spectrum);
-   DomElement * srcDirection(optimizers::Function &dir);
-   DomElement * solidAngle(double mincos, double maxcos);
-   DomElement * galDiffuse(Source & src);
-   DomElement * mapCubeSource(Source & src);
+   rapidxml::xml_node<> * fluxSource(Source & src);
+   rapidxml::xml_node<> * gammaSpectrum(optimizers::Function &spectrum);
+   rapidxml::xml_node<> * srcDirection(optimizers::Function &dir);
+   rapidxml::xml_node<> * solidAngle(double mincos, double maxcos);
+   rapidxml::xml_node<> * galDiffuse(Source & src);
+   rapidxml::xml_node<> * mapCubeSource(Source & src);
 
    std::vector<double> m_energies;
    void makeEnergyGrid(double emin, double emax, unsigned int nee=200);
