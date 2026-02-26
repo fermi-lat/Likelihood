@@ -31,8 +31,8 @@
 #include "st_facilities/FitsUtil.h"
 #include "st_facilities/Util.h"
 
-#include "xmlBase/Dom.h"
-#include "xmlBase/XmlParser.h"
+//#include "xmlBase/Dom.h"
+#include "xmlBase/safe_xml_parser.h"
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
