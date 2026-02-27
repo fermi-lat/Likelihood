@@ -1,4 +1,4 @@
-/**
+/**A
  * @file FluxBuilder.cxx
  * @brief Implementation for class to provide methods to write flux package
  * style xml files.
@@ -37,7 +37,7 @@ namespace Likelihood {
 FluxBuilder::FluxBuilder(double emin, double emax) : XmlBuilder() {
 
    m_srcLib = optimizers::Dom::createElement(m_doc, "source_library");
-   xmlBase::Dom::addAttribute(m_srcLib, "title", "Likelihood_model");
+   m_srcLib.addAttribute("title", "Likelihood_model");
 
    m_allSrcsElt = optimizers::Dom::createElement(m_doc, "source");
 
@@ -64,7 +64,7 @@ void FluxBuilder::addSource(Source & src) {
          = optimizers::Dom::createElement(m_doc, "nestedSource");
       std::string name = src.getName();
       addUnderscores(name);
-      xmlBase::Dom::addAttribute(nestedSrc, "sourceRef", name.c_str());
+      nestedSrc.addAttribute("sourceRef", name.c_str());
       optimizers::Dom::appendChild(m_allSrcsElt, nestedSrc);
    }
 }
@@ -74,7 +74,7 @@ void FluxBuilder::write(std::string xmlFile) {
 
    std::string name = std::string("all_in_") 
       + facilities::Util::basename(xmlFile.c_str());
-   xmlBase::Dom::addAttribute(m_allSrcsElt, "name", name);
+   m_allSrcsElt.addAttribute("name", name);
    optimizers::Dom::appendChild(m_srcLib, m_allSrcsElt);
 
    std::ofstream outFile(xmlFile.c_str());
@@ -86,7 +86,7 @@ rapidxml::xml_node<> * FluxBuilder::fluxSource(Source & src) {
    rapidxml::xml_node<> * srcElt = optimizers::Dom::createElement(m_doc, "source");
    std::string name = src.getName();
    addUnderscores(name);
-   xmlBase::Dom::addAttribute(srcElt, "name", name);
+   srcElt.addAttribute("name", name);
 
    std::string sourceType;
    getSourceType(src, sourceType);
@@ -95,7 +95,7 @@ rapidxml::xml_node<> * FluxBuilder::fluxSource(Source & src) {
    bool useLog;
    TrapQuad fluxIntegral(srcFuncs["Spectrum"], useLog=true);
    if (sourceType == "PointSource" || sourceType == "Isotropic") {
-      xmlBase::Dom::addAttribute(srcElt, std::string("flux"),
+      srcElt.addAttribute( std::string("flux"),
                                  fluxIntegral.integral(m_energies)/1e-4);
       rapidxml::xml_node<> * specElt = gammaSpectrum(*srcFuncs["Spectrum"]);
       if (sourceType == "PointSource") {
@@ -148,34 +148,33 @@ void FluxBuilder::getSourceType(Source &src, std::string & srcType) {
 rapidxml::xml_node<> * FluxBuilder::gammaSpectrum(optimizers::Function & spectrum) {
    
    rapidxml::xml_node<> * specElt = optimizers::Dom::createElement(m_doc, "spectrum");
-   xmlBase::Dom::addAttribute(specElt, std::string("escale"),
+   specElt.addAttributestd::string("escale"),
                               std::string("MeV"));
 
    rapidxml::xml_node<> * partElt = optimizers::Dom::createElement(m_doc, "particle");
-   xmlBase::Dom::addAttribute(partElt, std::string("name"),
-                              std::string("gamma"));
+  partElt.addAttribute(std::string("name"), std::string("gamma"));
 
 // Determine spectral type and set parameter values.
    rapidxml::xml_node<> * spectralTypeElt 
       = optimizers::Dom::createElement(m_doc, "power_law");
    
-   xmlBase::Dom::addAttribute(spectralTypeElt, std::string("emin"), 
+   spectralTypeElt.addAttribute(std::string("emin"), 
                               m_energies.front());
-   xmlBase::Dom::addAttribute(spectralTypeElt, std::string("emax"), 
+   spectralTypeElt.addAttribute(std::string("emax"), 
                               m_energies.back());
 
 // It might be better here to have the Function objects set their own
 // parameter value attributes, but this keeps the coupling between
 // Functions and the xml interface looser.
    if (spectrum.genericName() == "PowerLaw") {
-      xmlBase::Dom::addAttribute(spectralTypeElt, std::string("gamma"), 
+      spectralTypeElt.addAttribute(std::string("gamma"), 
                              -spectrum.getParamValue("Index"));
    } else if (spectrum.genericName() == "BrokenPowerLaw") {
-      xmlBase::Dom::addAttribute(spectralTypeElt, std::string("gamma"), 
+      spectralTypeElt.addAttribute(std::string("gamma"), 
                              -spectrum.getParamValue("Index1"));
-      xmlBase::Dom::addAttribute(spectralTypeElt, std::string("gamma2"), 
+      spectralTypeElt.addAttribute(std::string("gamma2"), 
                              -spectrum.getParamValue("Index2"));
-      xmlBase::Dom::addAttribute(spectralTypeElt, std::string("ebreak"), 
+      spectralTypeElt.addAttribute(std::string("ebreak"), 
                              spectrum.getParamValue("BreakValue"));
    }
    optimizers::Dom::appendChild(partElt, spectralTypeElt);
@@ -186,9 +185,9 @@ rapidxml::xml_node<> * FluxBuilder::gammaSpectrum(optimizers::Function & spectru
 rapidxml::xml_node<> * FluxBuilder::srcDirection(optimizers::Function & dir) {
    rapidxml::xml_node<> * dirElt = optimizers::Dom::createElement(m_doc, 
                                                         "celestial_dir");
-   xmlBase::Dom::addAttribute(dirElt, std::string("ra"), 
+   dirElt.addAttribute(std::string("ra"), 
                           dynamic_cast<SkyDirFunction*>(&dir)->getDir().ra());
-   xmlBase::Dom::addAttribute(dirElt, std::string("dec"), 
+   dirElt.addAttribute(std::string("dec"), 
                           dynamic_cast<SkyDirFunction*>(&dir)->getDir().dec());
    return dirElt;
 }
@@ -196,8 +195,8 @@ rapidxml::xml_node<> * FluxBuilder::srcDirection(optimizers::Function & dir) {
 rapidxml::xml_node<> * FluxBuilder::solidAngle(double mincos, double maxcos) {
    rapidxml::xml_node<> * solidAngle = optimizers::Dom::createElement(m_doc, 
                                                             "solid_angle");
-   xmlBase::Dom::addAttribute(solidAngle, std::string("mincos"), mincos);
-   xmlBase::Dom::addAttribute(solidAngle, std::string("maxcos"), maxcos);
+   solidAngle.addAttribute(std::string("mincos"), mincos);
+   solidAngle.addAttribute(std::string("maxcos"), maxcos);
    return solidAngle;
 }
 
@@ -205,13 +204,13 @@ rapidxml::xml_node<> * FluxBuilder::galDiffuse(Source & src) {
    Source::FuncMap & srcFuncs = src.getSrcFuncs();
 
    rapidxml::xml_node<> * specElt = optimizers::Dom::createElement(m_doc, "spectrum");
-   xmlBase::Dom::addAttribute(specElt, std::string("escale"),
+   specElt.addAttributestd::string("escale"),
                               std::string("MeV"));
 
    rapidxml::xml_node<> * specClassElt = optimizers::Dom::createElement(m_doc,
                                                               "SpectrumClass");
-   xmlBase::Dom::addAttribute(specClassElt, std::string("name"), 
-                              std::string("MapSpectrum"));
+
+   specClassElt.addAttribute(std::string("name"),std::string("MapSpectrum"));
 
    if (srcFuncs["Spectrum"]->genericName() != "PowerLaw") {
       throw Exception(std::string("FluxBuilder::galDiffuse:\n")
@@ -226,14 +225,13 @@ rapidxml::xml_node<> * FluxBuilder::galDiffuse(Source & src) {
              << m_energies[m_energies.size()-1] << "," 
              << -srcFuncs["Spectrum"]->getParamValue("Index") << ","
              << "/sources/gas_gal.fits";
-      xmlBase::Dom::addAttribute(specClassElt, std::string("params"), 
+      specClassElt.addAttribute(std::string("params"), 
                                  params.str());
    }
    optimizers::Dom::appendChild(specElt, specClassElt);
    rapidxml::xml_node<> * useSpecElt = optimizers::Dom::createElement(m_doc,
                                                             "use_spectrum");
-   xmlBase::Dom::addAttribute(useSpecElt, std::string("frame"), 
-                              std::string("galaxy"));
+useSpecElt.addAttribute(std::string("frame"), std::string("galaxy"));
    optimizers::Dom::appendChild(specElt, useSpecElt);
    return specElt;
 }
@@ -242,12 +240,12 @@ rapidxml::xml_node<> * FluxBuilder::mapCubeSource(Source & src) {
    Source::FuncMap & srcFuncs = src.getSrcFuncs();
 
    rapidxml::xml_node<> * specElt = optimizers::Dom::createElement(m_doc, "spectrum");
-   xmlBase::Dom::addAttribute(specElt, std::string("escale"),
+   specElt.addAttributestd::string("escale"),
                               std::string("MeV"));
 
    rapidxml::xml_node<> * specClassElt 
       = optimizers::Dom::createElement(m_doc, "SpectrumClass");
-   xmlBase::Dom::addAttribute(specClassElt, std::string("name"), 
+   specClassElt.addAttribute(std::string("name"), 
                               std::string("MapCube"));
 
    if (srcFuncs["Spectrum"]->genericName() != "ConstantValue") {
@@ -262,13 +260,13 @@ rapidxml::xml_node<> * FluxBuilder::mapCubeSource(Source & src) {
       std::ostringstream params;
       params << normalization << ","
              << mapCube->fitsFile();
-      xmlBase::Dom::addAttribute(specClassElt, std::string("params"), 
+      specClassElt.addAttribute(std::string("params"), 
                                  params.str());
    }
    optimizers::Dom::appendChild(specElt, specClassElt);
    rapidxml::xml_node<> * useSpecElt = optimizers::Dom::createElement(m_doc,
                                                             "use_spectrum");
-   xmlBase::Dom::addAttribute(useSpecElt, std::string("frame"), 
+   useSpecElt.addAttribute(std::string("frame"), 
                               std::string("galaxy"));
    optimizers::Dom::appendChild(specElt, useSpecElt);
    return specElt;
