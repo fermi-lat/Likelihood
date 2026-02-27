@@ -60,7 +60,7 @@ protected:
 
    xmlBase::SafeXmlParser * m_parser;
 
-   DOMDocument * m_doc;
+  xmlbase::xml_document * m_doc;
 
 };
 
